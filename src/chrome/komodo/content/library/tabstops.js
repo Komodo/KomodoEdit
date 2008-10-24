@@ -86,7 +86,7 @@ this.moveToNextTabstop = function(view) {
     var scimoz = view.scimoz;
     var containsLinks = this._containsActiveLink(scimoz, TSCZW);
     if (containsLinks) {
-        this.clearLinkedTabstops(scimoz);
+        this.clearLinkedTabstops(scimoz, view);
     }
     if (lim == 0) {
         view.document.clearTabstopInsertionTable();
@@ -114,7 +114,7 @@ this.moveToNextTabstop = function(view) {
                 if (spos == -1) {
                     log.error("Komodo internal error: In: moveToNextTabstop:: Couldn't find indicator " + tsInfo.indicator  + " after pos "
                          + startingPos);
-                    return false;
+                    continue;
                 }
                 startingPos = epos;
                 continue;
@@ -155,6 +155,7 @@ this.moveToNextTabstop = function(view) {
     // sparse array - where to resume a search for a particular indicator.
     // Do this because indicated regions can nest.
     var lastPointByIndicator = [];
+    var setupLinkedSet = false;
     epos = startingPos;
     while (idx < lim) {
         tsInfo = tabstopInsertionTable[idx];
@@ -171,10 +172,11 @@ this.moveToNextTabstop = function(view) {
             log.error("Komodo internal error: In: moveToNextTabstop:: Couldn't find indicator " + tsInfo.indicator  + " after pos "
                  + startingPos);
             // break;
-            epos = startingPos + 1;
+            idx += 1;
         }
         lastPointByIndicator[searchIndicator] = epos;
         if (tsInfo.backrefNumber == backrefNumber) {
+            setupLinkedSet = true;
             this._useIndicator(view, scimoz, tsInfo.indicator, spos, epos, true);
             this._deleteTabstopItem(view, tabstopInsertionTable, idx);
             lim -= 1;
@@ -187,9 +189,12 @@ this.moveToNextTabstop = function(view) {
         scimoz.selectionEnd = finalEPos;
         scimoz.scrollCaret();
     }
-    //XXX pending working out undo: scimoz.beginUndoAction();
+    if (setupLinkedSet) {
+        view.scintilla.inLinkedTabstop = true;
+        scimoz.beginUndoAction();
+    }
     this._ensureInsertMode();
-    return true;
+    return setupLinkedSet;
 };
 
 /**
@@ -226,7 +231,7 @@ this.handleBackspace = function(scimoz) {
         if (followingSet) {
             var prevSet = scimoz.indicatorAllOnFor(scimoz.positionBefore(pos)) & LINKED_TABSTOP_BITMASK;
             if (!prevSet) {
-                this.clearLinkedTabstops(scimoz);
+                this.clearLinkedTabstops(scimoz, ko.views.manager.currentView);
             }
         }
     }
@@ -248,9 +253,24 @@ this.handleDelete = function(scimoz) {
     }
     if (scimoz.indicatorAllOnFor(scimoz.currentPos) & (1 << TSCZW)) {
         // If we're stepping on the boundary indicator, unlink them
-        this.clearLinkedTabstops(scimoz);
+        this.clearLinkedTabstops(scimoz, ko.views.manager.currentView);
     }
 };
+
+/**
+ * If we're removing a full TSC, but not the trailing TSCZW, remove the linked
+ * items anyway.  Otherwise we end up in a state where modifying the parent
+ * text doesn't affect the linked tabstops, but if we append at this point,
+ * the other tabstops get the update.  It's asymmetrical, so we'll unlink.
+ */
+this.handleDeleteByUndo = function(view, scimoz, position, length) {
+    if (view.scintilla.inLinkedTabstop
+        && !this._containsActiveLink(scimoz, TSC)) {
+        // This has to be done in a timeout because it modifies the undo-stack.
+        setTimeout(this.clearLinkedTabstops, 0, scimoz, view);
+    }
+}
+    
 
 /**
  * When the user makes a modification in a document with tabstops, this routine
@@ -414,7 +434,12 @@ this.forceUpdateAllZeroWidthLinks = function(view,
  * Remove linked tabstops from the document.
  * @param {Scimoz} scimoz_: The usual Scimoz object.
  */
-this.clearLinkedTabstops = function(scimoz) {
+this.clearLinkedTabstops = function(scimoz, view) {
+    if (typeof(view) == "undefined") {
+        view = ko.views.manager.currentView;
+    }
+    scimoz.endUndoAction();
+    view.scintilla.inLinkedTabstop = false;
     scimoz.indicatorCurrent = TSC;
     scimoz.indicatorClearRange(0, scimoz.textLength);
     scimoz.indicatorCurrent = TSCZW;
@@ -426,8 +451,12 @@ this.clearLinkedTabstops = function(scimoz) {
  * @param {Object} view: Komodo view object
  */
 this.clearTabstopInfo = function(view) {
-    view.document.setTabstopInsertionTable(0, []);
     var scimoz = view.scimoz;
+    if (this._containsActiveLink(scimoz, TSCZW)
+        || this._containsActiveLink(scimoz, TSC)) {
+        this.clearLinkedTabstops(scimoz, view);
+    }
+    view.document.setTabstopInsertionTable(0, []);
     var docLength = scimoz.length; // XXX: wrong with utf8?
     for (var indicator = TSZW; indicator <= TS5; indicator++) {
         scimoz.indicatorCurrent = indicator;

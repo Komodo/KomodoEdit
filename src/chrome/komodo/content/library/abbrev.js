@@ -214,11 +214,15 @@ this.insertAbbrevSnippet = function(snippet, view /* =<curr view> */) {
     }
 
     var scimoz = view.scimoz;
+    var enteredUndoableTabstop = false;
+    ko.tabstops.clearTabstopInfo(view); // could call endUndoAction() if there are active links
     scimoz.beginUndoAction();
     try {
-        ko.projects.snippetInsertImpl(snippet, view);
+        enteredUndoableTabstop = ko.projects.snippetInsertImpl(snippet, view);
     } finally {
-        scimoz.endUndoAction();
+        if (!enteredUndoableTabstop) {
+            scimoz.endUndoAction();
+        }
     }
 }
 

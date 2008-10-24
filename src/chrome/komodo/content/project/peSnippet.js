@@ -222,12 +222,14 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
     if (!view || view.getAttribute('type') != 'editor') return;
     var scimoz = view.scimoz;
 
+    ko.tabstops.clearTabstopInfo(view); // could call endUndoAction() if there are active links
     scimoz.beginUndoAction();
     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                         getService(Components.interfaces.koILastErrorService);
+    var enteredUndoableTabstop = false;
     try {
         try {
-            ko.projects.snippetInsertImpl(snippet, view);
+            enteredUndoableTabstop = ko.projects.snippetInsertImpl(snippet, view);
         } catch (ex) {
             var errno = lastErrorSvc.getLastErrorCode();
             if (errno == Components.results.NS_ERROR_ABORT) {
@@ -242,7 +244,9 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
         }
     } finally {
         ko.macros.recordPartInvocation(snippet);
-        scimoz.endUndoAction();
+        if (!enteredUndoableTabstop) {
+            scimoz.endUndoAction();
+        }
     }
 }
 
@@ -513,7 +517,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     } catch(ex) {
         ko.dialogs.alert(ex.message);
         log.exception(ex);
-        return;
+        return false;
     }
     if (remainingText) {
         // Don't process the text we snipped out as part of the snippet,
@@ -522,6 +526,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     }
     ko.tabstops.insertLiveText(scimoz, oldInsertionPoint, snippetInfo);
     
+    var enteredUndoableTabstop = false;
     if (hasTabStops) {
         // If there are tabstops, run cmd_indent which ends up running the tabstop handler
         // XXX calling cmd_indent is a hack, see bug #74565
@@ -530,7 +535,9 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         // as it steps through it.
         view.document.setTabstopInsertionTable(snippetInfo.tabstopInsertionTable.length,
                                                snippetInfo.tabstopInsertionTable);
+        scimoz.endUndoAction();
         view.moveToNextTabstop();
+        enteredUndoableTabstop = true;
     } else if (setSelection) {
         scimoz.anchor = scimoz.positionAtChar(oldInsertionPoint,
                                               anchor);
@@ -542,6 +549,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
                                               text.length);
         scimoz.currentPos = scimoz.anchor;
     }
+    return enteredUndoableTabstop;
 }
 
 

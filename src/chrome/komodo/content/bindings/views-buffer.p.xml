@@ -669,7 +669,8 @@
             } else {
                 window.setTimeout(function (me) {
                     try {
-                        me.scintilla.focus();
+                        // me is null if the window closed before timeout
+                        if (me.scintilla) me.scintilla.focus();
                     } catch(ex) {
                         // dump("focus failed: " + ex.message + "\n");
                     }
@@ -860,6 +861,7 @@
         <method name="doUpdateUI">
         <body>
         <![CDATA[
+            if (!this.log) return; // closed
             this.log.debug('doUpdateUI called');
             this._uiTimer = null;
 
@@ -1045,6 +1047,7 @@
             const SC_MOD_INSERTTEXT = Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT;
             const SC_MOD_DELETETEXT = Components.interfaces.ISciMoz.SC_MOD_DELETETEXT;
             const SC_PERFORMED_USER = Components.interfaces.ISciMoz.SC_PERFORMED_USER;
+            const SC_PERFORMED_UNDO = Components.interfaces.ISciMoz.SC_PERFORMED_UNDO;
 
             // if deleting or inserting text...
             if (modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))
@@ -1088,49 +1091,55 @@
                 }
             }
             if ((modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT | SC_MOD_BEFOREDELETE))
-                && (modificationType & SC_PERFORMED_USER)
+                && (modificationType & (SC_PERFORMED_USER|SC_PERFORMED_UNDO))
                 && this.document
                 && this.document.hasTabstopInsertionTable
                 && window == ko.windowManager.getMainWindow() // : don't handle updates in other windows
                 && this == ko.window.focusedView() // focusedView: don't handle updates in other views
                ) {
-                function runModifiedHandler(this_) {
-                    ko.views.wrapScintillaChange(this_, function() {
-                        ko.tabstops.updateLinkedBackrefs(modificationType,
-                                                         this_,
-                                                         position,
-                                                         text,
-                                                         length);
-                    });
-                }
-                switch(modificationType & (SC_MOD_BEFOREDELETE|SC_MOD_INSERTTEXT
-                                           |SC_MOD_DELETETEXT)) {
-                case SC_MOD_BEFOREDELETE:
-                    // BEFORE events have to be run now.
-                    // They can't modify the buffer.
-                    runModifiedHandler(this);
-                    break;
-                case SC_MOD_INSERTTEXT:
-                    if (ko.tabstops.atEmptyLinkedTabstop(this.scimoz,
-                                                         position,
-                                                         length)) {
-                        setTimeout(function(this_) {
-			    ko.views.wrapScintillaChange(
-                                this_,
-			        function() {
-                                    ko.tabstops.forceUpdateAllZeroWidthLinks(
-                                        this_,
-                                        this_.scimoz,
-                                        position,
-                                        text,
-                                        length);
-                                });
-                        }, 0, this);
-                        break;
+                if (modificationType & SC_PERFORMED_USER) {
+                    function runModifiedHandler(this_) {
+                        ko.views.wrapScintillaChange(this_, function() {
+                            ko.tabstops.updateLinkedBackrefs(modificationType,
+                                                             this_,
+                                                             position,
+                                                             text,
+                                                             length);
+                        });
                     }
-                    // else fall through to default.
-                default:
+                    switch(modificationType & (SC_MOD_BEFOREDELETE|SC_MOD_INSERTTEXT
+                                               |SC_MOD_DELETETEXT)) {
+                    case SC_MOD_BEFOREDELETE:
+                        // BEFORE events have to be run now.
+                        // They can't modify the buffer.
+                        runModifiedHandler(this);
+                        break;
+                    case SC_MOD_INSERTTEXT:
+                        if (ko.tabstops.atEmptyLinkedTabstop(this.scimoz,
+                                                             position,
+                                                             length)) {
+                            setTimeout(function(this_) {
+                                ko.views.wrapScintillaChange(
+                                    this_,
+                                    function() {
+                                        ko.tabstops.forceUpdateAllZeroWidthLinks(
+                                            this_,
+                                            this_.scimoz,
+                                            position,
+                                            text,
+                                            length);
+                                    });
+                            }, 0, this);
+                            break;
+                        }
+                        // else fall through to default.
+                    default:
                         setTimeout(runModifiedHandler, 0, this);
+                    }
+                }
+                else if (modificationType & SC_MOD_DELETETEXT) {
+                    // An undo that deletes text that moves us out of a tabstop.
+                    ko.tabstops.handleDeleteByUndo(this, this.scimoz, position, length);
                 }
             }
             ko.trace.get().leave('onModified');

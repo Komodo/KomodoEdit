@@ -400,12 +400,8 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
     
     if (liveTextInfo) {
         doc.buffer = '';
-        view.scimoz.beginUndoAction();
-        try {
-            ko.tabstops.insertLiveText(view.scimoz, 0, liveTextInfo);
-        } finally {
-            view.scimoz.endUndoAction();
-        }
+        ko.tabstops.insertLiveText(view.scimoz, 0, liveTextInfo);
+        view.scimoz.emptyUndoBuffer();
         if (saveto) {
             doc.save(1);
         }

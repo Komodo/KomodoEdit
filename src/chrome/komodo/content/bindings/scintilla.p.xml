@@ -262,6 +262,7 @@
 
             <field name="DECORATOR_SOFT_CHAR">Components.interfaces.koILintResult.DECORATOR_SOFT_CHAR</field>
             <field name="bracketedDecoratedChars">null</field>
+            <field name="inLinkedTabstop">false</field>
 
             <destructor>
             <![CDATA[
@@ -554,8 +555,7 @@
                             view.document.setTabstopInsertionTable(liveTextInfo.tabstopInsertionTable.length,
                                                                    liveTextInfo.tabstopInsertionTable);
                             this.scimoz.endUndoAction();
-                            endUndoAction = false;
-                            view.moveToNextTabstop();
+                            endUndoAction = view.moveToNextTabstop();
                             selectInsertedText = false;
                         } else {
                             this.scimoz.insertText(pos, text);
