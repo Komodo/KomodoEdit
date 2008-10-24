@@ -54,6 +54,7 @@
         onload="OnLoad()"
         onunload="OnUnload()"
         orient="vertical"
+        screenX="10" screenY="10"
         persist="screenX screenY"
         style="padding: 10px;">
 
