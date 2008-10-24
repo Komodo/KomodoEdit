@@ -2571,9 +2571,8 @@
                            persist="buttonstyle"
                            buttonstyle="pictures"
                            onclick="if (event.button == 2)
-                            ko.lint.jumpToNextLintResult();"
-                           oncommand="this.firstChild.showPopup(this, -1,-1);">
-                <menupopup id="context_lint">
+                            ko.lint.jumpToNextLintResult();">
+                <menupopup id="context_lint" position="before_start">
                     <menuitem id="context_doLint"
                               class="statusbar-label"
                               label="&checkSyntaxNow.label;"
@@ -2613,9 +2612,9 @@
                   orient="horizontal"
                   type="menu"
                   persist="buttonstyle"
-                  buttonstyle="text"
-                  oncommand="this.firstChild.showPopup(this, -1,-1);">
+                  buttonstyle="text">
                 <menupopup id="statusbar-filetype-menu"
+                           position="before_end"
                            onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();" />
             </toolbarbutton>
         </statusbarpanel>

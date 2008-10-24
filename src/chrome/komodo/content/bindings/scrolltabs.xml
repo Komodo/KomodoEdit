@@ -161,8 +161,7 @@
                             persist="buttonstyle"
                             buttonstyle="pictures"
                             class="tabs-select-button"
-                            tooltiptext="&listAllSidebars.tooltiptext;"
-                            oncommand="this.firstChild.showPopup(this, -1,-1);">
+                            tooltiptext="&listAllSidebars.tooltiptext;">
                         <xul:menupopup anonid="tabs-list-popup"
                                 onpopupshowing="this.parentNode.parentNode.parentNode.parentNode.getTabList();"/>
                     </xul:toolbarbutton>
@@ -261,8 +260,7 @@
                                persist="buttonstyle"
                                buttonstyle="pictures"
                                class="tabs-select-button"
-                               tooltiptext="&listAllTabs.tooltiptext;"
-                               oncommand="this.firstChild.showPopup(this, -1,-1);">
+                               tooltiptext="&listAllTabs.tooltiptext;">
                     <xul:menupopup anonid="tabs-list-popup" position="after_end"
                         onpopupshowing="this.parentNode.parentNode.parentNode.getTabList();"/>
                 </xul:toolbarbutton>
