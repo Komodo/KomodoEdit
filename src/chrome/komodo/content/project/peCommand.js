@@ -132,7 +132,8 @@ this.addCommand = function peCommand_addCommand(item)
     ko.windowManager.openOrFocusDialog(
         "chrome://komodo/content/run/commandproperties.xul",
         "Komodo:CommandProperties",
-        "chrome,close=yes,modal=yes,dependent=yes", obj);
+        "chrome,close=yes,modal=yes,dependent=yes,centerscreen",
+        obj);
     if (obj.retval == "OK") {
         if (typeof(item)=='undefined' || !item)
             item = ko.projects.active.getSelectedItem();
@@ -147,7 +148,8 @@ this.commandProperties = function command_editProperties(item)
     window.openDialog(
         "chrome://komodo/content/run/commandproperties.xul",
         "Komodo:CommandProperties",
-        "chrome,close=yes,dependent=yes,modal=yes", obj);
+        "chrome,close=yes,dependent=yes,modal=yes,centerscreen",
+        obj);
 }
 
 this.runCommand = function Run_CommandPart(cmdPart) {

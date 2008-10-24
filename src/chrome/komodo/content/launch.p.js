@@ -230,7 +230,7 @@ this.find = function(pattern /* =null */) {
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes");
+        "chrome,close=yes,centerscreen");
 }
 
 
@@ -259,7 +259,7 @@ this.replace = function(pattern /* =null */, repl /* =null */) {
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes");
+        "chrome,close=yes,centerscreen");
 }
 
 /**
@@ -287,7 +287,7 @@ this.findInCollection = function(collection, pattern /* =null */) {
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes");
+        "chrome,close=yes,centerscreen");
 }
 
 /**
@@ -318,7 +318,7 @@ this.replaceInCollection = function(collection, pattern /* =null */,
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes");
+        "chrome,close=yes,centerscreen");
 }
 
 /**
@@ -344,7 +344,7 @@ this.findInCurrProject = function(pattern /* =null */) {
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes");
+        "chrome,close=yes,centerscreen");
 }
 
 
@@ -373,7 +373,7 @@ this.replaceInCurrProject = function(pattern /* =null */, repl /* =null */) {
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes");
+        "chrome,close=yes,centerscreen");
 }
 
 /**
@@ -417,7 +417,7 @@ this.findInFiles = function(pattern /* =null */, dirs /* =null */,
     return ko.windowManager.openDialog(
             "chrome://komodo/content/find/find2.xul",
             "komodo_find2",
-            "chrome,close=yes");
+            "chrome,close=yes,centerscreen");
 }
 
 /**
@@ -453,7 +453,7 @@ this.replaceInFiles = function(pattern /* =null */, repl /* =null */,
     return ko.windowManager.openDialog(
             "chrome://komodo/content/find/find2.xul",
             "komodo_find2",
-            "chrome,close=yes");
+            "chrome,close=yes,centerscreen");
 }
 
 
@@ -470,7 +470,7 @@ this.runCommand = function() {
     ko.inputBuffer.start();
     return window.openDialog("chrome://komodo/content/run/run.xul",
                       "_blank",
-                      "chrome,close=yes");
+                      "chrome,close=yes,centerscreen");
 }
 
 

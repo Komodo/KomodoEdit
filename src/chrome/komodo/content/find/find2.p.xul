@@ -63,7 +63,6 @@
         title="&find.title;"
         windowtype="komodo_find2"
         class="kodialog"
-        screenX="10" screenY="10"
         persist="screenX screenY"
         onload="on_load()"
         onunload="on_unload()"

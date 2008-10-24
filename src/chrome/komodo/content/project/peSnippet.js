@@ -168,7 +168,8 @@ this.snippetProperties = function snippet_editProperties (item)
     window.openDialog(
         "chrome://komodo/content/project/snippetProperties.xul",
         "Komodo:SnippetProperties",
-        "chrome,close=yes,dependent=no,resizable=yes", obj);
+        "chrome,close=yes,dependent=no,resizable=yes,centerscreen",
+        obj);
 }
 
 this.addSnippet = function peSnippet_addSnippet(/*koIPart*/ parent)
@@ -188,7 +189,8 @@ this.addSnippet = function peSnippet_addSnippet(/*koIPart*/ parent)
     ko.windowManager.openOrFocusDialog(
         "chrome://komodo/content/project/snippetProperties.xul",
         "komodo_snippetProperties",
-        "chrome,close=yes,dependent=no,resizable=yes", obj);
+        "chrome,close=yes,dependent=no,resizable=yes,centerscreen",
+        obj);
 }
 
 this.addSnippetFromText = function AddSnippetFromText(snippettext, /*koIPart*/ parent) {
