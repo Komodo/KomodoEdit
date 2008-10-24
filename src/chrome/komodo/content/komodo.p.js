@@ -329,6 +329,12 @@ function onloadDelay() {
     } catch(ex) {
         /* ignore this exception, there were no listeners for the event */
     }
+    // bug 80583 -- earlier calls to updateCommands('currentview_is_editor')
+    // while handling current_view_changed events during startup
+    // fail to realize the view is an editor.
+    if (ko.views.manager.currentView) {
+        xtk.domutils.fireEvent(ko.views.manager.currentView, 'current_view_changed');
+    }
 }
 
 window.onload = function(event) {
