@@ -601,8 +601,7 @@ class GenericCommandHandler:
         if orig == reflowed:
             return  # do nothing
         # replacing what we've come up with as a selection
-        reflowedUtf8Len = self.sysUtils.byteLength(reflowed)
-        scin.replaceTarget(reflowedUtf8Len, reflowed)
+        scin.replaceTarget(len(reflowed), reflowed)
         # now we look for where we want to put the cursor
         # we'll move N characters from the start of the range, where
         # N is 'numChars' as determined above.
@@ -1738,7 +1737,7 @@ class GenericCommandHandler:
                 newChar = curChar.swapcase()
                 sm.targetStart = sm.currentPos
                 sm.targetEnd = sm.positionAfter(sm.currentPos)
-                sm.replaceTarget(self.sysUtils.byteLength(newChar), newChar)
+                sm.replaceTarget(len(newChar), newChar)
                 # Move the cursor right (if not at end of line)
                 curLine = sm.lineFromPosition(sm.currentPos)
                 lineEndPos = sm.getLineEndPosition(curLine)

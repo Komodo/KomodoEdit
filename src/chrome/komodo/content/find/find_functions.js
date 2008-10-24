@@ -525,7 +525,7 @@ function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, repl
             if (currText != replText) {
                 scimoz.targetStart = currLineStartPos;
                 scimoz.targetEnd = currLineEndPos;
-                scimoz.replaceTarget(stringutils_bytelength(replText), replText);
+                scimoz.replaceTarget(replText.length, replText);
             }
         }
         
