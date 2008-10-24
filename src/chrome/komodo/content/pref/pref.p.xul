@@ -153,6 +153,9 @@
         <key keycode="VK_ESCAPE" modifiers="" oncommand="doCancel();"/>
         <key keycode="VK_ENTER" oncommand="ko.dialogs.handleEnterKey();"/>
         <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
+<!-- #if PLATFORM == "darwin" -->
+        <key key="W" modifiers="meta" oncommand="window.close();" />
+<!-- #endif -->
     </keyset>
 
     <hbox flex="1" >
