@@ -790,8 +790,8 @@
   <string id="customCommonDataDir"></string>
 
   <string id="tidy_configpath"/>
-  <string id="tidy_errorlevel">warnings</string>
-  <string id="tidy_accessibility">1</string>
+  <string id="tidy_errorlevel">errors</string>
+  <string id="tidy_accessibility">0</string>
 
   <!-- Code Intelligence system preferences:
         "codeintel_enabled" is the master pref indicating if the Code Intel
