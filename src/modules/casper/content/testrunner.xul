@@ -189,13 +189,13 @@
                         </grid>
                     </groupbox>
                     <hbox flex="1">
-                        <groupbox flex="1">    
+                        <groupbox width="350px">
                           <caption label="Tests"/>
                             <tree id="treeResults" onselect="unittest.testRunner.showDetails();" flex="1">
                                 <treecols>
-                                    <treecol id="treecolNameComment" label="Name" flex="5" primary="true"/>
+                                    <treecol id="treecolNameComment" label="Name" flex="5" primary="true" persist="width height"/>
                                     <splitter class="tree-splitter"/>
-                                    <treecol id="treecolResult" label="Result" flex="2"/>
+                                    <treecol id="treecolResult" label="Result" flex="2" persist="width height"/>
                                 </treecols>
                                 <treechildren id="treechildrenResults"/>
                             </tree>
@@ -207,7 +207,7 @@
                                 <grid>
                                     <columns>
                                         <column/>
-                                        <column/>
+                                        <column flex="1"/>
                                     </columns>
                                     <rows>
                                         <row>
@@ -218,12 +218,10 @@
                                             <label value="Name: "/>
                                             <description id="labelDetailNameComment"/>
                                         </row>
-                                        <row>
-                                            <label value="Result: "/>
-                                            <description id="labelDetailResult"/>
-                                        </row>
                                     </rows>
                                 </grid>
+                                <label value="Result: "/>
+                                <textbox id="textboxDetailResult" multiline="true" rows="3"/>
                                 <label value="Detail: "/>
                                 <textbox id="labelDetailBreakMessage" multiline="true" flex="1"/>
                             </vbox>

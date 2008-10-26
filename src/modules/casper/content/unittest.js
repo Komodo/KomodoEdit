@@ -1359,8 +1359,8 @@ Casper.UnitTest.XULTestRunner.prototype.showDetails = function()
     el = this._window.document.getElementById("labelDetailNameComment");
     this._setDescription(el, testObject.name);
 
-    el = this._window.document.getElementById("labelDetailResult");
-    this._setDescription(el, testObject.result.message);
+    el = this._window.document.getElementById("textboxDetailResult");
+    el.value = testObject.result.message;
     
     el = this._window.document.getElementById("labelDetailBreakMessage");
     el.value = testObject.result.detail;
