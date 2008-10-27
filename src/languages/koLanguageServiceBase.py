@@ -2288,9 +2288,12 @@ class KoLanguageBase:
             return candidate
         prevPos = scimoz.positionBefore(pos)
         prevStyle = scimoz.getStyleAt(prevPos)
-        if prevStyle != scimoz.getStyleAt(pos):
-            return candidate
-        return None
+        if (prevStyle == scimoz.getStyleAt(pos) # we're in a string
+            # Can't have a string immediately following a variable name without
+            # an operator.
+            or prevStyle in self.getVariableStyles()):
+            return None
+        return candidate
 
     # soft-character acceptance callback routines follow.  These can be overridden
     # by base-classes to implement language-specific behavior.  For example, in

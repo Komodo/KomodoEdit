@@ -573,6 +573,25 @@ end section
             return None
         return KoLanguageBase.softchar_accept_matching_double_quote(self, scimoz, pos, style_info, candidate);
 
+    def _softchar_accept_match_outside_strings(self, scimoz, pos, style_info, candidate):
+        """
+        See KoLanguageBase._softchar_accept_match_outside_strings for docs
+        """
+        if pos == 0:
+            return candidate
+        prevPos = scimoz.positionBefore(pos)
+        prevStyle = scimoz.getStyleAt(prevPos)
+        if (prevStyle == scimoz.getStyleAt(pos) # we're in a string
+            # Can't have a string immediately following a variable name without
+            # an operator.
+            or prevStyle in self.getVariableStyles()
+            # Needed for embedded expressions, redundant for other languages.
+            # Bug 79388: puts "... {2 + 2}<|>
+            # Typing a single-quote at the cursor shouldn't generate a soft char.
+            or prevStyle in style_info._indent_styles and scimoz.getWCharAt(prevPos) == "}"):
+            return None
+        return candidate
+    
     def _startsNewBlock(self, scimoz, initialLine, curr_indent):
         # Look to see if the next non-code line indents at or
         # before the current line
