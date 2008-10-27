@@ -1465,7 +1465,6 @@
 <!-- #if PLATFORM == "darwin" -->
             <handler event="mouseover" phase="capturing">
                 <![CDATA[
-                dump("mouse enter\n");
                     if (this._inMouseDown == -1) return;
                     if (this._mouseUpEvent) {
                         window.removeEventListener("mouseup", this._mouseUpEvent, true);
@@ -1476,7 +1475,6 @@
 
             <handler event="mouseout" phase="capturing">
                 <![CDATA[
-                dump("mouse exit\n");
                     if (this._inMouseDown == -1) return;
                     // for osx, handle a mouseup event that occurs outside of the
                     // plugin.  bug 80273
