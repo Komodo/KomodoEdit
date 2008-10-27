@@ -189,7 +189,7 @@
                         </grid>
                     </groupbox>
                     <hbox flex="1">
-                        <groupbox width="350px">
+                        <groupbox width="350">
                           <caption label="Tests"/>
                             <tree id="treeResults" onselect="unittest.testRunner.showDetails();" flex="1">
                                 <treecols>
