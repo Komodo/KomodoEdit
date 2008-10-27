@@ -1462,6 +1462,41 @@
                 ]]>
             </handler>
 
+<!-- #if PLATFORM == "darwin" -->
+            <handler event="mouseover" phase="capturing">
+                <![CDATA[
+                dump("mouse enter\n");
+                    if (this._inMouseDown == -1) return;
+                    if (this._mouseUpEvent) {
+                        window.removeEventListener("mouseup", this._mouseUpEvent, true);
+                        this._mouseUpEvent = null;
+                    }
+                ]]>
+            </handler>
+
+            <handler event="mouseout" phase="capturing">
+                <![CDATA[
+                dump("mouse exit\n");
+                    if (this._inMouseDown == -1) return;
+                    // for osx, handle a mouseup event that occurs outside of the
+                    // plugin.  bug 80273
+                    var self = this;
+                    this._mouseUpEvent = function(event) {
+                        var x,y;
+                        [x,y] = self.getClientCoordinates(event);
+                        self.scimoz.buttonUp( x, y,
+                                            event.button,
+                                            event.timeStamp,
+                                            event.shiftKey, event.ctrlKey, event.metaKey);
+                        window.removeEventListener("mouseup", self._mouseUpEvent, true);
+                        self._mouseUpEvent = null;
+                        self._inMouseDown = -1;
+                    }
+                    window.addEventListener("mouseup", this._mouseUpEvent, true);
+                ]]>
+            </handler>
+<!-- #endif -->
+
             <handler event="mousedown" phase="capturing">
                 <![CDATA[
                 this.columnModeStartLine = -1;
