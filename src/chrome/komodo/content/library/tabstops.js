@@ -824,15 +824,17 @@ this.LiveTextParser.prototype.parseTabstop = function() {
                                  + "> will be ignored.\n");
                 text = backrefTable[backrefNum];
             }
-        } else if (!haveBackref) {
-            this.throwParseException("definition for tabstop " + backrefStr,
-                                     'LiveText error');
         } else {
+            if (!haveBackref) {
+                text = backrefTable[backrefNum] = "";
+                nodeClass = ko.tabstops.LiveTextTabstopBackrefDef;
+            } else {
+                text = backrefTable[backrefNum];
+            }
             if (this.subjectText.substr(this.idx, TARGET_END.length) != TARGET_END) {
                 this.throwParseException(TARGET_END, "Parsing error");
             }
             this.idx += TARGET_END.length;
-            text = haveBackref ? backrefTable[backrefNum] : null;
         }
         if (text != null && text.length) {
             this._availableIndicatorCheck();
