@@ -151,7 +151,7 @@ this.moveToNextTabstop = function(view) {
     }
     var backrefNumber = tsInfo.backrefNumber;
     var searchIndicator;
-    
+    var hasOtherLinks = this._hasOtherLinks(tabstopInsertionTable, backrefNumber, idx + 1);
     // sparse array - where to resume a search for a particular indicator.
     // Do this because indicated regions can nest.
     var lastPointByIndicator = [];
@@ -176,9 +176,12 @@ this.moveToNextTabstop = function(view) {
         }
         lastPointByIndicator[searchIndicator] = epos;
         if (tsInfo.backrefNumber == backrefNumber) {
-            setupLinkedSet = true;
-            this._useIndicator(view, scimoz, tsInfo.indicator, spos, epos, true);
+            this._useIndicator(view, scimoz, tsInfo.indicator, spos, epos, hasOtherLinks);
             this._deleteTabstopItem(view, tabstopInsertionTable, idx);
+            if (!hasOtherLinks) {
+                break;
+            }
+            setupLinkedSet = true;
             lim -= 1;
         } else {
             idx += 1;
@@ -194,8 +197,18 @@ this.moveToNextTabstop = function(view) {
         scimoz.beginUndoAction();
     }
     this._ensureInsertMode();
-    return setupLinkedSet;
+    return true;
 };
+
+this._hasOtherLinks = function(tabstopInsertionTable, backrefNumber, idx) {
+    for (var lim = tabstopInsertionTable.length; idx < lim; ++idx) {
+        var tsInfo = tabstopInsertionTable[idx];
+        if (tsInfo.isBackref && tsInfo.backrefNumber == backrefNumber) {
+            return true;
+        }
+    }
+    return false;
+}
 
 /**
  * Watches for backspace at the start of a tabstop.  Further
@@ -438,12 +451,15 @@ this.clearLinkedTabstops = function(scimoz, view) {
     if (typeof(view) == "undefined") {
         view = ko.views.manager.currentView;
     }
-    scimoz.endUndoAction();
-    view.scintilla.inLinkedTabstop = false;
-    scimoz.indicatorCurrent = TSC;
-    scimoz.indicatorClearRange(0, scimoz.textLength);
-    scimoz.indicatorCurrent = TSCZW;
-    scimoz.indicatorClearRange(0, scimoz.textLength);
+    if (view.scintilla.inLinkedTabstop) {
+        // Guard multiple sequential undo's.
+        scimoz.endUndoAction();
+        view.scintilla.inLinkedTabstop = false;
+        scimoz.indicatorCurrent = TSC;
+        scimoz.indicatorClearRange(0, scimoz.textLength);
+        scimoz.indicatorCurrent = TSCZW;
+        scimoz.indicatorClearRange(0, scimoz.textLength);
+    }
 };
 
 /**

@@ -555,7 +555,8 @@
                             view.document.setTabstopInsertionTable(liveTextInfo.tabstopInsertionTable.length,
                                                                    liveTextInfo.tabstopInsertionTable);
                             this.scimoz.endUndoAction();
-                            endUndoAction = view.moveToNextTabstop();
+                            view.moveToNextTabstop();
+                            endUndoAction = false;
                             selectInsertedText = false;
                         } else {
                             this.scimoz.insertText(pos, text);
