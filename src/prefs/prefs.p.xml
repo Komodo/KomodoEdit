@@ -524,6 +524,10 @@
   <boolean id="diskBackgroundCheck">1</boolean>
   <long id="diskBackgroundMinutes">15</long>
   <boolean id="fileNotificationServiceEnabled">1</boolean>
+  <!-- Enable usage of OS-level APIs for file notification handling. 
+       This pref is currently on used on Windows. 
+       Disabled by default (see bug 76066). -->
+  <boolean id="osControlledFileNotificationsEnabled">0</boolean>
   <!-- Tip of the Day preferences:
     "tipShowAtStartup" specifies whether to launch the Tip o' the day dialog.
     "tipNumber" indicates the tip to display next. -->

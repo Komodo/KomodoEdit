@@ -71,6 +71,10 @@ class koFileNotificationService:
                     getService(components.interfaces.nsIFileProtocolHandler)
         # Service enabled
         self.__enabled = self.__prefs.getBooleanPref("fileNotificationServiceEnabled")
+        # OS API watching enabled
+        self.__os_notifications_enabled = True
+        if self.__prefs.hasBooleanPref("osControlledFileNotificationsEnabled"):
+            self.__os_notifications_enabled = self.__prefs.getBooleanPref("osControlledFileNotificationsEnabled")
         # Polling enabled
         self.__polling_enabled = True
         if self.__prefs.hasBooleanPref("filePollingServiceEnabled"):
@@ -93,7 +97,7 @@ class koFileNotificationService:
                 self.__polling_notifier = osFilePollingNotifier.osFilePollingNotifier(poll_period)
 
             # Setup os file notifications service
-            if sys.platform.startswith("win"):
+            if sys.platform.startswith("win") and self.__os_notifications_enabled:
                 # Windows
                 log.info("Setting up OS File Notifications for Windows")
                 import osFileNotifications_win32
