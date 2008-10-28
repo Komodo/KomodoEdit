@@ -1316,7 +1316,12 @@ class PHPArgs:
         self.args = arglist
         self.typelist = typelist
         self.optionalArgs = optionalArgs
-        arglineValues = arglist[:]
+        arglineValues = []
+        for argname, argtype in zip(arglist, typelist):
+            if argtype:
+                arglineValues.append("%s %s" % (argtype, argname))
+            else:
+                arglineValues.append(argname)
         for optArg, optArgValue, optArgType in optionalArgs:
             arglineValues.append("%s=%s" % (optArg, optArgValue))
         self.argline = ", ".join(arglineValues)
@@ -1326,6 +1331,14 @@ class PHPArgs:
         for arg in self.args:
             args.append(repr(arg))
         return ', '.join(args)
+
+    def hasArgumentName(self, name):
+        if name in self.args:
+            return True
+        for optArg, optArgValue, optArgType in self.optionalArgs:
+            if name == optArg:
+                return True
+        return False
 
     def toElementTree(self, cixelement):
         for argIndex in range(len(self.args)):
@@ -1427,7 +1440,7 @@ class PHPConstant(PHPVariable):
         return cixelement
 
 class PHPFunction:
-    def __init__(self, funcname, args, optionalArgs, lineno, depth=0,
+    def __init__(self, funcname, argsAndTypes, optionalArgs, lineno, depth=0,
                  attributes=None, doc=None, classname='', classparent='',
                  returnType=None):
         self.name = funcname
@@ -1456,9 +1469,11 @@ class PHPFunction:
         self.doc = None
 
         # Setup the function arguments
-        if args:
-            argTypes = [None] * len(args)
+        if argsAndTypes:
+            args = [x[0] for x in argsAndTypes]
+            argTypes = [x[1] for x in argsAndTypes]
         else:
+            args = []
             argTypes = []
         if doc:
             if isinstance(doc, list):
@@ -1506,6 +1521,9 @@ class PHPFunction:
 
     def __repr__(self):
         return self.signature
+
+    def hasArgumentWithName(self, name):
+        return self.args and self.args.hasArgumentName(name)
 
     def toElementTree(self, cixblob):
         cixelement = createCixFunction(cixblob, self.name,
@@ -1861,9 +1879,10 @@ class PHPParser:
             # XXX stacked functions used to work in php, need verify still is
             self.currentFunction = None
 
-    def addFunction(self, name, args=None, optionalArgs=None, attributes=None,
-                    doc=None):
-        log.debug("FUNC: %s(%r %r) on line %d", name, args, optionalArgs, self.lineno)
+    def addFunction(self, name, argsAndTypes=None, optionalArgs=None,
+                    attributes=None, doc=None):
+        log.debug("FUNC: %s(%r %r) on line %d", name, argsAndTypes,
+                  optionalArgs, self.lineno)
         classname = ''
         extendsName = ''
         if self.currentClass:
@@ -1873,7 +1892,7 @@ class PHPParser:
             classname = self.currentInterface.name
             extendsName = self.currentInterface.extends
         self.currentFunction = PHPFunction(name,
-                                           args,
+                                           argsAndTypes,
                                            optionalArgs,
                                            self.lineno,
                                            self.depth,
@@ -1981,7 +2000,9 @@ class PHPParser:
         already_existed = True
         if self.currentFunction:
             phpVariable = self.currentFunction.variables.get(name)
-            if phpVariable is None:
+            # Also ensure the variable is not a function argument.
+            if phpVariable is None and \
+               not self.currentFunction.hasArgumentWithName(name):
                 phpVariable = PHPVariable(name, self.lineno, vartype,
                                           attributes, doc=doc,
                                           fromPHPDoc=fromPHPDoc)
@@ -2029,8 +2050,8 @@ class PHPParser:
     def _getArgumentsFromPos(self, styles, text, pos):
         """Return a tuple (arguments, optional arguments, next position)
         
-        arguments: list of argument names
-        optional arguments: list of lists [arg name, arg default value, arg type]
+        arguments: list of lists [[arg name, arg type), ...]
+        optional arguments: list of lists [[arg name, arg default value, arg type], ...]
         """
 
         # Arguments can be of the form:
@@ -2039,11 +2060,15 @@ class PHPParser:
         #  foo($a, &$b, $c)
         #  foo($a = "123")
         #  makecoffee($types = array("cappuccino"), $coffeeMaker = NULL)
+        # Arguments can be statically typed declarations too, bug 79003:
+        #  foo(MyClass $a)
+        #  foo(string $a = "123")
 
         log.debug("_getArgumentsFromPos: text: %r", text[pos:])
         if pos < len(styles) and styles[pos] == self.PHP_OPERATOR and text[pos] == "(":
-            ids = []
+            argsAndTypes = []
             optionals = []
+            vartype = None
             pos += 1
             start_pos = pos
             while pos < len(styles):
@@ -2064,11 +2089,17 @@ class PHPParser:
                             optionals.append([varname, text[pos+2], valueType])
                             pos += 2
                     else:
-                        ids.append(varname)
+                        argsAndTypes.append([varname, vartype])
+                    vartype = None
+                elif ((pos+1) < len(styles) and
+                      styles[pos] in (self.PHP_IDENTIFIER, self.PHP_WORD) and
+                      styles[pos+1] == self.PHP_VARIABLE):
+                    # Statically typed argument.
+                    vartype = text[pos]
                 elif styles[pos] != self.PHP_OPERATOR or text[pos] not in "&,":
                     break
                 pos += 1
-            return ids, optionals, pos
+            return argsAndTypes, optionals, pos
         return None, None, pos
 
     def _getOneIdentifierFromPos(self, styles, text, pos, identifierStyle=None):
@@ -2522,15 +2553,15 @@ class PHPParser:
                     namelist, p = self._getIdentifiersFromPos(styles, text, pos)
                     log.debug("namelist:%r, p:%d", namelist, p)
                     if namelist:
-                        args, optionals, p = self._getArgumentsFromPos(styles, text, p)
+                        argsAndTypes, optionals, p = self._getArgumentsFromPos(styles, text, p)
                         log.debug("Line %d, function: %r(%r, optionals: %r)",
-                                 self.lineno, namelist, args, optionals)
+                                 self.lineno, namelist, argsAndTypes, optionals)
                         if len(namelist) != 1:
                             log.info("warn: invalid function name (ignoring): "
                                      "%r, line: %d in file: %r", namelist,
                                      self.lineno, self.filename)
                             return
-                        self.addFunction(namelist[0], args, optionals, attributes, doc=self.comment)
+                        self.addFunction(namelist[0], argsAndTypes, optionals, attributes, doc=self.comment)
                 elif keyword == "class":
                     # Examples:
                     #   class SimpleClass {

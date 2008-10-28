@@ -11,7 +11,7 @@
       </scope>
       <scope classrefs="SimpleClass" ilk="class" line="18" lineend="37" name="SimpleClass2">
         <variable line="19" name="x" />
-        <scope doc="foo&#xA;&#xA;since php functions can retrieve arguments dynamically, base arguments&#xA;could appear in the comments, but not in the code&#xA;&#xA;@param string $x&#xA;@param integer $y&#xA;@param MyClass $z&#xA;&#xA;@return string" ilk="function" line="33" lineend="36" name="foo" returns="string" signature="foo(x, y, z)">
+        <scope doc="foo&#xA;&#xA;since php functions can retrieve arguments dynamically, base arguments&#xA;could appear in the comments, but not in the code&#xA;&#xA;@param string $x&#xA;@param integer $y&#xA;@param MyClass $z&#xA;&#xA;@return string" ilk="function" line="33" lineend="36" name="foo" returns="string" signature="foo(string x, integer y, MyClass z)">
           <variable citdl="string" ilk="argument" name="x" />
           <variable citdl="integer" ilk="argument" name="y" />
           <variable citdl="MyClass" ilk="argument" name="z" />
@@ -30,7 +30,7 @@
           <variable ilk="argument" name="y" />
           <variable default="NULL" ilk="argument" name="z" />
         </scope>
-        <scope attributes="abstract public" doc="@param string $x&#xA;@param integer $y&#xA;@param MyClass $z&#xA;&#xA;@return string" ilk="function" line="65" lineend="65" name="test2" returns="string" signature="test2(x, y, z=NULL)">
+        <scope attributes="abstract public" doc="@param string $x&#xA;@param integer $y&#xA;@param MyClass $z&#xA;&#xA;@return string" ilk="function" line="65" lineend="65" name="test2" returns="string" signature="test2(string x, integer y, z=NULL)">
           <variable citdl="string" ilk="argument" name="x" />
           <variable citdl="integer" ilk="argument" name="y" />
           <variable citdl="MyClass" default="NULL" ilk="argument" name="z" />

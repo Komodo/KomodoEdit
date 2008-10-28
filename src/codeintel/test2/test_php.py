@@ -1867,7 +1867,7 @@ EOD;
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
                 [("function", 'bug78957_function'), ])
 
-    @tag("bug79003", "php5", "knownfailure")
+    @tag("bug79003", "php5")
     def test_type_hinting(self):
         # http://ch2.php.net/language.oop5.typehinting
 
@@ -1898,7 +1898,7 @@ EOD;
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
                              "test(bug79003OtherClass otherclass)")
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
-                             "test_array(array $input_array)")
+                             "test_array(array input_array)")
         self.assertCompletionsAre(markup_text(content, pos=positions[3]),
                 [("function", 'test_func'),
                  ("variable", 'var'),])
