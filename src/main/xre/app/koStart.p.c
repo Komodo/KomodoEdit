@@ -762,6 +762,7 @@ static char* _GetHostName(void)
      */
     static int haveHostName = 0;
     static char hostName[1024+1]; /* static to cheaply avoid malloc/free */
+    char *envHostname;
     int rv;
     
     /* Return early if already have value from previous runs. */
@@ -769,6 +770,14 @@ static char* _GetHostName(void)
         return hostName;
     }
     
+    envHostname = getenv("KOMODO_HOSTNAME");
+    if (envHostname && strlen(envHostname)) {
+        strncpy(hostName, envHostname, 1024);
+        hostName[1024] = '\0'; // Should not be needed, but I err on the side of caution
+        haveHostName = 1;
+        return hostName;
+    }
+
     /* Initialize the Winsock DLL
      * - We'll request the same version that Python does.
      */
@@ -799,6 +808,20 @@ static char* _GetHostName(void)
     WSACleanup();
 #else /* !WIN32 */
     static char hostName[MAXPATHLEN+1]; /* static to cheaply avoid malloc/free */
+    static int haveHostName = 0;
+
+    if (haveHostName) {
+        return hostName;
+    }
+
+    char *envHostname = getenv("KOMODO_HOSTNAME");
+    if (envHostname && strlen(envHostname)) {
+        strncpy(hostName, envHostname, MAXPATHLEN);
+        hostName[MAXPATHLEN] = '\0'; // Should not be needed, but I err on the side of caution
+        haveHostName = 1;
+        return hostName;
+    }
+
     int rv = gethostname(hostName, MAXPATHLEN);
     if (rv != 0) {
         _LogError("could not determine the hostname: %d: %s\n",
