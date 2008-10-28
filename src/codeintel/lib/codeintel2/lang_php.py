@@ -1031,7 +1031,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         extra_dirs = self._extra_dirs_from_env(env)
         if extra_dirs:
             extradirslib = self.mgr.db.get_lang_lib(
-                "PHP", "extradirslib", extra_dirs)
+                "PHP", "extradirslib", extra_dirs, "PHP")
             request = PreloadLibRequest(extradirslib)
             self.mgr.idxr.stage_request(request, 1.0)
 
