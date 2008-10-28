@@ -172,12 +172,16 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             self._libs = self.langintel.libs_from_buf(self.buf)
         return self._libs
 
+    @property
+    def stdlib(self):
+        # JS stdlib is always the last one.
+        return self.libs[-1]
+
     _built_in_blob = None
     @property
     def built_in_blob(self):
         if self._built_in_blob is None:
-            # JS stdlib is always the last one.
-            self._built_in_blob = self.libs[-1].get_blob("*")
+            self._built_in_blob = self.stdlib.get_blob("*")
         return self._built_in_blob
 
     ## Specific element completions ##
@@ -717,9 +721,8 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             scoperef = self.parent_scoperef_from_scoperef(scoperef)
 
         # Builtins
-        stdlib = self.buf.stdlib
         # Find the matching names (or all names if no expr)
-        cplns = stdlib.toplevel_cplns(prefix=expr)
+        cplns = self.stdlib.toplevel_cplns(prefix=expr)
         for ilk, name in cplns:
             if name not in all_completions:
                 all_completions[name] = ilk
