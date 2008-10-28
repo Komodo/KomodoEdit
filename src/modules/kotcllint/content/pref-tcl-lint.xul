@@ -886,7 +886,7 @@
                       />
         </listbox>
         <separator class="thin"/>
-        <label value="Additional options (e.g. custom --suppress arguments)"/>
+        <label value="Additional options (e.g. custom -suppress arguments)"/>
         <textbox pref="true" prefstring="tcllint_extra"/>
         <separator class="thin"/>
         <hbox align="center">
