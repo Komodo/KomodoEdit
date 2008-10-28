@@ -31,6 +31,11 @@
 /* Ensure the tab buttons are vertically aligned. */
 .tabstrip-box
 {
+  /**
+   * This bottom margin is negative because part of the themed tab rectangle
+   * can appear showing below the selected tab with certain GTK themes and/or
+   * certain Linux OS - ShaneC.
+   */
   margin: 0 0 -1px 0;
 }
 
