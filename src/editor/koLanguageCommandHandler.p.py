@@ -1418,9 +1418,7 @@ class GenericCommandHandler:
             sm.scrollCaret()
             return
 
-        if sm.currentPos == sm.anchor and \
-           view.prefs.getBooleanPref('editTabCompletes') and \
-           sm.getWCharAt(sm.positionBefore(sm.currentPos)) in self.wordchars:
+        if self._try_complete_word(sm, view):
             self._doCompleteWord(1)
             return
 
@@ -1448,8 +1446,6 @@ class GenericCommandHandler:
         else:
             return self._insertDedent()
 
-    wordchars = string.letters + string.digits + "_"
-    
     def _do_cmd_completeWord(self):
         self._doCompleteWord(0)
 
@@ -1476,7 +1472,7 @@ class GenericCommandHandler:
         if not words:
             return
         word = self._getprevword()
-        sm.anchor = sm.currentPos - len(word)
+        sm.anchor = sm.currentPos - self.sysUtils.byteLength(word)
         sm.replaceSel('')
         if backwards:
             newword = words[(index-2)  % len(words)]
@@ -1501,10 +1497,10 @@ class GenericCommandHandler:
         if not word:
             return []
         before = sm.getTextRange(0, sm.currentPos)
-        wbefore = re.findall(r"\b" + word + r"\w+\b", before)
+        wbefore = re.findall(r"\b" + word + r"\w+\b", before, re.UNICODE)
         del before
         after = sm.getTextRange(sm.currentPos, sm.textLength)
-        wafter = re.findall(r"\b" + word + r"\w+\b", after)
+        wafter = re.findall(r"\b" + word + r"\w+\b", after, re.UNICODE)
         del after
         if not wbefore and not wafter:
             return []
@@ -1526,19 +1522,25 @@ class GenericCommandHandler:
         words.append(word)
         return words
 
+    _unicode_word_char_re = re.compile(r'\w', re.UNICODE)
+    _unicode_last_word_re = re.compile(r'(\w*)$', re.UNICODE)
+
     def _getprevword(self):
         sm = self._view.scimoz
         curinsert = sm.currentPos
-        lineno = sm.lineFromPosition(sm.currentPos)
+        lineno = sm.lineFromPosition(curinsert)
         startofLinePos = sm.positionFromLine(lineno)
         line = sm.getTextRange(startofLinePos, curinsert)
-        i = len(line)
-        while i > 0 and line[i-1] in self.wordchars:
-            i = i-1
-        return line[i:]
+        return self._unicode_last_word_re.search(line).group(1)
 
     def _handle_tabstop(self):
         return self._view.moveToNextTabstop()
+
+    def _try_complete_word(self, sm, view):
+        return (sm.currentPos == sm.anchor
+                and sm.currentPos > 0
+                and view.prefs.getBooleanPref('editTabCompletes')
+                and self._unicode_word_char_re.match(sm.getWCharAt(sm.positionBefore(sm.currentPos))))
     
     def _do_cmd_indent(self):
         view = self._view
@@ -1570,11 +1572,9 @@ class GenericCommandHandler:
         if self._handle_tabstop():
             return
 
-        if sm.currentPos == sm.anchor:
-            if view.prefs.getBooleanPref('editTabCompletes') and \
-               sm.getWCharAt(sm.currentPos-1) in self.wordchars:
-                self._doCompleteWord(0)
-                return
+        if self._try_complete_word(sm, view):
+            self._doCompleteWord(0)
+            return
     
             # Do we have a selection?  If no, then it's 'insert a tab'
             self._insertIndent()
