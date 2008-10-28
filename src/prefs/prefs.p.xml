@@ -219,6 +219,7 @@
  '*.java': 'Java',
  '*.js': 'JavaScript',
  '*.json': 'JavaScript',
+ '*.jsm': 'JavaScript',
  '*.kix': 'Kix',
  '*.kpf': 'XML',
  '*.lis': 'Lisp',

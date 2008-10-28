@@ -140,7 +140,7 @@ class RubyLangInfo(LangInfo):
 class JavaScriptLangInfo(LangInfo):
     name = "JavaScript"
     conforms_to_bases = ["Text"]
-    exts = ['.js']
+    exts = ['.js', '.jsm']
 
     # These are the keywords that are used in most JavaScript environments.
     common_keywords = set(["break",
