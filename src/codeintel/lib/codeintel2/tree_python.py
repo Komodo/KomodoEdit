@@ -88,7 +88,6 @@ class PythonTreeEvaluator(TreeEvaluator):
     def _calltip_from_func(self, elem, scoperef, class_name=None):
         # See "Determining a Function CallTip" in the spec for a
         # discussion of this algorithm.
-        from codeintel2.util import LINE_LIMIT #TODO: -> CALLTIP_LINE_LIMIT
         signature = elem.get("signature")
         ctlines = []
         if not signature:
@@ -98,18 +97,17 @@ class PythonTreeEvaluator(TreeEvaluator):
             ctlines = signature.splitlines(0)
         doc = elem.get("doc")
         if doc:
-            ctlines += doc.splitlines(0)[:LINE_LIMIT-len(ctlines)]
+            ctlines += doc.splitlines(0)
         return '\n'.join(ctlines)
 
     def _calltip_from_class(self, elem, scoperef):
         # If the class has a defined signature then use that.
-        from codeintel2.util import LINE_LIMIT #TODO: -> CALLTIP_LINE_LIMIT
         signature = elem.get("signature")
         if signature:
             doc = elem.get("doc")
             ctlines = signature.splitlines(0)
             if doc:
-                ctlines += doc.splitlines(0)[:LINE_LIMIT-len(ctlines)]
+                ctlines += doc.splitlines(0)
             return '\n'.join(ctlines)
         else:
             ctor_hit = self._ctor_hit_from_class(elem, scoperef)
@@ -122,7 +120,7 @@ class PythonTreeEvaluator(TreeEvaluator):
             else:
                 doc = elem.get("doc")
                 if doc:
-                    ctlines = [ln for ln in doc.splitlines(0)[:LINE_LIMIT] if ln]
+                    ctlines = [ln for ln in doc.splitlines(0) if ln]
                 else:
                     ctlines = [elem.get("name") + "()"]
                 return '\n'.join(ctlines)

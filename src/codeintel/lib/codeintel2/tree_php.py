@@ -39,7 +39,7 @@
 
 from codeintel2.common import *
 from codeintel2.tree import TreeEvaluator
-from codeintel2.util import make_short_name_dict, banner, LINE_LIMIT
+from codeintel2.util import make_short_name_dict, banner
 
 
 php_magic_global_method_data = {
@@ -425,7 +425,7 @@ class PHPTreeEvaluator(TreeEvaluator):
         if signature:
             ctlines = signature.splitlines(0)
             if doc:
-                ctlines += doc.splitlines(0)[:LINE_LIMIT-len(ctlines)]
+                ctlines += doc.splitlines(0)
             return '\n'.join(ctlines)
 
         # Alternatively we use calltip information on the class'
@@ -998,7 +998,7 @@ class PHPTreeEvaluator(TreeEvaluator):
         else:
             ctlines = signature.splitlines(0)
         if doc:
-            ctlines += doc.splitlines(0)[:LINE_LIMIT-len(ctlines)]
+            ctlines += doc.splitlines(0)
         return '\n'.join(ctlines)
 
 

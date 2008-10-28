@@ -126,7 +126,6 @@ class TreeEvaluatorHelper(TreeEvaluator):
     def _calltip_from_func(self, node):
         # See "Determining a Function CallTip" in the spec for a
         # discussion of this algorithm.
-        from codeintel2.util import LINE_LIMIT
         signature = node.get("signature")
         doc = node.get("doc")
         ctlines = []
@@ -137,7 +136,7 @@ class TreeEvaluatorHelper(TreeEvaluator):
         else:
             ctlines = signature.splitlines(0)
         if doc:
-            ctlines += doc.splitlines(0)[:LINE_LIMIT-len(ctlines)]
+            ctlines += doc.splitlines(0)
         return '\n'.join(ctlines)
 
     # This code taken from JavaScriptTreeEvaluator

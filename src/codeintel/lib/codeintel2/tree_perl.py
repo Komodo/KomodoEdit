@@ -613,7 +613,6 @@ class PerlTreeEvaluator(PerlTreeEvaluatorBase):
     def _calltip_from_func(self, elem):
         # See "Determining a Function CallTip" in the spec for a
         # discussion of this algorithm.
-        from codeintel2.util import LINE_LIMIT #TODO: -> CALLTIP_LINE_LIMIT
         signature = elem.get("signature")
         if not signature:
             ctlines = [elem.get("name") + "(...)"]
@@ -621,7 +620,7 @@ class PerlTreeEvaluator(PerlTreeEvaluatorBase):
             ctlines = signature.splitlines(0)
         doc = elem.get("doc")
         if doc:
-            ctlines += doc.splitlines(0)[:LINE_LIMIT-len(ctlines)]
+            ctlines += doc.splitlines(0)
         return '\n'.join(ctlines)
 
     def _hit_from_citdl(self, expr, scoperef, defn_only=False):

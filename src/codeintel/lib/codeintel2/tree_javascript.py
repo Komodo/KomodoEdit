@@ -42,7 +42,7 @@ import re
 from pprint import pformat
 
 from codeintel2.common import *
-from codeintel2.util import indent, LINE_LIMIT
+from codeintel2.util import indent
 from codeintel2.tree import TreeEvaluator
 
 if _xpcom_:
@@ -310,7 +310,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         else:
             ctlines = signature.splitlines(0)
         if doc:
-            ctlines += doc.splitlines(0)[:LINE_LIMIT-len(ctlines)]
+            ctlines += doc.splitlines(0)
         return '\n'.join(ctlines)
 
     def _calltip_from_class(self, elem):
@@ -321,7 +321,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         if signature:
             ctlines = signature.splitlines(0)
             if doc:
-                ctlines += doc.splitlines(0)[:LINE_LIMIT-len(ctlines)]
+                ctlines += doc.splitlines(0)
             return '\n'.join(ctlines)
         elif name in elem.names:
             # Typically the class element has a contructor function of
@@ -332,7 +332,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         else:
             ctlines = [name + "(...)"]
             if doc:
-                ctlines += doc.splitlines(0)[:LINE_LIMIT-len(ctlines)]
+                ctlines += doc.splitlines(0)
             return '\n'.join(ctlines)
 
     def _calltips_from_hits(self, hits):

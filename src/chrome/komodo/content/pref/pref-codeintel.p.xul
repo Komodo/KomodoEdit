@@ -88,6 +88,15 @@
         <description style="margin-left: 27px;">
             &codeIntelAutocompleteFillUpCharacters.description;
         </description>
+
+        <separator class="thin"/>
+        <hbox flex="1" align="center">
+            <label value="&codeIntelCalltipMaxLength.label;"/>
+            <textbox id="codeintel_calltip_max_lines"
+                     size="3"
+                     pref="true"/>
+        </hbox>
+
     </groupbox>
 
     <groupbox id="groupbox-2" orient="vertical">

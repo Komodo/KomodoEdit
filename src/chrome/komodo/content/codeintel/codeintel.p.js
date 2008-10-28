@@ -392,6 +392,11 @@ CodeIntelCompletionUIHandler.prototype._setCallTipInfo = function(
             this.scimoz.callTipCancel();
         }
         this._lastTriggerPos = triggerPos;
+        var calltip_lines = calltip.split(/\r\n|\n|\r/g);
+        var max_lines = gPrefs.getLongPref("codeintel_calltip_max_lines");
+        if (calltip_lines.length > max_lines) {
+            calltip = calltip_lines.slice(0, max_lines).join("\n");
+        }
         this.scimoz.callTipShow(triggerPos, calltip);
         this.scimoz.callTipSetHlt(hltStart, hltEnd);
         var callTipItem = {"triggerPos": triggerPos, "calltip": calltip};
