@@ -239,8 +239,8 @@ def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
                 yield path
 
 
-def _gen_komodo_js_api_files(komodo_chrome_dir):
-    for path in _paths_from_path_patterns([komodo_chrome_dir],
+def _gen_komodo_js_api_files(javascript_dirlist):
+    for path in _paths_from_path_patterns(javascript_dirlist,
                                           includes=["*.js"],
                                           excludes=["test"]):
         if path.lower().endswith(".unprocessed.js") \
@@ -248,11 +248,11 @@ def _gen_komodo_js_api_files(komodo_chrome_dir):
             continue
         yield path
 
-def _remove_non_ko_namespace(tree):
+def _filter_namespaces(tree, keep_namespaces=None):
     for scope in list(tree.findall("file/scope")):
         for child in list(scope):
             name = child.get("name")
-            if name and name != "ko":
+            if name and (not keep_namespaces or name not in keep_namespaces):
                 #print "Removing: %r:%s" % (child.tag, name)
                 scope.remove(child)
 
@@ -313,9 +313,11 @@ def komodo_to_cix(output_path, p4_edit=False):
     # so we can record all variable/function/etc... information into one
     # komodo.cix file.
     jscile = JavaScriptCiler(Manager(), "komodo")
+    xtk_chrome_dir = join(_get_komodo_dev_dir(), "src", "chrome", "xtk",
+                          "content")
     komodo_chrome_dir = join(_get_komodo_dev_dir(), "build", "release",
                              "chrome", "komodo", "content")
-    for path in _gen_komodo_js_api_files(komodo_chrome_dir):
+    for path in _gen_komodo_js_api_files([xtk_chrome_dir, komodo_chrome_dir]):
         #if path in ("utilities.js", "yahoo-dom-event.js"):
         #    # This is just a compressed up version of multiple files
         #    continue
@@ -337,7 +339,7 @@ def komodo_to_cix(output_path, p4_edit=False):
 
     #mergeElementTreeScopes(cix_yui_module)
     #remove_cix_line_numbers_from_tree(cix_komodo)
-    _remove_non_ko_namespace(cix_komodo)
+    _filter_namespaces(cix_komodo, keep_namespaces=["ko", "xtk"])
     # Don't remove the private elements, they are needed for codeintel. See:
     #   http://bugs.activestate.com/show_bug.cgi?id=72562
     #_remove_private_elements(cix_komodo)
