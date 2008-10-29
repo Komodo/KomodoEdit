@@ -203,6 +203,10 @@ function getStack(skipCount)
 }
 this.getStack = getStack;
 
+this.dumpStack = function() {
+    dump("Stack:\n" + getStack().replace('\n', '\n    ', 'g').slice(0, -4));
+}
+
 /* XXX copied from venkman-utils.js
  * Dumps an object in tree format, recurse specifiec the the number of objects
  * to recurse, compress is a boolean that can uncompress (true) the output
