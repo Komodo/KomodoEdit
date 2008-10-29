@@ -1568,7 +1568,7 @@
                 // Note we seem to get mousemove messages every second or so.  I
                 // think it is related to the cursor, but not sure.  It seems to originate
                 // from Windows itself, but I don't know what triggers it.  mh.
-<!-- #if PLATFORM != "darwin" and PLATFORM != "win" -->
+<!-- #if PLATFORM != "win" -->
                 // darwin and windows handle this (somewhat differently) in
                 // scimoz now
                 this.scimoz.buttonMove( x, y );

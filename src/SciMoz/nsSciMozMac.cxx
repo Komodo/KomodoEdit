@@ -343,7 +343,7 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 		break;
 	case NPEventType_AdjustCursorEvent:
 		//fprintf(stderr, "SciMoz::PlatformHandleEvent AdjustCursorEvent: mouseMove or mouseEnter\n");
-		if (scintilla->MouseDragged(event) == noErr) return true;
+		// This is done in scintilla.p.xml#mousemove (see bug 79958)
 		break;
 	case NPEventType_LoseFocusEvent:
 		//fprintf(stderr, "SciMoz::PlatformHandleEvent LoseFocusEvent\n");
