@@ -1418,7 +1418,7 @@ class GenericCommandHandler:
             sm.scrollCaret()
             return
 
-        if self._try_complete_word(sm, view):
+        if sm.currentPos == sm.anchor and self._try_complete_word(sm, view):
             self._doCompleteWord(1)
             return
 
@@ -1537,8 +1537,7 @@ class GenericCommandHandler:
         return self._view.moveToNextTabstop()
 
     def _try_complete_word(self, sm, view):
-        return (sm.currentPos == sm.anchor
-                and sm.currentPos > 0
+        return (sm.currentPos > 0
                 and view.prefs.getBooleanPref('editTabCompletes')
                 and self._unicode_word_char_re.match(sm.getWCharAt(sm.positionBefore(sm.currentPos))))
     
@@ -1572,9 +1571,10 @@ class GenericCommandHandler:
         if self._handle_tabstop():
             return
 
-        if self._try_complete_word(sm, view):
-            self._doCompleteWord(0)
-            return
+        if sm.currentPos == sm.anchor:
+            if self._try_complete_word(sm, view):
+                self._doCompleteWord(0)
+                return
     
             # Do we have a selection?  If no, then it's 'insert a tab'
             self._insertIndent()
