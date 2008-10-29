@@ -65,6 +65,8 @@ var _obSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
 var _fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].
                     getService(Components.interfaces.koIFileStatusService);
+var _uuidGenerator = Components.classes["@mozilla.org/uuid-generator;1"].
+                    getService(Components.interfaces.nsIUUIDGenerator);
 
 this.user = null;
 this.shared  = null;
@@ -87,8 +89,8 @@ this.onload = function Toolbox_onLoad()
 //
 
 function toolboxBaseManager() {
-    ko.main.addCanCloseHandler(this.save, this);
-    ko.main.addWillCloseHandler(this.savePrefs, this);
+    // Reload other instances of the toolbox if it changes.
+    this._reloadOnToolboxChanges = false;
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -114,11 +116,22 @@ toolboxBaseManager.prototype.constructor = toolboxBaseManager;
 //
 toolboxBaseManager.prototype._init = function(prettyName, elementid, fname) {
     try {
+        ko.main.addCanCloseHandler(this.canUnload, this);
+        ko.main.addWillCloseHandler(this.unload, this);
+        this.TOOLBOX_CHANGED_EVENT = this.name + " _toolbox_changed";
+        if (this._reloadOnToolboxChanges) {
+            // Add a toolbox change observer.
+            _obSvc.addObserver(this, this.TOOLBOX_CHANGED_EVENT, false);
+        }
         this.lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                 getService(Components.interfaces.koILastErrorService);
         var osPath = Components.classes["@activestate.com/koOsPath;1"].
                      getService(Components.interfaces.koIOsPath);
 
+        // Marker to tell if the project in the process of shutting down.
+        this._isShuttingDown = false;
+        // Unique identifier for this toolbox instance.
+        this._uuid = _uuidGenerator.generateUUID();
         this.prettyName = prettyName;
         this.log = ko.logging.getLogger('toolboxManager: ' + elementid);
         //this.log.setLevel(ko.logging.LOG_DEBUG);
@@ -175,6 +188,8 @@ toolboxBaseManager.prototype._init = function(prettyName, elementid, fname) {
         }
 
         // Let the file status service know it has work to do.
+        // XXX - This should only be done for the first instance, not on every
+        //       window instance loading the toolbox.
         _fileStatusSvc.updateStatusForAllFiles(Components.interfaces.koIFileStatusChecker.REASON_BACKGROUND_CHECK);
 
         return null;
@@ -184,10 +199,15 @@ toolboxBaseManager.prototype._init = function(prettyName, elementid, fname) {
     return "An unknown exception occurred";
 }
 
-toolboxBaseManager.prototype.close = function() {
+toolboxBaseManager.prototype.close = function(doSave /* true */) {
     try {
-        if (this.toolbox && !this.toolbox.getFile().isReadOnly) {
-            this.save();
+        if (typeof(doSave) == 'undefined') {
+            doSave = true;
+        }
+        if (this.toolbox) {
+            if (doSave && !this.toolbox.getFile().isReadOnly) {
+                this.save();
+            }
             this.toolbox.close();
             this.viewMgr.view.toolbox = null;
         }
@@ -339,8 +359,19 @@ toolboxBaseManager.prototype.loadToolboxFromURL = function(url)
     this.loadFromProject(this.toolbox);
 }
 
+/**
+ * Close the toolbox (without saving) and then load the toolbox data
+ * from the koIProject again.
+ */
+toolboxBaseManager.prototype.reloadToolbox = function()
+{
+    this.log.info("reloadToolbox:: reloading: " + this.toolboxURL);
+    this.close(/* doSave */ false);
+    this.loadToolboxFromURL(this.toolboxURL);
+}
+
 toolboxBaseManager.prototype.verifyUnchanged = function() {
-    if (this.toolbox && this.toolbox.getFile().hasChanged) {
+    if (this.toolbox && this.toolbox.haveContentsChangedOnDisk()) {
         var prompt = 'Your '+this.prettyName+' has changed outside Komodo, '+
                   'Saving it now will overwrite changes made outside Komodo. '+
                   'You can overwrite those changes, or load the changes which '+
@@ -349,8 +380,11 @@ toolboxBaseManager.prototype.verifyUnchanged = function() {
         if (response == "Cancel") {
             return false;
         } else if (response == "Reload") {
-            this.toolbox.revert();
-            this.loadFromProject(this.toolbox);
+            this.reloadToolbox();
+            try {
+                _obSvc.notifyObservers(this.toolbox, this.TOOLBOX_CHANGED_EVENT,
+                                       this._uuid);
+            } catch(e) { /* exception if no listeners */ }
             return false;
         }
     }
@@ -362,7 +396,9 @@ toolboxBaseManager.prototype.verifyUnchanged = function() {
 toolboxBaseManager.prototype.save = function() {
     if (this.toolbox && this.toolbox.isDirty) {
         try {
-            if (!this.verifyUnchanged()) return false;
+            if (!this.verifyUnchanged()) {
+                return false;
+            }
             this.toolbox.save();
             // force stat update
             // XXX BUG 56517
@@ -412,25 +448,49 @@ toolboxBaseManager.prototype.save = function() {
             } else /* answer == "Cancel" */ {
                 return false;
             }
+        } finally {
+            if (!this._isShuttingDown && !this.toolbox.isDirty) {
+                // The user saved the toolbox.
+                try {
+                    _obSvc.notifyObservers(this.toolbox, this.TOOLBOX_CHANGED_EVENT,
+                                           this._uuid);
+                } catch(e) { /* exception if no listeners */ }
+            }
         }
-    }
-    if (this.toolbox) {
-        try {
-            _obSvc.notifyObservers(this, 'file_changed', this.toolbox.url);
-        } catch(e) { /* exception if no listeners */ }
     }
     return true;
 }
 
-toolboxBaseManager.prototype.savePrefs = function() {
+toolboxBaseManager.prototype.observe = function(subject, topic, data)
+{
+    if (topic == this.TOOLBOX_CHANGED_EVENT) {
+        // subject: a koIProject instance from the toolbox that was changed.
+        // data:    the uuid of the toolboxManager instance that was changed.
+        if (this._uuid != data) {
+            this.log.info("reloading " + this.name + " because another toolbox instance has changed");
+            this.reloadToolbox();
+        }
+    }
+};
+
+toolboxBaseManager.prototype.canUnload = function() {
+    return this.save();
+}
+
+toolboxBaseManager.prototype.unload = function() {
+    this._isShuttingDown = true;
     if (this.toolbox) {
         try {
             // Save folding-related information, which change doesn't
             // dirty a project.
             this.viewMgr.view.savePrefs(this.viewMgr.view.toolbox);
         } catch(ex) {
-            log.exception(ex);
+            this.log.exception(ex);
         }
+    }
+    if (this._reloadOnToolboxChanges) {
+        // Remove the toolbox change observer originally added.
+        _obSvc.removeObserver(this, this.TOOLBOX_CHANGED_EVENT);
     }
 }
 
@@ -445,14 +505,17 @@ toolboxBaseManager.prototype.getCurrentProject = function() {
 }
 
 
+
+
+/******************************************************/
+/*                   User Toolbox                     */
+/******************************************************/
+
+
 //---- Support for the user/personal Toolbox
 
 function toolboxManager() {
-    try {
-        toolboxBaseManager.apply(this);
-    } catch (e) {
-        this.log.error("error creating toolboxManager: " + e);
-    }
+    this._reloadOnToolboxChanges = true;
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -599,7 +662,6 @@ this.addCommand = function AddCommandToToolbox(command, cwd, env, insertOutput,
     part.setStringAttribute('parseRegex', parseRegex);
     part.setBooleanAttribute('showParsedOutputList', showParsedOutputList);
     toolboxMgr.addItem(part);
-    toolboxMgr.toolbox.save();
     ko.uilayout.ensureTabShown('toolbox_tab');
 }
 

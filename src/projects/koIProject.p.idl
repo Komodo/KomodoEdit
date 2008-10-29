@@ -207,6 +207,11 @@ interface koIProject: koIPart_livefolder {
                                     // when reading toolbars/menu's
     void loadFromString(in wstring data, in wstring url);
 
+    // Check if the project kpf file has changed on disk since it was last
+    // loaded/saved. This uses a md5 check to ensure the contents on disk
+    // match what the toolbox originally loaded/saved.
+    boolean haveContentsChangedOnDisk();
+
     void revert();
     // This can raise an exception, in which case an appropriate error is
     // set on the last error service.

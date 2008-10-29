@@ -60,6 +60,9 @@ import time
 from pprint import pprint
 import random
 import logging
+# cstringio would save a little time, but doesn't support unicode
+from StringIO import StringIO
+from hashlib import md5
 from xml.sax import SAXParseException
 from xml.sax.saxutils import escape, unescape, quoteattr
 from xml.dom import pulldom
@@ -1739,6 +1742,9 @@ class koProject(koLiveFolderPart):
     _iconurl = 'chrome://komodo/skin/images/project_icon.png'
     primaryInterface = 'koIProject'
     _partSvc = None
+    # The last md5 is used for comparing between load/saves to ensure that
+    # there are no changes outside of what Komodo makes.
+    _lastmd5 = None
 
     def __init__(self):
         self._isDirty = 0
@@ -1837,18 +1843,6 @@ class koProject(koLiveFolderPart):
         project.create()
         return self._clone(project)
 
-    def _get_stream(self, path, mode):  # mode is 'r' or 'w'
-        self.name = os.path.splitext(os.path.basename(path))[0]
-        stream = components.classes["@activestate.com/koLocalFile;1"].\
-             createInstance().QueryInterface(components.interfaces.koILocalFile)
-        try:
-            stream.init(path, mode)
-        except (IOError, COMException), e:
-            errstr = "Can't open project file %s because %s" % (path, e)
-            log.error(errstr)
-            raise
-        return stream
-
     def set_isDirty(self, dirty):
         if self._isDirty != dirty:
             self._isDirty = dirty
@@ -1860,15 +1854,42 @@ class koProject(koLiveFolderPart):
     def get_isDirty(self):
         return self._isDirty
 
+    def _update_lastmd5_from_contents(self, contents):
+        self._lastmd5 = md5(contents).hexdigest()
+
+    def _getContents(self, fname):
+        if not os.path.exists(fname):
+            err = 'File does not exist.'
+            self.lastErrorSvc.setLastError(0, err)
+            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
+        try:
+            # Although we encode and save the contents in UTF-8 format, we
+            # do not want to decode here, the decoding is left up to the dom
+            # parsing routines inside _parseStream.
+            contents = file(fname, "rb").read()
+        except (IOError, COMException), e:
+            errstr = "Can't open project file %s because %s" % (fname, e)
+            log.error(errstr)
+            raise
+        return contents
+
+    def haveContentsChangedOnDisk(self):
+        url = self._loaded_from_url or self._url
+        fname = uriparse.URIToLocalPath(url)
+        contents = self._getContents(fname)
+        return self._lastmd5 != md5(contents).hexdigest()
+
+    def _loadContents(self, contents, url, fname):
+        self._update_lastmd5_from_contents(contents)
+        self._parseStream(StringIO(contents), url, fname)
+
     def loadFromString(self, data, url):
         self.lastErrorSvc.setLastError(0, '')
         self.set_url(url)
         assert self._url
         assert self._relativeBasedir
         fname = uriparse.URIToLocalPath(self._url)
-        # load into a stream that can be used for parsing
-        import StringIO
-        self._parseStream(StringIO.StringIO(data), url, fname)
+        self._loadContents(data, url, fname)
 
     def loadQuiet(self, url):
         self._quiet = 1
@@ -1881,13 +1902,8 @@ class koProject(koLiveFolderPart):
         assert self._url
         assert self._relativeBasedir
         fname = uriparse.URIToLocalPath(self._url)
-        if not os.path.exists(fname):
-            err = 'File does not exist.'
-            self.lastErrorSvc.setLastError(0, err)
-            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
-
-        stream = self._get_stream(fname, 'r')
-        self._parseStream(stream, url, fname)
+        contents = self._getContents(fname)
+        self._loadContents(contents, url, fname)
 
     def _parseStream(self, stream, url, fname):
         t1 = time.clock()
@@ -2252,9 +2268,7 @@ class koProject(koLiveFolderPart):
 
     def _save(self, url):
         try:
-            # cstringio would save a little time, but doesn't support unicode
-            import StringIO
-            stream = StringIO.StringIO()
+            stream = StringIO()
             try:
                 stream.write('<?xml version="1.0" encoding="UTF-8"?>'+newl)
                 stream.write('<!-- Komodo Project File - DO NOT EDIT -->'+newl)
@@ -2267,9 +2281,11 @@ class koProject(koLiveFolderPart):
             tempname = tempfile.mktemp()
             try:
                 f = open(tempname, 'wb+')
-                f.write(stream.getvalue().encode('UTF-8'))
+                contents = stream.getvalue().encode('UTF-8')
+                f.write(contents)
                 f.close()
             # if we get this far we have probably saved it correctly.
+                self._update_lastmd5_from_contents(contents)
                 fname = uriparse.URIToLocalPath(url)
                 dirname = os.path.dirname(fname)
                 if not os.path.exists(dirname):

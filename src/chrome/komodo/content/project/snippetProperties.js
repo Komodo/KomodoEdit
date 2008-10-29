@@ -305,7 +305,7 @@ function Apply() {
     gItem.iconurl = iconuri;
     
     if (gItem.project == opener.ko.toolboxes.user.toolbox)
-        opener.ko.toolboxes.user.toolbox.save();
+        opener.ko.toolboxes.user.save();
 
     gApplyButton.setAttribute('disabled', 'true');
     return true;

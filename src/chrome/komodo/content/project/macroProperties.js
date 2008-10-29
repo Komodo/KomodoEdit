@@ -243,7 +243,7 @@ function _Apply()  {
         gPart.setStringAttribute('language', gLanguage.selectedItem.getAttribute('id'));
         var ret = gKeybinding.apply();
         if (gPart.project == opener.ko.toolboxes.user.toolbox)
-            opener.ko.toolboxes.user.toolbox.save();
+            opener.ko.toolboxes.user.save();
         return ret;
     } catch (e) {
         log.exception(e);
