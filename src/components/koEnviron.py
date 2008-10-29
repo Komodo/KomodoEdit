@@ -247,9 +247,6 @@ class KoUserEnviron:
         try:
             fin = open(self.startupEnvFileName, "r")
         except EnvironmentError, ex:
-            #XXX http://bugs.activestate.com/show_bug.cgi?id=39209
-            #    Haven't yet implemented creating the startup env
-            #    file on Mac OS X.
             self._userEnviron = os.environ.copy()
         else:
             content = fin.read()
