@@ -126,6 +126,9 @@
 
 
   <string id="userEnvironmentStartupOverride"/>
+  <!-- Whether to allow Komodo to implicitly add some common dirs to the PATH
+       in some cases. See bug 80656. -->
+  <boolean id="userEnvironmentAllowImplicitPATHAdditions">1</boolean>
   <string id="userEnvironment"/>
 
   <ordered-preference id="deploymentServerList"/>

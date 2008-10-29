@@ -321,12 +321,14 @@ class KoUserEnviron:
 
     def _updateWithUserOverrides(self):
         self._userEnviron = self._origStartupEnv.copy()
+        
         # now overwrite with the userEnvironment preference
         prefs = components.classes["@activestate.com/koPrefService;1"]\
                 .getService(components.interfaces.koIPrefService).prefs
         _environUtils = components.classes[
             "@activestate.com/koEnvironUtils;1"] \
             .getService(components.interfaces.koIEnvironUtils)
+        havePATHOverride = False
         prefName = "userEnvironmentStartupOverride"
         if prefs.hasStringPref(prefName) and prefs.getStringPref(prefName):
             env = re.split('\r?\n|\r', prefs.getStringPref(prefName), re.U)
@@ -339,8 +341,39 @@ class KoUserEnviron:
             for line in newenv:
                 item =  _ParseBashEnvStr(line)
                 if item:
+                    if item[0] == "PATH":
+                        havePATHOverride = True
                     self._userEnviron[item[0]] = item[1]
         
+        # For some platforms we implicitly add some common dirs to the PATH.
+        # It is common, for example, on Mac OS X for a Komodo user to have
+        # "/usr/local/bin" on the PATH in their shell, but not in Komodo
+        # because Mac applications don't start from a login shell. This is
+        # confusing to users. (Bug 80656.)
+        implicitPathAdditionsFromPlat = {
+            "darwin": ["/usr/local/bin",
+                       "/opt/local/bin"],  # Mac Ports
+            "linux2": ["/usr/local/bin"],
+        }
+        allowPrefName = "userEnvironmentAllowImplicitPATHAdditions"
+        if (not havePATHOverride
+            and sys.platform in implicitPathAdditionsFromPlat
+            and (not prefs.hasBooleanPref(allowPrefName)
+                 or prefs.getBooleanPref(allowPrefName))):
+            implicitPathAdditions = implicitPathAdditionsFromPlat[sys.platform]
+            path = self._userEnviron.get("PATH", "").split(os.pathsep)
+            if sys.platform in ("darwin", "win32"):
+                comparePath = set(p.lower() for p in path) # case-insensitive comparison
+            else:
+                comparePath = set(path)
+            for ipa in implicitPathAdditions:
+                compareIpa = (sys.platform in ("darwin", "win32")
+                              and ipa.lower() or ipa)
+                if compareIpa not in comparePath:
+                    path.append(ipa)
+            if path:
+                self._userEnviron["PATH"] = os.pathsep.join(path)
+
         # we must reset this in order for some services to pick up on the
         # changes (eg. SCC services)
         koprocessutils.resetUserEnv()
