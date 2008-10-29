@@ -2095,7 +2095,12 @@ this.restoreInProgress = function() {
     return _restoreInProgress;
 }
 const multiWindowWorkspacePrefName = "windowWorkspace";
-
+const _mozPersistPositionDoesNotWork = 
+// #if PLATFORM == 'win' or PLATFORM == 'darwin'
+false;
+// #else
+true;
+// #endif
 /**
  * restore all workspace preferences and state, open files and projects
  */
@@ -2116,14 +2121,15 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
         return;
     }
     if (!gPrefs.hasPref(multiWindowWorkspacePrefName)) {
-        this._restoreWindowWorkspace(gPrefs.getPref('workspace'), currentWindow);
+        this._restoreWindowWorkspace(gPrefs.getPref('workspace'), currentWindow, _mozPersistPositionDoesNotWork);
         return;
     }
     // Restore the first workspace directly, and restore other
     // workspaces indirectly each new window's init routine in ko.main
     
     var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
-    this._restoreWindowWorkspace(windowWorkspacePref.getPref(0), currentWindow);
+    var checkWindowBounds = _mozPersistPositionDoesNotWork || windowWorkspacePref.hasPref(1);
+    this._restoreWindowWorkspace(windowWorkspacePref.getPref(0), currentWindow, checkWindowBounds);
     for (var i = 1; true; i++) {
         if (windowWorkspacePref.hasPref(i)) {
             ko.launch.newWindowFromWorkspace(i);
@@ -2146,29 +2152,57 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx)
     idx = parseInt(idx);
     var windowWorkspacePref = gPrefs.getPref('windowWorkspace');
     try {
-        this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx), currentWindow);
+        this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx), currentWindow, idx > 0 || _mozPersistPositionDoesNotWork);
     } catch(ex) {
         log.exception("Can't restore workspace for window " + idx);
     }
 };
 
-this._restoreWindowWorkspace = function(workspace, currentWindow)
+// Bug 80604 -- screenX and screenY values like -32000 can occur.
+// Generalize it: if we fall behind or in front of some threshold,
+// return the acceptable min/max value.
+function _checkWindowCoordinateBounds(candidateValue,
+                            minAcceptableThreshold, minAcceptable,
+                            maxAcceptableThreshold, maxAcceptable) {
+    if (candidateValue < minAcceptableThreshold) {
+        return Math.round(minAcceptable);
+    }
+    if (candidateValue > maxAcceptableThreshold) {
+        return Math.round(maxAcceptable);
+    }
+    return candidateValue;
+}
+
+this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBounds)
 {
     _restoreInProgress = true;
     try {
         var wko = currentWindow.ko;
         var cnt = new Object();
         var ids = new Object();
-        var id, elt;
-        var pref;
-        if (workspace.hasPref('coordinates')) {
-            pref = workspace.getPref('coordinates');
-            var coordNames = {};
-            pref.getPrefIds(coordNames, {});
-            coordNames = coordNames.value;
-            for (var name, i = 0; name = coordNames[i]; i++) {
-                currentWindow[name] = pref.getLongPref(name);
+        var id, elt, pref;
+        if (checkWindowBounds && workspace.hasPref('coordinates')) {
+            var coordinates = workspace.getPref('coordinates');
+            var screenHeight = window.screen.availHeight;
+            var screenWidth = window.screen.availWidth;
+            var screenX = coordinates.getLongPref('screenX');
+            var screenY = coordinates.getLongPref('screenY');
+            var outerHeight = coordinates.getLongPref('outerHeight');
+            var outerWidth = coordinates.getLongPref('outerWidth');
+            if (Math.abs(screenX) > 3 * screenWidth
+                || Math.abs(screenY) > 3 * screenHeight) {
+                screenX = screenY = 0;
             }
+            currentWindow.screenX = screenX;
+            currentWindow.screenY = screenY;
+            currentWindow.outerHeight = _checkWindowCoordinateBounds(
+                outerHeight,
+                0, .2 * screenHeight,
+                screenHeight, .9 * screenHeight);
+            currentWindow.outerWidth = _checkWindowCoordinateBounds(
+                outerWidth,
+                0, .2 * screenWidth,
+                screenWidth, .9 * screenWidth);
         }
         if (workspace.hasPref('opened_projects')) {
             pref = workspace.getPref('opened_projects');
