@@ -492,7 +492,7 @@ function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, repl
             
             scimoz.targetStart = prevPos;
             scimoz.targetEnd = restorePos;
-            scimoz.replaceTarget(restorePos - prevPos, prevChar);
+            scimoz.replaceTarget(prevChar.length, prevChar);
         }
         
         var numLinesInReplacement = (replacementText.match(eol_re) || "").length;
@@ -538,7 +538,7 @@ function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, repl
             var prevChar = scimoz.getTextRange(prevPos, restorePos);
             scimoz.targetStart = prevPos;
             scimoz.targetEnd = restorePos;
-            scimoz.replaceTarget(restorePos - prevPos, prevChar);
+            scimoz.replaceTarget(prevChar.length, prevChar);
         }
 
         scimoz.endUndoAction();
