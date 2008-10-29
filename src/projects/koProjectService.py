@@ -8,7 +8,10 @@ from projectUtils import *
 import logging
 log = logging.getLogger("koProjectService")
 
-class windowData(object):
+
+class KomodoWindowData(object):
+    """A class to hold info about a particular top-level Komodo window."""
+    
     def __init__(self):
         self._toolbox = None
         self._sharedToolbox = None
@@ -200,28 +203,45 @@ class KoPartService(object):
         self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
                         getService(components.interfaces.nsIWindowMediator);
 
-        self.content = components.classes["@activestate.com/koContentUtils;1"].\
+        self._contentUtils = components.classes["@activestate.com/koContentUtils;1"].\
                     getService(components.interfaces.koIContentUtils)
 
-        self._data = {}
+        self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
 
-    def isType(self, w, type):
-        return w.document.documentElement.getAttribute("windowtype") == type
+    def _windowTypeFromWindow(self, window):
+        if not window:
+            return None
+        return window.document.documentElement.getAttribute("windowtype")
 
     def get_window(self):
-        # if we do not have a window from caller, then get the most recent
-        # window and live with it!
+        """Return the appropriate top-level Komodo window for this caller."""
         window = None
-        #XXX Disabled for now. This while loop is infinite!
-        #window = self.content.GetWindowFromCaller()
-        #while window and not self.isType(window, "Komodo"):
-        #    window = window.parent
+
+        # Try to use koIContentUtils, which can find the nsIDOMWindow for
+        # the calling JavaScript context.
+        w = self._contentUtils.GetWindowFromCaller()
+        sentinel = 100
+        while sentinel:
+            if not w:
+                break
+            elif self._windowTypeFromWindow(w) == "Komodo":
+                window = w
+                break
+            elif w.parent == w:
+                break
+            w = w.parent
+            sentinel -= 1
+        else:
+            log.warn("hit sentinel in KoPartService.get_window()!")
+        
+        # If we do not have a window from caller, then get the most recent
+        # window and live with it.
         if not window:
-            # window here is nsIDOMWindowInternal, change it
+            # Window here is nsIDOMWindowInternal, change it.
             window = self.wm.getMostRecentWindow('Komodo')
             window.QueryInterface(components.interfaces.nsIDOMWindow)
         if window not in self._data:
-            self._data[window] = windowData()
+            self._data[window] = KomodoWindowData()
         return window
 
     def get_runningMacro(self):
@@ -283,9 +303,10 @@ class KoPartService(object):
         if not subject:
             return
         window = subject.QueryInterface(components.interfaces.nsIDOMWindow)
-        if not self.isType(window, "Komodo"): return
+        if self._windowTypeFromWindow(window) != "Komodo":
+            return
         if topic == "domwindowopened":
-            self._data[window] = windowData()
+            self._data[window] = KomodoWindowData()
         elif topic == "domwindowclosed":
             if window in self._data:
                 del self._data[window]
