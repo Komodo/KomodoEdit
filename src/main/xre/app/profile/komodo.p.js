@@ -73,7 +73,7 @@ pref("extensions.hideInstallButton", true);
 pref("extensions.getAddons.showPane", true);
 pref("extensions.getAddons.browseAddons", "http://community.activestate.com/addons");
 pref("extensions.getAddons.maxResults", 5);
-pref("extensions.getAddons.recommended.browseURL", "http://community.activestate.com/xpi/recommended");
+pref("extensions.getAddons.recommended.browseURL", "http://community.activestate.com/addons/recommended");
 pref("extensions.getAddons.recommended.url", "http://community.activestate.com/xpi/api/%API_VERSION%/list/featured/all/10");
 pref("extensions.getAddons.search.browseURL", "http://community.activestate.com/search/node/%TERMS%+type%3Axpi");
 pref("extensions.getAddons.search.url", "http://community.activestate.com/xpi/api/%API_VERSION%/search/%TERMS%");
