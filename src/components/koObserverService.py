@@ -132,7 +132,9 @@ class KoObserverService:
                 self._topics[aTopic] = []
             else:
                 self._removeDead()
-    
+
+            # Ignoring the ownsWeak argument, always try to create a
+            # weakreference, see comments in bug 80145.
             try:
                 anObserver = WeakReference(anObserver)
             except COMException:

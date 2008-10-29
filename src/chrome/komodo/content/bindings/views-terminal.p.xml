@@ -117,11 +117,10 @@
                 // be accessed anymore.
                 this.terminalHandler.endSession();
                 this.terminalHandler.setScintilla(null);
-                this.scintilla.controllers.removeController(this._genericController);
-                this._genericController = null;
-                this.scimoz.unhookEvents(this);
                 this.terminalHandler = null;
             }
+            // Call the base close method to cleanup Scintilla.
+            this.close();
         ]]>
         </body>
         </method>
