@@ -147,7 +147,10 @@
                 // so there is no scimoz object.
                 this.scimoz.readOnly = 1;
             } catch(ex) {}
-            this.terminalHandler.endSession();
+            try {
+                // And sometimes the terminalSession has already been released.
+                this.terminalHandler.endSession();
+            } catch(ex) {}
         ]]>
         </body>
         </method>
