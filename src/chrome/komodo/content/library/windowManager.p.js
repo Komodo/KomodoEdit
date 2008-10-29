@@ -195,9 +195,13 @@ ko.windowManager = {
         return false;
     },
     
-    /*
-     * @return: an array of the Komodo windows, with the current
-     * one at the end of the list.
+    /**
+     * Returns an array of all Komodo windows that are currently open. The
+     * current window will be the last element in the array.
+     * 
+     * @returns {array}
+     *
+     * Dev note:
      * Originally I wanted to return the windows in reverse z-order
      * using nsIWindowMediator.getZOrderDOMWindowEnumerator
      * but this method doesn't work for Linux
