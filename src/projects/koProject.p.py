@@ -1866,7 +1866,7 @@ class koProject(koLiveFolderPart):
             # Although we encode and save the contents in UTF-8 format, we
             # do not want to decode here, the decoding is left up to the dom
             # parsing routines inside _parseStream.
-            contents = file(fname, "rb").read()
+            contents = open(fname, "rb").read()
         except (IOError, COMException), e:
             errstr = "Can't open project file %s because %s" % (fname, e)
             log.error(errstr)
