@@ -1050,7 +1050,14 @@ FindResultsTabManager.prototype._doubleClick = function()
                 }
             }
         }
-        scimoz.setSel(start, end);
+        
+        // Make the modifications in a timeout to avoid unwanted horizontal
+        // scroll (bug 60117).
+        setTimeout(function() {
+            scimoz.setSel(start, end);
+            scimoz.chooseCaretX();
+            view.setFocus();
+        } , 0);
 
         // If the invoked find result is the last visible one and there are more,
         // then scroll the list of find results by one.
@@ -1059,10 +1066,6 @@ FindResultsTabManager.prototype._doubleClick = function()
         if (box.getLastVisibleRow() <= i && this.view.rowCount > i+1) {
             box.scrollByLines(1);
         }
-        scimoz.chooseCaretX();
-
-        // transfer focus to the editor
-        view.setFocus();
     } catch (ex) {
         log.exception(ex);
     }

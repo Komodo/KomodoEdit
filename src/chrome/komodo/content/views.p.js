@@ -593,7 +593,11 @@ viewManager.prototype.doFileOpenAtLine = function(
         index = -1;
     var v = this.doFileOpen(uri, viewType, viewList, index);
     if (v) {
-        v.currentLine = lineno;
+        // Do the line change in a timeout to avoid unwanted horizontal scroll
+        // (bug 60117).
+        setTimeout(function() {
+            v.currentLine = lineno;
+        }, 0);
     }
     return v;
 }
