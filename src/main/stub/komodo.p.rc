@@ -63,7 +63,7 @@ BEGIN
 			VALUE	"FileDescription",	"ActiveState Komodo\0"
 			VALUE	"FileVersion",	"PP_KO_VERSION\0"
 			VALUE	"InternalName",	"Komodo\0"
-			VALUE	"LegalCopyright",	"(c) 2000-2006 ActiveState Software Inc\0"
+			VALUE	"LegalCopyright",	"(c) 2000-2008 ActiveState Software Inc\0"
 			VALUE	"OriginalFilename",	"komodo.exe\0"
 			VALUE	"ProductName",	"Komodo\0"
 			VALUE	"ProductVersion",	"PP_KO_VERSION\0"
