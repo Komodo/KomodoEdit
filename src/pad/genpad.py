@@ -58,14 +58,14 @@ import logging
 log = logging.getLogger("genpad")
 
 g_sysreqs_from_os = {
-     "win32": "Windows x86 architecture, 233 MHz+ CPU (500 MHz+ PIII recommended), 128 MB RAM (256 MB+ recommended)",
-     "linux": "Linux Debian Stable/Ubuntu 5.04+, Red Hat Enterprise Linux 4+, Fedora Core 4, Suse/Novell: Suse 9.0+",
-     "macosx": "Mac Intel processor or PowerPC G4, 256 MB RAM, 90 MB hard disk space",
+     "win32": "Windows x86 or x86_64 processor, 500 MHz (or faster) with 256 MB RAM",
+     "linux": "Ubuntu 6.06+, Red Hat Enterprise Linux 4+, Fedora Core 8+, SuSE 9.0+; x86 processor",
+     "macosx": "Mac Intel processor or PowerPC G4, 256 MB RAM",
 }
 
 g_os_support_from_os = {
-    "win32": "Windows2000, Windows2003, WinXP, Windows Vista Starter, Windows Vista Home Basic, Windows Vista Home Premium, Windows Vista Business, Windows Vista Enterprise, Windows Vista Ultimate, Windows Vista Home Basic x64, Windows Vista Home Premium x64, Windows Vista Business x64, Windows Vista Enterprise x64, Windows Vista Ultimate x64",
-    "macosx": "Mac OS X, Mac OS X 10.3, Mac OS X 10.4, Mac OS X 10.5",
+    "win32": "Windows 2000, Windows 2003, WinXP, Windows Vista Starter, Windows Vista Home Basic, Windows Vista Home Premium, Windows Vista Business, Windows Vista Enterprise, Windows Vista Ultimate, Windows Vista Home Basic x64, Windows Vista Home Premium x64, Windows Vista Business x64, Windows Vista Enterprise x64, Windows Vista Ultimate x64",
+    "macosx": "Mac OS X, Mac OS X 10.4, Mac OS X 10.5",
     "linux": "Linux, Linux Gnome",
 }
 
