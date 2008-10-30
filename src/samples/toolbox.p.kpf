@@ -193,13 +193,15 @@ if __name__ == '__main__':
     !@#_anchorpass!@#_currentPos</snippet>
 <snippet id="bcf1feef-4f9c-bc40-acf3-e01433eb91ed" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="true" keyboard_shortcut="" name="opts" set_selection="false">
 from optparse import OptionParser
+parser = OptionParser()
 
 parser.add_option("-[[%tabstop:f]]",
                   "--[[%tabstop1:file]]",
                   dest="[[%tabstop1]]",
                   help="[[%tabstop:desc]].",
                   default="[[%tabstop:DEFAULT]]"
-                  )!@#_currentPos!@#_anchor</snippet>
+                  )
+(options, args) = parser.parse_args()!@#_currentPos!@#_anchor</snippet>
 <snippet id="11e4757c-94d4-894e-a2cc-766acf52cfd2" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="false" keyboard_shortcut="" name="shebang" set_selection="true">
 #![[%python]]
 import os, re
@@ -261,15 +263,15 @@ function _dump($data) {
 $[[%tabstop:array]] = array([[%tabstop:]]);!@#_currentPos!@#_anchor</snippet>
 <snippet id="16fa06cf-5f71-bc43-b3d3-1da3809d5818" idref="46e31deb-246e-aa4b-acea-066ec357c572" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 /*
-    * class [[%tabstop1:class]]
-*/
+ * class [[%tabstop1:class]]
+ */
 
 class [[%tabstop1]] [[%tabstop:extends [[%tabstop:class]]]] {
     
     /*
-        * __construct()
-        * @param $[[%tabstop2:arg]]
-    */
+     * __construct()
+     * @param $[[%tabstop2:arg]]
+     */
     
     function __construct($[[%tabstop2]]) {
         [[%tabstop:parent]]
@@ -277,9 +279,9 @@ class [[%tabstop1]] [[%tabstop:extends [[%tabstop:class]]]] {
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="dda0cad7-4446-1649-a45a-52ff146f15a8" idref="46e31deb-246e-aa4b-acea-066ec357c572" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
 /*
-    * function [[%tabstop1:name]]
-    * @param $[[%tabstop2:arg]]
-*/
+ * function [[%tabstop1:name]]
+ * @param $[[%tabstop2:arg]]
+ */
 
 function [[%tabstop1]]($[[%tabstop2]]) {
     [[%tabstop:]]
