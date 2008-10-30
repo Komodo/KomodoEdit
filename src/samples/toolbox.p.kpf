@@ -602,6 +602,54 @@ redirect_to :action =&gt; [[%tabstop:show]], :id =&gt; [[%tabstop:@item]]!@#_cur
 redirect_to :controller =&gt; [[%tabstop:items]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="b16776d5-d0c4-47f5-9a44-13c6d59f9961" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="reca" set_selection="false">
 redirect_to :controller =&gt; [[%tabstop:items]], :action =&gt; "[[%tabstop:action]]"!@#_currentPos!@#_anchor</snippet>
+<folder id="eaa746d9-47df-8949-b5da-af62ffa2ac3b" idref="7f803f0e-3304-11db-a53a-000d935d3368" name="Sample Macros"></folder>
+<macro async="0" id="12f6455b-dc7a-e141-a5c4-eb6f9b40147c" idref="eaa746d9-47df-8949-b5da-af62ffa2ac3b" keyboard_shortcut="" language="JavaScript" name="Run the current Macro" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+/*
+ * a quick macro that tries to run the current macro open in the buffer
+*/
+
+try {
+  var view = ko.views.manager.currentView;
+  var scimoz = view.scimoz;
+  var uri = view.document.displayPath;
+  var self = ko.macros.current;
+  var msg = '';
+  
+  if(/^macro:\/\//.test(uri) &amp;&amp; uri !== self.url) { // we don't want to run ourself
+    var partName = (view.document.baseName.split('.').shift());
+    var project = ko.projects.manager.currentProject; 
+    var part = ko.projects.findPart('macro', partName, '*', project);
+    if(typeof(part.invoke) !== 'undefined') {
+      part.invoke();
+    } else {
+      ko.projects.invokePart(part);
+    }
+  } else {
+    if (uri == self.url) {
+      msg = 'FAIL: you shouldn\'t try to run this macro *with* this macro.';
+    } else {
+      msg = 'Not a macro buffer, nothing to do...';
+    }
+    ko.statusBar.AddMessage(msg, 'editor', 3000);
+  }
+} catch(e) {
+  ko.dialogs.internalError(e, 'Error: '+e);
+}</macro>
+<macro async="0" id="42c3b30f-47ba-a548-be89-180a12857965" idref="eaa746d9-47df-8949-b5da-af62ffa2ac3b" keyboard_shortcut="" language="JavaScript" name="Watch Komodo Error Log" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+var os = Components.classes['@activestate.com/koOs;1'].getService(Components.interfaces.koIOs);
+try {
+    appdir = komodo.interpolate('%(path:hostUserDataDir)');
+    var logFile = os.path.join(appdir,'pystderr.log');
+    var winOpts = "centerscreen,chrome,resizable,scrollbars,dialog=no,close";
+    window.openDialog('chrome://komodo/content/tail/tail.xul',"_blank",winOpts,logFile);
+} catch(e) { alert(e); }
+    
+</macro>
+<macro async="0" id="de2c9e77-0cbb-054d-a43e-f8516fc08781" idref="eaa746d9-47df-8949-b5da-af62ffa2ac3b" keyboard_shortcut="" language="JavaScript" name="View about:config" rank="100" trigger="trigger_postopen" trigger_enabled="0">
+try {
+    ko.open.URI('about:config','browser');
+} catch(e) { alert(e); }
+</macro>
 <preference-set idref="7f803f0e-3304-11db-a53a-000d935d3368">
 </preference-set>
 </project>
