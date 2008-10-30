@@ -985,6 +985,12 @@
                 return;
             }
 
+            var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
+                          getService(Components.interfaces.koIInfoService);
+            if (url.indexOf("?") == -1) url += "?";
+            url += "v=" + infoSvc.version;
+            //this.log.warn("loading url "+url);
+
             var req = new XMLHttpRequest();
             req.open('HEAD', url, true);
             req._browser = browser;
