@@ -15,12 +15,12 @@
 		<Country>Canada</Country>
 		<Company_WebSite_URL>http://www.activestate.com/</Company_WebSite_URL>
 		<Contact_Info>
-			<Author_First_Name>Cindy</Author_First_Name>
-			<Author_Last_Name>Wu</Author_Last_Name>
-			<Author_Email>cindyw@activestate.com</Author_Email>
-			<Contact_First_Name>Cindy</Contact_First_Name>
-			<Contact_Last_Name>Wu</Contact_Last_Name>
-			<Contact_Email>cindyw@activestate.com</Contact_Email>
+			<Author_First_Name>Sheila</Author_First_Name>
+			<Author_Last_Name>Rebellato</Author_Last_Name>
+			<Author_Email>sheilar@activestate.com</Author_Email>
+			<Contact_First_Name>Sheila</Contact_First_Name>
+			<Contact_Last_Name>Rebellato</Contact_Last_Name>
+			<Contact_Email>sheilar@activestate.com</Contact_Email>
 		</Contact_Info>
 		<Support_Info>
 			<Sales_Email />
@@ -46,7 +46,7 @@
 		<Program_Install_Support>Install and Uninstall</Program_Install_Support>
 		<Program_OS_Support>$PAD_OS_SUPPORT</Program_OS_Support>
 		<Program_Language>English</Program_Language>
-		<Program_Change_Info>Find/Replace system improvements, Replace in Files, Find in Project, Multi-line Find/Replace, Abbreviations, Improved PHP autocomplete, Perl 5.10 support, Tcl 8.5 support</Program_Change_Info>
+		<Program_Change_Info>Multi-Window; Tabstops/Abbreviations; UI improvements; JavaScript Ext, YUI, etc. framework updates; Built on Mozilla 1.9; Performance improvements</Program_Change_Info>
 		<Program_Specific_Category>Development Tools</Program_Specific_Category>
 		<Program_Category_Class>Development::Other</Program_Category_Class>
 		<Program_System_Requirements>$PAD_SYSREQ</Program_System_Requirements>
@@ -67,7 +67,7 @@
 	</Program_Info>
 	<Program_Descriptions>
 		<English>
-			<Keywords>Komodo IDE, Ajax, CSS, HTML, JavaScript, XML, dynamic languages, Perl, PHP, Python, Ruby, Tcl, Editor, Rails, IDE, ActiveState, Debugging, Ruby on Rails, Multi-platform, Windows, Mac OS X, Linux, Komodo Edit</Keywords>
+			<Keywords>Komodo, Komodo IDE, Komodo Edit, dynamic languages, PHP, Perl, Python, Ruby, CSS, HTML, JavaScript, XML, Tcl, Editor, Rails, IDE, ActiveState, Debugging, Ruby on Rails, Ajax, Multi-platform, Windows, Mac OS X, Linux</Keywords>
 			<Char_Desc_45>Free multi-platform, multi-language editor</Char_Desc_45>
 			<Char_Desc_80>Free multi-platform, multi-language editor for dynamic languages and Ajax tech.</Char_Desc_80>
 			<Char_Desc_250>Komodo Edit is a free, open source, multi-platform, multi-language editor for dynamic languages and Ajax technology.  Background syntax checking and syntax coloring catch errors immediately, while autocomplete and calltips guide you as you write.</Char_Desc_250>
