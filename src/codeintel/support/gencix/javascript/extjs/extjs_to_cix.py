@@ -69,6 +69,11 @@ from codeintel2.tree import tree_2_0_from_tree_0_1
 from codeintel2.gencix_utils import *
 
 ext_data = {
+    "2.2": {
+        "download_url": "http://extjs.com/deploy/ext-2.2.zip",
+        "zip_file_prefix": { "source": ["ext-2.2/source", "ext-2.2/air/src"],
+                             "all": "ext-2.2" },
+    },
     "2.0.2": {
         "download_url": "http://extjs.com/deploy/ext-2.0.2.zip",
         "zip_file_prefix": { "source": "ext-2.0/source",
@@ -92,8 +97,8 @@ ext_data = {
 
 library_name = "Ext"
 #library_version = "1.1.1"
-library_version = "2.0.2"
-library_version_major_minor = library_version.rsplit(".", 1)[0]
+library_version = "2.2"
+library_version_major_minor = ".".join(library_version.split(".")[0:2])
 library_info = ext_data[library_version]
 
 def getFilesFromWebpage():
@@ -114,12 +119,20 @@ def getFilesFromWebpage():
             dirpath, filename = os.path.split(zfile.filename)
             #print "dirpath: %r" % (dirpath, )
             for build_type, prefix in library_info["zip_file_prefix"].items():
-                if dirpath.startswith(prefix) >= 0:
-                    name, ext = os.path.splitext(filename)
-                    #print "name: %r, ext: %r" % (name, ext)
-                    if ext == ".js":
-                        data = zf.read(zfile.filename)
-                        files[build_type][zfile.filename] = (dirpath, filename, data)
+                if isinstance(prefix, str):
+                    prefixes = [prefix]
+                else:
+                    prefixes = prefix
+                for prefix in prefixes:
+                    if dirpath.startswith(prefix) >= 0:
+                        name, ext = os.path.splitext(filename)
+                        #print "name: %r, ext: %r" % (name, ext)
+                        if ext == ".js":
+                            #if dirpath.find("air") >= 0:
+                            #    print "Including: %s/%s" % (dirpath, filename)
+                            data = zf.read(zfile.filename)
+                            files[build_type][zfile.filename] = (dirpath, filename, data)
+                        break
     finally:
         #print "Leaving zip file: %s" % (zippath)
         os.remove(zippath)
@@ -142,7 +155,9 @@ def main(cix_filename, updatePerforce=False):
     files = getFilesFromWebpage()
     jscile = JavaScriptCiler(Manager(), "extjs")
     for path, (dirname, filename, content) in files["source"].items():
-        if "source" in dirname.split("/") and not filename.startswith("ext-lang-"):
+        dir_split = dirname.split("/")
+        if ("source" in dir_split and not filename.startswith("ext-lang-")) or \
+           "src" in dir_split:
             print "filename: %r" % (filename)
             jscile.scan_puretext(content, updateAllScopeNames=False)
 

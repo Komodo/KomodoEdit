@@ -205,6 +205,29 @@ class Ext_v20_TestCase(unittest.TestCase, ExtBaseTests):
     version_undotted = version.replace(".", "")
     cix_tree = get_tree_from_cix(version_major_minor)
 
+class Ext_v22_TestCase(Ext_v20_TestCase):
+    version = "2.2"
+    version_major_minor = version
+    version_undotted = version.replace(".", "")
+    cix_tree = get_tree_from_cix(version_major_minor)
+
+    def test_ext_v22_namespaces(self):
+        module_list = [
+                # base classes
+            "Ext.air",
+        ]
+        self._check_module_list(module_list)
+
+    def test_ext_air_module(self):
+        # New module introduced into Ext 2.2.
+        self.assert_has_scope("Ext.air.DragType")
+        self.assert_has_scope("Ext.air.FileProvider")
+        self.assert_has_scope("Ext.air.NativeObservable")
+        self.assert_has_scope("Ext.air.NativeWindow")
+        self.assert_has_scope("Ext.air.NativeWindowGroup")
+        self.assert_has_scope("Ext.air.NativeWindowManager")
+        self.assert_has_scope("Ext.air.Sound")
+        self.assert_has_scope("Ext.air.SystemMenu")
 
 if __name__ == "__main__":
     unittest.main()
