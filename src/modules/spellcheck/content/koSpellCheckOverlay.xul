@@ -60,15 +60,13 @@
     <menuitem id="menu_komodospellchecker"
               label="&checkSpelling.label;"
               observes="cmd_checkSpelling"
-              insertafter="editor-context-sep-extensions"
-              class="menuitem-iconic-wide"/>
+              insertafter="editor-context-sep-extensions"/>
   </menupopup>
 
   <menupopup id="popup_tools">
     <menuitem id="menu_komodospellchecker"
               label="&checkSpelling.label;"
-              observes="cmd_checkSpelling"
-              class="menuitem-iconic-wide"/>
+              observes="cmd_checkSpelling"/>
   </menupopup>
     
 </overlay>

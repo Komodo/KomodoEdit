@@ -62,21 +62,17 @@
 
   <menupopup id="popup_tools">
     <menu id="menu_casper"
-          label="Casper"
-          class="menu-iconic-wide">
+          label="Casper">
       <menupopup id="popup_casper">
         <menuitem label="Text Test Runner"
                   id="menu_opentestrunner"
-                  observes="cmd_opentestrunner"
-                  class="menuitem-iconic-wide" />
+                  observes="cmd_opentestrunner" />
         <menuitem label="XUL Test Runner"
                   id="menu_openxultestrunner"
-                  observes="cmd_openxultestrunner"
-                  class="menuitem-iconic-wide" />
+                  observes="cmd_openxultestrunner" />
         <menuitem label="Test Recorder"
                   id="menu_opentestrecorder"
-                  observes="cmd_opentestrecorder"
-                  class="menuitem-iconic-wide" />
+                  observes="cmd_opentestrecorder" />
       </menupopup>
     </menu>
   </menupopup>

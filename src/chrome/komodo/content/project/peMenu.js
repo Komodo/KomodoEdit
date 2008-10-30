@@ -518,7 +518,7 @@ function _createMenuItemFromPart(menupopup, part)
             var url = part.getStringAttribute('url');
             name = part.name;
             menuitem = document.createElement('menuitem');
-            menuitem.setAttribute('class', 'menuitem-iconic-wide');
+            menuitem.setAttribute('class', 'menuitem-iconic');
             menuitem.setAttribute('oncommand', "try { ko.open.URI('" + url + "') } catch (e) { log.exception(e); };");
             break;
         case 'folder':
@@ -540,7 +540,7 @@ function _createMenuItemFromPart(menupopup, part)
         default:
             name = part.name;
             menuitem = document.createElement('menuitem');
-            menuitem.setAttribute('class', 'menuitem-iconic-wide');
+            menuitem.setAttribute('class', 'menuitem-iconic');
             menuitem.setAttribute('oncommand', "ko.projects.invokePartById('" + part.id + "');");
             break;
         }

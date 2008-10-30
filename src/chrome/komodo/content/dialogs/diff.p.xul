@@ -111,39 +111,33 @@
 
     <menupopup id="bufferContextMenu">
         <menuitem label="&previousDiff.label;"
-                  class="menuitem-iconic-wide previous-diff-icon"
+                  class="menuitem-iconic previous-diff-icon"
                   observes="cmd_jumpToPreviousDiff"/>
         <menuitem label="&nextDiff.label;"
-                  class="menuitem-iconic-wide next-diff-icon"
+                  class="menuitem-iconic next-diff-icon"
                   observes="cmd_jumpToNextDiff"/>
         <menuitem id="menu_revealPositionInEditor"
                   label="&revealPositionInEditor.label;"
-                  class="menuitem-iconic-wide reveal-in-editor-icon"
+                  class="menuitem-iconic reveal-in-editor-icon"
                   observes="cmd_revealPositionInEditor"/>
         <menuseparator/>
         <menuitem id="buffer-context-copy"
                   label="&copy.label;"
-                  class="menuitem-iconic-wide copy-button"
+                  class="menuitem-iconic copy-button"
                   observes="cmd_copy"/>
         <menuitem id="buffer-context-editSelectAll"
                   label="&selectAll.label;"
-                  class="menuitem-iconic-wide"
                   observes="cmd_selectAll"/>
         <menuseparator id="context-buffer-sep-paste"/>
         <menuitem label="&viewWhitespace.label;"
-                  class="menuitem-iconic-wide"
                   observes="cmd_viewWhitespace"/>
         <menuitem label="&viewIndentationGuides.label;"
-                  class="menuitem-iconic-wide"
                   observes="cmd_viewIndentationGuides"/>
         <menuitem label="&viewLineNumbers.label;"
-                  class="menuitem-iconic-wide"
                   observes="cmd_viewLineNumbers"/>
         <menuitem label="&viewEOLMarkers.label;"
-                  class="menuitem-iconic-wide"
                   observes="cmd_viewEOL"/>
         <menuitem label="&wordWrap.label;"
-                  class="menuitem-iconic-wide"
                   observes="cmd_wordWrap"/>
     </menupopup>
 

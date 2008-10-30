@@ -540,17 +540,3 @@ button[type="button-toolbar-a"],
 .rightarrow-button[disabled="true"]:hover:active > .button-internal-box > .button-icon{
   list-style-image : url("chrome://komodo/skin/images/scrollArrowRight_disable.png");
 }
-
-
-
-.menuitem-iconic-wide {
-    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#menuitem-iconic-wide");
-}
-
-.menu-iconic-wide {
-    -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#menu-iconic-wide");
-}
-
-menulist > menupopup > menuitem.menuitem-iconic {
-  -moz-binding: url("chrome://komodo/content/bindings/buttons.xml#menuitem-iconic");
-}

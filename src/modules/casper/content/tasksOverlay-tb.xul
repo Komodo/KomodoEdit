@@ -56,24 +56,17 @@
 
   <menupopup id="taskPopup">
     <menu id="menu_casper"
-          label="Casper"
-          class="menu-iconic-wide">
+          label="Casper">
         <menupopup id="popup_casper">
             <menuitem label="Text Test Runner"
                       id="menu_opentestrunner"
-                      observes="Tasks:CasperOpenTextRunner"
-                      class="menuitem-iconic-wide"
-                      />
+                      observes="Tasks:CasperOpenTextRunner" />
             <menuitem label="XUL Test Runner"
                       id="menu_openxultestrunner"
-                      observes="Tasks:CasperOpenXULRunner"
-                      class="menuitem-iconic-wide"
-                      />
+                      observes="Tasks:CasperOpenXULRunner" />
             <menuitem label="Test Recorder"
                       id="menu_opentestrecorder"
-                      observes="Tasks:CasperOpenRecorder"
-                      class="menuitem-iconic-wide"
-                      />
+                      observes="Tasks:CasperOpenRecorder" />
         </menupopup>
     </menu>
   </menupopup>

@@ -191,9 +191,7 @@ projectExtensionManager.prototype.createMenuItem = function(partInterface,label,
     if (!mi) {
         mi = document.createElementNS(XUL_NS, 'menuitem');
         if (primary) {
-            mi.setAttribute('class','primary_menu_item menuitem-iconic-wide');
-        } else {
-            mi.setAttribute('class','menuitem-iconic-wide');
+            mi.setAttribute('class','primary_menu_item');
         }
         mi.setAttribute('id',id);
         mi.setAttribute('label',label);

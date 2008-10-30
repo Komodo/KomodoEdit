@@ -54,40 +54,34 @@
     <content>
         <xul:menuitem id="buffer-context-cut"
                       label="&cut.label;"
-                      class="menuitem-iconic-wide cut-button"
+                      class="menuitem-iconic cut-button"
                       observes="cmd_cut"/>
         <xul:menuitem id="buffer-context-copy"
                       label="&copy.label;"
-                      class="menuitem-iconic-wide copy-button"
+                      class="menuitem-iconic copy-button"
                       observes="cmd_copy"/>
         <xul:menuitem id="buffer-context-paste"
                       label="&paste.label;"
-                      class="menuitem-iconic-wide paste-button"
+                      class="menuitem-iconic paste-button"
                       observes="cmd_paste"/>
         <xul:menuitem id="buffer-context-editSelectAll"
                       label="&selectAll.label;"
-                      class="menuitem-iconic-wide"
                       observes="cmd_selectAll"/>
         <xul:menuseparator id="context-buffer-sep-paste"/>
         <xul:menuitem label="&showHideIndentationGuides.label;"
                       type="checkbox"
-                      class="menuitem-iconic-wide"
                       observes="cmd_viewIndentationGuides"/>
         <xul:menuitem label="&showHideLineNumbers.label;"
                       type="checkbox"
-                      class="menuitem-iconic-wide"
                       observes="cmd_viewLineNumbers"/>
         <xul:menuitem label="&showHideEOLMarkers.label;"
                       type="checkbox"
-                      class="menuitem-iconic-wide"
                       observes="cmd_viewEOL"/>
         <xul:menuitem label="&showHideWhitespace.label;"
                       type="checkbox"
-                      class="menuitem-iconic-wide"
                       observes="cmd_viewWhitespace"/>
         <xul:menuitem label="&wordWrap.label;"
                       type="checkbox"
-                      class="menuitem-iconic-wide"
                       observes="cmd_wordWrap"/>
         <children/>
     </content>

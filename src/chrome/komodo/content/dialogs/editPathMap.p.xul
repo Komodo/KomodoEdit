@@ -174,11 +174,9 @@ function browseForDir(elem, remote) {
                            buttonstyle="pictures">
                 <menupopup id="editpathmap_browse_menupopup">
                     <menuitem id="editpathmap_browse_local_menuitem"
-                              class="menuitem-iconic"
                               oncommand="browseForDir(document.getElementById('path'), false)"
                               label="&browseLocally.label;" />
                     <menuitem id="editpathmap_browse_remote_menuitem"
-                              class="menuitem-iconic"
                               oncommand="browseForDir(document.getElementById('path'), true)"
                               label="&browseRemotely.label;" />
                 </menupopup>
