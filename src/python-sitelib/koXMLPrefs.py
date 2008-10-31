@@ -44,7 +44,7 @@ from xpcom import components, ServerException, COMException, nsError
 from xpcom.server.enumerator import SimpleEnumerator
 from xpcom.server import WrapObject, UnwrapObject
 from xpcom.client import WeakReference
-import sys, os, cgi
+import re, sys, os, cgi
 from eollib import newl
 import logging
 import shutil
@@ -334,6 +334,14 @@ class koOrderedPreferenceDeserializer:
     def _ds_boolean(self, node, orderedPref, basedir=None):
         self._ds_helper(node, orderedPref.appendBooleanPref, _convert_boolean)
 
+_encre = re.compile('([^\x00-\x7f])')
+def _makeCharRef(m):
+    # replace with XML decimal char entity, e.g. '&#7;'
+    return '&#%d;' % ord(m.group(1))
+def _xmlencode(s):
+    """ Taken from codeintel2/parseutil.py """
+    return cgi.escape(s)
+    return _encre.sub(_makeCharRef, cgi.escape(s))
  
 def serializePref(stream, pref, prefType, prefName=None, basedir=None):
     """Serialize one preference to a stream as appropriate for its type.
@@ -362,7 +370,7 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
         data = u'  <string'
         for a,v in attrs.items():
             data += ' %s="%s"' % (a,v)
-        data += u'>%s</string>%s' % (cgi.escape(pref), newl)
+        data += u'>%s</string>%s' % (_xmlencode(pref), newl)
         data = data.encode("utf-8")
         stream.write(data)
     elif prefType in ("boolean"):
