@@ -340,7 +340,6 @@ def _makeCharRef(m):
     return '&#%d;' % ord(m.group(1))
 def _xmlencode(s):
     """ Taken from codeintel2/parseutil.py """
-    return cgi.escape(s)
     return _encre.sub(_makeCharRef, cgi.escape(s))
  
 def serializePref(stream, pref, prefType, prefName=None, basedir=None):
