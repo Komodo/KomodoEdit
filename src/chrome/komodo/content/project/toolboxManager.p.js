@@ -400,9 +400,7 @@ toolboxBaseManager.prototype.save = function() {
                 return false;
             }
             this.toolbox.save();
-            // force stat update
-            // XXX BUG 56517
-            return this.toolbox.getFile().hasChanged;
+            return true;
         } catch(ex) {
             var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                 getService(Components.interfaces.koILastErrorService);
