@@ -35,6 +35,7 @@ class KomodoWindowData(object):
         return project and project in [self._currentProject, self._toolbox, self._sharedToolbox]
 
     def set_toolbox(self, project):
+        if self._toolbox == project: return
         if self._toolbox:
             self._toolbox.deactivate()
         self._toolbox = project
@@ -45,6 +46,7 @@ class KomodoWindowData(object):
         return self._toolbox
 
     def set_sharedToolbox(self, project):
+        if self._sharedToolbox == project: return
         if self._sharedToolbox:
             self._sharedToolbox.deactivate()
         self._sharedToolbox = project
@@ -55,6 +57,7 @@ class KomodoWindowData(object):
         return self._sharedToolbox
 
     def set_currentProject(self, project):
+        if self._currentProject == project: return
         if self._currentProject:
             self._currentProject.deactivate()
         self._currentProject = project
