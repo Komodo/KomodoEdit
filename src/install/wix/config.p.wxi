@@ -44,7 +44,7 @@
        statements key) -->
   <!-- Is this a final or a pre-release version of Komodo: "yes" or "no" -->
   <?define IsPreReleaseVersion = "PP_MSI_IS_PRE_RELEASE_VERSION" ?>
-  <?define ProductType = "PRODUCT_TYPE" ?> <!-- ide|edit -->
+  <?define ProductType = "PRODUCT_TYPE" ?> <!-- e.g., edit -->
   <?define ProductTagLine = "PP_PRODUCT_TAG_LINE" ?>
 
   <?define WithDocJarring = "PP_MSI_AVEC_DOC_JARRING" ?> <!-- yes|no -->
