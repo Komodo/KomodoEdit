@@ -57,6 +57,10 @@ this.manager = null;
 
 var _activeView = null;
 
+var _obSvc = Components.classes["@mozilla.org/observer-service;1"].
+        getService(Components.interfaces.nsIObserverService);
+
+
 /**
  * The active view is the last project view to have received focus.  It does
  * not mean that the view currently has focus.
@@ -205,6 +209,9 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
     this.viewMgr.view.removeProject(project);
     // the active project has been reset
 
+    // Forget about any notifications made for this project.
+    this.notifiedClearProject(project);
+
     // remove the project from our list
     try {
         var id = this._projects.indexOf(project);
@@ -291,9 +298,81 @@ projectManager.prototype.closeAllProjectsEvenIfDirty = function() {
     return true;
 }
 
-projectManager.prototype.saveProject = function(project) {
+projectManager.prototype._notified_projects = {};
+
+projectManager.prototype.notifiedClearProject = function(project) {
+    if (project in this._notified_projects) {
+        //dump("notified:: clearing project: " + project.url + "\n");
+        delete this._notified_projects[project];
+    }
+}
+projectManager.prototype.notifiedAddProject = function(project) {
+    //dump("notified:: adding project: " + project.url + "\n");
+    this._notified_projects[project] = 1;
+}
+projectManager.prototype.notifiedIsAlreadySetForProject = function(project) {
+    //dump("notified:: already added " + (project in this._notified_projects) +
+    //     " for project: " + project.url + "\n");
+    return (project in this._notified_projects);
+}
+
+
+/**
+ * Return a project instance that is opened in another Komodo window. When
+ * not found this will return null. The search is done on all other Komodo
+ * window instances.
+ *
+ * @param projectUrl {string}  The URL of the project to check for.
+ * @returns {Components.interfaces.koIProject}  The project found, else null.
+ */
+projectManager.prototype.findOtherWindowProjectInstanceForUrl = function(projectUrl) {
+    var otherProject;
+    var otherWindow;
+    var koWindowList = ko.windowManager.getWindows();
+    for (var i=0; i < koWindowList.length; i++) {
+        otherWindow = koWindowList[i];
+        if (otherWindow != window) {
+            otherProject = otherWindow.ko.projects.manager.getProjectByURL(projectUrl);
+            if (otherProject) {
+                return otherProject;
+            }
+        }
+    }
+    return null;
+}
+
+/**
+ * Save the given project.
+ * @param project {Components.interfaces.koIProject}
+ * @param skip_scc_check {boolean}
+ *        Optional (default is false). Whether to skip the file scc edit step.
+ */
+projectManager.prototype.saveProject = function(project, skip_scc_check) {
     // Returns true on success, false on failure.
     var file = project.getFile();
+
+    // Check to see if the project contents have changed on disk.
+    if (project.haveContentsChangedOnDisk()) {
+        var prompt = 'Project '+project.name+' has changed outside Komodo. '+
+                  'You can save anyway, by overwriting the changes made '+
+                  'outside Komodo, or you can choose to revert the project, '+
+                  'reverting will cause you to loose the current project '+
+                  'changes you have made.';
+        var response = ko.dialogs.customButtons(prompt,
+                                                ["&Overwrite","&Revert","Cancel"],
+                                                "Cancel",
+                                                null,
+                                                project.name+" has changed on disk");
+        if (response == "Cancel") {
+            return false;
+        } else if (response == "Revert") {
+            this.revertProject(project);
+            return true;
+        } else if (response != "Overwrite") {
+            this.log.error("Unexpected response from ko.dialogs.customButtons: " + response);
+            return false;
+        }
+    }
 
     if (file.isReadOnly) {
         alert("The project '" + project.name +
@@ -313,10 +392,12 @@ projectManager.prototype.saveProject = function(project) {
         // invalidate so the dirty status shows correctly
         // XXX fixme, can we optimize this?  is it necessary?
         this.viewMgr.tree.treeBoxObject.invalidate();
-        var obSvc = Components.classes["@mozilla.org/observer-service;1"].
-                getService(Components.interfaces.nsIObserverService);
+
+        // Clear any notifications, as the project has been updated.
+        this.notifiedClearProject(project);
+
         try {
-            obSvc.notifyObservers(this, 'file_changed', project.url);
+            _obSvc.notifyObservers(this, 'file_changed', project.url);
         } catch(e) { /* exception if no listeners */ }
         window.updateCommands('project_dirty');
     }
@@ -343,10 +424,8 @@ projectManager.prototype._saveNewProject = function(project) {
         return false;
     }
     this._addProject(project);
-    var obSvc = Components.classes["@mozilla.org/observer-service;1"].
-            getService(Components.interfaces.nsIObserverService);
     try {
-        obSvc.notifyObservers(this, 'file_project', project.url);
+        _obSvc.notifyObservers(this, 'file_project', project.url);
     } catch(e) { /* exception if no listeners */ }
     return true;
 }
@@ -430,12 +509,20 @@ projectManager.prototype.revertProject = function(project) {
 }
 
 projectManager.prototype.loadProject = function(url) {
-    var project = Components.classes["@activestate.com/koProject;1"]
-                        .createInstance(Components.interfaces.koIProject);
-
     if (this.getProjectByURL(url)) {
         return null; // the project is already loaded
     }
+    var project = this.findOtherWindowProjectInstanceForUrl(url);
+    if (project) {
+        ko.dialogs.alert("Project '" + project.name + "' is already opened in "+
+                         "another Komodo window. You cannot have the same "+
+                         "project opened in multiple windows.",
+                         null /* text */,
+                         project.name + " Already Opened" /* title */);
+        return null;
+    }
+    project = Components.classes["@activestate.com/koProject;1"]
+                        .createInstance(Components.interfaces.koIProject);
     window.setCursor("wait");
     try {
         this.log.info("loading url: " + url);
@@ -991,10 +1078,8 @@ this.saveProjectAs = function ProjectSaveAs(project)
 
     // Update the MRU projects list.
     ko.mru.addURL("mruProjectList", url);
-    var obSvc = Components.classes["@mozilla.org/observer-service;1"].
-            getService(Components.interfaces.nsIObserverService);
     try {
-        obSvc.notifyObservers(this,'file_changed', project.url);
+        _obSvc.notifyObservers(this,'file_changed', project.url);
     } catch(e) { /* exception if no listeners */ }
     window.updateCommands('project_dirty');
     return true;

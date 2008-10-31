@@ -1876,7 +1876,11 @@ class koProject(koLiveFolderPart):
     def haveContentsChangedOnDisk(self):
         url = self._loaded_from_url or self._url
         fname = uriparse.URIToLocalPath(url)
-        contents = self._getContents(fname)
+        try:
+            contents = self._getContents(fname)
+        except (IOError, COMException), e:
+            # For some reason the project cannot be opened.
+            contents = ""
         return self._lastmd5 != md5(contents).hexdigest()
 
     def _loadContents(self, contents, url, fname):

@@ -2430,14 +2430,26 @@ function _view_checkDiskFiles(event) {
         // Now look for changed projects
         var projects = ko.projects.manager._projects;
         for (i = 0; i < projects.length; i++) {
-            file = projects[i].getFile();
-            if (file.hasChanged) {
+            if (projects[i].haveContentsChangedOnDisk()) {
+                if (ko.projects.manager.notifiedIsAlreadySetForProject(projects[i])) {
+                    continue;
+                }
+                file = projects[i].getFile();
+                // Force a file stat update by calling hasChanged, this is so
+                // the file.exists check made below will still work correctly.
+                file.hasChanged;
                 item = new Object;
                 item.type = 'project';
                 item.project = projects[i];
                 item.file = file;
                 if (!file.exists) {
                     removedItems.push(item);
+                    // XXX: I don't agree with the setting to dirty here, this
+                    //      should only be done if the user cancels the offer
+                    //      to close the file, as when the user selects "close",
+                    //      they will be prompted a second time asking if they
+                    //      now wish to save the project before they close it,
+                    //      even if it was not dirty to debug with. (ToddW)
                     item.project.isDirty = true;
                 } else if (item.project.isDirty) {
                     conflictedItems.push(item);
@@ -2445,6 +2457,10 @@ function _view_checkDiskFiles(event) {
                     changedItems.push(item);
                     item.project.isDirty = true;
                 }
+                // Mark the project, so we don't keep re-prompting for the same
+                // situation (the mark will be removed when the project is
+                // saved or reverted by the user).
+                ko.projects.manager.notifiedAddProject(projects[i]);
             }
         }
 
