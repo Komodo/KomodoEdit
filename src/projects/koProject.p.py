@@ -2401,10 +2401,20 @@ class koProject(koLiveFolderPart):
 
     def activateMenus(self):
         menus = self.getChildrenByType('menu', 1)
+# #if PLATFORM == "darwin"
+        # See bug 80697
+        if len(menus) > 0:
+            log.error("Not loading custom menubars in project %r -- not supported on OSX.", self._name)
+        return
+# #endif
         for menu in menus:
             self._getObserverSvc().notifyObservers(menu, 'menu_create', 'menu_create')
 
     def deactivateMenus(self):
+# #if PLATFORM == "darwin"
+        # See bug 80697
+        return
+# #endif
         menus = self.getChildrenByType('menu', 1)
         for menu in menus:
             self._getObserverSvc().notifyObservers(menu, 'menu_remove', 'menu_remove')
