@@ -208,8 +208,10 @@ toolboxBaseManager.prototype.close = function(doSave /* true */) {
             if (doSave && !this.toolbox.getFile().isReadOnly) {
                 this.save();
             }
-            this.toolbox.close();
+            this.partServiceSetToolbox(null);
             this.viewMgr.view.toolbox = null;
+            this.toolbox.close();
+            this.toolbox = null;
         }
     } catch (e) {
         log.exception(e);
@@ -348,6 +350,8 @@ toolboxBaseManager.prototype.loadFromProject = function(project) {
         this.viewMgr.view.selection.select(0);
     }
     ko.trace.get().leave('loadFromProject');
+    // Initialize the macro hooks, toolbars, menus, ...
+    this.partServiceSetToolbox(project);
 }
 
 toolboxBaseManager.prototype.loadToolboxFromURL = function(url)
@@ -368,6 +372,10 @@ toolboxBaseManager.prototype.reloadToolbox = function()
     this.log.info("reloadToolbox:: reloading: " + this.toolboxURL);
     this.close(/* doSave */ false);
     this.loadToolboxFromURL(this.toolboxURL);
+}
+
+toolboxBaseManager.prototype.partServiceSetToolbox = function (toolbox) {
+    // Should be implemented by the inheriting class.
 }
 
 toolboxBaseManager.prototype.verifyUnchanged = function() {
@@ -570,11 +578,6 @@ toolboxManager.prototype.init = function() {
             _prefs.setBooleanPref(prefName, "true");
         }
         this.loadFromProject(this.toolbox);
-        // let the status service know it has work to do
-        
-        var _partSvc = Components.classes["@activestate.com/koPartService;1"]
-                .getService(Components.interfaces.koIPartService);
-        _partSvc.toolbox = this.toolbox;
 
         // Let the file status service know it has work to do.
         _fileStatusSvc.updateStatusForAllFiles(Components.interfaces.koIFileStatusChecker.REASON_BACKGROUND_CHECK);
@@ -582,6 +585,14 @@ toolboxManager.prototype.init = function() {
     } catch (e) {
         log.exception(e);
     }
+}
+
+toolboxManager.prototype.partServiceSetToolbox = function (toolbox) {
+    // Setting the toolbox using the partSvc will trigger the loading of
+    // macros, toolbars, etc...
+    var _partSvc = Components.classes["@activestate.com/koPartService;1"]
+        .getService(Components.interfaces.koIPartService);
+    _partSvc.setToolboxForWindow(toolbox, window);
 }
 
 toolboxManager.prototype.installSamples = function(sampleToolboxPath, version) {

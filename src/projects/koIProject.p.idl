@@ -367,6 +367,9 @@ interface koIPartService: nsISupports
     attribute koIProject sharedToolbox;
     attribute koIProject currentProject;
 
+    void setToolboxForWindow(in koIProject project, in nsIDOMWindow window);
+    void setSharedToolboxForWindow(in koIProject project, in nsIDOMWindow window);
+
     /**
      * Searches the specified koIProjects (e.g. a project, a toolbox)
      * for a part.

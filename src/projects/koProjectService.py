@@ -247,6 +247,15 @@ class KoPartService(object):
             self._data[window] = KomodoWindowData()
         return window
 
+    def get_data_for_window(self, window):
+        if not window:
+            return None
+        data = self._data.get(window)
+        if data is None:
+            data = KomodoWindowData()
+            self._data[window] = data
+        return data
+
     def get_runningMacro(self):
         return self._data[self.get_window()].runningMacro
 
@@ -263,11 +272,19 @@ class KoPartService(object):
     def get_toolbox(self):
         return self._data[self.get_window()].get_toolbox()
 
+    def setToolboxForWindow(self, project, window):
+        data = self.get_data_for_window(window)
+        return data.set_toolbox(project)
+
     def set_sharedToolbox(self, project):
         return self._data[self.get_window()].set_sharedToolbox(project)
 
     def get_sharedToolbox(self):
         return self._data[self.get_window()].get_sharedToolbox()
+
+    def setSharedToolboxForWindow(self, project, window):
+        data = self.get_data_for_window(window)
+        return data.set_sharedToolbox(project)
 
     def set_currentProject(self, project):
         return self._data[self.get_window()].set_currentProject(project)
