@@ -99,7 +99,7 @@
   <boolean id="start_page_quick_links_box_closed">0</boolean>
   <boolean id="start_page_tip_box_closed">1</boolean>
   <boolean id="start_page_landing_box_closed">0</boolean>
-  <string id="start_page_landing_box_url">http://www.activestate.com/Products/komodo_edit/start/index_edit.html</string>
+  <string id="start_page_landing_box_url">http://komodo.activestate.com/startpage/komodoedit/index_edit.html</string>
 
   <boolean id="uiRxSeparateWindow">0</boolean>
 
