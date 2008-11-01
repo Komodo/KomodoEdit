@@ -981,7 +981,7 @@
             var browser = document.getAnonymousElementByAttribute(this, "anonid", "landingPage");
             var url = gPrefs.getStringPref('start_page_landing_box_url');
             if (!url) {
-                browser.setAttribute("src", "chrome://komodo/content/startpage/disconnected/disconnected.html");
+                browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.html");
                 return;
             }
 
@@ -1003,12 +1003,12 @@
                     webNav.loadURI(url, flags, null, null, null);
                 } else {
                     this_.log.error("Unable to connect, status "+req.status);
-                    req._browser.setAttribute("src", "chrome://komodo/content/startpage/disconnected/disconnected.html");
+                    req._browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.html");
                 }
             };
             req.onerror = function (e) {
                 this_.log.error("Unable to connect");
-                req._browser.setAttribute("src", "chrome://komodo/content/startpage/disconnected/disconnected.html");
+                req._browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.html");
             }
             req.send(null);
             // kep a reference

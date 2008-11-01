@@ -316,7 +316,6 @@ Build(
     "$build/chrome/komodo/content/pref/Conscript",
     "$build/chrome/komodo/content/project/Conscript",
     "$build/chrome/komodo/content/startpage/Conscript",
-    "$build/chrome/komodo/content/startpage/disconnected/Conscript",
     "$build/chrome/komodo/content/tail/Conscript",
     "$build/chrome/komodo/content/templates/Conscript",
     "$build/chrome/komodo/content/update/Conscript",

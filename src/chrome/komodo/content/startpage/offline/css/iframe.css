@@ -1,0 +1,163 @@
+/* Styling for the Komodo 5 Start Page iframes */
+
+/* ---- base styles ----*/
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-size: 11px;
+    color: #333333;
+    font-family: Arial, Helvetica, sans-serif;
+    }
+a {
+    outline: none;
+    border: none;
+}
+a img {
+    border: none;
+}
+
+
+/* ---- page structure ---- */
+
+#shell {
+    width: 100%;
+    float: left;
+    height: 200px;
+    overflow: hidden;
+    background: url(../img/bgcenter.gif) left top repeat-x;
+}
+
+#mainleft {
+    width: 47%; /* TODO: this bound is wrong */
+    float: left;
+    height: 200px;
+    margin: 0;
+    padding: 0;
+    background: url(../img/bgleft_ide.jpg) top left repeat-x;
+}
+body.product-edit #mainleft {
+    /* TODO */
+    background: url(../img/bgleft_edit.jpg) top left repeat-x;
+}
+    
+#mainleft div.content {
+    float: left;
+    height: 200px;
+    width: 83%;
+    width: 100%;
+    padding: 24px 30px 0 320px;
+    margin: 0;
+}
+
+#mainleft div.content a {
+    color: #3d922e;
+}
+
+#mainleft div.content ul {
+    float: left;
+    width: 75%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#mainleft div.content p {
+    float: left;
+    width: 75%;
+    margin: 0;
+    padding: 10px 0 0 0;
+}
+
+#mainright {
+    float: right;
+    width: 349px;
+    height: 201px;
+    margin: 0;
+    padding: 0;
+    background: url(../img/bgright.jpg) left top no-repeat;
+}
+
+#mainright div.content {
+    margin: 0;
+    padding: 0px 0 0 90px;
+}
+#mainright div.content a {
+    color: #ffffff;
+}
+
+#mainright div.content ul {
+    clear: both;
+    list-style: none;
+    padding: 0px 0px 0px 22px;
+    margin: 0px;
+}
+
+/* ---- page-specific layout ---- */
+
+body.page-offline #mainright div.content {
+    padding-top: 30px;
+}
+body.page-edit #mainright div.content {
+    padding-top: 10px;
+}
+body.page-ide #mainright div.content {
+    padding-top: 5px;
+}
+body.page-trial #mainright div.content {
+    padding-top: 15px;
+}
+body.page-beta #mainright div.content {
+    padding-top: 30px;
+}
+
+/* ---- image replacements ---- */
+
+.img-komodo-rss,
+.img-welcome-trial,
+.img-we-hope-trial,
+.img-welcome-beta,
+.img-welcome-to-komodo-ide,
+.img-welcome-to-komodo-edit {
+    float: left;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-indent: -3000px;
+}
+.img-komodo-rss {
+    background: url(../img/komodo_rss.gif) 0 0 no-repeat;
+    height: 50px;
+}
+.img-welcome-trial {
+    background: url(../img/welcome_trial.gif) 0 0 no-repeat;
+    height: 30px;
+}
+.img-we-hope-trial {
+    background: url(../img/we_hope_trial.gif) 0 0 no-repeat;
+    height: 50px;
+}
+.img-welcome-beta {
+    background: url(../img/welcome_beta.gif) 0 0 no-repeat;
+    height: 70px;
+}
+.img-welcome-to-komodo-ide {
+    background: url(../img/welcome_to_komodo_ide.gif) 0 0 no-repeat;
+    height: 30px;
+}
+.img-welcome-to-komodo-edit {
+    background: url(../img/welcome_to_komodo_edit.gif) 0 0 no-repeat;
+    height: 30px;
+}
+
+.img-resources {
+    float: left;
+    height: 16px;
+    width: 100%;
+    margin: 5px 0 0 0;
+    padding: 0;
+    text-indent: -3000px;
+    background: url(../img/resources.gif) 0 0 no-repeat;
+}
+

@@ -49,3 +49,7 @@ Import(
 $cons->Preprocess('startpage.p.xml', 'startpage.xml');
 $cons->InstallInChrome('startpage.xml');
 
+$cons->InstallRecursive("$mozChromeDir/komodo/content/startpage/offline",
+                        cwd()."/src/chrome/komodo/content/startpage/offline",
+                        ('\.svn'));
+
