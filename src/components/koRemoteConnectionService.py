@@ -78,13 +78,16 @@ class koServerInfo:
         self.protocol = protocol
         self.alias = alias
         self.hostname = hostname
-        self.port = port
+        try:
+            self.port = int(port)
+        except ValueError:
+            self.port = -1
         self.username = username
         self.password = password
         self.path = path
         if raw_hostdata is None:
             # Generate the host data
-            fields = map(urllib.quote, [protocol, alias, hostname, port, path])
+            fields = map(urllib.quote, [protocol, alias, hostname, str(port), path])
             self.raw_hostdata = ":".join(fields)
         else:
             # Use the existing host data
