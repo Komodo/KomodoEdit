@@ -921,8 +921,7 @@ class KoRunService:
         if terminal:
             p.linkIOWithTerminal(terminal)
         if input:
-            p.stdin.write(input)
-            p.stdin.close()
+            p.write_stdin(input, closeAfterWriting=True)
 
         # If the user provides a termination listener (interface
         # koIRunTerminationListener), then the thread will notify

@@ -174,6 +174,12 @@ class KoRunProcess(object):
         except process.ProcessError, ex:
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
+    def write_stdin(self, input, closeAfterWriting=False):
+        """Write data to the process stdin handle."""
+        self._process.stdin.write(input)
+        if closeAfterWriting:
+            self._process.stdin.close()
+
     # Override process.communicate() with our own method.
     # We do this so we can retain the stdout and stderr results on the
     # process object.

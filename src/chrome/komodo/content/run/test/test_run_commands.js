@@ -380,6 +380,38 @@ test_run_commands.prototype.test_tail_command = function() {
     }
 }
 
+    // * test running a command using the API that the run command dialog uses.
+    //   - test pass selection as input
+    //   - test insert output
+test_run_commands.prototype.test_run_command_dialog = function() {
+    // Make a simple Python program to echo the output twice.
+    var fileSvc = Components.classes["@activestate.com/koFileService;1"].
+                    getService(Components.interfaces.koIFileService);
+    // koIFile for writing a python program contents.
+    var koIFile = fileSvc.makeTempFile(".py", "w");
+    // Python file contents that will output the stdout/stderr.
+    var fileContents = "\n\
+import sys\n\
+sys.stdout.write(sys.stdin.read())\n\
+";
+    koIFile.puts(fileContents);
+    koIFile.close();
+
+    var input = "This is line 1\nThis is line 2\n";
+    var cmd = "python '" + koIFile.path + "'";
+    var process = this.runSvc.RunAndNotify(cmd, null, null, input);
+
+    try {
+        var retval = process.wait(5);  // Wait till timeout.
+    } catch (ex) {
+        this.fail("Process timeout out");
+        process.kill(-9);
+        return;
+    }
+    var output = process.getStdout();
+    this.assertEqual(output, input, "Output does not match the input.");
+}
+
 /* TEST SUITE */
 
 // we do not pass an instance of MyTestCase, they are created in MakeSuite
