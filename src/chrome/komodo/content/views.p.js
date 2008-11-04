@@ -2172,7 +2172,7 @@ function _checkWindowCoordinateBounds(candidateValue,
     }
     return candidateValue;
 }
-
+const _nsIDOMChromeWindow = Components.interfaces.nsIDOMChromeWindow;
 this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBounds)
 {
     _restoreInProgress = true;
@@ -2183,6 +2183,11 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         var id, elt, pref;
         if (checkWindowBounds && workspace.hasPref('coordinates')) {
             var coordinates = workspace.getPref('coordinates');
+            var windowState = (coordinates.hasPrefHere('windowState')
+                               ? coordinates.getLongPref('windowState')
+                               : _nsIDOMChromeWindow.STATE_NORMAL);
+            // If it's minimized or maximized we still need to set the
+            // window's coords for when it's restored.
             var screenHeight = window.screen.availHeight;
             var screenWidth = window.screen.availWidth;
             var screenX = coordinates.getLongPref('screenX');
@@ -2203,6 +2208,11 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
                 outerWidth,
                 0, .2 * screenWidth,
                 screenWidth, .9 * screenWidth);
+            if (windowState == _nsIDOMChromeWindow.STATE_MINIMIZED) {
+                currentWindow.minimize();
+            } else if (windowState == _nsIDOMChromeWindow.STATE_MAXIMIZED) {
+                currentWindow.maximize();
+            }
         }
         if (workspace.hasPref('opened_projects')) {
             pref = workspace.getPref('opened_projects');
@@ -2260,6 +2270,12 @@ this.saveWorkspace = function view_saveWorkspace()
             windowWorkspace.setPref(idx, workspace);
             var coordinates = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
             workspace.setPref('coordinates', coordinates);
+            coordinates.setLongPref('windowState', thisWindow.windowState);
+            if (thisWindow.windowState != _nsIDOMChromeWindow.STATE_NORMAL) {
+                // Save the window's restored coordinates,
+                // not its maximized or minimized coordinates
+                thisWindow.restore();
+            }
             coordinates.setLongPref('screenX', thisWindow.screenX);
             coordinates.setLongPref('screenY', thisWindow.screenY);
             coordinates.setLongPref('outerHeight', thisWindow.outerHeight);
