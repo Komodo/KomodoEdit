@@ -621,7 +621,7 @@ try {
         output = output.replace(/\r\n|\n|\r/g, eol);
 
         scimoz.replaceTarget(output.length, output);
-        scimoz.currentPos = scimoz.anchor + bytelen;
+        scimoz.currentPos = scimoz.anchor + ko.stringutils.bytelength(output);
     }
 
     // Raise an alert dialog if there was error output.
