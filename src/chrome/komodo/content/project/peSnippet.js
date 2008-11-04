@@ -47,7 +47,7 @@ var _log = ko.logging.getLogger('peSnippet');
 var ANCHOR_MARKER = '!@#_anchor';
 var CURRENTPOS_MARKER = '!@#_currentPos';
 
-var _wrapsSelectionRE = /\[\[%[sSwW]\]\]/;
+var _wrapsSelectionRE = /\[\[%[sS]\]\]/;
 
 
 function peSnippet() {
