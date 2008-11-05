@@ -87,6 +87,20 @@ if ($buildType eq 'debug') {
 my $currYear = (localtime(time))[5] + 1900;
 
 
+# Install the necessary PNG files for GTK alt-tabbing UI (bug 80727).
+# TODO: Eventually this could be integrated with the
+#       $mozSrc/komodo/Makefile.in build as is done for mozilla/browser.
+if ($platform ne "win" && $platform ne "darwin") { # i.e. GTK
+    $cons->InstallAs("$mozBin/chrome/icons/default/default16.png",
+                     "komodo16.$productType.png");
+    $cons->InstallAs("$mozBin/chrome/icons/default/default32.png",
+                     "komodo32.$productType.png");
+    $cons->InstallAs("$mozBin/chrome/icons/default/default48.png",
+                     "komodo48.$productType.png");
+}
+
+
+
 # XRE-based Komodo startup:
 # With the move to Firefox and the XRE, there is no longer a
 # separation of komodo startup shim (a.k.a. komodo.c) and the main
