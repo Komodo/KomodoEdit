@@ -1,5 +1,5 @@
 /* XPM */ 
-static const unsigned char * komodoedit5_icon_16x16x8b_xpm[] = {
+static const unsigned char * komodoedit5_icon_16x16x32b_xpm[] = {
 "16 16 66 1",
 " 	c None",
 "!	c black",
