@@ -888,12 +888,15 @@ class KoInitService:
         currVer = tuple(currVer) # e.g. (2,3)
 
         # Determine from which Komodo userdatadir we should upgrade.
-        base = dirname(dirname(currUserDataDir))
-        if sys.platform in ("win32", "darwin"):
-            datadirs = [join(base, d) for d in
+        basedir, base = os.path.split(dirname(currUserDataDir))
+        if base not in ("KomodoIDE", "KomodoEdit", ".komodoide", ".komodoedit"):
+            # Looks like KOMODO_USERDATADIR is being used.
+            datadirs = [dirname(currUserDataDir)]
+        elif sys.platform in ("win32", "darwin"):
+            datadirs = [join(basedir, d) for d in
                         ("Komodo", "KomodoIDE", "KomodoEdit")]
         else:
-            datadirs = [join(base, d) for d in
+            datadirs = [join(basedir, d) for d in
                         (".komodo", ".komodoide", ".komodoedit")]
         ver_pat = re.compile(r"^\d+\.\d+$")
         vers_and_userdatadirs = []
