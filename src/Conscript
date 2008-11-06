@@ -68,7 +68,7 @@ Import(
 # interface working via "bk build" -- i.e. without having to do
 # "bk clean && bk build".
 my $xre_dir = "$hostUserDataDir/XRE";
-my $rm_cmd = 'rm -f "$xre_dir/compreg.dat"';
+my $rm_cmd = "rm -f \"$xre_dir/compreg.dat\"";
 if ($platform eq "win") {
     $xre_dir = "$hostUserDataDir\\XRE";
     $rm_cmd = "IF EXIST \"$xre_dir\\compreg.dat\" del \"$xre_dir\\compreg.dat\"";
