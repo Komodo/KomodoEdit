@@ -56,8 +56,7 @@ Typical commands for building all Komodo bits:
                             # PKGNAME to build all packages that this
                             # platform can build
 
-PKGNAME's are docs, aspndocs, installer (aka msi, dbg,
-aspackage).
+PKGNAME's are docs, installer (aka msi, dbg, aspackage).
 """
 
 import os, sys, os, shutil, pickle
@@ -1698,7 +1697,7 @@ def PackageKomodo(cfg, argv):
         installer       the native installer package (can also use
                         'msi', 'dmg', 'aspackage' aliases on the
                         appropriate platform)
-        docs            a zip-up of the Komodo docs
+        docs            a zip of the Komodo docs (for docs.as.com)
         mozpatches      a zip of the Mozilla patches for the used moz build
         updates         update package(s) for the autoupdate system
         pad             PAD file
@@ -1714,19 +1713,6 @@ def PackageKomodo(cfg, argv):
         packages = ["installer", "pad", "docs", "mozpatches", "updates"]
     elif "std" in args:
         packages = ["installer", "pad"]
-        if cfg.productType == "ide":
-            if sys.platform == "win32":
-                # Only build the doc packages on Windows: only need one
-                # and multiples cause collisions when uploading to
-                # network share.
-                packages.append("docs")
-                packages.append("mozpatches")
-            # Put this *after* the possible doc packages, because building
-            # these packages is the least reliable and I don't want
-            # their breakage to break building the doc packages.
-        #XXX Disable building update packages temporarily to build
-        #    beta1 RC's.
-        #XXX Re-enabling for quick builds.
         packages.append("updates")
     else:
         packages = args
@@ -1782,20 +1768,18 @@ def _PackageKomodoPAD(cfg):
 
 
 def _PackageKomodoDocs(cfg):
-    """The Komodo "doc" package is just a simple packaging up of the
-    built Komodo doc tree.  This is most useful for the ActiveCD. It can
-    also be useful for just separately distributing or viewing the
-    Komodo docs.
+    """Create Komodo's doc package.
+
+    This package is used for updating docs.activestate.com.
+
+    The 'mk ashelp' step in contrib/Conscript for "komododoc" should
+    have been run by now. We will just packages it up.
     """
     from os.path import isdir, join, basename, dirname, exists
 
     buildDir = os.path.join(cfg.buildRelDir, cfg.docsPackageName)
     print "packaging 'docs' in '%s'" % buildDir
-    if os.path.isdir(buildDir):
-        _rmtree(buildDir)
-    os.makedirs(buildDir)
-    _copy(cfg.docDir, buildDir)
-    
+
     # Trim some junk files
     for dirpath, dirnames, filenames in os.walk(buildDir):
         if ".consign" in filenames:
@@ -1815,16 +1799,14 @@ def _PackageKomodoDocs(cfg):
     _copy(zipfile, dst)
     print "created '%s'" % dst
 
+
 def _PackageKomodoMozillaPatches(cfg):
     """The Komodo "mozpatches" package is just a simple packaging up of the
-    mozilla patches applied to the moz build for the used moz build. This is
-    put up here: http://aspn.activestate.com/ASPN/Mozilla/
+    mozilla patches applied to the moz build for the used moz build.
 
     Moz builds put a "mozilla-patches-<id>.zip" up in
     "\\crimper\apps\Komodo\support\mozilla-builds". Currently we just
     find the right one and rename it.
-    
-    As per bug 68441 we may want to remove some bits from that zip.
     """
     buildDir = os.path.join(cfg.buildRelDir, cfg.mozPatchesPackageName)
     print "packaging 'mozpatches' in '%s'" % buildDir
