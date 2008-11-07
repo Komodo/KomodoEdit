@@ -416,7 +416,7 @@ class KoLintService:
                         log.debug("manager thread: linter.lint(request) returned")
                     if TIME_LINTS: endlintlint = time.clock()
 
-                    if self._prefs.getBooleanPref("lintEOLMarkers"):
+                    if self._prefs.getBooleanPref("lintEOLs"):
                         # Also look for mixed-line endings warnings.
                         self._addMixedEOLWarnings(results, request.content,
                             request.document.new_line_endings)
