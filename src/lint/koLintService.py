@@ -226,6 +226,8 @@ class KoLintService:
         _observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
         _observerSvc.addObserver(self._wrapped, 'xpcom-shutdown', 1)
+        self._prefs = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService).prefs
 
     def observe(self, subject, topic, data):
         #print "file status service observed %r %s %s" % (subject, topic, data)
@@ -414,9 +416,11 @@ class KoLintService:
                         log.debug("manager thread: linter.lint(request) returned")
                     if TIME_LINTS: endlintlint = time.clock()
 
-                    # Also look for mixed-line endings warnings.
-                    self._addMixedEOLWarnings(results, request.content,
-                        request.document.new_line_endings)
+                    if self._prefs.getBooleanPref("lintEOLMarkers"):
+                        # Also look for mixed-line endings warnings.
+                        self._addMixedEOLWarnings(results, request.content,
+                            request.document.new_line_endings)
+
                     if TIME_LINTS:
                         endeollint = time.clock()
                         print "lint of '%s': encoding=%.3fs  lint=%.3fs  eol=%.3fs"\

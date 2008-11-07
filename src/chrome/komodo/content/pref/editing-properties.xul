@@ -69,11 +69,6 @@
 
     <groupbox>
         <caption label="&smartEditing.label;"/>
-        <checkbox id="editUseLinting"
-                  label="&enableBackgroundSyntaxChecking.label;"
-                  pref="true"
-                  prefstring="editUseLinting"
-                  prefattribute="checked"/>
         <hbox align="center">
             <label value="&fileEditingPropertiesWrapLines.label;"/>
             <menulist pref="true"
@@ -96,6 +91,19 @@
             <label value="&fileEditingPropertiesEdgeLine.label;"
                    control="editAutoWrapColumn"/>
         </hbox>
+    </groupbox>
+
+    <groupbox orient="vertical">
+        <caption label="&syntaxChecking.label;"/>
+        <checkbox id="editUseLinting"
+                  label="&enableBackgroundSyntaxChecking.label;"
+                  pref="true"
+                  prefstring="editUseLinting"
+                  prefattribute="checked"/>
+        <checkbox id="lintEOLs"
+                  style="margin-left: 27px;"
+                  label="&lintEOLs.label;"
+                  pref="true"/>
     </groupbox>
 
 </window>

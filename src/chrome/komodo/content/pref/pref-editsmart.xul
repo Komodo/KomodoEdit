@@ -106,16 +106,6 @@
     
     <groupbox orient="vertical">
         <caption label="&smartEditing.label;"/>
-        <hbox align="center">
-            <checkbox id="editUseLinting"
-                      label="&enableBackgroundSyntaxCheckingAfter.label;"
-                      pref="true"
-                      prefstring="editUseLinting"
-                      prefattribute="checked"
-                      oncommand="pref_lint_doEnabling();"/>
-            <textbox id="lintDelay" size="4" pref="true"/>
-            <label value="&msecs.label;"/> 
-        </hbox>
         <checkbox id="editTabCompletes"
                   label="&useTabCharacterToCompleteWordsLikeCtrlSpace.label;"
                   pref="true"/>
@@ -161,6 +151,25 @@
                 prefstring="editSmartSoftCharacters" prefattribute="checked"/>
         <description style="margin-left: 27px;">&enableSoftCharacters.description;</description>        
     </groupbox>
+
+    <groupbox orient="vertical">
+        <caption label="&syntaxChecking.label;"/>
+        <hbox align="center">
+            <checkbox id="editUseLinting"
+                      label="&enableBackgroundSyntaxCheckingAfter.label;"
+                      pref="true"
+                      prefstring="editUseLinting"
+                      prefattribute="checked"
+                      oncommand="pref_lint_doEnabling();"/>
+            <textbox id="lintDelay" size="4" pref="true"/>
+            <label value="&msecs.label;"/> 
+        </hbox>
+        <checkbox id="lintEOLs"
+                  style="margin-left: 27px;"
+                  label="&lintEOLs.label;"
+                  pref="true"/>
+    </groupbox>
+
     <groupbox orient="vertical">
         <caption label="&folding.label;"/>
       <hbox align="center">

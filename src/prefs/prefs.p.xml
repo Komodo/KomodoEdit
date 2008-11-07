@@ -112,6 +112,8 @@
   <!--a very slow process.  Users who care can turn it on.-->
   <boolean id="editRestoreFoldPoints">0</boolean>
   <boolean id="editUseLinting">1</boolean>
+  <long id="lintDelay">1000</long>
+  <boolean id="lintEOLs">1</boolean>
   <boolean id="editUseAlternateFaceType">0</boolean>
   <!-- editFoldStyle: none, box, plusminus, curvytree, squaretree -->
   <string id="editFoldStyle">squaretree</string>
@@ -866,7 +868,6 @@
 <!-- #else -->
   <string id="environ_userShell">/bin/bash</string>
 <!-- #endif -->
-  <long id="lintDelay">1000</long>
 
   <!-- Vi emulation customizable settings -->
   <preference-set id="viCustomSettings"/>
