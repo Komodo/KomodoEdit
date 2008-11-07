@@ -156,12 +156,35 @@ class Parser:
         self.containers = {VAR_KIND_GLOBAL : [self.tree.global_vars],
                            VAR_KIND_LOCAL : [self.tree.local_vars]} #locals
         
+    def _get_fully_qualified_braced_name(self, start_line, start_column):
+        brace_count = 1
+        name_parts = []
+        while 1:
+            tok = self.tokenizer.get_next_token(skip_ws=0)
+            if tok.style == shared_lexer.EOF_STYLE:
+                break
+            elif self.classifier.is_any_operator(tok):
+                if tok.text == "{":
+                    brace_count += 1
+                elif tok.text == "}":
+                    brace_count -= 1
+                    if brace_count == 0:
+                        break
+            if tok.start_line > start_line or tok.start_column > start_column:
+                name_parts.append(" ")
+            start_column = tok.end_column + 1
+            start_line = tok.start_line
+            name_parts.append(tok.text) #XXX backslashes?
+        return "".join(name_parts)
+
     def get_fully_qualified_name(self):
         tok = self.tokenizer.get_next_token()
         if tok.style == shared_lexer.EOF_STYLE:
             return (None, None)
-        name_start = tok.text
         line_start = tok.start_line
+        if self.classifier.is_operator(tok, "{"):
+            return (self._get_fully_qualified_braced_name(line_start, tok.end_column + 1), line_start)
+        name_start = tok.text
         # Watch out if it starts with a "::"
         if name_start == "::":
             col = tok.end_column + 1
@@ -293,7 +316,7 @@ class Parser:
     def _finishVarAssignment(self, collectionA, var_name, start_line):
         #XXX Add type info
         return None
-        
+    
     def parse_aux(self, curr_node, braceCount=0):
         init_indentation = curr_node.indentation
         tok_count = 0
