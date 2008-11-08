@@ -970,7 +970,7 @@ class MainInfo {
         p_TTable = 0;
         if (pp_FamilyInfo) {
             for (int i = 0; i < NUM_FAMILIES; i++) {
-                pp_FamilyInfo[i] = new FamilyInfo;
+                delete pp_FamilyInfo[i];
             }
             delete[] pp_FamilyInfo;
             pp_FamilyInfo = 0;
