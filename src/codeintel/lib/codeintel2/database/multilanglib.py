@@ -872,8 +872,14 @@ class MultiLangDirsLib(object):
                         self.lang_zone.db.report_event(
                             "scanning %s files in '%s'" % (self.lang, dir))
                         event_reported = True
-                    buf = self.mgr.buf_from_path(join(dir, base),
-                                                 lang=self.lang)
+                    try:
+                        buf = self.mgr.buf_from_path(join(dir, base),
+                                                     lang=self.lang)
+                    except EnvironmentError, ex:
+                        # This can occur if the path does not exist, such as a
+                        # broken symlink, or we don't have permission to read
+                        # the file.
+                        continue
                     if ctlr is not None:
                         ctlr.info("load %r", buf)
                     buf.scan_if_necessary()
@@ -972,8 +978,14 @@ class MultiLangDirsLib(object):
                               blobdir, importables)
                     log.debug("'%s' likely provided by '%s' in '%s': "
                               "attempting load", blobname, blobfile, blobdir)
-                    buf = self.mgr.buf_from_path(
-                            join(blobdir, blobfile), self.lang)
+                    try:
+                        buf = self.mgr.buf_from_path(
+                                join(blobdir, blobfile), self.lang)
+                    except EnvironmentError, ex:
+                        # This can occur if the path does not exist, such as a
+                        # broken symlink, or we don't have permission to read
+                        # the file.
+                        continue
                     buf.scan_if_necessary()
 
                     dbfile_from_blobname = lang_zone.dfb_from_dir(
