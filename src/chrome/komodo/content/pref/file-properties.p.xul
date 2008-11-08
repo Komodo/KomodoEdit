@@ -230,7 +230,7 @@ function OnPreferencePageClosing(prefset, ok) {
                 break;
 
             case "encoding_and_or_bom":
-                var encodingName = data.encoding.selectedItem.getAttribute("data");
+                var encodingName = data.encoding.getAttribute("data");
                 var bom = ((!data.bom.getAttribute("disabled") || data.bom.getAttribute("disabled") == "false")
                            && data.bom.checked);
                 if (!applyEncodingAndBOM(encodingName, bom)) return false;
@@ -414,13 +414,11 @@ function initEncoding()  {
     data.encoding.appendChild(menupopup);
 
     // Make sure current is selected.
-    if (encIndex == -1) {
-        data.encoding.selectedIndex = 0;
-    } else {
-        var item = document.getElementsByAttribute('data',
-                    enc.python_encoding_name)[0];
-        data.encoding.selectedItem = item;
-    }
+    var currentItem = (encIndex == -1
+                       ? menupopup.childNodes[0]
+                       : document.getElementsByAttribute('data', enc.python_encoding_name)[0]);
+    data.encoding.setAttribute('label', currentItem.getAttribute('label'));
+    data.encoding.setAttribute('data', currentItem.getAttribute('data'));
 
     // Init BOM checkbox.
     data.bom.checked = enc.use_byte_order_marker;
@@ -442,7 +440,8 @@ function updateBOM(encodingInfo)
 
 function changeEncoding(item)
 {
-    data.encoding.selectedItem = item;
+    data.encoding.setAttribute('label', item.getAttribute('label'));
+    data.encoding.setAttribute('data', item.getAttribute('data'));
     var encodingName = item.getAttribute("data");
     updateBOM(gEncodingSvc.get_encoding_info(encodingName));
     setField("encoding_and_or_bom", encodingName);

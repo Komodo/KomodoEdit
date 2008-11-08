@@ -169,8 +169,13 @@ function updateNewFilesEncodingSection() {
 
     dialog.newencodingList.removeChild(dialog.newencodingList.firstChild);
     dialog.newencodingList.appendChild(menupopup);
-    dialog.newencodingList.selectedItem = dialog.newencodingList.firstChild.firstChild;
+    updateMenuListValue(dialog.newencodingList, dialog.newencodingList.firstChild.firstChild);
     changeNewLanguage(null, langToUse);
+}
+
+function updateMenuListValue(menulist, item) {
+    menulist.setAttribute('label', item.getAttribute('label'));
+    menulist.setAttribute('data', item.getAttribute('data'));
 }
 
 function doBOM(encodingInfo)  {
@@ -193,7 +198,7 @@ function _setSelectedEncoding(elt,encoding) {
         if (item.getAttribute('data') == encoding) {
             //dump("set menu popup to " + item.getAttribute("label") + "\n");
             elt.setAttribute("value", encoding);
-            elt.selectedItem = item;
+            updateMenuListValue(elt, item);
             return;
         }
     }
@@ -251,7 +256,7 @@ function changeNewLanguage(item, name)  {
 }
 
 function changeNewEncoding(item)  {
-    dialog.newencodingList.selectedItem = item;
+    updateMenuListValue(dialog.newencodingList, item);
     var newEncoding = item.getAttribute('data');
     currentLangPrefs.setStringPref(latestLanguage+'/newEncoding', newEncoding);
     if (newEncoding == 'Default Encoding') {
@@ -282,7 +287,7 @@ function changeNewBOM(box)  {
 function setEncoding()  {
         var koEncoding = Components.classes["@activestate.com/koEncoding;1"]
                     .createInstance(Components.interfaces.koIEncoding);
-        var encoding_name = dialog.newencodingList.selectedItem.getAttribute('data');
+        var encoding_name = dialog.newencodingList.getAttribute('data');
         if (encoding_name == 'Default Encoding') {
             encoding_name = dialog.encodingDefault.firstChild.firstChild.getAttribute('data');
         }
@@ -318,7 +323,15 @@ function createDefaultEncodingMenu()  {
     var menupopup = ko.widgets.getEncodingPopup(init_hierarchy, true, 'changeOpenEncoding(this)');
     dialog.encodingDefault.removeChild(dialog.encodingDefault.firstChild);
     dialog.encodingDefault.appendChild(menupopup);
-    dialog.encodingDefault.selectedItem = dialog.encodingDefault.firstChild.firstChild;
+    var encodingDefaultValue = (Components.classes["@activestate.com/koPrefService;1"]
+                                .getService(Components.interfaces.koIPrefService)
+                                .prefs.getStringPref('encodingDefault'));
+    if (!encodingDefaultValue) {
+        updateMenuListValue(dialog.encodingDefault,
+                            dialog.encodingDefault.firstChild.firstChild);
+    } else {
+        _setSelectedEncoding(dialog.encodingDefault, encodingDefaultValue);
+    }
 }
 
 function _getSelectedEncoding(elt,encoding) {
@@ -389,7 +402,7 @@ function updateDefaultEncodingSection() {
 }
 
 function changeOpenEncoding(item)  {
-    dialog.encodingDefault.selectedItem = item;
+    updateMenuListValue(dialog.encodingDefault, item);
 }
 
 

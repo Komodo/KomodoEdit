@@ -128,7 +128,7 @@
                     <![CDATA[
                         var list = document.getAnonymousNodes(this)[0];
                         list.parentNode.setAttribute('data', this.selection);
-                        list.selectedItem = event.originalTarget;
+                        list.setAttribute('label', event.originalTarget.getAttribute('label'));
                     ]]>
                 </body>
             </method>
@@ -137,13 +137,13 @@
                     <![CDATA[
                         var list = document.getAnonymousNodes(this)[0];
                         var item = document.getAnonymousElementByAttribute(list, 'label', val);
-                        list.selectedItem = item;
+                        list.setAttribute('label', item.getAttribute('label'));
                     ]]>
                 </setter>
                 <getter>
                     <![CDATA[
                         var list = document.getAnonymousNodes(this)[0];
-                        return list.selectedItem.getAttribute('label');
+                        return list.getAttribute('label');
                     ]]>
                 </getter>
             </property>
