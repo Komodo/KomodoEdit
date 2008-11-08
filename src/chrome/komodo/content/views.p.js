@@ -2130,12 +2130,8 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
     var checkWindowBounds = _mozPersistPositionDoesNotWork || windowWorkspacePref.hasPref(1);
     this._restoreWindowWorkspace(windowWorkspacePref.getPref(0), currentWindow, checkWindowBounds);
-    for (var i = 1; true; i++) {
-        if (windowWorkspacePref.hasPref(i)) {
-            ko.launch.newWindowFromWorkspace(i);
-        } else {
-            break;
-        }
+    if (windowWorkspacePref.hasPref(1)) {
+        ko.launch.newWindowFromWorkspace(1);
     }
 };
 
@@ -2155,6 +2151,10 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx)
         this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx), currentWindow, idx > 0 || _mozPersistPositionDoesNotWork);
     } catch(ex) {
         log.exception("Can't restore workspace for window " + idx);
+    }
+    var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
+    if (windowWorkspacePref.hasPref(idx + 1)) {
+        ko.launch.newWindowFromWorkspace(idx + 1);
     }
 };
 
