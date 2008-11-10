@@ -59,6 +59,7 @@ A Komodo extension source dir looks like this:
 
     # Other extension hooks
     components/         # XPCOM components
+    platform/           # Platform specific XPCOM components and libraries.
     templates/          # Komodo "New File" templates
     project-templates/  # Komodo "New Project" templates
     lexers/             # UDL-based ".lexres" files for custom language
@@ -73,6 +74,14 @@ A Komodo extension source dir looks like this:
     pylib/              # This dir will be added to Komodo's runtime sys.path.
                         #   As well, "lang_LANG.py" files here define codeintel
                         #   language support.
+
+A Mozilla extension source dir can also contain these:
+
+    defaults/          # Default JavaScript preferences files.
+    plugins/           # Plugin files.
+    searchplugins/     # Specific search plugins.
+    dictionaries/      # Dictionary files used by the spellchecker.
+
 
 TODO: create_ext_chrome_skel
 TODO: create_ext_component_skel
@@ -557,7 +566,8 @@ def build_ext(base_dir, log=None):
     
         # Remaining hook dirs that are just included verbatim in the XPI.
         for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib",
-                      "project-templates"):
+                      "project-templates", "platform", "defaults", "plugins",
+                      "searchplugins", "dictionaries"):
             if isdir(dname):
                 xpi_manifest.append(dname)
     
