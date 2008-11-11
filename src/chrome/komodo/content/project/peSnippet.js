@@ -410,6 +410,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         } else {
             ko.dialogs.alert("Error inserting snippet: "
                              + "The snippet expects a selection, but there is none.");
+            return false;
         }
     }        
 
