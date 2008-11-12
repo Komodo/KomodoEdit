@@ -78,7 +78,7 @@ class Node(dict):
     def addTemplate(self, path):
         basename = os.path.basename(path)
         if basename.find('.') > 0:
-            name = basename.split('.')[0]
+            name = basename.rsplit('.', 1)[0]
         else:
             name = basename
         fdata = {"path": path,
