@@ -92,7 +92,8 @@ class koFileService(object):
         self._files[uri] = WeakReference(file)
 
         if doNotification:
-            self.fileStatusSvc.updateStatusForFiles([file], components.interfaces.koIFileStatusChecker.REASON_BACKGROUND_CHECK)
+            forceRefresh = False
+            self.fileStatusSvc.updateStatusForFiles([file], forceRefresh)
         
         return file
     
