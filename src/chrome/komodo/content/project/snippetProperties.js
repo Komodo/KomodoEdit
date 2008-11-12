@@ -297,7 +297,7 @@ function Apply() {
     try {
         snippetParser.parse(text); // Ignore the result.
     } catch(ex) {
-        ko.dialogs.alert(ex.message);
+        ko.dialogs.alert(ex.message, ex.snippet);
         log.exception(ex);
         return false;
     }

@@ -43,7 +43,7 @@ this.parseLiveText = function parseLiveText(liveText) {
 /**
  * Exception object.  The message field gives a specific message.
  */
-this.LiveTextParserException = function(msg) { this.message = msg; }
+this.LiveTextParserException = function(msg, snippet) { this.message = msg; this.snippet = snippet; }
 this.LiveTextParserException.prototype = Error.prototype;
 this.LiveTextParserException.constructor = Error.constructor;
 
@@ -714,20 +714,27 @@ this.LiveTextParser.prototype.parseNestedLiveText = function(parentNode, isInner
 };
 
 this.LiveTextParser.prototype.throwParseException = function(expecting, reason) {
-    var msg = ("LiveText parsing error: " + reason + ": "
-               + " expecting " + expecting);
-    var sampleSize = 20;
-    msg += (" at position " + this.idx + ": "
-            + this.subjectText.substr(this.idx, sampleSize));
-    if (this.lim > this.idx + sampleSize) {
-        msg += "...";
+    var snippetText = this.subjectText;
+    var droppedText = '!@#_currentPos!@#_anchor';
+    var droppedPos = snippetText.indexOf(droppedText);
+    var idxPos = this.idx;
+    if (droppedPos >= 0) {
+        if (idxPos > droppedPos) {
+            idxPos -= droppedText.length;
+        }
+        snippetText = (snippetText.substr(0, droppedPos)
+                       + snippetText.substr(droppedPos + droppedText.length));
     }
-    throw new ko.tabstops.LiveTextParserException(msg);
+    var lineNumber = (snippetText.substr(0, idxPos).match(/\n/g) || []).length + 1;
+    var msg = ("Snippet parsing error: " + reason + ": "
+               + " expecting " + expecting
+               + " at line " + lineNumber + ":");
+    throw new ko.tabstops.LiveTextParserException(msg, snippetText);
 };
 
 this.LiveTextParser.prototype._availableIndicatorCheck = function() {
     if (!this.availIndicators.length) {
-        throw new ko.tabstops.LiveTextParserException("The snippet is too complex: " + this.subjectText);
+        throw new ko.tabstops.LiveTextParserException("The snippet is too complex: ", this.subjectText);
     }
 }
 

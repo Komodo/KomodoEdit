@@ -518,7 +518,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     try {
         var snippetInfo = ko.tabstops.parseLiveText(text);
     } catch(ex) {
-        ko.dialogs.alert(ex.message);
+        ko.dialogs.alert(ex.message, ex.snippet);
         log.exception(ex);
         return false;
     }

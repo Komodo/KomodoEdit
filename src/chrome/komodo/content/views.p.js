@@ -365,7 +365,7 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
             try {
                 liveTextInfo = ko.tabstops.parseLiveText(istrings[0]);
             } catch(ex) {
-                ko.dialogs.alert(ex.message);
+                ko.dialogs.alert(ex.message, ex.snippet);
                 doc.buffer = docText;
                 liveTextInfo = null;
             }
