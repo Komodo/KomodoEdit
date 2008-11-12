@@ -836,6 +836,22 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "valueOf"),
             ])
 
+    @tag("bug80880")
+    def test_function_calltips(self):
+        # Ensure we get calltips on actual function hits. Bug 80880.
+        content, positions = unmark_text(dedent("""\
+            function func_bug80880() { }
+            func_bug80880.apply(<1>);
+
+            var var_to_func_bug80880 = func_bug80880;
+            var_to_func_bug80880.apply(<2>);
+        """))
+        calltip = dedent("""\
+            apply(thisScope, args) -> Object
+            Call the function/method, optionally setting a new scope for this and passing in parameters via an array.""")
+        self.assertCalltipIs(markup_text(content, pos=positions[1]), calltip)
+        self.assertCalltipIs(markup_text(content, pos=positions[2]), calltip)
+
     @tag("bug76711")
     def test_hash_completions(self):
         content, positions = unmark_text(dedent("""\

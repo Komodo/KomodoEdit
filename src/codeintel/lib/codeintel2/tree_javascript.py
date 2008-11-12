@@ -472,11 +472,16 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         self.log("resolve getattr '%s' on %r in %r:", token, elem, scoperef)
         if elem.tag == "variable":
             hits = self._hits_from_variable_type_inference(elem, scoperef)
+        elif elem.tag == "scope" and elem.get("ilk") == "function":
+            # Functions have an implicit citdl type of "Function". Bug 80880.
+            hits = self._hits_from_type_inference("Function", scoperef)
         else:
             assert elem.tag == "scope", "elem tag is not 'scope': %r" % elem.tag
             hits = [(elem, scoperef)]
 
         for hit_elem, hit_scoperef in hits:
+            self.log("_hit_from_getattr:: hit elem %r, scoperef: %r",
+                     hit_elem, hit_scoperef)
             ilk = hit_elem.get("ilk")
             if hit_elem.tag == "variable":
                 attr = hit_elem.names.get(token)
@@ -486,10 +491,8 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                                     hit_scoperef[1]+[hit_elem.get("name")])
                     return (attr, var_scoperef)
             elif ilk == "function":
-                # Internal function arguments and variables should
-                # *not* resolve. And we don't support function
-                # attributes.
-                continue
+                return self._hit_from_getattr(hit_elem, hit_scoperef, token)
+
             elif ilk == "class":
                 attr = hit_elem.names.get(token)
                 if attr is not None:
