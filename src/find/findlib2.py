@@ -1147,7 +1147,7 @@ def regex_info_from_str(s, allow_replace=True, word_match=False,
                     state = STATE_DEFAULT
                 elif state == STATE_CHARCLASS:
                     if ch == ']':
-                        state == STATE_DEFAULT
+                        state = STATE_DEFAULT
             pattern = ''.join(chs)
     
     return (re.compile(pattern, flags), repl)
@@ -1587,6 +1587,14 @@ def _get_friendly_id():
 #---- self-test mainline
 
 def _test():
+    r"""Some extra doctests:
+
+    Bug 80881:
+    
+        >>> regex_info_from_str("/[w-z]$/", universal_newlines=True) \
+        ...   == (re.compile(r'[w-z](?=\r\n|(?<!\r)\n|\r(?!\n)|\Z)'), None)
+        True
+    """
     import doctest
     doctest.testmod()
 

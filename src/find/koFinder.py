@@ -1713,7 +1713,7 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
                 state = STATE_DEFAULT
             elif state == STATE_CHARCLASS:
                 if ch == ']':
-                    state == STATE_DEFAULT
+                    state = STATE_DEFAULT
         pattern = ''.join(chs)
 
     desc_flag_str = (desc_flag_bits
