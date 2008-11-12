@@ -444,6 +444,10 @@ class KoInitService:
                 #XXX Komodo code (specifically pref-intl.xul) requires
                 #    the encoding name to be lowercase.
                 encoding = (encoding[0], encoding[1].lower())
+                # pref-intl.xul also requires utf8 to be "utf-8", bug 75399.
+                # Python (and most software) accept both "utf8" and "utf-8".
+                if encoding[1] == "utf8":
+                    encoding = (encoding[0], "utf-8")
 
                 self._safelyReloadSys()
                 sys.setdefaultencoding(encoding[1])
