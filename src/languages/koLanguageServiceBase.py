@@ -1457,6 +1457,9 @@ class KoLanguageBase:
         lineStart = scimoz.positionFromLine(lineNo)
         lineEnd = scimoz.getLineEndPosition(lineNo)
         curLine = scimoz.getTextRange(lineStart, lineEnd)
+        if scimoz.getTextRange(pos, lineEnd).strip():
+            # Bug 80748: dedent/indent only when return is at end of line
+            return None
         indentlog.debug('got curLine = %r', curLine)
 
         # if we're in a string or comment, don't bother
