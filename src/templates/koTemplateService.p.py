@@ -76,11 +76,7 @@ class Node(dict):
         return len(self.keys()) > 0
 
     def addTemplate(self, path):
-        basename = os.path.basename(path)
-        if basename.find('.') > 0:
-            name = basename.rsplit('.', 1)[0]
-        else:
-            name = basename
+        name = _templateNameFromPath(path)
         fdata = {"path": path,
                  "template-name": name,
                  "sort-key": name.lower()}
@@ -569,6 +565,36 @@ class KoTemplateCategoriesView(TreeView):
         else:
             return (self._data[rowIndex]["parent-index"]
                     == self._data[afterIndex+1]["parent-index"])
+
+
+#---- internal support stuff
+
+def _templateNameFromPath(path):
+    """Determine a name for the given template path. Typically this is just
+    the basename with the extension dropped. However, we also attempt to
+    handle cases where the extension might include multiple parts or the
+    template name might include a '.'.
+    """
+    base = os.path.basename(path)
+    if '.' not in base:
+        return base
+
+    name, ext = os.path.splitext(base)
+    if ext == ".erb":  # Bug 74706: Usage of .$format.erb in Rails 2.
+        name, _ = os.path.splitext(name)
+    elif ext == ".html":
+        # Might be one of Komodo's multipart extensions for HTML template
+        # filetypes.
+        multipartExts = [
+            ".django",   # .django.html
+            ".mason",    # .mason.html
+            ".ttkt",     # .ttkt.html
+        ]
+        for me in multipartExts:
+            if name.endswith(me):
+                name, _ = os.path.splitext(name)
+                break
+    return name
 
 
 if __name__ == "__main__":
