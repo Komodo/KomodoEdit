@@ -52,7 +52,7 @@ var _log = ko.logging.getLogger("ko.main");
 //_log.setLevel(ko.logging.LOG_DEBUG);
 
 this.quitApplication = function() {
-    ko.workspace.saveWorkspace();
+    ko.workspace.saveWorkspace(true);
     goQuitApplication();
 };
 

@@ -1620,7 +1620,7 @@ viewManager.prototype.do_cmd_saveAll = function() {
         }
 
         // save workspace
-        ko.workspace.saveWorkspace();
+        ko.workspace.saveWorkspace(false);
     } catch(ex) {
         this.log.exception(ex, "Error in do_cmd_saveAll");
     }
@@ -2243,9 +2243,12 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
 
 /**
  * save all workspace preferences and state
+ * @param isQuitting {Boolean}
+ *        (Optional) Only needed when shutting down.  Default value: false.
  */
-this.saveWorkspace = function view_saveWorkspace()
+this.saveWorkspace = function view_saveWorkspace(isQuitting)
 {
+    if (typeof(isQuitting) == 'undefined') isQuitting = false;
     // Ask each major component to serialize itself to a pref.
     try {
         var windows = ko.windowManager.getWindows();
@@ -2265,21 +2268,28 @@ this.saveWorkspace = function view_saveWorkspace()
             windowWorkspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
             gPrefs.setPref(multiWindowWorkspacePrefName, windowWorkspace);
         }
+        var saveCoordinates = isQuitting && windows.length > 1;
         for (var thisWindow, idx = 0; thisWindow = windows[idx]; idx++) {
             var workspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
             windowWorkspace.setPref(idx, workspace);
-            var coordinates = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
-            workspace.setPref('coordinates', coordinates);
-            coordinates.setLongPref('windowState', thisWindow.windowState);
-            if (thisWindow.windowState != _nsIDOMChromeWindow.STATE_NORMAL) {
-                // Save the window's restored coordinates,
-                // not its maximized or minimized coordinates
-                thisWindow.restore();
+            if (saveCoordinates) {
+                var coordinates = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+                workspace.setPref('coordinates', coordinates);
+                coordinates.setLongPref('windowState', thisWindow.windowState);
+                if (thisWindow.windowState != _nsIDOMChromeWindow.STATE_NORMAL) {
+                    // Save the window's restored coordinates,
+                    // not its maximized or minimized coordinates.
+                    // This isn't great -- it would be better to get the normal dimensions
+                    // when the window is normal, and store them away.
+                    // However events like EVENT_MAXIMIZE_START
+                    // aren't supported yet.
+                    thisWindow.restore();
+                }
+                coordinates.setLongPref('screenX', thisWindow.screenX);
+                coordinates.setLongPref('screenY', thisWindow.screenY);
+                coordinates.setLongPref('outerHeight', thisWindow.outerHeight);
+                coordinates.setLongPref('outerWidth', thisWindow.outerWidth);
             }
-            coordinates.setLongPref('screenX', thisWindow.screenX);
-            coordinates.setLongPref('screenY', thisWindow.screenY);
-            coordinates.setLongPref('outerHeight', thisWindow.outerHeight);
-            coordinates.setLongPref('outerWidth', thisWindow.outerWidth);
             var wko = thisWindow.ko;
             var pref = wko.projects.manager.getState();
             if (pref) {
