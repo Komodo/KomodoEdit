@@ -315,6 +315,7 @@
       <ComponentRef Id="component366"/>
       <ComponentRef Id="component413"/>
       <ComponentRef Id="component420"/>
+      <ComponentRef Id="component92"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -1036,6 +1037,11 @@
                   <File Id="file399" Name="MXML_0.LEX" LongName="MXML.lexres" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\mxml_language@ActiveState.com\lexers\MXML.lexres"/>
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\mxml_language@ActiveState.com\lexers -->
+              <Directory Id="directory107" Name="pylib">
+                <Component Id="component92" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file616" Name="LANGIN_7.PY" LongName="langinfo_mxml.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\mxml_language@ActiveState.com\pylib\langinfo_mxml.py"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\mxml_language@ActiveState.com\pylib -->
               <Directory Id="directory174" Name="TEMPL_16" LongName="templates">
                 <Directory Id="directory176" Name="ALLLA_16" LongName="All Languages">
                   <Component Id="component155" DiskId="1" Guid="$(autowix.guid)">
