@@ -2235,7 +2235,10 @@ class JavaScriptCiler:
     def addReturnObject(self, doc=None):
         log.debug("addReturnObject: scope:%r", self.currentScope.name)
         jsro = JSVariable("", self.currentScope, self.lineno, self.depth, vartype="Object", doc=doc)
-        self.currentScope.addReturnType(jsro)
+        if isinstance(self.currentScope, JSFunction):
+            self.currentScope.addReturnType(jsro)
+        # else:
+        #   TODO: This is ignoring the return type for function getters.
         self.currentScope = jsro
         return jsro
 
