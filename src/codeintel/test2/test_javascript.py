@@ -166,6 +166,7 @@ class TriggerTestCase(CodeIntelTestCase):
 class CplnTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     test_dir = join(os.getcwd(), "tmp")
+    env = SimplePrefsEnvironment(codeintel_selected_catalogs=[''])
 
     def setUp(self):
         CodeIntelTestCase.setUp(self)
@@ -375,7 +376,7 @@ class CplnTestCase(CodeIntelTestCase):
             dedent("""\
                 getElementById(elementId)
                 Returns the Element whose ID is given by elementId. If no
-                such element exists, returns null."""))
+                such element exists, returns null."""), env=self.env)
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[3]),
             [("function", "blur"), ("variable", "scrollX")])
