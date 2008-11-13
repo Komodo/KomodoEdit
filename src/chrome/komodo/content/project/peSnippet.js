@@ -252,6 +252,14 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
     }
 }
 
+function _repeatChar(c, count) {
+    var s = '';
+    for(; count > 0; --count) {
+        s += c;
+    }
+    return s;
+}
+
 /* Convert white-space to tabs
  * @param {String} s
  * @param {Integer} tabWidth
@@ -270,9 +278,7 @@ this._detabify = function(s, tabWidth) {
         } else if (c == '\t') {
             var num_needed = tabWidth - out_pos % tabWidth;
             out_pos += num_needed;
-            for (; num_needed > 0; --num_needed) {
-                s_new += ' ';
-            }
+            s_new += _repeatChar(' ', num_needed);
         } else {
             s_new += s.substr(in_pos);
             break;
@@ -388,17 +394,11 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     var currLineText = scimoz.getTextRange(startingLineStartPos,
                                            scimoz.currentPos);
     var match = currLineText.match(leading_ws_re);
-    // Snippets have a hardwired tab setting of 8
 
-    var baseIndentation = match ? this._detabify(match[1], 8) : "";
-    
-    // Work out the equivalent number of spaces to use for each tab.
-    var tabequivalent = '';
     var useTabs = view.prefs.getBooleanPref("useTabs");
     var tabWidth = view.prefs.getLongPref("tabWidth");
-    for (i = 0; i < tabWidth; i++) {
-        tabequivalent += ' ';
-    }
+    var indentWidth = view.prefs.getLongPref("indentWidth");
+    var baseIndentation = match ? this._detabify(match[1], tabWidth) : "";
 
     // Trim the baseIndentation from each line but the first of the selection.
     // It will get re-inserted after interpolation.
@@ -457,24 +457,14 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
             if (match) {
                 var whitespace = baseIndentation + match[1];
                 var rest = match[2];
-                var tab_pos = whitespace.search("\t");
+                var tab_pos;
                 // If we have tabs in the preceeding whitespace of the
                 // snippet, we need to convert them into spaces.
-                //XXX: Take into account tabs in baseIndentation as well.
-                while (tab_pos >= 0) {
-                    if (tab_pos % tabWidth) {
-                        // Ick, the tab does not align according to the
-                        // user's tabWidth preference, so we have to fix it.
-                        var s = '';
-                        for (var j=0; j < tabWidth - (tab_pos % tabWidth); j++) {
-                            s += ' ';
-                        }
-                        whitespace = whitespace.substr(0, tab_pos) + s +
-                            whitespace.substr(tab_pos+1);
-                    } else {
-                        whitespace = whitespace.replace('\t', tabequivalent);
-                    }
-                    tab_pos = whitespace.search("\t");
+                while ((tab_pos = whitespace.search("\t")) >= 0) {
+                    // Simulate pressing a tab by moving to the next multiple of indentWidth
+                    whitespace = (whitespace.substr(0, tab_pos)
+                                  + _repeatChar(' ', indentWidth - (tab_pos % indentWidth))
+                                  + whitespace.substr(tab_pos + 1));
                 }
                 lines[i] = whitespace + match[2];
             } else {
@@ -484,7 +474,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
                 var newindent = '';
                 var rest = lines[i].replace(/^\s*/, '');
                 newindent = lines[i].slice(0, lines[i].length-rest.length);
-                newindent = newindent.replace(tabequivalent, '\t', 'g');
+                newindent = newindent.replace(_repeatChar(' ', tabWidth), '\t', 'g');
                 lines[i] = newindent + rest;
             }
         }
