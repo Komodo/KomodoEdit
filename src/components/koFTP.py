@@ -42,6 +42,7 @@
 
 import os
 import socket
+import ssl
 import ftplib
 import httplib
 import logging
@@ -614,16 +615,26 @@ class koFTPS(koFTP):
         """Initialise the client."""
         koFTP.__init__(self)
         self.prot = 0
+        self.auth_mode = None
+
+    #
+    # There are a number of ways to perform ftp over ssl, we only cover one of
+    # the three possible ways as described in (the other two are deprecated):
+    # http://www.ford-hutchinson.com/~fh-1-pfh/ftps-ext.html
+    #
+    # This is:
+    #   1. "AUTH TLS", where the connection is made and then an AUTH TLS
+    #      request is sent, upon success the client can then choose if it
+    #      then wants the data to be also sent over ssl (prot_p), or wants
+    #      the data sent in clear text (prot_c).
+    #
 
     def auth_tls(self):
         """Secure the control connection per AUTH TLS, aka AUTH TLS-C."""
         self.voidcmd('AUTH TLS')
-        try:
-            ssl = socket.ssl(self.sock)
-        except AttributeError:
-            raise socket.error("SSL is not supported in Komodo's internal python")
-        self.sock = httplib.FakeSocket(self.sock, ssl)
+        self.sock = ssl.wrap_socket(self.sock)
         self.file = self.sock.makefile('rb')
+        self.auth_mode = "TLS"
 
     def prot_p(self):
         """Set up secure data connection."""
@@ -640,8 +651,7 @@ class koFTPS(koFTP):
         """Initiate a data transfer."""
         conn, size = koFTP.ntransfercmd(self, cmd, rest)
         if self.prot:
-            ssl = socket.ssl(conn)
-            conn = httplib.FakeSocket(conn, ssl)
+            conn = ssl.wrap_socket(conn)
         return conn, size
 
     def _readUnknownDataSize(self, conn, callback, blocksize=8192):
@@ -690,6 +700,7 @@ class koFTPS(koFTP):
         #conn.close()
         # Hack for python ssl, see bug:
         # http://bugs.activestate.com/show_bug.cgi?id=50217
+        conn._sock.shutdown(2)
         del conn
         #-- Hack end
         #print "Closed conn"
@@ -722,6 +733,7 @@ class koFTPS(koFTP):
         # Hack for python ssl, see bug:
         # http://bugs.activestate.com/show_bug.cgi?id=50217
         conn._sock.shutdown(2)
+        del conn
         #-- Hack end
         return self.voidresp()
 
@@ -741,6 +753,7 @@ class koFTPS(koFTP):
         #conn.close()
         # Hack for python ssl, see bug:
         # http://bugs.activestate.com/show_bug.cgi?id=50217
+        conn._sock.shutdown(2)
         del conn
         #-- Hack end
         #print "Closed conn"
@@ -768,6 +781,11 @@ class koFTPSConnection(koFTPConnection):
             self._connection = koFTPS()        # Using python ssl
             self._connection.connect(self.server, self.port,
                                      self._socket_timeout)
+        except self._FTPExceptions, e:
+            self._raiseServerException(e.args and e.args[-1] or "Connection failed")
+
+        # Now try to request for authorization over SSL.
+        try:
             # auth_tls throws exception when tls authentication not supported
             self._connection.auth_tls()
         except self._FTPExceptions, e:
