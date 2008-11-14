@@ -199,7 +199,7 @@ class DefaultEnvironment(SimplePrefsEnvironment):
     provided.
     """
     _default_prefs = {
-        "codeintel_selected_catalogs": ["yui", "pywin32"],
+        "codeintel_selected_catalogs": ["pywin32"],
         "codeintel_max_recursive_dir_depth": 10,
     }
 
