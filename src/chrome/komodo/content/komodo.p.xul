@@ -1447,8 +1447,7 @@
             </hbox>
 <!-- #endif -->
         </menubar>
-        <hbox id="main-toolboxrow" flex="1"
-                align="start" style="display:block">
+        <hbox id="main-toolboxrow" flex="1" align="start">
         <toolbar
             id="standardToolbar"
             class="chromeclass-toolbar"

@@ -65,6 +65,11 @@ toolbar[printpreview="true"] {
   display: none;
 }
 
+#main-toolboxrow {
+  overflow: hidden;
+}
+
+
 #noPreviewAvailable 
 {
   background-color: white !important;
