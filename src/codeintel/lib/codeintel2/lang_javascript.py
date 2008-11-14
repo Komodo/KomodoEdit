@@ -2588,6 +2588,33 @@ class JavaScriptCiler:
                 else:
                     # Multiple assignment (aka Example 1)
                     namelist, p = self._getIdentifiersFromPos(styles, text, p+1)
+
+                # The namelist may contain array assignments that we cannot
+                # deal with, check to ensure we have a variable assignment that
+                # we can deal with.
+                #   Handled array assignment examples:
+                #     this['field1'] =
+                #   Unhandled array assignment examples:
+                #     this[0] =
+                #     myvar[unknownvar] =
+                #
+                new_namelist = []
+                for name in namelist:
+                    if '[' in name:
+                        name_parts = name.split('[')
+                        for subname in name_parts:
+                            if subname.endswith("]"):
+                                subname = subname[:-1]
+                                # ensure the array reference is a string, otherwise
+                                # we cannot do anything with it.
+                                if not subname or subname[0] not in "'\"":
+                                    log.debug("_variableHandler:: Ignoring non-string indexed array assignment: %r", namelist)
+                                    return
+                                subname = self._unquoteJsString(subname)
+                            new_namelist.append(subname)
+                    else:
+                        new_namelist.append(name)
+                namelist = new_namelist
                 log.debug("_variableHandler:: already_looped:: namelist now:%r, p:%d", namelist, p)
 
             if len(namelist) < 1:
