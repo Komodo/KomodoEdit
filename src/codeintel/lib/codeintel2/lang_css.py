@@ -396,25 +396,15 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
     #     key (string) is the css property (attribute) name
     #     value (list) is the possible css property (attribute) values
     CSS_ATTRIBUTES = constants_css.CSS_ATTR_DICT
-    # Length required to trigger the property-names completion
-    CSS_PROPERTY_NAME_TRIGGER_LENGTH = 1
     # Setup the names triggered for "property-names"
     CSS_PROPERTY_NAMES = CSS_ATTRIBUTES.keys()
     CSS_PROPERTY_NAMES.sort(CompareNPunctLast)
-    CSS_PROPERTY_NAMES_LOOKUP \
-        = make_short_name_dict(CSS_PROPERTY_NAMES,
-                               length=CSS_PROPERTY_NAME_TRIGGER_LENGTH)
 
     # Calltips for css property attributes
     CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT = constants_css.CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT
 
     # Tag names
     CSS_HTML_TAG_NAMES = Keywords.hypertext_elements.split()
-    # Length required to trigger the property-names completion
-    CSS_HTML_TAG_NAME_TRIGGER_LENGTH = 1
-    # Setup the names triggered for "tag-names"
-    CSS_HTML_TAG_NAMES_LOOKUP = make_short_name_dict(CSS_HTML_TAG_NAMES,
-                                        length=CSS_HTML_TAG_NAME_TRIGGER_LENGTH)
 
     # pseudo-class-names
     CSS_PSEUDO_CLASS_NAMES = """first-letter first-line link active visited
@@ -737,14 +727,9 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
 
         try:
             if trg.id == ("CSS", TRG_FORM_CPLN, "tag-names"):
-                tagname = ac.text_range(pos, pos+self.CSS_HTML_TAG_NAME_TRIGGER_LENGTH)
                 if DEBUG:
                     print "  _async_eval_at_trg:: 'tag-names'"
-                    print "  _async_eval_at_trg:: tagname:", tagname
-                if trg.implicit:
-                    cplns = self.CSS_HTML_TAG_NAMES_LOOKUP.get(tagname)
-                else:
-                    cplns = self.CSS_HTML_TAG_NAMES
+                cplns = self.CSS_HTML_TAG_NAMES
                 if DEBUG:
                     print "  _async_eval_at_trg:: cplns:", cplns
                 if cplns:
@@ -771,13 +756,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                 #                          "most css triggers")
                 ctlr.done("success")
             elif trg.id == ("CSS", TRG_FORM_CPLN, "property-names"):
-                if trg.implicit:
-                    property_name = ac.text_range(pos,
-                                    pos+self.CSS_PROPERTY_NAME_TRIGGER_LENGTH)
-                    #print "\ntagname:", property_name
-                    cplns = self.CSS_PROPERTY_NAMES_LOOKUP.get(property_name)
-                else:
-                    cplns = self.CSS_PROPERTY_NAMES
+                cplns = self.CSS_PROPERTY_NAMES
                 if cplns:
                     ctlr.set_cplns( [ ("property", v) for v in cplns ] )
                     #print "  _async_eval_at_trg:: cplns:", cplns

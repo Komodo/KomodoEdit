@@ -87,7 +87,7 @@ class _BaseCSSTestCase(CodeIntelTestCase):
         tag_names = [ 's', 'samp', 'script', 'select', 'small', 'span',
                      'strike', 'strong', 'style', 'sub', 'sup' ]
         tag_names.sort(CompareNPunctLast)
-        self.assertCompletionsAre("s<|>tr",
+        self.assertCompletionsInclude("s<|>tr",
             [ ("element", v) for v in tag_names ])
         self.assertCompletionsInclude(" b<|>ody { } ",
             [("element", "body")])
@@ -149,7 +149,7 @@ class _BaseCSSTestCase(CodeIntelTestCase):
                           'margin-right', 'margin-top', 'marker-offset',
                           'marks', 'max-height', 'max-width', 'min-height',
                           'min-width', )
-        self.assertCompletionsAre("h1 { m<|>ax ",
+        self.assertCompletionsInclude("h1 { m<|>ax ",
             [ ("property", v) for v in property_names ])
         # assert no trig in string or URL
         self.assertNoTrigger('body { background: "../myimage.png { m<|>ax"')
@@ -516,7 +516,7 @@ class CSS_UDL_HTMLStyleAttributes(CodeIntelTestCase):
                           'margin-right', 'margin-top', 'marker-offset',
                           'marks', 'max-height', 'max-width', 'min-height',
                           'min-width', )
-        self.assertCompletionsAre('<p style="m<|>ax" />',
+        self.assertCompletionsInclude('<p style="m<|>ax" />',
             [ ("property", v) for v in property_names ])
         # assert no trig in string or URL
         #self.assertNoTrigger('''<p style="background: '../myimage.png { m<|>ax'" />''')
