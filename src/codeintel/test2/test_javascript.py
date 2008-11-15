@@ -883,18 +883,19 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [("keyword", "typeof"), ])
 
-    @tag("bug78497", "knownfailure")
+    @tag("bug78497")
     def test_object_assignment_ciling(self):
         content, positions = unmark_text(dedent("""\
             function class_bug78497(){
                 this.ab={};
                 this.ab['xyz']={one:1,"two":2};
+                this.ab[unknownvar]={one:1,"two":2};
             }
             var inst_bug78497 = new class_bug78497();
             inst_bug78497.<1>;
         """))
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
-            [("variable", "ab"), ])
+            [("namespace", "ab"), ])
 
 
 class MochiKitTestCase(CodeIntelTestCase):

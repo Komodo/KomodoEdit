@@ -1908,6 +1908,17 @@ class JavaScriptCiler:
             scope = self._addClassPart(memberName, self.ADD_CLASS_MEMBER,
                                        scopeNames, args=None, doc=doc)
 
+        elif len(namelist) >= 2:
+            # Find the scope to apply to.
+            scope = self._findOrCreateScope(namelist[:-1],
+                                            attrlist=("variables", "classes"),
+                                            fromScope=scope)
+            v = scope.addVariable(memberName, self.lineno,
+                                  self.depth, typeNames,
+                                  doc=doc, isLocal=isLocal)
+            if assignAsCurrentScope:
+                self.currentScope = v
+
         elif scope.cixname in ("object", "variable"):
             if isLocal:
                 log.warn("addClassOrVariableMember: %s:%d Trying to add %r as "
@@ -2570,6 +2581,11 @@ class JavaScriptCiler:
         #     namelist: ['x']
         #     text:     [',', 'y', ',', 'z', '=', '1', ';']
         #
+        # Example4:
+        #  this.ab['xyz']={one:1,"two":2};
+        #    namelist: ['this', 'ab']
+        #    text:     ['[', "'xyz'", ']', '=', '{']]
+        #
         already_looped = False
         while p < len(styles):
             #log.debug("_variableHandler:: p: %d, text: %r", p, text[p:])
@@ -2621,6 +2637,11 @@ class JavaScriptCiler:
                 log.debug("_variableHandler:: Invalid namelist! Text: %r", text)
                 return
 
+            # Whether the namelist includes an array piece whose name/scope
+            # could not be determined (i.e. foo[myname] = 1), as myname is
+            # an unknown.
+            unknown_array_namelist = False
+ 
             if p >= len(styles) or text[p] in ",;":
                 # It's a uninitialized variable?
                 log.debug("Adding uninitialized variable: %r, line: %d",
@@ -2630,6 +2651,20 @@ class JavaScriptCiler:
                                  isLocal=isLocal)
                 already_looped = True
                 continue
+
+            if p+1 < len(styles) and text[p] == '[' and \
+                 styles[p] == self.JS_OPERATOR:
+                # It may be an  array assignment (Example4 above).
+                unknown_array_namelist = True
+                array_args, p = self._getParenArguments(styles, text, p, '[')
+                if len(array_args) == 3 and array_args[1][0] in "'\"":
+                    unknown_array_namelist = False
+                    namelist.append(self._unquoteJsString(array_args[1]))
+                    log.debug("Namelist includes an array scope, now: %r",
+                              namelist)
+                if p >= len(styles):
+                    already_looped = True
+                    continue
 
             typeNames = []
             name_prefix = namelist[0]
@@ -2719,7 +2754,17 @@ class JavaScriptCiler:
                     # var obj = { observer: function() { ... }, count: 10 }
                     if not typeNames:
                         typeNames = ["Object"]
-                    if assignToCurrentScope:
+                    if unknown_array_namelist:
+                        # Create a dummy object that will then accept any
+                        # subsequent scope assignments. This object will *not*
+                        # be included in the cix output.
+                        log.debug("_variableHandler:: Line: %d, unknown array "
+                                  "assingment, creating a dummy variable: %r",
+                                  lineno, namelist)
+                        self.currentScope = JSObject(None, self.currentScope,
+                                                     self.lineno, self.depth,
+                                                     "Object")
+                    elif assignToCurrentScope:
                         log.debug("_variableHandler:: Line %d, class object variable: %r", lineno,
                                   namelist)
                         self.addClassOrVariableMember(namelist, typeNames,
