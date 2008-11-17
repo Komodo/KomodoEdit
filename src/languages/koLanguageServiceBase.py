@@ -1453,13 +1453,18 @@ class KoLanguageBase:
         or an indenting statement (e.g. an if or else that is not
         followed by a brace). 
         """
+        if pos < scimoz.length:
+            currLineNo = scimoz.lineFromPosition(pos)
+            currLineEndPos = scimoz.getLineEndPosition(currLineNo)
+            if pos < currLineEndPos and scimoz.getTextRange(pos, currLineEndPos).strip():
+                # Bug 80748: dedent/indent only when return is at end of line
+                # Bug 80960: don't get the text at start of last line of the buffer
+                return None
+        
         lineNo = self._statementStartingLineFromPos(scimoz, pos-1, style_info)
         lineStart = scimoz.positionFromLine(lineNo)
         lineEnd = scimoz.getLineEndPosition(lineNo)
         curLine = scimoz.getTextRange(lineStart, lineEnd)
-        if scimoz.getTextRange(pos, lineEnd).strip():
-            # Bug 80748: dedent/indent only when return is at end of line
-            return None
         indentlog.debug('got curLine = %r', curLine)
 
         # if we're in a string or comment, don't bother
