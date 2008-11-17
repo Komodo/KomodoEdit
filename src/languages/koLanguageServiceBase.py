@@ -2287,6 +2287,9 @@ class KoLanguageBase:
         a double-quote at this point here.  This code will give one only when
         the entered quote char starts a new style.
         """
+        if scimoz.getStyleAt(pos) == 0:
+            # No soft-chars for unstyled characters (see bug 80929).
+            return None
         if pos == 0:
             return candidate
         prevPos = scimoz.positionBefore(pos)
