@@ -73,6 +73,7 @@
         
         _pref_lint_dialog = {};
         _pref_lint_dialog.lintDelay = document.getElementById("lintDelay");
+        _pref_lint_dialog.lintEOLs = document.getElementById("lintEOLs");
         _pref_lint_dialog.editUseLinting = document.getElementById("editUseLinting");
         
         parent.hPrefWindow.onpageload();
@@ -99,6 +100,7 @@
     function pref_lint_doEnabling() {
         var enabled = _pref_lint_dialog.editUseLinting.checked;
         _pref_lint_setElementEnabledState(_pref_lint_dialog.lintDelay, enabled);
+        _pref_lint_setElementEnabledState(_pref_lint_dialog.lintEOLs, enabled);
     }
 
     ]]>

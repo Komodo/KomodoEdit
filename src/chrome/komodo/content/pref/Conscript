@@ -167,5 +167,6 @@ $cons->Preprocess('file-properties.p.xul', 'file-properties.xul');
 $cons->InstallInChrome('file-properties.xul');
 $cons->InstallInChrome('scc-properties.xul');
 $cons->InstallInChrome('editing-properties.xul');
+$cons->InstallInChrome('editing-properties.js');
 $cons->InstallInChrome('indent-properties.xul');
 $cons->InstallInChrome('preview-properties.xul');

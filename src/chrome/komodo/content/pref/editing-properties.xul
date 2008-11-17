@@ -48,11 +48,12 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         class="kodialog"
         orient="vertical"
-        onload="parent.initPanel();">
+        onload="editingPropertiesOnLoad()">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/editing-properties.js" type="application/x-javascript;version=1.7"/>
 
     <groupbox>
         <caption label="&general.label;"/>
@@ -99,7 +100,8 @@
                   label="&enableBackgroundSyntaxChecking.label;"
                   pref="true"
                   prefstring="editUseLinting"
-                  prefattribute="checked"/>
+                  prefattribute="checked"
+                  oncommand="pref_lint_doEnabling();"/>
         <checkbox id="lintEOLs"
                   style="margin-left: 27px;"
                   label="&lintEOLs.label;"
