@@ -43,7 +43,6 @@ import logging
 import re
 import eollib
 log = logging.getLogger('koLanguageCommandHandler')
-log.setLevel(logging.ERROR)
 indentlog = logging.getLogger('koLanguageCommandHandler.indenting')
 #indentlog.setLevel(logging.DEBUG)
 jumplog = logging.getLogger('koLanguageCommandHandler.jump')
@@ -154,6 +153,44 @@ class GenericCommandHandler:
             sm.wrapMode = sm.SC_WRAP_NONE
             sm.layoutCache = sm.SC_CACHE_NONE
 
+
+    def _resolveDiffPath(self, diff, hunk_path, diff_file):
+        """Return a resolved absolute and existing path for the given
+        file path indicated in a diff.
+        
+        Compare with `views-diff.xml::_resolvePath()`. Because we are in
+        Python code here we can't query the user. We'll attempt a few values
+        for strip (i.e. the '-p' option to patch.exe), using the patch file's
+        current directory to see if that works.
+        TODO: This heuristic should be added to views-diff.xml as well.
+
+        @param diff {difflibex.Diff} The parsed diff.
+        @param hunk_path {str} The diff's path for this diff hunk.
+        @param diff_file {koIFileEx} for the diff/patch file (used for a cwd).
+        @returns An existing absolute path to which `hunk_path` is pointing;
+            or None if it could not be found.
+        """
+        from os.path import normpath, split, dirname, join, exists, abspath, isabs
+        
+        if isabs(hunk_path):
+            path = normpath(hunk_path)
+            if exists(path):
+                return path
+        elif diff_file and diff_file.isLocal:
+            # If the hunk path is relative, try using the patch/diff file's
+            # cwd with a few values for strip (aka `patch -p$strip`).
+            cwd = diff_file.dirName
+            subpath = normpath(hunk_path)
+            for i in range(4):  # -p0 ... -p3
+                p = join(cwd, subpath)
+                if exists(p):
+                    return p
+                try:
+                    subpath = subpath.split(os.sep, 1)[1]
+                except IndexError:
+                    break  # out of path segments
+        return None
+
     def _is_cmd_jumpToCorrespondingLine_enabled(self):
         return self._view.languageObj.name == 'Diff'
     
@@ -178,12 +215,13 @@ class GenericCommandHandler:
         
         # Ensure can use that file path (normalized, not relative,
         # etc.)
-        resolvedFilePath = os.path.normpath(currentPosFilePath)
-        if not os.path.exists(currentPosFilePath):
-            #XXX This is where bindings/views-diff.xml will ask the user to
-            #    browse the actual path (if any).
-            log.warn("could not jump to corresponding line: `%s' does not exist",
-                     currentPosFilePath)
+        resolvedFilePath = self._resolveDiffPath(
+            diff, currentPosFilePath, self._view.document.file)
+        if not resolvedFilePath:
+            msg = "could not jump to corresponding line: `%s' does not exist" \
+                  % currentPosFilePath
+            _sendStatusMessage(msg, True)
+            return
         
         if sm.anchor == sm.currentPos:
             openFileArg = "%s\t%s,%s" \
@@ -1748,6 +1786,23 @@ class GenericCommandHandler:
             sm.selectionStart = selStart
             sm.selectionEnd = selEnd
 
+
+
+#---- internal support stuff
+
+def _sendStatusMessage(msg, highlight=False, timeout=3000):
+    observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                  .getService(components.interfaces.nsIObserverService)
+    sm = components.classes["@activestate.com/koStatusMessage;1"]\
+         .createInstance(components.interfaces.koIStatusMessage)
+    sm.category = "editor"
+    sm.msg = msg
+    sm.timeout = timeout
+    sm.highlight = highlight
+    try:
+        observerSvc.notifyObservers(sm, "status_message", None)
+    except COMException, ex:
+        pass
 
 def classifyws(s, tabwidth):
     raw = effective = 0
