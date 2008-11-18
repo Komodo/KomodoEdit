@@ -2567,18 +2567,33 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaul
         # styling information.
         N = min(100, scimoz.lineCount)
         end = scimoz.getLineEndPosition(N - 1)
+        if end < textLength:
+            end = scimoz.positionFromLine(N)
         if scimoz.endStyled < end:
             scimoz.colourise(scimoz.endStyled, end)
         data = scimoz.getStyledText(0, end)
         # data is a list of (character, styleNo)
+        usesTabs = 0
+        sawSufficientWhiteSpace = False
     
         for lineNo in range(N):
             # the outer loop tries to find the 'indenting' line.
             if not scimoz.getLineIndentation(lineNo+1): # skip unindented lines
+                # check this line's indentation for leading tabs.
+                lineStartPos = scimoz.positionFromLine(lineNo)
+                if scimoz.getWCharAt(lineStartPos) in ' \t':
+                    lineEndPos = scimoz.getLineEndPosition(lineNo)
+                    if lineEndPos > lineStartPos:
+                        line = scimoz.getTextRange(lineStartPos, lineEndPos)
+                        blackPos = len(line) - len(line.lstrip())
+                        if '\t' in line[:blackPos]:
+                            usesTabs = 1
+                        elif blackPos >= tabWidth:
+                            sawSufficientWhiteSpace = True
                 continue
             lineEndPos = scimoz.getLineEndPosition(lineNo)
-            if lineNo == N - 1 and lineEndPos == textLength:
-                lineEndPos = scimoz.getPositionBefore(textLength)
+            if lineNo == N - 1 and lineEndPos == end:
+                lineEndPos = scimoz.getPositionBefore(end)
             lineStartPos = scimoz.positionFromLine(lineNo)
             try:
                 # we'll look for each character in the line, going from
@@ -2604,8 +2619,6 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaul
                         if guess is not None:
                             # if the indent is a divisor of the tab width, then we should check
                             # if there are tabs used for indentation
-                            usesTabs = 0
-                            sawSufficientWhiteSpace = False
                             if tabWidth % guess == 0:
                                 for lineNo in range(lineNo + 1, N):
                                     lineStartPos = scimoz.positionFromLine(lineNo)
