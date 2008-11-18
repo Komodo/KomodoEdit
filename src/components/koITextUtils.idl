@@ -44,6 +44,7 @@ interface koITextUtils : nsISupports {
     wstring one_line_summary_from_text(in wstring text,
                                        in PRUint32 length);
     wstring break_up_words(in wstring text, in PRUint32 max_word_length);
+    wstring break_up_lines(in wstring text, in PRUint32 max_line_width);
 };
 
 

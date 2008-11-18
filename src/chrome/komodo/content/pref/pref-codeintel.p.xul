@@ -96,6 +96,12 @@
                      size="3"
                      pref="true"/>
         </hbox>
+        <hbox align="center">
+            <label value="&codeIntelCalltipMaxLineWidth.label;"/>
+            <textbox id="codeintel_calltip_max_line_width"
+                     size="3"
+                     pref="true"/>
+        </hbox>
 
     </groupbox>
 

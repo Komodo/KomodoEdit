@@ -150,6 +150,23 @@ def break_up_words(text, max_word_length=50):
         bit_is_word = not bit_is_word
     return ''.join(bits)
 
+def break_up_lines(text, max_line_width=80):
+    """Break up the text in the given string so no line is longer than
+    `max_line_width`. Any existing line endings are left unchanged.
+    
+    If any containing word is longer than this line width, then it will
+    be broken up in order to meet the line width restrictions. A "word"
+    means any consecutive string of characters not separated by whitespace.
+    
+    @param text {str} The string in which to break up words.
+    @param max_line_width {int} The maximum line width allowed. Default is 80.
+    """
+    import textwrap
+    lines = []
+    for line in text.split("\n"):
+        lines += textwrap.wrap(line, max_line_width)
+    return '\n'.join(lines)
+
 
 
 #---- self-test

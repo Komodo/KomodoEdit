@@ -58,3 +58,6 @@ class KoTextUtils(object):
     def break_up_words(self, text, max_word_length):
         return textutils.break_up_words(text, max_word_length)
 
+    def break_up_lines(self, text, max_line_width):
+        return textutils.break_up_lines(text, max_line_width)
+
