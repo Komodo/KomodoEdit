@@ -4,11 +4,13 @@
  * Komodo window.
  */
 splitter[orient="vertical"].workspace_splitter {
-  min-height: 1px;
-  height: 1px;
+  min-height: 3px;
+  height: 3px;
   background-image: none !important;
+  background-color: rgba(0,0,0,0.10); /* same as '.whiteout > tabs' for bottom pane tabs */
   border: none;
-  border-bottom: 1px solid #404040;
+  border-top: 1px solid #404040;
+  z-index: 100;
 }
 splitter[orient="horizontal"].workspace_splitter {
   min-width: 1px;
