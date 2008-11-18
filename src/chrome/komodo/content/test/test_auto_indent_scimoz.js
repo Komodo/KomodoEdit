@@ -176,9 +176,14 @@ function savePrefs() {
         global : {
             useSmartTabs : globalPrefs.getBooleanPref('useSmartTabs'),
             useTabs: globalPrefs.getBooleanPref('useTabs'),
-            indentWidth: globalPrefs.getLongPref('indentWidth')
+            indentWidth: globalPrefs.getLongPref('indentWidth'),
+            tabWidth: globalPrefs.getLongPref('tabWidth')
         }
     }
+    globalPrefs.setBooleanPref('useSmartTabs', true);
+    globalPrefs.setBooleanPref('useTabs', false);
+    globalPrefs.setLongPref('indentWidth', 4);
+    globalPrefs.setLongPref('tabWidth', 8);
     for (var test, i = 0; test = tests[i]; ++i) {
         var lang = test.suffix;
         if (!(lang in origPrefs)) {
@@ -186,9 +191,15 @@ function savePrefs() {
             var langPrefs = getLanguagePrefs(lang);
             if (langPrefs.hasPrefHere('useTabs')) {
                 origPrefs[lang].useTabs = langPrefs.getBooleanPref('useTabs');
+                langPrefs.setBooleanPref('useTabs', false);
             }
             if (langPrefs.hasPrefHere('indentWidth')) {
                 origPrefs[lang].indentWidth = langPrefs.getLongPref('indentWidth');
+                langPrefs.setLongPref('indentWidth', 4);
+            }
+            if (langPrefs.hasPrefHere('tabWidth')) {
+                origPrefs[lang].indentWidth = langPrefs.getLongPref('tabWidth');
+                langPrefs.setLongPref('tabWidth', 4);
             }
         }
     }
@@ -199,6 +210,7 @@ function restorePrefs() {
     globalPrefs.setBooleanPref('useSmartTabs', globalOrigPrefs.useSmartTabs);
     globalPrefs.setBooleanPref('useTabs', globalOrigPrefs.useTabs);
     globalPrefs.setLongPref('indentWidth', globalOrigPrefs.indentWidth);
+    globalPrefs.setLongPref('tabWidth', globalOrigPrefs.tabWidth);
     for (lang in origPrefs) {
         if (lang == "global") {
             continue;
@@ -210,6 +222,9 @@ function restorePrefs() {
         }
         if ('indentWidth' in langOrigPrefs) {
             langPrefs.setLongPref('indentWidth', langOrigPrefs.indentWidth);
+        }
+        if ('tabWidth' in langOrigPrefs) {
+            langPrefs.setLongPref('tabWidth', langOrigPrefs.tabWidth);
         }
     }    
 }
