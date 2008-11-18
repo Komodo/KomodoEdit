@@ -107,6 +107,24 @@ class POVRayLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
     exts = [".pov"]
 
+class MatlabLangInfo(LangInfo):
+    """A high-performance language for technical computing.
+    http://www.mathworks.com/
+    """
+    name = "Matlab"
+    conforms_to_bases = ["Text"]
+    exts = [".m", ".mat"]
+
+class ForthLangInfo(LangInfo):
+    """Forth is a structured, imperative, stack-based, computer programming
+    language.
+    http://en.wikipedia.org/wiki/Forth_(programming_language)
+    http://www.forth.org/
+    """
+    name = "Forth"
+    conforms_to_bases = ["Text"]
+    exts = [".forth"]
+
 
 class SQLLangInfo(LangInfo):
     #TODO: describe: what SQL spec does this conform to?
