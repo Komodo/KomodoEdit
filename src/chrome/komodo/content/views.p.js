@@ -2284,7 +2284,7 @@ this.saveWorkspace = function view_saveWorkspace()
         var windows = ko.windowManager.getWindows();
         var windowWorkspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
         gPrefs.setPref(multiWindowWorkspacePrefName, windowWorkspace);
-        var saveCoordinates = _mozPersistPositionDoesNotWork || window.length > 1;
+        var saveCoordinates = _mozPersistPositionDoesNotWork || windows.length > 1;
         for (var thisWindow, idx = 0; thisWindow = windows[idx]; idx++) {
             var workspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
             windowWorkspace.setPref(idx, workspace);
