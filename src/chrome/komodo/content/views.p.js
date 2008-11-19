@@ -2122,6 +2122,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     }
     if (!gPrefs.hasPref(multiWindowWorkspacePrefName)) {
         this._restoreWindowWorkspace(gPrefs.getPref('workspace'), currentWindow, _mozPersistPositionDoesNotWork);
+        setTimeout(ko.uilayout.restoreTabSelections, 10, gPrefs);
         return;
     }
     // Restore the first workspace directly, and restore other
@@ -2235,11 +2236,20 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
                 elt.setState(pref);
             }
         }
+        if (workspace.hasPref('uilayout_bottomTabBoxSelectedTabId')) {
+            setTimeout(wko.uilayout.restoreTabSelections, 10, workspace);
+        }
     } catch(ex) {
         log.exception(ex, "Error restoring workspace:");
     }
     _restoreInProgress = false;
 };
+
+/*XXX: At some point remove these prefs from the global prefset:
+ * uilayout_bottomTabBoxSelectedTabId
+ * uilayout_leftTabBoxSelectedTabId
+ * uilayout_rightTabBoxSelectedTabId
+ */
 
 /**
  * save all workspace preferences and state
@@ -2252,22 +2262,8 @@ this.saveWorkspace = function view_saveWorkspace(isQuitting)
     // Ask each major component to serialize itself to a pref.
     try {
         var windows = ko.windowManager.getWindows();
-        var windowWorkspace;
-        if (gPrefs.hasPref(multiWindowWorkspacePrefName)) {
-            windowWorkspace = gPrefs.getPref(multiWindowWorkspacePrefName);
-            // clear numbered workspaces
-            for (var i = 1; true; i++) {
-                if (windowWorkspace.hasPref(i)) {
-                    windowWorkspace.deletePref(i);
-                } else {
-                    break;
-                }
-            }
-            windowWorkspace.reset();
-        } else {
-            windowWorkspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
-            gPrefs.setPref(multiWindowWorkspacePrefName, windowWorkspace);
-        }
+        var windowWorkspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+        gPrefs.setPref(multiWindowWorkspacePrefName, windowWorkspace);
         var saveCoordinates = isQuitting && windows.length > 1;
         for (var thisWindow, idx = 0; thisWindow = windows[idx]; idx++) {
             var workspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
@@ -2313,6 +2309,7 @@ this.saveWorkspace = function view_saveWorkspace(isQuitting)
                     workspace.setPref(id, pref);
                 }
             }
+            wko.uilayout.saveTabSelections(workspace);
         }
         // Save prefs
         gPrefSvc.saveState();

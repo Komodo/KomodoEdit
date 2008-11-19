@@ -315,7 +315,6 @@ function onloadDelay() {
         ko.mozhacks.pluginContextMenu();
 
         CodeIntel_InitializeWindow();
-        ko.uilayout.restoreTabSelections();
 
         ko.macros.eventHandler.hookOnStartup();
     } catch(ex) {

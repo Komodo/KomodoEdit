@@ -1147,7 +1147,6 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
 
 this.unload = function uilayout_unload()
 {
-    ko.uilayout.saveTabSelections();
     gUilayout_Observer.destroy();
     gUilayout_Observer = null;
     _prefobserver.destroy();
@@ -1243,55 +1242,63 @@ _PrefObserver.prototype.destroy = function() {
     }
 }
 
-this.saveTabSelections = function uilayout_SaveTabSelections() {
+function _saveTabBoxPrefs(prefs, tabboxID, isCollapsedPrefID, selectedTabPrefID) {
+    var tabbox = document.getElementById(tabboxID);
+    var selectedTabId = tabbox.selectedTab.id;
+    prefs.setBooleanPref(isCollapsedPrefID,
+                         tabbox.parentNode.getAttribute('collapsed') == 'true');
+    prefs.setStringPref(selectedTabPrefID, selectedTabId);
+}
+
+this.saveTabSelections = function uilayout_SaveTabSelections(prefs) {
+    if (typeof(prefs) == "undefined") prefs = gPrefs;
     try {
-        var tabbox;
-        var selectedTabId;
-        tabbox = document.getElementById('leftTabBox');
-        selectedTabId = tabbox.selectedTab.id;
-        gPrefs.setStringPref('uilayout_leftTabBoxSelectedTabId', selectedTabId);
-        tabbox = document.getElementById('rightTabBox');
-        selectedTabId = tabbox.selectedTab.id;
-        gPrefs.setStringPref('uilayout_rightTabBoxSelectedTabId', selectedTabId);
-        tabbox = document.getElementById('output_area');
-        selectedTabId = tabbox.selectedTab.id;
-        gPrefs.setStringPref('uilayout_bottomTabBoxSelectedTabId', selectedTabId);
+        _saveTabBoxPrefs(prefs, 'leftTabBox',
+                         'uilayout_leftTabBox_collapsed',
+                         'uilayout_leftTabBoxSelectedTabId');
+        _saveTabBoxPrefs(prefs, 'rightTabBox',
+                         'uilayout_rightTabBox_collapsed',
+                         'uilayout_rightTabBoxSelectedTabId');
+        _saveTabBoxPrefs(prefs, 'output_area',
+                         'uilayout_bottomTabBox_collapsed',
+                         'uilayout_bottomTabBoxSelectedTabId');
     } catch (e) {
-        _log.exception("Couldn't save selected tab preferences");
+        _log.exception("Couldn't save selected tab preferences:" + e);
     }
 }
 
-this.restoreTabSelections = function uilayout_RestoreTabSelections() {
+function _restoreTabBox(prefs, tabboxID, isCollapsedPrefID, selectedTabPrefID) {
+    if (prefs.hasStringPref(selectedTabPrefID)) {
+        var selectedTabId = prefs.getStringPref(selectedTabPrefID);
+        var tabbox = document.getElementById(tabboxID);
+        if (prefs.hasBooleanPref(isCollapsedPrefID)) {
+            if (prefs.getBooleanPref(isCollapsedPrefID)) {
+                tabbox.parentNode.setAttribute('collapsed', 'true');
+            } else {
+                tabbox.parentNode.removeAttribute('collapsed');
+            }
+        }
+        var tab = document.getElementById(selectedTabId);
+        if (tab) {
+            tabbox.selectedTab = tab;
+        }
+    }
+}
+
+this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
+    if (typeof(prefs) == "undefined") prefs = gPrefs;
     try {
-        var selectedTabId;
-        var tabbox;
-        var tab;
-        if (gPrefs.hasStringPref('uilayout_leftTabBoxSelectedTabId')) {
-            selectedTabId = gPrefs.getStringPref('uilayout_leftTabBoxSelectedTabId');
-            tabbox = document.getElementById('leftTabBox');
-            tab = document.getElementById(selectedTabId);
-            if (tab && !(tab.getAttribute('collapsed') == 'true')) {
-                tabbox.selectedTab = tab;
-            }
-        }
-        if (gPrefs.hasStringPref('uilayout_rightTabBoxSelectedTabId')) {
-            selectedTabId = gPrefs.getStringPref('uilayout_rightTabBoxSelectedTabId');
-            tabbox = document.getElementById('rightTabBox');
-            tab = document.getElementById(selectedTabId);
-            if (tab && !(tab.getAttribute('collapsed') == 'true')) {
-                tabbox.selectedTab = tab;
-            }
-        }
-        if (gPrefs.hasStringPref('uilayout_bottomTabBoxSelectedTabId')) {
-            selectedTabId = gPrefs.getStringPref('uilayout_bottomTabBoxSelectedTabId');
-            tabbox = document.getElementById('output_area');
-            tab = document.getElementById(selectedTabId);
-            if (tab && !(tab.getAttribute('collapsed') == 'true')) {
-                tabbox.selectedTab = tab;
-            }
-        }
+        _restoreTabBox(prefs, 'leftTabBox',
+                       'uilayout_leftTabBox_collapsed',
+                       'uilayout_leftTabBoxSelectedTabId');
+        _restoreTabBox(prefs, 'rightTabBox',
+                       'uilayout_rightTabBox_collapsed',
+                       'uilayout_rightTabBoxSelectedTabId');
+        _restoreTabBox(prefs, 'output_area',
+                       'uilayout_bottomTabBox_collapsed',
+                       'uilayout_bottomTabBoxSelectedTabId');
     } catch (e) {
-        _log.exception("Couldn't restore selected tab");
+        _log.exception("Couldn't restore selected tab: " + e);
     }
 }
 
