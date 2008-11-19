@@ -196,36 +196,23 @@ ko.windowManager = {
     },
     
     /**
-     * Returns an array of all Komodo windows that are currently open. The
-     * current window will be the last element in the array.
+     * Returns an array of all Komodo windows that are currently open.
      * 
      * @returns {array}
-     *
-     * Dev note:
-     * Originally I wanted to return the windows in reverse z-order
-     * using nsIWindowMediator.getZOrderDOMWindowEnumerator
-     * but this method doesn't work for Linux
-     * (https://bugzilla.mozilla.org/show_bug.cgi?id=156333)
-     * or Mac (https://bugzilla.mozilla.org/show_bug.cgi?id=450576).
-     * The code here compromises by making sure the main window is in
-     * correct reverse-z-order, and putting the other windows in an
-     * undefined order.
      */
     getWindows: function() {
         var windows = [];
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
         .getService(Components.interfaces.nsIWindowMediator);
-        var mainWindow = wm.getMostRecentWindow('Komodo');
         // Make sure the mainWindow ends up at the end of the list.
         try {
             var openWindows = wm.getEnumerator('Komodo');
             do {
                 var openWindow = openWindows.getNext();
-                if (openWindow && openWindow != mainWindow) {
+                if (openWindow) {
                     windows.push(openWindow);
                 }
             } while (openWindows.hasMoreElements());
-            windows.push(mainWindow);
         } catch(e) {
             log.exception(e);
         }

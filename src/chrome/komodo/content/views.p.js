@@ -1620,7 +1620,7 @@ viewManager.prototype.do_cmd_saveAll = function() {
         }
 
         // save workspace
-        ko.workspace.saveWorkspace(false);
+        ko.workspace.saveWorkspace();
     } catch(ex) {
         this.log.exception(ex, "Error in do_cmd_saveAll");
     }
@@ -2156,8 +2156,22 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx)
     var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
     if (windowWorkspacePref.hasPref(idx + 1)) {
         ko.launch.newWindowFromWorkspace(idx + 1);
+    } else {
+        _restoreFocusToMainWindow();
     }
 };
+
+function _restoreFocusToMainWindow() {
+    var windows = ko.windowManager.getWindows();
+    for (var i = 0; i < windows.length; i++) {
+        var w = windows[i];
+        if (w.ko._hasFocus) {
+            w.focus();
+            delete w.ko._hasFocus;
+            return;
+        }
+    }
+}
 
 // Bug 80604 -- screenX and screenY values like -32000 can occur.
 // Generalize it: if we fall behind or in front of some threshold,
@@ -2199,16 +2213,22 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
                 || Math.abs(screenY) > 3 * screenHeight) {
                 screenX = screenY = 0;
             }
-            currentWindow.screenX = screenX;
-            currentWindow.screenY = screenY;
-            currentWindow.outerHeight = _checkWindowCoordinateBounds(
-                outerHeight,
-                0, .2 * screenHeight,
-                screenHeight, .9 * screenHeight);
-            currentWindow.outerWidth = _checkWindowCoordinateBounds(
-                outerWidth,
-                0, .2 * screenWidth,
-                screenWidth, .9 * screenWidth);
+            if (currentWindow.screenX != screenX
+                || currentWindow.screenY != screenY) {
+                currentWindow.moveTo(screenX, screenY);
+            }
+            if (currentWindow.outerHeight != outerHeight
+                || currentWindow.outerWidth != outerWidth) {
+                var newHeight = _checkWindowCoordinateBounds(
+                    outerHeight,
+                    0, .2 * screenHeight,
+                    screenHeight, .9 * screenHeight);
+                var newWidth = _checkWindowCoordinateBounds(
+                    outerWidth,
+                    0, .2 * screenWidth,
+                    screenWidth, .9 * screenWidth);
+                currentWindow.resizeTo(newWidth, newHeight);
+            }
             if (windowState == _nsIDOMChromeWindow.STATE_MINIMIZED) {
                 currentWindow.minimize();
             } else if (windowState == _nsIDOMChromeWindow.STATE_MAXIMIZED) {
@@ -2239,6 +2259,8 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         if (workspace.hasPref('uilayout_bottomTabBoxSelectedTabId')) {
             setTimeout(wko.uilayout.restoreTabSelections, 10, workspace);
         }
+        wko._hasFocus = (workspace.hasBooleanPref('hasFocus')
+                         && workspace.getBooleanPref('hasFocus'));
     } catch(ex) {
         log.exception(ex, "Error restoring workspace:");
     }
@@ -2253,18 +2275,16 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
 
 /**
  * save all workspace preferences and state
- * @param isQuitting {Boolean}
- *        (Optional) Only needed when shutting down.  Default value: false.
  */
-this.saveWorkspace = function view_saveWorkspace(isQuitting)
+this.saveWorkspace = function view_saveWorkspace()
 {
-    if (typeof(isQuitting) == 'undefined') isQuitting = false;
     // Ask each major component to serialize itself to a pref.
     try {
+        var mainWindow = ko.windowManager.getMainWindow();
         var windows = ko.windowManager.getWindows();
         var windowWorkspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
         gPrefs.setPref(multiWindowWorkspacePrefName, windowWorkspace);
-        var saveCoordinates = isQuitting && windows.length > 1;
+        var saveCoordinates = _mozPersistPositionDoesNotWork || window.length > 1;
         for (var thisWindow, idx = 0; thisWindow = windows[idx]; idx++) {
             var workspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
             windowWorkspace.setPref(idx, workspace);
@@ -2272,19 +2292,14 @@ this.saveWorkspace = function view_saveWorkspace(isQuitting)
                 var coordinates = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
                 workspace.setPref('coordinates', coordinates);
                 coordinates.setLongPref('windowState', thisWindow.windowState);
-                if (thisWindow.windowState != _nsIDOMChromeWindow.STATE_NORMAL) {
-                    // Save the window's restored coordinates,
-                    // not its maximized or minimized coordinates.
-                    // This isn't great -- it would be better to get the normal dimensions
-                    // when the window is normal, and store them away.
-                    // However events like EVENT_MAXIMIZE_START
-                    // aren't supported yet.
-                    thisWindow.restore();
-                }
-                coordinates.setLongPref('screenX', thisWindow.screenX);
-                coordinates.setLongPref('screenY', thisWindow.screenY);
-                coordinates.setLongPref('outerHeight', thisWindow.outerHeight);
-                coordinates.setLongPref('outerWidth', thisWindow.outerWidth);
+                var docElement = thisWindow.document.documentElement;
+                coordinates.setLongPref('screenX', docElement.getAttribute('screenX'));
+                coordinates.setLongPref('screenY', docElement.getAttribute('screenY'));
+                coordinates.setLongPref('outerHeight', docElement.height);
+                coordinates.setLongPref('outerWidth', docElement.width);
+            }
+            if (thisWindow == mainWindow) {
+                workspace.setBooleanPref('hasFocus', true);
             }
             var wko = thisWindow.ko;
             var pref = wko.projects.manager.getState();
