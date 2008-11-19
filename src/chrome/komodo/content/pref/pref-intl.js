@@ -235,7 +235,7 @@ function changeNewLanguage(item, name)  {
     if (currentLangPrefs.hasPref(latestLanguage+'/newEncoding'))  {
         encoding = currentLangPrefs.getStringPref(latestLanguage+'/newEncoding');
     } else  {
-        log.error("Could not retrieve the language encoding from preferences, using default.");
+        log.warn("Could not retrieve the language encoding from preferences, using default.");
         encoding = langPrefs.getStringPref('encodingDefault')
     }
 
