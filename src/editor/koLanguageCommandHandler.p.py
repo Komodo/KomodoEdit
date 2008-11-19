@@ -1456,8 +1456,9 @@ class GenericCommandHandler:
             sm.scrollCaret()
             return
 
-        if sm.currentPos == sm.anchor and self._try_complete_word(sm, view):
-            self._doCompleteWord(1)
+        if (sm.currentPos == sm.anchor
+            and self._try_complete_word(sm, view)
+            and self._doCompleteWord(1)):
             return
 
         selectionStartLine = sm.lineFromPosition(sm.selectionStart)
@@ -1508,7 +1509,7 @@ class GenericCommandHandler:
                 words = self._getwords()
                 index = 0
         if not words:
-            return
+            return False
         word = self._getprevword()
         sm.anchor = sm.currentPos - self.sysUtils.byteLength(word)
         sm.replaceSel('')
@@ -1527,6 +1528,7 @@ class GenericCommandHandler:
         
         self._completeWordState = words, index, curinsert, curline
         sm.scrollCaret()
+        return True
 
     def _getwords(self):
         sm = self._view.scimoz
@@ -1610,8 +1612,7 @@ class GenericCommandHandler:
             return
 
         if sm.currentPos == sm.anchor:
-            if self._try_complete_word(sm, view):
-                self._doCompleteWord(0)
+            if self._try_complete_word(sm, view) and self._doCompleteWord(0):
                 return
     
             # Do we have a selection?  If no, then it's 'insert a tab'
