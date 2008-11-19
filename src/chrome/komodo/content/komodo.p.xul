@@ -722,8 +722,8 @@
                          for an example. -->
 
                     <menuitem id="menu_mac_services" label="&menuSysMacServices.label; "/>
-                    <menuitem id="menu_mac_hide_app" label="&menuSysMacHideApp.label;" />
-                    <menuitem id="menu_mac_hide_others" label="&menuSysMacHideOtherApps.label;" />
+                    <menuitem id="menu_mac_hide_app" label="&menuSysMacHideApp.label;" key="key_hideThisAppCmdMac" />
+                    <menuitem id="menu_mac_hide_others" label="&menuSysMacHideOtherApps.label;" key="key_hideOtherAppsCmdMac" />
                     <menuitem id="menu_mac_show_all" label="&menuSysMacShowAllApps.label;" />
 <!-- #endif -->
                 </menupopup>
@@ -2466,5 +2466,16 @@
     </statusbar>
     <commandset id="allcommands"/>
     <keyset id="widekeyset" persist="persisted_kb" persisted_kb="false"/>
+<!-- #if PLATFORM == "darwin" -->
+    <keyset id="macAppMenuKeys">
+        <key id="key_hideThisAppCmdMac"
+             key="&hideThisAppCmdMac.commandkey;"
+             modifiers="&hideThisAppCmdMac.modifiers;"
+             oncommand="/* avoid double flash of app menu (bug 80666) */"/>
+        <key id="key_hideOtherAppsCmdMac"
+             key="&hideOtherAppsCmdMac.commandkey;"
+             modifiers="&hideOtherAppsCmdMac.modifiers;"/>
+    </keyset>
+<!-- #endif -->
 </window>
 

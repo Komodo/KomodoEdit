@@ -689,3 +689,8 @@
 <!ENTITY menuSysMacHideApp.label "Hide &brandShortName;">
 <!ENTITY menuSysMacHideOtherApps.label "Hide Others">
 <!ENTITY menuSysMacShowAllApps.label "Show All">
+
+<!ENTITY hideThisAppCmdMac.commandkey "h">
+<!ENTITY hideThisAppCmdMac.modifiers "accel">
+<!ENTITY hideOtherAppsCmdMac.commandkey "h">
+<!ENTITY hideOtherAppsCmdMac.modifiers "accel,alt">
