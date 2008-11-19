@@ -330,10 +330,13 @@ function onloadDelay() {
         /* ignore this exception, there were no listeners for the event */
     }
     // bug 80583 -- earlier calls to updateCommands('currentview_is_editor')
-    // while handling current_view_changed events during startup
-    // fail to realize the view is an editor.
+    // while handling current_view_changed events during startup fail to
+    // properly update all of the commands. We force updating of these
+    // command targets.
     if (ko.views.manager.currentView) {
-        xtk.domutils.fireEvent(ko.views.manager.currentView, 'current_view_changed');
+        window.setTimeout("window.updateCommands('currentview_is_editor');", 1);
+        window.setTimeout("window.updateCommands('foldability_changed');", 1);
+        window.setTimeout("window.updateCommands('previewability_changed');", 1);
     }
 }
 
