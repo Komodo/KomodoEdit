@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
                  "or", "or_eq", "private", "protected", "public", "register",
                  "reinterpret_cast", "return", "short", "signed", "sizeof", "static",
                  "static_cast", "struct", "switch", "template", "this", "throw", "true",
-                 "try", "typedef", "union", "unsigned", "using", "virtual", "void", "volatile",
+                 "try", "typedef", "typename", "union", "unsigned", "using", "virtual", "void", "volatile",
                  "wchar_t", "while", "xor", "xor_eq"]
 
     # XXX uncomment these to integrate the info and linter classes
