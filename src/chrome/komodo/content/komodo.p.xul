@@ -2079,7 +2079,7 @@
                           onclose="ko.uilayout.toggleSplitter('cmd_viewRightPane');"
                           closeclass="scroll-minimize-right-icon"
                           closecollapsed="false">
-                        <tab type="file-tab" id="toolbox_tab" label="&toolbox.label;"
+                        <tab id="toolbox_tab" label="&toolbox.label;"
                              locktip="&thisToolboxIsReadOnly.locktip;"
                              accesskey="&toolboxTab.accesskey;"
                              oncommand="ko.toolboxes.user.viewMgr.tree.focus();"
