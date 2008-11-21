@@ -688,7 +688,7 @@ class KoInitService:
                 # Western European is our last resort fallback.
                 defaultEncoding = "iso8859-1"
                 log.debug("encoding: fallback to '%s' (Western European)", defaultEncoding);
-            prefs.setBooleanPref("encodingEnvironment", false);
+            prefs.setBooleanPref("encodingEnvironment", False);
 
         #XXX Komodo code requires the encodingDefault string to be lowercase
         #    and while Komodo code has been updated to guarantee this there
