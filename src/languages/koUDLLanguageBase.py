@@ -409,6 +409,10 @@ class KoUDLLanguage(KoLanguageBase):
         for language in lang_to_try:
             # log.debug("get_linter(%s), trying udl language %s", self.name, language)
             if not language: continue
+            if language == self.name:
+                # We already checked self. If we try to check it again we'll
+                # go into a recursive loop. Bug 81066.
+                continue
             try:
                 return registryService.getLanguage(language).\
                             getLanguageService(serviceInterface)
