@@ -278,8 +278,8 @@
     verticalAxisStyleName CDATA #IMPLIED
 
 ">
-<!ELEMENT % CartesianChart ANY>
-<!ATTLIST % CartesianChart %mx.charts.CartesianChart;>
+<!ELEMENT CartesianChart ANY>
+<!ATTLIST CartesianChart %mx.charts.CartesianChart;>
 
 
 <!ENTITY % mx.charts.AreaChart "

@@ -1,0 +1,5 @@
+<?xml version='1.0'?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
+    <system systemId="http://www.adobe.com/2006/mxml" uri="mxml.dtd"/>
+    <uri name="http://www.adobe.com/2006/mxml" uri="mxml.dtd"/>
+</catalog>
