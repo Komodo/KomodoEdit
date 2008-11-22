@@ -158,7 +158,7 @@ function PrefWinInteg_ConfigureCommonAssociations()
 
         window.openDialog("chrome://komodo/content/pref/setupFileAssociations.xul",
                           "_blank",
-                          "chrome,modal,titlebar",
+                          "chrome,modal,resizable,titlebar,centerscreen",
                           obj);
 
         if (obj.retval == "OK") {

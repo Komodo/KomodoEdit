@@ -58,7 +58,7 @@
         onload="OnLoad()"
         onunload="OnUnload()"
         orient="vertical"
-        style="min-width: 300px; max-width: 400px; padding: 10px;"
+        style="min-width: 30em; max-width: 40em; padding: 10px;"
         flex="1">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
