@@ -108,6 +108,10 @@ if (typeof(ko.keybindings)=='undefined') {
 }
 (function() {
 var _log = ko.logging.getLogger('keybindings');
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/keybindings.properties");
+
 //_log.setLevel(ko.logging.LOG_DEBUG);
     
 this.manager = function keybindingManager() {
@@ -819,7 +823,7 @@ this.manager.prototype.saveAndApply = function(prefset) {
             dirty = true;
         }
         if (dirty || this._configDirty) {
-            ko.dialogs.alert("Changes to the keybindings won't fully take effect until Komodo is restarted.",
+            ko.dialogs.alert(_bundle.GetStringFromName("restartRequiredAfterKeybindingChange"),
                              null, null, // text, title
                              "reboot_after_changing_keybindings" // doNotAskPref
                              );
