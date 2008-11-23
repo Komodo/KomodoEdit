@@ -840,7 +840,7 @@ def _initializeStyleInfo():
     log.debug("initializing style info...")
     ISciMoz = components.interfaces.ISciMoz
     for languageName in StateMap:
-        ValidStyles[languageName] = []
+        languageStyles = []
         for common_name, scimoz_names in StateMap[languageName].items():
             for scimoz_name in scimoz_names:
                 if isinstance(scimoz_name, str):
@@ -851,9 +851,8 @@ def _initializeStyleInfo():
                 if common_name in CommonStates:
                     ScimozStyleNo2CommonName[key] = common_name
                 ScimozStyleNo2SpecificName[key] = common_name
-                ValidStyles[languageName].append((scimoz_no,
-                                                  scimoz_name,
-                                                  common_name)) 
+                languageStyles.append((scimoz_no, scimoz_name, common_name)) 
+        ValidStyles[languageName] = languageStyles
 
 
 def scincolor2mozcolor(scincolor):
