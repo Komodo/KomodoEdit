@@ -161,7 +161,12 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
 
     var koWebbrowser = Components.classes["@activestate.com/koWebbrowser;1"].
                        getService(Components.interfaces.koIWebbrowser);
-    var browsers = koWebbrowser.get_possible_browsers(new Object());
+    var browsersObj = {};
+    var browserTypesObj = {};
+    koWebbrowser.get_possible_browsers_and_types(
+            {} /* count */, browsersObj, browserTypesObj);
+    var browsers = browsersObj.value;
+    var browserTypes = browserTypesObj.value;
     var mi;
 
 // #if PLATFORM == "win"
@@ -179,6 +184,9 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
         mi.setAttribute("label", browsers[i]);
         mi.setAttribute("crop", "center");
         mi.setAttribute("tooltiptext", ko.uriparse.baseName(browsers[i]));
+        if (browserTypes[i]) {
+            mi.setAttribute("class", "menuitem-iconic browser-"+browserTypes[i]+"-icon");
+        }
         browserURI = ko.uriparse.localPathToURI(browsers[i]);
         mi.setAttribute("oncommand",
                         "ko.views.manager.currentView.viewPreview('"+browserURI+"'); event.stopPropagation();");

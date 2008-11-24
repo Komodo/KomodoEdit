@@ -34,37 +34,68 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
-var gPaths, gListbox;
+const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+var gBrowsers, gBrowserTypes;
+var gBrowserMenulist;
 
 function PrefWeb_OnLoad()
 {
     var prefbrowser;
     if (parent.hPrefWindow.prefset.hasStringPref('browser') &&
-        parent.hPrefWindow.prefset.getStringPref('browser'))
+        parent.hPrefWindow.prefset.getStringPref('browser')) {
         prefbrowser = parent.hPrefWindow.prefset.getStringPref('browser');
-    else
+    } else {
         prefbrowser = '';
+    }
 
+    // Get the list of available browsers.
     var koWebbrowser = Components.classes['@activestate.com/koWebbrowser;1'].
                    getService(Components.interfaces.koIWebbrowser);
-    gPaths = koWebbrowser.get_possible_browsers(new Object());
-    gListbox = document.getElementById('selectedbrowser');
+    var browsersObj = {};
+    var browserTypesObj = {};
+    koWebbrowser.get_possible_browsers_and_types(
+            {} /* count */, browsersObj, browserTypesObj);
+    var gBrowsers = browsersObj.value;
+    var gBrowserTypes = browserTypesObj.value;
 
-    var found = false;
+    gBrowserMenulist = document.getElementById('selectedbrowser');
 // #if PLATFORM == "win"
-    gListbox.appendItem('System defined default browser','');
+    gBrowserMenulist.appendItem('System defined default browser','');
 // #else
-    gListbox.appendItem('Ask when browser is launched the next time', '');
+    gBrowserMenulist.appendItem('Ask when browser is launched the next time', '');
 // #endif
 
-    for (var i=0; i< gPaths.length; i++) {
-        gListbox.appendItem(gPaths[i],gPaths[i]);
-        if (gPaths[i] == prefbrowser) found = true;
+    var found = false;
+    for (var i=0; i < gBrowsers.length; i++) {
+        _addBrowser(gBrowsers[i], gBrowserTypes[i]);
+        if (gBrowsers[i] == prefbrowser) found = true;
     }
-    if (!found && prefbrowser)
-        gListbox.appendItem(prefbrowser,prefbrowser);
+    if (!found && prefbrowser) {
+        _addBrowser(prefbrowser, null);
+    }
 
     parent.hPrefWindow.onpageload();
+}
+
+
+/* Add the given browser to the browser menulist and return the added item. */
+function _addBrowser(browser, browserType /* =null */) {
+    if (typeof(browserType) == "undefined") browserType = null;
+
+    var popup = document.getElementById("selectedbrowser-popup");
+    var item = document.createElementNS(XUL_NS, "menuitem");
+    item.setAttribute("label", browser);
+    item.setAttribute("value", browser);
+    item.setAttribute("crop", "center");
+    if (browserType) {
+        //TODO: This styling doesn't work here and I don't know why.
+        //      The equivalent works for the "browser preview" toolbar
+        //      button in komodo.xul.
+        item.setAttribute("class", "menuitem-iconic browser-"+browserType+"-icon");
+    }
+    popup.appendChild(item);
+    return item;
 }
 
 function browseForBrowser() {
@@ -76,10 +107,11 @@ function browseForBrowser() {
     if (path.indexOf(' ') != -1) {
         path = '\"' + path + '\"';
     }
-    var gListbox = document.getElementById("selectedbrowser");
-    gListbox.selectedItem = gListbox.appendItem(path,path);
+    var gBrowserMenulist = document.getElementById("selectedbrowser");
+    gBrowserMenulist.selectedItem = _addBrowser(path);
     return null;
 }
+
 
 function configureProxies() {
     ko.windowManager.openDialog(

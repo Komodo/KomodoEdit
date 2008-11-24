@@ -618,3 +618,35 @@ treechildren::-moz-tree-image(remotefile)
 {
   list-style-image: url('chrome://komodo/skin/images/file_icon.png');
 }
+
+
+/* Browser icons */
+
+.browser-firefox-icon {
+    list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_firefox.png");
+}
+.browser-camino-icon {
+    list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_camino.png");
+}
+.browser-internetexplorer-icon {
+    list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_internetexplorer.png");
+}
+.browser-konqueror-icon {
+    list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_konqueror.png");
+}
+.browser-mozilla-icon {
+    list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_mozilla.png");
+}
+.browser-msnexplorer-icon {
+    list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_msnexplorer.png");
+}
+.browser-netscape-icon {
+    list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_netscape.png");
+}
+.browser-opera-icon {
+    list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_opera.png");
+}
+.browser-safari-icon {
+    list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_safari.png");
+}
+

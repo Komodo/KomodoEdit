@@ -68,7 +68,7 @@
                       flex="1"
                       pref="true"
                       prefstring="browser">
-                <menupopup id="elListbox"/>
+                <menupopup id="selectedbrowser-popup"/>
             </menulist>
             <button label="&browse.label;" oncommand="browseForBrowser();"/>
         </hbox>
