@@ -293,7 +293,6 @@ class KoWebbrowser:
                 which.whichall("MozillaFirebird", path=path) +
                 which.whichall("konqueror", path=path) +
                 which.whichall("opera", path=path) +
-                which.whichall("flock", path=path) +
                 which.whichall("netscape", path=path) +
                 which.whichall("netscape-communicator", path=path) +
                 which.whichall("kfm", path=path)
