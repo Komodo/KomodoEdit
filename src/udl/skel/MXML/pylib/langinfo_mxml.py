@@ -55,7 +55,7 @@ class MXMLBuffer(UDLBuffer, XMLParsingBufferMixin):
 
     def xml_tree_handler(self, node=None):
         log.debug(">> MXMLBuffer.xml_tree_handler")
-        default = self._mxml_default_dataset_info(node-)
+        default = self._mxml_default_dataset_info(node)
         if default:
             # force HTML based completion
             return koXMLDatasetInfo.getService().getDocumentHandler(default[0], default[1], default[2])
