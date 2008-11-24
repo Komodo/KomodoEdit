@@ -44,9 +44,16 @@
 interface koIWebbrowser : nsISupports {
     boolean open_new(in wstring url);
     boolean open_new_browser(in wstring url, in wstring browser);
-    // return array of all browsers found on path
+
+    // Finding all installed browsers.
+    // - Return a list of full local paths to browsers.
     void get_possible_browsers(out PRUint32 count,
-        [retval, array, size_is(count)] out wstring str);
+        [retval, array, size_is(count)] out wstring paths);
+    // - Return a list of full local paths and a browser type (e.g. a
+    //   short string like "firefox" or "opera").
+    void get_possible_browsers_and_types(out PRUint32 count,
+        [array, size_is(count)] out wstring paths,
+        [array, size_is(count)] out wstring types);
 
     void get_firefox_paths(out PRUint32 count,
         [retval, array, size_is(count)] out wstring firefoxes);

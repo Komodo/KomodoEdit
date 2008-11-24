@@ -46,6 +46,7 @@ import re
 import logging
 import which
 from collections import defaultdict
+from pprint import pprint, pformat
 
 import process, koprocessutils
 from xpcom import components
@@ -250,8 +251,52 @@ class KoWebbrowser(object):
         #print "PARSE: %r -> %r" % (command, argv)
         return argv
 
+    _exe_name_from_browser_type = {
+        "firefox": "firefox",
+        "camino": "camino",
+        "internetexplorer": "iexplore",
+        "mozilla": "mozilla",
+        "flock": "flock",
+        "opera": "opera",
+        "safari": "safari",
+        "googlechrome": "chrome",
+        "flock": "flock",
+        "konqueror": "konqueror",
+        "kfm": "kfm",
+    }
+    _mac_app_name_from_browser_type = {
+        "firefox": "Firefox",
+        "safari": "Safari",
+        "camino": "Camino",
+        "mozilla": "Mozilla",
+        "opera": "Opera",
+        "flock": "Flock",
+    }
+
+
     def get_possible_browsers(self):
-        matches = []
+        browsers = []
+        for browser, type in self._gen_possible_browsers_and_types():
+            browsers.append(browser)
+        return browsers
+    def get_possible_browsers_and_types(self):
+        browsers = []
+        types = []
+        for browser, type in self._gen_possible_browsers_and_types():
+            browsers.append(browser)
+            types.append(type)
+        return browsers, types
+
+    def _guess_browser_type_from_path(self, path):
+        path_lower = path.lower()
+        for browser_type, exe_name in self._exe_name_from_browser_type.items():
+            if exe_name.lower() in path_lower:
+                return browser_type
+        return None
+
+    def _gen_possible_browsers_and_types(self):
+        browser_paths = _PathSet()  # set of yielded browser paths, used to avoid dupes
+
         # If on Windows, add the browser(s) assigned as the default handlers
         # for .html, .htm, etc. (i.e. for common browser-y filetypes).
         if sys.platform.startswith("win"):
@@ -265,27 +310,31 @@ class KoWebbrowser(object):
                     if actions:
                         command = actions[0][2]
                         argv = self._parseAssociationAction(command)
-                        if argv:
-                            matches.append(argv[0])
+                        if not argv:
+                            continue
+                        browser = argv[0]
+                        if browser not in browser_paths:
+                            browser_paths.add(browser)
+                            yield browser, self._guess_browser_type_from_path(browser)
 
         # Search the PATH as it was when Komodo started, otherwise Komodo's
         # internal mozilla.exe might be listed as a possible browser.
         #   http://bugs.activestate.com/show_bug.cgi?id=26373
-        path = koprocessutils.getUserEnv()["PATH"]
-        path = path.split(os.pathsep)
-        
+        PATH = koprocessutils.getUserEnv().get("PATH", "")
+        path = PATH.split(os.pathsep)
+
         if sys.platform.startswith('win'):
             from applib import _get_win_folder
 
             # Gather some default install dirs on Windows, because some of the
             # current stock of Windows browsers don't register themselves in
             # the usual ways.
-            defaultInstallDirsFromName = defaultdict(list)
+            default_install_dirs_from_browser_type = defaultdict(list)
             programFiles = os.environ.get("ProgramFiles")
             if programFiles:
-                defaultInstallDirsFromName["safari"].append(
+                default_install_dirs_from_browser_type["safari"].append(
                     join(programFiles, "Safari"))
-                defaultInstallDirsFromName["opera"].append(
+                default_install_dirs_from_browser_type["opera"].append(
                     join(programFiles, "Opera"))
             try:
                 localAppDataDir = _get_win_folder("CSIDL_LOCAL_APPDATA")
@@ -293,50 +342,51 @@ class KoWebbrowser(object):
                 log.warn("error getting local appdata dir: %s", ex)
             else:
                 if localAppDataDir:
-                    defaultInstallDirsFromName["chrome"].append(
+                    default_install_dirs_from_browser_type["googlechrome"].append(
                         join(localAppDataDir, "Google", "Chrome", "Application"))
             matches = []
-            for name in ("firefox",
-                         "iexplore",
-                         "safari",
-                         "chrome",
-                         "mozilla",
-                         "opera",
-                         "flock"):
-                appPath = path + defaultInstallDirsFromName.get(name, [])
-                appMatches = which.whichall(name, exts=[".exe"],
-                                            path=appPath)
-                matches += appMatches
+            for browser_type in ("firefox",
+                                 "internetexplorer",
+                                 "safari",
+                                 "googlechrome",
+                                 "opera",
+                                 "mozilla",
+                                 "msnexplorer",
+                                 "flock"):
+                exe_name = self._exe_name_from_browser_type.get(browser_type, browser_type)
+                bpath = path + default_install_dirs_from_browser_type.get(browser_type, [])
+                for browser in which.whichall(exe_name, exts=[".exe"], path=bpath):
+                    if browser not in browser_paths:
+                        browser_paths.add(browser)
+                        yield browser, browser_type
         elif sys.platform == 'darwin':
             path = ['/Applications','/Network/Applications'] + path
-            matches += (
-                which.whichall("Firefox.app", path=path) +
-                which.whichall("Safari.app", path=path) +
-                which.whichall("Camino.app", path=path) +
-                which.whichall("Mozilla.app", path=path) +
-                which.whichall("Opera.app", path=path) +
-                which.whichall("Flock.app", path=path)
-            )
+            for browser_type in ("firefox",
+                                 "safari",
+                                 "camino",
+                                 "opera",
+                                 "mozilla",
+                                 "flock"):
+                app_name = self._mac_app_name_from_browser_type.get(browser_type, browser_type)
+                for browser in which.whichall(app_name, path=path):
+                    if browser not in browser_paths:
+                        browser_paths.add(browser)
+                        yield browser, browser_type
         else:
-            matches += (
-                which.whichall("firefox", path=path) +
-                which.whichall("konqueror", path=path) +
-                which.whichall("mozilla", path=path) +
-                which.whichall("opera", path=path) +
-                which.whichall("kfm", path=path)
-            )
-
-        # check for duplicates
-        matchesWithoutDups = []
-        for i in range(len(matches)):
-            for j in range(i+1, len(matches)):
-                if self._SameFile(matches[i], matches[j]):
-                    break
-            else:
-                matchesWithoutDups.append(matches[i])
-        return matchesWithoutDups
+            for browser_type in ("firefox",
+                                 "konqueror",
+                                 "mozilla",
+                                 "opera",
+                                 "kfm"):
+                exe_name = self._exe_name_from_browser_type.get(browser_type, browser_type)
+                for browser in which.whichall(exe_name, path=path):
+                    if browser not in browser_paths:
+                        browser_paths.add(browser)
+                        yield browser, browser_type
 
     def get_firefox_paths(self):
+        #TODO: Could just use the new `self._gen_possible_browsers_and_types()`
+        #      and only use the `browser_type == 'firefox'` results.
         firefoxes = []
         # If on Windows, add the browser(s) assigned as the default handlers
         # for .html, .htm, etc. (i.e. for common browser-y filetypes).
@@ -357,8 +407,8 @@ class KoWebbrowser(object):
         # Search the PATH as it was when Komodo started, otherwise Komodo's
         # internal mozilla.exe might be listed as a possible browser.
         #   http://bugs.activestate.com/show_bug.cgi?id=26373
-        path = koprocessutils.getUserEnv()["PATH"]
-        path = path.split(os.pathsep)
+        PATH = koprocessutils.getUserEnv().get("PATH", "")
+        path = PATH.split(os.pathsep)
         if sys.platform.startswith('win'):
             firefoxes += which.whichall("firefox", exts=['.exe'], path=path)
         elif sys.platform == 'darwin':
@@ -386,4 +436,24 @@ class KoWebbrowser(object):
             argv = [firefox_path] + xpi_paths
         retval = self._spawn(argv)
 
+
+
+#---- internal support stuff
+
+from os.path import normpath, normcase
+class _PathSet(set):
+    """A set that does 'in' processing in an OS-specific path-safe way.
+    
+    Limitations: only works if items are added via "add" method.
+    """
+    if sys.platform in ("win32", "darwin"):
+        def add(self, path):
+            set.add(self, normpath(normcase(path)))
+        def __contains__(self, path):
+            return set.__contains__(self, normpath(normcase(path)))
+    else:
+        def add(self, path):
+            set.add(self, normpath(path))
+        def __contains__(self, path):
+            return set.__contains__(self, normpath(path))
 
