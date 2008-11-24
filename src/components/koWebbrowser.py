@@ -39,17 +39,25 @@
 #   We used to use "webbrowser.py" here but it does netscape magic and
 #   allows for command line browsers, both of which can cause Komodo to hang.
 
-from xpcom import components
-from xpcom import components, nsError, ServerException
-import process, koprocessutils
-import sys, os
+import sys
+import os
+from os.path import join
 import re
 import logging
 import which
+from collections import defaultdict
+
+import process, koprocessutils
+from xpcom import components
+from xpcom import components, nsError, ServerException
+
+
 
 log = logging.getLogger('koWebbrowser')
 
-class KoWebbrowser:
+
+
+class KoWebbrowser(object):
     _com_interfaces_ = [components.interfaces.koIWebbrowser]
     _reg_clsid_ = "{7B361CD6-4426-4d23-86D6-B6F8E0FCDA20}"
     _reg_contractid_ = "@activestate.com/koWebbrowser;1"
@@ -265,36 +273,56 @@ class KoWebbrowser:
         #   http://bugs.activestate.com/show_bug.cgi?id=26373
         path = koprocessutils.getUserEnv()["PATH"]
         path = path.split(os.pathsep)
+        
         if sys.platform.startswith('win'):
-            matches += (
-                which.whichall("iexplore", exts=['.exe'], path=path) +
-                which.whichall("firefox", exts=['.exe'], path=path) +
-                which.whichall("mozilla", exts=['.exe'], path=path) +
-                which.whichall("MozillaFirebird", exts=['.exe'], path=path) +
-                which.whichall("opera", exts=['.exe'], path=path) +
-                which.whichall("flock", exts=['.exe'], path=path) +
-                which.whichall("netscape", exts=['.exe'], path=path)
-            )
+            from applib import _get_win_folder
+
+            # Gather some default install dirs on Windows, because some of the
+            # current stock of Windows browsers don't register themselves in
+            # the usual ways.
+            defaultInstallDirsFromName = defaultdict(list)
+            programFiles = os.environ.get("ProgramFiles")
+            if programFiles:
+                defaultInstallDirsFromName["safari"].append(
+                    join(programFiles, "Safari"))
+                defaultInstallDirsFromName["opera"].append(
+                    join(programFiles, "Opera"))
+            try:
+                localAppDataDir = _get_win_folder("CSIDL_LOCAL_APPDATA")
+            except Exception, ex:
+                log.warn("error getting local appdata dir: %s", ex)
+            else:
+                if localAppDataDir:
+                    defaultInstallDirsFromName["chrome"].append(
+                        join(localAppDataDir, "Google", "Chrome", "Application"))
+            matches = []
+            for name in ("firefox",
+                         "iexplore",
+                         "safari",
+                         "chrome",
+                         "mozilla",
+                         "opera",
+                         "flock"):
+                appPath = path + defaultInstallDirsFromName.get(name, [])
+                appMatches = which.whichall(name, exts=[".exe"],
+                                            path=appPath)
+                matches += appMatches
         elif sys.platform == 'darwin':
-            path = ['/Applications','/Network/Applications']+path
+            path = ['/Applications','/Network/Applications'] + path
             matches += (
                 which.whichall("Firefox.app", path=path) +
+                which.whichall("Safari.app", path=path) +
+                which.whichall("Camino.app", path=path) +
                 which.whichall("Mozilla.app", path=path) +
                 which.whichall("Opera.app", path=path) +
-                which.whichall("Netscape.app", path=path) +
-                which.whichall("Camino.app", path=path) +
-                which.whichall("Flock.app", path=path) +
-                which.whichall("Safari.app", path=path)
-            )            
+                which.whichall("Flock.app", path=path)
+            )
         else:
             matches += (
                 which.whichall("firefox", path=path) +
-                which.whichall("mozilla", path=path) +
-                which.whichall("MozillaFirebird", path=path) +
                 which.whichall("konqueror", path=path) +
+                which.whichall("mozilla", path=path) +
                 which.whichall("opera", path=path) +
-                which.whichall("netscape", path=path) +
-                which.whichall("netscape-communicator", path=path) +
                 which.whichall("kfm", path=path)
             )
 
