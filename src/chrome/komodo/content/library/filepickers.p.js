@@ -73,7 +73,7 @@ var _log = ko.logging.getLogger("filepickers");
 function _unfocus() {
 // #if PLATFORM == "win"
     try {
-        var fv = ko.window.focusedScintilla();
+        var fv = ko.window && ko.window.focusedScintilla();
         if (fv) {
             fv.scimoz.focus = false;
         }
