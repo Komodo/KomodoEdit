@@ -99,6 +99,7 @@
       <ComponentRef Id="component102"/>
       <ComponentRef Id="component103"/>
       <ComponentRef Id="component104"/>
+      <ComponentRef Id="component105"/>
       <ComponentRef Id="component108"/>
       <ComponentRef Id="component109"/>
       <ComponentRef Id="component110"/>
@@ -1023,8 +1024,6 @@
               <Component Id="component151" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file342" Name="CHROM_16.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\mxml_language@ActiveState.com\chrome.manifest"/>
                 <File Id="file366" Name="INSTAL_5.RDF" LongName="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\mxml_language@ActiveState.com\install.rdf"/>
-                <File Id="file314" Name="catalog.xml" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\mxml_language@ActiveState.com\catalog.xml"/>
-                <File Id="file402" Name="mxml.dtd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\mxml_language@ActiveState.com\mxml.dtd"/>
               </Component>
               <Directory Id="directory172" Name="COMPO_19" LongName="components">
                 <Component Id="component152" DiskId="1" Guid="$(autowix.guid)">
@@ -1040,6 +1039,7 @@
               <Directory Id="directory107" Name="pylib">
                 <Component Id="component92" DiskId="1" Guid="$(autowix.guid)">
                   <File Id="file616" Name="LANGIN_7.PY" LongName="langinfo_mxml.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\mxml_language@ActiveState.com\pylib\langinfo_mxml.py"/>
+                  <File Id="file617" Name="CODEIN_2.PY" LongName="codeintel_mxml.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\mxml_language@ActiveState.com\pylib\codeintel_mxml.py"/>
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\mxml_language@ActiveState.com\pylib -->
               <Directory Id="directory174" Name="TEMPL_16" LongName="templates">
@@ -1049,6 +1049,12 @@
                   </Component>
                 </Directory> <!-- lib\mozilla\extensions\mxml_language@ActiveState.com\templates\All Languages -->
               </Directory> <!-- lib\mozilla\extensions\mxml_language@ActiveState.com\templates -->
+              <Directory Id="directory124" Name="XMLCAT_0" LongName="xmlcatalogs">
+                <Component Id="component105" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file618" Name="catalog.xml" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\mxml_language@ActiveState.com\xmlcatalogs\catalog.xml"/>
+                  <File Id="file619" Name="mxml.dtd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\mxml_language@ActiveState.com\xmlcatalogs\mxml.dtd"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\mxml_language@ActiveState.com\xmlcatalogs -->
             </Directory> <!-- lib\mozilla\extensions\mxml_language@ActiveState.com -->
             <Directory Id="directory45" Name="INDUST_0.ORG" LongName="industrial@openoffice.org">
               <Component Id="component43" DiskId="1" Guid="$(autowix.guid)">
