@@ -741,21 +741,29 @@ class KoPHPInfoInstance(KoAppInfoEx):
             cwd = os.path.dirname(php)
         else:
             cwd = None
-        try:
-            p = process.ProcessOpen(argv, env=env, cwd=cwd)
-            output, stderr = p.communicate(phpCode)
-        except OSError, e:
-            if e.errno == 0 or e.errno == 32:
-                # this happens if you are playing
-                # in prefs and change the executable, but
-                # not the ini file (ie ini is for a different
-                # version of PHP)
-                log.error("Caught expected PHP execution error, don't worry be happy: %s", e.strerror)
-            else:
-                log.error("Caught PHP execution exception: %s", e.strerror)
-            return None, e.strerror
-        return output.strip(), stderr.strip()
 
+
+        fd, filepath = tempfile.mkstemp(suffix=".php")
+        try:
+            os.write(fd, phpCode)
+            os.close(fd)
+            argv.append(filepath)
+            try:
+                p = process.ProcessOpen(argv, cwd=cwd, env=env)
+            except OSError, e:
+                if e.errno == 0 or e.errno == 32:
+                    # this happens if you are playing
+                    # in prefs and change the executable, but
+                    # not the ini file (ie ini is for a different
+                    # version of PHP)
+                    log.error("Caught expected PHP execution error, don't worry be happy: %s", e.strerror)
+                else:
+                    log.error("Caught PHP execution exception: %s", e.strerror)
+                return None, e.strerror
+            stdout, stderr = p.communicate()
+            return stdout.strip(), stderr.strip()
+        finally:
+            os.remove(filepath)
 
     def _GetPHPOutput(self, phpCode):
         """Run the given PHP code and return the output.
@@ -764,44 +772,7 @@ class KoPHPInfoInstance(KoAppInfoEx):
         string is returned. (Basically we are taking the position that
         PHP is unreliable.)
         """
-        php = self._GetPHPExeName()
-        if not php:
-            return None #XXX Would be better, IMO, to raise an exception here.
-        env = koprocessutils.getUserEnv()
-        ini = self._getInterpreterConfig()
-        if ini:
-            env["PHPRC"] = ini
-        argv = [php, '-q']
-        
-        if not "PHPRC" in env:
-            # php will look in cwd for php.ini also.
-            cwd = os.path.dirname(php)
-        else:
-            cwd = None
-        try:
-            p = process.ProcessOpen(argv, env=env, cwd=cwd)
-            output, stderr = p.communicate(phpCode)
-            # For some reason, PHP linter causes an exception on close
-            # with errno = 0, will investigate in PHP later.
-            try:
-                p.close()
-            except IOError, e:
-                if e.errno == 0:  
-                    pass
-                else:
-                    raise
-        except OSError, e:
-            if e.errno == 0 or e.errno == 32:
-                # this happens if you are playing
-                # in prefs and change the executable, but
-                # not the ini file (ie ini is for a different
-                # version of PHP)
-                log.error("Caught expected PHP execution error, don't worry be happy: %s", e.strerror)
-                return ""
-            else:
-                log.error("Caught PHP execution exception: %s", e.strerror)
-                return ""
-        return output.strip()
+        return self._GetPHPOutputAndError(phpCode)[0]
 
     def _parsedOutput(self, out):
         """Parse the given output from running PHP.
