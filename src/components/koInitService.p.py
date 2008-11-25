@@ -48,6 +48,7 @@ import sys
 import os
 import re
 from pprint import pprint
+import logging
 
 if sys.platform == "win32":
     # Force the import of the correct PyWin32 DLLs on Windows.
@@ -64,12 +65,11 @@ from xpcom import components, nsError, ServerException, COMException
 
 import upgradeutils
 
-import logging
-#logging.basicConfig()
-log = logging.getLogger('koInitService')
-## without calling basicConfig here, we do not get logging at all from
-## the init service, and people get an error message about it.
-#log.setLevel(logging.DEBUG)
+
+# Set lazily after "koLoggingService" has mucked with logging's internals.
+log = None
+
+
 
 #---- support routines
 # Always import timeline even if we don't use it - it already does nothing
@@ -330,22 +330,32 @@ def _diffFileAssociations(a, b):
 
 #---- main component implementation
 
-class KoInitService:
+class KoInitService(object):
     _com_interfaces_ = [components.interfaces.koIInitService,
                         components.interfaces.nsIObserver]
     _reg_clsid_ = "{BAECC764-52AC-46dc-9428-D23F05247818}"
     _reg_contractid_ = "@activestate.com/koInitService;1"
     _reg_desc_ = "Komodo Init Service"
     _reg_categories_ = [
-         #("xpcom-startup", "koInitService", True),
-         ("app-startup", "koInitService", True),
-         ]
-
+        ("app-startup", "koInitService", True),
+    ]
+    
     def __init__(self):
-        #print "KoInitService starting"
-        # We need this to make sure that logging handlers get registered before
-        # we do _anything_ with loggers.
+        # We need this to make sure that logging handlers get registered
+        # before we do _anything_ with loggers.
         loggingSvc = components.classes["@activestate.com/koLoggingService;1"].getService()
+        global log
+        log = logging.getLogger("koInitService")
+        #log.setLevel(logging.DEBUG)
+
+        # Warn about multiple inits of init service -- possible with
+        # circular usages of koIInitService (bug 81114).
+        if hasattr(sys, "_komodo_initsvc_init_count_sentinel"):
+            log.warn("Multiple calls to 'KoInitService.__init__()' "
+                     "(see bug 81114)!")
+            sys._komodo_initsvc_init_count_sentinel += 1
+        else:
+            sys._komodo_initsvc_init_count_sentinel = 1
 
 # #if BUILD_FLAVOUR == "dev"
         if sys.platform.startswith("win") and os.environ.has_key("KOMODO_DEBUG_BREAK"):
@@ -700,6 +710,11 @@ class KoInitService:
         prefs.setStringPref("encodingDefault", defaultEncoding.lower())
 
     def initProcessUtils(self):
+        # Bug 81114: koUserEnviron needs to know to environ encoding to
+        # decode startup-env.tmp.
+        koUserEnviron = components.classes["@activestate.com/koUserEnviron;1"].getService()
+        koUserEnviron.startupEnvironEncoding = self.getStartupEncoding()
+
         try:
             import koprocessutils
             koprocessutils.initialize()
@@ -984,14 +999,14 @@ class KoInitService:
 
     def initExtensions(self):
         """'pylib' subdirectories of installed extensions are appended
-        to Komodo's runtime sys.path.
+        to Komodo's runtime sys.path. Also initialize the 'langinfo'
+        database with these dirs.
         """
-        # Add the DictD property so the spellchecker can find
-        # the user's own dictionaries.  Consider only directories
-        # that contain the English dictionary, or the Komodo extension
-        # will fail to startup.  (http://bugs.activestate.com/show_bug.cgi?id=74839)
-
         try:
+            # Add the DictD property so the spellchecker can find
+            # the user's own dictionaries.  Consider only directories
+            # that contain the English dictionary, or the Komodo extension
+            # will fail to startup (bug 74839).
             koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
             dictionaryDir = os.path.join(koDirSvc.userDataDir, "dictionaries")
             if self._isMozDictionaryDir(dictionaryDir):
@@ -1001,18 +1016,17 @@ class KoInitService:
                 directoryService = components.classes["@mozilla.org/file/directory_service;1"]\
                          .getService(components.interfaces.nsIProperties)
                 directoryService.set("DictD", profDir_nsFile)
-        except:
-            log.error("Failed to set the dictionary property")
-        
-        try:
+
             import directoryServiceUtils
-            from os.path import join, exists
-            for extDir in directoryServiceUtils.getExtensionDirectories():
-                pylibDir = join(extDir, "pylib")
-                if exists(pylibDir):
-                    sys.path.append(pylibDir)
+            pylibDirs = directoryServiceUtils.getPylibDirectories()
+            for pylibDir in pylibDirs:
+                sys.path.append(pylibDir)
+            
+            # Prime the pump for the `langinfo' database.
+            import langinfo
+            lidb = langinfo.set_default_dirs(pylibDirs)
         except Exception, e:
-            log.exception(e)
+            log.exception("error initializing from extensions")
 
     def installSamples(self, force):
         try:

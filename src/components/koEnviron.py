@@ -39,8 +39,12 @@ import sys, os, re
 from xpcom import components, ServerException, nsError
 import koprocessutils
 import logging
+
+
 log = logging.getLogger('koEnviron')
 #log.setLevel(logging.DEBUG)
+
+
 
 #---- globals
 
@@ -170,6 +174,8 @@ class KoUserEnviron:
     _reg_contractid_ = "@activestate.com/koUserEnviron;1"
     _reg_desc_ = "User Environmnet Interaction Service"
 
+    startupEnvironEncoding = None
+
     def __init__(self, startupEnvFileName=None):
         # By default the startup environment file is in the Komodo AppData
         # directory. For testing purposes, though, it can be useful to
@@ -242,6 +248,10 @@ class KoUserEnviron:
         #        self._UpdateFromStartupEnv()
 
     def _UpdateFromStartupEnv(self):
+        if self.startupEnvironEncoding is None:
+            raise RuntimeError("cannot decode startup environment: "
+                               "`startupEnvironEncoding' is not set")
+
         self._userEnviron = {}
         # read in startup env delta file and fill in the startup env
         try:
@@ -256,10 +266,7 @@ class KoUserEnviron:
                 # Cannot do this on Windows because a "\" at the end of the
                 # line does not imply a continuation.
                 content = content.replace("\\\n", "")
-            # encode to unicode
-            initSvc = components.classes["@activestate.com/koInitService;1"].\
-                getService(components.interfaces.koIInitService)
-            content = unicode(content, initSvc.getStartupEncoding())
+            content = unicode(content, self.startupEnvironEncoding)
             for line in content.split("\n"):
                 line = line.rstrip()
                 if not line:

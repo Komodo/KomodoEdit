@@ -254,6 +254,7 @@ class Database(object):
         dirs.insert(0, dirname(__file__) or os.curdir)
         for dir in dirs:
             self._load_dir(dir)
+        self.dirs = dirs
 
     def langinfos(self):
         for li in self._langinfo_from_norm_lang.values():
@@ -494,10 +495,17 @@ class Database(object):
 #---- internal support stuff
 
 _g_default_database = None
+_g_default_dirs = None
+def set_default_dirs(dirs):
+    global _g_default_dirs, _g_default_database
+    if dirs != _g_default_dirs:
+        _g_default_dirs = dirs
+        _g_default_database = None
+
 def get_default_database():
-    global _g_default_database
+    global _g_default_database, _g_default_database
     if _g_default_database is None:
-        _g_default_database = Database()
+        _g_default_database = Database(dirs=_g_default_dirs)
     return _g_default_database
 
 # Recipe: module_from_path (1.0.1+)

@@ -55,6 +55,10 @@ interface koIEnviron : nsISupports {
 //
 [scriptable, uuid(CD50AE4E-52DF-499a-95FB-E964F6A42AD2)]
 interface koIUserEnviron : nsISupports {
+    // Must be set by Komodo initialization before anything else is done
+    // with this service.
+    attribute wstring startupEnvironEncoding;
+  
     boolean has(in wstring key);
     wstring get(in wstring key);
 
