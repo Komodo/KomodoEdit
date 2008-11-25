@@ -44,6 +44,7 @@ import logging
 from xpcom import components, nsError, ServerException, COMException, server
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 
+
 #---- mods to the Python logging system
 
 class KoLogger(logging.Logger):
@@ -58,6 +59,8 @@ logging.Logger.root = logging.root
 logging.Logger.manager = logging.Manager(logging.Logger.root)
 
 logging.setLoggerClass(KoLogger)
+
+
 
 #---- XPCOM logging service
 
