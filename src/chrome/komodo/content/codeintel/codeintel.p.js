@@ -122,6 +122,9 @@ function CodeIntelCompletionUIHandler(path, scimoz, language,
     _gCodeIntel_log.debug("CodeIntelCompletionUIHandler(path, scimoz, language, buf)");
     try {
         this.path = path;
+        /**
+         * @type {Components.interfaces.ISciMoz}
+         */
         this.scimoz = scimoz;
         this.language = language;
         this.buf = buf;
