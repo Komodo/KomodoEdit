@@ -73,12 +73,36 @@ def getComponentsDirectories():
         dirs[file.path]=1
     return dirs.keys()
 
+_gExtensionDirectoriesCache = None
 def getExtensionDirectories():
-    """getComponentsDirectories
+    """Get extension directories.
     
-    gets a list of file paths for all installed extensions
+    @returns A list of full paths to all installed (and enabled?) extension
+        directories.
     """
-    dirs = {}
-    for file in getFiles("XREExtDL"):
-        dirs[file.path]=1
-    return dirs.keys()
+    global _gExtensionDirectoriesCache
+    if _gExtensionDirectoriesCache is None:
+        dirs = set()
+        for d in getFiles("XREExtDL"):
+            dirs.add(d.path)
+        _gExtensionDirectoriesCache = list(dirs)
+    return _gExtensionDirectoriesCache
+
+_gPylibDirectoriesCache = None
+def getPylibDirectories():
+    """Get pylib directories.
+    
+    @returns A list of full paths to all "pylib" directories in all
+        installed (and enabled?) extensions.
+    """
+    global _gPylibDirectoriesCache
+    from os.path import exists, join
+
+    if _gPylibDirectoriesCache is None:
+        dirs = set()
+        for extDir in getFiles("XREExtDL"):
+            d = join(extDir.path, "pylib")
+            if exists(d):
+                dirs.add(d)
+        _gPylibDirectoriesCache = list(dirs)
+    return _gPylibDirectoriesCache
