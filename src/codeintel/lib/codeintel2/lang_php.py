@@ -881,6 +881,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         Returns (None, []) if could not determine.
         """
         import process
+        import tempfile
 
         # Use a marker to separate the start of output from possible
         # leading lines of PHP loading errors/logging.
@@ -890,15 +891,23 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     + r'echo(phpversion()."\n");'
                     + r'echo(ini_get("include_path")."\n");'
                     + r' ?>')
+        
         argv = [php]
         envvars = env.get_all_envvars()
         php_ini_path = env.get_pref("phpConfigFile")
         if php_ini_path:
             envvars["PHPRC"] = php_ini_path
 
-        log.debug("run `%s < ...'", php)
-        p = process.ProcessOpen(argv, env=env.get_all_envvars())
-        stdout, stderr = p.communicate(info_cmd)
+        fd, filepath = tempfile.mkstemp(suffix=".php")
+        try:
+            os.write(fd, info_cmd)
+            os.close(fd)
+            argv.append(filepath)
+            p = process.ProcessOpen(argv, env=env.get_all_envvars())
+            stdout, stderr = p.communicate()
+        finally:
+            os.remove(filepath)
+
         stdout_lines = stdout.splitlines(0)
         retval = p.returncode
         if retval:
