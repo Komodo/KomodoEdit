@@ -64,6 +64,7 @@ function main()
 	tmp.file = creat.tmp.file$( bse.tmp.dir$() )
 	wait.and.activate("foobar", argv$(1), tmp.file, argv$(3),argv$(4))
 }
+"""
 
     def __init__(self):
         KoLanguageBase.__init__(self)
@@ -71,7 +72,6 @@ function main()
             _block_comment_styles = [sci_constants.SCE_BAAN_COMMENT,
                                      sci_constants.SCE_BAAN_COMMENTDOC]
             )
-"""
     def get_lexer(self):
         if self._lexer is None:
             self._lexer = KoLexerLanguageService()
