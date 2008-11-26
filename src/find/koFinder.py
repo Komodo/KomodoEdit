@@ -1283,7 +1283,7 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
-    def replaceallex(self, url, text, pattern, repl, session,
+    def replaceallex(self, url, text, pattern, repl, firstOnLine, session,
                      resultsView, contextOffset, scimoz):
         """Replace all occurrences of "pattern" in the given text.
 
@@ -1376,9 +1376,24 @@ class KoFindService(object):
             if resultsView is not None:
                 resultsView = UnwrapObject(resultsView)
             new_text_bits = []
+            last_hit_line = None
             num_hits = 0
             curr_pos = 0  # current working position in `text'.
             for match in chain(*greppers):
+                if resultsView is not None or firstOnLine:
+                    startCharIndex = match.start() + contextOffset
+                    # Convert indices to *byte* offsets (as in scintilla) from
+                    # *char* offsets (which is what the Python regex engine
+                    # searching is using).
+                    startByteIndex = scimoz.positionAtChar(0, startCharIndex)
+                    startLineNum = scimoz.lineFromPosition(startByteIndex)
+                if firstOnLine:
+                    # If `firstOnLine == True` then we skip this hit if we
+                    # already have one on this line.
+                    if startLineNum == last_hit_line:
+                        continue
+                    last_hit_line = startLineNum
+
                 num_hits += 1
                 new_text_bits.append(text[curr_pos:match.start()])
                 repl_str = match.expand(munged_repl)
@@ -1391,14 +1406,11 @@ class KoFindService(object):
                 #         text[match.start():match.end()], repl_str)
 
                 if resultsView is not None:
-                    startCharIndex = match.start() + contextOffset
                     endCharIndex = startCharIndex + len(repl_str)
                     # Convert indices to *byte* offsets (as in scintilla) from
                     # *char* offsets (which is what the Python regex engine
                     # searching is using).
-                    startByteIndex = scimoz.positionAtChar(0, startCharIndex)
                     endByteIndex = scimoz.positionAtChar(0, endCharIndex)
-                    startLineNum = scimoz.lineFromPosition(startByteIndex)
 
                     # The 'context' is about the text before the
                     # replacement -- this changes the end point.

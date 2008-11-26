@@ -280,6 +280,7 @@ interface koIFindService : nsISupports {
                          in wstring text,
                          in wstring pattern,
                          in wstring replacement,
+                         in boolean firstOnLine,
                          in koIFindSession session,
                          in koIFindResultsView resultsView,
                          in PRUint32 contextOffset,

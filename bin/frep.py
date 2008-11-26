@@ -414,6 +414,7 @@ def main_replace(regex, repl, paths, includes, excludes, confirm, argv, opts):
     try:
         for event in findlib2.replace(
                         regex, repl, paths,
+                        first_on_line=opts.first_on_line,
                         includes=includes, excludes=excludes):
             if isinstance(event, StartJournal):
                 journal = event.journal
@@ -575,11 +576,15 @@ def main(argv):
     parser.add_option("-c", "--confirm", action="store_true",
         help="Confirm replacements before making any changes on disk "
              "(the default).")
+    parser.add_option("--first-on-line", action="store_true",
+        help="When replacing, only replace first instance on a line. (This "
+             "is to support Vi's replacement without 'g' flag.)")
     parser.add_option("--dry-run", action="store_true",
         help="Do a dry-run replacement.")
     parser.set_defaults(log_level=logging.INFO, recursive=False,
         show_line_number=False, word=False, list=False, context=0,
-        includes=[], excludes=[], confirm=True, dry_run=False)
+        includes=[], excludes=[], confirm=True, first_on_line=False,
+        dry_run=False)
     opts, args = parser.parse_args()
     log.setLevel(opts.log_level)
     findlib2.log.setLevel(opts.log_level)

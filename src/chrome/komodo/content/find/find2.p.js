@@ -761,6 +761,7 @@ function replace_all() {
             var found_some = Find_ReplaceAll(
                     opener, _g_find_context, pattern, repl,
                     widgets.show_replace_all_results.checked,
+                    false,  /* firstOnLine */
                     msg_callback);
             if (found_some) {
                 window.close();

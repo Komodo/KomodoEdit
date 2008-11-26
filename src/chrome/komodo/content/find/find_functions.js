@@ -707,7 +707,7 @@ function _MarkAllInView(editor, view, context, pattern)
 
 
 function _ReplaceAllInView(editor, view, context, pattern, replacement,
-                           resultsView)
+                           firstOnLine, resultsView)
 {
     // Replace all instances of "pattern" with "replacement" in the current
     // view context.
@@ -736,7 +736,8 @@ function _ReplaceAllInView(editor, view, context, pattern, replacement,
     // Find all possible replacements in this view.
     var numReplacementsObj = new Object();
     var replacementText = findSvc.replaceallex(viewId, text, pattern,
-                                               replacement, gFindSession,
+                                               replacement, firstOnLine,
+                                               gFindSession,
                                                resultsView, contextOffset,
                                                scimoz, numReplacementsObj);
     var numReplacements = numReplacementsObj.value;
@@ -1409,20 +1410,34 @@ function Find_Replace(editor, context, pattern, replacement,
 }
 
 
+/**
+ * TODO: add other params
+ * ...
+ * @param firstOnLine {boolean} A boolean indicating, if true, that only
+ *      the first hit on a line should be replaced. Default is false. (This
+ *      is to support Vi's replace with the 'g' flag.)
+ * ...
+ */
 function Find_ReplaceAll(editor, context, pattern, replacement,
                          showReplaceResults /* =false */,
+                         firstOnLine /* =false */,
                          msgHandler /* =<statusbar notifier> */)
 {
     if (typeof(showReplaceResults) == "undefined") showReplaceResults = false;
+    if (typeof(firstOnLine) == "undefined" || firstOnLine == null) {
+        firstOnLine = false;
+    }
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
         msgHandler = _Find_GetStatusbarMsgHandler(editor);
     }
-
-    findLog.info("Find_ReplaceAll(editor, context, pattern='"+pattern+
-                 "', replacement='"+replacement+"', showReplaceResults="+
-                 showReplaceResults+")\n");
+    
+    findLog.info("Find_ReplaceAll(editor, context, pattern='"+pattern
+                 +"', replacement='"+replacement
+                 +"', showReplaceResults="+showReplaceResults
+                 +"', firstOnLine="+firstOnLine+")\n");
 
     if (editor.ko.macros.recorder.mode == 'recording') {
+        //TODO: Support 'firstOnLine' here.
         editor.ko.macros.recorder.appendCode("Find_ReplaceAllInMacro(window, " +
                                     context.type + ", '" +
                                     _Find_RegexEscapeString(pattern) + "', '" +
@@ -1471,7 +1486,7 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
         findLog.debug("Find_ReplaceAll: replace all in '"+
                       editor.ko.views.manager.currentView.document.displayPath+"'\n");
         nr = _ReplaceAllInView(editor, editor.ko.views.manager.currentView, context,
-                               pattern, replacement, resultsView);
+                               pattern, replacement, firstOnLine, resultsView);
         numReplacements += nr;
     } else if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
         var view = editor.ko.views.manager.currentView;
@@ -1488,7 +1503,7 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
     
                 findLog.debug("Find_ReplaceAll: replace all in '"+viewId+"'\n");
                 nr = _ReplaceAllInView(editor, view, context, pattern,
-                                       replacement, resultsView);
+                                       replacement, firstOnLine, resultsView);
                 numReplacements += nr;
                 if (nr) {
                     numFiles += 1;

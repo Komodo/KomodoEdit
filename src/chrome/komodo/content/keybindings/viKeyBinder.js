@@ -1500,91 +1500,30 @@ VimController.prototype.performReplace = function (searchString, replaceString,
             // No errors yet.
             this._find_error_occurred = false;
 
-            if (options.search('g') >= 0) {
-                // Global replace
-                var findres = Find_FindNext(window,
-                                            findContext,
-                                            searchString,
-                                            null,  // mode, defaults to find
-                                            false,  // quiet
-                                            false,  // add pattern to find MRU
-                                            VimController._find_msg_callback);
-                if (this._find_error_occurred) {
-                    // Do nothing, the error has already been displayed.
-                    return;
-                } else if (!findres) {
-                    this.setStatusBarMessage("'"+searchString+"' was not found in the specified range. No changes were made.",
-                                             5000, true);
-                } else {
-                    Find_ReplaceAll(window,           /* editor */
-                                    findContext,      /* context */
-                                    searchString,     /* pattern */
-                                    replaceString,    /* replacement */
-                                    false);           /* showReplaceResults */
-                }
+
+            // 'g' option means "global replace". Without 'g' we only
+            // replace the first hit on each line.
+            var firstOnLine = options.search('g') <= 0;
+            var findres = Find_FindNext(window,
+                                        findContext,
+                                        searchString,
+                                        null,  // mode, defaults to find
+                                        false,  // quiet
+                                        false,  // add pattern to find MRU
+                                        VimController._find_msg_callback);
+            if (this._find_error_occurred) {
+                // Do nothing, the error has already been displayed.
+                return;
+            } else if (!findres) {
+                this.setStatusBarMessage("'"+searchString+"' was not found in the specified range. No changes were made.",
+                                         5000, true);
             } else {
-                // This one is a little trickier, for two reasons:
-                // 1. Need to call Find_FindNext() before Find_Replace (thats how
-                //    the find stuff works.
-                // 2. Vi has to do this once for every line in the given range
-                var numReplacements = 0;
-                var startLine = scimoz.lineFromPosition(startPosition);
-                var endLine = scimoz.lineFromPosition(endPosition);
-                var preLength = scimoz.length;
-                var postLength;
-                for (var lineNum = startLine; lineNum <= endLine; lineNum++) {
-                    // Update the real scintilla buffer positions for current line
-                    if (lineNum == startLine) {
-                        findContext.startIndex = startPosition;
-                    } else {
-                        findContext.startIndex = scimoz.positionFromLine(lineNum);
-                    }
-                    if (lineNum == endLine) {
-                        findContext.endIndex = endPosition;
-                    } else {
-                        findContext.endIndex = scimoz.getLineEndPosition(lineNum);
-                    }
-                    var findres = Find_FindNext(window,
-                                                findContext,
-                                                searchString,
-                                                null,  // mode, defaults to find
-                                                false,  // quiet
-                                                false,  // add pattern to find MRU
-                                                VimController._find_msg_callback);
-                    if (this._find_error_occurred) {
-                        // Do nothing, the error has already been displayed.
-                        return;
-                    }
-                    if (findres) {
-                        // Using _ReplaceLastFindResult() to get around having to
-                        // call Find_Replace(), which gives feedback for every
-                        // call made
-                        _ReplaceLastFindResult(window,
-                                               findContext,
-                                               searchString,
-                                               replaceString);
-                        numReplacements += 1;
-    
-                        // Need to update the end position, as text has been
-                        // added or removed. See bug:
-                        //   http://bugs.activestate.com/show_bug.cgi?id=72411
-                        postLength = scimoz.length;
-                        endPosition += (postLength - preLength);
-                        preLength = postLength;
-    
-                        //Find_Replace(window,          /* editor */
-                        //             findContext,     /* context */
-                        //             searchString,    /* pattern */
-                        //             replaceString);  /* replacement */
-                    }
-                }
-                var msg;
-                if (numReplacements == 0) {
-                    msg = "'"+searchString+"' was not found in the specified range. No changes were made.";
-                } else {
-                    msg = "Made "+numReplacements+" replacements in the specified range.";
-                }
-                this.setStatusBarMessage(msg, 5000, true);
+                Find_ReplaceAll(window,           /* editor */
+                                findContext,      /* context */
+                                searchString,     /* pattern */
+                                replaceString,    /* replacement */
+                                false,            /* showReplaceResults */
+                                firstOnLine);
             }
         } finally {
             this._restoreFindSvcOptions();

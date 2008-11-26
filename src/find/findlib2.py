@@ -124,6 +124,7 @@ def find(paths, includes=None, excludes=None, env=None):
 def grep(regex, paths, files_with_matches=False,
          treat_binary_files_as_text=False,
          skip_unknown_lang_paths=False,
+         first_on_line=False,
          includes=None, excludes=None,
          env=None):
     """Grep for `regex` in the given paths.
@@ -140,6 +141,9 @@ def grep(regex, paths, files_with_matches=False,
         This is useful when doing *replacements* to be safe about not
         wrecking havoc in binary files that happen to look like plain
         text.
+    @param first_on_line {boolean} A boolean indicating, if True, that only
+        the first hit on a line should be replaced. Default is False. (This
+        is to support Vi's replace with the 'g' flag.)
     @param includes {list} is a sequence of 2-tuples defining include
         filters on textinfo data: (<textinfo-field>, <value>).
     @param excludes {list} is a sequence of 2-tuples defining exclude
@@ -191,24 +195,33 @@ def grep(regex, paths, files_with_matches=False,
 
         accessor = _TextAccessor(text)
         have_hits_in_path = False
+        last_hit_line = None
         for match in find_all_matches(regex, text, start=0, end=None):
             if files_with_matches:
                 yield PathHit(path)
                 break
-            yield FindHit(path, ti.encoding, match, accessor)
+            hit = FindHit(path, ti.encoding, match, accessor)
+            if first_on_line:
+                line, _ = hit.line_num_range
+                if line == last_hit_line:
+                    continue
+                last_hit_line = line
+            yield hit
             have_hits_in_path = True
         if not have_hits_in_path:
             yield SkipNoHitsInPath(path)
 
 
 
-def replace(regex, repl, paths, includes=None, excludes=None,
+def replace(regex, repl, paths,
+            first_on_line=False,
+            includes=None, excludes=None,
             summary=None, env=None):
     """Make the given regex replacement in the given paths.
 
     This generates a stream of `Event`s. The main such event is
     `ReplaceHitGroup` which is a grouping of all replacements for a
-    single path. **Note:** To actually make you must call
+    single path. **Note:** To actually make the change you must call
     `event.commit()` on these hits. This allows one to manage
     confirmation of replacements.
     
@@ -230,6 +243,9 @@ def replace(regex, repl, paths, includes=None, excludes=None,
     @param regex {regular expression} is the regex with which to search
     @param repl {string} is the replacement string
     @param paths {generator} is the list of paths to process
+    @param first_on_line {boolean} A boolean indicating, if True, that only
+        the first hit on a line should be replaced. Default is False. (This
+        is to support Vi's replace with the 'g' flag.)
     @param includes {list} is a sequence of 2-tuples defining include
         filters on textinfo data: (<textinfo-field>, <value>).
     @param excludes {list} is a sequence of 2-tuples defining exclude
@@ -240,6 +256,7 @@ def replace(regex, repl, paths, includes=None, excludes=None,
     """
     journal = None
     grepper = grep(regex, paths, skip_unknown_lang_paths=True,
+                   first_on_line=first_on_line,
                    includes=includes, excludes=excludes, env=env)
     for fhits in grouped_by_path(grepper):
         if not isinstance(fhits[0], Hit):
@@ -252,7 +269,25 @@ def replace(regex, repl, paths, includes=None, excludes=None,
 
         # Calculate the change.
         before_text = fhits[0].accessor.text
-        after_text = regex.sub(repl, before_text)
+        if first_on_line:
+            # Need to manually calculate the change from each find hit.
+            # Algoritm: Walk backwards through the find hits, appending
+            #   unmodified-bit, replacement, unmodified-bit, ...
+            # in reversed order, then reverse and join the pieces.
+            # Perf notes:
+            # (a) Building a list and joining once is much faster than
+            #     joining a string many times.
+            # (b) `lst.append(item)` is much faster than `lst.insert(0, item)`.
+            bits = [] # list of tail-end bits of the file
+            idx = len(before_text)
+            for hit in reversed(fhits):
+                bits.append(before_text[hit.end_pos:idx])
+                bits.append(hit.match.expand(repl))
+                idx = hit.start_pos
+            bits.append(before_text[:idx])
+            after_text = ''.join(reversed(bits))
+        else:
+            after_text = regex.sub(repl, before_text)
         if before_text == after_text:
             continue
 
