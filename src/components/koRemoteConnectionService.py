@@ -167,7 +167,7 @@ class koRemoteConnectionService:
             raise ServerException(nsError.NS_ERROR_FAILURE, self._lasterror)
 
         protocol = protocol.lower()
-        if not port:
+        if port < 0:
             port = remotefilelib.koRFProtocolDefaultPort[protocol]
         conn_key = "%s:%s:%s:%s"%(protocol,server,port,username)
         if conn_key in self._connections and \
@@ -221,7 +221,7 @@ class koRemoteConnectionService:
         server_alias = ''
         protocol = ''
         hostname = ''
-        port = 0
+        port = -1
         username = ''
         password = ''
         path = ''
@@ -275,11 +275,11 @@ class koRemoteConnectionService:
                 self._getServerDetailsFromUri(uri)
         # We want the port as an integer
         try:
-            if not port: port = 0
+            if not port: port = -1
             elif type(port) != types.IntType: port = int(port)
         except ValueError:
             log.debug("Invalid port number: %s", port)
-            port = 0
+            port = -1
 
         # Now we have all the info, lets go make the connection
         connection = self._getConnection(protocol, hostname, port, username,
