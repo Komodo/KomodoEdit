@@ -226,7 +226,7 @@
                     if (child.localName == "tab" &&
                         (!child.hasAttribute("collapsed") || child.getAttribute("collapsed") == false) &&
                         (!child.hasAttribute("hidden") || child.getAttribute("hidden") == false)) {
-                        popup.appendChild(this._createMenuItem(this.childNodes[i]));
+                        popup.appendChild(this._createMenuItem(child));
                     }
                 }
                 ]]>
@@ -291,20 +291,63 @@
                 <body>
                 <![CDATA[
                 try {
-                    var menuitem = document.createElement('menuitem');
-                    menuitem.setAttribute("label", tab.label);
-                    menuitem.setAttribute('type', 'checkbox');
+                    const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+                    var menuitem = document.createElementNS(XUL_NS, "menuitem");
+                    menuitem.setAttribute('crop', 'center');
+                    
+                    var label = tab.label;
+                    var tooltiptext = label;
+                    try {
+                        var view = document.getElementById(tab.linkedPanel).firstChild;
+                        if (view.document) {
+                            // Example:
+                            //  "C:\trentm\tmp\foo.py" -> "foo.py (C:\trentm\tmp)"
+                            var doc = view.document;
+                            var path = doc.displayPath;
+                            var idx = path.lastIndexOf("/");
+                            if (idx == -1) {
+                                idx = path.lastIndexOf("\\");
+                            }
+                            var dir = null;
+                            if (idx != -1) {
+                                dir = path.substring(0, idx);
+                                label = path.substring(idx+1);  // basename
+                            } else {
+                                label = path;
+                            }
+                            if (doc.isDirty) {
+                                label += " *";
+                            }
+                            if (dir) {
+                                label += " (" + dir + ")";
+                            }
+                            tooltiptext = path;
+                        }
+                    } catch (ex) {
+                        var _log = ko.logging.getLogger("scrolltabs");
+                        _log("error calculating tab label '"+label+"': "+ex+"\n");
+                    }
+                    menuitem.setAttribute("label", label);
+                    menuitem.setAttribute("tooltiptext", tooltiptext);
+                    
+                    //TODO: Status icons. The tab's icons are zero or more
+                    //  URLs in the 'status', 'status2', 'action', 'readonly'
+                    //  and 'image' attributes on the tab.
+                    //  As a starter I tried to use just the 'status' icon,
+                    //  but I cannot get the 'image' attribute to work as
+                    //  follows:
+                    //menuitem.setAttribute('type', 'menuitem-iconic');
+                    //var image = tab.getAttribute("status");
+                    //if (image) {
+                    //    menuitem.setAttribute("image", image);
+                    //}
+                    
                     if (tab.selected) {
-                        menuitem.setAttribute('checked', 'true');
-                        // No need to switch view oncommand, this view is already current.
-                        // However we *do* need to ensure that the checkmark stays.
-                        // See http://bugs.activestate.com/show_bug.cgi?id=26423
-                        menuitem.setAttribute('oncommand',
-                                              'event.target.setAttribute("checked", "true");');
+                        menuitem.setAttribute('class', 'selected');
                     } else {
-                        menuitem.setAttribute('checked', 'false');
                         menuitem.setAttribute('oncommand', 'this.tab.control.selectedItem = this.tab;');
                     }
+
                     menuitem.tab = tab;
                     return menuitem;
                 } catch(ex) {
@@ -334,7 +377,7 @@
                     if (child.localName == "tab" &&
                         (!child.hasAttribute("collapsed") || child.getAttribute("collapsed") == false) &&
                         (!child.hasAttribute("hidden") || child.getAttribute("hidden") == false)) {
-                        popup.appendChild(this._createMenuItem(this.childNodes[i]));
+                        popup.appendChild(this._createMenuItem(child));
                     }
                 }
                 ]]>

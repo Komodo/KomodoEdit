@@ -186,3 +186,8 @@ tab[selected="true"] {
 tab.tabs-bottom {
   margin: 0px;
 }
+
+/* Menuitem for the selected tab in the tabs-droplist. */
+tabs menuitem.selected {
+  font-weight: bold;
+}

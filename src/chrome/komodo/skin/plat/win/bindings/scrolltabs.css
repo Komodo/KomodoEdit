@@ -51,3 +51,8 @@ tabs.small > tab {
     font-size: 85%;
 }
 
+
+/* Menuitem for the selected tab in the tabs-droplist. */
+tabs menuitem.selected {
+  font-weight: bold;
+}
