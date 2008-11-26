@@ -422,11 +422,21 @@ class SiloedDistutilsLibDirName(black.configure.Datum):
         self.applicable = 1
         siloedPyVer = black.configure.items["siloedPyVer"].Get()
         siloedPython = black.configure.items["siloedPython"].Get()
+        ld_path_list = black.configure.items["LD_LIBRARY_PATH"].Get()
 
         # the distutils platform name
-        cmd = '%s -c "from distutils.util import get_platform; print get_platform()"' % siloedPython
-        platname = os.popen(cmd).read().strip()
-        assert platname, \
+        cmd = [siloedPython, '-c', "from distutils.util import get_platform; print get_platform()"]
+        # Ensure we use the correct LD_LIBRARY_PATH required by the siloed
+        # Python executable.
+        env = os.environ.copy()
+        if sys.platform.startswith("linux"):
+            if 'LD_LIBRARY_PATH' in env:
+                ld_path_list.append(env['LD_LIBRARY_PATH'])
+            env["LD_LIBRARY_PATH"] = os.path.pathsep.join(ld_path_list)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env)
+        status = p.wait()
+        platname = p.stdout.read().strip()
+        assert status == 0 and platname, \
             "empty distutils platname: running the cmd must have failed: %s" % cmd
 
         self.value = "lib.%s-%s" % (platname, siloedPyVer)
@@ -1749,15 +1759,14 @@ class SetLdLibraryPath(black.configure.SetPathEnvVar):
 ##XXX
 ##XXX Is this necessary with the new build system now?
 ##XXX
-##            # Add the siloed Python lib dir (in the install tree) for
-##            # installer builds so that Python extensions (like our build
-##            # of sgmlop) can be built against it.
-##            tasks = black.configure.items["tasks"].Get()
-##            if "buildkomodoinstaller" in tasks:
-##                pythonLibPath = black.configure.items["pythonLibPath"].Get()
-##                for d in pythonLibPath:
-##                    if not self.Contains(d):
-##                        self.value.append(d)
+            # Add the siloed Python lib dir (in the install tree) for
+            # installer builds so that Python extensions (like our build
+            # of sgmlop) can be built against it.
+            if sys.platform.startswith("linux"):
+                pythonExecutable = black.configure.items["siloedPython"].Get()
+                pythonLibPath = join(dirname(dirname(pythonExecutable)), "lib")
+                if not self.Contains(pythonLibPath):
+                    self.value.append(pythonLibPath)
         else:
             self.applicable = 0
         self.determined = 1
