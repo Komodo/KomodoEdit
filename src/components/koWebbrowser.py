@@ -224,6 +224,8 @@ class KoWebbrowser(object):
         #   '"C:\\Program Files\\Internet Explorer\\iexplore.exe" -nohome'
         WHITESPACE = " \t\r\n"
         argv = []
+        if command is None:
+            return argv
         i = 0
         while 1:
             # Eat whitespace to the start of the next argument.
