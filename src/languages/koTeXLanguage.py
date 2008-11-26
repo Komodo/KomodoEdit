@@ -260,7 +260,7 @@ SAMPLE NOT AVAILABLE
                    _primitives_pdftex + _primitives_omega + \
                    _macros_plain_partial + _macros_eplain_partial
     
-# Note koLatexLanguage is defined in koLatexLanguage.py as well, should probably
+#TODO: Note koLatexLanguage is defined in koLatexLanguage.py as well, should probably
 # win over this one.
 class koLaTeXLanguage(koTeXLanguage):
     name = "LaTeX"
