@@ -368,6 +368,13 @@ class Scheme:
             'eolfilled': scimoz.styleSetEOLFilled,
             'hotspot': scimoz.styleSetHotSpot,
         }
+
+        # These are special style elements that are not based upon
+        # the default style, i.e. non-editor styles.
+        stylesThatDontUseDefault = [
+            'linenumbers',
+        ]
+
         # This function needs to do two somewhat complementary things:
         # - Build the self._appliedData dictionary which describes
         #   the _full_ set of styling information for the current language.
@@ -453,7 +460,10 @@ class Scheme:
                     scimoz.styleSetFont(scimoz_no, font)
                 for aspect, setter in setters.items():
                     value = style[aspect]
-                    if value and value != defaultStyle[aspect]:
+                    # Note: font colors can be 0x0, which is a valid value.
+                    if (value or aspect in ('fore', 'back')) and \
+                               (value != defaultStyle[aspect] or
+                                common_name in stylesThatDontUseDefault):
                         setter(scimoz_no, value)
 
         # Now do the other colors, such as cursor color
@@ -468,6 +478,7 @@ class Scheme:
         
         DECORATOR_SOFT_CHAR = components.interfaces.koILintResult.DECORATOR_SOFT_CHAR
         scimoz.indicSetStyle(DECORATOR_SOFT_CHAR, scimoz.INDIC_BOX)
+        # XXX: This should be in the scheme file.
         scimoz.indicSetFore(DECORATOR_SOFT_CHAR, mozcolor2scincolor("#993300"))
 
         #XXX Note: we used to apply some style prefs for the foreground of
