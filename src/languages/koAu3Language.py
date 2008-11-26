@@ -63,11 +63,17 @@ class koAu3Language(KoLanguageBase):
         'preprocessor': ('SCE_AU3_PREPROCESSOR',),
         'sent': ('SCE_AU3_SENT',),
         }
-    defaultExtension = None
+    defaultExtension = ".au3"
     commentDelimiterInfo = {}
     
     sample = """
-SAMPLE NOT AVAILABLE
+; This is a comment.
+MsgBox(0, "My second script!", "Hello from the main script!")
+TestFunc()
+
+Func TestFunc()
+    MsgBox(0, "My Second Script!", "Hello from the functions!")
+EndFunc
 """
     def get_lexer(self):
         if self._lexer is None:
