@@ -599,6 +599,12 @@ def _setupMozillaEnv():
             else:
                 ld_path = ''
             os.environ["DYLD_LIBRARY_PATH"] = "%s%s" % (python_so, ld_path)
+        elif sys.platform.startswith('linux'):
+            python_so_dir = join(dirname(dirname(config.python)), "lib")
+            ld_paths = [python_so_dir]
+            if 'LD_LIBRARY_PATH' in os.environ:
+                ld_paths.append(os.environ['LD_LIBRARY_PATH'])
+            os.environ["LD_LIBRARY_PATH"] = os.path.pathsep.join(ld_paths)
     
     if sys.platform != "win32":
         #TODO: drop what isn't necessary here
