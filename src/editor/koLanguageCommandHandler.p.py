@@ -1766,26 +1766,33 @@ class GenericCommandHandler:
 
     def _do_cmd_swapCase(self):
         sm = self._view.scimoz
-        selStart = sm.selectionStart
-        selEnd = sm.selectionEnd
-        if selStart == selStart:
-            # Nothing selected
-            # Just swap the current character position then
-            curChar = sm.getWCharAt(sm.currentPos)
+        currentPos = sm.currentPos
+        anchor = sm.anchor
+        if currentPos == anchor:
+            # Nothing selected, swap the current character position then.
+            curLine = sm.lineFromPosition(currentPos)
+            lineStartPos = sm.positionFromLine(curLine)
+            lineEndPos = sm.getLineEndPosition(curLine)
+            if currentPos >= lineEndPos:
+                if currentPos == lineStartPos:
+                    # There is nothing on this line.
+                    return
+                # Vi stops at the last character in the line, then will allow
+                # to keep swapping this last character.
+                currentPos = sm.positionBefore(currentPos)
+            curChar = sm.getWCharAt(currentPos)
             if curChar:
                 newChar = curChar.swapcase()
-                sm.targetStart = sm.currentPos
-                sm.targetEnd = sm.positionAfter(sm.currentPos)
+                sm.targetStart = currentPos
+                sm.targetEnd = sm.positionAfter(currentPos)
                 sm.replaceTarget(len(newChar), newChar)
                 # Move the cursor right (if not at end of line)
-                curLine = sm.lineFromPosition(sm.currentPos)
-                lineEndPos = sm.getLineEndPosition(curLine)
-                if sm.currentPos < lineEndPos:
+                if currentPos < lineEndPos:
                     sm.charRight()
         else:
-            sm.replaceSel(sm.selText.swapCase())
-            sm.selectionStart = selStart
-            sm.selectionEnd = selEnd
+            sm.replaceSel(sm.selText.swapcase())
+            sm.anchor = anchor
+            sm.currentPos = currentPos
 
 
 
