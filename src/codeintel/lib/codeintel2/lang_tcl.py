@@ -90,7 +90,13 @@ keywords = ["after", "append", "apply", "array", "auto_execok",
             "tk_chooseColor", "tk_chooseDirectory", "tk_getOpenFile",
             "tk_getSaveFile", "tk_menuSetFocus", "tk_messageBox",
             "tk_popup", "tk_textCopy", "tk_textCut", "tk_textPaste",
-            "tkwait", "toplevel", "winfo", "wm"]
+            "tkwait", "toplevel", "ttk::button", "ttk::checkbutton",
+            "ttk::combobox", "ttk::entry", "ttk::frame", "ttk::label",
+            "ttk::labelframe", "ttk::menubutton", "ttk::notebook",
+            "ttk::panedwindow", "ttk::progressbar", "ttk::radiobutton",
+            "ttk::scrollbar", "ttk::separator", "ttk::sizegrip",
+            "ttk::style", "ttk::treeview", "ttk::style", "winfo", "wm"]
+
 
 line_end_re = re.compile("(?:\r\n|\r)")
 
