@@ -3,34 +3,34 @@
 <project id="7f803f0e-3304-11db-a53a-000d935d3368" kpf_version="4" name="toolbox.kpf">
 <snippet id="784a640e-d491-d74a-98b8-cb1cdb7239d1" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="div" set_selection="false">
 &lt;div id="[[%tabstop:id]]"&gt;
-    [[%tabstop:]]
+	[[%tabstop:]]
 &lt;/div&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="1f5cea0d-119a-eb48-93aa-94ff997f3c0d" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="com" set_selection="true">
 &lt;!-- !@#_currentPos!@#_anchor --&gt;
 </snippet>
-<snippet id="2f4731bf-0923-b44f-b91a-7301299725c3" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="false" keyboard_shortcut="" name="xhtml" set_selection="false">
+<snippet id="2f4731bf-0923-b44f-b91a-7301299725c3" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="xhtml" set_selection="false">
 &lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"&gt;
 
 &lt;head&gt;
-    &lt;title&gt;[[%tabstop1:title]]&lt;/title&gt;
+	&lt;title&gt;[[%tabstop1:title]]&lt;/title&gt;
 &lt;/head&gt;
 &lt;body&gt;
-    &lt;[[%tabstop2:h1]]&gt;[[%tabstop1]]&lt;/[[%tabstop2]]&gt;
-    [[%tabstop:]]
+	&lt;[[%tabstop2:h1]]&gt;[[%tabstop1]]&lt;/[[%tabstop2]]&gt;
+	[[%tabstop:]]
 &lt;/body&gt;
 &lt;/html&gt;
 !@#_currentPos!@#_anchor</snippet>
 <snippet id="df6a6552-15cb-0346-a32f-e9d42595fe39" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="html4" set_selection="false">
 &lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd"&gt;
+		"http://www.w3.org/TR/html4/loose.dtd"&gt;
 &lt;html&gt;
 &lt;head&gt;
-    &lt;title&gt;[[%tabstop1:title]]&lt;/title&gt;
+	&lt;title&gt;[[%tabstop1:title]]&lt;/title&gt;
 &lt;/head&gt;
 &lt;body&gt;
-    &lt;[[%tabstop2:h1]]&gt;[[%tabstop1]]&lt;/[[%tabstop2]]&gt;
-    [[%tabstop:]]
+	&lt;[[%tabstop2:h1]]&gt;[[%tabstop1]]&lt;/[[%tabstop2]]&gt;
+	[[%tabstop:]]
 &lt;/body&gt;
 &lt;/html&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="a894ae94-0cf4-1e4e-8b3a-78c8a7b7c3e3" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="p" set_selection="false">
@@ -43,7 +43,7 @@
 &lt;label&gt;[[%tabstop:Label]]&lt;input type="text" id="[[%tabstop:id]]"/&gt;&lt;/label&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="0c0f86b4-ae9d-e746-9947-aa847b782e8e" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="ul" set_selection="false">
 &lt;ul id="[[%tabstop:id]]"&gt;
-    &lt;li&gt;[[%tabstop:text]]&lt;/li&gt;
+	&lt;li&gt;[[%tabstop:text]]&lt;/li&gt;
 &lt;/ul&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="bf7c4d04-b759-524b-99eb-0bfc5d5b225a" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="style" set_selection="false">
 &lt;style type="text/css"&gt;
@@ -55,7 +55,7 @@
 &lt;/textarea&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="fc4d3db6-f6bd-044a-b319-8bd3b8e221c0" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="ol" set_selection="false">
 &lt;ol id="[[%tabstop:id]]"&gt;
-    &lt;li&gt;[[%tabstop:text]]&lt;/li&gt;
+	&lt;li&gt;[[%tabstop:text]]&lt;/li&gt;
 &lt;/ol&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="eb3b65be-bc56-a74f-a567-c747d3b2d1c0" idref="4eecfa07-0da7-5347-8a3d-cf747d6622d2" indent_relative="true" keyboard_shortcut="" name="script" set_selection="false">
 &lt;script type="application/x-javascript"&gt;
@@ -86,9 +86,9 @@ dependencies = [[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
  * Implementation of hook_perm
  */
 function [[%tabstop1:example]]_perm() {
-  return array(
-    '[[%tabstop:example permission]]',
-  );
+	return array(
+		'[[%tabstop:example permission]]',
+	);
 }
 
 
@@ -96,19 +96,17 @@ function [[%tabstop1:example]]_perm() {
  * Implementation of hook_menu
  */
 function [[%tabstop1]]_menu($may_cache) {
-  $items = array();
-
-  if ($may_cache) {
-    $items[] = array(
-      'path' =&gt; 'admin/settings/[[%tabstop1]]',
-      'title' =&gt; t('[[%tabstop1]]'),
-      'callback' =&gt; 'drupal_get_form',
-      'callback arguments' =&gt; array('[[%tabstop1]]_admin_form'),
-      'access' =&gt; user_access('administer site configuration'),
-    );
-  }
-
-  return $items;
+	$items = array();
+	if ($may_cache) {
+		$items[] = array(
+			'path' =&gt; 'admin/settings/[[%tabstop1]]',
+			'title' =&gt; t('[[%tabstop1]]'),
+			'callback' =&gt; 'drupal_get_form',
+			'callback arguments' =&gt; array('[[%tabstop1]]_admin_form'),
+			'access' =&gt; user_access('administer site configuration'),
+		);
+	}
+	return $items;
 }
 
 
@@ -116,8 +114,8 @@ function [[%tabstop1]]_menu($may_cache) {
  * Menu callback - Admin settings form.
  */
 function [[%tabstop1]]_admin_form() {
-  $form = array();
-  return system_settings_form($form);
+	$form = array();
+	return system_settings_form($form);
 }
 
 
@@ -125,11 +123,11 @@ function [[%tabstop1]]_admin_form() {
  * Implementation of hook_form_alter
  */
 function [[%tabstop1]]_form_alter($form_id, &amp;$form) {
-  switch ($form_id) {
-    // Alter node edit form
-    case $form['type']['#value'] .'_node_form':
-    break;
-  }
+	switch ($form_id) {
+		// Alter node edit form
+		case $form['type']['#value'] .'_node_form':
+		break;
+	}
 }
 
 
@@ -137,25 +135,25 @@ function [[%tabstop1]]_form_alter($form_id, &amp;$form) {
  * Implementation of hook_nodeapi
  */
 function [[%tabstop1]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
-  switch ($op) {
-    case 'delete':
-    break;
+	switch ($op) {
+		case 'delete':
+		break;
 
-    case 'insert':
-    break;
+		case 'insert':
+		break;
 
-    case 'load':
-    break;
+		case 'load':
+		break;
 
-    case 'submit':
-    break;
+		case 'submit':
+		break;
 
-    case 'update':
-    break;
+		case 'update':
+		break;
 
-    case 'view':
-    break;
-  }
+		case 'view':
+		break;
+	}
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="1d2bf169-02e4-aa4f-b2e0-0d561cc9c965" idref="fbf675d9-6210-6c4b-a40b-c5b207385333" indent_relative="true" keyboard_shortcut="" name="drinstall" set_selection="false">
 &lt;?php
@@ -165,16 +163,16 @@ function [[%tabstop1]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
  * Implementation of hook_install
  */
 function [[%tabstop1:example]]_install() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysqli':
-    case 'mysql':
-      db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop1]]} (
-        id int unsigned NOT NULL auto_increment,
-        field varchar(128) NOT NULL default ''
-        PRIMARY KEY (id),
-      ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
-    break;
-  }
+	switch ($GLOBALS['db_type']) {
+		case 'mysqli':
+		case 'mysql':
+		db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop1]]} (
+		         id int unsigned NOT NULL auto_increment,
+		         field varchar(128) NOT NULL default ''
+		         PRIMARY KEY (id),
+		) /*!40100 DEFAULT CHARACTER SET utf8 */;");
+		break;
+	}
 }
 
 
@@ -182,15 +180,15 @@ function [[%tabstop1:example]]_install() {
  * Implementation of hook_uninstall
  */
 function [[%tabstop1]]_uninstall() {
-  db_query("DROP TABLE {[[%tabstop1]]}");
-  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop1]]%%'");
-  while ($variable = db_fetch_object($variables)) {
-    variable_del($variable-&gt;name);
-  }
+	db_query("DROP TABLE {[[%tabstop1]]}");
+	$variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop1]]%%'");
+	while ($variable = db_fetch_object($variables)) {
+		variable_del($variable-&gt;name);
+	}
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="fdd28731-8d85-cb49-9065-311c2bb2515b" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="true" keyboard_shortcut="" name="main" set_selection="true">
 if __name__ == '__main__':
-    !@#_anchorpass!@#_currentPos</snippet>
+	!@#_anchorpass!@#_currentPos</snippet>
 <snippet id="bcf1feef-4f9c-bc40-acf3-e01433eb91ed" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="true" keyboard_shortcut="" name="opts" set_selection="false">
 from optparse import OptionParser
 parser = OptionParser()
@@ -212,19 +210,19 @@ from time import strftime, strptime, localtime
 !@#_currentPos!@#_anchor</snippet>
 <snippet id="fe8cd2f6-d55f-cf4f-8c2e-e8f41e69222f" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 class [[%tabstop:name]](object):
-    
-    def __init__(self,*args):
-        [[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
+	
+	def __init__(self,*args):
+		[[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="93506188-83fb-214b-83e9-6799909842e2" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
 def [[%tabstop:name]]([[%tabstop:arg1]]):
-    [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
+	[[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="81fd32fe-27c4-cf43-bf23-693b0c3c5158" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="true" keyboard_shortcut="" name="meth" set_selection="false">
 def [[%tabstop:name]](self,*args):
-    """ [[%tabstop:docs]] """
-    [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
+	""" [[%tabstop:docs]] """
+	[[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="f513665e-f9d8-2548-ba5e-a2c36924d4ca" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="true" keyboard_shortcut="" name="walk" set_selection="false">
 for root, dirs, files in os.walk([[%tabstop:dirname]]):
-    [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
+	[[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="7b66b90e-bbbb-3a4a-a969-35b192c981d6" idref="de7a7689-49ec-3a4d-94f5-dd654164711e" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
 """ [[%tabstop:docs]] """!@#_currentPos!@#_anchor</snippet>
 <snippet id="20df15d8-0e8f-1c4e-993a-3d7cd4b0cd47" idref="d0b71e98-e11a-eb4d-980a-81a5f5fd148c" indent_relative="false" keyboard_shortcut="" name="main" set_selection="false">
@@ -232,9 +230,9 @@ for root, dirs, files in os.walk([[%tabstop:dirname]]):
 # [[%tabstop:scriptname]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="55b73c8f-c3a4-0741-939b-4ac6fdccc386" idref="cd59b5c5-1958-ba45-a896-75218787ea5b" indent_relative="true" keyboard_shortcut="" name="jqeach" set_selection="false">
 $('[[%tabstop:selector]]').each(
-    function(i) {
-        [[%tabstop:]]
-    }
+	function(i) {
+		[[%tabstop:]]
+	}
 );!@#_currentPos!@#_anchor</snippet>
 <snippet id="6d12782f-1ee4-754b-8436-c5d2d5253efc" idref="cd59b5c5-1958-ba45-a896-75218787ea5b" indent_relative="true" keyboard_shortcut="" name="jqstart" set_selection="true">
 $(document).ready(function() {
@@ -247,10 +245,10 @@ $(document).ready(function() {
 </snippet>
 <snippet id="7e98c136-04d1-f74d-9950-ecb5484885ab" idref="46e31deb-246e-aa4b-acea-066ec357c572" indent_relative="true" keyboard_shortcut="" name="dump" set_selection="false">
 function _dump($data) {
-    if (func_num_args() &gt; 1) {
-        $data = func_get_args();
-    }
-    return "&lt;pre&gt;".print_r($data, 1)."&lt;/pre&gt;";
+	if (func_num_args() &gt; 1) {
+		$data = func_get_args();
+	}
+	return "&lt;pre&gt;".print_r($data, 1)."&lt;/pre&gt;";
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="a8dbffcc-d214-9548-85d9-e8eed213e18b" idref="46e31deb-246e-aa4b-acea-066ec357c572" indent_relative="false" keyboard_shortcut="" name="block" set_selection="true">
 &lt;?php
@@ -267,15 +265,15 @@ $[[%tabstop:array]] = array([[%tabstop:]]);!@#_currentPos!@#_anchor</snippet>
  */
 
 class [[%tabstop1]] [[%tabstop:extends [[%tabstop:class]]]] {
-    
-    /*
-     * __construct()
-     * @param $[[%tabstop2:arg]]
-     */
-    
-    function __construct($[[%tabstop2]]) {
-        [[%tabstop:parent]]
-    }
+	
+	/*
+	 * __construct()
+	 * @param $[[%tabstop2:arg]]
+	 */
+	
+	function __construct($[[%tabstop2]]) {
+		[[%tabstop:parent]]
+	}
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="dda0cad7-4446-1649-a45a-52ff146f15a8" idref="46e31deb-246e-aa4b-acea-066ec357c572" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
 /*
@@ -284,7 +282,7 @@ class [[%tabstop1]] [[%tabstop:extends [[%tabstop:class]]]] {
  */
 
 function [[%tabstop1]]($[[%tabstop2]]) {
-    [[%tabstop:]]
+	[[%tabstop:]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="5c4c2d46-cd2e-a34a-b7a6-f1ade0df8c38" idref="46e31deb-246e-aa4b-acea-066ec357c572" indent_relative="true" keyboard_shortcut="" name="inline" set_selection="false">
 &lt;?php echo $[[%tabstop:var]]; ?&gt;!@#_currentPos!@#_anchor</snippet>
@@ -301,10 +299,10 @@ Usage: php [[%tabstop1]] [[%tabstop2:argument]]
 if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
 
   if ($argc &lt; 2 || in_array($argv[1], array('--help', '-help', '-h', '-?')) || [[%tabstop:conditon]]) {
-    echo "[[%tabstop:Description]]\n\n";
-    echo "Usage:      [[%tabstop1]] [[%tabstop2]]\n";
-    echo "            --help, -help, -h, -?      - to get this help\n";
-    die;
+	echo "[[%tabstop:Description]]\n\n";
+	echo "Usage:      [[%tabstop1]] [[%tabstop2]]\n";
+	echo "            --help, -help, -h, -?      - to get this help\n";
+	die;
   }
 }
 ?&gt;!@#_currentPos!@#_anchor</snippet>
@@ -330,7 +328,7 @@ function [[%tabstop1]]([[%tabstop2]]) {
  */
  
 [[%tabstop:Object]].prototype.[[%tabstop1]] = function [[%tabstop1]]([[%tabstop2]]) {
-    [[%tabstop:]]
+	[[%tabstop:]]
 };!@#_currentPos!@#_anchor</snippet>
 <snippet id="42334831-8c37-8840-95b6-829126750410" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 /**
@@ -338,13 +336,13 @@ function [[%tabstop1]]([[%tabstop2]]) {
  */
 
 var [[%tabstop1]] = function() {
-    [[%tabstop:]]
+	[[%tabstop:]]
 };!@#_currentPos!@#_anchor</snippet>
 <snippet id="da6dfc19-f706-3d47-8334-ade88b924651" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="try" set_selection="true">
 try {
-    !@#_currentPos!@#_anchor   
+	!@#_currentPos!@#_anchor   
 } catch(e) {
-    alert(e);
+	alert(e);
 }</snippet>
 <snippet id="12b0edb6-c212-6c47-bdfc-a4e5551ae76c" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" indent_relative="true" keyboard_shortcut="" name="namespace" set_selection="false">
 /**
@@ -352,11 +350,11 @@ try {
  */
 
 if(typeof([[%tabstop1]]) == 'undefined') {
-    var [[%tabstop1]] = {};
+	var [[%tabstop1]] = {};
 }
 
 (function() {
-    [[%tabstop:]]
+	[[%tabstop:]]
 }).apply([[%tabstop1]]);!@#_currentPos!@#_anchor</snippet>
 <folder id="cd59b5c5-1958-ba45-a896-75218787ea5b" idref="c69ee23d-4491-6b45-a500-1303fc1a061f" name="jQuery">
 </folder>
@@ -488,63 +486,63 @@ window.openDialog("chrome://komodo/content",
 </folder>
 <snippet id="808c6c97-be5c-304c-8174-15fd5a1d619c" idref="986aa9f8-2b59-704d-944d-50231c783b1e" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
 while {[[%tabstop:EXPR]]} {
-    [[%tabstop]]
+	[[%tabstop]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="0dbcfd71-dcaf-1c48-aa6a-4a71b23c5259" idref="986aa9f8-2b59-704d-944d-50231c783b1e" indent_relative="true" keyboard_shortcut="" name="for" set_selection="false">
 for {set [[%tabstop:START]]} {[[%tabstop:TEST]]} {[[%tabstop:NEXT]]}
-    [[%tabstop]]
+	[[%tabstop]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="6b744c11-d400-bb42-a31e-331d3c8a2083" idref="986aa9f8-2b59-704d-944d-50231c783b1e" indent_relative="true" keyboard_shortcut="" name="proc" set_selection="false">
 proc [[%tabstop:NAME]] {[[%tabstop:ARGS]]} {
-    [[%tabstop]]
+	[[%tabstop]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="a6169623-bc5b-d141-8142-2fcfbdbdf3fa" idref="986aa9f8-2b59-704d-944d-50231c783b1e" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
 foreach [[%tabstop:VAR]] [[%tabstop]] {
-    [[%tabstop]]
+	[[%tabstop]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="94f4af19-462b-eb46-a0dc-357d1a198bc7" idref="986aa9f8-2b59-704d-944d-50231c783b1e" indent_relative="true" keyboard_shortcut="" name="switch" set_selection="false">
 switch [[%tabstop:STRING]] {
-    [[%tabstop:PATTERN]] {
-        [[%tabstop:ACTION]]
-    }
-    [[%tabstop:PATTERN2]]
-        [[%tabstop:ACTION2]]
-    }
+	[[%tabstop:PATTERN]] {
+		[[%tabstop:ACTION]]
+	}
+	[[%tabstop:PATTERN2]]
+		[[%tabstop:ACTION2]]
+	}
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="d930cd3f-a095-d649-b6b6-620aa06a21a5" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
 foreach my $[[%tabstop:var]] ([[%tabstop:EXPR]]) {
-    [[%tabstop]]
+	[[%tabstop]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="97f1d277-f151-b84e-939c-f9b5b6a7b96a" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="if" set_selection="false">
 if ([[%tabstop:EXPR]]) {
-    [[%tabstop:]]
+	[[%tabstop:]]
 }
 elsif ([[%tabstop:EXPR]]) {
-    [[%tabstop:]]
+	[[%tabstop:]]
 }
 else {
-    [[%tabstop:]]
+	[[%tabstop:]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="91278317-24c3-9d46-8dca-69686124ff22" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
 while ([[%tabstop:EXPR]]) {
-    [[%tabstop]]
+	[[%tabstop]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="b719cdb9-ca34-5547-80fa-4e5140a62bad" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="sheb" set_selection="false">
 #![[%(perl)]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="d69aa705-67f7-dc44-a8b8-36ec1c3d80c1" idref="b7845555-f013-cd46-b7b5-d06affba3368" indent_relative="true" keyboard_shortcut="" name="hash" set_selection="false">
 %[[%tabstop:name]] = (
-    [[%tabstop]] =&gt; [[%tabstop]],
-    [[%tabstop]] =&gt; [[%tabstop]],
+	[[%tabstop]] =&gt; [[%tabstop]],
+	[[%tabstop]] =&gt; [[%tabstop]],
 );!@#_currentPos!@#_anchor</snippet>
 <snippet id="a77072f0-56a7-3544-a6c2-bfd4810d6bd7" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 class [[%tabstop:name]]
-  def [[%tabstop]]
-    [[%tabstop]]
-  end
+	def [[%tabstop]]
+		[[%tabstop]]
+	end
 end!@#_currentPos!@#_anchor</snippet>
 <snippet id="ca95e380-6a8d-8548-9270-dfad75abb520" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="def" set_selection="false">
 def [[%tabstop:name]]
-  [[%tabstop]]
+	[[%tabstop]]
 end!@#_currentPos!@#_anchor</snippet>
 <snippet id="63976f93-63d6-1c4f-a163-bb8e55253f81" idref="229ff5f3-7e68-7441-baf7-12e08cbdb860" indent_relative="true" keyboard_shortcut="" name="coll" set_selection="false">
 collect { |[[%tabstop:e]]| [[%tabstop]] }!@#_currentPos!@#_anchor</snippet>
