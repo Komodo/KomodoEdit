@@ -86,7 +86,9 @@ CommonStyles = {'attribute name': {'fore': 7872391},
  'indent guides': {'fore': 8421504},
  'keywords': {'fore': 10040115},
  'keywords2': {'fore': 7872391},
- 'linenumbers': {'fore': 5592405},
+  # Line numbers use a back style of None, which means the color
+  # used will be left to Scintilla's default styling colors (system color).
+ 'linenumbers': {'fore': 5592405, 'back': None},
  'numbers': {'fore': 139},
  'operators': {'fore': 8855416},
  'preprocessor': {'fore': 6908265},

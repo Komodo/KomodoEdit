@@ -442,6 +442,16 @@ class Scheme:
                 else:
                     style = propStyle.copy()
                 style.update(commonStyle)
+                # Hack for bug 71202 regarding linenumber background style
+                # used in derived schemes. If the scheme does not explicitly
+                # define a line numbers background color, then we set the
+                # color value to None, which means the default Scintilla
+                # coloring will be used. Also added a check for black schemes,
+                # as we want these derived black schemes to use a better color
+                # than the scintilla default (which is usually a light color).
+                if common_name == "linenumbers" and "back" not in commonStyle \
+                   and style["back"] != 0:
+                    style["back"] = None
                 style.update(specificStyle)
                 self._appliedData[common_name] = style
                 if useFixed != defaultUseFixed:
@@ -458,12 +468,12 @@ class Scheme:
                     else:
                         font = style['face']
                     scimoz.styleSetFont(scimoz_no, font)
+                defaultStyleIsNotApplicable = common_name in stylesThatDontUseDefault
                 for aspect, setter in setters.items():
                     value = style[aspect]
-                    # Note: font colors can be 0x0, which is a valid value.
-                    if (value or aspect in ('fore', 'back')) and \
-                               (value != defaultStyle[aspect] or
-                                common_name in stylesThatDontUseDefault):
+                    if (value is not None
+                        and (defaultStyleIsNotApplicable
+                             or value != defaultStyle[aspect])):
                         setter(scimoz_no, value)
 
         # Now do the other colors, such as cursor color
