@@ -644,15 +644,15 @@
                     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                                        getService(Components.interfaces.koILastErrorService);
                     ko.dialogs.alert("There was an error attempting to save '"+
-                                 this.document.baseName+"': "+
-                                 lastErrorSvc.getLastErrorMessage());
+                                     baseName+"': "+
+                                     lastErrorSvc.getLastErrorMessage());
                     return false;
                 }
 
                 if (hasChanged) {
                     choice = ko.dialogs.customButtons(
-                        "The file has changed on disk. Are you sure you "+
-                            "want to overwrite those changes?",
+                        "The file '" + baseName + "' has changed on disk. " +
+                        "Are you sure you want to overwrite those changes?",
                         ["&Yes", "&No", "No, &Show Changes"],
                         "No", // default response
                         null, // text
