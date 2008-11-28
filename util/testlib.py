@@ -1,4 +1,5 @@
 #!python
+# Copyright (c) 2000-2008 ActiveState Software Inc.
 # License: MIT License (http://www.opensource.org/licenses/mit-license.php)
 
 """
@@ -48,7 +49,7 @@
 # - See the optparse "TODO" below.
 # - Make the quiet option actually quiet.
 
-__version_info__ = (0, 6, 1)
+__version_info__ = (0, 6, 4)
 __version__ = '.'.join(map(str, __version_info__))
 
 
@@ -143,7 +144,7 @@ def timedtest(max_time, tolerance=TOLERANCE):
 
 #---- module api
 
-class Test:
+class Test(object):
     def __init__(self, ns, testmod, testcase, testfn_name,
                  testsuite_class=None):
         self.ns = ns
@@ -378,11 +379,11 @@ def tests_from_manifest_and_tags(testdir_from_ns, tags):
 def test(testdir_from_ns, tags=[], setup_func=None):
     log.debug("test(testdir_from_ns=%r, tags=%r, ...)",
               testdir_from_ns, tags)
+    if setup_func is not None:
+        setup_func()
     tests = list(tests_from_manifest_and_tags(testdir_from_ns, tags))
     if not tests:
         return None
-    if tests and setup_func is not None:
-        setup_func()
     
     # Groups test cases into a test suite class given by their test module's
     # "test_suite_class" hook, if any.
@@ -691,9 +692,10 @@ def harness(testdir_from_ns={None: os.curdir}, argv=sys.argv,
             retval = testlib.harness()
             sys.exit(retval)
     """
-    logging.basicConfig()
+    if not logging.root.handlers:
+        logging.basicConfig()
     try:
-        log_level, action, tags = _parse_opts(argv[1:], default_tags)
+        log_level, action, tags = _parse_opts(argv[1:], default_tags or [])
     except getopt.error, ex:
         log.error(str(ex) + " (did you need a '--' before a '-TAG' argument?)")
         return 1
