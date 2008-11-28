@@ -1027,13 +1027,15 @@ Casper.UnitTest.TextTestRunner.prototype.showSuiteResults = function(suite)
  * @param file {File}  A file object that implements a write() method.
  * @param isFirst {boolean} Indicates if this is the first suite being
  *      logged.
+ * @returns {int} The number of tests written.
  */
 Casper.UnitTest.TextTestRunner.prototype.logSuiteResults = function(suite, file, isFirst)
 {
+    var num_tests_written = 0;
     try {
     function _log_test_case(file, suite, testcase_name, testfunc_name,
-                            passed, result, detail, isFirst) {
-        if (!isFirst) {
+                            passed, result, detail, isFirstTest) {
+        if (!isFirstTest) {
             file.write(',');
         }
         file.write('\n {\n');
@@ -1052,6 +1054,7 @@ Casper.UnitTest.TextTestRunner.prototype.logSuiteResults = function(suite, file,
             file.write('  "detail": '+detail+'\n');
         }
         file.write(' }');
+        num_tests_written += 1;
     }
 
     var testCases = suite.testChild;
@@ -1090,11 +1093,13 @@ Casper.UnitTest.TextTestRunner.prototype.logSuiteResults = function(suite, file,
                            testCase.result.name,
                            testCase.result.detail,
                            isFirst);
+            isFirst = false;
         }
     }
     } catch(e) {
         this.log.exception(e);
     }
+    return num_tests_written;
 }
 
 Casper.UnitTest.TextTestRunner.prototype.finishResults = function()
@@ -1114,8 +1119,13 @@ Casper.UnitTest.TextTestRunner.prototype.finishResults = function()
             var file = new File(this.logfile);
             file.open("w");
             file.write("[");
+            var isFirstTest = true;
+            var wroteTests = false;
             for (var i=0; i<this.testSuite.length; i++) {
-                this.logSuiteResults(this.testSuite[i], file, i==0);
+                wroteTests = this.logSuiteResults(this.testSuite[i], file, isFirstTest);
+                if (isFirstTest && wroteTests) {
+                    isFirstTest = false;
+                }
             }
             file.write("\n]\n");
             file.close();
