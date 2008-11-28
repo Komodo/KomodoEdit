@@ -1787,7 +1787,7 @@ class SetLdLibraryPath(black.configure.SetPathEnvVar):
 
 class SetMozillaFiveHome(black.configure.SetPathEnvVar):
     """This needs to be set properly on Linux to get PyXPCOM to work in
-    "bk start python"
+    `bk start mozpython` (and `bk start python`).
     """
     def __init__(self):
         black.configure.SetPathEnvVar.__init__(self, "MOZILLA_FIVE_HOME",
@@ -1801,6 +1801,22 @@ class SetMozillaFiveHome(black.configure.SetPathEnvVar):
             self.applicable = 0
         self.determined = 1
 
+class SetPythonHome(black.configure.SetPathEnvVar):
+    """This needs to be set properly on Windows to get PyXPCOM to work in
+    `bk start mozpython`.
+    """
+    def __init__(self):
+        black.configure.SetPathEnvVar.__init__(self, "PYTHONHOME",
+            serializeAs=["env"])
+
+    def _Determine_Do(self):
+        if sys.platform == "win32":
+            self.applicable = 1
+            mozDist = black.configure.items["mozDist"].Get()
+            self.value = join(mozDist, "python")
+        else:
+            self.applicable = 0
+        self.determined = 1
 
 class SetPythonPath(black.configure.SetPathEnvVar):
     def __init__(self):

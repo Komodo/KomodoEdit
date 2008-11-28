@@ -1899,6 +1899,11 @@ def target_silo_python(argv=["silo_python"]):
                 # *Copy* instead of moving to allow the Python
                 # executable to still be run in-place.
                 _run("copy /y %s %s" % (path, mozBinDir))
+        
+        # Need a mozpython.exe in the mozBin dir for "bk start mozpython"
+        # to work with PyXPCOM -- for testing, etc.
+        _run("copy /y %s %s" % (join(siloDir, "python.exe"),
+                                join(mozBinDir, "mozpython.exe")))
 
     elif sys.platform == "darwin":
         src = join(srcDir, "Python.framework")
@@ -1919,11 +1924,11 @@ def target_silo_python(argv=["silo_python"]):
         # Tweaks so pyxpcom stuff will work when run from the command line.
         # http://bugs.activestate.com/show_bug.cgi?id=66332
         # (a) move the main Python exe to the Komodo.app dir and
-        # (b) call it 'pybin' to avoid name conflict.
+        # (b) call it 'mozpython' to avoid name conflict.
         pythonAppDir = join(siloDir, "Python.framework", "Versions",
                             config.pyVer, "Resources", "Python.app")
         oldPybinPath = join(pythonAppDir, "Contents", "MacOS", "Python")
-        newPybinPath = join(dirname(siloDir), "MacOS", "pybin")
+        newPybinPath = join(dirname(siloDir), "MacOS", "mozpython")
         _run("mv -f %s %s" % (oldPybinPath, newPybinPath), log.info)
         _run("rm -rf %s" % pythonAppDir, log.info)
         # (c) correct the runtime dependency path.
@@ -1994,6 +1999,11 @@ def target_silo_python(argv=["silo_python"]):
         _run('rm -f %s/%s' % (mozBinDir, libpythonSo))
         _run('ln -s %s %s/%s'
              % (libpythonSoVer, mozBinDir, libpythonSo),
+             log.info)
+
+        # Need a mozpython executable in the mozBin dir for "bk start mozpython"
+        # to work with PyXPCOM -- for testing, etc.
+        _run('ln -s ../python/bin/python%s %s/mozpython' % (pyver, mozBinDir),
              log.info)
 
         # Relocate the Python install.
