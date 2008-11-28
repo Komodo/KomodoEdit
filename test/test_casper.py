@@ -171,6 +171,9 @@ def casper_tests_from_citree(citree):
                     continue
                 if not func_elem.get("name").startswith("test_"):
                     continue
+                if '__ctor__' in func_elem.get("attributes", ''):
+                    # This is class constructor, not an actual test.
+                    continue
                 #print "    %(ilk)s %(name)s" % func_elem.attrib
                 
                 raw_tags = func_elem.get("tags", "").strip()
