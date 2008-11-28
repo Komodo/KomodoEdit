@@ -53,11 +53,8 @@ from codeintel2.citadel import CitadelBuffer
 from codeintel2.common import *
 from codeintel2.environment import SimplePrefsEnvironment
 
-try:
+if _xpcom_:
     from xpcom import components
-    _xpcom_ = True
-except ImportError:
-    _xpcom_ = False
 
 
 
