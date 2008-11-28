@@ -511,10 +511,12 @@ class CasperTestSuite(unittest.TestSuite):
             result.startTest(testcase)
             if status == "PASS":
                 result.addSuccess(testcase)
-            elif status == "FAIL":
+            elif status == "FAILURE":
                 result.addFailure(testcase, (TestFailed, detail, None))
             elif status == "BREAK":
                 result.addError(testcase, (TestError, detail, None))
+            else:
+                result.addError(testcase, (TestError, "Unknown casper status: %r" % (status, ), None))
             result.stopTest(testcase)
 
 
