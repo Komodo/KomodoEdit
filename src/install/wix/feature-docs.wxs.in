@@ -341,6 +341,7 @@
                 <File Id="file30" Name="PROJTB_0.PNG" LongName="projtb_add_butt.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\projtb_add_butt.png"/>
                 <File Id="file251" LongName="break_request.png" Name="BREAK__0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\break_request.png" />
                 <File Id="file252" LongName="break_response.png" Name="BREAK__1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\break_response.png" />
+                <File Id="file314" LongName="abbreviations.png" Name="ABBREV_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\abbreviations.png" />
                 <File Id="file557" Name="APPEDI_0.PNG" LongName="app-edit.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-edit.png"/>
                 <File Id="file558" Name="APPIDE_0.PNG" LongName="app-ide-edit.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-ide-edit.png"/>
                 <File Id="file559" Name="APPIDE_1.PNG" LongName="app-ide.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-ide.png"/>
