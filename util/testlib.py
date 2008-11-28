@@ -521,7 +521,7 @@ class ConsoleTestResult(unittest.TestResult):
             self.stream.write("%s\n" % err)
 
 
-class ConsoleTestRunner:
+class ConsoleTestRunner(object):
     """A test runner class that displays results on the console.
 
     It prints out the names of tests as they are run, errors as they
