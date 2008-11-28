@@ -81,8 +81,19 @@ def setup():
     finally:
         del sys.path[0]
 
+def _setup_for_xpcom():
+    # The tests are run outside of Komodo. If run with PyXPCOM up
+    # parts codeintel will try to use the nsIDirectoryService and
+    # will query dirs only provided by nsXREDirProvider -- which
+    # isn't registered outside of Komodo (XRE_main() isn't called).
+    # The KoTestService provides a backup.
+    from xpcom import components
+    koTestSvc = components.classes["@activestate.com/koTestService;1"] \
+        .getService(components.interfaces.koITestService)
+    koTestSvc.init()
 
 if __name__ == "__main__":
+    _setup_for_xpcom()
     retval = testlib.harness(testdir_from_ns=testdir_from_ns,
                              setup_func=setup,
                              default_tags=default_tags)
