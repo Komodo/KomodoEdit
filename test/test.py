@@ -42,6 +42,10 @@ from os.path import exists, join, abspath, dirname, normpath
 import sys
 import logging
 
+
+# This is to ensure sitepyxpcom does not redirect the stdio handles.
+os.environ["KOMODO_VERBOSE"] = "1"
+
 sys.path.insert(0, normpath(join(dirname(abspath(__file__)), "..", "util")))
 import testlib
 
