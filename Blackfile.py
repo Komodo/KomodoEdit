@@ -2155,9 +2155,22 @@ def CleanPreferences(cfg, argv):
 
 def TestKomodo(cfg, argv):
     import tmShUtil
-    return tmShUtil.RunInContext(cfg.envScriptName,
-                ['cd test',
-                 'python test.py %s' % ' '.join(argv[1:])])
+    python_exe_name = "python"
+    if sys.platform == "darwin":
+        # Need to use the 'pybin' binary that we build into the
+        # Komodo/Mozilla dist/bin directory. This is a stub that runs
+        # the siloed Python with lib paths and everything setup.  If we
+        # just run 'python', we'll get the
+        #   Komodo.app/Contents/Frameworks/Python.framework/Versions/X.Y/bin/python
+        # which, in a dev build at least, results in the xpcom interface
+        # system (XPTI) attempting to load xpti.dat from
+        #   /Library/Frameworks/Python.framework/Versions/X.Y/Resources/Python.app/Contents/MacOS/components/xpti.dat
+        # which, obviously doesn't exist, and XPCOM is still born.
+        python_exe_name = "pybin"
+    return tmShUtil.RunInContext(cfg.envScriptName, [
+        'cd test',
+        '%s test.py %s' % (python_exe_name, ' '.join(argv[1:]))
+    ])
 
 def TestKomodoPerf(cfg, argv):
     # Change to the test directory (in the _install_ tree)
