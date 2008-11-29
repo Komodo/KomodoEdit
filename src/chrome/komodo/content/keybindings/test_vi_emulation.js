@@ -1135,7 +1135,7 @@ test_vi_emulation.prototype.test_search_commands = function() {
     gVimController.settings["ignorecase"] = false;
 
     this._runOperationCommands("findWordUnderCursor",
-                               "this is <|>search word\r\nmy second <1>search word <2>searched\r\n",
+                               "this is <|>search word\r\nmy second <1>search word searched\r\nmy third <2<search line\r\n",
                                //TEST_REPETITION,    // Fails
                                NO_REPETITION,
                                [VimController.OPERATION_NONE,
@@ -1146,7 +1146,7 @@ test_vi_emulation.prototype.test_search_commands = function() {
                                //["knownfailure"]);
     // Ensure it works inside a word
     this._runOperationCommands("findWordUnderCursor",
-                               "this is sear<|>ch word\r\nmy second <1>search word <2>searched\r\n",
+                               "this is sear<|>ch word\r\nmy second <1>search word searched\r\nmy third <2<search line\r\n",
                                //TEST_REPETITION,    // Fails
                                NO_REPETITION);
     this._runOperationCommands("findWordUnderCursorBack",
