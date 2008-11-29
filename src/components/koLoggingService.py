@@ -52,19 +52,20 @@ class KoLogger(logging.Logger):
     _reg_clsid_ = "{EE4DC45E-1BE7-4C3C-B521-1434FA1CF054}"
     _reg_contractid_ = "@activestate.com/koLogger;1"
     _reg_desc_ = "Komodo Logger"
-    
-# fixup the root logger to use an XPCOM logger class
-logging.root = KoLogger("root", logging.WARNING)
-logging.Logger.root = logging.root
-logging.Logger.manager = logging.Manager(logging.Logger.root)
 
 logging.setLoggerClass(KoLogger)
+
+# Fixup the root logger to use an XPCOM logger class.
+logging.root = KoLogger("root", logging.WARNING)
+logging.Logger.root = logging.root
+logging.Logger.manager.root = logging.root
+
 
 
 
 #---- XPCOM logging service
 
-class KoLoggingService:
+class KoLoggingService(object):
     """A service from which JavaScript code can use the Python logging
     infrastructure.
     """
