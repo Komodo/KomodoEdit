@@ -1503,7 +1503,7 @@ VimController.prototype.performReplace = function (searchString, replaceString,
 
             // 'g' option means "global replace". Without 'g' we only
             // replace the first hit on each line.
-            var firstOnLine = options.search('g') <= 0;
+            var firstOnLine = options.indexOf('g') == -1;
             var findres = Find_FindNext(window,
                                         findContext,
                                         searchString,
