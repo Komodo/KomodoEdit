@@ -1007,26 +1007,27 @@ entries in the log."""
 class DojoTestCase(CodeIntelTestCase):
     lang = "JavaScript"
 
+    _ci_env_prefs_ = {
+        "codeintel_selected_catalogs": ["dojo"],
+    }
+
     @tag("bug63087")
     def test_toplevel(self):
-        env = SimplePrefsEnvironment(codeintel_selected_catalogs=['dojo'])
         content, positions = unmark_text(dedent("""\
             dojo.<1>addOnLoad(<2>);
             dojo.byId(<3>);
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("function", "addOnLoad"), ("function", "byId"),
-             ("function", "require")],
-            env=env)
+             ("function", "require")])
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
-            "addOnLoad(obj, fcnName)", env=env)
+            "addOnLoad(obj, fcnName)")
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
-            "byId(id, doc)", env=env)
+            "byId(id, doc)")
 
     @tag("bug75069")
     def test_dojo_extend(self):
         """Test the handling of dojo.extend"""
-        env = SimplePrefsEnvironment(codeintel_selected_catalogs=['dojo'])
         content, positions = unmark_text(dedent("""\
             function class_bug75069 {
                 this.name = 'bug75069';
@@ -1041,13 +1042,11 @@ class DojoTestCase(CodeIntelTestCase):
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("variable", "name"),
-             ("function", "extended_fn")],
-            env=env)
+             ("function", "extended_fn")])
 
     @tag("bug75069")
     def test_dojo_declare(self):
         """Test the handling of dojo.declare"""
-        env = SimplePrefsEnvironment(codeintel_selected_catalogs=['dojo'])
         content, positions = unmark_text(dedent("""\
             // Same code from the Dojo wiki documentation:
             // http://manual.dojotoolkit.org/WikiHome/DojoDotBook/Book20
@@ -1069,17 +1068,14 @@ class DojoTestCase(CodeIntelTestCase):
             matt_bug75069.<2>moveToNewCity(<3>
         """))
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
-            "Person_bug75069(name, age, currentResidence)",
-            env=env)
+            "Person_bug75069(name, age, currentResidence)")
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
             [("variable", "name"),
              ("variable", "age"),
              ("variable", "currentResidence"),
-             ("function", "moveToNewCity")],
-            env=env)
+             ("function", "moveToNewCity")])
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
-            "moveToNewCity(newState)",
-            env=env)
+            "moveToNewCity(newState)")
 
 
 class YUITestCase(CodeIntelTestCase):
