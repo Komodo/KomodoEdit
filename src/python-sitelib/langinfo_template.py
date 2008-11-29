@@ -66,7 +66,6 @@ class DjangoHTMLTemplateLangInfo(DjangoTemplateLangInfo):
 
 class DjangoXHTMLTemplateLangInfo(DjangoTemplateLangInfo):
     name = "Django XHTML Template"
-    komodo_name = "Django"
     specialization_hints_from_lang = {
         "XHTML": [
             ('{%', re.compile(r'\{\%[ \t]+\b(block|if)\b.*?\%\}')),
