@@ -506,7 +506,7 @@ class CasperTestSuite(unittest.TestSuite):
                 detail = "Casper did not return any result for this test."
             else:
                 status = cr["result"]
-                detail = cr["detail"]
+                detail = "%s\n%s" % (cr["message"], cr["detail"])
 
             result.startTest(testcase)
             if status == "PASS":
