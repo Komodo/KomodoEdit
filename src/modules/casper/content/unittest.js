@@ -1023,6 +1023,12 @@ Casper.UnitTest.TextTestRunner.prototype.showSuiteResults = function(suite)
     }
 }
 
+Casper.UnitTest.TextTestRunner.prototype.escapeForJSON = function(data)
+{
+    data = data.replace("\n", "\\n", "g");
+    data = data.replace('"', '\\"', "g");
+    return data;
+}
 /**
  * Save the test suite runtime information to a log file as JSON.
  * 
@@ -1037,22 +1043,28 @@ Casper.UnitTest.TextTestRunner.prototype.logSuiteResults = function(suite, file,
     var num_tests_written = 0;
     try {
     function _log_test_case(file, suite, testcase_name, testfunc_name,
-                            passed, result, detail, isFirstTest) {
+                            passed, result, message, detail, isFirstTest,
+                            escapeFn) {
         if (!isFirstTest) {
             file.write(',');
         }
         file.write('\n {\n');
-        file.write('  "url": "'+suite.url+'",\n');
-        file.write('  "testcase": "'+testcase_name+'",\n');
+        file.write('  "url": "'+escapeFn(suite.url)+'",\n');
+        file.write('  "testcase": "'+escapeFn(testcase_name)+'",\n');
         if (testfunc_name != null) {
-            file.write('  "testfunc": "'+testfunc_name+'",\n');
+            file.write('  "testfunc": "'+escapeFn(testfunc_name)+'",\n');
         } else {
             file.write('  "testfunc": '+testfunc_name+',\n');
         }
         file.write('  "passed": '+passed+',\n');
-        file.write('  "result": "'+result+'",\n');
+        file.write('  "result": "'+escapeFn(result)+'",\n');
+        if (message != null) {
+            file.write('  "message": "'+escapeFn(message)+'",\n');
+        } else {
+            file.write('  "message": '+message+',\n');
+        }
         if (detail != null) {
-            file.write('  "detail": "'+detail+'"\n');
+            file.write('  "detail": "'+escapeFn(detail)+'"\n');
         } else {
             file.write('  "detail": '+detail+'\n');
         }
@@ -1081,8 +1093,10 @@ Casper.UnitTest.TextTestRunner.prototype.logSuiteResults = function(suite, file,
                                testChild.name,
                                testChild.result.passed(),
                                testChild.result.name,
+                               testChild.result.message,
                                testChild.result.detail,
-                               isFirst);
+                               isFirst,
+                               this.escapeForJSON);
                 isFirst = false;
             }
         } else {
@@ -1094,8 +1108,10 @@ Casper.UnitTest.TextTestRunner.prototype.logSuiteResults = function(suite, file,
                            null,
                            testCase.result.passed(),
                            testCase.result.name,
+                           testCase.result.message,
                            testCase.result.detail,
-                           isFirst);
+                           isFirst,
+                           this.escapeForJSON);
             isFirst = false;
         }
     }
