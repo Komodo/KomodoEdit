@@ -608,6 +608,7 @@ Casper.UnitTest.TestCaseSerialClass = function(name, testFunction, setupFn, tear
             theTest.result = new Casper.UnitTest.TestResult();
             theTest.name = i;
             theTest.testChild = [];
+            theTest.wasRun = false;
             this._testChild.push(theTest);
         }
     }
@@ -650,6 +651,8 @@ Casper.UnitTest.TestCaseSerialClass.prototype.runOne = function(theTest)
     } catch(ex) {
         theTest.result.breaks(ex);
         this.result.breaks(ex);
+    } finally {
+        theTest.wasRun = true;
     }
 }
 
