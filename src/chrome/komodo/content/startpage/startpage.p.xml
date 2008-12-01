@@ -995,19 +995,19 @@
             req.open('HEAD', url, true);
             req._browser = browser;
             var this_ = this;
-            req.onload = function (aEvt) {
+            req.onload = function (event) {
                 if(req.status == 200) {
                     var flags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE |
                                 Components.interfaces.nsIWebNavigation.LOAD_FLAGS_BYPASS_PROXY;
                     var webNav = req._browser.webNavigation;
                     webNav.loadURI(url, flags, null, null, null);
                 } else {
-                    this_.log.error("Unable to connect, status "+req.status);
+                    this_.log.warn("unable to connect, status "+req.status);
                     req._browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.html");
                 }
             };
-            req.onerror = function (e) {
-                this_.log.error("Unable to connect");
+            req.onerror = function (event {
+                this_.log.info("unable to connect (probably offline)");
                 req._browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.html");
             }
             req.send(null);
