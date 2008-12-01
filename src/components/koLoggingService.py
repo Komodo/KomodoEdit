@@ -58,8 +58,11 @@ logging.setLoggerClass(KoLogger)
 # Fixup the root logger to use an XPCOM logger class.
 logging.root = KoLogger("root", logging.WARNING)
 logging.Logger.root = logging.root
-logging.Logger.manager.root = logging.root
-
+#TODO: This replacement is orphaning all the already created loggers.
+#      Cannot do this:
+#           logging.Logger.manager.root = logging.root
+#      because the existing loggers aren't XPCOM components.
+logging.Logger.manager = logging.Manager(logging.Logger.root)
 
 
 
