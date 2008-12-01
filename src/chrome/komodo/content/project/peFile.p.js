@@ -272,7 +272,7 @@ function filename_implies_move(name) {
 }
 
 peFile.prototype.doCommand = function(command) {
-    var item, items = null;
+    var item = null, items = null;
     var i, fname, otherfile;
     var dirname = '';
     if (ko.projects.active) {
