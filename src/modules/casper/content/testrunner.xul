@@ -131,16 +131,15 @@
         </tabs>
         <tabpanels flex="1" xstyle="padding: 0px; padding-top: 8px;">
             <tabpanel orient="vertical" style="padding: 0px; margin: 0px;">
-                <toolbar id="load-toolbar">
-                <textbox id="testDir" flex="1"
-                         persist="value"
-                         onkeypress="if (event.keyCode == event.DOM_VK_ENTER ||
-                                         event.keyCode == event.DOM_VK_RETURN) {
-                                         setTestList();
-                                      }"/>
-                <toolbarbutton label="Choose..." onclick="setDirectory()"
-                               class="text-button"/>
-                </toolbar>
+                <hbox id="load-toolbar">
+                    <textbox id="testDir" flex="1"
+                             persist="value"
+                             onkeypress="if (event.keyCode == event.DOM_VK_ENTER ||
+                                             event.keyCode == event.DOM_VK_RETURN) {
+                                             setTestList();
+                                          }"/>
+                    <button label="Choose..." onclick="setDirectory()"/>
+                </hbox>
                 <listbox id="testList" flex="1">
                   <listcols>
                     <listcol flex="1"/>
@@ -151,10 +150,9 @@
                 </listbox>
             </tabpanel>
             <tabpanel orient="vertical" style="padding: 0px;  margin: 0px;">
-                <toolbar id="run-toolbar">
-                    <toolbarbutton label="Run Tests" onclick="runTests()"
-                                   class="text-button"/>
-                </toolbar>
+                <hbox id="run-toolbar">
+                    <button label="Run Tests" onclick="runTests()"/>
+                </hbox>
                 <vbox flex="1">
                     <groupbox>
                         <caption label="Results"/>
