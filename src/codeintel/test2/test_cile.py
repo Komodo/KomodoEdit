@@ -112,12 +112,11 @@ def _diffContext(diff, n=3):
     
     Note: This algorithm is not at all efficient.
     """
-    import sets
     nlines = len(diff)
-    clines = sets.Set() # set of lines to include
+    clines = set() # set of lines to include
     for i, line in enumerate(diff):
         if line[0] != ' ':
-            clines |= sets.Set(range(max(0, i-n), min(i+n+1, nlines)))
+            clines |= set(range(max(0, i-n), min(i+n+1, nlines)))
     context = []
     clines = list(clines)
     clines.sort()
