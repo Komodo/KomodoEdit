@@ -196,6 +196,9 @@ def casper_tests():
     try:
         for testpath in testpaths():
             buf = mgr.buf_from_path(testpath, lang="JavaScript")
+            # Ensure the test is up to date.
+            if buf.scan_time < os.stat(testpath).st_mtime:
+                buf.scan()
             for test in casper_tests_from_citree(buf.tree):
                 yield test
     finally:
