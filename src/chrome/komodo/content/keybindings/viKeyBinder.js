@@ -1197,13 +1197,19 @@ VimController.prototype.updateRegisters = function (text, isDeleted) {
 /**
  * Handling copy and paste (now handled internally, this._internalBuffer)
  *
- * @param scimoz {koIScimoz} Scintilla xpcom object
+ * @param scimoz {Components.interfaces.ISciMoz} Scintilla xpcom object
  * @param start {int} start position in buffer
  * @param end {int} end position in buffer
  * @param deleteRange {boolean} remove this range once copied
+ * @param ensureEndsWithNewline {boolean}
+ *        ensure the copied text ends with a newline
  */
 VimController.prototype.copyInternal = function (scimoz, start, end,
-                                                 deleteRange /* false */) {
+                                                 deleteRange /* false */,
+                                                 ensureEndsWithNewline /* false */) {
+    if (typeof(ensureEndsWithNewline) == 'undefined') {
+        ensureEndsWithNewline = false;
+    }
     try {
         if (this._currentRegister && this.regexRegisterIsReadonly.test(this._currentRegister)) {
             this.setStatusBarMessage("Cannot write to readonly register: " + this._currentRegister,
@@ -1217,6 +1223,22 @@ VimController.prototype.copyInternal = function (scimoz, start, end,
                 scimoz.targetStart = start;
                 scimoz.targetEnd = end;
                 scimoz.replaceTarget(0, "");
+            }
+            if (ensureEndsWithNewline) {
+                var lastchar = this._internalBuffer[this._internalBuffer.length - 1];
+                if (lastchar != '\r' && lastchar != '\n') {
+                    switch (scimoz.eOLMode) {
+                        case Components.interfaces.ISciMoz.SC_EOL_CR:
+                            this._internalBuffer += "\r";
+                            break;
+                        case Components.interfaces.ISciMoz.SC_EOL_CRLF:
+                            this._internalBuffer += "\r\n";
+                            break;
+                        default:
+                            this._internalBuffer += "\n";
+                            break;
+                    }
+                }
             }
             this.updateRegisters(this._internalBuffer, deleteRange);
         }
@@ -2925,7 +2947,8 @@ function cmd_vim_yankLine(scimoz, repeatCount) {
         var start = scimoz.positionFromLine(lineNo);
         var endLine = Math.min(lineNo+repeatCount, scimoz.lineCount);
         var end = scimoz.positionFromLine(endLine);
-        gVimController.copyInternal(scimoz, start, end);
+        var ensureEndsWithNewline = true;
+        gVimController.copyInternal(scimoz, start, end, false, ensureEndsWithNewline);
     } catch (e) {
         vimlog.exception(e);
     }
@@ -3031,7 +3054,9 @@ function cmd_vim_lineCut(scimoz) {
         if (lineNo < scimoz.lineCount) {
             var start = scimoz.positionFromLine(lineNo);
             var end = scimoz.positionFromLine(lineNo+1);
-            gVimController.copyInternal(scimoz, start, end, true);
+            var ensureEndsWithNewline = true;
+            gVimController.copyInternal(scimoz, start, end, true,
+                                        ensureEndsWithNewline);
         }
     } catch (e) {
         vimlog.exception(e);
@@ -3051,17 +3076,20 @@ function cmd_vim_lineCutEnd(scimoz) {
 
 function _cmd_vim_pasteLines_handler(scimoz, buf, pasteAfter, repeatCount) {
     try {
+        var noEOLOnLastLine = false;
         var currentPos = gVimController._currentPos;
-        // Go to column 0 on current line
         if (pasteAfter) {
             var lineNo = scimoz.lineFromPosition(currentPos);
-            if (lineNo == scimoz.lineCount) {
-                // Case where already on the last line (lineDown no help)
+            if (lineNo == (scimoz.lineCount - 1)) {
+                // Case where already on the last line and no EOL, bug 81184.
+                noEOLOnLastLine = true;
+                scimoz.lineEnd();
                 scimoz.newLine();
             } else {
                 scimoz.lineDown();
             }
         }
+        // Go to column 0 on current line
         scimoz.home();
         var start = scimoz.currentPos;
         // Make the complete string we are going to be pasting.
@@ -3069,11 +3097,22 @@ function _cmd_vim_pasteLines_handler(scimoz, buf, pasteAfter, repeatCount) {
         for (var i=1; i < repeatCount; i++) {
             pasteBuffer += buf;
         }
+        if (noEOLOnLastLine) {
+            // Trim the last newline from the pasted text.
+            var lastChar = pasteBuffer[pasteBuffer.length - 1];
+            var secondLastChar = pasteBuffer[pasteBuffer.length - 2];
+            if (lastChar == '\n' && secondLastChar == '\r') {
+                pasteBuffer = pasteBuffer.substr(0, pasteBuffer.length - 2);
+            } else if (lastChar == '\r' || lastChar == '\n') {
+                pasteBuffer = pasteBuffer.substr(0, pasteBuffer.length - 1);
+            }
+        }
         // Must use a byte length here, see bug 63498
-        var byteLength = ko.stringutils.bytelength(buf);
-        scimoz.addText(byteLength * repeatCount, pasteBuffer);
+        var byteLength = ko.stringutils.bytelength(pasteBuffer);
+        scimoz.addText(byteLength, pasteBuffer);
         scimoz.anchor = scimoz.currentPos;
         scimoz.currentPos = start;
+        gVimController._currentPos = start;
         scimoz.vCHomeWrap();
     } catch (e) {
         vimlog.exception(e);

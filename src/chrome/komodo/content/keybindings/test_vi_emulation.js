@@ -216,7 +216,9 @@ test_vi_emulation.prototype._repeatCommand = function(cmd, repeatCount,
     // Set repeat count and then perform then command once, should
     // result in buffer matching the bufferNew.
     gVimController.repeatCount = repeatCount;
-    gVimController.operationFlags = operationFlags;
+    if (operationFlags) {
+        gVimController.operationFlags = operationFlags;
+    }
     if (register) {
         gVimController._currentRegister = register;
     }
@@ -260,17 +262,21 @@ test_vi_emulation.prototype._repeatCommand = function(cmd, repeatCount,
  * @param testRepeat {boolean}  Test the command using a repeat count.
  * @param operationFlags {array}  The operations to run the command with
  * @param tags {array}  List of specific test tag names
+ * @param resetMode {boolean}  Perform a vi basic reset before running.
  */
 test_vi_emulation.prototype._runRegisterCommand = function(cmd,
                                                    buffers,
                                                    register /* null */,
                                                    testRepeat, /* false */
                                                    operationFlags, /* OPERATION_NONE */
-                                                   tags /* null */) {
+                                                   tags /* null */,
+                                                   resetMode /* true */) {
     log.info("\n\n*************************************");
     log.info(cmd);
     log.info("*************************************\n");
-    this._reset();
+    if (typeof(resetMode) == 'undefined' || resetMode) {
+        this._reset();
+    }
     // <|> represents the cursor position
     var bufferOrig = buffers[0];
     var cursorOrigPos = bufferOrig.indexOf("<|>");
@@ -339,13 +345,15 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
  * @param testRepeat {boolean}  Test the command using a repeat count.
  * @param operationFlags {array}  The operations to run the command with
  * @param tags {array}  List of specific test tag names
+ * @param resetMode {boolean}  Perform a vi basic reset before running.
  */
 test_vi_emulation.prototype._runCommand = function(cmd,
                                                    buffers,
                                                    testRepeat, /* false */
                                                    operationFlags, /* OPERATION_NONE */
-                                                   tags /* null */) {
-    this._runRegisterCommand(cmd, buffers, testRepeat, operationFlags, tags);
+                                                   tags /* null */,
+                                                   resetMode /* true */) {
+    this._runRegisterCommand(cmd, buffers, null, testRepeat, operationFlags, tags, resetMode);
 }
 
 /**
@@ -1503,6 +1511,29 @@ test_vi_emulation.prototype.test_bug72411_search_replace = function() {
                           '    run_local("n");\n' +
                           '    run_local("n");\n' +
                           '}\n']);
+}
+
+test_vi_emulation.prototype.test_bug81184_no_eol_at_eof = function() {
+    // bug 81184 - yank/delete at the end of the file when there is no EOL.
+    this._runCommand("lineCut",
+                     ["this is<|>",
+                      "<|>"]);
+    this.assertEqual(gVimController._registers["1"],
+                     "this is\r\n",
+                     "'dd' on last line with no EOL failed!");
+    this._runCommand("yankLine",
+                     ["this is<|>",
+                      "this is<|>"]);
+    this.assertEqual(gVimController._registers["1"],
+                     "this is\r\n",
+                     "'yy' on last line with no EOL failed!");
+    this._runCommand("pasteAfter",
+                     ["this is<|>",
+                      "this is\r\n<|>this is"],
+                     NO_REPETITION,
+                     VimController.OPERATION_NONE,
+                     null,
+                     false);
 }
 
 
