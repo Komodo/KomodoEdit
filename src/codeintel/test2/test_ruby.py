@@ -1218,7 +1218,8 @@ class _BaseTestCase(CodeIntelTestCase):
             Invokes `block' with the sequence of numbers starting at
             `num', incremented by `step' on each call. The loop finishes
             when the value to be passed to the block is greater than
-            `limit' (if `step' is positive) or less than `limit' (if"""))
+            `limit' (if `step' is positive) or less than `limit' (if
+            `step' is negative)."""))
 
     def test_delayed_type_info(self):
         code = dedent("""\
@@ -1253,7 +1254,8 @@ class _BaseTestCase(CodeIntelTestCase):
     int.ceil      => int
     int.round     => int
     int.truncate  => int
-    As `int' is already an Integer, all these methods simply"""))
+    As `int' is already an Integer, all these methods simply
+    return the receiver."""))
 
     def test_fixnum(self):
         ruby_literals, positions = unmark_text(dedent("""
@@ -1267,7 +1269,7 @@ class _BaseTestCase(CodeIntelTestCase):
                 `num', incremented by `step' on each call. The loop finishes
                 when the value to be passed to the block is greater than
                 `limit' (if `step' is positive) or less than `limit' (if
-            """).strip())
+                `step' is negative).""").strip())
 
     @tag("bug60687")
     def test_literals(self):
@@ -1330,6 +1332,7 @@ class _BaseTestCase(CodeIntelTestCase):
                 Returns an array containing the items in `enum' sorted,
                 either according to their own <=> method, or by using the
                 results of the supplied block. The block should return -1,
+                0, or +1 depending on the comparison between `a' and `b'.
             """).strip())
         self.assertCalltipIs(
             markup_text(ruby_literals, pos=positions[2]),
@@ -1344,6 +1347,7 @@ class _BaseTestCase(CodeIntelTestCase):
                 returns a subarray starting at `start' and continuing for
                 `length' elements, or returns a subarray specified by
                 `range'. Negative indices count backward from the end of the
+                array (-1 is the last element).
             """).strip())
         self.assertCalltipIs(
             markup_text(ruby_literals, pos=positions[3]),
@@ -1415,6 +1419,7 @@ class _BaseTestCase(CodeIntelTestCase):
                 `num', incremented by `step' on each call. The loop finishes
                 when the value to be passed to the block is greater than
                 `limit' (if `step' is positive) or less than `limit' (if
+                `step' is negative).
             """).strip(),
             implicit=False)
 

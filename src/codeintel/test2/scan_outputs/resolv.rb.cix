@@ -115,7 +115,7 @@
           <variable attributes="__instancevar__ __local__" citdl="Config" line="382" name="@config" />
           <variable attributes="__instancevar__ __local__" line="383" name="@initialized" />
           <variable attributes="__instancevar__ __local__" citdl="Requester::ConnectedUDP" line="392" name="@requester" />
-          <scope attributes="__classmethod__" doc="STD0013 (RFC 1035, etc.) ftp://ftp.isi.edu/in-&#xA;notes/iana/assignments/dns-parameters" ilk="function" line="370" lineend="378" name="open" signature="self.open(*args)">
+          <scope attributes="__classmethod__" doc="STD0013 (RFC 1035, etc.) ftp://ftp.isi.edu/in-&#10;notes/iana/assignments/dns-parameters" ilk="function" line="370" lineend="378" name="open" signature="self.open(*args)">
             <variable ilk="argument" name="*args" />
             <variable attributes="__local__" line="371" name="dns" />
           </scope>

@@ -33,7 +33,7 @@
           <variable ilk="argument" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="48" name="self" />
         </scope>
-        <scope doc="*** ATTENTION *** &apos;current_configinfo&apos; method always returns&#xA;a Hash under all cases of above." ilk="function" line="72" lineend="78" name="error_at" signature="error_at">
+        <scope doc="*** ATTENTION *** 'current_configinfo' method always returns&#10;a Hash under all cases of above." ilk="function" line="72" lineend="78" name="error_at" signature="error_at">
           <variable attributes="__local__" citdl="TkComm" line="72" name="self" />
           <variable attributes="__local__" line="73" name="frames" />
         </scope>
@@ -238,14 +238,14 @@
           <variable ilk="argument" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="900" name="self" />
         </scope>
-        <scope doc="def bind(tagOrClass, context, cmd=Proc.new, *args)&#xA;_bind([&quot;bind&quot;, tagOrClass], context, cmd, *args) tagOrClass&#xA;end" ilk="function" line="914" lineend="923" name="bind" signature="bind(tagOrClass, context, *args)">
+        <scope doc="def bind(tagOrClass, context, cmd=Proc.new, *args)&#10;_bind([&quot;bind&quot;, tagOrClass], context, cmd, *args) tagOrClass&#10;end" ilk="function" line="914" lineend="923" name="bind" signature="bind(tagOrClass, context, *args)">
           <variable ilk="argument" name="tagOrClass" />
           <variable ilk="argument" name="context" />
           <variable ilk="argument" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="914" name="self" />
           <variable attributes="__local__" citdl="Proc" line="917" name="cmd" />
         </scope>
-        <scope doc="def bind_append(tagOrClass, context, cmd=Proc.new, *args)&#xA;_bind_append([&quot;bind&quot;, tagOrClass], context, cmd, *args)&#xA;tagOrClass end" ilk="function" line="929" lineend="938" name="bind_append" signature="bind_append(tagOrClass, context, *args)">
+        <scope doc="def bind_append(tagOrClass, context, cmd=Proc.new, *args)&#10;_bind_append([&quot;bind&quot;, tagOrClass], context, cmd, *args)&#10;tagOrClass end" ilk="function" line="929" lineend="938" name="bind_append" signature="bind_append(tagOrClass, context, *args)">
           <variable ilk="argument" name="tagOrClass" />
           <variable ilk="argument" name="context" />
           <variable ilk="argument" name="*args" />
@@ -262,13 +262,13 @@
           <variable ilk="argument" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="945" name="self" />
         </scope>
-        <scope doc="def bind_all(context, cmd=Proc.new, *args) _bind([&apos;bind&apos;,&#xA;&apos;all&apos;], context, cmd, *args) TkBindTag::ALL end" ilk="function" line="953" lineend="962" name="bind_all" signature="bind_all(context, *args)">
+        <scope doc="def bind_all(context, cmd=Proc.new, *args) _bind(['bind',&#10;'all'], context, cmd, *args) TkBindTag::ALL end" ilk="function" line="953" lineend="962" name="bind_all" signature="bind_all(context, *args)">
           <variable ilk="argument" name="context" />
           <variable ilk="argument" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="953" name="self" />
           <variable attributes="__local__" citdl="Proc" line="956" name="cmd" />
         </scope>
-        <scope doc="def bind_append_all(context, cmd=Proc.new, *args)&#xA;_bind_append([&apos;bind&apos;, &apos;all&apos;], context, cmd, *args)&#xA;TkBindTag::ALL end" ilk="function" line="968" lineend="977" name="bind_append_all" signature="bind_append_all(context, *args)">
+        <scope doc="def bind_append_all(context, cmd=Proc.new, *args)&#10;_bind_append(['bind', 'all'], context, cmd, *args)&#10;TkBindTag::ALL end" ilk="function" line="968" lineend="977" name="bind_append_all" signature="bind_append_all(context, *args)">
           <variable ilk="argument" name="context" />
           <variable ilk="argument" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="968" name="self" />
@@ -650,14 +650,14 @@
         <scope attributes="__classmethod__" ilk="function" line="1815" lineend="1817" name="strictMotif" signature="Tk.strictMotif(bool=None)">
           <variable ilk="argument" name="bool" />
         </scope>
-        <scope attributes="__classmethod__" ilk="function" line="1819" lineend="1826" name="show_kinsoku" signature="Tk.show_kinsoku(mode=&apos;both&apos;)">
+        <scope attributes="__classmethod__" ilk="function" line="1819" lineend="1826" name="show_kinsoku" signature="Tk.show_kinsoku(mode='both')">
           <variable ilk="argument" name="mode" />
         </scope>
-        <scope attributes="__classmethod__" ilk="function" line="1827" lineend="1838" name="add_kinsoku" signature="Tk.add_kinsoku(chars, mode=&apos;both&apos;)">
+        <scope attributes="__classmethod__" ilk="function" line="1827" lineend="1838" name="add_kinsoku" signature="Tk.add_kinsoku(chars, mode='both')">
           <variable ilk="argument" name="chars" />
           <variable ilk="argument" name="mode" />
         </scope>
-        <scope attributes="__classmethod__" ilk="function" line="1839" lineend="1847" name="delete_kinsoku" signature="Tk.delete_kinsoku(chars, mode=&apos;both&apos;)">
+        <scope attributes="__classmethod__" ilk="function" line="1839" lineend="1847" name="delete_kinsoku" signature="Tk.delete_kinsoku(chars, mode='both')">
           <variable ilk="argument" name="chars" />
           <variable ilk="argument" name="mode" />
         </scope>
@@ -670,7 +670,7 @@
           <variable ilk="argument" name="encoding" />
         </scope>
       </scope>
-      <scope doc="string with Tcl&apos;s encoding" ilk="namespace" line="1861" lineend="1877" name="Tk">
+      <scope doc="string with Tcl's encoding" ilk="namespace" line="1861" lineend="1877" name="Tk">
         <scope attributes="__classmethod__" ilk="function" line="1862" lineend="1864" name="subst_utf_backslash" signature="Tk.subst_utf_backslash(str)">
           <variable ilk="argument" name="str" />
         </scope>
@@ -784,13 +784,13 @@
         </scope>
       </scope>
       <scope ilk="namespace" line="2128" lineend="2162" name="TkBindCore">
-        <scope doc="def bind(context, cmd=Proc.new, *args) Tk.bind(self,&#xA;context, cmd, *args) end" ilk="function" line="2132" lineend="2140" name="bind" signature="bind(context, *args)">
+        <scope doc="def bind(context, cmd=Proc.new, *args) Tk.bind(self,&#10;context, cmd, *args) end" ilk="function" line="2132" lineend="2140" name="bind" signature="bind(context, *args)">
           <variable ilk="argument" name="context" />
           <variable ilk="argument" name="*args" />
           <variable attributes="__local__" citdl="TkBindCore" line="2132" name="self" />
           <variable attributes="__local__" citdl="Proc" line="2135" name="cmd" />
         </scope>
-        <scope doc="def bind_append(context, cmd=Proc.new, *args)&#xA;Tk.bind_append(self, context, cmd, *args) end" ilk="function" line="2145" lineend="2153" name="bind_append" signature="bind_append(context, *args)">
+        <scope doc="def bind_append(context, cmd=Proc.new, *args)&#10;Tk.bind_append(self, context, cmd, *args) end" ilk="function" line="2145" lineend="2153" name="bind_append" signature="bind_append(context, *args)">
           <variable ilk="argument" name="context" />
           <variable ilk="argument" name="*args" />
           <variable attributes="__local__" citdl="TkBindCore" line="2145" name="self" />
@@ -1061,7 +1061,7 @@
         <variable attributes="__alias__" citdl="eventloop_wait_destroy" line="3887" name="eventloop_tkwait_window" />
         <variable attributes="__alias__" citdl="thread_wait_destroy" line="3889" name="thread_tkwait_destroy" />
         <variable attributes="__alias__" citdl="thread_wait_destroy" line="3890" name="thread_tkwait_window" />
-        <scope attributes="__classmethod__" doc="WidgetClassNames[WidgetClassName] = self ==&gt; If self is a&#xA;widget class, entry to the WidgetClassNames table." ilk="function" line="3333" lineend="3335" name="to_eval" signature="self.to_eval" />
+        <scope attributes="__classmethod__" doc="WidgetClassNames[WidgetClassName] = self ==&gt; If self is a&#10;widget class, entry to the WidgetClassNames table." ilk="function" line="3333" lineend="3335" name="to_eval" signature="self.to_eval" />
         <scope attributes="__ctor__" ilk="function" line="3337" lineend="3404" name="initialize" signature="initialize(parent=nil, keys=nil)">
           <variable ilk="argument" name="parent" />
           <variable ilk="argument" name="keys" />
@@ -1304,7 +1304,7 @@
           <variable attributes="__local__" citdl="TkWindow" line="3926" name="self" />
         </scope>
       </scope>
-      <scope doc="freeze core modules TclTkLib.freeze TclTkIp.freeze&#xA;TkUtil.freeze TkKernel.freeze" ilk="namespace" line="3942" lineend="3951" name="Tk">
+      <scope doc="freeze core modules TclTkLib.freeze TclTkIp.freeze&#10;TkUtil.freeze TkKernel.freeze" ilk="namespace" line="3942" lineend="3951" name="Tk">
         <variable line="3943" name="RELEASE_DATE" />
       </scope>
     </scope>

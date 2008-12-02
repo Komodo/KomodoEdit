@@ -2,7 +2,7 @@
   <file lang="Ruby" mtime="42" path="scan_inputs/optparse.rb">
     <scope ilk="blob" lang="Ruby" name="optparse" src="scan_inputs/optparse.rb">
       <variable line="1814" name="Version" />
-      <scope classrefs="Object" doc="optparse.rb - command-line option analysis with the&#xA;OptionParser class." ilk="class" line="193" lineend="1807" name="OptionParser">
+      <scope classrefs="Object" doc="optparse.rb - command-line option analysis with the&#10;OptionParser class." ilk="class" line="193" lineend="1807" name="OptionParser">
         <import line="734" module="optparse/version" symbol="*" />
         <variable line="195" name="RCSID" />
         <variable line="196" name="Version" />
@@ -96,7 +96,7 @@
             <variable ilk="argument" name="block" />
             <variable attributes="__local__" citdl="Switch" line="300" name="self" />
           </scope>
-          <scope doc="OptionParser::Switch#parse_arg(arg) {non-serious error&#xA;handler}" ilk="function" line="319" lineend="336" name="parse_arg" signature="parse_arg(arg)">
+          <scope doc="OptionParser::Switch#parse_arg(arg) {non-serious error&#10;handler}" ilk="function" line="319" lineend="336" name="parse_arg" signature="parse_arg(arg)">
             <variable ilk="argument" name="arg" />
             <variable attributes="__local__" citdl="Switch" line="319" name="self" />
             <variable attributes="__local__" citdl="Array" line="326" name="m" />
@@ -108,7 +108,7 @@
             <variable attributes="__local__" citdl="Switch" line="355" name="self" />
             <variable attributes="__local__" line="358" name="val" />
           </scope>
-          <scope doc="OptionParser::Switch#summarize(sdone, ldone, width, max,&#xA;indent)" ilk="function" line="388" lineend="417" name="summarize" signature="summarize(sdone = [], ldone = [], width = 1, max = width - 1, indent = &quot;&quot;)">
+          <scope doc="OptionParser::Switch#summarize(sdone, ldone, width, max,&#10;indent)" ilk="function" line="388" lineend="417" name="summarize" signature="summarize(sdone = [], ldone = [], width = 1, max = width - 1, indent = &quot;&quot;)">
             <variable ilk="argument" name="sdone" />
             <variable ilk="argument" name="ldone" />
             <variable ilk="argument" name="width" />
@@ -158,7 +158,7 @@
             </scope>
           </scope>
         </scope>
-        <scope classrefs="Object" doc="Simple option list providing mapping from short and/or long&#xA;option string to ((&lt;OptionParser::Switch&gt;)), and mapping&#xA;from acceptable argument to matching pattern and converter&#xA;pair." ilk="class" line="498" lineend="659" name="List">
+        <scope classrefs="Object" doc="Simple option list providing mapping from short and/or long&#10;option string to ((&lt;OptionParser::Switch&gt;)), and mapping&#10;from acceptable argument to matching pattern and converter&#10;pair." ilk="class" line="498" lineend="659" name="List">
           <variable attributes="__instancevar__ __local__" citdl="Hash" line="500" name="@atype" />
           <variable attributes="__instancevar__ __local__" citdl="OptionMap" line="503" name="@short" />
           <variable attributes="__instancevar__ __local__" citdl="OptionMap" line="506" name="@long" />
@@ -192,11 +192,11 @@
             <variable attributes="__local__" line="559" name="o" />
             <variable attributes="__local__" line="563" name="used" />
           </scope>
-          <scope doc="OptionParser::List#prepend(switch, short_opts, long_opts,&#xA;nolong_opts)" ilk="function" line="573" lineend="576" name="prepend" signature="prepend(*args)">
+          <scope doc="OptionParser::List#prepend(switch, short_opts, long_opts,&#10;nolong_opts)" ilk="function" line="573" lineend="576" name="prepend" signature="prepend(*args)">
             <variable ilk="argument" name="*args" />
             <variable attributes="__local__" citdl="List" line="573" name="self" />
           </scope>
-          <scope doc="OptionParser::List#append(switch, short_opts, long_opts,&#xA;nolong_opts)" ilk="function" line="592" lineend="595" name="append" signature="append(*args)">
+          <scope doc="OptionParser::List#append(switch, short_opts, long_opts,&#10;nolong_opts)" ilk="function" line="592" lineend="595" name="append" signature="append(*args)">
             <variable ilk="argument" name="*args" />
             <variable attributes="__local__" citdl="List" line="592" name="self" />
           </scope>
@@ -227,7 +227,7 @@
             <variable attributes="__local__" citdl="CompletingHash" line="672" name="self" />
           </scope>
         </scope>
-        <scope attributes="__classmethod__" doc="&apos;#&quot;#`#" ilk="function" line="771" lineend="775" name="with" signature="self.with(*args, &amp;block)">
+        <scope attributes="__classmethod__" doc="'#&quot;#`#" ilk="function" line="771" lineend="775" name="with" signature="self.with(*args, &amp;block)">
           <variable ilk="argument" name="*args" />
           <variable ilk="argument" name="&amp;block" />
           <variable attributes="__local__" line="772" name="opts" />
@@ -240,7 +240,7 @@
           <variable ilk="argument" name="*args" />
           <variable attributes="__local__" citdl="OptionParser" line="790" name="self" />
         </scope>
-        <scope attributes="__ctor__" doc="&apos;#&quot;#`#" ilk="function" line="807" lineend="815" name="initialize" signature="initialize(banner = nil, width = 32, indent = &apos; &apos; * 4)">
+        <scope attributes="__ctor__" doc="'#&quot;#`#" ilk="function" line="807" lineend="815" name="initialize" signature="initialize(banner = nil, width = 32, indent = ' ' * 4)">
           <variable ilk="argument" name="banner" />
           <variable ilk="argument" name="width" />
           <variable ilk="argument" name="indent" />
@@ -250,7 +250,7 @@
           <variable attributes="__local__" citdl="OptionParser" line="818" name="self" />
           <variable attributes="__local__" line="819" name="list" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="833" lineend="835" name="terminate" signature="terminate(arg = nil)">
+        <scope doc="'#&quot;#`#" ilk="function" line="833" lineend="835" name="terminate" signature="terminate(arg = nil)">
           <variable ilk="argument" name="arg" />
           <variable attributes="__local__" citdl="OptionParser" line="833" name="self" />
         </scope>
@@ -258,7 +258,7 @@
           <variable ilk="argument" name="arg" />
         </scope>
         <scope attributes="__classmethod__" ilk="function" line="841" name="top" signature="self.top()" />
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="855" name="accept" signature="accept(*args, &amp;blk)">
+        <scope doc="'#&quot;#`#" ilk="function" line="855" name="accept" signature="accept(*args, &amp;blk)">
           <variable ilk="argument" name="*args" />
           <variable ilk="argument" name="&amp;blk" />
           <variable attributes="__local__" citdl="OptionParser" line="855" name="self" />
@@ -267,7 +267,7 @@
           <variable ilk="argument" name="*args" />
           <variable ilk="argument" name="&amp;blk" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="866" name="reject" signature="reject(*args, &amp;blk)">
+        <scope doc="'#&quot;#`#" ilk="function" line="866" name="reject" signature="reject(*args, &amp;blk)">
           <variable ilk="argument" name="*args" />
           <variable ilk="argument" name="&amp;blk" />
           <variable attributes="__local__" citdl="OptionParser" line="866" name="self" />
@@ -290,7 +290,7 @@
         <scope ilk="function" line="890" lineend="890" name="summary_indent=">
           <variable ilk="argument" name="summary_indent" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="892" lineend="894" name="banner" signature="banner">
+        <scope doc="'#&quot;#`#" ilk="function" line="892" lineend="894" name="banner" signature="banner">
           <variable attributes="__local__" citdl="OptionParser" line="892" name="self" />
         </scope>
         <scope ilk="function" line="896" lineend="898" name="program_name" signature="program_name">
@@ -302,7 +302,7 @@
         <scope ilk="function" line="917" lineend="917" name="release=">
           <variable ilk="argument" name="release" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="919" lineend="921" name="version" signature="version">
+        <scope doc="'#&quot;#`#" ilk="function" line="919" lineend="921" name="version" signature="version">
           <variable attributes="__local__" citdl="OptionParser" line="919" name="self" />
         </scope>
         <scope ilk="function" line="923" lineend="925" name="release" signature="release">
@@ -320,19 +320,19 @@
           <variable ilk="argument" name="mesg" />
           <variable attributes="__local__" citdl="OptionParser" line="939" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="947" lineend="949" name="top" signature="top">
+        <scope doc="'#&quot;#`#" ilk="function" line="947" lineend="949" name="top" signature="top">
           <variable attributes="__local__" citdl="OptionParser" line="947" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="955" lineend="957" name="base" signature="base">
+        <scope doc="'#&quot;#`#" ilk="function" line="955" lineend="957" name="base" signature="base">
           <variable attributes="__local__" citdl="OptionParser" line="955" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="963" lineend="970" name="new" signature="new">
+        <scope doc="'#&quot;#`#" ilk="function" line="963" lineend="970" name="new" signature="new">
           <variable attributes="__local__" citdl="OptionParser" line="963" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="976" lineend="978" name="remove" signature="remove">
+        <scope doc="'#&quot;#`#" ilk="function" line="976" lineend="978" name="remove" signature="remove">
           <variable attributes="__local__" citdl="OptionParser" line="976" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="996" lineend="999" name="summarize" signature="summarize(to = [], width = @summary_width, max = width - 1, indent = @summary_indent, &amp;blk)">
+        <scope doc="'#&quot;#`#" ilk="function" line="996" lineend="999" name="summarize" signature="summarize(to = [], width = @summary_width, max = width - 1, indent = @summary_indent, &amp;blk)">
           <variable ilk="argument" name="to" />
           <variable ilk="argument" name="width" />
           <variable ilk="argument" name="max" />
@@ -340,13 +340,13 @@
           <variable ilk="argument" name="&amp;blk" />
           <variable attributes="__local__" citdl="OptionParser" line="996" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1006" name="help" signature="help">
+        <scope doc="'#&quot;#`#" ilk="function" line="1006" name="help" signature="help">
           <variable attributes="__local__" citdl="OptionParser" line="1006" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1013" name="to_a" signature="to_a">
+        <scope doc="'#&quot;#`#" ilk="function" line="1013" name="to_a" signature="to_a">
           <variable attributes="__local__" citdl="OptionParser" line="1013" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1065" lineend="1075" name="notwice" signature="notwice(obj, prv, msg)">
+        <scope doc="'#&quot;#`#" ilk="function" line="1065" lineend="1075" name="notwice" signature="notwice(obj, prv, msg)">
           <variable ilk="argument" name="obj" />
           <variable ilk="argument" name="prv" />
           <variable ilk="argument" name="msg" />
@@ -367,7 +367,7 @@
           <variable attributes="__local__" line="1127" name="not_style" />
           <variable attributes="__local__" line="1181" name="s" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1206" lineend="1209" name="define" signature="define(*opts, &amp;block)">
+        <scope doc="'#&quot;#`#" ilk="function" line="1206" lineend="1209" name="define" signature="define(*opts, &amp;block)">
           <variable ilk="argument" name="*opts" />
           <variable ilk="argument" name="&amp;block" />
           <variable attributes="__local__" citdl="OptionParser" line="1206" name="self" />
@@ -401,7 +401,7 @@
           <variable ilk="argument" name="string" />
           <variable attributes="__local__" citdl="OptionParser" line="1236" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1258" lineend="1261" name="order" signature="order(*argv, &amp;block)">
+        <scope doc="'#&quot;#`#" ilk="function" line="1258" lineend="1261" name="order" signature="order(*argv, &amp;block)">
           <variable ilk="argument" name="*argv" />
           <variable ilk="argument" name="&amp;block" />
           <variable attributes="__local__" citdl="OptionParser" line="1258" name="self" />
@@ -414,7 +414,7 @@
           <variable attributes="__local__" line="1292" name="val" />
           <variable attributes="__local__" line="1293" name="has_arg" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1338" lineend="1341" name="permute" signature="permute(*argv)">
+        <scope doc="'#&quot;#`#" ilk="function" line="1338" lineend="1341" name="permute" signature="permute(*argv)">
           <variable ilk="argument" name="*argv" />
           <variable attributes="__local__" citdl="OptionParser" line="1338" name="self" />
           <variable attributes="__local__" line="1339" name="argv" />
@@ -425,7 +425,7 @@
           <variable attributes="__local__" citdl="Array" line="1344" name="nonopts" />
           <variable attributes="__local__" line="1345" name="arg" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1364" lineend="1367" name="parse" signature="parse(*argv)">
+        <scope doc="'#&quot;#`#" ilk="function" line="1364" lineend="1367" name="parse" signature="parse(*argv)">
           <variable ilk="argument" name="*argv" />
           <variable attributes="__local__" citdl="OptionParser" line="1364" name="self" />
           <variable attributes="__local__" line="1365" name="argv" />
@@ -434,35 +434,35 @@
           <variable ilk="argument" name="argv" />
           <variable attributes="__local__" citdl="OptionParser" line="1369" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1389" lineend="1395" name="visit" signature="visit(id, *args, &amp;block)">
+        <scope doc="'#&quot;#`#" ilk="function" line="1389" lineend="1395" name="visit" signature="visit(id, *args, &amp;block)">
           <variable ilk="argument" name="id" />
           <variable ilk="argument" name="*args" />
           <variable ilk="argument" name="&amp;block" />
           <variable attributes="__local__" citdl="OptionParser" line="1389" name="self" />
           <variable attributes="__local__" line="1390" name="el" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1410" lineend="1415" name="search" signature="search(id, k)">
+        <scope doc="'#&quot;#`#" ilk="function" line="1410" lineend="1415" name="search" signature="search(id, k)">
           <variable ilk="argument" name="id" />
           <variable ilk="argument" name="k" />
           <variable attributes="__local__" citdl="OptionParser" line="1410" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1434" lineend="1442" name="complete" signature="complete(typ, opt, icase = false, *pat)">
+        <scope doc="'#&quot;#`#" ilk="function" line="1434" lineend="1442" name="complete" signature="complete(typ, opt, icase = false, *pat)">
           <variable ilk="argument" name="typ" />
           <variable ilk="argument" name="opt" />
           <variable ilk="argument" name="icase" />
           <variable ilk="argument" name="*pat" />
           <variable attributes="__local__" citdl="OptionParser" line="1434" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1454" lineend="1466" name="load" signature="load(filename = nil)">
+        <scope doc="'#&quot;#`#" ilk="function" line="1454" lineend="1466" name="load" signature="load(filename = nil)">
           <variable ilk="argument" name="filename" />
           <variable attributes="__local__" citdl="OptionParser" line="1454" name="self" />
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="function" line="1476" lineend="1479" name="environment" signature="environment(env = File.basename($0, &apos;.*&apos;))">
+        <scope doc="'#&quot;#`#" ilk="function" line="1476" lineend="1479" name="environment" signature="environment(env = File.basename($0, '.*'))">
           <variable ilk="argument" name="env" />
           <variable attributes="__local__" citdl="OptionParser" line="1476" name="self" />
           <variable attributes="__local__" line="1477" name="env" />
         </scope>
-        <scope classrefs="RuntimeError" doc="&apos;#&quot;#`#" ilk="class" line="1617" lineend="1656" name="ParseError">
+        <scope classrefs="RuntimeError" doc="'#&quot;#`#" ilk="class" line="1617" lineend="1656" name="ParseError">
           <variable line="1618" name="Reason" />
           <variable attributes="__alias__" citdl="message" line="1654" name="to_s" />
           <variable attributes="__alias__" citdl="message" line="1655" name="to_str" />
@@ -495,23 +495,23 @@
             <variable attributes="__local__" citdl="ParseError" line="1650" name="self" />
           </scope>
         </scope>
-        <scope classrefs="ParseError" doc="&apos;#&quot;#`#" ilk="class" line="1664" lineend="1666" name="AmbiguousOption" />
-        <scope classrefs="ParseError" doc="&apos;#&quot;#`#" ilk="class" line="1675" lineend="1677" name="NeedlessArgument" />
-        <scope classrefs="ParseError" doc="&apos;#&quot;#`#" ilk="class" line="1686" lineend="1688" name="MissingArgument" />
-        <scope classrefs="ParseError" doc="&apos;#&quot;#`#" ilk="class" line="1696" lineend="1698" name="InvalidOption" />
-        <scope classrefs="ParseError" doc="&apos;#&quot;#`#" ilk="class" line="1706" lineend="1708" name="InvalidArgument" />
-        <scope classrefs="InvalidArgument" doc="&apos;#&quot;#`#" ilk="class" line="1716" lineend="1718" name="AmbiguousArgument" />
-        <scope doc="&apos;#&quot;#`#" ilk="namespace" line="1728" lineend="1794" name="Arguable">
+        <scope classrefs="ParseError" doc="'#&quot;#`#" ilk="class" line="1664" lineend="1666" name="AmbiguousOption" />
+        <scope classrefs="ParseError" doc="'#&quot;#`#" ilk="class" line="1675" lineend="1677" name="NeedlessArgument" />
+        <scope classrefs="ParseError" doc="'#&quot;#`#" ilk="class" line="1686" lineend="1688" name="MissingArgument" />
+        <scope classrefs="ParseError" doc="'#&quot;#`#" ilk="class" line="1696" lineend="1698" name="InvalidOption" />
+        <scope classrefs="ParseError" doc="'#&quot;#`#" ilk="class" line="1706" lineend="1708" name="InvalidArgument" />
+        <scope classrefs="InvalidArgument" doc="'#&quot;#`#" ilk="class" line="1716" lineend="1718" name="AmbiguousArgument" />
+        <scope doc="'#&quot;#`#" ilk="namespace" line="1728" lineend="1794" name="Arguable">
           <variable attributes="__instancevar__ __local__" citdl="opt" line="1738" name="@optparse" />
-          <scope doc="&apos;#&quot;#`#" ilk="function" line="1737" lineend="1744" name="options=" signature="options=(opt)">
+          <scope doc="'#&quot;#`#" ilk="function" line="1737" lineend="1744" name="options=" signature="options=(opt)">
             <variable ilk="argument" name="opt" />
             <variable attributes="__local__" citdl="Arguable" line="1737" name="self" />
             <scope classrefs="Object" ilk="class" line="1739" lineend="1742" name="self" />
           </scope>
-          <scope doc="&apos;#&quot;#`#" ilk="function" line="1761" lineend="1770" name="options" signature="options">
+          <scope doc="'#&quot;#`#" ilk="function" line="1761" lineend="1770" name="options" signature="options">
             <variable attributes="__local__" citdl="Arguable" line="1761" name="self" />
           </scope>
-          <scope doc="&apos;#&quot;#`#" ilk="function" line="1779" name="order!" signature="order!(&amp;blk)">
+          <scope doc="'#&quot;#`#" ilk="function" line="1779" name="order!" signature="order!(&amp;blk)">
             <variable ilk="argument" name="&amp;blk" />
             <variable attributes="__local__" citdl="Arguable" line="1779" name="self" />
           </scope>
@@ -521,7 +521,7 @@
           <scope ilk="function" line="1781" name="parse!" signature="parse!()">
             <variable attributes="__local__" citdl="Arguable" line="1781" name="self" />
           </scope>
-          <scope attributes="__classmethod__" doc="&apos;#&quot;#`#" ilk="function" line="1786" lineend="1789" name="extend_object" signature="self.extend_object(obj)">
+          <scope attributes="__classmethod__" doc="'#&quot;#`#" ilk="function" line="1786" lineend="1789" name="extend_object" signature="self.extend_object(obj)">
             <variable ilk="argument" name="obj" />
           </scope>
           <scope attributes="__ctor__" ilk="function" line="1790" lineend="1793" name="initialize" signature="initialize(*args)">
@@ -529,7 +529,7 @@
             <variable attributes="__local__" citdl="Arguable" line="1790" name="self" />
           </scope>
         </scope>
-        <scope doc="&apos;#&quot;#`#" ilk="namespace" line="1802" lineend="1806" name="Acceptables" />
+        <scope doc="'#&quot;#`#" ilk="namespace" line="1802" lineend="1806" name="Acceptables" />
       </scope>
     </scope>
   </file>
