@@ -81,5 +81,12 @@ class koIDLLanguage(KoLanguageBase):
                        "unsigned", "void", "wchar", "wstring", "fixed",
                        # keywords appearing inside brackets
                        "array", "nsid", "ptr", "ref", "retval", "scriptable", "shared",
-                       "iid_is", "notxpcom", "noscript", "uuid"]
+                       "iid_is", "notxpcom", "noscript", "uuid",
+                       # Corba idl keywords that are not supported by Mozilla,
+                       # but are still reserved keywords.
+                       # http://www.mozilla.org/scriptable/xpidl/notes/keywords.txt
+                       "any", "case", "context", "default", "enum", "exception",
+                       "fixed", "module", "none", "oneway", "raises",
+                       "sequence", "struct", "switch", "union",
+    ]
 
