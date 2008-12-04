@@ -189,7 +189,7 @@ class TestKoDocumentBase(unittest.TestCase):
             assert not document.haveAutoSave()
             
             # test the autosave filename
-            doc_asfn = os.path.basename(document.getAutoSaveFileName())
+            doc_asfn = os.path.basename(UnwrapObject(document)._getAutoSaveFileName())
             my_asfn = "%s-%s" % (md5(document.file.URI).hexdigest(),document.file.baseName)
             assert doc_asfn == my_asfn
             
