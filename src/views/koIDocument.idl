@@ -204,7 +204,7 @@ interface koITabstopInsertionNode : nsISupports
 interface koIDocumentService: nsISupports
 {
     wstring getUntitledNameForLanguage(in wstring language);
-    koIDocument createDocumentFromFile(in koIFileEx file);
+    koIDocument createDocumentFromFile(in koIFileEx file); //DEPRECATED
     koIDocument createDocumentFromURI(in wstring uri);
     
     koIDocument createDocumentFromTemplateURI(in wstring uri,

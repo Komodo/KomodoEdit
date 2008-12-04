@@ -178,7 +178,7 @@ class KoDocumentService:
             self._thread.join(3)
             log.debug("thread has terminated")
 
-    #koIDocument createDocumentFromFile(in koIFileEx file);
+    #DEPRECATED
     def createDocumentFromFile(self, file):
         timeline.enter('createDocumentFromFile')
         doc = self.findDocumentByURI(file.URI)
