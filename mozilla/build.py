@@ -2003,7 +2003,8 @@ def target_silo_python(argv=["silo_python"]):
 
         # Need a mozpython executable in the mozBin dir for "bk start mozpython"
         # to work with PyXPCOM -- for testing, etc.
-        _run('ln -s ../python/bin/python%s %s/mozpython' % (pyver, mozBinDir),
+        _run('ln -s ../python/bin/python%s %s/mozpython'
+             % (config.pyVer, mozBinDir),
              log.info)
 
         # Relocate the Python install.
