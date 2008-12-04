@@ -72,6 +72,7 @@ class TestKoDocumentService(unittest.TestCase):
         docs = self.__docsvc.getAllDocuments()
         assert len(docs) == 0
 
+    #DEPRECATED
     def test_createDocumentFromFile(self):
         filename = os.__file__ # returns os.pyc
         file = self.__filesvc.getFileFromURI(filename)
