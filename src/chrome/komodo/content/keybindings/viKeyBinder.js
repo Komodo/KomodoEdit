@@ -3054,9 +3054,20 @@ function cmd_vim_lineCut(scimoz) {
         if (lineNo < scimoz.lineCount) {
             var start = scimoz.positionFromLine(lineNo);
             var end = scimoz.positionFromLine(lineNo+1);
+            var deletedLastLine = false;
+            var endLineNo = scimoz.lineFromPosition(end);
+            if ((endLineNo == lineNo) || (end == scimoz.length)) {
+                // Case where deleting the last line.
+                deletedLastLine = true;
+            }
             var ensureEndsWithNewline = true;
             gVimController.copyInternal(scimoz, start, end, true,
                                         ensureEndsWithNewline);
+            if (deletedLastLine && lineNo > 0) {
+                // Move up one line (behave like vim), bug 51878.
+                scimoz.lineUp();
+                scimoz.home();
+            }
         }
     } catch (e) {
         vimlog.exception(e);

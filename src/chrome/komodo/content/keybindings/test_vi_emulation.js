@@ -1489,6 +1489,19 @@ test_vi_emulation.prototype.test_other_commands = function() {
     this._runCommand("indent", "this is\r\nmy bu<|>ffer\r\n", "this <|>is\r\nmy buffer\r\n");
 }
 
+test_vi_emulation.prototype.test_bug51878_delete_at_eof = function() {
+    // bug 51878 - delete at the end of the file when there is no EOL.
+    this._runCommand("lineCut",
+                     ["this is<|>",
+                      "<|>"]);
+    this._runCommand("lineCut",
+                     ["line 1\r\nline 2\r\nline<|> 3",
+                      "line 1\r\n<|>line 2\r\n"]);
+    this._runCommand("lineCut",
+                     ["line 1\r\nline 2\r\nline<|> 3\r\n",
+                      "line 1\r\n<|>line 2\r\n"]);
+}
+
 test_vi_emulation.prototype.test_bug62438_delete_at_eol = function() {
     // http://bugs.activestate.com/show_bug.cgi?id=62438
     this._runCommand("cutChar",
