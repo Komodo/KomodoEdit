@@ -36,7 +36,8 @@
 
 import os
 import unittest
-import sys, md5
+import sys
+from hashlib import md5
 import tempfile
 
 from xpcom import components, COMException
@@ -250,7 +251,7 @@ class TestKoFileEx(unittest.TestCase):
     def test_md5name(self):
         filename = os.path.normpath(os.path.join(tempfile.gettempdir(),'testwrite.py.txt'))
         self.__file.path = filename
-        assert self.__file.md5name == md5.new(self.__file.URI).hexdigest()
+        assert self.__file.md5name == md5(self.__file.URI).hexdigest()
 
 #---- mainline
 
