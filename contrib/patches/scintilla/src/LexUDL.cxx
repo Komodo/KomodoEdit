@@ -897,7 +897,10 @@ class TransitionTable {
     };
 
     TransitionInfo *Get(int i) {
-        assert(i >= 0 && i < count);
+        if (i < 0 || i >= count) {
+            assert(i >= 0 && i < count && "in TransitionTable::Get");
+            return NULL;
+        }
         return &p_transitions[i];
     };
 
