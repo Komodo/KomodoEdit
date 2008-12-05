@@ -504,28 +504,6 @@
        association. -->
   <boolean id="emacsLocalModeVariableDetection">1</boolean>
 
-  <boolean id="cvsEnabled">1</boolean>
-  <boolean id="cvsBackgroundCheck">1</boolean>
-  <boolean id="cvsRecursive">0</boolean>
-  <long id="cvsBackgroundMinutes">15</long>
-  <string id="cvsDiffOptions">-u</string>
-  <string id="cvsExecutable"></string>
-  <boolean id="donotask_cvs_ssh_setup_warning">0</boolean>
-
-  <boolean id="svnEnabled">1</boolean>
-  <boolean id="svnBackgroundCheck">1</boolean>
-  <boolean id="svnRecursive">0</boolean>
-  <long id="svnBackgroundMinutes">15</long>
-  <string id="svnDiffOptions"></string>
-  <string id="svnExecutable"></string>
-  <boolean id="donotask_svn_ssh_setup_warning">0</boolean>
-
-  <boolean id="p4Enabled">1</boolean>
-  <boolean id="p4BackgroundCheck">0</boolean>
-  <boolean id="p4Recursive">0</boolean>
-  <long id="p4BackgroundMinutes">15</long>
-  <string id="p4DiffOptions">u</string>
-  <string id="p4Executable"></string>
   <string id="diffDisplayStyle">diffwin</string>
   <boolean id="diskStatusEnabled">1</boolean>
   <boolean id="diskBackgroundCheck">1</boolean>
@@ -682,14 +660,6 @@
   <boolean id="donotask_reload_changed_files">0</boolean>
   <string id="donotask_action_reload_changed_files"></string>
 
-  <!-- p4_diff_type and externaldiff: what type of diff tool to use w/ Perforce
-    - 'komododiff': use the 'standard' - run p4 diff, parse output, and either put up a new window
-      or a new tab depending on the value of the "diffDisplayStyle" pref.
-    - 'externaldiffchoice': set P4DIFF to the value of the "externaldiff" pref.
-  -->
-  <string id="p4_diff_type">komododiff</string>
-  <string id="externaldiff">p4diff</string>
-
   <!-- restore_workspace
     - if boolean pref is true, then:
         - string pref == "Yes": Restore desktop at startup
@@ -736,14 +706,6 @@
        current project, if any. -->
   <boolean id="new_file_add_to_project">1</boolean>
 
-  <!-- show_scc_tab
-    - if boolean pref is true, then:
-        - string pref == "Yes": Force showing of bottom pane on SCC action completion
-        - string pref == "No":  Do no force show of bottom pane on SCC action completion
-    -->
-  <boolean id="donotask_show_scc_tab">0</boolean>
-  <string id="donotask_action_show_scc_tab"></string>
-
   <string id="editor-scheme">Default</string>
 
   <boolean id="donotask_dragdrop_mapped_uri">0</boolean>
@@ -751,13 +713,6 @@
   
   <boolean id="donotask_reboot_after_changing_keybindings">0</boolean>
 
-  <!-- p4_edit_on_save
-    - if boolean pref is true, then:
-        - string pref == "Yes": Automatically 'p4 edit', as appropriate, on save.
-        - string pref == "No":  Do not 'p4 edit' automatically, ever, on save.
-    -->
-  <boolean id="donotask_p4_edit_on_save">0</boolean>
-  <string id="donotask_action_p4_edit_on_save"></string>
   <boolean id="donotask_force_save_on_error">0</boolean>
   <string id="donotask_action_force_save_on_error"></string>
 
