@@ -375,7 +375,6 @@ class URIParser(object):
 class FileHandlerBase(object):
     def __init__(self):
         self.clearstat()
-        self.clearscc()
         self._file = None
         self._path = None
         self._mode = 'rb'
@@ -396,59 +395,18 @@ class FileHandlerBase(object):
         return self._stats
     stats = property(get_stats)
 
-    def get_scc(self):
-        return self._scc
-
-    # this is expected to be set by the filestatusservice
-    # which unwraps this object and calls setscc, so
-    # this function is not in the idl
-    def set_scc(self, scc_info):
-        self.clearscc()
-        self._scc.update(scc_info)
-
-    scc = property(get_scc, set_scc)
-
-    def get_sccSummary(self):
-        retval = '-'.join([self._scc['sccType'],
-                         self._scc['sccDirType'],
-                         self._scc['sccStatus'],
-                         str(self._scc['sccNeedSync']),
-                         self._scc['sccAction']])
-        return retval
-
-    sccSummary = property(get_sccSummary) # no setter
-
     def clearstat(self):
         self._stats = {}
-
-    def clearscc(self):
-        self._scc = {'sccType':'',
-                     'sccDirType': '',   
-                     'sccExclude':0, 
-                     'sccHaveOnDisk':0, 
-                     'sccLocalRevision':'',
-                     'sccRevDate':'',
-                     'sccDepotRevision':'',
-                     'sccNeedSync':0, 
-                     'sccSync':0,     
-                     'sccOk':0,
-                     'sccConflict':0, 
-                     'sccAction':'',
-                     'sccStatus':'',
-                     'sccChange':''}
 
     def __getattr__(self,name):
         if name in self.stats:
             return self.stats[name]
-        if name in self.scc:
-            return self.scc[name]
         if self._file is None or not hasattr(self._file,name):
             raise AttributeError, name
         return getattr(self._file,name)
 
     def getStatusMap(self):
         status = self.stats.copy()
-        status.update(self.scc)
         keys = map(str, status.keys())
         values = map(str, status.values())
         return keys,values
@@ -681,8 +639,6 @@ class URIHandler(FileHandlerBase):
 
 
 class StartPageHandler(FileHandlerBase):
-    #XXX Shane, should this inherit from FileHandlerBase, because no chrome
-    #    file should use any of SCC status stuff?
 
     isLocal = 0
     isRemoteFile = 0

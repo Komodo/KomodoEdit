@@ -117,27 +117,6 @@ interface koIFileEx : nsISupports
     // stat info with the new one.
     readonly attribute boolean hasChangedNoStatUpdate;
 
-    // various attributes used by scc
-    readonly attribute string  sccType;    // p4 or cvs, blank if not in scc
-    readonly attribute string  sccDirType; // p4 or cvs, blank if not scc dir
-    readonly attribute boolean sccExclude; // marker to exclude future checks
-    readonly attribute boolean sccHaveOnDisk; // file is in local copy of repository
-    readonly attribute string  sccLocalRevision;
-    readonly attribute string  sccRevDate;
-    readonly attribute string  sccDepotRevision;
-    readonly attribute boolean sccNeedSync; // true if local and depot rev differs
-    readonly attribute boolean sccConflict; // conflict from update
-    readonly attribute string  sccAction; // edit|add|delete
-    readonly attribute string  sccStatus; // status message such as 'up-to-date'
-    readonly attribute string  sccChange; // change list number (p4)
-    readonly attribute string  sccSummary; // used by the controller system --
-                                           // combination of sccType, sccDirType,
-                                           // sccNeedSync and sccAction
-                                           // This needs to differ for two
-                                           // files if the set of SCC actions
-                                           // that can be applied to the two files
-                                           // is different.
-    
     // a method to retrieve keys and values for all status attributes
     // this is an optimization for js when we need to retreive all
     // of it.
