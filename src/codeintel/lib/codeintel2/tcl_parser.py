@@ -224,6 +224,17 @@ class Parser:
             "namespace": [ModuleNode, self.parse_aux],
             "proc" : [MethodNode, self.parse_method]
         }.get(kwd, [None, None])
+        
+    def _parse_name_list(self):
+        vars = []
+        while True:
+            tok = self.tokenizer.get_next_token()
+            if tok.style == shared_lexer.EOF_STYLE or \
+                          self.classifier.is_operator(tok, "}"):
+                break
+            if self.classifier.is_identifier(tok):
+                vars.append(tok.text)
+        return vars
     
     def parse_method(self, curr_node):
         # Syntax: proc name { args } { body }
@@ -391,7 +402,18 @@ class Parser:
                             pass
                         else:
                             self.parse_assignment(tok.text, tok.start_line, isinstance(curr_node, MethodNode))
-                                
+                elif text == "lassign":
+                    tok = self.tokenizer.get_next_token()
+                    if self.classifier.is_operator(tok, "{"):
+                        start_line = tok.start_line;
+                        isLocal = isinstance(curr_node, MethodNode)
+                        if isLocal:
+                            collectionA = self.containers[VAR_KIND_LOCAL]
+                        else:
+                            collectionA = self.containers[VAR_KIND_GLOBAL]
+                        vars = self._parse_name_list()
+                        for v in vars:
+                            update_collection(collectionA[-1], v, start_line) 
             elif self.classifier.is_any_operator(tok):
                 cmdStart = False
                 if text == "{":
