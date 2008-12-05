@@ -843,10 +843,7 @@ viewManager.prototype.observe = function(subject, topic, data)
                     views[i].updateFileStatus();
                     views[i].updateDirtyStatus();
                     if (views[i] == this.currentView) {
-                        window.setTimeout("window.updateCommands('SCC');", 1);
-                        // Ensure the cached information gets updated, so the
-                        // SCC toolbars and menu are properly set. Fixes bug:
-                        // http://bugs.activestate.com/show_bug.cgi?id=48417
+                        // Ensure the cached information gets updated.
                         this.lastviewcache = this.cacheCommandData(this.currentView);
                     }
                 }
