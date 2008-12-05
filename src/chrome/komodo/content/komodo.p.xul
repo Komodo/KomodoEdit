@@ -1978,13 +1978,11 @@
                     <tabpanels flex="1" id="project_toolbox_tabpanels"
                             onfocus="
                             if (!ko.views.manager.batchMode) {
-                                window.updateCommands('SCC');
                                 window.updateCommands('select');
                             }
                                 "
                             onblur="
                             if (!ko.views.manager.batchMode) {
-                                window.updateCommands('SCC');
                                 window.updateCommands('select');
                             }
                                 "
@@ -2088,13 +2086,11 @@
                     <tabpanels flex="1" id="right_toolbox_tabpanels"
                             onfocus="
                             if (!ko.views.manager.batchMode) {
-                                window.updateCommands('SCC');
                                 window.updateCommands('select');
                             }
                                 "
                             onblur="
                             if (!ko.views.manager.batchMode) {
-                                window.updateCommands('SCC');
                                 window.updateCommands('select');
                             }
                                 "
