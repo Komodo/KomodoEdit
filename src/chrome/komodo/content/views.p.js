@@ -519,6 +519,11 @@ viewManager.prototype.newViewFromURI = function(
         view = null;
     }
 
+    // Ensure file is scanned (bug 77866).
+    var codeIntelSvc = Components.classes["@activestate.com/koCodeIntelService;1"]
+        .getService(Components.interfaces.koICodeIntelService);
+    codeIntelSvc.scan_document(doc, 0, true);
+
     ko.trace.get().leave('viewManager.newViewFromURI');
     this.log.info("leaving newViewFromURI");
     return view;
