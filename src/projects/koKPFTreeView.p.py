@@ -831,33 +831,13 @@ class KPFTreeView(TreeView):
             self._rows[row]['file'] = self._rows[row]['node'].getFile()
         if self._rows[row]['file']:
             f = UnwrapObject(self._rows[row]['file'])
-            # missing, sccOk, sccSync, sccConflict, add, delete, edit,
-            # isReadOnly, branch, integrate
+            # isReadOnly, missing, asyncOperation
             if self._asyncOpSvc.uriHasPendingOperation(f.URI):
                 prop.append("asyncOperation")
             elif hasattr(f, 'exists') and not f.exists:
                 prop.append("missing")
-            else:
-                if hasattr(f, 'get_scc'):
-                    scc = f.get_scc()
-                    if scc['sccAction']:
-                        prop.append(scc['sccAction'])
-                    if scc['sccOk']:
-                        if isinstance(scc['sccOk'], basestring):
-                            if int(scc['sccOk']):
-                                prop.append("sccOk")
-                        else:
-                            prop.append("sccOk")
-                    if scc['sccSync']:
-                        if isinstance(scc['sccSync'], basestring):
-                            if int(scc['sccSync']):
-                                prop.append("sccSync")
-                        else:
-                            prop.append("sccSync")
-                    if scc['sccConflict']:
-                        prop.append("sccConflict")
-                if hasattr(f, 'isReadOnly') and f.isReadOnly:
-                    prop.append("isReadOnly")
+            elif hasattr(f, 'isReadOnly') and f.isReadOnly:
+                prop.append("isReadOnly")
         return prop
         
     def getCellProperties(self, index, column, properties):
