@@ -999,12 +999,11 @@ class TextInfo(object):
         "Tail" emacs vars on the ones in the multi-line "Local
         Variables:" block.
 
-        >>> ti = TextInfo()
-        >>> ti._get_emacs_tail_vars('# Local Variables:\n# foo: bar\n# End:')
+        >>> TextInfo()._get_emacs_tail_vars('# Local Variables:\n# foo: bar\n# End:')
         {'foo': 'bar'}
-        >>> ti._get_emacs_tail_vars('# Local Variables:\n# foo: bar\\\n#  baz\n# End:')
+        >>> TextInfo()._get_emacs_tail_vars('# Local Variables:\n# foo: bar\\\n#  baz\n# End:')
         {'foo': 'bar baz'}
-        >>> ti._get_emacs_tail_vars('# Local Variables:\n# quoted: "bar "\n# End:')
+        >>> TextInfo()._get_emacs_tail_vars('# Local Variables:\n# quoted: "bar "\n# End:')
         {'quoted': 'bar '}
     
         Parsing is done according to this spec (and according to some
@@ -1102,32 +1101,29 @@ class TextInfo(object):
 
         See ":help modeline" in Vim for a spec.
 
-            >>> ti = TextInfo()
-            >>> ti._get_vi_vars("/* vim: set ai tw=75: */")
+            >>> TextInfo()._get_vi_vars("/* vim: set ai tw=75: */")
             {'ai': None, 'tw': 75}
-            >>> ti._get_vi_vars("vim: set ai tw=75: bar")
+            >>> TextInfo()._get_vi_vars("vim: set ai tw=75: bar")
             {'ai': None, 'tw': 75}
 
-            >>> ti._get_vi_vars("vi: set foo:bar")
+            >>> TextInfo()._get_vi_vars("vi: set foo:bar")
             {'foo': None}
-            >>> ti._get_vi_vars(" vi: se foo:bar")
+            >>> TextInfo()._get_vi_vars(" vi: se foo:bar")
             {'foo': None}
-            >>> ti._get_vi_vars(" ex: se foo:bar")
+            >>> TextInfo()._get_vi_vars(" ex: se foo:bar")
             {'foo': None}
 
-            >>> ti._get_vi_vars(" vi:noai:sw=3 tw=75")
+            >>> TextInfo()._get_vi_vars(" vi:noai:sw=3 tw=75")
             {'tw': 75, 'sw': 3, 'noai': None}
-            >>> ti._get_vi_vars(" vi:noai:sw=3 tw=75")
+            >>> TextInfo()._get_vi_vars(" vi:noai:sw=3 tw=75")
             {'tw': 75, 'sw': 3, 'noai': None}
 
-            >>> ti._get_vi_vars("ex: se foo:bar")
+            >>> TextInfo()._get_vi_vars("ex: se foo:bar")
             {}
 
         Some edge cases:
 
-            >>> ti._get_vi_vars("/* vim<580: set foldmethod=marker: */")
-            {'foldmethod': 'marker'}
-            >>> ti._get_vi_vars(r"/* vi:set dir=c\:\tmp: */")
+            >>> TextInfo()._get_vi_vars(r"/* vi:set dir=c\:\tmp: */")
             {'dir': 'c:\\tmp'}
         """
         # Presume 8-bit encoding... yada yada.
