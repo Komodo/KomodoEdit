@@ -712,7 +712,6 @@ viewManager.prototype.cacheCommandData = function(view)
 {
     var cache = new Object();
     cache.type = null;
-    cache.sccSummary = null;
     cache.hasSelection = false;
     cache.isDirty = false;
     cache.canUndo = false;
@@ -724,7 +723,6 @@ viewManager.prototype.cacheCommandData = function(view)
     if (view) {
         cache.type = view.getAttribute('type');
         if (view.document) {
-            cache.sccSummary = view.document.isUntitled?'':view.document.file.sccSummary;
             cache.hasSelection = view.selection != '';
             cache.isDirty = view.document.isDirty
             if (cache.type == 'editor') {
@@ -883,9 +881,6 @@ viewManager.prototype.handle_current_view_changed = function(event) {
         (oldcache.type == 'editor' || newcache.type== 'editor');
     if (update_editor_change) {
         window.setTimeout("window.updateCommands('currentview_is_editor');", 1)
-    }
-    if (update_editor_change || oldcache.sccSummary!= newcache.sccSummary) {
-        window.setTimeout("window.updateCommands('SCC');", 1);
     }
     window.setTimeout("window.updateCommands('dirty');", 1);
     if (update_editor_change || oldcache.canUndo != newcache.canUndo ||
