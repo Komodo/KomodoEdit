@@ -321,37 +321,8 @@
                 }
             }
 
-            if (view.document.isUntitled || view.document.file.sccType == '') {
-                view.parentNode._tab.removeAttribute('action');
-                view.parentNode._tab.removeAttribute('status');
-                this.tabbox.firstChild.scrollBoxObject.ensureElementIsVisible(this.tabbox.firstChild.selectedItem);
-                return;
-            }
-
-            // build the status
-            var action = view.document.file.sccAction;
-            var hasConflict = (action == 'conflict') ||
-                              view.document.file.sccConflict;
-            if (hasConflict) {
-                view.parentNode._tab.setAttribute('status',"chrome://komodo/skin/images/status_icon_conflict.png");
-            } else if (view.document.file.sccNeedSync) {
-                view.parentNode._tab.setAttribute('status',"chrome://komodo/skin/images/status_icon_sync.png");
-            } else {
-                view.parentNode._tab.setAttribute('status',"chrome://komodo/skin/images/status_icon_ok.png");
-            }
-
-            // Conflict has already been set above in the status attribute,
-            // don't set it twice. Fixes bug:
-            //   http://bugs.activestate.com/show_bug.cgi?id=68534
-            if (action && !hasConflict) {
-                if (action == 'integrate')
-                    action = 'edit';
-                if (action == 'branch')
-                    action = 'add';
-                view.parentNode._tab.setAttribute('action',"chrome://komodo/skin/images/status_icon_"+action+".png");
-            } else {
-                view.parentNode._tab.removeAttribute('action');
-            }
+            view.parentNode._tab.removeAttribute('action');
+            view.parentNode._tab.removeAttribute('status');
             this.tabbox.firstChild.scrollBoxObject.ensureElementIsVisible(this.tabbox.firstChild.selectedItem);
         ]]>
         </body>
