@@ -192,9 +192,12 @@ function getStack(skipCount)
     while (frame)
     {
         if (skipCount > 0) {
+            // Skip this frame.
+            skipCount -= 1;
+        } else {
+            // Include the data from this frame.
             var name = frame.name ? frame.name : "[anonymous]";
             str += "\n" + name + "@" + frame.filename +':' + frame.lineNumber;
-            skipCount -= 1;
         }
         frame = frame.caller;
     }
