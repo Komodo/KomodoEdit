@@ -717,7 +717,6 @@ viewManager.prototype.cacheCommandData = function(view)
     cache.canUndo = false;
     cache.canRedo = false;
     cache.canFold = false;
-    cache.canDebug = false;
     cache.language = null;
     cache.canPreview = false;
     if (view) {
@@ -732,7 +731,6 @@ viewManager.prototype.cacheCommandData = function(view)
             }
             if (view.document.languageObj) {
                 cache.canFold = view.document.languageObj.foldable;
-                cache.canDebug = true; // XXX view.document.languageObj.debuggable;
                 cache.language = view.document.language;
             }
         }
@@ -886,9 +884,6 @@ viewManager.prototype.handle_current_view_changed = function(event) {
     }
     if (update_editor_change || oldcache.language != newcache.language) {
         window.setTimeout("window.updateCommands('language_changed');", 1)
-    }
-    if (update_editor_change || oldcache.canDebug != newcache.canDebug) {
-        window.setTimeout("window.updateCommands('debuggability_changed');", 1);
     }
     if (update_editor_change || oldcache.canFold != newcache.canFold) {
         window.setTimeout("window.updateCommands('foldability_changed');", 1);
