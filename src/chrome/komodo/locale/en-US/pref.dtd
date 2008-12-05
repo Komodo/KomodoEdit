@@ -674,14 +674,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY postType.label "Post Type">
 <!ENTITY browserArguments.label "Browser Arguments">
 
-<!--scc-properties.xul-->
-<!ENTITY sccPropertiesName.label "Name:">
-<!ENTITY sccPropertiesSystem.label "SCC System:">
-<!ENTITY sccPropertiesNA.label "N/A">
-<!ENTITY sccPropertiesStatus.label "Status:">
-<!ENTITY sccPropertiesDepotRev.label "Depot Revision:">
-<!ENTITY sccPropertiesLocalRev.label "Local Revision:">
-
 <!--commented in file pref-alllangfonts.xul-->
 <!--
 <!ENTITY htmlSample.label "HTML Sample">
