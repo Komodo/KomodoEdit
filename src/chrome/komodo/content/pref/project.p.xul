@@ -132,7 +132,6 @@
             if (isfolder) {
                 // stuff that should NOT show up on non-project folders
                 nodes = nodes.concat(["fileProperties",
-                                      "sccProperties",
                                       "editorProperties"]);
             }        
         }
