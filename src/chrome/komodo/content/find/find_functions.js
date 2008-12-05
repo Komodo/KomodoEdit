@@ -505,7 +505,7 @@ function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, repl
             return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText);
         }
         var replacementLines = replacementText.split(eol_re);
-        var j, currText, replText;
+        var i, j, currText, replText;
 
         // possible optimization by moving backwards:
         // no need to update scintilla coordinates until we're done.
