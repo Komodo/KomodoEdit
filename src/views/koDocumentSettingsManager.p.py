@@ -201,13 +201,13 @@ class koDocumentSettingsManager:
         # We don't do it by default because the colourise(.., -1) call below
         # can be quite slow.
         if prefs.getBooleanPref("editRestoreFoldPoints") and \
-           prefs.hasPref('foldPoints'):
+           prefs.hasPref('foldPoints') and \
+           scimoz.getPropertyInt("fold"):
             foldPoints = prefs.getPref("foldPoints")
             if foldPoints.length:
-                # ensure the whole document is styled, we start at the last known
-                # styled character and style to the end
-                if scimoz.endStyled < scimoz.length:
-                    scimoz.colourise(scimoz.endStyled, -1) # this is too bad...
+                # restyle the whole document to get folding right
+                # Fixes bug 45621
+                scimoz.colourise(0, -1)
                 for i in range(foldPoints.length):
                     scimoz.toggleFold(foldPoints.getLongPref(i));
 
