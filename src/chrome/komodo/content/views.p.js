@@ -954,8 +954,9 @@ viewManager.prototype.is_cmd_bufferClose_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_bufferClose = function() {
-    if (this.currentView)
+    if (this.currentView) {
         this.currentView.close();
+    }
 }
 
 viewManager.prototype.is_cmd_closeAll_supported = function() {
@@ -1068,13 +1069,14 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
         if (view.getAttribute('type') == 'editor') {
             try {
                 view.saveState();
-                if (ko.macros.eventHandler.hookPreFileClose()) {
+                if (ko.macros.eventHandler.hookPreFileClose(view)) {
                     //Bogus: this needs the view so the macro can
                     // work with it.
-                    ko.statusBar.AddMessage(_bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
-                                         "macro",
-                                         5000,
-                                         true);
+                    ko.statusBar.AddMessage(
+                        _bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
+                        "macro",
+                        5000,
+                        true);
                     return false;
                 }
             } catch (e) {

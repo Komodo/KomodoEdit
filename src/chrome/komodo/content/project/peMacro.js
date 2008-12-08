@@ -207,12 +207,28 @@ function _executeMacro(part, asynchronous, observer_arguments) {
     // The synchronous flag is not used for JavaScript, since the timeout
     // has already occurred by the time we get called here.  JS execution
     // isn't in another thread, just on a timeout.
+    if (typeof(observer_arguments) == "undefined") {
+        observer_arguments = null;
+    }
     try {
         ko.macros.recorder.suspendRecording();
         var language = part.getStringAttribute('language').toLowerCase();
         var retval = false;
         var exception = null;
-        var view = ko.views.manager.currentView;
+        var view = null;
+        
+        if (observer_arguments
+            && observer_arguments.subject
+            && observer_arguments.subject.nodeName
+            && observer_arguments.subject.nodeName == 'view') {
+            view = observer_arguments.subject;
+        }
+        if (!view) {
+            try {
+                view = ko.views.manager.currentView;
+            } catch(ex) {}
+        }
+        
         var editor = null;
         if (view && view.getAttribute('type') == 'editor' && view.scintilla && view.scintilla.scimoz) {
             editor = view.scintilla.scimoz;
@@ -221,14 +237,13 @@ function _executeMacro(part, asynchronous, observer_arguments) {
             case 'javascript':
                 try {
                     retval = ko.macros.evalAsJavaScript(part.value, part,
-                                                        observer_arguments);
+                                                        observer_arguments, view);
                 } catch (e) {
                     exception = String(e);
                 }
                 break;
             case 'python':
                 try {
-                    view = ko.views.manager.currentView;
                     var doc = null;
                     if (view && view.document) {
                         doc = view.document;
@@ -365,13 +380,24 @@ MacroEventHandler.prototype._triggerWrapper = {
     }
 };
     
-MacroEventHandler.prototype.callHookedMacros = function(trigger) {
+MacroEventHandler.prototype.callHookedMacros = function(trigger, viewOrURI) {
     if (!this._triggersAreEnabled()) {
         return false;
     }
+    var observer_arguments;
+    if (typeof(viewOrURI) != 'undefined') {
+        observer_arguments = {
+            subject: viewOrURI,
+            topic  : null,
+            data   : null
+        };
+    } else {
+        observer_arguments = null;
+    }
     var macro_list = this._hookedMacrosByTrigger[trigger];
     for (var macro, i = 0; macro = macro_list[i]; i++) {
-        if (ko.projects.executeMacro(macro, macro.getBooleanAttribute('async'))) {
+        if (ko.projects.executeMacro(macro, macro.getBooleanAttribute('async'),
+                                     observer_arguments)) {
             return true;
         }
     }
@@ -554,28 +580,47 @@ MacroEventHandler.prototype.removeMacro = function(macropart, trigger, topic) {
     this.log.error("Couldn't remove macro from list of hooked macros.");
 }
 
+var _didStartup = false;
+var _delayedHooks = [];
+
+function _runDelayedHooks(this_) {
+    var hook;
+    for (var i = 0; i < _delayedHooks.length; ++i) {
+        hook = _delayedHooks[i];
+        hook[0].call(this_, hook[1]);
+    }
+    _delayedHooks = [];
+}
+
 MacroEventHandler.prototype.hookOnStartup = function() {
-    return this.callHookedMacros('trigger_startup');
+    _didStartup = true;
+    var res = this.callHookedMacros('trigger_startup');
+    _runDelayedHooks(this);
+    return res;
 }
 
-MacroEventHandler.prototype.hookPostFileOpen = function() {
-    return this.callHookedMacros('trigger_postopen');
+MacroEventHandler.prototype.hookPostFileOpen = function(view) {
+    if (!_didStartup) {
+        _delayedHooks.push([this.hookPostFileOpen, view]);
+        return false;
+    }
+    return this.callHookedMacros('trigger_postopen', view);
 }
 
-MacroEventHandler.prototype.hookPreFileSave = function() {
-    return this.callHookedMacros('trigger_presave');
+MacroEventHandler.prototype.hookPreFileSave = function(view) {
+    return this.callHookedMacros('trigger_presave', view);
 }
 
-MacroEventHandler.prototype.hookPostFileSave = function() {
-    return this.callHookedMacros('trigger_postsave');
+MacroEventHandler.prototype.hookPostFileSave = function(view) {
+    return this.callHookedMacros('trigger_postsave', view);
 }
 
-MacroEventHandler.prototype.hookPreFileClose = function() {
-    return this.callHookedMacros('trigger_preclose');
+MacroEventHandler.prototype.hookPreFileClose = function(view) {
+    return this.callHookedMacros('trigger_preclose', view);
 }
 
-MacroEventHandler.prototype.hookPostFileClose = function() {
-    return this.callHookedMacros('trigger_postclose');
+MacroEventHandler.prototype.hookPostFileClose = function(uri) {
+    return this.callHookedMacros('trigger_postclose', uri);
 }
 
 MacroEventHandler.prototype.hookOnQuit = function peMacro_hookOnQuit() {
@@ -690,7 +735,8 @@ function(macro)
 
 this.evalAsJavaScript = function macro_evalAsJavascript(__code,
                                                         part, /* = null */
-                                                        __observer_arguments /* = null */
+                                                        __observer_arguments, /* = null */
+                                                        view /* = currentView */
                                                         ) {
     try {
         if (typeof(part) == 'undefined') {
@@ -699,9 +745,10 @@ this.evalAsJavaScript = function macro_evalAsJavascript(__code,
         if (typeof(__observer_arguments) == 'undefined') {
             __observer_arguments = null;
         }
-        var view = null;
-        if (ko.views.manager.currentView) {
-            view = ko.views.manager.currentView;
+        if (typeof(view) == 'undefined' || view == null) {
+            try {
+                view = ko.views.manager.currentView;
+            } catch(ex) {}
         }
 
         ko.macros.current = part;
