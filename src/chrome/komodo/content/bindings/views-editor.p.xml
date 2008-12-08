@@ -203,7 +203,7 @@
             xtk.domutils.fireEvent(this, 'current_view_changed');
             this.scintilla.scimoz.hookEvents(this);
             this._inInitPhase = false;
-            ko.macros.eventHandler.hookPostFileOpen();
+            ko.macros.eventHandler.hookPostFileOpen(this);
         } catch (e) {
             this.log.exception(e);
         }
@@ -300,9 +300,9 @@
             switch (topic) {
             case 'language_changed':
                 // Multi-window story: do this on the current view only.
-                if (!this.isCurrent) { 
+                if (!this.isCurrent) {
                     return;
-                } 
+                }
                 this.log.info("Changed language to:" + doc.language);
                 this.scintilla.language = doc.language;
                 this.commandCompletionSvc = null;
@@ -425,6 +425,13 @@
                     this.document &&
                     this.document.numScintillas == 1 &&  // if we're split let it be dirty
                     this.document.isDirty) {
+                    if (ko.macros.eventHandler.hookPreFileClose(this)) {
+                        ko.statusBar.AddMessage(_bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
+                                             "macro",
+                                             5000,
+                                             true);
+                        return false;
+                    }
                     var res = ko.dialogs.yesNoCancel("Save changes to " +
                                                     this.document.baseName +
                                                     "?");
@@ -443,8 +450,17 @@
                         } // if "No" is selected, then just close.
                     }
                 }
+                var uri;
+                try {
+                    uri = this.document.file.URI;
+                } catch(e) {
+                    if (this.document.file) {
+                        this.log.exception(e);
+                    }
+                    uri = null;
+                }
                 var retval = this.closeUnconditionally();
-                ko.macros.eventHandler.hookPostFileClose();
+                ko.macros.eventHandler.hookPostFileClose(uri);
                 return retval;
             } catch(e) {
                 this.log.exception(e);
@@ -557,7 +573,7 @@
                 this.preview.reload();
             }
 
-            ko.macros.eventHandler.hookPostFileSave();
+            ko.macros.eventHandler.hookPostFileSave(this);
             return true;
         ]]>
         </body>
@@ -612,7 +628,7 @@
         <body>
         <![CDATA[
             try {
-                if (ko.macros.eventHandler.hookPreFileSave()) {
+                if (ko.macros.eventHandler.hookPreFileSave(this)) {
                     ko.statusBar.AddMessage("Macro interrupted file saving procedure.",
                                          "macro",
                                          5000,
