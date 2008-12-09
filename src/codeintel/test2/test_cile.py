@@ -263,8 +263,7 @@ def _testOneInputFile(self, fpath):
                                                    for x in error_lines])
                             else:
                                 error_str = "\n".join(error_lines)
-                    self.fail(error_str.encode(sys.stdout.encoding,
-                                               'backslashreplace'))
+                    self.fail(_encode_for_stdout(error_str))
     elif os.path.exists(errfile):
         # There is no reference output file. This means that processing
         # this file is expected to fail.
@@ -440,8 +439,12 @@ end
         setattr(ScanInputsTestCase, name, testFunction)
 
 def _encode_for_stdout(s):
-    return s.encode(sys.stdout.encoding, 'backslashreplace')
-
+    if sys.stdout.encoding:
+        return s.encode(sys.stdout.encoding, 'backslashreplace')
+    else:
+        # This is the case when the normal sys.stdout has been
+        # replaced by something else, such as a Python file object.
+        return s.encode('ascii', 'backslashreplace')
 
 
 #---- mainline
