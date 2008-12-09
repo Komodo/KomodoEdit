@@ -503,8 +503,8 @@ class PythonTreeEvaluator(TreeEvaluator):
                     return self._hit_from_getattr(tokens, base_elem,
                                                   base_scoperef)
                 except CodeIntelError, ex:
-                    self.log("could not resolve '%s' getattr on base class %r",
-                             first_token, base_elem)
+                    self.log("could not resolve classref '%s' on scoperef %r",
+                             classref, scoperef, )
                     # Was not available, try the next class then.
         elif ilk == "blob":
             attr = elem.names.get(first_token)
