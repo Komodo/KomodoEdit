@@ -74,7 +74,7 @@
 # - YAGNI: Having a "quick/terse" mode. Will always gather all possible
 #   information unless come up with a case to NOT do so.
 
-__version_info__ = (0, 10, 1)
+__version_info__ = (0, 11, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -188,6 +188,8 @@ class PlatInfo(object):
             self._init_freebsd()
         elif sys.platform.startswith("openbsd"):
             self._init_openbsd()
+        elif sys.platform.startswith("netbsd"):
+            self._init_netbsd()
         else:
             raise InternalError("unknown platform: '%s'" % sys.platform)
 
@@ -367,6 +369,17 @@ class PlatInfo(object):
             self.arch = "x86"
         else:
             raise InternalError("unknown OpenBSD architecture: '%s'" % arch)
+
+    def _init_netbsd(self):
+        self.os = "netbsd"
+        uname = os.uname()
+        self.os_ver = uname[2].split('-', 1)[0]
+
+        arch = uname[-1]
+        if re.match(r"i\d86", arch):
+            self.arch = "x86"
+        else:
+            raise InternalError("unknown NetBSD architecture: '%s'" % arch)
 
     def _init_linux(self):
         self.os = "linux"
