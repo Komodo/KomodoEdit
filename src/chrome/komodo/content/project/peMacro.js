@@ -252,7 +252,7 @@ function _executeMacro(part, asynchronous, observer_arguments) {
                     if (view && view.getAttribute('type') == 'editor' && view.scimoz) {
                         editor = view.scimoz;
                     }
-                    if (typeof(observer_arguments) == "undefined") {
+                    if (!observer_arguments) {
                         retval = part.evalAsPython(document, window, editor,
                                                    doc, view,
                                                    part.value, asynchronous);
