@@ -96,7 +96,7 @@
             <menuitem label="Split View"
                       oncommand="ko.open.filePicker('spliteditor');"/>
             <menuitem label="Browser View"
-                      oncommand="ko.views.manager.loadViewFromURI('http://www.mozilla.org','browser');"/>
+                      oncommand="ko.views.manager.newViewFromURI('http://www.mozilla.org', 'browser');"/>
             <menuitem label="XUL View" accesskey="X"
                       oncommand="ko.open.filePicker('xul');"/>
             <menuitem label="Multi-editor View"

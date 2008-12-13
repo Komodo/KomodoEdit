@@ -674,12 +674,13 @@ viewManager.prototype.getViewForDocument = function(doc) {
 
 
 /**
- * open a uri in a new view, bypassing any sanity checking on the uri
- * 
- * @public
+ * Open a uri in a new view, bypassing any sanity checking on the uri.
+ * This function is deprecated, use newViewFromURI instead.
+ *
+ * @deprecated since 5.0.3
+ *
  * @param uri {string} uri to file
  * @param viewType {string} optional, type of buffer to open, default "editor"
- * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.loadViewFromURI = function(uri, viewType/*='editor'*/)
 {
