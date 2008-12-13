@@ -79,6 +79,12 @@ if (typeof(ko.views)=='undefined') {
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/views.properties");
+var _docSvc = Components.classes['@activestate.com/koDocumentService;1']
+                .getService(Components.interfaces.koIDocumentService);
+var _observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                getService(Components.interfaces.nsIObserverService);
+var _lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                        getService(Components.interfaces.koILastErrorService);
 
 function viewManager() {
     this.log = ko.logging.getLogger('views');
@@ -92,16 +98,10 @@ function viewManager() {
     this.topView.init();
     ko.main.addCanCloseHandler(this.canClose, this);
     ko.main.addWillCloseHandler(this.postCanClose, this);
-    this.docSvc = Components.classes['@activestate.com/koDocumentService;1']
-                    .getService(Components.interfaces.koIDocumentService);
-    this.observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-                    getService(Components.interfaces.nsIObserverService);
-    this.lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
-                            getService(Components.interfaces.koILastErrorService);
-    this.observerSvc.addObserver(this, "open_file", false); // commandment
-    this.observerSvc.addObserver(this, "open-url",false);
-    this.observerSvc.addObserver(this, "SciMoz:FileDrop", false);
-    this.observerSvc.addObserver(this, "file_status", false);
+    _observerSvc.addObserver(this, "open_file", false); // commandment
+    _observerSvc.addObserver(this, "open-url",false);
+    _observerSvc.addObserver(this, "SciMoz:FileDrop", false);
+    _observerSvc.addObserver(this, "file_status", false);
     var self = this;
     this.handle_current_view_changed_setup = function(event) {
         self.handle_current_view_changed(event);
@@ -136,10 +136,10 @@ viewManager.prototype.constructor = viewManager;
 viewManager.prototype.shutdown = function()
 {
     try {
-        this.observerSvc.removeObserver(this, "open_file");  // commandment
-        this.observerSvc.removeObserver(this, "open-url");
-        this.observerSvc.removeObserver(this, "SciMoz:FileDrop");
-        this.observerSvc.removeObserver(this, "file_status");
+        _observerSvc.removeObserver(this, "open_file");  // commandment
+        _observerSvc.removeObserver(this, "open-url");
+        _observerSvc.removeObserver(this, "SciMoz:FileDrop");
+        _observerSvc.removeObserver(this, "file_status");
         window.removeEventListener('current_view_changed',
                                 this.handle_current_view_changed_setup, false);
         window.removeEventListener('view_list_closed',
@@ -152,8 +152,6 @@ viewManager.prototype.shutdown = function()
         /* moz probably already removed them */
         log.warn('possible error shutting down viewManager:'+e);
     }
-    this.docSvc = null;
-    this.observerSvc = null;
 }
 
 viewManager.prototype.canClose = function()
@@ -316,7 +314,6 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
     if (typeof(viewList) == "undefined") viewList = null;
     if (typeof(saveto) == "undefined") saveto = null;
 
-    var lastErrorSvc = Components.classes['@activestate.com/koLastErrorService;1'].getService();
     var localPath = ko.uriparse.URIToLocalPath(uri);
     var basename = ko.uriparse.baseName(uri);
     var ext, name;
@@ -334,12 +331,12 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
     var doc = null;
     try {
         if (saveto) {
-            doc = this.docSvc.createFileFromTemplateURI(uri, saveto, false);
+            doc = _docSvc.createFileFromTemplateURI(uri, saveto, false);
         } else {
-            doc = this.docSvc.createDocumentFromTemplateURI(uri, name, ext);
+            doc = _docSvc.createDocumentFromTemplateURI(uri, name, ext);
         }
     } catch (ex) {
-        errmsg = lastErrorSvc.getLastErrorMessage();
+        errmsg = _lastErrorSvc.getLastErrorMessage();
         log.exception(ex, errmsg);
         ko.dialogs.internalError(_bundle.GetStringFromName("errorOpeningTemplate.message"),
                                  _bundle.formatStringFromName("errorLoadingTemplate.message", [uri], 1),
@@ -371,11 +368,11 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
             }
         }
     } catch (ex) {
-        var errno = lastErrorSvc.getLastErrorCode();
+        var errno = _lastErrorSvc.getLastErrorCode();
         if (errno == Components.results.NS_ERROR_ABORT) {
             // Command was cancelled.
         } else if (errno == Components.results.NS_ERROR_INVALID_ARG) {
-            errmsg = lastErrorSvc.getLastErrorMessage();
+            errmsg = _lastErrorSvc.getLastErrorMessage();
             ko.dialogs.alert(_bundle.formatStringFromName("couldNotInterpolate.message", [errmsg], 1));
         } else {
             log.exception(ex, _bundle.GetStringFromName("errorInterpolatingTemplate.message"));
@@ -434,7 +431,7 @@ viewManager.prototype.doNewView = function(language /*= prefs.fileDefaultNew*/,
     }
 
     // the following line is delayed to avoid notifications during load()
-    var doc = this.docSvc.createUntitledDocument(language);
+    var doc = _docSvc.createUntitledDocument(language);
     var view = this.topView.createViewFromDocument(doc, viewType, -1);
 
     ko.trace.get().leave('viewManager.doNewView');
@@ -468,7 +465,7 @@ viewManager.prototype.newViewFromURI = function(
     if (typeof(index) == 'undefined' || index == null)
         index = -1;
 
-    var doc = this.docSvc.createDocumentFromURI(uri);
+    var doc = _docSvc.createDocumentFromURI(uri);
     var view = null;
     if (! doc.file.exists) {
         if (ko.dialogs.yesNo(_bundle.formatStringFromName("theFileDoesNotExist.message", [doc.file.displayPath], 1)) == "No") {
@@ -511,7 +508,7 @@ viewManager.prototype.newViewFromURI = function(
             view = this.topView.createViewFromDocument(doc, viewType, index);
         }
     } catch (e)  {
-        var err = this.lastErrorSvc.getLastErrorMessage();
+        var err = _lastErrorSvc.getLastErrorMessage();
         ko.dialogs.alert(_bundle.formatStringFromName("komodoWasUnableToOpenTheFile.alert", [doc.file.baseName], 1),
                          err,
                          _bundle.GetStringFromName("fileOpenError.alert"));
@@ -653,7 +650,7 @@ viewManager.prototype.getViewForFile = function(uri) {
  */
 viewManager.prototype.getUntitledView = function(name) {
     try {
-        var doc = this.docSvc.findDocumentByURI(name);
+        var doc = _docSvc.findDocumentByURI(name);
         return this.topView.findViewForDocument(doc);
     } catch (e) {
         log.exception(e);
@@ -688,7 +685,7 @@ viewManager.prototype.loadViewFromURI = function(uri, viewType/*='editor'*/)
     ko.trace.get().enter('viewManager.loadViewFromURI');
     if (typeof(viewType)=='undefined' || !viewType)
         viewType = 'editor';
-    var doc = this.docSvc.createDocumentFromURI(uri);
+    var doc = _docSvc.createDocumentFromURI(uri);
 
     // the following line is delayed to avoid notifications during load()
     var view = this.topView.createViewFromDocument(doc, viewType, -1);
@@ -1604,7 +1601,7 @@ viewManager.prototype.do_cmd_saveAll = function() {
             ko.toolboxes.user.save();
         } catch(ex) {
             ko.dialogs.alert(_bundle.GetStringFromName("thereWasAnErrorSavingTheToolbox.alert"),
-                         this.lastErrorSvc.getLastErrorMessage(),
+                         _lastErrorSvc.getLastErrorMessage(),
                          _bundle.GetStringFromName("toolboxSaveError.alert"));
         }
 
