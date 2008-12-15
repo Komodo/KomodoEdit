@@ -1221,12 +1221,12 @@ def line2argv(line):
     >>> line2argv('an "embedded \\"quote\\""')
     ['an', 'embedded "quote"']
     """
-    import string
     line = line.strip()
     argv = []
     state = "default"
     arg = None  # the current argument being parsed
     i = -1
+    WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
     while 1:
         i += 1
         if i >= len(line): break
@@ -1255,7 +1255,7 @@ def line2argv(line):
             elif ch == "'":
                 if arg is None: arg = ""
                 state = "single-quoted"
-            elif ch in string.whitespace:
+            elif ch in WHITESPACE:
                 if arg is not None:
                     argv.append(arg)
                 arg = None

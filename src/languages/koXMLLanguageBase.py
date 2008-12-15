@@ -231,6 +231,7 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, opening_styles):
             scimoz.colourise(scimoz.endStyled, end)
         data = scimoz.getStyledText(0, end)
         # data is a list of (character, styleNo)
+        WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
         
         for lineNo in range(N):
             if not scimoz.getLineIndentation(lineNo): # skip unindented lines
@@ -265,7 +266,7 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, opening_styles):
                     else:
                         log.info("couldn't find < tag")
                     break
-                if char in string.whitespace:
+                if char in WHITESPACE:
                     # skip whitespace
                     continue
                 if style in comment_styles:
@@ -284,7 +285,7 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, opening_styles):
             for pos in range(lineEndPos, lineStartPos-1, -1):
                 char = scimoz.getWCharAt(pos)
                 style = scimoz.getStyleAt(pos) & bitmask
-                if char in string.whitespace:
+                if char in WHITESPACE:
                     # skip whitespace
                     continue
                 if style in comment_styles:

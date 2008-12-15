@@ -47,7 +47,6 @@ indentlog = logging.getLogger('koLanguageCommandHandler.indenting')
 #indentlog.setLevel(logging.DEBUG)
 jumplog = logging.getLogger('koLanguageCommandHandler.jump')
 
-import string
 import timeline
 
 """
@@ -645,8 +644,9 @@ class GenericCommandHandler:
         # N is 'numChars' as determined above.
         numCharsSkipped = 0
         i = 0
+        WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
         while numCharsSkipped < numChars and i < len(reflowed):
-            if reflowed[i] not in string.whitespace:
+            if reflowed[i] not in WHITESPACE:
                 numCharsSkipped += 1
             i += 1
         if hadWhitespaceToLeft:

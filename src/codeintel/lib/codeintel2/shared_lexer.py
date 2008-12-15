@@ -42,7 +42,6 @@
 import copy
 import re
 import sys
-import string
 
 from SilverCity import ScintillaConstants
 
@@ -50,7 +49,8 @@ from SilverCity import ScintillaConstants
 
 MAX_REASONABLE_LIMIT = 10000
 
-ws_re = re.compile("^[" + string.whitespace + "\\\\" + "]*$")
+WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
+ws_re = re.compile("^[" + WHITESPACE + "\\\\" + "]*$")
 trailing_spaces_re = re.compile("\n([ \t]*)$")
 trim_ws_re2 = re.compile(r'[\r\n\t]')
 trim_ws_re3 = re.compile(r' {2,}')

@@ -38,7 +38,6 @@
 """Base classes for languages and language services"""
 
 import cgi, copy, re, types, os, uriparse, eollib
-import string
 import Queue
 import threading
 import logging
@@ -2595,12 +2594,13 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaul
             if lineNo == N - 1 and lineEndPos == end:
                 lineEndPos = scimoz.getPositionBefore(end)
             lineStartPos = scimoz.positionFromLine(lineNo)
+            WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
             try:
                 # we'll look for each character in the line, going from
                 # the back, for an 'indenting' character
                 for pos in range(lineEndPos, lineStartPos-1, -1):
                     char = data[pos*2]
-                    if char in string.whitespace: # skip whitespace
+                    if char in WHITESPACE: # skip whitespace
                         continue
                     style = ord(data[pos*2+1]) & bitmask
                     if style in comment_styles: # skip comments
@@ -2659,6 +2659,7 @@ def _findIndentedLine(scimoz, bitmask, N, lineNo, indenting, comment_styles, tab
     indentedLineNo = lineNo + 1
     guess = None
     textLength = scimoz.length
+    WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
     for indentedLineNo in range(indentedLineNo, N):
         if not scimoz.getLineIndentation(indentedLineNo): # skip unindented lines
             continue
@@ -2671,7 +2672,7 @@ def _findIndentedLine(scimoz, bitmask, N, lineNo, indenting, comment_styles, tab
         # we want to skip characters that are just comments or just whitespace
         for pos in range(lineEndPos, lineStartPos-1, -1):
             char = data[pos*2]
-            if char in string.whitespace: # skip whitespace
+            if char in WHITESPACE: # skip whitespace
                 continue
             style = ord(data[pos*2+1]) & bitmask
             if style in comment_styles: # skip comments
