@@ -506,7 +506,7 @@ peFile.prototype.doCut = function(items)
     }
     ko.projects.active.manager.removeItems(items, false);
     // Select the parent
-    if (parentindex != -1) {
+    if (parentindex != -1 && ko.projects.active.selection) {
         ko.projects.active.selection.select(parentindex);
     }
     if (needUpdate) {
