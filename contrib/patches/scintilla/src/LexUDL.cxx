@@ -1110,11 +1110,16 @@ class MainInfo {
         char *p_buf = fgets(p_readBuf, readBufSize, fp);
         if (!p_buf) return p_buf;
         int slen = (int) strlen(p_readBuf) - 1;
-        if (p_readBuf[slen] == '\n') {
-            p_readBuf[slen] = 0;
-        } else if (!p_readBuf[slen]) {
-            fprintf(stderr, "udl: don't get it, p_readBuf[%d] = %d\n",
-		    slen, p_readBuf[slen]);
+        if (slen >= 0) {
+            if (p_readBuf[slen] == '\n') {
+                p_readBuf[slen] = 0;
+                if (slen >= 1 && p_readBuf[slen - 1] == '\r') {
+                    p_readBuf[slen - 1] = 0;
+                }
+            } else if (!p_readBuf[slen]) {
+                fprintf(stderr, "udl: don't get it, p_readBuf[%d] = %d\n",
+                        slen, p_readBuf[slen]);
+            }
         }
         return p_buf;
     };
