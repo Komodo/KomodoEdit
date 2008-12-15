@@ -62,36 +62,36 @@ var fileLineNoRE = /^(.*)#(\d+)$/;
 this.URI = function open_openURI(uri, viewType /* ="editor" */,
                                skipRecentOpenFeature /* =false */) {
     try{
-    // URI can be a local path or a URI
-    uri = ko.uriparse.pathToURI(uri);
-    // check for an attached line # in the form of:
-    // file:///filename.txt#24
-    var line = 0;
-    var m = fileLineNoRE.exec(uri);
-    if (m) {
-        uri = m[1];
-        line = m[2];
-    }
-    if (typeof(viewType)=='undefined' || !viewType)
-        viewType = 'editor';
-    if (uri.match(/\.kpf$/i)) {
-        ko.projects.open(uri, skipRecentOpenFeature);
-    } else if (uri.match(/\.xpi$/i)) {
-        if (InstallTrigger.enabled) {
-            var xpi={'Komodo Extension': uri};
-            InstallTrigger.install(xpi, null);
-        } else {
-            ko.dialogs.alert("Installing extensions is currently disabled.");
+        // URI can be a local path or a URI
+        uri = ko.uriparse.pathToURI(uri);
+        // check for an attached line # in the form of:
+        // file:///filename.txt#24
+        var line = 0;
+        var m = fileLineNoRE.exec(uri);
+        if (m) {
+            uri = m[1];
+            line = m[2];
         }
-    } else if (uri.match(/\.kpz$/i)) {
-        ko.toolboxes.importPackage(ko.uriparse.URIToLocalPath(uri));
-    } else {
-        if (line) {
-        return ko.views.manager.doFileOpenAtLine(uri,line, viewType);
+        if (typeof(viewType)=='undefined' || !viewType)
+            viewType = 'editor';
+        if (uri.match(/\.kpf$/i)) {
+            ko.projects.open(uri, skipRecentOpenFeature);
+        } else if (uri.match(/\.xpi$/i)) {
+            if (InstallTrigger.enabled) {
+                var xpi={'Komodo Extension': uri};
+                InstallTrigger.install(xpi, null);
+            } else {
+                ko.dialogs.alert("Installing extensions is currently disabled.");
+            }
+        } else if (uri.match(/\.kpz$/i)) {
+            ko.toolboxes.importPackage(ko.uriparse.URIToLocalPath(uri));
         } else {
-        return ko.views.manager.doFileOpen(uri,viewType);
+            if (line) {
+                return ko.views.manager.doFileOpenAtLine(uri,line, viewType);
+            } else {
+                return ko.views.manager.doFileOpen(uri,viewType);
+            }
         }
-    }
     } catch(e) {
         log.exception(e);
     }
