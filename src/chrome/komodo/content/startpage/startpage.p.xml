@@ -1006,7 +1006,7 @@
                     req._browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.html");
                 }
             };
-            req.onerror = function (event {
+            req.onerror = function (event) {
                 this_.log.info("unable to connect (probably offline)");
                 req._browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.html");
             }
