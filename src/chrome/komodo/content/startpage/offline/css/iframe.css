@@ -13,6 +13,7 @@ body {
 a {
     outline: none;
     border: none;
+    color: #3d922e;
 }
 a img {
     border: none;
@@ -42,23 +43,10 @@ a img {
     margin: 0;
 }
 
-
-/* Left Komodo dragon image disabled for now: takes up too much horizontal
-   space.
 #mainleft {
-    background: url(../img/bgleft_ide.jpg) top left repeat-x;
+    background: url(../img/bgleft.jpg) top left no-repeat;
 }
-body.product-edit #mainleft {
-    background: url(../img/bgleft_edit.jpg) top left repeat-x;
-}
-#mainleft div.content {
-    padding-left: 320px;
-}
-*/
 
-#mainleft div.content a {
-    color: #3d922e;
-}
 
 #mainleft div.content ul {
     width: 75%;
@@ -77,9 +65,7 @@ body.product-edit #mainleft {
     position: absolute;
     top: 0px;
     right: 0px;
-    /* Full width of the current background image is 349px. However, we
-       want to squeeze a little more width for the page. */
-    width: 300px;
+    width: 349px;
     height: 200px;
     margin: 0;
     padding: 0;
@@ -88,10 +74,7 @@ body.product-edit #mainleft {
 
 #mainright div.content {
     margin: 0;
-    padding: 0 0 0 90px;
-}
-#mainright div.content a {
-    color: #ffffff;
+    padding: 0 10px 0 90px;
 }
 
 #mainright div.content ul {
@@ -108,23 +91,26 @@ body.page-offline #mainright div.content {
     padding-top: 30px;
 }
 body.page-edit #mainright div.content {
-    padding-top: 10px;
+    padding-top: 30px;
 }
 body.page-ide #mainright div.content {
-    padding-top: 5px;
+    padding-top: 20px;
 }
 body.page-trial #mainright div.content {
-    padding-top: 15px;
+    padding-top: 40px;
+}
+body.page-trial2 #mainright div.content {
+    padding-top: 20px;
 }
 body.page-beta #mainright div.content {
-    padding-top: 30px;
+    padding-top: 20px;
 }
 
 /* ---- image replacements ---- */
 
 .img-komodo-rss,
 .img-welcome-trial,
-.img-we-hope-trial,
+.img-check-out-aspn,
 .img-welcome-beta,
 .img-welcome-to-komodo-ide,
 .img-welcome-to-komodo-edit {
@@ -140,8 +126,8 @@ body.page-beta #mainright div.content {
     background: url(../img/welcome_trial.gif) 0 0 no-repeat;
     height: 30px;
 }
-.img-we-hope-trial {
-    background: url(../img/we_hope_trial.gif) 0 0 no-repeat;
+.img-check-out-aspn {
+    background: url(../img/msg_checkoutaspn.gif) 0 0 no-repeat;
     height: 50px;
 }
 .img-welcome-beta {
