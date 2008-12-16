@@ -94,21 +94,21 @@ static char opposite(char ch) {
 }
 
 static void getRange(unsigned int start,
-		unsigned int end,
-		Accessor &styler,
-		char *s,
-		unsigned int len) {
-	unsigned int i = 0;
-	while ((i < end - start + 1) && (i < len-1)) {
-		s[i] = styler[start + i];
-		i++;
-	}
-	s[i] = '\0';
+                     unsigned int end,
+                     Accessor &styler,
+                     char *s,
+                     unsigned int len) {
+    unsigned int i = 0;
+    while ((i < end - start + 1) && (i < len-1)) {
+        s[i] = styler[start + i];
+        i++;
+    }
+    s[i] = '\0';
 }
 
 static void GetCurrent(char *s, unsigned int len, unsigned int end,
                        Accessor &styler) {
-	getRange(styler.GetStartSegment(), end, styler, s, len);
+        getRange(styler.GetStartSegment(), end, styler, s, len);
 }
 
 #ifndef LOG_MEM
@@ -733,7 +733,7 @@ class Transition {
             if (!p_pattern) {
                 //XXX Remove
                 fprintf(stderr, "udl: failed to compile ptn <%s>: failed at offset %d (%s): %s\n",
-			p_search_string, erroffset, &p_search_string[erroffset],
+                        p_search_string, erroffset, &p_search_string[erroffset],
                         errptr);
             }
         } else {
@@ -1127,7 +1127,7 @@ class MainInfo {
     bool verifyArgs(int args[], int arg_count, int num_needed, const char *sig) {
         if (num_needed != arg_count) {
             fprintf(stderr, "udl: verifyArgs: expecting %d args for the current opcode, got %d\n",
-		    num_needed, arg_count);
+                    num_needed, arg_count);
             return false;
         }
         int *p_args = args;
@@ -1149,7 +1149,7 @@ class MainInfo {
             }
             if (mult * *p_args < targ) {
                 fprintf(stderr, "udl: expecting arg %d to be of type %c, got %d\n",
-			i, *p_sig, *p_args);
+                        i, *p_sig, *p_args);
                 return false;
             }
         }
@@ -1220,7 +1220,7 @@ bool MainInfo::Init(const char *p_sublang_file) {
     fp = fopen(p_sublang_file, "r");
     if (!fp) {
         fprintf(stderr, "udl: can't open file %s (who knows why)\n",
-		p_sublang_file);
+                p_sublang_file);
         goto free_stuff;
     }
     p_TransitionTable = GetTable();
@@ -1643,7 +1643,7 @@ bool MainInfo::Init(const char *p_sublang_file) {
     free_stuff:
     if (!rc) {
         fprintf(stderr, "udl: bailing out of file '%s' at line %d\n",
-		p_sublang_file, lineNo);
+                p_sublang_file, lineNo);
         Clear();
     } else {
         ready = true;
@@ -2541,9 +2541,9 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                                   int length,
                                   int
 #if 0
-				  initStyle
+                                  initStyle
 #endif
-				  ,
+                                  ,
                                   WordList *keywordlists[],
                                   Accessor &styler)
 {
@@ -2891,9 +2891,9 @@ static void getToken(int 	curr_style,
 
 static void FoldUDLDoc(unsigned int startPos, int length, int
 #if 0
-		       initStyle
+                       initStyle
 #endif
-		       ,
+                       ,
                       WordList *keywordlists[], Accessor &styler)
 {
 #if 0
@@ -2912,8 +2912,8 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
     if (!p_MainInfo || !p_MainInfo->IsReady()) {
         return;
     }
-	const bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
-	// bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
+    const bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
+    // bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
     int curr_family;
     int istate; // the internal state
     synchronizeDocStart(startPos, length, istate, curr_family,
@@ -2931,16 +2931,16 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
 
     // Variables to allow folding.
     unsigned int endPos = startPos + length;
-	int visibleChars = 0;
+    int visibleChars = 0;
     int lineCurrent = styler.GetLine(startPos);
-	int levelPrev = startPos == 0 ? 0 : (styler.LevelAt(lineCurrent)
+    int levelPrev = startPos == 0 ? 0 : (styler.LevelAt(lineCurrent)
                                          & SC_FOLDLEVELNUMBERMASK
                                          & ~SC_FOLDLEVELBASE);
-	int levelCurrent = levelPrev;
+    int levelCurrent = levelPrev;
     char s[100];
     unsigned int i = startPos;
     bool buffer_ends_with_eol = false;
-	while (i < endPos) {
+    while (i < endPos) {
         int lengthUsed;
         int direction;
         int curr_style = actual_style(styler.StyleAt(i));
@@ -2972,34 +2972,34 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
         if (levelCurrent < 0)
             levelCurrent = 0;
         
-		bool atEOL = (s[0] == '\r' || s[0] == '\n');
-		if (atEOL) {
-			int lev = levelPrev;
-			if (visibleChars == 0 && foldCompact)
-				lev |= SC_FOLDLEVELWHITEFLAG;
-			if ((levelCurrent > levelPrev) && (visibleChars > 0))
-				lev |= SC_FOLDLEVELHEADERFLAG;
+        bool atEOL = (s[0] == '\r' || s[0] == '\n');
+        if (atEOL) {
+            int lev = levelPrev;
+            if (visibleChars == 0 && foldCompact)
+                lev |= SC_FOLDLEVELWHITEFLAG;
+            if ((levelCurrent > levelPrev) && (visibleChars > 0))
+                lev |= SC_FOLDLEVELHEADERFLAG;
             styler.SetLevel(lineCurrent, lev|SC_FOLDLEVELBASE);
-			lineCurrent++;
-			levelPrev = levelCurrent;
-			visibleChars = 0;
+            lineCurrent++;
+            levelPrev = levelCurrent;
+            visibleChars = 0;
             buffer_ends_with_eol = true;
-		} else if (containsNonSpace(s)) {
-			visibleChars++;
+        } else if (containsNonSpace(s)) {
+            visibleChars++;
             buffer_ends_with_eol = false;
         }
     }
-	// Fill in the real level of the next line, keeping the current flags as they will be filled in later
+    // Fill in the real level of the next line, keeping the current flags as they will be filled in later
     if (!buffer_ends_with_eol) {
         lineCurrent++;
         int new_lev = levelCurrent;
         if (visibleChars == 0 && foldCompact)
             new_lev |= SC_FOLDLEVELWHITEFLAG;
-			if ((levelCurrent > levelPrev) && (visibleChars > 0))
-				new_lev |= SC_FOLDLEVELHEADERFLAG;
-            levelCurrent = new_lev;
+        if ((levelCurrent > levelPrev) && (visibleChars > 0))
+            new_lev |= SC_FOLDLEVELHEADERFLAG;
+        levelCurrent = new_lev;
     }
-	styler.SetLevel(lineCurrent, levelCurrent|SC_FOLDLEVELBASE);
+    styler.SetLevel(lineCurrent, levelCurrent|SC_FOLDLEVELBASE);
     LogEvent(false, "FoldUDLDoc", &styler);
         
 }
