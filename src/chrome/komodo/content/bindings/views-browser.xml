@@ -204,6 +204,14 @@
             this.browser.webProgress.addProgressListener(this.progressFilter, Components.interfaces.nsIWebProgress.NOTIFY_ALL);
 
             this.browser.addEventListener("DOMTitleChanged", this.onTitleChanged, false);
+            var navBar = document.getAnonymousElementByAttribute(this, 'id', "nav-bar");
+            var this_ = this;
+            this.navBarClickHandler = function(event) {
+                if (event.target.id != 'urlbar') {
+                    this_.setFocus();
+                }
+            }
+            navBar.addEventListener('click', this.navBarClickHandler, false);
         ]]>
         </body>
         </method>
@@ -306,6 +314,8 @@
             this._progressListener = null;
             try {
                 this.browser.removeEventListener("DOMTitleChanged", this.onTitleChanged, false);
+                var navBar = document.getAnonymousElementByAttribute(this, 'id', 'nav-bar');
+                navBar.removeEventListener('click', this.navBarClickHandler, false);
             } catch(e) {}
             /////// copied from view-base.close due to xbl inheritance issues //////
             xtk.domutils.fireEvent(this, 'view_closed');
