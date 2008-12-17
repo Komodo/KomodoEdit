@@ -63,7 +63,7 @@ this.invokePart = function part_invokePart(part) {
             ko.open.URI(part.url);
             break;
         case 'template':
-            ko.views.manager.doFileNewFromTemplate(part.value);
+            ko.views.manager.doFileNewFromTemplateAsync(part.value);
             break;
         case 'DirectoryShortcut':
             ko.projects.openDirectoryShortcut(part);

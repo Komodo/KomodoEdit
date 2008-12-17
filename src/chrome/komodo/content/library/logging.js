@@ -133,6 +133,27 @@ this.Logger.prototype.warn = function(message) {
     }
 }
 
+/**
+ * Log a deprecation warning message. This will also log the stack trace
+ * to show where the deprecated code was being called from.
+ *
+ * Note: This is not a core Python logging function, it's just used from
+ *       JavaScript code to warn about Komodo JavaScript API deprecations.
+ *
+ * @param message {string}  The deprecation warning message.
+ */
+this.Logger.prototype.deprecated = function(message) {
+    try {
+        if (this._logger.getEffectiveLevel() <= LOG_WARN) {
+            this.warn(message + "\n" +
+                      getStack().replace('\n', '\n    ', 'g').slice(0, -4) +
+                      "\n");
+        }
+    } catch(ex) {
+        dump("*** Error in logger.deprecationWarning: "+ex+"\n");
+    }
+}
+
 this.Logger.prototype.error = function(message) {
     try {
         if (this._logger.getEffectiveLevel() <= LOG_ERROR) {

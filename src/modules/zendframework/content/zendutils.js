@@ -517,11 +517,12 @@ function _newFile(path, text, fileType /*=PHP*/) {
   }
   
   if(!os.path.exists(path)) {
-    var view = ko.views.manager.doNewView(fileType);
-    view.document.buffer = text;
-    view.document.new_line_endings = view.document.EOL_LF;
-    view.document.existing_line_endings = view.document.EOL_LF;
-    view.saveAsURI(path);
+    ko.views.manager.doNewViewAsync(fileType, 'editor', function(view) {
+      view.document.buffer = text;
+      view.document.new_line_endings = view.document.EOL_LF;
+      view.document.existing_line_endings = view.document.EOL_LF;
+      view.saveAsURI(path);
+    });
   } else {
     ko.dialogs.alert('The file '+os.path.basename(path)
                      + ' already exists at the loaction '

@@ -304,7 +304,7 @@ function ContinueTop(tests, i, lim) {
     if (test.width != iwPrefs.getLongPref('indentWidth')) {
         iwPrefs.setLongPref('indentWidth', test.width);
     }
-    var view = ko.open.URI(file.URI);
+    ko.views.manager.newViewFromURIAsync(file.URI);
     setTimeout(ContinuePart2, 200, tests, i, lim, test, file);
 }
 

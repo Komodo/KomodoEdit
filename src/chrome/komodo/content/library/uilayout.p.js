@@ -590,7 +590,7 @@ function _updateMRUMenu(prefName)
 // This is a little wrapper for ko.views.manager.doFileNewFromTemplate() that first
 // checks to see if the template file exists, and if not: (1) does not
 // call doFileNewFromTemplate and (2) removes the template entry from the
-// given MRU.
+// given MRU. The file/view will be opened asynchronously.
 //
 // XXX The *right* way to do this is for ko.views.manager.doFileNewFromTemplate
 //     to return an error (code or exception) if the template doesn't exist --
@@ -614,11 +614,11 @@ this.newFileFromTemplateOrTrimMRU = function uilayout_newFileFromTemplateOrTrimM
                          +"'Recent Templates' list will be removed.",
                          templatePath);
             ko.mru.del(mruPrefName, mruIndex);
-            return null;
+            return;
         }
     }
     
-    return ko.views.manager.doFileNewFromTemplate(templateURI);
+    ko.views.manager.doFileNewFromTemplateAsync(templateURI);
 }
 
 

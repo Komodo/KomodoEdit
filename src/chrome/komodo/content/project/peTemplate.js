@@ -100,7 +100,7 @@ peTemplate.prototype.doCommand = function(command) {
 
 peTemplate.prototype.openTemplate = function(item)
 {
-    ko.views.manager.doFileNewFromTemplate(item.url);
+    ko.views.manager.doFileNewFromTemplateAsync(item.url);
 }
 
 // this is hidden away now, no namespce, the registration keeps the reference

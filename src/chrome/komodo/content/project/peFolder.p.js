@@ -368,7 +368,7 @@ this.ensureAddMenu = function peFolder_ensureFolderAdd(popup) {
 this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart*/ parent)
 {
     var defaultDirectory = ko.projects.getDefaultDirectory(parent);
-    return ko.views.manager.newTemplate(defaultDirectory, parent.project);
+    ko.views.manager.newTemplate(defaultDirectory, parent.project);
 }
     
 this.addFileWithURL = function peFolder_addFileWithURL(url, /*koIPart*/ parent)

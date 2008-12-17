@@ -672,10 +672,10 @@
                     
                     // Open the new view.
                     if (line != null) {
-                        ko.views.manager.doFileOpenAtLine(
+                        ko.views.manager.doFileOpenAtLineAsync(
                             uri, line, viewType, viewList, targetIndex);
                     } else {
-                        ko.views.manager.doFileOpen(
+                        ko.views.manager.doFileOpenAsync(
                             uri, viewType, viewList, targetIndex);
                     }
                     window.focus();

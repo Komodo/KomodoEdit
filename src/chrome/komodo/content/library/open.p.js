@@ -46,22 +46,22 @@ ko.open = {};
 var fileLineNoRE = /^(.*)#(\d+)$/;
     
 /**
- * function for opening buffers in Komodo tabs
+ * Asynchronously open the URI in a new Komodo tab, if the file is already
+ * open then this existing tab becomes the currently focused tab.
+ *
+ * If you need the view for the file that is opened from this call, use the
+ * ko.views.manager.doFileOpenAsync(..., callback) method.
  *
  * @param uri {String} the path or URI to open
  * @param viewType {String} optional default "editor" type of view
- *  component to use. Values can be [ "editor", "browser", "diff" ].
+ *        component to use. Values can be [ "editor", "browser", "diff" ].
  * @param skipRecentOpenFeature {boolean} optional default false, can
- *  be used when the URI to open is a project file to specify that
- *  the feature to open files in that project should not be offered.
- * @return view {DOMElement xul:view}
- *
- * If the URI is not successfully opened or if the URL opened is a Komodo
- * project file null is returned.
+ *        be used when the URI to open is a project file to specify that
+ *        the feature to open files in that project should not be offered.
  */
 this.URI = function open_openURI(uri, viewType /* ="editor" */,
                                skipRecentOpenFeature /* =false */) {
-    try{
+    try {
         // URI can be a local path or a URI
         uri = ko.uriparse.pathToURI(uri);
         // check for an attached line # in the form of:
@@ -72,8 +72,6 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
             uri = m[1];
             line = m[2];
         }
-        if (typeof(viewType)=='undefined' || !viewType)
-            viewType = 'editor';
         if (uri.match(/\.kpf$/i)) {
             ko.projects.open(uri, skipRecentOpenFeature);
         } else if (uri.match(/\.xpi$/i)) {
@@ -87,9 +85,9 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
             ko.toolboxes.importPackage(ko.uriparse.URIToLocalPath(uri));
         } else {
             if (line) {
-                return ko.views.manager.doFileOpenAtLine(uri,line, viewType);
+                ko.views.manager.doFileOpenAtLineAsync(uri, line, viewType);
             } else {
-                return ko.views.manager.doFileOpen(uri,viewType);
+                ko.views.manager.doFileOpenAsync(uri, viewType);
             }
         }
     } catch(e) {
@@ -136,8 +134,8 @@ this.displayPath = function open_openDisplayPath(displayPath, viewType /* ="edit
  * Open Komodo's Start Page
  */
 this.startPage = function open_openStartPage() {
-    ko.views.manager.doFileOpen("chrome://komodo/content/startpage/startpage.xml#view-startpage",
-                        "startpage");
+    ko.views.manager.doFileOpenAsync("chrome://komodo/content/startpage/startpage.xml#view-startpage",
+                                     "startpage");
 }
 
 this.multipleURIs = function open_openMultipleURIs(urls, viewType)

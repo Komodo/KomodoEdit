@@ -293,21 +293,22 @@ viewManager.prototype.newTemplate = function(defaultDir, project) {
 
 
 /**
- * create a new file based on a template, optionally add it to a
- * project
+ * Create a new file based on a template, optionally add it to a project.
  *
- * @public
+ * @private
+ *
  * @param uri {string} optional, uri pointing to a template file
  * @param saveto {string} optional, where to save the new file
  * @param viewType {string} optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
  *        optional, what pane to open the buffer in
+ *
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
-viewManager.prototype.doFileNewFromTemplate = function(uri,
-                                                       saveto  /*=null*/,
-                                                       viewType /*="editor"*/,
-                                                       viewList /*=null*/)
+viewManager.prototype._doFileNewFromTemplate = function(uri,
+                                                        saveto  /*=null*/,
+                                                        viewType /*="editor"*/,
+                                                        viewList /*=null*/)
 {
     this.log.info("doing doFileNewFromTemplate: ");
     if (typeof(viewType) == "undefined" || viewType == null) viewType = "editor";
@@ -410,17 +411,69 @@ viewManager.prototype.doFileNewFromTemplate = function(uri,
     return view;
 }
 
-
 /**
- * create a new empty, unsaved buffer
+ * Create a new file based on a template, optionally add it to a project.
+ * Deprecated, use the doFileNewFromTemplateAsync function instead.
+ * 
+ * @deprecated since 5.0.3 (this will be moved to an internal function)
  *
- * @public
- * @param language {string} optional, language of the buffer (eg. python)
+ * @param uri {string} optional, uri pointing to a template file
+ * @param saveto {string} optional, where to save the new file
  * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param viewList {Components.interfaces.koIViewList}
+ *        optional, what pane to open the buffer in
+ *
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
-viewManager.prototype.doNewView = function(language /*= prefs.fileDefaultNew*/,
-                                           viewType /*='editor'*/) {
+viewManager.prototype.doFileNewFromTemplate = function(uri,
+                                                       saveto  /*=null*/,
+                                                       viewType /*="editor"*/,
+                                                       viewList /*=null*/)
+{
+    this.log.deprecated("doFileNewFromTemplate is deprecated, use " +
+                        "ko.views.manager.doFileNewFromTemplateAsync");
+    return this._doFileNewFromTemplate(uri, saveto, viewType, viewList);
+}
+
+/**
+ * Asynchronously create a new file based on a template, optionally add it
+ * to a project.
+ *
+ * @param uri {string} optional, uri pointing to a template file
+ * @param saveto {string} optional, where to save the new file
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param viewList {Components.interfaces.koIViewList}
+ *        optional, what pane to open the buffer in
+ * @param callback {function} optional, to be called when the asynchronous load
+ *        is complete. The view will be passed as an argument to the function.
+ */
+viewManager.prototype.doFileNewFromTemplateAsync = function(uri,
+                                                       saveto  /*=null*/,
+                                                       viewType /*="editor"*/,
+                                                       viewList /*=null*/,
+                                                       callback /*=null*/)
+{
+    window.setTimeout(function(mgr_, uri_, saveto_, viewType_, viewList_, callback_) {
+        var view = mgr._doFileNewFromTemplate(uri_, saveto_, viewType_, viewList_, callback_);
+        if (callback_) {
+            callback_(view);
+        }
+    }, 1, this, uri, saveto, viewType, viewList, callback);
+}
+
+/**
+ * Create a new empty, unsaved buffer.
+ *
+ * @private
+ *
+ * @param language {string} optional, language of the buffer (eg. python)
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ *
+ * @return {Components.interfaces.koIView} the buffer view that is opened
+ */
+viewManager.prototype._doNewView = function(language /*= prefs.fileDefaultNew*/,
+                                            viewType /*='editor'*/)
+{
     this.log.info("doing doNewView: ");
     ko.trace.get().enter('viewManager.doNewView');
 
@@ -440,21 +493,64 @@ viewManager.prototype.doNewView = function(language /*= prefs.fileDefaultNew*/,
 }
 
 /**
+ * Create a new empty, unsaved editor buffer.
+ *
+ * @deprecated since 5.0.3 (this will be moved to an internal function)
+ *
+ * @param language {string} optional, language of the buffer (eg. python)
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ *
+ * @return {Components.interfaces.koIView} the buffer view that is opened
+ */
+viewManager.prototype.doNewView = function(language /*= prefs.fileDefaultNew*/,
+                                           viewType /*='editor'*/)
+{
+    this.log.deprecated("doNewView is deprecated, use " +
+                        "ko.views.manager.doNewViewAsync");
+    return this._doNewView(language, viewType);
+}
+
+/**
+ * Asynchronously create a new empty, unsaved editor buffer.
+ *
+ * @param language {string} optional, language of the buffer (eg. python)
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param callback {function} optional, to be called when the asynchronous load
+ *        is complete. The view will be passed as an argument to the function.
+ */
+viewManager.prototype.doNewViewAsync = function(language /*= prefs.fileDefaultNew*/,
+                                                viewType /*='editor'*/,
+                                                callback /*=null*/)
+{
+    window.setTimeout(function(mgr, language_, viewType_, callback_) {
+        var view = mgr._doNewView(language_, viewType_);
+        if (callback_) {
+            callback_(view);
+        }
+    }, 1, this, language, viewType, callback);
+}
+
+
+/**
  * Create a new buffer and open a file into it.
  * Note: The "uri" will *not* be translated by the mapped URI functionality.
  *
- * @public
+ * @private
+ *
  * @param uri {string} uri to file
  * @param viewType {string} optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
- *      optional, what pane to open the buffer in
+ *        optional, what pane to open the buffer in
  * @param index {integer} optional index in the `viewList` at which to insert
- *      the new view. If not given, or -1, then the new view is appended.
- *      If there is already a view open for this `uri`, then index is ignored.
+ *        the new view. If not given, or -1, then the new view is appended.
+ *        If there is already a view open for this `uri`, then index is ignored.
+ *
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
-viewManager.prototype.newViewFromURI = function(
-    uri, viewType/*='editor'*/, viewList/*=null*/, index /* =-1 */)
+viewManager.prototype._newViewFromURI = function(uri,
+                                                 viewType/*='editor'*/,
+                                                 viewList/*=null*/,
+                                                 index /* =-1 */)
 {
     this.log.info("doing newViewFromURI: " + uri);
     ko.trace.get().enter('viewManager.newViewFromURI');
@@ -527,11 +623,66 @@ viewManager.prototype.newViewFromURI = function(
 }
 
 /**
- * open a file, if it is already open, then select that buffer, otherwise,
- * create a new buffer for the file.
+ * Create a new buffer and open a file into it.
+ * Note: The "uri" will *not* be translated by the mapped URI functionality.
+ *
+ * @deprecated since 5.0.3 (this will be moved to an internal function)
+ *
+ * @param uri {string} uri to file
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param viewList {Components.interfaces.koIViewList}
+ *        optional, what pane to open the buffer in
+ * @param index {integer} optional index in the `viewList` at which to insert
+ *        the new view. If not given, or -1, then the new view is appended.
+ *        If there is already a view open for this `uri`, then index is ignored.
+ *
+ * @return {Components.interfaces.koIView} the buffer view that is opened
+ */
+viewManager.prototype.newViewFromURI = function(uri,
+                                                viewType/*='editor'*/,
+                                                viewList/*=null*/,
+                                                index /* =-1 */)
+{
+    this.log.deprecated("newViewFromURI is deprecated, use " +
+                        "ko.views.manager.newViewFromURIAsync");
+    return this._newViewFromURI(uri, viewType, viewList, index);
+}
+
+/**
+ * Create a new buffer and open a file into it.
+ * Note: The "uri" will *not* be translated by the mapped URI functionality.
+ *
+ * @param uri {string} uri to file
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param viewList {Components.interfaces.koIViewList}
+ *        optional, what pane to open the buffer in
+ * @param index {integer} optional index in the `viewList` at which to insert
+ *        the new view. If not given, or -1, then the new view is appended.
+ *        If there is already a view open for this `uri`, then index is ignored.
+ * @param callback {function} optional, to be called when the asynchronous load
+ *        is complete. The view will be passed as an argument to the function.
+ */
+viewManager.prototype.newViewFromURIAsync = function(uri,
+                                                     viewType/*='editor'*/,
+                                                     viewList/*=null*/,
+                                                     index /* =-1 */,
+                                                     callback /* =null */)
+{
+    window.setTimeout(function(mgr, uri_, viewType_, viewList_, index_, callback_) {
+        var view = mgr._newViewFromURI(uri_, viewType_, viewList_, index_);
+        if (callback_) {
+            callback_(view);
+        }
+    }, 1, this, uri, viewType, viewList, index, callback);
+}
+
+/**
+ * Open a file. If it is already open, then select that buffer,
+ * else create a new buffer for the file.
  * Note: The "uri" will be translated using the mapped URI functionality.
  *
- * @public
+ * @private
+ *
  * @param uri {string} uri to file
  * @param viewType {string} optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
@@ -541,9 +692,10 @@ viewManager.prototype.newViewFromURI = function(
  *      If there is already a view open for this `uri`, then index is ignored.
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
-viewManager.prototype.doFileOpen = function(
-    uri, viewType/* ='editor' */, viewList/* =null */,
-    index /* =-1 */)
+viewManager.prototype._doFileOpen = function(uri,
+                                             viewType/*='editor'*/,
+                                             viewList/*=null*/,
+                                             index /* =-1 */)
 {
     if (typeof(viewList)=='undefined')
         viewList = null;
@@ -565,16 +717,17 @@ viewManager.prototype.doFileOpen = function(
         views[0].makeCurrent();
         return views[0];
     }
-    return this.newViewFromURI(uri, viewType, viewList, index);
+    return this._newViewFromURI(uri, viewType, viewList, index);
 }
 
 /**
- * open a file, if it is already open, then select that buffer, otherwise,
- * create a new buffer for the file.  Make the given line number visible.
+ * Open a file. If it is already open, then select that buffer,
+ * else create a new buffer for the file.
+ * Note: The "uri" will be translated using the mapped URI functionality.
  *
- * @public
+ * @deprecated since 5.0.3 (this will be moved to an internal function)
+ *
  * @param uri {string} uri to file
- * @param lineno {integer} line number
  * @param viewType {string} optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
  *      optional, what pane to open the buffer in
@@ -583,9 +736,66 @@ viewManager.prototype.doFileOpen = function(
  *      If there is already a view open for this `uri`, then index is ignored.
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
-viewManager.prototype.doFileOpenAtLine = function(
-    uri, lineno, viewType/* ='editor' */, viewList/* =null */,
-    index /* =-1 */)
+viewManager.prototype.doFileOpen = function(uri,
+                                            viewType/*='editor'*/,
+                                            viewList/*=null*/,
+                                            index /* =-1 */)
+{
+    this.log.deprecated("doFileOpen is deprecated, use " +
+                        "ko.views.manager.doFileOpenAsync");
+    return this._doFileOpen(uri, viewType, viewList, index);
+}
+
+/**
+ * Asyncronously open a file. If it is already open, then select that buffer,
+ * else create a new buffer for the file.
+ * Note: The "uri" will be translated using the mapped URI functionality.
+ *
+ * @param uri {string} uri to file
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param viewList {Components.interfaces.koIViewList}
+ *      optional, what pane to open the buffer in
+ * @param index {integer} optional index in the `viewList` at which to insert
+ *      the new view. If not given, or -1, then the new view is appended.
+ *      If there is already a view open for this `uri`, then index is ignored.
+ * @param callback {function} optional, to be called when the asynchronous load
+ *        is complete. The view will be passed as an argument to the function.
+ */
+viewManager.prototype.doFileOpenAsync = function(uri,
+                                                 viewType/*='editor'*/,
+                                                 viewList/*=null*/,
+                                                 index /* =-1 */,
+                                                 callback /* =null */)
+{
+    window.setTimeout(function(mgr, uri_, viewType_, viewList_, index_, callback_) {
+        var view = mgr._doFileOpen(uri_, viewType_, viewList_, index_);
+        if (callback_) {
+            callback_(view);
+        }
+    }, 1, this, uri, viewType, viewList, index, callback);
+}
+
+/**
+ * Open a file at the given line number. If it is already open, then select
+ * that buffer, else create a new buffer for the file.
+ *
+ * @private
+ *
+ * @param uri {string} uri to file
+ * @param lineno {integer} line number
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param viewList {Components.interfaces.koIViewList}
+ *        optional, what pane to open the buffer in
+ * @param index {integer} optional index in the `viewList` at which to insert
+ *        the new view. If not given, or -1, then the new view is appended.
+ *        If there is already a view open for this `uri`, then index is ignored.
+ * @return {Components.interfaces.koIView} the buffer view that is opened
+ */
+viewManager.prototype._doFileOpenAtLine = function(uri,
+                                                  lineno,
+                                                  viewType/*='editor'*/,
+                                                  viewList/*=null*/,
+                                                  index /* =-1 */)
 {
     if (typeof(viewType)=='undefined' || !viewType)
         viewType = 'editor';
@@ -593,16 +803,69 @@ viewManager.prototype.doFileOpenAtLine = function(
         viewList = null;
     if (typeof(index) == 'undefined' || index == null)
         index = -1;
-    var v = this.doFileOpen(uri, viewType, viewList, index);
+    var v = this._doFileOpen(uri, viewType, viewList, index);
     if (v) {
-        // Do the line change in a timeout to avoid unwanted horizontal scroll
-        // (bug 60117).
-        setTimeout(function() {
-            v.currentLine = lineno;
-        }, 0);
+        v.currentLine = lineno;
     }
     return v;
 }
+
+/**
+ * Open a file at the given line number. If it is already open, then select
+ * that buffer, else create a new buffer for the file.
+ *
+ * @deprecated since 5.0.3 (this will be moved to an internal function)
+ *
+ * @param uri {string} uri to file
+ * @param lineno {integer} line number
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param viewList {Components.interfaces.koIViewList}
+ *        optional, what pane to open the buffer in
+ * @param index {integer} optional index in the `viewList` at which to insert
+ *        the new view. If not given, or -1, then the new view is appended.
+ *        If there is already a view open for this `uri`, then index is ignored.
+ *
+ * @return {Components.interfaces.koIView} the buffer view that is opened
+ */
+viewManager.prototype.doFileOpenAtLine = function(uri,
+                                                  lineno,
+                                                  viewType/*='editor'*/,
+                                                  viewList/*=null*/,
+                                                  index /* =-1 */)
+{
+    this.log.deprecated("doFileOpenAtLine is deprecated, use " +
+                        "ko.views.manager.doFileOpenAtLineAsync");
+    return this._doFileOpenAtLine(uri, lineno, viewType, viewList, index);
+}
+
+/**
+ * Asyncronously open a file at the given line number. If it is already open,
+ * then select that buffer, else create a new buffer for the file.
+ *
+ * @param uri {string} uri to file
+ * @param lineno {integer} line number
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param viewList {Components.interfaces.koIViewList}
+ *        optional, what pane to open the buffer in
+ * @param index {integer} optional index in the `viewList` at which to insert
+ *        the new view. If not given, or -1, then the new view is appended.
+ *        If there is already a view open for this `uri`, then index is ignored.
+ */
+viewManager.prototype.doFileOpenAtLineAsync = function(uri,
+                                                       lineno,
+                                                       viewType/*='editor'*/,
+                                                       viewList/*=null*/,
+                                                       index /* =-1 */,
+                                                       callback /* =null */)
+{
+    window.setTimeout(function(mgr, uri_, lineno_, viewType_, viewList_, index_, callback_) {
+        var view = mgr._doFileOpenAtLine(uri_, lineno_, viewType_, viewList_, index_);
+        if (callback_) {
+            callback_(view);
+        }
+    }, 1, this, uri, lineno, viewType, viewList, index, callback);
+}
+
 
 /**
  * Get a reference to the buffer view for the given URI and view type.
@@ -777,17 +1040,15 @@ viewManager.prototype.handle_open_file = function(topic, data)
                 // Maybe it is a URI already?
                 uri = fname;
             }
-            ko.open.URI(uri); // dispatch to view, project, UI builder as necessary
-            if (anchorDesc && currentPosDesc) {
+            var view = this._doFileOpen(uri);
+            if (view && anchorDesc && currentPosDesc) {
                 // Are we using character index or line,column?
                 if (anchorDesc.indexOf(',') == -1) {
                     anchor = Number(anchor);
                 } else {
                     subparts = anchorDesc.split(',');
-                    var anchorLine = Math.max(Number(subparts[0]) - 1,
-                                              0);
-                    var anchorCol = Math.max(Number(subparts[1]) - 1,
-                                             0);
+                    var anchorLine = Math.max(Number(subparts[0]) - 1, 0);
+                    var anchorCol = Math.max(Number(subparts[1]) - 1, 0);
                     anchor = ko.views.manager.currentView.positionAtColumn(anchorLine,
                                                                            anchorCol);
                 }
@@ -795,18 +1056,16 @@ viewManager.prototype.handle_open_file = function(topic, data)
                     currentPos = Number(currentPos);
                 } else {
                     subparts = currentPosDesc.split(',')
-                        var currentPosLine = Math.max(Number(subparts[0]) - 1,
-                                                      0);
-                    var currentPosCol = Math.max(Number(subparts[1]) - 1,
-                                                 0);
+                    var currentPosLine = Math.max(Number(subparts[0]) - 1, 0);
+                    var currentPosCol = Math.max(Number(subparts[1]) - 1, 0);
                     currentPos = ko.views.manager.currentView.positionAtColumn(currentPosLine,
                                                                                currentPosCol);
                 }
                 // do gotoline first because it messes w/ current position and anchor.
-                var lineNo = ko.views.manager.currentView.scimoz.lineFromPosition(currentPos);
-                ko.views.manager.currentView.scimoz.gotoLine(Math.max(lineNo - 1, 0)); // scimoz is 0-indexed
-                ko.views.manager.currentView.anchor = anchor;
-                ko.views.manager.currentView.currentPos = currentPos;
+                var lineNo = view.scimoz.lineFromPosition(currentPos);
+                view.scimoz.gotoLine(Math.max(lineNo - 1, 0)); // scimoz is 0-indexed
+                view.anchor = anchor;
+                view.currentPos = currentPos;
                 // Force the main window to the forefront
                 //precondition: window == ko.windowManager.getMainWindow()
                 window.focus();

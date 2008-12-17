@@ -522,7 +522,7 @@ CodeIntelCompletionUIHandler.prototype._setDefinitionsInfo = function(
                 _gCodeIntel_log.info("goto definition at "+triggerPos+
                                      ": found defn path '"+defn.path+
                                      "', line "+defn.line+".");
-                ko.views.manager.doFileOpenAtLine(ko.uriparse.pathToURI(defn.path), defn.line);
+                ko.views.manager.doFileOpenAtLineAsync(ko.uriparse.pathToURI(defn.path), defn.line);
             } else {
                 // No file information for ...
                 _gCodeIntel_log.info("goto definition at "+triggerPos+
