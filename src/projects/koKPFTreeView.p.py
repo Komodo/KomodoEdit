@@ -431,24 +431,25 @@ class KPFTreeView(TreeView):
         if kpf.id not in self._nodeIsOpen:
             self._nodeIsOpen[kpf.id] = True
     
-    def removeProject(self, kpf):
+    def removeProject(self, kpfWrapped):
         if isinstance(self._root, KPFSingleTree):
             raise Exception("Project removal from toolbox tree")
-        self._partSvc.removeProject(kpf)
-        kpf = UnwrapObject(kpf)
+        self._partSvc.removeProject(kpfWrapped)
+        kpf = UnwrapObject(kpfWrapped)
         index = self._root.children.index(kpf)
         self.savePrefs(kpf)
 
         self._root.remove(kpf)
-        if index > 0:
-            # previous project becomes active
-            self.set_currentProject(self._root.children[index-1])
-        elif len(self._root.children) > 0:
-            # first project becomes active
-            self.set_currentProject(self._root.children[0])
-        else:
-            # closing the only project we have, no current project
-            self.set_currentProject(None)
+        if kpfWrapped == self.get_currentProject():
+            if index > 0:
+                # previous project becomes active
+                self.set_currentProject(self._root.children[index-1])
+            elif len(self._root.children) > 0:
+                # first project becomes active
+                self.set_currentProject(self._root.children[0])
+            else:
+                # closing the only project we have, no current project
+                self.set_currentProject(None)
 
         # remove rows for project
         self._dataLock.acquire()
