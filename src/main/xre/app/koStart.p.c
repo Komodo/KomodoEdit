@@ -2440,7 +2440,7 @@ void KoStart_IssueCommandments(const KoStartOptions* pOptions,
         /* Because of the use of a fifo for commandment communication on
          * POSIX systems we cannot write the initial commandments to the
          * pipe until the other end of the pipe is up and running. The
-         * "other end" here is Komodo's KoCommandmentsService PyXPCOM
+         * "other end" here is Komodo's KoCommandmentService PyXPCOM
          * component. We work around by writing the initial set to a
          * different place.
          */
@@ -2492,7 +2492,7 @@ void KoStart_IssueCommandments(const KoStartOptions* pOptions,
                       "for '%s'\n", absFile);
             exit(1);
         }
-        rv = fprintf(commandmentsFile, commandment);
+        rv = fprintf(commandmentsFile, "%s", commandment);
         if (rv != (int)strlen(commandment)) {
             _LogError("error writing commandment to '%s': [rv %d, errno %d] %s",
                       commandmentsFileName, rv, errno, strerror(errno));
