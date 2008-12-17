@@ -335,17 +335,30 @@ class KoTclCompileLinter:
                 # We expect the first few lines to not match, while we
                 # skip the header lines
                 i += 1
-                # But if too many lines aren't matching, then we must
+                # But if too many lines aren't matching, then we must have
                 # unrecognizable input
                 if i > 8:
-                    log.warn("couldn't recognized Tcl linter output format")
+                    log.warn("couldn't recognize Tcl linter output format")
                     break
                 continue
             if i+2 >= numLines:
                 log.error("unexpected return data format: short data")
-                return                    
+                return
             cmd = lOutput[i+1].rstrip()
             col = lOutput[i+2].find('^')
+            if col == -1:
+                if i+3 == numLines:
+                    log.error("unexpected return data format: short data")
+                    return
+                col = lOutput[i+3].find('^')
+                if col == -1:
+                    log.warn("No column indicator following line %d:%r", i, lOutput[i])
+                    i += 1
+                    continue
+                cmd = lOutput[i+2].rstrip()
+                parseLineOffset = 1
+            else:
+                parseLineOffset = 0
             lineNo = match.group(1)
             # lInput is zero-based, whereas text display lines start at one,
             # so we adjust lineNo down one here.
@@ -367,7 +380,7 @@ class KoTclCompileLinter:
                     # Looks like we can't figure something out...
                     log.debug('undecipherable lint output: %s,%s "%s" in "%s" last %s' \
                               % (lineNo+1, col, cmd, lInput[lineNo], lastCol))
-                i += 3
+                i += parseLineOffset + 3
                 continue
 
             #print 'TclLint: %s,%s "%s" in "%s"' \
