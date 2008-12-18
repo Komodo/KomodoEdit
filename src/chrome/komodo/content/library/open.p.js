@@ -150,11 +150,11 @@ this.displayPath = function open_openDisplayPath(displayPath,
 
 
 /**
- * Open Komodo's Start Page
+ * Open Komodo's Start Page - the view will be opened synchronously.
  */
 this.startPage = function open_openStartPage() {
-    ko.views.manager.doFileOpenAsync("chrome://komodo/content/startpage/startpage.xml#view-startpage",
-                                     "startpage");
+    ko.views.manager._doFileOpen("chrome://komodo/content/startpage/startpage.xml#view-startpage",
+                                 "startpage");
 }
 
 this.multipleURIs = function open_openMultipleURIs(urls, viewType)
