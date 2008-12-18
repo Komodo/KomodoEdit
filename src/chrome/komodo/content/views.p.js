@@ -453,7 +453,7 @@ viewManager.prototype.doFileNewFromTemplateAsync = function(uri,
                                                        viewList /*=null*/,
                                                        callback /*=null*/)
 {
-    window.setTimeout(function(mgr_, uri_, saveto_, viewType_, viewList_, callback_) {
+    window.setTimeout(function(mgr, uri_, saveto_, viewType_, viewList_, callback_) {
         var view = mgr._doFileNewFromTemplate(uri_, saveto_, viewType_, viewList_, callback_);
         if (callback_) {
             callback_(view);
