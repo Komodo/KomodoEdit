@@ -1275,16 +1275,39 @@ this.saveTabSelections = function uilayout_SaveTabSelections(prefs) {
     }
 }
 
+var _buttonIdFromTabboxId = {
+    leftTabBox : "toggleLeftPane",
+    rightTabBox : "toggleRightPane",
+    output_area : "toggleBottomPane"
+};
+var _splitterIdFromTabboxId = {
+    leftTabBox : "workspace_left_splitter",
+    rightTabBox : "workspace_right_splitter",
+    output_area : "bottom_splitter"
+};
 function _restoreTabBox(prefs, tabboxID, isCollapsedPrefID, selectedTabPrefID) {
     if (prefs.hasStringPref(selectedTabPrefID)) {
         var selectedTabId = prefs.getStringPref(selectedTabPrefID);
         var tabbox = document.getElementById(tabboxID);
+        var buttonID = _buttonIdFromTabboxId[tabboxID];
+        var button = document.getElementById(buttonID);
+        if (!button) {
+            throw new Error("No toolbar button element for ID " + buttonID);
+        }
+        var splitterID = _splitterIdFromTabboxId[tabboxID];
+        var splitter = document.getElementById(splitterID);
+        if (!splitter) {
+            throw new Error("No splitter element for ID " + splitterID);
+        }
         if (prefs.hasBooleanPref(isCollapsedPrefID)) {
-            if (prefs.getBooleanPref(isCollapsedPrefID)) {
+            var isCollapsed = prefs.getBooleanPref(isCollapsedPrefID);
+            if (isCollapsed) {
                 tabbox.parentNode.setAttribute('collapsed', 'true');
             } else {
                 tabbox.parentNode.removeAttribute('collapsed');
             }
+            button.checked = !isCollapsed;
+            splitter.collapsed = isCollapsed;
         }
         var tab = document.getElementById(selectedTabId);
         if (tab) {
