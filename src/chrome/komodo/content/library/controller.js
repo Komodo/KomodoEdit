@@ -95,7 +95,7 @@ var handlers = {
     'cmd_open': 'ko.open.filePicker()',
     'cmd_open_remote': 'ko.filepicker.openRemoteFiles()',
     'cmd_openTemplate': 'ko.open.templatePicker()',
-    'cmd_new': 'ko.views.manager.doNewView()',
+    'cmd_new': 'ko.views.manager.doNewViewAsync()',
     'cmd_newTemplate': 'ko.views.manager.newTemplate()',
     'cmd_quit': 'ko.main.quitApplication()',
     'cmd_findInFiles': 'ko.launch.findInFiles()',
