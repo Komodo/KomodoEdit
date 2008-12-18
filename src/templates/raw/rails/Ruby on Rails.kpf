@@ -1179,12 +1179,12 @@ try {
    }
 })();</macro>
 <snippet id="25dc35b2-0605-4fe1-9991-7e04b7396af2" idref="c9760047-cb56-41da-a048-efb713bd4505" indent_relative="true" keyboard_shortcut="" name="for x in names" set_selection="true">
-&lt;% for [[%tabstop:name]] in [[%tabstop:name]]s %&gt;
-  &lt;%= !@#_currentPos!@#_anchor [[%tabstop:name]] %&gt;
+&lt;% for [[%tabstop1:name]] in [[%tabstop1]]s %&gt;
+  &lt;%= !@#_currentPos!@#_anchor [[%tabstop1]] %&gt;
 &lt;% end %&gt;</snippet>
 <snippet id="3dbd9afc-e4e8-47e9-8a66-e383648b43dc" idref="c9760047-cb56-41da-a048-efb713bd4505" indent_relative="true" keyboard_shortcut="" name="for-x-in-obj.xs" set_selection="true">
-&lt;% for [[%tabstop:name]] in [[%tabstop:object]].[[%tabstop:name]]s %&gt;
-  &lt;%= !@#_currentPos!@#_anchor [[%tabstop:name]].[[%tabstop:attribute]] %&gt;
+&lt;% for [[%tabstop1:name]] in [[%tabstop:object]].[[%tabstop1]]s %&gt;
+  &lt;%= !@#_currentPos!@#_anchor [[%tabstop1]].[[%tabstop:attribute]] %&gt;
 &lt;% end %&gt;</snippet>
 <snippet id="84b1ebdb-470f-41c2-bcf2-a1c49f06df3d" idref="c9760047-cb56-41da-a048-efb713bd4505" indent_relative="false" keyboard_shortcut="" name="xhtml-transitional" set_selection="true">
 &lt;!DOCTYPE html 
