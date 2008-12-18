@@ -412,61 +412,64 @@ function _JumpToResult(file, line, column)
 {
     // Jump to the parsed command output result.
     try {
-        ko.open.displayPath(file);
+        ko.open.displayPath(
+            file, null,
+            function(view) {
+                if (!view) return;
+                var scimoz = view.scintilla.scimoz;
+
+                // If have line and column information then select that region.
+                // XXX Have not tested this with line and column ranges yet.
+                if (line) {
+                    var start, end; // start and end positions to select
+
+                    var firstLine, lastLine;
+                    if (line.indexOf("-") == -1) {  // e.g., line == "4"
+                        firstLine = line;
+                        lastLine = line;
+                    } else { // e.g., line == "3-6"
+                        var lines = line.split("-");
+                        firstLine = lines[0];
+                        lastLine = lines[1];
+                    }
+
+                    if (column) {
+                        var firstCol, lastCol;
+                        if (column.indexOf("-") == -1) {  // e.g., column == "4"
+                            firstCol = column;
+                            lastCol = column;
+                        } else { // e.g., column == "3-6"
+                            var columns = column.split("-");
+                            firstCol = columns[0];
+                            lastCol = columns[1];
+                        }
+
+                        if (firstLine == lastLine && firstCol == lastCol) {
+                            start = scimoz.positionFromLine(firstLine-1) + (firstCol-1);
+                            end = start; // don't select if no range is given
+                        } else {
+                            start = scimoz.positionFromLine(firstLine-1) + (firstCol-1);
+                            end = scimoz.positionFromLine(lastLine-1) + (lastCol-1);
+                        }
+
+                    } else {
+                        start = scimoz.positionFromLine(firstLine - 1);
+                        end = scimoz.getLineEndPosition(lastLine - 1);
+                    }
+
+                    scimoz.setSel(start, end);
+                }
+
+                scimoz.chooseCaretX();
+
+                // transfer focus to the editor
+                view.setFocus();
+            }
+        );
     } catch(ex) {
         _log.error("jumpToResult Could not open '"+file+"': "+ex);
         return;
     }
-    var view = ko.views.manager.currentView;
-    if (!view) return;
-    var scimoz = view.scintilla.scimoz;
-
-    // If have line and column information then select that region.
-    // XXX Have not tested this with line and column ranges yet.
-    if (line) {
-        var start, end; // start and end positions to select
-
-        var firstLine, lastLine;
-        if (line.indexOf("-") == -1) {  // e.g., line == "4"
-            firstLine = line;
-            lastLine = line;
-        } else { // e.g., line == "3-6"
-            var lines = line.split("-");
-            firstLine = lines[0];
-            lastLine = lines[1];
-        }
-
-        if (column) {
-            var firstCol, lastCol;
-            if (column.indexOf("-") == -1) {  // e.g., column == "4"
-                firstCol = column;
-                lastCol = column;
-            } else { // e.g., column == "3-6"
-                var columns = column.split("-");
-                firstCol = columns[0];
-                lastCol = columns[1];
-            }
-
-            if (firstLine == lastLine && firstCol == lastCol) {
-                start = scimoz.positionFromLine(firstLine-1) + (firstCol-1);
-                end = start; // don't select if no range is given
-            } else {
-                start = scimoz.positionFromLine(firstLine-1) + (firstCol-1);
-                end = scimoz.positionFromLine(lastLine-1) + (lastCol-1);
-            }
-
-        } else {
-            start = scimoz.positionFromLine(firstLine - 1);
-            end = scimoz.getLineEndPosition(lastLine - 1);
-        }
-
-        scimoz.setSel(start, end);
-    }
-
-    scimoz.chooseCaretX();
-
-    // transfer focus to the editor
-    view.setFocus();
 }
 
 

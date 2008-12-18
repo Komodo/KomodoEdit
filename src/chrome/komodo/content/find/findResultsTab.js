@@ -956,116 +956,122 @@ FindResultsTabManager.prototype._doubleClick = function()
         //    itself is poorly represented by the display path of the file. Note
         //    that this may not translate to a valid URL if the view is untitled.
         var displayPath = this.view.GetUrl(i);
-        ko.open.displayPath(displayPath, "editor");
-        var view = ko.views.manager.currentView;
-        var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
-                .getService(Components.interfaces.koIOsPath);
-        if (!view || !view.document
-            || !osPathSvc.samepath(view.document.displayPath, displayPath))
-        {
-            // File wasn't opened for whatever reason.
-            return;
-        }
-        var scimoz = view.scintilla.scimoz;
-
-        // Try to find the match or replacement result. If it cannot be
-        // found then just go to the start of the line where it used to be.
-        // XXX Could try and be more sophisticated in the search.
-        var startCharIdx = this.view.GetStartIndex(i);
-        var start = scimoz.positionAtChar(0, startCharIdx); // a *byte* offset
-        var endCharIdx = this.view.GetEndIndex(i);
-        var end = scimoz.positionAtChar(0, endCharIdx); // a *byte* offset
-        var value = this.view.GetValue(i);
-        var replacement = this.view.GetReplacement(i);
-        // - first try the original indeces (if the file has not changed the result
-        //   should still be there)
-        //   XXX This *can* fluke to the wrong result if the buffer has changed.
-        //       The *correct* answer would be to only attempt this if the buffer
-        //       is identical to when the find-/replace-all was done.
-        if ((replacement && scimoz.getTextRange(start, end) == replacement)
-            || scimoz.getTextRange(start, end) == value)
-        {
-            findResultsLog.info("Jump To Find Result: found at the original indices ("+start+","+end+")\n");
-        }
-        // - next, try using the line and column number to find it again (this will
-        //   survive basic changes in the document that do not add or remove lines)
-        else {
-            var lineNum = this.view.GetLineNum(i);
-            var columnIndex = this.view.GetColumnNum(i);
-            var lineStartIndex = scimoz.positionFromLine(lineNum-1);
-            var possibleValue = scimoz.getTextRange(lineStartIndex+columnIndex,
-                                                    lineStartIndex+columnIndex
-                                                    +value.length);
-            var possibleReplacement = scimoz.getTextRange(lineStartIndex+columnIndex,
-                                                          lineStartIndex+columnIndex
-                                                          +replacement.length);
-            if (replacement && possibleReplacement == replacement) {
-                findResultsLog.info("Jump To Find Result: found replacement, '"+
-                                    replacement+"', by line:col\n");
-                start = lineStartIndex+columnIndex;
-                end = lineStartIndex+columnIndex+replacement.length;
-            } else if (possibleValue == value) {
-                findResultsLog.info("Jump To Find Result: found value by line:col\n");
-                start = lineStartIndex+columnIndex;
-                end = lineStartIndex+columnIndex+value.length;
-            }
-
-            // - next, try searching within the current line
-            //   XXX Note, this bails if there is more than one possible match on
-            //       the current line. This could attempt to be more intelligent,
-            //       like perhaps selecting the match that is closest to the
-            //       original column number.
-            else {
-                var lineText = scimoz.getTextRange(lineStartIndex,
-                                scimoz.getLineEndPosition(lineNum-1));
-                var valueIndex = lineText.indexOf(value);
-                var replacementIndex = lineText.indexOf(replacement);
-                if (replacement && replacementIndex != -1
-                    && lineText.lastIndexOf(replacement) == replacementIndex)
+        var this_ = this;
+        ko.open.displayPath(
+            displayPath, "editor",
+            function(view) {
+                var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
+                        .getService(Components.interfaces.koIOsPath);
+                if (!view || !view.document ||
+                    !osPathSvc.samepath(view.document.displayPath, displayPath))
                 {
-                    findResultsLog.info("Jump To Find Result: found replacement by searching in the current line\n");
-                    start = lineStartIndex+replacementIndex;
-                    end = lineStartIndex+replacementIndex+replacement.length;
-                } else if (valueIndex != -1
-                           && lineText.lastIndexOf(value) == valueIndex)
-                {
-                    findResultsLog.info("Jump To Find Result: found value by searching in the current line\n");
-                    start = lineStartIndex+valueIndex;
-                    end = lineStartIndex+valueIndex+value.length;
+                    // File wasn't opened for whatever reason.
+                    return;
                 }
-
-                // - XXX next, could try to search a couple lines above and below
-                //   but for now will just give up
-                else {
-                    findResultsLog.info("Jump To Find Result: did not find it, just using current line\n");
-                    //XXX This ends up on the first line if this line is now off
-                    //    the bottom. This should instead go to the LAST line.
-                    start = lineStartIndex
-                    end = lineStartIndex;
-
-                    // Let the user know about the problem on the status bar.
-                    ko.statusBar.AddMessage(
-                        "The specified text has been moved or deleted.", "find",
-                        3000, true);
-                }
-            }
-        }
+                var scimoz = view.scintilla.scimoz;
         
-        // Make the modifications in a timeout to avoid unwanted horizontal
-        // scroll (bug 60117).
-        setTimeout(function() {
-            scimoz.setSel(start, end);
-            scimoz.chooseCaretX();
-            view.setFocus();
-        } , 0);
-
-        // If the invoked find result is the last visible one and there are more,
-        // then scroll the list of find results by one.
-        // XXX Could also scroll up if double-clicking on top visible item.
-        var box = treeWidget.treeBoxObject;
-        if (box.getLastVisibleRow() <= i && this.view.rowCount > i+1) {
-            box.scrollByLines(1);
-        }
+                // Try to find the match or replacement result. If it cannot be
+                // found then just go to the start of the line where it used to be.
+                // XXX Could try and be more sophisticated in the search.
+                var startCharIdx = this_.view.GetStartIndex(i);
+                var start = scimoz.positionAtChar(0, startCharIdx); // a *byte* offset
+                var endCharIdx = this_.view.GetEndIndex(i);
+                var end = scimoz.positionAtChar(0, endCharIdx); // a *byte* offset
+                var value = this_.view.GetValue(i);
+                var replacement = this_.view.GetReplacement(i);
+                // - first try the original indeces (if the file has not changed the result
+                //   should still be there)
+                //   XXX This *can* fluke to the wrong result if the buffer has changed.
+                //       The *correct* answer would be to only attempt this_ if the buffer
+                //       is identical to when the find-/replace-all was done.
+                if ((replacement && scimoz.getTextRange(start, end) == replacement)
+                    || scimoz.getTextRange(start, end) == value)
+                {
+                    findResultsLog.info("Jump To Find Result: found at the original indices ("+start+","+end+")\n");
+                }
+                // - next, try using the line and column number to find it again (this_ will
+                //   survive basic changes in the document that do not add or remove lines)
+                else {
+                    var lineNum = this_.view.GetLineNum(i);
+                    var columnIndex = this_.view.GetColumnNum(i);
+                    var lineStartIndex = scimoz.positionFromLine(lineNum-1);
+                    var possibleValue = scimoz.getTextRange(lineStartIndex+columnIndex,
+                                                            lineStartIndex+columnIndex
+                                                            +value.length);
+                    var possibleReplacement = scimoz.getTextRange(lineStartIndex+columnIndex,
+                                                                  lineStartIndex+columnIndex
+                                                                  +replacement.length);
+                    if (replacement && possibleReplacement == replacement) {
+                        findResultsLog.info("Jump To Find Result: found replacement, '"+
+                                            replacement+"', by line:col\n");
+                        start = lineStartIndex+columnIndex;
+                        end = lineStartIndex+columnIndex+replacement.length;
+                    } else if (possibleValue == value) {
+                        findResultsLog.info("Jump To Find Result: found value by line:col\n");
+                        start = lineStartIndex+columnIndex;
+                        end = lineStartIndex+columnIndex+value.length;
+                    }
+        
+                    // - next, try searching within the current line
+                    //   XXX Note, this_ bails if there is more than one possible match on
+                    //       the current line. This could attempt to be more intelligent,
+                    //       like perhaps selecting the match that is closest to the
+                    //       original column number.
+                    else {
+                        var lineText = scimoz.getTextRange(lineStartIndex,
+                                        scimoz.getLineEndPosition(lineNum-1));
+                        var valueIndex = lineText.indexOf(value);
+                        var replacementIndex = lineText.indexOf(replacement);
+                        if (replacement && replacementIndex != -1
+                            && lineText.lastIndexOf(replacement) == replacementIndex)
+                        {
+                            findResultsLog.info("Jump To Find Result: found replacement by searching in the current line\n");
+                            start = lineStartIndex+replacementIndex;
+                            end = lineStartIndex+replacementIndex+replacement.length;
+                        } else if (valueIndex != -1
+                                   && lineText.lastIndexOf(value) == valueIndex)
+                        {
+                            findResultsLog.info("Jump To Find Result: found value by searching in the current line\n");
+                            start = lineStartIndex+valueIndex;
+                            end = lineStartIndex+valueIndex+value.length;
+                        }
+        
+                        // - XXX next, could try to search a couple lines above and below
+                        //   but for now will just give up
+                        else {
+                            findResultsLog.info("Jump To Find Result: did not find it, just using current line\n");
+                            //XXX This ends up on the first line if this_ line is now off
+                            //    the bottom. This should instead go to the LAST line.
+                            start = lineStartIndex
+                            end = lineStartIndex;
+        
+                            // Let the user know about the problem on the status bar.
+                            ko.statusBar.AddMessage(
+                                "The specified text has been moved or deleted.", "find",
+                                3000, true);
+                        }
+                    }
+                }
+                
+                // Make the modifications in a timeout to avoid unwanted horizontal
+                // scroll (bug 60117).
+                // XXX - This may no longer be necessary since this is using an
+                //       callback from an asynchronous function (if new view).
+                setTimeout(function() {
+                    scimoz.setSel(start, end);
+                    scimoz.chooseCaretX();
+                    view.setFocus();
+                } , 0);
+        
+                // If the invoked find result is the last visible one and there are more,
+                // then scroll the list of find results by one.
+                // XXX Could also scroll up if double-clicking on top visible item.
+                var box = treeWidget.treeBoxObject;
+                if (box.getLastVisibleRow() <= i && this_.view.rowCount > i+1) {
+                    box.scrollByLines(1);
+                }
+            }
+        );
     } catch (ex) {
         log.exception(ex);
     }

@@ -49,8 +49,9 @@ var fileLineNoRE = /^(.*)#(\d+)$/;
  * Asynchronously open the URI in a new Komodo tab, if the file is already
  * open then this existing tab becomes the currently focused tab.
  *
- * If you need the view for the file that is opened from this call, use the
- * ko.views.manager.doFileOpenAsync(..., callback) method.
+ * If you need the view for the file that is opened from this call, pass in
+ * a callback function argument and then this function will be called after
+ * the view is opened (or re-focused if it was already open).
  *
  * @param uri {String} the path or URI to open
  * @param viewType {String} optional default "editor" type of view
@@ -58,9 +59,14 @@ var fileLineNoRE = /^(.*)#(\d+)$/;
  * @param skipRecentOpenFeature {boolean} optional default false, can
  *        be used when the URI to open is a project file to specify that
  *        the feature to open files in that project should not be offered.
+ * @param callback {function} optional, to be called when the asynchronous load
+ *        is complete. This will only be called if this opens or switches to
+ *        an editor view, e.g. this won't be called for a kpf file. The view
+ *        will be passed as an argument to the function.
  */
 this.URI = function open_openURI(uri, viewType /* ="editor" */,
-                               skipRecentOpenFeature /* =false */) {
+                                 skipRecentOpenFeature /* =false */,
+                                 callback /* =null */) {
     try {
         // URI can be a local path or a URI
         uri = ko.uriparse.pathToURI(uri);
@@ -85,9 +91,9 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
             ko.toolboxes.importPackage(ko.uriparse.URIToLocalPath(uri));
         } else {
             if (line) {
-                ko.views.manager.doFileOpenAtLineAsync(uri, line, viewType);
+                ko.views.manager.doFileOpenAtLineAsync(uri, line, viewType, null, -1, callback);
             } else {
-                ko.views.manager.doFileOpenAsync(uri, viewType);
+                ko.views.manager.doFileOpenAsync(uri, viewType, null, -1, callback);
             }
         }
     } catch(e) {
@@ -100,14 +106,24 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
 /**
  * Open the given path in Komodo.
  *
+ * If you need the view for the file that is opened from this call, pass in
+ * a callback function argument and then this function will be called after
+ * the view is opened (or re-focused if it was already open).
+ *
  * @param displayPath {String} identifies the path to open. Display
- *  path may be the display path of an already open (and possibly
- *  untitled) document.
+ *        path may be the display path of an already open (and possibly
+ *        untitled) document.
  * @param viewType {String} optional default "editor", the type of
- *  view to create for the openned path. It is ignored if the
- *  displayPath indicates an already open view.
+ *        view to create for the openned path. It is ignored if the
+ *        displayPath indicates an already open view.
+ * @param callback {function} optional, to be called when the asynchronous load
+ *        is complete. This will only be called if this opens or switches to
+ *        an editor view, e.g. this won't be called for a kpf file. The view
+ *        will be passed as an argument to the function.
  */
-this.displayPath = function open_openDisplayPath(displayPath, viewType /* ="editor" */) {
+this.displayPath = function open_openDisplayPath(displayPath,
+                                                 viewType /* ="editor" */,
+                                                 callback /* =null */) {
     if (typeof(viewType) == "undefined" || !viewType) viewType = "editor";
 
     // Don't use `viewManager.getViewsByTypeAndURI()` because it doesn't handle
@@ -121,12 +137,15 @@ this.displayPath = function open_openDisplayPath(displayPath, viewType /* ="edit
         }
         if (_fequal(typedView.document.displayPath, displayPath)) {
             typedView.makeCurrent();
-            return;
+            if (callback) {
+                callback(typedView);
+                return;
+            }
         }
     }
 
     // Fallback to open URI.
-    ko.open.URI(displayPath, viewType, true);
+    ko.open.URI(displayPath, viewType, true, callback);
 }
 
 
