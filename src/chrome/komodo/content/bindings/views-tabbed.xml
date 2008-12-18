@@ -483,11 +483,16 @@
             }
             
             // Show list of files Komodo was not able to re-open.
+            // Doing this synchronously results in a Komodo hang -- at least
+            // on Windows (bug 81363).
             if (fileOpenFailures.length > 0) {
-                ko.dialogs.alert("Komodo was unable to re-open the following files:",   // Prompt
-                             fileOpenFailures.join("\n"),          // text
-                             "Komodo startup: Open file error",    // title
-                             "startup_reopen_file_error_dialog");  // doNotAskPref
+                window.setTimeout(function (fileOpenFailures_) {
+                    ko.dialogs.alert(
+                        "Komodo was unable to re-open the following files:",   // Prompt
+                        fileOpenFailures_.join("\n"),          // text
+                        "Komodo startup: Open file error",    // title
+                        "startup_reopen_file_error_dialog");  // doNotAskPref
+                }, 0, fileOpenFailures);
             }
         ]]>
         </body>
