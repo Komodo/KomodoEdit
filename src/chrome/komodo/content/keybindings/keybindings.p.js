@@ -161,7 +161,9 @@ this.manager.prototype.constructor = this.manager;
 
 this.manager.prototype.finalize = function(part, topic, partId) {
     window.removeEventListener('keypress', gKeyHandler, false);
+// #if PLATFORM != 'darwin'
     window.removeEventListener('keydown', gKeyDownHandler, false);
+// #endif
     window.removeEventListener("unload", this.removeListener, false);
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
