@@ -419,7 +419,7 @@ class FileHandlerBase(object):
                 #           parts of the code use read(-1), which makes a
                 #           really large unsigned int, causing exceptions!
                 # http://bugs.activestate.com/show_bug.cgi?id=72912
-                return self._file.read()
+                return self._file.read(-1)
             else:
                 return self._file.read(nBytes)
         except EnvironmentError, ex:
