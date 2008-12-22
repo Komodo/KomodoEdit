@@ -1563,8 +1563,8 @@
                  tooltiptext="&workspaceToolbar.tooltiptext;">
             <toolbarbutton id="toggleLeftPane"
                 tooltiptext="&showHideLeftPane.tooltiptext;"
-                persist="buttonstyle"
-                buttonstyle="pictures checked"
+                persist="buttonstyle checked"
+                buttonstyle="pictures"
                 type="checkbox"
                 observes="cmd_viewLeftPane"
                 oncommand="ko.uilayout.togglePane('workspace_left_splitter', 'project_toolbox_tabs', 'cmd_viewLeftPane', true)"
@@ -1572,8 +1572,8 @@
             </toolbarbutton>
             <toolbarbutton id="toggleBottomPane"
                 tooltiptext="&showHideBottomPane.tooltiptext;"
-                persist="buttonstyle"
-                buttonstyle="pictures checked"
+                persist="buttonstyle checked"
+                buttonstyle="pictures"
                 type="checkbox"
                 observes="cmd_viewBottomPane"
                 oncommand="ko.uilayout.togglePane('bottom_splitter', 'output_tabs', 'cmd_viewBottomPane', true)"
@@ -1581,8 +1581,8 @@
             </toolbarbutton>
             <toolbarbutton id="toggleRightPane"
                 tooltiptext="&showHideRightPane.tooltiptext;"
-                persist="buttonstyle"
-                buttonstyle="pictures checked"
+                persist="buttonstyle checked"
+                buttonstyle="pictures"
                 type="checkbox"
                 observes="cmd_viewRightPane"
                 oncommand="ko.uilayout.togglePane('workspace_right_splitter', 'right_toolbox_tabs', 'cmd_viewRightPane', true)"
