@@ -1040,36 +1040,40 @@ viewManager.prototype.handle_open_file = function(topic, data)
                 // Maybe it is a URI already?
                 uri = fname;
             }
-            var view = this._doFileOpen(uri);
-            if (view && anchorDesc && currentPosDesc) {
-                // Are we using character index or line,column?
-                if (anchorDesc.indexOf(',') == -1) {
-                    anchor = Number(anchor);
-                } else {
-                    subparts = anchorDesc.split(',');
-                    var anchorLine = Math.max(Number(subparts[0]) - 1, 0);
-                    var anchorCol = Math.max(Number(subparts[1]) - 1, 0);
-                    anchor = ko.views.manager.currentView.positionAtColumn(anchorLine,
-                                                                           anchorCol);
+            ko.open.URI(uri, null, false,
+                function(view) {
+                    if (!view || !anchorDesc || !currentPosDesc) {
+                        return;
+                    }
+                    // Are we using character index or line,column?
+                    if (anchorDesc.indexOf(',') == -1) {
+                        anchor = Number(anchor);
+                    } else {
+                        subparts = anchorDesc.split(',');
+                        var anchorLine = Math.max(Number(subparts[0]) - 1, 0);
+                        var anchorCol = Math.max(Number(subparts[1]) - 1, 0);
+                        anchor = ko.views.manager.currentView.positionAtColumn(anchorLine,
+                                                                               anchorCol);
+                    }
+                    if (currentPosDesc.indexOf(',') == -1) {
+                        currentPos = Number(currentPos);
+                    } else {
+                        subparts = currentPosDesc.split(',')
+                        var currentPosLine = Math.max(Number(subparts[0]) - 1, 0);
+                        var currentPosCol = Math.max(Number(subparts[1]) - 1, 0);
+                        currentPos = ko.views.manager.currentView.positionAtColumn(currentPosLine,
+                                                                                   currentPosCol);
+                    }
+                    // do gotoline first because it messes w/ current position and anchor.
+                    var lineNo = view.scimoz.lineFromPosition(currentPos);
+                    view.scimoz.gotoLine(Math.max(lineNo - 1, 0)); // scimoz is 0-indexed
+                    view.anchor = anchor;
+                    view.currentPos = currentPos;
                 }
-                if (currentPosDesc.indexOf(',') == -1) {
-                    currentPos = Number(currentPos);
-                } else {
-                    subparts = currentPosDesc.split(',')
-                    var currentPosLine = Math.max(Number(subparts[0]) - 1, 0);
-                    var currentPosCol = Math.max(Number(subparts[1]) - 1, 0);
-                    currentPos = ko.views.manager.currentView.positionAtColumn(currentPosLine,
-                                                                               currentPosCol);
-                }
-                // do gotoline first because it messes w/ current position and anchor.
-                var lineNo = view.scimoz.lineFromPosition(currentPos);
-                view.scimoz.gotoLine(Math.max(lineNo - 1, 0)); // scimoz is 0-indexed
-                view.anchor = anchor;
-                view.currentPos = currentPos;
-                // Force the main window to the forefront
-                //precondition: window == ko.windowManager.getMainWindow()
-                window.focus();
-            }
+            );
+            // Force the main window to the forefront
+            //precondition: window == ko.windowManager.getMainWindow()
+            window.focus();
         }
     } catch (e) {
         this.log.exception(e);
