@@ -1,0 +1,65 @@
+--- src/LexPython.cxx	Fri Dec 19 11:56:47 2008
++++ src/LexPython.cxx	Mon Dec 22 13:30:04 2008
+@@ -105,12 +105,21 @@
+ 	if (startPos > 0) {
+ 		if (lineCurrent > 0) {
+ 			lineCurrent--;
++			// Look for backslash-continued lines
++			while (lineCurrent > 0) {
++				int eolPos = styler.LineStart(lineCurrent) - 1;
++				int eolStyle = styler.StyleAt(eolPos);
++				if (eolStyle == SCE_P_STRING
++				    || eolStyle == SCE_P_CHARACTER
++				    || eolStyle == SCE_P_STRINGEOL) {
++					lineCurrent -= 1;
++				} else {
++					break;
++				}
++			}
+ 			startPos = styler.LineStart(lineCurrent);
+-			if (startPos == 0)
+-				initStyle = SCE_P_DEFAULT;
+-			else
+-				initStyle = styler.StyleAt(startPos - 1);
+ 		}
++		initStyle = startPos == 0 ? SCE_P_DEFAULT : styler.StyleAt(startPos - 1);
+ 	}
+ 
+ 	WordList &keywords = *keywordlists[0];
+@@ -132,6 +141,7 @@
+ 
+ 	bool indentGood = true;
+ 	int startIndicator = sc.currentPos;
++	bool inContinuedString = false;
+ 
+ 	for (; sc.More(); sc.Forward()) {
+ 
+@@ -163,8 +173,12 @@
+ 			}
+ 			lineCurrent++;
+ 			if ((sc.state == SCE_P_STRING) || (sc.state == SCE_P_CHARACTER)) {
+-				sc.ChangeState(SCE_P_STRINGEOL);
+-				sc.ForwardSetState(SCE_P_DEFAULT);
++				if (inContinuedString) {
++					inContinuedString = false;
++				} else {
++					sc.ChangeState(SCE_P_STRINGEOL);
++					sc.ForwardSetState(SCE_P_DEFAULT);
++				}
+ 			}
+ 			if (!sc.More())
+ 				break;
+@@ -225,7 +239,12 @@
+ 				if ((sc.chNext == '\r') && (sc.GetRelative(2) == '\n')) {
+ 					sc.Forward();
+ 				}
+-				sc.Forward();
++				if (sc.chNext == '\n' || sc.chNext == '\r') {
++					inContinuedString = true;
++				} else {
++					// Don't roll over the newline.
++					sc.Forward();
++				}
+ 			} else if ((sc.state == SCE_P_STRING) && (sc.ch == '\"')) {
+ 				sc.ForwardSetState(SCE_P_DEFAULT);
+ 				needEOLCheck = true;
