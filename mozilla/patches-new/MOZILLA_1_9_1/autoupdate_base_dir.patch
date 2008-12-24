@@ -1,0 +1,59 @@
+Index: toolkit/xre/nsUpdateDriver.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/xre/nsUpdateDriver.cpp,v
+retrieving revision 1.26
+diff -U 10 -r1.26 toolkit/xre/nsUpdateDriver.cpp
+--- toolkit/xre/nsUpdateDriver.cpp	22 Jul 2008 02:17:54 -0000	1.26
++++ toolkit/xre/nsUpdateDriver.cpp	10 Sep 2008 23:01:38 -0000
+@@ -386,39 +386,43 @@
+   nsCAutoString updaterPath;
+   rv = updater->GetNativePath(updaterPath);
+   if (NS_FAILED(rv))
+     return;
+ 
+ #endif
+ 
+   // Get the directory to which the update will be applied. On Mac OSX we need
+   // to apply the update to the Foo.app directory which is the parent of the
+   // parent of the appDir. On other platforms we will just apply to the appDir.
+-#if defined(XP_MACOSX)
++  //
++  // ActiveState change: up two dirs on Windows and Linux as well
++  // because of Komodo's different install structure to Firefox.
++#if defined(XP_WIN)
++  nsAutoString applyToDir;
++#else
+   nsCAutoString applyToDir;
++#endif
+   {
+     nsCOMPtr<nsIFile> parentDir1, parentDir2;
+     rv = appDir->GetParent(getter_AddRefs(parentDir1));
+     if (NS_FAILED(rv))
+       return;
+     rv = parentDir1->GetParent(getter_AddRefs(parentDir2));
+     if (NS_FAILED(rv))
+       return;
+-    rv = parentDir2->GetNativePath(applyToDir);
+-  }
+-#elif defined(XP_WIN)
+-  nsAutoString applyToDir;
+-  rv = appDir->GetPath(applyToDir);
++#if defined(XP_WIN)
++    rv = parentDir2->GetPath(applyToDir);
+ #else
+-  nsCAutoString applyToDir;
+-  rv = appDir->GetNativePath(applyToDir);
++    rv = parentDir2->GetNativePath(applyToDir);
+ #endif
++  }
++
+   if (NS_FAILED(rv))
+     return;
+ 
+ #if defined(XP_WIN)
+   nsAutoString updateDirPathW;
+   rv = updateDir->GetPath(updateDirPathW);
+ 
+   NS_ConvertUTF16toUTF8 updateDirPath(updateDirPathW);
+ #else
+   nsCAutoString updateDirPath;

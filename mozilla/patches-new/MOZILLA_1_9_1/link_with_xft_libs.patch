@@ -1,0 +1,15 @@
+Index: embedding/browser/gtk/tests/Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/embedding/browser/gtk/tests/Makefile.in,v
+retrieving revision 1.33
+diff -u -r1.33 Makefile.in
+--- embedding/browser/gtk/tests/Makefile.in	3 Feb 2005 23:01:41 -0000	1.33
++++ embedding/browser/gtk/tests/Makefile.in	18 Jan 2006 02:56:47 -0000
+@@ -87,6 +87,7 @@
+ 		-lgtkembedmoz \
+ 		$(XLDFLAGS) \
+ 		$(XLIBS) \
++                $(MOZ_XFT_LIBS) \
+ 		$(NULL)
+ endif
+ 

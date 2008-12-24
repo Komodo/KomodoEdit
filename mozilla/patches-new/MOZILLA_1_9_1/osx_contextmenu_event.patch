@@ -1,0 +1,21 @@
+Index: content/events/src/nsEventStateManager.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/content/events/src/nsEventStateManager.cpp,v
+retrieving revision 1.693
+diff -u -r1.693 content/events/src/nsEventStateManager.cpp
+--- content/events/src/nsEventStateManager.cpp	22 May 2007 22:08:36 -0000	1.693
++++ content/events/src/nsEventStateManager.cpp	13 Jun 2007 20:14:17 -0000
+@@ -1515,11 +1515,13 @@
+                                type == NS_FORM_INPUT_FILE ||
+                                type == NS_FORM_TEXTAREA);
+         }
++#if 0 // ACTIVESTATE we want to allow scintilla context menu's
+         else if (tag == nsGkAtoms::applet ||
+                  tag == nsGkAtoms::embed  ||
+                  tag == nsGkAtoms::object) {
+           allowedToDispatch = PR_FALSE;
+         }
++#endif
+       }
+ 
+       if (allowedToDispatch) {

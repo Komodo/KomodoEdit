@@ -1,0 +1,197 @@
+Index: rdf/datasource/src/nsFileSystemDataSource.h
+===================================================================
+RCS file: /cvsroot/mozilla/rdf/datasource/src/nsFileSystemDataSource.h,v
+retrieving revision 1.14
+diff -u -r1.14 rdf/datasource/src/nsFileSystemDataSource.h
+--- rdf/datasource/src/nsFileSystemDataSource.h	13 Dec 2005 14:27:11 -0000	1.14
++++ rdf/datasource/src/nsFileSystemDataSource.h	20 Jan 2006 01:00:26 -0000
+@@ -47,7 +47,7 @@
+ #include "nsCOMPtr.h"
+ #include "nsString.h"
+ 
+-#if defined(XP_UNIX) || defined(XP_OS2) || defined(XP_WIN) || defined(XP_BEOS)
++#if defined(XP_UNIX) || defined(XP_OS2) || defined(XP_WIN) || defined(XP_BEOS) || defined(XP_MACOSX)
+ #define USE_NC_EXTENSION
+ #endif
+ 
+Index: rdf/datasource/src/nsFileSystemDataSource.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/rdf/datasource/src/nsFileSystemDataSource.cpp,v
+retrieving revision 1.144
+diff -u -r1.144 rdf/datasource/src/nsFileSystemDataSource.cpp
+--- rdf/datasource/src/nsFileSystemDataSource.cpp	3 Feb 2006 14:18:28 -0000	1.144
++++ rdf/datasource/src/nsFileSystemDataSource.cpp	31 Mar 2006 21:28:32 -0000
+@@ -70,6 +70,10 @@
+ #include "nsCRT.h"
+ #include "nsAutoPtr.h"
+ 
++#ifdef XP_MACOSX
++#include "nsILocalFileMac.h"
++#endif
++
+ #ifdef  XP_WIN
+ #include "windef.h"
+ #include "winbase.h"
+@@ -133,7 +137,7 @@
+     rv = aDir->IsDirectory(&isDirFlag);
+     if (NS_FAILED(rv)) return(PR_FALSE);
+ 
+-#ifdef  XP_MAC
++#ifdef XP_MACOSX
+     // Hide directory structure of packages under Mac OS 9/X
+     nsCOMPtr<nsILocalFileMac>   aMacFile = do_QueryInterface(aDir);
+     if (aMacFile)
+@@ -455,7 +459,8 @@
+         {
+             // Oh this is evil. Somebody kill me now.
+             nsCOMPtr<nsISimpleEnumerator> children;
+-            rv = GetFolderList(source, PR_FALSE, PR_TRUE, getter_AddRefs(children));
++            // XXX ActiveState, force hidden files to be shown
++            rv = GetFolderList(source, PR_TRUE, PR_TRUE, getter_AddRefs(children));
+             if (NS_FAILED(rv) || (rv == NS_RDF_NO_VALUE)) return(rv);
+ 
+             PRBool hasMore;
+@@ -539,7 +544,8 @@
+     {
+         if (property == mNC_Child)
+         {
+-            return GetFolderList(source, PR_FALSE, PR_FALSE, targets);
++            // XXX ActiveState, force hidden files to be shown
++            return GetFolderList(source, PR_TRUE, PR_FALSE, targets);
+         }
+         else if (property == mNC_Name)
+         {
+@@ -957,31 +963,60 @@
+ 
+     nsCOMPtr<nsIRDFResource> vol;
+ 
+-#ifdef  XP_MAC
+-    StrFileName     fname;
+-    HParamBlockRec  pb;
+-    for (int16 volNum = 1; ; volNum++)
+-    {
+-        pb.volumeParam.ioCompletion = NULL;
+-        pb.volumeParam.ioVolIndex = volNum;
+-        pb.volumeParam.ioNamePtr = (StringPtr)fname;
+-        if (PBHGetVInfo(&pb,FALSE) != noErr)
+-            break;
+-        FSSpec fss(pb.volumeParam.ioVRefNum, fsRtParID, fname);
+-        nsCOMPtr<nsILocalFileMac> lf;
+-        NS_NewLocalFileWithFSSpec(fss, true, getter_AddRefs(lf));
+-
+-        nsCOMPtr<nsIURI> furi;
+-        NS_NewFileURI(getter_AddRefs(furi), lf); 
+-
+-        nsXPIDLCString spec;
+-        furi->GetSpec(getter_Copies(spec);
+-
+-        rv = mRDFService->GetResource(spec, getter_AddRefs(vol));
+-        if (NS_FAILED(rv)) return rv;
+-
+-        volumes->AppendElement(vol);
+-    }
++#ifdef XP_MACOSX
++    /* Call FSGetVolumeInfo in loop to get all volumes starting with the first */
++    ItemCount volumeIndex = 1;
++    OSErr err;
++    FSRef ref;
++    FSSpec fss;
++    HFSUniStr255 volumeName;
++    do
++    {
++        err = FSGetVolumeInfo(0, volumeIndex, NULL, kFSVolInfoNone, NULL, &volumeName, &ref);
++        if ( noErr == err )
++        {
++    
++            UInt8 path[256];
++            int pathSize = 255;
++            FSRefMakePath(&ref, (UInt8 *)&path, pathSize);
++            if (path[1] == NULL && path[0] == '/') {
++                /* turn file:/// into file:///Volumes/Volume Name */
++                volumeName.unicode[volumeName.length] = 0;
++                char *volname = nsEscape(NS_ConvertUTF16toUTF8(
++                                            Substring((PRUnichar *)volumeName.unicode,
++                                                      (PRUnichar *)volumeName.unicode + volumeName.length)).get(),
++                                         url_Path);
++                char *url;
++                if (nsnull != (url = PR_smprintf("file:///Volumes/%s/", volname)))
++                {
++                    rv = mRDFService->GetResource(nsDependentCString(url),
++                                                  getter_AddRefs(vol));
++                    PR_Free(url);
++    
++                    if (NS_FAILED(rv)) return rv;
++                }
++                Recycle(volname);
++                volname = nsnull;
++            } else {
++                err = FSGetCatalogInfo(&ref, kFSCatInfoNone, NULL, NULL, &fss, NULL);
++    
++                nsCOMPtr<nsILocalFileMac> lf;
++                NS_NewLocalFileWithFSSpec(&fss, true, getter_AddRefs(lf));
++        
++                nsCAutoString spec;
++                rv = NS_GetURLSpecFromFile(lf, spec);
++                if (NS_FAILED(rv))
++                  return rv;
++        
++                rv = mRDFService->GetResource(spec, getter_AddRefs(vol));
++                if (NS_FAILED(rv)) return rv;
++            }
++    
++            volumes->AppendElement(vol);
++            
++            ++volumeIndex;          /* and the volumeIndex to get the next volume*/
++        }
++    } while ( noErr == err );
+ #endif
+ 
+ #if defined (XP_WIN) && !defined (WINCE)
+@@ -1171,7 +1206,7 @@
+         {
+             PRBool          hiddenFlag = PR_FALSE;
+             if (NS_FAILED(rv = aFile->IsHidden(&hiddenFlag)))
+-                break;
++                continue;
+             if (hiddenFlag == PR_TRUE)
+                 continue;
+         }
+@@ -1327,7 +1362,7 @@
+         return(NS_RDF_NO_VALUE);
+ 
+     PRInt64     aFileSize64;
+-#ifdef  XP_MAC
++#ifdef XP_MACOSX
+     // on Mac, get total file size (data + resource fork)
+     nsCOMPtr<nsILocalFileMac>   aMacFile = do_QueryInterface(aFile);
+     if (!aMacFile)
+@@ -1387,7 +1422,7 @@
+     if (name.IsEmpty())
+         return(NS_ERROR_UNEXPECTED);
+ 
+-#ifdef  XP_MAC
++#ifdef XP_MACOSX
+     nsCOMPtr<nsILocalFileMac>   aMacFile = do_QueryInterface(aFile);
+     if (aMacFile)
+     {
+Index: rdf/build/Makefile.in
+===================================================================
+RCS file: /cvsroot/mozilla/rdf/build/Makefile.in,v
+retrieving revision 1.72
+diff -d -u -r1.72 Makefile.in
+--- rdf/build/Makefile.in	9 Dec 2004 19:28:30 -0000	1.72
++++ rdf/build/Makefile.in	7 Nov 2005 00:54:20 -0000
+@@ -82,6 +82,13 @@
+ 		$(NULL)
+ endif
+ 
++ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
++CXXFLAGS        += $(TK_CFLAGS)
++EXTRA_DSO_LDOPTS += \
++        $(TK_LIBS) \
++        $(NULL)
++endif
++
+ EXPORTS		= nsRDFCID.h
+ 
+ include $(topsrcdir)/config/rules.mk

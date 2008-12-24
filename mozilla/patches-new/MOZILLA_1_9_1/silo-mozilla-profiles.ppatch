@@ -1,0 +1,153 @@
+Index: modules/libreg/src/vr_stubs.c
+===================================================================
+RCS file: /cvsroot/mozilla/modules/libreg/src/vr_stubs.c,v
+retrieving revision 3.36
+diff -u -r3.36 vr_stubs.c
+--- modules/libreg/src/vr_stubs.c	1 Jun 2005 18:53:29 -0000	3.36
++++ modules/libreg/src/vr_stubs.c	30 Jun 2005 22:15:34 -0000
+@@ -84,15 +84,15 @@
+ #define UNICHAR_ARRAY_LEN(s) (sizeof(s) / sizeof(UniChar))
+ #endif
+ 
+-#define DEF_REG "/.mozilla/registry"
+-#define WIN_REG "\\mozregistry.dat"
+-#define MAC_REG "\pMozilla Registry"
+-#define BEOS_REG "/mozilla/registry"
+-
+-#define DEF_VERREG "/.mozilla/mozver.dat"
+-#define WIN_VERREG "\\mozver.dat"
+-#define MAC_VERREG "\pMozilla Versions"
+-#define BEOS_VERREG "/mozilla/mozver.dat"
++#define DEF_REG "/.komodo/PT_CONFIG_komodoVersion/mozilla/registry"
++#define WIN_REG "\\koPT_CONFIG_komodoUndottedVersionmozregistry.dat"
++#define MAC_REG "\pKomodo-PT_CONFIG_komodoVersion Registry"
++#define BEOS_REG "/komodo/PT_CONFIG_komodoVersion/mozilla/registry"
++
++#define DEF_VERREG "/.komodo/PT_CONFIG_komodoVersion/mozilla/komozver.dat"
++#define WIN_VERREG "\\koPT_CONFIG_komodoUndottedVersionmozver.dat"
++#define MAC_VERREG "\pKomodo-PT_CONFIG_komodoVersion Versions"
++#define BEOS_VERREG "/komodo/PT_CONFIG_komodoVersion/mozilla/komozver.dat"
+ 
+ 
+ /* ------------------------------------------------------------------
+Index: xpcom/io/nsAppFileLocationProvider.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/xpcom/io/nsAppFileLocationProvider.cpp,v
+retrieving revision 1.64
+diff -u -r1.64 xpcom/io/nsAppFileLocationProvider.cpp
+--- xpcom/io/nsAppFileLocationProvider.cpp	21 Feb 2007 19:45:48 -0000	1.64
++++ xpcom/io/nsAppFileLocationProvider.cpp	13 Jun 2007 22:46:06 -0000
+@@ -47,6 +47,7 @@
+ #include "nsISimpleEnumerator.h"
+ #include "prenv.h"
+ #include "nsCRT.h"
++#include "nsLocalFile.h"
+ 
+ #if defined(XP_MACOSX)
+ #include <Folders.h>
+@@ -85,7 +85,16 @@
+ #endif
+ 
+ // define default product directory
+-#define DEFAULT_PRODUCT_DIR NS_LITERAL_CSTRING(MOZ_USER_DIR)
++// XXX look into MOZ_USER_DIR
++#ifdef XP_MACOSX
++#define DEFAULT_PRODUCT_DIR NS_LITERAL_CSTRING("ActiveState/Komodo/5.10")
++#else
++#if defined(XP_WIN)
++#define DEFAULT_PRODUCT_DIR NS_LITERAL_CSTRING("ActiveState\\Komodo\\5.10")
++#else
++#define DEFAULT_PRODUCT_DIR NS_LITERAL_CSTRING(".komodo/5.10")
++#endif
++#endif
+ 
+ // Locally defined keys used by nsAppDirectoryEnumerator
+ #define NS_ENV_PLUGINS_DIR          "EnvPlugins"    // env var MOZ_PLUGIN_PATH
+@@ -325,6 +331,33 @@
+ // UNIX   : ~/.mozilla/
+ // WIN    : <Application Data folder on user's machine>\Mozilla
+ // Mac    : :Documents:Mozilla:
++//
++// Komodo change for:
++//      http://bugs.activestate.com/show_bug.cgi?id=28594
++//      http://bugs.activestate.com/show_bug.cgi?id=27985
++// Make sure that "Mozilla Product Dir" includes a directory level named for
++// the current machine. This ensures that two or more Komodo instances being
++// run with a common AppData directory (e.g., a Un*x user with a shared home
++// directory) will not conflict.
++//
++// Komodo change for:
++//      http://bugs.activestate.com/show_bug.cgi?id=32270
++// Allow the user data dir to be overriden via the KOMODO_USERDATADIR
++// environment variable.
++//
++// The intended result is:
++//      <plat-appdata-dir>/DEFAULT_PRODUCT_DIR/$KOMODO_HOSTNAME/Mozilla
++// where,
++//      <plat-appdata-dir> is the platform-dependent application data dir, HOME
++//          dir or whater, as defined by the code in this function;
++//      DEFAULT_PRODUCT_DIR is a define in this file (modified for Komodo);
++//      $KOMODO_HOSTNAME is the value of that environment variable (defined
++//          in the shim that calls mozilla.exe for Komodo). This is just the
++//          current hostname. Determining that here is a pain so we just pass
++//          it in.
++// or, if the KOMODO_USERDATADIR environment variable is defined then the path
++// is:
++//      $KOMODO_USERDATADIR/$KOMODO_HOSTNAME/Mozilla
+ //----------------------------------------------------------------------------------------
+ NS_METHOD nsAppFileLocationProvider::GetProductDirectory(nsILocalFile **aLocalFile, PRBool aLocal)
+ {
+@@ -334,9 +367,26 @@
+     PRBool exists;
+     nsCOMPtr<nsILocalFile> localDir;
+ 
++    char *userDataDir = PR_GetEnv("KOMODO_USERDATADIR");
++    if (userDataDir)
++    {
++        nsLocalFile* customLocalDir = new nsLocalFile;
++        if (customLocalDir == nsnull)
++            return NS_ERROR_OUT_OF_MEMORY;
++        NS_ADDREF(customLocalDir);
++
++        customLocalDir->InitWithNativePath(nsDependentCString(userDataDir));
++        customLocalDir->Normalize();
++        rv = customLocalDir->AppendRelativeNativePath(NS_LITERAL_CSTRING("PT_CONFIG_komodoVersion"));
++        if (NS_FAILED(rv)) return rv;
++        localDir = customLocalDir;
++    }
++    else
++    {
++
+ #if defined(XP_MACOSX)
+     FSRef fsRef;
+-    OSType folderType = aLocal ? kCachedDataFolderType : kDomainLibraryFolderType;
++    OSType folderType = aLocal ? kCachedDataFolderType : kApplicationSupportFolderType;
+     OSErr err = ::FSFindFolder(kUserDomain, folderType, kCreateFolder, &fsRef);
+     if (err) return NS_ERROR_FAILURE;
+     NS_NewLocalFile(EmptyString(), PR_TRUE, getter_AddRefs(localDir));
+@@ -394,6 +444,25 @@
+ 
+     rv = localDir->AppendRelativeNativePath(DEFAULT_PRODUCT_DIR);
+     if (NS_FAILED(rv)) return rv;
++
++    } // end if $KOMODO_USERDATADIR
++
++
++    char* hostName = getenv("KOMODO_HOSTNAME");
++    if (!hostName) {
++        fprintf(stderr, "warning: KOMODO_HOSTNAME not set, not using "\
++                        "proper Mozilla profile dir\n");
++    } else {
++        char hostPath[1024] = "host-";
++        strncat(hostPath, hostName, 1024-strlen(hostPath)-1);
++        nsCString aHostPath;
++        aHostPath.Assign(hostPath);
++        rv = localDir->AppendRelativeNativePath(aHostPath);
++        if (NS_FAILED(rv)) return rv;
++    }
++    rv = localDir->AppendRelativeNativePath(NS_LITERAL_CSTRING("Mozilla"));
++    if (NS_FAILED(rv)) return rv;
++
+     rv = localDir->Exists(&exists);
+ 
+     if (NS_SUCCEEDED(rv) && !exists)

@@ -1,0 +1,25 @@
+Index: extensions/python/xpcom/src/module/_xpcom.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/module/_xpcom.cpp,v
+retrieving revision 1.12
+diff -d -u -r1.12 _xpcom.cpp
+--- extensions/python/xpcom/src/module/_xpcom.cpp	16 Jan 2007 06:44:38 -0000	1.12
++++ extensions/python/xpcom/src/module/_xpcom.cpp	15 Jun 2007 19:01:57 -0000
+@@ -581,6 +581,17 @@
+     REGISTER_INT(NS_PROXY_SYNC);
+     REGISTER_INT(NS_PROXY_ASYNC);
+     REGISTER_INT(NS_PROXY_ALWAYS);
++
++    // Backwards compat names for proxy
++#define REGISTER_INT_NAME(val, name) { \
++	PyObject *ob = PyInt_FromLong(val); \
++	PyDict_SetItemString(dict, name, ob); \
++	Py_DECREF(ob); \
++	}
++    REGISTER_INT_NAME(NS_PROXY_SYNC, "PROXY_SYNC");
++    REGISTER_INT_NAME(NS_PROXY_ASYNC, "PROXY_ASYNC");
++    REGISTER_INT_NAME(NS_PROXY_ALWAYS, "PROXY_ALWAYS");
++
+     // Build flags that may be useful.
+     PyObject *ob = PyBool_FromLong(
+ #ifdef NS_DEBUG

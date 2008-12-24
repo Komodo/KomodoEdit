@@ -69,13 +69,16 @@ r"""
     
     Suggested configurations are:
     * Snapdragon development builds:
-        python build.py configure -k 1.10 --moz-src=cvs:1.8 \
+        python build.py configure -k 5.10 --moz-src=cvs:1.8 \
             --release --no-strip --tools
-    * Mozilla trunk builds:
-        python build.py configure -k 1.10 --moz-src=cvs \
+    * Mozilla 1.9.0 builds:
+        python build.py configure -k 5.10 --moz-src=cvs \
+            --release --no-strip --tools
+    * Mozilla 1.9.1 builds:
+        python build.py configure -k 5.10 --moz-src=hg \
             --release --no-strip --tools
     * Komodo IDE 4.3.x development build:
-        python build.py configure -k 4.13 --moz-src=cvs:1.8 \
+        python build.py configure -k 5.13 --moz-src=cvs:1.8 \
             --release --no-strip --tools
 """
 #
@@ -819,6 +822,18 @@ def _getMozSrcInfo(scheme, mozApp):
 
         config["mozSrcCvsTarball"] = None
 
+    elif scheme.startswith("hg"): # hg[:TAG[:DATE]]
+        config["mozSrcType"] = "hg"
+
+        config.update(
+            mozSrcHgTag=None,
+            mozSrcHgDate=None,
+        )
+
+        # Determine a nice short name loosely describing this Mercurial
+        # source.
+        config["mozSrcName"] = "hg"
+
     elif scheme.endswith(".tar.gz") or scheme.endswith(".tar.bz2"):
         suffix = scheme.endswith(".tar.gz") and ".tar.gz" or ".tar.bz2"
         if not isfile(scheme):
@@ -1065,6 +1080,9 @@ def target_configure(argv):
                         cvs:1.8:02/14/2006  # Valentine's Day 2006
                     See tinderbox.mozilla.org for hints on Mozilla CVS
                     tags.
+                hg
+                    Grab the source directly from Mozilla Mercurial. E.g.
+                        hg      # the latest Mercurial head
                 <path-to-tarball>
                     A path to a mozilla/firefox source tarball to use
                     for the source.
@@ -1537,10 +1555,10 @@ def target_configure(argv):
 
     # Determine the exact mozilla build configuration (i.e. the content
     # of '.mozconfig') -- unless specifically given.
-    mozCvsVer = _guess_mozilla_cvs_version_from_config(config)
+    mozVer = _guess_mozilla_version_from_config(config)
     if config["mozconfig"] is None:
         if not config["official"]:
-            if mozCvsVer is None or mozCvsVer >= 1.9:
+            if mozVer is None or mozVer >= 1.9:
                 mozBuildExtensions.append('python')
                 # help viewer was removed from normal builds, enable it for Komodo
                 mozBuildOptions.append("enable-help-viewer")
@@ -1578,9 +1596,10 @@ def target_configure(argv):
         if "tools" in config["buildOpt"]:
             # some extensions that may help us in
             # development
-            mozBuildExtensions.append('venkman')
-            mozBuildExtensions.append('inspector')
-            mozBuildExtensions.append('cview')
+            if mozVer < 1.91:
+                mozBuildExtensions.append('venkman')
+                mozBuildExtensions.append('inspector')
+                mozBuildExtensions.append('cview')
         
         if config["mozApp"] in ("browser", "komodo"):
             # based on build options from the standard firefox distro, there
@@ -1598,7 +1617,8 @@ def target_configure(argv):
             # these extensions are built into firefox, we need to figure out
             # what we dont want or need.
             mozBuildExtensions.append('cookie')
-            mozBuildExtensions.append('xml-rpc')
+            if mozVer < 1.91:
+                mozBuildExtensions.append('xml-rpc')
             
             mozBuildExtensions.append('spellcheck')
             #mozBuildExtensions.append('typeaheadfind')
@@ -1631,8 +1651,8 @@ def target_configure(argv):
         if "gtk" in config["buildOpt"]:
             mozBuildOptions.append('enable-default-toolkit=gtk')
         elif "gtk2" in config["buildOpt"]:
-            # Note: "mozCvsVer" can be None
-            if mozCvsVer is None or mozCvsVer >= 1.9:
+            # Note: "mozVer" can be None
+            if mozVer is None or mozVer >= 1.9:
                 # Assume at least mozilla 1.9 then, use cairo gtk builds.
                 mozBuildOptions.append('enable-default-toolkit=cairo-gtk2')
             else:
@@ -2096,10 +2116,10 @@ def target_fastupdate(argv=["update"]):
     return argv[1:]
     
 def target_update(argv=["update"]):
-    """update mozilla source from cvs"""
+    """update mozilla source from cvs or mercurial"""
     config = _importConfig()
-    if not config.mozSrcType == "cvs":
-        raise BuildError("cannot update source from CVS: mozSrcType != 'cvs'")
+    if not config.mozSrcType not in ("cvs", "hg"):
+        raise BuildError("cannot update source: mozSrcType: %r not one of ('cvs', 'hg')")
 
     # Abort if there is nothing to update.
     buildDir = os.path.join(gBuildDir, config.srcTreeName)
@@ -2109,9 +2129,13 @@ def target_update(argv=["update"]):
                          "'./build.py src' to checkout)" % landmark)
 
     # Update.
-    os.environ["CVSROOT"] = ":pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot"
-    _run("cd %s && cvs update && make" % landmark,
-         log.info)
+    if config.mozSrcType == "cvs":
+        os.environ["CVSROOT"] = ":pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot"
+        _run("cd %s && cvs update && make" % landmark,
+             log.info)
+    elif config.mozSrcType == "hg":
+        _run("cd %s && hg pull -u && make" % landmark,
+             log.info)
 
     return argv[1:]
 
@@ -2157,6 +2181,8 @@ def target_src(argv=["src"]):
     # 2. cygwin tar cannot handle absolute paths
     if config.mozSrcType == "cvs":
         tarballPath = config.mozSrcCvsTarball
+    elif config.mozSrcType == "hg":
+        tarballPath = None
     else:
         tarballPath = config.mozSrcTarball
 
@@ -2239,6 +2265,11 @@ def target_src(argv=["src"]):
                         + "MOZ_CO_MODULE=mozilla/other-licenses/bsdiff "
                         + moz_co_date]
             _run(" && ".join(cmds), log.info)
+
+    elif mozSrcType == "hg":
+        repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.1/"
+        cmds = ["cd %s" % buildDir, "hg clone %s mozilla" % (repo_url, )]
+        _run(" && ".join(cmds), log.info)
 
     elif mozSrcType == "tarball":
         _extract_tarball(tarball, buildDir)
@@ -2367,24 +2398,27 @@ def _get_mozilla_version(): #XXX
     return '.'.join(ver)
 
 
-def _guess_mozilla_cvs_version_from_config(config):
-    """Guess the mozilla version from the config "cvsTag" setting.
+def _guess_mozilla_version_from_config(config):
+    """Guess the mozilla version from the config "cvsTag" or "hgTag" setting.
 
     Returns None if could not be determined, else returns a floating point
-    value of the mozilla cvs version. Examples:
-    
+    value of the mozilla version. Examples:
+        
     """
-    mozCvsVer = None
-    mozSrcCvsTag = config.get("mozSrcCvsTag")
-    # "mozSrcCvsTag" looks like None, "MOZILLA_<ver>_BRANCH" or "HEAD".
-    if mozSrcCvsTag:
-        match = re.search(r"MOZILLA_(?P<ver>(\d+_?)+)_BRANCH", mozSrcCvsTag)
-        if match:
-            # Turn into a floating point.
-            ver = match.group("ver").replace("_", ".", 1)
-            ver = ver.replace("_", "")
-            mozCvsVer = float(ver)
-    return mozCvsVer
+    mozVer = None
+    if config["mozSrcType"] == "cvs":
+        mozSrcCvsTag = config.get("mozSrcCvsTag")
+        # "mozSrcCvsTag" looks like None, "MOZILLA_<ver>_BRANCH" or "HEAD".
+        if mozSrcCvsTag:
+            match = re.search(r"MOZILLA_(?P<ver>(\d+_?)+)_BRANCH", mozSrcCvsTag)
+            if match:
+                # Turn into a floating point.
+                ver = match.group("ver").replace("_", ".", 1)
+                ver = ver.replace("_", "")
+                mozVer = float(ver)
+    elif config["mozSrcType"] == "hg":
+        mozVer = 1.91
+    return mozVer
 
 
 def _msys_path_from_path(path):
@@ -2544,9 +2578,13 @@ def target_pluginsdk(argv=["mozilla"]):
     # make'ing in $mozObjDir\modules\plugin\tools\sdk\samples\common).
     config = _importConfig()
     _setupMozillaEnv()
+    mozVer = _get_mozilla_version()
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
-    pluginDir = os.path.join(native_objdir, 'modules', 'plugin',
-                             'tools', 'sdk')
+    if mozVer >= 1.91:
+        pluginDir = os.path.join(native_objdir, 'modules', 'plugin', 'sdk')
+    else:
+        pluginDir = os.path.join(native_objdir, 'modules', 'plugin',
+                                 'tools', 'sdk')
     log.info("entering directory '%s' (to build plugin separately)",
              pluginDir)
     _run_in_dir('make', pluginDir, log.info)

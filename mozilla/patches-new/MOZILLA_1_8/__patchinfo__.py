@@ -39,8 +39,7 @@
 
 def applicable(config):
     if config.mozSrcType != "cvs":
-        raise ValueError("don't know if should apply these patches: "
-                         "mozSrcType != 'cvs'")
+        return False
     elif config.mozSrcCvsTag is not None \
          and config.mozSrcCvsTag.startswith("MOZILLA_1_8"):
         return True
