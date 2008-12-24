@@ -1579,6 +1579,7 @@ def target_configure(argv):
             # some extensions that may help us in
             # development
             mozBuildExtensions.append('venkman')
+            mozBuildExtensions.append('inspector')
             mozBuildExtensions.append('cview')
         
         if config["mozApp"] in ("browser", "komodo"):
