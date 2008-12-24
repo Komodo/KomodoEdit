@@ -2274,11 +2274,33 @@ class MozVersionNumber(black.configure.Datum):
             raise black.configure.ConfigureError("Could not determine %s")
     def _Determine_Do(self):
         self.applicable = 1
-        mozVersion = black.configure.items["mozVersion"].Get()
-        ver = mozVersion.split('.')
+        mozSrc = os.path.join(black.configure.items['MOZ_SRC'].Get(), 'mozilla')
+        milestone = os.path.join(mozSrc, 'config', 'milestone.pl')
+        if sys.platform.startswith("win"):
+            # Mozilla's milestone.pl stupidly only works with UNIX path
+            # separators. Perl is fine with that on windows so just use those.
+            milestone = milestone.replace('\\', '/')
+
+        perlExe = black.configure.items["unsiloedPerlExe"].Get()
+        cmd = '%s %s -topsrcdir %s' % (perlExe, milestone, mozSrc)
+        i, o, e = os.popen3(cmd)
+        i.close()
+        output = o.read()
+        o.close()
+        stderr = e.read()
+        retval = e.close()
+        if retval:
+            raise black.configure.ConfigureError(
+                "error running '%s': stdout='%r' stderr='%r'"
+                % (cmd, output, stderr))
+    
+        # Only use the first 3 parts of the version, strip extra info,
+        # such as 8b2 by using str2int.
+        ver = output.split('.')[:3]
         self.value = (int(ver[0]) * 100)
-        self.value += (int(ver[1]) * 10)
-        if len(ver) > 2: self.value += int(ver[2])
+        self.value += (str2int(ver[1]) * 10)
+        if len(ver) > 2:
+            self.value += str2int(ver[2])
         self.determined = 1
 
 class BuildType(black.configure.Datum):

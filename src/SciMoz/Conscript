@@ -137,6 +137,17 @@ $cons->InstallXpcomComponent('koScintillaController.py');
 my $pluginName;
 my $xScintillaBuildDir = DirPath($scintillaBuildDir);
 
+# Plugin directory moved as of Mozilla 1.9.1
+my $pluginSdkSrcDir;
+my $pluginSdkObjDir;
+if ($mozVersionNumber >= 191) {
+    $pluginSdkSrcDir = "$mozSrc/mozilla/modules/plugin/sdk";
+    $pluginSdkObjDir = "$mozObjDir/modules/plugin/sdk";
+} else {
+    $pluginSdkSrcDir = "$mozSrc/mozilla/modules/plugin/tools/sdk";
+    $pluginSdkObjDir = "$mozObjDir/modules/plugin/tools/sdk";
+}
+
 if ($platform eq "win") {
     $pluginName = 'npscimoz.dll';
 
@@ -144,10 +155,17 @@ if ($platform eq "win") {
     foreach my $libDir (split(';', $mozLibPath)) {
         $LDFLAGS .= " /libpath:$libDir";
     }
-    $LDFLAGS .= " /libpath:$mozObjDir\\modules\\plugin\\tools\\sdk\\samples\\common";
+    my $pluginSdkSrcDirWinPath;
+    if ($mozVersionNumber >= 191) {
+        $pluginSdkSrcDirWinPath = "$mozObjDir\\modules\\plugin\\sdk";
+    } else {
+        $pluginSdkSrcDirWinPath = "$mozObjDir\\modules\\plugin\\tools\\sdk";
+    }
+
+    $LDFLAGS .= " /libpath:$pluginSdkSrcDirWinPath\\samples\\common";
     my $CXXFLAGS = "/W3 /D_WINDOWS /DWIN32 " .
         " /I$xScintillaBuildDir/include" .
-        " /I$mozSrc/mozilla/modules/plugin/tools/sdk/samples/include ".
+        " /I$pluginSdkSrcDir/samples/include ".
         " /I$mozDevelDist/include/xulapp" .
         " /I$mozSrc/mozilla/xpcom/ds" .
         " /I$mozDevelDist/include/widget" .
@@ -243,7 +261,7 @@ elsif ($platform eq "darwin") {
     
 
     $consLocal{'CPPPATH'} = "$scintillaBuildDir/include:$scintillaBuildDir/src:$scintillaBuildDir/macosx:$mozIncludePath:$mozDevelDist/include/java";
-    $consLocal{'LIBPATH'} = "$mozLibPath:$mozObjDir/modules/plugin/tools/sdk/samples/common:$mozBin";
+    $consLocal{'LIBPATH'} = "$mozLibPath:$pluginSdkObjDir/samples/common:$mozBin";
     $consLocal{'CXXFLAGS'} = " -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti -fno-common ";
     # XXX cannot build universal unless mozilla is universal
     if ($universal) {
@@ -263,7 +281,7 @@ elsif ($platform eq "darwin") {
 
     # Ensure that these are defined for use by mozilla headers
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
-        " -I$mozSrc/mozilla/modules/plugin/tools/sdk/samples/include ".
+        " -I$pluginSdkSrcDir/samples/include ".
         " -I$mozDevelDist/include" .
         " -I$mozDevelDist/include/xulapp" .
         " -I$mozDevelDist/include/widget" .
@@ -340,7 +358,7 @@ else {
     $consLocal{'LIBS'} .= " $xScintillaBuildDir/gtk/libpcre.a";
 
     $consLocal{'CPPPATH'} = "$mozIncludePath:$scintillaBuildDir/include:$mozDevelDist/include/java";
-    $consLocal{'LIBPATH'} = "$mozLibPath:$mozObjDir/modules/plugin/tools/sdk/samples/common:../scintilla/bin";
+    $consLocal{'LIBPATH'} = "$mozLibPath:$pluginSdkObjDir/samples/common:../scintilla/bin";
     $consLocal{'CC'} = "gcc";
 
     ## XXX PKG_CONFIG_PATH env var will point to pgkconfig dir for the platform
@@ -356,7 +374,7 @@ else {
 
     # Ensure that these are defined for use by mozilla headers
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
-        " -I$mozSrc/mozilla/modules/plugin/tools/sdk/samples/include ".
+        " -I$pluginSdkSrcDir/samples/include ".
         " -I$mozDevelDist/include" .
         " -I$mozDevelDist/include/xulapp" .
         " -I$mozSrc/mozilla/xpcom/ds" .
