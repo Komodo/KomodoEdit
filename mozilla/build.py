@@ -2578,7 +2578,7 @@ def target_pluginsdk(argv=["mozilla"]):
     # make'ing in $mozObjDir\modules\plugin\tools\sdk\samples\common).
     config = _importConfig()
     _setupMozillaEnv()
-    mozVer = _get_mozilla_version()
+    mozVer = float(_get_mozilla_version())
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
     if mozVer >= 1.91:
         pluginDir = os.path.join(native_objdir, 'modules', 'plugin', 'sdk')
