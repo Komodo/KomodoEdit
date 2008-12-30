@@ -402,6 +402,7 @@
             <File Id="file351" Name="mozz.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mozz.dll"/>
             <File Id="file356" Name="thebes.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\thebes.dll"/>
             <File Id="file594" Name="xul.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xul.dll"/>
+            <File Id="file402" Name="MOZPYT_0.EXE" LongName="mozpython.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mozpython.exe"/>
 <?if $(var.WithCrypto) = "yes" ?>
             <File Id="file1889" Name="freebl3.chk" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.chk"/>
             <File Id="file1890" Name="freebl3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.dll"/>
