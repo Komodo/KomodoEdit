@@ -474,13 +474,31 @@ def remote_glob(rpattern, log=None):
                 "ls", "-d", pattern]
     if log:
         log(' '.join(argv))
+    rpaths = []
     try:
-        stdout = capture_output(argv)
+        # Don't use `capture_stdout` -- results in hang with plink on
+        # Windows (see Komodo bug 79857). Eventual best fix is probably
+        # to use `subprocess.Popen().communicate()`.
+        output = capture_output(argv)
     except OSError, ex:
-        rpaths = []
+        pass
     else:
-        rpaths = ["%s:%s" % (login, p.strip()) 
-                  for p in stdout.splitlines(0) if p.strip()]
+        # Skip stderr lines like this (see ActiveState bug 79857):
+        #   id: cannot find name for group ID \d+
+        skip_res = [
+            re.compile(r"^id: cannot find name for group ID \d+$")
+        ]
+        for line in output.splitlines(0):
+            if not line.strip():
+                continue
+            skip_it = False
+            for skip_re in skip_res:
+                if skip_re.search(line):
+                    skip_it = True
+                    break
+            if skip_it:
+                continue
+            rpaths.append("%s:%s" % (login, line.strip()))
     return rpaths
 
 def remote_walk(rdir, log=None):
