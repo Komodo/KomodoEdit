@@ -144,7 +144,11 @@ class KomodoReleasesGuru(object):
             for f in buildutils.remote_glob(
                         rjoin(self.pkg_base_dir, "*", "GoldBits")):
                 ver_str = basename(dirname(f))
-                ver = buildutils.split_short_ver(ver_str, intify=True)
+                try:
+                    ver = buildutils.split_short_ver(ver_str, intify=True)
+                except ValueError, ex:
+                    log.warn("invalid GoldBits dir `%s': %s", f, ex)
+                    continue
                 if len(ver) == 3: # e.g. (4,1,0) -> (4,1,0,'c',0)
                     # This helps sort 4.1.0 before 4.1.0b2.
                     ver = (ver[0], ver[1], ver[2], 'c', 0)
