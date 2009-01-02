@@ -34,5 +34,5 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
-// Valid values are "release", "beta" and "nightly" (internal-only).
+// Valid values are "release", "beta" and "nightly".
 pref("app.update.channel", "PP_KO_UPDATE_CHANNEL");
