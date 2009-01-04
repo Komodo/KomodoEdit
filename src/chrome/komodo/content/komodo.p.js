@@ -333,9 +333,11 @@ function onloadDelay() {
     // properly update all of the commands. We force updating of these
     // command targets.
     if (ko.views.manager.currentView) {
-        window.setTimeout("window.updateCommands('currentview_is_editor');", 1);
-        window.setTimeout("window.updateCommands('foldability_changed');", 1);
-        window.setTimeout("window.updateCommands('previewability_changed');", 1);
+        window.setTimeout(function(window) {
+            window.updateCommands('currentview_is_editor');
+            window.updateCommands('foldability_changed');
+            window.updateCommands('previewability_changed');
+        }, 1, window);
     }
 }
 
