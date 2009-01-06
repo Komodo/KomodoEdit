@@ -44,27 +44,58 @@ except ImportError:
     print "boom"
     pass # Allow testing without PyXPCOM to proceed.
 
+class Case(object):
+    def __init__(self, url, path=None):
+        if path is None:
+            path = url
+        if sys.platform == "win32":
+            self.url = "file:///C:" + url
+            self.path = "C:" + path.replace("/", "\\")
+        else:
+            self.url = "file://" + url
+            self.path = path
+
+# The name "test_cases" is reserved by the test framework.
+test_items = [
+    Case("/Documents%20and%20Settings/test/My%20Documents/somefile.txt",
+         "/Documents and Settings/test/My Documents/somefile.txt"),
+    Case("/home/test/somefile.txt"),
+    Case("/path/with%25embedded%25percents/somefile.txt",
+        "/path/with%embedded%percents/somefile.txt"),
+    Case("/path/space%20and%25percent/somefile.txt",
+         "/path/space and%percent/somefile.txt"),
+    # For these two, Komodo doesn't do urlquoting because there's no space or percent
+    Case(u"/french/clean/élan/ça.txt"),
+    Case(u"/greek/clean/Επιφάνεια/εργασίας/Φάκελος/myproject.pl"),
+    
+    # urlquoting can handle latin1 chars.
+    Case(u"/french/dirty/space/%E9lan%20%E9cole/%E7a.txt",
+         u"/french/dirty/space/élan école/ça.txt"),
+    Case(u"/french/dirty/pct/%E9lan%25%E9cole/%E7a.txt",
+         u"/french/dirty/pct/élan%école/ça.txt"),
+    Case(u"/french/dirty/both/%E9lan%20space%25%E9cole/%E7a.txt",
+         u"/french/dirty/both/élan space%école/ça.txt"),
+    
+    # For these three urlquoting fails, and Komodo returns the original string
+    Case(u"/greek/dirty/space/Επιφάνεια εργασίας/Φάκελος/myproject.pl"),
+    Case(u"/greek/dirty/pct/Επιφάνεια%εργασίας/Φάκελος/myproject.pl"),
+    Case(u"/greek/dirty/both/Επιφάνεια εργασίας % Φάκελος/myproject.pl"),
+    ]
 
 class URIParseTestCase(unittest.TestCase):
     def test_localPathToURI(self):
-        if sys.platform == "win32":
-            url = "file:///C:/Documents%20and%20Settings/test/My%20Documents/somefile.txt"
-            path = r"C:\Documents and Settings\test\My Documents\somefile.txt"
-        else:
-            url = "file:///home/test/somefile.txt"
-            path = "/home/test/somefile.txt"
-
-        assert localPathToURI(path) == url
+        for test_case in test_items:
+            url = localPathToURI(test_case.path)
+            self.failUnlessEqual(url, test_case.url,
+                "localPathToURI(path=%s): expected\n%s, got\n%s\n" %
+                (test_case.path, test_case.url, url))
  
     def test_URIToLocalPath(self):
-        if sys.platform == "win32":
-            url = "file:///C:/Documents%20and%20Settings/test/My%20Documents/somefile.txt"
-            path = r"C:\Documents and Settings\test\My Documents\somefile.txt"
-        else:
-            url = "file:///home/test/somefile.txt"
-            path = "/home/test/somefile.txt"
-
-        assert URIToLocalPath(url) == path
+        for test_case in test_items:
+            path = URIToLocalPath(test_case.url)
+            self.failUnlessEqual(path, test_case.path,
+                "URIToLocalPath(url=%s): expected\n%s, got\n%s\n" %
+                (test_case.url, test_case.path, path))
 
 
 
