@@ -54,7 +54,7 @@ def makeIndentFromWidth(scimoz, width):
 
 import koXMLTreeService
 
-def startTagInfo_from_endTagPos(scimoz, endTagPos):
+def startTagInfo_from_endTagPos(scimoz, endTagPos, isHTML=False):
     # DOM lines and columns seem to be 1-based
     endTagLine = scimoz.lineFromPosition(endTagPos)
     endTagCol = scimoz.getColumn(endTagPos)
@@ -65,9 +65,16 @@ def startTagInfo_from_endTagPos(scimoz, endTagPos):
     startTagNode = node.start
     startTagLine, startTagCol = startTagNode[0] - 1, startTagNode[1]
     startTag_LineStartPos = scimoz.positionFromLine(startTagLine)
+    tagStartPos = startTag_LineStartPos + startTagCol
+    if isHTML \
+       and tagStartPos > 0 \
+       and scimoz.getCharAt(tagStartPos - 1) == ord("<") \
+       and scimoz.getStyleAt(tagStartPos - 1) == scimoz.SCE_UDL_M_STAGO:
+        # bug 64217 -- seems like we should always subtract 1 for HTML.  XML is fine.
+        startTagCol -= 1
     return (startTagLine, startTagCol, startTag_LineStartPos)
 
-def adjustClosingXMLTag(scimoz):
+def adjustClosingXMLTag(scimoz, isHTML=False):
     """ This function is called when a ">" from an XML end tag
     is inserted, and it will shift the current line either back
     or forwards so that the tag is aligned with the matching start tag.
@@ -81,7 +88,7 @@ def adjustClosingXMLTag(scimoz):
         # no idea what to do in this case, just bail
         return
     leftCloseIndex = len(beforeText[0:leftCloseIndex].encode('utf-8')) # bug 69731
-    startTagInfo = startTagInfo_from_endTagPos(scimoz, leftCloseIndex)
+    startTagInfo = startTagInfo_from_endTagPos(scimoz, leftCloseIndex, isHTML)
     if startTagInfo is None:
         return
     startTagLine, startTagCol, startTag_LineStartPos = startTagInfo

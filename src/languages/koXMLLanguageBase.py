@@ -199,7 +199,8 @@ class koXMLLanguageBase(KoUDLLanguage):
         return None
 
 class koHTMLLanguageBase(koXMLLanguageBase):
-
+    isHTMLLanguage = True
+    
     def get_linter(self):
         return self._get_linter_from_lang("HTML")
     

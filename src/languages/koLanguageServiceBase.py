@@ -823,6 +823,8 @@ class KoLanguageBase:
     systemIdList = []
     namespaces = []
     prefset = None
+    
+    isHTMLLanguage = False
 
     def __init__(self):
         if not KoLanguageBase.prefset:
@@ -2242,7 +2244,7 @@ class KoLanguageBase:
         if (ch == '>' and self.supportsSmartIndent == 'XML'):
             state = self._findXMLState(scimoz, charPos, ch, style)
             if state == 'END_TAG_CLOSE':
-                scimozindent.adjustClosingXMLTag(scimoz)
+                scimozindent.adjustClosingXMLTag(scimoz, self.isHTMLLanguage)
             return
 
         indent = self.getIndentForCloseChar(scimoz, charPos, ch, style, style_info, None)

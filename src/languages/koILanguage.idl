@@ -131,6 +131,9 @@ interface koILanguage : nsISupports {
                           in boolean defaultUsesTabs,
                           out long indentWidth,
                           out boolean usesTabs);
+    
+    // Needed for HTML/XML auto-indentation
+    readonly attribute boolean isHTMLLanguage;
 
     // Any koILanguage implementation can use this as a launching
     // point for a test suite that requires a working SciMoz. You also

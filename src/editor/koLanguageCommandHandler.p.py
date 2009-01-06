@@ -1604,7 +1604,7 @@ class GenericCommandHandler:
                     shouldAdjust = 1
             sm.autoCComplete()
             if shouldAdjust:
-                scimozindent.adjustClosingXMLTag(sm)
+                scimozindent.adjustClosingXMLTag(sm, view.languageObj.isHTMLLanguage)
             sm.scrollCaret()
             return
 
