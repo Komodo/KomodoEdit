@@ -187,33 +187,40 @@ class URIParser(object):
         # if a windows path, fix it
         uparts = copy.copy(parts)
         uparts[2] = uparts[2].replace('\\','/')
-        if uparts[2].find('%') >= 0:
-             uparts[2] = urllib.unquote(uparts[2])
-        if uparts[2].find(' ') >= 0:
+        prefix = ""
+        if ' ' in uparts[2] or '%' in uparts[2]:
             if uparts[2].find(':') == 1:
-                try:
-                    uparts[2] = uparts[2][:2] + urllib.quote(uparts[2][2:])
-                except KeyError, e:
-                    # quote fails on unicode chars, just pass through and hope
-                    # for the best.  bug 63027 (see other changes for 63027
-                    # later in this file)
-                    pass
+                prefix = uparts[2][:2]
+                uriPart = uparts[2][2:]
             elif uparts[2].find('://') > 0:
                 # XXX a bit of a hack to support koremote
                 # which contains a sub-url.  currently the only
                 # koremote is our ftp support, which doesn't expect
                 # to get quoted url's
+                # XXX -- 2008/12/19 - this part seems obsolete,
+                #   as nothing in Komodo currently creates koremote URIs
+                
                 moreparts = self._parseURI(uparts[2])
                 if not moreparts:
-                    uparts[2] = urllib.quote(uparts[2])
-        uparts[2] = uparts[2].replace('\\','/')
+                    uriPart = uparts[2]
+                else:
+                    uriPart = None
+            else:
+                uriPart = uparts[2]
+            if uriPart:
+                try:
+                    uparts[2] = prefix + urllib.quote(uriPart).replace('\\','/')
+                except KeyError, e:
+                    # quote fails on unicode chars, just pass through and hope
+                    # for the best.  bug 63027 (see other changes for 63027
+                    # later in this file)
+                    pass
         return urlparse.urlunsplit(tuple(uparts))
 
     def _setFileNames(self, fileName):
+        # Expects a sort-of URI where urlunquote has already been done.
         self._clear()
         if fileName:
-            if fileName.find('%') != -1:
-                fileName = urllib.unquote(fileName)
             self.fileName = fileName
             self._fileParsed = self._parseURI(fileName)
             self._uri = self._buildURI(self._fileParsed)
@@ -257,13 +264,13 @@ class URIParser(object):
     def set_URI(self, uri):
         # if the uri is quoted, we need to unquote first, we'll requote once
         # the uri is fully parsed
-        if uri and uri.find('%') != -1:
-            uri = urllib.unquote(uri)
         if uri is None:
             self._clear()
         elif uri.find('://') == -1:
             self.set_path(uri)
         else:
+            if uri.find('%') != -1:
+                uri = urllib.unquote(uri)
             self._setFileNames(uri)
     URI = property(get_URI,set_URI)
 
@@ -290,7 +297,6 @@ class URIParser(object):
             parts[2]='//'+parts[1]+parts[2]
             parts[1]=''
         path = os.path.normpath(parts[2])
-        path = urllib.unquote(path)
         if len(path)==2 and path[1]==":" and self._fileParsed[2][-1] == "/":
             path += "/"
         if win32:
@@ -308,15 +314,16 @@ class URIParser(object):
         if path.find('://') >= 0:
             self.set_URI(path)
         else:
-            path = path.replace('\\','/')
-            if path.startswith("//"):
-                self.set_URI("file:"+path)
-            elif path[0] == '/':
-                self.set_URI("file://"+path)
-            elif path.find(':') == 1:
-                self.set_URI("file:///"+path)
-            else:
-                self._setFileNames(path)
+            # Where by "sortaURI" we are skipping urlquoting the "path" part
+            # because that is what _setFileNames expects.
+            sortaURI = path.replace('\\','/')
+            if path.startswith("//"):  # UNC path
+                sortaURI = "file:" + path
+            elif path[0] == '/':       # Absolute Unix path
+                sortaURI = "file://" + path
+            elif path.find(':') == 1:  # Absolute Windows path
+                sortaURI = "file:///" + path
+            self._setFileNames(sortaURI)
     path = property(get_path,set_path)
 
     #attribute string leafName; 
