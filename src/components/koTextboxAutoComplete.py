@@ -73,7 +73,7 @@ import re
 
 from xpcom import components, COMException, ServerException, nsError
 from xpcom.server import WrapObject, UnwrapObject
-from kotaclib import KoTACSearch
+from kotaclib import KoTACSearch, KoTACMatch
 
 log = logging.getLogger("koTAC")
 #log.setLevel(logging.DEBUG)
@@ -81,8 +81,8 @@ log = logging.getLogger("koTAC")
 
 #---- helper stuff for autocomplete implementations below
 
-class KoTACResult:
-    """A base implementation of nsIAutoCompleteResult.
+class KoTACResult(object):
+    """A base implementation of ns/koIAutoCompleteResult.
     
     This component can be used directly or may be subclassed for
     specific textbox autocomplete search types if extra functionality is
@@ -96,7 +96,7 @@ class KoTACResult:
                 .createInstance(components.interfaces.koIAutoCompleteResult)
             result.init(<search-string>)
             for match in <find-matches>:
-                result.addMatch(match, ...)
+                result.addMatch2(match)
     2. For an invalid search string:
             result = components.classes["@activestate.com/autocomplete/result;1"] \
                 .createInstance(components.interfaces.koIAutoCompleteResult)
@@ -119,7 +119,7 @@ class KoTACResult:
     searchResult = None
     defaultIndex = 0
     errorDescription = None
-    matches = None
+    matches = None   # list of koIAutoCompleteMatch
 
     def init(self, searchString):
         self.searchString = searchString
@@ -153,26 +153,30 @@ class KoTACResult:
                 XUL attribute is true. By default the zeroth index is
                 the default. See:
                 http://developer.mozilla.org/en/docs/XUL:textbox_%28Firefox_autocomplete%29#a-completedefaultindex
+            "image" ... TODO: document
         """
+        self.addMatch2(KoTACMatch(value, comment, style, isDefault, image))
+
+    def addMatch2(self, match):
         nsIAutoCompleteResult = components.interfaces.nsIAutoCompleteResult
         if not self.matches \
            and self.searchResult == nsIAutoCompleteResult.RESULT_NOMATCH:
             self.searchResult = nsIAutoCompleteResult.RESULT_SUCCESS
-        self.matches.append((value, comment, style, image))
-        if isDefault:
+        self.matches.append(match)
+        if match.isDefault:
             self.defaultIndex = len(self.matches) - 1
 
     #---- nsIAutoCompleteResult implementation
     def get_matchCount(self):
         return len(self.matches)
     def getValueAt(self, index):
-        return self.matches[index][0]
+        return self.matches[index].value
     def getCommentAt(self, index):
-        return self.matches[index][1]
+        return self.matches[index].comment
     def getStyleAt(self, index):
-        return self.matches[index][2]
+        return self.matches[index].style
     def getImageAt(self, index):
-        return self.matches[index][3]
+        return self.matches[index].image
     def removeValueAt(self, rowIndex, removeFromDb=False):
         del self.matches[rowIndex]
 

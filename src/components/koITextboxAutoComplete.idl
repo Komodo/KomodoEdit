@@ -34,18 +34,52 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
+// Note that the following is about *textbox*-autocomplete. This has
+// nothing to do with Komodo's codeintel system or autocomplete in
+// Komodo's editor. These are Komodo's extensions to the stuff in
+// "mozilla/toolkit/components/autocomplete".
+//
+// Some terminology: A koIAutoCompleteSearch instance is created for a
+// <textbox type="autocomplete">. To do autocomplete it will call
+// `.startSearch(..., listener)`. The searcher will call
+// `listener.onSearchResult(result)` where result is a
+// koIAutoCompleteResult. A result has zero or more
+// koIAutoCompleteMatch's.
+
 #include "nsISupports.idl"
 #include "nsIAutoCompleteResult.idl"
+#include "nsIAutoCompleteSearch.idl"
 
-// Note that this is a *textbox*-autocomplete result. This has nothing
-// to do with Komodo's codeintel system.
+[scriptable, uuid(7c101772-567f-47b3-a786-02bb14918b12)]
+interface koIAutoCompleteMatch : nsISupports {
+    attribute wstring value;
+    attribute wstring comment;
+    attribute wstring style;
+    attribute boolean isDefault;
+    attribute wstring image;
+};
+
 [scriptable, uuid(abd05075-d511-4669-a4bc-6739389b6126)]
 interface koIAutoCompleteResult : nsIAutoCompleteResult {
     void init(in wstring searchString);
     void setIgnored();
     void setFailed(in wstring errorDescription);
+
+    # addMatch() is DEPRECATED, use addMatch2().
+    # (Note the similarity to nsIAutoCompleteSimpleResult.appendMatch(...))
     void addMatch(in wstring value, in wstring comment,
                   in wstring style, in boolean isDefault,
                   in wstring image);
+
+    void addMatch2(in koIAutoCompleteMatch match);
 };
+
+
+// Komodo-specific additions to nsIAutoCompleteSearch.
+[scriptable, uuid(7487edbd-fe40-a044-963d-6a6c22147430)]
+interface koIAutoCompleteSearch : nsIAutoCompleteSearch {
+    koIAutoCompleteMatch topMatch(in wstring searchString,
+                                  in wstring searchParam);
+};
+
 

@@ -116,8 +116,42 @@ class KoTACSearch(object):
         return data
 
 
+class KoTACMatch(object):
+    """A class representing a single textbox autocomplete hit/match.
+
+    These are used by a koIAutoCompleteResult like this:
+
+        result = components.classes["@activestate.com/autocomplete/result;1"] \
+            .createInstance(components.interfaces.koIAutoCompleteResult)
+        result.init(<search-string>)
+        for hit in <find-hits>:
+            result.addMatch(KoTACMatch(...))
+
+    See `KoTACResult` docstring (in "koTextboxAutoComplete.py") for details.
+    """
+    #_com_interfaces_ = [components.interfaces.koIAutoCompleteMatch]
+    #TODO: remove these if not necessary
+    #_reg_clsid_ = "{5AEEBCBF-6C23-4765-9113-2B3C6D52D44E}"
+    #_reg_contractid_ = "@activestate.com/autocomplete/match;1"
+    #_reg_desc_ = "Komodo textbox autocomplete search match"
+
+    value = None
+    comment = None
+    style = None
+    isDefault = False
+    image = None
+
+    def __init__(self, value=None, comment=None, style=None, isDefault=False, image=None):
+        self.value = value
+        self.comment = comment
+        self.style = style
+        self.isDefault = isDefault
+        self.image = image
+
+
 
 #---- internal support routines
 
 def _unescape_quotes(s):
     return s.replace("\\'", "'").replace('\\"', '"')
+
