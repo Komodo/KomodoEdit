@@ -416,7 +416,13 @@ class Shell(tmCmd.AugmentedListCmd):
             return 1
         
         quotedArgs = []
-        for arg in argv[1:]:
+        args = argv[1:]
+        if args[0] == "-v":
+            verbose = True
+            del args[0]
+        else:
+            verbose = False
+        for arg in args:
             if " " in arg:
                 quotedArgs.append('"%s"' % arg)
             else:
@@ -424,6 +430,8 @@ class Shell(tmCmd.AugmentedListCmd):
         argString = " ".join(quotedArgs)
         curDir = os.getcwd()
         os.chdir(gCallDir)
+        if verbose:
+            os.environ["KOMODO_VERBOSE"] = "1"
         try:
             retval = tmShUtil.RunInContext(projectConfig.envScriptName,
                                            [argString])
