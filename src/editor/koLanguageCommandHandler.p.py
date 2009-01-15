@@ -81,7 +81,8 @@ class GenericCommandHandler:
         self._view = None
         self.sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
             getService(components.interfaces.koISysUtils)
-        self._last_tabstop = None
+        self._koHistorySvc = components.classes["@activestate.com/koHistoryService;1"].\
+                        getService(components.interfaces.koIHistoryService)
 
     def __del__(self):
         log.info("in __del__ for GenericCommandHandler")
@@ -264,6 +265,7 @@ class GenericCommandHandler:
         mark = view.transientMark
         if mark == -1:
             return
+        self._koHistorySvc.note_curr_loc(view)
         sm.anchor = sm.currentPos = mark
         view.rotateTransientMarkRing()
         sm.scrollCaret()
@@ -312,6 +314,7 @@ class GenericCommandHandler:
             return
         sm = view.scimoz
         view.transientMark = view.scimoz.currentPos
+        self._koHistorySvc.note_curr_loc(view)
         sm.currentPos = sm.anchor = mark
         sm.scrollCaret()
 
@@ -1139,6 +1142,8 @@ class GenericCommandHandler:
             else:
                 braceAtCaret += 1
         if braceOpposite >= 0:
+            if not select:
+                self._koHistorySvc.note_curr_loc(self._view)
             self._ensureRangeVisible(braceOpposite, braceOpposite)
             if select:
                 sm.anchor = braceAtCaret

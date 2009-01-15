@@ -6,6 +6,8 @@
 
 #include "nsISupports.idl"
 
+interface koIScintillaView;
+
 [scriptable, uuid(589dbbf1-4366-4cf8-a542-c860d686050f)]
 interface koIHistoryLocation : nsISupports
 {
@@ -31,6 +33,10 @@ interface koIHistoryService : nsISupports
     koIHistoryLocation go_forward(in koIHistoryLocation curr_loc, in PRUint32 n);
 
     koIHistoryLocation note_loc(in koIHistoryLocation loc);
+    koIHistoryLocation note_curr_loc(in koIScintillaView view);
+    koIHistoryLocation loc_from_info(in wstring window_name,
+                                     in PRUint32 multiview_id,
+                                     in koIScintillaView view);
     
     //TODO: revisit these, would like to avoid them
     void ignore_updates();

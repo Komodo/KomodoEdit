@@ -34,19 +34,19 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 2
+version 6
 
 # Movement and selection
 binding cmd_left  Left
 binding cmd_selectCharPrevious  Shift+Left
-binding cmd_wordPartLeft  Alt+Left
+binding cmd_historyBack  Alt+Left
 binding cmd_wordLeft  Ctrl+Left
 binding cmd_selectWordLeft  Ctrl+Shift+Left
 binding cmd_backSmart  Backspace
 binding cmd_back  Shift+Backspace
 binding cmd_right  Right
 binding cmd_selectCharNext  Shift+Right
-binding cmd_wordPartRight  Alt+Right
+binding cmd_historyForward  Alt+Right
 binding cmd_wordRight  Ctrl+Right
 binding cmd_selectWordRight  Ctrl+Shift+Right
 binding cmd_beginningOfWordExtend Ctrl+Shift+W

@@ -446,3 +446,61 @@ toolbarbutton {
 
 
 
+
+/*---- history toolbar items
+ * Based on FF back/forward buttons,
+ * http://mxr.mozilla.org/firefox/source/browser/themes/winstripe/browser/browser.css#390
+ */
+
+toolbar #historyRecentLocations {
+  list-style-image : url("chrome://komodo/skin/images/historyToolbar.png");
+  -moz-image-region: rect(0px 301px 24px 288px);
+  -moz-appearance: none;
+  padding: 0;
+  -moz-padding-end: 2px;
+  border: none;
+}
+toolbar #historyRecentLocations:not([disabled="true"]):hover {
+  -moz-image-region: rect(24px 301px 48px 288px);
+}
+toolbar #historyRecentLocations[disabled="true"] {
+  -moz-image-region: rect(48px 301px 72px 288px);
+}
+toolbar #historyRecentLocations:not([disabled="true"]):hover:active {
+  -moz-image-region: rect(72px 301px 96px 288px);
+}
+
+/* unified back button with keyhole icons, small icons mode */
+
+toolbar #historyBackButton {
+  list-style-image : url("chrome://komodo/skin/images/historyToolbar.png");
+  -moz-image-region: rect(0px 264px 24px 240px);
+  padding-left: 0;
+  padding-right: 0;
+}
+toolbar #historyBackButton:not([disabled="true"]):hover {
+  -moz-image-region: rect(24px 264px 48px 240px);
+}
+toolbar #historyBackButton[disabled="true"] {
+  -moz-image-region: rect(48px 264px 72px 240px);
+}
+toolbar #historyBackButton:not([disabled="true"]):hover:active {
+  -moz-image-region: rect(72px 264px 96px 240px);
+}
+/* unified forward button with keyhole icons, small icons mode */
+
+toolbar #historyForwardButton {
+  list-style-image : url("chrome://komodo/skin/images/historyToolbar.png");
+  -moz-image-region: rect(0px 288px 24px 264px);
+  padding-left: 0;
+  padding-right: 0;
+}
+toolbar #historyForwardButton:not([disabled="true"]):hover {
+  -moz-image-region: rect(24px 288px 48px 264px);
+}
+toolbar #historyForwardButton[disabled="true"] {
+  -moz-image-region: rect(48px 288px 72px 264px);
+}
+toolbar #historyForwardButton:not([disabled="true"]):hover:active {
+  -moz-image-region: rect(72px 288px 96px 264px);
+}

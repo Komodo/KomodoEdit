@@ -217,6 +217,25 @@ ko.windowManager = {
             log.exception(e);
         }
         return windows;
+    },
+    
+    getViewForURI: function(uri) {
+        // Prefer the current window.
+        var currWin = ko.windowManager.getMainWindow();
+        var view = currWin.ko.views.manager.getViewForURI(uri);
+        if (view) {
+            return view;
+        }
+
+        var allWindows = ko.windowManager.getWindows();
+        for (var thisWin, i = 0; thisWin = allWindows[i]; ++i) {
+            if (thisWin == currWin) continue;
+            view = thisWin.ko.views.manager.getViewForURI(uri);
+            if (view) {
+                return view;
+            }
+        }
+        return null;
     }
 };
 

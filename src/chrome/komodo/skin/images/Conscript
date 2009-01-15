@@ -243,3 +243,4 @@ $cons->InstallInChrome('open_project_hover.png');
 $cons->InstallInChrome('cbox-check.gif');
 $cons->InstallInChrome('cbox-check-dis.gif');
 
+$cons->InstallInChrome('historyToolbar.png');

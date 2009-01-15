@@ -57,8 +57,9 @@ ko.markers =  function markers_module() {
     // Most of the ISciMoz.marker*() methods take a marker number argument.
     // The higher the marker number the higher the marker's z-order.
     // Here are the marker numbers that Komodo uses.
-    // Note: These numbers *must* match the correstponding values used in
+    // Note: These numbers *must* match the corresponding values used in
     //       src/koRunTerminal.py.
+    MARKNUM_HISTORYLOC: 13,
     MARKNUM_STDERR: 12, // used in terminal view
     MARKNUM_STDOUT: 11, // used in terminal view
     MARKNUM_CURRENT_LINE_BACKGROUND: 10,
@@ -109,6 +110,7 @@ ko.markers =  function markers_module() {
         scimoz.markerSetFore(ko.markers.MARKNUM_STDIN_PROMPT, xtk.color.red);
         scimoz.markerDefine(ko.markers.MARKNUM_STDOUT, scimoz.SC_MARK_EMPTY);
         scimoz.markerDefine(ko.markers.MARKNUM_STDERR, scimoz.SC_MARK_EMPTY);
+        scimoz.markerDefine(ko.markers.MARKNUM_HISTORYLOC, scimoz.SC_MARK_EMPTY);
         scimoz.markerDefine(ko.markers.MARKNUM_TRANSIENTMARK, scimoz.SC_MARK_EMPTY);
     
         return ko.markers.MARKERS_MASK_SYMBOLS;

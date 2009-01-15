@@ -800,7 +800,10 @@ function _DisplayFindResult(editor, findResult)
         }
         // we don't want to focus when find dialog is up.
         var noFocus = editor != window;
+        editor.ko.history.note_curr_loc(editor.ko.views.manager.currentView);
         view.makeCurrent(noFocus);
+    } else {
+        editor.ko.history.note_curr_loc(editor.ko.views.manager.currentView);
     }
 
     // Jump to the find result and select it.
@@ -1478,6 +1481,10 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
                 rr.line, rr.column, rr.context_);
         }
     }
+    
+    // Really only want to note this location if the "replace all" actually
+    // replaces something. Good enough just always do it for now.
+    editor.ko.history.note_curr_loc();
 
     var numReplacements = gFindSession.GetNumReplacements();
     var nr;

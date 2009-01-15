@@ -473,6 +473,8 @@ class History(object):
         #        a call to note_loc() that we don't want to have effect.
         #      XXX Is my logic correct here?
         #      TODO: get the notes worked through with Eric.
+        if _xpcom_:
+            loc = UnwrapObject(loc)
         log.debug("note loc: %r", loc)
         referer_id = (self.recent_back_visits
             and self.recent_back_visits[0].id or None)
@@ -503,6 +505,8 @@ class History(object):
         @returns {Location} The location N steps back.
         @raises `HistoryError` if falls off the end of the history.
         """
+        if _xpcom_:
+            curr_loc = UnwrapObject(curr_loc)
         assert isinstance(curr_loc, Location)
         assert n > 0, "invalid `n` value for `go_back(n)`: %r" % n
         if n > self.RECENT_BACK_VISITS_CACHE_LENGTH:
@@ -566,6 +570,8 @@ class History(object):
         @returns {Location} The location N steps forward.
         @raises `HistoryError` if falls of the end of the history.
         """
+        if _xpcom_:
+            curr_loc = UnwrapObject(curr_loc)
         assert isinstance(curr_loc, Location)
         assert n > 0, "invalid `n` value for `go_forward(n)`: %r" % n
         if n > len(self.forward_visits):
@@ -604,6 +610,8 @@ class History(object):
             Otherwise, the placeholder will be yielded as above.
         @yields 2-tuples (<is-curr>, <loc>)
         """
+        if _xpcom_ and curr_loc:
+            curr_loc = UnwrapObject(curr_loc)
         curr_handled = False
         for i, loc in enumerate(self.forward_visits):
             is_curr = (curr_loc is not None

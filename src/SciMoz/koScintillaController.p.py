@@ -119,6 +119,9 @@ class koScintillaController:
         # Key == None == definitely not bool.
         # Else - key == scimoz attribute name.
         self.bool_attributes = {}
+        self._loc_saving_cmds = ['cmd_documentHome', 'cmd_documentEnd']
+        self._koHistorySvc = components.classes["@activestate.com/koHistoryService;1"].\
+                        getService(components.interfaces.koIHistoryService)
 
     def test_scimoz(self, scimoz):
         self.init(scimoz)
@@ -228,6 +231,8 @@ class koScintillaController:
         elif command_name == 'cmd_cut':
             # If there is a selection, we just do the usual cut
             if sm.selectionStart != sm.selectionEnd:
+                #if sm.lineFromPosition(sm.selectionStart) < sm.lineFromPosition(sm.selectionEnd):
+                #    self._koHistorySvc.note_curr_loc(None)
                 sm.cut()
                 self._lastcutposition = None
                 sm.sendUpdateCommands("clipboard")
@@ -259,6 +264,12 @@ class koScintillaController:
             setattr(sm, command_map[command_name], not attr)
         # Usually it will be a method..
         elif callable(attr):
+            if command_name in self._loc_saving_cmds:
+                self._koHistorySvc.note_curr_loc(None)
+            #elif (command_name == "cmd_delete"
+            #      and sm.selectionStart != sm.selectionEnd
+            #      and sm.lineFromPosition(sm.selectionStart) < sm.lineFromPosition(sm.selectionEnd)):
+            #    self._koHistorySvc.note_curr_loc(None)
             attr()
         # and hopefully this will never happen!
         else:
@@ -874,6 +885,7 @@ class koScintillaController:
     # Used by vim binding {
     def _do_cmd_moveParagraphBegin(self):
         sm = self.scimoz()
+        self._koHistorySvc.note_curr_loc(None)
         sm.currentPos = max(sm.currentPos, sm.anchor)
         moveToPos = self._find_closest_regex_backwards(self.regexlistForParagraphs,
                                                       getGroupPos="cursor")
@@ -884,6 +896,7 @@ class koScintillaController:
     # Used by vim binding }
     def _do_cmd_moveParagraphEnd(self):
         sm = self.scimoz()
+        self._koHistorySvc.note_curr_loc(None)
         sm.currentPos = max(sm.currentPos, sm.anchor)
         moveToPos = self._find_closest_regex_forwards(self.regexlistForParagraphs,
                                                       getGroupPos="cursor")
@@ -896,6 +909,7 @@ class koScintillaController:
     # Used by vim binding [[
     def _do_cmd_moveFunctionPrevious(self):
         sm = self.scimoz()
+        self._koHistorySvc.note_curr_loc(None)
         sm.currentPos = max(sm.currentPos, sm.anchor)
         moveToPos = self._find_closest_regex_backwards(self.regexlistForSection,
                                                       getGroupPos="cursor")
@@ -906,6 +920,7 @@ class koScintillaController:
     # Used by vim binding ]]
     def _do_cmd_moveFunctionNext(self):
         sm = self.scimoz()
+        self._koHistorySvc.note_curr_loc(None)
         sm.currentPos = max(sm.currentPos, sm.anchor)
         moveToPos = self._find_closest_regex_forwards(self.regexlistForSection,
                                                       getGroupPos="cursor")

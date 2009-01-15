@@ -138,6 +138,7 @@
     <script src="chrome://komodo/content/statusbar.js"                    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/editor.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/markers.js"                      type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/history.js"                      type="application/x-javascript;version=1.7"/>
 
     <script src="chrome://komodo/content/project/partutils.js"            type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/baseManager.js"          type="application/x-javascript;version=1.7"/>
@@ -856,6 +857,14 @@
                               class="menuitem-iconic reveal-in-editor-icon"
                               observes="cmd_jumpToCorrespondingLine"/>
                     <menuseparator/>
+                    <menuitem label="&historyBack.label;"
+                              id="menu_historyBack"
+                              observes="cmd_historyBack"
+                              />
+                    <menuitem label="&historyForward.label;"
+                              id="menu_historyForward"
+                              observes="cmd_historyForward"
+                              />
                     <menuitem label="&findNextFunction.label;"
                               id="menu_findNextFunction"
                               observes="cmd_findNextFunction"
@@ -1457,6 +1466,35 @@
             grippyhidden="true"
             broadcaster="cmd_viewedittoolbar"
             tooltiptext="&standardToolbar.tooltiptext;">
+            <toolbaritem id="unifiedHistoryBackForwardDropButton"
+                    >
+                <!-- XXX Implement this for the toolbaritem
+                    context="historyRecentLocationsMenu"
+                    XXX Replace class="chromeclass-toolbar-additional"
+                    with something that makes sense for Komodo
+                    -->
+                <toolbarbutton id="historyBackButton"
+                    tooltiptext="&historyBack.tooltiptext;"
+                    persist="buttonstyle"
+                    buttonstyle="pictures"
+                    observes="cmd_historyBack"
+                    label="&historyBack.label;"/>
+                <toolbarbutton id="historyForwardButton"
+                    tooltiptext="&historyForward.tooltiptext;"
+                    observes="cmd_historyForward"
+                    persist="buttonstyle"
+                    buttonstyle="pictures"
+                    label="&historyForward.label;"/>
+                <!-- XXX Implement something like
+                observes="cmd_historyRecentLocations"
+                -->
+                <toolbarbutton id="historyRecentLocations"
+                    tooltiptext="&historyRecentLocations.tooltiptext;"
+                    persist="buttonstyle"
+                    buttonstyle="pictures"
+                    />
+            </toolbaritem>
+            <toolbarseparator/>
             <toolbarbutton id="newButton"
                 tooltiptext="&newFileUsingDefaultLanguage.tooltiptext;"
                 observes="cmd_new"

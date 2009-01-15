@@ -136,6 +136,7 @@ this.displayPath = function open_openDisplayPath(displayPath,
             continue;
         }
         if (_fequal(typedView.document.displayPath, displayPath)) {
+            ko.history.note_curr_loc();
             typedView.makeCurrent();
             if (callback) {
                 callback(typedView);

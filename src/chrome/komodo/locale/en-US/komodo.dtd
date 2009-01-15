@@ -302,6 +302,13 @@
 <!ENTITY jumpToNextResult.label "Jump to next result">
 <!ENTITY jumpToNextResult.tooltiptext "Jump To Next Result">
 <!ENTITY jumpToPreviousResult.tooltiptext "Jump To Previous Result">
+<!ENTITY historyBack.label "Back">
+<!ENTITY historyForward.label "Forward">
+<!ENTITY historyBack.tooltiptext "Go back one location">
+<!ENTITY historyForward.tooltiptext "Go forward one location">
+<!ENTITY historyRecentLocations.tooltiptext "Recent locations">
+<!ENTITY editorHistoryBack.desc "Editor: Go Back">
+<!ENTITY editorHistoryForward.desc "Editor: Go Forward">
 <!ENTITY komodoBugDatabase.label "Komodo Bug Database">
 <!ENTITY komodoBugDatabase.tooltiptext "Komodo Bug Database">
 <!ENTITY komodoCommunity.label "Komodo Community">

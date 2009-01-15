@@ -87,4 +87,4 @@ $cons->InstallInChrome('viewhistory.js');
 $cons->InstallInChrome('eggs.js');
 $cons->InstallInChrome('abbrev.js');
 $cons->InstallInChrome('tabstops.js');
-
+$cons->InstallInChrome('history.js');

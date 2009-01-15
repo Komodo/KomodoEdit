@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 2
+version 6
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
 binding cmd_blockSelect Meta+Ctrl+L
@@ -177,7 +177,7 @@ binding cmd_viewProjects Ctrl+Shift+P
 binding cmd_viewToolbox Ctrl+Shift+T
 binding cmd_viewWhitespace Meta+Shift+8
 binding cmd_wordLeft  Alt+Left
-binding cmd_wordPartLeft  Meta+Alt+Left
-binding cmd_wordPartRight  Meta+Alt+Right
+binding cmd_historyBack  Meta+Alt+Left
+binding cmd_historyForward  Meta+Alt+Right
 binding cmd_wordRight  Alt+Right
 binding cmd_wordWrap Meta+Shift+9

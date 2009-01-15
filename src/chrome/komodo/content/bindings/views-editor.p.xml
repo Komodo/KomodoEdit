@@ -853,6 +853,7 @@
                          "another open buffer.");
             return false;
         }
+        ko.history.note_curr_loc(this);
         try {
             this.document.docSettingsMgr.applyViewSettingsToDocument(this);
             var newdocument = this.__docsvc.createDocumentFromURI(uri);

@@ -13,7 +13,7 @@ from xpcom import components, nsError, ServerException, COMException
 from xpcom.client import WeakReference
 from xpcom.server import WrapObject, UnwrapObject
 
-from editorhistory import History
+from editorhistory import History, Location
 
 
 
@@ -22,6 +22,7 @@ from editorhistory import History
 log = logging.getLogger('history')
 log.setLevel(logging.DEBUG)
 
+MARKNUM_HISTORYLOC = 13 # Keep in sync with content/markers.js
 
 
 #---- the components/services
@@ -37,6 +38,8 @@ class KoHistoryService(History):
             getService(components.interfaces.koIDirs)
         db_path = join(koDirSvc.hostUserDataDir, "history.sqlite")
         History.__init__(self, db_path)
+        self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+            getService(components.interfaces.nsIObserverService)
 
         #TODO:XXX Need to review this. Not sure it can work. Kills
         #         threadsafety.
@@ -46,6 +49,24 @@ class KoHistoryService(History):
     #TODO: s/canMoveForward/can_go_forward/
     #TODO: s/moveBack/go_back/
     #TODO: s/moveForward/go_forward/
+    #      loc can be None in go_back and go_forward
+
+    def loc_from_info(self, window_name, multiview_id, view):
+        """Create a Location instance from the given *editor* view info.
+        
+        @returns {Location}
+        """
+        #XXX:TODO handle untitled documents
+        uri = view.document.file and view.document.file.URI or ""
+        scimoz = view.scimoz
+        line = scimoz.lineFromPosition(scimoz.currentPos)
+        col = scimoz.currentPos - scimoz.positionFromLine(line)
+        view_type = "editor"
+        loc = Location(uri, line, col, view_type)
+        loc.window_name = window_name
+        loc.multiview_id = multiview_id
+        loc.marker_handle = scimoz.markerAdd(line, MARKNUM_HISTORYLOC)
+        return loc    
 
     def note_loc(self, loc):
         #TODO: review use of _ignoreUpdates
@@ -54,7 +75,31 @@ class KoHistoryService(History):
         #TODO: review this and move to backend
         elif self._tooSimilarToCurrentSavedPoint(loc):
             return None
-        return History.note_loc(self, loc)
+        res = History.note_loc(self, loc)
+        #XXX:TODO: Change to history_changed_significantly (you know what
+        #   I mean) b/c *most* of this "history_changed" are useless.
+        try:
+            self._observerSvc.notifyObservers(None, 'history_changed', "")
+        except COMException, ex:
+            log.warn("exception notifying 'history_changed': %s", ex)
+            pass
+        return res
+        
+    def note_curr_loc(self, view=None):
+        """Note the current location in the given view (by default the current
+        view).
+        
+        @param view {koIScintillaView} The view from which to get location
+            information. Optional. If not given, defaults to the current
+            view.
+        @returns {Location}
+        """
+        if view is None:
+            view = components.classes["@activestate.com/koViewService;1"]\
+                .getService(components.interfaces.koIViewService).currentView \
+                .QueryInterface(components.interfaces.koIScintillaView)
+        loc = self.loc_from_info("XXX", -1, view)  #XXX:TODO multiview_id and window_name
+        return self.note_loc(loc)
 
     def _tooSimilarToCurrentSavedPoint(self, candidateLoc):
         return False

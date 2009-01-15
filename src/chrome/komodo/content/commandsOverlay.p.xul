@@ -1294,6 +1294,26 @@
             desc="&generalPrintPreviewSelection.desc;"/>
 <!-- #endif -->
     </commandset>
+    
+    <!-- These commands need to be updated on window open,
+    and then whenever the history lists change.
+    -->
+    <commandset
+        id="cmdset_history"
+        commandupdater="true"
+        oncommandupdate="ko.commands.updateCommandset(this)"
+        events="history_changed">
+        <command
+            id="cmd_historyBack" key="key_cmd_historyBack"
+            disabled="true"
+            oncommand="ko.commands.doCommandAsync('cmd_historyBack', event)"
+            desc="&editorHistoryBack.desc;" />
+        <command
+            id="cmd_historyForward" key="key_cmd_historyForward"
+            disabled="true"
+            oncommand="ko.commands.doCommandAsync('cmd_historyForward', event)"
+            desc="&editorHistoryForward.desc;" />
+    </commandset>
 
     <!-- Commands that need to be updated when the dirtyness of the
          current file changes, which can happen on 'dirty' or when

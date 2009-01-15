@@ -717,6 +717,8 @@ viewManager.prototype._doFileOpen = function(uri,
         views[0].makeCurrent();
         return views[0];
     }
+    //XXX Reinstate this, or move it to all callers of this function
+    // that need it. ko.history.note_curr_loc();
     return this._newViewFromURI(uri, viewType, viewList, index);
 }
 

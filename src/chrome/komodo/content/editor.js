@@ -132,6 +132,7 @@ editor_editorController.prototype.do_cmd_bookmarkToggle = function() {
     if (markerState & (1 << ko.markers.MARKNUM_BOOKMARK)) {
         v.scintilla.scimoz.markerDelete(line_no, ko.markers.MARKNUM_BOOKMARK);
     } else {
+        ko.history.note_curr_loc(v);
         v.scintilla.scimoz.markerAdd(line_no, ko.markers.MARKNUM_BOOKMARK);
     }
 }
@@ -160,6 +161,7 @@ editor_editorController.prototype.do_cmd_bookmarkGotoNext = function() {
         ko.statusBar.AddMessage("No next bookmark can be found.", "bookmark",
                              3000, true);
     } else {
+        ko.history.note_curr_loc(v);
         v.scintilla.scimoz.ensureVisibleEnforcePolicy(nextLine);
         v.scintilla.scimoz.gotoLine(nextLine);
     }
@@ -182,6 +184,7 @@ editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
         ko.statusBar.AddMessage("No previous bookmark can be found.", "bookmark",
                              3000, true);
     } else {
+        ko.history.note_curr_loc(v);
         v.scintilla.scimoz.ensureVisibleEnforcePolicy(prevLine);
         v.scintilla.scimoz.gotoLine(prevLine);
     }
