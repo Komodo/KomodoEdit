@@ -282,11 +282,13 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 5: Komodo 5.0.0 (*after* 5.0.0b1)
+ * 4: Komodo 4.4.0
  * 3: Komodo 4.2.1 and above
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 3;
+const currentKeybindingVersionNumber = 5;
 
 /**
  * Remove this dictionary of keybinds.
@@ -487,6 +489,12 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                         "cmd_vim_scrollHalfPageDown":      [ "Ctrl+D" ]
                     });
                 }
+                break;
+            case 3:
+                // No changes for OpenKomodo
+                break;
+            case 4:
+                // No changes for OpenKomodo
                 break;
         }
         from_version += 1;
