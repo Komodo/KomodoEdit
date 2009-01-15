@@ -1,0 +1,27 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'build',
+    'ranRegxpcomStateFileName',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'idlExportDir',
+    'komodoPythonUtilsDir',
+    'platform',
+    'buildType',
+    'mozVersion',
+    'productType',
+    'unsiloedPythonExe',
+    'buildFlavour',
+    'sdkDir',
+);
+
+$cons->Install($idlExportDir, 'koIHistory.idl');
+$cons->BuildAndInstallXpt('koIHistory.idl');
+$cons->InstallXpcomComponent('koHistory.py');
+$cons->InstallPythonUtility('editorhistory.py');
+

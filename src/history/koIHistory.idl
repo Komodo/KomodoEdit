@@ -1,0 +1,39 @@
+/* Copyright (c) 2004-2006 ActiveState Software Inc.
+ * See the file LICENSE.txt for licensing information.
+ *
+ * Interfaces for Komodo's editor history backend.
+ */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(589dbbf1-4366-4cf8-a542-c860d686050f)]
+interface koIHistoryLocation : nsISupports
+{
+    attribute wstring uri;
+    attribute PRUint32 line;
+    attribute PRUint32 col;
+    attribute wstring view_type;
+
+    attribute PRUint32 marker_handle;  //TODO: add to backend, from "marker"
+    attribute wstring window_name; //TODO: add this to backend, from "windowName"
+    attribute PRUint32 multiview_id;   //TODO: add to backend, from "wstring viewID"
+    
+    //TODO: add timestamp-based data (when needed), content, section, session_name
+};
+
+
+[scriptable, uuid(5fac7c33-bed3-405e-8183-216a91e8a1b5)]
+interface koIHistoryService : nsISupports
+{
+    boolean can_go_back();
+    boolean can_go_forward();
+    koIHistoryLocation go_back(in koIHistoryLocation curr_loc, in PRUint32 n);
+    koIHistoryLocation go_forward(in koIHistoryLocation curr_loc, in PRUint32 n);
+
+    koIHistoryLocation note_loc(in koIHistoryLocation loc);
+    
+    //TODO: revisit these, would like to avoid them
+    void ignore_updates();
+    void resume_updates();
+};
+
