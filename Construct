@@ -337,6 +337,7 @@ Build(
     "$build/editor/Conscript",
     "$build/editor/catalogs/Conscript",
     "$build/find/Conscript",
+    "$build/history/Conscript",
     "$build/images/Conscript",
     "$build/install/Conscript",
     "$build/languages/Conscript",
