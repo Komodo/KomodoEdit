@@ -1,4 +1,7 @@
 
+- s/window_name/window_num/? I think that would be clearer and less prone
+  to surprise on the backend.
+
 
 # Perf/mem things todo
 

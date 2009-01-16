@@ -32,7 +32,7 @@ except ImportError:
 #---- globals
 
 log = logging.getLogger("editorhistory")
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 
 
@@ -68,6 +68,12 @@ class Location(object):
     
     # Editor/Komodo-specific fields.
     view_type = None
+    # Scintilla handle from SCI_MARKERGET. "0" (zero) indicates an empty value.
+    marker_handle = 0
+    window_name = None
+    # Numeric ID identifying which tabbed-view the editor view was open in:
+    # left/top or right/bottom. "-1" indicates, an empty value.
+    multiview_id = -1
     
     # Fields set by the database on insertion.
     id = None
@@ -75,7 +81,8 @@ class Location(object):
     referer_id = None
 
     def __init__(self, uri, line, col, view_type="editor",
-                 id=None, uri_id=None, referer_id=None):
+                 id=None, uri_id=None, referer_id=None,
+                 marker_handle=0, window_name=None, multiview_id=-1):
         #XXX:TODO: URI canonicalization.
         self.uri = uri
         self.line = line
@@ -84,6 +91,9 @@ class Location(object):
         self.id = id
         self.uri_id = uri_id
         self.referer_id = referer_id
+        self.marker_handle = marker_handle
+        self.window_name = window_name
+        self.multiview_id = multiview_id
 
     def __repr__(self):
         extras = []
@@ -91,6 +101,7 @@ class Location(object):
             extras.append("id=%s" % self.id)
         if self.referer_id is not None:
             extras.append("ref=%s" % self.referer_id)
+        #extras.append("multiview_id=%r" % self.multiview_id)
         if self.view_type != "editor":
             extras.append(self.view_type)
         extra = extras and (" (%s)" % ", ".join(extras)) or ""
@@ -294,7 +305,8 @@ class Database(object):
                         "cannot get latest visit: there are no visits in the db")
                 id = int(row[0])
             cu.execute("""
-                SELECT referer_id, uri_id, line, col, view_type, content, section
+                SELECT referer_id, uri_id, line, col, view_type, content,
+                       section, window_name, multiview_id
                 FROM history_visit
                 WHERE id=?
                 """, (id,))
@@ -312,6 +324,8 @@ class Database(object):
                 id=id,
                 uri_id=uri_id,
                 referer_id=_int_or_none(row[0]),
+                window_name=row[7],
+                multiview_id=row[8],
             )
 
         return loc
@@ -714,9 +728,9 @@ _g_database_schema = """
 
         -- These are transient values that only make sense for a visit added
         -- for document and view currently open in Komodo.
-        marker_handle INTEGER DEFAULT NULL,
+        marker_handle INTEGER DEFAULT 0,
         window_name TEXT,
-        multiview_id INTEGER,
+        multiview_id INTEGER NOT NULL DEFAULT -1,
         
         -- These are used for display and search via an awesome-bar.
         -- Whether to include "section" is still undecided.

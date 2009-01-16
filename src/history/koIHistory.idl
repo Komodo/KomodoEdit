@@ -16,9 +16,10 @@ interface koIHistoryLocation : nsISupports
     attribute PRUint32 col;
     attribute wstring view_type;
 
-    attribute PRUint32 marker_handle;  //TODO: add to backend, from "marker"
-    attribute wstring window_name; //TODO: add this to backend, from "windowName"
-    attribute PRUint32 multiview_id;   //TODO: add to backend, from "wstring viewID"
+    attribute PRUint32 marker_handle;
+    // TODO: toying with changing to "window_num"
+    attribute wstring window_name;
+    attribute PRUint32 multiview_id;
     
     //TODO: add timestamp-based data (when needed), content, section, session_name
 };
