@@ -1,9 +1,0 @@
-
-- s/window_name/window_num/? I think that would be clearer and less prone
-  to surprise on the backend.
-
-
-# Perf/mem things todo
-
-- consider a history_view_type table and change to view_type_id in
-  history_visit table. Might be a big space savings.
