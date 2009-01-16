@@ -113,6 +113,7 @@ this.init = function() {
                 getService(Components.interfaces.nsIObserverService);
     this._observerSvc.addObserver(this, 'history_changed', false);
     ko.main.addWillCloseHandler(this.destroy, this);
+    window.updateCommands('history_changed');
 };
 
 this.destroy = function() {
@@ -152,7 +153,7 @@ this.note_curr_loc = function note_curr_loc(view /* = currentView */) {
     return this.controller.historySvc.note_loc(loc);
 };
 
-function _go_to_location_aux(loc) {
+this.go_to_location = function go_to_location(loc) {
     //XXX Use window and view IDs
     var windowName = loc.windowName;
     var multiview_id = loc.multiview_id;
@@ -189,21 +190,6 @@ function _go_to_location_aux(loc) {
     window.updateCommands("history_changed");
 };
 
-this.go_to_location = function go_to_location(loc) {
-    this.controller.historySvc.ignore_updates();
-    try {
-        try {
-            _go_to_location_aux(loc);
-        } catch(e) {
-            _log.exception("go_to_location exception: " + e);
-        }
-    } finally {
-        this.controller.historySvc.resume_updates();
-    }
-};
-
-
 this.controller = new HistoryController();
-this.init();
 }).apply(ko.history);
 

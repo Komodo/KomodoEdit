@@ -313,6 +313,7 @@ function onloadDelay() {
         }
         
         ko.mozhacks.pluginContextMenu();
+        ko.history.init();
 
         CodeIntel_InitializeWindow();
 
@@ -339,6 +340,7 @@ function onloadDelay() {
             window_.updateCommands('previewability_changed');
         }, 1, window);
     }
+    
 }
 
 window.onload = function(event) {

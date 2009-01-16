@@ -90,6 +90,7 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
         } else if (uri.match(/\.kpz$/i)) {
             ko.toolboxes.importPackage(ko.uriparse.URIToLocalPath(uri));
         } else {
+            ko.history.note_curr_loc();
             if (line) {
                 ko.views.manager.doFileOpenAtLineAsync(uri, line, viewType, null, -1, callback);
             } else {
@@ -154,6 +155,7 @@ this.displayPath = function open_openDisplayPath(displayPath,
  * Open Komodo's Start Page - the view will be opened synchronously.
  */
 this.startPage = function open_openStartPage() {
+    ko.history.note_curr_loc();
     ko.views.manager._doFileOpen("chrome://komodo/content/startpage/startpage.xml#view-startpage",
                                  "startpage");
 }

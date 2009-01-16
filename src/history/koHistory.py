@@ -41,16 +41,6 @@ class KoHistoryService(History):
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
 
-        #TODO:XXX Need to review this. Not sure it can work. Kills
-        #         threadsafety.
-        self._ignoreUpdates = False
-
-    #TODO: s/canMoveBack/can_go_back/
-    #TODO: s/canMoveForward/can_go_forward/
-    #TODO: s/moveBack/go_back/
-    #TODO: s/moveForward/go_forward/
-    #      loc can be None in go_back and go_forward
-
     def loc_from_info(self, window_name, multiview_id, view):
         """Create a Location instance from the given *editor* view info.
         
@@ -69,11 +59,8 @@ class KoHistoryService(History):
         return loc    
 
     def note_loc(self, loc):
-        #TODO: review use of _ignoreUpdates
-        if self._ignoreUpdates:
-            return None
         #TODO: review this and move to backend
-        elif self._tooSimilarToCurrentSavedPoint(loc):
+        if self._tooSimilarToCurrentSavedPoint(loc):
             return None
         res = History.note_loc(self, loc)
         #XXX:TODO: Change to history_changed_significantly (you know what
@@ -103,9 +90,3 @@ class KoHistoryService(History):
 
     def _tooSimilarToCurrentSavedPoint(self, candidateLoc):
         return False
-
-    #TODO: review the use of these
-    def ignore_updates(self):
-        self._ignoreUpdates = True
-    def resume_updates(self):
-        self._ignoreUpdates = False
