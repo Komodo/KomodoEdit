@@ -244,3 +244,57 @@ textbox[type="autocomplete"].search-box {
   padding: 0 2px 0 8px;
 }
 
+
+
+
+/*---- history toolbar items
+ * Based on FF back/forward buttons,
+ * http://mxr.mozilla.org/firefox/source/browser/themes/pinstripe/browser/places/organizer.css#104 for mac-specific stylings.
+ * back-forward.png comes from
+ * http://mxr.mozilla.org/firefox/source/browser/themes/pinstripe/browser/places/back-forward.png
+ */
+
+
+toolbaritem #unifiedHistoryBackForwardDropButton {
+  list-style-image : url("chrome://komodo/skin/images/back-forward.png");
+}
+
+/* unified forward button with keyhole icons, small icons mode */
+toolbar #historyBackButton {
+  list-style-image : url("chrome://komodo/skin/images/back-forward.png");
+  -moz-image-region: rect(0px, 34px, 23px, 0px);
+  -moz-margin-end: 0;
+  -moz-padding-end: 0;
+  border-left: none;
+  border-right: none;
+}
+
+toolbar #historyBackButton[disabled="true"] {
+ -moz-image-region: rect(23px, 34px, 46px, 0px) !important;
+}
+
+toolbar #historyBackButton:hover,
+toolbar #historyBackButton[buttondown="true"],
+toolbar #historyBackButton[open="true"] {
+  -moz-image-region: rect(46px, 34px, 69px, 0px);
+}
+
+toolbar #historyForwardButton {
+  list-style-image : url("chrome://komodo/skin/images/back-forward.png");
+  -moz-image-region: rect(0px, 67px, 23px, 34px);
+  -moz-margin-start: 0;
+  -moz-margin-end: 8px;
+  -moz-padding-start: 0;
+  border-left: none;
+  border-right: none;
+}
+
+toolbar #historyForwardButton[disabled="true"] {
+  -moz-image-region: rect(23px, 67px, 46px, 34px) !important;
+}
+
+toolbar #historyForwardButton:hover,
+toolbar #historyForwardButton[buttondown="true"],
+toolbar #historyForwardButton[open="true"] {
+  -moz-image-region: rect(46px, 67px, 69px, 34px);
+}
