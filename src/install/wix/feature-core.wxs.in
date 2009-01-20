@@ -568,6 +568,8 @@
               <File Id="file2013" Name="KOFORT_1.PY" LongName="koFortranLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koFortranLanguage.py"/>
               <File Id="file2014" Name="koFTP.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koFTP.py"/>
               <File Id="file2015" Name="KOGUI4_0.PY" LongName="koGui4CliLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koGui4CliLanguage.py"/>
+              <File Id="file620" Name="KOHIST_0.PY" LongName="koHistory.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koHistory.py"/>
+              <File Id="file622" Name="KOIHIS_0.XPT" LongName="koIHistory.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIHistory.xpt"/>
               <File Id="file2018" Name="KOHTML_1.PY" LongName="koHTMLLinter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koHTMLLinter.py"/>
               <File Id="file2019" Name="KOIAPP_0.XPT" LongName="koIAppInfo.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIAppInfo.xpt"/>
               <File Id="file2020" Name="KOIAUT_0.XPT" LongName="koIAutoComplete.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIAutoComplete.xpt"/>
@@ -1458,6 +1460,7 @@
                 <File Id="file1886" Name="DIFFLI_0.PY" LongName="difflibex.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\difflibex.py"/>
                 <File Id="file422" LongName="textutils.py" Name="TEXTUT_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\textutils.py" />
                 <File Id="file424" LongName="upgradeutils.py" Name="UPGRAD_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\upgradeutils.py" />
+                <File Id="file830" Name="EDITOR_1.PY" LongName="editorhistory.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\editorhistory.py"/>
                 <File Id="file2291" Name="eollib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\eollib.py"/>
                 <File Id="file2292" Name="FACTOR_0.PY" LongName="factoryStyleSettings.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\factoryStyleSettings.py"/>
                 <File Id="file598" Name="findlib2.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\findlib2.py" />
@@ -3469,6 +3472,7 @@
               <File Id="file3940" Name="KOIFIN_5.IDL" LongName="koIFindSession.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFindSession.idl"/>
               <File Id="file3941" Name="koIFTP.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFTP.idl"/>
               <File Id="file3942" Name="KOIHIE_0.IDL" LongName="koIHierarchyItem.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIHierarchyItem.idl"/>
+              <File Id="file831" Name="KOIHIS_0.IDL" LongName="koIHistory.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIHistory.idl"/>
               <File Id="file4061" Name="KOIINF_0.IDL" LongName="koIInfoService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIInfoService.idl"/>
               <File Id="file4062" Name="KOIINI_0.IDL" LongName="koIInitService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIInitService.idl"/>
               <File Id="file4064" Name="KOIKEY_0.IDL" LongName="koIKeybindingSchemeService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIKeybindingSchemeService.idl"/>
