@@ -1468,11 +1468,6 @@
             tooltiptext="&standardToolbar.tooltiptext;">
             <toolbaritem id="unifiedHistoryBackForwardDropButton"
                     >
-                <!-- XXX Implement this for the toolbaritem
-                    context="historyRecentLocationsMenu"
-                    XXX Replace class="chromeclass-toolbar-additional"
-                    with something that makes sense for Komodo
-                    -->
                 <toolbarbutton id="historyBackButton"
                     tooltiptext="&historyBack.tooltiptext;"
                     persist="buttonstyle"
@@ -1485,14 +1480,16 @@
                     persist="buttonstyle"
                     buttonstyle="pictures"
                     label="&historyForward.label;"/>
-                <!-- XXX Implement something like
-                observes="cmd_historyRecentLocations"
-                -->
                 <toolbarbutton id="historyRecentLocations"
+                               type="menu"
                     tooltiptext="&historyRecentLocations.tooltiptext;"
-                    persist="buttonstyle"
-                    buttonstyle="pictures"
-                    />
+                    >
+                    <menupopup id="historyRecentLocations"
+                               position="after_start"
+                               onpopupshowing="ko.history.initPopupMenuRecentLocations(event);"
+                               oncommand="event.stopPropagation();"
+                               />
+                </toolbarbutton>
             </toolbaritem>
             <toolbarseparator/>
             <toolbarbutton id="newButton"

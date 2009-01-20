@@ -2,7 +2,10 @@
 # Copyright (c) 2009 ActiveState Software Inc.
 # See the file LICENSE.txt for licensing information.
 
-"""PyXPCOM bindings for editorhistory.py for a history feature in Komodo."""
+"""PyXPCOM bindings for editorhistory.py for a history feature in Komodo.
+
+Database kept in $USERDATADIR/host-.../history.sqlite
+"""
 
 import sys
 import os
@@ -14,8 +17,6 @@ from xpcom.client import WeakReference
 from xpcom.server import WrapObject, UnwrapObject
 
 from editorhistory import History, Location
-
-
 
 #---- globals
 
@@ -87,6 +88,21 @@ class KoHistoryService(History):
                 .QueryInterface(components.interfaces.koIScintillaView)
         loc = self.loc_from_info("XXX", -1, view)  #XXX:TODO multiview_id and window_name
         return self.note_loc(loc)
+        
+    def get_recent_locs(self, curr_loc):
+        idx = 0
+        curr_idx = 0
+        loc_list = []
+        try:
+            for is_curr, loc in self.recent_history(curr_loc):
+                loc_list.append(loc)
+                if is_curr:
+                    curr_idx = idx
+                idx += 1
+        except StopIteration:
+            pass
+        log.debug("get_recent_locs: idx:%d, list:%r", curr_idx, loc_list)
+        return curr_idx, loc_list
 
     def _tooSimilarToCurrentSavedPoint(self, candidateLoc):
         return False

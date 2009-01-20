@@ -76,8 +76,7 @@ HistoryController.prototype.do_cmd_historyForward = function() {
         // keybindings don't go through the is-enabled test.
         return;
     }
-    var loc = this.historySvc.go_forward(ko.history.get_current_location(), 1);
-    ko.history.go_to_location(loc);
+    ko.history.history_forward(1);
 };
 
 HistoryController.prototype.is_cmd_historyBack_supported = function() {
@@ -92,20 +91,7 @@ HistoryController.prototype.do_cmd_historyBack = function() {
         // keybindings don't go through the is-enabled test.
         return;
     }
-    var curr_loc = ko.history.get_current_location();
-    var loc = this.historySvc.go_back(curr_loc, 1);
-    ko.history.go_to_location(loc);
-};
-
-HistoryController.prototype.is_cmd_historyRecentLocations_supported = function() {
-    return false; //XXX set to true once it's enabled
-};
-HistoryController.prototype.is_cmd_historyRecentLocations_enabled = function() {
-    return this.historySvc.can_go_back() || this.historySvc.can_go_forward();
-};
-
-HistoryController.prototype.do_cmd_historyRecentLocations = function() {
-    throw new Error("cmd_historyRecentLocations: not implemented yet.");
+    ko.history.history_back(1);
 };
 
 this.init = function() {
@@ -188,6 +174,70 @@ this.go_to_location = function go_to_location(loc) {
     scimoz.currentPos = scimoz.anchor = targetPos;
     scimoz.gotoPos(targetPos);
     window.updateCommands("history_changed");
+};
+
+function labelFromLoc(loc) {
+    var fname, lineNo;
+    try {
+        fname = loc.uri.substr(loc.uri.lastIndexOf("/") + 1);
+    } catch(ex) {
+        _log.exception("labelFromLoc: " + ex + "\n");
+        fname = loc.uri;
+    }
+    try {
+        lineNo = ": " + (loc.line + 1); // human views are 1-based.
+    } catch(ex) {
+        _log.exception("labelFromLoc: trying to get line#: " + ex + "\n");
+        lineNo = "";
+    }
+    return fname + lineNo;
+}
+
+this.initPopupMenuRecentLocations = function(event) {
+    try {
+    var popupMenu = event.target;
+    while (popupMenu.hasChildNodes()) {
+        popupMenu.removeChild(popupMenu.lastChild);
+    }
+    var locList = {};
+    var currentLocIdx = {};
+    this.controller.historySvc.get_recent_locs(this.get_current_location(),
+                                               currentLocIdx, locList, {});
+    currentLocIdx = currentLocIdx.value;
+    locList = locList.value;
+    
+    var menuitem, loc;
+    for (var loc, i = 0; loc = locList[i]; ++i) {
+        menuitem = document.createElement("menuitem");
+        menuitem.setAttribute("label", labelFromLoc(loc));
+        menuitem.setAttribute("index", 0);
+        var handler = null;
+        var delta = currentLocIdx - i;
+        if (delta == 0) {
+            menuitem.setAttribute("class", "history-nav-current");
+            menuitem.setAttribute("type", "radio");
+            handler = "event.stopPropagation()";
+        } else if (delta > 0) {
+            handler = ("ko.history.history_forward(" + delta + ")");
+        } else {
+            handler = ("ko.history.history_back(" + (-1 * delta) + ")");
+        }
+        menuitem.setAttribute("oncommand", handler);
+        popupMenu.appendChild(menuitem);
+    }
+    } catch(ex) {
+        _log.exception("initPopupMenuRecentLocations: " + ex);
+    }
+}
+
+this.history_back = function(delta) {
+    var loc = this.controller.historySvc.go_back(this.get_current_location(), delta);
+    this.go_to_location(loc);
+};
+
+this.history_forward = function(delta) {
+    var loc = this.controller.historySvc.go_forward(ko.history.get_current_location(), delta);
+    this.go_to_location(loc);
 };
 
 this.controller = new HistoryController();

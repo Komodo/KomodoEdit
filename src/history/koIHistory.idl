@@ -38,5 +38,9 @@ interface koIHistoryService : nsISupports
     koIHistoryLocation loc_from_info(in wstring window_name,
                                      in PRUint32 multiview_id,
                                      in koIScintillaView view);
+    void get_recent_locs(in koIHistoryLocation loc,
+                         out unsigned long current_idx,
+                         [array, size_is(count)] out koIHistoryLocation locs,
+                         out unsigned long count);
 };
 
