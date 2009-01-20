@@ -103,3 +103,11 @@ toolbar #historyForwardButton {
 toolbar #historyForwardButton[disabled="true"] {
   list-style-image : url("moz-icon://stock/gtk-go-forward-ltr?size=toolbar&state=disabled");
 }
+
+toolbar #historyRecentLocations {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+  width: 24px;
+}
