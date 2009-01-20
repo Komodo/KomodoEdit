@@ -453,3 +453,8 @@ menuitem.history-nav-current {
   -moz-image-region: auto;
   */
 }
+
+#historyRecentLocations > image,
+#historyRecentLocations > label {
+  display : none;
+}

@@ -1481,10 +1481,11 @@
                     buttonstyle="pictures"
                     label="&historyForward.label;"/>
                 <toolbarbutton id="historyRecentLocations"
-                               type="menu"
+                    type="menu"
                     tooltiptext="&historyRecentLocations.tooltiptext;"
                     >
-                    <menupopup id="historyRecentLocations"
+                    <menupopup id="historyRecentLocationsMenu"
+                               context=""
                                position="after_start"
                                onpopupshowing="ko.history.initPopupMenuRecentLocations(event);"
                                oncommand="event.stopPropagation();"
