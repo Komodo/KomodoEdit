@@ -101,7 +101,6 @@ class KoHistoryService(History):
                 idx += 1
         except StopIteration:
             pass
-        log.debug("get_recent_locs: idx:%d, list:%r", curr_idx, loc_list)
         return curr_idx, loc_list
 
     def _tooSimilarToCurrentSavedPoint(self, candidateLoc):
