@@ -30,6 +30,7 @@ interface koIHistoryService : nsISupports
 {
     boolean can_go_back();
     boolean can_go_forward();
+    boolean have_recent_history();
     koIHistoryLocation go_back(in koIHistoryLocation curr_loc, in PRUint32 n);
     koIHistoryLocation go_forward(in koIHistoryLocation curr_loc, in PRUint32 n);
 

@@ -555,6 +555,13 @@ class History(object):
         @returns {boolean}
         """
         return len(self.forward_visits) > 0
+        
+    def have_recent_history(self):
+        """Returns a boolean indicating whether there are any recent locations.
+        
+        @returns {boolean}
+        """
+        return len(self.recent_back_visits) > 0 or len(self.forward_visits) > 0
 
     def go_back(self, curr_loc, n=1):
         """Go back N steps (default 1) in the history.

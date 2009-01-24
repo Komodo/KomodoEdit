@@ -94,6 +94,13 @@ HistoryController.prototype.do_cmd_historyBack = function() {
     ko.history.history_back(1);
 };
 
+HistoryController.prototype.is_cmd_historyRecentLocations_supported = function() {
+    return true;
+};
+HistoryController.prototype.is_cmd_historyRecentLocations_enabled = function() {
+    return this.historySvc.have_recent_history();
+};
+
 this.init = function() {
     this._observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
