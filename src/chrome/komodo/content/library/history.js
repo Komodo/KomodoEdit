@@ -52,9 +52,7 @@ ko.history = {};
 (function() {
     
 var _log = ko.logging.getLogger('history');
-/*
- historySvc = components.classes["@activestate.com/koHistoryService;1"].getService(components.interfaces.koIHistoryService)
-*/
+
 function HistoryController() {
     this.historySvc = Components.classes["@activestate.com/koHistoryService;1"].
                 getService(Components.interfaces.koIHistoryService);
