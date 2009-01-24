@@ -56,6 +56,9 @@ import koUnicodeEncoding, codecs, types
 log = logging.getLogger('koDocument')
 #log.setLevel(logging.DEBUG)
 
+_gHistorySvc = UnwrapObject(components.classes["@activestate.com/koHistoryService;1"].\
+                            getService(components.interfaces.koIHistoryService))
+
 class koDocumentBase:
     _com_interfaces_ = [components.interfaces.koIDocument,
                         components.interfaces.nsIObserver]
@@ -1246,6 +1249,7 @@ class koDocumentBase:
                 buffer = self.get_buffer()
                 self._document = None
                 self._set_buffer_encoded(buffer, 0)
+                _gHistorySvc.update_marker_handles_on_close(self.file.URI, scimoz)
     
             self._views.remove(scintilla)
             #if not self._views:

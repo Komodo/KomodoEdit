@@ -134,6 +134,8 @@ class Database(object):
     VERSION = "1.0.0"
 
     path = None
+    
+    LOC_MARKER_UPDATE_LIMIT = 100
 
     @classmethod
     def _default_path(cls):
@@ -253,10 +255,10 @@ class Database(object):
         with self.connect(True, cu=cu) as cu:
             uri_id = self.uri_id_from_uri(loc.uri, cu=cu)
             cu.execute("""
-                INSERT INTO history_visit(referer_id, uri_id, line, col, view_type)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO history_visit(referer_id, uri_id, line, col, view_type, marker_handle)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """, 
-                (referer_id, uri_id, loc.line, loc.col, loc.view_type))
+                (referer_id, uri_id, loc.line, loc.col, loc.view_type, loc.marker_handle))
             loc.id = cu.lastrowid
             loc.referer_id = referer_id
             loc.uri_id = uri_id
@@ -306,7 +308,7 @@ class Database(object):
                 id = int(row[0])
             cu.execute("""
                 SELECT referer_id, uri_id, line, col, view_type, content,
-                       section, window_name, multiview_id
+                       section, marker_handle, window_name, multiview_id
                 FROM history_visit
                 WHERE id=?
                 """, (id,))
@@ -324,12 +326,65 @@ class Database(object):
                 id=id,
                 uri_id=uri_id,
                 referer_id=_int_or_none(row[0]),
-                window_name=row[7],
-                multiview_id=row[8],
+                marker_handle=row[7],
+                window_name=row[8],
+                multiview_id=row[9],
             )
 
         return loc
-
+            
+    def update_marker_handles_on_close(self, uri, scimoz, forward_visits, back_visits):
+        if not uri:
+            log.info("Can't update markers on a null URI (untitled)")
+            return
+        new_rows = []
+        with self.connect(commit=True) as cu:
+            uri_id = self.uri_id_from_uri(uri, cu)
+            #XXX Test perf on this.  Speed diff by dropping marker_handle test?
+            cu.execute("SELECT id, line, marker_handle"
+                       + " FROM history_visit"
+                       + " WHERE uri_id=? and marker_handle != -1"
+                       + " ORDER BY timestamp DESC LIMIT ?",
+                       (uri_id, self.LOC_MARKER_UPDATE_LIMIT))
+            for id, line, marker_handle in cu:
+                new_line = scimoz.markerLineFromHandle(marker_handle)
+                if new_line != -1 and new_line != line:
+                    new_rows.append([id, new_line])
+            local_locs_by_id = {}
+            # The same uri_id can appear multiple times in both caches,
+            # so find them for quick access
+            for loc in forward_visits:
+                if loc.uri_id == uri_id:
+                    local_locs_by_id[loc.id] = loc
+            for loc in back_visits:
+                if loc.uri_id == uri_id:
+                    local_locs_by_id[loc.id] = loc
+            
+            for id, line in new_rows:
+                cu.execute("UPDATE history_visit SET line=? WHERE id=?",
+                           (line, id))
+                if id in local_locs_by_id:
+                    local_locs_by_id[id].line = line
+                    
+            # Finally set all the recent marker_handles on this URI to -1,
+            # in the database and in the caches
+            cu.execute("SELECT timestamp"
+                       + " FROM history_visit"
+                       + " WHERE uri_id=? and marker_handle != -1"
+                       + " ORDER BY timestamp DESC LIMIT ?",
+                       (uri_id, self.LOC_MARKER_UPDATE_LIMIT))
+            row = cu.fetchone()
+            if row is None:
+                cu.execute("UPDATE history_visit SET marker_handle=?"
+                           + " WHERE uri_id=? and marker_handle != -1",
+                           (-1, uri_id))
+            else:
+                cu.execute("UPDATE history_visit SET marker_handle=?"
+                           + " WHERE uri_id=? and marker_handle != -1 and timestamp <= ?",
+                           (-1, uri_id, row[0]))
+            for loc in local_locs_by_id.values():
+                loc.marker_handle = -1
+    
     def get_meta(self, key, default=None, cu=None):
         """Get a value from the meta table.
         
@@ -634,6 +689,8 @@ class History(object):
             if is_curr:
                 curr_handled = True
             yield is_curr, loc
+        if not curr_handled and len(self.recent_back_visits) == 0:
+            yield True, curr_loc
         for i, loc in enumerate(self.recent_back_visits):
             is_curr = (not curr_handled 
                        and curr_loc is not None
@@ -644,6 +701,11 @@ class History(object):
             if i >= self.RECENT_BACK_VISITS_LENGTH:
                 break
             yield is_curr, loc
+                    
+    def update_marker_handles_on_close(self, uri, scimoz):
+        self.db.update_marker_handles_on_close(uri, scimoz,
+                                               self.forward_visits,
+                                               self.recent_back_visits)
     
     def debug_dump_recent_history(self, curr_loc=None):
         print "-- recent history"
@@ -737,6 +799,7 @@ _g_database_schema = """
         content TEXT,   -- Up to 100 chars of the current line.
         section TEXT    -- The name of the section containing this line.
     );
+    CREATE INDEX history_visit_uri_id ON history_visit(uri_id);
 
     -- See http://eusqlite.wikispaces.com/dates+and+times
     CREATE TRIGGER history_visit_set_timestamp AFTER INSERT ON history_visit
