@@ -368,20 +368,10 @@ class Database(object):
                     
             # Finally set all the recent marker_handles on this URI to -1,
             # in the database and in the caches
-            cu.execute("SELECT timestamp"
-                       + " FROM history_visit"
-                       + " WHERE uri_id=? and marker_handle != -1"
-                       + " ORDER BY timestamp DESC LIMIT ?",
-                       (uri_id, self.LOC_MARKER_UPDATE_LIMIT))
-            row = cu.fetchone()
-            if row is None:
-                cu.execute("UPDATE history_visit SET marker_handle=?"
-                           + " WHERE uri_id=? and marker_handle != -1",
-                           (-1, uri_id))
-            else:
-                cu.execute("UPDATE history_visit SET marker_handle=?"
-                           + " WHERE uri_id=? and marker_handle != -1 and timestamp <= ?",
-                           (-1, uri_id, row[0]))
+            # TODO PERF - Check timestamp > julianday() - 1
+            cu.execute("UPDATE history_visit SET marker_handle=?"
+                       " WHERE uri_id=? and marker_handle != -1",
+                       (-1, uri_id))
             for loc in local_locs_by_id.values():
                 loc.marker_handle = -1
     
