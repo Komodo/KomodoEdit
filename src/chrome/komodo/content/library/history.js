@@ -52,7 +52,9 @@ ko.history = {};
 (function() {
     
 var _log = ko.logging.getLogger('history');
-
+/*
+ historySvc = components.classes["@activestate.com/koHistoryService;1"].getService(components.interfaces.koIHistoryService)
+*/
 function HistoryController() {
     this.historySvc = Components.classes["@activestate.com/koHistoryService;1"].
                 getService(Components.interfaces.koIHistoryService);
@@ -139,6 +141,57 @@ this.note_curr_loc = function note_curr_loc(view /* = currentView */) {
     return this.controller.historySvc.note_loc(loc);
 };
 
+/** 
+ * Returns the view and line # based on the loc.
+ *
+ * @param loc {Location}.
+ * @returns undefined
+ *
+ * This function might open a file asynchronously, so it invokes
+ * handle_view_line_callback to do the rest of the work.
+ */
+function view_and_line_from_loc(loc, handle_view_line_callback, open_if_needed/*=true*/) {
+    if (typeof(open_if_needed) == "undefined") open_if_needed = true;
+    var uri = loc.uri;
+    if (!uri) {
+        _log.error("go_to_location: given empty uri");
+        return null;
+    }
+    var lineNo = loc.line;
+    
+    var view = ko.windowManager.getViewForURI(uri);
+    var is_already_open = (view != null);
+    function local_callback(view_) {
+        if (is_already_open) {
+            var betterLineNo = view_.scimoz.markerLineFromHandle(loc.marker_handle);
+            if (betterLineNo != -1) {
+                lineNo = betterLineNo;
+            }
+        }
+        return handle_view_line_callback(view_, lineNo);
+    }
+    if (!view) {
+        if (!open_if_needed) {
+            return handle_view_line_callback(null, lineNo);
+        }
+        function callback(view_) {
+            if (!view_)  {
+                ko.statusBar.AddMessage(
+                    "Can't find file " + uri,
+                    "editor", 5000, false);
+                return null;
+            }
+            return handle_view_line_callback(view_, lineNo);
+        };
+        view = ko.views.manager.doFileOpenAtLineAsync(uri, lineNo,
+                                                      null, // viewType='editor'
+                                                      null, // viewList=null
+                                                      null, // index=-1
+                                                      callback);
+    }
+    return local_callback(view);
+}
+
 this.go_to_location = function go_to_location(loc) {
     //XXX Use window and view IDs
     var windowName = loc.windowName;
@@ -148,49 +201,40 @@ this.go_to_location = function go_to_location(loc) {
         throw new Error("history: goto location of type " + view_type
                         + " not yet implemented.");
     }
-    var uri = loc.uri;
-    var lineNo = loc.line;
-    
-    var view = ko.windowManager.getViewForURI(uri);
-    var is_already_open = (view != null);
-    if (!view) {
-        view = ko.views.manager.doFileOpenAtLineAsync(uri, lineNo);
-        if (!view) {
-            ko.statusBar.AddMessage(
-                "Can't find file " + uri,
-                "editor", 5000, false);
-            return;
-        }
+    function _callback(view, lineNo) {
+        if (!view) return;
+        var scimoz = view.scimoz;
+        view.makeCurrent();
+        var targetPos = scimoz.positionFromLine(lineNo) + loc.col;
+        scimoz.currentPos = scimoz.anchor = targetPos;
+        scimoz.gotoPos(targetPos);
+        window.updateCommands("history_changed");
     }
-    var scimoz = view.scimoz;
-    if (is_already_open) {
-        var betterLineNo = scimoz.markerLineFromHandle(loc.marker_handle);
-        if (betterLineNo != -1) {
-            lineNo = betterLineNo;
-        }
-    }
-    view.makeCurrent();
-    var targetPos = scimoz.positionFromLine(lineNo) + loc.col;
-    scimoz.currentPos = scimoz.anchor = targetPos;
-    scimoz.gotoPos(targetPos);
-    window.updateCommands("history_changed");
+    view_and_line_from_loc(loc, _callback, true);
 };
 
 function labelFromLoc(loc) {
-    var fname, lineNo;
-    try {
-        fname = loc.uri.substr(loc.uri.lastIndexOf("/") + 1);
-    } catch(ex) {
-        _log.exception("labelFromLoc: " + ex + "\n");
-        fname = loc.uri;
+    var fname = null, view, lineNo;
+    function _callback(view, lineNo) {
+        lineNo += 1;
+        try {
+            if (view) {
+                try {
+                    fname = view.document.file.leafName;
+                } catch(ex) {}
+            }
+            if (!fname) {
+                fname = loc.uri.substr(loc.uri.lastIndexOf("/") + 1);
+            }
+        } catch(ex) {
+            _log.exception("labelFromLoc: " + ex + "\n");
+            fname = loc.uri;
+        }
+        return fname + ":" + lineNo;
     }
-    try {
-        lineNo = ": " + (loc.line + 1); // human views are 1-based.
-    } catch(ex) {
-        _log.exception("labelFromLoc: trying to get line#: " + ex + "\n");
-        lineNo = "";
-    }
-    return fname + lineNo;
+    // This is a sync call (not async), but it's coded this way
+    // so go_to_location can share common code. 
+    return view_and_line_from_loc(loc, _callback, false); // don't open closed views
 }
 
 this.initPopupMenuRecentLocations = function(event) {
