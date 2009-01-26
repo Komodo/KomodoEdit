@@ -137,12 +137,8 @@ class Database(object):
     
     LOC_MARKER_UPDATE_LIMIT = 100
 
-    @classmethod
-    def _default_path(cls):
-        return expanduser("~/tmp/history.sqlite")
-
-    def __init__(self, path=None):
-        self.path = path or self._default_path()
+    def __init__(self, path):
+        self.path = path
         
         # Performance note: This cache can dramatically speed up
         # `uri_id_from_uri`, but only if N is greater than the typical
