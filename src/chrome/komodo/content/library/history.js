@@ -34,11 +34,11 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
-/* Komodo history handler:
+/* UI-side handler for Komodo history functionality.
  *
  * Contents:
  * 1. Wrappers around the koHistory service
- * 2. Controller for handling the goForward and goBack commands
+ * 2. Controller for handling the forward and back commands
  * 3. Methods to implement the controller commands.
  */
 
@@ -122,9 +122,14 @@ this.observe = function(subject, topic, data) {
 };
 
 
-//XXX:TODO: s/get_current_location/get_curr_loc/g, document it, handle
-//          non-editor views
-this.get_current_location = function get_current_location(view /* =current view */) {
+/**
+ * Get the current location.
+ *
+ * @param view {view} An optional view in which to get the current location.
+ *      If not given the current view is used.
+ * @returns {koILocation} or null if could not determine a current loc.
+ */
+this.get_curr_loc = function get_curr_loc(view /* =current view */) {
     if (typeof(view) == "undefined" || view == null) {
         view = ko.views.manager.currentView;
     }
@@ -144,7 +149,7 @@ this.get_current_location = function get_current_location(view /* =current view 
 };
 
 this.note_curr_loc = function note_curr_loc(view /* = currentView */) {
-    var loc = this.get_current_location(view);
+    var loc = this.get_curr_loc(view);
     if (!loc) {
         return null;
     }
@@ -255,7 +260,7 @@ this.initPopupMenuRecentLocations = function(event) {
     }
     var locList = {};
     var currentLocIdx = {};
-    this.controller.historySvc.get_recent_locs(this.get_current_location(),
+    this.controller.historySvc.get_recent_locs(this.get_curr_loc(),
                                                currentLocIdx, locList, {});
     currentLocIdx = currentLocIdx.value;
     locList = locList.value;
@@ -285,12 +290,12 @@ this.initPopupMenuRecentLocations = function(event) {
 }
 
 this.history_back = function(delta) {
-    var loc = this.controller.historySvc.go_back(this.get_current_location(), delta);
+    var loc = this.controller.historySvc.go_back(this.get_curr_loc(), delta);
     this.go_to_location(loc);
 };
 
 this.history_forward = function(delta) {
-    var loc = this.controller.historySvc.go_forward(ko.history.get_current_location(), delta);
+    var loc = this.controller.historySvc.go_forward(ko.history.get_curr_loc(), delta);
     this.go_to_location(loc);
 };
 
