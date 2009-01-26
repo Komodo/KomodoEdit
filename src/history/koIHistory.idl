@@ -35,10 +35,11 @@ interface koIHistoryService : nsISupports
     koIHistoryLocation go_forward(in koIHistoryLocation curr_loc, in PRUint32 n);
 
     koIHistoryLocation note_loc(in koIHistoryLocation loc);
-    koIHistoryLocation note_curr_loc(in koIScintillaView view);
-    koIHistoryLocation loc_from_info(in wstring window_name,
-                                     in PRUint32 multiview_id,
-                                     in koIScintillaView view);
+    koIHistoryLocation note_curr_loc(in koIScintillaView view);  //TODO: s//note_curr_editor_loc/g
+    koIHistoryLocation editor_loc_from_info(
+        in wstring window_name,
+        in PRUint32 multiview_id,
+        in koIScintillaView view);
     void get_recent_locs(in koIHistoryLocation loc,
                          out unsigned long current_idx,
                          [array, size_is(count)] out koIHistoryLocation locs,

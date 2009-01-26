@@ -42,9 +42,13 @@ class KoHistoryService(History):
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
 
-    def loc_from_info(self, window_name, multiview_id, view):
+    def editor_loc_from_info(self, window_name, multiview_id, view):
         """Create a Location instance from the given *editor* view info.
         
+        @param window_name {str} The identifier for the view's Komodo window.
+        @param multiview_id {int} The identifier for the multi-tabbed view
+            containing `view`.
+        @param view {koIScintillaView} A Komodo editor view.
         @returns {Location}
         """
         #XXX:TODO handle untitled documents
@@ -83,12 +87,17 @@ class KoHistoryService(History):
         @returns {Location}
         """
         if view is None:
+            #XXX:TODO: this can fail. What if the current view is the Start
+            #   Page (not a koIScintillaView)?
             view = components.classes["@activestate.com/koViewService;1"]\
                 .getService(components.interfaces.koIViewService).currentView \
                 .QueryInterface(components.interfaces.koIScintillaView)
-        loc = self.loc_from_info("XXX", -1, view)  #XXX:TODO multiview_id and window_name
+        #XXX:TODO: This method needs to accept window_name and multiview_id
+        #          a la editor_loc_from_info().
+        #XXX:TODO: don't pass '-1', the IDL says unsigned
+        loc = self.editor_loc_from_info("XXX", -1, view)
         return self.note_loc(loc)
-        
+
     def get_recent_locs(self, curr_loc):
         idx = 0
         curr_idx = 0

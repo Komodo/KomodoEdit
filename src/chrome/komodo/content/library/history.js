@@ -122,19 +122,24 @@ this.observe = function(subject, topic, data) {
 };
 
 
+//XXX:TODO: s/get_current_location/get_curr_loc/g, document it, handle
+//          non-editor views
 this.get_current_location = function get_current_location(view /* =current view */) {
     if (typeof(view) == "undefined" || view == null) {
         view = ko.views.manager.currentView;
     }
-    if (!view || !view.document) {
-        _log.info("get_current_location: no view/document -- giving up");
-        return null;
+    var loc = null;
+    if (!view) {
+        // pass
+    } else if (view.getAttribute("type") == "editor") {
+        loc = this.controller.historySvc.editor_loc_from_info(
+            "main", // window_name XXX
+            0, // multiview_id XXX
+            view);
+    } else {
+        _log.warn("cannot get current location for '"
+                  +view.getAttribute("type")+"' view: "+view);
     }
-    var loc = this.controller.historySvc.loc_from_info(
-        "main", // window_name XXX
-        0, // multiview_id XXX
-        view);
-    
     return loc;
 };
 
