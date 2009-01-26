@@ -348,13 +348,13 @@
               <menulist id="search-in-menu" oncommand="update('search-in')"
                         crop="center">
                   <menupopup>
-                      <menuitem value="document" label="&currentDocument.label;"/>
-                      <menuitem value="selection" label="&selectedText.label;"/>
-                      <menuitem value="open-files" label="&openFiles.label;"/>
+                      <menuitem id="search-in-document" value="document" label="&currentDocument.label;"/>
+                      <menuitem id="search-in-selection" value="selection" label="&selectedText.label;"/>
+                      <menuitem id="search-in-open-files" value="open-files" label="&openFiles.label;"/>
                       <menuitem id="search-in-curr-project"
                                 collapsed="true" hidden="true"
                                 value="curr-project" label="&currentProject.label;"/>
-                      <menuitem value="files" label="&filesAlt.label;"/>
+                      <menuitem id="search-in-files" value="files" label="&filesAlt.label;"/>
                       <menuseparator id="search-in-collection-sep"
                                      collapsed="true" hidden="true"/>
                       <menuitem id="search-in-collection"
