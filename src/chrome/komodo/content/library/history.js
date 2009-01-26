@@ -129,7 +129,7 @@ this.observe = function(subject, topic, data) {
  *      If not given the current view is used.
  * @returns {koILocation} or null if could not determine a current loc.
  */
-this.get_curr_loc = function get_curr_loc(view /* =current view */) {
+function _get_curr_loc(view /* =current view */) {
     if (typeof(view) == "undefined" || view == null) {
         view = ko.views.manager.currentView;
     }
@@ -148,8 +148,17 @@ this.get_curr_loc = function get_curr_loc(view /* =current view */) {
     return loc;
 };
 
+
+/**
+ * Note the current location.
+ *
+ * @param view {view} An optional view in which to get the current location.
+ *      If not given the current view is used.
+ * @returns {koILocation} The noted location (or null if could not determine
+ *      a current loc).
+ */
 this.note_curr_loc = function note_curr_loc(view /* = currentView */) {
-    var loc = this.get_curr_loc(view);
+    var loc = _get_curr_loc(view);
     if (!loc) {
         return null;
     }
@@ -260,7 +269,7 @@ this.initPopupMenuRecentLocations = function(event) {
     }
     var locList = {};
     var currentLocIdx = {};
-    this.controller.historySvc.get_recent_locs(this.get_curr_loc(),
+    this.controller.historySvc.get_recent_locs(_get_curr_loc(),
                                                currentLocIdx, locList, {});
     currentLocIdx = currentLocIdx.value;
     locList = locList.value;
@@ -290,7 +299,7 @@ this.initPopupMenuRecentLocations = function(event) {
 }
 
 this.history_back = function(delta) {
-    var loc = this.controller.historySvc.go_back(this.get_curr_loc(), delta);
+    var loc = this.controller.historySvc.go_back(_get_curr_loc(), delta);
     this.go_to_location(loc);
 };
 
