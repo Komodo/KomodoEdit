@@ -1331,8 +1331,6 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
             try {
                 view.saveState();
                 if (ko.macros.eventHandler.hookPreFileClose(view)) {
-                    //Bogus: this needs the view so the macro can
-                    // work with it.
                     ko.statusBar.AddMessage(
                         _bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
                         "macro",
