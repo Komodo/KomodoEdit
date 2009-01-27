@@ -248,9 +248,9 @@ function labelFromLoc(loc) {
             // for full details on parsing URIs into parts.
             if (view) {
                 try {
-                    var nsFile = view.document.file;
-                    fname = nsFile.leafName;
-                    dirName = nsFile.dirName;
+                    var koFile = view.document.file;
+                    fname = koFile.leafName;
+                    dirName = koFile.dirName;
                 } catch(ex) {}
             }
             if (!fname) {
