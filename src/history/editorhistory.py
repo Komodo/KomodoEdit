@@ -19,6 +19,7 @@ from contextlib import contextmanager
 import sqlite3
 from collections import deque
 from pprint import pprint, pformat
+import time
 
 try:
     from xpcom import components
@@ -45,6 +46,9 @@ class HistoryNoLatestVisitError(HistoryError):
     """An error raised by `Database.visit_from_id(None)` indicating that
     there is no latest visit in the db.
     """
+
+class HistoryDatabaseError(HistoryError):
+    """An internal error in the history database."""
 
 
 
@@ -129,6 +133,11 @@ class Database(object):
     # "version" is the version of the database on disk. The patch-level
     # version number should be used for small upgrades to the database.
     #
+    # How to update version:
+    # (a) change VERSION,
+    # (b) add a change log comment here, and
+    # (c) add an entry to `_upgrade_info_from_curr_ver`.
+    #
     # db change log:
     # - 1.0.0: initial version
     VERSION = "1.0.0"
@@ -150,7 +159,12 @@ class Database(object):
         
         if not exists(self.path):
             self.create()
-        #TODO: setup upgrade/reset code (following codeintel's lead)
+        else:
+            try:
+                self.upgrade()
+            except Exception, ex:
+                log.exception("error upgrading `%s': %s", self.path, ex)
+                self.reset()
 
     def __repr__(self):
         return "<Database %s>" % self.path
@@ -198,6 +212,57 @@ class Database(object):
             cu.executescript(_g_database_schema)
             cu.execute("INSERT INTO history_meta(key, value) VALUES (?, ?)", 
                 ("version", self.VERSION))
+
+    def reset(self, backup=True):
+        """Remove the current database (possibly backing it up) and create
+        a new empty one.
+
+        @param backup {bool} Should the original database be backed up.
+            If so, the backup is $database_file+".bak". Default true.
+        """
+        if backup:
+            backup_path = self.path + ".bak"
+            if exists(backup_path):
+                _rm_file(backup_path)
+            if exists(backup_path): # couldn't remove it
+                log.warn("couldn't remove old '%s' (skipping backup)",
+                         backup_path)
+                _rm_file(self.path)
+            else:
+                os.rename(self.path, backup_path)
+        else:
+            _rm_file(self.path)
+        self.create()
+
+    def upgrade(self):
+        """Upgrade the current database."""
+        # 'version' is the DB ver on disk, 'VERSION' is the target ver.
+        curr_ver = self.version
+        while curr_ver != self.VERSION:
+            try:
+                result_ver, upgrader, upgrader_arg \
+                    = self._upgrade_info_from_curr_ver[curr_ver]
+            except KeyError:
+                raise HistoryDatabaseError(
+                    "cannot upgrade from db v%s: no upgrader for this version"
+                    % curr_ver)
+            log.info("upgrading from db v%s to db v%s ...",
+                     curr_ver, result_ver)
+            if upgrader_arg is not None:
+                upgrader(self, curr_ver, result_ver, upgrader_arg)
+            else:
+                upgrader(self, curr_ver, result_ver)
+            curr_ver = result_ver
+
+    def _upgrade_reset_db(self, curr_ver, result_ver):
+        """Upgrader that just starts over."""
+        assert result_ver == self.VERSION
+        self.reset()
+
+    _upgrade_info_from_curr_ver = {
+        # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
+        #"1.0.0": (VERSION, _upgrade_reset_db, None),
+    }
 
     @property
     def version(self):
@@ -713,6 +778,21 @@ class History(object):
 
 
 #---- internal support stuff
+
+def _rm_file(path):
+    """Remove the given file path.
+    
+    @param path {str} The file path.
+
+    This attempts to robustly delete the given file path.
+    Note: This doesn't handle directories.
+    """
+    from os.path import exists
+    os.remove(path)
+    for i in range(10): # Try to avoid OSError from slow-deleting NTFS
+        if not exists(path):
+            break
+        time.sleep(1)
 
 def _int_or_none(s):
     if s is None:
