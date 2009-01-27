@@ -255,6 +255,17 @@ class koScintillaController:
                 nextLineStartPos += len(eol)
             self._doSmartCut(lineStart, nextLineStartPos)
             return
+        elif (command_name == 'cmd_lineDuplicate'
+              and sm.selectionStart != sm.selectionEnd):
+            # If there is no selection, we just do the usual lineDuplicate
+            # Otherwise [copy|move to selectionEnd|paste|select pasted text]
+            sm.copy()
+            sm.anchor = sm.currentPos = pos = max(sm.anchor, sm.currentPos)
+            sm.paste()
+            sm.anchor = pos
+            sm.sendUpdateCommands("select")
+            sm.sendUpdateCommands("clipboard")
+            return
         methname= '_do_'+command_name
         attr = getattr(self, methname, None)
         if attr is None:
