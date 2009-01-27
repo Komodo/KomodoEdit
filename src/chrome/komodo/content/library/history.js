@@ -241,16 +241,21 @@ function labelFromLoc(loc) {
     var fname = null, view, lineNo;
     function _callback(view, lineNo) {
         lineNo += 1;
-        var fullPath = null;
+        var dirName = null;
         var finalLabel;
         try {
+            // See code at scrolltabs.xml#_createMenuItem
+            // for full details on parsing URIs into parts.
             if (view) {
                 try {
-                    fname = view.document.file.leafName;
-                    fullPath = view.document.displayPath;
+                    var nsFile = view.document.file;
+                    fname = nsFile.leafName;
+                    dirName = nsFile.dirName;
                 } catch(ex) {}
             }
             if (!fname) {
+                // If there is no '/', we end up taking substr(-1 + 1),
+                // which gives the full uri, which is fine.
                 fname = loc.uri.substr(loc.uri.lastIndexOf("/") + 1);
             }
         } catch(ex) {
@@ -258,8 +263,8 @@ function labelFromLoc(loc) {
             fname = loc.uri;
         }
         var finalLabel = fname + ":" + lineNo;
-        if (fullPath) {
-            finalLabel += " - " + fullPath;
+        if (dirName) {
+            finalLabel += " (" + dirName + ")";
         }
         return finalLabel;
     }
