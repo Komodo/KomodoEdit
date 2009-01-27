@@ -2419,8 +2419,17 @@ VimController.visualmode_command_mappings = {
 }
 
 // Execute a vim command.
-function vim_doCommand(command)
+function vim_doCommand(command, event)
 {
+    if (event) {
+        // The command was called directly from the vim commandset handler.
+        // Ensure to only process vi commands when focused on a Scintilla view.
+        if ((event.target.nodeName != 'view') ||
+            !('originalTarget' in event) ||
+            (event.originalTarget.nodeName == "html:input")) {
+            return false;
+        }
+    }
     vimlog.debug("vim_doCommand(" + command + ")");
     if (!ko.views.manager.currentView) {
         vimlog.debug("vim_doCommand:: not initialized yet");

@@ -54,95 +54,95 @@
                 events="currentview_is_editor">
          <command
             id="cmd_vim_left" key="key_cmd_vim_left"
-            oncommand="vim_doCommand('cmd_vim_left')"
+            oncommand="vim_doCommand('cmd_vim_left', event)"
             desc="&editorViMoveLeftOneCharacter.desc;"/>
         <command
             id="cmd_vim_right" key="key_cmd_vim_right"
-            oncommand="vim_doCommand('cmd_vim_right')"
+            oncommand="vim_doCommand('cmd_vim_right', event)"
             desc="&editorViMoveRightOneCharacter.desc;"/>
         <command
             id="cmd_vim_linePrevious" key="key_cmd_vim_linePrevious"
-            oncommand="vim_doCommand('cmd_vim_linePrevious')"
+            oncommand="vim_doCommand('cmd_vim_linePrevious', event)"
             desc="&editorViGoToPreviousLine.desc;"/>
         <command
             id="cmd_vim_lineNext" key="key_cmd_vim_lineNext"
-            oncommand="vim_doCommand('cmd_vim_lineNext')"
+            oncommand="vim_doCommand('cmd_vim_lineNext', event)"
             desc="&editorViGoToNextLine.desc;"/>
         <command
             id="cmd_vim_linePreviousHome" key="key_cmd_vim_linePreviousHome"
-            oncommand="vim_doCommand('cmd_vim_linePreviousHome')"
+            oncommand="vim_doCommand('cmd_vim_linePreviousHome', event)"
             desc="&editorViMoveToBeginningOfThePreviousLine.desc;"/>
         <command
             id="cmd_vim_lineNextHome" key="key_cmd_vim_lineNextHome"
-            oncommand="vim_doCommand('cmd_vim_lineNextHome')"
+            oncommand="vim_doCommand('cmd_vim_lineNextHome', event)"
             desc="&editorViMoveToBeginningOfTheNextLine.desc;"/>
         <command
             id="cmd_vim_homeAbsolute" key="key_cmd_vim_homeAbsolute"
-            oncommand="vim_doCommand('cmd_vim_homeAbsolute')"
+            oncommand="vim_doCommand('cmd_vim_homeAbsolute', event)"
             desc="&editorViMoveToBeginningOfTheCurrentLine.desc;"/>
         <command
             id="cmd_vim_home" key="key_cmd_vim_home"
-            oncommand="vim_doCommand('cmd_vim_home')"
+            oncommand="vim_doCommand('cmd_vim_home', event)"
             desc="&editorViMoveToBeginningOfLineFirstVisibleCharFirstColumn.desc;"/>
         <command
             id="cmd_vim_end" key="key_cmd_vim_end"
-            oncommand="vim_doCommand('cmd_vim_end')"
+            oncommand="vim_doCommand('cmd_vim_end', event)"
             desc="&editorViMoveToEndOfCurrentLine.desc;"/>
         <command
             id="cmd_vim_scrollHalfPageUp" key="key_cmd_vim_scrollHalfPageUp"
-            oncommand="vim_doCommand('cmd_vim_scrollHalfPageUp')"
+            oncommand="vim_doCommand('cmd_vim_scrollHalfPageUp', event)"
             desc="&editorViScrollHalfPageUp.desc;"/>
         <command
             id="cmd_vim_scrollHalfPageDown" key="key_cmd_vim_scrollHalfPageDown"
-            oncommand="vim_doCommand('cmd_vim_scrollHalfPageDown')"
+            oncommand="vim_doCommand('cmd_vim_scrollHalfPageDown', event)"
             desc="&editorViScrollHalfPageDown.desc;"/>
         <command
             id="cmd_vim_pageUp" key="key_cmd_vim_pageUp"
-            oncommand="vim_doCommand('cmd_vim_pageUp')"
+            oncommand="vim_doCommand('cmd_vim_pageUp', event)"
             desc="&editorViMoveOnePageUp.desc;"/>
         <command
             id="cmd_vim_pageDown" key="key_cmd_vim_pageDown"
-            oncommand="vim_doCommand('cmd_vim_pageDown')"
+            oncommand="vim_doCommand('cmd_vim_pageDown', event)"
             desc="&editorViMoveOnePageDown.desc;"/>
         <command
             id="cmd_vim_wordLeft" key="key_cmd_vim_wordLeft"
-            oncommand="vim_doCommand('cmd_vim_wordLeft')"
+            oncommand="vim_doCommand('cmd_vim_wordLeft', event)"
             desc="&editorViMoveOneWordLeft.desc;"/>
         <command
             id="cmd_vim_wordLeftEnd" key="key_cmd_vim_wordLeftEnd"
-            oncommand="vim_doCommand('cmd_vim_wordLeftEnd')"
+            oncommand="vim_doCommand('cmd_vim_wordLeftEnd', event)"
             desc="&editorViMoveToEndOfWordToLeft.desc;"/>
         <command
             id="cmd_vim_wordRight" key="key_cmd_vim_wordRight"
-            oncommand="vim_doCommand('cmd_vim_wordRight')"
+            oncommand="vim_doCommand('cmd_vim_wordRight', event)"
             desc="&editorViMoveToStartOfWordToRight.desc;"/>
         <command
             id="cmd_vim_wordRightEnd" key="key_cmd_vim_wordRightEnd"
-            oncommand="vim_doCommand('cmd_vim_wordRightEnd')"
+            oncommand="vim_doCommand('cmd_vim_wordRightEnd', event)"
             desc="&editorViMoveToEndOfWordToRight.desc;"/>
         <command
             id="cmd_vim_lineScrollUp" key="key_cmd_vim_lineScrollUp"
-            oncommand="vim_doCommand('cmd_vim_lineScrollUp')"
+            oncommand="vim_doCommand('cmd_vim_lineScrollUp', event)"
             desc="&editorViScrollOneLineUp.desc;"/>
         <command
             id="cmd_vim_lineScrollDown" key="key_cmd_vim_lineScrollDown"
-            oncommand="vim_doCommand('cmd_vim_lineScrollDown')"
+            oncommand="vim_doCommand('cmd_vim_lineScrollDown', event)"
             desc="&editorViScrollOneLineDown.desc;"/>
         <command
             id="cmd_vim_documentHome" key="key_cmd_vim_documentHome"
-            oncommand="vim_doCommand('cmd_vim_documentHome')"
+            oncommand="vim_doCommand('cmd_vim_documentHome', event)"
             desc="&editorViGoToTopOfDocument.desc;"/>
         <command
             id="cmd_vim_documentEnd" key="key_cmd_vim_documentEnd"
-            oncommand="vim_doCommand('cmd_vim_documentEnd')"
+            oncommand="vim_doCommand('cmd_vim_documentEnd', event)"
             desc="&editorViGoToEndOfDocument.desc;"/>
         <command
             id="cmd_vim_gotoLine" key="key_cmd_vim_gotoLine"
-            oncommand="vim_doCommand('cmd_vim_gotoLine')"
+            oncommand="vim_doCommand('cmd_vim_gotoLine', event)"
             desc="&editorViGotoLine.desc;"/>
         <command
             id="cmd_vim_newline" key="key_cmd_vim_newline"
-            oncommand="vim_doCommand('cmd_vim_newline')"
+            oncommand="vim_doCommand('cmd_vim_newline', event)"
             desc="&editorViInsertNewline.desc;"/>
         <command
             id="cmd_vim_newlinePrevious" key="key_cmd_vim_newlinePrevious"
@@ -150,333 +150,333 @@
             desc="&editorViInsertNewlineStartingOnThePreviousLine.desc;"/>
         <command
             id="cmd_vim_wordLeftPastPunctuation" key="key_cmd_vim_wordLeftPastPunctuation"
-            oncommand="vim_doCommand('cmd_vim_wordLeftPastPunctuation')"
+            oncommand="vim_doCommand('cmd_vim_wordLeftPastPunctuation', event)"
             desc="&editorViMoveOneWordLeftPastAnyPunctuation.desc;"/>
         <command
             id="cmd_vim_wordRightPastPunctuation" key="key_cmd_vim_wordRightPastPunctuation"
-            oncommand="vim_doCommand('cmd_vim_wordRightPastPunctuation')"
+            oncommand="vim_doCommand('cmd_vim_wordRightPastPunctuation', event)"
             desc="&editorViMoveOneWordRightPastAnyPunctuation.desc;"/>
         <command
             id="cmd_vim_wordRightEndPastPunctuation" key="key_cmd_vim_wordRightEndPastPunctuation"
-            oncommand="vim_doCommand('cmd_vim_wordRightEndPastPunctuation')"
+            oncommand="vim_doCommand('cmd_vim_wordRightEndPastPunctuation', event)"
             desc="&editorViMoveToEndOfWordToTheRightPastAnyPunctuation.desc;"/>
         <command
             id="cmd_vim_moveToScreenTop" key="key_cmd_vim_moveToScreenTop"
-            oncommand="vim_doCommand('cmd_vim_moveToScreenTop')"
+            oncommand="vim_doCommand('cmd_vim_moveToScreenTop', event)"
             desc="&editorViMoveToTheTopOfTheScreen.desc;"/>
         <command
             id="cmd_vim_moveToScreenCenter" key="key_cmd_vim_moveToScreenCenter"
-            oncommand="vim_doCommand('cmd_vim_moveToScreenCenter')"
+            oncommand="vim_doCommand('cmd_vim_moveToScreenCenter', event)"
             desc="&editorViMoveToTheCenterOfTheScreen.desc;"/>
         <command
             id="cmd_vim_moveToScreenBottom" key="key_cmd_vim_moveToScreenBottom"
-            oncommand="vim_doCommand('cmd_vim_moveToScreenBottom')"
+            oncommand="vim_doCommand('cmd_vim_moveToScreenBottom', event)"
             desc="&editorViMoveToTheBottomOfTheScreen.desc;"/>
         <command
             id="cmd_vim_moveSentenceBegin" key="key_cmd_vim_moveSentenceBegin"
-            oncommand="vim_doCommand('cmd_vim_moveSentenceBegin')"
+            oncommand="vim_doCommand('cmd_vim_moveSentenceBegin', event)"
             desc="&editorViMoveToTheBeginningOfTheSentence.desc;"/>
         <command
             id="cmd_vim_moveSentenceEnd" key="key_cmd_vim_moveSentenceEnd"
-            oncommand="vim_doCommand('cmd_vim_moveSentenceEnd')"
+            oncommand="vim_doCommand('cmd_vim_moveSentenceEnd', event)"
             desc="&editorViMoveToTheEndOfTheSentence.desc;"/>
         <command
             id="cmd_vim_moveParagraphBegin" key="key_cmd_vim_moveParagraphBegin"
-            oncommand="vim_doCommand('cmd_vim_moveParagraphBegin')"
+            oncommand="vim_doCommand('cmd_vim_moveParagraphBegin', event)"
             desc="&editorViMoveToTheBeginningOfTheParagraph.desc;"/>
         <command
             id="cmd_vim_moveParagraphEnd" key="key_cmd_vim_moveParagraphEnd"
-            oncommand="vim_doCommand('cmd_vim_moveParagraphEnd')"
+            oncommand="vim_doCommand('cmd_vim_moveParagraphEnd', event)"
             desc="&editorViMoveToTheEndOfTheParagraph.desc;"/>
         <command
             id="cmd_vim_moveFunctionPrevious" key="key_cmd_vim_moveFunctionPrevious"
-            oncommand="vim_doCommand('cmd_vim_moveFunctionPrevious')"
+            oncommand="vim_doCommand('cmd_vim_moveFunctionPrevious', event)"
             desc="&editorViMoveToTheBeginningOfTheSection.desc;"/>
         <command
             id="cmd_vim_moveFunctionNext" key="key_cmd_vim_moveFunctionNext"
-            oncommand="vim_doCommand('cmd_vim_moveFunctionNext')"
+            oncommand="vim_doCommand('cmd_vim_moveFunctionNext', event)"
             desc="&editorViMoveToTheEndOfTheSection.desc;"/>
 
       <!-- Vim select, copy, cut and paste commands -->
         <command
             id="cmd_vim_selectWordLeft" key="key_cmd_vim_selectWordLeft"
-            oncommand="vim_doCommand('cmd_vim_selectWordLeft')"
+            oncommand="vim_doCommand('cmd_vim_selectWordLeft', event)"
             desc="&editorViSelectPreviousWord.desc;"/>
         <command
             id="cmd_vim_selectWordRight" key="key_cmd_vim_selectWordRight"
-            oncommand="vim_doCommand('cmd_vim_selectWordRight')"
+            oncommand="vim_doCommand('cmd_vim_selectWordRight', event)"
             desc="&editorViSelectNextWord.desc;"/>
         <command
             id="cmd_vim_selectCharNext" key="key_cmd_vim_selectCharNext"
-            oncommand="vim_doCommand('cmd_vim_selectCharNext')"
+            oncommand="vim_doCommand('cmd_vim_selectCharNext', event)"
             desc="&editorViSelectNextCharacter.desc;"/>
         <command
             id="cmd_vim_selectCharPrevious" key="key_cmd_vim_selectCharPrevious"
-            oncommand="vim_doCommand('cmd_vim_selectCharPrevious')"
+            oncommand="vim_doCommand('cmd_vim_selectCharPrevious', event)"
             desc="&editorViSelectPreviousCharacter.desc;"/>
         <command
             id="cmd_vim_selectDocumentEnd" key="key_cmd_vim_selectDocumentEnd"
-            oncommand="vim_doCommand('cmd_vim_selectDocumentEnd')"
+            oncommand="vim_doCommand('cmd_vim_selectDocumentEnd', event)"
             desc="&editorViSelectToEndOfDocument.desc;"/>
         <command
             id="cmd_vim_selectLinePrevious" key="key_cmd_vim_selectLinePrevious"
-            oncommand="vim_doCommand('cmd_vim_selectLinePrevious')"
+            oncommand="vim_doCommand('cmd_vim_selectLinePrevious', event)"
             desc="&editorViSelectToPreviousLine.desc;"/>
         <command
             id="cmd_vim_selectLineNext" key="key_cmd_vim_selectLineNext"
-            oncommand="vim_doCommand('cmd_vim_selectLineNext')"
+            oncommand="vim_doCommand('cmd_vim_selectLineNext', event)"
             desc="&editorViSelectToNextLine.desc;"/>
         <command
             id="cmd_vim_selectHome" key="key_cmd_vim_selectHome"
-            oncommand="vim_doCommand('cmd_vim_selectHome')"
+            oncommand="vim_doCommand('cmd_vim_selectHome', event)"
             desc="&editorViSelectToBeginningOfLineFirstCharFirstColumn.desc;"/>
         <command
             id="cmd_vim_selectDocumentHome" key="key_cmd_vim_selectDocumentHome"
-            oncommand="vim_doCommand('cmd_vim_selectDocumentHome')"
+            oncommand="vim_doCommand('cmd_vim_selectDocumentHome', event)"
             desc="&editorViSelectToTopOfDocument.desc;"/>
         <command
             id="cmd_vim_selectEnd" key="key_cmd_vim_selectEnd"
-            oncommand="vim_doCommand('cmd_vim_selectEnd')"
+            oncommand="vim_doCommand('cmd_vim_selectEnd', event)"
             desc="&editorViSelectToEndOfLine.desc;"/>
         <command
             id="cmd_vim_selectPageUp" key="key_cmd_vim_selectPageUp"
-            oncommand="vim_doCommand('cmd_vim_selectPageUp')"
+            oncommand="vim_doCommand('cmd_vim_selectPageUp', event)"
             desc="&editorViSelectPageUp.desc;"/>
         <command
             id="cmd_vim_selectPageDown" key="key_cmd_vim_selectPageDown"
-            oncommand="vim_doCommand('cmd_vim_selectPageDown')"
+            oncommand="vim_doCommand('cmd_vim_selectPageDown', event)"
             desc="&editorViSelectPageDown.desc;"/>
         <command
             id="cmd_vim_editSelectAll" key="key_cmd_vim_editSelectAll"
-            oncommand="vim_doCommand('cmd_vim_editSelectAll')"
+            oncommand="vim_doCommand('cmd_vim_editSelectAll', event)"
             desc="&editorViSelectAll.desc;"/>
         <command
             id="cmd_vim_cut" key="key_cmd_vim_cut"
-            oncommand="vim_doCommand('cmd_vim_cut')"
+            oncommand="vim_doCommand('cmd_vim_cut', event)"
             desc="&editorViCut.desc;"/>
         <command
             id="cmd_vim_lineCut" key="key_cmd_vim_lineCut"
-            oncommand="vim_doCommand('cmd_vim_lineCut')"
+            oncommand="vim_doCommand('cmd_vim_lineCut', event)"
             desc="&editorViCutLine.desc;"/>
         <command
             id="cmd_vim_lineCutEnd" key="key_cmd_vim_lineCutEnd"
-            oncommand="vim_doCommand('cmd_vim_lineCutEnd')"
+            oncommand="vim_doCommand('cmd_vim_lineCutEnd', event)"
             desc="&editorViDeletesFromCursorToEndOfLine.desc;"/>
         <command
             id="cmd_vim_cutChar" key="key_cmd_vim_cutChar"
-            oncommand="vim_doCommand('cmd_vim_cutChar')"
+            oncommand="vim_doCommand('cmd_vim_cutChar', event)"
             desc="&editorViCutOneCharacter.desc;"/>
         <command
             id="cmd_vim_cutCharLeft" key="key_cmd_vim_cutCharLeft"
-            oncommand="vim_doCommand('cmd_vim_cutCharLeft')"
+            oncommand="vim_doCommand('cmd_vim_cutCharLeft', event)"
             desc="&editorViCutOneCharacterToLeft.desc;"/>
         <command
             id="cmd_vim_deleteLineToEnd" key="key_cmd_vim_deleteLineToEnd"
-            oncommand="vim_doCommand('cmd_vim_deleteLineToEnd')"
+            oncommand="vim_doCommand('cmd_vim_deleteLineToEnd', event)"
             desc="&editorViCutToEndOfLine.desc;"/>
         <command
             id="cmd_vim_yankLine" key="key_cmd_vim_yankLine"
-            oncommand="vim_doCommand('cmd_vim_yankLine')"
+            oncommand="vim_doCommand('cmd_vim_yankLine', event)"
             desc="&editorViYankLine.desc;"/>
         <command
             id="cmd_vim_yankOperation" key="key_cmd_vim_yankOperation"
-            oncommand="vim_doCommand('cmd_vim_yankOperation')"
+            oncommand="vim_doCommand('cmd_vim_yankOperation', event)"
             desc="&editorViStartYankTextOperation.desc;"/>
         <command
             id="cmd_vim_deleteOperation" key="key_cmd_vim_deleteOperation"
-            oncommand="vim_doCommand('cmd_vim_deleteOperation')"
+            oncommand="vim_doCommand('cmd_vim_deleteOperation', event)"
             desc="&editorViStartDeleteTextOperation.desc;"/>
         <command
             id="cmd_vim_changeOperation" key="key_cmd_vim_changeOperation"
-            oncommand="vim_doCommand('cmd_vim_changeOperation')"
+            oncommand="vim_doCommand('cmd_vim_changeOperation', event)"
             desc="&editorViStartChangeTextOperation.desc;"/>
         <command
             id="cmd_vim_indentOperation" key="key_cmd_vim_indentOperation"
-            oncommand="vim_doCommand('cmd_vim_indentOperation')"
+            oncommand="vim_doCommand('cmd_vim_indentOperation', event)"
             desc="&editorViStartIndentTextOperation.desc;"/>
         <command
             id="cmd_vim_dedentOperation" key="key_cmd_vim_dedentOperation"
-            oncommand="vim_doCommand('cmd_vim_dedentOperation')"
+            oncommand="vim_doCommand('cmd_vim_dedentOperation', event)"
             desc="&editorViStartDedentTextOperation.desc;"/>
 
       <!-- Change commands -->
         <command
             id="cmd_vim_changeChar" key="key_cmd_vim_changeChar"
-            oncommand="vim_doCommand('cmd_vim_changeChar')"
+            oncommand="vim_doCommand('cmd_vim_changeChar', event)"
             desc="&editorViDeleteTheCurrentCharacterAndEnterInsertMode.desc;"/>
         <command
             id="cmd_vim_changeLine" key="key_cmd_vim_changeLine"
-            oncommand="vim_doCommand('cmd_vim_changeLine')"
+            oncommand="vim_doCommand('cmd_vim_changeLine', event)"
             desc="&editorViCutWholeLineAndEnterInsertMode.desc;"/>
         <command
             id="cmd_vim_changeLineEnd" key="key_cmd_vim_changeLineEnd"
-            oncommand="vim_doCommand('cmd_vim_changeLineEnd')"
+            oncommand="vim_doCommand('cmd_vim_changeLineEnd', event)"
             desc="&editorViCutToEndOfLineAndEnterInsertMode.desc;"/>
         <command
             id="cmd_vim_paste" key="key_cmd_vim_paste"
-            oncommand="vim_doCommand('cmd_vim_paste')"
+            oncommand="vim_doCommand('cmd_vim_paste', event)"
             desc="&editorViPaste.desc;"/>
         <command
             id="cmd_vim_pasteAfter" key="key_cmd_vim_pasteAfter"
-            oncommand="vim_doCommand('cmd_vim_pasteAfter')"
+            oncommand="vim_doCommand('cmd_vim_pasteAfter', event)"
             desc="&editorViPasteAfter.desc;"/>
         <command
             id="cmd_vim_replaceChar" key="key_cmd_vim_replaceChar"
-            oncommand="vim_doCommand('cmd_vim_replaceChar')"
+            oncommand="vim_doCommand('cmd_vim_replaceChar', event)"
             desc="&editorViReplaceTheCurrentCharWithTheNextTypedCharacter.desc;"/>
         <command
             id="cmd_vim_overtype" key="key_cmd_vim_overtype"
-            oncommand="vim_doCommand('cmd_vim_overtype')"
+            oncommand="vim_doCommand('cmd_vim_overtype', event)"
             desc="&editorViReplaceCharactersWithTheOnesThatAreTyped.desc;"/>
 
       <!-- Search commands -->
         <command
             id="cmd_vim_enterSearchForward" key="key_cmd_vim_enterSearchForward"
-            oncommand="vim_doCommand('cmd_vim_enterSearchForward')"
+            oncommand="vim_doCommand('cmd_vim_enterSearchForward', event)"
             desc="&findViEnterSearchForward.desc;"/>
         <command
             id="cmd_vim_enterSearchBackward" key="key_cmd_vim_enterSearchBackward"
-            oncommand="vim_doCommand('cmd_vim_enterSearchBackward')"
+            oncommand="vim_doCommand('cmd_vim_enterSearchBackward', event)"
             desc="&findViEnterSearchBackwards.desc;"/>
         <command
             id="cmd_vim_findNext" key="key_cmd_vim_findNext"
-            oncommand="vim_doCommand('cmd_vim_findNext')"
+            oncommand="vim_doCommand('cmd_vim_findNext', event)"
             desc="&findViFindNextPattern.desc;"/>
         <command
             id="cmd_vim_findNextResult" key="key_cmd_vim_findNextResult"
-            oncommand="vim_doCommand('cmd_vim_findNextResult')"
+            oncommand="vim_doCommand('cmd_vim_findNextResult', event)"
             desc="&findViFindNextResult.desc;"/>
         <command
             id="cmd_vim_findPrevious" key="key_cmd_vim_findPrevious"
-            oncommand="vim_doCommand('cmd_vim_findPrevious')"
+            oncommand="vim_doCommand('cmd_vim_findPrevious', event)"
             desc="&findViFindPreviousPattern.desc;"/>
         <command
             id="cmd_vim_findCharInLine" key="key_cmd_vim_findCharInLine"
-            oncommand="vim_doCommand('cmd_vim_findCharInLine')"
+            oncommand="vim_doCommand('cmd_vim_findCharInLine', event)"
             desc="&findViFindTheCharacterTypedAfterCursorInCurrentLine.desc;"/>
         <command
             id="cmd_vim_findPreviousCharInLine" key="key_cmd_vim_findPreviousCharInLine"
-            oncommand="vim_doCommand('cmd_vim_findPreviousCharInLine')"
+            oncommand="vim_doCommand('cmd_vim_findPreviousCharInLine', event)"
             desc="&findViFindTheCharacterTypedBeforeCursorInCurrentLine.desc;"/>
         <command
             id="cmd_vim_findCharInLinePosBefore" key="key_cmd_vim_findCharInLinePosBefore"
-            oncommand="vim_doCommand('cmd_vim_findCharInLinePosBefore')"
+            oncommand="vim_doCommand('cmd_vim_findCharInLinePosBefore', event)"
             desc="&findViFindTheCharacterTypedAfterCursorInCurrentLineMovesToPositionBeforeTheChar.desc;"/>
         <command
             id="cmd_vim_findPreviousCharInLinePosAfter" key="key_cmd_vim_findPreviousCharInLinePosAfter"
-            oncommand="vim_doCommand('cmd_vim_findPreviousCharInLinePosAfter')"
+            oncommand="vim_doCommand('cmd_vim_findPreviousCharInLinePosAfter', event)"
             desc="&findViFindTheCharacterTypedBeforeCursorInCurrentLineMovesToPositionAfterTheChar.desc;"/>
         <command
             id="cmd_vim_repeatLastFindCharInLine" key="key_cmd_vim_repeatLastFindCharInLine"
-            oncommand="vim_doCommand('cmd_vim_repeatLastFindCharInLine')"
+            oncommand="vim_doCommand('cmd_vim_repeatLastFindCharInLine', event)"
             desc="&findViRepeatTheLastFindCharacterInLineCommand.desc;"/>
         <command
             id="cmd_vim_repeatLastFindCharInLineReversed" key="key_cmd_vim_repeatLastFindCharInLineReversed"
-            oncommand="vim_doCommand('cmd_vim_repeatLastFindCharInLineReversed')"
+            oncommand="vim_doCommand('cmd_vim_repeatLastFindCharInLineReversed', event)"
             desc="&findViRepeatTheLastFindCharacterInLineCommandButReverseTheDirection.desc;"/>
         <command
             id="cmd_vim_findWordUnderCursor" key="key_cmd_vim_findWordUnderCursor"
-            oncommand="vim_doCommand('cmd_vim_findWordUnderCursor')"
+            oncommand="vim_doCommand('cmd_vim_findWordUnderCursor', event)"
             desc="&editorViSearchForTheNextOccuranceOfTheWordAtTheCurrentCursorPosition.desc;"/>
         <command
             id="cmd_vim_findWordUnderCursorBack" key="key_cmd_vim_findWordUnderCursorBack"
-            oncommand="vim_doCommand('cmd_vim_findWordUnderCursorBack')"
+            oncommand="vim_doCommand('cmd_vim_findWordUnderCursorBack', event)"
             desc="&editorViSearchForThePreviousOccuranceOfTheWordAtTheCurrentCursorPosition.desc;"/>
         <command
             id="cmd_vim_join" key="key_cmd_vim_join"
-            oncommand="vim_doCommand('cmd_vim_join')"
+            oncommand="vim_doCommand('cmd_vim_join', event)"
             desc="&editorViJoinCurrentAndNextLines.desc;"/>
         <command
             id="cmd_vim_swapCase" key="key_cmd_vim_swapCase"
-            oncommand="vim_doCommand('cmd_vim_swapCase')"
+            oncommand="vim_doCommand('cmd_vim_swapCase', event)"
             desc="&editorViSwapTheCurrentCharacterSCase.desc;"/>
         <command
             id="cmd_vim_jumpToMatchingBrace" key="key_cmd_vim_jumpToMatchingBrace"
-            oncommand="vim_doCommand('cmd_vim_jumpToMatchingBrace')"
+            oncommand="vim_doCommand('cmd_vim_jumpToMatchingBrace', event)"
             desc="&sourceCodeViJumpToMatchingBrace.desc;"/>
         <command
             id="cmd_vim_dedent" key="key_cmd_vim_dedent"
-            oncommand="vim_doCommand('cmd_vim_dedent')"
+            oncommand="vim_doCommand('cmd_vim_dedent', event)"
             desc="&sourceCodeViDecreaseLineIndent.desc;"/>
         <command
             id="cmd_vim_indent" key="key_cmd_vim_indent"
-            oncommand="vim_doCommand('cmd_vim_indent')"
+            oncommand="vim_doCommand('cmd_vim_indent', event)"
             desc="&sourceCodeViIncreaseLineIndent.desc;"/>
         <command
             id="cmd_vim_saveAndClose" key="key_cmd_vim_saveAndClose"
-            oncommand="vim_doCommand('cmd_vim_saveAndClose')"
+            oncommand="vim_doCommand('cmd_vim_saveAndClose', event)"
             desc="&editorViSaveAndCloseTheCurrentBuffer.desc;"/>
         <command
             id="cmd_vim_closeNoSave" key="key_cmd_vim_closeNoSave"
-            oncommand="vim_doCommand('cmd_vim_closeNoSave')"
+            oncommand="vim_doCommand('cmd_vim_closeNoSave', event)"
             desc="&editorViCloseTheCurrentBufferWithoutSaving.desc;"/>
 
         <!-- Vim only commands -->
         <command
             id="cmd_vim_insert_newline_previous" key="key_cmd_vim_insert_newline_previous"
-            oncommand="vim_doCommand('cmd_vim_insert_newline_previous')"
+            oncommand="vim_doCommand('cmd_vim_insert_newline_previous', event)"
             desc="&editorViNewLineStartingBeforeTheCurrentLine.desc;"/>
         <command
             id="cmd_vim_insert_newline_next" key="key_cmd_vim_insert_newline_next"
-            oncommand="vim_doCommand('cmd_vim_insert_newline_next')"
+            oncommand="vim_doCommand('cmd_vim_insert_newline_next', event)"
             desc="&editorViNewLineStartingAfterTheCurrentLine.desc;"/>
         <command
             id="cmd_vim_insert" key="key_cmd_vim_insert"
-            oncommand="vim_doCommand('cmd_vim_insert')"
+            oncommand="vim_doCommand('cmd_vim_insert', event)"
             desc="&editorViEnterInsertMode.desc;"/>
         <command
             id="cmd_vim_insertHome" key="key_cmd_vim_insertHome"
-            oncommand="vim_doCommand('cmd_vim_insertHome')"
+            oncommand="vim_doCommand('cmd_vim_insertHome', event)"
             desc="&editorViEnterInsertModeAtStartOfTheLine.desc;"/>
         <command
             id="cmd_vim_append" key="key_cmd_vim_append"
-            oncommand="vim_doCommand('cmd_vim_append')"
+            oncommand="vim_doCommand('cmd_vim_append', event)"
             desc="&editorViEnterInsertModeAfterTheCursorPosition.desc;"/>
         <command
             id="cmd_vim_appendEnd" key="key_cmd_vim_appendEnd"
-            oncommand="vim_doCommand('cmd_vim_appendEnd')"
+            oncommand="vim_doCommand('cmd_vim_appendEnd', event)"
             desc="&editorViEnterInsertModeAtTheEndOfTheCurrentLine.desc;"/>
 
       <!-- Visual mode commands -->
         <command
             id="cmd_vim_toggleVisualMode" key="key_cmd_vim_toggleVisualMode"
-            oncommand="vim_doCommand('cmd_vim_toggleVisualMode')"
+            oncommand="vim_doCommand('cmd_vim_toggleVisualMode', event)"
             desc="&editorViEnterVisualCharacterMode.desc;"/>
         <command
             id="cmd_vim_toggleVisualLineMode" key="key_cmd_vim_toggleVisualLineMode"
-            oncommand="vim_doCommand('cmd_vim_toggleVisualLineMode')"
+            oncommand="vim_doCommand('cmd_vim_toggleVisualLineMode', event)"
             desc="&editorViEnterVisualLineMode.desc;"/>
         <command
             id="cmd_vim_toggleVisualBlockMode" key="key_cmd_vim_toggleVisualBlockMode"
-            oncommand="vim_doCommand('cmd_vim_toggleVisualBlockMode')"
+            oncommand="vim_doCommand('cmd_vim_toggleVisualBlockMode', event)"
             desc="&editorViEnterVisualBlockMode.desc;"/>
 
       <!-- Special commands -->
         <command
             id="cmd_vim_undo" key="key_cmd_vim_undo"
-            oncommand="vim_doCommand('cmd_vim_undo')"
+            oncommand="vim_doCommand('cmd_vim_undo', event)"
             desc="&editorViUndo.desc;"/>
         <command
             id="cmd_vim_redo" key="key_cmd_vim_redo"
-            oncommand="vim_doCommand('cmd_vim_redo')"
+            oncommand="vim_doCommand('cmd_vim_redo', event)"
             desc="&editorViRedo.desc;"/>
         <command
             id="cmd_vim_cancel" key="key_cmd_vim_cancel"
-            oncommand="vim_doCommand('cmd_vim_cancel')"
+            oncommand="vim_doCommand('cmd_vim_cancel', event)"
             desc="&editorViCancel.desc;"/>
         <command
             id="cmd_vim_enterCommandMode" key="key_cmd_vim_enterCommandMode"
-            oncommand="vim_doCommand('cmd_vim_enterCommandMode')"
+            oncommand="vim_doCommand('cmd_vim_enterCommandMode', event)"
             desc="&editorViEnterCommandMode.desc;"/>
         <command
             id="cmd_vim_repeatLastCommand" key="key_cmd_vim_repeatLastCommand"
-            oncommand="vim_doCommand('cmd_vim_repeatLastCommand')"
+            oncommand="vim_doCommand('cmd_vim_repeatLastCommand', event)"
             desc="&editorViRepeatTheLastCommandAgain.desc;"/>
 
         <!-- Register commands -->
         <command
             id="cmd_vim_setRegister" key="key_cmd_vim_setRegister"
-            oncommand="vim_doCommand('cmd_vim_setRegister')"
+            oncommand="vim_doCommand('cmd_vim_setRegister', event)"
             desc="&editorViSetRegister.desc;"/>
     </commandset>
 </commandset>
