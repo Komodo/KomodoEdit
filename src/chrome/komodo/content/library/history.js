@@ -301,6 +301,7 @@ this.initPopupMenuRecentLocations = function(event) {
         if (delta == 0) {
             menuitem.setAttribute("class", "history-nav-current");
             menuitem.setAttribute("type", "radio");
+            menuitem.setAttribute("checked", "true");
             handler = "event.stopPropagation()";
         } else if (delta > 0) {
             handler = ("ko.history.history_forward(" + delta + ")");
