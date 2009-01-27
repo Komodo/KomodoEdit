@@ -7,6 +7,7 @@
 #include "nsISupports.idl"
 
 interface koIScintillaView;
+interface ISciMoz;
 
 [scriptable, uuid(589dbbf1-4366-4cf8-a542-c860d686050f)]
 interface koIHistoryLocation : nsISupports
@@ -44,5 +45,7 @@ interface koIHistoryService : nsISupports
                          out unsigned long current_idx,
                          [array, size_is(count)] out koIHistoryLocation locs,
                          out unsigned long count);
+    void update_marker_handles_on_close(in wstring uri, in ISciMoz scimoz);
 };
 
+// update
