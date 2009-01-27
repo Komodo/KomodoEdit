@@ -241,10 +241,13 @@ function labelFromLoc(loc) {
     var fname = null, view, lineNo;
     function _callback(view, lineNo) {
         lineNo += 1;
+        var fullPath = null;
+        var finalLabel;
         try {
             if (view) {
                 try {
                     fname = view.document.file.leafName;
+                    fullPath = view.document.displayPath;
                 } catch(ex) {}
             }
             if (!fname) {
@@ -254,7 +257,11 @@ function labelFromLoc(loc) {
             _log.exception("labelFromLoc: " + ex + "\n");
             fname = loc.uri;
         }
-        return fname + ":" + lineNo;
+        var finalLabel = fname + ":" + lineNo;
+        if (fullPath) {
+            finalLabel += " - " + fullPath;
+        }
+        return finalLabel;
     }
     // This is a sync call (not async), but it's coded this way
     // so go_to_location can share common code. 
