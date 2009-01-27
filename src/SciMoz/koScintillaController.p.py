@@ -1018,7 +1018,8 @@ class koScintillaController:
 charClass = {}
 for x in string.letters + string.digits + '_':
     charClass[x] = 'alpha'
-for x in string.whitespace:
+WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
+for x in WHITESPACE:
     charClass[x] = 'whitespace'
 
 
