@@ -129,7 +129,7 @@ this.observe = function(subject, topic, data) {
  *      If not given the current view is used.
  * @returns {koILocation} or null if could not determine a current loc.
  */
-this._get_curr_loc = function(view /* =current view */) {
+function _get_curr_loc(view /* =current view */) {
     if (typeof(view) == "undefined" || view == null) {
         view = ko.views.manager.currentView;
     }
@@ -137,7 +137,7 @@ this._get_curr_loc = function(view /* =current view */) {
     if (!view) {
         // pass
     } else if (view.getAttribute("type") == "editor") {
-        loc = this.controller.historySvc.editor_loc_from_info(
+        loc = _controller.historySvc.editor_loc_from_info(
             "main", // window_name XXX
             0, // multiview_id XXX
             view);
@@ -158,11 +158,11 @@ this._get_curr_loc = function(view /* =current view */) {
  *      a current loc).
  */
 this.note_curr_loc = function note_curr_loc(view /* = currentView */) {
-    var loc = this._get_curr_loc(view);
+    var loc = _get_curr_loc(view);
     if (!loc) {
         return null;
     }
-    return this.controller.historySvc.note_loc(loc);
+    return _controller.historySvc.note_loc(loc);
 };
 
 /** 
@@ -269,7 +269,7 @@ this.initPopupMenuRecentLocations = function(event) {
     }
     var locList = {};
     var currentLocIdx = {};
-    this.controller.historySvc.get_recent_locs(this._get_curr_loc(),
+    _controller.historySvc.get_recent_locs(_get_curr_loc(),
                                                currentLocIdx, locList, {});
     currentLocIdx = currentLocIdx.value;
     locList = locList.value;
@@ -299,15 +299,15 @@ this.initPopupMenuRecentLocations = function(event) {
 }
 
 this.history_back = function(delta) {
-    var loc = this.controller.historySvc.go_back(this._get_curr_loc(), delta);
+    var loc = _controller.historySvc.go_back(_get_curr_loc(), delta);
     this.go_to_location(loc);
 };
 
 this.history_forward = function(delta) {
-    var loc = this.controller.historySvc.go_forward(ko.history._get_curr_loc(), delta);
+    var loc = _controller.historySvc.go_forward(_get_curr_loc(), delta);
     this.go_to_location(loc);
 };
 
-this.controller = new HistoryController();
+var _controller = new HistoryController();
 }).apply(ko.history);
 
