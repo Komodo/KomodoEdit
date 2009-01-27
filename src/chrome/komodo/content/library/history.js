@@ -282,7 +282,12 @@ this.initPopupMenuRecentLocations = function(event) {
     locList = locList.value;
     
     var menuitem, loc;
-    for (var loc, i = 0; loc = locList[i]; ++i) {
+    for (var i = 0; i < locList.length; ++i) {
+        loc = locList[i];
+        if (!loc) {
+            // Null items can come from unhandled views, like the startPage
+            continue;
+        }
         menuitem = document.createElement("menuitem");
         menuitem.setAttribute("label", labelFromLoc(loc));
         menuitem.setAttribute("index", 0);
