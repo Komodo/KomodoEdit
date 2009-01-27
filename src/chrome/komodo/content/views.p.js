@@ -1285,7 +1285,8 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
                                              title, /* default is "Save modified files?" */
                                              prompt, /* default is "Please select the files you wish to save:" */
                                              doNotAskPref, /* default is null */
-                                             skipProjects /* default is false */
+                                             skipProjects, /* default is false */
+                                             aboutToClose /* default is true */
                                              ) {
     // This function offers to save the subset of 'urls' which correspond to dirty
     // files, whether corresponding to views, project files, or GUI dialogs.
@@ -1302,21 +1303,26 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
     // none of them, in case another canclose handler cancels the close operation
     //
     // Note that this function is used in many places throughout the chrome.
+    // Sometimes this is called when files are about to be closed, but not
+    // always -- the actions this function takes are different for the two.
 
     if (typeof(urls) == 'undefined') {
         urls = null;
     }
-    if (typeof(title) == 'undefined') {
+    if (typeof(title) == 'undefined' || title == null) {
         title = _bundle.GetStringFromName("saveModifiedFiles.prompt");
     }
-    if (typeof(prompt) == 'undefined') {
+    if (typeof(prompt) == 'undefined' || prompt == null) {
         title = _bundle.GetStringFromName("pleaseSelectTheFilesYouWishToSave.prompt");
     }
     if (typeof(doNotAskPref) == 'undefined') {
         doNotAskPref = null;
     }
-    if (typeof(skipProjects) == 'undefined') {
+    if (typeof(skipProjects) == 'undefined' || skipProjects == null) {
         skipProjects = false;
+    }
+    if (typeof(aboutToClose) == 'undefined' || aboutToClose == null) {
+        aboutToClose = true;
     }
 
     var views = this.topView.getViews(true);
@@ -1327,7 +1333,7 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
         view = views[i];
         if (!view) continue;
         // Persist view state now, to not have to do it as part of onunload handling
-        if (view.getAttribute('type') == 'editor') {
+        if (aboutToClose && view.getAttribute('type') == 'editor') {
             try {
                 view.saveState();
                 if (ko.macros.eventHandler.hookPreFileClose(view)) {
@@ -1352,7 +1358,8 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
                     continue;
                 }
             }
-            if (!view.document.isUntitled
+            if (aboutToClose
+                && !view.document.isUntitled
                 && ko.windowManager.otherWindowHasViewForURI(view.document.file.URI)) {
                 // Untitled documents can't be in other windows.
                 continue;
