@@ -77,9 +77,9 @@ class KoHistoryService(History):
             pass
         return res
         
-    def note_curr_loc(self, view=None):
-        """Note the current location in the given view (by default the current
-        view).
+    def note_curr_editor_loc(self, view=None):
+        """Note the current location in the given *editor* view (by default
+        the current view).
         
         @param view {koIScintillaView} The view from which to get location
             information. Optional. If not given, defaults to the current
@@ -87,15 +87,13 @@ class KoHistoryService(History):
         @returns {Location}
         """
         if view is None:
-            #XXX:TODO: this can fail. What if the current view is the Start
-            #   Page (not a koIScintillaView)?
             view = components.classes["@activestate.com/koViewService;1"]\
                 .getService(components.interfaces.koIViewService).currentView \
                 .QueryInterface(components.interfaces.koIScintillaView)
         #XXX:TODO: This method needs to accept window_name and multiview_id
-        #          a la editor_loc_from_info().
-        #XXX:TODO: don't pass '-1', the IDL says unsigned
-        loc = self.editor_loc_from_info("XXX", -1, view)
+        #          a la editor_loc_from_info(). That isn't easy because
+        #          some of the callers don't have that info.
+        loc = self.editor_loc_from_info("XXX", 0, view)
         return self.note_loc(loc)
 
     def get_recent_locs(self, curr_loc):

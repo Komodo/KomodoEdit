@@ -265,7 +265,7 @@ class GenericCommandHandler:
         mark = view.transientMark
         if mark == -1:
             return
-        self._koHistorySvc.note_curr_loc(view)
+        self._koHistorySvc.note_curr_editor_loc(view)
         sm.anchor = sm.currentPos = mark
         view.rotateTransientMarkRing()
         sm.scrollCaret()
@@ -314,7 +314,7 @@ class GenericCommandHandler:
             return
         sm = view.scimoz
         view.transientMark = view.scimoz.currentPos
-        self._koHistorySvc.note_curr_loc(view)
+        self._koHistorySvc.note_curr_editor_loc(view)
         sm.currentPos = sm.anchor = mark
         sm.scrollCaret()
 
@@ -1143,7 +1143,7 @@ class GenericCommandHandler:
                 braceAtCaret += 1
         if braceOpposite >= 0:
             if not select:
-                self._koHistorySvc.note_curr_loc(self._view)
+                self._koHistorySvc.note_curr_editor_loc(self._view)
             self._ensureRangeVisible(braceOpposite, braceOpposite)
             if select:
                 sm.anchor = braceAtCaret
