@@ -263,7 +263,6 @@ class koScintillaController:
             sm.anchor = sm.currentPos = pos = max(sm.anchor, sm.currentPos)
             sm.paste()
             sm.anchor = pos
-            sm.sendUpdateCommands("select")
             sm.sendUpdateCommands("clipboard")
             return
         methname= '_do_'+command_name
