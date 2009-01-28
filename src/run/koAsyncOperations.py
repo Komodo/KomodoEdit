@@ -130,8 +130,10 @@ class koAsyncService(object):
                 if aOpCallback:
                     if data is None: data = []
                     # An empty unicode string causes an XPCOM exception when
-                    # calling to the callback handler. Fix that here.
-                    if data is u"": data = ""
+                    # calling to the callback handler. Fix that here. It's
+                    # likely this is due to the callback argument being of
+                    # XPCOM type nsIVariant, see bug 81444.
+                    if isinstance(data, unicode) and data == u"": data = ""
                     try:
                         #print "\n%s: making callback\n" % (name, )
                         if aOp.status == self.STATUS_STOPPING:
