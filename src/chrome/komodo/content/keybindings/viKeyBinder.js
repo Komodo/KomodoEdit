@@ -2696,6 +2696,10 @@ function vim_doCommand(command, event)
             if (mappedCommand[1] & VimController.CANCELS_VISUAL_MODE) {
                 gVimController.mode = VimController.MODE_NORMAL;
             }
+            if (command == "cmd_vim_changeOperation") {
+                // Change on a visual selection will enter insert mode.
+                gVimController.mode = VimController.MODE_INSERT;
+            }
         }
 
         // Enter insert mode if the command specified it or if it's a
