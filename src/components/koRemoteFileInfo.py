@@ -238,6 +238,7 @@ class koRemoteFileInfo:
             try:
                 # Date is in fi[3], I.e Nov 30 or 2005-11-30 format
                 # do we have time, or year?
+                guessedYear = False
                 sp = fi[5].split('-', 2)
                 if len(sp) == 3:
                     # 2005-11-30 format
@@ -253,6 +254,7 @@ class koRemoteFileInfo:
                         hour = year
                         # fix time to be 5 digit always
                         year = "%d"%(time.gmtime(time.time())[0])
+                        guessedYear = True
                     else:
                         hour = "00:00"
 
@@ -272,6 +274,18 @@ class koRemoteFileInfo:
                         t = strptime.strptime(date, '%b %d %Y %H:%M')
 
                 self.st_mtime = time.mktime(t)
+                if guessedYear:
+                    # Bug 81475.
+                    # If the time is more than a day ahead, set it back one
+                    # year. For example, we recieved: "Dec 31 23:29", but
+                    # if today's date is "March 18 2009", then the year should
+                    # actually be 2008, otherwise the date is in the future...
+                    # A date too far ahead is defined as two days greater than
+                    # the current local machine time (> 99% correct).
+                    if self.st_mtime >= time.time() + (2 * 60 * 60 * 24):
+                        t = list(t)
+                        t[0] -= 1
+                        self.st_mtime = time.mktime(t)
 
             except Exception, e:     # Error parsing the date field
                 #print "\n%s" % e
@@ -418,7 +432,8 @@ def _test():
     # Unix file listing
     print "Test %02d:" % (test_number),
     fileinfo = koRemoteFileInfo()
-    l = '-rw-r--r--    1 501      501       8502738 Oct 10 15:31 Python-2.3.4.tgz'
+    l = '-rw-r--r--    1 501      501       8502738 Dec 31 23:59 Python-2.3.4.tgz'
+    gm_now = time.gmtime()
     if fileinfo.initFromDirectoryListing("testingdir", l):
         if fileinfo.getFilename() != 'Python-2.3.4.tgz':
             print "FAILED: Incorrect filename: '%s'" % fileinfo.getFilename()
@@ -440,6 +455,9 @@ def _test():
             print "FAILED: Incorrect isWriteable: '%r'" % fileinfo.isWriteable()
         elif fileinfo.isHidden() != False:
             print "FAILED: Incorrect isHidden: '%r'" % fileinfo.isHidden()
+        elif (gm_now[1] <= 11 or gm_now[2] <= 29) and \
+             fileinfo.getModifiedTime() > time.time():
+            print "FAILED: The time was parsed as sometime in the future: %s" % (time.ctime(fileinfo.getModifiedTime()), )
         else:
             print "Passed"
     else:
