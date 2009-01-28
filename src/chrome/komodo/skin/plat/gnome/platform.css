@@ -77,7 +77,7 @@ menubar {
 */
 
 /* unified back button with keyhole icons, small icons mode */
-
+/*
 toolbar #historyBackButton {
   padding-left: 0;
   padding-right: 0;
@@ -103,7 +103,7 @@ toolbar #historyForwardButton {
 toolbar #historyForwardButton[disabled="true"] {
   list-style-image : url("moz-icon://stock/gtk-go-forward-ltr?size=toolbar&state=disabled");
 }
-
+*/
 toolbar #historyRecentLocations {
   padding-left: 0;
   padding-right: 0;
