@@ -125,6 +125,14 @@ function keypressInterrupt(event) {
     var key = gMainWindow.gKeybindingMgr.event2keylabel(event);
     if (!key) return;
     var command = gMainWindow.gKeybindingMgr.key2command[key];
+    // When not the main window, do not handle cmd_delete in a textbox,
+    // otherwise a textbox widget will not work correctly from a XUL dialog.
+    // Bug 65504.
+    if ((gMainWindow != window) && (command == 'cmd_delete') &&
+        ('originalTarget' in event) &&
+        (event.originalTarget.nodeName == "html:input")) {
+        return;
+    }
     if (command && ko.commands.doCommand(command))
         event.preventDefault();
 }
