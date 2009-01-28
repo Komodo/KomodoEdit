@@ -258,22 +258,25 @@ class KoWebbrowser(object):
         "camino": "camino",
         "internetexplorer": "iexplore",
         "mozilla": "mozilla",
-        "flock": "flock",
         "opera": "opera",
         "safari": "safari",
         "googlechrome": "chrome",
-        "flock": "flock",
         "konqueror": "konqueror",
         "kfm": "kfm",
     }
-    _mac_app_name_from_browser_type = {
-        "firefox": "Firefox",
-        "safari": "Safari",
-        "camino": "Camino",
-        "mozilla": "Mozilla",
-        "opera": "Opera",
-        "flock": "Flock",
-    }
+    if sys.platform == "win32":
+        _exe_name_from_browser_type['flock'] = 'flock'
+    elif sys.platform != "darwin"
+        _exe_name_from_browser_type['flock'] = 'flock-bin'
+    else:
+        _mac_app_name_from_browser_type = {
+            "firefox": "Firefox",
+            "safari": "Safari",
+            "camino": "Camino",
+            "mozilla": "Mozilla",
+            "opera": "Opera",
+            "flock": "Flock",
+        }
 
 
     def get_possible_browsers(self):
@@ -379,6 +382,7 @@ class KoWebbrowser(object):
                                  "konqueror",
                                  "mozilla",
                                  "opera",
+                                 "flock",
                                  "kfm"):
                 exe_name = self._exe_name_from_browser_type.get(browser_type, browser_type)
                 for browser in which.whichall(exe_name, path=path):
