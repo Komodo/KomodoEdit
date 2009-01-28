@@ -1466,8 +1466,6 @@
             grippyhidden="true"
             broadcaster="cmd_viewedittoolbar"
             tooltiptext="&standardToolbar.tooltiptext;">
-            <toolbaritem id="unifiedHistoryBackForwardDropButton"
-                    >
                 <toolbarbutton id="historyBackButton"
                     tooltiptext="&historyBack.tooltiptext;"
                     persist="buttonstyle"
@@ -1491,8 +1489,8 @@
                                oncommand="event.stopPropagation();"
                                />
                 </toolbarbutton>
-            </toolbaritem>
             <toolbarseparator/>
+
             <toolbarbutton id="newButton"
                 tooltiptext="&newFileUsingDefaultLanguage.tooltiptext;"
                 observes="cmd_new"
