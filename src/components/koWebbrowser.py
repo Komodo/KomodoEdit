@@ -266,7 +266,7 @@ class KoWebbrowser(object):
     }
     if sys.platform == "win32":
         _exe_name_from_browser_type['flock'] = 'flock'
-    elif sys.platform != "darwin"
+    elif sys.platform != "darwin":
         _exe_name_from_browser_type['flock'] = 'flock-bin'
     else:
         _mac_app_name_from_browser_type = {
