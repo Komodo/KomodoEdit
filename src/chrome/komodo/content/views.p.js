@@ -2346,9 +2346,8 @@ this.wrapScintillaChange = function(view, func) {
  * @param {Object(koIScintillaView)} view
  * @param {Number} lineNo - one-based line number
  * @param {Boolean} showDirty - put a "*" in the label if the view's document is dirty
- * @returns {Array} returns one or two values.  The first is the label, or null
- *        if no label can be calculated, in which case the array has only one item.
- *        The second value is the tooltip.
+ * @returns {Array} returns two values: the label and a suggested tooltip.
+ *             If no label can be calculated, both items are null.
  */
 this.labelsFromView = function(view,
                                lineNo, /*=null*/
@@ -2360,11 +2359,12 @@ this.labelsFromView = function(view,
     if (typeof(showDirty) == "undefined") {
         showDirty = false;
     }
+    var label = null, tooltip = null;
     if (view.document) {
         // Example:
         //  "C:\trentm\tmp\foo.py" -> "foo.py (C:\trentm\tmp)"
         var doc = view.document;
-        var path = doc.displayPath;
+        var path = tooltip = doc.displayPath;
         var idx = path.lastIndexOf("/");
         if (idx == -1) {
             idx = path.lastIndexOf("\\");
@@ -2386,9 +2386,8 @@ this.labelsFromView = function(view,
         if (dir) {
             label += " (" + dir + ")";
         }
-        return [label, path];
     }
-    return [null];
+    return [label, tooltip];
 };
 
 }).apply(ko.views);
