@@ -1059,8 +1059,8 @@ class CSSBuffer(Buffer):
     sce_prefixes = ["SCE_CSS_"]
     # Removed '(' - double braces for completions that contain a '(' (bug 80063)
     # Removed '.' - conflict with floating point values: .5em (bug 80126)
-    cpln_fillup_chars = " '\";},>/"
-    cpln_stop_chars = " ('\";},.>/"
+    cpln_fillup_chars = " '\";{},>/#"
+    cpln_stop_chars = " ('\";{},.>/#"
 
 
 
