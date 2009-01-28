@@ -432,11 +432,11 @@ def _test():
             print "FAILED: Incorrect isExecutable: '%r'" % fileinfo.isExecutable()
         elif fileinfo.isFile() != True:
             print "FAILED: Incorrect isFile: '%r'" % fileinfo.isFile()
-        elif fileinfo.isReadable() != True:
+        elif not fileinfo.isReadable():
             print "FAILED: Incorrect isReadable: '%r'" % fileinfo.isReadable()
         elif fileinfo.isSymlink() != False:
             print "FAILED: Incorrect isSymlink: '%r'" % fileinfo.isSymlink()
-        elif fileinfo.isWriteable() != True:
+        elif not fileinfo.isWriteable():
             print "FAILED: Incorrect isWriteable: '%r'" % fileinfo.isWriteable()
         elif fileinfo.isHidden() != False:
             print "FAILED: Incorrect isHidden: '%r'" % fileinfo.isHidden()
@@ -461,11 +461,11 @@ def _test():
             print "FAILED: Incorrect isExecutable: '%r'" % fileinfo.isExecutable()
         elif fileinfo.isFile() != False:
             print "FAILED: Incorrect isFile: '%r'" % fileinfo.isFile()
-        elif fileinfo.isReadable() != True:
+        elif not fileinfo.isReadable():
             print "FAILED: Incorrect isReadable: '%r'" % fileinfo.isReadable()
         elif fileinfo.isSymlink() != False:
             print "FAILED: Incorrect isSymlink: '%r'" % fileinfo.isSymlink()
-        elif fileinfo.isWriteable() != True:
+        elif not fileinfo.isWriteable():
             print "FAILED: Incorrect isWriteable: '%r'" % fileinfo.isWriteable()
         elif fileinfo.isHidden() != False:
             print "FAILED: Incorrect isHidden: '%r'" % fileinfo.isHidden()
