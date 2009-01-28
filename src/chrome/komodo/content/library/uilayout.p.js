@@ -784,13 +784,23 @@ function _updateWindowList_createMenuItem(view, index, isCurrent)
         var menuitem = document.createElement('menuitem');
         menuitem.setAttribute('data', 'fileItem');
         menuitem.setAttribute('id', view.uid);
-        menuitem.setAttribute("label", (index + 1) + " " + view.title);
+        var labels = ko.views.labelsFromView(view, null, true);
+        var label = labels[0];
+        if (!label) {
+            label = view.title;
+        }
+        label = (index + 1) + " " + label;
+        menuitem.setAttribute("label", label);
         if (index+1 <= 9) {
             menuitem.setAttribute("accesskey", index+1);
         }
         menuitem.setAttribute('type', 'checkbox');
+        if (labels[1]) {
+            menuitem.setAttribute("tooltiptext", labels[1]);
+        }
         if (isCurrent) {
             menuitem.setAttribute('checked', 'true');
+            menuitem.setAttribute('class', 'primary_menu_item');
             // No need to switch view oncommand, this view is already current.
             // However we *do* need to ensure that the checkmark stays.
             // See http://bugs.activestate.com/show_bug.cgi?id=26423

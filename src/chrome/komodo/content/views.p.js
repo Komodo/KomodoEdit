@@ -2339,6 +2339,58 @@ this.wrapScintillaChange = function(view, func) {
     }
 };
 
+
+/**
+ * Shared code that returns a label and tooltip based on the supplied view,
+ * suitable for a menuitem.  
+ * @param {Object(koIScintillaView)} view
+ * @param {Number} lineNo - one-based line number
+ * @param {Boolean} showDirty - put a "*" in the label if the view's document is dirty
+ * @returns {Array} returns one or two values.  The first is the label, or null
+ *        if no label can be calculated, in which case the array has only one item.
+ *        The second value is the tooltip.
+ */
+this.labelsFromView = function(view,
+                               lineNo, /*=null*/
+                               showDirty /* false */
+                               ) {
+    if (typeof(lineNo) == "undefined") {
+        lineNo = null;
+    }
+    if (typeof(showDirty) == "undefined") {
+        showDirty = false;
+    }
+    if (view.document) {
+        // Example:
+        //  "C:\trentm\tmp\foo.py" -> "foo.py (C:\trentm\tmp)"
+        var doc = view.document;
+        var path = doc.displayPath;
+        var idx = path.lastIndexOf("/");
+        if (idx == -1) {
+            idx = path.lastIndexOf("\\");
+        }
+        var dir = null;
+        var label;
+        if (idx != -1) {
+            dir = path.substring(0, idx);
+            label = path.substring(idx+1);  // basename
+        } else {
+            label = path;
+        }
+        if (lineNo != null) {
+            label += ":" + lineNo;
+        }
+        if (showDirty && doc.isDirty) {
+            label += " *";
+        }
+        if (dir) {
+            label += " (" + dir + ")";
+        }
+        return [label, path];
+    }
+    return [null];
+};
+
 }).apply(ko.views);
 
 if (typeof(ko.workspace) == "undefined") {
@@ -2594,6 +2646,7 @@ this.saveWorkspace = function view_saveWorkspace()
 }
 
 }).apply(ko.workspace);
+
 
 ko.window = {};
 (function() {

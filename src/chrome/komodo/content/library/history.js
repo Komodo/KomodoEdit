@@ -53,6 +53,10 @@ ko.history = {};
     
 var _log = ko.logging.getLogger('history');
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/views.properties");
+    
 function HistoryController() {
     this.historySvc = Components.classes["@activestate.com/koHistoryService;1"].
                 getService(Components.interfaces.koIHistoryService);
@@ -238,31 +242,28 @@ this.go_to_location = function go_to_location(loc) {
 };
 
 function labelFromLoc(loc) {
-    var fname = null, view, lineNo;
+    var baseName = null, view, lineNo;
     function _callback(view, lineNo) {
         lineNo += 1;
         var dirName = null;
-        var finalLabel;
+        var finalLabel, label, tooltiptext;
         try {
-            // See code at scrolltabs.xml#_createMenuItem
-            // for full details on parsing URIs into parts.
             if (view) {
-                try {
-                    var koFile = view.document.file;
-                    fname = koFile.leafName;
-                    dirName = koFile.dirName;
-                } catch(ex) {}
+                var labels = ko.views.labelsFromView(view, lineNo);
+                if (labels[0]) {
+                    return labels[0];
+                }
             }
-            if (!fname) {
-                // If there is no '/', we end up taking substr(-1 + 1),
-                // which gives the full uri, which is fine.
-                fname = loc.uri.substr(loc.uri.lastIndexOf("/") + 1);
+            var lastSlash = loc.uri.lastIndexOf("/");
+            baseName = loc.uri.substr(lastSlash + 1);
+            if (lastSlash > -1) {
+                dirName = loc.uri.substr(0, lastSlash);
             }
         } catch(ex) {
             _log.exception("labelFromLoc: " + ex + "\n");
-            fname = loc.uri;
+            baseName = loc.uri;
         }
-        var finalLabel = fname + ":" + lineNo;
+        var finalLabel = baseName + ":" + lineNo;
         if (dirName) {
             finalLabel += " (" + dirName + ")";
         }
@@ -293,6 +294,7 @@ this.initPopupMenuRecentLocations = function(event) {
             // Null items can come from unhandled views, like the startPage
             continue;
         }
+        var tooltip;
         menuitem = document.createElement("menuitem");
         menuitem.setAttribute("label", labelFromLoc(loc));
         menuitem.setAttribute("index", 0);
@@ -300,14 +302,18 @@ this.initPopupMenuRecentLocations = function(event) {
         var delta = currentLocIdx - i;
         if (delta == 0) {
             menuitem.setAttribute("class", "history-nav-current");
-            menuitem.setAttribute("type", "radio");
+            menuitem.setAttribute("type", "checkbox");
             menuitem.setAttribute("checked", "true");
             handler = "event.stopPropagation()";
+            tooltip = _bundle.GetStringFromName("historyStayAtCurrentLocation");
         } else if (delta > 0) {
-            handler = ("ko.history.history_forward(" + delta + ")");
+            handler = "ko.history.history_forward(" + delta + ")";
+            tooltip = _bundle.GetStringFromName("historyGoForwardToThisLocation");
         } else {
-            handler = ("ko.history.history_back(" + (-1 * delta) + ")");
+            handler = "ko.history.history_back(" + (-1 * delta) + ")";
+            tooltip = _bundle.GetStringFromName("historyGoBackToThisLocation");
         }
+        menuitem.setAttribute("tooltiptext", tooltip);
         menuitem.setAttribute("oncommand", handler);
         popupMenu.appendChild(menuitem);
     }

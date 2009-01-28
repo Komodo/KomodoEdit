@@ -296,37 +296,16 @@
                     var menuitem = document.createElementNS(XUL_NS, "menuitem");
                     menuitem.setAttribute('crop', 'center');
                     
-                    var label = tab.label;
-                    var tooltiptext = label;
+                    var label = null, tooltiptext;
                     try {
                         var view = document.getElementById(tab.linkedPanel).firstChild;
-                        if (view.document) {
-                            // Example:
-                            //  "C:\trentm\tmp\foo.py" -> "foo.py (C:\trentm\tmp)"
-                            var doc = view.document;
-                            var path = doc.displayPath;
-                            var idx = path.lastIndexOf("/");
-                            if (idx == -1) {
-                                idx = path.lastIndexOf("\\");
-                            }
-                            var dir = null;
-                            if (idx != -1) {
-                                dir = path.substring(0, idx);
-                                label = path.substring(idx+1);  // basename
-                            } else {
-                                label = path;
-                            }
-                            if (doc.isDirty) {
-                                label += " *";
-                            }
-                            if (dir) {
-                                label += " (" + dir + ")";
-                            }
-                            tooltiptext = path;
-                        }
+                        [label, tooltiptext] = ko.views.labelsFromView(view, null, true);
                     } catch (ex) {
                         var _log = ko.logging.getLogger("scrolltabs");
                         _log("error calculating tab label '"+label+"': "+ex+"\n");
+                    }
+                    if (!label) {
+                        tooltiptext = label = tab.label;
                     }
                     menuitem.setAttribute("label", label);
                     menuitem.setAttribute("tooltiptext", tooltiptext);
@@ -345,6 +324,8 @@
                     
                     if (tab.selected) {
                         menuitem.setAttribute('class', 'selected');
+                        menuitem.setAttribute('type', 'checkbox');
+                        menuitem.setAttribute('checked', 'true');
                     } else {
                         menuitem.setAttribute('oncommand', 'this.tab.control.selectedItem = this.tab;');
                     }
