@@ -75,6 +75,7 @@
 <!ENTITY editorViMoveOneWordLeftPastAnyPunctuation.desc "Editor: Vi: Move one word left, past any punctuation">
 <!ENTITY editorViMoveOneWordRightPastAnyPunctuation.desc "Editor: Vi: Move one word right, past any punctuation">
 <!ENTITY editorViMoveRightOneCharacter.desc "Editor: Vi: Move Right One Character">
+<!ENTITY editorViMoveToBeginningOfDocument.desc "Editor: Vi: Move to Beginning of the Document">
 <!ENTITY editorViMoveToBeginningOfLineFirstVisibleCharFirstColumn.desc "Editor: Vi: Move to Beginning of Line (first visible char/first column)">
 <!ENTITY editorViMoveToBeginningOfTheCurrentLine.desc "Editor: Vi: Move to Beginning of the Current Line">
 <!ENTITY editorViMoveToBeginningOfTheNextLine.desc "Editor: Vi: Move to Beginning of the Next Line">

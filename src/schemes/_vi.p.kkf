@@ -71,6 +71,7 @@ binding cmd_vim_scrollHalfPageUp  Ctrl+U
 binding cmd_vim_pageDown  Ctrl+F
 binding cmd_vim_pageUp  Ctrl+B
 binding cmd_vim_gotoLine  G
+binding cmd_vim_documentHome  g g
 binding cmd_vim_lineScrollUp  Ctrl+Y
 binding cmd_vim_lineScrollDown  Ctrl+E
 

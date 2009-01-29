@@ -85,6 +85,10 @@
             oncommand="vim_doCommand('cmd_vim_home', event)"
             desc="&editorViMoveToBeginningOfLineFirstVisibleCharFirstColumn.desc;"/>
         <command
+            id="cmd_vim_documentHome" key="key_cmd_vim_documentHome"
+            oncommand="vim_doCommand('cmd_vim_documentHome', event)"
+            desc="&editorViMoveToBeginningOfDocument.desc;"/>
+        <command
             id="cmd_vim_end" key="key_cmd_vim_end"
             oncommand="vim_doCommand('cmd_vim_end', event)"
             desc="&editorViMoveToEndOfCurrentLine.desc;"/>

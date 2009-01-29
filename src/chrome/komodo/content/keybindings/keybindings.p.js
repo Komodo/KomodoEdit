@@ -282,6 +282,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 7: Komodo 5.1.0 - vi: add "gg" for document home command
  * 6: Komodo 5.1.0 - add alt-left and alt-right for history
  * 5: Komodo 5.0.0 (*after* 5.0.0b1)
  * 4: Komodo 4.4.0
@@ -289,7 +290,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 6;
+const currentKeybindingVersionNumber = 7;
 
 /**
  * Remove this dictionary of keybinds.
@@ -517,7 +518,15 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                     "cmd_historyBack":    [ "Meta+Alt+Left" ],
                     "cmd_historyForward": [ "Meta+Alt+Right" ]
                 });
+                break;
 // #endif
+            case 6:
+                if (vi_enabled) {
+                    this._add_keybinding_sequences({
+                        "cmd_vim_documentHome":    [ "g, g" ]
+                    });
+                }
+                break;
         }
         from_version += 1;
     }
