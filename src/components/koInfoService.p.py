@@ -105,6 +105,26 @@ class KoInfoService(object):
             if KOMODO_NONINTERACTIVE:
                 self.nonInteractiveMode = 1
 
+        self._usedWindowNums = set()
+        self._nextAvailWindowNum = 1
+        
+    def nextWindowNum(self):
+        retVal = self._nextAvailWindowNum
+        if retVal in self._usedWindowNums:
+            while True:
+                retVal += 1
+                if retVal not in self._usedWindowNums:
+                    break
+        self._usedWindowNums.add(retVal)
+        self._nextAvailWindowNum = retVal + 1
+        return retVal
+        
+    def setUsedWindowNum(self, val):
+        if val in self._usedWindowNums:
+            raise ServerException(nsError.NS_ERROR_FAILURE,
+                                  "setUsedWindowNum: %d already in use" % val)
+        self._usedWindowNums.add(val)
+
 if __name__ == "__main__":
     info = components.classes['@activestate.com/koInfoService;1'].\
         getService(components.interfaces.koIInfoService)

@@ -74,5 +74,9 @@ interface koIInfoService : nsISupports {
     // Currently non-interactive mode is intiated if the
     // KOMODO_NONINTERACTIVE environment variable is non-zero.
     readonly attribute boolean nonInteractiveMode;
-
+    
+    // This belongs better in a koIWindowService.
+    // Tracks a set of used IDs (small integers)
+    long nextWindowNum();
+    void setUsedWindowNum(in long num);  // used for workspace restore
 };
