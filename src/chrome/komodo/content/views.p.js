@@ -2572,6 +2572,21 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         }
         wko._hasFocus = (workspace.hasBooleanPref('hasFocus')
                          && workspace.getBooleanPref('hasFocus'));
+        var infoService = Components.classes["@activestate.com/koInfoService;1"].
+                            getService(Components.interfaces.koIInfoService);
+        if (workspace.hasPref('windowNum')) {
+            var windowNum = workspace.getLongPref('windowNum');
+            currentWindow._koNum = windowNum;
+            try {
+                infoService.setUsedWindowNum(windowNum);
+            } catch(ex) {
+                // It turns out that the window # saved in the old workspace
+                // has already been assigned.
+                currentWindow._koNum = infoService.nextWindowNum();
+            }
+        } else {
+            currentWindow._koNum = infoService.nextWindowNum();
+        } 
     } catch(ex) {
         log.exception(ex, "Error restoring workspace:");
     }
@@ -2636,6 +2651,7 @@ this.saveWorkspace = function view_saveWorkspace()
                 }
             }
             wko.uilayout.saveTabSelections(workspace);
+            workspace.setLongPref('windowNum', thisWindow._koNum);
         }
         // Save prefs
         gPrefSvc.saveState();

@@ -268,12 +268,6 @@ function onloadDelay() {
             ko.open.startPage();
         }
 
-        // We need to give each window its unique ID before we start
-        // hitting the history system.
-        window._koNum = (Components.classes["@activestate.com/koInfoService;1"].
-                         getService(Components.interfaces.koIInfoService).
-                         nextWindowNum());
-
         // the offer to restore the workspace needs to be after the
         // commandments system is initialized because the commandments mechanism
         // is how the determination of 'running in non-interactive mode' happens,
@@ -300,6 +294,13 @@ function onloadDelay() {
             if ('workspaceIndex' in arg) {
                 ko.workspace.restoreWorkspaceByIndex(window, arg.workspaceIndex);
             } else {
+                if (!restoreWorkspace) {
+                    // We need to give each window its unique ID before we start
+                    // hitting the history system.
+                    window._koNum = (Components.classes["@activestate.com/koInfoService;1"].
+                                     getService(Components.interfaces.koIInfoService).
+                                     nextWindowNum());
+                }
                 var urllist;
                 if ('uris' in arg) {
                     urllist = arg.uris; // Called from ko.launch.newWindow(uri)
