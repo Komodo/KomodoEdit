@@ -40,6 +40,7 @@
 <!-- #if PRODUCT_TYPE == "edit" -->
     <?define ProductCode = "be8d6bfc-fe20-44b2-abd4-c1c0cbc001dc" ?>
     <?define UpgradeCode = "18696cc6-958f-4093-9411-b4836c4b469a" ?>
+<!-- #else -->
 <!-- #error "Invalid product type." -->
 <!-- #endif -->
 </Include>
