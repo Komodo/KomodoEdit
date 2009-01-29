@@ -1313,6 +1313,9 @@
             disabled="true"
             oncommand="ko.commands.doCommandAsync('cmd_historyForward', event)"
             desc="&editorHistoryForward.desc;" />
+        <command
+            id="cmd_historyRecentLocations"
+            disabled="true" />
     </commandset>
 
     <!-- Commands that need to be updated when the dirtyness of the
