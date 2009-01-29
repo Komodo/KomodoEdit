@@ -142,6 +142,8 @@ interface koIView : koIViewList
     void printView(); // 'print' is a python keyword :(
     attribute koIPreferenceSet prefs;
     attribute koILanguage languageObj;
+    attribute long tabbedViewId;
+    attribute long windowNum;
 };
 
 interface koIScintillaScheme;

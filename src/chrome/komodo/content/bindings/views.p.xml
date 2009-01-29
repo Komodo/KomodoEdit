@@ -711,6 +711,34 @@
             onget="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"/>
 
         <property name="isDirty">false</property>
+ 
+        <property name="tabbedViewId">
+            <getter><![CDATA[
+            // Warning: Brittle XBL code ahead:
+            // Move up four levels to get the tabbedView container,
+            // with ID either 'view-1' or 'view-2'
+            var tabbedViewContainer = this.parentNode.parentNode.parentNode.parentNode;
+            // Sanity check.
+            if (tabbedViewContainer.localName != 'view'
+                || tabbedViewContainer.getAttribute("type") != "tabbed"
+                || tabbedViewContainer.id.indexOf("view-") != 0) {
+                throw new Error("view.tabbedViewId: expected the tabbedView, got node"
+                                + tabbedViewContainer.localName
+                                + " id:"
+                                + (tabbedViewContainer.id || "<none>")
+                                + "\n");
+            }
+            return (new Number(tabbedViewContainer.id.replace(/^view-/, ''))).valueOf();
+            ]]></getter>
+        </property>
+        
+        <property name="windowNum">
+            <getter><![CDATA[
+            // Calling this method on a particular view will find the right window object.
+            return window._koNum;
+            ]]></getter>
+        </property>
+
 
         <method name="getState">
         <body>
