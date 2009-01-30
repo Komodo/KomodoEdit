@@ -302,7 +302,7 @@
                         [label, tooltiptext] = ko.views.labelsFromView(view, null, true);
                     } catch (ex) {
                         var _log = ko.logging.getLogger("scrolltabs");
-                        _log("error calculating tab label '"+label+"': "+ex+"\n");
+                        _log.exception("error calculating tab label '"+label+"': "+ex+"\n");
                     }
                     if (!label) {
                         tooltiptext = label = tab.label;
