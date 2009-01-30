@@ -2416,6 +2416,8 @@ VimController.visualmode_command_mappings = {
     "cmd_vim_documentEnd" :     "cmd_vim_selectDocumentEnd",
     "cmd_vim_indentOperation" : "cmd_vim_indent_visual",
     "cmd_vim_dedentOperation" : "cmd_vim_dedent_visual",
+    // In visual mode, a pasteAfter "p" command works the same as paste "P".
+    "cmd_vim_pasteAfter"      : "cmd_vim_paste",
     "": ""
 }
 

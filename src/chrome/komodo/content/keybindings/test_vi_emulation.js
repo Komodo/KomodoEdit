@@ -279,8 +279,10 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
     }
     // <|> represents the cursor position
     var bufferOrig = buffers[0];
+    var anchorOrigPos = bufferOrig.indexOf("<^>");
+    var bufOrig = bufferOrig.replace("<^>", "");
     var cursorOrigPos = bufferOrig.indexOf("<|>");
-    var bufOrig = bufferOrig.replace("<|>", "");
+    bufOrig = bufferOrig.replace("<|>", "");
     // Set the buffer text in scimoz
     //this.view.setFocus();
     this.scimoz.text = bufOrig;
@@ -292,6 +294,9 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
         this.scimoz.gotoPos(cursorOrigPos);
         // Ensure we don't drift due to caretX settings
         this.scimoz.chooseCaretX();
+    }
+    if (anchorOrigPos >= 0) {
+        this.scimoz.anchor = anchorOrigPos;
     }
     cmd = "cmd_vim_" + cmd;
     // buffersNew is a array of buffers that we should get, one for each
@@ -307,6 +312,7 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
         }
         vim_doCommand(cmd);
         // Compare the results
+        buf = buf.replace("<^>", "");
         var cursorNewPos = buf.indexOf("<|>");
         buf = buf.replace("<|>", "");
         log.debug("buf[" + i + "]:      '" + buf + "'");
@@ -1543,6 +1549,33 @@ test_vi_emulation.prototype.test_bug81184_no_eol_at_eof = function() {
     this._runCommand("pasteAfter",
                      ["this is<|>",
                       "this is\r\n<|>this is"],
+                     NO_REPETITION,
+                     VimController.OPERATION_NONE,
+                     null,
+                     false);
+}
+
+test_vi_emulation.prototype.test_bug81576_paste_in_visual_mode = function() {
+    /* Both cmd_paste and cmd_pasteAfter should work the same in visual mode. */
+    this._reset();
+    gVimController.mode = VimController.MODE_VISUAL;
+    gVimController._copyMode = VimController.COPY_LINES;
+    gVimController._internalBuffer = "line1.5\r\n";
+    this._runCommand("pasteAfter",
+                     ["line1\r\n<^>line2\r\n<|>line3\r\n",
+                      "line1\r\n<^><|>line1.5\r\nline3\r\n"],
+                     NO_REPETITION,
+                     VimController.OPERATION_NONE,
+                     null,
+                     false);
+
+    this._reset();
+    gVimController.mode = VimController.MODE_VISUAL;
+    gVimController._copyMode = VimController.COPY_LINES;
+    gVimController._internalBuffer = "line1.5\r\n";
+    this._runCommand("paste",
+                     ["line1\r\n<^>line2\r\n<|>line3\r\n",
+                      "line1\r\n<^><|>line1.5\r\nline3\r\n"],
                      NO_REPETITION,
                      VimController.OPERATION_NONE,
                      null,
