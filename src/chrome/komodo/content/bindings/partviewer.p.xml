@@ -95,7 +95,6 @@
             <field name="datapoints">{}</field>
             <field name="manager"/>
             <field name="_filterTimer">null</field>
-            <field name="_currentProject">null</field>
 
             <property name="tree">
                 <getter>

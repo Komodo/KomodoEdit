@@ -109,7 +109,7 @@ function projectManager() {
     // add our default datapoint
     this.viewMgr.addColumns(ko.projects.extensionManager.datapoints);
     ko.projects.extensionManager.datapoints['Name']='Name';
-    this._currentProject = null;
+    this._lastCurrentProject = null;
     ko.trace.get().leave('projectManager()');
 }
 
@@ -208,6 +208,9 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
     // Remove the project node/part from the Projects tree.
     this.viewMgr.view.removeProject(project);
     // the active project has been reset
+    if (this.currentProject) {
+        this._lastCurrentProject = this.currentProject;
+    }
 
     // Forget about any notifications made for this project.
     this.notifiedClearProject(project);
@@ -581,7 +584,7 @@ projectManager.prototype.__defineSetter__("currentProject",
 function(project)
 {
     this.viewMgr.view.currentProject = project;
-    this._currentProject = project;
+    this._lastCurrentProject = project;
     /* XXX FIXME SMC old logic, broken with live projects
     if (this._projects.indexOf(project) >= 0) {
         this.viewMgr.view.currentProject = project;
@@ -607,9 +610,15 @@ projectManager.prototype.setCurrentProject = function(project) {
 projectManager.prototype.__defineGetter__("currentProject",
 function()
 {
+    return this.viewMgr.view.currentProject;
+});
+
+projectManager.prototype.__defineGetter__("lastCurrentProject",
+function()
+{
     // At shutdown the projects are unloaded from the view
     // before the saveWorkspace routine runs.
-    return this.viewMgr.view.currentProject || this._currentProject;
+    return this._lastCurrentProject;
 });
 
 projectManager.prototype.getCurrentProject = function() {
