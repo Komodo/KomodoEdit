@@ -641,6 +641,19 @@ class CplnTestCase(CodeIntelTestCase):
              ('%variable', 'subhash'),
              ('$variable', 'subscalar')])
 
+    @tag("bug80856")
+    def test_bug80856a(self):
+        content, positions = unmark_text(dedent("""
+            use HTTP::Request;
+            my $req = new HTTP::Request(GET => "http://www.example.com");
+            $req-><1>blah();
+        """))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [# methods from HTTP::Request
+             ('function', 'as_string'),]
+        )
+
     def test_my_vars_2(self):
         content, positions = unmark_text(dedent("""\
             use HTTP::Request::Common;

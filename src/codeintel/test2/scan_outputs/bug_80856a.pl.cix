@@ -1,0 +1,9 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs/bug_80856a.pl">
+    <scope ilk="blob" lang="Perl" name="bug_80856a" src="scan_inputs/bug_80856a.pl">
+      <import line="2" module="Digest::MD5" symbol="*" />
+      <variable attributes="__local__" citdl="Digest::MD5" line="4" name="$dig1" />
+      <variable attributes="__local__" citdl="Digest::MD5" line="5" name="$dig2" />
+    </scope>
+  </file>
+</codeintel>

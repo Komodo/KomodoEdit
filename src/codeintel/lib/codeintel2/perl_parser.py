@@ -1128,6 +1128,18 @@ class Parser:
         elif self.classifier.is_keyword(tok, 'bless') and self.moduleInfo.currentFunction:
             self.moduleInfo.currentFunction.isConstructor = True
             self.moduleInfo.doSetVar(**args)
+        elif self.classifier.is_keyword(tok, 'new'):
+            tok = self.tokenizer.get_next_token()
+            if self.classifier.is_identifier(tok):
+                package_name = tok.text
+                tok = self.tokenizer.get_next_token()
+            else:
+                package_name = ""
+            if self.classifier.is_operator(tok, "::"):
+                package_name = self.get_rest_of_subpath(package_name + '::', 0)
+            if package_name != "":
+                args['aType'] = {'assign': package_name}
+                self.moduleInfo.doSetVar(**args)
         else:
             self.moduleInfo.doSetVar(**args)
             if self.classifier.is_index_op(tok, self.find_open_indexer_re):
