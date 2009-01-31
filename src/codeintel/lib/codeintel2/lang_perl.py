@@ -646,7 +646,7 @@ class PerlLangIntel(CitadelLangIntel,
                 if DEBUG:
                     print "no: no non-whitespace text preceding '->'"
                 return None
-            elif not isident(text[i]):
+            elif not (isident(text[i]) or text[i].isdigit()):
                 if DEBUG:
                     print "no: first non-ws char before "\
                           "trigger point is not an ident char: '%s'" % text[i]
