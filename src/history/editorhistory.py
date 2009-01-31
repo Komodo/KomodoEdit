@@ -74,10 +74,10 @@ class Location(object):
     view_type = None
     # Scintilla handle from SCI_MARKERGET. "0" (zero) indicates an empty value.
     marker_handle = 0
-    window_name = None
+    window_num = 0  # Window nums start at 1, so 0 indicates unset
     # Numeric ID identifying which tabbed-view the editor view was open in:
-    # left/top or right/bottom. "-1" indicates, an empty value.
-    multiview_id = -1
+    # left/top or right/bottom. 0 indicates an empty value.
+    tabbed_view_id = 0
     
     # Fields set by the database on insertion.
     id = None
@@ -86,7 +86,7 @@ class Location(object):
 
     def __init__(self, uri, line, col, view_type="editor",
                  id=None, uri_id=None, referer_id=None,
-                 marker_handle=0, window_name=None, multiview_id=-1):
+                 marker_handle=0, window_num=0, tabbed_view_id=0):
         #XXX:TODO: URI canonicalization.
         self.uri = uri
         self.line = line
@@ -96,8 +96,8 @@ class Location(object):
         self.uri_id = uri_id
         self.referer_id = referer_id
         self.marker_handle = marker_handle
-        self.window_name = window_name
-        self.multiview_id = multiview_id
+        self.window_num = window_num
+        self.tabbed_view_id = tabbed_view_id
 
     def __repr__(self):
         extras = []
@@ -105,7 +105,7 @@ class Location(object):
             extras.append("id=%s" % self.id)
         if self.referer_id is not None:
             extras.append("ref=%s" % self.referer_id)
-        #extras.append("multiview_id=%r" % self.multiview_id)
+        #extras.append("tabbed_view_id=%r" % self.tabbed_view_id)
         if self.view_type != "editor":
             extras.append(self.view_type)
         extra = extras and (" (%s)" % ", ".join(extras)) or ""
@@ -140,7 +140,9 @@ class Database(object):
     #
     # db change log:
     # - 1.0.0: initial version
-    VERSION = "1.0.0"
+    # - 1.0.1: change in history_visit: window_name TEXT => window_num INT DEF 0
+    # - 1.0.2: name change in history_visit: s/multiview_id/tabbed_view_id/
+    VERSION = "1.0.2"
 
     path = None
     
@@ -261,7 +263,8 @@ class Database(object):
 
     _upgrade_info_from_curr_ver = {
         # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
-        #"1.0.0": (VERSION, _upgrade_reset_db, None),
+        "1.0.0": (VERSION, _upgrade_reset_db, None),
+        "1.0.1": (VERSION, _upgrade_reset_db, None), # sqlite3 doesn't rename columns
     }
 
     @property
@@ -316,10 +319,12 @@ class Database(object):
         with self.connect(True, cu=cu) as cu:
             uri_id = self.uri_id_from_uri(loc.uri, cu=cu)
             cu.execute("""
-                INSERT INTO history_visit(referer_id, uri_id, line, col, view_type, marker_handle)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO history_visit(referer_id, uri_id, line, col, view_type, marker_handle,
+                    window_num, tabbed_view_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, 
-                (referer_id, uri_id, loc.line, loc.col, loc.view_type, loc.marker_handle))
+                (referer_id, uri_id, loc.line, loc.col, loc.view_type, loc.marker_handle,
+                 loc.window_num, loc.tabbed_view_id))
             loc.id = cu.lastrowid
             loc.referer_id = referer_id
             loc.uri_id = uri_id
@@ -369,7 +374,7 @@ class Database(object):
                 id = int(row[0])
             cu.execute("""
                 SELECT referer_id, uri_id, line, col, view_type, content,
-                       section, marker_handle, window_name, multiview_id
+                       section, marker_handle, window_num, tabbed_view_id
                 FROM history_visit
                 WHERE id=?
                 """, (id,))
@@ -388,8 +393,8 @@ class Database(object):
                 uri_id=uri_id,
                 referer_id=_int_or_none(row[0]),
                 marker_handle=row[7],
-                window_name=row[8],
-                multiview_id=row[9],
+                window_num=row[8],
+                tabbed_view_id=row[9],
             )
 
         return loc
@@ -864,8 +869,8 @@ _g_database_schema = """
         -- These are transient values that only make sense for a visit added
         -- for document and view currently open in Komodo.
         marker_handle INTEGER DEFAULT 0,
-        window_name TEXT,
-        multiview_id INTEGER NOT NULL DEFAULT -1,
+        window_num INTEGER DEFAULT 0,
+        tabbed_view_id INTEGER NOT NULL DEFAULT 0,
         
         -- These are used for display and search via an awesome-bar.
         -- Whether to include "section" is still undecided.

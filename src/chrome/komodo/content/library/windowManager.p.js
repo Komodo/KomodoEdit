@@ -219,14 +219,75 @@ ko.windowManager = {
         return windows;
     },
     
-    getViewForURI: function(uri) {
+    windowFromWindowNum : function(windowNum) {
+        var allWindows = ko.windowManager.getWindows();
+        for (var thisWin, i = 0; thisWin = allWindows[i]; ++i) {
+            if (thisWin._koNum == windowNum) {
+                return thisWin;
+            }
+        }
+        return null;
+    },
+    
+    /**
+     * Returns a view based on criteria set by the arguments.
+     *
+     * @param uri {String}.
+     * @param windowNum {Int}.
+     * @param tabbedViewId {Int}.
+     * @returns {koIScintillaView}
+     *
+     * if windowNum is specified, a window with that num exists and contains uri:
+     *    if specified tabbedContainer contains uri, return that view
+     *    otherwise return any tabbedContainer's view
+     * else if currentWindow contains uri:
+     *   return currentWindow's view for uri (either tabbed view)
+     * else if any window contains uri:
+     *   return first window with a view (either tabbed view)
+     * else:
+     *   return null
+     */
+    getViewForURI: function(uri, windowNum/*=null*/, tabbedViewId/*=null*/) {
         // Prefer the current window.
+        if (typeof(windowNum) == "undefined") windowNum = null;
+        if (typeof(tabbedViewId) == "undefined") tabbedViewId = null;
+        var view;
+        if (windowNum != null) {
+            var targetWin = this.windowFromWindowNum(windowNum);
+            if (targetWin) {
+                view = targetWin.ko.views.manager.getViewForURI(uri);
+                if (view) {
+                    // Found the view, see if we need to return a specific view
+                    // in that window.
+                    if (tabbedViewId != null && view.tabbedViewId != tabbedViewId) {
+                        // Try the other view
+                        var xulDocument = view.ownerDocument.defaultView.document;
+                        var multiViewContainer = xulDocument.getElementById("topview");
+                        var multiViewNodes = xulDocument.getAnonymousNodes(multiViewContainer)[0];
+                        var designatedTabbedView = (tabbedViewId == 1
+                                                    ? multiViewNodes.firstChild
+                                                    : multiViewNodes.lastChild);
+                        var res = designatedTabbedView.getViewsByTypeAndURI(false, 'editor', uri);
+                        if (res && res.length > 0) {
+                            view = res[0];
+                        }
+                    }
+                    return view;
+                }
+                // else there's no view in the marked window
+            }
+            // else we couldn't find the marked window
+        }
+        // else we don't have a preferred window
+        
+        // Try the current window
         var currWin = ko.windowManager.getMainWindow();
         var view = currWin.ko.views.manager.getViewForURI(uri);
         if (view) {
             return view;
         }
-
+        
+        // Try any window, return first hit.
         var allWindows = ko.windowManager.getWindows();
         for (var thisWin, i = 0; thisWin = allWindows[i]; ++i) {
             if (thisWin == currWin) continue;

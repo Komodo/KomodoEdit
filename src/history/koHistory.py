@@ -42,11 +42,11 @@ class KoHistoryService(History):
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
 
-    def editor_loc_from_info(self, window_name, multiview_id, view):
+    def editor_loc_from_info(self, window_num, tabbed_view_id, view):
         """Create a Location instance from the given *editor* view info.
         
-        @param window_name {str} The identifier for the view's Komodo window.
-        @param multiview_id {int} The identifier for the multi-tabbed view
+        @param window_num {int} The identifier for the view's Komodo window.
+        @param tabbed_view_id {int} The identifier for the multi-tabbed view
             containing `view`.
         @param view {koIScintillaView} A Komodo editor view.
         @returns {Location}
@@ -58,8 +58,8 @@ class KoHistoryService(History):
         col = scimoz.currentPos - scimoz.positionFromLine(line)
         view_type = "editor"
         loc = Location(uri, line, col, view_type)
-        loc.window_name = window_name
-        loc.multiview_id = multiview_id
+        loc.window_num = window_num
+        loc.tabbed_view_id = tabbed_view_id
         loc.marker_handle = scimoz.markerAdd(line, MARKNUM_HISTORYLOC)
         return loc    
 
@@ -90,10 +90,7 @@ class KoHistoryService(History):
             view = components.classes["@activestate.com/koViewService;1"]\
                 .getService(components.interfaces.koIViewService).currentView \
                 .QueryInterface(components.interfaces.koIScintillaView)
-        #XXX:TODO: This method needs to accept window_name and multiview_id
-        #          a la editor_loc_from_info(). That isn't easy because
-        #          some of the callers don't have that info.
-        loc = self.editor_loc_from_info("XXX", 0, view)
+        loc = self.editor_loc_from_info(view.windowNum, view.tabbedViewId, view)
         return self.note_loc(loc)
 
     def get_recent_locs(self, curr_loc):
@@ -112,3 +109,4 @@ class KoHistoryService(History):
 
     def _tooSimilarToCurrentSavedPoint(self, candidateLoc):
         return False
+ 

@@ -142,8 +142,8 @@ function _get_curr_loc(view /* =current view */) {
         // pass
     } else if (view.getAttribute("type") == "editor") {
         loc = _controller.historySvc.editor_loc_from_info(
-            "main", // window_name XXX
-            0, // multiview_id XXX
+            window._koNum,
+            view.tabbedViewId,
             view);
     } else {
         _log.warn("cannot get current location for '"
@@ -186,8 +186,18 @@ function view_and_line_from_loc(loc, handle_view_line_callback, open_if_needed/*
         return null;
     }
     var lineNo = loc.line;
+    var window_num = loc.window_num;
     
-    var view = ko.windowManager.getViewForURI(uri);
+    var view = (open_if_needed
+                ? ko.windowManager.getViewForURI(uri, window_num, loc.tabbed_view_id)
+                : ko.windowManager.getViewForURI(uri));
+    if (view && open_if_needed) {
+        // See if we're switching windows.
+        var currentView = ko.views.manager.currentView;
+        if (!currentView || currentView.ownerDocument != view.ownerDocument) {
+            view.ownerDocument.defaultView.window.focus();
+        }
+    }
     var is_already_open = (view != null);
     function local_callback(view_) {
         if (is_already_open) {
@@ -211,19 +221,23 @@ function view_and_line_from_loc(loc, handle_view_line_callback, open_if_needed/*
             }
             return handle_view_line_callback(view_, lineNo);
         };
-        view = ko.views.manager.doFileOpenAtLineAsync(uri, lineNo,
-                                                      null, // viewType='editor'
-                                                      null, // viewList=null
-                                                      null, // index=-1
-                                                      callback);
+        // Open in the correct window + multi-view
+        // Never open a new window -- if the marked window
+        // is gone, use the current window.
+        //
+        var win = ko.windowManager.windowFromWindowNum(window_num);
+        var wko = win ? win.ko : ko;
+        view = wko.views.manager.doFileOpenAtLineAsync(uri, lineNo,
+                                                       null, // viewType='editor'
+                                                       null, // viewList=null
+                                                       null, // index=-1
+                                                       callback);
     }
     return local_callback(view);
 }
 
 this.go_to_location = function go_to_location(loc) {
     //XXX Use window and view IDs
-    var windowName = loc.windowName;
-    var multiview_id = loc.multiview_id;
     var view_type = loc.view_type;
     if (view_type != "editor") {
         throw new Error("history: goto location of type " + view_type
