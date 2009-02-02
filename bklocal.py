@@ -792,9 +792,7 @@ class GnomeDesktopCategories(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         productType = black.configure.items["productType"].Get()
-        self.value = {
-            "edit": "ActiveState;Application;Development;Editor",
-        }.get(productType, "ActiveState;Application;Development;IDE")
+        self.value = "ActiveState;Application;Development;Editor;Utility;TextEditor;"
         self.determined = 1
 
 
