@@ -106,7 +106,3 @@ class KoHistoryService(History):
         except StopIteration:
             pass
         return curr_idx, loc_list
-
-    def _tooSimilarToCurrentSavedPoint(self, candidateLoc):
-        return False
- 

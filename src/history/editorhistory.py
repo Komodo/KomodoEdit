@@ -752,14 +752,21 @@ class History(object):
             if is_curr:
                 curr_handled = True
             yield is_curr, loc
-        if not curr_handled and len(self.recent_back_visits) == 0:
+        if (not curr_handled
+            and len(self.recent_back_visits) == 0
+            and len(self.forward_visits) > 0
+            and not self._similar_locations(curr_loc, self.forward_visits[0])):
+            curr_handled = True
             yield True, curr_loc
         for i, loc in enumerate(self.recent_back_visits):
             is_curr = (not curr_handled 
                        and curr_loc is not None
                        and i == 0
                        and loc == curr_loc)
-            if not curr_handled and not is_curr and i == 0:
+            if (not curr_handled
+                and not is_curr
+                and i == 0
+                and not self._similar_locations(curr_loc, loc)):
                 yield True, curr_loc
             if i >= self.RECENT_BACK_VISITS_LENGTH:
                 break
@@ -770,6 +777,15 @@ class History(object):
                                                self.forward_visits,
                                                self.recent_back_visits)
     
+    def _tooSimilarToCurrentSavedPoint(self, candidateLoc):
+        if len(self.recent_back_visits) == 0:
+            return False
+        return self._similar_locations(candidateLoc, self.recent_back_visits[0])
+        
+    def _similar_locations(self, candidateLoc, otherLoc):
+        return (otherLoc.uri == candidateLoc.uri
+                and otherLoc.line == candidateLoc.line)
+ 
     def debug_dump_recent_history(self, curr_loc=None):
         print "-- recent history"
         for is_curr, loc in self.recent_history(curr_loc):
