@@ -282,10 +282,10 @@ Exec=%s/bin/komodo %%F
 Icon=%s/share/icons/komodo48.png
 Terminal=false
 Type=Application
+MimeType=text/plain;
 Categories=__GNOME_DESKTOP_CATEGORIES__
 """ % (absInstallDir, absInstallDir)
     shortcutName = "__GNOME_DESKTOP_SHORTCUT_NAME__"
-#    komodo-%s-%s.desktop" % ("PRODUCT_TYPE", gKomodoVer)
 
     class ShortcutInstallError(Exception):
         pass
