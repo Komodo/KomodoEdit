@@ -1249,7 +1249,9 @@ class koDocumentBase:
                 buffer = self.get_buffer()
                 self._document = None
                 self._set_buffer_encoded(buffer, 0)
-                self._historySvc.update_marker_handles_on_close(self.file.URI, scimoz)
+                if self.file and self.file.URI:
+                    # Don't adjust markers for untitled or diff buffers, etc.
+                    self._historySvc.update_marker_handles_on_close(self.file.URI, scimoz)
     
             self._views.remove(scintilla)
             #if not self._views:
