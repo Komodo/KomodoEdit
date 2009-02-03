@@ -88,7 +88,8 @@ class KoXPCShellLinter:
         else:
             jsInterp = os.path.join(koDirs.mozBinDir, "js")
 
-        # lint the temp file
+        # Lint the temp file, the jsInterp options are described here:
+        # https://developer.mozilla.org/en/Introduction_to_the_JavaScript_shell
         cmd = [jsInterp, "-version", "170", "-C", "-w", "-s", jsfilename]
         cwd = cwd or None
         # We only need the stderr result.
