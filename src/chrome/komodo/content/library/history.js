@@ -268,10 +268,14 @@ function labelFromLoc(loc) {
                     return labels[0];
                 }
             }
-            var lastSlash = loc.uri.lastIndexOf("/");
-            baseName = loc.uri.substr(lastSlash + 1);
-            if (lastSlash > -1) {
-                dirName = loc.uri.substr(0, lastSlash);
+            var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                             .createInstance(Components.interfaces.koIFileEx);
+            koFileEx.URI = loc.uri;
+            if (koFileEx.scheme == "file") {
+                dirName = koFileEx.dirName;
+                baseName = koFileEx.baseName;
+            } else {
+                baseName = loc.uri;
             }
         } catch(ex) {
             _log.exception("labelFromLoc: " + ex + "\n");
