@@ -961,7 +961,14 @@ class KoInitService(object):
                 join("XRE", "cert8.db"): join("XRE", "cert8.db"),
                 join("XRE", "secmod.db"): join("XRE", "secmod.db"),
             })
-            if prevVer >= (4,1):
+            if prevVer >= (5,0):
+                # In Komodo 5.0, the Mozilla LoginManager changed the
+                # filename and format of the signons2.txt, now calling it
+                # "signons3.txt".
+                hostFilesToUpgrade.update({
+                    join("XRE", "signons3.txt"): join("XRE", "signons3.txt"),
+                })
+            elif prevVer >= (4,1):
                 # In Komodo 4.1, the Mozilla nsIPasswordManager changed the
                 # filename and format of the signons.txt, now calling it
                 # "signons2.txt".
