@@ -1506,6 +1506,14 @@ test_vi_emulation.prototype.test_bug51878_delete_at_eof = function() {
     this._runCommand("lineCut",
                      ["line 1\r\nline 2\r\nline<|> 3\r\n",
                       "line 1\r\n<|>line 2\r\n"]);
+    // Ensure a count deletion "10dd" does not delete above the starting
+    // position, bug 81804.
+    this._repeatCommand("lineCut", 10,
+                        "line 1\r\nline 2\r\nline<|> 3\r\nline 4\r\nline 5\r\n",
+                        "line 1\r\n<|>line 2\r\n",
+                        VimController.OPERATION_NONE,
+                        null /* register */,
+                        null /* tags */);
 }
 
 test_vi_emulation.prototype.test_bug62438_delete_at_eol = function() {

@@ -2281,6 +2281,7 @@ VimController.command_mappings = {
     "cmd_vim_lineCut" :             [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
                                                                     VimController.MODIFY_ACTION |
                                                                     VimController.COPY_LINES |
+                                                                    VimController.SPECIAL_REPEAT_HANDLING |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
                                                                     VimController.CANCELS_VISUAL_MODE ],
     // Same "cmd_vim_deleteLineToEnd" :     [ "cmd_deleteLineToEnd",                   VimController.REPEATABLE_ACTION ],
@@ -3063,13 +3064,16 @@ function cmd_vim_insert_newline_next(scimoz) {
     ko.commands.doCommand('cmd_newline');
 }
 
-function cmd_vim_lineCut(scimoz) {
+function cmd_vim_lineCut(scimoz, repeatCount) {
     try {
         var currentPos = scimoz.currentPos;
         var lineNo = scimoz.lineFromPosition(currentPos);
         if (lineNo < scimoz.lineCount) {
             var start = scimoz.positionFromLine(lineNo);
-            var end = scimoz.positionFromLine(lineNo+1);
+            if ((lineNo + repeatCount) >= scimoz.lineCount) {
+                repeatCount = scimoz.lineCount - lineNo;
+            }
+            var end = scimoz.positionFromLine(lineNo+repeatCount);
             var deletedLastLine = false;
             var endLineNo = scimoz.lineFromPosition(end);
             if ((endLineNo == lineNo) || (end == scimoz.length)) {
