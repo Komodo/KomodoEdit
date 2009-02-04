@@ -109,5 +109,19 @@ function PrefJavaScript_InstallFFExtension()
     return true;
 }
 
+function _pref_lint_setElementEnabledState(elt, enabled) {
+    if (enabled) {
+        if (elt.hasAttribute('disabled')) {
+            elt.removeAttribute('disabled');
+        }
+    } else {
+        elt.setAttribute('disabled', true);
+    }
+}
 
-
+function pref_lint_doWarningEnabling() {
+    var warningsEnabledCheckbox = document.getElementById('lintJavaScriptEnableWarnings');
+    var strictEnabledCheckbox = document.getElementById('lintJavaScriptEnableStrict');
+    var enabled = warningsEnabledCheckbox.checked;
+    _pref_lint_setElementEnabledState(strictEnabledCheckbox, enabled);
+}

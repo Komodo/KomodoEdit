@@ -37,6 +37,7 @@
 
 
 from xpcom import components, nsError, ServerException
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
 from koLintResult import *
 from koLintResults import koLintResults
 import os, sys, re
@@ -57,6 +58,13 @@ class KoXPCShellLinter:
         self.infoSvc = components.classes["@activestate.com/koInfoService;1"].\
             getService(components.interfaces.koIInfoService)
         self.isDebugBuild = self.infoSvc.buildType == "debug"
+        proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
+                    getService(components.interfaces.nsIProxyObjectManager)
+        prefSvc = components.classes["@activestate.com/koPrefService;1"].\
+                    getService(components.interfaces.koIPrefService)
+        self._prefProxy = proxyMgr.getProxyForObject(None,
+                    components.interfaces.koIPrefService, prefSvc,
+                    PROXY_ALWAYS | PROXY_SYNC)
 
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
@@ -90,7 +98,19 @@ class KoXPCShellLinter:
 
         # Lint the temp file, the jsInterp options are described here:
         # https://developer.mozilla.org/en/Introduction_to_the_JavaScript_shell
-        cmd = [jsInterp, "-version", "170", "-C", "-w", "-s", jsfilename]
+        cmd = [jsInterp, "-version", "170", "-C"]
+
+        # Set the JS linting preferences.
+        enableWarnings = self._prefProxy.prefs.getBooleanPref('lintJavaScriptEnableWarnings')
+        if enableWarnings:
+            cmd.append("-w")
+            enableStrict = self._prefProxy.prefs.getBooleanPref('lintJavaScriptEnableStrict')
+            if enableStrict:
+                cmd.append("-s")
+        else:
+            cmd.append("-W")
+
+        cmd.append(jsfilename)
         cwd = cwd or None
         # We only need the stderr result.
         try:

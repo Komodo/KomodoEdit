@@ -149,6 +149,10 @@
   <string id="pythonExtraPaths"></string>
   <string id="perlExtraPaths"></string>
 
+  <!-- JavaScript linting options -->
+  <boolean id="lintJavaScriptEnableWarnings">1</boolean>
+  <boolean id="lintJavaScriptEnableStrict">1</boolean>
+
 <!-- ruby start -->
   <!-- Ruby strings -->
   <string id="rubyExtraPaths"></string>

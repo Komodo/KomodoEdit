@@ -63,6 +63,18 @@
     <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
 
     <groupbox orient="vertical">
+        <caption label="&syntaxChecking.label;"/>
+	<checkbox id="lintJavaScriptEnableWarnings"
+		  label="&lintJavaScriptEnableWarnings.label;"
+		  pref="true"
+                  oncommand="pref_lint_doWarningEnabling();"/>
+	<checkbox id="lintJavaScriptEnableStrict"
+                  style="margin-left: 27px;"
+		  label="&lintJavaScriptEnableStrict.label;"
+		  pref="true"/>
+    </groupbox>
+
+    <groupbox orient="vertical">
         <caption label="&javaScriptDirectories.label;"/>
         <description>
             &javascriptFolder.description;

@@ -564,6 +564,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 
 <!--pref-javascript.xul-->
 <!--pref-project-javascript.xul-->
+<!ENTITY lintJavaScriptEnableWarnings.label "Enable warning messages">
+<!ENTITY lintJavaScriptEnableStrict.label "Enable strict warning messages.">
 <!ENTITY javascriptFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
 
 <!--pref-keys.xul-->
