@@ -64,14 +64,14 @@
 
     <groupbox orient="vertical">
         <caption label="&syntaxChecking.label;"/>
-	<checkbox id="lintJavaScriptEnableWarnings"
-		  label="&lintJavaScriptEnableWarnings.label;"
-		  pref="true"
+        <checkbox id="lintJavaScriptEnableWarnings"
+                  label="&lintJavaScriptEnableWarnings.label;"
+                  pref="true"
                   oncommand="pref_lint_doWarningEnabling();"/>
-	<checkbox id="lintJavaScriptEnableStrict"
+        <checkbox id="lintJavaScriptEnableStrict"
                   style="margin-left: 27px;"
-		  label="&lintJavaScriptEnableStrict.label;"
-		  pref="true"/>
+                  label="&lintJavaScriptEnableStrict.label;"
+                  pref="true"/>
     </groupbox>
 
     <groupbox orient="vertical">
@@ -79,13 +79,13 @@
         <description>
             &javascriptFolder.description;
         </description>
-	<pathlist
-		id="javascriptExtraPaths"
-                flex="1"
-                seltype="multiple"
-                rows="4"
-		pref="true" prefwidget="true"
-                prefstring="javascriptExtraPaths"/>
+        <pathlist id="javascriptExtraPaths"
+                  flex="1"
+                  seltype="multiple"
+                  rows="4"
+                  pref="true"
+                  prefwidget="true"
+                  prefstring="javascriptExtraPaths"/>
     </groupbox>
 
 </window>
