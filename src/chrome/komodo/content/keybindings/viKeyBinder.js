@@ -2179,7 +2179,6 @@ VimController.command_mappings = {
     "cmd_vim_lineNextHome" :        [ "cmd_lineNextHome",           VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_home" :                [ "cmd_home",                   VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_homeAbsolute" :        [ "cmd_homeAbsolute",           VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_documentHome" :        [ "cmd_documentHome",           VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_end"  :                [ "cmd_end",                    VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_scrollHalfPageDown" :  [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_scrollHalfPageUp" :    [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],

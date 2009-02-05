@@ -61,7 +61,6 @@
 <!ENTITY editorViGoToEndOfDocument.desc "Editor: Vi: Go to End of Document">
 <!ENTITY editorViGoToNextLine.desc "Editor: Vi: Go to Next Line">
 <!ENTITY editorViGoToPreviousLine.desc "Editor: Vi: Go to Previous Line">
-<!ENTITY editorViGoToTopOfDocument.desc "Editor: Vi: Go to Top of Document">
 <!ENTITY editorViGotoLine.desc "Editor: Vi: Goto Line">
 <!ENTITY editorViInsertNewline.desc "Editor: Vi: Insert Newline">
 <!ENTITY editorViInsertNewlineStartingOnThePreviousLine.desc "Editor: Vi: Insert Newline (starting on the previous line)">

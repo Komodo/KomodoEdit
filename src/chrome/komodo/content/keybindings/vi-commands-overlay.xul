@@ -133,10 +133,6 @@
             oncommand="vim_doCommand('cmd_vim_lineScrollDown', event)"
             desc="&editorViScrollOneLineDown.desc;"/>
         <command
-            id="cmd_vim_documentHome" key="key_cmd_vim_documentHome"
-            oncommand="vim_doCommand('cmd_vim_documentHome', event)"
-            desc="&editorViGoToTopOfDocument.desc;"/>
-        <command
             id="cmd_vim_documentEnd" key="key_cmd_vim_documentEnd"
             oncommand="vim_doCommand('cmd_vim_documentEnd', event)"
             desc="&editorViGoToEndOfDocument.desc;"/>
