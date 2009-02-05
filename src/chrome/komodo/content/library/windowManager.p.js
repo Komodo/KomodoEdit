@@ -282,7 +282,7 @@ ko.windowManager = {
         
         // Try the current window
         var currWin = ko.windowManager.getMainWindow();
-        var view = currWin.ko.views.manager.getViewForURI(uri);
+        view = currWin.ko.views.manager.getViewForURI(uri);
         if (view) {
             return view;
         }
