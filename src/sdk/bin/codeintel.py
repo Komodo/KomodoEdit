@@ -135,12 +135,12 @@ class Shell(cmdln.Cmdln):
         ${cmd_usage}
         ${cmd_option_list}
         """
-        extra_lang_module_dirs = []
+        extra_module_dirs = []
         if koextlib.is_ext_dir() and exists("pylib"):
             sys.path.append(abspath("pylib"))
-            extra_lang_module_dirs = [sys.path[-1]]
+            extra_module_dirs = [sys.path[-1]]
             
-        mgr = Manager(extra_lang_module_dirs=extra_lang_module_dirs)
+        mgr = Manager(extra_module_dirs=extra_module_dirs)
         mgr.upgrade()
         mgr.initialize()
         try:
