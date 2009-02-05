@@ -859,10 +859,16 @@
                     <menuseparator/>
                     <menuitem label="&historyBack.label;"
                               id="menu_historyBack"
+<!-- #if PLATFORM != "darwin" -->
+                              class="menuitem-iconic history-back-icon"
+<!-- #endif -->
                               observes="cmd_historyBack"
                               />
                     <menuitem label="&historyForward.label;"
                               id="menu_historyForward"
+<!-- #if PLATFORM != "darwin" -->
+                              class="menuitem-iconic history-forward-icon"
+<!-- #endif -->
                               observes="cmd_historyForward"
                               />
                     <menuitem label="&findNextFunction.label;"
@@ -1468,11 +1474,13 @@
             tooltiptext="&standardToolbar.tooltiptext;">
                 <toolbarbutton id="historyBackButton"
                     tooltiptext="&historyBack.tooltiptext;"
+                    class="history-back-icon"
                     persist="buttonstyle"
                     buttonstyle="pictures"
                     observes="cmd_historyBack"
                     label="&historyBack.label;"/>
                 <toolbarbutton id="historyForwardButton"
+                    class="history-forward-icon"
                     tooltiptext="&historyForward.tooltiptext;"
                     observes="cmd_historyForward"
                     persist="buttonstyle"
