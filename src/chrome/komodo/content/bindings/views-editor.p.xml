@@ -421,17 +421,24 @@
                 // though both "view_opened" and "view_closed" *are*.
                 xtk.domutils.fireEvent(this, 'view_closing');
 
-                if (!doNotOfferToSave &&
-                    this.document &&
-                    this.document.numScintillas == 1 &&  // if we're split let it be dirty
+                var isLastDocumentInstance = (this.document
+                            && this.document.numScintillas == 1);
+                // if there's more than one view on the doc, we're not closing it
+                if (isLastDocumentInstance
+                    && this.getAttribute('type') == 'editor'
+                    && ko.macros.eventHandler.hookPreFileClose(this)) {
+                    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                        .getService(Components.interfaces.nsIStringBundleService)
+                        .createBundle("chrome://komodo/locale/views.properties");
+                    ko.statusBar.AddMessage(_bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
+                                         "macro",
+                                         5000,
+                                         true);
+                    return false;
+                }
+                    
+                if (!doNotOfferToSave && isLastDocumentInstance &&
                     this.document.isDirty) {
-                    if (ko.macros.eventHandler.hookPreFileClose(this)) {
-                        ko.statusBar.AddMessage(_bundle.GetStringFromName("macroInterruptedFileClosingProcedure.message"),
-                                             "macro",
-                                             5000,
-                                             true);
-                        return false;
-                    }
                     var res = ko.dialogs.yesNoCancel("Save changes to " +
                                                     this.document.baseName +
                                                     "?");
