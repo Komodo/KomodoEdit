@@ -1812,8 +1812,8 @@ def _PackageKomodoMozillaPatches(cfg):
     mozilla patches applied to the moz build for the used moz build.
 
     Moz builds put a "mozilla-patches-<id>.zip" up in
-    "\\crimper\apps\Komodo\support\mozilla-builds". Currently we just
-    find the right one and rename it.
+        nas:/data/komodo/extras/mozilla-build-patches
+    Currently we just find the right one and rename it.
     """
     buildDir = os.path.join(cfg.buildRelDir, cfg.mozPatchesPackageName)
     print "packaging 'mozpatches' in '%s'" % buildDir

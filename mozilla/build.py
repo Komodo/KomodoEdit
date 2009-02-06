@@ -2704,7 +2704,10 @@ def target_package_patches(argv=["package_patches"]):
 
 
 def target_upload(argv=["upload"]):
-    """upload built packages to mozilla-builds network share"""
+    """Upload built packages to network share area.
+    
+    These will be used later as a release package for Komodo builds.
+    """
     log.info("target: upload")
     config = _importConfig()
 
@@ -2718,7 +2721,7 @@ def target_upload(argv=["upload"]):
             log.warn("could not upload %s package: `%s' does not exist",
                      name, src)
             continue
-        dst = "crimper:/home/apps/Komodo/support/mozilla-builds/" + filename
+        dst = "komodo-build@nas:/data/komodo/extras/mozilla-build-patches/" + filename
         remote_cp(src, dst, log.info)
 
     return argv[1:]
