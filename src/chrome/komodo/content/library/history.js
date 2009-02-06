@@ -105,16 +105,37 @@ HistoryController.prototype.is_cmd_historyRecentLocations_enabled = function() {
     return this.historySvc.have_recent_history();
 };
 
+function _appCommandEventHandler(evt) {
+    // Handle the browser-back and browser-forward application-specific
+    // buttons on supported mice.  Mozilla forwards these
+    // as "AppCommand" events.
+    // From KD 218, referencing browser/base/content/browser.js
+    switch (evt.command) {
+        case "Back":
+            if (_controller.historySvc.can_go_back()) {
+                ko.history.history_back(1);
+            }
+            break;
+        case "Forward":
+            if (_controller.historySvc.can_go_forward()) {
+                ko.history.history_forward(1);
+            }
+            break;
+    }
+};
+        
 this.init = function() {
     this._observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
     this._observerSvc.addObserver(this, 'history_changed', false);
     ko.main.addWillCloseHandler(this.destroy, this);
     window.updateCommands('history_changed');
+    window.addEventListener("AppCommand", _appCommandEventHandler, true);
 };
 
 this.destroy = function() {
     this._observerSvc.removeObserver(this, 'history_changed', false);
+    window.removeEventListener("AppCommand", _appCommandEventHandler, true);
 };
 
 this.observe = function(subject, topic, data) {
