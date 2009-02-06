@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 7
+version 8
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
 binding cmd_blockSelect Meta+Ctrl+L
@@ -102,7 +102,7 @@ binding cmd_helpLanguageAlternate  Ctrl+/
 binding cmd_home  Home 
 binding cmd_home  Meta+Left 
 binding cmd_join Ctrl+K Ctrl+J
-binding cmd_jumpToMatchingBrace  Meta+]
+binding cmd_jumpToMatchingBrace  Meta+{
 binding cmd_killLine Ctrl+Delete
 binding cmd_killLine Ctrl+Backspace
 binding cmd_left  Left
@@ -154,7 +154,7 @@ binding cmd_selectRectLineNext Ctrl+Shift+Down
 binding cmd_selectRectLinePrevious Ctrl+Shift+Up
 binding cmd_selectRectPageDown Ctrl+Shift+Page_Down
 binding cmd_selectRectPageUp Ctrl+Shift+Page_Up
-binding cmd_selectToMatchingBrace  Meta+Shift+]
+binding cmd_selectToMatchingBrace  Meta+}
 binding cmd_selectWordLeft  Alt+Shift+Left
 binding cmd_selectWordRight  Alt+Shift+Right
 binding cmd_splittab Meta+Shift+'
@@ -177,7 +177,7 @@ binding cmd_viewProjects Ctrl+Shift+P
 binding cmd_viewToolbox Ctrl+Shift+T
 binding cmd_viewWhitespace Meta+Shift+8
 binding cmd_wordLeft  Alt+Left
-binding cmd_historyBack  Meta+Alt+Left
-binding cmd_historyForward  Meta+Alt+Right
+binding cmd_historyBack  Meta+[
+binding cmd_historyForward  Meta+]
 binding cmd_wordRight  Alt+Right
 binding cmd_wordWrap Meta+Shift+9
