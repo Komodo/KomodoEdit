@@ -1,69 +1,39 @@
 /* Copyright (c) [[%date:%Y]] [[%tabstop2:MyCompany.com]]
    See the file LICENSE.txt for licensing information. */
 
-/* module [[%tabstop1:MyJavaScriptComponent]] */
+/***********************************************************
+ *              XPCOM class definition                     *
+ ***********************************************************/
 
-var [[%tabstop1]]Module = new Object();
-
-const [[%tabstop1]]_CONTRACTID     = "@[[%tabstop2]]/js[[%tabstop1]];1";
-const [[%tabstop1]]_CID        = Components.ID("{[[%guid]]}");
-
-function [[%tabstop1]]()
-{
+// Class constructor.
+function [[%tabstop1:MyComponent]]() {
+    // If you only need to access your component from Javascript, uncomment the
+    // following line:
+    //this.wrappedJSObject = this;
 }
+
+// Class definition.
 [[%tabstop1]].prototype = {
-    /* TODO: Implement the interface here */
-    QueryInterface: function(iid) {
-        if (!iid.equals(I[[%tabstop1]]) &&
-            !iid.equals(nsISupports))
-            throw Components.results.NS_ERROR_NO_INTERFACE;
-        return this;
-    }
-}
-
-
-[[%tabstop1]]Module.registerSelf =
-function (compMgr, fileSpec, location, type)
-{
-    compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    compMgr.registerFactoryLocation([[%tabstop1]]_CID, 
-                                "[[%tabstop1]] Component",
-                                [[%tabstop1]]_CONTRACTID, 
-                                fileSpec, 
-                                location,
-                                type);
-}
-
-[[%tabstop1]]Module.getClassObject =
-function (compMgr, cid, iid) {
-    if (!cid.equals(DIALOGPROXY_CID))
-        throw Components.results.NS_ERROR_NO_INTERFACE;
     
-    if (!iid.equals(Components.interfaces.nsIFactory))
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+    // properties required for XPCOM registration:
+    classDescription: "[[%tabstop1]] XPCOM Component",
     
-    return [[%tabstop1]]Factory;
-}
-
-[[%tabstop1]]Module.canUnload =
-function(compMgr)
-{
-    return true;
-}
+    classID:          Components.ID("{[[%guid]]}"),
+    contractID:       "@[[%tabstop:mozilla.org/[[%tabstop1]]]];1",
     
-/* factory object */
-var [[%tabstop1]]Factory = new Object();
+    // QueryInterface implementation, e.g. using the generateQI helper (remove argument if skipped steps above)
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsI[[%tabstop1]]]),
+    
+    [[%tabstop:// TODO: Implement the interface here, define the function(s) exposed
+    //       by your interface.
+    [[%tabstop:hello]]: function() {
+        [[%tabstop:return "Hello World!";
+    },]]
 
-[[%tabstop1]]Factory.createInstance =
-function (outer, iid) {
-    if (outer != null)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
+};
 
-    return (new [[%tabstop1]]()).QueryInterface(iid);
-}
-
-/* entrypoint */
+// XPCOM registration of class.
+var components = [[[%tabstop1]]];
 function NSGetModule(compMgr, fileSpec) {
-    return [[%tabstop1]]Module;
+    return XPCOMUtils.generateModule(components);
 }
-
