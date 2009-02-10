@@ -382,6 +382,11 @@ VimController.prototype._initSettings = function() {
     var settingName;
     var alias;
     var i;
+    // Prefs
+    var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
+                            getService(Components.interfaces.koIPrefService);
+    var prefs = prefsSvc.prefs;
+
     for (settingName in VimController.vim_set_commands) {
         vimSetCommand = VimController.vim_set_commands[settingName];
         // Add aliases names for settings
@@ -401,14 +406,20 @@ VimController.prototype._initSettings = function() {
             } // Else we leave it as the default of "dos"
         }
 
-        // Add default setting to our vim controller
-        this.settings[settingName] = vimSetCommand.defaultValue;
+        if ("realPrefName" in vimSetCommand) {
+            if (vimSetCommand.type == String) {
+                this.settings[settingName] = prefs.getStringPref(vimSetCommand.realPrefName);
+            } else if (vimSetCommand.type == Number) {
+                this.settings[settingName] = prefs.getLongPref(vimSetCommand.realPrefName);
+            } else if (vimSetCommand.type == Boolean) {
+                this.settings[settingName] = prefs.getBooleanPref(vimSetCommand.realPrefName);
+            }
+        } else {
+            // Add default setting to our vim controller
+            this.settings[settingName] = vimSetCommand.defaultValue;
+        }
     }
 
-    // Prefs
-    var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
-                            getService(Components.interfaces.koIPrefService);
-    var prefs = prefsSvc.prefs;
     if (prefs.hasPref("viCustomSettings")) {
         // viCustomSettings is a preference-set
         var viPrefs = prefs.getPref("viCustomSettings");
@@ -1628,6 +1639,15 @@ VimController.vim_set_commands = {
         defaultValue: "bshl<>",
         saveAsKomodoPref: true,
         help: "Allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line."
+    },
+    "hlsearch": {
+        name: "hlsearch",
+        aliases: [ "hls" ],
+        type: Boolean,
+        defaultValue: true,
+        saveAsKomodoPref: true,
+        realPrefName: "find-highlightSearchTerm",
+        help: "Highlight search matches."
     }
 }
 
@@ -1772,6 +1792,10 @@ noreadonly
                                 .createInstance(Components.interfaces.koIPreferenceSet);
                 viPrefs.id = "viCustomSettings";
             }
+            if ("realPrefName" in settingDetails) {
+                settingName = settingDetails.realPrefName;
+                viPrefs = prefs;
+            }
             if (settingDetails.type == Number) {
                 viPrefs.setLongPref(settingName, value);
             } else if (settingDetails.type == Boolean) {
@@ -1779,7 +1803,9 @@ noreadonly
             } else if (settingDetails.type == String) {
                 viPrefs.setStringPref(settingName, value);
             }
-            prefs.setPref("viCustomSettings", viPrefs);
+            if (viPrefs != prefs) {
+                prefs.setPref("viCustomSettings", viPrefs);
+            }
         }
     }
 }

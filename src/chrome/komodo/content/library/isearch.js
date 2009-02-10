@@ -454,7 +454,9 @@ ISController.prototype.keyPressForSearch = function(event) {
                 // Do NOT add this pattern to find MRU
                 //  http://bugs.activestate.com/show_bug.cgi?id=27350
                 // that will be done on stopping of interactive search.
-                false);
+                false,
+                null,   // msgHandler
+                false); // don't use highlighting
             if (! findres) {
                 ko.statusBar.AddMessage("Interactive Search: No occurrences of "
                     + this._incrementalSearchPattern + " found.",

@@ -334,7 +334,12 @@ class koDocumentSettingsManager:
         scimoz.indicSetStyle(DECORATOR_TABSTOP_TSC, scimoz.INDIC_ROUNDBOX)
         scimoz.indicSetFore(DECORATOR_TABSTOP_TSC, RGB(0xff, 0x33, 0x33))
         scimoz.indicSetStyle(DECORATOR_TABSTOP_TSCZW, scimoz.INDIC_HIDDEN)
-            
+
+        # Find highlighting.
+        DECORATOR_FIND_HIGHLIGHT = components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT
+        scimoz.indicSetStyle(DECORATOR_FIND_HIGHLIGHT, scimoz.INDIC_ROUNDBOX)
+        scimoz.indicSetFore(DECORATOR_FIND_HIGHLIGHT, RGB(0xff, 0x55, 0x55))
+
         ## For debugging, to show the UDL family transitions:
         #scimoz.indicSetStyle(components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION,
         #                     scimoz.INDIC_ROUNDBOX)

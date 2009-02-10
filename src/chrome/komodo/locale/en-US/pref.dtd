@@ -543,6 +543,11 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY startEnvironVar.label "Startup Environment Variables">
 <!ENTITY userEnvironVar.label "User Environment Variables (override defaults)">
 
+<!--pref-find.xul-->
+<!ENTITY find.label "Find">
+<!ENTITY findSettings.label "General Find Settings">
+<!ENTITY findHighlightSearchTerm.label "Enable search term highlighting">
+
 <!--pref-folderimport.xul-->
 <!ENTITY directoryImportFrom.label "Directory to import from">
 <!ENTITY filesToInclude.label "Files to include: (empty means 'all')">

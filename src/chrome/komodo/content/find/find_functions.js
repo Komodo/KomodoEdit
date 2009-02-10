@@ -1096,6 +1096,59 @@ function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet
     findSvc.options.matchWord = old_matchWord;
 }
 
+/**
+ * Clear all of the current find highlights.
+ * 
+ * @param scimoz {Components.interfaces.ISciMoz} - The scimoz instance.
+ */
+function Find_HighlightClearAll(scimoz) {
+    var DECORATOR_FIND_HIGHLIGHT = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
+    scimoz.indicatorCurrent = DECORATOR_FIND_HIGHLIGHT;
+    scimoz.indicatorClearRange(0, scimoz.length);
+}
+
+/**
+ * Clear any find highlights in the edited region.
+ *
+ * @param scimoz {Components.interfaces.ISciMoz} - Scintilla instance.
+ * @param position {int} - The scimoz position (byte position)
+ * @param length {int} - The number of affected bytes at this position.
+ */
+function Find_HighlightClearPosition(scimoz, position, length) {
+    var DECORATOR_FIND_HIGHLIGHT = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
+    [hl_start, hl_end] = ko.tabstops.findByIndicator(scimoz, DECORATOR_FIND_HIGHLIGHT, position);
+    if (hl_start >= 0) {
+        // There are indicators in the document.
+        var end_position = position + length;
+        //dump("Find_HighlightClearPosition:: position: " + position + ", end_position: " + end_position + "\n");
+        //dump("Find_HighlightClearPosition:: hl_start: " + hl_start + ", hl_end: " + hl_end + "\n");
+        if (hl_end < position)
+            return;
+        if (hl_start >= end_position)
+            return;
+        scimoz.indicatorCurrent = DECORATOR_FIND_HIGHLIGHT;
+        scimoz.indicatorClearRange(hl_start, hl_end - hl_start);
+    }
+}
+
+/**
+ * Highlight all additional find matches.
+ *  @param editor  - a reference to the komodo.xul main window
+ *  @param context - a koIFindContext instance
+ *  @param pattern - the pattern being sought
+ */
+function Find_HighlightAllMatches(scimoz, context, pattern) {
+    var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
+                            getService(Components.interfaces.koIPrefService);
+    var prefs = prefsSvc.prefs;
+    if (prefs.getBooleanPref("find-highlightSearchTerm")) {
+        findSvc.highlightall(scimoz,
+                             pattern,
+                             context.startIndex,
+                             context.endIndex,
+                             500 /* timeout in ms */);
+    }
+}
 
 // Find (and move to) the next occurrence of the given pattern.
 //
@@ -1115,9 +1168,12 @@ function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet
 //      where `level` is one of "info", "warn" or "error" and `message`
 //      is the message to display. The msgHandler is ignore if `quiet`
 //      is true. By default messages are sent to the statusbar.
+//  "highlightMatches" (optional) when set, will highlight *all* matches in
+//      the context using a scintilla indicator.
 function Find_FindNext(editor, context, pattern, mode /* ="find" */,
                        quiet /* =false */, useMRU /* =true */,
-                       msgHandler /* =<statusbar notifier> */)
+                       msgHandler /* =<statusbar notifier> */,
+                       highlightMatches /* =true */)
 {
     if (typeof(mode) == 'undefined' || mode == null) mode = "find";
     if (typeof(quiet) == 'undefined' || quiet == null) quiet = false;
@@ -1125,6 +1181,7 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
         msgHandler = _Find_GetStatusbarMsgHandler(editor);
     }
+    if (typeof(highlightMatches) == 'undefined' || highlightMatches == null) highlightMatches = true;
 
     findLog.info("Find_FindNext(editor, context, pattern='"+pattern+
                  "', mode="+mode+", quiet="+quiet+", useMRU"+useMRU+")");
@@ -1153,9 +1210,17 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
     // Find the next "hit". If no result is returned then the find session is
     // complete.
     var findResult = null;
+    var scimoz;
+    if (highlightMatches) {
+        scimoz = editor.ko.views.manager.currentView.scintilla.scimoz;
+    }
+
     try {
         findResult = _SetupAndFindNext(editor, context, pattern, mode);
     } catch (ex) {
+        if (highlightMatches) {
+            Find_HighlightClearAll(scimoz);
+        }
         if (!quiet)
             _UiForFindServiceError("find", ex, msgHandler);
         return null;
@@ -1165,7 +1230,13 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
 
     if (findResult) {
         _DisplayFindResult(editor, findResult);
+        if (highlightMatches && (mode == "find")) {
+            Find_HighlightAllMatches(scimoz, context, pattern);
+        }
     } else {
+        if (highlightMatches) {
+            Find_HighlightClearAll(scimoz);
+        }
         if (!quiet)
             _UiForCompletedFindSession(context, msgHandler);
         //log.debug("Reset find session, because 'FindNext' did not find "

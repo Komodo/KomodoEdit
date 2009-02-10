@@ -89,6 +89,7 @@ interface koILintResult : nsISupports
     const long DECORATOR_TABSTOP_TS5 = 26;
     const long DECORATOR_TABSTOP_LAST = 26;
     const long DECORATOR_TABSTOP_BITMASK = 0x07c80000;
+    const long DECORATOR_FIND_HIGHLIGHT = 27;
   
 };
 

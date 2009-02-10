@@ -49,6 +49,7 @@ import time
 import threading
 from pprint import pprint
 from itertools import chain
+from hashlib import md5
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import UnwrapObject
@@ -1116,6 +1117,7 @@ class KoFindService(object):
                        .getService(components.interfaces.koILastErrorService)
 
         self.eol_re = re.compile(r'\r\n|\r|\n')
+        self.DECORATOR_FIND_HIGHLIGHT = components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT
         
         # Configure where findlib2 stores "replace in files" journals.
 
@@ -1197,6 +1199,83 @@ class KoFindService(object):
                 break # only want the first one
             else:
                 return None        
+        except (re.error, ValueError, findlib2.FindError), ex:
+            gLastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+
+    # Highlighting performance tweaks:
+    # These are settings for remembering the last highlighted text. Since the
+    # highlighting will occur even for a FindNext command, which results
+    # in the find highlighting searching the whole text, we cache the last
+    # highlight results and if it's the same the next time, we don't need to
+    # re-find all of the find matches (we already have them).
+    # XXX: This type of caching could be moved into a general part of the
+    #      find service.
+    _lastHighlightMatches = []
+    _lastHighlightMd5Hexdigest = None
+    _lastHighlightRegexTuple = None
+    
+    def highlightall(self, scimoz, pattern, start, end, timeout_ms):
+        """Highlight the pattern in the scimoz text."""
+        try:
+            #print "highlightall:: pattern: %r, between: %d-%d" % (pattern, start, end)
+            regex, dummy, desc = _regex_info_from_ko_find_data(
+                pattern, None,
+                self.options.patternType,
+                self.options.caseSensitivity,
+                self.options.matchWord)
+
+            # Check to see if the search highlight is the same as the last one.
+            text = scimoz.text
+            md5_hexdigest = md5(text).hexdigest()
+            regexTuple = (regex, desc)
+            rememberMatches = False
+            self._lastHighlightRegexTuple
+            if regexTuple == self._lastHighlightRegexTuple and \
+                self._lastHighlightMatches and \
+                self._lastHighlightMd5Hexdigest == md5_hexdigest:
+                # It's the same. Use the last matches again.
+                hightlight_matches = self._lastHighlightMatches
+                # Perf: Check the first match to see if it's still highlighted,
+                #       if it is, we don't need to make any changes.
+                startByte, byteLength = hightlight_matches[0]
+                if scimoz.indicatorValueAt(self.DECORATOR_FIND_HIGHLIGHT,
+                                           startByte):
+                    # It's still highlighted from a previous search.
+                    return
+            else:
+                # It's different. Perform a new find all now.
+                hightlight_matches = []
+                rememberMatches = True
+                expired_time = time.time() + (timeout_ms / 1000.0)
+                if start == end:
+                    # Search the whole text.
+                    end = None
+                for match in findlib2.find_all_matches(regex, text,
+                                                       start=start, end=end):
+                    # Remember the match.
+                    startByte = scimoz.positionAtChar(0, match.start())
+                    byteLength = scimoz.positionAtChar(0, match.end()) - startByte
+                    hightlight_matches.append((startByte, byteLength))
+                    if time.time() > expired_time:
+                        # Timed out.
+                        break
+                self._lastHighlightMatches = hightlight_matches
+                self._lastHighlightRegexTuple = regexTuple
+                self._lastHighlightMd5Hexdigest = md5_hexdigest
+
+            prevIndicator = scimoz.indicatorCurrent
+            prevIndicatorValue = scimoz.indicatorValue
+            scimoz.indicatorValue = scimoz.INDIC_BOX
+            scimoz.indicatorCurrent = self.DECORATOR_FIND_HIGHLIGHT
+            # Clear all existing find indicators.
+            scimoz.indicatorClearRange(0, scimoz.length);
+            try:
+                for highlight in hightlight_matches:
+                    scimoz.indicatorFillRange(*highlight)
+            finally:
+                scimoz.indicatorCurrent = prevIndicator
+                scimoz.indicatorValue = prevIndicatorValue
         except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))

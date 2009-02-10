@@ -2097,6 +2097,8 @@ viewManager.prototype.do_cmd_cancel = function() {
         sm.callTipCancel()
     } else if (sm.autoCActive()) {
         sm.autoCCancel()
+    } else {
+        Find_HighlightClearAll(sm);
     }
 }
 

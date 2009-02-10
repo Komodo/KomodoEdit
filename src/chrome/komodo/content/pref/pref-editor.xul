@@ -209,45 +209,6 @@
 	<description></description>
     </vbox>
   </groupbox>
- <groupbox orient="vertical">
-    <caption label="&incrementalSearch.label;"/>
-    <grid flex="1">
-        <columns>
-            <column autostretch="never"/>
-            <column flex="1" autostretch="never"/>
-        </columns>
-        <rows>
-            <row>
-                <hbox align="center">
-                    <label style="min-width: 80px;">&filePrefEditorMatchCase.label;</label>
-                </hbox>
-                <menulist id="isearchCaseSensitivity"
-                        pref="true"
-                        prefattribute="data">
-                    <menupopup>
-                        <menuitem data="0" label="&never.label;"/>
-                        <menuitem data="1" label="&always.label;"/>
-                        <menuitem data="2" label="&ifSearchStringContainsCapitalLetters.label;"/>
-                    </menupopup>
-                </menulist>
-            </row>
-            <separator class="thin"/>
-            <row>
-                <hbox align="center">
-                    <label style="min-width: 80px;">&filePrefEdiorUses.label;</label>
-                </hbox>
-                <menulist id="isearchType"
-                        pref="true"
-                        prefattribute="data">
-                    <menupopup>
-                        <menuitem data="0" label="&plainText.label;"/>
-                        <menuitem data="2" label="&regularExpressionsPythonSyntax.label;"/>
-                        <menuitem data="1" label="&wildcard.label;"/>
-                    </menupopup>
-                </menulist>
-            </row>
-        </rows>
-    </grid>
-  </groupbox>
+
 </window>
 

@@ -274,6 +274,24 @@ interface koIFindService : nsISupports {
                       out PRUint32 count,
                       [retval, array, size_is(count)] out PRUint32 lines);
     
+    /**
+     * Hightlight all matches in the scintilla buffer.
+     *
+     * @param scimoz   - a Scintilla instance
+     * @param pattern  - the search pattern to highlight
+     * @param start    - the starting text position (character position)
+     * @param end      - the ending text position (character position). If the
+     *                   end is the same as the start, then the whole of the
+     *                   scimoz text will be searched.
+     * @param timeout  - stop highlighting after this number of milliseconds
+     *                   have passed by.
+     */
+    void highlightall(in ISciMoz scimoz,
+                      in wstring pattern,
+                      in long start,
+                      in long end,
+                      in long timeout);
+
     // A faster alternative to replaceall() specific to Komodo usage.
     // See the implementation for more docs.
     wstring replaceallex(in wstring url,

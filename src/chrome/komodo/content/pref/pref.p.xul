@@ -259,6 +259,15 @@
                     </treerow>
                 </treeitem>
 
+                <treeitem container="false" id="findItem">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/pref-find.xul"
+                                  label="&find.label;"
+                                  helptag="find"/>
+                    </treerow>
+                </treeitem>
+
                 <treeitem container="false" id="fontsItem" persist="open">
                     <treerow>
                         <treecell class="treecell-indent"
