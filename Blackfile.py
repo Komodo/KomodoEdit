@@ -675,9 +675,6 @@ configuration = {
     "perlVersion": black.configure.std.PerlVersion(perlBinDirItemName="unsiloedPerlBinDir"),
     "activePerlBuild": black.configure.std.ActivePerlBuild(perlBinDirItemName="unsiloedPerlBinDir"),
 
-    # "perl56" added below for all bug Mac OS X
-    "perl58": PerlExe(version=(5,8)),
-
     "unsiloedPerlBinDir": UnsiloedPerlBinDir(),
     "unsiloedPerlExe": UnsiloedPerlExe(),
     "unsiloedPythonBinDir": UnsiloedPythonBinDir(),
@@ -829,8 +826,6 @@ configuration = {
     # (i.e. not required for plain development builds),
     "jarring": Jarring(),
 }
-if sys.platform != "darwin":
-    configuration["perl56"] = PerlExe(version=(5,6))
 if sys.platform == "win32":
     configuration["nonMsysPerl"] = NonMsysPerlExe()
 
