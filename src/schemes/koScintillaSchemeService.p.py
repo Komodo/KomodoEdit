@@ -50,6 +50,12 @@ from styles import StateMap, CommonStates
 
 
 
+#---- constants
+# Keep in sync with markers.js
+MARKNUM_BOOKMARK = 6
+
+
+
 #---- globals
 
 log = logging.getLogger('koScintillaSchemeService')
@@ -484,7 +490,10 @@ class Scheme:
         scimoz.caretLineVisible = self._booleans['caretLineVisible']
         scimoz.setHotspotActiveUnderline(0)
         scimoz.edgeColour = self._colors['edgeColor']
-
+        scimoz.markerSetFore(MARKNUM_BOOKMARK,
+                             self._colors["bookmarkColor"])
+        scimoz.markerSetBack(MARKNUM_BOOKMARK,
+                             self._colors["bookmarkColor"])
         
         DECORATOR_SOFT_CHAR = components.interfaces.koILintResult.DECORATOR_SOFT_CHAR
         scimoz.indicSetStyle(DECORATOR_SOFT_CHAR, scimoz.INDIC_BOX)
