@@ -48,14 +48,19 @@ import types
 import pydoc
 
 try:
+    # Codeintel's specialized elementtree.
     from ciElementTree import Element, SubElement, ElementTree
 except ImportError:
     import warnings
     warnings.warn("Could not import ciElementTree", category="codeintel")
     try:
-        from cElementTree import Element, SubElement, ElementTree
+        # Python 2.5 or 2.6
+        from xml.etree.cElementTree import Element, SubElement, ElementTree
     except ImportError:
-        from ElementTree import Element, SubElement, ElementTree
+        try:
+            from cElementTree import Element, SubElement, ElementTree
+        except ImportError:
+            from ElementTree import Element, SubElement, ElementTree
 
 import sys, time, os, __builtin__
 from pydoc import visiblename, classname, _split_list, isdata, ispackage, getdoc
