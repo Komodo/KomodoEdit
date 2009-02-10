@@ -77,6 +77,7 @@ g_pretty_platname_from_platname = {
     "linux-x86": "Linux/x86",
     "linux-libcpp5-x86": "Linux/x86 libstdc++5",
     "linux-libcpp6-x86": "Linux/x86 libstdc++6",
+    "linux-libcpp6-x86_64": "Linux/x86_64 libstdc++6",
 }
 
 
