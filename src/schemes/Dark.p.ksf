@@ -160,13 +160,12 @@ LanguageStyles = {'C#': {'UUIDs': {},
          'xpath content': {'fore': 16741120},
          'xpath tags': {'fore': 16777204}}}
 
-Colors = {'activeBreakpointColor': 526573,
+Colors = {
  'bookmarkColor': 14342664,
  'callingLineColor': 16776960,
  'caretFore': 16777215,
  'caretLineBack': 13056,
  'currentLineColor': 16776960,
  'edgeColor': 6715272,
- 'pendingBreakpointColor': 569096,
  'selBack': 102,
  'selFore': 16777215}

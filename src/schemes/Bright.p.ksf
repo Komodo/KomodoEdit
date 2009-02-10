@@ -197,13 +197,12 @@ LanguageStyles = {'Apache': {'directives': {'fore': 9145088},
          'xpath content': {'fore': 36095},
          'xpath tags': {'fore': 11}}}
 
-Colors = {'activeBreakpointColor': 526573,
+Colors = {
  'bookmarkColor': 14342664,
  'callingLineColor': 16764159,
  'caretFore': 0,
  'caretLineBack': 16119285,
  'currentLineColor': 16764108,
  'edgeColor': 13421772,
- 'pendingBreakpointColor': 569096,
  'selBack': 13421772,
  'selFore': 16772846}
