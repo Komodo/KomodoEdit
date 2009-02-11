@@ -357,7 +357,7 @@
                      id="tree-file"
                      flex="2"
                      persist="width"
-                     crop="left"/>
+                     crop="center"/>
             <xul:splitter class="tree-splitter"/>
             <xul:treecol id="tree-date" hideheader="true"
                      flex="1"
@@ -430,6 +430,15 @@
                 getService(Components.interfaces.nsIObserverService);
             obSvc.addObserver(this, 'mru_changed', false);
             gPrefs.addObserver(this);
+            try {
+                this.homePathLC = (Components.classes["@mozilla.org/file/directory_service;1"]
+                                .createInstance(Components.interfaces.nsIProperties)
+                                .get("Home", Components.interfaces.nsIFile)
+                                .path
+                                .toLowerCase());
+            } catch(ex) {
+                this.homePathLC = "";
+            }
 
             window.setTimeout(function (me) {
                 me._projects = me.addTopRow("Recent Projects");
@@ -630,7 +639,25 @@
         ]]> </body>
         </method>
 
-
+        <method name="_contractHomePart">
+        <parameter name="filePath"/>
+        <body> <![CDATA[
+            var homePathLength = this.homePathLC.length;
+            if (homePathLength == 0 || homePathLength >= filePath.length) return filePath;
+            if (filePath.toLowerCase().indexOf(this.homePathLC) != 0) {
+                // Path doesn't start with the homePath
+                return filePath;
+            }
+            var nextChar = filePath.substr(homePathLength, 1);
+            // Watch out for systems with users that are prefixes for
+            // other users, like /home/jan and /home/jane
+            if (nextChar != '/' && nextChar != '\\') {
+                return filePath;
+            }
+            return "~" + filePath.substr(homePathLength);
+        ]]> </body>
+        </method>
+    
         <method name="_addMRURow">
         <parameter name="children"/>
         <parameter name="mru"/>
@@ -654,7 +681,6 @@
                 //</xul:treeitem>
 
                 // Gather data.
-                var fileName = ko.uriparse.baseName(url);
                 var filePath = ko.uriparse.displayPath(url);
 
                 // Build the XUL.
@@ -664,7 +690,7 @@
                 item.setAttribute('_index', index);
                 var row = document.createElementNS(XUL_NS, "treerow");
                 var fncell = document.createElementNS(XUL_NS, "treecell");
-                fncell.setAttribute("label", fileName);
+                fncell.setAttribute("label", this._contractHomePart(filePath));
                 fncell.setAttribute("tooltiptext", filePath);
                 fncell.setAttribute("properties", mru+"-icon");
                 row.appendChild(fncell);
