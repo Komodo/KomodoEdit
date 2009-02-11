@@ -1,0 +1,226 @@
+Allow setting of the alpha transparency value used for drawing round box
+indicators (INDIC_ROUNDBOX).
+http://bugs.activestate.com/show_bug.cgi?id=81901
+
+Index: include/Scintilla.h
+===================================================================
+--- include/Scintilla.h	(revision 26407)
++++ include/Scintilla.h	(working copy)
+@@ -661,20 +661,22 @@
+ #define SCI_GETINDICATORVALUE 2503
+ #define SCI_INDICATORFILLRANGE 2504
+ #define SCI_INDICATORCLEARRANGE 2505
+ #define SCI_INDICATORALLONFOR 2506
+ #define SCI_INDICATORVALUEAT 2507
+ #define SCI_INDICATORSTART 2508
+ #define SCI_INDICATOREND 2509
+ #define SCI_SETPOSITIONCACHE 2514
+ #define SCI_GETPOSITIONCACHE 2515
+ #define SCI_COPYALLOWLINE 2519
++#define SCI_INDICSETALPHA 2520
++#define SCI_INDICGETALPHA 2521
+ #define SCI_STARTRECORD 3001
+ #define SCI_STOPRECORD 3002
+ #define SCI_SETLEXER 4001
+ #define SCI_GETLEXER 4002
+ #define SCI_COLOURISE 4003
+ #define SCI_SETPROPERTY 4004
+ #define KEYWORDSET_MAX 8
+ #define SCI_SETKEYWORDS 4005
+ #define SCI_SETLEXERLANGUAGE 4006
+ #define SCI_LOADLEXERLIBRARY 4007
+Index: include/Scintilla.iface
+===================================================================
+--- include/Scintilla.iface	(revision 26407)
++++ include/Scintilla.iface	(working copy)
+@@ -1793,20 +1793,26 @@
+ 
+ # Set number of entries in position cache
+ set void SetPositionCache=2514(int size,)
+ 
+ # How many entries are allocated to the position cache?
+ get int GetPositionCache=2515(,)
+ 
+ # Copy the selection, if selection empty copy the line with the caret
+ fun void CopyAllowLine=2519(,)
+ 
++# Set the alpha fill colour of the given indicator.
++set void IndicSetAlpha=2520(int indicator, int alpha)
++
++# Get the alpha fill colour of the given indicator.
++get int IndicGetAlpha=2521(int indicator,)
++
+ # Start notifying the container of all key presses and commands.
+ fun void StartRecord=3001(,)
+ 
+ # Stop notifying the container of all key presses and commands.
+ fun void StopRecord=3002(,)
+ 
+ # Set the lexing language of the document.
+ set void SetLexer=4001(int lexer,)
+ 
+ # Retrieve the lexing language of the document.
+Index: src/Indicator.cxx
+===================================================================
+--- src/Indicator.cxx	(revision 26407)
++++ src/Indicator.cxx	(working copy)
+@@ -65,17 +65,17 @@
+ 		surface->MoveTo(rc.left, ymid+1);
+ 		surface->LineTo(rc.right, ymid+1);
+ 		surface->LineTo(rc.right, rcLine.top+1);
+ 		surface->LineTo(rc.left, rcLine.top+1);
+ 		surface->LineTo(rc.left, ymid+1);
+ 	} else if (style == INDIC_ROUNDBOX) {
+ 		PRectangle rcBox = rcLine;
+ 		rcBox.top = rcLine.top + 1;
+ 		rcBox.left = rc.left;
+ 		rcBox.right = rc.right;
+-		surface->AlphaRectangle(rcBox, 1, fore.allocated, 30, fore.allocated, 50, 0);
++		surface->AlphaRectangle(rcBox, 1, fore.allocated, fillAlpha, fore.allocated, 50, 0);
+ 	} else {	// Either INDIC_PLAIN or unknown
+ 		surface->MoveTo(rc.left, ymid);
+ 		surface->LineTo(rc.right, ymid);
+ 	}
+ }
+ 
+Index: src/Editor.cxx
+===================================================================
+--- src/Editor.cxx	(revision 26407)
++++ src/Editor.cxx	(working copy)
+@@ -7211,20 +7211,30 @@
+ 	case SCI_INDICSETUNDER:
+ 		if (wParam <= INDIC_MAX) {
+ 			vs.indicators[wParam].under = lParam != 0;
+ 			InvalidateStyleRedraw();
+ 		}
+ 		break;
+ 
+ 	case SCI_INDICGETUNDER:
+ 		return (wParam <= INDIC_MAX) ? vs.indicators[wParam].under : 0;
+ 
++	case SCI_INDICSETALPHA:
++		if (wParam <= INDIC_MAX && lParam >=0 && lParam <= 100) {
++			vs.indicators[wParam].fillAlpha = lParam;
++			InvalidateStyleRedraw();
++		}
++		break;
++
++	case SCI_INDICGETALPHA:
++		return (wParam <= INDIC_MAX) ? vs.indicators[wParam].fillAlpha : 0;
++
+ 	case SCI_SETINDICATORCURRENT:
+ 		pdoc->decorations.SetCurrentIndicator(wParam);
+ 		break;
+ 	case SCI_GETINDICATORCURRENT:
+ 		return pdoc->decorations.GetCurrentIndicator();
+ 	case SCI_SETINDICATORVALUE:
+ 		pdoc->decorations.SetCurrentValue(wParam);
+ 		break;
+ 	case SCI_GETINDICATORVALUE:
+ 		return pdoc->decorations.GetCurrentValue();
+Index: src/Indicator.h
+===================================================================
+--- src/Indicator.h	(revision 26407)
++++ src/Indicator.h	(working copy)
+@@ -12,20 +12,21 @@
+ namespace Scintilla {
+ #endif
+ 
+ /**
+  */
+ class Indicator {
+ public:
+ 	int style;
+ 	bool under;
+ 	ColourPair fore;
+-	Indicator() : style(INDIC_PLAIN), under(false), fore(ColourDesired(0,0,0)) {
++	int fillAlpha;
++	Indicator() : style(INDIC_PLAIN), under(false), fore(ColourDesired(0,0,0)), fillAlpha(30) {
+ 	}
+ 	void Draw(Surface *surface, const PRectangle &rc, const PRectangle &rcLine);
+ };
+ 
+ #ifdef SCI_NAMESPACE
+ }
+ #endif
+ 
+ #endif
+Index: doc/ScintillaDoc.html
+===================================================================
+--- doc/ScintillaDoc.html	(revision 26407)
++++ doc/ScintillaDoc.html	(working copy)
+@@ -3002,20 +3002,24 @@
+     to set the indicator to style. To prevent interference the set of indicators is divided up into a range for use
+     by lexers (0..7) and a range for use by containers
+     (8=<code>INDIC_CONTAINER</code> .. 31=<code>INDIC_MAX</code>).</p>
+ 
+     <code><a class="message" href="#SCI_INDICSETSTYLE">SCI_INDICSETSTYLE(int indicatorNumber, int
+     indicatorStyle)</a><br />
+      <a class="message" href="#SCI_INDICGETSTYLE">SCI_INDICGETSTYLE(int indicatorNumber)</a><br />
+      <a class="message" href="#SCI_INDICSETFORE">SCI_INDICSETFORE(int indicatorNumber, int
+     colour)</a><br />
+      <a class="message" href="#SCI_INDICGETFORE">SCI_INDICGETFORE(int indicatorNumber)</a><br />
++     <a class="message" href="#SCI_INDICSETALPHA">SCI_INDICSETALPHA(int indicatorNumber, int alpha)</a><br />
++     <a class="message" href="#SCI_INDICGETALPHA">SCI_INDICGETALPHA(int indicatorNumber)</a><br />
++     <a class="message" href="#SCI_INDICSETUNDER">SCI_INDICSETUNDER(int indicatorNumber, bool under)</a><br />
++     <a class="message" href="#SCI_INDICGETUNDER">SCI_INDICGETUNDER(int indicatorNumber)</a><br />
+     </code>
+ 
+     <p><b id="SCI_INDICSETSTYLE">SCI_INDICSETSTYLE(int indicatorNumber, int
+     indicatorStyle)</b><br />
+      <b id="SCI_INDICGETSTYLE">SCI_INDICGETSTYLE(int indicatorNumber)</b><br />
+      These two messages set and get the style for a particular indicator. The indicator styles
+     currently available are:</p>
+ 
+     <table cellpadding="1" cellspacing="2" border="0" summary="Indicators">
+       <tbody>
+@@ -3084,39 +3088,48 @@
+ 
+           <td>A rectangle around the text.</td>
+         </tr>
+ 
+         <tr>
+           <td align="left"><code>INDIC_ROUNDBOX</code></td>
+ 
+           <td align="center">7</td>
+ 
+           <td>A rectangle with rounded corners around the text using translucent drawing with the
+-		     interior more transparent than the border.</td>
++              interior more transparent than the border. You can use
++              <a class="message" href="#SCI_INDICSETALPHA">SCI_INDICSETALPHA</a>
++              to control the alpha transparency value. The default alpha value is 30.
+         </tr>
+       </tbody>
+     </table>
+ 
+     <p>The default indicator styles are equivalent to:<br />
+      <code>SCI_INDICSETSTYLE(0, INDIC_SQUIGGLE);</code><br />
+      <code>SCI_INDICSETSTYLE(1, INDIC_TT);</code><br />
+      <code>SCI_INDICSETSTYLE(2, INDIC_PLAIN);</code></p>
+ 
+     <p><b id="SCI_INDICSETFORE">SCI_INDICSETFORE(int indicatorNumber, int <a class="jump"
+     href="#colour">colour</a>)</b><br />
+      <b id="SCI_INDICGETFORE">SCI_INDICGETFORE(int indicatorNumber)</b><br />
+      These two messages set and get the colour used to draw an indicator. The default indicator
+     colours are equivalent to:<br />
+      <code>SCI_INDICSETFORE(0, 0x007f00);</code> (dark green)<br />
+      <code>SCI_INDICSETFORE(1, 0xff0000);</code> (light blue)<br />
+      <code>SCI_INDICSETFORE(2, 0x0000ff);</code> (light red)</p>
+ 
++    <p><b id="SCI_INDICSETALPHA">SCI_INDICSETALPHA(int indicatorNumber, int alpha)</b><br />
++     <b id="SCI_INDICGETALPHA">SCI_INDICGETALPHA(int indicatorNumber)</b><br />
++     These two messages set and get the alpha transparency used for drawing the
++     fill color of the INDIC_ROUNDBOX rectangle. The alpha value can range from
++     0 (completely transparent) to 100 (no transparency).
++     </p>
++
+     <p><b id="SCI_INDICSETUNDER">SCI_INDICSETUNDER(int indicatorNumber, bool under)</b><br />
+      <b id="SCI_INDICGETUNDER">SCI_INDICGETUNDER(int indicatorNumber)</b><br />
+      These two messages set and get whether an indicator is drawn under text or over(default).
+      Drawing under text works only for modern indicators when <a class="message" href="#SCI_SETTWOPHASEDRAW">two phase drawing</a>
+      is enabled.</p>
+ 
+     <h3 id="Modern Indicators">Modern Indicators</h3>
+ 
+     <p>Modern indicators are stored in a format similar to run length encoding which is efficient in both
+     speed and storage for sparse information.</p>

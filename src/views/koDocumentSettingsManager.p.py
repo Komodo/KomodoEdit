@@ -338,7 +338,8 @@ class koDocumentSettingsManager:
         # Find highlighting.
         DECORATOR_FIND_HIGHLIGHT = components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT
         scimoz.indicSetStyle(DECORATOR_FIND_HIGHLIGHT, scimoz.INDIC_ROUNDBOX)
-        scimoz.indicSetFore(DECORATOR_FIND_HIGHLIGHT, RGB(0xff, 0x55, 0x55))
+        scimoz.indicSetFore(DECORATOR_FIND_HIGHLIGHT, RGB(0xff, 0xf0, 0x10))
+        scimoz.indicSetAlpha(DECORATOR_FIND_HIGHLIGHT, 100)
 
         ## For debugging, to show the UDL family transitions:
         #scimoz.indicSetStyle(components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION,
