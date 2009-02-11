@@ -68,7 +68,7 @@ MacroRecorder.prototype.startRecording = function() {
         this._currentMacro.push("// Macro recorded on " + Date() + '\n');
         var macroVersionNumber = "2"; // must match the number in peMacro.js
         this._currentMacro.push('komodo.assertMacroVersion(' + macroVersionNumber + ');\n');
-        this._currentMacro.push("if (komodo.view) { komodo.view.setFocus() };\n");
+        this._currentMacro.push("if (komodo.view && komodo.view.scintilla) { komodo.view.scintilla.focus(); }\n");
         this._currentMacroText = new Array();
     }
     this.mode = 'recording';
