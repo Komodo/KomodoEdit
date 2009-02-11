@@ -1427,6 +1427,7 @@ VimController.prototype.performSearch = function (scimoz, searchString,
         try {
             this._findSvc.options.searchBackward = (searchDirection == VimController.SEARCH_BACKWARD);
             this._findSvc.options.matchWord = matchWord;
+            this._findSvc.options.preferredContextType = this._findSvc.options.FCT_CURRENT_DOC;
             var searchContext = Components.classes["@activestate.com/koFindContext;1"]
                     .createInstance(Components.interfaces.koIFindContext);
             searchContext.type = this._findSvc.options.FCT_CURRENT_DOC;
