@@ -1041,7 +1041,8 @@
             const SC_PERFORMED_USER = Components.interfaces.ISciMoz.SC_PERFORMED_USER;
             const SC_PERFORMED_UNDO = Components.interfaces.ISciMoz.SC_PERFORMED_UNDO;
 
-            if (modificationType & (SC_MOD_INSERTTEXT | SC_MOD_BEFOREDELETE)) {
+            if ((modificationType & (SC_MOD_INSERTTEXT | SC_MOD_BEFOREDELETE)) &&
+                (typeof(Find_HighlightClearPosition) != "undefined")) {
                 // Remove the find highlighting in this modification area.
                 Find_HighlightClearPosition(this.scimoz, position, length);
             }
