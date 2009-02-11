@@ -1139,16 +1139,22 @@ function Find_HighlightClearPosition(scimoz, position, length) {
  *  @param pattern - the pattern being sought
  */
 function Find_HighlightAllMatches(scimoz, context, pattern) {
+    findSvc.highlightall(scimoz,
+                         pattern,
+                         context.startIndex,
+                         context.endIndex,
+                         500 /* timeout in ms */);
+}
+
+/**
+ * Check to see if find highlighting is enabled.
+ *
+ *  @returns {boolean} - true when enabled.
+ */
+function Find_HighlightingEnabled() {
     var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
                             getService(Components.interfaces.koIPrefService);
-    var prefs = prefsSvc.prefs;
-    if (prefs.getBooleanPref("find-highlightSearchTerm")) {
-        findSvc.highlightall(scimoz,
-                             pattern,
-                             context.startIndex,
-                             context.endIndex,
-                             500 /* timeout in ms */);
-    }
+    return prefsSvc.prefs.getBooleanPref("find-highlightSearchTerm");
 }
 
 // Find (and move to) the next occurrence of the given pattern.
@@ -1183,6 +1189,9 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
         msgHandler = _Find_GetStatusbarMsgHandler(editor);
     }
     if (typeof(highlightMatches) == 'undefined' || highlightMatches == null) highlightMatches = true;
+    if (!Find_HighlightingEnabled()) {
+        highlightMatches = false;
+    }
 
     findLog.info("Find_FindNext(editor, context, pattern='"+pattern+
                  "', mode="+mode+", quiet="+quiet+", useMRU"+useMRU+")");
@@ -1257,6 +1266,9 @@ function Find_FindAll(editor, context, pattern, patternAlias,
     }
     if (typeof(highlightMatches) == 'undefined' || highlightMatches == null) {
         highlightMatches = true;
+    }
+    if (!Find_HighlightingEnabled()) {
+        highlightMatches = false;
     }
 
     findLog.info("Find_FindAll(editor, context, pattern='"+pattern+
