@@ -115,9 +115,18 @@ function scintillaOverlayOnLoad()
     doContextMenuHackForPlugin();
 }
 
+function scintillaOverlayOnUnload()
+{
+    removeDialogKeypressHack();
+}
+
 // XXX bug 41071
 function doDialogKeypressHack() {
     window.addEventListener("keypress", keypressInterrupt, false);
+}
+
+function removeDialogKeypressHack() {
+    window.removeEventListener("keypress", keypressInterrupt, false);
 }
 
 function keypressInterrupt(event) {
