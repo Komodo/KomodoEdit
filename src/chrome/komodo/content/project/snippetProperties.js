@@ -147,6 +147,7 @@ function onUnload(event) {
     try {
         // The "close" method ensures the scintilla view is properly cleaned up.
         snippetvalue.close();
+        scintillaOverlayOnUnload();
     } catch (e) {
         log.exception(e);
     }

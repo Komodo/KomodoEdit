@@ -181,6 +181,7 @@ function onUnload() {
     try {
         // The "close" method ensures the scintilla view is properly cleaned up.
         gMacroContents.close();
+        scintillaOverlayOnUnload();
     } catch (e) {
         log.exception(e);
     }

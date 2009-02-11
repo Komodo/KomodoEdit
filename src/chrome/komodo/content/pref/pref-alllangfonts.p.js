@@ -76,6 +76,7 @@ function PrefLangFonts_OnUnload()  {
         var view = document.getElementById('sample');
         // The "close" method ensures the scintilla view is properly cleaned up.
         view.close();
+        scintillaOverlayOnUnload();
     } catch (e) {
         log.error(e);
     }

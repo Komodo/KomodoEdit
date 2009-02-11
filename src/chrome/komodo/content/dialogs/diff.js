@@ -143,5 +143,5 @@ function OnUnload()
     // The "close" method ensures the scintilla view is properly cleaned up.
     view.close();
     window.controllers.removeController(_diffWindow);
+    scintillaOverlayOnUnload();
 }
-

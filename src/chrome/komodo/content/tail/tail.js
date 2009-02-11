@@ -100,6 +100,7 @@ function TailOnUnload () {
     // The "close" method ensures the scintilla view is properly cleaned up.
     gView.close();
     gDoc.releaseReference();
+    scintillaOverlayOnUnload();
 }
 
 
