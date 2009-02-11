@@ -101,10 +101,7 @@
              from view-buffer-base. -->
         <property name="scintilla">
             <getter><![CDATA[
-                if (!this._scintilla) {
-                    this._scintilla = document.getAnonymousElementByAttribute(this, "anonid", "scintilla");
-                }
-                return this._scintilla;
+                return document.getAnonymousElementByAttribute(this, "anonid", "scintilla");
             ]]></getter>
         </property>
 
