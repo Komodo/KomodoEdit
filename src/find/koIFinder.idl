@@ -262,7 +262,8 @@ interface koIFindService : nsISupports {
                    in wstring pattern,
                    in koIFindResultsView resultsView,
                    in PRUint32 contextOffset,
-                   in ISciMoz scimoz);
+                   in ISciMoz scimoz,
+                   in boolean highlightMatches);
 
     // Find all lines on which the given pattern is found.
     // Returns a list of lines (0-based).

@@ -638,7 +638,8 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
 }
 
 
-function _FindAllInView(editor, view, context, pattern, resultsView)
+function _FindAllInView(editor, view, context, pattern, resultsView,
+                        highlightMatches)
 {
     // Find all instances of "pattern" with "replacement" in the current
     // view context.
@@ -665,7 +666,7 @@ function _FindAllInView(editor, view, context, pattern, resultsView)
     }
 
     findSvc.findallex(viewId, text, pattern, resultsView, contextOffset,
-                      scimoz);
+                      scimoz, highlightMatches);
     gFindSession.NoteUrl(viewId);
 }
 
@@ -1248,10 +1249,14 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
 
 
 function Find_FindAll(editor, context, pattern, patternAlias,
-                      msgHandler /* =<statusbar notifier> */)
+                      msgHandler /* =<statusbar notifier> */,
+                      highlightMatches /* =true */)
 {
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
         msgHandler = _Find_GetStatusbarMsgHandler(editor);
+    }
+    if (typeof(highlightMatches) == 'undefined' || highlightMatches == null) {
+        highlightMatches = true;
     }
 
     findLog.info("Find_FindAll(editor, context, pattern='"+pattern+
@@ -1283,7 +1288,7 @@ function Find_FindAll(editor, context, pattern, patternAlias,
             findLog.debug("Find_FindAll: find all in '"+
                           editor.ko.views.manager.currentView.document.displayPath+"'\n");
             _FindAllInView(editor, editor.ko.views.manager.currentView, context,
-                           pattern, resultsMgr.view);
+                           pattern, resultsMgr.view, highlightMatches);
         } else if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
             var view = editor.ko.views.manager.currentView;
             var viewId;
@@ -1298,7 +1303,8 @@ function Find_FindAll(editor, context, pattern, patternAlias,
                     }
     
                     findLog.debug("Find_FindAll: find all in '"+viewId+"'\n");
-                    _FindAllInView(editor, view, context, pattern, resultsMgr.view);
+                    _FindAllInView(editor, view, context, pattern,
+                                   resultsMgr.view, highlightMatches);
                     numFilesSearched += 1;
                 }
 

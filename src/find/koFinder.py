@@ -1281,7 +1281,7 @@ class KoFindService(object):
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
     def findallex(self, url, text, pattern, resultsView, contextOffset,
-                  scimoz):
+                  scimoz, highlightMatches):
         """Feed all occurrences of "pattern" in the "text" into the given
         koIFindResultsView.
 
@@ -1291,7 +1291,8 @@ class KoFindService(object):
             "contextOffset" is text's offset into the scimoz buffer. This
                 is only used if resultsView is specified.
             "scimoz" is the ISciMoz interface for current view. This is only
-                used if resultsView is specified.
+                used if resultsView is specified or highlightMatches is True.
+            "highlightMatches" use indicators to highlight scimoz search hits.
         
         No return value.
         """
@@ -1301,6 +1302,14 @@ class KoFindService(object):
                 self.options.patternType,
                 self.options.caseSensitivity,
                 self.options.matchWord)
+
+            if scimoz is None:
+                highlightMatches = False
+            if highlightMatches:
+                # Set the indicator value and clear existing find indicators.
+                scimoz.indicatorValue = scimoz.INDIC_BOX
+                scimoz.indicatorCurrent = self.DECORATOR_FIND_HIGHLIGHT
+                scimoz.indicatorClearRange(0, scimoz.length);
 
             resultsView = UnwrapObject(resultsView)
             for match in findlib2.find_all_matches(regex, text):
@@ -1327,7 +1336,10 @@ class KoFindService(object):
                     url, # fileName (currently url/viewId is the displayName)
                     startLineNum + 1, # 1-based line
                     startCharIndex - scimoz.positionFromLine(startLineNum) + 1, # 1-based column.
-                    context)            
+                    context)
+                if highlightMatches:
+                    scimoz.indicatorFillRange(startByteIndex,
+                                              endByteIndex - startByteIndex)
         except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
