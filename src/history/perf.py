@@ -226,7 +226,10 @@ class HistoryVisitor:
             cu.execute("DELETE from history_visit where timestamp < ?",
                        (self.curr_time - 28,))
             end = timestamp()
-            print "P4 delete %d items: %.3fs" % (num_to_delete, end - start)
+            cu.execute("SELECT count(*) from history_visit where timestamp < ?",
+                       (self.curr_time - 28,))
+            num_not_deleted = int(cu.fetchone()[0])
+            print "P4 delete %d items (leaving %d undeleted): %.3fs" % (num_to_delete, num_not_deleted, end - start)
             
             # Cull P3: more than 7 days old
             cu.execute("SELECT count(*) from history_visit where timestamp < ?",
