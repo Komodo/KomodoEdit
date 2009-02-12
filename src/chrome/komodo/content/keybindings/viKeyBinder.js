@@ -750,8 +750,12 @@ VimController.prototype.handleCommand = function(event, commandname, keylabel, m
         }
 
         if (commandname == 'cmd_cancel') {
+            var cancelCmd = true;
+            if (this.mode == VimController.MODE_NORMAL) {
+                cancelCmd = false;
+            }
             vim_doCommand('cmd_vim_cancel');
-            return false;
+            return cancelCmd;
         } else if ((this.mode == VimController.MODE_NORMAL) ||
                    (this.mode == VimController.MODE_VISUAL)) {
             if (commandname in normalModeCommandMap) {
