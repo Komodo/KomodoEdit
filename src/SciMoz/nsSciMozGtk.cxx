@@ -41,6 +41,8 @@
 using namespace Scintilla;
 #endif
 
+//#define SCIMOZ_DEBUG
+
 void SciMoz::PlatformCreate(WinID) {
 }
 
@@ -111,13 +113,25 @@ nsresult SciMoz::PlatformDestroy(void) {
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::PlatformDestroy\n");
 #endif
-	PlatformResetWindow();
-	// This must have reset out window.
-	NS_PRECONDITION(portMain==0, "Should not be possible to destruct with a window!");
-	gtk_widget_destroy(wEditor);
+	/*
+	  The plugin gtk window has already been destroyed, along with all of
+	  the gtk Scintilla sub-windows (due to a gtk_widget_destroy() call
+	  on the parenting plugin window), so we just need to reset the
+	  variables here and destroy the parking lot.
+	*/
+	portMain = NULL;
+	wMain = NULL;
+	parked = true;
+	fWindow = NULL;
+
+	fPlatform.moz_box = 0;
+	fPlatform.ws_info = NULL;
+
 	wEditor = 0;
-	gtk_widget_destroy(wParkingLot);
-	wParkingLot = 0;
+	if (wParkingLot) {
+		gtk_widget_destroy(wParkingLot);
+		wParkingLot = 0;
+	}
 	return NS_OK;
 }
 
@@ -127,7 +141,7 @@ void SciMoz::NotifySignal(GtkWidget *, gint /*wParam*/, gpointer lParam, SciMoz 
 
 nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"SciMoz::PlatformSetWindow\n");
+    fprintf(stderr,"SciMoz::PlatformSetWindow:: npwindow %p\n", npwindow);
 #endif
     NPSetWindowCallbackStruct *ws_info = (NPSetWindowCallbackStruct *)npwindow->ws_info;
     // This XFlush is required by NS4.x, or the display created by
@@ -220,6 +234,9 @@ nsresult SciMoz::PlatformResetWindow() {
 	if (wParkingLot
 		&& wEditor
 		&& !parked) {
+#ifdef SCIMOZ_DEBUG
+		fprintf(stderr, "SciMoz::PlatformResetWindow:: parking the editor.\n");
+#endif
 		gtk_widget_ref(wEditor);
 		gtk_container_remove(GTK_CONTAINER(fPlatform.moz_box), wEditor);
 		gtk_container_add(GTK_CONTAINER(wParkingLot), wEditor);

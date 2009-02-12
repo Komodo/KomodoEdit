@@ -146,8 +146,9 @@ void NS_DestroyPluginInstance(nsPluginInstanceBase * aPlugin)
 #ifdef SCIMOZ_DEBUG
     fprintf(stderr,"NS_DestroyPluginInstance %p\n", aPlugin);
 #endif 
-  if(aPlugin)
-    delete (nsPluginInstance *)aPlugin;
+  // Note: The cleanup of the plugin is mostly handled by the plugin shut()
+  //       method, which should have already been called before now.
+  return;
 }
 
 ////////////////////////////////////////
@@ -172,26 +173,12 @@ nsPluginInstance::~nsPluginInstance()
 #ifdef SCIMOZ_DEBUG
     fprintf(stderr,"nsPluginInstance::~nsPluginInstance %p inst %p peer %p\n", this, mInstance, mScriptablePeer);
 #endif 
-  // mScriptablePeer may be also held by the browser 
-  // so releasing it here does not guarantee that it is over
-  // we should take precaution in case it will be called later
-  // and zero its mPlugin member
-  if (mScriptablePeer) {
-    mScriptablePeer->SetInstance(NULL);
-#ifdef SCIDEBUG_REFS
-    int rc = mScriptablePeer->getRefCount() - 1;
-    if (rc > 0) {
-        fprintf(stderr, "LEAK: Plugin Destroyed but SciMoz lives on!!! refcnt %d %p\n", rc, mScriptablePeer);
-    }
-#endif
-    NS_RELEASE(mScriptablePeer);
-  }
 }
 
 NPBool nsPluginInstance::init(NPWindow* aWindow)
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::init %p window %p\n",this,aWindow);
+    fprintf(stderr,"nsPluginInstance:: %p init: window %p\n",this,aWindow);
 #endif 
   if(aWindow == NULL)
     return FALSE;
@@ -205,7 +192,7 @@ NPError
 nsPluginInstance::SetWindow(NPWindow* window)
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::SetWindow %p\n", window);
+    fprintf(stderr,"nsPluginInstance:: %p SetWindow: %p\n", this, window);
 #endif 
     // nsresult result;
 
@@ -227,15 +214,35 @@ uint16 nsPluginInstance::HandleEvent(void* event)
 void nsPluginInstance::shut()
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::shut\n");
+    fprintf(stderr,"nsPluginInstance:: %p shut\n", this);
 #endif 
+  // The mScriptablePeer may be still held by the browser (XPCOM), so
+  // releasing it here does not guarantee that it is over. We must take
+  // precautions in case the mScriptablePeer is used later.
+  // When the mScriptablePeer is finally released, the mScriptablePeer will
+  // be the one to cleanup/destroy the plugin instance.
+  if (mScriptablePeer) {
+#ifdef SCIDEBUG_REFS
+    int rc = mScriptablePeer->getRefCount() - 1;
+    if (rc > 0) {
+        fprintf(stderr, "LEAK: Plugin Destroyed but SciMoz lives on!!! refcnt %d %p\n", rc, mScriptablePeer);
+    }
+#endif
+    // The mScriptablePeer instance needs to be cleaned up now, to ensure the
+    // plugin and mScriptablePeer window relationships are all removed,
+    // otherwise a later event from the mScriptablePeer widget(s) could case a
+    // callback to a NULL plugin, causing a crash.
+    mScriptablePeer->PlatformDestroy();
+    NS_RELEASE(mScriptablePeer);
+  }
+  mScriptablePeer = NULL;
   mInitialized = FALSE;
 }
 
 NPBool nsPluginInstance::isInitialized()
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::isInitialized %p %d\n", this, mInitialized);
+    fprintf(stderr,"nsPluginInstance:: %p isInitialized: %d\n", this, mInitialized);
 #endif 
   return mInitialized;
 }
@@ -245,7 +252,7 @@ void nsPluginInstance::getVersion(char* *aVersion)
   const char *ua = NPN_UserAgent(mInstance);
   char*& version = *aVersion;
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::getVersion %s\n",ua);
+    fprintf(stderr,"nsPluginInstance:: %p getVersion %s\n", this, ua);
 #endif   
 
   version = (char*)NPN_MemAlloc(strlen(ua) + 1);
@@ -266,7 +273,7 @@ NPError	nsPluginInstance::GetValue(NPPVariable aVariable, void *aValue)
 {
   NPError rv = NPERR_NO_ERROR;
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::GetValue\n");
+    fprintf(stderr,"nsPluginInstance:: %p GetValue\n", this);
 #endif   
 
   switch (aVariable) {
@@ -307,7 +314,7 @@ NPError	nsPluginInstance::GetValue(NPPVariable aVariable, void *aValue)
 SciMoz* nsPluginInstance::getScriptablePeer()
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::getScriptablePeer\n");
+    fprintf(stderr,"nsPluginInstance:: %p getScriptablePeer\n", this);
 #endif 
   if (!mScriptablePeer) {
     mScriptablePeer = new SciMoz(this);

@@ -170,7 +170,16 @@ SciMoz::~SciMoz()
 #ifdef SCIDEBUG_REFS
     fprintf(stderr,"SciMoz::~SciMoz %p\n", this);
 #endif
-    PlatformDestroy(); // Perform platform specific cleanup
+    // The widgets/windows should have been already cleaned up by now, through
+    // a call to the PlatformDestroy() method when the plugin was originially
+    // removed from the DOM. The plugin object was kept alive in order to wait
+    // until the SciMoz instance is destroyed (garbage collected). Now that
+    // SciMoz is being destroyed, we can finally go back and destroy the plugin
+    // that originally created us.
+    if (mPlugin) {
+	delete mPlugin;
+	mPlugin = NULL;
+    }
 }
 
 
