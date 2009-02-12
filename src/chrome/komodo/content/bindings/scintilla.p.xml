@@ -101,16 +101,13 @@
                 </setter>
             </property>
 <!-- #if PLATFORM != "darwin" -->
-            <!--// "solo" Alt key handling needs special care, as alt-click/drag results in
-                // scintilla rectangular selections, while alt key with no mouse action need to
-                // bubble up to Mozilla for selecting the File menu
-                // There are three values to "dealtWithAlt" -
-                //    -1: Not in the process of dealing with an Alt key
-                //     0: Keydown of Alt received
-                //     1: Mouse down received while in a '0' state.
-                // At keyup, this widget looks at it and sees if it's 0 or 1 - if it's 1, then
-                // the bubble is canceled.-->
-            <field name='dealtWithAlt'>-1</field>
+            <!-- Alt-key handling needs special care to avoid its default
+                (focusing the menu) when using `Alt+click/drag` for
+                block/rectangular-selection via the mouse.
+                `needToStopAltPropagation` is set to true if `Alt+click/drag`
+                is detected, then used and reset by a `keyup` handler for Alt.
+                -->
+            <field name='needToStopAltPropagation'>false</field>
             <field name='_dragScrollHits'>1</field>
 <!-- #endif -->
 
@@ -1381,23 +1378,17 @@
             </handler>
 
 <!-- #if PLATFORM != "darwin" -->
-            <handler event="keyup" phase="capturing">
-                <![CDATA[
-                if (event.keyCode == event.DOM_VK_ALT && this.dealtWithAlt == 1) {
-                    event.cancelBubble = true;
-                    this.dealtWithAlt = -1;
+            <handler event="keyup" phase="capturing"><![CDATA[
+                if (event.keyCode == event.DOM_VK_ALT && this.needToStopAltPropagation) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    this.needToStopAltPropagation = false;
                 }
-                ]]>
-            </handler>
+            ]]></handler>
 <!-- #endif -->
 
             <handler event="keydown" phase="capturing">
                 <![CDATA[
-<!-- #if PLATFORM != "darwin" -->
-                if (event.keyCode == event.DOM_VK_ALT) {
-                    this.dealtWithAlt = 0;
-                }
-<!-- #endif -->
                 if (this.key_handler) {
                     // The key_handler will cancelBubble or preventDefault if it
                     // is necessary.
@@ -1548,7 +1539,7 @@
                 }
 <!-- #if PLATFORM != "darwin" -->
                 if (event.altKey) {
-                    this.dealtWithAlt = 1;
+                    this.needToStopAltPropagation = true;
                 }
 <!-- #endif -->
                 ]]>
