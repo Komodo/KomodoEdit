@@ -563,17 +563,20 @@
                             selectInsertedText = true;
                         }
                     }
-                    if (selectInsertedText) {
-                        this.scimoz.selectionStart = pos;
-                        this.scimoz.selectionEnd = pos+stringutils_bytelength(text);
-                        this.scimoz.currentPos = this.scimoz.selectionEnd;
-                    }
+
                 } finally {
                     if (endUndoAction) {
                         this.scimoz.endUndoAction();
                     }
                 }
                 this.focus();
+                if (selectInsertedText) {
+                    // Bug 81413: This must be done after `this.focus()`.
+                    // Don't know what about `this.focus()` is resetting the
+                    // current position.
+                    this.scimoz.selectionStart = pos;
+                    this.scimoz.selectionEnd = pos+stringutils_bytelength(text);
+                }
                 this.scimoz.endDrop();
                 ]]>
                 </body>
