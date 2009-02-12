@@ -34,6 +34,10 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
+var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/dialogs/filebrowser/filebrowser.properties");
+
 // Globals
 var globalPrefService;//defined in koGlobalOverlay.js
 var globalPrefs = null;
@@ -72,7 +76,7 @@ const remotefile_scheme_types = [ "ftp",
 
 // for now, we're only doing remote file browsing with this file browser
 var RemoteFileBrowserOnly = true;
-const localDrives = "Local Drives";
+const localDrives = bundle.GetStringFromName("localDrives.label");
 var _fileListSep = "; ";
 var sfile = null;
 var retvals;
@@ -145,7 +149,8 @@ localFile.prototype = {
             file._sfile.createUnique(file._sfile.DIRECTORY_TYPE, 0755);
         } catch (e) {
             //alert(e);
-            ko.dialogs.alert("Unable to create directory. "+this.lastError());
+            ko.dialogs.alert(bundle.formatStringFromName("unableToCreateDirectory.alert",
+                [this.lastError()], 1));
             return false;
         }
         return true;
@@ -155,7 +160,8 @@ localFile.prototype = {
             this._sfile.remove(recursive);
             return true;
         } catch (e) {
-            ko.dialogs.alert("Unable to remove "+this.path+"\n "+this.lastError());
+            ko.dialogs.alert(bundle.formatStringFromName("unableToRemove.alert",
+                [this.path, this.lastError()], 2));
             return false;
         }
     },
@@ -232,7 +238,8 @@ localFile.prototype = {
             this._sfile.moveTo(parent, newname);
             return true;
         } catch (e) {
-            ko.dialogs.alert("Unable to rename file. "+this.lastError());
+            ko.dialogs.alert(bundle.formatStringFromName("unableToRenameFile.alert",
+                [this.lastError()], 1));
             return false;
         }
     },
@@ -396,7 +403,8 @@ RemoteFile.prototype.createDirectory = function(dirName) {
         log.debug("RemoteFile.createDirectory: current dir: "+this.path+", making "+dirName);
         serverInfo.connection.createDirectory(this.path+"/"+dirName, 0755);
     } catch (e) {
-        ko.dialogs.alert("Unable to create directory. "+this.lastError());
+        ko.dialogs.alert(bundle.formatStringFromName("unableToCreateDirectory.alert",
+            [this.lastError()], 1));
         return false;
     }
     return true;
@@ -441,7 +449,8 @@ RemoteFile.prototype.remove = function(recursive) {
         }
         return true;
     } catch (e) {
-        ko.dialogs.alert("Unable to remove "+this.path+"\n "+this.lastError());
+        ko.dialogs.alert(bundle.formatStringFromName("unableToRemove.alert",
+            [this.path, this.lastError()], 2));
         return false;
     }
 }
@@ -455,7 +464,8 @@ RemoteFile.prototype.moveTo = function(parent, newname) {
         serverInfo.connection.rename(this.path, newPath);
         return true;
     } catch (e) {
-        ko.dialogs.alert("Unable to rename file. "+this.lastError());
+        ko.dialogs.alert(bundle.formatStringFromName("unableToRenameFile.alert",
+            [this.lastError()], 1));
         return false;
     }
 },
@@ -579,7 +589,8 @@ function filebrowserLoad() {
         var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                                        getService(Components.interfaces.koILastErrorService);
         if (lastErrorSvc.getLastErrorMessage() != 'Login cancelled by user.')
-            alert("Error: "+lastErrorSvc.getLastErrorMessage());
+            alert(bundle.formatStringFromName("error.alert",
+                [lastErrorSvc.getLastErrorMessage()], 1));
     }
   } else {
     setupServerMenuList();
@@ -750,7 +761,7 @@ function newFile(directory)
     if (remoteFileBrowser) {
         if (!serverInfo.connection) {
             // We should always have a connection, what gives!
-            alert("No connection available");
+            alert(bundle.GetStringFromName("noConnectionAvailable.alert"));
             return null;
         }
         // maintain a single connection by passing our connection around
@@ -816,7 +827,8 @@ function setInitialDirectory(dirPath)
     //alert(e);
     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                                    getService(Components.interfaces.koILastErrorService);
-    alert("Error: '"+lastErrorSvc.getLastErrorMessage()+"'");
+    alert(bundle.formatStringFromName("error.alert",
+        [lastErrorSvc.getLastErrorMessage()], 1));
   }
 }
 
@@ -834,7 +846,7 @@ function changeFilter(filterTypes)
     try {
         treeView.setFilter(filterTypes);
     } catch (ex) {
-        alert("Could not change the filter: " + ex);
+        alert(bundle.formatStringFromName("couldNotChangeTheFilter.alert", [ex], 1));
     }
     window.setCursor("auto");
 }
@@ -892,7 +904,7 @@ function onOK()
           }
           if (haveFile) continue;
       } else if (filePickerMode != modeSave) {
-        alert("File path does not exist: " + file_path);
+        alert(bundle.formatStringFromName("filePathDoesNotExist.alert", [file_path], 1));
         continue;
       }
       // Else, add to the list of files that we need to open
@@ -940,7 +952,8 @@ function onOK()
   case modeSave:
     if (file.isFile) { // can only be true if file.exists()
       // we need to pop up a dialog asking if you want to save
-      var message = file.path+" already exists.\nDo you want to replace it?";
+      var message = bundle.formatStringFromName("fileAlreadyExistsReplaceIt.message",
+            [file.path], 1);
       var rv = window.confirm(message);
       if (rv) {
         ret = returnReplace;
@@ -966,11 +979,13 @@ function onOK()
           oldParent = parent;
           parent = parent.parent;
         }
-        errorTitle = "Error saving "+file.path;
+        errorTitle = bundle.formatStringFromName("errorSaving.title", [file.path], 1);
         if (parent.isFile) {
-          errorMessage = parent.path+" is a file, can't save "+file.path;
+          errorMessage = bundle.formatStringFromName("isFileCantSave.alert",
+            [parent.path, file.path], 2);
         } else {
-          errorMessage = "Path "+oldParent.path+" doesn't exist, can't save "+file.path;
+          errorMessage = bundle.formatStringFromName("pathDoesntExistCantSave.alert",
+            [oldParent.path, file.path], 2);
         }
         promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                                   .getService(Components.interfaces.nsIPromptService);
@@ -1210,7 +1225,8 @@ function onDirectoryChanged(target)
   } catch (e) {
     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                                    getService(Components.interfaces.koILastErrorService);
-    alert("Error: '"+lastErrorSvc.getLastErrorMessage()+"'");
+    alert(bundle.formatStringFromName("error.alert",
+        [lastErrorSvc.getLastErrorMessage()], 1));
   }
 }
 
@@ -1264,7 +1280,7 @@ function goLast() {
 // Called when the filebrowser dialog "Create Directory" icon is selected
 function doMKDIR() {
     if (!sfile) return false;
-    var dirName = ko.dialogs.prompt("Enter the name for the new directory");
+    var dirName = ko.dialogs.prompt(bundle.GetStringFromName("enterTheNameNewDirectory.message"));
     if (!dirName) return false;
 
     log.debug("current dir "+sfile.path+" isdir: "+sfile.isDirectory);
@@ -1288,14 +1304,16 @@ function doMKDIR() {
             ret = true;
         }
     } catch (ex) {
-        alert("Cannot make new directory: " + sfile.lastError());
+        alert(bundle.formatStringFromName("cannotMakeNewDirectory.alert",
+            [sfile.lastError], 1));
     }
     window.setCursor("auto");
     return ret;
 }
 
 function doRename() {
-    var newName = ko.dialogs.prompt("Enter the new name for the file or directory", null,textInput.value)
+    var newName = ko.dialogs.prompt(bundle.GetStringFromName("newNameFileorDirectory.message"),
+            null, textInput.value)
     if (!newName || newName == textInput.value) return false;
 
     var file = treeView.getSelectedFile();
@@ -1311,16 +1329,17 @@ function doRename() {
 
 function doDelete() {
     var files = treeView.getSelectedFiles();
-    if (ko.dialogs.yesNo("Are you sure you want to delete the selected files?", "No") == "No") {
+    if (ko.dialogs.yesNo(bundle.GetStringFromName("areYouSureDeleteSelectedFiles.message"), "No") == "No") {
       return;
     }
     for (var i=0; i< files.length; i++) {
         log.debug("doDelete called on "+files[i].path);
         var recurse = false;
         if (files[i].isDirectory) {
-            var prompt_message = "The file '"+files[i].leafName+
-                    "' is a Directory. This will delete all the contents of this folder as well."
-            if (ko.dialogs.okCancel(prompt_message, "OK", null, "Directory deletion") != "OK") {
+            var prompt_message = bundle.formatStringFromName("theFileIsADirectory.message"
+                ,[files[i].leafName], 1);
+            var title = bundle.GetStringFromName("directoryDeletion.title");
+            if (ko.dialogs.okCancel(prompt_message, "OK", null, title) != "OK") {
                 continue;
             }
         }
@@ -1341,7 +1360,7 @@ function doRefresh() {
         gotoDirectory(sfile);
         labelStatus.value = "";
     } catch (ex) {
-        alert("Cannot refresh path: " + sfile.lastError());
+        alert(bundle.formatStringFromName("cannotRefreshPath.alert", [sfile.lastError()], 1));
     }
     window.setCursor("auto");
 }
@@ -1370,12 +1389,13 @@ function gotoDirectory(remoteDir) {
             (listUpdateTime < (timeSvc.time() - 5))) {    // Older than 5 seconds
             var timeTuple = timeSvc.localtime(listUpdateTime, new Object());
             var date = timeSvc.strftime("%H:%M:%S", timeTuple.length, timeTuple);
-            labelStatus.value = "(Cached at: " + date + ")";
+            labelStatus.value = bundle.formatStringFromName("cachedAt.label", [date], 1);
         } else
             labelStatus.value = "";
     } catch (e) {
         //alert(e);
-        alert("Cannot change directory: " + sfile.lastError());
+        alert(bundle.formatStringFromName("cannotChangeDirectory.alert",
+            [sfile.lastError()], 1));
     }
     window.setCursor("auto");
 }
@@ -1572,8 +1592,8 @@ function onServerChanged(alias) {
     var server = changeServerInfo(alias);
     if (!alias || !server) {
         if (!setServerInfoUsingUri(alias) || (!remoteFileBrowser)) {
-            alert("Url must begin with one of: " + remotefile_scheme_types.join("://, ") + "://\n" +
-                  "Example: ftp://ftp.activestate.com/");
+             alert(bundle.formatStringFromName("urlMustBeginWith.alert",
+                [remotefile_scheme_types.join("://, ")], 1));
             setInitialDirectory(null);
             return;
         }
@@ -1600,7 +1620,7 @@ function onServerChanged(alias) {
             log.exception(e);
         }
         if (errormsg != 'Login cancelled by user.')
-            alert("Error: "+errormsg);
+            alert(bundle.formatStringFromName("error.alert", [errormsg], 1));
     }
 }
 
@@ -1639,7 +1659,8 @@ function setCurrentServerFromServerInfo() {
 }
 
 function goServerPrefs() {
-    prefs_doGlobalPrefs("serversItem", true);
+    // just load up prefs so they can add servers
+    ko.windowManager.getMainWindow().prefs_doGlobalPrefs("serversItem");
 }
 
 function refreshServerMenu() {
