@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
-  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
   %prefDTD;
 ]>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE bindings SYSTEM "http://www.mozilla.org/xbl" [
-  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
   %prefDTD;
 ]>
 
