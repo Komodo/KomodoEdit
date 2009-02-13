@@ -63,14 +63,10 @@ class KoHistoryService(History):
         loc.tabbed_view_id = tabbed_view_id
         loc.marker_handle = scimoz.markerAdd(line, self.MARKNUM_HISTORYLOC)
         ciBuf = view.document.ciBuf
-        if ciBuf:
-            try:
-                section = ciBuf.curr_section_from_line(line + 1)
-            except AttributeError:
-                pass
-            else:
-                if section:
-                    loc.section_name = section.title
+        if ciBuf and hasattr(ciBuf, "curr_section_from_line"):
+            section = ciBuf.curr_section_from_line(line + 1)
+            if section:
+                loc.section_name = section.title
         return loc    
 
     def note_loc(self, loc, check_section_change=False, view=None):
