@@ -27,7 +27,7 @@ function [[%tabstop1:MyComponent]]() {
     [[%tabstop:// TODO: Implement the interface here, define the function(s) exposed
     //       by your interface.
     [[%tabstop:hello]]: function() {
-        [[%tabstop:return "Hello World!";
+        [[%tabstop:return "Hello World!";]]
     },]]
 
 };
