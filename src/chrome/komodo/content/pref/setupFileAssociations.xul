@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
-  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
   %prefDTD;
 ]>
 
@@ -72,18 +72,12 @@
         <key keycode="VK_ESCAPE" oncommand="Cancel();"/>
     </keyset>
 
-    <description>
-        Your system can be configured to register Komodo as an editor for
-        specific file types. Select the file extensions for which you would
-        like to register Komodo as an editor.
-    </description>
+    <description>&yourSystemCanBeConfiguredToRegisterKomodo.desc;</description>
 
     <vbox flex="1">
         <groupbox orient="vertical" flex="1">
             <caption label="&editAssociations.label;"/>
-            <description>
-                Make Komodo the default editor for the following file types:
-            </description>
+            <description>&makeKomodoDefaultEditorForFiletypes.desc;</description>
             <checkbox id="edit-group-select" label="&all.label;"
                       style="padding-left: 20px;"
                       oncommand="ToggleEditGroupSelectCheckbox()"/>
@@ -125,10 +119,7 @@
 
         <groupbox orient="vertical" flex="1">
             <caption label="&editWithKomodoAssociations.label;"/>
-            <description>
-                Add an "Edit with Komodo" context menu option in Explorer for
-                the following file types:
-            </description>
+            <description>&addAnEditWithKomodoContextMenuOption.desc;</description>
             <checkbox id="edit-with-group-select" label="&all.label;"
                       style="padding-left: 20px;"
                       oncommand="ToggleEditWithGroupSelectCheckbox()"/>

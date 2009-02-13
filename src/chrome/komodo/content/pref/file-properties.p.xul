@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
-  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
   %prefDTD;
 ]>
 
@@ -62,6 +62,9 @@
 
 <script type="application/x-javascript;version=1.7">
 <![CDATA[
+var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/pref/file-properties.properties");
 var data = {};
 var gEncodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
                    getService(Components.interfaces.koIEncodingServices);
@@ -178,9 +181,9 @@ function OnPreferencePageClosing(prefset, ok) {
                     try {
                         osSvc.setWriteability(path, !value);
                     } catch(ex) {
-                        ko.dialogs.alert("Error setting read-only mode for '"
-                                     +parent.view.title+"': "+
-                                     lastErrorSvc.getLastErrorMessage());
+                        ko.dialogs.alert(
+                            bundle.formatStringFromName("errorSettingReadonlyModeFor.message",
+                            [parent.view.title, lastErrorSvc.getLastErrorMessage()], 2));
                         data.readonly.focus();
                         return false;
                     }
@@ -301,7 +304,7 @@ function initFileProperties()
             name = data.file.baseName;
 
             dirname = data.file.dirName;
-            size = data.file.fileSize + " bytes";
+            size = bundle.formatStringFromName("bytes.message", [data.file.fileSize], 1);
 
             // Time info.
             var timeSvc = Components.classes["@activestate.com/koTime;1"].
@@ -332,7 +335,8 @@ function initFileProperties()
         document.getElementById("accessed").value = atime;
         if (readonly == null) { // i.e. N/A
             data.readonly.checked = false;
-            data.readonly.setAttribute("tooltiptext", "Not Applicable");
+            data.readonly.setAttribute("tooltiptext",
+                    bundle.GetStringFromName("notApplicable.message"));
             data.readonly.setAttribute("disabled", "true");
         } else {
             data.readonly.checked = readonly;
@@ -467,7 +471,8 @@ function applyEncodingAndBOM(encodingName, bom)
     enc.use_byte_order_marker = bom;
 
     var warning = parent.view.document.languageObj.getEncodingWarning(enc);
-    var question = warning+" Are you sure that you want to change the encoding?";
+    var question = bundle.formatStringFromName(
+        "areYouSureThatYouWantToChangeTheEncoding.message", [warning], 1);
     if (warning == "" || ko.dialogs.yesNo(question, "No") == "Yes") {
         try {
             parent.view.document.encoding = enc;
@@ -481,25 +486,22 @@ function applyEncodingAndBOM(encodingName, bom)
             var errmsg = lastErrorSvc.getLastErrorMessage();
             if (errno == 0) {
                 // koDocument.set_encoding() says this is an internal error
-                err = "Internal error setting the encoding for '"+
-                          parent.view.document.displayPath+"' to '"+
-                          encodingName+"'."
+                err = this._bundle.formatStringFromName("internalErrorSettingTheEncoding.message",
+                        [parent.view.document.displayPath, encodingName], 2);
                 ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
             } else {
-                question = errmsg+"  Komodo can force the conversion by "+
-                           "replacing all unrepresentable "+
-                           "characters with a question mark, '?', or you "+
-                           "may Cancel and select a different encoding.";
+                question = bundle.formatStringFromName("force.conversion.message", [errmsg], 1);
                 var choice = ko.dialogs.customButtons(question,
-                                                  ["&Force", "Cancel"],
-                                                  "Cancel"); // default
-                if (choice == "Force") {
+                        [bundle.GetStringFromName("force.message.one"),
+                         bundle.GetStringFromName("cancel.message")],
+                        bundle.GetStringFromName("cancel.message")); // default
+                if (choice == bundle.GetStringFromName("force.message.two")) {
                     try {
                         parent.view.document.forceEncodingFromEncodingName(encodingName);
                     } catch (ex2) {
-                        err = "Internal error forcing the encoding for '"+
-                                  parent.view.document.baseName+"' to '"+
-                                  encodingName+"'."
+                        err = this._bundle.formatStringFromName(
+                                "theSampleProjectCouldNotBeFound.message",
+                                [parent.view.document.baseName, encodingName], 2);
                         ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
                         return false;
                     }
@@ -551,7 +553,7 @@ function applyEncodingAndBOM(encodingName, bom)
 <!-- #if PLATFORM == "win" -->
                     <separator class="thin"/>
                     <row align="center">
-                        <label value="Created:"/>
+                        <label value="&filePropertiesCreated.label;"/>
                         <label id="created"/>
                     </row>
 <!-- #endif -->

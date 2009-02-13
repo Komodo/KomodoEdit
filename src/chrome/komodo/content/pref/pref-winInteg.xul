@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
-  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref.dtd">
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
   %prefDTD;
 ]>
 
@@ -66,14 +66,10 @@
             <rows>
                 <row equalsize="always">
                     <vbox flex="1" style="padding-right: 5px;">
-                        <description>
-                            Make Komodo the default editor for these file extensions:
-                        </description>
+                        <description>&makeKomodoTheDefaultEditor.desc;</description>
                     </vbox>
                     <vbox flex="1" style="padding-left: 5px;">
-                        <description>
-                            Add an "Edit with Komodo" action for these file extensions:
-                        </description>
+                        <description>&addAnEditWithKomodoAction.desc;</description>
                     </vbox>
                 </row>
 
@@ -132,11 +128,7 @@
         </hbox>
 
         <separator height="10"/>
-        <description>
-            Other applications (including other versions of Komodo) may
-            change file associations on the system. Click below to re-apply
-            these file associations to this Komodo version.
-        </description>
+        <description>&otherApplicationsMayChangeFileAssociations.desc;</description>
         <hbox>
             <spacer flex="1"/>
             <button label="&reApplySettingsToSystem.label;"
@@ -151,11 +143,7 @@
                 <hbox align="start">
                     <image class="small-warning-icon spaced"/>
                 </hbox>
-                <description style="color: #b82619" flex="1">
-                    Warning: One or more of your file association settings are
-                    not set in the registry. Click above to re-apply your
-                    settings. Details are below.
-                </description>
+                <description style="color: #b82619" flex="1">&warningOneOrMOreFileAssociationNotSet;</description>
             </hbox>
             <textbox id="file-assocs-warning-text" multiline="true" flex="1"
                      style="min-height: 8em;"

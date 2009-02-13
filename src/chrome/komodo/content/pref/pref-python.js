@@ -37,7 +37,10 @@
 //---- globals
 var _findingInterps = false;
 var prefExecutable = null;
-
+var programmingLanguage = "Python";
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+            .getService(Components.interfaces.nsIStringBundleService)
+            .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
 //---- functions
 
 function OnPreferencePageOK(prefset)
@@ -50,9 +53,7 @@ function OnPreferencePageOK(prefset)
         var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
             getService(Components.interfaces.koISysUtils);
         if (! koSysUtils.IsFile(defaultInterp)) {
-            alert("No Python interpreter could be found at '" +
-                  defaultInterp + "'. You must make another selection " +
-                  "for the default Python interpreter.\n");
+            alert(_bundle.formatStringFromName("noLangInterpreterFound.alert", [programmingLanguage, defaultInterp,programmingLanguage], 3));
             ok = false;
             document.getElementById("pythonDefaultInterpreter").focus();
         }
@@ -72,7 +73,7 @@ function PrefPython_PopulatePythonInterps()
     // remove any existing items and add a "finding..." one
     _findingInterps = true;
     availInterpList.removeAllItems();
-    availInterpList.appendItem("Finding available Python interpreters...");
+    availInterpList.appendItem(_bundle.formatStringFromName("findingInterpreters.label", [programmingLanguage], 1));
 
     // get a list of installed Python interpreters
     var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
@@ -84,7 +85,7 @@ function PrefPython_PopulatePythonInterps()
     }
 
     availInterpList.removeAllItems();
-    availInterpList.appendItem("Find on Path",'');
+    availInterpList.appendItem(_bundle.GetStringFromName("findOnPath.label"),'');
 
     var found = false;
     // populate the tree listing them

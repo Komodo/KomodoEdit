@@ -37,7 +37,10 @@
 //---- globals
 var _findingInterps = false;
 var prefExecutable = null;
-
+var programmingLanguage = "Perl";
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+            .getService(Components.interfaces.nsIStringBundleService)
+            .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
 //---- functions
 
 function OnPreferencePageOK(prefset)
@@ -50,9 +53,7 @@ function OnPreferencePageOK(prefset)
         var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
             getService(Components.interfaces.koISysUtils);
         if (! koSysUtils.IsFile(defaultInterp)) {
-            ko.dialogs.alert("No Perl interpreter could be found at '" + defaultInterp +
-                  "'. You must make another selection for the default " +
-                  "Perl interpreter.\n");
+            ko.dialogs.alert(_bundle.formatStringFromName("noLangInterpreterFound.alert", [programmingLanguage, defaultInterp,programmingLanguage], 3));
             ok = false;
             document.getElementById("perlDefaultInterpreter").focus();
         }
@@ -69,7 +70,7 @@ function PrefPerl_PopulatePerlInterps()
     // remove any existing items and add a "finding..." one
     _findingInterps = true;
     availInterpList.removeAllItems();
-    availInterpList.appendItem("Finding available Perl interpreters...");
+    availInterpList.appendItem(_bundle.formatStringFromName("findingInterpreters.label", [programmingLanguage], 1));
 
     // get a list of installed Perl interpreters
     var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
@@ -78,7 +79,7 @@ function PrefPerl_PopulatePerlInterps()
     availInterps = sysUtils.WhichAll("perl", new Object());
 
     availInterpList.removeAllItems();
-    availInterpList.appendItem("Find on Path",'');
+    availInterpList.appendItem(_bundle.GetStringFromName("findOnPath.label"),'');
 
     var found = false;
     // populate the tree listing them

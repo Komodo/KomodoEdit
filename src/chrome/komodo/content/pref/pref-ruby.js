@@ -33,11 +33,14 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  * 
  * ***** END LICENSE BLOCK ***** */
-
 //---- globals
 var _findingInterps = false;
 var prefExecutable = null;
 var appInfoEx = null;
+var programmingLanguage = "Ruby";
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+            .getService(Components.interfaces.nsIStringBundleService)
+            .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
 //---- functions
 
 function OnPreferencePageOK(prefset)
@@ -50,9 +53,7 @@ function OnPreferencePageOK(prefset)
         var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
             getService(Components.interfaces.koISysUtils);
         if (! koSysUtils.IsFile(defaultInterp)) {
-            alert("No Ruby interpreter could be found at '" +
-                  defaultInterp + "'. You must make another selection " +
-                  "for the default Ruby interpreter.\n");
+            alert(_bundle.formatStringFromName("noLangInterpreterFound.alert", [programmingLanguage, defaultInterp,programmingLanguage], 3));
             ok = false;
             document.getElementById("rubyDefaultInterpreter").focus();
         }
@@ -70,13 +71,13 @@ function PrefRuby_PopulateRubyInterps()
     // remove any existing items and add a "finding..." one
     _findingInterps = true;
     availInterpList.removeAllItems();
-    availInterpList.appendItem("Finding available Ruby interpreters...");
+    availInterpList.appendItem(_bundle.formatStringFromName("findingInterpreters.label", [programmingLanguage], 1));
 
     // get a list of installed Ruby interpreters
     var numFound = new Object();
     var availInterps = appInfoEx.FindInstallationExecutables(numFound);
     availInterpList.removeAllItems();
-    availInterpList.appendItem("Find on Path",'');
+    availInterpList.appendItem(_bundle.GetStringFromName("findOnPath.label"),'');
 
     var found = false;
     // populate the tree listing them

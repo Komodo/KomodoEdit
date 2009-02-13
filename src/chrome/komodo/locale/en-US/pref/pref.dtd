@@ -673,6 +673,12 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY whichBrowserUse.description "Which browser should Komodo use when opening URLs?">
 <!ENTITY whichMethodUse.description "Which method should be used to preview files in the browser?">
 
+<!-- pref-winInteg.xul -->
+<!ENTITY makeKomodoTheDefaultEditor.desc "Make Komodo the default editor for these file extensions:">
+<!ENTITY addAnEditWithKomodoAction.desc "Add an 'Edit with Komodo' action for these file extensions:">
+<!ENTITY otherApplicationsMayChangeFileAssociations.desc "0ther applications (including other versions of Komodo) may change file associations on the system. Click below to re-apply these file associations to this Komodo version.">
+<!ENTITY warningOneOrMOreFileAssociationNotSet "Warning: One or more of your file association settings are not set in the registry. Click above to re-apply your settings. Details are below.">
+
 <!--preview-properties.xul-->
 <!ENTITY useThisUrlPreview.label "Use this file/URL when previewing in browser:">
 
@@ -680,6 +686,11 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY requestMethod.label "Request Method">
 <!ENTITY postType.label "Post Type">
 <!ENTITY browserArguments.label "Browser Arguments">
+
+<!--setupFileAssociations.xul-->
+<!ENTITY yourSystemCanBeConfiguredToRegisterKomodo.desc "Your system can be configured to register Komodo as an editor for specific file types. Select the file extensions for which you would like to register Komodo as an editor.">
+<!ENTITY makeKomodoDefaultEditorForFiletypes.desc "Make Komodo the default editor for the following file types:">
+<!ENTITY addAnEditWithKomodoContextMenuOption.desc "Add an 'Edit with Komodo' context menu option in Explorer for the following file types:">
 
 <!--commented in file pref-alllangfonts.xul-->
 <!--

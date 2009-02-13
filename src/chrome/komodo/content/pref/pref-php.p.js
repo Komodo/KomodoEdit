@@ -37,9 +37,13 @@
 //---- globals
 var _findingInterps = false;
 var availInterps = [];
+var programmingLanguage="PHP";
 //---- functions
 var phpAppInfoEx = null;
 var prefExecutable = null;
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+            .getService(Components.interfaces.nsIStringBundleService)
+            .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
 
 /* Functions Related to pref-phpini.xul */
 function PrefPhp_OnLoad()  {
@@ -74,9 +78,7 @@ function OnPreferencePageOK(prefset)
         var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
             getService(Components.interfaces.koISysUtils);
         if (! koSysUtils.IsFile(defaultInterp)) {
-            alert("No PHP interpreter could be found at '" + defaultInterp +
-                  "'. You must make another selection for the default " +
-                  "PHP interpreter.\n");
+            alert(_bundle.formatStringFromName("noLangInterpreterFound.alert", [programmingLanguage, defaultInterp,programmingLanguage], 3));
             ok = false;
             document.getElementById("phpDefaultInterpreter").focus();
         }
@@ -94,15 +96,14 @@ function PrefPhp_PopulatePHPInterps()
     // remove any existing items and add a "finding..." one
     _findingInterps = true;
     availInterpList.removeAllItems();
-    availInterpList.appendItem("Finding available PHP interpreters...");
+    availInterpList.appendItem(_bundle.formatStringFromName("findingInterpreters.label", [programmingLanguage], 1));
 
     // get a list of installed PHP interpreters
     var numFound = new Object();
     availInterps = phpAppInfoEx.FindInstallationExecutables(numFound);
 
     availInterpList.removeAllItems();
-    availInterpList.appendItem("Find on Path",'');
-
+    availInterpList.appendItem(_bundle.GetStringFromName("findOnPath.label"),'');
     var found = false;
     var item = null;
     // populate the tree listing them
