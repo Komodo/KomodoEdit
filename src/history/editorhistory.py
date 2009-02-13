@@ -98,6 +98,7 @@ class Location(object):
         self.marker_handle = marker_handle
         self.window_num = window_num
         self.tabbed_view_id = tabbed_view_id
+        self.section_name = None
 
     def __repr__(self):
         extras = []
@@ -108,6 +109,9 @@ class Location(object):
         #extras.append("tabbed_view_id=%r" % self.tabbed_view_id)
         if self.view_type != "editor":
             extras.append(self.view_type)
+        extras.append("mh=%d" % self.marker_handle)
+        if self.section_name:
+            extras.append("section_name=%s" % self.section_name)
         extra = extras and (" (%s)" % ", ".join(extras)) or ""
         return "<Location %s#%s,%s%s>" % (
             self.uri, self.line, self.col, extra)
@@ -489,6 +493,7 @@ class History(object):
     RECENT_BACK_VISITS_DEPLETION_LENGTH = RECENT_BACK_VISITS_LENGTH + 2
 
     closed = False
+    MARKNUM_HISTORYLOC = 13 # Keep in sync with content/markers.js
 
     def __init__(self, db_path=None, expire_age=None):
         self.db = Database(db_path)
@@ -755,7 +760,7 @@ class History(object):
         if (not curr_handled
             and len(self.recent_back_visits) == 0
             and len(self.forward_visits) > 0
-            and not self._similar_locations(curr_loc, self.forward_visits[0])):
+            and not self._is_loc_same_line(curr_loc, self.forward_visits[0])):
             curr_handled = True
             yield True, curr_loc
         for i, loc in enumerate(self.recent_back_visits):
@@ -766,25 +771,20 @@ class History(object):
             if (not curr_handled
                 and not is_curr
                 and i == 0
-                and not self._similar_locations(curr_loc, loc)):
+                and not self._is_loc_same_line(curr_loc, loc)):
                 yield True, curr_loc
             if i >= self.RECENT_BACK_VISITS_LENGTH:
                 break
             yield is_curr, loc
-                    
+            
     def update_marker_handles_on_close(self, uri, scimoz):
         self.db.update_marker_handles_on_close(uri, scimoz,
                                                self.forward_visits,
                                                self.recent_back_visits)
-    
-    def _tooSimilarToCurrentSavedPoint(self, candidateLoc):
-        if len(self.recent_back_visits) == 0:
-            return False
-        return self._similar_locations(candidateLoc, self.recent_back_visits[0])
-        
-    def _similar_locations(self, candidateLoc, otherLoc):
-        return (otherLoc.uri == candidateLoc.uri
-                and otherLoc.line == candidateLoc.line)
+      
+    def _is_loc_same_line(self, candidate_loc, other_loc):
+        return (other_loc.uri == candidate_loc.uri
+                and other_loc.line == candidate_loc.line)
  
     def debug_dump_recent_history(self, curr_loc=None):
         print "-- recent history"

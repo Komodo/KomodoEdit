@@ -20,6 +20,7 @@ interface koIHistoryLocation : nsISupports
     attribute PRUint32 marker_handle;
     attribute PRUint32 window_num;
     attribute PRUint32 tabbed_view_id;
+    attribute wstring section_name;
     
     //TODO: add timestamp-based data (when needed), content, section, session_name
 };
@@ -34,7 +35,9 @@ interface koIHistoryService : nsISupports
     koIHistoryLocation go_back(in koIHistoryLocation curr_loc, in PRUint32 n);
     koIHistoryLocation go_forward(in koIHistoryLocation curr_loc, in PRUint32 n);
 
-    koIHistoryLocation note_loc(in koIHistoryLocation loc);
+    koIHistoryLocation note_loc(in koIHistoryLocation loc,
+                                in boolean check_section_change,
+                                in koIScintillaView view);
     koIHistoryLocation note_curr_editor_loc(in koIScintillaView view);
     koIHistoryLocation editor_loc_from_info(
         in PRUint32 window_num,

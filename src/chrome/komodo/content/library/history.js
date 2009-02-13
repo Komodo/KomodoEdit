@@ -182,24 +182,32 @@ function _get_curr_loc(view /* =current view */) {
  * @returns {koILocation} The noted location (or null if could not determine
  *      a current loc).
  */
-this.note_curr_loc = function note_curr_loc(view /* = currentView */) {
+this.note_curr_loc = function note_curr_loc(view, /* = currentView */
+                                            check_section_change /* false */
+                                            ) {
+    if (typeof(view) == "undefined" || view == null) view = ko.views.manager.currentView;
+    if (typeof(check_section_change) == "undefined") check_section_change = false;
     var loc = _get_curr_loc(view);
     if (!loc) {
         return null;
     }
-    return _controller.historySvc.note_loc(loc);
+    return _controller.historySvc.note_loc(loc, check_section_change, view);
 };
 
 /** 
  * Returns the view and line # based on the loc.
  *
  * @param loc {Location}.
+ * @param handle_view_line_callback {Function}.
+ * @param open_if_needed {Boolean}.
  * @returns undefined
  *
  * This function might open a file asynchronously, so it invokes
  * handle_view_line_callback to do the rest of the work.
  */
-function view_and_line_from_loc(loc, handle_view_line_callback, open_if_needed/*=true*/) {
+function view_and_line_from_loc(loc, handle_view_line_callback,
+                                open_if_needed/*=true*/
+                                ) {
     if (typeof(open_if_needed) == "undefined") open_if_needed = true;
     var uri = loc.uri;
     if (!uri) {
@@ -292,10 +300,12 @@ function labelFromLoc(loc) {
             var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
                              .createInstance(Components.interfaces.koIFileEx);
             koFileEx.URI = loc.uri;
-            if (koFileEx.scheme == "file") {
+            switch (koFileEx.scheme) {
+            case "file":
                 dirName = koFileEx.dirName;
                 baseName = koFileEx.baseName;
-            } else {
+                break;
+            default:
                 baseName = loc.uri;
             }
         } catch(ex) {
@@ -334,8 +344,14 @@ this.initPopupMenuRecentLocations = function(event) {
             continue;
         }
         var tooltip;
+        var label = labelFromLoc(loc);
+        if (!label) {
+            // Don't display unloaded unloaded dbgp URIs in the dropdown.
+            // Otherwise they show up as blank lines.
+            continue;
+        }
         menuitem = document.createElement("menuitem");
-        menuitem.setAttribute("label", labelFromLoc(loc));
+        menuitem.setAttribute("label", label);
         menuitem.setAttribute("index", 0);
         var handler = null;
         var delta = currentLocIdx - i;
@@ -359,7 +375,7 @@ this.initPopupMenuRecentLocations = function(event) {
     } catch(ex) {
         _log.exception("initPopupMenuRecentLocations: " + ex);
     }
-}
+};
 
 this.history_back = function(delta) {
     var loc = _controller.historySvc.go_back(_get_curr_loc(), delta);
