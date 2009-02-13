@@ -39,7 +39,9 @@
 var log = ko.logging.getLogger("dialogs.compare");
 //log.setLevel(ko.logging.LOG_DEBUG);
 var gCWD = null;
-
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/dialogs/compare.properties");
 
 //---- interface routines for XUL
 
@@ -48,12 +50,12 @@ function OnLoad()
     try {
         var dialog = document.getElementById("dialog-compare");
         var okButton = dialog.getButton("accept");
-        okButton.setAttribute("accesskey", "c");
-        okButton.setAttribute("label", "Compare Files");
+        okButton.setAttribute("accesskey", _bundle.GetStringFromName("compareFunction.accesskey"));
+        okButton.setAttribute("label", _bundle.GetStringFromName("compareFiles.label"));
         okButton.setAttribute("disabled", "true");
         var first = document.getElementById('first')
         var second = document.getElementById('second');
-        document.title = "Compare Two Files";
+        document.title = _bundle.GetStringFromName("compareTwoFiles.title");
 
         if (opener.ko.views.manager &&
             opener.ko.views.manager.currentView &&
@@ -89,7 +91,7 @@ function OnLoad()
 
 function choose(which)
 {
-    var file = ko.filepicker.openFile(null, null, "Please select the " + which + " file:");
+    var file = ko.filepicker.openFile(null, null, _bundle.formatStringFromName("pleaseSelectFile.message", [which], 1));
     if (!file) return;
     document.getElementById(which).value = file;
     updateOK();
@@ -141,12 +143,12 @@ function OK()
 
         // Ensure the files exist.
         if (!file1.exists) {
-            alert("There is no file at '" + firstPath + "'.  Please enter another path.");
+            alert(_bundle.formatStringFromName("thereIsNoFileAt.alert", [firstPath], 1));
             first.focus();
             return false
         }
         if (!file2.exists) {
-            alert("There is no file at '" + secondPath + "'.  Please enter another path.");
+            alert(_bundle.formatStringFromName("thereIsNoFileAt.alert", [secondPath], 1));
             second.focus();
             return false
         }

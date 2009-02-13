@@ -104,6 +104,9 @@ var _observer = null;
 var _prefObserver = null;
 var _updateLintMessageTimer = null;
 var _addMessageTimer = null;
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/statusbar.properties");
 
 //_log.setLevel(ko.logging.LOG_DEBUG);
 
@@ -261,13 +264,16 @@ function _updateSelectionInformation(view) {
 
         if (selectionStart != selectionEnd) {
             // character count
-            selectionLabel = "Sel: " + selection.length + " ch";
+            selectionLabel = _bundle.formatStringFromName(
+                "selection.label", [selection.length], 1);
             if (selection.length != count) {
                 // byte count
-                selectionLabel += ", " + count + " by";
+                selectionLabel += _bundle.formatStringFromName(
+                    "selectionByteCount.label", [count], 1);
             }
             // line count
-            selectionLabel += ", " + (Math.abs(lineEnd - lineStart) + 1) + " ln";
+            selectionLabel += _bundle.formatStringFromName(
+                "selectionLineCount.label", [(Math.abs(lineEnd - lineStart) + 1)], 1);
         }
     }
     document.getElementById("statusbar-selection").label = selectionLabel;
@@ -278,7 +284,8 @@ function _updateLineCol(view) {
         return;
 
     try {
-        var lineColText = "Ln: " + view.currentLine + " Col: " + view.currentColumn;
+        var lineColText = _bundle.formatStringFromName("lineColCount.label",
+            [view.currentLine, view.currentColumn], 2);
         var lineColWidget = document.getElementById('statusbar-line-col');
         lineColWidget.setAttribute('label', lineColText);
     } catch(ex) {
@@ -329,7 +336,8 @@ try {
     {
         checkWidget.setAttribute('collapsed', 'true');
         checkWidget.removeAttribute("image");
-        checkWidget.setAttribute("tooltiptext", "Syntax Checking Status");
+        checkWidget.setAttribute("tooltiptext",
+                _bundle.GetStringFromName("syntaxCheckingStatus.tooltip"));
         return;
     }
     checkWidget.removeAttribute('collapsed');
@@ -357,12 +365,12 @@ try {
     if (!lintResults) {
         if (checkingEnabled) {
             checkWidget.setAttribute("tooltiptext",
-                                     "Syntax Checking Status: in progress");
+                _bundle.GetStringFromName("syntaxCheckingStatusInProgress.tooltip"));
             checkWidget.setAttribute('image',
                 "chrome://komodo/skin/images/icon_check_inprogress.png");
         } else {
             checkWidget.setAttribute("tooltiptext",
-                                     "Automatic syntax checking disabled: shift-click to start");
+                _bundle.GetStringFromName("automaticSyntaxCheckingDisabled.tooltip"));
             checkWidget.setAttribute('image',
                 "chrome://komodo/skin/images/icon_check_ok.png");
         }
@@ -374,14 +382,13 @@ try {
             checkWidget.setAttribute('image',
                 "chrome://komodo/skin/images/icon_check_ok.png");
             checkWidget.setAttribute("tooltiptext",
-                                     "Syntax Checking Status: ok");
+                _bundle.GetStringFromName("syntaxCheckingStatusOk.tooltip"));
         } else {
             checkWidget.setAttribute('image',
                 "chrome://komodo/skin/images/icon_check_error.png");
             checkWidget.setAttribute("tooltiptext",
-                "Syntax Checking Status: " +
-                lintResults.getNumErrors() + " error(s), "+
-                lintResults.getNumWarnings() + " warning(s)");
+                _bundle.formatStringFromName("syntaxCheckingStatusErrors.tooltip",
+                    [lintResults.getNumErrors(), lintResults.getNumWarnings()], 2));
         }
     }
 } catch(ex) {
@@ -432,7 +439,7 @@ function _updateMessage()
             messageWidget.removeAttribute("highlite");
         }
     } else {
-        messageWidget.setAttribute("label","Ready");
+        messageWidget.setAttribute("label",_bundle.GetStringFromName("ready.label"));
         messageWidget.removeAttribute("tooltiptext");
         messageWidget.removeAttribute("highlite");
     }
@@ -463,7 +470,9 @@ function StatusBarObserver() {
     window.addEventListener('current_view_linecol_changed',
                             this.handle_current_view_linecol_changed, false);
     window.addEventListener('view_closed',
-                            this.handle_current_view_closed, false);
+                            this.handle_current_view_open_or_closed, false);
+    window.addEventListener('view_opened',
+                            this.handle_current_view_open_or_closed, false);
     ko.main.addWillCloseHandler(this.destroy, this);
 };
 
@@ -487,7 +496,9 @@ StatusBarObserver.prototype.destroy = function()
     window.removeEventListener('current_view_linecol_changed',
                                this.handle_current_view_linecol_changed, false);
     window.removeEventListener('view_closed',
-                               this.handle_current_view_closed, false);
+                               this.handle_current_view_open_or_closed, false);
+    window.removeEventListener('view_opened',
+                               this.handle_current_view_open_or_closed, false);
     _messageStack = null;
     _observer = null;
     _prefObserver = null; 
@@ -532,7 +543,7 @@ StatusBarObserver.prototype.handle_current_view_linecol_changed = function(event
     _updateLineCol(ko.views.manager.currentView);
 }; 
 
-StatusBarObserver.prototype.handle_current_view_closed = function(event) {
+StatusBarObserver.prototype.handle_current_view_open_or_closed = function(event) {
     _clear()
 }; 
 

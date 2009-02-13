@@ -37,6 +37,9 @@
 /* Komodo's Help->About dialog */
 
 var log = ko.logging.getLogger("about");
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/about.properties");
 
 //---- interface routines for XUL
 
@@ -47,11 +50,12 @@ function OnLoad()
 
     // Fill in Komodo build information.
     var buildInfoWidget = document.getElementById("build-info");
-    var buildInfo = "Komodo " + infoSvc.prettyProductType +
-                    ", version " + infoSvc.version +
-                    ", build " + infoSvc.buildNumber +
-                    ", platform " + infoSvc.buildPlatform +
-                    ".\nBuilt on " + infoSvc.buildASCTime + ".";
+    var buildInfo = _bundle.formatStringFromName("aboutInfo.message",
+            [infoSvc.prettyProductType,
+             infoSvc.version,
+             infoSvc.buildNumber,
+             infoSvc.buildPlatform,
+             infoSvc.buildASCTime], 5);
     buildInfoWidget.value = buildInfo;
 
     // Give the Ok button the focus, otherwise the textbox might eat <Enter>.

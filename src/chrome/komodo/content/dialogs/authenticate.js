@@ -65,6 +65,9 @@ var _gUsingMRU = false;
 var _gUsernameCache = null;
 var _gEmailCache = null;
 var _gPasswordCache = null;
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/dialogs/authenticate.properties");
 
 
 //---- interface routines for XUL
@@ -75,9 +78,9 @@ function OnLoad()
         var dialog = document.getElementById("dialog-authenticate")
         var loginButton = dialog.getButton("accept");
         var cancelButton = dialog.getButton("cancel");
-        loginButton.setAttribute("label", "Login");
-        loginButton.setAttribute("accesskey", "L");
-        cancelButton.setAttribute("accesskey", "C");
+        loginButton.setAttribute("label", _bundle.GetStringFromName("login.label"));
+        loginButton.setAttribute("accesskey", _bundle.GetStringFromName("login.accesskey"));
+        cancelButton.setAttribute("accesskey", _bundle.GetStringFromName("cancel.accesskey"));
 
         // .prompt
         var promptWidget = document.getElementById("prompt");
@@ -120,7 +123,7 @@ function OnLoad()
             window.arguments[0].title != null) {
             document.title = window.arguments[0].title;
         } else {
-            document.title = "Login As";
+            document.title = _bundle.GetStringFromName("loginAs.title");
         }
 
         // .allowAnonymous
@@ -158,10 +161,10 @@ function ToggleAnonymous()
     if (checked) {
         _gUsernameCache = username.value;
         _gPasswordCache = password.value;
-        username.value = "anonymous";
+        username.value = _bundle.GetStringFromName("anonymous.value");
         username.setAttribute("disabled", "true");
-        passwordLabel.setAttribute("value", "Email Address:");
-        passwordLabel.setAttribute("accesskey", "E");
+        passwordLabel.setAttribute("value", _bundle.GetStringFromName("emailAddress.label"));
+        passwordLabel.setAttribute("accesskey", _bundle.GetStringFromName("emailAddress.accesskey"));
         password.setAttribute("type", "text");
         password.value = _gEmailCache || "anon@anon.org";
         password.focus();
@@ -169,8 +172,8 @@ function ToggleAnonymous()
         if (username.hasAttribute("disabled"))
             username.removeAttribute("disabled");
         username.value = _gUsernameCache || "";
-        passwordLabel.setAttribute("value", "Password:");
-        passwordLabel.setAttribute("accesskey", "P");
+        passwordLabel.setAttribute("value", _bundle.GetStringFromName("password.label"));
+        passwordLabel.setAttribute("accesskey", _bundle.GetStringFromName("password.accesskey"));
         password.setAttribute("type", "password");
         _gEmailCache = password.value;
         password.value = _gPasswordCache || "";

@@ -68,6 +68,9 @@
 var dialog = null;
 var uri = null;
 var path = null;
+var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/dialogs.properties");
 
 function onLoad() {
     // get window arguments and fill in our dialog
@@ -83,7 +86,9 @@ function onLoad() {
             path.value = window.arguments[0].path;
         }
         if (window.arguments[0].project_name) {
-            document.getElementById("project_radio").setAttribute('label', "'"+window.arguments[0].project_name+"' Project");
+            document.getElementById("project_radio").setAttribute('label',
+                bundle.formatStringFromName("projectName.label",
+                                            [window.arguments[0].project_name], 1));
         }
     }
     updateAccept();

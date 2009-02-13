@@ -48,6 +48,9 @@ if (typeof(ko)=='undefined') {
 
 ko.browse = {};
 (function() {
+var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/browse.properties");
 /**
  * open the given url or complain appropriately
  *
@@ -72,8 +75,8 @@ this.openUrlInDefaultBrowser = function browse_OpenUrlInDefaultBrowser(url, brow
         // Don't guess, since launching e.g. Mozilla can have side effects
         var browsers = koWebbrowser.get_possible_browsers(new Object());
         var answer = ko.dialogs.selectFromList(
-                "Choose Default Browser",
-                "Select the browser that Komodo should use to open URLs:",
+                bundle.GetStringFromName("chooseDefaultBrowser.message"),
+                bundle.GetStringFromName("selectTheBrowserToOpen.message"),
                 browsers,
                 "one"); // selectionCondition
         if (answer == null) {
@@ -94,10 +97,11 @@ this.openUrlInDefaultBrowser = function browse_OpenUrlInDefaultBrowser(url, brow
     }
     if (!ret) {
         if (browser) {
-            ko.dialogs.alert("Could not open the browser at "+browser+".");
+            ko.dialogs.alert(bundle.formatStringFromName(
+                "couldNotOpenTheBrowserAt.alert", [browser], 1));
         } else {
-            ko.dialogs.alert("Could not file a graphical browser on the "+
-                         "PATH with which to open '" + url + "'.");
+            ko.dialogs.alert(bundle.formatStringFromName(
+                "couldNotFindAGraphicalBrowser.alert", [url], 1));
         }
     }
 }

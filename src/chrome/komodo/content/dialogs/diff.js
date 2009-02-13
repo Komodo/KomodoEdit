@@ -50,6 +50,10 @@ var _dw_log = ko.logging.getLogger("diff");
 //_dw_log.setLevel(ko.logging.LOG_DEBUG);
 var _diffWindow = null;
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/dialogs/diff.properties");
+
 //
 // Diff window object
 //
@@ -72,13 +76,13 @@ function DiffWindow()
         if (!window.arguments[0].diff) {
             if (window.arguments[0].async_op) {
                 // Display the notification widget that it's running asynchronously.
-                var label = "Fetching diff information...";
+                var label = _bundle.GetStringFromName("fetchingDiffInfo.label");
                 var value = null;
                 var asyncSvc = Components.classes["@activestate.com/koAsyncService;1"].
                                 getService(Components.interfaces.koIAsyncService);
                 var image_src = asyncSvc.asynchronous_icon_url;
                 view.notificationbox.appendNotification(label, value, image_src);
-                diff = "Loading asynchronously...";
+                diff = _bundle.GetStringFromName("loadingAsync.message");
             } else {
                 _dw_log.error('The diff was not specified for diff.xul');
             }

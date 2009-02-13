@@ -48,6 +48,10 @@ xtk.include("controller");
 // touch anything in it from the outside world
 (function() {
     
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/editor.properties");
+    
 function editor_editorController() {
 }
 
@@ -159,7 +163,8 @@ editor_editorController.prototype.do_cmd_bookmarkGotoNext = function() {
         nextLine = v.scintilla.scimoz.markerNext(0, marker_mask);
     }
     if (nextLine < 0 || nextLine == thisLine) {
-        ko.statusBar.AddMessage("No next bookmark can be found.", "bookmark",
+        ko.statusBar.AddMessage(_bundle.GetStringFromName("noNextBookmark.message"),
+                            "bookmark",
                              3000, true);
     } else {
         ko.history.note_curr_loc(v);
@@ -182,7 +187,8 @@ editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
         prevLine = v.scintilla.scimoz.markerPrevious(v.scintilla.scimoz.lineCount-1, marker_mask);
     }
     if (prevLine < 0 || prevLine == thisLine) {
-        ko.statusBar.AddMessage("No previous bookmark can be found.", "bookmark",
+        ko.statusBar.AddMessage(_bundle.GetStringFromName("noPreviousBookmark.message"),
+                            "bookmark.message",
                              3000, true);
     } else {
         ko.history.note_curr_loc(v);
