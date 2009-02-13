@@ -1837,7 +1837,10 @@ function mapped_command_vim_splitview(command_details) {
 }
 
 function mapped_command_vim_closeBuffer(command_details) {
-    ko.commands.doCommand("cmd_bufferClose");
+    if (ko.views.manager.currentView) {
+        var doNotOfferToSave = command_details.forced;
+        ko.views.manager.currentView.close(doNotOfferToSave);
+    }
 }
 
 function mapped_command_vim_undo(command_details) {
@@ -3475,6 +3478,7 @@ function cmd_vim_saveAndClose(scimoz) {
 
 function cmd_vim_closeNoSave(scimoz) {
     gVimController._commandDetails.clear();
+    gVimController._commandDetails.forced = true;
     mapped_command_vim_closeBuffer(gVimController._commandDetails);
 }
 
