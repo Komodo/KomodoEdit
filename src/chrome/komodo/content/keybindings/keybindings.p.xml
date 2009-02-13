@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE bindings SYSTEM "http://www.mozilla.org/xbl" [
-  <!ENTITY % keybindingsDTD SYSTEM "chrome://komodo/locale/keybindings.dtd">
+  <!ENTITY % keybindingsDTD SYSTEM "chrome://komodo/locale/keybindings/keybindings.dtd">
   %keybindingsDTD;
 ]>
 
@@ -132,6 +132,10 @@
                 if (this.hasAttribute('commandParam')) {
                     this.commandParam = this.getAttribute('commandParam');
                 }
+
+                this._bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                    .getService(Components.interfaces.nsIStringBundleService)
+                    .createBundle("chrome://komodo/locale/keybindings/keybindings.properties");
             ]]>
             </constructor>
             <destructor>
@@ -341,7 +345,10 @@
                         var i;
                         if (!this.prefsdialog) {
                             if (this._halfwaydone) {
-                                var question = "The keybinding in the \"New Key Sequence\" field will not take effect until you press Add or Change.  Discard it?";
+                                var question = this._bundle.formatStringFromName(
+                                    "theKeybindingWillNotTakeEffect.message",
+                                    [this._bundle.GetStringFromName("newKeySequence.message")],
+                                    1);
                                 if (ko.dialogs.yesNo(question) != "Yes") {
                                     return false;
                                 }
@@ -373,7 +380,9 @@
                             }
                             if (overridens.length > 0) {
                                 var txt = overridens.join(', ');
-                                var question = "Applying the selected keybindings will disable the keybindings from: "+txt+".";
+                                var question = this._bundle.formatStringFromName(
+                                    "applyingTheSelectedKeybindingsWillDisable.message",
+                                    [txt], 1);
                                 if (ko.dialogs.okCancel(question) != "OK") {
                                     return false;
                                 }
@@ -456,7 +465,8 @@
                         currentlabel = this.currentkey.value;
                     }
                     if (currentlabel) {
-                        if (currentlabel == "None") {
+                        var noneMessage = this._bundle.GetStringFromName("none.message");
+                        if (currentlabel == noneMessage) {
                             // XXX
                             if (this.part) {
                                 this.gKeybindingMgr.stashIn(this.part, '');
@@ -574,7 +584,7 @@
                         var usePopup = numlabels>1;
                         if (numlabels < 2) {
                             if (numlabels == 0) {
-                                this.currentkey.value = 'None';
+                                this.currentkey.value = this._bundle.GetStringFromName("none.message");
                                 this.currentlabel = '';
                             } else {
                                 this.currentkey.value = this.keylabels[0];

@@ -61,6 +61,7 @@
 <!ENTITY editorViGoToEndOfDocument.desc "Editor: Vi: Go to End of Document">
 <!ENTITY editorViGoToNextLine.desc "Editor: Vi: Go to Next Line">
 <!ENTITY editorViGoToPreviousLine.desc "Editor: Vi: Go to Previous Line">
+<!ENTITY editorViMoveToBeginningOfDocument.desc "Editor: Vi: Move to Beginning of the Document">
 <!ENTITY editorViGotoLine.desc "Editor: Vi: Goto Line">
 <!ENTITY editorViInsertNewline.desc "Editor: Vi: Insert Newline">
 <!ENTITY editorViInsertNewlineStartingOnThePreviousLine.desc "Editor: Vi: Insert Newline (starting on the previous line)">
@@ -74,7 +75,6 @@
 <!ENTITY editorViMoveOneWordLeftPastAnyPunctuation.desc "Editor: Vi: Move one word left, past any punctuation">
 <!ENTITY editorViMoveOneWordRightPastAnyPunctuation.desc "Editor: Vi: Move one word right, past any punctuation">
 <!ENTITY editorViMoveRightOneCharacter.desc "Editor: Vi: Move Right One Character">
-<!ENTITY editorViMoveToBeginningOfDocument.desc "Editor: Vi: Move to Beginning of the Document">
 <!ENTITY editorViMoveToBeginningOfLineFirstVisibleCharFirstColumn.desc "Editor: Vi: Move to Beginning of Line (first visible char/first column)">
 <!ENTITY editorViMoveToBeginningOfTheCurrentLine.desc "Editor: Vi: Move to Beginning of the Current Line">
 <!ENTITY editorViMoveToBeginningOfTheNextLine.desc "Editor: Vi: Move to Beginning of the Next Line">

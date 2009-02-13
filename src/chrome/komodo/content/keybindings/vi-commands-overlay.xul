@@ -35,7 +35,7 @@
  
  ***** END LICENSE BLOCK ***** -->
 <!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
-  <!ENTITY % keybindingsDTD SYSTEM "chrome://komodo/locale/keybindings.dtd">
+  <!ENTITY % keybindingsDTD SYSTEM "chrome://komodo/locale/keybindings/keybindings.dtd">
   %keybindingsDTD;
 ]>
 
