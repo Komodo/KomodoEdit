@@ -109,6 +109,11 @@
 
         <constructor><![CDATA[
             try {
+
+                this._bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                    .getService(Components.interfaces.nsIStringBundleService)
+                    .createBundle("chrome://komodo/locale/startpage/startpage.properties");
+
                 this._pref = this.getAttribute("pref");
                 this.log.info("constructor (pref="+this._pref+")");
                 if (typeof(this._pref) == "undefined" || this._pref == "")
@@ -245,7 +250,8 @@
                 box.style.setProperty("margin-bottom", "0px", "");
 
                 button.setAttribute("class", "openbox-icon");
-                button.setAttribute("tooltiptext", "Show Pane");
+                button.setAttribute("tooltiptext",
+                    this._bundle.GetStringFromName("showPane.tooltiptext"));
 
                 if (this._pref) {
                     this._ignorePrefNotification = true;
@@ -280,7 +286,8 @@
                 box.style.setProperty("margin-bottom", "1px", "");
 
                 button.setAttribute("class", "closebox-icon");
-                button.setAttribute("tooltiptext", "Hide Pane");
+                button.setAttribute("tooltiptext",
+                    this._bundle.GetStringFromName("hidePane.tooltiptext"));
 
                 if (this._pref) {
                     this._ignorePrefNotification = true;
@@ -424,6 +431,9 @@
                 getService(Components.interfaces.koIOs);
             this._lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                 getService(Components.interfaces.koILastErrorService);
+            this._bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/startpage/startpage.properties");
             this._dateFormat = gPrefs.getStringPref("defaultDateFormat");
 
             var obSvc = Components.classes["@mozilla.org/observer-service;1"].
@@ -441,8 +451,8 @@
             }
 
             window.setTimeout(function (me) {
-                me._projects = me.addTopRow("Recent Projects");
-                me._files = me.addTopRow("Recent Files");
+                me._projects = me.addTopRow(me._bundle.GetStringFromName("recentProjects.message"));
+                me._files = me.addTopRow(me._bundle.GetStringFromName("recentFiles.message"));
                 me.updateProjectMRUTable();
                 me.updateFileMRUTable();
             }, 0, this);
@@ -457,7 +467,7 @@
             gPrefs.removeObserver(this);
         ]]></body>
         </method>
-        
+
         <method name="addTopRow">
         <parameter name="name"/>
         <body> <![CDATA[
@@ -568,8 +578,7 @@
             //    "mru" is either "project" or "file", indicating which MRU.
             this.log.info("clearMRU()");
             try {
-                var prompt = "Are you sure you want to clear the list "+
-                             "of recent Files and Projects?";
+                var prompt = this._bundle.GetStringFromName("promptClearConfirm.message");
                 var answer = ko.dialogs.okCancel(prompt);
                 if (answer == "OK") {
                     ko.mru.reset("mruProjectList");
@@ -741,9 +750,9 @@
                     var path = ko.uriparse.displayPath(url);
                     return timeSvc.nice_modtime_from_path(path);
                 } else if (url.search(/^(koremote\:)/) != -1)  {
-                    msg = "Could not determine (Remote File)";
+                    msg = this._bundle.GetStringFromName("couldNotDetermineRemoteFile.message");
                 } else  {
-                    msg = "Could not determine";
+                    msg = this._bundle.GetStringFromName("couldNotDetermine.message");
                 }
             } catch (ex) {
                 this.log.exception(ex, "_getLastModifiedMessage error");
@@ -964,6 +973,16 @@
         <field name="_updateTemplateMRUWhenVisible">true</field>
         
         <field name="_requestedFeatureStatuses">false</field>
+
+        <constructor><![CDATA[
+            try {
+                this._bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                    .getService(Components.interfaces.nsIStringBundleService)
+                    .createBundle("chrome://komodo/locale/startpage/startpage.properties");
+            } catch(ex) {
+                this.log.error(ex);
+            }
+        ]]></constructor>
 
         <method name="init">
         <body> <![CDATA[
@@ -1266,12 +1285,10 @@
                         [koDirSvc.userDataDir, "samples", "sample_project.kpf"]);
                 
                 if (! osPathSvc.exists(sampleKpfPath)) {
-                    var response = ko.dialogs.okCancel(
-                        "The sample project could not be found at '"+
-                            sampleKpfPath+"'. Your Komodo samples directory "+
-                            "may be corrupt. Would you like Komodo to "+
-                            "re-generate the samples tree?",
-                        "Cancel");
+                    var response = ko.dialogs.okCancel(this._bundle.formatStringFromName(
+                                "theSampleProjectCouldNotBeFound.message",
+                                [sampleKpfPath], 1),
+                                "Cancel");
                     if (response == "OK") {
                         var initSvc = Components.classes["@activestate.com/koInitService;1"].
                                 getService(Components.interfaces.koIInitService);

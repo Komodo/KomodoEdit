@@ -84,7 +84,9 @@ var options = null;
 var elAddToProject = null;
 var openButton;
 
-
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/templates/new.properties");
 
 //---- interface routines for XUL
 
@@ -97,14 +99,16 @@ function OnLoad()
 
         var dialog = document.getElementById("dialog-newtemplate")
         openButton = dialog.getButton("accept");
-        openButton.setAttribute("label", "Open");
-        openButton.setAttribute("accesskey", "O");
+        openButton.setAttribute("label", _bundle.GetStringFromName("open.label"));
+        openButton.setAttribute("accesskey", _bundle.GetStringFromName("open.accesskey"));
         openButton.setAttribute("disabled", "true");
         var openFolderButton = dialog.getButton("extra1");
-        openFolderButton.setAttribute("label", "Open Template Folder");
-        openFolderButton.setAttribute("accesskey", "F");
+        openFolderButton.setAttribute("label",
+            _bundle.GetStringFromName("openTemplateFolder.label"));
+        openFolderButton.setAttribute("accesskey",
+            _bundle.GetStringFromName("openTemplateFolder.accesskey"));
         openFolderButton.setAttribute("tooltiptext",
-            "Open user template folder.  Place your own template files here.");
+            _bundle.GetStringFromName("openUserTemplateFolder.tooltip"));
         var cancelButton = dialog.getButton("cancel");
         cancelButton.setAttribute("accesskey", "C");
         
@@ -119,17 +123,17 @@ function OnLoad()
         
         elAddToProject = document.getElementById("add-to-project");
         if (options.type == "project") {
-            document.title = "New Project";
+            document.title = _bundle.GetStringFromName("newProject.title");
             elAddToProject.parentNode.removeChild(elAddToProject);
             elAddToProject = null;
             // Project packages do not support remote filesystems.
             el = document.getElementById("remoteFileDir");
             el.parentNode.removeChild(el);
             el = document.getElementById("localFileDir");
-            el.setAttribute('label', 'Browse...');
-            el.setAttribute("accesskey", "B");
+            el.setAttribute('label', _bundle.GetStringFromName("browse.message"));
+            el.setAttribute("accesskey", _bundle.GetStringFromName("browse.accesskey"));
         } else if (options.templateOnly) {
-            document.title = "Select File Template";
+            document.title = _bundle.GetStringFromName("selectFileTemplate.title");
             elAddToProject.parentNode.removeChild(elAddToProject);
             elAddToProject = null;
             el = document.getElementById("filepicker");
@@ -140,7 +144,7 @@ function OnLoad()
                 name = name.slice(0, -4);  // drop .kpf extension
             }
             elAddToProject.setAttribute("label",
-                "Add to '"+name+"' Project");
+                _bundle.formatStringFromName("addToProject.label", [name], 1));
             if (options.addToProjectOverride != null) {
                 elAddToProject.checked = options.addToProjectOverride;
             } else {
@@ -310,9 +314,8 @@ function Open()
                 }
             } else if (tExt && !fExt) {
                 var basename = ko.uriparse.baseName(filename);
-                var prompt = "The filename you entered, '"+basename+"', does "+
-                             "not have an extension. Would you like Komodo to "+
-                             "add the extension '"+tExt+"'?";
+                var prompt = _bundle.formatStringFromName(
+                    "theFilenameYouEnteredHasNoExtension.prompt", [basename, tExt], 2);
                 answer = ko.dialogs.yesNoCancel(prompt, "Yes", null, null,
                                             "ensure_new_filename_has_ext");
                 if (answer == "Yes") {
@@ -329,8 +332,8 @@ function Open()
             dirname = osPathSvc.expanduser(dirname);
             filename = osPathSvc.join(dirname, filename);
             if (osPathSvc.exists(filename)) {
-                answer = ko.dialogs.yesNo(
-                    "'"+filename+"' already exists, would you like to replace the existing file?",
+                answer = ko.dialogs.yesNo(_bundle.formatStringFromName(
+                        "filenameAlreadyExists.prompt", [filename], 1),
                     "No");
                 if (answer == "No")
                     return false;

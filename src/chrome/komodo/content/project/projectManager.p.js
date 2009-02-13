@@ -52,6 +52,11 @@ if (typeof(ko.projects)=='undefined') {
 }
 
 (function () {
+
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/projectManager.properties");
+
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 this.manager = null;
 
@@ -140,7 +145,7 @@ projectManager.prototype.getProjectsMenu = function(popup)
     } else {
         // add an 'empty' menu item
         mi = document.createElementNS(XUL_NS, 'menuitem');
-        mi.setAttribute('label','No Open Projects');
+        mi.setAttribute('label', _bundle.GetStringFromName("noOpenProjects.label"));
         mi.setAttribute('disabled','true');
         popup.appendChild(mi);
     }
@@ -234,7 +239,7 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
 
 projectManager.prototype.closeProject = function(project) {
     if (project.isDirty) {
-        var question = "Save changes to project '"+project.name+"'?";
+        var question = _bundle.formatStringFromName("saveChangesToProject.message", [project.name], 1);
         var answer = ko.dialogs.yesNoCancel(question);
         if (answer == "Cancel") {
             return false;
@@ -244,9 +249,8 @@ projectManager.prototype.closeProject = function(project) {
             } catch(ex) {
                 var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                     getService(Components.interfaces.koILastErrorService);
-                ko.dialogs.alert('There was an error saving project, "' +
-                      project.name + '": ' +
-                      lastErrorSvc.getLastErrorMessage());
+                ko.dialogs.alert(_bundle.formatStringFromName("thereWasAnErrorSavingProject.alert",
+                    [project.name, lastErrorSvc.getLastErrorMessage()], 2));
                 return false;
             }
         }
@@ -255,8 +259,7 @@ projectManager.prototype.closeProject = function(project) {
     var urls = this._getOpenURLsInProject(project);
     if (urls.length != 0) {
         var action = ko.dialogs.yesNoCancel(
-                "Would you like Komodo to close the opened files from "+
-                    "this project?",
+                _bundle.GetStringFromName("closeTheOpenedFilesFromThisProject.message"),
                 "No", null, null, // default response, text, title
                 "close_all_files_on_project_close");
         if (action == "Cancel") {
@@ -265,7 +268,9 @@ projectManager.prototype.closeProject = function(project) {
             // Should find out which ones are dirty and offer to save those --
             // then _closeURL can be brutal with those that the user didn't
             // want to save.
-            var modified = ko.views.manager.offerToSave(urls, "Save Modified Files", "Save selected files before closing them?");
+            var modified = ko.views.manager.offerToSave(urls,
+                _bundle.GetStringFromName("saveModifiedFiles.message"),
+                _bundle.GetStringFromName("saveSelectedFilesBeforeClosingThem.message"));
             if (modified == false) return false;
 
             var i;
@@ -378,8 +383,7 @@ projectManager.prototype.saveProject = function(project, skip_scc_check) {
     }
 
     if (file.isReadOnly) {
-        alert("The project '" + project.name +
-              "' is a read only file and cannot be saved.");
+        alert(_bundle.formatStringFromName("theProjectIsReadonly.alert", [project.name], 1));
         return false;
     } else {
         try {
@@ -387,9 +391,8 @@ projectManager.prototype.saveProject = function(project, skip_scc_check) {
         } catch(ex) {
             var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                 getService(Components.interfaces.koILastErrorService);
-            ko.dialogs.alert('There was an error saving project "' +
-                  project.name + '": ' +
-                  lastErrorSvc.getLastErrorMessage());
+            ko.dialogs.alert(_bundle.formatStringFromName("thereWasAnErrorSavingProject.alert",
+                [project.name, lastErrorSvc.getLastErrorMessage()], 2));
             return false;
         }
         // invalidate so the dirty status shows correctly
@@ -421,9 +424,8 @@ projectManager.prototype._saveNewProject = function(project) {
     } catch(ex) {
         var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
             getService(Components.interfaces.koILastErrorService);
-        ko.dialogs.alert('There was an error saving project "' +
-              project.name + '": ' +
-              lastErrorSvc.getLastErrorMessage());
+        ko.dialogs.alert(_bundle.formatStringFromName("thereWasAnErrorSavingProject.alert",
+            [project.name, lastErrorSvc.getLastErrorMessage()], 2));
         return false;
     }
     this._addProject(project);
@@ -474,17 +476,19 @@ projectManager.prototype.saveProjectAsTemplate = function (project) {
     try {
         if (project.isDirty) {
             var strYes = "Yes";
-            var res = ko.dialogs.yesNo("Save the project and continue?", //prompt
-                                       strYes, // default response
-                                       "Projects need to be saved before Komodo will export them as a package.\nDo you want Komodo to save the project and continue?" // text
-                                       );
+            var res = ko.dialogs.yesNo(
+                _bundle.GetStringFromName("saveTheProjectAndContinue.message"), //prompt
+                strYes, // default response
+                _bundle.GetStringFromName("projectsNeedToBeSavedBeforeExport.message") // text
+                );
             if (res != strYes || !this.saveProject(project)) {
                 return;
             }
         }
         var os = Components.classes["@activestate.com/koOs;1"].getService();
         var templateSvc = Components.classes["@activestate.com/koTemplateService?type=project;1"].getService();
-        var dname = os.path.join(templateSvc.getUserTemplatesDir(), 'My Templates');
+        var dname = os.path.join(templateSvc.getUserTemplatesDir(),
+                _bundle.GetStringFromName("myTemplates,message"));
 
         var file = project.getFile();
         var basename = file.baseName;
@@ -543,8 +547,8 @@ projectManager.prototype.loadProject = function(url) {
         if (!projectname) {  // XXX Is this case cruft? I think so. --TM
             projectname = url;
         }
-        ko.dialogs.alert("Unable to load project \"" + projectname + "\": " +
-              lastErrorSvc.getLastErrorMessage());
+        ko.dialogs.alert(_bundle.formatStringFromName("unableToLoadProject.alert",
+            [projectname, lastErrorSvc.getLastErrorMessage()], 2));
         return null;
     }
     return this._addProject(project);
@@ -650,19 +654,19 @@ projectManager.prototype.registerCommands = function() {
     em.registerCommand("cmd_replaceInCurrProject",this);
 
     em.createMenuItem(Components.interfaces.koIProject,
-                                    'Make Active Project','cmd_setActiveProject');
+        _bundle.GetStringFromName("makeActiveProject.label"), 'cmd_setActiveProject');
     em.createMenuItem(Components.interfaces.koIProject,
-                                    'Close Project','cmd_closeProject');
+        _bundle.GetStringFromName("closeProject.label"), 'cmd_closeProject');
     em.createMenuItem(Components.interfaces.koIProject,
-                                    'Save Project','cmd_saveProject');
+        _bundle.GetStringFromName("saveProject.label"), 'cmd_saveProject');
     em.createMenuItem(Components.interfaces.koIProject,
-                                    'Save Project As...','cmd_saveProjectAs');
+        _bundle.GetStringFromName("saveProjectAs.label"), 'cmd_saveProjectAs');
     em.createMenuItem(Components.interfaces.koIProject,
-                                    'Create Template From Project...','cmd_saveProjectAsTemplate');
+        _bundle.GetStringFromName("createTemplateFromProject.label"), 'cmd_saveProjectAsTemplate');
     em.createMenuItem(Components.interfaces.koIProject,
-                                    'Revert Project','cmd_revertProject');
+        _bundle.GetStringFromName("revertProject.label"), 'cmd_revertProject');
     em.createMenuItem(Components.interfaces.koIToolbox,
-                                    'Import Package into Toolbox...','cmd_importPackageToToolbox');
+        _bundle.GetStringFromName("importPackageIntoToolbox"), 'cmd_importPackageToToolbox');
 }
 
 projectManager.prototype.supportsCommand = function(command, item) {
@@ -742,9 +746,10 @@ projectManager.prototype.doCommand = function(command) {
         filename = ko.filepicker.saveFile(
             null, // defaultDir
             "MyProject.kpf", // defaultFilename
-            "New Project", // title
-            "Komodo Project", // defaultFilterName
-            ["Komodo Project", "All"]); // filterNames
+            _bundle.GetStringFromName("newProject.title"), // title
+            _bundle.GetStringFromName("komodoProject.message"), // defaultFilterName
+                [_bundle.GetStringFromName("komodoProject.message"),
+                    _bundle.GetStringFromName("all.message")]); // filterNames
         if (filename == null) return;
         uri = ko.uriparse.localPathToURI(filename);
         this.newProject(uri);
@@ -755,9 +760,10 @@ projectManager.prototype.doCommand = function(command) {
     case "cmd_openProject":
         var defaultDirectory = null;
         var defaultFilename = null;
-        var title = "Open Project";
-        var defaultFilterName = 'Komodo Project';
-        var filterNames = ['Komodo Project', 'All'];
+        var title = _bundle.GetStringFromName("openProject.title");
+        var defaultFilterName = _bundle.GetStringFromName("komodoProject.message");
+        var filterNames = [_bundle.GetStringFromName("komodoProject.message"),
+                           _bundle.GetStringFromName("all.message")];
         filename = ko.filepicker.openFile(defaultDirectory /* =null */,
                              defaultFilename /* =null */,
                              title /* ="Open File" */,
@@ -1032,8 +1038,7 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
             opened_files = projectViewState.getPref('opened_files');
             if (opened_files.length > 0) {
                 action = ko.dialogs.yesNoCancel(
-                    "Would you like to open files that you last had open "+
-                        "in this project?",
+                    _bundle.GetStringFromName("openFilesLastHadOpen.message"),
                     "Yes", null, null, // default response, text, title
                     "open_recent_files_on_project_open");
                 if (action == "Cancel") {
@@ -1059,16 +1064,18 @@ this.saveProjectAs = function ProjectSaveAs(project)
 {
     var localPath = ko.filepicker.saveFile(
             null, project.url, // default dir and filename
-            "Save Project As", // title
-            "Komodo Project", // default filter name
-            ["Komodo Project", "All"]); // filter names to show
+            _bundle.GetStringFromName("saveprojectas.title"), // title
+            _bundle.GetStringFromName("komodoProject.message"), // default filter name
+                [_bundle.GetStringFromName("komodoProject.message"),
+                _bundle.GetStringFromName("all.message")]); // filter names to show
     if (localPath == null) {
         return false;
     }
     var url = ko.uriparse.localPathToURI(localPath);
 
     if (ko.projects.manager.getProjectByURL(url) != null) {
-        ko.dialogs.alert("Sorry, but project " + url + " is already loaded.");
+        ko.dialogs.alert(_bundle.formatStringFromName("projectIsAlreadyLoaded.alert",
+            [url], 1));
         return false;
     }
 
@@ -1079,9 +1086,8 @@ this.saveProjectAs = function ProjectSaveAs(project)
     } catch(ex) {
         var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
             getService(Components.interfaces.koILastErrorService);
-        ko.dialogs.alert('There was an error saving project "' +
-              project.name + '": ' +
-              lastErrorSvc.getLastErrorMessage());
+        ko.dialogs.alert(_bundle.formatStringFromName("thereWasAnErrorSavingProject.alert",
+            [project.name, lastErrorSvc.getLastErrorMessage()], 2));
         return false;
     }
 
