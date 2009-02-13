@@ -71,6 +71,7 @@ class DiffLibExError(Exception):
 #---- globals
 
 log = logging.getLogger("difflibex")
+#log.setLevel(logging.DEBUG)
 
 _g_patterns = {
     "index":
@@ -430,7 +431,11 @@ class Diff:
                     while idx < len(lines) \
                           and (lines[idx].startswith("+")
                                or lines[idx].startswith("-")
-                               or lines[idx].startswith(" ")):
+                               or lines[idx].startswith(" ")
+                               # Guard against "empty diff hunk line" + Komodo's
+                               # "remove trailing whitespace on save" causing
+                               # the leading ' ' to have been removed.
+                               or not lines[idx]):
                         idx += 1
 
                     file_diff.add_hunk(hunk_start_line, idx)
@@ -460,7 +465,11 @@ class Diff:
                           and (lines[idx].startswith("! ")
                                or lines[idx].startswith("+ ")
                                or lines[idx].startswith("- ")
-                               or lines[idx].startswith("  ")):
+                               or lines[idx].startswith("  ")
+                               # Guard against "empty diff hunk line" + Komodo's
+                               # "remove trailing whitespace on save" causing
+                               # the leading '  ' to have been removed.
+                               or not lines[idx]):
                         idx += 1
 
                     if idx >= len(lines) \
@@ -472,7 +481,11 @@ class Diff:
                           and (lines[idx].startswith("! ")
                                or lines[idx].startswith("+ ")
                                or lines[idx].startswith("- ")
-                               or lines[idx].startswith("  ")):
+                               or lines[idx].startswith("  ")
+                               # Guard against "empty diff hunk line" + Komodo's
+                               # "remove trailing whitespace on save" causing
+                               # the leading '  ' to have been removed.
+                               or not lines[idx]):
                         idx += 1
 
                     file_diff.add_hunk(hunk_start_line, idx)
@@ -556,7 +569,9 @@ class Diff:
                 file_after_line -= 1
                 for i in range(hunk.start_line+1, diff_line+1):
                     line = self.lines[i]
-                    if line[0] == ' ':
+                    if not line or line[0] == ' ':
+                        # 'not line' because Komodo's "remove trailing whitespace
+                        # on save" might have removed it.
                         file_before_line += 1
                         file_after_line += 1
                     elif line[0] == '-':
@@ -567,7 +582,7 @@ class Diff:
                         # This is junk lines after the diff hunk.
                         raise DiffLibExError("line %s is not in a diff hunk"
                                              % (diff_line+1))
-                if line[0] == '-':
+                if line and line[0] == '-':
                     file_line = file_before_line
                 else:
                     file_line = file_after_line
@@ -819,27 +834,31 @@ def main(argv):
     parser.add_option("-T", "--self-test", action="store_true",
                       help="run self-test")
     parser.add_option("-F", "--file-pos", action="store", dest="diff_pos",
-                      help="find corresponding file position for given "
-                           "<line>,<column> (1-based)")
+                      help="find corresponding file position for the given "
+                           "diff posiition: <line>[,<column>] (1-based)")
     parser.set_defaults(log_level=logging.INFO, self_test=False, diff_pos=None)
     opts, args = parser.parse_args()
     log.setLevel(opts.log_level)
+
+    diff_pos = opts.diff_pos
+    if diff_pos and ',' not in diff_pos:
+        diff_pos += ",1"  # default to first column
 
     if opts.self_test:
         _test()
     elif args:
         for path in args:
             d = Diff(open(path, 'r').read())
-            if opts.diff_pos:
-                _print_file_position(d, path, opts.diff_pos)
+            if diff_pos:
+                _print_file_position(d, path, diff_pos)
             else:
                 print path + ':',
                 d.pprint()
 
     else: # read from stdin
         d = Diff(sys.stdin.read())
-        if opts.diff_pos:
-            _print_file_position('<stdin>', opts.diff_pos)
+        if diff_pos:
+            _print_file_position('<stdin>', diff_pos)
         else:
             d.pprint()
 
