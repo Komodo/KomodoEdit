@@ -34,8 +34,6 @@
 # the terms of any one of the MPL, the GPL or the LGPL.
 # 
 # ***** END LICENSE BLOCK *****
-# Contributors:
-#   Trent Mick (TrentM@ActiveState.com)
 
 """difflibex -- some diff-related additions to difflib
 
@@ -45,7 +43,6 @@ Notes:
 
 """
 
-__revision__ = "$Id$"
 __version_info__ = (0, 1, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
