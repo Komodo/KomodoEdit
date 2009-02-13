@@ -123,10 +123,10 @@ def unified_diff(a, b, fromfile='', tofile='', fromfiledate='',
 def infer_cwd_and_strip_from_path(path_in_diff, actual_path):
     """Try to infer an appropriate cwd and strip number given the starting
     path in a diff and the actual path to the file.
-    
+
     This is useful when one wants to associate diff content with an actual file
     on disk (e.g. to patch the file or jump to a corresponding line).
-    
+
     Returns (<cwd>, <strip>) where <strip> is a number as would be used for
     the -p|--strip option to patch.exe. Raises DiffLibExError if could not
     infer cwd & strip (with a reason why).
@@ -145,7 +145,7 @@ def infer_cwd_and_strip_from_path(path_in_diff, actual_path):
     cwd = _rstrippath(actual_path, len(_splitall(commonsuffix)))
     strip = len(_splitall(path_in_diff)) - len(_splitall(commonsuffix))
     return (cwd, strip)
-    
+
 
 class Hunk:
     def __init__(self, start_line, end_line):
@@ -173,7 +173,7 @@ class FileDiff:
         self.hunks.append(
             Hunk(start_line, end_line)
         )
-    
+
     def best_path(self):
         #XXX How to pick the best path?
         if "p4 diff header" in self.paths:
@@ -218,10 +218,10 @@ class Diff:
         print "diff (%s files)" % (len(self.file_diffs))
         for file_diff in self.file_diffs:
             file_diff.pprint(indent=' '*4)
-    
+
     def parse(self, content):
         r"""
-        
+
         p4 diff -du:
             ==== //depot/foo.css#42 - c:\clientview\foo.css ====
             @@ ... @@
@@ -275,11 +275,11 @@ class Diff:
             --- ref/foo.txt    (revision 897)
             +++ ref/foo.txt    (working copy)
             ...
-            
+
         Komodo's "Show Unsaved Changes":
-            Index: C:\trentm\as\Komodo-devel\src\codeintel\ci2.py 
-            --- C:\trentm\as\Komodo-devel\src\codeintel\ci2.py 
-            +++ C:\trentm\as\Komodo-devel\src\codeintel\ci2.py (unsaved) 
+            Index: C:\trentm\as\Komodo-devel\src\codeintel\ci2.py
+            --- C:\trentm\as\Komodo-devel\src\codeintel\ci2.py
+            +++ C:\trentm\as\Komodo-devel\src\codeintel\ci2.py (unsaved)
             @@ -360,7 +360,7 @@
             ...
         """
@@ -411,7 +411,7 @@ class Diff:
                     else:
                         raise DiffLibExError("unexpected plain hunk header "
                                              "type: '%s'" % hunk_type)
-                    file_diff.add_hunk(hunk_start_line, idx) 
+                    file_diff.add_hunk(hunk_start_line, idx)
 
                 self.file_diffs.append(file_diff)
                 state = None
@@ -433,7 +433,7 @@ class Diff:
                                or lines[idx].startswith(" ")):
                         idx += 1
 
-                    file_diff.add_hunk(hunk_start_line, idx) 
+                    file_diff.add_hunk(hunk_start_line, idx)
 
                 self.file_diffs.append(file_diff)
                 state = None
@@ -475,7 +475,7 @@ class Diff:
                                or lines[idx].startswith("  ")):
                         idx += 1
 
-                    file_diff.add_hunk(hunk_start_line, idx) 
+                    file_diff.add_hunk(hunk_start_line, idx)
 
                 self.file_diffs.append(file_diff)
                 state = None
@@ -528,7 +528,7 @@ class Diff:
         file_path = file_diff.best_path()
         log.debug("diff pos (%d, %d) is in a '%s' hunk", diff_line, diff_col,
                   file_path)
-        
+
         # Work down from the top of the hunk to find the file position.
         # (Could move this out to format-specific Hunk sub-classes.)
         if file_diff.diff_type == "unified":
@@ -651,7 +651,7 @@ class Diff:
                     else:
                         # -1 because will be added back on first content line.
                         if hunk_type == "a":
-                            file_line = file_after_line - 1 
+                            file_line = file_after_line - 1
                             state = "after content"
                         else: # hunk_type in ('c', 'd')
                             file_line = file_before_line - 1
@@ -689,7 +689,7 @@ class Diff:
         else:
             raise DiffLibExError("unrecognized diff type: '%s'"
                                  % file_diff.diff_type)
-        
+
         return (file_path, file_line, file_col)
 
 
@@ -735,7 +735,7 @@ def _splitall(path):
 #XXX Add this to recipes.
 def _commonsuffix(paths):
     """Return the common path suffix (if any) for the given paths.
-    
+
         >>> _commonsuffix(["/home/trentm/1.8.0/mozilla/config/milestone.pl",
         ...                "mozilla/config/milestone.pl",
         ...                "config/milestone.pl"])
@@ -746,7 +746,7 @@ def _commonsuffix(paths):
         >>> _commonsuffix(["/home/trentm/1.8.0/mozilla/config/milestone.pl",
         ...                "mozilla/config/foo.bar"])
         None
-        
+
     It only compares on directory boundaries. Returns None if there is no
     common suffix.
     """
@@ -865,6 +865,3 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         sys.exit(retval)
-
-
-
