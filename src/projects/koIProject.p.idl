@@ -111,6 +111,7 @@ interface koIPart: nsIObserver {
     void serialize(in koIFile stream);
 
     wstring getDragData(); 
+    wstring getDragDataByFlavor(in wstring flavor); 
     void getDragFlavors([array, size_is(count)] out wstring flavors,
                      out unsigned long count);
     

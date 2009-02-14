@@ -400,6 +400,7 @@
                 <body>
                 <![CDATA[
                 var flavours = new FlavourSet();
+                flavours.appendFlavour("application/x-komodo-snippet");
                 flavours.appendFlavour("text/unicode");
 <!-- #if PLATFORM != "win" -->
                 flavours.appendFlavour("TEXT");
@@ -492,6 +493,13 @@
                 if (ko && typeof(ko.dragDrop) != 'undefined') {
                     var data = ko.dragDrop.dragObserver.onDrop(event, transferData, session)
                     if (!data) return;
+                    if (data.flavour == "application/x-komodo-snippet" && data.snippet) {
+                        if (!onselection) {
+                            this.scimoz.gotoPos(pos);
+                        }
+                        ko.projects.snippetInsert(data.snippet);
+                        return;
+                    } 
                     text = data.text;
                 } else {
                     if (transferData._XferID == "TransferDataSet")
@@ -500,10 +508,11 @@
                         text = transferData.data;
                 }
                 // rules:
-                // 1. if from outside scimoz
+                // 1. if it's a snippet, use the regular snippet handler to insert it
+                // 2. if from outside scimoz
                 //   a. dropped on selection, replace selection
                 //   b. insert text
-                // 2. if from inside scimoz (startdragdrop == true)
+                // 3. if from inside scimoz (startdragdrop == true)
                 //   a. if droped on selection, cancel
                 //   b. if action copy, insert text
                 //   c. if action move, remove old, insert text
@@ -515,8 +524,6 @@
                 eol[Components.interfaces.ISciMoz.SC_EOL_CRLF] = '\r\n';
                 eol[Components.interfaces.ISciMoz.SC_EOL_LF] = '\n';
                 text = text.replace(/(\r\n|\n|\r)/g, eol[this.scimoz.eOLMode]);
-
-                var selectInsertedText;
                 var endUndoAction = true;
                 this.scimoz.beginUndoAction();
                 try {
@@ -534,8 +541,6 @@
                             this.scimoz.replaceSel(''); // remove the dragged text
                             if (start < pos) pos -= length; // adjust where we insert our data
                         }
-                        this.scimoz.insertText(pos,text);
-                        selectInsertedText = true;
                     } else {
                         // data from outside scimoz
                         if (onselection) {
@@ -544,35 +549,18 @@
                         } else {
                             this.scimoz.gotoPos(pos);
                         }
-                        if (ko.tabstops && ko.tabstops.textHasTabstops(text)) {
-                            var view = ko.views.manager.currentView;
-                            ko.tabstops.clearTabstopInfo(view);
-                            var liveTextInfo = ko.tabstops.parseLiveText(text);
-                            ko.tabstops.insertLiveText(this.scimoz, pos, liveTextInfo);
-                            view.document.setTabstopInsertionTable(liveTextInfo.tabstopInsertionTable.length,
-                                                                   liveTextInfo.tabstopInsertionTable);
-                            this.scimoz.endUndoAction();
-                            view.moveToNextTabstop();
-                            endUndoAction = false;
-                            selectInsertedText = false;
-                        } else {
-                            this.scimoz.insertText(pos, text);
-                            selectInsertedText = true;
-                        }
                     }
-
+                    this.focus();
+                    // Bug 81413: This must be done after `this.focus()`.
+                    // Don't know what about `this.focus()` is resetting the
+                    // current position.
+                    this.scimoz.insertText(pos, text);
+                    this.scimoz.selectionStart = pos;
+                    this.scimoz.selectionEnd = pos+stringutils_bytelength(text);
                 } finally {
                     if (endUndoAction) {
                         this.scimoz.endUndoAction();
                     }
-                }
-                this.focus();
-                if (selectInsertedText) {
-                    // Bug 81413: This must be done after `this.focus()`.
-                    // Don't know what about `this.focus()` is resetting the
-                    // current position.
-                    this.scimoz.selectionStart = pos;
-                    this.scimoz.selectionEnd = pos+stringutils_bytelength(text);
                 }
                 this.scimoz.endDrop();
                 ]]>

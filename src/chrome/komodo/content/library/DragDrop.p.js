@@ -182,6 +182,29 @@ this.unpackData = function(flavourData, ret) {
             return;
         }
         break;
+    case "application/x-komodo-snippet":
+        try {
+            var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
+                                .createInstance(Components.interfaces.nsIJSON);
+            var data = nativeJSON.decode(ret.text);
+            var projectType = data.toolboxType;
+            var project = null;
+            if (projectType == 'project') {
+                project = ko.projects.manager.getProjectByURL(data.projectURL);
+            } else {
+                var psvc = Components.classes["@activestate.com/koPartService;1"]
+                    .getService(Components.interfaces.koIPartService);
+// #if WITH_SHARED_SUPPORT
+                project = projectType == 'toolbox' ? psvc.toolbox : psvc.sharedToolbox;
+// #else
+                project = psvc.toolbox;
+// #endif
+            }
+            ret.snippet = project.getChildById(data.snippetID);
+            return;
+        } catch(e) {
+            _log.debug("DragDrop.js::unpackData: application/x-komodo-snippet: " + e);
+        }
     default: // we try this as a url irregardless of type
         break;
     }

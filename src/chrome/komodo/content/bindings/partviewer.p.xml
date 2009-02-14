@@ -496,10 +496,11 @@
 
                 var flavors = new Object();
                 part.getDragFlavors(flavors, new Object());
-                var data = part.getDragData();
                 var transferData = new TransferData();
-                for (var i = 0; i < flavors.value.length; i++) {
-                    transferData.addDataForFlavour(flavors.value[i],data);
+                flavors = flavors.value;
+                for (var i = 0; i < flavors.length; i++) {
+                    transferData.addDataForFlavour(flavors[i],
+                                                   part.getDragDataByFlavor(flavors[i]));
                 }
                 return transferData;
                 ]]>
@@ -538,6 +539,7 @@
                     var flavours = new FlavourSet();
                     flavours.appendFlavour("text/unicode");
                     flavours.appendFlavour("application/x-komodo-part");
+                    flavours.appendFlavour("application/x-komodo-snippet");
 // #if PLATFORM != "win"
                     flavours.appendFlavour("TEXT");
 // #endif

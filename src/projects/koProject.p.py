@@ -59,6 +59,7 @@ import types
 import time
 from pprint import pprint
 import random
+import json
 import logging
 # cstringio would save a little time, but doesn't support unicode
 from StringIO import StringIO
@@ -607,6 +608,9 @@ class koPart(object):
     def getDragData(self):
         #print "getDragData ",repr(self.value)
         return self.value
+    
+    def getDragDataByFlavor(self, flavor):
+        return self.getDragData()
 
     def getDragFlavors(self):
         return self.flavors
@@ -999,61 +1003,45 @@ class koSnippetPart(koPart):
     _iconurl = 'chrome://komodo/skin/images/snippet.png'
     primaryInterface = 'koIPart_snippet'
     keybindable = 1
+    
+    def __init__(self, project):
+        koPart.__init__(self, project)
+        self.flavors.insert(0, 'application/x-komodo-snippet')
 
     def get_url(self):
         # build a macro url
         return "snippet://%s/%s" % (self.id, self.get_name())
 
+    def getDragFlavors(self):
+        return self.flavors
+    
+    def getDragDataByFlavor(self, flavor):
+        if flavor == 'application/x-komodo-snippet':
+            return self._getSnippetDragDataAsJSON()
+        else:
+            return self._getSnippetDragDataAsText()
+
     def getDragData(self):
-        # NOTE: IT IS IMPORTANT THAT IF UNICODE COMES IN, UNICODE GOES OUT!
-        newtext = self.value
-        anchor = newtext.find(ANCHOR_MARKER)
-        if anchor != -1:
-            newtext = newtext[:anchor] + newtext[anchor+len(ANCHOR_MARKER):]
-        currentPos = newtext.find(CURRENTPOS_MARKER)
-        if currentPos != -1:
-            newtext = newtext[:currentPos] + newtext[currentPos+len(CURRENTPOS_MARKER):]
-        # it would be good to interpolate here as well!
-        isvc = components.classes["@activestate.com/koInterpolationService;1"]\
-                .getService(components.interfaces.koIInterpolationService);
+        return self._getSnippetDragDataAsText(self)
+        
+    def _getSnippetDragDataAsJSON(self):
+        # Note: It is important that if Unicode comes in, Unicode goes out!
+        data = { 'snippetID' : self.id }
+        project = self.get_project()
         psvc = components.classes["@activestate.com/koPartService;1"]\
                 .getService(components.interfaces.koIPartService)
-        # get additional interpolation data
-        projectFile = None
-        project = self.get_project()
-        if project in [psvc.toolbox, psvc.sharedToolbox]:
-            _currentProject = psvc.currentProject
-            if _currentProject:
-                projectFile = _currentProject.getFile().path
-                prefset = _currentProject.prefset
-            else:
-                prefset = self.get_prefset()
+        if project == UnwrapObject(psvc.toolbox):
+            data['toolboxType'] = 'toolbox'
+        elif project == UnwrapObject(psvc.sharedToolbox):
+            data['toolboxType'] = 'sharedToolbox'
         else:
-            projectFile = project.getFile().path
-            prefset = self.get_prefset()
-        try:
-            queries, strings = isvc.Interpolate1([], # not bracketed
-                                                  [newtext], # bracketed
-                                                  None,  #filename
-                                                  0, #linenum
-                                                  None, #word
-                                                  None, #selection
-                                                  projectFile, #projectFile
-                                                  prefset, #prefSet: use global prefs
-                                                  )
-        except Exception, e: # If e.g. %w is in the snippet, we ignore all % codes.
-            log.exception(e)
-            return newtext
-
-        for query in queries:
-            if query.answer == None:
-                # if any of the interpolations required a question,
-                # do _no_ conversion and return the full %-laden snippet
-                return newtext
-        if queries:
-            strings = isvc.Interpolate2(strings, queries)
-
-        return strings[0]
+            data['toolboxType'] = 'project'
+            data['projectURL'] = project.get_url()
+        return json.dumps(data)
+        
+    def _getSnippetDragDataAsText(self):
+        # NOTE: IT IS IMPORTANT THAT IF UNICODE COMES IN, UNICODE GOES OUT!
+        return self.value.replace(ANCHOR_MARKER, "", 1).replace(CURRENTPOS_MARKER, "", 1)
 
 class koCommandPart(koPart):
     _com_interfaces_ = [components.interfaces.koIPart_command]
