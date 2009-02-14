@@ -151,7 +151,13 @@
         <separator class="thin"/>
         <checkbox id="editSmartSoftCharacters" label="&enableSoftCharacters.label;" pref="true"
                 prefstring="editSmartSoftCharacters" prefattribute="checked"/>
-        <description style="margin-left: 27px;">&enableSoftCharacters.description;</description>        
+        <description style="margin-left: 27px;">&enableSoftCharacters.description;</description>
+	
+        <separator class="thin"/>
+        <checkbox id="editSmartEmptySelectionOverride"
+		  label="&emptySelectionOverride.label;" pref="true"
+                prefstring="editSmartEmptySelectionOverride" prefattribute="checked"/>
+        <description style="margin-left: 27px;">&emptySelectionOverride.description;</description>
     </groupbox>
 
     <groupbox orient="vertical">

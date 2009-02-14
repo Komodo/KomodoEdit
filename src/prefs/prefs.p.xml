@@ -339,11 +339,12 @@
   -->
   <string id="editAutoIndentStyle">smart</string>
   <!-- editElectricBrace:
-     if true, adjust position of closing brace to indenf of matching brace line
+     if true, adjust position of closing brace to indent of matching brace line
   -->
   <boolean id="editElectricBrace">1</boolean>
   <long id="editAutoWrapColumn">80</long>
   <boolean id="editSmartSoftCharacters">1</boolean>
+  <boolean id="editSmartEmptySelectionOverride">0</boolean>
   <long id="autoSaveMinutes">10</long>
   <boolean id="checkDiskFile">1</boolean>
 

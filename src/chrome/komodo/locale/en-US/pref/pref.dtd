@@ -223,6 +223,8 @@
 <!ENTITY enableSoftCharacters.label "Enable soft characters">
 <!ENTITY enableSoftCharacters.description "Inserts closing characters or matching delimiters.
 For example, when entering '(', automatically add a closing ')' after the cursor.">
+<!ENTITY emptySelectionOverride.label "Allow cut/copy to work without a selection">
+<!ENTITY emptySelectionOverride.description "Cut and Copy work on the current line when the selection is empty.">
 <!ENTITY enableTriggeringOfMacrosOnKomodoEvents.label "Enable triggering of macros on Komodo events">
 <!ENTITY enableViEmulation.label "Enable Vi emulation">
 <!ENTITY endOfLine.label "End of line">

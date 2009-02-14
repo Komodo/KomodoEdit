@@ -122,7 +122,8 @@ class koScintillaController:
         self._loc_saving_cmds = ['cmd_documentHome', 'cmd_documentEnd']
         self._koHistorySvc = components.classes["@activestate.com/koHistoryService;1"].\
                         getService(components.interfaces.koIHistoryService)
-
+        self._koPrefs = components.classes["@activestate.com/koPrefService;1"].\
+                            getService(components.interfaces.koIPrefService).prefs
     def test_scimoz(self, scimoz):
         self.init(scimoz)
         ScintillaControllerTestCase.controller = self
@@ -201,6 +202,8 @@ class koScintillaController:
                 sm.sendUpdateCommands("select")
                 sm.sendUpdateCommands("clipboard")
                 return
+            elif not self._koPrefs.getBooleanPref('editSmartEmptySelectionOverride'):
+                return
             # if there's no selection, we copy the current line, being careful to leave
             # the cursor in its original position.
             # but should we?  Most of the time one will want to place the line somewhere else.
@@ -236,6 +239,8 @@ class koScintillaController:
                 sm.cut()
                 self._lastcutposition = None
                 sm.sendUpdateCommands("clipboard")
+                return
+            elif not self._koPrefs.getBooleanPref('editSmartEmptySelectionOverride'):
                 return
             # Do nothing at end of file except if there's stuff to the left
             if sm.currentPos == sm.textLength and \
