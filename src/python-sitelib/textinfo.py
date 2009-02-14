@@ -77,6 +77,7 @@ _cmdln_doc = """Determine information about text files.
 #   lang-specific, emacs and vi vars decls (as discussed with Shane)
 # - fix ti with unicode paths Windows (check on Linux too)
 # - '-L|--dereference' option a la `file` and `ls`
+# - See: http://webblaze.cs.berkeley.edu/2009/content-sniffing/
 # - Shift-JIS encoding is not detected for
 #   http://public.activestate.com/pub/apc/perl-current/lib/Pod/Simple/t/corpus/s2763_sjis.txt
 #   [Jan wrote]
