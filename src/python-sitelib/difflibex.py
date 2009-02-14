@@ -79,7 +79,7 @@ _g_patterns = {
         re.compile(r"^==== (?P<depotpath>.*?)#\d+ "
                     "(- (?P<path>.*?)|\(.*?\)) ====$"),
     "---":
-        re.compile(r"(\+\+\+|---|\*\*\*)(\s+(?P<path>.*?))?\s*$"),
+        re.compile(r"(\+\+\+|---|\*\*\*)(\s+(?P<path>.*?)(\t.*?)?)?\s*$"),
     "plain hunk header":
         # E.g., '9c9', '185,187c185'
         re.compile(r"^(?P<beforestartline>\d+)(,\d+)?"
@@ -166,6 +166,10 @@ class FileDiff:
         self.header_start_line = header_start_line
         self.hunks = []
         self.diff_type = None
+
+    def __repr__(self):
+        return "<FileDiff: %d hunks, '%s' best path>" % (
+            len(self.hunks), self.best_path())
 
     def add_hunk(self, start_line, end_line):
         self.hunks.append(
