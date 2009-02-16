@@ -1032,8 +1032,6 @@ class koSnippetPart(koPart):
                 .getService(components.interfaces.koIPartService)
         if project == UnwrapObject(psvc.toolbox):
             data['toolboxType'] = 'toolbox'
-        elif project == UnwrapObject(psvc.sharedToolbox):
-            data['toolboxType'] = 'sharedToolbox'
         else:
             data['toolboxType'] = 'project'
             data['projectURL'] = project.get_url()

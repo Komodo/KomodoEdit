@@ -194,11 +194,7 @@ this.unpackData = function(flavourData, ret) {
             } else {
                 var psvc = Components.classes["@activestate.com/koPartService;1"]
                     .getService(Components.interfaces.koIPartService);
-// #if WITH_SHARED_SUPPORT
-                project = projectType == 'toolbox' ? psvc.toolbox : psvc.sharedToolbox;
-// #else
                 project = psvc.toolbox;
-// #endif
             }
             ret.snippet = project.getChildById(data.snippetID);
             return;
