@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 
-from os.path import *
+from os.path import dirname, abspath, join
 import sys
-sys.path.insert(0, expanduser("~/tm/sandbox/testlib")) #XXX
-import testlib
+try:
+    import testlib
+except ImportError:
+    top_dir = dirname(dirname(dirname(abspath(__file__))))
+    sys.path.insert(0, join(top_dir, "util"))
+    import testlib
+    del sys.path[0]
 
 
 
@@ -13,7 +18,6 @@ def setup():
     pass
 
 if __name__ == "__main__":
-    retval = testlib.harness(#testdir_from_ns=testdir_from_ns,
-                             setup_func=setup,
+    retval = testlib.harness(setup_func=setup,
                              default_tags=default_tags)
     sys.exit(retval)

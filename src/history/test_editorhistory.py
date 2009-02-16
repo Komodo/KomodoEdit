@@ -12,7 +12,13 @@ import unittest
 from pprint import pprint, pformat
 
 from editorhistory import History, Location, _RecentsDict
-import testlib
+try:
+    import testlib
+except ImportError:
+    top_dir = dirname(dirname(dirname(abspath(__file__))))
+    sys.path.insert(0, join(top_dir, "util"))
+    import testlib
+    del sys.path[0]
 
 
 
