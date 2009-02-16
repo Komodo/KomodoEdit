@@ -2,6 +2,9 @@ Allow setting of the alpha transparency value used for drawing round box
 indicators (INDIC_ROUNDBOX).
 http://bugs.activestate.com/show_bug.cgi?id=81901
 
+This patch has been added to the latest Scintilla CVS, so this can be
+removed when we next update Scintilla.
+
 Index: include/Scintilla.h
 ===================================================================
 --- include/Scintilla.h	(revision 26407)
