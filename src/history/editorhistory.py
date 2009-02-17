@@ -775,19 +775,18 @@ class History(object):
             yield is_curr, loc
         if (not curr_handled
             and len(self.recent_back_visits) == 0
-            and len(self.forward_visits) > 0
-            and not self._is_loc_same_line(curr_loc, self.forward_visits[0])):
+            and len(self.forward_visits) > 0):
             curr_handled = True
             yield True, curr_loc
         for i, loc in enumerate(self.recent_back_visits):
+            #TODO: duplicated logic here, fix it
             is_curr = (not curr_handled 
                        and curr_loc is not None
                        and i == 0
                        and loc == curr_loc)
             if (not curr_handled
                 and not is_curr
-                and i == 0
-                and not self._is_loc_same_line(curr_loc, loc)):
+                and i == 0):
                 yield True, curr_loc
             if i >= self.RECENT_BACK_VISITS_LENGTH:
                 break
