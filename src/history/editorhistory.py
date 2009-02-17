@@ -559,7 +559,7 @@ class History(object):
                 except HistoryNoLatestVisitError, ex:
                     break
                 if i < num_forward_visits:
-                    self.forward_visits.appendleft(loc)
+                    self.forward_visits.append(loc)
                 elif have_state_info and i == num_forward_visits:
                     self._last_visit = loc
                 else:

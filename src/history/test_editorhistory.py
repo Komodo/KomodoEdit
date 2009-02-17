@@ -223,28 +223,39 @@ class HistoryTestCase(_HistoryTestCase):
         h = list(self.history.recent_history(loc_fwd))
         self.assertEqual(h[0][0], True) 
 
+    @testlib.tag("bug81978")
     def test_remember_curr_place(self):
         # Test whether the curr place in history will be remembered between runs.
         
         # Make some interesting history.
         a = "file:///home/trentm/a.txt"
-        b = "file:///home/trentm/b.txt"
-        self.history.note_loc(Location(a, 10, 10))
-        loc2 = self.history.note_loc(Location(a, 20, 20))
-        loc3 = self.history.note_loc(Location(b, 30, 30))
-        loc4 = Location(b, 40, 40)
-        loc_back = self.history.go_back(loc4)
-        self.assertEqual(loc_back, loc3)
+        b = "file:///home/trentm/current.txt"
+        locs = [self.history.note_loc(Location(a, 10 * (i + 1), 0))
+                for i in range(10)]
+        locs.insert(0, None) # Make locs 1-based
+        current_loc = Location(b, 55, 0)
+        loc_back = self.history.go_back(current_loc, 4)
+        self.assertEqual(loc_back, locs[7])
+        
+        # Test history before the restart:
+        h = list(self.history.recent_history(loc_back))
+        for i in range(1, 10):
+            self.assertEqual(h[i][1], locs[11 - i])
 
         # Simulate a restart.
         self.history.close()
         self.history = History(self._db_path_)
         
-        #self.history.debug_dump_recent_history(loc_back)
         h = list(self.history.recent_history(loc_back))
-        self.assertEqual(h[0][1], loc4) # one "forward" visit
-        self.assertEqual(h[1][1], loc3) # the curr location
-        self.assertEqual(h[2][1], loc2) # "back" one visit
+        # Test boundary conditions, then check all in a loop.
+        self.assertEqual(h[0][1], current_loc) # 4 fwd
+        self.assertEqual(h[1][1], locs[10]) # 3 fwd
+        self.assertEqual(h[3][1], locs[8]) # 1 fwd
+        self.assertEqual(h[4][1], locs[7]) # here
+        self.assertEqual(h[5][1], locs[6]) # 1 back
+        h = list(self.history.recent_history(loc_back))
+        for i in range(1, 10):
+            self.assertEqual(h[i][1], locs[11 - i])
 
     def test_back_then_fwd(self):
         # See the example in the "When to note a location" section in KD 218
