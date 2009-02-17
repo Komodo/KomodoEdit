@@ -109,7 +109,8 @@ class Location(object):
         #extras.append("tabbed_view_id=%r" % self.tabbed_view_id)
         if self.view_type != "editor":
             extras.append(self.view_type)
-        extras.append("mh=%d" % self.marker_handle)
+        if self.marker_handle:
+            extras.append("mh=%d" % self.marker_handle)
         if self.section_name:
             extras.append("section_name=%s" % self.section_name)
         extra = extras and (" (%s)" % ", ".join(extras)) or ""
