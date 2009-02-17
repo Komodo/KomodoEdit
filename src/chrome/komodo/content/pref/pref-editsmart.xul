@@ -57,11 +57,11 @@
     <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7" />
 
     <script type="text/javascript">
-    	var useTabCharacterToCompleteWords="&useTabCharacterToCompleteWords.message;";
+        var useTabCharacterToCompleteWords="&useTabCharacterToCompleteWords.message;";
     </script>
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
-    
+
     function editsmart_OnLoad() {
         try {
         var gMainWindow = ko.windowManager.getMainWindow();
@@ -70,14 +70,14 @@
         var keylabel = gMainWindow.gKeybindingMgr.command2keylabel('cmd_completeWord');
         text = text.replace('__KEY__', keylabel);
         document.getElementById('editTabCompletes').setAttribute('label', text);
-        
+
         _pref_lint_dialog = {};
         _pref_lint_dialog.lintDelay = document.getElementById("lintDelay");
         _pref_lint_dialog.lintEOLs = document.getElementById("lintEOLs");
         _pref_lint_dialog.editUseLinting = document.getElementById("editUseLinting");
-        
+
         parent.hPrefWindow.onpageload();
-        
+
         pref_lint_doEnabling();
 
         parent.initPanel();
@@ -86,7 +86,7 @@
 
     var _pref_lint_log = ko.logging.getLogger("pref-lint");
     var _pref_lint_dialog = null;
-    
+
     function _pref_lint_setElementEnabledState(elt, enabled) {
         if (enabled) {
             if (elt.hasAttribute('disabled')) {
@@ -105,7 +105,7 @@
 
     ]]>
     </script>
-    
+
     <groupbox orient="vertical">
         <caption label="&smartEditing.label;"/>
         <checkbox id="editTabCompletes"
@@ -147,7 +147,7 @@
             <textbox id="editAutoWrapColumn" size="3" pref="true"/>
             <text value="&fileEditSmartEdgeLine.label;"/>
         </hbox>
-        
+
         <separator class="thin"/>
         <checkbox id="editSmartSoftCharacters" label="&enableSoftCharacters.label;" pref="true"
                 prefstring="editSmartSoftCharacters" prefattribute="checked"/>
@@ -170,7 +170,7 @@
                       prefattribute="checked"
                       oncommand="pref_lint_doEnabling();"/>
             <textbox id="lintDelay" size="4" pref="true"/>
-            <label value="&msecs.label;"/> 
+            <label value="&msecs.label;"/>
         </hbox>
         <checkbox id="lintEOLs"
                   style="margin-left: 27px;"
@@ -198,4 +198,3 @@
                 prefstring="editRestoreFoldPoints" prefattribute="checked"/>
     </groupbox>
 </window>
-
