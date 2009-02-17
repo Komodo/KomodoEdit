@@ -749,7 +749,7 @@ class History(object):
         self._last_visit = self.forward_visits.pop()
         return self._last_visit
     
-    def recent_history(self, curr_loc=None):
+    def recent_history(self, curr_loc=None, merge_curr_loc=True):
         """Generate Locations that summarizes the current Back/Forward state,
         e.g. useful for displaying a list to the user. This typically looks like
         this:
@@ -767,7 +767,8 @@ class History(object):
             curr_loc = UnwrapObject(curr_loc)
         curr_handled = False
         for i, loc in enumerate(self.forward_visits):
-            is_curr = (curr_loc is not None
+            is_curr = (merge_curr_loc
+                       and curr_loc is not None
                        and i == len(self.forward_visits) - 1
                        and loc == curr_loc)
             if is_curr:
@@ -801,9 +802,11 @@ class History(object):
         return (other_loc.uri == candidate_loc.uri
                 and other_loc.line == candidate_loc.line)
  
-    def debug_dump_recent_history(self, curr_loc=None):
-        print "-- recent history"
-        for is_curr, loc in self.recent_history(curr_loc):
+    def debug_dump_recent_history(self, curr_loc=None, merge_curr_loc=True):
+        merge_str = "" if merge_curr_loc else " (curr loc not merged)"
+        print "-- recent history%s" % merge_str
+        for is_curr, loc in self.recent_history(curr_loc,
+                merge_curr_loc=merge_curr_loc):
             print ("  *" if is_curr else "   "),
             if not loc:
                 print "(current location)"
