@@ -374,7 +374,29 @@ class HistoryTestCase(_HistoryTestCase):
                          locs[old_cid + jump_count - 3])
         self.assertEqual(self.history.recent_back_visits[3],
                          locs[old_cid + jump_count - 4])
+     
+    @testlib.tag("bug81987")
+    def test_curr_loc_is_jump_back_loc(self):
+        # Test the behaviour when we go_back to a loc that happens to be the
+        # same as the current location.
+        #
+        # The bug is/was that a new location was being added to the history
+        # db, rather than just re-using the one to which we are jumping.
+        #
+        # Note that going forward seems to be fine.
         
+        # Setup starter recent history.
+        a = "file:///home/tester/a.txt"
+        locs = [self.history.note_loc(Location(a, (i+1)*10, 1))
+                for i in range(10)]
+        curr_loc = Location(a, locs[-1].line, locs[-1].col)     # haven't moved
+        #self.history.debug_dump_recent_history(curr_loc, merge_curr_loc=False)
+    
+        # Test going back one: verify we don't go anywhere.
+        new_loc = self.history.go_back(curr_loc, 1)
+        #self.history.debug_dump_recent_history(new_loc, merge_curr_loc=False)
+        self.assertEqual(len(self.history.forward_visits), 1)
+        self.assertEqual(self.history.forward_visits[0], new_loc)
 
 
 #---- mainline
