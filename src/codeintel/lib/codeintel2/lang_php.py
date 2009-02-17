@@ -1212,21 +1212,6 @@ class PHPCILEDriver(UDLCILEDriver):
     ssl_lang = "PHP"
     csl_lang = "JavaScript"
 
-    def XXXscan_purelang(self, buf):
-      try:
-        #XXX Remove md5sum and mtime when move to CIX 2.0.
-        mtime = "XXX"
-        phpciler = PHPParser(buf.path, buf.accessor.text, mtime)
-        phpciler.scan_multilang_content(buf.accessor.text)
-        # Get the CIX tree.
-        tree = createCixRoot()
-        phpciler.convertToElementTreeFile(tree)
-        return tree
-      except Exception, e:
-          import traceback
-          traceback.print_exc()
-          raise
-
     def scan_multilang(self, buf, csl_cile_driver=None):
       #try:
         """Scan the given multilang (UDL-based) buffer and return a CIX
