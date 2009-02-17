@@ -375,48 +375,6 @@ class HistoryTestCase(_HistoryTestCase):
         self.assertEqual(self.history.recent_back_visits[3],
                          locs[old_cid + jump_count - 4])
         
-    @testlib.tag("bug81979")
-    def old_test_forward_visits_integrity_on_multi_step_moves(self):
-        uri =         "file:///home/tester/a.txt"
-        uri_current = "file:///home/tester/current.txt"
-        db = self.history.db
-        num_items_to_create = 20
-        with db.connect(True) as cu:
-            last_id = None
-            for i in range(num_items_to_create): # Lines are 1-based
-                loc = Location(uri, i + 1, 0)
-                db.add_loc(loc, referer_id=last_id, cu=cu)
-                last_id = loc.id
-        self.history.load()
-        current_loc = Location(uri_current, num_items_to_create + 1, 0)
-        jump_count = 10
-        loc = self.history.go_back(current_loc, jump_count)
-        current_loc = loc
-        self.assertLoc(current_loc,
-                       id=(num_items_to_create - jump_count + 1), uri=uri)
-        self.assertLoc(self.history.forward_visits[0],
-                       id=(num_items_to_create + 1), uri=uri_current)
-        self.assertLoc(self.history.forward_visits[1],
-                       id=(num_items_to_create), uri=uri)
-        self.assertLoc(self.history.forward_visits[-1],
-                       id=(num_items_to_create - jump_count + 2), uri=uri)
-        
-        # Verify we don't lose the current spot when we move forward.
-        jump_count = 4
-        old_cid = current_loc.id # 11
-        loc = self.history.go_forward(current_loc, jump_count)
-        current_loc = loc
-        self.assertLoc(current_loc,
-                       id=(old_cid + jump_count), uri=uri)
-        self.assertLoc(self.history.recent_back_visits[0],
-                       id=(old_cid + jump_count - 1), uri=uri)
-        self.assertLoc(self.history.recent_back_visits[1],
-                       id=(old_cid + jump_count - 2), uri=uri)
-        self.assertLoc(self.history.recent_back_visits[2],
-                       id=(old_cid + jump_count - 3), uri=uri)
-        self.assertLoc(self.history.recent_back_visits[3],
-                       id=(old_cid + jump_count - 4), uri=uri)
-        
 
 
 #---- mainline
