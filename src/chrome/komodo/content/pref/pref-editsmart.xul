@@ -152,12 +152,12 @@
         <checkbox id="editSmartSoftCharacters" label="&enableSoftCharacters.label;" pref="true"
                 prefstring="editSmartSoftCharacters" prefattribute="checked"/>
         <description style="margin-left: 27px;">&enableSoftCharacters.description;</description>
-	
+
         <separator class="thin"/>
-        <checkbox id="editSmartEmptySelectionOverride"
-		  label="&emptySelectionOverride.label;" pref="true"
-                prefstring="editSmartEmptySelectionOverride" prefattribute="checked"/>
-        <description style="margin-left: 27px;">&emptySelectionOverride.description;</description>
+        <checkbox id="editSmartCutCopyWithoutSelection"
+                  label="&cutCopyWithoutSelection.label;" pref="true"
+                  prefstring="editSmartCutCopyWithoutSelection"
+                  prefattribute="checked"/>
     </groupbox>
 
     <groupbox orient="vertical">

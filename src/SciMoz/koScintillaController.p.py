@@ -202,7 +202,7 @@ class koScintillaController:
                 sm.sendUpdateCommands("select")
                 sm.sendUpdateCommands("clipboard")
                 return
-            elif not self._koPrefs.getBooleanPref('editSmartEmptySelectionOverride'):
+            elif not self._koPrefs.getBooleanPref('editSmartCutCopyWithoutSelection'):
                 return
             # if there's no selection, we copy the current line, being careful to leave
             # the cursor in its original position.
@@ -240,7 +240,7 @@ class koScintillaController:
                 self._lastcutposition = None
                 sm.sendUpdateCommands("clipboard")
                 return
-            elif not self._koPrefs.getBooleanPref('editSmartEmptySelectionOverride'):
+            elif not self._koPrefs.getBooleanPref('editSmartCutCopyWithoutSelection'):
                 return
             # Do nothing at end of file except if there's stuff to the left
             if sm.currentPos == sm.textLength and \

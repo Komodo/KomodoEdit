@@ -344,7 +344,9 @@
   <boolean id="editElectricBrace">1</boolean>
   <long id="editAutoWrapColumn">80</long>
   <boolean id="editSmartSoftCharacters">1</boolean>
-  <boolean id="editSmartEmptySelectionOverride">0</boolean>
+  <!-- Have the Cut/Copy commands cut/copy the current line if there is no
+       selection. -->
+  <boolean id="editSmartCutCopyWithoutSelection">0</boolean>
   <long id="autoSaveMinutes">10</long>
   <boolean id="checkDiskFile">1</boolean>
 
