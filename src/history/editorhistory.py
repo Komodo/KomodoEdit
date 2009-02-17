@@ -508,9 +508,10 @@ class History(object):
         #   recent_back_visits: most recent first. We cache more than
         #       "recent" length to try to limit the need to hit the database
         #       when the user goes back and forth a lot.
+        #       The location for the next "go_back" is at the start.
         self.recent_back_visits = deque(maxlen=self.RECENT_BACK_VISITS_CACHE_LENGTH)
-        #   forward_visits: furthest forward first, i.e. the location for the
-        #       next "go_forward" is at the end
+        #   forward_visits: furthest forward first:
+        #       The location for the next "go_forward" is at the end.
         self.forward_visits = deque()
         # The last visit returned by `go_back` or `go_forward`.
         self._last_visit = None
@@ -679,25 +680,29 @@ class History(object):
                 % (n, ("" if len(n)==1 else "s"), len(self.recent_back_visits)))
         
         # Go back.
-        for i in range(n):
-            rv = loc = self.recent_back_visits.popleft()
-            if i == 0:
-                if curr_loc == self._last_visit:
-                    loc = self._last_visit
-                else:
-                    # The user's position has changed since the last jump.
-                    # We have to do some more bookeeping for the back/forward
-                    # stack.
-                    with self.db.connect(True) as cu:
-                        old_loc = loc
-                        loc = self.db.add_loc(curr_loc, referer_id=old_loc.id, cu=cu)
-                        if self.forward_visits:
-                            # The preceding visit in the stack must now refer
-                            # to this new one.
-                            self.db.update_referer_id(self.forward_visits[-1], loc.id, cu=cu)
+        if curr_loc == self._last_visit:
+            # Do we need to add a new forward_visit, or reuse the
+            # current loc?
+            loc = curr_loc
+        else:
+            # The user's position has changed since the last jump.
+            # Update the referer_id's to point correctly.
+            with self.db.connect(True) as cu:
+                loc = self.db.add_loc(curr_loc, referer_id=self.recent_back_visits[0].id, cu=cu)
+                if self.forward_visits:
+                    # The newest loc in forward_visits must now refer
+                    # to the new loc.
+                    self.db.update_referer_id(self.forward_visits[-1], loc.id, cu=cu)
+        self.forward_visits.append(loc)
+        
+        # Shift the intermediate loc's from back_visits to forward_visits
+        for i in range(n - 1):
+            loc = self.recent_back_visits.popleft()
             self.forward_visits.append(loc)
-        self._last_visit = rv
-        return rv
+        
+        self._last_visit = self.recent_back_visits.popleft()
+        return self._last_visit
+        
 
     def go_forward(self, curr_loc, n=1):
         """Go forward N steps (default 1) in the history.
@@ -715,24 +720,34 @@ class History(object):
             raise HistoryError("cannot go forward %d steps: there are only %d "
                                "forward visits in the current history"
                                % (n, len(self.forward_visits)))
-        for i in range(n):
-            rv = loc = self.forward_visits.pop()
-            if i == 0:
-                if curr_loc == self._last_visit:
-                    loc = self._last_visit
-                else:
-                    with self.db.connect(True) as cu:
-                        old_loc = loc
-                        referer_id = (self.recent_back_visits
-                                      and self.recent_back_visits[0].id or None)
-                        loc = self.db.add_loc(curr_loc, referer_id=referer_id, cu=cu)
-                        # The preceding visit in the stack must now refer
-                        # to this new one.
-                        self.db.update_referer_id(old_loc, loc.id, cu=cu)
-            self.recent_back_visits.appendleft(loc)
-        self._last_visit = rv
-        return rv
 
+        # Go forward.
+        # Do we need to add a new back_visit, or reuse the
+        # current loc?
+        if curr_loc == self._last_visit:
+            loc = curr_loc
+        else:
+            # The user's position has changed since the last jump.
+            # We have to do some more bookeeping for the back/forward
+            # stack.
+            with self.db.connect(True) as cu:
+                referer_id = (self.recent_back_visits
+                              and self.recent_back_visits[0].id or None)
+                loc = self.db.add_loc(curr_loc, referer_id=referer_id, cu=cu)
+                if self.forward_visits:
+                    # The preceding visit in the stack must now refer
+                    # to this new one.
+                    self.db.update_referer_id(self.forward_visits[-1], loc.id, cu=cu)
+        self.recent_back_visits.appendleft(loc)
+        
+        # Shift the intermediate locs from forward to back
+        for i in range(n - 1):
+            loc = self.forward_visits.pop()
+            self.recent_back_visits.appendleft(loc)
+            
+        self._last_visit = self.forward_visits.pop()
+        return self._last_visit
+    
     def recent_history(self, curr_loc=None):
         """Generate Locations that summarizes the current Back/Forward state,
         e.g. useful for displaying a list to the user. This typically looks like
