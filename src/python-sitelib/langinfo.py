@@ -175,7 +175,7 @@ class LangInfo(object):
     conforms_to_bases = None
 
     # Misc. properties
-    allow_strip_whitespace_on_save = True
+    has_significant_trailing_ws = False
 
     def __init__(self, db):
         self._db = db

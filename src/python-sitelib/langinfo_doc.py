@@ -152,7 +152,7 @@ class YAMLLangInfo(LangInfo):
     name = "YAML"
     conforms_to_bases = ["Text"]
     exts = ['.yaml', '.yml']
-    allow_strip_whitespace_on_save = False
+    has_significant_trailing_ws = True
     #TODO: default encoding?
 
 class JSONLangInfo(LangInfo):
@@ -249,5 +249,5 @@ class TroffLangInfo(LangInfo):
         (0, "string", "\\\""),
         (0, "string", "'''"),
     ]
-    allow_strip_whitespace_on_save = False
+    has_significant_trailing_ws = True
 
