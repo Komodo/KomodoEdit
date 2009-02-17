@@ -501,7 +501,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY useXmlDeclarations.label "Use XML declarations (&lt;?xml ...&gt;, &lt;!DOCTYPE ...&gt;)">
 
 <!--pref-codeintel.xul-->
-<!ENTITY codeIntelDisabled.description "The Code Intelligence system is disabled. It can be re-enabled by manually setting the 'codeintel_enabled' preference.">
+<!ENTITY codeIntelDisabled.description "The Code Intelligence system is disabled. It can be re-enabled by manually setting the 'codeintel_enabled' preference and restarting Komodo.">
 <!ENTITY codeIntel.description "Code Intelligence refers to the system that provides autocomplete, calltips, and the Code Browser.">
 <!ENTITY codeIntelCalltipMaxLength.label "Maximum number of lines shown in a calltip:">
 <!ENTITY codeIntelCalltipMaxLineWidth.label "Maximum line width shown in a calltip:">
