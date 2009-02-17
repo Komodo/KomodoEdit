@@ -240,6 +240,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY file.label "File">
 <!ENTITY fileAssociations.label "File Associations">
 <!ENTITY fileProperties.label "File Properties">
+<!ENTITY filePropertiesCreated.label "Created:">
 <!ENTITY fileSettings.label "File Settings">
 <!ENTITY fileStatusInProjectManagerAndToolbox.label "File Status in Project Manager and Toolbox">
 <!ENTITY filterCommands.tooltiptext "Filter Commands">
