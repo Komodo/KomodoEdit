@@ -174,6 +174,9 @@ class LangInfo(object):
     #   http://developer.apple.com/documentation/Carbon/Conceptual/understanding_utis/understand_utis_intro/chapter_1_section_1.html
     conforms_to_bases = None
 
+    # Misc. properties
+    allow_strip_whitespace_on_save = True
+
     def __init__(self, db):
         self._db = db
 

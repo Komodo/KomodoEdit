@@ -49,6 +49,7 @@ import stat, os, time
 
 import eollib
 import difflibex
+import langinfo
 from koLanguageServiceBase import getActualStyle
 from koUDLLanguageBase import udl_family_from_style
 import koUnicodeEncoding, codecs, types
@@ -123,6 +124,9 @@ class koDocumentBase:
 
 
         self._wrapSelf = None
+        
+        self.lidb = langinfo.get_default_database()
+
         self.init()
 
         timeline.leave('koDocumentBase.__init__')
@@ -1152,7 +1156,9 @@ class koDocumentBase:
             ensureFinalEOL = self._globalPrefs.getBooleanPref("ensureFinalEOL")
             cleanLineEnds = self._globalPrefs.getBooleanPref("cleanLineEnds")
             if ensureFinalEOL or cleanLineEnds:
-                self._clean(ensureFinalEOL, cleanLineEnds)
+                langinfo = self.lidb.langinfo_from_komodo_lang(self.get_language())
+                if langinfo.allow_strip_whitespace_on_save:
+                    self._clean(ensureFinalEOL, cleanLineEnds)
     
             # translate the buffer before opening the file so if it
             # fails, we haven't truncated the file
