@@ -145,7 +145,7 @@ def main(cix_filename, updatePerforce=False):
     #cix_yui_module = createCixModule(cix_yui_file, "*", lang="JavaScript")
 
     files = getYUIFilesFromWebpage()
-    jscile = JavaScriptCiler(Manager(), "yui", "yui")
+    jscile = JavaScriptCiler(Manager(), "yui")
     for filename, content in files.items():
         if filename in ("utilities.js",
                         "yahoo-dom-event.js",   # v2.2.0

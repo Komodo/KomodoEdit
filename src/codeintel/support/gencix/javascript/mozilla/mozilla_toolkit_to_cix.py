@@ -97,7 +97,7 @@ def main(cix_filename, toolkit_jar_file, updatePerforce=False):
 
     print "cix_filename: %r" % (cix_filename, )
     filenames_and_content = getMozillaToolkitFilenamesAndContent(toolkit_jar_file)
-    jscile = JavaScriptCiler(Manager(), "Mozilla", "Toolkit")
+    jscile = JavaScriptCiler(Manager(), "Mozilla Toolkit")
     for filename, content in filenames_and_content.items():
         jscile.scan_puretext(content)
     jscile.convertToElementTreeFile(cix_komodo, "JavaScript")
