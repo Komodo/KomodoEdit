@@ -76,6 +76,7 @@ class DiffLangInfo(LangInfo):
     name = "Diff"
     conforms_to_bases = ["Text"]
     exts = [".patch", ".diff"]
+    allow_strip_whitespace_on_save = False
 
 class IDLLangInfo(LangInfo):
     #TODO: clarify if this is the math thing or the COM-IDL thing
