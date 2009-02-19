@@ -61,6 +61,7 @@ using namespace Scintilla;
 
 /* XXX TODO make thread checks default in dev builds, off in release */
 #if 0
+
 #if MOZ_VERSION < 190
 /* mozilla 1.8 */
 #include "nsIThread.h"
@@ -69,15 +70,17 @@ using namespace Scintilla;
 /* mozilla 1.9 */
 #include "nsThreadUtils.h"
 #define IS_MAIN_THREAD() NS_IsMainThread()
-#endif
+#endif // # MOZ_VERSION
+
 #define SCIMOZ_CHECK_THREAD(a) \
     if (!IS_MAIN_THREAD()) { \
 	fprintf(stderr, "SciMoz::" a " was called on a thread\n"); \
 	return NS_ERROR_FAILURE; \
     }
+
 #else
 #define SCIMOZ_CHECK_THREAD(a)
-#endif
+#endif // # if 0
 
 // IME support
 #include "nsIPrivateTextEvent.h"
