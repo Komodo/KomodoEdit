@@ -186,6 +186,45 @@ class DatabaseTestCase(_HistoryTestCase):
             cu.execute("DELETE FROM history_visit WHERE id=?", (loc_b1.id,))
         self.assertEqual(self._get_visit_count(a), 1)
         self.assertEqual(self._get_visit_count(b), 0)
+    
+    def test_obsolete_uri(self):
+        db = self.history.db
+        
+        # Setup test history.
+        a = "file:///home/trentm/a.txt"
+        b = "file:///home/trentm/b.txt"
+        locs = [
+            self.history.note_loc(Location(uri, (i+1)*10, 1))
+            for i in range(5)
+            for uri in [a, b]
+        ]
+        #self.history.debug_dump_recent_history()
+
+        # Obsolete a URI ...
+        actual_a_id = db.uri_id_from_uri(a)
+        db.obsolete_uri(a, actual_a_id)
+        
+        # ... and make sure the DB did what we expected.
+        b_id = db.uri_id_from_uri(b, create_if_new=False)
+        self.assertNotEqual(b_id, None)
+        
+        with db.connect() as cu:
+            cu.execute("SELECT id, is_obsolete FROM history_uri WHERE uri=?", (a,))
+            row = cu.fetchone()
+            self.assertEqual(row[0], actual_a_id)
+            self.assertEqual(row[1], True)
+        
+        a_id = db.uri_id_from_uri(a, create_if_new=False)
+        self.assertEqual(a_id, None)
+
+        a_id = db.uri_id_from_uri(a)   # should revive the URI row
+        self.assertEqual(a_id, actual_a_id)
+        with db.connect() as cu:
+            cu.execute("SELECT id, is_obsolete FROM history_uri WHERE uri=?", (a,))
+            row = cu.fetchone()
+            a_id = row[0]
+            self.assertEqual(a_id, actual_a_id)
+            self.assertEqual(row[1], False)
 
 
 class HistoryTestCase(_HistoryTestCase):
@@ -408,6 +447,38 @@ class HistoryTestCase(_HistoryTestCase):
         #self.history.debug_dump_recent_history(new_loc, merge_curr_loc=False)
         self.assertEqual(len(self.history.forward_visits), 1)
         self.assertEqual(self.history.forward_visits[0], new_loc)
+
+    def test_obsolete_uri(self):
+        db = self.history.db
+        
+        # Setup test history.
+        a = "file:///home/trentm/a.txt"
+        b = "file:///home/trentm/b.txt"
+        locs = [
+            self.history.note_loc(Location(uri, (i+1)*10, 1))
+            for i in range(5)
+            for uri in [a, b]
+        ]
+        curr_loc = Location(b, 666, 1)
+        curr_loc = self.history.go_back(curr_loc)
+        #self.history.debug_dump_recent_history(curr_loc, merge_curr_loc=False)
+
+        # Do what we are testing.
+        self.history.obsolete_uri(a)
+        
+        # Verify that the DB is as we expect it to be.
+        curr_loc = curr_loc.clone()
+        #self.history.debug_dump_recent_history(curr_loc, merge_curr_loc=False)
+        self.assertFalse([loc for _, loc in self.history.recent_history(curr_loc)
+                          if loc.uri == a])
+        
+        curr_loc = self.history.go_forward(curr_loc)
+        self.assertEqual(curr_loc, Location(b, 666, 1))
+        #self.history.debug_dump_recent_history(curr_loc, merge_curr_loc=False)
+        
+        curr_loc = self.history.go_back(curr_loc, 2) # Back *2*
+        #self.history.debug_dump_recent_history(curr_loc, merge_curr_loc=False)
+        self.assertEqual(curr_loc, Location(b, 40, 1))
 
 
 #---- mainline

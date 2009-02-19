@@ -65,6 +65,8 @@ class Location(object):
         #_reg_contractid_ = "@activestate.com/koHistoryLocation;1"
         #_reg_clsid_ = "{b9aa6fcc-52d6-4643-a8cf-e810755d9815}"
 
+    is_obsolete = False
+
     # Core location fields, typically set in the constructor.
     uri = None
     line = None
@@ -86,7 +88,8 @@ class Location(object):
 
     def __init__(self, uri, line, col, view_type="editor",
                  id=None, uri_id=None, referer_id=None,
-                 marker_handle=0, window_num=0, tabbed_view_id=0):
+                 marker_handle=0, window_num=0, tabbed_view_id=0,
+                 is_obsolete=False):
         #XXX:TODO: URI canonicalization.
         self.uri = uri
         self.line = line
@@ -99,6 +102,12 @@ class Location(object):
         self.window_num = window_num
         self.tabbed_view_id = tabbed_view_id
         self.section_name = None
+        self.is_obsolete = is_obsolete
+
+    def clone(self):
+        return Location(self.uri, self.line, self.col, view_type=self.view_type,
+            window_num=self.window_num, tabbed_view_id=self.tabbed_view_id,
+            is_obsolete=self.is_obsolete)
 
     def __repr__(self):
         extras = []
@@ -113,6 +122,8 @@ class Location(object):
             extras.append("mh=%d" % self.marker_handle)
         if self.section_name:
             extras.append("section_name=%s" % self.section_name)
+        if self.is_obsolete:
+            extras.append("obsolete!")
         extra = extras and (" (%s)" % ", ".join(extras)) or ""
         return "<Location %s#%s,%s%s>" % (
             self.uri, self.line, self.col, extra)
@@ -147,7 +158,8 @@ class Database(object):
     # - 1.0.0: initial version
     # - 1.0.1: change in history_visit: window_name TEXT => window_num INT DEF 0
     # - 1.0.2: name change in history_visit: s/multiview_id/tabbed_view_id/
-    VERSION = "1.0.2"
+    # - 1.0.3: add `is_obsolete` columns
+    VERSION = "1.0.3"
 
     path = None
     
@@ -269,7 +281,8 @@ class Database(object):
     _upgrade_info_from_curr_ver = {
         # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
         "1.0.0": (VERSION, _upgrade_reset_db, None),
-        "1.0.1": (VERSION, _upgrade_reset_db, None), # sqlite3 doesn't rename columns
+        "1.0.1": (VERSION, _upgrade_reset_db, None),
+        "1.0.2": (VERSION, _upgrade_reset_db, None),
     }
 
     @property
@@ -280,29 +293,64 @@ class Database(object):
         #TODO: error handling?
         return self.get_meta("version")
 
-    def uri_id_from_uri(self, uri, cu=None):
+    def uri_id_from_uri(self, uri, create_if_new=True, cu=None):
         """Get a `uri_id` for the given URI, possibly inserting a new row
         in the `history_uri` table if new.
         
         @param uri {str} The URI for which to get an id
+        @param create_if_new {bool} Whether to create an entry for this URI
+            if is doesn't exist. Default is True. Note: If true this will
+            revive obsoleted URIs.
         @param cu {sqlite3.Cursor} An existing db cursor to use. Optional.
-        @returns {int} An ID for this URI.
+        @returns {int} An ID for this URI, or None if didn't exist and
+            `create_if_new=False`.
         """
         cache = self._uri_id_from_uri_cache
         if uri in cache:
             return cache[uri]
         
+        uri_id = None
         with self.connect(cu=cu) as cu:
-            cu.execute("SELECT id FROM history_uri WHERE uri=?", (uri,))
+            cu.execute("SELECT id, is_obsolete FROM history_uri WHERE uri=?", (uri,))
             row = cu.fetchone()
             if row:
                 uri_id = int(row[0])
+                is_obsolete = row[1]
             else:
-                cu.execute("INSERT INTO history_uri(uri) VALUES (?)", (uri,))
-                cu.connection.commit()
-                uri_id = cu.lastrowid
-        cache[uri] = uri_id
+                uri_id = is_obsolete = None
+            
+            if is_obsolete is False:
+                pass
+            elif create_if_new:
+                if is_obsolete:
+                    cu.execute("UPDATE history_uri SET is_obsolete=? WHERE id=?",
+                               (False, uri_id))
+                    cu.connection.commit()
+                else:
+                    cu.execute("INSERT INTO history_uri(uri) VALUES (?)", (uri,))
+                    cu.connection.commit()
+                    uri_id = cu.lastrowid
+            else:
+                uri_id = None
+        
+        if uri_id:
+            cache[uri] = uri_id
         return uri_id
+
+    def obsolete_uri(self, uri, uri_id, cu=None):
+        """Mark this URI and all its visits as obsolete.
+        
+        @param uri {str} The URI to mark obsolete.
+        @param uri_id {int} The ID for this URI in the database.
+        @param cu {sqlite3.Cursor} An existing cursor to use.
+        """
+        if uri in self._uri_id_from_uri_cache:
+            del self._uri_id_from_uri_cache[uri]
+        with self.connect(True, cu=cu) as cu:
+            cu.execute("UPDATE history_visit SET is_obsolete=? WHERE uri_id=?",
+                       (True, uri_id))
+            cu.execute("UPDATE history_uri SET is_obsolete=? WHERE id=?",
+                       (True, uri_id))
 
     def add_loc(self, loc, referer_id=None, cu=None):
         """Add a location to the visits table of the db.
@@ -379,7 +427,8 @@ class Database(object):
                 id = int(row[0])
             cu.execute("""
                 SELECT referer_id, uri_id, line, col, view_type, content,
-                       section, marker_handle, window_num, tabbed_view_id
+                       section, marker_handle, window_num, tabbed_view_id,
+                       is_obsolete
                 FROM history_visit
                 WHERE id=?
                 """, (id,))
@@ -400,6 +449,7 @@ class Database(object):
                 marker_handle=row[7],
                 window_num=row[8],
                 tabbed_view_id=row[9],
+                is_obsolete=row[10]
             )
 
         return loc
@@ -410,7 +460,7 @@ class Database(object):
             return
         new_rows = []
         with self.connect(commit=True) as cu:
-            uri_id = self.uri_id_from_uri(uri, cu)
+            uri_id = self.uri_id_from_uri(uri, cu=cu)
             #XXX Test perf on this.  Speed diff by dropping marker_handle test?
             cu.execute("SELECT id, line, marker_handle"
                        + " FROM history_visit"
@@ -495,6 +545,21 @@ class History(object):
 
     closed = False
     MARKNUM_HISTORYLOC = 13 # Keep in sync with content/markers.js
+    
+    # Recent history: We cache the last few "back" visits and all forward
+    # visits -- those resulting from the user jumping back in the history
+    # one or more times.
+    #   recent_back_visits: most recent first. We cache more than
+    #       "recent" length to try to limit the need to hit the database
+    #       when the user goes back and forth a lot.
+    #       The location for the next "go_back" is at the start.
+    recent_back_visits = None
+    #   forward_visits: furthest forward first:
+    #       The location for the next "go_forward" is at the end.
+    forward_visits = None
+    # The last visit returned by `go_back` or `go_forward`.
+    _last_visit = None
+        
 
     def __init__(self, db_path=None, expire_age=None):
         self.db = Database(db_path)
@@ -503,22 +568,7 @@ class History(object):
         assert expire_age is None or isinstance(expire_age, int)
         self.expire_age = expire_age or self.DEFAULT_EXPIRE_ARG
 
-        # Recent history: We cache the last few "back" visits and all forward
-        # visits -- those resulting from the user jumping back in the history
-        # one or more times.
-        #   recent_back_visits: most recent first. We cache more than
-        #       "recent" length to try to limit the need to hit the database
-        #       when the user goes back and forth a lot.
-        #       The location for the next "go_back" is at the start.
-        self.recent_back_visits = deque(maxlen=self.RECENT_BACK_VISITS_CACHE_LENGTH)
-        #   forward_visits: furthest forward first:
-        #       The location for the next "go_forward" is at the end.
-        self.forward_visits = deque()
-        # The last visit returned by `go_back` or `go_forward`.
-        self._last_visit = None
-        
         self.load()
-
         self.closed = False
 
     def __del__(self):
@@ -531,9 +581,9 @@ class History(object):
         self.save()
         self.closed = True
 
-    def load(self):
+    def load(self, cu=None):
         """Load recent history from the database."""
-        with self.db.connect(True) as cu:
+        with self.db.connect(True, cu=cu) as cu:
             # `num_forward_visits` and `top_loc_id` in the meta table help
             # us reconstruct the back/forward state. `num_forward_visits == -1`
             # indicates that these weren't saved (e.g. if Komodo crashed). In
@@ -541,32 +591,89 @@ class History(object):
             # the top of the stack and presuming `num_forward_visits == 0`.
             num_forward_visits = int(self.db.get_meta("num_forward_visits", -1, cu=cu))
             if num_forward_visits == -1:
-                have_state_info = False
-                num_forward_visits = 0
                 top_loc_id = None
             else:
-                have_state_info = True
                 # Set to `-1` so we'll be able to tell on next start
                 # if it was set.
                 self.db.set_meta("num_forward_visits", -1, cu=cu)
                 top_loc_id = _int_or_none(self.db.get_meta("top_loc_id", cu=cu))
 
-            n = 2 * self.RECENT_BACK_VISITS_LENGTH + num_forward_visits + 1
-            id = top_loc_id
-            for i in range(n):
-                try:
-                    loc = self.db.visit_from_id(id, cu=cu)
-                except HistoryNoLatestVisitError, ex:
-                    break
+            self._reload(top_loc_id, num_forward_visits, cu=cu)
+
+    def _reload(self, top_loc_id, num_forward_visits, cu=None):
+        """Reload the recent history cache.
+        
+        @param top_loc_id {int} Is the ID at the top of the history.
+        @param num_forward_visits {int} Is the number of visits for
+            `self.forward_visits`. `-1` indicates that we don't know (see
+            example in `load()`).
+        """
+        self.recent_back_visits = deque(maxlen=self.RECENT_BACK_VISITS_CACHE_LENGTH)
+        self.forward_visits = deque()
+        self._last_visit = None
+        
+        num_to_load = 2 * self.RECENT_BACK_VISITS_LENGTH + 1
+        if num_forward_visits != -1:
+            num_to_load += num_forward_visits
+        
+        SENTINEL = 1000   # sanity check for huge block of obsoleted locs
+        id = top_loc_id
+        i = 0
+        last_good_loc = None
+        while i < num_to_load:
+            try:
+                loc = self.db.visit_from_id(id, cu=cu)
+            except HistoryNoLatestVisitError, ex:
+                break
+            if not loc.is_obsolete:
+                SENTINEL = 1000  # reset
+                if last_good_loc:
+                    # Fix up referer_id in case there were obsolete locs
+                    # between this and the last good one.
+                    last_good_loc.referer_id = loc.id
                 if i < num_forward_visits:
                     self.forward_visits.append(loc)
-                elif have_state_info and i == num_forward_visits:
+                elif i == num_forward_visits:
                     self._last_visit = loc
                 else:
                     self.recent_back_visits.append(loc)
-                id = loc.referer_id
-                if id is None:
+                last_good_loc = loc
+                i += 1
+            else:
+                SENTINEL -= 1
+            id = loc.referer_id
+            if id is None or SENTINEL <= 0:
+                if last_good_loc:
+                    last_good_loc.referer_id = None
+                break
+
+    def _replenish_recent_back_visits(self):
+        """Replenish `self.recent_back_visits` back up to its full
+        cache size.
+        """
+        assert self.recent_back_visits
+        num_to_load = (self.RECENT_BACK_VISITS_CACHE_LENGTH
+            - len(self.recent_back_visits))
+        last_good_loc = self.recent_back_visits[-1]
+        id = self.recent_back_visits[-1].referer_id
+        SENTINEL = 1000   # sanity check for huge block of obsoleted locs
+        with self.db.connect() as cu:
+            i = 0
+            while i < num_to_load:
+                if id is None or SENTINEL <= 0:
+                    last_good_loc.referer_id = None
                     break
+                loc = self.db.visit_from_id(id, cu=cu)
+                if not loc.is_obsolete:
+                    SENTINEL = 1000 # reset
+                    # Fix up referer_id in case there were obsolete locs
+                    # between this and the last good one.
+                    last_good_loc.referer_id = loc.id
+                    self.recent_back_visits.append(loc)
+                    i += 1
+                else:
+                    SENTINEL -= 1
+                id = loc.referer_id
 
     def save(self):
         """Save some recent history meta-data.
@@ -614,6 +721,27 @@ class History(object):
         self.recent_back_visits.appendleft(loc)
         self.forward_visits.clear()
         return loc
+    
+    def obsolete_uri(self, uri):
+        """Mark this URI and all its vists as obsolete -- it will no longer be
+        included in history movements.
+        
+        @param uri {str} The URI to mark obsolete.
+        """
+        with self.db.connect(True) as cu:
+            uri_id = self.db.uri_id_from_uri(uri, create_if_new=False, cu=cu)
+            if not uri_id:
+                return
+            self.db.obsolete_uri(uri, uri_id, cu=cu)
+            
+            # Regenerate the recent history cache.
+            if self.forward_visits:
+                top_loc = self.forward_visits[0]
+            elif self._last_visit:
+                top_loc = self._last_visit
+            else:
+                top_loc = self.recent_back_visits[0] 
+            self._reload(top_loc.id, len(self.forward_visits), cu=cu)
 
     def can_go_back(self):
         """Returns a boolean indicating whether there is any back history.
@@ -663,18 +791,8 @@ class History(object):
         if ((n > len(self.recent_back_visits)
              or len(self.recent_back_visits) <= self.RECENT_BACK_VISITS_DEPLETION_LENGTH)
             and self.recent_back_visits[-1].referer_id is not None):
-            # The `recent_back_visits` cache is getting depleted. Need
-            # to replenish from the db.
-            num_to_load = (self.RECENT_BACK_VISITS_CACHE_LENGTH
-                - len(self.recent_back_visits))
-            id_ = self.recent_back_visits[-1].referer_id
-            with self.db.connect() as cu:
-                for i in range(num_to_load):
-                    if id_ is None:
-                        break
-                    loc_ = self.db.visit_from_id(id_, cu=cu)
-                    self.recent_back_visits.append(loc_)
-                    id_ = loc_.referer_id
+            # The `recent_back_visits` cache is getting depleted.
+            self._replenish_recent_back_visits()
         if n > len(self.recent_back_visits):
             raise HistoryError(
                 "cannot go back %d step%s: not enough back history (%d)"
@@ -684,7 +802,7 @@ class History(object):
         if curr_loc == self._last_visit:
             # Do we need to add a new forward_visit, or reuse the
             # current loc?
-            loc = curr_loc
+            loc = self._last_visit
         else:
             # The user's position has changed since the last jump.
             # Update the referer_id's to point correctly.
@@ -726,7 +844,7 @@ class History(object):
         # Do we need to add a new back_visit, or reuse the
         # current loc?
         if curr_loc == self._last_visit:
-            loc = curr_loc
+            loc = self._last_visit
         else:
             # The user's position has changed since the last jump.
             # We have to do some more bookeeping for the back/forward
@@ -883,12 +1001,15 @@ _g_database_schema = """
     
     CREATE TABLE history_uri (
         id INTEGER NOT NULL PRIMARY KEY,
+        is_obsolete INTEGER DEFAULT 0,
         uri TEXT UNIQUE,
         visit_count INTEGER DEFAULT 0
     );
     
     CREATE TABLE history_visit (
         id INTEGER NOT NULL PRIMARY KEY,
+        is_obsolete INTEGER DEFAULT 0,
+        
         -- refers to a another "visit" row, providing a linked-list of "back" history
         referer_id INTEGER,
         timestamp REAL,                 -- Julian time (UTC)
