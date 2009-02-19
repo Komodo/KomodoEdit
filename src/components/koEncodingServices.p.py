@@ -163,10 +163,18 @@ class koEncodingServices:
                     ('big5', 'Traditional Chinese (Big5)', 'Big5', '', 1,'big5'),
                     ('cp950', 'Traditional Chinese (Microsoft CP-950)', 'CP950', '', 1,'cp950'),
                     ('big5hkscs', 'Traditional Chinese (HKSCS)', 'HKSCS', '', 1,'big5hkscs'),
+
+                    ('iso_2022_jp', 'Japanese (ISO-2022-JP)', 'ISO-2022-JP', '', 1, 'iso_2022_jp'),
                     ('shift_jis', 'Shift JIS', 'Shift JIS', '', 1,'shift_jis'),
                     ('shift_jis_2004', 'Shift JIS 2004', 'Shift JIS 2004', '', 1,'shift_jis_2004'),
                     ('shift_jisx0213', 'Shift JIS X 0208', 'Shift JIS X 0208', '', 1,'shift_jisx0213'),
                     ('cp932', 'Shift JIS (CP-932)', 'CP932', '', 1,'cp932'),
+
+                    ('euc_kr', 'Korean (EUC-KR)', 'EUC-KR', '', 1, 'euc_kr'),
+                    ('cp949', 'Korean (UHC)', 'UHC', '', 1, 'cp949'),
+                    ('johab', 'Korean (JOHAB)', 'JOHAB', '', 1, 'johab'),
+                    ('iso_2022_kr', 'Korean (ISO-2022-KR)', 'ISO-2022-KR', '', 1, 'iso_2022_kr'),
+                    
                     ('gbk', 'GBK (CP-936/GBK)', 'CP936/GBK', '', 1,'gbk'),
                     ]
                 ),
