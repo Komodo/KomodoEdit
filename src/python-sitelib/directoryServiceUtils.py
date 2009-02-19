@@ -77,7 +77,7 @@ _gExtensionDirectoriesCache = None
 def getExtensionDirectories():
     """Get extension directories.
     
-    @returns A list of full paths to all installed (and enabled?) extension
+    @returns A list of full paths to all installed and enabled extension
         directories.
     """
     global _gExtensionDirectoriesCache
