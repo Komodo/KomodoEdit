@@ -315,7 +315,7 @@ class Database(object):
             row = cu.fetchone()
             if row:
                 uri_id = int(row[0])
-                is_obsolete = row[1]
+                is_obsolete = bool(row[1])
             else:
                 uri_id = is_obsolete = None
             
