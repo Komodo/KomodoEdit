@@ -130,8 +130,20 @@ class KoObserverService:
         try:
             if not aTopic in self._topics:
                 self._topics[aTopic] = []
-            else:
-                self._removeDead()
+
+            # Not removing dead observers here... this was causing hangs at
+            # startup (a deadlock Todd's linux machine). After digging into this
+            # hang, the reason was that two threads (PHP and Python lint
+            # threads) were calling addObserver at the same time. The Python
+            # thread acquired the lock and was in the process of removing dead
+            # observers (iterating over the observers) and the PHP addObserver
+            # call came along and hit the above "cv.acquire()" and was locked,
+            # but the Python thread did not resume and the result was a
+            # deadlock. I don't know the exact PyXPCOM / Python reasons of
+            # how/why. Removing the _removeDead() call does not have much
+            # affect to this service, so it's a safe enough change.
+            #else:
+            #    self._removeDead()
 
             # Ignoring the ownsWeak argument, always try to create a
             # weakreference, see comments in bug 80145.
