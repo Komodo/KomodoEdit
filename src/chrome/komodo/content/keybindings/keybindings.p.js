@@ -282,6 +282,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 9: Komodo 5.1.0 - Add cmd_lineSelectionOrDuplicate
  * 8: Komodo 5.1.0 - Mac: bind %[, %] to history, %{, %} to jump/sel to matching brace
  * 7: Komodo 5.1.0 - vi: add "gg" for document home command
  * 6: Komodo 5.1.0 - add alt-left and alt-right for history
@@ -291,7 +292,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 8;
+const currentKeybindingVersionNumber = 9;
 
 /**
  * Remove this dictionary of keybinds.
@@ -544,6 +545,20 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                 });
                 break;
 // #endif
+            case 8:
+                if ('cmd_lineDuplicate' in this.command2key) {
+                    var keys = this.command2key['cmd_lineDuplicate'].concat([]);
+                    // Copy the array because
+                    // this.command2key['cmd_lineDuplicate']
+                    // is mutable.
+                    this._remove_keybinding_sequences({
+                        'cmd_lineDuplicate': keys
+                    });
+                    this._add_keybinding_sequences({
+                        'cmd_lineOrSelectionDuplicate': keys
+                    });
+                }
+            break;
         }
         from_version += 1;
     }

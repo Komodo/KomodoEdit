@@ -97,15 +97,6 @@ command_map = {
     'cmd_homeAbsolute' : 'home',
 }
 
-undoable_commands = {
-    'cmd_lineCut' : 1,
-    'cmd_lineDelete' : 1,
-    'cmd_lineDuplicate' : 1,
-    'cmd_lineTranspose' : 1,
-    'cmd_deleteWordLeft' : 1,
-    'cmd_deleteWordRight' : 1,
-}
-
 class koScintillaController:
     _com_interfaces_ = components.interfaces.ISciMozController
     _reg_clsid_ = "{726cc885-6d17-48af-b8a6-c9b759f1fe6b}"
@@ -122,6 +113,8 @@ class koScintillaController:
         self._loc_saving_cmds = ['cmd_documentHome', 'cmd_documentEnd']
         self._koHistorySvc = components.classes["@activestate.com/koHistoryService;1"].\
                         getService(components.interfaces.koIHistoryService)
+        self._koSysUtils = components.classes["@activestate.com/koSysUtils;1"].\
+                            getService(components.interfaces.koISysUtils)
         self._koPrefs = components.classes["@activestate.com/koPrefService;1"].\
                             getService(components.interfaces.koIPrefService).prefs
     def test_scimoz(self, scimoz):
@@ -219,9 +212,7 @@ class koScintillaController:
                 import eollib
                 eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
                 finalLine = line + eol
-                finalLineLength = (components.classes["@activestate.com/koSysUtils;1"].
-                                   getService(components.interfaces.koISysUtils).
-                                   byteLength(finalLine))
+                finalLineLength = self._koSysUtils.byteLength(finalLine)
                 sm.copyText(finalLineLength, finalLine)
             else:
                 sm.selectionEnd = nextLineStartPos
@@ -259,16 +250,6 @@ class koScintillaController:
                 sm.insertText(sm.length, eol)
                 nextLineStartPos += len(eol)
             self._doSmartCut(lineStart, nextLineStartPos)
-            return
-        elif (command_name == 'cmd_lineDuplicate'
-              and sm.selectionStart != sm.selectionEnd):
-            # If there is no selection, we just do the usual lineDuplicate
-            # Otherwise [copy|move to selectionEnd|paste|select pasted text]
-            sm.copy()
-            sm.anchor = sm.currentPos = pos = max(sm.anchor, sm.currentPos)
-            sm.paste()
-            sm.anchor = pos
-            sm.sendUpdateCommands("clipboard")
             return
         methname= '_do_'+command_name
         attr = getattr(self, methname, None)
@@ -691,7 +672,56 @@ class koScintillaController:
                 sm.replaceTarget(0, "")
         finally:
             sm.endUndoAction()
-
+            
+    def _is_cmd_lineOrSelectionDuplicate_enabled(self):
+        return True
+    
+    def _do_cmd_lineOrSelectionDuplicate(self):
+        sm = self.scimoz()
+        if sm.selectionStart == sm.selectionEnd:
+            # If there is no selection, we just do the usual lineDuplicate
+            self.doCommand('cmd_lineDuplicate')
+            return
+        # Otherwise [copy|move to selectionEnd|paste|select pasted text]
+        startPos = min(sm.anchor, sm.currentPos)
+        endPos = max(sm.anchor, sm.currentPos)
+        if sm.selectionMode == sm.SC_SEL_STREAM:
+            textToCopy = sm.getTextRange(startPos, endPos)
+            sm.targetStart = endPos
+            sm.targetEnd = endPos
+            textLen = self._koSysUtils.byteLength(textToCopy)
+            sm.beginUndoAction()
+            try:
+                sm.replaceTarget(textLen, textToCopy)
+                sm.anchor = endPos
+                sm.currentPos = endPos + textLen
+            finally:
+                sm.endUndoAction()
+        elif sm.selectionMode == sm.SC_SEL_RECTANGLE:
+            # Slide rectangular selections horizontally
+            startLine = sm.lineFromPosition(startPos)
+            endLine = sm.lineFromPosition(endPos)
+            finalStartPos = sm.getLineSelEndPosition(startLine)
+            finalEndCol = (sm.getLineSelEndPosition(endLine)
+                           - sm.positionFromLine(endLine))
+            finalLineWidth = (sm.getLineSelEndPosition(endLine)
+                              - sm.getLineSelStartPosition(endLine))
+            sm.beginUndoAction()
+            try:
+                for i in range(startLine, endLine + 1):
+                    selStart = sm.getLineSelStartPosition(i)
+                    selEnd = sm.getLineSelEndPosition(i)
+                    textToCopy = sm.getTextRange(selStart, selEnd)
+                    sm.targetStart = selEnd
+                    sm.targetEnd = selEnd
+                    sm.replaceTarget(self._koSysUtils.byteLength(textToCopy), textToCopy)
+                sm.anchor = finalStartPos
+                sm.currentPos = (sm.positionFromLine(endLine)
+                                 + finalEndCol
+                                 + finalLineWidth)
+            finally:
+                sm.endUndoAction()
+        
     # Used by vim binding W
     def _do_cmd_wordLeftPastPunctuation(self):
         sm = self.scimoz()
