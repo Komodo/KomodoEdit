@@ -82,6 +82,18 @@ using namespace Scintilla;
 #define SCIMOZ_CHECK_THREAD(a)
 #endif // # if 0
 
+// Ensure that SciMoz has not been closed. Bug 82032.
+#define SCIMOZ_CHECK_ALIVE(a) \
+    if (isClosed) { \
+	fprintf(stderr, "SciMoz::" a " used when closed!\n"); \
+	return NS_ERROR_FAILURE; \
+    }
+
+#define SCIMOZ_CHECK_VALID(a) \
+    SCIMOZ_CHECK_THREAD(a) \
+    SCIMOZ_CHECK_ALIVE(a)
+
+
 // IME support
 #include "nsIPrivateTextEvent.h"
 #include "nsIPrivateTextRange.h"
@@ -130,6 +142,7 @@ SciMoz::SciMoz(nsPluginInstance* aPlugin)
     }
 #endif
 
+    isClosed = 0;
     mPlugin = aPlugin;
 
     // XXX what do we need here?
@@ -179,6 +192,7 @@ SciMoz::~SciMoz()
     // until the SciMoz instance is destroyed (garbage collected). Now that
     // SciMoz is being destroyed, we can finally go back and destroy the plugin
     // that originally created us.
+    isClosed = 1;
     if (mPlugin) {
 	delete mPlugin;
 	mPlugin = NULL;
@@ -224,6 +238,9 @@ void SciMoz::SetInstance(nsPluginInstance* plugin)
 }
 
 long SciMoz::SendEditor(unsigned int Msg, unsigned long wParam, long lParam) {
+    if (isClosed) {
+	fprintf(stderr,"SciMoz::SendEditor %lx %lx %lx used when closed!\n", Msg, wParam, lParam);
+    }
 #ifdef SCIMOZ_DEBUG
     fprintf(stderr,"SciMoz::SendEditor %lx %lx %lx\n", Msg, wParam, lParam);
 #endif
@@ -360,7 +377,7 @@ void SciMoz::BraceMatch() {
 
 NS_IMETHODIMP SciMoz::DoBraceMatch()
 {
-	SCIMOZ_CHECK_THREAD("DoBraceMatch");
+	SCIMOZ_CHECK_VALID("DoBraceMatch");
 	BraceMatch();
 	return NS_OK;
 }
@@ -369,6 +386,10 @@ NS_IMETHODIMP SciMoz::DoBraceMatch()
 //#define SCIMOZ_DEBUG_NOTIFY
 void SciMoz::Notify(long lParam) {
 	SCNotification *notification = reinterpret_cast<SCNotification *>(lParam);
+	if (isClosed) {
+	    fprintf(stderr,"SciMoz::Notify %d used when closed!\n", notification->nmhdr.code);
+	    return;
+	}
 #ifdef SCIMOZ_DEBUG
 	if (notification->nmhdr.code != SCN_PAINTED)
 		fprintf(stderr,"SciMoz::Notify %d\n", notification->nmhdr.code);
@@ -597,7 +618,7 @@ void SciMoz::Notify(long lParam) {
 
 /* void HookEvents (in nsISupports eventListener); */
 NS_IMETHODIMP SciMoz::HookEvents(ISciMozEvents *eventListener) {
-	SCIMOZ_CHECK_THREAD("HookEvents");
+	SCIMOZ_CHECK_VALID("HookEvents");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::HookEvents\n");
 #endif
@@ -608,7 +629,7 @@ NS_IMETHODIMP SciMoz::HookEvents(ISciMozEvents *eventListener) {
 
 /* void HookEvents (in nsISupports eventListener); */
 NS_IMETHODIMP SciMoz::HookEventsWithStrongReference(ISciMozEvents *eventListener) {
-	SCIMOZ_CHECK_THREAD("HookEventsWithStrongReference");
+	SCIMOZ_CHECK_VALID("HookEventsWithStrongReference");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::HookEventsWithStrongReference\n");
 #endif
@@ -619,7 +640,7 @@ NS_IMETHODIMP SciMoz::HookEventsWithStrongReference(ISciMozEvents *eventListener
 
 /* void HookSomeEvents (in nsISupports eventListener, in PRUint32 mask); */
 NS_IMETHODIMP SciMoz::HookSomeEvents(ISciMozEvents *eventListener, PRUint32 mask) {
-	SCIMOZ_CHECK_THREAD("HookSomeEvents");
+	SCIMOZ_CHECK_VALID("HookSomeEvents");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::HookSomeEvents\n");
 #endif
@@ -630,7 +651,7 @@ NS_IMETHODIMP SciMoz::HookSomeEvents(ISciMozEvents *eventListener, PRUint32 mask
 
 /* void HookSomeEventsWithStrongReference (in ISciMozEvents eventListener, in PRUint32 mask); */
 NS_IMETHODIMP SciMoz::HookSomeEventsWithStrongReference(ISciMozEvents *eventListener, PRUint32 mask) {
-	SCIMOZ_CHECK_THREAD("HookSomeEventsWithStrongReference");
+	SCIMOZ_CHECK_VALID("HookSomeEventsWithStrongReference");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::HookSomeEventsWithStrongReference %08X\n", eventListener);
 #endif
@@ -641,7 +662,7 @@ NS_IMETHODIMP SciMoz::HookSomeEventsWithStrongReference(ISciMozEvents *eventList
 
 /* void UnhookEvents (in ISciMozEvents eventListener); */
 NS_IMETHODIMP SciMoz::UnhookEvents(ISciMozEvents *eventListener) {
-	SCIMOZ_CHECK_THREAD("UnhookEvents");
+	SCIMOZ_CHECK_VALID("UnhookEvents");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::UnhookEvents\n");
 #endif
@@ -652,7 +673,7 @@ NS_IMETHODIMP SciMoz::UnhookEvents(ISciMozEvents *eventListener) {
 
 /* void getStyledText (in long min, in long max, out unsigned long count, [array, size_is (count), retval] out octet str); */
 NS_IMETHODIMP SciMoz::GetStyledText(PRInt32 min, PRInt32 max, PRUint32 *count, PRUint8 **str) {
-	SCIMOZ_CHECK_THREAD("GetStyledText");
+	SCIMOZ_CHECK_VALID("GetStyledText");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetStyledText\n");
 #endif
@@ -675,7 +696,7 @@ NS_IMETHODIMP SciMoz::GetStyledText(PRInt32 min, PRInt32 max, PRUint32 *count, P
 
 /* long getCurLine (out string text); */
 NS_IMETHODIMP SciMoz::GetCurLine(PRUnichar ** text, PRInt32 *_retval) {
-	SCIMOZ_CHECK_THREAD("GetCurLine");
+	SCIMOZ_CHECK_VALID("GetCurLine");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetCurLine\n");
 #endif
@@ -703,7 +724,7 @@ NS_IMETHODIMP SciMoz::GetCurLine(PRUnichar ** text, PRInt32 *_retval) {
 /* long getLine(in long line, out AUTF8String text); */
 NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, PRUnichar ** text, PRInt32  *_retval) 
 {
-	SCIMOZ_CHECK_THREAD("GetLine");
+	SCIMOZ_CHECK_VALID("GetLine");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetLine\n");
 #endif
@@ -728,7 +749,7 @@ NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, PRUnichar ** text, PRInt32  *_retval
 
 /* void assignCmdKey (in long key, in long modifiers, in long msg); */
 NS_IMETHODIMP SciMoz::AssignCmdKey(PRInt32 key, PRInt32 modifiers, PRInt32 msg) {
-	SCIMOZ_CHECK_THREAD("AssignCmdKey");
+	SCIMOZ_CHECK_VALID("AssignCmdKey");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::AssignCmdKey key=%x modifiers=%x msg=%x\n", key, modifiers, msg);
 #endif
@@ -739,7 +760,7 @@ NS_IMETHODIMP SciMoz::AssignCmdKey(PRInt32 key, PRInt32 modifiers, PRInt32 msg) 
 
 /* void clearCmdKey (in long key, in long modifiers); */
 NS_IMETHODIMP SciMoz::ClearCmdKey(PRInt32 key, PRInt32 modifiers) {
-	SCIMOZ_CHECK_THREAD("ClearCmdKey");
+	SCIMOZ_CHECK_VALID("ClearCmdKey");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::ClearCmdKey key=%x modifiers=%x\n", key, modifiers);
 #endif
@@ -751,7 +772,7 @@ NS_IMETHODIMP SciMoz::ClearCmdKey(PRInt32 key, PRInt32 modifiers) {
 /* string getTextRange (in long min, in long max); */
 NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, PRUnichar ** _retval) 
 {
-	SCIMOZ_CHECK_THREAD("GetTextRange");
+	SCIMOZ_CHECK_VALID("GetTextRange");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetTextRange\n");
 #endif
@@ -782,7 +803,7 @@ NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, PRUnichar ** _retva
 
 /* attribute string name; */
 NS_IMETHODIMP SciMoz::GetName(nsAString &val) {
-	SCIMOZ_CHECK_THREAD("GetName");
+	SCIMOZ_CHECK_VALID("GetName");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetName\n");
 #endif
@@ -791,7 +812,7 @@ NS_IMETHODIMP SciMoz::GetName(nsAString &val) {
 }
 
 NS_IMETHODIMP SciMoz::SetName(const nsAString &val) {
-	SCIMOZ_CHECK_THREAD("SetName");
+	SCIMOZ_CHECK_VALID("SetName");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::SetName\n");
 #endif
@@ -802,7 +823,7 @@ NS_IMETHODIMP SciMoz::SetName(const nsAString &val) {
 /* attribute string text; */
 NS_IMETHODIMP SciMoz::GetText(PRUnichar ** text) 
 {
-	SCIMOZ_CHECK_THREAD("GetText");
+	SCIMOZ_CHECK_VALID("GetText");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetText\n");
 #endif
@@ -831,7 +852,7 @@ NS_IMETHODIMP SciMoz::GetText(PRUnichar ** text)
 
 NS_IMETHODIMP SciMoz::SetText(const PRUnichar * aText)
 {
-	SCIMOZ_CHECK_THREAD("SetText");
+	SCIMOZ_CHECK_VALID("SetText");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::SetText\n");
 #endif
@@ -873,7 +894,7 @@ NS_IMETHODIMP SciMoz::SetLastCharCodeAdded(PRInt32  charcode)
 /* long charPosAtPosition(in long); */
 NS_IMETHODIMP SciMoz::CharPosAtPosition(PRInt32 pos, PRInt32  *_retval)
 {
-	SCIMOZ_CHECK_THREAD("CharPosAtPosition");
+	SCIMOZ_CHECK_VALID("CharPosAtPosition");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::CharPosAtPosition\n");
 #endif
@@ -899,7 +920,7 @@ NS_IMETHODIMP SciMoz::CharPosAtPosition(PRInt32 pos, PRInt32  *_retval)
 /* readonly attribute wstring selText; */
 NS_IMETHODIMP SciMoz::GetSelText(PRUnichar ** aSelText)
 {
-	SCIMOZ_CHECK_THREAD("GetSelText");
+	SCIMOZ_CHECK_VALID("GetSelText");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetSelText\n");
 #endif

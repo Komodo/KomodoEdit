@@ -201,6 +201,7 @@ nsresult SciMoz::PlatformDestroy(void) {
 	wEditor = NULL;
 	fPlatform.port = NULL;
 	fPlatform.container = NULL;
+	isClosed = 1;
 	return NS_OK;
 }
 

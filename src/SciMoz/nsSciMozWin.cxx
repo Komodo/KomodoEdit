@@ -193,6 +193,7 @@ nsresult SciMoz::PlatformDestroy(void) {
     if (gTimelineEnabled)
         NS_TimelineMark("SciMoz: <%s@0x%p> object dieing", NS_ConvertUTF16toUTF8(name).get());
 #endif
+    isClosed = 1;
     return NS_OK;
 }
 

@@ -230,6 +230,7 @@ protected:
 #endif
 
     bool initialised;
+    bool isClosed;      // If the plugin was removed... Scintilla was destroyed.
     bool parked;
     int width;
     int height;

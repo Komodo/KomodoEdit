@@ -312,6 +312,7 @@ def idlis(f):
 				funcImpl = funcImpl + "#ifdef SCIMOZ_DEBUG\n"
 				funcImpl = funcImpl + '\tprintf("SciMoz::' + cxxName + '\\n");\n'
 				funcImpl = funcImpl + "#endif\n"
+				funcImpl = funcImpl + '\tSCIMOZ_CHECK_VALID("' + cxxName + '")'
 				stringresult = 0
 				structType = ""
 				if (cxxType(p1Type) in C_out_string_types) or \

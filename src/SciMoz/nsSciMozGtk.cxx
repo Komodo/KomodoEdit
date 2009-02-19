@@ -132,6 +132,8 @@ nsresult SciMoz::PlatformDestroy(void) {
 		gtk_widget_destroy(wParkingLot);
 		wParkingLot = 0;
 	}
+
+	isClosed = 1;
 	return NS_OK;
 }
 
