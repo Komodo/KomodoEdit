@@ -666,7 +666,12 @@ function _FindAllInView(editor, view, context, pattern, resultsView,
     }
 
     findSvc.findallex(viewId, text, pattern, resultsView, contextOffset,
-                      scimoz, highlightMatches);
+                      scimoz);
+
+    if (highlightMatches) {
+        findSvc.highlightlastresults(scimoz);
+    }
+
     gFindSession.NoteUrl(viewId);
 }
 
@@ -708,7 +713,7 @@ function _MarkAllInView(editor, view, context, pattern)
 
 
 function _ReplaceAllInView(editor, view, context, pattern, replacement,
-                           firstOnLine, resultsView)
+                           firstOnLine, resultsView, highlightReplacements)
 {
     // Replace all instances of "pattern" with "replacement" in the current
     // view context.
@@ -773,6 +778,11 @@ function _ReplaceAllInView(editor, view, context, pattern, replacement,
     scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(scimoz.currentPos));
 
     gFindSession.NoteUrl(viewId);
+
+    if (highlightReplacements) {
+        findSvc.highlightlastresults(scimoz);
+    }
+
     return numReplacements;
 }
 
@@ -1098,7 +1108,7 @@ function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet
 }
 
 /**
- * Clear all of the current find highlights.
+ * Clear all of the current find and replace highlights.
  * 
  * @param scimoz {Components.interfaces.ISciMoz} - The scimoz instance.
  */
@@ -1508,12 +1518,14 @@ function Find_Replace(editor, context, pattern, replacement,
  * @param firstOnLine {boolean} A boolean indicating, if true, that only
  *      the first hit on a line should be replaced. Default is false. (This
  *      is to support Vi's replace with the 'g' flag.)
+ * @param highlightReplacements {boolean} To highlight the replacements made.
  * ...
  */
 function Find_ReplaceAll(editor, context, pattern, replacement,
                          showReplaceResults /* =false */,
                          firstOnLine /* =false */,
-                         msgHandler /* =<statusbar notifier> */)
+                         msgHandler /* =<statusbar notifier> */,
+                         highlightReplacements /* =true */)
 {
     if (typeof(showReplaceResults) == "undefined") showReplaceResults = false;
     if (typeof(firstOnLine) == "undefined" || firstOnLine == null) {
@@ -1522,7 +1534,13 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
         msgHandler = _Find_GetStatusbarMsgHandler(editor);
     }
-    
+    if (typeof(highlightReplacements) == 'undefined' || highlightReplacements == null) {
+        highlightReplacements = true;
+    }
+    if (!Find_HighlightingEnabled()) {
+        highlightReplacements = false;
+    }
+
     findLog.info("Find_ReplaceAll(editor, context, pattern='"+pattern
                  +"', replacement='"+replacement
                  +"', showReplaceResults="+showReplaceResults
@@ -1582,7 +1600,8 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
         findLog.debug("Find_ReplaceAll: replace all in '"+
                       editor.ko.views.manager.currentView.document.displayPath+"'\n");
         nr = _ReplaceAllInView(editor, editor.ko.views.manager.currentView, context,
-                               pattern, replacement, firstOnLine, resultsView);
+                               pattern, replacement, firstOnLine, resultsView,
+                               highlightReplacements);
         numReplacements += nr;
     } else if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
         var view = editor.ko.views.manager.currentView;
@@ -1599,7 +1618,8 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
     
                 findLog.debug("Find_ReplaceAll: replace all in '"+viewId+"'\n");
                 nr = _ReplaceAllInView(editor, view, context, pattern,
-                                       replacement, firstOnLine, resultsView);
+                                       replacement, firstOnLine, resultsView,
+                                       highlightReplacements);
                 numReplacements += nr;
                 if (nr) {
                     numFiles += 1;

@@ -1277,8 +1277,21 @@ class KoFindService(object):
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
+    def highlightlastresults(self, scimoz):
+        """Highlight the last find/replace patterns in the scimoz text."""
+        try:
+            scimoz.indicatorValue = scimoz.INDIC_BOX
+            scimoz.indicatorCurrent = self.DECORATOR_FIND_HIGHLIGHT
+            # Clear all existing find indicators.
+            scimoz.indicatorClearRange(0, scimoz.length);
+            for highlight in self._lastHighlightMatches:
+                scimoz.indicatorFillRange(*highlight)
+        except (re.error, ValueError, findlib2.FindError), ex:
+            gLastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+
     def findallex(self, url, text, pattern, resultsView, contextOffset,
-                  scimoz, highlightMatches):
+                  scimoz):
         """Feed all occurrences of "pattern" in the "text" into the given
         koIFindResultsView.
 
@@ -1288,8 +1301,7 @@ class KoFindService(object):
             "contextOffset" is text's offset into the scimoz buffer. This
                 is only used if resultsView is specified.
             "scimoz" is the ISciMoz interface for current view. This is only
-                used if resultsView is specified or highlightMatches is True.
-            "highlightMatches" use indicators to highlight scimoz search hits.
+                used if resultsView is specified is True.
         
         No return value.
         """
@@ -1300,15 +1312,10 @@ class KoFindService(object):
                 self.options.caseSensitivity,
                 self.options.matchWord)
 
-            if scimoz is None:
-                highlightMatches = False
-            if highlightMatches:
-                # Set the indicator value and clear existing find indicators.
-                scimoz.indicatorValue = scimoz.INDIC_BOX
-                scimoz.indicatorCurrent = self.DECORATOR_FIND_HIGHLIGHT
-                scimoz.indicatorClearRange(0, scimoz.length);
-
             resultsView = UnwrapObject(resultsView)
+            self._lastHighlightMatches = []
+            self._lastHighlightRegexTuple = None
+            self._lastHighlightMd5Hexdigest = None
             for match in findlib2.find_all_matches(regex, text):
                 value = match.group()
                 startCharIndex = match.start() + contextOffset
@@ -1319,6 +1326,9 @@ class KoFindService(object):
                 # searching is using).
                 startByteIndex = scimoz.positionAtChar(0, startCharIndex)
                 endByteIndex = scimoz.positionAtChar(0, endCharIndex)
+                # Save the match location for highlighting purposes.
+                self._lastHighlightMatches.append((startByteIndex,
+                                                   endByteIndex - startByteIndex))
 
                 startLineNum = scimoz.lineFromPosition(startByteIndex)
                 endLineNum = scimoz.lineFromPosition(endByteIndex)
@@ -1334,9 +1344,6 @@ class KoFindService(object):
                     startLineNum + 1, # 1-based line
                     startCharIndex - scimoz.positionFromLine(startLineNum) + 1, # 1-based column.
                     context)
-                if highlightMatches:
-                    scimoz.indicatorFillRange(startByteIndex,
-                                              endByteIndex - startByteIndex)
         except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
@@ -1463,6 +1470,11 @@ class KoFindService(object):
 
             if resultsView is not None:
                 resultsView = UnwrapObject(resultsView)
+            self._lastHighlightMatches = []
+            self._lastHighlightRegexTuple = None
+            self._lastHighlightMd5Hexdigest = None
+            # The offset between the original text pos and the replacement pos.
+            replacementByteOffset = 0
             new_text_bits = []
             last_hit_line = None
             num_hits = 0
@@ -1518,6 +1530,24 @@ class KoFindService(object):
                         startLineNum + 1, # 1-based line
                         startCharIndex - scimoz.positionFromLine(startLineNum) + 1, # 1-based column.
                         context)
+
+                # Save the match location for highlighting purposes.
+                # Convert indices to *byte* offsets (as in scintilla) from
+                # *char* offsets (which is what the Python regex engine
+                # searching is using).
+                if resultsView is None and not firstOnLine: # otherwise it's already calculated.
+                    startCharIndex = match.start() + contextOffset
+                    startByteIndex = scimoz.positionAtChar(0, startCharIndex)
+                # We use utf-8 encoding to determine the byte length because
+                # this is the encoding scintilla *always* uses for displaying
+                # text.
+                replaceByteLength = len(repl_str.encode('utf-8'))
+                self._lastHighlightMatches.append((startByteIndex + replacementByteOffset,
+                                                   replaceByteLength))
+                # Adjust the text offset for this replacement. 
+                replacementByteOffset += (replaceByteLength -
+                                          len(match.group().encode('utf-8')))
+
             new_text_bits.append(text[curr_pos:])
 
             if not num_hits:

@@ -262,8 +262,7 @@ interface koIFindService : nsISupports {
                    in wstring pattern,
                    in koIFindResultsView resultsView,
                    in PRUint32 contextOffset,
-                   in ISciMoz scimoz,
-                   in boolean highlightMatches);
+                   in ISciMoz scimoz);
 
     // Find all lines on which the given pattern is found.
     // Returns a list of lines (0-based).
@@ -292,6 +291,13 @@ interface koIFindService : nsISupports {
                       in long start,
                       in long end,
                       in long timeout);
+
+    /**
+     * Hightlight all the last find/replace matches in the scintilla buffer.
+     *
+     * @param scimoz   - a Scintilla instance
+     */
+    void highlightlastresults(in ISciMoz scimoz);
 
     // A faster alternative to replaceall() specific to Komodo usage.
     // See the implementation for more docs.
