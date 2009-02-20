@@ -1230,7 +1230,6 @@ class KoFindService(object):
             md5_hexdigest = md5(text).hexdigest()
             regexTuple = (regex, desc)
             rememberMatches = False
-            self._lastHighlightRegexTuple
             if regexTuple == self._lastHighlightRegexTuple and \
                 self._lastHighlightMatches and \
                 self._lastHighlightMd5Hexdigest == md5_hexdigest:
