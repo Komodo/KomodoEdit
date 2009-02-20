@@ -1229,7 +1229,6 @@ class KoFindService(object):
             text = scimoz.text
             md5_hexdigest = md5(text).hexdigest()
             regexTuple = (regex, desc)
-            rememberMatches = False
             if regexTuple == self._lastHighlightRegexTuple and \
                 self._lastHighlightMatches and \
                 self._lastHighlightMd5Hexdigest == md5_hexdigest:
@@ -1245,7 +1244,6 @@ class KoFindService(object):
             else:
                 # It's different. Perform a new find all now.
                 hightlight_matches = []
-                rememberMatches = True
                 expired_time = time.time() + (timeout_ms / 1000.0)
                 if start == end:
                     # Search the whole text.
