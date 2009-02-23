@@ -90,7 +90,6 @@ from ciElementTree import Element, SubElement, tostring
 from SilverCity import ScintillaConstants
 
 from codeintel2 import tcl_lexer, tcl_parser
-from codeintel2.parseutil import getAttrStr, xmlencode, cdataescape
 from codeintel2.common import CILEError
 from codeintel2 import parser_cix
 
