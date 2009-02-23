@@ -637,7 +637,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 if elem is not None and len(lpath) > 1:
                     # Try at the current elem we found in the file
                     try:
-                        self.log("Checking for deeper local match %r from scoperef %r" % (lpath[1:], scoperef))
+                        self.log("Checking for deeper local match %r from scoperef %r", lpath[1:], scoperef)
                         check_elem = elem
                         for p in lpath[1:]:   # we matched first token already
                             check_elem = check_elem.names[p]
