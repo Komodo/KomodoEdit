@@ -411,7 +411,10 @@ class TreeEvaluator(CitadelEvaluator):
         """
         log_indent = ' '*4
         if True:    # just print as we go
-            s = [msg % args]
+            if args:
+                s = [msg % args]
+            else:
+                s = [msg]
             if kwargs.get("cached"):
                 s.append(" (cached)")
             self.info(''.join(s))
