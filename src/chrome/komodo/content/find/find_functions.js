@@ -1149,11 +1149,17 @@ function Find_HighlightClearPosition(scimoz, position, length) {
  *  @param pattern - the pattern being sought
  */
 function Find_HighlightAllMatches(scimoz, context, pattern) {
+    var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
+                            getService(Components.interfaces.koIPrefService);
+    var timeout = prefsSvc.prefs.getLongPref("find-highlightSearchTermTimeout");
+    if (timeout <= 0) {
+        timeout = 500;  /* When set to zero, use minimum of 1/2 a second. */
+    }
     findSvc.highlightall(scimoz,
                          pattern,
                          context.startIndex,
                          context.endIndex,
-                         500 /* timeout in ms */);
+                         timeout /* timeout in ms */);
 }
 
 /**

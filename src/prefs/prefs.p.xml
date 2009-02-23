@@ -313,6 +313,7 @@
   <boolean id="find-displayInFindResults2">0</boolean>
   <boolean id="find-showReplaceAllResults">1</boolean>
   <boolean id="find-highlightSearchTerm">1</boolean>
+  <long id="find-highlightSearchTermTimeout">1000</long>
   <ordered-preference id="find-folders"/>
   <boolean id="find-searchInSubfolders">1</boolean>
   <string id="find-cwd">~</string>

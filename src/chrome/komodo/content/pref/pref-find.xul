@@ -17,7 +17,7 @@
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 	class="kodialog"
 	orient="vertical"
-	onload="parent.initPanel();">
+	onload="pref_find_OnLoad();">
 
     <script src="chrome://xtk/content/xtk.js"
 	    type="application/x-javascript;version=1.7" />
@@ -26,12 +26,50 @@
     <script src="chrome://komodo/content/library/logging.js"
 	    type="application/x-javascript;version=1.7" />
 
+    <script type="application/x-javascript;version=1.7">
+    <![CDATA[
+	function pref_find_OnLoad() {
+	    parent.initPanel();
+	    pref_findHighlight_doEnabling();
+	}
+    
+	function _pref_setElementEnabledState(elt, enabled) {
+	    if (enabled) {
+		if (elt.hasAttribute('disabled')) {
+		    elt.removeAttribute('disabled');
+		}
+	    } else {
+		elt.setAttribute('disabled', true);
+	    }
+	}
+    
+	function pref_findHighlight_doEnabling() {
+	    var elemHighlightingEnabled = document.getElementById("find-highlightSearchTerm");
+	    var enabled = elemHighlightingEnabled.checked;
+	    var elemHighlightingTimeout = document.getElementById("find-highlightSearchTermTimeout");
+	    _pref_setElementEnabledState(elemHighlightingTimeout, enabled);
+	}
+    ]]>
+    </script>
+
     <groupbox orient="vertical">
-	<caption label="&findSettings.label;" />
+	<caption label="&findHighlighting.label;" />
 	<checkbox id="find-highlightSearchTerm"
 		  label="&findHighlightSearchTerm.label;"
 		  pref="true"
+		  oncommand="pref_findHighlight_doEnabling();"
 		  prefattribute="checked" />
+        <vbox id="find-highlight-timeout-vbox"
+	      style="margin-left: 27px;">
+	    <hbox id="find-highlight-timeout-hbox" align="center">
+		<label id="find-highlight-timeout-label" value="&findHighlightTimeout.label;"/>
+		<textbox id="find-highlightSearchTermTimeout" size="4" pref="true"/>
+		<label id="find-highlight-timeout-ms-label" value="&msecs.label;"/>
+	    </hbox>
+	    <description>
+		&findHighlightTimeout.description;
+	    </description>
+	</vbox>
     </groupbox>
 
     <groupbox orient="vertical">
