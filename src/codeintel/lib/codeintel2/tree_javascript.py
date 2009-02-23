@@ -602,9 +602,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         """
         elem, scoperef = self._hit_from_first_token(tokens[0], scoperef)
         if elem is not None:
-            self.log("_hit_from_first_part: found elem: %s %r at %r" % (
+            self.log("_hit_from_first_part: found elem: %s %r at %r",
                      elem.get("ilk") or elem.tag, elem.get("name"),
-                     scoperef[1]))
+                     scoperef[1])
             # Special handling for xpcom components
             if elem == _g_xpcom_components_elem and len(tokens) > 2 and \
                tokens[1] == "interfaces":
@@ -645,10 +645,10 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                         hits.insert(0, (check_elem,
                                         check_scoperef))
                         self.log("_hit_from_first_part: found deeper local elem: "\
-                                 "%s %r at %r" % (
+                                 "%s %r at %r",
                                 check_elem.get("ilk") or check_elem.tag,
                                 check_elem.get("name"),
-                                check_scoperef[1]))
+                                check_scoperef[1])
                     except KeyError:
                         pass
 
