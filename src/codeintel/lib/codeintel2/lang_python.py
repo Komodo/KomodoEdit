@@ -1008,7 +1008,7 @@ class PythonCILEDriver(CILEDriver):
         if isinstance(content, unicode):
             encoding = buf.encoding or "utf-8"
             try:
-                content = content.encode(buf.encoding or "utf-8")
+                content = content.encode(encoding)
             except UnicodeError, ex:
                 raise CodeIntelError("cannot encode Python content as %r (%s)"
                                      % (encoding, ex))
