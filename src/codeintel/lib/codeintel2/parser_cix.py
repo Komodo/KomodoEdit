@@ -47,7 +47,6 @@ from os.path import basename, splitext, isfile, isdir, join
 
 from ciElementTree import Element, SubElement, tostring
 from codeintel2 import util
-from codeintel2.parseutil import getAttrStr, xmlencode, cdataescape
 
 
 
