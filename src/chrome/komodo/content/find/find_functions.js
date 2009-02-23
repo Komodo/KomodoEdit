@@ -1151,7 +1151,7 @@ function Find_HighlightClearPosition(scimoz, position, length) {
 function Find_HighlightAllMatches(scimoz, context, pattern) {
     var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
                             getService(Components.interfaces.koIPrefService);
-    var timeout = prefsSvc.prefs.getLongPref("find-highlightSearchTermTimeout");
+    var timeout = prefsSvc.prefs.getLongPref("find-highlightTimeout");
     if (timeout <= 0) {
         timeout = 500;  /* When set to zero, use minimum of 1/2 a second. */
     }
@@ -1170,7 +1170,7 @@ function Find_HighlightAllMatches(scimoz, context, pattern) {
 function Find_HighlightingEnabled() {
     var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
                             getService(Components.interfaces.koIPrefService);
-    return prefsSvc.prefs.getBooleanPref("find-highlightSearchTerm");
+    return prefsSvc.prefs.getBooleanPref("find-highlightEnabled");
 }
 
 // Find (and move to) the next occurrence of the given pattern.

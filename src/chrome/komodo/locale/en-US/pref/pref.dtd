@@ -548,7 +548,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!--pref-find.xul-->
 <!ENTITY find.label "Find">
 <!ENTITY findHighlighting.label "Highlighting">
-<!ENTITY findHighlightSearchTerm.label "Enable highlighting of find and replace results">
+<!ENTITY findHighlightEnabled.label "Enable highlighting of find and replace results">
 <!ENTITY findHighlightTimeout.label "Find highlighting will timeout after ">
 <!ENTITY findHighlightTimeout.description "This timeout value is used by the 'Find Next' and 'Find Previous' commands to ensure they continue to operate quickly. If the search term highlighting is still running after this amount of time, the highlighting will stop and the cursor will then move to the match location.">
 

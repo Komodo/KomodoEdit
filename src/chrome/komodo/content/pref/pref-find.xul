@@ -44,9 +44,9 @@
 	}
     
 	function pref_findHighlight_doEnabling() {
-	    var elemHighlightingEnabled = document.getElementById("find-highlightSearchTerm");
+	    var elemHighlightingEnabled = document.getElementById("find-highlightEnabled");
 	    var enabled = elemHighlightingEnabled.checked;
-	    var elemHighlightingTimeout = document.getElementById("find-highlightSearchTermTimeout");
+	    var elemHighlightingTimeout = document.getElementById("find-highlightTimeout");
 	    _pref_setElementEnabledState(elemHighlightingTimeout, enabled);
 	}
     ]]>
@@ -54,8 +54,8 @@
 
     <groupbox orient="vertical">
 	<caption label="&findHighlighting.label;" />
-	<checkbox id="find-highlightSearchTerm"
-		  label="&findHighlightSearchTerm.label;"
+	<checkbox id="find-highlightEnabled"
+		  label="&findHighlightEnabled.label;"
 		  pref="true"
 		  oncommand="pref_findHighlight_doEnabling();"
 		  prefattribute="checked" />
@@ -63,7 +63,7 @@
 	      style="margin-left: 27px;">
 	    <hbox id="find-highlight-timeout-hbox" align="center">
 		<label id="find-highlight-timeout-label" value="&findHighlightTimeout.label;"/>
-		<textbox id="find-highlightSearchTermTimeout" size="4" pref="true"/>
+		<textbox id="find-highlightTimeout" size="4" pref="true"/>
 		<label id="find-highlight-timeout-ms-label" value="&msecs.label;"/>
 	    </hbox>
 	    <description>

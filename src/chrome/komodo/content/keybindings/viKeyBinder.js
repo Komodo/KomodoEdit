@@ -1651,7 +1651,7 @@ VimController.vim_set_commands = {
         type: Boolean,
         defaultValue: true,
         saveAsKomodoPref: true,
-        realPrefName: "find-highlightSearchTerm",
+        realPrefName: "find-highlightEnabled",
         help: "Highlight search matches."
     }
 }
