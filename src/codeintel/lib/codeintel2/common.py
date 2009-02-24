@@ -564,33 +564,6 @@ class Evaluator(object):
 def symbolType2Name(st):
     return _symbolType2Name[st]
 
-# match 0x00-0x1f except TAB(0x09), LF(0x0A), and CR(0x0D)
-_encre = re.compile('([\x00-\x08\x0b\x0c\x0e-\x1f])')
-if sys.version_info >= (2, 3):
-    charrefreplace = 'xmlcharrefreplace'
-else:
-    # Python 2.2 doesn't have 'xmlcharrefreplace'. Fallback to a
-    # literal '?' -- this is better than failing outright.
-    charrefreplace = 'replace'
-
-#TODO: duplicated in parseutil.py, drop this one (along with preceding charrefreplace)
-def xmlencode(s):
-    """Encode the given string for inclusion in a UTF-8 XML document.
-    
-    Specifically, illegal or unpresentable characters are encoded as
-    XML character entities.
-    """
-    # As defined in the XML spec some of the character from 0x00 to 0x19
-    # are not allowed in well-formed XML. We replace those with entity
-    # references here.
-    #   http://www.w3.org/TR/2000/REC-xml-20001006#charsets
-    # (XXX It would be nice if Python has a codec for this. Perhaps we
-    # should write one.)
-    return _encre.sub(
-               # replace with XML decimal char entity, e.g. '&#7;'
-               lambda m: '&#%d;'%ord(m.group(1)),
-               s.encode('utf-8', charrefreplace))
-
 #TODO: drop this, see similar func in parseutil.py
 def xmlattrstr(attrs):
     """Construct an XML-safe attribute string from the given attributes

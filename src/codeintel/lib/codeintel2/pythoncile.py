@@ -129,7 +129,6 @@ import parser
 
 from codeintel2.common import CILEError
 from codeintel2 import util
-from codeintel2.parseutil import xmlencode, getAttrStr, cdataescape
 
 
 
@@ -162,12 +161,99 @@ def _isfunction(namespace):
     return (len(namespace["types"]) == 1
             and "function" in namespace["types"])
 
+def getAttrStr(attrs):
+    """Construct an XML-safe attribute string from the given attributes
+    
+        "attrs" is a dictionary of attributes
+    
+    The returned attribute string includes a leading space, if necessary,
+    so it is safe to use the string right after a tag name. Any Unicode
+    attributes will be encoded into UTF8 encoding as part of this process.
+    """
+    from xml.sax.saxutils import quoteattr
+    s = ''
+    for attr, value in attrs.items():
+        if not isinstance(value, basestring):
+            value = str(value)
+        elif isinstance(value, unicode):
+            value = value.encode("utf-8")
+        s += ' %s=%s' % (attr, quoteattr(value))
+    return s
+
+# match 0x00-0x1f except TAB(0x09), LF(0x0A), and CR(0x0D)
+_encre = re.compile('([\x00-\x08\x0b\x0c\x0e-\x1f])')
+if sys.version_info >= (2, 3):
+    charrefreplace = 'xmlcharrefreplace'
+else:
+    # Python 2.2 doesn't have 'xmlcharrefreplace'. Fallback to a
+    # literal '?' -- this is better than failing outright.
+    charrefreplace = 'replace'
+
+def xmlencode(s):
+    """Encode the given string for inclusion in a UTF-8 XML document.
+    
+    Note: s must *not* be Unicode, it must be encoded before being passed in.
+
+    Specifically, illegal or unpresentable characters are encoded as
+    XML character entities.
+    """
+    # As defined in the XML spec some of the character from 0x00 to 0x19
+    # are not allowed in well-formed XML. We replace those with entity
+    # references here.
+    #   http://www.w3.org/TR/2000/REC-xml-20001006#charsets
+    #
+    # Dev Notes:
+    # - It would be nice if Python has a codec for this. Perhaps we
+    #   should write one.
+    # - Eric, at one point, had this change to '_xmlencode' for rubycile:
+    #    p4 diff2 -du \
+    #        //depot/main/Apps/Komodo-devel/src/codeintel/ruby/rubycile.py#7 \
+    #        //depot/main/Apps/Komodo-devel/src/codeintel/ruby/rubycile.py#8
+    #   but:
+    #        My guess is that there was a bug here, and explicitly
+    #        utf-8-encoding non-ascii characters fixed it. This was a year
+    #        ago, and I don't recall what I mean by "avoid shuffling the data
+    #        around", but it must be related to something I observed without
+    #        that code.
+    return _encre.sub(
+               # replace with XML decimal char entity, e.g. '&#7;'
+               lambda m: '&#%d;'%ord(m.group(1)), s)
+
+def cdataescape(s):
+    """Return the string escaped for inclusion in an XML CDATA section.
+    
+    Note: Any Unicode will be encoded to UTF8 encoding as part of this process.
+
+    A CDATA section is terminated with ']]>', therefore this token in the
+    content must be escaped. To my knowledge the XML spec does not define
+    how to do that. My chosen escape is (courteousy of EricP) is to split
+    that token into multiple CDATA sections, so that, for example:
+    
+        blah...]]>...blah
+    
+    becomes:
+    
+        blah...]]]]><![CDATA[>...blah
+    
+    and the resulting content should be copacetic:
+    
+        <b><![CDATA[blah...]]]]><![CDATA[>...blah]]></b>
+    """
+    if isinstance(s, unicode):
+        s = s.encode("utf-8")
+    parts = s.split("]]>")
+    return "]]]]><![CDATA[>".join(parts)
+
 
 class AST2CIXVisitor:
     """Generate Code Intelligence XML (CIX) from walking a Python AST tree.
     
     This just generates the CIX content _inside_ of the <file/> tag. The
     prefix and suffix have to be added separately.
+
+    Note: All node text elements are encoded in UTF-8 format by the Python AST
+          tree processing, no matter what encoding is used for the file's
+          original content. The generated CIX XML will also be UTF-8 encoded.
     """
     DEBUG = 0
     def __init__(self, moduleName=None, content=None):
@@ -1299,7 +1385,7 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
                    % (getAttrStr(fileAttrs), visitor.getCIX(level=2))
             if _gClockIt: sys.stdout.write(" (getCIX:%.3fs)" % (_gClock()-_gStartTime))
 
-    cix = u'''\
+    cix = '''\
 <?xml version="1.0" encoding="UTF-8"?>
 <codeintel version="0.1">
 %s
