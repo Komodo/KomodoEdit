@@ -101,7 +101,7 @@ def tree_2_0_from_tree_0_1(tree):
     #   attribute
     #PERF: This could be done better.
     for tag in ("variable", "function", "class", "module", "interface",
-                "argument", "classref", "iterfaceref"):
+                "argument", "classref", "interfaceref"):
         for node in tree.getiterator(tag):
             for child in reversed(node):
                 # reversed() so can modify while iterating over
