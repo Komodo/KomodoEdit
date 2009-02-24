@@ -77,7 +77,7 @@ def _verifyLoneStartTag(scimoz, tagPos):
     return a 4-tuple of useful information.
     
     @param scimoz {Scimoz}
-    @param tagPos {Int} -- a position somewhere on the start-tag
+    @param tagPos {int} -- a position somewhere on the start-tag
     @returns None or (startTagStartPos, startTagEndPos, lineNo, tagName)
     """
     # Watch out for being outside a tag
@@ -108,7 +108,7 @@ def _verifyLoneStartTag(scimoz, tagPos):
 def _verifyLoneEndTag(scimoz, tagPos):
     """ See _verifyLoneStartTag for details
     @param scimoz {Scimoz}
-    @param tagPos {Int} -- a position somewhere on the end-tag
+    @param tagPos {int} -- a position somewhere on the end-tag
     @returns None or (endTagStartPos, endTagEndPos, lineNo, tagName)
     """
     
@@ -142,8 +142,8 @@ def _verifyLoneEndTag(scimoz, tagPos):
 def startTagInfo_from_endTagPos(scimoz, endTagPos, isHTML=False):
     """
     @param scimoz {Scimoz}
-    @param endTagPos {Int} -- a position somewhere on the end tag
-    @param isHTML {Boolean} -- if False, the match might be determined by looking at Scintilla fold levels
+    @param endTagPos {int} -- a position somewhere on the end tag
+    @param isHTML {bool} -- if False, the match might be determined by looking at Scintilla fold levels
     
     @return either None, or a 4-tuple containing the start and end points
     of the start-tag and end-tag.
