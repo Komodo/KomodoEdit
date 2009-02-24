@@ -103,6 +103,7 @@ PyLexerModule_tokenize_by_style(PyLexerModule* self, PyObject * args)
     PyObject * pyCallback = NULL;
     PyObject * pyEmptyTuple = NULL;
     PyObject * pyCallbackResult = NULL;
+    const char * bufEncoding = "utf-8";
     char * style = NULL;
     char * buf = NULL;
     AutoReleasePool pool;
@@ -114,7 +115,7 @@ PyLexerModule_tokenize_by_style(PyLexerModule* self, PyObject * args)
     int startCol;
     int col;
 
-    if (!PyArg_ParseTuple(args, "s#OO|O", &buf, &bufSize, &pyWordLists, &pyPropSet, &pyCallback))
+    if (!PyArg_ParseTuple(args, "es#OO|O", bufEncoding, &buf, &bufSize, &pyWordLists, &pyPropSet, &pyCallback))
         return NULL;
 
     if (!PyPropSet_Check(pyPropSet)) {
@@ -159,20 +160,24 @@ PyLexerModule_tokenize_by_style(PyLexerModule* self, PyObject * args)
             goto onError;
     }
     
+    PyObject *text;
     for (i = startIndex = startLine = startCol = 0; i <= bufSize; ++i) {
         if ((i == bufSize) || ((i != 0) && (style[i] != style[i-1]))) {
             line = bufAccessor.GetLine(i-1);
             col = bufAccessor.GetColumn(i-1);
 
-            pyToken = Py_BuildValue("{s:i,s:s#,s:i,s:i,s:i,s:i,s:i,s:i}", 
+            // Turn the bytes back into Unicode, it's currently utf-8 encoded.
+            text = PyUnicode_DecodeUTF8(&(buf[startIndex]), i - startIndex, NULL);
+            pyToken = Py_BuildValue("{s:i,s:O,s:i,s:i,s:i,s:i,s:i,s:i}", 
                 "style", style[i - 1], 
-                "text", &(buf[startIndex]), i - startIndex,
+                "text", text,
                 "start_index", startIndex, 
                 "end_index", i - 1, 
                 "start_line", startLine, 
                 "start_column", startCol,
                 "end_line", line, 
                 "end_column", col);
+            Py_DECREF(text);
 
             if (pyToken == NULL)
                 goto onError;

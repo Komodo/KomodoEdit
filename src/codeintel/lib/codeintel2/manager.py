@@ -354,19 +354,18 @@ class Manager(threading.Thread, Queue):
         return buf
 
     def buf_from_path(self, path, lang=None, env=None, encoding=None):
-        if lang is None:
+        if lang is None or encoding is None:
             import textinfo
             ti = textinfo.textinfo_from_path(path, encoding=encoding,
                     follow_symlinks=True)
-            lang = (hasattr(ti.langinfo, "komodo_name")
-                    and ti.langinfo.komodo_name
-                    or ti.langinfo.name)
+            if lang is None:
+                lang = (hasattr(ti.langinfo, "komodo_name")
+                        and ti.langinfo.komodo_name
+                        or ti.langinfo.name)
             encoding = ti.encoding
             content = ti.text
-        elif encoding:
-            content = codecs.open(path, 'rb', encoding).read()
         else:
-            content = open(path, 'rb').read()
+            content = codecs.open(path, 'rb', encoding).read()
 
         #TODO: Re-instate this when have solution for CILE test failures
         #      that this causes.
