@@ -103,10 +103,11 @@ class koXMLLanguageBase(KoUDLLanguage):
         startTagLineNo = self._immediatelyPrecedingStartTagLineNo(scimoz, currentPos)
                   
         if startTagLineNo is None:
+            # returns (startTag:s, startTag:e, endTag:s, endTag:e)
             startTagInfo = scimozindent.startTagInfo_from_endTagPos(scimoz, currentPos)
             if startTagInfo is None:
                 return None
-            startTagLineNo = startTagInfo[0]
+            startTagLineNo = scimoz.lineFromPosition(startTagInfo[0])
             allowExtraNewline = False
             indentStyle = 'plain'  # Don't indent new part
             
@@ -197,6 +198,49 @@ class koXMLLanguageBase(KoUDLLanguage):
         if scimoz.getStyleAt(prev2Pos) != scimoz.SCE_UDL_M_PI:
             return candidate
         return None
+
+    _startTagStyles = (components.interfaces.ISciMoz.SCE_UDL_M_STAGO,
+                       components.interfaces.ISciMoz.SCE_UDL_M_TAGNAME,
+                       components.interfaces.ISciMoz.SCE_UDL_M_TAGSPACE,
+                       components.interfaces.ISciMoz.SCE_UDL_M_ATTRNAME,
+                       components.interfaces.ISciMoz.SCE_UDL_M_OPERATOR,
+                       components.interfaces.ISciMoz.SCE_UDL_M_STRING,
+                       components.interfaces.ISciMoz.SCE_UDL_M_STAGC,)
+    _endTagStyles = (components.interfaces.ISciMoz.SCE_UDL_M_ETAGO,
+                     components.interfaces.ISciMoz.SCE_UDL_M_ETAGC,
+                     components.interfaces.ISciMoz.SCE_UDL_M_TAGNAME,)
+    _ambiguousTagStyles = (components.interfaces.ISciMoz.SCE_UDL_M_STAGO,
+                           components.interfaces.ISciMoz.SCE_UDL_M_TAGNAME,)
+    def onStartTag(self, scimoz, pos):
+        currStyle = scimoz.getStyleAt(pos)
+        if currStyle in self._startTagStyles:
+            if currStyle in self._ambiguousTagStyles:
+                return self._checkEndTag(scimoz, pos,
+                                         scimoz.SCE_UDL_M_STAGC,
+                                         self._startTagStyles)
+            return True
+        return False
+    
+    def onEndTag(self, scimoz, pos):
+        currStyle = scimoz.getStyleAt(pos)
+        if currStyle in self._endTagStyles:
+            if currStyle in self._ambiguousTagStyles:
+                return self._checkEndTag(scimoz, pos, scimoz.SCE_UDL_M_ETAGC,
+                                         self._endTagStyles)
+            return True
+        return False
+
+    def _checkEndTag(self, scimoz, pos, desiredEndTagStyle, tagStyles):
+        lim = scimoz.length
+        while pos < lim:
+            style = scimoz.getStyleAt(pos)
+            if style == desiredEndTagStyle:
+                return True
+            elif style not in tagStyles:
+                return False
+            pos = scimoz.positionAfter(pos)
+        return False
+        
 
 class koHTMLLanguageBase(koXMLLanguageBase):
     isHTMLLanguage = True
