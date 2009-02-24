@@ -1,0 +1,32 @@
+Bug 70448.
+Fix the drawing of UTF-8 encoded calltips under GTK.
+
+This patch has been added to the latest Scintilla CVS, so this can be
+removed when we next update Scintilla.
+
+Index: gtk/ScintillaGTK.cxx
+===================================================================
+RCS file: /cvsroot/scintilla/scintilla/gtk/ScintillaGTK.cxx,v
+retrieving revision 1.187
+diff -d -u -8 -p -r1.187 ScintillaGTK.cxx
+--- gtk/ScintillaGTK.cxx	12 Dec 2008 02:13:18 -0000	1.187
++++ gtk/ScintillaGTK.cxx	14 Feb 2009 18:40:51 -0000
+@@ -2493,16 +2493,18 @@ gint ScintillaGTK::PressCT(GtkWidget *wi
+ 	return FALSE;
+ #endif
+ }
+ 
+ gint ScintillaGTK::ExposeCT(GtkWidget *widget, GdkEventExpose * /*ose*/, CallTip *ctip) {
+ 	Surface *surfaceWindow = Surface::Allocate();
+ 	if (surfaceWindow) {
+ 		surfaceWindow->Init(widget->window, widget);
++		surfaceWindow->SetUnicodeMode(SC_CP_UTF8 == ctip->codePage);
++		surfaceWindow->SetDBCSMode(ctip->codePage);
+ 		ctip->PaintCT(surfaceWindow);
+ 		surfaceWindow->Release();
+ 		delete surfaceWindow;
+ 	}
+ 	return TRUE;
+ }
+ 
+ sptr_t ScintillaGTK::DirectFunction(
