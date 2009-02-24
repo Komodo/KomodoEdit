@@ -70,7 +70,6 @@ from codeintel2.citadel import CitadelBuffer, ImportHandler, CitadelLangIntel
 from codeintel2.buffer import Buffer
 from codeintel2.tree_javascript import JavaScriptTreeEvaluator
 from codeintel2 import util
-from codeintel2.parseutil import getAttrStr
 from codeintel2.common import *
 from codeintel2.indexer import PreloadBufLibsRequest, PreloadLibRequest
 from codeintel2.jsdoc import JSDoc, JSDocParameter, jsdoc_tags
