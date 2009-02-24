@@ -2083,7 +2083,7 @@ class KoLanguageBase:
                 if startTagInfo is None:
                     tagStartPos = -1
                 else:
-                    tagStartPos = startTagInfo[2]
+                    tagStartPos = startTagInfo[0]
                 standard_type = True
             elif state == "START_TAG_EMPTY_CLOSE":
                 tagStartPos = beforeText.rfind('<')
