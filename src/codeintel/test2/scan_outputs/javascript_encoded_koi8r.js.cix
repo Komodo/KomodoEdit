@@ -1,0 +1,7 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_encoded_koi8r.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_encoded_koi8r.js" src="scan_inputs/javascript_encoded_koi8r.js">
+      <scope doc="&#204;&#207;&#203;&#193;&#204;&#201;&#218;&#193;&#195;&#201;&#201;" ilk="function" line="4" lineend="4" name="russion_function" signature="russion_function()" />
+    </scope>
+  </file>
+</codeintel>

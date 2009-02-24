@@ -1,0 +1,8 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/python_encoded_utf8.py">
+    <scope ilk="blob" lang="Python" name="python_encoded_utf8" src="scan_inputs/python_encoded_utf8.py">
+      <scope doc="&#1083;&#1086;&#1082;&#1072;&#1083;&#1080;&#1079;&#1072;&#1094;&#1080;&#1080;" ilk="function" line="3" lineend="5" name="russian_function" signature="russian_function()" />
+      <scope doc="&#8364;" ilk="function" line="7" lineend="9" name="euro_function" signature="euro_function()" />
+    </scope>
+  </file>
+</codeintel>
