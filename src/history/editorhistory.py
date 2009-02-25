@@ -230,8 +230,7 @@ class Database(object):
         #TODO: error handling?
         with self.connect(True) as cu:
             cu.executescript(_g_database_schema)
-            cu.execute("INSERT INTO history_meta(key, value) VALUES (?, ?)", 
-                ("version", self.VERSION))
+            self.set_meta("version", self.VERSION)
 
     def reset(self, backup=True):
         """Remove the current database (possibly backing it up) and create
@@ -516,9 +515,9 @@ class Database(object):
         """Set a value into the meta table.
         
         @param key {str} The meta key.
-        @param default {str} Default value if the key is not found in the db.
+        @param value {str} The value to associate with the key.
         @param cu {sqlite3.Cursor} An existing cursor to use.
-        @returns {str} The value in the database for this key, or `default`.
+        @returns {None}
         """
         with self.connect(True, cu=cu) as cu:
             cu.execute("INSERT INTO history_meta(key, value) VALUES (?, ?)", 
