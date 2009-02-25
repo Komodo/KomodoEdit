@@ -18,6 +18,7 @@ import logging
 from contextlib import contextmanager
 import sqlite3
 from collections import deque
+from itertools import islice
 from pprint import pprint, pformat
 import time
 
@@ -553,9 +554,12 @@ class History(object):
     #       "recent" length to try to limit the need to hit the database
     #       when the user goes back and forth a lot.
     #       The location for the next "go_back" is at the start.
-    recent_back_visits = None
     #   forward_visits: furthest forward first:
     #       The location for the next "go_forward" is at the end.
+    #
+    #       For both deques, newest item is at deque[0], oldest at deque[-1]
+    #
+    recent_back_visits = None
     forward_visits = None
     # The last visit returned by `go_back` or `go_forward`.
     _last_visit = None
@@ -722,11 +726,29 @@ class History(object):
         self.forward_visits.clear()
         return loc
     
-    def obsolete_uri(self, uri):
-        """Mark this URI and all its vists as obsolete -- it will no longer be
+    def obsolete_uri(self, uri, undo_delta=0, orig_dir_was_back=True):
+        """Mark this URI and all its visits as obsolete -- it will no longer be
         included in history movements.
         
+        This call needs to follow calls to history.go_forward or
+        history.go_back where the jump led to an unreachable URI.
+        
         @param uri {str} The URI to mark obsolete.
+        @param undo_delta {int} offset between the previous current loc
+            and the new current loc (whose URI is being obsoleted here)
+            - value is absolute
+        @param orig_dir_was_back {bool} True if we tried to move back, False if forward
+        
+        Examples:
+        loc = hist.go_back(1, curr_loc)
+        # loc is bogus
+        hist.obsolete_uri(loc.uri, 1, True)
+        # Keep using curr_loc
+
+        loc = hist.go_forward(2, curr_loc)
+        # loc is bogus
+        hist.obsolete_uri(loc.uri, 2, False)
+
         """
         with self.db.connect(True) as cu:
             uri_id = self.db.uri_id_from_uri(uri, create_if_new=False, cu=cu)
@@ -740,8 +762,35 @@ class History(object):
             elif self._last_visit:
                 top_loc = self._last_visit
             else:
-                top_loc = self.recent_back_visits[0] 
-            self._reload(top_loc.id, len(self.forward_visits), cu=cu)
+                top_loc = self.recent_back_visits[0]
+                
+            # Don't keep any URIs we're about to obsolete
+            if undo_delta == 0:
+                num_forward_visits = len([x for x in self.forward_visits
+                                          if x.uri != uri])
+            else:
+                if orig_dir_was_back:
+                    # The undo will move forward, so we don't care about
+                    # what's in the back visits, nor in the older part of the
+                    # forward visits, so we just examine the newest delta items.
+                    # Newest items are at the left side (queue part) of the deque.
+                    num_forward_visits = (
+                        len([x for x in
+                             islice(self.forward_visits,
+                                    0,
+                                    len(self.forward_visits) - undo_delta)
+                             if x.uri != uri])
+                    )
+                else:
+                    # The undo will move back.  Prune the current forward visits,
+                    # and the newest <delta - 1> back visits.
+                    num_forward_visits = (
+                          len([x for x in self.forward_visits if x.uri != uri])
+                        + len([x for x in
+                               islice(self.recent_back_visits, 0, undo_delta - 1)
+                               if x.uri != uri])
+                    )
+            self._reload(top_loc.id, num_forward_visits, cu=cu)
 
     def can_go_back(self):
         """Returns a boolean indicating whether there is any back history.
@@ -930,7 +979,10 @@ class History(object):
                 print "(current location)"
             else:
                 print repr(loc)
+        if self._last_visit is not None:
+            print "self._last_visit: %r" % self._last_visit
         print "--"
+            
         
 
 

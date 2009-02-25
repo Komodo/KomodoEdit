@@ -47,6 +47,9 @@ interface koIHistoryService : nsISupports
                          out unsigned long current_idx,
                          [array, size_is(count)] out koIHistoryLocation locs,
                          out unsigned long count);
+    void obsolete_uri(in wstring uri,
+                      in PRUint32 undo_delta,
+                      in boolean undo_dir_is_back);
     void update_marker_handles_on_close(in wstring uri, in ISciMoz scimoz);
 };
 

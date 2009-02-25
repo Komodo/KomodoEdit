@@ -448,38 +448,303 @@ class HistoryTestCase(_HistoryTestCase):
         self.assertEqual(len(self.history.forward_visits), 1)
         self.assertEqual(self.history.forward_visits[0], new_loc)
 
-    def test_obsolete_uri(self):
-        db = self.history.db
-        
-        # Setup test history.
-        a = "file:///home/trentm/a.txt"
-        b = "file:///home/trentm/b.txt"
-        locs = [
-            self.history.note_loc(Location(uri, (i+1)*10, 1))
-            for i in range(5)
-            for uri in [a, b]
-        ]
-        curr_loc = Location(b, 666, 1)
-        curr_loc = self.history.go_back(curr_loc)
-        #self.history.debug_dump_recent_history(curr_loc, merge_curr_loc=False)
+class ObsoleteURITestCase(_HistoryTestCase):
+    """
+    This testcase is not obsolete!!!
+    These tests exercise marking a visited URI obsolete, removing it,
+    and correctly setting a new state for the history cache.
+    """
+    
+    @testlib.tag("bug81939")
+    def test_obsolete_locs_removed(self):
+        uri_stable = "file:///home/tester/stable.txt"
+        uri_volatile = "file:///home/tester/volatile.txt"
+        uri_current = "file:///home/tester/current.txt"
+        # Create 50 entries in the database, every 3rd is the volatile URI
+        num_items_to_create = 50
+        volatile_factor = 3
+        uris = [uri_stable, uri_stable, uri_volatile]
+        for i in range(num_items_to_create):
+            self.history.note_loc(Location(uris[i % volatile_factor],
+                                               10 * (i + 1), 0))
+        current_loc = Location(uri_current, num_items_to_create + 1, 0)
+        loc = self.history.go_back(current_loc, 3)
+        self.assertEqual(loc.uri, uri_volatile)
+        self.assertEqual(loc.line, 480)
+        self.history.obsolete_uri(loc.uri, 1) # => #490
+        v = list(self.history.recent_history(current_loc))
+        volatile_locs = [x for x in v if x[1].uri == uri_volatile]
+        self.assertEqual(len(volatile_locs), 0)
 
-        # Do what we are testing.
-        self.history.obsolete_uri(a)
+    @testlib.tag("bug81939")
+    def test_move_back(self):
+        uri_stable = "file:///home/tester/stable.txt"
+        uri_volatile = "file:///home/tester/volatile.txt"
+        uri_current = "file:///home/tester/current.txt"
+        self.history.note_loc(Location(uri_stable, 10, 0))
+        self.history.note_loc(Location(uri_stable, 20, 0))
+        self.history.note_loc(Location(uri_volatile, 30, 0))
+        self.history.note_loc(Location(uri_stable, 40, 0))
+        self.history.note_loc(Location(uri_stable, 50, 0))
+        current_loc = Location(uri_current, 100, 0)
+        loc = self.history.go_back(current_loc, 2)
+        self.assertEqual(loc.line, 40)
+        current_loc = loc
+        loc = self.history.go_back(current_loc, 1)
+        self.assertEqual(loc.line, 30)
+        #self.history.debug_dump_recent_history(loc)
+        self.history.obsolete_uri(loc.uri, 1) # => #40
+        #self.history.debug_dump_recent_history(None)
+        loc = self.history.go_back(current_loc, 1)
+        self.assertEqual(loc.line, 20)
         
-        # Verify that the DB is as we expect it to be.
-        curr_loc = curr_loc.clone()
-        #self.history.debug_dump_recent_history(curr_loc, merge_curr_loc=False)
-        self.assertFalse([loc for _, loc in self.history.recent_history(curr_loc)
-                          if loc.uri == a])
-        
-        curr_loc = self.history.go_forward(curr_loc)
-        self.assertEqual(curr_loc, Location(b, 666, 1))
-        #self.history.debug_dump_recent_history(curr_loc, merge_curr_loc=False)
-        
-        curr_loc = self.history.go_back(curr_loc, 2) # Back *2*
-        #self.history.debug_dump_recent_history(curr_loc, merge_curr_loc=False)
-        self.assertEqual(curr_loc, Location(b, 40, 1))
+    @testlib.tag("bug81939")
+    def test_move_forward(self):
+        uri_stable = "file:///home/tester/stable.txt"
+        uri_volatile = "file:///home/tester/volatile.txt"
+        uri_current = "file:///home/tester/current.txt"
+        self.history.note_loc(Location(uri_stable, 10, 0))
+        self.history.note_loc(Location(uri_stable, 20, 0))
+        self.history.note_loc(Location(uri_volatile, 30, 0))
+        self.history.note_loc(Location(uri_stable, 40, 0))
+        self.history.note_loc(Location(uri_stable, 50, 0))
+        current_loc = Location(uri_current, 100, 0)
+        loc = self.history.go_back(current_loc, 4)
+        self.assertEqual(loc.line, 20)
+        current_loc = loc
+        loc = self.history.go_forward(current_loc, 1)
+        self.assertEqual(loc.line, 30)
+        #self.history.debug_dump_recent_history(loc)
+        self.history.obsolete_uri(loc.uri, 1, False) # => #20
+        #self.history.debug_dump_recent_history(current_loc)
+        loc = self.history.go_forward(current_loc, 1)
+        self.assertEqual(loc.line, 40)
 
+    @testlib.tag("bug81939")
+    def test_jump_back(self):
+        uri_stable = "file:///home/tester/stable.txt"
+        uri_volatile = "file:///home/tester/volatile.txt"
+        uri_current = "file:///home/tester/current.txt"
+        self.history.note_loc(Location(uri_stable, 10, 0))
+        self.history.note_loc(Location(uri_stable, 20, 0))
+        self.history.note_loc(Location(uri_volatile, 30, 0))
+        self.history.note_loc(Location(uri_stable, 40, 0))
+        self.history.note_loc(Location(uri_stable, 50, 0))
+        current_loc = Location(uri_current, 100, 0)
+        loc = self.history.go_back(current_loc, 3)
+        self.assertEqual(loc.line, 30)
+        #self.history.debug_dump_recent_history(loc)
+        #print "Try to get back to loc %r" % current_loc
+        self.history.obsolete_uri(loc.uri, 3, True) # => #100
+        #self.history.debug_dump_recent_history(None)
+        # Should end up back at 100, moving back 1 takes us to 50
+        loc = self.history.go_back(current_loc, 1)
+        self.assertEqual(loc.line, 50)
+
+    @testlib.tag("bug81939")
+    def test_jump_forward(self):
+        uri_stable = "file:///home/tester/stable.txt"
+        uri_volatile = "file:///home/tester/volatile.txt"
+        uri_current = "file:///home/tester/current.txt"
+        self.history.note_loc(Location(uri_stable, 10, 0))
+        self.history.note_loc(Location(uri_stable, 20, 0))
+        self.history.note_loc(Location(uri_volatile, 30, 0))
+        self.history.note_loc(Location(uri_stable, 40, 0))
+        self.history.note_loc(Location(uri_stable, 50, 0))
+        current_loc = Location(uri_current, 100, 0)
+        loc = self.history.go_back(current_loc, 5)
+        self.assertEqual(loc.line, 10)
+        current_loc = loc
+        loc = self.history.go_forward(current_loc, 2)
+        self.assertEqual(loc.line, 30)
+        #self.history.debug_dump_recent_history(loc)
+        self.history.obsolete_uri(loc.uri, 2, False) # => #10
+        #self.history.debug_dump_recent_history(None)
+        loc = self.history.go_forward(current_loc, 1)
+        self.assertEqual(loc.line, 20)
+
+    @testlib.tag("bug81939")
+    def test_move_back_into_wall(self):
+        uri_stable = "file:///home/tester/stable.txt"
+        uri_volatile = "file:///home/tester/volatile.txt"
+        uri_current = "file:///home/tester/current.txt"
+        self.history.note_loc(Location(uri_volatile, 10, 0))
+        self.history.note_loc(Location(uri_volatile, 20, 0))
+        self.history.note_loc(Location(uri_volatile, 30, 0))
+        self.history.note_loc(Location(uri_stable, 40, 0))
+        self.history.note_loc(Location(uri_stable, 50, 0))
+        current_loc = Location(uri_current, 100, 0)
+        loc = self.history.go_back(current_loc, 2)
+        self.assertEqual(loc.line, 40)
+        current_loc = loc
+        loc = self.history.go_back(current_loc, 1)
+        self.assertEqual(loc.line, 30)
+        #self.history.debug_dump_recent_history(loc)
+        self.history.obsolete_uri(loc.uri, 1, True) # => 40
+        #self.history.debug_dump_recent_history(None)
+        self.assertFalse(self.history.can_go_back())
+        
+    @testlib.tag("bug81939")
+    def test_move_forward_into_wall(self):
+        uri_stable = "file:///home/tester/stable.txt"
+        uri_volatile = "file:///home/tester/volatile.txt"
+        self.history.note_loc(Location(uri_stable, 10, 0))
+        self.history.note_loc(Location(uri_stable, 20, 0))
+        self.history.note_loc(Location(uri_volatile, 30, 0))
+        self.history.note_loc(Location(uri_volatile, 40, 0))
+        self.history.note_loc(Location(uri_volatile, 50, 0))
+        current_loc = Location(uri_volatile, 100, 0)
+        loc = self.history.go_back(current_loc, 4)
+        self.assertEqual(loc.line, 20)
+        current_loc = loc
+        #self.history.debug_dump_recent_history(loc)
+        loc = self.history.go_forward(current_loc, 1)
+        self.assertEqual(loc.line, 30)
+        #self.history.debug_dump_recent_history(loc)
+        self.history.obsolete_uri(loc.uri, 1, False) # => 20
+        #self.history.debug_dump_recent_history(current_loc)
+        self.assertFalse(self.history.can_go_forward())
+        
+    @testlib.tag("bug81939")
+    def test_move_forward_multi(self):
+        uri_stable = "file:///home/tester/stable.txt"
+        uri_volatile = "file:///home/tester/volatile.txt"
+        uri_current = "file:///home/tester/current.txt"
+        self.history.note_loc(Location(uri_stable, 10, 0))
+        self.history.note_loc(Location(uri_stable, 20, 0))
+        self.history.note_loc(Location(uri_volatile, 30, 0))
+        self.history.note_loc(Location(uri_stable, 40, 0))
+        self.history.note_loc(Location(uri_volatile, 50, 0))
+        self.history.note_loc(Location(uri_volatile, 60, 0))
+        self.history.note_loc(Location(uri_volatile, 70, 0))
+        self.history.note_loc(Location(uri_volatile, 80, 0))
+        self.history.note_loc(Location(uri_volatile, 90, 0))
+        self.history.note_loc(Location(uri_stable, 100, 0))
+        current_loc = Location(uri_current, 110, 0)
+        loc = self.history.go_back(current_loc, 9)
+        self.assertEqual(loc.line, 20)
+        current_loc = loc
+        loc = self.history.go_forward(current_loc, 5)
+        self.assertEqual(loc.line, 70)
+        #self.history.debug_dump_recent_history(loc)
+        self.history.obsolete_uri(loc.uri, 5, False) # => #20
+        #self.history.debug_dump_recent_history(current_loc)
+        loc = self.history.go_forward(current_loc, 1)
+        self.assertEqual(loc.line, 40)
+        current_loc = loc
+        loc = self.history.go_back(current_loc, 1)
+        self.assertEqual(loc.line, 20)
+        current_loc = loc
+        loc = self.history.go_back(current_loc, 1)
+        self.assertEqual(loc.line, 10)
+        self.assertFalse(self.history.can_go_back())
+        current_loc = loc
+        loc = self.history.go_forward(current_loc, 3)
+        self.assertEqual(loc.line, 100)
+        current_loc = loc
+        loc = self.history.go_forward(current_loc, 1)
+        self.assertEqual(loc.line, 110)
+        current_loc = loc
+        self.assertFalse(self.history.can_go_forward())
+    
+    @testlib.tag("bug81939")
+    def test_move_back_multi(self):
+        uri_stable = "file:///home/tester/stable.txt"
+        uri_volatile = "file:///home/tester/volatile.txt"
+        uri_current = "file:///home/tester/current.txt"
+        self.history.note_loc(Location(uri_stable, 10, 0))
+        self.history.note_loc(Location(uri_stable, 20, 0))
+        self.history.note_loc(Location(uri_volatile, 30, 0))
+        self.history.note_loc(Location(uri_stable, 40, 0))
+        self.history.note_loc(Location(uri_volatile, 50, 0))
+        self.history.note_loc(Location(uri_volatile, 60, 0))
+        self.history.note_loc(Location(uri_volatile, 70, 0))
+        self.history.note_loc(Location(uri_volatile, 80, 0))
+        self.history.note_loc(Location(uri_volatile, 90, 0))
+        self.history.note_loc(Location(uri_stable, 100, 0))
+        self.history.note_loc(Location(uri_stable, 110, 0))
+        self.history.note_loc(Location(uri_stable, 120, 0))
+        current_loc = Location(uri_current, 130, 0)
+        loc = self.history.go_back(current_loc, 2)
+        self.assertEqual(loc.line, 110)
+        current_loc = loc
+        loc = self.history.go_back(current_loc, 4)
+        self.assertEqual(loc.line, 70)
+        #self.history.debug_dump_recent_history(loc)
+        self.history.obsolete_uri(loc.uri, 4, True) # => #110
+        #self.history.debug_dump_recent_history(current_loc)
+        loc = self.history.go_back(current_loc, 2)
+        self.assertEqual(loc.line, 40)
+        current_loc = loc
+        loc = self.history.go_back(current_loc, 1)
+        self.assertEqual(loc.line, 20)
+        current_loc = loc
+        loc = self.history.go_back(current_loc, 1)
+        self.assertEqual(loc.line, 10)
+        self.assertFalse(self.history.can_go_back())
+        current_loc = loc
+        loc = self.history.go_forward(current_loc, 5)
+        self.assertEqual(loc.line, 120)
+        current_loc = loc
+        loc = self.history.go_forward(current_loc, 1)
+        self.assertEqual(loc.line, 130)
+        current_loc = loc
+        self.assertFalse(self.history.can_go_forward())
+    
+    def test_reloading_db(self):
+        """
+        Build a database with locations from two URIs interleaved.
+        Step one hop at a time until we find a "volatile" URI, and
+        remove it.  Verify the remaining visits.
+        Reload the database, verifying that
+        we find all the same items.
+        """
+        uri_stable = "file:///home/tester/stable.txt"
+        uri_volatile = "file:///home/tester/volatile.txt"
+        uri_current = "file:///home/tester/current.txt"
+        # Create 50 entries in the database, every 3rd is the volatile URI
+        num_items_to_create = 50
+        volatile_factor = 3
+        uris = [uri_stable, uri_stable, uri_volatile]
+        locs = [self.history.note_loc(Location(uris[i % volatile_factor],
+                                               10 * (i + 1), 0))
+                for i in range(num_items_to_create)]
+        current_loc = Location(uri_current, num_items_to_create + 1, 0)
+        locs.append(current_loc)
+        loc = self.history.go_back(current_loc, 2)
+        self.assertEqual(loc.uri, uri_stable)
+        self.assertEqual(loc.line, 490)
+        current_loc = loc
+        # We want to make 1 step back into a location we'll remove.
+        loc = self.history.go_back(current_loc, 1)
+        self.assertEqual(loc.uri, uri_volatile)
+        self.assertEqual(loc.line, 480)
+        #self.history.debug_dump_recent_history(loc)
+        self.history.obsolete_uri(loc.uri, 1) # => #490
+        #self.history.debug_dump_recent_history(current_loc)
+        v = list(self.history.recent_history(current_loc))
+        # Make assertions about the culled list
+        vlen = len(v)
+        for i in range((vlen - 1)/2):
+            self.assertEqual(v[1 + (2 * i)][1], locs[49 - 0 - (3 * i)])
+            self.assertEqual(v[2 + (2 * i)][1], locs[49 - 1 - (3 * i)])
+        self.assertEqual(current_loc.line, 490)
+
+        # Now save the database, reload, and verify some facts about the
+        # new database
+        self.history.save()
+        
+        # Now reload
+        self.history = History(self._db_path_)
+        self.assertEqual(current_loc.line, 490)
+        #self.history.debug_dump_recent_history(current_loc)
+        # Recheck history
+        v = list(self.history.recent_history(current_loc))
+        # Make the same assertions about the culled list
+        vlen = len(v)
+        for i in range((vlen - 1)/2):
+            self.assertEqual(v[1 + (2 * i)][1], locs[49 - 0 - (3 * i)])
+            self.assertEqual(v[2 + (2 * i)][1], locs[49 - 1 - (3 * i)])
 
 #---- mainline
 
