@@ -370,7 +370,9 @@ class koSysUtils:
                  c = "#%s%s%s" %(r,g,b)
                  return c
         else:
-            raise ServerException, (nsError.NS_ERROR_NOT_IMPLEMENTED, str(e))
+            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED,
+                                  "System color picker not available on: %r" % (
+                                        sys.platform))
         return None
         
     def byteLength(self, unicodestr):
