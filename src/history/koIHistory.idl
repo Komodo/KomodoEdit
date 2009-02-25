@@ -51,6 +51,8 @@ interface koIHistoryService : nsISupports
                       in PRUint32 undo_delta,
                       in boolean undo_dir_is_back);
     void update_marker_handles_on_close(in wstring uri, in ISciMoz scimoz);
+    // For testing purposes only
+    void expire_locs(in PRUint32 loc_expiry_days);
 };
 
 // update

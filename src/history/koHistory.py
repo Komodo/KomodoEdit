@@ -27,7 +27,8 @@ log = logging.getLogger('history')
 #---- the components/services
 
 class KoHistoryService(History):
-    _com_interfaces_ = [components.interfaces.koIHistoryService]
+    _com_interfaces_ = [components.interfaces.koIHistoryService,
+                        components.interfaces.nsIObserver]
     _reg_desc_ = "Komodo History Service"
     _reg_contractid_ = "@activestate.com/koHistoryService;1"
     _reg_clsid_ = "{71b1c721-9abd-4ce8-a35e-166409750248}"
@@ -43,6 +44,26 @@ class KoHistoryService(History):
         self._obsSvcProxy = _xpcom.getProxyForObject(1, components.interfaces.nsIObserverService,
                                           self._observerSvc, _xpcom.PROXY_SYNC | _xpcom.PROXY_ALWAYS)
 
+        
+        self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService)
+        self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
+        self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped, "history_loc_expiry_days", 0)
+        
+        self._observerSvc.addObserver(self._wrapped, 'xpcom-shutdown', 1)
+
+    def finalize(self):
+        try:
+            self._prefSvc.prefs.prefObserverService.removeObserver(self._wrapped, "history_loc_expiry_days")
+        except ServerException, e:
+            log.exception("Unable to remove observer history_loc_expiry_days")
+
+    def observe(self, subject, topic, data):
+        if topic == "history_loc_expiry_days":
+            self.loc_expiry_days = self._prefSvc.prefs.getLongPref(topic)
+        elif topic == "xpcom-shutdown":
+            self.finalize()
+            
     def editor_loc_from_info(self, window_num, tabbed_view_id, view):
         """Create a Location instance from the given *editor* view info.
         

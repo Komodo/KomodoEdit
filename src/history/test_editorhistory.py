@@ -226,6 +226,73 @@ class DatabaseTestCase(_HistoryTestCase):
             self.assertEqual(a_id, actual_a_id)
             self.assertEqual(row[1], False)
 
+    def _do_common_loc_expiry_test(self):
+        """Create a database with three entries.  Now mess
+        with the timestamps so all three look older.  Then
+        call the sweeper to remove items that are at least
+        15 days old, and verify that only the newest survived.
+        """
+        a = "file:///home/tester/a.txt"
+        db = self.history.db
+        loc1 = db.add_loc(Location(a, 1, 1))
+        loc2 = db.add_loc(Location(a, 2, 2))
+        loc3 = db.add_loc(Location(a, 3, 3))
+        with db.connect(True) as cu:
+            cu.execute("SELECT julianday('now')")
+            curr_julian_time = cu.fetchone()[0]
+            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
+                       (curr_julian_time - 20, loc1.id))
+            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
+                       (curr_julian_time - 10, loc2.id))
+            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
+                       (curr_julian_time - 30, loc3.id))
+            cu.execute("SELECT count(*) from history_visit")
+            self.assertEqual(cu.fetchone()[0], 3)
+            
+        self.history.expire_locs(15)
+        
+        with db.connect() as cu:
+            cu.execute("SELECT count(*) from history_visit")
+            self.assertEqual(cu.fetchone()[0], 1)
+            cu.execute("SELECT id from history_visit")
+            rows = cu.fetchall()
+            self.assertEqual(len(rows), 1)
+            loc = rows[0]
+            self.assertEqual(loc[0], loc2.id)
+
+    def test_expire_locs(self):
+        self._do_common_loc_expiry_test()
+
+    def test_expire_locs_once_per_day(self):
+        """Run the standard test_expire_locs.
+        Now add three more old tests, try to expire them,
+        but they should survive.
+        """
+        self._do_common_loc_expiry_test()
+        a = "file:///home/tester/a.txt"
+        db = self.history.db
+        loc4 = db.add_loc(Location(a, 4, 1))
+        loc5 = db.add_loc(Location(a, 5, 2))
+        loc6 = db.add_loc(Location(a, 6, 3))
+        with db.connect(True) as cu:
+            cu.execute("SELECT julianday('now')")
+            curr_julian_time = cu.fetchone()[0]
+            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
+                       (curr_julian_time - 2000, loc4.id))
+            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
+                       (curr_julian_time - 3000, loc5.id))
+            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
+                       (curr_julian_time - 4000, loc6.id))
+            cu.execute("SELECT count(*) from history_visit")
+            self.assertEqual(cu.fetchone()[0], 4)
+            
+        self.history.expire_locs(15)
+        
+        with db.connect() as cu:
+            cu.execute("SELECT count(*) from history_visit")
+            self.assertEqual(cu.fetchone()[0], 4)
+
+
 
 class HistoryTestCase(_HistoryTestCase):
     def test_simple(self):

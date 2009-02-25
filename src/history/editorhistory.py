@@ -536,8 +536,8 @@ class Database(object):
 
 class History(object):
     """The main manager object for the editor history."""
-    # Number of seconds after which to expire 'visit' entries (default: 1 year).
-    DEFAULT_EXPIRE_ARG = 365 * 24 * 60 * 60
+    # Number of days after which to expire 'visit' entries (default: 365).
+    DEFAULT_LOC_EXPIRY_DAYS = 365
     RECENT_BACK_VISITS_LENGTH = 10
     # This cache length limits the max allowable value of 'n' for
     # `go_back(..., n)`, so let's make it reasonably large.
@@ -565,15 +565,16 @@ class History(object):
     _last_visit = None
         
 
-    def __init__(self, db_path=None, expire_age=None):
+    def __init__(self, db_path=None, loc_expiry_days=None):
         self.db = Database(db_path)
 
         #XXX:TODO: Expiring visits/uris.
-        assert expire_age is None or isinstance(expire_age, int)
-        self.expire_age = expire_age or self.DEFAULT_EXPIRE_ARG
+        assert loc_expiry_days is None or isinstance(loc_expiry_days, int)
+        self.loc_expiry_days = loc_expiry_days or self.DEFAULT_LOC_EXPIRY_DAYS
 
         self.load()
         self.closed = False
+        self._schedule_loc_expiry(60 * 10) # In 10 minutes
 
     def __del__(self):
         if not self.closed:
@@ -602,9 +603,9 @@ class History(object):
                 self.db.set_meta("num_forward_visits", -1, cu=cu)
                 top_loc_id = _int_or_none(self.db.get_meta("top_loc_id", cu=cu))
 
-            self._reload(top_loc_id, num_forward_visits, cu=cu)
+            self._load_recent_history_cache(top_loc_id, num_forward_visits, cu=cu)
 
-    def _reload(self, top_loc_id, num_forward_visits, cu=None):
+    def _load_recent_history_cache(self, top_loc_id, num_forward_visits, cu=None):
         """Reload the recent history cache.
         
         @param top_loc_id {int} Is the ID at the top of the history.
@@ -724,6 +725,8 @@ class History(object):
         self.db.add_loc(loc, referer_id)
         self.recent_back_visits.appendleft(loc)
         self.forward_visits.clear()
+        if self._should_expire_locs():
+            self.expire_locs()
         return loc
     
     def obsolete_uri(self, uri, undo_delta=0, orig_dir_was_back=True):
@@ -755,42 +758,86 @@ class History(object):
             if not uri_id:
                 return
             self.db.obsolete_uri(uri, uri_id, cu=cu)
-            
-            # Regenerate the recent history cache.
-            if self.forward_visits:
-                top_loc = self.forward_visits[0]
-            elif self._last_visit:
-                top_loc = self._last_visit
-            else:
-                top_loc = self.recent_back_visits[0]
+            self._reload_recent_history_cache(cu, uri, undo_delta, orig_dir_was_back)
+
+    def _reload_recent_history_cache(self, cu, uri=None, undo_delta=0, orig_dir_was_back=True):
+        # Regenerate the recent history cache.
+        if self.forward_visits:
+            top_loc = self.forward_visits[0]
+        elif self._last_visit:
+            top_loc = self._last_visit
+        elif not self.recent_back_visits:
+            # The cache is empty, and since this is called when
+            # we've removed items, there's nothing left to do.
+            return
+        else:
+            top_loc = self.recent_back_visits[0]
                 
-            # Don't keep any URIs we're about to obsolete
-            if undo_delta == 0:
+        # Don't keep any URIs we're about to obsolete
+        if undo_delta == 0:
+            if uri is None:
+                num_forward_visits = len(self.forward_visits)
+            else:
                 num_forward_visits = len([x for x in self.forward_visits
                                           if x.uri != uri])
+        else:
+            if orig_dir_was_back:
+                # The undo will move forward, so we don't care about
+                # what's in the back visits, nor in the older part of the
+                # forward visits, so we just examine the newest delta items.
+                # Newest items are at the left side (queue part) of the deque.
+                num_forward_visits = (
+                    len([x for x in
+                         islice(self.forward_visits,
+                                0,
+                                len(self.forward_visits) - undo_delta)
+                         if x.uri != uri])
+                )
             else:
-                if orig_dir_was_back:
-                    # The undo will move forward, so we don't care about
-                    # what's in the back visits, nor in the older part of the
-                    # forward visits, so we just examine the newest delta items.
-                    # Newest items are at the left side (queue part) of the deque.
-                    num_forward_visits = (
-                        len([x for x in
-                             islice(self.forward_visits,
-                                    0,
-                                    len(self.forward_visits) - undo_delta)
-                             if x.uri != uri])
-                    )
-                else:
-                    # The undo will move back.  Prune the current forward visits,
-                    # and the newest <delta - 1> back visits.
-                    num_forward_visits = (
-                          len([x for x in self.forward_visits if x.uri != uri])
-                        + len([x for x in
-                               islice(self.recent_back_visits, 0, undo_delta - 1)
-                               if x.uri != uri])
-                    )
-            self._reload(top_loc.id, num_forward_visits, cu=cu)
+                # The undo will move back.  Prune the current forward visits,
+                # and the newest <delta - 1> back visits.
+                num_forward_visits = (
+                      len([x for x in self.forward_visits if x.uri != uri])
+                    + len([x for x in
+                           islice(self.recent_back_visits, 0, undo_delta - 1)
+                           if x.uri != uri])
+                )
+        self._load_recent_history_cache(top_loc.id, num_forward_visits, cu=cu)
+
+    def _schedule_loc_expiry(self, expiry_time):
+        """
+        @param expiry_time {int} Number of *seconds* before expired locs can be removed.
+        """
+        self._loc_expiry_time = time.time() + expiry_time
+        
+    def _should_expire_locs(self):
+        if self._loc_expiry_time <= 0:
+            return False
+        return time.time() > self._loc_expiry_time
+        
+    def expire_locs(self, loc_expiry_days=None):
+        with self.db.connect(True) as cu:
+            last_loc_expiry_time = float(self.db.get_meta(
+                "last_loc_expiry_time", default=-1, cu=cu))
+            cu.execute("SELECT julianday('now')")
+            curr_julian_time = cu.fetchone()[0]
+            if curr_julian_time - last_loc_expiry_time < 0.99:
+                # It's been less than 1 day since the last cleaning
+                # "0.99":  Allow for a fudge factor in timing, so don't
+                # test for "< 1"
+                #
+                # We still need to reschedule the next possible cleaning in 24 hours.
+                pass
+            else:
+                if not loc_expiry_days:
+                    loc_expiry_days = self.loc_expiry_days
+                cutoff_time = curr_julian_time - loc_expiry_days
+    
+                cu.execute("DELETE FROM history_visit WHERE timestamp < ?", (cutoff_time,))
+                self.db.set_meta("last_loc_expiry_time", curr_julian_time,
+                                 cu=cu)
+                self._reload_recent_history_cache(cu)
+            self._schedule_loc_expiry(60 * 60 * 24) # 24 hours from now
 
     def can_go_back(self):
         """Returns a boolean indicating whether there is any back history.
