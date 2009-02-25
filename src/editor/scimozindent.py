@@ -63,6 +63,66 @@ def makeIndentFromWidth(scimoz, width):
     else:
         return ' '*width
 
+def findMatchingTagPosition(scimoz, caretPos, languageObj):
+    braceAtCaret = -1
+    braceOpposite = -1
+    isInside = 0 # All tags are outside-based for tags
+    charBefore = '\0'
+    styleBefore = 0
+    textLength = scimoz.textLength
+    if caretPos >= textLength:
+        caretPos = scimoz.positionBefore(textLength)
+        
+    # If we're on a start- or end-tag, go find the matcher.
+    styleBefore = scimoz.getStyleAt(scimoz.positionBefore(caretPos))
+    styleAt = scimoz.getStyleAt(caretPos)
+    isHTML = languageObj.isHTMLLanguage
+    tagStartPos = caretPos
+    tagStartPrevPos = scimoz.positionBefore(tagStartPos)
+    matchingTagInfo = None
+    onStartTagAtLeft = languageObj.onStartTag(scimoz, tagStartPrevPos)
+    onStartTagAtRight = (tagStartPos < textLength
+                         and languageObj.onStartTag(scimoz, tagStartPos))
+    onEndTagAtLeft = languageObj.onEndTag(scimoz, tagStartPrevPos)
+    onEndTagAtRight = (tagStartPos < textLength
+                       and languageObj.onEndTag(scimoz, tagStartPos))
+    
+    # Break ties when we're between two tags.
+    if onEndTagAtLeft and scimoz.getStyleAt(tagStartPrevPos) == scimoz.SCE_UDL_M_ETAGC:
+        if onStartTagAtRight or onEndTagAtRight:
+            # Favor left.  This means moving forward on '<a...'
+            # will always return back to the start of '<a...'
+            # </a>|<b> : show <a>
+            # </a>|</b> : show <a>
+            onStartTagAtRight = onEndTagAtRight = False
+            tagStartPos -= 1
+    elif onStartTagAtLeft and scimoz.getStyleAt(tagStartPrevPos) == scimoz.SCE_UDL_M_STAGC:
+        if onEndTagAtRight:
+            # There's nothing to do, so return a nil result
+            # <a>|</b> : If we did a search, we'd end up walking
+            # through the full doc and find either nothing,
+            # or a false positive
+            return braceAtCaret, braceOpposite, isInside
+        elif onStartTagAtRight:
+            # Favor right: consistent with onEndTagAtLeft
+            # <a>|<b> : show </b>
+            onStartTagAtLeft = False
+            tagStartPos += 1
+        
+    if onStartTagAtLeft or onStartTagAtRight:
+        matchingTagInfo = endTagInfo_from_startTagPos(scimoz, tagStartPos, isHTML)
+        if matchingTagInfo is not None:
+            # returns (startTag-start, startTag-end, endTag-start, entTag-end)
+            braceAtCaret = matchingTagInfo[0]
+            braceOpposite = matchingTagInfo[3]
+    elif onEndTagAtLeft or onEndTagAtRight:
+        matchingTagInfo = startTagInfo_from_endTagPos(scimoz, tagStartPos, isHTML)
+        if matchingTagInfo is not None:
+            # returns (startTag-start, startTag-end, endTag-start, entTag-end)
+            braceOpposite = matchingTagInfo[0] 
+            braceAtCaret = matchingTagInfo[3]
+    return braceAtCaret, braceOpposite, isInside
+    
 def _verifyLoneStartTag(scimoz, tagPos):
     """
     When we match tags according to Scintilla fold information,

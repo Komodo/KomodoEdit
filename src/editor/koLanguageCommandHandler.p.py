@@ -1172,9 +1172,10 @@ class GenericCommandHandler:
     # and the indexes of the current and the matching brace.
     def _findMatchingBracePosition(self, caretPos, sloppy=1):
         view = self._view
-        if view.languageObj.supportsSmartIndent == "XML":
-            return self._findMatchingTagPosition(caretPos, sloppy)
         sm = view.scimoz
+        if view.languageObj.supportsSmartIndent == "XML":
+            return scimozindent.findMatchingTagPosition(sm, caretPos,
+                                                        UnwrapObject(view.languageObj))
         mask = view.languageObj.stylingBitsMask
         isInside = 0
         braceAtCaret = -1
@@ -1225,70 +1226,7 @@ class GenericCommandHandler:
         else:
             isInside = not isAfter
         return braceAtCaret, braceOpposite, isInside
-
-    def _findMatchingTagPosition(self, caretPos, sloppy=1):
-        view = self._view
-        sm = view.scimoz
-        braceAtCaret = -1
-        braceOpposite = -1
-        isInside = 0 # All tags are outside-based for tags
-        charBefore = '\0'
-        styleBefore = 0
-        textLength = sm.textLength
-        if caretPos >= textLength:
-            caretPos = sm.positionBefore(textLength)
-            
-        # If we're on a start- or end-tag, go find the matcher.
-        styleBefore = sm.getStyleAt(sm.positionBefore(caretPos))
-        styleAt = sm.getStyleAt(caretPos)
-        languageObj = UnwrapObject(view.languageObj)
-        isHTML = languageObj.isHTMLLanguage
-        tagStartPos = caretPos
-        tagStartPrevPos = sm.positionBefore(tagStartPos)
-        matchingTagInfo = None
-        onStartTagAtLeft = languageObj.onStartTag(sm, tagStartPrevPos)
-        onStartTagAtRight = (tagStartPos < textLength
-                             and languageObj.onStartTag(sm, tagStartPos))
-        onEndTagAtLeft = languageObj.onEndTag(sm, tagStartPrevPos)
-        onEndTagAtRight = (tagStartPos < textLength
-                           and languageObj.onEndTag(sm, tagStartPos))
-        
-        # Break ties when we're between two tags.
-        if onEndTagAtLeft and sm.getStyleAt(tagStartPrevPos) == sm.SCE_UDL_M_ETAGC:
-            if onStartTagAtRight or onEndTagAtRight:
-                # Favor left.  This means moving forward on '<a...'
-                # will always return back to the start of '<a...'
-                # </a>|<b> : show <a>
-                # </a>|</b> : show <a>
-                onStartTagAtRight = onEndTagAtRight = False
-                tagStartPos -= 1
-        elif onStartTagAtLeft and sm.getStyleAt(tagStartPrevPos) == sm.SCE_UDL_M_STAGC:
-            if onEndTagAtRight:
-                # There's nothing to do, so return a nil result
-                # <a>|</b> : If we did a search, we'd end up walking
-                # through the full doc and find either nothing,
-                # or a false positive
-                return braceAtCaret, braceOpposite, isInside
-            elif onStartTagAtRight:
-                # Favor right: consistent with onEndTagAtLeft
-                # <a>|<b> : show </b>
-                onStartTagAtLeft = False
-                tagStartPos += 1
-            
-        if onStartTagAtLeft or onStartTagAtRight:
-            matchingTagInfo = scimozindent.endTagInfo_from_startTagPos(sm, tagStartPos, isHTML)
-            if matchingTagInfo is not None:
-                # returns (startTag-start, startTag-end, endTag-start, entTag-end)
-                braceAtCaret = matchingTagInfo[0]
-                braceOpposite = matchingTagInfo[3]
-        elif onEndTagAtLeft or onEndTagAtRight:
-            matchingTagInfo = scimozindent.startTagInfo_from_endTagPos(sm, tagStartPos, isHTML)
-            if matchingTagInfo is not None:
-                # returns (startTag-start, startTag-end, endTag-start, entTag-end)
-                braceOpposite = matchingTagInfo[0] 
-                braceAtCaret = matchingTagInfo[3]
-        return braceAtCaret, braceOpposite, isInside
-            
+    
     def _is_cmd_folding_enabled(self):
         return self._view.languageObj.foldable
 
