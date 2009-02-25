@@ -65,6 +65,14 @@ class RecentsDictTestCase(unittest.TestCase):
         self.assertEqual(len(d), 2)
         self.assertEqual(d, {'c':3, 'e':5})
 
+    @testlib.tag("bug82125")
+    def test_implicit_removal(self):
+        d = _RecentsDict(2)
+        d["a"] = 1
+        d["b"] = 2
+        del d["a"]
+        d["c"] = 3 # Bug 82125: raises an exception here
+        
 class LocationTestCase(unittest.TestCase):
     def test_cmp(self):
         a = Location("a.txt", 1, 1)

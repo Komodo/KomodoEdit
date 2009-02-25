@@ -1075,7 +1075,7 @@ class _RecentsDict(dict):
             self.recent_keys.append(key)
             if len(self.recent_keys) > self.limit:
                 k = self.recent_keys.pop(0)
-                del self[k]
+                dict.__delitem__(self, k)
         else:
             del self.recent_keys[idx]
             self.recent_keys.append(key)
@@ -1086,6 +1086,10 @@ class _RecentsDict(dict):
         del self.recent_keys[idx]
         self.recent_keys.append(key)
         return value
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, key)
+        self.recent_keys.remove(key)
 
     def __repr__(self):
         return "_RecentsDict(%d, %s)" % (self.limit, dict.__repr__(self))
