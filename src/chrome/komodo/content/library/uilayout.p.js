@@ -661,12 +661,8 @@ function _Observer ()
                             this.handle_current_view_changed_setup, false);
     window.addEventListener('current_view_language_changed',
                             this.handle_current_view_language_changed, false);
-    window.addEventListener('view_closed',
-                            this.handle_current_view_open_or_closed, false);
     window.addEventListener('view_list_closed',
                             this.handle_view_list_closed_setup, false);
-    window.addEventListener('view_opened',
-                            this.handle_current_view_open_or_closed, false);
 };
 _Observer.prototype.destroy = function()
 {
@@ -678,12 +674,8 @@ _Observer.prototype.destroy = function()
                                this.handle_current_view_changed_setup, false);
     window.removeEventListener('current_view_language_changed',
                                this.handle_current_view_language_changed, false);
-    window.removeEventListener('view_closed',
-                               this.handle_current_view_open_or_closed, false);
     window.removeEventListener('view_list_closed',
                                this.handle_view_list_closed_setup, false);
-    window.removeEventListener('view_opened',
-                               this.handle_current_view_open_or_closed, false);
 }
 _Observer.prototype.observe = function(subject, topic, data)
 {
@@ -708,7 +700,6 @@ _Observer.prototype.current_view_changed_common = function(view) {
         _updateCurrentLanguage(view);
         ko.uilayout.updateTitlebar(view);
     }
-    this.handle_current_view_open_or_closed();
 }
 _Observer.prototype.handle_current_view_changed = function(event) {
     this.current_view_changed_common(event.originalTarget);
@@ -717,10 +708,6 @@ _Observer.prototype.handle_current_view_changed = function(event) {
 _Observer.prototype.handle_current_view_language_changed = function(event) {
     _log.info("GOT current_view_language_changed");
     _updateCurrentLanguage(event.originalTarget);
-}
-
-_Observer.prototype.handle_current_view_open_or_closed = function(event) {
-    _gNeedToUpdateWindowMenu = true;
 }
 
 _Observer.prototype.handle_view_list_closed = function(event) {
@@ -771,7 +758,6 @@ function _setCheckedLanguage(language)
     }
 }
 
-var _gNeedToUpdateWindowMenu = false;
 // Create and return on tab/window item at the bottom of the Window menu.
 //
 //  "view" is the view to which this menuitem is attached
@@ -833,9 +819,6 @@ function _compareView(a, b) {
 // this when it is being shown to reset itself.
 this.updateWindowList = function uilayout_updateWindowList(popup) {
     try {
-        if (!_gNeedToUpdateWindowMenu) return;
-        _gNeedToUpdateWindowMenu = false;
-
         var separator = document.getElementById('window-menu-separator');
         var views = ko.views.manager.topView.getDocumentViews(true);
         // clear out checked items first
