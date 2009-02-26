@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <codeintel version="2.0" name="PHP 5.0.5" description="Cix data for PHP 5.0.5" file="php-5.0.cix">
-  <file lang="PHP" mtime="1212001558" path="php-5.0.cix">
+  <file lang="PHP" mtime="1235684955" path="php-5.0.cix">
     <scope ilk="blob" lang="PHP" name="*" id="global">
       <scope name="stdClass" ilk="class"/>
       <scope doc="@ingroup ZendEngine&#10;@brief Basic Exception class.&#10;@since PHP 5.0" ilk="class" line="244" lineend="331" name="Exception">
@@ -1058,19 +1058,115 @@
         <variable attributes="private" citdl="array()" line="25" name="storage"/>
         <variable attributes="private" citdl="int" line="26" name="index"/>
       </scope>
-      <scope name="chown" signature="chown ( string filename, mixed user )" doc="Changes file owner" ilk="function"/>
+      <scope/>
+      <scope name="mysqli_result" ilk="class">
+        <scope doc="The mysqli_data_seek() function seeks to an arbitrary  result pointer specified by the offset in the  result set." ilk="function" name="data_seek" signature="data_seek ( int offset )"/>
+        <scope doc="Available only with mysqlnd." ilk="function" name="fetch_all" signature="fetch_all ( int resulttype )"/>
+        <scope doc="Returns an array that corresponds to the fetched row or NULL if there  are no more rows for the resultset represented by the  result parameter." ilk="function" name="fetch_array" signature="fetch_array ( int resulttype )"/>
+        <scope doc="Returns an associative array that corresponds to the fetched row or NULL  if there are no more rows." ilk="function" name="fetch_assoc" signature="fetch_assoc ( void )"/>
+        <scope doc="Returns an object which contains field definition information from the  specified result set." ilk="function" name="fetch_field_direct" signature="fetch_field_direct ( int fieldnr )"/>
+        <scope doc="Returns the definition of one column of a result set as an object. Call  this function repeatedly to retrieve information about all columns in the  result set." ilk="function" name="fetch_field" signature="fetch_field ( void )"/>
+        <scope doc="This function serves an identical purpose to the  mysqli_fetch_field() function with the single  difference that, instead of returning one object at a time for each field,  the columns are returned as an array of objects." ilk="function" name="fetch_fields" signature="fetch_fields ( void )"/>
+        <scope doc="The mysqli_fetch_object() will return the current row  result set as an object where the attributes of the object represent the  names of the fields found within the result set." ilk="function" name="fetch_object" signature="fetch_object ( string class_name, array params )"/>
+        <scope doc="Fetches one row of data from the result set and returns it as an enumerated  array, where each column is stored in an array offset starting from 0 (zero).  Each subsequent call to this function will return the next row within the  result set, or NULL if there are no more rows." ilk="function" name="fetch_row" signature="fetch_row ( void )"/>
+        <scope doc="Sets the field cursor to the given offset. The next call to  mysqli_fetch_field() will retrieve the field definition  of the column associated with that offset." ilk="function" name="field_seek" signature="field_seek ( int fieldnr )"/>
+        <scope doc="Frees the memory associated with the result." ilk="function" name="free" signature="free ( void )"/>
+        <variable citdl="int" name="current_field"/>
+        <variable citdl="int" name="field_count"/>
+        <variable citdl="array" name="lengths"/>
+        <variable citdl="int" name="num_rows"/>
+      </scope>
+      <scope name="mysqli" ilk="class">
+        <scope doc="Turns on or off auto-commit mode on queries for the database connection." ilk="function" name="autocommit" signature="autocommit ( bool mode )"/>
+        <scope doc="Changes the user of the specified database connection and sets the current  database." ilk="function" name="change_user" signature="change_user ( string user, string password, string database )"/>
+        <scope doc="Returns the current character set for the database connection." ilk="function" name="character_set_name" signature="character_set_name ( void )"/>
+        <scope doc="Closes a previously opened database connection." ilk="function" name="close" signature="close ( void )"/>
+        <scope doc="Commits the current transaction for the database connection." ilk="function" name="commit" signature="commit ( void )"/>
+        <scope doc="Opens a connection to the MySQL Server running on." ilk="function" name="__construct" signature="__construct ( string host, string username, string passwd, string dbname, int port, string socket )"/>
+        <scope doc="Performs debugging operations using the Fred Fish debugging library." ilk="function" name="debug" signature="debug ( string message )"/>
+        <scope doc="This function is designed to be executed by an user with the SUPER  privilege and is used to dump debugging information into the log for the  MySQL Server relating to the connection." ilk="function" name="dump_debug_info" signature="dump_debug_info ( void )"/>
+        <scope doc="Returns a character set object providing several properties  of the current active character set." ilk="function" name="get_charset" signature="get_charset ( void )"/>
+        <scope doc="The mysqli_get_client_info() function is used to  return a string representing the client version being used in the  MySQLi extension." ilk="function" name="get_client_info" signature="get_client_info ( void )"/>
+        <scope doc="Returns client version number as an integer." ilk="function" name="get_client_version" signature="get_client_version ( void )"/>
+        <scope doc="No documentation available." ilk="function" name="get_connection_stats" signature="get_connection_stats ( void )"/>
+        <scope doc="No documentation available." ilk="function" name="get_client_stats" signature="get_client_stats ( void )"/>
+        <scope doc="No documentation available." ilk="function" name="get_cache_stats" signature="get_cache_stats ( void )"/>
+        <scope doc="Returns a string representing the version of the MySQL server that the  MySQLi extension is connected to." ilk="function" name="get_server_info" signature="get_server_info ( void )"/>
+        <scope doc="No documentation available." ilk="function" name="get_warnings" signature="get_warnings ( void )"/>
+        <scope doc="This function is used to ask the server to kill a MySQL thread specified  by the processid parameter. This value must be  retrieved by calling the mysqli_thread_id() function." ilk="function" name="kill" signature="kill ( int processid )"/>
+        <scope doc="Indicates if one or more result sets are available from a previous call to  mysqli_multi_query()." ilk="function" name="more_results" signature="more_results ( void )"/>
+        <scope doc="Executes one or multiple queries which are concatenated by a semicolon." ilk="function" name="multi_query" signature="multi_query ( string query )"/>
+        <scope doc="Prepares next result set from a previous call to  mysqli_multi_query() which can be retrieved by  mysqli_store_result() or  mysqli_use_result()." ilk="function" name="next_result" signature="next_result ( void )"/>
+        <scope doc="Used to set extra connect options and affect behavior for a connection." ilk="function" name="options" signature="options ( int option, mixed value )"/>
+        <scope doc="Checks whether the connection to the server is working. If it has gone  down, and global option mysqli.reconnect is enabled  an automatic reconnection is attempted." ilk="function" name="ping" signature="ping ( void )"/>
+        <scope doc="Procedure style:" ilk="function" name="prepare" signature="prepare ( string query, mysqli link, string query )"/>
+        <scope doc="Performs a query against the database." ilk="function" name="query" signature="query ( string query, int resultmode )"/>
+        <scope doc="Establish a connection to a MySQL database engine." ilk="function" name="real_connect" signature="real_connect ( string host, string username, string passwd, string dbname, int port, string socket, int flags )"/>
+        <scope doc="This function is used to create a legal SQL string that you can use in an  SQL statement. The given string is encoded to an escaped SQL string,  taking into account the current character set of the connection." ilk="function" name="real_escape_string" signature="real_escape_string ( string escapestr, string escapestr )"/>
+        <scope doc="Executes a single query against the database whose result can then be  retrieved or stored using the mysqli_store_result() or  mysqli_use_result() functions." ilk="function" name="real_query" signature="real_query ( string query )"/>
+        <scope doc="Rollbacks the current transaction for the database." ilk="function" name="rollback" signature="rollback ( void )"/>
+        <scope doc="Selects the default database to be used when performing queries against  the database connection." ilk="function" name="select_db" signature="select_db ( string dbname )"/>
+        <scope doc="Sets the default character set to be used when sending data from and to  the database server." ilk="function" name="set_charset" signature="set_charset ( string charset )"/>
+        <scope doc="Deactivates a LOAD DATA INFILE LOCAL handler previously  set with mysqli_set_local_infile_handler()." ilk="function" name="set_local_infile_default" signature="set_local_infile_default ( mysqli link )"/>
+        <scope doc="Object oriented style (method)" ilk="function" name="set_local_infile_handler" signature="set_local_infile_handler ( mysqli link, callback read_func, mysqli link, callback read_func )"/>
+        <scope doc="Used for establishing secure connections using SSL. It must be called  before mysqli_real_connect(). This function does  nothing unless OpenSSL support is enabled." ilk="function" name="ssl_set" signature="ssl_set ( string key, string cert, string ca, string capath, string cipher )"/>
+        <scope doc="mysqli_stat() returns a string containing  information similar to that provided by the &amp;#039;mysqladmin status&amp;#039; command.  This includes uptime in seconds and the number of running threads,  questions, reloads, and open tables." ilk="function" name="stat" signature="stat ( void )"/>
+        <scope doc="Allocates and initializes a statement object suitable for  mysqli_stmt_prepare()." ilk="function" name="stmt_init" signature="stmt_init ( void )"/>
+        <scope doc="Transfers the result set from the last query on the database connection  represented by the link parameter to be used with  the mysqli_data_seek() function." ilk="function" name="store_result" signature="store_result ( void )"/>
+        <scope doc="The mysqli_thread_id() function returns the thread  ID for the current connection which can then be killed using the  mysqli_kill() function. If the connection is lost  and you reconnect with mysqli_ping(), the thread ID  will be other. Therefore you should get the thread ID only when you need it." ilk="function" name="thread_id" signature="thread_id ( void )"/>
+        <scope doc="Tells whether the client library is compiled as thread-safe." ilk="function" name="thread_safe" signature="thread_safe ( void )"/>
+        <scope doc="Used to initiate the retrieval of a result set from the last query  executed using the mysqli_real_query() function on the  database connection." ilk="function" name="use_result" signature="use_result ( void )"/>
+        <variable citdl="int" name="affected_rows"/>
+        <variable citdl="string" name="connect_errno"/>
+        <variable citdl="string" name="connect_error"/>
+        <variable citdl="int" name="errno"/>
+        <variable citdl="string" name="error"/>
+        <variable citdl="int" name="field_count"/>
+        <variable citdl="string" name="host_info"/>
+        <variable citdl="string" name="protocol_version"/>
+        <variable citdl="string" name="server_info"/>
+        <variable citdl="int" name="server_version"/>
+        <variable citdl="string" name="info"/>
+        <variable citdl="int" name="insert_id"/>
+        <variable citdl="string" name="sqlstate"/>
+        <variable citdl="int" name="warning_count"/>
+      </scope>
+      <scope name="mysqli_stmt" ilk="class">
+        <scope doc="Gets the current value of a statement attribute." ilk="function" name="attr_get" signature="attr_get ( int attr )"/>
+        <scope doc="Used to modify the behavior of a prepared statement. This function may be  called multiple times to set several attributes." ilk="function" name="attr_set" signature="attr_set ( int attr, int mode )"/>
+        <scope doc="Bind variables for the parameter markers in the SQL statement that was  passed to mysqli_prepare()." ilk="function" name="bind_param" signature="bind_param ( string types, mixed amp;$var1, mixed amp;$... )"/>
+        <scope doc="Binds columns in the result set to variables." ilk="function" name="bind_result" signature="bind_result ( mixed amp;$var1, mixed amp;$... )"/>
+        <scope doc="Closes a prepared statement. mysqli_stmt_close() also  deallocates the statement handle. If the current statement has pending or  unread results, this function cancels them so that the next query can be  executed." ilk="function" name="close" signature="close ( void )"/>
+        <scope doc="Seeks to an arbitrary result pointer in the statement result set." ilk="function" name="data_seek" signature="data_seek ( int offset )"/>
+        <scope doc="Executes a query that has been previously prepared using the  mysqli_prepare() function. When executed any  parameter markers which exist will automatically be replaced with the  appropiate data." ilk="function" name="execute" signature="execute ( void )"/>
+        <scope doc="Fetch the result from a prepared statement into the variables bound by  mysqli_stmt_bind_result()." ilk="function" name="fetch" signature="fetch ( void )"/>
+        <scope doc="Frees the result memory associated with the statement, which was allocated by  mysqli_stmt_store_result()." ilk="function" name="free_result" signature="free_result ( void )"/>
+        <scope doc="No documentation available." ilk="function" name="get_warnings" signature="get_warnings ( mysqli_stmt stmt, mysqli_stmt stmt )"/>
+        <scope doc="Returns the number of rows in the result set.  The use of mysqli_stmt_num_rows()  depends on whether or not you used  mysqli_stmt_store_result() to buffer the entire result  set in the statement handle." ilk="function" name="num_rows" signature="num_rows ( void )"/>
+        <scope doc="Procedure style:" ilk="function" name="prepare" signature="prepare ( string query, mysqli_stmt stmt, string query )"/>
+        <scope doc="Resets a prepared statement on client and server to state after prepare." ilk="function" name="reset" signature="reset ( void )"/>
+        <scope doc="If a statement passed to mysqli_prepare() is one that produces  a result set, mysqli_stmt_result_metadata() returns the result object  that can be used to process the meta information such as total number of fields  and individual field information." ilk="function" name="result_metadata" signature="result_metadata ( void )"/>
+        <scope doc="Allows to send parameter data to the server in pieces (or chunks), e.g. if the  size of a blob exceeds the size of max_allowed_packet.  This function can be called multiple times to send the parts of a character or  binary data value for a column, which must be one of the TEXT or BLOB datatypes." ilk="function" name="send_long_data" signature="send_long_data ( int param_nr, string data )"/>
+        <scope doc="You must call mysqli_stmt_store_result() for every query that  successfully produces a result set (SELECT, SHOW, DESCRIBE, EXPLAIN),  and only if you want to buffer the complete result set by the client,  so that the subsequent mysqli_stmt_fetch() call returns buffered data." ilk="function" name="store_result" signature="store_result ( void )"/>
+        <variable citdl="int" name="affected_rows"/>
+        <variable citdl="int" name="errno"/>
+        <variable citdl="string" name="error"/>
+        <variable citdl="int" name="field_count"/>
+        <variable citdl="int" name="insert_id"/>
+        <variable citdl="int" name="num_rows"/>
+        <variable citdl="int" name="param_count"/>
+        <variable citdl="string" name="sqlstate"/>
+      </scope>
+      <scope name="mysqli_driver" ilk="class">
+        <scope doc="No documentation available." ilk="function" name="embedded_server_end" signature="embedded_server_end ( void )"/>
+        <scope doc="No documentation available." ilk="function" name="embedded_server_start" signature="embedded_server_start ( bool start, array arguments, array groups, bool start, array arguments, array groups )"/>
+      </scope>
+      <scope name="chown" signature="chown()" ilk="function"/>
       <scope name="isset" signature="bool isset ( mixed var [, mixed var [, ...]] )" doc="Determine whether a variable is set" ilk="function"/>
       <scope name="empty" signature="bool empty ( mixed $var )" doc="Determine whether a variable is considered to be empty." ilk="function"/>
       <scope name="unset" signature="void unset ( mixed $var [, mixed $var [, mixed $...]] )" doc="unset() destroys the specified variables." ilk="function"/>
       <scope name="lchown" signature="lchown ( string filename, mixed user )" doc="Attempts to change the owner of the symlink filename  to user user (specified by name or&amp;#xa; number). Only the superuser may change the owner of a symlink." ilk="function"/>
       <scope name="dir" signature="dir(string directory[, resource context])" returns="object" doc="Directory class with properties handle and class and&#10;methods read rewind and close" ilk="function" src="dir.c"/>
-      <scope name="include" signature="include(file_path)" doc="includes and evaluates the specified file, produces a warning on error." ilk="function"/>
-      <scope name="require" signature="require(file_path)" doc="includes and evaluates the specified file, produces a Fatal Error on error." ilk="function"/>
-      <scope name="include_once" signature="require_once(file_path)" doc="includes and evaluates the specified file if it hasn't been included before, produces a Fatal Error on error." ilk="function"/>
-      <scope name="require_once" signature="require_once(file_path)" doc="includes and evaluates the specified file if it hasn't been included before, produces a Fatal Error on error." ilk="function"/>
-      <scope name="declare" signature="declare(directive)" doc="set execution directives for a block of code." ilk="function"/>
-      <scope name="switch" signature="switch(var)" doc="evaluate a series of conditions on the same expression." ilk="function"/>
-      <scope name="array" signature="array(&lt;list&gt;)" doc="create a PHP array." ilk="function"/>
       <scope name="xdebug_break" signature="xdebug_break()" doc="force an xdebug breakpoint here." ilk="function"/>
       <scope name="bcadd" signature="bcadd(string left_operand, string right_operand [, int scale])" returns="string" doc="Returns the sum of two arbitrary precision numbers" ilk="function" src="bcmath.c"/>
       <scope name="bcsub" signature="bcsub(string left_operand, string right_operand [, int scale])" returns="string" doc="Returns the difference between two arbitrary precision&#10;numbers" ilk="function" src="bcmath.c"/>
@@ -3832,560 +3928,6 @@
         <variable name="argv" citdl="string"/>
         <variable name="argc" citdl="string"/>
       </variable>
-      <variable name="E_ERROR" citdl="integer" ilk="constant"/>
-      <variable name="E_WARNING" citdl="integer" ilk="constant"/>
-      <variable name="E_PARSE" citdl="integer" ilk="constant"/>
-      <variable name="E_NOTICE" citdl="integer" ilk="constant"/>
-      <variable name="E_STRICT" citdl="integer" ilk="constant"/>
-      <variable name="E_CORE_ERROR" citdl="integer" ilk="constant"/>
-      <variable name="E_CORE_WARNING" citdl="integer" ilk="constant"/>
-      <variable name="E_COMPILE_ERROR" citdl="integer" ilk="constant"/>
-      <variable name="E_COMPILE_WARNING" citdl="integer" ilk="constant"/>
-      <variable name="E_USER_ERROR" citdl="integer" ilk="constant"/>
-      <variable name="E_USER_WARNING" citdl="integer" ilk="constant"/>
-      <variable name="E_USER_NOTICE" citdl="integer" ilk="constant"/>
-      <variable name="E_ALL" citdl="integer" ilk="constant"/>
-      <variable name="TRUE" citdl="boolean" ilk="constant"/>
-      <variable name="FALSE" citdl="boolean" ilk="constant"/>
-      <variable name="ZEND_THREAD_SAFE" citdl="boolean" ilk="constant"/>
-      <variable name="NULL" citdl="NULL" ilk="constant"/>
-      <variable name="PHP_VERSION" citdl="string" ilk="constant"/>
-      <variable name="PHP_OS" citdl="string" ilk="constant"/>
-      <variable name="PHP_SAPI" citdl="string" ilk="constant"/>
-      <variable name="DEFAULT_INCLUDE_PATH" citdl="string" ilk="constant"/>
-      <variable name="PEAR_INSTALL_DIR" citdl="string" ilk="constant"/>
-      <variable name="PEAR_EXTENSION_DIR" citdl="string" ilk="constant"/>
-      <variable name="PHP_EXTENSION_DIR" citdl="string" ilk="constant"/>
-      <variable name="PHP_PREFIX" citdl="string" ilk="constant"/>
-      <variable name="PHP_BINDIR" citdl="string" ilk="constant"/>
-      <variable name="PHP_LIBDIR" citdl="string" ilk="constant"/>
-      <variable name="PHP_DATADIR" citdl="string" ilk="constant"/>
-      <variable name="PHP_SYSCONFDIR" citdl="string" ilk="constant"/>
-      <variable name="PHP_LOCALSTATEDIR" citdl="string" ilk="constant"/>
-      <variable name="PHP_CONFIG_FILE_PATH" citdl="string" ilk="constant"/>
-      <variable name="PHP_CONFIG_FILE_SCAN_DIR" citdl="string" ilk="constant"/>
-      <variable name="PHP_SHLIB_SUFFIX" citdl="string" ilk="constant"/>
-      <variable name="PHP_EOL" citdl="string" ilk="constant"/>
-      <variable name="PHP_INT_MAX" citdl="integer" ilk="constant"/>
-      <variable name="PHP_INT_SIZE" citdl="integer" ilk="constant"/>
-      <variable name="PHP_OUTPUT_HANDLER_START" citdl="integer" ilk="constant"/>
-      <variable name="PHP_OUTPUT_HANDLER_CONT" citdl="integer" ilk="constant"/>
-      <variable name="PHP_OUTPUT_HANDLER_END" citdl="integer" ilk="constant"/>
-      <variable name="UPLOAD_ERR_OK" citdl="integer" ilk="constant"/>
-      <variable name="UPLOAD_ERR_INI_SIZE" citdl="integer" ilk="constant"/>
-      <variable name="UPLOAD_ERR_FORM_SIZE" citdl="integer" ilk="constant"/>
-      <variable name="UPLOAD_ERR_PARTIAL" citdl="integer" ilk="constant"/>
-      <variable name="UPLOAD_ERR_NO_FILE" citdl="integer" ilk="constant"/>
-      <variable name="UPLOAD_ERR_NO_TMP_DIR" citdl="integer" ilk="constant"/>
-      <variable name="UPLOAD_ERR_CANT_WRITE" citdl="integer" ilk="constant"/>
-      <variable name="P_STATIC" citdl="integer" ilk="constant"/>
-      <variable name="P_PUBLIC" citdl="integer" ilk="constant"/>
-      <variable name="P_PROTECTED" citdl="integer" ilk="constant"/>
-      <variable name="P_PRIVATE" citdl="integer" ilk="constant"/>
-      <variable name="M_STATIC" citdl="integer" ilk="constant"/>
-      <variable name="M_PUBLIC" citdl="integer" ilk="constant"/>
-      <variable name="M_PROTECTED" citdl="integer" ilk="constant"/>
-      <variable name="M_PRIVATE" citdl="integer" ilk="constant"/>
-      <variable name="M_ABSTRACT" citdl="integer" ilk="constant"/>
-      <variable name="M_FINAL" citdl="integer" ilk="constant"/>
-      <variable name="C_IMPLICIT_ABSTRACT" citdl="integer" ilk="constant"/>
-      <variable name="C_EXPLICIT_ABSTRACT" citdl="integer" ilk="constant"/>
-      <variable name="C_FINAL" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_NONE" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_NO_MEMORY" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_SYNTAX" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_NO_ELEMENTS" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_INVALID_TOKEN" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_UNCLOSED_TOKEN" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_PARTIAL_CHAR" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_TAG_MISMATCH" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_DUPLICATE_ATTRIBUTE" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_JUNK_AFTER_DOC_ELEMENT" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_PARAM_ENTITY_REF" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_UNDEFINED_ENTITY" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_RECURSIVE_ENTITY_REF" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_ASYNC_ENTITY" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_BAD_CHAR_REF" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_BINARY_ENTITY_REF" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_ATTRIBUTE_EXTERNAL_ENTITY_REF" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_MISPLACED_XML_PI" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_UNKNOWN_ENCODING" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_INCORRECT_ENCODING" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_UNCLOSED_CDATA_SECTION" citdl="integer" ilk="constant"/>
-      <variable name="XML_ERROR_EXTERNAL_ENTITY_HANDLING" citdl="integer" ilk="constant"/>
-      <variable name="XML_OPTION_CASE_FOLDING" citdl="integer" ilk="constant"/>
-      <variable name="XML_OPTION_TARGET_ENCODING" citdl="integer" ilk="constant"/>
-      <variable name="XML_OPTION_SKIP_TAGSTART" citdl="integer" ilk="constant"/>
-      <variable name="XML_OPTION_SKIP_WHITE" citdl="integer" ilk="constant"/>
-      <variable name="XML_SAX_IMPL" citdl="string" ilk="constant"/>
-      <variable name="T_INCLUDE" citdl="integer" ilk="constant"/>
-      <variable name="T_INCLUDE_ONCE" citdl="integer" ilk="constant"/>
-      <variable name="T_EVAL" citdl="integer" ilk="constant"/>
-      <variable name="T_REQUIRE" citdl="integer" ilk="constant"/>
-      <variable name="T_REQUIRE_ONCE" citdl="integer" ilk="constant"/>
-      <variable name="T_LOGICAL_OR" citdl="integer" ilk="constant"/>
-      <variable name="T_LOGICAL_XOR" citdl="integer" ilk="constant"/>
-      <variable name="T_LOGICAL_AND" citdl="integer" ilk="constant"/>
-      <variable name="T_PRINT" citdl="integer" ilk="constant"/>
-      <variable name="T_PLUS_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_MINUS_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_MUL_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_DIV_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_CONCAT_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_MOD_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_AND_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_OR_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_XOR_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_SL_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_SR_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_BOOLEAN_OR" citdl="integer" ilk="constant"/>
-      <variable name="T_BOOLEAN_AND" citdl="integer" ilk="constant"/>
-      <variable name="T_IS_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_IS_NOT_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_IS_IDENTICAL" citdl="integer" ilk="constant"/>
-      <variable name="T_IS_NOT_IDENTICAL" citdl="integer" ilk="constant"/>
-      <variable name="T_IS_SMALLER_OR_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_IS_GREATER_OR_EQUAL" citdl="integer" ilk="constant"/>
-      <variable name="T_SL" citdl="integer" ilk="constant"/>
-      <variable name="T_SR" citdl="integer" ilk="constant"/>
-      <variable name="T_INC" citdl="integer" ilk="constant"/>
-      <variable name="T_DEC" citdl="integer" ilk="constant"/>
-      <variable name="T_INT_CAST" citdl="integer" ilk="constant"/>
-      <variable name="T_DOUBLE_CAST" citdl="integer" ilk="constant"/>
-      <variable name="T_STRING_CAST" citdl="integer" ilk="constant"/>
-      <variable name="T_ARRAY_CAST" citdl="integer" ilk="constant"/>
-      <variable name="T_OBJECT_CAST" citdl="integer" ilk="constant"/>
-      <variable name="T_BOOL_CAST" citdl="integer" ilk="constant"/>
-      <variable name="T_UNSET_CAST" citdl="integer" ilk="constant"/>
-      <variable name="T_NEW" citdl="integer" ilk="constant"/>
-      <variable name="T_EXIT" citdl="integer" ilk="constant"/>
-      <variable name="T_IF" citdl="integer" ilk="constant"/>
-      <variable name="T_ELSEIF" citdl="integer" ilk="constant"/>
-      <variable name="T_ELSE" citdl="integer" ilk="constant"/>
-      <variable name="T_ENDIF" citdl="integer" ilk="constant"/>
-      <variable name="T_LNUMBER" citdl="integer" ilk="constant"/>
-      <variable name="T_DNUMBER" citdl="integer" ilk="constant"/>
-      <variable name="T_STRING" citdl="integer" ilk="constant"/>
-      <variable name="T_STRING_VARNAME" citdl="integer" ilk="constant"/>
-      <variable name="T_VARIABLE" citdl="integer" ilk="constant"/>
-      <variable name="T_NUM_STRING" citdl="integer" ilk="constant"/>
-      <variable name="T_INLINE_HTML" citdl="integer" ilk="constant"/>
-      <variable name="T_CHARACTER" citdl="integer" ilk="constant"/>
-      <variable name="T_BAD_CHARACTER" citdl="integer" ilk="constant"/>
-      <variable name="T_ENCAPSED_AND_WHITESPACE" citdl="integer" ilk="constant"/>
-      <variable name="T_CONSTANT_ENCAPSED_STRING" citdl="integer" ilk="constant"/>
-      <variable name="T_ECHO" citdl="integer" ilk="constant"/>
-      <variable name="T_DO" citdl="integer" ilk="constant"/>
-      <variable name="T_WHILE" citdl="integer" ilk="constant"/>
-      <variable name="T_ENDWHILE" citdl="integer" ilk="constant"/>
-      <variable name="T_FOR" citdl="integer" ilk="constant"/>
-      <variable name="T_ENDFOR" citdl="integer" ilk="constant"/>
-      <variable name="T_FOREACH" citdl="integer" ilk="constant"/>
-      <variable name="T_ENDFOREACH" citdl="integer" ilk="constant"/>
-      <variable name="T_DECLARE" citdl="integer" ilk="constant"/>
-      <variable name="T_ENDDECLARE" citdl="integer" ilk="constant"/>
-      <variable name="T_AS" citdl="integer" ilk="constant"/>
-      <variable name="T_SWITCH" citdl="integer" ilk="constant"/>
-      <variable name="T_ENDSWITCH" citdl="integer" ilk="constant"/>
-      <variable name="T_CASE" citdl="integer" ilk="constant"/>
-      <variable name="T_DEFAULT" citdl="integer" ilk="constant"/>
-      <variable name="T_BREAK" citdl="integer" ilk="constant"/>
-      <variable name="T_CONTINUE" citdl="integer" ilk="constant"/>
-      <variable name="T_FUNCTION" citdl="integer" ilk="constant"/>
-      <variable name="T_CONST" citdl="integer" ilk="constant"/>
-      <variable name="T_RETURN" citdl="integer" ilk="constant"/>
-      <variable name="T_USE" citdl="integer" ilk="constant"/>
-      <variable name="T_GLOBAL" citdl="integer" ilk="constant"/>
-      <variable name="T_STATIC" citdl="integer" ilk="constant"/>
-      <variable name="T_VAR" citdl="integer" ilk="constant"/>
-      <variable name="T_UNSET" citdl="integer" ilk="constant"/>
-      <variable name="T_ISSET" citdl="integer" ilk="constant"/>
-      <variable name="T_EMPTY" citdl="integer" ilk="constant"/>
-      <variable name="T_CLASS" citdl="integer" ilk="constant"/>
-      <variable name="T_EXTENDS" citdl="integer" ilk="constant"/>
-      <variable name="T_INTERFACE" citdl="integer" ilk="constant"/>
-      <variable name="T_IMPLEMENTS" citdl="integer" ilk="constant"/>
-      <variable name="T_OBJECT_OPERATOR" citdl="integer" ilk="constant"/>
-      <variable name="T_DOUBLE_ARROW" citdl="integer" ilk="constant"/>
-      <variable name="T_LIST" citdl="integer" ilk="constant"/>
-      <variable name="T_ARRAY" citdl="integer" ilk="constant"/>
-      <variable name="T_CLASS_C" citdl="integer" ilk="constant"/>
-      <variable name="T_FUNC_C" citdl="integer" ilk="constant"/>
-      <variable name="T_METHOD_C" citdl="integer" ilk="constant"/>
-      <variable name="T_LINE" citdl="integer" ilk="constant"/>
-      <variable name="T_FILE" citdl="integer" ilk="constant"/>
-      <variable name="T_COMMENT" citdl="integer" ilk="constant"/>
-      <variable name="T_DOC_COMMENT" citdl="integer" ilk="constant"/>
-      <variable name="T_OPEN_TAG" citdl="integer" ilk="constant"/>
-      <variable name="T_OPEN_TAG_WITH_ECHO" citdl="integer" ilk="constant"/>
-      <variable name="T_CLOSE_TAG" citdl="integer" ilk="constant"/>
-      <variable name="T_WHITESPACE" citdl="integer" ilk="constant"/>
-      <variable name="T_START_HEREDOC" citdl="integer" ilk="constant"/>
-      <variable name="T_END_HEREDOC" citdl="integer" ilk="constant"/>
-      <variable name="T_DOLLAR_OPEN_CURLY_BRACES" citdl="integer" ilk="constant"/>
-      <variable name="T_CURLY_OPEN" citdl="integer" ilk="constant"/>
-      <variable name="T_PAAMAYIM_NEKUDOTAYIM" citdl="integer" ilk="constant"/>
-      <variable name="T_DOUBLE_COLON" citdl="integer" ilk="constant"/>
-      <variable name="T_ABSTRACT" citdl="integer" ilk="constant"/>
-      <variable name="T_CATCH" citdl="integer" ilk="constant"/>
-      <variable name="T_FINAL" citdl="integer" ilk="constant"/>
-      <variable name="T_INSTANCEOF" citdl="integer" ilk="constant"/>
-      <variable name="T_PRIVATE" citdl="integer" ilk="constant"/>
-      <variable name="T_PROTECTED" citdl="integer" ilk="constant"/>
-      <variable name="T_PUBLIC" citdl="integer" ilk="constant"/>
-      <variable name="T_THROW" citdl="integer" ilk="constant"/>
-      <variable name="T_TRY" citdl="integer" ilk="constant"/>
-      <variable name="T_CLONE" citdl="integer" ilk="constant"/>
-      <variable name="CONNECTION_ABORTED" citdl="integer" ilk="constant"/>
-      <variable name="CONNECTION_NORMAL" citdl="integer" ilk="constant"/>
-      <variable name="CONNECTION_TIMEOUT" citdl="integer" ilk="constant"/>
-      <variable name="INI_USER" citdl="integer" ilk="constant"/>
-      <variable name="INI_PERDIR" citdl="integer" ilk="constant"/>
-      <variable name="INI_SYSTEM" citdl="integer" ilk="constant"/>
-      <variable name="INI_ALL" citdl="integer" ilk="constant"/>
-      <variable name="SUNFUNCS_RET_TIMESTAMP" citdl="integer" ilk="constant"/>
-      <variable name="SUNFUNCS_RET_STRING" citdl="integer" ilk="constant"/>
-      <variable name="SUNFUNCS_RET_DOUBLE" citdl="integer" ilk="constant"/>
-      <variable name="M_E" citdl="double" ilk="constant"/>
-      <variable name="M_LOG2E" citdl="double" ilk="constant"/>
-      <variable name="M_LOG10E" citdl="double" ilk="constant"/>
-      <variable name="M_LN2" citdl="double" ilk="constant"/>
-      <variable name="M_LN10" citdl="double" ilk="constant"/>
-      <variable name="M_PI" citdl="double" ilk="constant"/>
-      <variable name="M_PI_2" citdl="double" ilk="constant"/>
-      <variable name="M_PI_4" citdl="double" ilk="constant"/>
-      <variable name="M_1_PI" citdl="double" ilk="constant"/>
-      <variable name="M_2_PI" citdl="double" ilk="constant"/>
-      <variable name="M_2_SQRTPI" citdl="double" ilk="constant"/>
-      <variable name="M_SQRT2" citdl="double" ilk="constant"/>
-      <variable name="M_SQRT1_2" citdl="double" ilk="constant"/>
-      <variable name="INF" citdl="double" ilk="constant"/>
-      <variable name="NAN" citdl="double" ilk="constant"/>
-      <variable name="INFO_GENERAL" citdl="integer" ilk="constant"/>
-      <variable name="INFO_CREDITS" citdl="integer" ilk="constant"/>
-      <variable name="INFO_CONFIGURATION" citdl="integer" ilk="constant"/>
-      <variable name="INFO_MODULES" citdl="integer" ilk="constant"/>
-      <variable name="INFO_ENVIRONMENT" citdl="integer" ilk="constant"/>
-      <variable name="INFO_VARIABLES" citdl="integer" ilk="constant"/>
-      <variable name="INFO_LICENSE" citdl="integer" ilk="constant"/>
-      <variable name="INFO_ALL" citdl="integer" ilk="constant"/>
-      <variable name="CREDITS_GROUP" citdl="integer" ilk="constant"/>
-      <variable name="CREDITS_GENERAL" citdl="integer" ilk="constant"/>
-      <variable name="CREDITS_SAPI" citdl="integer" ilk="constant"/>
-      <variable name="CREDITS_MODULES" citdl="integer" ilk="constant"/>
-      <variable name="CREDITS_DOCS" citdl="integer" ilk="constant"/>
-      <variable name="CREDITS_FULLPAGE" citdl="integer" ilk="constant"/>
-      <variable name="CREDITS_QA" citdl="integer" ilk="constant"/>
-      <variable name="CREDITS_ALL" citdl="integer" ilk="constant"/>
-      <variable name="HTML_SPECIALCHARS" citdl="integer" ilk="constant"/>
-      <variable name="HTML_ENTITIES" citdl="integer" ilk="constant"/>
-      <variable name="ENT_COMPAT" citdl="integer" ilk="constant"/>
-      <variable name="ENT_QUOTES" citdl="integer" ilk="constant"/>
-      <variable name="ENT_NOQUOTES" citdl="integer" ilk="constant"/>
-      <variable name="STR_PAD_LEFT" citdl="integer" ilk="constant"/>
-      <variable name="STR_PAD_RIGHT" citdl="integer" ilk="constant"/>
-      <variable name="STR_PAD_BOTH" citdl="integer" ilk="constant"/>
-      <variable name="PATHINFO_DIRNAME" citdl="integer" ilk="constant"/>
-      <variable name="PATHINFO_BASENAME" citdl="integer" ilk="constant"/>
-      <variable name="PATHINFO_EXTENSION" citdl="integer" ilk="constant"/>
-      <variable name="CHAR_MAX" citdl="integer" ilk="constant"/>
-      <variable name="LC_CTYPE" citdl="integer" ilk="constant"/>
-      <variable name="LC_NUMERIC" citdl="integer" ilk="constant"/>
-      <variable name="LC_TIME" citdl="integer" ilk="constant"/>
-      <variable name="LC_COLLATE" citdl="integer" ilk="constant"/>
-      <variable name="LC_MONETARY" citdl="integer" ilk="constant"/>
-      <variable name="LC_ALL" citdl="integer" ilk="constant"/>
-      <variable name="LC_MESSAGES" citdl="integer" ilk="constant"/>
-      <variable name="SEEK_SET" citdl="integer" ilk="constant"/>
-      <variable name="SEEK_CUR" citdl="integer" ilk="constant"/>
-      <variable name="SEEK_END" citdl="integer" ilk="constant"/>
-      <variable name="LOCK_SH" citdl="integer" ilk="constant"/>
-      <variable name="LOCK_EX" citdl="integer" ilk="constant"/>
-      <variable name="LOCK_UN" citdl="integer" ilk="constant"/>
-      <variable name="LOCK_NB" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_CONNECT" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_AUTH_REQUIRED" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_AUTH_RESULT" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_MIME_TYPE_IS" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_FILE_SIZE_IS" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_REDIRECTED" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_PROGRESS" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_FAILURE" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_COMPLETED" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_RESOLVE" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_SEVERITY_INFO" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_SEVERITY_WARN" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_NOTIFY_SEVERITY_ERR" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_FILTER_READ" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_FILTER_WRITE" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_FILTER_ALL" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_CLIENT_PERSISTENT" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_CLIENT_ASYNC_CONNECT" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_CLIENT_CONNECT" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_PEEK" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_OOB" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_SERVER_BIND" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_SERVER_LISTEN" citdl="integer" ilk="constant"/>
-      <variable name="FILE_USE_INCLUDE_PATH" citdl="integer" ilk="constant"/>
-      <variable name="FILE_IGNORE_NEW_LINES" citdl="integer" ilk="constant"/>
-      <variable name="FILE_SKIP_EMPTY_LINES" citdl="integer" ilk="constant"/>
-      <variable name="FILE_APPEND" citdl="integer" ilk="constant"/>
-      <variable name="FILE_NO_DEFAULT_CONTEXT" citdl="integer" ilk="constant"/>
-      <variable name="FNM_NOESCAPE" citdl="integer" ilk="constant"/>
-      <variable name="FNM_PATHNAME" citdl="integer" ilk="constant"/>
-      <variable name="FNM_PERIOD" citdl="integer" ilk="constant"/>
-      <variable name="FNM_CASEFOLD" citdl="integer" ilk="constant"/>
-      <variable name="PSFS_PASS_ON" citdl="integer" ilk="constant"/>
-      <variable name="PSFS_FEED_ME" citdl="integer" ilk="constant"/>
-      <variable name="PSFS_ERR_FATAL" citdl="integer" ilk="constant"/>
-      <variable name="PSFS_FLAG_NORMAL" citdl="integer" ilk="constant"/>
-      <variable name="PSFS_FLAG_FLUSH_INC" citdl="integer" ilk="constant"/>
-      <variable name="PSFS_FLAG_FLUSH_CLOSE" citdl="integer" ilk="constant"/>
-      <variable name="ABDAY_1" citdl="integer" ilk="constant"/>
-      <variable name="ABDAY_2" citdl="integer" ilk="constant"/>
-      <variable name="ABDAY_3" citdl="integer" ilk="constant"/>
-      <variable name="ABDAY_4" citdl="integer" ilk="constant"/>
-      <variable name="ABDAY_5" citdl="integer" ilk="constant"/>
-      <variable name="ABDAY_6" citdl="integer" ilk="constant"/>
-      <variable name="ABDAY_7" citdl="integer" ilk="constant"/>
-      <variable name="DAY_1" citdl="integer" ilk="constant"/>
-      <variable name="DAY_2" citdl="integer" ilk="constant"/>
-      <variable name="DAY_3" citdl="integer" ilk="constant"/>
-      <variable name="DAY_4" citdl="integer" ilk="constant"/>
-      <variable name="DAY_5" citdl="integer" ilk="constant"/>
-      <variable name="DAY_6" citdl="integer" ilk="constant"/>
-      <variable name="DAY_7" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_1" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_2" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_3" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_4" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_5" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_6" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_7" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_8" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_9" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_10" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_11" citdl="integer" ilk="constant"/>
-      <variable name="ABMON_12" citdl="integer" ilk="constant"/>
-      <variable name="MON_1" citdl="integer" ilk="constant"/>
-      <variable name="MON_2" citdl="integer" ilk="constant"/>
-      <variable name="MON_3" citdl="integer" ilk="constant"/>
-      <variable name="MON_4" citdl="integer" ilk="constant"/>
-      <variable name="MON_5" citdl="integer" ilk="constant"/>
-      <variable name="MON_6" citdl="integer" ilk="constant"/>
-      <variable name="MON_7" citdl="integer" ilk="constant"/>
-      <variable name="MON_8" citdl="integer" ilk="constant"/>
-      <variable name="MON_9" citdl="integer" ilk="constant"/>
-      <variable name="MON_10" citdl="integer" ilk="constant"/>
-      <variable name="MON_11" citdl="integer" ilk="constant"/>
-      <variable name="MON_12" citdl="integer" ilk="constant"/>
-      <variable name="AM_STR" citdl="integer" ilk="constant"/>
-      <variable name="PM_STR" citdl="integer" ilk="constant"/>
-      <variable name="D_T_FMT" citdl="integer" ilk="constant"/>
-      <variable name="D_FMT" citdl="integer" ilk="constant"/>
-      <variable name="T_FMT" citdl="integer" ilk="constant"/>
-      <variable name="T_FMT_AMPM" citdl="integer" ilk="constant"/>
-      <variable name="ERA" citdl="integer" ilk="constant"/>
-      <variable name="ERA_D_T_FMT" citdl="integer" ilk="constant"/>
-      <variable name="ERA_D_FMT" citdl="integer" ilk="constant"/>
-      <variable name="ERA_T_FMT" citdl="integer" ilk="constant"/>
-      <variable name="ALT_DIGITS" citdl="integer" ilk="constant"/>
-      <variable name="CRNCYSTR" citdl="integer" ilk="constant"/>
-      <variable name="RADIXCHAR" citdl="integer" ilk="constant"/>
-      <variable name="THOUSEP" citdl="integer" ilk="constant"/>
-      <variable name="YESEXPR" citdl="integer" ilk="constant"/>
-      <variable name="NOEXPR" citdl="integer" ilk="constant"/>
-      <variable name="YESSTR" citdl="integer" ilk="constant"/>
-      <variable name="NOSTR" citdl="integer" ilk="constant"/>
-      <variable name="CODESET" citdl="integer" ilk="constant"/>
-      <variable name="CRYPT_SALT_LENGTH" citdl="integer" ilk="constant"/>
-      <variable name="CRYPT_STD_DES" citdl="integer" ilk="constant"/>
-      <variable name="CRYPT_EXT_DES" citdl="integer" ilk="constant"/>
-      <variable name="CRYPT_MD5" citdl="integer" ilk="constant"/>
-      <variable name="CRYPT_BLOWFISH" citdl="integer" ilk="constant"/>
-      <variable name="DIRECTORY_SEPARATOR" citdl="string" ilk="constant"/>
-      <variable name="PATH_SEPARATOR" citdl="string" ilk="constant"/>
-      <variable name="GLOB_BRACE" citdl="integer" ilk="constant"/>
-      <variable name="GLOB_MARK" citdl="integer" ilk="constant"/>
-      <variable name="GLOB_NOSORT" citdl="integer" ilk="constant"/>
-      <variable name="GLOB_NOCHECK" citdl="integer" ilk="constant"/>
-      <variable name="GLOB_NOESCAPE" citdl="integer" ilk="constant"/>
-      <variable name="GLOB_ONLYDIR" citdl="integer" ilk="constant"/>
-      <variable name="LOG_EMERG" citdl="integer" ilk="constant"/>
-      <variable name="LOG_ALERT" citdl="integer" ilk="constant"/>
-      <variable name="LOG_CRIT" citdl="integer" ilk="constant"/>
-      <variable name="LOG_ERR" citdl="integer" ilk="constant"/>
-      <variable name="LOG_WARNING" citdl="integer" ilk="constant"/>
-      <variable name="LOG_NOTICE" citdl="integer" ilk="constant"/>
-      <variable name="LOG_INFO" citdl="integer" ilk="constant"/>
-      <variable name="LOG_DEBUG" citdl="integer" ilk="constant"/>
-      <variable name="LOG_KERN" citdl="integer" ilk="constant"/>
-      <variable name="LOG_USER" citdl="integer" ilk="constant"/>
-      <variable name="LOG_MAIL" citdl="integer" ilk="constant"/>
-      <variable name="LOG_DAEMON" citdl="integer" ilk="constant"/>
-      <variable name="LOG_AUTH" citdl="integer" ilk="constant"/>
-      <variable name="LOG_SYSLOG" citdl="integer" ilk="constant"/>
-      <variable name="LOG_LPR" citdl="integer" ilk="constant"/>
-      <variable name="LOG_NEWS" citdl="integer" ilk="constant"/>
-      <variable name="LOG_UUCP" citdl="integer" ilk="constant"/>
-      <variable name="LOG_CRON" citdl="integer" ilk="constant"/>
-      <variable name="LOG_AUTHPRIV" citdl="integer" ilk="constant"/>
-      <variable name="LOG_LOCAL0" citdl="integer" ilk="constant"/>
-      <variable name="LOG_LOCAL1" citdl="integer" ilk="constant"/>
-      <variable name="LOG_LOCAL2" citdl="integer" ilk="constant"/>
-      <variable name="LOG_LOCAL3" citdl="integer" ilk="constant"/>
-      <variable name="LOG_LOCAL4" citdl="integer" ilk="constant"/>
-      <variable name="LOG_LOCAL5" citdl="integer" ilk="constant"/>
-      <variable name="LOG_LOCAL6" citdl="integer" ilk="constant"/>
-      <variable name="LOG_LOCAL7" citdl="integer" ilk="constant"/>
-      <variable name="LOG_PID" citdl="integer" ilk="constant"/>
-      <variable name="LOG_CONS" citdl="integer" ilk="constant"/>
-      <variable name="LOG_ODELAY" citdl="integer" ilk="constant"/>
-      <variable name="LOG_NDELAY" citdl="integer" ilk="constant"/>
-      <variable name="LOG_NOWAIT" citdl="integer" ilk="constant"/>
-      <variable name="LOG_PERROR" citdl="integer" ilk="constant"/>
-      <variable name="EXTR_OVERWRITE" citdl="integer" ilk="constant"/>
-      <variable name="EXTR_SKIP" citdl="integer" ilk="constant"/>
-      <variable name="EXTR_PREFIX_SAME" citdl="integer" ilk="constant"/>
-      <variable name="EXTR_PREFIX_ALL" citdl="integer" ilk="constant"/>
-      <variable name="EXTR_PREFIX_INVALID" citdl="integer" ilk="constant"/>
-      <variable name="EXTR_PREFIX_IF_EXISTS" citdl="integer" ilk="constant"/>
-      <variable name="EXTR_IF_EXISTS" citdl="integer" ilk="constant"/>
-      <variable name="EXTR_REFS" citdl="integer" ilk="constant"/>
-      <variable name="SORT_ASC" citdl="integer" ilk="constant"/>
-      <variable name="SORT_DESC" citdl="integer" ilk="constant"/>
-      <variable name="SORT_REGULAR" citdl="integer" ilk="constant"/>
-      <variable name="SORT_NUMERIC" citdl="integer" ilk="constant"/>
-      <variable name="SORT_STRING" citdl="integer" ilk="constant"/>
-      <variable name="SORT_LOCALE_STRING" citdl="integer" ilk="constant"/>
-      <variable name="CASE_LOWER" citdl="integer" ilk="constant"/>
-      <variable name="CASE_UPPER" citdl="integer" ilk="constant"/>
-      <variable name="COUNT_NORMAL" citdl="integer" ilk="constant"/>
-      <variable name="COUNT_RECURSIVE" citdl="integer" ilk="constant"/>
-      <variable name="ASSERT_ACTIVE" citdl="integer" ilk="constant"/>
-      <variable name="ASSERT_CALLBACK" citdl="integer" ilk="constant"/>
-      <variable name="ASSERT_BAIL" citdl="integer" ilk="constant"/>
-      <variable name="ASSERT_WARNING" citdl="integer" ilk="constant"/>
-      <variable name="ASSERT_QUIET_EVAL" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_USE_PATH" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_IGNORE_URL" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_ENFORCE_SAFE_MODE" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_REPORT_ERRORS" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_MUST_SEEK" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_URL_STAT_LINK" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_URL_STAT_QUIET" citdl="integer" ilk="constant"/>
-      <variable name="STREAM_MKDIR_RECURSIVE" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_GIF" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_JPEG" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_PNG" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_SWF" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_PSD" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_BMP" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_TIFF_II" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_TIFF_MM" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_JPC" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_JP2" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_JPX" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_JB2" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_IFF" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_WBMP" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_JPEG2000" citdl="integer" ilk="constant"/>
-      <variable name="IMAGETYPE_XBM" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_BOTH" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_NUM" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_ASSOC" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_OK" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_ERROR" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_INTERNAL" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_PERM" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_ABORT" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_BUSY" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_LOCKED" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_NOMEM" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_READONLY" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_INTERRUPT" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_IOERR" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_CORRUPT" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_NOTFOUND" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_FULL" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_CANTOPEN" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_PROTOCOL" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_EMPTY" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_SCHEMA" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_TOOBIG" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_CONSTRAINT" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_MISMATCH" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_MISUSE" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_NOLFS" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_AUTH" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_NOTADB" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_FORMAT" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_ROW" citdl="integer" ilk="constant"/>
-      <variable name="SQLITE_DONE" citdl="integer" ilk="constant"/>
-      <variable name="RIT_LEAVES_ONLY" citdl="integer" ilk="constant"/>
-      <variable name="RIT_SELF_FIRST" citdl="integer" ilk="constant"/>
-      <variable name="RIT_CHILD_FIRST" citdl="integer" ilk="constant"/>
-      <variable name="CIT_CALL_TOSTRING" citdl="integer" ilk="constant"/>
-      <variable name="CIT_CATCH_GET_CHILD" citdl="integer" ilk="constant"/>
-      <variable name="PREG_PATTERN_ORDER" citdl="integer" ilk="constant"/>
-      <variable name="PREG_SET_ORDER" citdl="integer" ilk="constant"/>
-      <variable name="PREG_OFFSET_CAPTURE" citdl="integer" ilk="constant"/>
-      <variable name="PREG_SPLIT_NO_EMPTY" citdl="integer" ilk="constant"/>
-      <variable name="PREG_SPLIT_DELIM_CAPTURE" citdl="integer" ilk="constant"/>
-      <variable name="PREG_SPLIT_OFFSET_CAPTURE" citdl="integer" ilk="constant"/>
-      <variable name="PREG_GREP_INVERT" citdl="integer" ilk="constant"/>
-      <variable name="ICONV_IMPL" citdl="string" ilk="constant"/>
-      <variable name="ICONV_VERSION" citdl="string" ilk="constant"/>
-      <variable name="ICONV_MIME_DECODE_STRICT" citdl="integer" ilk="constant"/>
-      <variable name="ICONV_MIME_DECODE_CONTINUE_ON_ERROR" citdl="integer" ilk="constant"/>
-      <variable name="XML_ELEMENT_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_ATTRIBUTE_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_TEXT_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_CDATA_SECTION_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_ENTITY_REF_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_ENTITY_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_PI_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_COMMENT_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_DOCUMENT_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_DOCUMENT_TYPE_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_DOCUMENT_FRAG_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_NOTATION_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_HTML_DOCUMENT_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_DTD_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_ELEMENT_DECL_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_ATTRIBUTE_DECL_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_ENTITY_DECL_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_NAMESPACE_DECL_NODE" citdl="integer" ilk="constant"/>
-      <variable name="XML_LOCAL_NAMESPACE" citdl="integer" ilk="constant"/>
-      <variable name="XML_ATTRIBUTE_CDATA" citdl="integer" ilk="constant"/>
-      <variable name="XML_ATTRIBUTE_ID" citdl="integer" ilk="constant"/>
-      <variable name="XML_ATTRIBUTE_IDREF" citdl="integer" ilk="constant"/>
-      <variable name="XML_ATTRIBUTE_IDREFS" citdl="integer" ilk="constant"/>
-      <variable name="XML_ATTRIBUTE_ENTITY" citdl="integer" ilk="constant"/>
-      <variable name="XML_ATTRIBUTE_NMTOKEN" citdl="integer" ilk="constant"/>
-      <variable name="XML_ATTRIBUTE_NMTOKENS" citdl="integer" ilk="constant"/>
-      <variable name="XML_ATTRIBUTE_ENUMERATION" citdl="integer" ilk="constant"/>
-      <variable name="XML_ATTRIBUTE_NOTATION" citdl="integer" ilk="constant"/>
-      <variable name="DOM_PHP_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_INDEX_SIZE_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOMSTRING_SIZE_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_HIERARCHY_REQUEST_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_WRONG_DOCUMENT_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_INVALID_CHARACTER_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_NO_DATA_ALLOWED_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_NO_MODIFICATION_ALLOWED_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_NOT_FOUND_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_NOT_SUPPORTED_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_INUSE_ATTRIBUTE_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_INVALID_STATE_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_SYNTAX_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_INVALID_MODIFICATION_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_NAMESPACE_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_INVALID_ACCESS_ERR" citdl="integer" ilk="constant"/>
-      <variable name="DOM_VALIDATION_ERR" citdl="integer" ilk="constant"/>
-      <variable name="STDIN" citdl="resource" ilk="constant"/>
-      <variable name="STDOUT" citdl="resource" ilk="constant"/>
-      <variable name="STDERR" citdl="resource" ilk="constant"/>
       <variable name="E_ERROR" citdl="integer" ilk="constant"/>
       <variable name="E_WARNING" citdl="integer" ilk="constant"/>
       <variable name="E_PARSE" citdl="integer" ilk="constant"/>
