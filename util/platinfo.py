@@ -776,7 +776,7 @@ def _get_linux_lib_info():
         libc-5      original ELF libc
         libc-6      GNU libc
     
-    But what are libc.so.7 and libc.so.8 that is see in Google searches (but
+    But what are libc.so.7 and libc.so.8 that I see in Google searches (but
     not yet in any Linux installs I have access to)?
     """
     assert sys.platform.startswith("linux")
@@ -830,7 +830,7 @@ int main(int argc, char **argv) { exit(0); }
         finally:
             retval = o.close()
         if retval:
-            raise InternalError("error determining running '%s'" % libc_so)
+            raise InternalError("error running '%s'" % libc_so)
         # e.g.:
         #   GNU C Library stable release version 2.3.3 (20040917), by R...
         #   GNU C Library stable release version 2.5, by Roland McGrath et al.
