@@ -195,7 +195,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             ac.dump()
 
         try:
-            if last_style == self.whitespace_style:
+            # Note: If a "$" exists by itself, it's styled as whitespace.
+            #       Generally we want it to be indicating a variable instead.
+            if last_style == self.whitespace_style and last_char != "$":
                 if DEBUG:
                     print "Whitespace style"
                 WHITESPACE = tuple(" \t\n\r\v\f")
@@ -284,7 +286,8 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     if prev_style in (self.identifier_style, self.keyword_style):
                         return Trigger(lang, TRG_FORM_CALLTIP, "call-signature",
                                        pos, implicit)
-            elif last_style == self.variable_style:
+            elif last_style == self.variable_style or \
+                 (not implicit and last_char == "$"):
                 if DEBUG:
                     print "Variable style"
                 # Completion for variables (builtins and user defined variables),

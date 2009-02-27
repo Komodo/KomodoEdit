@@ -563,6 +563,13 @@ class TriggerTestCase(CodeIntelTestCase):
         # http://bugs.activestate.com/show_bug.cgi?id=78099
         self.assertNoTrigger(php_markup("Class::$s<|>"))
 
+    @tag("bug82165")
+    def test_variable_trigger_with_class_operator(self):
+        # Should trigger explicit variable completions after "$"
+        # http://bugs.activestate.com/show_bug.cgi?id=82165
+        self.assertTriggerMatches(php_markup("$<|>"), implicit=False,
+                                  name="php-complete-variables", pos=7)
+
 
 class CplnTestCase(CodeIntelTestCase):
     lang = "PHP"

@@ -333,9 +333,12 @@ class PHPTreeEvaluator(TreeEvaluator):
                             "variable",
                             scope_chain,
                             self.variable_names_from_elem)
-        # XXX - TODO: Use VARIABLE_TRIGGER_LEN instead of hard coding 1
-        expr = expr[:1]
-        return [ (ilk, name) for ilk, name in vars if name.startswith(expr) ]
+        if expr:
+            # XXX - TODO: Use VARIABLE_TRIGGER_LEN instead of hard coding 1
+            expr = expr[:1]
+            return [ (ilk, name) for ilk, name in vars if name.startswith(expr) ]
+        else:
+            return [ (ilk, name) for ilk, name in vars ]
 
     def _comment_variables_from_scope(self, expr, scoperef):
         """Return all available local variable names beginning with expr"""
