@@ -271,6 +271,10 @@ interface koICodeIntelService: nsISupports {
     void upgradeDB();
     void resetDB();
 
+    // Is the codeintel system enabled for this Komodo run?
+    readonly attribute boolean enabled;
+    // Has the codeintel backend being started yet? This can be delayed if,
+    // e.g. upgrading of the codeintel db is being done.
     readonly attribute boolean isBackEndActive;
     // An error is set on koILastErrorService if backend activation fails.
     void activateBackEnd();

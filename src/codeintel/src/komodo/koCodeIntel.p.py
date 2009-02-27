@@ -1066,11 +1066,17 @@ class KoCodeIntelService:
     _reg_clsid_ = "{CF1F65B6-25EC-4FB3-A2CB-241CB436E377}"
     _reg_contractid_ = "@activestate.com/koCodeIntelService;1"
     _reg_desc_ = "Komodo Code Intelligence Service"
+    
+    enabled = False
+    isBackEndActive = False
+    mgr = None
 
     def __init__(self):
-        self.isBackEndActive = False
-        self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
-                   getService(components.interfaces.koIDirs)
+        prefSvc = components.classes["@activestate.com/koPrefService;1"]\
+            .getService(components.interfaces.koIPrefService)
+        self.enabled = prefSvc.prefs.getBooleanPref("codeintel_enabled")
+        if not self.enabled:
+            return
 
         # Find extensions that may have codeintel lang-support modules.
         extension_pylib_dirs = []
@@ -1079,6 +1085,8 @@ class KoCodeIntelService:
             if exists(ext_codeintel_dir):
                 extension_pylib_dirs.append(ext_codeintel_dir)
 
+        self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
+                   getService(components.interfaces.koIDirs)
         self.mgr = KoCodeIntelManager(
             os.path.join(self._koDirSvc.hostUserDataDir, "codeintel"),
             extension_pylib_dirs=extension_pylib_dirs,
@@ -1176,6 +1184,8 @@ class KoCodeIntelService:
         return cipath
 
     def scan_document(self, document, linesAdded, useFileMtime):
+        if not self.enabled:
+            return
         lang = document.language
         #TODO: is this still necessary? (Was: XXX FIXME post beta 1)
         #if self.mgr.is_xml_lang(lang):
@@ -1212,6 +1222,8 @@ class KoCodeIntelService:
 
         Returns None, if this document is not part of a project.
         """
+        if not self.enabled:
+            return None
         if doc.file and doc.file.URI:
             proj = self.partSvc.getProjectForURL(doc.file.URI)
             if proj:
@@ -1223,6 +1235,8 @@ class KoCodeIntelService:
         return None
 
     def buf_from_koIDocument(self, doc, prefset=None):
+        if not self.enabled:
+            return
         path = doc.displayPath
         if path.startswith("macro://"):
             # Ensure macros get completion for the relevant Komodo APIs.

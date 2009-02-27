@@ -614,11 +614,13 @@ StatusBarPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
             + prefName + "' change (prefSet="
             + prefSet + ", prefSetID="
             + prefSetID)
-    if (prefName == "editUseLinting") {
+    switch (prefName) {
+    case 'editUseLinting':
         var view = ko.views.manager.currentView;
         if (view) {
             _updateCheck(view);
         }
+        break;
     }
 };
 

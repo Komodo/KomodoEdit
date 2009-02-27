@@ -59,56 +59,6 @@ var gCodeIntelCtrl = null;
 var _gCodeIntel_log = ko.logging.getLogger("codeintel_js");
 //_gCodeIntel_log.setLevel(ko.logging.LOG_DEBUG);
 
-var _gCodeIntel_prefObserver = null;
-
-
-//---- internal observers
-
-function _CodeIntelPrefObserver()
-{
-    try {
-        this.prefSvc = Components.classes["@activestate.com/koPrefService;1"].
-                       getService(Components.interfaces.koIPrefService);
-        this.prefSvc.prefs.prefObserverService.addObserver(this, "codeintel_enabled", 0);
-    } catch(ex) {
-        _gCodeIntel_log.exception(ex);
-    }
-};
-_CodeIntelPrefObserver.prototype.constructor = _CodeIntelPrefObserver;
-
-_CodeIntelPrefObserver.prototype.finalize = function()
-{
-    try {
-        this.prefSvc.prefs.prefObserverService.removeObserver(this, "codeintel_enabled");
-        this.prefSvc = null;
-    } catch(ex) {
-        _gCodeIntel_log.exception(ex);
-    }
-}
-
-_CodeIntelPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
-{
-    _gCodeIntel_log.debug("observe pref '"+prefName+"': prefSet='"+prefSet+
-                          "', prefSetID='"+prefSetID);
-    try {
-        switch (prefName) {
-        case "codeintel_enabled":
-            var enabled = prefSet.getBooleanPref("codeintel_enabled");
-            if (enabled) {
-                _CodeIntel_ActivateWindow();
-            } else {
-                _CodeIntel_DeactivateWindow();
-            }
-            break;
-        default:
-            _gCodeIntel_log.error("unexpected pref name is "+
-                                  "_CodeIntelPrefObserver: '"+prefName+"'\n");
-        }
-    } catch(ex) {
-        _gCodeIntel_log.exception(ex);
-    }
-};
-
 
 
 //---- the UI manager for completions (autocomplete/calltip) in a view
@@ -584,9 +534,6 @@ function CodeIntel_InitializeWindow()
 {
     _gCodeIntel_log.debug("CodeIntel_InitializeWindow()");
     try {
-        // Setup the pref observer to watch for Code Intel system enabling.
-        _gCodeIntel_prefObserver = new _CodeIntelPrefObserver();
-
         if (gPrefs.getBooleanPref("codeintel_enabled")) {
             _CodeIntel_ActivateWindow();
         } else {
@@ -604,7 +551,6 @@ function CodeIntel_FinalizeWindow()
     _gCodeIntel_log.debug("CodeIntel_FinalizeWindow()");
     try {
         _CodeIntel_DeactivateWindow();
-        _gCodeIntel_prefObserver.finalize();
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }
