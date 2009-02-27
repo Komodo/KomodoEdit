@@ -79,7 +79,7 @@ class KoLoggingService(object):
 
     def __init__(self):
         hdlr = logging.StreamHandler()
-        fmt = logging.Formatter("%(levelname)s: %(name)s: %(message)s")
+        fmt = logging.Formatter("[%(asctime)s] [%(levelname)s] %(name)s: %(message)s")
         hdlr.setFormatter(fmt)
         logging.root.addHandler(hdlr)
         
