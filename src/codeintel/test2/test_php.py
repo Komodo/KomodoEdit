@@ -564,7 +564,7 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertNoTrigger(php_markup("Class::$s<|>"))
 
     @tag("bug82165")
-    def test_variable_trigger_with_class_operator(self):
+    def test_explicit_variable_completion(self):
         # Should trigger explicit variable completions after "$"
         # http://bugs.activestate.com/show_bug.cgi?id=82165
         self.assertTriggerMatches(php_markup("$<|>"), implicit=False,
