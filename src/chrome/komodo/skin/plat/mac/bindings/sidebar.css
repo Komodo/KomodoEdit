@@ -1,4 +1,15 @@
 
+scintilla {
+  /* Bug 80756: These borders are necessary on Mac OS X so that the "mouseenter"
+   * event makes it to the sidebar/bottom-pane splitters when moving the mouse
+   * from the scintilla plugin to the splitter. Without this the cursor isn't
+   * changed to that for the splitter making it very difficult to grab it.
+   */
+  border-left: 1px solid rgba(0,0,0,0.10);
+  border-right: 1px solid rgba(0,0,0,0.10);
+  border-bottom: 1px solid rgba(0,0,0,0.10);
+}
+
 
 tabs[type="sidebar"]
 {
