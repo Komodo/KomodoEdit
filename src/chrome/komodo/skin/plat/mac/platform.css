@@ -13,11 +13,17 @@ splitter[orient="vertical"].workspace_splitter {
   z-index: 100;
 }
 splitter[orient="horizontal"].workspace_splitter {
-  min-width: 1px;
-  width: 1px;
+  min-width: 3px;
+  width: 3px;
+  background-color: rgba(0,0,0,0.10); /* same as '.whiteout > tabs' for bottom pane tabs */
   background-image: none !important;
   border: none;
+}
+splitter[orient="horizontal"].workspace_splitter_left {
   border-right: 1px solid #404040;
+}
+splitter[orient="horizontal"].workspace_splitter_right {
+  border-left: 1px solid #404040;
 }
 
 /* "multiview_splitter": A splitter used for splitting tab groups in the main

@@ -2081,7 +2081,7 @@
                 </tabbox>
             </vbox>
             <splitter id="workspace_left_splitter"
-                      class="workspace_splitter"
+                      class="workspace_splitter workspace_splitter_left"
                       orient="horizontal"
                       collapse="none"
                       collapsed="true"
@@ -2100,7 +2100,7 @@
             </vbox>
             <splitter id="workspace_right_splitter"
                       orient="horizontal"
-                      class="workspace_splitter"
+                      class="workspace_splitter workspace_splitter_right"
                       collapse="none"
                       collapsed="true"
                       splitterCmdId="cmd_viewRightPane"
