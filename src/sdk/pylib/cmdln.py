@@ -35,15 +35,16 @@ See the README.txt or <http://trentm.com/projects/cmdln/> for more
 details.
 """
 
-__revision__ = "$Id$"
-__version_info__ = (1, 0, 1)
+__version_info__ = (1, 1, 3)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
+import sys
 import re
 import cmd
 import optparse
 from pprint import pprint
+import sys
 
 
 
@@ -271,8 +272,8 @@ class RawCmdln(cmd.Cmd):
 
         Returns the return value from the command handler.
         """
-        assert (isinstance(argv, (list, tuple)), 
-                "'argv' is not a sequence: %r" % argv)
+        assert isinstance(argv, (list, tuple)), \
+                "'argv' is not a sequence: %r" % argv
         retval = None
         try:
             argv = self.precmd(argv)
@@ -307,43 +308,59 @@ class RawCmdln(cmd.Cmd):
         """
         self.cmdlooping = True
         self.preloop()
-        if intro is None:
-            intro = self.intro
-        if intro:
-            intro_str = self._str(intro)
-            self.stdout.write(intro_str+'\n')
-        self.stop = False
-        retval = None
-        while not self.stop:
-            if self.cmdqueue:
-                argv = self.cmdqueue.pop(0)
-                assert (isinstance(argv, (list, tuple)), 
-                        "item on 'cmdqueue' is not a sequence: %r" % argv)
-            else:
-                if self.use_rawinput:
-                    try:
-                        line = raw_input(self._prompt_str)
-                    except EOFError:
-                        line = 'EOF'
-                else:
-                    self.stdout.write(self._prompt_str)
-                    self.stdout.flush()
-                    line = self.stdin.readline()
-                    if not len(line):
-                        line = 'EOF'
-                    else:
-                        line = line[:-1] # chop '\n'
-                argv = line2argv(line)
+        if self.use_rawinput and self.completekey:
             try:
-                argv = self.precmd(argv)
-                retval = self.onecmd(argv)
-                self.postcmd(argv)
-            except:
-                if not self.cmdexc(argv):
-                    raise
-                retval = 1
-            self.lastretval = retval
-        self.postloop()
+                import readline
+                self.old_completer = readline.get_completer()
+                readline.set_completer(self.complete)
+                readline.parse_and_bind(self.completekey+": complete")
+            except ImportError:
+                pass
+        try:
+            if intro is None:
+                intro = self.intro
+            if intro:
+                intro_str = self._str(intro)
+                self.stdout.write(intro_str+'\n')
+            self.stop = False
+            retval = None
+            while not self.stop:
+                if self.cmdqueue:
+                    argv = self.cmdqueue.pop(0)
+                    assert isinstance(argv, (list, tuple)), \
+                            "item on 'cmdqueue' is not a sequence: %r" % argv
+                else:
+                    if self.use_rawinput:
+                        try:
+                            line = raw_input(self._prompt_str)
+                        except EOFError:
+                            line = 'EOF'
+                    else:
+                        self.stdout.write(self._prompt_str)
+                        self.stdout.flush()
+                        line = self.stdin.readline()
+                        if not len(line):
+                            line = 'EOF'
+                        else:
+                            line = line[:-1] # chop '\n'
+                    argv = line2argv(line)
+                try:
+                    argv = self.precmd(argv)
+                    retval = self.onecmd(argv)
+                    self.postcmd(argv)
+                except:
+                    if not self.cmdexc(argv):
+                        raise
+                    retval = 1
+                self.lastretval = retval
+            self.postloop()
+        finally:
+            if self.use_rawinput and self.completekey:
+                try:
+                    import readline
+                    readline.set_completer(self.old_completer)
+                except ImportError:
+                    pass
         self.cmdlooping = False
         return retval
 
@@ -1220,14 +1237,7 @@ def line2argv(line):
     ['foo bar', 'spam']
     >>> line2argv("'foo 'bar spam")
     ['foo bar', 'spam']
-    >>> line2argv("'foo")
-    Traceback (most recent call last):
-        ...
-    ValueError: command line is not terminated: unfinished single-quoted segment
-    >>> line2argv('"foo')
-    Traceback (most recent call last):
-        ...
-    ValueError: command line is not terminated: unfinished double-quoted segment
+    
     >>> line2argv('some\tsimple\ttests')
     ['some', 'simple', 'tests']
     >>> line2argv('a "more complex" test')
@@ -1238,20 +1248,49 @@ def line2argv(line):
     ['a', 'more complex test of ', 'quotes']
     >>> line2argv('an "embedded \\"quote\\""')
     ['an', 'embedded "quote"']
+
+    # Komodo bug 48027
+    >>> line2argv('foo bar C:\\')
+    ['foo', 'bar', 'C:\\']
+
+    # Komodo change 127581
+    >>> line2argv(r'"\test\slash" "foo bar" "foo\"bar"')
+    ['\\test\\slash', 'foo bar', 'foo"bar']
+
+    # Komodo change 127629
+    >>> if sys.platform == "win32":
+    ...     line2argv(r'\foo\bar') == ['\\foo\\bar']
+    ...     line2argv(r'\\foo\\bar') == ['\\\\foo\\\\bar']
+    ...     line2argv('"foo') == ['foo']
+    ... else:
+    ...     line2argv(r'\foo\bar') == ['foobar']
+    ...     line2argv(r'\\foo\\bar') == ['\\foo\\bar']
+    ...     try:
+    ...         line2argv('"foo')
+    ...     except ValueError, ex:
+    ...         "not terminated" in str(ex)
+    True
+    True
+    True
     """
-    import string
     line = line.strip()
     argv = []
     state = "default"
     arg = None  # the current argument being parsed
     i = -1
+    WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
     while 1:
         i += 1
         if i >= len(line): break
         ch = line[i]
 
-        if ch == "\\": # escaped char always added to arg, regardless of state
+        if ch == "\\" and i+1 < len(line):
+            # escaped char always added to arg, regardless of state
             if arg is None: arg = ""
+            if (sys.platform == "win32"
+                or state in ("double-quoted", "single-quoted")
+               ) and line[i+1] not in tuple('"\''):
+                arg += ch
             i += 1
             arg += line[i]
             continue
@@ -1273,7 +1312,7 @@ def line2argv(line):
             elif ch == "'":
                 if arg is None: arg = ""
                 state = "single-quoted"
-            elif ch in string.whitespace:
+            elif ch in WHITESPACE:
                 if arg is not None:
                     argv.append(arg)
                 arg = None
@@ -1282,7 +1321,7 @@ def line2argv(line):
                 arg += ch
     if arg is not None:
         argv.append(arg)
-    if state != "default":
+    if not sys.platform == "win32" and state != "default":
         raise ValueError("command line is not terminated: unfinished %s "
                          "segment" % state)
     return argv
@@ -1445,4 +1484,103 @@ def _get_trailing_whitespace(marker, s):
             break
         i += 1
     return suffix
+
+
+
+#---- bash completion support
+# Note: This is still experimental. I expect to change this
+# significantly.
+#
+# To get Bash completion for a cmdln.Cmdln class, run the following
+# bash command:
+#   $ complete -C 'python -m cmdln /path/to/script.py CmdlnClass' cmdname
+# For example:
+#   $ complete -C 'python -m cmdln ~/bin/svn.py SVN' svn
+#
+#TODO: Simplify the above so don't have to given path to script (try to
+#      find it on PATH, if possible). Could also make class name
+#      optional if there is only one in the module (common case).
+
+if __name__ == "__main__" and len(sys.argv) == 6:
+    def _log(s):
+        return # no-op, comment out for debugging
+        from os.path import expanduser
+        fout = open(expanduser("~/tmp/bashcpln.log"), 'a')
+        fout.write(str(s) + '\n')
+        fout.close()
+
+    # Recipe: module_from_path (1.0.1+)
+    def _module_from_path(path):
+        import imp, os, sys
+        path = os.path.expanduser(path)
+        dir = os.path.dirname(path) or os.curdir
+        name = os.path.splitext(os.path.basename(path))[0]
+        sys.path.insert(0, dir)
+        try:
+            iinfo = imp.find_module(name, [dir])
+            return imp.load_module(name, *iinfo)
+        finally:
+            sys.path.remove(dir)
+
+    def _get_bash_cplns(script_path, class_name, cmd_name,
+                        token, preceding_token):
+        _log('--')
+        _log('get_cplns(%r, %r, %r, %r, %r)'
+             % (script_path, class_name, cmd_name, token, preceding_token))
+        comp_line = os.environ["COMP_LINE"]
+        comp_point = int(os.environ["COMP_POINT"])
+        _log("COMP_LINE: %r" % comp_line)
+        _log("COMP_POINT: %r" % comp_point)
+
+        try:
+            script = _module_from_path(script_path)
+        except ImportError, ex:
+            _log("error importing `%s': %s" % (script_path, ex))
+            return []
+        shell = getattr(script, class_name)()
+        cmd_map = shell._get_canonical_map()
+        del cmd_map["EOF"]
+
+        # Determine if completing the sub-command name.
+        parts = comp_line[:comp_point].split(None, 1)
+        _log(parts)
+        if len(parts) == 1 or not (' ' in parts[1] or '\t' in parts[1]):
+            #TODO: if parts[1].startswith('-'): handle top-level opts
+            _log("complete sub-command names")
+            matches = {}
+            for name, canon_name in cmd_map.items():
+                if name.startswith(token):
+                    matches[name] = canon_name
+            if not matches:
+                return []
+            elif len(matches) == 1:
+                return matches.keys()
+            elif len(set(matches.values())) == 1:
+                return [matches.values()[0]]
+            else:
+                return matches.keys()
+
+        # Otherwise, complete options for the given sub-command.
+        #TODO: refine this so it does the right thing with option args
+        if token.startswith('-'):
+            cmd_name = comp_line.split(None, 2)[1]
+            try:
+                cmd_canon_name = cmd_map[cmd_name]
+            except KeyError:
+                return []
+            handler = shell._get_cmd_handler(cmd_canon_name)
+            optparser = getattr(handler, "optparser", None)
+            if optparser is None:
+                optparser = SubCmdOptionParser()
+            opt_strs = []
+            for option in optparser.option_list:
+                for opt_str in option._short_opts + option._long_opts:
+                    if opt_str.startswith(token):
+                        opt_strs.append(opt_str)
+            return opt_strs
+
+        return []
+
+    for cpln in _get_bash_cplns(*sys.argv[1:]):
+        print cpln
 
