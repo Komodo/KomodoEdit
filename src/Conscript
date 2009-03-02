@@ -102,11 +102,12 @@ $cons->Command($isDevTree, "echo This is a Komodo dev tree > %0");
 #   Mozilla SDK dirs.
 # - Not sure we need $mozDevelDist/sdk/bin/regxpcom.exe.
 # - We use the much smaller set of Mozilla IDL files in dist/sdk/idl (~100
-#   files) rather than the full set in dist/idl (~1000 files). We suspect the
-#   smaller set are those with a frozen API -- but don't know that. Notable
-#   IDLs missing from the smaller set are the nsITree-related IDL files.
-#   We'll start by just distributing the smaller set, and can re-evaluate
-#   later if there is a need.
+#   files) rather than the full set in dist/idl (~1000 files). The smaller
+#   set are those with "@status FROZEN", plus some deprecated APIs.
+#   Notable IDLs missing from the smaller set are the nsITree-related
+#   and nsIAutoComplete (for textbox autocomplete) IDL files. Some of
+#   these we cherry-pick. For example, an extension can't build a
+#   custom koIAutoCompleteResult without the nsIAutoComplete*.idl files.
 # - Add as many of the xpidl.exe dependencies as we are able (some of them
 #   are GPL'd). For some case we'll just have prerequisites (e.g. MacPorts
 #   on OSX and certain packages on Linux).
@@ -124,6 +125,7 @@ if ($platform eq "win") {
 }
 
 $cons->InstallRecursive("$sdkDir/idl", "$mozDevelDist/sdk/idl", ('\.svn'));
+$cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsIAutoComplete*.idl");
 $cons->InstallRecursive("$sdkDir/bin", "$mozDevelDist/sdk/bin", ('\.svn'));
 
 if ($platform eq "win") {
