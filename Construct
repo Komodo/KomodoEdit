@@ -1069,6 +1069,19 @@ sub cons::RegisterChromeAs {
 }
 
 
+sub cons::InstallGlob {
+    # Install all the files matching the given glob pattern.
+    my ($env, $output, $inputPattern) = @_;
+    #print "InstallRecursive: $inputPattern -> $output\n";
+
+    @files = glob $inputPattern;
+    foreach my $src (@files) {
+        #print "install $src -> $output\n";
+        $env->Install($output, $src);
+    }
+}
+
+
 sub cons::InstallRecursiveInChrome {
     # Install all the files under the named source chrome directory into
     # the equivalent mozilla chrome directory
