@@ -610,7 +610,7 @@
 	multiline (true | false) #IMPLIED
 	readonly (true | false) #IMPLIED
 	size CDATA #IMPLIED
-	type (password | autocomplete | text) #IMPLIED
+	type (password | autocomplete | number | timed | search) #IMPLIED
 	value CDATA #IMPLIED
 	wrap (true | false) #IMPLIED
 >
