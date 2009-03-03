@@ -446,7 +446,10 @@ sub cons::Py2To3 {
 
 sub cons::KoExt {
     # Run the given 'koext' command (koext is in the Komodo SDK).
-    my ($env, $args) = @_;
+    my ($env, $args, @toSkip) = @_;
+    if (! scalar(@toSkip)) {
+        @toSkip = (".svn", "*.xpi", "build");  # default skips
+    }
     
     # Die if required elements are not defined.
     defined($sdkDir) or die "*** sdkDir is not defined for KoExt\n";
@@ -464,8 +467,34 @@ sub cons::KoExt {
             touch %0
         )
     );
-    $cons->DependsRecursive("koext.consjunk", ".",
-        (".svn", "*.xpi", "tmp", "build"));
+    $cons->DependsRecursive("koext.consjunk", ".", @toSkip);
+}
+
+sub cons::KoExtSourceDevInstall {
+    # Run "koext devinstall -f -d $extensionDirInSourceArea" to setup a link for
+    # quick dev of a Komodo extension. Note that this will not work if there are
+    # any *built* bits of the extension because the link it to the *source* area.
+    my ($env, @toSkip) = @_;
+    if (! scalar(@toSkip)) {
+        @toSkip = (".svn", "*.xpi", "build");  # default skips
+    }
+    
+    # Die if required elements are not defined.
+    defined($sdkDir) or die "*** sdkDir is not defined for KoExtSourceDevInstall\n";
+    defined($build) or die "*** build is not defined for KoExtSourceDevInstall\n";
+
+    my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
+    my $extSrcDir = dirname(SourcePath('install.rdf'));
+    $cons->Command(
+        "koext.consjunk", # fake target to make Cons happy
+        "$sdkDir/bin/koext$scriptExt",
+        "$sdkDir/pylib/koextlib.py",
+        qq(
+            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v devinstall -f -d $extSrcDir
+            touch %0
+        )
+    );
+    $cons->DependsRecursive("koext.consjunk", ".", @toSkip);
 }
 
 
