@@ -672,9 +672,16 @@ class KomodoInfo(object):
             self._where_am_i_cache = "source"
             return "source"
 
-        # from: .../dist/komodo-bits/sdk/pylib/koextlib.py
-        #   to: .../dist/bin
-        if exists(join(up_3_dir, "bin", "is_dev_tree.txt")):
+        if sys.platform == "darwin":
+            # from: .../dist/komodo-bits/sdk/pylib/koextlib.py
+            #   to: .../dist/Komodo.app/Contents/MacOS/is_dev_tree.txt
+            is_dev_tree_txt = join(up_3_dir, "Komodo.app", "Contents",
+                "MacOS", "is_dev_tree.txt")
+        else:
+            # from: .../dist/komodo-bits/sdk/pylib/koextlib.py
+            #   to: .../dist/bin/is_dev_tree.txt
+            is_dev_tree_txt = join(up_3_dir, "bin", "is_dev_tree.txt")
+        if exists(is_dev_tree_txt):
             self._where_am_i_cache = "build"
             return "build"
 
@@ -690,7 +697,7 @@ class KomodoInfo(object):
             # from: .../lib/sdk/pylib/koextlib.py
             #   to: .../bin/komodo
             komodo_path = join(up_3_dir, "bin", "komodo")
-        assert exists(komodo_path)
+        assert exists(komodo_path), "`%s' doesn't exist" % komodo_path
         self._where_am_i_cache = "install"
         return "install"
     
