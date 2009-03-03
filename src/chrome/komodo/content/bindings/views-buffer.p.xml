@@ -1285,14 +1285,18 @@
         <parameter name="onlyThisKey"/>
         <body>
             <![CDATA[
-            // Ctrl keyCode's are not set on a Mac, so check ctrlKey attribute.
             if (onlyThisKey) {
                 if (this._keys_down.length != 1) {
                     return false;
                 }
             }
             for (var i=0; i < this._keys_down.length; i++) {
+<!-- #if PLATFORM == "darwin" -->
+            // Ctrl keyCode's are not set on a Mac, so check ctrlKey attribute.
                 if (this._keys_down[i][2] /* event.ctrlKey */) {
+<!-- #else -->
+                if (this._keys_down[i][0] /* event.charCode */ == this.DOM_VK_CONTROL) {
+<!-- #endif -->
                     return true;
                 }
             }
@@ -1420,10 +1424,14 @@
         <handler event="keydown" phase="capturing">
             <![CDATA[
             var keyCode = event.keyCode;
-            // Ctrl keyCode's are not set on a Mac, so check ctrlKey attribute.
             this._keys_down.push([keyCode, event.charCode, event.ctrlKey,
                                  event.altKey, event.metaKey]);
+<!-- #if PLATFORM == "darwin" -->
+            // Ctrl keyCode's are not set on a Mac, so check ctrlKey attribute.
             if (event.ctrlKey) {
+<!-- #else -->
+            if (keyCode == this.DOM_VK_CONTROL) {
+<!-- #endif -->
                 var x, y;
                 [x,y] = this._last_mousemove_xy;
                 this.checkHyperlinks(this.scimoz.positionFromPoint(x, y));
