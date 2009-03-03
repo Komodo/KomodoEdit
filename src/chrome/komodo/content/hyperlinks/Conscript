@@ -39,17 +39,6 @@
 Import(
     'cons',
     'mozChromeDir',
-    'platform',
-    'productType',
-    'buildFlavour',
-    'komodoTitleBarName',
-    'unsiloedPythonExe',
-    'mozVersion',
-    'withViKeyBindings',
-    'withSCC',
-    'withSharedSupport',
-    'withDebugging',
-    'withCodeBrowser',
 );
 
 $cons->InstallInChrome('hyperlinks.js');
