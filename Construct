@@ -444,6 +444,31 @@ sub cons::Py2To3 {
         ));
 }
 
+sub cons::KoExt {
+    # Run the given 'koext' command (koext is in the Komodo SDK).
+    my ($env, $args) = @_;
+    
+    # Die if required elements are not defined.
+    defined($sdkDir) or die "*** sdkDir is not defined for KoExt\n";
+    defined($build) or die "*** build is not defined for KoExt\n";
+
+    my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
+    $cons->Command(
+        "koext.consjunk", # fake target to make Cons happy
+        "$sdkDir/bin/koext$scriptExt",
+        "$sdkDir/pylib/koextlib.py",
+        #TODO: Could change that "-d %0:d" to "-d `SourcePath('.')`" to have it
+        #      point to the *source* area.
+        qq(
+            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v $args -d %0:d
+            touch %0
+        )
+    );
+    $cons->DependsRecursive("koext.consjunk", ".",
+        (".svn", "*.xpi", "tmp", "build"));
+}
+
+
 sub cons::Preprocess {
     # Runs the given file through Komodo's preprocessor (currently
     # preprocess.py) using the second argument as the output file name.
@@ -1149,16 +1174,21 @@ sub cons::DependsRecursive {
     # NOTE: The "$dep" element should be relative to the directory
     #       with the Conscript rather than the root of the project.
     my ($env, $target, $dep, @toSkip) = @_;
-    #print "DependsRecursive: '$target' depends on '$dep' (skipping: [",
-    #      join(', ', @toSkip), "])\n";
+    my $logIt = 0;
+    if ($logIt) {
+        print "DependsRecursive: '$target' depends on '$dep' (skipping: [",
+            join(', ', @toSkip), "])\n";
+    }
     if (ref($target) eq "ARRAY") {
         foreach my $targ (@$target) {
             $env->DependsRecursive($targ, $dep, @toSkip);
         }
     } else {
         my $baseDirName = dirname(SourcePath("Conscript"));
+        print "... baseDirName: $baseDirName\n" if $logIt;
         my $depPath = (file_name_is_absolute($dep) ? 
                        $dep : "$baseDirName/$dep");
+        print "... depPath: $depPath\n" if $logIt;
         if (ref($dep) eq "ARRAY") {
             foreach my $d (@$dep) {
                 $env->DependsRecursive($target, $d, @toSkip);
@@ -1191,9 +1221,11 @@ sub cons::DependsRecursive {
             chdir $oldDir;
 
             foreach my $file (@files) {
+                print "... file: $file\n" if $logIt;
                 $env->Depends($target, $file);
             }
         } else {
+            print "... dep: $dep\n" if $logIt;
             $env->Depends($target, $dep);
         }
     }
