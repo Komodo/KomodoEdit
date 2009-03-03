@@ -607,8 +607,8 @@
                 
                 // Handle the drop asynchronously.
                 // [Not sure this is necessary --TM.]
-                targetNode = (event.originalTarget.localName == 'tab'
-                              ? event.originalTarget : event.target);
+                var targetNode = (event.originalTarget.localName == 'tab'
+                                  ? event.originalTarget : event.target);
                 this._dropTimeout = new objectTimer(
                     this, this._doDropAsync,
                     [session.sourceNode, targetNode, event]);
