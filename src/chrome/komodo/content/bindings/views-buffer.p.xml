@@ -1230,8 +1230,8 @@
 
         ********************       Hyperlinks       ********************
 
-        There are interesting points in the editor which are highlighted to
-        show their is a possible action associated with this point.
+        These are interesting points in the editor which are highlighted to
+        show there is a possible action associated with this text.
 
         Komodo hyperlinks are only active when the Ctrl key is held down, then
         where ever the mouse moves, the editor text under the mouse will be
