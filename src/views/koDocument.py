@@ -524,7 +524,11 @@ class koDocumentBase:
                 getService(components.interfaces.koILanguageRegistryService)
             self._languageObj = registryService.getLanguage(self._language)
         return self._languageObj
-    
+
+    # Note: The "get_subLanguage" and "languageForPosition" methods could also
+    #       use the koIDocument.ciBuf.lang_from_pos() code, instead of their
+    #       own implementation. To be kept in mind for re-factoring work.
+
     def get_subLanguage(self):
         if not self._language or not self._document:
             return None
