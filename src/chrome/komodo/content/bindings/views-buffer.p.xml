@@ -797,7 +797,6 @@
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined') {
                 gEditorTooltipHandler.show(this, x, y);
             }
-            this.checkHyperlinks(position);
             return true;
         ]]></body>
         </method>
@@ -1333,7 +1332,7 @@
         <parameter name="position"/>
         <body>
             <![CDATA[
-            if (ko.hyperlinks && this.isCtrlKeyDown(true)) {
+            if (ko.hyperlinks) {
                 ko.hyperlinks.show(this, position);
             }
             ]]>
@@ -1374,7 +1373,7 @@
             var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
             var y = event.clientY - this.boxObject.y;
             this._last_mousemove_xy = [x, y];
-            if (this.isCtrlKeyDown(true)) {
+            if (this.isCtrlKeyDown(false)) {
                 // Check if the mouse has moved outside of the hyperlink, if
                 // it has then the hyperlink should be removed.
                 var pos = this.scimoz.positionFromPoint(x, y);
