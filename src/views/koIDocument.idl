@@ -118,6 +118,8 @@ interface koIDocument : nsISupports
     // document. the document must be using a UDL buffer, otherwise it is the
     // same as language above 
     readonly attribute wstring subLanguage; 
+    // Return the language (or sub-language in the UDL case) for the given pos.
+    string languageForPosition(in long position);
 
     // encoding support
     attribute long codePage; // the code page -- 65001 if unicode
