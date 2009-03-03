@@ -797,6 +797,7 @@
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined') {
                 gEditorTooltipHandler.show(this, x, y);
             }
+            this.checkHyperlinks(position);
             return true;
         ]]></body>
         </method>
@@ -1224,6 +1225,120 @@
         </body>
         </method>
 
+
+        <!--
+
+        ********************       Hyperlinks       ********************
+
+        There are interesting points in the editor which are highlighted to
+        show their is a possible action associated with this point.
+
+        Komodo hyperlinks are only active when the Ctrl key is held down, then
+        where ever the mouse moves, the editor text under the mouse will be
+        checked to see if it has a hyperlink, if it does it will become
+        highlighted in the editor.
+
+        If the user left-clicks on the hyperlink, then a hyperlink action
+        will be performed (example: opening the target text in a browser).
+        -->
+
+        <field name="INDICATOR_HYPERLINK" readonly="true">Components.interfaces.koILintResult.INDICATOR_HYPERLINK</field>
+        <field name="DOM_VK_CONTROL" readonly="true">Components.interfaces.nsIDOMKeyEvent.DOM_VK_CONTROL</field>
+        <!-- A hyperlink instance set on the view, ko.hyperlinks.Hyperlink -->
+        <field name="_hyperlink">null</field>
+        <field name="_last_mousemove_xy">[0,0]</field>
+        <field name="_last_hyperlink_style">-1</field>
+        <field name="_last_hyperlink_color">-1</field>
+        <!-- _keys_down is an array of keypress event attributes, indicating
+            the keys that are currently held down. -->
+        <field name="_keys_down">[]</field>
+
+        <method name="clearKeyDownValues">
+        <body>
+            <![CDATA[
+            this._keys_down = [];
+            ]]>
+        </body>
+        </method>
+            
+        <method name="isKeyDown">
+        <parameter name="keyCode"/>
+        <parameter name="onlyThisKey"/>
+        <body>
+            <![CDATA[
+            if (onlyThisKey) {
+                if (this._keys_down.length != 1) {
+                    return false;
+                }
+            }
+            for (var i=0; i < this._keys_down.length; i++) {
+                if (keyCode == this._keys_down[i][0]) {
+                    return true;
+                }
+            }
+            return false;
+            ]]>
+        </body>
+        </method>
+
+        <method name="isCtrlKeyDown">
+        <parameter name="onlyThisKey"/>
+        <body>
+            <![CDATA[
+            return this.isKeyDown(this.DOM_VK_CONTROL, onlyThisKey);
+            ]]>
+        </body>
+        </method>
+
+        <!-- Set from a hyperlink handler. -->
+        <method name="setHyperlink">
+        <parameter name="hyperlink"/>
+        <body>
+            <![CDATA[
+            var scimoz = this.scimoz;
+            // Perf: Only change the indicator settings if they have changed
+            //       from the last hyperlink, as scimoz will redraw itself.
+            if (hyperlink.handler.indic_style != this._last_hyperlink_style) {
+                scimoz.indicSetStyle(this.INDICATOR_HYPERLINK, hyperlink.handler.indic_style);
+                this._last_hyperlink_style = hyperlink.handler.indic_style;
+            }
+            if (hyperlink.handler.indic_color != this._last_hyperlink_color) {
+                scimoz.indicSetFore(this.INDICATOR_HYPERLINK, hyperlink.handler.indic_color);
+                this._last_hyperlink_color = hyperlink.handler.indic_color;
+            }
+            scimoz.indicatorCurrent = this.INDICATOR_HYPERLINK;
+            scimoz.indicatorClearRange(0, scimoz.textLength);
+            scimoz.indicatorFillRange(hyperlink.startPos, hyperlink.endPos - hyperlink.startPos);
+            this._hyperlink = hyperlink;
+            ]]>
+        </body>
+        </method>
+
+        <method name="checkHyperlinks">
+        <parameter name="position"/>
+        <body>
+            <![CDATA[
+            if (ko.hyperlinks && this.isCtrlKeyDown(true)) {
+                ko.hyperlinks.show(this, position);
+            }
+            ]]>
+        </body>
+        </method>
+
+        <method name="removeHyperlinks">
+        <body>
+            <![CDATA[
+            if (this._hyperlink) {
+                this._hyperlink.remove(this);
+                var scimoz = this.scimoz;
+                scimoz.indicatorCurrent = this.INDICATOR_HYPERLINK;
+                scimoz.indicatorClearRange(0, scimoz.textLength);
+                this._hyperlink = null;
+            }
+            ]]>
+        </body>
+        </method>
+
     </implementation>
     <handlers>
         <handler event="focus" phase="capturing">
@@ -1239,6 +1354,47 @@
             this._mouseButton = event.button;
             ]]>
         </handler>
+        <handler event="mousemove" phase="capturing">
+            <![CDATA[
+            var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+            var y = event.clientY - this.boxObject.y;
+            this._last_mousemove_xy = [x, y];
+            if (this.isCtrlKeyDown(true)) {
+                // Check if the mouse has moved outside of the hyperlink, if
+                // it has then the hyperlink should be removed.
+                var pos = this.scimoz.positionFromPoint(x, y);
+                this.removeHyperlinks();
+                this.checkHyperlinks(pos);
+            }
+            ]]>
+        </handler>
+        <handler event="mouseup" phase="capturing">
+            <![CDATA[
+            if (event.button == 0 && this._hyperlink) {
+                var scintilla = this.scintilla;
+                // Bug 76721: Go to definition on Ctrl+click, but only if we
+                // aren't in the middle of a drag/drop, or have a selection, or
+                // a modified click.
+                if (scintilla._startDragDrop || scintilla._inDragDrop) {
+                    this.removeHyperlinks();
+                    return;
+                }
+                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+                var y = event.clientY - this.boxObject.y;
+                var scimoz = this.scimoz;
+                var pos = scimoz.positionFromPoint(x, y);
+                // Make sure that if there's a selection, we aren't clicking on it:
+                // Ctrl-click can be used to drag-copy a selection.
+                if ((scimoz.selectionStart == scimoz.selectionEnd) ||
+                            (pos < scimoz.selectionStart) ||
+                            (pos > scimoz.selectionEnd)) {
+                    scimoz.currentPos = pos;
+                    this._hyperlink.jump(this);
+                }
+                this.removeHyperlinks();
+            }
+            ]]>
+        </handler>
         <handler event="click" phase="capturing">
             <![CDATA[
             window.setTimeout("window.updateCommands('scintilla-focus');", 1);
@@ -1247,6 +1403,33 @@
         <handler event="blur" phase="capturing">
             <![CDATA[
             window.setTimeout("window.updateCommands('scintilla-focus');", 1);
+            this.clearKeyDownValues();
+            ]]>
+        </handler>
+        <handler event="keydown" phase="capturing">
+            <![CDATA[
+            //dump("keydown:: keyCode: " + event.keyCode + "\n");
+            this._keys_down.push([event.keyCode, event.charCode, event.ctrlKey,
+                                 event.altKey, event.metaKey]);
+            if (event.keyCode == this.DOM_VK_CONTROL) {
+                var x, y;
+                [x,y] = this._last_mousemove_xy;
+                this.checkHyperlinks(this.scimoz.positionFromPoint(x, y));
+            }
+            ]]>
+        </handler>
+        <handler event="keyup" phase="capturing">
+            <![CDATA[
+            //dump("keyup:: keyCode: " + event.keyCode + "\n");
+            for (var i=(this._keys_down.length - 1); i >=0; i--) {
+                if (event.keyCode == this._keys_down[i][0]) {
+                    this._keys_down.splice(i, 1);
+                }
+            }
+            // If the ctrl key is no longer held down, clear all hyperlinks.
+            if ((this._keys_down.length == 0) || !this.isCtrlKeyDown()) {
+                this.removeHyperlinks();
+            }
             ]]>
         </handler>
     </handlers>

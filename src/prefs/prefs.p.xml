@@ -841,4 +841,7 @@
   
   <long id="defaultRepeatFactor">4</long>
 
+  <!-- Hyperlinks -->
+  <boolean id="hyperlinksEnabled">1</boolean>
+
 </preference-set>
