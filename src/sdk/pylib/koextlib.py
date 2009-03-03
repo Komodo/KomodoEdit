@@ -89,7 +89,7 @@ TODO: create_ext_component_skel
 
 import os
 from os.path import exists, join, dirname, isdir, basename, splitext, \
-                    normpath, abspath
+                    normpath, abspath, isfile
 import sys
 import re
 import uuid
@@ -602,6 +602,46 @@ def build_ext(base_dir, log=None):
     print "'%s' created." % join(base_dir, ext_info.pkg_name)
 
 
+def dev_install(base_dir, force=False, dry_run=False, log=None):
+    """Setup a link for development of the extension (in `base_dir`) with
+    the current Komodo.
+    """
+    if log is None: log = _log
+    if not is_ext_dir(base_dir):
+        raise KoExtError("`%s' isn't an extension source dir: there is no "
+                         "'install.rdf' file (run `koext startext' first)"
+                         % base_dir)
+
+    ext_info = ExtensionInfo(base_dir)
+    ko_info = KomodoInfo()
+            
+    dev_dir = abspath(base_dir)
+    ext_file = join(ko_info.ext_base_dir, ext_info.id)
+    if isfile(ext_file):
+        contents = open(ext_file, 'r').read().strip()
+        if contents == dev_dir:
+            log.debug("`%s' already points to `%s'", ext_file, dev_dir)
+            return
+        elif not force:
+            raise KoExtError("`%s' link file exists: use force option "
+                "to overwrite" % ext_file)
+        else:
+            if not dry_run:
+                os.remove(ext_file)
+    elif isdir(ext_file):
+        if not force:
+            raise KoExtError("`%s' *directory* exists: use force option "
+                "to overwrite" % ext_file)
+        else:
+            if not dry_run:
+                _rmtree(ext_file)
+    elif exists(ext_file):
+        raise KoExtError("`%s' exists but isn't a regular file or "
+            "directory (aborting)" % ext_file)
+    log.info("create `%s' link", ext_file)
+    if not dry_run:
+        open(ext_file, 'w').write(dev_dir)
+
 
 #---- internal support routines
 
@@ -660,13 +700,16 @@ class KomodoInfo(object):
         return self._where_am_i == "source"
 
     @property
+    def sdk_dir(self):
+        if self._where_am_i == "source":
+            return self._get_bkconfig_var("sdkDir")
+        else:
+            return dirname(dirname(abspath(__file__)))
+
+    @property
     def xpidl_path(self):
         exe_ext = (".exe" if sys.platform == "win32" else "")
         return join(self.sdk_dir, "bin", "xpidl"+exe_ext)
-
-    @property
-    def sdk_dir(self):
-        return dirname(dirname(abspath(__file__)))
 
     @property
     def idl_dir(self):
@@ -679,11 +722,14 @@ class KomodoInfo(object):
         else:
             return join(self.sdk_dir, "udl")
 
+    _bkconfig_module_cache = None
     def _get_bkconfig_var(self, name):
         assert self._where_am_i == "source"
-        ko_src_dir = dirname(dirname(dirname(dirname(__file__))))
-        module = _module_from_path(join(ko_src_dir, "bkconfig.py"))
-        return getattr(module, name)
+        if self._bkconfig_module_cache is None:
+            ko_src_dir = dirname(dirname(dirname(dirname(__file__))))
+            self._bkconfig_module_cache \
+                = _module_from_path(join(ko_src_dir, "bkconfig.py"))
+        return getattr(self._bkconfig_module_cache, name)
 
     @property
     def py_lib_dirs(self):
@@ -716,12 +762,17 @@ class KomodoInfo(object):
                 return join(up_2_dir, "mozilla")
     
     @property
+    def ext_base_dir(self):
+        """The 'extensions' base dir in which extensions are installed."""
+        return join(self.moz_bin_dir, "extensions")
+    
+    @property
     def ext_dirs(self):
         """Generate all extension dirs in this Komodo installation
         *and* (TODO) for the current user.
         """
         # Extensions in the Komodo install tree.
-        base_dir = join(self.moz_bin_dir, "extensions")
+        base_dir = self.ext_base_dir
         try:
             for d in os.listdir(base_dir):
                 yield join(base_dir, d)

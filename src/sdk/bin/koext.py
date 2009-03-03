@@ -119,6 +119,28 @@ class KoExtShell(cmdln.Cmdln):
             opts.source_dir = os.curdir
         koextlib.build_ext(opts.source_dir, log=log)
 
+    @option("-d", "--source-dir",
+            help="The directory with the source for the extension "
+                 "(defaults to the current dir)")
+    def do_devinstall(self, subcmd, opts):
+        """${cmd_name}: install link for development with current Komodo
+
+        ${cmd_usage}
+        ${cmd_option_list}
+        
+        Limitations:
+        - Currently this only works in Komodo dev builds (i.e. won't work when using
+          a Komodo SDK installed with a Komodo installer build).
+        - Currently any *built* parts of the extension (e.g. binary components, jarring of
+          chrome if not using 'chrome.p.manifest', built UDL lexers) will not
+          get hooked up because a "build" directory is being used. Quickest
+          solution is probably to update the "build" command to create built
+          bits in-place.
+        """
+        if opts.source_dir is None:
+            opts.source_dir = os.curdir
+        koextlib.dev_install(opts.source_dir, log=log)
+
     @option("--id",
             help="ID string, no spaces, typically of the form "
                  "'foo@example.com' (e.g. 'fuzzy_wuzzy@mydomain.com')")
