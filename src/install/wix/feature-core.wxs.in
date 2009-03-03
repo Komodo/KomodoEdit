@@ -3513,6 +3513,13 @@
               <File Id="file4107" Name="MOZIJS_0.IDL" LongName="mozIJSSubScriptLoader.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\mozIJSSubScriptLoader.idl"/>
               <File Id="file4108" Name="NSIASN_0.IDL" LongName="nsIASN1Object.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIASN1Object.idl"/>
               <File Id="file4109" Name="NSIASN_1.IDL" LongName="nsIASN1Sequence.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIASN1Sequence.idl"/>
+              <File Id="file832" Name="NSIAUT_0.IDL" LongName="nsIAutoCompleteController.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIAutoCompleteController.idl"/>
+              <File Id="file833" Name="NSIAUT_1.IDL" LongName="nsIAutoCompleteInput.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIAutoCompleteInput.idl"/>
+              <File Id="file834" Name="NSIAUT_2.IDL" LongName="nsIAutoCompletePopup.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIAutoCompletePopup.idl"/>
+              <File Id="file835" Name="NSIAUT_3.IDL" LongName="nsIAutoCompleteResult.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIAutoCompleteResult.idl"/>
+              <File Id="file836" Name="NSIAUT_4.IDL" LongName="nsIAutoCompleteResultTypes.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIAutoCompleteResultTypes.idl"/>
+              <File Id="file837" Name="NSIAUT_5.IDL" LongName="nsIAutoCompleteSearch.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIAutoCompleteSearch.idl"/>
+              <File Id="file838" Name="NSIAUT_6.IDL" LongName="nsIAutoCompleteSimpleResult.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIAutoCompleteSimpleResult.idl"/>
               <File Id="file4111" Name="NSICAT_0.IDL" LongName="nsICategoryManager.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsICategoryManager.idl"/>
               <File Id="file4112" Name="NSICER_0.IDL" LongName="nsICertificateDialogs.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsICertificateDialogs.idl"/>
               <File Id="file4113" Name="NSICHA_0.IDL" LongName="nsIChannel.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIChannel.idl"/>
