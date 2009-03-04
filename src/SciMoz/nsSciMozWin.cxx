@@ -135,6 +135,7 @@ NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 
 
 /* void ButtonMove( in long x, in long y); */
 NS_IMETHODIMP SciMoz::ButtonMove(PRInt32 x, PRInt32 y) {
+	SCIMOZ_CHECK_VALID("ButtonMove");
 	long lpoint = LONGFROMTWOSHORTS(x,y);
 	SendEditor(WM_MOUSEMOVE, 0, lpoint);
 	return NS_OK;
@@ -143,6 +144,7 @@ NS_IMETHODIMP SciMoz::ButtonMove(PRInt32 x, PRInt32 y) {
 
 /* void AddChar( in PRUint32 ch); */
 NS_IMETHODIMP SciMoz::AddChar(PRUint32 ch) {
+	SCIMOZ_CHECK_VALID("AddChar");
 	// XXX - Scintilla needs an SCI_ADDCHAR API??
 	// !!! we received a wide char, send a wide char
 	SendEditor(WM_UNICHAR, (WPARAM)ch);
@@ -501,6 +503,7 @@ LRESULT CALLBACK SciMoz::ChildWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 
 /* readonly attribute boolean isOwned; */
 NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
+	SCIMOZ_CHECK_VALID("GetIsOwned");
 	*_ret = wEditor && wMain
 			&& ::GetParent(wEditor) == wMain;
 	return NS_OK;
@@ -508,6 +511,7 @@ NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
 
 /* attribute boolean visible */
 NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
+	SCIMOZ_CHECK_VALID("GetVisible");
 	*_ret = wEditor != 0
 		&& IsWindowVisible(wEditor);
 	return NS_OK;
@@ -515,6 +519,7 @@ NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
 
 /* attribute boolean visible */
 NS_IMETHODIMP SciMoz::SetVisible(PRBool vis) {
+	SCIMOZ_CHECK_VALID("SetVisible");
 	if (vis)
 		Resize();
 	ShowWindow(wEditor, vis ? SW_SHOW : SW_HIDE);
@@ -524,17 +529,20 @@ NS_IMETHODIMP SciMoz::SetVisible(PRBool vis) {
 /* void endDrop( ); */
 NS_IMETHODIMP SciMoz::EndDrop()
 {
+	SCIMOZ_CHECK_VALID("EndDrop");
 	return NS_OK;
 }
 
-/* attribute boolean visible */
+/* readonly attribute boolean inDragSession; */
 NS_IMETHODIMP SciMoz::GetInDragSession(PRBool *_ret) {
+	SCIMOZ_CHECK_VALID("GetInDragSession");
 	*_ret = 0;
 	return NS_OK;
 }
 
-/* attribute boolean isTracking */
+/* readonly attribute boolean isTracking */
 NS_IMETHODIMP SciMoz::GetIsTracking(PRBool *_ret) {
+	SCIMOZ_CHECK_VALID("GetIsTracking");
 	*_ret = 0;
 	return NS_OK;
 }

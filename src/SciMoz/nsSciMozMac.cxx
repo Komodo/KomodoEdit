@@ -128,6 +128,7 @@ NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 
 
 /* void ButtonMove( in long x, in long y); */
 NS_IMETHODIMP SciMoz::ButtonMove(PRInt32 x, PRInt32 y) {
+	SCIMOZ_CHECK_VALID("ButtonMove");
 	HIPoint location;
 	location.x = x;
 	location.y = y;
@@ -138,6 +139,7 @@ NS_IMETHODIMP SciMoz::ButtonMove(PRInt32 x, PRInt32 y) {
 
 /* void AddChar( in PRUint32 ch); */
 NS_IMETHODIMP SciMoz::AddChar(PRUint32 ch) {
+	SCIMOZ_CHECK_VALID("AddChar");
 	// XXX - Scintilla needs an SCI_ADDCHAR API??
 	SendEditor(WM_UNICHAR, ch);
 	return NS_OK;
@@ -411,35 +413,41 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 
 /* readonly attribute boolean isOwned; */
 NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
+	SCIMOZ_CHECK_VALID("GetIsOwned");
 	*_ret = wEditor && wMain;
 	return NS_OK;
 }
 
 /* attribute boolean visible */
 NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
+	SCIMOZ_CHECK_VALID("GetVisible");
 	*_ret = wEditor != 0;
 	return NS_OK;
 }
 
 /* attribute boolean visible */
 NS_IMETHODIMP SciMoz::SetVisible(PRBool vis) {
+	SCIMOZ_CHECK_VALID("SetVisible");
 	return NS_OK;
 }
 
 /* void endDrop( ); */
 NS_IMETHODIMP SciMoz::EndDrop()
 {
+	SCIMOZ_CHECK_VALID("EndDrop");
 	return NS_OK;
 }
 
-/* attribute boolean visible */
+/* readonly attribute boolean inDragSession; */
 NS_IMETHODIMP SciMoz::GetInDragSession(PRBool *_ret) {
+	SCIMOZ_CHECK_VALID("GetInDragSession");
 	*_ret = scintilla->inDragSession();
 	return NS_OK;
 }
 
-/* attribute boolean visible */
+/* readonly attribute boolean GetIsTracking; */
 NS_IMETHODIMP SciMoz::GetIsTracking(PRBool *_ret) {
+	SCIMOZ_CHECK_VALID("GetIsTracking");
 	*_ret = scintilla->isTracking;
 	return NS_OK;
 }
