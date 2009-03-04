@@ -709,13 +709,24 @@ viewManager.prototype._doFileOpen = function(uri,
     }
     var views = this.topView.getViewsByTypeAndURI(true, viewType, uri);
     if (views.length > 0) {
-        if (views.indexOf(this.currentView) >= 0) {
-            // this uses the correct view in a splitview
-            this.currentView.makeCurrent();
-            return this.currentView;
+        if (viewList == null) {
+            if (views.indexOf(this.currentView) >= 0) {
+                // this uses the correct view in a splitview
+                this.currentView.makeCurrent();
+                return this.currentView;
+            } else {
+                views[0].makeCurrent();
+                return views[0];
+            }
+        } else {
+            for (var i = 0; i < views.length; i++) {
+                var possibleView = views[i];
+                if (viewList.id == "view-" + possibleView.tabbedViewId) {
+                    possibleView.makeCurrent();
+                    return possibleView;
+                }
+            }
         }
-        views[0].makeCurrent();
-        return views[0];
     }
     return this._newViewFromURI(uri, viewType, viewList, index);
 }
