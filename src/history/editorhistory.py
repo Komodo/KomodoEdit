@@ -78,6 +78,7 @@ class Location(object):
     # Scintilla handle from SCI_MARKERGET. "0" (zero) indicates an empty value.
     marker_handle = 0
     window_num = 0  # Window nums start at 1, so 0 indicates unset
+    session_name = ""
     # Numeric ID identifying which tabbed-view the editor view was open in:
     # left/top or right/bottom. 0 indicates an empty value.
     tabbed_view_id = 0
@@ -89,7 +90,8 @@ class Location(object):
 
     def __init__(self, uri, line, col, view_type="editor",
                  id=None, uri_id=None, referer_id=None,
-                 marker_handle=0, window_num=0, tabbed_view_id=0,
+                 marker_handle=0, session_name="", window_num=0,
+                 tabbed_view_id=0,
                  is_obsolete=False):
         #XXX:TODO: URI canonicalization.
         self.uri = uri
@@ -100,6 +102,7 @@ class Location(object):
         self.uri_id = uri_id
         self.referer_id = referer_id
         self.marker_handle = marker_handle
+        self.session_name = session_name
         self.window_num = window_num
         self.tabbed_view_id = tabbed_view_id
         self.section_name = None
@@ -107,6 +110,7 @@ class Location(object):
 
     def clone(self):
         return Location(self.uri, self.line, self.col, view_type=self.view_type,
+            session_name=self.session_name,
             window_num=self.window_num, tabbed_view_id=self.tabbed_view_id,
             is_obsolete=self.is_obsolete)
 
@@ -160,7 +164,8 @@ class Database(object):
     # - 1.0.1: change in history_visit: window_name TEXT => window_num INT DEF 0
     # - 1.0.2: name change in history_visit: s/multiview_id/tabbed_view_id/
     # - 1.0.3: add `is_obsolete` columns
-    VERSION = "1.0.3"
+    # - 1.0.4: history is now per-session, database should be reset
+    VERSION = "1.0.4"
 
     path = None
     
@@ -283,6 +288,7 @@ class Database(object):
         "1.0.0": (VERSION, _upgrade_reset_db, None),
         "1.0.1": (VERSION, _upgrade_reset_db, None),
         "1.0.2": (VERSION, _upgrade_reset_db, None),
+        "1.0.3": (VERSION, _upgrade_reset_db, None),
     }
 
     @property
@@ -372,11 +378,13 @@ class Database(object):
         with self.connect(True, cu=cu) as cu:
             uri_id = self.uri_id_from_uri(loc.uri, cu=cu)
             cu.execute("""
-                INSERT INTO history_visit(referer_id, uri_id, line, col, view_type, marker_handle,
+                INSERT INTO history_visit(referer_id, uri_id, line, col, view_type,
+                    session_name, marker_handle,
                     window_num, tabbed_view_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, 
-                (referer_id, uri_id, loc.line, loc.col, loc.view_type, loc.marker_handle,
+                (referer_id, uri_id, loc.line, loc.col, loc.view_type,
+                 loc.session_name, loc.marker_handle,
                  loc.window_num, loc.tabbed_view_id))
             loc.id = cu.lastrowid
             loc.referer_id = referer_id
@@ -404,12 +412,13 @@ class Database(object):
                 raise HistoryError("cannot get uri %r: id does not exist" % id)
             return row[0]
 
-    def visit_from_id(self, id, session_name=None, cu=None):
+    def visit_from_id(self, id, session_name="", cu=None):
         """Load the given visit from `history_visit` table.
         
         @param id {int} The id of the visit to load. If None, the *latest*
             visit is returned.
-        @param session_name {str} Optional. Ignored for now.
+        @param session_name {str} Optional. The session on which to look for
+            the latest visit if `id is None`.
         @param cu {sqlite3.Cursor} An existing cursor to use.
         @returns {Location} A location instance.
         @raises `HistoryError` if no such location exists.
@@ -418,8 +427,10 @@ class Database(object):
             if id is None:
                 cu.execute("""
                     SELECT id, datetime(timestamp) FROM history_visit
+                    WHERE session_name = ?
                     ORDER BY timestamp DESC LIMIT 1;
-                    """)
+                    """,
+                    (session_name, ))
                 row = cu.fetchone()
                 if row is None:
                     raise HistoryNoLatestVisitError(
@@ -427,8 +438,8 @@ class Database(object):
                 id = int(row[0])
             cu.execute("""
                 SELECT referer_id, uri_id, line, col, view_type, content,
-                       section, marker_handle, window_num, tabbed_view_id,
-                       is_obsolete
+                       section, session_name, marker_handle, window_num,
+                       tabbed_view_id, is_obsolete
                 FROM history_visit
                 WHERE id=?
                 """, (id,))
@@ -437,7 +448,7 @@ class Database(object):
                 raise HistoryError("cannot get visit %r: id does not exist" % id)
             
             uri_id = int(row[1])
-            uri = self.uri_from_id(uri_id)
+            uri = self.uri_from_id(uri_id, cu=cu)
             loc = Location(
                 uri=uri,
                 line=int(row[2]),
@@ -446,10 +457,11 @@ class Database(object):
                 id=id,
                 uri_id=uri_id,
                 referer_id=_int_or_none(row[0]),
-                marker_handle=row[7],
-                window_num=row[8],
-                tabbed_view_id=row[9],
-                is_obsolete=row[10]
+                session_name=row[7],
+                marker_handle=row[8],
+                window_num=row[9],
+                tabbed_view_id=row[10],
+                is_obsolete=row[11]
             )
 
         return loc
@@ -530,50 +542,38 @@ class Database(object):
         """
         with self.connect(True) as cu:
             cu.execute("DELETE FROM history_meta WHERE key=?", (key,))
-        
 
-
-class History(object):
-    """The main manager object for the editor history."""
-    # Number of days after which to expire 'visit' entries (default: 365).
-    DEFAULT_LOC_EXPIRY_DAYS = 365
+class HistorySession(object):
+    """History handling for a single session (as identified by a
+    `session_name`).
+    """
     RECENT_BACK_VISITS_LENGTH = 10
     # This cache length limits the max allowable value of 'n' for
     # `go_back(..., n)`, so let's make it reasonably large.
     RECENT_BACK_VISITS_CACHE_LENGTH = 10 * RECENT_BACK_VISITS_LENGTH
     RECENT_BACK_VISITS_DEPLETION_LENGTH = RECENT_BACK_VISITS_LENGTH + 2
-
-    closed = False
-    MARKNUM_HISTORYLOC = 13 # Keep in sync with content/markers.js
     
-    # Recent history: We cache the last few "back" visits and all forward
-    # visits -- those resulting from the user jumping back in the history
-    # one or more times.
-    #   recent_back_visits: most recent first. We cache more than
-    #       "recent" length to try to limit the need to hit the database
-    #       when the user goes back and forth a lot.
-    #       The location for the next "go_back" is at the start.
-    #   forward_visits: furthest forward first:
-    #       The location for the next "go_forward" is at the end.
-    #
-    #       For both deques, newest item is at deque[0], oldest at deque[-1]
-    #
-    recent_back_visits = None
-    forward_visits = None
-    # The last visit returned by `go_back` or `go_forward`.
-    _last_visit = None
+    def __init__(self, session_name, db):
+        self.session_name = session_name
+        self.db = db
+    
+        # Recent history: We cache the last few "back" visits and all forward
+        # visits -- those resulting from the user jumping back in the history
+        # one or more times. For both deques, newest item is at deque[0], oldest
+        # at deque[-1].
+        #   recent_back_visits: most recent first. We cache more than
+        #       "recent" length to try to limit the need to hit the database
+        #       when the user goes back and forth a lot.
+        #       The location for the next "go_back" is at the start.
+        #   forward_visits: furthest forward first:
+        #       The location for the next "go_forward" is at the end.
+        self.recent_back_visits = None
+        self.forward_visits = None
         
-
-    def __init__(self, db_path=None, loc_expiry_days=None):
-        self.db = Database(db_path)
-
-        #XXX:TODO: Expiring visits/uris.
-        assert loc_expiry_days is None or isinstance(loc_expiry_days, int)
-        self.loc_expiry_days = loc_expiry_days or self.DEFAULT_LOC_EXPIRY_DAYS
-
+        # The last visit returned by `go_back` or `go_forward`.
+        self._last_visit = None
         self.load()
         self.closed = False
-        self._schedule_loc_expiry(60 * 10) # In 10 minutes
 
     def __del__(self):
         if not self.closed:
@@ -585,6 +585,15 @@ class History(object):
         self.save()
         self.closed = True
 
+    def _ns_meta_key(self, key):
+        """Add a namespace prefix, as appropriate, for the given key for the
+        'history_meta' table.
+        """
+        if self.session_name:
+            return "%s:%s" % (self.session_name, key)
+        else:
+            return key
+        
     def load(self, cu=None):
         """Load recent history from the database."""
         with self.db.connect(True, cu=cu) as cu:
@@ -593,14 +602,16 @@ class History(object):
             # indicates that these weren't saved (e.g. if Komodo crashed). In
             # this case we do the best we can by using the *latest* visit as
             # the top of the stack and presuming `num_forward_visits == 0`.
-            num_forward_visits = int(self.db.get_meta("num_forward_visits", -1, cu=cu))
+            ns_num_forward_visits = self._ns_meta_key("num_forward_visits")
+            num_forward_visits = int(self.db.get_meta(ns_num_forward_visits, -1, cu=cu))
             if num_forward_visits == -1:
                 top_loc_id = None
             else:
                 # Set to `-1` so we'll be able to tell on next start
                 # if it was set.
-                self.db.set_meta("num_forward_visits", -1, cu=cu)
-                top_loc_id = _int_or_none(self.db.get_meta("top_loc_id", cu=cu))
+                self.db.set_meta(ns_num_forward_visits, -1, cu=cu)
+                top_loc_id = _int_or_none(self.db.get_meta(
+                    self._ns_meta_key("top_loc_id"), cu=cu))
 
             self._load_recent_history_cache(top_loc_id, num_forward_visits, cu=cu)
 
@@ -626,7 +637,7 @@ class History(object):
         last_good_loc = None
         while i < num_to_load:
             try:
-                loc = self.db.visit_from_id(id, cu=cu)
+                loc = self.db.visit_from_id(id, session_name=self.session_name, cu=cu)
             except HistoryNoLatestVisitError, ex:
                 break
             if not loc.is_obsolete:
@@ -688,8 +699,8 @@ class History(object):
         to restore the back/forward state for the next session.
         """
         with self.db.connect(True) as cu:
-            self.db.set_meta("num_forward_visits",
-                             str(len(self.forward_visits)), cu=cu)
+            self.db.set_meta(self._ns_meta_key("num_forward_visits"),
+                str(len(self.forward_visits)), cu=cu)
             # The ID for the "top" location in the back/forward stack.
             if self.forward_visits:
                 top_loc_id = self.forward_visits[0].id
@@ -697,8 +708,9 @@ class History(object):
                 top_loc_id = self.recent_back_visits[0].id
             else:
                 top_loc_id = None
-            self.db.set_meta("top_loc_id", top_loc_id, cu=cu)
-
+            self.db.set_meta(self._ns_meta_key("top_loc_id"),
+                top_loc_id, cu=cu)
+            
     def note_loc(self, loc):
         """Note the given location (i.e. make it part of the history).
 
@@ -724,8 +736,6 @@ class History(object):
         self.db.add_loc(loc, referer_id)
         self.recent_back_visits.appendleft(loc)
         self.forward_visits.clear()
-        if self._should_expire_locs():
-            self.expire_locs()
         return loc
     
     def obsolete_uri(self, uri, undo_delta=0, orig_dir_was_back=True):
@@ -757,9 +767,9 @@ class History(object):
             if not uri_id:
                 return
             self.db.obsolete_uri(uri, uri_id, cu=cu)
-            self._reload_recent_history_cache(cu, uri, undo_delta, orig_dir_was_back)
-
-    def _reload_recent_history_cache(self, cu, uri=None, undo_delta=0, orig_dir_was_back=True):
+            self.reload_recent_history_cache(cu, uri, undo_delta, orig_dir_was_back)
+            
+    def reload_recent_history_cache(self, cu, uri=None, undo_delta=0, orig_dir_was_back=True):
         # Regenerate the recent history cache.
         if self.forward_visits:
             top_loc = self.forward_visits[0]
@@ -802,41 +812,6 @@ class History(object):
                            if x.uri != uri])
                 )
         self._load_recent_history_cache(top_loc.id, num_forward_visits, cu=cu)
-
-    def _schedule_loc_expiry(self, expiry_time):
-        """
-        @param expiry_time {int} Number of *seconds* before expired locs can be removed.
-        """
-        self._loc_expiry_time = time.time() + expiry_time
-        
-    def _should_expire_locs(self):
-        if self._loc_expiry_time <= 0:
-            return False
-        return time.time() > self._loc_expiry_time
-        
-    def expire_locs(self, loc_expiry_days=None):
-        with self.db.connect(True) as cu:
-            last_loc_expiry_time = float(self.db.get_meta(
-                "last_loc_expiry_time", default=-1, cu=cu))
-            cu.execute("SELECT julianday('now')")
-            curr_julian_time = cu.fetchone()[0]
-            if curr_julian_time - last_loc_expiry_time < 0.99:
-                # It's been less than 1 day since the last cleaning
-                # "0.99":  Allow for a fudge factor in timing, so don't
-                # test for "< 1"
-                #
-                # We still need to reschedule the next possible cleaning in 24 hours.
-                pass
-            else:
-                if not loc_expiry_days:
-                    loc_expiry_days = self.loc_expiry_days
-                cutoff_time = curr_julian_time - loc_expiry_days
-    
-                cu.execute("DELETE FROM history_visit WHERE timestamp < ?", (cutoff_time,))
-                self.db.set_meta("last_loc_expiry_time", curr_julian_time,
-                                 cu=cu)
-                self._reload_recent_history_cache(cu)
-            self._schedule_loc_expiry(60 * 60 * 24) # 24 hours from now
 
     def can_go_back(self):
         """Returns a boolean indicating whether there is any back history.
@@ -974,6 +949,7 @@ class History(object):
         @param curr_loc {Location} The current location. If given and this
             matches one of the bounding visits, then `is-curr` will be True.
             Otherwise, the placeholder will be yielded as above.
+        @param merge_curr_loc {bool} TODO: document this
         @yields 2-tuples (<is-curr>, <loc>)
         """
         if _xpcom_ and curr_loc:
@@ -1005,16 +981,12 @@ class History(object):
             if i >= self.RECENT_BACK_VISITS_LENGTH:
                 break
             yield is_curr, loc
-            
+
     def update_marker_handles_on_close(self, uri, scimoz):
         self.db.update_marker_handles_on_close(uri, scimoz,
                                                self.forward_visits,
                                                self.recent_back_visits)
-      
-    def _is_loc_same_line(self, candidate_loc, other_loc):
-        return (other_loc.uri == candidate_loc.uri
-                and other_loc.line == candidate_loc.line)
- 
+        
     def debug_dump_recent_history(self, curr_loc=None, merge_curr_loc=True):
         merge_str = "" if merge_curr_loc else " (curr loc not merged)"
         print "-- recent history%s" % merge_str
@@ -1028,8 +1000,147 @@ class History(object):
         if self._last_visit is not None:
             print "self._last_visit: %r" % self._last_visit
         print "--"
-            
+
+
+class History(object):
+    """The main manager object for the editor history.
+    
+    Most of the interesting stuff happens on lazily created HistorySession
+    instances. All the relevant methods here take an optional `session_name`
+    argument (the default is the empty string).
+    """
+    # Number of days after which to expire 'visit' entries (default: 365).
+    DEFAULT_LOC_EXPIRY_DAYS = 365
+
+    closed = False
+
+    def __init__(self, db_path=None, loc_expiry_days=None):
+        self.db = Database(db_path)
         
+        # session name -> HistorySession instance (lazily created)
+        self.sessions = {}
+
+        assert loc_expiry_days is None or isinstance(loc_expiry_days, int)
+        self.loc_expiry_days = loc_expiry_days or self.DEFAULT_LOC_EXPIRY_DAYS
+        self._schedule_loc_expiry(60 * 10) # In 10 minutes
+
+    def __del__(self):
+        if not self.closed:
+            self.close()
+
+    def close(self):
+        """Close this history manager and all its sessions."""
+        if self.closed:
+            return
+        for session in self.sessions.values():
+            session.close()
+        self.sessions = None
+        self.closed = True
+
+    #TODO: consider dropping this, not used
+    def save(self):
+        """Shortcut for telling all sessions to save cached data to the
+        database. In general it shouldn't be necessary to call this directly,
+        it is handled by calling `.close()`.
+        """
+        for session in self.sessions.values():
+            session.save()
+    
+    def get_session(self, session_name=""):
+        """Lazily create a session when first needed.
+        
+        @param session_name {str} A name for this session. Optional, default
+            is the empty string.
+        """
+        if session_name not in self.sessions:
+            self.sessions[session_name] = HistorySession(session_name, self.db)
+        return self.sessions[session_name]
+
+    def note_loc(self, loc):
+        new_loc = self.get_session(loc.session_name).note_loc(loc)
+        if self._should_expire_locs():
+            self.expire_locs()
+        return new_loc
+    
+    def obsolete_uri(self, uri, undo_delta=0, orig_dir_was_back=True,
+                     session_name=""):
+        """Mark the given URI as obsolete.
+        
+        *Currently* the only kind of URIs that are obsoleted in Komodo (dbgp://
+        URLs for expired debug sessions) can only exist in a single session, so
+        can call this on just one session.
+        """
+        self.get_session(session_name).obsolete_uri(
+            uri, undo_delta, orig_dir_was_back)
+
+    def _schedule_loc_expiry(self, expiry_time):
+        """
+        @param expiry_time {int} Number of *seconds* before expired locs can be removed.
+        """
+        self._loc_expiry_time = time.time() + expiry_time
+        
+    def _should_expire_locs(self):
+        if self._loc_expiry_time <= 0:
+            return False
+        return time.time() > self._loc_expiry_time
+        
+    def expire_locs(self, loc_expiry_days=None):
+        with self.db.connect(True) as cu:
+            last_loc_expiry_time = float(self.db.get_meta(
+                "last_loc_expiry_time", default=-1, cu=cu))
+            cu.execute("SELECT julianday('now')")
+            curr_julian_time = cu.fetchone()[0]
+            if curr_julian_time - last_loc_expiry_time < 0.99:
+                # It's been less than 1 day since the last cleaning
+                # "0.99":  Allow for a fudge factor in timing, so don't
+                # test for "< 1"
+                #
+                # We still need to reschedule the next possible cleaning in 24 hours.
+                pass
+            else:
+                if not loc_expiry_days:
+                    loc_expiry_days = self.loc_expiry_days
+                cutoff_time = curr_julian_time - loc_expiry_days
+    
+                cu.execute("DELETE FROM history_visit WHERE timestamp < ?", (cutoff_time,))
+                self.db.set_meta("last_loc_expiry_time", curr_julian_time,
+                                 cu=cu)
+                for session in self.sessions.values():
+                    session.reload_recent_history_cache(cu)
+            self._schedule_loc_expiry(60 * 60 * 24) # 24 hours from now
+
+    def can_go_back(self, session_name=""):
+        return self.get_session(session_name).can_go_back()
+
+    def can_go_forward(self, session_name=""):
+        return self.get_session(session_name).can_go_forward()
+
+    def have_recent_history(self, session_name=""):
+        return self.get_session(session_name).have_recent_history()
+
+    def go_back(self, curr_loc, n=1):
+        return self.get_session(curr_loc.session_name).go_back(curr_loc, n)
+
+    def go_forward(self, curr_loc, n=1):
+        return self.get_session(curr_loc.session_name).go_forward(curr_loc, n)
+
+    def recent_history(self, curr_loc=None, merge_curr_loc=True, session_name=""):
+        return self.get_session(session_name).recent_history(
+            curr_loc, merge_curr_loc)
+            
+    def update_marker_handles_on_close(self, uri, scimoz):
+        for session in self.sessions.values():
+            session.update_marker_handles_on_close(uri, scimoz)
+
+    def debug_dump_recent_history(self, curr_loc=None, merge_curr_loc=True,
+                                  session_name=""):
+        if session_name is None:
+            for session in self.sessions.values():
+                session.debug_dump_recent_history(curr_loc, merge_curr_loc)
+        else:
+            self.sessions[session_name].\
+                debug_dump_recent_history(curr_loc, merge_curr_loc)
+
 
 
 #---- internal support stuff

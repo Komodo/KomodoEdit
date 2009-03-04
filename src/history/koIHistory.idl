@@ -22,7 +22,7 @@ interface koIHistoryLocation : nsISupports
     attribute PRUint32 tabbed_view_id;
     attribute wstring section_name;
     
-    //TODO: add timestamp-based data (when needed), content, section, session_name
+    attribute wstring session_name;
 };
 
 

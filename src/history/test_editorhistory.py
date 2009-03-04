@@ -11,7 +11,7 @@ from os.path import dirname, join, abspath, basename, splitext, exists, expandus
 import unittest
 from pprint import pprint, pformat
 
-from editorhistory import History, Location, _RecentsDict
+from editorhistory import HistorySession, History, Location, _RecentsDict
 try:
     import testlib
 except ImportError:
@@ -428,18 +428,20 @@ class HistoryTestCase(_HistoryTestCase):
 
     @testlib.tag("depleted")
     def test_depleted_recent_back_visits(self):
-        # Test the code path that results in the `History.recent_back_visits`
-        # cache being depleted so that it needs to be replenished from the
-        # db.
+        # Test the code path that results in the
+        # `HistorySession.recent_back_visits` cache being depleted so that it
+        # needs to be replenished from the db.
         uri = "file:///home/bob/.bashrc"
-        locs = [Location(uri, i*2, 1) for i in range(1, self.history.RECENT_BACK_VISITS_CACHE_LENGTH+10)]
+        locs = [Location(uri, i*2, 1) for i in
+            range(1, HistorySession.RECENT_BACK_VISITS_CACHE_LENGTH + 10)]
         for loc in locs:
             self.history.note_loc(loc)
         curr_loc = Location(uri, 666, 1)
         #self.history.debug_dump_recent_history(curr_loc)
         
-        n_to_deplete = len(self.history.recent_back_visits) \
-            - self.history.RECENT_BACK_VISITS_DEPLETION_LENGTH + 5
+        session = self.history.get_session()
+        n_to_deplete = len(session.recent_back_visits) \
+            - HistorySession.RECENT_BACK_VISITS_DEPLETION_LENGTH + 5
         for i in range(n_to_deplete):
             curr_loc = self.history.go_back(curr_loc)
             self.assertEqual(curr_loc, locs[-(i+1)])
@@ -466,20 +468,21 @@ class HistoryTestCase(_HistoryTestCase):
         current_loc = loc
         # "Flat" test on individual items at boundaries.
         # If one of these tests fails, it's easy to determine which.
+        session = self.history.get_session()
         self.assertEqual(current_loc,
                          locs[num_items_to_create - jump_count + 1])
-        self.assertEqual(self.history.forward_visits[-1],
+        self.assertEqual(session.forward_visits[-1],
                          locs[num_items_to_create - jump_count + 2])
-        self.assertEqual(self.history.forward_visits[1],
+        self.assertEqual(session.forward_visits[1],
                          locs[num_items_to_create])
-        self.assertEqual(self.history.forward_visits[0],
+        self.assertEqual(session.forward_visits[0],
                          first_current_loc)
         # Loop through to verify we found everything.
         # If one of these fails, we'll need to uncomment the
         # debug line to figure out what went wrong.
         #self.history.debug_dump_recent_history(curr_loc)
         for i in range(jump_count):
-            self.assertEqual(self.history.forward_visits[i],
+            self.assertEqual(session.forward_visits[i],
                              locs[num_items_to_create - i + 1])
         
         # Verify we don't lose the current spot when we move forward.
@@ -491,13 +494,14 @@ class HistoryTestCase(_HistoryTestCase):
                          locs[old_cid + jump_count])
         # Don't roll this loop -- if one of the tests fail, it's
         # harder to determine which one failed
-        self.assertEqual(self.history.recent_back_visits[0],
+        session = self.history.get_session()
+        self.assertEqual(session.recent_back_visits[0],
                          locs[old_cid + jump_count - 1])
-        self.assertEqual(self.history.recent_back_visits[1],
+        self.assertEqual(session.recent_back_visits[1],
                          locs[old_cid + jump_count - 2])
-        self.assertEqual(self.history.recent_back_visits[2],
+        self.assertEqual(session.recent_back_visits[2],
                          locs[old_cid + jump_count - 3])
-        self.assertEqual(self.history.recent_back_visits[3],
+        self.assertEqual(session.recent_back_visits[3],
                          locs[old_cid + jump_count - 4])
      
     @testlib.tag("bug81987")
@@ -520,9 +524,169 @@ class HistoryTestCase(_HistoryTestCase):
         # Test going back one: verify we don't go anywhere.
         new_loc = self.history.go_back(curr_loc, 1)
         #self.history.debug_dump_recent_history(new_loc, merge_curr_loc=False)
-        self.assertEqual(len(self.history.forward_visits), 1)
-        self.assertEqual(self.history.forward_visits[0], new_loc)
+        session = self.history.get_session()
+        self.assertEqual(len(session.forward_visits), 1)
+        self.assertEqual(session.forward_visits[0], new_loc)
 
+class HistoryMultiSessionTestCase(_HistoryTestCase):
+    # HistoryMultiSessionTestCase.test_two_sessions_basic
+    def test_two_sessions_basic(self):
+        a = "file:///home/tester/a.txt"
+        b = "file:///home/tester/b.txt"
+        locs = ([self.history.note_loc(Location(a, (i+1)*10, 1, session_name="1"))
+                for i in range(10)]
+                +
+                [self.history.note_loc(Location(b, 100 + (i+1)*10, 1, session_name="2"))
+                 for i in range(10)])
+        cw1 = "file:///home/tester/cw1.txt"
+        cw2 = "file:///home/tester/cw2.txt"
+        curr_loc_cw1 = Location(cw1, 110, 1, session_name="1")
+        curr_loc_cw2 = Location(cw2, 210, 1, session_name="2")
+        new_loc_w1 = self.history.go_back(curr_loc_cw1, 3)
+        self.assertEqual(new_loc_w1, locs[7])
+        new_loc_w2 = self.history.go_back(curr_loc_cw2, 7)
+        self.assertEqual(new_loc_w2, locs[13])
+        self.assertNotEqual(new_loc_w2, locs[14]) # Verify they're different
+        
+        visits_pre_close = [
+            self.history.get_session("1").recent_back_visits,
+            self.history.get_session("1").forward_visits,
+            self.history.get_session("2").recent_back_visits,
+            self.history.get_session("2").forward_visits,
+        ]
+        self.assertEqual(len(visits_pre_close[0]), 7)
+        self.assertEqual(len(visits_pre_close[1]), 3)
+        self.assertEqual(len(visits_pre_close[2]), 3)
+        self.assertEqual(len(visits_pre_close[3]), 7)
+        
+        # And verify that after we do a close and reopen, the caches are maintained
+        # correctly for each session.
+        self.history.close()
+        self.history = History(self._db_path_)
+        visits_post_close = [
+            self.history.get_session("1").recent_back_visits,
+            self.history.get_session("1").forward_visits,
+            self.history.get_session("2").recent_back_visits,
+            self.history.get_session("2").forward_visits,
+        ]
+        self.assertEqual(visits_post_close, visits_pre_close)
+        
+    def test_multisession_replenish_caches(self):
+        a = "file:///home/tester/a.txt"
+        b = "file:///home/tester/b.txt"
+        locs = ([self.history.note_loc(Location(a, (i+1)*10, 1, session_name="1"))
+                for i in range(100)]
+                +
+                [self.history.note_loc(Location(b, 1000 + (i+1)*10, 1, session_name="2"))
+                 for i in range(100)])
+        cw1 = "file:///home/tester/cw1.txt"
+        cw2 = "file:///home/tester/cw2.txt"
+        curr_loc_cw1 = Location(cw1, 1010, 1, session_name="1")
+        curr_loc_cw2 = Location(cw2, 2010, 1, session_name="2")
+        new_loc_w1 = self.history.go_back(curr_loc_cw1, 30)
+        self.assertEqual(new_loc_w1, locs[70])
+        new_loc_w2 = self.history.go_back(curr_loc_cw2, 55)
+        self.assertEqual(new_loc_w2, locs[145])
+        visits1 = [
+            self.history.get_session("1").recent_back_visits,
+            self.history.get_session("1").forward_visits,
+            self.history.get_session("2").recent_back_visits,
+            self.history.get_session("2").forward_visits,
+        ]
+        self.assertEqual(visits1[0][0], locs[69]) # Go back
+        self.assertEqual(visits1[1][-1], locs[71]) # Go forward
+        self.assertEqual(visits1[2][0], locs[144]) # Go back
+        self.assertEqual(visits1[3][-1], locs[146]) # Go forward
+        # Now move forward 1, should truncate forward visits
+        curr_loc_cw1 = Location(cw1, 1020, 1, session_name="1")
+        curr_loc_cw2 = Location(cw2, 2020, 1, session_name="2")
+        new_loc_w1 = self.history.note_loc(curr_loc_cw1)
+        new_loc_w2 = self.history.note_loc(curr_loc_cw2)
+        visits2 = [
+            self.history.get_session("1").recent_back_visits,
+            self.history.get_session("1").forward_visits,
+            self.history.get_session("2").recent_back_visits,
+            self.history.get_session("2").forward_visits,
+        ]
+        # Should empty out the forward-visits cache, back-visits should be non-empty
+        self.assertTrue(len(visits2[0]) > 0)
+        self.assertEqual(len(visits2[1]), 0)
+        self.assertTrue(len(visits2[2]) > 0)
+        self.assertEqual(len(visits2[3]), 0)
+        
+        # Finally go back a bit, and verify that each back_visits cache
+        # contains the right kind of URIs
+        
+        curr_loc_cw1 = Location(cw1, 1030, 1, session_name="1")
+        curr_loc_cw2 = Location(cw2, 2030, 1, session_name="2")
+        new_loc_w1 = self.history.go_back(curr_loc_cw1, 40)
+        self.assertEqual(new_loc_w1, locs[31])
+        new_loc_w2 = self.history.go_back(curr_loc_cw2, 41)
+        self.assertEqual(new_loc_w2, locs[105])
+        
+        h1 = self.history.recent_history(curr_loc=None, merge_curr_loc=False, session_name="1")
+        h2 = self.history.recent_history(curr_loc=None, merge_curr_loc=False, session_name="2")
+        self.assertFalse([loc for isCurr, loc in h1 if not isCurr and loc.uri == b])
+        self.assertFalse([loc for isCurr, loc in h2 if not isCurr and loc.uri == a])
+
+    def test_multisession_obsolete_uri(self):
+        a = "file:///home/tester/a.txt"
+        b = "file:///home/tester/b.txt"
+        # an obsolete URI can't be used in more than one session, by the
+        # nature of the type of URIs that can be obsoleted (dbgp, e.g.)
+        a1_obs = "file:///home/tester/a1_obs.txt"
+        b1_obs = "file:///home/tester/b1_obs.txt"
+        a2_obs = "file:///home/tester/a2_obs.txt"
+        b2_obs = "file:///home/tester/b2_obs.txt"
+        self.history.note_loc(Location(a, 10, 1, session_name="1"))
+        self.history.note_loc(Location(a1_obs, 20, 1, session_name="1"))
+        self.history.note_loc(Location(b1_obs, 30, 1, session_name="1"))
+        self.history.note_loc(Location(a, 40, 1, session_name="1"))
+        self.history.note_loc(Location(b, 110, 1, session_name="2"))
+        self.history.note_loc(Location(a2_obs, 120, 1, session_name="2"))
+        self.history.note_loc(Location(b2_obs, 130, 1, session_name="2"))
+        self.history.note_loc(Location(b, 140, 1, session_name="2"))
+        cw1 = "file:///home/tester/cw1.txt"
+        cw2 = "file:///home/tester/cw2.txt"
+        curr_loc_cw1 = Location(cw1, 50, 1, session_name="1")
+        curr_loc_cw2 = Location(cw2, 150, 1, session_name="2")
+        loc = self.history.go_back(curr_loc_cw1, 4)
+        self.assertEqual(loc.line, 10)
+        curr_loc1 = loc
+        # Now close a_obs in session 1
+        loc = self.history.go_forward(curr_loc1, 1)
+        self.history.obsolete_uri(a1_obs, undo_delta=1, orig_dir_was_back=False, session_name="1")
+        loc = self.history.go_forward(curr_loc1, 2)
+        self.assertEqual(loc.line, 40) # later we'll move back onto b_obs
+        curr_loc1 = loc
+        
+        # Now move to a_obs in session 2 -- it's still alive there
+        loc = self.history.go_back(curr_loc_cw2, 3)
+        self.assertEqual(loc.line, 120) # later we'll move back onto b_obs
+        curr_loc2 = loc
+        # Kill off b_obs
+        loc = self.history.go_forward(curr_loc2, 1)
+        self.history.obsolete_uri(b2_obs, undo_delta=1, orig_dir_was_back=False, session_name="2")
+        loc = self.history.go_forward(curr_loc2, 1)
+        self.assertEqual(loc.line, 140) # at b
+        curr_loc2 = loc
+        
+        # Back to session1, verify b_obs is still there
+        loc = self.history.go_back(curr_loc1, 1)
+        self.assertEqual(loc.line, 30) # And kill it off
+        self.history.obsolete_uri(b1_obs, undo_delta=1, orig_dir_was_back=True, session_name="1")
+        loc = self.history.go_back(curr_loc1, 1)
+        self.assertEqual(loc.line, 10)
+        curr_loc1 = loc
+        
+        # Finally in session2, remove a_obs
+        loc = self.history.go_back(curr_loc2, 1)
+        self.assertEqual(loc.line, 120)
+        # Kill off a_obs
+        self.history.obsolete_uri(a2_obs, undo_delta=1, orig_dir_was_back=True, session_name="2")
+        loc = self.history.go_back(curr_loc2, 1)
+        self.assertEqual(loc.line, 110)
+        
 class ObsoleteURITestCase(_HistoryTestCase):
     """
     This testcase is not obsolete!!!
@@ -546,7 +710,7 @@ class ObsoleteURITestCase(_HistoryTestCase):
         loc = self.history.go_back(current_loc, 3)
         self.assertEqual(loc.uri, uri_volatile)
         self.assertEqual(loc.line, 480)
-        self.history.obsolete_uri(loc.uri, 1) # => #490
+        self.history.obsolete_uri(loc.uri, 1, True) # => #490
         v = list(self.history.recent_history(current_loc))
         volatile_locs = [x for x in v if x[1].uri == uri_volatile]
         self.assertEqual(len(volatile_locs), 0)
@@ -568,7 +732,7 @@ class ObsoleteURITestCase(_HistoryTestCase):
         loc = self.history.go_back(current_loc, 1)
         self.assertEqual(loc.line, 30)
         #self.history.debug_dump_recent_history(loc)
-        self.history.obsolete_uri(loc.uri, 1) # => #40
+        self.history.obsolete_uri(loc.uri, 1, True) # => #40
         #self.history.debug_dump_recent_history(None)
         loc = self.history.go_back(current_loc, 1)
         self.assertEqual(loc.line, 20)
@@ -795,7 +959,7 @@ class ObsoleteURITestCase(_HistoryTestCase):
         self.assertEqual(loc.uri, uri_volatile)
         self.assertEqual(loc.line, 480)
         #self.history.debug_dump_recent_history(loc)
-        self.history.obsolete_uri(loc.uri, 1) # => #490
+        self.history.obsolete_uri(loc.uri, 1, True) # => #490
         #self.history.debug_dump_recent_history(current_loc)
         v = list(self.history.recent_history(current_loc))
         # Make assertions about the culled list
@@ -807,10 +971,9 @@ class ObsoleteURITestCase(_HistoryTestCase):
 
         # Now save the database, reload, and verify some facts about the
         # new database
-        self.history.save()
-        
-        # Now reload
+        self.history.close()
         self.history = History(self._db_path_)
+        
         self.assertEqual(current_loc.line, 490)
         #self.history.debug_dump_recent_history(current_loc)
         # Recheck history
