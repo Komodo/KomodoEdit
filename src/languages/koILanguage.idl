@@ -121,7 +121,11 @@ interface koILanguage : nsISupports {
     long getBraceIndentStyle(in wchar character, in long style);
 
     string getMatchingChar(in wchar character);
-  
+    void getMatchingTagInfo(in ISciMoz scimoz,
+                            in long pos,
+                            [array, size_is(count)] out long coordinates,
+                            out unsigned long count);
+                            
     // calls that do language indentation and brace line-up.
     string computeIndent(in ISciMoz scimoz, in string indentStyle,
                          in boolean continueComments);

@@ -63,19 +63,27 @@ def makeIndentFromWidth(scimoz, width):
     else:
         return ' '*width
 
-def findMatchingTagPosition(scimoz, caretPos, languageObj):
-    braceAtCaret = -1
-    braceOpposite = -1
-    isInside = 0 # All tags are outside-based for tags
-    charBefore = '\0'
-    styleBefore = 0
+def findMatchingTagPosition(scimoz, caretPos, languageObj, constrainSearchInViewPort=False):
+    """
+    Gives information to clients on where the matching start- and end-tags are.
+    @param scimoz {Scimoz}
+    @param caretPos {int} The current position
+    @param languageObj {koILanguage} - unwrapped Python object
+    @param constrainSearchInViewPort {bool} - Search only in the visible portion of the document.
+    
+    @returns:
+      On failure: None
+      Otherwise: 5-tuple: ({bool}: onStartTag
+                           {int}: start-tag-start-pos,
+                           {int}: start-tag-end-pos,
+                           {int}: end-tag-start-pos,
+                           {int}: end-tag-end-pos)
+    """
     textLength = scimoz.textLength
     if caretPos >= textLength:
         caretPos = scimoz.positionBefore(textLength)
         
     # If we're on a start- or end-tag, go find the matcher.
-    styleBefore = scimoz.getStyleAt(scimoz.positionBefore(caretPos))
-    styleAt = scimoz.getStyleAt(caretPos)
     isHTML = languageObj.isHTMLLanguage
     tagStartPos = caretPos
     tagStartPrevPos = scimoz.positionBefore(tagStartPos)
@@ -102,26 +110,33 @@ def findMatchingTagPosition(scimoz, caretPos, languageObj):
             # <a>|</b> : If we did a search, we'd end up walking
             # through the full doc and find either nothing,
             # or a false positive
-            return braceAtCaret, braceOpposite, isInside
+            return None
         elif onStartTagAtRight:
             # Favor right: consistent with onEndTagAtLeft
             # <a>|<b> : show </b>
             onStartTagAtLeft = False
             tagStartPos += 1
+    
+    if constrainSearchInViewPort:   
+        firstLine = scimoz.docLineFromVisible(scimoz.firstVisibleLine)
+        lastLine = scimoz.docLineFromVisible(scimoz.firstVisibleLine + scimoz.linesOnScreen)
+        firstVisiblePos = scimoz.positionFromLine(firstLine)
+        lastVisiblePos = scimoz.getLineEndPosition(lastLine) + 1
+    else:
+        firstVisiblePos = lastVisiblePos = None
         
     if onStartTagAtLeft or onStartTagAtRight:
-        matchingTagInfo = endTagInfo_from_startTagPos(scimoz, tagStartPos, isHTML)
-        if matchingTagInfo is not None:
-            # returns (startTag-start, startTag-end, endTag-start, entTag-end)
-            braceAtCaret = matchingTagInfo[0]
-            braceOpposite = matchingTagInfo[3]
+        res = endTagInfo_from_startTagPos(scimoz, tagStartPos, isHTML, lastVisiblePos)
+        if res:
+            return (True,) + (res)
+        return res
     elif onEndTagAtLeft or onEndTagAtRight:
-        matchingTagInfo = startTagInfo_from_endTagPos(scimoz, tagStartPos, isHTML)
-        if matchingTagInfo is not None:
-            # returns (startTag-start, startTag-end, endTag-start, entTag-end)
-            braceOpposite = matchingTagInfo[0] 
-            braceAtCaret = matchingTagInfo[3]
-    return braceAtCaret, braceOpposite, isInside
+        res = startTagInfo_from_endTagPos(scimoz, tagStartPos, isHTML, firstVisiblePos)
+        if res:
+            return (False,) + (res)
+        return res
+    else:
+        return None
     
 def _verifyLoneStartTag(scimoz, tagPos):
     """
@@ -199,35 +214,37 @@ def _verifyLoneEndTag(scimoz, tagPos):
     tagName = _getCurrTagName(scimoz, endTagStartPos + 2)
     return endTagStartPos, endTagEndPos, lineNo, tagName
 
-def startTagInfo_from_endTagPos(scimoz, endTagPos, isHTML=False):
+def startTagInfo_from_endTagPos(scimoz, endTagPos, isHTML=False, firstVisiblePos=None):
     """
     @param scimoz {Scimoz}
     @param endTagPos {int} -- a position somewhere on the end tag
     @param isHTML {bool} -- if False, the match might be determined by looking at Scintilla fold levels
+    @param firstVisiblePos {int} - position of the start of the first visible line in the editor
     
     @return either None, or a 4-tuple containing the start and end points
     of the start-tag and end-tag.
     """
-    if not isHTML:
+    if not isHTML and firstVisiblePos is None:
         res = tagStartFromEndViaFoldLevels(scimoz, endTagPos)
         if res is not None:
             return res
-    return tagStartFromEndViaMatchingName(scimoz, endTagPos)
+    return tagStartFromEndViaMatchingName(scimoz, endTagPos, firstVisiblePos)
   
-def endTagInfo_from_startTagPos(scimoz, startTagPos, isHTML=False):
+def endTagInfo_from_startTagPos(scimoz, startTagPos, isHTML=False, lastVisiblePos=None):
     """
     @param scimoz {Scimoz}
     @param startTagPos {Int} -- a position somewhere on the start tag
     @param isHTML {Boolean} -- if False, the match might be determined by looking at Scintilla fold levels
+    @param lastVisiblePos {int} - position of the end of the last visible line in the editor
     
-    @return either None, or a 4-tuple containing the start and end points
+    @return either None or a 4-tuple containing the start and end points
     of the start-tag and end-tag.
     """
-    if not isHTML:
+    if not isHTML and lastVisiblePos is None:
         res1 = tagEndFromStartViaFoldLevels(scimoz, startTagPos)
         if res1 is not None:
             return res1
-    return tagEndFromStartViaMatchingName(scimoz, startTagPos)
+    return tagEndFromStartViaMatchingName(scimoz, startTagPos, lastVisiblePos)
    
 def tagStartFromEndViaFoldLevels(scimoz, endTagPos):
     """
@@ -258,7 +275,19 @@ def tagStartFromEndViaFoldLevels(scimoz, endTagPos):
         return None
     return res[0], res[1], endTagStartPos, endTagEndPos
 
-def tagStartFromEndViaMatchingName(scimoz, endTagPos):
+def _getCloseTagPos(scimoz, tagStartPos):
+    scimoz.currentPos = scimoz.anchor = tagStartPos + 1
+    scimoz.searchAnchor()
+    nextTagOpenPos = scimoz.searchNext(0, "<")
+    nextTagClosePos = scimoz.searchNext(0, ">")
+    if nextTagOpenPos == -1:
+        return nextTagClosePos
+    elif nextTagOpenPos < nextTagClosePos:
+        return -1
+    else:
+        return nextTagClosePos
+
+def tagStartFromEndViaMatchingName(scimoz, endTagPos, firstVisiblePos):
     """
     Start at the end-point, and search backwards looking at
     <foo and </foo (assuming a starting tag name of "foo",
@@ -278,9 +307,9 @@ def tagStartFromEndViaMatchingName(scimoz, endTagPos):
     endTagPos = _tagStartPosFromPos(scimoz, endTagPos, scimoz.SCE_UDL_M_ETAGO)
     if endTagPos == -1:
         return None
-    if scimoz.getCharAt(endTagPos) == ord("<"):
-       endTagPos += 1
-    tagName = _getCurrTagName(scimoz, endTagPos + 1)
+    if scimoz.getCharAt(endTagPos) == ord("/"):
+       endTagPos -= 1
+    tagName = _getCurrTagName(scimoz, endTagPos + 2)
 
     origPos = scimoz.currentPos
     origAnchor = scimoz.anchor
@@ -300,20 +329,26 @@ def tagStartFromEndViaMatchingName(scimoz, endTagPos):
             elif nextStartTagPos > nextEndTagPos:
                 # Includes no more end-tags
                 style = scimoz.getStyleAt(nextStartTagPos)
-                if (style == scimoz.SCE_UDL_M_STAGO
-                    and (scimoz.getStyleAt(nextStartTagPos + searchLen)
-                         != scimoz.SCE_UDL_M_TAGNAME)):
-                    if tagCount == 1:
-                        tagEndPos = _tagEndPosFromPos(scimoz, nextStartTagPos,
-                                                      scimoz.SCE_UDL_M_STAGC)
-                        return (nextStartTagPos, tagEndPos,
-                                endTagPos,
-                                _tagEndPosFromPos(scimoz, endTagPos,
-                                                  scimoz.SCE_UDL_M_ETAGC))
-                    tagCount -= 1
+                if style == scimoz.SCE_UDL_M_STAGO:
+                    closeTagPos = _getCloseTagPos(scimoz, nextStartTagPos)
+                    if (closeTagPos > 0
+                        and (scimoz.getStyleAt(closeTagPos)
+                             == scimoz.SCE_UDL_M_STAGC)
+                        and (scimoz.getStyleAt(nextStartTagPos + searchLen)
+                             != scimoz.SCE_UDL_M_TAGNAME)):
+                        if tagCount == 1:
+                            tagEndPos = _tagEndPosFromPos(scimoz, nextStartTagPos,
+                                                          scimoz.SCE_UDL_M_STAGC)
+                            return (nextStartTagPos, tagEndPos,
+                                    endTagPos,
+                                    _tagEndPosFromPos(scimoz, endTagPos,
+                                                      scimoz.SCE_UDL_M_ETAGC))
+                        tagCount -= 1
                 scimoz.currentPos = scimoz.anchor = nextStartTagPos - 1
                 scimoz.searchAnchor()
                 nextStartTagPos = scimoz.searchPrev(0, startTagSearch)
+                if firstVisiblePos is not None and nextStartTagPos < firstVisiblePos:
+                    nextStartTagPos = -1
             else:
                 # Found an end-tag
                 style = scimoz.getStyleAt(nextEndTagPos)
@@ -324,6 +359,8 @@ def tagStartFromEndViaMatchingName(scimoz, endTagPos):
                 scimoz.currentPos = scimoz.anchor = nextEndTagPos - 1
                 scimoz.searchAnchor()
                 nextEndTagPos = scimoz.searchPrev(0, endTagSearch)
+                if firstVisiblePos is not None and nextEndTagPos < firstVisiblePos:
+                    nextEndTagPos = -1
     finally:
         scimoz.currentPos = origPos
         scimoz.anchor = origAnchor
@@ -362,8 +399,8 @@ def tagEndFromStartViaFoldLevels(scimoz, startTagPos):
     if res is None or tagName != res[3]:
         return None
     return startTagStartPos, startTagEndPos, res[0], res[1]
-                       
-def tagEndFromStartViaMatchingName(scimoz, startTagPos):
+
+def tagEndFromStartViaMatchingName(scimoz, startTagPos, lastVisiblePos):
     """
     Start at the start-tag, and search forwards looking at
     <foo and </foo (assuming a starting tag name of "foo",
@@ -400,9 +437,14 @@ def tagEndFromStartViaMatchingName(scimoz, startTagPos):
             if nextEndTagPos == -1:
                 return None
             elif nextStartTagPos > nextEndTagPos or nextStartTagPos == -1:
+                if lastVisiblePos is not None and nextEndTagPos > lastVisiblePos:
+                    return None
                 style = scimoz.getStyleAt(nextEndTagPos)
                 if style == 0 and canColourise:
-                    scimoz.colourise(0, -1)
+                    if lastVisiblePos is None:
+                        scimoz.colourise(startTagPos, -1)
+                    else:
+                        scimoz.colourise(startTagPos, lastVisiblePos)
                     canColourise = False
                     style = scimoz.getStyleAt(nextEndTagPos)
                 if (style == scimoz.SCE_UDL_M_ETAGO
@@ -421,18 +463,34 @@ def tagEndFromStartViaMatchingName(scimoz, startTagPos):
                 scimoz.searchAnchor()
                 nextEndTagPos = scimoz.searchNext(0, endTagSearch)
             else:
+                if lastVisiblePos is not None and nextStartTagPos > lastVisiblePos:
+                    nextStartTagPos = -1
+                    continue
                 # Start-tag came first
                 style = scimoz.getStyleAt(nextStartTagPos)
                 if style == 0 and canColourise:
-                    scimoz.colourise(0, -1)
+                    if lastVisiblePos is not None and nextStartTagPos > lastVisiblePos:
+                        print "searching for end, got start-tag at %d past pos %d" % (nextStartTagPos, lastVisiblePos)
+                        return None
+                    if lastVisiblePos is None:
+                        scimoz.colourise(startTagPos, -1)
+                    else:
+                        scimoz.colourise(startTagPos, lastVisiblePos)
                     canColourise = False
                     style = scimoz.getStyleAt(nextStartTagPos)
-                if (style == scimoz.SCE_UDL_M_STAGO
-                    and (nextEndTagPos + searchJump >= textLength
-                         or (scimoz.getStyleAt(nextStartTagPos + searchJump)
-                             != scimoz.SCE_UDL_M_TAGNAME))):
-                    tagCount += 1
-                scimoz.currentPos = scimoz.anchor = nextStartTagPos + searchJump
+                if style == scimoz.SCE_UDL_M_STAGO:
+                    closeTagPos = _getCloseTagPos(scimoz, nextStartTagPos)
+                    if closeTagPos == -1:
+                        return None
+                    nextPos = closeTagPos + 1
+                    if (scimoz.getStyleAt(closeTagPos) == scimoz.SCE_UDL_M_STAGC
+                        and (nextEndTagPos + searchJump >= textLength
+                             or (scimoz.getStyleAt(nextStartTagPos + searchJump)
+                                 != scimoz.SCE_UDL_M_TAGNAME))):
+                        tagCount += 1
+                else:
+                    nextPos = nextEndTagPos + searchJump + 1
+                scimoz.currentPos = scimoz.anchor = nextPos
                 scimoz.searchAnchor()
                 nextStartTagPos = scimoz.searchNext(0, startTagSearch)
     finally:

@@ -39,6 +39,7 @@ import timeline
 
 from koLanguageServiceBase import *
 from koUDLLanguageBase import KoUDLLanguage
+import scimozindent
 
 log = logging.getLogger('koXMLLanguageBase')
 #log.setLevel(logging.DEBUG)
@@ -229,6 +230,10 @@ class koXMLLanguageBase(KoUDLLanguage):
                                          self._endTagStyles)
             return True
         return False
+
+    def getMatchingTagInfo(self, scimoz, pos):
+        return scimozindent.findMatchingTagPosition(scimoz, pos, self,
+                                                    constrainSearchInViewPort=True)
 
     def _checkEndTag(self, scimoz, pos, desiredEndTagStyle, tagStyles):
         lim = scimoz.length
