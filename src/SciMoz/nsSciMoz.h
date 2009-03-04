@@ -125,6 +125,42 @@
 #endif
 
 
+/* Thread checks are default in dev builds, off in release */
+
+#if BUILD_FLAVOUR == dev
+
+#if MOZ_VERSION < 190
+/* mozilla 1.8 */
+#include "nsIThread.h"
+#define IS_MAIN_THREAD() nsIThread::IsMainThread()
+#else
+/* mozilla 1.9 */
+#include "nsThreadUtils.h"
+#define IS_MAIN_THREAD() NS_IsMainThread()
+#endif // # MOZ_VERSION
+
+#define SCIMOZ_CHECK_THREAD(a) \
+    if (!IS_MAIN_THREAD()) { \
+	fprintf(stderr, "SciMoz::" a " was called on a thread\n"); \
+	return NS_ERROR_FAILURE; \
+    }
+
+#else
+#define SCIMOZ_CHECK_THREAD(a)
+#endif // # if BUILD_FLAVOUR
+
+// Ensure that SciMoz has not been closed. Bug 82032.
+#define SCIMOZ_CHECK_ALIVE(a) \
+    if (isClosed) { \
+	fprintf(stderr, "SciMoz::" a " used when closed!\n"); \
+	return NS_ERROR_FAILURE; \
+    }
+
+#define SCIMOZ_CHECK_VALID(a) \
+    SCIMOZ_CHECK_THREAD(a) \
+    SCIMOZ_CHECK_ALIVE(a)
+
+
 #include "SciMozEvents.h"
 
 class nsPluginInstance;
