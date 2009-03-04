@@ -474,10 +474,13 @@ MacroEventHandler.prototype._addObserverMacro = function(macropart) {
         var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                getService(Components.interfaces.nsIObserverService);
         obsSvc.addObserver(this._triggerWrapper, topic, false);
+        // XXX: Removed: The koObserverService are instances, this looks like it
+        //      was trying to tie into the koIDocument observer notifications,
+        //      but these are per document instances and not a global.
         // Put it on the ActiveState observer service as well
-        obsSvc = Components.classes['@activestate.com/koObserverService;1'].
-               getService(Components.interfaces.nsIObserverService);
-        obsSvc.addObserver(this._triggerWrapper, topic, false);
+        //obsSvc = Components.classes['@activestate.com/koObserverService;1'].
+        //       getService(Components.interfaces.nsIObserverService);
+        //obsSvc.addObserver(this._triggerWrapper, topic, false);
     } else {
         this._trigger_observers[topic] += 1;
     }
@@ -500,9 +503,12 @@ MacroEventHandler.prototype._removeObserverMacro = function(macropart, topic) {
         var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                getService(Components.interfaces.nsIObserverService);
         obsSvc.removeObserver(this._triggerWrapper, topic);
-        obsSvc = Components.classes['@activestate.com/koObserverService;1'].
-               getService(Components.interfaces.nsIObserverService);
-        obsSvc.removeObserver(this._triggerWrapper, topic);
+        // XXX: Removed: The koObserverService are instances, this looks like it
+        //      was trying to tie into the koIDocument observer notifications,
+        //      but these are per document instances and not a global.
+        //obsSvc = Components.classes['@activestate.com/koObserverService;1'].
+        //       getService(Components.interfaces.nsIObserverService);
+        //obsSvc.removeObserver(this._triggerWrapper, topic);
         delete this._trigger_observers[topic];
     }
 };
