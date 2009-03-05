@@ -37,7 +37,7 @@
 
 """koext -- a tool for building Komodo extensions"""
 
-__version_info__ = (0, 2, 0)
+__version_info__ = (0, 3, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 
@@ -126,7 +126,6 @@ class KoExtShell(cmdln.Cmdln):
 
         ${cmd_usage}
         ${cmd_option_list}
-        
         Limitations:
         - Currently this only works in Komodo dev builds (i.e. won't work when using
           a Komodo SDK installed with a Komodo installer build).

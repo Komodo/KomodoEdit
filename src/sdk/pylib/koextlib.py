@@ -468,7 +468,7 @@ def create_codeintel_lang_skel(base_dir, lang, dry_run=False, force=False,
 
 
 
-def build_ext(base_dir, log=None):
+def build_ext(base_dir, support_devinstall=True, log=None):
     """Build a Komodo extension from the sources in the given dir.
     
     This reads the "install.rdf" in this directory and the appropriate
@@ -478,6 +478,11 @@ def build_ext(base_dir, log=None):
     - IDL and PyXPCOM components in "components/..." are handled
       appropriately.
     - etc. (see `koext help hooks' for more details)
+    
+    @param base_dir {str} The source directory path of the extension.
+    @param support_devinstall {bool} Whether to copy built bits to the source
+        directory to support use with a 'devinstall'. Default is True.
+    @param log {logging.Logger} Optional.
     """
     if log is None: log = _log
     if not is_ext_dir(base_dir):
@@ -540,8 +545,7 @@ def build_ext(base_dir, log=None):
             for path in glob(join("components", "*")):
                 _cp(path, components_build_dir, log.info)
             _trim_files_in_dir(components_build_dir,
-                               [".svn", ".hg", "CVS", "*.pyc", "*.pyo"],
-                               log.info)
+                [".svn", ".hg", "CVS", "*.pyc", "*.pyo", "*.idl"], log.info)
             xpi_manifest.append(components_build_dir)
             
             idl_build_dir = join(build_dir, "idl")
@@ -553,16 +557,25 @@ def build_ext(base_dir, log=None):
                     xpt_path = join(components_build_dir,
                         splitext(basename(idl_path))[0] + ".xpt")
                     _xpidl(idl_path, xpt_path, ko_info, log.info)
+                    if support_devinstall:
+                        _cp(xpt_path, "components", log.info)
                 xpi_manifest.append(idl_build_dir)
     
         # Handle any UDL lexer compilation.
-        lexers_dir = join(build_dir, "lexers")
-        for mainlex_udl_path in glob(join("udl", "*-mainlex.udl")):
-            if not exists(lexers_dir):
-                _mkdir(lexers_dir, log.info)
-            _luddite_compile(mainlex_udl_path, lexers_dir, ko_info)
-        if exists(lexers_dir):
-            xpi_manifest.append(lexers_dir)
+        if exists("udl"):
+            xpi_manifest.append("udl")
+            lexers_build_dir = join(build_dir, "lexers")
+            for mainlex_udl_path in glob(join("udl", "*-mainlex.udl")):
+                if not exists(lexers_build_dir):
+                    _mkdir(lexers_build_dir, log.info)
+                _luddite_compile(mainlex_udl_path, lexers_build_dir, ko_info)
+            if exists(lexers_build_dir):
+                xpi_manifest.append(lexers_build_dir)
+                if support_devinstall:
+                    if not exists("lexers"):
+                        _mkdir("lexers", log.info)
+                    for lexres_path in glob(join(lexers_build_dir, "*.lexres")):
+                        _cp(lexres_path, "lexers", log.info)
     
         # Remaining hook dirs that are just included verbatim in the XPI.
         for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib",
@@ -703,7 +716,6 @@ class KomodoInfo(object):
     
     @property
     def in_src_tree(self):
-        # DEPRECATED
         return self._where_am_i == "source"
 
     @property
@@ -724,10 +736,7 @@ class KomodoInfo(object):
 
     @property
     def udl_dir(self):
-        if self._where_am_i == "source":
-            return join(dirname(self.sdk_dir), "udl", "udl")
-        else:
-            return join(self.sdk_dir, "udl")
+        return join(self.sdk_dir, "udl")
 
     _bkconfig_module_cache = None
     def _get_bkconfig_var(self, name):
@@ -971,6 +980,21 @@ def _query(preamble, default=None, prompt="> ", validate=None):
         break
     return answer
 
+def _symlink(source_path, target_path, force=False):
+    """Make a symlink (if supported on this OS) or copy.
+    
+    @param source_path {str}
+    @param target_path {str}
+    @param force {bool} Whether to overwrite `target_path` if it exists.
+        Default is false.
+    """
+    if exists(target_path) and force:
+        os.remove(target_path)
+    if sys.platform == "win32":
+        _cp(source_path, target_path)
+    else:
+        _run('ln -s "%s" "%s"' % (source_path, target_path))
+
 
 # Recipe: banner (1.0.1)
 def _banner(text, ch='=', length=78):
@@ -1107,7 +1131,8 @@ def _xpidl(idl_path, xpt_path, ko_info, logstream=None):
 
 def _luddite_compile(udl_path, output_dir, ko_info):
     if ko_info.in_src_tree:
-        sys.path.insert(0, dirname(ko_info.udl_dir))
+        udl_dev_dir = join(dirname(dirname(dirname(__file__))), "udl")
+        sys.path.insert(0, udl_dev_dir)
         try:
             from ludditelib.commands import compile
         finally:

@@ -1,0 +1,21 @@
+
+# v0.3.0
+
+- `koext build` now excludes IDL files from the components directory. The
+  IDL files are already being includes in the "idl" directory of the .xpi.
+- `koext build` now includes the source UDL files (in the "udl" dir) in an
+  extension. This is useful (a) as self-documentation and (b) in case the
+  extension is providing UDL library files that other extensions might be
+  able to use.
+- `koext build` not copies built bits (e.g. "*.xpt" from "*.idl", "*.lexres"
+  from "*.idl") into the *source* directory to support working with a
+  devinstall.
+- Add `koext devinstall` to hookup an extension source dir with a Komodo dev
+  build for quick development (don't need to rebuild and reinstall a .xpi).
+  Currently this only works in a Komodo development build, but the intention
+  is to make this work with a regular Komodo installation as well.
+
+
+# earlier versions
+
+...
