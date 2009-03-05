@@ -3423,6 +3423,7 @@
 
         <Directory Id="directory618" Name="sdk">
           <Component Id="component513" DiskId="1" Guid="$(autowix.guid)">
+            <File Id="file839" Name="CHANGE_0.TXT" LongName="CHANGELOG.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\CHANGELOG.txt"/>
             <File Id="file285" Name="README.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\README.txt"/>
           </Component>
           <Directory Id="directory619" Name="bin">
@@ -3520,6 +3521,12 @@
               <File Id="file836" Name="NSIAUT_4.IDL" LongName="nsIAutoCompleteResultTypes.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIAutoCompleteResultTypes.idl"/>
               <File Id="file837" Name="NSIAUT_5.IDL" LongName="nsIAutoCompleteSearch.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIAutoCompleteSearch.idl"/>
               <File Id="file838" Name="NSIAUT_6.IDL" LongName="nsIAutoCompleteSimpleResult.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIAutoCompleteSimpleResult.idl"/>
+              <File Id="file840" Name="NSICOL_0.IDL" LongName="nsICollection.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsICollection.idl"/>
+              <File Id="file841" Name="NSIENU_0.IDL" LongName="nsIEnumerator.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIEnumerator.idl"/>
+              <File Id="file842" Name="NSISER_1.IDL" LongName="nsISerializable.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsISerializable.idl"/>
+              <File Id="file843" Name="NSISUP_2.IDL" LongName="nsISupportsArray.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsISupportsArray.idl"/>
+              <File Id="file844" Name="NSITRE_0.IDL" LongName="nsITreeBoxObject.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsITreeBoxObject.idl"/>
+              <File Id="file845" Name="NSITRE_1.IDL" LongName="nsITreeView.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsITreeView.idl"/>
               <File Id="file4111" Name="NSICAT_0.IDL" LongName="nsICategoryManager.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsICategoryManager.idl"/>
               <File Id="file4112" Name="NSICER_0.IDL" LongName="nsICertificateDialogs.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsICertificateDialogs.idl"/>
               <File Id="file4113" Name="NSICHA_0.IDL" LongName="nsIChannel.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIChannel.idl"/>
