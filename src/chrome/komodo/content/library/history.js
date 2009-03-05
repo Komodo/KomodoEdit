@@ -401,17 +401,19 @@ this.init_popup_menu_recent_locations = function(event) {
     }
 };
 
+
+/** Common function for moving forward or back
+ * @param go_method_name {String} either 'go_back' or 'go_forward',
+ *        used to make this routine work for both directins.
+ * @param check_method_name {String} either 'can_go_back' or 'can_go_forward',
+ *        Same rationale as go_method_name
+ * @param delta {Integer} # of hops to make
+ * @param explicit {Boolean} if true, the user pressed the "Recent
+ *        Locations" button.  Otherwise they hit the go_back
+ *        or go_forward command.
+ */
 this._history_move = function(go_method_name, check_method_name, delta,
                               explicit) {
-    // @param go_method_name {String} either 'go_back' or 'go_forward',
-    //        used to make this routine work for both directins.
-    // @param check_method_name {String} either 'can_go_back' or 'can_go_forward',
-    //        Same rationale as go_method_name
-    // @param delta {Integer} # of hops to make
-    // @param explicit {Boolean} if true, the user pressed the "Recent
-    //        Locations" button.  Otherwise they hit the go_back
-    //        or go_forward command.
-
     if (typeof(explicit) == "undefined") explicit=false;
     var curr_loc = _get_curr_loc();
     var is_moving_back = (go_method_name == 'go_back');
