@@ -710,6 +710,8 @@ viewManager.prototype._doFileOpen = function(uri,
     var views = this.topView.getViewsByTypeAndURI(true, viewType, uri);
     if (views.length > 0) {
         if (viewList == null) {
+            // If no tab group (viewList) is specified, maintain
+            // pre-5.1 behavior of opening whichever view is found
             if (views.indexOf(this.currentView) >= 0) {
                 // this uses the correct view in a splitview
                 this.currentView.makeCurrent();
@@ -719,6 +721,8 @@ viewManager.prototype._doFileOpen = function(uri,
                 return views[0];
             }
         } else {
+            // If a tab group is specified, but the URI isn't
+            // found on that tab group, open a new view.
             for (var i = 0; i < views.length; i++) {
                 var possibleView = views[i];
                 if (viewList.id == "view-" + possibleView.tabbedViewId) {
