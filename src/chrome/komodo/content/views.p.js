@@ -881,6 +881,42 @@ viewManager.prototype.doFileOpenAtLineAsync = function(uri,
     }, 1, this, uri, lineno, viewType, viewList, index, callback);
 }
 
+/**
+ * 
+ * Asynchronously open a view, optionally in the specified tabbed list
+ * and at the specified tab position.
+ *
+ * @param uri {string} uri to file
+ * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param tabGroup {string} optional, which tab group to open the buffer in
+ * @param index {integer} optional index in the `viewList` at which to insert
+ *        the new view. If not given, or -1, then the new view is appended.
+ *        If there is already a view open for this `uri`, then index is ignored.
+ * @param callback {function} optional, to be called when the asynchronous load
+ *        is complete. The view will be passed as an argument to the function.
+ *
+ * @return null
+ */
+viewManager.prototype.openViewAsync = function(viewType, uri, tabGroup, tabIndex, callback) {
+    if (typeof(tabGroup) == "undefined") tabGroup = null;
+    var tabList = tabGroup ? document.getElementById(tabGroup) : null;
+    switch (viewType) {
+    case "startpage":
+        // ko.open.startPage() uses the current view.
+        // Using doFileOpen... uses the same view when it was closed,
+        // but we have to hardwire the startpage URI
+        uri = "chrome://komodo/content/startpage/startpage.xml#view-startpage";
+        // FALLTHRU
+    case "editor":
+        ko.views.manager.doFileOpenAsync(uri, viewType, tabList, tabIndex, callback);
+        break;
+    case "browser":
+        ko.views.manager.newViewFromURIAsync(uri, 'browser', tabList, tabIndex, callback);
+        break;
+    default:
+        this.log.error("Don't know how to open " + viewType + " views\n");
+    }
+}
 
 /**
  * Get a reference to the buffer view for the given URI and view type.
