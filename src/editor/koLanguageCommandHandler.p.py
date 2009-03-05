@@ -1174,8 +1174,19 @@ class GenericCommandHandler:
         view = self._view
         sm = view.scimoz
         if view.languageObj.supportsSmartIndent == "XML":
-            return scimozindent.findMatchingTagPosition(sm, caretPos,
-                                                        UnwrapObject(view.languageObj))
+            matchInfo = scimozindent.findMatchingTagPosition(
+                sm, caretPos, UnwrapObject(view.languageObj))
+            if matchInfo:
+                atStart, stagi, stagf, etagi, etagf = matchInfo
+                isInside = False
+                if atStart:
+                    braceAtCaret = caretPos
+                    braceOpposite = etagf
+                else:
+                    braceAtCaret = caretPos
+                    braceOpposite = stagi
+                return braceAtCaret, braceOpposite, isInside
+        # Otherwise try doing standard bracket-matching
         mask = view.languageObj.stylingBitsMask
         isInside = 0
         braceAtCaret = -1
