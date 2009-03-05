@@ -124,9 +124,17 @@ if ($platform eq "win") {
     $cons->InstallAs("$sdkDir/bin/codeintel", "sdk/bin/codeintel.py");
 }
 
-$cons->InstallRecursive("$sdkDir/idl", "$mozDevelDist/sdk/idl", ('\.svn'));
-$cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsIAutoComplete*.idl");
 $cons->InstallRecursive("$sdkDir/bin", "$mozDevelDist/sdk/bin", ('\.svn'));
+$cons->InstallRecursive("$sdkDir/idl", "$mozDevelDist/sdk/idl", ('\.svn'));
+# Cherry-pick some unfrozen IDLs.
+$cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsIAutoComplete*.idl");
+$cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsITreeView.idl");
+    # The following needed for nsITreeView usage.
+    $cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsITreeBoxObject.idl");
+    $cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsISupportsArray.idl");
+    $cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsICollection.idl");
+    $cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsISerializable.idl");
+    $cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsIEnumerator.idl");
 
 if ($platform eq "win") {
     my $mozillaBuildDir = $ENV{MOZILLABUILD} || "C:\\mozilla-build";
