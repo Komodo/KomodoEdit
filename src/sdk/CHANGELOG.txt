@@ -1,6 +1,7 @@
 
-# v0.3.0
+# Komodo 5.1.0b1
 
+- koext v0.3.0
 - `koext build` now excludes IDL files from the components directory. The
   IDL files are already being includes in the "idl" directory of the .xpi.
 - `koext build` now includes the source UDL files (in the "udl" dir) in an
