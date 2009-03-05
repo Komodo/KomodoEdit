@@ -293,6 +293,11 @@
             oncommand="ko.commands.doCommand('cmd_open')"
             desc="&generalOpenFileDialog.desc;"/>
         <command
+            id="cmd_reopenLastClosedTab"
+            key="key_cmd_reopenLastClosedTab"
+            oncommand="ko.history.open_rctab(0);"
+            desc="&reopenLastClosedTab.desc;"/>
+        <command
             id="cmd_open_remote" key="key_cmd_open_remote"
             oncommand="ko.commands.doCommandAsync('cmd_open_remote', event)"
             desc="&generalOpenRemoteFileDialog.desc;"/>

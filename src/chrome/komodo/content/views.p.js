@@ -2423,24 +2423,87 @@ this.labelsFromView = function(view,
             idx = path.lastIndexOf("\\");
         }
         var dir = null;
+        var baseName, dirName = null;
         var label;
         if (idx != -1) {
-            dir = path.substring(0, idx);
-            label = path.substring(idx+1);  // basename
+            dirName = path.substring(0, idx);
+            baseName = path.substring(idx+1);  // basename
         } else {
-            label = path;
+            baseName = path;
         }
-        if (lineNo != null) {
-            label += ":" + lineNo;
-        }
-        if (showDirty && doc.isDirty) {
-            label += " *";
-        }
-        if (dir) {
-            label += " (" + dir + ")";
-        }
+        label = this.labelFromPathInfo(baseName, dirName, lineNo,
+                                       null, // tab id
+                                       null, // view type
+                                       null, // section name
+                                       showDirty && doc.isDirty);
     }
     return [label, tooltip];
+};
+
+/**
+ * Shared code that returns a label and tooltip based on the path info,
+ * and other pertinent info on the state of the document/view object.
+ * @param {string} baseName
+ * @param {string} dirName
+ * @param {Number} lineNo - one-based line number
+ * @param {string} tabId - Komodo tab id
+ * @param {string} viewType - editor/browser/startpage/...
+ * @param {string} sectionName
+ * @param {Boolean} showDirty
+ * @returns {string} returns a formatted string: 
+ *                      baseName[:lineNo] [*] [(dirName)]
+ */
+this.labelFromPathInfo = function(baseName, dirName, lineNo, tabId,
+                                  viewType, sectionName,
+                                  showDirty) {
+    if (typeof(lineNo) == "undefined") {
+        lineNo = null;
+    }
+    if (typeof(tabId) == "undefined") {
+        tabId = null;
+    }
+    if (typeof(viewType) == "undefined") {
+        viewType = null;
+    }
+    if (typeof(sectionName) == "undefined") {
+        sectionName = null;
+    }
+    if (typeof(showDirty) == "undefined") {
+        showDirty = false;
+    }
+
+    var label = baseName;
+    if (lineNo != null) {
+        label += ":" + lineNo;
+    }
+    if (showDirty) {
+        label += "*";
+    }
+    if (sectionName) {
+        if (sectionName.length > 25) {
+            // ellipsis
+            sectionName = sectionName.substr(0, 25) + String.fromCharCode(0x2026);
+        }
+        label += " '" + sectionName + "'";
+    }
+    if (tabId != null || viewType != null) {
+        label += " (";
+        if (tabId != null) {
+            label += tabId;
+            if (viewType) {
+                label += ",";
+            }
+        }
+        if (viewType) {
+            label += viewType;
+        }
+        label += ")";
+    }
+    if (dirName) {
+        // mdash
+        label += " " + String.fromCharCode(0x2014) + " " + dirName;
+    }
+    return label;
 };
 
 }).apply(ko.views);
@@ -2623,6 +2686,9 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         if (workspace.hasPref('uilayout_bottomTabBoxSelectedTabId')) {
             setTimeout(wko.uilayout.restoreTabSelections, 10, workspace);
         }
+        if (wko.history) {
+            wko.history.restore_prefs(workspace);
+        }
         wko._hasFocus = (workspace.hasBooleanPref('hasFocus')
                          && workspace.getBooleanPref('hasFocus'));
         var infoService = Components.classes["@activestate.com/koInfoService;1"].
@@ -2705,6 +2771,9 @@ this.saveWorkspace = function view_saveWorkspace()
             }
             wko.uilayout.saveTabSelections(workspace);
             workspace.setLongPref('windowNum', thisWindow._koNum);
+            if (wko.history) {
+                wko.history.save_prefs(workspace);
+            }
         }
         // Save prefs
         gPrefSvc.saveState();

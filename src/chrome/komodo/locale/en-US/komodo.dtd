@@ -702,3 +702,8 @@
 <!ENTITY hideThisAppCmdMac.modifiers "accel">
 <!ENTITY hideOtherAppsCmdMac.commandkey "h">
 <!ENTITY hideOtherAppsCmdMac.modifiers "accel,alt">
+
+<!-- recently-closed tabs -->
+<!ENTITY menuRecentlyClosedTabs.accesskey "D">
+<!ENTITY recentlyClosedTabs.label "Recently Closed Tabs">
+<!ENTITY reopenLastClosedTab.desc "General: Reopen the Last Closed Tab">

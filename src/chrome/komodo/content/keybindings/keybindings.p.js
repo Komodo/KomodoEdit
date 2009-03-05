@@ -282,6 +282,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 10: Komodo 5.1.0 - Add cmd_reopenLastClosedTab
  * 9: Komodo 5.1.0 - Add cmd_lineSelectionOrDuplicate
  * 8: Komodo 5.1.0 - Mac: bind %[, %] to history, %{, %} to jump/sel to matching brace
  * 7: Komodo 5.1.0 - vi: add "gg" for document home command
@@ -292,7 +293,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 9;
+const currentKeybindingVersionNumber = 10;
 
 /**
  * Remove this dictionary of keybinds.
@@ -558,6 +559,18 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                         'cmd_lineOrSelectionDuplicate': keys
                     });
                 }
+            break;
+
+            case 9:
+// #if PLATFORM != 'darwin'
+                    this._remove_keybinding_sequences({
+                        'cmd_viewToolbox': ["Ctrl+Shift+T"]
+                    });
+                    this._add_keybinding_sequences({
+                        'cmd_viewToolbox': ["Ctrl+Shift+L"],
+                        'cmd_reopenLastClosedTab': ["Ctrl+Shift+T"]
+                    });
+// #endif
             break;
         }
         from_version += 1;

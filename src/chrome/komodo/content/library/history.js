@@ -136,9 +136,21 @@ this.init = function() {
     ko.main.addWillCloseHandler(this.destroy, this);
     window.updateCommands('history_changed');
     window.addEventListener("AppCommand", _appCommandEventHandler, true);
+    var this_ = this;
+    this._handle_closing_view_setup = function(event) {
+        this_._handle_closing_view(event);
+    };
+    window.addEventListener('view_document_detaching',
+                            this._handle_closing_view_setup, false);
+    window.addEventListener('view_closed',
+                            this._handle_closing_view_setup, false);
 };
 
 this.destroy = function() {
+    window.removeEventListener('view_document_detaching',
+                               this._handle_closing_view_setup, false);
+    window.removeEventListener('view_closed',
+                               this._handle_closing_view_setup, false);
     this._observerSvc.removeObserver(this, 'history_changed', false);
     window.removeEventListener("AppCommand", _appCommandEventHandler, true);
 };
@@ -295,7 +307,7 @@ this.go_to_location = function go_to_location(loc) {
 
 const _dbgp_url_stripper = new RegExp('^dbgp://[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}/');
 
-function labelFromLoc(loc) {
+function _label_from_loc(loc) {
     var baseName = null, view, lineNo;
     function _callback(view, lineNo) {
         lineNo += 1;
@@ -323,21 +335,17 @@ function labelFromLoc(loc) {
                 baseName = loc.uri;
             }
         } catch(ex) {
-            _log.exception("labelFromLoc: " + ex + "\n");
+            _log.exception("_label_from_loc: " + ex + "\n");
             baseName = loc.uri;
         }
-        var finalLabel = baseName + ":" + lineNo;
-        if (dirName) {
-            finalLabel += " (" + dirName + ")";
-        }
-        return finalLabel;
+        return ko.views.labelFromPathInfo(baseName, dirName, lineNo);
     }
     // This is a sync call (not async), but it's coded this way
     // so go_to_location can share common code. 
     return view_and_line_from_loc(loc, _callback, false); // don't open closed views
 }
 
-this.initPopupMenuRecentLocations = function(event) {
+this.init_popup_menu_recent_locations = function(event) {
     try {
     var popupMenu = event.target;
     while (popupMenu.hasChildNodes()) {
@@ -346,7 +354,7 @@ this.initPopupMenuRecentLocations = function(event) {
     var locList = {};
     var currentLocIdx = {};
     _controller.historySvc.get_recent_locs(_get_curr_loc(),
-                                               currentLocIdx, locList, {});
+                                           currentLocIdx, locList, {});
     currentLocIdx = currentLocIdx.value;
     locList = locList.value;
     
@@ -358,7 +366,7 @@ this.initPopupMenuRecentLocations = function(event) {
             continue;
         }
         var tooltip;
-        var label = labelFromLoc(loc);
+        var label = _label_from_loc(loc);
         if (!label) {
             // Don't display unloaded unloaded dbgp URIs in the dropdown.
             // Otherwise they show up as blank lines.
@@ -389,7 +397,7 @@ this.initPopupMenuRecentLocations = function(event) {
         popupMenu.appendChild(menuitem);
     }
     } catch(ex) {
-        _log.exception("initPopupMenuRecentLocations: " + ex);
+        _log.exception("init_popup_menu_recent_locations: " + ex);
     }
 };
 
@@ -455,5 +463,220 @@ this.history_forward = function(delta, explicit) {
 };
 
 var _controller = new HistoryController();
+
+
+
+//---- RecentlyClosedTabs sub-system
+
+// Core data structure is a stack of rctab objects
+ 
+var rctabs_list = [];
+var rctab_list_max_size = 10;
+
+this._handle_closing_view = function(event) {
+    var rctab = _rctab_from_event(event);
+    if (rctab) {
+        rctabs_note(rctab);
+    }
+};
+
+function _rctab_from_event(event) {
+    var view = event.originalTarget;
+    var uri = null;
+    var viewType = view.getAttribute('type');
+    switch (viewType) {
+    case "editor":
+        if (event.type == "view_closed") {
+            // editor views are handled on document_detaching
+            return null;
+        }
+        var koDocument = view.document;
+        if (!koDocument || !koDocument.file) {
+            return null;
+        }
+        // FALLTHRU
+    case "browser":
+        uri = view.document.file.URI;
+        break;
+    case "startpage":
+        uri = view.document.displayPath;
+        break;
+    default:
+        _log.warn("Unexpected view type: " + viewType + "\n");
+        return null;
+    }
+    var tabIndex = -1;
+    // Use tabs, not tabpanels, as tabs get reordered when they're
+    // dragged, but tabpanels don't, and we want to capture tab order.
+    var tabBox = view.parentNode.parentNode.parentNode;
+    var tabs = tabBox.firstChild.childNodes;
+    for (var i = 0; i < tabs.length; i++) {
+        var v = document.getElementById(tabs[i].linkedPanel).firstChild;
+        if (v == view) {
+            tabIndex = i;
+            break;
+        }
+    }
+    return {tabGroup:view.parentView.id, viewType:viewType, uri:uri,
+            tabIndex:tabIndex };
+}
+
+function rctabs_note(rctab) {
+    if (!rctab.viewType || !rctab.uri) {
+        return;
+    }
+    if (rctabs_list.length >= rctab_list_max_size) {
+        var diffN = rctabs_list.length - rctab_list_max_size + 1;
+        // Remove the diffN oldest items.
+        rctabs_list.splice(0, diffN);
+    }
+    rctabs_list.push(rctab);
+};
+
+function _rctabs_determine_duplicate_entries(rctabs) {
+    // Determine which items should have tabGroup and/or viewType
+    // information in their menu item.  Normally we want to keep this
+    // info out of the menu item because for most people it will be
+    // clutter -- adding "(1, editor)" to each menuitem isn't too helpful.
+    
+    var rctabsLength = rctabs.length;
+    var rctab;
+    for (var i = 0; i < rctabsLength; i++) {
+        rctabs[i].hasDuplicateTabGroup = false;
+        rctabs[i].hasDuplicateViewType = false;
+    }
+    for (var i = 0; i < rctabsLength; i++) {
+        rctab = rctabs[i];
+        var views = ko.views.manager.topView.findViewsForURI(rctab.uri);
+        for (var j = 0; j < views.length; j++) {
+            // First compare each rctab against the list of loaded views
+            // We could be fancy and quit when both are set to true,
+            // but that's relatively rare.
+            if (views[j].getAttribute("type") != rctab.viewType) {
+                rctab.hasDuplicateViewType = true;
+            }
+            if (views[j].tabbedViewId != rctab.tabGroup) {
+                rctab.hasDuplicateTabGroup = true;
+            }
+        }
+
+        // Now compare each rctab against the rest
+        for (var j = i + 1; j < rctabsLength; j++) {
+            var other_rctab = rctabs[j];
+            if (rctab.uri == other_rctab.uri) {
+                if (rctab.tabGroup != other_rctab.tabGroup) {
+                    rctab.hasDuplicateTabGroup = other_rctab.hasDuplicateTabGroup = true;
+                }
+                if (rctab.viewType != other_rctab.viewType) {
+                    rctab.hasDuplicateViewType = other_rctab.hasDuplicateViewType = true;
+                }
+            }
+        }
+    }
+}
+
+this.rctabs_build_menu = function(menupopup) {
+    while (menupopup.hasChildNodes()) {
+        menupopup.removeChild(menupopup.lastChild);
+    }
+    var num_rctabs = rctabs_list.length;
+    if (num_rctabs == 0) {
+        var menuitem = document.createElement("menuitem");
+        menuitem.setAttribute("label",
+                              _bundle.GetStringFromName("noRecentlyClosedTabsAvailable.label"));
+        menuitem.setAttribute("class", "menuitem_mru");
+        menuitem.setAttribute("crop", "center");
+        menuitem.setAttribute("disabled", "true");
+        menupopup.appendChild(menuitem);
+    }
+    // Normally, we don't want to put viewTypes and tagGroups in
+    // the menu unless they're needed to distinguish duplicates.
+
+    _rctabs_determine_duplicate_entries(rctabs_list);    
+    var label, tooltip;
+    // rctabs_list is a stack, so walk it in reverse order
+    var actual_index = 0;
+    for (var i = num_rctabs - 1; i >= 0; i--, actual_index++) {
+        var rctab = rctabs_list[i];
+        var menuitem = document.createElement("menuitem");
+        if (actual_index == 0) {
+            menuitem.setAttribute("accesskey", "1");
+            menuitem.setAttribute("observes", "cmd_reopenLastClosedTab");
+        } else if ((actual_index + 1) <= 9) {
+            menuitem.setAttribute("accesskey", (actual_index + 1).toString());
+        } else if ((actual_index + 1) == 10) {
+            menuitem.setAttribute("accesskey", "0");
+        }
+        var url = rctab.uri;
+        var pathPart;
+        var path = ko.uriparse.displayPath(url) || url;
+        var baseName, dirName = null;
+        var slashIdx = path.lastIndexOf("/");
+        if (slashIdx == -1) {
+            slashIdx = path.lastIndexOf("\\");
+        }
+        if (slashIdx == -1) {
+            baseName = ko.uriparse.baseName(url);
+        } else {
+            baseName = path.substring(slashIdx + 1);
+            dirName = path.substring(0, slashIdx);
+        }
+        pathPart = ko.views.labelFromPathInfo(
+            baseName,
+            dirName,
+            null,  // line #
+            rctab.hasDuplicateTabGroup ? rctab.tabGroup.substring("view-".length) : null,
+            rctab.hasDuplicateViewType ? rctab.viewType : null
+            );
+        menuitem.setAttribute("label", (actual_index + 1) + " " + pathPart);
+        menuitem.setAttribute("class", "menuitem_mru");
+        menuitem.setAttribute("crop", "center");
+        var cmd = ("ko.history.open_rctab(" + i + ")");
+        menuitem.setAttribute("oncommand", cmd);
+        menupopup.appendChild(menuitem);
+    }
+};
+
+// open_rctab(0) implements cmd_reopenLastClosedTab
+// open_rctab(i) called from the rctab menu in general.
+this.open_rctab = function(idx) {
+    var rctab = rctabs_list.splice(idx, 1)[0];
+    if (!rctab) {
+        _log.debug("open_rctab: no views available on rctabs_list[" + idx + "]\n");
+        return;
+    }
+    var tabList = document.getElementById(rctab.tabGroup);
+    var uri = (rctab.viewType == "startpage"
+               ? "chrome://komodo/content/startpage/startpage.xml#view-startpage"
+               : rctab.uri);
+    this.note_curr_loc();
+    ko.views.manager.doFileOpenAsync(uri, rctab.viewType, tabList, rctab.tabIndex);
+};
+
+
+//---- History Prefs subsystem.
+
+this.save_prefs = function(prefs) {
+    var uriPrefSet = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+    prefs.setPref("history_rctabs", uriPrefSet);
+    var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
+        .createInstance(Components.interfaces.nsIJSON);
+    uriPrefSet.setStringPref("rctabs_list",
+                             nativeJSON.encode(rctabs_list));
+};
+
+this.restore_prefs = function(prefs) {
+    if (! prefs.hasPref("history_rctabs")) {
+        return;
+    }
+    var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
+        .createInstance(Components.interfaces.nsIJSON);
+    var uriPrefSet = prefs.getPref("history_rctabs");
+    if (uriPrefSet.hasPref("rctabs_list")) {
+        rctabs_list =
+            nativeJSON.decode(uriPrefSet.getStringPref("rctabs_list"));
+    }
+};
+
 }).apply(ko.history);
 
