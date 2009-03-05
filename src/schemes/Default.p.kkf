@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 8
+version 10
 
 # Movement and selection
 binding cmd_left  Left
@@ -187,7 +187,9 @@ binding cmd_browserPreview Ctrl+K Ctrl+V
 binding cmd_focusSource Ctrl+K Ctrl+S
 binding cmd_viewBottomPane Ctrl+Shift+O
 binding cmd_viewProjects Ctrl+Shift+P
-binding cmd_viewToolbox Ctrl+Shift+T
+binding cmd_viewToolbox Ctrl+Shift+L
+
+binding cmd_reopenLastClosedTab Ctrl+Shift+T
 
 binding cmd_toggleButtonText Ctrl+Shift+B
 
