@@ -1162,17 +1162,10 @@ def _get_zip_exe():
         zip_exe = "zip"
     return zip_exe
 
-def _get_unzip_exe(): 
-    # On Windows we ship one. It should be the only platform that doesn't have
-    # one handy.
-    if sys.platform == "win32":
-        unzip_exe = join(dirname(dirname(abspath(__file__))), "bin", "unzip.exe")
-        if not exists(unzip_exe):
-            # We are running in Komodo source tree.
-            unzip_exe = "unzip"
-    else:
-        unzip_exe = "unzip"
-    return unzip_exe
+def _get_unzip_exe():
+    # Not yet shipping this on Windows (because the only current user is
+    # the internal `koext koinstall` command).
+    return "unzip"
 
 
 def _xpidl(idl_path, xpt_path, ko_info, logstream=None):
