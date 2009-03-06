@@ -458,10 +458,11 @@ sub cons::KoExt {
     defined($mozBin) or die "*** mozBin is not defined for KoExt\n";
 
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
+    my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     $cons->Command(
         "koext.consjunk", # fake target to make Cons happy
         "$sdkDir/bin/koext$scriptExt",
-        "$sdkDir/bin/xpidl",
+        "$sdkDir/bin/xpidl$exeExt",
         "$sdkDir/pylib/koextlib.py",
         "$sdkDir/pylib/cmdln.py",
         "$sdkDir/pylib/preprocess.py",
@@ -490,11 +491,12 @@ sub cons::KoExtSourceDevInstall {
     defined($mozBin) or die "*** mozBin is not defined for KoExt\n";
 
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
+    my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     my $extSrcDir = dirname(SourcePath('install.rdf'));
     $cons->Command(
         "koext.consjunk", # fake target to make Cons happy
         "$sdkDir/bin/koext$scriptExt",
-        "$sdkDir/bin/xpidl",
+        "$sdkDir/bin/xpidl$exeExt",
         "$sdkDir/pylib/koextlib.py",
         "$sdkDir/pylib/cmdln.py",
         "$sdkDir/pylib/preprocess.py",
