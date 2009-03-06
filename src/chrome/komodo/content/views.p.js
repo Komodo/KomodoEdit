@@ -2399,18 +2399,23 @@ this.wrapScintillaChange = function(view, func) {
  * @param {Object(koIScintillaView)} view
  * @param {Number} lineNo - one-based line number
  * @param {Boolean} showDirty - put a "*" in the label if the view's document is dirty
+ * @param {String} sectionTitle - optional string that describes a location.
  * @returns {Array} returns two values: the label and a suggested tooltip.
  *             If no label can be calculated, both items are null.
  */
 this.labelsFromView = function(view,
                                lineNo, /*=null*/
-                               showDirty /* false */
+                               showDirty, /* false */
+                               sectionTitle /*=null*/
                                ) {
     if (typeof(lineNo) == "undefined") {
         lineNo = null;
     }
     if (typeof(showDirty) == "undefined") {
         showDirty = false;
+    }
+    if (typeof(sectionTitle) == "undefined") {
+        sectionTitle = null;
     }
     var label = null, tooltip = null;
     if (view.document) {
@@ -2422,7 +2427,6 @@ this.labelsFromView = function(view,
         if (idx == -1) {
             idx = path.lastIndexOf("\\");
         }
-        var dir = null;
         var baseName, dirName = null;
         var label;
         if (idx != -1) {
@@ -2434,7 +2438,7 @@ this.labelsFromView = function(view,
         label = this.labelFromPathInfo(baseName, dirName, lineNo,
                                        null, // tab id
                                        null, // view type
-                                       null, // section name
+                                       sectionTitle,
                                        showDirty && doc.isDirty);
     }
     return [label, tooltip];
@@ -2448,13 +2452,13 @@ this.labelsFromView = function(view,
  * @param {Number} lineNo - one-based line number
  * @param {string} tabId - Komodo tab id
  * @param {string} viewType - editor/browser/startpage/...
- * @param {string} sectionName
+ * @param {string} sectionTitle
  * @param {Boolean} showDirty
  * @returns {string} returns a formatted string: 
  *                      baseName[:lineNo] [*] [(dirName)]
  */
 this.labelFromPathInfo = function(baseName, dirName, lineNo, tabId,
-                                  viewType, sectionName,
+                                  viewType, sectionTitle,
                                   showDirty) {
     if (typeof(lineNo) == "undefined") {
         lineNo = null;
@@ -2465,8 +2469,8 @@ this.labelFromPathInfo = function(baseName, dirName, lineNo, tabId,
     if (typeof(viewType) == "undefined") {
         viewType = null;
     }
-    if (typeof(sectionName) == "undefined") {
-        sectionName = null;
+    if (typeof(sectionTitle) == "undefined") {
+        sectionTitle = null;
     }
     if (typeof(showDirty) == "undefined") {
         showDirty = false;
@@ -2479,12 +2483,12 @@ this.labelFromPathInfo = function(baseName, dirName, lineNo, tabId,
     if (showDirty) {
         label += "*";
     }
-    if (sectionName) {
-        if (sectionName.length > 25) {
+    if (sectionTitle) {
+        if (sectionTitle.length > 25) {
             // ellipsis
-            sectionName = sectionName.substr(0, 25) + String.fromCharCode(0x2026);
+            sectionTitle = sectionTitle.substr(0, 25) + String.fromCharCode(0x2026);
         }
-        label += " '" + sectionName + "'";
+        label += " '" + sectionTitle + "'";
     }
     if (tabId != null || viewType != null) {
         label += " (";

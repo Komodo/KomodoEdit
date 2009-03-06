@@ -315,7 +315,8 @@ function _label_from_loc(loc) {
         var finalLabel, label, tooltiptext;
         try {
             if (view) {
-                var labels = ko.views.labelsFromView(view, lineNo);
+                var labels = ko.views.labelsFromView(view, lineNo, false,
+                                                     loc.section_title);
                 if (labels[0]) {
                     return labels[0];
                 }

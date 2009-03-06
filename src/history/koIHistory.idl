@@ -20,7 +20,7 @@ interface koIHistoryLocation : nsISupports
     attribute PRUint32 marker_handle;
     attribute PRUint32 window_num;
     attribute PRUint32 tabbed_view_id;
-    attribute wstring section_name;
+    attribute wstring section_title;
     
     attribute wstring session_name;
 };

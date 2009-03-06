@@ -95,7 +95,7 @@ class KoHistoryService(History):
         if ciBuf and hasattr(ciBuf, "curr_section_from_line"):
             section = ciBuf.curr_section_from_line(line + 1)
             if section:
-                loc.section_name = section.title
+                loc.section_title = section.title
         loc.session_name = session_name
         return loc    
 
@@ -127,12 +127,12 @@ class KoHistoryService(History):
                 and other_loc.line == candidate_loc.line)
 
     def _is_loc_same_section(self, prev_loc, loc):
-        """ If at least one location has a non-empty section_name, compare
+        """ If at least one location has a non-empty section_title, compare
         by that.  Otherwise compare by proximity.
         """
         assert prev_loc.uri == loc.uri
-        if prev_loc.section_name or loc.section_name:
-            if prev_loc.section_name == loc.section_name:
+        if prev_loc.section_title or loc.section_title:
+            if prev_loc.section_title == loc.section_title:
                 return True
         return self._is_loc_close_line(prev_loc, loc)
             

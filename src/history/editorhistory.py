@@ -92,7 +92,7 @@ class Location(object):
                  id=None, uri_id=None, referer_id=None,
                  marker_handle=0, session_name="", window_num=0,
                  tabbed_view_id=0,
-                 is_obsolete=False):
+                 section_title=None, is_obsolete=False):
         #XXX:TODO: URI canonicalization.
         self.uri = uri
         self.line = line
@@ -105,14 +105,14 @@ class Location(object):
         self.session_name = session_name
         self.window_num = window_num
         self.tabbed_view_id = tabbed_view_id
-        self.section_name = None
+        self.section_title = section_title
         self.is_obsolete = is_obsolete
 
     def clone(self):
         return Location(self.uri, self.line, self.col, view_type=self.view_type,
             session_name=self.session_name,
             window_num=self.window_num, tabbed_view_id=self.tabbed_view_id,
-            is_obsolete=self.is_obsolete)
+            section_title=self.section_title, is_obsolete=self.is_obsolete)
 
     def __repr__(self):
         extras = []
@@ -125,8 +125,8 @@ class Location(object):
             extras.append(self.view_type)
         if self.marker_handle:
             extras.append("mh=%d" % self.marker_handle)
-        if self.section_name:
-            extras.append("section_name=%s" % self.section_name)
+        if self.section_title:
+            extras.append("section_title=%s" % self.section_title)
         if self.is_obsolete:
             extras.append("obsolete!")
         extra = extras and (" (%s)" % ", ".join(extras)) or ""
@@ -165,7 +165,8 @@ class Database(object):
     # - 1.0.2: name change in history_visit: s/multiview_id/tabbed_view_id/
     # - 1.0.3: add `is_obsolete` columns
     # - 1.0.4: history is now per-session, database should be reset
-    VERSION = "1.0.4"
+    # - 1.0.5: s/section/section_title/ in the database
+    VERSION = "1.0.5"
 
     path = None
     
@@ -289,6 +290,7 @@ class Database(object):
         "1.0.1": (VERSION, _upgrade_reset_db, None),
         "1.0.2": (VERSION, _upgrade_reset_db, None),
         "1.0.3": (VERSION, _upgrade_reset_db, None),
+        "1.0.4": (VERSION, _upgrade_reset_db, None),
     }
 
     @property
@@ -379,12 +381,12 @@ class Database(object):
             uri_id = self.uri_id_from_uri(loc.uri, cu=cu)
             cu.execute("""
                 INSERT INTO history_visit(referer_id, uri_id, line, col, view_type,
-                    session_name, marker_handle,
+                    session_name, marker_handle, section_title,
                     window_num, tabbed_view_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, 
                 (referer_id, uri_id, loc.line, loc.col, loc.view_type,
-                 loc.session_name, loc.marker_handle,
+                 loc.session_name, loc.marker_handle, loc.section_title,
                  loc.window_num, loc.tabbed_view_id))
             loc.id = cu.lastrowid
             loc.referer_id = referer_id
@@ -438,8 +440,8 @@ class Database(object):
                 id = int(row[0])
             cu.execute("""
                 SELECT referer_id, uri_id, line, col, view_type, content,
-                       section, session_name, marker_handle, window_num,
-                       tabbed_view_id, is_obsolete
+                       session_name, marker_handle, window_num,
+                       tabbed_view_id, section_title, is_obsolete
                 FROM history_visit
                 WHERE id=?
                 """, (id,))
@@ -457,10 +459,11 @@ class Database(object):
                 id=id,
                 uri_id=uri_id,
                 referer_id=_int_or_none(row[0]),
-                session_name=row[7],
-                marker_handle=row[8],
-                window_num=row[9],
-                tabbed_view_id=row[10],
+                session_name=row[6],
+                marker_handle=row[7],
+                window_num=row[8],
+                tabbed_view_id=row[9],
+                section_title=row[10],
                 is_obsolete=row[11]
             )
 
@@ -1241,9 +1244,8 @@ _g_database_schema = """
         tabbed_view_id INTEGER NOT NULL DEFAULT 0,
         
         -- These are used for display and search via an awesome-bar.
-        -- Whether to include "section" is still undecided.
         content TEXT,   -- Up to 100 chars of the current line.
-        section TEXT    -- The name of the section containing this line.
+        section_title TEXT    -- The name of the section containing this line.
     );
     CREATE INDEX history_visit_uri_id ON history_visit(uri_id);
 
