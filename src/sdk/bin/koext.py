@@ -121,6 +121,23 @@ class KoExtShell(cmdln.Cmdln):
     @option("-d", "--source-dir",
             help="The directory with the source for the extension "
                  "(defaults to the current dir)")
+    def _do_koinstall(self, subcmd, opts):
+        """${cmd_name}: install this extension into a Komodo "full" build
+
+        ${cmd_usage}
+        ${cmd_option_list}
+        This command is for building *core* Komodo extensions into a Komodo
+        build. This is *not* a command for installing an extension into a
+        Komodo installation (either install the .xpi for use `koext devinstall`
+        for that).
+        """
+        if opts.source_dir is None:
+            opts.source_dir = os.curdir
+        koextlib.komodo_build_install(opts.source_dir, log=log)
+    
+    @option("-d", "--source-dir",
+            help="The directory with the source for the extension "
+                 "(defaults to the current dir)")
     @option("-f", "--force", action="store_true", default=False,
             help="Force overwrite of extension link file, if necessary")
     def do_devinstall(self, subcmd, opts):

@@ -483,6 +483,7 @@ def build_ext(base_dir, support_devinstall=True, log=None):
     @param support_devinstall {bool} Whether to copy built bits to the source
         directory to support use with a 'devinstall'. Default is True.
     @param log {logging.Logger} Optional.
+    @returns {str} The path to the created .xpi file.
     """
     if log is None: log = _log
     if not is_ext_dir(base_dir):
@@ -490,15 +491,7 @@ def build_ext(base_dir, support_devinstall=True, log=None):
                          "'install.rdf' file (run `koext startext' first)"
                          % base_dir)
 
-    # Need a zip executable for building. On Windows we ship one. It
-    # should be the only platform that doesn't have one handy.
-    if sys.platform == "win32":
-        zip_exe = join(dirname(dirname(abspath(__file__))), "bin", "zip.exe")
-        if not exists(zip_exe):
-            # We are running in Komodo source tree.
-            zip_exe = "zip"
-    else:
-        zip_exe = "zip"
+    zip_exe = _get_zip_exe()
 
     # Dev Note: Parts of the following don't work unless the source
     # dir is the current one. The easiest solution for now is to just
@@ -612,7 +605,9 @@ def build_ext(base_dir, support_devinstall=True, log=None):
             os.chdir(orig_dir)
             base_dir = orig_base_dir
 
-    print "'%s' created." % join(base_dir, ext_info.pkg_name)
+    xpi_path = join(base_dir, ext_info.pkg_name)
+    print "'%s' created." % xpi_path
+    return xpi_path
 
 
 def dev_install(base_dir, force=False, dry_run=False, log=None):
@@ -654,6 +649,43 @@ def dev_install(base_dir, force=False, dry_run=False, log=None):
     log.info("create `%s' link", ext_file)
     if not dry_run:
         open(ext_file, 'w').write(dev_dir)
+
+def komodo_build_install(base_dir, dry_run=False, log=None):
+    """Install the extension in `base_dir` into a Komodo build.
+        
+    This command is for building *core* Komodo extensions into a Komodo
+    build. This is *not* a command for installing an extension into a
+    Komodo installation (either install the .xpi for use `koext devinstall`
+    for that).
+    """
+    if log is None: log = _log
+    if not is_ext_dir(base_dir):
+        raise KoExtError("`%s' isn't an extension source dir: there is no "
+                         "'install.rdf' file (run `koext startext' first)"
+                         % base_dir)
+
+    ext_info = ExtensionInfo(base_dir)
+    ko_info = KomodoInfo()
+            
+    src_dir = abspath(base_dir)
+    install_dir = join(ko_info.ext_base_dir, ext_info.id)
+    
+    # `build_ext` knows how to build the extension. We just call it and
+    # use the .xpi it produces.
+    xpi_path = build_ext(base_dir, log=log)
+    
+    # Make sure the target install dir is clear.
+    install_dir = join(ko_info.ext_base_dir, ext_info.id)
+    if exists(install_dir):
+        _rm(install_dir, logstream=log.info)
+    
+    # Unzip the .xpi into that dir.
+    _mkdir(install_dir, logstream=log.info)
+    unzip_exe = _get_unzip_exe()
+    _run('"%s" -q "%s" -d "%s"' % (unzip_exe, xpi_path, install_dir), log.info)
+    
+    print "installed to `%s'" % install_dir
+
 
 
 #---- internal support routines
@@ -1117,6 +1149,30 @@ def _dedent(text, tabsize=8, skip_first_line=False):
     lines = text.splitlines(1)
     _dedentlines(lines, tabsize=tabsize, skip_first_line=skip_first_line)
     return ''.join(lines)
+
+def _get_zip_exe(): 
+    # On Windows we ship one. It should be the only platform that doesn't have
+    # one handy.
+    if sys.platform == "win32":
+        zip_exe = join(dirname(dirname(abspath(__file__))), "bin", "zip.exe")
+        if not exists(zip_exe):
+            # We are running in Komodo source tree.
+            zip_exe = "zip"
+    else:
+        zip_exe = "zip"
+    return zip_exe
+
+def _get_unzip_exe(): 
+    # On Windows we ship one. It should be the only platform that doesn't have
+    # one handy.
+    if sys.platform == "win32":
+        unzip_exe = join(dirname(dirname(abspath(__file__))), "bin", "unzip.exe")
+        if not exists(unzip_exe):
+            # We are running in Komodo source tree.
+            unzip_exe = "unzip"
+    else:
+        unzip_exe = "unzip"
+    return unzip_exe
 
 
 def _xpidl(idl_path, xpt_path, ko_info, logstream=None):

@@ -1,6 +1,8 @@
 
 # Komodo 5.1.0b1
 
+- New `koext koinstall` command used for building and installing core Komodo
+  extensions into a Komodo build.
 - koext v0.3.0
 - `koext build` now excludes IDL files from the components directory. The
   IDL files are already being includes in the "idl" directory of the .xpi.
