@@ -121,6 +121,8 @@ class KoExtShell(cmdln.Cmdln):
     @option("-d", "--source-dir",
             help="The directory with the source for the extension "
                  "(defaults to the current dir)")
+    @option("-f", "--force", action="store_true", default=False,
+            help="Force overwrite of extension link file, if necessary")
     def do_devinstall(self, subcmd, opts):
         """${cmd_name}: install link for development with current Komodo
 
@@ -137,7 +139,7 @@ class KoExtShell(cmdln.Cmdln):
         """
         if opts.source_dir is None:
             opts.source_dir = os.curdir
-        koextlib.dev_install(opts.source_dir, log=log)
+        koextlib.dev_install(opts.source_dir, force=opts.force, log=log)
 
     @option("--id",
             help="ID string, no spaces, typically of the form "
