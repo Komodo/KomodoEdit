@@ -84,7 +84,7 @@ HistoryController.prototype.do_cmd_historyForward = function() {
         // keybindings don't go through the is-enabled test.
         return;
     }
-    ko.history.history_forward();
+    ko.history.history_forward(1);
 };
 
 HistoryController.prototype.is_cmd_historyBack_supported = function() {
