@@ -43,10 +43,10 @@
  point of the editor, an interactable indication can be shown to the user that
  there is something of interest at this point.
  
- The hyperlink will *only* be show when the user holds down the Ctrl key.
- Whilst Ctrl is being held down, where-ever the mouse moves, the editor text
- under the mouse will be checked to see if it has a hyperlink, if it does
- it will become highlighted in the editor.
+ The hyperlink will *only* be show when the user holds down the Ctrl key (or
+ Meta key on the Mac). Whilst Ctrl is being held down, where-ever the mouse
+ moves, the editor text under the mouse will be checked to see if it has a
+ hyperlink, if it does it will become highlighted in the editor.
 
  If the user left-clicks on the hyperlink, then a hyperlink action
  will be performed (example: opening the target text in a browser).

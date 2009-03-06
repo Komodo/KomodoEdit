@@ -1278,10 +1278,10 @@
         These are interesting points in the editor which are highlighted to
         show there is a possible action associated with this text.
 
-        Komodo hyperlinks are only active when the Ctrl key is held down, then
-        where ever the mouse moves, the editor text under the mouse will be
-        checked to see if it has a hyperlink, if it does it will become
-        highlighted in the editor.
+        Komodo hyperlinks are only active when the Ctrl key (Meta on Mac) is
+        held down, then where ever the mouse moves, the editor text under the
+        mouse will be checked to see if it has a hyperlink, if it does it will
+        become highlighted in the editor.
 
         If the user left-clicks on the hyperlink, then a hyperlink action
         will be performed (example: opening the target text in a browser).
@@ -1289,6 +1289,7 @@
 
         <field name="INDICATOR_HYPERLINK" readonly="true">Components.interfaces.koILintResult.INDICATOR_HYPERLINK</field>
         <field name="DOM_VK_CONTROL" readonly="true">Components.interfaces.nsIDOMKeyEvent.DOM_VK_CONTROL</field>
+        <field name="DOM_VK_META" readonly="true">Components.interfaces.nsIDOMKeyEvent.DOM_VK_META</field>
         <!-- A hyperlink instance set on the view, ko.hyperlinks.Hyperlink -->
         <field name="_hyperlink">null</field>
         <field name="_last_mousemove_xy">[0,0]</field>
@@ -1337,10 +1338,34 @@
             }
             for (var i=0; i < this._keys_down.length; i++) {
 <!-- #if PLATFORM == "darwin" -->
-            // Ctrl keyCode's are not set on a Mac, so check ctrlKey attribute.
+                // Ctrl keyCode's are not set on a Mac, use ctrlKey attribute.
                 if (this._keys_down[i][2] /* event.ctrlKey */) {
 <!-- #else -->
-                if (this._keys_down[i][0] /* event.charCode */ == this.DOM_VK_CONTROL) {
+                if (this._keys_down[i][0] /* event.keyCode */ == this.DOM_VK_CONTROL) {
+<!-- #endif -->
+                    return true;
+                }
+            }
+            return false;
+            ]]>
+        </body>
+        </method>
+
+        <method name="isMetaKeyDown">
+        <parameter name="onlyThisKey"/>
+        <body>
+            <![CDATA[
+            if (onlyThisKey) {
+                if (this._keys_down.length != 1) {
+                    return false;
+                }
+            }
+            for (var i=0; i < this._keys_down.length; i++) {
+<!-- #if PLATFORM == "darwin" -->
+                // Meta keyCode's are not set on a Mac, use metaKey attribute.
+                if (this._keys_down[i][4] /* event.metaKey */) {
+<!-- #else -->
+                if (this._keys_down[i][0] /* event.keyCode */ == this.DOM_VK_META) {
 <!-- #endif -->
                     return true;
                 }
@@ -1419,7 +1444,11 @@
             var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
             var y = event.clientY - this.boxObject.y;
             this._last_mousemove_xy = [x, y];
+<!-- #if PLATFORM == "darwin" -->
+            if (this.isMetaKeyDown(false)) {
+<!-- #else -->
             if (this.isCtrlKeyDown(false)) {
+<!-- #endif -->
                 // Check if the mouse has moved outside of the hyperlink, if
                 // it has then the hyperlink should be removed.
                 var pos = this.scimoz.positionFromPoint(x, y);
@@ -1480,8 +1509,8 @@
             this._keys_down.push([keyCode, event.charCode, event.ctrlKey,
                                  event.altKey, event.metaKey]);
 <!-- #if PLATFORM == "darwin" -->
-            // Ctrl keyCode's are not set on a Mac, so check ctrlKey attribute.
-            if (event.ctrlKey) {
+            // Meta keyCode's are not set on a Mac, so use metaKey attribute.
+            if (event.metaKey) {
 <!-- #else -->
             if (keyCode == this.DOM_VK_CONTROL) {
 <!-- #endif -->
@@ -1505,7 +1534,12 @@
                 }
             }
             // If the ctrl key is no longer held down, clear all hyperlinks.
-            if ((this._keys_down.length == 0) || !this.isCtrlKeyDown()) {
+            if ((this._keys_down.length == 0) ||
+<!-- #if PLATFORM == "darwin" -->
+                !this.isMetaKeyDown()) {
+<!-- #else -->
+                !this.isCtrlKeyDown()) {
+<!-- #endif -->
                 this.removeHyperlinks();
             }
             ]]>
