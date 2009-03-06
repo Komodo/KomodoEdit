@@ -51,7 +51,9 @@ if (typeof(ko)=='undefined') {
 ko.history = {};
 (function() {
 
-const _SKIP_DBGP_FALLBACK_LIMIT = 100; //XXX Add invisible pref history_fallback_limit
+const _SKIP_DBGP_FALLBACK_LIMIT = 100;
+
+var _curr_session_name = null; // window ID might not be available at startup
     
 var _log = ko.logging.getLogger('history');
 
@@ -74,26 +76,26 @@ HistoryController.prototype.is_cmd_historyForward_supported = function() {
     return true;
 };
 HistoryController.prototype.is_cmd_historyForward_enabled = function() {
-    return this.historySvc.can_go_forward();
+    return this.historySvc.can_go_forward(_curr_session_name);
 };
 
 HistoryController.prototype.do_cmd_historyForward = function() {
-    if (!this.historySvc.can_go_forward()) {
+    if (!this.historySvc.can_go_forward(_curr_session_name)) {
         // keybindings don't go through the is-enabled test.
         return;
     }
-    ko.history.history_forward(1);
+    ko.history.history_forward();
 };
 
 HistoryController.prototype.is_cmd_historyBack_supported = function() {
     return true;
 };
 HistoryController.prototype.is_cmd_historyBack_enabled = function() {
-    return this.historySvc.can_go_back();
+    return this.historySvc.can_go_back(_curr_session_name);
 };
 
 HistoryController.prototype.do_cmd_historyBack = function() {
-    if (!this.historySvc.can_go_back()) {
+    if (!this.historySvc.can_go_back(_curr_session_name)) {
         // keybindings don't go through the is-enabled test.
         return;
     }
@@ -104,7 +106,7 @@ HistoryController.prototype.is_cmd_historyRecentLocations_supported = function()
     return true;
 };
 HistoryController.prototype.is_cmd_historyRecentLocations_enabled = function() {
-    return this.historySvc.have_recent_history();
+    return this.historySvc.have_recent_history(_curr_session_name);
 };
 
 function _appCommandEventHandler(evt) {
@@ -113,27 +115,28 @@ function _appCommandEventHandler(evt) {
     // as "AppCommand" events.
     // From KD 218, referencing browser/base/content/browser.js
     switch (evt.command) {
-        case "Back":
-            if (_controller.historySvc.can_go_back()) {
-                ko.history.history_back(1);
-            }
-            break;
-        case "Forward":
-            if (_controller.historySvc.can_go_forward()) {
-                ko.history.history_forward(1);
-            }
-            break;
+    case "Back":
+        if (_controller.historySvc.can_go_back(_curr_session_name)) {
+            ko.history.history_back(1);
+        }
+        break;
+    case "Forward":
+        if (_controller.historySvc.can_go_forward(_curr_session_name)) {
+            ko.history.history_forward(1);
+        }
+        break;
     }
 };
 
-function UnloadableLocError() {}
-UnloadableLocError.prototype = new Error();
-        
+function UnloadableDBGPLocError() {}
+UnloadableDBGPLocError.prototype = new Error();
+
 this.init = function() {
     this._observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
     this._observerSvc.addObserver(this, 'history_changed', false);
     ko.main.addWillCloseHandler(this.destroy, this);
+    _curr_session_name = window._koNum.toString();
     window.updateCommands('history_changed');
     window.addEventListener("AppCommand", _appCommandEventHandler, true);
     var this_ = this;
@@ -163,6 +166,9 @@ this.observe = function(subject, topic, data) {
     }
 };
 
+this.curr_session_name = function() {
+    return _curr_session_name;
+};
 
 /**
  * Get the current location.
@@ -182,7 +188,8 @@ function _get_curr_loc(view /* =current view */) {
         loc = _controller.historySvc.editor_loc_from_info(
             window._koNum,
             view.tabbedViewId,
-            view);
+            view,
+            _curr_session_name);
     } else {
         _log.warn("cannot get current location for '"
                   +view.getAttribute("type")+"' view: "+view);
@@ -215,14 +222,16 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
  * Returns the view and line # based on the loc.
  *
  * @param loc {Location}.
- * @param handle_view_line_callback {Function}.
- * @param open_if_needed {Boolean}.
- * @returns undefined
+ * @param on_load_success {Function} -- call if view is found
+ * @param on_load_failure {Function} -- call if view is not found
+ * @param open_if_needed {Boolean} -- true if we're moving, false if we're building a menu.
  *
  * This function might open a file asynchronously, so it invokes
- * handle_view_line_callback to do the rest of the work.
+ * on_load_success to do the rest of the work.
  */
-function view_and_line_from_loc(loc, handle_view_line_callback,
+function view_and_line_from_loc(loc,
+                                on_load_success,
+                                on_load_failure,
                                 open_if_needed/*=true*/
                                 ) {
     if (typeof(open_if_needed) == "undefined") open_if_needed = true;
@@ -232,68 +241,72 @@ function view_and_line_from_loc(loc, handle_view_line_callback,
         return null;
     }
     var lineNo = loc.line;
-    var window_num = loc.window_num;
-    
-    var view = (open_if_needed
-                ? ko.windowManager.getViewForURI(uri, window_num, loc.tabbed_view_id)
-                : ko.windowManager.getViewForURI(uri));
-    if (view && open_if_needed) {
-        // See if we're switching windows.
-        var currentView = ko.views.manager.currentView;
-        if (!currentView || currentView.ownerDocument != view.ownerDocument) {
-            view.ownerDocument.defaultView.window.focus();
-        }
-    }
-    var is_already_open = (view != null);
-    function local_callback(view_) {
-        if (is_already_open) {
-            var betterLineNo = view_.scimoz.markerLineFromHandle(loc.marker_handle);
-            if (betterLineNo != -1) {
-                lineNo = betterLineNo;
+    // Add the loc.view_type field on bug 82255
+    /*
+      if (loc.view_type == 'startpage') {
+      uri = "chrome://komodo/content/startpage/startpage.xml#view-startpage";
+      }
+     */
+    var view = ko.views.manager.getViewForURI(uri /*, loc.view_type*/);
+    if (view) {
+        // Check for correct tabbed view
+        if (loc.tabbed_view_id != null
+            && loc.tabbed_view_id != view.tabbed_view_id) {
+            // Try the other view
+            var xulDocument = view.ownerDocument.defaultView.document;
+            var multiViewContainer = xulDocument.getElementById("topview");
+            var multiViewNodes = xulDocument.getAnonymousNodes(multiViewContainer)[0];
+            var designatedTabbedView = (loc.tabbed_view_id == 1
+                                        ? multiViewNodes.firstChild
+                                        : multiViewNodes.lastChild);
+            var res = designatedTabbedView.getViewsByTypeAndURI(false, 'editor', uri);
+            if (res && res.length > 0) {
+                view = res[0];
             }
         }
-        return handle_view_line_callback(view_, lineNo);
+        var betterLineNo = view.scimoz.markerLineFromHandle(loc.marker_handle);
+        if (betterLineNo != -1) {
+            lineNo = betterLineNo;
+        }
+        return on_load_success(view, lineNo);
     }
     if (!view) {
         if (open_if_needed) {
             if (uri.indexOf("dbgp://") == 0) {
-                throw new UnloadableLocError("unloadable");
+                // We have to throw an exception here, because if we
+                // try to load the URI, it's done async, and then
+                // it's harder to keep looking on failure.
+                throw new UnloadableDBGPLocError("unloadable");
             }
         } else {
-            return handle_view_line_callback(null, lineNo);
+            return on_load_success(null, lineNo);
         }
-        function callback(view_) {
+        function post_open_callback(view_) {
             if (!view_)  {
-                ko.statusBar.AddMessage(
-                    "Can't find file " + uri,
-                    "editor", 5000, false);
-                return null;
+                on_load_failure();
+            } else {
+                on_load_success(view_, lineNo);
             }
-            return handle_view_line_callback(view_, lineNo);
         };
-        // Open in the correct window + multi-view
-        // Never open a new window -- if the marked window
-        // is gone, use the current window.
-        //
-        var win = ko.windowManager.windowFromWindowNum(window_num);
-        var wko = win ? win.ko : ko;
-        view = wko.views.manager.doFileOpenAtLineAsync(uri, lineNo,
-                                                       null, // viewType='editor'
-                                                       null, // viewList=null
-                                                       null, // index=-1
-                                                       callback);
+        var viewList = (loc.tabbed_view_id
+                        ? document.getElementById("view-" + loc.tabbed_view_id)
+                        : null);
+        view = ko.views.manager.doFileOpenAtLineAsync(uri, lineNo,
+                                                      null, // viewType='editor'
+                                                      viewList,
+                                                      null, // index=-1
+                                                      post_open_callback);
     }
-    return local_callback(view);
+    return null;
 }
 
-this.go_to_location = function go_to_location(loc) {
-    //XXX Use window and view IDs
+this.go_to_location = function go_to_location(loc, on_load_failure) {
     var view_type = loc.view_type;
     if (view_type != "editor") {
         throw new Error("history: goto location of type " + view_type
                         + " not yet implemented.");
     }
-    function _callback(view, lineNo) {
+    function on_load_success(view, lineNo) {
         if (!view) return;
         var scimoz = view.scimoz;
         view.makeCurrent();
@@ -302,48 +315,44 @@ this.go_to_location = function go_to_location(loc) {
         scimoz.gotoPos(targetPos);
         window.updateCommands("history_changed");
     }
-    view_and_line_from_loc(loc, _callback, true);
+    view_and_line_from_loc(loc, on_load_success, on_load_failure, true);
 };
 
 const _dbgp_url_stripper = new RegExp('^dbgp://[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}/');
 
 function _label_from_loc(loc) {
-    var baseName = null, view, lineNo;
+    var baseName = null;
     function _callback(view, lineNo) {
         lineNo += 1;
         var dirName = null;
         var finalLabel, label, tooltiptext;
-        try {
-            if (view) {
-                var labels = ko.views.labelsFromView(view, lineNo, false,
-                                                     loc.section_title);
-                if (labels[0]) {
-                    return labels[0];
-                }
+        if (view) {
+            var labels = ko.views.labelsFromView(view, lineNo, false,
+                                                 loc.section_title);
+            if (labels[0]) {
+                return labels[0];
             }
-            var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
-                             .createInstance(Components.interfaces.koIFileEx);
-            koFileEx.URI = loc.uri;
-            switch (koFileEx.scheme) {
-            case "file":
-                dirName = koFileEx.dirName;
-                baseName = koFileEx.baseName;
-                break;
-            case "dbgp":
-                baseName = loc.uri.replace(_dbgp_url_stripper, "dbgp:///");
-                break;
-            default:
-                baseName = loc.uri;
-            }
-        } catch(ex) {
-            _log.exception("_label_from_loc: " + ex + "\n");
-            baseName = loc.uri;
+        }
+        var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+            .createInstance(Components.interfaces.koIFileEx);
+        koFileEx.URI = loc.uri;
+        switch (koFileEx.scheme) {
+        case "file":
+            dirName = koFileEx.dirName;
+            baseName = koFileEx.baseName;
+            break;
+        case "dbgp":
+            baseName = loc.uri.replace(_dbgp_url_stripper, "dbgp:///");
+            break;
+        default:
+             baseName = loc.uri;
         }
         return ko.views.labelFromPathInfo(baseName, dirName, lineNo);
     }
+    // Don't open closed views.
     // This is a sync call (not async), but it's coded this way
     // so go_to_location can share common code. 
-    return view_and_line_from_loc(loc, _callback, false); // don't open closed views
+    return view_and_line_from_loc(loc, _callback, function(){}, false);
 }
 
 this.init_popup_menu_recent_locations = function(event) {
@@ -355,6 +364,7 @@ this.init_popup_menu_recent_locations = function(event) {
     var locList = {};
     var currentLocIdx = {};
     _controller.historySvc.get_recent_locs(_get_curr_loc(),
+                                           _curr_session_name,
                                            currentLocIdx, locList, {});
     currentLocIdx = currentLocIdx.value;
     locList = locList.value;
@@ -403,6 +413,19 @@ this.init_popup_menu_recent_locations = function(event) {
 };
 
 
+function _on_load_failure(loc, is_moving_back, delta) {
+    // Move back to the old location, but don't obsolete the current one.
+    // Most likely caused by a remote file on an unavailable machine.
+    // Whether the machine is dead or will be back in a second, is not
+    // up to Komodo to determine.
+    
+    // No need for a message -- Komodo already gave a message when it failed
+    // to load the uri.
+
+    var reverse_method_name = is_moving_back ? "go_forward" : "go_back";
+    _controller.historySvc[reverse_method_name](loc, delta);
+}
+
 /** Common function for moving forward or back
  * @param go_method_name {String} either 'go_back' or 'go_forward',
  *        used to make this routine work for both directins.
@@ -421,19 +444,28 @@ this._history_move = function(go_method_name, check_method_name, delta,
     for (var i = 0; i < _SKIP_DBGP_FALLBACK_LIMIT; i++) {
         var loc = _controller.historySvc[go_method_name](curr_loc, delta);
         try {
-            this.go_to_location(loc);
+            // This function could load a file asynchronously,
+            // so unless it throws an exception, there's no point
+            // continuing after it's called.
+            this.go_to_location(loc,
+                function() {
+                    _on_load_failure(loc, is_moving_back, delta);
+                });
             return;
-        } catch(ex if ex instanceof UnloadableLocError) {
-            // Don't remove the curr_loc if we're no longer next to it.
-            _controller.historySvc.obsolete_uri(loc.uri, delta, is_moving_back);
-            if (!_controller.historySvc[check_method_name]()) {
+        } catch(ex if ex instanceof UnloadableDBGPLocError) {
+            // Remove the loc we tried to move to from the history,
+            // and then either keep trying to move to the next/prev loc
+            // if we didn't get here via [History|Recent Locations]
+            _controller.historySvc.obsolete_uri(loc.uri, delta, is_moving_back,
+                                                _curr_session_name);
+            if (!_controller.historySvc[check_method_name](_curr_session_name)) {
                 window.updateCommands("history_changed");
                 break;
             }
             if (explicit) {
                 break;
             }
-            // assert delta == 1
+            // assert(delta == 1)
             
             // We hit an obsolete URI on an arrow command.
             // Keep going in the same direction until we either

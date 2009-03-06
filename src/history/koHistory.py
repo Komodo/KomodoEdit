@@ -150,15 +150,13 @@ class KoHistoryService(History):
         prev_loc.marker_handle = scimoz.markerAdd(new_line, self.MARKNUM_HISTORYLOC)
         prev_loc.line = new_line
         
-    def note_curr_editor_loc(self, view=None, session_name=""):
+    def note_curr_editor_loc(self, view=None):
         """Note the current location in the given *editor* view (by default
         the current view).
         
         @param view {koIScintillaView} The view from which to get location
             information. Optional. If not given, defaults to the current
             view.
-        @param session_name {str} The current history session. Default is
-            the empty string.
         @returns {Location}
         """
         if view is None:
@@ -166,7 +164,7 @@ class KoHistoryService(History):
                 .getService(components.interfaces.koIViewService).currentView \
                 .QueryInterface(components.interfaces.koIScintillaView)
         loc = self.editor_loc_from_info(view.windowNum, view.tabbedViewId,
-            view, session_name)
+            view, view.historySessionName)
         return self.note_loc(loc)
 
     def get_recent_locs(self, curr_loc, session_name=""):

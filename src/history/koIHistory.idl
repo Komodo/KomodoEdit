@@ -29,9 +29,9 @@ interface koIHistoryLocation : nsISupports
 [scriptable, uuid(5fac7c33-bed3-405e-8183-216a91e8a1b5)]
 interface koIHistoryService : nsISupports
 {
-    boolean can_go_back();
-    boolean can_go_forward();
-    boolean have_recent_history();
+    boolean can_go_back(in wstring session_name);
+    boolean can_go_forward(in wstring session_name);
+    boolean have_recent_history(in wstring session_name);
     koIHistoryLocation go_back(in koIHistoryLocation curr_loc, in PRUint32 n);
     koIHistoryLocation go_forward(in koIHistoryLocation curr_loc, in PRUint32 n);
 
@@ -42,14 +42,17 @@ interface koIHistoryService : nsISupports
     koIHistoryLocation editor_loc_from_info(
         in PRUint32 window_num,
         in PRUint32 tabbed_view_id,
-        in koIScintillaView view);
+        in koIScintillaView view,
+        in wstring session_name);
     void get_recent_locs(in koIHistoryLocation loc,
+                         in wstring session_name,
                          out unsigned long current_idx,
                          [array, size_is(count)] out koIHistoryLocation locs,
                          out unsigned long count);
     void obsolete_uri(in wstring uri,
                       in PRUint32 undo_delta,
-                      in boolean undo_dir_is_back);
+                      in boolean undo_dir_is_back,
+                      in wstring session_name);
     void update_marker_handles_on_close(in wstring uri, in ISciMoz scimoz);
     // For testing purposes only
     void expire_locs(in PRUint32 loc_expiry_days);

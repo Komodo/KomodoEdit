@@ -739,6 +739,16 @@
             ]]></getter>
         </property>
 
+        <property name="historySessionName">
+            <getter><![CDATA[
+            // This property is on the view, not the window,
+            // so back-end koHistory can access it via the
+            // xpcom view object.
+            // For now, sessionNames are the same as window numbers
+            return ko.history.curr_session_name();
+            ]]></getter>
+        </property>
+
 
         <method name="getState">
         <body>

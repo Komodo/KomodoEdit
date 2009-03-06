@@ -144,6 +144,7 @@ interface koIView : koIViewList
     attribute koILanguage languageObj;
     attribute long tabbedViewId;
     attribute long windowNum;
+    attribute string historySessionName;
 };
 
 interface koIScintillaScheme;
