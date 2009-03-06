@@ -26,25 +26,3 @@ diff -u -r1.362 nsChildView.mm
    NS_OBJC_END_TRY_ABORT_BLOCK;
  }
  
-@@ -5407,6 +5415,13 @@
-   // If this is a plugin, we do actually perform the action on keyboard commands. See bug 428047.
-   // If the action on plugins here changes the first responder, don't continue.
-   NSMenu* mainMenu = [NSApp mainMenu];
-+#if 1
-+   /* ACTIVESTATE, reverting patch from bug 428047 (see above) to prevent
-+      double execution of menu related key events */
-+  if ([mainMenu isKindOfClass:[GeckoNSMenu class]])
-+    [(GeckoNSMenu*)mainMenu performMenuUserInterfaceEffectsForEvent:theEvent];
-+  UInt32 modifierFlags = [theEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
-+#else
-   if (mIsPluginView) {
-     if ([mainMenu isKindOfClass:[GeckoNSMenu class]])
-       [(GeckoNSMenu*)mainMenu actOnKeyEquivalent:theEvent];
-@@ -5444,6 +5459,7 @@
-       (modifierFlags & (NSControlKeyMask | NSAlternateKeyMask)))
-     return NO;
- 
-+#endif
-   if ([theEvent type] == NSKeyDown) {
-     // We trust the Gecko handled status for cmd key events. See bug 417466 for more info.
-     if (modifierFlags & NSCommandKeyMask)
