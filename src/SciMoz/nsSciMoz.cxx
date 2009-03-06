@@ -150,17 +150,9 @@ SciMoz::~SciMoz()
 #ifdef SCIDEBUG_REFS
     fprintf(stderr,"SciMoz::~SciMoz %p\n", this);
 #endif
-    // The widgets/windows should have been already cleaned up by now, through
-    // a call to the PlatformDestroy() method when the plugin was originially
-    // removed from the DOM. The plugin object was kept alive in order to wait
-    // until the SciMoz instance is destroyed (garbage collected). Now that
-    // SciMoz is being destroyed, we can finally go back and destroy the plugin
-    // that originally created us.
+    PlatformDestroy();
+
     isClosed = 1;
-    if (mPlugin) {
-	delete mPlugin;
-	mPlugin = NULL;
-    }
 }
 
 
@@ -578,7 +570,20 @@ void SciMoz::Notify(long lParam) {
 
 
 
-
+/* void markClosed(); */
+NS_IMETHODIMP SciMoz::MarkClosed() 
+{
+	if (!isClosed) {
+		SCIMOZ_CHECK_VALID("MarkClosed");
+#ifdef SCIMOZ_DEBUG
+		fprintf(stderr,"SciMoz::MarkClosed\n");
+#endif
+		// Turn off all of the scintilla timers.
+		SendEditor(SCI_STOPTIMERS, 0, 0);
+		isClosed = true;
+	}
+	return NS_OK;
+}
 
 /* void HookEvents (in nsISupports eventListener); */
 NS_IMETHODIMP SciMoz::HookEvents(ISciMozEvents *eventListener) {

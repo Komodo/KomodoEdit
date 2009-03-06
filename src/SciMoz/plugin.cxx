@@ -145,10 +145,9 @@ void NS_DestroyPluginInstance(nsPluginInstanceBase * aPlugin)
 {
 #ifdef SCIMOZ_DEBUG
     fprintf(stderr,"NS_DestroyPluginInstance %p\n", aPlugin);
-#endif 
-  // Note: The cleanup of the plugin is mostly handled by the plugin shut()
-  //       method, which should have already been called before now.
-  return;
+#endif
+    if (aPlugin)
+        delete (nsPluginInstance *)aPlugin;
 }
 
 ////////////////////////////////////////
@@ -232,7 +231,7 @@ void nsPluginInstance::shut()
     // plugin and mScriptablePeer window relationships are all removed,
     // otherwise a later event from the mScriptablePeer widget(s) could case a
     // callback to a NULL plugin, causing a crash.
-    mScriptablePeer->PlatformDestroy();
+    mScriptablePeer->MarkClosed();
     NS_RELEASE(mScriptablePeer);
   }
   mScriptablePeer = NULL;

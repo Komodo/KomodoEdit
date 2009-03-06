@@ -96,6 +96,10 @@ interface ISciMozLite : nsISupports {
         // automatically sets it to visible - this property *must* be set.)
         attribute boolean visible;
     
+        // Mark the instance as closed, no communications should travel to/from
+	// the scimoz instance after this point.
+        void markClosed();
+
         void addChar(in PRUint32 ch);
         long getLine(in long line, out wstring text);
 	
