@@ -71,37 +71,39 @@ class Location(object):
                  marker_handle=0, session_name="", window_num=0,
                  tabbed_view_id=0,
                  section_title=None, is_obsolete=False):
-        
-        # Core location fields, typically set in the constructor.
-        self.uri = uri #XXX:TODO: URI canonicalization.
-        self.line = line
-        self.col = col
-
-        # Editor/Komodo-specific fields.
-        self.view_type = view_type
+        """
+        Core location fields:
+        @param uri {str} #XXX:TODO: URI canonicalization.
+        @param line {int} 1-based line of current pos
+        @param col {int}  0-based column
+        @param view_type {str} Editor/Komodo-specific fields.
 
         # Fields set by the database on insertion.
+        @param id {int}
+        @param uri_id {int}
+        @param referer_id {int} - id of the Location before this one
+        
+        @param marker_handle {int} - scintilla marker handle for tracking lines
+               -1 indicates no handle
+        @param session {str} Komodo-specific session name.  Default is empty string
+        @param window_num {int} Komodo-specific window num.  Default is "0"
+        @param tabbed_view_id {int} - Komodo-specific tab group #
+        @param section_title {str} - Komodo-specific session name, used to distinguish separate history threads.
+        @param is_obsolete {bool} - Indicates the location no longer exists, and can't be recreated
+        """
+
+        self.uri = uri
+        self.line = line
+        self.col = col
+        self.view_type = view_type
         self.id = id
         self.uri_id = uri_id
         self.referer_id = referer_id
-        
-        # Scintilla handle from SCI_MARKERGET. "0" (zero) indicates an empty value.
         self.marker_handle = marker_handle
-
-        # Arbitrary name set in Komodo to distinguish separate history threads
         self.session_name = session_name
-
-        # Window nums start at 1, so 0 indicates unset
         self.window_num = window_num
-        
-        # Numeric ID identifying which tabbed-view the editor view was open in:
-        # left/top or right/bottom. 0 indicates an empty value.
         self.tabbed_view_id = tabbed_view_id
-
-        # Names a Komodo section for the current position
         self.section_title = section_title
-
-        # Indicates that this location no longer exists, and can't be recreated
         self.is_obsolete = is_obsolete
 
     def clone(self):
