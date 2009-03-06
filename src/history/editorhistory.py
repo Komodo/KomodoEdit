@@ -65,47 +65,43 @@ class Location(object):
         #_reg_desc_ = "Editor History Location"
         #_reg_contractid_ = "@activestate.com/koHistoryLocation;1"
         #_reg_clsid_ = "{b9aa6fcc-52d6-4643-a8cf-e810755d9815}"
-
-    is_obsolete = False
-
-    # Core location fields, typically set in the constructor.
-    uri = None
-    line = None
-    col = None
     
-    # Editor/Komodo-specific fields.
-    view_type = None
-    # Scintilla handle from SCI_MARKERGET. "0" (zero) indicates an empty value.
-    marker_handle = 0
-    window_num = 0  # Window nums start at 1, so 0 indicates unset
-    session_name = ""
-    # Numeric ID identifying which tabbed-view the editor view was open in:
-    # left/top or right/bottom. 0 indicates an empty value.
-    tabbed_view_id = 0
-    
-    # Fields set by the database on insertion.
-    id = None
-    uri_id = None
-    referer_id = None
-
     def __init__(self, uri, line, col, view_type="editor",
                  id=None, uri_id=None, referer_id=None,
                  marker_handle=0, session_name="", window_num=0,
                  tabbed_view_id=0,
                  section_title=None, is_obsolete=False):
-        #XXX:TODO: URI canonicalization.
-        self.uri = uri
+        
+        # Core location fields, typically set in the constructor.
+        self.uri = uri #XXX:TODO: URI canonicalization.
         self.line = line
         self.col = col
+
+        # Editor/Komodo-specific fields.
         self.view_type = view_type
+
+        # Fields set by the database on insertion.
         self.id = id
         self.uri_id = uri_id
         self.referer_id = referer_id
+        
+        # Scintilla handle from SCI_MARKERGET. "0" (zero) indicates an empty value.
         self.marker_handle = marker_handle
+
+        # Arbitrary name set in Komodo to distinguish separate history threads
         self.session_name = session_name
+
+        # Window nums start at 1, so 0 indicates unset
         self.window_num = window_num
+        
+        # Numeric ID identifying which tabbed-view the editor view was open in:
+        # left/top or right/bottom. 0 indicates an empty value.
         self.tabbed_view_id = tabbed_view_id
+
+        # Names a Komodo section for the current position
         self.section_title = section_title
+
+        # Indicates that this location no longer exists, and can't be recreated
         self.is_obsolete = is_obsolete
 
     def clone(self):
