@@ -1,0 +1,53 @@
+/* Copyright (c) 2009 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsITreeView.idl"
+#include "koIProject.idl"
+
+
+/* Handler for tree showing results in the "Go to File" (aka fast open)
+ * dialog.
+ */
+[scriptable, uuid(9d9d5b8d-0992-f840-be4a-6e1fe722dc57)]
+interface koIFastOpenTreeView: nsITreeView {
+    // Internal APIs not exposed because it a pain and unnecessary.
+    //void resetHits();
+    //void addHit(in Hit hits);
+    //void addHits(in array of Hits hits);
+
+    void getSelectedPaths(out PRUint32 count,
+        [retval, array, size_is(count)] out wstring paths);
+};
+
+
+/* UI Driver API for the "Go to File" dialog.
+ * This is a component implemented in the dialog's JavaScript.
+ */
+[scriptable, uuid(131d4343-19ba-f942-9410-e2f019684937)]
+interface koIFastOpenUIDriver: nsISupports {
+    void setTreeView(in koIFastOpenTreeView view);
+    void setCurrPath(in wstring path);
+};
+
+
+/* Driver API for the "Go to File" dialog. */
+[scriptable, uuid(2c4ddcd5-77b4-e347-85d5-106b2f403dd9)]
+interface koIFastOpenSession: nsISupports {
+    //TODO: drop this if not used
+    readonly attribute koIFastOpenUIDriver uiDriver;
+    
+    // Configuration items from which query results are derived.
+    attribute koIProject project;
+    attribute wstring cwd;
+
+    // Start a search for files with the given query string. This
+    // will cancel a previous `findFiles` call. Results are returned
+    // by calling the `uiDriver`.
+    void findFiles(in wstring query);
+};
+
+[scriptable, uuid(6c8c66cb-f1c3-834e-86ac-905cb155d595)]
+interface koIFastOpenService: nsISupports {
+    koIFastOpenSession getSession(in koIFastOpenUIDriver uiDriver);
+};
