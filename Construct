@@ -363,6 +363,7 @@ Build(
     "$build/views/Conscript",
     "prebuilt/Conscript",
       
+    "$build/modules/fastopen/Conscript",
     "$build/modules/spellcheck/Conscript",
     "$build/modules/zendframework/Conscript",
 
