@@ -454,14 +454,18 @@ sub cons::KoExt {
     # Die if required elements are not defined.
     defined($sdkDir) or die "*** sdkDir is not defined for KoExt\n";
     defined($build) or die "*** build is not defined for KoExt\n";
+    defined($mozBin) or die "*** mozBin is not defined for KoExt\n";
 
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
     $cons->Command(
         "koext.consjunk", # fake target to make Cons happy
         "$sdkDir/bin/koext$scriptExt",
+        "$sdkDir/bin/xpidl",
         "$sdkDir/pylib/koextlib.py",
-        #TODO: Could change that "-d %0:d" to "-d `SourcePath('.')`" to have it
-        #      point to the *source* area.
+        "$sdkDir/pylib/cmdln.py",
+        "$sdkDir/pylib/preprocess.py",
+        "$build/ranregxpcom.consjunk",
+        "$mozBin/is_dev_tree.txt",
         qq(
             $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v $args -d %0:d
             touch %0
@@ -482,13 +486,19 @@ sub cons::KoExtSourceDevInstall {
     # Die if required elements are not defined.
     defined($sdkDir) or die "*** sdkDir is not defined for KoExtSourceDevInstall\n";
     defined($build) or die "*** build is not defined for KoExtSourceDevInstall\n";
+    defined($mozBin) or die "*** mozBin is not defined for KoExt\n";
 
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
     my $extSrcDir = dirname(SourcePath('install.rdf'));
     $cons->Command(
         "koext.consjunk", # fake target to make Cons happy
         "$sdkDir/bin/koext$scriptExt",
+        "$sdkDir/bin/xpidl",
         "$sdkDir/pylib/koextlib.py",
+        "$sdkDir/pylib/cmdln.py",
+        "$sdkDir/pylib/preprocess.py",
+        "$build/ranregxpcom.consjunk",
+        "$mozBin/is_dev_tree.txt",
         qq(
             $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v devinstall -f -d $extSrcDir
             touch %0
@@ -643,6 +653,7 @@ sub cons::BuildAndInstallXpt {
     my $xptBaseName = basename($xptFileName);
     $env->Install($mozComponentsDir, $xptFileName);
 
+    my $idlBaseName = basename($idlFileName);
     $env->Install("$sdkDir/idl", $idlFileName);
 
     # make the typelib dependent on registration with the XPCOM registry
@@ -652,6 +663,7 @@ sub cons::BuildAndInstallXpt {
     #   change but the implementations do not, nor if this is even required
     #   or useful
     $env->Depends($ranRegxpcomStateFileName, "$mozComponentsDir/$xptBaseName");
+    $env->Depends($ranRegxpcomStateFileName, "$sdkDir/idl/$idlBaseName");
 }
 
 

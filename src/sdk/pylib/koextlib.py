@@ -664,13 +664,22 @@ def dev_install(base_dir, force=False, dry_run=False, log=None):
     if not dry_run:
         open(ext_file, 'w').write(dev_dir)
 
-def komodo_build_install(base_dir, dry_run=False, log=None):
+def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None):
     """Install the extension in `base_dir` into a Komodo build.
         
     This command is for building *core* Komodo extensions into a Komodo
     build. This is *not* a command for installing an extension into a
     Komodo installation (either install the .xpi for use `koext devinstall`
     for that).
+    
+    @param base_dir {str}
+    @param ppdefines {dict} Is an optional dictionary of preprocessor defines
+        used for preprocessing "*.p.*" files in the source tree.
+        See <http://code.google.com/p/preprocess/> for info.
+        If this is None (the default), then preprocessing is not done. When
+        preprocessing, *all* of the source tree except "build" and "tmp" subdirs
+        are traversed.
+    @param log {logging.Logger} Optional.
     """
     if log is None: log = _log
     if not is_ext_dir(base_dir):
@@ -686,7 +695,7 @@ def komodo_build_install(base_dir, dry_run=False, log=None):
     
     # `build_ext` knows how to build the extension. We just call it and
     # use the .xpi it produces.
-    xpi_path = build_ext(base_dir, log=log)
+    xpi_path = build_ext(base_dir, ppdefines=ppdefines, log=log)
     
     # Make sure the target install dir is clear.
     install_dir = join(ko_info.ext_base_dir, ext_info.id)
@@ -756,7 +765,8 @@ class KomodoInfo(object):
             # from: .../lib/sdk/pylib/koextlib.py
             #   to: .../bin/komodo
             komodo_path = join(up_3_dir, "bin", "komodo")
-        assert exists(komodo_path), "`%s' doesn't exist" % komodo_path
+        if not exists(komodo_path):
+            _log.warn("`%s' doesn't exist", komodo_path)
         self._where_am_i_cache = "install"
         return "install"
     
@@ -777,8 +787,16 @@ class KomodoInfo(object):
         return join(self.sdk_dir, "bin", "xpidl"+exe_ext)
 
     @property
-    def idl_dir(self):
-        return join(self.sdk_dir, "idl")
+    def idl_dirs(self):
+        dirs = []
+        if self._where_am_i == "build":
+            # HACK for Cons: For a clean build we can't (without insane effort)
+            # sequence launching 'koext' in the Komodo SDK *after* the Mozilla
+            # SDK IDLs have been copied to the Komodo SDK area.
+            mozDist = dirname(dirname(dirname(dirname(__file__))))
+            dirs.append(join(mozDist, "idl"))
+        dirs.append(join(self.sdk_dir, "idl"))
+        return dirs
 
     @property
     def udl_dir(self):
@@ -1186,8 +1204,9 @@ def _xpidl(idl_path, xpt_path, ko_info, logstream=None):
     assert xpt_path.endswith(".xpt")
     idl_name = splitext(basename(idl_path))[0]
     xpt_path_sans_ext = splitext(xpt_path)[0]
-    cmd = '"%s" -I "%s" -I "%s" -o %s -m typelib %s' \
-          % (ko_info.xpidl_path, ko_info.idl_dir, dirname(idl_path),
+    includes = ['-I "%s"' % d for d in ko_info.idl_dirs + [dirname(idl_path)]]
+    cmd = '"%s" %s -o %s -m typelib %s' \
+          % (ko_info.xpidl_path, ' '.join(includes),
              xpt_path_sans_ext, idl_path)
     _run(cmd, logstream)
 

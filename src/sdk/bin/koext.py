@@ -141,8 +141,14 @@ class KoExtShell(cmdln.Cmdln):
     @option("-d", "--source-dir",
             help="The directory with the source for the extension "
                  "(defaults to the current dir)")
+    @option("--dev", action="store_const", dest="mode", const="dev",
+            default="release",
+            help="Build in development mode. See `koext help build`.")
+    @option("--disable-preprocessing", action="store_true",
+            help="Disable preprocessing of '*.p.*' files in the source tree. "
+                 "See `koext help build`.")
     def _do_koinstall(self, subcmd, opts):
-        """${cmd_name}: install this extension into a Komodo "full" build
+        """${cmd_name}: build and install this extension into a Komodo build
 
         ${cmd_usage}
         ${cmd_option_list}
@@ -153,7 +159,13 @@ class KoExtShell(cmdln.Cmdln):
         """
         if opts.source_dir is None:
             opts.source_dir = os.curdir
-        koextlib.komodo_build_install(opts.source_dir, log=log)
+        ppdefines = {
+            "MODE": opts.mode,
+        }
+        if opts.disable_preprocessing:
+            ppdefines = None
+        koextlib.komodo_build_install(opts.source_dir,
+            ppdefines=ppdefines, log=log)
     
     @option("-d", "--source-dir",
             help="The directory with the source for the extension "
