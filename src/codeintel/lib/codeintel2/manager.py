@@ -301,7 +301,7 @@ class Manager(threading.Thread, Queue):
         
         A "Citadel-based" language is one that uses CIX/CIDB/CITDL tech for
         its codeintel. Note that currently not all Citadel-based langs use
-        the Citadel system for completion (e.g. PHP and Tcl).
+        the Citadel system for completion (e.g. Tcl).
         """
         return lang in self._is_citadel_from_lang
     def get_citadel_langs(self):
