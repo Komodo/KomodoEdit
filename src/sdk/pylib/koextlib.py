@@ -468,7 +468,7 @@ def create_codeintel_lang_skel(base_dir, lang, dry_run=False, force=False,
 
 
 
-def build_ext(base_dir, support_devinstall=True, log=None):
+def build_ext(base_dir, support_devinstall=True, ppdefines=None, log=None):
     """Build a Komodo extension from the sources in the given dir.
     
     This reads the "install.rdf" in this directory and the appropriate
@@ -482,6 +482,12 @@ def build_ext(base_dir, support_devinstall=True, log=None):
     @param base_dir {str} The source directory path of the extension.
     @param support_devinstall {bool} Whether to copy built bits to the source
         directory to support use with a 'devinstall'. Default is True.
+    @param ppdefines {dict} Is an optional dictionary of preprocessor defines
+        used for preprocessing "*.p.*" files in the source tree.
+        See <http://code.google.com/p/preprocess/> for info.
+        If this is None (the default), then preprocessing is not done. When
+        preprocessing, *all* of the source tree except "build" and "tmp" subdirs
+        are traversed.
     @param log {logging.Logger} Optional.
     @returns {str} The path to the created .xpi file.
     """
@@ -508,6 +514,14 @@ def build_ext(base_dir, support_devinstall=True, log=None):
         if exists(build_dir):
             _rm(build_dir, log.info)
         
+        # Preprocessing.
+        if ppdefines is not None:
+            for path in _paths_from_path_patterns([base_dir],
+                    includes=["*.p.*"],
+                    excludes=["build", "tmp", ".svn", ".hg", "CVS", ".git"],
+                    skip_dupe_dirs=True):
+                _preprocess(path, ppdefines, log.info)
+
         ext_info = ExtensionInfo(base_dir)
         ko_info = KomodoInfo()
         xpi_manifest = ["install.rdf"]
@@ -1277,6 +1291,23 @@ def _run_in_dir(cmd, cwd, logstream=_RUN_DEFAULT_LOGSTREAM):
     finally:
         os.chdir(old_dir)
 
+def _preprocess(path, defines=None, logstream=None):
+    """Preprocess the given `FOO.p.EXT` file to `FOO.EXT`.
+    
+    @param path {str} The input path to preprocess.
+    @param defines {dict} A dict of preprocess defines.
+    @param logstream {callable} A callable on this to log. This is expected to
+        behave as does a Logger method, e.g. `logging.Logger.info`.
+    """
+    from os.path import split, join
+    import preprocess
+    dir, base = split(path)
+    assert base.count(".p.") == 1, "unexpected input path: `%s'" % path
+    output_path = join(dir, base.replace(".p.", "."))
+    if logstream:
+        logstream("preprocess `%s' to `%s' %r", path, output_path, defines)
+    preprocess.preprocess(path, output_path, defines, force=True, keepLines=True)
+
 def _rm(path, logstream=None):
     """My little lame cross-platform 'rm -rf'"""
     assert ' ' not in path,\
@@ -1330,3 +1361,264 @@ def _mkdir(dir, logstream=None):
     os.makedirs(dir)
 
 
+# Recipe: paths_from_path_patterns (0.5.1)
+def _should_include_path(path, includes, excludes):
+    """Return True iff the given path should be included."""
+    from os.path import basename
+    from fnmatch import fnmatch
+
+    base = basename(path)
+    if includes:
+        for include in includes:
+            if fnmatch(base, include):
+                try:
+                    log.debug("include `%s' (matches `%s')", path, include)
+                except (NameError, AttributeError):
+                    pass
+                break
+        else:
+            try:
+                log.debug("exclude `%s' (matches no includes)", path)
+            except (NameError, AttributeError):
+                pass
+            return False
+    for exclude in excludes:
+        if fnmatch(base, exclude):
+            try:
+                log.debug("exclude `%s' (matches `%s')", path, exclude)
+            except (NameError, AttributeError):
+                pass
+            return False
+    return True
+
+def _walk(top, topdown=True, onerror=None, follow_symlinks=False):
+    """A version of `os.walk()` with a couple differences regarding symlinks.
+    
+    1. follow_symlinks=False (the default): A symlink to a dir is
+       returned as a *non*-dir. In `os.walk()`, a symlink to a dir is
+       returned in the *dirs* list, but it is not recursed into.
+    2. follow_symlinks=True: A symlink to a dir is returned in the
+       *dirs* list (as with `os.walk()`) but it *is conditionally*
+       recursed into (unlike `os.walk()`).
+       
+       A symlinked dir is only recursed into if it is to a deeper dir
+       within the same tree. This is my understanding of how `find -L
+       DIR` works.
+
+    TODO: put as a separate recipe
+    """
+    from os.path import join, isdir, islink, abspath
+
+    # We may not have read permission for top, in which case we can't
+    # get a list of the files the directory contains.  os.path.walk
+    # always suppressed the exception then, rather than blow up for a
+    # minor reason when (say) a thousand readable directories are still
+    # left to visit.  That logic is copied here.
+    try:
+        names = os.listdir(top)
+    except OSError, err:
+        if onerror is not None:
+            onerror(err)
+        return
+
+    dirs, nondirs = [], []
+    if follow_symlinks:
+        for name in names:
+            if isdir(join(top, name)):
+                dirs.append(name)
+            else:
+                nondirs.append(name)
+    else:
+        for name in names:
+            path = join(top, name)
+            if islink(path):
+                nondirs.append(name)
+            elif isdir(path):
+                dirs.append(name)
+            else:
+                nondirs.append(name)
+
+    if topdown:
+        yield top, dirs, nondirs
+    for name in dirs:
+        path = join(top, name)
+        if follow_symlinks and islink(path):
+            # Only walk this path if it links deeper in the same tree.
+            top_abs = abspath(top)
+            link_abs = abspath(join(top, os.readlink(path)))
+            if not link_abs.startswith(top_abs + os.sep):
+                continue
+        for x in _walk(path, topdown, onerror, follow_symlinks=follow_symlinks):
+            yield x
+    if not topdown:
+        yield top, dirs, nondirs
+
+_NOT_SPECIFIED = ("NOT", "SPECIFIED")
+def _paths_from_path_patterns(path_patterns, files=True, dirs="never",
+                              recursive=True, includes=[], excludes=[],
+                              skip_dupe_dirs=False,
+                              follow_symlinks=False,
+                              on_error=_NOT_SPECIFIED):
+    """_paths_from_path_patterns([<path-patterns>, ...]) -> file paths
+
+    Generate a list of paths (files and/or dirs) represented by the given path
+    patterns.
+
+        "path_patterns" is a list of paths optionally using the '*', '?' and
+            '[seq]' glob patterns.
+        "files" is boolean (default True) indicating if file paths
+            should be yielded
+        "dirs" is string indicating under what conditions dirs are
+            yielded. It must be one of:
+              never             (default) never yield dirs
+              always            yield all dirs matching given patterns
+              if-not-recursive  only yield dirs for invocations when
+                                recursive=False
+            See use cases below for more details.
+        "recursive" is boolean (default True) indicating if paths should
+            be recursively yielded under given dirs.
+        "includes" is a list of file patterns to include in recursive
+            searches.
+        "excludes" is a list of file and dir patterns to exclude.
+            (Note: This is slightly different than GNU grep's --exclude
+            option which only excludes *files*.  I.e. you cannot exclude
+            a ".svn" dir.)
+        "skip_dupe_dirs" can be set True to watch for and skip
+            descending into a dir that has already been yielded. Note
+            that this currently does not dereference symlinks.
+        "follow_symlinks" is a boolean indicating whether to follow
+            symlinks (default False). To guard against infinite loops
+            with circular dir symlinks, only dir symlinks to *deeper*
+            dirs are followed.
+        "on_error" is an error callback called when a given path pattern
+            matches nothing:
+                on_error(PATH_PATTERN)
+            If not specified, the default is look for a "log" global and
+            call:
+                log.error("`%s': No such file or directory")
+            Specify None to do nothing.
+
+    Typically this is useful for a command-line tool that takes a list
+    of paths as arguments. (For Unix-heads: the shell on Windows does
+    NOT expand glob chars, that is left to the app.)
+
+    Use case #1: like `grep -r`
+      {files=True, dirs='never', recursive=(if '-r' in opts)}
+        script FILE     # yield FILE, else call on_error(FILE)
+        script DIR      # yield nothing
+        script PATH*    # yield all files matching PATH*; if none,
+                        # call on_error(PATH*) callback
+        script -r DIR   # yield files (not dirs) recursively under DIR
+        script -r PATH* # yield files matching PATH* and files recursively
+                        # under dirs matching PATH*; if none, call
+                        # on_error(PATH*) callback
+
+    Use case #2: like `file -r` (if it had a recursive option)
+      {files=True, dirs='if-not-recursive', recursive=(if '-r' in opts)}
+        script FILE     # yield FILE, else call on_error(FILE)
+        script DIR      # yield DIR, else call on_error(DIR)
+        script PATH*    # yield all files and dirs matching PATH*; if none,
+                        # call on_error(PATH*) callback
+        script -r DIR   # yield files (not dirs) recursively under DIR
+        script -r PATH* # yield files matching PATH* and files recursively
+                        # under dirs matching PATH*; if none, call
+                        # on_error(PATH*) callback
+
+    Use case #3: kind of like `find .`
+      {files=True, dirs='always', recursive=(if '-r' in opts)}
+        script FILE     # yield FILE, else call on_error(FILE)
+        script DIR      # yield DIR, else call on_error(DIR)
+        script PATH*    # yield all files and dirs matching PATH*; if none,
+                        # call on_error(PATH*) callback
+        script -r DIR   # yield files and dirs recursively under DIR
+                        # (including DIR)
+        script -r PATH* # yield files and dirs matching PATH* and recursively
+                        # under dirs; if none, call on_error(PATH*)
+                        # callback
+
+    TODO: perf improvements (profile, stat just once)
+    """
+    from os.path import basename, exists, isdir, join, normpath, abspath, \
+                        lexists, islink, realpath
+    from glob import glob
+
+    assert not isinstance(path_patterns, basestring), \
+        "'path_patterns' must be a sequence, not a string: %r" % path_patterns
+    GLOB_CHARS = '*?['
+
+    if skip_dupe_dirs:
+        searched_dirs = set()
+
+    for path_pattern in path_patterns:
+        # Determine the set of paths matching this path_pattern.
+        for glob_char in GLOB_CHARS:
+            if glob_char in path_pattern:
+                paths = glob(path_pattern)
+                break
+        else:
+            if follow_symlinks:
+                paths = exists(path_pattern) and [path_pattern] or []
+            else:
+                paths = lexists(path_pattern) and [path_pattern] or []
+        if not paths:
+            if on_error is None:
+                pass
+            elif on_error is _NOT_SPECIFIED:
+                try:
+                    log.error("`%s': No such file or directory", path_pattern)
+                except (NameError, AttributeError):
+                    pass
+            else:
+                on_error(path_pattern)
+
+        for path in paths:
+            if (follow_symlinks or not islink(path)) and isdir(path):
+                if skip_dupe_dirs:
+                    canon_path = normpath(abspath(path))
+                    if follow_symlinks:
+                        canon_path = realpath(canon_path)
+                    if canon_path in searched_dirs:
+                        continue
+                    else:
+                        searched_dirs.add(canon_path)
+
+                # 'includes' SHOULD affect whether a dir is yielded.
+                if (dirs == "always"
+                    or (dirs == "if-not-recursive" and not recursive)
+                   ) and _should_include_path(path, includes, excludes):
+                    yield path
+
+                # However, if recursive, 'includes' should NOT affect
+                # whether a dir is recursed into. Otherwise you could
+                # not:
+                #   script -r --include="*.py" DIR
+                if recursive and _should_include_path(path, [], excludes):
+                    for dirpath, dirnames, filenames in _walk(path, 
+                            follow_symlinks=follow_symlinks):
+                        dir_indeces_to_remove = []
+                        for i, dirname in enumerate(dirnames):
+                            d = join(dirpath, dirname)
+                            if skip_dupe_dirs:
+                                canon_d = normpath(abspath(d))
+                                if follow_symlinks:
+                                    canon_d = realpath(canon_d)
+                                if canon_d in searched_dirs:
+                                    dir_indeces_to_remove.append(i)
+                                    continue
+                                else:
+                                    searched_dirs.add(canon_d)
+                            if dirs == "always" \
+                               and _should_include_path(d, includes, excludes):
+                                yield d
+                            if not _should_include_path(d, [], excludes):
+                                dir_indeces_to_remove.append(i)
+                        for i in reversed(dir_indeces_to_remove):
+                            del dirnames[i]
+                        if files:
+                            for filename in sorted(filenames):
+                                f = join(dirpath, filename)
+                                if _should_include_path(f, includes, excludes):
+                                    yield f
+
+            elif files and _should_include_path(path, includes, excludes):
+                yield path

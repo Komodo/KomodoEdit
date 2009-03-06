@@ -108,15 +108,35 @@ class KoExtShell(cmdln.Cmdln):
     @option("-d", "--source-dir",
             help="The directory with the source for the extension "
                  "(defaults to the current dir)")
+    @option("--dev", action="store_const", dest="mode", const="dev",
+            default="release", help="Build in development mode. See below.")
+    @option("--disable-preprocessing", action="store_true",
+            help="Disable preprocessing of '*.p.*' files in the source tree. "
+                 "This is just paranioa in case the new preprocessing "
+                 "facility here causes problems in building extensions.")
     def do_build(self, subcmd, opts):
         """${cmd_name}: build a Komodo extension
 
         ${cmd_usage}
         ${cmd_option_list}
+        Using the "--dev" option has the following effects:
+        1. The "MODE" preprocessor define is "dev", instead of the default
+           "release", for preprocessing of "*.p.*" files in the source tree.
+        2. The "support_devinstall" build option is enabled to support the
+           use of `koext devinstall` (built bits are copied from the "build"
+           dir to the source area for in-place usage).
         """
         if opts.source_dir is None:
             opts.source_dir = os.curdir
-        koextlib.build_ext(opts.source_dir, log=log)
+        ppdefines = {
+            "MODE": opts.mode,
+        }
+        if opts.disable_preprocessing:
+            ppdefines = None
+        koextlib.build_ext(opts.source_dir,
+            support_devinstall=(opts.mode=="dev"),
+            ppdefines=ppdefines,
+            log=log)
 
     @option("-d", "--source-dir",
             help="The directory with the source for the extension "

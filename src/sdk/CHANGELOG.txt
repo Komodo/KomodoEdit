@@ -1,6 +1,18 @@
 
 # Komodo 5.1.0b1
 
+- Add `koext build --dev` option, mainly to preprocess with "MODE=dev". The
+  main intended usage of this is to have a "chrome.p.manifest" file that
+  supports both `koext build` for release and `koext build --dev && koext
+  devinstall` for quick development. Example "chrome.p.manifest" file:
+        # #if MODE == "dev"
+        content fastopen content/ xpcnativewrappers=yes
+        # #else
+        content fastopen jar:fastopen.jar!/content/ xpcnativewrappers=yes
+        # #endif
+        overlay chrome://komodo/content/komodo.xul chrome://fastopen/content/overlay.xul
+- Add preprocessing support (using <http://code.google.com/p/preprocess/>) to
+  `koext build`.
 - New `koext koinstall` command used for building and installing core Komodo
   extensions into a Komodo build.
 - koext v0.3.0
