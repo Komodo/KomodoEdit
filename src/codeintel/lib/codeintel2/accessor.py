@@ -458,13 +458,14 @@ class KoDocumentAccessor(SciMozAccessor):
         if self._scimoz_weak_ref is None:
             return self._get_scimoz_ref()
         scimoz = self._scimoz_weak_ref()
-        # The scimoz.isOwned will check to ensure the Plugin is still alive.
-        # Bug 82032.
-        if scimoz and scimoz.isOwned:
-            return self._scimoz_proxy_from_scimoz(scimoz)
-        else:
-            # Weakref is invalid, try to get a new weakref. bug 73020
-            return self._get_scimoz_ref()
+        if scimoz:
+            scimoz_proxy = self._scimoz_proxy_from_scimoz(scimoz)
+            # The scimoz.isOwned will check to ensure the Plugin is still alive.
+            # Bug 82032.
+            if scimoz_proxy.isOwned:
+                return scimoz_proxy
+        # SciMoz reference is invalid, try to get a new weakref. bug 73020
+        return self._get_scimoz_ref()
 
 
 class AccessorCache:
