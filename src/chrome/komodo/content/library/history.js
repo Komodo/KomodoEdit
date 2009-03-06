@@ -640,7 +640,7 @@ this.rctabs_build_menu = function(menupopup) {
     }
 };
 
-// open_rctab(0) implements cmd_reopenLastClosedTab
+// open_rctab(-1) implements cmd_reopenLastClosedTab
 // open_rctab(i) called from the rctab menu in general.
 this.open_rctab = function(idx) {
     var rctab = rctabs_list.splice(idx, 1)[0];
