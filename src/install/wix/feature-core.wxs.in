@@ -317,6 +317,10 @@
       <ComponentRef Id="component413"/>
       <ComponentRef Id="component420"/>
       <ComponentRef Id="component92"/>
+      <ComponentRef Id="component35"/>
+      <ComponentRef Id="component36"/>
+      <ComponentRef Id="component37"/>
+      <ComponentRef Id="component38"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -952,6 +956,29 @@
                 </Directory> <!-- lib\mozilla\extensions\actionscript_language@ActiveState.com\templates\All Languages -->
               </Directory> <!-- lib\mozilla\extensions\actionscript_language@ActiveState.com\templates -->
             </Directory> <!-- lib\mozilla\extensions\actionscript_language@ActiveState.com -->
+            <Directory Id="directory37" Name="FASTOP_0.COM" LongName="fastopen@activestate.com">
+              <Component Id="component35" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file846" Name="CHROME_5.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\chrome.manifest"/>
+                <File Id="file847" Name="fastopen.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\fastopen.jar"/>
+                <File Id="file848" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\install.rdf"/>
+              </Component>
+              <Directory Id="directory38" Name="COMPO_11" LongName="components">
+                <Component Id="component36" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file849" Name="KOFAST_0.PY" LongName="koFastOpen.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\components\koFastOpen.py"/>
+                  <File Id="file850" Name="KOIFAS_0.XPT" LongName="koIFastOpen.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\components\koIFastOpen.xpt"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\fastopen@activestate.com\components -->
+              <Directory Id="directory39" Name="idl">
+                <Component Id="component37" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file851" Name="KOIFAS_0.IDL" LongName="koIFastOpen.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\idl\koIFastOpen.idl"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\fastopen@activestate.com\idl -->
+              <Directory Id="directory40" Name="pylib">
+                <Component Id="component38" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file852" Name="fastopen.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\pylib\fastopen.py"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\fastopen@activestate.com\pylib -->
+            </Directory> <!-- lib\mozilla\extensions\fastopen@activestate.com -->
             <Directory Id="directory322" Name="HTML_L_0.COM" LongName="html_language@ActiveState.com">
               <Component Id="component257" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file166" Name="CHROM_12.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\chrome.manifest"/>
@@ -3527,6 +3554,7 @@
               <File Id="file843" Name="NSISUP_2.IDL" LongName="nsISupportsArray.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsISupportsArray.idl"/>
               <File Id="file844" Name="NSITRE_0.IDL" LongName="nsITreeBoxObject.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsITreeBoxObject.idl"/>
               <File Id="file845" Name="NSITRE_1.IDL" LongName="nsITreeView.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsITreeView.idl"/>
+              <File Id="file853" Name="NSIDO_96.IDL" LongName="nsIDOMWindowInternal.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMWindowInternal.idl"/>
               <File Id="file4111" Name="NSICAT_0.IDL" LongName="nsICategoryManager.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsICategoryManager.idl"/>
               <File Id="file4112" Name="NSICER_0.IDL" LongName="nsICertificateDialogs.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsICertificateDialogs.idl"/>
               <File Id="file4113" Name="NSICHA_0.IDL" LongName="nsIChannel.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIChannel.idl"/>
@@ -3728,6 +3756,7 @@
             <Component DiskId="1" Guid="$(autowix.guid)" Id="component16">
               <File Id="file1392" Name="koextlib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\pylib\koextlib.py" />
               <File Id="file288" Name="cmdln.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\pylib\cmdln.py"/>
+              <File Id="file854" Name="PREPRO_0.PY" LongName="preprocess.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\pylib\preprocess.py"/>
             </Component>
             <Directory Id="directory559" Name="LUDDIT_0" LongName="ludditelib">
               <Component Id="component517" DiskId="1" Guid="$(autowix.guid)">
