@@ -142,6 +142,7 @@
               <File Id="file423" LongName="unittest.html" Name="UNITTE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\unittest.html" />
               <File Id="file449" LongName="vikeybind.html" Name="VIKEYB_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\vikeybind.html" />
               <File Id="file421" LongName="abbreviations.html" Name="ABBREV_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\abbreviations.html" />
+              <File Id="file846" LongName="history.html" Name="HISTOR_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\history.html" />
               <File Id="file1388" Name="KOMODO_7.HTM" LongName="komodo-js-api.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodo-js-api.html" />
               <File Id="file4397" Name="KOMODO_0.RDF" LongName="komodohelp.rdf" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\komodohelp.rdf"/>
               <File Id="file353" LongName="aux_search.rdf" Name="AUX_SE_0.RDF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\aux_search.rdf" />
