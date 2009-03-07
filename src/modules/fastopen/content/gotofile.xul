@@ -11,7 +11,8 @@
         title="Go To File"
         onload="onLoad()"
         orient="vertical"
-        height="500"
+        width="500"
+        height="400"
         style="min-height: 350px; min-width: 35em; max-width: 55em;"
         persist="width height"
         onkeypress="handleWindowKeyPress(event)">
