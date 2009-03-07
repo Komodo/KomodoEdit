@@ -1363,9 +1363,9 @@ def _cp(src, dest, logstream=None):
         src = src.replace("/", "\\")
         dest = dest.replace("/", "\\")
         if isdir(src):
-            _run("xcopy /e/i/y/q %s %s" % (src, dest), logstream=logstream)
+            _run("xcopy /e/i/y/q %s %s >nul" % (src, dest), logstream=logstream)
         else:
-            _run("copy /y %s %s" % (src, dest), logstream=logstream)
+            _run("copy /y %s %s >nul" % (src, dest), logstream=logstream)
     else:
         if isdir(src):
             _run("cp -R %s %s" % (src, dest), logstream=logstream)
