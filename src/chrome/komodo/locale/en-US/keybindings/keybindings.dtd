@@ -93,6 +93,8 @@
 <!ENTITY editorViMoveToTheEndOfTheSection.desc "Editor: Vi: Move to the End of the Section">
 <!ENTITY editorViMoveToTheEndOfTheSentence.desc "Editor: Vi: Move to the End of the Sentence">
 <!ENTITY editorViMoveToTheTopOfTheScreen.desc "Editor: Vi: Move to the Top of the Screen">
+<!ENTITY editorViJumpToLineBeforeLastJump.desc "Editor: Vi: Jump to the Line before the Last Jump">
+<!ENTITY editorViJumpToLocBeforeLastJump.desc "Editor: Vi: Jump to the Position before the Last Jump">
 <!ENTITY editorViNewLineStartingAfterTheCurrentLine.desc "Editor: Vi: New Line Starting After the Current Line">
 <!ENTITY editorViNewLineStartingBeforeTheCurrentLine.desc "Editor: Vi: New Line Starting Before the Current Line">
 <!ENTITY editorViPaste.desc "Editor: Vi: Paste">

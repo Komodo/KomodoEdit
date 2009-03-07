@@ -64,6 +64,9 @@ binding cmd_vim_moveParagraphBegin {
 binding cmd_vim_moveParagraphEnd   }
 binding cmd_vim_moveFunctionPrevious [ [
 binding cmd_vim_moveFunctionNext     ] ]
+# History moves
+binding cmd_vim_jumpToLineBeforeLastJump ' '
+binding cmd_vim_jumpToLocBeforeLastJump ` `
 
 # Scrolling movements
 binding cmd_vim_scrollHalfPageDown  Ctrl+D

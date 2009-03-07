@@ -197,6 +197,26 @@ function _get_curr_loc(view /* =current view */) {
     return loc;
 };
 
+const MARKNUM_HISTORYLOC = 13; // Keep in sync with content/markers.js
+
+function _mark_pos_info(view) {
+    var scimoz = view.scimoz;
+    if (typeof(view.pos_before_last_jump) != "undefined") {
+        // Free up old marker handles
+        var marker_handle = view.pos_before_last_jump.marker_handle;
+        if (marker_handle != -1) {
+            scimoz.markerDeleteHandle(marker_handle);
+        }
+    }
+    var pos = scimoz.currentPos;
+    var line = scimoz.lineFromPosition(pos);
+    view.pos_before_last_jump = {
+        // 'line' is for fallback if the marker disappears (e.g. on edit)
+        line: line,
+        col: pos - scimoz.positionFromLine(line), // not scimoz.getColumn(pos)
+        marker_handle: scimoz.markerAdd(line, MARKNUM_HISTORYLOC)
+    };
+}
 
 /**
  * Note the current location.
@@ -215,6 +235,7 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
     if (!loc) {
         return null;
     }
+    _mark_pos_info(view);
     return _controller.historySvc.note_loc(loc, check_section_change, view);
 };
 
@@ -439,7 +460,9 @@ function _on_load_failure(loc, is_moving_back, delta) {
 this._history_move = function(go_method_name, check_method_name, delta,
                               explicit) {
     if (typeof(explicit) == "undefined") explicit=false;
-    var curr_loc = _get_curr_loc();
+    var view = ko.views.manager.currentView;
+    var curr_loc = _get_curr_loc(view);
+    _mark_pos_info(view);
     var is_moving_back = (go_method_name == 'go_back');
     for (var i = 0; i < _SKIP_DBGP_FALLBACK_LIMIT; i++) {
         var loc = _controller.historySvc[go_method_name](curr_loc, delta);
@@ -495,6 +518,25 @@ this.history_back = function(delta, explicit) {
 
 this.history_forward = function(delta, explicit) {
     this._history_move('go_forward', 'can_go_forward', delta, explicit);
+};
+
+this.move_to_loc_before_last_jump = function(view, moveToFirstVisibleChar) {
+    if (typeof(view.pos_before_last_jump) == "undefined") {
+        view.pos_before_last_jump = {line:0, marker_handle:-1, col:0}
+    }
+    var info = view.pos_before_last_jump;
+    var scimoz = view.scimoz;
+    var next_line = scimoz.markerLineFromHandle(info.marker_handle);
+    if (next_line == -1) {
+        next_line = info.line;
+    }
+    _mark_pos_info(view);
+    if (moveToFirstVisibleChar) {
+        scimoz.gotoLine(next_line);
+        scimoz.vCHome();
+    } else {
+        scimoz.gotoPos(scimoz.positionAtColumn(next_line, info.col));
+    }
 };
 
 var _controller = new HistoryController();

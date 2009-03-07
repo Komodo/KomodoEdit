@@ -2240,6 +2240,9 @@ VimController.command_mappings = {
     "cmd_vim_moveParagraphEnd" :    [ "cmd_moveParagraphEnd",       VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_moveFunctionPrevious" :[ "cmd_moveFunctionPrevious",   VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_moveFunctionNext" :    [ "cmd_moveFunctionNext",       VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_jumpToLineBeforeLastJump" :    [ VimController.SPECIAL_COMMAND, VimController.MOVEMENT_ACTION | VimController.NO_REPEAT_ACTION],
+    "cmd_vim_jumpToLocBeforeLastJump" :    [ VimController.SPECIAL_COMMAND, VimController.MOVEMENT_ACTION | VimController.NO_REPEAT_ACTION],
+
 // Select actions
     "cmd_vim_selectCharNext" :      [ "cmd_selectCharNext",         VimController.REPEATABLE_ACTION ],
     "cmd_vim_selectCharPrevious" :  [ "cmd_selectCharPrevious",     VimController.REPEATABLE_ACTION ],
@@ -2920,6 +2923,14 @@ function cmd_vim_gotoLine(scimoz, lineNumber) {
     } catch (e) {
         vimlog.exception(e);
     }
+}
+
+function cmd_vim_jumpToLineBeforeLastJump() {
+    ko.history.move_to_loc_before_last_jump(ko.views.manager.currentView, true);
+}
+
+function cmd_vim_jumpToLocBeforeLastJump() {
+    ko.history.move_to_loc_before_last_jump(ko.views.manager.currentView, false);
 }
 
 function cmd_vim_insert(scimoz) {

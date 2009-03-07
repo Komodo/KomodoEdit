@@ -282,6 +282,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 11: Komodo 5.1.0 - Add cmd_vim_jumpToLineBeforeLastJump, cmd_vim_jumpToLocBeforeLastJump
  * 10: Komodo 5.1.0 - Add cmd_reopenLastClosedTab
  * 9: Komodo 5.1.0 - Add cmd_lineSelectionOrDuplicate
  * 8: Komodo 5.1.0 - Mac: bind %[, %] to history, %{, %} to jump/sel to matching brace
@@ -293,7 +294,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 10;
+const currentKeybindingVersionNumber = 11;
 
 /**
  * Remove this dictionary of keybinds.
@@ -571,6 +572,16 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                         'cmd_reopenLastClosedTab': ["Ctrl+Shift+T"]
                     });
 // #endif
+            break;
+
+            case 10:
+                 if (vi_enabled) {
+                     this._add_keybinding_sequences({
+                         "cmd_vim_jumpToLocBeforeLastJump": [ "', '"],
+                         "cmd_vim_jumpToLocBeforeLastJump": [ "`, `"]
+                     });
+                 }
+                 break;
             break;
         }
         from_version += 1;

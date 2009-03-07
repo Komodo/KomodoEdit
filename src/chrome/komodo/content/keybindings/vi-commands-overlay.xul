@@ -196,6 +196,16 @@
             id="cmd_vim_moveFunctionNext" key="key_cmd_vim_moveFunctionNext"
             oncommand="vim_doCommand('cmd_vim_moveFunctionNext', event)"
             desc="&editorViMoveToTheEndOfTheSection.desc;"/>
+        <command
+            id="cmd_vim_jumpToLineBeforeLastJump"
+            key="key_cmd_vim_jumpToLineBeforeLastJump"
+            oncommand="vim_doCommand('cmd_vim_jumpToLineBeforeLastJump', event)"
+            desc="&editorViJumpToLineBeforeLastJump.desc;"/>
+        <command
+            id="cmd_vim_jumpToLocBeforeLastJump"
+            key="key_cmd_vim_jumpToLocBeforeLastJump"
+            oncommand="vim_doCommand('cmd_vim_jumpToLocBeforeLastJump', event)"
+            desc="&editorViJumpToLocBeforeLastJump.desc;"/>
 
       <!-- Vim select, copy, cut and paste commands -->
         <command
