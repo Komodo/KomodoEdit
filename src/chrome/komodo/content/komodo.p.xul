@@ -2306,17 +2306,10 @@
                               flex="1" collapsed="true">
                         <hbox align="center" id="findresults1_tabpanel-toolbarbox"
                             class="toolbar-background toolbar-hbox">
-<!-- #if PLATFORM != "darwin" -->
                             <image id="findresults1-icon"
                                    collapsed="true" hidden="true"
                                    style="padding-left: 3px;"
-                                   src="chrome://global/skin/throbber/Throbber-small.gif"/>
-<!-- #else -->
-                            <image id="findresults1-icon"
-                                   collapsed="true" hidden="true"
-                                   style="padding-left: 3px;"
-                                   src="chrome://global/skin/icons/loading_16.gif"/>
-<!-- #endif -->
+                                   src="chrome://global/skin/icons/loading_16.png"/>
                             <label id="findresults1-desc" style="height: 18px;"
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
@@ -2375,17 +2368,10 @@
                               flex="1" collapsed="true">
                         <hbox align="center" id="findresults2_tabpanel-toolbarbox"
                             class="toolbar-background toolbar-hbox">
-<!-- #if PLATFORM != "darwin" -->
                             <image id="findresults2-icon"
                                    collapsed="true" hidden="true"
                                    style="padding-left: 3px;"
-                                   src="chrome://global/skin/throbber/Throbber-small.gif"/>
-<!-- #else -->
-                            <image id="findresults2-icon"
-                                   collapsed="true" hidden="true"
-                                   style="padding-left: 3px;"
-                                   src="chrome://global/skin/icons/loading_16.gif"/>
-<!-- #endif -->
+                                   src="chrome://global/skin/icons/loading_16.png"/>
                             <label id="findresults2-desc" style="height: 15px;"
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
