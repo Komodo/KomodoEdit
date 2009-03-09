@@ -958,7 +958,7 @@
             </Directory> <!-- lib\mozilla\extensions\actionscript_language@ActiveState.com -->
             <Directory Id="directory37" Name="FASTOP_0.COM" LongName="fastopen@activestate.com">
               <Component Id="component35" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file846" Name="CHROME_5.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\chrome.manifest"/>
+                <File Id="file855" LongName="chrome.manifest" Name="CHROME_5.MAN" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\chrome.manifest" />
                 <File Id="file847" Name="fastopen.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\fastopen.jar"/>
                 <File Id="file848" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\install.rdf"/>
               </Component>
