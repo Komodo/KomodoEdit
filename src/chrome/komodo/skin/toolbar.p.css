@@ -444,6 +444,10 @@ toolbarbutton {
   list-style-image : url("chrome://komodo/skin/images/famfamfam/page_white_go.png");
 }
 
+menuitem.history-nav-item {
+  max-width: 60em;
+}
+
 
 /* Common styles for the history toolbar -- also see platform-specific parts */
 menuitem.history-nav-current {

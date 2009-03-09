@@ -409,8 +409,9 @@ this.init_popup_menu_recent_locations = function(event) {
         menuitem.setAttribute("index", 0);
         var handler = null;
         var delta = currentLocIdx - i;
+        var cssClass = "history-nav-item";
         if (delta == 0) {
-            menuitem.setAttribute("class", "history-nav-current");
+            cssClass += " history-nav-current";
             menuitem.setAttribute("type", "checkbox");
             menuitem.setAttribute("checked", "true");
             handler = "event.stopPropagation()";
@@ -424,6 +425,7 @@ this.init_popup_menu_recent_locations = function(event) {
             handler = "ko.history.history_back(" + (-1 * delta) + ", true)";
             tooltip = _bundle.GetStringFromName("historyGoBackToThisLocation");
         }
+        menuitem.setAttribute("class", cssClass);
         menuitem.setAttribute("tooltiptext", tooltip);
         menuitem.setAttribute("oncommand", handler);
         popupMenu.appendChild(menuitem);
