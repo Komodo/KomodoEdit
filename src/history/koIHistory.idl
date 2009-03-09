@@ -17,7 +17,7 @@ interface koIHistoryLocation : nsISupports
     attribute PRUint32 col;
     attribute wstring view_type;
 
-    attribute PRUint32 marker_handle;
+    attribute PRint32  marker_handle;
     attribute PRUint32 window_num;
     attribute PRUint32 tabbed_view_id;
     attribute wstring section_title;
