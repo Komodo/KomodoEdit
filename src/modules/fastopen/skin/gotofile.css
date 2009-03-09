@@ -1,0 +1,14 @@
+.throbber {
+    list-style-image: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    -moz-margin-start: 5px;
+    -moz-margin-end: 2px;
+}
+
+.throbber[busy="true"] {
+    list-style-image: url("chrome://global/skin/icons/loading_16.png");
+}
+

@@ -116,6 +116,12 @@ class StreamResultsView(object):
     def addHits(self, hits):
         for hit in hits:
             self.addHit(hit)
+    def searchStarted(self):
+        pass
+    def searchAborted(self):
+        pass
+    def searchCompleted(self):
+        pass
 
 class Driver(threading.Thread):
     def __init__(self):
@@ -147,6 +153,9 @@ class Driver(threading.Thread):
                 resetHits()         called first thing
                 addHit(hit)         add a single hit
                 addHits(hits)       add a list of hits
+                searchStarted()
+                searchAborted()
+                searchCompleted()
             If not given, results will be written to `sys.stdout` by using
             a `StreamResultsView`.
         """
@@ -176,6 +185,7 @@ class Driver(threading.Thread):
     
     def _handleRequest(self, request):
         gatherers, query, resultsView = request
+        resultsView.searchStarted()
         resultsView.resetHits()
         
         # Second value is whether to be case-sensitive in filtering.
@@ -198,12 +208,15 @@ class Driver(threading.Thread):
                 else:
                     exhausted.append(i)
                 if not self._queue.empty():  # Another request, abort this one.
+                    resultsView.searchAborted()
                     return
                 #log.debug("adding %d hits from %r", len(hits), gatherer)
                 resultsView.addHits(hits)
             if exhausted:
                 for i in reversed(exhausted):
                     del generators[i]
+
+        resultsView.searchCompleted()
 
 class Gatherers(list):
     """A priority-ordered list of path hit gatherers.

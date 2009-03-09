@@ -15,6 +15,9 @@ interface koIFastOpenTreeView: nsITreeView {
     //void resetHits();
     //void addHit(in Hit hits);
     //void addHits(in array of Hits hits);
+    //void searchStarted();
+    //void searchAborted();
+    //void searchCompleted();
 
     void getSelectedPaths(out PRUint32 count,
         [retval, array, size_is(count)] out wstring paths);
@@ -28,6 +31,9 @@ interface koIFastOpenTreeView: nsITreeView {
 interface koIFastOpenUIDriver: nsISupports {
     void setTreeView(in koIFastOpenTreeView view);
     void setCurrPath(in wstring path);
+    void searchStarted();
+    void searchAborted();
+    void searchCompleted();
 };
 
 

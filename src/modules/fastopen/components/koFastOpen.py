@@ -102,6 +102,13 @@ class KoFastOpenTreeView(TreeView):
         except AttributeError:
             pass # ignore `self._tree` going away
     
+    def searchStarted(self):
+        self.uiDriver.searchStarted()
+    def searchAborted(self):
+        self.uiDriver.searchAborted()
+    def searchCompleted(self):
+        self.uiDriver.searchCompleted()
+    
     def getSelectedPaths(self): 
         paths = []
         for i in range(self.selection.getRangeCount()):

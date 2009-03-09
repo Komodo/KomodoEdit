@@ -1,6 +1,8 @@
 # #if MODE == "dev"
 content fastopen content/ xpcnativewrappers=yes
+skin fastopen classic/1.0 skin/
 # #else
 content fastopen jar:fastopen.jar!/content/ xpcnativewrappers=yes
+skin fastopen classic/1.0 jar:fastopen.jar!/skin/
 # #endif
 overlay chrome://komodo/content/komodo.xul chrome://fastopen/content/overlay.xul

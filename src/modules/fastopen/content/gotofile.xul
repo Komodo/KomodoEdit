@@ -4,6 +4,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
+<?xml-stylesheet href="chrome://fastopen/skin/gotofile.css" type="text/css"?>
 
 <window id="dialog-gotofile"
         window_type="komodo_gotofile"
@@ -22,11 +23,14 @@
   <script src="chrome://fastopen/content/gotofile.js" type="application/x-javascript;version=1.7"/>
     
   <vbox flex="1">
-    <textbox id="query" type="timed" timeout="200"
-        oncommand="findFiles(this.value)"
-        onkeypress="handleQueryKeyPress(event)"
-        class="search-box"
-        style="margin: 10px;"/>
+    <hbox style="margin: 10px;">
+      <textbox id="query" type="timed" timeout="200"
+          oncommand="findFiles(this.value)"
+          onkeypress="handleQueryKeyPress(event)"
+          class="search-box"
+          flex="1" />
+      <image id="throbber" class="throbber" busy="true" />
+    </hbox>
 
     <tree id="results" flex="1" hidecolumnpicker="true"
         ondblclick="handleDblClick(event)"

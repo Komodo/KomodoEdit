@@ -6,6 +6,7 @@
 - minimal caching of file list
 - check on Windows and Linux
 - localization: .dtd, .properties
+- MPL in ok tree
 - bug: dialog is globally modal on-top on Mac OS X. Why?
 - recent files in the history
 - hgignore support in project includes/excludes

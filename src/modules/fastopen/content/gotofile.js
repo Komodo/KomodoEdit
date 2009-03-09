@@ -20,6 +20,7 @@ function onLoad()
     try {
         gWidgets = {
             query: document.getElementById("query"),
+            throbber: document.getElementById("throbber"),
             results: document.getElementById("results"),
             statusbarPath: document.getElementById("statusbar-path")
         }
@@ -98,7 +99,7 @@ function findFiles(query) {
     if (_gIgnoreNextFindFiles) {
         _gIgnoreNextFindFiles = false;
     } else {
-        gSession.findFiles(query)
+        gSession.findFiles(query);
     }
 }
 
@@ -127,6 +128,16 @@ FastOpenUIDriver.prototype.setCurrPath = function(path) {
     gWidgets.statusbarPath.label = path;
 }
 
+FastOpenUIDriver.prototype.searchStarted = function() {
+    _startThrobber();
+}
+FastOpenUIDriver.prototype.searchAborted = function() {
+    _stopThrobber();
+}
+FastOpenUIDriver.prototype.searchCompleted = function() {
+    _stopThrobber();
+}
+
 /*
 FastOpenUIDriver.prototype.echo = function(msg) {
     try {
@@ -140,6 +151,14 @@ FastOpenUIDriver.prototype.echo = function(msg) {
 
 
 //---- internal support routines
+
+function _startThrobber() {
+    gWidgets.throbber.setAttribute("busy", "true");
+}
+
+function _stopThrobber() {
+    gWidgets.throbber.removeAttribute("busy");
+}
 
 function _selectTreeRow(tree, index) {
     tree.view.selection.select(index);
