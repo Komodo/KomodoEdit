@@ -1776,6 +1776,18 @@ class koProject(koLiveFolderPart):
             self._attributes.get("name"), curr_str, live_str,
             len(self.children), self._attributes["id"])
 
+    # Override _setPathAndName to allow a project to have a user customized
+    # name that will be shown in the UI, instead of always defaulting to the
+    # basename of the project. Bug 82050.
+    def _setPathAndName(self):
+        if self._uri:
+            # If the project has a name attribute, that gets precedence.
+            if "name" in self._attributes:
+                self._name = self._attributes.get("name")
+            else:
+                self._name = self._uri.baseName
+            self._path = self._uri.path
+
     def isCurrent(self):
         return self._active
 
