@@ -577,7 +577,7 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
             case 10:
                  if (vi_enabled) {
                      this._add_keybinding_sequences({
-                         "cmd_vim_jumpToLocBeforeLastJump": [ "', '"],
+                         "cmd_vim_jumpToLineBeforeLastJump": [ "', '"],
                          "cmd_vim_jumpToLocBeforeLastJump": [ "`, `"]
                      });
                  }
