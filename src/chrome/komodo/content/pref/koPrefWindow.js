@@ -351,14 +351,8 @@ koPrefWindow.prototype =
         return document;
     },
 
-    _setElementFromPrefValue: function(elt) {
-    try {
-        // Set a UI element from its preference value(s).
-        // Returns the preference value (which may not be the label on the widget,
-        // especially for menu lists, radios, etc
+    _prefIdsAndTypesFromElement: function(elt) {
         var prefIds = null;
-        var prefHere = elt.hasAttribute("prefhere") &&
-                       elt.getAttribute('prefhere') == "true";
         if (elt.hasAttribute("prefstring")) {
             prefIds = [elt.getAttribute("prefstring")];
         } else if (elt.hasAttribute("prefstrings")) {
@@ -366,20 +360,43 @@ koPrefWindow.prototype =
         } else {
             prefIds = [elt.id];
         }
+        var prefTypes = null;
+        if (elt.hasAttribute("preftype")) {
+            prefTypes = [elt.getAttribute("preftype")];
+        } else if (elt.hasAttribute("preftypes")) {
+            prefTypes = elt.getAttribute("preftypes").split(",");
+        } else {
+            prefTypes = [null];
+        }
+        return [prefIds, prefTypes];
+    },
+
+    _setElementFromPrefValue: function(elt) {
+    try {
+        // Set a UI element from its preference value(s).
+        // Returns the preference value (which may not be the label on the widget,
+        // especially for menu lists, radios, etc
+        var prefHere = elt.hasAttribute("prefhere") &&
+                       elt.getAttribute('prefhere') == "true";
+        var [prefIds, prefTypes] = this._prefIdsAndTypesFromElement(elt);
         var prefValues = [];
         var i;
         for (i = 0; i < prefIds.length; ++i) {
-            prefValues.push(this.getPref(prefIds[i], prefHere));
+            prefValues.push(this.getPref(prefIds[i], prefHere, prefTypes[i]));
         }
 
-        var prefattribute, items, item, listitem, widgetValues;
+        var prefattribute, items, item, listitem, widgetValues, prefValue;
         switch (elt.localName) {
         case "listbox":
             prefattribute = _getPrefAttributeForElement(elt);
             while (elt.firstChild) {
                 elt.removeChild(elt.firstChild);
             }
-            var dirs = prefValues[0].split(os.pathsep);
+            var prefValue = prefValues[0];
+            if (prefValue == null) {
+                prefValue = "";
+            }
+            var dirs = prefValue.split(os.pathsep);
             for (i = 0; i < dirs.length; i++) {
                 if (dirs[i]) {
                     listitem = document.createElement('listitem');
@@ -536,12 +553,18 @@ koPrefWindow.prototype =
         return prefs.hasPrefHere(aPrefString);
     },
 
-    getPref: function (aPrefString, prefHere) {
+    getPref: function (aPrefString, prefHere /* =false */, prefType /* =null */) {
+        if (typeof(prefHere) == "undefined" || prefHere == null) prefHere = false;
+        if (typeof(prefType) == "undefined") prefType = null;
+        
         var prefs = this._getCurrentPrefSet();
         if (prefHere && !prefs.hasPrefHere(aPrefString)) {
             return null;
         }
-        var aPrefType = prefs.getPrefType(aPrefString);
+        if (!prefs.hasPref(aPrefString)) {
+            return null;
+        }
+        var aPrefType = prefType || prefs.getPrefType(aPrefString);
         if (aPrefType == null) {
             var msg = "pref.id is UNDEFINED, aPrefString = " + aPrefString;
             prefLog.error(msg);
@@ -567,21 +590,22 @@ koPrefWindow.prototype =
         return null;  // shutup strict mode
     },
 
-    setPref: function ( prefId, value ) {
+    setPref: function (prefId, value, prefType /* = null */) {
+        if (typeof(prefType) == "undefined") prefType = null;
         var prefs = this._getCurrentPrefSet();
-        var prefType = prefs.getPrefType(prefId);
-        if (prefType == "boolean") {
+        var actualPrefType = prefType || prefs.getPrefType(prefId);
+        if (actualPrefType == "boolean") {
             if (typeof(value)=="string")
                 value = value == "true" ? true : false;
             prefs.setBooleanPref(prefId, value);
-        } else if (prefType == "long") {
+        } else if (actualPrefType == "long") {
             prefs.setLongPref(prefId, value);
-        } else if (prefType == "double") {
+        } else if (actualPrefType == "double") {
             prefs.setDoublePref(prefId, value);
-        } else if (prefType == "string") {
+        } else if (actualPrefType == "string") {
             prefs.setStringPref(prefId, value);
         } else {
-            throw "Unknown preference type ("+prefType+")";
+            throw "Unknown preference type ("+actualPrefType+")";
         }
     },
 
@@ -647,14 +671,7 @@ koPrefWindow.prototype =
         var rc = true;
         for (i = 0; i < elements.length; i++) {
             var element = elements[i];
-            var prefIds = null;
-            if (element.hasAttribute("prefstring")) {
-                prefIds = [element.getAttribute("prefstring")];
-            } else if (element.hasAttribute("prefstrings")) {
-                prefIds = element.getAttribute("prefstrings").split(",");
-            } else {
-                prefIds = [element.id];
-            }
+            var [prefIds, prefTypes] = this._prefIdsAndTypesFromElement(element);
 
             try {
                 var widgetValues;
@@ -671,7 +688,7 @@ koPrefWindow.prototype =
                 }
 
                 for (j = 0; j < prefIds.length; j++) {
-                    var prefValue = this.getPref(prefIds[j]);
+                    var prefValue = this.getPref(prefIds[j], null, prefTypes[j]);
                     if (this.hasPrefHere(prefIds[j]) &&
                         (prefValue == widgetValues[j] ||
                          (widgetValues[j] == "true"  && prefValue === true) ||
@@ -681,7 +698,7 @@ koPrefWindow.prototype =
                         //dump("savesinglepageprefs: setting preference ID '" +
                         //     prefIds[j] + "' to value '" +
                         //     widgetValues[j] +"'\n");
-                        this.setPref(prefIds[j], widgetValues[j]);
+                        this.setPref(prefIds[j], widgetValues[j], prefTypes[j]);
                     }
                 }
             } catch (e) {
