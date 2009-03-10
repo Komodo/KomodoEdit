@@ -34,6 +34,8 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+Version = 2
+
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': True}
 
 CommonStyles = {'attribute name': {'fore': 8904824},
@@ -81,6 +83,7 @@ CommonStyles = {'attribute name': {'fore': 8904824},
         'useFixed': 0,
         'hotspot': 0,
         },
+ 'fold markers': {'fore': 0x777777},
  'functions': {'fore': 7632127},
  'identifiers': {},
  'indent guides': {'fore': 3355443},
@@ -167,5 +170,6 @@ Colors = {
  'caretLineBack': 13056,
  'currentLineColor': 16776960,
  'edgeColor': 6715272,
+ 'foldMarginColor': 0x333333,
  'selBack': 102,
  'selFore': 16777215}

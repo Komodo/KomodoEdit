@@ -38,7 +38,7 @@ CommonStates = [
     'default', 'comments', 'numbers', 'strings', 'keywords',
     'classes', 'functions', 'operators', 'identifiers',
     'stringeol', 'preprocessor', 'bracebad', 'bracehighlight',
-    'control characters', 'linenumbers', 'indent guides',
+    'control characters', 'linenumbers', 'fold markers', 'indent guides',
     'stdin', 'stdout', 'stderr'
 ]
 

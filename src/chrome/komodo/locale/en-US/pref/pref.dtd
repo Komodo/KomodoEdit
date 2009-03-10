@@ -246,6 +246,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY fixedWidth.label "Fixed width">
 <!ENTITY folderPropertiesAndSettings.title "Folder Properties and Settings">
 <!ENTITY folding.label "Folding">
+<!ENTITY foldMarginColor.label "Fold Margin Color">
 <!ENTITY fonts.accesskey "F">
 <!ENTITY fonts.label "Fonts">
 <!ENTITY fontsAndColors.label "Fonts and Colors">

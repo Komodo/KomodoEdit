@@ -612,7 +612,6 @@
                     var scimoz = this.scimoz;
                     scimoz.setMarginTypeN(whichMargin, scimoz.SC_MARGIN_SYMBOL);
                     scimoz.setMarginSensitiveN(whichMargin, whichMargin);
-                    var fore, back;
                     switch (foldstyle) {
                         case 'none':
                             scimoz.showLines(0, scimoz.lineCount-1);
@@ -630,8 +629,6 @@
                         case 'arrows':
                             // Arrow pointing right for contracted folders,
                             // arrow pointing down for expanded
-                            back = xtk.color.RGB(0x50, 0x50, 0x50);
-                            fore = xtk.color.RGB(0xaa, 0xaa, 0xaa);
                             scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEROPEN,
                                                 scimoz.SC_MARK_ARROWDOWN);
                             scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDER,
@@ -649,8 +646,6 @@
                             break;
                         case 'plusminus':
                             // Plus for contracted folders, minus for expanded
-                            fore = xtk.color.RGB(0xff, 0xff, 0xff);
-                            back = xtk.color.RGB(0x00, 0x00, 0x00);
                             scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEROPEN,
                                                 scimoz.SC_MARK_MINUS);
                             scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDER,
@@ -669,8 +664,6 @@
                         case 'curvytree':
                             // Like a flattened tree control using circular headers
                             // and curved joins
-                            fore = xtk.color.RGB(0xff, 0xff, 0xff);
-                            back = xtk.color.RGB(0x40, 0x40, 0x40);
                             scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDER,
                                                 scimoz.SC_MARK_CIRCLEPLUS);
                             scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDERSUB,
@@ -688,8 +681,6 @@
                             break;
                         case 'squaretree':
                             // Like a flattened tree control using square headers
-                            fore = xtk.color.RGB(0xff, 0xff, 0xff);
-                            back = xtk.color.RGB(0x80, 0x80, 0x80);
                             scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDEROPEN,
                                                 scimoz.SC_MARK_BOXMINUS);
                             scimoz.markerDefine(scimoz.SC_MARKNUM_FOLDER,
@@ -706,20 +697,6 @@
                                                 scimoz.SC_MARK_TCORNER);
                             break;
                     }
-                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDER, fore);
-                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDER, back);
-                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDERSUB, fore);
-                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDERSUB, back);
-                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDERTAIL, fore);
-                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDERTAIL, back);
-                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDEREND, fore);
-                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDEREND, back);
-                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDEROPEN, fore);
-                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDEROPEN, back);
-                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDEROPENMID, fore);
-                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDEROPENMID, back);
-                    scimoz.markerSetFore(scimoz.SC_MARKNUM_FOLDERMIDTAIL, fore);
-                    scimoz.markerSetBack(scimoz.SC_MARKNUM_FOLDERMIDTAIL, back);
                     scimoz.setMarginMaskN(whichMargin, scimoz.SC_MASK_FOLDERS);
                     scimoz.setProperty("fold", "1");
                     scimoz.setFoldFlags(16);

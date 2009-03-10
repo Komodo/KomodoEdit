@@ -34,6 +34,8 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+Version = 2
+
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': True}
 
 CommonStyles = {'attribute name': {'fore': 7872391},
@@ -81,6 +83,7 @@ CommonStyles = {'attribute name': {'fore': 7872391},
         'useFixed': 0,
         'hotspot': 0,
         },
+ 'fold markers': {'fore': 0x555555, 'back': 0xecf4f4},
  'functions': {'fore': 204},
  'identifiers': {'fore': 26112},
  'indent guides': {'fore': 8421504},
@@ -205,5 +208,8 @@ Colors = {
  'caretLineBack': 16119285,
  'currentLineColor': 16764108,
  'edgeColor': 15658734,
+ # Fold margin uses a color of None, which means Scintilla's default styling
+ # colors will be used instead (using the system colors on Windows).
+ 'foldMarginColor': None,
  'selBack': 13421772,
  'selFore': 16772846}

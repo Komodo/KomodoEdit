@@ -91,19 +91,37 @@ class Scheme:
             self.name = os.path.splitext(os.path.basename(fname))[0]
             execfile(fname, namespace)
             self.isDirty = 0
+        self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
+        self.encodingSvc = components.classes['@activestate.com/koEncodingServices;1'].getService()
+
+    _current_scheme_version = 2
+
+    def _loadSchemeSettings(self, namespace, upgradeSettings=True):
         self._commonStyles = namespace.get('CommonStyles', {})
         self._languageStyles = namespace.get('LanguageStyles', {})
         self._colors = namespace.get('Colors', {})
         self._booleans = namespace.get('Booleans', {})
-        self.encodingSvc = components.classes['@activestate.com/koEncodingServices;1'].getService()
+
+        version = namespace.get('Version', 1)
+        # Scheme upgrade handling.
+        if upgradeSettings and version < self._current_scheme_version:
+            if version == 1:  # Upgrade to v2.
+                if "fold markers" not in self._commonStyles:
+                    self._commonStyles["fold markers"] = {}
+                if "foldMarginColor" not in self._colors:
+                    self._colors["foldMarginColor"] = {}
+            try:
+                self.save()
+                log.warn("Upgraded scheme %r from version %d to %d.",
+                         self.name, version, self._current_scheme_version)
+            except EnvironmentError, ex:
+                log.warn("Unable to save scheme upgrade for %r, error: %r",
+                         self.name, ex)
 
     def revert(self):
         namespace = {}
         execfile(self.fname, namespace)
-        self._commonStyles = namespace.get('CommonStyles', {})
-        self._languageStyles = namespace.get('LanguageStyles', {})
-        self._colors = namespace.get('Colors', {})
-        self._booleans = namespace.get('Booleans', {})
+        self._loadSchemeSettings(namespace)
         self.isDirty = 0
 
     def set_useSelFore(self, useSelFore):
@@ -130,11 +148,12 @@ class Scheme:
         return clone
 
     def serialize(self):
+        version = "Version = " + pprint.pformat(self._current_scheme_version)
         booleans = "Booleans = " + pprint.pformat(self._booleans)
         commonStyles = "CommonStyles = " + pprint.pformat(self._commonStyles)
         languageStyles = "LanguageStyles = " + pprint.pformat(self._languageStyles)
         colors = "Colors = " + pprint.pformat(self._colors)
-        parts = [booleans, commonStyles, languageStyles, colors]
+        parts = [version, booleans, commonStyles, languageStyles, colors]
         s = '\n\n'.join(parts)
         return s
 
@@ -379,6 +398,7 @@ class Scheme:
         # the default style, i.e. non-editor styles.
         stylesThatDontUseDefault = [
             'linenumbers',
+            'fold markers',
         ]
 
         # This function needs to do two somewhat complementary things:
@@ -495,6 +515,33 @@ class Scheme:
         scimoz.markerSetBack(MARKNUM_BOOKMARK,
                              self._colors["bookmarkColor"])
         
+        # Fold margin and fold marker colors.
+        foldStyle = defaultStyle.copy()
+        foldStyle.update(self._commonStyles.get("fold markers", {}))
+        foldStyle.update(currentLanguageStyles.get("fold markers", {}))
+        # Remember the applied style.
+        self._appliedData["fold markers"] = foldStyle
+        foreColor = foldStyle.get("fore", None)
+        backColor = foldStyle.get("back", None)
+        if foreColor is not None or backColor is not None:
+            foldBitMask = scimoz.SC_MASK_FOLDERS
+            for i in range(scimoz.MARKER_MAX+1):
+                if foldBitMask & (1 << i):
+                    # Scintilla swaps the fore and back colors for margins, so
+                    # when calling markerSetFore(), it actually sets the
+                    # background color of the marker.
+                    if backColor is not None:
+                        scimoz.markerSetFore(i, backColor)
+                    if foreColor is not None:
+                        scimoz.markerSetBack(i, foreColor)
+            # Also need to set the fold margin color, for where there are no
+            # fold symbols drawn.
+        foldmargin_color = self._colors.get("foldMarginColor")
+        if foldmargin_color is not None:
+            scimoz.setFoldMarginColour(1, foldmargin_color)
+            scimoz.setFoldMarginHiColour(1, foldmargin_color)
+
+        # Indicators.
         DECORATOR_SOFT_CHAR = components.interfaces.koILintResult.DECORATOR_SOFT_CHAR
         scimoz.indicSetStyle(DECORATOR_SOFT_CHAR, scimoz.INDIC_BOX)
         # XXX: This should be in the scheme file.

@@ -340,6 +340,10 @@
                                           label="&selectionTextColor.label;"
                                           value="3"
                                           oncommand="updateSchemeColor('selFore')"/>
+                                <menuitem id="foldMarginColor"
+                                          label="&foldMarginColor.label;"
+                                          value="4"
+                                          oncommand="updateSchemeColor('foldMarginColor')"/>
                                 <menuitem id="bookmarkColor"
                                           label="&bookmarkColor.label;"
                                           value="6"

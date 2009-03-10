@@ -59,6 +59,7 @@ CommonFactoryStyles = {
                            'back': 0xffffff},
     'indent guides': {'fore': 0xbbbbbb},
     'linenumbers': {'fore': 0x555555},
+    'fold markers': {'fore': 0x555555},
     'comments': {'italic': 1,
                  'fore': 0x696969,
                 },
