@@ -146,7 +146,6 @@ this.ViewHistory.prototype.ctrlup = function(event)
     window.removeEventListener("keyup", this._keylistener, true);
     this._keylistener = null;
     this.exitBufferSwitchingSession();
-    this.setMostRecentView(this._currentView);
     this._currentView.doFocus(); // needed to possibly start lint XXX want better API
 }
 
