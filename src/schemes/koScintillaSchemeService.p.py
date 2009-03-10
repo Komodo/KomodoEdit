@@ -109,7 +109,10 @@ class Scheme:
                 if "fold markers" not in self._commonStyles:
                     self._commonStyles["fold markers"] = {}
                 if "foldMarginColor" not in self._colors:
-                    self._colors["foldMarginColor"] = {}
+                    # None is this case means to use the default Scintilla
+                    # color, which uses a system color "ThreeDFace". See
+                    # bug 81867.
+                    self._colors["foldMarginColor"] = None
             try:
                 self.save()
                 log.warn("Upgraded scheme %r from version %d to %d.",
