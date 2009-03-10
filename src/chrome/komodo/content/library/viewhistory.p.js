@@ -93,12 +93,6 @@ this.ViewHistory = function viewhistory() {
     window.addEventListener('view_closed', this.handle_view_closed, false);
     window.addEventListener('view_opened', this.handle_view_opened, false);
     ko.main.addWillCloseHandler(this.finalize);
-
-// #if PLATFORM != "win"
-    // on linux we must use a timeout since we do not get
-    // keyup events for the ctrl key
-    this._timeout = new objectTimer(this,this.exitBufferSwitchingSession,[]);
-// #endif
 }
 
 this.ViewHistory.prototype.constructor = this.ViewHistory;
@@ -266,10 +260,6 @@ this.ViewHistory.prototype.enterBufferSwitchingSession = function()
     this.log.debug("enterBufferSwitchingSession()");
     this.inBufferSwitchingSession = true;
     ko.views.manager.batchMode = true;
-// #if PLATFORM != "win"
-    this._timeout.stopTimeout();
-    this._timeout.startTimeout(1000);
-// #endif
 }
 
 this.ViewHistory.prototype.exitBufferSwitchingSession = function()
