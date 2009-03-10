@@ -736,7 +736,9 @@ viewManager.prototype._doFileOpen = function(uri,
     var views = this.topView.getViewsByTypeAndURI(true, viewType, uri);
     if (views.length > 0) {
         var existingView = this._openPreferredView(views, viewList);
-        if (existingView) return;
+        if (existingView) {
+            return existingView;
+        }
     }
     return this._newViewFromURI(uri, viewType, viewList, index);
 }
