@@ -898,7 +898,9 @@ viewManager.prototype.doFileOpenAtLineAsync = function(uri,
  * @return null
  */
 viewManager.prototype.openViewAsync = function(viewType, uri, tabGroup, tabIndex, callback) {
+    if (typeof(viewType) == "undefined" || viewType == null) viewType = "editor";
     if (typeof(tabGroup) == "undefined") tabGroup = null;
+
     var tabList = tabGroup ? document.getElementById(tabGroup) : null;
     switch (viewType) {
     case "startpage":
