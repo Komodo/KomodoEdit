@@ -676,6 +676,32 @@ viewManager.prototype.newViewFromURIAsync = function(uri,
     }, 1, this, uri, viewType, viewList, index, callback);
 }
 
+viewManager.prototype._openPreferredView = function(views, viewList) {
+    if (viewList == null) {
+        // If no tab group (viewList) is specified, maintain
+        // pre-5.1 behavior of opening whichever view is found
+        if (views.indexOf(this.currentView) >= 0) {
+            // this uses the correct view in a splitview
+            this.currentView.makeCurrent();
+            return this.currentView;
+        } else {
+            views[0].makeCurrent();
+            return views[0];
+        }
+    } else {
+        // If a tab group is specified, but the URI isn't
+        // found on that tab group, open a new view.
+        for (var i = 0; i < views.length; i++) {
+            var possibleView = views[i];
+            if (viewList.id == possibleView.id) {
+                possibleView.makeCurrent();
+                return possibleView;
+            }
+        }
+        return null;
+    }
+}
+
 /**
  * Open a file. If it is already open, then select that buffer,
  * else create a new buffer for the file.
@@ -709,28 +735,8 @@ viewManager.prototype._doFileOpen = function(uri,
     }
     var views = this.topView.getViewsByTypeAndURI(true, viewType, uri);
     if (views.length > 0) {
-        if (viewList == null) {
-            // If no tab group (viewList) is specified, maintain
-            // pre-5.1 behavior of opening whichever view is found
-            if (views.indexOf(this.currentView) >= 0) {
-                // this uses the correct view in a splitview
-                this.currentView.makeCurrent();
-                return this.currentView;
-            } else {
-                views[0].makeCurrent();
-                return views[0];
-            }
-        } else {
-            // If a tab group is specified, but the URI isn't
-            // found on that tab group, open a new view.
-            for (var i = 0; i < views.length; i++) {
-                var possibleView = views[i];
-                if (viewList.id == "view-" + possibleView.tabbedViewId) {
-                    possibleView.makeCurrent();
-                    return possibleView;
-                }
-            }
-        }
+        var existingView = this._openPreferredView(views, viewList);
+        if (existingView) return;
     }
     return this._newViewFromURI(uri, viewType, viewList, index);
 }
@@ -913,6 +919,11 @@ viewManager.prototype.openViewAsync = function(viewType, uri, tabGroup, tabIndex
         ko.views.manager.doFileOpenAsync(uri, viewType, tabList, tabIndex, callback);
         break;
     case "browser":
+        var views = this.topView.getViewsByTypeAndURI(true, viewType, uri);
+        if (views.length > 0) {
+            var existingView = this._openPreferredView(views, tabList);
+            if (existingView) break;
+        }
         ko.views.manager.newViewFromURIAsync(uri, 'browser', tabList, tabIndex, callback);
         break;
     default:
