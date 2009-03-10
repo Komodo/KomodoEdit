@@ -579,18 +579,6 @@
     </implementation>
 
     <handlers>
-        <handler event="focus" phase="capturing">
-            <![CDATA[
-            // XXX this may be a slowdown on tab switching, need to test
-            // this.setAttribute('focused','true');
-            ]]>
-        </handler>
-        <handler event="blur" phase="capturing">
-            <![CDATA[
-            // XXX this may be a slowdown on tab switching, need to test
-            // this.removeAttribute('focused');
-            ]]>
-        </handler>
         <!--Because plugin dragdrop events are so messed up, we somehow
         catch the event here.  So now we look to see if there is a
         draghandler somewhere that we can pass the event to, or otherwise
@@ -776,6 +764,7 @@
 
         <!--void makeCurrent();-->
         <field name="_doNotGrabFocus">false</field>
+
         <method name="makeCurrent">
         <parameter name="noFocus"/>
         <body>
