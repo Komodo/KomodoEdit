@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://fastopen/locale/fastopen.dtd" >
+
+<overlay id="fastopen_prefs_overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <treechildren id="panelChildren">
+        <treeitem id="fastOpenItem" insertbefore="associationsItem">
+            <treerow>
+                <treecell class="treecell-indent"
+                          url="chrome://fastopen/content/pref.xul"
+                          label="Fast Open"
+                          helptag="fastopen"/>
+            </treerow>
+        </treeitem>
+    </treechildren>
+</overlay>

@@ -173,6 +173,9 @@ class KoFastOpenSession(object):
 
     resultsView = None
     uiDriver = None
+    
+    # Configuration attributes. These values determine the value returned
+    # by `gatherers`, i.e. the sources for the list of files.
     project = None
     cwd = None
 
@@ -181,6 +184,50 @@ class KoFastOpenSession(object):
         self.uiDriver = uiDriver
         self.resultsView = KoFastOpenTreeView(uiDriver)
         self.uiDriver.setTreeView(self.resultsView)
+
+    @property
+    def path_excludes_pref(self):
+        """Get, convert to list and normalize `fastopen_path_excludes` pref.
+        
+        The list is stored as a ';'-separated string (':' and ',' also allowed
+        as separators). Whitespace is stripped. Preceed a separator char with
+        '\' to have it *not* separate.
+        """
+        prefs = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService).prefs
+        excludes = None
+        if prefs.hasStringPref("fastopen_path_excludes"):
+            excludes_str = prefs.getStringPref("fastopen_path_excludes")
+            if excludes_str.strip():  # empty means "use default"
+                excludes = self._excludes_from_str(excludes_str)
+        return excludes
+    
+    _excludes_splitter = re.compile(r'(?<!\\)[;:,]') # be liberal about splitter char
+    def _excludes_from_str(self, excludes_str):
+        excludes = []
+        for s in self._excludes_splitter.split(excludes_str):
+            s = s.strip()
+            if not s: continue
+            if ';' in s: s = s.replace('\\;', ';')
+            if ':' in s: s = s.replace('\\:', ':')
+            if ',' in s: s = s.replace('\\,', ',')
+            excludes.append(s)
+        return excludes
+
+    def _excludes_from_json(self, excludes_json):
+        # Note: not currently used
+        import json
+        excludes = None
+        try:
+            excludes = json.loads(excludes_json)
+        except ValueError:
+            summary = (excludes_json if len(excludes_json) < 30
+                else excludes_json[:30]+"...")
+            log.warn("invalid json in `fastopen_path_excludes' pref: %s",
+                summary)
+        if not isinstance(excludes, list):
+            excludes = None
+        return excludes
 
     _gatherers_cache_key = None
     _gatherers_cache = None
@@ -191,7 +238,8 @@ class KoFastOpenSession(object):
             # Re-generate the gatherers struct.
             g = fastopen.Gatherers()
             if self.cwd:
-                g.append(fastopen.DirGatherer("cwd", self.cwd))
+                g.append(fastopen.DirGatherer("cwd", self.cwd,
+                    self.path_excludes_pref))
             if self.project:
                 g.append(fastopen.ProjectGatherer(UnwrapObject(self.project)))
             self._gatherers_cache_key = key
@@ -207,6 +255,8 @@ class KoFastOpenService(object):
     _reg_desc_ = "Fast Open service"
     _reg_clsid_ = "{1ffc88c7-b388-c844-b60b-e1f04bfb86d3}"
     _reg_contractid_ = "@activestate.com/koFastOpenService;1"
+
+    DEFAULT_PATH_EXCLUDES = ';'.join(fastopen.DEFAULT_PATH_EXCLUDES)
 
     _driverCache = None
     @property

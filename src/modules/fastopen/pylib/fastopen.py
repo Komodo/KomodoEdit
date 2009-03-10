@@ -59,6 +59,10 @@ log.setLevel(logging.INFO)
 
 MDASH = u"\u2014"
 
+# Default path search exclusions used by `DirGatherer`.
+DEFAULT_PATH_EXCLUDES = ["*.pyc", "*.pyo", "*.gz", "*.exe", "*.obj",
+    ".svn", "_svn", ".git", "CVS", ".hg", ".bzr"]
+
 
 
 #---- errors
@@ -242,10 +246,12 @@ class DirGatherer(Gatherer):
     """Gather files (excluding directories) in a given directory
     (non-recursive).
     """
-    def __init__(self, name, dir):
+    def __init__(self, name, dir, excludes=None):
         self.name = name
         self.dir = dir
+        self.excludes = excludes or DEFAULT_PATH_EXCLUDES
     def gather(self):
+        from fnmatch import fnmatch
         try:
             names = os.listdir(self.dir)
         except EnvironmentError, ex:
@@ -253,8 +259,12 @@ class DirGatherer(Gatherer):
         else:
             for name in names:
                 path = join(self.dir, name)
-                if not isdir(path):
-                    yield Hit(path)
+                for exclude in self.excludes:
+                    if fnmatch(name, exclude):
+                        break
+                else:
+                    if not isdir(path):
+                        yield Hit(path)
 
 class ProjectGatherer(Gatherer):
     """A gatherer of files in a Komodo project."""

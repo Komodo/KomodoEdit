@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<!-- Copyright (c) 2009 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % fastopenDTD SYSTEM "chrome://fastopen/locale/fastopen.dtd">
+    %fastopenDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        orient="vertical"
+        onload="onLoad()">
+
+    <script><![CDATA[
+    function onLoad() {
+        parent.hPrefWindow.onpageload();
+    }
+    
+    function OnPreferencePageLoading(prefset) {
+        var foSvc = Components.classes["@activestate.com/koFastOpenService;1"]
+            .getService(Components.interfaces.koIFastOpenService);
+        var textbox = document.getElementById("default");
+        textbox.value = foSvc.DEFAULT_PATH_EXCLUDES;
+    }
+    ]]></script>
+    
+    <groupbox id="groupbox" orient="vertical">
+        <caption label="Fast Open" />
+        <description>'Go to File' dialog filters for paths from the current
+        working directory. Leave empty for the default.
+        </description>
+        <textbox id="fastopen_path_excludes" pref="true" preftype="string" value="" />
+        <hbox>
+            <label value="Default:" />
+            <textbox id="default" readonly="true" class="plain" flex="1" />
+        </hbox>
+    </groupbox>
+</window>

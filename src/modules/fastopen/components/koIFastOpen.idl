@@ -55,5 +55,8 @@ interface koIFastOpenSession: nsISupports {
 
 [scriptable, uuid(6c8c66cb-f1c3-834e-86ac-905cb155d595)]
 interface koIFastOpenService: nsISupports {
+    // Default value for the `fastopen_path_excludes` preference.
+    readonly attribute wstring DEFAULT_PATH_EXCLUDES;
+    
     koIFastOpenSession getSession(in koIFastOpenUIDriver uiDriver);
 };
