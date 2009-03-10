@@ -241,7 +241,8 @@ class KoFastOpenSession(object):
                 g.append(fastopen.DirGatherer("cwd", self.cwd,
                     self.path_excludes_pref))
             if self.project:
-                g.append(fastopen.ProjectGatherer(UnwrapObject(self.project)))
+                g.append(fastopen.KomodoProjectGatherer(
+                    UnwrapObject(self.project)))
             self._gatherers_cache_key = key
             self._gatherers_cache = g
         return self._gatherers_cache

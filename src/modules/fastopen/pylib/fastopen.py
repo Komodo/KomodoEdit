@@ -41,7 +41,7 @@ Be sure to stop the driver thread when done:
 
 import os
 from os.path import (exists, expanduser, join, isdir, dirname, abspath,
-    splitext, split)
+    splitext, split, isabs)
 import sys
 import logging
 import threading
@@ -61,6 +61,7 @@ MDASH = u"\u2014"
 
 # Default path search exclusions used by `DirGatherer`.
 DEFAULT_PATH_EXCLUDES = ["*.pyc", "*.pyo", "*.gz", "*.exe", "*.obj",
+    ".DS_Store",
     ".svn", "_svn", ".git", "CVS", ".hg", ".bzr"]
 
 
@@ -90,10 +91,18 @@ class Hit(object):
     def __str__(self):
         return self.path
     def __repr__(self):
-        return "<Hit: %s -- %s>" % (self.base, self.dir)
+        return "<Hit: %s>" % self.label.replace(MDASH, "--")
     @property
     def label(self):
-        return u"%s %s %s" % (self.base, MDASH, self.dir)
+        return u"%s %s %s" % (self.base, MDASH, self.nicedir)
+    @property
+    def nicedir(self):
+        d = self.dir
+        if isabs(d):
+            home = os.environ["HOME"]
+            if d.startswith(home):
+                d = "~" + d[len(home):]
+        return d
     def match(self, queryWords):
         """Return true if the given query matches this hit.
         
@@ -105,6 +114,22 @@ class Hit(object):
                 or not caseSensitive and word not in self.ibase):
                 return False
         return True
+
+class ProjectHit(Hit):
+    def __init__(self, path, project_name, project_base_dir):
+        self.project_name = project_name
+        self.project_base_dir = project_base_dir
+        super(ProjectHit, self).__init__(path)
+    @property
+    def label(self):
+        if self.project_base_dir:
+            if self.dir == self.project_base_dir:
+                return u"%s %s {%s}/" % (self.base, MDASH, self.project_name)
+            else:
+                return u"%s %s {%s}/%s" % (self.base, MDASH, self.project_name,
+                    self.dir[len(self.project_base_dir)+1:])
+        else:
+            return u"%s %s %s" % (self.base, MDASH, self.nicedir)
 
 class StreamResultsView(object):
     """A base implementation of the API required by 
@@ -266,15 +291,25 @@ class DirGatherer(Gatherer):
                     if not isdir(path):
                         yield Hit(path)
 
-class ProjectGatherer(Gatherer):
+class KomodoProjectGatherer(Gatherer):
     """A gatherer of files in a Komodo project."""
     def __init__(self, project):
         self.project = project
         self.name = "project '%s'" % project.get_name()
+        self.base_dir = (project.get_liveDirectory()
+            if self._is_project_live(project) else None)
+    def _is_project_live(self, project):
+        prefset = project.get_prefset()
+        return (prefset.hasBooleanPref("import_live")
+                and prefset.getBooleanPref("import_live"))
     def gather(self):
         #XXX:TODO the cached/indexed version
+        project_name = self.project.get_name()
+        if project_name.endswith(".kpf"):
+            project_name = project_name[:-4]
+        base_dir = self.base_dir
         for path in self.project.genLocalPaths():
-            yield Hit(path)
+            yield ProjectHit(path, project_name, base_dir)
 
 
 #---- internal support stuff
@@ -323,11 +358,19 @@ class _RecentsDict(dict):
 
 #---- mainline and self-testing
 
+class MockKomodoPrefset(dict):
+    def hasBooleanPref(self, name):
+        return name in self and isinstance(self[name], bool)
+    def getBooleanPref(self, name):
+        assert isinstance(self[name], bool)
+        return self[name]
+
 class MockKomodoProject(object):
     """A mock Komodo koIProject class that implements just enough of its
-    API for testing of ProjectGatherer.
+    API for testing of KomodoProjectGatherer.
     """
-    def __init__(self, name, base_dir, includes=None, excludes=None):
+    def __init__(self, name, base_dir, includes=None, excludes=None,
+            is_live=True):
         # Really the 'id' in the .kpf file, but we'll fake it well
         # enough for here.
         self.id = md5(name).hexdigest()
@@ -341,9 +384,20 @@ class MockKomodoProject(object):
             self._excludes = "*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;*.kpf".split(';')
         else:
             self._excludes = excludes
+        self._prefset = MockKomodoPrefset(import_live=is_live)
+
+    def get_prefset(self):
+        return self._prefset
 
     def get_name(self):
         return self._name
+
+    def get_liveDirectory(self):
+        if self._prefset["import_live"]:
+            return self._base_dir
+        else:
+            raise AttributeError("no 'liveDirectory' attribute (project "
+                "isn't a live folder)")
 
     def genLocalPaths(self):
         sys.path.insert(0, join(dirname(dirname(dirname(dirname(
@@ -366,21 +420,23 @@ class MockKomodoProject(object):
 def _test(query):
     driver = Driver()
     
-    gatherers = Gatherers()
-    gatherers.append(DirGatherer("cwd", os.getcwd()))
-    gatherers.append(ProjectGatherer(
-        MockKomodoProject("fastopen.kpf",
-            expanduser("~/as/komodo/src/modules/fastopen"))))
+    try:
+        gatherers = Gatherers()
+        gatherers.append(DirGatherer("cwd", os.getcwd()))
+        gatherers.append(KomodoProjectGatherer(
+            MockKomodoProject("fastopen.kpf",
+                expanduser("~/as/komodo/src/modules/fastopen"))))
+        
+        print "-- search 'foo'"
+        driver.search(gatherers, "foo")
+        time.sleep(0.1)
     
-    print "-- search 'foo'"
-    driver.search(gatherers, "foo")
-    time.sleep(0.1)
-
-    print "-- search %r" % query
-    driver.search(gatherers, query)
-
-    time.sleep(2)
-    driver.stop(True)  # wait for termination
+        print "-- search %r" % query
+        driver.search(gatherers, query)
+    
+        time.sleep(2)
+    finally:
+        driver.stop(True)  # wait for termination
 
 def main(argv):
     logging.basicConfig()
