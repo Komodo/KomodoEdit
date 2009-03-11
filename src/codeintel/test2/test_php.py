@@ -751,7 +751,10 @@ class CplnTestCase(CodeIntelTestCase):
         markedup_content = php_markup(dedent("""\
             require(<|>"myfile.php");
        """))
-        self.assertCalltipIs(markedup_content, "require(file_path)\nincludes and evaluates the specified file, produces a Fatal Error on error.")
+        calltip = "require(file_path)\n" \
+                  "Includes and evaluates the specified file, produces a\n" \
+                  "Fatal Error on error."
+        self.assertCalltipIs(markedup_content, calltip)
 
     @tag("php5")
     def test_complete_object_members_for_builtins(self):
@@ -979,7 +982,7 @@ Construct an exception
         $out = array(<1>'name'=>getField(<2>"1"));
         ?>
         """))
-        self.assertCalltipIs(markup_text(content, pos=positions[1]), "array(<list>)\ncreate a PHP array.")
+        self.assertCalltipIs(markup_text(content, pos=positions[1]), "array(<list>)\nCreate a PHP array.")
         self.assertCalltipIs(markup_text(content, pos=positions[2]), "getField(arg1)")
 
     @tag("bug55897")
