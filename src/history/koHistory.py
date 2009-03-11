@@ -89,6 +89,8 @@ class KoHistoryService(History):
         if view_type == 'editor':
             view = view.QueryInterface(components.interfaces.koIScintillaView)
             scimoz = view.scimoz
+            if pos == -1:
+                pos = scimoz.currentPos
             line = scimoz.lineFromPosition(pos)
             loc = Location(uri, line,
                            scimoz.getColumn(pos),
