@@ -3,8 +3,21 @@
 
 #include "nsISupports.idl"
 #include "nsITreeView.idl"
+#include "nsIDOMElement.idl"
 #include "koIProject.idl"
 
+
+/* An object that represents a selection in the 'Go to File' dialog. */
+[scriptable, uuid(0dd87bd7-8df3-5d4b-b417-c2067a45d214)]
+interface koIFastOpenHit: nsISupports {
+    readonly attribute wstring type;  // The type of hit
+    readonly attribute wstring path;
+    
+    // These are currently only set for `type == "open-view"` hits.
+    readonly attribute wstring viewType;
+    readonly attribute long windowNum;
+    readonly attribute long tabGroupId;
+};
 
 /* Handler for tree showing results in the "Go to File" (aka fast open)
  * dialog.
@@ -19,8 +32,8 @@ interface koIFastOpenTreeView: nsITreeView {
     //void searchAborted();
     //void searchCompleted();
 
-    void getSelectedPaths(out PRUint32 count,
-        [retval, array, size_is(count)] out wstring paths);
+    void getSelectedHits(out PRUint32 count,
+        [retval, array, size_is(count)] out koIFastOpenHit hits);
 };
 
 
@@ -46,6 +59,9 @@ interface koIFastOpenSession: nsISupports {
     // Configuration items from which query results are derived.
     attribute koIProject project;
     attribute wstring cwd;
+    // - Ordered (in viewhistory order) list of currently open views.
+    void setOpenViews(in PRUint32 count,
+        [array, size_is(count)] in nsIDOMElement views);
 
     // Start a search for files with the given query string. This
     // will cancel a previous `findFiles` call. Results are returned

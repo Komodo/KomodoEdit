@@ -50,6 +50,13 @@ import time
 from hashlib import md5
 import Queue
 
+try:
+    from xpcom import components
+    from xpcom.server import UnwrapObject
+    _xpcom_ = True
+except ImportError:
+    _xpcom_ = False
+
 
 
 #---- globals
@@ -79,7 +86,19 @@ class FastOpenDriverTimeout(FastOpenError):
 #---- main module classes
 
 class Hit(object):
-    """Represents a fast-find path (or open Komodo tab) "hit"."""
+    """Virtual base class for fastopen "hits", typically a path and other info
+    with which to open a file.
+    """
+    if _xpcom_:
+        _com_interfaces_ = [components.interfaces.koIFastOpenHit]
+    type = None  # all base classes must set this to some short string
+    
+class PathHit(Hit):
+    type = "path"
+    
+    # Whether to filter out duplicate hits based on the `path` attribute.
+    filterDupePaths = True
+
     def __init__(self, path):
         self.path = path
         self.dir, base = split(path)
@@ -91,7 +110,8 @@ class Hit(object):
     def __str__(self):
         return self.path
     def __repr__(self):
-        return "<Hit: %s>" % self.label.replace(MDASH, "--")
+        return "<%s: %s>" % (self.__class__.__name__,
+            self.label.replace(MDASH, "--"))
     @property
     def label(self):
         return u"%s %s %s" % (self.base, MDASH, self.nicedir)
@@ -115,7 +135,8 @@ class Hit(object):
                 return False
         return True
 
-class ProjectHit(Hit):
+class ProjectHit(PathHit):
+    type = "project-path"
     def __init__(self, path, project_name, project_base_dir):
         self.project_name = project_name
         self.project_base_dir = project_base_dir
@@ -229,7 +250,9 @@ class Driver(threading.Thread):
                 hits = []
                 for j, hit in enumerate(generator):
                     path = hit.path
-                    if path not in hitPaths and hit.match(queryWords):
+                    if hit.filterDupePaths and path in hitPaths:
+                        pass
+                    elif hit.match(queryWords):
                         hits.append(hit)
                         hitPaths.add(path)
                     if j >= BLOCK_SIZE:
@@ -289,7 +312,7 @@ class DirGatherer(Gatherer):
                         break
                 else:
                     if not isdir(path):
-                        yield Hit(path)
+                        yield PathHit(path)
 
 class KomodoProjectGatherer(Gatherer):
     """A gatherer of files in a Komodo project."""
@@ -310,6 +333,7 @@ class KomodoProjectGatherer(Gatherer):
         base_dir = self.base_dir
         for path in self.project.genLocalPaths():
             yield ProjectHit(path, project_name, base_dir)
+
 
 
 #---- internal support stuff

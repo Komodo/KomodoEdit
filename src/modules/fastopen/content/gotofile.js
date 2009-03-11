@@ -42,6 +42,15 @@ function onLoad()
             gSession.cwd = view.document.file.dirName;
         }
         
+        //TODO: Support views in other windows.
+        var openViews = [];
+        var hist = opener.ko.views.manager.topView.viewhistory;
+        //hist._debug_recentViews();
+        for (view in hist.genRecentViews()) {
+            openViews.push(view);
+        }
+        gSession.setOpenViews(openViews.length, openViews);
+
         gWidgets.query.focus();
         findFiles(gWidgets.query.value);
     } catch(ex) {
@@ -72,18 +81,22 @@ function handleWindowKeyPress(event) {
 var _gIgnoreNextFindFiles = false;
 function handleQueryKeyPress(event) {
     var index;
-    if (event.keyCode == KeyEvent.DOM_VK_ENTER
-        || event.keyCode == KeyEvent.DOM_VK_RETURN)
+    var keyCode = event.keyCode;
+    if (keyCode == KeyEvent.DOM_VK_ENTER
+        || keyCode == KeyEvent.DOM_VK_RETURN)
     {
         // Can't turn off <Enter> firing oncommand on the <textbox type="timed">,
         // therefore tell the handler to ignore the coming one.
         _gIgnoreNextFindFiles = true;
-    } else if (event.keyCode == KeyEvent.DOM_VK_UP) {
+    } else if (keyCode == KeyEvent.DOM_VK_UP
+            || (keyCode == KeyEvent.DOM_VK_TAB && event.shiftKey)) {
         index = gWidgets.results.currentIndex - 1;
         if (index >= 0) {
             _selectTreeRow(gWidgets.results, index);
         }
-    } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
+        event.preventDefault();
+    } else if (keyCode == KeyEvent.DOM_VK_DOWN
+            || keyCode == KeyEvent.DOM_VK_TAB) {
         index = gWidgets.results.currentIndex + 1;
         if (index < 0) {
             index = 0;
@@ -91,6 +104,7 @@ function handleQueryKeyPress(event) {
         if (index < gWidgets.results.view.rowCount) {
             _selectTreeRow(gWidgets.results, index);
         }
+        event.preventDefault();
     }
     //TODO: page up/down
 }
@@ -132,21 +146,15 @@ FastOpenUIDriver.prototype.searchStarted = function() {
     _startThrobber();
 }
 FastOpenUIDriver.prototype.searchAborted = function() {
-    _stopThrobber();
-}
-FastOpenUIDriver.prototype.searchCompleted = function() {
-    _stopThrobber();
-}
-
-/*
-FastOpenUIDriver.prototype.echo = function(msg) {
-    try {
-        gWidgets.statusbarPath.label = "echo: " + msg;
-    } catch(ex) {
-        log.exception(ex);
+    if (window.document) {
+        _stopThrobber();
     }
 }
-*/
+FastOpenUIDriver.prototype.searchCompleted = function() {
+    if (window.document) {
+        _stopThrobber();
+    }
+}
 
 
 
@@ -166,9 +174,17 @@ function _selectTreeRow(tree, index) {
 }
 
 function _openSelectedPaths() {
-    var paths = gWidgets.results.view.getSelectedPaths(new Object());
-    for (var i in paths) {
-        opener.ko.views.manager.openViewAsync("editor", paths[i]);
+    var hits = gWidgets.results.view.getSelectedHits(new Object());
+    var hit, viewType, tabGroup;
+    for (var i in hits) {
+        var hit = hits[i];
+        var viewType = (hit.type == "open-view" ? hit.viewType : "editor");
+        // Note: Komodo APIs are mixing "tabGroupId" (also "tabbedViewId") to
+        // mean either the full DOM element id (e.g. "view-1") or just the
+        // number (e.g. 1). TODO: fix this.
+        var tabGroup = (hit.type == "open-view" ? "view-"+hit.tabGroupId : null);
+        var uri = ko.uriparse.pathToURI(hit.path);
+        opener.ko.views.manager.openViewAsync(viewType, uri, tabGroup);
     }
 }
 

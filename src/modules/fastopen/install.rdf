@@ -7,7 +7,7 @@
     <em:id>fastopen@activestate.com</em:id>
     <em:name>Fast Open</em:name>
     <em:version>1.0.0</em:version>
-    <em:description>Dialog (and backend) to quickly open a file</em:description>
+    <em:description>'Go to File' dialog to quickly open a file</em:description>
     <em:creator>Trent Mick</em:creator>
     <em:homepageURL>http://komodo.activestate.com/addons/fastopen/</em:homepageURL>
     <em:type>2</em:type> <!-- type=extension --> 

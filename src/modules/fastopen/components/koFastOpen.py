@@ -16,7 +16,8 @@ import threading
 import logging
 import types
 from glob import glob
-import pprint
+from pprint import pprint
+from collections import defaultdict
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
@@ -102,6 +103,9 @@ class KoFastOpenTreeView(TreeView):
         except AttributeError:
             pass # ignore `self._tree` going away
     
+    # Dev Note: These are just on the koIFastOpenTreeView to relay to the
+    # koIFastOpenUIDriver because only the former is passed to the backend
+    # `fastopen.Driver` thread. That is kind of lame.
     def searchStarted(self):
         self.uiDriver.searchStarted()
     def searchAborted(self):
@@ -109,13 +113,13 @@ class KoFastOpenTreeView(TreeView):
     def searchCompleted(self):
         self.uiDriver.searchCompleted()
     
-    def getSelectedPaths(self): 
-        paths = []
+    def getSelectedHits(self): 
+        hits = []
         for i in range(self.selection.getRangeCount()):
             start, end = self.selection.getRangeAt(i)
             for row_idx in range(start, end+1):
-                paths.append(self._rows[row_idx].path)
-        return paths
+                hits.append(self._rows[row_idx])
+        return hits
  
     #---- nsITreeView methods
 
@@ -178,6 +182,7 @@ class KoFastOpenSession(object):
     # by `gatherers`, i.e. the sources for the list of files.
     project = None
     cwd = None
+    views = None
 
     def __init__(self, driver, uiDriver):
         self.driver = driver
@@ -229,6 +234,9 @@ class KoFastOpenSession(object):
             excludes = None
         return excludes
 
+    def setOpenViews(self, views):
+        self.views = views
+
     _gatherers_cache_key = None
     _gatherers_cache = None
     @property
@@ -237,6 +245,8 @@ class KoFastOpenSession(object):
         if self._gatherers_cache is None or self._gatherers_cache_key != key:
             # Re-generate the gatherers struct.
             g = fastopen.Gatherers()
+            if self.views:
+                g.append(KomodoOpenViewsGatherer(self.views))
             if self.cwd:
                 g.append(fastopen.DirGatherer("cwd", self.cwd,
                     self.path_excludes_pref))
@@ -284,3 +294,87 @@ class KoFastOpenService(object):
 
 #---- internal support stuff
 
+class KomodoOpenViewHit(fastopen.PathHit):
+    type = "open-view"
+    filterDupePaths = False
+    def __init__(self, path, viewType, windowNum, tabGroupId, multi):
+        super(KomodoOpenViewHit, self).__init__(path)
+        self.viewType = viewType
+        self.windowNum = windowNum
+        self.tabGroupId = tabGroupId
+        self.multi = multi  # whether there are multiple views for this path
+    @property
+    def label(self):
+        bits = ["open"]
+        if self.viewType not in ("editor", "startpage"):
+            bits.append("%s view" % self.viewType)
+        if self.multi:
+            bits.append("window %s" % self.windowNum)
+            bits.append("tab group %s" % self.tabGroupId)
+        if bits:
+            extra = " (%s)" % ", ".join(bits)
+        else:
+            extra = ""
+        if self.viewType == "startpage":
+            return u"%s%s" % (self.path, extra)
+        else:
+            return u"%s%s %s %s" % (self.base, extra, fastopen.MDASH, self.nicedir)
+
+class KomodoOpenViewsGatherer(fastopen.Gatherer):
+    """A gatherer of currently open Komodo views."""
+    name = "open views"
+    
+    def __init__(self, views):
+        self.views = views
+    
+    def gather(self):
+        ifaceFromViewType = {
+            "browser": components.interfaces.koIBrowserView,
+            "startpage": components.interfaces.koIStartPageView,
+            # Also "diff" view.
+            "editor": components.interfaces.koIScintillaView,
+        }
+        viewData = []
+        viewDataFromPath = defaultdict(list)
+        viewIds = set()
+        for view in self.views:
+            viewType = view.getAttribute("type")
+            try:
+                iface = ifaceFromViewType[viewType]
+            except KeyError:
+                log.debug("skip `%s' view: don't know interface for it", viewType)
+                continue
+            try:
+                view = view.QueryInterface(iface)
+            except Exception:
+                log.debug("skip `%s' view: QI failed", viewType)
+                continue
+            if viewType in ("editor", "browser"):
+                path = view.document.displayPath
+            elif viewType == "startpage":
+                path = "Start Page"
+            else:
+                continue
+            
+            # Guard against bogus duplicate entries from viewhistory --
+            # a problem in workspace restore, I believe. No bug yet.
+            viewId = (viewType, path, view.windowNum, view.tabbedViewId)
+            if viewId in viewIds:
+                continue
+            viewIds.add(viewId)
+            
+            datum = dict(viewType=viewType, path=path,
+                windowNum=view.windowNum, tabGroupId=view.tabbedViewId,
+                multi=False)
+            viewData.append(datum)
+            multi = path in viewDataFromPath
+            viewDataFromPath[path].append(datum)
+            if multi:
+                for d in viewDataFromPath[path]:
+                    d["multi"] = True
+        #pprint(viewData)
+        # Skip the first view, this is the current view and is no use in the
+        # "Go to file" dialog: we are already there.
+        for d in viewData[1:]:
+            yield KomodoOpenViewHit(**d)
+    
