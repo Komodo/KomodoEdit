@@ -172,6 +172,19 @@ this.ViewHistory.prototype._debug_recentViews = function()
     }
 }
 
+/**
+ * Generate the view history views in order (current view first, then the
+ * next most recent view, ...).
+ */
+this.ViewHistory.prototype.genRecentViews = function() {
+    for (var i = 0; i < this._recentViews.length; i++) {
+        if (!this._recentViews[i]) {
+            continue;
+        }
+        yield this._recentViews[i];
+    }
+}
+
 this.ViewHistory.prototype._getCurrentViewIdx = function() {
     if (!this._recentViews || this._recentViews.length < 2) {
         this.log.info("no _recentViews in viewGetter");
