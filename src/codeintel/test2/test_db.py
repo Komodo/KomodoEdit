@@ -744,7 +744,7 @@ class StdLibTestCase(DBTestCase):
         stdlib = self.mgr.db.get_stdlib("PHP")
         builtin = stdlib.get_blob("*")
         self.failUnless("PDO" in builtin.names) # i.e. we've picked the latest one
-        self.failUnless("require" in builtin.names)
+        self.failUnless("phpversion" in builtin.names)
         self.failUnless("GLOBALS" in builtin.names)
 
         self._check_db()
