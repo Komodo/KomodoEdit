@@ -95,7 +95,7 @@ class KoHistoryService(History):
             loc = Location(uri, line,
                            scimoz.getColumn(pos),
                            view_type)
-            loc.marker_handle = view.scimoz.markerAdd(line, self.MARKNUM_HISTORYLOC)
+            loc.marker_handle = scimoz.markerAdd(line, self.MARKNUM_HISTORYLOC)
             ciBuf = view.document.ciBuf
             if ciBuf and hasattr(ciBuf, "curr_section_from_line"):
                 section = ciBuf.curr_section_from_line(line + 1)
