@@ -924,7 +924,12 @@ viewManager.prototype.openViewAsync = function(viewType, uri, tabGroup, tabIndex
         var views = this.topView.getViewsByTypeAndURI(true, viewType, uri);
         if (views.length > 0) {
             var existingView = this._openPreferredView(views, tabList);
-            if (existingView) break;
+            if (existingView) {
+                if (callback) {
+                    callback(existingView);
+                }
+                break;
+            }
         }
         ko.views.manager.newViewFromURIAsync(uri, 'browser', tabList, tabIndex, callback);
         break;
