@@ -69,35 +69,50 @@ class KoHistoryService(History):
         elif topic == "xpcom-shutdown":
             self.finalize()
             
-    def editor_loc_from_info(self, window_num, tabbed_view_id, view,
-                             session_name=""):
-        """Create a Location instance from the given *editor* view info.
+    def loc_from_view_info(self, view_type,
+                           window_num, tabbed_view_id, view,
+                           pos=-1, session_name=""):
+        """Create a Location instance from the given view info.
         
+        @param view_type {string}
         @param window_num {int} The identifier for the view's Komodo window.
         @param tabbed_view_id {int} The identifier for the multi-tabbed view
             containing `view`.
         @param view {koIScintillaView} A Komodo editor view.
+        @param pos {int} - positon of view to record
+                           ignored for some non-editor views, conventionally -1
         @param session_name {str} The current history session. Default is the
             empty string.
         @returns {Location}
         """
-        #XXX:TODO handle untitled documents
         uri = view.document.file and view.document.file.URI or ""
-        scimoz = view.scimoz
-        line = scimoz.lineFromPosition(scimoz.currentPos)
-        col = scimoz.currentPos - scimoz.positionFromLine(line)
-        view_type = "editor"
-        loc = Location(uri, line, col, view_type)
+        if view_type == 'editor':
+            view = view.QueryInterface(components.interfaces.koIScintillaView)
+            scimoz = view.scimoz
+            line = scimoz.lineFromPosition(pos)
+            loc = Location(uri, line,
+                           scimoz.getColumn(pos),
+                           view_type)
+            loc.marker_handle = view.scimoz.markerAdd(line, self.MARKNUM_HISTORYLOC)
+            ciBuf = view.document.ciBuf
+            if ciBuf and hasattr(ciBuf, "curr_section_from_line"):
+                section = ciBuf.curr_section_from_line(line + 1)
+                if section:
+                    loc.section_title = section.title
+        else:
+            loc = Location(uri, -1, -1, view_type)
         loc.window_num = window_num
         loc.tabbed_view_id = tabbed_view_id
-        loc.marker_handle = scimoz.markerAdd(line, self.MARKNUM_HISTORYLOC)
-        ciBuf = view.document.ciBuf
-        if ciBuf and hasattr(ciBuf, "curr_section_from_line"):
-            section = ciBuf.curr_section_from_line(line + 1)
-            if section:
-                loc.section_title = section.title
         loc.session_name = session_name
-        return loc    
+        return loc
+
+    def non_editor_loc_from_info(self, window_num, tabbed_view_id,
+                                 view_type, uri, session_name=""):
+        loc = Location(uri, -1, -1, view_type)
+        loc.window_num = window_num
+        loc.tabbed_view_id = tabbed_view_id
+        loc.session_name = session_name
+        return loc
 
     def note_loc(self, loc, check_section_change=False, view=None):
         # If the given loc is sufficiently close to the previous one, then
@@ -108,7 +123,7 @@ class KoHistoryService(History):
             if loc.uri == prev_loc.uri:
                 if self._is_loc_same_line(prev_loc, loc):
                     return None
-                elif check_section_change and self._is_loc_same_section(prev_loc, loc):
+                elif check_section_change and view and self._is_loc_same_section(prev_loc, loc):
                     self._take_loc_marker(prev_loc, loc, view)
                     return None
 
@@ -163,8 +178,10 @@ class KoHistoryService(History):
             view = components.classes["@activestate.com/koViewService;1"]\
                 .getService(components.interfaces.koIViewService).currentView \
                 .QueryInterface(components.interfaces.koIScintillaView)
-        loc = self.editor_loc_from_info(view.windowNum, view.tabbedViewId,
-            view, view.historySessionName)
+        loc = self.loc_from_view_info("editor",
+                                      view.windowNum, view.tabbedViewId, 
+                                      view, view.scimoz.currentPos,
+                                      view.historySessionName)
         return self.note_loc(loc)
 
     def get_recent_locs(self, curr_loc, session_name=""):

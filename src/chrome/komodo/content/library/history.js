@@ -60,7 +60,11 @@ var _log = ko.logging.getLogger('history');
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/views.properties");
-    
+
+var _komodoBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/komodo.properties");
+
 function HistoryController() {
     this.historySvc = Components.classes["@activestate.com/koHistoryService;1"].
                 getService(Components.interfaces.koIHistoryService);
@@ -131,6 +135,12 @@ function _appCommandEventHandler(evt) {
 function UnloadableDBGPLocError() {}
 UnloadableDBGPLocError.prototype = new Error();
 
+function HistoryNullViewError() {}
+HistoryNullViewError.prototype = new Error();
+
+function UnexpectedViewTypeError() {}
+UnexpectedViewTypeError.prototype = new Error();
+
 this.init = function() {
     this._observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
@@ -180,26 +190,26 @@ this.curr_session_name = function() {
 function _get_curr_loc(view /* =current view */) {
     if (typeof(view) == "undefined" || view == null) {
         view = ko.views.manager.currentView;
+        if (!view) {
+            throw new HistoryNullViewError("history._get_curr_loc: No view available");
+        }
     }
-    var loc = null;
-    if (!view) {
-        // pass
-    } else if (view.getAttribute("type") == "editor") {
-        loc = _controller.historySvc.editor_loc_from_info(
+    var viewType = view.getAttribute("type");
+    return _controller.historySvc.loc_from_view_info(
+            viewType,
             window._koNum,
             view.tabbedViewId,
             view,
+            (viewType == 'editor' ? view.scimoz.currentPos : -1),
             _curr_session_name);
-    } else {
-        _log.warn("cannot get current location for '"
-                  +view.getAttribute("type")+"' view: "+view);
-    }
-    return loc;
 };
 
 const MARKNUM_HISTORYLOC = 13; // Keep in sync with content/markers.js
 
 function _mark_pos_info(view) {
+    if (view.getAttribute('type') != 'editor') {
+        return;
+    }
     var scimoz = view.scimoz;
     if (typeof(view.pos_before_last_jump) != "undefined") {
         // Free up old marker handles
@@ -236,6 +246,9 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
         return null;
     }
     _mark_pos_info(view);
+    if (view.getAttribute('type') != 'editor') {
+        view = null;
+    }
     return _controller.historySvc.note_loc(loc, check_section_change, view);
 };
 
@@ -262,17 +275,11 @@ function view_and_line_from_loc(loc,
         return null;
     }
     var lineNo = loc.line;
-    // Add the loc.view_type field on bug 82255
-    /*
-      if (loc.view_type == 'startpage') {
-      uri = "chrome://komodo/content/startpage/startpage.xml#view-startpage";
-      }
-     */
-    var view = ko.views.manager.getViewForURI(uri /*, loc.view_type*/);
+    var view = ko.views.manager.getViewForURI(uri, loc.view_type);
     if (view) {
         // Check for correct tabbed view
         if (loc.tabbed_view_id != null
-            && loc.tabbed_view_id != view.tabbed_view_id) {
+            && loc.tabbed_view_id != view.tabbedViewId) {
             // Try the other view
             var xulDocument = view.ownerDocument.defaultView.document;
             var multiViewContainer = xulDocument.getElementById("topview");
@@ -285,9 +292,11 @@ function view_and_line_from_loc(loc,
                 view = res[0];
             }
         }
-        var betterLineNo = view.scimoz.markerLineFromHandle(loc.marker_handle);
-        if (betterLineNo != -1) {
-            lineNo = betterLineNo;
+        if (loc.view_type == 'editor') {
+            var betterLineNo = view.scimoz.markerLineFromHandle(loc.marker_handle);
+            if (betterLineNo != -1) {
+                lineNo = betterLineNo;
+            }
         }
         return on_load_success(view, lineNo);
     }
@@ -312,28 +321,33 @@ function view_and_line_from_loc(loc,
         var viewList = (loc.tabbed_view_id
                         ? document.getElementById("view-" + loc.tabbed_view_id)
                         : null);
-        view = ko.views.manager.doFileOpenAtLineAsync(uri, lineNo,
-                                                      null, // viewType='editor'
-                                                      viewList,
-                                                      null, // index=-1
-                                                      post_open_callback);
+        if (loc.view_type == 'editor') {
+            ko.views.manager.doFileOpenAtLineAsync(uri, lineNo,
+                                                   loc.view_type,
+                                                   viewList,
+                                                   null, // index=-1
+                                                   post_open_callback);
+        } else {
+            ko.views.manager.doFileOpenAsync(uri,
+                                             loc.view_type,
+                                             viewList,
+                                             null, // index
+                                             post_open_callback);
+        }
     }
     return null;
 }
 
 this.go_to_location = function go_to_location(loc, on_load_failure) {
-    var view_type = loc.view_type;
-    if (view_type != "editor") {
-        throw new Error("history: goto location of type " + view_type
-                        + " not yet implemented.");
-    }
     function on_load_success(view, lineNo) {
         if (!view) return;
-        var scimoz = view.scimoz;
         view.makeCurrent();
-        var targetPos = scimoz.positionFromLine(lineNo) + loc.col;
-        scimoz.currentPos = scimoz.anchor = targetPos;
-        scimoz.gotoPos(targetPos);
+        if (loc.view_type == "editor") { // 
+            var scimoz = view.scimoz;
+            var targetPos = scimoz.positionFromLine(lineNo) + loc.col;
+            scimoz.currentPos = scimoz.anchor = targetPos;
+            scimoz.gotoPos(targetPos);
+        }
         window.updateCommands("history_changed");
     }
     view_and_line_from_loc(loc, on_load_success, on_load_failure, true);
@@ -344,29 +358,42 @@ const _dbgp_url_stripper = new RegExp('^dbgp://[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-
 function _label_from_loc(loc) {
     var baseName = null;
     function _callback(view, lineNo) {
-        lineNo += 1;
         var dirName = null;
         var finalLabel, label, tooltiptext;
-        if (view) {
-            var labels = ko.views.labelsFromView(view, lineNo, false,
-                                                 loc.section_title);
-            if (labels[0]) {
-                return labels[0];
+        switch (loc.view_type) {
+        case 'editor':
+            if (view) {
+                var labels = ko.views.labelsFromView(view, lineNo + 1, false,
+                                                     loc.section_title);
+                if (labels[0]) {
+                    return labels[0];
+                }
             }
-        }
-        var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
-            .createInstance(Components.interfaces.koIFileEx);
-        koFileEx.URI = loc.uri;
-        switch (koFileEx.scheme) {
-        case "file":
-            dirName = koFileEx.dirName;
-            baseName = koFileEx.baseName;
+            var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                .createInstance(Components.interfaces.koIFileEx);
+            koFileEx.URI = loc.uri;
+            switch (koFileEx.scheme) {
+            case "file":
+                dirName = koFileEx.dirName;
+                baseName = koFileEx.baseName;
+                break;
+            case "dbgp":
+                baseName = loc.uri.replace(_dbgp_url_stripper, "dbgp:///");
+                break;
+            default:
+                baseName = loc.uri;
+            }
             break;
-        case "dbgp":
-            baseName = loc.uri.replace(_dbgp_url_stripper, "dbgp:///");
+        case 'browser':
+            baseName = loc.uri;
+            lineNo = null;
+            break;
+        case 'startpage':
+            baseName = _komodoBundle.GetStringFromName("startPageDisplayPath");
+            lineNo = null;
             break;
         default:
-             baseName = loc.uri;
+            throw new UnexpectedViewTypeError(loc.view_type);
         }
         return ko.views.labelFromPathInfo(baseName, dirName, lineNo);
     }

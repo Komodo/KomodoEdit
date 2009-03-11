@@ -6,6 +6,7 @@
 
 #include "nsISupports.idl"
 
+interface koIView;
 interface koIScintillaView;
 interface ISciMoz;
 
@@ -39,10 +40,12 @@ interface koIHistoryService : nsISupports
                                 in boolean check_section_change,
                                 in koIScintillaView view);
     koIHistoryLocation note_curr_editor_loc(in koIScintillaView view);
-    koIHistoryLocation editor_loc_from_info(
+    koIHistoryLocation loc_from_view_info(
+        in wstring view_type,
         in PRUint32 window_num,
         in PRUint32 tabbed_view_id,
-        in koIScintillaView view,
+        in koIView view,
+        in PRint32 pos,
         in wstring session_name);
     void get_recent_locs(in koIHistoryLocation loc,
                          in wstring session_name,
