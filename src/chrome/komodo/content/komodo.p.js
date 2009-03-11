@@ -294,13 +294,6 @@ function onloadDelay() {
             if ('workspaceIndex' in arg) {
                 ko.workspace.restoreWorkspaceByIndex(window, arg.workspaceIndex);
             } else {
-                if (!restoreWorkspace) {
-                    // We need to give each window its unique ID before we start
-                    // hitting the history system.
-                    window._koNum = (Components.classes["@activestate.com/koInfoService;1"].
-                                     getService(Components.interfaces.koIInfoService).
-                                     nextWindowNum());
-                }
                 var urllist;
                 if ('uris' in arg) {
                     urllist = arg.uris; // Called from ko.launch.newWindow(uri)
@@ -391,6 +384,20 @@ window.onload = function(event) {
     }
     _log.debug("<< window.onload");
 }
+
+window.__defineGetter__("_koNum",
+function()
+{
+    if (!('_koNum' in ko.main)) {
+        // We need to give each window its unique ID before we start
+        // hitting the history system.
+        ko.main._koNum = (Components.classes["@activestate.com/koInfoService;1"].
+                          getService(Components.interfaces.koIInfoService).
+                          nextWindowNum());
+    }
+    return ko.main._koNum;
+});
+        
 
 }).apply(ko.main);
 
