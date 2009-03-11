@@ -54,6 +54,7 @@ import time
 import re
 import optparse
 import traceback
+import subprocess
 from pprint import pprint
 import random
 from glob import glob
@@ -274,20 +275,11 @@ class Shell(cmdln.Cmdln):
         See `ci2 test -h' for more details.
         """
         testdir = join(dirname(__file__), "test2")
-        olddir = os.getcwd()
-        os.chdir(testdir)
-        sys.path.insert(0, '')
-        try:
-            cmd = '"%s" test.py %s' % (sys.executable, ' '.join(argv[1:]))
-            retval = os.system(cmd)
-            if hasattr(os, "WEXITSTATUS"):
-                status = os.WEXITSTATUS(retval)
-            else:
-                status = retval
-            return status
-        finally:
-            del sys.path[0]
-            os.chdir(olddir)
+        cmd = '"%s" test.py %s' % (sys.executable, ' '.join(argv[1:]))
+        env = os.environ.copy()
+        env["CODEINTEL_NO_PYXPCOM"] = "1"
+        p = subprocess.Popen(cmd, cwd=testdir, env=env, shell=True)
+        return p.returncode
 
     def do_doctest(self, subcmd, opts):
         """Run the ci2 internal doctests.
