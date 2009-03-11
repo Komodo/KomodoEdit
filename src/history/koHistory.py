@@ -75,13 +75,13 @@ class KoHistoryService(History):
         """Create a Location instance from the given view info.
         
         @param view_type {string}
-        @param window_num {int} The identifier for the view's Komodo window.
-        @param tabbed_view_id {int} The identifier for the multi-tabbed view
+        @param window_num {int} the identifier for the view's Komodo window.
+        @param tabbed_view_id {int} the identifier for the multi-tabbed view
             containing `view`.
-        @param view {koIScintillaView} A Komodo editor view.
-        @param pos {int} - positon of view to record
-                           ignored for some non-editor views, conventionally -1
-        @param session_name {str} The current history session. Default is the
+        @param view {koIView} a Komodo view.
+        @param pos {int} position of view to record
+            ignored for some non-editor views, conventionally -1
+        @param session_name {str} the current history session. Default is the
             empty string.
         @returns {Location}
         """

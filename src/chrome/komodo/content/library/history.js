@@ -321,19 +321,8 @@ function view_and_line_from_loc(loc,
         var viewList = (loc.tabbed_view_id
                         ? document.getElementById("view-" + loc.tabbed_view_id)
                         : null);
-        if (loc.view_type == 'editor') {
-            ko.views.manager.doFileOpenAtLineAsync(uri, lineNo,
-                                                   loc.view_type,
-                                                   viewList,
-                                                   null, // index=-1
-                                                   post_open_callback);
-        } else {
-            ko.views.manager.doFileOpenAsync(uri,
-                                             loc.view_type,
-                                             viewList,
-                                             null, // index
-                                             post_open_callback);
-        }
+        ko.views.manager.openViewAsync(loc.view_type, uri, viewList, null,
+                                       post_open_callback);
     }
     return null;
 }
