@@ -54,7 +54,6 @@ import time
 import re
 import optparse
 import traceback
-import subprocess
 from pprint import pprint
 import random
 from glob import glob
@@ -274,6 +273,7 @@ class Shell(cmdln.Cmdln):
 
         See `ci2 test -h' for more details.
         """
+        import subprocess
         testdir = join(dirname(__file__), "test2")
         cmd = '"%s" test.py %s' % (sys.executable, ' '.join(argv[1:]))
         env = os.environ.copy()
