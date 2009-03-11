@@ -1385,9 +1385,8 @@ class PHPVariable:
             # we don't yet have a clean way to ensure the doc is really meant
             # for this specific variable (i.e. the comment was ten lines before
             # the variable definition).
-            doc_string = "\n".join(self.doc)
-            if "@var" in doc_string:
-                doc = uncommentDocString(doc_string)
+            if "@var" in self.doc:
+                doc = uncommentDocString(self.doc)
                 # get the variable citdl type set by "@var"
                 all_matches = re.findall(self._re_var, doc)
                 if len(all_matches) >= 1:
@@ -1822,7 +1821,8 @@ class PHPParser:
         self.styles = []
         self.linenos = []
         self.text = []
-        self.comment = []
+        self.comment = None
+        self.comments = []
         self.heredocMarker = None
 
         # state : used to store the current JS lexing state
@@ -2353,9 +2353,8 @@ class PHPParser:
         """
         log.debug("_handleVariableComment:: namelist: %r, comment: %r",
                   namelist, comment)
-        doc_string = "\n".join(comment)
-        if "@var" in doc_string:
-            doc = uncommentDocString(doc_string)
+        if "@var" in comment:
+            doc = uncommentDocString(comment)
             # get the variable citdl type set by "@var"
             all_matches = re.findall(PHPVariable._re_var, doc)
             if len(all_matches) >= 1:
@@ -2428,7 +2427,7 @@ class PHPParser:
                 if self.comment:
                     # We may be able to get some PHPDoc out of the comment.
                     if self._handleVariableComment(namelist, self.comment):
-                        self.comment = []
+                        self.comment = None
                 log.info("multiple part variable namelist (ignoring): "
                          "%r, line: %d in file: %r", namelist,
                          self.lineno, self.filename)
@@ -2438,7 +2437,7 @@ class PHPParser:
                 if self.comment:
                     # We may be able to get some PHPDoc out of the comment.
                     if self._handleVariableComment(namelist, self.comment):
-                        self.comment = []
+                        self.comment = None
                 log.info("variable is making a method call (ignoring): "
                          "%r, line: %d in file: %r", namelist,
                          self.lineno, self.filename)
@@ -2500,7 +2499,7 @@ class PHPParser:
             # such as targeted "@var " comments.
             # http://bugs.activestate.com/show_bug.cgi?id=76676
             if self.comment and self._handleVariableComment(None, self.comment):
-                self.comment = []
+                self.comment = None
 
             # Eat special attribute keywords
             while firstStyle == self.PHP_WORD and \
@@ -2621,7 +2620,8 @@ class PHPParser:
         self.styles = []
         self.linenos = []
         self.text = []
-        self.comment = []
+        self.comment = None
+        self.comments = []
 
     def token_next(self, style, text, start_column, start_line, **other_args):
         """Loops over the styles in the document and stores important info.
@@ -2630,6 +2630,7 @@ class PHPParser:
         and generate subsequent language structures. These language structures
         will later be used to generate XML output for the document."""
         #log.debug("text: %r", text)
+        #print "text: %r, style: %r" % (text, style)
 
         if self.state == S_GET_HEREDOC_MARKER:
             if not text.strip():
@@ -2737,13 +2738,27 @@ class PHPParser:
                     col += 1
         elif style in self.PHP_COMMENT_STYLES:
             # Use rstrip to remove any trailing spaces or newline characters.
-            self.comment.append(text.rstrip())
+            comment = text.rstrip()
+            # Check if it's a continuation from the last comment. If we have
+            # already collected text then this is a comment in the middle of a
+            # statement, so do not set self.comment, but rather just add it to
+            # the list of known comment sections (self.comments).
+            if not self.text:
+                if style == SCE_UDL_SSL_COMMENT and self.comment and \
+                   start_line <= (self.comments[-1][2] + 1) and \
+                   style == self.comments[-1][1]:
+                    self.comment += comment
+                else:
+                    self.comment = comment
+            self.comments.append([comment, style, start_line, start_column])
         elif style == SCE_UDL_SSL_DEFAULT and \
              self.lastStyle in self.PHP_COMMENT_STYLES and text[0] in "\r\n":
             # This is necessary as line comments are supplied to us without
             # the newlines, so check to see if this is a newline and if the
             # last line was a comment, append it the newline to it.
-            self.comment.append("\n")
+            if self.comment:
+                self.comment += "\n"
+            self.comments[-1][0] += "\n"
         elif is_udl_csl_style(style):
             self.csl_tokens.append({"style": style,
                                     "text": text,

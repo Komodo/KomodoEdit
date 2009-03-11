@@ -11,7 +11,7 @@
         <variable ilk="argument" name="param" />
       </scope>
       <variable citdl="find_var()" line="30" name="foo" />
-      <scope doc="Class reference assignment?&#xA;$bar =&amp; new fooclass();&#xA;Variable in a class using a reference.&#xA;From bug: http://bugs.activestate.com/show_bug.cgi?id=73819" ilk="class" line="40" lineend="45" name="Controller">
+      <scope doc="Variable in a class using a reference.&#xA;From bug: http://bugs.activestate.com/show_bug.cgi?id=73819" ilk="class" line="40" lineend="45" name="Controller">
         <scope attributes="__ctor__" ilk="function" line="41" lineend="44" name="Controller" signature="Controller()" />
         <variable citdl="load_class()" line="43" name="load" />
       </scope>
