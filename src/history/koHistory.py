@@ -106,14 +106,6 @@ class KoHistoryService(History):
         loc.session_name = session_name
         return loc
 
-    def non_editor_loc_from_info(self, window_num, tabbed_view_id,
-                                 view_type, uri, session_name=""):
-        loc = Location(uri, -1, -1, view_type)
-        loc.window_num = window_num
-        loc.tabbed_view_id = tabbed_view_id
-        loc.session_name = session_name
-        return loc
-
     def note_loc(self, loc, check_section_change=False, view=None):
         # If the given loc is sufficiently close to the previous one, then
         # don't bother noting this new one.
