@@ -1481,23 +1481,15 @@
                 if (event.button != 2) { // right-click is handled by us
                     this._inMouseDown = event.button;
                     //dump('pos: '+pos+' s: '+this.scimoz.selectionStart+' e: '+this.scimoz.selectionEnd+' style: '+this.scimoz.getStyleAt(pos)+'\n');
+                    // If the mousedown is within a selection, start drag/drop.
                     // shift key is used to make a selection with the mouse, and
                     // is not associated with drag/drop as is ctrl.  If the
                     // shift key is pressed on click, always pass to scintilla.
-                    if (event.detail != 1 || event.shiftKey ||
-                        (this.scimoz.selectionStart == this.scimoz.selectionEnd ||
-                        pos < this.scimoz.selectionStart ||
-                        pos > this.scimoz.selectionEnd+1)) {
-<!-- #if PLATFORM != "darwin" and PLATFORM != "win" -->
-                        //dump('clicked outside selection '+event.timeStamp+'\n');
-                        this.scimoz.buttonDown( x, y,
-                                                        event.button,
-                                                        event.timeStamp,
-                                                        event.shiftKey, event.ctrlKey, event.metaKey);
-<!-- #endif -->
-                    } else {
+                    if ((event.detail == 1) && !event.shiftKey &&
+                        (this.scimoz.selectionStart != this.scimoz.selectionEnd) &&
+                        (pos >= this.scimoz.selectionStart) &&
+                        (pos <= this.scimoz.selectionEnd+1)) {
                         this._startDragDrop = [x,y];
-
                     }
                 } else if (this.scimoz.selectionStart == this.scimoz.selectionEnd ||
                         pos < this.scimoz.selectionStart ||
