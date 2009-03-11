@@ -1443,7 +1443,7 @@ EOD;
         """)))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", "require"), ("function", "require_once")])
+            [("keyword", "require"), ("keyword", "require_once")])
 
     @tag("bug65159")
     def test_complete_imported_variables(self):
