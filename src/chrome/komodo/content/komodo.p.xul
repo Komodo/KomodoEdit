@@ -158,6 +158,8 @@
     <script src="chrome://komodo/content/library/eggs.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/abbrev.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/hyperlinks.js"        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/hyperlinks/regexhandler.js"      type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/hyperlinks/csscolorpicker.js"    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/gotodefinition.js"    type="application/x-javascript;version=1.7"/>
 
     <!-- This is used by the view editor for displaying
