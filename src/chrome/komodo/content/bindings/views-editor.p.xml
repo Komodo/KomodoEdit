@@ -466,7 +466,12 @@
                     }
                     uri = null;
                 }
+                var closingCurrentView = (!ko.views.manager.batchMode &&
+                                          this == ko.views.manager.currentView);
                 var retval = this.closeUnconditionally();
+                if (closingCurrentView) {
+                    ko.views.manager.topView.viewhistory.doNextMostRecentView();
+                }
                 ko.macros.eventHandler.hookPostFileClose(uri);
                 return retval;
             } catch(e) {
