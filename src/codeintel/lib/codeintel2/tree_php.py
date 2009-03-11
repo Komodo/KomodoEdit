@@ -93,6 +93,39 @@ php_magic_class_method_data = {
                     "values. This function is then called after to allow\n"
                     "the new instance to update any of these values.",
 }
+php_keyword_calltip_data = {
+    "array"       : "array(<list>)\n"
+                    "Create a PHP array.",
+    "declare"     : "declare(directive)\n"
+                    "Set execution directives for a block of code.\n",
+    "echo"        : "echo($arg1 [, $arg2... ])\n"
+                    "Output one or more strings.",
+    "eval"        : "eval($code) => mixed\n"
+                    "Evaluate the $code string as PHP code.",
+    "exit"        : "exit($status)\n"
+                    "$status can be either a string or an int.\n"
+                    "Outputs $status and then terminates the current script.\n"
+                    "If status is an integer, that value will also be used as\n"
+                    "the exit status. Exit statuses should be in the range 0\n"
+                    "to 254, the exit status 255 is reserved by PHP and shall\n"
+                    "not be used. The status 0 is used to terminate the\n"
+                    "program successfully. PHP >= 4.2.0 does NOT print the\n"
+                    "status if it is an integer.",
+    "include"     : "include(file_path)\n"
+                    "Includes and evaluates the specified file, produces a\n"
+                    "Fatal Error on error.",
+    "include_once": "include_once(file_path)\n"
+                    "Includes and evaluates the specified file if it hasn't\n"
+                    "been included before, produces a Fatal Error on error.",
+    "print"       : "print($arg)\n"
+                    "Output the $arg string.",
+    "require"     : "require(file_path)\n"
+                    "Includes and evaluates the specified file, produces a\n"
+                    "Fatal Error on error.",
+    "require_once": "require_once(file_path)\n"
+                    "Includes and evaluates the specified file if it hasn't\n"
+                    "been included before, produces a Fatal Error on error.",
+}
 
 
 class PHPTreeEvaluator(TreeEvaluator):
@@ -205,6 +238,8 @@ class PHPTreeEvaluator(TreeEvaluator):
         expr = self.expr
         if expr in self.php_ignored_calltip_expressions:
             return None
+        elif expr in php_keyword_calltip_data:
+            return [ php_keyword_calltip_data.get(expr) ]
         # XXX - Check the php version, magic methods only appeared in php 5.
         elif expr in php_magic_class_method_data:
             elem = self._elem_from_scoperef(start_scope)
