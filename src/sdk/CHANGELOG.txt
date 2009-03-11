@@ -1,6 +1,8 @@
 
 # Komodo 5.1.0b1
 
+- Add ".DS_Store" and other SCC system control dirs to the list of files
+  to exclude from the .xpi and .jar files built by `koext build`.
 - Add `koext build --dev` option, mainly to preprocess with "MODE=dev". The
   main intended usage of this is to have a "chrome.p.manifest" file that
   supports both `koext build` for release and `koext build --dev && koext

@@ -498,6 +498,8 @@ def build_ext(base_dir, support_devinstall=True, ppdefines=None, log=None):
                          % base_dir)
 
     zip_exe = _get_zip_exe()
+    exclude_pats = [".svn", "CVS", ".hg", ".bzr", ".git",
+        ".DS_Store", "*~", "*.pyo", "*.pyc"]
 
     # Dev Note: Parts of the following don't work unless the source
     # dir is the current one. The easiest solution for now is to just
@@ -518,7 +520,7 @@ def build_ext(base_dir, support_devinstall=True, ppdefines=None, log=None):
         if ppdefines is not None:
             for path in _paths_from_path_patterns([base_dir],
                     includes=["*.p.*"],
-                    excludes=["build", "tmp", ".svn", ".hg", "CVS", ".git"],
+                    excludes=["build", "tmp"] + exclude_pats,
                     skip_dupe_dirs=True):
                 _preprocess(path, ppdefines, log.info)
 
@@ -536,7 +538,7 @@ def build_ext(base_dir, support_devinstall=True, ppdefines=None, log=None):
             _mkdir(jar_build_dir, log.info)
             for d in chrome_dirs:
                 _cp(d, join(jar_build_dir, d), log.info)
-            _trim_files_in_dir(jar_build_dir, [".svn", ".hg", "CVS"], log.info)
+            _trim_files_in_dir(jar_build_dir, exclude_pats, log.info)
             _run_in_dir('"%s" -X -r %s.jar *' % (zip_exe, ext_info.codename),
                         jar_build_dir, log.info)
     
@@ -551,8 +553,8 @@ def build_ext(base_dir, support_devinstall=True, ppdefines=None, log=None):
             _mkdir(components_build_dir, log.info)
             for path in glob(join("components", "*")):
                 _cp(path, components_build_dir, log.info)
-            _trim_files_in_dir(components_build_dir,
-                [".svn", ".hg", "CVS", "*.pyc", "*.pyo", "*.idl"], log.info)
+            _trim_files_in_dir(components_build_dir, ["*.idl"] + exclude_pats,
+                log.info)
             xpi_manifest.append(components_build_dir)
             
             idl_build_dir = join(build_dir, "idl")
@@ -609,7 +611,7 @@ def build_ext(base_dir, support_devinstall=True, ppdefines=None, log=None):
                 _cp(src, join(xpi_build_dir, basename(src)), log.info)
             else:
                 _cp(src, xpi_build_dir, log.info)
-        _trim_files_in_dir(xpi_build_dir, [".svn", ".hg", "CVS"], log.info)
+        _trim_files_in_dir(xpi_build_dir, exclude_pats, log.info)
         _run_in_dir('"%s" -X -r %s *' % (zip_exe, ext_info.pkg_name),
                     xpi_build_dir, log.info)
         _cp(join(xpi_build_dir, ext_info.pkg_name), ext_info.pkg_name, log.info)
