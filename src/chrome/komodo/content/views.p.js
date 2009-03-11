@@ -693,7 +693,7 @@ viewManager.prototype._openPreferredView = function(views, viewList) {
         // found on that tab group, open a new view.
         for (var i = 0; i < views.length; i++) {
             var possibleView = views[i];
-            if (viewList.id == possibleView.id) {
+            if (viewList.id == "view-" + possibleView.tabbedViewId) {
                 possibleView.makeCurrent();
                 return possibleView;
             }
