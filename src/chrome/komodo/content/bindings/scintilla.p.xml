@@ -1487,6 +1487,10 @@
                     // shift key is pressed on click, always pass to scintilla.
                     if ((event.detail == 1) && !event.shiftKey &&
                         (this.scimoz.selectionStart != this.scimoz.selectionEnd) &&
+                        // Note: positionFromPointClose will return -1 if it's
+                        //       not close to any characters, i.e. when clicking
+                        //       on the margin or past the end of the line.
+                        (this.scimoz.positionFromPointClose(x, y) >= 0) &&
                         (pos >= this.scimoz.selectionStart) &&
                         (pos <= this.scimoz.selectionEnd+1)) {
                         this._startDragDrop = [x,y];
