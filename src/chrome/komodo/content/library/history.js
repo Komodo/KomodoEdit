@@ -132,8 +132,8 @@ function _appCommandEventHandler(evt) {
     }
 };
 
-function UnloadableDBGPLocError() {}
-UnloadableDBGPLocError.prototype = new Error();
+function UnloadableLocError() {}
+UnloadableLocError.prototype = new Error();
 
 this.init = function() {
     this._observerSvc = Components.classes["@mozilla.org/observer-service;1"].
@@ -246,6 +246,29 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
     return _controller.historySvc.note_loc(loc, check_section_change, view);
 };
 
+const _ko_temporary_matcher = new RegExp('kotemporary://({[-a-fA-F0-9]+})/(.*)$');
+
+function _view_from_uri(uri, viewType) {
+    var view = ko.views.manager.getViewForURI(uri, viewType);
+    if (view) {
+        return view;
+    } else if (viewType != 'editor') {
+        return null;
+    } else if (uri.indexOf("kotemporary://") == 0
+               && _ko_temporary_matcher.exec(uri)) {
+        //  Internal URI scheme used for unsaved buffers
+        var uid = RegExp.$1;
+        var views = ko.views.manager.topView.getViews(true);
+        for (i = 0; i < views.length; i++) {
+            var view = views[i];
+            if (view.uid == uid) {
+                return view;
+            }
+        }
+    }
+    return null;
+}
+
 /** 
  * Returns the view and line # based on the loc.
  *
@@ -269,7 +292,7 @@ function view_and_line_from_loc(loc,
         return null;
     }
     var lineNo = loc.line;
-    var view = ko.views.manager.getViewForURI(uri, loc.view_type);
+    var view = _view_from_uri(uri, loc.view_type);
     if (view) {
         // Check for correct tabbed view
         if (loc.tabbed_view_id != null
@@ -300,7 +323,11 @@ function view_and_line_from_loc(loc,
                 // We have to throw an exception here, because if we
                 // try to load the URI, it's done async, and then
                 // it's harder to keep looking on failure.
-                throw new UnloadableDBGPLocError("unloadable");
+                throw new UnloadableLocError("unloadable");
+            } else if (uri.indexOf("kotemporary://") == 0) {
+                // Any buffer without a document.file, like
+                // untitled and diff buffers, end up here
+                throw new UnloadableLocError("unloadable");
             }
         } else {
             return on_load_success(null, lineNo);
@@ -362,6 +389,11 @@ function _label_from_loc(loc) {
                 break;
             case "dbgp":
                 baseName = loc.uri.replace(_dbgp_url_stripper, "dbgp:///");
+                break;
+            case "kotemporary":
+                //  Internal URI scheme used for unsaved buffers
+                var m = _ko_temporary_matcher.exec(loc.uri);
+                baseName = m ? m[2] : loc.uri;
                 break;
             default:
                 baseName = loc.uri;
@@ -488,7 +520,7 @@ this._history_move = function(go_method_name, check_method_name, delta,
                     _on_load_failure(loc, is_moving_back, delta);
                 });
             return;
-        } catch(ex if ex instanceof UnloadableDBGPLocError) {
+        } catch(ex if ex instanceof UnloadableLocError) {
             // Remove the loc we tried to move to from the history,
             // and then either keep trying to move to the next/prev loc
             // if we didn't get here via [History|Recent Locations]

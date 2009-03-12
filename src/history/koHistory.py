@@ -85,7 +85,13 @@ class KoHistoryService(History):
             empty string.
         @returns {Location}
         """
-        uri = view.document.file and view.document.file.URI or ""
+        if view.document.file:
+            uri = view.document.file.URI
+        elif view_type == 'editor':
+            # Internal URI scheme used for unsaved buffers
+            uri = "kotemporary://" + view.uid + "/" + view.document.displayPath;
+        else:
+            uri = ""
         if view_type == 'editor':
             view = view.QueryInterface(components.interfaces.koIScintillaView)
             scimoz = view.scimoz
