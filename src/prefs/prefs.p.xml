@@ -668,6 +668,8 @@
     -->
   <boolean id="donotask_reload_changed_files">0</boolean>
   <string id="donotask_action_reload_changed_files"></string>
+  
+  <boolean id="select_most_recent_buffer_on_buffer_close">true</boolean>
 
   <!-- restore_workspace
     - if boolean pref is true, then:

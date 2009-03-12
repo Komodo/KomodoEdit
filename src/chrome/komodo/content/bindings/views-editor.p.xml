@@ -151,10 +151,13 @@
         <![CDATA[
             this.parentView.setContext(this, "tabContextMenu");
             this.__globalPrefs.prefObserverService.addObserver(this, 'ySlop', false);
+            this.__globalPrefs.prefObserverService.addObserver(this, 'select_most_recent_buffer_on_buffer_close', false);
             this.scimoz.setYCaretPolicy(this.scimoz.CARET_SLOP |
                                    this.scimoz.CARET_STRICT |
                                    this.scimoz.CARET_EVEN,
                                    this.__globalPrefs.getLongPref('ySlop'));
+            this.selectMostRecentBufferOnBufferClose =
+                this.__globalPrefs.getBooleanPref('select_most_recent_buffer_on_buffer_close');
             
             var this_ = this;
             this._on_codeintel_activated_window = function(event) {
@@ -356,6 +359,10 @@
                                        this.scimoz.CARET_EVEN,
                                        this.__globalPrefs.getLongPref('ySlop'));
                 break;
+            case 'select_most_recent_buffer_on_buffer_close':
+                this.selectMostRecentBufferOnBufferClose =
+                    this.__globalPrefs.getBooleanPref('select_most_recent_buffer_on_buffer_close');
+                break;
             }
         ]]>
         </body>
@@ -397,6 +404,7 @@
                     this.preview = null;
                 }
                 this.__globalPrefs.prefObserverService.removeObserver(this, 'ySlop');
+                this.__globalPrefs.prefObserverService.removeObserver(this, 'select_most_recent_buffer_on_buffer_close');
 
                 window.removeEventListener('codeintel_activated_window',
                     this._on_codeintel_activated_window, false);
@@ -469,7 +477,8 @@
                 var closingCurrentView = (!ko.views.manager.batchMode &&
                                           this == ko.views.manager.currentView);
                 var retval = this.closeUnconditionally();
-                if (closingCurrentView) {
+                if (closingCurrentView
+                    && this.selectMostRecentBufferOnBufferClose) {
                     ko.views.manager.topView.viewhistory.doNextMostRecentView();
                 }
                 ko.macros.eventHandler.hookPostFileClose(uri);
