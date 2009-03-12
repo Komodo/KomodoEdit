@@ -57,8 +57,7 @@ interface koIFastOpenSession: nsISupports {
     readonly attribute koIFastOpenUIDriver uiDriver;
     
     // Configuration items from which query results are derived.
-    attribute koIProject project;
-    attribute wstring cwd;
+    void setCurrProject(in koIProject project);
     // - Ordered (in viewhistory order) list of currently open views.
     void setOpenViews(in PRUint32 count,
         [array, size_is(count)] in nsIDOMElement views);

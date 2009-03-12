@@ -32,17 +32,7 @@ function onLoad()
         // Configure the session.
         var partSvc = Components.classes["@activestate.com/koPartService;1"]
                 .getService(Components.interfaces.koIPartService);
-        gSession.project = partSvc.currentProject;
-        var view = opener.ko.views.manager.currentView;
-        if (view != null &&
-            view.getAttribute("type") == "editor" &&
-            view.document.file &&
-            view.document.file.isLocal)
-        {
-            gSession.cwd = view.document.file.dirName;
-        }
-        
-        //TODO: Support views in other windows.
+        gSession.setCurrProject(partSvc.currentProject);
         var openViews = [];
         var hist = opener.ko.views.manager.topView.viewhistory;
         //hist._debug_recentViews();

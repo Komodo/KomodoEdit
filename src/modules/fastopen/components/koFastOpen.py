@@ -181,7 +181,6 @@ class KoFastOpenSession(object):
     # Configuration attributes. These values determine the value returned
     # by `gatherers`, i.e. the sources for the list of files.
     project = None
-    cwd = None
     views = None
 
     def __init__(self, driver, uiDriver):
@@ -234,26 +233,28 @@ class KoFastOpenSession(object):
             excludes = None
         return excludes
 
+    def setCurrProject(self, project):
+        self.project = project
+        self._gatherers_cache = None
     def setOpenViews(self, views):
         self.views = views
+        self._gatherers_cache = None
 
-    _gatherers_cache_key = None
-    _gatherers_cache = None
     @property
     def gatherers(self):
-        key = (self.project, self.cwd)
-        if self._gatherers_cache is None or self._gatherers_cache_key != key:
+        if self._gatherers_cache is None:
             # Re-generate the gatherers struct.
             g = fastopen.Gatherers()
             if self.views:
-                g.append(KomodoOpenViewsGatherer(self.views))
-            if self.cwd:
-                g.append(fastopen.DirGatherer("cwd", self.cwd,
-                    self.path_excludes_pref))
+                kovg = KomodoOpenViewsGatherer(self.views)
+                g.append(kovg)
+                cwds = list(kovg.cwds)
+                if cwds:
+                    g.append(fastopen.DirGatherer("cwd", cwds,
+                        self.path_excludes_pref))
             if self.project:
-                g.append(fastopen.KomodoProjectGatherer(
+                g.append(fastopen.CachingKomodoProjectGatherer(
                     UnwrapObject(self.project)))
-            self._gatherers_cache_key = key
             self._gatherers_cache = g
         return self._gatherers_cache
 
@@ -327,54 +328,78 @@ class KomodoOpenViewsGatherer(fastopen.Gatherer):
     def __init__(self, views):
         self.views = views
     
+    _viewDataCache = None
+    @property
+    def viewData(self):
+        if self._viewDataCache is None:
+            ifaceFromViewType = {
+                "browser": components.interfaces.koIBrowserView,
+                "startpage": components.interfaces.koIStartPageView,
+                # Also "diff" view.
+                "editor": components.interfaces.koIScintillaView,
+            }
+            viewData = []
+            viewDataFromPath = defaultdict(list)
+            viewIds = set()
+            for view in self.views:
+                viewType = view.getAttribute("type")
+                try:
+                    iface = ifaceFromViewType[viewType]
+                except KeyError:
+                    log.debug("skip `%s' view: don't know interface for it", viewType)
+                    continue
+                try:
+                    view = view.QueryInterface(iface)
+                except Exception:
+                    log.debug("skip `%s' view: QI failed", viewType)
+                    continue
+                if viewType in ("editor", "browser"):
+                    path = view.document.displayPath
+                elif viewType == "startpage":
+                    path = "Start Page"
+                else:
+                    continue
+                
+                # Guard against bogus duplicate entries from viewhistory --
+                # a problem in workspace restore, I believe. No bug yet.
+                viewId = (viewType, path, view.windowNum, view.tabbedViewId)
+                if viewId in viewIds:
+                    continue
+                viewIds.add(viewId)
+                
+                datum = dict(viewType=viewType, path=path,
+                    windowNum=view.windowNum, tabGroupId=view.tabbedViewId,
+                    multi=False)
+                viewData.append(datum)
+                multi = path in viewDataFromPath
+                viewDataFromPath[path].append(datum)
+                if multi:
+                    for d in viewDataFromPath[path]:
+                        d["multi"] = True
+            #pprint(viewData)
+            self._viewDataCache = viewData
+        
+        return self._viewDataCache
+    
+    @property
+    def cwds(self):
+        """Generate the open editor view *dirs* in Ctrl+Tab order. Duplicates
+        are removed.
+        """
+        from os.path import dirname
+        dirs = set()
+        for d in self.viewData:
+            if d["viewType"] != "editor":
+                continue
+            dir = dirname(d["path"])
+            if dir in dirs:
+                continue
+            dirs.add(dir)
+            yield dir
+        
     def gather(self):
-        ifaceFromViewType = {
-            "browser": components.interfaces.koIBrowserView,
-            "startpage": components.interfaces.koIStartPageView,
-            # Also "diff" view.
-            "editor": components.interfaces.koIScintillaView,
-        }
-        viewData = []
-        viewDataFromPath = defaultdict(list)
-        viewIds = set()
-        for view in self.views:
-            viewType = view.getAttribute("type")
-            try:
-                iface = ifaceFromViewType[viewType]
-            except KeyError:
-                log.debug("skip `%s' view: don't know interface for it", viewType)
-                continue
-            try:
-                view = view.QueryInterface(iface)
-            except Exception:
-                log.debug("skip `%s' view: QI failed", viewType)
-                continue
-            if viewType in ("editor", "browser"):
-                path = view.document.displayPath
-            elif viewType == "startpage":
-                path = "Start Page"
-            else:
-                continue
-            
-            # Guard against bogus duplicate entries from viewhistory --
-            # a problem in workspace restore, I believe. No bug yet.
-            viewId = (viewType, path, view.windowNum, view.tabbedViewId)
-            if viewId in viewIds:
-                continue
-            viewIds.add(viewId)
-            
-            datum = dict(viewType=viewType, path=path,
-                windowNum=view.windowNum, tabGroupId=view.tabbedViewId,
-                multi=False)
-            viewData.append(datum)
-            multi = path in viewDataFromPath
-            viewDataFromPath[path].append(datum)
-            if multi:
-                for d in viewDataFromPath[path]:
-                    d["multi"] = True
-        #pprint(viewData)
         # Skip the first view, this is the current view and is no use in the
         # "Go to file" dialog: we are already there.
-        for d in viewData[1:]:
+        for d in self.viewData[1:]:
             yield KomodoOpenViewHit(**d)
     

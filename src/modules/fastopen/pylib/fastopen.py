@@ -173,6 +173,22 @@ class StreamResultsView(object):
     def searchCompleted(self):
         pass
 
+class Request(object):
+    """A light object to represent a fastopen search request.
+    
+    One of these is returned by `Driver.search(...)` and it has a `.wait()`
+    method on which one can wait for the request to complete.
+    """
+    def __init__(self, gatherers, query, resultsView):
+        self.gatherers = gatherers
+        self.query = query
+        self.resultsView = resultsView
+        self._event = threading.Event()
+    def wait(self, timeout=None):
+        self._event.wait(timeout)
+    def complete(self):
+        self._event.set()
+
 class Driver(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self, name="fastopen driver")
@@ -208,8 +224,12 @@ class Driver(threading.Thread):
                 searchCompleted()
             If not given, results will be written to `sys.stdout` by using
             a `StreamResultsView`.
+        @returns {Request} The search request. One can call `.wait()` on it
+            to wait for it to finish.
         """
-        self._queue.put((gatherers, query, resultsView or StreamResultsView()))
+        r = Request(gatherers, query, resultsView or StreamResultsView())
+        self._queue.put(r)
+        return r
 
     def run(self):
         while True:
@@ -234,41 +254,51 @@ class Driver(threading.Thread):
                 log.exception("error handling request: %r", request)
     
     def _handleRequest(self, request):
-        gatherers, query, resultsView = request
+        aborted = True
+        resultsView = request.resultsView
         resultsView.searchStarted()
-        resultsView.resetHits()
-        
-        # Second value is whether to be case-sensitive in filtering.
-        queryWords = [(w, w.lower() != w) for w in query.strip().split()]
-        
-        BLOCK_SIZE = 10 - 1  #TODO: bigger?
-        hitPaths = set()
-        generators = [(g, g.gather()) for g in gatherers]
-        while generators:
-            exhausted = []
-            for i, (gatherer, generator) in enumerate(generators):
-                hits = []
-                for j, hit in enumerate(generator):
-                    path = hit.path
-                    if hit.filterDupePaths and path in hitPaths:
-                        pass
-                    elif hit.match(queryWords):
-                        hits.append(hit)
-                        hitPaths.add(path)
-                    if j >= BLOCK_SIZE:
-                        break
-                else:
-                    exhausted.append(i)
-                if not self._queue.empty():  # Another request, abort this one.
+        try:
+            resultsView.resetHits()
+            
+            # Second value is whether to be case-sensitive in filtering.
+            queryWords = [(w, w.lower() != w) for w in request.query.strip().split()]
+            
+            BLOCK_SIZE = 50 - 1  #TODO: ask gatherer if can just get all?
+            hitPaths = set()
+            generators = [(g, g.gather()) for g in request.gatherers]
+            while generators:
+                exhausted = []
+                for i, (gatherer, generator) in enumerate(generators):
+                    hits = []
+                    for j, hit in enumerate(generator):
+                        path = hit.path
+                        if hit.filterDupePaths and path in hitPaths:
+                            pass
+                        elif hit.match(queryWords):
+                            hits.append(hit)
+                            hitPaths.add(path)
+                        if j >= BLOCK_SIZE:
+                            break
+                    else:
+                        exhausted.append(i)
+                    if not self._queue.empty():  # Another request, abort this one.
+                        return
+                    #log.debug("adding %d hits from %r", len(hits), gatherer)
+                    resultsView.addHits(hits)
+                if exhausted:
+                    for i in reversed(exhausted):
+                        del generators[i]
+            aborted = False
+        finally:
+            try:
+                if aborted:
                     resultsView.searchAborted()
-                    return
-                #log.debug("adding %d hits from %r", len(hits), gatherer)
-                resultsView.addHits(hits)
-            if exhausted:
-                for i in reversed(exhausted):
-                    del generators[i]
-
-        resultsView.searchCompleted()
+                else:
+                    resultsView.searchCompleted()
+            except:
+                log.error("error signalling end of fastopen search")
+            request.complete()
+            
 
 class Gatherers(list):
     """A priority-ordered list of path hit gatherers.
@@ -290,29 +320,35 @@ class Gatherer(object):
             yield None  # force this to be a generator
         raise NotImplementedError("virtual method")
 
+
 class DirGatherer(Gatherer):
-    """Gather files (excluding directories) in a given directory
-    (non-recursive).
+    """Gather files (excluding directories) in a given directory or directories
+    (non-recursive)
     """
-    def __init__(self, name, dir, excludes=None):
+    def __init__(self, name, dirs, excludes=None):
         self.name = name
-        self.dir = dir
+        if isinstance(dirs, basestring):
+            self.dirs = [dirs]
+        else:
+            self.dirs = dirs
         self.excludes = excludes or DEFAULT_PATH_EXCLUDES
     def gather(self):
         from fnmatch import fnmatch
-        try:
-            names = os.listdir(self.dir)
-        except EnvironmentError, ex:
-            log.warn("couldn't read `%s' dir: %s", dir, ex)
-        else:
-            for name in names:
-                path = join(self.dir, name)
-                for exclude in self.excludes:
-                    if fnmatch(name, exclude):
-                        break
-                else:
-                    if not isdir(path):
-                        yield PathHit(path)
+        for dir in self.dirs:
+            try:
+                names = os.listdir(dir)
+            except EnvironmentError, ex:
+                log.warn("couldn't read `%s' dir: %s", dir, ex)
+            else:
+                for name in names:
+                    path = join(dir, name)
+                    for exclude in self.excludes:
+                        if fnmatch(name, exclude):
+                            break
+                    else:
+                        if not isdir(path):
+                            yield PathHit(path)
+
 
 class KomodoProjectGatherer(Gatherer):
     """A gatherer of files in a Komodo project."""
@@ -331,8 +367,43 @@ class KomodoProjectGatherer(Gatherer):
         if project_name.endswith(".kpf"):
             project_name = project_name[:-4]
         base_dir = self.base_dir
+        i = 0
         for path in self.project.genLocalPaths():
             yield ProjectHit(path, project_name, base_dir)
+
+class CachingKomodoProjectGatherer(Gatherer):
+    """A gatherer of files in a Komodo project."""
+    def __init__(self, project):
+        self.project = project
+        self.name = "project '%s'" % project.get_name()
+        self.base_dir = (project.get_liveDirectory()
+            if self._is_project_live(project) else None)
+        project_name = self.project.get_name()
+        if project_name.endswith(".kpf"):
+            project_name = project_name[:-4]
+        self.project_name = project_name
+        self._hits = []  # cache of already generated hits
+    
+    def _is_project_live(self, project):
+        prefset = project.get_prefset()
+        return (prefset.hasBooleanPref("import_live")
+                and prefset.getBooleanPref("import_live"))
+    
+    _raw_generator = None
+    def gather(self):
+        # First yield any hits we've already gathered and cached.
+        for hit in self._hits:
+            yield hit
+        
+        # Then, yield and cache any remaining ones.
+        if self._raw_generator is None:
+            self._raw_generator = self.project.genLocalPaths()
+        project_name = self.project_name
+        base_dir = self.base_dir
+        for path in self._raw_generator:
+            hit = ProjectHit(path, project_name, base_dir)
+            self._hits.append(hit)
+            yield hit
 
 
 
@@ -394,7 +465,11 @@ class MockKomodoProject(object):
     API for testing of KomodoProjectGatherer.
     """
     def __init__(self, name, base_dir, includes=None, excludes=None,
-            is_live=True):
+            is_live=True, slow=False):
+        """
+        @param slow {bool} Whether to be slow in returning results from
+            genLocalPaths. Default is false.
+        """
         # Really the 'id' in the .kpf file, but we'll fake it well
         # enough for here.
         self.id = md5(name).hexdigest()
@@ -409,6 +484,7 @@ class MockKomodoProject(object):
         else:
             self._excludes = excludes
         self._prefset = MockKomodoPrefset(import_live=is_live)
+        self._slow = slow
 
     def get_prefset(self):
         return self._prefset
@@ -440,32 +516,75 @@ class MockKomodoProject(object):
             skip_dupe_dirs=True)
         for path in paths:
             yield path
+            if self._slow:
+                time.sleep(0.1)
 
-def _test(query):
+def _test1(query):
     driver = Driver()
     
     try:
         gatherers = Gatherers()
         gatherers.append(DirGatherer("cwd", os.getcwd()))
-        gatherers.append(KomodoProjectGatherer(
+        gatherers.append(CachingKomodoProjectGatherer(
             MockKomodoProject("fastopen.kpf",
-                expanduser("~/as/komodo/src/modules/fastopen"))))
+                expanduser("~/as/komodo/src/modules/fastopen"),
+                excludes=["build", "tmp", "*.xpi", "*.pyc", "*.pyo", ".svn"],
+                slow=False)))
         
-        print "-- search 'foo'"
-        driver.search(gatherers, "foo")
-        time.sleep(0.1)
+        print "-- search 'f'"
+        request = driver.search(gatherers, "f")
+        request.wait(1)
     
-        print "-- search %r" % query
-        driver.search(gatherers, query)
-    
-        time.sleep(2)
+        print "-- search 'fast'"
+        request = driver.search(gatherers, 'fast')
+        request.wait(0.5)
+        
+        print "-- search 'fest'"
+        request = driver.search(gatherers, 'fest')
+        request.wait()
+        
+        print "-- search 'fast'"
+        request = driver.search(gatherers, 'fast')
+        request.wait()
+        print "-- search 'fasty'"
+        request = driver.search(gatherers, 'fasty')
+        request.wait()
+        print "-- search 'fast'"
+        request = driver.search(gatherers, 'fast')
+        request.wait()
     finally:
         driver.stop(True)  # wait for termination
+
+def _test2(query):
+    driver = Driver()
+    
+    try:
+        gatherers = Gatherers()
+        gatherers.append(DirGatherer("cwd", os.getcwd()))
+        gatherers.append(CachingKomodoProjectGatherer(
+            MockKomodoProject("komodo.kpf",
+                expanduser("~/as/komodo"),
+                excludes=["build", "tmp", "log", "contrib",
+                    "*.xpi", "*.pyc", "*.pyo", ".svn"],
+                slow=False)))
+        
+        print "-- search 'find2'"
+        request = driver.search(gatherers, 'find2')
+        request.wait(3)
+        print "-- search 'find'"
+        request = driver.search(gatherers, 'find')
+        request.wait(2)
+        print "-- search 'find2'"
+        request = driver.search(gatherers, 'find2')
+        request.wait()
+    finally:
+        driver.stop(True)  # wait for termination
+
 
 def main(argv):
     logging.basicConfig()
     query = ' '.join(argv[1:])
-    _test(query)
+    _test2(query)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
