@@ -1126,7 +1126,7 @@ class History(object):
     def go_back(self, curr_loc, n=1, session_name=""):
         """Go back N steps (default 1) in this history session.
         @param curr_loc {Location} 
-        @param delta {int}
+        @param n {int}
         @param session_name {str} The session name. Only used if curr_loc
             is None
         @returns {Location} The location N steps back.
@@ -1139,7 +1139,7 @@ class History(object):
     def go_forward(self, curr_loc, n=1, session_name=""):
         """Go forward N steps (default 1) in this history session.
         @param curr_loc {Location} 
-        @param delta {int}
+        @param n {int}
         @param session_name {str} The session name. Only used if curr_loc
             is None
         @returns {Location} The location N steps forward.
