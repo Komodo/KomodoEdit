@@ -420,10 +420,6 @@ function onClickBoldOrItalic(button)
         var updateSpecific = false;
         var id = button.getAttribute('id');
         var checked = button.hasAttribute('checked') ? true : false;
-        // The user has clicked on the check box, but we have the state as set
-        // before the click has finished, ie, the state before the click occured
-        // Toggle state to be what we actually end up with
-        checked = !checked;
         switch (id) {
             case 'fixedBold':
                 gDialog.currentScheme.setBold('',
