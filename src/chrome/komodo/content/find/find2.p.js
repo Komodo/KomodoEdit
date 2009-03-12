@@ -1202,6 +1202,14 @@ function reset_find_context(reason /* =null */) {
             context.type = koIFindContext.FCT_SELECTION;
             context.startIndex = scimoz.charPosAtPosition(scimoz.selectionStart);
             context.endIndex = scimoz.charPosAtPosition(scimoz.selectionEnd);
+            // Update the positions if the selection is a line selection, such
+            // as vi visual line mode, bug 81570.
+            if (scimoz.selectionMode == scimoz.SC_SEL_LINES) {
+                var startLineNo = scimoz.lineFromPosition(context.startIndex);
+                var endLineNo = scimoz.lineFromPosition(context.endIndex);
+                context.startIndex = scimoz.getLineSelStartPosition(startLineNo);
+                context.endIndex = scimoz.getLineSelEndPosition(endLineNo);
+            }
         }
         break;
 
