@@ -135,9 +135,6 @@ function _appCommandEventHandler(evt) {
 function UnloadableDBGPLocError() {}
 UnloadableDBGPLocError.prototype = new Error();
 
-function HistoryNullViewError() {}
-HistoryNullViewError.prototype = new Error();
-
 function UnexpectedViewTypeError() {}
 UnexpectedViewTypeError.prototype = new Error();
 
@@ -190,9 +187,9 @@ this.curr_session_name = function() {
 function _get_curr_loc(view /* =current view */) {
     if (typeof(view) == "undefined" || view == null) {
         view = ko.views.manager.currentView;
-        if (!view) {
-            throw new HistoryNullViewError("history._get_curr_loc: No view available");
-        }
+    }
+    if (view == null) {
+        return null;
     }
     var viewType = view.getAttribute("type");
     return _controller.historySvc.loc_from_view_info(
