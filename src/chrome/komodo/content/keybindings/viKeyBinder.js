@@ -2008,9 +2008,17 @@ VimController.prototype.findAndRunCommand = function (value)
             } else if (start == "'<") {
                 // Start of the selection
                 startPosition = (currentPos < anchor) ? currentPos : anchor;
+                if (scimoz.selectionMode == scimoz.SC_SEL_LINES) {
+                    var startLineNo = scimoz.lineFromPosition(startPosition);
+                    startPosition = scimoz.getLineSelStartPosition(startLineNo);
+                }
             } else if (start == "'>") {
                 // End of the selection
                 startPosition = (currentPos > anchor) ? currentPos : anchor;
+                if (scimoz.selectionMode == scimoz.SC_SEL_LINES) {
+                    var startLineNo = scimoz.lineFromPosition(startPosition);
+                    startPosition = scimoz.getLineSelEndPosition(startLineNo);
+                }
             } else {
                 /* Should be a number then, convert to scintilla line */
                 var lineNo = start - 1;
@@ -2028,9 +2036,17 @@ VimController.prototype.findAndRunCommand = function (value)
             } else if (end == "'<") {
                 // Start of the selection
                 endPosition = (currentPos < anchor) ? currentPos : anchor;
+                if (scimoz.selectionMode == scimoz.SC_SEL_LINES) {
+                    var endLineNo = scimoz.lineFromPosition(endPosition);
+                    endPosition = scimoz.getLineSelStartPosition(endLineNo);
+                }
             } else if (end == "'>") {
                 // End of the selection
                 endPosition = (currentPos > anchor) ? currentPos : anchor;
+                if (scimoz.selectionMode == scimoz.SC_SEL_LINES) {
+                    var endLineNo = scimoz.lineFromPosition(endPosition);
+                    endPosition = scimoz.getLineSelEndPosition(endLineNo);
+                }
             } else {
                 /* Should be a number then, convert to scintilla line */
                 var lineNo = end - 1;
