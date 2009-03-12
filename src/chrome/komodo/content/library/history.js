@@ -135,9 +135,6 @@ function _appCommandEventHandler(evt) {
 function UnloadableDBGPLocError() {}
 UnloadableDBGPLocError.prototype = new Error();
 
-function UnexpectedViewTypeError() {}
-UnexpectedViewTypeError.prototype = new Error();
-
 this.init = function() {
     this._observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
@@ -204,7 +201,7 @@ function _get_curr_loc(view /* =current view */) {
 const MARKNUM_HISTORYLOC = 13; // Keep in sync with content/markers.js
 
 function _mark_pos_info(view) {
-    if (view.getAttribute('type') != 'editor') {
+    if (!view || view.getAttribute('type') != 'editor') {
         return;
     }
     var scimoz = view.scimoz;
@@ -379,7 +376,7 @@ function _label_from_loc(loc) {
             lineNo = null;
             break;
         default:
-            throw new UnexpectedViewTypeError(loc.view_type);
+            return null;
         }
         return ko.views.labelFromPathInfo(baseName, dirName, lineNo);
     }
@@ -397,6 +394,7 @@ this.init_popup_menu_recent_locations = function(event) {
     }
     var locList = {};
     var currentLocIdx = {};
+    // _get_curr_loc can be null here
     _controller.historySvc.get_recent_locs(_get_curr_loc(),
                                            _curr_session_name,
                                            currentLocIdx, locList, {});
@@ -476,11 +474,11 @@ this._history_move = function(go_method_name, check_method_name, delta,
                               explicit) {
     if (typeof(explicit) == "undefined") explicit=false;
     var view = ko.views.manager.currentView;
-    var curr_loc = _get_curr_loc(view);
+    var curr_loc = _get_curr_loc(view); // curr_loc can be null here
     _mark_pos_info(view);
     var is_moving_back = (go_method_name == 'go_back');
     for (var i = 0; i < _SKIP_DBGP_FALLBACK_LIMIT; i++) {
-        var loc = _controller.historySvc[go_method_name](curr_loc, delta);
+        var loc = _controller.historySvc[go_method_name](curr_loc, delta, _curr_session_name);
         try {
             // This function could load a file asynchronously,
             // so unless it throws an exception, there's no point

@@ -33,9 +33,12 @@ interface koIHistoryService : nsISupports
     boolean can_go_back(in wstring session_name);
     boolean can_go_forward(in wstring session_name);
     boolean have_recent_history(in wstring session_name);
-    koIHistoryLocation go_back(in koIHistoryLocation curr_loc, in PRUint32 n);
-    koIHistoryLocation go_forward(in koIHistoryLocation curr_loc, in PRUint32 n);
-
+    koIHistoryLocation go_back(in koIHistoryLocation curr_loc,
+                               in PRUint32 n,
+                               in wstring session_name);
+    koIHistoryLocation go_forward(in koIHistoryLocation curr_loc,
+                                  in PRUint32 n,
+                                  in wstring session_name);
     koIHistoryLocation note_loc(in koIHistoryLocation loc,
                                 in boolean check_section_change,
                                 in koIScintillaView view);

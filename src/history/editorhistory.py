@@ -836,7 +836,7 @@ class HistorySession(object):
         return len(self.recent_back_visits) > 0 or len(self.forward_visits) > 0
 
     def go_back(self, curr_loc, n=1):
-        """Go back N steps (default 1) in the history.
+        """Go back N steps (default 1) in this history session.
         
         @param curr_loc {Location} The current editor location.
         @param n {int} The number of steps in the history to go back.
@@ -845,7 +845,7 @@ class HistorySession(object):
         """
         if _xpcom_:
             curr_loc = UnwrapObject(curr_loc)
-        assert isinstance(curr_loc, Location)
+        assert curr_loc is None or isinstance(curr_loc, Location)
         assert n > 0, "invalid `n` value for `go_back(n)`: %r" % n
         if n > self.RECENT_BACK_VISITS_CACHE_LENGTH:
             # Without this guard the block below that replenishes
@@ -870,20 +870,22 @@ class HistorySession(object):
                 % (n, ("" if len(n)==1 else "s"), len(self.recent_back_visits)))
         
         # Go back.
-        if curr_loc == self._last_visit:
-            # Do we need to add a new forward_visit, or reuse the
-            # current loc?
-            loc = self._last_visit
-        else:
-            # The user's position has changed since the last jump.
-            # Update the referer_id's to point correctly.
-            with self.db.connect(True) as cu:
-                loc = self.db.add_loc(curr_loc, referer_id=self.recent_back_visits[0].id, cu=cu)
-                if self.forward_visits:
-                    # The newest loc in forward_visits must now refer
-                    # to the new loc.
-                    self.db.update_referer_id(self.forward_visits[-1], loc.id, cu=cu)
-        self.forward_visits.append(loc)
+        if curr_loc is not None:
+            if curr_loc == self._last_visit:
+                # Do we need to add a new forward_visit, or reuse the
+                # current loc?
+                loc = self._last_visit
+            else:
+                # The user's position has changed since the last jump.
+                # Update the referer_id's to point correctly.
+                with self.db.connect(True) as cu:
+                    loc = self.db.add_loc(curr_loc, referer_id=self.recent_back_visits[0].id, cu=cu)
+                    if self.forward_visits:
+                        # The newest loc in forward_visits must now refer
+                        # to the new loc.
+                        self.db.update_referer_id(self.forward_visits[-1], loc.id, cu=cu)
+        
+            self.forward_visits.append(loc)
         
         # Shift the intermediate loc's from back_visits to forward_visits
         for i in range(n - 1):
@@ -895,7 +897,7 @@ class HistorySession(object):
         
 
     def go_forward(self, curr_loc, n=1):
-        """Go forward N steps (default 1) in the history.
+        """Go forward N steps (default 1) in this history session.
         
         @param curr_loc {Location} The current editor location.
         @param n {int} The number of steps in the history to go forward.
@@ -904,7 +906,7 @@ class HistorySession(object):
         """
         if _xpcom_:
             curr_loc = UnwrapObject(curr_loc)
-        assert isinstance(curr_loc, Location)
+        assert curr_loc is None or isinstance(curr_loc, Location)
         assert n > 0, "invalid `n` value for `go_forward(n)`: %r" % n
         if n > len(self.forward_visits):
             raise HistoryError("cannot go forward %d steps: there are only %d "
@@ -914,21 +916,23 @@ class HistorySession(object):
         # Go forward.
         # Do we need to add a new back_visit, or reuse the
         # current loc?
-        if curr_loc == self._last_visit:
-            loc = self._last_visit
-        else:
-            # The user's position has changed since the last jump.
-            # We have to do some more bookeeping for the back/forward
-            # stack.
-            with self.db.connect(True) as cu:
-                referer_id = (self.recent_back_visits
-                              and self.recent_back_visits[0].id or None)
-                loc = self.db.add_loc(curr_loc, referer_id=referer_id, cu=cu)
-                if self.forward_visits:
-                    # The preceding visit in the stack must now refer
-                    # to this new one.
-                    self.db.update_referer_id(self.forward_visits[-1], loc.id, cu=cu)
-        self.recent_back_visits.appendleft(loc)
+        if curr_loc is not None:
+            if curr_loc == self._last_visit:
+                loc = self._last_visit
+            else:
+                # The user's position has changed since the last jump.
+                # We have to do some more bookeeping for the back/forward
+                # stack.
+                with self.db.connect(True) as cu:
+                    referer_id = (self.recent_back_visits
+                                  and self.recent_back_visits[0].id or None)
+                    loc = self.db.add_loc(curr_loc, referer_id=referer_id, cu=cu)
+                    if self.forward_visits:
+                        # The preceding visit in the stack must now refer
+                        # to this new one.
+                        self.db.update_referer_id(self.forward_visits[-1], loc.id, cu=cu)
+                    
+            self.recent_back_visits.appendleft(loc)
         
         # Shift the intermediate locs from forward to back
         for i in range(n - 1):
@@ -953,7 +957,7 @@ class HistorySession(object):
         @param merge_curr_loc {bool} TODO: document this
         @yields 2-tuples (<is-curr>, <loc>)
         """
-        if _xpcom_ and curr_loc:
+        if _xpcom_:
             curr_loc = UnwrapObject(curr_loc)
         curr_handled = False
         for i, loc in enumerate(self.forward_visits):
@@ -1119,11 +1123,31 @@ class History(object):
     def have_recent_history(self, session_name=""):
         return self.get_session(session_name).have_recent_history()
 
-    def go_back(self, curr_loc, n=1):
-        return self.get_session(curr_loc.session_name).go_back(curr_loc, n)
+    def go_back(self, curr_loc, n=1, session_name=""):
+        """Go back N steps (default 1) in this history session.
+        @param curr_loc {Location} 
+        @param delta {int}
+        @param session_name {str} The session name. Only used if curr_loc
+            is None
+        @returns {Location} The location N steps back.
+        @raises `HistoryError' if falls off the end of this history.
+        """
+        if curr_loc:
+            session_name = curr_loc.session_name
+        return self.get_session(session_name).go_back(curr_loc, n)
 
-    def go_forward(self, curr_loc, n=1):
-        return self.get_session(curr_loc.session_name).go_forward(curr_loc, n)
+    def go_forward(self, curr_loc, n=1, session_name=""):
+        """Go forward N steps (default 1) in this history session.
+        @param curr_loc {Location} 
+        @param delta {int}
+        @param session_name {str} The session name. Only used if curr_loc
+            is None
+        @returns {Location} The location N steps forward.
+        @raises `HistoryError' if falls off the end of this history.
+        """
+        if curr_loc:
+            session_name = curr_loc.session_name
+        return self.get_session(session_name).go_forward(curr_loc, n)
 
     def recent_history(self, curr_loc=None, merge_curr_loc=True, session_name=""):
         return self.get_session(session_name).recent_history(

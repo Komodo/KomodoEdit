@@ -528,6 +528,38 @@ class HistoryTestCase(_HistoryTestCase):
         self.assertEqual(len(session.forward_visits), 1)
         self.assertEqual(session.forward_visits[0], new_loc)
 
+    @testlib.tag("bug82342")
+    def test_no_view_recent_locs(self):
+        a = "file:///home/trentm/a.txt"
+        b = "file:///home/trentm/b.txt"
+        loc1 = self.history.note_loc(Location(a, 10, 10))
+        loc2 = self.history.note_loc(Location(b, 20, 20))
+        loc3 = self.history.note_loc(Location(b, 30, 30))
+
+        curr_loc = None
+        #self.history.debug_dump_recent_history(curr_loc)
+        h = list(self.history.recent_history(curr_loc))
+        self.assertEqual(len(h), 4)
+        self.assertEqual(h[0][0], True)
+        self.assertEqual(h[0][1], None)
+
+        # Go back
+        loc_back = self.history.go_back(curr_loc)
+        self.assertEqual(loc_back, loc3)
+
+        h = list(self.history.recent_history(loc_back))
+        self.assertEqual(h[0][1], loc3) # the curr location
+        self.assertEqual(h[1][1], loc2) # "back" one visit
+        self.assertEqual(h[2][1], loc1) # "back" two visits
+
+        curr_loc = loc_back
+        loc_back = self.history.go_back(curr_loc)
+        self.assertEqual(loc_back, loc2)
+
+        # Go forward
+        loc_fwd = self.history.go_forward(curr_loc=None)
+        self.assertEqual(loc_fwd, loc3)
+
 class HistoryMultiSessionTestCase(_HistoryTestCase):
     # HistoryMultiSessionTestCase.test_two_sessions_basic
     def test_two_sessions_basic(self):
