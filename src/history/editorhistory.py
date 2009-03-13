@@ -1006,6 +1006,47 @@ class HistorySession(object):
             print "self._last_visit: %r" % self._last_visit
         print "--"
 
+    def recent_uris(self, n=100):
+        """Generate the most recent N uris.
+        
+        @param n {int} The number of URIs to look back for. Default 100.
+        """
+        PAGE_SIZE = 100
+        uri_id_set = set()
+        with self.db.connect() as cu:
+            # Just one page for starters.
+            offset = 0
+            while True:
+                num_remaining = n - len(uri_id_set)
+                new_uri_ids = []
+                cu.execute("SELECT uri_id"
+                           " FROM history_visit"
+                           " WHERE session_name=?"
+                           " ORDER BY timestamp DESC LIMIT ? OFFSET ?",
+                           (self.session_name, PAGE_SIZE, offset))
+                rows = cu.fetchall()
+                for row in rows:
+                    uri_id = row[0]
+                    if uri_id in uri_id_set:
+                        continue
+                    uri_id_set.add(uri_id)
+                    new_uri_ids.append(uri_id)
+                #TODO:PERF: Bulk get of URI. Need Database.uris_from_uri_ids.
+                for uri_id in new_uri_ids[:num_remaining]:
+                    yield self.db.uri_from_id(uri_id, cu=cu)
+                if len(uri_id_set) > n or len(rows) < PAGE_SIZE:
+                    break
+                offset += PAGE_SIZE
+
+    def debug_dump_recent_uris(self, n=100):
+        """Dump the most recent N uris.
+        
+        @param n {int} The number of URIs to look back for. Default 100.
+        """
+        print "-- recent URIs (session %s)" % self.session_name
+        for uri in self.recent_uris(n):
+            print uri
+
 
 class History(object):
     """The main manager object for the editor history.
@@ -1157,6 +1198,17 @@ class History(object):
         for session in self.sessions.values():
             session.update_marker_handles_on_close(uri, scimoz)
 
+    def debug_dump_recent_uris(self, session_name=""):
+        self.sessions[session_name].debug_dump_recent_uris()
+
+    def recent_uris(self, n=100, session_name=""):
+        """Generate the most recent N uris.
+        
+        @param n {int} The number of URIs to look back for. Default 100.
+        @param session_name {str} Current history session name. Optional.
+        """
+        return self.get_session(session_name).recent_uris(n)
+    
     def debug_dump_recent_history(self, curr_loc=None, merge_curr_loc=True,
                                   session_name=""):
         if session_name is None:

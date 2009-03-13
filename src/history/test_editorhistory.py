@@ -10,6 +10,7 @@ import time
 from os.path import dirname, join, abspath, basename, splitext, exists, expanduser
 import unittest
 from pprint import pprint, pformat
+import random
 
 from editorhistory import HistorySession, History, Location, _RecentsDict
 try:
@@ -527,6 +528,26 @@ class HistoryTestCase(_HistoryTestCase):
         session = self.history.get_session()
         self.assertEqual(len(session.forward_visits), 1)
         self.assertEqual(session.forward_visits[0], new_loc)
+
+    def test_recent_uris(self):
+        uris = ["file://home/joe/%s.py" % n for n in range(10)]
+        locs = [self.history.note_loc(Location(random.choice(uris), i+1, 1))
+                for i in range(100)]
+        #self.history.debug_dump_recent_history()
+        #self.history.debug_dump_recent_uris()
+        recent_uris = list(self.history.recent_uris(10))
+        self.assertEqual(recent_uris[0], locs[-1].uri)
+        self.assertEqual(set(uris), set(recent_uris))
+
+    def test_recent_uris_multi_page(self):
+        # Test the "PAGE_SIZE" handling in HistorySession.recent_uris.
+        uris = ["file://home/joe/%s.py" % n for n in range(150)]
+        locs = [self.history.note_loc(Location(uris[i], i+1, 1))
+                for i in range(150)]
+        #self.history.debug_dump_recent_history()
+        #self.history.debug_dump_recent_uris()
+        recent_uris = list(self.history.recent_uris(120))
+        self.assertEqual(len(recent_uris), 120)
 
     @testlib.tag("bug82342")
     def test_no_view_recent_locs(self):
