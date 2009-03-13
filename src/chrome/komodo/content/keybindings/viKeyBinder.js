@@ -937,13 +937,8 @@ VimController.prototype.handleKeypress = function(event) {
             // when checking if the event should go to scintilla.
             // TAB is handled specially by the scintilla overlay.
             if (keyCode == event.DOM_VK_TAB) {
-                // Ensure we leave ALT-TAB, CTRL-TAB alone!
-                if (specialKeyUsed ||
-                    (this.mode == VimController.MODE_NORMAL)) {
-                    // Leave TAB keypress alone, let the scintilla-overlay handle it
-                    return false;
-                //} else { // Swallow it, it doesn't do anything in visual mode
-                }
+                // Leave TAB keypress alone, let the scintilla-overlay handle it
+                return false;
             } else if (!specialKeyUsed &&
                        (((charCode == event.DOM_VK_0) &&
                          (this.repeatCount > 0)) ||
