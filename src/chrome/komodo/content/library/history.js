@@ -307,7 +307,7 @@ function view_and_line_from_loc(loc,
     if (typeof(open_if_needed) == "undefined") open_if_needed = true;
     var uri = loc.uri;
     if (!uri) {
-        _log.error("go_to_location: given empty uri");
+        _log.error("view_and_line_from_loc: given empty uri");
         return null;
     }
     var lineNo = loc.line;
