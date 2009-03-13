@@ -2564,9 +2564,9 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaul
         if textLength == 0:
             return 0, 0
         indenting = None
-        # first, colourise the first 100 lines at most so we have
+        # first, colourise the first 300 lines at most so we have
         # styling information.
-        N = min(100, scimoz.lineCount)
+        N = min(300, scimoz.lineCount)
         end = scimoz.getLineEndPosition(N - 1)
         if end < textLength:
             end = scimoz.positionFromLine(N)
