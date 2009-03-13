@@ -284,7 +284,8 @@ class Driver(threading.Thread):
                     if not self._queue.empty():  # Another request, abort this one.
                         return
                     #log.debug("adding %d hits from %r", len(hits), gatherer)
-                    resultsView.addHits(hits)
+                    if hits:
+                        resultsView.addHits(hits)
                 if exhausted:
                     for i in reversed(exhausted):
                         del generators[i]
