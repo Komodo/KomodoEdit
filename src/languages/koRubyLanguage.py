@@ -117,13 +117,10 @@ class KoRubyLanguage(KoLanguageBase):
             self._prefs.prefObserverService.addObserver(self, "editAutoIndentStyle", 0)
         except Exception, e:
             print e
-        _encodingSvc = components.classes['@activestate.com/koEncodingServices;1'].\
-                            getService(components.interfaces.koIEncodingServices)
         
-        self._keyword_letters = _encodingSvc.getUnicodeEncodedString(string.letters)[0]
-        self._word_letters = _encodingSvc.getUnicodeEncodedString(string.letters + string.digits + "_")[0]
- 
-            
+        self._keyword_letters = string.ascii_letters
+        self._word_letters = string.ascii_letters + string.digits + "_"
+             
         self._style_info.update(
             _indent_styles = [sci_constants.SCE_RB_OPERATOR],
             _variable_styles = [sci_constants.SCE_RB_IDENTIFIER,
