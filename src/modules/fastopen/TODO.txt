@@ -1,13 +1,11 @@
-- multi-curr working dirs
-- curr open views
-- minimal caching of file list
 - check on Windows and Linux
 - localization: .dtd, .properties
+- test with remote files!
 - MPL in ok tree
 - bug: dialog is globally modal on-top on Mac OS X. Why?
-- recent files in the history
+- some identifying style for hit types (so can see where they came from)
+  Some commented-out code that is a start at this in r27314.
 - hgignore support in project includes/excludes
-- get "Preferences" link in Add-ons dialog to work
 
 
 # TODO later
