@@ -117,6 +117,12 @@ class KoRubyLanguage(KoLanguageBase):
             self._prefs.prefObserverService.addObserver(self, "editAutoIndentStyle", 0)
         except Exception, e:
             print e
+        _encodingSvc = components.classes['@activestate.com/koEncodingServices;1'].\
+                            getService(components.interfaces.koIEncodingServices)
+        
+        self._keyword_letters = _encodingSvc.getUnicodeEncodedString(string.letters)[0]
+        self._word_letters = _encodingSvc.getUnicodeEncodedString(string.letters + string.digits + "_")[0]
+ 
             
         self._style_info.update(
             _indent_styles = [sci_constants.SCE_RB_OPERATOR],
@@ -199,7 +205,6 @@ class KoRubyLanguage(KoLanguageBase):
     _enders = ['end']
     _loop_kwds = ('for', 'while', 'until')
     
-    _keyword_letters = string.letters
 
     _dedent_sliders = _sliders + _enders
     
@@ -1215,7 +1220,7 @@ class KoRubyCompileLinter:
                     caret_char = lines[i + 1][caret_posn]
                     if caret_char in " \t":
                         re_key = 's'
-                    elif caret_char in string.letters + string.digits + "_":
+                    elif caret_char in self._word_letters:
                         re_key = 'w'
                     else:
                         re_key = 'o'

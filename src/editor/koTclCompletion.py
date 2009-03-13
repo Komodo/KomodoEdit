@@ -46,7 +46,6 @@ iface = components.interfaces.koICodeIntelCompletionUIHandler
 
 
 log = logging.getLogger("koTclCompletion")
-useCharSet = "_: " + string.uppercase + string.lowercase + string.digits
 tipVersionStr = "version TclTip-1.0"
 
 class KoTclCompletion(KoCompletionLanguageService):
@@ -70,6 +69,9 @@ class KoTclCompletion(KoCompletionLanguageService):
             self._nameRe = re.compile(r'^([\w:]+)')
             self._baseRe = re.compile(r'^(.*?) ([\?<].*)$')
             self.load_funcs();
+        _encodingSvc = components.classes['@activestate.com/koEncodingServices;1'].\
+                            getService(components.interfaces.koIEncodingServices)
+        self.useCharSet = _encodingSvc.getUnicodeEncodedString("_: " + string.uppercase + string.lowercase + string.digits)[0]
 
     def load_funcs(self):
         # read Tcl function definitions
@@ -224,7 +226,7 @@ class KoTclCompletion(KoCompletionLanguageService):
                 char = s.getWCharAt(curPos)
                 if style in (s.SCE_TCL_WORD, s.SCE_TCL_IDENTIFIER,
                              s.SCE_TCL_DEFAULT) and \
-                    char in useCharSet:
+                    char in self.useCharSet:
                     self._DoTipComplete()
                     return
 
@@ -262,7 +264,7 @@ class KoTclCompletion(KoCompletionLanguageService):
         buffer = s.text
         # Walk backwards accepting everything in the "acceptable"
         # command char set
-        while index >= 0 and buffer[index] in useCharSet:
+        while index >= 0 and buffer[index] in self.useCharSet:
             index -= 1
         # Readjust index to last "good" char
         index += 1
