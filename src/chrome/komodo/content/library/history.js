@@ -644,6 +644,9 @@ function _rctab_from_event(event) {
     case "startpage":
         uri = view.document.displayPath;
         break;
+    case "terminal":
+        // Ignore closing terminal views
+        return null;
     default:
         _log.warn("Unexpected view type: " + viewType + "\n");
         return null;
