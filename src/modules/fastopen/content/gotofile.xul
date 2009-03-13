@@ -30,7 +30,10 @@
           onkeypress="handleQueryKeyPress(event)"
           class="search-box"
           flex="1" />
-      <image id="throbber" class="throbber" busy="true" />
+      <!-- This hbox is used to stop the throbber image from stretching. -->
+      <hbox align="center">
+        <image id="throbber" class="throbber" busy="true" />
+      </hbox>
     </hbox>
 
     <tree id="results" flex="1" hidecolumnpicker="true"
