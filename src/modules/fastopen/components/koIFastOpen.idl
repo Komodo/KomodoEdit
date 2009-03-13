@@ -61,6 +61,7 @@ interface koIFastOpenSession: nsISupports {
     // - Ordered (in viewhistory order) list of currently open views.
     void setOpenViews(in PRUint32 count,
         [array, size_is(count)] in nsIDOMElement views);
+    void setCurrHistorySession(in wstring sessionName);
 
     // Start a search for files with the given query string. This
     // will cancel a previous `findFiles` call. Results are returned

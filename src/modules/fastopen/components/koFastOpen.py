@@ -60,6 +60,18 @@ class KoFastOpenTreeView(TreeView):
         self._selectionProxy = None
         self.resetHits()
 
+        ## Styling of the rows based on hit type.
+        #atomSvc = components.classes["@mozilla.org/atom-service;1"].\
+        #          getService(components.interfaces.nsIAtomService)
+        #self._atomFromHitType = {
+        #    "open-view": atomSvc.getAtom("open-view"),
+        #    "path": atomSvc.getAtom("path"),
+        #    "project-path": atomSvc.getAtom("project-path"),
+        #    "history-uri": atomSvc.getAtom("history-uri"),
+        #}
+        #self._oddBlockAtom = atomSvc.getAtom("odd_block")
+        #self._blockStartAtom = atomSvc.getAtom("blockStart")
+
     def resetHits(self):
         num_rows_before = self._rows and len(self._rows) or 0
         self._rows = []
@@ -147,6 +159,27 @@ class KoFastOpenTreeView(TreeView):
         except IndexError:
             #log.debug("no %sth hit" % row)
             pass
+    
+    # Dev Note: Pieces of failed attempt at some differentiating styling of
+    #   rows from different gatherers in the results tree.
+    #def getRowProperties(self, row_idx, properties):
+    #    try:
+    #        row = self._rows[row_idx]
+    #    except (IndexError, AttributeError):
+    #        pass
+    #    else:
+    #        pass
+    #        #print "row %d: %r -> %r" % (row_idx, row, odd_block)
+    #        #if row.odd_block:
+    #        #    properties.AppendElement(self._oddBlockAtom)
+    #        
+    #        #atom = self._atomFromHitType.get(row.type, None)
+    #        #if atom:
+    #        #    properties.AppendElement(atom)
+    #        
+    #        #if row_idx == 0 or self._rows[row_idx-1].type != row.type:
+    #        #    properties.AppendElement(self._blockStartAtom)
+    #        #    last_row = self._rows[row_idx-1]
 
     def selectionChanged(self):
         index = self.selection.currentIndex
@@ -239,19 +272,23 @@ class KoFastOpenSession(object):
     def setOpenViews(self, views):
         self.views = views
         self._gatherers_cache = None
+    def setCurrHistorySession(self, sessionName):
+        self.historySessionName = sessionName
+        self._gatherers_cache = None
 
     @property
     def gatherers(self):
         if self._gatherers_cache is None:
-            # Re-generate the gatherers struct.
             g = fastopen.Gatherers()
+            cwds = None
             if self.views:
                 kovg = KomodoOpenViewsGatherer(self.views)
                 g.append(kovg)
                 cwds = list(kovg.cwds)
-                if cwds:
-                    g.append(fastopen.DirGatherer("cwd", cwds,
-                        self.path_excludes_pref))
+            g.append(KomodoHistoryURIsGatherer(self.historySessionName))
+            if cwds:
+                g.append(fastopen.DirGatherer("cwd", cwds,
+                    self.path_excludes_pref))
             if self.project:
                 g.append(fastopen.CachingKomodoProjectGatherer(
                     UnwrapObject(self.project)))
@@ -294,6 +331,49 @@ class KoFastOpenService(object):
 
 
 #---- internal support stuff
+
+class KomodoHistoryURIHit(fastopen.PathHit):
+    type = "history-uri"
+    def __init__(self, uri):
+        from uriparse import URIToLocalPath
+        self.uri = uri
+        path = URIToLocalPath(uri)
+        super(KomodoHistoryURIHit, self).__init__(path)
+
+class KomodoHistoryURIsGatherer(fastopen.Gatherer):
+    """Gather recent URIs from the history."""
+    name = "history"
+    
+    def __init__(self, sessionName):
+        self.sessionName = sessionName
+        try:
+            koHistorySvc = components.classes["@activestate.com/koHistoryService;1"].\
+                getService(components.interfaces.koIHistoryService)
+        except COMException:
+            self.koHistorySvc = None
+        else:
+            self.koHistorySvc = UnwrapObject(koHistorySvc)
+        self._cachedHits = []
+    
+    _uri_generator = None
+    def gather(self):
+        if self.koHistorySvc is not None:
+            # First yield any hits we've already gathered and cached.
+            for hit in self._cachedHits:
+                yield hit
+            
+            # Then, yield and cache any remaining ones.
+            #TODO: pref for '50' here
+            if self._uri_generator is None:
+                self._uri_generator = self.koHistorySvc.recent_uris(
+                    50, self.sessionName)
+            for uri in self._uri_generator:
+                if not uri.startswith("file://"):
+                    #TODO: Is this a sufficient guard for possible history URLs?
+                    continue
+                hit = KomodoHistoryURIHit(uri)
+                self._cachedHits.append(hit)
+                yield hit
 
 class KomodoOpenViewHit(fastopen.PathHit):
     type = "open-view"

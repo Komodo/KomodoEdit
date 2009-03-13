@@ -40,6 +40,7 @@ function onLoad()
             openViews.push(view);
         }
         gSession.setOpenViews(openViews.length, openViews);
+        gSession.setCurrHistorySession(opener.ko.history.curr_session_name());
 
         gWidgets.query.focus();
         findFiles(gWidgets.query.value);
