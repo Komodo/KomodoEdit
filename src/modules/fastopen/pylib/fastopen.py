@@ -145,10 +145,10 @@ class ProjectHit(PathHit):
     def label(self):
         if self.project_base_dir:
             if self.dir == self.project_base_dir:
-                return u"%s %s {%s}/" % (self.base, MDASH, self.project_name)
+                return u"%s %s {%s}%s" % (self.base, MDASH, self.project_name, os.sep)
             else:
-                return u"%s %s {%s}/%s" % (self.base, MDASH, self.project_name,
-                    self.dir[len(self.project_base_dir)+1:])
+                return u"%s %s {%s}%s%s" % (self.base, MDASH, self.project_name,
+                    os.sep, self.dir[len(self.project_base_dir)+1:])
         else:
             return u"%s %s %s" % (self.base, MDASH, self.nicedir)
 
