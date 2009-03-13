@@ -141,6 +141,7 @@ this.init = function() {
     this._observerSvc.addObserver(this, 'history_changed', false);
     ko.main.addWillCloseHandler(this.destroy, this);
     _curr_session_name = window._koNum.toString();
+    this._recently_did_history = false;
     window.updateCommands('history_changed');
     window.addEventListener("AppCommand", _appCommandEventHandler, true);
     var this_ = this;
@@ -179,7 +180,8 @@ this.curr_session_name = function() {
  *
  * @param view {view} An optional view in which to get the current location.
  *      If not given the current view is used.
- * @returns {koILocation} or null if could not determine a current loc.
+ * @returns {koILocation} The noted location (or null if could not determine
+ *      a current loc).
  */
 function _get_curr_loc(view /* =current view */) {
     if (typeof(view) == "undefined" || view == null) {
@@ -235,6 +237,7 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
                                             ) {
     if (typeof(view) == "undefined" || view == null) view = ko.views.manager.currentView;
     if (typeof(check_section_change) == "undefined") check_section_change = false;
+    this._recently_did_history = false;
     var loc = _get_curr_loc(view);
     if (!loc) {
         return null;
@@ -244,6 +247,22 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
         view = null;
     }
     return _controller.historySvc.note_loc(loc, check_section_change, view);
+};
+
+/**
+ * Note the current location from functions like
+ * view.history.setMostRecentView
+ * @param view {view} An optional view in which to get the current location.
+ *      If not given the current view is used.
+ * @returns {koILocation} The noted location (or null if could not determine
+ *      a current loc).
+ */
+this.note_loc_unless_history_move = function note_curr_loc(view) {
+    if (this._recently_did_history) {
+        this._recently_did_history = false;
+        return;
+    }
+    this.note_curr_loc(view);
 };
 
 const _ko_temporary_matcher = new RegExp('kotemporary://({[-a-fA-F0-9]+})/(.*)$');
@@ -348,9 +367,11 @@ function view_and_line_from_loc(loc,
     return null;
 }
 
-this.go_to_location = function go_to_location(loc, on_load_failure) {
+this._go_to_location = function _go_to_location(loc, on_load_failure) {
+    var this_ = this;
     function on_load_success(view, lineNo) {
         if (!view) return;
+        this_._recently_did_history = true;
         view.makeCurrent();
         if (loc.view_type == "editor") { // 
             var scimoz = view.scimoz;
@@ -414,7 +435,7 @@ function _label_from_loc(loc) {
     }
     // Don't open closed views.
     // This is a sync call (not async), but it's coded this way
-    // so go_to_location can share common code. 
+    // so _go_to_location can share common code. 
     return view_and_line_from_loc(loc, _callback, function(){}, false);
 }
 
@@ -515,7 +536,7 @@ this._history_move = function(go_method_name, check_method_name, delta,
             // This function could load a file asynchronously,
             // so unless it throws an exception, there's no point
             // continuing after it's called.
-            this.go_to_location(loc,
+            this._go_to_location(loc,
                 function() {
                     _on_load_failure(loc, is_moving_back, delta);
                 });

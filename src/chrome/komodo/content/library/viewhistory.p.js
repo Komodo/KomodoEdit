@@ -307,6 +307,7 @@ this.ViewHistory.prototype.setMostRecentView = function (view)
         if (idx != 0) {
             // If 0, leave it at the start
             if (idx > 0) {
+                ko.history.note_loc_unless_history_move(this._recentViews[0]);
                 this._recentViews.splice(idx, 1);
             }
             this._recentViews.unshift(view);
