@@ -41,7 +41,7 @@ Be sure to stop the driver thread when done:
 
 import os
 from os.path import (exists, expanduser, join, isdir, dirname, abspath,
-    splitext, split, isabs)
+    splitext, split, isabs, normcase)
 import sys
 import logging
 import threading
@@ -102,6 +102,7 @@ class PathHit(Hit):
     def __init__(self, path):
         self.path = path
         self.dir, base = split(path)
+        self.dir_normcase = normcase(self.dir)
         self.base = base
         self.ibase = base.lower()
         self.ext = splitext(base)[1]  #TODO: use smart-splitext from astools
@@ -120,7 +121,7 @@ class PathHit(Hit):
         d = self.dir
         if isabs(d):
             home = os.environ["HOME"]
-            if d.startswith(home):
+            if self.dir_normcase.startswith(home):
                 d = "~" + d[len(home):]
         return d
     def match(self, queryWords):
