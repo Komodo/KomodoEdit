@@ -560,29 +560,28 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                         'cmd_lineOrSelectionDuplicate': keys
                     });
                 }
-            break;
+                break;
 
             case 9:
 // #if PLATFORM != 'darwin'
-                    this._remove_keybinding_sequences({
-                        'cmd_viewToolbox': ["Ctrl+Shift+T"]
-                    });
-                    this._add_keybinding_sequences({
-                        'cmd_viewToolbox': ["Ctrl+Shift+L"],
-                        'cmd_reopenLastClosedTab': ["Ctrl+Shift+T"]
-                    });
+                this._remove_keybinding_sequences({
+                    'cmd_viewToolbox': ["Ctrl+Shift+T"]
+                });
+                this._add_keybinding_sequences({
+                    'cmd_viewToolbox': ["Ctrl+Shift+L"],
+                    'cmd_reopenLastClosedTab': ["Ctrl+Shift+T"]
+                });
 // #endif
-            break;
+                break;
 
             case 10:
-                 if (vi_enabled) {
-                     this._add_keybinding_sequences({
-                         "cmd_vim_jumpToLineBeforeLastJump": [ "', '"],
-                         "cmd_vim_jumpToLocBeforeLastJump": [ "`, `"]
-                     });
-                 }
-                 break;
-            break;
+                if (vi_enabled) {
+                    this._add_keybinding_sequences({
+                        "cmd_vim_jumpToLineBeforeLastJump": [ "', '"],
+                        "cmd_vim_jumpToLocBeforeLastJump": [ "`, `"]
+                    });
+                }
+                break;
         }
         from_version += 1;
     }
