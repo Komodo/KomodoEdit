@@ -188,7 +188,7 @@ this.ViewHistory.prototype.genRecentViews = function() {
 this.ViewHistory.prototype._getCurrentViewIdx = function() {
     if (!this._recentViews || this._recentViews.length < 2) {
         this.log.info("no _recentViews in viewGetter");
-        this._debug_recentViews();
+        //this._debug_recentViews();
         return -1;
     }
     var currIndex = this._recentViews.indexOf(this._currentView);
@@ -198,7 +198,7 @@ this.ViewHistory.prototype._getCurrentViewIdx = function() {
             msg += this._currentView.document.baseName;
         } catch(e) {}
         this.log.info(msg);
-        this._debug_recentViews();
+        //this._debug_recentViews();
     }
     return currIndex;
 }
