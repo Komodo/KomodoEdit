@@ -384,204 +384,204 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
     // Loop around until it's fully upgraded
     while (from_version < currentKeybindingVersionNumber) {
         switch (from_version) {
-            case 1: // Handles upgrades to Komodo 4.2
-                // For Komodo 4.1 and earlier (lots of versions, lots of change)
-                // - remove hard coded ctrl-tab, ctrl-shift-tab, bug 67579
-                // - add goto definition, change 273493
-                // - remove api browser command, change 273106
-                // - replace cmd_editSelectAll with cmd_selectAll, change 266837
-                // - remove obsolete disk/file explorer keybinds, change 262133
-                // - remove indent/dedent bindings, now hard coded, bug 45624
+        case 1: // Handles upgrades to Komodo 4.2
+            // For Komodo 4.1 and earlier (lots of versions, lots of change)
+            // - remove hard coded ctrl-tab, ctrl-shift-tab, bug 67579
+            // - add goto definition, change 273493
+            // - remove api browser command, change 273106
+            // - replace cmd_editSelectAll with cmd_selectAll, change 266837
+            // - remove obsolete disk/file explorer keybinds, change 262133
+            // - remove indent/dedent bindings, now hard coded, bug 45624
 
-                // Mapping of command to the array of different keybind(s)
-                // Note: Multi key handling must use ", " for key separaters!
+            // Mapping of command to the array of different keybind(s)
+            // Note: Multi key handling must use ", " for key separaters!
+            this._remove_keybinding_sequences({
+                "cmd_codeIntelFindSymbol":   [ "Ctrl+K, Ctrl+F" ],
+                "cmd_editSelectAll":         [ "Ctrl+A" ],
+                "cmd_viewDocumentOutline":   [ "Ctrl+Shift+D" ],
+                "cmd_documentOutlineLocateCurrentNode": [ "Ctrl+K, Ctrl+D" ],
+                "cmd_viewFileExplorer":      [ "Ctrl+Shift+K" ],
+                "cmd_locateInFileExplorer":  [ "Ctrl+K, Ctrl+K" ],
+                "cmd_indent":                [ "Tab" ],
+                "cmd_dedent":                [ "Shift+Tab" ]
+            });
+            this._add_keybinding_sequences({
+                "cmd_bufferNextMostRecent":  [ "Ctrl+Tab" ],
+                "cmd_bufferNextLeastRecent": [ "Ctrl+Shift+Tab" ],
+                "cmd_goToDefinition":        [ "Ctrl+K, Ctrl+G" ],
+                "cmd_selectAll":             [ "Ctrl+A" ]
+            });
+            if (vi_enabled) {
+                // Handle the specific vi keybinds
+                // - indent/dedent command changes, bug 66778
+                // - fold commands, bug 66384
+                // - add "S" command, bug 67053
+                // - add "ZQ" and "ZZ" commands, bug 67048
+                // - add set register command, change 276284
+                // - add find char commands, change 275683
+                // - replace operation commands with single keybinds
                 this._remove_keybinding_sequences({
-                    "cmd_codeIntelFindSymbol":   [ "Ctrl+K, Ctrl+F" ],
-                    "cmd_editSelectAll":         [ "Ctrl+A" ],
-                    "cmd_viewDocumentOutline":   [ "Ctrl+Shift+D" ],
-                    "cmd_documentOutlineLocateCurrentNode": [ "Ctrl+K, Ctrl+D" ],
-                    "cmd_viewFileExplorer":      [ "Ctrl+Shift+K" ],
-                    "cmd_locateInFileExplorer":  [ "Ctrl+K, Ctrl+K" ],
-                    "cmd_indent":                [ "Tab" ],
-                    "cmd_dedent":                [ "Shift+Tab" ]
+                    "cmd_vim_dedent":                  [ "<, <" ],
+                    "cmd_vim_indent":                  [ ">, >" ],
+                    "cmd_vim_yankLine":                [ "y, y" ],
+                    "cmd_vim_yankWord":                [ "y, w" ],
+                    "cmd_vim_changeWord":              [ "c, w" ],
+                    "cmd_vim_changeWord":              [ "c, e" ],
+                    "cmd_vim_changeLine":              [ "c, c" ],
+                    "cmd_vim_changeLineBegin":         [ "c, 0" ],
+                    "cmd_vim_changeLineEnd":           [ "c, $" ],
+                    "cmd_vim_cutChar":                 [ "d, l" ],
+                    "cmd_vim_cutCharLeft":             [ "d, h" ],
+                    "cmd_vim_cutWordLeft":             [ "d, b" ],
+                    "cmd_vim_cutWordRight":            [ "d, w" ],
+                    "cmd_vim_cutToWordEnd":            [ "d, e" ],
+                    "cmd_vim_lineCut":                 [ "d, d" ],
+                    "cmd_vim_lineCutEnd":              [ "d, $" ],
+                    "cmd_vim_deleteToDocumentEnd":     [ "d, G" ]
                 });
                 this._add_keybinding_sequences({
-                    "cmd_bufferNextMostRecent":  [ "Ctrl+Tab" ],
-                    "cmd_bufferNextLeastRecent": [ "Ctrl+Shift+Tab" ],
-                    "cmd_goToDefinition":        [ "Ctrl+K, Ctrl+G" ],
-                    "cmd_selectAll":             [ "Ctrl+A" ]
+                    "cmd_vim_dedentOperation":         [ "<" ],
+                    "cmd_vim_indentOperation":         [ ">" ],
+                    "cmd_foldExpand":                  [ "z, o" ],
+                    "cmd_foldExpandAll":               [ "z, R" ],
+                    "cmd_foldCollapse":                [ "z, c" ],
+                    "cmd_foldCollapseAll":             [ "z, M" ],
+                    "cmd_foldToggle":                  [ "z, a" ],
+                    "cmd_vim_changeLine":              [ "S" ],
+                    "cmd_vim_saveAndClose":            [ "Z, Z" ],
+                    "cmd_vim_closeNoSave":             [ "Z, Q" ],
+                    "cmd_vim_setRegister":             [ "\"" ],
+                    "cmd_vim_findCharInLinePosBefore":          [ "t" ],
+                    "cmd_vim_findPreviousCharInLinePosAfter":   [ "T" ],
+                    "cmd_vim_repeatLastFindCharInLine":         [ ";" ],
+                    "cmd_vim_repeatLastFindCharInLineReversed": [ "," ],
+                    "cmd_vim_yankOperation":           [ "y" ],
+                    "cmd_vim_changeOperation":         [ "c" ],
+                    "cmd_vim_deleteOperation":         [ "d" ],
+                    "cmd_vim_findWordUnderCursorBack": [ "#" ],
+                    "cmd_vim_toggleVisualMode":        [ "v" ],
+                    "cmd_vim_toggleVisualLineMode":    [ "V" ],
+                    "cmd_vim_toggleVisualBlockMode":   [ "Ctrl+V" ],
+                    "cmd_goToDefinition":              [ "Ctrl+K, Ctrl+g" ]
                 });
-                if (vi_enabled) {
-                    // Handle the specific vi keybinds
-                    // - indent/dedent command changes, bug 66778
-                    // - fold commands, bug 66384
-                    // - add "S" command, bug 67053
-                    // - add "ZQ" and "ZZ" commands, bug 67048
-                    // - add set register command, change 276284
-                    // - add find char commands, change 275683
-                    // - replace operation commands with single keybinds
-                    this._remove_keybinding_sequences({
-                        "cmd_vim_dedent":                  [ "<, <" ],
-                        "cmd_vim_indent":                  [ ">, >" ],
-                        "cmd_vim_yankLine":                [ "y, y" ],
-                        "cmd_vim_yankWord":                [ "y, w" ],
-                        "cmd_vim_changeWord":              [ "c, w" ],
-                        "cmd_vim_changeWord":              [ "c, e" ],
-                        "cmd_vim_changeLine":              [ "c, c" ],
-                        "cmd_vim_changeLineBegin":         [ "c, 0" ],
-                        "cmd_vim_changeLineEnd":           [ "c, $" ],
-                        "cmd_vim_cutChar":                 [ "d, l" ],
-                        "cmd_vim_cutCharLeft":             [ "d, h" ],
-                        "cmd_vim_cutWordLeft":             [ "d, b" ],
-                        "cmd_vim_cutWordRight":            [ "d, w" ],
-                        "cmd_vim_cutToWordEnd":            [ "d, e" ],
-                        "cmd_vim_lineCut":                 [ "d, d" ],
-                        "cmd_vim_lineCutEnd":              [ "d, $" ],
-                        "cmd_vim_deleteToDocumentEnd":     [ "d, G" ]
-                    });
-                    this._add_keybinding_sequences({
-                        "cmd_vim_dedentOperation":         [ "<" ],
-                        "cmd_vim_indentOperation":         [ ">" ],
-                        "cmd_foldExpand":                  [ "z, o" ],
-                        "cmd_foldExpandAll":               [ "z, R" ],
-                        "cmd_foldCollapse":                [ "z, c" ],
-                        "cmd_foldCollapseAll":             [ "z, M" ],
-                        "cmd_foldToggle":                  [ "z, a" ],
-                        "cmd_vim_changeLine":              [ "S" ],
-                        "cmd_vim_saveAndClose":            [ "Z, Z" ],
-                        "cmd_vim_closeNoSave":             [ "Z, Q" ],
-                        "cmd_vim_setRegister":             [ "\"" ],
-                        "cmd_vim_findCharInLinePosBefore":          [ "t" ],
-                        "cmd_vim_findPreviousCharInLinePosAfter":   [ "T" ],
-                        "cmd_vim_repeatLastFindCharInLine":         [ ";" ],
-                        "cmd_vim_repeatLastFindCharInLineReversed": [ "," ],
-                        "cmd_vim_yankOperation":           [ "y" ],
-                        "cmd_vim_changeOperation":         [ "c" ],
-                        "cmd_vim_deleteOperation":         [ "d" ],
-                        "cmd_vim_findWordUnderCursorBack": [ "#" ],
-                        "cmd_vim_toggleVisualMode":        [ "v" ],
-                        "cmd_vim_toggleVisualLineMode":    [ "V" ],
-                        "cmd_vim_toggleVisualBlockMode":   [ "Ctrl+V" ],
-                        "cmd_goToDefinition":              [ "Ctrl+K, Ctrl+g" ]
-                    });
-                } else {
-                    // vi not enabled, do some cleanup of lowercase vi bindings
-                    // that got into the standard keybinding set in the
-                    // Komodo 4.0.x builds.
-                    // http://bugs.activestate.com/show_bug.cgi?id=70704
-                    this._remove_keybinding_sequences({
-                        "cmd_refreshStatus":               [ "Ctrl+K, r" ],
-                        "cmd_SCCedit":                     [ "Ctrl+K, e" ],
-                        "cmd_SCCremove":                   [ "Ctrl+K, o" ],
-                        "cmd_SCCdiff":                     [ "Ctrl+K, d" ],
-                        "cmd_SCChistory":                  [ "Ctrl+K, h" ],
-                        "cmd_SCCrevert":                   [ "Ctrl+K, v" ],
-                        "cmd_SCCupdate":                   [ "Ctrl+K, u" ],
-                        "cmd_SCCadd":                      [ "Ctrl+K, a" ],
-                        "cmd_SCCcommit":                   [ "Ctrl+K, c" ]
-                    });
-                }
-                break;
-            case 2: // Handles upgrades from Komodo 4.2.0 to 4.2.1+
-                if (vi_enabled) {
-                    // Handle the specific vi keybinds
-                    // - scroll commands, bug 73301
-                    this._remove_keybinding_sequences({
-                        "cmd_vim_lineScrollUp":            [ "Ctrl+P" ]
-                    });
-                    this._add_keybinding_sequences({
-                        "cmd_vim_lineScrollUp":            [ "Ctrl+Y" ],
-                        "cmd_vim_scrollHalfPageUp":        [ "Ctrl+U" ],
-                        "cmd_vim_scrollHalfPageDown":      [ "Ctrl+D" ]
-                    });
-                }
-                break;
-            case 3:
-                // No changes for OpenKomodo
-                break;
-            case 4:
-                // No changes for OpenKomodo
-                break;
-            case 5:
+            } else {
+                // vi not enabled, do some cleanup of lowercase vi bindings
+                // that got into the standard keybinding set in the
+                // Komodo 4.0.x builds.
+                // http://bugs.activestate.com/show_bug.cgi?id=70704
+                this._remove_keybinding_sequences({
+                    "cmd_refreshStatus":               [ "Ctrl+K, r" ],
+                    "cmd_SCCedit":                     [ "Ctrl+K, e" ],
+                    "cmd_SCCremove":                   [ "Ctrl+K, o" ],
+                    "cmd_SCCdiff":                     [ "Ctrl+K, d" ],
+                    "cmd_SCChistory":                  [ "Ctrl+K, h" ],
+                    "cmd_SCCrevert":                   [ "Ctrl+K, v" ],
+                    "cmd_SCCupdate":                   [ "Ctrl+K, u" ],
+                    "cmd_SCCadd":                      [ "Ctrl+K, a" ],
+                    "cmd_SCCcommit":                   [ "Ctrl+K, c" ]
+                });
+            }
+            break;
+        case 2: // Handles upgrades from Komodo 4.2.0 to 4.2.1+
+            if (vi_enabled) {
+                // Handle the specific vi keybinds
+                // - scroll commands, bug 73301
+                this._remove_keybinding_sequences({
+                    "cmd_vim_lineScrollUp":            [ "Ctrl+P" ]
+                });
+                this._add_keybinding_sequences({
+                    "cmd_vim_lineScrollUp":            [ "Ctrl+Y" ],
+                    "cmd_vim_scrollHalfPageUp":        [ "Ctrl+U" ],
+                    "cmd_vim_scrollHalfPageDown":      [ "Ctrl+D" ]
+                });
+            }
+            break;
+        case 3:
+            // No changes for OpenKomodo
+            break;
+        case 4:
+            // No changes for OpenKomodo
+            break;
+        case 5:
 // #if PLATFORM != 'darwin'
-                // History added in keybindings version 7
-                this._remove_keybinding_sequences({
-                    "cmd_wordPartLeft":   [ "Alt+Left" ],
-                    "cmd_wordPartRight":  [ "Alt+Right" ]
-                });
-                this._add_keybinding_sequences({
-                    "cmd_historyBack":    [ "Alt+Left" ],
-                    "cmd_historyForward": [ "Alt+Right" ]
-                });
+            // History added in keybindings version 7
+            this._remove_keybinding_sequences({
+                "cmd_wordPartLeft":   [ "Alt+Left" ],
+                "cmd_wordPartRight":  [ "Alt+Right" ]
+            });
+            this._add_keybinding_sequences({
+                "cmd_historyBack":    [ "Alt+Left" ],
+                "cmd_historyForward": [ "Alt+Right" ]
+            });
 // #else
-                this._remove_keybinding_sequences({
-                    "cmd_wordPartLeft":   [ "Meta_Alt+Left" ],
-                    "cmd_wordPartRight":  [ "Meta+Alt+Right" ]
-                });
-                this._add_keybinding_sequences({
-                    "cmd_historyBack":    [ "Meta+Alt+Left" ],
-                    "cmd_historyForward": [ "Meta+Alt+Right" ]
-                });
-                break;
+            this._remove_keybinding_sequences({
+                "cmd_wordPartLeft":   [ "Meta_Alt+Left" ],
+                "cmd_wordPartRight":  [ "Meta+Alt+Right" ]
+            });
+            this._add_keybinding_sequences({
+                "cmd_historyBack":    [ "Meta+Alt+Left" ],
+                "cmd_historyForward": [ "Meta+Alt+Right" ]
+            });
+            break;
 // #endif
-            case 6:
-                if (vi_enabled) {
-                    this._add_keybinding_sequences({
-                        "cmd_vim_documentHome":    [ "g, g" ]
-                    });
-                }
-                break;
+        case 6:
+            if (vi_enabled) {
+                this._add_keybinding_sequences({
+                    "cmd_vim_documentHome":    [ "g, g" ]
+                });
+            }
+            break;
 // #if PLATFORM == 'darwin'
-            case 7:
+        case 7:
+            this._remove_keybinding_sequences({
+                "cmd_historyBack":    [ "Meta+Alt+Left" ],
+                "cmd_historyForward": [ "Meta+Alt+Right" ],
+                "cmd_jumpToMatchingBrace": ["Meta+]" ],
+                "cmd_selectToMatchingBrace": ["Meta+Shift+]" ]
+            });
+            this._add_keybinding_sequences({
+                "cmd_historyBack":    [ "Meta+[" ],
+                "cmd_historyForward": [ "Meta+]" ],
+                "cmd_jumpToMatchingBrace": ["Meta+{" ],
+                "cmd_selectToMatchingBrace": ["Meta+}" ]
+            });
+            break;
+// #endif
+        case 8:
+            if ('cmd_lineDuplicate' in this.command2key) {
+                var keys = this.command2key['cmd_lineDuplicate'].concat([]);
+                // Copy the array because
+                // this.command2key['cmd_lineDuplicate']
+                // is mutable.
                 this._remove_keybinding_sequences({
-                    "cmd_historyBack":    [ "Meta+Alt+Left" ],
-                    "cmd_historyForward": [ "Meta+Alt+Right" ],
-                    "cmd_jumpToMatchingBrace": ["Meta+]" ],
-                    "cmd_selectToMatchingBrace": ["Meta+Shift+]" ]
+                    'cmd_lineDuplicate': keys
                 });
                 this._add_keybinding_sequences({
-                    "cmd_historyBack":    [ "Meta+[" ],
-                    "cmd_historyForward": [ "Meta+]" ],
-                    "cmd_jumpToMatchingBrace": ["Meta+{" ],
-                    "cmd_selectToMatchingBrace": ["Meta+}" ]
+                    'cmd_lineOrSelectionDuplicate': keys
                 });
-                break;
-// #endif
-            case 8:
-                if ('cmd_lineDuplicate' in this.command2key) {
-                    var keys = this.command2key['cmd_lineDuplicate'].concat([]);
-                    // Copy the array because
-                    // this.command2key['cmd_lineDuplicate']
-                    // is mutable.
-                    this._remove_keybinding_sequences({
-                        'cmd_lineDuplicate': keys
-                    });
-                    this._add_keybinding_sequences({
-                        'cmd_lineOrSelectionDuplicate': keys
-                    });
-                }
-                break;
+            }
+            break;
 
-            case 9:
+        case 9:
 // #if PLATFORM != 'darwin'
-                this._remove_keybinding_sequences({
-                    'cmd_viewToolbox': ["Ctrl+Shift+T"]
-                });
-                this._add_keybinding_sequences({
-                    'cmd_viewToolbox': ["Ctrl+Shift+L"],
-                    'cmd_reopenLastClosedTab': ["Ctrl+Shift+T"]
-                });
+            this._remove_keybinding_sequences({
+                'cmd_viewToolbox': ["Ctrl+Shift+T"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_viewToolbox': ["Ctrl+Shift+L"],
+                'cmd_reopenLastClosedTab': ["Ctrl+Shift+T"]
+            });
 // #endif
-                break;
+            break;
 
-            case 10:
-                if (vi_enabled) {
-                    this._add_keybinding_sequences({
-                        "cmd_vim_jumpToLineBeforeLastJump": [ "', '"],
-                        "cmd_vim_jumpToLocBeforeLastJump": [ "`, `"]
-                    });
-                }
-                break;
+        case 10:
+            if (vi_enabled) {
+                this._add_keybinding_sequences({
+                    "cmd_vim_jumpToLineBeforeLastJump": [ "', '"],
+                    "cmd_vim_jumpToLocBeforeLastJump": [ "`, `"]
+                });
+            }
+            break;
         }
         from_version += 1;
     }
