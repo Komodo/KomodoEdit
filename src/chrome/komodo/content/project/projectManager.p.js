@@ -457,6 +457,15 @@ projectManager.prototype.newProjectFromTemplate = function() {
                           .getService(Components.interfaces.koIProjectPackageService);
         var project = packager.newProjectFromPackage(obj.template, extractLocation);
         project.url = uri;
+        // Next two lines fix bug 82385, fallout from bug 82050:
+        // Show project name in the project tree.  Projects built from
+        // templates have generic names, so we need to change them.
+        // First line: make sure the project tree doesn't display the old
+        // name when it's added to the view.
+        // Second line: get old behavior, ensuring the project name is
+        // the same as the file's basename
+        project.removeAttribute('name');
+        project.name = project.getFile().baseName;
 
         var ok = this._saveNewProject(project);
         if (ok) {
