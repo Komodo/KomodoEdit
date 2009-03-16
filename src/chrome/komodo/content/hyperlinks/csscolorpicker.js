@@ -43,7 +43,7 @@
 ko.hyperlinks.ColorPickerHandler = function()
 {
     var name = "Color picker";
-    var find_regex = /#(([0-9a-f]{3}){1,2})\W|rgb\(\s*(\d+\%?)\s*,\s*(\d+\%?)\s*,\s*(\d+\%?)\s*\)/i;
+    var find_regex = /#(([0-9a-f]{3}){1,2})\b|rgb\(\s*(\d+\%?)\s*,\s*(\d+\%?)\s*,\s*(\d+\%?)\s*\)/i;
     var fn = null;   /* unnecessary, as it's over-riden by the "jump" method */
     var replace_str = null;
     var lang_names = ["CSS", "HTML"];   /* Language types */
