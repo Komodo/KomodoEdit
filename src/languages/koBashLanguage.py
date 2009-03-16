@@ -66,6 +66,9 @@ class koBashLanguage(KoLanguageBase):
         }
     defaultExtension = '.sh'
     commentDelimiterInfo = {"line": [ "#" ],}
+    shebangPatterns = [
+        re.compile(ur'\A#!.*/(ba)?sh.*$', re.IGNORECASE | re.MULTILINE),
+    ]
     
     sample = """# build our tags file
 
