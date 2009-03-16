@@ -478,6 +478,7 @@
                                           this == ko.views.manager.currentView);
                 var retval = this.closeUnconditionally();
                 if (closingCurrentView
+                    && !doNotOfferToSave
                     && this.selectMostRecentBufferOnBufferClose) {
                     ko.views.manager.topView.viewhistory.doNextMostRecentView();
                 }
