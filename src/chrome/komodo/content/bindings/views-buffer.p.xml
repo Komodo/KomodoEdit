@@ -1477,6 +1477,7 @@
                 if ((scimoz.selectionStart == scimoz.selectionEnd) ||
                             (pos < scimoz.selectionStart) ||
                             (pos > scimoz.selectionEnd)) {
+                    scimoz.anchor = pos;
                     scimoz.currentPos = pos;
                     this._hyperlink.jump(this);
                 }
