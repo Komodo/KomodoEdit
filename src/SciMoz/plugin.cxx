@@ -231,7 +231,6 @@ void nsPluginInstance::shut()
     // plugin and mScriptablePeer window relationships are all removed,
     // otherwise a later event from the mScriptablePeer widget(s) could case a
     // callback to a NULL plugin, causing a crash.
-    mScriptablePeer->MarkClosed();
     NS_RELEASE(mScriptablePeer);
   }
   mScriptablePeer = NULL;

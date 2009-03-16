@@ -147,6 +147,9 @@ SciMoz::SciMoz(nsPluginInstance* aPlugin)
 
 SciMoz::~SciMoz()
 {
+    if (!isClosed) {
+	fprintf(stderr, "SciMoz was not closed correctly before destructor called.\n");
+    }
 #ifdef SCIDEBUG_REFS
     fprintf(stderr,"SciMoz::~SciMoz %p\n", this);
 #endif
