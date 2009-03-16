@@ -1516,7 +1516,7 @@
                                event.altKey, event.metaKey]
 <!-- #if PLATFORM == "darwin" -->
             // Ensure the keydown event is not a duplicate, as the Mac will
-            // often send duplicate events for CMD+key keypresses.
+            // often send duplicate events for CMD+key keypresses, bug 82367.
             var kd;
             for (var i=0; i < this._keys_down.length; i++) {
                 kd = this._keys_down[i];
