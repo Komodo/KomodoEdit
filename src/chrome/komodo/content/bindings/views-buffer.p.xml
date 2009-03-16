@@ -1338,11 +1338,13 @@
             }
             for (var i=0; i < this._keys_down.length; i++) {
 <!-- #if PLATFORM == "darwin" -->
-                // Ctrl keyCode's are not set on a Mac, use ctrlKey attribute.
+                // Ctrl keyCode's are sometimes not set on a Mac (example: Mac
+                // over VNC), so use the metaKey attribute to check as well.
                 if (this._keys_down[i][2] /* event.ctrlKey */) {
-<!-- #else -->
-                if (this._keys_down[i][0] /* event.keyCode */ == this.DOM_VK_CONTROL) {
+                    return true;
+                }
 <!-- #endif -->
+                if (this._keys_down[i][0] /* event.keyCode */ == this.DOM_VK_CONTROL) {
                     return true;
                 }
             }
@@ -1362,11 +1364,13 @@
             }
             for (var i=0; i < this._keys_down.length; i++) {
 <!-- #if PLATFORM == "darwin" -->
-                // Meta keyCode's are not set on a Mac, use metaKey attribute.
+                // Meta keyCode's are sometimes not set on a Mac (example: Mac
+                // over VNC), so use the metaKey attribute to check as well.
                 if (this._keys_down[i][4] /* event.metaKey */) {
-<!-- #else -->
-                if (this._keys_down[i][0] /* event.keyCode */ == this.DOM_VK_META) {
+                    return true;
+                }
 <!-- #endif -->
+                if (this._keys_down[i][0] /* event.keyCode */ == this.DOM_VK_META) {
                     return true;
                 }
             }
@@ -1481,8 +1485,9 @@
                     scimoz.currentPos = pos;
                     this._hyperlink.jump(this);
                 }
-                this.removeHyperlinks();
             }
+            this.removeHyperlinks();
+            this.clearKeyDownValues();
             ]]>
         </handler>
         <handler event="click" phase="capturing">
@@ -1507,11 +1512,28 @@
         <handler event="keydown" phase="capturing">
             <![CDATA[
             var keyCode = event.keyCode;
-            this._keys_down.push([keyCode, event.charCode, event.ctrlKey,
-                                 event.altKey, event.metaKey]);
+            var keydownItem = [keyCode, event.charCode, event.ctrlKey,
+                               event.altKey, event.metaKey]
+<!-- #if PLATFORM == "darwin" -->
+            // Ensure the keydown event is not a duplicate, as the Mac will
+            // often send duplicate events for CMD+key keypresses.
+            var kd;
+            for (var i=0; i < this._keys_down.length; i++) {
+                kd = this._keys_down[i];
+                if (keydownItem[0] == kd[0] &&
+                    keydownItem[1] == kd[1] &&
+                    keydownItem[2] == kd[2] &&
+                    keydownItem[3] == kd[3] &&
+                    keydownItem[4] == kd[4]) {
+                    // Key is already there.
+                    return;
+                }
+            }
+<!-- #endif -->
+            this._keys_down.push(keydownItem);
 <!-- #if PLATFORM == "darwin" -->
             // Meta keyCode's are not set on a Mac, so use metaKey attribute.
-            if (event.metaKey) {
+            if (event.metaKey || keyCode == this.DOM_VK_META) {
 <!-- #else -->
             if (keyCode == this.DOM_VK_CONTROL) {
 <!-- #endif -->
