@@ -651,7 +651,7 @@ this._handle_view_linecol_changed = function(event) {
     }
     var pos = view.lastEditPos;
     view._historyLastHandledEditPos = pos;
-    return _controller.historySvc.note_loc(_get_curr_loc(view, pos), true, view);
+    _controller.historySvc.note_loc(_get_curr_loc(view, pos), true, view);
 };
 
 var _controller = new HistoryController();
