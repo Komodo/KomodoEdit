@@ -51,8 +51,17 @@ var _log = ko.logging.getLogger("ko.main");
 // a default logger that can be used anywhere (ko.main.log)
 //_log.setLevel(ko.logging.LOG_DEBUG);
 
+var _savedWorkspace = false;
+
+function saveWorkspaceIfNeeded() {
+    if (!_savedWorkspace) {
+        ko.workspace.saveWorkspace(true);
+        _savedWorkspace = true;
+    }
+}
+
 this.quitApplication = function() {
-    ko.workspace.saveWorkspace(true);
+    saveWorkspaceIfNeeded();
     goQuitApplication();
 };
 
@@ -101,6 +110,11 @@ window.addEventListener("close", ko.main._onClose, true);
  * `goQuitApplication()`, but NOT when closed via the application
  * window's "x" close button.
  *
+ * However, this method will be called in procedures that cause
+ * Komodo to shut down, such as during updates.  It's too late to check
+ * if we can quit, but we should still save the workspace and run the
+ * willCloseHandlers.  See bug 67126 for more details.
+ *
  * http://developer.mozilla.org/en/docs/Gecko-Specific_DOM_Events#DOMWindowClose
  * http://mxr.mozilla.org/mozilla1.8/source/dom/src/base/nsGlobalWindow.cpp#4737
  *  ...
@@ -109,6 +123,9 @@ window.addEventListener("close", ko.main._onClose, true);
  */
 this._onDOMWindowClose = function(event) {
     _log.debug(">> ko.main._onDOMWindowClose");
+    if (ko.windowManager.lastWindow()) {
+        saveWorkspaceIfNeeded();
+    }
     ko.main.runWillCloseHandlers();
     window.removeEventListener("DOMWindowClose", ko.main._onDOMWindowClose, true);
     _log.debug("<< ko.main._onDOMWindowClose");
