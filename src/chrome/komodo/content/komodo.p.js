@@ -346,18 +346,6 @@ function onloadDelay() {
     } catch(ex) {
         /* ignore this exception, there were no listeners for the event */
     }
-    // bug 80583 -- earlier calls to updateCommands('currentview_is_editor')
-    // while handling current_view_changed events during startup fail to
-    // properly update all of the commands. We force updating of these
-    // command targets.
-    if (ko.views.manager.currentView) {
-        window.setTimeout(function(window_) {
-            window_.updateCommands('currentview_is_editor');
-            window_.updateCommands('foldability_changed');
-            window_.updateCommands('previewability_changed');
-        }, 1, window);
-    }
-    
 }
 
 window.onload = function(event) {

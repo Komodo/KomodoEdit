@@ -349,15 +349,17 @@
             if (! this.hasAttribute('handlesctrltab') || this.getAttribute('handlesctrltab') == 'true') {
                 this.setMostRecentView(view);
             }
-            // check for file changed status
-            view.reloadIfChanged();
             if (view.document) {
                 xtk.domutils.fireEvent(view, 'current_view_changed');
             }
-            // we need to update the dirty status for non-editor views,
-            // such as browsers and startpage, otherwise the save button
-            // may still be enabled
-            this.updateDirtyStatus(view);
+            if (!ko.views.manager.batchMode) {
+                // check for file changed status
+                view.reloadIfChanged();
+                // we need to update the dirty status for non-editor views,
+                // such as browsers and startpage, otherwise the save button
+                // may still be enabled
+                this.updateDirtyStatus(view);
+            }
         ]]>
         </body>
         </method>
@@ -419,65 +421,79 @@
             var ordered = pref.getPref('view_prefs');
             var fileOpenFailures = [];
             var i;
-            if (ordered.length > 1) {
-                ko.views.manager.batchMode = true;
-            }
-            for (i = 0; i < ordered.length; i++) {
-                if (i == ordered.length-1) {
-                    ko.views.manager.batchMode = false;
-                }
-                viewPref = ordered.getPref(i);
-                var viewType = viewPref.getStringPref('viewtype');
-                var uri = viewPref.getStringPref('URI');
-                var docSvc = Components.classes['@activestate.com/koDocumentService;1']
-                            .getService(Components.interfaces.koIDocumentService);
-                // If the URI already exists, it was opened before we got here
-                // don't open it again!
-                var existingViews = ko.views.manager.topView.findViewsForURI(uri);
-                if (existingViews.length > 0) {
-                    continue;
-                }
-                var doc = docSvc.findDocumentByURI(uri);
-                if (!doc) {
-                    doc = docSvc.createDocumentFromURI(uri);
-                    if (doc.file.exists) {
-                        if (doc.haveAutoSave() &&
-                            ko.dialogs.yesNo("It appears the file '"+doc.file.displayPath+
-                                        "' was not properly saved, would you "+
-                                        "like to restore the backup?", "Yes") == "Yes") {
-                            doc.restoreAutoSave();
-                        } else {
-                            try {
-                                doc.load();
-                            } catch (e) {
-                                // This will catch remote file opening exceptions,
-                                // which has already set the lastException value.
-                                this.log.warn("Couldn't re-open file: " + doc.file.path);
-                                var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
-                                                   getService(Components.interfaces.koILastErrorService);
-                                fileOpenFailures.push("'" + doc.file.path + "' : " + lastErrorSvc.getLastErrorMessage());
-                                continue;
+            ko.views.manager.batchMode = true;
+            try {
+                for (i = 0; i < ordered.length; i++) {
+                    viewPref = ordered.getPref(i);
+                    var viewType = viewPref.getStringPref('viewtype');
+                    var uri = viewPref.getStringPref('URI');
+                    var docSvc = Components.classes['@activestate.com/koDocumentService;1']
+                                .getService(Components.interfaces.koIDocumentService);
+                    // If the URI already exists, it was opened before we got here
+                    // don't open it again!
+                    var existingViews = ko.views.manager.topView.findViewsForURI(uri);
+                    if (existingViews.length > 0) {
+                        continue;
+                    }
+                    var doc = docSvc.findDocumentByURI(uri);
+                    if (!doc) {
+                        doc = docSvc.createDocumentFromURI(uri);
+                        if (doc.file.exists) {
+                            if (doc.haveAutoSave() &&
+                                ko.dialogs.yesNo("It appears the file '"+doc.file.displayPath+
+                                            "' was not properly saved, would you "+
+                                            "like to restore the backup?", "Yes") == "Yes") {
+                                doc.restoreAutoSave();
+                            } else {
+                                try {
+                                    doc.load();
+                                } catch (e) {
+                                    // This will catch remote file opening exceptions,
+                                    // which has already set the lastException value.
+                                    this.log.warn("Couldn't re-open file: " + doc.file.path);
+                                    var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                                                       getService(Components.interfaces.koILastErrorService);
+                                    fileOpenFailures.push("'" + doc.file.path + "' : " + lastErrorSvc.getLastErrorMessage());
+                                    continue;
+                                }
                             }
                         }
                     }
+                    if (doc.file.exists) {
+                        var view = this.newView(viewType);
+                        view.initWithDocument(doc);
+                        xtk.domutils.fireEvent(view, 'view_opened');
+                    } else {
+                        fileOpenFailures.push("'" + doc.file.path + "' : it does not exist.");
+                        this.log.warn("Couldn't re-open file: '" + doc.file.path + "', it does not exist.");
+                    }
                 }
-                if (doc.file.exists) {
-                    var view = this.newView(viewType);
-                    view.initWithDocument(doc);
-                    xtk.domutils.fireEvent(view, 'view_opened');
-                } else {
-                    fileOpenFailures.push("'" + doc.file.path + "' : it does not exist.");
-                    this.log.warn("Couldn't re-open file: '" + doc.file.path + "', it does not exist.");
-                }
+            } finally {
+                ko.views.manager.batchMode = false;
             }
             var views = this.getViews();
+            var currentView = null;
             if (pref.hasPref('current_view_index')) {
                 var current_view_index = pref.getLongPref('current_view_index');
                 // It's possible the the view that was 'current' is not
                 // loaded -- either because it's gone, or because it was
                 // an untitled document.  Guard against that:
-                var currentView = views[current_view_index];
-                if (currentView) {
+                currentView = views[current_view_index];
+            }
+            if (!currentView && views) {
+                currentView = views[views.length -1];
+            }
+            if (currentView) {
+                // Need to notify that the view has changed (after batch mode
+                // has finished) so that the commands can be correctly
+                // enabled/disabled, bug 80942.
+                if (currentView == views[views.length -1]) {
+                    // Note: The makeCurrent() call will notify of
+                    // current_view_changed only when the view actually changes,
+                    // which is not what we need here. Force an update by
+                    // sending the the change notification manually.
+                    xtk.domutils.fireEvent(currentView, 'current_view_changed');
+                } else {
                     currentView.makeCurrent();
                 }
             }
