@@ -471,8 +471,6 @@ function StatusBarObserver() {
                             this.handle_current_view_linecol_changed, false);
     window.addEventListener('view_closed',
                             this.handle_current_view_open_or_closed, false);
-    window.addEventListener('view_opened',
-                            this.handle_current_view_open_or_closed, false);
     ko.main.addWillCloseHandler(this.destroy, this);
 };
 
@@ -496,8 +494,6 @@ StatusBarObserver.prototype.destroy = function()
     window.removeEventListener('current_view_linecol_changed',
                                this.handle_current_view_linecol_changed, false);
     window.removeEventListener('view_closed',
-                               this.handle_current_view_open_or_closed, false);
-    window.removeEventListener('view_opened',
                                this.handle_current_view_open_or_closed, false);
     _messageStack = null;
     _observer = null;
