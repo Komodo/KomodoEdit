@@ -282,8 +282,9 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 12: Komodo 5.1.0 - Add cmd_reopenLastClosedTab for OS X
  * 11: Komodo 5.1.0 - Add cmd_vim_jumpToLineBeforeLastJump, cmd_vim_jumpToLocBeforeLastJump
- * 10: Komodo 5.1.0 - Add cmd_reopenLastClosedTab
+ * 10: Komodo 5.1.0 - Add cmd_reopenLastClosedTab for Windows, Linux
  * 9: Komodo 5.1.0 - Add cmd_lineSelectionOrDuplicate
  * 8: Komodo 5.1.0 - Mac: bind %[, %] to history, %{, %} to jump/sel to matching brace
  * 7: Komodo 5.1.0 - vi: add "gg" for document home command
@@ -294,7 +295,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 11;
+const currentKeybindingVersionNumber = 12;
 
 /**
  * Remove this dictionary of keybinds.
@@ -581,6 +582,20 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                     "cmd_vim_jumpToLocBeforeLastJump": [ "`, `"]
                 });
             }
+            break;
+        
+        case 11:
+// #if PLATFORM == 'darwin'
+            this._remove_keybinding_sequences({
+                'cmd_viewToolbox': ["Ctrl+Shift+T"],
+                'cmd_dbgStepOut': ["Meta+Shift+T"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_viewToolbox': ["Ctrl+Shift+L"],
+                'cmd_dbgStepOut': ["Ctrl+Shift+T"],
+                'cmd_reopenLastClosedTab': ["Meta+Shift+T"]
+            });
+// #endif
             break;
         }
         from_version += 1;
