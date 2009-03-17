@@ -1086,6 +1086,8 @@
                         this.commandCompletionSvc.scanBufferCompletion(
                             this.scimoz, this.document.file.URI);
                     }
+                    
+                    this.lastEditPos = position;
                 }
             }
             if ((modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT | SC_MOD_BEFOREDELETE))
