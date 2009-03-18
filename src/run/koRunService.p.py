@@ -158,6 +158,37 @@ class KoInterpolationService:
         # must convert nsIDPtr to string first
         return str(guid)[1:-1] # strip off the {}'s
 
+    def _getBrowser(self):
+        browser = self._prefs.getStringPref('browser')
+        errorMsg = ""
+        if not browser:
+            # XXX this may not be the best way to fix getting a default
+            # browser, but we have no method for that if the pref
+            # is not set
+            koWebbrowser = components.classes['@activestate.com/koWebbrowser;1'].\
+                       getService(components.interfaces.koIWebbrowser)
+            try:
+                browsers = koWebbrowser.get_possible_browsers()
+            except Exception, ex:
+                #TODO: I suspect this is a KeyError, but not sure.
+                log.exception(ex)
+                errorMsg = "The command string includes %(browser), but Komodo failed to find the list of installed browsers. You can configure a default browser in Komodo's 'Web' Preference panel. Go to 'Edit | Preferences'."
+            else:
+                if browsers:
+                    # Check that we have a valid browser path
+                    if os.path.exists(os.path.abspath(browsers[0])):
+                        browser = browsers[0]
+                    else:
+                        errorMsg = "The command string includes %(browser), but the default browser is incorrectly set. Reset your default browser settings within your browser, or configure a default browser in Komodo's 'Web' Preference panel."
+            if errorMsg or not browser:
+                if not errorMsg:
+                    errorMsg = "The command string includes %(browser), but there is no default browser set. You can configure a default browser in Komodo's 'Web' Preference panel. Go to 'Edit | Preferences'."
+                raise ValueError(errorMsg)
+        
+        if ' ' in browser and browser[0] != '"':
+            browser = '"%s"' % browser
+        return browser
+        
     def _getCodeMap(self, fileName=None, lineNum=None, word=None,
                     selection=None, projectFile=None):
         # Define the interpolation mapping.
@@ -194,6 +225,7 @@ class KoInterpolationService:
             'tclsh':  lambda interp='tclsh',  lang='Tcl':    self._GetInterpreter(interp, lang),
             'wish':   lambda interp='wish',   lang='Tcl':    self._GetInterpreter(interp, lang),
             'guid':   self._getGuid,
+            'browser': self._getBrowser,
 
             # The code are handled specially in _doInterpolate1().
             'ask': None,
@@ -203,31 +235,6 @@ class KoInterpolationService:
             'path': None,
             'debugger': None,
             }
-        
-        errorMsg = ""
-        browser = self._prefs.getStringPref('browser')
-        if not browser:
-            # XXX this may not be the best way to fix getting a default
-            # browser, but we have no method for that if the pref
-            # is not set
-            koWebbrowser = components.classes['@activestate.com/koWebbrowser;1'].\
-                       getService(components.interfaces.koIWebbrowser)
-            browsers = koWebbrowser.get_possible_browsers()
-            if browsers:
-                # Check that we have valid browser path
-                if os.path.exists(os.path.abspath(browsers[0])):
-                    browser = browsers[0]
-                else:
-                    errorMsg = "The command string includes %(browser), but the default browser is incorrectly set. Reset your default browser settings within your browser, or configure a default browser in Komodo's 'Web' Preference panel."
-        if errorMsg or not browser:
-            if not errorMsg:
-                errorMsg = "The command string includes %(browser), but there is no default browser set. You can configure a default browser in Komodo's 'Web' Preference panel. Go to 'Edit | Preferences'."
-            codeMap['browser'] = ValueError(errorMsg)
-        else:
-            if ' ' in browser and browser[0] != '"':
-                browser = '"%s"' % browser
-            codeMap['browser'] = browser
-
         from os.path import basename, dirname, splitext
         if fileName is not None:
             codeMap['b'] = splitext(basename(fileName))[0]
