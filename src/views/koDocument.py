@@ -591,6 +591,13 @@ class koDocumentBase:
 
     def _set_buffer_encoded(self,text,makeDirty=1):
         timeline.enter('koDocumentBase._set_buffer_encoded')
+        # Check for null bytes. Komodo will truncate the text if the document
+        # contains embedded nulls, so we abort if the text contains nulls, see
+        # bug 35678.
+        if "\0" in text:
+            errstr = "Buffer contains null byte(s)"
+            self.lastErrorSvc.setLastError(nsError.NS_ERROR_FAILURE, errstr)
+            raise ServerException(nsError.NS_ERROR_FAILURE, errstr)
         was_dirty = self.get_isDirty()
         if self._document:
             scimoz = self._views[0].scimoz
