@@ -119,7 +119,7 @@ class PathHit(Hit):
     @property
     def nicedir(self):
         d = self.dir
-        if isabs(d):
+        if isabs(d) and "HOME" in os.environ:
             home = os.environ["HOME"]
             if self.dir_normcase.startswith(home):
                 d = "~" + d[len(home):]
