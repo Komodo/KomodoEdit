@@ -179,10 +179,8 @@
                 <File Id="file4415" Name="CODEI_23.GIF" LongName="codeintel_filter.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_filter.gif"/>
                 <File Id="file4420" Name="CODEI_28.GIF" LongName="codeintel_scope.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_scope.gif"/>
                 <File Id="file4422" Name="CODEI_30.GIF" LongName="codeintel_sort.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_sort.gif"/>
-                <File Id="file4692" Name="code_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\code_tab.gif"/>
                 <File Id="file459" LongName="column_select.png" Name="COLUMN_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\column_select.png" />
                 <File Id="file460" LongName="column_edit.png" Name="COLUMN_1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\column_edit.png" />
-                <File Id="file302" Name="dom_tab.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\dom_tab.png" />
                 <File Id="file4696" Name="EDITOR_4.GIF" LongName="editor_autocomp.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_autocomp.gif"/>
                 <File Id="file4697" Name="EDITOR_5.GIF" LongName="editor_calltips.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_calltips.gif"/>
                 <File Id="file4698" Name="EDITOR_6.GIF" LongName="editor_pane.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_pane.gif"/>
@@ -194,7 +192,6 @@
                 <File Id="file266" LongName="main_menu.png" Name="MAIN_M_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\main_menu.png" />
                 <File Id="file4723" Name="MULTIP_1.GIF" LongName="multiple_line.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\multiple_line.gif"/>
                 <File Id="file4724" Name="MULTI__1.GIF" LongName="multi_single.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\multi_single.gif"/>
-                <File Id="file4732" Name="PROJEC_3.GIF" LongName="project_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\project_tab.gif"/>
                 <File Id="file4736" Name="RUNCO_15.GIF" LongName="runcommand_adv.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_adv.gif"/>
                 <File Id="file4737" Name="RUNCO_16.GIF" LongName="runcommand_ask1.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_ask1.gif"/>
                 <File Id="file4738" Name="RUNCO_17.GIF" LongName="runcommand_ask2.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_ask2.gif"/>
@@ -214,7 +211,6 @@
                 <File Id="file4752" Name="rx_match.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\rx_match.gif"/>
                 <File Id="file4753" Name="RX_MAT_1.GIF" LongName="rx_matches.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\rx_matches.gif"/>
                 <File Id="file453" LongName="sections_list.png" Name="SECTIO_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sections_list.png" />
-                <File Id="file4756" Name="SHARED_1.GIF" LongName="shared_toolbox_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\shared_toolbox_tab.gif"/>
                 <File Id="file4758" Name="SINGLE_1.GIF" LongName="single_line.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\single_line.gif"/>
                 <File Id="file303" LongName="start_page.png" Name="START__0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\start_page.png" />
                 <File Id="file4761" Name="STATUS_9.PNG" LongName="status_icon_add.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_icon_add.png"/>
@@ -235,6 +231,11 @@
                 <File Id="file263" LongName="toolbar_std.png" Name="TOOLBA_5.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_std.png" />
                 <File Id="file264" LongName="toolbar_tools.png" Name="TOOLBA_6.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_tools.png" />
                 <File Id="file265" LongName="toolbar_wkspc.png" Name="TOOLBA_7.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_wkspc.png" />
+                <File Id="file302" LongName="sidebar_changelists.png" Name="SIDEBA_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_changelists.png" />
+                <File Id="file856" LongName="sidebar_code.png" Name="SIDEBA_1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_code.png" />
+                <File Id="file857" LongName="sidebar_dom.png" Name="SIDEBA_2.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_dom.png" />
+                <File Id="file858" LongName="sidebar_projects.png" Name="SIDEBA_3.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_projects.png" />
+                <File Id="file859" LongName="sidebar_toolbox.png" Name="SIDEBA_4.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_toolbox.png" />
                 <File Id="file268" LongName="FilterBuilder-16-16-8.png" Name="FILTE_13.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\FilterBuilder-16-16-8.png" />
                 <File Id="file269" LongName="PerlApp-16-16-8.gif" Name="PERLAP_0.GIF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\PerlApp-16-16-8.gif" />
                 <File Id="file270" LongName="PerlCov-16-16-8.png" Name="PERLCO_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\PerlCov-16-16-8.png" />
@@ -243,7 +244,6 @@
                 <File Id="file273" LongName="PerlSvc-16-16-8.gif" Name="PERLSV_0.GIF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\PerlSvc-16-16-8.gif" />
                 <File Id="file274" LongName="PerlTray-16-16-8.gif" Name="PERLTR_0.GIF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\PerlTray-16-16-8.gif" />
                 <File Id="file275" LongName="VBSPerl-16-16-8.png" Name="VBSPER_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\VBSPerl-16-16-8.png" />
-                <File Id="file4798" Name="TOOLBO_1.GIF" LongName="toolbox_tab.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbox_tab.gif"/>
                 <File Id="file4799" Name="TOURL_72.GIF" LongName="tourlet_arrow.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_arrow.gif"/>
                 <File Id="file297" LongName="tourlet_codecomp_addsnip.png" Name="TOURLE_5.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_codecomp_addsnip.png" />
                 <File Id="file4801" Name="TOURL_74.GIF" LongName="tourlet_codecomp_inssnip.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_codecomp_inssnip.gif"/>
