@@ -272,7 +272,8 @@ class ProcessOpen(Popen):
         time_end = time_now + timeout
         # These values will be used to incrementally increase the wait period
         # of the polling check, starting from the end of the list and working
-        # towards the front.
+        # towards the front. This is to avoid waiting for a long period on
+        # processes that finish quickly, see bug 80794.
         time_wait_values = [1.0, 0.5, 0.2, 0.1]
         while time_now < time_end:
             result = self.poll()
@@ -280,7 +281,6 @@ class ProcessOpen(Popen):
                 return result
             # We use hasTerminated here to get a faster notification.
             self.__hasTerminated.acquire()
-            # XXX - Not sure what good timeout value for this is...
             if time_wait_values:
                 wait_period = time_wait_values.pop()
             self.__hasTerminated.wait(wait_period)
