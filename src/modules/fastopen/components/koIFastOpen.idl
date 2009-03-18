@@ -5,6 +5,7 @@
 #include "nsITreeView.idl"
 #include "nsIDOMElement.idl"
 #include "koIProject.idl"
+#include "koIViews.idl"
 
 
 /* An object that represents a selection in the 'Go to File' dialog. */
@@ -14,6 +15,7 @@ interface koIFastOpenHit: nsISupports {
     readonly attribute wstring path;
     
     // These are currently only set for `type == "open-view"` hits.
+    readonly attribute koIView view;
     readonly attribute wstring viewType;
     readonly attribute long windowNum;
     readonly attribute long tabGroupId;

@@ -339,6 +339,10 @@ class KomodoHistoryURIHit(fastopen.PathHit):
         self.uri = uri
         path = URIToLocalPath(uri)
         super(KomodoHistoryURIHit, self).__init__(path)
+    @property
+    def label(self):
+        return u"%s (history) %s %s" % (self.base, fastopen.MDASH, self.nicedir)
+
 
 class KomodoHistoryURIsGatherer(fastopen.Gatherer):
     """Gather recent URIs from the history."""
@@ -378,8 +382,9 @@ class KomodoHistoryURIsGatherer(fastopen.Gatherer):
 class KomodoOpenViewHit(fastopen.PathHit):
     type = "open-view"
     filterDupePaths = False
-    def __init__(self, path, viewType, windowNum, tabGroupId, multi, **kwargs):
+    def __init__(self, view, path, viewType, windowNum, tabGroupId, multi, **kwargs):
         super(KomodoOpenViewHit, self).__init__(path)
+        self.view = view
         self.viewType = viewType
         self.windowNum = windowNum
         self.tabGroupId = tabGroupId
@@ -390,7 +395,9 @@ class KomodoOpenViewHit(fastopen.PathHit):
         if self.viewType not in ("editor", "startpage"):
             bits.append("%s view" % self.viewType)
         if self.multi:
-            bits.append("window %s" % self.windowNum)
+            # Don't bother while fastopen only works on views in the current
+            # window.
+            #bits.append("window %s" % self.windowNum)
             bits.append("tab group %s" % self.tabGroupId)
         if bits:
             extra = " (%s)" % ", ".join(bits)
@@ -460,7 +467,7 @@ class KomodoOpenViewsGatherer(fastopen.Gatherer):
                     continue
                 viewIds.add(viewId)
                 
-                datum = dict(viewType=viewType, path=path,
+                datum = dict(view=view, viewType=viewType, path=path,
                     windowNum=view.windowNum, tabGroupId=view.tabbedViewId,
                     uri=uri, isLocal=isLocal,
                     multi=False)

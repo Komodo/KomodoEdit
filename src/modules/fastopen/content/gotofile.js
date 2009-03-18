@@ -169,13 +169,19 @@ function _openSelectedPaths() {
     var hit, viewType, tabGroup;
     for (var i in hits) {
         var hit = hits[i];
-        var viewType = (hit.type == "open-view" ? hit.viewType : "editor");
-        // Note: Komodo APIs are mixing "tabGroupId" (also "tabbedViewId") to
-        // mean either the full DOM element id (e.g. "view-1") or just the
-        // number (e.g. 1). TODO: fix this.
-        var tabGroup = (hit.type == "open-view" ? "view-"+hit.tabGroupId : null);
-        var uri = ko.uriparse.pathToURI(hit.path);
-        opener.ko.views.manager.openViewAsync(viewType, uri, tabGroup);
+        if (hit.type == "open-view") {
+            hit.view.makeCurrent();
+        } else {
+            //TODO: For history hits could perhaps restore viewType. Would need
+            // changes to the back end for that.
+            var viewType = "editor";
+            // Note: Komodo APIs are mixing "tabGroupId" (also "tabbedViewId") to
+            // mean either the full DOM element id (e.g. "view-1") or just the
+            // number (e.g. 1). TODO: fix this.
+            var tabGroup = null;
+            var uri = ko.uriparse.pathToURI(hit.path);
+            opener.ko.views.manager.openViewAsync(viewType, uri, tabGroup);
+        }
     }
 }
 
