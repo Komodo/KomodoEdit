@@ -349,7 +349,7 @@ this.scintillaOnClick = function RunOutput_ScintillaOnClick(event)
         // Get the line double-clicked on.
         var x = event.layerX < 0 ? 0 : event.layerX;
         var y = event.layerY < 0 ? 0 : event.layerY;
-        var scimoz = document.getElementById("runoutput-scintilla").ISciMoz;
+        var scimoz = document.getElementById("runoutput-scintilla").scimoz;
         var lineNum = scimoz.lineFromPosition(scimoz.positionFromPoint(x,y));
         var lineObj = new Object();
         scimoz.getCurLine(lineObj);
