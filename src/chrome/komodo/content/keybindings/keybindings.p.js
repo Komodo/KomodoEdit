@@ -282,6 +282,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 13: Komodo 5.1.0 - Add cmd_goToFile keybinding.
  * 12: Komodo 5.1.0 - Add cmd_reopenLastClosedTab for OS X
  * 11: Komodo 5.1.0 - Add cmd_vim_jumpToLineBeforeLastJump, cmd_vim_jumpToLocBeforeLastJump
  * 10: Komodo 5.1.0 - Add cmd_reopenLastClosedTab for Windows, Linux
@@ -295,7 +296,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 12;
+const currentKeybindingVersionNumber = 13;
 
 /**
  * Remove this dictionary of keybinds.
@@ -594,6 +595,26 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_viewToolbox': ["Ctrl+Shift+L"],
                 'cmd_dbgStepOut': ["Ctrl+Shift+T"],
                 'cmd_reopenLastClosedTab': ["Meta+Shift+T"]
+            });
+// #endif
+            break;
+
+        case 12:
+// #if PLATFORM == 'darwin'
+            this._remove_keybinding_sequences({
+                'cmd_viewBottomPane': ["Meta+Shift+O"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_viewBottomPane': ["Meta+Shift+M"],
+                'cmd_goToFile': ["Meta+Shift+O"]
+            });
+// #else
+            this._remove_keybinding_sequences({
+                'cmd_viewBottomPane': ["Ctrl+Shift+O"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_viewBottomPane': ["Ctrl+Shift+M"],
+                'cmd_reopenLastClosedTab': ["Ctrl+Shift+O"]
             });
 // #endif
             break;

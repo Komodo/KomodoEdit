@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 11
+version 13
 
 # Movement and selection
 binding cmd_left  Left
@@ -185,7 +185,7 @@ binding cmd_triggerPrecedingCompletion Ctrl+J
 binding cmd_focusEditor Ctrl+Shift+E
 binding cmd_browserPreview Ctrl+K Ctrl+V
 binding cmd_focusSource Ctrl+K Ctrl+S
-binding cmd_viewBottomPane Ctrl+Shift+O
+binding cmd_viewBottomPane Ctrl+Shift+M
 binding cmd_viewProjects Ctrl+Shift+P
 binding cmd_viewToolbox Ctrl+Shift+L
 
@@ -217,3 +217,5 @@ binding cmd_selectRectHome Alt+Shift+Home
 binding cmd_selectRectEnd Alt+Shift+End
 binding cmd_selectRectPageUp Alt+Shift+Page_Up
 binding cmd_selectRectPageDown Alt+Shift+Page_Down
+
+binding cmd_goToFile Ctrl+Shift+O

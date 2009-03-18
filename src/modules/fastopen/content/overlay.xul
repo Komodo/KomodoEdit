@@ -10,7 +10,7 @@
   <script src="chrome://fastopen/content/fastopen.js" type="application/x-javascript;version=1.7"/>
   
   <commandset id="allcommands">
-    <command id="fastopen:open_gotofile_dialog"
+    <command id="cmd_goToFile"
              oncommand="ko.fastopen.open_gotofile_dialog();"
              desc="Fast Open: Go To File..." />
   </commandset>
@@ -20,6 +20,6 @@
               insertafter="menu_openFile"
               label="Fast Open File..."
               class="menuitem-iconic open-file-icon"
-              observes="fastopen:open_gotofile_dialog" />
+              observes="cmd_goToFile" />
   </menupopup>
 </overlay>

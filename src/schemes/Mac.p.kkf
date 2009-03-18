@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 12
+version 13
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
 binding cmd_blockSelect Meta+Ctrl+L
@@ -168,7 +168,7 @@ binding cmd_toggleOvertype  Insert
 binding cmd_toolsRunCommand Meta+R
 binding cmd_triggerPrecedingCompletion Meta+J
 binding cmd_undo Meta+Z
-binding cmd_viewBottomPane Ctrl+Shift+O
+binding cmd_viewBottomPane Ctrl+Shift+M
 
 binding cmd_reopenLastClosedTab Meta+Shift+T
 binding cmd_viewEOL Meta+Shift+7
@@ -182,3 +182,5 @@ binding cmd_historyBack  Meta+[
 binding cmd_historyForward  Meta+]
 binding cmd_wordRight  Alt+Right
 binding cmd_wordWrap Meta+Shift+9
+
+binding cmd_goToFile Meta+Shift+O
