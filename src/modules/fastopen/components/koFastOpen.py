@@ -378,7 +378,7 @@ class KomodoHistoryURIsGatherer(fastopen.Gatherer):
 class KomodoOpenViewHit(fastopen.PathHit):
     type = "open-view"
     filterDupePaths = False
-    def __init__(self, path, viewType, windowNum, tabGroupId, multi):
+    def __init__(self, path, viewType, windowNum, tabGroupId, multi, **kwargs):
         super(KomodoOpenViewHit, self).__init__(path)
         self.viewType = viewType
         self.windowNum = windowNum
@@ -399,7 +399,11 @@ class KomodoOpenViewHit(fastopen.PathHit):
         if self.viewType == "startpage":
             return u"%s%s" % (self.path, extra)
         else:
-            return u"%s%s %s %s" % (self.base, extra, fastopen.MDASH, self.nicedir)
+            nicedir = self.nicedir
+            if not nicedir:
+                return u"%s%s" % (self.base, extra)
+            else:
+                return u"%s%s %s %s" % (self.base, extra, fastopen.MDASH, self.nicedir)
 
 class KomodoOpenViewsGatherer(fastopen.Gatherer):
     """A gatherer of currently open Komodo views."""
@@ -434,9 +438,18 @@ class KomodoOpenViewsGatherer(fastopen.Gatherer):
                     log.debug("skip `%s' view: QI failed", viewType)
                     continue
                 if viewType in ("editor", "browser"):
+                    koFileEx = view.document.file
+                    if koFileEx:
+                        uri = koFileEx.URI
+                        isLocal = koFileEx.isLocal
+                    else:
+                        uri = None
+                        isLocal = False
                     path = view.document.displayPath
                 elif viewType == "startpage":
+                    uri = None
                     path = "Start Page"
+                    isLocal = False
                 else:
                     continue
                 
@@ -449,6 +462,7 @@ class KomodoOpenViewsGatherer(fastopen.Gatherer):
                 
                 datum = dict(viewType=viewType, path=path,
                     windowNum=view.windowNum, tabGroupId=view.tabbedViewId,
+                    uri=uri, isLocal=isLocal,
                     multi=False)
                 viewData.append(datum)
                 multi = path in viewDataFromPath
@@ -470,6 +484,9 @@ class KomodoOpenViewsGatherer(fastopen.Gatherer):
         dirs = set()
         for d in self.viewData:
             if d["viewType"] != "editor":
+                continue
+            if not d["isLocal"]:
+                # Don't yet handle remote files.
                 continue
             dir = dirname(d["path"])
             if dir in dirs:
