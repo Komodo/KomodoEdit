@@ -9,7 +9,7 @@
 <window id="dialog-gotofile"
         window_type="komodo_gotofile"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        title="Go To File"
+        title="Go to File"
         onload="onLoad()"
         orient="vertical"
         width="500"
