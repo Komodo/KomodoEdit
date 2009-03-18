@@ -267,9 +267,13 @@ class ProcessOpen(Popen):
 
         # We poll for the retval, as we cannot rely on self.__hasTerminated
         # to be called, as there are some code paths that do not trigger it.
-        # The accuracy of this wait call is roughly within 1 seconds.
+        # The accuracy of this wait call is between 0.1 and 1 second.
         time_now = time.time()
         time_end = time_now + timeout
+        # These values will be used to incrementally increase the wait period
+        # of the polling check, starting from the end of the list and working
+        # towards the front.
+        time_wait_values = [1.0, 0.5, 0.2, 0.1]
         while time_now < time_end:
             result = self.poll()
             if result is not None:
@@ -277,7 +281,9 @@ class ProcessOpen(Popen):
             # We use hasTerminated here to get a faster notification.
             self.__hasTerminated.acquire()
             # XXX - Not sure what good timeout value for this is...
-            self.__hasTerminated.wait(1.0)
+            if time_wait_values:
+                wait_period = time_wait_values.pop()
+            self.__hasTerminated.wait(wait_period)
             self.__hasTerminated.release()
             time_now = time.time()
         # last chance

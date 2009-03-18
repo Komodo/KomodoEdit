@@ -760,7 +760,14 @@ class KoPHPInfoInstance(KoAppInfoEx):
                 else:
                     log.error("Caught PHP execution exception: %s", e.strerror)
                 return None, e.strerror
-            stdout, stderr = p.communicate()
+            try:
+                p.wait(5)
+            except process.ProcessError:
+                # Timed out.
+                log.error("PHP command timed out: %r", argv)
+                return None, "PHP interpreter did not return in time."
+            stdout = p.stdout.read()
+            stderr = p.stderr.read()
             return stdout.strip(), stderr.strip()
         finally:
             os.remove(filepath)
