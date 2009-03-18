@@ -981,6 +981,9 @@ class KoInitService(object):
                 })
         self._upgradeFiles(hostFilesToUpgrade, prevHostUserDataDir,
                            currHostUserDataDir)
+        self._upgradeExtensions(".".join([str(x) for x in prevVer]),
+                                infoSvc.version,
+                                prevHostUserDataDir, currHostUserDataDir)
 
     def upgradeUserSettings(self):
         """Called every time Komodo starts up to initialize the user profile."""
@@ -989,6 +992,27 @@ class KoInitService(object):
             self._upgradeUserPrefs()
         except Exception, e:
             log.exception(e)
+
+    def _upgradeExtensions(self, prevVersion, currentVersion,
+                           prevHostUserDataDir, currHostUserDataDir):
+        # Bug 77198 -- check for new extensions
+        from os.path import join
+        prevExtensionsDir = join(prevHostUserDataDir, "XRE", "extensions")
+        if not os.path.exists(prevExtensionsDir):
+            return
+        prevExtensions = os.listdir(prevExtensionsDir)
+        if not prevExtensions:
+            return
+        currExtensionsDir = join(currHostUserDataDir, "XRE", "extensions")
+        if not os.path.exists(currExtensionsDir):
+            _mkdir(currExtensionsDir)
+            neededExtensions = prevExtensions
+        else:
+            neededExtensions = list(set(prevExtensions) - set(os.listdir(currExtensionsDir)))
+            if not neededExtensions:
+                return
+        for ext in neededExtensions:
+            _copy(join(prevExtensionsDir, ext), join(currExtensionsDir, ext))
 
     def _isMozDictionaryDir(self, dictionaryDir):
         # Return true if dictionaryDir contains at least one pair of files
