@@ -74,7 +74,7 @@
 # - YAGNI: Having a "quick/terse" mode. Will always gather all possible
 #   information unless come up with a case to NOT do so.
 
-__version_info__ = (0, 11, 0)
+__version_info__ = (0, 12, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -551,19 +551,23 @@ class PlatInfo(object):
         data about the distro.
         """
         try:
-            import subprocess
-        except ImportError:
-            i,o,e = os.popen3("lsb_release --all")
-            i.close()
-            stdout = o.read()
-            stderr = e.read()
-            o.close()
-            retval = e.close()
-        else:
-            p = subprocess.Popen(["lsb_release", "--all"],
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            stdout, stderr = p.communicate()
-            retval = p.wait()
+            try:
+                import subprocess
+            except ImportError:
+                i,o,e = os.popen3("lsb_release --all")
+                i.close()
+                stdout = o.read()
+                stderr = e.read()
+                o.close()
+                retval = e.close()
+            else:
+                p = subprocess.Popen(["lsb_release", "--all"],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = p.communicate()
+                retval = p.wait()
+        except OSError:
+            # Can happen if "lsb_release" did not exist, bug 82403.
+            retval = 1   # an error
 
         d = {}
         if retval:
