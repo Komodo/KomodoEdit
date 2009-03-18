@@ -148,20 +148,13 @@ this.init = function() {
     this._handle_closing_view_setup = function(event) {
         this_._handle_closing_view(event);
     };
-    this._handle_view_linecol_changed_setup = function(event) {
-        this_._handle_view_linecol_changed(event);
-    }
     window.addEventListener('view_document_detaching',
                             this._handle_closing_view_setup, false);
     window.addEventListener('view_closed',
                             this._handle_closing_view_setup, false);
-    window.addEventListener('current_view_linecol_changed',
-                            this._handle_view_linecol_changed_setup, false);
 };
 
 this.destroy = function() {
-    window.removeEventListener('current_view_linecol_changed',
-                               this._handle_view_linecol_changed_setup, false);
     window.removeEventListener('view_document_detaching',
                                this._handle_closing_view_setup, false);
     window.removeEventListener('view_closed',
@@ -385,7 +378,6 @@ this._go_to_location = function _go_to_location(loc, on_load_failure) {
     function on_load_success(view, lineNo) {
         if (!view) return;
         this_._recently_did_history = true;
-        ko.views.manager.currentView._historyDidHistoryMove = true;
         view.makeCurrent();
         if (loc.view_type == "editor") { // 
             var scimoz = view.scimoz;
@@ -611,47 +603,12 @@ this.move_to_loc_before_last_jump = function(view, moveToFirstVisibleChar) {
         next_line = info.line;
     }
     _mark_pos_info(view);
-    view._historyDidHistoryMove = true;
     if (moveToFirstVisibleChar) {
         scimoz.gotoLine(next_line);
         scimoz.vCHome();
     } else {
         scimoz.gotoPos(scimoz.positionAtColumn(next_line, info.col));
     }
-};
-
-const _MIN_EDIT_POINT_LINE_SEPARATION = 10;
-
-this._line_separation_check = function (scimoz, pos1, pos2) {
-    return (Math.abs(scimoz.lineFromPosition(pos1)
-                     - scimoz.lineFromPosition(pos2))
-            >= _MIN_EDIT_POINT_LINE_SEPARATION);
-}
-
-this._handle_view_linecol_changed = function(event) {
-    var view = ko.views.manager.currentView;
-    if (('_historyDidHistoryMove' in view) && view._historyDidHistoryMove) {
-        // Ignore movements due to a history-based move.
-        view._historyDidHistoryMove = false;
-        return;
-    }
-    var scimoz = view.scimoz;
-    var currentPos = scimoz.currentPos;
-    if (!('lastEditPos' in view)
-        || !this._line_separation_check(scimoz, view.lastEditPos,
-                                        currentPos)) {
-        // We haven't moved far enough away from the last edit point.
-        return;
-    } else if (('_historyLastHandledEditPos' in view)
-               && !this._line_separation_check(scimoz,
-                                               view._historyLastHandledEditPos,
-                                               view.lastEditPos)) {
-        // This edit point is too close to the last recorded edit point
-        return;
-    }
-    var pos = view.lastEditPos;
-    view._historyLastHandledEditPos = pos;
-    _controller.historySvc.note_loc(_get_curr_loc(view, pos), true, view);
 };
 
 var _controller = new HistoryController();
