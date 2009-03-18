@@ -78,6 +78,7 @@
 
         parent.hPrefWindow.onpageload();
 
+        pref_hyperlinks_doEnabling();
         pref_lint_doEnabling();
 
         parent.initPanel();
@@ -87,7 +88,10 @@
     var _pref_lint_log = ko.logging.getLogger("pref-lint");
     var _pref_lint_dialog = null;
 
-    function _pref_lint_setElementEnabledState(elt, enabled) {
+    function _pref_setElementEnabledState(elt, enabled) {
+        if (typeof(elt) == "string") {
+            elt = document.getElementById(elt);
+        }
         if (enabled) {
             if (elt.hasAttribute('disabled')) {
                 elt.removeAttribute('disabled');
@@ -97,10 +101,15 @@
         }
     }
 
+    function pref_hyperlinks_doEnabling() {
+        var enabled = document.getElementById("hyperlinksEnabled").checked;
+        _pref_setElementEnabledState("hyperlinksEnableGotoDefinition", enabled);
+    }
+
     function pref_lint_doEnabling() {
         var enabled = _pref_lint_dialog.editUseLinting.checked;
-        _pref_lint_setElementEnabledState(_pref_lint_dialog.lintDelay, enabled);
-        _pref_lint_setElementEnabledState(_pref_lint_dialog.lintEOLs, enabled);
+        _pref_setElementEnabledState(_pref_lint_dialog.lintDelay, enabled);
+        _pref_setElementEnabledState(_pref_lint_dialog.lintEOLs, enabled);
     }
 
     ]]>
@@ -158,6 +167,18 @@
                   label="&cutCopyWithoutSelection.label;" pref="true"
                   prefstring="editSmartCutCopyWithoutSelection"
                   prefattribute="checked"/>
+    </groupbox>
+
+    <groupbox orient="vertical">
+        <caption label="&hyperlinks.label;"/>
+        <checkbox id="hyperlinksEnabled"
+                  label="&hyperlinksEnabled.label;"
+                  pref="true"
+                  oncommand="pref_hyperlinks_doEnabling();"/>
+        <checkbox id="hyperlinksEnableGotoDefinition"
+                  style="margin-left: 27px;"
+                  label="&hyperlinksEnableGotoDefinition.label;"
+                  pref="true"/>
     </groupbox>
 
     <groupbox orient="vertical">

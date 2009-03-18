@@ -51,11 +51,35 @@ ko.hyperlinks.GotoDefinitionHandler = function() {
     var indic_color = RGB(0xA0,0x00,0xF0);
     var base_args = [name, fn, lang_names, indic_style, indic_color];
     ko.hyperlinks.BaseHandler.apply(this, base_args);
-}
+
+    // Listen for enabled pref changes.
+    this.enabledPrefName = "hyperlinksEnableGotoDefinition";
+    var prefs = Components.classes["@activestate.com/koPrefService;1"].
+                  getService(Components.interfaces.koIPrefService).prefs;
+    prefs.prefObserverService.addObserver(this, this.enabledPrefName, 0);
+    this.enabled = prefs.getBooleanPref(this.enabledPrefName);
+    ko.main.addWillCloseHandler(this.destroy, this);
+};
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
 ko.hyperlinks.GotoDefinitionHandler.prototype = new ko.hyperlinks.BaseHandler();
 ko.hyperlinks.GotoDefinitionHandler.prototype.constructor = ko.hyperlinks.GotoDefinitionHandler;
+
+ko.hyperlinks.GotoDefinitionHandler.prototype.destroy = function()
+{
+    var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
+                  getService(Components.interfaces.koIPrefService);
+    prefSvc.prefs.prefObserverService.removeObserver(this, this.enabledPrefName);
+}
+
+ko.hyperlinks.GotoDefinitionHandler.prototype.observe = function(prefSet, prefName, prefSetID)
+{
+    switch (prefName) {
+        case this.enabledPrefName:
+            this.enabled = prefSet.getBooleanPref(this.enabledPrefName);
+            break;
+    }
+};
 
 /**
  * Try and show a hyperlink at the current position in the view.
@@ -74,7 +98,7 @@ ko.hyperlinks.GotoDefinitionHandler.prototype.show = function(
     // For goto definition, if this view does not support codeintel
     // citadel stuff, then goto definition is not supported and
     // there is no need to mark any hyperlinks.
-    if (!view.isCICitadelStuffEnabled) {
+    if (!this.enabled || !view.isCICitadelStuffEnabled) {
         return null;
     }
 
