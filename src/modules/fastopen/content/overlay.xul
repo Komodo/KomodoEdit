@@ -12,13 +12,13 @@
   <commandset id="allcommands">
     <command id="cmd_goToFile"
              oncommand="ko.fastopen.open_gotofile_dialog();"
-             desc="Fast Open: Go To File..." />
+             desc="Fast Open: Go to File..." />
   </commandset>
 
   <menupopup id="popup_file_open">
     <menuitem id="menu_gotoFile"
               insertafter="menu_openFile"
-              label="Fast Open File..."
+              label="Go to File..."
               class="menuitem-iconic open-file-icon"
               observes="cmd_goToFile" />
   </menupopup>
