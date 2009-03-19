@@ -1337,13 +1337,6 @@
                 }
             }
             for (var i=0; i < this._keys_down.length; i++) {
-<!-- #if PLATFORM == "darwin" -->
-                // Ctrl keyCode's are sometimes not set on a Mac (example: Mac
-                // over VNC), so use the metaKey attribute to check as well.
-                if (this._keys_down[i][2] /* event.ctrlKey */) {
-                    return true;
-                }
-<!-- #endif -->
                 if (this._keys_down[i][0] /* event.keyCode */ == this.DOM_VK_CONTROL) {
                     return true;
                 }
@@ -1363,13 +1356,6 @@
                 }
             }
             for (var i=0; i < this._keys_down.length; i++) {
-<!-- #if PLATFORM == "darwin" -->
-                // Meta keyCode's are sometimes not set on a Mac (example: Mac
-                // over VNC), so use the metaKey attribute to check as well.
-                if (this._keys_down[i][4] /* event.metaKey */) {
-                    return true;
-                }
-<!-- #endif -->
                 if (this._keys_down[i][0] /* event.keyCode */ == this.DOM_VK_META) {
                     return true;
                 }
@@ -1512,8 +1498,7 @@
         <handler event="keydown" phase="capturing">
             <![CDATA[
             var keyCode = event.keyCode;
-            var keydownItem = [keyCode, event.charCode, event.ctrlKey,
-                               event.altKey, event.metaKey]
+            var keydownItem = [keyCode, event.charCode]
 <!-- #if PLATFORM == "darwin" -->
             // Ensure the keydown event is not a duplicate, as the Mac will
             // often send duplicate events for CMD+key keypresses, bug 82367.
@@ -1521,19 +1506,16 @@
             for (var i=0; i < this._keys_down.length; i++) {
                 kd = this._keys_down[i];
                 if (keydownItem[0] == kd[0] &&
-                    keydownItem[1] == kd[1] &&
-                    keydownItem[2] == kd[2] &&
-                    keydownItem[3] == kd[3] &&
-                    keydownItem[4] == kd[4]) {
+                    keydownItem[1] == kd[1]) {
                     // Key is already there.
                     return;
                 }
             }
 <!-- #endif -->
+            //dump("keydown:: keyCode: " + keyCode + "\n");
             this._keys_down.push(keydownItem);
 <!-- #if PLATFORM == "darwin" -->
-            // Meta keyCode's are not set on a Mac, so use metaKey attribute.
-            if (event.metaKey || keyCode == this.DOM_VK_META) {
+            if (keyCode == this.DOM_VK_META) {
 <!-- #else -->
             if (keyCode == this.DOM_VK_CONTROL) {
 <!-- #endif -->
