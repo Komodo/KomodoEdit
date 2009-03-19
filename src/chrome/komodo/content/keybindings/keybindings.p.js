@@ -954,7 +954,7 @@ this.manager.prototype.saveAndApply = function(prefset) {
             prefset.setStringPref('keybinding-scheme', this.currentConfiguration);
             dirty = true;
         }
-        if (dirty || this._configDirty) {
+        if (dirty || this._configDirty || !ko.windowManager.lastWindow()) {
             ko.dialogs.alert(_bundle.GetStringFromName("restartRequiredAfterKeybindingChange"),
                              null, null, // text, title
                              "reboot_after_changing_keybindings" // doNotAskPref
