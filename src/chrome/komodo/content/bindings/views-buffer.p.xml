@@ -1441,9 +1441,11 @@
 <!-- #endif -->
                 // Check if the mouse has moved outside of the hyperlink, if
                 // it has then the hyperlink should be removed.
-                var pos = this.scimoz.positionFromPoint(x, y);
                 this.removeHyperlinks();
-                this.checkHyperlinks(pos);
+                var pos = this.scimoz.positionFromPointClose(x, y);
+                if (pos >= 0) {
+                    this.checkHyperlinks(pos);
+                }
             }
             ]]>
         </handler>
@@ -1461,12 +1463,13 @@
                 var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
                 var y = event.clientY - this.boxObject.y;
                 var scimoz = this.scimoz;
-                var pos = scimoz.positionFromPoint(x, y);
+                var pos = scimoz.positionFromPointClose(x, y);
                 // Make sure that if there's a selection, we aren't clicking on it:
                 // Ctrl-click can be used to drag-copy a selection.
-                if ((scimoz.selectionStart == scimoz.selectionEnd) ||
-                            (pos < scimoz.selectionStart) ||
-                            (pos > scimoz.selectionEnd)) {
+                if (pos >= 0 &&
+                    ((scimoz.selectionStart == scimoz.selectionEnd) ||
+                     (pos < scimoz.selectionStart) ||
+                     (pos > scimoz.selectionEnd))) {
                     scimoz.anchor = pos;
                     scimoz.currentPos = pos;
                     this._hyperlink.jump(this);
@@ -1492,6 +1495,7 @@
         <handler event="blur" phase="capturing">
             <![CDATA[
             window.setTimeout("window.updateCommands('scintilla-focus');", 1);
+            this.removeHyperlinks();
             this.clearKeyDownValues();
             ]]>
         </handler>
@@ -1521,7 +1525,10 @@
 <!-- #endif -->
                 var x, y;
                 [x,y] = this._last_mousemove_xy;
-                this.checkHyperlinks(this.scimoz.positionFromPoint(x, y));
+                var pos = this.scimoz.positionFromPointClose(x, y);
+                if (pos >= 0) {
+                    this.checkHyperlinks(pos);
+                }
             }
             ]]>
         </handler>
