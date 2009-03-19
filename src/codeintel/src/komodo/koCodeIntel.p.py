@@ -756,23 +756,29 @@ class KoCodeIntelEvalController(EvalController):
                 desc = {TRG_FORM_CPLN: "completions",
                         TRG_FORM_CALLTIP: "calltip",
                         TRG_FORM_DEFN: "definition"}.get(self.trg.form, "???")
-            if self.have_errors:
-                # ERRORS... (error(s) determining completions)
-                msg = '; '.join((m % args) for lvl,m,args in self.log
-                                if lvl == "error")
-                msg += " (error determining %s)" % desc
-                log.error("error evaluating %s:\n  trigger: %s\n  log:\n%s",
-                          desc, self.trg,
-                          indent('\n'.join("%s: %s" % (lvl, m%args)
-                                           for lvl,m,args in self.log)))
-            else:
-                # No calltip|completions found (WARNINGS...)
-                msg = "No %s found" % desc
-                if self.have_warnings:
-                    warns = ', '.join((("warning: "+m) % args)
-                                      for lvl,m,args in self.log
-                                      if lvl == "warn")
-                    msg += " (%s)" % warns
+            try:
+                if self.have_errors:
+                    # ERRORS... (error(s) determining completions)
+                    msg = '; '.join((m % args) for lvl,m,args in self.log
+                                    if lvl == "error")
+                    msg += " (error determining %s)" % desc
+                    log.error("error evaluating %s:\n  trigger: %s\n  log:\n%s",
+                              desc, self.trg,
+                              indent('\n'.join("%s: %s" % (lvl, m%args)
+                                               for lvl,m,args in self.log)))
+                else:
+                    # No calltip|completions found (WARNINGS...)
+                    msg = "No %s found" % desc
+                    if self.have_warnings:
+                        warns = ', '.join((("warning: "+m) % args)
+                                          for lvl,m,args in self.log
+                                          if lvl == "warn")
+                        msg += " (%s)" % warns
+            except TypeError, ex:
+                # Guard against this common problem in log formatting above:
+                #   TypeError: not enough arguments for format string
+                log.exception("problem logging eval failure: self.log=%r", self.log)
+                msg = "error evaluating '%s'" % desc
             self.ui_handler_proxy_sync.setStatusMessage(
                 msg, not self.trg.implicit)
 
