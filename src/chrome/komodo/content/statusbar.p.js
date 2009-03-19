@@ -431,7 +431,7 @@ function _updateMessage()
              sm.highlight+"'");
 
         messageWidget.setAttribute("category", sm.category);
-        messageWidget.setAttribute("label", sm.msg);
+        messageWidget.setAttribute("value", sm.msg);
         messageWidget.setAttribute("tooltiptext", sm.msg);
         if (sm.highlight) {
             messageWidget.setAttribute("highlite","true");
@@ -439,7 +439,7 @@ function _updateMessage()
             messageWidget.removeAttribute("highlite");
         }
     } else {
-        messageWidget.setAttribute("label",_bundle.GetStringFromName("ready.label"));
+        messageWidget.setAttribute("value", _bundle.GetStringFromName("ready.label"));
         messageWidget.removeAttribute("tooltiptext");
         messageWidget.removeAttribute("highlite");
     }

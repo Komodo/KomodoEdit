@@ -2450,7 +2450,17 @@
                id="statusbarviewbox"
                class="chromeclass-status"
                style="min-height: 1.5em;">
-        <statusbarpanel id="statusbar-message" label="&ready.label;" crop="right" flex="1"/>
+        <statusbarpanel id="statusbar-message-panel" flex="1">
+            <deck id="statusbar-message-deck" selectedIndex="0" flex="1">
+                <deck id="statusbar-message-internal-deck" selectedIndex="0" flex="1">
+                    <hbox align="center">
+                        <label id="statusbar-message" value="&ready.label;"
+                               flex="1" crop="right" />
+                    </hbox>
+                </deck>
+            </deck>
+        </statusbarpanel>
+
         <statusbarpanel id="statusbar-checker"
                         style="min-width: 36px;">
             <toolbarbutton id="statusbar-check"

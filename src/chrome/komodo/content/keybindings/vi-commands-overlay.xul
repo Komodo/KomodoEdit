@@ -506,30 +506,19 @@
     <statusbarpanel id="vim-statusbar-mode"
                     label="&normal.label;"
                     style="min-width: 6em;"
-                    insertbefore="statusbar-message"
+                    insertbefore="statusbar-message-panel"
                     tooltiptext="&viEmulationMode.tooltiptext;"
                     />
-    <statusbarpanel id="statusbar-message" removeelement="true" />
-    <deck id="vim-deck"
-          selectedIndex="0"
-          flex="1"
-          insertafter="vim-statusbar-mode">
-        <statusbarpanel id="statusbar-message"
-                        label="&ready.label;"
-                        crop="right"
-                        flex="1"
-                        />
-        <!-- Display a label and textbox -->
-        <hbox id="vim-hbox" align="center" >
-            <!-- Display a label and textbox -->
-            <label id="vim-input-label"
-                   control="vim-input-buffer" />
-            <textbox id="vim-input-buffer"
-                     flex="1"
-                     style="border: 1px; margin: 0px; padding: 1px; padding-left: 5px;"
-                     onfocus="vim_InputBuffer_OnFocus(event);"/>
-        </hbox>
-    </deck>
 </statusbar>
+<deck id="statusbar-message-deck">
+    <hbox id="vim-hbox" align="center">
+        <label id="vim-input-label"
+               control="vim-input-buffer" />
+        <textbox id="vim-input-buffer"
+                 flex="1"
+                 style="border: 1px; margin: 0px; padding: 1px; padding-left: 5px;"
+                 onfocus="vim_InputBuffer_OnFocus(event);"/>
+    </hbox>
+</deck>
 
 </overlay>

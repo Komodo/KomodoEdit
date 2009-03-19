@@ -342,20 +342,9 @@ VimController.prototype.unloadOverlay = function() {
     if (elStatusBarMode) {
         elStatusBarMode.parentNode.removeChild(elStatusBarMode);
     }
-    // Move the message statusbarpanel back to the main statusbar
-    var elStatusBarMessage = document.getElementById('statusbar-message');
-    if (elStatusBarMessage) {
-        elStatusBarMessage.parentNode.removeChild(elStatusBarMessage);
-        var elStatusBar = document.getElementById('statusbarviewbox');
-        elStatusBar.insertBefore(elStatusBarMessage, elStatusBar.firstChild);
-    }
-    // Remove the vi deck
-    var elStatusBarDeck = this.statusBarDeck;
-    if (elStatusBarDeck) {
-        // Ensure all of our xul element variables get reset, as the
-        // elements get removed from the document!
-        // Remove the vi specific hbox
-        elStatusBarDeck.parentNode.removeChild(elStatusBarDeck);
+    var hbox = document.getElementById("vim-hbox");
+    if (hbox) {
+        hbox.parentNode.removeChild(hbox);
     }
 
     // Disable vi keybindings - remove the vi commandset
@@ -623,7 +612,7 @@ VimController.prototype.__defineGetter__("inputBufferLabel",
 );
 VimController.prototype.__defineGetter__("statusBarDeck",
     function() {
-        return document.getElementById("vim-deck");
+        return document.getElementById("statusbar-message-deck");
     }
 );
 VimController.prototype.__defineGetter__("statusBarMode",
