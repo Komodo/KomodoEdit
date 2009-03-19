@@ -590,6 +590,7 @@
 <!ENTITY toolsToolbar.label "Tools Toolbar">
 <!ENTITY toolsToolbar.tooltiptext "Tools Toolbar">
 <!ENTITY toolsWatchFile.desc "Tools: Watch File...">
+<!ENTITY tryKomodoIDE.label "Try Komodo IDE">
 <!ENTITY unCommentRegion.label "Un-comment Region">
 <!ENTITY undo.label "Undo">
 <!ENTITY undoButton.accesskey "U">

@@ -1417,6 +1417,12 @@
                         />
                     <menuseparator/>
                     <menuitem
+                        id="menu_tryKomodoIDE"
+                        label="&tryKomodoIDE.label;"
+                        oncommand="ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/komodo/downloads/');"
+                    />
+                    <menuseparator/>
+                    <menuitem
                         id="menu_helpCommunity"
                         label="&komodoCommunity.label;"
                         observes="cmd_helpCommunity"
