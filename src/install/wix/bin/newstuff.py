@@ -243,7 +243,7 @@ def main():
 
 if __name__ == "__main__":
     if len(sys.argv) <= 1:
-        print "Usage: %r <file.wxs[.in]> [<file2.wxs[.in]>...]"
+        print "Usage: newstuff.py <file.wxs[.in]> [<file2.wxs[.in]>...]"
         sys.exit(1)
     main()
 
