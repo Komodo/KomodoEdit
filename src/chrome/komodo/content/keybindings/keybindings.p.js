@@ -282,6 +282,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 14: Komodo 5.1.0 - Fix cmd_goToFile keybinding on non-Mac platforms.
  * 13: Komodo 5.1.0 - Add cmd_goToFile keybinding.
  * 12: Komodo 5.1.0 - Add cmd_reopenLastClosedTab for OS X
  * 11: Komodo 5.1.0 - Add cmd_vim_jumpToLineBeforeLastJump, cmd_vim_jumpToLocBeforeLastJump
@@ -296,7 +297,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 13;
+const currentKeybindingVersionNumber = 14;
 
 /**
  * Remove this dictionary of keybinds.
@@ -615,6 +616,18 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
             this._add_keybinding_sequences({
                 'cmd_viewBottomPane': ["Ctrl+Shift+M"],
                 'cmd_reopenLastClosedTab': ["Ctrl+Shift+O"]
+            });
+// #endif
+            break;
+        case 13:
+// #if PLATFORM != 'darwin'
+            // Got the keybinding wrong for this in the last upgrade (v.12),
+            // fix it up now.
+            this._remove_keybinding_sequences({
+                'cmd_reopenLastClosedTab': ["Ctrl+Shift+O"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_goToFile': ["Ctrl+Shift+O"]
             });
 // #endif
             break;
