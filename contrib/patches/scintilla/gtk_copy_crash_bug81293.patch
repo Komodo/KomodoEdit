@@ -5,19 +5,23 @@ Index: gtk/ScintillaGTK.cxx
 ===================================================================
 --- gtk/ScintillaGTK.cxx	(revision 27270)
 +++ gtk/ScintillaGTK.cxx	(working copy)
-@@ -78,9 +78,12 @@
- #pragma warning(disable: 4505)
- #endif
+@@ -1630,10 +1858,15 @@
+ 	if (clipBoard == NULL) // Occurs if widget isn't in a toplevel
+ 		return;
  
--#if GTK_CHECK_VERSION(2,6,0)
--#define USE_GTK_CLIPBOARD
--#endif
-+// USE_GTK_CLIPBOARD is not used by Komodo as it is causing a crash upon
-+// shutdown, see bug 81293. Clipboard operations still seem to work correctly
-+// without this defined.
-+//#if GTK_CHECK_VERSION(2,6,0)
-+//#define USE_GTK_CLIPBOARD
-+//#endif
+-	if (gtk_clipboard_set_with_data(clipBoard, clipboardCopyTargets, nClipboardCopyTargets,
+-				    ClipboardGetSelection, ClipboardClearSelection, clipText)) {
+-		gtk_clipboard_set_can_store(clipBoard, clipboardCopyTargets, nClipboardCopyTargets);
+-	}
++	// "gtk_clipboard_set_with_data" is not used by Komodo as it is causing
++	// a crash upon shutdown, see bug 81293. The "gtk_clipboard_set_text"
++	// can result in more memory getting used (in the case where a copy is
++	// never pasted).
++	gtk_clipboard_set_text(clipBoard, clipText->s, clipText->len);
++	//if (gtk_clipboard_set_with_data(clipBoard, clipboardCopyTargets, nClipboardCopyTargets,
++	//			    ClipboardGetSelection, ClipboardClearSelection, clipText)) {
++	//	gtk_clipboard_set_can_store(clipBoard, clipboardCopyTargets, nClipboardCopyTargets);
++	//}
+ }
  
- #if GLIB_MAJOR_VERSION < 2
- #define OBJECT_CLASS GtkObjectClass
+ void ScintillaGTK::ClipboardGetSelection(GtkClipboard *, GtkSelectionData *selection_data, guint info, void *data) {
