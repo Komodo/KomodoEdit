@@ -116,7 +116,7 @@ ko.hyperlinks.RegexHandler.prototype.show = function(view, scimoz, position, lin
 ko.hyperlinks.addHandler(
     new ko.hyperlinks.RegexHandler(
         "Hyperlinks",
-        new RegExp("(https?|ftps?):[^'\">\\s]+", "i"),
+        new RegExp("(https?|ftps?):[^'\"<>()[\\]\\s]+", "i"),
         ko.browse.openUrlInDefaultBrowser,
         null,  /* Use the found string instead of a replacement. */
         null,  /* All language types */
