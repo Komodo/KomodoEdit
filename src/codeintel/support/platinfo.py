@@ -74,7 +74,7 @@
 # - YAGNI: Having a "quick/terse" mode. Will always gather all possible
 #   information unless come up with a case to NOT do so.
 
-__version_info__ = (0, 8, 7)
+__version_info__ = (0, 12, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -84,6 +84,7 @@ import tempfile
 import logging
 from pprint import pprint
 from os.path import exists
+import warnings
 
 
 log = logging.getLogger("platinfo")
@@ -107,6 +108,10 @@ class InternalError(Error):
 * -- Trent                                                            *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *"""
 
+class LinuxDistroVersionWarning(RuntimeWarning):
+    pass
+warnings.simplefilter("once", LinuxDistroVersionWarning)
+
 
 
 #---- public API
@@ -116,7 +121,7 @@ class PlatInfo(object):
     _known_oses = set(
         "win32 win64 hpux linux macosx aix solaris freebsd".split())
     _known_archs = set(
-        "x86 powerpc ppc x64 x86_64 ia64 sparc parisc".split())
+        "x86 powerpc ppc x64 x86_64 ia64 sparc sparc64 parisc".split())
 
     @classmethod
     def from_name(cls, name):
@@ -183,6 +188,8 @@ class PlatInfo(object):
             self._init_freebsd()
         elif sys.platform.startswith("openbsd"):
             self._init_openbsd()
+        elif sys.platform.startswith("netbsd"):
+            self._init_netbsd()
         else:
             raise InternalError("unknown platform: '%s'" % sys.platform)
 
@@ -363,6 +370,17 @@ class PlatInfo(object):
         else:
             raise InternalError("unknown OpenBSD architecture: '%s'" % arch)
 
+    def _init_netbsd(self):
+        self.os = "netbsd"
+        uname = os.uname()
+        self.os_ver = uname[2].split('-', 1)[0]
+
+        arch = uname[-1]
+        if re.match(r"i\d86", arch):
+            self.arch = "x86"
+        else:
+            raise InternalError("unknown NetBSD architecture: '%s'" % arch)
+
     def _init_linux(self):
         self.os = "linux"
         uname = os.uname()
@@ -385,9 +403,11 @@ class PlatInfo(object):
             raise InternalError("unknown Linux architecture: '%s'" % arch)
         self._set_linux_distro_info()
         lib_info = _get_linux_lib_info()
-        self.libcpp = "libcpp" + lib_info["libstdc++"]
-        # For now, only the major 'libc' version number is used.
-        self.libc = "libc" + lib_info["libc"].split('.')[0]
+        if "libstdc++" in lib_info:
+            self.libcpp = "libcpp" + lib_info["libstdc++"]
+        if "libc" in lib_info:
+            # For now, only the major 'libc' version number is used.
+            self.libc = "libc" + lib_info["libc"].split('.')[0]
         if "glibc" in lib_info:
             self.glibc = "glibc"
             self.glibc_ver = lib_info["glibc"]
@@ -400,8 +420,12 @@ class PlatInfo(object):
         else:
             raise InternalError("unknown Solaris version: '%s'" % uname[2])
         if uname[4].startswith("sun4"):
-            #XXX How to tell if 64-bit Sparc box???
             self.arch = "sparc"
+            arch_ver = _get_sparc_arch_ver()
+            if arch_ver is not None:
+                self.arch_ver = arch_ver
+                if int(arch_ver) >= 9:
+                    self.arch = "sparc64"
         elif uname[4].startswith("i86pc"):
             self.arch = "x86"
         else:
@@ -526,12 +550,24 @@ class PlatInfo(object):
         """Some Linux distros have a `lsb_release` that provides some
         data about the distro.
         """
-        i,o,e = os.popen3("lsb_release --all")
-        i.close()
-        stdout = o.read()
-        stderr = e.read()
-        o.close()
-        retval = e.close()
+        try:
+            try:
+                import subprocess
+            except ImportError:
+                i,o,e = os.popen3("lsb_release --all")
+                i.close()
+                stdout = o.read()
+                stderr = e.read()
+                o.close()
+                retval = e.close()
+            else:
+                p = subprocess.Popen(["lsb_release", "--all"],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = p.communicate()
+                retval = p.wait()
+        except OSError:
+            # Can happen if "lsb_release" did not exist, bug 82403.
+            retval = 1   # an error
 
         d = {}
         if retval:
@@ -558,6 +594,8 @@ class PlatInfo(object):
         except EnvironmentError:
             return {}
 
+        # A good list of release-files for various Linux distros is
+        # here: http://linuxmafia.com/faq/Admin/release-files.html
         d = {}
         release_file_pat = re.compile(r'(\w+)[-_](release|version)')
         candidate_etc_files = []
@@ -601,15 +639,22 @@ class PlatInfo(object):
             if d:
                 break
         else:            
-            raise InternalError("Could not determine distro & release from %s."
-                                % " or ".join(errmsgs))
+            # If we have a release-file, just fill in "distro_family"
+            # and "distro" and move on. For example, Arch Linux's
+            # release file is *empty*.
+            if candidate_etc_files:
+                d["distro_family"] = distro_family = candidate_etc_files[0][0]
+                d["distro"] = distro_family.lower()
+                warnings.warn("could not determine linux distro_ver %s"
+                                % " or ".join(errmsgs),
+                              LinuxDistroVersionWarning)
         return d
 
     def _set_linux_distro_info(self):
         """Determine the following Linux distribution information:
 
             distro
-            distro_ver
+            distro_ver (maybe)
             distro_family (maybe)
                 Distro families are "redhat", "debian", and "suse". For
                 example, Mandrake Linux is a member of the "redhat"
@@ -634,7 +679,7 @@ class PlatInfo(object):
         # Then try to find a release/version file in "/etc".
         # - Algorithm borrows from platform.py.
         d = self._get_linux_release_file_info()
-        if "distro" in d and "distro_ver" in d:
+        if "distro" in d:
             for k, v in d.items():
                 setattr(self, k, v)
             return
@@ -735,7 +780,7 @@ def _get_linux_lib_info():
         libc-5      original ELF libc
         libc-6      GNU libc
     
-    But what are libc.so.7 and libc.so.8 that is see in Google searches (but
+    But what are libc.so.7 and libc.so.8 that I see in Google searches (but
     not yet in any Linux installs I have access to)?
     """
     assert sys.platform.startswith("linux")
@@ -757,8 +802,8 @@ int main(int argc, char **argv) { exit(0); }
         try:
             retval = os.system('g++ '+cxxfile)
             if retval:
-                raise InternalError("could not compile test C++ file "
-                                    "with g++: %r" % retval)
+                log.warn("could not compile test C++ file with g++: %r", retval)
+                return {}
             objdump = os.popen('objdump -p a.out').read()
         finally:
             os.chdir(currdir)
@@ -789,7 +834,7 @@ int main(int argc, char **argv) { exit(0); }
         finally:
             retval = o.close()
         if retval:
-            raise InternalError("error determining running '%s'" % libc_so)
+            raise InternalError("error running '%s'" % libc_so)
         # e.g.:
         #   GNU C Library stable release version 2.3.3 (20040917), by R...
         #   GNU C Library stable release version 2.5, by Roland McGrath et al.
@@ -802,6 +847,28 @@ int main(int argc, char **argv) { exit(0); }
 
     return lib_info
 
+def _get_sparc_arch_ver():
+    # http://developers.sun.com/solaris/developer/support/driver/64bit-faqs.html#QA12.12
+    # http://docs.sun.com/app/docs/doc/816-5175/isalist-5
+    o = os.popen("isalist")
+    instruct_sets = o.read().split()
+    retval = o.close()
+    if retval:
+        raise InternalError("error determining SPARC architecture version")
+    first = instruct_sets[0]
+    if first.startswith("sparcv9"):
+        return '9'
+    elif first.startswith("sparcv8"):
+        return '8'
+    elif first.startswith("sparcv7"):
+        return '7'
+    elif first == "sparc":
+        return '8'
+    else:
+        import warnings
+        warnings.warn("could not determine SPARC architecture version "
+                      "from first `isalist` output: %r" % first)
+        return None
 
 def _get_hpux_parisc_arch_ver():
     assert sys.platform.startswith("hp-ux")
@@ -978,7 +1045,10 @@ more information."""
     pi = PlatInfo()
     WIDTH=75
     if opts.format is None:
-        print "%s (%s)" % (pi.name(*rules), pi.fullname())
+        if rules:
+            print pi.name(*rules)
+        else:
+            print "%s (%s)" % (pi.name(), pi.fullname())
     if opts.format == "name":
         print pi.name(*rules)
     if opts.format == "fullname":
