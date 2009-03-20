@@ -1,6 +1,7 @@
-<codeintel description="jQuery JavaScript library - version 1.2.3" name="jQuery" version="2.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<codeintel description="jQuery JavaScript library - version 1.3.2" name="jQuery_v132" version="2.0">
   <file lang="JavaScript" path="">
-    <scope ilk="blob" lang="JavaScript" name="jQuery">
+    <scope ilk="blob" lang="JavaScript" name="jQuery_v132">
       <scope ilk="class" name="jQuery">
         <scope attributes="__ctor__" doc="String: Create DOM elements on-the-fly from the provided String of raw HTML.&#xA;Element|Array: Wrap jQuery functionality around single or multiple DOM Element(s).&#xA;Function: To be executed when the DOM document has finished loading.&#xA;&#xA;If &apos;context&apos; is specified, accepts a string containing a CSS or basic XPath selector&#xA;which is then used to match a set of elements." ilk="function" name="jQuery" signature="jQuery(arg &lt;String|Element|Array of Elements|Function|jQuery&gt;, context &lt;Element|jQuery&gt;) -&gt; jQuery" />
         <scope doc="Execute a function within the context of every matched&#xA;element." ilk="function" name="each" returns="jQuery" signature="each(callback) -&gt; jQuery">
@@ -8,6 +9,8 @@
         </scope>
         <scope doc="The number of elements in the jQuery object." ilk="function" name="size" returns="Number" signature="size() -&gt; Number" />
         <variable citdl="Number" doc="The number of elements in the jQuery object." name="length" />
+        <variable citdl="String" doc="&apos;&apos;&apos;New in jQuery 1.3&apos;&apos;&apos; A selector representing selector&#xA;originally passed to jQuery()." name="selector" />
+        <variable citdl="Element" doc="&apos;&apos;&apos;New in jQuery 1.3&apos;&apos;&apos; &lt;p&gt;The DOM node context originally&#xA;passed to jQuery() (if none was passed then context will be&#xA;equal to the document).&lt;/p&gt;" name="context" />
         <scope doc="Reduce the set of matched elements to a single element." ilk="function" name="eq" returns="jQuery" signature="eq(position) -&gt; jQuery">
           <variable citdl="Number" doc="The index of the element to select." ilk="argument" name="position" />
         </scope>
@@ -15,15 +18,39 @@
         <scope doc="Access a single matched DOM element at a specified index in&#xA;the matched set." ilk="function" name="get" returns="Element" signature="get(index) -&gt; Element">
           <variable citdl="Number" doc="Access the element in the Nth position." ilk="argument" name="index" />
         </scope>
-        <scope doc="Searches every matched element for the object and returns&#xA;the index of the element, if found, starting with zero." ilk="function" name="index" returns="Number" signature="index(subject) -&gt; Number">
-          <variable citdl="Element " doc="Object to search for." ilk="argument" name="subject" />
+        <scope doc="Searches every matched element for the object and returns&#xA;the index of the element, if found, starting with zero. If a&#xA;jQuery object is passed, only the first element is checked." ilk="function" name="index" returns="Number" signature="index(subject) -&gt; Number">
+          <variable citdl="Element,jQuery" doc="Object to search for." ilk="argument" name="subject" />
+        </scope>
+        <scope doc="Returns value at named data store for the element, as set by&#xA;data(name, value)." ilk="function" name="data" signature="data(name)">
+          <variable citdl="String" doc="Name of the data stored." ilk="argument" name="name" />
+        </scope>
+        <scope doc="Stores the value in the named spot." ilk="function" name="data" returns="jQuery" signature="data(name, value) -&gt; jQuery">
+          <variable citdl="String" doc="Name of the data to store." ilk="argument" name="name" />
+          <variable citdl="Any" doc="Value to be stored." ilk="argument" name="value" />
+        </scope>
+        <scope doc="Removes named data store from an element." ilk="function" name="removeData" returns="jQuery" signature="removeData(name) -&gt; jQuery">
+          <variable citdl="String" doc="The name of the data store property to remove." ilk="argument" name="name" />
+        </scope>
+        <scope doc="Returns a reference to the first element&apos;s queue (which is&#xA;an array of functions)." ilk="function" name="queue" returns="Array&lt;Function&gt;" signature="queue(name) -&gt; Array&lt;Function&gt;">
+          <variable citdl="String" doc="The queue name (fx by default)" ilk="argument" name="name" />
+        </scope>
+        <scope doc="Adds a new function, to be executed, onto the end of the&#xA;queue of all matched elements." ilk="function" name="queue" returns="jQuery" signature="queue(name, callback) -&gt; jQuery">
+          <variable citdl="String" doc="The queue name (fx by default)" ilk="argument" name="name" />
+          <variable citdl="Function" doc="The function to add to the queue.&#xA;&lt;pre&gt;function callback() {&#xA;  this; // dom element&#xA;  // to continue the queue you must call&#xA;  jQuery(this).dequeue();&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
+        </scope>
+        <scope doc="Replaces the queue of all matched element with this new&#xA;queue (the array of functions)." ilk="function" name="queue" returns="jQuery" signature="queue(name, queue) -&gt; jQuery">
+          <variable citdl="String" doc="The queue name (fx by default)" ilk="argument" name="name" />
+          <variable citdl="Array&lt;Function&gt;" doc="The queue to replace all the queues with.  The functions have the same parameters and this value as queue(callback)." ilk="argument" name="queue" />
+        </scope>
+        <scope doc="Removes a queued function from the front of the queue and&#xA;executes it." ilk="function" name="dequeue" returns="jQuery" signature="dequeue(name) -&gt; jQuery">
+          <variable citdl="String" doc="The queue name (fx by default)" ilk="argument" name="name" />
         </scope>
         <scope doc="Extends the jQuery object itself." ilk="function" name="extend" returns="jQuery" signature="extend(object) -&gt; jQuery">
           <variable citdl="Object" doc="The object that will be merged into the jQuery object." ilk="argument" name="object" />
         </scope>
         <scope doc="Run this function to give control of the $ variable back to&#xA;whichever library first implemented it." ilk="function" name="noConflict" returns="jQuery" signature="noConflict() -&gt; jQuery" />
         <scope doc="Revert control of both the $ and jQuery variables to their&#xA;original owners." ilk="function" name="noConflict" returns="jQuery" signature="noConflict(extreme) -&gt; jQuery">
-          <variable citdl="Boolean" doc="Set to true to enable the extreme rollback of jQuery and it&apos;s variables." ilk="argument" name="extreme" />
+          <variable citdl="Boolean" doc="Set to true to enable the extreme rollback of jQuery and its variables." ilk="argument" name="extreme" />
         </scope>
         <scope doc="Access a property on the first matched element. This method&#xA;makes it easy to retrieve a property value from the first&#xA;matched element." ilk="function" name="attr" returns="Object" signature="attr(name) -&gt; Object">
           <variable citdl="String" doc="The name of the property to access." ilk="argument" name="name" />
@@ -43,16 +70,20 @@
           <variable citdl="String" doc="The name of the property to remove." ilk="argument" name="name" />
         </scope>
         <scope doc="Adds the specified class(es) to each of the set of matched&#xA;elements." ilk="function" name="addClass" returns="jQuery" signature="addClass(class) -&gt; jQuery">
-          <variable citdl="String" doc="One or more CSS classes to add to the elements, these are separated by spaces." ilk="argument" name="class" />
+          <variable citdl="String" doc="One or more classes to add to the elements, these are separated by spaces." ilk="argument" name="class" />
         </scope>
         <scope doc="Returns true if the specified class is present on at least&#xA;one of the set of matched elements." ilk="function" name="hasClass" returns="Boolean" signature="hasClass(class) -&gt; Boolean">
           <variable citdl="String" doc="One CSS class name to be checked for." ilk="argument" name="class" />
         </scope>
         <scope doc="Removes all or the specified class(es) from the set of&#xA;matched elements." ilk="function" name="removeClass" returns="jQuery" signature="removeClass(class) -&gt; jQuery">
-          <variable citdl="String &apos;&apos;(optional)&apos;&apos;" doc="One or more CSS classes to remove from the elements, these are separated by spaces." ilk="argument" name="class" />
+          <variable citdl="String" doc="One or more CSS classes to remove from the elements, these are separated by spaces." ilk="argument" name="class" />
         </scope>
         <scope doc="Adds the specified class if it is not present, removes the&#xA;specified class if it is present." ilk="function" name="toggleClass" returns="jQuery" signature="toggleClass(class) -&gt; jQuery">
           <variable citdl="String" doc="A CSS class to toggle on the elements." ilk="argument" name="class" />
+        </scope>
+        <scope doc="Adds the specified class if the switch is true, removes the&#xA;specified class if the switch is false." ilk="function" name="toggleClass" returns="jQuery" signature="toggleClass(class, switch) -&gt; jQuery">
+          <variable citdl="String" doc="A CSS class to toggle on the elements." ilk="argument" name="class" />
+          <variable citdl="Boolean" doc="A boolean value to toggle the class by." ilk="argument" name="switch" />
         </scope>
         <scope doc="Get the html contents (innerHTML) of the first matched&#xA;element. This property is not available on XML documents&#xA;(although it will work for XHTML documents)." ilk="function" name="html" returns="String" signature="html() -&gt; String" />
         <scope doc="Set the html contents of every matched element. This&#xA;property is not available on XML documents (although it will&#xA;work for XHTML documents)." ilk="function" name="html" returns="jQuery" signature="html(val) -&gt; jQuery">
@@ -78,13 +109,13 @@
         <scope doc="Removes all elements from the set of matched elements that&#xA;do not match the specified expression(s)." ilk="function" name="filter" returns="jQuery" signature="filter(expr) -&gt; jQuery">
           <variable citdl="Expression" doc="An expression to pass into the filter" ilk="argument" name="expr" />
         </scope>
-        <scope doc="Removes all elements from the set of matched elements that&#xA;does not match the specified function." ilk="function" name="filter" returns="jQuery" signature="filter(fn) -&gt; jQuery">
+        <scope doc="Removes all elements from the set of matched elements that&#xA;do not match the specified function." ilk="function" name="filter" returns="jQuery" signature="filter(fn) -&gt; jQuery">
           <variable citdl="Function" doc="A function to pass into the filter&#xA;&lt;pre&gt;function callback(indexInJQueryObject) {&#xA;  var keepItBoolean = true;&#xA;&#xA;  this; // dom element&#xA;&#xA;  return keepItBoolean;&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
         </scope>
         <scope doc="Checks the current selection against an expression and&#xA;returns true, if at least one element of the selection fits&#xA;the given expression." ilk="function" name="is" returns="Boolean" signature="is(expr) -&gt; Boolean">
           <variable citdl="String" doc="The expression with which to filter" ilk="argument" name="expr" />
         </scope>
-        <scope doc="Translate a set of elements in the jQuery object into&#xA;another set of values in an array (which may, or may not, be&#xA;elements)." ilk="function" name="map" returns="jQuery" signature="map(callback) -&gt; jQuery">
+        <scope doc="Translate a set of elements in the jQuery object into&#xA;another set of values in a jQuery array (which may, or may&#xA;not contain elements)." ilk="function" name="map" returns="jQuery" signature="map(callback) -&gt; jQuery">
           <variable citdl="Function" doc="The function to execute on each element in the set.&#xA;&lt;pre&gt;function callback(index, domElement) {&#xA;  var replacement;&#xA;&#xA;  this; // also dom element&#xA;&#xA;  // replacement == null : delete spot&#xA;  // replacement == array : insert the elements of the array&#xA;  // else replace the spot with replacement&#xA;  return replacement;&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
         </scope>
         <scope doc="Removes elements matching the specified expression from the&#xA;set of matched elements." ilk="function" name="not" returns="jQuery" signature="not(expr) -&gt; jQuery">
@@ -92,13 +123,16 @@
         </scope>
         <scope doc="Selects a subset of the matched elements." ilk="function" name="slice" returns="jQuery" signature="slice(start, end) -&gt; jQuery">
           <variable citdl="Number" doc="Where to start the subset. The first element is at zero. Can be negative to start from the end of the selection." ilk="argument" name="start" />
-          <variable citdl="Number" doc="Where to end the subset. If unspecified, ends at the end of the selection." ilk="argument" name="end" />
+          <variable citdl="Number" doc="Where to end the subset (does not include the end element itself). If unspecified, ends at the end of the selection." ilk="argument" name="end" />
         </scope>
         <scope doc="Adds more elements, matched by the given expression, to the&#xA;set of matched elements." ilk="function" name="add" returns="jQuery" signature="add(expr) -&gt; jQuery">
           <variable citdl="String, DOMElement, Array&lt;DOMElement&gt;" doc="An expression whose matched elements are added for String, a string of HTML to create on the fly for DOMElement or one or more Elements to add if an Array." ilk="argument" name="expr" />
         </scope>
         <scope doc="Get a set of elements containing all of the unique immediate&#xA;children of each of the matched set of elements." ilk="function" name="children" returns="jQuery" signature="children(expr) -&gt; jQuery">
           <variable citdl="String" doc="An expression to filter the child Elements with." ilk="argument" name="expr" />
+        </scope>
+        <scope doc="&apos;&apos;&apos;New in jQuery 1.3&apos;&apos;&apos; Get a set of elements containing the&#xA;closest parent element that matches the specified selector,&#xA;the starting element included." ilk="function" name="closest" returns="jQuery" signature="closest(expr) -&gt; jQuery">
+          <variable citdl="String" doc="An expression to filter the elements with." ilk="argument" name="expr" />
         </scope>
         <scope doc="Find all the child nodes inside the matched elements&#xA;(including text nodes), or the content document, if the&#xA;element is an iframe." ilk="function" name="contents" returns="jQuery" signature="contents() -&gt; jQuery" />
         <scope doc="Searches for all elements that match the specified &lt;a&#xA;href=&apos;Selectors&apos;&gt;expression&lt;/a&gt;. This method is a good way&#xA;to find additional descendant elements with which to&#xA;process." ilk="function" name="find" returns="jQuery" signature="find(expr) -&gt; jQuery">
@@ -110,6 +144,7 @@
         <scope doc="Find all sibling elements after the current element." ilk="function" name="nextAll" returns="jQuery" signature="nextAll(expr) -&gt; jQuery">
           <variable citdl="String" doc="An expression to filter the next Elements with." ilk="argument" name="expr" />
         </scope>
+        <scope doc="Returns a jQuery collection with the positioned parent of&#xA;the first matched element." ilk="function" name="offsetParent" returns="jQuery" signature="offsetParent() -&gt; jQuery" />
         <scope doc="Get a set of elements containing the unique parents of the&#xA;matched set of elements." ilk="function" name="parent" returns="jQuery" signature="parent(expr) -&gt; jQuery">
           <variable citdl="String" doc="An expression to filter the parents with." ilk="argument" name="expr" />
         </scope>
@@ -119,8 +154,8 @@
         <scope doc="Get a set of elements containing the unique previous&#xA;siblings of each of the matched set of elements." ilk="function" name="prev" returns="jQuery" signature="prev(expr) -&gt; jQuery">
           <variable citdl="String" doc="An expression to filter the previous Elements with." ilk="argument" name="expr" />
         </scope>
-        <scope doc="Find all sibling elements before the current element." ilk="function" name="prevAll" returns="jQuery" signature="prevAll(expr) -&gt; jQuery">
-          <variable citdl="String" doc="An expression to filter the previous Elements with." ilk="argument" name="expr" />
+        <scope doc="Find all sibling elements in front of the current element." ilk="function" name="prevAll" returns="jQuery" signature="prevAll(expr) -&gt; jQuery">
+          <variable citdl="String" doc="An expression to filter the previous elements with." ilk="argument" name="expr" />
         </scope>
         <scope doc="Get a set of elements containing all of the unique siblings&#xA;of each of the matched set of elements." ilk="function" name="siblings" returns="jQuery" signature="siblings(expr) -&gt; jQuery">
           <variable citdl="String" doc="An expression to filter the sibling Elements with" ilk="argument" name="expr" />
@@ -138,14 +173,14 @@
         <scope doc="Append content to the inside of every matched element." ilk="function" name="append" returns="jQuery" signature="append(content) -&gt; jQuery">
           <variable citdl="String, Element, jQuery" doc="Content to append to the target." ilk="argument" name="content" />
         </scope>
-        <scope doc="Append all of the matched elements to another, specified,&#xA;set of elements." ilk="function" name="appendTo" returns="jQuery" signature="appendTo(content) -&gt; jQuery">
-          <variable citdl="String" doc="target to which the content will be appended." ilk="argument" name="content" />
+        <scope doc="Append all of the matched elements to another, specified,&#xA;set of elements. As of jQuery 1.3.2, returns all of the&#xA;inserted elements." ilk="function" name="appendTo" returns="jQuery" signature="appendTo(selector) -&gt; jQuery">
+          <variable citdl="Selector" doc="target to which the content will be appended." ilk="argument" name="selector" />
         </scope>
         <scope doc="Prepend content to the inside of every matched element." ilk="function" name="prepend" returns="jQuery" signature="prepend(content) -&gt; jQuery">
           <variable citdl="String, Element, jQuery" doc="Content to prepend to the target." ilk="argument" name="content" />
         </scope>
-        <scope doc="Prepend all of the matched elements to another, specified,&#xA;set of elements." ilk="function" name="prependTo" returns="jQuery" signature="prependTo(content) -&gt; jQuery">
-          <variable citdl="String" doc="target to which the content will be prepended." ilk="argument" name="content" />
+        <scope doc="Prepend all of the matched elements to another, specified,&#xA;set of elements. As of jQuery 1.3.2, returns all of the&#xA;inserted elements." ilk="function" name="prependTo" returns="jQuery" signature="prependTo(selector) -&gt; jQuery">
+          <variable citdl="Selector" doc="target to which the content will be prepended." ilk="argument" name="selector" />
         </scope>
         <scope doc="Insert content after each of the matched elements." ilk="function" name="after" returns="jQuery" signature="after(content) -&gt; jQuery">
           <variable citdl="String, Element, jQuery" doc="Content to insert after each target." ilk="argument" name="content" />
@@ -153,17 +188,17 @@
         <scope doc="Insert content before each of the matched elements." ilk="function" name="before" returns="jQuery" signature="before(content) -&gt; jQuery">
           <variable citdl="String, Element, jQuery" doc="Content to insert before each target." ilk="argument" name="content" />
         </scope>
-        <scope doc="Insert all of the matched elements after another, specified,&#xA;set of elements." ilk="function" name="insertAfter" returns="jQuery" signature="insertAfter(content) -&gt; jQuery">
+        <scope doc="Insert all of the matched elements after another, specified,&#xA;set of elements. As of jQuery 1.3.2, returns all of the&#xA;inserted elements." ilk="function" name="insertAfter" returns="jQuery" signature="insertAfter(content) -&gt; jQuery">
           <variable citdl="String" doc="Content after which the selected element(s) is inserted." ilk="argument" name="content" />
         </scope>
-        <scope doc="Insert all of the matched elements before another,&#xA;specified, set of elements." ilk="function" name="insertBefore" returns="jQuery" signature="insertBefore(content) -&gt; jQuery">
+        <scope doc="Insert all of the matched elements before another,&#xA;specified, set of elements. As of jQuery 1.3.2, returns all&#xA;of the inserted elements." ilk="function" name="insertBefore" returns="jQuery" signature="insertBefore(content) -&gt; jQuery">
           <variable citdl="String" doc="Content after which the selected element(s) is inserted." ilk="argument" name="content" />
         </scope>
-        <scope doc="Wrap all matched elements with a structure of other&#xA;elements." ilk="function" name="wrap" returns="jQuery" signature="wrap(html) -&gt; jQuery">
-          <variable citdl="String" doc="A string of HTML that will be created on the fly and wrapped around the target." ilk="argument" name="html" />
+        <scope doc="Wrap each matched element with the specified HTML content." ilk="function" name="wrap" returns="jQuery" signature="wrap(html) -&gt; jQuery">
+          <variable citdl="String" doc="A string of HTML that will be created on the fly and wrapped around each target." ilk="argument" name="html" />
         </scope>
-        <scope doc="Wrap all matched elements with a structure of other&#xA;elements." ilk="function" name="wrap" returns="jQuery" signature="wrap(elem) -&gt; jQuery">
-          <variable citdl="Element" doc="A DOM element that will be wrapped around the target." ilk="argument" name="elem" />
+        <scope doc="Wrap each matched element with the specified element." ilk="function" name="wrap" returns="jQuery" signature="wrap(elem) -&gt; jQuery">
+          <variable citdl="Element" doc="A DOM element that will be wrapped around each target." ilk="argument" name="elem" />
         </scope>
         <scope doc="Wrap all the elements in the matched set into a single&#xA;wrapper element." ilk="function" name="wrapAll" returns="jQuery" signature="wrapAll(html) -&gt; jQuery">
           <variable citdl="String" doc="A string of HTML that will be created on the fly and wrapped around the target." ilk="argument" name="html" />
@@ -177,10 +212,10 @@
         <scope doc="Wrap the inner child contents of each matched element&#xA;(including text nodes) with a DOM element." ilk="function" name="wrapInner" returns="jQuery" signature="wrapInner(elem) -&gt; jQuery">
           <variable citdl="Element" doc="A DOM element that will be wrapped around the target." ilk="argument" name="elem" />
         </scope>
-        <scope doc="Replaces all matched elements with the specified HTML or DOM&#xA;elements." ilk="function" name="replaceWith" returns="jQuery" signature="replaceWith(content) -&gt; jQuery">
+        <scope doc="Replaces all matched elements with the specified HTML or DOM&#xA;elements. This returns the JQuery element that was just&#xA;replaced, which has been removed from the DOM." ilk="function" name="replaceWith" returns="jQuery" signature="replaceWith(content) -&gt; jQuery">
           <variable citdl="String, Element, jQuery" doc="Content to replace the matched elements with." ilk="argument" name="content" />
         </scope>
-        <scope doc="Replaces the elements matched by the specified selector with&#xA;the matched elements." ilk="function" name="replaceAll" returns="jQuery" signature="replaceAll(selector) -&gt; jQuery">
+        <scope doc="Replaces the elements matched by the specified selector with&#xA;the matched elements. As of jQuery 1.3.2, returns all of the&#xA;inserted elements." ilk="function" name="replaceAll" returns="jQuery" signature="replaceAll(selector) -&gt; jQuery">
           <variable citdl="Selector" doc="The elements to find and replace the matched elements with." ilk="argument" name="selector" />
         </scope>
         <scope doc="Remove all child nodes from the set of matched elements." ilk="function" name="empty" returns="jQuery" signature="empty() -&gt; jQuery" />
@@ -188,8 +223,8 @@
           <variable citdl="String" doc="A jQuery expression to filter the set of elements to be removed." ilk="argument" name="expr" />
         </scope>
         <scope doc="Clone matched DOM Elements and select the clones." ilk="function" name="clone" returns="jQuery" signature="clone() -&gt; jQuery" />
-        <scope doc="Clone matched DOM Elements, and all their event handlers,&#xA;and select the clones." ilk="function" name="clone" returns="jQuery" signature="clone(true) -&gt; jQuery">
-          <variable citdl="Boolean" doc="Set to true to enable cloning of event handlers." ilk="argument" name="true" />
+        <scope doc="Clone matched DOM Elements, and all their event handlers,&#xA;and select the clones." ilk="function" name="clone" returns="jQuery" signature="clone(bool) -&gt; jQuery">
+          <variable citdl="Boolean" doc="Set to true to enable cloning of event handlers." ilk="argument" name="bool" />
         </scope>
         <scope doc="Return a style property on the first matched element." ilk="function" name="css" returns="String" signature="css(name) -&gt; String">
           <variable citdl="String" doc="The name of the property to access." ilk="argument" name="name" />
@@ -199,49 +234,75 @@
         </scope>
         <scope doc="Set a single style property to a value on all matched&#xA;elements." ilk="function" name="css" returns="jQuery" signature="css(name, value) -&gt; jQuery">
           <variable citdl="String" doc="The name of the property to set." ilk="argument" name="name" />
-          <variable citdl="String or Number" doc="The value to set the property to." ilk="argument" name="value" />
+          <variable citdl="String, Number" doc="The value to set the property to." ilk="argument" name="value" />
         </scope>
-        <scope doc="Get the current offset of the first matched element relative&#xA;to the viewport." ilk="function" name="offset" returns="Object{top,left}" signature="offset() -&gt; Object{top,left}" />
+        <scope doc="Get the current offset of the first matched element, in&#xA;pixels, relative to the document." ilk="function" name="offset" returns="Object{top,left}" signature="offset() -&gt; Object{top,left}" />
+        <scope doc="Gets the top and left position of an element relative to its&#xA;offset parent." ilk="function" name="position" returns="Object{top,left}" signature="position() -&gt; Object{top,left}" />
+        <scope doc="Gets the scroll top offset of the first matched element." ilk="function" name="scrollTop" returns="Number" signature="scrollTop() -&gt; Number" />
+        <scope doc="When a value is passed in, the scroll top offset is set to&#xA;that value on all matched elements." ilk="function" name="scrollTop" returns="jQuery" signature="scrollTop(val) -&gt; jQuery">
+          <variable citdl="Number" doc="A positive number representing the desired scroll top offset." ilk="argument" name="val" />
+        </scope>
+        <scope doc="Gets the scroll left offset of the first matched element." ilk="function" name="scrollLeft" returns="Number" signature="scrollLeft() -&gt; Number" />
+        <scope doc="When a value is passed in, the scroll left offset is set to&#xA;that value on all matched elements." ilk="function" name="scrollLeft" returns="jQuery" signature="scrollLeft(val) -&gt; jQuery">
+          <variable citdl="Number" doc="A positive number representing the desired scroll left offset." ilk="argument" name="val" />
+        </scope>
         <scope doc="Get the current computed, pixel, height of the first matched&#xA;element." ilk="function" name="height" returns="Number" signature="height() -&gt; Number" />
         <scope doc="Set the CSS height of every matched element." ilk="function" name="height" returns="jQuery" signature="height(val) -&gt; jQuery">
-          <variable citdl="String or Number" doc="Set the CSS &apos;height&apos; property to the specified value." ilk="argument" name="val" />
+          <variable citdl="String, Number" doc="Set the CSS &apos;height&apos; property to the specified value." ilk="argument" name="val" />
         </scope>
         <scope doc="Get the current computed, pixel, width of the first matched&#xA;element." ilk="function" name="width" returns="Number" signature="width() -&gt; Number" />
         <scope doc="Set the CSS width of every matched element." ilk="function" name="width" returns="jQuery" signature="width(val) -&gt; jQuery">
           <variable citdl="String, Number" doc="Set the CSS &apos;width&apos; property to the specified value." ilk="argument" name="val" />
         </scope>
+        <scope doc="Gets the inner height (excludes the border and includes the&#xA;padding) for the first matched element." ilk="function" name="innerHeight" returns="Number" signature="innerHeight() -&gt; Number" />
+        <scope doc="Gets the inner width (excludes the border and includes the&#xA;padding) for the first matched element." ilk="function" name="innerWidth" returns="Number" signature="innerWidth() -&gt; Number" />
+        <scope doc="Gets the outer height (includes the border and padding by&#xA;default) for the first matched element." ilk="function" name="outerHeight" returns="Number" signature="outerHeight(margin) -&gt; Number">
+          <variable citdl="Boolean" doc="When set to true the margin of the element will be included in the calculations." ilk="argument" name="margin" />
+        </scope>
+        <scope doc="Get the outer width (includes the border and padding by&#xA;default) for the first matched element." ilk="function" name="outerWidth" returns="Number" signature="outerWidth(margin) -&gt; Number">
+          <variable citdl="Boolean" doc="When set to true the margin of the element will be included in the calculations." ilk="argument" name="margin" />
+        </scope>
         <scope doc="Binds a function to be executed whenever the DOM is ready to&#xA;be traversed and manipulated." ilk="function" name="ready" returns="jQuery" signature="ready(fn) -&gt; jQuery">
           <variable citdl="Function" doc="The function to be executed when the DOM is ready.&#xA;&lt;pre&gt;function callback(jQueryReference) {&#xA;  this; // document&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
         </scope>
-        <scope doc="Binds a handler to a particular event (like click) for each&#xA;matched element. Can also bind custom events." ilk="function" name="bind" returns="jQuery" signature="bind(type, data, fn) -&gt; jQuery">
-          <variable citdl="String" doc="An event type" ilk="argument" name="type" />
+        <scope doc="Binds a handler to one or more events (like click) for each&#xA;matched element. Can also bind custom events." ilk="function" name="bind" returns="jQuery" signature="bind(type, data, fn) -&gt; jQuery">
+          <variable citdl="String" doc="One or more event types separated by a space" ilk="argument" name="type" />
           <variable citdl="Object" doc="Additional data passed to the event handler as event.data" ilk="argument" name="data" />
-          <variable citdl="Function" doc="A function to bind to the event on each of the set of matched elements&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
+          <variable citdl="Function" doc="A function to bind to the event on each of the set of matched elements, passed an &lt;a href=&apos;Events/jQuery.Event&apos;&gt;event object&lt;/a&gt;.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
         </scope>
-        <scope doc="Binds a handler to a particular event to be executed&#xA;&lt;i&gt;once&lt;/i&gt; for each matched element." ilk="function" name="one" returns="jQuery" signature="one(type, data, fn) -&gt; jQuery">
+        <scope doc="Binds a handler to one or more events to be executed&#xA;&lt;i&gt;once&lt;/i&gt; for each matched element." ilk="function" name="one" returns="jQuery" signature="one(type, data, fn) -&gt; jQuery">
           <variable citdl="String" doc="An event type" ilk="argument" name="type" />
           <variable citdl="Object" doc="Additional data passed to the event handler as event.data" ilk="argument" name="data" />
           <variable citdl="Function" doc="A function to bind to the specified event on each of the matched elements.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
         </scope>
-        <scope doc="Trigger a type of event on every matched element." ilk="function" name="trigger" returns="jQuery" signature="trigger(type , data ) -&gt; jQuery">
-          <variable citdl="String" doc="An event type to trigger." ilk="argument" name="type " />
+        <scope doc="Trigger an event on every matched element." ilk="function" name="trigger" returns="jQuery" signature="trigger(event , data ) -&gt; jQuery">
+          <variable citdl="String,Event,Object" doc="An event object or type to trigger." ilk="argument" name="event " />
           <variable citdl="Array" doc="Additional data to pass as arguments (after the event object) to the event handler." ilk="argument" name="data " />
         </scope>
-        <scope doc="This particular method triggers all bound event handlers on&#xA;an element (for a specific event type) WITHOUT executing the&#xA;browsers default actions." ilk="function" name="triggerHandler" returns="jQuery" signature="triggerHandler(type , data ) -&gt; jQuery">
-          <variable citdl="String" doc="An event type to trigger." ilk="argument" name="type " />
+        <scope doc="Triggers all bound event handlers on an element (for a&#xA;specific event type) WITHOUT executing the browser&apos;s default&#xA;actions, bubbling, or live events." ilk="function" name="triggerHandler" returns="Object" signature="triggerHandler(event , data ) -&gt; Object">
+          <variable citdl="String,Event,Object" doc="An event type to trigger." ilk="argument" name="event " />
           <variable citdl="Array" doc="Additional data to pass as arguments (after the event object) to the event handler." ilk="argument" name="data " />
         </scope>
-        <scope doc="This does the opposite of bind, it removes bound events from&#xA;each of the matched elements." ilk="function" name="unbind" returns="jQuery" signature="unbind(type , data ) -&gt; jQuery">
-          <variable citdl="String" doc="An event type to unbind." ilk="argument" name="type " />
-          <variable citdl="Function" doc="A function to unbind from the event on each of the set of matched elements." ilk="argument" name="data " />
+        <scope doc="This does the opposite of bind, it removes bound events from&#xA;each of the matched elements." ilk="function" name="unbind" returns="jQuery" signature="unbind(type , fn ) -&gt; jQuery">
+          <variable citdl="String,Event,Object" doc="An event type to unbind." ilk="argument" name="type " />
+          <variable citdl="Function" doc="A function to unbind from the event on each of the set of matched elements." ilk="argument" name="fn " />
+        </scope>
+        <scope doc="&apos;&apos;&apos;Added in jQuery 1.3:&apos;&apos;&apos; Binds a handler to an event (like&#xA;click) for all current - and future - matched element. Can&#xA;also bind custom events." ilk="function" name="live" returns="jQuery" signature="live(type, fn) -&gt; jQuery">
+          <variable citdl="String" doc="An event type" ilk="argument" name="type" />
+          <variable citdl="Function" doc="A function to bind to the event on each of the set of matched elements&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
+        </scope>
+        <scope doc="&apos;&apos;&apos;Added in jQuery 1.3:&apos;&apos;&apos; This does the opposite of live,&#xA;it removes a bound live event." ilk="function" name="die" returns="jQuery" signature="die(type , fn ) -&gt; jQuery">
+          <variable citdl="String" doc="A live event type to unbind." ilk="argument" name="type " />
+          <variable citdl="Function" doc="A function to unbind from the event on each of the set of matched elements." ilk="argument" name="fn " />
         </scope>
         <scope doc="Simulates hovering (moving the mouse on, and off, an&#xA;object). This is a custom method which provides an &apos;in&apos; to a&#xA;frequent task." ilk="function" name="hover" returns="jQuery" signature="hover(over, out) -&gt; jQuery">
           <variable citdl="Function" doc="The function to fire when the mouse is moved over a matched element.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="over" />
           <variable citdl="Function" doc="The function to fire when the mouse is moved off of a matched element.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="out" />
         </scope>
-        <scope doc="Toggle between two function calls every other click." ilk="function" name="toggle" returns="jQuery" signature="toggle(fn, fn) -&gt; jQuery">
-          <variable citdl="Function" doc="The function to execute on every even click.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
-          <variable citdl="Function" doc="The function to execute on every odd click.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
+        <scope doc="Toggle among two or more function calls every other click." ilk="function" name="toggle" returns="jQuery" signature="toggle(fn, fn2, fn3,fn4,...) -&gt; jQuery">
+          <variable citdl="Function" doc="The function to execute.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
+          <variable citdl="Function" doc="The function to execute.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn2" />
+          <variable citdl="Function" doc="The function to execute.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn3,fn4,..." />
         </scope>
         <scope doc="Triggers the blur event of each matched element." ilk="function" name="blur" returns="jQuery" signature="blur() -&gt; jQuery" />
         <scope doc="Bind a function to the blur event of each matched element." ilk="function" name="blur" returns="jQuery" signature="blur(fn) -&gt; jQuery">
@@ -265,7 +326,7 @@
         </scope>
         <scope doc="Triggers the focus event of each matched element." ilk="function" name="focus" returns="jQuery" signature="focus() -&gt; jQuery" />
         <scope doc="Binds a function to the focus event of each matched element." ilk="function" name="focus" returns="jQuery" signature="focus(fn) -&gt; jQuery">
-          <variable citdl="Function" doc="A function to bind to the focus event on each of the matched elements.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
+          <variable citdl="Function" doc="A function to bind to the focus event on each of the matched elements.&#xA;&lt;pre&gt;function callback(eventObject) {  &#xA;this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
         </scope>
         <scope doc="Triggers the keydown event of each matched element." ilk="function" name="keydown" returns="jQuery" signature="keydown() -&gt; jQuery" />
         <scope doc="Bind a function to the keydown event of each matched&#xA;element." ilk="function" name="keydown" returns="jQuery" signature="keydown(fn) -&gt; jQuery">
@@ -284,6 +345,12 @@
         </scope>
         <scope doc="Binds a function to the mousedown event of each matched&#xA;element." ilk="function" name="mousedown " returns="jQuery" signature="mousedown (fn) -&gt; jQuery">
           <variable citdl="Function" doc="A function to bind to the mousedown event on each of the matched elements.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
+        </scope>
+        <scope doc="Bind a function to the mouseenter event of each matched&#xA;element." ilk="function" name="mouseenter" returns="jQuery" signature="mouseenter(fn) -&gt; jQuery">
+          <variable citdl="Function" doc="A function to bind to the mouseenter event on each of the matched elements.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
+        </scope>
+        <scope doc="Bind a function to the mouseleave event of each matched&#xA;element." ilk="function" name="mouseleave" returns="jQuery" signature="mouseleave(fn) -&gt; jQuery">
+          <variable citdl="Function" doc="A function to bind to the mouseleave event on each of the matched elements.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
         </scope>
         <scope doc="Bind a function to the mousemove event of each matched&#xA;element." ilk="function" name="mousemove" returns="jQuery" signature="mousemove(fn) -&gt; jQuery">
           <variable citdl="Function" doc="A function to bind to the mousmove event on each of the matched elements.&#xA;&lt;pre&gt;function callback(eventObject) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="fn" />
@@ -317,14 +384,21 @@
         <scope doc="Displays each of the set of matched elements if they are&#xA;hidden." ilk="function" name="show" returns="jQuery" signature="show() -&gt; jQuery" />
         <scope doc="Show all matched elements using a graceful animation and&#xA;firing an optional callback after completion." ilk="function" name="show" returns="jQuery" signature="show(speed, callback) -&gt; jQuery">
           <variable citdl="String, Number " doc="A string representing one of the three predefined speeds (&quot;slow&quot;, &quot;normal&quot;, or &quot;fast&quot;) or the number of milliseconds to run the animation (e.g. 1000)." ilk="argument" name="speed" />
-          <variable citdl="Function" doc="A function to be executed whenever the animation completes, executes once for each element animated against.&#xA;&lt;pre&gt;function callback() {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
+          <variable citdl="Function" doc="A function to be executed whenever the animation completes; executes once for each element animated against.&#xA;&lt;pre&gt;function callback() {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
         </scope>
         <scope doc="Hides each of the set of matched elements if they are shown." ilk="function" name="hide" returns="jQuery" signature="hide() -&gt; jQuery" />
         <scope doc="Hide all matched elements using a graceful animation and&#xA;firing an optional callback after completion." ilk="function" name="hide" returns="jQuery" signature="hide(speed, callback) -&gt; jQuery">
           <variable citdl="String, Number " doc="A string representing one of the three predefined speeds (&quot;slow&quot;, &quot;normal&quot;, or &quot;fast&quot;) or the number of milliseconds to run the animation (e.g. 1000)." ilk="argument" name="speed" />
           <variable citdl="Function" doc="A function to be executed whenever the animation completes, executes once for each element animated against.&#xA;&lt;pre&gt;function callback() {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
         </scope>
-        <scope doc="Toggles each of the set of matched elements." ilk="function" name="toggle" returns="jQuery" signature="toggle() -&gt; jQuery" />
+        <scope doc="Toggle displaying each of the set of matched elements." ilk="function" name="toggle" returns="jQuery" signature="toggle() -&gt; jQuery" />
+        <scope doc="Toggle displaying each of the set of matched elements based&#xA;upon the switch (true shows all elements, false hides all&#xA;elements)." ilk="function" name="toggle" returns="jQuery" signature="toggle(switch) -&gt; jQuery">
+          <variable citdl="Boolean" doc="A switch to toggle the display on." ilk="argument" name="switch" />
+        </scope>
+        <scope doc="Toggle displaying each of the set of matched elements using&#xA;a graceful animation and firing an optional callback after&#xA;completion." ilk="function" name="toggle" returns="jQuery" signature="toggle(speed, callback) -&gt; jQuery">
+          <variable citdl="String, Number " doc="A string representing one of the three predefined speeds (&quot;slow&quot;, &quot;normal&quot;, or &quot;fast&quot;) or the number of milliseconds to run the animation (e.g. 1000)." ilk="argument" name="speed" />
+          <variable citdl="Function" doc="A function to be executed whenever the animation completes, executes once for each element animated against.&#xA;&lt;pre&gt;function callback() {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
+        </scope>
         <scope doc="Reveal all matched elements by adjusting their height and&#xA;firing an optional callback after completion." ilk="function" name="slideDown" returns="jQuery" signature="slideDown(speed, callback) -&gt; jQuery">
           <variable citdl="String, Number " doc="A string representing one of the three predefined speeds (&quot;slow&quot;, &quot;normal&quot;, or &quot;fast&quot;) or the number of milliseconds to run the animation (e.g. 1000)." ilk="argument" name="speed" />
           <variable citdl="Function" doc="A function to be executed whenever the animation completes, executes once for each element animated against.&#xA;&lt;pre&gt;function callback() {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
@@ -338,10 +412,10 @@
           <variable citdl="Function" doc="A function to be executed whenever the animation completes, executes once for each element animated against.&#xA;&lt;pre&gt;function callback() {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
         </scope>
         <scope doc="Fade in all matched elements by adjusting their opacity and&#xA;firing an optional callback after completion." ilk="function" name="fadeIn" returns="jQuery" signature="fadeIn(speed, callback) -&gt; jQuery">
-          <variable citdl="String, Number " doc="A string representing one of the three predefined speeds (&quot;slow&quot;, &quot;normal&quot;, or &quot;fast&quot;) or the number of milliseconds to run the animation (e.g. 1000)." ilk="argument" name="speed" />
+          <variable citdl="String, Number " doc="A string representing one of the three predefined speeds (&quot;slow&quot;, &quot;def&quot;, or &quot;fast&quot;) or the number of milliseconds to run the animation (e.g. 1000).  As of jQuery 1.2.6, &quot;normal&quot; or any other string works the same as &quot;def&quot; (400ms)." ilk="argument" name="speed" />
           <variable citdl="Function" doc="A function to be executed whenever the animation completes, executes once for each element animated against.&#xA;&lt;pre&gt;function callback() {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
         </scope>
-        <scope doc="Fade out all matched elements by adjusting their opacity and&#xA;firing an optional callback after completion." ilk="function" name="fadeOut" returns="jQuery" signature="fadeOut(speed, callback) -&gt; jQuery">
+        <scope doc="Fade out all matched elements by adjusting their opacity to&#xA;0, then setting display to &quot;none&quot; and firing an optional&#xA;callback after completion." ilk="function" name="fadeOut" returns="jQuery" signature="fadeOut(speed, callback) -&gt; jQuery">
           <variable citdl="String, Number " doc="A string representing one of the three predefined speeds (&quot;slow&quot;, &quot;normal&quot;, or &quot;fast&quot;) or the number of milliseconds to run the animation (e.g. 1000)." ilk="argument" name="speed" />
           <variable citdl="Function" doc="A function to be executed whenever the animation completes, executes once for each element animated against.&#xA;&lt;pre&gt;function callback() {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
         </scope>
@@ -350,37 +424,33 @@
           <variable citdl="Number " doc="The opacity to fade to (a number from 0 to 1)." ilk="argument" name="opacity" />
           <variable citdl="Function" doc="A function to be executed whenever the animation completes, executed once for each element animated against.&#xA;&lt;pre&gt;function callback() {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
         </scope>
-        <scope doc="A function for making your own, custom animations." ilk="function" name="animate" returns="jQuery" signature="animate(params, duration, easing, callback) -&gt; jQuery">
+        <scope doc="A function for making custom animations." ilk="function" name="animate" returns="jQuery" signature="animate(params, duration, easing, callback) -&gt; jQuery">
           <variable citdl="Options" doc="A set of style attributes that you wish to animate, and to what end." ilk="argument" name="params" />
           <variable citdl="String, Number " doc="A string representing one of the three predefined speeds (&quot;slow&quot;, &quot;normal&quot;, or &quot;fast&quot;) or the number of milliseconds to run the animation (e.g. 1000)." ilk="argument" name="duration" />
-          <variable citdl="String " doc="The name of the easing effect that you want to use (Plugin Required). There are two built-in values, &quot;linear&quot; and &quot;swing&quot;." ilk="argument" name="easing" />
+          <variable citdl="String " doc="The name of the easing effect that you want to use (plugin required). There are two built-in values, &quot;linear&quot; and &quot;swing&quot;." ilk="argument" name="easing" />
           <variable citdl="Function" doc="A function to be executed whenever the animation completes, executes once for each element animated against." ilk="argument" name="callback" />
         </scope>
-        <scope doc="A function for making your own, custom animations." ilk="function" name="animate" returns="jQuery" signature="animate(params, options) -&gt; jQuery">
+        <scope doc="A function for making custom animations." ilk="function" name="animate" returns="jQuery" signature="animate(params, options) -&gt; jQuery">
           <variable citdl="Options" doc="A set of style attributes that you wish to animate, and to what end." ilk="argument" name="params" />
           <variable citdl="Options " doc="A set of options with which to configure the animation." ilk="argument" name="options" />
         </scope>
-        <scope doc="Stops all the currently running animations on all the&#xA;specified elements." ilk="function" name="stop" returns="jQuery" signature="stop() -&gt; jQuery" />
-        <scope doc="Returns a reference to the first element&apos;s queue (which is&#xA;an array of functions)." ilk="function" name="queue" returns="Array&lt;Function&gt;" signature="queue() -&gt; Array&lt;Function&gt;" />
-        <scope doc="Adds a new function, to be executed, onto the end of the&#xA;queue of all matched elements." ilk="function" name="queue" returns="jQuery" signature="queue(callback) -&gt; jQuery">
-          <variable citdl="Function" doc="The function to add to the queue.&#xA;&lt;pre&gt;function callback() {&#xA;  this; // dom element&#xA;  // to continue the queue you must call&#xA;  jQuery(this).dequeue();&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
+        <scope doc="Stops all the currently running animations on all the&#xA;specified elements." ilk="function" name="stop" returns="jQuery" signature="stop(clearQueue, gotoEnd) -&gt; jQuery">
+          <variable citdl="Boolean" doc="A Boolean (true/false) that when set to true clears the animation queue, effectively stopping all queued animations." ilk="argument" name="clearQueue" />
+          <variable citdl="Boolean" doc="A Boolean (true/false) that when set to true causes the currently playing animation to immediately complete, including resetting original styles on show and hide and calling the callback function" ilk="argument" name="gotoEnd" />
         </scope>
-        <scope doc="Replaces the queue of all matched element with this new&#xA;queue (the array of functions)." ilk="function" name="queue" returns="jQuery" signature="queue(queue) -&gt; jQuery">
-          <variable citdl="Array&lt;Function&gt;" doc="The queue to replace all the queues with.  The functions have the same parameters and this value as queue(callback)." ilk="argument" name="queue" />
-        </scope>
-        <scope doc="Removes a queued function from the front of the queue and&#xA;executes it." ilk="function" name="dequeue" returns="jQuery" signature="dequeue() -&gt; jQuery" />
         <scope doc="Load a remote page using an HTTP request." ilk="function" name="ajax" returns="XMLHttpRequest" signature="ajax(options) -&gt; XMLHttpRequest">
           <variable citdl="Options" doc="A set of key/value pairs that configure the Ajax request. All options are optional. A default can be set for any option with &lt;a href=&apos;Ajax/jQuery.ajaxSetup&apos;&gt;$.ajaxSetup&lt;/a&gt;()." ilk="argument" name="options" />
         </scope>
         <scope doc="Load HTML from a remote file and inject it into the DOM." ilk="function" name="load" returns="jQuery" signature="load(url, data, callback) -&gt; jQuery">
           <variable citdl="String" doc="The URL of the HTML page to load." ilk="argument" name="url" />
-          <variable citdl="Map" doc="Key/value pairs that will be sent to the server." ilk="argument" name="data" />
+          <variable citdl="Map,String" doc="Key/value pairs that will be sent to the server. As of jQuery 1.3 a data string can be passed in instead." ilk="argument" name="data" />
           <variable citdl="Callback" doc="The function called when the ajax request is complete (not necessarily success).&#xA;&lt;pre&gt;function (responseText, textStatus, XMLHttpRequest) {&#xA;  this; // dom element&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
         </scope>
-        <scope doc="Load a remote page using an HTTP GET request." ilk="function" name="get" returns="XMLHttpRequest" signature="get(url, data, callback) -&gt; XMLHttpRequest">
+        <scope doc="Load a remote page using an HTTP GET request." ilk="function" name="get" returns="XMLHttpRequest" signature="get(url, data, callback, type) -&gt; XMLHttpRequest">
           <variable citdl="String" doc="The URL of the page to load." ilk="argument" name="url" />
           <variable citdl="Map" doc="Key/value pairs that will be sent to the server." ilk="argument" name="data" />
           <variable citdl="Function" doc="A function to be executed whenever the data is loaded successfully.&#xA;&lt;pre&gt;function (data, textStatus) {&#xA;  // data could be xmlDoc, jsonObj, html, text, etc...&#xA;  this; // the options for this ajax request&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
+          <variable citdl="String" doc="Type of data to be returned to callback function:  &quot;xml&quot;, &quot;html&quot;, &quot;script&quot;, &quot;json&quot;, &quot;jsonp&quot;, or &quot;text&quot;." ilk="argument" name="type" />
         </scope>
         <scope doc="Load JSON data using an HTTP GET request." ilk="function" name="getJSON" returns="XMLHttpRequest" signature="getJSON(url, data, callback) -&gt; XMLHttpRequest">
           <variable citdl="String" doc="The URL of the page to load." ilk="argument" name="url" />
@@ -394,8 +464,8 @@
         <scope doc="Load a remote page using an HTTP POST request." ilk="function" name="post" returns="XMLHttpRequest" signature="post(url, data, callback, type) -&gt; XMLHttpRequest">
           <variable citdl="String" doc="The URL of the page to load." ilk="argument" name="url" />
           <variable citdl="Map" doc="Key/value pairs that will be sent to the server." ilk="argument" name="data" />
-          <variable citdl="Function" doc="A function to be executed whenever the data is loaded successfully.&#xA;&lt;pre&gt;function (data, textStatus) {&#xA;  // data could be xmlDoc, jsonObj, html, text, etc...&#xA;  this; // the options for this ajax request&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
-          <variable citdl="String" doc="Type of data to be sent (JSON, XML, etc.)&#xA;&lt;pre&gt;$.postJSON = function(url, data, callback) {&#xA; $.post(url, data, callback, &quot;json&quot;);&#xA;};&#xA;&lt;/pre&gt;" ilk="argument" name="type" />
+          <variable citdl="Function" doc="A function to be executed whenever the data is loaded successfully.&#xA;&lt;pre&gt;function (data, textStatus) {&#xA;  // data could be xmlDoc, jsonObj, html, text, etc...&#xA;  this; // the options for this ajax request&#xA;  // textStatus can be one of:&#xA;  //   &quot;timeout&quot;&#xA;  //   &quot;error&quot;&#xA;  //   &quot;notmodified&quot;&#xA;  //   &quot;success&quot;&#xA;  //   &quot;parsererror&quot; &#xA;  // NOTE: Apparently, only &quot;success&quot; is returned when you make&#xA;  // an Ajax call in this way. Other errors silently fail.&#xA;  // See above note about using $.ajax.&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
+          <variable citdl="String" doc="Type of data to be returned to callback function:  &quot;xml&quot;, &quot;html&quot;, &quot;script&quot;, &quot;json&quot;, &quot;jsonp&quot;, or &quot;text&quot;.&#xA;&lt;pre&gt;$.postJSON = function(url, data, callback) {&#xA;	$.post(url, data, callback, &quot;json&quot;);&#xA;};&#xA;&lt;/pre&gt;" ilk="argument" name="type" />
         </scope>
         <scope doc="Attach a function to be executed whenever an AJAX request&#xA;completes. This is an &lt;a href=&apos;Ajax_Events&apos;&gt;Ajax Event&lt;/a&gt;." ilk="function" name="ajaxComplete" returns="jQuery" signature="ajaxComplete(callback) -&gt; jQuery">
           <variable citdl="Function" doc="The function to execute.&#xA;&lt;pre&gt;function (event, XMLHttpRequest, ajaxOptions) {&#xA;  this; // dom element listening&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
@@ -418,45 +488,57 @@
         <scope doc="Setup global settings for AJAX requests." ilk="function" name="ajaxSetup" signature="ajaxSetup(options)">
           <variable citdl="Options" doc="A set of key/value pairs that configure the default Ajax request. All options are optional." ilk="argument" name="options" />
         </scope>
-        <scope doc="Serializes a set of input elements into a string of data.&#xA;This will serialize all given elements." ilk="function" name="serialize" returns="jQuery" signature="serialize() -&gt; jQuery" />
-        <scope doc="Serializes all forms and form elements (like the &lt;a&#xA;href=&apos;Ajax/serialize&apos;&gt;.serialize()&lt;/a&gt; method) but returns a&#xA;JSON data structure for you to work with." ilk="function" name="serializeArray" returns="jQuery" signature="serializeArray() -&gt; jQuery" />
-        <variable citdl="Map" doc="Contains flags for the useragent, read from&#xA;navigator.userAgent." name="browser">
-          <variable citdl="String" doc="The version number of the rendering engine for the user&apos;s&#xA;browser." name="version" />
+        <scope doc="Serializes a set of input elements into a string of data." ilk="function" name="serialize" returns="String" signature="serialize() -&gt; String" />
+        <scope doc="Serializes all forms and form elements (like the &lt;a&#xA;href=&apos;Ajax/serialize&apos;&gt;.serialize()&lt;/a&gt; method) but returns a&#xA;JSON data structure for you to work with.&lt;br /&gt; &apos;&apos;&apos;Note:&apos;&apos;&apos;&#xA;The JSON structure returned is not a string." ilk="function" name="serializeArray" returns="Array&lt;Object&gt;" signature="serializeArray() -&gt; Array&lt;Object&gt;" />
+        <variable citdl="Object" doc="&apos;&apos;&apos;Added in jQuery 1.3&apos;&apos;&apos; A collection of properties that&#xA;represent the presence of different browser features or&#xA;bugs." name="support" />
+        <variable citdl="Map" doc="&apos;&apos;&apos;Deprecated in jQuery 1.3 (see jQuery.support)&apos;&apos;&apos; Contains&#xA;flags for the useragent, read from navigator.userAgent." name="browser">
+          <variable citdl="String" doc="&apos;&apos;&apos;Deprecated in jQuery 1.3 (see jQuery.support)&apos;&apos;&apos; The&#xA;version number of the rendering engine for the user&apos;s&#xA;browser." name="version" />
         </variable>
-        <variable citdl="Boolean" doc="States if the current page, in the user&apos;s browser, is being&#xA;rendered using the [http://www.w3.org/TR/REC-CSS2/box.html&#xA;W3C CSS Box Model]." name="boxModel" />
-        <scope doc="A generic iterator function, which can be used to seamlessly&#xA;iterate over both objects and arrays." ilk="function" name="each" returns="Object" signature="each(object, callback) -&gt; Object">
-          <variable citdl="Object" doc="The object, or array, to iterate over." ilk="argument" name="object" />
-          <variable citdl="Function" doc="The function that will be executed on every object.&#xA;&lt;pre&gt;function callback(indexInArray, valueOfElement) {&#xA;  var booleanKeepGoing;&#xA;&#xA;  this; // == valueOfElement&#xA;&#xA;  return booleanKeepGoing; // optional, unless false &#xA;                           // and want to stop looping&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
+        <variable citdl="Boolean" doc="&apos;&apos;&apos;Deprecated in jQuery 1.3 (see jQuery.support)&apos;&apos;&apos; States&#xA;if the current page, in the user&apos;s browser, is being&#xA;rendered using the [http://www.w3.org/TR/REC-CSS2/box.html&#xA;W3C CSS Box Model]." name="boxModel" />
+        <scope doc="A generic iterator function, which can be used to seamlessly&#xA;iterate over both objects and arrays. Arrays and array-like&#xA;objects with a length property (such as a function&apos;s&#xA;arguments object) are iterated by numeric index, from 0 to&#xA;length-1." ilk="function" name="each" returns="Object" signature="each(object, callback) -&gt; Object">
+          <variable citdl="Object" doc="The object or array to iterate over." ilk="argument" name="object" />
+          <variable citdl="Function" doc="The function that will be executed on every object.&#xA;&lt;pre&gt;function callback(indexInArray, valueOfElement) {&#xA;  var booleanKeepGoing;&#xA;&#xA;  this; // == valueOfElement (casted to Object)&#xA;&#xA;  return booleanKeepGoing; // optional, unless false &#xA;                           // and want to stop looping&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
         </scope>
-        <scope doc="Extend one object with one or more others, returning the&#xA;original, modified, object." ilk="function" name="extend" returns="Object" signature="extend(target, object1, objectN) -&gt; Object">
+        <scope doc="Extend one object with one or more others, returning the&#xA;modified object." ilk="function" name="extend" returns="Object" signature="extend(deep, target, object1, objectN) -&gt; Object">
+          <variable citdl="Boolean" doc="If set, the merge becomes recursive (i.e. deep copy)." ilk="argument" name="deep" />
           <variable citdl="Object" doc="The object to extend." ilk="argument" name="target" />
           <variable citdl="Object" doc="The object that will be merged into the first." ilk="argument" name="object1" />
           <variable citdl="Object" doc="More objects to merge into the first." ilk="argument" name="objectN" />
         </scope>
         <scope doc="Filter items out of an array, by using a filter function." ilk="function" name="grep" returns="Array" signature="grep(array, callback, invert) -&gt; Array">
           <variable citdl="Array" doc="The Array to find items in." ilk="argument" name="array" />
-          <variable citdl="Function" doc="The function to process each item against.  The first argument to the function is the list item, and the second argument is the list index.  The function should return a Boolean value.  Optionally, this argument may be a string rather than a function.  If the argument is a string, it is treated as a short &quot;lambda-form&quot; function, with &quot;a&quot; representing the list item and &quot;i&quot; representing the index.  For example, &quot;a &gt; 0&quot; may be passed instead of &quot;function(a){ return a &gt; 0; }&quot;.&#xA;&lt;pre&gt;function callback(elementOfArray, indexInArray) {&#xA;  var shouldKeepIt;&#xA;&#xA;  this; // unmapped&#xA;&#xA;  return shouldKeepIt;&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
+          <variable citdl="Function" doc="The function to process each item against.  The first argument to the function is the list item, and the second argument is the list index.  The function should return a Boolean value.  The &quot;lambda-form&quot; function feature was removed in jQuery 1.2.3 to help compatibility with other frameworks.&#xA;&lt;pre&gt;function callback(elementOfArray, indexInArray) {&#xA;  var shouldKeepIt;&#xA;&#xA;  this; // == window&#xA;&#xA;  return shouldKeepIt;&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
           <variable citdl="Boolean" doc="If &quot;invert&quot; is false, or not provided, then the function returns an array consisting of all elements for which &quot;callback&quot; returns true.  If &quot;invert&quot; is true, then the function returns an array consisting of all elements for which &quot;callback&quot; returns false." ilk="argument" name="invert" />
         </scope>
-        <scope doc="Turns an array-like object into a true array." ilk="function" name="makeArray" returns="Array" signature="makeArray(obj) -&gt; Array">
-          <variable citdl="Object" doc="Array-like object to turn in to an actual Array." ilk="argument" name="obj" />
+        <scope doc="Turns anything into a true array." ilk="function" name="makeArray" returns="Array" signature="makeArray(obj) -&gt; Array">
+          <variable citdl="Object" doc="Anything to turn into an actual Array." ilk="argument" name="obj" />
         </scope>
         <scope doc="Translate all items in an array to another array of items." ilk="function" name="map" returns="Array" signature="map(array, callback) -&gt; Array">
           <variable citdl="Array" doc="The Array to translate." ilk="argument" name="array" />
-          <variable citdl="Function" doc="The function to process each item against.  The argument to the function is the list item. The function can return any value.  Optionally, this argument may be a string rather than a function. If the argument is a string, it is treated as a short &quot;lambda-form&quot; function, with &quot;a&quot; representing the list item. For example, &quot;a * a&quot; may be passed instead of &quot;function(a){ return a * a; }&quot;. &#xA;&lt;pre&gt;function callback(elementOfArray, indexInArray) {&#xA;  var replacementValue;&#xA;&#xA;  this; // unmapped&#xA;&#xA;  return replacementValue;&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
+          <variable citdl="Function" doc="The function to process each item against.  The argument to the function is the list item. The function can return any value.  The &quot;lambda-form&quot; function represented as a string no longer works.  It was removed in version 1.2.3 to increase compatibility with Adobe AIR.   &#xA;&lt;pre&gt;function callback(elementOfArray, indexInArray) {&#xA;  var replacementValue;&#xA;&#xA;  this; // unmapped&#xA;&#xA;  return replacementValue;&#xA;}&#xA;&lt;/pre&gt;" ilk="argument" name="callback" />
         </scope>
         <scope doc="Determine the index of the first parameter in the Array (-1&#xA;if not found)." ilk="function" name="inArray" returns="Number" signature="inArray(value, array) -&gt; Number">
           <variable citdl="Any" doc="Value to see if it exists in the array." ilk="argument" name="value" />
           <variable citdl="Array" doc="Array to look through for the value." ilk="argument" name="array" />
         </scope>
-        <scope doc="Remove all duplicate elements from an array of elements." ilk="function" name="unique" returns="Array" signature="unique(array) -&gt; Array">
-          <variable citdl="Array" doc="The Array to translate." ilk="argument" name="array" />
+        <scope doc="Merge two arrays together." ilk="function" name="merge" returns="Array" signature="merge(first, second) -&gt; Array">
+          <variable citdl="Array" doc="The first array to merge, the elements of second added." ilk="argument" name="first" />
+          <variable citdl="Array" doc="The second array to merge into the first, unaltered." ilk="argument" name="second" />
         </scope>
-        <scope doc="Determine if the parameter passed is a function." ilk="function" name="isFunction" returns="Boolean" signature="isFunction(obj) -&gt; Boolean">
+        <scope doc="Remove all duplicate elements from an array of elements.&#xA;Note that this only works on arrays of DOM elements, not&#xA;strings or numbers." ilk="function" name="unique" returns="Array" signature="unique(array) -&gt; Array">
+          <variable citdl="Array" doc="The Array of Elements to translate." ilk="argument" name="array" />
+        </scope>
+        <scope doc="&apos;&apos;&apos;Added in jQuery 1.3&apos;&apos;&apos; Determine if the parameter passed&#xA;is an array." ilk="function" name="isArray" returns="Boolean" signature="isArray(obj) -&gt; Boolean">
+          <variable citdl="Object" doc="Object to test whether or not it is an array." ilk="argument" name="obj" />
+        </scope>
+        <scope doc="Determine if the parameter passed is a Javascript function&#xA;object." ilk="function" name="isFunction" returns="Boolean" signature="isFunction(obj) -&gt; Boolean">
           <variable citdl="Object" doc="Object to test whether or not it is a function." ilk="argument" name="obj" />
         </scope>
         <scope doc="Remove the whitespace from the beginning and end of a&#xA;string." ilk="function" name="trim" returns="String" signature="trim(str) -&gt; String">
           <variable citdl="String" doc="The string to trim." ilk="argument" name="str" />
+        </scope>
+        <scope doc="Serializes an array of form elements or an object (core of&#xA;&lt;a href=&apos;Ajax/serialize&apos;&gt;.serialize()&lt;/a&gt; method)." ilk="function" name="param" returns="String" signature="param(obj) -&gt; String">
+          <variable citdl="Array&lt;Elements&gt;, jQuery, Object" doc="An Array or jQuery object is serialized by name/value pairs.  An object by key/value pairs." ilk="argument" name="obj" />
         </scope>
         <scope doc="Returns a unique ID for the element." ilk="function" name="data" returns="Number" signature="data(elem) -&gt; Number">
           <variable citdl="Element" doc="DOM element of interest." ilk="argument" name="elem" />
@@ -477,14 +559,8 @@
           <variable citdl="Element" doc="Element to delete the named data store property from." ilk="argument" name="elem" />
           <variable citdl="String" doc="The name of the data store property to remove." ilk="argument" name="name" />
         </scope>
-        <scope doc="Serializes an array of form elements or an object (core of&#xA;&lt;a href=&apos;Ajax/serialize&apos;&gt;.serialize()&lt;/a&gt; method)." ilk="function" name="param" returns="String" signature="param(obj) -&gt; String">
-          <variable citdl="Array&lt;Elements&gt;, jQuery, Object" doc="An Array or jQuery object is serialized by name/value pairs.  An object by key/value pairs." ilk="argument" name="obj" />
-        </scope>
-        <variable citdl="String" doc="The current version of jQuery." name="jquery" />
       </scope>
-      <scope classrefs="jQuery" ilk="class" name="$">
-        <scope attributes="__ctor__" doc="String: Create DOM elements on-the-fly from the provided String of raw HTML.&#xA;Element|Array: Wrap jQuery functionality around single or multiple DOM Element(s).&#xA;Function: To be executed when the DOM document has finished loading.&#xA;&#xA;If &apos;context&apos; is specified, accepts a string containing a CSS or basic XPath selector&#xA;which is then used to match a set of elements." ilk="function" name="$" signature="$(arg &lt;String|Element|Array of Elements|Function|jQuery&gt;, context &lt;Element|jQuery&gt;) -&gt; jQuery" />
-      </scope>
+      <variable citdl="jQuery" name="$" />
     </scope>
   </file>
 </codeintel>
