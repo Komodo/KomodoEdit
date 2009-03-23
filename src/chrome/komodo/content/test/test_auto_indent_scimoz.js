@@ -199,7 +199,7 @@ function savePrefs() {
             }
             if (langPrefs.hasPrefHere('tabWidth')) {
                 origPrefs[lang].indentWidth = langPrefs.getLongPref('tabWidth');
-                langPrefs.setLongPref('tabWidth', 4);
+                langPrefs.setLongPref('tabWidth', 8);
             }
         }
     }
@@ -304,21 +304,23 @@ function ContinueTop(tests, i, lim) {
     if (test.width != iwPrefs.getLongPref('indentWidth')) {
         iwPrefs.setLongPref('indentWidth', test.width);
     }
-    ko.views.manager.newViewFromURIAsync(file.URI);
-    setTimeout(ContinuePart2, 200, tests, i, lim, test, file);
+    ko.views.manager.newViewFromURIAsync(
+        file.URI,
+        'editor',
+        null,
+        -1,
+        function(view) {
+            view.scimoz.viewWS = 1;
+            view.setFocus();
+            view.scimoz.documentEnd();
+            setTimeout(ContinuePart2, 100, tests, i, lim, test, view, file);
+        });
 }
 
-function ContinuePart2(tests, i, lim, test, file) {
-    var view = ko.views.manager.currentView;
-    view.scimoz.viewWS = 1;
-    view.setFocus();
-    view.scimoz.documentEnd();
-    setTimeout(ContinuePart3, 100, tests, i, lim, test, view, file);
-}
-
-function ContinuePart3(tests, i, lim, test, view, file) {
+function ContinuePart2(tests, i, lim, test, view, file) {
     var scimoz = view.scimoz;
     var lastLineBefore = view.scimoz.lineFromPosition(view.scimoz.currentPos);
+    view.scintilla.focus();
     ko.commands.doCommand('cmd_newline');
     // view.doCommand('cmd_newline');
     var lastLineAfter = view.scimoz.lineFromPosition(view.scimoz.currentPos);
@@ -342,7 +344,7 @@ function ContinuePart3(tests, i, lim, test, view, file) {
                  + ", use-tabs="
                  + (!!(test.prefs & USE_TABS )).toString()
                  + "]\n");
-        dump(s + "\n");   
+        dump(s + "\n");
         ko.commands.doCommand('cmd_newline');
         scimoz.anchor = scimoz.currentPos;
         scimoz.home();
