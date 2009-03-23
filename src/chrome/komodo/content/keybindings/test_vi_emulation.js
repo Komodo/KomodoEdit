@@ -1245,8 +1245,7 @@ test_vi_emulation.prototype.test_find_char_with_operation = function() {
                                NO_REPETITION,  // Repeat works differently
                                [VimController.OPERATION_YANK,
                                 VimController.OPERATION_DELETE,
-                                VimController.OPERATION_CHANGE],
-                               ["knownfailure"]);
+                                VimController.OPERATION_CHANGE]);
     // 3[y|c|d]tW
     this._runFindCharOperation("repeatLastFindCharInLine",
                                "Word <|>is the search Word, my second search Word searched, got<1> Word! Done!\r\n",
