@@ -722,45 +722,6 @@ test_vi_emulation.prototype._runSearchCommandWithOperation = function(
 }
 
 
-test_vi_emulation.prototype._runCommandWithKeypress = function(cmd, buffers, keypresses) {
-    this._reset();
-    // <|> represents the cursor position
-    var bufferOrig = buffers[0];
-    var cursorOrigPos = bufferOrig.indexOf("<|>");
-    var bufOrig = bufferOrig.replace("<|>", "");
-    // Set the buffer text in scimoz
-    //this.view.setFocus();
-    this.scimoz.text = bufOrig;
-    //this.view.initWithBuffer(bufOrig, "Text");
-    if (cursorOrigPos >= 0) {
-        // Set the cursor position
-        this.scimoz.gotoPos(cursorOrigPos);
-        // Ensure we don't drift due to caretX settings
-        this.scimoz.chooseCaretX();
-    }
-    cmd = "cmd_vim_" + cmd;
-    // buffersNew is a array of buffers that we should get, one for each
-    // new iteration of the command.
-    var buf;
-    for (var i=1; i < buffers.length; i++) {
-        buf = buffers[i];
-        // Perform the command
-        vim_doCommand(cmd);
-        for (var j in keypresses) {
-            log.debug("Sending keypress: " + keypresses[j]);
-            this.sendKeyPressEvent(keypresses[j]);
-        }
-        // Compare the results
-        var cursorNewPos = buf.indexOf("<|>");
-        buf = buf.replace("<|>", "");
-        this.assertEqual(buf, this.scimoz.text, cmd + ": buffer incorrect after running command!" + this.scimoz.text + "\n");
-        if (cursorOrigPos >= 0) {
-            // Set the cursor position
-            this.assertEqual(cursorNewPos, this.scimoz.currentPos, cmd + ": cursor at incorrect position! Expected: " + cursorNewPos + ", got: " + this.scimoz.currentPos);
-        }
-    }
-}
-
 test_vi_emulation.prototype.test_basic_movement = function() {
     // whichwrap sets which commands allow the cursor to move past eol points
     gVimController.settings["whichwrap"] = "";
@@ -1462,26 +1423,7 @@ test_vi_emulation.prototype.test_find_and_replace = function() {
 }
 
 
-test_vi_emulation.prototype.sendKeyPressEvent = function(key, ctrl) {
-    // Create the event
-    var te = new keypress_event(key, ctrl);
-    Casper.Events.util.deserialize(te);
-    gVimController.handleKeypress(te);
-    //gKeybindingMgr.keypressHandler(te);
-    // Put it into the list
-    //this.eventList = [te];
-    // place focus on the editor buffer
-    this.view.setFocus();
-    //dump("*** runToolboxMacro_FocusView\n");
-    //var test = new Casper.Events.test(window);
-    //test.complete = function(e) { alert("Keypress done"); }
-    //test.replay();
-}
-
 test_vi_emulation.prototype.test_other_commands = function() {
-    //this._runCommandWithKeypress("replaceChar", ["my bu<|>ffer\r\n",
-    //                                             "my bua<|>fer\r\n"],
-    //                             ["a"]);
     return;
     this._runCommand("overtype", "this is\r\nmy bu<|>ffer\r\n", "this <|>is\r\nmy buffer\r\n");
     this._runCommand("undo", "this is\r\nmy bu<|>ffer\r\n", "this <|>is\r\nmy buffer\r\n");
@@ -1494,6 +1436,7 @@ test_vi_emulation.prototype.test_other_commands = function() {
     this._runCommand("dedent", "this is\r\nmy bu<|>ffer\r\n", "this <|>is\r\nmy buffer\r\n");
     this._runCommand("indent", "this is\r\nmy bu<|>ffer\r\n", "this <|>is\r\nmy buffer\r\n");
 }
+
 
 test_vi_emulation.prototype.test_bug51878_delete_at_eof = function() {
     // bug 51878 - delete at the end of the file when there is no EOL.
