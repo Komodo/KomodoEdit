@@ -25,14 +25,14 @@ instances appended to a `Gatherers` class.
     gatherers = Gatherers()
     gatherers.append(DirGatherer("cwd", os.getcwd()))
 
-Make a search (second argument is the query string):
+Make a search (first argument is the query string):
 
-    d.search(gatherers, "foo")
+    d.search("foo", gatherers)
 
 This will print hits to stdout. To get and handle results directly, pass a
 `resultsView` class (see `StreamResultsView` for example):
 
-    d.search(gatherers, "foo", myResultsView)
+    d.search("foo", gatherers, resultsView=myResultsView)
 
 Be sure to stop the driver thread when done:
 
@@ -124,16 +124,34 @@ class PathHit(Hit):
             if self.dir_normcase.startswith(home):
                 d = "~" + d[len(home):]
         return d
+    _isdirCache = None
+    @property
+    def isdir(self):
+        if self._isdirCache is None:
+            self._isdirCache = isdir(self.path)
+        return self._isdirCache
     def match(self, queryWords):
         """Return true if the given query matches this hit.
         
-        @param queryWords {list} A list of 2-tuples of the form
-            (query-word, is-case-sensitive), one for each query word.
+        @param queryWords {list} A list of 3-tuples of the form
+            (query-word, is-case-sensitive, startswith), one for each query
+            word.
         """
-        for word, caseSensitive in queryWords:
-            if (caseSensitive and word not in self.base
-                or not caseSensitive and word not in self.ibase):
-                return False
+        for word, caseSensitive, startswith in queryWords:
+            if startswith:
+                if caseSensitive:
+                    if not self.base.startswith(word):
+                        return False
+                else:
+                    if not self.ibase.startswith(word):
+                        return False
+            else:
+                if caseSensitive:
+                    if word not in self.base:
+                        return False
+                else:
+                    if word not in self.ibase:
+                        return False
         return True
 
 class ProjectHit(PathHit):
@@ -180,9 +198,11 @@ class Request(object):
     One of these is returned by `Driver.search(...)` and it has a `.wait()`
     method on which one can wait for the request to complete.
     """
-    def __init__(self, gatherers, query, resultsView):
-        self.gatherers = gatherers
+    def __init__(self, query, gatherers, cwds, pathExcludes, resultsView):
         self.query = query
+        self.gatherers = gatherers
+        self.cwds = cwds
+        self.pathExcludes = pathExcludes
         self.resultsView = resultsView
         self._event = threading.Event()
     def wait(self, timeout=None):
@@ -210,11 +230,16 @@ class Driver(threading.Thread):
             if wait:
                 self.join()
 
-    def search(self, gatherers, query, resultsView=None):
+    def search(self, query, gatherers, cwds=None, pathExcludes=None,
+            resultsView=None):
         """Start a search for files. This cancels a currently running search.
 
+        @param query {str} A query string.
         @param gatherers {Gatherers} The gatherers from which to get files.
-        @param query,
+        @param cwds {list} A list of current working directories. Used for
+            relative path queries.
+        @param pathExcludes {list} A list of path patterns to exclude. If not
+            given, default is `DEFAULT_PATH_EXCLUDES`.
         @param resultsView {object} An object conforming to the following API
             on which results will be reported:
                 resetHits()         called first thing
@@ -228,7 +253,10 @@ class Driver(threading.Thread):
         @returns {Request} The search request. One can call `.wait()` on it
             to wait for it to finish.
         """
-        r = Request(gatherers, query, resultsView or StreamResultsView())
+        if pathExcludes is None:
+            pathExcludes = DEFAULT_PATH_EXCLUDES
+        r = Request(query, gatherers, cwds or [], pathExcludes,
+            resultsView or StreamResultsView())
         self._queue.put(r)
         return r
 
@@ -255,41 +283,87 @@ class Driver(threading.Thread):
                 log.exception("error handling request: %r", request)
     
     def _handleRequest(self, request):
+        from os.path import isabs, split, join, normpath
+        from fnmatch import fnmatch
+        
         aborted = True
         resultsView = request.resultsView
         resultsView.searchStarted()
         try:
             resultsView.resetHits()
+            query = request.query.strip()
             
-            # Second value is whether to be case-sensitive in filtering.
-            queryWords = [(w, w.lower() != w) for w in request.query.strip().split()]
-            
-            BLOCK_SIZE = 50 - 1  #TODO: ask gatherer if can just get all?
-            hitPaths = set()
-            generators = [(g, g.gather()) for g in request.gatherers]
-            while generators:
-                exhausted = []
-                for i, (gatherer, generator) in enumerate(generators):
-                    hits = []
-                    for j, hit in enumerate(generator):
-                        path = hit.path
-                        if hit.filterDupePaths and path in hitPaths:
-                            pass
-                        elif hit.match(queryWords):
-                            hits.append(hit)
-                            hitPaths.add(path)
-                        if j >= BLOCK_SIZE:
-                            break
+            # See if this is a path query, i.e. a search for an absolute or
+            # relative path.
+            dirQueries = []
+            if isabs(query):
+                dirQueries.append(query)
+            elif query.startswith("~"):
+                expandedQuery = expanduser(query)
+                if isabs(expandedQuery):
+                    dirQueries.append(expandedQuery)
+            elif ('/' in query or (sys.platform == "win32" and '\\' in query)):
+                dirQueries += [join(d, query) for d in request.cwds]
+
+            if dirQueries:
+                pathExcludes = request.pathExcludes
+                for dirQuery in dirQueries:
+                    dir, baseQuery = split(dirQuery)
+                    try:
+                        names = os.listdir(dir)
+                    except OSError:
+                        pass
                     else:
-                        exhausted.append(i)
-                    if not self._queue.empty():  # Another request, abort this one.
-                        return
-                    #log.debug("adding %d hits from %r", len(hits), gatherer)
-                    if hits:
+                        hits = []
+                        baseQueryWords = []
+                        for i, w in enumerate(baseQuery.strip().split()):
+                            startswith = (i == 0 and not baseQuery.startswith(' '))
+                            baseQueryWords.append((w, w.lower() != w, startswith))
+                        for name in names:
+                            hit = PathHit(normpath(join(dir, name)))
+                            if name.startswith('.') and hit.isdir \
+                               and not baseQuery.startswith('.'):
+                                # Only show dot-dirs if baseQuery startswith a dot.
+                                continue
+                            if not hit.match(baseQueryWords):
+                                continue
+                            for exclude in pathExcludes:
+                                if fnmatch(name, exclude):
+                                    break
+                            else:
+                                hits.append(hit)
                         resultsView.addHits(hits)
-                if exhausted:
-                    for i in reversed(exhausted):
-                        del generators[i]
+        
+            else:
+                # Second value is whether to be case-sensitive in filtering.
+                queryWords = [(w, w.lower() != w, False) for w in query.split()]
+                
+                BLOCK_SIZE = 50 - 1  #TODO: ask gatherer if can just get all?
+                hitPaths = set()
+                generators = [(g, g.gather()) for g in request.gatherers]
+                while generators:
+                    exhausted = []
+                    for i, (gatherer, generator) in enumerate(generators):
+                        hits = []
+                        for j, hit in enumerate(generator):
+                            path = hit.path
+                            if hit.filterDupePaths and path in hitPaths:
+                                pass
+                            elif hit.match(queryWords):
+                                hits.append(hit)
+                                hitPaths.add(path)
+                            if j >= BLOCK_SIZE:
+                                break
+                        else:
+                            exhausted.append(i)
+                        if not self._queue.empty():  # Another request, abort this one.
+                            return
+                        #log.debug("adding %d hits from %r", len(hits), gatherer)
+                        if hits:
+                            resultsView.addHits(hits)
+                    if exhausted:
+                        for i in reversed(exhausted):
+                            del generators[i]
             aborted = False
         finally:
             try:
@@ -324,15 +398,22 @@ class Gatherer(object):
 
 
 class DirGatherer(Gatherer):
-    """Gather files (excluding directories) in a given directory or directories
-    (non-recursive)
+    """Gather files in a given directory or directories (non-recursive).
+    
+    @param name {str} Name of this gatherer.
+    @param dirs {list} List of directories from which to gather.
+    @param includeDirs {boolean} Whether to include subdirectories.
+        Default false.
+    @param excludes {list} Path patterns to exclude. Default is
+        `DEFAULT_PATH_EXCLUDES`.
     """
-    def __init__(self, name, dirs, excludes=None):
+    def __init__(self, name, dirs, includeDirs=False, excludes=None):
         self.name = name
         if isinstance(dirs, basestring):
             self.dirs = [dirs]
         else:
             self.dirs = dirs
+        self.includeDirs = includeDirs
         self.excludes = excludes or DEFAULT_PATH_EXCLUDES
     def gather(self):
         from fnmatch import fnmatch
@@ -348,7 +429,7 @@ class DirGatherer(Gatherer):
                         if fnmatch(name, exclude):
                             break
                     else:
-                        if not isdir(path):
+                        if self.includeDirs or not isdir(path):
                             yield PathHit(path)
 
 
@@ -534,25 +615,25 @@ def _test1(query):
                 slow=False)))
         
         print "-- search 'f'"
-        request = driver.search(gatherers, "f")
+        request = driver.search("f", gatherers)
         request.wait(1)
     
         print "-- search 'fast'"
-        request = driver.search(gatherers, 'fast')
+        request = driver.search("fast", gatherers)
         request.wait(0.5)
         
         print "-- search 'fest'"
-        request = driver.search(gatherers, 'fest')
+        request = driver.search("fest", gatherers)
         request.wait()
         
         print "-- search 'fast'"
-        request = driver.search(gatherers, 'fast')
+        request = driver.search("fast", gatherers)
         request.wait()
         print "-- search 'fasty'"
-        request = driver.search(gatherers, 'fasty')
+        request = driver.search("fasty", gatherers)
         request.wait()
         print "-- search 'fast'"
-        request = driver.search(gatherers, 'fast')
+        request = driver.search("fast", gatherers)
         request.wait()
     finally:
         driver.stop(True)  # wait for termination
@@ -571,13 +652,13 @@ def _test2(query):
                 slow=False)))
         
         print "-- search 'find2'"
-        request = driver.search(gatherers, 'find2')
+        request = driver.search('find2', gatherers)
         request.wait(3)
         print "-- search 'find'"
-        request = driver.search(gatherers, 'find')
+        request = driver.search('find', gatherers)
         request.wait(2)
         print "-- search 'find2'"
-        request = driver.search(gatherers, 'find2')
+        request = driver.search('find2', gatherers)
         request.wait()
     finally:
         driver.stop(True)  # wait for termination

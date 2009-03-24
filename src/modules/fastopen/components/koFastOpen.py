@@ -191,12 +191,15 @@ class KoFastOpenTreeView(TreeView):
 
     def getImageSrc(self, row, column):
         try:
-            ext = self._rows[row].ext
+            hit = self._rows[row]
         except IndexError:
             pass
         else:
-            return "moz-icon://%s?size=16" % (ext or ".txt")
-        #return "chrome://komodo/skin/images/folder-open.png"
+            if hit.type == "path" and hit.isdir:
+                #TODO: How to get native *directory* icon from moz-icon?
+                return "chrome://komodo/skin/images/folder-open.png"
+            else:
+                return "moz-icon://%s?size=16" % (hit.ext or ".txt")
 
 
 class KoFastOpenSession(object):
@@ -277,7 +280,7 @@ class KoFastOpenSession(object):
         self._gatherers_cache = None
 
     @property
-    def gatherers(self):
+    def gatherersAndCwds(self):
         if self._gatherers_cache is None:
             g = fastopen.Gatherers()
             cwds = None
@@ -287,16 +290,18 @@ class KoFastOpenSession(object):
                 cwds = list(kovg.cwds)
             g.append(KomodoHistoryURIsGatherer(self.historySessionName))
             if cwds:
-                g.append(fastopen.DirGatherer("cwd", cwds,
+                g.append(fastopen.DirGatherer("cwd", cwds, True,
                     self.path_excludes_pref))
             if self.project:
                 g.append(fastopen.CachingKomodoProjectGatherer(
                     UnwrapObject(self.project)))
-            self._gatherers_cache = g
+            self._gatherers_cache = (g, cwds)
         return self._gatherers_cache
 
     def findFiles(self, query):
-        self.driver.search(self.gatherers, query, self.resultsView)
+        gatherers, cwds = self.gatherersAndCwds
+        self.driver.search(query, gatherers, cwds, self.path_excludes_pref,
+            self.resultsView)
 
 class KoFastOpenService(object):
     _com_interfaces_ = [components.interfaces.koIFastOpenService,
