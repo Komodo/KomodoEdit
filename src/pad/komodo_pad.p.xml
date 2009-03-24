@@ -46,7 +46,7 @@
 		<Program_Install_Support>Install and Uninstall</Program_Install_Support>
 		<Program_OS_Support>$PAD_OS_SUPPORT</Program_OS_Support>
 		<Program_Language>English</Program_Language>
-		<Program_Change_Info>Multi-Window; Tabstops/Abbreviations; UI improvements; JavaScript Ext, YUI, etc. framework updates; Built on Mozilla 1.9; Performance improvements</Program_Change_Info>
+		<Program_Change_Info>Editor History; Hyperlinks; Fast-open dialog; Find highlighting</Program_Change_Info>
 		<Program_Specific_Category>Development Tools</Program_Specific_Category>
 		<Program_Category_Class>Development::Other</Program_Category_Class>
 		<Program_System_Requirements>$PAD_SYSREQ</Program_System_Requirements>
