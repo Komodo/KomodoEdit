@@ -474,13 +474,15 @@
                     }
                     uri = null;
                 }
-                var closingCurrentView = (!ko.views.manager.batchMode &&
-                                          this == ko.views.manager.currentView);
+                var newView = ((this == ko.views.manager.currentView
+                                && !doNotOfferToSave      // not shutting down
+                                && this.selectMostRecentBufferOnBufferClose)
+                               ? ko.views.manager.topView.viewhistory.getNextMostRecentView()
+                               : null);
                 var retval = this.closeUnconditionally();
-                if (closingCurrentView
-                    && !doNotOfferToSave
-                    && this.selectMostRecentBufferOnBufferClose) {
-                    ko.views.manager.topView.viewhistory.doNextMostRecentView();
+                if (newView && newView != ko.views.manager.currentView) {
+                    newView.makeCurrent();
+                    xtk.domutils.fireEvent(newView, 'current_view_changed');
                 }
                 ko.macros.eventHandler.hookPostFileClose(uri);
                 return retval;
