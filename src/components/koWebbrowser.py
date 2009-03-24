@@ -188,7 +188,7 @@ class KoWebbrowser(object):
             if sys.platform.startswith("win"):
                 return self._winStartURL(url)
             elif sys.platform == "darwin":
-                return self._spawn(["open", self._escapeUrl(url)])
+                return self._spawn(["/usr/bin/open", self._escapeUrl(url)])
             else:
                 # On Linux/Solaris we expect the browser preference to
                 # have been set before calling into koWebbrowser.
@@ -206,7 +206,7 @@ class KoWebbrowser(object):
         if browser[0] == '"':
             browser = browser[1:-1]
         if sys.platform == 'darwin':
-            return self._spawn(["open", "-a", browser, self._escapeUrl(url)])
+            return self._spawn(["/usr/bin/open", "-a", browser, self._escapeUrl(url)])
         else:
             return self._spawn([browser, url])
 
@@ -437,7 +437,7 @@ class KoWebbrowser(object):
         #print "install the following xpis to '%s':\n\t%s"\
         #      % (firefox_path, "\n\t".join(xpi_paths))
         if sys.platform == "darwin":
-            argv = ["open", "-a", "Firefox"] + xpi_paths
+            argv = ["/usr/bin/open", "-a", "Firefox"] + xpi_paths
         else:
             argv = [firefox_path] + xpi_paths
         retval = self._spawn(argv)
