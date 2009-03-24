@@ -114,16 +114,13 @@ class KoPHPCompileLinter:
 
         p = None
         try:
-            argv = [php, '-d', 'display_errors=1',
+            argv = [php, '-n', '-d', 'display_errors=1',
                     '-d', 'display_startup_errors=1',
                     '-d', 'output_buffering=0',
                     '-d', 'xdebug.remote_enable=off',
                     '-d', 'error_reporting=2047',
                     '-q', '-l', phpfilename]
             env = koprocessutils.getUserEnv()
-            if self._prefProxy.prefs.hasStringPref("phpConfigFile"):
-                ini = self._prefProxy.prefs.getStringPref("phpConfigFile")
-                if ini: env["PHPRC"] = ini
             cwd = cwd or None
             p = process.ProcessOpen(argv, cwd=cwd, env=env)
             stdout, stderr = p.communicate()
