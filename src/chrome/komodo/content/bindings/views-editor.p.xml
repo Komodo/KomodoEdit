@@ -284,6 +284,18 @@
         </body>
         </method>
 
+        <method name="_clearFoldLevels">
+        <parameter name="scimoz"/>
+        <body>
+        <![CDATA[
+            var lastLine = scimoz.lineFromPosition(scimoz.textLength - 1);
+            for (var i = 0; i < lastLine; i++) {
+                scimoz.setFoldLevel(i, 0);
+            }
+        ]]>
+        </body>
+        </method>
+
         <!--nsIObserver implementation-->
         <method name="observe">
         <!-- Generally the subject of the notification is the view's
@@ -308,6 +320,10 @@
                 }
                 this.log.info("Changed language to:" + doc.language);
                 this.scintilla.language = doc.language;
+                // bug 34689, bug 81587: force syntax highlighting to re-lex,
+                // otherwise the syntax colouring is not correctly updated.
+                this._clearFoldLevels(this.scimoz);
+                this.scimoz.colourise(0,-1);
                 this.commandCompletionSvc = null;
                 this._languageObj = null;
                 this.isCICplnEnabled = (gCodeIntelActive

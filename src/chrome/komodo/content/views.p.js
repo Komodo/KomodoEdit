@@ -2257,11 +2257,6 @@ viewManager.prototype.do_cmd_exportHTMLSelection = function() {
 
 viewManager.prototype.do_ViewAs = function(language) {
     this.currentView.document.language = language;
-    // bug 34689  for some reason the above setter is not forcing a colourise.
-    // we need to do this get get a relexing of the syntax colouring.  It is
-    // better to do it here since this will only happen when the menu
-    // "view->view as language" is used.
-    this.currentView.scimoz.colourise(0,-1);
 }
 
 viewManager.prototype.is_cmd_editPrefsCurrent_enabled = function () {
