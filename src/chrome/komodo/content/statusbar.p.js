@@ -480,6 +480,10 @@ StatusBarObserver.prototype.destroy = function()
         clearTimeout(_updateLintMessageTimer);
         _updateLintMessageTimer = null;
     }
+    if (_addMessageTimer) {
+        clearTimeout(_addMessageTimer);
+        _addMessageTimer = null;
+    }
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
     obsSvc.removeObserver(this, 'status_message');
