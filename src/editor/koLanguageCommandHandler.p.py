@@ -1271,7 +1271,8 @@ class GenericCommandHandler:
         # we're going to unfold everything under this level
         origlevel = _fold_level(sm, lineno)
 
-        while (_fold_level(sm, lineno) >= origlevel):
+        line_count = sm.lineCount  # Bug 82524 defensive check
+        while (lineno < line_count and _fold_level(sm, lineno) >= origlevel):
             if _is_header_line(sm, lineno) and not sm.getFoldExpanded(lineno):
                 sm.toggleFold(lineno)
             lineno += 1
@@ -1287,7 +1288,7 @@ class GenericCommandHandler:
         sm = self._view.scimoz
         lineno = sm.lineFromPosition(sm.currentPos)
         while not (sm.getFoldLevel(lineno) & sm.SC_FOLDLEVELHEADERFLAG):
-            if lineno == 1 or not sm.getFoldExpanded(lineno):
+            if lineno == 0 or not sm.getFoldExpanded(lineno):
                 return
             lineno -= 1
         sm.toggleFold(lineno)
@@ -1311,7 +1312,7 @@ class GenericCommandHandler:
 
         # search up to the header
         while not _is_header_line(sm, lineno):
-            if lineno == 1:
+            if lineno == 0:
                 return
             lineno -= 1
         
