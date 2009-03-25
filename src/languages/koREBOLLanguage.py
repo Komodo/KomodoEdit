@@ -56,6 +56,10 @@ class koREBOLLanguage(KoLanguageBase):
     defaultExtension = ".r" 
 
     supportsSmartIndent = "brace"
+    # Scintilla bug https://sourceforge.net/tracker/index.php?func=detail&aid=2710475&group_id=2439&atid=102439:
+    # Rebol brackets are colored as default
+    _lineup_styles = (components.interfaces.ISciMoz.SCE_REBOL_DEFAULT,)
+    _lineup_chars = "()[]"
     sciMozLexer = components.interfaces.ISciMoz.SCLEX_REBOL
 
     _stateMap = {
