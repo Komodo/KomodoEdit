@@ -1179,8 +1179,15 @@ class koDocumentBase:
             ensureFinalEOL = self._globalPrefs.getBooleanPref("ensureFinalEOL")
             cleanLineEnds = self._globalPrefs.getBooleanPref("cleanLineEnds")
             if ensureFinalEOL or cleanLineEnds:
-                li = self.lidb.langinfo_from_komodo_lang(self.get_language())
-                if not li.has_significant_trailing_ws:
+                try:
+                    li = self.lidb.langinfo_from_komodo_lang(self.get_language())
+                except langinfo.LangInfoError:
+                    # Bug 82512: if it's an unknown language, assume
+                    # it's safe to remove extra whitespace.
+                    cleanWhiteSpace = True
+                else:
+                    cleanWhiteSpace = not li.has_significant_trailing_ws
+                if cleanWhiteSpace:
                     self._clean(ensureFinalEOL, cleanLineEnds)
     
             # translate the buffer before opening the file so if it
