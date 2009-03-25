@@ -33,7 +33,10 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  * 
  * ***** END LICENSE BLOCK ***** */
-
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/pref/pref-helplang.properties");
+                
 var log = ko.logging.getLogger("pref-langhelp");
 
 var currentPrefset = null;
@@ -57,16 +60,12 @@ function langhelp_OnLoad() {
     try {
     var gMainWindow = ko.windowManager.getMainWindow();
     // get a keybinding and set the text correctly
-    var text = "Specify what command __KEY__ should run on the current "+
-               "word/selection.  Set to empty to use Default.";
     var keylabel = gMainWindow.gKeybindingMgr.command2keylabel('cmd_helpLanguage');
-    text = text.replace('__KEY__', keylabel);
+    var text = _bundle.formatStringFromName("SpecifyWhatCommandKeyShouldRun", [keylabel], 1)+" "+_bundle.GetStringFromName("SetToEmptyToUseDefault");
     var node = document.createTextNode(text);
     document.getElementById('language_help_desc').appendChild(node);
-    
-    text = "Specify what command __KEY__ should run on the current word/selection.";
     keylabel = gMainWindow.gKeybindingMgr.command2keylabel('cmd_helpLanguageAlternate');
-    text = text.replace('__KEY__', keylabel);
+    text = _bundle.formatStringFromName("SpecifyWhatCommandKeyShouldRun", [keylabel], 1);
     node = document.createTextNode(text);
     document.getElementById('language_help_alt_desc').appendChild(node);
     
