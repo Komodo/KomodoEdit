@@ -288,7 +288,7 @@
         <parameter name="scimoz"/>
         <body>
         <![CDATA[
-            var lastLine = scimoz.lineFromPosition(scimoz.textLength - 1);
+            var lastLine = scimoz.lineCount;
             for (var i = 0; i < lastLine; i++) {
                 scimoz.setFoldLevel(i, 0);
             }
@@ -323,6 +323,8 @@
                 // bug 34689, bug 81587: force syntax highlighting to re-lex,
                 // otherwise the syntax colouring is not correctly updated.
                 this._clearFoldLevels(this.scimoz);
+                this.scimoz.setProperty('fold',
+                                        doc.languageObj.foldable ? 1 : 0)
                 this.scimoz.colourise(0,-1);
                 this.commandCompletionSvc = null;
                 this._languageObj = null;
@@ -340,8 +342,10 @@
                         this.lintBuffer.request("language changed");
                     }
                     xtk.domutils.fireEvent(this, 'current_view_language_changed');
+                    this.document.docSettingsMgr.applyDocumentSettingsToView(this);
+
                     // The change in language may affect controllers
-                    window.setTimeout("window.updateCommands('current_view_language_changed');", 1)
+                    window.setTimeout("window.updateCommands('current_view_language_changed');", 1);
                 }
                 break;
             case 'title_changed':
