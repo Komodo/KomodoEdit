@@ -1242,8 +1242,10 @@ class GenericCommandHandler:
         return self._view.languageObj.foldable
 
     _is_cmd_foldExpand_enabled = _is_cmd_folding_enabled
+    _is_cmd_foldExpandRecursive_enabled = _is_cmd_folding_enabled
     _is_cmd_foldExpandAll_enabled = _is_cmd_folding_enabled
     _is_cmd_foldCollapse_enabled = _is_cmd_folding_enabled
+    _is_cmd_foldCollapseRecursive_enabled = _is_cmd_folding_enabled
     _is_cmd_foldCollapseAll_enabled = _is_cmd_folding_enabled
     _is_cmd_foldToggle_enabled = _is_cmd_folding_enabled
     
