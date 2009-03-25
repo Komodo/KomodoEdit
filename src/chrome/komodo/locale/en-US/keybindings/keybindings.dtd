@@ -106,8 +106,8 @@
 <!ENTITY editorViSaveAndCloseTheCurrentBuffer.desc "Editor: Vi: Save and Close the Current Buffer">
 <!ENTITY editorViScrollOneLineDown.desc "Editor: Vi: Scroll One Line Down">
 <!ENTITY editorViScrollOneLineUp.desc "Editor: Vi: Scroll One Line Up">
-<!ENTITY editorViSearchForTheNextOccuranceOfTheWordAtTheCurrentCursorPosition.desc "Editor: Vi: Search for the Next Occurance of the Word at the Current Cursor Position">
-<!ENTITY editorViSearchForThePreviousOccuranceOfTheWordAtTheCurrentCursorPosition.desc "Editor: Vi: Search for the Previous Occurance of the Word at the Current Cursor Position">
+<!ENTITY editorViSearchForTheNextOccuranceOfTheWordAtTheCurrentCursorPosition.desc "Editor: Vi: Search for the Next Occurrence of the Word at the Current Cursor Position">
+<!ENTITY editorViSearchForThePreviousOccuranceOfTheWordAtTheCurrentCursorPosition.desc "Editor: Vi: Search for the Previous Occurrence of the Word at the Current Cursor Position">
 <!ENTITY editorViSelectAll.desc "Editor: Vi: Select All">
 <!ENTITY editorViSelectNextCharacter.desc "Editor: Vi: Select Next Character">
 <!ENTITY editorViSelectNextWord.desc "Editor: Vi: Select Next Word">
