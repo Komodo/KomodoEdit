@@ -707,3 +707,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY perlSample.label "Perl Sample">
 <!ENTITY phpSample.label "PHP Sample">
                                             -->
+<!--pref-helplang.xul-->
+<!ENTITY default.value "Default:">
+<!ENTITY generalHelp.value "General Help:">

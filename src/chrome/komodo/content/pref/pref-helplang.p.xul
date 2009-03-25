@@ -62,7 +62,7 @@
         <description id="language_help_desc"/>
         <separator class="thin"/>
         <hbox align="center">
-            <label style="width: 6em;" value="Default:"/>
+            <label style="width: 6em;" value="&default.value;"/>
             <textbox id="DefaultHelpCommand"
                      pref="true"
                      flex="1"
@@ -90,7 +90,7 @@
         <description id="language_help_alt_desc"/>
         <separator class="thin"/>
         <hbox align="center">
-            <label style="width: 6em;" value="General Help:"/>
+            <label style="width: 6em;" value="&generalHelp.value;"/>
             <textbox id="OtherHelpCommand"
                      pref="true"
                      flex="1"
