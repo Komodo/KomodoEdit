@@ -346,6 +346,7 @@
 
                     // The change in language may affect controllers
                     window.setTimeout("window.updateCommands('current_view_language_changed');", 1);
+                    window.setTimeout("window.updateCommands('foldability_changed');", 1);
                 }
                 break;
             case 'title_changed':
