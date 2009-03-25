@@ -254,23 +254,39 @@ test_vi_emulation.prototype._repeatCommand = function(cmd, repeatCount,
     this._passedTest(cmd, tags);
 }
 
+test_vi_emulation.prototype._markBuffer = function(buffer, currentPos, anchor) {
+    if (typeof(currentPos) == 'undefined') currentPos = -1;
+    if (typeof(anchor) == 'undefined') anchor = -1;
+    if (currentPos >= 0) {
+        buffer = buffer.substr(0, currentPos) + "<|>" + buffer.substr(currentPos);
+    }
+    if (anchor >= 0) {
+        if (currentPos >= 0 && anchor > currentPos)
+            anchor += 3;
+        buffer = buffer.substr(0, anchor) + "<^>" + buffer.substr(anchor);
+    }
+    return buffer;
+}
+
 /**
  * Test commands that use the find char with an operation mode.
  * @param cmd {string}  The command to be run
  * @param buffers {array}  Contains the text and caret positions
  * @param register {string}  The register to be used for the command
- * @param testRepeat {boolean}  Test the command using a repeat count.
- * @param operationFlags {array}  The operations to run the command with
- * @param tags {array}  List of specific test tag names
- * @param resetMode {boolean}  Perform a vi basic reset before running.
+ * @param options {object}  Options can have any of these values:
+ *        testRepeat {boolean}  Test the command using a repeat count.
+ *        operationFlags {array}  The operations to run the command with
+ *        tags {array}  List of specific test tag names
+ *        resetMode {boolean}  Perform a vi basic reset before running.
  */
 test_vi_emulation.prototype._runRegisterCommand = function(cmd,
                                                    buffers,
-                                                   register /* null */,
-                                                   testRepeat, /* false */
-                                                   operationFlags, /* OPERATION_NONE */
-                                                   tags /* null */,
-                                                   resetMode /* true */) {
+                                                   register,
+                                                   options) {
+    var testRepeat = options && options.testRepeat;
+    var operationFlags = options && options.operationFlags;
+    var tags = options && options.tags;
+    var resetMode = options && options.resetMode;
     log.info("\n\n*************************************");
     log.info(cmd);
     log.info("*************************************\n");
@@ -281,8 +297,8 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
     var bufferOrig = buffers[0];
     var anchorOrigPos = bufferOrig.indexOf("<^>");
     var bufOrig = bufferOrig.replace("<^>", "");
-    var cursorOrigPos = bufferOrig.indexOf("<|>");
-    bufOrig = bufferOrig.replace("<|>", "");
+    var cursorOrigPos = bufOrig.indexOf("<|>");
+    bufOrig = bufOrig.replace("<|>", "");
     // Set the buffer text in scimoz
     //this.view.setFocus();
     this.scimoz.text = bufOrig;
@@ -312,6 +328,7 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
         }
         vim_doCommand(cmd);
         // Compare the results
+        var anchorNewPos = buf.indexOf("<^>");
         buf = buf.replace("<^>", "");
         var cursorNewPos = buf.indexOf("<|>");
         buf = buf.replace("<|>", "");
@@ -319,11 +336,17 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
         log.debug("scimoz.text: '" + this.scimoz.text + "'");
         try {
             this.assertEqual(buf, this.scimoz.text, cmd + ": buffer "+i+" incorrect after running command!");
-            if (cursorOrigPos >= 0) {
-                // Set the cursor position
+            if (cursorNewPos >= 0) {
+                // Check the cursor position
                 log.debug("cursorNewPos: " + cursorNewPos);
                 log.debug("currentPos  : " + this.scimoz.currentPos);
                 this.assertEqual(cursorNewPos, this.scimoz.currentPos, cmd + ": cursor at incorrect position! Expected: " + cursorNewPos + ", got: " + this.scimoz.currentPos);
+            }
+            if (anchorNewPos >= 0) {
+                // Check the anchor position
+                log.debug("anchorNewPos: " + anchorNewPos);
+                log.debug("anchor      : " + this.scimoz.anchor);
+                this.assertEqual(anchorNewPos, this.scimoz.anchor, cmd + ": anchor at incorrect position! Expected: " + anchorNewPos + ", got: " + this.scimoz.anchor);
             }
         } catch(ex if ex instanceof Casper.UnitTest.AssertException) {
             // Check if it's a knownfailure
@@ -331,7 +354,9 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
                 this.logKnownFailure(cmd, ex);
                 return;
             } else {
-                log.warn("failure: " + ex.message);
+                log.warn("failure: " + ex.message + "\n" +
+                         "  buf[" + i + "]:      '" + this._markBuffer(buf, cursorNewPos, anchorNewPos) + "'\n" +
+                         "  scimoz.text: '" + this._markBuffer(this.scimoz.text, this.scimoz.currentPos, this.scimoz.anchor) + "'\n");
                 throw ex;
             }
         }
@@ -348,18 +373,16 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
  * Test commands that use the find char with an operation mode.
  * @param cmd {string}  The command to be run
  * @param buffers {array}  Contains the text and caret positions
- * @param testRepeat {boolean}  Test the command using a repeat count.
- * @param operationFlags {array}  The operations to run the command with
- * @param tags {array}  List of specific test tag names
- * @param resetMode {boolean}  Perform a vi basic reset before running.
+ * @param options {object}  Options can have any of these values:
+ *        testRepeat {boolean}  Test the command using a repeat count.
+ *        operationFlags {array}  The operations to run the command with
+ *        tags {array}  List of specific test tag names
+ *        resetMode {boolean}  Perform a vi basic reset before running.
  */
 test_vi_emulation.prototype._runCommand = function(cmd,
                                                    buffers,
-                                                   testRepeat, /* false */
-                                                   operationFlags, /* OPERATION_NONE */
-                                                   tags /* null */,
-                                                   resetMode /* true */) {
-    this._runRegisterCommand(cmd, buffers, null, testRepeat, operationFlags, tags, resetMode);
+                                                   options) {
+    this._runRegisterCommand(cmd, buffers, null, options);
 }
 
 /**
@@ -966,14 +989,13 @@ test_vi_emulation.prototype.test_paste_commands = function() {
                               "this is my is is <|>buffer\r\n",
                              ],
                              "a",
-                             TEST_REPETITION);
+                             { testRepeat: TEST_REPETITION });
     this._runRegisterCommand("pasteAfter",
                              ["this is my <|>buffer\r\n",
                               "this is my bis <|>uffer\r\n",
                               "this is my bis uis <|>ffer\r\n",
                              ],
-                             "a",
-                             NO_REPETITION);
+                             "a");
     // Repitition works a little different with pasteAfter.
     this._repeatCommand("pasteAfter", 2,
                         "this is my <|>buffer\r\n",
@@ -987,7 +1009,7 @@ test_vi_emulation.prototype.test_paste_commands = function() {
                               "this is my bufferis is <|>\r\n",
                              ],
                              "a",
-                             TEST_REPETITION);
+                             { testRepeat: TEST_REPETITION });
     // Try multiline pasting.
     gVimController._registers["a"] = "One line.\r\n";
     this._runRegisterCommand("paste",
@@ -997,15 +1019,14 @@ test_vi_emulation.prototype.test_paste_commands = function() {
                               "<|>One line.\r\nOne line.\r\nOne line.\r\nthis is my buffer\r\n",
                              ],
                              "a",
-                             TEST_REPETITION);
+                             { testRepeat: TEST_REPETITION });
     this._runRegisterCommand("pasteAfter",
                              ["this is my <|>buffer\r\n",
                               "this is my buffer\r\n<|>One line.\r\n",
                               "this is my buffer\r\nOne line.\r\n<|>One line.\r\n",
                               "this is my buffer\r\nOne line.\r\nOne line.\r\n<|>One line.\r\n",
                              ],
-                             "a",
-                             NO_REPETITION);
+                             "a");
     // Repitition works a little different with pasteAfter.
     this._repeatCommand("pasteAfter", 3,
                         "this is my <|>buffer\r\n",
@@ -1499,10 +1520,7 @@ test_vi_emulation.prototype.test_bug81184_no_eol_at_eof = function() {
     this._runCommand("pasteAfter",
                      ["this is<|>",
                       "this is\r\n<|>this is"],
-                     NO_REPETITION,
-                     VimController.OPERATION_NONE,
-                     null,
-                     false);
+                     { resetMode: false });
 }
 
 test_vi_emulation.prototype.test_bug81576_paste_in_visual_mode = function() {
@@ -1514,10 +1532,7 @@ test_vi_emulation.prototype.test_bug81576_paste_in_visual_mode = function() {
     this._runCommand("pasteAfter",
                      ["line1\r\n<^>line2\r\n<|>line3\r\n",
                       "line1\r\n<^><|>line1.5\r\nline3\r\n"],
-                     NO_REPETITION,
-                     VimController.OPERATION_NONE,
-                     null,
-                     false);
+                     { resetMode: false });
 
     this._reset();
     gVimController.mode = VimController.MODE_VISUAL;
@@ -1526,10 +1541,7 @@ test_vi_emulation.prototype.test_bug81576_paste_in_visual_mode = function() {
     this._runCommand("paste",
                      ["line1\r\n<^>line2\r\n<|>line3\r\n",
                       "line1\r\n<^><|>line1.5\r\nline3\r\n"],
-                     NO_REPETITION,
-                     VimController.OPERATION_NONE,
-                     null,
-                     false);
+                     { resetMode: false });
 }
 
 
