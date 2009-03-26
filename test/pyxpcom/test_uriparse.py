@@ -138,6 +138,15 @@ class URIParseTestCase(unittest.TestCase):
                 fullpath = fullpath[:-1]
             self.failUnlessSamePath(os.path.normcase(fullURI.path), os.path.normcase(fullpath))
             
+    @tag("bug73780")
+    def test_remoteURIs(self):
+        # Ensure the remote connection URI parsing is properly quoting and
+        # unquoting the individual parts of the URI.
+        import URIlib
+        remote_URI = "ftp://username%40site.com@ftp.activestate.com/ActivePython/file.txt"
+        uri_object = URIlib.URIParser(remote_URI)
+        self.failUnlessSamePath(remote_URI, uri_object.URI)
+
 
 class _dummyPrefsClass(object):
     def __init__(self, string_prefs=None):

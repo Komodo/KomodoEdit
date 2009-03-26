@@ -104,6 +104,13 @@ class URIServerParser(object):
             raise ValueError, "Regular Expression Failure in %s" % (self._serveruri)
         ug = u.groups()
         self._username, self._password, self._hostname, self._port = ug[1], ug[3], ug[4], ug[6]
+        # Unquote the individual pieces from the URL.
+        if self._username:
+            self._username = urllib.unquote(self._username)
+        if self._password:
+            self._password = urllib.unquote(self._password)
+        if self._hostname:
+            self._hostname = urllib.unquote(self._hostname)
 
     #attribute string ServerURI;
     def get_ServerURI(self):
@@ -141,6 +148,12 @@ class URIParser(object):
         self._uri = None
         self._path = None
         self._server = None
+        # _fileParsed contains broken up parts of the URI, indexes are:
+        #   0  scheme
+        #   1  netloc
+        #   2  path      (the path is *always* unquoted)
+        #   3  query
+        #   4  fragment
         self._fileParsed = ['','','','','']
         self._baseName = None
         self._dirName = None
@@ -180,6 +193,10 @@ class URIParser(object):
              parts[2].find("://") > 0):
             parts[2] = parts[2][1:]
 
+        # Unquote the path from the URL parts.
+        if parts[2].find('%') != -1:
+            parts[2] = urllib.unquote(parts[2])
+
         return parts
     
     def _buildURI(self, parts):
@@ -218,7 +235,8 @@ class URIParser(object):
         return urlparse.urlunsplit(tuple(uparts))
 
     def _setFileNames(self, fileName):
-        # Expects a sort-of URI where urlunquote has already been done.
+        # Expects a URI where *no* urlunquote has yet been done. Unquoting
+        # of the path itself will be done as part of the _parseURI() method.
         self._clear()
         if fileName:
             self.fileName = fileName
@@ -269,8 +287,6 @@ class URIParser(object):
         elif uri.find('://') == -1:
             self.set_path(uri)
         else:
-            if uri.find('%') != -1:
-                uri = urllib.unquote(uri)
             self._setFileNames(uri)
     URI = property(get_URI,set_URI)
 
@@ -308,6 +324,8 @@ class URIParser(object):
         return self._encodeForFileSystem(self.get_path())
     encodedPath = property(get_encodedPath)
 
+    # Warning, for absolute paths, this method actually resets the scheme
+    # to be "file:///", ignoring what the original scheme settings were.
     def set_path(self, path):
         # turn paths into uri's, then set_URI
         if not path: return

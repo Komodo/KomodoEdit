@@ -365,7 +365,8 @@ class koRemoteConnectionService:
         path = rfInfo.getFilepath()
         if not server:
             # Build one up from the connection details, don't include password
-            server = "%s@%s" % (connection.username, connection.server)
+            server = "%s@%s" % (urllib.quote(connection.username),
+                                urllib.quote(connection.server))
             port = connection.port
             if port != remotefilelib.koRFProtocolDefaultPort[protocol]:
                 server += ":%d" % (port)
@@ -373,7 +374,14 @@ class koRemoteConnectionService:
         if path and path[0] == "/":
             path = path[1:]
 
-        return "%s://%s/%s" % (protocol, server, path)
+        # Note: would have liked to use the existing URIParser class here, but
+        #       using the set_path() method using an absolute path will create
+        #       a "file:///" URI even if it was originally "sftp://". Bah!
+        try:
+            return "%s://%s/%s" % (protocol, server, urllib.quote(path))
+        except KeyError, e:
+            # Quoting can fail on unicode chars, just leave as is then.
+            return "%s://%s/%s" % (protocol, server, path)
 
     # Return a connection object for the given parameters
     def getConnection(self, protocol, server, port, username, password, path):
