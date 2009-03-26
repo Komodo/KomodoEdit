@@ -112,8 +112,8 @@ function PrefPerl_OnLoad()
     var cwd = origWindow.ko.window.getCwd();
     parent.hPrefWindow.onpageload();
     var extraPaths = document.getElementById("perlExtraPaths");
-    extraPaths.init() // must happen after onpageload
-    extraPaths.setCwd(cwd)
+    extraPaths.init(); // must happen after onpageload
+    extraPaths.setCwd(cwd);
 }
 
 function loadPerlExecutable()
