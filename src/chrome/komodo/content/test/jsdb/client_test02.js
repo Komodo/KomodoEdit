@@ -350,7 +350,7 @@ function client_test_send()
                           + ex.message);
             }
         } else if (ostream) {
-            cmd2 = (cmd[0] == '*') ? unescape(cmd) : cmd;
+            var cmd2 = (cmd[0] == '*') ? unescape(cmd) : cmd;
             console.addStr("writing out [" + cmd2 + "]");
             ostream.write(cmd2, cmd2.length);
         } else {
