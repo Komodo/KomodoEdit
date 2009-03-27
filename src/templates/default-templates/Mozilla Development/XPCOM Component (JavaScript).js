@@ -1,6 +1,8 @@
 /* Copyright (c) [[%date:%Y]] [[%tabstop2:MyCompany.com]]
    See the file LICENSE.txt for licensing information. */
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
 /***********************************************************
  *              XPCOM class definition                     *
  ***********************************************************/
