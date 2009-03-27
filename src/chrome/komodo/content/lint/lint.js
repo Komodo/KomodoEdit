@@ -102,6 +102,7 @@ this.lintBuffer = function LintBuffer(view) {
         this._lastRequestId = 0; // used to ensure only the last request is used
 
         _prefs.prefObserverService.addObserver(this, "editUseLinting", false);
+        _prefs.prefObserverService.addObserver(this, "perlDefaultInterpreter", false);
         _prefs.prefObserverService.addObserver(this, "perl_lintOption", false);
         _prefs.prefObserverService.addObserver(this, "perl_lintOption_perlCriticLevel", false);
         this.view.prefs.prefObserverService.addObserver(this,
@@ -138,6 +139,7 @@ this.lintBuffer.prototype.destructor = function()
         this.view.prefs.prefObserverService.removeObserver(this,
                                                            "editUseLinting");
         _prefs.prefObserverService.removeObserver(this, "editUseLinting");
+        _prefs.prefObserverService.removeObserver(this, "perlDefaultInterpreter");
         _prefs.prefObserverService.removeObserver(this, "perl_lintOption");
         _prefs.prefObserverService.removeObserver(this, "perl_lintOption_perlCriticLevel");
 
@@ -156,6 +158,7 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
     try {
         var lintingEnabled;
         switch (topic) {
+        case "perlDefaultInterpreter":
         case "perl_lintOption":
         case "perl_lintOption_perlCriticLevel":
             lintingEnabled = this.view.prefs.getBooleanPref("editUseLinting");
