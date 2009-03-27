@@ -108,6 +108,10 @@ function PrefPerl_OnLoad()
         prefExecutable = '';
     PrefPerl_PopulatePerlInterps();
 
+    var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].
+            createInstance(Components.interfaces.koIPerlInfoEx);
+    _setPerlCriticSection(appInfoEx.haveModules(1, ['criticism']));
+
     var origWindow = ko.windowManager.getMainWindow();
     var cwd = origWindow.ko.window.getCwd();
     parent.hPrefWindow.onpageload();
@@ -122,6 +126,33 @@ function loadPerlExecutable()
     if (perlExe != null) {
         var availInterpList = document.getElementById("perlDefaultInterpreter");
         availInterpList.selectedItem = availInterpList.appendItem(perlExe, perlExe);
+    }
+}
+
+function onPerlDefaultInterpreterChanged() {
+    var availInterpList = document.getElementById("perlDefaultInterpreter");
+    var newInterpreter = availInterpList.selectedItem.value;
+    // We can't use koAppInfo service, because it's still pointing at
+    // the old Perl interpreter value.
+    var cmd = !newInterpreter ? "perl" : newInterpreter;
+    cmd += " -Mcriticism -e 1";
+    var runSvc = Components.classes["@activestate.com/koRunService;1"]
+               .getService(Components.interfaces.koIRunService);
+    var out = {}, err = {};
+    var res = runSvc.RunAndCaptureOutput(cmd, null, null, null, out, err);
+    _setPerlCriticSection(res == 0);
+}
+
+function _setPerlCriticSection(havePerlCritic) {
+    var perlCriticLabel = document.getElementById("perl_lintOptions_perlCriticBox_label");
+    var perlCriticMenu = document.getElementById("perl_lintOption_perlCriticLevel");
+    var perlCriticEnableNode = document.getElementById("perl_lintOption_perlCriticEnableNote");
+    perlCriticLabel.disabled = !havePerlCritic;
+    perlCriticMenu.disabled = !havePerlCritic;
+    if (havePerlCritic) {
+        perlCriticEnableNode.setAttribute('collapsed', true);
+    } else {
+        perlCriticEnableNode.removeAttribute('collapsed');
     }
 }
 
