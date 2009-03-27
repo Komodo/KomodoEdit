@@ -107,7 +107,6 @@ function PrefPerl_OnLoad()
     else
         prefExecutable = '';
     PrefPerl_PopulatePerlInterps();
-
     var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].
             createInstance(Components.interfaces.koIPerlInfoEx);
     _setPerlCriticSection(appInfoEx.haveModules(1, ['criticism']));
