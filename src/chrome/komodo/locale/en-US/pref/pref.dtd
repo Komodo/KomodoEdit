@@ -615,6 +615,16 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePrefPerlUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefPerlLevelStricness.description "You can configure the level of strictness that is used when doing background syntax checks.">
 <!ENTITY filePrefPerlAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Perl path when debugging, syntax checking or in the interactive shell.">
+<!ENTITY prefPerl.perlCriticOptions.label "Perl Critic options:">
+<!ENTITY prefPerl.perlCriticOption.off.label "Off">
+<!ENTITY prefPerl.perlCriticOption.gentle.label "Gentle">
+<!ENTITY prefPerl.perlCriticOption.stern.label "Stern">
+<!ENTITY prefPerl.perlCriticOption.harsh.label "Harsh">
+<!ENTITY prefPerl.perlCriticOption.cruel.label "Cruel">
+<!ENTITY prefPerl.perlCriticOption.brutal.label "Brutal">
+<!ENTITY prefPerl.perlCriticOptions.accesskey "c">
+<!ENTITY prefPerl.perlCriticOptionsEnable.description "To enable PerlCritic support, please install the `Perl-Critic' and `criticism' modules.">
+
 
 <!--pref-php.xul-->
 <!ENTITY noPhpInterpreter.description "No PHP interpreter was found on your system PATH. If you would like to debug and run PHP programs in Komodo you will need to enter the path to your PHP executable below, or install PHP if it is not currently installed. You can get PHP from www.php.net.">

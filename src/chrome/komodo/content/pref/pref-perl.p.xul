@@ -76,7 +76,9 @@
             <menulist id="perlDefaultInterpreter"
                 flex="1"
                 pref="true"
-                prefstring="perlDefaultInterpreter">
+                prefstring="perlDefaultInterpreter"
+                oncommand="onPerlDefaultInterpreterChanged()"
+                      >
                 <menupopup id="avail-interp-list"/>
             </menulist>
             <button label="&browse.label;" oncommand="loadPerlExecutable();"/>
@@ -99,6 +101,32 @@
                 </menupopup>
             </menulist>
         </hbox>
+	<separator class="thin"/>
+	<hbox id="perl_lintOptions_perlCriticBox_hbox"
+              align="center"
+	      collapsed="false">
+            <label id="perl_lintOptions_perlCriticBox_label"
+                   value="&prefPerl.perlCriticOptions.label;"
+                   accesskey="&prefPerl.perlCriticOptions.accesskey;"
+                   control="perl_lintOption_perlCriticLevel"
+		   />
+	    <menulist id="perl_lintOption_perlCriticLevel"
+		      pref="true" prefattribute="data">
+		<menupopup>
+		    <menuitem data="off" label="&prefPerl.perlCriticOption.off.label;"/>
+		    <menuitem data="gentle" label="&prefPerl.perlCriticOption.gentle.label;"/>
+		    <menuitem data="stern" label="&prefPerl.perlCriticOption.stern.label;"/>
+		    <menuitem data="harsh" label="&prefPerl.perlCriticOption.harsh.label;"/>
+		    <menuitem data="cruel" label="&prefPerl.perlCriticOption.cruel.label;"/>
+		    <menuitem data="brutal" label="&prefPerl.perlCriticOption.brutal.label;"/>
+		</menupopup>
+	    </menulist>
+	</hbox>
+        <description id="perl_lintOption_perlCriticEnableNote"
+                     collapsed="true">
+        To enable PerlCritic support, please install the
+        `Perl-Critic' and `criticism' modules.
+        </description>
     </groupbox>
     
     <separator class="thin"/>

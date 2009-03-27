@@ -279,6 +279,8 @@ class KoPerlCompileLinter:
         supportDir = components.classes["@activestate.com/koDirs;1"].\
                     getService(components.interfaces.koIDirs).supportDir
         self._perlTrayDir = os.path.join(supportDir, "perl", "perltray").replace('\\', '/')
+        self._appInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
+            createInstance(components.interfaces.koIPerlInfoEx)
 
     def _selectPerlExe(self, prefset):
         """Determine the Perl interpreter to use.
@@ -365,6 +367,10 @@ class KoPerlCompileLinter:
         try:
             perlExe = self._selectPerlExe(prefset)
             option = '-' + prefset.getStringPref("perl_lintOption")
+            if self._appInfoEx.haveModules(['criticism']):
+                criticLevel = prefset.getStringPref("perl_lintOption_perlCriticLevel")
+                if criticLevel != 'off':
+                    option += ' -Mcriticism=' + criticLevel
             perlExtraPaths = prefset.getStringPref("perlExtraPaths")
             if perlExtraPaths:
                 if sys.platform.startswith("win"):

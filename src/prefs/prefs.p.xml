@@ -176,6 +176,7 @@
 <!-- HTTP Inspector end -->
 
   <string id="perl_lintOption">cw</string>
+  <string id="perl_lintOption_perlCriticLevel">off</string>
 
   <!-- File associations are (roughly) determined by starting with this set
        (factoryFileAssociations, which should only exist at the factory level)
