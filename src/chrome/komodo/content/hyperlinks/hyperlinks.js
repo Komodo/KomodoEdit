@@ -157,10 +157,12 @@ ko.hyperlinks = {};
      * @param line {string}  The current line from the editor.
      * @param lineStartPos {int} Scimoz position for the start of the line.
      * @param lineEndPos {int}   Scimoz position for the end of the line.
+     * @param reason {string}  What the triggering event reason was, can be one
+     *        of "keypress", "mousemove" or "dwell".
      * @returns {boolean} Whether this handler added a hyperlink here.
      */
     this.BaseHandler.prototype.show = function(view, scimoz, position, line,
-                                               lineStartPos, lineEndPos)
+                                               lineStartPos, lineEndPos, reason)
     {
         return false;
     }
@@ -287,10 +289,14 @@ ko.hyperlinks = {};
     /**
      * Show any available hyperlink at the position in the view.
      *
+     * @param view {Components.interfaces.koIScintillaView}  View to check.
+     * @param position {int}  Position in the scimoz editor.
+     * @param reason {string}  What the triggering event reason was, can be one
+     *        of "keypress", "mousemove" or "dwell".
      * @returns {ko.hyperlinks.BaseHandler} - The handler for the hyperlink
      *          that was shown, or null if no hyperlink was shown.
      */
-    this.show = function(view, position)
+    this.show = function(view, position, reason)
     {
         if (!view.document || !view.prefs.getBooleanPref("hyperlinksEnabled")) {
             return null;
@@ -304,7 +310,7 @@ ko.hyperlinks = {};
         var handlers = this.getHandlersForLang(lang_name);
         for (var i=0; i < handlers.length; i++) {
             if (handlers[i].show(view, scimoz, position, line,
-                                 startOfLine, endOfLine)) {
+                                 startOfLine, endOfLine, reason)) {
                 return handlers[i];
             }
         }

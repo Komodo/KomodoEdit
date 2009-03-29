@@ -797,6 +797,13 @@
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined') {
                 gEditorTooltipHandler.show(this, x, y);
             }
+<!-- #if PLATFORM == "darwin" -->
+            if (this.isMetaKeyDown(false)) {
+<!-- #else -->
+            if (this.isCtrlKeyDown(false)) {
+<!-- #endif -->
+                this.checkHyperlinks(position, "dwell");
+            }
             return true;
         ]]></body>
         </method>
@@ -1391,10 +1398,11 @@
 
         <method name="checkHyperlinks">
         <parameter name="position"/>
+        <parameter name="reason"/>
         <body>
             <![CDATA[
             if (ko.hyperlinks) {
-                ko.hyperlinks.show(this, position);
+                ko.hyperlinks.show(this, position, reason);
             }
             ]]>
         </body>
@@ -1444,7 +1452,7 @@
                 this.removeHyperlinks();
                 var pos = this.scimoz.positionFromPointClose(x, y);
                 if (pos >= 0) {
-                    this.checkHyperlinks(pos);
+                    this.checkHyperlinks(pos, "mousemove");
                 }
             }
             ]]>
@@ -1527,7 +1535,7 @@
                 [x,y] = this._last_mousemove_xy;
                 var pos = this.scimoz.positionFromPointClose(x, y);
                 if (pos >= 0) {
-                    this.checkHyperlinks(pos);
+                    this.checkHyperlinks(pos, "keypress");
                 }
             }
             ]]>
