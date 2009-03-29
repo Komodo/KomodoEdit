@@ -79,6 +79,10 @@ if (typeof(ko.projects)=='undefined') {
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 var log = ko.logging.getLogger('ko.projects.extensionManager');
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/project/projectExtensionManager.properties");
+      
 function projectExtensionManager() {
     ko.trace.get().enter('projectExtensionManager()');
     /* maps an interface string to an array of menuItem XUL elements */
@@ -266,7 +270,7 @@ projectExtensionManager.prototype.updateToplevelMenu = function(menupopupid, eve
         if (items.length != 1) {
             // make sure the placeholder and the separator are
             // collapsed
-            menupopup.firstChild.setAttribute('label', 'No Selection');
+            menupopup.firstChild.setAttribute('label', _bundle.GetStringFromName("noSelection"));
             menupopup.firstChild.setAttribute('disabled', 'true');
             return true;
         } else {
