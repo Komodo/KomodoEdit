@@ -172,8 +172,10 @@ ko.hyperlinks = {};
      *
      * @param view {Components.interfaces.koIScintillaView}  The view instance.
      * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink instance.
+     * @param reason {string}  What the triggering event reason was, can be one
+     *        of "keyup", "mousemove", "mouseup" or "blur".
      */
-    this.BaseHandler.prototype.remove = function(view, hyperlink)
+    this.BaseHandler.prototype.remove = function(view, hyperlink, reason)
     {
         // Nothing to do.
     }

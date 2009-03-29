@@ -152,8 +152,10 @@ ko.hyperlinks.ColorPickerHandler.prototype.show = function(
  *
  * @param view {Components.interfaces.koIScintillaView}  The view instance.
  * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink instance.
+ * @param reason {string}  What the triggering event reason was, can be one
+ *        of "keyup", "mousemove", "mouseup" or "blur".
  */
-ko.hyperlinks.ColorPickerHandler.prototype.remove = function(view, hyperlink)
+ko.hyperlinks.ColorPickerHandler.prototype.remove = function(view, hyperlink, reason)
 {
     ko.hyperlinks.RegexHandler.prototype.remove.apply(this, arguments);
     var popup = document.getElementById("colorpicker_swatch_popup");

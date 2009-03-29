@@ -1409,10 +1409,11 @@
         </method>
 
         <method name="removeHyperlinks">
+        <parameter name="reason"/>
         <body>
             <![CDATA[
             if (this._hyperlink) {
-                this._hyperlink.remove(this);
+                this._hyperlink.remove(this, reason);
                 var scimoz = this.scimoz;
                 scimoz.indicatorCurrent = this.INDICATOR_HYPERLINK;
                 scimoz.indicatorClearRange(0, scimoz.textLength);
@@ -1449,7 +1450,7 @@
 <!-- #endif -->
                 // Check if the mouse has moved outside of the hyperlink, if
                 // it has then the hyperlink should be removed.
-                this.removeHyperlinks();
+                this.removeHyperlinks("mousemove");
                 var pos = this.scimoz.positionFromPointClose(x, y);
                 if (pos >= 0) {
                     this.checkHyperlinks(pos, "mousemove");
@@ -1465,7 +1466,7 @@
                 // aren't in the middle of a drag/drop, or have a selection, or
                 // a modified click.
                 if (scintilla._startDragDrop || scintilla._inDragDrop) {
-                    this.removeHyperlinks();
+                    this.removeHyperlinks("mouseup");
                     return;
                 }
                 var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
@@ -1483,7 +1484,7 @@
                     this._hyperlink.jump(this);
                 }
             }
-            this.removeHyperlinks();
+            this.removeHyperlinks("mouseup");
             this.clearKeyDownValues();
             ]]>
         </handler>
@@ -1503,7 +1504,7 @@
         <handler event="blur" phase="capturing">
             <![CDATA[
             window.setTimeout("window.updateCommands('scintilla-focus');", 1);
-            this.removeHyperlinks();
+            this.removeHyperlinks("blur");
             this.clearKeyDownValues();
             ]]>
         </handler>
@@ -1535,7 +1536,7 @@
                 [x,y] = this._last_mousemove_xy;
                 var pos = this.scimoz.positionFromPointClose(x, y);
                 if (pos >= 0) {
-                    this.checkHyperlinks(pos, "keypress");
+                    this.checkHyperlinks(pos, "keydown");
                 }
             }
             ]]>
@@ -1560,7 +1561,7 @@
 <!-- #else -->
                 !this.isCtrlKeyDown()) {
 <!-- #endif -->
-                this.removeHyperlinks();
+                this.removeHyperlinks("keyup");
             }
             ]]>
         </handler>
