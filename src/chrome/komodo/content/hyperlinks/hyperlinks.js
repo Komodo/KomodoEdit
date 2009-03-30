@@ -105,6 +105,16 @@ ko.hyperlinks = {};
     }
 
     /**
+     * Called when the mouse dwells on this hyperlink.
+     *
+     * @param view {Components.interfaces.koIScintillaView}  The view instance.
+     */
+    this.Hyperlink.prototype.dwell = function(view)
+    {
+        this.handler.dwell(view, this);
+    }
+
+    /**
      * Remove this hyperlink.
      *
      * @param view {Components.interfaces.koIScintillaView}  The view instance.
@@ -162,13 +172,24 @@ ko.hyperlinks = {};
      * @param lineStartPos {int} Scimoz position for the start of the line.
      * @param lineEndPos {int}   Scimoz position for the end of the line.
      * @param reason {string}  What the triggering event reason was, can be one
-     *        of "keypress", "mousemove" or "dwell".
+     *        of "keypress" or "mousemove".
      * @returns {boolean} Whether this handler added a hyperlink here.
      */
     this.BaseHandler.prototype.show = function(view, scimoz, position, line,
                                                lineStartPos, lineEndPos, reason)
     {
         return false;
+    }
+
+    /**
+     * Called when the mouse dwells on this hyperlink.
+     *
+     * @param view {Components.interfaces.koIScintillaView}  The view instance.
+     * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink instance.
+     */
+    this.BaseHandler.prototype.dwell = function(view, hyperlink)
+    {
+        // Nothing to do.
     }
 
     /**
@@ -298,7 +319,7 @@ ko.hyperlinks = {};
      * @param view {Components.interfaces.koIScintillaView}  View to check.
      * @param position {int}  Position in the scimoz editor.
      * @param reason {string}  What the triggering event reason was, can be one
-     *        of "keypress", "mousemove" or "dwell".
+     *        of "keypress" or "mousemove".
      * @returns {ko.hyperlinks.BaseHandler} - The handler for the hyperlink
      *          that was shown, or null if no hyperlink was shown.
      */

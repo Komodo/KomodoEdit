@@ -797,12 +797,13 @@
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined') {
                 gEditorTooltipHandler.show(this, x, y);
             }
+
 <!-- #if PLATFORM == "darwin" -->
-            if (this.isMetaKeyDown(false)) {
+            if (this._hyperlink && this.isMetaKeyDown(false)) {
 <!-- #else -->
-            if (this.isCtrlKeyDown(false)) {
+            if (this._hyperlink && this.isCtrlKeyDown(false)) {
 <!-- #endif -->
-                this.checkHyperlinks(position, "dwell");
+                this._hyperlink.dwell(position);
             }
             return true;
         ]]></body>

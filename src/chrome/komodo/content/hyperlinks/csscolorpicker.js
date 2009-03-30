@@ -88,7 +88,7 @@ ko.hyperlinks.ColorPickerHandler.named_css_colors = [
  * @param lineStartPos {int} Scimoz position for the start of the line.
  * @param lineEndPos {int}   Scimoz position for the end of the line.
  * @param reason {string}  What the triggering event reason was, can be one
- *        of "keypress", "mousemove" or "dwell".
+ *        of "keypress" or "mousemove".
  * @returns {ko.hyperlinks.Hyperlink} - The hyperlink instance shown.
  */
 ko.hyperlinks.ColorPickerHandler.prototype.show = function(
