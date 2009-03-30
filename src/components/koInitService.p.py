@@ -370,6 +370,7 @@ class KoInitService(object):
         self.configureDefaultEncoding()
         self.initProcessUtils()
         self.initExtensions()
+        self.platformCheck()
 
     def observe(self, subject, topic, data):
         # this exists soley for app-startup support
@@ -720,6 +721,30 @@ class KoInitService(object):
             koprocessutils.initialize()
         except Exception, e:
             log.exception(e)
+
+    def platformCheck(self):
+        if sys.platform == "darwin":
+            infoSvc = components.classes["@activestate.com/koInfoService;1"].getService()
+            if "86" in infoSvc.buildPlatform and "power" in os.uname()[4].lower():
+                # Running an x86 build on a power-pc.
+                prompt = components.classes["@mozilla.org/embedcomp/prompt-service;1"]\
+                         .getService(components.interfaces.nsIPromptService)
+                komodoBundle = components.classes["@mozilla.org/intl/stringbundle;1"]\
+                         .getService(components.interfaces.nsIStringBundleService)\
+                         .createBundle("chrome://komodo/locale/komodo.properties")
+                prompt.alert(None,
+                             komodoBundle.GetStringFromName("wrongKomodoPlatform.title"),
+                             komodoBundle.GetStringFromName("wrongKomodoPlatform.intel_on_powerpc.description"))
+            elif "power" in infoSvc.buildPlatform and "86" in os.uname()[4]:
+                # Running a power-pc build on an intel machine.
+                prompt = components.classes["@mozilla.org/embedcomp/prompt-service;1"]\
+                         .getService(components.interfaces.nsIPromptService)
+                komodoBundle = components.classes["@mozilla.org/intl/stringbundle;1"]\
+                         .getService(components.interfaces.nsIStringBundleService)\
+                         .createBundle("chrome://komodo/locale/komodo.properties")
+                prompt.alert(None,
+                             komodoBundle.GetStringFromName("wrongKomodoPlatform.title"),
+                             komodoBundle.GetStringFromName("wrongKomodoPlatform.powerpc_on_intel.description"))
 
     def finishInitialization(self):
         pass
