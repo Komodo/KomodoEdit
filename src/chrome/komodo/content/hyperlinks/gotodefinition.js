@@ -34,94 +34,115 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
-/**
- * A goto defintion hyperlink handler.
- *
- * @class
- * @base ko.hyperlinks.BaseHandler
- */
-ko.hyperlinks.GotoDefinitionHandler = function() {
-    var name = "Goto Defintion";
-    var fn = function(args) {
-        ko.views.manager.do_cmd_goToDefinition.apply(null, args);
+(function() {
+    /**
+     * A goto defintion hyperlink handler.
+     *
+     * @class
+     * @base ko.hyperlinks.BaseHandler
+     */
+    this.GotoDefinitionHandler = function() {
+        var name = "Goto Defintion";
+        var fn = function(args) {
+            ko.views.manager.do_cmd_goToDefinition.apply(null, args);
+        };
+        var lang_names = null;  /* All language types */
+        var indic_style = Components.interfaces.ISciMoz.INDIC_PLAIN;
+        //var indic_color = RGB(0xff,0x80,0x20);
+        var indic_color = RGB(0xA0,0x00,0xF0);
+        var base_args = [name, fn, lang_names, indic_style, indic_color];
+        ko.hyperlinks.BaseHandler.apply(this, base_args);
+    
+        // Listen for enabled pref changes.
+        this.enabledPrefName = "hyperlinksEnableGotoDefinition";
+        var prefs = Components.classes["@activestate.com/koPrefService;1"].
+                      getService(Components.interfaces.koIPrefService).prefs;
+        prefs.prefObserverService.addObserver(this, this.enabledPrefName, 0);
+        this.enabled = prefs.getBooleanPref(this.enabledPrefName);
+        ko.main.addWillCloseHandler(this.destroy, this);
     };
-    var lang_names = null;  /* All language types */
-    var indic_style = Components.interfaces.ISciMoz.INDIC_PLAIN;
-    //var indic_color = RGB(0xff,0x80,0x20);
-    var indic_color = RGB(0xA0,0x00,0xF0);
-    var base_args = [name, fn, lang_names, indic_style, indic_color];
-    ko.hyperlinks.BaseHandler.apply(this, base_args);
-
-    // Listen for enabled pref changes.
-    this.enabledPrefName = "hyperlinksEnableGotoDefinition";
-    var prefs = Components.classes["@activestate.com/koPrefService;1"].
-                  getService(Components.interfaces.koIPrefService).prefs;
-    prefs.prefObserverService.addObserver(this, this.enabledPrefName, 0);
-    this.enabled = prefs.getBooleanPref(this.enabledPrefName);
-    ko.main.addWillCloseHandler(this.destroy, this);
-};
-
-// The following two lines ensure proper inheritance (see Flanagan, p. 144).
-ko.hyperlinks.GotoDefinitionHandler.prototype = new ko.hyperlinks.BaseHandler();
-ko.hyperlinks.GotoDefinitionHandler.prototype.constructor = ko.hyperlinks.GotoDefinitionHandler;
-
-ko.hyperlinks.GotoDefinitionHandler.prototype.destroy = function()
-{
-    var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
-                  getService(Components.interfaces.koIPrefService);
-    prefSvc.prefs.prefObserverService.removeObserver(this, this.enabledPrefName);
-}
-
-ko.hyperlinks.GotoDefinitionHandler.prototype.observe = function(prefSet, prefName, prefSetID)
-{
-    switch (prefName) {
-        case this.enabledPrefName:
-            this.enabled = prefSet.getBooleanPref(this.enabledPrefName);
-            break;
+    
+    // The following two lines ensure proper inheritance (see Flanagan, p. 144).
+    this.GotoDefinitionHandler.prototype = new ko.hyperlinks.BaseHandler();
+    this.GotoDefinitionHandler.prototype.constructor = this.GotoDefinitionHandler;
+    
+    this.GotoDefinitionHandler.prototype.destroy = function()
+    {
+        var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
+                      getService(Components.interfaces.koIPrefService);
+        prefSvc.prefs.prefObserverService.removeObserver(this, this.enabledPrefName);
     }
-};
+    
+    this.GotoDefinitionHandler.prototype.observe = function(prefSet, prefName, prefSetID)
+    {
+        switch (prefName) {
+            case this.enabledPrefName:
+                this.enabled = prefSet.getBooleanPref(this.enabledPrefName);
+                break;
+        }
+    };
+    
+    /**
+     * Try and show a hyperlink at the current position in the view.
+     *
+     * @param view {Components.interfaces.koIScintillaView}  View to check.
+     * @param scimoz {Components.interfaces.ISciMoz}  Scimoz for the view.
+     * @param pos {int}  Position in the scimoz editor.
+     * @param line {string}  The current line from the editor.
+     * @param lineStartPos {int} Scimoz position for the start of the line.
+     * @param lineEndPos {int}   Scimoz position for the end of the line.
+     * @param reason {string}  What the triggering event reason was, can be one
+     *        of "keypress" or "mousemove".
+     * @returns {ko.hyperlinks.Hyperlink} - The hyperlink instance shown.
+     */
+    this.GotoDefinitionHandler.prototype.show = function(
+                    view, scimoz, position, line, lineStartPos, lineEndPos, reason)
+    {
+        // For goto definition, if this view does not support codeintel
+        // citadel stuff, then goto definition is not supported and
+        // there is no need to mark any hyperlinks.
+        if (!this.enabled || !view.isCICitadelStuffEnabled) {
+            return null;
+        }
 
-/**
- * Try and show a hyperlink at the current position in the view.
- *
- * @param view {Components.interfaces.koIScintillaView}  View to check.
- * @param scimoz {Components.interfaces.ISciMoz}  Scimoz for the view.
- * @param pos {int}  Position in the scimoz editor.
- * @param line {string}  The current line from the editor.
- * @param lineStartPos {int} Scimoz position for the start of the line.
- * @param lineEndPos {int}   Scimoz position for the end of the line.
- * @param reason {string}  What the triggering event reason was, can be one
- *        of "keypress", "mousemove" or "dwell".
- * @returns {ko.hyperlinks.Hyperlink} - The hyperlink instance shown.
- */
-ko.hyperlinks.GotoDefinitionHandler.prototype.show = function(
-                view, scimoz, position, line, lineStartPos, lineEndPos, reason)
-{
-    // For goto definition, if this view does not support codeintel
-    // citadel stuff, then goto definition is not supported and
-    // there is no need to mark any hyperlinks.
-    if (!this.enabled || !view.isCICitadelStuffEnabled) {
+        var start = scimoz.wordStartPosition(position, true);
+        var end = scimoz.wordEndPosition(position, true);
+        if (start < end) {
+            var next_start;
+            while (1) {
+                next_start = scimoz.wordStartPosition(start, false);
+                if (next_start < start) {
+                    // XXX: This needs to use language specific separators.
+                    if ([".", "->", "::"].indexOf(scimoz.getTextRange(next_start, start)) >= 0) {
+                        start = scimoz.wordStartPosition(next_start, true);
+                        continue;
+                    }
+                }
+                break;
+            }
+            return this.setHyperlink(view, start, end);
+        }
         return null;
     }
 
-    var start = scimoz.wordStartPosition(position, true);
-    var end = scimoz.wordEndPosition(position, true);
-    if (start < end) {
-        var next_start;
-        while (1) {
-            next_start = scimoz.wordStartPosition(start, false);
-            if (next_start < start) {
-                // XXX: This needs to use language specific separators.
-                if ([".", "->", "::"].indexOf(scimoz.getTextRange(next_start, start)) >= 0) {
-                    start = scimoz.wordStartPosition(next_start, true);
-                    continue;
-                }
-            }
-            break;
+    /**
+     * Remove this hyperlink instance.
+     *
+     * @param view {Components.interfaces.koIScintillaView}  The view instance.
+     * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink instance.
+     * @param reason {string}  What the triggering event reason was, can be one
+     *        of "keyup", "mousemove", "mouseup" or "blur".
+     */
+    this.GotoDefinitionHandler.prototype.remove = function(view, hyperlink, reason)
+    {
+        ko.hyperlinks.BaseHandler.prototype.remove.apply(this, arguments);
+        var tooltip = document.getElementById("hyperlink_gotodefinition_tooltip");
+        if (tooltip) {
+            tooltip.hidePopup();
         }
-        return this.setHyperlink(view, start, end);
     }
-    return null;
-}
+
+}).apply(ko.hyperlinks);
+
 
 ko.hyperlinks.addHandler(new ko.hyperlinks.GotoDefinitionHandler());
