@@ -803,7 +803,7 @@
 <!-- #else -->
             if (this._hyperlink && this.isCtrlKeyDown(false)) {
 <!-- #endif -->
-                this._hyperlink.dwell(position);
+                this._hyperlink.dwell(this, position);
             }
             return true;
         ]]></body>
