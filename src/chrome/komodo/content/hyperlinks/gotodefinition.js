@@ -142,6 +142,267 @@
         }
     }
 
+    /**
+     * Called when the mouse dwells on this hyperlink.
+     *
+     * @param view {Components.interfaces.koIScintillaView}  The view instance.
+     * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink instance.
+     */
+    this.GotoDefinitionHandler.prototype.dwell = function(view, hyperlink)
+    {
+        ko.hyperlinks.BaseHandler.prototype.dwell.apply(this, arguments);
+        //this._getDefinition(view, hyperlink);
+    }
+
+
+    function _simpleEscapeHtml(s) {
+        s = s.replace("<", "&lt;", "g");
+        return s.replace(">", "&gt;", "g");
+    }
+
+    function _parseXULAndReturnElement(xul_string) {
+        // wrap the content in a box. This is necessary in case the user
+        // enters multiple top-level nodes. Also, we declare the XUL namespace
+        // so that the user doesn't have to type it in themselves.
+        xul_string = "<xul:vbox id='dataBox' flex='1' " +
+                "xmlns:xul='http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul' " +
+                "xmlns:html='http://www.w3.org/1999/xhtml' " +
+                "xmlns='http://www.w3.org/1999/xhtml'>" +
+                    "<div>" + xul_string + "</div>" +
+                "</xul:vbox>";
+      
+        // create a new DOMParser object and parse the content. The
+        // parseFromString function takes two arguments, the string to
+        // parse and the content type. Currently Mozilla only supports
+        // parsing HTML and XML using the DOMParser, so features that
+        // require a XUL document, such as templates or overlays, won't
+        // work using this method.
+        var parser = new DOMParser();
+        var resultDoc = parser.parseFromString(xul_string, "text/xml");
+      
+        // if the top-level node of the parsed document turns out
+        // to be 'parsererror' that means that the XML was not
+        // well-formed.
+        if (resultDoc.documentElement.tagName == "parsererror") {
+            return null;
+        }
+      
+        // if no error occurred, grab the documentElement property of
+        // the parsed document and append it to this XUL window. The
+        // content should appear at the bottom of the window.
+        return resultDoc.documentElement;
+    }
+
+    /**
+     * Return a string with escaped html attributes.
+     */
+    function _setDefinitionsInfo(count, ciDefns, triggerPos) {
+        try {
+            var view = ko.views.manager.currentView;
+            var defns = ciDefns;
+            // defns is an array of koICodeIntelDefinition
+            if (defns && defns.length > 0) {
+                // Just display the first available one
+                var def = defns[0];
+    
+                var div;
+                var tooltip = document.getElementById("hyperlink_gotodefinition_tooltip");
+                if (tooltip == null) {
+                    tooltip = document.createElement('panel');
+                    tooltip.setAttribute("noautofocus", "true");
+                    //tooltip.setAttribute("noautohide", "true");
+                    tooltip.setAttribute('id', 'hyperlink_gotodefinition_tooltip');
+                    div = document.createElement('div');
+                    div.setAttribute("id", "hyperlink_gotodefinition_div");
+                    div.setAttribute("class", "hyperlink_gotodefinition_div");
+                    div.setAttribute("width", "400");
+                    div.setAttribute("height", "300");
+                    tooltip.appendChild(div);
+                    document.documentElement.appendChild(tooltip);
+                } else {
+                    div = tooltip.firstChild;
+                    // Remove old elements
+                    while (div.lastChild) {
+                        div.removeChild(div.lastChild);
+                    }
+                }
+    
+                // Basic layout we want
+                // id="codehelper_lblName"
+                //             class="codehelper_name"
+                //             onclick="">
+                //</html:strong>
+                //<html:strong id="codehelper_lblSignature">
+                //</html:strong>
+                //<html:br />
+                //<html:i id="codehelper_lblDoc">
+                //</html:i>
+                //<html:br />
+    
+                var textlines = [];
+                var cmd = "";
+                if (def.path && def.line >= 0) {
+                    cmd = "open_openURI('" + def.path + "#" + def.line + "');";
+                    //dump("cmd: " + cmd + "\n");
+                }
+                textlines.push('<strong class="codehelper_name" onclick="'
+                               + cmd + '">' + def.name + "</strong>");
+                if (def.ilk == "function") {
+                    textlines.push('<strong>(' + def.signature.split("(", 2)[1] + '</strong>');
+                }
+    
+                textlines.push("<hr />");
+    
+                var datalines = [];
+                //var fullname = def.fullname;
+                //fullname = fullname.replace(".", ". ");
+                //datalines.push("Scope: " + fullname.substring(0, fullname.length - (def.name.length + 1)));
+                datalines.push("Lang:  " + def.lang);
+                if (def.ilk == "variable" ||
+                    (def.ilk == "argument" && def.citdl)) {
+                    datalines.push("Type:  " + def.citdl);
+                    //datalines.push(def.citdl);
+                } else if (def.ilk == "blob") {
+                    datalines.push("Type:  " + "module");
+                    //datalines.push("Module");
+                } else {
+                    datalines.push("Type:  " + def.ilk);
+                }
+                if (def.attributes) {
+                    datalines.push("Attr:  " + def.attributes);
+                    //datalines.push(def.attributes);
+                }
+                for (var i=0; i < datalines.length; i++) {
+                    textlines.push("<span>" + _simpleEscapeHtml(datalines[i]) + "</span><br />");
+                }
+    
+                if (def.doc) {
+                    textlines.push("<hr />");
+                    //textlines.push('<i style="white-space: -moz-pre-wrap !important;">' + _simpleEscapeHtml(def.doc) + '</i>');
+                    textlines.push('<i style="white-space: -moz-pre-wrap !important;">' + def.doc + '</i>');
+                }
+    
+                dump("textlines: " + textlines.join("\n") + "\n");
+    
+                //tooltip.contents = textlines.join("\n");
+                var node = _parseXULAndReturnElement(textlines.join("\n"));
+                if (node) {
+                    //div.appendChild(node.cloneNode(true));
+                    var elem;
+                    while (node.firstChild) {
+                        elem = node.removeChild(node.firstChild);
+                        div.appendChild(elem);
+                    }
+                }
+                var totalHeight = div.boxObject.height;
+                totalHeight += parseFloat(getComputedStyle(tooltip, null)
+                                         .getPropertyValue("border-top-width"))
+                             + parseFloat(getComputedStyle(tooltip, null)
+                                         .getPropertyValue("border-bottom-width"))
+                             + parseFloat(getComputedStyle(tooltip, null)
+                                         .getPropertyValue("padding-top"))
+                             + parseFloat(getComputedStyle(tooltip, null)
+                                         .getPropertyValue("padding-bottom"));
+                tooltip.minHeight = totalHeight;
+                //tooltip.sizeTo(tooltip.width, tooltip.boxObject.height);
+                var x, y;
+                [x,y] = view._last_mousemove_xy;
+                tooltip.openPopup(view, "after_pointer", x, y, false, false);
+            }
+        } catch (ex) {
+            dump("codeHelper::setDefinitionsInfo:: exception: " + ex + "\n");
+        }
+    }
+    
+    /**
+     * Function used to update the definiton information
+     * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink
+     * @private
+     */
+    this.GotoDefinitionHandler.prototype._getDefinition = function(view, hyperlink) {
+        try {
+            var scimoz = view.scimoz;
+            if (!scimoz) {
+                return;
+            }
+    
+            var currentPos = hyperlink.endPos;
+            var style = scimoz.getStyleAt(currentPos);
+            var displayPath = view.document.displayPath;
+            var wordUnderCursor = ko.interpolate.getWordUnderCursor(scimoz);
+    
+            // We've told to update, but we may not need to:
+            // If the position has not changed much and the the word under the
+            // current position is the same as last time, if it is, do not
+            // bother to update.
+            //if ((this._lastDisplayPath == displayPath) &&
+            //    (this._lastStyle == style) &&
+            //    ((currentPos <= (this._lastCurrentPos + 20)) &&
+            //     (currentPos >= (this._lastCurrentPos - 20)) &&
+            //     (wordUnderCursor == this._lastWordUnderCursor))) {
+            //    // The same place as current info, so nothing to update
+            //    return;
+            //}
+            //dump("Updating codehelper\n");
+            // Remember this filename, position and style
+            //this._lastDisplayPath = displayPath;
+            //this._lastCurrentPos = currentPos;
+            //this._lastWordUnderCursor = wordUnderCursor;
+    
+            var langObj = view.document.languageObj;
+            var styleCount = new Object();
+            var styles = langObj.getCommentStyles(styleCount);
+            if (styles.indexOf(style) >= 0) {
+                // Doesn't work in comments.
+                return;
+            }
+    
+            styles = langObj.getNamedStyles("keywords", styleCount);
+            if (styles.indexOf(style) >= 0) {
+                // Continue on, as it may have completion info too
+            }
+    
+            // See if we can find out more information using goto definition
+            if (!view.isCICitadelStuffEnabled) {
+                return;
+            }
+            // Create a trigger, it must be a specific position in the document,
+            // due to variable scope implications etc...
+            var trg = view.document.ciBuf.defn_trg_from_pos(currentPos);
+            // Create a codeintel completion handler
+            var ciUIHandler = new CodeIntelCompletionUIHandler(
+                                                    displayPath,
+                                                    scimoz,
+                                                    view.languageObj.name,
+                                                    view.document.ciBuf);
+            // Override the default functions
+            var this_ = this;
+            ciUIHandler.setStatusMessage = function() {
+                // Do nothing...
+            };
+            ciUIHandler.setDefinitionsInfo = function(count, ciDefns, triggerPos) {
+                _setDefinitionsInfo(count, ciDefns, triggerPos);
+                //window.setTimeout(function(count_, ciDefns_, triggerPos_) {
+                //    _setDefinitionsInfo(count_, ciDefns_, triggerPos_);
+                //}, 1, count, ciDefns, triggerPos);
+            };
+    
+            // Create a controller to handle results
+            var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
+                        createInstance(Components.interfaces.koICodeIntelEvalController);
+            // Add our special controller handler
+            ctlr.set_ui_handler(ciUIHandler);
+    
+            // Fire off the codeintel call, which will call setDefinitionsInfo when done
+            view.document.ciBuf.async_eval_at_trg(trg, ctlr);
+            //dump("async_called\n");
+    
+        } catch (ex) {
+            dump("codeHelper exception: " + ex.fileName + ":" + ex.lineNumber + ":" + ex + "\n");
+            ko.logging.dumpStack();
+        }
+    }
+
 }).apply(ko.hyperlinks);
 
 
