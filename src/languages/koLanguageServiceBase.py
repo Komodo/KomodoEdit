@@ -335,6 +335,21 @@ class KoCommenterLanguageService:
         xOffset = scimoz.xOffset
         selStart = scimoz.selectionStart
         selEnd = scimoz.selectionEnd
+        anchor = scimoz.anchor
+        currentPos = scimoz.currentPos
+        anchorFirst = (anchor <= currentPos)
+        if anchorFirst:
+            startCursorColumn = scimoz.getColumn(anchor)
+            endCursorColumn = scimoz.getColumn(currentPos)
+        else:
+            startCursorColumn = scimoz.getColumn(currentPos)
+            endCursorColumn = scimoz.getColumn(anchor)
+        # Handle line selection mode (as used by vi).
+        if scimoz.selectionMode == scimoz.SC_SEL_LINES:
+            startLineNo = scimoz.lineFromPosition(selStart)
+            endLineNo = scimoz.lineFromPosition(selEnd)
+            selStart = scimoz.getLineSelStartPosition(startLineNo)
+            selEnd = scimoz.getLineSelEndPosition(endLineNo)
         if selStart != selEnd and scimoz.getColumn(selEnd) == 0:
             # if at the start of a line, work from the end of the previous
             # line.  Subtracting 1 is safe because the endIndex
@@ -349,6 +364,9 @@ class KoCommenterLanguageService:
             prefix, suffix = prefix
         else:
             suffix = ''
+        # Update the column offsets to include the comment prefix.
+        startCursorColumn += len(prefix)
+        endCursorColumn += len(prefix)
         if self.DEBUG:
             print "original text: %r" % original
 
@@ -424,7 +442,18 @@ class KoCommenterLanguageService:
             scimoz.replaceTarget(len(replacement), replacement)
 
             # restore the selection and cursor position
-            if selStart != selEnd:
+            if scimoz.selectionMode == scimoz.SC_SEL_LINES:
+                # For line selection mode, restore the cursor positions
+                # according to the column and line number they started at.
+                startPos = scimoz.findColumn(startLineNo, startCursorColumn)
+                endPos = scimoz.findColumn(endLineNo, endCursorColumn)
+                if anchorFirst:
+                    scimoz.anchor = startPos
+                    scimoz.currentPos = endPos
+                else:
+                    scimoz.anchor = endPos
+                    scimoz.currentPos = startPos
+            elif selStart != selEnd:
                 scimoz.selectionStart = scimoz.positionFromLine(startIndexLine)
                 if endIndex == workingEndIndex:
                     scimoz.selectionEnd = scimoz.getLineEndPosition(
@@ -473,6 +502,21 @@ class KoCommenterLanguageService:
         xOffset = scimoz.xOffset
         selStart = scimoz.selectionStart
         selEnd = scimoz.selectionEnd
+        anchor = scimoz.anchor
+        currentPos = scimoz.currentPos
+        anchorFirst = (anchor <= currentPos)
+        if anchorFirst:
+            startCursorColumn = scimoz.getColumn(anchor)
+            endCursorColumn = scimoz.getColumn(currentPos)
+        else:
+            startCursorColumn = scimoz.getColumn(currentPos)
+            endCursorColumn = scimoz.getColumn(anchor)
+        # Handle line selection mode (as used by vi).
+        if scimoz.selectionMode == scimoz.SC_SEL_LINES:
+            startLineNo = scimoz.lineFromPosition(selStart)
+            endLineNo = scimoz.lineFromPosition(selEnd)
+            selStart = scimoz.getLineSelStartPosition(startLineNo)
+            selEnd = scimoz.getLineSelEndPosition(endLineNo)
         if selStart != selEnd and scimoz.getColumn(selEnd) == 0:
             # if at the start of a line, work from the end of the previous
             # line
@@ -499,6 +543,7 @@ class KoCommenterLanguageService:
 
         replacementLines = []
         lastIndent = lastPrefix = ""  # for restoring the position below
+        firstLine = True
         for line in originalLines:
             for prefix in prefixes:
                 if type(prefix) == types.TupleType: # block comments
@@ -526,9 +571,15 @@ class KoCommenterLanguageService:
                                                 line[1])
                     lastIndent = commentMatch.group(1)
                     lastPrefix = commentMatch.group(2)
+                    if firstLine:
+                        # Update start cursor column to remove the prefix.
+                        startCursorColumn -= len(lastPrefix)
                     break
             else:
                 replacementLines.append(line[0] + line[1])
+            firstLine = False
+        # Update end cursor column to remove the prefix.
+        endCursorColumn -= len(lastPrefix)
         replacement = "".join(replacementLines)
         #log.debug("line uncomment: '%s' -> '%s'" % (original, replacement))
 
@@ -544,7 +595,18 @@ class KoCommenterLanguageService:
             scimoz.replaceTarget(len(replacement), replacement)
 
             # restore the selection and cursor position
-            if selStart != selEnd:
+            if scimoz.selectionMode == scimoz.SC_SEL_LINES:
+                # For line selection mode, restore the cursor positions
+                # according to the column and line number they started at.
+                startPos = scimoz.findColumn(startLineNo, startCursorColumn)
+                endPos = scimoz.findColumn(endLineNo, endCursorColumn)
+                if anchorFirst:
+                    scimoz.anchor = startPos
+                    scimoz.currentPos = endPos
+                else:
+                    scimoz.anchor = endPos
+                    scimoz.currentPos = startPos
+            elif selStart != selEnd:
                 scimoz.selectionStart = scimoz.positionFromLine(startIndexLine)
                 if endIndex == workingEndIndex:
                     scimoz.selectionEnd = scimoz.getLineEndPosition(
@@ -598,16 +660,22 @@ class KoCommenterLanguageService:
     def _determineMethodAndDispatch(self, scimoz, workers):
         selStart = scimoz.selectionStart
         selEnd = scimoz.selectionEnd
-        selStartColumn = scimoz.getColumn(selStart)
         selStartLine = scimoz.lineFromPosition(selStart)
+        selEndLine = scimoz.lineFromPosition(selEnd)
+        # Handle line selection mode (as used by vi).
+        if scimoz.selectionMode == scimoz.SC_SEL_LINES:
+            selStart = scimoz.getLineSelStartPosition(selStartLine)
+            selEnd = scimoz.getLineSelEndPosition(selEndLine)
+        selStartColumn = scimoz.getColumn(selStart)
         selStartLineEndPosition = scimoz.getLineEndPosition(selStartLine)
         selEndColumn = scimoz.getColumn(selEnd)
-        selEndLine = scimoz.lineFromPosition(selEnd)
         selEndLineEndPosition = scimoz.getLineEndPosition(selEndLine)
 
         # determine preferred commenting method (if the selection is _within_
         # a line then block commenting is preferred)
-        if selStart != selEnd:
+        if scimoz.selectionMode == scimoz.SC_SEL_LINES:
+            preferBlockCommenting = 0
+        elif selStart != selEnd:
             if (selStartColumn == 0 or selStart == selStartLineEndPosition) \
                and (selEndColumn == 0 or selEnd == selEndLineEndPosition):
                 preferBlockCommenting = 0
