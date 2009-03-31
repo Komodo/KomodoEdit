@@ -770,7 +770,30 @@ class HistorySession(object):
             self.db.obsolete_uri(uri, uri_id, cu=cu)
             self.reload_recent_history_cache(cu, uri, undo_delta, orig_dir_was_back)
             
-    def reload_recent_history_cache(self, cu, uri=None, undo_delta=0, orig_dir_was_back=True):
+    def reload_recent_history_cache(self, cu, obsoleted_uri=None, undo_delta=0,
+            orig_dir_was_back=True):
+        """Reload the cache of recent history items (`self.forward_visits`,
+        `self.recent_back_visits` and `self._last_visit`) if visits in that
+        cache might have become invalid: via `obsolete_uri()` or expiry of
+        visits.
+        
+        A pattern is this:
+        - User attempts to go back N locations in the history, and hits a
+          URI that is invalid.
+        - The editor then obsoletes that URI (`.obsolete_uri()`) which calls
+          this method.
+        In this case we need to properly update the appropriate remaining
+        size of `self.forward_visits`. This is what the `obsoleted_uri`,
+        `undo_delta` and `orig_dir_was_back` arguments are used for.
+        
+        @param cu {sqlite3.Cursor} A db cursor to use.
+        @param obsoleted_uri {str} If given, a URI that was just obsoleted.
+            Default None.
+        @param undo_delta {int} The size of the jump in the pattern described
+            above. Default 0.
+        @param orig_dir_was_back {bool} Whether the jump in the pattern
+            described above was forward or back. Default True.
+        """
         # Regenerate the recent history cache.
         if self.forward_visits:
             top_loc = self.forward_visits[0]
@@ -783,13 +806,16 @@ class HistorySession(object):
         else:
             top_loc = self.recent_back_visits[0]
                 
-        # Don't keep any URIs we're about to obsolete
+        # Determine `num_forward_visits` for the restored cache. This is
+        # complicated if a URI in the cache was just obosoleted and what
+        # kind of jump resulted in getting to that URI. See the pattern
+        # described in the docstring.
         if undo_delta == 0:
-            if uri is None:
+            if obsoleted_uri is None:
                 num_forward_visits = len(self.forward_visits)
             else:
                 num_forward_visits = len([x for x in self.forward_visits
-                                          if x.uri != uri])
+                                          if x.uri != obsoleted_uri])
         else:
             if orig_dir_was_back:
                 # The undo will move forward, so we don't care about
@@ -801,16 +827,16 @@ class HistorySession(object):
                          islice(self.forward_visits,
                                 0,
                                 len(self.forward_visits) - undo_delta)
-                         if x.uri != uri])
+                         if x.uri != obsoleted_uri])
                 )
             else:
                 # The undo will move back.  Prune the current forward visits,
                 # and the newest <delta - 1> back visits.
                 num_forward_visits = (
-                      len([x for x in self.forward_visits if x.uri != uri])
+                      len([x for x in self.forward_visits if x.uri != obsoleted_uri])
                     + len([x for x in
                            islice(self.recent_back_visits, 0, undo_delta - 1)
-                           if x.uri != uri])
+                           if x.uri != obsoleted_uri])
                 )
         self._load_recent_history_cache(top_loc.id, num_forward_visits, cu=cu)
 
