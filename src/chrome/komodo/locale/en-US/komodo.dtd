@@ -467,6 +467,7 @@
 <!ENTITY projectsToolboxAddNewFileFromTemplate.desc "Projects/Toolbox: Add New File From Template...">
 <!ENTITY projectsToolboxAddNewFolder.desc "Projects/Toolbox: Add New Folder...">
 <!ENTITY projectsToolboxAddRemoteFile.desc "Projects/Toolbox: Add Remote File...">
+<!ENTITY projectView.tooltiptext "Project Tools">
 <!ENTITY properties.label "Properties">
 <!ENTITY propertiesAndSettings.label "Properties and Settings">
 <!ENTITY quitApplicationCmd.label "Quit">
