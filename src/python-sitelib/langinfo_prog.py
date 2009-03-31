@@ -381,3 +381,16 @@ class BaanLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
     exts = [".bc"]
 
+class REBOLLangInfo(LangInfo):
+    """http://www.rebol.com/"""
+    name = "REBOL"
+    conforms_to_bases = ["Text"]
+    exts = [".r"]
+
+class CamlLangInfo(LangInfo):
+    """http://caml.inria.fr/"""
+    name = "Caml"
+    komodo_name = "Objective Caml"
+    conforms_to_bases = ["Text"]
+    exts = [".ml", ".mli"]
+
