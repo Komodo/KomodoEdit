@@ -514,6 +514,8 @@ class koPart(object):
 
     def set_name(self, name):
         self._name = name
+        if self.hasAttribute("name"):
+            del self._attributes["name"]
         if hasattr(self, '_url') and self._url:
             # using lists to make it mutable
             parts = list(urlparse.urlparse(self._url))
