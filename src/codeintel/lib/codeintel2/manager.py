@@ -362,6 +362,8 @@ class Manager(threading.Thread, Queue):
                 lang = (hasattr(ti.langinfo, "komodo_name")
                         and ti.langinfo.komodo_name
                         or ti.langinfo.name)
+            if not ti.is_text:
+                raise CodeIntelError("file is not text: %r" % (path, ))
             encoding = ti.encoding
             content = ti.text
         else:

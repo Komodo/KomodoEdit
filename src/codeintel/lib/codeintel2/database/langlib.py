@@ -300,10 +300,10 @@ class LangDirsLib(object):
                     try:
                         buf = self.mgr.buf_from_path(join(dir, base),
                                                      lang=self.lang)
-                    except EnvironmentError, ex:
+                    except (EnvironmentError, CodeIntelError), ex:
                         # This can occur if the path does not exist, such as a
                         # broken symlink, or we don't have permission to read
-                        # the file.
+                        # the file, or the file does not contain text.
                         continue
                     if ctlr is not None:
                         ctlr.info("load %r", buf)
@@ -410,10 +410,10 @@ class LangDirsLib(object):
                     try:
                         buf = self.mgr.buf_from_path(
                                 join(blobdir, blobfile), self.lang)
-                    except EnvironmentError, ex:
+                    except (EnvironmentError, CodeIntelError), ex:
                         # This can occur if the path does not exist, such as a
                         # broken symlink, or we don't have permission to read
-                        # the file.
+                        # the file, or the file does not contain text.
                         continue
                     buf.scan_if_necessary()
 
