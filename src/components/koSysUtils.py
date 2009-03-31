@@ -190,16 +190,27 @@ class koSysUtils:
                 toTrash = os.path.join(trash, os.path.basename(filename))
                 os.rename(filename, toTrash)
         else:
+            # Gnome:
+            #   Newer Ubuntu and gnome systems use the "gvfs-trash", storing
+            #   under the "~/.local/share/Trash" directory in a way that can
+            #   be reversed (restore from trash).
+            #   For older Gnome platforms, just use "~/.Trash".
+            # KDE:
+            #   it might be better to use kfmclient.
             manager = self._getManager()
             trash = os.path.expanduser("~/.Trash")
-            if not os.path.exists(trash):
-                os.mkdir(trash)
             toTrash = os.path.join(trash, os.path.basename(filename))
-            # gnome uses ~/.Trash.  For kde, it might be better to use kfmclient
             if manager == "kde":
+                if not os.path.exists(trash):
+                    os.mkdir(trash)
                 os.system('kfmclient move "%s" "%s"' % (filename, toTrash))
             else:
-                os.rename(filename, toTrash)
+                if os.path.exists("/usr/bin/gvfs-trash"):
+                    os.system('/usr/bin/gvfs-trash "%s"' % (filename, ))
+                else:
+                    if not os.path.exists(trash):
+                        os.mkdir(trash)
+                    os.rename(filename, toTrash)
 
     def ShowFileInFileManager(self, filename):
         # nsILocalFile handles some of this
