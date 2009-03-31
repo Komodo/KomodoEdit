@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Komodo Project File - DO NOT EDIT -->
-<project id="7e3fffd0-d187-d04b-8269-0e177ad5566d" name="sample_project.p.kpf" kpf_version="4">
+<project id="7e3fffd0-d187-d04b-8269-0e177ad5566d" kpf_version="4">
 <file url="birds.xml" idref="7e3fffd0-d187-d04b-8269-0e177ad5566d" id="32f48e32-33c5-cb42-a8fc-ea88cdfa5029" name="birds.xml">
 </file>
 <file url="html_sample.html" idref="7e3fffd0-d187-d04b-8269-0e177ad5566d" id="111687fa-4805-6141-9958-e822e473ea26" name="html_sample.html">
