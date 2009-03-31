@@ -42,6 +42,7 @@ from xpcom import components, nsError, ServerException, COMException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
 import which
 import logging
+import shutil
 
 log = logging.getLogger("koSysUtils")
 #log.setLevel(logging.DEBUG)
@@ -210,7 +211,17 @@ class koSysUtils:
                 else:
                     if not os.path.exists(trash):
                         os.mkdir(trash)
-                    os.rename(filename, toTrash)
+                    try:
+                        os.rename(filename, toTrash)
+                    except OSError, ex:
+                        if ex.errno == 18:
+                            # OSError: [Errno 18] Invalid cross-device link
+                            # Try to copy the file and then remove the original,
+                            # see bug 81138.
+                            shutil.copy(filename, toTrash)
+                            os.remove(filename)
+                        else:
+                            raise
 
     def ShowFileInFileManager(self, filename):
         # nsILocalFile handles some of this
