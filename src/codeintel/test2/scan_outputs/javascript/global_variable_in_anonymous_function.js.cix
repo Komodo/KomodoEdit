@@ -1,0 +1,16 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/global_variable_in_anonymous_function.js">
+    <scope ilk="blob" lang="JavaScript" name="global_variable_in_anonymous_function.js" src="scan_inputs/javascript/global_variable_in_anonymous_function.js">
+      <scope attributes="__local__ private" ilk="function" line="1" lineend="6" name="(anonymous)" signature="(anonymous)()">
+        <scope attributes="__local__ private" ilk="function" line="2" lineend="4" name="Paginator" signature="Paginator(config)">
+          <variable ilk="argument" name="config" />
+        </scope>
+      </scope>
+      <variable citdl="Object" line="5" name="YAHOO">
+        <variable citdl="Object" line="5" name="widget">
+          <variable citdl="Paginator" line="5" name="Paginator" />
+        </variable>
+      </variable>
+    </scope>
+  </file>
+</codeintel>
