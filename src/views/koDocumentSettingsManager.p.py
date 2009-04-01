@@ -342,6 +342,13 @@ class koDocumentSettingsManager:
         scimoz.indicSetUnder(DECORATOR_FIND_HIGHLIGHT, True)
         scimoz.indicSetAlpha(DECORATOR_FIND_HIGHLIGHT, 100)
 
+        # Tag matching
+        DECORATOR_TAG_MATCH_HIGHLIGHT = components.interfaces.koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT
+        scimoz.indicSetStyle(DECORATOR_TAG_MATCH_HIGHLIGHT, scimoz.INDIC_ROUNDBOX)
+        scimoz.indicSetFore(DECORATOR_TAG_MATCH_HIGHLIGHT, RGB(0xff, 0x80, 0x00)) # orange
+        scimoz.indicSetUnder(DECORATOR_TAG_MATCH_HIGHLIGHT, True)
+        scimoz.indicSetAlpha(DECORATOR_TAG_MATCH_HIGHLIGHT, 100)
+
         ## For debugging, to show the UDL family transitions:
         #scimoz.indicSetStyle(components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION,
         #                     scimoz.INDIC_ROUNDBOX)

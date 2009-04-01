@@ -1161,6 +1161,7 @@
         <body><![CDATA[return true;]]></body>
         </method>
 
+        <field name="_matchedTagUnhighlighter">0</field>
         <field name="_mouseButton">-1</field>
         <method name="onMarginClick">
         <parameter name="modifiers"/>
@@ -1267,13 +1268,16 @@
                 t1 = s1;
                 t2 = s2 + 1;
             }
-            scimoz.indicatorCurrent = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
+            var indic = Components.interfaces.koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT;  
+            scimoz.indicatorCurrent = indic;
             scimoz.indicatorValue = scimoz.INDIC_PLAIN;
             scimoz.indicatorFillRange(t1, t2 - t1);
-            setTimeout(function(scimoz, t1, t2) {
-                scimoz.indicatorCurrent = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
-                scimoz.indicatorClearRange(t1, t2 - t1);
-            }, 1000, scimoz, t1, t2);
+            clearTimeout(this._matchedTagUnhighlighter);
+            this._matchedTagUnhighlighter = setTimeout(function(this_, scimoz) {
+                scimoz.indicatorCurrent = indic;
+                scimoz.indicatorClearRange(0, scimoz.textLength);
+                this_._matchedTagUnhighlighter = 0;
+            }, 1000, this, scimoz);
         }
         ]]>
         </body>
