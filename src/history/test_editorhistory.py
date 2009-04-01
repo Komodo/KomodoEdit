@@ -767,6 +767,21 @@ class ObsoleteURITestCase(_HistoryTestCase):
         v = list(self.history.recent_history(current_loc))
         volatile_locs = [x for x in v if x[1].uri == uri_volatile]
         self.assertEqual(len(volatile_locs), 0)
+        
+    def test_simulate_restarted_with_obsolete_loc(self):
+        uri_volatile = "file:///home/tester/volatile.txt"
+        uri_current = "file:///home/tester/current.txt"
+        self.history.note_loc(Location(uri_volatile, 10, 1))
+        # Now assume we restart Komodo, no loaded buffers
+        current_loc = None
+        v = list(self.history.recent_history(current_loc))
+        self.assertEqual(len(v), 2)
+        self.assertEqual(len([x for x in v if x[1] is not None]), 1)
+        loc = self.history.go_back(current_loc, 1)
+        self.history.obsolete_uri(loc.uri, 1, True)
+        v = list(self.history.recent_history(current_loc))
+        self.assertEqual(len(v), 0)
+        
 
     @testlib.tag("bug81939")
     def test_move_back(self):

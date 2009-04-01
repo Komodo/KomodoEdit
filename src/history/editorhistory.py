@@ -822,13 +822,18 @@ class HistorySession(object):
                 # what's in the back visits, nor in the older part of the
                 # forward visits, so we just examine the newest delta items.
                 # Newest items are at the left side (queue part) of the deque.
-                num_forward_visits = (
-                    len([x for x in
+                if len(self.forward_visits) < undo_delta:
+                    # This happens when we are obsoleting a URI with no
+                    # tabs loaded in the editor, so by definition there are no
+                    # forward visits to keep.
+                    num_forward_visits = 0
+                else:
+                    num_forward_visits = len(
+                        [x for x in
                          islice(self.forward_visits,
                                 0,
                                 len(self.forward_visits) - undo_delta)
                          if x.uri != obsoleted_uri])
-                )
             else:
                 # The undo will move back.  Prune the current forward visits,
                 # and the newest <delta - 1> back visits.
