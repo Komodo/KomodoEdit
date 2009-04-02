@@ -13,7 +13,7 @@ free-as-in-speech Komodo editor).
 Komodo is based on Mozilla, so prepare yourself for some serious build
 time. If you have trouble with any of the following instructions please
 log a bug:
-<http://bugs.activestate.com/enter_bug.cgi?product=OpenKomodo&component=Documentation>
+<http://bugs.activestate.com/enter_bug.cgi?product=Komodo>
 
 
 
