@@ -121,7 +121,10 @@ this.dragObserver = {
             ko.dragDrop.unpackData(transferData.dataList[0], desc)
             desc.dragAction = dragSession.dragAction;
             _log.debug('dragObserver data: ['+desc.text+']');
-            if (desc.isFileURL || desc.isRemoteFileURL || desc.text.match(/\.xpi$/i)) {
+            if (desc.isFileURL
+                || desc.isRemoteFileURL
+                || desc.text.match(/\.ksf$/i)
+                || desc.text.match(/\.xpi$/i)) {
                 _log.debug('dragObserver opening files');
                 uri_open_list.push(desc.text);
                 num_items++;
@@ -273,8 +276,9 @@ this.unpackData = function(flavourData, ret) {
             // XXX should find out if it's a dir (hard?)
             return;
         } else
-        if (ret.text.search('https?://') == 0 &&
-            ret.text.search('\.xpi$') < 0) {
+        if (ret.text.search('https?://') == 0
+            && ret.text.search('\.xpi$') < 0
+            && ret.text.search('\.ksf$') < 0) {
             // ask the user to add a uri mapping
             if (dialog_yesNo("You have dropped a URL onto Komodo, would you like "+
                              "to setup a Mapped URL?  A Mapped URL "+

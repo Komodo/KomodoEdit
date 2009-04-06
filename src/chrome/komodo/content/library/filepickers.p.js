@@ -175,6 +175,8 @@ function _appendFilters(fp, limitTo /* =null */) {
     filters.push(["*.kpf"]);
     names.push("Komodo Package");
     filters.push(["*.kpz"]);
+    names.push("Komodo Scheme");
+    filters.push(["*.ksf"]);
     //names.push("Komodo Toolbox");
     //filters.push(["*.ktf"]);
     names.push("Code Intelligence XML");

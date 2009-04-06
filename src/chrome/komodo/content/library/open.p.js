@@ -44,7 +44,15 @@ if (typeof(ko)=='undefined') {
 ko.open = {};
 (function() {
 var fileLineNoRE = /^(.*)#(\d+)$/;
-    
+
+var _viewsBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/views.properties");
+function removeAmpersands(labels) {
+    var ret = [];
+    labels.forEach(function(s) { ret.push(s.replace(/&/g, '')); });
+    return ret;
+}
 /**
  * Asynchronously open the URI in a new Komodo tab, if the file is already
  * open then this existing tab becomes the currently focused tab.
@@ -90,6 +98,36 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
         } else if (uri.match(/\.kpz$/i)) {
             ko.toolboxes.importPackage(ko.uriparse.URIToLocalPath(uri));
         } else {
+            if (uri.match(/\.ksf$/i)) {
+                var prompt = _viewsBundle.formatStringFromName("importFileAsScheme.prompt", [ko.uriparse.baseName(uri)], 1);
+                var buttons = [_viewsBundle.GetStringFromName("OK.customButtonLabel"),
+                               _viewsBundle.GetStringFromName("openAsText.customButtonLabel"),
+                               _viewsBundle.GetStringFromName("Cancel.customButtonLabel")];
+                var responses = removeAmpersands(buttons);
+                var text = null;
+                var title = _viewsBundle.GetStringFromName("openingSchemeFile.label");
+                var answer = ko.dialogs.customButtons(prompt,
+                                                      buttons,
+                                                      null,  //response=buttons[0]
+                                                      null, // text
+                                                      title);
+                if (!answer || answer == responses[2]) {
+                    return null;
+                } else if (answer == responses[0]) {
+                    var schemeBaseName = _checkKSFBaseName(uri);
+                    if (schemeBaseName) {
+                        var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService();
+                        try {
+                            var newSchemeName = schemeService.loadSchemeFromURI(uri, schemeBaseName);
+                            schemeService.activateScheme(newSchemeName);
+                            return null;
+                        } catch(ex) {
+                            alert(ex);
+                            log.exception(ex);
+                        }
+                    }
+                }
+            }
             ko.history.note_curr_loc();
             if (line) {
                 ko.views.manager.doFileOpenAtLineAsync(uri, line, viewType, null, -1, callback);
@@ -103,6 +141,73 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
     return null;
 }
 
+/**
+ * @param {String} uri -- uri of the source of the KSF file
+ * @returns {Boolean} true if a valid KSF file basename is
+ *          determined, or selected.  False otherwise.
+ */
+function _checkKSFBaseName(uri) {
+    var koDirs = Components.classes["@activestate.com/koDirs;1"].
+             getService(Components.interfaces.koIDirs);
+    var koOSPath = Components.classes["@activestate.com/koOsPath;1"].
+             getService(Components.interfaces.koIOsPath);
+    var schemeDir = koOSPath.join(koDirs.userDataDir, "schemes");
+    var newSchemeName = ko.uriparse.baseName(uri);
+    var ext = ko.uriparse.ext(uri);
+    var fnameInvalidCharRe = /[^\w\d ]/;
+    var allowOverwrite = false;
+    while (true) {
+        var schemeNoExt = newSchemeName.substring(0, newSchemeName.lastIndexOf(ext));
+        var prompt, answer;
+        if (schemeNoExt.length == 0 || fnameInvalidCharRe.test(schemeNoExt)) {
+            prompt = _viewsBundle.formatStringFromName("schemeBasenameFormat.template",
+                                                       [schemeNoExt], 1);
+        } else if (koOSPath.exists(koOSPath.join(schemeDir, newSchemeName))
+                   && !allowOverwrite) {
+            prompt = _viewsBundle.formatStringFromName("schemeFileExists.template",
+                                                       [newSchemeName], 1);
+            var buttons = [_viewsBundle.GetStringFromName("Overwrite.customButtonLabel"),
+                           _viewsBundle.GetStringFromName("ChooseDifferentName.customButtonLabel"),
+                           _viewsBundle.GetStringFromName("Cancel.customButtonLabel")];
+            var responses = removeAmpersands(buttons);
+            answer = ko.dialogs.customButtons(prompt, buttons, responses[1]);
+            if (answer == responses[2]) {
+                return null;
+            } else if (answer == responses[0]) {
+                return newSchemeName;
+            } else {
+                prompt = _viewsBundle.GetStringFromName("enterNewSchemeFile.prompt");
+            }
+        } else {
+            return newSchemeName;
+        }
+        while (true) {
+            // Get a new scheme file -- this loop requires it to be
+            // in the scheme-directory, since there's no saveFileAs widget
+            // that won't change directories.
+            var fullPath = ko.filepicker.saveFile(schemeDir, newSchemeName,
+                                            prompt,
+                                            "Komodo Scheme", 
+                                            ["Komodo Scheme"]);
+            if (!fullPath) {
+                return null;
+            } else if (koOSPath.dirname(fullPath) != schemeDir) {
+                prompt = _viewsBundle.formatStringFromName("wrongSchemeFileDirectoryPrompt.template",
+                                                           [fullPath], 1);
+            } else if (ko.uriparse.ext(fullPath) != ext) {
+                prompt = _viewsBundle.formatStringFromName("wrongSchemeFileExtension.template",
+                                                           [ext, koOSPath.basename(fullPath)],
+                                                           2);
+            } else {
+                // return to the outer loop to verify the basename is valid
+                newSchemeName = koOSPath.basename(fullPath);
+                allowOverwrite = true;
+                break;
+            }
+        }
+    }
+    return newSchemeName;
+}
 
 /**
  * Open the given path in Komodo.

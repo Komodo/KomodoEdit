@@ -42,6 +42,7 @@ import copy
 import pprint
 import os
 import logging
+import re
 import sys
 
 from xpcom import components, nsError, ServerException, COMException
@@ -812,6 +813,79 @@ class KoScintillaSchemeService:
             self.lastErrorSvc.setLastError(nsError.NS_ERROR_FAILURE,
                                            errmsg)
             raise ServerException(nsError.NS_ERROR_FAILURE, errmsg)
+            
+    def loadSchemeFromURI(self, uri, schemeBaseName):
+        """ Save the incoming URI in the userDataDir/schemes/,
+        and have Komodo use the new/updated scheme.
+        
+        @param uri {str} the URI to open
+        @returns {wstring} name of new scheme.  Throws an exception on failure.
+        """
+        koDirs = components.classes["@activestate.com/koDirs;1"].\
+                 getService(components.interfaces.koIDirs)
+        fileSvc = components.classes["@activestate.com/koFileService;1"].\
+                  getService(components.interfaces.koIFileService)
+        _viewsBundle = components.classes["@mozilla.org/intl/stringbundle;1"].\
+                       getService(components.interfaces.nsIStringBundleService).\
+                       createBundle("chrome://komodo/locale/views.properties")
+           
+        schemeName = os.path.splitext(schemeBaseName)[0]
+        if re.compile(r'[^\w\d_ ]').search(schemeName):
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                  _viewsBundle.formatStringFromName(
+                                      "schemeBasenameFormat.template",
+                                      [schemeBaseName]))
+            
+        koFileExSrc = fileSvc.getFileFromURI(uri);
+        if not koFileExSrc:
+            log.error("Failed to get file object for " + uri)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                  _viewsBundle.formatStringFromName(
+                                      "cantFindSchemeFile.template",
+                                      [uri]))
+        
+        koFileExSrc.open('r')
+        data = koFileExSrc.readfile()
+        koFileExSrc.close()
+
+        if koFileExSrc.scheme != 'file':
+            dangerous_keywords = []
+            for word in ['import', 'eval', 'exec', 'execfile', 'open']:
+                if re.compile(r'\b' + word + r'\b').search(data):
+                    dangerous_keywords.append(word)
+            if dangerous_keywords:
+                msg = _viewsBundle.formatStringFromName(
+                    "schemeFileContainsDangerousWords.template",
+                    [uri, 
+                     (len(dangerous_keywords) > 1 and "s" or ""),
+                     "'" + "', '".join(dangerous_keywords) + "'"])
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG, msg)
+        
+        targetPath = os.path.join(koDirs.userDataDir, 'schemes', schemeBaseName)
+        fd = open(targetPath, "w")
+        fd.write(data)
+        fd.close()
+        
+        try:
+            # If we fail to create a scheme based on the file,
+            # we need to pull the file out of the scheme directory.
+            newScheme = Scheme(targetPath, True, unsaved=0)
+        except Exception:
+            os.unlink(targetPath)
+            raise
+        self.addScheme(newScheme)
+        return newScheme.name
+    
+    def activateScheme(self, newSchemeName):
+        globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
+                            getService(components.interfaces.koIPrefService).prefs
+        oldSchemeName = globalPrefs.getStringPref('editor-scheme')
+        # Even if oldScheme == newScheme, go through this:
+        globalPrefs.setStringPref('editor-scheme', newSchemeName)
+        observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                getService(components.interfaces.nsIObserverService)
+        observerSvc.notifyObservers(self, 'scheme-changed', newSchemeName)
+        return oldSchemeName
 
     def _addLogicalLine(self, html, scimoz, lineStart, lineEnd, language,
                         lineNo, useLineNos, style_bits, maxLineLength,
