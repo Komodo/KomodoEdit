@@ -244,6 +244,20 @@ class TestKoFileEx(unittest.TestCase):
         self.failUnlessSamePath(self.__file.dirName, dirname,
                            "%r != %r" %(self.__file.dirName, dirname))
  
+    def test_path_with_percent(self):
+        # Ensure the koIFileEx routines do not try to unquote the path,
+        # bug 82660.
+        if sys.platform.startswith("win"):
+            path = r'c:\test\path\to\file with percent_%ab.txt'
+            uri = r'file:///c:/test/path/to/file%20with%20percent_%25ab.txt'
+        else:
+            path = r'/test/path/to/file with percent_%ab.txt'
+            uri = r'file:///test/path/to/file%20with%20percent_%25ab.txt'
+        self.__file.path = path
+        self.failUnlessEqual(self.__file.URI, uri)
+        self.__file.URI = uri
+        self.failUnlessEqual(self.__file.path, path)
+
     def test_fileNotExist(self):
         self.__file.URI = "Text-1.txt"
         assert not self.__file.exists

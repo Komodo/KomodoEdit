@@ -173,7 +173,7 @@ class URIParser(object):
         print "ext:      [%s]"%self.ext
         print
         
-    def _parseURI(self, uri):
+    def _parseURI(self, uri, doUnquote=True):
         #print "_parseURI[%s]"%uri
         uri = uri.replace('\\','/')
         # fix the uri if we get the lame pipe in place of colon uri's
@@ -194,7 +194,7 @@ class URIParser(object):
             parts[2] = parts[2][1:]
 
         # Unquote the path from the URL parts.
-        if parts[2].find('%') != -1:
+        if doUnquote and parts[2].find('%') != -1:
             parts[2] = urllib.unquote(parts[2])
 
         return parts
@@ -234,13 +234,14 @@ class URIParser(object):
                     pass
         return urlparse.urlunsplit(tuple(uparts))
 
-    def _setFileNames(self, fileName):
+    def _setFileNames(self, fileName, doUnquote=True):
         # Expects a URI where *no* urlunquote has yet been done. Unquoting
-        # of the path itself will be done as part of the _parseURI() method.
+        # of the path itself will be done as part of the _parseURI() method
+        # if the doUnquote argument is True.
         self._clear()
         if fileName:
             self.fileName = fileName
-            self._fileParsed = self._parseURI(fileName)
+            self._fileParsed = self._parseURI(fileName, doUnquote)
             self._uri = self._buildURI(self._fileParsed)
             
     def _encodeForFileSystem(self, filename):
@@ -287,7 +288,7 @@ class URIParser(object):
         elif uri.find('://') == -1:
             self.set_path(uri)
         else:
-            self._setFileNames(uri)
+            self._setFileNames(uri, doUnquote=True)
     URI = property(get_URI,set_URI)
 
     def get_displayPath(self):
@@ -332,8 +333,8 @@ class URIParser(object):
         if path.find('://') >= 0:
             self.set_URI(path)
         else:
-            # Where by "sortaURI" we are skipping urlquoting the "path" part
-            # because that is what _setFileNames expects.
+            # "sortaURI" is url unquoted already, ensure it's not re-unquoted
+            # by passing "doUnquote=False" to _setFileNames(), bug 82660.
             sortaURI = path.replace('\\','/')
             if path.startswith("//"):  # UNC path
                 sortaURI = "file:" + path
@@ -341,7 +342,7 @@ class URIParser(object):
                 sortaURI = "file://" + path
             elif path.find(':') == 1:  # Absolute Windows path
                 sortaURI = "file:///" + path
-            self._setFileNames(sortaURI)
+            self._setFileNames(sortaURI, doUnquote=False)
     path = property(get_path,set_path)
 
     #attribute string leafName; 
