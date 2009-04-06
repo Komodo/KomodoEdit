@@ -48,11 +48,13 @@ var fileLineNoRE = /^(.*)#(\d+)$/;
 var _viewsBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/views.properties");
+
 function removeAmpersands(labels) {
     var ret = [];
     labels.forEach(function(s) { ret.push(s.replace(/&/g, '')); });
     return ret;
 }
+
 /**
  * Asynchronously open the URI in a new Komodo tab, if the file is already
  * open then this existing tab becomes the currently focused tab.
@@ -187,8 +189,8 @@ function _checkKSFBaseName(uri) {
             // that won't change directories.
             var fullPath = ko.filepicker.saveFile(schemeDir, newSchemeName,
                                             prompt,
-                                            "Komodo Scheme", 
-                                            ["Komodo Scheme"]);
+                                            "Komodo Color Scheme", 
+                                            ["Komodo Color Scheme"]);
             if (!fullPath) {
                 return null;
             } else if (koOSPath.dirname(fullPath) != schemeDir) {
