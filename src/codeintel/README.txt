@@ -57,7 +57,7 @@ above) you can run the test suite in the "test" subdirectory.
 
 To run the whole test suite::
 
-    cd test
+    cd test2
     python test.py
 
 Individual test modules can be run::
