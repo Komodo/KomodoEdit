@@ -128,8 +128,6 @@ def make_src_scintilla(maker, log):
         _cp(ko_scintilla_dir, "src/scintilla", logstream=log.info)
 
     # Purge all but the following lexer languages.
-    # Note that we are currently purging UDL because it mucks up
-    # our build.
     langs_to_keep = [
         "Python", "HTML", "Perl", "CSS", "Ruby", "TCL", "XSLT",
         "UDL",
