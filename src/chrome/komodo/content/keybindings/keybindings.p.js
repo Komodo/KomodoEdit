@@ -282,6 +282,8 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 15: Komodo 5.1.0 - Fix Meta+Shift+<x> keybindings on OS X to use the
+ *                    shifted char if <x> is non-alpha
  * 14: Komodo 5.1.0 - Fix cmd_goToFile keybinding on non-Mac platforms.
  * 13: Komodo 5.1.0 - Add cmd_goToFile keybinding.
  * 12: Komodo 5.1.0 - Add cmd_reopenLastClosedTab for OS X
@@ -631,6 +633,27 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
             });
 // #endif
             break;
+        case 14:
+// #if PLATFORM == 'darwin'
+            this._remove_keybinding_sequences({
+                'cmd_fontZoomIn': ["Meta+Shift+="],
+                'cmd_fontZoomOut': ["Meta+Shift+-"],
+                'cmd_splittab': ["Meta+Shift+'"],
+                'cmd_viewEOL': ["Meta+Shift+7"],
+                'cmd_viewIndentationGuides': ["Meta+Shift+5"],
+                'cmd_viewWhitespace': ["Meta+Shift+8"],
+                'cmd_wordWrap': ["Meta+Shift+9"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_fontZoomIn': ["Meta++"],
+                'cmd_fontZoomOut': ["Meta+_"],
+                'cmd_splittab': ["Meta+\""],
+                'cmd_viewEOL': ["Meta+&"],
+                'cmd_viewIndentationGuides': ["Meta+%"],
+                'cmd_viewWhitespace': ["Meta+*"],
+                'cmd_wordWrap': ["Meta+("]
+            });
+// #endif
         }
         from_version += 1;
     }
