@@ -113,4 +113,111 @@
         </implementation>
     </binding>
 
+  <binding id="ko-colorpicker-button" display="xul:menu"
+           extends="chrome://global/content/bindings/general.xml#basecontrol">
+    <resources>
+        <stylesheet src="chrome://komodo/skin/bindings/colorpicker.css"/>
+    </resources>
+
+    <content>
+        <xul:hbox class="colorpicker-button-colorbox" anonid="colorbox" flex="1" xbl:inherits="disabled"/>
+    </content>
+    
+    <implementation implements="nsIAccessibleProvider">
+
+        <constructor>
+        <![CDATA[
+            this.mColorBox = document.getAnonymousElementByAttribute(this, "anonid", "colorbox");
+            this.mColorBox.style.backgroundColor = this.color;
+        ]]>
+        </constructor>
+      
+        <property name="accessibleType" readonly="true">
+            <getter>
+              <![CDATA[
+                return Components.interfaces.nsIAccessibleProvider.XULColorPicker;
+              ]]>
+            </getter>
+        </property>
+  
+        <property name="color">
+            <getter>
+              <![CDATA[
+                return this.getAttribute("color");
+              ]]>
+            </getter>
+            <setter>
+              <![CDATA[
+                this.mColorBox.setAttribute("style", "background-color: " + val);
+                this.setAttribute("color", val);
+                return val;
+              ]]>
+            </setter>
+        </property>
+
+        <method name="_fireEvent">
+          <parameter name="aTarget"/>
+          <parameter name="aEventName"/>
+          <body>
+          <![CDATA[      
+            try {
+              var event = document.createEvent("Events");
+              event.initEvent(aEventName, true, true);
+              var cancel = !aTarget.dispatchEvent(event);
+              if (aTarget.hasAttribute("on" + aEventName)) {
+                var fn = new Function ("event", aTarget.getAttribute("on" + aEventName));
+                var rv = fn.call(aTarget, event);
+                if (rv == false)
+                  cancel = true;
+              }
+              return !cancel;  
+            }
+            catch (e) { 
+              dump(e);
+            }
+            return false;
+          ]]>
+          </body>
+        </method>
+  
+        <method name="selectColor">
+          <body><![CDATA[
+            var cpSvc = Components.classes["@activestate.com/koColorPicker;1"].
+                        getService(Components.interfaces.koIColorPicker);
+            var newcolor = cpSvc.pickColor(this.color);
+            if (newcolor && newcolor != this.color) {
+                this.color = newcolor;
+                this._fireEvent(this, "change");
+            }
+          ]]></body>
+        </method>
+
+    </implementation>
+
+    <handlers>
+        <handler event="click">
+          <![CDATA[
+            if (event.originalTarget.hasAttribute("color")) {
+              this.selectColor();
+            }
+          ]]>
+        </handler>
+
+        <handler event="keydown">
+          <![CDATA[
+            // open popup if key is space/up/left/right/down
+            if (event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_ENTER ||
+                event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_SPACE ||
+                event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_LEFT ||
+                event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RIGHT ||
+                event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP ||
+                event.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_DOWN) {
+                this.selectColor();
+            }
+          ]]>
+        </handler>
+    </handlers>
+
+  </binding>
+
 </bindings>
