@@ -278,6 +278,8 @@ test_vi_emulation.prototype._markBuffer = function(buffer, currentPos, anchor) {
  *        operationFlags {array}  The operations to run the command with
  *        tags {array}  List of specific test tag names
  *        resetMode {boolean}  Perform a vi basic reset before running.
+ *        mode {int}  vi mode to start in, one of VimController.MODE_XXX.
+ *        visualMode {int}  Vi visual mode, on of VimController.VISUAL_XXX.
  */
 test_vi_emulation.prototype._runRegisterCommand = function(cmd,
                                                    buffers,
@@ -287,11 +289,16 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
     var operationFlags = options && options.operationFlags;
     var tags = options && options.tags;
     var resetMode = options && options.resetMode;
+    var mode = options && options.mode;
+    var visualMode = options && options.visualMode;
     log.info("\n\n*************************************");
     log.info(cmd);
     log.info("*************************************\n");
     if (typeof(resetMode) == 'undefined' || resetMode) {
         this._reset();
+    }
+    if (typeof(operationFlags) == 'undefined') {
+        operationFlags = 0;
     }
     // <|> represents the cursor position
     var bufferOrig = buffers[0];
@@ -321,11 +328,21 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
     log.debug("cursorOrigPos: " + cursorOrigPos);
     for (var i=1; i < buffers.length; i++) {
         buf = buffers[i];
-        // Perform the command
+        // Setup for the command.
+        if (typeof(mode) != 'undefined') {
+            gVimController.mode = mode;
+        }
+        if (typeof(visualMode) != 'undefined') {
+            gVimController._visualMode = visualMode;
+            if (visualMode == VimController.VISUAL_LINE) {
+                this.scimoz.selectionMode = this.scimoz.SC_SEL_LINES;
+            }
+        }
         gVimController.operationFlags = operationFlags;
         if (register) {
             gVimController._currentRegister = register;
         }
+        // Perform the command
         vim_doCommand(cmd);
         // Compare the results
         var anchorNewPos = buf.indexOf("<^>");
@@ -378,6 +395,8 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
  *        operationFlags {array}  The operations to run the command with
  *        tags {array}  List of specific test tag names
  *        resetMode {boolean}  Perform a vi basic reset before running.
+ *        mode {int}  vi mode to start in, one of VimController.MODE_XXX.
+ *        visualMode {int}  Vi visual mode, on of VimController.VISUAL_XXX.
  */
 test_vi_emulation.prototype._runCommand = function(cmd,
                                                    buffers,
@@ -1440,6 +1459,33 @@ test_vi_emulation.prototype.test_find_and_replace = function() {
     this._runTextCommand("'<,'>s/e/z/g",
                          ["this is my code-firs<|>tbuffer\r\nthis is the second<^> line\r\n",
                           "this is my code-firstbuffzr\r\nthis is thz szcond line\r\n"]);
+}
+
+test_vi_emulation.prototype.test_indenting = function() {
+    // try on a selection, note that vi removes the selection after running
+    // the indent/dedent command.
+    // "|" represents the cursor position
+    // "^" represents the anchor position
+    this._runCommand("indentOperation",
+                     ["line 1\r\nli<^>ne<|> 2\r\nline 3\r\n",
+                      "line 1\r\n    line<^><|> 2\r\nline 3\r\n"],
+                     { mode: VimController.MODE_VISUAL,
+                       visualMode: VimController.VISUAL_LINE });
+    this._runCommand("indentOperation",
+                     ["<^>line 1\r\nline<|> 2\r\nline 3\r\n",
+                      "    line 1\r\n    line<^><|> 2\r\nline 3\r\n"],
+                     { mode: VimController.MODE_VISUAL,
+                       visualMode: VimController.VISUAL_LINE });
+    this._runCommand("dedentOperation",
+                     ["line 1\r\n    li<^>ne<|> 2\r\nline 3\r\n",
+                      "line 1\r\nline<^><|> 2\r\nline 3\r\n"],
+                     { mode: VimController.MODE_VISUAL,
+                       visualMode: VimController.VISUAL_LINE });
+    this._runCommand("dedentOperation",
+                     ["    <^>line 1\r\n    line<|> 2\r\nline 3\r\n",
+                      "line 1\r\nline<^><|> 2\r\nline 3\r\n"],
+                     { mode: VimController.MODE_VISUAL,
+                       visualMode: VimController.VISUAL_LINE });
 }
 
 

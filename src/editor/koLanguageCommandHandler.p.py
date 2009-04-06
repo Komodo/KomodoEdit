@@ -1489,7 +1489,7 @@ class GenericCommandHandler:
         startColumn = sm.getColumn(sm.selectionStart)
 
         # Do we have a selection?  If no, then it's 'insert a backwards tab'
-        if sm.currentPos == sm.anchor:
+        if sm.currentPos == sm.anchor and sm.selectionMode != sm.SC_SEL_LINES:
             if startColumn == 0:
                 sm.currentPos = endOfSelectionStartLine
                 self._regionShift(-1)
@@ -1502,7 +1502,8 @@ class GenericCommandHandler:
         # either whole-line or multi-line.
         
         if (selectionStartLine != selectionEndLine or
-            startColumn == 0 and sm.selectionEnd == endOfSelectionStartLine):
+            sm.selectionMode == sm.SC_SEL_LINES or
+            (startColumn == 0 and sm.selectionEnd == endOfSelectionStartLine)):
             return self._regionShift(-1)
         else:
             return self._insertDedent()
@@ -1633,7 +1634,7 @@ class GenericCommandHandler:
         if self._handle_tabstop():
             return
 
-        if sm.currentPos == sm.anchor:
+        if sm.currentPos == sm.anchor and sm.selectionMode != sm.SC_SEL_LINES:
             if self._try_complete_word(sm, view) and self._doCompleteWord(0):
                 return
     
@@ -1649,7 +1650,8 @@ class GenericCommandHandler:
         startColumn = sm.getColumn(sm.selectionStart)
         endOfSelectionStartLine = sm.getLineEndPosition(selectionStartLine)
         if (selectionStartLine != selectionEndLine or
-            startColumn == 0 and sm.selectionEnd == endOfSelectionStartLine):
+            sm.selectionMode == sm.SC_SEL_LINES or
+            (startColumn == 0 and sm.selectionEnd == endOfSelectionStartLine)):
             return self._regionShift(1)
         else:
             return self._insertIndent()
@@ -1659,43 +1661,42 @@ class GenericCommandHandler:
         sign of 'shift' (which should be +1 for a rightward shift or
         -1 for a leftward shift
         
-        First we adjust the selection to consist only of whole lines.
+        First we adjust the region (selection) to consist only of whole lines.
         
         Then we look for the delta in number of spaces that should be applied
         to the first line which has a non-zero indent.
         
-        Then we apply that delta to each line in the selection, ensuring that
+        Then we apply that delta to each line in the region, ensuring that
         the indentations that result respect the use of tabs as specified
         in the widget
         """
         sm = self._view.scimoz
         indentlog.info("doing _regionShift by shift: %s", shift)
         # first adjust the selection to span full lines.
-        anchorLine = sm.lineFromPosition(sm.anchor)
-        currentPosLine = sm.lineFromPosition(sm.currentPos)
-        if sm.anchor < sm.currentPos:
-            anchorFirst = 1
-            startLine = anchorLine
-            endLine = currentPosLine
+        anchorFirst = True
+        anchor = sm.anchor
+        currentPos = sm.currentPos
+        if anchor < currentPos:
+            startPos, endPos = anchor, currentPos
         else:
-            anchorFirst = 0
-            endLine = anchorLine
-            startLine = currentPosLine
-            # ensure that anchor starts for the sake of our computation
-            # things get fixed at the end.
-            sm.anchor, sm.currentPos = sm.currentPos, sm.anchor
+            anchorFirst = False
+            startPos, endPos = currentPos, anchor
+        startPosColumn = sm.getColumn(startPos)
+        endPosColumn = sm.getColumn(endPos)
+        startLineNo = sm.lineFromPosition(startPos)
+        endLineNo = sm.lineFromPosition(endPos)
+        ignoreEndLine = False
+        if sm.selectionMode != sm.SC_SEL_LINES and endPosColumn == 0:
+            # The end selection position is at the start of a line, which
+            # means this end line should not be indented.
+            endLineNo -= 1
+            ignoreEndLine = True
+        # Update the start and end positions to work on whole lines.
+        startPos = sm.positionFromLine(startLineNo)
+        endPos = sm.getLineEndPosition(endLineNo)
 
-        anchorColumn = sm.getColumn(sm.anchor)
-        currentPosColumn = sm.getColumn(sm.currentPos)
-        if anchorColumn != 0:
-            l = sm.lineFromPosition(sm.anchor)
-            sm.anchor = sm.positionFromLine(l)
-        if currentPosColumn != 0:
-            # adjust to end of line
-            l = sm.lineFromPosition(sm.currentPos)
-            sm.currentPos = sm.getLineEndPosition(l)
         # figure out what delta we need to apply to the first line
-        for line in range(startLine, max(endLine, startLine+1)):
+        for line in range(startLineNo, max(endLineNo, startLineNo+1)):
             currentIndentWidth = self._getIndentWidthForLine(line)
             if shift == 1 or currentIndentWidth:
                 break
@@ -1710,7 +1711,7 @@ class GenericCommandHandler:
         delta = newIndentWidth - currentIndentWidth
         indentlog.info("delta = %d", delta)
         # apply that delta to each line in the region
-        region = sm.getTextRange(sm.anchor, sm.currentPos)
+        region = sm.getTextRange(startPos, endPos)
         lines = region.splitlines(1) # keep line ends
         data = []
         for line in lines:
@@ -1728,16 +1729,22 @@ class GenericCommandHandler:
             data.append(newline)
         region = ''.join(data)
         regionUtf8Len = self.sysUtils.byteLength(region)
-        before = min(sm.currentPos, sm.anchor)
-        sm.targetStart = sm.anchor
-        sm.targetEnd = sm.currentPos
+        sm.targetStart = startPos
+        sm.targetEnd = endPos
         sm.replaceTarget(len(region), region)
+        endPos = startPos + regionUtf8Len
+        if sm.selectionMode == sm.SC_SEL_LINES:
+            # Maintain the same cursor position.
+            startPos = sm.findColumn(startLineNo, startPosColumn + delta)
+            endPos = sm.findColumn(endLineNo, endPosColumn + delta)
+        elif ignoreEndLine:
+            endPos = sm.positionFromLine(endLineNo + 1)
         if anchorFirst:
-            sm.anchor = before
-            sm.currentPos = before + regionUtf8Len
+            sm.anchor = startPos
+            sm.currentPos = endPos
         else:
-            sm.currentPos = before
-            sm.anchor = before + regionUtf8Len
+            sm.currentPos = startPos
+            sm.anchor = endPos
 
     def unexpandtabs(self, line):
         numspaces = len(line)-len(line.lstrip())
