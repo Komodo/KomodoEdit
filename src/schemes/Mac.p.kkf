@@ -92,8 +92,8 @@ binding cmd_findPrevious  Meta+Shift+G
 binding cmd_findPreviousFunction  Shift+F8
 binding cmd_focusEditor Ctrl+Shift+E
 binding cmd_focusSource Ctrl+K Ctrl+S
-binding cmd_fontZoomIn Meta+Shift+=
-binding cmd_fontZoomOut Meta+Shift+-
+binding cmd_fontZoomIn Meta++
+binding cmd_fontZoomOut Meta+_
 binding cmd_gotoLine Meta+L
 binding cmd_helpHelp  Meta+?
 binding cmd_helpHelp  Meta+Shift+/
@@ -157,7 +157,7 @@ binding cmd_selectRectPageUp Ctrl+Shift+Page_Up
 binding cmd_selectToMatchingBrace  Meta+}
 binding cmd_selectWordLeft  Alt+Shift+Left
 binding cmd_selectWordRight  Alt+Shift+Right
-binding cmd_splittab Meta+Shift+'
+binding cmd_splittab Meta+"
 binding cmd_startIncrementalSearch Meta+I
 binding cmd_startIncrementalSearchBackwards Meta+Shift+I
 binding cmd_startMacroMode Ctrl+K (
@@ -171,16 +171,16 @@ binding cmd_undo Meta+Z
 binding cmd_viewBottomPane Ctrl+Shift+M
 
 binding cmd_reopenLastClosedTab Meta+Shift+T
-binding cmd_viewEOL Meta+Shift+7
-binding cmd_viewIndentationGuides Meta+Shift+5
+binding cmd_viewEOL Meta+&
+binding cmd_viewIndentationGuides Meta+%
 binding cmd_viewLineNumbers Meta+Ctrl+4
 binding cmd_viewProjects Ctrl+Shift+P
 binding cmd_viewToolbox Ctrl+Shift+L
-binding cmd_viewWhitespace Meta+Shift+8
+binding cmd_viewWhitespace Meta+*
 binding cmd_wordLeft  Alt+Left
 binding cmd_historyBack  Meta+[
 binding cmd_historyForward  Meta+]
 binding cmd_wordRight  Alt+Right
-binding cmd_wordWrap Meta+Shift+9
+binding cmd_wordWrap Meta+(
 
 binding cmd_goToFile Meta+Shift+O
