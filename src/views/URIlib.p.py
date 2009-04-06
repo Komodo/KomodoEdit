@@ -349,7 +349,7 @@ class URIParser(object):
         return self.baseName
 
     def set_leafName(self, leafName):
-        self.path = os.path.join(self.dirName,leafName)
+        self._path = os.path.join(self.dirName,leafName)
     leafName = property(get_leafName,set_leafName)
 
     #attribute string server; 
