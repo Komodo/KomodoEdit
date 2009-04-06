@@ -432,7 +432,7 @@ class ImportHandler:
         # result (to [] if it could not be determined).
         raise NotImplementedError("setCorePath: pure virtual method call")
 
-    #DEPRECATED
+    #DEPRECATED: still used by `genScannableFiles` implementations.
     def _getPath(self, cwd=None):
         """Put all the path pieces together and return that list.
         
@@ -452,36 +452,7 @@ class ImportHandler:
         path += self.corePath
         return path
 
-    #DEPRECATED
-    def findModuleOnDisk(self, module, submodule, cwd):
-        """Find the full path to the given module on disk.
-        
-            "module" is a the module name (_can_ include dots, e.g. xml.sax)
-            "submodule" is a possible sub-module to also include in the
-                import path. Some languages allow you to separate the module
-                and submodule tokens to control the imported symbol name. For
-                example, submodule will be "sax" for this Python import:
-                    from xml import sax
-                This kind of thing is not possible in Perl and hence the
-                "submodule" argument can be ignored for a Perl
-                implementation. Submodule would be "DumperX" from this Perl
-                import:
-                    use Data::Dumper qw(DumperX);
-            "cwd" is the directory of the module containing the import stmt.
-        
-        If successful, returns a 3-tuple:
-            (<module path>, "module"|"submodule", <scannable>,
-        where,
-            the second element indicates if the returned module row
-                corresponds to the given "module" or "submodule" argument.
-            <scannable> is a boolean indicating if this file is likely
-                scannable.
-
-        Otherwise, returns (None, None, None).
-        """
-        raise NotImplementedError("findModuleOnDisk: pure virtual method call")
-
-    #DEPRECATED
+    #DEPRECATED: Though still used in one place by `lang_ruby.py`.
     def findSubImportsOnDisk(self, module, cwd):
         """Return a list of importable submodules to the given module.
         
@@ -495,35 +466,7 @@ class ImportHandler:
         """
         raise NotImplementedError("findSubImportsOnDisk: pure virtual method call")
 
-    #DEPRECATED
-    def findModule(self, cu, factory, module, submodule, cwd=None):
-        """Find the 'module' table row corresponding to the given import row.
-        
-            "cu" is an open CIDB cursor
-            "factory" is a ThingyFactory instance to use.
-            "module" is the module name (or path, e.g. "xml.sax")
-            "submodule" is a possible sub-module to also include in the
-                import path. Some languages allow you to separate the module
-                and submodule tokens to control the imported symbol name. For
-                example, submodule will be "sax" for this Python import:
-                    from xml import sax
-                This kind of thing is not possible in Perl and hence the
-                "submodule" argument can be ignored for a Perl
-                implementation. Submodule would be "DumperX" from this Perl
-                import:
-                    use Data::Dumper qw(DumperX);
-            "cwd" is the directory of the module containing the import stmt.
-
-        If successful, returns a 2-tuple:
-            (<module Scope instance>, "module"|"submodule")
-        The second element indicates if the returned module row corresponds
-        to the given "module" or "submodule" argument.
-        
-        On failure (i.e. no entry for this module in the CIDB) a
-        NoModuleEntry error is raised.
-        """
-        raise NotImplementedError("findModule: pure virtual method call")
-
+    #DEPRECATED: `indexer.py` is still using this
     def genScannableFiles(self, path=None, skipRareImports=False,
                           importableOnly=False):
         """Generate scannable files on the import path.
@@ -614,7 +557,6 @@ class ImportHandler:
                 on this, and ctlr.is_aborted() may be used to abort
                 processing.
         """
-        #TODO: Will have to add "submodule" arg a la findModule() above
         for lib in libs:
             blob = lib.get_blob(import_name)
             if blob is not None:

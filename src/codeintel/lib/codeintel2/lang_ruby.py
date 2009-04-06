@@ -153,6 +153,8 @@ class RubyImportsEvaluator(Evaluator):
     def eval(self, mgr):
         self.ctlr.set_desc("subimports of '%s'" % self.prefix)
         cwd = dirname(self.buf.path) #XXX Should eventually use relevant env
+        #TODO:XXX Update to use the newer `find_importables_in_dir`.
+        #   `findSubImportsOnDisk` is deprecated.
         subimports = self.import_handler.findSubImportsOnDisk(
             self.prefix, cwd)
         if subimports:
@@ -1433,132 +1435,6 @@ class RubyImportHandler(ImportHandler):
                 self.corePath = [] # could not determine
                 return
         self.corePath = self._shellOutForPath(compiler)
-
-##    def _getStdCIXScanId(self, cu):
-##        if not self.__stdCIXScanId:
-##            cu.execute("SELECT scan.id FROM scan, file, language "
-##                       " WHERE language.name='Ruby'"
-##                       "   AND language.id=file.language_id"
-##                       "   AND scan.file_id=file.id"
-##                       "   AND scan.generator='StdCIX' LIMIT 1")
-##            for row in cu:
-##                self.__stdCIXScanId = row[0]
-##                break
-##        return self.__stdCIXScanId
-
-    def findModule(self, cu, factory, moduleName, dummy, cwd=None):
-        XXX__lang_ruby__findModule_1 # line 1
-        log.debug("   RubyImportHandler.findModule(module=%r, "
-                  "submodule=%r, cwd=%r)", moduleName, dummy, cwd)
-        
-        if CACHING:
-            key = (moduleName, cwd)
-            retval = factory.rubyFindModuleCache.get(key, None)
-            if retval is not None:
-                return retval
-
-        # Look for the appropriate file on disk, using the import path.
-        modfile, kind, scannable = self.findModuleOnDisk(moduleName, dummy, cwd)
-        
-        # If found, see if we have this file and module in the CIDB.
-        module = file_id = None
-        if modfile:
-            cu.execute("SELECT * FROM module "
-                       "WHERE file_id=(SELECT id FROM file WHERE compare_path=?) "
-                       "AND name=? LIMIT 1",
-                       (canonicalizePath(modfile), moduleName))
-            for row in cu:
-                module = factory.createScope(row[M_FILE_ID], "module",
-                                             row[M_ID], row)
-                break
-
-        if CACHING and module:
-            # Only insert into the cache here, and NOT if the retval
-            # is gotten via the fallback because that probably means the
-            # module just isn't scanned yet.
-            # - There are exceptions, e.g. HTML::FormatText, HTML::FormatPS,
-            #   that defy existence.
-            factory.rubyFindModuleCache[key] = (module, "module")
-            factory.rubyFindModuleCacheIndex[module.file_id] = key
-
-        #XXX This block was removed from the Perl equiv for Perf
-        #    reasons. Should the same be done here?
-        # If haven't found a matching module row yet then just look for any
-        # loaded Ruby module of the same name. First one wins.
-        if not module:
-            sql = "SELECT module.* FROM language, file, module"\
-                  " WHERE language.name='Ruby' "\
-                  "   AND language.id=file.language_id "\
-                  "   AND module.file_id=file.id "\
-                  "   AND module.name=? LIMIT 1"
-            cu.execute(sql, (moduleName,))
-            for row in cu:
-                module = factory.createScope(row[M_FILE_ID], "module",
-                                             row[M_ID], row)
-                kind = "module"
-                break
-
-        log.debug("   RubyImportHandler.findModule: '%s' -> %r",
-                  moduleName, module)
-        if not module:
-            raise NoModuleEntry(moduleName, modfile)
-        else:
-            return (module, "module")
-
-    def findModuleOnDisk(self, module, dummy, cwd=None):
-        r"""
-            >>> h = RubyImportHandler()
-            >>> h.findModuleOnDisk("tempfile", None)
-            ('c:\\ruby18\\lib\\ruby\\1.8\\tempfile.rb', 'module', 1)
-        """
-        from os.path import isabs, join, exists
-        if CACHING:
-            # The findModuleOnDisk cache is a time-based cache. I.e. it make
-            # the presumption that the file system hasn't changed
-            # significantly in the last N seconds.
-            N = 300 # 5 minutes
-            key = (module, cwd)
-            if key in self._findModuleOnDiskCache\
-               and self._findModuleOnDiskCache[key][0] > time.time() - N:
-                return self._findModuleOnDiskCache[key][1]
-
-        exts = [".rb", ".so"]
-        if sys.platform == "win32":
-            module = module.replace("/", "\\")
-        mpath = None
-        if isabs(module):
-            for ext in exts:
-                if exists(module+ext):
-                    mpath = module+ext
-                    break
-        else:
-            path = self._getPath(cwd)
-            for dname in path:
-                base = join(dname, module)
-                for ext in exts:
-                    if exists(base+ext):
-                        mpath = base+ext
-                        break
-                if mpath:
-                    break
-        if not mpath:
-            log.debug("   RubyImportHandler.findModuleOnDisk: could not "
-                      "find '%s' in path: %s", module, path)
-            retval = (None, None, None)
-            if CACHING:
-                self._findModuleOnDiskCache[key] = (time.time(), retval)
-            return retval
-
-        log.debug("   RubyImportHandler.findModuleOnDisk: '%s' -> '%s'",
-                  module, mpath)
-        retval = (mpath,
-                  "module", # The "submodule"-thing isn't relevant in Ruby
-                  #XXX Perl only handles .pm files. Need we only handle .rb
-                  #    files here?
-                  mpath.endswith(".rb"))
-        if CACHING:
-            self._findModuleOnDiskCache[key] = (time.time(), retval)
-        return retval
 
     def findSubImportsOnDisk(self, module, cwd):
         from os.path import isdir, join, splitext, exists
