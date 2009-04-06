@@ -1,14 +1,11 @@
-- check on Windows and Linux
 - localization: .dtd, .properties
-- default keybindings
-- test with remote files!
 - MPL in ok tree
 - bug: dialog is globally modal on-top on Mac OS X. Why?
-- ui: some spacing btwn image and text in results tree
 
 
 # TODO later
 
+- nicknames
 - hgignore support in project includes/excludes
 - project index
 - multiple selection with Shift+arrows with focus in textbox
@@ -16,6 +13,9 @@
 - some identifying style for hit types (so can see where they came from)
   Some commented-out code that is a start at this in r27314.
 
+# supporting for creating new file
+
+- require "./" prefix? I.e. only in path mode?
 
 # behaviour design
 
