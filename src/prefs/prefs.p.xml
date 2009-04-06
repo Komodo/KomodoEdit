@@ -330,6 +330,13 @@
   <!-- Whether to show multiline text boxes in the find dialog. -->
   <boolean id="find-multiline">0</boolean> 
   <boolean id="find-confirmReplacementsInFiles">1</boolean> 
+  <!-- The context the last time the user did find/replace in files. Used to
+       restore that when doing a new find/replace in files. Bug 81579.
+       Valid values are: files, open-files, and curr-project
+       (the same as the `<menuitem value="VALUE">` values in
+       `<menulist id="search-in-menu">` of "find2.xul").
+       -->
+  <string id="find-lastInFilesContext">files</string>
 
   <long id="editWrapType">0</long>
   <long id="editWordWrapMarker">0</long>

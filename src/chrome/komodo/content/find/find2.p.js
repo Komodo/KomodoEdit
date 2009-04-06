@@ -63,11 +63,17 @@ var _g_btns_enabled_for_pattern = true;    // cache for update("pattern")
 var _g_curr_default_btn = null;         // cache for _update_mode_ui()
 
 
+var _g_prefs = null;
+var _g_save_in_files_context = false; // Whether to save "in files" context on exit.
+
+
 
 //---- public methods for the dialog
 
 function on_load() {
     try {
+        _g_prefs = Components.classes["@activestate.com/koPrefService;1"]
+            .getService(Components.interfaces.koIPrefService).prefs;
         gFindSvc = Components.classes["@activestate.com/koFindService;1"].
                    getService(Components.interfaces.koIFindService);
         _init_widgets();
@@ -82,6 +88,18 @@ function on_load() {
 }
 
 function on_unload() {
+    if (_g_save_in_files_context) {
+        var value = widgets.search_in_menu.value;
+        if (value == "files"
+            || value == "open-files"
+            //TODO: Can't restore collection unless we save the 'collection
+            //      context instance.
+            //|| value == "collection"
+            || value == "curr-project"
+            ) {
+            _g_prefs.setStringPref("find-lastInFilesContext", value);
+        }
+    }
 }
 
 function on_focus(event) {
@@ -968,7 +986,7 @@ function _init() {
         }
     }
     
-    // - Setup for there a collection having been passed in.
+    // - Setup for a collection having been passed in.
     if (mode == "findincollection" || mode == "replaceincollection") {
         _collapse_widget(widgets.search_in_collection, false);
         _hide_widget(widgets.search_in_collection, false);
@@ -983,6 +1001,39 @@ function _init() {
         _hide_widget(widgets.search_in_collection_sep, true);
         _g_collection_context = null;
     }
+    
+    // - Possibly restore a previous "in files" mode.
+    var in_files_modes = ["findinfiles", "findincurrproject",
+            "findinopenfiles", "replaceinfiles", "replaceincurrproject",
+            "replaceinopenfiles"];
+    var in_files_modes = {
+        "findinfiles": true,
+        "findincurrproject": true,
+        "findinopenfiles": true,
+        "replaceinfiles": true,
+        "replaceincurrproject": true,
+        "replaceinopenfiles": true
+    };
+    if (mode in in_files_modes) {
+        var verb;
+        if (mode.slice(0, 7) === "replace") {
+            verb = "replace";
+        } else {
+            verb = "find";
+        }
+        var lastInFilesContext = _g_prefs.getStringPref("find-lastInFilesContext");
+        var mode_context_from_pref = {
+            // The 'mode' and 'find-lastInFilesContext' (same as <menulist>
+            // values) annoyingly use slightly different spellings.
+            "files": "infiles",
+            "open-files": "inopenfiles",
+            "curr-project": (curr_proj ? "incurrproject" : "infiles")
+        };
+        mode = verb + mode_context_from_pref[lastInFilesContext];
+        _g_save_in_files_context = true;
+    }
+    
+    // - Switch to the appropriate mode.
     switch (mode) {
     case "find":
         widgets.opt_repl.checked = false;
@@ -1002,6 +1053,14 @@ function _init() {
         widgets.opt_repl.checked = true;
         widgets.search_in_menu.value = "files";
         break;
+    case "findinopenfiles":
+        widgets.opt_repl.checked = false;
+        widgets.search_in_menu.value = "open-files";
+        break;
+    case "replaceinopenfiles":
+        widgets.opt_repl.checked = true;
+        widgets.search_in_menu.value = "open-files";
+        break;
     case "findincollection":
         widgets.opt_repl.checked = false;
         widgets.search_in_menu.value = "collection";
@@ -1019,7 +1078,7 @@ function _init() {
         widgets.search_in_menu.value = "curr-project";
         break;
     default:
-        alert("unexpected mode for find dialog: "+mode);
+        opener.alert("unexpected mode for find dialog: "+mode);
     }
     update(null);
 
