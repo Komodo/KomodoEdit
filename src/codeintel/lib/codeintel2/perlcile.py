@@ -42,10 +42,9 @@
     perlcile - a Code Intelligence Language Engine for the Perl language
 
     Module Usage:
-        from perlcile import scan
-        mtime = os.stat("foo.pl")[stat.ST_MTIME]
+        from perlcile import scan_purelang
         content = open("foo.pl", "r").read()
-        scan(content, "foo.pl", mtime=mtime)
+        scan_purelang(content, "foo.pl")
     
     Command-line Usage:
         perlcile.py [<options>...] [<Perl file>]
@@ -111,17 +110,6 @@ gProvideFullDocs = False
 #---- internal support
 # This code has intimate knowledge of the code objects defined in
 # perl_parser.py
-
-def scan(content, filename, md5sum=None, mtime=None):
-    log.info("scan '%s'", filename)
-    content = content.expandtabs(8)
-    tokenizer = perl_lexer.PerlLexer(content, gProvideFullDocs)
-    parser = perl_parser.Parser(tokenizer, provide_full_docs=gProvideFullDocs)
-    parse_tree = parser.parse()
-    tree = parser.produce_CIX()
-    tree = pretty_tree_from_tree(tree)
-    return tostring(tree)
-
 
 def scan_purelang(buf):
     content = buf.accessor.text.expandtabs(8)

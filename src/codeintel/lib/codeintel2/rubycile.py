@@ -42,10 +42,9 @@
     rubycile - a Code Intelligence Language Engine for the Ruby language
 
     Module Usage:
-        from rubycile import scan
-        mtime = os.stat("foo.rb")[stat.ST_MTIME]
+        from rubycile import scan_purelang
         content = open("foo.rb", "r").read()
-        scan(content, "foo.rb", mtime=mtime)
+        scan_purelang(content, "foo.rb")
     
     Command-line Usage:
         rubycile.py [<options>...] [<Ruby files>...]
@@ -262,21 +261,6 @@ def check_insert_rails_env(path, blob_scope):
             base_part = rel_part + "models/" + splitext(basename(model_file))[0]
             blob_scope.insert(idx, Element("import", module=base_part, symbol='*'))
 
-def scan(content, filename, md5sum=None, mtime=None, lang="Ruby"):
-    log.info("scan '%s'", filename)
-    content = content.expandtabs(8)
-    tokenizer = ruby_lexer.RubyLexer(content)
-    parser = ruby_parser.Parser(tokenizer, lang)
-    if 1:
-        parse_tree = parser.parse()
-        if mtime is None:
-            actual_mtime = int(time.time())
-        else:
-            actual_mtime = mtime
-        return parser_cix.produce_cix(parse_tree, filename, actual_mtime, "Ruby", "Ruby")
-    if 0: #except Exception, e:
-        print "Error: " + e
-        sys.exit(1)   
 
 # @hotshotit
 def scan_purelang(content, filename):

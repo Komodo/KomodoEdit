@@ -61,8 +61,6 @@ from codeintel2.tree import tree_from_cix
 lang = "Tcl"
 log = logging.getLogger("codeintel.tcl")
 
-gUseOldTclcile = False #XXX Hook this in for moving to new tclcile
-
 keywords = ["after", "append", "apply", "array", "auto_execok",
             "auto_import", "auto_load", "auto_load_index", "auto_mkindex",
             "auto_qualify", "auto_reset", "bgerror", "binary", "break",
@@ -194,85 +192,7 @@ class TclImportHandler(ImportHandler):
                 yield file
 
 
-class TclCILEDriverOld(CILEDriver):
-    lang = lang
-    def __init__(self, mgr):
-        CILEDriver.__init__(self, mgr)
-        # Find the 'tclcile' executable to use as the Language Engine.
-        dname = os.path.normpath(os.path.dirname(__file__))
-        if sys.platform.startswith("win"):
-            self.tclcile = os.path.join(dname, "tclcile.exe")
-        else:
-            self.tclcile = os.path.join(dname, "tclcile")
-        if not os.path.exists(self.tclcile):
-            raise CodeIntelError("could not find the Tcl CILE "
-                                 "component '%s'\n" % self.tclcile)
-
-    def scan(self, request):
-        request.calculateMD5()
-        
-        argv = [self.tclcile,
-                "--filename", urlencode_path(request.path.encode('utf-8')),
-                "--mtime", str(request.mtime),
-                "--md5", request.md5sum]
-        #pprint(argv)
-
-        env = dict(os.environ)
-        # no access to prefs!
-        # (Note: we *do* have such access now via 'env' attr)
-        #if self.prefService.prefs.hasPref("tclExtraPaths"):
-        #    tclExtraPaths = self.prefService.prefs.getStringPref("tclExtraPaths")
-        #    # If TCLLIBPATH is set, then it must contain a valid Tcl
-        #    # list giving directories to search during auto-load
-        #    # operations. Directories must be specified in Tcl format,
-        #    # using "/" as the path separator, regardless of platform.
-        #    # This variable is only used when initializing the
-        #    # auto_path variable.  Also escape spaces in paths.
-        #    tclExtraPaths = tclExtraPaths.replace('\\', '/')
-        #    tclExtraPaths = tclExtraPaths.replace(' ', '\ ')
-        #    TCLLIBPATH = ' '.join(tclExtraPaths.split(os.pathsep))
-        #    env["TCLLIBPATH"] = TCLLIBPATH
-
-        # Run language engine and report any errors.
-        content = line_end_re.sub("\n", request.content)
-        p = process.ProcessOpen(argv, env=env)
-        stdout, stderr = p.communicate(content)
-        return stdout.decode("utf-8")
-
-    def scan_purelang(self, buf):
-        #XXX Probably not going to get to a new in-process etree-based
-        #    Tcl CILE soon, so fallback to old CILE for now.
-        argv = [self.tclcile,
-                "--filename", urlencode_path(buf.path.encode('utf-8')),
-                "--mtime", "XXX",
-                "--md5", "XXX"]
-        #pprint(argv)
-
-        env = dict(os.environ)
-        # no access to prefs!
-        # (Note: we *do* have such access now via 'env' attr)
-        #if self.prefService.prefs.hasPref("tclExtraPaths"):
-        #    tclExtraPaths = self.prefService.prefs.getStringPref("tclExtraPaths")
-        #    # If TCLLIBPATH is set, then it must contain a valid Tcl
-        #    # list giving directories to search during auto-load
-        #    # operations. Directories must be specified in Tcl format,
-        #    # using "/" as the path separator, regardless of platform.
-        #    # This variable is only used when initializing the
-        #    # auto_path variable.  Also escape spaces in paths.
-        #    tclExtraPaths = tclExtraPaths.replace('\\', '/')
-        #    tclExtraPaths = tclExtraPaths.replace(' ', '\ ')
-        #    TCLLIBPATH = ' '.join(tclExtraPaths.split(os.pathsep))
-        #    env["TCLLIBPATH"] = TCLLIBPATH
-
-        # Run language engine and report any errors.
-        content = re.sub("(\r\n|\r)", "\n", buf.accessor.text)
-        p = process.ProcessOpen(argv, env=env)
-        stdout, stderr = p.communicate(content)
-        cix = stdout.decode("utf-8")
-        return tree_from_cix(cix)
-
-
-class TclCILEDriverNew(CILEDriver):
+class TclCILEDriver(CILEDriver):
     lang = lang
     def __init__(self, *args):
         CILEDriver.__init__(self, *args)
@@ -287,11 +207,6 @@ class TclCILEDriverNew(CILEDriver):
 
     def scan_purelang(self, buf):
         return self.tclcile.scan_purelang(buf.accessor.text, buf.path)
-
-if gUseOldTclcile:
-    TclCILEDriver = TclCILEDriverOld
-else:
-    TclCILEDriver = TclCILEDriverNew
 
 
 

@@ -81,7 +81,6 @@ lang = "Perl"
 log = logging.getLogger("codeintel.perl")
 CACHING = True #XXX obsolete, kill it
 
-gDoOldPerlWay = False #XXX Hook this in for moving to new perlcile
 
 
 #---- language support
@@ -1502,42 +1501,6 @@ class PerlImportHandler(ImportHandler):
 
 class PerlCILEDriver(CILEDriver):
     lang = lang
-    def __init__(self, mgr):
-        CILEDriver.__init__(self, mgr)
-        if gDoOldPerlWay:
-            # Find the 'perlcile' executable to use as the Language Engine.
-            dname = os.path.normpath(os.path.dirname(__file__))
-            if sys.platform.startswith("win"):
-                self.perlcile = os.path.join(dname, "perlcile.exe")
-                self.scineplex = os.path.join(dname, "scineplex.exe")
-            else:
-                self.perlcile = os.path.join(dname, "perlcile")
-                self.scineplex = os.path.join(dname, "scineplex")
-            if not os.path.exists(self.perlcile):
-                raise CodeIntelError("could not find the Perl CILE "
-                                     "component '%s'\n" % self.perlcile)
-            if not os.path.exists(self.scineplex):
-                raise CodeIntelError("could not find the Perl CILE "
-                                     "component '%s'\n" % self.scineplex)
-
-    #TODO: This may not be used. If so, remove it.
-    def scan(self, request):
-        request.calculateMD5()
-        if gDoOldPerlWay:
-            argv = [self.perlcile,
-                    "--scineplex", self.scineplex,
-                    "--filename", urlencode_path(request.path.encode('utf-8')),
-                    "--mtime", str(request.mtime),
-                    "--md5", request.md5sum]
-            
-            # Run language engine and report any errors.
-            content = line_end_re.sub("\n", request.content)
-            p = process.ProcessOpen(argv, stderr=None)
-            stdout, stderr = p.communicate(content)
-            return stdout.decode("utf-8")
-        else:
-            return perlcile.scan(request.content, request.path,
-                                 request.md5sum, request.mtime)
 
     def scan_purelang(self, buf):
         return perlcile.scan_purelang(buf)

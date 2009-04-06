@@ -42,10 +42,9 @@
     tclcile - a Code Intelligence Language Engine for the Tcl language
 
     Module Usage:
-        from tclcile import scan
-        mtime = os.stat("foo.rb")[stat.ST_MTIME]
-        content = open("foo.rb", "r").read()
-        scan(content, "foo.rb", mtime=mtime)
+        from tclcile import scan_purelang
+        content = open("foo.tcl", "r").read()
+        scan_purelang(content, "foo.tcl")
     
     Command-line Usage:
         tclcile.py [<options>...] [<Tcl files>...]
@@ -93,6 +92,7 @@ from codeintel2 import tcl_lexer, tcl_parser
 from codeintel2.common import CILEError
 from codeintel2 import parser_cix
 
+
 #---- exceptions
 
 class TclCILEError(CILEError):
@@ -108,23 +108,6 @@ log = logging.getLogger("tclcile")
 _gClockIt = 0   # if true then we are gathering timing data
 _gClock = None  # if gathering timing data this is set to time retrieval fn
 _gStartTime = None   # start time of current file being scanned
-
-def scan(content, filename, md5sum=None, mtime=None, lang="Tcl"):
-    log.info("scan '%s'", filename)
-    content = content.expandtabs(8)
-    tokenizer = tcl_lexer.TclLexer(content)
-    parser = tcl_parser.Parser(tokenizer, lang)
-    if 1:
-        parse_tree = parser.parse()
-        if mtime is None:
-            actual_mtime = int(time.time())
-        else:
-            actual_mtime = mtime
-        if md5sum is None:
-            actual_md5 = md5(content).hexdigest()
-        else:
-            actual_md5 = md5sum
-        return parser_cix.produce_cix(parse_tree, filename, actual_md5, actual_mtime, "Tcl", "tclcile")
 
 
 def scan_purelang(content, filename):
@@ -148,9 +131,8 @@ def scan_multilang(tokens, module_elem):
 
     This should return a list of the CSL tokens in the token stream.
     """
-        
     tokenizer = tcl_lexer.TclMultiLangLexer(tokens)
-    parser = tcl_parser.Parser(tokenizer, "AOL")
+    parser = tcl_parser.Parser(tokenizer, "AOL")  #TODO: What is AOL here?
     parse_tree = parser.parse()
     parser_cix.produce_elementTree_contents_cix(parse_tree, module_elem)
     csl_tokens = tokenizer.get_csl_tokens()
@@ -242,7 +224,6 @@ def main(argv):
                 global _gStartTime
                 _gStartTime = _gClock()
             data = tostring(scan_purelang(content, filename))
-            # data = scan(content, filename, md5sum, mtime, lang=lang)
             if _gClockIt:
                 sys.stdout.write(" %.3fs\n" % (_gClock()-_gStartTime))
             elif data:
