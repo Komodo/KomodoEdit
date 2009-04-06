@@ -306,6 +306,7 @@ Build(
     "$build/chrome/komodo/content/Conscript",
     "$build/chrome/komodo/content/bindings/Conscript",
     "$build/chrome/komodo/content/codeintel/Conscript",
+    "$build/chrome/komodo/content/colorpicker/Conscript",
     "$build/chrome/komodo/content/dialogs/Conscript",
     "$build/chrome/komodo/content/dialogs/filebrowser/Conscript",
     "$build/chrome/komodo/content/extmgr/Conscript",

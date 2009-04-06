@@ -1,0 +1,190 @@
+<!--
+	JavaScript Color Picker:
+	http://johndyer.name/post/2007/09/PhotoShop-like-JavaScript-Color-Picker.aspx
+-->
+
+	<!--
+	Copyright (c) 2007 John Dyer (http://johndyer.name)
+	
+	Permission is hereby granted, free of charge, to any person
+	obtaining a copy of this software and associated documentation
+	files (the "Software"), to deal in the Software without
+	restriction, including without limitation the rights to use,
+	copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the
+	Software is furnished to do so, subject to the following
+	conditions:
+	
+	The above copyright notice and this permission notice shall be
+	included in all copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+	NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+	HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+	OTHER DEALINGS IN THE SOFTWARE.
+	-->
+	
+	<html xmlns="http://www.w3.org/1999/xhtml" >
+	<head>
+		<title>Color Picker</title>
+		<style type="text/css">
+		body, td {
+			font-family: tahoma;
+			font-size: 10pt;
+		}
+		</style>
+	
+		<script type="text/javascript" src="chrome://komodo/content/colorpicker/colormethods.js" ></script>
+		<script type="text/javascript" src="chrome://komodo/content/colorpicker/colorvaluepicker.js" ></script>
+		<script type="text/javascript" src="chrome://komodo/content/colorpicker/slider.js" ></script>
+		<script type="text/javascript" src="chrome://komodo/content/colorpicker/colorpicker.js" ></script>
+		<script type="text/javascript">
+			window.addEventListener("load", function(e) {
+				var hexColor = window.arguments[0].hexColor;
+				var startMode = window.arguments[0].colorMode || 'h';
+				window.addHash = false;
+				if (hexColor[0] == "#") {
+					window.addHash = true;
+					hexColor = hexColor.substr(1);
+				}
+				window.cp1 = new window.Refresh.Web.ColorPicker('cp1',{startHex: hexColor, startMode: startMode});
+			}, true);
+			window.addEventListener("unload", function(e) {
+				var hexColor = window.cp1.getColorAsHex();
+				if (window.addHash) {
+					hexColor = "#" + hexColor;
+				}
+				window.arguments[0].hexColor = hexColor;
+				window.arguments[0].colorMode = window.cp1.ColorMode;
+				window.arguments[0].retval = window.retval;
+				if (window.retval && window.arguments[0].callback) {
+					window.arguments[0].callback(hexColor);
+				}
+			}, true);
+		</script>
+	</head>
+	<body>
+	
+		<table>
+			<tr>
+				<td valign="top">
+					<div id="cp1_ColorMap"></div>
+				</td>
+				<td valign="top">
+					<div id="cp1_ColorBar"></div>
+				</td>
+	
+				<td valign="top">
+	
+					<table>
+						<tr>
+							<td colspan="3">
+								<div id="cp1_Preview" style="width: 60px; height: 60px; padding: 0; margin: 0; border: solid 1px #000;">
+									<br />
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input type="radio" id="cp1_HueRadio" name="cp1_Mode" value="0" />
+							</td>
+							<td>
+								<label for="cp1_HueRadio">H:</label>
+							</td>
+							<td>
+								<input type="text" id="cp1_Hue" value="0" style="width: 40px;" /> &deg;
+							</td>
+						</tr>
+	
+						<tr>
+							<td>
+								<input type="radio" id="cp1_SaturationRadio" name="cp1_Mode" value="1" />
+							</td>
+							<td>
+								<label for="cp1_SaturationRadio">S:</label>
+							</td>
+							<td>
+								<input type="text" id="cp1_Saturation" value="100" style="width: 40px;" /> %
+							</td>
+						</tr>
+	
+						<tr>
+							<td>
+								<input type="radio" id="cp1_BrightnessRadio" name="cp1_Mode" value="2" />
+							</td>
+							<td>
+								<label for="cp1_BrightnessRadio">B:</label>
+							</td>
+							<td>
+								<input type="text" id="cp1_Brightness" value="100" style="width: 40px;" /> %
+							</td>
+						</tr>
+	
+						<tr>
+							<td colspan="3" height="5">
+	
+							</td>
+						</tr>
+	
+						<tr>
+							<td>
+								<input type="radio" id="cp1_RedRadio" name="cp1_Mode" value="r" />
+							</td>
+							<td>
+								<label for="cp1_RedRadio">R:</label>
+							</td>
+							<td>
+								<input type="text" id="cp1_Red" value="255" style="width: 40px;" />
+							</td>
+						</tr>
+	
+						<tr>
+							<td>
+								<input type="radio" id="cp1_GreenRadio" name="cp1_Mode" value="g" />
+							</td>
+							<td>
+								<label for="cp1_GreenRadio">G:</label>
+							</td>
+							<td>
+								<input type="text" id="cp1_Green" value="0" style="width: 40px;" />
+							</td>
+						</tr>
+	
+						<tr>
+							<td>
+								<input type="radio" id="cp1_BlueRadio" name="cp1_Mode" value="b" />
+							</td>
+							<td>
+								<label for="cp1_BlueRadio">B:</label>
+							</td>
+							<td>
+								<input type="text" id="cp1_Blue" value="0" style="width: 40px;" />
+							</td>
+						</tr>
+	
+	
+						<tr>
+							<td>
+								#:
+							</td>
+							<td colspan="2">
+								<input type="text" id="cp1_Hex" value="FF0000" style="width: 60px;" />
+							</td>
+						</tr>
+	
+					</table>
+				</td>
+			</tr>
+		</table>
+	
+	<div>
+		<input type="button" id="ok_button" onclick="window.retval = 1; window.close();" value="OK" style="min-width: 70px">
+		<input type="button" id="cancel_button" onclick="window.retval = 0; window.close();" value="Cancel" style="min-width: 70px">
+	</div>
+
+</body>
+</html>

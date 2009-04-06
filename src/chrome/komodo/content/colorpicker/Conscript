@@ -1,0 +1,20 @@
+
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2009 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'mozBin',
+    'mozChromeDir',
+    'mozComponentsDir',
+    'ranRegxpcomStateFileName',
+);
+
+$cons->InstallInChrome('colorpicker.html');
+$cons->InstallInChrome('colorpicker.js');
+$cons->InstallInChrome('colormethods.js');
+$cons->InstallInChrome('colorvaluepicker.js');
+$cons->InstallInChrome('slider.js');
+$cons->InstallXpcomComponent('xpcom_colorpicker.js');
