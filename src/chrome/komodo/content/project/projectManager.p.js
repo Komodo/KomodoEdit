@@ -363,18 +363,26 @@ projectManager.prototype.saveProject = function(project, skip_scc_check) {
     if (project.haveContentsChangedOnDisk()) {
         var prompt = _bundle.formatStringFromName("projectHasChangedOutsideKomodo.message",
                                                   [project.name], 1);
+        var overwrite = _bundle.GetStringFromName("overwriteButton.label");
+        var overwriteAccesskey = _bundle.GetStringFromName("overwriteButton.accesskey");
+        var revert = _bundle.GetStringFromName("revertButton.label");
+        var revertAccesskey = _bundle.GetStringFromName("revertButton.accesskey");
+        var cancel = _bundle.GetStringFromName("cancelButton.label");
+        var cancelAccesskey = _bundle.GetStringFromName("cancelButton.accesskey");
         var response = ko.dialogs.customButtons(prompt,
-                                                ["&Overwrite","&Revert","Cancel"],
-                                                "Cancel",
+                                                [[overwrite, overwriteAccesskey],
+                                                 [revert, revertAccesskey],
+                                                 [cancel, cancelAccesskey]],
+                                                cancel,
                                                 null,
                                                 _bundle.formatStringFromName("projectHasChangedOnDisk.message",
                                                                              [project.name], 1));
-        if (response == "Cancel") {
+        if (response == cancel) {
             return false;
-        } else if (response == "Revert") {
+        } else if (response == revert) {
             this.revertProject(project);
             return true;
-        } else if (response != "Overwrite") {
+        } else if (response != overwrite) {
             this.log.error("Unexpected response from ko.dialogs.customButtons: " + response);
             return false;
         }
