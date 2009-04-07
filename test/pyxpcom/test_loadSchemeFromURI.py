@@ -57,4 +57,15 @@ class LoadSchemeTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(newPath))
         os.unlink(newPath)
         self.assertFalse(os.path.exists(newPath))
-        
+
+    def test_invalidContent(self):
+        fname = "__dAta__lo.adSchemeFromURI_invalidContent.ksf"
+        fullpath = os.path.join(os.getcwd(), fname)
+        fd = open(fname, 'w')
+        fd.write("This is not valid 'Python")
+        fd.close()
+        self.assertRaises(Exception,
+                          self.schemeService.loadSchemeFromURI,
+                          fullpath, fname)
+        self.assertTrue(os.path.exists(fullpath))
+        os.unlink(fullpath)

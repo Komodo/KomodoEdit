@@ -51,6 +51,14 @@ interface koIScintillaScheme : nsISupports {
     attribute boolean isDirty;
     
     koIScintillaScheme clone(in wstring newname);
+    
+    /*
+     * @param fname Either the full path to a scheme file, or a scheme name (see unsaved)
+     * @param userDefined False if it's a Komodo-defined scheme
+     * @param unsaved True: fname is the name of a scheme, False: fname is a full path
+     * @returns True iff the object initialized successfully
+     */
+    void init(in wstring fname, in boolean userDefined, in boolean unsaved);
     void saveAs(in wstring newname);
     void save();
     void revert();
