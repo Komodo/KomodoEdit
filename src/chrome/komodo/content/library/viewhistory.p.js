@@ -140,8 +140,12 @@ this.ViewHistory.prototype._setKeyListener = function()
 
 this.ViewHistory.prototype.ctrlup = function(event)
 {
-    // if it's not the ctrl key, get out
+    // if it's not the ctrl key (or alternatively the meta key on OS X), get out
+// #if PLATFORM != 'darwin'
     if (event.keyCode != 17) return;
+// #else
+    if (event.keyCode != 17 && event.keyCode != 224) return;
+// #endif
 
     window.removeEventListener("keyup", this._keylistener, true);
     this._keylistener = null;
