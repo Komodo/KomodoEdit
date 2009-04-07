@@ -288,6 +288,9 @@ $cons->Install($idlExportDir, 'koILoggingService.idl');
 $cons->BuildAndInstallXpt('koILoggingService.idl');
 $cons->InstallXpcomComponent('koLoggingService.py');
 
+# koIColorPicker
+$cons->BuildAndInstallXpt('koIColorPicker.idl');
+
 ## Install test cases.
 #$cons->Install("$supportDir/test", "test_koIndexer.py");
 #$cons->Install("$supportDir/test", "test_koObserverService.py");
