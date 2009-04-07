@@ -305,7 +305,8 @@ this.okCancel = function dialog_okCancel(prompt, response, text, title,
 //
 // Arguments:
 //  "prompt" is message to show.
-//  "buttons" is a list of strings, each a label of a button to show.
+//  "buttons" is either a list of strings, each a label of a button to show, or
+//      a list of array items [label, accesskey], where accesskey is optional.
 //      Currently this is limited to three buttons, plus an optional "Cancel"
 //      button. For example to mimic (mostly) ko.dialogs.yesNo use ["Yes", "No"]
 //      and to mimic ko.dialogs.yesNoCancel use ["Yes", "No", "Cancel"].
@@ -324,11 +325,6 @@ this.okCancel = function dialog_okCancel(prompt, response, text, title,
 // Returns the name of the button pressed, i.e. one of the strings in
 // "buttons", or "Cancel" if the dialog was cancelled (it is possible the
 // cancel a dialog without a cancel button.
-//
-//TODO:
-// - Add accesskey support to the custom buttons: if a char is preceded by an
-//   ampersand that use that for the access key. See
-//   http://www.mozilla.org/projects/ui/accessibility/accesskey.html
 //
 this.customButtons = function dialog_customButtons(prompt, buttons, response, text, title,
                               doNotAskPref, style)

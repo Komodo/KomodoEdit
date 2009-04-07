@@ -69,7 +69,6 @@ var gCancelButton = null;
 
 function OnLoad()
 {
-    var i;
     var dialog = document.getElementById("dialog-custombuttons")
     gAcceptButton = dialog.getButton("accept");
     gExtra1Button = dialog.getButton("extra1");
@@ -109,50 +108,73 @@ function OnLoad()
         alert(msg);
         window.close();
     }
+
+    var i;
+    var ampIdx;
+    var buttonText;
+    var accesskey;
+    var finalText;
     // Don't modify the incoming buttons array -- write final values into a copy
     var finalButtons = new Array(buttons.length);
     for (i = 0; i < buttons.length; i++) {
-        var buttonText = buttons[i];
-        // See http://developer.mozilla.org/en/docs/index.php?title=XUL_Accesskey_FAQ_and_Policies&printable=yes
-        // for info on specifying access keys
-        var ampIdx = buttonText.indexOf("&");
-        var accesskey = null;
-        if (ampIdx >= 0) {
-            var finalText = "";
-            while (true) {
-                finalText += buttonText.substring(0, ampIdx);
-                buttonText = buttonText.substring(ampIdx + 1);
-                if (buttonText.length == 0) {
-                    finalText += "&";
-                    break;
-                } else if (/\w/.test(buttonText[0])) {
-                    // Allow underscore and digits as well
-                    if (accesskey == null) {
-                        accesskey = buttonText[0]; // .toLowerCase();
-                        buttonWidgets[i].setAttribute("accesskey", accesskey);
-                    }
-                    finalText += buttonText[0];
-                    buttonText = buttonText.substring(1);
-                    // Keep processing rest of string for && and &x
-                } else {
-                    finalText += "&";
-                    if (buttonText[0] != "&") {
+        buttonText = buttons[i];
+        accesskey = null;
+
+        /*
+         Would like to use JS instanceof call, but that will fail, for example
+         these expressions both return false:
+            var s = 'a string'; a instanceof String;
+            var a = [1, 2, 3]; a instanceof Array;
+         just look for a special instance method instead to determine the type.
+        */
+        if (buttonText.toLowerCase /* it's a string */) {
+            // See http://developer.mozilla.org/en/docs/index.php?title=XUL_Accesskey_FAQ_and_Policies&printable=yes
+            // for info on specifying access keys
+            ampIdx = buttonText.indexOf("&");
+            if (ampIdx >= 0) {
+                finalText = "";
+                while (true) {
+                    finalText += buttonText.substring(0, ampIdx);
+                    buttonText = buttonText.substring(ampIdx + 1);
+                    if (buttonText.length == 0) {
+                        finalText += "&";
+                        break;
+                    } else if (/\w/.test(buttonText[0])) {
+                        // Allow underscore and digits as well
+                        if (accesskey == null) {
+                            accesskey = buttonText[0]; // .toLowerCase();
+                            buttonWidgets[i].setAttribute("accesskey", accesskey);
+                        }
                         finalText += buttonText[0];
+                        buttonText = buttonText.substring(1);
+                        // Keep processing rest of string for && and &x
+                    } else {
+                        finalText += "&";
+                        if (buttonText[0] != "&") {
+                            finalText += buttonText[0];
+                        }
+                        buttonText = buttonText.substring(1);
                     }
-                    buttonText = buttonText.substring(1);
+                    ampIdx = buttonText.indexOf("&");
+                    if (ampIdx == -1) {
+                        finalText += buttonText;
+                        break;
+                    }
                 }
-                ampIdx = buttonText.indexOf("&");
-                if (ampIdx == -1) {
-                    finalText += buttonText;
-                    break;
-                }
+                finalButtons[i] = finalText;
+            } else {
+                finalButtons[i] = buttons[i];
             }
-            finalButtons[i] = finalText;
-        } else {
-            finalButtons[i] = buttons[i];
+        } else if (buttonText.map /* it's an array */) {
+            // Array of [buttonText, accesskey], with accesskey being optional.
+            if (buttonText.length > 1 && buttonText[1]) {
+                buttonWidgets[i].setAttribute("accesskey", buttonText[1]);
+            }
+            finalButtons[i] = buttonText[0];
         }
     }
-    if (buttons[buttons.length-1] == "Cancel") {
+    // XXX: This is not supporting a localized Cancel label.
+    if (finalButtons[buttons.length-1] == "Cancel") {
         for (i = 0; i < buttons.length-1; ++i) {
             buttonWidgets[i].setAttribute("label", finalButtons[i]);
         }
@@ -176,6 +198,7 @@ function OnLoad()
     var response = window.arguments[0].response;
     if (typeof response == "undefined" || response == null) {
         // gAcceptButton (the first one) is already the default
+    // XXX: This is not supporting a localized Cancel label.
     } else if (response == "Cancel") {
         dialog.setAttribute('defaultButton', 'cancel');
         gAcceptButton.removeAttribute("default");
