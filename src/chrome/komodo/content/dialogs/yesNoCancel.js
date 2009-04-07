@@ -179,7 +179,7 @@ function OnLoad()
 
 function Yes()
 {
-    window.arguments[0].response = yesButton.getAttribute("label");
+    window.arguments[0].response = 'Yes';
     if (gDoNotAskUI) {
         var checkbox = document.getElementById("doNotAsk-checkbox");
         window.arguments[0].doNotAsk = checkbox.checked;
@@ -189,7 +189,7 @@ function Yes()
 
 function No()
 {
-    window.arguments[0].response = noButton.getAttribute("label");
+    window.arguments[0].response = 'No';
     if (gDoNotAskUI) {
         var checkbox = document.getElementById("doNotAsk-checkbox");
         window.arguments[0].doNotAsk = checkbox.checked;
@@ -203,7 +203,7 @@ function No()
 
 function Cancel()
 {
-    window.arguments[0].response = cancelButton.getAttribute("label");
+    window.arguments[0].response = 'Cancel';
     if (gDoNotAskUI) {
         // Don't skip this dialog next time, if it was cancelled this time.
         window.arguments[0].doNotAsk = false;
