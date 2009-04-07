@@ -183,12 +183,7 @@ ko.hyperlinks.ColorPickerHandler.prototype.jump = function(view, hyperlink)
     //      key is still down. Required on Linux and Mac, Windows doesn't seem
     //      to capture the keypresses but no harm in doing it there as well.
     view.clearKeyDownValues();
-    var os_prefix = window.navigator.platform.substring(0, 3).toLowerCase();
-    if ((os_prefix == "win") || (os_prefix == "mac")) {
-        this.init_system_colorpicker(view, hyperlink);
-    } else {
-        this.init_mozilla_colorpicker(view, hyperlink);
-    }
+    this.showColorPicker(view, hyperlink);
 }
 
 ko.hyperlinks.ColorPickerHandler.prototype.colorToHex = function(color) {
@@ -202,9 +197,7 @@ ko.hyperlinks.ColorPickerHandler.prototype.colorToHex = function(color) {
     return color_hex;
 }
 
-ko.hyperlinks.ColorPickerHandler.prototype.init_system_colorpicker = function(view, hyperlink) {
-    var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
-                    getService(Components.interfaces.koISysUtils);
+ko.hyperlinks.ColorPickerHandler.prototype.showColorPicker = function(view, hyperlink) {
     var scimoz = view.scimoz;
     var color = scimoz.getTextRange(hyperlink.startPos, hyperlink.endPos);
     color = this.colorToHex(color);
@@ -214,6 +207,8 @@ ko.hyperlinks.ColorPickerHandler.prototype.init_system_colorpicker = function(vi
     // in Komodo scrolling/selecting text when the mouse if moved over the
     // just opened color picker dialog.
     window.setTimeout(function(view_, hyperlink_, color_) {
+        var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
+                        getService(Components.interfaces.koISysUtils);
         var newcolor = sysUtils.pickColor("#" + color_);
         if (newcolor) {
             var sm = view_.scimoz;
@@ -228,47 +223,6 @@ ko.hyperlinks.ColorPickerHandler.prototype.init_system_colorpicker = function(vi
             sm.anchor = newCurrentPos;
         }
     }, 1, view, hyperlink, color);
-}
-
-ko.hyperlinks.ColorPickerHandler.prototype.init_mozilla_colorpicker = function(view, hyperlink) {
-    ko.hyperlinks.ColorPickerHandler.remove_colorpicker();
-    var sm = view.scimoz;
-
-    var color_changed = function(event, cp_elem)
-    {
-        sm.targetStart = hyperlink.startPos;
-        sm.targetEnd = hyperlink.endPos;
-        sm.replaceTarget(cp_elem.color.length, cp_elem.color);
-        // Move cursor position to end of the inserted color
-        // Note: currentPos is a byte offset, so we need to corrext the length
-        var newCurrentPos = sm.currentPos + ko.stringutils.bytelength(cp_elem.color);
-        sm.currentPos = newCurrentPos;
-        // Move the anchor as well, so we don't have a selection
-        sm.anchor = newCurrentPos;
-        // for some reason we get the event twice, removing
-        // onselect fixes the problem.  Tried to solve it
-        // by canceling the event below, but it went on anyway
-        cp_elem.removeAttribute('onselect');
-        cp_elem.parentNode.hidePopup();
-    
-        event.preventDefault();
-        event.stopPropagation();
-        event.cancelBubble = true;
-        ko.hyperlinks.ColorPickerHandler.remove_colorpicker();
-    }
-
-    var p = document.createElement('popup');
-    p.setAttribute('id', 'popup_colorpicker');
-
-    var cp = document.createElement('colorpicker');
-    cp.colorChanged = color_changed;
-    cp.setAttribute('onselect', 'this.colorChanged(event, this);');
-    p.appendChild(cp);
-    document.documentElement.appendChild(p);
-
-    var x, y;
-    [x,y] = view._last_mousemove_xy;
-    p.openPopup(view, null, x, y, false, false);
 }
 
 ko.hyperlinks.ColorPickerHandler.rgb2hex = function(rgb_color)
@@ -287,14 +241,6 @@ ko.hyperlinks.ColorPickerHandler.rgb2hex = function(rgb_color)
     }
    
     return match.join('');
-}
-
-ko.hyperlinks.ColorPickerHandler.remove_colorpicker = function(event, cp)
-{
-    // Remove the popup from the document.
-    var p = document.getElementById('popup_colorpicker');
-    if (p)
-        p.parentNode.removeChild(p);
 }
 
 ko.hyperlinks.addHandler(new ko.hyperlinks.ColorPickerHandler());
