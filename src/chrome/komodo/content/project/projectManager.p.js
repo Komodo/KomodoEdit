@@ -361,16 +361,14 @@ projectManager.prototype.saveProject = function(project, skip_scc_check) {
 
     // Check to see if the project contents have changed on disk.
     if (project.haveContentsChangedOnDisk()) {
-        var prompt = 'Project '+project.name+' has changed outside Komodo. '+
-                  'You can save anyway, by overwriting the changes made '+
-                  'outside Komodo, or you can choose to revert the project, '+
-                  'reverting will cause you to loose the current project '+
-                  'changes you have made.';
+        var prompt = _bundle.formatStringFromName("projectHasChangedOutsideKomodo.message",
+                                                  [project.name], 1);
         var response = ko.dialogs.customButtons(prompt,
                                                 ["&Overwrite","&Revert","Cancel"],
                                                 "Cancel",
                                                 null,
-                                                project.name+" has changed on disk");
+                                                _bundle.formatStringFromName("projectHasChangedOnDisk.message",
+                                                                             [project.name], 1));
         if (response == "Cancel") {
             return false;
         } else if (response == "Revert") {
@@ -443,7 +441,7 @@ projectManager.prototype.newProjectFromTemplate = function() {
         // Get template selection from the user.
         var obj = new Object();
         obj.type = "project";
-        obj.filename = "MyProject.kpf";
+        obj.filename = _bundle.GetStringFromName("newProject.defaultFileName") + ".kpf";
         window.openDialog("chrome://komodo/content/templates/new.xul",
                           "_blank",
                           "chrome,modal,titlebar",
@@ -497,7 +495,7 @@ projectManager.prototype.saveProjectAsTemplate = function (project) {
         var os = Components.classes["@activestate.com/koOs;1"].getService();
         var templateSvc = Components.classes["@activestate.com/koTemplateService?type=project;1"].getService();
         var dname = os.path.join(templateSvc.getUserTemplatesDir(),
-                _bundle.GetStringFromName("myTemplates,message"));
+                _bundle.GetStringFromName("myTemplates.message"));
 
         var file = project.getFile();
         var basename = file.baseName;
@@ -530,11 +528,11 @@ projectManager.prototype.loadProject = function(url) {
     }
     var project = this.findOtherWindowProjectInstanceForUrl(url);
     if (project) {
-        ko.dialogs.alert("Project '" + project.name + "' is already opened in "+
-                         "another Komodo window. You cannot have the same "+
-                         "project opened in multiple windows.",
+        ko.dialogs.alert(_bundle.formatStringFromName("projectIsAlreadyOpenInAnotherWindow.message",
+                                                      [project.name], 1),
                          null /* text */,
-                         project.name + " Already Opened" /* title */);
+                        _bundle.formatStringFromName("projectAlreadyOpened",
+                                                     [project.name], 1) );
         return null;
     }
     project = Components.classes["@activestate.com/koProject;1"]
@@ -754,7 +752,7 @@ projectManager.prototype.doCommand = function(command) {
     case "cmd_newProject":
         filename = ko.filepicker.saveFile(
             null, // defaultDir
-            "MyProject.kpf", // defaultFilename
+            _bundle.GetStringFromName("newProject.defaultFileName") + ".kpf", // defaultFilename
             _bundle.GetStringFromName("newProject.title"), // title
             _bundle.GetStringFromName("komodoProject.message"), // defaultFilterName
                 [_bundle.GetStringFromName("komodoProject.message"),
