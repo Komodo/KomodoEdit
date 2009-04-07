@@ -1,0 +1,6 @@
+<!ENTITY komodoEditOffline.title "Komodo Edit (offline)">
+<!ENTITY welcomeToKomodoEdit "Welcome to Komodo Edit">
+<!ENTITY whenConnectedToTheInternet "When connected to the internet, this panel provides valuable links to Komodo resources that include the Komodo community site, mailing lists with archives, and more. In the meantime, get started fast with these local resources:">
+<!ENTITY learnAboutTheKomodoWorkspace.anchorText "Learn about the Komodo workspace">
+<!ENTITY tutorials.anchorText "Tutorials">
+<!ENTITY help.anchorText "Help">
