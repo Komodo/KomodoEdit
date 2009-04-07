@@ -11,6 +11,9 @@ if (typeof(ko.projects)=='undefined') {
 (function() {
 
 var log = ko.logging.getLogger('peFolder');
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/project/peFolder.properties");
 
 function peFolder() {
     this.name = 'peFolder';
@@ -33,11 +36,21 @@ peFolder.prototype.registerCommands = function() {
 
 peFolder.prototype.registerMenus = function() {
     var em = ko.projects.extensionManager;
-    em.createMenuItem(Components.interfaces.koIPart_folder,'Import from File System...','cmd_importFromFS');
-    em.createMenuItem(Components.interfaces.koIPart_folder,'Re-import','cmd_reimportFromFS');
-    em.createMenuItem(Components.interfaces.koIPart_folder,'Import Package...','cmd_importFromPackage');
-    em.createMenuItem(Components.interfaces.koIPart_folder,'Refresh Status','cmd_refreshStatus');
-    em.createMenuItem(Components.interfaces.koIPart_folder,'Rename...','cmd_renameFolderPart');
+    em.createMenuItem(Components.interfaces.koIPart_folder,
+                      _bundle.GetStringFromName("importFromFileSystem"),
+                      'cmd_importFromFS');
+    em.createMenuItem(Components.interfaces.koIPart_folder,
+                      _bundle.GetStringFromName("reImport"),
+                      'cmd_reimportFromFS');
+    em.createMenuItem(Components.interfaces.koIPart_folder,
+                      _bundle.GetStringFromName("importPackage"),
+                      'cmd_importFromPackage');
+    em.createMenuItem(Components.interfaces.koIPart_folder,
+                      _bundle.GetStringFromName("refreshStatus"),
+                      'cmd_refreshStatus');
+    em.createMenuItem(Components.interfaces.koIPart_folder,
+                      _bundle.GetStringFromName("rename"),
+                      'cmd_renameFolderPart');
     var menupopup = document.getElementById('folder_context');
     em.addMenuItem(Components.interfaces.koIPart_folder, menupopup);
 }
@@ -171,14 +184,13 @@ peFolder.prototype.doCommand = function(command) {
 
         var removeText;
         if (ko.projects.active.manager.name == "projectManager") {
-            removeText = "&Remove from Project";
+            removeText = _bundle.GetStringFromName("removeFromProject");
         } else {
-            removeText = "&Remove from " + ko.projects.active.manager.prettyName;
+            removeText = _bundle.formatStringFromName("removeFrom", [ko.projects.active.manager.prettyName], 1);
         }
         var haveLive = false;
         if (havemultiple) {
-            question = "Do you want to remove the " + items.length +
-                           " items you have selected?";
+            question = _bundle.formatStringFromName("doYouWantToRemoveThe", [items.length], 1);
             for (i=0; i < items.length; i++) {
                 var file = items[i].getFile();
                 if (file && file.isLocal) {
@@ -188,27 +200,25 @@ peFolder.prototype.doCommand = function(command) {
             }
         } else {
             if (items[0].type == "project") break;
-            question = "Do you want to remove the item you have selected?";
+            question = _bundle.GetStringFromName("doYouWantToRemoveTheItemYouHaveSelected");
             var file = items[0].getFile();
             haveLive = file && file.isLocal;
         }
         var buttons;
         var text = null;
         if (haveLive) {
-            buttons = ["&Move to Trash", removeText, "Cancel"];
-            text = "You may delete the files on disk, or simply remove the selected "+
-                    "items from the project or toolbox.  If you choose only to remove "+
-                    "the items and they are in a live folder, they will reappear later.";
+            buttons = [_bundle.GetStringFromName("moveToTrash"), removeText, _bundle.GetStringFromName("cancel")];
+            text = _bundle.GetStringFromName("youMayDeleteTheFilesOnDisk");
         } else {
             buttons = [removeText, "Cancel"];
         }
-        var action = ko.dialogs.customButtons(question, buttons, "Cancel", text,
-                                        "Delete Selected Items",
+        var action = ko.dialogs.customButtons(question, buttons, _bundle.GetStringFromName("youMayDeleteTheFilesOnDisk"), text,
+                                        _bundle.GetStringFromName("deleteSelectedItems"),
                                         null, "warning-icon spaced")
-        if (action == "Cancel")
+        if (action == _bundle.GetStringFromName("cancel"))
             return;
 
-        ko.projects.active.manager.removeItems(items, action == "Move to Trash");
+        ko.projects.active.manager.removeItems(items, action == _bundle.GetStringFromName("moveToTrash"));
         break;
     case "cmd_importFromFS":
         item = ko.projects.active.getSelectedItem();
@@ -325,7 +335,7 @@ this.addNewPart = function peFolder_add(type, partviewerId)
                 ko.projects.addNewFileFromTemplate(target);
                 break;
             case 'newfolder':
-                var name = ko.dialogs.prompt("Enter folder name:");
+                var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFolderName"));
                 if (!name) return;
                 ko.projects.addFolder(name, target);
                 break;
@@ -344,7 +354,7 @@ this.addNewPart = function peFolder_add(type, partviewerId)
                 ko.projects.addLiveFolder(dirname, target);
                 break;
             case 'changelist':
-                var name = ko.dialogs.prompt("Enter change list name:");
+                var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterChangeListName"));
                 if (!name) return;
                 ko.projects.addSimplePart(name, target, "changelist");
                 break;
@@ -410,7 +420,7 @@ this.addFile = function peFolder_addFile(parent_item)
     }
     var files = ko.filepicker.openFiles(defaultDir, // default dir
                                      null, // default filename
-                                     "Add Files to Project"); // title
+                                     _bundle.GetStringFromName("addFilesToProject")); // title
     if (files == null) {
         return false;
     } else {
