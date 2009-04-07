@@ -271,7 +271,14 @@ function OnLoad()
             }
         }
 
-        document.getElementById("textbox").focus();
+        if (window.arguments[0].selectionStart != null
+            && window.arguments[0].selectionEnd != null) {
+            textboxWidget.setSelectionRange(window.arguments[0].selectionStart,
+                                            window.arguments[0].selectionEnd);
+        } else {
+            textboxWidget.select();
+        }
+        textboxWidget.focus();
     } catch(ex) {
         log.exception(ex, "Error loading prompt dialog.");
     }

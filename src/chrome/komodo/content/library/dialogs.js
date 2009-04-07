@@ -441,6 +441,9 @@ this.alert = function dialog_alert(prompt, text, title, doNotAskPref, options)
 //  "tacType", "tacParam" and "tacShowCommentColumn" allow one to specify a
 //      custom textbox autocomplete type and parameter. Ignored if either
 //      "mruName" or "multiline" is specified.
+//  "selectionStart" : index of first character of value to select
+//  "selectionEnd" : point after index of last character of value to select
+//      If either selectionStart or selectionEnd is null, the default is taken.
 //
 // It returns null if the dialog was cancelled. Otherwise it returns the value
 // entered by the user.
@@ -452,7 +455,8 @@ this.alert = function dialog_alert(prompt, text, title, doNotAskPref, options)
 //
 this.prompt = function dialog_prompt(prompt, label, value, title, mruName,
                                      validator, multiline, screenX, screenY,
-                                     tacType, tacParam, tacShowCommentColumn)
+                                     tacType, tacParam, tacShowCommentColumn,
+                                     selectionStart, selectionEnd)
 {
     if (typeof(prompt) == 'undefined') prompt = null;
     if (typeof(label) == 'undefined') label = null;
@@ -466,6 +470,8 @@ this.prompt = function dialog_prompt(prompt, label, value, title, mruName,
     if (typeof(tacType) == 'undefined') tacType = null;
     if (typeof(tacParam) == 'undefined') tacParam = null;
     if (typeof(tacShowCommentColumn) == 'undefined') tacShowCommentColumn = null;
+    if (typeof(selectionStart) == 'undefined') selectionStart = null;
+    if (typeof(selectionEnd) == 'undefined') selectionEnd = null;
     if (mruName && multiline) {
         log.warn("Cannot use both 'mruName' and 'multiline' on prompt "+
                  "dialogs. 'mruName' will be ignored.");
@@ -485,6 +491,8 @@ this.prompt = function dialog_prompt(prompt, label, value, title, mruName,
     obj.tacType = tacType;
     obj.tacParam = tacParam;
     obj.tacShowCommentColumn = tacShowCommentColumn;
+    obj.selectionStart = selectionStart;
+    obj.selectionEnd = selectionEnd;
     window.openDialog("chrome://komodo/content/dialogs/prompt.xul",
                       "_blank",
                       "chrome,modal,titlebar",

@@ -85,7 +85,7 @@
                          completeselectedindex="true"
                          tabscrolling="true"
                          ontextentered="this.focus();"
-                         onfocus="this.select();"/>
+                         />
             </hbox>
             <hbox id="hbox2" flex="1" align="center" collapsed="true">
                 <label id="label2" control="textbox2"/>

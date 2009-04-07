@@ -341,12 +341,39 @@ peFile.prototype.doCommand = function(command) {
         break;
     case 'cmd_renameFile':
         var newname;
+        var currentName = item.name;
+        var lastDot = currentName.lastIndexOf(".");
+        var do_prompt;
+        if (lastDot != -1 && lastDot < currentName.length) {
+            do_prompt = function() {
+                return ko.dialogs.prompt(
+                        _bundle.GetStringFromName("enterANewFilename"), // prompt
+                        null, // label
+                        currentName, // default
+                        _bundle.GetStringFromName("renameFileOrFolder"), // title
+                        null, // mruName
+                        null, // validator
+                        null, // multiline
+                        null, // screenX
+                        null, // screenY
+                        null, // tacType
+                        null, // tacParam
+                        null, // tacShowCommentColumn
+                        0, // selectionStart
+                        lastDot // selectionEnd
+                        );
+            }
+        } else {
+            do_prompt = function() {
+                return ko.dialogs.prompt(
+                        _bundle.GetStringFromName("enterANewFilename"), // prompt
+                        null, // label
+                        currentName, // default
+                        _bundle.GetStringFromName("renameFileOrFolder")); // title
+            }
+        }
         while (true) {
-            newname = ko.dialogs.prompt(
-                _bundle.GetStringFromName("enterANewFilename"), // prompt
-                null, // label
-                item.name, // default
-                _bundle.GetStringFromName("renameFileOrFolder")); // title
+            newname = do_prompt();
             if (!newname) return; // cancel was hit
             if (!filename_implies_move(newname)) break;
             ko.dialogs.alert(_bundle.GetStringFromName("theFileCanBeRenamedInPlaceBut"));
