@@ -1,0 +1,4 @@
+<!ENTITY DefaultActionscriptInterpreter.caption "Default ActionScript Interpreter">
+<!ENTITY UseThisInterpreter.text "Use this interpreter:">
+<!ENTITY Browse.button "Browse…">
+<!ENTITY KomodoCurrentlyOnlySupportsActionscript.description "Komodo currently only supports ActionScript syntax checking with the freely available MTASC compiler.  You can download MTASC, and find more information about it at this website:">

@@ -35,6 +35,8 @@
  
  ***** END LICENSE BLOCK ***** -->
 
+<!DOCTYPE window SYSTEM "chrome://actionscriptprefs/locale/pref-actionscript.dtd" >
+
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
@@ -57,17 +59,15 @@
     <script src="chrome://actionscriptprefs/content/prefs.js" type="application/x-javascript"/>
 
     <groupbox orient="vertical">
-        <caption label="Default ActionScript Interpreter"/>
-        <text value="Use this interpreter:" style="padding: 2px 6px 2px 6px"/>
+        <caption label="&DefaultActionscriptInterpreter.caption;" />
+        <text value="&UseThisInterpreter.text;" style="padding: 2px 6px 2px 6px" />
         <hbox align="center">
             <textbox id="actionScript_interpreterPath" pref="true" prefstring="actionScriptDefaultInterpreter" flex="1"/>
-            <button label="Browse..." oncommand="loadActionScriptExecutable();"/>
+            <button label="&Browse.button;" oncommand="loadActionScriptExecutable();" />
         </hbox>
         <vbox flex="1" align="center">
             <description>
-                Komodo currently only supports ActionScript syntax checking
-                with the freely available MTASC compiler.  You can download
-                MTASC, and find more information about it at this website:
+                &KomodoCurrentlyOnlySupportsActionscript.description;
             </description>
             <button label="&lt;http://www.mtasc.org/&gt;"
                 class="button-link"

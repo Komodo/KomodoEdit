@@ -49,9 +49,11 @@ function OnPreferencePageOK(prefset)
         var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
             getService(Components.interfaces.koISysUtils);
         if (! koSysUtils.IsFile(defaultInterp)) {
-            dialog_alert("No ActionScript interpreter could be found at '" + defaultInterp +
-                  "'. You must make another selection for the default " +
-                  "ActionScript interpreter.\n");
+            var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                            getService(Components.interfaces.nsIStringBundleService).
+                            createBundle("chrome://actionscriptprefs/locale/pref-actionscript.properties");
+            dialog_alert(_bundle.formatStringFromName("noActionscriptInterpreterCouldBeFoundAt",
+                                                      [defaultInterp], 1));
             ok = false;
             document.getElementById("actionScriptDefaultInterpreter").focus();
         }
