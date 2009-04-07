@@ -46,6 +46,9 @@ if (typeof(ko.fileutils)=='undefined') {
 
 (function() {
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/project/peFile.properties");
 
 function peFile() {
     this.name = 'peFile';
@@ -93,49 +96,64 @@ peFile.prototype.registerEventHandlers = function() {
 peFile.prototype.registerMenus = function() {
     var em = ko.projects.extensionManager;
     em.createMenuItem(Components.interfaces.koIPart_file,
-                                    'Open File','cmd_openFilePart',
+                                    _bundle.GetStringFromName("openFile"),
+                                    'cmd_openFilePart',
                                     null,
                                     null,
                                     true);
     em.createMenuItem(Components.interfaces.koIDirectoryShortcut,
-                                    'Open...',
+                                    _bundle.GetStringFromName("open"),
                                     'cmd_openInDir',
                                     null,
                                     null,
                                     true /* primary */);
     em.createMenuItem(Components.interfaces.koIPart_file,
-                                    'Make "Open..." Shortcut','cmd_makeDirectoryShortcutFromFile');
+                                    _bundle.GetStringFromName("makeOpenShortcut"),
+                                    'cmd_makeDirectoryShortcutFromFile');
     em.createMenuItem(Components.interfaces.koIPart_file,
-                                    'Refresh Status','cmd_refreshStatus');
+                                    _bundle.GetStringFromName("refreshStatus"),
+                                    'cmd_refreshStatus');
     em.createMenuItem(Components.interfaces.koIPart_file,
-                                    'Show unsaved changes','cmd_showUnsavedChanges');
+                                    _bundle.GetStringFromName("showUnsavedChanges"),
+                                    'cmd_showUnsavedChanges');
     em.createMenuItem(Components.interfaces.koIPart_file,
-                                    'Compare Files...','cmd_compareFiles');
+                                    _bundle.GetStringFromName("compareFiles"),
+                                    'cmd_compareFiles');
     em.createMenuItem(Components.interfaces.koIPart,
-                                    'Find...','cmd_findInPart');
+                                    _bundle.GetStringFromName("find"),
+                                    'cmd_findInPart');
     em.createMenuItem(Components.interfaces.koIPart,
-                                    'Replace...','cmd_replaceInPart');
+                                    _bundle.GetStringFromName("replace"),
+                                    'cmd_replaceInPart');
 // #if PLATFORM == "win"
     em.createMenuItem(Components.interfaces.koIPart,
-                                    'Show In Explorer','cmd_showInFinder');
+                                    _bundle.GetStringFromName("showInExplorer"),
+                                    'cmd_showInFinder');
 // #elif PLATFORM == "darwin"
     em.createMenuItem(Components.interfaces.koIPart,
-                                    'Reveal In Finder','cmd_showInFinder');
+                                    _bundle.GetStringFromName("showInFinder"),
+                                    'cmd_showInFinder');
 // #else
     em.createMenuItem(Components.interfaces.koIPart,
-                                    'Show In File Manager','cmd_showInFinder');
+                                    _bundle.GetStringFromName("showInFileManager"),
+                                    'cmd_showInFinder');
 // #endif
     em.createMenuItem(Components.interfaces.koIPart,
-                                    'Rename...','cmd_renameFile');
+                                    _bundle.GetStringFromName("rename"),
+                                    'cmd_renameFile');
     em.createMenuItem(Components.interfaces.koIPart_file,
-                                    'Compare File With...','cmd_compareFileWith');
+                                    _bundle.GetStringFromName("compareFileWith"),
+                                    'cmd_compareFileWith');
     em.createMenuItem(Components.interfaces.koIPart,
-                                    'Export as Project File...','cmd_exportItems');
+                                    _bundle.GetStringFromName("exportAsProjectFile"),
+                                    'cmd_exportItems');
     em.createMenuItem(Components.interfaces.koIPart,
-                                    'Export Package...','cmd_exportToPackage');
+                                    _bundle.GetStringFromName("exportPackage"),
+                                    'cmd_exportToPackage');
 
     // XXX debug info
-    em.createMenuItem(Components.interfaces.koIPart,'Dump',
+    em.createMenuItem(Components.interfaces.koIPart,
+                                    _bundle.GetStringFromName("dump"),
                                     'cmd_dumpPartProperties');
 }
 
@@ -325,13 +343,13 @@ peFile.prototype.doCommand = function(command) {
         var newname;
         while (true) {
             newname = ko.dialogs.prompt(
-                "Enter a new filename.", // prompt
+                _bundle.GetStringFromName("enterANewFilename"), // prompt
                 null, // label
                 item.name, // default
-                "Rename File or Folder"); // title
+                _bundle.GetStringFromName("renameFileOrFolder")); // title
             if (!newname) return; // cancel was hit
             if (!filename_implies_move(newname)) break;
-            ko.dialogs.alert("The file can be renamed in place, but not moved to a new directory.");
+            ko.dialogs.alert(_bundle.GetStringFromName("theFileCanBeRenamedInPlaceBut"));
         }
         var osSvc = Components.classes["@activestate.com/koOs;1"]
                                     .getService(Components.interfaces.koIOs);
@@ -416,7 +434,9 @@ peFile.prototype.doCommand = function(command) {
         view = ko.views.manager.currentView;
         var changes = view.document.getUnsavedChanges();
         ko.launch.diff(changes,
-                          "unsaved changes: "+view.document.displayPath);
+                       _bundle.formatStringFromName("unsavedChangesForWindowTitle",
+                                                    [view.document.displayPath],
+                                                    1));
         break;
     case 'cmd_compareFiles':
         if (!ko.projects.active || !items || items.length == 0) {
@@ -477,7 +497,7 @@ peFile.prototype.editDirectoryShortcut = function(item) {
     obj.task = 'edit';
     obj.imgsrc = 'chrome://komodo/skin/images/open.png';
     obj.type = 'DirectoryShortcut';
-    obj.prettytype = 'Directory Shortcut';
+    obj.prettytype = _bundle.GetStringFromName("directoryShortcut");
     window.openDialog(
         "chrome://komodo/content/project/simplePartProperties.xul",
         "Komodo:DirectoryShortcutProperties",
@@ -547,6 +567,10 @@ ko.projects.registerExtension(new peFile());
 
 
 (function() {
+
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/project/peFile.properties");
 
 this.addDirectoryShortcut = function peFile_addDirectoryShortcut(dirname, /*koIPart*/ parent)
 {
@@ -618,13 +642,13 @@ this.fileProperties = function peFile_Properties(item, view, folder)
         var resp = new Object ();
         resp.res = "";
         resp.part = item;
-        resp.title = "File Properties and Settings";
+        resp.title = _bundle.GetStringFromName("filePropertiesAndSettings");
         resp.folder = folder;
         resp.view = view;
         if (item && item.type == "project") {
-            resp.title = "Project Properties and Settings";
+            resp.title = _bundle.GetStringFromName("projectPropertiesAndSettings");
         } else if (folder) {
-            resp.title = "Folder Properties and Settings";
+            resp.title = _bundle.GetStringFromName("folderPropertiesAndSettings");
         }
         try {
             window.openDialog(
@@ -660,6 +684,10 @@ this.openDirectoryShortcut = function OpenDirectoryShortcut(part) {
 
 (function() {
     
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/project/peFile.properties");
+
 function _openDiffWindowForFiles(fname1, fname2) {
     window.setCursor("wait");
     try {
@@ -671,26 +699,25 @@ function _openDiffWindowForFiles(fname1, fname2) {
             log.error(ex);
             var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                         getService(Components.interfaces.koILastErrorService);
-            var msg = "Error calculating differences: " +
+            var msg = _bundle.GetStringFromName("errorCalculatingDifferences") +
                        lastErrorSvc.getLastErrorMessage();
             alert(msg);
             return;
         }
 
         if (!diff.diff) {
-            var txt = "There are no differences between '"+fname1+
-                      "' and '"+fname2+"'.";
+            var txt = _bundle.formatStringFromName("thereAreNoDifferencesBetween", [fname1, fname2], 2);
             if (diff.doc1.existing_line_endings !=
                 diff.doc2.existing_line_endings) {
-                txt = "The line endings in the files are different, but there "+
-                      "are no other differences between the files.";
+                txt = _bundle.GetStringFromName("onlyLineEndingsDiffer");
             }
             ko.dialogs.alert(txt);
         } else {
-            ko.launch.diff(diff.diff,
-                              "compare files: "+ko.uriparse.baseName(fname1)
-                                +", "+ko.uriparse.baseName(fname2),
-                              diff.warning);
+            var title = _bundle.formatStringFromName("compareFilesWindowTitle",
+                                                     [ko.uriparse.baseName(fname1),
+                                                      ko.uriparse.baseName(fname2)],
+                                                     2);
+            ko.launch.diff(diff.diff, title, diff.warning);
         }
     } finally {
         window.setCursor('auto');
