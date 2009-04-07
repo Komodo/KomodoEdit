@@ -757,22 +757,26 @@ class KoCodeIntelEvalController(EvalController):
                         TRG_FORM_CALLTIP: "calltip",
                         TRG_FORM_DEFN: "definition"}.get(self.trg.form, "???")
             try:
+                eval_log_bits = []  # Do string interp of the eval log entries once.
+                if self.have_errors or self.have_warnings:
+                    for lvl, m, args in self.log:
+                        if args:
+                            eval_log_bits.append((lvl, m % args))
+                        else:
+                            eval_log_bits.append((lvl, m))
                 if self.have_errors:
                     # ERRORS... (error(s) determining completions)
-                    msg = '; '.join((m % args) for lvl,m,args in self.log
-                                    if lvl == "error")
+                    msg = '; '.join(m for lvl, m in eval_log_bits if lvl == "error")
                     msg += " (error determining %s)" % desc
                     log.error("error evaluating %s:\n  trigger: %s\n  log:\n%s",
-                              desc, self.trg,
-                              indent('\n'.join("%s: %s" % (lvl, m%args)
-                                               for lvl,m,args in self.log)))
+                        desc, self.trg,
+                        indent('\n'.join("%s: %s" % e for e in eval_log_bits)))
                 else:
                     # No calltip|completions found (WARNINGS...)
                     msg = "No %s found" % desc
                     if self.have_warnings:
-                        warns = ', '.join((("warning: "+m) % args)
-                                          for lvl,m,args in self.log
-                                          if lvl == "warn")
+                        warns = ', '.join("warning: "+m
+                            for lvl, m in eval_log_bits if lvl == "warn")
                         msg += " (%s)" % warns
             except TypeError, ex:
                 # Guard against this common problem in log formatting above:
