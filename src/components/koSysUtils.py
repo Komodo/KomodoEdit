@@ -392,9 +392,10 @@ class koSysUtils:
                  c = "#%s%s%s" %(r,g,b)
                  return c
         else:
-            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED,
-                                  "System color picker not available on: %r" % (
-                                        sys.platform))
+            # Linux uses the pure JavaScript color picker.
+            cpSvc = components.classes["@activestate.com/koColorPicker;1"].\
+                        getService(components.interfaces.koIColorPicker);
+            return cpSvc.pickColor(startingcolor);
         return None
         
     def byteLength(self, unicodestr):
