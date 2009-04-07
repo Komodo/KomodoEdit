@@ -28,7 +28,7 @@
     <columns><column style="width: 15em" flex="1"/><column flex="1"/></columns>
     <rows>
       <row>
-        <label value="New Word:"
+        <label value="&newWord.label;"
                control="WordInput"
                accesskey="&N.accesskey;"/>
         <spacer/>
@@ -39,7 +39,7 @@
                 accesskey="&addWord.accesskey;"/>
       </row>
       <row>
-        <label value="Words in dictionary:"
+        <label value="&wordsInDictionary.label;"
                control="DictionaryList"
                accesskey="&W.accesskey;"/>
         <spacer/>

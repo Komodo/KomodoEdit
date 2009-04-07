@@ -69,3 +69,13 @@
 <!ENTITY stop.accesskey "s">
 <!ENTITY stop.label "Stop">
 <!ENTITY suggestedListLabel.accesskey "u">
+<!-- strings from koDictionary.xul-->
+<!ENTITY newWord.label "New Word:">
+<!ENTITY wordsInDictionary.label "Words in dictionary:">
+<!-- strings from koSpellCheck.xul -->
+<!ENTITY mispelledWord.label "Misspelled word:">
+<!ENTITY replaceWith.label "Replace with:">
+<!ENTITY suggestions.label "Suggestions:">
+<!ENTITY personalDictionary.label "Personal Dictionary:">
+<!ENTITY language.label "Language:">
+

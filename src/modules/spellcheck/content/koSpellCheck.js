@@ -1,3 +1,4 @@
+
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  * 
@@ -40,7 +41,6 @@
 
  * ***** END LICENSE BLOCK ***** */}
 gDialog = {};
-
 var ko = {
     extensions : {
         spellchecker : {
@@ -50,6 +50,11 @@ var ko = {
 };
 
 (function() { /* ko.extensions.spellchecker */
+
+    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                    getService(Components.interfaces.nsIStringBundleService).
+                    createBundle("chrome://komodospellchecker/locale/spellcheck.properties");
+
     function KoSpellCheck(session, args) {
         this.session = session;  // pointer to namespace object
         this.scimoz = args.scimoz;
@@ -268,7 +273,8 @@ var ko = {
             if (this.cancelled) return; // leave
             this.misspelledWord = null;
             this.DoEnabling();
-            gDialog.MisspelledWord.setAttribute("value", "Checking...");
+            gDialog.MisspelledWord.setAttribute("value",
+                                                _bundle.GetStringFromName("checking"));
             var i;
             if (this.scimozNextStart) {
               i = this.currPosition = this.scimozNextStart;
@@ -362,7 +368,7 @@ var ko = {
             var have_misspelled_word = this.misspelledWord != null;
             if (!have_misspelled_word) {
                 // No more misspelled words
-                gDialog.MisspelledWord.setAttribute("value", this.firstTime ? "No misspelled words" : "Completed spell checking.");
+                gDialog.MisspelledWord.setAttribute("value", this.firstTime ? _bundle.GetStringFromName("noMisspelledWords") : _bundle.GetStringFromName("completedSpellChecking"));
             
                 gDialog.ReplaceButton.removeAttribute("default");
                 gDialog.IgnoreButton.removeAttribute("default");
@@ -408,7 +414,7 @@ var ko = {
             this.spellChecker.suggest(misspelledWord, suggestions, count);
             if (!count.value) {
               // No suggestions - show a message but don't let user select it
-              item = list.appendItem("(no suggested words)");
+              item = list.appendItem(_bundle.GetStringFromName("noSuggestedWords"));
               if (item) item.setAttribute("disabled", "true");
               this.allowSelectWord = false;
             } else {

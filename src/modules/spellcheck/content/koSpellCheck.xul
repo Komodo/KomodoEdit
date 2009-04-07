@@ -75,13 +75,13 @@ thunderbird/comm/content/editor/EdSpellCheck.xul
     </columns>
     <rows>
       <row align="center">
-        <label id="MisspelledWordLabel" value="Misspelled word:"/>
+        <label id="MisspelledWordLabel" value="&mispelledWord.label;"/>
         <label class="bold" id="MisspelledWord"/>
         <button class="spell-check" label="&recheckPage.label;" oncommand="ko.extensions.spellchecker.Recheck();"
                 accesskey="&recheckPage.accesskey;"/>
       </row>
       <row align="center">
-        <label id="ReplaceWordLabel" value="Replace with:"
+        <label id="ReplaceWordLabel" value="&replaceWith.label;"
                control="ReplaceWordInput"
                accesskey="&replaceWordLabel.accesskey;"/>
         <textbox id="ReplaceWordInput" oninput="ko.extensions.spellchecker.ChangeReplaceWord()" flex="1"/>
@@ -90,7 +90,7 @@ thunderbird/comm/content/editor/EdSpellCheck.xul
       </row>
     </rows>
   </grid>
-  <label id="SuggestedListLabel" value="Suggestions:"
+  <label id="SuggestedListLabel" value="&suggestions.label;"
          control="SuggestedList"
          accesskey="&suggestedListLabel.accesskey;"/>
   <grid>
@@ -120,7 +120,7 @@ thunderbird/comm/content/editor/EdSpellCheck.xul
             </rows> 
           </grid>
           <spacer flex="1"/>
-          <label value="Personal Dictionary:"/>
+          <label value="&personalDictionary.label;"/>
           <hbox flex="1" align="start">
             <button class="spell-check" id="AddToDictionary" oncommand="ko.extensions.spellchecker.AddToDictionary()" label="&addWord.label;"
                     accesskey="&addToDictionary.accesskey;"/>
@@ -129,7 +129,7 @@ thunderbird/comm/content/editor/EdSpellCheck.xul
           </hbox>
         </vbox>
       </row>
-      <label value ="Language:"
+      <label value ="&language.label;"
              control="LanguageMenulist"
              accesskey="&L.accesskey;"/>
       <row>

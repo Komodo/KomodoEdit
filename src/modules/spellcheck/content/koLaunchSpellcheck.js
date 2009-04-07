@@ -1,3 +1,4 @@
+
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  * 
@@ -51,7 +52,11 @@ if (!('spellchecker' in ko.extensions)) {
 (function() {
 // Set up a controller to make sure we do this only when there's a view
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"].
+                getService(Components.interfaces.nsIStringBundleService).
+                createBundle("chrome://komodospellchecker/locale/spellcheck.properties");
 var __SpellCheckController = null;
+
 function SpellCheckController() {
     try {
         window.controllers.appendController(this);
@@ -78,12 +83,14 @@ SpellCheckController.prototype.do_cmd_checkSpelling = function() {
     try {
         obj.view = ko.views.manager.currentView;
         if (!obj.view || !obj.view.languageObj) {
-            alert("No current document to spellcheck.");
+            alert(_bundle.GetStringFromName("noCurrentDocumentToSpellcheck"));
             return;
         }
         obj.ko = ko;
     } catch(ex) {
-        alert("Komodo Internal Error: couldn't find the document to spellcheck: " + ex);
+        var message = _bundle.formatStringFromName("errorCouldNotFindDocument",
+                                                   [ex], 1);
+        alert(message);
         return;
     }
     window.openDialog("chrome://komodospellchecker/content/koSpellCheck.xul",

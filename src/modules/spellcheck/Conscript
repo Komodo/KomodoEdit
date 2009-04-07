@@ -81,6 +81,7 @@ if ($buildFlavour eq "full") {
         "content/koSpellCheckOverlay.xul",
         "content/koSpellCheck.xul",
         "locale/en-US/spellcheck.dtd",
+        "locale/en-US/spellcheck.properties",
         qq(
            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X -Dr komodospellchecker.jar content locale
            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X komodospellchecker.xpi komodospellchecker.jar install.rdf chrome.manifest
@@ -111,4 +112,5 @@ else { # dev builds
         $cons->Install("$ext_dir/content", $file);
     }
     $cons->Install("$ext_dir/locale/en-US", "locale/en-US/spellcheck.dtd");
+    $cons->Install("$ext_dir/locale/en-US", "locale/en-US/spellcheck.properties");
 }
