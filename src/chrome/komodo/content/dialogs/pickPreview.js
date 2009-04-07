@@ -57,6 +57,10 @@
 
 //---- globals
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/dialogs/pickPreview.properties");
+
 var log = ko.logging.getLogger("dialogs.pickPreview");
 var widgets = {}; // cache of DOM nodes for dialog.
 var gURL = null; // the URL for which to pick a preview URL
@@ -75,16 +79,23 @@ function OnLoad()
         var dialog = document.getElementById("dialog-pickpreview")
         widgets.okButton = dialog.getButton("accept");
         if (gMode == "previewing") {
-            widgets.okButton.setAttribute("label", "Preview");
-            widgets.okButton.setAttribute("accesskey", "P");
+            widgets.okButton.setAttribute("label",
+                                          _bundle.GetStringFromName("previewButton.label"));
+            widgets.okButton.setAttribute("accesskey",
+                                          _bundle.GetStringFromName("previewButton.accesskey"));
         } else if (gMode == "setting") {
-            widgets.okButton.setAttribute("label", "OK");
-            widgets.okButton.setAttribute("accesskey", "O");
+            widgets.okButton.setAttribute("label",
+                                          _bundle.GetStringFromName("okButton.label"));
+            widgets.okButton.setAttribute("accesskey",
+                                          _bundle.GetStringFromName("okButton.accesskey"));
         } else {
             throw "Invalid mode value: '"+gMode+"'";
         }
         widgets.cancelButton = dialog.getButton("cancel");
-        widgets.cancelButton.setAttribute("accesskey", "C");
+        widgets.cancelButton.setAttribute("label",
+                                          _bundle.GetStringFromName("cancelButton.label"));
+        widgets.cancelButton.setAttribute("accesskey",
+                                          _bundle.GetStringFromName("cancelButton.accesskey"));
 
         widgets.promptDesc = document.getElementById("prompt");
         widgets.useWhichRadiogroup = document.getElementById("use-which-file");
@@ -104,11 +115,10 @@ function OnLoad()
         }
 
         // Title
-        document.title = "Preview '"+gBasename+"' in Browser";
+        document.title = _bundle.formatStringFromName("previewInBrowser", [gBasename], 1);
 
         // Prompt
-        var prompt = "Select a file or URL to use to preview '"+gBasename+
-                     "' in the browser.";
+        var prompt = _bundle.formatStringFromName("selectAFileOrUrlToUseToPreview", [gBasename], 1);
         widgets.promptDesc.appendChild(document.createTextNode(prompt));
 
         var mapped = ko.uriparse.getMappedPath(gURL);
@@ -186,7 +196,7 @@ function Browse()
         var path = ko.filepicker.openFile(
                     defaultDir, // default dir
                     defaultFile, // default filename
-                    "Select File to Preview '"+gBasename+"'", // title
+                    _bundle.formatStringFromName("selectFileToPreview", [gBasename], 1), // title
                     "HTML", // default filter name
                     ["HTML", "XML", "All"]); // allowed filters
         if (path != null) {
@@ -246,7 +256,7 @@ function Preview()
             // If the preview is a local file, ensure that it exists.
             koFileEx.URI = preview;
             if (koFileEx.isLocal && !koFileEx.exists) {
-                ko.dialogs.alert("'"+preview+"' does not exist.");
+                ko.dialogs.alert(_bundle.formatStringFromName("doesNotExist", [preview], 1));
                 widgets.otherFileTextbox.focus();
                 return false;
             }
