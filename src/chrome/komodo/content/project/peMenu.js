@@ -187,9 +187,12 @@ ko.projects.registerExtension(new peMenu());
 
 
 (function() { // ko.projects
+
 var prefSvc = Components.classes['@activestate.com/koPrefService;1'].
                 getService(Components.interfaces.koIPrefService);
-
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/project/peMenu.properties");
 
 this.partAcceptsMenuToolbar = function peMenu_partAcceptsMenuToolbar(part) {
     // Used to check early whether a part can be added
@@ -205,12 +208,10 @@ this.addMenu = function peMenu_addMenu(/*koIPart*/ parent) {
     // Ensure that the item being added to isn't a menu/toolbar or a
     // child of a menu/toolbar
     if (parent && ! ko.projects.partAcceptsMenuToolbar(parent)) {
-        ko.dialogs.alert("Sorry, you can't add menus to menus, toolbars or children "+
-                     "of menus or toolbars. If you want to add a sub-menu "+
-                     "add a Folder item.");
+        ko.dialogs.alert(_bundle.GetStringFromName("cannotAddMenusToMenus"));
         return;
     }
-    var name = ko.dialogs.prompt("Enter menu name:");
+    var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterMenuName"));
     if (!name) return;
     var menu = parent.project.createPartFromType('menu');
     menu.name = name;
@@ -448,10 +449,10 @@ this.addToolbar = function peMenu_addToolbar(/*koIPart*/ parent)
     // Ensure that the item being added to isn't a menu/toolbar or a
     // child of a menu/toolbar
     if (parent && ! ko.projects.partAcceptsMenuToolbar(parent)) {
-        ko.dialogs.alert("Sorry, you can't add toolbars to menus, toolbars or children of menus or toolbars.");
+        ko.dialogs.alert(_bundle.GetStringFromName("cannotAddToolbarsToMenus"));
         return;
     }
-    var name = ko.dialogs.prompt("Enter toolbar name:");
+    var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterToolbarName"));
     if (!name) return;
     var toolbar = parent.project.createPartFromType('toolbar');
     toolbar.name = name;
@@ -616,10 +617,10 @@ this.menuProperties = function peMenu_editProperties(item, rank) {
     obj.imgsrc = 'chrome://komodo/skin/images/open.png';
     if (item.type == 'menu') {
         obj.type = 'menu';
-        obj.prettytype = 'Custom Menu';
+        obj.prettytype = _bundle.GetStringFromName("customMenu");
     } else {
         obj.type = 'toolbar';
-        obj.prettytype = 'Custom Toolbar';
+        obj.prettytype = _bundle.GetStringFromName("customToolbar");
     }
     window.openDialog(
         "chrome://komodo/content/project/customMenuProperties.xul",
