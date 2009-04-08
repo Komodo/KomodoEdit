@@ -1590,6 +1590,18 @@ test_vi_emulation.prototype.test_bug81576_paste_in_visual_mode = function() {
                      { resetMode: false });
 }
 
+test_vi_emulation.prototype.test_bug82707_changeLine = function() {
+    // bug 82707 - changeLine should work from the base indentation level.
+    this._runCommand("changeLine",
+                     ["this is<|>",
+                      "<|>"]);
+    this._runCommand("changeLine",
+                     ["    this is<|>",
+                      "    <|>"]);
+    this._runCommand("changeLine",
+                     ["<|>    this is",
+                      "    <|>"]);
+}
 
 /* TEST SUITE */
 

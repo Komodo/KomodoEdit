@@ -2990,9 +2990,15 @@ function cmd_vim_changeLine(scimoz, repeatCount) {
         repeatCount -= 1;
         var lineNo = scimoz.lineFromPosition(gVimController._currentPos);
         var start = scimoz.positionFromLine(lineNo);
+        // If the start of the line is whitespace, move to the first word.
+        if (gVimController.regexWhitespace.test(scimoz.getWCharAt(start))) {
+            start = scimoz.wordEndPosition(start, false);
+        }
         var endLine = Math.min(lineNo+repeatCount, scimoz.lineCount);
         var end = scimoz.getLineEndPosition(endLine);
         gVimController.copyInternal(scimoz, start, end, true);
+        gVimController._currentPos = start;
+        gVimController._anchor = start;
     } catch (e) {
         vimlog.exception(e);
     }
