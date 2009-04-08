@@ -40,7 +40,8 @@
  *  All dialog interaction is done via an object passed in and out as the first
  *  window argument: window.arguments[0]. All these arguments are optional.
  *      .prompt         the question to ask.
- *      .buttons        list of strings naming buttons to use
+ *      .buttons        list of strings|arrays naming buttons to use, if it's
+ *                      an array, the format is [buttonLabel, buttonAccesskey]
  *      .response       the default response, must be one of the strings in
  *                      "buttons"
  *      .text           allows you to specify a string of text that will be
