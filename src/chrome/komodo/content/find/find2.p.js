@@ -66,6 +66,9 @@ var _g_curr_default_btn = null;         // cache for _update_mode_ui()
 var _g_prefs = null;
 var _g_save_in_files_context = false; // Whether to save "in files" context on exit.
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/find/find2.properties");
 
 
 //---- public methods for the dialog
@@ -1227,15 +1230,15 @@ function reset_find_context(reason /* =null */) {
     case "document":
         var curr_view = opener.ko.views.manager.currentView;
         if (curr_view == null) {
-            msg_warn("No current file in which to search.");
+            msg_warn(_bundle.GetStringFromName("noCurrentFileInWhichToSearch"));
         } else {
             var type = curr_view.getAttribute("type");
             switch (type) {
             case "startpage":
-                msg_warn("Cannot search in the Start Page.");
+                msg_warn(_bundle.GetStringFromName("cannotSearchInTheStartPage"));
                 break;
             case "browser":
-                msg_warn("Cannot search in a Browser Preview tab.");
+                msg_warn(_bundle.GetStringFromName("cannotSearchInABrowserPreviewTab"));
                 break;
             case "editor":
             case "buffer":
@@ -1252,9 +1255,9 @@ function reset_find_context(reason /* =null */) {
     case "selection":
         var scimoz = _get_curr_scimoz();
         if (!scimoz) {
-            msg_warn("No current file in which to search.");
+            msg_warn(_bundle.GetStringFromName("noCurrentFileInWhichToSearch"));
         } else if (scimoz.selectionStart == scimoz.selectionEnd) {
-            msg_warn("No current selection.");
+            msg_warn(_bundle.GetStringFromName("noCurrentSelection"));
         } else {
             context = Components.classes["@activestate.com/koRangeFindContext;1"]
                 .createInstance(Components.interfaces.koIRangeFindContext);
@@ -1323,27 +1326,27 @@ function _set_case_widget(value) {
     switch (value) {
     case "ignore-case":
         w.value = "ignore-case";
-        w.label = "Match case";
+        w.label = _bundle.GetStringFromName("ignoreCase");
         w.checked = false;
-        w.setAttribute("tooltiptext", "Ignore case");
+        w.setAttribute("tooltiptext", _bundle.GetStringFromName("ignoreCase"));
         break;
     case "match-case":
         w.value = "match-case";
-        w.label = "Match case";
+        w.label = _bundle.GetStringFromName("matchCase");
         w.checked = true;
-        w.setAttribute("tooltiptext", "Match case");
+        w.setAttribute("tooltiptext", _bundle.GetStringFromName("matchCase"));
         break;
     case "smart-case":
         w.value = "smart-case";
-        w.label = "Smart case";
+        w.label = _bundle.GetStringFromName("smartCase");
         w.checked = true;
         w.setAttribute("tooltiptext",
-            "Match case, if search string contains capital letters");
+            _bundle.GetStringFromName("smartCase.tooltip"));
         break;
     default:
         throw("invalid case widget value: "+value);
     }
-    w.accessKey = "c";
+    w.accessKey = _bundle.GetStringFromName("caseCheckbox.accesskey");
 }
 
 
