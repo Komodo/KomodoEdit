@@ -232,6 +232,7 @@
  '*.jsm': 'JavaScript',
  '*.kix': 'Kix',
  '*.kpf': 'XML',
+ '*.ksf': 'Python',
  '*.lis': 'Lisp',
  '*.lof': 'LaTeX',
  '*.lot': 'Lot',
