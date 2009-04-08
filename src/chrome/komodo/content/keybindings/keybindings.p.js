@@ -299,7 +299,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 14;
+const currentKeybindingVersionNumber = 15;
 
 /**
  * Remove this dictionary of keybinds.
