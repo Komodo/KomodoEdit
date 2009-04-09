@@ -1967,6 +1967,19 @@ EOD;
         self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[3]),
                 [("variable", 'this'),])
 
+    @tag("bug82721")
+    def test_php4_class_constructor_calltip(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            class bug82721_class {
+                function bug82721_class($var1, $var2, $var3) {
+                    echo "code";
+                }
+            }
+            $ac = new bug82721_class(<1>);
+        """)))
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+                             "bug82721_class(var1, var2, var3)")
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"

@@ -470,16 +470,21 @@ class PHPTreeEvaluator(TreeEvaluator):
         # constructor. PHP does not automatically inherit class contructors,
         # so we just return the one on the current class.
         else:
-            # In PHP our CIX classes may have a special constructor function
+            # In PHP5 our CIX classes may have a special constructor function
             # with the name "__construct".
             ctor = node.names.get("__construct")
             if ctor is not None:
                 self.log("_calltip_from_class:: ctor is %r", ctor)
                 return self._calltip_from_func(ctor)
-            else:
-                name = node.get("name")
-                self.log("_calltip_from_class:: no ctor in class %r", name)
-                return "%s()" % (name)
+            # In PHP4 the contructor is a function that has the same name as
+            # the class name.
+            name = node.get("name")
+            ctor = node.names.get(name)
+            if ctor is not None:
+                self.log("_calltip_from_class:: ctor is %r", ctor)
+                return self._calltip_from_func(ctor)
+            self.log("_calltip_from_class:: no ctor in class %r", name)
+            return "%s()" % (name)
 
     def _members_from_array_hit(self, hit, trg_char):
         """Retrieve members from the given array element.
