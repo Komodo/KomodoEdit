@@ -344,6 +344,17 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
                                  ex);
         // even though there is an error, continue opening the
         // file so the user gets *something*
+        if (saveto) {
+            var fileSvc = Components.classes["@activestate.com/koFileService;1"].
+                          getService(Components.interfaces.koIFileService);
+            var koFile = fileSvc.getFileFromURI(saveto);
+            doc = _docSvc.createDocumentFromFile(koFile);
+        } else {
+            var langSvc = Components.classes["@activestate.com/koLanguageRegistryService;1"].
+                getService(Components.interfaces.koILanguageRegistryService);
+            var language = langSvc.suggestLanguageForFile(basename) || "Text";
+            doc = _docSvc.createUntitledDocument(language);
+        }
     }
     
     var docText = doc.buffer;
