@@ -69,3 +69,10 @@ class LoadSchemeTestCase(unittest.TestCase):
                           fullpath, fname)
         self.assertTrue(os.path.exists(fullpath))
         os.unlink(fullpath)
+
+    def test_invalidBaseName(self):
+        fname = "__bad-name:__()"
+        fullpath = os.path.join(os.getcwd(), fname)
+        self.assertRaises(Exception,
+                          self.schemeService.loadSchemeFromURI,
+                          fullpath, fname)

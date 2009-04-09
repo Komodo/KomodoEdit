@@ -851,6 +851,10 @@ class KoScintillaSchemeService:
                                            errmsg)
             raise ServerException(nsError.NS_ERROR_FAILURE, errmsg)
             
+    _invalidSchemeCharacterSet = re.compile('[^\w\d\-_=+,. @#$%,]')
+    def schemeNameIsValid(self, candidateName):
+        return not self._invalidSchemeCharacterSet.search(candidateName)
+        
     def loadSchemeFromURI(self, uri, schemeBaseName):
         """ Save the incoming URI in the userDataDir/schemes/,
         and have Komodo use the new/updated scheme.
@@ -867,10 +871,10 @@ class KoScintillaSchemeService:
                        createBundle("chrome://komodo/locale/views.properties")
            
         schemeName = os.path.splitext(schemeBaseName)[0]
-        if re.compile(r'[^\w\d_ ]').search(schemeName):
+        if not self.schemeNameIsValid(schemeName):
             raise ServerException(nsError.NS_ERROR_INVALID_ARG,
                                   _viewsBundle.formatStringFromName(
-                                      "schemeBasenameFormat.template",
+                                      "schemeBasenameHasInvalidCharacters.template",
                                       [schemeBaseName]))
             
         koFileExSrc = fileSvc.getFileFromURI(uri);

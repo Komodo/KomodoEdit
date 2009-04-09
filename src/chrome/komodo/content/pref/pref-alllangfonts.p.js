@@ -605,35 +605,37 @@ function doNew()
                 gDialog.currentScheme.save()
             }
         }
-        var newSchemeName = '';
-        var schemes = new Array();
-        gDialog.schemeService.getSchemeNames(schemes, new Object());
+        var newSchemeName;
+        var schemes = {};
+        gDialog.schemeService.getSchemeNames(schemes, {});
         schemes = schemes.value;
-        var i, ok;
-        var fnameRe = /^[\w\d ]*$/;
+        var _viewsBundle = Components.classes["@mozilla.org/intl/stringbundle;1"].
+            getService(Components.interfaces.nsIStringBundleService).
+            createBundle("chrome://komodo/locale/views.properties");
         while (1) {
-            newSchemeName = ko.dialogs.prompt("Enter a new scheme name.  The new scheme will be based on the currently selected '" +
-                                          gDialog.currentScheme.name + "' scheme.", "New Scheme Name:",
-                                          newSchemeName // default value
-                                          );
+            var msg = _viewsBundle.formatStringFromName(
+                "enterNewSchemeNameBasedOnScheme.template",
+                [gDialog.currentScheme.name], 1);
+            newSchemeName = ko.dialogs.prompt(msg,
+                _viewsBundle.GetStringFromName("newSchemeName.label"),
+                                              newSchemeName // default value
+                                              );
             if (!newSchemeName) {
                 return false;
             }
-            ok = true;
             // Check to make sure that the name isn't already taken and that it can be written to disk.
-            for (i = 0; i < schemes.length; i++) {
-                if (schemes[i] == newSchemeName) {
-                    alert("The scheme name '" + newSchemeName + "' is already used.  Please choose another.")
-                    ok = false;
-                    break;
-                }
-            }
-            if (!ok) continue;
-            if (fnameRe.test(newSchemeName)) {
-                ok = true;
+            if (schemes.indexOf(newSchemeName) >= 0) {
+                msg = (_viewsBundle.formatStringFromName(
+                       "schemeExists.template",
+                       [newSchemeName], 1));
+            } else if (!gDialog.schemeService.schemeNameIsValid(newSchemeName)) {
+                msg = (_viewsBundle.formatStringFromName(
+                       "schemeNameHasInvalidCharacters.template",
+                       [newSchemeName], 1))
+            } else {
                 break;
             }
-            alert("Scheme names must contain alphanumeric characters, spaces or underscores only.  Please choose another name.");
+            alert(msg);
         }
 
         var newScheme = gDialog.currentScheme.clone(newSchemeName);

@@ -132,6 +132,7 @@ interface koIScintillaSchemeService : nsISupports {
                            in boolean forceColor);
     // returns new scheme name on success, throws an exception on failiure
     wstring loadSchemeFromURI(in wstring uri, in wstring schemeName);
+    boolean schemeNameIsValid(in wstring schemeName);
     // returns previous active scheme.
     wstring activateScheme(in wstring schemeName);
 };
