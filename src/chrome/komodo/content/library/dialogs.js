@@ -887,12 +887,18 @@ this.internalError = function dialog_internalError(error, text, exception)
     if (typeof(text) == 'undefined' || text == null)
         throw("Must specify 'text' argument to ko.dialogs.internalError().");
     if (typeof(exception) != 'undefined' && exception) {
+        text += "\n\nException: " + exception;
+        var traceback = "";
         try {
-            var traceback = ('stack' in exception) ? exception.stack : ko.logging.getStack(1);
-            if (traceback) {
-                text += "\n\n\nTRACEBACK:\n" + traceback;
+            if (exception.stack) {
+                traceback = exception.stack;
+            } else {
+                traceback = ko.logging.getStack(1);
             }
         } catch(ex) {}
+        if (traceback) {
+            text += "\n\nTraceback:\n" + traceback;
+        }
     }
     var obj = new Object();
     obj.error = error;
