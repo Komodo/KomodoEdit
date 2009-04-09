@@ -95,7 +95,6 @@
 
   <!-- 'show_start_page' indicates whether to show the Start Page at startup. -->
   <boolean id="show_start_page">1</boolean>
-  <boolean id="start_page_tutorials_box_closed">0</boolean>
   <boolean id="start_page_quick_links_box_closed">0</boolean>
   <boolean id="start_page_tip_box_closed">1</boolean>
   <boolean id="start_page_landing_box_closed">0</boolean>
