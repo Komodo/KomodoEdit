@@ -152,25 +152,36 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
  * @param {String} uri -- uri of the source of the KSF file
  * @returns {String} newBaseName or null
  */
- function _checkKSFBaseName(schemeService, uri) {
-    var koDirs = Components.classes["@activestate.com/koDirs;1"].
-             getService(Components.interfaces.koIDirs);
-    var koOSPath = Components.classes["@activestate.com/koOsPath;1"].
-             getService(Components.interfaces.koIOsPath);
-    var schemeDir = koOSPath.join(koDirs.userDataDir, "schemes");
+function _checkKSFBaseName(schemeService, uri) {
     var schemeBaseName = ko.uriparse.baseName(uri);
+    var currentSchemeNames_tmp = {};
+    schemeService.getSchemeNames(currentSchemeNames_tmp, {});
+    var currentSchemeNames = {};
+    currentSchemeNames_tmp.value.forEach(function(name) {
+// #if PLATFORM != 'darwin' or PLATFORM == 'win'
+        name = name.toLowerCase();
+// #endif
+        currentSchemeNames[name] = null;
+    });
     var ext = ko.uriparse.ext(uri);
     var newSchemeName = schemeBaseName.substring(0, schemeBaseName.lastIndexOf(ext));
-    var prompt;
+    var prompt, testName;
     while (true) {
         if (newSchemeName.length == 0 || !schemeService.schemeNameIsValid(newSchemeName)) {
             prompt = _viewsBundle.formatStringFromName("schemeNameHasInvalidCharacters.template",
                                                        [newSchemeName], 1);
-        } else if (koOSPath.exists(koOSPath.join(schemeDir, newSchemeName + ext))) {
-            prompt = _viewsBundle.formatStringFromName("schemeExists.template",
-                                                       [newSchemeName], 1);
         } else {
-            return newSchemeName;
+// #if PLATFORM != 'darwin' or PLATFORM == 'win'
+            testName = newSchemeName.toLowerCase();
+// #else
+            testName = newSchemeName;
+// #endif
+            if (typeof(currentSchemeNames[testName]) != "undefined") {
+                prompt = _viewsBundle.formatStringFromName("schemeExists.template",
+                                                           [newSchemeName], 1);
+            } else {
+                return newSchemeName + ext;
+            }
         }
         newSchemeName = ko.dialogs.prompt(
             prompt,
