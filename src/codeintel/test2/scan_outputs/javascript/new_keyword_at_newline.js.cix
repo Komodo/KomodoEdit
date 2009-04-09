@@ -1,0 +1,7 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/new_keyword_at_newline.js">
+    <scope ilk="blob" lang="JavaScript" name="new_keyword_at_newline.js" src="scan_inputs/javascript/new_keyword_at_newline.js">
+      <variable line="3" name="FilterManager" />
+    </scope>
+  </file>
+</codeintel>

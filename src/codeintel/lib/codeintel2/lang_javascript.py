@@ -3277,7 +3277,10 @@ class JavaScriptCiler:
                 # XXX: Need to be careful with e4x!
                 if ((style != self.JS_OPERATOR or text[0] not in "({[.,=") and
                     (self.styles[-1] != self.JS_OPERATOR or
-                     self.text[-1] not in "({[.,=")):
+                     self.text[-1] not in "({[.,=") and
+                    # We need to ignore certains cases, such as:
+                    #   "new \n function", see bug 82569.
+                    (self.styles[-1] != self.JS_WORD or self.text[-1] != "new")):
                     self._addCodePiece(self.styles, self.text, pos=0)
                     self.in_variable_definition = False
             self.lineno = start_line
