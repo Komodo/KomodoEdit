@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 14
+version 16
 # Needs a few things to be finished
 #  - ?? insert forward tab / insert backward tab
 #  - insert file? (Ctrl+X, I)
@@ -253,3 +253,5 @@ binding cmd_expandAbbrev Ctrl+T
 binding cmd_goToDefinition Escape .
 
 binding cmd_goToFile Ctrl+Shift+O
+
+binding cmd_invokeHyperlink Ctrl+Shift+G

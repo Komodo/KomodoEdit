@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 14
+version 16
 
 # Movement and selection
 binding cmd_left  Left
@@ -219,3 +219,5 @@ binding cmd_selectRectPageUp Alt+Shift+Page_Up
 binding cmd_selectRectPageDown Alt+Shift+Page_Down
 
 binding cmd_goToFile Ctrl+Shift+O
+
+binding cmd_invokeHyperlink Ctrl+Shift+G

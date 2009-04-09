@@ -1114,6 +1114,11 @@
             oncommand="ko.commands.doCommand('cmd_killLine')"
             disabled="true"
             desc="&editorCutRestOfLine.desc;"/>
+        <command
+            id="cmd_invokeHyperlink" key="key_cmd_invokeHyperlink"
+            oncommand="ko.commands.doCommandAsync('cmd_invokeHyperlink', event)"
+            disabled="true"
+            desc="&editorInvokeHyperlink.desc;"/>
     </commandset>
 
     <!-- Commands that need updating when the foldability of

@@ -282,6 +282,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 16: Komodo 5.2.0 - Add an invoke hyperlink command.
  * 15: Komodo 5.1.0 - Fix Meta+Shift+<x> keybindings on OS X to use the
  *                    shifted char if <x> is non-alpha
  * 14: Komodo 5.1.0 - Fix cmd_goToFile keybinding on non-Mac platforms.
@@ -299,7 +300,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 15;
+const currentKeybindingVersionNumber = 16;
 
 /**
  * Remove this dictionary of keybinds.
@@ -652,6 +653,17 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_viewIndentationGuides': ["Meta+%"],
                 'cmd_viewWhitespace': ["Meta+*"],
                 'cmd_wordWrap': ["Meta+("]
+            });
+// #endif
+        case 15:
+            // Add hyperlink command.
+// #if PLATFORM == 'darwin'
+            this._add_keybinding_sequences({
+                'cmd_invokeHyperlink': ["Meta+Shift+G"]
+            });
+// #else
+            this._add_keybinding_sequences({
+                'cmd_invokeHyperlink': ["Ctrl+Shift+G"]
             });
 // #endif
         }

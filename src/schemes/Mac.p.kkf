@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 14
+version 16
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
 binding cmd_blockSelect Meta+Ctrl+L
@@ -184,3 +184,5 @@ binding cmd_wordRight  Alt+Right
 binding cmd_wordWrap Meta+(
 
 binding cmd_goToFile Meta+Shift+O
+
+binding cmd_invokeHyperlink Meta+Shift+G

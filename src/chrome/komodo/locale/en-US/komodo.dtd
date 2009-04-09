@@ -79,6 +79,7 @@
 <!ENTITY delete.label "Delete">
 <!ENTITY deleteBlankLines.desc "Editor: Delete Blank Lines">
 <!ENTITY edit.label "Edit">
+<!ENTITY editorInvokeHyperlink.desc "Editor: Invoke Hyperlink">
 <!ENTITY editorAddAsSnippetToToolbox.desc "Editor: Add as Snippet to Toolbox">
 <!ENTITY editorBack.desc "Editor: Back">
 <!ENTITY editorBackspace.desc "Editor: Backspace">
