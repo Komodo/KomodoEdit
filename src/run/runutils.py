@@ -294,7 +294,7 @@ def _terminalProcessWaiter(runProcess, runListener):
     except process.ProcessError, ex:
         retval = ex.errno  # Use the error set in the exception.
     if runListener:
-        listenerProxy = getProxyForObject(None,
+        listenerProxy = getProxyForObject(1,
                                 components.interfaces.koIRunTerminationListener,
                                 runListener,
                                 PROXY_ALWAYS | PROXY_SYNC)
