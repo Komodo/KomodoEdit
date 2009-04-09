@@ -321,6 +321,7 @@
       <ComponentRef Id="component36"/>
       <ComponentRef Id="component37"/>
       <ComponentRef Id="component38"/>
+      <ComponentRef Id="component27"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -474,6 +475,8 @@
               <File Id="file1910" Name="caps.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\caps.xpt"/>
               <File Id="file1911" Name="chardet.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\chardet.xpt"/>
               <File Id="file1912" Name="chrome.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\chrome.xpt"/>
+              <File Id="file860" Name="KOICOL_0.XPT" LongName="koIColorPicker.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIColorPicker.xpt"/>
+              <File Id="file861" Name="XPCOM__0.JS" LongName="xpcom_colorpicker.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_colorpicker.js"/>
               <File Id="file1913" Name="COMMAN_0.XPT" LongName="commandhandler.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\commandhandler.xpt"/>
               <File Id="file1914" Name="COMMAN_1.XPT" LongName="commandlines.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\commandlines.xpt"/>
               <File Id="file1915" Name="composer.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\composer.xpt"/>
@@ -948,6 +951,14 @@
                   <File Id="file320" Name="ACTION_0.LEX" LongName="ActionScript.lexres" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\actionscript_language@ActiveState.com\lexers\ActionScript.lexres"/>
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\actionscript_language@ActiveState.com\lexers -->
+              <Directory Id="directory27" Name="locale">
+                <Directory Id="directory28" Name="ENUS_0" LongName="en-US">
+                  <Component Id="component27" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file862" Name="PREFAC_0.DTD" LongName="pref-actionscript.dtd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\actionscript_language@ActiveState.com\locale\en-US\pref-actionscript.dtd"/>
+                    <File Id="file863" Name="PREFAC_0.PRO" LongName="pref-actionscript.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\actionscript_language@ActiveState.com\locale\en-US\pref-actionscript.properties"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\actionscript_language@ActiveState.com\locale\en-US -->
+              </Directory> <!-- lib\mozilla\extensions\actionscript_language@ActiveState.com\locale -->
               <Directory Id="directory73" Name="TEMPLA_1" LongName="templates">
                 <Directory Id="directory86" Name="ALLLAN_5" LongName="All Languages">
                   <Component Id="component67" DiskId="1" Guid="$(autowix.guid)">
@@ -1523,6 +1534,7 @@
                 <File Id="file376" LongName="langinfo_binary.py" Name="LANGIN_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_binary.py" />
                 <File Id="file587" LongName="langinfo_doc.py" Name="LANGIN_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_doc.py" />
                 <File Id="file604" LongName="langinfo_komodo.py" Name="LANGI_12.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_komodo.py" />
+                <File Id="file864" Name="LANGIN_8.PY" LongName="langinfo_mozilla.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_mozilla.py"/>
                 <File Id="file588" LongName="langinfo_other.py" Name="LANGIN_3.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_other.py" />
                 <File Id="file589" LongName="langinfo_prog.py" Name="LANGIN_4.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_prog.py" />
                 <File Id="file428" LongName="langinfo_template.py" Name="LANGIN_6.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\langinfo_template.py" />
@@ -3479,6 +3491,7 @@
               <File Id="file3840" Name="KOICAL_0.IDL" LongName="koICallTips.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICallTips.idl"/>
               <File Id="file3841" Name="KOICOD_0.IDL" LongName="koICodeIntel.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICodeIntel.idl"/>
               <File Id="file3842" Name="KOICOM_0.IDL" LongName="koICommandmentService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICommandmentService.idl"/>
+              <File Id="file865" Name="KOICOL_0.IDL" LongName="koIColorPicker.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIColorPicker.idl"/>
               <File Id="file3844" Name="KOICSS_0.IDL" LongName="koICSSParser.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICSSParser.idl"/>
               <File Id="file3852" Name="koIDirs.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIDirs.idl"/>
               <File Id="file3873" Name="KOIDOC_0.IDL" LongName="koIDocument.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIDocument.idl"/>
