@@ -29,13 +29,13 @@
     ]]></script>
     
     <groupbox id="groupbox" orient="vertical">
-        <caption label="Fast Open" />
-        <description>'Go to File' dialog filters for paths from the current
-        working directory. Leave empty for the default.
+        <caption label="&fastOpen.label;" />
+        <description>
+            &goToFileDialogFilters.description;
         </description>
         <textbox id="fastopen_path_excludes" pref="true" preftype="string" value="" />
         <hbox>
-            <label value="Default:" />
+            <label value="&default.label;" />
             <textbox id="default" readonly="true" class="plain" flex="1" />
         </hbox>
     </groupbox>

@@ -1,0 +1,6 @@
+<!ENTITY fastOpen.label "Fast Open">
+<!ENTITY goToFileDialogFilters.description "'Go to File' dialog filters for paths from the current working directory. Leave empty for the default.">
+<!ENTITY default.label "Default:">
+<!ENTITY goToFile.menuitem "Go to File...">
+<!ENTITY fastOpenGoToFile.desc "Fast Open: Go to File...">
+<!ENTITY goToFile.window.title "Go to File">

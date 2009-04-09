@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
-<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % fastopenDTD SYSTEM "chrome://fastopen/locale/fastopen.dtd">
+  %fastopenDTD;
+]>
+
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
 <overlay id="fastopen-overlay"
@@ -12,13 +17,13 @@
   <commandset id="allcommands">
     <command id="cmd_goToFile"
              oncommand="ko.fastopen.open_gotofile_dialog();"
-             desc="Fast Open: Go to File..." />
+             desc="&fastOpenGoToFile.desc;" />
   </commandset>
 
   <menupopup id="popup_file_open">
     <menuitem id="menu_gotoFile"
               insertafter="menu_openFile"
-              label="Go to File..."
+              label="&goToFile.menuitem;"
               class="menuitem-iconic open-file-icon"
               observes="cmd_goToFile" />
   </menupopup>
