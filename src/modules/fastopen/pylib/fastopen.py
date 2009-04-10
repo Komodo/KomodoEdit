@@ -306,6 +306,7 @@ class Driver(threading.Thread):
                 dirQueries += [join(d, query) for d in request.cwds]
 
             if dirQueries:
+                hitPaths = set()
                 pathExcludes = request.pathExcludes
                 for dirQuery in dirQueries:
                     dir, baseQuery = split(dirQuery)
@@ -320,18 +321,20 @@ class Driver(threading.Thread):
                             startswith = (i == 0 and not baseQuery.startswith(' '))
                             baseQueryWords.append((w, w.lower() != w, startswith))
                         for name in names:
-                            hit = PathHit(normpath(join(dir, name)))
+                            path = normpath(join(dir, name))
+                            hit = PathHit(path)
                             if name.startswith('.') and hit.isdir \
                                and not baseQuery.startswith('.'):
                                 # Only show dot-dirs if baseQuery startswith a dot.
                                 continue
-                            if not hit.match(baseQueryWords):
+                            if not hit.match(baseQueryWords) or path in hitPaths:
                                 continue
                             for exclude in pathExcludes:
                                 if fnmatch(name, exclude):
                                     break
                             else:
                                 hits.append(hit)
+                                hitPaths.add(path)
                         resultsView.addHits(hits)
         
             else:
