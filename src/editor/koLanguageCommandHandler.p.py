@@ -1341,8 +1341,12 @@ class GenericCommandHandler:
     def _asktabwidth(self):
         dialogproxy = components.classes['@activestate.com/asDialogProxy;1'].\
             getService(components.interfaces.asIDialogProxy)
+        bundle = components.classes["@mozilla.org/intl/stringbundle;1"].\
+                 getService(components.interfaces.nsIStringBundleService).\
+                 createBundle("chrome://komodo/locale/editor.properties")
         tabwidth = self._view.prefs.getLongPref('tabWidth')
-        value = dialogproxy.prompt("Tab Width (between 0 and 16)", str(tabwidth), "OK", None)
+        msg = bundle.GetStringFromName("tabWidthBetween0and16.message")
+        value = dialogproxy.prompt(msg, str(tabwidth), "OK", None)
         if value is not None:
             return int(value)
         else:
