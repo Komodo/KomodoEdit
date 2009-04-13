@@ -107,10 +107,10 @@ def pageant_request(pageant_data):
 
     # Write our pageant request string into the file, pageant will read this to
     # determine what it needs to do.
-    filename = tempfile.mktemp('.pag')
+    (fd, filename) = tempfile.mkstemp('.pag')
     map_filename = os.path.basename(filename)
 
-    f = open(filename, 'w+b')
+    f = os.fdopen(fd, 'w+b')
     try:
         f.seek(0)
         f.write(pageant_data)
