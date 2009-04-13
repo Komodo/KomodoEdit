@@ -121,13 +121,17 @@ function handleQueryKeyPress(event) {
     } else if (keyCode == KeyEvent.DOM_VK_TAB) {
         _completeSelectionOrMove(true, true);
         event.preventDefault();
-    } else if (keyCode == KeyEvent.DOM_VK_UP) {
+    } else if (keyCode == KeyEvent.DOM_VK_UP
+            /* Ctrl+p for Emacs-y people. */
+            || (event.ctrlKey && event.charCode === 112)) {
         index = gWidgets.results.currentIndex - 1;
         if (index >= 0) {
             _selectTreeRow(gWidgets.results, index);
         }
         event.preventDefault();
-    } else if (keyCode == KeyEvent.DOM_VK_DOWN) {
+    } else if (keyCode == KeyEvent.DOM_VK_DOWN
+            /* Ctrl+n for Emacs-y people. */
+            || (event.ctrlKey && event.charCode === 110)) {
         index = gWidgets.results.currentIndex + 1;
         if (index < 0) {
             index = 0;
