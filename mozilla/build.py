@@ -57,28 +57,24 @@ r"""
     specified then the default 'all' target is used.
 
     For CVS tag dates, see:
-    http://developer.mozilla.org/en/docs/CVS_Tags
+        http://developer.mozilla.org/en/docs/CVS_Tags
+    (Note: Current Komodo releases are still on the Mozilla CVS trunk. I.e. not
+    yet in the Mozilla-central tree in Mercurial/HG.)
 
     Suggested convention for Komodo version numbers:
     * For development builds you should add 10 to the minor version
       number:
-        Komodo Snapdragon 1.0.x development:    -k 1.10
-        Komodo IDE 4.3.x development:           -k 4.13
+        Komodo Edit 5.2.x development:    -k 5.12
+        Komodo IDE 5.2.x development:     -k 5.12
       This allows you to run a production and development build at the
       same time without them trying to hand off to each other.
     
     Suggested configurations are:
-    * Snapdragon development builds:
-        python build.py configure -k 5.10 --moz-src=cvs:1.8 \
-            --release --no-strip --tools
-    * Mozilla 1.9.0 builds:
-        python build.py configure -k 5.10 --moz-src=cvs \
+    * Komodo 5.2.x development builds:
+        python build.py configure -k 5.12 --moz-src=cvs \
             --release --no-strip --tools
     * Mozilla 1.9.1 builds:
-        python build.py configure -k 5.10 --moz-src=hg \
-            --release --no-strip --tools
-    * Komodo IDE 4.3.x development build:
-        python build.py configure -k 5.13 --moz-src=cvs:1.8 \
+        python build.py configure -k 5.12 --moz-src=hg \
             --release --no-strip --tools
 """
 #
