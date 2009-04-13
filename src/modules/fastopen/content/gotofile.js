@@ -115,15 +115,19 @@ function handleQueryKeyPress(event) {
             _extendSelectTreeRow(gWidgets.results, index);
         }
         event.preventDefault();
-    } else if (keyCode == KeyEvent.DOM_VK_UP
-            || (keyCode == KeyEvent.DOM_VK_TAB && event.shiftKey)) {
+    } else if (keyCode == KeyEvent.DOM_VK_TAB && event.shiftKey) {
+        _completeSelectionOrMove(false, true);
+        event.preventDefault();
+    } else if (keyCode == KeyEvent.DOM_VK_TAB) {
+        _completeSelectionOrMove(true, true);
+        event.preventDefault();
+    } else if (keyCode == KeyEvent.DOM_VK_UP) {
         index = gWidgets.results.currentIndex - 1;
         if (index >= 0) {
             _selectTreeRow(gWidgets.results, index);
         }
         event.preventDefault();
-    } else if (keyCode == KeyEvent.DOM_VK_DOWN
-            || keyCode == KeyEvent.DOM_VK_TAB) {
+    } else if (keyCode == KeyEvent.DOM_VK_DOWN) {
         index = gWidgets.results.currentIndex + 1;
         if (index < 0) {
             index = 0;
@@ -237,5 +241,64 @@ function _openSelectedPaths() {
     }
     return true;
 }
+
+/* Complete the currently selected item in the results tree.
+ * This is typically hooked up to <Tab>. Its main usefulness is in descending
+ * into the currently matching directory in path mode.
+ *
+ * If zero or more than one items are selected in the results tree, then
+ * this is no-op.
+ *
+ * @param moveForward {Boolean} Whether to move forward in the list. I.e. if
+ *      this is false, then move backwards.
+ * @param allowAdvance {Boolean} Whether to allow advancing.
+ */
+function _completeSelectionOrMove(moveForward, allowAdvance) {
+    var hits = gWidgets.results.view.getSelectedHits(new Object());
+    if (hits.length != 1) {
+        return null;
+    }
+    var hit = hits[0];
+    
+    // Determine the new value to which to complete.
+    var currValue = gWidgets.query.value;
+    var newValue = gOsPath.join(
+            gOsPath.dirname(gWidgets.query.value), hit.base);
+    if (hit.type == "path" && hit.isdir) {
+        // Selecting a dir should just enter that dir into the filter box.
+        newValue += gSep;
+    }
+
+    // If the new value we'd complete to is already the selected value then
+    // advance to the next result.
+    if (allowAdvance && newValue == currValue) {
+        var index;
+        if (moveForward) {
+            index = gWidgets.results.currentIndex + 1;
+            if (index < 0) {
+                index = 0;
+            }
+            if (index < gWidgets.results.view.rowCount) {
+                _selectTreeRow(gWidgets.results, index);
+            }
+        } else {
+            index = gWidgets.results.currentIndex - 1;
+            if (index >= 0) {
+                _selectTreeRow(gWidgets.results, index);
+            }
+        }
+        // `allowAdvance=false` to not jump over multiple entries with the
+        // same basename (e.g. all the "Conscript" files in Komodo source tree).
+        return _completeSelectionOrMove(moveForward, false);
+    }
+
+    // Set the new value. If it is a dir, then descend into it.
+    gWidgets.query.value = newValue;
+    if (hit.type == "path" && hit.isdir) {
+        findFiles(newValue);
+    }
+    return null;
+}
+
 
 
