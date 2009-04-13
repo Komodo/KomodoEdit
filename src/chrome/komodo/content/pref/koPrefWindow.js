@@ -366,7 +366,10 @@ koPrefWindow.prototype =
         } else if (elt.hasAttribute("preftypes")) {
             prefTypes = elt.getAttribute("preftypes").split(",");
         } else {
-            prefTypes = [null];
+            prefTypes = [];
+            for (var i = prefIds.length; i > 0; --i) {
+                prefTypes.push(null);
+            }
         }
         return [prefIds, prefTypes];
     },
