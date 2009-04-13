@@ -58,6 +58,17 @@ function onLoad()
     window.getAttention();
 }
 
+function onUnload()
+{
+    try {
+        if (gSession) {
+            gSession.abortSearch();
+        }
+    } catch(ex) {
+        log.exception(ex, "error unloading gotofile dialog");
+    }
+}
+ 
 
 function handleDblClick() {
     if (_openSelectedPaths()) {

@@ -303,6 +303,9 @@ class KoFastOpenSession(object):
         self.driver.search(query, gatherers, cwds, self.path_excludes_pref,
             self.resultsView)
 
+    def abortSearch(self):
+        self.driver.abortSearch()
+
 class KoFastOpenService(object):
     _com_interfaces_ = [components.interfaces.koIFastOpenService,
                         components.interfaces.nsIObserver]

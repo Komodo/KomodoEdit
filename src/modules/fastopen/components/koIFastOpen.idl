@@ -74,6 +74,9 @@ interface koIFastOpenSession: nsISupports {
     // will cancel a previous `findFiles` call. Results are returned
     // by calling the `uiDriver`.
     void findFiles(in wstring query);
+
+    // Abort a current search (if any).
+    void abortSearch();
 };
 
 [scriptable, uuid(6c8c66cb-f1c3-834e-86ac-905cb155d595)]

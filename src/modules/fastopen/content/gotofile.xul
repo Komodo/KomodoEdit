@@ -16,6 +16,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&goToFile.window.title;"
         onload="onLoad()"
+        onunload="onUnload()"
         orient="vertical"
         width="500"
         height="400"

@@ -63,6 +63,7 @@ except ImportError:
 
 log = logging.getLogger("fastopen")
 log.setLevel(logging.INFO)
+#log.setLevel(logging.DEBUG)
 
 MDASH = u"\u2014"
 
@@ -192,7 +193,14 @@ class StreamResultsView(object):
     def searchCompleted(self):
         pass
 
+
 class Request(object):
+    """Virtual base class for requests put on the `Driver` queue."""
+
+class StopRequest(Request):
+    """Request to stop the driver thread altogether."""
+
+class SearchRequest(Request):
     """A light object to represent a fastopen search request.
     
     One of these is returned by `Driver.search(...)` and it has a `.wait()`
@@ -210,6 +218,10 @@ class Request(object):
     def complete(self):
         self._event.set()
 
+class AbortSearchRequest(Request):
+    """Request to abort a running search."""
+
+
 class Driver(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self, name="fastopen driver")
@@ -226,9 +238,12 @@ class Driver(threading.Thread):
             Default is false.
         """
         if self.isAlive():
-            self._queue.put(None)
+            self._queue.put(StopRequest())
             if wait:
                 self.join()
+
+    def abortSearch(self):
+        self._queue.put(AbortSearchRequest())
 
     def search(self, query, gatherers, cwds=None, pathExcludes=None,
             resultsView=None):
@@ -255,16 +270,17 @@ class Driver(threading.Thread):
         """
         if pathExcludes is None:
             pathExcludes = DEFAULT_PATH_EXCLUDES
-        r = Request(query, gatherers, cwds or [], pathExcludes,
+        r = SearchRequest(query, gatherers, cwds or [], pathExcludes,
             resultsView or StreamResultsView())
         self._queue.put(r)
         return r
 
     def run(self):
         while True:
-            # Get the latest request on the queue.
+            # Get the latest request on the queue (last one wins, with the
+            # exception that a "StopRequest" trumps).
             request = self._queue.get()
-            if request is None:  # signal from `.stop()` to exit
+            if isinstance(request, StopRequest):
                 return
             while True:
                 try:
@@ -272,17 +288,22 @@ class Driver(threading.Thread):
                 except Queue.Empty:
                     break
                 else:
-                    if request is None:  # signal from `.stop()` to exit
+                    if isinstance(request, StopRequest):
                         return
 
             # Handle the request.
             log.debug("driver request: %r", request)
             try:
-                self._handleRequest(request)
+                if isinstance(request, SearchRequest):
+                    self._handleSearchRequest(request)
+                elif isinstance(request, AbortSearchRequest):
+                    pass
+                else:
+                    log.error("unknown fastopen request type: %r", request)
             except:
                 log.exception("error handling request: %r", request)
     
-    def _handleRequest(self, request):
+    def _handleSearchRequest(self, request):
         from os.path import isabs, split, join, normpath
         from fnmatch import fnmatch
         
@@ -335,7 +356,9 @@ class Driver(threading.Thread):
                             else:
                                 hits.append(hit)
                                 hitPaths.add(path)
-                        resultsView.addHits(hits)
+                        #log.debug("adding %d hits from %r (path mode)", len(hits), dirQuery)
+                        if hits:
+                            resultsView.addHits(hits)
         
             else:
                 # Second value is whether to be case-sensitive in filtering.
