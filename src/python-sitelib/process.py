@@ -38,7 +38,11 @@ import os
 import sys
 import time
 if sys.platform == "win32":
-    import ctypes  # used by kill() method on Windows
+    # The ctypes methods are used by the process kill() function on Windows.
+    import ctypes
+    GenerateConsoleCtrlEvent = ctypes.windll.kernel32.GenerateConsoleCtrlEvent
+    TerminateProcess = ctypes.windll.kernel32.TerminateProcess
+    del ctypes
 else:
     import signal  # used by kill() method on Linux/Mac
 import logging
@@ -53,7 +57,9 @@ log = logging.getLogger("process")
 #log.setLevel(logging.DEBUG)
 
 CREATE_NEW_CONSOLE = 0x10 # same as win32process.CREATE_NEW_CONSOLE
+CREATE_NEW_PROCESS_GROUP = 0x200 # same as win32process.CREATE_NEW_PROCESS_GROUP
 CREATE_NO_WINDOW = 0x8000000 # same as win32process.CREATE_NO_WINDOW
+CTRL_BREAK_EVENT = 1 # same as win32con.CTRL_BREAK_EVENT
 WAIT_TIMEOUT = 258 # same as win32event.WAIT_TIMEOUT
 
 
@@ -127,7 +133,10 @@ class ProcessOpen(Popen):
                 env = _enc_env
 
             if flags is None:
-                flags = CREATE_NO_WINDOW
+                flags = 0
+            # We need to ensure a process group is created, so we can later kill
+            # all of the child processes if the kill method is invoked.
+            flags |= CREATE_NEW_PROCESS_GROUP
 
             # If we don't have standard handles to pass to the child process
             # (e.g. we don't have a console app), then
@@ -318,7 +327,16 @@ class ProcessOpen(Popen):
             self.stdin.close()
 
         if sys.platform.startswith("win"):
-            ctypes.windll.kernel32.TerminateProcess(int(self._handle), exitCode)
+            # TODO: 1) It would be nice if we could give the process(es) a
+            #       chance to exit gracefully first, rather than having to
+            #       resort to a hard kill.
+            #       2) May need to send a WM_CLOSE event in the case of a GUI
+            #       application, like the older process.py was doing.
+
+            # The GenerateConsoleCtrlEvent is used to terminate any child
+            # process that were launched as part of our process, bug 82655.
+            GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, self.pid)
+            TerminateProcess(int(self._handle), exitCode)
             self.returncode = exitCode
         else:
             if sig is None:
