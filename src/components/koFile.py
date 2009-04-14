@@ -47,6 +47,7 @@
 # (note we could probably find reasonable xpcom error codes,
 # but the text message from the error is very useful.)
 
+import os
 import tempfile
 import logging
 from xpcom import file, components, COMException, ServerException, server
@@ -211,7 +212,6 @@ def _DoTestRead(file, expected):
         raise RuntimeError, "Reading '%s' failed - got %d bytes, but expected %d bytes" % (file, len(got), len(expected))
 
 def _TestLocalFile():
-    import os
     fname = tempfile.mktemp()
     data = "Hello from Python"
     f = open(fname,"w")
