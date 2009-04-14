@@ -544,6 +544,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY horizScrollWidth.label "Horizontal scrollbar width (in pixels):">
 <!ENTITY filePrefEditorMatchCase.label "Matches Case:">
 <!ENTITY filePrefEdiorUses.label "Uses:">
+<!ENTITY tabs.label "Tabs">
+<!ENTITY returnToMostRecentBufferOnClose.label "When I close the current tab, switch to the most recently visited tab">
 
 <!--pref-environ.xul-->
 <!ENTITY startEnvironVar.label "Startup Environment Variables">

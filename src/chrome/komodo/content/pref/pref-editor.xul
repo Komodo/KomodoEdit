@@ -210,5 +210,15 @@
     </vbox>
   </groupbox>
 
-</window>
+ <groupbox orient="vertical">
+    <caption label="&tabs.label;"/>
+        <vbox>
+            <checkbox id="select_most_recent_buffer_on_buffer_close"
+                      label="&returnToMostRecentBufferOnClose.label;"
+                      pref="true"
+                      prefstring="select_most_recent_buffer_on_buffer_close"
+                      prefattribute="checked"/>
+        </vbox>
+  </groupbox>
 
+</window>
