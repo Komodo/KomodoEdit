@@ -125,6 +125,7 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
                     try {
                         var newSchemeName = schemeService.loadSchemeFromURI(uri, schemeBaseName);
                         var oldScheme = schemeService.activateScheme(newSchemeName);
+                        this._notifyHowtoRestoreOldScheme(schemeService, oldScheme, newSchemeName);
                         return null;
                     } catch(ex) {
                         alert(ex);
@@ -153,16 +154,16 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
  * @returns {String} newBaseName or null
  */
 function _checkKSFBaseName(schemeService, uri) {
-    var schemeBaseName = ko.uriparse.baseName(uri);
     var currentSchemeNames_tmp = {};
     schemeService.getSchemeNames(currentSchemeNames_tmp, {});
     var currentSchemeNames = {};
     currentSchemeNames_tmp.value.forEach(function(name) {
-// #if PLATFORM != 'darwin' or PLATFORM == 'win'
+// #if PLATFORM == 'darwin' or PLATFORM == 'win'
         name = name.toLowerCase();
 // #endif
         currentSchemeNames[name] = null;
     });
+    var schemeBaseName = ko.uriparse.baseName(uri);
     var ext = ko.uriparse.ext(uri);
     var newSchemeName = schemeBaseName.substring(0, schemeBaseName.lastIndexOf(ext));
     var prompt, testName;
@@ -171,7 +172,7 @@ function _checkKSFBaseName(schemeService, uri) {
             prompt = _viewsBundle.formatStringFromName("schemeNameHasInvalidCharacters.template",
                                                        [newSchemeName], 1);
         } else {
-// #if PLATFORM != 'darwin' or PLATFORM == 'win'
+// #if PLATFORM == 'darwin' or PLATFORM == 'win'
             testName = newSchemeName.toLowerCase();
 // #else
             testName = newSchemeName;
@@ -195,6 +196,53 @@ function _checkKSFBaseName(schemeService, uri) {
     return null;
 }
 
+
+/**
+ * Display a notification box that lets the user revert the current
+ * color scheme from the one that was just imported to the previous one.
+ * @param {nsIScintillaSchemeService} schemeService
+ * @param {String} oldSchemeName
+ * @param {String} newSchemeName
+ * @returns {undefined} not used
+ */
+this._notifyHowtoRestoreOldScheme = function(schemeService, oldSchemeName, newSchemeName) {
+    var prefs = Components.classes["@activestate.com/koPrefService;1"].
+                        getService(Components.interfaces.koIPrefService).prefs;
+    var notificationBox = document.getElementById("topview.notificationbox");
+    var label = _viewsBundle.formatStringFromName("schemeChangeNotification.template",
+                                                  [newSchemeName], 1);
+    var value = 'offer-to-restore-scheme';
+    var image = "chrome://famfamfamsilk/skin/icons/information.png";
+    var priority = notificationBox.PRIORITY_WARNING_LOW;
+    var existingNotification = notificationBox.getNotificationWithValue(value);
+    if (existingNotification) {
+        if ('preNotificationSessionSchemeName' in this) {
+            oldSchemeName = this.preNotificationSessionSchemeName || oldSchemeName;
+        }
+        try {
+            notificationBox.removeAllNotifications(/*immediate=*/true);
+        } catch(ex) {
+            log.exception(ex);
+        }
+    }
+    var buttons = [
+        {label: _viewsBundle.GetStringFromName("yes.label"),
+         accessKey: _viewsBundle.GetStringFromName("yes.accessKey"),
+         callback: function() {}
+        },
+        {label:_viewsBundle.formatStringFromName("noRevertTo.template",
+                                                 [oldSchemeName], 1),
+         accessKey: _viewsBundle.GetStringFromName("noRevertTo.accessKey"),
+         callback: function() {
+            try {
+                schemeService.activateScheme(oldSchemeName);
+            } catch(ex) { log.exception(ex); }
+         }
+        }
+    ];
+    notificationBox.appendNotification(label, value, image, priority, buttons);
+    this.preNotificationSessionSchemeName = oldSchemeName;
+}
 
 /**
  * Open the given path in Komodo.
@@ -370,4 +418,3 @@ var open_openURI = ko.open.URI;
 var open_openDisplayPath = ko.open.displayPath;
 var open_openStartPage = ko.open.startPage;
 var open_openMultipleURIs = ko.open.multipleURIs;
-
