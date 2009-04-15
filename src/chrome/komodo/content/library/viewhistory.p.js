@@ -140,12 +140,28 @@ this.ViewHistory.prototype._setKeyListener = function()
 
 this.ViewHistory.prototype.ctrlup = function(event)
 {
+    var endSession;
     // if it's not the ctrl key (or alternatively the meta key on OS X), get out
 // #if PLATFORM != 'darwin'
-    if (event.keyCode != 17) return;
+    endSession = (event.keyCode == 17);
 // #else
-    if (event.keyCode != 17 && event.keyCode != 224) return;
+    endSession = (event.keyCode == 17 || event.keyCode == 224);
 // #endif
+// #if PLATFORM == 'darwin'
+    // Workaround for bug 82486:
+    // On OS X, when the ctrl and tab keys are released nearly
+    // simultaneously, the ctrl-up event is lost, and the tab-up event
+    // has event.ctrlKey set to true.  The workaround is to
+    // realize that we're still in a session, continue processing keyup
+    // events, and end the session as soon as we get an event
+    // when the ctrl key is no longer up.
+    if (!endSession && !event.ctrlKey && !event.metaKey) {
+        endSession = true;
+    }
+// #endif
+    if (!endSession) {
+        return;
+    }
 
     window.removeEventListener("keyup", this._keylistener, true);
     this._keylistener = null;
