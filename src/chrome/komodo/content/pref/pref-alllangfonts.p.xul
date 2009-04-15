@@ -208,11 +208,9 @@
                                                  type="button" width="20" height="20"
                                                  persist="palettename"
                                                  onchange="setColour(this)"/>
-<!-- #if PLATFORM == "win" or PLATFORM == "darwin" -->
                                     <button style="margin-bottom: 6px"
                                             class="arrow-right-6x3-icon button-toolbar-a"
                                             oncommand="customColor('fixedColorPickerFore')"/>
-<!-- #endif -->
                                 </hbox>
                                 <hbox align="center">
                                     <label value="&filPrefAllLangBackText;"/>
@@ -221,11 +219,9 @@
                                                  type="button" width="20" height="20"
                                                  persist="palettename"
                                                  onchange="setColour(this)"/>
-<!-- #if PLATFORM == "win" or PLATFORM == "darwin" -->
                                     <button style="margin-bottom: 6px"
                                             class="arrow-right-6x3-icon button-toolbar-a"
                                             oncommand="customColor('fixedColorPickerBack')"/>
-<!-- #endif -->
                                 </hbox>
                             </vbox>
                         </hbox>
@@ -291,11 +287,9 @@
                                                  type="button" width="20" height="20"
                                                  persist="palettename"
                                                  onchange="setColour(this)"/>
-<!-- #if PLATFORM == "win" or PLATFORM == "darwin" -->
                                     <button style="margin-bottom: 6px"
                                             class="arrow-right-6x3-icon button-toolbar-a"
                                             oncommand="customColor('propColorPickerFore')"/>
-<!-- #endif -->
                                 </hbox>
                                 <hbox align="center">
                                     <label value="&filPrefAllLangBackText;"/>
@@ -304,11 +298,9 @@
                                                  type="button" width="20" height="20"
                                                  persist="palettename"
                                                  onchange="setColour(this)"/>
-<!-- #if PLATFORM == "win" or PLATFORM == "darwin" -->
                                     <button style="margin-bottom: 6px"
                                             class="arrow-right-6x3-icon button-toolbar-a"
                                             oncommand="customColor('propColorPickerBack')"/>
-<!-- #endif -->
                                 </hbox>
                             </vbox>
                         </hbox>
@@ -366,11 +358,9 @@
                             id="schemeColorPicker" palettename="standard" type="button"
                             pref="true" prefattribute="color" prefstring="cursorColor"
                             persist="palettename" onchange="setColour(this)"/>
-<!-- #if PLATFORM == "win" or PLATFORM == "darwin" -->
                         <button style="margin-bottom: 6px"
                                 class="arrow-right-6x3-icon button-toolbar-a"
                                 oncommand="customColor('schemeColorPicker')"/>
-<!-- #endif -->
                     </hbox>
                     <hbox align="center">
                         <checkbox id="useSelFore"
@@ -453,22 +443,18 @@
                                              type="button" width="20" height="20"
                                              persist="palettename"
                                              onchange="setColour(this)"/>
-<!-- #if PLATFORM == "win" or PLATFORM == "darwin" -->
                                 <button style="margin-bottom: 6px"
                                         class="arrow-right-6x3-icon button-toolbar-a"
                                         oncommand="customColor('commonColorPickerFore')"/>
-<!-- #endif -->
                                 <label value="&filePrefAllLangBackground.label;"/>
                                 <colorpicker id="commonColorPickerBack"
                                              palettename="scin-customize"
                                              type="button" width="20" height="20"
                                              persist="palettename"
                                              onchange="setColour(this)"/>
-<!-- #if PLATFORM == "win" or PLATFORM == "darwin" -->
                                 <button style="margin-bottom: 6px"
                                         class="arrow-right-6x3-icon button-toolbar-a"
                                         oncommand="customColor('commonColorPickerBack')"/>
-<!-- #endif -->
                             </hbox>
                     </vbox>
                 </tabpanel>
@@ -545,22 +531,18 @@
                                              type="button" width="20" height="20"
                                              persist="palettename"
                                              onchange="setColour(this)"/>
-<!-- #if PLATFORM == "win" or PLATFORM == "darwin" -->
                                 <button style="margin-bottom: 6px"
                                         class="arrow-right-6x3-icon button-toolbar-a"
                                         oncommand="customColor('specificColorPickerFore')"/>
-<!-- #endif -->
                                 <label value="&filePrefAllLangBackground.label;"/>
                                 <colorpicker id="specificColorPickerBack"
                                              palettename="scin-customize"
                                              type="button" width="20" height="20"
                                              persist="palettename"
                                              onchange="setColour(this)"/>
-<!-- #if PLATFORM == "win" or PLATFORM == "darwin" -->
                                 <button style="margin-bottom: 6px"
                                         class="arrow-right-6x3-icon button-toolbar-a"
                                         oncommand="customColor('specificColorPickerBack')"/>
-<!-- #endif -->
                             </hbox>
                         </vbox>
                     </hbox>
