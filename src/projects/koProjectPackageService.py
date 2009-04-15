@@ -258,6 +258,10 @@ class koProjectPackageService:
             return newproject.clone()
 
         for child in newproject.children:
+            if child.get_name() == "package.kpf":
+                # This is the internal kpz package name, we don't want to add
+                # this.
+                continue
             newchild = child.clone()
             if child._attributes.has_key('icon'):
                 # cloned parts have a relative url here, fix it

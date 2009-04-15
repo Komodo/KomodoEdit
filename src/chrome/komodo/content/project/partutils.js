@@ -308,8 +308,16 @@ this.reimportFromFileSystem = function part_ReImportFromFS(part) {
     return true;
 }
 
+/**
+ * Import a Komodo package (filename) into the given part.
+ *
+ * @param part {Components.interfaces.koIPart} - The part to import into.
+ * @param filename {string} - The filename of the package to import.
+ * @returns {Components.interfaces.koIPart} - The part that was created to hold
+ *          the imported contents.
+ */
 this.importFromPackage = function part_ImportFromPackage(part, filename) {
-    if (!filename)
+    if (!filename) {
         filename = ko.filepicker.openFile(
             null, null, // default dir and filename
             "Select Package to Import", // title
@@ -318,16 +326,44 @@ this.importFromPackage = function part_ImportFromPackage(part, filename) {
             // When have .ktf files changes to this:
             //"Komodo Toolbox", // default filter
             //["Komodo Toolbox", "Komodo Project", "All"]);
-    if (!filename) return;
+    }
+    if (!filename) return null;
 
-    var basename = ko.uriparse.baseName(filename);
-    var directory = ko.filepicker.getFolder(null /* =defaultDirectory */,
-                              "Select Directory to extract "+basename+" to" /* =null */);
-    if (!directory) return;
+    // Use the default toolbox package extraction folder. The importPackage
+    // call will automaticaly create a sub-folder underneath this directory:
+    // .../extracted-kpz/${basename}/
+    var koDirs = Components.classes["@activestate.com/koDirs;1"].
+            getService(Components.interfaces.koIDirs);
+    var os = Components.classes["@activestate.com/koOs;1"].
+            getService(Components.interfaces.koIOs);
+    var userDataDir = koDirs.userDataDir;
+    var kpzExtractFolder = os.path.join(userDataDir, 'extracted-kpz');
+    if (!os.path.exists(kpzExtractFolder)) {
+        os.mkdir(kpzExtractFolder);
+    }
+
+    var basename = os.path.withoutExtension(os.path.basename(filename));
+    var extractedPart = part.project.createPartFromType('folder');
+    extractedPart.setStringAttribute('name', basename);
+    part.addChild(extractedPart);
 
     var packager = Components.classes["@activestate.com/koProjectPackageService;1"]
                       .getService(Components.interfaces.koIProjectPackageService);
-    packager.importPackage(filename, directory, part)
+    packager.importPackage(filename, kpzExtractFolder, extractedPart);
+
+    // Remove the extracted kpz folder if it is empty.
+    var nsFolder = Components.classes["@mozilla.org/file/local;1"].
+                 createInstance(Components.interfaces.nsILocalFile);
+    nsFolder.initWithPath(os.path.join(kpzExtractFolder, basename));
+    if (nsFolder.exists()) {
+        try {
+            nsFolder.remove(false);
+        } catch (ex) {
+            // Not empty, leave the folder there.
+        }
+    }
+
+    return extractedPart;
 }
 
 }).apply(ko.projects);

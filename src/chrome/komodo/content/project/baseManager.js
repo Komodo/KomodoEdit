@@ -346,7 +346,16 @@ BaseManager.prototype.onDrop = function(event, transferDataSet, session, index) 
             } else if (desc.isFileURL && desc.text.match(/\.kpf$/)) {
                 ko.projects.open(desc.text);
             } else if (desc.isFileURL && desc.text.match(/\.kpz$/)) {
-                ko.projects.importFromPackage(droppedon, ko.uriparse.URIToLocalPath(desc.text));
+                var extractedPart = ko.projects.importFromPackage(droppedon, ko.uriparse.URIToLocalPath(desc.text));
+                if (extractedPart) {
+                    this.viewMgr.view.refresh(droppedon);
+                    this.invalidateItem(droppedon);
+                    // Expand the extracted folder part and then select it.
+                    var partindex = this.viewMgr.view.getIndexByPart(extractedPart);
+                    this.viewMgr.view.toggleOpenState(partindex);
+                    this.viewMgr.view.selectPart(extractedPart);
+                    this.viewMgr.tree.treeBoxObject.ensureRowIsVisible(partindex);
+                }
             } else {
                 // XXX should check that the project doesn't already have the URL
                 part = droppedon.project.createPartFromType('file');

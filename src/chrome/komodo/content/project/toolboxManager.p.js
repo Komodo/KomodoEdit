@@ -643,8 +643,16 @@ toolboxController.prototype.do_cmd_toolboxExportPackage = function () {
 }
 
 this.importPackage = function Toolbox_ImportPackage(filename) {
-    ko.projects.importFromPackage(ko.toolboxes.user.toolbox, filename);
+    var extractedPart = ko.projects.importFromPackage(ko.toolboxes.user.toolbox,
+                                                      filename);
     ko.toolboxes.user.viewMgr.view.refresh(ko.toolboxes.user.toolbox);
+    if (extractedPart) {
+        // Expand the extracted folder part and then select it.
+        var partindex = ko.toolboxes.user.viewMgr.view.getIndexByPart(extractedPart);
+        ko.toolboxes.user.viewMgr.view.toggleOpenState(partindex);
+        ko.toolboxes.user.viewMgr.view.selectPart(extractedPart);
+        ko.toolboxes.user.viewMgr.tree.treeBoxObject.ensureRowIsVisible(partindex);
+    }
 }
 
 
