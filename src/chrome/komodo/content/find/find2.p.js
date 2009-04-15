@@ -1326,7 +1326,7 @@ function _set_case_widget(value) {
     switch (value) {
     case "ignore-case":
         w.value = "ignore-case";
-        w.label = _bundle.GetStringFromName("ignoreCase");
+        w.label = _bundle.GetStringFromName("matchCase");
         w.checked = false;
         w.setAttribute("tooltiptext", _bundle.GetStringFromName("ignoreCase"));
         break;
