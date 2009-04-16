@@ -45,7 +45,7 @@ Komodo branches. This will perform the necessary "p4|svn integrate"s,
 resolve the differences, and help create an appropriate checkin.
 """
 
-__version_info__ = (1, 0, 1)
+__version_info__ = (1, 1, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
