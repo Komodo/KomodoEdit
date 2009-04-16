@@ -1,0 +1,84 @@
+# A ReST mode written in Luddite
+
+language ReST
+
+family markup
+initial IN_M_DEFAULT
+
+# Need to get into a standard state -- use CSL
+state IN_M_DEFAULT:
+/./ : redo, => IN_CSL_DEFAULT
+
+family csl # client-side language
+
+# These characters are required before and after an inline directive (unless at a line boundary)
+pattern INLINEWSSTART = "\s'\"\(\[{</:" # Also unicode chars ‘“’«¡¿ and U 2010-2014, 00A0
+pattern INLINEWSEND =   "\s'\"\)\]>.,;:!?\-/\\" # Also unicode chars ’”» 2010-2014, 00A0
+pattern INLINEWSENDOREOL =  "(?:\r?$|[$INLINEWSEND])"
+
+# We have to specify the min and max styles we'll be referring to
+start_style CSL_DEFAULT
+end_style CSL_REGEX
+
+initial IN_CSL_DEFAULT
+state IN_CSL_DEFAULT:
+/\bhttp:[\-\w\d@#%$_=+:;,.?\/]+/: paint(upto, CSL_DEFAULT), paint(include, CSL_STRING)
+
+/:[\w\d_\-]+:/: paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
+/^/ : => atLineStart
+/[$INLINEWSSTART]+/ : => AllowInline
+/\\./ # stay
+
+state atLineStart:
+/([^\w\d\s]|[\-_])\1+\r?$/: paint(upto, CSL_DEFAULT), paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+/[*`|\[]/: redo, paint(upto, CSL_DEFAULT), => AllowInline
+/\.\.\s.*::/:  paint(upto, CSL_DEFAULT), paint(include, CSL_STRING), => IN_CSL_DEFAULT
+/\s*(?=\d)/: => processLeadingNumber
+/[$INLINEWSSTART]+/ : => AllowInline
+/./: paint(include, CSL_DEFAULT), => IN_CSL_DEFAULT
+
+state processLeadingNumber:
+/\d+(?:[^\w\d\s]\d+)*/: paint(upto, CSL_DEFAULT), paint(include, CSL_NUMBER), => IN_CSL_DEFAULT
+
+state AllowInline:
+/\\./ => IN_CSL_DEFAULT
+/\*\*[^\s*]/: paint(upto, CSL_DEFAULT), => InLine_DoubleStar
+/\*[^\s]/: paint(upto, CSL_DEFAULT), => InLine_SingleStar
+/``[^\s]/: paint(upto, CSL_DEFAULT), => InLine_DoubleBQ
+/_?`[^\s]/: paint(upto, CSL_DEFAULT), => InLine_SingleBQ
+/\[[^\s\[]/: paint(upto, CSL_DEFAULT), => InLine_Bracket
+/\|[^\s\|]/: paint(upto, CSL_DEFAULT), => InLine_Bar
+/./: redo, => IN_CSL_DEFAULT
+
+state InLine_DoubleStar
+/\s./ # stay for at least one more char
+/\\./ # stay
+/\*\*$INLINEWSENDOREOL/: paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+
+state InLine_SingleStar
+/\s./ # stay
+/\\./ # stay
+/\*$INLINEWSENDOREOL/: paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+
+state InLine_DoubleBQ
+/\s./ # stay
+/\\./ # stay
+/``$INLINEWSENDOREOL/: paint(include, CSL_COMMENT), => IN_CSL_DEFAULT
+
+state InLine_SingleBQ
+/\s./ # stay
+/\\./ # stay
+'`_': paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+/`$INLINEWSENDOREOL/: paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+
+state InLine_Bracket
+/\s./ # stay
+/\\./ # stay
+']_': paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+/\]$INLINEWSENDOREOL/: paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+
+state InLine_Bar
+/\s./ # stay
+/\\./ # stay
+'|_': paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+/\|$INLINEWSENDOREOL/: paint(include, CSL_REGEX), => IN_CSL_DEFAULT

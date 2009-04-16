@@ -162,6 +162,12 @@ my @lexers = (
                ext => ".mxml",
                skel => "skel/MXML",
               },
+              {
+               language_name => "ReST",
+               codename => "rest_language",
+               udl_path => "rest-mainlex.udl",
+               ext => ".rest",
+              },
              );
 foreach my $info (@lexers) {
     my $language_name = $info->{language_name};
