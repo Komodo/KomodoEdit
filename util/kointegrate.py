@@ -64,6 +64,8 @@ import subprocess
 import shutil
 from urlparse import urlparse
 from ConfigParser import SafeConfigParser
+from xml.etree import cElementTree as ET
+
 
 import applib
 sys.path.insert(0, join(dirname(dirname(abspath(__file__))), "src",
@@ -423,46 +425,64 @@ class SVNBranch(Branch):
             info[key.strip()] = value.strip()
         return info
 
-    _svn_log_header_re = re.compile(r"""
-        ^r(?P<revision>\d+)\s\|\s(?P<author>.*?)\s\|
-        """, re.VERBOSE)
+    def _svn_is_binary(self, path):
+        stdout = _capture_stdout([self._svn_exe, 'propget', 'svn:mime-type', path])
+        return "application/octet-stream" in stdout
+
     def _svn_log_rev(self, rev):
-        stdout = _capture_stdout([self._svn_exe, 'log', '-r', str(rev),
-                                  '-v', self.base_dir])
-        lines = stdout.splitlines(0)
-        data = self._svn_log_header_re.match(lines[1]).groupdict()
-        assert lines[2] == "Changed paths:", \
-            "3rd svn log line is not as expected: %r" % lines[2]
+        xml = _capture_stdout([self._svn_exe, 'log', '-r', str(rev),
+            '-v', self.base_dir, '--xml'])
+        logentry = ET.fromstring(xml)[0]
         files = []
-        idx = 3
-        while idx < len(lines):
-            line = lines[idx].strip()
-            if not line:
-                break
-            action, svnpath = line.split(' ', 1)
-
-            # A *svn mv* looks like this:
-            #    A /komodo/trunk/mozilla/patches-new/MOZILLA_1_8_BRANCH/autoupdate_base_dir.patch (from /komodo/trunk/mozilla/patches-new/autoupdate_base_dir.patch:9351)
-            #    D /komodo/trunk/mozilla/patches-new/autoupdate_base_dir.patch
-            # Limitation: For now we are going to look the "mv"
-            # connection and do separate "A" and "D".
-            if " (from " in svnpath:
-                svnpath = svnpath.split(" (from ", 1)[0]
-                log.warn("dropping info that `%s' was *moved* ('add' and "
-                         "'delete' will be done separately",
-                         self._svn_relpath(svnpath))
-
-            rel_path = self._svn_relpath(svnpath)
-            files.append({
-                "action": action,
-                "rel_path": rel_path,
-                "path": join(self.base_dir, rel_path),
-            })
-            idx += 1
-        data["files"] = files
-        data["desc"] = '\n'.join(lines[idx+1:-1])
-        data["revision"] = int(data["revision"])
+        data = {
+            "author": logentry.findtext("author"),
+            "desc": logentry.findtext("msg"),
+            "revision": int(logentry.get("revision")),
+            "files": files,
+        }
+        for path_elem in logentry.find("paths"):
+            d = dict(path_elem.items())
+            if "copyfrom-path" in d:
+                p = d["copyfrom-path"]
+                rel_cfpath = self._svn_relpath(p)
+                d["copyfrom-svnpath"] = p
+                d["copyfrom-path"] = join(self.base_dir, rel_cfpath)
+                d["copyfrom-relpath"] = rel_cfpath
+            d["svnpath"] = path_elem.text
+            rel_path = self._svn_relpath(path_elem.text)
+            d["rel_path"] = rel_path
+            d["path"] = join(self.base_dir, rel_path)
+            files.append(d)
         return data
+
+    def _svn_cat(self, path, changenum):
+        argv = [self._svn_exe, 'cat', '-r', str(changenum), path]
+        log.debug("running: %s", argv)
+        p = subprocess.Popen(argv,
+                             stderr=subprocess.PIPE,
+                             stdout=subprocess.PIPE)
+        stdout = p.stdout.read()
+        retval = p.wait()
+        if retval:
+            stderr = p.stderr.read()
+            extra = ""
+            if "has no URL" in stderr:
+                extra = "\n***\n%s\n***\n" % textwrap.fill(
+                    "The 'svn: ... has no URL' "
+                    "error from subversion typically indicates "
+                    "that you are trying to integrate a file "
+                    "that has since be deleted from the "
+                    "current repo. I know of no easy way to "
+                    "get the original file contents with 'svn' "
+                    "-- hence this file cannot be integrated "
+                    "with this script. You could consider "
+                    "using the '-x' option to exclude this "
+                    "file from the change to integrate.")
+            raise Error("error running `svn cat`:\n"
+                        "argv: %r\n"
+                        "stderr:\n%s%s"
+                        % (argv, _indent(stderr), extra))
+        return stdout
 
     def _svn_relpath(self, path):
         """Relativize the SVN repo path using a heuristic."""
@@ -477,6 +497,7 @@ class SVNBranch(Branch):
 
     def edit(self, path):
         pass
+
     def add(self, path, isdir=False):
         if not isabs(path):
             abs_path = join(self.base_dir, path)
@@ -486,16 +507,34 @@ class SVNBranch(Branch):
         else:
             log.info("svn add %s", path)
             _patchRun([self._svn_exe, "add", abs_path])
+
     def delete(self, path):
         log.info("svn delete %s", path)
         if not isabs(path):
             path = join(self.base_dir, path)
         _patchRun([self._svn_exe, "delete", path])
 
+    def move(self, src_path, dst_path):
+        if not isabs(src_path):
+            abs_src_path = join(self.base_dir, src_path)
+        if not isabs(dst_path):
+            abs_dst_path = join(self.base_dir, dst_path)
+        log.info("svn mv %s %s", src_path, dst_path)
+        _patchRun([self._svn_exe, "mv", abs_src_path, abs_dst_path])
+
+    def copy(self, src_path, dst_path):
+        if not isabs(src_path):
+            abs_src_path = join(self.base_dir, src_path)
+        if not isabs(dst_path):
+            abs_dst_path = join(self.base_dir, dst_path)
+        log.info("svn cp %s %s", src_path, dst_path)
+        _patchRun([self._svn_exe, "cp", abs_src_path, abs_dst_path])
+
     def integrate(self, changenum, dst_branches, interactive,
                   exclude_outside_paths, excludes=[], force=False):
         # Gather some info about the change to integrate.
         change = self._svn_log_rev(changenum)
+        
         indeces_to_del = []
         for i, f in enumerate(change["files"][:]):
             matching_excludes = [e for e in excludes
@@ -567,25 +606,97 @@ class SVNBranch(Branch):
                 % "\n    ".join(modified_paths)
             return False
 
+        # If any of the files to integrate are binary, then ensure it is
+        # okay to integrate them (because can't detect conflicts).
+        for file_dict in change["files"]:
+            if file_dict["action"] == "D":
+                # The source file will have been deleted, so can't easily
+                # check it if was binary. However, it won't matter for the
+                # integration.
+                file_dict["is_binary"] = False
+            else:
+                file_dict["is_binary"] = self._svn_is_binary(file_dict["path"])
+        binary_paths = [f["rel_path"] for f in change["files"]
+                        if f["is_binary"]]
+        if binary_paths:
+            print textwrap.dedent("""
+                ***
+                The following source files are binary:
+                    %s
+    
+                Integrating these files just copies the whole file over to
+                the target. This could result in lost changes in the target.
+                ***""") \
+                % "\n    ".join(binary_paths)
+            answer = _query_yes_no("Continue integrating this change?")
+            if answer != "yes":
+                return False
+
         # Do the integration, as best as possible.
-        # - write out patches for all the edited files
         tmp_dir = tempfile.mkdtemp()
         try:
-            for i, f in enumerate(change["files"]):
-                if f["action"] != "M":
+            # - write out patches for all the edited files
+            diff_idx = 0
+            for f in change["files"]:
+                action = f["action"]
+                if not f["is_binary"] and (
+                    action == "M"
+                    or (action == "A" and "copyfrom-svnpath" in f)):
+                    pass
+                else:
+                    # Not a change that could result in a patch.
                     continue
-                patch_path = join(tmp_dir, "%d.patch" % i)
-                fout = open(patch_path, 'w')
+                
                 if isdir(f["path"]):
                     raise Error("cannot integrate a directory: `%s' (you "
                         "are probably just editing properties on this dir, "
                         "use the '-x %s' option to skip this path)"
                         % (f["rel_path"], f["rel_path"]))
-                diff = _capture_stdout([
-                    self._svn_exe, "diff",
-                    "-r%d:%d" % (changenum-1, changenum),
-                    f["rel_path"]
-                ], cwd=self.base_dir)
+                
+                elif f["action"] == "M":
+                    diff = _capture_stdout([
+                        self._svn_exe, "diff",
+                        "-r%d:%d" % (changenum-1, changenum),
+                        f["rel_path"]
+                    ], cwd=self.base_dir)
+                elif f["action"] == "A" and "copyfrom-svnpath" in f:
+                    # Sometimes an add (action == "A") has a patch too, e.g.
+                    # modifications after an "svn mv" or "svn cp".
+                    # If it is an 'svn mv' it is quite a PITA (AFAICT) to get
+                    # the patch from svn.
+                    repo_root = self._svn_info(f["path"])["Repository Root"]
+                    diff = _capture_stdout([
+                        self._svn_exe, "diff",
+                        "%s%s@%s" % (repo_root, f["copyfrom-svnpath"], f["copyfrom-rev"]),
+                        "%s%s@%s" % (repo_root, f["svnpath"], change["revision"]) ])
+                    # The index in the diff header is for the *old* file (and
+                    # just the basename). To be able to apply the patch later
+                    # we need to update that header. We also need one in
+                    # terms of the old file for the dry-run patching.
+                    diff_lines = diff.splitlines(0)
+                    copyfrom_diff_lines = [
+                        "Index: %s" % f["copyfrom-relpath"],
+                        "===================================================================",
+                        "--- %s" % f["copyfrom-relpath"],
+                        "+++ %s" % f["copyfrom-relpath"],
+                        ] + diff_lines[4:]
+                    copyfrom_patch_path = join(tmp_dir, "%d.patch" % diff_idx)
+                    diff_idx += 1
+                    fout = open(copyfrom_patch_path, 'w')
+                    fout.write('\n'.join(copyfrom_diff_lines))
+                    fout.close()
+                    f["copyfrom_patch_path"] = copyfrom_patch_path
+                    new_diff_lines = [
+                        "Index: %s" % f["rel_path"],
+                        "===================================================================",
+                        "--- %s" % f["rel_path"],
+                        "+++ %s" % f["rel_path"],
+                        ] + diff_lines[4:]
+                    diff = '\n'.join(new_diff_lines)
+
+                patch_path = join(tmp_dir, "%d.patch" % diff_idx)
+                diff_idx += 1
+                fout = open(patch_path, 'w')
                 fout.write(diff)
                 fout.close()
                 f["patch_path"] = patch_path
@@ -597,8 +708,9 @@ class SVNBranch(Branch):
                 for f in change["files"]:
                     if "patch_path" not in f:
                         continue
+                    dryrun_patch_path = f.get("copyfrom_patch_path") or f["patch_path"]
                     try:
-                        _assertCanApplyPatch(patch_exe, f["patch_path"],
+                        _assertCanApplyPatch(patch_exe, dryrun_patch_path,
                                              dst_branch.base_dir)
                     except Error, ex:
                         if force:
@@ -612,93 +724,104 @@ class SVNBranch(Branch):
                             "a particular file."
                             % ("\n    ".join(patching_failures)))
     
-            # - apply the edits
             changes_made = []
             for dst_branch in dst_branches:
                 print "--- making changes to '%s' branch ---" % dst_branch.name
-                for f in change["files"]:
-                    if "patch_path" not in f:
-                        continue
-                    patch_path = f["patch_path"]
-                    dst_path = join(dst_branch.base_dir, f["rel_path"])
-                    dst_branch.edit(dst_path)
-                    eol_before = eol.eol_info_from_path(dst_path)[0]
-                    try:
-                        applied = _applyPatch(patch_exe, dirname(patch_path),
-                                              basename(patch_path),
-                                              dst_branch.base_dir)
-                    except Error, ex:
-                        if force:
-                            log.warn(str(ex))
-                            applied = True
-                        else:
-                            raise
-                    eol_after = eol.eol_info_from_path(dst_path)[0]
-                    if eol_after != eol_before:
-                        assert eol_before != None
-                        log.info("restore EOLs for `%s' (damaged by patch)",
-                                 dst_path)
-                        eol.convert_path_eol(dst_path, eol_before)
-                    if applied:
-                        changes_made.append("patched `%s' (%s)" % (
-                            f["rel_path"], dst_branch.name))
-            
-                # - do deletes and adds
-                for f in change["files"]:
-                    action = f["action"]
+                # - do deletes and adds (and copies and moves)
+                adds = [f for f in change["files"] if f["action"] in "A"]
+                deletes = [f for f in change["files"] if f["action"] in "D"]
+                others = [f for f in change["files"] if f["action"] not in "MAD"]
+                if others:
+                    raise Error("don't know how to handle integrating "
+                                "'%s' action" % action)
+                for f in adds:
                     rel_path = f["rel_path"]
-                    if action == "D":
-                        dst_branch.delete(rel_path)
-                        changes_made.append("delete `%s' (%s)" % (
-                            rel_path, dst_branch.name))
-                    elif action == "A":
-                        src_path = join(self.base_dir, rel_path)
+                    src_path = join(self.base_dir, rel_path)
+                    if "copyfrom-svnpath" in f:
+                        if isdir(src_path):
+                            raise Error("Don't currently support a 'svn cp' or "
+                                "'svn mv' of a directory: `%s'" % rel_path)
+                        
+                        # Figure out if this is an 'svn cp' or an 'svn mv'.
+                        for i, df in enumerate(deletes):
+                            if df["svnpath"] == f["copyfrom-svnpath"]:
+                                # It is a 'svn mv'.
+                                df = deletes.pop(i)
+                                break
+                        else:
+                            # It is a 'svn cp'
+                            df = None
+                        
+                        if df is None: # 'svn cp'
+                            dst_branch.copy(f["copyfrom-relpath"], rel_path,
+                                isdir=False)
+                            changes_made.append("cp `%s' `%s' (%s)" % (
+                                f["copyfrom-relpath"], rel_path, dst_branch.name))
+                        else: # 'svn mv'
+                            dst_branch.move(f["copyfrom-relpath"], rel_path)
+                            changes_made.append("mv `%s' `%s' (%s)" % (
+                                f["copyfrom-relpath"], rel_path, dst_branch.name))
+                    else:
+                        # Just a regular 'svn add'.
                         if isdir(src_path):
                             dst_branch.add(rel_path, isdir=True)
                             changes_made.append("mkdir `%s' (%s)" % (
                                 rel_path, dst_branch.name))
                         else:
+                            contents = self._svn_cat(src_path, changenum)
                             dst_path = join(dst_branch.base_dir, rel_path)
-                            argv = [self._svn_exe, 'cat', '-r', str(changenum),
-                                    src_path]
-                            log.debug("running: %s", argv)
-                            p = subprocess.Popen(argv,
-                                                 stderr=subprocess.PIPE,
-                                                 stdout=subprocess.PIPE)
-                            stdout = p.stdout.read()
-                            retval = p.wait()
-                            if retval:
-                                stderr = p.stderr.read()
-                                extra = ""
-                                if "has no URL" in stderr:
-                                    extra = "\n***\n%s\n***\n" % textwrap.fill(
-                                        "The 'svn: ... has no URL' "
-                                        "error from subversion typically indicates "
-                                        "that you are trying to integrate a file "
-                                        "that has since be deleted from the "
-                                        "current repo. I know of no easy way to "
-                                        "get the original file contents with 'svn' "
-                                        "-- hence this file cannot be integrated "
-                                        "with this script. You could consider "
-                                        "using the '-x' option to exclude this "
-                                        "file from the change to integrate.")
-                                raise Error("error running `svn cat`:\n"
-                                            "argv: %r\n"
-                                            "stderr:\n%s%s"
-                                            % (argv, _indent(stderr), extra))
                             fout = open(dst_path, 'wb')
-                            fout.write(stdout)
+                            fout.write(contents)
                             fout.close()
                             assert exists(dst_path), \
                                 "`%s' couldn't be retrieved from svn" % dst_path
                             dst_branch.add(rel_path)
                             changes_made.append("add `%s' (%s)" % (
                                 rel_path, dst_branch.name))
-                    elif action == "M":
-                        pass # already handled above
-                    else:
-                        raise Error("don't know how to handle integrating "
-                                    "'%s' action" % action)
+                for f in deletes:
+                    dst_branch.delete(rel_path)
+                    changes_made.append("delete `%s' (%s)" % (
+                        rel_path, dst_branch.name))
+
+                # - apply the edits
+                for f in change["files"]:
+                    if "patch_path" in f:
+                        patch_path = f["patch_path"]
+                        dst_path = join(dst_branch.base_dir, f["rel_path"])
+                        dst_branch.edit(dst_path)
+                        eol_before = eol.eol_info_from_path(dst_path)[0]
+                        try:
+                            applied = _applyPatch(patch_exe, dirname(patch_path),
+                                                  basename(patch_path),
+                                                  dst_branch.base_dir)
+                        except Error, ex:
+                            if force:
+                                log.warn(str(ex))
+                                applied = True
+                            else:
+                                raise
+                        eol_after = eol.eol_info_from_path(dst_path)[0]
+                        if eol_after != eol_before:
+                            assert eol_before != None
+                            log.info("restore EOLs for `%s' (damaged by patch)",
+                                     dst_path)
+                            eol.convert_path_eol(dst_path, eol_before)
+                        if applied:
+                            changes_made.append("patched `%s' (%s)" % (
+                                f["rel_path"], dst_branch.name))
+                    elif f["action"] == "M" and f["is_binary"]:
+                        # This is a binary file to copy over.
+                        src_path = f["path"]
+                        contents = self._svn_cat(src_path, changenum)
+                        dst_path = join(dst_branch.base_dir, f["rel_path"])
+                        dst_branch.edit(dst_path)
+                        fout = open(dst_path, 'wb')
+                        fout.write(contents)
+                        fout.close()
+                        assert exists(dst_path), \
+                            "`%s' couldn't be retrieved from svn" % dst_path
+                        changes_made.append("copied `%s' (%s)" % (
+                            f["rel_path"], dst_branch.name))
 
             # Abort if no actual changes made.
             if not changes_made:
@@ -775,7 +898,9 @@ class SVNBranch(Branch):
         msg = "%s\n\n(integrated from %s change %d by %s)" % (
               desc.rstrip(), src_branch.desc, changenum, user)
         print "\n\nReady to commit to '%s' branch:" % self.name
-        print _indent(msg, 2)
+        print _banner("commit message", '-')
+        print msg
+        print _banner(None, '-')
 
         auto_commit = True
         if interactive:
@@ -1055,6 +1180,42 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
                     % (patchFile, inReverse, argv, sourceDir, retval))
     return True
 
+
+# Recipe: banner (1.0.1)
+def _banner(text, ch='=', length=78):
+    """Return a banner line centering the given text.
+
+        "text" is the text to show in the banner. None can be given to have
+            no text.
+        "ch" (optional, default '=') is the banner line character (can
+            also be a short string to repeat).
+        "length" (optional, default 78) is the length of banner to make.
+
+    Examples:
+        >>> _banner("Peggy Sue")
+        '================================= Peggy Sue =================================='
+        >>> _banner("Peggy Sue", ch='-', length=50)
+        '------------------- Peggy Sue --------------------'
+        >>> _banner("Pretty pretty pretty pretty Peggy Sue", length=40)
+        'Pretty pretty pretty pretty Peggy Sue'
+    """
+    if text is None:
+        return ch * length
+    elif len(text) + 2 + len(ch)*2 > length:
+        # Not enough space for even one line char (plus space) around text.
+        return text
+    else:
+        remain = length - (len(text) + 2)
+        prefix_len = remain / 2
+        suffix_len = remain - prefix_len
+        if len(ch) == 1:
+            prefix = ch * prefix_len
+            suffix = ch * suffix_len
+        else:
+            prefix = ch * (prefix_len/len(ch)) + ch[:prefix_len%len(ch)]
+            suffix = ch * (suffix_len/len(ch)) + ch[:suffix_len%len(ch)]
+        return prefix + ' ' + text + ' ' + suffix
+
 # Recipe: indent (0.2.1)
 def _indent(s, width=4, skip_first_line=False):
     """_indent(s, [width=4]) -> 's' indented by 'width' spaces
@@ -1250,7 +1411,10 @@ def main(argv=sys.argv):
         log.error("(See 'kointegrate --help'.)")
         return 1
     try:
-        changenum = int(args[0])
+        rev_str = args[0]
+        if rev_str.startswith('r'):
+            rev_str = rev_str[1:]
+        changenum = int(rev_str)
     except ValueError, ex:
         log.error("<changenum> must be an integer: %r", args[0])
         log.error("(See 'kointegrate --help'.)")
