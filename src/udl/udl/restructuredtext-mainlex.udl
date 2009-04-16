@@ -1,6 +1,6 @@
-# A ReST mode written in Luddite
+# A reStructuredText mode written in Luddite
 
-language ReST
+language reStructuredText
 
 family markup
 initial IN_M_DEFAULT

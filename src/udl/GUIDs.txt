@@ -14,4 +14,4 @@ Haml            6B22D713-D6C2-4B2A-91E6-DED7C833C6ED
 Kid             9c773798-fbf3-4793-a9f3-43023f53033d
 MXML            20ad0b15-bc55-4674-ab8e-8d65c74381ce
 ActionScript    4dd22f3a-52e2-426d-8a21-6f7ea2ba91ac
-ReST            d98cc808-2981-4aa0-841b-e5e920d83177
+reStructuredText d98cc808-2981-4aa0-841b-e5e920d83177

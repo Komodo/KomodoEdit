@@ -163,10 +163,10 @@ my @lexers = (
                skel => "skel/MXML",
               },
               {
-               language_name => "ReST",
-               codename => "rest_language",
-               udl_path => "rest-mainlex.udl",
-               ext => ".rest",
+               language_name => "reStructuredText",
+               codename => "restructuredtext_language",
+               udl_path => "restructuredtext-mainlex.udl",
+               ext => ".rst",
               },
              );
 foreach my $info (@lexers) {
