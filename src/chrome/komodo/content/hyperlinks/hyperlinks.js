@@ -325,7 +325,7 @@ ko.hyperlinks = {};
     this.getHandlersForLang = function(lang_name)
     {
         if (!lang_name) {
-            return this.getAllHyperlinkHandlers();
+            return this.getAllHandlers();
         }
 
         var result = [];
