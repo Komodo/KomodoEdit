@@ -544,7 +544,7 @@ class koDocumentBase:
         family = udl_family_from_style(style)
         return self.get_languageObj().getLanguageForFamily(family)
         
-    def languageForPosition(self, position):
+    def languageForPosition(self, pos):
         if not self._language or not self._document:
             return None
         languages = self.get_languageObj().getSubLanguages()
@@ -552,7 +552,9 @@ class koDocumentBase:
             return self._language
         # get the current position, and query the languageObj for what lang this is
         scimoz = self._views[0].scimoz
-        style = getActualStyle(scimoz, position)
+        if pos >= scimoz.length and pos > 0:
+            pos = scimoz.positionBefore(scimoz.length)
+        style = getActualStyle(scimoz, pos)
         family = udl_family_from_style(style)
         return self.get_languageObj().getLanguageForFamily(family)
 
