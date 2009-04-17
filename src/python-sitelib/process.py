@@ -183,7 +183,7 @@ if sys.platform == "win32" and sys.getwindowsversion()[3] == 2:
                 winprocess.TerminateJobObject(self._job, 127)
                 self.returncode = 127
             else:
-                super.terminate()
+                super(WindowsKillablePopen, self).terminate()
 
         kill = terminate
 
