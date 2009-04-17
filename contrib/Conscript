@@ -478,3 +478,7 @@ $consLocal->Install("$supportDir/html", $exeName);
                                 ("build", '\.svn', '\.consign'));
     }
 }
+
+if ($platform eq "win") {
+    $cons->InstallPythonUtility('smallstuff/winprocess.py');
+}

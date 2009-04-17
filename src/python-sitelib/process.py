@@ -37,13 +37,8 @@
 import os
 import sys
 import time
-if sys.platform == "win32":
-    # The ctypes methods are used by the process kill() function on Windows.
-    import ctypes
-    GenerateConsoleCtrlEvent = ctypes.windll.kernel32.GenerateConsoleCtrlEvent
-    TerminateProcess = ctypes.windll.kernel32.TerminateProcess
-    del ctypes
-else:
+import types
+if sys.platform != "win32":
     import signal  # used by kill() method on Linux/Mac
 import logging
 import threading
@@ -71,6 +66,129 @@ class ProcessError(Exception):
     def __init__(self, msg, errno=-1):
         Exception.__init__(self, msg)
         self.errno = errno
+
+
+# Check if this is Windows NT and above.
+if sys.platform == "win32" and sys.getwindowsversion()[3] == 2:
+
+    import winprocess
+    from subprocess import (pywintypes, list2cmdline, STARTUPINFO, SW_HIDE,
+                            STARTF_USESTDHANDLES, STARTF_USESHOWWINDOW,
+                            GetVersion, CreateProcess)
+
+    # This fix is for killing child processes on windows, based on:
+    #   http://www.microsoft.com/msj/0698/win320698.aspx
+    # It works by creating a uniquely named job object that will contain our
+    # process(es), starts the process in a suspended state, maps the process
+    # to a specific job object, resumes the process, from now on every child
+    # it will create will be assigned to the same job object. We can then
+    # later terminate this job object (and all of it's child processes).
+    #
+    # This code is based upon Benjamin Smedberg's killableprocess, see:
+    #   http://benjamin.smedbergs.us/blog/2006-12-11/killableprocesspy/
+
+    class WindowsKillablePopen(Popen):
+
+        _job = None
+
+        def _execute_child(self, args, executable, preexec_fn, close_fds,
+                           cwd, env, universal_newlines,
+                           startupinfo, creationflags, shell,
+                           p2cread, p2cwrite,
+                           c2pread, c2pwrite,
+                           errread, errwrite):
+            """Execute program (MS Windows version)"""
+    
+            if not isinstance(args, types.StringTypes):
+                args = list2cmdline(args)
+    
+            # Process startup details
+            if startupinfo is None:
+                startupinfo = STARTUPINFO()
+            if None not in (p2cread, c2pwrite, errwrite):
+                startupinfo.dwFlags |= STARTF_USESTDHANDLES
+                startupinfo.hStdInput = p2cread
+                startupinfo.hStdOutput = c2pwrite
+                startupinfo.hStdError = errwrite
+    
+            if shell:
+                startupinfo.dwFlags |= STARTF_USESHOWWINDOW
+                startupinfo.wShowWindow = SW_HIDE
+                comspec = os.environ.get("COMSPEC", "cmd.exe")
+                args = comspec + " /c " + args
+                if (GetVersion() >= 0x80000000L or
+                        os.path.basename(comspec).lower() == "command.com"):
+                    # Win9x, or using command.com on NT. We need to
+                    # use the w9xpopen intermediate program. For more
+                    # information, see KB Q150956
+                    # (http://web.archive.org/web/20011105084002/http://support.microsoft.com/support/kb/articles/Q150/9/56.asp)
+                    w9xpopen = self._find_w9xpopen()
+                    args = '"%s" %s' % (w9xpopen, args)
+                    # Not passing CREATE_NEW_CONSOLE has been known to
+                    # cause random failures on win9x.  Specifically a
+                    # dialog: "Your program accessed mem currently in
+                    # use at xxx" and a hopeful warning about the
+                    # stability of your system.  Cost is Ctrl+C wont
+                    # kill children.
+                    creationflags |= CREATE_NEW_CONSOLE
+    
+                # We create a new job for this process, so that we can kill
+                # the process and any sub-processes 
+                self._job = winprocess.CreateJobObject()
+                creationflags |= winprocess.CREATE_SUSPENDED
+    
+            # Start the process
+            try:
+                hp, ht, pid, tid = CreateProcess(executable, args,
+                                         # no special security
+                                         None, None,
+                                         int(not close_fds),
+                                         creationflags,
+                                         env,
+                                         cwd,
+                                         startupinfo)
+            except pywintypes.error, e:
+                # Translate pywintypes.error to WindowsError, which is
+                # a subclass of OSError.  FIXME: We should really
+                # translate errno using _sys_errlist (or simliar), but
+                # how can this be done from Python?
+                raise WindowsError(*e.args)
+    
+            # Retain the process handle, but close the thread handle
+            self._child_created = True
+            self._handle = hp
+            self.pid = pid
+            if self._job:
+                # Resume the thread.
+                winprocess.AssignProcessToJobObject(self._job, int(hp))
+                winprocess.ResumeThread(int(ht))
+            ht.Close()
+    
+            # Child is launched. Close the parent's copy of those pipe
+            # handles that only the child should have open.  You need
+            # to make sure that no handles to the write end of the
+            # output pipe are maintained in this process or else the
+            # pipe will not close when the child process exits and the
+            # ReadFile will hang.
+            if p2cread is not None:
+                p2cread.Close()
+            if c2pwrite is not None:
+                c2pwrite.Close()
+            if errwrite is not None:
+                errwrite.Close()
+    
+        def terminate(self):
+            """Terminates the process"""
+            if self._job:
+                winprocess.TerminateJobObject(self._job, 127)
+                self.returncode = 127
+            else:
+                super.terminate()
+
+        kill = terminate
+
+    # Use our own killable process instead of the regular Popen.
+    Popen = WindowsKillablePopen
 
 class ProcessOpen(Popen):
     def __init__(self, cmd, cwd=None, env=None, flags=None,
@@ -133,10 +251,7 @@ class ProcessOpen(Popen):
                 env = _enc_env
 
             if flags is None:
-                flags = 0
-            # We need to ensure a process group is created, so we can later kill
-            # all of the child processes if the kill method is invoked.
-            flags |= CREATE_NEW_PROCESS_GROUP
+                flags = CREATE_NO_WINDOW
 
             # If we don't have standard handles to pass to the child process
             # (e.g. we don't have a console app), then
@@ -332,12 +447,7 @@ class ProcessOpen(Popen):
             #       resort to a hard kill.
             #       2) May need to send a WM_CLOSE event in the case of a GUI
             #       application, like the older process.py was doing.
-
-            # The GenerateConsoleCtrlEvent is used to terminate any child
-            # process that were launched as part of our process, bug 82655.
-            GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, self.pid)
-            TerminateProcess(int(self._handle), exitCode)
-            self.returncode = exitCode
+            Popen.kill(self)
         else:
             if sig is None:
                 sig = signal.SIGKILL
