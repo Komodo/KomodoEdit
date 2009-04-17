@@ -1390,11 +1390,14 @@
                         this.scimoz.selectionStart = this.scimoz.selectionEnd = pos;
                         this.scimoz.currentPos = pos;
                         this.scimoz.dragPosition = -1;
-                    } else {
-                        this.scimoz.buttonUp( x, y,
-                                            event.button,
-                                            event.timeStamp,
-                                            event.shiftKey, event.ctrlKey, event.metaKey);
+
+                    // SciMoz.buttonUp does nothing on Linux, so commenting out
+                    // this pointless xpcom call - toddw.
+                    //} else {
+                    //    this.scimoz.buttonUp( x, y,
+                    //                        event.button,
+                    //                        event.timeStamp,
+                    //                        event.shiftKey, event.ctrlKey, event.metaKey);
                     }
 <!-- #endif -->
 
