@@ -96,8 +96,7 @@ toolbar[mode="full"] .toolbar-background {
   border: none;
 }
 
-.blank-workspace,
-#output-panel {
+.blank-workspace {
   padding: 0px;
   margin: 0px;
   border: none;
