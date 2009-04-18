@@ -121,6 +121,7 @@
       <ComponentRef Id="component141"/>
       <ComponentRef Id="component142"/>
       <ComponentRef Id="component144"/>
+      <ComponentRef Id="component145"/>
       <ComponentRef Id="component146"/>
       <ComponentRef Id="component147"/>
       <ComponentRef Id="component148"/>
@@ -129,9 +130,13 @@
       <ComponentRef Id="component154"/>
       <ComponentRef Id="component156"/>
       <ComponentRef Id="component157"/>
+      <ComponentRef Id="component158"/>
       <ComponentRef Id="component159"/>
       <ComponentRef Id="component160"/>
+      <ComponentRef Id="component161"/>
       <ComponentRef Id="component162"/>
+      <ComponentRef Id="component163"/>
+      <ComponentRef Id="component164"/>
       <ComponentRef Id="component166"/>
       <ComponentRef Id="component168"/>
       <ComponentRef Id="component169"/>
@@ -206,6 +211,7 @@
       <ComponentRef Id="component472"/>
       <ComponentRef Id="component474"/>
       <ComponentRef Id="component475"/>
+      <ComponentRef Id="component487"/>
       <ComponentRef Id="component184"/>
       <ComponentRef Id="component187"/>
       <ComponentRef Id="component190"/>
@@ -1181,6 +1187,34 @@
                 </Directory> <!-- lib\mozilla\extensions\php_language@ActiveState.com\templates\Web -->
               </Directory> <!-- lib\mozilla\extensions\php_language@ActiveState.com\templates -->
             </Directory> <!-- lib\mozilla\extensions\php_language@ActiveState.com -->
+            <Directory Id="directory164" Name="RESTRU_0.COM" LongName="restructuredtext_language@ActiveState.com">
+              <Component Id="component145" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file867" Name="CHROM_19.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\restructuredtext_language@ActiveState.com\chrome.manifest"/>
+                <File Id="file868" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\restructuredtext_language@ActiveState.com\install.rdf"/>
+              </Component>
+              <Directory Id="directory167" Name="COMPO_25" LongName="components">
+                <Component Id="component158" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file869" Name="KOREST_0.PY" LongName="koreStructuredText_UDL_Language.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\restructuredtext_language@ActiveState.com\components\koreStructuredText_UDL_Language.py"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\restructuredtext_language@ActiveState.com\components -->
+              <Directory Id="directory182" Name="LEXER_14" LongName="lexers">
+                <Component Id="component161" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file870" Name="RESTRU_0.LEX" LongName="reStructuredText.lexres" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\restructuredtext_language@ActiveState.com\lexers\reStructuredText.lexres"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\restructuredtext_language@ActiveState.com\lexers -->
+              <Directory Id="directory183" Name="TEMPL_19" LongName="templates">
+                <Directory Id="directory184" Name="ALLLA_21" LongName="All Languages">
+                  <Component Id="component163" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file871" Name="RESTRU_0.RST" LongName="reStructuredText.rst" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\restructuredtext_language@ActiveState.com\templates\All Languages\reStructuredText.rst"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\restructuredtext_language@ActiveState.com\templates\All Languages -->
+                <Directory Id="directory185" Name="COMMON_9" LongName="Common">
+                  <Component Id="component164" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file872" Name="RESTRU_1.RST" LongName="reStructuredText.rst" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\restructuredtext_language@ActiveState.com\templates\Common\reStructuredText.rst"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\restructuredtext_language@ActiveState.com\templates\Common -->
+              </Directory> <!-- lib\mozilla\extensions\restructuredtext_language@ActiveState.com\templates -->
+            </Directory> <!-- lib\mozilla\extensions\restructuredtext_language@ActiveState.com -->
             <Directory Id="directory244" Name="RHTML__0.COM" LongName="rhtml_language@ActiveState.com">
               <Component Id="component230" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file2950" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\rhtml_language@ActiveState.com\install.rdf"/>
@@ -3838,6 +3872,7 @@
               <File Id="file124" Name="php2html.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\php2html.udl"/>
               <File Id="file125" Name="phplex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\phplex.udl"/>
               <File Id="file126" Name="PYTHON_0.UDL" LongName="pythonlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\pythonlex.udl"/>
+              <File Id="file873" Name="RESTRU_0.UDL" LongName="restructuredtext-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\restructuredtext-mainlex.udl"/>
               <File Id="file131" Name="RHTMLM_0.UDL" LongName="rhtml-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\rhtml-mainlex.udl"/>
               <File Id="file132" Name="RUBY2H_0.UDL" LongName="ruby2html.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\ruby2html.udl"/>
               <File Id="file133" Name="rubylex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\rubylex.udl"/>
