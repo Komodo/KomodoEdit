@@ -61,6 +61,9 @@ if (typeof(ko)=='undefined') {
 ko.filepicker = {};
 (function() {
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/library.properties");
 var _log = ko.logging.getLogger("filepickers");
 
 
@@ -171,15 +174,15 @@ function _appendFilters(fp, limitTo /* =null */) {
     names.push("Web");
     filters.push(["*.html", "*.htm", "*.css", "*.dtd", "*.xml", "*.xul",
                   "*.js"]);
-    names.push("Komodo Project");
+    names.push(_bundle.GetStringFromName("komodoProject"));
     filters.push(["*.kpf"]);
-    names.push("Komodo Package");
+    names.push(_bundle.GetStringFromName("komodoPackage"));
     filters.push(["*.kpz"]);
-    names.push("Komodo Color Scheme");
+    names.push(_bundle.GetStringFromName("komodoColorScheme"));
     filters.push(["*.ksf"]);
     //names.push("Komodo Toolbox");
     //filters.push(["*.ktf"]);
-    names.push("Code Intelligence XML");
+    names.push(_bundle.GetStringFromName("codeIntelligenceXml"));
     filters.push(["*.cix"]);
     names.push("All");
     filters.push(Components.interfaces.nsIFilePicker.filterAll);
@@ -658,9 +661,9 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
         // Ask the user
         if (ext != null) {
             var basename = ko.uriparse.baseName(path);
-            var prompt = "The filename you entered, '"+basename+"', does "+
-                         "not have an extension. Would you like Komodo to "+
-                         "add the extension '"+ext+"'?";
+            var prompt = _bundle.formatStringFromName("filenameDoesNotHaveAnExtension",
+                                                      [basename, ext],
+                                                      2);
             var answer = ko.dialogs.yesNoCancel(prompt, "Yes", null, null,
                                             "ensure_filename_has_ext");
             if (answer == "Yes") {
@@ -866,7 +869,7 @@ this.remoteFileBrowser = function filepicker_remoteFileBrowser(defaultUrl /*=""*
    fileBrowser.displayDirectory = new Object();
 
    if (typeof(title) == "undefined" || !title)
-       title = "Open File";
+       title = _bundle.GetStringFromName("openFile");
    fileBrowser.title = title;
 
    if (typeof(defaultUrl) == "undefined" || !defaultUrl) {
@@ -944,8 +947,10 @@ this.openRemoteFiles = function filepicker_openRemoteFiles(defaultUrl, defaultFi
     var list;
     var fileBrowser = ko.filepicker.remoteFileBrowser(
             defaultUrl, defaultFilename, 
-            Components.interfaces.nsIFilePicker.modeOpen, "Open Files",
-            defaultFilterName, filterNames, "Open Remote File");
+            Components.interfaces.nsIFilePicker.modeOpen,
+            _bundle.GetStringFromName("openFiles"),
+            defaultFilterName, filterNames,
+            _bundle.GetStringFromName("openRemoteFile"));
     if (fileBrowser) {
         if (fileBrowser.filepaths && fileBrowser.filepaths.length > 0) {
             // One or more files selected, list of remote urls
@@ -981,8 +986,10 @@ this.openRemoteFiles = function filepicker_openRemoteFiles(defaultUrl, defaultFi
 this.saveAsRemoteFiles = function filepicker_saveAsRemoteFiles(defaultUrl, defaultFilename, defaultFilterName, filterNames) {
     var fileBrowser = ko.filepicker.remoteFileBrowser(
             defaultUrl, defaultFilename,
-            Components.interfaces.nsIFilePicker.modeSave, "Save File As",
-            defaultFilterName, filterNames, "Save Remotely As");
+            Components.interfaces.nsIFilePicker.modeSave,
+            _bundle.GetStringFromName("saveFileAs"),
+            defaultFilterName, filterNames,
+            _bundle.GetStringFromName("saveRemotelyAs"));
     if (fileBrowser) {
         return fileBrowser.file;
     }
