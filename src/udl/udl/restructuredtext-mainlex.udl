@@ -48,6 +48,7 @@ state AllowInline:
 /_?`[^\s]/: paint(upto, CSL_DEFAULT), => InLine_SingleBQ
 /\[[^\s\[]/: paint(upto, CSL_DEFAULT), => InLine_Bracket
 /\|[^\s\|]/: paint(upto, CSL_DEFAULT), => InLine_Bar
+/[\*`\|\[]/: => IN_CSL_DEFAULT   # Process this char as default.  We couldn't match further, avoids redo loops.
 /./: redo, => IN_CSL_DEFAULT
 
 state InLine_DoubleStar
