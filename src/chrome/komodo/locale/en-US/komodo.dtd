@@ -689,6 +689,7 @@
 <!ENTITY komodoFindToolbarOpen.label "Open">
 <!ENTITY komodoFindToolbarIn.label "in">
 <!ENTITY menuHelpCheckForUpdates.accesskey "U">
+<!ENTITY projectNameTreeColumn.label "Name">
 
 <!--commented in file commandsOverlay.xul-->
 <!--

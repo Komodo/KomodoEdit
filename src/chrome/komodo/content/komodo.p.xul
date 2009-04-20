@@ -2057,7 +2057,7 @@
                                     tabid="project_tab"
                                     flex="1"
                                     menuobserves="broadcaster_projectCurrent"
-                                    treecollabel="Name"
+                                    treecollabel="&projectNameTreeColumn.label;"
                                     candrag="true"
                                     candrop="true">
                                     <toolbarbutton id="projectView_tools"
@@ -2169,7 +2169,7 @@
                                     tabid="toolbox_tab"
                                     flex="1"
                                     hidecolumnpicker="true"
-                                    treecollabel="Name"
+                                    treecollabel="&projectNameTreeColumn.label;"
                                     candrag="true"
                                     candrop="true"
                                     lock_icon_id="toolbox_tab"
