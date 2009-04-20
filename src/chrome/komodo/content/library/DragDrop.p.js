@@ -43,6 +43,10 @@ if (typeof(ko)=='undefined') {
 ko.dragDrop = {};
 
 (function() {
+
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/library.properties");
 var _log = ko.logging.getLogger('ko.dragDrop');
 //_log.setLevel(ko.logging.LOG_DEBUG);
 
@@ -280,11 +284,7 @@ this.unpackData = function(flavourData, ret) {
             && ret.text.search('\.xpi$') < 0
             && ret.text.search('\.ksf$') < 0) {
             // ask the user to add a uri mapping
-            if (dialog_yesNo("You have dropped a URL onto Komodo, would you like "+
-                             "to setup a Mapped URL?  A Mapped URL "+
-                             "will translate a remote URL to a local file.  " +
-                             "You can edit this later in the Mapped URI "+
-                             "Preferences panel.",
+            if (dialog_yesNo(_bundle.GetStringFromName("youHaveDroppedAUrlOntoKomodo"),
                              "Yes", null, null,
                              "dragdrop_mapped_uri") == "Yes") {
                 if (ko.uriparse.addMappedURI(ret.text))
