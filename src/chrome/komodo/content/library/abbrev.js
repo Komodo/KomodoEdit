@@ -49,6 +49,10 @@ if (typeof(ko.abbrev)=='undefined') {
 
 (function() {
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/library.properties");
+
 /**
  * Expands the abbreviation, if any, at the current cursor position.
  *
@@ -84,7 +88,7 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             var ch = scimoz.getTextRange(scimoz.positionBefore(pos), pos);
             if (pos == 0 || !is_abbrev(scimoz.getTextRange(scimoz.positionBefore(pos), pos))) {
                 ko.statusBar.AddMessage(
-                    "No abbreviation at the current position.",
+                    _bundle.GetStringFromName("noAbbreviationAtTheCurrentPosition"),
                     "abbrev", 5000, false);
                 return false;
             }
@@ -109,7 +113,7 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             scimoz.currentPos = origPos;
             scimoz.anchor = origAnchor;
         }
-        var msg = "No '"+abbrev+"' abbreviation was found.";
+        var msg = _bundle.formaStringFromName("noAbbreviationVasFound", [abbrev], 1);
         ko.statusBar.AddMessage(msg, "abbrev", 5000, true);
         return false;
     }
