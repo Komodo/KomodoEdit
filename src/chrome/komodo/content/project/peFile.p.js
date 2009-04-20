@@ -59,8 +59,8 @@ peFile.prototype.constructor = peFile;
 
 peFile.prototype.init = function() {
     // register our command handlers
-    ko.projects.extensionManager.setDatapoint('Date','lastModifiedTime');
-    ko.projects.extensionManager.setDatapoint('Size','fileSize');
+    ko.projects.extensionManager.setDatapoint(_bundle.GetStringFromName("dateTreeColLabel"),'lastModifiedTime');
+    ko.projects.extensionManager.setDatapoint(_bundle.GetStringFromName("filesizeTreeColLabel"),'fileSize');
     this._clipboard = [];
 }
 
