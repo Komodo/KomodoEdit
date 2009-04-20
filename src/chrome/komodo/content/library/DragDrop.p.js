@@ -128,6 +128,7 @@ this.dragObserver = {
             if (desc.isFileURL
                 || desc.isRemoteFileURL
                 || desc.text.match(/\.ksf$/i)
+                || desc.text.match(/\.kpz$/i)
                 || desc.text.match(/\.xpi$/i)) {
                 _log.debug('dragObserver opening files');
                 uri_open_list.push(desc.text);
@@ -283,6 +284,7 @@ this.unpackData = function(flavourData, ret) {
         if (ret.text.search('https?://') == 0) {
             // Don't map special Komodo file URLs.
             if (ret.text.search('\.xpi$') >= 0
+                || ret.text.search('\.kpz$') >= 0
                 || ret.text.search('\.ksf$') >= 0) {
                 return;
             }

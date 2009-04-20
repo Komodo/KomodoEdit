@@ -42,10 +42,12 @@ if (typeof(ko.projects)=='undefined') {
 }
 
 (function() {
+
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/project/partutils.properties");
 var log = ko.logging.getLogger("ko.projects");
+
 /**
  * Given a koIPart, invoke it (do it's "double-click" action) through
  * whatever code path is appropriate for that part -- i.e. snippets
@@ -313,14 +315,13 @@ this.reimportFromFileSystem = function part_ReImportFromFS(part) {
 /**
  * Import a Komodo package (filename) into the given part.
  *
+ * @param viewMgr {Object} - The project view manager.
  * @param part {Components.interfaces.koIPart} - The part to import into.
- * @param filename {string} - The filename of the package to import.
- * @returns {Components.interfaces.koIPart} - The part that was created to hold
- *          the imported contents.
+ * @param uri {string} - The URI of the package to import.
  */
-this.importFromPackage = function part_ImportFromPackage(part, filename) {
-    if (!filename) {
-        filename = ko.filepicker.openFile(
+this.importFromPackage = function part_ImportFromPackage(viewMgr, part, uri) {
+    if (!uri) {
+        var filename = ko.filepicker.openFile(
             null, null, // default dir and filename
             _bundle.GetStringFromName("selectPackageToImport"), // title
             "Komodo Package", // default filter
@@ -328,12 +329,10 @@ this.importFromPackage = function part_ImportFromPackage(part, filename) {
             // When have .ktf files changes to this:
             //"Komodo Toolbox", // default filter
             //["Komodo Toolbox", "Komodo Project", "All"]);
+        if (!filename) return;
+        uri = ko.uriparse.localPathToURI(filename);
     }
-    if (!filename) return null;
 
-    // Use the default toolbox package extraction folder. The importPackage
-    // call will automaticaly create a sub-folder underneath this directory:
-    // .../extracted-kpz/${basename}/
     var koDirs = Components.classes["@activestate.com/koDirs;1"].
             getService(Components.interfaces.koIDirs);
     var os = Components.classes["@activestate.com/koOs;1"].
@@ -344,6 +343,41 @@ this.importFromPackage = function part_ImportFromPackage(part, filename) {
         os.mkdir(kpzExtractFolder);
     }
 
+    var fileSvc = Components.classes["@activestate.com/koFileService;1"].
+                        getService(Components.interfaces.koIFileService);
+    var koFileEx = fileSvc.getFileFromURI(uri);
+
+    try {
+        if (koFileEx.isLocal && koFileEx.isFile) {
+            this._importFromPackage(viewMgr, part, koFileEx.path, kpzExtractFolder);
+        } else if (koFileEx.scheme.substr(0, 4) == "http") {
+            this._importPackageViaHttp(viewMgr, part, uri, kpzExtractFolder);
+        } else {
+            ko.dialogs.alert(_bundle.formatStringFromName("cantLoadKpzUri.alert", [uri], 1),
+                             _bundle.formatStringFromName("unhandledKpzScheme.alert", [koFileEx.scheme], 1));
+        }
+    } catch (ex) {
+        ko.dialogs.alert(_bundle.formatStringFromName("cantLoadKpzUri.alert", [uri], 1),
+                         ex);
+    }
+}
+
+/**
+ * Import a Komodo package (filename) into the given part.
+ *
+ * @private
+ * @param viewMgr {Object} - The project view manager.
+ * @param part {Components.interfaces.koIPart} - The part to import into.
+ * @param filename {string} - The local path of the package file to import.
+ * @param kpzExtractFolder {string} - Where the kpz-extraction takes place.
+ */
+this._importFromPackage = function part__ImportFromPackage(viewMgr, part, filename, kpzExtractFolder) {
+    // Use the default toolbox package extraction folder. The importPackage
+    // call will automaticaly create a sub-folder underneath this directory:
+    // .../extracted-kpz/${basename}/
+
+    var os = Components.classes["@activestate.com/koOs;1"].
+            getService(Components.interfaces.koIOs);
     var basename = os.path.withoutExtension(os.path.basename(filename));
     var extractedPart = part.project.createPartFromType('folder');
     extractedPart.setStringAttribute('name', basename);
@@ -365,7 +399,50 @@ this.importFromPackage = function part_ImportFromPackage(part, filename) {
         }
     }
 
-    return extractedPart;
+    viewMgr.view.refresh(part.parent);
+    // Expand the extracted folder part and then select it.
+    var partindex = viewMgr.view.getIndexByPart(extractedPart);
+    viewMgr.view.toggleOpenState(partindex);
+    viewMgr.view.selectPart(extractedPart);
+    viewMgr.tree.treeBoxObject.ensureRowIsVisible(partindex);
+}
+
+
+/**
+ * Import a Komodo package from the given HTTP URL. Once the kpz data is
+ * successfully downloaded, it will be saved to a local file and then passed
+ * to the package extraction service to unpack.
+ *
+ * @private
+ * @param viewMgr {Object} - The project view manager.
+ * @param part {Components.interfaces.koIPart} - The part to import into.
+ * @param uri {string} - The URI of the package to import.
+ * @param kpzExtractFolder {string} - Where the kpz-extraction takes place.
+ */
+this._importPackageViaHttp = function part__ImportPackageViaHttp(viewMgr, part, uri, kpzExtractFolder) {
+    // Download the binary kpz data to save into a local filename.
+    // https://developer.mozilla.org/En/Using_XMLHttpRequest#Handling_binary_data
+    var req = new XMLHttpRequest();
+    req.open('GET', uri, false);
+    req.overrideMimeType('text/plain; charset=x-user-defined');
+    req.send(null);
+    if (req.status != 200) {
+        ko.dialogs.alert(_bundle.formatStringFromName("cantLoadKpzUri.alert", [uri], 1),
+                         _bundle.formatStringFromName("httpDownloadError", [req.status, req.statusText], 2));
+    } else {
+        var kpzFile = Components.classes["@mozilla.org/file/local;1"].
+             createInstance(Components.interfaces.nsILocalFile);
+        kpzFile.initWithPath(kpzExtractFolder);
+        kpzFile.append(ko.uriparse.baseName(uri));
+        var data = req.responseText;
+        var stream = Components.classes["@mozilla.org/network/safe-file-output-stream;1"].
+                        createInstance(Components.interfaces.nsIFileOutputStream);
+        stream.init(kpzFile, 0x04 | 0x08 | 0x20, 0600, 0); // write, create, truncate
+        stream.write(data, data.length);
+        this._importFromPackage(viewMgr, part, kpzFile.path, kpzExtractFolder);
+        // This close method will remove/delete the file.
+        stream.close();
+    }
 }
 
 }).apply(ko.projects);

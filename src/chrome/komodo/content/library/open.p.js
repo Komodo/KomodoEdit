@@ -98,7 +98,7 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
                 ko.dialogs.alert(_viewsBundle.GetStringFromName("installingExtensionIsCurrentlyDisabled"));
             }
         } else if (uri.match(/\.kpz$/i)) {
-            ko.toolboxes.importPackage(ko.uriparse.URIToLocalPath(uri));
+            ko.toolboxes.importPackage(uri);
         } else {
             if (uri.match(/\.ksf$/i)) {
                 var prompt = _viewsBundle.formatStringFromName("importFileAsScheme.prompt", [ko.uriparse.baseName(uri)], 1);

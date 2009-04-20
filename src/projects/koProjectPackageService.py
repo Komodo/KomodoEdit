@@ -241,10 +241,7 @@ class koProjectPackageService:
             log.exception(e)
             packageDir = None
             projectFile = None
-        if not packageDir or not projectFile:
-            err = 'An error occurred while attempting to extract the package: %s' % file
-            self.lastErrorSvc.setLastError(1, err)
-            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
+            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, e)
 
         newproject = UnwrapObject(components.classes["@activestate.com/koProject;1"]
                                   .createInstance(components.interfaces.koIProject))

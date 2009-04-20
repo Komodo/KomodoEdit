@@ -237,9 +237,7 @@ peFolder.prototype.doCommand = function(command) {
     case "cmd_importFromPackage":
         item = ko.projects.active.getSelectedItem();
         if (!item) return;
-        ko.projects.importFromPackage(item);
-        ko.projects.active.view.refresh(item);
-        ko.projects.active.view.selectPart(item);
+        ko.projects.importFromPackage(ko.projects.active, item);
         break;
     default:
         break;
