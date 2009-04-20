@@ -43,6 +43,10 @@ if (typeof(ko.macros)=='undefined') {
 
 (function() {
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/library.properties");
+
 function MacroRecorder() {
     this.mode = 'stopped';
     this._currentMacro = new Array();
@@ -65,7 +69,7 @@ MacroRecorder.prototype.startRecording = function() {
             delete this._currentMacro;
         }
         this._currentMacro = new Array();
-        this._currentMacro.push("// Macro recorded on " + Date() + '\n');
+        this._currentMacro.push(_bundle.formatStringFromName("macroRecordedOnComment", [Date()], 1) + '\n');
         var macroVersionNumber = "2"; // must match the number in peMacro.js
         this._currentMacro.push('komodo.assertMacroVersion(' + macroVersionNumber + ');\n');
         this._currentMacro.push("if (komodo.view && komodo.view.scintilla) { komodo.view.scintilla.focus(); }\n");
@@ -74,7 +78,7 @@ MacroRecorder.prototype.startRecording = function() {
     this.mode = 'recording';
     var record = document.getElementById("macroRecord");
     window.updateCommands("macro");
-    ko.statusBar.AddMessage("Recording Macro", "macro", 0, true)
+    ko.statusBar.AddMessage(_bundle.GetStringFromName("recordingMacro"), "macro", 0, true)
 }
 
 MacroRecorder.prototype.stopRecording = function(quiet /* false */) {
@@ -86,7 +90,7 @@ MacroRecorder.prototype.stopRecording = function(quiet /* false */) {
     window.updateCommands("macro");
     if (!quiet) {
         ko.statusBar.AddMessage(null, "macro", 0, false)
-        ko.statusBar.AddMessage("Macro Recorded", "macro", 3000, true)
+        ko.statusBar.AddMessage(_bundle.GetStringFromName("macroRecorded"), "macro", 3000, true)
     }
 }
 
@@ -202,13 +206,13 @@ MacroRecorder.prototype.executeMacro = function(macro) {
 }
 
 MacroRecorder.prototype.executeLastMacro = function(macro) {
-    ko.statusBar.AddMessage("Executing Last Recorded Macro", "macro", 3000, false)
+    ko.statusBar.AddMessage(_bundle.GetStringFromName("executingLastRecordedMacro"), "macro", 3000, false)
     this.executeMacro(this._currentMacro);
 }
 
 MacroRecorder.prototype.saveToToolbox = function(macro) {
-    var name = ko.dialogs.prompt("Macro Name",
-                             "Enter name for new macro:");
+    var name = ko.dialogs.prompt(_bundle.GetStringFromName("macroName"),
+                                 _bundle.GetStringFromName("enterNameForNewMacro"));
     if (!name) return;
     var part = ko.toolboxes.user.toolbox.createPartFromType('macro');
     part.setStringAttribute('name', name);
