@@ -44,6 +44,9 @@ if (typeof(ko)=='undefined') {
 ko.isearch = {};
 (function() {
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/library.properties");
 var _log = ko.logging.getLogger('isearch');
 
 
@@ -128,7 +131,8 @@ ISController.prototype._startIncrementalSearch = function(backwards) {
         return;
     }
     var scimoz = scintilla.scimoz;
-    ko.statusBar.AddMessage("Incremental Search:", "isearch", 0, false, true)
+    ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchPrompt", [""], 1),
+                            "isearch", 0, false, true);
     scintilla.key_handler = key_event_handler_for_isearch;
     scintilla.mouse_handler = mouse_event_handler_for_isearch;
     scintilla.addEventListener('blur', mouse_event_handler_for_isearch, false);
@@ -154,7 +158,9 @@ ISController.prototype._startIncrementalSearch = function(backwards) {
         // we don't want to find the current selection, dummy.
         scimoz.currentPos = this._incrementalSearchStartPos + pattern.length;
         this._lastIncrementalSearchText = pattern;
-        ko.statusBar.AddMessage("Incremental Search: " + pattern, "isearch", 0, false, true)
+        ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchPrompt",
+                                                             [pattern], 1),
+                                "isearch", 0, false, true);
         Find_FindNext(window, this._incrementalSearchContext,
                       pattern, null, true,
                       true);  // useMRU: add this pattern to the find MRU
@@ -162,7 +168,9 @@ ISController.prototype._startIncrementalSearch = function(backwards) {
 }
 
 ISController.prototype._stopIncrementalSearch = function(why, highlight) {
-    ko.statusBar.AddMessage("Incremental Search Stopped: " + why, "isearch", 3000, highlight, true)
+    ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchStopped",
+                                                         [why], 1),
+                            "isearch", 3000, highlight, true);
     if (this._origFindOptions) {
         // Restore original find settings
         this.findSvc.options.searchBackward = this._origFindOptions.searchBackward;
@@ -184,7 +192,8 @@ ISController.prototype.do_cmd_rawKey= function() {
     scintilla.key_handler = this.rawHandler;
     scintilla.addEventListener('blur', gCancelRawHandler, false);
     scintilla.scimoz.focus = true;
-    ko.statusBar.AddMessage("Enter Control Character:", "raw_input", 0, true, true)
+    ko.statusBar.AddMessage(_bundle.GetStringFromName("enterControlCharacter"),
+                            "raw_input", 0, true, true);
 }
 
 function gCancelRawHandler(event) {
@@ -240,9 +249,10 @@ ISController.prototype.do_cmd_repeatNextCommandBy= function() {
         ko.isearch.controller.inRepeatCounterAccumulation = true;
         ko.isearch.controller.repeatCounter = 0;
         ko.isearch.controller.defaultRepeatCounter = ko.isearch.controller.defaultRepeatFactor;
-        ko.statusBar.AddMessage("Number of Repeats: "
-                                + ko.isearch.controller.defaultRepeatCounter
-                                + "|", "multi_input", 0, true, true)
+        
+        ko.statusBar.AddMessage(_bundle.formatStringFromName("numberOfRepeats",
+                                     [ko.isearch.controller.defaultRepeatCounter], 1),
+                                "multi_input", 0, true, true);
     } catch (e) {
         _log.exception(e);
     }
@@ -312,14 +322,16 @@ ISController.prototype.multiHandler= function(event) {
         if (event.charCode >= 48 && event.charCode <= 57) {
             ko.isearch.controller.defaultRepeatCounter = 0;
             ko.isearch.controller.repeatCounter = ko.isearch.controller.repeatCounter * 10 + (event.charCode - 48);
-            ko.statusBar.AddMessage("Number of Repeats: " + String(ko.isearch.controller.repeatCounter) + '|',
+            ko.statusBar.AddMessage(_bundle.formatStringFromName("numberOfRepeats",
+                                         [ko.isearch.controller.repeatCounter], 1),
                                     "multi_input", 0, false, true);
             return;
         } else if (ko.isearch.controller._lookingAtRepeatCommand(event)) {
             event.cancelBubble = true;
             event.preventDefault();
             ko.isearch.controller.defaultRepeatCounter *= ko.isearch.controller.defaultRepeatFactor;
-            ko.statusBar.AddMessage("Number of Repeats: " + String(ko.isearch.controller.defaultRepeatCounter) + '|',
+            ko.statusBar.AddMessage(_bundle.formatStringFromName("numberOfRepeats",
+                                         [ko.isearch.controller.defaultRepeatCounter], 1),
                                     "multi_input", 0, false, true);
             return;
         }
@@ -397,14 +409,16 @@ ISController.prototype.keyPressForSearch = function(event) {
                                         null, true,
                                         true); // add pattern to find MRU
             if (findres == false) {
-                ko.statusBar.AddMessage("Incremental Search: No more occurrences of "
-                    + this._incrementalSearchPattern +' found',
-                    "isearch", 0, false, true)
+                var prompt = _bundle.formatStringFromName("noOccurencesFound",
+                                                          [this._incrementalSearchPattern], 1);
+                ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchPrompt",
+                                                                     [prompt], 1),
+                                        "isearch", 0, false, true);
             } else {
                 this._incrementalSearchStartPos = scimoz.currentPos;
-                ko.statusBar.AddMessage("Incremental Search: "
-                    + this._incrementalSearchPattern,
-                    "isearch", 0, false, true)
+                ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchPrompt",
+                                            [this._incrementalSearchPattern], 1),
+                                        "isearch", 0, false, true);
             }
             return;
         }
@@ -442,8 +456,8 @@ ISController.prototype.keyPressForSearch = function(event) {
             var oldEnd = scimoz.selectionEnd;
             scimoz.gotoPos(this._incrementalSearchStartPos-1);
             if (this._incrementalSearchPattern == '') {
-                ko.statusBar.AddMessage("Interactive Search: |", "isearch",
-                                     0, false, true);
+                ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchPrompt", ["|"], 1),
+                                        "isearch", 0, false, true);
                 return;
             }
             ko.macros.recorder.undo();
@@ -458,14 +472,16 @@ ISController.prototype.keyPressForSearch = function(event) {
                 null,   // msgHandler
                 false); // don't use highlighting
             if (! findres) {
-                ko.statusBar.AddMessage("Interactive Search: No occurrences of "
-                    + this._incrementalSearchPattern + " found.",
-                    "isearch", 3000, true, true);
+                var prompt = _bundle.formatStringFromName("noOccurencesFound",
+                                                          [this._incrementalSearchPattern], 1);
+                ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchPrompt",
+                                                                     [prompt], 1),
+                                        "isearch", 3000, true, true);
                 scimoz.setSel(oldStart, oldEnd);
             } else {
-                ko.statusBar.AddMessage("Interactive Search: "
-                    + this._incrementalSearchPattern + '|',
-                    "isearch", 0, false, true)
+                ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchPrompt",
+                                            [this._incrementalSearchPattern + '|'], 1),
+                                        "isearch", 0, false, true);
             }
             return;
         }
@@ -475,7 +491,7 @@ ISController.prototype.keyPressForSearch = function(event) {
             scintilla.removeEventListener('blur',
                 mouse_event_handler_for_isearch, false);
             // Anything, not just escape, cancels incremental search
-            this._stopIncrementalSearch("Search canceled.");
+            this._stopIncrementalSearch(_bundle.GetStringFromName("searchCanceled"));
             var key = gKeybindingMgr.event2keylabel(event);
             if (gKeybindingMgr.command2key['cmd_cancel'] == key) {
                 event.cancelBubble = true;
