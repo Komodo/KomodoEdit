@@ -280,9 +280,12 @@ this.unpackData = function(flavourData, ret) {
             // XXX should find out if it's a dir (hard?)
             return;
         } else
-        if (ret.text.search('https?://') == 0
-            && ret.text.search('\.xpi$') < 0
-            && ret.text.search('\.ksf$') < 0) {
+        if (ret.text.search('https?://') == 0) {
+            // Don't map special Komodo file URLs.
+            if (ret.text.search('\.xpi$') >= 0
+                || ret.text.search('\.ksf$') >= 0) {
+                return;
+            }
             // ask the user to add a uri mapping
             if (dialog_yesNo(_bundle.GetStringFromName("youHaveDroppedAUrlOntoKomodo"),
                              "Yes", null, null,
@@ -291,6 +294,7 @@ this.unpackData = function(flavourData, ret) {
                     // allow another loop in the while
                     continue;
             }
+            return;
         } else
         if (ret.text.search('macro://') == 0) {
             ret.isFileOrDir = true;
