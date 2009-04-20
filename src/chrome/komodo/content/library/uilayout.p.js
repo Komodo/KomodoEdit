@@ -41,6 +41,9 @@ if (typeof(ko)=='undefined') {
 ko.uilayout = {};
 
 (function() {
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/library.properties");
 var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 var _log = ko.logging.getLogger('uilayout');
@@ -171,8 +174,8 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
 
 // #if PLATFORM == "win"
     mi = document.createElementNS(XUL_NS, "menuitem");
-    mi.setAttribute("label", "Configured Browser");
-    mi.setAttribute("tooltiptext", "See Preferences | Web & Browser");
+    mi.setAttribute("label", _bundle.GetStringFromName("configuredBrowser"));
+    mi.setAttribute("tooltiptext", _bundle.GetStringFromName("seePreferencesWebBrowser"));
     mi.setAttribute("oncommand",
                     "ko.views.manager.currentView.viewPreview(); event.stopPropagation();");
     popup.appendChild(mi);
@@ -610,8 +613,7 @@ this.newFileFromTemplateOrTrimMRU = function uilayout_newFileFromTemplateOrTrimM
         var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
             .getService(Components.interfaces.koIOsPath)
         if (!osPathSvc.exists(templatePath)) {
-            ko.dialogs.alert("The template path cannot be found. The entry in your "
-                         +"'Recent Templates' list will be removed.",
+            ko.dialogs.alert(_bundle.GetStringFromName("theTemplatePathCannotBeFound"),
                          templatePath);
             ko.mru.del(mruPrefName, mruIndex);
             return;
@@ -976,12 +978,12 @@ this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu() {
     hdata.statusbarContextMenu.appendChild(menuitem2);
     menuitem = document.createElementNS(XUL_NS, 'menuitem');
     menuitem.setAttribute("id", "menu_viewAsGuessedLanguage");
-    menuitem.setAttribute("label", "Reset to best guess");
+    menuitem.setAttribute("label", _bundle.GetStringFromName("resetToBestGuess"));
     menuitem.setAttribute("observes", "cmd_viewAsGuessedLanguage");
     hdata.viewAsMenu.appendChild(menuitem);
     menuitem2 = document.createElementNS(XUL_NS, 'menuitem');
     menuitem2.setAttribute("id", "menu_viewAsGuessedLanguage");
-    menuitem2.setAttribute("label", "Reset to best guess");
+    menuitem2.setAttribute("label", _bundle.GetStringFromName("resetToBestGuess"));
     menuitem2.setAttribute("class", "statusbar-label");
     menuitem2.setAttribute("observes", "cmd_viewAsGuessedLanguage");
     hdata.statusbarContextMenu.appendChild(menuitem2);
