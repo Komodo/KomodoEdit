@@ -42,6 +42,9 @@ if (typeof(ko.projects)=='undefined') {
 }
 
 (function() {
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/project/partutils.properties");
 var log = ko.logging.getLogger("ko.projects");
 /**
  * Given a koIPart, invoke it (do it's "double-click" action) through
@@ -72,7 +75,7 @@ this.invokePart = function part_invokePart(part) {
             ko.projects.executeMacro(part);
             break;
         default:
-            ko.dialogs.alert("Don't know how to launch items of type " + part.type);
+            ko.dialogs.alert(_bundle.formatStringFromName("dontKnowHowToLaunchItemsOfType", [part.type], 1));
             break;
     }}
 
@@ -250,8 +253,7 @@ this.reimportFromFileSystem = function part_ReImportFromFS(part) {
         if (!remoteImport) {
             var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
             if (!osPathSvc.isdir(imp.dirname)) {
-                alert("The path '" + imp.dirname +
-                      "' does not exist or is not a directory");
+                alert(_bundle.formatStringFromName("thePathDoesNotExistOrIsNotDirectory", [imp.dirname], 1));
                 window.focus();
                 return false;
             }
@@ -320,7 +322,7 @@ this.importFromPackage = function part_ImportFromPackage(part, filename) {
     if (!filename) {
         filename = ko.filepicker.openFile(
             null, null, // default dir and filename
-            "Select Package to Import", // title
+            _bundle.GetStringFromName("selectPackageToImport"), // title
             "Komodo Package", // default filter
             ["Komodo Package", "All"]); // filters
             // When have .ktf files changes to this:
