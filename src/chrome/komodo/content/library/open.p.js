@@ -95,7 +95,7 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
                 var xpi={'Komodo Extension': uri};
                 InstallTrigger.install(xpi, null);
             } else {
-                ko.dialogs.alert("Installing extensions is currently disabled.");
+                ko.dialogs.alert(_viewsBundle.GetStringFromName("installingExtensionIsCurrentlyDisabled"));
             }
         } else if (uri.match(/\.kpz$/i)) {
             ko.toolboxes.importPackage(ko.uriparse.URIToLocalPath(uri));
@@ -324,10 +324,7 @@ this.multipleURIs = function open_openMultipleURIs(urls, viewType)
 
         var action;
         if (projectFiles.length > 0) {
-            action = ko.dialogs.yesNoCancel(
-                "One or more projects you are opening had files open "+
-                "when you closed them.  Would you like to reopen "+
-                "these files?",
+            action = ko.dialogs.yesNoCancel(_viewsBundle.GetStringFromName("reopenProjectFilesPrompt"),
                 "Yes", null, null, // default response, text, title
                 "open_recent_files_on_project_open");
             if (action == "Cancel") {
