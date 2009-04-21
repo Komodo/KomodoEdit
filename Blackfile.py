@@ -2072,7 +2072,10 @@ def RunKomodo(cfg, argv):
             cmd += ' "%s"' % arg
         else:
             cmd += ' %s' % arg
-    return tmShUtil.RunInContext(cfg.envScriptName, [ cmd ])
+    # Do NOT run with bkconfig.bat because it sets PYTHONHOME, which screws up
+    # Python linting with a version different than Komodo's own build Python...
+    # among other things.
+    return tmShUtil.RunCommands([ cmd ])
 
 def CleanPreferences(cfg, argv):
     """remove Komodo and Mozilla preference files
