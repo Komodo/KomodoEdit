@@ -119,7 +119,6 @@ class KoRubyLanguage(KoLanguageBase):
             print e
         
         self._keyword_letters = string.ascii_letters
-        self._word_letters = string.ascii_letters + string.digits + "_"
              
         self._style_info.update(
             _indent_styles = [sci_constants.SCE_RB_OPERATOR],
@@ -1029,6 +1028,7 @@ class KoRubyCompileLinter:
 
         self.warning_re = None
         # Delay compiling the Ruby RE's until we need them.
+        self._word_letters = string.ascii_letters + string.digits + "_"
 
     def _define_res(self):
         self.warning_re = re.compile(r'^(?P<file>.*):(?P<line>\d+):\s*warning: (?P<message>.*)')
