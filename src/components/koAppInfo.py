@@ -261,7 +261,12 @@ class KoPythonInfoEx(KoAppInfoEx):
         else:
             return os.path.dirname(os.path.dirname(binaryPath))
 
+    def set_executablePath(self, path):
+        self.executablePath = path
+
     def get_executablePath(self):
+        if self.executablePath:
+            return self.executablePath
         return self._GetPythonExeName()
 
     def get_haveLicense(self):

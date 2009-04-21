@@ -55,6 +55,7 @@ import process
 import koprocessutils
 from xpcom import components, nsError, ServerException
 import logging
+from pprint import pprint, pformat
 
 from koLintResult import *
 from koLintResults import koLintResults
@@ -107,8 +108,7 @@ class KoPythonLinter:
         if python not in self._pyverFromPythonCache:
             pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
                 .createInstance(components.interfaces.koIAppInfoEx)
-            pythonInfo.installationPath \
-                = pythonInfo.getInstallationPathFromBinary(python)
+            pythonInfo.executablePath = python
             verStr = pythonInfo.version
             try:
                 pyver = tuple(int(v) for v in verStr.split('.'))
@@ -255,6 +255,8 @@ class KoPythonLinter:
                 p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
                 output, error = p.communicate()
                 retval = p.returncode
+                #print "-"*60, "env"
+                #pprint(env)
                 #print "-"*60, "output"
                 #print output
                 #print "-"*60, "error"
