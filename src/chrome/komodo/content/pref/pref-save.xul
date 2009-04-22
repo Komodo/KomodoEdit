@@ -66,13 +66,11 @@
                         label="&ensureFileEndsWithEOLMarker.label;"
                         pref="true"/>
         <separator/>
-        <!-- Edited from localizator to better fit whit all languages -->
         <hbox align="center">
             <label value="&autoSaveEvery.label;"/>
-            <textbox id="autoSaveMinutes" size="3" pref="true"/>
-            <label value="&minutesZeroDisables.label;"/>
+            <textbox id="autoSaveSeconds" size="4" pref="true"/>
+            <label value="&secondsZeroDisables.label;"/>
         </hbox>
-        <!-- End of edit -->
         <separator/>
         <label value="&ifFileNameHasNoExtension.label;"/>
         <menulist pref="true" prefattribute="data"

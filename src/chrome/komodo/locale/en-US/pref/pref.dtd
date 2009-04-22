@@ -675,7 +675,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!--pref-save.xul-->
 <!ENTITY fixWhiteSpace.label "Fix whitespace on save:">
 <!ENTITY autoSaveEvery.label "Auto-save every">
-<!ENTITY minutesZeroDisables.label "minutes (0 to disable)">
+<!ENTITY secondsZeroDisables.label "seconds (0 to disable)">
 <!ENTITY ifFileNameHasNoExtension.label "If filename has no extension:">
 
 <!--pref-servers.xul-->

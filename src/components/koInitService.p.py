@@ -865,6 +865,12 @@ class KoInitService(object):
         if prefs.hasPrefHere("mappedPaths"):
             upgradeutils.upgrade_mapped_uris_for_prefset(prefs)
 
+        # Upgrade auto-save pref, turn minutes into seconds - bug 82854.
+        if prefs.hasPrefHere("autoSaveMinutes"):
+            autoSaveSeconds = prefs.getLongPref("autoSaveMinutes") * 60
+            prefs.setLongPref("autoSaveSeconds", autoSaveSeconds)
+            prefs.deletePref("autoSaveMinutes")
+
     def _upgradeUserDataDirFiles(self):
         """Upgrade files under the USERDATADIR if necessary.
 

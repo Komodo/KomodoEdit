@@ -356,7 +356,7 @@
   <!-- Have the Cut/Copy commands cut/copy the current line if there is no
        selection. -->
   <boolean id="editSmartCutCopyWithoutSelection">1</boolean>
-  <long id="autoSaveMinutes">1</long>
+  <long id="autoSaveSeconds">30</long>
   <boolean id="checkDiskFile">1</boolean>
 
   <!-- Language Preferences -->

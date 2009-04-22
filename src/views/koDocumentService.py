@@ -131,22 +131,27 @@ class KoDocumentService:
     def _autoSave(self):
         log.info("starting autosave thread")
         try:
+          autosave_seconds = 30
+          prefs = self._globalPrefsvc.prefs
           while not self.shutdown:
             try:
                 self._cv.acquire()
-                # only attempt autosave every minute
-                # NOTE: changing this to 1 second, and changing the
-                # autosaveminutes value in koDocument to 1 second, has
-                # the benefit of making the autosave behaviour extreme
-                # enough to point out issues we might not otherwise see
-                self._cv.wait(60)
+                # Attempt autosave every N seconds.
+                # NOTE: changing this to 1 second has the benefit of making the
+                #       autosave behaviour extreme enough to point out issues we
+                #       might not otherwise see.
+                self._cv.wait(autosave_seconds)
                 self._cv.release()
 
                 if self.shutdown:
                     return
-                
-                if not self._globalPrefsvc.prefs.getLongPref("autoSaveMinutes"):
-                    log.debug("no autoSaveMinutes pref, skipping")
+
+                # Reset the autosave period from the prefs (in case it changed).
+                autosave_seconds = prefs.getLongPref("autoSaveSeconds")
+                if autosave_seconds <= 0:
+                    # Disabled, wait 30 seconds and then check again.
+                    autosave_seconds = 30
+                    log.debug("autoSave disabled by pref, skipping")
                     continue
 
                 docs = self.getAutoSaveDocuments()

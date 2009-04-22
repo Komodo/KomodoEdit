@@ -1200,7 +1200,7 @@ class koDocumentBase:
             data = self.encode()[0]
 
             if not self.file.isLocal:
-                self._doAutoSave(force=True)
+                self.doAutoSave()
 
             try:
                 self.file.open('wb+')
@@ -1576,25 +1576,13 @@ class koDocumentBase:
         return 0
     
     def doAutoSave(self):
-        self._doAutoSave()
-
-    def _doAutoSave(self, force=False):
         timeline.enter('koDocumentBase.doAutoSave')
         try:
             # no point in autosaving if we're not dirty
             if not self._isDirty or self.isUntitled or not self._wrapSelf: return
             
-            savetime = 0
-            if self._globalPrefs.hasPref("autoSaveMinutes"):
-                savetime = self._globalPrefs.getLongPref("autoSaveMinutes") * 60
-            if not savetime: return
-    
             autoSaveFile = self._getAutoSaveFile()
-            log.debug("last save %d now %d", autoSaveFile.lastModifiedTime + savetime, time.time())
-            # if we've saved recently, just return
-            if not force and autoSaveFile.exists and \
-                autoSaveFile.lastModifiedTime + savetime > time.time():
-                    return
+            log.debug("last save %d now %d", autoSaveFile.lastModifiedTime, time.time())
             
             # translate the buffer before opening the file so if it
             # fails, we haven't truncated the file
