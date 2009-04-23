@@ -287,6 +287,20 @@ def _shouldBeApplied((base, actions, config), dirname, names):
             actions.append(action)
 
     # Add "add" and "remove" actions action to the patchinfo, if any.
+    # - Must do "remove" first, if necessary for the subsequent "add" action.
+    #   E.g., if replacing "File.Ext" with a "file.ext" on Windows (case
+    #   difference in the name), then "File.Ext" must first be removed to
+    #   get the desired case.
+    if patchinfo and hasattr(patchinfo, "remove"):
+        retval = patchinfo.remove(config)
+        if type(retval) not in (types.TupleType, types.ListType):
+            raise Error("invalid return type from remove() in %s, "
+                        "must return a sequence: retval=%r"
+                        % (patchinfo.__file__, retval))
+        for dst in retval:
+            action = ("remove", base, dst)
+            log.debug("    action: %r", action)
+            actions.append(action)
     if patchinfo and hasattr(patchinfo, "add"):
         retval = patchinfo.add(config)
         if type(retval) not in (types.TupleType, types.ListType):
@@ -310,16 +324,6 @@ def _shouldBeApplied((base, actions, config), dirname, names):
                 names.remove(os.path.basename(src))
             src = src[len(base+os.sep):]
             action = ("add", base, src, dst, force)
-            log.debug("    action: %r", action)
-            actions.append(action)
-    if patchinfo and hasattr(patchinfo, "remove"):
-        retval = patchinfo.remove(config)
-        if type(retval) not in (types.TupleType, types.ListType):
-            raise Error("invalid return type from remove() in %s, "
-                        "must return a sequence: retval=%r"
-                        % (patchinfo.__file__, retval))
-        for dst in retval:
-            action = ("remove", base, dst)
             log.debug("    action: %r", action)
             actions.append(action)
 
