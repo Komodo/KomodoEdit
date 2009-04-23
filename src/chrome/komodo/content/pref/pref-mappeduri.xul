@@ -48,10 +48,10 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
-	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	class="kodialog"
-	orient="vertical"
-	onload="onload();">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="onload();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
