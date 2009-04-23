@@ -267,8 +267,8 @@ int16 SciMoz::PlatformHandleEvent(void * /*event*/) {
 
 /* readonly attribute boolean isOwned; */
 NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
-	SCIMOZ_CHECK_VALID("GetIsOwned");
-	*_ret = wEditor && wMain;
+	SCIMOZ_CHECK_THREAD("GetIsOwned");
+	*_ret = wEditor && wMain && !isClosed;
 	return NS_OK;
 }
 
