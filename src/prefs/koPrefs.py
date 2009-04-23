@@ -95,7 +95,7 @@
 #   information.
 #   
 #   The canonical example of how preference sets work is to be found in
-#   koPrefs.py. Look at the koGlobalPreferenceService class for details on
+#   koPrefs.py. Look at the koGlobalPrefService class for details on
 #   serializing and deserializing; the setting and retrieving of preferences is
 #   fairly straightforward (i.e. setStringPref, getStringPref, etc..) -- none
 #   of that has changed :)
