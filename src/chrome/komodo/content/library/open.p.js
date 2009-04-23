@@ -208,7 +208,7 @@ function _checkKSFBaseName(schemeService, uri) {
 this._notifyHowtoRestoreOldScheme = function(schemeService, oldSchemeName, newSchemeName) {
     var prefs = Components.classes["@activestate.com/koPrefService;1"].
                         getService(Components.interfaces.koIPrefService).prefs;
-    var notificationBox = document.getElementById("topview.notificationbox");
+    var notificationBox = document.getElementById("komodo-notificationbox");
     var label = _viewsBundle.formatStringFromName("schemeChangeNotification.template",
                                                   [newSchemeName], 1);
     var value = 'offer-to-restore-scheme';

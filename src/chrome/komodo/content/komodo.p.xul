@@ -2016,6 +2016,7 @@
     </menupopup>
 
     <!-- main window box -->
+    <notificationbox id="komodo-notificationbox"/>
     <deck id="komodo-box" selectedIndex="0" flex="1">
     <vbox id="komodo-vbox" flex="1">
         <hbox id="komodo-hbox" flex="1">
@@ -2108,15 +2109,11 @@
                       splitterCmdId="cmd_viewLeftPane"
                       persist="collapsed"/>
             <vbox id="editorviewbox" flex="1" class="blank-workspace">
-                <notificationbox flex="1"
-                                 id="topview.notificationbox"
-                                 dir="normal" >
-                    <view id="topview"
-                          type="multiview"
-                          orient="vertical"
-                          persist="orient"
-                          flex="1"/>
-                </notificationbox>
+                <view id="topview"
+                      type="multiview"
+                      orient="vertical"
+                      persist="orient"
+                      flex="1"/>
                 <!-- This is used for capturing user input while slow dialogs
                 (e.g. the find dialog) load. -->
                 <textbox id="hidden-input-buffer" collapsed="true"
