@@ -830,10 +830,15 @@ class JavaScriptImportHandler(ImportHandler):
             return {}
         dirs, nondirs = set(), set()
         for name in names:
-            if isdir(join(dir, name)):
-                dirs.add(name)
-            else:
-                nondirs.add(name)
+            try:
+                if isdir(join(dir, name)):
+                    dirs.add(name)
+                else:
+                    nondirs.add(name)
+            except UnicodeDecodeError:
+                # Hit a filename that cannot be encoded in the default encoding.
+                # Just skip it. (Bug 82268)
+                pass
 
         importables = {}
         for name in nondirs:

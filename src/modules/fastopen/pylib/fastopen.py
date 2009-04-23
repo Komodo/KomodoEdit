@@ -342,7 +342,12 @@ class Driver(threading.Thread):
                             startswith = (i == 0 and not baseQuery.startswith(' '))
                             baseQueryWords.append((w, w.lower() != w, startswith))
                         for name in names:
-                            path = normpath(join(dir, name))
+                            try:
+                                path = normpath(join(dir, name))
+                            except UnicodeDecodeError:
+                                # Hit a filename that cannot be encoded in the
+                                # default encoding. Just skip it. (Bug 82268)
+                                continue
                             hit = PathHit(path)
                             if name.startswith('.') and hit.isdir \
                                and not baseQuery.startswith('.'):
@@ -450,7 +455,12 @@ class DirGatherer(Gatherer):
                 log.warn("couldn't read `%s' dir: %s", dir, ex)
             else:
                 for name in names:
-                    path = join(dir, name)
+                    try:
+                        path = join(dir, name)
+                    except UnicodeDecodeError:
+                        # Hit a filename that cannot be encoded in the
+                        # default encoding. Just skip it. (Bug 82268)
+                        continue
                     for exclude in self.excludes:
                         if fnmatch(name, exclude):
                             break

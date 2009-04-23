@@ -133,7 +133,7 @@ def gen_dirs_under_dirs(dirs, max_depth, interesting_file_patterns=None,
     for dir in dirs:
         norm_dir = normpath(abspath(expanduser(dir)))
         LEN_DIR = len(norm_dir)
-        for dirpath, dirnames, filenames in os.walk(norm_dir):
+        for dirpath, dirnames, filenames in walk2(norm_dir):
             if dirpath[LEN_DIR:].count(os.sep) >= max_depth:
                 dirnames[:] = []  # hit max_depth
             else:
@@ -524,6 +524,54 @@ def indent(s, width=4, skip_first_line=False):
         return indentstr.join(lines)
     else:
         return indentstr + indentstr.join(lines)
+
+def walk2(top, topdown=True, onerror=None, followlinks=False,
+        ondecodeerror=None):
+    """A version of `os.walk` that adds support for handling errors for
+    files that cannot be decoded with the default encoding. (See bug 82268.)
+
+    By default `UnicodeDecodeError`s from the os.listdir() call are
+    ignored.  If optional arg 'ondecodeerror' is specified, it should be a
+    function; it will be called with one argument, the `UnicodeDecodeError`
+    instance. It can report the error to continue with the walk, or
+    raise the exception to abort the walk.
+    """
+    from os.path import join, isdir, islink
+
+    # We may not have read permission for top, in which case we can't
+    # get a list of the files the directory contains.  os.path.walk
+    # always suppressed the exception then, rather than blow up for a
+    # minor reason when (say) a thousand readable directories are still
+    # left to visit.  That logic is copied here.
+    try:
+        # Note that listdir and error are globals in this module due
+        # to earlier import-*.
+        names = os.listdir(top)
+    except os.error, err:
+        if onerror is not None:
+            onerror(err)
+        return
+
+    dirs, nondirs = [], []
+    for name in names:
+        try:
+            if isdir(join(top, name)):
+                dirs.append(name)
+            else:
+                nondirs.append(name)
+        except UnicodeDecodeError, err:
+            if ondecodeerror is not None:
+                ondecodeerror(err)
+
+    if topdown:
+        yield top, dirs, nondirs
+    for name in dirs:
+        path = join(top, name)
+        if followlinks or not islink(path):
+            for x in walk2(path, topdown, onerror, followlinks):
+                yield x
+    if not topdown:
+        yield top, dirs, nondirs
 
 
 # Decorators useful for timing and profiling specific functions.
