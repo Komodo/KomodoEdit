@@ -1,3 +1,10 @@
+diff
+
+A patch to tweak Mozilla keyboard event handle for plugins so that
+Komodo's SciMoz plugin works as we need. At least the second hunk here
+(in `performKeyEquivalent:`) is to prevent Mozilla from special casing
+plugins to NOT handle some keyboard events.
+
 Index: widget/src/cocoa/nsChildView.mm
 ===================================================================
 RCS file: /cvsroot/mozilla/widget/src/cocoa/nsChildView.mm,v
@@ -26,3 +33,29 @@ diff -u -r1.362 nsChildView.mm
    NS_OBJC_END_TRY_ABORT_BLOCK;
  }
  
+@@ -5438,21 +5446,24 @@
+                                [[self window] firstResponder] == self)) {
+       return YES;
+     }
+   }
+   else {  // Non-embedding
+     // Perform native menu UI feedback even if we stop the event from propagating to it normally.
+     // Recall that the menu system won't actually execute any commands for keyboard command invocations.
+     //
+     // If this is a plugin, we do actually perform the action on keyboard commands. See bug 428047.
+     // If the action on plugins here changes the first responder, don't continue.
+-    if (mIsPluginView) {
++    //
++    // ACTIVESTATE KOMODO: Always let Komodo's scimoz plugin handle the
++    // keyboard event (see Komodo bug 82895).
++    if (false && mIsPluginView) {
+       [(GeckoNSMenu*)mainMenu actOnKeyEquivalent:theEvent];
+       if ([[self window] firstResponder] != self)
+         return YES;
+     }
+     else {
+       [(GeckoNSMenu*)mainMenu performMenuUserInterfaceEffectsForEvent:theEvent];
+     }
+   }
+
+   // With Cmd key or Ctrl+Tab or Ctrl+Esc, keyDown will be never called.
