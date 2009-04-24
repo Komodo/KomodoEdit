@@ -107,6 +107,8 @@ class KoHistoryService(History):
                 try:
                     section = ciBuf.curr_section_from_line(line + 1)
                 except COMException:
+                    # See bug 82776.  Don't know why we get this when
+                    # ctrl-tabbing across a tab group.
                     log.exception("can't get the section")
                 else:
                     if section:
