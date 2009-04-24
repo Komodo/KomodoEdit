@@ -928,27 +928,37 @@
                                 observes="show_project_tab"
                                 oncommand="ko.uilayout.ensureTabShown('project_tab', true)"
                                 label="&projects.label;"
+                                checked="true"
+                                type="checkbox"
                                 />
                             <menuitem id="show_toolbox_tab2"
                                 observes="show_toolbox_tab"
                                 oncommand="ko.uilayout.ensureTabShown('toolbox_tab', true)"
                                 label="&toolbox.label;"
+                                checked="true"
+                                type="checkbox"
                                 />
-                            <menuseparator/>
+                            <menuseparator id="viewtabs_bottomPane"/>
                             <menuitem id="show_findresults1_tab2"
                                 observes="show_findresults1_tab"
                                 oncommand="ko.uilayout.ensureTabShown('findresults1_tab', true)"
                                 label="&findResults1.label;"
+                                checked="true"
+                                type="checkbox"
                                 />
                             <menuitem id="show_findresults2_tab2"
                                 observes="show_findresults2_tab"
                                 oncommand="ko.uilayout.ensureTabShown('findresults2_tab', true)"
                                 label="&findResults2.label;"
+                                checked="true"
+                                type="checkbox"
                                 />
                             <menuitem id="show_runoutput_tab2"
                                 observes="show_runoutput_tab"
                                 oncommand="ko.uilayout.ensureTabShown('runoutput_tab', true)"
                                 label="&commandOutput.label;"
+                                checked="true"
+                                type="checkbox"
                                 />
                         </menupopup>
                     </menu>

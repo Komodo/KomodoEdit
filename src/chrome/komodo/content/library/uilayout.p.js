@@ -260,35 +260,49 @@ this.toggleTab = function uilayout_toggleTab(tabId, collapseIfFocused /* =true *
 }
 
 
+/*
+ ** 
+ * updateTabpickerMenu
+ * @param {XUL menupopup} menupopup
+ *
+ * This menu-builder takes a list of menu items that control which tab
+ * to show in a given pane.  Each menuitem is expected to have an observes
+ * attribute with a value of "show_" followed by the ID of the tab the
+ * menuitem controls.
+ */
 this.updateTabpickerMenu = function uilayout_updateTabpickerMenu(menupopup)
 {
     try {
-        var ids = [// left pane tabs
-                   'project_tab',
-                   'toolbox_tab',
-                   // bottom pane tabs
-                   'findresults1_tab',
-                   'findresults2_tab', 'runoutput_tab',
-                   ];
-        var id, tab, menuitem, pane;
-        for (var i = 0; i < ids.length; i++) {
-            id = ids[i];
-            tab = document.getElementById(id);
-            pane = tab.parentNode.parentNode.parentNode;
-            menuitem = document.getElementById('show_' + id);
+        var id, tab, menuitem, pane, cmd;
+        var label, menuId, tabId;
+        var menuItems = menupopup.getElementsByTagName("menuitem");
+        for (var i = 0; i < menuItems.length; i++) {
+            menuitem = menuItems[i];
+            menuId = menuitem.getAttribute("observes");
+            if (!menuId) {
+                menuId = menuitem.id;
+            }
+            if (!menuId) {
+                _log.error("Menu item " + menuitem.id
+                           + " is missing both an observer and an ID attribute");
+                continue;
+            }
+            if (menuId.indexOf("show_") == 0) {
+                tabId = menuId.substring(5); // "show_".length
+            } else {
+                tabId = menuId;
+            }
+            tab = document.getElementById(tabId);
             if (!tab || tab.collapsed) {
                 menuitem.setAttribute('collapsed', 'true');
                 menuitem.setAttribute('hidden', 'true');
                 continue;
             }
-            if (!menuitem) {
-                log.error("Couldn't find menuitem with id: " + 'show_'+id);
-                return;
-            }
-            //ko.trace.get().dumpDOM(pane);
-            //ko.trace.get().dumpDOM(tab.parentNode);
             menuitem.removeAttribute('collapsed');
             menuitem.removeAttribute('hidden');
+            pane = tab.parentNode.parentNode.parentNode;
+            //ko.trace.get().dumpDOM(pane);
+            //ko.trace.get().dumpDOM(tab.parentNode);
             if (tab.selected && ! pane.collapsed) {
                 menuitem.setAttribute('checked', 'true');
             } else {
@@ -296,7 +310,7 @@ this.updateTabpickerMenu = function uilayout_updateTabpickerMenu(menupopup)
             }
         }
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
@@ -332,7 +346,7 @@ this.togglePane = function uilayout_togglePane(splitterId, tabsId, cmdId, force)
             ko.uilayout.toggleSplitter(cmdId);
         }
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
