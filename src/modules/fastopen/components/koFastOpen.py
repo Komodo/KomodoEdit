@@ -195,7 +195,9 @@ class KoFastOpenTreeView(TreeView):
         except IndexError:
             pass
         else:
-            if hit.type == "path" and hit.isdir:
+            if hit.type == "go":
+                return "chrome://famfamfamsilk/skin/icons/folder_go.png"
+            elif hit.type == "path" and hit.isdir:
                 #TODO: How to get native *directory* icon from moz-icon?
                 return "chrome://komodo/skin/images/folder-open.png"
             else:
@@ -241,6 +243,19 @@ class KoFastOpenSession(object):
             if excludes_str.strip():  # empty means "use default"
                 excludes = self._excludes_from_str(excludes_str)
         return excludes
+    
+    @property
+    def pref_enable_go_tool(self):
+        """Whether to enable go-tool integration.
+        
+        http://code.google.com/p/go-tool
+        """
+        prefs = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService).prefs
+        enable = False
+        if prefs.hasBooleanPref("fastopen_enable_go_tool"):
+            enable = prefs.getBooleanPref("fastopen_enable_go_tool")
+        return enable
     
     _excludes_splitter = re.compile(r'(?<!\\)[;:,]') # be liberal about splitter char
     def _excludes_from_str(self, excludes_str):
@@ -292,16 +307,22 @@ class KoFastOpenSession(object):
             if cwds:
                 g.append(fastopen.DirGatherer("cwd", cwds, True,
                     self.path_excludes_pref))
+            if self.pref_enable_go_tool:
+                gog = fastopen.GoGatherer()
+                g.append(gog)
+                dirShortcuts = gog.getShortcuts()
+            else:
+                dirShortcuts = None
             if self.project:
                 g.append(fastopen.CachingKomodoProjectGatherer(
                     UnwrapObject(self.project)))
-            self._gatherers_cache = (g, cwds)
+            self._gatherers_cache = (g, cwds, dirShortcuts)
         return self._gatherers_cache
 
     def findFiles(self, query):
-        gatherers, cwds = self.gatherersAndCwds
+        gatherers, cwds, dirShortcuts = self.gatherersAndCwds
         self.driver.search(query, gatherers, cwds, self.path_excludes_pref,
-            self.resultsView)
+            dirShortcuts, self.resultsView)
 
     def abortSearch(self):
         self.driver.abortSearch()

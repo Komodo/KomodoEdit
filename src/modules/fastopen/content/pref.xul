@@ -10,6 +10,7 @@
 
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         orient="vertical"
@@ -30,6 +31,7 @@
     
     <groupbox id="groupbox" orient="vertical">
         <caption label="&fastOpen.label;" />
+        
         <description>
             &goToFileDialogFilters.description;
         </description>
@@ -38,5 +40,21 @@
             <label value="&default.label;" />
             <textbox id="default" readonly="true" class="plain" flex="1" />
         </hbox>
+    
+        <separator/>
+        <checkbox id="fastopen_enable_go_tool"
+                  label="&enableGoToolIntegration.label;"
+                  pref="true" prefattribute="checked"
+                  preftype="boolean" />
+        <vbox style="margin-left: 22px; margin-bottom: 10px;">
+            <description>
+                &goToolIntegration.description;
+            </description>
+            <separator class="thin"/>
+            <button label="Visit the go-tool project site."
+                class="button-link"
+                style="margin: -10px; color: #b82619;"
+                onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://code.google.com/p/go-tool/');"/>
+        </vbox>
     </groupbox>
 </window>

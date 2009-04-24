@@ -93,6 +93,7 @@ class Hit(object):
     if _xpcom_:
         _com_interfaces_ = [components.interfaces.koIFastOpenHit]
     type = None  # all base classes must set this to some short string
+    isdir = False
     
 class PathHit(Hit):
     type = "path"
@@ -155,6 +156,18 @@ class PathHit(Hit):
                         return False
         return True
 
+class GoHit(PathHit):
+    type = "go"
+    isdir = True
+    def __init__(self, shortcut, dir):
+        self.shortcut = shortcut
+        self.dir = dir
+        # Setup attributes expected by the inherited PathHit methods.
+        self.path = "%s#%s" % (shortcut, dir)
+        self.dir_normcase = normcase(dir)
+        self.base = shortcut
+        self.ibase = shortcut.lower()
+
 class ProjectHit(PathHit):
     type = "project-path"
     def __init__(self, path, project_name, project_base_dir):
@@ -206,11 +219,13 @@ class SearchRequest(Request):
     One of these is returned by `Driver.search(...)` and it has a `.wait()`
     method on which one can wait for the request to complete.
     """
-    def __init__(self, query, gatherers, cwds, pathExcludes, resultsView):
+    def __init__(self, query, gatherers, cwds, pathExcludes, dirShortcuts,
+            resultsView):
         self.query = query
         self.gatherers = gatherers
         self.cwds = cwds
         self.pathExcludes = pathExcludes
+        self.dirShortcuts = dirShortcuts
         self.resultsView = resultsView
         self._event = threading.Event()
     def wait(self, timeout=None):
@@ -246,7 +261,7 @@ class Driver(threading.Thread):
         self._queue.put(AbortSearchRequest())
 
     def search(self, query, gatherers, cwds=None, pathExcludes=None,
-            resultsView=None):
+            dirShortcuts=None, resultsView=None):
         """Start a search for files. This cancels a currently running search.
 
         @param query {str} A query string.
@@ -255,6 +270,8 @@ class Driver(threading.Thread):
             relative path queries.
         @param pathExcludes {list} A list of path patterns to exclude. If not
             given, default is `DEFAULT_PATH_EXCLUDES`.
+        @param dirShortcuts {dict} A mapping of shortcut strings to
+            directories.
         @param resultsView {object} An object conforming to the following API
             on which results will be reported:
                 resetHits()         called first thing
@@ -271,7 +288,7 @@ class Driver(threading.Thread):
         if pathExcludes is None:
             pathExcludes = DEFAULT_PATH_EXCLUDES
         r = SearchRequest(query, gatherers, cwds or [], pathExcludes,
-            resultsView or StreamResultsView())
+            dirShortcuts, resultsView or StreamResultsView())
         self._queue.put(r)
         return r
 
@@ -323,8 +340,16 @@ class Driver(threading.Thread):
                 expandedQuery = expanduser(query)
                 if isabs(expandedQuery):
                     dirQueries.append(expandedQuery)
-            elif ('/' in query or (sys.platform == "win32" and '\\' in query)):
+            elif '/' in query:
                 dirQueries += [join(d, query) for d in request.cwds]
+                shortcut, subpath = query.split('/', 1)
+                if shortcut in request.dirShortcuts:
+                    dirQueries.append(join(request.dirShortcuts[shortcut], subpath))
+            elif sys.platform == "win32" and '\\' in query:
+                dirQueries += [join(d, query) for d in request.cwds]
+                shortcut, subpath = query.split('\\', 1)
+                if shortcut in request.dirShortcuts:
+                    dirQueries.append(join(request.dirShortcuts[shortcut], subpath))
 
             if dirQueries:
                 hitPaths = set()
@@ -468,6 +493,56 @@ class DirGatherer(Gatherer):
                         if self.includeDirs or not isdir(path):
                             yield PathHit(path)
 
+class GoGatherer(Gatherer):
+    """Gather for go-tool (http://code.google.com/p/go-tool) settings."""
+    name = "go"
+    
+    # Based on the equiv in go.py.
+    def getShortcutsFile(self):
+        """Return the path to the shortcuts file."""
+        fname = "shortcuts.xml"
+        # Find go's shortcuts data file.
+        # - Favour ~/.go if shortcuts.xml already exists there.
+        path = None
+        candidate = expanduser("~/.go/shortcuts.xml")
+        if exists(candidate):
+            path = candidate
+        
+        try:
+            import applib
+        except ImportError:
+            # Probably running directly in source tree.
+            sys.path.insert(0, join(dirname(dirname(dirname(dirname(abspath(__file__))))),
+                "python-sitelib"))
+            import applib
+        if path is None:
+            dir = applib.user_data_dir("Go", "TrentMick")
+            path = join(dir, "shortcuts.xml")
+        return path
+    
+    # Based on equiv in go.py.
+    _shortcutsCache = None
+    def getShortcuts(self):
+        if self._shortcutsCache is None:
+            from xml.etree import ElementTree as ET
+            path = self.getShortcutsFile()
+            if not path or not exists(path):
+                return {}
+            fin = open(path)
+            try:
+                shortcuts = {}
+                shortcuts_elem = ET.parse(fin).getroot()
+                for child in shortcuts_elem:
+                    shortcuts[child.get("name")] = child.get("value")
+            finally:
+                fin.close()
+            self._shortcutsCache = shortcuts
+        return self._shortcutsCache
+    
+    def gather(self):
+        shortcuts = self.getShortcuts()
+        for name, value in shortcuts.items():
+            yield GoHit(name, value)
 
 class KomodoProjectGatherer(Gatherer):
     """A gatherer of files in a Komodo project."""
@@ -699,11 +774,27 @@ def _test2(query):
     finally:
         driver.stop(True)  # wait for termination
 
+def _test3(query):
+    driver = Driver()
+    
+    try:
+        gatherers = Gatherers()
+        gatherers.append(DirGatherer("cwd", os.getcwd()))
+        gg = GoGatherer()
+        gatherers.append(gg)
+        
+        print "-- search '%s'" % query
+        request = driver.search(query, gatherers, cwds=[os.getcwd()],
+            dirShortcuts=gg.getShortcuts())
+        request.wait(5)
+    finally:
+        driver.stop(True)  # wait for termination
+
 
 def main(argv):
     logging.basicConfig()
     query = ' '.join(argv[1:])
-    _test2(query)
+    _test3(query)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

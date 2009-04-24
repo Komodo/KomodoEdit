@@ -223,7 +223,7 @@ function _openSelectedPaths() {
     var hit, viewType, tabGroup;
     for (var i in hits) {
         var hit = hits[i];
-        if (hit.type == "path" && hit.isdir) {
+        if (hit.isdir) {
             // Selecting a dir should just enter that dir into the filter box.
             gWidgets.query.value = gOsPath.join(
                 gOsPath.dirname(gWidgets.query.value), hit.base) + gSep;
@@ -268,7 +268,7 @@ function _completeSelectionOrMove(moveForward, allowAdvance) {
     var currValue = gWidgets.query.value;
     var newValue = gOsPath.join(
             gOsPath.dirname(gWidgets.query.value), hit.base);
-    if (hit.type == "path" && hit.isdir) {
+    if (hit.isdir) {
         // Selecting a dir should just enter that dir into the filter box.
         newValue += gSep;
     }
@@ -298,7 +298,7 @@ function _completeSelectionOrMove(moveForward, allowAdvance) {
 
     // Set the new value. If it is a dir, then descend into it.
     gWidgets.query.value = newValue;
-    if (hit.type == "path" && hit.isdir) {
+    if (hit.isdir) {
         findFiles(newValue);
     }
     return null;

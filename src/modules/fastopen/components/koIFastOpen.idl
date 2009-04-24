@@ -13,9 +13,9 @@
 interface koIFastOpenHit: nsISupports {
     readonly attribute wstring type;  // The type of hit
     readonly attribute wstring path;
-    
-    // Only defined for `type == "path"` hits.
     readonly attribute boolean isdir;
+    
+    // Only defined for type "path" and "go" hits.
     readonly attribute wstring dir;     // dirname(path)
     readonly attribute wstring base;    // basename(path)
     
