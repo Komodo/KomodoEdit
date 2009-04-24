@@ -9,35 +9,9 @@
 - hgignore support in project includes/excludes
 - project index
 - multiple selection with Shift+arrows with focus in textbox
-- "path mode" support
 - some identifying style for hit types (so can see where they came from)
   Some commented-out code that is a start at this in r27314.
 
-# supporting for creating new file
-
-- require "./" prefix? I.e. only in path mode?
-
-# behaviour design
-
-- open the dialog
-- Defaults to last query or to empty? Empty for now b/c that is what the
-  others do. Can feel it out once have functionality going.
-- A search (empty for starters). Start with *no* special handling for empty
-  search and adjust if perf is a concern.
-- Handle in a thread... and single thread for all searches b/c only have one
-  at a time.
-    - signal curr search to stop, if any. wait for that
-    - get a completed starting set of hits to work with from cache, if can
-    - if have cache:
-      - sub-filter the cache, if necessary, and add hits in blocks
-    - if don't have cache:
-      - get ordered list of generators (one for each gatherer)
-      - get blocks of, say, 20 hits from each gatherer in the round and
-        add those blocks of hits to the tree view
-
-- What should "Enter" on first open the dialog do?
-  - last tab in "Ctrl+Tab" order is probably the best first candidate.
-  - or is that lame?
       
 
 # gatherers (i.e. sources of files/tabs/hits for the dialog)
