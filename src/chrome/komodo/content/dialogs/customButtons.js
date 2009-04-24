@@ -41,7 +41,7 @@
  *  window argument: window.arguments[0]. All these arguments are optional.
  *      .prompt         the question to ask.
  *      .buttons        list of strings|arrays naming buttons to use, if it's
- *                      an array, the format is [buttonLabel, buttonAccesskey]
+ *                      an array, the format is [label, accesskey, tooltiptext]
  *      .response       the default response, must be one of the strings in
  *                      "buttons"
  *      .text           allows you to specify a string of text that will be
@@ -167,9 +167,13 @@ function OnLoad()
                 finalButtons[i] = buttons[i];
             }
         } else if (buttonText.map /* it's an array */) {
-            // Array of [buttonText, accesskey], with accesskey being optional.
+            // Array of [label, accesskey, tooltiptext], with accesskey
+            // and tooltiptext being optional.
             if (buttonText.length > 1 && buttonText[1]) {
                 buttonWidgets[i].setAttribute("accesskey", buttonText[1]);
+                if (buttonText.length > 2 && buttonText[2]) {
+                    buttonWidgets[i].setAttribute("tooltiptext", buttonText[2]);
+                }
             }
             finalButtons[i] = buttonText[0];
         }

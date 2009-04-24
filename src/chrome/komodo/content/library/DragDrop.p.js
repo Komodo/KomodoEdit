@@ -288,13 +288,40 @@ this.unpackData = function(flavourData, ret) {
                 || ret.text.search('\.ksf$') >= 0) {
                 return;
             }
-            // ask the user to add a uri mapping
-            if (dialog_yesNo(_bundle.GetStringFromName("youHaveDroppedAUrlOntoKomodo"),
-                             "Yes", null, null,
-                             "dragdrop_mapped_uri") == "Yes") {
+            // Ask the user to if they'd like to:
+            //   * view the URL source
+            //   * add a uri mapping
+            //   * drop the URL as text
+            var title = _bundle.GetStringFromName("youHaveDroppedAUrlOntoKomodo.title");
+            var prompt = _bundle.GetStringFromName("youHaveDroppedAUrlOntoKomodo.prompt");
+            var cancel = _bundle.GetStringFromName("cancelButton.label");
+            var viewsource = _bundle.GetStringFromName("viewSourceButton.label");
+            var viewsourceAccesskey = _bundle.GetStringFromName("viewSourceButton.accesskey");
+            var viewsourceTooltiptext = _bundle.GetStringFromName("viewSourceButton.tooltiptext");
+            var mapthisuri = _bundle.GetStringFromName("mapThisUriButton.label");
+            var mapthisuriAccesskey = _bundle.GetStringFromName("mapThisUriButton.accesskey");
+            var mapthisuriTooltiptext = _bundle.GetStringFromName("mapThisUriButton.tooltiptext");
+            var dropastext = _bundle.GetStringFromName("dropAsTextButton.label");
+            var dropastextAccesskey = _bundle.GetStringFromName("dropAsTextButton.accesskey");
+            var dropastextTooltiptext = _bundle.GetStringFromName("dropAsTextButton.tooltiptext");
+            var response = ko.dialogs.customButtons(prompt,
+                                                    [[viewsource, viewsourceAccesskey, viewsourceTooltiptext],
+                                                     [mapthisuri, mapthisuriAccesskey, mapthisuriTooltiptext],
+                                                     [dropastext, dropastextAccesskey, dropastextTooltiptext]],
+                                                    viewsource,
+                                                    null,
+                                                    title,
+                                                    "dragdrop_uri");
+            if (!response || response == cancel) {
+                // Resetting the text to be "" will effectively cancel the drop.
+                ret.text = "";
+            } else if (response == mapthisuri) {
                 if (ko.uriparse.addMappedURI(ret.text))
                     // allow another loop in the while
                     continue;
+            } else if (response == viewsource) {
+                // Mark it as a URL that should be opened as a file view.
+                ret.isFileURL = true;
             }
             return;
         } else

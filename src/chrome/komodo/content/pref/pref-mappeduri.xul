@@ -65,8 +65,6 @@ function onload() {
     // for project prefs, we do not want to inherit the parent prefs
     if (parent.part) {
         document.getElementById("mappings").setAttribute("prefhere","true");
-        var remove = document.getElementById("dropask");
-        remove.parentNode.removeChild(remove);
     }
     parent.initPanel();
 }
@@ -82,20 +80,7 @@ function onload() {
         <mappededitor id="mappings"
                 pref="true" prefwidget="true"
                 prefstring="mappedPaths" flex="1"/>
-    <separator/>
-    <vbox id="dropask">
-        <label value="&droppingURL.label;"/>
-        <menulist pref="true"
-                  id="dragdrop_mapped_uri"
-                  prefattribute="data"
-                  prefstrings="donotask_dragdrop_mapped_uri,donotask_action_dragdrop_mapped_uri">
-            <menupopup>
-                <menuitem data="false,"   label="&askMeWhatToDo.label;"/>
-                <menuitem data="true,Yes" label="&addAURIMapping.label;"/>
-                <menuitem data="false,No" label="&doNotAddAURIMapping.label;"/>
-            </menupopup>
-        </menulist>
-    </vbox>
+
     </groupbox>
 
 </window>

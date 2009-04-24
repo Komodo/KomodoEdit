@@ -306,7 +306,8 @@ this.okCancel = function dialog_okCancel(prompt, response, text, title,
 // Arguments:
 //  "prompt" is message to show.
 //  "buttons" is either a list of strings, each a label of a button to show, or
-//      a list of array items [label, accesskey], where accesskey is optional.
+//      a list of array items [label, accesskey, tooltiptext], where accesskey
+//      and tooltiptext are both optional.
 //      Currently this is limited to three buttons, plus an optional "Cancel"
 //      button. For example to mimic (mostly) ko.dialogs.yesNo use ["Yes", "No"]
 //      and to mimic ko.dialogs.yesNoCancel use ["Yes", "No", "Cancel"].

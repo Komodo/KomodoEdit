@@ -727,8 +727,8 @@
 
   <string id="editor-scheme">Default</string>
 
-  <boolean id="donotask_dragdrop_mapped_uri">0</boolean>
-  <string id="donotask_action_dragdrop_mapped_uri"></string>
+  <boolean id="donotask_dragdrop_uri">0</boolean>
+  <string id="donotask_action_dragdrop_uri"></string>
   
   <boolean id="donotask_reboot_after_changing_keybindings">0</boolean>
 

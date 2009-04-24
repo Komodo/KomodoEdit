@@ -140,6 +140,25 @@
     </hbox>
   </groupbox>
 
+  <groupbox id="dragdrop_groupbox" orient="vertical">
+    <caption id="dragdrop_caption" label="&dragdrop.label;"/>
+	<hbox id="dragdrop_ask_hbox" align="center">
+            <!-- When dropping a URL on Komodo: -->
+            <label id="dragdrop_ask_label" value="&droppingURL.label;"/>
+            <menulist id="dragdrop_ask_menulist"
+                      pref="true"
+                      prefattribute="data"
+                      prefstrings="donotask_dragdrop_uri,donotask_action_dragdrop_uri">
+                <menupopup id="dragdrop_ask_menupopup">
+                    <menuitem id="dragdrop_ask_menuitem1" data="false,"   label="&askMeWhatToDo.label;"/>
+                    <menuitem id="dragdrop_ask_menuitem2" data="true,&viewSource.label;" label="&viewSource.label;"/>
+                    <menuitem id="dragdrop_ask_menuitem3" data="true,&addAURIMapping.label;" label="&addAURIMapping.label;"/>
+                    <menuitem id="dragdrop_ask_menuitem2" data="true,&dropAsText.label;" label="&dropAsText.label;"/>
+                </menupopup>
+            </menulist>
+        </hbox>
+  </groupbox>
+
   <groupbox orient="vertical">
     <caption label="&confirmationDialogs.label;"/>
     <checkbox id="checkDiskFile"
