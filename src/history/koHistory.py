@@ -104,9 +104,13 @@ class KoHistoryService(History):
             loc.marker_handle = scimoz.markerAdd(line, self.MARKNUM_HISTORYLOC)
             ciBuf = view.document.ciBuf
             if ciBuf and hasattr(ciBuf, "curr_section_from_line"):
-                section = ciBuf.curr_section_from_line(line + 1)
-                if section:
-                    loc.section_title = section.title
+                try:
+                    section = ciBuf.curr_section_from_line(line + 1)
+                except COMException:
+                    log.exception("can't get the section")
+                else:
+                    if section:
+                        loc.section_title = section.title
         else:
             loc = Location(uri, -1, -1, view_type)
         loc.window_num = window_num
