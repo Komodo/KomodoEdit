@@ -297,12 +297,17 @@
                     menuitem.setAttribute('crop', 'center');
                     
                     var label = null, tooltiptext;
-                    try {
-                        var view = document.getElementById(tab.linkedPanel).firstChild;
-                        [label, tooltiptext] = ko.views.labelsFromView(view, null, true);
-                    } catch (ex) {
-                        var _log = ko.logging.getLogger("scrolltabs");
-                        _log.exception("error calculating tab label '"+label+"': "+ex+"\n");
+                    if (tab.linkedPanel) {
+                        // Bug 82850 -- only editor tabs have a linked panel with
+                        // associated document info.  Tabs in other panes, like the
+                        // toolbox, usually don't.
+                        try {
+                            var view = document.getElementById(tab.linkedPanel).firstChild;
+                            [label, tooltiptext] = ko.views.labelsFromView(view, null, true);
+                        } catch (ex) {
+                            var _log = ko.logging.getLogger("scrolltabs");
+                            _log.exception("error calculating tab label '"+label+"': "+ex+"\n");
+                        }
                     }
                     if (!label) {
                         tooltiptext = label = tab.label;
