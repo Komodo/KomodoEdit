@@ -1,0 +1,101 @@
+Index: macosx/ScintillaMacOSX.cxx
+===================================================================
+--- macosx/ScintillaMacOSX.cxx	2009-04-23 13:08:29.000000000 -0700
++++ macosx/ScintillaMacOSX.cxx	2009-04-23 13:14:40.000000000 -0700
+@@ -642,39 +642,69 @@
+ 
+     CFStringEncoding encoding = ( IsUnicodeMode() ? kCFStringEncodingUTF8 : kCFStringEncodingMacRoman);
+ 
+     // Create a CFString from the ASCII/UTF8 data, convert it to UTF16
+     CFStringRef string = CFStringCreateWithBytes( NULL, reinterpret_cast<UInt8*>( selectedText.s ), selectedText.len - 1, encoding, false );
+ 
+     PasteboardCreate( kPasteboardClipboard, &theClipboard );
+     PasteboardClear( theClipboard );
+ 
+     CFDataRef data = NULL;
++    if (encoding == kCFStringEncodingUTF8) {
++      data = CFStringCreateExternalRepresentation ( kCFAllocatorDefault, string, encoding, 0 );
++      if (data) {
++          PasteboardPutItemFlavor(theClipboard, (PasteboardItemID)1,
++                                  CFSTR("public.utf8-plain-text"),
++                                  data, 0 );
++          CFRelease(data);
++      }
++    }
+     if (selectedText.rectangular) {
+         // This is specific to scintilla, allows us to drag rectangular selections
+         // around the document
+         data = CFStringCreateExternalRepresentation ( kCFAllocatorDefault, string, kCFStringEncodingUnicode, 0 );
+         if (data) {
+             PasteboardPutItemFlavor( theClipboard, (PasteboardItemID)1, 
+                               CFSTR("com.scintilla.utf16-plain-text.rectangular"),
+                               data, 0 );
+             CFRelease(data);
+         }
+     }
+     data = CFStringCreateExternalRepresentation ( kCFAllocatorDefault, string, kCFStringEncodingUnicode, 0 );
+     if (data) {
+-        PasteboardPutItemFlavor( theClipboard, (PasteboardItemID)1, 
+-                                CFSTR("public.utf16-plain-text"),
++        // Fixes http://bugs.activestate.com/show_bug.cgi?id=81340:
++        // data starts with a BOM, but the flavor "public.utf16-plain-text"
++        // is to be used when the data doesn't start with a BOM,
++        // "public.utf16-external-plain-text" when it does.
++
++        //ut16
++        PasteboardPutItemFlavor( theClipboard, (PasteboardItemID)1,
++                                CFSTR("public.utf16-external-plain-text"),
+                                 data, 0 );
+         CFRelease(data);
+         data = NULL;
+     }
++    //Bug 81340: Write out Unicode data without a BOM
++    CFIndex len = CFStringGetLength(string);
++    UniChar *p_TextBuffer = new UniChar[len + 1];
++    if (p_TextBuffer) {
++        CFStringGetCharacters(string, CFRangeMake(0, len), p_TextBuffer);
++        data = CFDataCreate(NULL, (UInt8 *)p_TextBuffer, len * sizeof(UniChar));
++        if (data) {
++            //utxt
++            PasteboardPutItemFlavor(theClipboard, (PasteboardItemID)1, 
++                                    CFSTR("public.utf16-plain-text"),
++                                    data, 0);
++            CFRelease(data);
++        }
++        delete[] p_TextBuffer;
++    }
+     data = CFStringCreateExternalRepresentation ( kCFAllocatorDefault, string, kCFStringEncodingMacRoman, 0 );
+     if (data) {
+         PasteboardPutItemFlavor( theClipboard, (PasteboardItemID)1, 
+                                 CFSTR("com.apple.traditional-mac-plain-text"),
+                                 data, 0 );
+         CFRelease(data);
+         data = NULL;
+     }
+     CFRelease(string);
+ }
+@@ -727,20 +757,23 @@
+                     encoding = kCFStringEncodingMacRoman;
+                     *isFileURL = true;
+                 }
+                 else if (UTTypeConformsTo(flavorType, CFSTR("com.scintilla.utf16-plain-text.rectangular"))) {
+                     encoding = kCFStringEncodingUnicode;
+                     isRectangular = true;
+                 }
+                 else if (UTTypeConformsTo(flavorType, CFSTR("public.utf16-plain-text"))) { // this is 'utxt'
+                     encoding = kCFStringEncodingUnicode;
+                 }
++                else if (UTTypeConformsTo(flavorType, CFSTR("public.utf16-external-plain-text"))) { // this is 'utxt'
++                    encoding = kCFStringEncodingUnicode;
++                }
+                 else if (UTTypeConformsTo(flavorType, CFSTR("public.utf8-plain-text"))) {
+                     encoding = kCFStringEncodingUTF8;
+                 }
+                 else if (UTTypeConformsTo(flavorType, CFSTR("com.apple.traditional-mac-plain-text"))) { // this is 'TEXT'
+                     encoding = kCFStringEncodingMacRoman;
+                 }
+                 if (encoding == kCFStringEncodingInvalidId)
+                     continue;
+                 
+                 // if we got a flavor match, and we have no textString, we just want
+
