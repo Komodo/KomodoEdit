@@ -918,6 +918,13 @@ class projectURIHandler(FileHandlerBase):
                     if not self.part.project:
                         raise URILibError("unable to save macro: '%s'" % self._uri.URI)
                     self.part.project.isDirty = True
+                    # If the part resides in one of the toolboxes, then
+                    # automatically save the toolbox as well - bug 82878.
+                    partSvc = components.classes["@activestate.com/koPartService;1"]\
+                                .getService(components.interfaces.koIPartService)
+                    if self.part.project in (partSvc.toolbox,
+                                             partSvc.sharedToolbox):
+                        self.part.project.save()
         finally:
             try:
                 self._file.close()
