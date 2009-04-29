@@ -1096,8 +1096,6 @@ class GenericCommandHandler:
     def _do_cmd_braceMatch(self):
         view = self._view
         sm = view.scimoz
-        if not view.languageObj.supportsBraceHighlighting:
-            return
         braceAtCaret, braceOpposite, isInside = self._findMatchingBracePosition(sm.currentPos)
         
         if braceAtCaret != -1 and braceOpposite == -1:
@@ -1200,7 +1198,10 @@ class GenericCommandHandler:
             charBefore = sm.getWCharAt(sm.positionBefore(caretPos))
             styleBefore = sm.getStyleAt(sm.positionBefore(caretPos)) & mask
         # Priority goes to character before caret
-        if charBefore and view.languageObj.getBraceIndentStyle(charBefore, styleBefore):
+        if (charBefore
+            and (view.languageObj.getBraceIndentStyle(charBefore, styleBefore)
+                 or (view.languageObj.supportsSmartIndent == "XML"
+                     and charBefore in "[]{}()"))):
             braceAtCaret = caretPos - 1
         
         colonMode = 0
@@ -1215,8 +1216,9 @@ class GenericCommandHandler:
             charAfter = sm.getWCharAt(caretPos)
             styleAfter = sm.getStyleAt(caretPos) & mask
             
-            if charAfter and (charAfter in "[](){}") and \
-               view.languageObj.getBraceIndentStyle(charAfter, styleAfter):
+            if (charAfter in "[](){}"
+                and (view.languageObj.getBraceIndentStyle(charAfter, styleAfter)
+                     or view.languageObj.supportsSmartIndent == "XML")):
                 braceAtCaret = caretPos
                 isAfter = 0
 
@@ -1237,7 +1239,7 @@ class GenericCommandHandler:
         else:
             isInside = not isAfter
         return braceAtCaret, braceOpposite, isInside
-    
+
     def _is_cmd_folding_enabled(self):
         return self._view.languageObj.foldable
 
