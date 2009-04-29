@@ -1242,15 +1242,12 @@
         var scimoz = this.scimoz;
         var pos = scimoz.currentPos;
         var style = scimoz.getStyleAt(pos);
-        if (style < scimoz.SCE_UDL_M_STAGO || style >= scimoz.SCE_UDL_M_ENTITY) {
-            // Try the previous char
-            if (pos > 0) {
-                style = scimoz.getStyleAt(pos - 1);
-                if (style < scimoz.SCE_UDL_M_STAGO
-                    || style >= scimoz.SCE_UDL_M_ENTITY) {
-                    return;
-                }
-            }
+        if (style != scimoz.SCE_UDL_M_TAGNAME
+            && (pos == 0
+                || (scimoz.getStyleAt(scimoz.positionBefore(pos))
+                    != scimoz.SCE_UDL_M_TAGNAME))) {
+            // Not at the end of a tagname, so return
+            return;
         }
         var result = {};
         this.languageObj.getMatchingTagInfo(scimoz, pos, result, {});
@@ -1270,9 +1267,12 @@
             }
             var indic = Components.interfaces.koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT;  
             scimoz.indicatorCurrent = indic;
+            if (this._matchedTagUnhighlighter) {
+                scimoz.indicatorClearRange(0, scimoz.textLength);
+                clearTimeout(this._matchedTagUnhighlighter);
+            }
             scimoz.indicatorValue = scimoz.INDIC_PLAIN;
             scimoz.indicatorFillRange(t1, t2 - t1);
-            clearTimeout(this._matchedTagUnhighlighter);
             this._matchedTagUnhighlighter = setTimeout(function(this_, scimoz) {
                 scimoz.indicatorCurrent = indic;
                 scimoz.indicatorClearRange(0, scimoz.textLength);
