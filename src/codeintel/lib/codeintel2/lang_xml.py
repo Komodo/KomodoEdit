@@ -449,7 +449,8 @@ class XMLBuffer(UDLBuffer, XMLParsingBufferMixin):
     # Characters that should close an autocomplete UI:
     # - wanted for XML completion: ">'\" "
     # - dropping '[' because need for "<!<|>" -> "<![CDATA[" cpln
-    cpln_stop_chars = "'\" (;},~`!@#%^&*()-=+{}]|\\;,.<>?/"
+    # - Removed '#' - gets in the way of hex colors and id selectors (bug 82968)
+    cpln_stop_chars = "'\" (;},~`!@%^&*()-=+{}]|\\;,.<>?/"
 
 
 
