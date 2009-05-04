@@ -75,7 +75,12 @@ class koHaskellLanguage(KoLanguageBase):
         'instance': ('SCE_HA_INSTANCE',),
         }
     sample = """
-SAMPLE NOT AVAILABLE
+deduce (Animal name _) attribs = do
+  putStr ("Is the animal you're thinking of a " ++ name ++ "? [True|False] ")
+  answer <- getLine
+  if read answer
+    then return ()
+    else notFound attribs
 """
 
     def get_lexer(self):
@@ -86,20 +91,14 @@ SAMPLE NOT AVAILABLE
             self._lexer.supportsFolding = 1
         return self._lexer
 
-    _keywords = [
-        "absolute value", "addition", "and", "array",
-        "boolean",
-        "ceiling", "character", "concatenate", "concatenation", "constant", "continuation passing style", "cosine", "cosine hyperbolic", "cosine hyperbolic inverse", "cosine inverse",
-        "division",
-        "empty", "equality", "even",
-        "floor", "function composition",
-        "index",
-        "lazy evaluation", "length", "list", "list calculation", "list construction", "list insertion", "list item",
-        "modulo", "monad", "multiplication",
-        "nint",
-        "odd", "or", "order",
-        "power",
-        "round",
-        "sine", "sine hyperbolic", "sine hyperbolic inverse", "sine inverse", "split", "string", "subtraction", "sum",
-        "tangent", "tangent hyperbolic", "tangent hyperbolic inverse", "tangent inverse", "trigonometry", "truncation", "tuple"
-                ]
+    _keywords = ("""
+    case class data default deriving do else if import in
+    infix infixl infixr instance let module newtype of
+    then type where
+    """ + 
+    # Extra keywords mentioned in http://www.haskell.org/haskellwiki/Keywords
+    # that aren't in http://haskell.org/definition/haskell98-report.pdf
+    """
+    as forall foreign hiding mdo qualified 
+    """).split()
+    _keywords.sort()
