@@ -1884,7 +1884,7 @@ def target_silo_python(argv=["silo_python"]):
     else:
         landmark = os.path.join(siloDir, "bin", "python")
     if landmark and exists(landmark):
-        log.info("siloed Python alread exists at `%s'", siloDir)
+        log.info("siloed Python already exists at `%s'", siloDir)
         return argv[1:]
 
     # Copy the configured Python to the silo dir.
