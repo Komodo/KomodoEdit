@@ -136,6 +136,11 @@ if sys.platform == "win32" and sys.getwindowsversion()[3] == 2:
                 # the process and any sub-processes 
                 self._job = winprocess.CreateJobObject()
                 creationflags |= winprocess.CREATE_SUSPENDED
+                # Vista will launch Komodo in a job object itself, so we need
+                # to specify that the created process is not part of the Komodo
+                # job object, but instead specify that it will be using a
+                # separate breakaway job object, bug 83001.
+                creationflags |= winprocess.CREATE_BREAKAWAY_FROM_JOB
     
             # Start the process
             try:
