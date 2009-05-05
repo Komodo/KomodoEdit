@@ -63,6 +63,8 @@ class KoPHPLanguage(KoUDLLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{F472CC39-0902-4d92-8A5B-7DD0F612F119}"
+    _com_interfaces_ = [components.interfaces.koILanguage,
+                        components.interfaces.nsIObserver]
 
     lexresLangName = "PHP"
     lang_from_udl_family = {'CSL': 'JavaScript', 'M': 'HTML', 'CSS': 'CSS',
