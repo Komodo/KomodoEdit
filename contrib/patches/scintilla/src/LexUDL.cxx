@@ -6,6 +6,8 @@
 // Authors: Eric Promislow <ericp@activestate.com>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -940,9 +942,6 @@ class MainInfo {
     // Vars used for managing captured groups
     int					ovec_count;  // space to work with captured groups
     int					ovector[NUM_VECTORS];
-    int					num_captured_groups;
-
-    SString				current_delimiter; // Scintilla Simple String object
 
     public:
     MainInfo(char *p_raw_sublang_file_) {
@@ -959,7 +958,6 @@ class MainInfo {
         p_raw_sublang_file = new_strdup(p_raw_sublang_file_);
         p_Next = NULL;
         ovec_count = NUM_VECTORS;
-        curr_eol_transition = 0;
     };
     ~MainInfo() {
         Clear();
@@ -1170,6 +1168,24 @@ class MainInfo {
         else if (writer_version[1] > READER_VERSION_MINOR) return true;
         // changes in subminor version are ignored.
         else return false;
+    };
+};
+
+class BufferStateInfo {
+    // This class contains state info, used once per call
+    // to colourise.
+    
+    // Used semi-globally to transition when we hit the end-of-line
+    // Once one is set, nothing can override it.
+public:
+    int					curr_eol_transition;
+    int					num_captured_groups;
+    SString				current_delimiter; // Scintilla Simple String object
+    bool    				do_redo;
+
+    BufferStateInfo() {
+        curr_eol_transition = num_captured_groups = 0;
+        current_delimiter.clear();
     };
 };
 
@@ -2133,6 +2149,7 @@ static void doActions(Transition     *p_TranBlock,
                       int      &istate, // internal state to move to
                       int	   &curr_family,
                       MainInfo   *p_MainInfo,
+                      BufferStateInfo *p_BufferStateInfo,
                       Accessor &styler
                       )
 {
@@ -2148,7 +2165,7 @@ static void doActions(Transition     *p_TranBlock,
     int origOldPos = oldPos;
     if (p_TranBlock->search_type == TRAN_SEARCH_EMPTY) {
         // leave oldPos unchanged
-    } else if (p_TranBlock->do_redo) {
+    } else if (p_BufferStateInfo->do_redo) {
         // leave oldPos unchanged
         // oldPos = newPos - 1;
     } else {
@@ -2157,7 +2174,7 @@ static void doActions(Transition     *p_TranBlock,
     int push_pop_state = p_TranBlock->push_pop_state;
 
     // Determine if we hit end-of-line, and should redo
-    int eol_state = p_MainInfo->curr_eol_transition;
+    int eol_state = p_BufferStateInfo->curr_eol_transition;
     if (eol_state) {
         int start_line = styler.GetLine(origOldPos);
         int end_line   = styler.GetLine(newPos);
@@ -2183,7 +2200,7 @@ static void doActions(Transition     *p_TranBlock,
     }
 
     if (p_TranBlock->clear_current_delimiter) {
-        p_MainInfo->current_delimiter.clear();
+        p_BufferStateInfo->current_delimiter.clear();
     }
 
     int new_state = 0;
@@ -2191,14 +2208,14 @@ static void doActions(Transition     *p_TranBlock,
     // isn't initialized and isn't used, so set it to an innocuous value
 
     if (p_TranBlock->eol_target_state) {
-        if (!p_MainInfo->curr_eol_transition) {
-            p_MainInfo->curr_eol_transition = p_TranBlock->eol_target_state;
-        } else if (p_MainInfo->curr_eol_transition != p_TranBlock->eol_target_state) {
+        if (!p_BufferStateInfo->curr_eol_transition) {
+            p_BufferStateInfo->curr_eol_transition = p_TranBlock->eol_target_state;
+        } else if (p_BufferStateInfo->curr_eol_transition != p_TranBlock->eol_target_state) {
             // Currently if we have a non-zero eol-target state that's
             // different from the one specified in an at_eol directive,
             // we ignore it.
             fprintf(stderr, "Current EOL setting is 0x%08x, ignoring 0x%08x\n",
-                    p_MainInfo->curr_eol_transition,
+                    p_BufferStateInfo->curr_eol_transition,
                     p_TranBlock->eol_target_state);
         }
     }
@@ -2207,7 +2224,7 @@ static void doActions(Transition     *p_TranBlock,
         new_state = SF_GET_STATE(eol_state);
         new_family = SF_GET_FAMILY(eol_state);
         // Set the global state to 0.
-        p_MainInfo->curr_eol_transition = 0;
+        p_BufferStateInfo->curr_eol_transition = 0;
         // This deliberately squelches any pushing that would be done here.
         //XXX: Pop all push-state transitions pushed since the eol_state
         // thing was set.
@@ -2436,6 +2453,7 @@ static bool lookingAtMatch(
                            int      ,//lengthDoc,
                            LexString   *p_CurrTextLine,
                            MainInfo		   *p_MainInfo,
+                           BufferStateInfo       *p_BufferStateInfo,
                            Accessor &styler)
 {
     if (!p_compiledPattern) {
@@ -2466,7 +2484,7 @@ static bool lookingAtMatch(
         res = true;
         int num_chars_matched = p_MainInfo->ovector[1] - p_MainInfo->ovector[0];
         newPos = oldPos + num_chars_matched;
-        p_MainInfo->num_captured_groups = rc - 1;
+        p_BufferStateInfo->num_captured_groups = rc - 1;
     } else {
         res = false;
     }
@@ -2502,7 +2520,8 @@ static int simpleHash(unsigned int maxVal, const char *delim) {
 }
 
 static void setNewDelimiter(Transition      *p_TranBlock,
-                            MainInfo		   *p_MainInfo,
+                            MainInfo	    *p_MainInfo,
+                            BufferStateInfo   *p_BufferStateInfo,
                             LexString   *p_CurrTextLine,
                             int , // i,
                             Accessor & //styler
@@ -2510,7 +2529,7 @@ static void setNewDelimiter(Transition      *p_TranBlock,
 {
     int do_opposite = SF_GET_STATE(p_TranBlock->target_delimiter);
     int group_num = SF_GET_FAMILY(p_TranBlock->target_delimiter);
-    if (group_num <= p_MainInfo->num_captured_groups) {
+    if (group_num <= p_BufferStateInfo->num_captured_groups) {
         int start_delim = p_MainInfo->ovector[2 * group_num];
         int end_delim = p_MainInfo->ovector[2 * group_num + 1];
         char *p_delim_start = &(p_CurrTextLine->Val()[start_delim]);
@@ -2519,7 +2538,7 @@ static void setNewDelimiter(Transition      *p_TranBlock,
         char c = p_delim_start[len];
         if (!do_opposite) {
             p_delim_start[len] = 0;
-            p_MainInfo->current_delimiter = p_delim_start;
+            p_BufferStateInfo->current_delimiter = p_delim_start;
             p_delim_start[len] = c;
             succeeded = true;
         } else if (end_delim - start_delim != 1) {
@@ -2531,7 +2550,7 @@ static void setNewDelimiter(Transition      *p_TranBlock,
             char buf[2];
             buf[0] = getOpposite(*p_delim_start);
             buf[1] = 0;
-            p_MainInfo->current_delimiter = buf;
+            p_BufferStateInfo->current_delimiter = buf;
             succeeded = true;
         }
     }
@@ -2549,9 +2568,12 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
 {
 #if 0
     fprintf(stderr,
-            "udl: ColouriseTemplate1Doc(startPos=%d, length=%d, initStyle=%d\n",
+            "udl: ColouriseTemplate1Doc(startPos=%d, length=%d, lines %d:%d, initStyle=%d\n",
             startPos,
-            length, initStyle);
+            length,
+            styler.GetLine(startPos),
+            styler.GetLine(startPos + length),
+            initStyle);
 #endif
 
 #ifdef LOG_MEM
@@ -2632,18 +2654,29 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
             istate);
 #endif
 
-    TransitionInfo *p_TransitionInfo;
-    Transition     *p_TranBlock;
     LexString	   *p_CurrTextLine = new LexString;
-    if (!p_CurrTextLine->Init()) {
+    if (!p_CurrTextLine) {
+        fprintf(stderr, "udl: out of memory: failed to allocate a LexString\n");
+        return;
+    } else if (!p_CurrTextLine->Init()) {
         fprintf(stderr, "udl: failed to init the current line tracker\n");
+        delete p_CurrTextLine;
         return;
     } else if (!p_CurrTextLine->SetLine(startPos, styler)) {
         fprintf(stderr, "udl: failed to setup the line tracker at pos %d\n",
                 startPos);
+        delete p_CurrTextLine;
         return;
     }
-    
+
+    TransitionInfo *p_TransitionInfo;
+    Transition     *p_TranBlock;    
+    BufferStateInfo *p_BufferStateInfo = new BufferStateInfo;
+    if (!p_BufferStateInfo) {
+        fprintf(stderr, "udl: out of memory: failed to allocate a BufferStateInfo\n");
+        delete p_CurrTextLine;
+        return;
+    }
     char ch;
     int lengthDoc = startPos + length;
     int totalDocLength = styler.Length();
@@ -2690,11 +2723,11 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                 
                 // If we have an active delimiter, set the line-state
                 // based on a hash of it.  Otherwise set it to the current style.
-                if (p_MainInfo->current_delimiter[0]) {
+                if (p_BufferStateInfo->current_delimiter[0]) {
                     // Create a hash of the delimiter, and bit-or it in based
                     // on the current state
                     unsigned int delimHash = (simpleHash(DELIMITER_MASK,
-                                                p_MainInfo->current_delimiter.c_str())
+                                                p_BufferStateInfo->current_delimiter.c_str())
                                      & DELIMITER_MASK);
                     newLineState = update_line_state_from_delim(newLineState,
                                                                 delimHash);
@@ -2753,7 +2786,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
 #endif
                                    p_TranBlock->p_pattern,
                                    i, newPos, lengthDoc, p_CurrTextLine,
-                                   p_MainInfo,
+                                   p_MainInfo, p_BufferStateInfo,
                                    styler)) {
 #if 0
                     fprintf(stderr, "Matched [%s] at pos %d\n",
@@ -2763,17 +2796,17 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                 }
             } else {
                 assert(p_TranBlock->search_type == TRAN_SEARCH_DELIMITER);
-                if (p_MainInfo->current_delimiter[0]
-                    && lookingAtString(p_MainInfo->current_delimiter.c_str(),
+                if (p_BufferStateInfo->current_delimiter[0]
+                    && lookingAtString(p_BufferStateInfo->current_delimiter.c_str(),
                                        i, newPos, lengthDoc, styler)) {
                     passedPart1 = true;
 #if 0
                     fprintf(stderr, "keeping delimiter %s: %s\n",
-                            p_MainInfo->current_delimiter.c_str(),
+                            p_BufferStateInfo->current_delimiter.c_str(),
                             p_TranBlock->keep_current_delimiter ? "true" : "false");
 #endif
                     if (!p_TranBlock->keep_current_delimiter) {
-                        p_MainInfo->current_delimiter.clear(); // can't undo
+                        p_BufferStateInfo->current_delimiter.clear(); // can't undo
                     }
                 }
             }
@@ -2782,11 +2815,12 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                 if (p_TranBlock->search_type == TRAN_SEARCH_REGEX
                     && p_TranBlock->target_delimiter) {
                     setNewDelimiter(p_TranBlock, p_MainInfo,
+                                    p_BufferStateInfo,
                                     p_CurrTextLine, i, styler);
                 }
                 break;
             } else {
-                p_MainInfo->num_captured_groups = 0;
+                p_BufferStateInfo->num_captured_groups = 0;
                 passedPart1 = false;
             }
         }
@@ -2801,16 +2835,17 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                         "udl: looks like there's an infinite redo-loop at position %d (%d:%d), matching (%s) ... breaking it\n",
                         i, line + 1, i + 1 - styler.LineStart(line),
                         p_TranBlock->p_search_string);
-                p_TranBlock->do_redo = false;
+                p_BufferStateInfo->do_redo = false;
                 doActions(p_TranBlock, i, newPos, lengthDoc,
-                          istate, curr_family, p_MainInfo,
+                          istate, curr_family, p_MainInfo, p_BufferStateInfo,
                           styler);
-                p_TranBlock->do_redo = true;
+                p_BufferStateInfo->do_redo = p_TranBlock->do_redo;
                 redoCount = 0;
             } else {
                 int oldPos = i;
+                p_BufferStateInfo->do_redo = p_TranBlock->do_redo;
                 doActions(p_TranBlock, i, newPos, lengthDoc,
-                          istate, curr_family, p_MainInfo,
+                          istate, curr_family, p_MainInfo, p_BufferStateInfo,
                           styler);
                 if (oldPos != i) {
                     redoCount = 0;
@@ -2830,11 +2865,12 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
         if (p_TranBlock) {
             newPos = lengthDoc;
             doActions(p_TranBlock, i, newPos, lengthDoc, istate,
-                      curr_family, p_MainInfo,
+                      curr_family, p_MainInfo, p_BufferStateInfo,
                       styler);
         }
     }
     delete p_CurrTextLine;
+    delete p_BufferStateInfo;
     LogEvent(false, "ColouriseTemplate1Doc", &styler);
 }
 
@@ -3001,7 +3037,7 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
     }
     styler.SetLevel(lineCurrent, levelCurrent|SC_FOLDLEVELBASE);
     LogEvent(false, "FoldUDLDoc", &styler);
-        
+
 }
 
 static const char * const UDLWordListDesc[] = {
@@ -3010,3 +3046,4 @@ static const char * const UDLWordListDesc[] = {
 };
 
 LexerModule lmUDL(SCLEX_UDL, ColouriseTemplate1Doc, "udl", FoldUDLDoc, UDLWordListDesc);
+
