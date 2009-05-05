@@ -348,6 +348,7 @@ button[type="button-toolbar-a"],
     color               : WindowText;
     background-color    : transparent;
     -moz-user-focus     : ignore;
+    cursor              : pointer;
 }
 
 /**
