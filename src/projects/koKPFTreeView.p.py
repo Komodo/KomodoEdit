@@ -40,7 +40,6 @@ from xpcom.server import WrapObject, UnwrapObject
  
 import sys, os, re, types, string, threading
 from koTreeView import TreeView
-from URIlib import FileHandler
 
 import logging
 
