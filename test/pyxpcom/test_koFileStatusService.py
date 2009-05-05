@@ -75,15 +75,16 @@ class TestKoFileStatusService(unittest.TestCase):
         assert file.exists
         self.__fileStatusSvc.updateStatusForFiles([file], False)
         # Give some time to get the status.
-        self.__obs.lock.acquire()
-        try:
-            # XXX: The observer does not work in a standalone environment,
-            #      not sure why, so this will *always* wait 3 seconds.
-            self.__obs.lock.wait(3)
-        finally:
-            self.__obs.lock.release()
-        assert file.sccDirType == 'svn'
-        assert file.sccType == 'svn'
+        # Note: Edit does not have scc handling.
+        #self.__obs.lock.acquire()
+        #try:
+        #    # XXX: The observer does not work in a standalone environment,
+        #    #      not sure why, so this will *always* wait 3 seconds.
+        #    self.__obs.lock.wait(3)
+        #finally:
+        #    self.__obs.lock.release()
+        #assert file.sccDirType == 'svn'
+        #assert file.sccType == 'svn'
 
 #---- mainline
 
