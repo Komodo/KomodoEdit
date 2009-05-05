@@ -214,18 +214,18 @@ class TestChangeEncoding(unittest.TestCase):
         #print repr(rawstr)
         #print repr(koi8r_raw)
         #print repr(raw_latin1)
-        
+
     def test_Convert8BittoUTF8(self):
         # test converting from koi8-r to utf-8 and back, verifying all bytes
         # remain correctly
-        from encodings.koi8_r import decoding_map
+        from encodings.koi8_r import decoding_table
 
         koi8_r = tryEncoding(self.rawstr, 'koi8-r')
         utf_8 = recode_unicode(koi8_r, 'koi8-r', 'utf-8')
-        for index, mapped in decoding_map.items():
-            assert utf_8[index] == unichr(mapped)
-            
-        
+        for index in range(len(decoding_table)):
+            assert utf_8[index] == decoding_table[index]
+
+
 class TestDetectFileEncoding(unittest.TestCase):
     def __init__(self, methodName='runTest'):
         unittest.TestCase.__init__(self, methodName)
