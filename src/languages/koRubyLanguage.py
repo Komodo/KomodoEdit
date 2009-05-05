@@ -91,6 +91,8 @@ class KoRubyLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{3CFC5F18-0288-47e9-BF2D-061329D00FB6}"
+    _com_interfaces_ = [components.interfaces.koILanguage,
+                        components.interfaces.nsIObserver]
 
     accessKey = 'r'
     primary = 1
