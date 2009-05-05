@@ -1024,6 +1024,7 @@
                               />
                     <menu id="menu_viewAsLanguage"
                           label="&viewAsLanguage.label;"
+                          accesskey="&viewAsLanguage.accesskey;"
                           observes="cmd_viewAsLanguage">
                         <menupopup id="popup_viewAsLanguage"
                                    onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();"

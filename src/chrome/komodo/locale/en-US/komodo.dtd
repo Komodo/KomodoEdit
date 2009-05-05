@@ -633,6 +633,7 @@
 <!ENTITY userInterfaceViewSource.desc "User Interface: View Source">
 <!ENTITY userInterfaceWordWrapLongLines.desc "User Interface: Word-wrap long lines">
 <!ENTITY view.label "View">
+<!ENTITY viewAsLanguage.accesskey "L">
 <!ENTITY viewAsLanguage.label "View as Language">
 <!ENTITY viewEOLMarkers.label "View EOL Markers">
 <!ENTITY viewIndentationGuides.label "View Indentation Guides">
