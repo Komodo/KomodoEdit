@@ -113,7 +113,7 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             scimoz.currentPos = origPos;
             scimoz.anchor = origAnchor;
         }
-        var msg = _bundle.formaStringFromName("noAbbreviationVasFound", [abbrev], 1);
+        var msg = _bundle.formatStringFromName("noAbbreviationWasFound", [abbrev], 1);
         ko.statusBar.AddMessage(msg, "abbrev", 5000, true);
         return false;
     }
