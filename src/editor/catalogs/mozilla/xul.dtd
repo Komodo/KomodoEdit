@@ -333,7 +333,6 @@
 	disabled (true | false) "true"
 	image CDATA #IMPLIED
 	label CDATA #IMPLIED
-	menupopup CDATA #IMPLIED
 >
 <!ELEMENT menubar (menu)+>
 <!ATTLIST menubar
