@@ -99,6 +99,7 @@ class StdLib(object):
         self.base_dir = base_dir
         self._import_handler = None
         self._blob_imports_from_prefix_cache = {}
+        self._blob_from_blobname = {}
 
     def __repr__(self):
         return "<%s stdlib>" % self.name
@@ -135,11 +136,17 @@ class StdLib(object):
         return blobname in self.blob_index
 
     def get_blob(self, blobname):
-        try:
-            dbfile = self.blob_index[blobname]
-        except KeyError:
-            return None
-        return self.db.load_blob(join(self.base_dir, dbfile))
+        # Cache the blob once. Don't need to worry about invalidating the stdlib
+        # blobs as stdlibs should not change during a Komodo session, bug 65502.
+        blob = self._blob_from_blobname.get(blobname)
+        if blob is None:
+            try:
+                dbfile = self.blob_index[blobname]
+            except KeyError:
+                return None
+            blob = self.db.load_blob(join(self.base_dir, dbfile))
+            self._blob_from_blobname[blobname] = blob
+        return blob
 
     def get_blob_imports(self, prefix):
         """Return the set of imports under the given prefix.
