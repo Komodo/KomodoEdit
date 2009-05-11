@@ -22,6 +22,7 @@ function TestEntry(obj) {
 
 function fillTests()  {
     tests = [];
+    // 0
     tests.push(new TestEntry({
         suffix: ".py",
                 string: "print ",
@@ -46,6 +47,7 @@ function fillTests()  {
                 _char: '{',
                 exp: '}'
                     }));
+    // 5
     tests.push(new TestEntry({
                 _char: ']',
                 exp: ''
@@ -61,6 +63,7 @@ function fillTests()  {
                 exp: null,
                 __none__: null
                     }));
+    // 10
     tests.push(new TestEntry({
         suffix: ".php",
                 string: "<?php\n$abc",
@@ -87,6 +90,7 @@ function fillTests()  {
                 _char: '[',
                 exp: ']'
                     }));
+    // 15
     tests.push(new TestEntry({
                 _char: '{',
                 exp: '}'
@@ -94,6 +98,17 @@ function fillTests()  {
     tests.push(new TestEntry({
                 _char: ']',
                 exp: null
+                    }));
+    tests.push(new TestEntry({
+                string: "<?php\n$abc = 3;",
+                posn: -5,
+                _char: "[",
+                exp: "]",
+                inner: 1
+                    }));
+    tests.push(new TestEntry({
+                exp: null,
+                inner: null
                     }));
 }
             
@@ -125,10 +140,14 @@ function OnLoad() {
 function savePrefs() {
     origPrefs = {
         global : {
-            editSmartSoftCharacters : globalPrefs.getBooleanPref('editSmartSoftCharacters')
+            editSmartSoftCharacters :
+                globalPrefs.getBooleanPref('editSmartSoftCharacters'),
+            enableSmartSoftCharactersInsideLine:
+                globalPrefs.getBooleanPref('enableSmartSoftCharactersInsideLine')
         }
     }
     globalPrefs.setBooleanPref('editSmartSoftCharacters', true);
+    globalPrefs.setBooleanPref('enableSmartSoftCharactersInsideLine', false);
 }
 
 function restorePrefs() {
@@ -150,7 +169,20 @@ function ContinueTop(tests, i, lim) {
         restorePrefs();
         return;
     }
+    else if (testOnly && testOnly.length && testOnly.indexOf(i) == -1) {
+        // dump("Skip unwanted test " + i + "\n");
+        ContinueTop(tests, i + 1, lim);
+        return;
+    }
+    else if (testSkip && testSkip.length && testSkip.indexOf(i) != -1) {
+        // dump("Skip filtered test " + i + "\n");
+        ContinueTop(tests, i + 1, lim);
+        return;
+    }
     var test = tests[i];
+    if (test.inner) {
+        globalPrefs.setBooleanPref('enableSmartSoftCharactersInsideLine', true);
+    }
     var file = fileSvc.makeTempFile(test.suffix, 'w');
     //dump("Load file " + file.URI + "\n");
     file.puts(test.string);
@@ -233,6 +265,10 @@ function ContinuePart3(tests, i, lim, test, view, file) {
     } else {
         numPassed += 1;
         view.closeUnconditionally();
+    }
+    if (test.inner) {
+        // set the pref back to the default.
+        globalPrefs.setBooleanPref('enableSmartSoftCharactersInsideLine', false);
     }
     setTimeout(ContinueTop, 100, tests, i + 1, lim);
 }
