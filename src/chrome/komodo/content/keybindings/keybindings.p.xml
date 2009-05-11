@@ -509,7 +509,9 @@
                         // Really, the event2keylabel should do this, but it is
                         // filtering out any events that are not destined to a
                         // scintilla widget... and we are not.
-                        if (event.charCode && !(event.ctrlKey || event.altKey || event.metaKey)) {
+                        if (event.charCode && !(event.ctrlKey || event.altKey || event.metaKey)
+                            // Space must be handled differently - bug 83061.
+                            && keyname != 'Space') {
                             // Vi needs lowercase/uppercase differentiation
                             keyname = String.fromCharCode(event.charCode);
                         }
