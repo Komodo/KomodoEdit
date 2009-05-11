@@ -39,6 +39,7 @@ import sys
 from hashlib import md5
 import unittest
 import tempfile
+from os.path import abspath, dirname, join
 
 import eollib
 from xpcom import components, nsError, ServerException, COMException
@@ -104,7 +105,7 @@ class TestKoDocumentBase(unittest.TestCase):
                 os.unlink(filename) # clean up
 
     def test_readURI(self):
-        filename = 'http://www.xmethods.net/sd/2001/BabelFishService.wsdl'
+        filename = 'http://downloads.activestate.com/'
         try:
             document = components.classes["@activestate.com/koDocumentBase;1"] \
                        .createInstance(components.interfaces.koIDocument)
@@ -145,8 +146,12 @@ class TestKoDocumentBase(unittest.TestCase):
 
     def test_loadUTF8File(self):
         from xpcom.server import WrapObject, UnwrapObject
-        # expects the be in Komodo-devel
-        p = os.path.join(os.getcwd(), "test", "charsets", "utf-8_1.html")
+        # expects the path to be in Komodo-devel
+        p = join(dirname(                             # komodo-devel
+                  dirname(                            # src
+                   dirname(                           # views
+                    dirname((abspath(__file__)))))),  # tests
+                 "test", "stuff", "charsets", "utf-8_1.html")
         utffile = os.path.abspath(p)
         assert os.path.isfile(utffile)
         document = components.classes["@activestate.com/koDocumentBase;1"] \
@@ -159,8 +164,12 @@ class TestKoDocumentBase(unittest.TestCase):
         assert document.codePage == 65001
 
     def test_forceEncoding(self):
-        # expects the be in Komodo-devel
-        p = os.path.join(os.getcwd(), "test", "charsets", "utf-8_1.html")
+        # expects the path to be in Komodo-devel
+        p = join(dirname(                             # komodo-devel
+                  dirname(                            # src
+                   dirname(                           # views
+                    dirname((abspath(__file__)))))),  # tests
+                 "test", "stuff", "charsets", "utf-8_1.html")
         utffile = os.path.abspath(p)
         assert os.path.isfile(utffile)
         document = components.classes["@activestate.com/koDocumentBase;1"] \
