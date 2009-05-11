@@ -39,7 +39,7 @@ import unittest
 import sys
 
 from xpcom import components, COMException
-
+from xpcom.server import WrapObject, UnwrapObject
 
 
 class TestKoDocumentService(unittest.TestCase):
@@ -57,7 +57,7 @@ class TestKoDocumentService(unittest.TestCase):
                          getService(components.interfaces.koIPrefService)
 
     def __del__(self):
-        self.__docsvc.unload();
+        UnwrapObject(self.__docsvc).shutdownAutoSave()
 
     def test_createDocumentFromURI(self):
         filename = os.__file__ # returns os.pyc
