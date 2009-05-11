@@ -196,6 +196,8 @@
                   oncommand="test_scimoz();"/>
         <menuitem label="SciMoz Auto-Indent Tests"
                   oncommand="test_auto_indent_scimoz();"/>
+        <menuitem label="SciMoz Soft-Character Tests"
+                  oncommand="test_soft_chars();"/>
         <menuitem label="Generate Command ID Table"
                   oncommand="ko.browse.showCommandIds()" />
     </menupopup>

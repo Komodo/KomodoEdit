@@ -952,3 +952,16 @@ function test_auto_indent_scimoz()
     }
 
 }
+
+function test_soft_chars()
+{
+    try {
+        window.openDialog("chrome://komodo/content/test/test_soft_chars.xul",
+                          "Komodo:TestSoftCharsSciMoz",
+                          "titlebar,chrome,resizable,close,dialog",
+                          ko);
+    } catch(ex) {
+        log.exception(ex);
+    }
+
+}
