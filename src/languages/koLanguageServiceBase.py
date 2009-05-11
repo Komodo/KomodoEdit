@@ -2433,8 +2433,10 @@ class KoLanguageBase:
         # Use one of the following acceptanceMethods, to determine
         # where soft chars are allowed: either only at end of line,
         # or either at end of line or before ident chars
-        acceptanceMethod = self._can_insert_soft_char_at_eol_only
-        #acceptanceMethod = self._can_insert_soft_char_at_eol_or_before_ident
+        if self.prefset.getBooleanPref("enableSmartSoftCharactersInsideLine"):
+            acceptanceMethod = self._can_insert_soft_char_at_eol_or_before_ident
+        else:
+            acceptanceMethod = self._can_insert_soft_char_at_eol_only
         if not acceptanceMethod(scimoz, nextCharPos, lineEndPos):
             return None
 

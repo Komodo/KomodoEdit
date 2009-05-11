@@ -353,6 +353,7 @@
   <boolean id="editElectricBrace">1</boolean>
   <long id="editAutoWrapColumn">80</long>
   <boolean id="editSmartSoftCharacters">1</boolean>
+  <boolean id="enableSmartSoftCharactersInsideLine">0</boolean>
   <!-- Have the Cut/Copy commands cut/copy the current line if there is no
        selection. -->
   <boolean id="editSmartCutCopyWithoutSelection">1</boolean>
