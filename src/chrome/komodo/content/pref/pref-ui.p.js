@@ -38,6 +38,8 @@
 var log = ko.logging.getLogger("pref-ui");
 var data = new Object(); // persist pref panel data here
 
+var cmd_regex = /^ko.commands.doCommandAsync\([\'\"](cmd_\w+)[\'\"]\s*,\s*event\)$/;
+
 function OnPreferencePageOK(prefset)
 {
     var id, checkbox, broadcasterId, broadcaster, currentState;
@@ -61,7 +63,16 @@ function OnPreferencePageOK(prefset)
         }
         if (currentState != data[id]) {
             var cmd = broadcaster.getAttribute('oncommand');
-            parent.opener.eval('var event;'+cmd);
+            if (parent.opener) {
+                // See bug 79113: "Multi-window: opener considered harmful"
+                // XXX Should send notifications to observers
+                var m = cmd_regex.exec(cmd);
+                if (m) {
+                    parent.opener.ko.commands.doCommandAsync(m[1]);
+                } else {
+                    parent.opener.eval('var event;'+cmd);
+                }
+            }
         }
     }
     return true;
