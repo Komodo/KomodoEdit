@@ -75,6 +75,9 @@ class koHaskellLanguage(KoLanguageBase):
         'instance': ('SCE_HA_INSTANCE',),
         }
     sample = """
+import Monad
+data Array = MkArray [Value]
+    deriving (Show, Eq, Typeable)
 deduce (Animal name _) attribs = do
   putStr ("Is the animal you're thinking of a " ++ name ++ "? [True|False] ")
   answer <- getLine
