@@ -78,20 +78,31 @@ class KoTestDirectoryProvider:
         nsifile.initWithPath(path)
         return nsifile, persistent
 
+    def __getExtensionDirs(self):
+        paths = []
+        componentsDir = self._dirSvc.get(
+            "ComsD", components.interfaces.nsIFile).path
+        extensionsDir = join(dirname(componentsDir), "extensions")
+        try:
+            for f in os.listdir(extensionsDir):
+                p = join(extensionsDir, f)
+                if isdir(p):
+                    paths.append(p)
+        except EnvironmentError:
+            # The extensions dir may not exist yet.
+            pass
+        return paths
+        
     def getFiles(self, prop):
         paths = []
         if prop == "XREExtDL":  # XRE extension dirs list
-            componentsDir = self._dirSvc.get(
-                "ComsD", components.interfaces.nsIFile).path
-            extensionsDir = join(dirname(componentsDir), "extensions")
-            try:
-                for f in os.listdir(extensionsDir):
-                    p = join(extensionsDir, f)
-                    if isdir(p):
-                        paths.append(p)
-            except EnvironmentError:
-                # The extensions dir may not exist yet.
-                pass
+            paths = self.__getExtensionDirs()
+        elif prop == "ComsDL":  # extension/component dirs list
+            extension_paths = self.__getExtensionDirs()
+            for ext_dir in extension_paths:
+                p = join(ext_dir, "components")
+                if isdir(p):
+                    paths.append(p)
         else:
             raise ServerException(nsError.NS_ERROR_FAILURE)
         
