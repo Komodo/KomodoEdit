@@ -485,11 +485,14 @@ SharedStates = {
     'indent guides': ('STYLE_INDENTGUIDE',),
 }
 
+def addSharedStyles(langMap):
+    langMap.update(SharedStates)
+
 for languageName in StateMap:
-    StateMap[languageName].update(SharedStates)
+    addSharedStyles(StateMap[languageName])
 
 def addNewUDLLanguage(languageName):
     if languageName not in StateMap:
         StateMap[languageName] = StateMap['UDL'].copy()
-        StateMap[languageName].update(SharedStates)
+        addSharedStyles(StateMap[languageName])
 

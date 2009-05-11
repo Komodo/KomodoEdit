@@ -909,7 +909,12 @@ class KoLanguageBase:
         if not self._stateMap and self.name in styles.StateMap:
             self._stateMap = styles.StateMap[self.name]
         else:
-            styles.StateMap[self.name] = self._stateMap
+            # Make a copy of the statemap to be used by the scheme colorization
+            # routines. If this is not a copy, then some languages will not
+            # colorize correctly (see bug 83023).
+            styles.StateMap[self.name] = self._stateMap.copy()
+            # Add the shared styles (linenumbers, badbrace, etc...) - bug 83023.
+            styles.addSharedStyles(styles.StateMap[self.name])
 
         #log_styles.debug("**************** Setting string-styles etc. for language %s", self.name)
         
