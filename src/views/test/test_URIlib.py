@@ -74,9 +74,16 @@ class TestURIParser(unittest.TestCase):
         filelist.append(["file:///c:/", 'c:\\', '', '', 'c:\\'])
         filelist.append(["file:///c:", 'c:', '', '', 'c:'])
 
-    filelist.append(["file://netshare/apps/Komodo/Naming Rules for Tarballs.txt",
-                     '//netshare/apps/Komodo/Naming Rules for Tarballs.txt', 'Naming Rules for Tarballs.txt',
-                     'Naming Rules for Tarballs.txt', '//netshare/apps/Komodo'])
+    if sys.platform.startswith('win'):
+        # Windows provides support for UNC file paths.
+        filelist.append(["file://netshare/apps/Komodo/Naming%20Rules%20for%20Tarballs.txt",
+                         '//netshare/apps/Komodo/Naming Rules for Tarballs.txt', 'Naming Rules for Tarballs.txt',
+                         'Naming Rules for Tarballs.txt', '//netshare/apps/Komodo'])
+    else:
+        # Other platforms do not use UNC file paths.
+        filelist.append(["file:///apps/Komodo/Naming%20Rules%20for%20Tarballs.txt",
+                         '/apps/Komodo/Naming Rules for Tarballs.txt', 'Naming Rules for Tarballs.txt',
+                         'Naming Rules for Tarballs.txt', '/apps/Komodo'])
     urllist = list(filelist)
     urllist.append(["http://server.com/test/path/to/somefile.txt",
                     r'/test/path/to/somefile.txt', 'somefile.txt',
@@ -84,15 +91,15 @@ class TestURIParser(unittest.TestCase):
     urllist.append([r'kodebugger://php/c:/web/info.php',
                     r'c:\web\info.php','info.php','info.php',
                     r'c:\web'])
-    urllist.append([r'koremote://test/ftp://somesite.com/web/info.php',
-                    r'ftp://somesite.com/web/info.php','info.php','info.php',
-                    r'ftp://somesite.com/web'])
-    urllist.append([r'koremote:///ftp://somesite.com/web/info.php',
-                    r'ftp://somesite.com/web/info.php','info.php','info.php',
-                    r'ftp://somesite.com/web'])
-    urllist.append([r'koremote:///ftp://somesite.com/web with space/info.php',
-                    r'ftp://somesite.com/web with space/info.php','info.php','info.php',
-                    r'ftp://somesite.com/web with space'])
+    urllist.append([r'ftp://somesite.com/web/info.php',
+                    r'/web/info.php','info.php','info.php',
+                    r'/web'])
+    urllist.append([r'ftp://somesite.com/web/info.php',
+                    r'/web/info.php','info.php','info.php',
+                    r'/web'])
+    urllist.append([r'ftp://somesite.com/web%20with%20space/info.php',
+                    r'/web with space/info.php','info.php','info.php',
+                    r'/web with space'])
     urllist.append([r'dbgp:///file:///web with space/info.php',
                     r'file:///web with space/info.php','info.php','info.php',
                     r'file:///web with space'])
@@ -144,10 +151,11 @@ class TestURIParser(unittest.TestCase):
             self._assertTest(URI,test)
 
     def test_assignNetscapeUNC(self):
-        URI = URIParser()
-        URI.URI = 'file://///netshare/apps/Komodo/Naming Rules for Tarballs.txt'
-        assert URI.URI == 'file://netshare/apps/Komodo/Naming Rules for Tarballs.txt'
-        self.failUnlessSamePath(URI.path, r'\\netshare\apps\Komodo\Naming Rules for Tarballs.txt')
+        if sys.platform.startswith("win"):
+            URI = URIParser()
+            URI.URI = 'file://///netshare/apps/Komodo/Naming Rules for Tarballs.txt'
+            assert URI.URI == 'file://netshare/apps/Komodo/Naming Rules for Tarballs.txt'
+            self.failUnlessSamePath(URI.path, r'\\netshare\apps\Komodo\Naming Rules for Tarballs.txt')
 
     def test_md5name(self):
         filename = os.path.normpath(os.path.join(tempfile.gettempdir(),'testwrite.py.txt'))
