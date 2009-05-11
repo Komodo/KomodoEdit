@@ -49,6 +49,23 @@ class TestKoFileStatusServiceObserver:
         finally:
             self.lock.release()
 
+    def wait(self, timeout=None):
+        # Process pending Mozilla events in order to receive the observer
+        # notifications, based on Mozilla xpcshell test class here:
+        # http://mxr.mozilla.org/mozilla-central/source/testing/xpcshell/head.js#75
+        currentThread = components.classes["@mozilla.org/thread-manager;1"] \
+                            .getService().currentThread
+        start_time = time.time()
+        while not self.updated_uris:
+            if timeout is not None:
+                if (time.time() - start_time) > timeout:
+                    break
+            # Give some time to gather more events.
+            time.sleep(0.25)
+            # Process events, such as the pending observer notifications.
+            while currentThread.hasPendingEvents():
+                currentThread.processNextEvent(True)
+
 class TestKoFileStatusService(unittest.TestCase):
     def __init__(self, methodName):
         unittest.TestCase.__init__(self, methodName)
@@ -76,13 +93,7 @@ class TestKoFileStatusService(unittest.TestCase):
         self.__fileStatusSvc.updateStatusForFiles([file], False)
         # Give some time to get the status.
         # Note: Edit does not have scc handling.
-        #self.__obs.lock.acquire()
-        #try:
-        #    # XXX: The observer does not work in a standalone environment,
-        #    #      not sure why, so this will *always* wait 3 seconds.
-        #    self.__obs.lock.wait(3)
-        #finally:
-        #    self.__obs.lock.release()
+        #self.__obs.wait(5)
         #assert file.sccDirType == 'svn'
         #assert file.sccType == 'svn'
 
