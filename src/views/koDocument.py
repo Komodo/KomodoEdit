@@ -599,7 +599,7 @@ class koDocumentBase:
         # Check for null bytes. Komodo will truncate the text if the document
         # contains embedded nulls, so we abort if the text contains nulls, see
         # bug 35678.
-        if "\0" in text:
+        if text and "\0" in text:
             errstr = "Buffer contains null byte(s)"
             self.lastErrorSvc.setLastError(nsError.NS_ERROR_FAILURE, errstr)
             raise ServerException(nsError.NS_ERROR_FAILURE, errstr)
