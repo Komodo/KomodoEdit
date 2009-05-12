@@ -43,6 +43,7 @@ from os.path import abspath, dirname, join
 
 import eollib
 from xpcom import components, nsError, ServerException, COMException
+from xpcom.server import WrapObject, UnwrapObject
 
 
 class TestKoDocumentBase(unittest.TestCase):
@@ -145,7 +146,6 @@ class TestKoDocumentBase(unittest.TestCase):
                 os.unlink(filename) # clean up
 
     def test_loadUTF8File(self):
-        from xpcom.server import WrapObject, UnwrapObject
         # expects the path to be in Komodo-devel
         p = join(dirname(                             # komodo-devel
                   dirname(                            # src
