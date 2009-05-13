@@ -1566,12 +1566,12 @@ class koDocumentBase:
         autoSaveFile = self._getAutoSaveFile()
         
         if autoSaveFile.exists:
-            if autoSaveFile.lastModifiedTime > self.file.lastModifiedTime:
+            if autoSaveFile.lastModifiedTime >= self.file.lastModifiedTime:
                 #print "tmpfile is newer than original"
                 return 1;
             else:
                 # we have an autosave file, but it's old, delete it
-                #print "removing old temporary auto save file ",self._autoSaveFileName
+                #print "removing old temporary auto save file ", autoSaveFile.path
                 os.remove(autoSaveFile.path)
         return 0
     
