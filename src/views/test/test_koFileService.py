@@ -54,7 +54,11 @@ class TestKoFileService(unittest.TestCase):
         file = self.__filesvc.getFileFromURI(filename)
         assert file.exists
         files = self.__filesvc.getAllFiles()
-        assert file in files
+        # XXX: There is some subtle difference between the xpcom objects
+        #      returned in an array that makes the "file in files" test fail.
+        #      Bug 83120.
+        #assert file in files
+        assert [ f for f in files if f.URI == file.URI ]
         xfile = self.__filesvc.findFileByURI(file.URI)
         assert file == xfile
 
@@ -63,7 +67,11 @@ class TestKoFileService(unittest.TestCase):
         file = self.__filesvc.getFileFromURI(filename)
         assert file.exists
         files = self.__filesvc.getAllFiles()
-        assert file in files
+        # XXX: There is some subtle difference between the xpcom objects
+        #      returned in an array that makes the "file in files" test fail.
+        #      Bug 83120.
+        assert [ f for f in files if f.URI == file.URI ]
+        f = None
         xfile = self.__filesvc.findFileByURI(file.URI)
         assert file == xfile
         file = xfile = files = None
@@ -78,11 +86,20 @@ class TestKoFileService(unittest.TestCase):
         file = self.__filesvc.getFileFromURI(xpcom.__file__)
         files = self.__filesvc.getFilesInBaseURI(os.path.dirname(myfiles[0].URI))
         for f in myfiles:
-            assert f in files
+            # XXX: There is some subtle difference between the xpcom objects
+            #      returned in an array that makes the "f in files" test fail.
+            #      Bug 83120.
+            #assert f in files
+            assert [ f2 for f2 in files if f.URI == f2.URI ]
         
     def test_fileNotExist(self):
         file = self.__filesvc.getFileFromURI(r"c:\If-You-Have-This-File-U-R-Lame-Text-1.txt")
-        assert file.path == r"c:\If-You-Have-This-File-U-R-Lame-Text-1.txt"
+        if sys.platform.startswith("win"):
+            self.assertEqual(file.path, r"c:\If-You-Have-This-File-U-R-Lame-Text-1.txt")
+        else:
+            # Backward slashes are automatically converted into forward slashes
+            # on unixy platforms.
+            self.assertEqual(file.path, r"c:/If-You-Have-This-File-U-R-Lame-Text-1.txt")
         assert not file.exists
 
     def test_makeTempName(self):
