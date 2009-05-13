@@ -53,6 +53,7 @@ import testlib
 testdir_from_ns = {
     None: os.curdir,
     "pyxpcom": "pyxpcom",
+    "pyxpcom/views": join("..", "src", "views", "test"),
     "ci": join("..", "src", "codeintel", "test2"),
 }
 default_tags = ["-knownfailure"]
