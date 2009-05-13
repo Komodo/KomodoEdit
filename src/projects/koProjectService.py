@@ -242,7 +242,12 @@ class KoPartService(object):
         if not window:
             # Window here is nsIDOMWindowInternal, change it.
             window = self.wm.getMostRecentWindow('Komodo')
-            window.QueryInterface(components.interfaces.nsIDOMWindow)
+            if window:
+                window.QueryInterface(components.interfaces.nsIDOMWindow)
+            else:
+                # This is common when running Komodo standalone tests via
+                # xpcshell, but should not occur when running Komodo normally.
+                log.error("get_window:: getMostRecentWindow did not return a window")
         if window not in self._data:
             self._data[window] = KomodoWindowData()
         return window
