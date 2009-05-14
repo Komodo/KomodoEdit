@@ -2870,6 +2870,7 @@ class PureTestCase(_BaseTestCase):
         self.assertCITDLExprUnderPosIs("z = Zlib::Deflate.new()\nz.<|>", "z")
 
     def test_create_root_level_file(self):
+        # XXX: This path may not exist (i.e. on Windows).
         main_path = "/tmp/foo.rb"
         main_content, main_positions = \
                       unmark_text(self.adjust_content(dedent("""\
@@ -2880,12 +2881,15 @@ class PureTestCase(_BaseTestCase):
                       f = Foo.new.<1>mouse
                       """)))
         writefile(main_path, main_content)
-        main_buf = self.mgr.buf_from_path(main_path)
-        class_targets = [
-            ("function", "mouse"),
-        ]
-        self.assertCompletionsInclude2(main_buf, main_positions[1],
-                                       class_targets)
+        try:
+            main_buf = self.mgr.buf_from_path(main_path)
+            class_targets = [
+                ("function", "mouse"),
+            ]
+            self.assertCompletionsInclude2(main_buf, main_positions[1],
+                                           class_targets)
+        finally:
+            os.unlink(main_path)
      
     @tag("defns")
     def test_external_defns(self):
