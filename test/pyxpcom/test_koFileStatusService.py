@@ -21,11 +21,14 @@ class TestKoFileStatusServiceObserver:
             getService(components.interfaces.nsIObserverService)
         self.__wrappedSelf = WrapObject(self, components.interfaces.nsIObserver)
         observerSvc.addObserver(self.__wrappedSelf, 'file_status', 0)
+        self.__observing = True
 
-    def __del__(self):
-        observerSvc = components.classes["@mozilla.org/observer-service;1"].\
-            getService(components.interfaces.nsIObserverService)
-        observerSvc.removeObserver(self.__wrappedSelf, 'file_status')
+    def removeObserver(self):
+        if self.__observing:
+            observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                getService(components.interfaces.nsIObserverService)
+            observerSvc.removeObserver(self.__wrappedSelf, 'file_status')
+            self.__observing = False
 
     def clear(self):
         self.lock.acquire()
@@ -37,7 +40,7 @@ class TestKoFileStatusServiceObserver:
             self.lock.release()
 
     def observe(self, subject, topic, data):
-        #print "got observe (%s,%s,%s)"%(subject, topic, URI)
+        #print "got observe (%s,%s,%s)"%(subject, topic, data)
         self.lock.acquire()
         try:
             self.subject = subject
@@ -49,14 +52,14 @@ class TestKoFileStatusServiceObserver:
         finally:
             self.lock.release()
 
-    def wait(self, timeout=None):
+    def wait(self, URI, timeout=None):
         # Process pending Mozilla events in order to receive the observer
         # notifications, based on Mozilla xpcshell test class here:
         # http://mxr.mozilla.org/mozilla-central/source/testing/xpcshell/head.js#75
         currentThread = components.classes["@mozilla.org/thread-manager;1"] \
                             .getService().currentThread
         start_time = time.time()
-        while not self.updated_uris:
+        while not URI in self.updated_uris:
             if timeout is not None:
                 if (time.time() - start_time) > timeout:
                     break
@@ -69,7 +72,6 @@ class TestKoFileStatusServiceObserver:
 class TestKoFileStatusService(unittest.TestCase):
     def __init__(self, methodName):
         unittest.TestCase.__init__(self, methodName)
-        self.__obs = TestKoFileStatusServiceObserver()
         self.__fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"] \
                          .getService(components.interfaces.koIFileStatusService)
         from xpcom.server import UnwrapObject
@@ -81,7 +83,10 @@ class TestKoFileStatusService(unittest.TestCase):
         self.__fileStatusSvc.unload()
 
     def setUp(self):
-        self.__obs.clear()
+        self.__obs = TestKoFileStatusServiceObserver()
+
+    def tearDown(self):
+        self.__obs.removeObserver()
 
     def test_service(self):
         if sys.platform.startswith("win"):
@@ -93,7 +98,7 @@ class TestKoFileStatusService(unittest.TestCase):
         self.__fileStatusSvc.updateStatusForFiles([file], False)
         # Give some time to get the status.
         # Note: Edit does not have scc handling.
-        #self.__obs.wait(5)
+        #self.__obs.wait(file.URI, 5)
         #assert file.sccDirType == 'svn'
         #assert file.sccType == 'svn'
 
