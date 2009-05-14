@@ -222,16 +222,20 @@ class TestFileHandler(unittest.TestCase):
         file.open('w+')
         file.write(text)
         file.close()
-        assert file.exists
-        assert not file.isDirectory
-        assert file.isFile
-        assert not file.isSymlink
-        assert not file.isSpecial
-        assert file.isReadable
-        assert file.isWriteable
-        file = FileHandler(filename)
-        file.open('r+')
-        assert file.read(-1) == text
+        try:
+            assert file.exists
+            assert not file.isDirectory
+            assert file.isFile
+            assert not file.isSymlink
+            assert not file.isSpecial
+            assert file.isReadable
+            assert file.isWriteable
+            file = FileHandler(filename)
+            file.open('r+')
+            assert file.read(-1) == text
+            file.close()
+        finally:
+            os.unlink(filename)
         
 #---- mainline
 
