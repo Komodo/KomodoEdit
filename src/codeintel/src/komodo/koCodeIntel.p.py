@@ -633,6 +633,12 @@ class KoCodeIntelEvalController(EvalController):
     ui_handler = None
     ui_handler_proxy_sync = None
 
+    def close(self):
+        """Done with this eval controller, clear any references"""
+        EvalController.close(self)
+        # Will leak JavaScript evaluators if the log is not cleared, bug 65502.
+        self.log = None
+
     def debug(self, msg, *args):
         if self.log is None: self.log = []
         self.log.append(("debug", msg, args))

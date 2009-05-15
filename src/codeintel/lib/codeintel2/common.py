@@ -450,6 +450,10 @@ class EvalController(object):
         self.defns = None
         self.desc = None
 
+    def close(self):
+        """Done with this eval controller, clear any references"""
+        pass
+
     def start(self, buf, trg):
         """Called by the evaluation engine to indicate the beginning of
         evaluation and to pass in data the controller might need.
@@ -556,6 +560,10 @@ class Evaluator(object):
         self.ctlr.done("eval not implemented")
         raise VirtualMethodError("Evaluator.eval")
 
+    def close(self):
+        """Done with this evaluator, clear any references"""
+        if self.ctlr is not None:
+            self.ctlr.close()
 
 
 #---- helper methods

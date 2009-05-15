@@ -437,15 +437,23 @@ class Manager(threading.Thread, Queue):
                 log.exception("error evaluating %s" % eval_sess)
                 eval_sess.ctlr.done("unexpected eval error")
 
+    def _release_curr_eval_sess(self):
+        if self._curr_eval_sess is not None:
+            # We are done with the evaluator, cleanup all references, otherwise
+            # Komodo will be leaking memory - bug 65502.
+            self._curr_eval_sess.close()
+            self._curr_eval_sess = None
+
     def _handle_eval_sess(self, eval_sess):
         try:
             eval_sess.eval(self)
         except Exception:
-            self._curr_eval_sess = None
+            self._release_curr_eval_sess()
             raise
         else:
             if eval_sess.ctlr.is_done():
-                self._curr_eval_sess = None
+                self._release_curr_eval_sess()
+
 
     def _put(self, (eval_sess, is_reeval)):
         # Only consider re-evaluation if we are still on the same eval
@@ -473,6 +481,7 @@ class Manager(threading.Thread, Queue):
         if is_reeval:
             assert self._curr_eval_sess is eval_sess
         else:
+            self._release_curr_eval_sess()
             self._curr_eval_sess = eval_sess
         return eval_sess, is_reeval
 
