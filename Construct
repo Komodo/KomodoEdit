@@ -457,6 +457,7 @@ sub cons::KoExt {
     defined($sdkDir) or die "*** sdkDir is not defined for KoExt\n";
     defined($build) or die "*** build is not defined for KoExt\n";
     defined($mozBin) or die "*** mozBin is not defined for KoExt\n";
+    defined($unsiloedPythonExe) or die "*** unsiloedPythonExe is not defined for KoExt\n";
 
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
     my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
@@ -490,6 +491,7 @@ sub cons::KoExtSourceDevInstall {
     defined($sdkDir) or die "*** sdkDir is not defined for KoExtSourceDevInstall\n";
     defined($build) or die "*** build is not defined for KoExtSourceDevInstall\n";
     defined($mozBin) or die "*** mozBin is not defined for KoExt\n";
+    defined($unsiloedPythonExe) or die "*** unsiloedPythonExe is not defined for KoExt\n";
 
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
     my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
