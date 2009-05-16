@@ -158,13 +158,13 @@ class koFileService(object):
                 msg = "TempFile: File still exists after deleting '%s' - '%s'" % (fname,error_message)
                 if remove_fname:
                     msg += " - flagging for cleanup at shutdown"
-                _safeLog(log.warn,msg)
+                log.warn(msg)
                 remove_fname = 0
         if remove_fname:
             try:
                 del self._tmpfiles[fname]
             except KeyError:
-                _safeLog(log.debug, "TempFile: '%s' is not in the map of temp filenames" % (fname,))
+                log.debug("TempFile: '%s' is not in the map of temp filenames", fname)
     
     def deleteAllTempFiles(self):
          for fname in self._tmpfiles.keys():
