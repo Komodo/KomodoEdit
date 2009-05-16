@@ -154,7 +154,7 @@ class TestURIParser(unittest.TestCase):
         if sys.platform.startswith("win"):
             URI = URIParser()
             URI.URI = 'file://///netshare/apps/Komodo/Naming Rules for Tarballs.txt'
-            assert URI.URI == 'file://netshare/apps/Komodo/Naming Rules for Tarballs.txt'
+            self.assertEqual(URI.URI, 'file://netshare/apps/Komodo/Naming%20Rules%20for%20Tarballs.txt')
             self.failUnlessSamePath(URI.path, r'\\netshare\apps\Komodo\Naming Rules for Tarballs.txt')
 
     def test_md5name(self):
