@@ -101,11 +101,12 @@ if ($buildFlavour ne "full") {
         )
     );
     
-    if (0) {
+    if (1) {
         # if we want this by default
         $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/casper.jar", 'casper.jar');
         $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/install.rdf", 'install.rdf');
-        $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome.manifest", 'devbuild.manifest');
+        $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome.manifest", 'chrome.manifest');
+        $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/components/casper-clhandler.js", 'components/casper-clhandler.js');
     } else {
         # install the xpi with komodo
         $cons->Install("$supportDir/modules", 'casper.xpi');
