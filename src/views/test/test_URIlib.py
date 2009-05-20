@@ -88,9 +88,6 @@ class TestURIParser(unittest.TestCase):
     urllist.append(["http://server.com/test/path/to/somefile.txt",
                     r'/test/path/to/somefile.txt', 'somefile.txt',
                     'somefile.txt', '/test/path/to'])
-    urllist.append([r'kodebugger://php/c:/web/info.php',
-                    r'c:\web\info.php','info.php','info.php',
-                    r'c:\web'])
     urllist.append([r'ftp://somesite.com/web/info.php',
                     r'/web/info.php','info.php','info.php',
                     r'/web'])
