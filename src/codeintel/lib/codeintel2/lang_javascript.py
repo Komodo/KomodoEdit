@@ -2383,6 +2383,9 @@ class JavaScriptCiler:
             elif style == self.JS_OPERATOR and last_style == self.JS_IDENTIFIER:
                 if text[p] == ".":
                     pass
+                elif text[p] == ")":
+                    # Collect after the closing brace - bug 80581.
+                    style = last_style
                 elif text[p] == "(":
                     paren_pos = p
                     p = self._skipOverParenArguments(styles, text, p)

@@ -1633,6 +1633,29 @@ class XPCOMTestCase(CodeIntelTestCase):
         #    [("function", "getService"),
         #     ("function", "createInstance")])
 
+    def test_xpcom_full_expression_cplns_bug80581(self):
+        content, positions = unmark_text(dedent("""\
+            var ko_prefSvc = Components.classes["@activestate.com/koPrefService;1"]
+                           .getService(Components.interfaces.koIPrefService);
+            ko_prefSvc.<1>;
+            var ko_gPrefs = Components.classes["@activestate.com/koPrefService;1"]
+                           .getService(Components.interfaces.koIPrefService)
+                           .prefs;
+            ko_gPrefs.<2>;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "prefs"),
+             ("function", "saveState")])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+            [("variable", "type"),
+             ("function", "serialize")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "type"),
+             ("function", "serialize")])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+            [("variable", "prefs"),
+             ("function", "saveState")])
+
 
 #---- mainline
 
