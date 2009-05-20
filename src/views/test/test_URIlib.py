@@ -97,9 +97,6 @@ class TestURIParser(unittest.TestCase):
     urllist.append([r'ftp://somesite.com/web%20with%20space/info.php',
                     r'/web with space/info.php','info.php','info.php',
                     r'/web with space'])
-    urllist.append([r'dbgp:///file:///web with space/info.php',
-                    r'file:///web with space/info.php','info.php','info.php',
-                    r'file:///web with space'])
 
     def failUnlessSamePath(self, p1, p2, errmsg = None):
         p1 = p1.replace('\\','/')
