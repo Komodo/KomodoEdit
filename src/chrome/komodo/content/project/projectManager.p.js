@@ -293,14 +293,14 @@ projectManager.prototype.getDirtyProjects= function() {
 }
 
 projectManager.prototype.closeAllProjects = function() {
-    for (var i = 0; i < this._projects.length; i++) {
+    for (var i = this._projects.length - 1; i >= 0; i--) {
         if (!this.closeProject(this._projects[i])) return false;
     }
     return true;
 }
 
 projectManager.prototype.closeAllProjectsEvenIfDirty = function() {
-    for (var i = 0; i < this._projects.length; i++) {
+    for (var i = this._projects.length - 1; i >= 0; i--) {
         if (!this.closeProjectEvenIfDirty(this._projects[i])) return false;
     }
     return true;
