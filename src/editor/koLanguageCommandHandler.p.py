@@ -1200,12 +1200,11 @@ class GenericCommandHandler:
         # Priority goes to character before caret
         if (charBefore
             and (view.languageObj.getBraceIndentStyle(charBefore, styleBefore)
-                 or (view.languageObj.supportsSmartIndent == "XML"
-                     and charBefore in "[]{}()"))):
+                 or (charBefore in "[]{}()"))):
             braceAtCaret = caretPos - 1
         
         colonMode = 0
-        if view.languageObj.name == 'Python' and ':' == charBefore:
+        if view.languageObj.name in ('Python', 'YAML') and charBefore == ':':
             braceAtCaret = caretPos - 1
             colonMode = 1
 
@@ -1214,11 +1213,7 @@ class GenericCommandHandler:
            0 <= caretPos < textLength: # XXX check last edge condition
             # No brace found so check other side
             charAfter = sm.getWCharAt(caretPos)
-            styleAfter = sm.getStyleAt(caretPos) & mask
-            
-            if (charAfter in "[](){}"
-                and (view.languageObj.getBraceIndentStyle(charAfter, styleAfter)
-                     or view.languageObj.supportsSmartIndent == "XML")):
+            if charAfter in "[](){}":
                 braceAtCaret = caretPos
                 isAfter = 0
 
