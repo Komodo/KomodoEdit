@@ -55,6 +55,10 @@ keyword_style SSL_IDENTIFIER => SSL_WORD
 # recognition of 'true' and 'false' is case-insensitive!
 
 keywords [
+                # new to php 5.3
+                "__dir__", "__namespace__",
+                "e_deprecated", "e_user_deprecated", "php_maxpathlen",
+                "goto", "namespace",
                 # new to php5
                 "public", "private", "protected", "final",
                 "abstract", "interface", "implements",

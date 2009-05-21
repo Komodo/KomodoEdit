@@ -108,6 +108,8 @@ class PHPLangInfo(LangInfo):
             "include_once", "isset", "list", "new", "old_function", "or",
             "print", "require", "require_once", "return", "static",
             "switch", "unset", "use", "var", "while", "xor",
+            # new to php 5.3
+            "__dir__", "__namespace__", "goto", "namespace",
             ])
 
 class TclLangInfo(LangInfo):
