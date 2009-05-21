@@ -61,6 +61,9 @@ php_magic_class_method_data = {
     "__call"      : "__call(string $name, array $arguments) -> mixed\n"
                     "Is triggered when your class instance (and inherited\n"
                     "classes) does not contain the method name.",
+    "__callStatic": "__callStatic(string $name, array $arguments) -> mixed\n"
+                    "Is triggered when your class is accessed statically\n"
+                    "and it does not contain the method name.",
     "__get"       : "__get(string $name) -> mixed\n"
                     "Is triggered when your class instance (and inherited\n"
                     "classes) does not contain the member or method name.",
