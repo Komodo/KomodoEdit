@@ -1,0 +1,9 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/5.3/closures.php">
+    <scope ilk="blob" lang="PHP" name="closures.php" src="scan_inputs/php/5.3/closures.php">
+      <scope ilk="function" line="3" lineend="5" name="(anonymous)" signature="">
+        <variable ilk="argument" name="match" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>
