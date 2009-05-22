@@ -126,6 +126,18 @@ class KoTestService:
         if self.__initialized:
             return
 
+        # Ensure that the Komodo profile directories exist. This is normally
+        # done by the Komodo xre_main handling, which does not get called
+        # when running the pyxpcom tests. Without this, some Komodo xpcom
+        # services (like the koIHistory service) will fail.
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        currUserDataDir = koDirSvc.userDataDir
+        if not os.path.exists(currUserDataDir):
+            os.mkdir(currUserDataDir)
+        currHostUserDataDir = koDirSvc.hostUserDataDir
+        if not os.path.exists(currHostUserDataDir):
+            os.mkdir(currHostUserDataDir)
+
         # Register the test directory provider, to pick up the slack from
         # the nsXREDirProvider not having been registered.
         dirSvc = components.classes["@mozilla.org/file/directory_service;1"] \
