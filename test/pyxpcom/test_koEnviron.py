@@ -17,7 +17,18 @@ def KoUserEnviron(startupEnvFileName=None):
     if startupEnvFileName:
         environ = UnwrapObject(koEnviron)
         environ.__init__(startupEnvFileName)
-        environ.startupEnvironEncoding = locale.getlocale()[1]
+        current_encoding = locale.getlocale()[1]
+        # For some reason this can be the value 'None' when running in
+        # the pyxpcom test suite, so fall back to the expected default
+        # platform encoding.
+        if not current_encoding:
+            if sys.platform.startswith('win'):
+                current_encoding = 'mbcs'
+            elif sys.platform.startswith('darwin'):
+                current_encoding = 'mac-roman'
+            elif sys.platform.startswith('linux'):
+                current_encoding = 'utf-8'
+        environ.startupEnvironEncoding = current_encoding
 
     return koEnviron
 
