@@ -54,7 +54,6 @@ class TestKoFileService(unittest.TestCase):
         file = self.__filesvc.getFileFromURI(filename)
         assert file.exists
         files = self.__filesvc.getAllFiles()
-        num_files = len(files)
         # XXX: There is some subtle difference between the xpcom objects
         #      returned in an array that makes the "file in files" test fail.
         #      Bug 83120.
@@ -68,6 +67,7 @@ class TestKoFileService(unittest.TestCase):
         file = self.__filesvc.getFileFromURI(filename)
         assert file.exists
         files = self.__filesvc.getAllFiles()
+        num_files = len(files)
         # XXX: There is some subtle difference between the xpcom objects
         #      returned in an array that makes the "file in files" test fail.
         #      Bug 83120.
