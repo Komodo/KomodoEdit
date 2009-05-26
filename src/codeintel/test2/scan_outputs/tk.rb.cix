@@ -33,7 +33,7 @@
           <variable ilk="argument" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="48" name="self" />
         </scope>
-        <scope doc="*** ATTENTION *** 'current_configinfo' method always returns&#xA;a Hash under all cases of above." ilk="function" line="72" lineend="78" name="error_at" signature="error_at">
+        <scope doc="*** ATTENTION *** &apos;current_configinfo&apos; method always returns&#xA;a Hash under all cases of above." ilk="function" line="72" lineend="78" name="error_at" signature="error_at">
           <variable attributes="__local__" citdl="TkComm" line="72" name="self" />
           <variable attributes="__local__" line="73" name="frames" />
         </scope>
@@ -262,13 +262,13 @@
           <variable ilk="argument" name="context" />
           <variable attributes="__local__" citdl="TkComm" line="945" name="self" />
         </scope>
-        <scope doc="def bind_all(context, cmd=Proc.new, *args) _bind(['bind',&#xA;'all'], context, cmd, *args) TkBindTag::ALL end" ilk="function" line="953" lineend="962" name="bind_all" signature="bind_all(context, *args)">
+        <scope doc="def bind_all(context, cmd=Proc.new, *args) _bind([&apos;bind&apos;,&#xA;&apos;all&apos;], context, cmd, *args) TkBindTag::ALL end" ilk="function" line="953" lineend="962" name="bind_all" signature="bind_all(context, *args)">
           <variable ilk="argument" name="context" />
           <variable ilk="argument" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="953" name="self" />
           <variable attributes="__local__" citdl="Proc" line="956" name="cmd" />
         </scope>
-        <scope doc="def bind_append_all(context, cmd=Proc.new, *args)&#xA;_bind_append(['bind', 'all'], context, cmd, *args)&#xA;TkBindTag::ALL end" ilk="function" line="968" lineend="977" name="bind_append_all" signature="bind_append_all(context, *args)">
+        <scope doc="def bind_append_all(context, cmd=Proc.new, *args)&#xA;_bind_append([&apos;bind&apos;, &apos;all&apos;], context, cmd, *args)&#xA;TkBindTag::ALL end" ilk="function" line="968" lineend="977" name="bind_append_all" signature="bind_append_all(context, *args)">
           <variable ilk="argument" name="context" />
           <variable ilk="argument" name="*args" />
           <variable attributes="__local__" citdl="TkComm" line="968" name="self" />
@@ -650,14 +650,14 @@
         <scope attributes="__classmethod__" ilk="function" line="1815" lineend="1817" name="strictMotif" signature="Tk.strictMotif(bool=None)">
           <variable ilk="argument" name="bool" />
         </scope>
-        <scope attributes="__classmethod__" ilk="function" line="1819" lineend="1826" name="show_kinsoku" signature="Tk.show_kinsoku(mode='both')">
+        <scope attributes="__classmethod__" ilk="function" line="1819" lineend="1826" name="show_kinsoku" signature="Tk.show_kinsoku(mode=&apos;both&apos;)">
           <variable ilk="argument" name="mode" />
         </scope>
-        <scope attributes="__classmethod__" ilk="function" line="1827" lineend="1838" name="add_kinsoku" signature="Tk.add_kinsoku(chars, mode='both')">
+        <scope attributes="__classmethod__" ilk="function" line="1827" lineend="1838" name="add_kinsoku" signature="Tk.add_kinsoku(chars, mode=&apos;both&apos;)">
           <variable ilk="argument" name="chars" />
           <variable ilk="argument" name="mode" />
         </scope>
-        <scope attributes="__classmethod__" ilk="function" line="1839" lineend="1847" name="delete_kinsoku" signature="Tk.delete_kinsoku(chars, mode='both')">
+        <scope attributes="__classmethod__" ilk="function" line="1839" lineend="1847" name="delete_kinsoku" signature="Tk.delete_kinsoku(chars, mode=&apos;both&apos;)">
           <variable ilk="argument" name="chars" />
           <variable ilk="argument" name="mode" />
         </scope>
@@ -670,7 +670,7 @@
           <variable ilk="argument" name="encoding" />
         </scope>
       </scope>
-      <scope doc="string with Tcl's encoding" ilk="namespace" line="1861" lineend="1877" name="Tk">
+      <scope doc="string with Tcl&apos;s encoding" ilk="namespace" line="1861" lineend="1877" name="Tk">
         <scope attributes="__classmethod__" ilk="function" line="1862" lineend="1864" name="subst_utf_backslash" signature="Tk.subst_utf_backslash(str)">
           <variable ilk="argument" name="str" />
         </scope>
