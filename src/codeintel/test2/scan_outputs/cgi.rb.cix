@@ -33,7 +33,7 @@
         <scope attributes="__classmethod__" doc="URL-decode a string." ilk="function" line="351" lineend="355" name="unescape" signature="CGI::unescape(string)">
           <variable ilk="argument" name="string" />
         </scope>
-        <scope attributes="__classmethod__" doc="Escape special characters in HTML, namely &amp;\&quot;&lt;&gt;&#xA;CGI::escapeHTML('Usage: foo &quot;bar&quot; &lt;baz&gt;') # =&gt; &quot;Usage: foo&#xA;&amp;quot;bar&amp;quot; &amp;lt;baz&amp;gt;&quot;" ilk="function" line="361" lineend="363" name="escapeHTML" signature="CGI::escapeHTML(string)">
+        <scope attributes="__classmethod__" doc="Escape special characters in HTML, namely &amp;\&quot;&lt;&gt;&#xA;CGI::escapeHTML(&apos;Usage: foo &quot;bar&quot; &lt;baz&gt;&apos;) # =&gt; &quot;Usage: foo&#xA;&amp;quot;bar&amp;quot; &amp;lt;baz&amp;gt;&quot;" ilk="function" line="361" lineend="363" name="escapeHTML" signature="CGI::escapeHTML(string)">
           <variable ilk="argument" name="string" />
         </scope>
         <scope attributes="__classmethod__" doc="Unescape a string that has been HTML-escaped&#xA;CGI::unescapeHTML(&quot;Usage: foo &amp;quot;bar&amp;quot; &amp;lt;baz&amp;gt;&quot;)&#xA;# =&gt; &quot;Usage: foo \&quot;bar\&quot; &lt;baz&gt;&quot;" ilk="function" line="369" lineend="401" name="unescapeHTML" signature="CGI::unescapeHTML(string)">
