@@ -1114,6 +1114,9 @@ def target_configure(argv):
         --debug, --release
             specify mozilla build-type (default: release)
 
+        --universal
+            create a macosx universal mozilla build
+
         --strip, --no-strip
             Whether to strip libraries after the build. By default
             stripping *is* done.
