@@ -842,7 +842,10 @@ class MultiLangLibTestCase(DBTestCase):
             self.failUnless("crazy" in buf.scan_error)
         finally:
             citadel_log.removeFilter(filter)
-        self.failUnless(len(filter.filtered_out))
+        if not _xpcom_:
+            # When running in XPCOM, it uses a different logging mechanism, so
+            # this test would fail there.
+            self.failUnless(len(filter.filtered_out))
 
         buf.scan(skip_scan_time_check=True)
         scan_time, scan_error, blob_from_lang \
