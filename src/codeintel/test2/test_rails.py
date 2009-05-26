@@ -283,7 +283,10 @@ class PureRailsTestCase(_BaseTestCase):
     Replace sensitive paramater data from the request log.
     Filters paramaters that have any of the arguments as a
     substring. Looks in all subhashes of the param hash for keys
-    to filter. If a block is given, each key and value of the"""))
+    to filter. If a block is given, each key and value of the
+    paramater hash and all subhashes is passed to it, the value
+    or key can be replaced using String#replace or similar
+    method."""))
 
 
     @tag("bug65336", "knownfailure")
@@ -1139,7 +1142,9 @@ class MultiLangRailsTestCase(_BaseTestCase):
     Creates a link tag of the given name</tt> using a URL
     created by the set of <tt>options</tt> if <tt>condition is
     true, in which case only the name is returned. To specialize
-    the default behavior, you can pass a block that accepts the"""))
+    the default behavior, you can pass a block that accepts the
+    name or the full argument list for link_to_unless (see the
+    examples in link_to_unless)."""))
         self.assertNoPrecedingTrigger(markup_text(main_content,
                                                 start_pos=main_positions['start_pos'],
                                                   pos=main_positions[3]))
