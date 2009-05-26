@@ -226,12 +226,12 @@
           <variable attributes="__local__" citdl="FileUtils" line="701" name="self" />
           <variable attributes="__local__" citdl="String" line="704" name="path" />
         </scope>
-        <scope doc="Returns true if the contents of a file A and a file B are&#10;identical." ilk="function" line="727" lineend="734" name="compare_file" signature="compare_file(a, b)">
+        <scope doc="Returns true if the contents of a file A and a file B are&#xA;identical." ilk="function" line="727" lineend="734" name="compare_file" signature="compare_file(a, b)">
           <variable ilk="argument" name="a" />
           <variable ilk="argument" name="b" />
           <variable attributes="__local__" citdl="FileUtils" line="727" name="self" />
         </scope>
-        <scope doc="Returns true if the contents of a stream +a+ and +b+ are&#10;identical." ilk="function" line="742" lineend="755" name="compare_stream" signature="compare_stream(a, b)">
+        <scope doc="Returns true if the contents of a stream +a+ and +b+ are&#xA;identical." ilk="function" line="742" lineend="755" name="compare_stream" signature="compare_stream(a, b)">
           <variable ilk="argument" name="a" />
           <variable ilk="argument" name="b" />
           <variable attributes="__local__" citdl="FileUtils" line="742" name="self" />
@@ -312,17 +312,17 @@
           <variable ilk="argument" name="new" />
           <variable attributes="__local__" citdl="FileUtils" line="910" name="self" />
         </scope>
-        <scope doc="This module has all methods of FileUtils module, but it&#10;outputs messages before acting." ilk="namespace" line="959" lineend="972" name="Verbose">
+        <scope doc="This module has all methods of FileUtils module, but it&#xA;outputs messages before acting." ilk="namespace" line="959" lineend="972" name="Verbose">
           <import line="960" symbol="FileUtils" />
           <variable attributes="__instancevar__ __local__" line="961" name="@fileutils_output" />
           <variable attributes="__instancevar__ __local__" citdl="String" line="962" name="@fileutils_label" />
         </scope>
-        <scope doc="This module has all methods of FileUtils module, but never&#10;changes files/directories." ilk="namespace" line="979" lineend="992" name="NoWrite">
+        <scope doc="This module has all methods of FileUtils module, but never&#xA;changes files/directories." ilk="namespace" line="979" lineend="992" name="NoWrite">
           <import line="980" symbol="FileUtils" />
           <variable attributes="__instancevar__ __local__" line="981" name="@fileutils_output" />
           <variable attributes="__instancevar__ __local__" citdl="String" line="982" name="@fileutils_label" />
         </scope>
-        <scope doc="This module has all methods of FileUtils module, but never&#10;changes files/directories, with printing message before&#10;acting." ilk="namespace" line="1000" lineend="1013" name="DryRun">
+        <scope doc="This module has all methods of FileUtils module, but never&#xA;changes files/directories, with printing message before&#xA;acting." ilk="namespace" line="1000" lineend="1013" name="DryRun">
           <import line="1001" symbol="FileUtils" />
           <variable attributes="__instancevar__ __local__" line="1002" name="@fileutils_output" />
           <variable attributes="__instancevar__ __local__" citdl="String" line="1003" name="@fileutils_label" />

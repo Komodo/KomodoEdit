@@ -35,7 +35,7 @@
       </scope>
       <scope classrefs="Object" ilk="class" line="88" lineend="126" name="Module">
         <variable attributes="__alias__" citdl="const_missing" line="90" name="rails_original_const_missing" />
-        <scope doc="Use const_missing to autoload associations so we don't have&#10;to require_association when using single-table inheritance." ilk="function" line="94" lineend="125" name="const_missing" signature="const_missing(class_id)">
+        <scope doc="Use const_missing to autoload associations so we don't have&#xA;to require_association when using single-table inheritance." ilk="function" line="94" lineend="125" name="const_missing" signature="const_missing(class_id)">
           <variable ilk="argument" name="class_id" />
           <variable attributes="__local__" citdl="Module" line="94" name="self" />
           <variable attributes="__local__" line="95" name="file_name" />

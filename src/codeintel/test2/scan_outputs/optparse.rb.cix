@@ -2,7 +2,7 @@
   <file lang="Ruby" mtime="42" path="scan_inputs/optparse.rb">
     <scope ilk="blob" lang="Ruby" name="optparse" src="scan_inputs/optparse.rb">
       <variable line="1814" name="Version" />
-      <scope classrefs="Object" doc="optparse.rb - command-line option analysis with the&#10;OptionParser class." ilk="class" line="193" lineend="1807" name="OptionParser">
+      <scope classrefs="Object" doc="optparse.rb - command-line option analysis with the&#xA;OptionParser class." ilk="class" line="193" lineend="1807" name="OptionParser">
         <import line="734" module="optparse/version" symbol="*" />
         <variable line="195" name="RCSID" />
         <variable line="196" name="Version" />
@@ -96,7 +96,7 @@
             <variable ilk="argument" name="block" />
             <variable attributes="__local__" citdl="Switch" line="300" name="self" />
           </scope>
-          <scope doc="OptionParser::Switch#parse_arg(arg) {non-serious error&#10;handler}" ilk="function" line="319" lineend="336" name="parse_arg" signature="parse_arg(arg)">
+          <scope doc="OptionParser::Switch#parse_arg(arg) {non-serious error&#xA;handler}" ilk="function" line="319" lineend="336" name="parse_arg" signature="parse_arg(arg)">
             <variable ilk="argument" name="arg" />
             <variable attributes="__local__" citdl="Switch" line="319" name="self" />
             <variable attributes="__local__" citdl="Array" line="326" name="m" />
@@ -108,7 +108,7 @@
             <variable attributes="__local__" citdl="Switch" line="355" name="self" />
             <variable attributes="__local__" line="358" name="val" />
           </scope>
-          <scope doc="OptionParser::Switch#summarize(sdone, ldone, width, max,&#10;indent)" ilk="function" line="388" lineend="417" name="summarize" signature="summarize(sdone = [], ldone = [], width = 1, max = width - 1, indent = &quot;&quot;)">
+          <scope doc="OptionParser::Switch#summarize(sdone, ldone, width, max,&#xA;indent)" ilk="function" line="388" lineend="417" name="summarize" signature="summarize(sdone = [], ldone = [], width = 1, max = width - 1, indent = &quot;&quot;)">
             <variable ilk="argument" name="sdone" />
             <variable ilk="argument" name="ldone" />
             <variable ilk="argument" name="width" />
@@ -158,7 +158,7 @@
             </scope>
           </scope>
         </scope>
-        <scope classrefs="Object" doc="Simple option list providing mapping from short and/or long&#10;option string to ((&lt;OptionParser::Switch&gt;)), and mapping&#10;from acceptable argument to matching pattern and converter&#10;pair." ilk="class" line="498" lineend="659" name="List">
+        <scope classrefs="Object" doc="Simple option list providing mapping from short and/or long&#xA;option string to ((&lt;OptionParser::Switch&gt;)), and mapping&#xA;from acceptable argument to matching pattern and converter&#xA;pair." ilk="class" line="498" lineend="659" name="List">
           <variable attributes="__instancevar__ __local__" citdl="Hash" line="500" name="@atype" />
           <variable attributes="__instancevar__ __local__" citdl="OptionMap" line="503" name="@short" />
           <variable attributes="__instancevar__ __local__" citdl="OptionMap" line="506" name="@long" />
@@ -192,11 +192,11 @@
             <variable attributes="__local__" line="559" name="o" />
             <variable attributes="__local__" line="563" name="used" />
           </scope>
-          <scope doc="OptionParser::List#prepend(switch, short_opts, long_opts,&#10;nolong_opts)" ilk="function" line="573" lineend="576" name="prepend" signature="prepend(*args)">
+          <scope doc="OptionParser::List#prepend(switch, short_opts, long_opts,&#xA;nolong_opts)" ilk="function" line="573" lineend="576" name="prepend" signature="prepend(*args)">
             <variable ilk="argument" name="*args" />
             <variable attributes="__local__" citdl="List" line="573" name="self" />
           </scope>
-          <scope doc="OptionParser::List#append(switch, short_opts, long_opts,&#10;nolong_opts)" ilk="function" line="592" lineend="595" name="append" signature="append(*args)">
+          <scope doc="OptionParser::List#append(switch, short_opts, long_opts,&#xA;nolong_opts)" ilk="function" line="592" lineend="595" name="append" signature="append(*args)">
             <variable ilk="argument" name="*args" />
             <variable attributes="__local__" citdl="List" line="592" name="self" />
           </scope>

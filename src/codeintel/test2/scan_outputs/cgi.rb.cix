@@ -33,10 +33,10 @@
         <scope attributes="__classmethod__" doc="URL-decode a string." ilk="function" line="351" lineend="355" name="unescape" signature="CGI::unescape(string)">
           <variable ilk="argument" name="string" />
         </scope>
-        <scope attributes="__classmethod__" doc="Escape special characters in HTML, namely &amp;\&quot;&lt;&gt;&#10;CGI::escapeHTML('Usage: foo &quot;bar&quot; &lt;baz&gt;') # =&gt; &quot;Usage: foo&#10;&amp;quot;bar&amp;quot; &amp;lt;baz&amp;gt;&quot;" ilk="function" line="361" lineend="363" name="escapeHTML" signature="CGI::escapeHTML(string)">
+        <scope attributes="__classmethod__" doc="Escape special characters in HTML, namely &amp;\&quot;&lt;&gt;&#xA;CGI::escapeHTML('Usage: foo &quot;bar&quot; &lt;baz&gt;') # =&gt; &quot;Usage: foo&#xA;&amp;quot;bar&amp;quot; &amp;lt;baz&amp;gt;&quot;" ilk="function" line="361" lineend="363" name="escapeHTML" signature="CGI::escapeHTML(string)">
           <variable ilk="argument" name="string" />
         </scope>
-        <scope attributes="__classmethod__" doc="Unescape a string that has been HTML-escaped&#10;CGI::unescapeHTML(&quot;Usage: foo &amp;quot;bar&amp;quot; &amp;lt;baz&amp;gt;&quot;)&#10;# =&gt; &quot;Usage: foo \&quot;bar\&quot; &lt;baz&gt;&quot;" ilk="function" line="369" lineend="401" name="unescapeHTML" signature="CGI::unescapeHTML(string)">
+        <scope attributes="__classmethod__" doc="Unescape a string that has been HTML-escaped&#xA;CGI::unescapeHTML(&quot;Usage: foo &amp;quot;bar&amp;quot; &amp;lt;baz&amp;gt;&quot;)&#xA;# =&gt; &quot;Usage: foo \&quot;bar\&quot; &lt;baz&gt;&quot;" ilk="function" line="369" lineend="401" name="unescapeHTML" signature="CGI::unescapeHTML(string)">
           <variable ilk="argument" name="string" />
           <variable attributes="__local__" line="371" name="match" />
         </scope>
@@ -50,7 +50,7 @@
           <variable ilk="argument" name="*elements" />
           <variable attributes="__local__" line="439" name="elements" />
         </scope>
-        <scope attributes="__classmethod__" doc="Format a +Time+ object as a String using the format&#10;specified by RFC 1123." ilk="function" line="454" lineend="459" name="rfc1123_date" signature="CGI::rfc1123_date(time)">
+        <scope attributes="__classmethod__" doc="Format a +Time+ object as a String using the format&#xA;specified by RFC 1123." ilk="function" line="454" lineend="459" name="rfc1123_date" signature="CGI::rfc1123_date(time)">
           <variable ilk="argument" name="time" />
           <variable attributes="__local__" line="455" name="t" />
         </scope>
@@ -61,7 +61,7 @@
           <variable attributes="__local__" citdl="Hash" line="545" name="options" />
           <variable attributes="__local__" line="629" name="table" />
         </scope>
-        <scope doc="header() Print an HTTP header and body to $DEFAULT_OUTPUT&#10;($&gt;)" ilk="function" line="702" lineend="727" name="out" signature="out(options = &quot;text/html&quot;)">
+        <scope doc="header() Print an HTTP header and body to $DEFAULT_OUTPUT&#xA;($&gt;)" ilk="function" line="702" lineend="727" name="out" signature="out(options = &quot;text/html&quot;)">
           <variable ilk="argument" name="options" />
           <import line="708" module="nkf" symbol="*" />
           <variable attributes="__local__" citdl="CGI" line="702" name="self" />
@@ -69,7 +69,7 @@
           <variable attributes="__local__" line="705" name="content" />
           <variable attributes="__local__" citdl="stdoutput" line="723" name="output" />
         </scope>
-        <scope doc="Print an argument or list of arguments to the default output&#10;stream" ilk="function" line="734" lineend="736" name="print" signature="print(*options)">
+        <scope doc="Print an argument or list of arguments to the default output&#xA;stream" ilk="function" line="734" lineend="736" name="print" signature="print(*options)">
           <variable ilk="argument" name="*options" />
           <variable attributes="__local__" citdl="CGI" line="734" name="self" />
         </scope>
@@ -95,7 +95,7 @@
             <variable attributes="__local__" citdl="String" line="832" name="buf" />
           </scope>
         </scope>
-        <scope doc="class Cookie Parse a raw cookie string into a hash of&#10;cookie-name=&gt;Cookie pairs." ilk="function" line="869" lineend="885" name="Cookie::parse" signature="Cookie::parse(raw_cookie)">
+        <scope doc="class Cookie Parse a raw cookie string into a hash of&#xA;cookie-name=&gt;Cookie pairs." ilk="function" line="869" lineend="885" name="Cookie::parse" signature="Cookie::parse(raw_cookie)">
           <variable ilk="argument" name="raw_cookie" />
           <variable attributes="__local__" citdl="CGI" line="869" name="self" />
           <variable attributes="__local__" citdl="Hash" line="870" name="cookies" />
@@ -198,7 +198,7 @@
           <variable attributes="__local__" line="1214" name="start_pos" />
         </scope>
         <scope doc="Base module for HTML-generation mixins." ilk="namespace" line="1225" lineend="1274" name="TagMaker">
-          <scope doc=":nodoc: Generate code for an element with required start and&#10;end tags." ilk="function" line="1230" lineend="1239" name="nn_element_def" signature="nn_element_def(element)">
+          <scope doc=":nodoc: Generate code for an element with required start and&#xA;end tags." ilk="function" line="1230" lineend="1239" name="nn_element_def" signature="nn_element_def(element)">
             <variable ilk="argument" name="element" />
             <variable attributes="__local__" citdl="TagMaker" line="1230" name="self" />
           </scope>
@@ -208,7 +208,7 @@
             <variable attributes="__local__" citdl="TagMaker" line="1244" name="self" />
             <variable attributes="__local__" line="1245" name="s" />
           </scope>
-          <scope doc="Generate code for an element for which the end (and possibly&#10;the start) tag is optional." ilk="function" line="1264" lineend="1272" name="nO_element_def" signature="nO_element_def(element)">
+          <scope doc="Generate code for an element for which the end (and possibly&#xA;the start) tag is optional." ilk="function" line="1264" lineend="1272" name="nO_element_def" signature="nO_element_def(element)">
             <variable ilk="argument" name="element" />
             <variable attributes="__local__" citdl="TagMaker" line="1264" name="self" />
           </scope>
@@ -322,7 +322,7 @@
             <variable attributes="__local__" citdl="HtmlExtension" line="1876" name="self" />
             <variable attributes="__local__" line="1877" name="attributes" />
           </scope>
-          <scope doc="Generate a sequence of radio button Input elements, as a&#10;String." ilk="function" line="1915" lineend="1933" name="radio_group" signature="radio_group(name = &quot;&quot;, *values)">
+          <scope doc="Generate a sequence of radio button Input elements, as a&#xA;String." ilk="function" line="1915" lineend="1933" name="radio_group" signature="radio_group(name = &quot;&quot;, *values)">
             <variable ilk="argument" name="name" />
             <variable ilk="argument" name="*values" />
             <variable attributes="__local__" citdl="HtmlExtension" line="1915" name="self" />
@@ -357,7 +357,7 @@
             <variable attributes="__local__" line="2039" name="attributes" />
           </scope>
         </scope>
-        <scope doc="HtmlExtension Mixin module for HTML version 3 generation&#10;methods." ilk="namespace" line="2056" lineend="2102" name="Html3">
+        <scope doc="HtmlExtension Mixin module for HTML version 3 generation&#xA;methods." ilk="namespace" line="2056" lineend="2102" name="Html3">
           <scope doc=":nodoc: The DOCTYPE declaration for this version of HTML" ilk="function" line="2059" lineend="2061" name="doctype" signature="doctype">
             <variable attributes="__local__" citdl="Html3" line="2059" name="self" />
           </scope>
@@ -375,7 +375,7 @@
             <variable attributes="__local__" citdl="String" line="2116" name="methods" />
           </scope>
         </scope>
-        <scope doc="Html4 Mixin module for HTML version 4 transitional&#10;generation methods." ilk="namespace" line="2155" lineend="2202" name="Html4Tr">
+        <scope doc="Html4 Mixin module for HTML version 4 transitional&#xA;generation methods." ilk="namespace" line="2155" lineend="2202" name="Html4Tr">
           <scope doc=":nodoc: The DOCTYPE declaration for this version of HTML" ilk="function" line="2158" lineend="2160" name="doctype" signature="doctype">
             <variable attributes="__local__" citdl="Html4Tr" line="2158" name="self" />
           </scope>
@@ -384,7 +384,7 @@
             <variable attributes="__local__" citdl="String" line="2165" name="methods" />
           </scope>
         </scope>
-        <scope doc="Html4Tr Mixin module for generating HTML version 4 with&#10;framesets." ilk="namespace" line="2206" lineend="2235" name="Html4Fr">
+        <scope doc="Html4Tr Mixin module for generating HTML version 4 with&#xA;framesets." ilk="namespace" line="2206" lineend="2235" name="Html4Fr">
           <scope doc=":nodoc: The DOCTYPE declaration for this version of HTML" ilk="function" line="2209" lineend="2211" name="doctype" signature="doctype">
             <variable attributes="__local__" citdl="Html4Fr" line="2209" name="self" />
           </scope>
