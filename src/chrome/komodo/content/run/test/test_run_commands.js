@@ -221,6 +221,15 @@ while len_stdout_written < 65536:\n\
 ";
     var outputTestType = "";
     var cmd = "python '" + koIFile.path + "'";
+    // Unset the PYTHONHOME environment variable on Linux, MacOS.
+    var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
+                    getService(Components.interfaces.koIInfoService);
+    if (!infoSvc.platform.toLowerCase().match(/^win/)) {
+        // Python home environment variable can cause a "import site" failed
+        // error message to be printed to stderr, which can cause the tests to
+        // fail, so we get rid of the environment variable here.
+        cmd = "unset PYTHONHOME && " + cmd;
+    }
     // loop_replacements is used for alternating the fileContents between
     // outputting to stdout/stderr or to both.
     var loop_replacements = [
