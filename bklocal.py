@@ -1093,8 +1093,9 @@ class PythonExe(black.configure.Datum):
             if sys.platform.startswith("win"):
                 systemDrive = os.environ.get("SystemDrive", "C:")
                 self.candidates = [
-                    os.path.join(systemDrive, os.sep, "Python%s%s" % self.version),
-                    os.path.join(systemDrive, os.sep, "Python"),
+                    os.path.join(systemDrive, "Python%s%s" % self.version),
+                    os.path.join(systemDrive, "Python"),
+                    os.path.join(systemDrive, "Python", "Python%s%s" % self.version),
                 ]
             elif sys.platform == "darwin":
                 self.candidates = [
@@ -1119,9 +1120,14 @@ class PythonExe(black.configure.Datum):
                 ]
                 for dirname in dirnames:
                     for basename in basenames:
-                        self.candidates += glob.glob(os.path.join(dirname, basename, "bin"))
-            for bindir in self.candidates:
-                python = os.path.join(bindir, siloedPythonExeName)
+                        self.candidates += glob.glob(os.path.join(dirname, "bin", basename))
+            # Candidates are either full paths to the Python binary or the
+            # directory in which contains a Python binary.
+            for python in self.candidates:
+                if os.path.isdir(candidate):
+                    python = os.path.join(candidate, siloedPythonExeName)
+                else:
+                    python = candidate
                 if not os.path.isfile(python): continue
                 version = self._getVersion(python)
                 if version == self.version:
