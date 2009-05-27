@@ -1123,7 +1123,7 @@ class PythonExe(black.configure.Datum):
                         self.candidates += glob.glob(os.path.join(dirname, "bin", basename))
             # Candidates are either full paths to the Python binary or the
             # directory in which contains a Python binary.
-            for python in self.candidates:
+            for candidate in self.candidates:
                 if os.path.isdir(candidate):
                     python = os.path.join(candidate, siloedPythonExeName)
                 else:
