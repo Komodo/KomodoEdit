@@ -1091,7 +1091,7 @@ class PythonExe(black.configure.Datum):
             
             # Else, look in some well-known install locations.
             if sys.platform.startswith("win"):
-                systemDrive = os.environ.get("SystemDrive", "C:")
+                systemDrive = os.environ.get("SystemDrive", "C:") + os.sep
                 self.candidates = [
                     os.path.join(systemDrive, "Python%s%s" % self.version),
                     os.path.join(systemDrive, "Python"),
