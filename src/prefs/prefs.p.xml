@@ -635,14 +635,6 @@
   <boolean id="donotask_save_before_perlapp">0</boolean>
   <string id="donotask_action_save_before_perlapp"></string>
 
-  <!-- If false, ask before automatically reloading files that have changed
-       outside of Komodo. -->
-  <boolean id="donotask_reload_changes_files">0</boolean>
-
-  <!-- If false, ask before automatically reloading projects that have changed
-       outside of Komodo. -->
-  <boolean id="donotask_reload_changes_projects">0</boolean>
-
   <!-- Don't alert when dirty buffer conflicts with file on disk. -->
   <boolean id="donotask_buffer_conflicts_with_file_on_disk">0</boolean>
 
