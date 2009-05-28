@@ -35,6 +35,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 (function() {
+
     /**
      * A goto defintion hyperlink handler.
      *
@@ -154,6 +155,87 @@
         //this._getDefinition(view, hyperlink);
     }
 
+    /**
+     * Function used to update the definiton information
+     * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink
+     * @private
+     */
+    this.GotoDefinitionHandler.prototype._getDefinition = function(view, hyperlink) {
+        try {
+            var scimoz = view.scimoz;
+            if (!scimoz) {
+                return;
+            }
+    
+            var currentPos = hyperlink.endPos;
+            var style = scimoz.getStyleAt(currentPos);
+            var displayPath = view.document.displayPath;
+            var wordUnderCursor = ko.interpolate.getWordUnderCursor(scimoz);
+    
+            // We've told to update, but we may not need to:
+            // If the position has not changed much and the the word under the
+            // current position is the same as last time, if it is, do not
+            // bother to update.
+            //if ((this._lastDisplayPath == displayPath) &&
+            //    (this._lastStyle == style) &&
+            //    ((currentPos <= (this._lastCurrentPos + 20)) &&
+            //     (currentPos >= (this._lastCurrentPos - 20)) &&
+            //     (wordUnderCursor == this._lastWordUnderCursor))) {
+            //    // The same place as current info, so nothing to update
+            //    return;
+            //}
+            //dump("Updating codehelper\n");
+            // Remember this filename, position and style
+            //this._lastDisplayPath = displayPath;
+            //this._lastCurrentPos = currentPos;
+            //this._lastWordUnderCursor = wordUnderCursor;
+    
+            var langObj = view.document.languageObj;
+            var styleCount = new Object();
+            var styles = langObj.getCommentStyles(styleCount);
+            if (styles.indexOf(style) >= 0) {
+                // Doesn't work in comments.
+                return;
+            }
+    
+            styles = langObj.getNamedStyles("keywords", styleCount);
+            if (styles.indexOf(style) >= 0) {
+                // Continue on, as it may have completion info too
+            }
+    
+            // See if we can find out more information using goto definition
+            if (!view.isCICitadelStuffEnabled) {
+                return;
+            }
+            // Create a trigger, it must be a specific position in the document,
+            // due to variable scope implications etc...
+            var trg = view.document.ciBuf.defn_trg_from_pos(currentPos);
+            // Create a codeintel completion handler
+            var ciUIHandler = new GotoDefinitionUIHandler(
+                                                    displayPath,
+                                                    scimoz,
+                                                    view.languageObj.name,
+                                                    view.document.ciBuf);
+            // Create a controller to handle results
+            var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
+                        createInstance(Components.interfaces.koICodeIntelEvalController);
+            // Add our special controller handler
+            ctlr.set_ui_handler(ciUIHandler);
+    
+            // Fire off the codeintel call, which will call setDefinitionsInfo when done
+            view.document.ciBuf.async_eval_at_trg(trg, ctlr);
+            //dump("async_called\n");
+    
+        } catch (ex) {
+            dump("codeHelper exception: " + ex.fileName + ":" + ex.lineNumber + ":" + ex + "\n");
+            ko.logging.dumpStack();
+        }
+    }
+
+
+    /********************************************************
+     *      Utility functions for the on-hover calltip      *
+     ********************************************************/
 
     function _simpleEscapeHtml(s) {
         s = s.replace("<", "&lt;", "g");
@@ -314,93 +396,16 @@
         }
     }
     
-    /**
-     * Function used to update the definiton information
-     * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink
-     * @private
-     */
-    this.GotoDefinitionHandler.prototype._getDefinition = function(view, hyperlink) {
-        try {
-            var scimoz = view.scimoz;
-            if (!scimoz) {
-                return;
-            }
-    
-            var currentPos = hyperlink.endPos;
-            var style = scimoz.getStyleAt(currentPos);
-            var displayPath = view.document.displayPath;
-            var wordUnderCursor = ko.interpolate.getWordUnderCursor(scimoz);
-    
-            // We've told to update, but we may not need to:
-            // If the position has not changed much and the the word under the
-            // current position is the same as last time, if it is, do not
-            // bother to update.
-            //if ((this._lastDisplayPath == displayPath) &&
-            //    (this._lastStyle == style) &&
-            //    ((currentPos <= (this._lastCurrentPos + 20)) &&
-            //     (currentPos >= (this._lastCurrentPos - 20)) &&
-            //     (wordUnderCursor == this._lastWordUnderCursor))) {
-            //    // The same place as current info, so nothing to update
-            //    return;
-            //}
-            //dump("Updating codehelper\n");
-            // Remember this filename, position and style
-            //this._lastDisplayPath = displayPath;
-            //this._lastCurrentPos = currentPos;
-            //this._lastWordUnderCursor = wordUnderCursor;
-    
-            var langObj = view.document.languageObj;
-            var styleCount = new Object();
-            var styles = langObj.getCommentStyles(styleCount);
-            if (styles.indexOf(style) >= 0) {
-                // Doesn't work in comments.
-                return;
-            }
-    
-            styles = langObj.getNamedStyles("keywords", styleCount);
-            if (styles.indexOf(style) >= 0) {
-                // Continue on, as it may have completion info too
-            }
-    
-            // See if we can find out more information using goto definition
-            if (!view.isCICitadelStuffEnabled) {
-                return;
-            }
-            // Create a trigger, it must be a specific position in the document,
-            // due to variable scope implications etc...
-            var trg = view.document.ciBuf.defn_trg_from_pos(currentPos);
-            // Create a codeintel completion handler
-            var ciUIHandler = new CodeIntelCompletionUIHandler(
-                                                    displayPath,
-                                                    scimoz,
-                                                    view.languageObj.name,
-                                                    view.document.ciBuf);
-            // Override the default functions
-            var this_ = this;
-            ciUIHandler.setStatusMessage = function() {
-                // Do nothing...
-            };
-            ciUIHandler.setDefinitionsInfo = function(count, ciDefns, triggerPos) {
-                _setDefinitionsInfo(count, ciDefns, triggerPos);
-                //window.setTimeout(function(count_, ciDefns_, triggerPos_) {
-                //    _setDefinitionsInfo(count_, ciDefns_, triggerPos_);
-                //}, 1, count, ciDefns, triggerPos);
-            };
-    
-            // Create a controller to handle results
-            var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
-                        createInstance(Components.interfaces.koICodeIntelEvalController);
-            // Add our special controller handler
-            ctlr.set_ui_handler(ciUIHandler);
-    
-            // Fire off the codeintel call, which will call setDefinitionsInfo when done
-            view.document.ciBuf.async_eval_at_trg(trg, ctlr);
-            //dump("async_called\n");
-    
-        } catch (ex) {
-            dump("codeHelper exception: " + ex.fileName + ":" + ex.lineNumber + ":" + ex + "\n");
-            ko.logging.dumpStack();
-        }
+    var GotoDefinitionUIHandler = function(path, scimoz, language, 
+                                           /* codeintel.Buffer */ buf) {
+        CodeIntelCompletionUIHandler.apply(this, [path, scimoz, language, buf]);
+    }
+
+    GotoDefinitionUIHandler.prototype.setStatusMessage = function() {
+        // Do nothing...
+    }
+    GotoDefinitionUIHandler.prototype.setDefinitionsInfo = function(count, ciDefns, triggerPos) {
+        _setDefinitionsInfo(count, ciDefns, triggerPos);
     }
 
 }).apply(ko.hyperlinks);
