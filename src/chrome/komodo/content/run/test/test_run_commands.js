@@ -37,9 +37,9 @@
 try {
 dump("Loading test_run_commands.js...\n");
 var log = Casper.Logging.getLogger("Casper::test_run_commands");
-//log.setLevel(Casper.Logging.DEBUG);
-//log.setLevel(Casper.Logging.INFO);
 log.setLevel(Casper.Logging.WARN);
+//log.setLevel(Casper.Logging.INFO);
+//log.setLevel(Casper.Logging.DEBUG);
 
 // setup the test case
 function test_run_commands() {
@@ -242,6 +242,7 @@ while len_stdout_written < 65536:\n\
                                [["#sys.stdout.write", "sys.stdout.write"]]
                             ];
 
+    log.debug("test_large_stdout_stderr:: cmd '" + cmd + "'");
     for (var i=0; i < loop_replacements.length; i++) {
         var replacements = loop_replacements[i];
         if (i == 0) {
@@ -269,8 +270,10 @@ while len_stdout_written < 65536:\n\
                         "RunInTerminal",
                         "Run"];
         // Run for each run command available.
+        log.debug("test_large_stdout_stderr:: output test type: " + outputTestType);
         for (j=0; j < cmdNames.length; j++) {
             cmdName = cmdNames[j];
+            log.debug("test_large_stdout_stderr:: testing " + cmdName);
             try {
                 if (cmdName == "RunAndCaptureOutput") {
                     var stdoutObj = new Object();
@@ -319,6 +322,8 @@ while len_stdout_written < 65536:\n\
             }
             cmdName += " '" + outputTestType + "'";
 
+            if (retval != 0)
+                log.warn("test_large_stdout_stderr:: stderr: " + stderrObj.value.substr(0, 200));
             this.assertEqual(retval, 0, cmdName +": Expected retval of 0, got " + retval);
             // We expect some stdout, but no stderr
             if (i == 0 || i == 2) {
