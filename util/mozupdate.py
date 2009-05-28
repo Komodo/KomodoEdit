@@ -896,7 +896,7 @@ def _assert_mode_equal(a, b):
     mode_a = stat.S_IMODE(os.stat(a).st_mode)
     mode_b = stat.S_IMODE(os.stat(b).st_mode)
     if mode_a != mode_b:
-        raise Error("the permissions os `%s' (%s) and `%s' (%s) differ"
+        raise Error("the permissions on `%s' (%s) and `%s' (%s) differ"
                     % (a, oct(mode_a), b, oct(mode_b)))
 
 # Recipe: module_from_path (1.0.1)
