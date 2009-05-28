@@ -220,7 +220,7 @@ while len_stdout_written < 65536:\n\
     len_stdout_written += len(sys.copyright)\n\
 ";
     var outputTestType = "";
-    var cmd = "python '" + koIFile.path + "'";
+    var cmd = "python \"" + koIFile.path + "\"";
     // Unset the PYTHONHOME environment variable on Linux, MacOS.
     var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
                     getService(Components.interfaces.koIInfoService);
@@ -412,7 +412,7 @@ sys.stdout.write(sys.stdin.read())\n\
     koIFile.close();
 
     var input = "This is line 1\nThis is line 2\n";
-    var cmd = "python '" + koIFile.path + "'";
+    var cmd = "python \"" + koIFile.path + "\"";
     var process = this.runSvc.RunAndNotify(cmd, null, null, input);
 
     try {
