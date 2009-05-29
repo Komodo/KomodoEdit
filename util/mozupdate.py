@@ -66,6 +66,7 @@ import logging
 import posixpath
 import tempfile
 import shutil
+import bz2
 from optparse import OptionParser
 
 import which
@@ -144,7 +145,6 @@ class Shell(cmdln.Cmdln):
         <http://tinyurl.com/2ehfus>.
         """
         mar = _get_mar()
-        bzip2 = _get_bzip2()
         
         manifest = []
         output = _capture_output('%s -t "%s"' % (mar, mar_path))
@@ -172,9 +172,7 @@ class Shell(cmdln.Cmdln):
         for path in manifest:
             dst_path = normpath(join(opts.dir, path))
             log.info("uncompress `%s'", dst_path)
-            os.rename(dst_path, dst_path+".bz2")
-            _run_in_dir('%s -d "%s.bz2"' % (bzip2, path), opts.dir)
-
+            bzip_uncompress_file(dst_path, dst_path)
 
     _is_extension_path_re = re.compile("((.*/)?extensions)/.*?/")
 
@@ -395,7 +393,6 @@ class Shell(cmdln.Cmdln):
         <http://tinyurl.com/2uao9v>, including the exclusion of
         channel-prefs.js (see mozilla bug 306077).
         """
-        bzip2 = _get_bzip2()
         mar = _get_mar()
 
         # Validate args.
@@ -439,9 +436,7 @@ class Shell(cmdln.Cmdln):
                     log.info("archive `%s'", pkg_path)
                     if not exists(dirname(dst_path)):
                         os.makedirs(dirname(dst_path))
-                    shutil.copy(src_path, dst_path)
-                    _run('%s -z9 "%s"' % (bzip2, dst_path))
-                    os.rename(dst_path+".bz2", dst_path)
+                    bzip_compress_file(src_path, dst_path)
                     _assert_mode_equal(src_path, dst_path)
                     paths_to_mar.append(pkg_path)
                     self._manifest_add(manifest, pkg_path)
@@ -460,9 +455,8 @@ class Shell(cmdln.Cmdln):
             manifest_path = join(img_dir, "update.manifest")
             log.info("write `update.manifest'")
             paths_to_mar.append("update.manifest")
-            open(manifest_path, 'wb').write('\n'.join(manifest) + '\n')
-            _run('%s -z9 "%s"' % (bzip2, manifest_path))
-            os.rename(manifest_path+".bz2", manifest_path)
+            manifest_str = '\n'.join(manifest) + '\n'
+            open(manifest_path, 'wb').write(bz2.compress(manifest_str))
 
             log.info("create `%s'", mar_path)
             file_list_path = join(wrk_dir, "files")
@@ -517,7 +511,6 @@ class Shell(cmdln.Cmdln):
 
         TODO: add 'searchplugin' hacks for 'patch-if' (in _manifest_patch()).
         """
-        bzip2 = _get_bzip2()
         mar = _get_mar()
         mbsdiff = _get_mbsdiff()
         exclude_regexes = [re.compile(p) for p in opts.exclude_patterns]
@@ -588,9 +581,7 @@ class Shell(cmdln.Cmdln):
                     # patch can be forced with "-c <pkg_path>".)
                     if not exists(dirname(img_path)):
                         os.makedirs(dirname(img_path))
-                    shutil.copy(to_path, img_path)
-                    _run('%s -z9 "%s"' % (bzip2, img_path))
-                    os.rename(img_path+".bz2", img_path)
+                    bzip_compress_file(to_path, img_path)
 
                     if pkg_path in opts.clobber:
                         log.info("`%s' was updated (including full "
@@ -601,8 +592,8 @@ class Shell(cmdln.Cmdln):
 
                     _run('%s "%s" "%s" "%s.patch"'
                          % (mbsdiff, from_path, to_path, img_path))
-                    _run('%s -z9 "%s.patch"' % (bzip2, img_path))
-                    os.rename(img_path+".patch.bz2", img_path+".patch")
+                    diff_contents = open("%s.patch", "rb").read()
+                    open("%s.patch", "wb").write(bz2.compress(diff_contents))
                     
                     patch_file_size = os.stat(img_path+".patch").st_size
                     full_file_size = os.stat(img_path).st_size
@@ -653,9 +644,7 @@ class Shell(cmdln.Cmdln):
 
                     if not exists(dirname(img_path)):
                         os.makedirs(dirname(img_path))
-                    shutil.copy(to_path, img_path)
-                    _run('%s -z9 "%s"' % (bzip2, img_path))
-                    os.rename(img_path+".bz2", img_path)
+                    bzip_compress_file(to_path, img_path)
                     log.info("`%s' was added", pkg_path)
                     paths_to_mar.append(pkg_path)
                     self._manifest_add(manifest, pkg_path)
@@ -674,9 +663,8 @@ class Shell(cmdln.Cmdln):
             manifest_path = join(img_dir, "update.manifest")
             log.info("write `update.manifest'")
             paths_to_mar.append("update.manifest")
-            open(manifest_path, 'wb').write('\n'.join(manifest) + '\n')
-            _run('%s -z9 "%s"' % (bzip2, manifest_path))
-            os.rename(manifest_path+".bz2", manifest_path)
+            manifest_str = '\n'.join(manifest) + '\n'
+            open(manifest_path, 'wb').write(bz2.compress(manifest_str))
 
             log.info("create `%s'", mar_path)
             file_list_path = join(wrk_dir, "files")
@@ -750,6 +738,20 @@ class Shell(cmdln.Cmdln):
 
 
 #---- internal support functions
+
+def bzip_compress_file(src_path, dst_path):
+    """Compress the source file using bzip2 and write to the destination."""
+    st_mode = os.stat(src_path).st_mode
+    data = open(src_path, "rb").read()
+    open(dst_path, "wb").write(bz2.compress(data))
+    os.chmod(dst_path, st_mode)
+
+def bzip_uncompress_file(src_path, dst_path):
+    """Uncompress the source file using bunzip2 and write to the destination."""
+    st_mode = os.stat(src_path).st_mode
+    data = open(src_path, "rb").read()
+    open(dst_path, "wb").write(bz2.uncompress(data))
+    os.chmod(dst_path, st_mode)
 
 def _od_path_from_path(path, od_opts=["-c"]):
     """Calculate and cache `od $od_opts $path` and return the cached path."""
@@ -856,17 +858,6 @@ def _get_mbsdiff():
         
         'mbsdiff' is the Mozilla-tweaked bsdiff binary-differ. It can be
         built from source in 'mozilla/other-licenses/bsdiff'."""))
-
-def _get_bzip2():
-    """Return path to a bzip2 executable."""
-    if "BZIP2" in os.environ:
-        return os.environ["BZIP2"]
-    try:
-        return which.which("bzip2")
-    except which.WhichError, ex:
-        raise Error(_dedent("""\
-            No 'bzip2' executable could be found on your PATH. Add bzip2 to
-            your PATH or define a BZIP2 environment variable pointing to one."""))
 
 
 def _is_different(a, b):
