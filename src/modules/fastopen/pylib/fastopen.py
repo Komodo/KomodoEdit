@@ -343,12 +343,12 @@ class Driver(threading.Thread):
             elif '/' in query:
                 dirQueries += [join(d, query) for d in request.cwds]
                 shortcut, subpath = query.split('/', 1)
-                if shortcut in request.dirShortcuts:
+                if request.dirShortcuts and shortcut in request.dirShortcuts:
                     dirQueries.append(join(request.dirShortcuts[shortcut], subpath))
             elif sys.platform == "win32" and '\\' in query:
                 dirQueries += [join(d, query) for d in request.cwds]
                 shortcut, subpath = query.split('\\', 1)
-                if shortcut in request.dirShortcuts:
+                if request.dirShortcuts and shortcut in request.dirShortcuts:
                     dirQueries.append(join(request.dirShortcuts[shortcut], subpath))
 
             if dirQueries:
