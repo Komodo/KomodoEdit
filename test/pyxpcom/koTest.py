@@ -132,7 +132,9 @@ class KoTestService:
         # services (like the koIHistory service) will fail.
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         currUserDataDir = koDirSvc.userDataDir
-        if not os.path.exists(currUserDataDir):
+        if not os.path.exists(currUserDataDir):                 # 5.2
+            if not os.path.exists(dirname(currUserDataDir)):    # KomodoIDE
+                os.mkdir(dirname(currUserDataDir))
             os.mkdir(currUserDataDir)
         currHostUserDataDir = koDirSvc.hostUserDataDir
         if not os.path.exists(currHostUserDataDir):
