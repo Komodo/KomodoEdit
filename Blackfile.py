@@ -1418,14 +1418,22 @@ def _PackageKomodoMSI(cfg):
     _run_in_dir(cmd, wrkDir)
     updates = glob.glob(pattern)
     if updates:
+        msg = []
+        for filename in updates:
+            msg.append("\n%s:" % (filename, ))
+            lines = file(filename).readlines()
+            if len(lines) > 200:
+                lines = lines[:200]
+                lines.append("... (truncated)")
+            msg.append("  " + "  ".join(lines))
         raise Error("""\
 The Komodo WiX Project files are out of date. I.e. there are
 new files in the Komodo install image that are not included in the
 WiX project files. You need to incorporate these WiX fragment(s)
 into the appropriate .wxs files in "src/install/wix":
 
-    %s
-""" % '\n    '.join(updates))
+%s
+""" % '\n'.join(msg))
 
     print "---- build the MSI"
     #XXX Hack for finding 'nmake'.
