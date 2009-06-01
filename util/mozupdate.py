@@ -590,10 +590,11 @@ class Shell(cmdln.Cmdln):
                         self._manifest_add(manifest, pkg_path)
                         continue
 
-                    _run('%s "%s" "%s" "%s.patch"'
-                         % (mbsdiff, from_path, to_path, img_path))
-                    diff_contents = open("%s.patch", "rb").read()
-                    open("%s.patch", "wb").write(bz2.compress(diff_contents))
+                    patch_filepath = '%s.patch' % (img_path, )
+                    _run('%s "%s" "%s" "%s"'
+                         % (mbsdiff, from_path, to_path, patch_filepath))
+                    diff_content = open(patch_filepath, "rb").read()
+                    open(patch_filepath, "wb").write(bz2.compress(diff_content))
                     
                     patch_file_size = os.stat(img_path+".patch").st_size
                     full_file_size = os.stat(img_path).st_size
