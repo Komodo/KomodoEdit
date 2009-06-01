@@ -1388,7 +1388,11 @@ class WithCasper(black.configure.BooleanDatum):
     def _Determine_Do(self):
         self.applicable = 1
         configTokens = black.configure.items["configTokens"].Get()
-        self.value = 0
+        buildFlavour = black.configure.items["buildFlavour"].Get()
+        if buildFlavour == "full":
+            self.value = False
+        else:
+            self.value = True
         for opt, optarg in self.chosenOptions:
             if opt == "--with-casper":
                 if not self.value: configTokens.append("casper")
