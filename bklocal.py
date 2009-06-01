@@ -1396,10 +1396,10 @@ class WithCasper(black.configure.BooleanDatum):
         for opt, optarg in self.chosenOptions:
             if opt == "--with-casper":
                 if not self.value: configTokens.append("casper")
-                self.value = 1
+                self.value = True
             elif opt == "--without-casper":
                 if self.value: configTokens.append("nocasper")
-                self.value = 0
+                self.value = False
         self.determined = 1
 
 class WithJSLib(black.configure.BooleanDatum):
