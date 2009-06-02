@@ -84,9 +84,9 @@ class KoLintDisplayer:
             # confused.
             scin.startStyling(prevEndStyled, mask)
             scin.setStyling(0,0)
-            assert (prevEndStyled == scin.endStyled,
-                    "unexpected end styled %d/%d!!"\
-                    % (prevEndStyled, scin.endStyled))
+            assert prevEndStyled == scin.endStyled, \
+                    "unexpected end styled %d/%d!!" \
+                    % (prevEndStyled, scin.endStyled)
 
             # This code is called by a timer, not as the text is styled for
             # painting so if we restyled anything currently on screen, we
@@ -109,8 +109,7 @@ class KoLintDisplayer:
             self._in_display = 0
 
     def _display(self, scin, lintResults, numBits, startPos, styleLen):
-        assert (lintResults is not None,
-                "Should always have results to display")
+        assert lintResults is not None, "Should always have results to display"
         if scin.length == 0:
             return
         mask = self._getIndicMask(scin)
@@ -177,7 +176,7 @@ class KoLintDisplayer:
         # painting so if we restyled anything currently on screen, we need
         # to repaint. no "clean" way to do this!
         scin.tabWidth = scin.tabWidth # this forces a repaint.
-        assert (prevEndStyled == scin.endStyled,
-                "unexpected end styled %d/%d!!"\
-                % (prevEndStyled, scin.endStyled))
+        assert prevEndStyled == scin.endStyled, \
+                "unexpected end styled %d/%d!!" \
+                % (prevEndStyled, scin.endStyled)
 
