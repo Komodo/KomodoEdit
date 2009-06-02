@@ -228,9 +228,13 @@ class URIParser(object):
                 try:
                     uparts[2] = prefix + urllib.quote(uriPart).replace('\\','/')
                 except KeyError, e:
-                    # quote fails on unicode chars, just pass through and hope
-                    # for the best.  bug 63027 (see other changes for 63027
-                    # later in this file)
+                    # quote fails on unicode chars - bug 63027, just pass
+                    # through and hope for the best.
+                    # Toddw: We could fall back to the Mozilla escape handling,
+                    #        which does a better job of handling Unicode chars:
+                    #          netUtilSvc = components.classes['@mozilla.org/network/util;1']\
+                    #                .getService(components.interfaces.nsINetUtil)
+                    #          uparts[2] = prefix + netUtilSvc.escapeURL(uriPart, netUtilSvc.ESCAPE_URL_FILEPATH)
                     pass
         return urlparse.urlunsplit(tuple(uparts))
 
