@@ -210,6 +210,30 @@ class GettextPOLangInfo(LangInfo):
     exts = [".po"]
     default_encoding = "utf-8"
 
+class TracWikiLangInfo(LangInfo):
+    name = "TracWiki"
+    conforms_to_bases = ["Text"]
+    exts = [".tracwiki"]
+    # Headers consist of the same # of equal signs at the start and end of the line.
+    # An optional id is allowed after the closing = (to indicate an id attr)
+    # A "!" in the header escapes *all* the immediately following = chars.
+    section_regexes = [
+        ("header",
+         re.compile(r'''
+            ^
+            \s*
+            (={1,5})
+            \s*
+            (?P<name>(?:!=+|
+                        [^=!]+|
+                        !)+?
+            )
+            \s*
+            \1
+            (?:\s|#|$)
+         ''', re.M|re.X)),
+    ]
+
 class ReStructureTextLangInfo(LangInfo):
     name = "reStructuredText"
     conforms_to_bases = ["Text"]

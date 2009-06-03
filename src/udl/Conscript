@@ -168,6 +168,13 @@ my @lexers = (
                udl_path => "restructuredtext-mainlex.udl",
                ext => ".rst",
               },
+              {
+               language_name => "TracWiki",
+               codename => "tracwiki_language",
+               udl_path => "tracwiki-mainlex.udl",
+               ext => ".tracwiki",
+               skel => "skel/TracWiki",
+              },
              );
 foreach my $info (@lexers) {
     my $language_name = $info->{language_name};
