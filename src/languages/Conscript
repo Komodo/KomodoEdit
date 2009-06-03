@@ -91,6 +91,7 @@ $cons->InstallXpcomComponent('koForthLanguage.py');
 $cons->InstallXpcomComponent('koFortranLanguage.py');
 $cons->InstallXpcomComponent('koGui4CliLanguage.py');
 $cons->InstallXpcomComponent('koHaskellLanguage.py');
+$cons->InstallXpcomComponent('koHLSLLanguage.py');
 $cons->InstallXpcomComponent('koIDLLanguage.py');
 $cons->InstallXpcomComponent('koJavaLanguage.py');
 $cons->InstallXpcomComponent('koJavaScriptLanguage.py');

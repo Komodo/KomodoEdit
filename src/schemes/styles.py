@@ -472,6 +472,7 @@ StateMap = {
 StateMap['JavaScript'] = StateMap['C++'].copy()
 StateMap['Java'] = StateMap['C++'].copy()
 StateMap['C#'] = StateMap['C++'].copy()
+StateMap['HLSL'] = StateMap['C++'].copy()
 StateMap['IDL'] = StateMap['C++'].copy()
 StateMap['Pascal'] = StateMap['C++'].copy()
 StateMap['VBScript'] = StateMap['VisualBasic'].copy()
