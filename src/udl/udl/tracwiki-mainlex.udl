@@ -1,0 +1,52 @@
+# TracWiki UDL definition
+# 
+# Copyright (C) 2009 ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+# Main Lexer description for TracWiki
+
+language TracWiki
+
+include "tracWiki/html2tracWiki.udl"
+include "tracWiki/python2tracWiki.udl"
+
+# This language starts in CSS mode.
+# Should be in TPL mode, to allow embedded HTML blocks
+# to contain CSS styles as well.
+
+initial IN_CSL_DEFAULT
+
+## Need to get into a standard state -- use CSL
+#state IN_M_DEFAULT:
+#/./ : redo, => IN_CSL_DEFAULT
+
+include "html.udl"
+include "pythonlex.udl"
+include "tracWiki/tracWikiLex.udl"
+# TracWiki UDL definition
+# 
+# Copyright (C) 2009 ActiveState Software Inc.
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+# Main Lexer description for TracWiki
+
+language TracWiki
+
+include "tracWiki/html2tracWiki.udl"
+include "tracWiki/python2tracWiki.udl"
+
+# This language starts in CSS mode.
+# Should be in TPL mode, to allow embedded HTML blocks
+# to contain CSS styles as well.
+
+initial IN_CSL_DEFAULT
+
+## Need to get into a standard state -- use CSL
+#state IN_M_DEFAULT:
+#/./ : redo, => IN_CSL_DEFAULT
+
+include "html.udl"
+include "pythonlex.udl"
+include "tracWiki/tracWikiLex.udl"
