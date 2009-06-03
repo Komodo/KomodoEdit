@@ -1050,31 +1050,54 @@ class GenericCommandHandler:
             return
         commenter.uncomment(view.scimoz)
 
-    # See http://bugs.activestate.com/show_bug.cgi?id=68806
-    # for problems in this routine
-    def _do_cmd_convertUpperCase(self):
-        sm = self._view.scimoz
-        if sm.selectionMode == sm.SC_SEL_STREAM:
-            selStart = sm.selectionStart
-            selEnd = sm.selectionEnd
-            sm.replaceSel(sm.selText.upper())
-            sm.selectionStart = selStart
-            sm.selectionEnd = selEnd
-        else:
-            sm.upperCase()
+    def _lastSelectedCharPosnFromLine(self, sm, lineNo):
+        selEndPos = sm.getLineSelEndPosition(lineNo)
+        lastCharPos = sm.getLineEndPosition(lineNo)
+        return min(lastCharPos, selEndPos)
 
-    # See http://bugs.activestate.com/show_bug.cgi?id=68806
-    # for problems in this routine
-    def _do_cmd_convertLowerCase(self):
+    def _do_cmd_convertCaseByLine(self, converter):
+        """ Three reasons to convert text case one line at a time:
+        1. Markers are preserved
+        2. Non-ASCII characters are converted correctly (
+           including slavic "title-case characters" like "<Lj>")
+        3. The time overhead is only about 80% over the single call
+           to scimoz.upperCase() or scimoz.lowerCase(), and that
+           ends up as a call to a single C++ method.  In either case,
+           we're looking at about 2 extra milliseconds/line.
+        """
+
         sm = self._view.scimoz
-        if sm.selectionMode == sm.SC_SEL_STREAM:
-            selStart = sm.selectionStart
-            selEnd = sm.selectionEnd
-            sm.replaceSel(sm.selText.lower())
-            sm.selectionStart = selStart
-            sm.selectionEnd = selEnd
-        else:
-            sm.lowerCase()
+        currentPos = sm.currentPos
+        anchor = sm.anchor
+        selStart = sm.selectionStart
+        selEnd = sm.selectionEnd
+        selStartPos = sm.selectionStart
+        selEndPos = sm.selectionEnd
+        lineStart = sm.lineFromPosition(selStartPos)
+        lineEnd = sm.lineFromPosition(selEndPos)
+        sm.beginUndoAction()
+        try:
+            for lineNo in range(lineStart, lineEnd + 1):
+                thisSelStartPos = sm.getLineSelStartPosition(lineNo)
+                thisSelEndPos = self._lastSelectedCharPosnFromLine(sm, lineNo)
+                text = sm.getTextRange(thisSelStartPos, thisSelEndPos)
+                fixedText = getattr(text, converter)()
+                sm.targetStart = thisSelStartPos
+                sm.targetEnd = thisSelEndPos
+                sm.replaceTarget(len(fixedText), fixedText) # Length in chars, not bytes
+        finally:
+            sm.endUndoAction()
+        # Assume the number of bytes in the selection didn't change.
+        sm.selectionStart = selStart
+        sm.selectionEnd = selEnd
+        sm.currentPos = currentPos
+        sm.anchor = anchor
+            
+    def _do_cmd_convertUpperCase(self):
+        self._do_cmd_convertCaseByLine("upper")
+
+    def _do_cmd_convertLowerCase(self):
+        self._do_cmd_convertCaseByLine("lower")
 
     def _is_cmd_selectToMatchingBrace_enabled(self):
         sm = self._view.scimoz
