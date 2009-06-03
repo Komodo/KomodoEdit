@@ -108,8 +108,8 @@ function PrefPerl_OnLoad()
         prefExecutable = '';
     PrefPerl_PopulatePerlInterps();
     var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].
-            createInstance(Components.interfaces.koIPerlInfoEx);
-    _setPerlCriticSection(appInfoEx.haveModules(1, ['criticism']));
+            getService(Components.interfaces.koIPerlInfoEx);
+    _setPerlCriticSection(appInfoEx.isPerlCriticInstalled(/*forceCheck=*/true));
 
     var origWindow = ko.windowManager.getMainWindow();
     var cwd = origWindow.ko.window.getCwd();

@@ -317,6 +317,11 @@ class KoPerlCompileLinter:
 
         return perlExe
 
+    def _insertPerlCriticFilenameMatchInhibitor(self, matchObj):
+        dict = matchObj.groupdict()
+        dict['moduleOff'] = ' ##no critic(RequireFilenameMatchesPackage)'
+        return "%(package1)s%(baseFileName)s%(space1)s%(moduleOff)s%(space2)s" % dict
+    
     def lint(self, request):
         """Lint the given Perl content.
         
@@ -335,6 +340,30 @@ class KoPerlCompileLinter:
         else:
             text = firstLine
         # Save perl buffer to a temporary file.
+        
+        criticLevel = prefset.getStringPref('perl_lintOption_perlCriticLevel')
+        if criticLevel != 'off':
+            if not self._appInfoEx.isPerlCriticInstalled(False):
+                # This check is necessary in case Perl::Critic and/or criticism were uninstalled
+                # between Komodo sessions.  appInfoEx.isPerlCriticInstalled caches the state
+                # until the pref is changed.
+                criticLevel = 'off'
+            else:
+                # Bug 82713: Since linting isn't done on the actual file, but a copy,
+                # Perl-Critic will complain about legitimate package declarations.
+                # Find them, and append an annotation to turn the Perl-Critic feature off.
+                # This will also tag comments, strings, and POD, but that won't affect
+                # lint results.
+                file = request.document.file
+                if file:
+                    baseFileName = file.baseName[0:-len(file.ext)]
+                    munger = re.compile(r'''^\s*(?P<package1>package \s+ (?:[\w\d_]+::)*) 
+                                             (?P<baseFileName>%s)
+                                             (?P<space1>\s*;)
+                                             (?P<space2>\s*)
+                                             (?P<rest>(?:\#.*)?)$''' % (baseFileName,),
+                                        re.MULTILINE|re.VERBOSE)
+                    text = munger.sub(self._insertPerlCriticFilenameMatchInhibitor, text)
         tmpFileName = None
         if cwd:
             # Try to create the tempfile in the same directory as the perl
@@ -367,10 +396,8 @@ class KoPerlCompileLinter:
         try:
             perlExe = self._selectPerlExe(prefset)
             option = '-' + prefset.getStringPref("perl_lintOption")
-            if self._appInfoEx.haveModules(['criticism']):
-                criticLevel = prefset.getStringPref("perl_lintOption_perlCriticLevel")
-                if criticLevel != 'off':
-                    option += ' -Mcriticism=' + criticLevel
+            if criticLevel != 'off':
+                option += ' -Mcriticism=' + criticLevel
             perlExtraPaths = prefset.getStringPref("perlExtraPaths")
             if perlExtraPaths:
                 if sys.platform.startswith("win"):

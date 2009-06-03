@@ -97,6 +97,7 @@ class KoPerlInfoEx(KoAppInfoEx):
     def __init__(self):
         KoAppInfoEx.__init__(self)
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
+        self._havePerlCritic = None
         try:
             self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
             self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped, "perlDefaultInterpreter", 0)
@@ -106,6 +107,7 @@ class KoPerlInfoEx(KoAppInfoEx):
     def observe(self, subject, topic, data):
         if topic == "perlDefaultInterpreter":
             self.installationPath = None
+            self._havePerlCritic = None
 
     def _GetPerlExeName(self):
         if not self.installationPath:
@@ -194,15 +196,19 @@ class KoPerlInfoEx(KoAppInfoEx):
     # koIPerlInfoEx routines
     def haveModules(self, modules):
         perlExe = self.get_executablePath()
-        for module in modules:
-            argv = [perlExe, "-M"+module, "-e1"]
-            p = process.ProcessOpen(argv, stdin=None)
-            stdout, stderr = p.communicate()
-            retval = p.wait()
-            if retval: # if returns non-zero, then don't have that module
-                return 0
+        argv = [perlExe] + ["-M" + mod for mod in modules] + ["-e1"]
+        p = process.ProcessOpen(argv, stdin=None)
+        stdout, stderr = p.communicate()
+        retval = p.wait()
+        if retval: # if returns non-zero, then don't have that module
+            return 0
         else:
             return 1
+
+    def isPerlCriticInstalled(self, forceCheck):
+        if self._havePerlCritic is None or forceCheck:
+            self._havePerlCritic = bool(self.haveModules(["criticism", "Perl::Critic"]))
+        return self._havePerlCritic
 
 class KoPythonInfoEx(KoAppInfoEx):
     _com_interfaces_ = [components.interfaces.koIAppInfoEx,

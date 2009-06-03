@@ -123,10 +123,7 @@
             </menulist>
         </hbox>
         <description id="perl_lintOption_perlCriticEnableNote"
-                     collapsed="true">
-        To enable PerlCritic support, please install the
-        `Perl-Critic' and `criticism' modules.
-        </description>
+                     collapsed="true">&prefPerl.perlCriticOptionsEnable.description;</description>
     </groupbox>
     
     <separator class="thin"/>
