@@ -327,6 +327,12 @@
       <ComponentRef Id="component37"/>
       <ComponentRef Id="component38"/>
       <ComponentRef Id="component27"/>
+      <ComponentRef Id="component8"/>
+      <ComponentRef Id="component9"/>
+      <ComponentRef Id="component12"/>
+      <ComponentRef Id="component13"/>
+      <ComponentRef Id="component14"/>
+      <ComponentRef Id="component15"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -582,6 +588,7 @@
               <File Id="file2015" Name="KOGUI4_0.PY" LongName="koGui4CliLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koGui4CliLanguage.py"/>
               <File Id="file620" Name="KOHIST_0.PY" LongName="koHistory.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koHistory.py"/>
               <File Id="file622" Name="KOIHIS_0.XPT" LongName="koIHistory.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIHistory.xpt"/>
+              <File Id="file878" LongName="koHLSLLanguage.py" Name="KOHLSL_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koHLSLLanguage.py" />
               <File Id="file2018" Name="KOHTML_1.PY" LongName="koHTMLLinter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koHTMLLinter.py"/>
               <File Id="file2019" Name="KOIAPP_0.XPT" LongName="koIAppInfo.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIAppInfo.xpt"/>
               <File Id="file2020" Name="KOIAUT_0.XPT" LongName="koIAutoComplete.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIAutoComplete.xpt"/>
@@ -1342,6 +1349,38 @@
                 </Directory> <!-- lib\mozilla\extensions\templatetoolkit_language@ActiveState.com\templates\Common -->
               </Directory> <!-- lib\mozilla\extensions\templatetoolkit_language@ActiveState.com\templates -->
             </Directory> <!-- lib\mozilla\extensions\templatetoolkit_language@ActiveState.com -->
+
+            <Directory Id="directory9" LongName="tracwiki_language@ActiveState.com">
+              <Component DiskId="1" Guid="$(autowix.guid)" Id="component8">
+                <File Id="file879" LongName="chrome.manifest" Name="CHROM_20.MAN" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\chrome.manifest" />
+                <File Id="file880" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\install.rdf" />
+              </Component>
+              <Directory Id="directory10" LongName="components">
+                <Component DiskId="1" Guid="$(autowix.guid)" Id="component9">
+                  <RemoveFile Id="removefile0" Name="*.pyo" On="uninstall" />
+                  <File Id="file881" LongName="koTracWiki_UDL_Language.py.py" Name="KOTRAC_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\components\koTracWiki_UDL_Language.py.py" />
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com\components -->
+              <Directory Id="directory11" LongName="lexers">
+                <Component DiskId="1" Guid="$(autowix.guid)" Id="component12">
+                  <File Id="file882" LongName="tracwiki.lexres" Name="TRACWI_0.LEX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\lexers\tracwiki.lexres" />
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com\lexers -->
+              <Directory Id="directory13" LongName="templates">
+                <Directory Id="directory14" LongName="All Languages">
+                  <Component DiskId="1" Guid="$(autowix.guid)" Id="component13">
+                    <File Id="file883" LongName="TracWiki.tracwiki" Name="TRACWI_0.TRA" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates\All Languages\TracWiki.tracwiki" />
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates\All Languages -->
+                <Directory Id="directory15" LongName="Common">
+                  <Component DiskId="1" Guid="$(autowix.guid)" Id="component14">
+                    <File Id="file884" LongName="TracWiki.tracwiki" Name="TRACWI_1.TRA" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates\Common\TracWiki.tracwiki" />
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates\Common -->
+              </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates -->
+            </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com -->
+
+
             <Directory Id="directory372" Name="XBL_LA_0.COM" LongName="xbl_language@ActiveState.com">
               <Component Id="component341" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file95" Name="CHROME_9.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\xbl_language@ActiveState.com\chrome.manifest"/>
@@ -3879,6 +3918,7 @@
               <File Id="file149" Name="SMARTY_1.UDL" LongName="smartylex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\smartylex.udl"/>
               <File Id="file150" Name="TEMPLA_0.UDL" LongName="template-toolkit-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\template-toolkit-mainlex.udl"/>
               <File Id="file160" Name="TPL_NU_0.UDL" LongName="tpl_number.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\tpl_number.udl"/>
+              <File Id="file885" LongName="tracwiki-mainlex.udl" Name="TRACWI_0.UDL" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\tracwiki-mainlex.udl" />
               <File Id="file161" Name="ttk2html.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\ttk2html.udl"/>
               <File Id="file162" Name="ttklex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\ttklex.udl"/>
               <File Id="file197" Name="XBLMAI_0.UDL" LongName="xbl-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\xbl-mainlex.udl"/>
@@ -3910,6 +3950,15 @@
                 <File Id="file284" Name="mxml2as.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\mxml\mxml2as.udl"/>
               </Component>
             </Directory> <!-- lib\sdk\udl\mxml -->
+            
+            <Directory Id="directory16" Name="tracwiki">
+              <Component DiskId="1" Guid="$(autowix.guid)" Id="component15">
+                <File Id="file886" LongName="html2tracwiki.udl" Name="HTML2T_0.UDL" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\tracwiki\html2tracwiki.udl" />
+                <File Id="file887" LongName="python2tracwiki.udl" Name="PYTHON_2.UDL" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\tracwiki\python2tracwiki.udl" />
+                <File Id="file888" LongName="tracwikilex.udl" Name="TRACWI_1.UDL" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\tracwiki\tracwikilex.udl" />
+              </Component>
+            </Directory> <!-- lib\sdk\udl\tracwiki -->
+
           </Directory> <!-- lib\sdk\udl -->
         </Directory> <!-- lib\sdk -->
 
