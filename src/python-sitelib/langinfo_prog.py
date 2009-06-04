@@ -200,159 +200,163 @@ class CPlusPlusLangInfo(LangInfo):
     ]
 
 class HLSLLangInfo(LangInfo):
+    """High Level Shader Language is a proprietary shading language developed by
+    Microsoft for use with the Microsoft Direct3D API.
+    
+    http://en.wikipedia.org/wiki/HLSL
+    """
     name = "HLSL"
     conforms_to_bases = ["Text"]
     exts = ['.hlsl', '.cg', '.fx']
 
     # Keywords,etc. from http://www.emeditor.com/pub/hlsl.esy
-    _intrinsic_function_names = ("""asm_fragment
-bool
-column_major
-compile
-compile_fragment
-const
-discard
-do
-double
-else
-extern
-false
-float
-for
-half
-if 
-in
-inline
-inout
-int
-matrix
-out
-pixelfragment
-return
-register
-row_major
-sampler
-sampler1D
-sampler2D
-sampler3D
-samplerCUBE
-sampler_state
-shared
-stateblock
-stateblock_state
-static
-string
-struct
-texture
-texture1D
-texture2D
-texture3D
-textureCUBE
-true
-typedef
-uniform
-vector
-vertexfragment
-void
-volatile
-while""")
-    _keywords_case_insensitive = "asm decl pass technique"
-    
+    _intrinsic_function_names = """asm_fragment
+        bool
+        column_major
+        compile
+        compile_fragment
+        const
+        discard
+        do
+        double
+        else
+        extern
+        false
+        float
+        for
+        half
+        if 
+        in
+        inline
+        inout
+        int
+        matrix
+        out
+        pixelfragment
+        return
+        register
+        row_major
+        sampler
+        sampler1D
+        sampler2D
+        sampler3D
+        samplerCUBE
+        sampler_state
+        shared
+        stateblock
+        stateblock_state
+        static
+        string
+        struct
+        texture
+        texture1D
+        texture2D
+        texture3D
+        textureCUBE
+        true
+        typedef
+        uniform
+        vector
+        vertexfragment
+        void
+        volatile
+        while""".split()
+    _keywords_case_insensitive = "asm decl pass technique".split()
     _keywords_case_sensitive = """asm_fragment
-bool
-column_major
-compile
-compile_fragment
-const
-discard
-do
-double
-else
-extern
-false
-float
-for
-half
-if 
-in
-inline
-inout
-int
-matrix
-out
-pixelfragment
-return
-register
-row_major
-sampler
-sampler1D
-sampler2D
-sampler3D
-samplerCUBE
-sampler_state
-shared
-stateblock
-stateblock_state
-static
-string
-struct
-texture
-texture1D
-texture2D
-texture3D
-textureCUBE
-true
-typedef
-uniform
-vector
-vertexfragment
-void
-volatile
-while
-"""
+        bool
+        column_major
+        compile
+        compile_fragment
+        const
+        discard
+        do
+        double
+        else
+        extern
+        false
+        float
+        for
+        half
+        if 
+        in
+        inline
+        inout
+        int
+        matrix
+        out
+        pixelfragment
+        return
+        register
+        row_major
+        sampler
+        sampler1D
+        sampler2D
+        sampler3D
+        samplerCUBE
+        sampler_state
+        shared
+        stateblock
+        stateblock_state
+        static
+        string
+        struct
+        texture
+        texture1D
+        texture2D
+        texture3D
+        textureCUBE
+        true
+        typedef
+        uniform
+        vector
+        vertexfragment
+        void
+        volatile
+        while
+        """.split()
     _reserved_words = """auto
-break
-case
-catch
-char
-class
-const_cast
-continue
-default
-delete
-dynamic_cast
-enum
-explicit
-friend
-goto
-long
-mutable
-namespace
-new
-operator
-private
-protected
-public
-reinterpret_cast
-short
-signed
-sizeof
-static_cast
-switch
-template
-this
-throw
-try
-typename
-union
-unsigned
-using
-virtual"""
+        break
+        case
+        catch
+        char
+        class
+        const_cast
+        continue
+        default
+        delete
+        dynamic_cast
+        enum
+        explicit
+        friend
+        goto
+        long
+        mutable
+        namespace
+        new
+        operator
+        private
+        protected
+        public
+        reinterpret_cast
+        short
+        signed
+        sizeof
+        static_cast
+        switch
+        template
+        this
+        throw
+        try
+        typename
+        union
+        unsigned
+        using
+        virtual""".split()
 
-    keywords = set(_intrinsic_function_names.split()
-                   + _keywords_case_insensitive.split()
-                   + _keywords_case_sensitive.split()
-                   + _reserved_words.split())
+    keywords = set(_intrinsic_function_names
+        + _keywords_case_insensitive
+        + _keywords_case_sensitive
+        + _reserved_words)
 
 class ADALangInfo(LangInfo):
     name = "Ada"
