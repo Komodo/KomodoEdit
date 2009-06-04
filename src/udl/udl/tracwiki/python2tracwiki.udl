@@ -1,0 +1,26 @@
+# A "}}}" on a line with only leading and trailing white-space switches
+# back to tracWiki.
+
+family ssl
+
+state IN_SSL_DEFAULT:
+/^\s*(?=\}\}\}\s*\r?$)/ : paint(include, SSL_DEFAULT), => pre_return_from_python1
+
+state pre_return_from_python1:
+/\}\}\}/ : paint(include, CSL_IDENTIFIER), => pre_return_from_python2
+
+state pre_return_from_python2:
+/\s*\r?/: paint(include, CSL_DEFAULT), => IN_CSL_DEFAULT
+# A "}}}" on a line with only leading and trailing white-space switches
+# back to tracWiki.
+
+family ssl
+
+state IN_SSL_DEFAULT:
+/^\s*(?=\}\}\}\s*\r?$)/ : paint(include, SSL_DEFAULT), => pre_return_from_python1
+
+state pre_return_from_python1:
+/\}\}\}/ : paint(include, CSL_IDENTIFIER), => pre_return_from_python2
+
+state pre_return_from_python2:
+/\s*\r?/: paint(include, CSL_DEFAULT), => IN_CSL_DEFAULT
