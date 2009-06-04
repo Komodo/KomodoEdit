@@ -220,5 +220,14 @@ state IN_M_ENT_REF_1:
 fold ">" M_STAGC +
 fold ">" M_ETAGC -
 
+fold "<!--" M_COMMENT +
+fold "-->" M_COMMENT -
+
+fold "{{{" M_COMMENT +
+fold "}}}" M_COMMENT -
+
+fold "<?" M_PI +
+fold "?>" M_PI -
+
 # lineup * M_TAGNAME 
 

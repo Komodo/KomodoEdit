@@ -345,3 +345,9 @@ fold "]" SSL_OPERATOR -
 fold "(" SSL_OPERATOR +
 fold ")" SSL_OPERATOR -
 
+fold "{{{" SSL_COMMENT +
+fold "}}}" SSL_COMMENT -
+
+fold "{{{" SSL_COMMENTBLOCK +
+fold "}}}" SSL_COMMENTBLOCK -
+

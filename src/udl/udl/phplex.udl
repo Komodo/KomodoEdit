@@ -477,8 +477,14 @@ state IN_SSL_OP1:
 # PHP/CSS fold info
 
 
-fold "<?" M_OPERATOR +
-fold "?>" M_OPERATOR -
+fold "<?" SSL_OPERATOR +
+fold "?>" SSL_OPERATOR -
 
 fold "{" SSL_OPERATOR +
 fold "}" SSL_OPERATOR -
+
+fold "{{{" SSL_COMMENT +
+fold "}}}" SSL_COMMENT -
+
+fold "{{{" SSL_COMMENTBLOCK +
+fold "}}}" SSL_COMMENTBLOCK -

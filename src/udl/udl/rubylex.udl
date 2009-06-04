@@ -306,6 +306,12 @@ fold "def" SSL_WORD +
 fold "do" SSL_WORD +
 fold "end" SSL_WORD -
 
+fold "{{{" SSL_COMMENT +
+fold "}}}" SSL_COMMENT -
+
+fold "{{{" SSL_COMMENTBLOCK +
+fold "}}}" SSL_COMMENTBLOCK -
+
 
 
 

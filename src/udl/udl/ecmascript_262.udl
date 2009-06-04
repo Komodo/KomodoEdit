@@ -242,3 +242,9 @@ CSL_COMMENTBLOCK: skip all
 
 fold "{" CSL_OPERATOR +
 fold "}" CSL_OPERATOR -
+
+fold "{{{" SSL_COMMENT +
+fold "}}}" SSL_COMMENT -
+
+fold "{{{" SSL_COMMENTBLOCK +
+fold "}}}" SSL_COMMENTBLOCK -

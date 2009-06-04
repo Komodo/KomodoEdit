@@ -18,6 +18,12 @@
 #define PCRE_STATIC
 #include <pcre.h>
 
+#define UDL_DEBUG 0
+
+#if UDL_DEBUG
+#include <sys/time.h>
+#endif
+
 #include "Platform.h"
 
 #include "PropSet.h"
@@ -571,7 +577,13 @@ class Flipper {
     char *s;
     int style;
     int direction;
+    friend class MainInfo;
     public:
+    char *dump(char buf[]) {
+        sprintf(buf, "<Flipper: s:%s, style:%d, dir:%d>",
+                s, style, direction);
+        return buf;
+    };
     Flipper() {
         s = NULL;
         style = -1;
@@ -590,11 +602,28 @@ class Flipper {
         direction = direction_;
         return true;
     };
-    int Match(char *s_, int style_) {
-        if (style == style_ && !strcmp(s, s_)) {
-            return direction;
+    bool Match(char *s_, int style_, int pos, int docEnd,
+                int &ret_direction,
+                int &ret_amtMatched,
+                Accessor &styler) {
+        if (style != style_) {
+            return false;
         }
-        return 0;
+        int lim = strlen(s);
+        if (lim > docEnd - pos) {
+            return false;
+        }
+        if (strncmp(s, s_, lim)) {
+            return false;
+        }
+        for (int i = 0; i < lim; i++, pos++) {
+            if (safeStyleAt(pos, styler) != style_) {
+                return false;
+            }
+        }
+        ret_amtMatched = lim;
+        ret_direction = direction;
+        return true;
     };
 };
 
@@ -1051,17 +1080,30 @@ class MainInfo {
         return true;
     };
 
-    int GetFoldChange(char *s, int style, int& lengthUsed);
-
-    bool IsOperator(int style) {
-        for (int i = 0;
-             i < (int) (sizeof(familyOperators)/sizeof(familyOperators[0]));
-             i++) {
-            if (familyOperators[i] == style)
-                return true;
+private:
+    static int CompareFlippers(const void *p_data1, const void *p_data2) {
+        Flipper *p_flipper1 = *(Flipper **) p_data1;
+        Flipper *p_flipper2 = *(Flipper **) p_data2;
+        if (p_flipper1->style != p_flipper2->style) {
+            return p_flipper1->style - p_flipper2->style;
         }
-        return false;
+        // Reverse ordering so we try longest matches first.
+        return strcmp(p_flipper2->s, p_flipper1->s);
     }
+
+public:
+
+    void SortFlippers() {
+        qsort((void *) pp_Flippers,
+              (size_t) flipper_count,
+              (size_t) sizeof(Flipper *),
+              CompareFlippers);
+    };
+
+    void GetFoldChangeForLine(int lineStartPos, int lineEndPos,
+                             Accessor &styler,
+                             int& foldChange,
+                             bool& hasNonSpace);
     int NumTransitions() {
         return p_TTable->Count();
     };
@@ -1653,6 +1695,7 @@ bool MainInfo::Init(const char *p_sublang_file) {
             break;
         }
     }
+    SortFlippers();
     rc = true;
 
     // Jump to here and continue;
@@ -1675,37 +1718,90 @@ bool MainInfo::Init(const char *p_sublang_file) {
 #pragma warning( default : 4127)
 #endif
 
-int MainInfo::GetFoldChange(char *s, int style, int& lengthUsed) {
-    int direction;
-    int slen = (int) strlen(s);
-        
-    if (IsOperator(style)) {
-        // For operators, try every single prefix
-        // Try to match the longest string first.
-        for (int j = slen; j > 0; j--) {
-            char ch = s[j];
-            s[j] = 0;
-            for (int i = 0; i < flipper_count; i++) {
-                direction = pp_Flippers[i]->Match(s, style);
-                if (direction) {
-                    lengthUsed = j;
-                    s[j] = ch;
-                    return direction;
-                }
-            }
-            s[j] = ch;
+void MainInfo::GetFoldChangeForLine(int lineStartPos, int lineEndPos,
+                                   Accessor& styler,
+                                   int& foldChange,
+                                   bool& hasNonSpace
+                                   )
+{
+    // Fill the line
+    // lineEndPos points one past the last char we're interested in.
+
+    foldChange = 0;
+    hasNonSpace = false;
+    char *buf = new char[lineEndPos - lineStartPos + 1];
+    if (!buf) return;
+    char *p_buf = buf;
+    for (int i = lineStartPos; i < lineEndPos; i++) {
+        *p_buf++ = styler[i];
+    }
+    *p_buf = 0;
+    hasNonSpace = strspn(buf, " \t\r\n") < lineEndPos - lineStartPos;
+    int netChange = 0;
+    int pos = lineStartPos;
+    int i = 0;
+    int lastStyle = -1;
+    int currStyleStartIdx = 0;
+    while (pos < lineEndPos) {
+        int style = safeStyleAt(pos, styler);
+        int j;
+        if (style == lastStyle) {
+            j = currStyleStartIdx;
+        } else {
+            j = 0;
+            lastStyle = style;
+            currStyleStartIdx = -1;
         }
-        lengthUsed = 1;
-    } else {
-        lengthUsed = slen;
-        for (int i = 0; i < flipper_count; i++) {
-            direction = pp_Flippers[i]->Match(s, style);
-            if (direction) {
-                return direction;
+        for (; j <= flipper_count; j++) {
+            if (j == flipper_count) {
+                // Sentinel check -- means we don't have any flippers,
+                // so move forward
+                bool moved = false;
+                if (currStyleStartIdx == -1) {
+                    // In this case, there aren't any flippers for this style,
+                    // so move ahead to the start of the next style.
+                    while (pos + 1 < lineEndPos
+                           && (safeStyleAt(pos + 1, styler) == style)) {
+                        pos += 1;
+                        i += 1;
+                        moved = true;
+                    }
+                    currStyleStartIdx = 0;
+                }
+                if (!moved) {
+                    pos += 1;
+                    i += 1;
+                }
+                break;
+            }
+            Flipper *p_flipper = pp_Flippers[j];
+            int direction, amtMatched;
+            if (style < p_flipper->style) {
+                if (currStyleStartIdx == -1) {
+                    currStyleStartIdx = flipper_count;
+                }
+                i += 1;
+                pos += 1;
+                break;
+            } else if (style == p_flipper->style) {
+                if (currStyleStartIdx == -1) {
+                    currStyleStartIdx = j;
+                }
+                if (p_flipper->Match(&buf[i], style, pos, lineEndPos,
+                                     direction, amtMatched, styler)) {
+                    if (amtMatched == 0) {
+                        amtMatched += 1; // safety precaution.
+                    }
+                    i += amtMatched;
+                    pos += amtMatched;
+                    netChange += direction;
+                    break;
+                }
             }
         }
     }
-    return 0;
+    delete[] buf;
+    foldChange = netChange;
 }
 
 // A list of MainInfo's    
@@ -2559,14 +2655,14 @@ static void setNewDelimiter(Transition      *p_TranBlock,
 static void ColouriseTemplate1Doc(unsigned int startPos,
                                   int length,
                                   int
-#if 0
+#if UDL_DEBUG
                                   initStyle
 #endif
                                   ,
                                   WordList *keywordlists[],
                                   Accessor &styler)
 {
-#if 0
+#if UDL_DEBUG
     fprintf(stderr,
             "udl: ColouriseTemplate1Doc(startPos=%d, length=%d, lines %d:%d, initStyle=%d\n",
             startPos,
@@ -2924,15 +3020,30 @@ static void getToken(int 	curr_style,
     *p_s = 0;
 }
 
+#if UDL_DEBUG
+static void ShowElapsedTime(const char *where,
+                            struct timeval& t1,
+                            struct timeval& t2) {
+    int secDiff = (int) (t2.tv_sec - t1.tv_sec);
+    int msecDiff = (int) (t2.tv_usec - t1.tv_usec);
+    if (msecDiff < 0) {
+        msecDiff += 1000000;
+        secDiff -= 1;
+    }
+    fprintf(stderr, "UDL fold calc time (%s): %f msecs\n",
+            where,
+            1000 * secDiff + msecDiff/1000.0);
+}
+#endif
 
 static void FoldUDLDoc(unsigned int startPos, int length, int
-#if 0
+#if UDL_DEBUG
                        initStyle
 #endif
                        ,
                       WordList *keywordlists[], Accessor &styler)
 {
-#if 0
+#if UDL_DEBUG
     fprintf(stderr,
             "udl: FoldUDLDoc(startPos=%d, length=%d, initStyle=%d\n",
             startPos,
@@ -2967,77 +3078,45 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
 
     // Variables to allow folding.
     unsigned int endPos = startPos + length;
-    int visibleChars = 0;
+    bool hasNonSpace;
     int lineCurrent = styler.GetLine(startPos);
     int levelPrev = startPos == 0 ? 0 : (styler.LevelAt(lineCurrent)
                                          & SC_FOLDLEVELNUMBERMASK
                                          & ~SC_FOLDLEVELBASE);
     int levelCurrent = levelPrev;
-    char s[100];
-    unsigned int i = startPos;
-    bool buffer_ends_with_eol = false;
-    while (i < endPos) {
-        int lengthUsed;
-        int direction;
-        int curr_style = actual_style(styler.StyleAt(i));
-
-        // Blast through the buffer one token at a time.
-        // Note that there is m * n behavior with token lookup,
-        // where m is the length of a consecutive set of operator-like
-        // tokens, and n is the number of fold directives.
-
-        // Hopefully both these numbers will be small.
-        
-        getToken(curr_style, i, endPos, s, sizeof(s)/sizeof(s[0]), styler);
-
-        lengthUsed = 0;
-        direction = p_MainInfo->GetFoldChange(s, curr_style, lengthUsed);
-        if (direction) {
-            levelCurrent += direction;
-            if (!lengthUsed) {
-                fprintf(stderr, "udl: internal error: FoldUDLDoc: matched a folder, but aren't advancing i at line %d, pos %d\n", lineCurrent, i);
-                i++;
-            } else {
-                i += lengthUsed;
-            }
-        } else if (lengthUsed) {
-            i += lengthUsed;
-        } else {
-            i += (int) strlen(s);
-        }
+    int lineNo;
+    int lineStart = lineCurrent;
+    int lineEnd = styler.GetLine(endPos);
+    int startLinePos;
+    int endLinePos = styler.LineStart(lineStart);
+#if UDL_DEBUG
+    struct timeval t1, t2;
+    gettimeofday(&t1, NULL);
+#endif
+    for (lineNo = lineStart; lineNo <= lineEnd; lineNo++) {
+        startLinePos = endLinePos;
+        endLinePos = lineNo == lineEnd ? endPos + 1 : styler.LineStart(lineNo + 1);
+        int foldChange = 0;
+        p_MainInfo->GetFoldChangeForLine(startLinePos, endLinePos, styler, foldChange, hasNonSpace);
+        levelCurrent += foldChange;
         if (levelCurrent < 0)
             levelCurrent = 0;
         
-        bool atEOL = (s[0] == '\r' || s[0] == '\n');
-        if (atEOL) {
-            int lev = levelPrev;
-            if (visibleChars == 0 && foldCompact)
-                lev |= SC_FOLDLEVELWHITEFLAG;
-            if ((levelCurrent > levelPrev) && (visibleChars > 0))
-                lev |= SC_FOLDLEVELHEADERFLAG;
-            styler.SetLevel(lineCurrent, lev|SC_FOLDLEVELBASE);
-            lineCurrent++;
-            levelPrev = levelCurrent;
-            visibleChars = 0;
-            buffer_ends_with_eol = true;
-        } else if (containsNonSpace(s)) {
-            visibleChars++;
-            buffer_ends_with_eol = false;
+        int lev = levelPrev;
+        if (!hasNonSpace && foldCompact) {
+            lev |= SC_FOLDLEVELWHITEFLAG;
         }
+        if ((levelCurrent > levelPrev) && hasNonSpace) {
+            lev |= SC_FOLDLEVELHEADERFLAG;
+        }
+        styler.SetLevel(lineNo, lev|SC_FOLDLEVELBASE);
+        levelPrev = levelCurrent;
     }
-    // Fill in the real level of the next line, keeping the current flags as they will be filled in later
-    if (!buffer_ends_with_eol) {
-        lineCurrent++;
-        int new_lev = levelCurrent;
-        if (visibleChars == 0 && foldCompact)
-            new_lev |= SC_FOLDLEVELWHITEFLAG;
-        if ((levelCurrent > levelPrev) && (visibleChars > 0))
-            new_lev |= SC_FOLDLEVELHEADERFLAG;
-        levelCurrent = new_lev;
-    }
-    styler.SetLevel(lineCurrent, levelCurrent|SC_FOLDLEVELBASE);
     LogEvent(false, "FoldUDLDoc", &styler);
-
+#if UDL_DEBUG
+    gettimeofday(&t2, NULL);
+    ShowElapsedTime("FoldUDLDoc", t1, t2);
+#endif
 }
 
 static const char * const UDLWordListDesc[] = {
@@ -3046,4 +3125,3 @@ static const char * const UDLWordListDesc[] = {
 };
 
 LexerModule lmUDL(SCLEX_UDL, ColouriseTemplate1Doc, "udl", FoldUDLDoc, UDLWordListDesc);
-
