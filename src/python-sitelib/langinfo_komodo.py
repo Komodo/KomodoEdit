@@ -44,6 +44,16 @@ class KomodoProjectLangInfo(LangInfo):
     exts = [".kpf"]
     conforms_to_bases = ["XML"]
 
+class KomodoColorSchemeLangInfo(LangInfo):
+    name = "Komodo Color Scheme"
+    exts = [".ksf"]
+    conforms_to_bases = ["Python"]
+
+class KomodoKeybindingSchemeLangInfo(LangInfo):
+    name = "Komodo Keybinding Scheme"
+    exts = [".kkf"]
+    conforms_to_bases = ["Text"]
+
 class UDLLangInfo(LangInfo):
     name = "UDL"
     komodo_name = "Luddite"
