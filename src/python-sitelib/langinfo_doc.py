@@ -230,7 +230,7 @@ class TracWikiLangInfo(LangInfo):
             )
             \s*
             \1
-            (?:\s|#|$)
+            (?:\s|\#|$)
          ''', re.M|re.X)),
     ]
 
