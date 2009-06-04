@@ -328,7 +328,7 @@ function onClearServerEntry() {
 function createServersMenuItem(server) {
     var cell = document.createElementNS(XUL_NS, 'menuitem');
     cell.setAttribute('label', server.alias);
-    cell.setAttribute("onclick", "loadServerEntryWithAlias(this.getAttribute('label'))");
+    cell.setAttribute("oncommand", "loadServerEntryWithAlias(this.getAttribute('label'))");
     return cell;
 }
 
