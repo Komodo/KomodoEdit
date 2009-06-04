@@ -11,16 +11,3 @@ state pre_return_from_html1:
 
 state pre_return_from_html2:
 /\s*\r?/: paint(include, CSL_DEFAULT), => IN_CSL_DEFAULT
-# A "}}}" on a line with only leading and trailing white-space switches
-# back to tracWiki.
-
-family markup
-
-state IN_M_DEFAULT:
-/^\s*(?=\}\}\}\s*\r?$)/ : paint(include, SSL_DEFAULT), => pre_return_from_html1
-
-state pre_return_from_html1:
-/\}\}\}/ : paint(include, CSL_IDENTIFIER), => pre_return_from_html2
-
-state pre_return_from_html2:
-/\s*\r?/: paint(include, CSL_DEFAULT), => IN_CSL_DEFAULT
