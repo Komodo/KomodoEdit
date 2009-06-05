@@ -1271,7 +1271,7 @@
                         } else if (ko.tabstops) {
                             ko.tabstops.clearTabstopInfo(view);
                         }
-                        view.clearMatchingTag()
+                        view.clearMatchingTag();
                         break;
                     case event.DOM_VK_DELETE:
                         if (ko.tabstops) {
