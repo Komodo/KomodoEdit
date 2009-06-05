@@ -1269,7 +1269,7 @@
                 t2 = s2 + 1;
             }
             var indic = Components.interfaces.koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT;  
-            this.clearMatchingTag()
+            this.clearMatchingTag();
             scimoz.indicatorValue = scimoz.INDIC_PLAIN;
             scimoz.indicatorFillRange(t1, t2 - t1);
             var showMatchingTags_clearInterval = this.prefs.getLongPref("showMatchingTags_clearInterval");
@@ -1525,6 +1525,7 @@
             <![CDATA[
             window.setTimeout("window.updateCommands('scintilla-focus');", 1);
             this.removeHyperlinks("blur");
+            this.clearMatchingTag();
             this.clearKeyDownValues();
             ]]>
         </handler>
