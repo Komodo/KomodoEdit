@@ -84,19 +84,18 @@ def pickleCache(object, filename):
     file = os.fdopen(fdes, "wb")
     try:
         try:
-            log.debug("Pickling object %s to %s" % (object, pickleFilename))
+            log.debug("Pickling object %s to %r", object, pickleFilename)
             cPickle.dump(object, file, 1)
-            log.info("saved the pickle to %s" % pickleFilename)
+            log.info("saved the pickle to %r", pickleFilename)
         except:
-            import traceback
-            traceback.print_exc()
-            log.error("pickleCache error on %s: %s: %s" % (pickleFilename, sys.exc_info()[0], sys.exc_info()[1]))
+            log.exception("pickleCache error for file %r", pickleFilename)
             try:
                 file.close()
                 file = None
                 os.unlink(pickleFilename)
             except IOError, details:
-                log.error("Could not erase the incomplete pickle file %s: %s" % (pickleFilename, details) )
+                log.error("Could not erase the incomplete pickle file %r: %s",
+                          pickleFilename, details)
     finally:
         if file is not None:
             file.close()
@@ -123,14 +122,14 @@ def pickleCacheOKToLoad(xml_filename):
         (mode,ino,dev,nlink,uid,gid,size,atime,mtime,ctime) = os.stat(xml_filename)
         normal_mtime = mtime
     except:
-        log.debug("pickleCacheOKToLoad: Can't stat file %s" % (xml_filename))
+        log.debug("pickleCacheOKToLoad: Can't stat file %r", xml_filename)
         normal_mtime = None
 
     try:
         (mode,ino,dev,nlink,uid,gid,size,atime,mtime,ctime) = os.stat(pickleFilename)
         pickle_mtime = mtime
     except:
-        log.debug("pickleCacheOKToLoad: Can't stat pickle file %s" % (pickleFilename))
+        log.debug("pickleCacheOKToLoad: Can't stat pickle file %r", pickleFilename)
         return None
 
     if normal_mtime is not None and pickle_mtime < normal_mtime:
@@ -148,17 +147,15 @@ def dePickleCache(pickleFilename):
     try:
         file = open(pickleFilename, "rb")
     except IOError:
-        log.warn("dePickleCache: Can't open file %s" % (pickleFilename))
+        log.warn("dePickleCache: Can't open file %r", pickleFilename)
         return None
 
     try:
         try:
-            log.info("Loading preferences from pickle %r" % pickleFilename)
+            log.info("Loading preferences from pickle %r", pickleFilename)
             return cPickle.load(file)
         except:
-            import traceback
-            traceback.print_exc()
-            log.error("dePickleCache: Couldn't depickle %s: %s" % (pickleFilename, sys.exc_info()[1]))
+            log.exception("dePickleCache: Couldn't depickle %r", pickleFilename)
             
     finally:
         file.close()
@@ -269,8 +266,8 @@ class koPreferenceSetDeserializer:
                 except KeyError:
                     insertFunction("", convertFunction(""))
             else:
-                log.debug("Node '%s' is empty - pretending it doesnt exist!" \
-                         % (node,))
+                log.debug("Node '%s' is empty - pretending it doesnt exist!",
+                          node)
         else:
             if basedir and node.nodeName == "string" and node.getAttribute('relative'):
                 childtext = uriparse.UnRelativize(basedir, childtext, node.getAttribute('relative'))
@@ -394,8 +391,8 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
         except AttributeError:
             # 'pref' cannot be serialized (Because of PyXPCOM interface
             # flattening we do not need to QI to koISerializable to check.)
-            log.error("preference '%s' (a %s) is unserializable" % (prefName,
-                                                                   pref))
+            log.error("preference '%s' (a %s) is unserializable",
+                      prefName, pref)
             raise
         except TypeError, e:
             log.error("cannot serialize %r %s", pref, str(e))
@@ -430,14 +427,16 @@ class koXMLPreferenceSetObjectFactory:
         # version of the pref object before doing a full XML parse.
         cacheFilename = pickleCacheOKToLoad(filename)
         if cacheFilename is not None:
-            log.info("cacheFilename for %r is not none, it's %r" % (filename, cacheFilename))
+            log.info("cacheFilename for %r is not none, it's %r",
+                     filename, cacheFilename)
             prefObject = dePickleCache(cacheFilename)
             if prefObject is not None:
                 return prefObject
             else:
                 log.warn("the dePickledCache object was None")
         else:
-            log.info("cacheFilename for %r is None, so doing it the slow way" % filename)
+            log.info("cacheFilename for %r is None, so doing it the slow way",
+                     filename)
         
         # Okay, so we have to actually parse XML.
         # Open the file (we're assuming that prefs are all local
@@ -451,12 +450,10 @@ class koXMLPreferenceSetObjectFactory:
                 timeline.stopTimer('minidom.parse')
             except (AttributeError, SAXParseException), e:
                 #XXX why would an AttributeError be raised?
-                log.error("Can't deserialize file %s because %s" % (filename, e))
-                import traceback
-                traceback.print_exception(*sys.exc_info())
+                log.exception("Couldn't deserialize file %r", filename)
                 return None
         else:
-            #log.debug("No prefs file '%s' - returning None..." % (filename,))
+            #log.debug("No prefs file %r - returning None...", filename)
             return None
 
         global _timers
@@ -489,7 +486,7 @@ class koXMLPreferenceSetObjectFactory:
             _timers[deserializer_name] = 1
             return retval
         else:
-            log.debug("No handler for node type %s" % element.nodeName)
+            log.debug("No handler for node type %s", element.nodeName)
             return None
 
     def registerDeserializer(self, name, ds):
