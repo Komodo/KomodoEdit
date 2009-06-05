@@ -60,7 +60,6 @@ class koXMLLanguageBase(KoUDLLanguage):
 
     def __init__(self):
         KoUDLLanguage.__init__(self)
-        self.matchingSoftChars["?"] = ("?", self.softchar_accept_pi_close)
         self.softchar_accept_matching_single_quote = self._filter_quotes_in_plaintext_context
         self.softchar_accept_matching_double_quote = self._filter_quotes_in_plaintext_context
         
