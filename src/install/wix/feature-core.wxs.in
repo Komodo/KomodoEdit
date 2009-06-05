@@ -1350,29 +1350,29 @@
               </Directory> <!-- lib\mozilla\extensions\templatetoolkit_language@ActiveState.com\templates -->
             </Directory> <!-- lib\mozilla\extensions\templatetoolkit_language@ActiveState.com -->
 
-            <Directory Id="directory9" LongName="tracwiki_language@ActiveState.com">
+            <Directory Id="directory9" LongName="tracwiki_language@ActiveState.com" Name="TRACWI_0.COM" >
               <Component DiskId="1" Guid="$(autowix.guid)" Id="component8">
                 <File Id="file879" LongName="chrome.manifest" Name="CHROM_20.MAN" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\chrome.manifest" />
                 <File Id="file880" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\install.rdf" />
               </Component>
-              <Directory Id="directory10" LongName="components">
+              <Directory Id="directory10" LongName="components" Name="COMPON_1" >
                 <Component DiskId="1" Guid="$(autowix.guid)" Id="component9">
                   <RemoveFile Id="removefile0" Name="*.pyo" On="uninstall" />
                   <File Id="file881" LongName="koTracWiki_UDL_Language.py" Name="KOTRAC_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\components\koTracWiki_UDL_Language.py" />
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com\components -->
-              <Directory Id="directory11" LongName="lexers">
+              <Directory Id="directory11" Name="lexers" >
                 <Component DiskId="1" Guid="$(autowix.guid)" Id="component12">
                   <File Id="file882" LongName="tracwiki.lexres" Name="TRACWI_0.LEX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\lexers\tracwiki.lexres" />
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com\lexers -->
-              <Directory Id="directory13" LongName="templates">
-                <Directory Id="directory14" LongName="All Languages">
+              <Directory Id="directory13" LongName="templates" Name="TEMPLA_0" >
+                <Directory Id="directory14" LongName="All Languages" Name="ALLLAN_8" >
                   <Component DiskId="1" Guid="$(autowix.guid)" Id="component13">
                     <File Id="file883" LongName="TracWiki.tracwiki" Name="TRACWI_0.TRA" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates\All Languages\TracWiki.tracwiki" />
                   </Component>
                 </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates\All Languages -->
-                <Directory Id="directory15" LongName="Common">
+                <Directory Id="directory15" LongName="Common" Name="Common" >
                   <Component DiskId="1" Guid="$(autowix.guid)" Id="component14">
                     <File Id="file884" LongName="TracWiki.tracwiki" Name="TRACWI_1.TRA" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates\Common\TracWiki.tracwiki" />
                   </Component>
