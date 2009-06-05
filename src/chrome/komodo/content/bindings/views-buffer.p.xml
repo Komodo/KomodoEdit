@@ -1238,6 +1238,8 @@
         <![CDATA[
         if (this.languageObj.supportsSmartIndent != "XML") {
             return;
+        } else if (!this.prefs.getBooleanPref("showMatchingTagsOnClick")) {
+            return;
         }
         var scimoz = this.scimoz;
         var pos = scimoz.currentPos;
@@ -1250,7 +1252,8 @@
             return;
         }
         var result = {};
-        this.languageObj.getMatchingTagInfo(scimoz, pos, result, {});
+        var constrainSearchInViewPort = this.prefs.getBooleanPref("showMatchingTags_constrainSearchInViewPort");
+        this.languageObj.getMatchingTagInfo(scimoz, pos, constrainSearchInViewPort, result, {});
         if (result.value) {
             var atStartTag, s1, s2, e1, e2, t1, t2;
             atStartTag = result.value[0];
@@ -1266,19 +1269,31 @@
                 t2 = s2 + 1;
             }
             var indic = Components.interfaces.koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT;  
-            scimoz.indicatorCurrent = indic;
-            if (this._matchedTagUnhighlighter) {
-                scimoz.indicatorClearRange(0, scimoz.textLength);
-                clearTimeout(this._matchedTagUnhighlighter);
-            }
+            this.clearMatchingTag()
             scimoz.indicatorValue = scimoz.INDIC_PLAIN;
             scimoz.indicatorFillRange(t1, t2 - t1);
-            this._matchedTagUnhighlighter = setTimeout(function(this_, scimoz) {
-                scimoz.indicatorCurrent = indic;
-                scimoz.indicatorClearRange(0, scimoz.textLength);
-                this_._matchedTagUnhighlighter = 0;
-            }, 1000, this, scimoz);
+            var showMatchingTags_clearInterval = this.prefs.getLongPref("showMatchingTags_clearInterval");
+            if (showMatchingTags_clearInterval > 0) {
+                this._matchedTagUnhighlighter = setTimeout(function(this_) {
+                    this_.clearMatchingTag();
+                }, showMatchingTags_clearInterval, this);
+            }
         }
+        ]]>
+        </body>
+        </method>
+        
+        <method name="clearMatchingTag">
+        <body>
+        <![CDATA[
+        if (this._matchedTagUnhighlighter) {
+            clearTimeout(this._matchedTagUnhighlighter);
+            this._matchedTagUnhighlighter = 0;
+        }
+        var indic = Components.interfaces.koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT;  
+        var scimoz = this.scimoz;
+        scimoz.indicatorCurrent = indic;
+        scimoz.indicatorClearRange(0, scimoz.textLength);
         ]]>
         </body>
         </method>

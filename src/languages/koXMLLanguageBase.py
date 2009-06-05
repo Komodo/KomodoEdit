@@ -242,9 +242,9 @@ class koXMLLanguageBase(KoUDLLanguage):
         return self._onTargetTag(scimoz, pos, self._endTagStyles,
                                 scimoz.SCE_UDL_M_ETAGC)
 
-    def getMatchingTagInfo(self, scimoz, pos):
+    def getMatchingTagInfo(self, scimoz, pos, constrainSearchInViewPort):
         return scimozindent.findMatchingTagPosition(scimoz, pos, self,
-                                                    constrainSearchInViewPort=True)
+                                                    constrainSearchInViewPort)
         
 
 class koHTMLLanguageBase(koXMLLanguageBase):

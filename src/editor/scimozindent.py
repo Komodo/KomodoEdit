@@ -319,9 +319,11 @@ def tagStartFromEndViaMatchingName(scimoz, endTagPos, firstVisiblePos):
     searchLen = len(tagName) + 1
     scimoz.currentPos = scimoz.anchor = endTagPos - 1
     scimoz.searchAnchor()
-    nextStartTagPos = scimoz.searchPrev(0, startTagSearch)
-    nextEndTagPos = scimoz.searchPrev(0, endTagSearch)
     try:
+        nextStartTagPos = scimoz.searchPrev(0, startTagSearch)
+        if firstVisiblePos is not None and nextStartTagPos < firstVisiblePos:
+            return None
+        nextEndTagPos = scimoz.searchPrev(0, endTagSearch)
         # Figure out what to do based on what we've seen
         while True:
             if nextStartTagPos == -1:
@@ -429,10 +431,12 @@ def tagEndFromStartViaMatchingName(scimoz, startTagPos, lastVisiblePos):
     scimoz.currentPos = scimoz.anchor = foundPos + searchJump
     textLength = scimoz.textLength
     scimoz.searchAnchor()
-    canColourise = True
-    nextStartTagPos = scimoz.searchNext(0, startTagSearch)
-    nextEndTagPos = scimoz.searchNext(0, endTagSearch)
     try:
+        nextEndTagPos = scimoz.searchNext(0, endTagSearch)
+        if lastVisiblePos is not None and nextEndTagPos > lastVisiblePos:
+            return None
+        nextStartTagPos = scimoz.searchNext(0, startTagSearch)
+        canColourise = True
         while True:
             if nextEndTagPos == -1:
                 return None

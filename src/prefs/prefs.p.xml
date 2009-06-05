@@ -124,6 +124,10 @@
   <boolean id="cleanLineEnds">0</boolean>
   <!-- ensure file ends with a newline on file save -->
   <boolean id="ensureFinalEOL">0</boolean>
+  
+  <boolean id="showMatchingTagsOnClick">1</boolean>
+  <boolean id="showMatchingTags_constrainSearchInViewPort">1</boolean>
+  <long id="showMatchingTags_clearInterval">1000</long>
 
 
   <string id="userEnvironmentStartupOverride"/>

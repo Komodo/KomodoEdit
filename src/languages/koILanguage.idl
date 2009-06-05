@@ -123,6 +123,7 @@ interface koILanguage : nsISupports {
     string getMatchingChar(in wchar character);
     void getMatchingTagInfo(in ISciMoz scimoz,
                             in long pos,
+                            in boolean constrainSearchInViewPort,
                             [array, size_is(count)] out long coordinates,
                             out unsigned long count);
                             
