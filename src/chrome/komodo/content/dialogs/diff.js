@@ -49,6 +49,7 @@
 var _dw_log = ko.logging.getLogger("diff");
 //_dw_log.setLevel(ko.logging.LOG_DEBUG);
 var _diffWindow = null;
+var _diffDocument = null;
 
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
@@ -59,7 +60,6 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 //
 function DiffWindow()
 {
-    var _document = null;
     scintillaOverlayOnLoad();
 
     document.title = window.arguments[0].title;
@@ -68,9 +68,9 @@ function DiffWindow()
     view.init();
 
     try {
-        _document = view.docSvc.createUntitledDocument("Diff"); // koIDocument
-        _dw_log.debug("_document = "+_document);
-        _document.addView(view);
+        _diffDocument = view.docSvc.createUntitledDocument("Diff"); // koIDocument
+        _dw_log.debug("_diffDocument = "+_diffDocument);
+        _diffDocument.addView(view);
 
         var diff = '';
         if (!window.arguments[0].diff) {
@@ -89,17 +89,7 @@ function DiffWindow()
         } else {
             diff = window.arguments[0].diff;
         }
-        _dw_log.debug("diff.length: " + diff.length);
-        _document.buffer = diff;
-        view.initWithBuffer(diff, "Diff");
-
-        view.encoding = _document.encoding.python_encoding_name;
-        view.scimoz.codePage = _document.codePage;
-        // Force scintilla buffer to readonly mode, bug:
-        //   http://bugs.activestate.com/show_bug.cgi?id=27910
-        view.scimoz.readOnly = true;
-        //this._languageObj = this._document.languageObj;
-        view.setFocus();
+        loadDiffResult(diff);
     } catch(e) {
         _dw_log.exception(e);
     }
@@ -129,6 +119,30 @@ DiffWindow.prototype.doCommand = function(cmdName) {
     }
     return false;
 }
+
+
+function loadDiffResult(result) {
+    try {
+        var diff = result;
+        var diffView = document.getElementById('view');
+        _dw_log.debug("diff.length: " + diff.length);
+        _diffDocument.buffer = diff;
+        diffView.initWithBuffer(diff, "Diff");
+
+        diffView.encoding = _diffDocument.encoding.python_encoding_name;
+        diffView.scimoz.codePage = _diffDocument.codePage;
+        // Force scintilla buffer to readonly mode, bug:
+        //   http://bugs.activestate.com/show_bug.cgi?id=27910
+        diffView.scimoz.readOnly = true;
+        //this._languageObj = this._diffDocument.languageObj;
+        diffView.setFocus();
+        // Remove the notification widget.
+        diffView.notificationbox.removeAllNotifications(true /* false means to slide away */);
+    } catch(ex) {
+        _dw_log.exception(ex, "error loading diff window dialog.");
+    }
+}
+
 
 //
 // Main loading and unloading of the diff window
