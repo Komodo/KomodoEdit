@@ -142,6 +142,9 @@ SciMoz::SciMoz(nsPluginInstance* aPlugin)
     imeComposing = false;
     imeActive = false;
     
+    // There is no cached text to start with.
+    _cachedText.SetIsVoid(TRUE);
+
     PlatformNew();
 }
 
@@ -487,6 +490,11 @@ void SciMoz::Notify(long lParam) {
 #endif
 			// Silly js doesnt like NULL strings here :-(
 			bool isBeforeDelete = (notification->modificationType & SC_MOD_BEFOREDELETE) != 0;
+			if (!isBeforeDelete) {
+				// Buffer has changed, reset the text cache.
+				_cachedText.SetIsVoid(TRUE);
+			}
+
 			PRUint32 len = ((isBeforeDelete || notification->text)
 			    ? notification->length
 			    : 0);
@@ -796,36 +804,46 @@ NS_IMETHODIMP SciMoz::SetName(const nsAString &val) {
 }
 
 /* attribute string text; */
-NS_IMETHODIMP SciMoz::GetText(PRUnichar ** text) 
+/**
+ * The text value is cached in this routine in order to avoid having to
+ * regenerate the "text" property when the Scintilla buffer has not changed.
+ * See bug 83216 for further details.
+ */ 
+NS_IMETHODIMP SciMoz::GetText(nsAString &text) 
 {
 	SCIMOZ_CHECK_VALID("GetText");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetText\n");
 #endif
+	if (!_cachedText.IsVoid()) {
+		text = _cachedText;
+		return NS_OK;
+	}
 	size_t length = SendEditor(SCI_GETTEXTLENGTH, 0, 0);
 	char *buffer = new char[length + 1];
 	if (!buffer)
 		return NS_ERROR_OUT_OF_MEMORY;
-        buffer[length]=0;
+	buffer[length]=0;
 #ifdef USE_SCIN_DIRECT
 	::GetTextRange(fnEditor, ptrEditor, 0, length, buffer);
 #else
 	::GetTextRange(wEditor, 0, length, buffer);
 #endif
-        NS_ASSERTION(buffer[length] == NULL, "Buffer overflow");
+	NS_ASSERTION(buffer[length] == NULL, "Buffer overflow");
 
 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
 	if (codePage == 0) {
-	    *text =  ToNewUnicode(NS_ConvertASCIItoUTF16(buffer));
+	    _cachedText = nsDependentString(ToNewUnicode(NS_ConvertASCIItoUTF16(buffer)));
 	} else {
-	    *text =  ToNewUnicode(NS_ConvertUTF8toUTF16(buffer));
+	    _cachedText = nsDependentString(ToNewUnicode(NS_ConvertUTF8toUTF16(buffer)));
 	}
 
 	delete []buffer;
+	text = _cachedText;
 	return NS_OK;
 }
 
-NS_IMETHODIMP SciMoz::SetText(const PRUnichar * aText)
+NS_IMETHODIMP SciMoz::SetText(const nsAString &aText)
 {
 	SCIMOZ_CHECK_VALID("SetText");
 #ifdef SCIMOZ_DEBUG

@@ -73,7 +73,7 @@ interface ISciMozLite : nsISupports {
 	void clearCmdKey(in long key, in long modifiers);
 
 	wstring getTextRange(in long min, in long max);
-	attribute wstring text;
+	attribute AString text;
 	readonly attribute wstring selText;
 	
 	// stuff to minimize some of our eventist usage
