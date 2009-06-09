@@ -833,11 +833,10 @@ NS_IMETHODIMP SciMoz::GetText(nsAString &text)
 
 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
 	if (codePage == 0) {
-	    _cachedText = nsDependentString(ToNewUnicode(NS_ConvertASCIItoUTF16(buffer)));
+	    _cachedText = NS_ConvertASCIItoUTF16(buffer);
 	} else {
-	    _cachedText = nsDependentString(ToNewUnicode(NS_ConvertUTF8toUTF16(buffer)));
+	    _cachedText = NS_ConvertUTF8toUTF16(buffer);
 	}
-
 	delete []buffer;
 	text = _cachedText;
 	return NS_OK;
