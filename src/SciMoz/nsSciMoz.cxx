@@ -502,20 +502,18 @@ void SciMoz::Notify(long lParam) {
 					     ? notification->text
 					     : "");
 			nsAutoString uString = NS_ConvertUTF8toUTF16(pText, len);
-			PRUnichar *wtext = ToNewUnicode(uString);
 			mask = ISciMozEvents::SME_MODIFIED;
 			// Pass in unicode text, utf8 length
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink)))) {
 				eventSink->OnModified(notification->position,
 						      notification->modificationType,
-						      wtext,
+						      uString,
 						      len,
 						      notification->linesAdded,
 						      notification->line,
 						      notification->foldLevelNow,
 						      notification->foldLevelPrev);
 			}
-			nsMemory::Free((void*)wtext);
 			}
 			break;
 		/*
@@ -675,7 +673,7 @@ NS_IMETHODIMP SciMoz::GetStyledText(PRInt32 min, PRInt32 max, PRUint32 *count, P
 }
 
 /* long getCurLine (out string text); */
-NS_IMETHODIMP SciMoz::GetCurLine(PRUnichar ** text, PRInt32 *_retval) {
+NS_IMETHODIMP SciMoz::GetCurLine(nsAString & text, PRInt32 *_retval) {
 	SCIMOZ_CHECK_VALID("GetCurLine");
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::GetCurLine\n");
@@ -692,9 +690,9 @@ NS_IMETHODIMP SciMoz::GetCurLine(PRUnichar ** text, PRInt32 *_retval) {
 
 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
 	if (codePage == 0) {
-	    *text =  ToNewUnicode(NS_ConvertASCIItoUTF16(buffer));
+	    text =  NS_ConvertASCIItoUTF16(buffer);
 	} else {
-	    *text =  ToNewUnicode(NS_ConvertUTF8toUTF16(buffer));
+	    text =  NS_ConvertUTF8toUTF16(buffer);
 	}
 
 	delete []buffer;
@@ -702,7 +700,7 @@ NS_IMETHODIMP SciMoz::GetCurLine(PRUnichar ** text, PRInt32 *_retval) {
 }
 
 /* long getLine(in long line, out AUTF8String text); */
-NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, PRUnichar ** text, PRInt32  *_retval) 
+NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, nsAString & text, PRInt32  *_retval) 
 {
 	SCIMOZ_CHECK_VALID("GetLine");
 #ifdef SCIMOZ_DEBUG
@@ -718,9 +716,9 @@ NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, PRUnichar ** text, PRInt32  *_retval
 
 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
 	if (codePage == 0) {
-	    *text =  ToNewUnicode(NS_ConvertASCIItoUTF16(buffer));
+	    text =  NS_ConvertASCIItoUTF16(buffer);
 	} else {
-	    *text =  ToNewUnicode(NS_ConvertUTF8toUTF16(buffer));
+	    text =  NS_ConvertUTF8toUTF16(buffer);
 	}
 
 	delete []buffer;
@@ -750,7 +748,7 @@ NS_IMETHODIMP SciMoz::ClearCmdKey(PRInt32 key, PRInt32 modifiers) {
 }
 
 /* string getTextRange (in long min, in long max); */
-NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, PRUnichar ** _retval) 
+NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, nsAString & _retval) 
 {
 	SCIMOZ_CHECK_VALID("GetTextRange");
 #ifdef SCIMOZ_DEBUG
@@ -775,9 +773,9 @@ NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, PRUnichar ** _retva
 
 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
 	if (codePage == 0) {
-	    *_retval =  ToNewUnicode(NS_ConvertASCIItoUTF16(buffer));
+	    _retval =  NS_ConvertASCIItoUTF16(buffer);
 	} else {
-	    *_retval =  ToNewUnicode(NS_ConvertUTF8toUTF16(buffer));
+	    _retval =  NS_ConvertUTF8toUTF16(buffer);
 	}
 
 	delete []buffer;
@@ -910,7 +908,7 @@ NS_IMETHODIMP SciMoz::CharPosAtPosition(PRInt32 pos, PRInt32  *_retval)
 }
 
 /* readonly attribute wstring selText; */
-NS_IMETHODIMP SciMoz::GetSelText(PRUnichar ** aSelText)
+NS_IMETHODIMP SciMoz::GetSelText(nsAString & aSelText)
 {
 	SCIMOZ_CHECK_VALID("GetSelText");
 #ifdef SCIMOZ_DEBUG
@@ -932,9 +930,9 @@ NS_IMETHODIMP SciMoz::GetSelText(PRUnichar ** aSelText)
 
 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
 	if (codePage == 0) {
-	    *aSelText =  ToNewUnicode(NS_ConvertASCIItoUTF16(buffer));
+	    aSelText =  NS_ConvertASCIItoUTF16(buffer);
 	} else {
-	    *aSelText =  ToNewUnicode(NS_ConvertUTF8toUTF16(buffer));
+	    aSelText =  NS_ConvertUTF8toUTF16(buffer);
 	}
 
 	delete []buffer;

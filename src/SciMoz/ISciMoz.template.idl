@@ -68,13 +68,13 @@ interface ISciMozLite : nsISupports {
 	void sendUpdateCommands( in string text);
 	void getStyledText(in long min, in long max, out unsigned long count, 
 		[array, size_is(count), retval] out octet str);
-	long getCurLine(out wstring text);
+	long getCurLine(out AString text);
 	void assignCmdKey(in long key, in long modifiers, in long msg);
 	void clearCmdKey(in long key, in long modifiers);
 
-	wstring getTextRange(in long min, in long max);
+	AString getTextRange(in long min, in long max);
 	attribute AString text;
-	readonly attribute wstring selText;
+	readonly attribute AString selText;
 	
 	// stuff to minimize some of our eventist usage
 	attribute long lastCharCodeAdded;
@@ -101,7 +101,7 @@ interface ISciMozLite : nsISupports {
         void markClosed();
 
         void addChar(in PRUint32 ch);
-        long getLine(in long line, out wstring text);
+        long getLine(in long line, out AString text);
 	
         // Needed on linux because of the way Mozilla works...
         // We do a grab_add on mousedown, but if you start dragging after that,

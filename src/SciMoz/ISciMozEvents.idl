@@ -78,10 +78,8 @@ interface ISciMozEvents : nsISupports {
     // void onKey(in long ch, in long modifiers);
     void onDoubleClick();
     void onUpdateUI();
-    //XXX Would like the 'text' argument to be wstring, but we cannot.
-    //    See comment at nsSciMoz.cxx:418 for details.
     void onModified(in long position, in long modificationType,
-                    in wstring text, in PRUint32 length,
+                    in AString text, in PRUint32 length,
                     in long linesAdded, in long line,
                     in long foldLevelNow, in long foldLevelPrev);
     // void onMacroRecord(in long message, in long wParam, in long lParam);
