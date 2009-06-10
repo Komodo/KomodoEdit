@@ -604,15 +604,32 @@
 <!ELEMENT textbox EMPTY>
 <!ATTLIST textbox
 	%XULElement; 
+	cols CDATA #IMPLIED
+	decimalplaces CDATA #IMPLIED
 	disabled (true | false) #IMPLIED
+	empty (true | false) #IMPLIED
+	emptytext CDATA #IMPLIED
 	focused (true | false) #IMPLIED
+	hidespinbuttons (true | false) #IMPLIED
+	increment CDATA #IMPLIED
+	label CDATA #IMPLIED
+	max CDATA #IMPLIED
 	maxlength CDATA #IMPLIED
+	min CDATA #IMPLIED
 	multiline (true | false) #IMPLIED
+	newlines (pasteintact | pastetofirst | replacewithcommas | replacewithspaces | strip | stripsurroundingwhitespace) #IMPLIED
+	oninput CDATA #IMPLIED
+	preference CDATA #IMPLIED
 	readonly (true | false) #IMPLIED
+	rows CDATA #IMPLIED
+	searchbutton (true | false) #IMPLIED
 	size CDATA #IMPLIED
+	spellcheck (true | false) #IMPLIED
+	timeout CDATA #IMPLIED
 	type (password | autocomplete | number | timed | search) #IMPLIED
 	value CDATA #IMPLIED
 	wrap (true | false) #IMPLIED
+	wraparound (true | false) #IMPLIED
 >
 <!ELEMENT textnode EMPTY>
 <!ATTLIST textnode
