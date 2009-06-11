@@ -72,58 +72,64 @@ class KoFastOpenTreeView(TreeView):
         #self._oddBlockAtom = atomSvc.getAtom("odd_block")
         #self._blockStartAtom = atomSvc.getAtom("blockStart")
 
-    def resetHits(self):
-        num_rows_before = self._rows and len(self._rows) or 0
-        self._rows = []
-        try:
-            if self._tree:
-                self._tree.beginUpdateBatch()
-                self._tree.rowCountChanged(0, -num_rows_before)
-                self._tree.invalidate()
-                self._tree.endUpdateBatch()
-        except AttributeError:
-            pass # ignore `self._tree` going away
+    _last_num_hits = 0
 
-    def addHit(self, hit):
-        index = len(self._rows)  # just appending for now
-        self._rows.append(hit)
+    # Batch update the tree every n rows - bug 82962.
+    def _updateTreeView(self, force=False):
+        """Update tree view when forced, or num rows changed significantly."""
+
+        num_hits = len(self._rows)
+        prev_num_hits = self._last_num_hits
+        if (not force and num_hits < (prev_num_hits + 1000)) or not self._tree:
+            # Don't update the tree yet.
+            return
+        self._last_num_hits = num_hits
         try:
             self._tree.beginUpdateBatch()
             try:
-                self._tree.rowCountChanged(index, 1)
-                self._tree.invalidateRow(index)
+                num_rows_changed = num_hits - prev_num_hits
+                if num_rows_changed < 0:
+                    self._tree.rowCountChanged(num_hits, num_rows_changed)
+                    #self._tree.invalidate()
+                else:
+                    self._tree.rowCountChanged(prev_num_hits, num_rows_changed)
+                    #self._tree.invalidateRange(num_hits, num_rows_changed)
             finally:
                 self._tree.endUpdateBatch()
-            if index == 0:  # i.e. added first row
-                self._selectionProxy.select(0)
         except AttributeError:
             pass # ignore `self._tree` going away
+        if prev_num_hits == 0 and len(self._rows):  # i.e. added first row
+            self._selectionProxy.select(0)
+
+    def resetHits(self):
+        self._rows = []
+        self._updateTreeView(force=True)
+
+    def addHit(self, hit):
+        self._rows.append(hit)
+        self._updateTreeView()
 
     def addHits(self, hits):
         """Batch add multiple hits."""
-        index = len(self._rows)
         self._rows += hits
-        try:
-            self._tree.beginUpdateBatch()
-            try:
-                self._tree.rowCountChanged(index, len(hits))
-                self._tree.invalidateRange(index, len(self._rows))
-            finally:
-                self._tree.endUpdateBatch()
-            if index == 0:  # i.e. added first row
-                self._selectionProxy.select(0)
-        except AttributeError:
-            pass # ignore `self._tree` going away
+        self._updateTreeView()
     
     # Dev Note: These are just on the koIFastOpenTreeView to relay to the
     # koIFastOpenUIDriver because only the former is passed to the backend
     # `fastopen.Driver` thread. That is kind of lame.
     def searchStarted(self):
         self.uiDriver.searchStarted()
+        self._timer = threading.Timer(0.5, self._updateTreeView,
+                                      kwargs={'force': True})
+        self._timer.setDaemon(True)
+        self._timer.start()
     def searchAborted(self):
+        self._timer.cancel()
         self.uiDriver.searchAborted()
     def searchCompleted(self):
+        self._timer.cancel()
         self.uiDriver.searchCompleted()
+        self._updateTreeView(force=True)
     
     def getSelectedHits(self): 
         hits = []
