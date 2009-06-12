@@ -97,7 +97,14 @@ binding cmd_editReflow Ctrl+Q
 binding cmd_expandAbbrev Ctrl+T
 binding cmd_toggleOvertype  Insert 
 binding cmd_convertUpperCase Ctrl+U
+
+# Ctrl+Shift+U is not available on Linux.
+# #if PLATFORM == "linux"
+binding cmd_convertLowerCase Ctrl+Alt+U
+# #else
 binding cmd_convertLowerCase Ctrl+Shift+U
+# #endif
+
 binding cmd_join Ctrl+K Ctrl+J
 binding cmd_rawKey Ctrl+M
 binding cmd_repeatNextCommandBy Ctrl+K Ctrl+U
