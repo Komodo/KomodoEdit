@@ -43,6 +43,8 @@ Usage:
 Easily integrate a change from its branch or tree to other active
 Komodo branches. This will perform the necessary "p4|svn integrate"s,
 resolve the differences, and help create an appropriate checkin.
+
+Limitation: This does NOT handle svn properties!
 """
 
 __version_info__ = (1, 1, 0)
@@ -60,6 +62,7 @@ import optparse
 import tempfile
 import re
 import fnmatch
+from operator import itemgetter
 import subprocess
 import shutil
 from urlparse import urlparse
@@ -341,7 +344,7 @@ class P4Branch(Branch):
         p4 = p4lib.P4()
         return p4.opened(path) and True or False
 
-    def commit_summary(self, changenum):
+    def commit_summary(self, changenum=None):
         """Return a short single-line summary of a commit with the
         given changenum suitable for posting to a bug log.
         
@@ -355,7 +358,8 @@ class P4Branch(Branch):
         Template: PROJECT-NAME change CHANGENUM
         """
         project_name = basename(self.base_dir)
-        return "%s change %s" % (project_name, changenum)
+        changenum_str = changenum is not None and " %s" % changenum or ""
+        return "%s change%s" % (project_name, changenum_str)
 
     def setup_to_commit(self, changenum, user, desc, src_branch, paths,
                         interactive):
@@ -382,6 +386,13 @@ class SVNBranch(Branch):
                % (self.name, self.base_dir)
     def __str__(self):
         return "%r branch at '%s' (svn)" % (self.name, self.base_dir)
+    
+    _base_dir_info_cache = None
+    @property
+    def base_dir_info(self):
+        if self._base_dir_info_cache is None:
+            self._base_dir_info_cache = self._svn_info(self.base_dir)
+        return self._base_dir_info_cache
 
     _desc_cache = None
     @property
@@ -425,8 +436,12 @@ class SVNBranch(Branch):
             info[key.strip()] = value.strip()
         return info
 
-    def _svn_is_binary(self, path):
-        stdout = _capture_stdout([self._svn_exe, 'propget', 'svn:mime-type', path])
+    def _svn_is_binary(self, file_dict, changenum=None):
+        repo_path = self.base_dir_info["Repository Root"] + file_dict["svnpath"]
+        if changenum is not None:
+            repo_path += "@%s" % changenum
+        argv = [self._svn_exe, 'propget', 'svn:mime-type', repo_path]
+        stdout = _capture_stdout(argv)
         return "application/octet-stream" in stdout
 
     def _svn_log_rev(self, rev):
@@ -455,8 +470,8 @@ class SVNBranch(Branch):
             files.append(d)
         return data
 
-    def _svn_cat(self, path, changenum):
-        argv = [self._svn_exe, 'cat', '-r', str(changenum), path]
+    def _svn_cat(self, url):
+        argv = [self._svn_exe, 'cat', url]
         log.debug("running: %s", argv)
         p = subprocess.Popen(argv,
                              stderr=subprocess.PIPE,
@@ -485,15 +500,11 @@ class SVNBranch(Branch):
         return stdout
 
     def _svn_relpath(self, path):
-        """Relativize the SVN repo path using a heuristic."""
-        parts = path.split('/')
-        for i, part in enumerate(parts):
-            if part == "trunk":
-                return normpath('/'.join(parts[i+1:]))
-            elif part in ("branches", "tags"):
-                return normpath('/'.join(parts[i+2:]))
-        raise Error("couldn't heuristically relativize svn path: %r"
-                    % path)
+        bdi = self.base_dir_info
+        assert bdi["URL"].startswith(bdi["Repository Root"])
+        base_url = bdi["URL"][len(bdi["Repository Root"]):]
+        assert path.startswith(base_url)
+        return path[len(base_url)+1:]
 
     def last_rev(self, curr_user=False):
         """Return the head revision number.
@@ -516,6 +527,14 @@ class SVNBranch(Branch):
         else:
             raise RuntimeError("couldn't find last rev by `%s' in last %d"
                 % (username, SENTINEL))
+    
+    def changenums(self):
+        """Generate all changenums in this branch."""
+        xml = _capture_stdout([self._svn_exe, 'log',
+            self.base_dir, '--xml'])
+        log_elem = ET.fromstring(xml)
+        for logentry in log_elem:
+            yield int(logentry.get("revision"))
 
     def edit(self, path):
         pass
@@ -637,11 +656,12 @@ class SVNBranch(Branch):
                 # integration.
                 file_dict["is_binary"] = False
             else:
-                file_dict["is_binary"] = self._svn_is_binary(file_dict["path"])
+                file_dict["is_binary"] = self._svn_is_binary(
+                    file_dict, changenum)
         binary_paths = [f["rel_path"] for f in change["files"]
                         if f["is_binary"]]
         if binary_paths:
-            print textwrap.dedent("""
+            log.info(textwrap.dedent("""
                 ***
                 The following source files are binary:
                     %s
@@ -649,7 +669,7 @@ class SVNBranch(Branch):
                 Integrating these files just copies the whole file over to
                 the target. This could result in lost changes in the target.
                 ***""") \
-                % "\n    ".join(binary_paths)
+                % "\n    ".join(binary_paths))
             answer = _query_yes_no("Continue integrating this change?")
             if answer != "yes":
                 return False
@@ -670,23 +690,36 @@ class SVNBranch(Branch):
                     continue
                 
                 if isdir(f["path"]):
-                    raise Error("cannot integrate a directory: `%s' (you "
+                    msg = ("cannot integrate a directory (rev %s): `%s' (you "
                         "are probably just editing properties on this dir, "
                         "use the '-x %s' option to skip this path)"
-                        % (f["rel_path"], f["rel_path"]))
+                        % (changenum, f["rel_path"], f["rel_path"]))
+                    if interactive:
+                        raise Error(msg)
+                    else:
+                        log.warn(msg)
+                        continue
                 
                 elif f["action"] == "M":
                     diff = _capture_stdout([
                         self._svn_exe, "diff",
                         "-r%d:%d" % (changenum-1, changenum),
-                        f["rel_path"]
+                        "%s%s@%s" % (self.base_dir_info["Repository Root"],
+                            f["svnpath"], changenum)
                     ], cwd=self.base_dir)
+                    # Fix up index marker.
+                    diff = diff.replace("Index: %s" % basename(f["rel_path"]),
+                        "Index: %s" % f["rel_path"])
+                    diff = diff.replace("\n--- %s" % basename(f["rel_path"]),
+                        "\n--- %s" % f["rel_path"])
+                    diff = diff.replace("\n+++ %s" % basename(f["rel_path"]),
+                        "\n+++ %s" % f["rel_path"])
                 elif f["action"] == "A" and "copyfrom-svnpath" in f:
                     # Sometimes an add (action == "A") has a patch too, e.g.
                     # modifications after an "svn mv" or "svn cp".
                     # If it is an 'svn mv' it is quite a PITA (AFAICT) to get
                     # the patch from svn.
-                    repo_root = self._svn_info(f["path"])["Repository Root"]
+                    repo_root = self.base_dir_info["Repository Root"]
                     diff = _capture_stdout([
                         self._svn_exe, "diff",
                         "%s%s@%s" % (repo_root, f["copyfrom-svnpath"], f["copyfrom-rev"]),
@@ -696,24 +729,30 @@ class SVNBranch(Branch):
                     # we need to update that header. We also need one in
                     # terms of the old file for the dry-run patching.
                     diff_lines = diff.splitlines(0)
-                    copyfrom_diff_lines = [
-                        "Index: %s" % f["copyfrom-relpath"],
-                        "===================================================================",
-                        "--- %s" % f["copyfrom-relpath"],
-                        "+++ %s" % f["copyfrom-relpath"],
-                        ] + diff_lines[4:]
+                    if diff_lines[4:]:
+                        copyfrom_diff_lines = [
+                            "Index: %s" % f["copyfrom-relpath"],
+                            "===================================================================",
+                            "--- %s" % f["copyfrom-relpath"],
+                            "+++ %s" % f["copyfrom-relpath"],
+                            ] + diff_lines[4:]
+                    else:
+                        copyfrom_diff_lines = []
                     copyfrom_patch_path = join(tmp_dir, "%d.patch" % diff_idx)
                     diff_idx += 1
                     fout = open(copyfrom_patch_path, 'w')
                     fout.write('\n'.join(copyfrom_diff_lines))
                     fout.close()
                     f["copyfrom_patch_path"] = copyfrom_patch_path
-                    new_diff_lines = [
-                        "Index: %s" % f["rel_path"],
-                        "===================================================================",
-                        "--- %s" % f["rel_path"],
-                        "+++ %s" % f["rel_path"],
-                        ] + diff_lines[4:]
+                    if diff_lines[4:]:
+                        new_diff_lines = [
+                            "Index: %s" % f["rel_path"],
+                            "===================================================================",
+                            "--- %s" % f["rel_path"],
+                            "+++ %s" % f["rel_path"],
+                            ] + diff_lines[4:]
+                    else:
+                        new_diff_lines = []
                     diff = '\n'.join(new_diff_lines)
 
                 patch_path = join(tmp_dir, "%d.patch" % diff_idx)
@@ -738,17 +777,18 @@ class SVNBranch(Branch):
                         if force:
                             log.warn(str(ex))
                         else:
-                            patching_failures.append(str(ex))
+                            patching_failures.append((str(ex), f))
             if patching_failures:
                 raise Error("During a dry-run patching attempt there were "
-                            "the following failures:\n    %s\n\n"
+                            "the following failures:\n--\n%s\n\n"
                             "You could use the `-x SUBPATH` option to skip "
                             "a particular file."
-                            % ("\n    ".join(patching_failures)))
+                            % ("\n--\n".join("file: %s\n%s" % (f["rel_path"], ex)
+                                             for ex,f in patching_failures)))
     
             changes_made = []
             for dst_branch in dst_branches:
-                print "--- making changes to '%s' branch ---" % dst_branch.name
+                log.info("--- making changes to '%s' branch ---", dst_branch.name)
                 # - do deletes and adds (and copies and moves)
                 adds = [f for f in change["files"] if f["action"] in "A"]
                 deletes = [f for f in change["files"] if f["action"] in "D"]
@@ -756,7 +796,7 @@ class SVNBranch(Branch):
                 if others:
                     raise Error("don't know how to handle integrating "
                                 "'%s' action" % action)
-                for f in adds:
+                for f in sorted(adds, key=itemgetter("rel_path")):
                     rel_path = f["rel_path"]
                     src_path = join(self.base_dir, rel_path)
                     if "copyfrom-svnpath" in f:
@@ -790,7 +830,9 @@ class SVNBranch(Branch):
                             changes_made.append("mkdir `%s' (%s)" % (
                                 rel_path, dst_branch.name))
                         else:
-                            contents = self._svn_cat(src_path, changenum)
+                            contents = self._svn_cat("%s%s@%s" % (
+                                self.base_dir_info["Repository Root"],
+                                f["svnpath"], changenum))
                             dst_path = join(dst_branch.base_dir, rel_path)
                             fout = open(dst_path, 'wb')
                             fout.write(contents)
@@ -801,6 +843,7 @@ class SVNBranch(Branch):
                             changes_made.append("add `%s' (%s)" % (
                                 rel_path, dst_branch.name))
                 for f in deletes:
+                    rel_path = f["rel_path"]
                     dst_branch.delete(rel_path)
                     changes_made.append("delete `%s' (%s)" % (
                         rel_path, dst_branch.name))
@@ -833,8 +876,9 @@ class SVNBranch(Branch):
                                 f["rel_path"], dst_branch.name))
                     elif f["action"] == "M" and f["is_binary"]:
                         # This is a binary file to copy over.
-                        src_path = f["path"]
-                        contents = self._svn_cat(src_path, changenum)
+                        contents = self._svn_cat("%s%s@%s" % (
+                            self.base_dir_info["Repository Root"],
+                            f["svnpath"], changenum))
                         dst_path = join(dst_branch.base_dir, f["rel_path"])
                         dst_branch.edit(dst_path)
                         fout = open(dst_path, 'wb')
@@ -864,9 +908,11 @@ class SVNBranch(Branch):
                     commit_summaries.append(commit_summary)
 
             # Print a summary of commits for use in a bugzilla comment.
-            print "\n\n-- Check-in summary (for bugzilla comment):"
-            for s in commit_summaries:
-                print s
+            if log.isEnabledFor(logging.INFO):
+                log.info("\n\n-- Check-in summary (for bugzilla comment):")
+                for s in commit_summaries:
+                    log.info(s)
+                log.info("--\n")
         finally:
             if False and exists(tmp_dir) and not log.isEnabledFor(logging.DEBUG):
                 shutil.rmtree(tmp_dir)
@@ -919,10 +965,10 @@ class SVNBranch(Branch):
         rel_paths = [p[len(self.base_dir)+1:] for p in paths]
         msg = "%s\n\n(integrated from %s change %d by %s)" % (
               desc.rstrip(), src_branch.desc, changenum, user)
-        print "\n\nReady to commit to '%s' branch:" % self.name
-        print _banner("commit message", '-')
-        print msg
-        print _banner(None, '-')
+        log.info("\n\nReady to commit to '%s' branch:", self.name)
+        log.info(_banner("commit message", '-'))
+        log.info(msg)
+        log.info(_banner(None, '-'))
 
         auto_commit = True
         if interactive:
@@ -934,19 +980,25 @@ class SVNBranch(Branch):
                 auto_commit = False
         
         if auto_commit:
-            argv = [self._svn_exe, "commit", "-m", msg] + rel_paths
+            argv = [self._svn_exe, "commit"]
+            if not log.isEnabledFor(logging.INFO):
+                argv += ["-q"]
+            argv += ["-m", msg] + rel_paths
             stdout, stderr, retval = _patchRun(argv, self.base_dir)
             sys.stdout.write(stdout)
             if stderr or retval:
                 raise Error("error commiting: %s\n%s"
                             % (retval, _indent(stderr)))
-            revision_re = re.compile(r'Committed revision (\d+)\.')
-            try:
-                revision = revision_re.search(stdout).group(1)
-            except AttributeError:
-                log.warn("Couldn't determine commited revision from "
-                         "'svn commit' output: %r", stdout)
-                revision = "???"
+            if log.isEnabledFor(logging.INFO):
+                revision_re = re.compile(r'Committed revision (\d+)\.')
+                try:
+                    revision = revision_re.search(stdout).group(1)
+                except AttributeError:
+                    log.warn("Couldn't determine commited revision from "
+                             "'svn commit' output: %r", stdout)
+                    revision = "???"
+            else:
+                revision = None
             return self.commit_summary(revision)
         else:
             print textwrap.dedent("""
@@ -997,6 +1049,15 @@ cfg = Configuration()
 
 #---- main functionality
 
+def kointegrate_all_changes(dst_branch_names, interactive=True,
+        exclude_outside_paths=False, excludes=None,
+        force=False):
+    """Call `kointegrate' for every change in the source branch."""
+    src_branch = _get_curr_branch()
+    for changenum in sorted(src_branch.changenums()):
+        kointegrate(changenum, dst_branch_names, interactive,
+            exclude_outside_paths, excludes, force)
+
 def kointegrate(changenum, dst_branch_names, interactive=True,
                 exclude_outside_paths=False, excludes=None,
                 force=False):
@@ -1016,9 +1077,7 @@ def kointegrate(changenum, dst_branch_names, interactive=True,
                         % (dst_branch_name,
                            "', '".join(cfg.branches.keys())))
 
-    # Figure out what source branch we are taking about.
     src_branch = _get_curr_branch()
-
 
     log.debug("integrate change %s from %r -> '%s'",
               changenum, src_branch.name,
@@ -1157,6 +1216,8 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
     """
     inReverse = (reverse and " in reverse" or "")
     baseArgv = [patchExe, "-f", "-p0", "-g0"] + patchArgs
+    if not log.isEnabledFor(logging.INFO):
+        baseArgv += ["--quiet"]
     patchFile = os.path.join(baseDir, patchRelPath)
     patchContent = open(patchFile, 'r').read()
 
@@ -1389,6 +1450,9 @@ def main(argv=sys.argv):
         formatter=_NoReflowFormatter())
     parser.add_option("--help-ini", action="store_true",
                       help="print help on configuring kointegrate")
+    parser.add_option("-q", "--quiet", dest="log_level",
+                      action="store_const", const=logging.WARN,
+                      help="more verbose output")
     parser.add_option("-v", "--verbose", dest="log_level",
                       action="store_const", const=logging.DEBUG,
                       help="more verbose output")
@@ -1446,6 +1510,8 @@ def main(argv=sys.argv):
             rev_str = rev_str[1:]
         if rev_str in ("LAST", "HEAD"):
             changenum = _get_last_changenum()
+        elif rev_str == "ALL":
+            changenum = "ALL"
         else:
             changenum = int(rev_str)
     except ValueError, ex:
@@ -1454,14 +1520,21 @@ def main(argv=sys.argv):
         return 1
     dst_branch_names = args[1:]
 
-    integrated = kointegrate(
-        changenum, dst_branch_names, interactive=opts.interactive,
-        exclude_outside_paths=opts.exclude_outside_paths,
-        excludes=opts.excludes, force=opts.force)
-    if integrated:
+    if changenum == "ALL":
+        kointegrate_all_changes(
+            dst_branch_names, interactive=opts.interactive,
+            exclude_outside_paths=opts.exclude_outside_paths,
+            excludes=opts.excludes, force=opts.force)
         return 0
     else:
-        return 1
+        integrated = kointegrate(
+            changenum, dst_branch_names, interactive=opts.interactive,
+            exclude_outside_paths=opts.exclude_outside_paths,
+            excludes=opts.excludes, force=opts.force)
+        if integrated:
+            return 0
+        else:
+            return 1
 
 def _setup_logging():
     logging.basicConfig()
