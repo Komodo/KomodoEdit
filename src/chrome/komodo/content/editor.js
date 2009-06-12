@@ -102,7 +102,10 @@ editor_editorController.prototype.is_cmd_findNextSelected_enabled = function() {
     return ko.views.manager.currentView ? true : false;
 }
 
-editor_editorController.prototype.do_cmd_findNextSelected = function() {
+editor_editorController.prototype.do_cmd_findNextSelected = function(backwards /* false */) {
+    if (typeof(backwards) == 'undefined' || backwards == null) {
+        backwards = false;
+    }
     var v = ko.views.manager.currentView;
     var scimoz = v.scintilla.scimoz
     if (!scimoz) return;
@@ -123,8 +126,16 @@ editor_editorController.prototype.do_cmd_findNextSelected = function() {
                   getService(Components.interfaces.koIFindService);
     context.type = findSvc.options.FCT_CURRENT_DOC;
     findSvc.options.preferredContextType = findSvc.options.FCT_CURRENT_DOC;
-    findSvc.options.searchBackward = false;
+    findSvc.options.searchBackward = backwards;
     Find_FindNext(window, context, pattern);
+}
+
+editor_editorController.prototype.is_cmd_findPreviousSelected_enabled = function() {
+    return ko.views.manager.currentView ? true : false;
+}
+
+editor_editorController.prototype.do_cmd_findPreviousSelected = function() {
+    this.do_cmd_findNextSelected(/* backwards */ true);
 }
 
 editor_editorController.prototype.is_cmd_bookmarkToggle_enabled = function() {

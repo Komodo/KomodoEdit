@@ -1272,6 +1272,11 @@
             disabled="true"
             desc="&findFindNextSelected.desc;"/>
         <command
+            id="cmd_findPreviousSelected" key="key_cmd_findPreviousSelected"
+            oncommand="ko.commands.doCommandAsync('cmd_findPreviousSelected', event)"
+            disabled="true"
+            desc="&findFindPreviousSelected.desc;"/>
+        <command
             id="cmd_convertUpperCase" key="key_cmd_convertUpperCase"
             oncommand="ko.commands.doCommand('cmd_convertUpperCase')"
             disabled="true"
