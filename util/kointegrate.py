@@ -47,7 +47,7 @@ resolve the differences, and help create an appropriate checkin.
 Limitation: This does NOT handle svn properties!
 """
 
-__version_info__ = (1, 2, 0)
+__version_info__ = (1, 2, 1)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -1430,6 +1430,54 @@ def _get_curr_branch():
 
 #---- mainline
 
+# Recipe: pretty_logging (0.1) in C:\trentm\tm\recipes\cookbook
+class _PerLevelFormatter(logging.Formatter):
+    """Allow multiple format string -- depending on the log level.
+
+    A "fmtFromLevel" optional arg is added to the constructor. It can be
+    a dictionary mapping a log record level to a format string. The
+    usual "fmt" argument acts as the default.
+    """
+    def __init__(self, fmt=None, datefmt=None, fmtFromLevel=None):
+        logging.Formatter.__init__(self, fmt, datefmt)
+        if fmtFromLevel is None:
+            self.fmtFromLevel = {}
+        else:
+            self.fmtFromLevel = fmtFromLevel
+    def format(self, record):
+        record.lowerlevelname = record.levelname.lower()
+        if record.levelno in self.fmtFromLevel:
+            #XXX This is a non-threadsafe HACK. Really the base Formatter
+            #    class should provide a hook accessor for the _fmt
+            #    attribute. *Could* add a lock guard here (overkill?).
+            _saved_fmt = self._fmt
+            self._fmt = self.fmtFromLevel[record.levelno]
+            try:
+                return logging.Formatter.format(self, record)
+            finally:
+                self._fmt = _saved_fmt
+        else:
+            return logging.Formatter.format(self, record)
+
+def _setup_logging(stream=None):
+    """Do logging setup:
+
+    We want a prettier default format:
+        $name: level: ...
+    Spacing. Lower case. Drop the prefix for INFO-level. 
+    """
+    hdlr = logging.StreamHandler(stream)
+    defaultFmt = "%(name)s: %(levelname)s: %(message)s"
+    infoFmt = "%(message)s"
+    fmtr = _PerLevelFormatter(fmt=defaultFmt,
+                              fmtFromLevel={logging.INFO: infoFmt})
+    hdlr.setFormatter(fmtr)
+    logging.root.addHandler(hdlr)
+    log.setLevel(logging.INFO)
+
+
+
+
 class _NoReflowFormatter(optparse.IndentedHelpFormatter):
     """An optparse formatter that does NOT reflow the description."""
     def format_description(self, description):
@@ -1535,9 +1583,6 @@ def main(argv=sys.argv):
             return 0
         else:
             return 1
-
-def _setup_logging():
-    logging.basicConfig()
 
 if __name__ == "__main__":
     _setup_logging()
