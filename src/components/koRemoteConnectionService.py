@@ -432,8 +432,12 @@ class koRemoteConnectionService:
                 username = server_prefs[4]
                 password = server_prefs[5]
                 path     = server_prefs[6]
-                return self._getConnection(protocol, hostname, port,
-                                           username, password, path)
+                connection =  self._getConnection(protocol, hostname, port,
+                                                  username, password, path)
+                if connection:
+                    # Remember the alias used to get the connection.
+                    connection.alias = server_alias;
+                return connection
             raise ServerException(nsError.NS_ERROR_FAILURE,
                                   "No server found for alias: %r" % (
                                         server_alias))
