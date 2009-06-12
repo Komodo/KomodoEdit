@@ -2284,6 +2284,7 @@ VimController.command_mappings = {
     "cmd_vim_changeChar" :          [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
                                                                     VimController.ENTER_MODE_INSERT |
                                                                     VimController.MODIFY_ACTION |
+                                                                    VimController.SPECIAL_REPEAT_HANDLING |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
                                                                     VimController.CANCELS_VISUAL_MODE ],
     "cmd_vim_changeWord" :          [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
@@ -2329,6 +2330,7 @@ VimController.command_mappings = {
     "cmd_vim_cutChar" :             [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
                                                                     VimController.MODIFY_ACTION |
                                                                     VimController.COPY_NORMAL |
+                                                                    VimController.SPECIAL_REPEAT_HANDLING |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
                                                                     VimController.CANCELS_VISUAL_MODE ],
     "cmd_vim_cutCharLeft" :         [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION ],
@@ -2951,9 +2953,9 @@ function cmd_vim_append(scimoz) {
     }
 }
 
-function cmd_vim_changeChar(scimoz) {
+function cmd_vim_changeChar(scimoz, repeatCount) {
     try {
-        cmd_vim_cutChar(scimoz);
+        cmd_vim_cutChar(scimoz, repeatCount);
     } catch (e) {
         vimlog.exception(e);
     }
@@ -3025,7 +3027,7 @@ function cmd_vim_changeLineEnd(scimoz) {
     cmd_vim_lineCutEnd(scimoz);
 }
 
-function cmd_vim_cutChar(scimoz) {
+function cmd_vim_cutChar(scimoz, repeatCount) {
     try {
         var currentPos = scimoz.currentPos;
         var lineNo = scimoz.lineFromPosition(currentPos);
@@ -3033,6 +3035,11 @@ function cmd_vim_cutChar(scimoz) {
         if (currentPos < lineEndPos) {
             // delete character to the right of the cursor
             var end = scimoz.positionAfter(currentPos);
+            // do not delete past the eol
+            while ((repeatCount > 1) && (end < lineEndPos)) {
+                end = scimoz.positionAfter(end);
+                repeatCount -= 1;
+            }
             gVimController.copyInternal(scimoz, currentPos, end, true);
         // Else if we are at the end of the line, we can delete the char
         // to the left if there is one, fixes bug:

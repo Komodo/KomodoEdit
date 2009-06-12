@@ -1533,6 +1533,17 @@ test_vi_emulation.prototype.test_bug62438_delete_at_eol = function() {
                       "this <|>\r\n"]);
 }
 
+test_vi_emulation.prototype.test_bug83368_repeat_delete_char = function() {
+    // Ensure a count char deletion "100x" does not delete before the starting
+    // position, bug 83368.
+    this._repeatCommand("cutChar", 100,
+                        "this<|> is\r\n my test\r\n",
+                        "this<|>\r\n my test\r\n",
+                        VimController.OPERATION_NONE,
+                        null /* register */,
+                        null /* tags */);
+}
+
 test_vi_emulation.prototype.test_bug72411_search_replace = function() {
     // http://bugs.activestate.com/show_bug.cgi?id=72411
     this._runTextCommand("%s/System/run_local",
