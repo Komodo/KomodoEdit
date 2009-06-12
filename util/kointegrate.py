@@ -47,7 +47,7 @@ resolve the differences, and help create an appropriate checkin.
 Limitation: This does NOT handle svn properties!
 """
 
-__version_info__ = (1, 1, 0)
+__version_info__ = (1, 2, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
