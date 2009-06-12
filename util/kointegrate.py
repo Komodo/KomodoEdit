@@ -495,6 +495,28 @@ class SVNBranch(Branch):
         raise Error("couldn't heuristically relativize svn path: %r"
                     % path)
 
+    def last_rev(self, curr_user=False):
+        """Return the head revision number.
+        
+        @param curr_user {bool} Limit to the current user.
+        """
+        import getpass
+        rev = "HEAD"
+        if curr_user:
+            username = getpass.getuser()
+        SENTINEL = 10
+        for i in range(SENTINEL):
+            rev_info = self._svn_log_rev(rev)
+            if not curr_user:
+                return rev_info["revision"]
+            elif rev_info["author"] == username:
+                return rev_info["revision"]
+            else:
+                rev = rev_info["revision"] - 1
+        else:
+            raise RuntimeError("couldn't find last rev by `%s' in last %d"
+                % (username, SENTINEL))
+
     def edit(self, path):
         pass
 
@@ -995,20 +1017,8 @@ def kointegrate(changenum, dst_branch_names, interactive=True,
                            "', '".join(cfg.branches.keys())))
 
     # Figure out what source branch we are taking about.
-    src_branch = None
-    norm_cwd_plus_sep = normcase(os.getcwd()) + os.sep
-    for branch in cfg.branches.values():
-        norm_branch_dir_plus_sep = normcase(branch.base_dir) + os.sep
-        if norm_cwd_plus_sep.startswith(norm_branch_dir_plus_sep):
-            src_branch = branch
-            break
-    else:
-        raise Error(textwrap.dedent("""\
-            The current directory is not in any of your configured Komodo
-            branches. You must either update your configuration for this
-            script (see `kointegrate --help') or change to an active
-            branch working copy directory.
-            """))
+    src_branch = _get_curr_branch()
+
 
     log.debug("integrate change %s from %r -> '%s'",
               changenum, src_branch.name,
@@ -1335,6 +1345,26 @@ def _query_yes_no(question, default="yes"):
             sys.stdout.write("Please repond with 'yes' or 'no' "\
                              "(or 'y' or 'n').\n")
 
+def _get_last_changenum():
+    curr_branch = _get_curr_branch()
+    return curr_branch.last_rev(curr_user=True)
+
+def _get_curr_branch():
+    curr_branch = None
+    norm_cwd_plus_sep = normcase(os.getcwd()) + os.sep
+    for branch in cfg.branches.values():
+        norm_branch_dir_plus_sep = normcase(branch.base_dir) + os.sep
+        if norm_cwd_plus_sep.startswith(norm_branch_dir_plus_sep):
+            curr_branch = branch
+            break
+    else:
+        raise Error(textwrap.dedent("""\
+            The current directory is not in any of your configured Komodo
+            branches. You must either update your configuration for this
+            script (see `kointegrate --help') or change to an active
+            branch working copy directory.
+            """))
+    return curr_branch
 
 
 #---- mainline
@@ -1414,7 +1444,10 @@ def main(argv=sys.argv):
         rev_str = args[0]
         if rev_str.startswith('r'):
             rev_str = rev_str[1:]
-        changenum = int(rev_str)
+        if rev_str in ("LAST", "HEAD"):
+            changenum = _get_last_changenum()
+        else:
+            changenum = int(rev_str)
     except ValueError, ex:
         log.error("<changenum> must be an integer: %r", args[0])
         log.error("(See 'kointegrate --help'.)")
