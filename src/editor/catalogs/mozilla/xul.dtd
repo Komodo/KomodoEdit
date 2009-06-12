@@ -259,12 +259,13 @@
 <!ELEMENT key EMPTY>
 <!ATTLIST key
 	%XULElement; 
-	cancel (true | false) #IMPLIED
-	charcode CDATA #IMPLIED
+	command CDATA #IMPLIED
 	disabled (true | false) #IMPLIED
 	key CDATA #IMPLIED
 	keycode CDATA #IMPLIED
-	modifiers (shift | alt | meta | control | accel) #IMPLIED
+	keytext CDATA #IMPLIED
+	modifiers (shift | alt | meta | control | accel | access| any) #IMPLIED
+	phase (capturing | target) #IMPLIED
 >
 <!ELEMENT keyset (key)*>
 <!ATTLIST keyset
