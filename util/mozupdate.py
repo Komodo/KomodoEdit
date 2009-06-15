@@ -751,6 +751,9 @@ def bzip_uncompress_file(src_path, dst_path):
     """Uncompress the source file using bunzip2 and write to the destination."""
     st_mode = os.stat(src_path).st_mode
     data = open(src_path, "rb").read()
+    # If the destination file already exists, remove it first.
+    if exists(dst_path):
+        os.remove(dst_path)
     open(dst_path, "wb").write(bz2.decompress(data))
     os.chmod(dst_path, st_mode)
 
