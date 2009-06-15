@@ -44,10 +44,12 @@ Easily integrate a change from its branch or tree to other active
 Komodo branches. This will perform the necessary "p4|svn integrate"s,
 resolve the differences, and help create an appropriate checkin.
 
-Limitation: This does NOT handle svn properties!
+Notes:
+- Limitation: This does NOT handle svn properties!
+- Changes to files outside of the source tree dir are *ignored*.
 """
 
-__version_info__ = (1, 2, 1)
+__version_info__ = (1, 2, 2)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -73,12 +75,18 @@ from xml.etree import cElementTree as ET
 import applib
 sys.path.insert(0, join(dirname(dirname(abspath(__file__))), "src",
                         "codeintel", "support"))
-import eol  # cherry-pick this from codeintel support area
+import eol as eollib # cherry-pick this from codeintel support area
 
 
 
 class Error(Exception):
     pass
+class OutsidePathError(Error):
+    """Error indicating that the given svn path is not under the
+    working tree base directory.
+    """
+    def __init__(self, path):
+        self.path = path
 
 
 
@@ -269,6 +277,25 @@ class P4Branch(Branch):
             for f in change["files"]:
                 if "patch_path" not in f:
                     continue
+                
+                # Awful HACK around the "$Id$" (et al) keyword expansion
+                # problem: If "$Id$" is in the patch content but it is
+                # exanded in target file, then `patch` won't be able to
+                # apply.
+                #TODO: Better soln is to modify the *patch*, but that's harder.
+                f = open(f["patch_path"], 'rb')
+                try:
+                    patchContent = f.read()
+                finally:
+                    f.close()
+                if "$Id$" in patchContent:
+                    XXX
+                    dst_path = join(dst_branch.base_dir, f["rel_path"])
+                    origDstContent = open(dst_path, 'rb').read()
+                    newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id$", origDstContent)
+                    if newDstContent != origDstContent:
+                        open(dst_path, 'wb').write(newDstContent)
+                
                 try:
                     _assertCanApplyPatch(patch_exe, f["patch_path"],
                                          dst_branch.base_dir)
@@ -286,7 +313,7 @@ class P4Branch(Branch):
                 patch_path = f["patch_path"]
                 dst_path = join(dst_branch.base_dir, f["rel_path"])
                 dst_branch.edit(dst_path)
-                eol_before = eol.eol_info_from_path(dst_path)[0]
+                eol_before = eollib.eol_info_from_path(dst_path)[0]
                 try:
                     applied = _applyPatch(patch_exe, dirname(patch_path),
                                           basename(patch_path),
@@ -297,12 +324,12 @@ class P4Branch(Branch):
                         applied = True
                     else:
                         raise
-                eol_after = eol.eol_info_from_path(dst_path)[0]
+                eol_after = eollib.eol_info_from_path(dst_path)[0]
                 if eol_after != eol_before:
                     assert eol_before != None
                     log.info("restore EOLs for `%s' (damaged by patch)",
                              dst_path)
-                    eol.convert_path_eol(dst_path, eol_before)
+                    eollib.convert_path_eol(dst_path, eol_before)
                 if applied:
                     changes_made.append("patched `%s'" % f["rel_path"])
             
@@ -444,7 +471,11 @@ class SVNBranch(Branch):
         stdout = _capture_stdout(argv)
         return "application/octet-stream" in stdout
 
-    def _svn_log_rev(self, rev):
+    def _svn_log_rev(self, rev, gather_kind=False):
+        """ ...
+        @param gather_kind {bool} Whether to issue extra 'svn info' calls
+            to get fill in the 'kind' field.
+        """
         xml = _capture_stdout([self._svn_exe, 'log', '-r', str(rev),
             '-v', self.base_dir, '--xml'])
         logentry = ET.fromstring(xml)[0]
@@ -457,18 +488,46 @@ class SVNBranch(Branch):
         }
         for path_elem in logentry.find("paths"):
             d = dict(path_elem.items())
+            d["svnpath"] = svnpath = path_elem.text
+            try:
+                rel_path = self._svn_relpath(svnpath)
+            except OutsidePathError, ex:
+                log.warn("ignoring `%s' (outside `%s' base dir)", svnpath,
+                    self.name)
+                continue
             if "copyfrom-path" in d:
                 p = d["copyfrom-path"]
                 rel_cfpath = self._svn_relpath(p)
                 d["copyfrom-svnpath"] = p
                 d["copyfrom-path"] = join(self.base_dir, rel_cfpath)
                 d["copyfrom-relpath"] = rel_cfpath
-            d["svnpath"] = path_elem.text
-            rel_path = self._svn_relpath(path_elem.text)
             d["rel_path"] = rel_path
             d["path"] = join(self.base_dir, rel_path)
+            if gather_kind and not d.get("kind") and not d["action"] == "D":
+                # Don't do this for a "D" action because I get errors:
+                #   info:  (Not a versioned resource)
+                #   file:///Users/trentm/tm/tmp/svn/check/trunk/checklib/content.types@1288:  (Not a valid URL)
+                #   svn: A problem occurred; see other errors for details
+                url = "%s%s@%s" % (self.base_dir_info["Repository Root"],
+                    d["svnpath"], rev)
+                d["kind"] = self._svn_info(url)["Node Kind"]
             files.append(d)
         return data
+    
+    def _svn_up(self, path):
+        argv = [self._svn_exe, 'up', path]
+        log.debug("running: %s", argv)
+        p = subprocess.Popen(argv,
+                             stderr=subprocess.PIPE,
+                             stdout=subprocess.PIPE)
+        stdout = p.stdout.read()
+        retval = p.wait()
+        if retval:
+            stderr = p.stderr.read()
+            raise Error("error running `svn up`:\n"
+                        "argv: %r\n"
+                        "stderr:\n%s"
+                        % (argv, _indent(stderr)))
 
     def _svn_cat(self, url):
         argv = [self._svn_exe, 'cat', url]
@@ -503,7 +562,8 @@ class SVNBranch(Branch):
         bdi = self.base_dir_info
         assert bdi["URL"].startswith(bdi["Repository Root"])
         base_url = bdi["URL"][len(bdi["Repository Root"]):]
-        assert path.startswith(base_url)
+        if not path.startswith(base_url):
+            raise OutsidePathError(path)
         return path[len(base_url)+1:]
 
     def last_rev(self, curr_user=False):
@@ -574,7 +634,7 @@ class SVNBranch(Branch):
     def integrate(self, changenum, dst_branches, interactive,
                   exclude_outside_paths, excludes=[], force=False):
         # Gather some info about the change to integrate.
-        change = self._svn_log_rev(changenum)
+        change = self._svn_log_rev(changenum, gather_kind=True)
         
         indeces_to_del = []
         for i, f in enumerate(change["files"][:]):
@@ -670,9 +730,10 @@ class SVNBranch(Branch):
                 the target. This could result in lost changes in the target.
                 ***""") \
                 % "\n    ".join(binary_paths))
-            answer = _query_yes_no("Continue integrating this change?")
-            if answer != "yes":
-                return False
+            if interactive:
+                answer = _query_yes_no("Continue integrating this change?")
+                if answer != "yes":
+                    return False
 
         # Do the integration, as best as possible.
         tmp_dir = tempfile.mkdtemp()
@@ -689,8 +750,10 @@ class SVNBranch(Branch):
                     # Not a change that could result in a patch.
                     continue
                 
-                if isdir(f["path"]):
-                    msg = ("cannot integrate a directory (rev %s): `%s' (you "
+                if f["kind"] == "directory":
+                    if f["action"] in ("A", "D"):
+                        continue
+                    msg = ("cannot integrate directory modifications (rev %s): `%s' (you "
                         "are probably just editing properties on this dir, "
                         "use the '-x %s' option to skip this path)"
                         % (changenum, f["rel_path"], f["rel_path"]))
@@ -699,7 +762,7 @@ class SVNBranch(Branch):
                     else:
                         log.warn(msg)
                         continue
-                
+
                 elif f["action"] == "M":
                     diff = _capture_stdout([
                         self._svn_exe, "diff",
@@ -707,13 +770,24 @@ class SVNBranch(Branch):
                         "%s%s@%s" % (self.base_dir_info["Repository Root"],
                             f["svnpath"], changenum)
                     ], cwd=self.base_dir)
+                    if "Index:" not in diff:
+                        # Guessing this is just a property change on the file.
+                        # We don't handle properies yet, so skip it. Trying
+                        # to use this patch content will break the
+                        # integration when applying the patch.
+                        log.warn("skipping property-only diff on `%s'",
+                            f["svnpath"])
+                        continue
                     # Fix up index marker.
+                    diff = diff.replace("\r\n", "\n")
                     diff = diff.replace("Index: %s" % basename(f["rel_path"]),
                         "Index: %s" % f["rel_path"])
                     diff = diff.replace("\n--- %s" % basename(f["rel_path"]),
                         "\n--- %s" % f["rel_path"])
                     diff = diff.replace("\n+++ %s" % basename(f["rel_path"]),
                         "\n+++ %s" % f["rel_path"])
+                    diff = diff.replace("\r\n", "\n")
+
                 elif f["action"] == "A" and "copyfrom-svnpath" in f:
                     # Sometimes an add (action == "A") has a patch too, e.g.
                     # modifications after an "svn mv" or "svn cp".
@@ -728,6 +802,8 @@ class SVNBranch(Branch):
                     # just the basename). To be able to apply the patch later
                     # we need to update that header. We also need one in
                     # terms of the old file for the dry-run patching.
+                    #XXX eol = "\r\n" in diff and "\r\n" or "\n"
+                    eol = "\n" #XXX
                     diff_lines = diff.splitlines(0)
                     if diff_lines[4:]:
                         copyfrom_diff_lines = [
@@ -736,14 +812,12 @@ class SVNBranch(Branch):
                             "--- %s" % f["copyfrom-relpath"],
                             "+++ %s" % f["copyfrom-relpath"],
                             ] + diff_lines[4:]
-                    else:
-                        copyfrom_diff_lines = []
-                    copyfrom_patch_path = join(tmp_dir, "%d.patch" % diff_idx)
-                    diff_idx += 1
-                    fout = open(copyfrom_patch_path, 'w')
-                    fout.write('\n'.join(copyfrom_diff_lines))
-                    fout.close()
-                    f["copyfrom_patch_path"] = copyfrom_patch_path
+                        copyfrom_patch_path = join(tmp_dir, "%d.patch" % diff_idx)
+                        diff_idx += 1
+                        fout = open(copyfrom_patch_path, 'w')
+                        fout.write(eol.join(copyfrom_diff_lines) + eol)
+                        fout.close()
+                        f["copyfrom_patch_path"] = copyfrom_patch_path
                     if diff_lines[4:]:
                         new_diff_lines = [
                             "Index: %s" % f["rel_path"],
@@ -751,9 +825,7 @@ class SVNBranch(Branch):
                             "--- %s" % f["rel_path"],
                             "+++ %s" % f["rel_path"],
                             ] + diff_lines[4:]
-                    else:
-                        new_diff_lines = []
-                    diff = '\n'.join(new_diff_lines)
+                        diff = eol.join(new_diff_lines) + eol
 
                 patch_path = join(tmp_dir, "%d.patch" % diff_idx)
                 diff_idx += 1
@@ -770,6 +842,24 @@ class SVNBranch(Branch):
                     if "patch_path" not in f:
                         continue
                     dryrun_patch_path = f.get("copyfrom_patch_path") or f["patch_path"]
+
+                    # Awful HACK around the "$Id$" (et al) keyword expansion
+                    # problem: If "$Id$" is in the patch content but it is
+                    # exanded in target file, then `patch` won't be able to
+                    # apply.
+                    #TODO: Better soln is to modify the *patch*, but that's harder.
+                    fin = open(dryrun_patch_path, 'rb')
+                    try:
+                        patchContent = fin.read()
+                    finally:
+                        fin.close()
+                    if "$Id$" in patchContent:
+                        dst_path = join(dst_branch.base_dir, f["rel_path"])
+                        origDstContent = open(dst_path, 'rb').read()
+                        newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id$", origDstContent)
+                        if newDstContent != origDstContent:
+                            open(dst_path, 'wb').write(newDstContent)
+
                     try:
                         _assertCanApplyPatch(patch_exe, dryrun_patch_path,
                                              dst_branch.base_dir)
@@ -789,21 +879,27 @@ class SVNBranch(Branch):
             changes_made = []
             for dst_branch in dst_branches:
                 log.info("--- making changes to '%s' branch ---", dst_branch.name)
-                # - do deletes and adds (and copies and moves)
+                
                 adds = [f for f in change["files"] if f["action"] in "A"]
                 deletes = [f for f in change["files"] if f["action"] in "D"]
                 others = [f for f in change["files"] if f["action"] not in "MAD"]
                 if others:
                     raise Error("don't know how to handle integrating "
                                 "'%s' action" % action)
+                
+                # - HACK:'svn up' the *whole* tree in attempt to
+                #   avoid the inscrutable 'svn ci' error about the dir
+                #   being out of date (and tree conflicts).
+                #   TODO: see if can get away with (a) only doing this for
+                #   certain types of changes (added dirs?) and (b) only
+                #   running 'svn up' are part of the working tree.
+                self._svn_up(dst_branch.base_dir)
+                
+                # - do deletes and adds (and copies and moves)
                 for f in sorted(adds, key=itemgetter("rel_path")):
                     rel_path = f["rel_path"]
                     src_path = join(self.base_dir, rel_path)
                     if "copyfrom-svnpath" in f:
-                        if isdir(src_path):
-                            raise Error("Don't currently support a 'svn cp' or "
-                                "'svn mv' of a directory: `%s'" % rel_path)
-                        
                         # Figure out if this is an 'svn cp' or an 'svn mv'.
                         for i, df in enumerate(deletes):
                             if df["svnpath"] == f["copyfrom-svnpath"]:
@@ -816,7 +912,7 @@ class SVNBranch(Branch):
                         
                         if df is None: # 'svn cp'
                             dst_branch.copy(f["copyfrom-relpath"], rel_path,
-                                isdir=False)
+                                isdir=(f["kind"] == "directory"))
                             changes_made.append("cp `%s' `%s' (%s)" % (
                                 f["copyfrom-relpath"], rel_path, dst_branch.name))
                         else: # 'svn mv'
@@ -825,7 +921,7 @@ class SVNBranch(Branch):
                                 f["copyfrom-relpath"], rel_path, dst_branch.name))
                     else:
                         # Just a regular 'svn add'.
-                        if isdir(src_path):
+                        if f["kind"] == "directory":
                             dst_branch.add(rel_path, isdir=True)
                             changes_made.append("mkdir `%s' (%s)" % (
                                 rel_path, dst_branch.name))
@@ -854,7 +950,7 @@ class SVNBranch(Branch):
                         patch_path = f["patch_path"]
                         dst_path = join(dst_branch.base_dir, f["rel_path"])
                         dst_branch.edit(dst_path)
-                        eol_before = eol.eol_info_from_path(dst_path)[0]
+                        eol_before = eollib.eol_info_from_path(dst_path)[0]
                         try:
                             applied = _applyPatch(patch_exe, dirname(patch_path),
                                                   basename(patch_path),
@@ -865,12 +961,12 @@ class SVNBranch(Branch):
                                 applied = True
                             else:
                                 raise
-                        eol_after = eol.eol_info_from_path(dst_path)[0]
+                        eol_after = eollib.eol_info_from_path(dst_path)[0]
                         if eol_after != eol_before:
                             assert eol_before != None
                             log.info("restore EOLs for `%s' (damaged by patch)",
                                      dst_path)
-                            eol.convert_path_eol(dst_path, eol_before)
+                            eollib.convert_path_eol(dst_path, eol_before)
                         if applied:
                             changes_made.append("patched `%s' (%s)" % (
                                 f["rel_path"], dst_branch.name))
@@ -1138,40 +1234,69 @@ def _assertCanApplyPatch(patchExe, patchFile, sourceDir, reverse=0,
     baseArgv = [patchExe, "-f", "-p0", "-g0"] + patchArgs
     patchContent = open(patchFile, 'r').read()
 
-    # Avoid this check for now because it can result in false positives
-    # (thinking the patch has already been applied when it has not).
-    ## Skip out if the patch has already been applied.
-    #argv = baseArgv + ["--dry-run"]
-    #if not reverse:
-    #    argv.append("-R")
-    #log.debug("    see if already applied%s: run %s in '%s'", inReverse,
-    #          argv, sourceDir)
-    #stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
-    #if not retval: # i.e. reverse patch would apply
-    #    log.debug("    patch already applied%s: skipping", inReverse)
-    #    return
-
-    # Fail if the patch would not apply cleanly.
-    argv = baseArgv + ["--dry-run"]
-    if reverse:
-        argv.append("-R")
-    log.debug("    see if will apply cleanly%s: run %s in '%s'", inReverse,
-              argv, sourceDir)
-    stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
-    if retval:
-        errmsg = textwrap.dedent("""\
-            patch '%s' will not apply cleanly%s:
-              patch source: %s
-              argv:         %s
-              stdin:        %s
-              cwd:          %s
-            """) % (patchFile, inReverse, patchSrcFile or patchFile,
-                    argv, patchFile, sourceDir)
-        if stdout.strip():
-            errmsg += "  stdout:\n%s" % _indent(stdout)
-        if stderr.strip():
-            errmsg += "  stderr:\n%s" % _indent(stderr)
-        raise Error(errmsg)
+    # HACK normalize EOLs in targets.
+    # Assumptions: have "Index:" markers in the patch.
+    normedPaths = []
+    native_eol = (sys.platform == "win32" and "\r\n" or "\n")
+    other_eol = (sys.platform == "win32" and "\n" or "\r\n")
+    patchContent = patchContent.replace(other_eol, native_eol)
+    for line in patchContent.splitlines(False):
+        if not line.startswith("Index:"):
+            continue
+        index, relpath = line.split(None, 1)
+        path = join(sourceDir, relpath)
+        content = open(path, 'rb').read()
+        if other_eol not in content:
+            continue
+        content = content.replace(other_eol, native_eol)
+        open(path, 'wb').write(content)
+        normedPaths.append(path)
+    
+    try:
+        # Avoid this check for now because it can result in false positives
+        # (thinking the patch has already been applied when it has not).
+        ## Skip out if the patch has already been applied.
+        #argv = baseArgv + ["--dry-run"]
+        #if not reverse:
+        #    argv.append("-R")
+        #log.debug("    see if already applied%s: run %s in '%s'", inReverse,
+        #          argv, sourceDir)
+        #stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
+        #if not retval: # i.e. reverse patch would apply
+        #    log.debug("    patch already applied%s: skipping", inReverse)
+        #    return
+    
+        # Fail if the patch would not apply cleanly.
+        argv = baseArgv + ["--dry-run"]
+        if reverse:
+            argv.append("-R")
+        log.debug("    see if will apply cleanly%s: run %s in '%s'", inReverse,
+                  argv, sourceDir)
+        stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
+        if retval:
+            headOfPatch = '\n    '.join(patchContent.splitlines(False)[:4])
+            errmsg = textwrap.dedent("""\
+                patch '%s' will not apply cleanly%s:
+                  patch source:  %s
+                  argv:          %s
+                  stdin:         %s
+                  cwd:           %s
+                  head of patch:
+                    %s
+                """) % (patchFile, inReverse, patchSrcFile or patchFile,
+                        argv, patchFile, sourceDir, headOfPatch)
+            if stdout.strip():
+                errmsg += "  stdout:\n%s" % _indent(stdout)
+            if stderr.strip():
+                errmsg += "  stderr:\n%s" % _indent(stderr)
+            raise Error(errmsg)
+    finally:
+        # HACK continued... unnormalize EOLs.
+        #for path in normedPaths:
+        #    content = open(path, 'rb').read()
+        #    content = content.replace(native_eol, other_eol)
+        #    open(path, 'wb').write(content)
+        pass
 
 # Adapted from patchtree.py.
 def _getPatchExe(patchExe=None):
@@ -1221,35 +1346,60 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
     patchFile = os.path.join(baseDir, patchRelPath)
     patchContent = open(patchFile, 'r').read()
 
-    # Avoid this check for now because it can result in false positives
-    # (thinking the patch has already been applied when it has not).
-    ## Skip out if the patch has already been applied.
-    #argv = baseArgv + ["--dry-run"]
-    #if not reverse:
-    #    argv.append("-R")
-    #stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
-    #if not retval: # i.e. reverse patch would apply
-    #    log.debug("skip application of '%s'%s: already applied", patchRelPath,
-    #             inReverse)
-    #    return False
-
-    # Apply the patch.
-    if dryRun:
-        log.debug("apply '%s'%s (dry run)", patchRelPath, inReverse)
-        argv = baseArgv + ["--dry-run"]
-    else:
-        log.debug("apply '%s'%s", patchRelPath, inReverse)
-        argv = baseArgv
-    if reverse:
-        argv.append("-R")
-    log.debug("run %s in '%s' (stdin '%s')", argv, sourceDir, patchFile)
-    stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
-    sys.stdout.write(stdout)
-    sys.stdout.flush()
-    if retval:
-        raise Error("error applying patch '%s'%s: argv=%r, cwd=%r, retval=%r"
-                    % (patchFile, inReverse, argv, sourceDir, retval))
-    return True
+    # HACK normalize EOLs in targets.
+    # Assumptions: have "Index:" markers in the patch.
+    normedPaths = []
+    native_eol = (sys.platform == "win32" and "\r\n" or "\n")
+    other_eol = (sys.platform == "win32" and "\n" or "\r\n")
+    for line in patchContent.splitlines(False):
+        if not line.startswith("Index:"):
+            continue
+        index, relpath = line.split(None, 1)
+        path = join(sourceDir, relpath)
+        content = open(path, 'rb').read()
+        if other_eol not in content:
+            continue
+        content = content.replace(other_eol, native_eol)
+        open(path, 'wb').write(content)
+        normedPaths.append(path)
+    
+    try:
+        # Avoid this check for now because it can result in false positives
+        # (thinking the patch has already been applied when it has not).
+        ## Skip out if the patch has already been applied.
+        #argv = baseArgv + ["--dry-run"]
+        #if not reverse:
+        #    argv.append("-R")
+        #stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
+        #if not retval: # i.e. reverse patch would apply
+        #    log.debug("skip application of '%s'%s: already applied", patchRelPath,
+        #             inReverse)
+        #    return False
+    
+        # Apply the patch.
+        if dryRun:
+            log.debug("apply '%s'%s (dry run)", patchRelPath, inReverse)
+            argv = baseArgv + ["--dry-run"]
+        else:
+            log.debug("apply '%s'%s", patchRelPath, inReverse)
+            argv = baseArgv
+        if reverse:
+            argv.append("-R")
+        log.debug("run %s in '%s' (stdin '%s')", argv, sourceDir, patchFile)
+        stdout, stderr, retval = _patchRun(argv, cwd=sourceDir, stdin=patchContent)
+        sys.stdout.write(stdout)
+        sys.stdout.flush()
+        if retval:
+            raise Error("error applying patch '%s'%s: argv=%r, cwd=%r, retval=%r"
+                        % (patchFile, inReverse, argv, sourceDir, retval))
+        return True
+    finally:
+        # HACK continued... unnormalize EOLs.
+        #for path in normedPaths:
+        #    content = open(path, 'rb').read()
+        #    content = content.replace(native_eol, other_eol)
+        #    open(path, 'wb').write(content)
+        pass
 
 
 # Recipe: banner (1.0.1)
