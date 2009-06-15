@@ -47,7 +47,7 @@ class TestKoFileService(unittest.TestCase):
     def __init__(self, methodName):
         unittest.TestCase.__init__(self, methodName)
         self.__filesvc = components.classes["@activestate.com/koFileService;1"] \
-                         .getService(components.interfaces.koIFileService)
+                         .createInstance(components.interfaces.koIFileService)
 
     def test_service(self):
         filename = os.__file__ # returns os.pyc
