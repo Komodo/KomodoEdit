@@ -64,7 +64,7 @@
   <string id="browser_preview_method">in-tab-other-group</string>
   <string id="preview_path"/>
   <boolean id="showIndentationGuides">1</boolean>
-  <boolean id="showLineNumbers">0</boolean>
+  <boolean id="showLineNumbers">1</boolean>
   <boolean id="scrollEndAtLastLine">0</boolean>
   <long id="caretStyle">1</long>
   <long id="caretWidth">1</long>
