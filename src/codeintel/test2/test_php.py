@@ -1980,6 +1980,41 @@ EOD;
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
                              "bug82721_class(var1, var2, var3)")
 
+    @tag("bug83381", "knownfailure")
+    def test_function_calltip_interface_fallback(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            interface HelloInterface {
+               /**
+                * Print the word hello.
+                */
+               public function printHello();
+            }
+
+            interface WorldInterface {
+               /**
+                * Print the word world.
+                */
+               public function printWorld();
+            }
+
+            class HelloWorld implements HelloInterface, WorldInterface {
+            
+                public function printHello() {
+                    print "Hello ";
+                }
+                public function printWorld() {
+                    print "world!";
+                }
+            }
+            $hw_inst = new HelloWorld();
+            $hw_inst->printHello(<1>);
+            $hw_inst->printWorld(<2>);
+        """)))
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+                             "printHello()\nPrint the word hello.")
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                             "printWorld()\nPrint the word world.")
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
