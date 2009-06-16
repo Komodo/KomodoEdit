@@ -47,7 +47,7 @@ import sys
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import WrapObject, UnwrapObject
-from styles import StateMap, CommonStates
+from styles import StateMap, CommonStates, IndicatorNameMap
 
 
 
@@ -65,6 +65,7 @@ log = logging.getLogger('koScintillaSchemeService')
 # These are initialized by _initializeStyleInfo().
 ScimozStyleNo2CommonName = {}
 ScimozStyleNo2SpecificName = {}
+IndicatorName2ScimozNo = {}
 ValidStyles = {}
 
 
@@ -104,7 +105,7 @@ class Scheme:
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 2
+    _current_scheme_version = 3
 
     def _execfile(self, fname, namespace):
         try:
@@ -122,10 +123,12 @@ class Scheme:
         self._languageStyles = namespace.get('LanguageStyles', {})
         self._colors = namespace.get('Colors', {})
         self._booleans = namespace.get('Booleans', {})
+        self._indicators = namespace.get('Indicators', {})
 
         version = namespace.get('Version', 1)
         # Scheme upgrade handling.
         if upgradeSettings and version < self._current_scheme_version:
+            orig_version = version
             if version == 1:  # Upgrade to v2.
                 if "fold markers" not in self._commonStyles:
                     self._commonStyles["fold markers"] = {}
@@ -134,10 +137,60 @@ class Scheme:
                     # color, which uses a system color "ThreeDFace". See
                     # bug 81867.
                     self._colors["foldMarginColor"] = None
+                version += 1
+
+            if version == 2:  # Upgrade to v3.
+                # Add indicator scheme settings.
+                self._indicators = {
+                    'linter_error': {
+                        'style' : 1,
+                        'color': 0x0000ff, # color format is BGR
+                        'alpha': 100,
+                        'draw_underneath' : True,
+                    },
+                    'linter_warning': {
+                        'style' : 1,
+                        'color': 0x008000, # color format is BGR
+                        'alpha': 100,
+                        'draw_underneath' : True,
+                    },
+                    'soft_characters': {
+                        'style' : 6,
+                        'color': 0x003399, # color format is BGR
+                        'alpha': 100,
+                        'draw_underneath' : False,
+                    },
+                    'tabstop_current': {
+                        'style' : 7,
+                        'color': 0x3333ff, # color format is BGR
+                        'alpha': 100,
+                        'draw_underneath' : True,
+                    },
+                    'tabstop_pending': {
+                        'style' : 6,
+                        'color': 0xff9999, # color format is BGR
+                        'alpha': 100,
+                        'draw_underneath' : True,
+                    },
+                    'find_highlighting': {
+                        'style' : 7,
+                        'color': 0x10f0ff, # color format is BGR
+                        'alpha': 100,
+                        'draw_underneath' : True,
+                    },
+                    'tag_matching': {
+                        'style' : 7,
+                        'color': 0x0080ff, # color format is BGR
+                        'alpha': 100,
+                        'draw_underneath' : True,
+                    },
+                }
+                version += 1
+
             try:
                 self.save()
                 log.warn("Upgraded scheme %r from version %d to %d.",
-                         self.name, version, self._current_scheme_version)
+                         self.name, orig_version, self._current_scheme_version)
             except EnvironmentError, ex:
                 log.warn("Unable to save scheme upgrade for %r, error: %r",
                          self.name, ex)
@@ -171,6 +224,7 @@ class Scheme:
         clone._languageStyles = copy.deepcopy(self._languageStyles)
         clone._colors = copy.deepcopy(self._colors)
         clone._booleans = copy.deepcopy(self._booleans)
+        clone._indicators = copy.deepcopy(self._indicators)
         schemeService = components.classes['@activestate.com/koScintillaSchemeService;1'].getService()
         schemeService.addScheme(clone)
         return clone
@@ -181,7 +235,8 @@ class Scheme:
         commonStyles = "CommonStyles = " + pprint.pformat(self._commonStyles)
         languageStyles = "LanguageStyles = " + pprint.pformat(self._languageStyles)
         colors = "Colors = " + pprint.pformat(self._colors)
-        parts = [version, booleans, commonStyles, languageStyles, colors]
+        indicators = "Indicators = " + pprint.pformat(self._indicators)
+        parts = [version, booleans, commonStyles, languageStyles, colors, indicators]
         s = '\n\n'.join(parts)
         return s
 
@@ -274,6 +329,15 @@ class Scheme:
     
     def setSize(self, language, style, size):
         self._set(language, style, size, 'size')
+        self.isDirty = 1
+
+    def setIndicator(self, indic_name, style, mozcolor, alpha, draw_underneath):
+        self._indicators[indic_name] = {
+            'style' : style,
+            'color': mozcolor2scincolor(mozcolor),
+            'alpha': alpha,
+            'draw_underneath' : draw_underneath,
+        }
         self.isDirty = 1
 
     def _fixstyle(self, style):
@@ -386,6 +450,18 @@ class Scheme:
                 size = self._appliedData['default']['size']
         return size
         
+    def getIndicator(self, indic_name):
+        indic_dict = self._indicators.get(indic_name)
+        if indic_dict is None:
+            log.warn("getIndicator:: no indicator for name %r", indic_name)
+            return (0, scincolor2mozcolor(0), 0, False)
+        return (
+            indic_dict.get('style', 0),
+            scincolor2mozcolor(indic_dict.get('color', 0)),
+            indic_dict.get('alpha', 100),
+            indic_dict.get('draw_underneath', False),
+        )
+
     def resetStyle(self, language, style):
         #pprint.pprint(self._languageStyles)
         log.info("doing resetStyle: %r, %r", language, style)
@@ -569,11 +645,48 @@ class Scheme:
             scimoz.setFoldMarginColour(1, foldmargin_color)
             scimoz.setFoldMarginHiColour(1, foldmargin_color)
 
-        # Indicators.
-        DECORATOR_SOFT_CHAR = components.interfaces.koILintResult.DECORATOR_SOFT_CHAR
-        scimoz.indicSetStyle(DECORATOR_SOFT_CHAR, scimoz.INDIC_BOX)
-        # XXX: This should be in the scheme file.
-        scimoz.indicSetFore(DECORATOR_SOFT_CHAR, mozcolor2scincolor("#993300"))
+        # Indicators: UDL transition (internal only)
+        DECORATOR_UDL_FAMILY_TRANSITION = components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION
+        scimoz.indicSetStyle(DECORATOR_UDL_FAMILY_TRANSITION, scimoz.INDIC_HIDDEN)
+        ## For debugging, to show the UDL family transitions:
+        #scimoz.indicSetStyle(components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION,
+        #                     scimoz.INDIC_ROUNDBOX)
+        #scimoz.indicSetFore(DECORATOR_UDL_FAMILY_TRANSITION, mozcolor2scincolor("#008000"))
+
+        # Indicators: Tabstops (internal ones)
+        DECORATOR_TABSTOP_TSZW = components.interfaces.koILintResult.DECORATOR_TABSTOP_TSZW
+        DECORATOR_TABSTOP_TSCZW = components.interfaces.koILintResult.DECORATOR_TABSTOP_TSCZW
+        DECORATOR_TABSTOP_TS1 = components.interfaces.koILintResult.DECORATOR_TABSTOP_TS1
+        DECORATOR_TABSTOP_TS5 = components.interfaces.koILintResult.DECORATOR_TABSTOP_TS5
+        for i in range(DECORATOR_TABSTOP_TSZW, DECORATOR_TABSTOP_TS5 + 1):
+            scimoz.indicSetUnder(i, True) # draw under
+            scimoz.indicSetStyle(i, scimoz.INDIC_BOX)
+            scimoz.indicSetFore(i, mozcolor2scincolor("#9999ff"))
+        scimoz.indicSetStyle(DECORATOR_TABSTOP_TSCZW, scimoz.INDIC_HIDDEN)
+
+        # Indicators: Preferenced indicators (find highlight, tab matching, ...)
+        indicator_setters = {
+            'style' :           scimoz.indicSetStyle,
+            'color' :           scimoz.indicSetFore,
+            'alpha' :           scimoz.indicSetAlpha,
+            'draw_underneath' : scimoz.indicSetUnder,
+        }
+        for indic_name in self._indicators:
+            indic_no = IndicatorName2ScimozNo.get(indic_name)
+            if not indic_no:
+                log.warn("applyScheme:: no indicator for name %r", indic_name)
+                continue
+            for key, value in self._indicators[indic_name].items():
+                setter = indicator_setters.get(key)
+                if setter is None:
+                    log.warn("applyScheme:: no indicator setter for %r", key)
+                    continue
+                if indic_no == DECORATOR_TABSTOP_TS1:
+                    # Pending tabstops - update all of them (1 through 5)
+                    for i in range(DECORATOR_TABSTOP_TS1, DECORATOR_TABSTOP_TS5+1):
+                        setter(i, value)
+                else:
+                    setter(indic_no, value)
 
         #XXX Note: we used to apply some style prefs for the foreground of
         #    some of our markers here. This was limited in scope (only some
@@ -685,6 +798,12 @@ class KoScintillaSchemeService:
         names.sort()
         return names
     
+    def getIndicatorNames(self):
+        return sorted(IndicatorNameMap)
+
+    def getIndicatorNoForName(self, indic_name):
+        return IndicatorName2ScimozNo.get(indic_name, -1)
+
     def purgeUnsavedSchemes(self):
         for name in self._schemes.keys():
             if self._schemes[name].unsaved:
@@ -1065,7 +1184,13 @@ def _initializeStyleInfo():
                 ScimozStyleNo2SpecificName[key] = common_name
                 languageStyles.append((scimoz_no, scimoz_name, common_name)) 
         ValidStyles[languageName] = languageStyles
-
+    koILintResult = components.interfaces.koILintResult
+    for indic_name, component_name in IndicatorNameMap.items():
+        indic_no = getattr(koILintResult, component_name, None)
+        if indic_no is None:
+            log.warn("applyScheme:: no koILintResult value for %r", component_name)
+            continue
+        IndicatorName2ScimozNo[indic_name] = indic_no
 
 def scincolor2mozcolor(scincolor):
     # scincolor is an integer

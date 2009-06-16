@@ -486,6 +486,17 @@ SharedStates = {
     'indent guides': ('STYLE_INDENTGUIDE',),
 }
 
+# A map of the indicator name to the koILintResult/SciMoz indicator value used.
+IndicatorNameMap = {
+    'linter_error': 'DECORATOR_ERROR',
+    'linter_warning': 'DECORATOR_WARNING',
+    'soft_characters': 'DECORATOR_SOFT_CHAR',
+    'tabstop_current': 'DECORATOR_TABSTOP_TSC',
+    'tabstop_pending': 'DECORATOR_TABSTOP_TS1',
+    'find_highlighting': 'DECORATOR_FIND_HIGHLIGHT',
+    'tag_matching': 'DECORATOR_TAG_MATCH_HIGHLIGHT',
+}
+
 def addSharedStyles(langMap):
     langMap.update(SharedStates)
 

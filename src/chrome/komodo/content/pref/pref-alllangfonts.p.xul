@@ -117,12 +117,13 @@
     <separator class="thin"/>
 
     <vbox style="padding: 6px;">
-        <tabbox>
-            <tabs>
-                <tab label="&fonts.label;" accesskey="&fonts.accesskey;"/>
-                <tab label="&colors.label;" accesskey="&colors.accesskey;" style="margin-right: 5px;"/>
-                <tab label="&commonSyntax.label;" accesskey="&commonSyntax.accesskey;"/>
-                <tab label="&langSpecific.label;" accesskey="&langSpecific.accesskey;"/>
+        <tabbox id="tabbox">
+            <tabs id="tabs" onselect="tabChanged()">
+                <tab id="fonts_tab" label="&fonts.label;" accesskey="&fonts.accesskey;"/>
+                <tab id="colors_tab" label="&colors.label;" accesskey="&colors.accesskey;" style="margin-right: 5px;"/>
+                <tab id="common_tab" label="&commonSyntax.label;" accesskey="&commonSyntax.accesskey;"/>
+                <tab id="specific_tab" label="&langSpecific.label;" accesskey="&langSpecific.accesskey;"/>
+                <tab id="indicator_tab" label="&indicators.label;" accesskey="&indicators.accesskey;"/>
             </tabs>
             <tabpanels>
                 <tabpanel id="fonts_panel" orient="vertical">
@@ -546,6 +547,86 @@
                             </hbox>
                         </vbox>
                     </hbox>
+                </tabpanel>
+
+
+                <tabpanel id="indicators_panel" orient="vertical">
+                    <description style="margin-bottom: 10px;">
+                        &indicators.description;
+                    </description>
+                    <vbox>
+                        <hbox align="center">
+                            <label value="&indicatorMenu.label;" accesskey="&filePrefAllLangElementType1.accesskey;" control="commonlist"/>
+                            <menulist id="indicator_menulist"
+                                      oncommand="updateIndicatorStyle();">
+                                <menupopup id="indicator_popup"/>
+                            </menulist>
+                        </hbox>
+
+                        <separator class="thin"/>
+
+                        <hbox align="center" style="margin-left: 27px;">
+                            <label value="&indicStyle.label;"/>
+                            <menulist id="indicator_style_menulist"
+                                      oncommand="setIndicator();">
+                                <menupopup id="indicator_style_popup">
+                                    <menuitem id="indicator_style_plain_menuitem_0"
+                                              value="0"
+                                              label="&indicStylePlain.label;" />
+                                    <menuitem id="indicator_style_menuitem_1"
+                                              value="1"
+                                              label="&indicStyleSquiggle.label;" />
+                                    <menuitem id="indicator_style_menuitem_2"
+                                              value="2"
+                                              label="&indicStyleTT.label;" />
+                                    <menuitem id="indicator_style_menuitem_3"
+                                              value="3"
+                                              label="&indicStyleDiagonal.label;" />
+                                    <menuitem id="indicator_style_menuitem_4"
+                                              value="4"
+                                              label="&indicStyleStrike.label;" />
+                                    <menuitem id="indicator_style_menuitem_5"
+                                              value="5"
+                                              label="&indicStyleHidden.label;" />
+                                    <menuitem id="indicator_style_menuitem_6"
+                                              value="6"
+                                              label="&indicStyleBox.label;" />
+                                    <menuitem id="indicator_style_menuitem_7"
+                                              value="7"
+                                              label="&indicStyleRoundBox.label;" />
+                                </menupopup>
+                            </menulist>
+                        </hbox>
+
+                        <separator class="thin"/>
+
+                        <hbox align="center" style="margin-left: 27px;">
+                            <label value="&indicColor.label;"/>
+                            <colorpicker id="indicator_color"
+                                         palettename="scin-customize"
+                                         type="button" width="20" height="20"
+                                         persist="palettename"
+                                         onchange="setIndicator()"/>
+                            <button style="margin-bottom: 6px"
+                                    class="arrow-right-6x3-icon button-toolbar-a"
+                                    oncommand="customColor('indicator_color')"/>
+
+                            <spacer class="thick" style="margin-left: 27px;"/>
+
+                            <label value="&indicAlpha.label;"/>
+                            <textbox id="indicator_alpha_textbox"
+                                     size="3"
+                                     oninput="setIndicator()"/>
+                        </hbox>
+
+                        <separator class="thin"/>
+
+                        <hbox align="center" style="margin-left: 27px;">
+                            <checkbox id="indicator_draw_underneath_checkbox"
+                                      label="&indicDrawUnderneath.label;"
+                                      oncommand="setIndicator()" />
+                        </hbox>
+                    </vbox>
                 </tabpanel>
             </tabpanels>
         </tabbox>

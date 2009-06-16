@@ -727,3 +727,21 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!--pref-helplang.xul-->
 <!ENTITY default.value "Default:">
 <!ENTITY generalHelp.value "General Help:">
+
+<!--pref-alllangfonts.xul-->
+<!ENTITY indicators.accesskey "I">
+<!ENTITY indicators.label "Indicators">
+<!ENTITY indicatorMenu.label "Indicator:">
+<!ENTITY indicators.description "Set the color and styling of indicators">
+<!ENTITY indicStyle.label "Style:">
+<!ENTITY indicStylePlain.label "Underline">
+<!ENTITY indicStyleSquiggle.label "Squiggle">
+<!ENTITY indicStyleTT.label "TT Shapes">
+<!ENTITY indicStyleDiagonal.label "Diagonal Hatch">
+<!ENTITY indicStyleStrike.label "Strike">
+<!ENTITY indicStyleHidden.label "Hidden">
+<!ENTITY indicStyleBox.label "Box Outline">
+<!ENTITY indicStyleRoundBox.label "Rounded Box">
+<!ENTITY indicAlpha.label "Alpha (0 - 100):">
+<!ENTITY indicColor.label "Color:">
+<!ENTITY indicDrawUnderneath.label "Draw indicator underneath the text">

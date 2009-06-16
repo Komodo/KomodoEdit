@@ -56,6 +56,9 @@ var gFontNames, gEncodings;
 
 var gLanguageRegistry = Components.classes["@activestate.com/koLanguageRegistryService;1"]
             .getService(Components.interfaces.koILanguageRegistryService);
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"].
+            getService(Components.interfaces.nsIStringBundleService).
+            createBundle("chrome://komodo/locale/pref/pref-alllangfonts.properties");
 
 function PrefLangFonts_OnLoad()  {
     try {
@@ -105,6 +108,8 @@ function initDialog() {
     dialog.fixedColorPickerBack = document.getElementById('fixedColorPickerBack');
     dialog.propColorPickerFore = document.getElementById('propColorPickerFore');
     dialog.propColorPickerBack = document.getElementById('propColorPickerBack');
+    dialog.tabbox = document.getElementById('tabbox');
+    dialog.current_tab_id = null;
     // second tab: colors
     dialog.extracolors = document.getElementById('extracolors');
     dialog.schemeColorPicker = document.getElementById('schemeColorPicker');
@@ -118,7 +123,7 @@ function initDialog() {
     dialog.commonFaceType = document.getElementById('fixedOrPropCommon');
     dialog.commonBold = document.getElementById('commonBold')
     dialog.commonItalic = document.getElementById('commonItalic')
-    // last tab: specific
+    // fourth tab: specific
     dialog.specificlist = document.getElementById('specificlist')
     dialog.specificFore = document.getElementById('specificColorPickerFore')
     dialog.specificBack = document.getElementById('specificColorPickerBack')
@@ -128,6 +133,13 @@ function initDialog() {
     dialog.encodingslist = document.getElementById('encodingslist');
     dialog.specificSize = document.getElementById('specificSize');
     dialog.specificFaceType = document.getElementById('fixedOrPropSpecific');
+    // fifth tab: indicators
+    dialog.indicator_menulist = document.getElementById('indicator_menulist');
+    dialog.indicator_style_menulist = document.getElementById('indicator_style_menulist');
+    dialog.indicator_alpha_textbox = document.getElementById('indicator_alpha_textbox');
+    dialog.indicator_color = document.getElementById('indicator_color');
+    dialog.indicator_draw_underneath_checkbox = document.getElementById('indicator_draw_underneath_checkbox');
+
 
     return dialog;
 }
@@ -144,16 +156,6 @@ function OnPreferencePageInitalize(prefset) {
     }
 }
 
-function _getTabbox() {
-    try {
-        return document.getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                                                 "tabbox")[0];
-    } catch(ex) {
-        dump("pref-alllangfonts.unprocessed.js: _getTabbox: " + ex + "\n");
-        return null;
-    }
-}
-
 function OnPreferencePageLoading(prefset) {
     try {
         generateFontList();
@@ -166,10 +168,9 @@ function OnPreferencePageLoading(prefset) {
         updateEncodingPopup();
         setupSchemes();
         
-        var tb = _getTabbox();
         var p = "prefs.fontsColorsLanguages.whichTab";
         if (prefset.hasLongPref(p)) {
-            tb.selectedIndex = prefset.getLongPref(p);
+            gDialog.tabbox.selectedIndex = prefset.getLongPref(p);
         }
         p = "prefs.fontsColorsLanguages.langSpecific.lang";
         if (prefset.hasStringPref(p)) {
@@ -188,7 +189,7 @@ function OnPreferencePageOK(prefset)  {
     var log = ko.logging.getLogger('pref-allfonts');
     try {
         prefset.setLongPref("prefs.fontsColorsLanguages.whichTab",
-                            _getTabbox().selectedIndex);
+                            gDialog.tabbox.selectedIndex);
         prefset.setStringPref("prefs.fontsColorsLanguages.langSpecific.lang",
                               document.getElementById("languageList").selection);
     } catch(ex) {
@@ -328,6 +329,7 @@ function updateFromScheme()
         updateDelete();
         updateCommonPopup();
         updateSpecificPopup();
+        updateIndicatorPopup();
     } catch (e) {
         log.error(e);
     }
@@ -361,6 +363,9 @@ function setColour(colorpicker)
         colorid = gDialog.extracolors.selectedItem.getAttribute('id')
         gDialog.currentScheme.setColor(colorid, color);
         updateScintilla();
+    } else if (colorpickerid == 'indicator_color') {
+        setIndicator();
+        return;
     } else {
         colorid = colorpickerid;
         switch (colorid) {
@@ -1226,3 +1231,116 @@ listElement.prototype =
         }
 };
 
+function loadIndicatorSample()
+{
+    var names = new Array();
+    gDialog.schemeService.getIndicatorNames(names, new Object());
+    names = names.value;
+    gDialog.bufferView.initWithBuffer("", "Text");
+    /**
+     * @type {Components.interfaces.ISciMoz}
+     */
+    var scimoz = gDialog.bufferView.scimoz;
+    var text_prefix = _bundle.GetStringFromName("indicator_sample.prefix.text");
+    var text_suffix = _bundle.GetStringFromName("indicator_sample.suffix.text");
+    var marker_start, marker_length;
+    var indic_no;
+    var indic_name;
+    for (var i=0; i< names.length; i++) {
+        indic_no = gDialog.schemeService.getIndicatorNoForName(names[i]);
+        scimoz.addText(ko.stringutils.bytelength(text_prefix), text_prefix);
+        marker_start = scimoz.length;
+        indic_name = _bundle.GetStringFromName(names[i]);
+        marker_length = ko.stringutils.bytelength(indic_name);
+        scimoz.addText(marker_length, indic_name);
+        scimoz.addText(ko.stringutils.bytelength(text_suffix), text_suffix);
+        scimoz.newLine();
+        if (indic_no >= 0) {
+            scimoz.indicatorCurrent = indic_no;
+            scimoz.indicatorFillRange(marker_start, marker_length);
+        }
+    }
+    gDialog.bufferView.anchor = 0;
+    gDialog.bufferView.currentPos = 0;
+}
+
+function updateIndicatorStyle()
+{
+    var indicator_name = gDialog.indicator_menulist.value;
+    if (!indicator_name) {
+        return;
+    }
+    var style = {};
+    var color = {};
+    var alpha = {};
+    var draw_underneath = {};
+    gDialog.currentScheme.getIndicator(indicator_name, style, color,
+                                       alpha, draw_underneath);
+    style = style.value;
+    color = color.value;
+    alpha = alpha.value;
+    draw_underneath = draw_underneath.value;
+
+    gDialog.indicator_style_menulist.value = style;
+    gDialog.indicator_color.color = color;
+    gDialog.indicator_alpha_textbox.value = alpha;
+    gDialog.indicator_draw_underneath_checkbox.checked = draw_underneath;
+}
+
+function setIndicator() {
+    if (!ensureWriteableScheme()) {
+        return;
+    }
+    var indic_name = gDialog.indicator_menulist.value;
+    var style = gDialog.indicator_style_menulist.value;
+    var color = gDialog.indicator_color.color;
+    var alpha = parseInt(gDialog.indicator_alpha_textbox.value);
+    var draw_underneath = gDialog.indicator_draw_underneath_checkbox.checked;
+    gDialog.currentScheme.setIndicator(indic_name, style, color, alpha,
+                                       draw_underneath);
+    updateScintilla();
+}
+
+function updateIndicatorPopup()
+{
+    try {
+        var labels = new Array();
+        gDialog.schemeService.getIndicatorNames(labels, new Object());
+        labels = labels.value;
+        var popup = document.getElementById('indicator_popup');
+        // clean out whatever may be there
+        while (popup.firstChild) {
+            popup.removeChild(popup.firstChild);
+        }
+        for (var i=0; i< labels.length; i++) {
+            var item = document.createElement('menuitem');
+            item.setAttribute('value', labels[i]);
+            // Localize the menu label.
+            item.setAttribute('label', _bundle.GetStringFromName(labels[i]));
+            popup.appendChild(item);
+        }
+        gDialog.indicator_menulist.selectedIndex = 0;
+        updateIndicatorStyle();
+    } catch (e) {
+        log.error(e);
+    }
+}
+
+// Fired when the tab/tabpanel is changed.
+function tabChanged() {
+    if (!gDialog) {
+        // Dialog is still loading.
+        return;
+    }
+    var tabId = gDialog.tabbox.selectedTab.getAttribute("id");
+    if (tabId == "indicator_tab") {
+        // Switched to the indicator tab. Fire this in a timeout, in order
+        // to ensure this is called after the changeLanguage() call, which
+        // gets fires on the initial page load.
+        window.setTimeout(loadIndicatorSample, 1);
+    } else if (gDialog.current_tab_id == "indicator_tab") {
+        // Switched from the indicator tab.
+        changeLanguage();
+    }
+    gDialog.current_tab_id = tabId;
+}

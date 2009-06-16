@@ -84,6 +84,8 @@ interface koIScintillaScheme : nsISupports {
     void setSize(in string language, /* null means common styles */
                  in string styleId, /* null means default */
                  in long size);
+    void setIndicator(in wstring name, in long style, in string color,
+                      in long alpha, in boolean draw_underneath);
 
     string getFore(in string language, /* null means common styles */
                  in string styleId);
@@ -98,6 +100,8 @@ interface koIScintillaScheme : nsISupports {
                         in string styleId); /* null means default */
     long getSize(in string language, /* null means common styles */
                  in string styleId); /* null means default */
+    void getIndicator(in wstring name, out long style, out string color,
+                      out long alpha, out boolean draw_underneath);
 
     void resetStyle(in string language, /* null means common styles */
                     in string styleId);
@@ -124,6 +128,11 @@ interface koIScintillaSchemeService : nsISupports {
     void getLanguageStyles(in string language,
                            [array, size_is(count)] out string styleLabels,
                            out unsigned long count);
+    // Return the list of indicator names in alphabetically sorted order.
+    void getIndicatorNames([array, size_is(count)] out string names,
+                            out unsigned long count);
+    // Return the scimoz indicator number for the given indicator name.
+    long getIndicatorNoForName(in wstring indic_name);
     void purgeUnsavedSchemes();
     void convertToHTMLFile(in IScimoz scimoz, in wstring title,
                            in wstring language, in long style_bits,

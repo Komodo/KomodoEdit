@@ -217,3 +217,48 @@ Colors = {
  'foldMarginColor': None,
  'selBack': 13421772,
  'selFore': 16772846}
+
+Indicators = {
+    'linter_error': {
+        'style' : 1,       # scimoz.INDIC_SQUIGGLE
+        'color': 0x0000ff, # color format is BGR
+        'alpha': 100,
+        'draw_underneath' : True,
+    },
+    'linter_warning': {
+        'style' : 1,       # scimoz.INDIC_SQUIGGLE
+        'color': 0x008000, # color format is BGR
+        'alpha': 100,
+        'draw_underneath' : True,
+    },
+    'soft_characters': {
+        'style' : 6,       # scimoz.INDIC_BOX
+        'color': 0x003399, # color format is BGR
+        'alpha': 100,
+        'draw_underneath' : False,
+    },
+    'tabstop_current': {
+        'style' : 7,       # scimoz.INDIC_ROUNDBOX
+        'color': 0x3333ff, # color format is BGR
+        'alpha': 100,
+        'draw_underneath' : True,
+    },
+    'tabstop_pending': {
+        'style' : 6,       # scimoz.INDIC_BOX
+        'color': 0xff9999, # color format is BGR
+        'alpha': 100,
+        'draw_underneath' : True,
+    },
+    'find_highlighting': {
+        'style' : 7,       # scimoz.INDIC_ROUNDBOX
+        'color': 0x10f0ff, # color format is BGR
+        'alpha': 100,
+        'draw_underneath' : True,
+    },
+    'tag_matching': {
+        'style' : 7,       # scimoz.INDIC_ROUNDBOX
+        'color': 0x0080ff, # color format is BGR
+        'alpha': 100,
+        'draw_underneath' : True,
+    },
+}

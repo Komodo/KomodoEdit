@@ -311,49 +311,7 @@ class koDocumentSettingsManager:
         else:
             scimoz.indicSetStyle(indicOffset, scimoz.INDIC_SQUIGGLE);
             scimoz.indicSetFore(indicOffset, RGB(0xff,0,0));
-        DECORATOR_ERROR = components.interfaces.koILintResult.DECORATOR_ERROR
-        DECORATOR_WARNING = components.interfaces.koILintResult.DECORATOR_WARNING
-        DECORATOR_TABSTOP_TSZW = components.interfaces.koILintResult.DECORATOR_TABSTOP_TSZW
-        DECORATOR_TABSTOP_TSC = components.interfaces.koILintResult.DECORATOR_TABSTOP_TSC
-        DECORATOR_TABSTOP_TSCZW = components.interfaces.koILintResult.DECORATOR_TABSTOP_TSCZW
-        DECORATOR_TABSTOP_TS5 = components.interfaces.koILintResult.DECORATOR_TABSTOP_TS5
 
-        for i in [DECORATOR_ERROR, DECORATOR_WARNING]:
-            scimoz.indicSetUnder(i, True) # draw under
-            scimoz.indicSetStyle(i, scimoz.INDIC_SQUIGGLE)
-        scimoz.indicSetFore(DECORATOR_ERROR, RGB(0xff,0,0))
-        scimoz.indicSetFore(DECORATOR_WARNING, RGB(0x00, 0x80,0))
-        
-        DECORATOR_UDL_FAMILY_TRANSITION = components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION
-        scimoz.indicSetStyle(DECORATOR_UDL_FAMILY_TRANSITION, scimoz.INDIC_HIDDEN)
-        for i in range(DECORATOR_TABSTOP_TSZW, DECORATOR_TABSTOP_TS5 + 1):
-            scimoz.indicSetUnder(i, True) # draw under
-            scimoz.indicSetStyle(i, scimoz.INDIC_BOX)
-            scimoz.indicSetFore(i, RGB(0x99, 0x99, 0xff))
-            
-        scimoz.indicSetStyle(DECORATOR_TABSTOP_TSC, scimoz.INDIC_ROUNDBOX)
-        scimoz.indicSetFore(DECORATOR_TABSTOP_TSC, RGB(0xff, 0x33, 0x33))
-        scimoz.indicSetStyle(DECORATOR_TABSTOP_TSCZW, scimoz.INDIC_HIDDEN)
-
-        # Find highlighting.
-        DECORATOR_FIND_HIGHLIGHT = components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT
-        scimoz.indicSetStyle(DECORATOR_FIND_HIGHLIGHT, scimoz.INDIC_ROUNDBOX)
-        scimoz.indicSetFore(DECORATOR_FIND_HIGHLIGHT, RGB(0xff, 0xf0, 0x10))
-        scimoz.indicSetUnder(DECORATOR_FIND_HIGHLIGHT, True)
-        scimoz.indicSetAlpha(DECORATOR_FIND_HIGHLIGHT, 100)
-
-        # Tag matching
-        DECORATOR_TAG_MATCH_HIGHLIGHT = components.interfaces.koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT
-        scimoz.indicSetStyle(DECORATOR_TAG_MATCH_HIGHLIGHT, scimoz.INDIC_ROUNDBOX)
-        scimoz.indicSetFore(DECORATOR_TAG_MATCH_HIGHLIGHT, RGB(0xff, 0x80, 0x00)) # orange
-        scimoz.indicSetUnder(DECORATOR_TAG_MATCH_HIGHLIGHT, True)
-        scimoz.indicSetAlpha(DECORATOR_TAG_MATCH_HIGHLIGHT, 100)
-
-        ## For debugging, to show the UDL family transitions:
-        #scimoz.indicSetStyle(components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION,
-        #                     scimoz.INDIC_ROUNDBOX)
-        #scimoz.indicSetFore(DECORATOR_UDL_FAMILY_TRANSITION, RGB(0,0x80,0))
-        
     def _updateLineNumberMargin(self):
         for scintilla in self._scintillas:
             scintilla.scimoz.setMarginWidthN(0,
