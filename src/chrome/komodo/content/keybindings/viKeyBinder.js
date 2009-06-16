@@ -124,6 +124,7 @@ function VimController() {
         this._currentPos = 0;
         this._anchor = 0;
         // Undo/redo/repeat
+        this._performUndoActions = true;    // Whether to add undo actions.
         this._repeatCount = 0;              // Number of times to repeat the command
         this._lastMode = VimController.MODE_NORMAL;
         this._lastOperationFlags = VimController.OPERATION_NONE; // Last operation type
@@ -209,17 +210,21 @@ var gVim_onWindowMouseUpHandler = function(event) {
         (!('originalTarget' in event) ||
          (event.originalTarget.nodeName != "html:input"))) {
         gVimController.updateModeIfBufferHasSelection(true);
+        if (gVimController.mode == VimController.MODE_INSERT) {
+            gVimController.movedDuringInsertMode();
+        }
     }
 }
 
 VimController.prototype.enable = function(enabled) {
+    var topview = document.getElementById("topview");
     if (enabled && !this.enabled) {
-        window.addEventListener('mouseup', gVim_onWindowMouseUpHandler, true);
+        topview.addEventListener('mouseup', gVim_onWindowMouseUpHandler, true);
         this.loadOverlay(); // load overlay eventually sets enabled to true
     } else if (!enabled) {
         this.enabledCallback = null;
         if (this.enabled) {
-            window.removeEventListener('mouseup', gVim_onWindowMouseUpHandler, true);
+            topview.removeEventListener('mouseup', gVim_onWindowMouseUpHandler, true);
             this.unloadOverlay(); // unload overlay sets enabled to false
         }
     }
@@ -549,6 +554,16 @@ VimController.prototype.__defineSetter__("mode", function(new_mode) {
         // Remember the last mode
         this._lastMode = old_mode;
         this._movePosBefore = false;
+
+        var scimoz = null;
+        if (old_mode == VimController.MODE_INSERT && this._performUndoActions) {
+            // This is the matching undo action that was started when the
+            // command first started the insert operation in vim_doCommand().
+            scimoz = ko.views.manager.currentView.scintilla.scimoz;
+            //dump("Vi endUndoAction\n");
+            scimoz.endUndoAction();
+        }
+
         // Set operation type back to none, find modes do not change it though,
         // on both going into and coming out of the find modes. Fixes:
         // http://bugs.activestate.com/show_bug.cgi?id=67045
@@ -558,7 +573,6 @@ VimController.prototype.__defineSetter__("mode", function(new_mode) {
             (old_mode != VimController.MODE_SEARCH)) {
             this.operationFlags = VimController.OPERATION_NONE;
         }
-        var scimoz = null;
         if (old_mode == VimController.MODE_OVERTYPE) {
             // Turning off overtype mode
             ko.views.manager.currentView.scintilla.scimoz.overtype = 0;
@@ -759,8 +773,12 @@ VimController.prototype.handleCommand = function(event, commandname, keylabel, m
                 // Remove the last character from recorded chars
                 //dump("Removing last inserted key\n");
                 this._lastInsertedKeycodes.pop();
+            } else if (commandname == 'cmd_newline') {
+                this._lastInsertedKeycodes.push("\n");
             } else if (commandname != 'cmd_cancel') {
                 // Any other characters (left, right, etc...) reset the buffer
+                vimlog.debug("handleCommand:: received '" + commandname +
+                             "'resetting last inserted keycodes");
                 //dump("Resetting keycodes back to empty\n");
                 this._lastInsertedKeycodes = [];
             }
@@ -851,6 +869,16 @@ VimController.prototype.regexRegisterIsReadonly = new RegExp('[\\:\\.\\%\\#\\=\\
 // Test regex for copy/paste text type
 VimController.prototype.regexContainsNewline = new RegExp(".*[\\r\\n].*");
 
+VimController.prototype.movedDuringInsertMode = function vi_movedDuringInsertMode() {
+    if (this._lastRepeatCount > 1) {
+        this._lastRepeatCount = 1;
+    }
+    // Create a new undo point here as well.
+    var scimoz = ko.views.manager.currentView.scimoz;
+    scimoz.endUndoAction();
+    scimoz.beginUndoAction();
+}
+
 // Handling keypress, called from the views-editor xul widget.
 // We return false when we want this key event to continue on to other elements.
 // Note: Returning true means the event is stopped (handled).
@@ -877,6 +905,19 @@ VimController.prototype.handleKeypress = function(event) {
                 } else if (keyCode == event.DOM_VK_TAB) {
                     this._lastInsertedKeycodes.push("\t");
                 }
+            }
+            switch (keyCode) {
+                case event.DOM_VK_LEFT:
+                case event.DOM_VK_RIGHT:
+                case event.DOM_VK_UP:
+                case event.DOM_VK_DOWN:
+                case event.DOM_VK_PAGE_UP:
+                case event.DOM_VK_PAGE_DOWN:
+                case event.DOM_VK_HOME:
+                case event.DOM_VK_END:
+                    // Movements reset the repeated insertion count.
+                    this.movedDuringInsertMode();
+                    break;
             }
             return false;
 
@@ -2269,7 +2310,7 @@ VimController.command_mappings = {
                                                                     VimController.WORKS_IN_VISUAL_MODE |
                                                                     VimController.CANCELS_VISUAL_MODE ],
     // XXX - Will not work on line 0, as we cannot do a linePrevious
-    "cmd_vim_insert_newline_previous" : [ "cmd_newlinePrevious",    VimController.REPEATABLE_ACTION |
+    "cmd_vim_insert_newline_previous" : [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
                                                                     VimController.ENTER_MODE_INSERT |
                                                                     VimController.MODIFY_ACTION ],
     "cmd_vim_insert_newline_next" : [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
@@ -2278,7 +2319,7 @@ VimController.command_mappings = {
     "cmd_vim_append" :              [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
                                                                     VimController.ENTER_MODE_INSERT |
                                                                     VimController.MODIFY_ACTION ],
-    "cmd_vim_appendEnd" :           [ "cmd_end",                    VimController.REPEATABLE_ACTION |
+    "cmd_vim_appendEnd" :           [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
                                                                     VimController.ENTER_MODE_INSERT |
                                                                     VimController.MODIFY_ACTION ],
     "cmd_vim_changeChar" :          [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
@@ -2433,6 +2474,18 @@ VimController.operation_commands = {
     "cmd_vim_indentOperation": [ "cmd_vim_indent",     VimController.OPERATION_INDENT ],
     "cmd_vim_dedentOperation": [ "cmd_vim_dedent",     VimController.OPERATION_DEDENT ]
 }
+
+// Commands that perform general insertions. These commands use a special
+// repeat handling mechanism that gets triggered on a cmd_vim_cancel action.
+// These commands must be implemented as JavaScript functions in this file.
+VimController.insertion_commands = [
+    "cmd_vim_insert",
+    "cmd_vim_insertHome",
+    "cmd_vim_insert_newline_previous",
+    "cmd_vim_insert_newline_next",
+    "cmd_vim_append",
+    "cmd_vim_appendEnd"
+];
 
 // Visual mode commands that are different to normal mode commands.
 VimController.visualmode_command_mappings = {
@@ -2589,6 +2642,18 @@ function vim_doCommand(command, event)
             // Use it's own special handler in this file cmd_vim_...
         }
 
+        var enterInsertMode = (mappedCommand[1] & VimController.ENTER_MODE_INSERT) ||
+                               (opMovementAction &&
+                                (gVimController.operationFlags == VimController.OPERATION_CHANGE) &&
+                                !(mappedCommand[1] & VimController.DELAY_MODE_INSERT));
+        if (enterInsertMode && gVimController._performUndoActions) {
+            // Wrap the whole insert/change operation in an undo layer, the
+            // matching endUndoAction will be performed when leaving insert
+            // mode (through the mode setter).
+            //dump("Vi beginUndoAction\n");
+            scimoz.beginUndoAction();
+        }
+
         // Record modifying action if makes modifications
         var modifyAction = ((mappedCommand[1] & VimController.MODIFY_ACTION) ||
                             (gVimController.operationFlags & VimController.OPERATION_DELETE));
@@ -2600,8 +2665,10 @@ function vim_doCommand(command, event)
             gVimController._lastOperationFlags = gVimController.operationFlags;
             gVimController._lastInsertedKeycodes = [];
             // Wrap the whole vi command in an undo action
-            //dump("Vi beginUndoAction\n");
-            scimoz.beginUndoAction();
+            if (gVimController._performUndoActions) {
+                //dump("Vi beginUndoAction\n");
+                scimoz.beginUndoAction();
+            }
         }
 
         // XXX - Leaving limitation of not knowing undo/redo history repitition count
@@ -2631,6 +2698,11 @@ function vim_doCommand(command, event)
                     // Uses repeat count specially
                     vimlog.debug("vim_doCommand:: Special repeat handling used");
                     eval(command + "(scimoz, " + numRepeats + ")");
+                } else if (VimController.insertion_commands.indexOf(command) >= 0) {
+                    // Although insert commands are repeatable, they use a special
+                    // repeat handling mechanism, we only repeat the actual
+                    // insert part once here and let cmd_vim_cancel do the rest.
+                    eval(command + "(scimoz)");
                 } else {
                     for (var i = 0; i < numRepeats; i++) {
                         eval(command + "(scimoz)");
@@ -2683,7 +2755,7 @@ function vim_doCommand(command, event)
             vimlog.error("vim_doCommand:: Command '"+original_command+"' failed:");
             vimlog.exception(ex);
         } finally {
-            if (modifyAction) {
+            if (modifyAction && gVimController._performUndoActions) {
                 //dump("Vi endUndoAction\n");
                 scimoz.endUndoAction();
             }
@@ -2746,10 +2818,7 @@ function vim_doCommand(command, event)
 
         // Enter insert mode if the command specified it or if it's a
         // change text operation (like "c w")
-        if ((mappedCommand[1] & VimController.ENTER_MODE_INSERT) ||
-            (opMovementAction &&
-             (gVimController._lastOperationFlags == VimController.OPERATION_CHANGE) &&
-             !(mappedCommand[1] & VimController.DELAY_MODE_INSERT))) {
+        if (enterInsertMode) {
             vimlog.debug("vim_doCommand:: Command forces INSERT mode");
             gVimController.mode = VimController.MODE_INSERT;
             // Start recording what gets entered
@@ -2800,27 +2869,19 @@ function cmd_vim_repeatLastCommand(scimoz) {
             // insert that text into scintilla directly. Special characters
             // like newline and tab will need to be handle through a command,
             // in order to repeat the same way.
-            var textLines = [];
-            var specialChars = [];
+            var i;
+            var insertSegments = [];
             var keys = gVimController._lastInsertedKeycodes;
             if (keys) {
                 var textPos = 0;
-                var textArray;
-                var text;
-                var i;
                 for (i=0; i < keys.length; i++) {
                     if (keys[i] == "\n" || keys[i] == "\t") {
-                        textArray = keys.slice(textPos, i);
-                        text = textArray.join("");
-                        textLines.push(text);
+                        insertSegments.push(keys.slice(textPos, i).join(""));
+                        insertSegments.push(keys[i]);
                         textPos = i + 1;
-                        // Remember the character type, we'll need it later
-                        specialChars.push(keys[i]);
                     }
                 }
-                textArray = keys.slice(textPos, i);
-                text = textArray.join("");
-                textLines.push(text);
+                insertSegments.push(keys.slice(textPos, i).join(""));
             }
 
             // Make a copy of these, as they will get modified as we run
@@ -2830,41 +2891,55 @@ function cmd_vim_repeatLastCommand(scimoz) {
             var lastModifyCommand = gVimController._lastModifyCommand;
             var lastOperationFlags = gVimController._lastOperationFlags;
 
+            var isInsertionCommand = false;
+            if (VimController.insertion_commands.indexOf(lastModifyCommand) >= 0) {
+                // Need to repeat the text insertion the same number of times.
+                numRepeats *= lastRepeatCount;
+                isInsertionCommand = true;
+            }
+
             // Now we perform the repeat action
             //dump("Vi beginUndoAction\n");
             scimoz.beginUndoAction();
+            gVimController._performUndoActions = false;
             try {
-                var i, j;
+                var j;
+                var segment;
                 for (i=0; i < numRepeats; i++) {
                     gVimController.repeatCount = lastRepeatCount;
                     gVimController.operationFlags = lastOperationFlags;
                     vim_doCommand(lastModifyCommand);
-                    // Re-add the text if there is some
-                    for (j=0; j < textLines.length; j++) {
-                        scimoz.addText(ko.stringutils.bytelength(textLines[j]), textLines[j]);
-                        if (j < (textLines.length - 1)) {
-                            // Don't do this for the last block of text
-                            if (specialChars[i] == '\n') {
-                                ko.commands.doCommand('cmd_newline');
-                            } else if (specialChars[i] == '\t') {
-                                ko.commands.doCommand('cmd_indent');
-                            }
+                    // Re-add the text that was last inserted.
+                    for (var j=0; j < insertSegments.length; j++) {
+                        segment = insertSegments[j];
+                        if (segment == '\n') {
+                            ko.commands.doCommand('cmd_newline');
+                        } else if (segment == '\t') {
+                            ko.commands.doCommand('cmd_indent');
+                        } else {
+                            scimoz.addText(ko.stringutils.bytelength(segment), segment);
                         }
                     }
                 }
-            } catch (ex) {
-            }
-            //dump("Vi endUndoAction\n");
-            scimoz.endUndoAction();
 
-            // Reset the state back to what it was like before the command
-            vimlog.debug("Resetting state back to previous settings.")
-            gVimController.mode = VimController.MODE_NORMAL;
-            gVimController._lastInsertedKeycodes = keys;
-            gVimController._lastRepeatCount = lastRepeatCount;
-            gVimController._lastModifyCommand = lastModifyCommand;
-            gVimController._lastOperationFlags = lastOperationFlags;
-            gVimController.operationFlags = currentOpFlags;
+                // Reset the state back to what it was like before the command
+                vimlog.debug("Resetting state back to previous settings.")
+                gVimController.repeatCount = 0;
+                gVimController.mode = VimController.MODE_NORMAL;
+                gVimController._lastInsertedKeycodes = keys;
+                gVimController._lastRepeatCount = lastRepeatCount;
+                gVimController._lastModifyCommand = lastModifyCommand;
+                gVimController._lastOperationFlags = lastOperationFlags;
+                gVimController.operationFlags = currentOpFlags;
+                // Need to update the scimoz position here, as the cursor has moved.
+                gVimController._currentPos = scimoz.currentPos;
+                gVimController._currentPos = scimoz.anchor;
+
+            } finally {
+                //dump("Vi endUndoAction\n");
+                scimoz.endUndoAction();
+                gVimController._performUndoActions = true;
+            }
         }
     } catch (e) {
         vimlog.exception(e);
@@ -2951,6 +3026,10 @@ function cmd_vim_append(scimoz) {
     } catch (e) {
         vimlog.exception(e);
     }
+}
+
+function cmd_vim_appendEnd(scimoz) {
+    ko.commands.doCommand("cmd_end");
 }
 
 function cmd_vim_changeChar(scimoz, repeatCount) {
@@ -3121,6 +3200,10 @@ function cmd_vim_insert_newline_next(scimoz) {
     ko.commands.doCommand('cmd_newline');
 }
 
+function cmd_vim_insert_newline_previous(scimoz) {
+    ko.commands.doCommand('cmd_newlinePrevious');
+}
+
 function cmd_vim_lineCut(scimoz, repeatCount) {
     try {
         var currentPos = scimoz.currentPos;
@@ -3261,13 +3344,60 @@ function cmd_vim_cancel(scimoz) {
     if (gVimController.mode == VimController.MODE_COMMAND) {
         gVimController.inputBufferFinish();
     } else if (gVimController.mode == VimController.MODE_INSERT) {
-        // Normal vi will move the cursor one to the left here
-        // XXX TODO - We may have a repeat count, perform multiples if needed.
+        // We may have a repeat count, perform multiple insertions if needed.
+        var insertionCount = gVimController._lastRepeatCount;
+        var insertionCommand = gVimController._lastModifyCommand;
+        if ((insertionCount > 1) &&
+            (VimController.insertion_commands.indexOf(insertionCommand) != -1)) {
+            vimlog.debug("Insertion command: " + insertionCommand);
+            vimlog.debug("Insert to be repeated " + insertionCount + " times.");
+            var i;
+            var insertSegments = [];
+            var keys = gVimController._lastInsertedKeycodes;
+            if (keys) {
+                var textPos = 0;
+                for (i=0; i < keys.length; i++) {
+                    if (keys[i] == "\n" || keys[i] == "\t") {
+                        insertSegments.push(keys.slice(textPos, i).join(""));
+                        insertSegments.push(keys[i]);
+                        textPos = i + 1;
+                    }
+                }
+                insertSegments.push(keys.slice(textPos, i).join(""));
+            }
+            var segment;
+            for (i=1; i < insertionCount; i++) {
+                // Re-perform the insertion command.
+                if (insertionCommand == "cmd_vim_insert_newline_previous"
+                    || insertionCommand == "cmd_vim_insert_newline_next") {
+                    // We do not repeat the original command in the case of
+                    // newline_previous (as vi treats repeated versions as a
+                    // a single newline on the next line - not the previous).
+                    cmd_vim_insert_newline_next(scimoz);
+                }
+
+                // Re-add the text that was last inserted.
+                for (var j=0; j < insertSegments.length; j++) {
+                    segment = insertSegments[j];
+                    if (segment == '\n') {
+                        ko.commands.doCommand('cmd_newline');
+                    } else if (segment == '\t') {
+                        ko.commands.doCommand('cmd_indent');
+                    } else {
+                        scimoz.addText(ko.stringutils.bytelength(segment), segment);
+                    }
+                }
+            }
+            gVimController._currentPos = scimoz.currentPos;
+        }
+        // Normal vi will move the cursor one to the left now, we do that here.
         var lineNo = scimoz.lineFromPosition(gVimController._currentPos);
         var lineStartPos = scimoz.positionFromLine(lineNo);
         if (gVimController._currentPos > lineStartPos) {
-            //ko.commands.doCommand('cmd_left');
             gVimController._currentPos = scimoz.positionBefore(gVimController._currentPos);
+            // Need to update the scimoz position here, as the cursor has moved.
+            scimoz.currentPos = gVimController._currentPos;
+            scimoz.anchor = gVimController._currentPos;
         }
     }
     gVimController.mode = VimController.MODE_NORMAL;
