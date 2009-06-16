@@ -473,6 +473,8 @@ class FileHandlerBase(object):
             # Last error should already be set in this case
             raise ServerException(nsError.NS_ERROR_FAILURE)
 
+    def chmod(self, permissions):
+        raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE)
 
 class FileHandler(FileHandlerBase):
     isLocal = 1
@@ -607,6 +609,8 @@ class FileHandler(FileHandlerBase):
         return 1
     hasChangedNoStatUpdate = property(get_hasChangedNoStatUpdate)
 
+    def chmod(self, permissions):
+        os.chmod(self._decodedPath, permissions)
 
 class URIHandler(FileHandlerBase):
     isLocal = 0
@@ -868,7 +872,7 @@ class RemoteURIHandler(FileHandlerBase):
                 _stats['isFile']            = self._file.rfinfo.isFile()
                 _stats['isSymlink']         = self._file.rfinfo.isSymlink()
                 _stats['isSpecial']         = 0
-                _stats['permissions']       = self._file.rfinfo.mode
+                _stats['permissions']       = stat.S_IMODE(self._file.rfinfo.mode)
                 _stats['isHidden']          = self._file.rfinfo.isHidden()
         return _stats
     
@@ -895,6 +899,12 @@ class RemoteURIHandler(FileHandlerBase):
         return 1
     hasChangedNoStatUpdate = property(get_hasChangedNoStatUpdate)
 
+    def chmod(self, permissions):
+        RFService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
+                    getService(components.interfaces.koIRemoteConnectionService)
+        connection = RFService.getConnectionUsingUri(self._fulluri)
+        connection.chmod(self._uri.path, permissions)
+        self._stats['permissions'] = permissions
 
 class projectURIHandler(FileHandlerBase):
     isLocal = 0

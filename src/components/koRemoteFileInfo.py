@@ -228,9 +228,23 @@ class koRemoteFileInfo:
                 mode |= stat.S_IFREG    # unknown
                 #self.log.debug("THIS IS A SYMLINK!!!")
             # we unfortunately dont know if we are owner or group member, so guess again
-            if "r" in fi[0]: mode |= stat.S_IREAD
-            if "w" in fi[0]: mode |= stat.S_IWRITE
-            if "x" in fi[0]: mode |= stat.S_IEXEC
+            mode_str = fi[0]
+            # Determine the file permissions, i.e. from the line "drwxr-xr-x"
+            if mode_str[1:2] == "r": mode |= stat.S_IRUSR
+            if mode_str[2:3] == "w": mode |= stat.S_IWUSR
+            if mode_str[3:4] == "x": mode |= stat.S_IXUSR
+            elif mode_str[3:4] == "s": mode |= (stat.S_IXUSR | stat.S_ISUID)
+            elif mode_str[3:4] == "S": mode |= stat.S_ISUID
+            if mode_str[4:5] == "r": mode |= stat.S_IRGRP
+            if mode_str[5:6] == "w": mode |= stat.S_IWGRP
+            if mode_str[6:7] == "x": mode |= stat.S_IXGRP
+            elif mode_str[6:7] == "s": mode |= (stat.S_IXGRP | stat.S_ISGID)
+            elif mode_str[6:7] == "S": mode |= stat.S_ISGID
+            if mode_str[7:8] == "r": mode |= stat.S_IROTH
+            if mode_str[8:9] == "w": mode |= stat.S_IWOTH
+            if mode_str[9:10] == "x": mode |= stat.S_IXOTH
+            elif mode_str[9:10] == "t": mode |= (stat.S_IXOTH | stat.S_ISVTX)
+            elif mode_str[9:10] == "T": mode |= stat.S_ISVTX
 
             if fi[4]: self.st_size = fi[4] # File size
 

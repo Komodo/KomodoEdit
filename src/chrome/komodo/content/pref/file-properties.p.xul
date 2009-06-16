@@ -73,6 +73,8 @@ xtk.include("domutils");
 
 function OnPreferencePageLoading(prefset) {
     data.readonly = document.getElementById("readonly");
+    data.permissions_label = document.getElementById("file_permissions_label");
+    data.permissions_button = document.getElementById("file_permissions_button");
     data.encoding = document.getElementById("encoding");
     data.language = document.getElementById("language");
     data.lineEndings = document.getElementById("lineEndings");
@@ -83,10 +85,24 @@ function OnPreferencePageLoading(prefset) {
     data.changedFields = {};
 
     if (parent.part) {
+        /**
+         * @type {Components.interfaces.koIFileEx}
+         */
         data.file = parent.part.getFile();
     } else {
         data.file = parent.view.document.file;
     }
+    if (!data.file_permissions && data.file.isRemoteFile) {
+        // This is a bit of a hack for remote files. Forces the file to update
+        // it's stats, otherwise the permissions will not have yet been loaded,
+        // making the file incorrectly look as if it has no permissions set.
+        // This is occurs when the file contents have not been loaded, such as
+        // for a remote file in the project tree.
+        data.file.open("r");
+        data.file.close();
+    }
+    data.file_permissions = data.file ? data.file.permissions : 0;
+
     data.prefset = prefset;
 
     initViewDependentUI();
@@ -174,10 +190,10 @@ function OnPreferencePageClosing(prefset, ok) {
             log.info("updating changed field '"+field+"' to '"+value+"'\n");
             switch(field) {
             case "readonly":
-                if (value != parent.view.document.file.isReadOnly) {
+                if (value != data.file.isReadOnly) {
                     var osSvc = Components.classes["@activestate.com/koOs;1"].
                                  getService(Components.interfaces.koIOs);
-                    var path = parent.view.document.file.displayPath;
+                    var path = data.file.displayPath;
                     try {
                         osSvc.setWriteability(path, !value);
                     } catch(ex) {
@@ -188,7 +204,15 @@ function OnPreferencePageClosing(prefset, ok) {
                         return false;
                     }
                     observerSvc.notifyObservers(null, "file_status_now",
-                                                parent.view.document.file.URI);
+                                                data.file.URI);
+                }
+                break;
+
+            case "file_permissions":
+                if (value != data.file.permissions) {
+                    data.file.chmod(value);
+                    observerSvc.notifyObservers(null, "file_status_now",
+                                                data.file.URI);
                 }
                 break;
 
@@ -338,15 +362,93 @@ function initFileProperties()
             data.readonly.setAttribute("tooltiptext",
                     bundle.GetStringFromName("notApplicable.message"));
             data.readonly.setAttribute("disabled", "true");
+            data.permissions_label.setAttribute("hidden", "true");
+            data.permissions_button.setAttribute("hidden", "true");
         } else {
-            data.readonly.checked = readonly;
-            if (data.readonly.hasAttribute("disabled"))
-                data.readonly.removeAttribute("disabled");
-            if (data.readonly.hasAttribute("tooltiptext"))
-                data.readonly.removeAttribute("tooltiptext");
+            if (!data.file.isRemoteFile && navigator.platform.substr(0, 3).toLowerCase() == "win") {
+                /* Windows only gets to change the readonly attribute. */
+                data.readonly.setAttribute("hidden", "false");
+                data.permissions_label.setAttribute("hidden", "true");
+                data.permissions_button.setAttribute("hidden", "true");
+                data.readonly.checked = readonly;
+                if (data.readonly.hasAttribute("disabled"))
+                    data.readonly.removeAttribute("disabled");
+                if (data.readonly.hasAttribute("tooltiptext"))
+                    data.readonly.removeAttribute("tooltiptext");
+            } else {
+                /* Linux/Mac and remote files get to change all permissions. */
+                data.readonly.setAttribute("hidden", "true");
+                data.permissions_label.setAttribute("hidden", "false");
+                data.permissions_button.setAttribute("hidden", "false");
+                displayFilePermissions();
+            }
         }
     } catch(ex) {
         log.exception(ex, "Error updating file properties.");
+    }
+}
+
+
+function displayFilePermissions()
+{
+    try {
+        var koIFileEx = Components.interfaces.koIFileEx;
+        var label = "";
+        var mode = data.file_permissions;
+        label += koIFileEx.isDirectory ? "d" : "-";
+
+        /* User permissions */
+        label += mode & koIFileEx.PERM_IRUSR ? "r" : "-";
+        label += mode & koIFileEx.PERM_IWUSR ? "w" : "-";
+        if (mode & koIFileEx.PERM_ISUID) {
+            label += mode & koIFileEx.PERM_IXUSR ? "s" : "S";
+        } else {
+            label += mode & koIFileEx.PERM_IXUSR ? "x" : "-";
+        }
+
+        /* Group permissions */
+        label += mode & koIFileEx.PERM_IRGRP ? "r" : "-";
+        label += mode & koIFileEx.PERM_IWGRP ? "w" : "-";
+        if (mode & koIFileEx.PERM_ISGID) {
+            label += mode & koIFileEx.PERM_IXGRP ? "s" : "S";
+        } else {
+            label += mode & koIFileEx.PERM_IXGRP ? "x" : "-";
+        }
+
+        /* Other permissions */
+        label += mode & koIFileEx.PERM_IROTH ? "r" : "-";
+        label += mode & koIFileEx.PERM_IWOTH ? "w" : "-";
+        if (mode & koIFileEx.PERM_ISVTX) {
+            label += mode & koIFileEx.PERM_IXOTH ? "t" : "T";
+        } else {
+            label += mode & koIFileEx.PERM_IXOTH ? "x" : "-";
+        }
+        data.permissions_label.setAttribute("value", label);
+    } catch(ex) {
+        log.exception(ex, "Error updating file attributes.");
+    }
+}
+
+
+function changeFilePermissions()
+{
+    try {
+        var args = {
+            "permissions": data.file_permissions,
+            "retval": 0,
+        };
+        ko.windowManager.openDialog(
+                "chrome://komodo/content/pref/file-permissions.xul",
+                "Komodo:FilePermissions",
+                "chrome,modal,resizable,close,centerscreen",
+                args);
+        if (args.retval == Components.interfaces.nsIFilePicker.returnOK) {
+            setField('file_permissions', args.permissions);
+            data.file_permissions = args.permissions;
+            displayFilePermissions();
+        }
+    } catch(ex) {
+        log.exception(ex, "Error updating file attributes.");
     }
 }
 
@@ -573,11 +675,20 @@ function applyEncodingAndBOM(encodingName, bom)
 
                     <separator class="thin"/>
                     <row align="center">
-                        <!-- Should show Unix-style file mode for linux. -->
                         <label value="&filePropertiesAttributes.label;"/>
-                        <checkbox id="readonly" style="padding-left: 0px;"
-                                  label="&readOnly.label;" accesskey="&readonly.accesskey;"
-                                  oncommand="setField('readonly', this.checked);"/>
+                        <hbox id="file_permissions_hbox"
+                              align="center">
+                            <!-- The readonly checkbox is shown for local files
+                                 on Windows, a Unix-style file mode is shown on
+                                 Mac and Linux as well as on remote files. -->
+                            <checkbox id="readonly" style="padding-left: 0px;"
+                                      label="&readOnly.label;" accesskey="&readonly.accesskey;"
+                                      oncommand="setField('readonly', this.checked);"/>
+                            <label id="file_permissions_label" />
+                            <button id="file_permissions_button"
+                                    label="&filePropertiesChangePermissions.button;"
+                                    oncommand="changeFilePermissions();" />
+                        </hbox>
                     </row>
                  </rows>
             </grid>

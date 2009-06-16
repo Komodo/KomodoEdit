@@ -325,6 +325,12 @@ class koSFTPConnection(remotefilelib.koRemoteSSH):
         except self._SFTPExceptions, e:
             self._raiseWithException(e)
 
+    def do_chmod(self, filepath, permissions):
+        try:
+            self._sftp.chmod(self._fixPath(filepath), permissions)
+        except self._SFTPExceptions, e:
+            self._raiseWithException(e)
+
     def do_readFile(self, filename):
         try:
             # Fix up path for home directory

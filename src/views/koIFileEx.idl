@@ -51,6 +51,23 @@
 [scriptable, uuid(46D252D6-1A08-49AA-9396-338034BA537B)]
 interface koIFileEx : nsISupports
 {
+    /* Permissions - note that these values are octal. */
+    const long PERM_ISUID = 04000;  /* set user id bit                       */
+    const long PERM_ISGID = 02000;  /* set group id bit                      */
+    const long PERM_ISVTX = 01000;  /* set sticky bit                        */
+    const long PERM_IRWXU = 00700;  /* read, write, execute/search by owner  */
+    const long PERM_IRUSR = 00400;  /* read permission, owner                */
+    const long PERM_IWUSR = 00200;  /* write permission, owner               */
+    const long PERM_IXUSR = 00100;  /* execute/search permission, owner      */
+    const long PERM_IRWXG = 00070;  /* read, write, execute/search by group  */
+    const long PERM_IRGRP = 00040;  /* read permission, group                */
+    const long PERM_IWGRP = 00020;  /* write permission, group               */
+    const long PERM_IXGRP = 00010;  /* execute/search permission, group      */
+    const long PERM_IRWXO = 00007;  /* read, write, execute/search by others */
+    const long PERM_IROTH = 00004;  /* read permission, others               */
+    const long PERM_IWOTH = 00002;  /* write permission, others              */
+    const long PERM_IXOTH = 00001;  /* execute/search permission, others     */
+
     boolean open(in string mode);
     void read(in unsigned long aCount, out unsigned long count, [array, size_is(count), retval] out octet text);
     void write([array, size_is(count)] in octet text, in unsigned long count);
@@ -60,6 +77,7 @@ interface koIFileEx : nsISupports
     wstring readfile();
     void flush();
     void close();
+    void chmod(in unsigned long permissions);
 
     // changing any one of the following three affects the following 6
     attribute wstring displayPath;// URI if URI not of file:// scheme.

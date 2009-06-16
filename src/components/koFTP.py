@@ -488,6 +488,14 @@ class koFTPConnection(remotefilelib.koRFConnection):
         except self._FTPExceptions, e:
             self._raiseWithException(e)
 
+    def do_chmod(self, filepath, permissions):
+        try:
+            chmod_cmd = "SITE CHMOD %s %s" % (oct(permissions),
+                                              self._fixPath(filepath))
+            self._connection.sendcmd(chmod_cmd)
+        except self._FTPExceptions, e:
+            self._raiseWithException(e)
+
     def _read_cb(self, block):
         #print "read %r bytes"  % (len(block))
         self._filedata.write(block)

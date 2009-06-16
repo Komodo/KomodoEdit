@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % filePermsDTD SYSTEM "chrome://komodo/locale/pref/file-permissions.dtd">
+  %filePermsDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<dialog xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        title="&filePermissions.window.title;"
+        orient="vertical"
+        ondialogaccept="OnOk();"
+        ondialogcancel="OnCancel();"
+        onload="OnLoad();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+
+    <script type="application/x-javascript;version=1.7">
+    <![CDATA[
+
+    var koIFileEx = Components.interfaces.koIFileEx;
+
+    function OnLoad() {
+        // .permissions
+        var permissions = window.arguments[0].permissions;
+        if (typeof permissions == "undefined" || permissions == null) {
+            permissions = 0;
+        }
+
+        document.getElementById("mode_textbox").value = permissions.toString(8);
+        setPermissions(permissions);
+    }
+
+    function OnOk() {
+        window.arguments[0].permissions = parseInt(document.getElementById("mode_textbox").value, 8);
+        window.arguments[0].retval = Components.interfaces.nsIFilePicker.returnOK;
+    }
+    function OnCancel() {
+        window.arguments[0].retval = Components.interfaces.nsIFilePicker.returnCancel;
+    }
+
+    function setPermissions(mode) {
+        /* User permissions */
+        document.getElementById('user_read').checked   = (mode & koIFileEx.PERM_IRUSR);
+        document.getElementById('user_write').checked  = (mode & koIFileEx.PERM_IWUSR);
+        document.getElementById('user_exec').checked   = (mode & koIFileEx.PERM_IXUSR);
+        document.getElementById('suid').checked        = (mode & koIFileEx.PERM_ISUID);
+
+        /* Group permissions */
+        document.getElementById('group_read').checked  = (mode & koIFileEx.PERM_IRGRP);
+        document.getElementById('group_write').checked = (mode & koIFileEx.PERM_IWGRP);
+        document.getElementById('group_exec').checked  = (mode & koIFileEx.PERM_IXGRP);
+        document.getElementById('sgid').checked        = (mode & koIFileEx.PERM_ISGID);
+
+        /* Other permissions */
+        document.getElementById('other_read').checked  = (mode & koIFileEx.PERM_IROTH);
+        document.getElementById('other_write').checked = (mode & koIFileEx.PERM_IWOTH);
+        document.getElementById('other_exec').checked  = (mode & koIFileEx.PERM_IXOTH);
+        document.getElementById('sticky').checked      = (mode & koIFileEx.PERM_ISVTX);
+    }
+
+    function updatePermissions() {
+        var permissions = 0;
+        /* User permissions */
+        permissions |= document.getElementById('user_read').checked   ? koIFileEx.PERM_IRUSR : 0;
+        permissions |= document.getElementById('user_write').checked  ? koIFileEx.PERM_IWUSR : 0;
+        permissions |= document.getElementById('user_exec').checked   ? koIFileEx.PERM_IXUSR : 0;
+        permissions |= document.getElementById('suid').checked        ? koIFileEx.PERM_ISUID : 0;
+
+        /* Group permissions */
+        permissions |= document.getElementById('group_read').checked  ? koIFileEx.PERM_IRGRP : 0;
+        permissions |= document.getElementById('group_write').checked ? koIFileEx.PERM_IWGRP : 0;
+        permissions |= document.getElementById('group_exec').checked  ? koIFileEx.PERM_IXGRP : 0;
+        permissions |= document.getElementById('sgid').checked        ? koIFileEx.PERM_ISGID : 0;
+
+        /* Other permissions */
+        permissions |= document.getElementById('other_read').checked  ? koIFileEx.PERM_IROTH : 0;
+        permissions |= document.getElementById('other_write').checked ? koIFileEx.PERM_IWOTH : 0;
+        permissions |= document.getElementById('other_exec').checked  ? koIFileEx.PERM_IXOTH : 0;
+        permissions |= document.getElementById('sticky').checked      ? koIFileEx.PERM_ISVTX : 0;
+
+        document.getElementById("mode_textbox").value = permissions.toString(8);
+    }
+
+    ]]>
+    </script>
+
+    <hbox id="permissions_hbox">
+        <groupbox id="user_groupbox">
+            <caption id="user_groupbox_caption"
+                     label="&filePermissions.user.label;"/>
+            <checkbox id="user_read"
+                      label="&filePermissions.read.label;"
+                      oncommand="updatePermissions();"/>
+            <checkbox id="user_write"
+                      label="&filePermissions.write.label;"
+                      oncommand="updatePermissions();"/>
+            <checkbox id="user_exec"
+                      label="&filePermissions.exec.label;"
+                      oncommand="updatePermissions();"/>
+            <checkbox id="suid"
+                      label="&filePermissions.suid.label;"
+                      oncommand="updatePermissions();"/>
+        </groupbox>
+        <groupbox id="group_groupbox">
+            <caption  id="group_groupbox_caption"
+                      label="&filePermissions.group.label;"/>
+            <checkbox id="group_read"
+                      label="&filePermissions.read.label;"
+                      oncommand="updatePermissions();"/>
+            <checkbox id="group_write"
+                      label="&filePermissions.write.label;"
+                      oncommand="updatePermissions();"/>
+            <checkbox id="group_exec"
+                      label="&filePermissions.exec.label;"
+                      oncommand="updatePermissions();"/>
+            <checkbox id="sgid"
+                      label="&filePermissions.sgid.label;"
+                      oncommand="updatePermissions();"/>
+        </groupbox>
+        <groupbox id="other_groupbox">
+            <caption  id="other_groupbox_caption"
+                      label="&filePermissions.other.label;" />
+            <checkbox id="other_read"
+                      label="&filePermissions.read.label;"
+                      oncommand="updatePermissions();"/>
+            <checkbox id="other_write"
+                      label="&filePermissions.write.label;"
+                      oncommand="updatePermissions();"/>
+            <checkbox id="other_exec"
+                      label="&filePermissions.exec.label;"
+                      oncommand="updatePermissions();"/>
+            <checkbox id="sticky"
+                      label="&filePermissions.sticky.label;"
+                      oncommand="updatePermissions();"/>
+        </groupbox>
+    </hbox>
+
+    <hbox id="mode_hbox" align="center">
+        <label id="mode_label" value="&filePermissions.manual_mode.label;" />
+        <textbox id="mode_textbox"
+                 type="timed"
+                 timeout="500"
+                 oncommand="setPermissions(parseInt(this.value, 8));" />
+    </hbox>
+
+</dialog>

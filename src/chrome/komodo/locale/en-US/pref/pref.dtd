@@ -448,6 +448,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePropertiesModified.label "Modified:">
 <!ENTITY filePropertiesAccessed.label "Accessed:">
 <!ENTITY filePropertiesAttributes.label "Attributes:">
+<!ENTITY filePropertiesChangePermissions.button "Change...">
 <!ENTITY filePropertiesLanguage.label "Language:">
 <!ENTITY filePropertiesLanguage.accesskey "L">
 <!ENTITY filePropertiesEncoding.label "Encoding:">

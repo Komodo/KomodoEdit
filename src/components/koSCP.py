@@ -391,6 +391,13 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
         except self._SCPExceptions, e:
             self._raiseWithException(e)
 
+    def do_chmod(self, filepath, permissions):
+        try:
+            self._runScpCommand("chmod %s %s" % (oct(permissions),
+                                                 self._escapePath(filepath)))
+        except self._SCPExceptions, e:
+            self._raiseWithException(e)
+
     class _scp_transfer_response:
         def __init__(self, mode, length, filename):
             self.mode = int(mode, 8)    # Octet format, convert to int

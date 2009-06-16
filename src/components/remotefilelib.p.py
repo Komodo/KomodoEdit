@@ -131,6 +131,7 @@ class koRFConnection:
     def do_createDirectory(self, name, permissions): raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
     def do_createFile(self, name, permissions): raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
     def do_close(self): raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+    def do_chmod(self, filepath, permissions): raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
     def do_readFile(self, filename): raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
     def do_writeFile(self, filename, data): raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
 
@@ -603,6 +604,15 @@ class koRFConnection:
         try:
             self.log.debug("closing connection")
             return self.do_close()
+        finally:
+            self._lock.release()
+
+    def chmod(self, filepath, permissions):
+        if not self._lock.acquire(blocking=False):
+            self._raiseServerException("Could not acquire remote connection lock. Multi-threaded access detected!")
+        try:
+            self.log.debug("chmod %s, %r", filepath, permissions)
+            return self.do_chmod(filepath, permissions)
         finally:
             self._lock.release()
 

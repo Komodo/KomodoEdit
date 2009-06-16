@@ -212,6 +212,30 @@ class TestConnection(unittest.TestCase):
                            .getService(components.interfaces.koILastErrorService)
             self.fail("COMException raised: %s" % (lastErrorSvc.getLastErrorMessage()))
 
+    def test35_chmod(self):
+        """test 35: chmod operations (dependants: 30)"""
+        try:
+            dir_rfinfo = self._connection.list(self._dirPath, 0)# No refresh
+            orig_dir_mode = dir_rfinfo.mode
+            self._connection.chmod(self._dirPath, 0700)
+            self.assertEqual(dir_rfinfo.mode, 0700, "Chmod failed on directory")
+            dir_rfinfo = self._connection.list(self._dirPath, 1) # Refresh
+            self.assertEqual(dir_rfinfo.mode, 0700, "Chmod failed on directory, the refresh produced a different result")
+            self._connection.chmod(self._dirPath, orig_dir_mode)
+
+            file_rfinfo = self._connection.list(self._filePath, 0)  # No refresh
+            orig_file_mode = file_rfinfo.mode
+            self._connection.chmod(self._filePath, 0600)
+            self.assertEqual(file_rfinfo.mode, 0600, "Chmod failed on file")
+            dir_rfinfo = self._connection.list(self._dirPath, 1) # Refresh
+            self.assertEqual(file_rfinfo.mode, 0600, "Chmod failed on file, the refresh produced a different result")
+            self._connection.chmod(self._dirPath, orig_file_mode)
+
+        except COMException, ex:
+            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
+                           .getService(components.interfaces.koILastErrorService)
+            self.fail("COMException raised: %s" % (lastErrorSvc.getLastErrorMessage()))
+
     def test40_specialCharactersInDirectoryName(self):
         """test 40: Test special characters in directory name (dependants: 10)"""
         global createdDirs
