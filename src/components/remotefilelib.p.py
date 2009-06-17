@@ -91,6 +91,7 @@ class koRFConnection:
         self.port = 0
         self.username = ""
         self.password = ""
+        self.passive = True
         self.homedirectory = None
         self._lasterror = ""
         self._cache_key = None  # Used for caching files
@@ -387,7 +388,7 @@ class koRFConnection:
     # XPcom methods, available through koIFTPConnection interface
     #
     # Note: path is only used for displaying on the username/password dialog
-    def open(self, server, port, username, password, path):
+    def open(self, server, port, username, password, path, passive=True):
         if not self._lock.acquire(blocking=False):
             self._raiseServerException("Could not acquire remote connection lock. Multi-threaded access detected!")
         try:
@@ -396,6 +397,7 @@ class koRFConnection:
             self.password = password
             if port > 0: self.port = port
             else: self.port = koRFProtocolDefaultPort[self.protocol]
+            self.passive = passive
     
             self.authAttempt = 0
             while self.authAttempt < 3:

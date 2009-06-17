@@ -62,11 +62,12 @@ interface koIServerInfo : nsISupports {
     readonly attribute wstring username;
     readonly attribute wstring password;
     readonly attribute wstring path;
+    readonly attribute boolean passive;
 
     // Initialize the Komodo server information from the data provided.
     void init(in wstring protocol, in wstring alias, in wstring hostname,
               in wstring port, in wstring username, in wstring password,
-              in wstring path);
+              in wstring path, in wstring passive);
 
     // Initialize the Komodo server information from the nsILoginInfo.
     void initFromLoginInfo(in nsILoginInfo logininfo);
@@ -101,6 +102,19 @@ interface koIRemoteConnectionService : nsISupports {
                        in wstring username, in wstring password, in wstring path,
                        [retval] out koIFTPConnection connection);
 
+    // Get a connection object given the connection parameters.
+    //  "protocol" is the connection protocol used, i.e. "ftp", "sftp"
+    //  "server" is the remote host name/ip address for the connection.
+    //  "port" is remote port number.
+    //  "username" is the username used when trying to log in.
+    //  "password" is the password used when trying to log in.
+    //  "path" is the path we want to open or go to (only used for display purposes)
+    //  "passive" is the ftp mode, when False it means to use 'Active' ftp mode
+    void getConnection2(in wstring protocol, in wstring server, in long port,
+                        in wstring username, in wstring password,
+                        in wstring path, in boolean passive,
+                        [retval] out koIFTPConnection connection);
+
     // Return the connection object for the given URI, all the connection
     // details should be included in the supplied URI
     // ex: ftp://test:tesuser@somesite.com:21/web/info.php
@@ -116,13 +130,13 @@ interface koIRemoteConnectionService : nsISupports {
 
     // Return the server details for the given URI, array list
     //   0-protocol, 1-server alias, 2-hostname, 3-port,
-    //   4-username, 5-password, 6-path
+    //   4-username, 5-password, 6-path, 7-passive
     void getServerDetailsFromUri(in wstring uri, out unsigned long count,
                                  [array, size_is(count)] out wstring data);
 
     // Return the server preferences for the given server alias, array list
     //   0-protocol, 1-server alias, 2-hostname, 3-port,
-    //   4-username, 5-password, 6-path
+    //   4-username, 5-password, 6-path, 7-passive
     void getServerPrefSettings(in wstring server_alias, out unsigned long count,
                                [array, size_is(count)] out wstring data);
 

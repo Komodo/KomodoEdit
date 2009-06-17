@@ -72,9 +72,10 @@ class koServerInfo:
         self.username = ''
         self.password = ''
         self.path = ''
+        self.passive = 1
 
     def init(self, protocol, alias, hostname, port, username, password, path,
-             raw_hostdata=None):
+             passive, raw_hostdata=None):
         self.protocol = protocol
         self.alias = alias
         self.hostname = hostname
@@ -85,9 +86,14 @@ class koServerInfo:
         self.username = username
         self.password = password
         self.path = path
+        try:
+            self.passive = int(passive)
+        except ValueError:
+            self.passive = 1
         if raw_hostdata is None:
             # Generate the host data
-            fields = map(urllib.quote, [protocol, alias, hostname, str(port), path])
+            fields = map(urllib.quote, [protocol, alias, hostname, str(port),
+                                        path, str(passive)])
             self.raw_hostdata = ":".join(fields)
         else:
             # Use the existing host data
@@ -98,15 +104,19 @@ class koServerInfo:
         host_split = logininfo.hostname.split(':')
         # Only use Komodo style server info, ignore others:
         #   nspassword.host example for Komodo:
-        #        FTP:the foobar server:foobar.com:21:
+        #        FTP:the foobar server:foobar.com:21::1
         #   nspassword.host example for Firefox:
         #        ftp://twhiteman@foobar.com:21
         if len(host_split) < 5:
             raise BadServerInfoException()
+        if len(host_split) == 5:
+            # Upgrade - add the passive setting.
+            host_split.append("1")
         # Unquote the elements.
         host_split = map(urllib.unquote, host_split)
         self.init(host_split[0], host_split[1], host_split[2], host_split[3],
                   logininfo.username, logininfo.password, host_split[4],
+                  host_split[5],
                   raw_hostdata=logininfo.hostname)
 
     def generateLoginInfo(self):
@@ -151,7 +161,8 @@ class koRemoteConnectionService:
     ## The lock has been acquired, just do the internal work
 
     # We have the lock already
-    def _getConnection(self, protocol, server, port, username, password, path):
+    def _getConnection(self, protocol, server, port, username, password, path,
+                       passive=True):
         if password:
             log.debug("getConnection: %s %s:%s@%s:%r '%s'", 
                            protocol, username, '*' * len(password), server, port, path)
@@ -187,7 +198,7 @@ class koRemoteConnectionService:
             createInstance(components.interfaces.koIFTPConnection)
         log.debug("getConnection: Opening %s %s@%s:%r", protocol, username, server, port)
         try:
-            c.open(server, port, username, password, path)
+            c.open(server, port, username, password, path, passive)
             self._connections[conn_key] = WeakReference(c)
             # Update sessionkey to contain any changes to the username, which
             # can happen if/when prompted for a username/password. Fix for bug:
@@ -214,7 +225,8 @@ class koRemoteConnectionService:
                     serverInfo.port,
                     serverInfo.username,
                     serverInfo.password,
-                    serverInfo.path]
+                    serverInfo.path,
+                    serverInfo.passive]
         return None
 
     def _getServerDetailsFromUri(self, uri):
@@ -225,6 +237,7 @@ class koRemoteConnectionService:
         username = ''
         password = ''
         path = ''
+        passive = 1
 
         uriparse = URIlib.URIParser(uri)
         if uriparse.scheme not in URIlib.RemoteURISchemeTypes:
@@ -255,6 +268,7 @@ class koRemoteConnectionService:
             username = server_prefs[4]
             password = server_prefs[5]
             path     = server_prefs[6]
+            passive  = server_prefs[7]
         else:
             log.debug("uri host info: %s", uriparse.server)
             serveruri = URIlib.URIServerParser(uriparse.server)
@@ -267,12 +281,13 @@ class koRemoteConnectionService:
         if uriparse.path:
             path = uriparse.path
 
-        return [ protocol, server_alias, hostname, str(port), username, password, path ]
+        return [ protocol, server_alias, hostname, str(port), username,
+                 password, path, str(passive) ]
 
     # We have the lock already
     def _getConnectionUsingUri(self, uri):
-        protocol, server_alias, hostname, port, username, password, path = \
-                self._getServerDetailsFromUri(uri)
+        protocol, server_alias, hostname, port, username, password, \
+                    path, passive = self._getServerDetailsFromUri(uri)
         # We want the port as an integer
         try:
             if not port: port = -1
@@ -281,9 +296,17 @@ class koRemoteConnectionService:
             log.debug("Invalid port number: %s", port)
             port = -1
 
+        # We want the passive as an integer
+        try:
+            if not passive: passive = 1
+            elif type(passive) != types.IntType: passive = int(passive)
+        except ValueError:
+            log.debug("Invalid passive value: %s", passive)
+            passive = 1
+
         # Now we have all the info, lets go make the connection
         connection = self._getConnection(protocol, hostname, port, username,
-                                         password, path);
+                                         password, path, passive);
         if connection:
             # Set the alias used to get the connection (if there was one)
             connection.alias = server_alias;
@@ -384,7 +407,8 @@ class koRemoteConnectionService:
             return "%s://%s/%s" % (protocol, server, path)
 
     # Return a connection object for the given parameters
-    def getConnection(self, protocol, server, port, username, password, path):
+    def getConnection(self, protocol, server, port, username, password, path,
+                      passive=True):
         # XXX - Requires ActivePython to support ssl
         # http://bugs.activestate.com/show_bug.cgi?id=50207
         if protocol == "ftps" and not hasattr(socket, 'ssl'):
@@ -399,6 +423,10 @@ class koRemoteConnectionService:
             return self._getConnection(protocol, server, port, username, password, path)
         finally:
             self._lock.release()
+
+    # getConnection2 is the same as getConnection, except it also offers to set
+    # the passive ftp mode.
+    getConnection2 = getConnection
 
     # Return the server prefs for the given server alias
     def getServerPrefSettings(self, server_alias):
@@ -432,8 +460,10 @@ class koRemoteConnectionService:
                 username = server_prefs[4]
                 password = server_prefs[5]
                 path     = server_prefs[6]
+                passive  = server_prefs[7]
                 connection =  self._getConnection(protocol, hostname, port,
-                                                  username, password, path)
+                                                  username, password, path,
+                                                  passive)
                 if connection:
                     # Remember the alias used to get the connection.
                     connection.alias = server_alias;

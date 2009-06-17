@@ -741,6 +741,7 @@ function RemoteServerInfo() {
     this.connection     = null;
     this.initial_path   = null;
     this.base_uri       = null;
+    this.passive        = null;
 }
 
 RemoteServerInfo.prototype.constructor = RemoteServerInfo;
@@ -1502,6 +1503,7 @@ function changeServerInfo(alias) {
         serverInfo.hostname     = server.hostname;
         serverInfo.port         = server.port;
         serverInfo.initial_path = server.path;
+        serverInfo.passive      = server.passive;
         // Set to FTP browser if our protocol is 'ftp', 'sftp' etc...
         for (var i = 0; i < remotefile_scheme_types.length; i++) {
             if (serverInfo.protocol == remotefile_scheme_types[i]) {
@@ -1566,12 +1568,13 @@ function connectToServer() {
     lastErrorSvc.setLastError(0, "")
     var RCService = Components.classes["@activestate.com/koRemoteConnectionService;1"].
                     getService(Components.interfaces.koIRemoteConnectionService);
-    var connection = RCService.getConnection(serverInfo.protocol,
-                                                serverInfo.hostname,
-                                                serverInfo.port,
-                                                serverInfo.username,
-                                                serverInfo.password,
-                                                "");
+    var connection = RCService.getConnection2(serverInfo.protocol,
+                                              serverInfo.hostname,
+                                              serverInfo.port,
+                                              serverInfo.username,
+                                              serverInfo.password,
+                                              "",
+                                              serverInfo.passive);
     serverInfo.connection = connection;
     // Connection may have changed the username in the process of connecting,
     // ensure we keep it current
@@ -1599,7 +1602,8 @@ function onServerChanged(alias) {
         }
         server = new Server(serverInfo.protocol, "", serverInfo.hostname,
                             serverInfo.port, serverInfo.initial_path,
-                            serverInfo.username, serverInfo.password)
+                            serverInfo.username, serverInfo.password,
+                            serverInfo.passive);
     }
 
     try {

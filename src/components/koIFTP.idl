@@ -41,7 +41,8 @@
 // A FTP Connection
 [scriptable, uuid(106899D1-DE1D-4767-B32D-D9A538E6F99A)]
 interface koIFTPConnection : nsISupports {
-    boolean open(in wstring server, in long port, in wstring username, in wstring password, in wstring path);
+    boolean open(in wstring server, in long port, in wstring username,
+                 in wstring password, in wstring path, in boolean passive);
     
     // list caches results.  set refresh to true to force a refresh from the server
     void list(in wstring path, in boolean refresh, [retval] out koIRemoteFileInfo pathinfo);

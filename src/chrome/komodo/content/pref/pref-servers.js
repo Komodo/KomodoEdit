@@ -64,7 +64,7 @@ function PrefServers_OnLoad() {
     dialog.username = document.getElementById("username");
     dialog.password = document.getElementById("password");
     dialog.alias = document.getElementById("alias");
-    dialog.alias = document.getElementById("alias");
+    dialog.ftp_passive_mode = document.getElementById("ftp_passive_mode");
     dialog.buttonDelete = document.getElementById("buttonDelete");
     dialog.buttonAdd = document.getElementById("buttonAdd");
     dialog.anonymousCheckbox = document.getElementById("anonymousCheckbox");
@@ -191,6 +191,15 @@ function _setMenuList(selectedServer) {
     }
 }
 
+function togglePassiveFTPSettings() {
+    if (dialog.server_types.selectedIndex <= 1) {
+        // FTP servers, show the passive
+        document.getElementById("ftp_passive_mode_vbox").setAttribute('collapsed', 'false');
+    } else {
+        document.getElementById("ftp_passive_mode_vbox").setAttribute('collapsed', 'true');
+    }
+}
+
 function checkAddButtonStatus() {
     var alias = dialog.alias.value;
     var hostname = dialog.hostname.value;
@@ -201,6 +210,7 @@ function checkAddButtonStatus() {
         // dissable add button
         document.getElementById("buttonAdd").setAttribute('disabled', 'true');
     }
+    togglePassiveFTPSettings();
 }
 
 var current_server_idx = -1;
@@ -214,6 +224,7 @@ function onAddServerEntry() {
     var path = dialog.path.value;
     var username = dialog.username.value;
     var password = dialog.password.value;
+    var passive =  dialog.ftp_passive_mode.selectedIndex;
     // prevent adding empty entries
     if (!alias || !hostname || !username) {
         prefServersLog.warn("Missing a required field. Name, Host Name and User Name are required fields.");
@@ -235,7 +246,8 @@ function onAddServerEntry() {
 
     var serverInfo = Components.classes["@activestate.com/koServerInfo;1"].
                         createInstance(Components.interfaces.koIServerInfo);
-    serverInfo.init(protocol, alias, hostname, port, username, password, path);
+    serverInfo.init(protocol, alias, hostname, port, username, password, path,
+                    passive);
 
     if (current_server_idx > -1) {
         servers[current_server_idx] = serverInfo;
@@ -283,6 +295,7 @@ function loadServerEntryWithAlias(server_alias) {
     dialog.path.value = server.path;
     dialog.username.value = server.username;
     dialog.password.value = server.password;
+    dialog.ftp_passive_mode.selectedIndex = server.passive ? 1: 0;
 
     current_server_idx = server_idx;
     dialog.buttonDelete.removeAttribute('disabled');
@@ -292,6 +305,7 @@ function loadServerEntryWithAlias(server_alias) {
         dialog.anonymousCheckbox.checked = true;
     else
         dialog.anonymousCheckbox.checked = false;
+    togglePassiveFTPSettings();
 }
 
 function onDeleteServerEntry() {
@@ -305,6 +319,7 @@ function onDeleteServerEntry() {
             loadServerEntryWithAlias(servers[0].alias);
         }
     }
+    togglePassiveFTPSettings();
 }
 
 function onClearServerEntry() {
@@ -316,11 +331,13 @@ function onClearServerEntry() {
     dialog.path.value = "";
     dialog.username.value = "";
     dialog.password.value = "";
+    dialog.ftp_passive_mode.selectedIndex = 1;
     current_server_idx = -1;
     dialog.buttonDelete.setAttribute('disabled', 'true');
     dialog.buttonAdd.setAttribute('disabled', 'true');
     dialog.buttonAdd.setAttribute('label', 'Add');
     dialog.anonymousCheckbox.checked = false;
+    togglePassiveFTPSettings();
 }
 
 // DOM construction helpers

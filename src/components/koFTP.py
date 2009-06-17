@@ -157,7 +157,8 @@ class koFTPConnection(remotefilelib.koRFConnection):
         # Note: passive is enabled by default in Python 2.1 and above
         info = []
         try:
-            self._connection.makepasv()
+            if self.passive:
+                self._connection.makepasv()
         except self._FTPExceptions, e:
             # Note: Sometimes e.args is an empty tuple, thus we use the "and/or"
             msg = e.args and e.args[-1] or "Setting passive mode failed"
@@ -173,6 +174,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
         # open the connection
         try:
             self._connection = koFTP()
+            self._connection.set_pasv(self.passive)
             self._connection.connect(self.server, self.port,
                                      self._socket_timeout)
         except self._FTPExceptions, e:

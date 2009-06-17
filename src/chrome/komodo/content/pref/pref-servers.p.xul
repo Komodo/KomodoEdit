@@ -91,12 +91,22 @@
                 </menupopup>
             </menulist>
         </vbox>
+        <vbox id="ftp_passive_mode_vbox">
+            <text id="ftp_passive_mode_text" value="&FTP.servermode.label;" class="kopadded"/>
+            <menulist id="ftp_passive_mode" value="1">
+                <menupopup id ="ftp_passive_mode_menupopup">
+                    <menuitem label="&FTP.activemode.label;" value="0"/>
+                    <menuitem label="&FTP.passivemode.label;" value="1"/>
+                </menupopup>
+            </menulist>
+        </vbox>
         <vbox flex="1">
             <text value="&connectionName.label;" class="kopadded"/>
             <textbox id="alias" flex="1" oninput="checkAddButtonStatus();"
                      tooltiptext="&shortNameYouWishToCallThisServerConnection.tooltiptext;" />
         </vbox>
     </hbox>
+
     <hbox flex="1">
         <vbox flex="1">
             <text value="&hostName.label;" class="kopadded"/>

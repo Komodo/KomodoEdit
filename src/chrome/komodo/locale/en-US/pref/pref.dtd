@@ -88,6 +88,9 @@
 <!ENTITY E.accesskey "E">
 <!ENTITY FTP.label "FTP">
 <!ENTITY FTPS.label "FTPS">
+<!ENTITY FTP.servermode.label "Mode:">
+<!ENTITY FTP.activemode.label "Active">
+<!ENTITY FTP.passivemode.label "Passive">
 <!ENTITY G.accesskey "G">
 <!ENTITY GET.label "GET">
 <!ENTITY HHour24HourClock.label "&#37;H : hour (24-hour clock)">
