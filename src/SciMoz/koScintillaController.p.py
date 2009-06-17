@@ -42,6 +42,7 @@ import logging
 
 
 log = logging.getLogger("koScintillaController")
+#log.setLevel(logging.DEBUG)
 
 command_map = {
     'cmd_selectHome' : 'vCHomeWrapExtend',
@@ -692,8 +693,10 @@ class koScintillaController:
             textLen = self._koSysUtils.byteLength(textToCopy)
             sm.beginUndoAction()
             try:
-                sm.replaceTarget(textLen, textToCopy)
+                # replaceTarget takes length in terms of characters
+                sm.replaceTarget(len(textToCopy), textToCopy)
                 sm.anchor = endPos
+                # Positions are updated in terms of bytes
                 sm.currentPos = endPos + textLen
             finally:
                 sm.endUndoAction()
