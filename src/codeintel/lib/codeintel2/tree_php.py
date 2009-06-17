@@ -448,9 +448,9 @@ class PHPTreeEvaluator(TreeEvaluator):
         elif elem.tag == "scope":
             ilk = elem.get("ilk")
             if ilk == "function":
-                calltips.append(self._calltip_from_func(elem))
+                calltips.append(self._calltip_from_func(elem, scoperef))
             elif ilk == "class":
-                calltips.append(self._calltip_from_class(elem))
+                calltips.append(self._calltip_from_class(elem, scoperef))
             else:
                 raise NotImplementedError("unexpected scope ilk for "
                                           "calltip hit: %r" % elem)
@@ -459,7 +459,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                                       "hit: %r" % elem)
         return calltips
 
-    def _calltip_from_class(self, node):
+    def _calltip_from_class(self, node, scoperef):
         # If the class has a defined signature then use that.
         signature = node.get("signature")
         doc = node.get("doc")
@@ -478,14 +478,14 @@ class PHPTreeEvaluator(TreeEvaluator):
             ctor = node.names.get("__construct")
             if ctor is not None:
                 self.log("_calltip_from_class:: ctor is %r", ctor)
-                return self._calltip_from_func(ctor)
+                return self._calltip_from_func(ctor, scoperef)
             # In PHP4 the contructor is a function that has the same name as
             # the class name.
             name = node.get("name")
             ctor = node.names.get(name)
             if ctor is not None:
                 self.log("_calltip_from_class:: ctor is %r", ctor)
-                return self._calltip_from_func(ctor)
+                return self._calltip_from_func(ctor, scoperef)
             self.log("_calltip_from_class:: no ctor in class %r", name)
             return "%s()" % (name)
 
@@ -1031,7 +1031,7 @@ class PHPTreeEvaluator(TreeEvaluator):
     def _join_citdl_expr(self, tokens):
         return '.'.join(tokens).replace('.()', '()')
 
-    def _calltip_from_func(self, node):
+    def _calltip_from_func(self, node, scoperef):
         # See "Determining a Function CallTip" in the spec for a
         # discussion of this algorithm.
         signature = node.get("signature")
@@ -1045,6 +1045,20 @@ class PHPTreeEvaluator(TreeEvaluator):
             ctlines = signature.splitlines(0)
         if doc:
             ctlines += doc.splitlines(0)
+        else:
+            # Check if there is a interface that has the docs - bug 83381.
+            parent_elem = self._elem_from_scoperef(scoperef)
+            if parent_elem.get("ilk") == "class":
+                interfacerefs = parent_elem.get("interfacerefs", "").split()
+                name = node.get("name")
+                for interface in interfacerefs:
+                    ielem, iscoperef = self._hit_from_citdl(interface, scoperef)
+                    if ielem is not None:
+                        # Found and interface, see if it has the info we need:
+                        alt_node = ielem.names.get(name)
+                        if alt_node is not None and alt_node.get("doc"):
+                            ctlines += alt_node.get("doc").splitlines(0)
+                            break
         return '\n'.join(ctlines)
 
 

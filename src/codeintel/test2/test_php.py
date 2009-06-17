@@ -1980,7 +1980,7 @@ EOD;
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
                              "bug82721_class(var1, var2, var3)")
 
-    @tag("bug83381", "knownfailure")
+    @tag("bug83381")
     def test_function_calltip_interface_fallback(self):
         content, positions = unmark_text(php_markup(dedent("""\
             interface HelloInterface {
