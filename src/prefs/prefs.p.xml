@@ -136,7 +136,6 @@
   <boolean id="userEnvironmentAllowImplicitPATHAdditions">1</boolean>
   <string id="userEnvironment"/>
 
-  <ordered-preference id="deploymentServerList"/>
   <string id="xmlCatalogPaths"/>
   <string id="perlDefaultInterpreter"/>
   <string id="pythonDefaultInterpreter"/>
