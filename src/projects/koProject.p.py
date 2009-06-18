@@ -2159,7 +2159,7 @@ class koProject(koLiveFolderPart):
                 else:
                     part = None
             elif event == pulldom.CHARACTERS and part:
-                if node.nodeValue != "\n" or part.value:
+                if node.nodeValue != "\n" or part.value or part.type == 'snippet':
                     part.value += node.nodeValue
 
         # this is the toplevel project, parent prefs are the global prefs
