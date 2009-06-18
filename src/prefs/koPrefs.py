@@ -102,6 +102,7 @@
 #   
 
 import sys, os, types, cgi, re, shutil, operator, copy
+import time
 from xml.dom import minidom
 from xml.sax import SAXParseException
 from eollib import newl
@@ -1130,6 +1131,10 @@ class koGlobalPrefService:
                 # Error loading the user file - presumably they edited it poorly.
                 # Just ignore the error, and continue as if no user preferences existed at all.
                 log.exception("There was an error loading the user preference file %r", defn.user_filename + ".xml")
+                # Save the prefs.xml file, in case the user can fix it themselves.
+                old_name = defn.user_filename + ".xml"
+                new_name = "%s.corrupt_%s" % (old_name, time.strftime("%Y%m%d_%H%M%S"))
+                os.rename(old_name, new_name)
                 prefs = None
             if prefs is None:
                 # No prefs?  Create a default set.
@@ -1185,6 +1190,10 @@ class koGlobalPrefService:
             # Error loading the user file - presumably they edited it poorly.
             # Just ignore the error, and continue as if no user preferences existed at all.
             log.exception("There was an error loading the shared preference file %r", defn.shared_filename + ".xml")
+            # Save the prefs.xml file, in case the user can fix it themselves.
+            old_name = defn.shared_filename + ".xml"
+            new_name = "%s.corrupt_%s" % (old_name, time.strftime("%Y%m%d_%H%M%S"))
+            os.rename(old_name, new_name)
             sharedPrefs = None
             
         # insert shared prefs in between default and user
