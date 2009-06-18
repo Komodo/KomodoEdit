@@ -1129,8 +1129,7 @@ class koGlobalPrefService:
             except:
                 # Error loading the user file - presumably they edited it poorly.
                 # Just ignore the error, and continue as if no user preferences existed at all.
-                exc_typ, exc_val = sys.exc_info()[:2]
-                log.error("There was an error loading the user preference file '%s' - %s: %s" % (defn.user_filename + ".xml", exc_typ, exc_val))
+                log.exception("There was an error loading the user preference file %r", defn.user_filename + ".xml")
                 prefs = None
             if prefs is None:
                 # No prefs?  Create a default set.
@@ -1185,8 +1184,7 @@ class koGlobalPrefService:
         except:
             # Error loading the user file - presumably they edited it poorly.
             # Just ignore the error, and continue as if no user preferences existed at all.
-            exc_typ, exc_val = sys.exc_info()[:2]
-            log.error("There was an error loading the shared preference file '%s' - %s: %s" % (defn.shared_filename + ".xml", exc_typ, exc_val))
+            log.exception("There was an error loading the shared preference file %r", defn.shared_filename + ".xml")
             sharedPrefs = None
             
         # insert shared prefs in between default and user
@@ -1229,9 +1227,8 @@ class koGlobalPrefService:
             try:
                 os.makedirs(os.path.dirname(fname))
             except:
-                exc_val = sys.exc_info()[1]
-                log.error("Couldn't make directory for global preferences: %s" % (exc_val,))
-        log.info("serializing pref state %s to file: %s" % (prefName, fname))
+                log.exception("Couldn't make directory for global preferences")
+        log.info("serializing pref state %s to file: %r", prefName, fname)
         # prefs.dump(0)
         if defn.save_format in [koGlobalPreferenceDefinition.SAVE_DEFAULT, koGlobalPreferenceDefinition.SAVE_XML_ONLY]:
             prefs.serializeToFile(fname)
