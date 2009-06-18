@@ -128,7 +128,21 @@
   <boolean id="showMatchingTagsOnClick">1</boolean>
   <boolean id="showMatchingTags_constrainSearchInViewPort">1</boolean>
   <long id="showMatchingTags_clearInterval">1000</long>
-  
+
+  <!--
+  These prefs are to keep Komodo from hanging when a document
+  that hits at least one of these limits is loaded.  Komodo will
+  treat the document as a Text file, meaning all language-specific
+  functions, including code-colorizing, are dropped.
+
+  The reason for the high first value is that long lines are
+  costlier than long documents.  The 20000 line-limit is
+  probably to low.
+
+  Also, Komodo estimates that colorizing UDL-based documents
+  takes about twice as long as languages with C++-based lexers,
+  and adjusts the limits by 50% downward.
+  -->
   <long id="documentByteCountThreshold">100000000</long> <!-- 100 MB -->
   <long id="documentLineCountThreshold">20000</long> <!-- 800 KB -->
   <long id="documentLineLengthThreshold">32000</long>
