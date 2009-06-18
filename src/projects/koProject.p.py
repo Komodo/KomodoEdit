@@ -65,7 +65,7 @@ import logging
 from StringIO import StringIO
 from hashlib import md5
 from xml.sax import SAXParseException
-from xml.sax.saxutils import escape, unescape, quoteattr
+from xml.sax.saxutils import escape, quoteattr
 from xml.dom import pulldom
 
 from xpcom import components, ServerException, COMException, nsError
@@ -2160,7 +2160,7 @@ class koProject(koLiveFolderPart):
                     part = None
             elif event == pulldom.CHARACTERS and part:
                 if node.nodeValue != "\n" or part.value:
-                    part.value += unescape(node.nodeValue)
+                    part.value += node.nodeValue
 
         # this is the toplevel project, parent prefs are the global prefs
         self.get_prefset().parent = components.classes["@activestate.com/koPrefService;1"].\
