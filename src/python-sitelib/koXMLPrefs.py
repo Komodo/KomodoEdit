@@ -276,7 +276,7 @@ class koPreferenceSetDeserializer:
                                convertFunction(childtext))
 
     def _ds_string(self, node, prefSet, basedir=None):
-        self._ds_helper(node, prefSet.setStringPref, str, basedir)
+        self._ds_helper(node, prefSet.setStringPref, unicode, basedir)
 
     def _ds_long(self, node, prefSet, basedir=None):
         self._ds_helper(node, prefSet.setLongPref, int, basedir)
