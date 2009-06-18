@@ -655,6 +655,16 @@ viewManager.prototype._newViewFromURI = function(uri,
         } else {
             view = this.topView.createViewFromDocument(doc, viewType, index);
         }
+        var originalLanguage;
+        if (doc.isLargeDocument
+            && doc.prefs.hasPrefHere("originalLanguage")
+            && ((originalLanguage = doc.prefs.getStringPref("originalLanguage"))
+                != "Text")) {
+            ko.dialogs.alert(_bundle.GetStringFromName("newFileHasLongLines.prompt"),
+                             _bundle.formatStringFromName("newFileAddedAsText.template",
+                                                          [doc.file.displayPath,
+                                                           originalLanguage], 2));
+        }
     } catch (e)  {
         var err = _lastErrorSvc.getLastErrorMessage();
         ko.dialogs.alert(_bundle.formatStringFromName("komodoWasUnableToOpenTheFile.alert", [doc.file.baseName], 1),
@@ -2309,6 +2319,9 @@ viewManager.prototype.do_cmd_exportHTMLSelection = function() {
 
 viewManager.prototype.do_ViewAs = function(language) {
     this.currentView.document.language = language;
+    // koDocumentBase.set_language sends a language_changed notification,
+    // but it doesn't update the commands.
+    window.setTimeout(window.updateCommands, 1, 'language_changed');
 }
 
 viewManager.prototype.is_cmd_editPrefsCurrent_enabled = function () {

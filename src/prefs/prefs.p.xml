@@ -128,6 +128,10 @@
   <boolean id="showMatchingTagsOnClick">1</boolean>
   <boolean id="showMatchingTags_constrainSearchInViewPort">1</boolean>
   <long id="showMatchingTags_clearInterval">1000</long>
+  
+  <long id="documentByteCountThreshold">100000000</long> <!-- 100 MB -->
+  <long id="documentLineCountThreshold">20000</long> <!-- 800 KB -->
+  <long id="documentLineLengthThreshold">32000</long>
 
 
   <string id="userEnvironmentStartupOverride"/>

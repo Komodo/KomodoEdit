@@ -69,6 +69,10 @@ class koDocumentBase:
     _tabWidth = None
     _useTabs = None
 
+    _DOCUMENT_SIZE_NOT_LARGE = 0
+    _DOCUMENT_SIZE_UDL_LARGE = 1
+    _DOCUMENT_SIZE_ANY_LARGE = 2
+
     def __init__(self):
         timeline.enter('koDocumentBase.__init__')
         # Grab a reference to the global preference service.
@@ -128,6 +132,8 @@ class koDocumentBase:
         self.lidb = langinfo.get_default_database()
 
         self.init()
+        self.isLargeDocument = False
+        self._documentSizeFactor = self._DOCUMENT_SIZE_NOT_LARGE
 
         timeline.leave('koDocumentBase.__init__')
     
@@ -295,21 +301,43 @@ class koDocumentBase:
         self.prefs.parent = prefs
         prefs.parent = self._globalPrefs
 
+    def _isUDLLanguage(self, langRegistrySvc, languageName):
+        return UnwrapObject(langRegistrySvc.getLanguage(languageName)).isUDL()
+
+    def _isConsideredLargeDocument(self, langRegistrySvc, languageName):
+        if self._documentSizeFactor == self._DOCUMENT_SIZE_NOT_LARGE:
+            return False
+        elif self._documentSizeFactor == self._DOCUMENT_SIZE_ANY_LARGE:
+            return True
+        else:
+            return self._isUDLLanguage(langRegistrySvc, languageName)
+
+    def _setAsLargeDocument(self, languageName):
+        self.prefs.setStringPref("originalLanguage", languageName)
+        self.isLargeDocument = True
+        self.prefs.setStringPref('language', "Text")
+
     def _guessLanguage(self):
         """Guess and set this document's language."""
         timeline.enter('koDocumentBase._guessLanguage')
 
         # If a preferred language was specifically set for this document
-        # then just use that.
+        # then just use that, unless it's too large for Komodo.
+
+        langRegistrySvc = components.classes['@activestate.com/koLanguageRegistryService;1'].\
+                          getService(components.interfaces.koILanguageRegistryService)
+
         if self.prefs.hasPrefHere('language'):
-            self._language = self.prefs.getStringPref('language')
+            language = self.prefs.getStringPref('language')
+            if language != "Text" \
+               and self._isConsideredLargeDocument(langRegistrySvc, language):
+                self._setAsLargeDocument(language)
+                language = "Text"
+            self._language = language
             self._setLangPrefs()
             log.info("_guessLanguage: use set preference: '%s'",
                      self._language)
             return
-
-        langRegistrySvc = components.classes['@activestate.com/koLanguageRegistryService;1'].\
-                          getService(components.interfaces.koILanguageRegistryService)
 
         # Determine the probable language from the file basename.
         baseName = self.get_baseName()
@@ -352,6 +380,9 @@ class koDocumentBase:
             if fileNameLanguage and language in ["XML", "HTML", "XHTML"]:
                 language = fileNameLanguage
             log.info("_guessLanguage: '%s' (content)", language)
+        if self._isConsideredLargeDocument(langRegistrySvc, language):
+            self._setAsLargeDocument(language)
+            language = "Text"
         self._language = language
         self._setLangPrefs()
         timeline.leave('koDocumentBase._guessLanguage')
@@ -390,11 +421,43 @@ class koDocumentBase:
         self.set_new_line_endings(current_eol)
             
         timeline.leave('koDocumentBase._loadFromFile')
+        
+    def _classifyDocumentBySize(self, data):
+        """ Return 0 if it's short, 1 if it's long for a UDL-based
+            file, 2 if it's long by any means.
+        """
+        returnFactor = self._DOCUMENT_SIZE_NOT_LARGE
+        documentByteCountThreshold = self.prefs.getLongPref("documentByteCountThreshold")
+        if len(data) > documentByteCountThreshold:
+            return self._DOCUMENT_SIZE_ANY_LARGE
+        elif len(data) > documentByteCountThreshold/2:
+            returnFactor = self._DOCUMENT_SIZE_UDL_LARGE
+            
+        documentLineCountThreshold = self.prefs.getLongPref("documentLineCountThreshold")
+        line_lengths = [len(line) for line in data.splitlines()]
+        num_lines = len(line_lengths)
+        if num_lines > documentLineCountThreshold:
+            return self._DOCUMENT_SIZE_ANY_LARGE
+        elif num_lines > documentLineCountThreshold / 2:
+            returnFactor = self._DOCUMENT_SIZE_UDL_LARGE
+
+        
+        documentLineLengthThreshold = self.prefs.getLongPref("documentLineLengthThreshold")
+        documentLineLengthThreshold_Halved = documentLineLengthThreshold / 2
+        if any([line_length >= documentLineLengthThreshold for line_length in line_lengths]):
+            return self._DOCUMENT_SIZE_ANY_LARGE
+        elif any([line_length >= documentLineLengthThreshold/2 for line_length in line_lengths]):
+            return self._DOCUMENT_SIZE_UDL_LARGE
+
+        return returnFactor
 
     def _loadfile(self, file):
         timeline.enter('koDocumentBase._loadfile')
         if file:
             data = self._get_buffer_from_file(file)
+            self._documentSizeFactor = self._classifyDocumentBySize(data)
+            # We don't know if the document is large until we know
+            # whether it's a UDL-based document or has a C++ lexer.
         else:
             data = ''
         self._lastmd5 = md5(data).digest()

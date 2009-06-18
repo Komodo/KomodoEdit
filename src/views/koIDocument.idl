@@ -187,6 +187,8 @@ interface koIDocument : nsISupports
     void setTabstopInsertionTable(in PRUint32 count,
                                   [array, size_is(count)] in koITabstopInsertionNode insertionNodes);
     void removeTabstopInsertionNodeAt(in PRUint32 idx);
+
+    readonly attribute boolean isLargeDocument; // Based on time to load
 };
 
 [scriptable, uuid(826C0192-5D6C-4DDB-B135-1412649BF3CC)]

@@ -431,6 +431,11 @@ class koDocumentSettingsManager:
             scintilla.scimoz.setFoldFlags(self._foldFlags)
 
     def _apply_editFoldStyle(self, prefSet):
+        """
+        bug 81961:
+        This is an expensive function for UDL documents with very long lines
+        (around > 10K).
+        """
         # use margin 1 for folding
         if not self.document.languageObj.foldable:
             for scintilla in self._scintillas:
