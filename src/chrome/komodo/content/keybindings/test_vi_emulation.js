@@ -43,6 +43,72 @@ log.setLevel(Casper.Logging.WARN);
 // Constants
 var NO_REPETITION = 0;
 var TEST_REPETITION = 0x1;
+var TEST_REPEAT_LAST = 0x2;
+//TEST_REPEAT_LAST = 0x4;
+
+function keypress_event(key, ctrl) {
+    // COnvert char to int
+    this.keyCode = key.charCodeAt(0);
+    if (ctrl) {
+        this.ctrlKey = ctrl;
+    }
+}
+
+//keypress_event.prototype = {
+//    "type":"keypress",
+//    "eventPhase":1,
+//    "bubbles":true,
+//    "cancelable":true,
+//    "detail":0,
+//    "isChar":false,
+//    "charCode":98,
+//    "shiftKey":false,
+//    "ctrlKey":false,
+//    "altKey":false,
+//    "keyCode":0,
+//    "metaKey":false,
+//    "layerX":0,
+//    "layerY":0,
+//    "timeStamp":2288326230,
+//    "target":null,
+//    "targetXPath":'/xmlns:window[@id="komodo_main"]/xmlns:deck[@id="komodo-box"]/xmlns:vbox[@id="komodo-vbox"]/xmlns:hbox[@id="komodo-hbox"]/xmlns:vbox[@id="editorviewbox"]/xmlns:view[@id="topview"]',
+//    "currentTarget":null,
+//    "currentTargetXPath":"/",
+//    "originalTarget":null,
+//    "originalTargetXPath":'/xmlns:window[@id="komodo_main"]/xmlns:deck[@id="komodo-box"]/xmlns:vbox[@id="komodo-vbox"]/xmlns:hbox[@id="komodo-hbox"]/xmlns:vbox[@id="editorviewbox"]/xmlns:view[@id="topview"]/anonymousChild()[0]/./xul:view[@id="view-1"]/anonymousChild()[0]/./xul:tabpanels/xmlns:tabpanel[3]/xmlns:view/anonymousChild()[0]/./anonymousChild()[0]/.',
+//    "enabled":true,
+//    "action":"fire",
+//    "waitTimeout":3000
+//}
+
+keypress_event.prototype = {
+    "type":"keypress",
+    "eventPhase":1,
+    "bubbles":true,
+    "cancelable":true,
+    "detail":0,
+    "isChar":false,
+    "charCode":97,
+    "shiftKey":false,
+    "ctrlKey":false,
+    "altKey":false,
+    "keyCode":0,
+    "metaKey":false,
+    "layerX":0,
+    "layerY":0,
+    "timeStamp":2631337768,
+    "target":null,
+    "targetXPath":"/xmlns:window[@id=\"komodo_main\"]/xmlns:deck[@id=\"komodo-box\"]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"editorviewbox\"]/xmlns:view[@id=\"topview\"]",
+    "currentTarget":null,
+    "currentTargetXPath":"/",
+    "originalTarget":null,
+    "originalTargetXPath":"/xmlns:window[@id=\"komodo_main\"]/xmlns:deck[@id=\"komodo-box\"]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"editorviewbox\"]/xmlns:view[@id=\"topview\"]/anonymousChild()[0]/./xul:view[@id=\"view-1\"]/anonymousChild()[0]/./xul:tabpanels/xmlns:tabpanel[5]/xmlns:view/anonymousChild()[0]/./anonymousChild()[0]/.",
+    "enabled":true,
+    "action":"fire",
+    "waitTimeout":3000,
+    "stopPropagation": function() {},
+    "preventDefault": function() {}
+}
 
 // example of setting up a class based test case
 function test_vi_emulation() {
@@ -695,146 +761,6 @@ test_vi_emulation.prototype._runSearchCommandWithOperation = function(
     this._runRegisterOperationCommands(cmd, buffer, register, testRepeat,
                                        operations, tags, false /* resetMode */,
                                        forcedRepeatCount);
-}
-
-function insertText(scimoz, text) {
-    var ch;
-    for (var i=0; i < text.length; i++) {
-        ch = text[i];
-        if (ch == '\n') {
-            ko.commands.doCommand('cmd_newline');
-        } else if (ch == '\t') {
-            ko.commands.doCommand('cmd_indent');
-        } else {
-            scimoz.addText(ko.stringutils.bytelength(ch), ch);
-        }
-        gVimController._lastInsertedKeycodes.push(ch);
-    }
-}
-
-function processViEvents(scimoz, viEvents, repeatCount) {
-    var j;
-    for (var j=0; j < viEvents.length; j++) {
-        switch (viEvents[j][0]) {
-            case "command":
-                if (repeatCount) {
-                    gVimController._lastRepeatCount = repeatCount;
-                }
-                vim_doCommand(viEvents[j][1]);
-                break;
-            case "text":
-                insertText(scimoz, viEvents[j][1]);
-                break;
-        }
-    }
-}
-
-/**
- * Test vi using specific commands and/or specific events such as keypresses.
- * 
- * @param start_command {string}  The command to run before the viEvents.
- * @param viEvents {array}  Array of vi-specific events [["command", "insert"]]
- * @param end_command {string}  The command to run after the viEvents.
- * @param buffers {array}  Contains the text and caret positions
- * @param options {object}  Options can have any of these values:
- *        testRepeat {int}  Handling of test repeats, one of NO_REPETITION,
- *                          TEST_REPETITION.
- *        tags {array}  List of specific test tag names
- */
-test_vi_emulation.prototype._runUsingViEvents = function(start_command, viEvents, end_command, buffers, options)
-{
-    var testRepeat = options && options.testRepeat || NO_REPETITION;
-    var tags = options && options.tags;
-
-    this._reset();
-    // <|> represents the cursor position
-    var bufferOrig = buffers[0];
-    var cursorOrigPos = bufferOrig.indexOf("<|>");
-    var bufOrig = bufferOrig.replace("<|>", "");
-
-    log.info("\n\n*************************************");
-    log.info(start_command);
-    log.info("*************************************\n");
-    log.debug("starting buffer: '" + bufOrig + "'");
-
-    // Set the buffer text in scimoz
-    //this.view.setFocus();
-    this.scimoz.text = bufOrig;
-    //this.view.initWithBuffer(bufOrig, "Text");
-    if (cursorOrigPos >= 0) {
-        // Set the cursor position
-        this.scimoz.gotoPos(cursorOrigPos);
-        // Ensure we don't drift due to caretX settings
-        this.scimoz.chooseCaretX();
-    }
-    // buffersNew is a array of buffers that we should get, one for each
-    // new iteration of the command.
-    var buf;
-    for (var i=1; i < buffers.length; i++) {
-        // Perform the keypresses or vim commands.
-        vim_doCommand(start_command);
-        processViEvents(this.scimoz, viEvents, 1);
-        vim_doCommand(end_command);
-        // Compare the results
-        buf = buffers[i];
-        var cursorNewPos = buf.indexOf("<|>");
-        buf = buf.replace("<|>", "");
-        log.debug("scimoz   pos: " + this.scimoz.currentPos);
-        log.debug("expected pos: " + cursorNewPos);
-        log.debug("scimoz.text: '" + this.scimoz.text + "'");
-        log.debug("compare buf:  '" + buf + "'");
-        this.assertEqual(buf, this.scimoz.text, start_command + ": buffer incorrect:: '" + buf + "' != '" + this.scimoz.text + "'\n");
-        if (cursorOrigPos >= 0) {
-            // Set the cursor position
-            try {
-                this.assertEqual(cursorNewPos, this.scimoz.currentPos, start_command + ": Cursor at incorrect position! Expected: " + cursorNewPos + ", got: " + this.scimoz.currentPos);
-            } catch(ex if ex instanceof Casper.UnitTest.AssertException) {
-                // Check if it's a knownfailure
-                if (tags && tags.some(function(x) { return x == "knownfailure"; })) {
-                    this.logKnownFailure(start_command, ex);
-                    return;
-                } else {
-                    log.warn("failure: " + ex.message);
-                    throw ex;
-                }
-            }
-        }
-    }
-
-    for (var numRepeats=1; numRepeats < buffers.length; numRepeats++) {
-        this._reset();
-        // Test repeating the command
-        try {
-            this.scimoz.text = bufOrig;
-            if (cursorOrigPos >= 0) {
-                // Set the cursor position
-                this.scimoz.gotoPos(cursorOrigPos);
-                // Ensure we don't drift due to caretX settings
-                this.scimoz.chooseCaretX();
-            }
-            log.debug("Repeating command: '" + start_command + "' " + numRepeats + " times");
-            gVimController._lastRepeatCount = 1;
-            vim_doCommand(start_command);
-            processViEvents(this.scimoz, viEvents, 1);
-            gVimController._lastRepeatCount = numRepeats;
-            vim_doCommand(end_command);
-            buf = buffers[numRepeats];
-            var cursorNewPos = buf.indexOf("<|>");
-            buf = buf.replace("<|>", "");
-            log.debug("scimoz.text: '" + this._markBuffer(this.scimoz.text, this.scimoz.currentPos) + "'");
-            log.debug("compare buf:  '" + this._markBuffer(buf, cursorNewPos) + "'");
-            this.assertEqual(cursorNewPos, this.scimoz.currentPos, start_command + ": Cursor at incorrect position! Expected: " + cursorNewPos + ", got: " + this.scimoz.currentPos);
-        } catch(ex if ex instanceof Casper.UnitTest.AssertException) {
-            // Check if it's a knownfailure
-            if (tags && tags.some(function(x) { return x == "knownfailure"; })) {
-                this.logKnownFailure(start_command + " repeat failed", ex);
-                return;
-            } else {
-                log.warn("failure in repeatition: " + ex.message);
-                throw ex;
-            }
-        }
-    }
 }
 
 
@@ -1686,33 +1612,6 @@ test_vi_emulation.prototype.test_bug82707_changeLine = function() {
     this._runCommand("changeLine",
                      ["<|>    this is",
                       "    <|>"]);
-}
-
-test_vi_emulation.prototype.test_bug81194_repeated_insertions = function() {
-    // bug 81194 - multiple text insertions
-    var options = {
-        testRepeat: TEST_REPETITION
-    }
-    var viEvents = [["text", "one line\n"]];
-    this._runUsingViEvents("cmd_vim_insert",
-                           viEvents,
-                           "cmd_vim_cancel",
-                           ["<|>",
-                            "one line\r\n<|>",
-                            "one line\r\none line\r\n<|>",
-                            "one line\r\none line\r\none line\r\n<|>"],
-                           options);
-
-    var viEvents = [["text", "x"]];
-    this._runUsingViEvents("cmd_vim_append",
-                           viEvents,
-                           "cmd_vim_cancel",
-                           ["d<|>isplay",
-                            "di<|>xsplay",
-                            "dix<|>xsplay",
-                            "dixx<|>xsplay",
-                            "dixxx<|>xsplay"],
-                           options);
 }
 
 /* TEST SUITE */
