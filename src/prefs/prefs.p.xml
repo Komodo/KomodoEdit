@@ -143,7 +143,7 @@
   takes about twice as long as languages with C++-based lexers,
   and adjusts the limits by 50% downward.
   -->
-  <long id="documentByteCountThreshold">100000000</long> <!-- 100 MB -->
+  <long id="documentByteCountThreshold">1000000</long> <!-- 1 MB -->
   <long id="documentLineCountThreshold">20000</long> <!-- 800 KB -->
   <long id="documentLineLengthThreshold">32000</long>
 
