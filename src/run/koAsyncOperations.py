@@ -103,8 +103,9 @@ class koAsyncService(object):
                     self._lockedUris[uri] = self._lockedUris.get(uri, 0) + 1
 
         # Notify the observers that these uri's have changed.
-        self._observerProxy.notifyObservers(None, 'file_status',
-                                            "\n".join(affected_uris))
+        if affected_uris:
+            self._observerProxy.notifyObservers(None, 'file_status',
+                                                "\n".join(affected_uris))
 
         try:
             # Run the operation
@@ -169,9 +170,10 @@ class koAsyncService(object):
                                 # Remove the lock on this uri
                                 self._lockedUris.pop(uri)
 
-            # XXX - Link with file status service?
-            self._observerProxy.notifyObservers(None, 'file_status',
-                                                "\n".join(affected_uris))
+            if affected_uris:
+                # XXX - Link with file status service?
+                self._observerProxy.notifyObservers(None, 'file_status',
+                                                    "\n".join(affected_uris))
 
     ###
     # XPCOM functions
