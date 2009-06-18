@@ -175,7 +175,15 @@ class KoCodeIntelEnvironment(Environment):
 
     def get_pref(self, name, default=None):
         ko_name = self._ko_pref_name_from_ci_pref_name.get(name, name)
-        ko_type = self._ko_pref_type_from_ko_pref_name.get(name, "string")
+        ko_type = self._ko_pref_type_from_ko_pref_name.get(name, None)
+        if ko_type is None:
+            ko_type = "string"
+            # Try to use the default value as the type needed.
+            if default is not None:
+                if type(default) in (types.IntType, types.LongType):
+                    ko_type = "long"
+                elif type(default) is types.BooleanType:
+                    ko_type = "bool"
         for prefset in self.prefsets:
             if prefset.hasPref(ko_name):
                 if ko_type == "string":
