@@ -109,7 +109,6 @@ class KoCodeIntelEnvironment(Environment):
 
     def __init__(self, proj=None):
         Environment.__init__(self)
-        print "Environment created"
 
         if proj is None:
             self.name = "Default"
