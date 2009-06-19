@@ -109,6 +109,7 @@ class KoCodeIntelEnvironment(Environment):
 
     def __init__(self, proj=None):
         Environment.__init__(self)
+        print "Environment created"
 
         if proj is None:
             self.name = "Default"
@@ -179,10 +180,11 @@ class KoCodeIntelEnvironment(Environment):
             ko_type = "string"
             # Try to use the default value as the type needed.
             if default is not None:
-                if isinstance(default, (int, long)):
-                    ko_type = "long"
-                elif isinstance(default, bool):
+                # Bool must be first, as 'isinstance(True, int) => True'
+                if isinstance(default, bool):
                     ko_type = "bool"
+                elif isinstance(default, (int, long)):
+                    ko_type = "long"
         for prefset in self.prefsets:
             if prefset.hasPref(ko_name):
                 if ko_type == "string":
