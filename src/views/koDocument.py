@@ -137,10 +137,6 @@ class koDocumentBase:
 
         timeline.leave('koDocumentBase.__init__')
     
-    def __del__(self):
-        log.debug("__del__ called")
-        assert not self._views
-
     def init(self):
         # when we reference count upwards, we might need to recreate some components
         # this could happen if anyone keeps a reference to the document, and the document
