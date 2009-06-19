@@ -403,11 +403,6 @@ class Database(object):
 
         self.corruptions = [] # list of noted errors during db operation
 
-    def __del__(self):
-        if self._catalogs_zone:
-            self._catalogs_zone = None
-        self.mgr = None
-
     def acquire_lock(self):
         self._lock.acquire()
     def release_lock(self):

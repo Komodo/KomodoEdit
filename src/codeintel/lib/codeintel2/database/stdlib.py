@@ -264,10 +264,6 @@ class StdLibsZone(object):
         self._stdlib_from_stdlib_name = {} # cache of StdLib singletons
         self._have_updated_stdlib_from_lang = {}
 
-    def __del__(self):
-        for stdlib in self._stdlib_from_stdlib_name.keys():
-            del self._stdlib_from_stdlib_name[stdlib] # drop reference
-
     @property
     def vers_and_names_from_lang(self):
         "lang -> ordered list of (ver, name)"

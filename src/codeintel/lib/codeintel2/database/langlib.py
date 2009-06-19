@@ -734,10 +734,6 @@ class LangZone(object):
     def __repr__(self):
         return "<%s lang db>" % self.lang
 
-    def __del__(self):
-        self._dirslib_cache = {} # drop refs
-        #XXX Drop index and blob caches as well.
-
     def _acquire_lock(self):
         self._lock.acquire()
     def _release_lock(self):

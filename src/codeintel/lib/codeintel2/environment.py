@@ -82,8 +82,6 @@ class Environment(object):
     """
     def __init__(self):
         self.cache = {}
-    def __del__(self):
-        self.remove_all_pref_observers()
     def __repr__(self):
         return "<Environment>"
 
