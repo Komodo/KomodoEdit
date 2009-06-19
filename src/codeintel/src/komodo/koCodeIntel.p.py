@@ -46,7 +46,6 @@ import string
 import re
 import threading
 import logging
-import types
 import time
 from pprint import pprint, pformat
 import weakref
@@ -180,9 +179,9 @@ class KoCodeIntelEnvironment(Environment):
             ko_type = "string"
             # Try to use the default value as the type needed.
             if default is not None:
-                if type(default) in (types.IntType, types.LongType):
+                if isinstance(default, (int, long)):
                     ko_type = "long"
-                elif type(default) is types.BooleanType:
+                elif isinstance(default, bool):
                     ko_type = "bool"
         for prefset in self.prefsets:
             if prefset.hasPref(ko_name):
