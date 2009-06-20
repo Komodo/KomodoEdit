@@ -506,11 +506,13 @@ class KoDiff:
     
     def __init__(self):
         self.__docSvc = None
+        self._reset()
 
     def _reset(self):
         self.doc1 = None
         self.doc2 = None
         self.diff = None
+        self._diffex = None
         self.warning = None
 
     def _getDocSvc(self):
@@ -518,6 +520,12 @@ class KoDiff:
             self.__docSvc = components.classes["@activestate.com/koDocumentService;1"]\
                             .getService(components.interfaces.koIDocumentService)
         return self.__docSvc
+
+    @property
+    def diffex(self):
+        if self._diffex is None:
+            self._diffex = difflibex.Diff(self.diff, self.cwd)
+        return self._diffex
 
     def initWithDiffContent(self, diff):
         self._reset()
@@ -568,8 +576,7 @@ class KoDiff:
 
     def filePosFromDiffPos(self, line, column):
         try:
-            d = difflibex.Diff(self.diff)
-            return d.file_pos_from_diff_pos(line, column)
+            self.diffex.file_pos_from_diff_pos(line, column)
         except difflibex.DiffLibExError, ex:
             lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                            .getService(components.interfaces.koILastErrorService)
