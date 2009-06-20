@@ -567,7 +567,6 @@ class KoDiff:
             self.diff = ''.join(difflines)
 
     def filePosFromDiffPos(self, line, column):
-        import difflibex
         try:
             d = difflibex.Diff(self.diff)
             return d.file_pos_from_diff_pos(line, column)
@@ -578,7 +577,6 @@ class KoDiff:
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 
     def inferCwdAndStripFromPath(self, pathInDiff, actualPath):
-        import difflibex
         try:
             return difflibex.infer_cwd_and_strip_from_path(pathInDiff,
                                                            actualPath)
