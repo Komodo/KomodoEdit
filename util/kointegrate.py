@@ -49,7 +49,7 @@ Notes:
 - Changes to files outside of the source tree dir are *ignored*.
 """
 
-__version_info__ = (1, 2, 3)
+__version_info__ = (1, 2, 4)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -1236,22 +1236,19 @@ def _assertCanApplyPatch(patchExe, patchFile, sourceDir, reverse=0,
 
     # HACK normalize EOLs in targets.
     # Assumptions: have "Index:" markers in the patch.
-    normedPaths = []
-    native_eol = (sys.platform == "win32" and "\r\n" or "\n")
-    other_eol = (sys.platform == "win32" and "\n" or "\r\n")
-    patchContent = patchContent.replace(other_eol, native_eol)
+    eolFromNormedPath = {}
+    patchContent = eollib.convert_text_eol(patchContent, eollib.NATIVE)
     for line in patchContent.splitlines(False):
         if not line.startswith("Index:"):
             continue
         index, relpath = line.split(None, 1)
         path = join(sourceDir, relpath)
-        content = open(path, 'rb').read()
-        if other_eol not in content:
-            continue
-        content = content.replace(other_eol, native_eol)
-        open(path, 'wb').write(content)
-        normedPaths.append(path)
-    
+        
+        eol, _ = eollib.eol_info_from_path(path)
+        if eol != eollib.NATIVE:
+            eollib.convert_path_eol(path, eollib.NATIVE)
+            eolFromNormedPath[path] = eol
+
     try:
         # Avoid this check for now because it can result in false positives
         # (thinking the patch has already been applied when it has not).
@@ -1292,11 +1289,8 @@ def _assertCanApplyPatch(patchExe, patchFile, sourceDir, reverse=0,
             raise Error(errmsg)
     finally:
         # HACK continued... unnormalize EOLs.
-        #for path in normedPaths:
-        #    content = open(path, 'rb').read()
-        #    content = content.replace(native_eol, other_eol)
-        #    open(path, 'wb').write(content)
-        pass
+        for path, eol in eolFromNormedPath.items():
+            eollib.convert_path_eol(path, eol)
 
 # Adapted from patchtree.py.
 def _getPatchExe(patchExe=None):
@@ -1348,20 +1342,18 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
 
     # HACK normalize EOLs in targets.
     # Assumptions: have "Index:" markers in the patch.
-    normedPaths = []
-    native_eol = (sys.platform == "win32" and "\r\n" or "\n")
-    other_eol = (sys.platform == "win32" and "\n" or "\r\n")
+    eolFromNormedPath = {}
+    patchContent = eollib.convert_text_eol(patchContent, eollib.NATIVE)
     for line in patchContent.splitlines(False):
         if not line.startswith("Index:"):
             continue
         index, relpath = line.split(None, 1)
         path = join(sourceDir, relpath)
-        content = open(path, 'rb').read()
-        if other_eol not in content:
-            continue
-        content = content.replace(other_eol, native_eol)
-        open(path, 'wb').write(content)
-        normedPaths.append(path)
+        
+        eol, _ = eollib.eol_info_from_path(path)
+        if eol != eollib.NATIVE:
+            eollib.convert_path_eol(path, eollib.NATIVE)
+            eolFromNormedPath[path] = eol
     
     try:
         # Avoid this check for now because it can result in false positives
@@ -1395,11 +1387,8 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
         return True
     finally:
         # HACK continued... unnormalize EOLs.
-        #for path in normedPaths:
-        #    content = open(path, 'rb').read()
-        #    content = content.replace(native_eol, other_eol)
-        #    open(path, 'wb').write(content)
-        pass
+        for path, eol in eolFromNormedPath.items():
+            eollib.convert_path_eol(path, eol)
 
 
 # Recipe: banner (1.0.1)
