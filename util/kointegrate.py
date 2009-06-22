@@ -49,7 +49,7 @@ Notes:
 - Changes to files outside of the source tree dir are *ignored*.
 """
 
-__version_info__ = (1, 2, 2)
+__version_info__ = (1, 2, 3)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -278,8 +278,8 @@ class P4Branch(Branch):
                 if "patch_path" not in f:
                     continue
                 
-                # Awful HACK around the "$Id: kointegrate.py 3754 2009-06-15 19:57:11Z trentm $" (et al) keyword expansion
-                # problem: If "$Id: kointegrate.py 3754 2009-06-15 19:57:11Z trentm $" is in the patch content but it is
+                # Awful HACK around the "$Id$" (et al) keyword expansion
+                # problem: If "$Id$" is in the patch content but it is
                 # exanded in target file, then `patch` won't be able to
                 # apply.
                 #TODO: Better soln is to modify the *patch*, but that's harder.
@@ -288,11 +288,11 @@ class P4Branch(Branch):
                     patchContent = f.read()
                 finally:
                     f.close()
-                if "$Id: kointegrate.py 3754 2009-06-15 19:57:11Z trentm $" in patchContent:
+                if "$Id$" in patchContent:
                     XXX
                     dst_path = join(dst_branch.base_dir, f["rel_path"])
                     origDstContent = open(dst_path, 'rb').read()
-                    newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id: kointegrate.py 3754 2009-06-15 19:57:11Z trentm $", origDstContent)
+                    newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id$", origDstContent)
                     if newDstContent != origDstContent:
                         open(dst_path, 'wb').write(newDstContent)
                 
@@ -843,8 +843,8 @@ class SVNBranch(Branch):
                         continue
                     dryrun_patch_path = f.get("copyfrom_patch_path") or f["patch_path"]
 
-                    # Awful HACK around the "$Id: kointegrate.py 3754 2009-06-15 19:57:11Z trentm $" (et al) keyword expansion
-                    # problem: If "$Id: kointegrate.py 3754 2009-06-15 19:57:11Z trentm $" is in the patch content but it is
+                    # Awful HACK around the "$Id$" (et al) keyword expansion
+                    # problem: If "$Id$" is in the patch content but it is
                     # exanded in target file, then `patch` won't be able to
                     # apply.
                     #TODO: Better soln is to modify the *patch*, but that's harder.
@@ -853,10 +853,10 @@ class SVNBranch(Branch):
                         patchContent = fin.read()
                     finally:
                         fin.close()
-                    if "$Id: kointegrate.py 3754 2009-06-15 19:57:11Z trentm $" in patchContent:
+                    if "$Id$" in patchContent:
                         dst_path = join(dst_branch.base_dir, f["rel_path"])
                         origDstContent = open(dst_path, 'rb').read()
-                        newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id: kointegrate.py 3754 2009-06-15 19:57:11Z trentm $", origDstContent)
+                        newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id$", origDstContent)
                         if newDstContent != origDstContent:
                             open(dst_path, 'wb').write(newDstContent)
 
