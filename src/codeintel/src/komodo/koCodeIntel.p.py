@@ -1258,6 +1258,22 @@ class KoCodeIntelService:
                 return proj_env
         return None
 
+    _js_macro_environment = None
+    @property
+    def js_macro_environment(self):
+        """A singleton instance to be used for all JavaScript macro editing."""
+        if self._js_macro_environment is None:
+            self._js_macro_environment = KoJavaScriptMacroEnvironment()
+        return self._js_macro_environment
+
+    _py_macro_environment = None
+    @property
+    def py_macro_environment(self):
+        """A singleton instance to be used for all Python macro editing."""
+        if self._py_macro_environment is None:
+            self._py_macro_environment = KoPythonMacroEnvironment()
+        return self._py_macro_environment
+
     def buf_from_koIDocument(self, doc, prefset=None):
         if not self.enabled:
             return
@@ -1265,9 +1281,9 @@ class KoCodeIntelService:
         if path.startswith("macro://"):
             # Ensure macros get completion for the relevant Komodo APIs.
             if path.endswith(".js"):
-                env = KoJavaScriptMacroEnvironment()
+                env = self.js_macro_environment
             elif path.endswith(".py"):
-                env = KoPythonMacroEnvironment()
+                env = self.py_macro_environment
             else:
                 log.warn("unexpected 'macro://' document that doesn't end "
                          "with '.js' or '.py': '%s'", path)
