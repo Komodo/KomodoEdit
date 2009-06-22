@@ -129,7 +129,8 @@ def gen_dirs_under_dirs(dirs, max_depth, interesting_file_patterns=None,
     from os.path import normpath, abspath, expanduser
     from fnmatch import fnmatch
 
-    dirs_to_skip = skip_scc_control_dirs and ["CVS", ".svn"] or []
+    dirs_to_skip = (skip_scc_control_dirs
+        and ["CVS", ".svn", ".hg", ".git", ".bzr"] or [])
     for dir in dirs:
         norm_dir = normpath(abspath(expanduser(dir)))
         LEN_DIR = len(norm_dir)
