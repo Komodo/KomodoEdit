@@ -303,7 +303,7 @@ def convert_text_eol(text, eol):
         'line0\r\nline1\r\nline2\r\nline3\r\nline4\r\nline5'
     """
     if eol not in (LF, CRLF, CR):
-        raise ValueError("illegal EOL: %r" % eol)
+        raise ValueError("illegal EOL: %r" % (eol,))
     import re
     return re.sub('\r\n|\r|\n', eol, text)
 
