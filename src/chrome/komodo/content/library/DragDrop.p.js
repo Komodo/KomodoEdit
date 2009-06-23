@@ -239,6 +239,7 @@ this.unpackData = function(flavourData, ret) {
 // #endif
     }
     // remove any newlines from dropped url's
+    ret.origText = ret.text;
     if (ret.text.search("\n") >= 0) {
         // get the first line
         ret.text = ret.text.split('\n')[0];
@@ -316,12 +317,20 @@ this.unpackData = function(flavourData, ret) {
                 // Resetting the text to be "" will effectively cancel the drop.
                 ret.text = "";
             } else if (response == mapthisuri) {
-                if (ko.uriparse.addMappedURI(ret.text))
+                if (ko.uriparse.addMappedURI(ret.text)) {
                     // allow another loop in the while
                     continue;
+                } else {
+                    ret.text = ret.origText;
+                }
             } else if (response == viewsource) {
                 // Mark it as a URL that should be opened as a file view.
                 ret.isFileURL = true;
+            } else if (response == dropastext) {
+                ret.text = ret.origText;
+            } else {
+                _log.error("DragDrop.p.js::unpackData - unexpected response of "
+                           + response);
             }
             return;
         } else
