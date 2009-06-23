@@ -172,7 +172,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
     cb_group_global_vars = False
     # Define the trigger chars we use, used by ProgLangTriggerIntelMixin
     trg_chars = tuple(".(@'\" ")
-    calltip_trg_chars = tuple('( ')
+    calltip_trg_chars = tuple('(')   # excluded ' ' for perf (bug 55497)
     # Define literal mapping to citdl member, used in PythonCITDLExtractorMixin
     citdl_from_literal_type = {"string": "String"}
 
@@ -488,6 +488,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
         else:
             jsClassifier = pureJSClassifier
 
+        style = None
         if pos > 0:
             accessor = buf.accessor
             if pos == curr_pos:
@@ -517,6 +518,25 @@ class JavaScriptLangIntel(CitadelLangIntel,
                     trg = names_trigger
             elif trg.pos < names_trigger.pos:
                 trg = names_trigger
+
+        elif trg is None and style in jsClassifier.comment_styles:
+            # Check if there is a JSDoc to provide a calltip for, example:
+            #       /** @param foobar {sometype} This is field for <|>
+            if DEBUG:
+                print "\njs preceding_trg_from_pos::jsdoc: check for calltip"
+            comment = accessor.text_range(max(0, curr_pos-200), curr_pos)
+            at_idx = comment.rfind("@")
+            if at_idx >= 0:
+                if DEBUG:
+                    print "\njs preceding_trg_from_pos::jsdoc: contains '@'"
+                space_idx = comment[at_idx:].find(" ")
+                if space_idx >= 0:
+                    # Trigger after the space character.
+                    trg_pos = (curr_pos - len(comment)) + at_idx + space_idx + 1
+                    if DEBUG:
+                        print "\njs preceding_trg_from_pos::jsdoc: calltip at %d" % (trg_pos, )
+                    trg = self.trg_from_pos(buf, trg_pos, implicit=False)
+
         if trg:
             self._last_trg_type = trg.type
         return trg

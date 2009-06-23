@@ -111,7 +111,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
     trg_chars = tuple('$>:(,@"\' ')
-    calltip_trg_chars = tuple('( ')
+    calltip_trg_chars = tuple('(')   # excluded ' ' for perf (bug 55497)
 
     # named styles used by the class
     whitespace_style = SCE_UDL_SSL_DEFAULT
@@ -522,6 +522,25 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                                          implicit=False, DEBUG=DEBUG, ac=ac)
             elif DEBUG:
                 print "Out of scope of the identifier"
+
+        elif prev_style in self.comment_styles:
+            # Check if there is a PHPDoc to provide a calltip for, example:
+            #       /** @param $foo foobar - This is field for <|>
+            if DEBUG:
+                print "\nphp preceding_trg_from_pos::phpdoc: check for calltip"
+            comment = accessor.text_range(max(0, curr_pos-200), curr_pos)
+            at_idx = comment.rfind("@")
+            if at_idx >= 0:
+                if DEBUG:
+                    print "\nphp preceding_trg_from_pos::phpdoc: contains '@'"
+                space_idx = comment[at_idx:].find(" ")
+                if space_idx >= 0:
+                    # Trigger after the space character.
+                    trg_pos = (curr_pos - len(comment)) + at_idx + space_idx + 1
+                    if DEBUG:
+                        print "\nphp preceding_trg_from_pos::phpdoc: calltip at %d" % (trg_pos, )
+                    return self.trg_from_pos(buf, trg_pos,
+                                             implicit=False, DEBUG=DEBUG)
 
     _phpdoc_cplns = [ ("variable", t) for t in sorted(phpdoc_tags) ]
 
