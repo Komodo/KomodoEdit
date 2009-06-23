@@ -491,6 +491,9 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertTriggerMatches(php_markup("/** @param <|>"),
                                   name=calltip_trigger_name,
                                   pos=9+php_markup_offset)
+        self.assertPrecedingTriggerMatches(php_markup("/** @param foo bar <$><|>"),
+                                           name=calltip_trigger_name,
+                                           pos=9+php_markup_offset)
         # Don't trigger in normal code or inside strings
         self.assertNoTrigger(php_markup("@<|>something"))
         self.assertNoTrigger(php_markup("$s = '@<|>something';"))

@@ -101,6 +101,9 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertTriggerMatches("/** @param <|>",
                                   name=calltip_trigger_name,
                                   pos=9)
+        self.assertPrecedingTriggerMatches("/** @param foo bar <$><|>",
+                                           name=calltip_trigger_name,
+                                           pos=9)
         # Don't trigger in normal code or inside strings
         self.assertNoTrigger("@<|>something")
         self.assertNoTrigger("var s = '@<|>something';")
