@@ -85,6 +85,7 @@ class CodeIntelTestCase(unittest.TestCase):
     _ci_env_prefs_ = None
     # A test case can set this to false to have the setUp/tearDown *not*
     # create a `self.mgr'.
+    mgr = None
     _ci_test_setup_mgr_ = True
     _ci_extra_module_dirs_ = None
 
@@ -115,6 +116,7 @@ class CodeIntelTestCase(unittest.TestCase):
     def tearDown(self):
         if self._ci_test_setup_mgr_:
             self.mgr.finalize()
+            self.mgr = None
 
     def adjust_content(self, content):
         """A hook for subclasses to modify markedup_content before use in
