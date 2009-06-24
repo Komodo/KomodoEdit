@@ -85,7 +85,6 @@ class CodeIntelTestCase(unittest.TestCase):
     _ci_env_prefs_ = None
     # A test case can set this to false to have the setUp/tearDown *not*
     # create a `self.mgr'.
-    mgr = None
     _ci_test_setup_mgr_ = True
     _ci_extra_module_dirs_ = None
 
