@@ -43,8 +43,7 @@ if sys.platform != "win32":
 import logging
 import threading
 import warnings
-from subprocess import Popen, PIPE
-
+from subprocess import Popen, PIPE, TerminateProcess
 
 #-------- Globals -----------#
 
@@ -188,7 +187,10 @@ if sys.platform == "win32" and sys.getwindowsversion()[3] == 2:
                 winprocess.TerminateJobObject(self._job, 127)
                 self.returncode = 127
             else:
-                super(WindowsKillablePopen, self).terminate()
+                # Cannot call the parent class, as there is no terminate method
+                # defined at the class level (it's added upon instantiation),
+                # so this is a copy of subprocess.Popen.terminate() code.
+                TerminateProcess(self._handle, 1)
 
         kill = terminate
 
