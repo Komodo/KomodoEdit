@@ -36,10 +36,15 @@
 
 """Apply these patches to the Mozilla CVS head."""
 
+import re
+
 def applicable(config):
     if config.mozSrcType != "cvs":
         return False
     elif config.mozSrcCvsTag is None: # i.e. the HEAD
+        return True
+    # Accept Firefox 3.0.x release tags (Mozilla 1.9.0).
+    elif re.search(r"FIREFOX_3_0_(\d+)_RELEASE", config.mozSrcCvsTag):
         return True
     else:
         return False

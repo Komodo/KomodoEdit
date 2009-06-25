@@ -796,10 +796,8 @@ def _getMozSrcInfo(scheme, mozApp):
         # Determine a nice short name loosely describing this CVS
         # source.
         tag = config["mozSrcCvsTag"]
-        ver_or_tag = None
         if tag is None:
             config["mozSrcName"] = "cvs"
-            ver_or_tag = "HEAD"
         else:
             # If the tag name matches MOZILLA_<ver>_BRANCH (e.g.
             # MOZILLA_1_8_BRANCH) then use the ver.
@@ -807,14 +805,12 @@ def _getMozSrcInfo(scheme, mozApp):
             if match:
                 ver = match.group("ver").replace("_", ".")
                 config["mozSrcName"] = "cvs"+ver
-                ver_or_tag = ver
             else:
                 # Encode some well known branch names to a nice short
                 # name.
                 config["mozSrcName"] = {
                     "DOM_AGNOSTIC_BRANCH": "cvs_agnostic",
                 }.get(tag, "cvs_"+tag)
-                ver_or_tag = tag
 
         config["mozSrcCvsTarball"] = None
 
@@ -2415,6 +2411,8 @@ def _guess_mozilla_version_from_config(config):
                 ver = match.group("ver").replace("_", ".", 1)
                 ver = ver.replace("_", "")
                 mozVer = float(ver)
+            elif re.search(r"FIREFOX_3_0_(\d+)_RELEASE", mozSrcCvsTag):
+                mozVer = 1.9
     elif config["mozSrcType"] == "hg":
         mozVer = 1.91
     return mozVer
