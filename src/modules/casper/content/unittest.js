@@ -1025,6 +1025,7 @@ Casper.UnitTest.TextTestRunner.prototype.showSuiteResults = function(suite)
 
 Casper.UnitTest.TextTestRunner.prototype.escapeForJSON = function(data)
 {
+    data = data.replace('\\', '\\\\', "g");
     data = data.replace("\n", "\\n", "g");
     data = data.replace('"', '\\"', "g");
     return data;
