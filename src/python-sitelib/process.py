@@ -43,7 +43,7 @@ if sys.platform != "win32":
 import logging
 import threading
 import warnings
-from subprocess import Popen, PIPE, TerminateProcess
+from subprocess import Popen, PIPE
 
 #-------- Globals -----------#
 
@@ -73,7 +73,7 @@ if sys.platform == "win32" and sys.getwindowsversion()[3] == 2:
     import winprocess
     from subprocess import (pywintypes, list2cmdline, STARTUPINFO, SW_HIDE,
                             STARTF_USESTDHANDLES, STARTF_USESHOWWINDOW,
-                            GetVersion, CreateProcess)
+                            GetVersion, CreateProcess, TerminateProcess)
 
     # This fix is for killing child processes on windows, based on:
     #   http://www.microsoft.com/msj/0698/win320698.aspx
