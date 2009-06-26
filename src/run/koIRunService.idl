@@ -338,6 +338,8 @@ interface koIRunProcess: nsISupports {
      */
     wstring getStdout();
     wstring getStderr();
+    
+    readonly attribute wstring uuid;
 };
 
 [scriptable, uuid(6D22AC55-BD4F-455e-9A80-A820FD8190EE)]

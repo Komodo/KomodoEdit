@@ -14,6 +14,7 @@ from xpcom.server import UnwrapObject
 from xpcom._xpcom import getProxyForObject, PROXY_ASYNC, PROXY_SYNC, PROXY_ALWAYS
 
 import process
+import mozutils
 
 if sys.platform == "darwin":
     def escapecmd(cmd):
@@ -155,6 +156,7 @@ class KoRunProcess(object):
         self._stderrData = None
         # Condition object for waiting on the process.
         self.__communicating_event = None
+        self.uuid = mozutils.generateUUID()
 
     def close(self):
         self._process.close()
@@ -195,7 +197,12 @@ class KoRunProcess(object):
                 # the running process:
                 # http://bugs.activestate.com/show_bug.cgi?id=74750
                 input = input.encode(sys.getfilesystemencoding())
-            stdoutData, stderrData = self._process.communicate(input)
+            try:
+                stdoutData, stderrData = self._process.communicate(input)
+            except IOError, ex:
+                if ex.errno == 32:
+                    return ("", "")
+                raise
             encodingSvc = components.classes['@activestate.com/koEncodingServices;1'].\
                              getService(components.interfaces.koIEncodingServices)
             # Set our internal stdout, stderr objects, so the caller can get the
