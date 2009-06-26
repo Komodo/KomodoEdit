@@ -200,7 +200,10 @@ class KoRunProcess(object):
             try:
                 stdoutData, stderrData = self._process.communicate(input)
             except IOError, ex:
-                if ex.errno == 32:
+                if ex.errno == 32: # Broken pipe
+                    # If we get this exception, most likely a thread is
+                    # trying to close the process while it's still
+                    # writing out the data.
                     return ("", "")
                 raise
             encodingSvc = components.classes['@activestate.com/koEncodingServices;1'].\
