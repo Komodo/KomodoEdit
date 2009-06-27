@@ -1880,8 +1880,7 @@ def JarChrome(chromeTree, cfg, argv):
                                        "Mozilla", "chrome", chromeTree)
     else:
         #XXX Could cfg.mozChromeDir not just be used to installer
-        #    builds as well? This is what Construct::RegisterChrome
-        #    does.
+        #    builds as well?
         chromeDir = os.path.join(cfg.mozChromeDir, chromeTree)
     if os.path.isdir(chromeDir):
         oldDir = os.getcwd()
