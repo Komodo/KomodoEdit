@@ -524,7 +524,7 @@ class KoDiff:
     @property
     def diffex(self):
         if self._diffex is None:
-            self._diffex = difflibex.Diff(self.diff, self.cwd)
+            self._diffex = difflibex.Diff(self.diff)
         return self._diffex
 
     def initWithDiffContent(self, diff):
