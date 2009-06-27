@@ -41,6 +41,7 @@
  *  .diff: the diff content
  *  .title: a window title to use
  *  .message: (optional) message text to display in the view's status area
+ *  .cwd: (optional) the base directory from which the diff was generated
  */
 
 //
@@ -89,7 +90,14 @@ function DiffWindow()
         } else {
             diff = window.arguments[0].diff;
         }
-        loadDiffResult(diff);
+
+        cwd = window.arguments[0].cwd;
+        if (typeof(cwd) == 'undefined') {
+            cwd = null;
+        }
+
+        loadDiffResult(diff, cwd);
+
     } catch(e) {
         _dw_log.exception(e);
     }
@@ -121,7 +129,7 @@ DiffWindow.prototype.doCommand = function(cmdName) {
 }
 
 
-function loadDiffResult(result) {
+function loadDiffResult(result, cwd) {
     try {
         var diff = result;
         var diffView = document.getElementById('view');
