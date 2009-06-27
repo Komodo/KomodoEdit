@@ -43,8 +43,6 @@ Import(
     'mozBin',
     'unsiloedPythonExe',
     'jarring',
-    'mozMajorVersion',
-    'mozMinorVersion',
 );
 
 $cons->InstallRecursive("$mozChromeDir/komodo/locale/en-US",

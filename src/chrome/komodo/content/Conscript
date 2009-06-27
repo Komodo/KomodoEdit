@@ -47,8 +47,6 @@ Import(
     'buildFlavour',
     'komodoTitleBarName',
     'mozVersion',
-    'mozMajorVersion',
-    'mozMinorVersion',
     'komodoDevDir',
 );
 

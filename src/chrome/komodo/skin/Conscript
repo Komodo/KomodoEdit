@@ -47,8 +47,6 @@ Import(
     'unsiloedPythonExe',
     'buildFlavour',
     'mozVersion',
-    'mozMajorVersion',
-    'mozMinorVersion',
 );
 
 $cons->InstallInChrome('komodo.css');

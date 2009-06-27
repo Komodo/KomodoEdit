@@ -46,8 +46,6 @@ Import(
     'komodoPythonUtilsDir',
     'unsiloedPythonExe',
     'jarring',
-    'mozMajorVersion',
-    'mozMinorVersion',
     'mozBin',
     'buildFlavour',
     'mozExtensionDir',
