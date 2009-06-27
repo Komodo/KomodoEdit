@@ -94,7 +94,7 @@ my @toExport = (
     'mozDist', 'mozDevelDist',
     'mozApp',
     'mozExe',
-    'mozVersion', 'mozMajorVersion', 'mozMinorVersion', 'mozVersionNumber',
+    'mozVersion', 'mozVersionNumber',
     'mozComponentsDir',
     'mozChromeDir',
     'mozPluginsDir',

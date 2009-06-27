@@ -2247,32 +2247,6 @@ class MozVersion(black.configure.Datum):
         self.value = '.'.join(ver)
         self.determined = 1
 
-class MozMajorVersion(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "mozMajorVersion",
-            desc="the Mozilla source major version number")
-    def _Determine_Sufficient(self):
-        if self.value is None:
-            raise black.configure.ConfigureError("Could not determine %s")
-    def _Determine_Do(self):
-        self.applicable = 1
-        mozVersion = black.configure.items["mozVersion"].Get()
-        self.value = int(mozVersion.split('.')[0])
-        self.determined = 1
-
-class MozMinorVersion(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "mozMinorVersion",
-            desc="the Mozilla source minor version number")
-    def _Determine_Sufficient(self):
-        if self.value is None:
-            raise black.configure.ConfigureError("Could not determine %s")
-    def _Determine_Do(self):
-        self.applicable = 1
-        mozVersion = black.configure.items["mozVersion"].Get()
-        self.value = int(mozVersion.split('.')[1])
-        self.determined = 1
-
 class MozVersionNumber(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "mozVersionNumber",

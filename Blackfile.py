@@ -766,8 +766,6 @@ configuration = {
     "mozExe": MozExe(),
     "mozVersion": MozVersion(),
     "mozVersionNumber": MozVersionNumber(),
-    "mozMajorVersion": MozMajorVersion(),
-    "mozMinorVersion": MozMinorVersion(),
     "mozResourcesDir": MozResourcesDir(),
     "mozComponentsDir": MozComponentsDir(),   #XXX necessary?
     "mozChromeDir": MozChromeDir(),   #XXX necessary?
