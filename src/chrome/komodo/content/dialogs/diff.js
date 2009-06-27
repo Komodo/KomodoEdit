@@ -91,7 +91,7 @@ function DiffWindow()
             diff = window.arguments[0].diff;
         }
 
-        cwd = window.arguments[0].cwd;
+        var cwd = window.arguments[0].cwd;
         if (typeof(cwd) == 'undefined') {
             cwd = null;
         }
