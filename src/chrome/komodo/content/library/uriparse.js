@@ -278,6 +278,32 @@ this.commonURIPrefixFromURIs = function(uris) {
     return commonprefix;
 }
 
+ /**
+ * Return an array, holding the the common URI prefix as the first element of
+ * the array and an array of the relative paths as the second array entry.
+ *
+ * @param uris {array}
+ * @returns {array} - Prefix and array of the relative paths.
+ */
+this.commonURIPrefixAndPathsFromURIs = function(uris) {
+    if (!uris) {
+        return ["", []];
+    }
+    var prefix = ko.uriparse.commonURIPrefixFromURIs(uris);
+    var relpaths = [];
+    var uri;
+    var relpath;
+    for (var i=0; i < uris.length; i++) {
+        uri = uris[i];
+        relpath = uri.substr(prefix.length);
+	while (relpath[0] == '/') {
+	    relpath = relpath.substr(1);
+	}
+	relpaths.push(relpath);
+    }
+    return [prefix, relpaths];
+}
+
 /**
  * Uses the supplied URI to check if there are any special mappings setup
  * in order to change this URI into another location. If there is a match,
