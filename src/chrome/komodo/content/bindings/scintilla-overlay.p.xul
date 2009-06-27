@@ -101,15 +101,8 @@ function scintillaOverlayOnLoad()
     // "steal" the commands and keyset from the main window
     // Doing it the 'right' way takes a long time - I'm hoping this
     // will be faster.
-    var node = 
-// #if MOZILLA_VERSION < 1.9
-                gMainWindow.document.
-                           getElementById('widekeyset').
-                           cloneNode(1);
-// #else
-                document.importNode(gMainWindow.document.
-                           getElementById('widekeyset'), true)
-// #endif
+    var node = document.importNode(
+       gMainWindow.document.getElementById('widekeyset'), true);
     document.documentElement.appendChild(node);
     doDialogKeypressHack();
     doContextMenuHackForPlugin();
