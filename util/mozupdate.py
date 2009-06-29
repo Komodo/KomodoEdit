@@ -210,7 +210,7 @@ class Shell(cmdln.Cmdln):
         Example:
             mozupdate ${cmd_name} Komodo-Edit-4.2.0-beta2-280242-win32-x86
         """
-        import pkgutils
+        import kopkglib
         import buildutils
         import p4lib
 
@@ -222,9 +222,9 @@ class Shell(cmdln.Cmdln):
             raise Error("Komodo build name `%s' doesn't match `%s'"
                         % (build, build_pat.pattern))
 
-        guru = pkgutils.KomodoReleasesGuru(platname, pretty_product_type,
+        guru = kopkglib.KomodoReleasesGuru(platname, pretty_product_type,
                                            version)
-        mar_cacher = pkgutils.KomodoMarCacher()
+        mar_cacher = kopkglib.KomodoMarCacher()
         
         if opts.offline:
             partial_mar_paths \
@@ -294,7 +294,7 @@ class Shell(cmdln.Cmdln):
 
         if opts.diff:
             # Get a local crack of the reference mar.
-            old_guru = pkgutils.KomodoReleasesGuru(platname, 
+            old_guru = kopkglib.KomodoReleasesGuru(platname, 
                 pretty_product_type, old_version)
             if opts.offline:
                 old_complete_mar_rpath = join(mar_cacher.cache_dir, 

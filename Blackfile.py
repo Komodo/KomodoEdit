@@ -86,7 +86,7 @@ try:
     import patchtree
     import platinfo
     import buildutils
-    import pkgutils
+    import kopkglib
     import applib
     import changelog
 finally:
@@ -1518,9 +1518,9 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
     # Partial update package(s).
     project = {"ide": "komodoide", "edit": "komodoedit",
                "openkomodo": "openkomodo"}[cfg.productType]
-    guru = pkgutils.KomodoReleasesGuru(project, cfg.buildPlatform,
+    guru = kopkglib.KomodoReleasesGuru(project, cfg.buildPlatform,
                                        cfg.komodoVersion)
-    mar_cacher = pkgutils.KomodoMarCacher()
+    mar_cacher = kopkglib.KomodoMarCacher()
 
     # - Always want a partial update relative to last few (for now: 3)
     #   nightly builds (for the 'nightly' channel). E.g.:
