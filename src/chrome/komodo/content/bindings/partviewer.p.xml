@@ -425,8 +425,7 @@
                             if (!sortDirection) {
                                 sortDir = 1;
                                 sortedColumn.setAttribute("sortDirection", "ascending");
-                            } else
-                            if (sortDirection == "ascending") {
+                            } else if (sortDirection == "ascending") {
                                 sortDir = -1;
                                 sortedColumn.setAttribute("sortDirection", "descending");
                             } else {
