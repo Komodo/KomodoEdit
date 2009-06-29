@@ -1092,7 +1092,7 @@ try {
         ko.as_rails_macros.runCommand(editor, cmd, options);
     }
     try {
-        if (!gDBG_Listener) {
+        if (!ko.dbg.listener) {
             var productTypePrintable;
             try {
                 productTypePrintable = ("the " + Components.
@@ -1113,15 +1113,15 @@ try {
         var items = [dirSvc.supportDir, "dbgp", "rubylib"];
         var rbpath = ospath.joinlist(items.length, items).replace(/\\/g, '/');
         var host = 'localhost';
-        if (!gDBG_Listener.isListening()) {
-            gDBG_Controller.do_cmd_debuggerListener();
-            if (!gDBG_Listener.isListening()) {
+        if (!ko.dbg.listener.isListening()) {
+            ko.dbg.controller.do_cmd_debuggerListener();
+            if (!ko.dbg.listener.isListening()) {
                 ko.dialogs.alert("Please choose a different port, and retry this command");
                 prefs_doGlobalPrefs('debuggerConnection');
                 return;
             }
         }
-        var port = gDBG_Listener.manager.port;
+        var port = ko.dbg.listener.port;
         var project = (Components.classes["@activestate.com/koPartService;1"].getService().
                        runningMacro.project);
         launchDebugger(this, project, host, port, rbpath);
