@@ -58,7 +58,7 @@
                              flex="1"
                              type="timed"
                              timeout="500"
-                             onfocus="window.updateCommands('undo');this.select()"
+                             onfocus="window.updateCommands('undo');this.select();"
                              onblur="window.updateCommands('undo')"
                              onkeypress="this.parentNode.parentNode.parentNode.onFilterKeypress(event)"
                              oncommand="this.parentNode.parentNode.parentNode.updateFilter()"
