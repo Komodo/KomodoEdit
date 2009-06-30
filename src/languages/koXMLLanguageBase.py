@@ -38,7 +38,7 @@ from xpcom import components, ServerException
 import timeline
 
 from koLanguageServiceBase import *
-from koUDLLanguageBase import KoUDLLanguage
+from koUDLLanguageBase import KoUDLLanguage, udl_family_from_style
 import scimozindent
 
 log = logging.getLogger('koXMLLanguageBase')
@@ -229,7 +229,7 @@ class koXMLLanguageBase(KoUDLLanguage):
             style = scimoz.getStyleAt(pos)
             if style == targetStyle:
                 return True
-            if style not in styleSet:
+            if style not in styleSet and udl_family_from_style(style) == "M":
                 return False
             pos = scimoz.positionAfter(pos)
         return False
