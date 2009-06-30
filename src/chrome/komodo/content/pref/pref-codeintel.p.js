@@ -68,6 +68,8 @@ function PrefCodeIntel_OnLoad()
     try {
         gWidgets.triggeringEnabledCheckbox = document.getElementById("codeintel_completion_triggering_enabled");
         gWidgets.fillupsEnabledCheckbox = document.getElementById("codeintel_completion_fillups_enabled");
+        gWidgets.scanProjectCheckbox = document.getElementById("codeintel_scan_files_in_project");
+        gWidgets.scanDepthTextbox = document.getElementById("codeintel_max_recursive_dir_depth");
         gWidgets.notPreparedDesc = document.getElementById("notPreparedForLanguagesWarning");
         gWidgets.catalogs = document.getElementById("catalogs");
         gWidgets.addCatalogButton = document.getElementById("add-catalog");
@@ -90,6 +92,8 @@ function OnPreferencePageLoading(prefset)
         _setElementEnabledState(gWidgets.catalogs, gEnabled);
         _setElementEnabledState(gWidgets.addCatalogButton, gEnabled);
         _setElementEnabledState(gWidgets.removeCatalogButton, gEnabled);
+        _setElementEnabledState(gWidgets.scanProjectCheckbox, gEnabled);
+        _setElementEnabledState(gWidgets.scanDepthTextbox, gEnabled);
 
         if (gEnabled) {
             // Init the catalogs tree.

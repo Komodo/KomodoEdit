@@ -105,6 +105,24 @@
 
     </groupbox>
 
+    <groupbox id="scanning_groupbox" orient="vertical">
+        <caption label="&codeintelScanning.caption;"/>
+        <description>
+            &codeintelScanning.description;
+        </description>
+
+        <hbox id="scan_depth_hbox" align="center">
+            <label value="&codeIntelMaxRecursiveDirectoryDepth.label;"/>
+            <textbox id="codeintel_max_recursive_dir_depth"
+                     size="3"
+                     pref="true"/>
+        </hbox>
+        <checkbox id="codeintel_scan_files_in_project"
+                  label="&codeintelScanFilesInProject.label;"
+                  pref="true"
+                  prefattribute="checked" />
+    </groupbox>
+
     <groupbox id="groupbox-2" orient="vertical">
         <caption label="&APICatalogs.label;"/>
         <description>

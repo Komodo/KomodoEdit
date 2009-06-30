@@ -511,6 +511,10 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY codeIntelCalltipMaxLength.label "Maximum number of lines shown in a calltip:">
 <!ENTITY codeIntelCalltipMaxLineWidth.label "Maximum line width shown in a calltip:">
 <!ENTITY codeIntelAutocompleteFillUpCharacters.description "'Fill-up' is where typing a certain character — like '(' or '.' — during an autocomplete session will trigger insertion of the current completion before the character itself is inserted.">
+<!ENTITY codeintelScanning.caption "Code Scanning">
+<!ENTITY codeintelScanning.description "Controls how the Code Intelligence system scans your source code files.">
+<!ENTITY codeintelScanFilesInProject.label "Include all files and directories from the project base directory">
+<!ENTITY codeIntelMaxRecursiveDirectoryDepth.label "Max directory depth: ">
 <!ENTITY codeIntelAPICatalogs.description "Komodo uses API catalogs to provide autocomplete and calltips for 3rd-party libraries. Check the libraries that you use in your code.">
 <!ENTITY codeIntelAPICatalogsNote.description "Note: Selecting all API catalogs for a particular language can lead to confusing results.">
 

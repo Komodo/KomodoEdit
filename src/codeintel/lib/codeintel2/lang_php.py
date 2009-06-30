@@ -951,9 +951,11 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
     def _extra_dirs_from_env(self, env):
         extra_dirs = set()
-        proj_base_dir = env.get_proj_base_dir()
-        if proj_base_dir is not None:
-            extra_dirs.add(proj_base_dir)  # Bug 68850.
+        include_project = env.get_pref("codeintel_scan_files_in_project", True)
+        if include_project:
+            proj_base_dir = env.get_proj_base_dir()
+            if proj_base_dir is not None:
+                extra_dirs.add(proj_base_dir)  # Bug 68850.
         for pref in env.get_all_prefs("phpExtraPaths"):
             if not pref: continue
             extra_dirs.update(d.strip() for d in pref.split(os.pathsep)
@@ -983,6 +985,8 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             env.add_pref_observer("codeintel_selected_catalogs",
                                   self._invalidate_cache)
             env.add_pref_observer("codeintel_max_recursive_dir_depth",
+                                  self._invalidate_cache)
+            env.add_pref_observer("codeintel_scan_files_in_project",
                                   self._invalidate_cache)
             # (Bug 68850) Both of these 'live_*' prefs on the *project*
             # prefset can result in a change of project base dir. It is

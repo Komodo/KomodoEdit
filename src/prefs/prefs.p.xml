@@ -828,6 +828,9 @@
             the codeintel database has been pre-loaded for this version.
         "codeintel_selected_catalogs" is a string-repr of a list of codeintel
             catalog selections.
+        "codeintel_scan_files_in_project" is a boolean indicating whether
+            codeintel should scan all files and directories in the associated
+            project (i.e. of the current file being edited).
         "codeintel_max_recursive_dir_depth" is an integer indicating the
             maximum number of sub-directories deep the system will look
             under configured PHP and JavaScript import dirs.
@@ -849,6 +852,7 @@
   <string id="codeintel_selected_catalogs">[]</string>
 <!-- #endif -->
   <long id="codeintel_max_recursive_dir_depth">10</long>
+  <boolean id="codeintel_scan_files_in_project">1</boolean>
 
   <!-- Enable triggering of macros by Komodo events (turn off for troubleshooting) -->
   <boolean id="triggering_macros_enabled">1</boolean>
