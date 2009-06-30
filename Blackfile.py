@@ -1686,7 +1686,7 @@ def UploadKomodoPackages(cfg, argv):
         for filename in filenames:
             if "pad" in reldir.split('/'):
                 pass
-            elif str(buildNum) not in filename:
+            elif str(buildNum) not in filename and "/log" not in reldir:
                 continue
             src = join(dirpath, filename)
             dst = unormpath(ujoin(upload_dir, reldir, filename))
