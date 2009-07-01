@@ -330,8 +330,38 @@ this.togglePane = function uilayout_togglePane(splitterId, tabsId, cmdId, force)
         if (!force &&
             splitterWidget.hasAttribute('collapsed') &&
             splitterWidget.getAttribute('collapsed') == 'true') {
+            var scimoz = null;
+            // Following code fixes bug 83545:
+            // After we've opened a tab, if the caret was visible before
+            // we opened it, get Scintilla to make sure it's visible after.
+            // Only do this if the cursor was visible before opening a pane.
+            //
+            // Scintilla doesn't expose the width of the screen in characters
+            // (and this is hard to do in proportional fonts), so if the cursor
+            // is scrolled to the left or right of the viewport, we'll bring it into
+            // view anyway.
+            if (ko.views.manager.currentView
+                && !!(scimoz = ko.views.manager.currentView.scimoz)) {
+                var firstVisibleLine = scimoz.firstVisibleLine;
+                var firstActualLine = scimoz.docLineFromVisible(firstVisibleLine);
+                var lastActualLine = scimoz.docLineFromVisible(firstVisibleLine + scimoz.linesOnScreen);
+                var currLine = scimoz.lineFromPosition(scimoz.currentPos);
+                if (currLine < firstVisibleLine || currLine > lastActualLine) {
+                    scimoz = null;
+                }
+            }
             ko.uilayout.toggleSplitter(cmdId);
-            tabs.selectedItem.focus();
+            if (scimoz) {
+                // This has to be done in a setTimeout on Windows and OS X.
+                // If we try it now, Scintilla thinks the caret is still in
+                // view, and doesn't adjust the document's scroll.
+                setTimeout(function(selectedTabItem) {
+                    scimoz.scrollCaret();
+                    if (selectedTabItem) {
+                        selectedTabItem.focus();
+                    }
+                }, 100, tabs.selectedItem);
+            }
         } else {
             // Before we collapse it, figure out whether the focus is in this
             // panel.  If so, then move it back to the editor
