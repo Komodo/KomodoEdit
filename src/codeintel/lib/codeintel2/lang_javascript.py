@@ -3376,7 +3376,7 @@ class JavaScriptCiler:
                                 # need to create a JSFunction scope for this,
                                 # as various information may be needed, i.e.
                                 # a getter function return type.
-                                obj = self.addAnonymousFunction(isHidden=True)
+                                obj = self.addAnonymousFunction()
                                 self.objectArguments.append((self.argumentPosition, obj))
                                 self._pushAndSetState(S_DEFAULT)
                             elif len(self.text) >= 2 and \

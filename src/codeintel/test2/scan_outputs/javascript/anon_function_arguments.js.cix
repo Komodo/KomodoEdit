@@ -1,0 +1,12 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/anon_function_arguments.js">
+    <scope ilk="blob" lang="JavaScript" name="anon_function_arguments.js" src="scan_inputs/javascript/anon_function_arguments.js">
+      <scope attributes="__local__ private" ilk="function" line="12" lineend="24" name="(anonymous)" signature="(anonymous)()">
+        <scope attributes="__local__ private" ilk="function" line="14" lineend="23" name="(anonymous)" signature="(anonymous)()">
+          <scope attributes="__local__ private" ilk="function" line="16" lineend="18" name="init" signature="init()" />
+          <scope attributes="__local__ private" ilk="function" line="19" lineend="21" name="myMethod" signature="myMethod()" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>
