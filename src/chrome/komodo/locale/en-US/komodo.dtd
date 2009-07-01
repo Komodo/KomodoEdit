@@ -686,12 +686,21 @@
 
 <!--komodo.xul-->
 <!ENTITY projectPanelName.label "Name">
+<!ENTITY sortBy.label "Sort By">
+<!ENTITY sortBy_menu.accesskey "R">
 <!ENTITY lockUnlockFindResults.tooltiptext "Lock/Unlock Find Results">
 <!ENTITY komodoFindToolbarFind.label "Find">
 <!ENTITY komodoFindToolbarOpen.label "Open">
 <!ENTITY komodoFindToolbarIn.label "in">
 <!ENTITY menuHelpCheckForUpdates.accesskey "U">
 <!ENTITY projectNameTreeColumn.label "Name">
+<!ENTITY projectNameTreeColumn.accesskey "N">
+<!ENTITY projectSortDirectionNatural.label "Natural">
+<!ENTITY projectSortDirectionNatural.accesskey "N">
+<!ENTITY projectSortDirectionAscending.label "Ascending">
+<!ENTITY projectSortDirectionAscending.accesskey "A">
+<!ENTITY projectSortDirectionDescending.label "Descending">
+<!ENTITY projectSortDirectionDescending.accesskey "D">
 
 <!--commented in file commandsOverlay.xul-->
 <!--

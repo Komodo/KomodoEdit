@@ -113,7 +113,7 @@ function projectManager() {
     this.registerCommands();
     // add our default datapoint
     this.viewMgr.addColumns(ko.projects.extensionManager.datapoints);
-    ko.projects.extensionManager.datapoints['Name']='Name';
+    ko.projects.extensionManager.datapoints['Name']='name';
     this._lastCurrentProject = null;
     ko.trace.get().leave('projectManager()');
 }

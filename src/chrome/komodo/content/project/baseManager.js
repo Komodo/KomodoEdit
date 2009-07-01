@@ -473,6 +473,120 @@ this.findPart = function macro_findPart(type, name, where, /*koIPart*/ part) {
     return _partSvc.findPart(type, name, where, part);
 }
 
+this.sortByDirectionOnPopupShowing = function project_sortByDirectionOnPopupShowing(popup, allowNaturalSorting) {
+    var menuitem;
+    if (popup.childNodes.length == 0) {
+        // Clone the base pupup menu to create a new menu.
+        var menupopup = document.getElementById('project_sortDirection_menupopup');
+        for (var i =0; i < menupopup.childNodes.length; i++) {
+            menuitem = menupopup.childNodes[i];
+            if (!allowNaturalSorting
+                && menuitem.getAttribute("id") == "project_sortDirection_natural_menuitem") {
+                continue;
+            }
+            popup.appendChild(menuitem.cloneNode(1));
+        }
+    }
+
+    // Determine if this is the currently sorted column, if so then ensure the
+    // checkbox is ticked to indicate this in the UI.
+    var menu = popup.parentNode;
+    while (menu && menu.nodeName != "menu")
+        menu = menu.parentNode;
+    var isSortedColumn = false;
+    var currentSortDir = null;
+    if (menu && menu.getAttribute("parttype")) {
+        var partType = menu.getAttribute("parttype");
+        var viewMgr;
+        if (partType == "project") {
+            viewMgr = ko.projects.manager.viewMgr;
+        } else if (partType == "toolbox") {
+            viewMgr = ko.toolboxes.user.viewMgr;
+        } else if (partType == "shared toolbox") {
+            viewMgr = ko.toolboxes.shared.viewMgr;
+        }
+        isSortedColumn = (viewMgr.sortBy == menu.getAttribute("datapointname"));
+        currentSortDir = viewMgr.sortDir;
+    }
+
+    for (var i=0; i < popup.childNodes.length; i++) {
+        menuitem = popup.childNodes[i];
+        if (isSortedColumn && parseInt(menuitem.getAttribute("sortdir")) == currentSortDir) {
+            menuitem.setAttribute("checked", "true");
+        } else {
+            menuitem.setAttribute("checked", "false");
+        }
+    }
+}
+
+this.sortByOnPopupShowing = function project_sortByOnPopupShowing(popup, partType) {
+    if (popup.childNodes.length > 0) return;
+
+    // Clone the base pupup menu to create a new menu.
+    var menupopup = document.getElementById('project_sortBy_menupopup');
+    var menu;
+    var appliesTo;
+    var appliedType = partType;
+    if (appliedType == "shared toolbox") {
+        appliedType = "toolbox";
+    }
+    for (var i =0; i < menupopup.childNodes.length; i++) {
+        menu = menupopup.childNodes[i];
+        appliesTo = menu.getAttribute("appliesto").split(" ");
+        if (appliesTo.indexOf(appliedType) >= 0) {
+            menu = popup.appendChild(menu.cloneNode(1));
+            menu.setAttribute("parttype", partType);
+        }
+    }
+    if (appliedType != "project") {
+        // Toolboxes do not get to sort on other fields - as the other treecols
+        // are not visible in a toolbox.
+        return;
+    }
+
+    // Add additional menus from the list of sortable columns (datapoints).
+    var datapointName;
+    var columnName;
+    for (columnName in ko.projects.extensionManager.datapoints) {
+        datapointName = ko.projects.extensionManager.datapoints[columnName];
+        if (datapointName.toLowerCase() == "name") {
+            // Name is already covered by the base menupopup in komodo.xul.
+            continue;
+        }
+        menu = xtk.domutils.newElement("menu", {
+                    'id': appliedType + "_sortby_" + datapointName + "_menu",
+                    'label': columnName,
+                    'parttype': partType,
+                    'datapointname': datapointName
+        });
+        menupopup = xtk.domutils.newElement("menupopup", {
+                    'id': appliedType + "_sortby_" + datapointName + "_menupopup",
+                    'onpopupshowing': "ko.projects.sortByDirectionOnPopupShowing(this, false);"
+        });
+        menu.appendChild(menupopup);
+        popup.appendChild(menu);
+    }
+}
+
+this.sortByMenuHandler = function project_sortByMenuHandler(menuitem, sortDir) {
+    var menu = menuitem.parentNode;
+    while (menu && menu.nodeName != "menu")
+        menu = menu.parentNode;
+    if (menu && menu.getAttribute("parttype")) {
+        var sort_column = menu.getAttribute("datapointname");
+        var partType = menu.getAttribute("parttype");
+        var viewMgr;
+        if (partType == "project") {
+            viewMgr = ko.projects.manager.viewMgr;
+        } else if (partType == "toolbox") {
+            viewMgr = ko.toolboxes.user.viewMgr;
+        } else if (partType == "shared toolbox") {
+            viewMgr = ko.toolboxes.shared.viewMgr;
+        }
+        viewMgr.sort(sort_column, sortDir);
+    }
+}
+
 }).apply(ko.projects);
 
 var findItemsByURL = ko.projects.findItemsByURL;

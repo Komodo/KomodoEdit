@@ -89,6 +89,8 @@
         </content>
         <implementation implements="nsIObserver">
             <field name="view">null</field>
+            <field name="sortDir">1</field>   <!-- ascending -->
+            <field name="sortBy">null</field>
             <field name="editable">false</field>
             <field name="lasthoverrow">-1</field>
             <field name="popupshowing">false</field>
@@ -148,7 +150,8 @@
                                   .view = this.view;
                     this.editable = this.getAttribute("editable")
                     this.view.statusObserver = this;
-                    this.initSortIndicators();
+                    this.initSortPreferences();
+                    this.sort();
                 ]]>
                 </body>
             </method>
@@ -162,7 +165,7 @@
                     for (var name in columns) {
                         var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",'splitter');
                         var c = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", 'treecol');
-                        c.setAttribute('id',name);
+                        c.setAttribute('id',columns[name]);
                         c.setAttribute('label',name);
 
                         // XXX need prefs for columns
@@ -363,99 +366,110 @@
                 </body>
             </method>
 
-            <method name="initSortIndicators">
+            <method name="initSortPreferences">
                 <body>
                 <![CDATA[
                     var id = this.getAttribute('id');
                     if (!id) return;
 
-                    var sortDir = 0;
-                    var sortBy = null;
                     var prefs = Components.classes['@activestate.com/koPrefService;1'].
                                             getService(Components.interfaces.koIPrefService).prefs;
                     if (prefs.hasPref("treeSortDir_"+id)) {
-                        sortDir = prefs.getLongPref("treeSortDir_"+id)
+                        this.sortDir = prefs.getLongPref("treeSortDir_"+id)
                     }
                     if (prefs.hasPref("treeSortBy_"+id)) {
-                        sortBy = prefs.getStringPref("treeSortBy_"+id)
-                    }
-                    if (!sortBy) return;
-
-                    // set the sort indicator on the column we are sorted by
-                    var sortedColumn = this.tree.firstChild.firstChild;
-                    while (sortedColumn) {
-                        if (sortedColumn.localName == "treecol" &&
-                           sortedColumn.getAttribute('id') == sortBy) break;
-                        sortedColumn = sortedColumn.nextSibling;
-                    }
-                    if (sortedColumn && sortedColumn.getAttribute('id') == sortBy) {
-                        switch(sortDir) {
-                        case -1:
-                            sortedColumn.setAttribute("sortDirection", "descending");
-                            break;
-                        case 1:
-                            sortedColumn.setAttribute("sortDirection", "ascending");
-                            break;
-                        default:
-                            sortedColumn.removeAttribute("sortDirection");
-                            break;
+                        this.sortBy = prefs.getStringPref("treeSortBy_"+id)
+                        if (this.sortBy == 'Name') {
+                            // Upgrade handling - convert the name to lowercase.
+                            this.sortBy = 'name';
+                        }
+                    } else {
+                        // Sort using the first tree column found.
+                        var sortedColumn = null;
+                        var treecol = this.tree.firstChild.firstChild;
+                        while (treecol) {
+                            if (treecol.localName == "treecol") {
+                                this.sortBy = treecol.getAttribute("id");
+                                break;
+                            }
+                            treecol = treecol.nextSibling;
                         }
                     }
-                    this.view.sortBy(sortBy, sortDir);
                 ]]>
                 </body>
             </method>
 
-            <method name="updateSortIndicators">
+            <method name="setSortIndicators">
                 <parameter name="sortBy"/>
+                <parameter name="sortDir"/>
                 <body>
                 <![CDATA[
-                    var currCol = this.tree.firstChild.firstChild;
-                    var sortedColumn = currCol;
-                    var sortDir = 0;
-                    // set the sort indicator on the column we are sorted by
-                    if (sortBy) {
-                        while (sortedColumn) {
-                            if (sortedColumn.localName == "treecol" &&
-                               sortedColumn.getAttribute('id') == sortBy) break;
-                            sortedColumn = sortedColumn.nextSibling;
+                    // Set the sort indicator on the column we are sorted by.
+                    var sortedColumn = null;
+                    var treecol = this.tree.columns.getFirstColumn();
+                    while (treecol) {
+                        if (treecol.element.getAttribute('id') == sortBy) {
+                            sortedColumn = treecol;
+                        } else {
+                            treecol.element.removeAttribute("sortDirection");
                         }
-                        if (sortedColumn && sortedColumn.getAttribute('id') == sortBy) {
-                            var sortDirection = sortedColumn.getAttribute("sortDirection");
-                            if (!sortDirection) {
-                                sortDir = 1;
-                                sortedColumn.setAttribute("sortDirection", "ascending");
-                            } else if (sortDirection == "ascending") {
-                                sortDir = -1;
-                                sortedColumn.setAttribute("sortDirection", "descending");
-                            } else {
-                                sortedColumn.removeAttribute("sortDirection");
-                            }
+                        treecol = treecol.getNext();
+                    }
+                    if (sortedColumn) {
+                        switch(sortDir) {
+                            case -1:
+                                sortedColumn.element.setAttribute("sortDirection", "descending");
+                                break;
+                            case 1:
+                                sortedColumn.element.setAttribute("sortDirection", "ascending");
+                                break;
+                            default:
+                                sortedColumn.element.removeAttribute("sortDirection");
+                                break;
                         }
                     }
-                    
+                ]]>
+                </body>
+            </method>
+
+            <method name="sort">
+                <parameter name="sortBy"/>
+                <parameter name="sortDir"/>
+                <body>
+                <![CDATA[
+                    if (typeof(sortBy) == 'undefined' || sortBy == null)
+                        sortBy = this.sortBy;
+                    if (typeof(sortDir) == 'undefined' || sortDir == null)
+                        sortDir = this.sortDir;
                     var id = this.getAttribute('id');
                     if (id) {
+                        // Remember the sort order.
                         var prefs = Components.classes['@activestate.com/koPrefService;1'].
                                                 getService(Components.interfaces.koIPrefService).prefs;
                         prefs.setLongPref("treeSortDir_"+id, sortDir);
                         prefs.setStringPref("treeSortBy_"+id, sortBy)
                     }
-                    // remove the sort indicator from all the columns
-                    // except the one we are sorted by
-                    while (currCol) {
-                        while (currCol && currCol.localName != "treecol") {
-                            currCol = currCol.nextSibling;
-                        }
-                        if (currCol && (currCol != sortedColumn)) {
-                            currCol.removeAttribute("sortDirection");
-                        }
-                        if (currCol) {
-                            currCol = currCol.nextSibling;
+                    this.sortBy = sortBy;
+                    this.sortDir = sortDir;
+                    this.setSortIndicators(sortBy, sortDir);
+                    this.view.sortBy(sortBy, sortDir);
+                ]]>
+                </body>
+            </method>
+
+            <method name="toggleNextSortingBehaviourForColumn">
+                <parameter name="sortBy"/>
+                <body>
+                <![CDATA[
+                    // Set the sort indicator on the column we are sorted by.
+                    var sortDir = 1;
+                    if (sortBy == this.sortBy) {
+                        sortDir = this.sortDir + 1;
+                        if (sortDir >= 2) {
+                            sortDir = -1;
                         }
                     }
-                    this.view.sortBy(sortBy, sortDir);
-                    return sortDir;
+                    this.sort(sortBy, sortDir);
                 ]]>
                 </body>
             </method>
@@ -467,7 +481,7 @@
                     var t = event.originalTarget;
                     // single-click on a column
                     if (t.localName == "treecol") {
-                        this.updateSortIndicators(t.id);
+                        this.toggleNextSortingBehaviourForColumn(t.id);
                         event.cancelBubble = true;
                     } else if (t.localName == "treechildren") {
                         event.cancelBubble = true;

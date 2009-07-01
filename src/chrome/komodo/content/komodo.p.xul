@@ -169,6 +169,50 @@
             <description multiline="true" id="editorTooltip-tooltipText" class="tooltip-label" flex="1"/>
         </tooltip>
         <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
+
+        <menupopup id="project_sortDirection_menupopup">
+            <menuitem id="project_sortDirection_natural_menuitem"
+                      type="checkbox"
+                      sortdir="0"
+                      label="&projectSortDirectionNatural.label;"
+                      accesskey="&projectSortDirectionNatural.accesskey;"
+                      oncommand="ko.projects.sortByMenuHandler(this, 0);"/>
+            <menuitem id="project_sortDirection_ascending_menuitem"
+                      type="checkbox"
+                      sortdir="1"
+                      label="&projectSortDirectionAscending.label;"
+                      accesskey="&projectSortDirectionAscending.accesskey;"
+                      oncommand="ko.projects.sortByMenuHandler(this, 1);"/>
+            <menuitem id="project_sortDirection_descending_menuitem"
+                      type="checkbox"
+                      sortdir="-1"
+                      label="&projectSortDirectionDescending.label;"
+                      accesskey="&projectSortDirectionDescending.accesskey;"
+                      oncommand="ko.projects.sortByMenuHandler(this, -1);"/>
+        </menupopup>
+
+        <!-- This menupopup is dynamically added to the part specific sortBy
+             menus through the "ko.projects.sortByOnPopupShowing" call.
+        
+             These menuitems have some special attributes:
+                "datapointname": the internal name of the column to sort, this
+                                 field should not be localized.
+                "appliesto": specifies the base project type this applies to.
+                             The value is a space separated list and must be one
+                             of the following values:
+                               * project (applies to Komodo projects)
+                               * toolbox (applies to Komodo toolboxes)
+        -->
+        <menupopup id="project_sortBy_menupopup">
+            <menu id="project_sortBy_name_menu"
+                  label="&projectNameTreeColumn.label;"
+                  accesskey="&projectNameTreeColumn.accesskey;"
+                  datapointname="name"
+                  appliesto="project toolbox">
+                <menupopup id="project_sortByName_menupopup"
+                           onpopupshowing="ko.projects.sortByDirectionOnPopupShowing(this, true);"/>
+            </menu>
+        </menupopup>
     </popupset>
 
     <popupset id="extensionPopupSet"/>
@@ -1141,6 +1185,13 @@
                           <menupopup id="projectAdd_popup" partviewer="projectview"
                                       onpopupshowing="ko.projects.ensureAddMenu(this);"/>
                     </menu>
+                    <menu id="menu_projectSortBy"
+                          label="&sortBy.label;"
+                          accesskey="&sortBy_menu.accesskey;"
+                          observes="cmd_projectSortBy">
+                          <menupopup id="menupopup_projectSortBy"
+                                     onpopupshowing="ko.projects.sortByOnPopupShowing(this, 'project')"/>
+                    </menu>
                     <menuitem label="&importFromFileSystem.label;"
                               id="menu_importFromFS"
                               observes="cmd_importFromFS_Project"
@@ -1188,6 +1239,13 @@
                     <menu id="menu_toolboxAdd" label="&add.label;" accesskey="&menuToolboxAdd.accesskey;">
                         <menupopup id="popup_toolboxAdd" partviewer="toolboxview"
                                    onpopupshowing="ko.projects.ensureAddMenu(this);"/>
+                    </menu>
+                    <menu id="menu_toolboxSortBy"
+                          label="&sortBy.label;"
+                          accesskey="&sortBy_menu.accesskey;">
+                          <menupopup id="menupopup_toolboxSortBy"
+                                     class="menu-iconic" 
+                                     onpopupshowing="ko.projects.sortByOnPopupShowing(this, 'toolbox')"/>
                     </menu>
                 </menupopup>
             </menu>
@@ -2091,6 +2149,12 @@
                                                 observes="cmd_saveProject"
                                                 label="&saveProject.label;"
                                                 class="menuitem-iconic save-buffer-icon"/>
+                                            <menu id="projectView_sortByMenu"
+                                                  label="&sortBy.label;"
+                                                  accesskey="&sortBy_menu.accesskey;">
+                                                  <menupopup id="projectView_sortByMenuPopup"
+                                                             onpopupshowing="ko.projects.sortByOnPopupShowing(this, 'project')"/>
+                                            </menu>
                                         </menupopup>
                                     </toolbarbutton>
                                     <toolbarbutton

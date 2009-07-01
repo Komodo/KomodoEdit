@@ -91,6 +91,15 @@ fireEvent : function(target, eventName) {
     target.dispatchEvent(event);
 },
 
+newElement : function(name, attributes) {
+    var elem = document.createElement(name);
+    for (var attr in attributes) {
+        elem.setAttribute(attr, attributes[attr]);
+    }
+    return elem;
+},
+
+
 __END__ : null
 };
 
