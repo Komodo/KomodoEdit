@@ -38,7 +38,7 @@ family markup
 
 state IN_M_DEFAULT:
 
-/{%\s+comment\s+%\}/ : paint(upto, M_DEFAULT), => IN_TPL_COMMENTBLOCK
+/{%\s*comment\s*%\}/ : paint(upto, M_DEFAULT), => IN_TPL_COMMENTBLOCK
 
 '{%' : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR) => IN_TPL_DEFAULT
 

@@ -241,7 +241,7 @@ state IN_TPL_SSI_2:
 
 ################ Folding Directives ################
 
-fold "comment" TPL_WORD +
+fold "comment" TPL_COMMENT +
 fold "filter" TPL_WORD +
 fold "for" TPL_WORD +
 fold "if" TPL_WORD +
@@ -250,7 +250,7 @@ fold "ifequal" TPL_WORD +
 fold "ifnotequal" TPL_WORD +
 fold "spaceless" TPL_WORD +
 
-fold "endcomment" TPL_WORD -
+fold "endcomment" TPL_COMMENT -
 fold "endfilter" TPL_WORD -
 fold "endfor" TPL_WORD -
 fold "endif" TPL_WORD -

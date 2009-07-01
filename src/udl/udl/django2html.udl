@@ -39,7 +39,7 @@
 family tpl
 
 state IN_TPL_COMMENTBLOCK:
-/{%\s+endcomment\s+%\}/ : paint(include, TPL_COMMENT), => IN_M_DEFAULT
+/{%\s*endcomment\s*%\}/ : paint(include, TPL_COMMENT), => IN_M_DEFAULT
 
 state IN_TPL_DEFAULT:
 '%}' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_M_DEFAULT
