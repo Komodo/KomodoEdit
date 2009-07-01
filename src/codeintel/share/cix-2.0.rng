@@ -338,6 +338,7 @@ below.
             <zeroOrMore>
                 <choice>
                     <ref name="Import"/>
+                    <ref name="Class"/>
                     <ref name="Namespace"/>
                     <ref name="Function"/>
                     <ref name="Variable"/>
