@@ -462,6 +462,14 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePropertiesDefaultDoctype.label "Default DOCTYPE:">
 <!ENTITY filePropertiesDefaultNamespace.label "Default Namespace:">
 
+<!--file-advanced-properties.xul-->
+<!ENTITY fileAdvancedProperties.label "Advanced">
+<!ENTITY filePerformanceTweaks.caption "Document-Specific Performance Settings">
+<!ENTITY filePerformanceTweakEnableCodeintel.label "Enable Codeintel">
+<!ENTITY filePerformanceTweakEnableSyntaxColorizing.label "Enable Syntax Coloring">
+<!ENTITY filePerformanceTweakOverview.description "Settings specific to the current document for turning off features that could be too expensive to run on large files, and are interfering with performance of basic editing features.">
+<!ENTITY filePerformanceTweakLintSettingLocation.description "Syntax-checking on the current document is controlled in the [Editor|Syntax Checking] preference pane.">
+
 <!--editing-properties.xul-->
 <!ENTITY fileEditingPropertiesWrapLines.label "Wrap long lines by:">
 <!ENTITY fileEditingPropertiesEdgeLine.label "Edge line column">

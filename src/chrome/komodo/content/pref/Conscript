@@ -166,6 +166,8 @@ $cons->InstallInChrome('pref-folderImport.xul');
 $cons->InstallInChrome('pref-folderImport.js');
 
 $cons->Preprocess('file-properties.p.xul', 'file-properties.xul');
+$cons->InstallInChrome('file-advanced-properties.xul');
+$cons->InstallInChrome('file-advanced-properties.js');
 $cons->InstallInChrome('file-properties.xul');
 $cons->InstallInChrome('file-permissions.xul');
 $cons->InstallInChrome('editing-properties.xul');

@@ -117,7 +117,8 @@
         if (!view) {
             // XXX until prefs are more worked out, don't do editor prefs
             // on project parts
-            nodes = nodes.concat(["editorProperties",
+            nodes = nodes.concat(["advancedFileProperties",
+                                  "editorProperties",
                                   "previewProperties"]);
         }
         if (!isfolder) {
@@ -274,6 +275,14 @@
                         <treecell class="treecell-indent"
                                   url="chrome://komodo/content/pref/preview-properties.xul"
                                   label="&browserPreview.label;"/>
+                    </treerow>
+                </treeitem>
+
+                <treeitem container="false" id="advancedFileProperties">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/file-advanced-properties.xul"
+                                  label="&fileAdvancedProperties.label;"/>
                     </treerow>
                 </treeitem>
 

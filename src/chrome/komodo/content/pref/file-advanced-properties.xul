@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="parent.initPanel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/otherdialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/encodingmenu.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/launch.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/file-advanced-properties.js" type="application/x-javascript;version=1.7"/>
+
+    <groupbox orient="vertical" id="file-performance-properties-groupbox">
+        <caption label="&filePerformanceTweaks.caption;"/>
+        <description id="file-performance-about"
+                     style="margin-top:5px; margin-bottom:10px;">
+            &filePerformanceTweakOverview.description;
+        </description>
+
+        <description id="file-performance-about-linting"
+                     style="margin-bottom:10px;">
+            &filePerformanceTweakLintSettingLocation.description;
+        </description>
+        <checkbox id="colorizing_enabled"
+                  label="&filePerformanceTweakEnableSyntaxColorizing.label;"
+                  pref="true"
+                  prefstring="colorizing_enabled"
+                  prefattribute="checked"
+                  oncommand="update_state();" />
+        <checkbox id="codeintel_enabled"
+                  style="margin-left: 27px;"
+                  label="&filePerformanceTweakEnableCodeintel.label;"
+                  pref="true"
+                  prefstring="codeintel_enabled"
+                  prefattribute="checked"/>
+
+    </groupbox>
+
+</window>

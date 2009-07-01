@@ -113,6 +113,7 @@
   <boolean id="editUseLinting">1</boolean>
   <long id="lintDelay">1000</long>
   <boolean id="lintEOLs">1</boolean>
+  <boolean id="colorizing_enabled">1</boolean>
   <boolean id="editUseAlternateFaceType">0</boolean>
   <!-- editFoldStyle: none, box, plusminus, curvytree, squaretree -->
   <string id="editFoldStyle">squaretree</string>

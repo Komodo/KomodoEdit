@@ -145,7 +145,9 @@ class koDocumentSettingsManager:
         # capable document -- if it doesn't know something, it can figure it out.
         languageOb = self.document.languageObj
         document = self.document
-        lexer = languageOb.getLanguageService(components.interfaces.koILexerLanguageService)
+        lexer = document.lexer
+        if lexer is None:
+            lexer = languageOb.getLanguageService(components.interfaces.koILexerLanguageService)
         lexer.setCurrent(scimoz)
         self._setIndicators(languageOb, scimoz)
         self._applyPrefs(document.prefs, scimoz)

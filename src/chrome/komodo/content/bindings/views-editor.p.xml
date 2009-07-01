@@ -206,6 +206,13 @@
             xtk.domutils.fireEvent(this, 'current_view_changed');
             this.scintilla.scimoz.hookEvents(this);
             this._inInitPhase = false;
+            this.prefs.prefObserverService.addObserver(this, 'codeintel_enabled', false);
+            this.prefs.prefObserverService.addObserver(this, 'colorizing_enabled', false);
+            // This field is used by views-buffer.isCICplnEnabled
+            this._isCICplnEnabledViewPref = this.prefs.getBooleanPref('codeintel_enabled');
+            if (!this.prefs.getBooleanPref('colorizing_enabled')) {
+                this._turnColourizingOff();
+            }
             ko.macros.eventHandler.hookPostFileOpen(this);
         } catch (e) {
             this.log.exception(e);
@@ -213,6 +220,22 @@
         this.log.debug('scimoz code page after initWithDoc is '+this.scimoz.codePage);
         this.log.debug('document code page after initWithDoc is '+this.document.codePage);
         ko.trace.get().leave('view-editor:initWithDocument')
+        ]]>
+        </body>
+        </method>
+
+        <method name="_turnColourizingOff">
+        <body><![CDATA[
+            var languageRegistryService = Components.classes['@activestate.com/koLanguageRegistryService;1'].getService(Components.interfaces.koILanguageRegistryService);
+            var textLanguageService = languageRegistryService.getLanguage("Text");
+            var lexer = textLanguageService.getLanguageService(Components.interfaces.koILexerLanguageService);
+            this.document.lexer = lexer;
+            // Going to text, we need to explicitly clear the styles.
+            var scimoz = this.scimoz;
+            scimoz.startStyling(0, 0x3f);
+            scimoz.setStyling(scimoz.length, 0);
+            this.document.docSettingsMgr.applyDocumentSettingsToView(this);
+            scimoz.tabWidth = scimoz.tabWidth;
         ]]>
         </body>
         </method>
@@ -384,6 +407,31 @@
                 this.selectMostRecentBufferOnBufferClose =
                     this.__globalPrefs.getBooleanPref('select_most_recent_buffer_on_buffer_close');
                 break;
+
+            case 'codeintel_enabled':
+                this._isCICplnEnabledViewPref = this.prefs.getBooleanPref('codeintel_enabled');
+                xtk.domutils.fireEvent(this, "document_codeintel_pref_changed");
+                
+                break;
+                
+            case 'colorizing_enabled':
+                var locationInfo = {};
+                this.saveLocation(locationInfo);
+                var scimoz = this.scimoz;
+                var colorizing_enabled = this.prefs.getBooleanPref('colorizing_enabled');
+                if (!colorizing_enabled) {
+                    this._turnColourizingOff();
+                } else {
+                    this.document.lexer = null;
+                    this.document.docSettingsMgr.applyDocumentSettingsToView(this);
+                    var stylingPos = this.scimoz.endStyled;
+                    scimoz.colourise(0, -1);
+                }
+                // This forces a repaint.
+                scimoz.tabWidth = scimoz.tabWidth;
+                this.scintilla.focus();
+                this.restoreLocation(locationInfo);
+                break;
             }
         ]]>
         </body>
@@ -419,6 +467,8 @@
         <method name="closeUnconditionally">
             <body><![CDATA[
                 this.saveState();
+                this.prefs.removeObserver(this, 'codeintel_enabled');
+                this.prefs.removeObserver(this, 'colorizing_enabled');
                 this.document = null;
                 if (this.preview) {
                     this.preview.sourceView = null;

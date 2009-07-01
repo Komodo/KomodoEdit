@@ -135,6 +135,11 @@ class koDocumentBase:
         self.isLargeDocument = False
         self._documentSizeFactor = self._DOCUMENT_SIZE_NOT_LARGE
 
+        # This field can be used to override the default lexer set in the
+        # document's language service.  Useful for using a different colorizer,
+        # usually text for a large document.
+        self.lexer = None
+
         timeline.leave('koDocumentBase.__init__')
     
     def init(self):

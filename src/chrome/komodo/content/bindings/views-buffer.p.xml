@@ -147,7 +147,7 @@
             etc.) -->
         <property name="isCICplnEnabled">
             <getter><![CDATA[
-                return this._isCICplnEnabled;
+                return this._isCICplnEnabled && this._isCICplnEnabledViewPref;
             ]]></getter>
             <setter><![CDATA[
                 try {
@@ -166,6 +166,16 @@
             ]]></setter>
         </property>
         <field name="_isCICplnEnabled">null</field>
+
+        <property name="isCICplnEnabledViewPref">
+            <getter><![CDATA[
+                return this._isCICplnEnabledViewPref;
+            ]]></getter>
+            <setter><![CDATA[
+                this._isCICplnEnabledViewPref = val;
+            ]]></setter>
+        </property>
+        <field name="_isCICplnEnabledViewPref">true</field>
 
         <!-- Is CodeIntel-based Citadel stuff enabled for this buffer?
              "Citadel stuff" include the Code Browser, Object Browser and
@@ -1066,6 +1076,7 @@
 
                 if (this.document
                     && (this.isCICitadelStuffEnabled || this.isCIXMLStuffEnabled)
+                    && this._isCICplnEnabledViewPref
                     && this._isCIRescanningEnabled)
                 {
                     gCodeIntelSvc.scan_document(this.document, linesAdded, false);
@@ -1325,6 +1336,34 @@
         <!-- _keys_down is an array of keypress event attributes, indicating
             the keys that are currently held down. -->
         <field name="_keys_down">[]</field>
+
+        <method name="saveLocation">
+        <parameter name="obj"/>
+        <body>
+        <![CDATA[
+            var scimoz = this.scimoz;
+            obj.initialPos = scimoz.currentPos;
+            obj.firstVisibleLine = scimoz.firstVisibleLine;
+            obj.xOffset = scimoz.xOffset;
+            obj.selectionStart = scimoz.selectionStart;
+            obj.selectionEnd = scimoz.selectionEnd;
+        ]]>
+        </body>
+        </method>
+
+        <method name="restoreLocation">
+        <parameter name="obj"/>
+        <body>
+        <![CDATA[
+            var scimoz = this.scimoz;
+            scimoz.gotoPos(obj.initialPos);
+            scimoz.lineScroll(obj.origXOffset - scimoz.xOffset,
+                              obj.firstVisibleLine - scimoz.firstVisibleLine);
+            scimoz.selectionStart = obj.selectionStart;
+            scimoz.selectionEnd = obj.selectionEnd;
+        ]]>
+        </body>
+        </method>
 
         <method name="clearKeyDownValues">
         <body>

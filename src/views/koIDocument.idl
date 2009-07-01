@@ -49,6 +49,8 @@ interface koIDocumentSettingsManager;
 interface koICodeIntelBuffer;
 interface koITabstopInsertionNode;
 
+interface koILexerLanguageService;
+
 /* A koIDocument instance represents the contents of a file in Komodo,
  * whether saved or unsaved.
  */
@@ -189,6 +191,7 @@ interface koIDocument : nsISupports
     void removeTabstopInsertionNodeAt(in PRUint32 idx);
 
     readonly attribute boolean isLargeDocument; // Based on time to load
+    attribute koILexerLanguageService lexer;
 };
 
 [scriptable, uuid(826C0192-5D6C-4DDB-B135-1412649BF3CC)]
