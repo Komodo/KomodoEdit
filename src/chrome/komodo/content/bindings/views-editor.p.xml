@@ -467,8 +467,8 @@
         <method name="closeUnconditionally">
             <body><![CDATA[
                 this.saveState();
-                this.prefs.removeObserver(this, 'codeintel_enabled');
-                this.prefs.removeObserver(this, 'colorizing_enabled');
+                this.prefs.prefObserverService.removeObserver(this, 'codeintel_enabled');
+                this.prefs.prefObserverService.removeObserver(this, 'colorizing_enabled');
                 this.document = null;
                 if (this.preview) {
                     this.preview.sourceView = null;
