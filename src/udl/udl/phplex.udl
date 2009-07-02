@@ -316,7 +316,7 @@ pattern NMSTART = '_a-zA-Z\x80-\xff'   # inside cset
 pattern NMCHAR = '$NMSTART\d'   # inside cset
 pattern CS = '\w\d_\x80-\xff'   # inside cset
 pattern WS = '\s\t\r\n'           # inside cset
-pattern OP = '!\#%&\(\)\*\+,-\.\/:;<=>\?@\[\]\^\{\}~|'
+pattern OP = '!\#%&\(\)\*\+,-\.\/:;<=>\?@\[\]\^\{\}~|\\'
 
 initial IN_SSL_DEFAULT
 
