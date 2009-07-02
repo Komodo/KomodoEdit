@@ -6,7 +6,7 @@
           <variable citdl="int" line="6" name="foo" />
         </scope>
       </scope>
-      <variable citdl="int" line="9" name="test_x" />
+      <variable citdl="int" line="9" name="test_x" namespace="\test" />
     </scope>
   </file>
 </codeintel>

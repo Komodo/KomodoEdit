@@ -1384,7 +1384,7 @@ class PHPVariable:
     _ignored_php_types = ("object", "mixed")
 
     def __init__(self, name, line, vartype='', attributes='', doc=None,
-                 fromPHPDoc=False):
+                 fromPHPDoc=False, namespace=None):
         self.name = name
         self.types = [(line, vartype, fromPHPDoc)]
         self.linestart = line
@@ -1395,6 +1395,9 @@ class PHPVariable:
         else:
             self.attributes = None
         self.doc = doc
+        self.created_namespace = None
+        if namespace:
+            self.created_namespace = namespace.name
 
     def addType(self, line, type, fromPHPDoc=False):
         self.types.append((line, type, fromPHPDoc))
@@ -1448,6 +1451,10 @@ class PHPVariable:
         if doc:
             setCixDoc(cixelement, doc)
         cixelement.attrib["line"] = str(self.linestart)
+        if self.created_namespace:
+            # Need to remember that the object was created in a namespace, so
+            # that the starting lookup scope can start in the given namespace.
+            cixelement.attrib["namespace"] = self.created_namespace
         return cixelement
 
 class PHPConstant(PHPVariable):
@@ -2155,7 +2162,8 @@ class PHPParser:
             if phpVariable is None:
                 phpVariable = PHPVariable(name, self.lineno, vartype,
                                           attributes, doc=doc,
-                                          fromPHPDoc=fromPHPDoc)
+                                          fromPHPDoc=fromPHPDoc,
+                                          namespace=self.currentNamespace)
                 self.fileinfo.variables[name] = phpVariable
                 already_existed = False
 
