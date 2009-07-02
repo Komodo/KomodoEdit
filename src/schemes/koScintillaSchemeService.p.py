@@ -480,6 +480,7 @@ class Scheme:
         registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
             getService(components.interfaces.koILanguageRegistryService)
         languageObj = registryService.getLanguage(language)
+        # Don't worry about document-specific lexers.
         if languageObj:
             lexer = languageObj.getLanguageService(components.interfaces.koILexerLanguageService)
             lexer.setCurrent(scimoz)
