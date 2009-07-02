@@ -1726,6 +1726,74 @@ class PHPClass:
         for v in sortByLine(allValues):
             v.toElementTree(cixelement)
 
+def fullyQualifiedNamespacePath(namespace_path):
+    # Ensure the namespace always starts with a backslash.
+    if not namespace_path.startswith("\\"):
+        namespace_path = "\\" + namespace_path
+    # Ensure the namespace does not end with a backslash.
+    return namespace_path.rstrip("\\")
+
+class PHPNamespace:
+    def __init__(self, name, lineno, depth, doc=None):
+        assert name.startswith("\\")
+        assert not name.endswith("\\")
+        self.name = name
+        self.linestart = lineno
+        self.lineend = None
+        self.depth = depth
+        self.doc = None
+        if doc:
+            self.doc = uncommentDocString(doc)
+        
+        self.functions = {} # functions declared in file
+        self.classes = {} # classes declared in file
+        self.variables = {} # all variables used in file
+        self.constants = {} # all constants used in file
+        self.interfaces = {} # interfaces declared in file
+
+    def __repr__(self):
+        # dump our contents to human readable form
+        r = "NAMESPACE %s\n" % self.name
+
+        r += "constants:\n"
+        for v in self.constants.values():
+            r += "    %r" % v
+
+        r += "interfaces:\n"
+        for v in self.interfaces.values():
+            r += "    %r" % v
+
+        r += "functions:\n"
+        for f in self.functions.values():
+            r += "    %r" % f
+
+        r += "variables:\n"
+        for v in self.variables.values():
+            r += "    %r" % v
+
+        r += "classes:\n"
+        for c in self.classes.values():
+            r += repr(c)
+
+        return r + '\n'
+
+    def toElementTree(self, cixblob):
+        cixelement = createCixNamespace(cixblob, self.name)
+        cixelement.attrib["line"] = str(self.linestart)
+        if self.lineend is not None:
+            cixelement.attrib["lineend"] = str(self.lineend)
+
+        if self.doc:
+            setCixDoc(cixelement, self.doc)
+
+        for i in self.interfaces:
+            addInterfaceRef(cixelement, i.strip())
+
+        allValues = self.functions.values() + self.constants.values() + \
+                    self.variables.values() + self.classes.values()
+        for v in sortByLine(allValues):
+            v.toElementTree(cixelement)
+
 class PHPFile:
     """CIX specifies that a <file> tag have zero or more
     <scope ilk="blob"> children.  In PHP this is a one-to-one
@@ -1748,6 +1816,7 @@ class PHPFile:
         self.constants = {} # all constants used in file
         self.includes = {} # files included into this file
         self.interfaces = {} # interfaces declared in file
+        self.namespaces = {} # namespaces declared in file
 
     def __repr__(self):
         # dump our contents to human readable form
@@ -1758,6 +1827,10 @@ class PHPFile:
 
         r += "constants:\n"
         for v in self.constants.values():
+            r += "    %r" % v
+
+        r += "interfaces:\n"
+        for v in self.interfaces.values():
             r += "    %r" % v
 
         r += "functions:\n"
@@ -1772,6 +1845,10 @@ class PHPFile:
         for c in self.classes.values():
             r += repr(c)
 
+        r += "namespaces:\n"
+        for v in self.namespaces.values():
+            r += "    %r" % v
+
         return r + '\n'
 
     def convertToElementTreeModule(self, cixmodule):
@@ -1780,7 +1857,7 @@ class PHPFile:
 
         allValues = self.constants.values() + self.functions.values() + \
                     self.interfaces.values() + self.variables.values() + \
-                    self.classes.values()
+                    self.classes.values() + self.namespaces.values()
         for v in sortByLine(allValues):
             v.toElementTree(cixmodule)
 
@@ -1841,6 +1918,7 @@ class PHPParser:
         # Working variables, used in conjunction with state
         self.classStack = []
         self.currentClass = None
+        self.currentNamespace = None
         self.currentInterface = None
         self.currentFunction = None
         self.csl_tokens = []
@@ -1895,6 +1973,10 @@ class PHPParser:
             # log.debug("done with class %s at depth %d", self.currentClass.name, self.depth)
             self.currentClass.lineend = self.lineno
             self.currentClass = self.classStack.pop()
+        if self.currentNamespace and self.currentNamespace.depth == self.depth:
+            log.debug("done with namespace %s at depth %r", self.currentNamespace.name, self.depth)
+            self.currentNamespace.lineend = self.lineno
+            self.currentNamespace = None
         if self.currentInterface and self.currentInterface.depth == self.depth:
             # log.debug("done with interface %s at depth %d", self.currentClass.name, self.depth)
             self.currentInterface.lineend = self.lineno
@@ -1929,6 +2011,8 @@ class PHPParser:
             self.currentClass.functions[self.currentFunction.name] = self.currentFunction
         elif self.currentInterface:
             self.currentInterface.functions[self.currentFunction.name] = self.currentFunction
+        elif self.currentNamespace:
+            self.currentNamespace.functions[self.currentFunction.name] = self.currentFunction
         else:
             self.fileinfo.functions[self.currentFunction.name] = self.currentFunction
         if self.currentInterface or self.currentFunction.attributes.find('abstract') >= 0:
@@ -1943,7 +2027,8 @@ class PHPParser:
             log.debug("addReturnType: No current function for return value!?")
 
     def addClass(self, name, extends=None, attributes=None, interfaces=None, doc=None):
-        if name not in self.fileinfo.classes:
+        toScope = self.currentNamespace or self.fileinfo
+        if name not in toScope.classes:
             # push the current class onto the class stack
             self.classStack.append(self.currentClass)
             # make this class the current class
@@ -1954,7 +2039,7 @@ class PHPParser:
                                          attributes,
                                          interfaces,
                                          doc=doc)
-            self.fileinfo.classes[self.currentClass.name] = self.currentClass
+            toScope.classes[self.currentClass.name] = self.currentClass
             log.debug("CLASS: %s extends %s interfaces %s attributes %s on line %d in %s at depth %d\nDOCS: %s",
                      self.currentClass.name, self.currentClass.extends, 
                      self.currentClass.interfaces, self.currentClass.attributes,
@@ -1993,7 +2078,6 @@ class PHPParser:
 
     def addClassConstant(self, name, vartype, doc=None):
         """Add a constant variable into the current class."""
-
         if self.currentClass:
             phpConstant = self.currentClass.constants.get(name)
             if phpConstant is None:
@@ -2006,17 +2090,47 @@ class PHPParser:
                 phpConstant.addType(self.lineno, vartype)
 
     def addInterface(self, name, extends=None, doc=None):
-        if name not in self.fileinfo.classes:
-            # push the current class onto the class stack
+        toScope = self.currentNamespace or self.fileinfo
+        if name not in toScope.classes:
+            # push the current interface onto the class stack
             self.classStack.append(self.currentClass)
-            # make this class the current class
+            # make this interface the current interface
             self.currentInterface = PHPInterface(name,extends, self.lineno, self.depth)
-            self.fileinfo.interfaces[name] = self.currentInterface
+            toScope.interfaces[name] = self.currentInterface
             log.debug("INTERFACE: %s extends %s on line %d in %s at depth %d",
                      name, extends, self.lineno, self.filename, self.depth)
         else:
             # shouldn't ever get here
             pass
+
+    def setNamespace(self, namelist, usesBracketedStyle, doc=None):
+        """Create and set as the current namespace."""
+        if self.currentNamespace:
+            # End the current namespace before starting the next.
+            self.currentNamespace.lineend = self.lineno -1
+
+        if not namelist:
+            # This means to use the global namespace, i.e.:
+            #   namespace { // global code }
+            #   http://ca3.php.net/manual/en/language.namespaces.definitionmultiple.php
+            self.currentNamespace = None
+        else:
+            depth = self.depth
+            if not usesBracketedStyle:
+                # If the namespacing does not uses brackets, then there is no
+                # good way to find out when the namespace end, we can only
+                # guarentee that the namespace ends if another namespace starts.
+                # Using None as the depth will ensure these semantics hold.
+                depth = None
+            namespace_path = fullyQualifiedNamespacePath("\\".join(namelist))
+            namespace = self.fileinfo.namespaces.get(namespace_path)
+            if namespace is None:
+                namespace = PHPNamespace(namespace_path, self.lineno, depth,
+                                         doc=doc)
+                self.fileinfo.namespaces[namespace_path] = namespace
+            self.currentNamespace = namespace
+            log.debug("NAMESPACE: %r on line %d in %s at depth %r",
+                      namespace_path, self.lineno, self.filename, depth)
 
     def addVariable(self, name, vartype='', attributes=None, doc=None,
                     fromPHPDoc=False):
@@ -2040,12 +2154,13 @@ class PHPParser:
             #    self.currentClass.variables[m.group('name')] =\
             #        PHPVariable(m.group('name'), self.lineno)
         else:
-            phpVariable = self.fileinfo.variables.get(name)
+            toScope = self.currentNamespace or self.fileinfo
+            phpVariable = toScope.variables.get(name)
             if phpVariable is None:
                 phpVariable = PHPVariable(name, self.lineno, vartype,
                                           attributes, doc=doc,
                                           fromPHPDoc=fromPHPDoc)
-                self.fileinfo.variables[name] = phpVariable
+                toScope.variables[name] = phpVariable
                 already_existed = False
 
         if phpVariable and already_existed:
@@ -2061,16 +2176,45 @@ class PHPParser:
         return phpVariable
 
     def addConstant(self, name, vartype='', doc=None):
-        """Add a constant at the global scope level."""
+        """Add a constant at the global or namelisted scope level."""
 
         log.debug("CONSTANT: %r type: %r on line %d", name, vartype, self.lineno)
-        phpConstant = self.fileinfo.constants.get(name)
+        toScope = self.currentNamespace or self.fileinfo
+        phpConstant = toScope.constants.get(name)
         # Add it if it's not already defined
         if phpConstant is None:
             if vartype and isinstance(vartype, (list, tuple)):
                 vartype = ".".join(vartype)
-            self.fileinfo.constants[name] = PHPConstant(name, self.lineno,
-                                                        vartype)
+            toScope.constants[name] = PHPConstant(name, self.lineno, vartype)
+
+    def addDefine(self, name, vartype='', doc=None):
+        """Add a define at the global or namelisted scope level."""
+
+        log.debug("DEFINE: %r type: %r on line %d", name, vartype, self.lineno)
+        # Defines always go into the global scope unless explicitly defined
+        # with a namespace:
+        #   http://ca3.php.net/manual/en/language.namespaces.definition.php
+        toScope = self.fileinfo
+        namelist = name.split("\\")
+        if len(namelist) > 1:
+            namespace_path = "\\".join(namelist[:-1])
+            namespace_path = fullyQualifiedNamespacePath(namespace_path)
+            log.debug("defined in namespace: %r", namespace_path)
+            namespace = toScope.namespaces.get(namespace_path)
+            # Note: This does not change to the namespace, it just creates
+            #       it when it does not already exist!
+            if namespace is None:
+                namespace = PHPNamespace(namespace_path, self.lineno,
+                                         self.depth)
+                self.fileinfo.namespaces[namespace_path] = namespace
+            toScope = namespace
+        const_name = namelist[-1]
+        phpConstant = toScope.constants.get(const_name)
+        # Add it if it's not already defined
+        if phpConstant is None:
+            if vartype and isinstance(vartype, (list, tuple)):
+                vartype = ".".join(vartype)
+            toScope.constants[const_name] = PHPConstant(const_name, self.lineno, vartype)
 
     def _getArgumentsFromPos(self, styles, text, pos):
         """Return a tuple (arguments, optional arguments, next position)
@@ -2160,7 +2304,7 @@ class PHPParser:
         # Grab additional fields
         # Example: $x = $obj<p>->getFields()->field2
         while p+2 < len(styles) and styles[p] == self.PHP_OPERATOR and \
-              text[p] in (":->"):
+              text[p] in (":->\\"):
             p += 1
             log.debug("while:: p: %d, text left: %r", p, text[p:])
             if styles[p] == self.PHP_IDENTIFIER:
@@ -2334,17 +2478,27 @@ class PHPParser:
         # Some examples (include has identical syntax):
         #   define('prepend', 1);
         #   define ('somefile', "file.txt");
-        constant_name = None
+        #   define('\namespace\CONSTANT', True);
+        #   define(__NAMESPACE__ . '\CONSTANT', True);
+        constant_name = ""
         constant_type = None
-        if p+4 < len(styles) and \
-           styles[p] == self.PHP_OPERATOR and text[p] == "(" and \
-           styles[p+1] in self.PHP_STRINGS:
-            constant_name = self._unquoteString(text[p+1])
-            if text[p+2] == ",":
-                constant_type, p = self._getVariableType(styles, text, p+3,
+        if styles[p] == self.PHP_OPERATOR and text[p] == "(":
+            p += 1
+        while p < len(styles):
+            if styles[p] in self.PHP_STRINGS:
+                constant_name += self._unquoteString(text[p])
+            elif styles[p] == self.PHP_IDENTIFIER and \
+                 text[p] == "__NAMESPACE__" and self.currentNamespace:
+                # __NAMESPACE__ is a special constant - we can expand this as we
+                # know what the current namespace is.
+                constant_name += self.currentNamespace.name
+            elif text[p] == ",":
+                constant_type, p = self._getVariableType(styles, text, p+1,
                                                          assignmentChar=None)
+                break
+            p += 1
         return constant_name, constant_type
- 
+
     def _addAllVariables(self, styles, text, p):
         while p < len(styles):
             if styles[p] == self.PHP_VARIABLE:
@@ -2413,11 +2567,14 @@ class PHPParser:
             if "var" in attributes:
                 attributes.remove("var")  # Don't want this in cile output
         if style == "const":
-            if self.currentClass is None:
+            if self.currentClass is not None:
+                classVar = True
+            elif self.currentNamespace is not None:
+                classVar = False
+            else:
                 log.debug("Ignoring const %r, as not defined in a "
-                          "class context.", text)
+                          "class or namespace context.", text)
                 return
-            classVar = True
         looped = False
         while p < len(styles):
             if looped:
@@ -2495,8 +2652,12 @@ class PHPParser:
                 log.debug("Line %d, variable definition: %r",
                          self.lineno, namelist)
                 if style == "const":
-                    self.addClassConstant(name, ".".join(typeNames),
-                                          doc=self.comment)
+                    if classVar:
+                        self.addClassConstant(name, ".".join(typeNames),
+                                              doc=self.comment)
+                    else:
+                        self.addConstant(name, ".".join(typeNames),
+                                         doc=self.comment)
                 elif classVar and self.currentClass is not None:
                     self.addClassMember(name, ".".join(typeNames),
                                         attributes=attributes, doc=self.comment,
@@ -2565,7 +2726,7 @@ class PHPParser:
                     #   define('TEST_CONSTANT', FALSE);
                     name, citdl = self._getConstantNameAndType(styles, text, pos)
                     if name:
-                        self.addConstant(name, citdl)
+                        self.addDefine(name, citdl)
 
                 elif keyword == "const":
                     # Defining a class constant
@@ -2628,6 +2789,13 @@ class PHPParser:
                     log.debug("typeNames:%r", typeNames)
                     if typeNames:
                         self.addReturnType(".".join(typeNames))
+                elif keyword == "namespace":
+                    namelist, p = self._getIdentifiersFromPos(styles, text, pos)
+                    log.debug("namelist:%r, p:%d", namelist, p)
+                    if namelist:
+                        usesBraces = "{" in text
+                        self.setNamespace(namelist, usesBraces,
+                                          doc=self.comment)
                 else:
                     log.debug("Ignoring keyword: %s", keyword)
                     self._addAllVariables(styles, text, pos)

@@ -1,6 +1,21 @@
 <codeintel version="2.0">
   <file lang="PHP" mtime="42" path="scan_inputs/php/5.3/namespaces_bracketed.php">
-    <scope ilk="blob" lang="PHP" name="namespaces_bracketed.php" src="namespaces_bracketed/php/5.3/closures.php">
+    <scope ilk="blob" lang="PHP" name="namespaces_bracketed.php" src="scan_inputs/php/5.3/namespaces_bracketed.php">
+      <scope doc="Namespaces can also the brace syntax for defining the context." ilk="namespace" line="5" lineend="9" name="\MyProject">
+        <variable citdl="int" ilk="constant" line="6" name="CONNECT_OK" />
+        <scope ilk="class" line="7" lineend="7" name="Connection" />
+        <scope ilk="function" line="8" lineend="8" name="connect" signature="connect()" />
+      </scope>
+      <scope ilk="namespace" line="11" lineend="16" name="\AnotherProject">
+        <variable citdl="int" ilk="constant" line="12" name="CONNECT_OK" />
+        <variable citdl="int" ilk="constant" line="13" name="CONNECT_FAIL" />
+        <scope ilk="class" line="14" lineend="14" name="DBConnection" />
+        <scope ilk="function" line="15" lineend="15" name="dbconnect" signature="dbconnect()" />
+      </scope>
+      <scope ilk="namespace" line="18" lineend="21" name="\Multiple\Name\Spaces">
+        <variable citdl="int" ilk="constant" line="19" name="CONNECT_OK" />
+        <scope ilk="function" line="20" lineend="20" name="connected" signature="connected()" />
+      </scope>
     </scope>
   </file>
 </codeintel>

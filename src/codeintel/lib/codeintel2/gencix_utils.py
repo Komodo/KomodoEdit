@@ -225,6 +225,9 @@ def createCixInterface(cixmodule, name):
 def createCixClass(cixmodule, name):
     return SubElement(cixmodule, "scope", ilk="class", name=name)
 
+def createCixNamespace(cixmodule, name):
+    return SubElement(cixmodule, "scope", ilk="namespace", name=name)
+
 def createCixModule(cixfile, name, lang, src=None):
     if src is None:
         return SubElement(cixfile, "scope", ilk="blob", name=name, lang=lang)
