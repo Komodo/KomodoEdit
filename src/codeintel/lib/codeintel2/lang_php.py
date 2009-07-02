@@ -1747,7 +1747,6 @@ class PHPNamespace:
         
         self.functions = {} # functions declared in file
         self.classes = {} # classes declared in file
-        self.variables = {} # all variables used in file
         self.constants = {} # all constants used in file
         self.interfaces = {} # interfaces declared in file
 
@@ -1766,10 +1765,6 @@ class PHPNamespace:
         r += "functions:\n"
         for f in self.functions.values():
             r += "    %r" % f
-
-        r += "variables:\n"
-        for v in self.variables.values():
-            r += "    %r" % v
 
         r += "classes:\n"
         for c in self.classes.values():
@@ -1790,7 +1785,7 @@ class PHPNamespace:
             addInterfaceRef(cixelement, i.strip())
 
         allValues = self.functions.values() + self.constants.values() + \
-                    self.variables.values() + self.classes.values()
+                    self.classes.values()
         for v in sortByLine(allValues):
             v.toElementTree(cixelement)
 
@@ -2154,13 +2149,14 @@ class PHPParser:
             #    self.currentClass.variables[m.group('name')] =\
             #        PHPVariable(m.group('name'), self.lineno)
         else:
-            toScope = self.currentNamespace or self.fileinfo
-            phpVariable = toScope.variables.get(name)
+            # Variables cannot get defined in a namespace, so if it's not a
+            # function or a class, then it goes into the global scope.
+            phpVariable = self.fileinfo.variables.get(name)
             if phpVariable is None:
                 phpVariable = PHPVariable(name, self.lineno, vartype,
                                           attributes, doc=doc,
                                           fromPHPDoc=fromPHPDoc)
-                toScope.variables[name] = phpVariable
+                self.fileinfo.variables[name] = phpVariable
                 already_existed = False
 
         if phpVariable and already_existed:

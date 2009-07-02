@@ -1,0 +1,12 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/5.3/variable_in_namespace.php.cix.php">
+    <scope ilk="blob" lang="PHP" name="variable_in_namespace.php" src="scan_inputs/php/5.3/variable_in_namespace.php">
+      <scope ilk="namespace" line="3" lineend="10" name="\test">
+        <scope ilk="function" line="4" lineend="7" name="inner" signature="inner()">
+          <variable citdl="int" line="6" name="foo" />
+        </scope>
+      </scope>
+      <variable citdl="int" line="9" name="test_x" />
+    </scope>
+  </file>
+</codeintel>
