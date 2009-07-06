@@ -1,0 +1,15 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/5.3/define_in_namespace.php">
+    <scope ilk="blob" lang="PHP" name="define_in_namespace.php" src="scan_inputs/php/5.3/define_in_namespace.php">
+      <scope ilk="namespace" line="3" name="\test">
+        <variable citdl="string" ilk="constant" line="5" name="HELLO" />
+        <variable citdl="string" ilk="constant" line="6" name="GOODBYE" />
+      </scope>
+      <variable citdl="string" ilk="constant" line="4" name="MESSAGE" />
+      <scope ilk="namespace" line="7" name="\a\b">
+        <variable citdl="string" ilk="constant" line="7" name="SOMETHING" />
+        <variable citdl="string" ilk="constant" line="8" name="OTHER" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>
