@@ -576,7 +576,7 @@ class KoDiff:
 
     def filePosFromDiffPos(self, line, column):
         try:
-            self.diffex.file_pos_from_diff_pos(line, column)
+            return self.diffex.file_pos_from_diff_pos(line, column)
         except difflibex.DiffLibExError, ex:
             lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                            .getService(components.interfaces.koILastErrorService)
