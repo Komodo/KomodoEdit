@@ -556,7 +556,7 @@
                     </description>
                     <vbox>
                         <hbox align="center">
-                            <label value="&indicatorMenu.label;" accesskey="&filePrefAllLangElementType1.accesskey;" control="commonlist"/>
+                            <label value="&indicatorMenu.label;" accesskey="&filePrefAllLangElementType1.accesskey;" control="indicator_menulist"/>
                             <menulist id="indicator_menulist"
                                       oncommand="updateIndicatorStyle();">
                                 <menupopup id="indicator_popup"/>
