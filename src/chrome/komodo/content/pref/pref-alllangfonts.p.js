@@ -168,6 +168,7 @@ function OnPreferencePageLoading(prefset) {
         updateEncodingPopup();
         setupSchemes();
         
+        var listElement;
         var p = "prefs.fontsColorsLanguages.whichTab";
         if (prefset.hasLongPref(p)) {
             gDialog.tabbox.selectedIndex = prefset.getLongPref(p);
@@ -175,6 +176,24 @@ function OnPreferencePageLoading(prefset) {
         p = "prefs.fontsColorsLanguages.langSpecific.lang";
         if (prefset.hasStringPref(p)) {
             gDialog.languageList.selection = prefset.getStringPref(p);
+        }
+       
+        p = "prefs.fontsColorsLanguages.colors.extraColors";
+        if (prefset.hasLongPref(p)) {
+            listElement = document.getElementById("extracolors");
+            listElement.selectedIndex = prefset.getLongPref(p);
+            if (listElement.selectedIndex == -1) {
+                listElement.selectedIndex = 0;
+            }
+        }
+        
+        p = "prefs.fontsColorsLanguages.indicators.menulist";
+        if (prefset.hasLongPref(p)) {
+            listElement = document.getElementById("indicator_menulist");
+            listElement.selectedIndex = prefset.getLongPref(p);
+            if (listElement.selectedIndex == -1) {
+                listElement.selectedIndex = 0;
+            }
         }
         changeLanguage();
         updateFromScheme();
@@ -192,6 +211,15 @@ function OnPreferencePageOK(prefset)  {
                             gDialog.tabbox.selectedIndex);
         prefset.setStringPref("prefs.fontsColorsLanguages.langSpecific.lang",
                               document.getElementById("languageList").selection);
+        prefset.setLongPref("prefs.fontsColorsLanguages.langSpecific.elementTypeIndex",
+                              document.getElementById("specificlist").selectedIndex);
+        prefset.setLongPref("prefs.fontsColorsLanguages.colors.extraColors",
+                              document.getElementById("extracolors").selectedIndex);
+        prefset.setLongPref("prefs.fontsColorsLanguages.common.elementList",
+                              document.getElementById("commonlist").selectedIndex);
+        prefset.setLongPref("prefs.fontsColorsLanguages.indicators.menulist",
+                              document.getElementById("indicator_menulist").selectedIndex);
+        
     } catch(ex) {
         dump("OnPreferencePageOK: exception getting the tabbox: " + ex + "\n");
     }
@@ -828,7 +856,15 @@ function updateCommonPopup()
             item.setAttribute('label',labels[i]);
             popup.appendChild(item);
         }
-        gDialog.commonlist.value = labels[0];
+        var p = "prefs.fontsColorsLanguages.common.elementList";
+        if (gDialog.prefset.hasLongPref(p)) {
+            gDialog.commonlist.selectedIndex = gDialog.prefset.getLongPref(p);
+            if (gDialog.commonlist.selectedIndex == -1) {
+                gDialog.commonlist.value = labels[0];
+            }
+        } else {
+            gDialog.commonlist.value = labels[0];
+        }
         updateCommonStyle();
     } catch (e) {
         log.error(e);
@@ -858,7 +894,16 @@ function updateSpecificPopup()
             item.setAttribute('label',labels[i]);
             popup.appendChild(item);
         }
-        document.getElementById('specificlist').value = labels[0];
+        var p = "prefs.fontsColorsLanguages.langSpecific.elementTypeIndex";
+        var thisMenuList = document.getElementById("specificlist");
+        if (gDialog.prefset.hasLongPref(p)) {
+            gDialog.specificlist.selectedIndex = gDialog.prefset.getLongPref(p);
+            if (gDialog.specificlist.selectedIndex == -1) {
+                gDialog.specificlist.value = labels[0];
+            }
+        } else {
+            gDialog.specificlist.value = labels[0];
+        }
         updateSpecificStyle();
     } catch (e) {
         log.error(e);
