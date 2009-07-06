@@ -123,14 +123,6 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
     comment_styles   = (SCE_UDL_SSL_COMMENT, SCE_UDL_SSL_COMMENTBLOCK)
     comment_styles_or_whitespace = comment_styles + (whitespace_style, )
 
-    def cb_variable_data_from_elem(self, elem):
-        """Use the 'constant' image in the Code Browser for a variable constant.
-        """
-        data = CitadelLangIntel.cb_variable_data_from_elem(self, elem)
-        if elem.get("ilk") == "constant":
-            data["img"] = "constant"
-        return data
-
     def _functionCalltipTrigger(self, ac, pos, DEBUG=False):
         # Implicit calltip triggering from an arg separater ",", we trigger a
         # calltip if we find a function open paren "(" and function identifier
@@ -1078,6 +1070,14 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         module = elem.get("module")
         detail = 'include "%s"' % module
         return {"name": module, "detail": detail}
+
+    def cb_variable_data_from_elem(self, elem):
+        """Use the 'constant' image in the Code Browser for a variable constant.
+        """
+        data = CitadelLangIntel.cb_variable_data_from_elem(self, elem)
+        if elem.get("ilk") == "constant":
+            data["img"] = "constant"
+        return data
 
 
 class PHPBuffer(UDLBuffer, XMLParsingBufferMixin):
