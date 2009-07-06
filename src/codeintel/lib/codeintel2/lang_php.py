@@ -2282,17 +2282,28 @@ class PHPParser:
         start_pos = pos
         ids = []
         last_style = self.PHP_OPERATOR
+        isNamespace = False
         while pos < len(styles):
             style = styles[pos]
             #print "Style: %d, Text[%d]: %r" % (style, pos, text[pos])
             if style == identifierStyle:
                 if last_style != self.PHP_OPERATOR:
                     break
-                ids.append(text[pos])
+                if isNamespace:
+                    ids[-1] += text[pos]
+                else:
+                    ids.append(text[pos])
             elif style == self.PHP_OPERATOR:
                 t = text[pos]
-                if ((t != "&" or last_style != self.PHP_OPERATOR) and \
-                    (t != ":" or last_style != identifierStyle)):
+                isNamespace = False
+                if t == "\\":
+                    isNamespace = True
+                    if ids:
+                        ids[-1] += "\\"
+                    else:
+                        ids.append("\\")
+                elif ((t != "&" or last_style != self.PHP_OPERATOR) and \
+                      (t != ":" or last_style != identifierStyle)):
                     break
             else:
                 break
@@ -2304,18 +2315,27 @@ class PHPParser:
         typeNames, p = self._getOneIdentifierFromPos(styles, text, pos, identifierStyle)
         if typeNames:
             typeNames[0] = self._removeDollarSymbolFromVariableName(typeNames[0])
-        log.debug("p: %d, text left: %r", p, text[p:])
+        log.debug("typeNames: %r, p: %d, text left: %r", typeNames, p, text[p:])
         # Grab additional fields
         # Example: $x = $obj<p>->getFields()->field2
         while p+2 < len(styles) and styles[p] == self.PHP_OPERATOR and \
               text[p] in (":->\\"):
+            isNamespace = False
+            if text[p] == "\\":
+                isNamespace = True
             p += 1
             log.debug("while:: p: %d, text left: %r", p, text[p:])
             if styles[p] == self.PHP_IDENTIFIER:
                 additionalNames, p = self._getOneIdentifierFromPos(styles, text, p)
                 log.debug("p: %d, additionalNames: %r", p, additionalNames)
                 if additionalNames:
-                    typeNames.append(additionalNames[0])
+                    if isNamespace:
+                        if typeNames:
+                            typeNames[-1] += "\\%s" % (additionalNames[0])
+                        else:
+                            typeNames.append("\\%s" % (additionalNames[0]))
+                    else:
+                        typeNames.append(additionalNames[0])
                     if p < len(styles) and \
                        styles[p] == self.PHP_OPERATOR and text[p][0] == "(":
                         typeNames[-1] += "()"
