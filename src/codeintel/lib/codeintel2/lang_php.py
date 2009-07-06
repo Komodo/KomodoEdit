@@ -1733,6 +1733,28 @@ class PHPClass:
         for v in sortByLine(allValues):
             v.toElementTree(cixelement)
 
+class PHPImport:
+    def __init__(self, name, lineno, alias=None, symbol=None):
+        self.name = name
+        self.lineno = lineno
+        self.alias = alias
+        self.symbol = symbol
+
+    def __repr__(self):
+        # dump our contents to human readable form
+        if self.alias:
+            return "IMPORT %s as %s\n" % (self.name, self.alias)
+        else:
+            return "IMPORT %s\n" % self.name
+
+    def toElementTree(self, cixmodule):
+        elem = SubElement(cixmodule, "import", module=self.name, line=str(self.lineno))
+        if self.alias:
+            elem.attrib["alias"] = self.alias
+        if self.symbol:
+            elem.attrib["symbol"] = self.symbol
+        return elem
+
 def fullyQualifiedNamespacePath(namespace_path):
     # Ensure the namespace always starts with a backslash.
     if not namespace_path.startswith("\\"):
@@ -1756,10 +1778,14 @@ class PHPNamespace:
         self.classes = {} # classes declared in file
         self.constants = {} # all constants used in file
         self.interfaces = {} # interfaces declared in file
+        self.includes = [] # imported files/namespaces
 
     def __repr__(self):
         # dump our contents to human readable form
         r = "NAMESPACE %s\n" % self.name
+
+        for v in self.includes:
+            r += "    %r" % v
 
         r += "constants:\n"
         for v in self.constants.values():
@@ -1787,6 +1813,9 @@ class PHPNamespace:
 
         if self.doc:
             setCixDoc(cixelement, self.doc)
+
+        for v in self.includes:
+            v.toElementTree(cixelement)
 
         for i in self.interfaces:
             addInterfaceRef(cixelement, i.strip())
@@ -1816,7 +1845,7 @@ class PHPFile:
         self.classes = {} # classes declared in file
         self.variables = {} # all variables used in file
         self.constants = {} # all constants used in file
-        self.includes = {} # files included into this file
+        self.includes = [] # imported files/namespaces
         self.interfaces = {} # interfaces declared in file
         self.namespaces = {} # namespaces declared in file
 
@@ -1824,8 +1853,8 @@ class PHPFile:
         # dump our contents to human readable form
         r = "FILE %s\n" % self.filename
 
-        for f, l in self.includes.items():
-            r += "include %s on line %d\n" % (f, l)
+        for v in self.includes:
+            r += "    %r" % v
 
         r += "constants:\n"
         for v in self.constants.values():
@@ -1854,8 +1883,8 @@ class PHPFile:
         return r + '\n'
 
     def convertToElementTreeModule(self, cixmodule):
-        for fn in self.includes:
-            SubElement(cixmodule, "import", module=fn, line=str(self.includes[fn]))
+        for v in self.includes:
+            v.toElementTree(cixmodule)
 
         allValues = self.constants.values() + self.functions.values() + \
                     self.interfaces.values() + self.variables.values() + \
@@ -1961,8 +1990,7 @@ class PHPParser:
             return ""
 
         # add the included file to our list of included files
-        if filename not in self.fileinfo.includes:
-            self.fileinfo.includes[filename] = self.lineno
+        self.fileinfo.includes.append(PHPImport("filename", self.lineno))
 
     def incBlock(self):
         self.depth = self.depth+1
@@ -2133,6 +2161,19 @@ class PHPParser:
             self.currentNamespace = namespace
             log.debug("NAMESPACE: %r on line %d in %s at depth %r",
                       namespace_path, self.lineno, self.filename, depth)
+
+    def addNamespaceImport(self, namespace, alias):
+        """Import the namespace."""
+        namelist = namespace.split("\\")
+        namespace_path = "\\".join(namelist[:-1])
+        if namespace.startswith("\\") and not namespace_path.startswith("\\"):
+            namespace_path = "\\%s" % (namespace_path, )
+        symbol = namelist[-1]
+        toScope = self.currentNamespace or self.fileinfo
+        toScope.includes.append(PHPImport(namespace_path, self.lineno,
+                                          alias=alias, symbol=symbol))
+        log.debug("IMPORT NAMESPACE: %s\%s as %r on line %d",
+                  namespace_path, symbol, alias, self.lineno)
 
     def addVariable(self, name, vartype='', attributes=None, doc=None,
                     fromPHPDoc=False):
@@ -2690,6 +2731,31 @@ class PHPParser:
                     self.addVariable(name, ".".join(typeNames),
                                      attributes=attributes, doc=self.comment)
 
+    def _useNamespaceHandler(self, styles, text, p):
+        log.debug("_useNamespaceHandler:: text: %r", text[p:])
+        looped = False
+        while p < len(styles):
+            if looped:
+                if text[p] != ",":  # Use statements need to be comma delimited.
+                    p += 1
+                    continue
+                p += 1
+            else:
+                looped = True
+
+            namelist, p = self._getIdentifiersFromPos(styles, text, p)
+            log.debug("use:%r, p:%d", namelist, p)
+            if namelist:
+                alias = None
+                if p+1 < len(styles):
+                    if styles[p] == self.PHP_WORD and \
+                       text[p] == "as":
+                        # Uses an alias
+                        alias, p = self._getIdentifiersFromPos(styles, text, p+1)
+                        if alias:
+                            alias = alias[0]
+                self.addNamespaceImport(namelist[0], alias)
+
     def _addCodePiece(self, newstate=S_DEFAULT, varnames=None):
         styles = self.styles
         if len(styles) == 0:
@@ -2820,6 +2886,8 @@ class PHPParser:
                         usesBraces = "{" in text
                         self.setNamespace(namelist, usesBraces,
                                           doc=self.comment)
+                elif keyword == "use":
+                    self._useNamespaceHandler(styles, text, pos)
                 else:
                     log.debug("Ignoring keyword: %s", keyword)
                     self._addAllVariables(styles, text, pos)
