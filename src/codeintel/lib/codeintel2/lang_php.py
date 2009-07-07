@@ -2006,7 +2006,7 @@ class PHPParser:
             return ""
 
         # add the included file to our list of included files
-        self.fileinfo.includes.append(PHPImport("filename", self.lineno))
+        self.fileinfo.includes.append(PHPImport(filename, self.lineno))
 
     def incBlock(self):
         self.depth = self.depth+1
