@@ -1066,10 +1066,26 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
     cb_import_group_title = "Includes and Requires"   
 
     def cb_import_data_from_elem(self, elem):
-        #XXX Not handling symbol and alias
+        alias = elem.get("alias")
+        symbol = elem.get("symbol")
         module = elem.get("module")
-        detail = 'include "%s"' % module
-        return {"name": module, "detail": detail}
+        if alias is not None:
+            if symbol is not None:
+                name = "%s (%s\%s)" % (alias, module, symbol)
+                detail = "from %(module)s import %(symbol)s as %(alias)s" % locals()
+            else:
+                name = "%s (%s)" % (alias, module)
+                detail = "import %(module)s as %(alias)s" % locals()
+        elif symbol is not None:
+            if module == "\\":
+                name = '\\%s' % (symbol)
+            else:
+                name = '%s\\%s' % (module, symbol)
+            detail = "from %(module)s import %(symbol)s" % locals()
+        else:
+            name = module
+            detail = 'include "%s"' % module
+        return {"name": name, "detail": detail}
 
     def cb_variable_data_from_elem(self, elem):
         """Use the 'constant' image in the Code Browser for a variable constant.
