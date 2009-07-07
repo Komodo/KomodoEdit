@@ -85,6 +85,8 @@ var _observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
 var _lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                         getService(Components.interfaces.koILastErrorService);
+var _langRegistrySvc = Components.classes["@activestate.com/koLanguageRegistryService;1"].
+                        getService(Components.interfaces.koILanguageRegistryService);
 
 function viewManager() {
     this.log = ko.logging.getLogger('views');
@@ -284,7 +286,16 @@ viewManager.prototype._newTemplate = function(defaultDir, project) {
                 ko.projects.addFileWithURL(saveto, project);
             }
         }
-        window.setTimeout(function(view) {view.setFocus();}, 1, ko.views.manager.currentView);
+        window.setTimeout(function(view) {
+            view.setFocus();
+            if (view.document && obj.template) {
+                var requestedLanguage = _langRegistrySvc.suggestLanguageForFile(obj.template);
+                if (view.document.language != requestedLanguage) {
+                    view.document.language = requestedLanguage;
+                    window.updateCommands(1, 'language_changed');
+                }
+            }
+        }, 1, ko.views.manager.currentView);
     } catch(ex) {
         this.log.exception(ex, "Error in newTemplate.");
     }
