@@ -357,6 +357,10 @@ state IN_SSL_DEFAULT:
 
 /<<<(?=\s*[$NMSTART][$NMCHAR]*;?\r?$)/: paint(upto, SSL_DEFAULT), \
 paint(include, SSL_OPERATOR), => IN_SSL_PRE_HEREDOC_1
+/<<<(?=\s*"[$NMSTART][$NMCHAR]*";?\r?$)/: paint(upto, SSL_DEFAULT), \
+paint(include, SSL_OPERATOR), => IN_SSL_PRE_HEREDOC_1
+/<<<(?=\s*'[$NMSTART][$NMCHAR]*';?\r?$)/: paint(upto, SSL_DEFAULT), \
+paint(include, SSL_OPERATOR), => IN_SSL_PRE_NOWDOC_1
 
 /[$OP]/ : paint(upto, SSL_DEFAULT), redo, => IN_SSL_OP1
 
@@ -364,7 +368,7 @@ paint(include, SSL_OPERATOR), => IN_SSL_PRE_HEREDOC_1
 ################ Here-doc handling ################
 
 state IN_SSL_PRE_HEREDOC_1:
-/([$NMCHAR]+)/ : paint(include, SSL_IDENTIFIER), set_delimiter(1)
+/"?([$NMCHAR]+)"?/ : paint(include, SSL_IDENTIFIER), set_delimiter(1)
 ';' : paint(include, SSL_OPERATOR)
 /[\r\n]+/ : paint(include, SSL_DEFAULT), => IN_SSL_IN_HEREDOC_1
 /\s+/ : paint(include, SSL_DEFAULT)
@@ -392,6 +396,34 @@ state IN_SSL_IN_FOUND_HEREDOC_1:
 /[\r\n]/ : no_keyword, paint(upto, SSL_IDENTIFIER), => IN_SSL_DEFAULT
 /./ : redo, => IN_SSL_IN_HEREDOC_2
 
+################ Now-doc handling ################
+# Now-docs are like here-docs, but don't interpolate variables
+# Only difference: single-quotes surround the delimiter
+
+state IN_SSL_PRE_NOWDOC_1:
+/'([$NMCHAR]+)'/ : paint(include, SSL_IDENTIFIER), set_delimiter(1)
+';' : paint(include, SSL_OPERATOR)
+/[\r\n]+/ : paint(include, SSL_DEFAULT), => IN_SSL_IN_NOWDOC_1
+/\s+/ : paint(include, SSL_DEFAULT)
+
+# When we're in a here-doc, if we find a line that starts with the
+# current delimiter, check for end-of-line.  Otherwise look for interpolation
+# on the current line, in state IN_SSL_IN_NOWDOC_2
+
+# So we need to keep the delimiter alive, and then kill it if it's
+# the only item on a line.
+
+state IN_SSL_IN_NOWDOC_1:
+delimiter : keep_delimiter, paint(upto, SSL_STRING), => IN_SSL_IN_FOUND_NOWDOC_1
+/.+/ : #stay
+/\z/ : paint(upto, SSL_STRING)
+
+state IN_SSL_IN_FOUND_NOWDOC_1:
+/;(?=[\r\n]*$)/ : no_keyword, paint(upto, SSL_IDENTIFIER), paint(include, SSL_OPERATOR) => IN_SSL_DEFAULT
+/$/ : no_keyword, paint(upto, SSL_IDENTIFIER), => IN_SSL_DEFAULT
+/[\r\n]/ : no_keyword, paint(upto, SSL_IDENTIFIER), => IN_SSL_DEFAULT
+/./ : redo, => IN_SSL_IN_NOWDOC_1
+
 ################ Non-keyword identifiers ################
 
 state IN_SSL_NON_KEYWORD_IDENTIFIER_1:
@@ -416,6 +448,7 @@ state IN_SSL_COMMENT_2 :
 
 state IN_SSL_DSTRING:
 /\$[$NMSTART][$NMCHAR]*/: paint(upto, SSL_STRING), paint(include, SSL_VARIABLE) #stay
+/\$\{[$NMSTART][$NMCHAR]*\}/: paint(upto, SSL_STRING), paint(include, SSL_VARIABLE) #stay
 '"' : paint(include, SSL_STRING), => IN_SSL_DEFAULT
 /\\./ : #stay, Don't miscount backslash at end
 /[\r\n]/ : #stay, php strings are multi-line
