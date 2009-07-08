@@ -256,6 +256,30 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertNoTrigger(php_markup("function _<|>_"))
         self.assertNoTrigger(php_markup("function __a<|>"))
 
+    def test_trigger_complete_namespaces(self):
+        # Triggers after 'use ' or '\'
+        #
+        #    Samples:
+        #        use <|>
+        #        \<|>
+        #        mynamespace\<|>
+        name = "php-complete-namespaces"
+        self.assertTriggerMatches(php_markup("use <|>"),
+                                  name=name, pos=10)
+        self.assertTriggerMatches(php_markup("\<|>"),
+                                  name=name, pos=7)
+        self.assertTriggerMatches(php_markup("foo\<|>"),
+                                  name=name, pos=10)
+
+        # assert no trigger in strings
+        self.assertNoTrigger('<?php $s = "use <|>"; ?>')
+        self.assertNoTrigger('<?php $s = "here\<|>"; ?>')
+
+        # assert no trigger in comments
+        self.assertNoTrigger('<?php /* use <|> */ ?>')
+        self.assertNoTrigger('<?php /* \<|> */ ?>')
+        self.assertNoTrigger('<?php # use <|>')
+
     def test_trigger_calltip_call_signature(self):
         # Triggers after open bracket:
         #        abc(<|>

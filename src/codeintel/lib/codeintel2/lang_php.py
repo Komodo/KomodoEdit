@@ -110,7 +110,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
     lang = lang
 
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
-    trg_chars = tuple('$>:(,@"\' ')
+    trg_chars = tuple('$>:(,@"\' \\')
     calltip_trg_chars = tuple('(')   # excluded ' ' for perf (bug 55497)
 
     # named styles used by the class
@@ -224,6 +224,8 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                         return Trigger(lang, TRG_FORM_CPLN, "classes", pos, implicit)
                     elif text in ("implements", ):
                         return Trigger(lang, TRG_FORM_CPLN, "interfaces", pos, implicit)
+                    elif text in ("use"):
+                        return Trigger(lang, TRG_FORM_CPLN, "namespaces", pos, implicit)
                     elif prev_style == self.operator_style and \
                          prev_char == "," and implicit:
                         return self._functionCalltipTrigger(ac, prev_pos, DEBUG)
@@ -278,6 +280,12 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     if prev_style in (self.identifier_style, self.keyword_style):
                         return Trigger(lang, TRG_FORM_CALLTIP, "call-signature",
                                        pos, implicit)
+                elif last_char == "\\":
+                    # where to trigger from, updated by "," calltip handler
+                    if DEBUG:
+                        print "Triggering namespace completion"
+                    return Trigger(lang, TRG_FORM_CPLN, "namespaces", pos, implicit)
+
             elif last_style == self.variable_style or \
                  (not implicit and last_char == "$"):
                 if DEBUG:
