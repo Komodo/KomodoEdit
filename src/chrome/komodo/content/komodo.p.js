@@ -210,6 +210,11 @@ this.runWillCloseHandlers = function() {
 window.tryToClose = function() {
     _log.debug(">> window.tryToClose");
     var res = ko.main.runCanCloseHandlers();
+    if (res) {
+        // Fix bug 70859: Operations like Restart from Add-ons manager
+        // send this message before starting the quit process.
+        saveWorkspaceIfNeeded();
+    }
     _log.debug("<< window.tryToClose: ret " + res.toString() + "\n");
     return res;
 };
