@@ -140,6 +140,11 @@
                 rows="4"
                 pref="true" prefwidget="true"
                 prefstring="perlExtraPaths"/>
+        <checkbox id="perl_lintOption_includeCurrentDirForLinter"
+                  label="&filePrefPerlIncludeCurrDirForLinting.label;"
+                  pref="true" 
+                  prefstring="perl_lintOption_includeCurrentDirForLinter"
+                  prefattribute="checked"/>
     </groupbox>
 
 </window>

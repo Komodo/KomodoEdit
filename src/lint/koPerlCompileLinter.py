@@ -395,7 +395,8 @@ class KoPerlCompileLinter:
 
         try:
             perlExe = self._selectPerlExe(prefset)
-            option = '-' + prefset.getStringPref("perl_lintOption")
+            lintOptions = prefset.getStringPref("perl_lintOption")
+            option = '-' + lintOptions
             if criticLevel != 'off':
                 option += ' -Mcriticism=' + criticLevel
             perlExtraPaths = prefset.getStringPref("perlExtraPaths")
@@ -406,6 +407,8 @@ class KoPerlCompileLinter:
             argv = [perlExe]
             for incpath in perlExtraPaths:
                 argv += ['-I', incpath]
+            if 'T' in lintOptions and prefset.getBooleanPref("perl_lintOption_includeCurrentDirForLinter"):
+                argv += ['-I', '.']
                 
             # bug 27963: Fix instances of <<use PerlTray>> from code
             # to make them innocuous for the syntax checker.

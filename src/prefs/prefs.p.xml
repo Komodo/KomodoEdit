@@ -198,6 +198,10 @@
 
   <string id="perl_lintOption">cw</string>
   <string id="perl_lintOption_perlCriticLevel">off</string>
+  <!-- bug 83165 (and others): Fix this frequent problem by
+       including the curr dir in the linter's search path
+       when in Taint mode. -->
+  <boolean id="perl_lintOption_includeCurrentDirForLinter">1</boolean>
 
   <!-- File associations are (roughly) determined by starting with this set
        (factoryFileAssociations, which should only exist at the factory level)

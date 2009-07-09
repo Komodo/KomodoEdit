@@ -105,6 +105,7 @@ this.lintBuffer = function LintBuffer(view) {
         _prefs.prefObserverService.addObserver(this, "perlDefaultInterpreter", false);
         _prefs.prefObserverService.addObserver(this, "perl_lintOption", false);
         _prefs.prefObserverService.addObserver(this, "perl_lintOption_perlCriticLevel", false);
+        _prefs.prefObserverService.addObserver(this, "perl_lintOption_includeCurrentDirForLinter", false);
         this.view.prefs.prefObserverService.addObserver(this,
                                                         "editUseLinting",
                                                         false);
@@ -142,6 +143,7 @@ this.lintBuffer.prototype.destructor = function()
         _prefs.prefObserverService.removeObserver(this, "perlDefaultInterpreter");
         _prefs.prefObserverService.removeObserver(this, "perl_lintOption");
         _prefs.prefObserverService.removeObserver(this, "perl_lintOption_perlCriticLevel");
+        _prefs.prefObserverService.removeObserver(this, "perl_lintOption_includeCurrentDirForLinter");
 
         this.view = null; // drop reference to the view
     } catch(ex) {
@@ -161,6 +163,7 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
         case "perlDefaultInterpreter":
         case "perl_lintOption":
         case "perl_lintOption_perlCriticLevel":
+        case "perl_lintOption_includeCurrentDirForLinter":
             lintingEnabled = this.view.prefs.getBooleanPref("editUseLinting");
             _log.info("LintBuffer["+this.view.title+
                            "].observe: lintingEnabled="+lintingEnabled);

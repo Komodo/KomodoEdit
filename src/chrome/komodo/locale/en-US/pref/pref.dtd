@@ -638,6 +638,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePrefPerlUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefPerlLevelStricness.description "You can configure the level of strictness that is used when doing background syntax checks.">
 <!ENTITY filePrefPerlAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Perl path when debugging, syntax checking or in the interactive shell.">
+<!ENTITY filePrefPerlIncludeCurrDirForLinting.label "Have syntax checking include the current directory">
+
 <!ENTITY prefPerl.perlCriticOptions.label "Perl Critic options:">
 <!ENTITY prefPerl.perlCriticOption.off.label "Off">
 <!ENTITY prefPerl.perlCriticOption.gentle.label "Gentle">
