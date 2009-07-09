@@ -7,20 +7,27 @@
       </scope>
       <scope ilk="function" line="13" lineend="18" name="case1" signature="case1()">
         <variable attributes="__local__ private" citdl="Number" line="14" name="case1_xyz" />
+        <scope attributes="__local__ private" ilk="function" line="15" lineend="17" name="(anonymous)" signature="(anonymous)()" />
         <variable attributes="__local__ private" line="17" name="c" />
       </scope>
       <scope ilk="function" line="21" lineend="26" name="case2" signature="case2()">
         <variable attributes="__local__ private" citdl="Number" line="22" name="case2_xyz" />
+        <scope attributes="__local__ private" ilk="function" line="23" lineend="25" name="(anonymous)" signature="(anonymous)()" />
       </scope>
       <scope ilk="function" line="29" lineend="35" name="case3" signature="case3(case3_xyz)">
         <variable citdl="Number" ilk="argument" name="case3_xyz" />
+        <scope attributes="__local__ private" ilk="function" line="30" lineend="34" name="(anonymous)" signature="(anonymous)()">
+          <scope attributes="__local__ private" ilk="function" line="31" lineend="33" name="(anonymous)" signature="(anonymous)()" />
+        </scope>
         <variable attributes="__local__ private" line="34" name="b" />
       </scope>
       <scope ilk="function" line="38" lineend="42" name="case4" signature="case4(case4_xyz)">
         <variable citdl="Number" ilk="argument" name="case4_xyz" />
+        <scope attributes="__local__ private" ilk="function" line="39" lineend="41" name="(anonymous)" signature="(anonymous)()" />
       </scope>
       <scope ilk="function" line="45" lineend="47" name="case5" signature="case5(case5_xyz)">
         <variable citdl="Number" ilk="argument" name="case5_xyz" />
+        <scope attributes="__local__ private" ilk="function" line="46" lineend="46" name="(anonymous)" signature="(anonymous)()" />
       </scope>
     </scope>
   </file>
