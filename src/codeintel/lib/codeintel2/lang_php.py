@@ -1779,16 +1779,16 @@ class PHPImport:
             elem.attrib["symbol"] = self.symbol
         return elem
 
-def fullyQualifiedNamespacePath(namespace_path):
-    # Ensure the namespace always starts with a backslash.
-    if not namespace_path.startswith("\\"):
-        namespace_path = "\\" + namespace_path
+def qualifyNamespacePath(namespace_path):
+    # Ensure the namespace does not start with a backslash.
+    while namespace_path.startswith("\\"):
+        namespace_path = namespace_path[1:]
     # Ensure the namespace does not end with a backslash.
     return namespace_path.rstrip("\\")
 
 class PHPNamespace:
     def __init__(self, name, lineno, depth, doc=None):
-        assert name.startswith("\\")
+        assert not name.startswith("\\")
         assert not name.endswith("\\")
         self.name = name
         self.linestart = lineno
@@ -2176,7 +2176,7 @@ class PHPParser:
                 # guarentee that the namespace ends if another namespace starts.
                 # Using None as the depth will ensure these semantics hold.
                 depth = None
-            namespace_path = fullyQualifiedNamespacePath("\\".join(namelist))
+            namespace_path = qualifyNamespacePath("\\".join(namelist))
             namespace = self.fileinfo.namespaces.get(namespace_path)
             if namespace is None:
                 namespace = PHPNamespace(namespace_path, self.lineno, depth,
@@ -2267,7 +2267,7 @@ class PHPParser:
         namelist = name.split("\\")
         if len(namelist) > 1:
             namespace_path = "\\".join(namelist[:-1])
-            namespace_path = fullyQualifiedNamespacePath(namespace_path)
+            namespace_path = qualifyNamespacePath(namespace_path)
             log.debug("defined in namespace: %r", namespace_path)
             namespace = toScope.namespaces.get(namespace_path)
             # Note: This does not change to the namespace, it just creates
