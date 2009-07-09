@@ -79,6 +79,9 @@
     var changedFields = {};
     var file = null;
 
+    var gprefs = Components.classes["@activestate.com/koPrefService;1"]
+                  .getService(Components.interfaces.koIPrefService).prefs;
+
     function removeTreeNodes(nodes) {
         for (var i = 0; i < nodes.length; i++) {
             var el = document.getElementById(nodes[i]);
@@ -152,10 +155,19 @@
             throw "failed to create prefwindow";
         }
 
-        var selectedItem;
-        var firstChild = document.getElementById( "panelChildren" ).firstChild;
-        selectedItem = firstChild.getAttribute('id');
-        switchToPanel(selectedItem);
+        var selectedItem = null;
+        if (gprefs.hasPref('defaultSelectedSubPref')) {
+            selectedItem = gprefs.getStringPref('defaultSelectedSubPref');
+            switchToPanel(selectedItem);
+        }
+            
+        if (selectedItem == null || prefPanelTree.currentIndex == 0) {
+            // We might have failed to select the node --
+            // projects and files each have unshared prefs.
+            var firstChild = document.getElementById( "panelChildren" ).firstChild;
+            selectedItem = firstChild.getAttribute('id');
+            switchToPanel(selectedItem);
+        }
     }catch(e) { dump(e+"\n");}
     }
 
@@ -175,10 +187,14 @@
         if (window.arguments && window.arguments[0] != null) {
             window.arguments[0].res = "ok";
         }
+        gprefs.setStringPref('defaultSelectedSubPref',
+                             hPrefWindow.helper.getSelectedItemId());
         return true;
     }
 
     function doCancel() {
+        gprefs.setStringPref('defaultSelectedSubPref',
+                              hPrefWindow.helper.getSelectedItemId());
         if (!hPrefWindow.onCancel())
             return false;
         return true;
