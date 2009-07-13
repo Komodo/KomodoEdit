@@ -146,10 +146,12 @@ def infer_cwd_and_strip_from_path(path_in_diff, actual_path):
 
 
 class Hunk:
-    def __init__(self, start_line, end_line):
+    def __init__(self, start_line, lines):
+        end_line = start_line + len(lines)
         log.debug("lines %d-%d: hunk", start_line, end_line)
         self.start_line = start_line
         self.end_line = end_line
+        self.lines = lines
     def pprint(self, indent=' '*8):
         print "%shunk: lines %d-%d"\
               % (indent, self.start_line, self.end_line)
@@ -163,6 +165,7 @@ class FileDiff:
                   header_start_line is None and '?' or header_start_line,
                   paths)
         self.paths = paths
+        self.lines = None
         self.header_start_line = header_start_line
         self.hunks = []
         self.diff_type = None
@@ -171,25 +174,32 @@ class FileDiff:
         return "<FileDiff: %d hunks, '%s' best path>" % (
             len(self.hunks), self.best_path())
 
-    def add_hunk(self, start_line, end_line):
+    @property
+    def diff(self):
+        return "\n".join(self.lines)
+
+    def add_hunk(self, start_line, lines):
         self.hunks.append(
-            Hunk(start_line, end_line)
+            Hunk(start_line, lines)
         )
 
-    def best_path(self):
+    def best_path(self, cwd=None):
         #XXX How to pick the best path?
         if "p4 diff header" in self.paths:
-            return self.paths["p4 diff header"]
+            path = self.paths["p4 diff header"]
         elif "index" in self.paths:
-            return self.paths["index"]
+            path = self.paths["index"]
         elif self.diff_type == "unified" and "+++" in self.paths:
-            return self.paths["+++"]
+            path = self.paths["+++"]
         elif self.diff_type == "context" and "---" in self.paths:
-            return self.paths["---"]
+            path = self.paths["---"]
         elif self.paths:
-            return self.paths.values()[0]
+            path = self.paths.values()[0]
         else:
             return None
+        if not path or not cwd or os.path.isabs(path):
+            return path
+        return os.path.join(cwd, path)
 
     def pprint(self, indent=' '*4):
         best_path = self.best_path()
@@ -413,8 +423,9 @@ class Diff:
                     else:
                         raise DiffLibExError("unexpected plain hunk header "
                                              "type: '%s'" % hunk_type)
-                    file_diff.add_hunk(hunk_start_line, idx)
+                    file_diff.add_hunk(hunk_start_line, lines[hunk_start_line:idx])
 
+                file_diff.lines = lines[file_diff.header_start_line:idx]
                 self.file_diffs.append(file_diff)
                 state = None
                 file_diff = None
@@ -439,8 +450,9 @@ class Diff:
                                or not lines[idx]):
                         idx += 1
 
-                    file_diff.add_hunk(hunk_start_line, idx)
+                    file_diff.add_hunk(hunk_start_line, lines[hunk_start_line:idx])
 
+                file_diff.lines = lines[file_diff.header_start_line:idx]
                 self.file_diffs.append(file_diff)
                 state = None
                 file_diff = None
@@ -489,8 +501,9 @@ class Diff:
                                or not lines[idx]):
                         idx += 1
 
-                    file_diff.add_hunk(hunk_start_line, idx)
+                    file_diff.add_hunk(hunk_start_line, lines[hunk_start_line:idx])
 
+                file_diff.lines = lines[file_diff.header_start_line:idx]
                 self.file_diffs.append(file_diff)
                 state = None
                 file_diff = None
