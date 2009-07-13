@@ -127,6 +127,15 @@ class ForthLangInfo(LangInfo):
     exts = [".forth"]
 
 
+class FlagshipLangInfo(LangInfo):
+    """ Flagship is a commercial compiler for Clipper (dBASE III compiler)
+    http://www.fship.com/
+    http://en.wikipedia.org/wiki/Clipper_(programming_language)
+    """
+    name = "Flagship"
+    conforms_to_bases = ["Text"]
+    exts = [".prg"]
+
 class SQLLangInfo(LangInfo):
     #TODO: describe: what SQL spec does this conform to?
     #TODO: should we have other SQL langs? E.g. for MySQL, PostgreSQL, etc.?
