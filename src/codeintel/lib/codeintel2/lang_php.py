@@ -1780,11 +1780,8 @@ class PHPImport:
         return elem
 
 def qualifyNamespacePath(namespace_path):
-    # Ensure the namespace does not start with a backslash.
-    while namespace_path.startswith("\\"):
-        namespace_path = namespace_path[1:]
-    # Ensure the namespace does not end with a backslash.
-    return namespace_path.rstrip("\\")
+    # Ensure the namespace does not begin or end with a backslash.
+    return namespace_path.strip("\\")
 
 class PHPNamespace:
     def __init__(self, name, lineno, depth, doc=None):
