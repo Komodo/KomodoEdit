@@ -102,6 +102,7 @@ this.lintBuffer = function LintBuffer(view) {
         this._lastRequestId = 0; // used to ensure only the last request is used
 
         _prefs.prefObserverService.addObserver(this, "editUseLinting", false);
+        _prefs.prefObserverService.addObserver(this, "lintEOLs", false);
         _prefs.prefObserverService.addObserver(this, "perlDefaultInterpreter", false);
         _prefs.prefObserverService.addObserver(this, "perl_lintOption", false);
         _prefs.prefObserverService.addObserver(this, "perl_lintOption_perlCriticLevel", false);
@@ -117,9 +118,9 @@ this.lintBuffer = function LintBuffer(view) {
         _prefs.prefObserverService.addObserver(this, "tidy_accessibility", false);
         _prefs.prefObserverService.addObserver(this, "tidy_configpath", false);
 
-        this.view.prefs.prefObserverService.addObserver(this,
-                                                        "editUseLinting",
-                                                        false);
+        this.view.prefs.prefObserverService.addObserver(this, "editUseLinting", false);
+        this.view.prefs.prefObserverService.addObserver(this, "lintEOLs", false);
+        this.view.prefs.prefObserverService.addObserver(this, "endOfLine", false);
 
         this._lintTimer = null; // used to control when lint requests are issued
     } catch(ex) {
@@ -148,9 +149,12 @@ this.lintBuffer.prototype.destructor = function()
         this._cancelDelayedRequest();
         this._clearResults();
 
-        this.view.prefs.prefObserverService.removeObserver(this,
-                                                           "editUseLinting");
+        this.view.prefs.prefObserverService.removeObserver(this, "editUseLinting");
+        this.view.prefs.prefObserverService.removeObserver(this, "lintEOLs");
+        this.view.prefs.prefObserverService.removeObserver(this, "endOfLine");
+
         _prefs.prefObserverService.removeObserver(this, "editUseLinting");
+        _prefs.prefObserverService.removeObserver(this, "lintEOLs");
         _prefs.prefObserverService.removeObserver(this, "perlDefaultInterpreter");
         _prefs.prefObserverService.removeObserver(this, "perl_lintOption");
         _prefs.prefObserverService.removeObserver(this, "perl_lintOption_perlCriticLevel");
@@ -237,6 +241,14 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
             _log.info("LintBuffer["+this.view.title+
                            "].observed HTML/XML pref change, re-linting");
             if (lintingEnabled && this.view.languageObj.isHTMLLanguage) {
+                this.request();
+            }
+            break;
+        case "lintEOLs":
+        case "endOfLine":
+            _log.info("LintBuffer["+this.view.title+
+                           "].observed EOL pref change, re-linting");
+            if (lintingEnabled) {
                 this.request();
             }
             break;
