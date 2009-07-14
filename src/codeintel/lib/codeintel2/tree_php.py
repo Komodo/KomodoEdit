@@ -565,9 +565,17 @@ class PHPTreeEvaluator(TreeEvaluator):
         @param hit {tuple} (elem, scoperef)
         """
         elem, scoperef = hit
+
+        # Namespaces completions only show for namespace elements.
+        elem_type = elem.get("ilk") or elem.tag
+        if self.trg.type == "namespace-members" and elem_type != "namespace":
+            raise CodeIntelError("%r resolves to type %r, which is not a "
+                                 "namespace" % (self.expr, elem_type, ))
+
         members = set()
         elem_name = elem.get("name")
         static_cplns = (self.trg.type == "static-members")
+
         for child in elem:
             #self.debug("_members_from_hit: checking child: %r", child)
             name_prefix = ''   # Used to add "$" for static variable names.
@@ -628,7 +636,7 @@ class PHPTreeEvaluator(TreeEvaluator):
         elif elem_ilk == "namespace" and self.trg.type == "namespace-members":
             # Return additional sub-namespaces that start with this prefix.
             self.debug("_members_from_hit: finding alternative namespace hits")
-            fqn = elem.get("name")
+            fqn = elem_name
             other_namespaces = self._namespaces_from_scope(fqn, scoperef)
             for ilk, name in other_namespaces:
                 if name.startswith(fqn) and name != fqn:
@@ -758,6 +766,7 @@ class PHPTreeEvaluator(TreeEvaluator):
     def _hit_from_namespace(self, expr, scoperef):
         self.log("_hit_from_namespace:: expr %r, scoperef: %r", expr, scoperef)
         expr = expr.rstrip("\\")
+        fqn = None
         if expr and not expr.startswith("\\"):
             # Looking up namespaces depends on whether we are already inside a
             # namespace or not. When inside a namespace, we need to lookup:
@@ -771,7 +780,6 @@ class PHPTreeEvaluator(TreeEvaluator):
             if elem is not None:
                 # We are inside a namespace, work out the fully qualified name.
                 self.log("_hit_from_namespace:: current namespace: %r", elem)
-                fqn = None
                 for child in elem:
                     if child.tag == "import":
                         symbol = child.get("symbol")
@@ -786,6 +794,8 @@ class PHPTreeEvaluator(TreeEvaluator):
                     # Was not an imported/aliased namespace, treat it as a
                     # sub-namespace of the current namespace.
                     fqn = "%s\\%s" % (elem.get("name"), expr)
+            else:
+                fqn = expr
         else:
             fqn = expr.lstrip("\\")
 
