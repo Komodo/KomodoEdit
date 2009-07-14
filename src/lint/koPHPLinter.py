@@ -61,14 +61,6 @@ class KoPHPCompileLinter:
     def __init__(self):
         self.phpInfoEx = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].\
                     getService(components.interfaces.koIPHPInfoEx)
-
-        self._proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
-            getService(components.interfaces.nsIProxyObjectManager)
-        self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService)
-        self._prefProxy = self._proxyMgr.getProxyForObject(None,
-            components.interfaces.koIPrefService, self._prefSvc,
-            PROXY_ALWAYS | PROXY_SYNC)
     
     # linting versions are different than what is required for xdebug
     # debugging, so we have our own version checking
