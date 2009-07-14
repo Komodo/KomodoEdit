@@ -106,6 +106,17 @@ this.lintBuffer = function LintBuffer(view) {
         _prefs.prefObserverService.addObserver(this, "perl_lintOption", false);
         _prefs.prefObserverService.addObserver(this, "perl_lintOption_perlCriticLevel", false);
         _prefs.prefObserverService.addObserver(this, "perl_lintOption_includeCurrentDirForLinter", false);
+        _prefs.prefObserverService.addObserver(this, "pythonDefaultInterpreter", false);
+        _prefs.prefObserverService.addObserver(this, "phpDefaultInterpreter", false);
+        _prefs.prefObserverService.addObserver(this, "phpConfigFile", false);
+        _prefs.prefObserverService.addObserver(this, "rubyDefaultInterpreter", false);
+        _prefs.prefObserverService.addObserver(this, "ruby_lintOption", false);
+        _prefs.prefObserverService.addObserver(this, "lintJavaScriptEnableWarnings", false);
+        _prefs.prefObserverService.addObserver(this, "lintJavaScriptEnableStrict", false);
+        _prefs.prefObserverService.addObserver(this, "tidy_errorlevel", false);
+        _prefs.prefObserverService.addObserver(this, "tidy_accessibility", false);
+        _prefs.prefObserverService.addObserver(this, "tidy_configpath", false);
+
         this.view.prefs.prefObserverService.addObserver(this,
                                                         "editUseLinting",
                                                         false);
@@ -144,6 +155,16 @@ this.lintBuffer.prototype.destructor = function()
         _prefs.prefObserverService.removeObserver(this, "perl_lintOption");
         _prefs.prefObserverService.removeObserver(this, "perl_lintOption_perlCriticLevel");
         _prefs.prefObserverService.removeObserver(this, "perl_lintOption_includeCurrentDirForLinter");
+        _prefs.prefObserverService.removeObserver(this, "pythonDefaultInterpreter");
+        _prefs.prefObserverService.removeObserver(this, "phpDefaultInterpreter");
+        _prefs.prefObserverService.removeObserver(this, "phpConfigFile");
+        _prefs.prefObserverService.removeObserver(this, "rubyDefaultInterpreter");
+        _prefs.prefObserverService.removeObserver(this, "ruby_lintOption");
+        _prefs.prefObserverService.removeObserver(this, "lintJavaScriptEnableWarnings");
+        _prefs.prefObserverService.removeObserver(this, "lintJavaScriptEnableStrict");
+        _prefs.prefObserverService.removeObserver(this, "tidy_errorlevel");
+        _prefs.prefObserverService.removeObserver(this, "tidy_accessibility");
+        _prefs.prefObserverService.removeObserver(this, "tidy_configpath");
 
         this.view = null; // drop reference to the view
     } catch(ex) {
@@ -158,21 +179,68 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
     //_log.debug("LintBuffer["+this.view.title+"].observe: subject="+
     //               subject+", topic="+topic+", data="+data);
     try {
-        var lintingEnabled;
+        var lintingEnabled = this.view.prefs.getBooleanPref("editUseLinting");
+        var count = {};
+        // XXX - These language specific linting preferences should not be
+        //       hard coded here - but should rather be triggered in another
+        //       more extensible manner.
         switch (topic) {
         case "perlDefaultInterpreter":
         case "perl_lintOption":
         case "perl_lintOption_perlCriticLevel":
         case "perl_lintOption_includeCurrentDirForLinter":
-            lintingEnabled = this.view.prefs.getBooleanPref("editUseLinting");
             _log.info("LintBuffer["+this.view.title+
-                           "].observe: lintingEnabled="+lintingEnabled);
+                           "].observed Perl pref change, re-linting");
             if (lintingEnabled && this.view.languageObj.name == "Perl") {
                 this.request();
             }
             break;
+        // Python
+        case "pythonDefaultInterpreter":
+            _log.info("LintBuffer["+this.view.title+
+                           "].observed Python pref change, re-linting");
+            if (lintingEnabled && this.view.languageObj.getSubLanguages(count).indexOf("Python") >= 0) {
+                this.request();
+            }
+            break;
+        // PHP
+        case "phpDefaultInterpreter":
+        case "phpConfigFile":
+            _log.info("LintBuffer["+this.view.title+
+                           "].observed PHP pref change, re-linting");
+            if (lintingEnabled && this.view.languageObj.getSubLanguages(count).indexOf("PHP") >= 0) {
+                this.request();
+            }
+            break;
+        // Ruby
+        case "rubyDefaultInterpreter":
+        case "ruby_lintOption":
+            _log.info("LintBuffer["+this.view.title+
+                           "].observed Ruby pref change, re-linting");
+            if (lintingEnabled && this.view.languageObj.getSubLanguages(count).indexOf("Ruby") >= 0) {
+                this.request();
+            }
+            break;
+        // JavaScript
+        case "lintJavaScriptEnableWarnings":
+        case "lintJavaScriptEnableStrict":
+            _log.info("LintBuffer["+this.view.title+
+                           "].observed JavaScript pref change, re-linting");
+            if (lintingEnabled && this.view.languageObj.getSubLanguages(count).indexOf("JavaScript") >= 0) {
+                this.request();
+            }
+            break;
+        // HTML and XML
+        case "tidy_errorlevel":
+        case "tidy_accessibility":
+        case "tidy_configpath":
+            _log.info("LintBuffer["+this.view.title+
+                           "].observed HTML/XML pref change, re-linting");
+            if (lintingEnabled && this.view.languageObj.isHTMLLanguage) {
+                this.request();
+            }
+            break;
         case "editUseLinting":
-            lintingEnabled = this.view.prefs.getBooleanPref("editUseLinting");
             _log.info("LintBuffer["+this.view.title+
                            "].observe: lintingEnabled="+lintingEnabled);
             if (lintingEnabled != this.lintingEnabled) {
