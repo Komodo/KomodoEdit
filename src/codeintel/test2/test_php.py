@@ -365,6 +365,25 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertCITDLExprIs("blam()->\nfoo->bar-><|>", "blam().foo.bar")
         self.assertCITDLExprIs("if(!<|>is_array", "is_", trigger_name="functions")
 
+    @tag("bug83192")
+    def test_citdl_expr_from_namespace(self):
+        # Examples:
+        #    Foo\bar:<|>:                    Foo\bar
+        #    Foo\bar::bam-<|>>               Foo\bar.bam
+        #    Foo\bar(arg1, arg2)::bam-<|>>   Foo\bar().bam
+        self.assertCITDLExprIs(r"foo\<|>", r"foo",
+                               trigger_name="namespaces")
+        self.assertCITDLExprIs(r"\foo\<|>", r"\foo",
+                               trigger_name="namespaces")
+        self.assertCITDLExprIs(r"foo\bar\<|>", r"foo\bar",
+                               trigger_name="namespaces")
+        self.assertCITDLExprIs(r"\foo\bar\<|>", r"\foo\bar",
+                               trigger_name="namespaces")
+        self.assertCITDLExprIs(r"Foo\bar::<|>", r"Foo\bar")
+        self.assertCITDLExprIs(r"Foo\bar::bam-><|>", r"Foo\bar.bam")
+        self.assertCITDLExprIs(r"Foo\bar()->bam-><|>", r"Foo\bar().bam")
+        self.assertCITDLExprIs(r"Foo\bar\bam::<|>", r"Foo\bar\bam")
+
     @tag("bug79991")
     def test_citdl_expr_from_static_class_variables(self):
         self.assertCITDLExprIs("MyConfig::$db-><|>", "MyConfig.db")

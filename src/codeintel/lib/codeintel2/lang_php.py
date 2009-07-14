@@ -786,16 +786,19 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         database system for determining the resultant object type of the
         expression. For example (in which <|> represents the given position):
         
-            GIVEN                       RETURN
-            -----                       ------
-            foo-<|>>                    foo
-            Foo:<|>:                    Foo
-            foo(bar-<|>>                bar
-            foo(bar,blam)-<|>>          foo()
-            foo(bar,                    foo()
+            GIVEN                           RETURN
+            -----                           ------
+            foo-<|>>                        foo
+            Foo:<|>:                        Foo
+            foo(bar-<|>>                    bar
+            foo(bar,blam)-<|>>              foo()
+            foo(bar,                        foo()
                 blam)-<|>>
-            foo(arg1, arg2)->bar-<|>>   foo().bar
-            Foo(arg1, arg2)::bar-<|>>   Foo().bar
+            foo(arg1, arg2)->bar-<|>>       foo().bar
+            Foo(arg1, arg2)::bar-<|>>       Foo().bar
+            Foo\bar:<|>:                    Foo\bar
+            Foo\bar::bam-<|>>               Foo\bar.bam
+            Foo\bar(arg1, arg2)::bam-<|>>   Foo\bar().bam
         """
         #DEBUG = True
         DEBUG = False
@@ -812,6 +815,8 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 i = trg.pos + 1   # triggered on the $, skip over it
             elif trg.type == "array-members":
                 i = trg.extra.get("bracket_pos")   # triggered on foo['
+            elif trg.type == "namespaces":
+                i = trg.pos - 1
             else:
                 i = trg.pos - 2 # skip past the trigger char
             return self._citdl_expr_from_pos(trg, buf, i, trg.implicit,
