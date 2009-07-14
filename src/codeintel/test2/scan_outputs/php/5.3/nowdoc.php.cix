@@ -1,0 +1,12 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/5.3/nowdoc.php">
+    <scope ilk="blob" lang="PHP" name="nowdoc.php" src="scan_inputs/php/5.3/nowdoc.php">
+      <scope ilk="class" line="9" lineend="13" name="foo">
+        <variable attributes="public" line="10" name="foo" />
+        <variable attributes="public" line="11" name="bar" />
+        <scope attributes="__ctor__" ilk="function" line="12" lineend="12" name="foo" signature="foo()" />
+      </scope>
+      <variable citdl="foo" line="15" name="foo" />
+    </scope>
+  </file>
+</codeintel>

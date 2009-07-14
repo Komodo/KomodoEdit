@@ -2950,7 +2950,7 @@ class PHPParser:
             if not text.strip():
                 log.debug("Ignoring whitespace after <<<: %r", text)
                 return
-            self.heredocMarker = text
+            self.heredocMarker = self._unquoteString(text)
             log.debug("getting heredoc marker: %r, now in heredoc state", text)
             self._resetState(S_IN_HEREDOC)
 
