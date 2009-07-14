@@ -678,7 +678,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     # construct at which we want to stop. E.g.
                     #   if foo<|> and ...
                     #   def foo<|>(...
-                    if citdl_expr and _isident(citdl_expr[-1]) \
+                    #   if \foo<|>(...     # uses a namespace
+                    if citdl_expr \
+                       and (_isident(citdl_expr[-1]) or citdl_expr[-1] == '\\') \
                        and (_isident(ch) or _isdigit(ch)):
                         if DEBUG:
                             print "stop at (likely?) start of keyword or "\

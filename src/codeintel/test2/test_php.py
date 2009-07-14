@@ -365,21 +365,21 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertCalltipIs(markup_text(content, pos=positions[2]), "foo(x, y)")
 
     def test_citdl_expr_from_trg_simple(self):
-        self.assertCITDLExprIs("foo-><|>", "foo")
-        self.assertCITDLExprIs("Foo::<|>", "Foo")
-        self.assertCITDLExprIs("foo->bar-><|>", "foo.bar")
-        self.assertCITDLExprIs("Foo::bar-><|>", "Foo.bar")
-        self.assertCITDLExprIs("foo(bar-><|>", "bar")
-        self.assertCITDLExprIs("foo[bar-><|>", "bar")
-        self.assertCITDLExprIs("foo{bar-><|>", "bar")
-        self.assertCITDLExprIs("foo()-><|>", "foo()")
-        self.assertCITDLExprIs("foo(a,b)-><|>", "foo()")
-        self.assertCITDLExprIs("$a = foo-><|>", "foo")
-        self.assertCITDLExprIs("$a = foo(bar-><|>, blam)", "bar")
-        self.assertCITDLExprIs("blam()\nfoo-><|>", "foo")
-        self.assertCITDLExprIs("blam()->\nfoo-><|>", "blam().foo")
-        self.assertCITDLExprIs("blam()->\nfoo->bar-><|>", "blam().foo.bar")
-        self.assertCITDLExprIs("if(!<|>is_array", "is_", trigger_name="functions")
+        self.assertCITDLExprIs(php_markup("foo-><|>"), "foo")
+        self.assertCITDLExprIs(php_markup("Foo::<|>"), "Foo")
+        self.assertCITDLExprIs(php_markup("foo->bar-><|>"), "foo.bar")
+        self.assertCITDLExprIs(php_markup("Foo::bar-><|>"), "Foo.bar")
+        self.assertCITDLExprIs(php_markup("foo(bar-><|>"), "bar")
+        self.assertCITDLExprIs(php_markup("foo[bar-><|>"), "bar")
+        self.assertCITDLExprIs(php_markup("foo{bar-><|>"), "bar")
+        self.assertCITDLExprIs(php_markup("foo()-><|>"), "foo()")
+        self.assertCITDLExprIs(php_markup("foo(a,b)-><|>"), "foo()")
+        self.assertCITDLExprIs(php_markup("$a = foo-><|>"), "foo")
+        self.assertCITDLExprIs(php_markup("$a = foo(bar-><|>, blam)"), "bar")
+        self.assertCITDLExprIs(php_markup("blam()\nfoo-><|>"), "foo")
+        self.assertCITDLExprIs(php_markup("blam()->\nfoo-><|>"), "blam().foo")
+        self.assertCITDLExprIs(php_markup("blam()->\nfoo->bar-><|>"), "blam().foo.bar")
+        self.assertCITDLExprIs(php_markup("if(!<|>is_array"), "is_", trigger_name="functions")
 
     @tag("bug83192")
     def test_citdl_expr_from_namespace(self):
@@ -387,18 +387,22 @@ class TriggerTestCase(CodeIntelTestCase):
         #    Foo\bar:<|>:                    Foo\bar
         #    Foo\bar::bam-<|>>               Foo\bar.bam
         #    Foo\bar(arg1, arg2)::bam-<|>>   Foo\bar().bam
-        self.assertCITDLExprIs(r"foo\<|>", r"foo",
+        self.assertCITDLExprIs(php_markup(r"foo\<|>"), r"foo",
                                trigger_name="namespaces")
-        self.assertCITDLExprIs(r"\foo\<|>", r"\foo",
+        self.assertCITDLExprIs(php_markup(r"\foo\<|>"), r"\foo",
                                trigger_name="namespaces")
-        self.assertCITDLExprIs(r"foo\bar\<|>", r"foo\bar",
+        self.assertCITDLExprIs(php_markup(r"foo\bar\<|>"), r"foo\bar",
                                trigger_name="namespaces")
-        self.assertCITDLExprIs(r"\foo\bar\<|>", r"\foo\bar",
+        self.assertCITDLExprIs(php_markup(r"\foo\bar\<|>"), r"\foo\bar",
                                trigger_name="namespaces")
-        self.assertCITDLExprIs(r"Foo\bar::<|>", r"Foo\bar")
-        self.assertCITDLExprIs(r"Foo\bar::bam-><|>", r"Foo\bar.bam")
-        self.assertCITDLExprIs(r"Foo\bar()->bam-><|>", r"Foo\bar().bam")
-        self.assertCITDLExprIs(r"Foo\bar\bam::<|>", r"Foo\bar\bam")
+        self.assertCITDLExprIs(php_markup(r"Foo\bar::<|>"), r"Foo\bar")
+        self.assertCITDLExprIs(php_markup(r"Foo\bar::bam-><|>"), r"Foo\bar.bam")
+        self.assertCITDLExprIs(php_markup(r"Foo\bar()->bam-><|>"), r"Foo\bar().bam")
+        self.assertCITDLExprIs(php_markup(r"Foo\bar\bam::<|>"), r"Foo\bar\bam")
+        self.assertCITDLExprIs(php_markup("# MyComment\nfoo\\<|>"), r"foo",
+                               trigger_name="namespaces")
+        self.assertCITDLExprIs(php_markup("# MyComment\n\\foo\\<|>"), r"\foo",
+                               trigger_name="namespaces")
 
     @tag("bug79991")
     def test_citdl_expr_from_static_class_variables(self):
