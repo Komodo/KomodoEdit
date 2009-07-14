@@ -201,6 +201,10 @@ class PHPTreeEvaluator(TreeEvaluator):
             return retval
         elif trg.type == "classes":
             return self._classes_from_scope(None, start_scope)
+        elif trg.type == "namespaces" or \
+             (trg.type == "namespace-members" and (not self.expr or self.expr == "\\")):
+            # All available namespaces
+            return self._namespaces_from_scope(self.expr, start_scope)
         elif trg.type == "interfaces":
             return self._interfaces_from_scope(self.expr, start_scope)
         elif trg.type == "magic-methods":
@@ -217,7 +221,12 @@ class PHPTreeEvaluator(TreeEvaluator):
                 # Return global magic methods.
                 return self.php_magic_global_method_cplns
         else:
-            hit = self._hit_from_citdl(self.expr, start_scope)
+            expr = self.expr
+            if trg.type == "namespace-members":
+                # Slight hack to ensure the _hit_from_first_part will treat
+                # this expression as a namespace lookup.
+                expr += "\\"
+            hit = self._hit_from_citdl(expr, start_scope)
             if hit[0] is not None:
                 self.log("self.expr: %r", self.expr)
                 # special handling for parent, explicitly set the
@@ -311,6 +320,8 @@ class PHPTreeEvaluator(TreeEvaluator):
                 elemlist = [self._elem_from_scoperef(scoperef)]
             elif scope_type == "globals":
                 elemlist = [global_blob]
+            elif scope_type == "namespace":
+                elemlist = [self._namespace_elem_from_scoperef(scoperef)]
             elif scope_type == "builtins":
                 lib = self.buf.stdlib
                 # Find the matching names (or all names if no expr)
@@ -427,6 +438,17 @@ class PHPTreeEvaluator(TreeEvaluator):
                             "class",
                             ("locals", "globals", "imports",),
                             self.class_names_from_elem)
+
+    def _namespaces_from_scope(self, expr, scoperef):
+        """Return all available namespaces beginning with expr"""
+        if expr:
+            expr = expr.strip("\\")
+        namespaces = self._element_names_from_scope_starting_with_expr(expr,
+                                scoperef,
+                                "namespace",
+                                ("globals", "imports", "builtins",),
+                                self.namespace_names_from_elem)
+        return namespaces
 
     def _interfaces_from_scope(self, expr, scoperef):
         """Return all available interface names beginning with expr"""
@@ -547,6 +569,7 @@ class PHPTreeEvaluator(TreeEvaluator):
         elem_name = elem.get("name")
         static_cplns = (self.trg.type == "static-members")
         for child in elem:
+            #self.debug("_members_from_hit: checking child: %r", child)
             name_prefix = ''   # Used to add "$" for static variable names.
             attributes = child.get("attributes", "").split()
             if "__hidden__" in attributes:
@@ -587,7 +610,8 @@ class PHPTreeEvaluator(TreeEvaluator):
                     continue
             # add the element, we've already checked private|protected scopes
             members.update(self._members_from_elem(child, name_prefix))
-        if elem.get("ilk") == "class":
+        elem_ilk = elem.get("ilk")
+        if elem_ilk == "class":
             for classref in elem.get("classrefs", "").split():
                 self.debug("_members_from_hit: Getting members for inherited class: %r", classref)
                 try:
@@ -601,6 +625,15 @@ class PHPTreeEvaluator(TreeEvaluator):
                         allowProtected = self._isElemInsideScoperef(elem, self.get_start_scoperef())
                     # Checking the parent class, private is not allowed for sure
                     members.update(self._members_from_hit(subhit, allowProtected, allowPrivate=False))
+        elif elem_ilk == "namespace" and self.trg.type == "namespace-members":
+            # Return additional sub-namespaces that start with this prefix.
+            self.debug("_members_from_hit: finding alternative namespace hits")
+            fqn = elem.get("name")
+            other_namespaces = self._namespaces_from_scope(fqn, scoperef)
+            for ilk, name in other_namespaces:
+                if name.startswith(fqn) and name != fqn:
+                    # Show the namespace as relative to the hit namespace.
+                    members.add((ilk, name[len(fqn):].strip("\\")))
         return members
 
     def _hit_from_citdl(self, expr, scoperef, defn_only=False):
@@ -703,6 +736,99 @@ class PHPTreeEvaluator(TreeEvaluator):
             elem = child
         return elem
 
+    def _namespace_elem_from_scoperef(self, scoperef):
+        """A scoperef is (<blob>, <lpath>). Return the current namespace in
+        the <blob> ciElementTree, walking up the scope as necessary.
+        """
+        blob, lpath = scoperef
+        if len(lpath) >= 1:
+            elem_chain = []
+            elem = blob
+            for i in range(len(lpath)):
+                try:
+                    elem = elem.names[lpath[i]]
+                    elem_chain.append(elem)
+                except KeyError:
+                    break
+            for elem in reversed(elem_chain):
+                if elem.tag == "scope" and elem.get("ilk") == "namespace":
+                    return elem
+        return None
+
+    def _hit_from_namespace(self, expr, scoperef):
+        self.log("_hit_from_namespace:: expr %r, scoperef: %r", expr, scoperef)
+        expr = expr.rstrip("\\")
+        if expr and not expr.startswith("\\"):
+            # Looking up namespaces depends on whether we are already inside a
+            # namespace or not. When inside a namespace, we need to lookup:
+            #   * aliased namespaces
+            #   * subnamespaces of the current namespace
+            # When not inside a namespace, we need to lookup:
+            #   * global namespaces
+            tokens = expr.split("\\")
+            first_token = tokens[0]
+            elem = self._namespace_elem_from_scoperef(scoperef)
+            if elem is not None:
+                # We are inside a namespace, work out the fully qualified name.
+                self.log("_hit_from_namespace:: current namespace: %r", elem)
+                fqn = None
+                for child in elem:
+                    if child.tag == "import":
+                        symbol = child.get("symbol")
+                        alias = child.get("alias")
+                        if ((alias is None and symbol == first_token) or
+                            (alias == first_token)):
+                            fqn = "%s\\%s" % (child.get("name"), symbol)
+                            if tokens[1:]:
+                                fqn += "\\%s" % ("\\".join(tokens[1:]))
+                                break
+                if fqn is None:
+                    # Was not an imported/aliased namespace, treat it as a
+                    # sub-namespace of the current namespace.
+                    fqn = "%s\\%s" % (elem.get("name"), expr)
+        else:
+            fqn = expr.lstrip("\\")
+
+        self.log("_hit_from_namespace:: fqn: %r", fqn)
+        global_scoperef = self._get_global_scoperef(scoperef)
+        global_blob = self._elem_from_scoperef(global_scoperef)
+
+        #self.log("_hit_from_namespace:: globals: %r", global_blob.names.keys())
+        elem = global_blob.names.get(fqn)
+        if elem is not None:
+            self.log("_hit_from_namespace:: found locally: %r", elem)
+            hit_scoperef = [global_scoperef[0], global_scoperef[1] + [elem.get("name")]]
+            return (elem, hit_scoperef)
+        lpath = (fqn, )
+        libs = [self.buf.stdlib] + self.libs
+        for lib in libs:
+            hits = lib.hits_from_lpath(lpath)
+            if hits:
+                # XXX: Possible multiple hits.
+                self.log("_hit_from_namespace:: found in lib: %r", lib)
+                return hits[0]
+
+        # The last token in the namespace may be a class or a constant, instead
+        # of being part of the namespace itself.
+        tokens = fqn.split("\\")
+        fqn = "\\".join(tokens[:-1])
+        last_token = tokens[-1]
+
+        elem = global_blob.names.get(fqn)
+        if elem is not None:
+            self.log("_hit_from_namespace:: found locally(2): %r", elem)
+            hit_scoperef = [global_scoperef[0], global_scoperef[1] + [elem.get("name")]]
+            return self._hit_from_citdl(last_token, hit_scoperef)
+        lpath = (fqn, )
+        libs = [self.buf.stdlib] + self.libs
+        for lib in libs:
+            hits = lib.hits_from_lpath(lpath)
+            if hits:
+                # XXX: Possible multiple hits.
+                self.log("_hit_from_namespace:: found in lib(2): %r", lib)
+                return self._hit_from_citdl(last_token, hits[0])
+        return None
+
     def _hit_from_first_part(self, tokens, scoperef):
         """Find a hit for the first part of the tokens.
 
@@ -719,6 +845,12 @@ class PHPTreeEvaluator(TreeEvaluator):
         first_token = tokens[0]
         self.log("_hit_from_first_part:: find '%s ...' starting at %s:",
                  first_token, scoperef)
+
+        if "\\" in first_token:
+            # It's a namespace, lookup the correstponding namespace.
+            hit = self._hit_from_namespace(first_token, scoperef)
+            nconsumed = 1
+            return hit, nconsumed
 
         if first_token in ("this", "self", "parent"):
             # Special handling for class accessors
@@ -1222,6 +1354,31 @@ class PHPTreeEvaluator(TreeEvaluator):
             class_names = [ x.get("name") for x in classes ]
             cache[cache_item_name] = class_names
         return class_names
+
+    # XXX: Not used yet...
+    def imported_namespace_names_from_elem(self, elem, cache_item_name='imported_namespace_names'):
+        cache = self._php_cache_from_elem(elem)
+        namespace_names = cache.get(cache_item_name)
+        if namespace_names is None:
+            namespace_names = []
+            for child in elem:
+                if elem.tag == "import":
+                    symbol = elem.get("symbol")
+                    alias = elem.get("alias")
+                    if symbol is not None:
+                        namespace_names.append(alias or symbol)
+            cache[cache_item_name] = namespace_names
+        return namespace_names
+
+    def namespace_names_from_elem(self, elem, cache_item_name='namespace_names'):
+        cache = self._php_cache_from_elem(elem)
+        namespace_names = cache.get(cache_item_name)
+        if namespace_names is None:
+            elems = self._get_all_children_with_details(elem, "scope",
+                                                        {"ilk": "namespace"})
+            namespace_names = [ x.get("name") for x in elems ]
+            cache[cache_item_name] = namespace_names
+        return namespace_names
 
     def interface_names_from_elem(self, elem, cache_item_name='interface_names'):
         cache = self._php_cache_from_elem(elem)

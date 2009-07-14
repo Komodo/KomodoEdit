@@ -266,19 +266,35 @@ class TriggerTestCase(CodeIntelTestCase):
         name = "php-complete-namespaces"
         self.assertTriggerMatches(php_markup("use <|>"),
                                   name=name, pos=10)
+
+        # assert no trigger in strings
+        self.assertNoTrigger('<?php $s = "use <|>"; ?>')
+
+        # assert no trigger in comments
+        self.assertNoTrigger('<?php /* use <|> */ ?>')
+        self.assertNoTrigger('<?php # use <|>')
+
+    def test_trigger_complete_namespace_members(self):
+        # Triggers after 'use ' or '\'
+        #
+        #    Samples:
+        #        use <|>
+        #        \<|>
+        #        mynamespace\<|>
+        name = "php-complete-namespace-members"
         self.assertTriggerMatches(php_markup("\<|>"),
                                   name=name, pos=7)
         self.assertTriggerMatches(php_markup("foo\<|>"),
                                   name=name, pos=10)
+        self.assertTriggerMatches(php_markup("foo\bar\<|>"),
+                                  name=name, pos=13)
 
         # assert no trigger in strings
-        self.assertNoTrigger('<?php $s = "use <|>"; ?>')
         self.assertNoTrigger('<?php $s = "here\<|>"; ?>')
 
         # assert no trigger in comments
-        self.assertNoTrigger('<?php /* use <|> */ ?>')
         self.assertNoTrigger('<?php /* \<|> */ ?>')
-        self.assertNoTrigger('<?php # use <|>')
+        self.assertNoTrigger('<?php # \<|> ?>')
 
     def test_trigger_calltip_call_signature(self):
         # Triggers after open bracket:
@@ -2060,6 +2076,77 @@ EOD;
                              "printHello()\nPrint the word hello.")
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              "printWorld()\nPrint the word world.")
+
+    @tag("bug83192", "php53")
+    def test_php_namespace_completions(self):
+        """Test namespace handling"""
+        content, positions = unmark_text(php_markup(dedent("""\
+            namespace bug83192_nsp\sub1\sub2 {
+                function sub2_func($var1) { }
+                class sub2_class {
+                    static function sub2_classfunc() {}
+                }
+            }
+
+            namespace bug83192_nsp\sub1 {
+                function sub1_func($var1) { }
+                class sub1_class {
+                    static function sub1_classfunc() {
+                        sub2\<1>sub2_class::<2>;
+                    }
+                }
+            }
+
+            namespace bug83192_nsp {
+                function afunc($var1, $var2, $var3) {
+                    sub1\<3>sub2\<4>sub2_class::<5>;
+                    \<6>bug83192_nsp\<7>sub1\<8>sub2\<9>sub2_class::<10>;
+                }
+                class aclass {
+                    static function aclass_func() {
+                        sub1\<11>sub2\<12>sub2_class::<13>;
+                        \<14>bug83192_nsp\<15>sub1\<17>sub2\<18>sub2_class::<19>;
+                    }
+                }
+                $a1 = sub1\<20>sub2\<21>sub2_class::<22>;
+                $a3 = \<23>bug83192_nsp\<24>sub1\<25>sub2\<26>sub2_class::<27>;
+            }
+            namespace {
+                \<30>bug83192_nsp\<31>sub1\<32>sub2\<33>sub2_class::<34>;
+            }
+        """)))
+        for i in (1, 4, 9, 12, 18, 21, 26, 33):
+            # under the sub2 namespace
+            self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
+                    [("class", 'sub2_class'),
+                     ("function", 'sub2_func'),
+                     ])
+        for i in (3, 8, 11, 17, 20, 25, 32):
+            # under the sub1 namespace
+            self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
+                    [("namespace", 'sub2'),
+                     ("function", 'sub1_func'),
+                     ("class", 'sub1_class'),
+                     ])
+        for i in (6, 14, 23, 30):
+            # global namespaces - fqn
+            self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
+                    [("namespace", 'bug83192_nsp'),
+                     ("namespace", 'bug83192_nsp\sub1'),
+                     ("namespace", 'bug83192_nsp\sub1\sub2'),
+                     ])
+        for i in (7, 15, 24, 31):
+            # under the bug83192_nsp namespace
+            self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
+                    [("namespace", 'sub1'),
+                     ("namespace", 'sub1\sub2'),
+                     ("function", 'afunc'),
+                     ("class", 'aclass'),
+                     ])
+        for i in (2, 5, 10, 13, 19, 22, 27, 34):
+            # sub2::sub2_class completions
+            self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
+                    [("function", 'sub2_classfunc')])
 
 
 class IncludeEverythingTestCase(CodeIntelTestCase):

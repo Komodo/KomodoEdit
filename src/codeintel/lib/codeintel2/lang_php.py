@@ -284,7 +284,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     # where to trigger from, updated by "," calltip handler
                     if DEBUG:
                         print "Triggering namespace completion"
-                    return Trigger(lang, TRG_FORM_CPLN, "namespaces", pos, implicit)
+                    return Trigger(lang, TRG_FORM_CPLN, "namespace-members", pos, implicit)
 
             elif last_style == self.variable_style or \
                  (not implicit and last_char == "$"):
@@ -815,7 +815,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 i = trg.pos + 1   # triggered on the $, skip over it
             elif trg.type == "array-members":
                 i = trg.extra.get("bracket_pos")   # triggered on foo['
-            elif trg.type == "namespaces":
+            elif trg.type in ("namespaces", "namespace-members"):
                 i = trg.pos - 1
             else:
                 i = trg.pos - 2 # skip past the trigger char
