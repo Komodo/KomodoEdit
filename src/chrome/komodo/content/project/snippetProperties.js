@@ -102,7 +102,7 @@ function onLoad(event) {
         scin.caretWidth = 2;
         var prefs = (Components.classes["@activestate.com/koPrefService;1"]
                      .getService(Components.interfaces.koIPrefService).prefs);
-        scin.useTabs = prefs.getBooleanPref('useTabs');
+        scin.useTabs = true;
         scin.indent = scin.tabWidth = prefs.getLongPref('indentWidth');
         gSetSelectionCheckbox.setAttribute('checked',
                                            gItem.getStringAttribute('indent_relative'));
