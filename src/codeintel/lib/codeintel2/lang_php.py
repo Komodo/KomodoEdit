@@ -286,7 +286,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     #      namespace foo\<|>
                     style = last_style
                     while style in (self.operator_style, self.identifier_style):
-                        p, c, style = ac.getPrecedingPosCharStyle(self.whitespace_style, max_look_back=30)
+                        p, c, style = ac.getPrecedingPosCharStyle(style, max_look_back=30)
                     if style == self.whitespace_style:
                         p, c, style = ac.getPrecedingPosCharStyle(self.whitespace_style, max_look_back=30)
                     if style is None:
