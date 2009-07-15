@@ -256,6 +256,7 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertNoTrigger(php_markup("function _<|>_"))
         self.assertNoTrigger(php_markup("function __a<|>"))
 
+    @tag("bug83192", "php53")
     def test_trigger_complete_namespaces(self):
         # Triggers after 'use ' or '\'
         #
@@ -274,6 +275,7 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertNoTrigger('<?php /* use <|> */ ?>')
         self.assertNoTrigger('<?php # use <|>')
 
+    @tag("bug83192", "php53")
     def test_trigger_complete_namespace_members(self):
         # Triggers after 'use ' or '\'
         #
@@ -2088,7 +2090,7 @@ EOD;
     @tag("bug83192", "php53")
     def test_php_namespace_completions(self):
         """Test namespace handling"""
-        content, positions = unmark_text(php_markup(dedent("""\
+        content, positions = unmark_text(php_markup(dedent(r"""
             namespace bug83192_nsp\sub1\sub2 {
                 function sub2_func($var1) { }
                 class sub2_class {
