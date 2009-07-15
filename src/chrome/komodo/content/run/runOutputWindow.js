@@ -127,8 +127,7 @@ this.initialize = function RunOutput_Init() {
         _ClearUI();
         gRunOutput_Bound = false;
     } finally {
-        // Now that we are initialized, add a finalizer as well.
-        window.addEventListener("unload", ko.run.output.finalize, false);
+        ko.main.addWillCloseHandler(ko.run.output.finalize);
     }
 }
 
