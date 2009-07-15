@@ -85,7 +85,7 @@ var _gFindResultsTab_managers = {1: null, 2: null};
 function FindResultsTab_GetTab(preferredId /* =1 */)
 {
     if (typeof(preferredId) == "undefined" || preferredId == null) preferredId = 1;
-    
+
     findResultsLog.debug("FindResultsTab_GetTab(preferredId="+preferredId+")\n");
     try {
         var otherId = null;
@@ -185,7 +185,7 @@ function _FindResultsTab_Create(id)
 
         //WARNING: This is out of date with the current hardcoded results
         //         tabs.
-        
+
         // Create the new XUL.
         var tab, tabpanel, hbox, vbox, label, separator,
             tree, treecols, treecol1, treecol2, treecol3, splitter1, splitter2,
@@ -704,7 +704,7 @@ FindResultsTabManager.prototype.configure = function(
 {
     if (typeof(opSupportsUndo) == "undefined" || opSupportsUndo == null)
         opSupportsUndo = false;
-    
+
     // Cache find data for possible use later.
     this._pattern = pattern;
     this._patternAlias = patternAlias;
@@ -727,7 +727,7 @@ FindResultsTabManager.prototype.configure = function(
     } else {
         filenameCol.setAttribute("hidden", "false");
     }
-    
+
     // Make the undo button available if this find/replace operation
     // supports it.
     var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
@@ -859,11 +859,11 @@ FindResultsTabManager.prototype.searchFinished = function(
         desc = "Search aborted.";
     }
     this.setDescription(desc, !success);
-    
+
     if (this._journalId) {
         // Ensure changes *open* files get reloaded.
         ko.window.checkDiskFiles();
-        
+
         if (success) {
             var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
             if (undoButton) { // because "todo"-extension is piggy-backing
@@ -969,7 +969,7 @@ FindResultsTabManager.prototype._doubleClick = function()
                     return;
                 }
                 var scimoz = view.scintilla.scimoz;
-        
+
                 // Try to find the match or replacement result. If it cannot be
                 // found then just go to the start of the line where it used to be.
                 // XXX Could try and be more sophisticated in the search.
@@ -979,7 +979,7 @@ FindResultsTabManager.prototype._doubleClick = function()
                 var end = scimoz.positionAtChar(0, endCharIdx); // a *byte* offset
                 var value = this_.view.GetValue(i);
                 var replacement = this_.view.GetReplacement(i);
-                // - first try the original indeces (if the file has not changed the result
+                // - first try the original indices (if the file has not changed the result
                 //   should still be there)
                 //   XXX This *can* fluke to the wrong result if the buffer has changed.
                 //       The *correct* answer would be to only attempt this_ if the buffer
@@ -1011,7 +1011,7 @@ FindResultsTabManager.prototype._doubleClick = function()
                         start = lineStartIndex+columnIndex;
                         end = lineStartIndex+columnIndex+value.length;
                     }
-        
+
                     // - next, try searching within the current line
                     //   XXX Note, this_ bails if there is more than one possible match on
                     //       the current line. This could attempt to be more intelligent,
@@ -1035,7 +1035,7 @@ FindResultsTabManager.prototype._doubleClick = function()
                             start = lineStartIndex+valueIndex;
                             end = lineStartIndex+valueIndex+value.length;
                         }
-        
+
                         // - XXX next, could try to search a couple lines above and below
                         //   but for now will just give up
                         else {
@@ -1044,7 +1044,7 @@ FindResultsTabManager.prototype._doubleClick = function()
                             //    the bottom. This should instead go to the LAST line.
                             start = lineStartIndex
                             end = lineStartIndex;
-        
+
                             // Let the user know about the problem on the status bar.
                             ko.statusBar.AddMessage(
                                 "The specified text has been moved or deleted.", "find",
@@ -1052,7 +1052,7 @@ FindResultsTabManager.prototype._doubleClick = function()
                         }
                     }
                 }
-                
+
                 // Make the modifications in a timeout to avoid unwanted horizontal
                 // scroll (bug 60117).
                 // XXX - This may no longer be necessary since this is using an
@@ -1062,7 +1062,7 @@ FindResultsTabManager.prototype._doubleClick = function()
                     scimoz.chooseCaretX();
                     view.setFocus();
                 } , 0);
-        
+
                 // If the invoked find result is the last visible one and there are more,
                 // then scroll the list of find results by one.
                 // XXX Could also scroll up if double-clicking on top visible item.
