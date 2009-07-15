@@ -234,11 +234,13 @@ this.doCommandAsync = function command_doCommandAsync(command, event) {
         return ko.commands.doCommand(command);
     }
     // otherwise, do this in a timeout, which prevents 'sticky' menu's and such
-    try {
-        window.setTimeout("ko.commands.doCommand('"+command.replace('\\', '\\\\', 'g')+"')", 0);
-    } catch (e) {
-        _log.exception(e);
-    }
+    window.setTimeout(function(this_) {
+        try {
+            this_.doCommand(command);
+        } catch (e) {
+            _log.exception(e);
+        }
+    }, 0, this);
     return true;
 }
 
