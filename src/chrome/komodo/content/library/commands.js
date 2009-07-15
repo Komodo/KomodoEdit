@@ -224,7 +224,7 @@ this.doCodeAsync = function command_doCodeAsync(cmdId, code) {
 
 this.doCommandAsync = function command_doCommandAsync(command, event) {
     // determine if this command is executed via a keybinding, if so, just
-    // do the command synchrounously
+    // do the command synchronously
     if (typeof(event) != 'undefined' && event.type == "keypress") {
         // for keybindings to work properly, we must cancel the keypress event
         // that caused this command to be issued.  This prevents a key command
