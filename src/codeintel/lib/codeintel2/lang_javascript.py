@@ -1816,7 +1816,7 @@ class JavaScriptCiler:
         if not toScope:
             # See if it's a function, we'll convert it into a class then
             if isinstance(self.currentScope, JSFunction):
-                topScope = self._convertFunctionToClass(self.currentScope)
+                toScope = self._convertFunctionToClass(self.currentScope)
         if not toScope or len(namelist) > 1:
             self.addFunction(namelist, args, doc)
         else:

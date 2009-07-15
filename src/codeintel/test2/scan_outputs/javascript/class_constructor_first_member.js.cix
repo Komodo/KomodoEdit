@@ -1,0 +1,14 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/class_constructor_first_member.js">
+    <scope ilk="blob" lang="JavaScript" name="class_constructor_first_member.js" src="scan_inputs/javascript/class_constructor_first_member.js">
+      <scope ilk="class" line="1" lineend="3" name="Test">
+        <scope attributes="__ctor__" ilk="function" line="1" lineend="3" name="Test" signature="Test()">
+          <variable citdl="Test" name="this" />
+        </scope>
+        <scope ilk="function" line="2" lineend="2" name="A" signature="A()">
+          <variable citdl="Test" name="this" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>
