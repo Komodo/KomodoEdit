@@ -2158,6 +2158,20 @@ EOD;
             self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
                     [("function", 'sub2_classfunc')])
 
+    @tag("bug83192", "php53")
+    def test_php_namespace_constants(self):
+        """Test namespace constants handling"""
+        content, positions = unmark_text(php_markup(dedent(r"""
+            namespace bug83192_nsp2 {
+                const MYCONST = 1;
+            }
+            namespace {
+                \bug83192_nsp2\<1>;
+            }
+        """)))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+                [("constant", 'MYCONST'),])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"

@@ -568,7 +568,8 @@ class PHPTreeEvaluator(TreeEvaluator):
 
         # Namespaces completions only show for namespace elements.
         elem_type = elem.get("ilk") or elem.tag
-        if self.trg.type == "namespace-members" and elem_type != "namespace":
+        namespace_cplns = (self.trg.type == "namespace-members")
+        if namespace_cplns and elem_type != "namespace":
             raise CodeIntelError("%r resolves to type %r, which is not a "
                                  "namespace" % (self.expr, elem_type, ))
 
@@ -614,7 +615,10 @@ class PHPTreeEvaluator(TreeEvaluator):
                         name_prefix = '$'
                     elif child.get("ilk") != "constant":
                         continue
-                elif "static" in attributes or child.get("ilk") == "constant":
+                elif "static" in attributes:
+                    continue
+                # Only namespaces allow access to constants.
+                elif child.get("ilk") == "constant" and not namespace_cplns:
                     continue
             # add the element, we've already checked private|protected scopes
             members.update(self._members_from_elem(child, name_prefix))
