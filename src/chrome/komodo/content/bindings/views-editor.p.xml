@@ -332,7 +332,7 @@
         <body>
         <![CDATA[
             // XXX we need to also observe changes in the file
-            // status so we can apropriately update our tab icons
+            // status so we can appropriately update our tab icons
             this.log.debug("editor view for document '"+
                            this.document.baseName+"' observed '"+topic+"'\n");
             switch (topic) {
