@@ -665,6 +665,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     print "i now: %d, ch: %r" % (i, ch)
 
                 if ch in WHITESPACE:
+                    if trg.type in ("namespaces", "namespace-members"):
+                        # Namespaces cannot be split over whitespace.
+                        break
                     while ch in WHITESPACE:
                         # drop all whitespace
                         next_char = ch

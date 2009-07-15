@@ -403,6 +403,10 @@ class TriggerTestCase(CodeIntelTestCase):
                                trigger_name="namespaces")
         self.assertCITDLExprIs(php_markup("# MyComment\n\\foo\\<|>"), r"\foo",
                                trigger_name="namespaces")
+        self.assertCITDLExprIs(php_markup("\\foo\n\\<|>"), "",
+                               trigger_name="namespaces")
+        self.assertCITDLExprIs(php_markup("\\foo\n\\bar\\<|>"), r"\bar",
+                               trigger_name="namespaces")
 
     @tag("bug79991")
     def test_citdl_expr_from_static_class_variables(self):
