@@ -1,0 +1,15 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/5.3/namespace_citdl.php">
+    <scope ilk="blob" lang="PHP" name="namespace_citdl.php" src="scan_inputs/php/5.3/namespace_citdl.php">
+      <variable citdl="\somenamespace" line="3" name="var1" />
+      <variable citdl="somenamespace\foo" line="4" name="var2" />
+      <variable citdl="somenamespace\foo.bar()" line="5" name="var3" />
+      <variable citdl="somenamespace\foo\bar()" line="6" name="var4" />
+      <variable citdl="somenamespace\foo.somevar" line="7" name="var5" />
+      <variable citdl="\somenamespace\foo" line="8" name="var6" />
+      <variable citdl="\somenamespace\foo.bar()" line="9" name="var7" />
+      <variable citdl="\somenamespace\foo\bar" line="10" name="var8" />
+      <variable citdl="\somenamespace\foo.somevar" line="11" name="var9" />
+    </scope>
+  </file>
+</codeintel>

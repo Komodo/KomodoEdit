@@ -2518,8 +2518,9 @@ class PHPParser:
                     elif typeNames and p < len(styles) and \
                        styles[p] == self.PHP_OPERATOR and text[p][0] == "(":
                         typeNames[-1] += "()"
-            elif styles[p] == self.PHP_VARIABLE:
-                typeNames, p = self._getIdentifiersFromPos(styles, text, p, self.PHP_VARIABLE)
+            elif styles[p] == self.PHP_VARIABLE or \
+                 (styles[p] == self.PHP_OPERATOR and text[p] == "\\"):
+                typeNames, p = self._getIdentifiersFromPos(styles, text, p, self.PHP_IDENTIFIER)
                     
         return typeNames, p
 
