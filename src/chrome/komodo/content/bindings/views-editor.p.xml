@@ -175,8 +175,32 @@
                 this_.isCICitadelStuffEnabled = false;
                 this_.isCIXMLStuffEnabled = false;
             }
+            this.handle_view_document_attached = function(event) {
+                var view = event.originalTarget;
+                if (view != this_) {
+                    return;
+                }
+                view.prefs.prefObserverService.addObserver(view, 'codeintel_enabled', false);
+                view.prefs.prefObserverService.addObserver(view, 'colorizing_enabled', false);
+            };
+            this.handle_view_document_detaching = function(event) {
+                var view = event.originalTarget;
+                if (view != this_) {
+                    return;
+                }
+                try {
+                    view.prefs.prefObserverService.removeObserver(view, 'codeintel_enabled');
+                    view.prefs.prefObserverService.removeObserver(view, 'colorizing_enabled');
+                } catch(e) {
+                  this.log.exception(e);
+                }
+            };
             window.addEventListener('codeintel_deactivated_window',
                 this._on_codeintel_deactivated_window, false);
+            window.addEventListener('view_document_attached',
+                this.handle_view_document_attached, false);
+            window.addEventListener('view_document_detaching',
+                this.handle_view_document_detaching, false);
         ]]>
         </body>
         </method>
@@ -206,8 +230,6 @@
             xtk.domutils.fireEvent(this, 'current_view_changed');
             this.scintilla.scimoz.hookEvents(this);
             this._inInitPhase = false;
-            this.prefs.prefObserverService.addObserver(this, 'codeintel_enabled', false);
-            this.prefs.prefObserverService.addObserver(this, 'colorizing_enabled', false);
             // This field is used by views-buffer.isCICplnEnabled
             this._isCICplnEnabledViewPref = this.prefs.getBooleanPref('codeintel_enabled');
             if (!this.prefs.getBooleanPref('colorizing_enabled')) {
@@ -467,8 +489,6 @@
         <method name="closeUnconditionally">
             <body><![CDATA[
                 this.saveState();
-                this.prefs.prefObserverService.removeObserver(this, 'codeintel_enabled');
-                this.prefs.prefObserverService.removeObserver(this, 'colorizing_enabled');
                 this.document = null;
                 if (this.preview) {
                     this.preview.sourceView = null;
@@ -481,6 +501,10 @@
                     this._on_codeintel_activated_window, false);
                 window.removeEventListener('codeintel_deactivated_window',
                     this._on_codeintel_deactivated_window, false);
+                window.removeEventListener('view_document_attached',
+                    this.handle_view_document_attached, false);
+                window.removeEventListener('view_document_detaching',
+                    this.handle_view_document_detaching, false);
 
                 // XXX nothing should ever inherit from view-editor
                 // if they do, this code using __proto__ must be changed
