@@ -281,10 +281,26 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                         return Trigger(lang, TRG_FORM_CALLTIP, "call-signature",
                                        pos, implicit)
                 elif last_char == "\\":
-                    # where to trigger from, updated by "," calltip handler
+                    # Ensure does not trigger when defining a new namespace,
+                    # i.e., do not trigger for:
+                    #      namespace foo\<|>
+                    style = last_style
+                    while style in (self.operator_style, self.identifier_style):
+                        p, c, style = ac.getPrecedingPosCharStyle(self.whitespace_style, max_look_back=30)
+                    if style == self.whitespace_style:
+                        p, c, style = ac.getPrecedingPosCharStyle(self.whitespace_style, max_look_back=30)
+                    if style is None:
+                        if DEBUG:
+                            print "Triggering namespace completion"
+                        return Trigger(lang, TRG_FORM_CPLN, "namespace-members",
+                                       pos, implicit)
+                    prev_text = ac.getTextBackWithStyle(style, max_text_len=15)
                     if DEBUG:
-                        print "Triggering namespace completion"
-                    return Trigger(lang, TRG_FORM_CPLN, "namespace-members", pos, implicit)
+                        print "prev_text: %r" % (prev_text, )
+                    if prev_text[1] != "namespace":
+                        if DEBUG:
+                            print "Triggering namespace completion"
+                        return Trigger(lang, TRG_FORM_CPLN, "namespace-members", pos, implicit)
 
             elif last_style == self.variable_style or \
                  (not implicit and last_char == "$"):

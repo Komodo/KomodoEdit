@@ -288,13 +288,13 @@ class TriggerTestCase(CodeIntelTestCase):
                                   name=name, pos=10)
         self.assertTriggerMatches(php_markup("foo\bar\<|>"),
                                   name=name, pos=13)
-
         # assert no trigger in strings
         self.assertNoTrigger('<?php $s = "here\<|>"; ?>')
-
         # assert no trigger in comments
         self.assertNoTrigger('<?php /* \<|> */ ?>')
         self.assertNoTrigger('<?php # \<|> ?>')
+        # assert no trigger after the "namespace" keyword
+        self.assertNoTrigger('<?php namespace foo\<|> ?>')
 
     def test_trigger_calltip_call_signature(self):
         # Triggers after open bracket:
