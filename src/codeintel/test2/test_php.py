@@ -2172,6 +2172,48 @@ EOD;
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
                 [("constant", 'MYCONST'),])
 
+    @tag("bug83192", "php53")
+    def test_php_namespace_classes(self):
+        """Test namespace class handling"""
+        content, positions = unmark_text(php_markup(dedent(r"""
+            namespace bug83192_nsp3 {
+                class theclass {
+                    private $privar;
+                    protected $provar;
+                    public $pubvar;
+                    public static $statvar = 1;
+                    function func() {}
+                    static function statfunc() {}
+                }
+            }
+            namespace {
+                \bug83192_nsp3\<1>theclass::<2>;
+                $x = new \bug83192_nsp3\theclass(<3>);
+                $x-><4>xxx;
+            }
+        """)))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+                [("class", 'theclass'),])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+                [("variable", '$statvar'),
+                 ("function", 'statfunc'),
+                 ("function", 'func'),])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
+                [("variable", 'privar'),
+                 ("variable", 'provar'),
+                 ("variable", 'pubvar'),])
+        self.assertCalltipIs(markup_text(content, pos=positions[3]),
+                "theclass()")
+        self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
+                [("variable", 'pubvar'),
+                 ("function", 'func'),
+                 ("function", 'statfunc'),])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[4]),
+                [("variable", 'privar'),
+                 ("variable", 'provar'),
+                 ("variable", 'statvar'),
+                 ("variable", '$statvar'),])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
