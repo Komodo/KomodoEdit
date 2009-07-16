@@ -44,4 +44,8 @@ class Controller {
     }
 }
 
+// Statically typed pass by reference
+function sendNow(Customer &$customer) { }
+
+
 ?>

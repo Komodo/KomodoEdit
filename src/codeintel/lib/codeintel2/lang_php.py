@@ -2326,6 +2326,7 @@ class PHPParser:
         # Arguments can be statically typed declarations too, bug 79003:
         #  foo(MyClass $a)
         #  foo(string $a = "123")
+        #  foo(MyClass &$a)
 
         log.debug("_getArgumentsFromPos: text: %r", text[pos:])
         if pos < len(styles) and styles[pos] == self.PHP_OPERATOR and text[pos] == "(":
@@ -2356,7 +2357,8 @@ class PHPParser:
                     vartype = None
                 elif ((pos+1) < len(styles) and
                       styles[pos] in (self.PHP_IDENTIFIER, self.PHP_WORD) and
-                      styles[pos+1] == self.PHP_VARIABLE):
+                      (styles[pos+1] == self.PHP_VARIABLE or
+                       text[pos+1] == '&')):
                     # Statically typed argument.
                     vartype = text[pos]
                 elif styles[pos] != self.PHP_OPERATOR or text[pos] not in "&,":

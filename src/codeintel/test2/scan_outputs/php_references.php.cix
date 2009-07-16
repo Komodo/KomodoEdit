@@ -15,6 +15,9 @@
         <scope attributes="__ctor__" ilk="function" line="41" lineend="44" name="Controller" signature="Controller()" />
         <variable citdl="load_class()" line="43" name="load" />
       </scope>
+      <scope doc="Statically typed pass by reference" ilk="function" line="48" lineend="48" name="sendNow" signature="sendNow(Customer customer)">
+        <variable citdl="Customer" ilk="argument" name="customer" />
+      </scope>
     </scope>
   </file>
 </codeintel>
