@@ -518,13 +518,6 @@ class Scheme:
         prop_font_fallback_style_name = 'default_proportional'
         fixed_font_style_name = encoding+'_fixed'
         prop_font_style_name = encoding+'_proportional'
-        
-        if self._booleans['preferFixed'] and not alternateType:
-            default_style_name = fixed_font_style_name
-            default_fallback_style_name = fixed_font_fallback_style_name
-        else:
-            default_style_name = prop_font_style_name
-            default_fallback_style_name = prop_font_fallback_style_name
 
         if self.currentLanguage in self._languageStyles:
             currentLanguageStyles = self._languageStyles[self.currentLanguage]
