@@ -2425,11 +2425,14 @@ EOD;
                 function foo() {
                     AO::<1>;
                 }
+                \bug83192_nsp4\<2>;
             }
         """)))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
                 [("function", 'count'),
                  ("function", 'append'),])
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+                [("function", 'foo')])
 
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
