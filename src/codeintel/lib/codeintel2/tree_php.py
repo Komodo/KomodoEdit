@@ -609,6 +609,8 @@ class PHPTreeEvaluator(TreeEvaluator):
 
         for child in elem:
             #self.debug("_members_from_hit: checking child: %r", child)
+            if child.tag == "import":
+                continue
             name_prefix = ''   # Used to add "$" for static variable names.
             attributes = child.get("attributes", "").split()
             if "__hidden__" in attributes:
