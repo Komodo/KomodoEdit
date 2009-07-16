@@ -201,10 +201,17 @@ class PHPTreeEvaluator(TreeEvaluator):
             return retval
         elif trg.type == "classes":
             return self._classes_from_scope(None, start_scope)
-        elif trg.type == "namespaces" or \
-             (trg.type == "namespace-members" and (not self.expr or self.expr == "\\")):
-            # All available namespaces
+        elif trg.type == "namespaces":
             return self._namespaces_from_scope(self.expr, start_scope)
+        elif trg.type == "namespace-members" and (not self.expr or self.expr == "\\"):
+            # All available namespaces and include all available global
+            # functions/classes/constants as well.
+            global_scoperef = self._get_global_scoperef(start_scope)
+            cplns = self._namespaces_from_scope(self.expr, start_scope)
+            cplns += self._functions_from_scope(None, global_scoperef)
+            cplns += self._constants_from_scope(None, global_scoperef)
+            cplns += self._classes_from_scope(None, global_scoperef)
+            return cplns
         elif trg.type == "interfaces":
             return self._interfaces_from_scope(self.expr, start_scope)
         elif trg.type == "magic-methods":
@@ -406,7 +413,7 @@ class PHPTreeEvaluator(TreeEvaluator):
     def _constants_from_scope(self, expr, scoperef):
         """Return all available constant names beginning with expr"""
         # XXX - TODO: Use FUNCTION_TRIGGER_LEN instead of hard coding 3
-        return self._element_names_from_scope_starting_with_expr(expr[:3],
+        return self._element_names_from_scope_starting_with_expr(expr and expr[:3] or None,
                             scoperef,
                             "constant",
                             ("globals", "imports", "builtins"),
@@ -425,7 +432,7 @@ class PHPTreeEvaluator(TreeEvaluator):
     def _functions_from_scope(self, expr, scoperef):
         """Return all available function names beginning with expr"""
         # XXX - TODO: Use FUNCTION_TRIGGER_LEN instead of hard coding 3
-        return self._element_names_from_scope_starting_with_expr(expr[:3],
+        return self._element_names_from_scope_starting_with_expr(expr and expr[:3] or None,
                             scoperef,
                             "function",
                             ("locals", "globals", "imports",),

@@ -2214,6 +2214,17 @@ EOD;
                  ("variable", 'statvar'),
                  ("variable", '$statvar'),])
 
+    @tag("bug83192", "php53")
+    def test_php_global_namespace(self):
+        """Test completions on the global namespace"""
+        content, positions = unmark_text(php_markup(dedent(r"""
+            \<1>;
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [("class", 'ArrayObject'),
+                 ("function", 'phpversion'),
+                 ("constant", 'TRUE'),])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
