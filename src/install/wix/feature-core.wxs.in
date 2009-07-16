@@ -331,7 +331,6 @@
       <ComponentRef Id="component9"/>
       <ComponentRef Id="component12"/>
       <ComponentRef Id="component13"/>
-      <ComponentRef Id="component14"/>
       <ComponentRef Id="component15"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
@@ -1372,11 +1371,6 @@
                     <File Id="file883" LongName="TracWiki.tracwiki" Name="TRACWI_0.TRA" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates\All Languages\TracWiki.tracwiki" />
                   </Component>
                 </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates\All Languages -->
-                <Directory Id="directory15" LongName="Common" Name="Common" >
-                  <Component DiskId="1" Guid="$(autowix.guid)" Id="component14">
-                    <File Id="file884" LongName="TracWiki.tracwiki" Name="TRACWI_1.TRA" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates\Common\TracWiki.tracwiki" />
-                  </Component>
-                </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates\Common -->
               </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com\templates -->
             </Directory> <!-- lib\mozilla\extensions\tracwiki_language@ActiveState.com -->
 
@@ -4084,6 +4078,7 @@
                 <File Id="file3803" Name="JAVASC_4.JS" LongName="JavaScript.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\JavaScript.js"/>
                 <File Id="file3804" Name="PERL_2.PL" LongName="Perl.pl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\Perl.pl"/>
                 <File Id="file310" LongName="RJS.rjs" Name="RJS_0.RJS" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\RJS.rjs" />
+                <File Id="file889" Name="Ruby.rb" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\Ruby.rb" />
                 <File Id="file311" LongName="RXML.rxml" Name="RXML_1.RXM" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\RXML.rxml" />
               </Component>
             </Directory> <!-- lib\support\default-templates\Web -->
