@@ -234,6 +234,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                 # this expression as a namespace lookup.
                 expr += "\\"
             hit = self._hit_from_citdl(expr, start_scope)
+            cplns = []
             if hit[0] is not None:
                 self.log("self.expr: %r", self.expr)
                 # special handling for parent, explicitly set the
@@ -241,12 +242,34 @@ class PHPTreeEvaluator(TreeEvaluator):
                 if self.expr == "parent" or \
                    self.expr.startswith("parent."):
                     self.log("Allowing protected parent members")
-                    return list(self._members_from_hit(hit, allowProtected=True,
-                                                       allowPrivate=False))
+                    cplns = list(self._members_from_hit(hit, allowProtected=True,
+                                 allowPrivate=False))
                 elif self.trg.type == "array-members":
-                    return list(self._members_from_array_hit(hit, self.trg.extra.get('trg_char')))
+                    cplns = list(self._members_from_array_hit(hit, self.trg.extra.get('trg_char')))
                 else:
-                    return list(self._members_from_hit(hit))
+                    cplns = list(self._members_from_hit(hit))
+            if self.trg.type == "namespace-members":
+                # Return additional sub-namespaces that start with this prefix.
+                name = expr.strip("\\")
+                if hit[0] is not None:
+                    # We hit a namespace, return additional namespaces that
+                    # start with the hit's fully qualified name (fqn).
+                    name = hit[0].get("name")
+                elif not expr.startswith("\\"):
+                    # Translate the namespace into a fully qualified name (fqn).
+                    namespace_elem = self._namespace_elem_from_scoperef(start_scope)
+                    if namespace_elem is not None:
+                        # If already inside a namespace, the name must be
+                        # morphed to include the current namespace's fqn.
+                        name = "%s\\%s" % (namespace_elem.get("name"), expr)
+                self.debug("eval_cplns:: adding namespace hits that start with "
+                           "expr: %r", name)
+                namespaces = self._namespaces_from_scope(name, start_scope)
+                for ilk, n in namespaces:
+                    n = n[len(name):].strip("\\")
+                    if n:
+                        cplns.append((ilk, n))
+            return cplns
 
     def eval_calltips(self):
         self.log_start()
@@ -644,15 +667,6 @@ class PHPTreeEvaluator(TreeEvaluator):
                         allowProtected = self._isElemInsideScoperef(elem, self.get_start_scoperef())
                     # Checking the parent class, private is not allowed for sure
                     members.update(self._members_from_hit(subhit, allowProtected, allowPrivate=False))
-        elif elem_ilk == "namespace" and self.trg.type == "namespace-members":
-            # Return additional sub-namespaces that start with this prefix.
-            self.debug("_members_from_hit: finding alternative namespace hits")
-            fqn = elem_name
-            other_namespaces = self._namespaces_from_scope(fqn, scoperef)
-            for ilk, name in other_namespaces:
-                if name.startswith(fqn) and name != fqn:
-                    # Show the namespace as relative to the hit namespace.
-                    members.add((ilk, name[len(fqn):].strip("\\")))
         return members
 
     def _hit_from_citdl(self, expr, scoperef, defn_only=False):
@@ -681,10 +695,18 @@ class PHPTreeEvaluator(TreeEvaluator):
 
         # First part...
         hit, nconsumed = self._hit_from_first_part(tokens, scoperef)
-        if not hit:
+        if not hit or hit[0] is None:
             #TODO: Add the fallback Buffer-specific near-by hunt
             #      for a symbol for the first token. See my spiral-bound
             #      book for some notes.
+            if self.trg.type == "namespace-members":
+                # If this is a namespace-members completion trigger, then this
+                # namespace may not exist, but one of the sub-namespaces may:
+                #    namespace foo\bar\bam {}
+                #    \foo\<|>     # namespace 'foo' doesn't exist
+                # in this case we want to return all namespaces starting with
+                # this expr, which is handled in the eval_cplns() method.
+                return None, None
             raise CodeIntelError("could not resolve first part of '%s'" % expr)
 
         self.debug("_hit_from_citdl:: first part: %r -> %r",
@@ -797,7 +819,9 @@ class PHPTreeEvaluator(TreeEvaluator):
                         alias = child.get("alias")
                         if ((alias is None and symbol == first_token) or
                             (alias == first_token)):
-                            fqn = "%s\\%s" % (child.get("name"), symbol)
+                            self.log("_hit_from_namespace:: found alias: %r",
+                                     child)
+                            fqn = "%s\\%s" % (child.get("module"), symbol)
                             if tokens[1:]:
                                 fqn += "\\%s" % ("\\".join(tokens[1:]))
                                 break
@@ -847,7 +871,9 @@ class PHPTreeEvaluator(TreeEvaluator):
             if hits:
                 # XXX: Possible multiple hits.
                 self.log("_hit_from_namespace:: found in lib(2): %r", lib)
-                return self._hit_from_citdl(last_token, hits[0])
+                scoperef = hits[0][1]
+                scoperef = (scoperef[0], scoperef[1] + [fqn])
+                return self._hit_from_citdl(last_token, scoperef)
         return None
 
     def _hit_from_first_part(self, tokens, scoperef):
@@ -870,8 +896,11 @@ class PHPTreeEvaluator(TreeEvaluator):
         if "\\" in first_token:
             # It's a namespace, lookup the correstponding namespace.
             hit = self._hit_from_namespace(first_token, scoperef)
-            nconsumed = 1
-            return hit, nconsumed
+            if hit is not None:
+                nconsumed = 1
+                return hit, nconsumed
+            if self.trg.type == "namespace-members":
+                return None, 1
 
         if first_token in ("this", "self", "parent"):
             # Special handling for class accessors

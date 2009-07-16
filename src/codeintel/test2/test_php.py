@@ -2916,6 +2916,126 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         self.assertCompletionsDoNotInclude2(buf, test_positions[2],
             [("variable", "$a_pub_var"), ("variable", "$c_pub_var")])
 
+    @tag("bug83192", "php53")
+    def test_imported_namespace_completions(self):
+        test_dir = join(self.test_dir, "test_imported_namespace_completions")
+        test_content, test_positions = unmark_text(php_markup(dedent(r"""
+            \<1>My\<2>Full\<3>Classname::<4>classname_func(<5>);
+        """)))
+        manifest = [
+            (join(test_dir, "subdir", "myfull.php"), php_markup(dedent(r"""
+                namespace My\Full {
+                    class Classname {
+                        static $x = 1;
+                        protected $y;
+                        function classname_func($arg) { }
+                    }
+                    function FullFunc() {}
+                }
+                namespace My\Full\NSname {
+                    class nsclass {
+                        static $nsstatic = 0;
+                    }
+                    function nsfunc() {}
+                }
+             """))),
+            (join(test_dir, "test.php"), test_content),
+        ]
+        for filepath, content in manifest:
+            writefile(filepath, content)
+
+        extra_paths = [join(test_dir, "subdir"),]
+        env = SimplePrefsEnvironment(phpExtraPaths=os.pathsep.join(extra_paths))
+        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang,
+                                     env=env)
+        self.assertCompletionsInclude2(buf, test_positions[1],
+            [("namespace", r"My\Full"),
+             ("namespace", r"My\Full\NSname")])
+        self.assertCompletionsInclude2(buf, test_positions[2],
+            [("namespace", r"Full"),
+             ("namespace", r"Full\NSname")])
+        self.assertCompletionsInclude2(buf, test_positions[3],
+            [("namespace", r"NSname"),
+             ("class",     r"Classname"),
+             ("function",  r"FullFunc")])
+        self.assertCompletionsDoNotInclude2(buf, test_positions[3],
+            [("namespace", r"My\Full"), ])
+        self.assertCompletionsAre2(buf, test_positions[4],
+            [("function",  r"classname_func"),
+             ("variable",  r"$x")])
+        self.assertCalltipIs2(buf, test_positions[5],
+            "classname_func(arg)")
+
+    @tag("bug83192", "php53")
+    def test_imported_namespace_alias(self):
+        test_dir = join(self.test_dir, "test_imported_namespace_completions")
+        test_content, test_positions = unmark_text(php_markup(dedent(r"""
+            namespace foo {
+                use My\Full as MF;
+                use My\Full\NSname;
+                use My\Full\Classname;
+                use My\Full\Classname as CN;
+
+                MF\<1>;
+
+                \My\Full\NSname\<2>;
+                MF\NSname\<3>;
+                NSname\<4>;
+
+                \My\Full\Classname::<5>;
+                MF\Classname::<6>;
+                Classname::<7>;
+                CN::<8>;
+                $x = new CN(<9>);
+
+                \My\Full\NSname\nsclass::<10>;
+                MF\NSname\nsclass::<11>;
+                NSname\nsclass::<12>;
+            }
+        """)))
+        manifest = [
+            (join(test_dir, "subdir", "myfull.php"), php_markup(dedent(r"""
+                namespace My\Full {
+                    class Classname {
+                        static $x = 1;
+                        protected $y;
+                        function classname_func($arg) { }
+                    }
+                    function FullFunc() {}
+                }
+                namespace My\Full\NSname {
+                    class nsclass {
+                        static $nsstatic = 0;
+                    }
+                    function nsfunc() {}
+                }
+             """))),
+            (join(test_dir, "test.php"), test_content),
+        ]
+        for filepath, content in manifest:
+            writefile(filepath, content)
+
+        extra_paths = [join(test_dir, "subdir"),]
+        env = SimplePrefsEnvironment(phpExtraPaths=os.pathsep.join(extra_paths))
+        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang,
+                                     env=env)
+        self.assertCompletionsInclude2(buf, test_positions[1],
+            [("namespace", r"NSname"),
+             ("class",     r"Classname"),
+             ("function",  r"FullFunc")])
+        for pos in (2, 3, 4):
+            self.assertCompletionsAre2(buf, test_positions[pos],
+                [("class",     r"nsclass"),
+                 ("function",  r"nsfunc")])
+        for pos in (5, 6, 7, 8):
+            self.assertCompletionsAre2(buf, test_positions[pos],
+                [("function",  r"classname_func"),
+                 ("variable",  r"$x")])
+        self.assertCalltipIs2(buf, test_positions[9],
+            "Classname()")
+        for pos in (10, 11, 12):
+            self.assertCompletionsAre2(buf, test_positions[pos],
+                [("variable",  r"$nsstatic")])
 
 class DefnTestCase(CodeIntelTestCase):
     lang = "PHP"
