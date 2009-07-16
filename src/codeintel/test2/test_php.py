@@ -2052,6 +2052,17 @@ EOD;
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
                              "bug82721_class(var1, var2, var3)")
 
+    @tag("bug79221")
+    def test_function_argument_handling(self):
+        # Test to ensure can handle different styles of arguments.
+        content, positions = unmark_text(php_markup(dedent("""\
+            function test_bug79221($one, $two = array(), $three = false) { }
+            test_bug79221(<1>);
+        """)))
+
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+                "test_bug79221(one, two=array(), three=false)")
+
     @tag("bug83381")
     def test_function_calltip_interface_fallback(self):
         content, positions = unmark_text(php_markup(dedent("""\
@@ -2904,17 +2915,6 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             [("function", "func1"), ("function", "func2"), ("variable", "x")])
         self.assertCompletionsAre(markup_text(content, pos=positions[4]),
             [("function", "func1"), ("function", "func2"), ("variable", "x")])
-
-    @tag("bug79221")
-    def test_function_argument_handling(self):
-        # Test to ensure can handle different styles of arguments.
-        content, positions = unmark_text(php_markup(dedent("""\
-            function test_bug79221($one, $two = array(), $three = false) { }
-            test_bug79221(<1>);
-        """)))
-
-        self.assertCalltipIs(markup_text(content, pos=positions[1]),
-                "test_bug79221(one, two=array(), three=false)")
 
 
 class DefnTestCase(CodeIntelTestCase):
