@@ -390,25 +390,25 @@ class TriggerTestCase(CodeIntelTestCase):
         #    Foo\bar::bam-<|>>               Foo\bar.bam
         #    Foo\bar(arg1, arg2)::bam-<|>>   Foo\bar().bam
         self.assertCITDLExprIs(php_markup(r"foo\<|>"), r"foo",
-                               trigger_name="namespaces")
+                               trigger_name="namespace-members")
         self.assertCITDLExprIs(php_markup(r"\foo\<|>"), r"\foo",
-                               trigger_name="namespaces")
+                               trigger_name="namespace-members")
         self.assertCITDLExprIs(php_markup(r"foo\bar\<|>"), r"foo\bar",
-                               trigger_name="namespaces")
+                               trigger_name="namespace-members")
         self.assertCITDLExprIs(php_markup(r"\foo\bar\<|>"), r"\foo\bar",
-                               trigger_name="namespaces")
+                               trigger_name="namespace-members")
         self.assertCITDLExprIs(php_markup(r"Foo\bar::<|>"), r"Foo\bar")
         self.assertCITDLExprIs(php_markup(r"Foo\bar::bam-><|>"), r"Foo\bar.bam")
         self.assertCITDLExprIs(php_markup(r"Foo\bar()->bam-><|>"), r"Foo\bar().bam")
         self.assertCITDLExprIs(php_markup(r"Foo\bar\bam::<|>"), r"Foo\bar\bam")
         self.assertCITDLExprIs(php_markup("# MyComment\nfoo\\<|>"), r"foo",
-                               trigger_name="namespaces")
+                               trigger_name="namespace-members")
         self.assertCITDLExprIs(php_markup("# MyComment\n\\foo\\<|>"), r"\foo",
-                               trigger_name="namespaces")
+                               trigger_name="namespace-members")
         self.assertCITDLExprIs(php_markup("\\foo\n\\<|>"), "",
-                               trigger_name="namespaces")
+                               trigger_name="namespace-members")
         self.assertCITDLExprIs(php_markup("\\foo\n\\bar\\<|>"), r"\bar",
-                               trigger_name="namespaces")
+                               trigger_name="namespace-members")
 
     @tag("bug79991")
     def test_citdl_expr_from_static_class_variables(self):
