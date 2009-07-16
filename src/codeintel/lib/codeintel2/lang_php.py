@@ -836,7 +836,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 i = trg.pos + 1   # triggered on the $, skip over it
             elif trg.type == "array-members":
                 i = trg.extra.get("bracket_pos")   # triggered on foo['
-            elif trg.type in ("namespaces", "namespace-members"):
+            elif trg.type == "namespaces":
+                i = trg.pos + 1
+            elif trg.type == "namespace-members":
                 i = trg.pos - 1
             else:
                 i = trg.pos - 2 # skip past the trigger char

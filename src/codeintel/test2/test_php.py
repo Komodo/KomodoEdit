@@ -262,8 +262,6 @@ class TriggerTestCase(CodeIntelTestCase):
         #
         #    Samples:
         #        use <|>
-        #        \<|>
-        #        mynamespace\<|>
         name = "php-complete-namespaces"
         self.assertTriggerMatches(php_markup("use <|>"),
                                   name=name, pos=10)
@@ -280,23 +278,25 @@ class TriggerTestCase(CodeIntelTestCase):
         # Triggers after 'use ' or '\'
         #
         #    Samples:
-        #        use <|>
         #        \<|>
         #        mynamespace\<|>
         name = "php-complete-namespace-members"
-        self.assertTriggerMatches(php_markup("\<|>"),
+        self.assertTriggerMatches(php_markup(r"\<|>"),
                                   name=name, pos=7)
-        self.assertTriggerMatches(php_markup("foo\<|>"),
+        self.assertTriggerMatches(php_markup(r"foo\<|>"),
                                   name=name, pos=10)
-        self.assertTriggerMatches(php_markup("foo\bar\<|>"),
-                                  name=name, pos=13)
+        self.assertTriggerMatches(php_markup(r"foo\bar\<|>"),
+                                  name=name, pos=14)
         # assert no trigger in strings
-        self.assertNoTrigger('<?php $s = "here\<|>"; ?>')
+        self.assertNoTrigger(r'<?php $s = "here\<|>"; ?>')
         # assert no trigger in comments
-        self.assertNoTrigger('<?php /* \<|> */ ?>')
-        self.assertNoTrigger('<?php # \<|> ?>')
+        self.assertNoTrigger(r'<?php /* \<|> */ ?>')
+        self.assertNoTrigger(r'<?php # \<|> ?>')
         # assert no trigger after the "namespace" keyword
-        self.assertNoTrigger('<?php namespace foo\<|> ?>')
+        self.assertNoTrigger(r'<?php namespace foo\<|> ?>')
+        # PHP strangely allows the following to work as the current namespace.
+        #self.assertTriggerMatches(php_markup(r"namespace\foo\<|>"),
+        #                          name=name, pos=22)
 
     def test_trigger_calltip_call_signature(self):
         # Triggers after open bracket:
