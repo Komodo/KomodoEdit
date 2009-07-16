@@ -914,7 +914,27 @@ class PHPTreeEvaluator(TreeEvaluator):
                              "yes: %s", first_token, scoperef, first_token_elem)
                     return (first_token_elem, scoperef), 1
 
-            self.log("_hit_from_first_part:: is '%s' accessible on %s? no", first_token, scoperef)
+            if elem.tag == "scope" and elem.get("ilk") == "namespace":
+                self.log("_hit_from_first_part:: checking namespace aliases")
+                for child in elem:
+                    if child.tag != "import":
+                        continue
+                    module = child.get("module")
+                    symbol = child.get("symbol")
+                    alias = child.get("alias")
+                    self.log("_hit_from_first_part:: module: %r, symbol: %r"
+                             ", alias: %r", module, symbol, alias)
+                    if alias == first_token or \
+                            (alias is None and symbol == first_token):
+                        self.log("_hit_from_first_part:: is '%s' accessible on "
+                                 "%s? yes: %s", first_token, scoperef, child)
+                        expr = "%s\\%s" % (module, symbol)
+                        hit = self._hit_from_citdl(expr, (child, scoperef))
+                        if hit:
+                            return hit, 1
+                        break
+            self.log("_hit_from_first_part:: is '%s' accessible on %s? no",
+                     first_token, scoperef)
             # Do not go past the global scope reference
             if len(scoperef[1]) >= 1:
                 scoperef = self.parent_scoperef_from_scoperef(scoperef)
@@ -1146,6 +1166,12 @@ class PHPTreeEvaluator(TreeEvaluator):
             # Nothin past the builtins
             return None
         elif len(lpath) >= 1:
+            if len(lpath) >= 2:
+                # Return the namespace if there is one
+                elem = blob.names.get(lpath[0])
+                if elem is not None and elem.tag == "scope" and \
+                   elem.get("ilk") == "namespace":
+                    return (blob, lpath[:1])
             # Return the global scope
             return self._get_global_scoperef(scoperef)
         else:

@@ -2225,6 +2225,20 @@ EOD;
                  ("function", 'phpversion'),
                  ("constant", 'TRUE'),])
 
+    @tag("bug83192", "php53")
+    def test_php_namespace_aliasing(self):
+        content, positions = unmark_text(php_markup(dedent(r"""
+            namespace bug83192_nsp4 {
+                use \ArrayObject as AO;
+                function foo() {
+                    AO::<1>;
+                }
+            }
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [("function", 'count'),
+                 ("function", 'append'),])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
