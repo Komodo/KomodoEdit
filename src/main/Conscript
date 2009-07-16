@@ -42,6 +42,7 @@ Import(
     "build",
     "platform",
     "buildType", "buildFlavour",
+    "updateChannel",
     "buildPlatform",
     "compiler",
     "komodoDevDir",
@@ -114,7 +115,7 @@ if ($platform ne "win" && $platform ne "darwin") { # i.e. GTK
 # tree.
 
 my ($cp, $buildCmd, $mozKomodoSrcDir, $mozKomodoObjDir,
-    $macKoIconName, $envVars, $updateChannel, $productName);
+    $macKoIconName, $envVars, $productName);
 
 if ($buildFlavour eq "full") {
     $macKoIconName = "komodo.$productType";
@@ -127,7 +128,6 @@ $komodoVersion =~ /(\d+)\.(\d+)\.(\d+)/;
 $koMajor = $1;
 $koMinor = $2;
 $koPatch = $3;
-$updateChannel = ($komodoVersion =~ /-/ ? "beta" : "release");
 $komodoAppUpdateEnabled = ($buildFlavour eq "dev" ? "false" : "true");
 $productName = ($productType eq "openkomodo"
                 ? "OpenKomodo"

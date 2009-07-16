@@ -69,6 +69,7 @@ my @toExport = (
     'isGTK2Siloed',             # boolean: are the GTK2 libs siloed in this build?
     'komodoDevDir',
     'buildFlavour',
+    'updateChannel',
     'komodoLicensingType',
     'ranRegxpcomStateFileName', # junk output file for the target which
                                 #runs 'regxpcom' as necessary

@@ -2354,6 +2354,45 @@ class BuildFlavour(black.configure.Datum):
         self.determined = 1
 
 
+class UpdateChannel(black.configure.Datum):
+    """The update channel used for auto-updating Komodo.
+
+    Must be one of the following channels:
+        - release
+        - beta
+        - nightly
+    """
+    def __init__(self):
+        black.configure.Datum.__init__(self, "updateChannel",
+            desc="the Komodo build flavour ('release', 'beta' or 'nightly')",
+            acceptedOptions=("", ["update-channel="]))
+
+    def _Determine_Sufficient(self):
+        if self.value is None:
+            raise black.configure.ConfigureError(\
+                "Could not determine %s. Use the --update-channel "\
+                "configure option\n" % self.desc)
+        elif self.value not in ("release", "beta", "nightly"):
+            raise black.configure.ConfigureError(\
+                "Invalid %s. Must be one of 'release', 'beta' or 'nightly'\n"\
+                % self.desc)
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        for opt, optarg in self.chosenOptions:
+            if opt == "--update-channel":
+                self.value = optarg
+                break
+        else:
+            # Set the channel from the Komodo version.
+            version = black.configure.items["komodoVersion"].Get()
+            if "-" in version:
+                self.value = "beta"
+            else:
+                self.value = "release"
+        self.determined = 1
+
+
 class Platform(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "platform",

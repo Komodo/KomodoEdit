@@ -747,6 +747,7 @@ configuration = {
     
     "buildType": BuildType(),               # "release" or "debug"
     "buildFlavour": BuildFlavour(),         # "dev" or "full"
+    "updateChannel": UpdateChannel(),       # "nightly", "beta" or "release"
     "versionInfoFile": VersionInfoFile(),
     "KOMODO_HOSTNAME": SetKomodoHostname(),
     "withSymbols": WithSymbols(),
