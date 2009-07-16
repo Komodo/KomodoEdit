@@ -2063,6 +2063,187 @@ EOD;
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
                 "test_bug79221(one, two=array(), three=false)")
 
+    @tag("bug74625")
+    def test_variable_with_complex_citdl(self):
+        # Need to make sure we properly obtain all the type information
+        # from declared variables.
+        content, positions = unmark_text(php_markup(dedent("""\
+            class Bug74625 {
+                public $field = "";
+                public static function getInstance() {
+                    return new self();
+                }
+            }
+            $bug74625_instance = Bug74625::getInstance();
+            $b<1>ug74625_instance-><2>xxx;
+        """)))
+
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("variable", "bug74625_instance")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[2]),
+            [("variable", "field"), ("function", "getInstance")])
+
+    @tag("bug74627")
+    def test_doctags_variable_type_inferencing(self):
+        # Test for ensuring the type inference information can be set
+        # through a phpdoc comment.
+        content, positions = unmark_text(php_markup(dedent("""\
+            class Bug74627_dummy_class {
+                public $field = "";
+                public function callme() {
+                }
+            }
+            class Bug74627 {
+                /**
+                 * View object
+                 * @var Bug74627_dummy_class
+                 */
+                public $dummy;
+            }
+            $bug74627_instance = new Bug74627();
+            $b<1>ug74627_instance-><2>dummy-><3>xxx;
+        """)))
+
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("variable", "bug74627_instance")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[2]),
+            [("variable", "dummy")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[3]),
+            [("variable", "field"), ("function", "callme")])
+
+    @tag("bug70015")
+    def test_class_and_instance_with_same_name(self):
+        # Test for ensuring the citdl type can be found when the object
+        # instance is the same as the class name.
+        content, positions = unmark_text(php_markup(dedent("""\
+            class Bug70015 {
+
+                private $Width;
+                private $Height;
+
+                public function __construct() {
+                    $this->Width = 400;
+                    $this->Height = 400;
+                }
+
+                public function setMapDims($w, $h) {
+                    $this->Width = $w;
+                    $this-><3>Height = $h;
+                }
+            }
+            $Bug70015 = new Bug70015();
+            $B<1>ug70015-><2>setMapDims(<4>);
+        """)))
+
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("variable", "Bug70015")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[2]),
+            [("function", "setMapDims")])
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[3]),
+            [("function", "setMapDims"),
+             ("variable", "Height"),
+             ("variable", "Width")])
+        self.assertCalltipIs(markup_text(content, pos=positions[4]),
+                             "setMapDims(w, h)")
+
+    @tag("bug76677")
+    def test_3char_trigger_includes_classes(self):
+        # Test for ensuring the citdl type can be found when the object
+        # instance is the same as the class name.
+        content, positions = unmark_text(php_markup(dedent("""\
+            define("Bug76677_const", 100);
+            function Bug76677_func() { }
+            class Bug76677_class {
+                var $my_var;
+                public static function my_func() { }
+            }
+            Bug<1>;
+            foo<2>;
+        """)))
+
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("constant", "Bug76677_const"),
+             ("function", "Bug76677_func"),
+             ("class", "Bug76677_class"),
+            ])
+
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]),
+            [("class", "Exception")])
+
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[2]),
+            [("constant", "Bug76677_const"),
+             ("function", "Bug76677_func"),
+             ("class", "Bug76677_class"),
+            ])
+
+    @tag("bug76746")
+    def test_ignore_unhelpful_variable_types(self):
+        # Test for ensuring the citdl type can be found when the object
+        # instance is the same as the class name.
+        content, positions = unmark_text(php_markup(dedent("""\
+            class bug76746_dummyDB {
+                public $connection;
+            }
+
+            class bug76746_dummyclass {
+                /**
+                * This variable contains the instance of the database class.
+                * @var object
+                */
+                private $objDB;
+                function __construct() {
+                    $this->objDB = new bug76746_dummyDB();
+                }
+
+                function foo() {
+                    $this->objDB-><1>xxx;
+                }
+            }
+        """)))
+
+        self.assertCompletionsAre(
+            markup_text(content, pos=positions[1]),
+            [("variable", "connection"), ])
+
+    @tag("bug77834")
+    def test_chained_method_calls(self):
+        # Test for ensuring the citdl type can be found when the methods
+        # are chained together.
+        content, positions = unmark_text(php_markup(dedent("""\
+            class bug77834_class {
+                var $x = 0;
+                /**
+                 * @return bug77834_class
+                 */
+                function func1() { }
+                function func2() { }
+            }
+            $bug77834_inst = new bug77834_class();
+            $bug77834_inst->func1()-><1>xxx;
+            $bug77834_inst->func1(5)-><2>xxx;
+            $bug77834_inst->func1("a string", $x)-><3>func1("bae")-><4>xxx;
+        """)))
+
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("function", "func1"), ("function", "func2"), ("variable", "x")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+            [("function", "func1"), ("function", "func2"), ("variable", "x")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
+            [("function", "func1"), ("function", "func2"), ("variable", "x")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[4]),
+            [("function", "func1"), ("function", "func2"), ("variable", "x")])
+
     @tag("bug83381")
     def test_function_calltip_interface_fallback(self):
         content, positions = unmark_text(php_markup(dedent("""\
@@ -2734,187 +2915,6 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             [("variable", "$b_pub_var")])
         self.assertCompletionsDoNotInclude2(buf, test_positions[2],
             [("variable", "$a_pub_var"), ("variable", "$c_pub_var")])
-
-    @tag("bug74625")
-    def test_variable_with_complex_citdl(self):
-        # Need to make sure we properly obtain all the type information
-        # from declared variables.
-        content, positions = unmark_text(php_markup(dedent("""\
-            class Bug74625 {
-                public $field = "";
-                public static function getInstance() {
-                    return new self();
-                }
-            }
-            $bug74625_instance = Bug74625::getInstance();
-            $b<1>ug74625_instance-><2>xxx;
-        """)))
-
-        self.assertCompletionsInclude(
-            markup_text(content, pos=positions[1]),
-            [("variable", "bug74625_instance")])
-        self.assertCompletionsInclude(
-            markup_text(content, pos=positions[2]),
-            [("variable", "field"), ("function", "getInstance")])
-
-    @tag("bug74627")
-    def test_doctags_variable_type_inferencing(self):
-        # Test for ensuring the type inference information can be set
-        # through a phpdoc comment.
-        content, positions = unmark_text(php_markup(dedent("""\
-            class Bug74627_dummy_class {
-                public $field = "";
-                public function callme() {
-                }
-            }
-            class Bug74627 {
-                /**
-                 * View object
-                 * @var Bug74627_dummy_class
-                 */
-                public $dummy;
-            }
-            $bug74627_instance = new Bug74627();
-            $b<1>ug74627_instance-><2>dummy-><3>xxx;
-        """)))
-
-        self.assertCompletionsInclude(
-            markup_text(content, pos=positions[1]),
-            [("variable", "bug74627_instance")])
-        self.assertCompletionsInclude(
-            markup_text(content, pos=positions[2]),
-            [("variable", "dummy")])
-        self.assertCompletionsInclude(
-            markup_text(content, pos=positions[3]),
-            [("variable", "field"), ("function", "callme")])
-
-    @tag("bug70015")
-    def test_class_and_instance_with_same_name(self):
-        # Test for ensuring the citdl type can be found when the object
-        # instance is the same as the class name.
-        content, positions = unmark_text(php_markup(dedent("""\
-            class Bug70015 {
-
-                private $Width;
-                private $Height;
-
-                public function __construct() {
-                    $this->Width = 400;
-                    $this->Height = 400;
-                }
-
-                public function setMapDims($w, $h) {
-                    $this->Width = $w;
-                    $this-><3>Height = $h;
-                }
-            }
-            $Bug70015 = new Bug70015();
-            $B<1>ug70015-><2>setMapDims(<4>);
-        """)))
-
-        self.assertCompletionsInclude(
-            markup_text(content, pos=positions[1]),
-            [("variable", "Bug70015")])
-        self.assertCompletionsInclude(
-            markup_text(content, pos=positions[2]),
-            [("function", "setMapDims")])
-        self.assertCompletionsInclude(
-            markup_text(content, pos=positions[3]),
-            [("function", "setMapDims"),
-             ("variable", "Height"),
-             ("variable", "Width")])
-        self.assertCalltipIs(markup_text(content, pos=positions[4]),
-                             "setMapDims(w, h)")
-
-    @tag("bug76677")
-    def test_3char_trigger_includes_classes(self):
-        # Test for ensuring the citdl type can be found when the object
-        # instance is the same as the class name.
-        content, positions = unmark_text(php_markup(dedent("""\
-            define("Bug76677_const", 100);
-            function Bug76677_func() { }
-            class Bug76677_class {
-                var $my_var;
-                public static function my_func() { }
-            }
-            Bug<1>;
-            foo<2>;
-        """)))
-
-        self.assertCompletionsInclude(
-            markup_text(content, pos=positions[1]),
-            [("constant", "Bug76677_const"),
-             ("function", "Bug76677_func"),
-             ("class", "Bug76677_class"),
-            ])
-
-        self.assertCompletionsDoNotInclude(
-            markup_text(content, pos=positions[1]),
-            [("class", "Exception")])
-
-        self.assertCompletionsDoNotInclude(
-            markup_text(content, pos=positions[2]),
-            [("constant", "Bug76677_const"),
-             ("function", "Bug76677_func"),
-             ("class", "Bug76677_class"),
-            ])
-
-    @tag("bug76746")
-    def test_ignore_unhelpful_variable_types(self):
-        # Test for ensuring the citdl type can be found when the object
-        # instance is the same as the class name.
-        content, positions = unmark_text(php_markup(dedent("""\
-            class bug76746_dummyDB {
-                public $connection;
-            }
-
-            class bug76746_dummyclass {
-                /**
-                * This variable contains the instance of the database class.
-                * @var object
-                */
-                private $objDB;
-                function __construct() {
-                    $this->objDB = new bug76746_dummyDB();
-                }
-
-                function foo() {
-                    $this->objDB-><1>xxx;
-                }
-            }
-        """)))
-
-        self.assertCompletionsAre(
-            markup_text(content, pos=positions[1]),
-            [("variable", "connection"), ])
-
-    @tag("bug77834")
-    def test_chained_method_calls(self):
-        # Test for ensuring the citdl type can be found when the methods
-        # are chained together.
-        content, positions = unmark_text(php_markup(dedent("""\
-            class bug77834_class {
-                var $x = 0;
-                /**
-                 * @return bug77834_class
-                 */
-                function func1() { }
-                function func2() { }
-            }
-            $bug77834_inst = new bug77834_class();
-            $bug77834_inst->func1()-><1>xxx;
-            $bug77834_inst->func1(5)-><2>xxx;
-            $bug77834_inst->func1("a string", $x)-><3>func1("bae")-><4>xxx;
-        """)))
-
-        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
-            [("function", "func1"), ("function", "func2"), ("variable", "x")])
-        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
-            [("function", "func1"), ("function", "func2"), ("variable", "x")])
-        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
-            [("function", "func1"), ("function", "func2"), ("variable", "x")])
-        self.assertCompletionsAre(markup_text(content, pos=positions[4]),
-            [("function", "func1"), ("function", "func2"), ("variable", "x")])
 
 
 class DefnTestCase(CodeIntelTestCase):
