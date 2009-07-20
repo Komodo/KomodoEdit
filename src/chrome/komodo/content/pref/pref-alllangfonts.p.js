@@ -167,7 +167,7 @@ function OnPreferencePageLoading(prefset) {
         gDialog.currentEncoding = 'default';
         updateEncodingPopup();
         setupSchemes();
-        
+
         var listElement;
         var p = "prefs.fontsColorsLanguages.whichTab";
         if (prefset.hasLongPref(p)) {
@@ -177,7 +177,7 @@ function OnPreferencePageLoading(prefset) {
         if (prefset.hasStringPref(p)) {
             gDialog.languageList.selection = prefset.getStringPref(p);
         }
-       
+
         p = "prefs.fontsColorsLanguages.colors.extraColors";
         if (prefset.hasLongPref(p)) {
             listElement = document.getElementById("extracolors");
@@ -209,13 +209,13 @@ function _saveCurrentState(prefset) {
                             document.getElementById("commonlist").selectedIndex);
         prefset.setLongPref("prefs.fontsColorsLanguages.indicators.menulist",
                             document.getElementById("indicator_menulist").selectedIndex);
-        
+
     } catch(ex) {
         dump("_saveCurrentState: exception: " + ex + "\n");
     }
 }
 
-function _restorePopupMenuIndex(menuList, pref) {
+function _restorePopupMenuIndex(menuList, labels, pref) {
     if (gDialog.prefset.hasLongPref(pref)) {
         menuList.selectedIndex = gDialog.prefset.getLongPref(pref);
         if (menuList.selectedIndex == -1) {
@@ -870,7 +870,7 @@ function updateCommonPopup()
             item.setAttribute('label',labels[i]);
             popup.appendChild(item);
         }
-        _restorePopupMenuIndex(gDialog.commonlist,
+        _restorePopupMenuIndex(gDialog.commonlist, labels,
                                "prefs.fontsColorsLanguages.common.elementList");
         updateCommonStyle();
     } catch (e) {
@@ -901,7 +901,7 @@ function updateSpecificPopup()
             item.setAttribute('label',labels[i]);
             popup.appendChild(item);
         }
-        _restorePopupMenuIndex(gDialog.specificlist,
+        _restorePopupMenuIndex(gDialog.specificlist, labels,
                                "prefs.fontsColorsLanguages.langSpecific.elementTypeIndex");
         updateSpecificStyle();
     } catch (e) {
@@ -1363,7 +1363,7 @@ function updateIndicatorPopup()
             item.setAttribute('label', _bundle.GetStringFromName(labels[i]));
             popup.appendChild(item);
         }
-        _restorePopupMenuIndex(gDialog.indicator_menulist,
+        _restorePopupMenuIndex(gDialog.indicator_menulist, labels,
                                "prefs.fontsColorsLanguages.indicators.menulist");
         updateIndicatorStyle();
     } catch (e) {
