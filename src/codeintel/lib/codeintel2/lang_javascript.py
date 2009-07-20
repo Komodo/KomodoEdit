@@ -3188,14 +3188,19 @@ class JavaScriptCiler:
                     self.addGetter(namelist, [], doc=self.comment)
         elif firstStyle == self.JS_IDENTIFIER:
             namelist, p = self._getIdentifiersFromPos(styles, text, pos)
+            if not namelist:
+                return
             #print "namelist: %r" % (namelist, )
-            if namelist and namelist[0] == "YAHOO" and \
+            if namelist[0] == "YAHOO" and \
                namelist[1:] in (["extend"], ["lang", "extend"]):
                 # XXX - Should YAHOO API catalog be enabled then?
                 self._handleYAHOOExtension(styles, text, p)
-            elif namelist and namelist[0] == "dojo" and \
+            elif namelist[0] == "dojo" and \
                namelist[1:] in (["extend"], ["declare"]):
                 self._handleDojoExtension(namelist[1], styles, text, p)
+            elif namelist == ["Ext", "extend"]:
+                # Same as what YAHOO does.
+                self._handleYAHOOExtension(styles, text, p)
         elif firstStyle == self.JS_OPERATOR:
             if text[:4] == [")", ".", "apply", "("]:
                 # Special case for function apply
