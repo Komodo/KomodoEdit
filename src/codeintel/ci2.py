@@ -195,14 +195,21 @@ def _escaped_text_from_text(text, escapes="eol"):
 
 
 
-def _outline_ci_elem(mgr, elem, stream=sys.stdout, lang=None, _lvl=0):
+def _outline_ci_elem(mgr, elem, stream=sys.stdout, lang=None, _lvl=0,
+                     brief=False, doSort=False, encoding=None):
     """Dump an outline of the given codeintel tree element."""
     indent = '  '
+    if encoding is None:
+        encoding = sys.getfilesystemencoding()
     def _dump(s):
-        stream.write(indent*_lvl + s + '\n')
+        stream.write(indent*_lvl + s.encode(encoding) + '\n')
 
     if elem.tag == "codeintel":
         _lvl -= 1 # don't count this one
+    elif brief:
+        name = elem.get("name")
+        if name:
+            _dump(name)
     elif elem.tag == "file":
         lang = elem.get("lang")
         _dump("file %(path)s [%(lang)s]" % elem.attrib)
@@ -233,8 +240,15 @@ def _outline_ci_elem(mgr, elem, stream=sys.stdout, lang=None, _lvl=0):
     else:
         raise ValueError("unknown tag: %r (%r)" % (elem.tag, elem))
 
-    for child in elem:
-        _outline_ci_elem(mgr, child, stream, lang=lang, _lvl=_lvl+1)
+    if doSort and hasattr(elem, "names") and elem.names:
+        for name in sorted(elem.names.keys()):
+            child = elem.names[name]
+            _outline_ci_elem(mgr, child, stream, lang=lang, _lvl=_lvl+1,
+                             brief=brief, doSort=doSort, encoding=encoding)
+    else:
+        for child in elem:
+            _outline_ci_elem(mgr, child, stream, lang=lang, _lvl=_lvl+1,
+                             brief=brief, doSort=doSort, encoding=encoding)
 
 
 
@@ -445,6 +459,10 @@ class Shell(cmdln.Cmdln):
 
     @cmdln.option("-l", "--language", dest="lang",
                   help="the language of the given path content")
+    @cmdln.option("-b", "--brief", dest="brief", action="store_true",
+                  help="just print the brief name outline")
+    @cmdln.option("-s", "--sorted", dest="doSort", action="store_true",
+                  help="sort child names alphabetically")
     def do_outline(self, subcmd, opts, path):
         """Print code outline of the given file.
 
@@ -508,7 +526,7 @@ class Shell(cmdln.Cmdln):
                 elem = tree
 
             try:
-                _outline_ci_elem(mgr, elem)
+                _outline_ci_elem(mgr, elem, brief=opts.brief, doSort=opts.doSort)
             except IOError, ex:
                 if ex.errno == 0:
                     # Ignore this error from aborting 'less' of 'ci2 outline'
