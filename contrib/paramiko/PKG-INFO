@@ -1,0 +1,25 @@
+Metadata-Version: 1.0
+Name: paramiko
+Version: 1.7.5
+Summary: SSH2 protocol library
+Home-page: http://www.lag.net/paramiko/
+Author: Robey Pointer
+Author-email: robeypointer@gmail.com
+License: LGPL
+Download-URL: http://www.lag.net/paramiko/download/paramiko-1.7.5.zip
+Description: 
+        This is a library for making SSH2 connections (client or server).
+        Emphasis is on using SSH2 as an alternative to SSL for making secure
+        connections between python scripts.  All major ciphers and hash methods
+        are supported.  SFTP client and server mode are both supported too.
+        
+        Required packages:
+        pyCrypto
+        
+Platform: Posix; MacOS X; Windows
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Internet
+Classifier: Topic :: Security :: Cryptography

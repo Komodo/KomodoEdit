@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.rng_win32</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Module&nbsp;rng_win32
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="paramiko.rng_win32-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="paramiko.rng_win32-module.html">Module paramiko.rng_win32</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment">#!/usr/bin/python</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-comment"># -*- coding: ascii -*-</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2008  Dwayne C. Litzenberger &lt;dlitz@dlitz.net&gt;</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2008  Open Systems Canada Limited</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-comment"># This file is part of paramiko.</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-comment"># Paramiko is free software; you can redistribute it and/or modify it under the</tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-comment"># terms of the GNU Lesser General Public License as published by the Free</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment"># Software Foundation; either version 2.1 of the License, or (at your option)</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-comment"># any later version.</tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"><tt class="py-comment"># Paramiko is distrubuted in the hope that it will be useful, but WITHOUT ANY</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-comment"># WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-comment"># A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-comment"># details.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-comment"># You should have received a copy of the GNU Lesser General Public License</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-comment"># along with Paramiko; if not, write to the Free Software Foundation, Inc.,</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-comment"># 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"> </tt>
+<a name="error"></a><div id="error-def"><a name="L22"></a><tt class="py-lineno"> 22</tt> <a class="py-toggle" href="#" id="error-toggle" onclick="return toggle('error');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="paramiko.rng_win32.error-class.html">error</a><tt class="py-op">(</tt><tt class="py-base-class">Exception</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="error-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="error-expanded"><a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line">    <tt class="py-keyword">pass</tt> </tt>
+</div><a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-comment"># Try to import the "winrandom" module</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line">    <tt class="py-keyword">from</tt> <tt class="py-name">Crypto</tt><tt class="py-op">.</tt><tt class="py-name">Util</tt> <tt class="py-keyword">import</tt> <tt class="py-name">winrandom</tt> <tt class="py-keyword">as</tt> <tt id="link-0" class="py-name" targets="Variable paramiko.rng_win32._winrandom=paramiko.rng_win32-module.html#_winrandom"><a title="paramiko.rng_win32._winrandom" class="py-name" href="#" onclick="return doclink('link-0', '_winrandom', 'link-0');">_winrandom</a></tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-keyword">except</tt> <tt class="py-name">ImportError</tt><tt class="py-op">:</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line">    <tt id="link-1" class="py-name"><a title="paramiko.rng_win32._winrandom" class="py-name" href="#" onclick="return doclink('link-1', '_winrandom', 'link-0');">_winrandom</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line"><tt class="py-comment"># Try to import the "urandom" module</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line"><tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">    <tt class="py-keyword">from</tt> <tt class="py-name">os</tt> <tt class="py-keyword">import</tt> <tt class="py-name">urandom</tt> <tt class="py-keyword">as</tt> <tt class="py-name">_urandom</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-keyword">except</tt> <tt class="py-name">ImportError</tt><tt class="py-op">:</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">    <tt class="py-name">_urandom</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"> </tt>
+<a name="_RNG"></a><div id="_RNG-def"><a name="L38"></a><tt class="py-lineno"> 38</tt> <a class="py-toggle" href="#" id="_RNG-toggle" onclick="return toggle('_RNG');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="paramiko.rng_win32._RNG-class.html">_RNG</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_RNG-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_RNG-expanded"><a name="_RNG.__init__"></a><div id="_RNG.__init__-def"><a name="L39"></a><tt class="py-lineno"> 39</tt> <a class="py-toggle" href="#" id="_RNG.__init__-toggle" onclick="return toggle('_RNG.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.rng_win32._RNG-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">readfunc</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_RNG.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_RNG.__init__-expanded"><a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Method paramiko.BufferedFile.read()=paramiko.BufferedFile-class.html#read,Method paramiko.SFTPHandle.read()=paramiko.SFTPHandle-class.html#read,Method paramiko.buffered_pipe.BufferedPipe.read()=paramiko.buffered_pipe.BufferedPipe-class.html#read"><a title="paramiko.BufferedFile.read
+paramiko.SFTPHandle.read
+paramiko.buffered_pipe.BufferedPipe.read" class="py-name" href="#" onclick="return doclink('link-2', 'read', 'link-2');">read</a></tt> <tt class="py-op">=</tt> <tt class="py-name">readfunc</tt> </tt>
+</div><a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"> </tt>
+<a name="_RNG.randomize"></a><div id="_RNG.randomize-def"><a name="L42"></a><tt class="py-lineno"> 42</tt> <a class="py-toggle" href="#" id="_RNG.randomize-toggle" onclick="return toggle('_RNG.randomize');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.rng_win32._RNG-class.html#randomize">randomize</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_RNG.randomize-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="_RNG.randomize-expanded"><a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">        <tt class="py-comment"># According to "Cryptanalysis of the Random Number Generator of the</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">        <tt class="py-comment"># Windows Operating System", by Leo Dorrendorf and Zvi Gutterman</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">        <tt class="py-comment"># and Benny Pinkas &lt;http://eprint.iacr.org/2007/419&gt;,</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">        <tt class="py-comment"># CryptGenRandom only updates its internal state using kernel-provided</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">        <tt class="py-comment"># random data every 128KiB of output.</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-3" class="py-name"><a title="paramiko.BufferedFile.read
+paramiko.SFTPHandle.read
+paramiko.buffered_pipe.BufferedPipe.read" class="py-name" href="#" onclick="return doclink('link-3', 'read', 'link-2');">read</a></tt><tt class="py-op">(</tt><tt class="py-number">128</tt><tt class="py-op">*</tt><tt class="py-number">1024</tt><tt class="py-op">)</tt>    <tt class="py-comment"># discard 128 KiB of output</tt> </tt>
+</div></div><a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line"> </tt>
+<a name="_open_winrandom"></a><div id="_open_winrandom-def"><a name="L50"></a><tt class="py-lineno"> 50</tt> <a class="py-toggle" href="#" id="_open_winrandom-toggle" onclick="return toggle('_open_winrandom');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.rng_win32-module.html#_open_winrandom">_open_winrandom</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_open_winrandom-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_open_winrandom-expanded"><a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt id="link-4" class="py-name"><a title="paramiko.rng_win32._winrandom" class="py-name" href="#" onclick="return doclink('link-4', '_winrandom', 'link-0');">_winrandom</a></tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-5" class="py-name" targets="Class paramiko.rng_posix.error=paramiko.rng_posix.error-class.html,Class paramiko.rng_win32.error=paramiko.rng_win32.error-class.html"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-5', 'error', 'link-5');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"Crypto.Util.winrandom module not found"</tt><tt class="py-op">)</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">     </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">    <tt class="py-comment"># Check that we can open the winrandom module</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">        <tt class="py-name">r0</tt> <tt class="py-op">=</tt> <tt id="link-6" class="py-name"><a title="paramiko.rng_win32._winrandom" class="py-name" href="#" onclick="return doclink('link-6', '_winrandom', 'link-0');">_winrandom</a></tt><tt class="py-op">.</tt><tt id="link-7" class="py-name" targets="Class Method paramiko.util.Counter.new()=paramiko.util.Counter-class.html#new"><a title="paramiko.util.Counter.new" class="py-name" href="#" onclick="return doclink('link-7', 'new', 'link-7');">new</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">        <tt class="py-name">r1</tt> <tt class="py-op">=</tt> <tt id="link-8" class="py-name"><a title="paramiko.rng_win32._winrandom" class="py-name" href="#" onclick="return doclink('link-8', '_winrandom', 'link-0');">_winrandom</a></tt><tt class="py-op">.</tt><tt id="link-9" class="py-name"><a title="paramiko.util.Counter.new" class="py-name" href="#" onclick="return doclink('link-9', 'new', 'link-7');">new</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt><tt class="py-op">,</tt> <tt class="py-name">exc</tt><tt class="py-op">:</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-10" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-10', 'error', 'link-5');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"winrandom.new() failed: %s"</tt> <tt class="py-op">%</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">exc</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">exc</tt><tt class="py-op">)</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">     </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">    <tt class="py-comment"># Check that we can read from the winrandom module</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line">        <tt class="py-name">x</tt> <tt class="py-op">=</tt> <tt class="py-name">r0</tt><tt class="py-op">.</tt><tt id="link-11" class="py-name" targets="Method paramiko.Message.get_bytes()=paramiko.Message-class.html#get_bytes,Method paramiko.rng.StrongLockingRandomPool.get_bytes()=paramiko.rng.StrongLockingRandomPool-class.html#get_bytes"><a title="paramiko.Message.get_bytes
+paramiko.rng.StrongLockingRandomPool.get_bytes" class="py-name" href="#" onclick="return doclink('link-11', 'get_bytes', 'link-11');">get_bytes</a></tt><tt class="py-op">(</tt><tt class="py-number">20</tt><tt class="py-op">)</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">        <tt class="py-name">y</tt> <tt class="py-op">=</tt> <tt class="py-name">r1</tt><tt class="py-op">.</tt><tt id="link-12" class="py-name"><a title="paramiko.Message.get_bytes
+paramiko.rng.StrongLockingRandomPool.get_bytes" class="py-name" href="#" onclick="return doclink('link-12', 'get_bytes', 'link-11');">get_bytes</a></tt><tt class="py-op">(</tt><tt class="py-number">20</tt><tt class="py-op">)</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt><tt class="py-op">,</tt> <tt class="py-name">exc</tt><tt class="py-op">:</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-13" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-13', 'error', 'link-5');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"winrandom get_bytes failed: %s"</tt> <tt class="py-op">%</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">exc</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">exc</tt><tt class="py-op">)</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">    <tt class="py-comment"># Check that the requested number of bytes are returned</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">20</tt> <tt class="py-keyword">or</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">y</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">20</tt><tt class="py-op">:</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-14" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-14', 'error', 'link-5');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"Error reading from winrandom: input truncated"</tt><tt class="py-op">)</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line">    <tt class="py-comment"># Check that different reads return different data</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">x</tt> <tt class="py-op">==</tt> <tt class="py-name">y</tt><tt class="py-op">:</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-15" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-15', 'error', 'link-5');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"winrandom broken: returning identical data"</tt><tt class="py-op">)</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">_RNG</tt><tt class="py-op">(</tt><tt class="py-name">r0</tt><tt class="py-op">.</tt><tt id="link-16" class="py-name"><a title="paramiko.Message.get_bytes
+paramiko.rng.StrongLockingRandomPool.get_bytes" class="py-name" href="#" onclick="return doclink('link-16', 'get_bytes', 'link-11');">get_bytes</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"> </tt>
+<a name="_open_urandom"></a><div id="_open_urandom-def"><a name="L78"></a><tt class="py-lineno"> 78</tt> <a class="py-toggle" href="#" id="_open_urandom-toggle" onclick="return toggle('_open_urandom');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.rng_win32-module.html#_open_urandom">_open_urandom</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_open_urandom-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_open_urandom-expanded"><a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">_urandom</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-17" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-17', 'error', 'link-5');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"os.urandom function not found"</tt><tt class="py-op">)</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">     </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line">    <tt class="py-comment"># Check that we can read from os.urandom()</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">        <tt class="py-name">x</tt> <tt class="py-op">=</tt> <tt class="py-name">_urandom</tt><tt class="py-op">(</tt><tt class="py-number">20</tt><tt class="py-op">)</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">        <tt class="py-name">y</tt> <tt class="py-op">=</tt> <tt class="py-name">_urandom</tt><tt class="py-op">(</tt><tt class="py-number">20</tt><tt class="py-op">)</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt class="py-name">Exception</tt><tt class="py-op">,</tt> <tt class="py-name">exc</tt><tt class="py-op">:</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-18" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-18', 'error', 'link-5');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"os.urandom failed: %s"</tt> <tt class="py-op">%</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">exc</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt class="py-name">exc</tt><tt class="py-op">)</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line"> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">    <tt class="py-comment"># Check that the requested number of bytes are returned</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">20</tt> <tt class="py-keyword">or</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">y</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">20</tt><tt class="py-op">:</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-19" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-19', 'error', 'link-5');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"os.urandom failed: input truncated"</tt><tt class="py-op">)</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">    <tt class="py-comment"># Check that different reads return different data</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">x</tt> <tt class="py-op">==</tt> <tt class="py-name">y</tt><tt class="py-op">:</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt id="link-20" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-20', 'error', 'link-5');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"os.urandom failed: returning identical data"</tt><tt class="py-op">)</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">_RNG</tt><tt class="py-op">(</tt><tt class="py-name">_urandom</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"> </tt>
+<a name="open_rng_device"></a><div id="open_rng_device-def"><a name="L99"></a><tt class="py-lineno"> 99</tt> <a class="py-toggle" href="#" id="open_rng_device-toggle" onclick="return toggle('open_rng_device');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.rng_win32-module.html#open_rng_device">open_rng_device</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="open_rng_device-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="open_rng_device-expanded"><a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">    <tt class="py-comment"># Try using the Crypto.Util.winrandom module</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">_open_winrandom</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt id="link-21" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-21', 'error', 'link-5');">error</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">        <tt class="py-keyword">pass</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line"> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">    <tt class="py-comment"># Several versions of PyCrypto do not contain the winrandom module, but</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">    <tt class="py-comment"># Python &gt;= 2.4 has os.urandom, so try to use that.</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">_open_urandom</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt id="link-22" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-22', 'error', 'link-5');">error</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">        <tt class="py-keyword">pass</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line"> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">    <tt class="py-comment"># SECURITY NOTE: DO NOT USE Crypto.Util.randpool.RandomPool HERE!</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">    <tt class="py-comment"># If we got to this point, RandomPool will silently run with very little</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">    <tt class="py-comment"># entropy.  (This is current as of PyCrypto 2.0.1).</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">    <tt class="py-comment"># See http://www.lag.net/pipermail/paramiko/2008-January/000599.html</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">    <tt class="py-comment"># and http://www.lag.net/pipermail/paramiko/2008-April/000678.html</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">    <tt class="py-keyword">raise</tt> <tt id="link-23" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-23', 'error', 'link-5');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"Unable to find a strong random entropy source.  You cannot run this software securely under the current configuration."</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"><tt class="py-comment"># vim:set ts=4 sw=4 sts=4 expandtab:</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sun Jul 19 21:28:17 2009
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

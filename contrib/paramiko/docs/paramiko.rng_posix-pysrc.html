@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>paramiko.rng_posix</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="paramiko-module.html">Package&nbsp;paramiko</a> ::
+        Module&nbsp;rng_posix
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="paramiko.rng_posix-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="paramiko.rng_posix-module.html" onclick="show_private();">Module paramiko.rng_posix</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-comment">#!/usr/bin/python</tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"><tt class="py-comment"># -*- coding: ascii -*-</tt> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2008  Dwayne C. Litzenberger &lt;dlitz@dlitz.net&gt;</tt> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"><tt class="py-comment"># Copyright (C) 2008  Open Systems Canada Limited</tt> </tt>
+<a name="L5"></a><tt class="py-lineno"> 5</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line"><tt class="py-comment"># This file is part of paramiko.</tt> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line"><tt class="py-comment"># Paramiko is free software; you can redistribute it and/or modify it under the</tt> </tt>
+<a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line"><tt class="py-comment"># terms of the GNU Lesser General Public License as published by the Free</tt> </tt>
+<a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line"><tt class="py-comment"># Software Foundation; either version 2.1 of the License, or (at your option)</tt> </tt>
+<a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line"><tt class="py-comment"># any later version.</tt> </tt>
+<a name="L12"></a><tt class="py-lineno">12</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line"><tt class="py-comment"># Paramiko is distrubuted in the hope that it will be useful, but WITHOUT ANY</tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line"><tt class="py-comment"># WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR</tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line"><tt class="py-comment"># A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more</tt> </tt>
+<a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line"><tt class="py-comment"># details.</tt> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line"><tt class="py-comment">#</tt> </tt>
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line"><tt class="py-comment"># You should have received a copy of the GNU Lesser General Public License</tt> </tt>
+<a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line"><tt class="py-comment"># along with Paramiko; if not, write to the Free Software Foundation, Inc.,</tt> </tt>
+<a name="L20"></a><tt class="py-lineno">20</tt>  <tt class="py-line"><tt class="py-comment"># 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.</tt> </tt>
+<a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line"> </tt>
+<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt> </tt>
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt id="link-0" class="py-name" targets="Method paramiko.SFTPClient.stat()=paramiko.SFTPClient-class.html#stat,Method paramiko.SFTPFile.stat()=paramiko.SFTPFile-class.html#stat,Method paramiko.SFTPHandle.stat()=paramiko.SFTPHandle-class.html#stat,Method paramiko.SFTPServerInterface.stat()=paramiko.SFTPServerInterface-class.html#stat"><a title="paramiko.SFTPClient.stat
+paramiko.SFTPFile.stat
+paramiko.SFTPHandle.stat
+paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return doclink('link-0', 'stat', 'link-0');">stat</a></tt> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line"> </tt>
+<a name="error"></a><div id="error-def"><a name="L25"></a><tt class="py-lineno">25</tt> <a class="py-toggle" href="#" id="error-toggle" onclick="return toggle('error');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="paramiko.rng_posix.error-class.html">error</a><tt class="py-op">(</tt><tt class="py-base-class">Exception</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="error-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="error-expanded"><a name="L26"></a><tt class="py-lineno">26</tt>  <tt class="py-line">    <tt class="py-keyword">pass</tt> </tt>
+</div><a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line"> </tt>
+<a name="_RNG"></a><div id="_RNG-def"><a name="L28"></a><tt class="py-lineno">28</tt> <a class="py-toggle" href="#" id="_RNG-toggle" onclick="return toggle('_RNG');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="paramiko.rng_posix._RNG-class.html">_RNG</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_RNG-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="_RNG-expanded"><a name="_RNG.__init__"></a><div id="_RNG.__init__-def"><a name="L29"></a><tt class="py-lineno">29</tt> <a class="py-toggle" href="#" id="_RNG.__init__-toggle" onclick="return toggle('_RNG.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.rng_posix._RNG-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">file</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_RNG.__init__-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="_RNG.__init__-expanded"><a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-1" class="py-name" targets="Method paramiko.SFTPClient.file()=paramiko.SFTPClient-class.html#file,Module paramiko.file=paramiko.file-module.html"><a title="paramiko.SFTPClient.file
+paramiko.file" class="py-name" href="#" onclick="return doclink('link-1', 'file', 'link-1');">file</a></tt> <tt class="py-op">=</tt> <tt id="link-2" class="py-name"><a title="paramiko.SFTPClient.file
+paramiko.file" class="py-name" href="#" onclick="return doclink('link-2', 'file', 'link-1');">file</a></tt> </tt>
+</div><a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line"> </tt>
+<a name="_RNG.read"></a><div id="_RNG.read-def"><a name="L32"></a><tt class="py-lineno">32</tt> <a class="py-toggle" href="#" id="_RNG.read-toggle" onclick="return toggle('_RNG.read');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.rng_posix._RNG-class.html#read">read</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">bytes</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_RNG.read-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="_RNG.read-expanded"><a name="L33"></a><tt class="py-lineno">33</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-3" class="py-name"><a title="paramiko.SFTPClient.file
+paramiko.file" class="py-name" href="#" onclick="return doclink('link-3', 'file', 'link-1');">file</a></tt><tt class="py-op">.</tt><tt id="link-4" class="py-name" targets="Method paramiko.BufferedFile.read()=paramiko.BufferedFile-class.html#read,Method paramiko.SFTPHandle.read()=paramiko.SFTPHandle-class.html#read,Method paramiko.buffered_pipe.BufferedPipe.read()=paramiko.buffered_pipe.BufferedPipe-class.html#read"><a title="paramiko.BufferedFile.read
+paramiko.SFTPHandle.read
+paramiko.buffered_pipe.BufferedPipe.read" class="py-name" href="#" onclick="return doclink('link-4', 'read', 'link-4');">read</a></tt><tt class="py-op">(</tt><tt class="py-name">bytes</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L34"></a><tt class="py-lineno">34</tt>  <tt class="py-line"> </tt>
+<a name="_RNG.close"></a><div id="_RNG.close-def"><a name="L35"></a><tt class="py-lineno">35</tt> <a class="py-toggle" href="#" id="_RNG.close-toggle" onclick="return toggle('_RNG.close');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.rng_posix._RNG-class.html#close">close</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_RNG.close-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="_RNG.close-expanded"><a name="L36"></a><tt class="py-lineno">36</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-5" class="py-name"><a title="paramiko.SFTPClient.file
+paramiko.file" class="py-name" href="#" onclick="return doclink('link-5', 'file', 'link-1');">file</a></tt><tt class="py-op">.</tt><tt id="link-6" class="py-name" targets="Method paramiko.Agent.close()=paramiko.Agent-class.html#close,Method paramiko.BufferedFile.close()=paramiko.BufferedFile-class.html#close,Method paramiko.Channel.close()=paramiko.Channel-class.html#close,Method paramiko.SFTPClient.close()=paramiko.SFTPClient-class.html#close,Method paramiko.SFTPFile.close()=paramiko.SFTPFile-class.html#close,Method paramiko.SFTPHandle.close()=paramiko.SFTPHandle-class.html#close,Method paramiko.SSHClient.close()=paramiko.SSHClient-class.html#close,Method paramiko.Transport.close()=paramiko.Transport-class.html#close,Method paramiko.buffered_pipe.BufferedPipe.close()=paramiko.buffered_pipe.BufferedPipe-class.html#close,Method paramiko.pipe.PosixPipe.close()=paramiko.pipe.PosixPipe-class.html#close,Method paramiko.pipe.WindowsPipe.close()=paramiko.pipe.WindowsPipe-class.html#close,Method paramiko.win_pageant.PageantConnection.close()=paramiko.win_pageant.PageantConnection-class.html#close"><a title="paramiko.Agent.close
+paramiko.BufferedFile.close
+paramiko.Channel.close
+paramiko.SFTPClient.close
+paramiko.SFTPFile.close
+paramiko.SFTPHandle.close
+paramiko.SSHClient.close
+paramiko.Transport.close
+paramiko.buffered_pipe.BufferedPipe.close
+paramiko.pipe.PosixPipe.close
+paramiko.pipe.WindowsPipe.close
+paramiko.win_pageant.PageantConnection.close" class="py-name" href="#" onclick="return doclink('link-6', 'close', 'link-6');">close</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L37"></a><tt class="py-lineno">37</tt>  <tt class="py-line"> </tt>
+<a name="_RNG.randomize"></a><div id="_RNG.randomize-def"><a name="L38"></a><tt class="py-lineno">38</tt> <a class="py-toggle" href="#" id="_RNG.randomize-toggle" onclick="return toggle('_RNG.randomize');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.rng_posix._RNG-class.html#randomize">randomize</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_RNG.randomize-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="_RNG.randomize-expanded"><a name="L39"></a><tt class="py-lineno">39</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> </tt>
+</div></div><a name="L40"></a><tt class="py-lineno">40</tt>  <tt class="py-line"> </tt>
+<a name="open_rng_device"></a><div id="open_rng_device-def"><a name="L41"></a><tt class="py-lineno">41</tt> <a class="py-toggle" href="#" id="open_rng_device-toggle" onclick="return toggle('open_rng_device');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.rng_posix-module.html#open_rng_device">open_rng_device</a><tt class="py-op">(</tt><tt class="py-param">device_path</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="open_rng_device-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="open_rng_device-expanded"><a name="L42"></a><tt class="py-lineno">42</tt>  <tt class="py-line">    <tt class="py-docstring">"""Open /dev/urandom and perform some sanity checks."""</tt> </tt>
+<a name="L43"></a><tt class="py-lineno">43</tt>  <tt class="py-line"> </tt>
+<a name="L44"></a><tt class="py-lineno">44</tt>  <tt class="py-line">    <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L45"></a><tt class="py-lineno">45</tt>  <tt class="py-line">    <tt class="py-name">g</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L46"></a><tt class="py-lineno">46</tt>  <tt class="py-line">     </tt>
+<a name="L47"></a><tt class="py-lineno">47</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">device_path</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L48"></a><tt class="py-lineno">48</tt>  <tt class="py-line">        <tt class="py-name">device_path</tt> <tt class="py-op">=</tt> <tt class="py-string">"/dev/urandom"</tt> </tt>
+<a name="L49"></a><tt class="py-lineno">49</tt>  <tt class="py-line"> </tt>
+<a name="L50"></a><tt class="py-lineno">50</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L51"></a><tt class="py-lineno">51</tt>  <tt class="py-line">        <tt class="py-comment"># Try to open /dev/urandom now so that paramiko will be able to access</tt> </tt>
+<a name="L52"></a><tt class="py-lineno">52</tt>  <tt class="py-line">        <tt class="py-comment"># it even if os.chroot() is invoked later.</tt> </tt>
+<a name="L53"></a><tt class="py-lineno">53</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L54"></a><tt class="py-lineno">54</tt>  <tt class="py-line">            <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt id="link-7" class="py-name" targets="Method paramiko.SFTPServerInterface.open()=paramiko.SFTPServerInterface-class.html#open"><a title="paramiko.SFTPServerInterface.open" class="py-name" href="#" onclick="return doclink('link-7', 'open', 'link-7');">open</a></tt><tt class="py-op">(</tt><tt class="py-name">device_path</tt><tt class="py-op">,</tt> <tt class="py-string">"rb"</tt><tt class="py-op">,</tt> <tt class="py-number">0</tt><tt class="py-op">)</tt> </tt>
+<a name="L55"></a><tt class="py-lineno">55</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">EnvironmentError</tt><tt class="py-op">:</tt> </tt>
+<a name="L56"></a><tt class="py-lineno">56</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-8" class="py-name" targets="Class paramiko.rng_posix.error=paramiko.rng_posix.error-class.html,Class paramiko.rng_win32.error=paramiko.rng_win32.error-class.html"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-8', 'error', 'link-8');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"Unable to open /dev/urandom"</tt><tt class="py-op">)</tt> </tt>
+<a name="L57"></a><tt class="py-lineno">57</tt>  <tt class="py-line">         </tt>
+<a name="L58"></a><tt class="py-lineno">58</tt>  <tt class="py-line">        <tt class="py-comment"># Open a second file descriptor for sanity checking later.</tt> </tt>
+<a name="L59"></a><tt class="py-lineno">59</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L60"></a><tt class="py-lineno">60</tt>  <tt class="py-line">            <tt class="py-name">g</tt> <tt class="py-op">=</tt> <tt id="link-9" class="py-name"><a title="paramiko.SFTPServerInterface.open" class="py-name" href="#" onclick="return doclink('link-9', 'open', 'link-7');">open</a></tt><tt class="py-op">(</tt><tt class="py-name">device_path</tt><tt class="py-op">,</tt> <tt class="py-string">"rb"</tt><tt class="py-op">,</tt> <tt class="py-number">0</tt><tt class="py-op">)</tt> </tt>
+<a name="L61"></a><tt class="py-lineno">61</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">EnvironmentError</tt><tt class="py-op">:</tt> </tt>
+<a name="L62"></a><tt class="py-lineno">62</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-10" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-10', 'error', 'link-8');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"Unable to open /dev/urandom"</tt><tt class="py-op">)</tt> </tt>
+<a name="L63"></a><tt class="py-lineno">63</tt>  <tt class="py-line"> </tt>
+<a name="L64"></a><tt class="py-lineno">64</tt>  <tt class="py-line">        <tt class="py-comment"># Check that /dev/urandom is a character special device, not a regular file.</tt> </tt>
+<a name="L65"></a><tt class="py-lineno">65</tt>  <tt class="py-line">        <tt class="py-name">st</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">fstat</tt><tt class="py-op">(</tt><tt class="py-name">f</tt><tt class="py-op">.</tt><tt id="link-11" class="py-name" targets="Method paramiko.Channel.fileno()=paramiko.Channel-class.html#fileno,Method paramiko.pipe.PosixPipe.fileno()=paramiko.pipe.PosixPipe-class.html#fileno,Method paramiko.pipe.WindowsPipe.fileno()=paramiko.pipe.WindowsPipe-class.html#fileno"><a title="paramiko.Channel.fileno
+paramiko.pipe.PosixPipe.fileno
+paramiko.pipe.WindowsPipe.fileno" class="py-name" href="#" onclick="return doclink('link-11', 'fileno', 'link-11');">fileno</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt>   <tt class="py-comment"># f</tt> </tt>
+<a name="L66"></a><tt class="py-lineno">66</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt id="link-12" class="py-name"><a title="paramiko.SFTPClient.stat
+paramiko.SFTPFile.stat
+paramiko.SFTPHandle.stat
+paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return doclink('link-12', 'stat', 'link-0');">stat</a></tt><tt class="py-op">.</tt><tt class="py-name">S_ISREG</tt><tt class="py-op">(</tt><tt class="py-name">st</tt><tt class="py-op">.</tt><tt class="py-name">st_mode</tt><tt class="py-op">)</tt> <tt class="py-keyword">or</tt> <tt class="py-keyword">not</tt> <tt id="link-13" class="py-name"><a title="paramiko.SFTPClient.stat
+paramiko.SFTPFile.stat
+paramiko.SFTPHandle.stat
+paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return doclink('link-13', 'stat', 'link-0');">stat</a></tt><tt class="py-op">.</tt><tt class="py-name">S_ISCHR</tt><tt class="py-op">(</tt><tt class="py-name">st</tt><tt class="py-op">.</tt><tt class="py-name">st_mode</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L67"></a><tt class="py-lineno">67</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-14" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-14', 'error', 'link-8');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"/dev/urandom is not a character special device"</tt><tt class="py-op">)</tt> </tt>
+<a name="L68"></a><tt class="py-lineno">68</tt>  <tt class="py-line">         </tt>
+<a name="L69"></a><tt class="py-lineno">69</tt>  <tt class="py-line">        <tt class="py-name">st</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">fstat</tt><tt class="py-op">(</tt><tt class="py-name">g</tt><tt class="py-op">.</tt><tt id="link-15" class="py-name"><a title="paramiko.Channel.fileno
+paramiko.pipe.PosixPipe.fileno
+paramiko.pipe.WindowsPipe.fileno" class="py-name" href="#" onclick="return doclink('link-15', 'fileno', 'link-11');">fileno</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt>   <tt class="py-comment"># g</tt> </tt>
+<a name="L70"></a><tt class="py-lineno">70</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt id="link-16" class="py-name"><a title="paramiko.SFTPClient.stat
+paramiko.SFTPFile.stat
+paramiko.SFTPHandle.stat
+paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return doclink('link-16', 'stat', 'link-0');">stat</a></tt><tt class="py-op">.</tt><tt class="py-name">S_ISREG</tt><tt class="py-op">(</tt><tt class="py-name">st</tt><tt class="py-op">.</tt><tt class="py-name">st_mode</tt><tt class="py-op">)</tt> <tt class="py-keyword">or</tt> <tt class="py-keyword">not</tt> <tt id="link-17" class="py-name"><a title="paramiko.SFTPClient.stat
+paramiko.SFTPFile.stat
+paramiko.SFTPHandle.stat
+paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return doclink('link-17', 'stat', 'link-0');">stat</a></tt><tt class="py-op">.</tt><tt class="py-name">S_ISCHR</tt><tt class="py-op">(</tt><tt class="py-name">st</tt><tt class="py-op">.</tt><tt class="py-name">st_mode</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L71"></a><tt class="py-lineno">71</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-18" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-18', 'error', 'link-8');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"/dev/urandom is not a character special device"</tt><tt class="py-op">)</tt> </tt>
+<a name="L72"></a><tt class="py-lineno">72</tt>  <tt class="py-line">         </tt>
+<a name="L73"></a><tt class="py-lineno">73</tt>  <tt class="py-line">        <tt class="py-comment"># Check that /dev/urandom always returns the number of bytes requested</tt> </tt>
+<a name="L74"></a><tt class="py-lineno">74</tt>  <tt class="py-line">        <tt class="py-name">x</tt> <tt class="py-op">=</tt> <tt class="py-name">f</tt><tt class="py-op">.</tt><tt id="link-19" class="py-name"><a title="paramiko.BufferedFile.read
+paramiko.SFTPHandle.read
+paramiko.buffered_pipe.BufferedPipe.read" class="py-name" href="#" onclick="return doclink('link-19', 'read', 'link-4');">read</a></tt><tt class="py-op">(</tt><tt class="py-number">20</tt><tt class="py-op">)</tt> </tt>
+<a name="L75"></a><tt class="py-lineno">75</tt>  <tt class="py-line">        <tt class="py-name">y</tt> <tt class="py-op">=</tt> <tt class="py-name">g</tt><tt class="py-op">.</tt><tt id="link-20" class="py-name"><a title="paramiko.BufferedFile.read
+paramiko.SFTPHandle.read
+paramiko.buffered_pipe.BufferedPipe.read" class="py-name" href="#" onclick="return doclink('link-20', 'read', 'link-4');">read</a></tt><tt class="py-op">(</tt><tt class="py-number">20</tt><tt class="py-op">)</tt> </tt>
+<a name="L76"></a><tt class="py-lineno">76</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">20</tt> <tt class="py-keyword">or</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">y</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">20</tt><tt class="py-op">:</tt> </tt>
+<a name="L77"></a><tt class="py-lineno">77</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-21" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-21', 'error', 'link-8');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"Error reading from /dev/urandom: input truncated"</tt><tt class="py-op">)</tt> </tt>
+<a name="L78"></a><tt class="py-lineno">78</tt>  <tt class="py-line">     </tt>
+<a name="L79"></a><tt class="py-lineno">79</tt>  <tt class="py-line">        <tt class="py-comment"># Check that different reads return different data</tt> </tt>
+<a name="L80"></a><tt class="py-lineno">80</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">x</tt> <tt class="py-op">==</tt> <tt class="py-name">y</tt><tt class="py-op">:</tt> </tt>
+<a name="L81"></a><tt class="py-lineno">81</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-22" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-22', 'error', 'link-8');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"/dev/urandom is broken; returning identical data: %r == %r"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">,</tt> <tt class="py-name">y</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L82"></a><tt class="py-lineno">82</tt>  <tt class="py-line"> </tt>
+<a name="L83"></a><tt class="py-lineno">83</tt>  <tt class="py-line">        <tt class="py-comment"># Close the duplicate file object</tt> </tt>
+<a name="L84"></a><tt class="py-lineno">84</tt>  <tt class="py-line">        <tt class="py-name">g</tt><tt class="py-op">.</tt><tt id="link-23" class="py-name"><a title="paramiko.Agent.close
+paramiko.BufferedFile.close
+paramiko.Channel.close
+paramiko.SFTPClient.close
+paramiko.SFTPFile.close
+paramiko.SFTPHandle.close
+paramiko.SSHClient.close
+paramiko.Transport.close
+paramiko.buffered_pipe.BufferedPipe.close
+paramiko.pipe.PosixPipe.close
+paramiko.pipe.WindowsPipe.close
+paramiko.win_pageant.PageantConnection.close" class="py-name" href="#" onclick="return doclink('link-23', 'close', 'link-6');">close</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L85"></a><tt class="py-lineno">85</tt>  <tt class="py-line"> </tt>
+<a name="L86"></a><tt class="py-lineno">86</tt>  <tt class="py-line">        <tt class="py-comment"># Return the first file object</tt> </tt>
+<a name="L87"></a><tt class="py-lineno">87</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">_RNG</tt><tt class="py-op">(</tt><tt class="py-name">f</tt><tt class="py-op">)</tt> </tt>
+<a name="L88"></a><tt class="py-lineno">88</tt>  <tt class="py-line"> </tt>
+<a name="L89"></a><tt class="py-lineno">89</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt> <tt id="link-24" class="py-name"><a title="paramiko.rng_posix.error
+paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-24', 'error', 'link-8');">error</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L90"></a><tt class="py-lineno">90</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">f</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L91"></a><tt class="py-lineno">91</tt>  <tt class="py-line">            <tt class="py-name">f</tt><tt class="py-op">.</tt><tt id="link-25" class="py-name"><a title="paramiko.Agent.close
+paramiko.BufferedFile.close
+paramiko.Channel.close
+paramiko.SFTPClient.close
+paramiko.SFTPFile.close
+paramiko.SFTPHandle.close
+paramiko.SSHClient.close
+paramiko.Transport.close
+paramiko.buffered_pipe.BufferedPipe.close
+paramiko.pipe.PosixPipe.close
+paramiko.pipe.WindowsPipe.close
+paramiko.win_pageant.PageantConnection.close" class="py-name" href="#" onclick="return doclink('link-25', 'close', 'link-6');">close</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L92"></a><tt class="py-lineno">92</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">g</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L93"></a><tt class="py-lineno">93</tt>  <tt class="py-line">            <tt class="py-name">g</tt><tt class="py-op">.</tt><tt id="link-26" class="py-name"><a title="paramiko.Agent.close
+paramiko.BufferedFile.close
+paramiko.Channel.close
+paramiko.SFTPClient.close
+paramiko.SFTPFile.close
+paramiko.SFTPHandle.close
+paramiko.SSHClient.close
+paramiko.Transport.close
+paramiko.buffered_pipe.BufferedPipe.close
+paramiko.pipe.PosixPipe.close
+paramiko.pipe.WindowsPipe.close
+paramiko.win_pageant.PageantConnection.close" class="py-name" href="#" onclick="return doclink('link-26', 'close', 'link-6');">close</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L94"></a><tt class="py-lineno">94</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> </tt>
+</div><a name="L95"></a><tt class="py-lineno">95</tt>  <tt class="py-line"> </tt>
+<a name="L96"></a><tt class="py-lineno">96</tt>  <tt class="py-line"><tt class="py-comment"># vim:set ts=4 sw=4 sts=4 expandtab:</tt> </tt>
+<a name="L97"></a><tt class="py-lineno">97</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="paramiko-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Sun Jul 19 21:28:17 2009
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
