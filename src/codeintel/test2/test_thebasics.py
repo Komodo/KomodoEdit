@@ -221,7 +221,7 @@ class PHPTestCase(HTMLTestCase):
             name="php-calltip-call-signature", pos=16)
     def test_calltips_php(self):
         self.assertCalltipIs("<?php function foo($x,$y) {}\nfoo(<|>); ?>",
-                             "foo(x, y)")
+                             "foo($x, $y)")
     @tag("php5")
     def test_cplns_php(self):
         self.assertCompletionsInclude(
@@ -251,7 +251,7 @@ class SmartyTestCase(HTMLTestCase):
             name="php-calltip-call-signature", pos=16)
     def test_calltips_php(self):
         self.assertCalltipIs("<?php function foo($x,$y) {}\nfoo(<|>); ?>",
-                             "foo(x, y)")
+                             "foo($x, $y)")
     @tag("php5")
     def test_cplns_php(self):
         self.assertCompletionsInclude(

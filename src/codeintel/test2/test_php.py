@@ -363,8 +363,8 @@ class TriggerTestCase(CodeIntelTestCase):
         MyClass::foo(<2>3, 4);
         ?>
         """))
-        self.assertCalltipIs(markup_text(content, pos=positions[1]), "foo(x, y)")
-        self.assertCalltipIs(markup_text(content, pos=positions[2]), "foo(x, y)")
+        self.assertCalltipIs(markup_text(content, pos=positions[1]), "foo($x, $y)")
+        self.assertCalltipIs(markup_text(content, pos=positions[2]), "foo($x, $y)")
 
     def test_citdl_expr_from_trg_simple(self):
         self.assertCITDLExprIs(php_markup("foo-><|>"), "foo")
@@ -608,7 +608,7 @@ class TriggerTestCase(CodeIntelTestCase):
         func_foo($myarg, <1>);
         ?>
         """))
-        self.assertCalltipIs(markup_text(content, pos=positions[1]), "func_foo(x, y)")
+        self.assertCalltipIs(markup_text(content, pos=positions[1]), "func_foo($x, $y)")
 
     @tag("bug67367")
     def test_complete_array_members(self):
@@ -724,20 +724,20 @@ class CplnTestCase(CodeIntelTestCase):
                  ("function", "func_in_bar"),
                  ("function", "func_in_blah")])
         self.assertCalltipIs(markup_text(content, pos=positions[6]),
-                "func_in_bar(b)")
+                "func_in_bar($b)")
         self.assertCalltipIs(markup_text(content, pos=positions[7]),
-                "func_in_foo(f)")
+                "func_in_foo($f)")
         self.assertCalltipIs(markup_text(content, pos=positions[8]),
                 "func_in_foobase4()")
         self.assertCalltipIs(markup_text(content, pos=positions[9]),
-                "func_in_foobase1(p)")
+                "func_in_foobase1($p)")
         self.assertCompletionsInclude(markup_text(content, pos=positions[10]),
                 [("function", "func_in_foobase1"),
                  ("function", "func_in_foobase4"),
                  ("function", "func_in_foo"),
                  ("function", "func_in_bar")])
         self.assertCalltipIs(markup_text(content, pos=positions[11]),
-                "func_in_foobase1(p)")
+                "func_in_foobase1($p)")
         self.assertCompletionsInclude(markup_text(content, pos=positions[12]),
                 [("function", "func_in_foobase1"),
                  ("function", "func_in_foobase4"),
@@ -1055,7 +1055,7 @@ Construct an exception
         ?>
         """))
         self.assertCalltipIs(markup_text(content, pos=positions[1]), "array(<list>)\nCreate a PHP array.")
-        self.assertCalltipIs(markup_text(content, pos=positions[2]), "getField(arg1)")
+        self.assertCalltipIs(markup_text(content, pos=positions[2]), "getField($arg1)")
 
     @tag("bug55897")
     def test_bug55897_preceding_trg_from_pos_with_array(self):
@@ -1505,11 +1505,11 @@ EOD;
             foo3(<3>);
         """)))
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
-                             "foo(node)")
+                             "foo(& $node)")
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
-                             "foo2(arg1, arg2)")
+                             "foo2($arg1, & $arg2)")
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
-                             "foo3(arg1, arg2)")
+                             "foo3(& $arg1, & $arg2)")
 
     @tag("bug64227")
     def test_edge_cases(self):
@@ -1978,9 +1978,9 @@ EOD;
             ?>
         """)))
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
-                             "test(bug79003OtherClass otherclass)")
+                             "test(bug79003OtherClass $otherclass)")
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
-                             "test_array(array input_array)")
+                             "test_array(array $input_array)")
         self.assertCompletionsAre(markup_text(content, pos=positions[3]),
                 [("function", 'test_func'),
                  ("variable", 'var'),])
@@ -2050,7 +2050,7 @@ EOD;
             $ac = new bug82721_class(<1>);
         """)))
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
-                             "bug82721_class(var1, var2, var3)")
+                             "bug82721_class($var1, $var2, $var3)")
 
     @tag("bug79221")
     def test_function_argument_handling(self):
@@ -2061,7 +2061,7 @@ EOD;
         """)))
 
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
-                "test_bug79221(one, two=array(), three=false)")
+                "test_bug79221($one, $two = array(), $three = false)")
 
     @tag("bug74625")
     def test_variable_with_complex_citdl(self):
@@ -2152,7 +2152,7 @@ EOD;
              ("variable", "Height"),
              ("variable", "Width")])
         self.assertCalltipIs(markup_text(content, pos=positions[4]),
-                             "setMapDims(w, h)")
+                             "setMapDims($w, $h)")
 
     @tag("bug76677")
     def test_3char_trigger_includes_classes(self):
@@ -2967,7 +2967,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             [("function",  r"classname_func"),
              ("variable",  r"$x")])
         self.assertCalltipIs2(buf, test_positions[5],
-            "classname_func(arg)")
+            "classname_func($arg)")
 
     @tag("bug83192", "php53")
     def test_imported_namespace_alias(self):

@@ -1379,54 +1379,35 @@ def sortByLine(seq):
     return seq
 
 
-class PHPArgs:
-    def __init__(self, arglist, typelist=None, optionalArgs=None):
-        """Set function arguments:
-    @param arglist {list} of argument names
-    @param typelist {list} of argument types
-    @param optionalArgs {list} of lists [arg name, arg default value, arg type]
-"""
-        if arglist is None:
-            arglist = []
-        if optionalArgs is None:
-            optionalArgs = []
-        self.args = arglist
-        self.typelist = typelist
-        self.optionalArgs = optionalArgs
-        arglineValues = []
-        for argname, argtype in zip(arglist, typelist):
-            if argtype:
-                arglineValues.append("%s %s" % (argtype, argname))
+class PHPArg:
+    def __init__(self, name, citdl=None, signature=None, default=None):
+        """Set details for a function argument"""
+        self.name = name
+        self.citdl = citdl
+        if signature:
+            self.signature = signature
+        else:
+            if citdl:
+                self.signature = "%s $%s" % (citdl, name)
             else:
-                arglineValues.append(argname)
-        for optArg, optArgValue, optArgType in optionalArgs:
-            arglineValues.append("%s=%s" % (optArg, optArgValue))
-        self.argline = ", ".join(arglineValues)
+                self.signature = "$%s" % (name, )
+        self.default = default
 
     def __repr__(self):
-        args = []
-        for arg in self.args:
-            args.append(repr(arg))
-        return ', '.join(args)
+        return self.signature
 
-    def hasArgumentName(self, name):
-        if name in self.args:
-            return True
-        for optArg, optArgValue, optArgType in self.optionalArgs:
-            if name == optArg:
-                return True
-        return False
+    def updateCitdl(self, citdl):
+        self.citdl = citdl
+        if self.signature.startswith("$") or self.signature.startswith("&") or \
+           " " not in self.signature:
+            self.signature = "%s %s" % (citdl, self.signature)
+        else:
+            self.signature = "%s %s" % (citdl, self.signature.split(" ", 1)[1])
 
     def toElementTree(self, cixelement):
-        for argIndex in range(len(self.args)):
-            arg = self.args[argIndex]
-            typename = None
-            if self.typelist:
-                typename = self.typelist[argIndex]
-            addCixArgument(cixelement, arg, argtype=typename)
-        for optArg, optArgValue, optArgType in self.optionalArgs:
-            cixarg = addCixArgument(cixelement, optArg, argtype=optArgType)
-            cixarg.attrib["default"] = optArgValue
+        cixarg = addCixArgument(cixelement, self.name, argtype=self.citdl)
+        if self.default:
+            cixarg.attrib["default"] = self.default
 
 
 class PHPVariable:
@@ -1523,10 +1504,11 @@ class PHPConstant(PHPVariable):
         return cixelement
 
 class PHPFunction:
-    def __init__(self, funcname, argsAndTypes, optionalArgs, lineno, depth=0,
+    def __init__(self, funcname, phpArgs, lineno, depth=0,
                  attributes=None, doc=None, classname='', classparent='',
                  returnType=None):
         self.name = funcname
+        self.args = phpArgs
         self.linestart = lineno
         self.lineend = None
         self.depth = depth
@@ -1551,40 +1533,25 @@ class PHPFunction:
         self.attributes = ' '.join(attributes)
         self.doc = None
 
-        # Setup the function arguments
-        if argsAndTypes:
-            args = [x[0] for x in argsAndTypes]
-            argTypes = [x[1] for x in argsAndTypes]
-        else:
-            args = []
-            argTypes = []
         if doc:
             if isinstance(doc, list):
                 doc = "".join(doc)
             docinfo = parseDocString(doc)
             self.doc = docinfo[0]
+            # See if there are any PHPDoc arguments defined in the docstring.
             if docinfo[1]:
                 for argInfo in docinfo[1]:
-                    try:
-                        argIndex = args.index(argInfo[1])
-                        argTypes[argIndex] = argInfo[0]
-                    except ValueError:
-                        # No such element, see if it's an optional argument
-                        for optArgInfo in optionalArgs:
-                            if optArgInfo[0] == argInfo[1]:
-                                optArgInfo[2] = argInfo[0]
-                                break
-                        else:
-                            args.append(argInfo[1])
-                            argTypes.append(argInfo[0])
+                    for phpArg in self.args:
+                        if phpArg.name == argInfo[1]:
+                            phpArg.updateCitdl(argInfo[0])
+                            break
+                    else:
+                        self.args.append(PHPArg(argInfo[1], citdl=argInfo[0]))
             if docinfo[2]:
                 self.returnType = docinfo[2][0]
         self.signature += "("
-        if args or optionalArgs:
-            self.args = PHPArgs(args, argTypes, optionalArgs)
-            self.signature += self.args.argline
-        else:
-            self.args = None
+        if self.args:
+            self.signature += ", ".join([x.signature for x in self.args])
         self.signature += ")"
 
     def addReturnType(self, returnType):
@@ -1606,7 +1573,11 @@ class PHPFunction:
         return self.signature
 
     def hasArgumentWithName(self, name):
-        return self.args and self.args.hasArgumentName(name)
+        if self.args:
+            for phpArg in self.args:
+                if phpArg.name == name:
+                    return True
+        return False
 
     def toElementTree(self, cixblob):
         cixelement = createCixFunction(cixblob, self.name,
@@ -1618,7 +1589,8 @@ class PHPFunction:
         if self.doc:
             setCixDoc(cixelement, self.doc)
         if self.args:
-            self.args.toElementTree(cixelement)
+            for phpArg in self.args:
+                phpArg.toElementTree(cixelement)
         if self.returnType:
             addCixReturns(cixelement, self.returnType)
         # Add a "this" and "self" member for class functions
@@ -2065,10 +2037,8 @@ class PHPParser:
             # XXX stacked functions used to work in php, need verify still is
             self.currentFunction = None
 
-    def addFunction(self, name, argsAndTypes=None, optionalArgs=None,
-                    attributes=None, doc=None):
-        log.debug("FUNC: %s(%r %r) on line %d", name, argsAndTypes,
-                  optionalArgs, self.lineno)
+    def addFunction(self, name, phpArgs=None, attributes=None, doc=None):
+        log.debug("FUNC: %s(%r %r) on line %d", name, phpArgs, self.lineno)
         classname = ''
         extendsName = ''
         if self.currentClass:
@@ -2078,8 +2048,7 @@ class PHPParser:
             classname = self.currentInterface.name
             extendsName = self.currentInterface.extends
         self.currentFunction = PHPFunction(name,
-                                           argsAndTypes,
-                                           optionalArgs,
+                                           phpArgs,
                                            self.lineno,
                                            self.depth,
                                            attributes=attributes,
@@ -2310,12 +2279,8 @@ class PHPParser:
                 vartype = ".".join(vartype)
             toScope.constants[const_name] = PHPConstant(const_name, self.lineno, vartype)
 
-    def _getArgumentsFromPos(self, styles, text, pos):
-        """Return a tuple (arguments, optional arguments, next position)
-        
-        arguments: list of lists [[arg name, arg type), ...]
-        optional arguments: list of lists [[arg name, arg default value, arg type], ...]
-        """
+    def _parseOneArgument(self, styles, text):
+        """Create a PHPArg object from the given text"""
 
         # Arguments can be of the form:
         #  foo($a, $b, $c)
@@ -2327,45 +2292,76 @@ class PHPParser:
         #  foo(MyClass $a)
         #  foo(string $a = "123")
         #  foo(MyClass &$a)
+        # References the inner class:
+        #  static function bar($x=self::X)
 
-        log.debug("_getArgumentsFromPos: text: %r", text[pos:])
-        if pos < len(styles) and styles[pos] == self.PHP_OPERATOR and text[pos] == "(":
-            argsAndTypes = []
-            optionals = []
-            vartype = None
-            pos += 1
-            start_pos = pos
-            while pos < len(styles):
+        pos = 0
+        name = None
+        citdl = None
+        default = None
+        sig_parts = []
+        log.debug("_parseOneArgument: text: %r", text)
+        while pos < len(styles):
+            sig_parts.append(text[pos])
+            if name is None:
                 if styles[pos] == self.PHP_VARIABLE:
-                    varname = self._removeDollarSymbolFromVariableName(text[pos])
-                    if pos + 3 < len(styles) and text[pos+1] == "=":
-                        # It's an optional argument
-                        valueType, p = self._getVariableType(styles, text, pos+1)
-                        if valueType:
-                            valueType = valueType[0]
-                        if valueType == "array()":
-                            # special handling for array initializers
-                            value_pos = pos+2
-                            pos = self._skipPastParenArguments(styles, text, pos+4)
-                            if pos < len(styles):
-                                optionals.append([varname, "array()", valueType])
-                        else:
-                            optionals.append([varname, text[pos+2], valueType])
-                            pos += 2
-                    else:
-                        argsAndTypes.append([varname, vartype])
-                    vartype = None
-                elif ((pos+1) < len(styles) and
-                      styles[pos] in (self.PHP_IDENTIFIER, self.PHP_WORD) and
-                      (styles[pos+1] == self.PHP_VARIABLE or
-                       text[pos+1] == '&')):
+                    name = self._removeDollarSymbolFromVariableName(text[pos])
+                elif styles[pos] in (self.PHP_IDENTIFIER, self.PHP_WORD):
                     # Statically typed argument.
-                    vartype = text[pos]
-                elif styles[pos] != self.PHP_OPERATOR or text[pos] not in "&,":
+                    citdl = text[pos]
+                    sig_parts.append(" ")
+                elif text[pos] == '&':
+                    sig_parts.append(" ")
+            elif not citdl:
+                if text[pos] == "=":
+                    sig_parts[-1] = " = "
+                    # It's an optional argument
+                    default = "".join(text[pos+1:])
+                    valueType, pos = self._getVariableType(styles, text, pos+1)
+                    if valueType:
+                        citdl = valueType[0]
                     break
-                pos += 1
-            return argsAndTypes, optionals, pos
-        return None, None, pos
+            else:
+                break
+            pos += 1
+        sig_parts += text[pos:]
+        if name is not None:
+            return PHPArg(name, citdl=citdl, signature="".join(sig_parts),
+                          default=default)
+
+    def _getArgumentsFromPos(self, styles, text, pos):
+        """Return a list of PHPArg objects"""
+
+        p = pos
+        log.debug("_getArgumentsFromPos: text: %r", text[p:])
+        phpArgs = []
+        if p < len(styles) and styles[p] == self.PHP_OPERATOR and text[p] == "(":
+            p += 1
+            paren_count = 0
+            start_pos = p
+            while p < len(styles):
+                if styles[p] == self.PHP_OPERATOR:
+                    if text[p] == "(":
+                        paren_count += 1
+                    elif text[p] == ")":
+                        if paren_count <= 0:
+                            # End of the arguments.
+                            break
+                        paren_count -= 1
+                    elif text[p] == "," and paren_count == 0:
+                        # End of the current argument.
+                        phpArg = self._parseOneArgument(styles[start_pos:p],
+                                                       text[start_pos:p])
+                        if phpArg:
+                            phpArgs.append(phpArg)
+                        start_pos = p + 1
+                p += 1
+            if start_pos < p:
+                phpArg = self._parseOneArgument(styles[start_pos:p],
+                                               text[start_pos:p])
+                if phpArg:
+                    phpArgs.append(phpArg)
+        return phpArgs, p
 
     def _getOneIdentifierFromPos(self, styles, text, pos, identifierStyle=None):
         if identifierStyle is None:
@@ -2881,15 +2877,15 @@ class PHPParser:
                     namelist, p = self._getIdentifiersFromPos(styles, text, pos)
                     log.debug("namelist:%r, p:%d", namelist, p)
                     if namelist:
-                        argsAndTypes, optionals, p = self._getArgumentsFromPos(styles, text, p)
-                        log.debug("Line %d, function: %r(%r, optionals: %r)",
-                                 self.lineno, namelist, argsAndTypes, optionals)
+                        phpArgs, p = self._getArgumentsFromPos(styles, text, p)
+                        log.debug("Line %d, function: %r(%r)",
+                                 self.lineno, namelist, phpArgs)
                         if len(namelist) != 1:
                             log.info("warn: invalid function name (ignoring): "
                                      "%r, line: %d in file: %r", namelist,
                                      self.lineno, self.filename)
                             return
-                        self.addFunction(namelist[0], argsAndTypes, optionals, attributes, doc=self.comment)
+                        self.addFunction(namelist[0], phpArgs, attributes, doc=self.comment)
                 elif keyword == "class":
                     # Examples:
                     #   class SimpleClass {

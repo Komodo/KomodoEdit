@@ -2,7 +2,7 @@
   <file lang="PHP" mtime="42" path="scan_inputs/method_local_var.php">
     <scope ilk="blob" lang="PHP" name="method_local_var.php" src="scan_inputs/method_local_var.php">
       <scope ilk="class" line="3" lineend="10" name="DB">
-        <scope ilk="function" line="5" lineend="8" name="factory" signature="factory(type)">
+        <scope ilk="function" line="5" lineend="8" name="factory" signature="factory($type)">
           <variable ilk="argument" name="type" />
           <variable citdl="string" line="7" name="classname" />
         </scope>
