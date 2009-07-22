@@ -2022,6 +2022,10 @@
                   <File Id="file1853" Name="config.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\paramiko\config.py"/>
                   <File Id="file1854" Name="hostkeys.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\paramiko\hostkeys.py"/>
                   <File Id="file2977" Name="WIN_PA_0.PY" LongName="win_pageant.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\paramiko\win_pageant.py"/>
+                  <File Id="file884" Name="resource.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\paramiko\resource.py"/>
+                  <File Id="file890" Name="rng.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\paramiko\rng.py"/>
+                  <File Id="file891" Name="RNG_PO_0.PY" LongName="rng_posix.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\paramiko\rng_posix.py"/>
+                  <File Id="file892" Name="RNG_WI_0.PY" LongName="rng_win32.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\paramiko\rng_win32.py"/>
                 </Component>
               </Directory> <!-- lib\mozilla\python\komodo\paramiko -->
 <?endif ?>
