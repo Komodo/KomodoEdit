@@ -97,6 +97,7 @@ menu.menulist-subLevel > menupopup  > menuitem {
 
 image.ko-searchbox-image-search {
   list-style-image: url("chrome://mozapps/skin/extensions/searchIcons.png");
+  -moz-image-region: rect(0px, 16px, 16px, 0px);
   padding-right: 2px;
 }
 
