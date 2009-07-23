@@ -276,6 +276,7 @@ xtk.dataTreeView = function dataTreeView(initial_rows) {
     } else {
         this._rows = initial_rows;
     }
+    this._unfilteredRows = this._rows;
     this._debug = 0;
 };
 
@@ -331,14 +332,7 @@ xtk.dataTreeView.prototype = {
     // Setter for the rows needs to do some additional work.
     set rows(theRows) { this.setTreeRows(theRows); },
 
-    /*
-     * Function for updating the tree rows, must be called to set what the
-     * tree contains in order to then display tree information.
-     * 
-     * @param rows {Array} The array of items/rows for the tree.
-     * @param doReSort {bool} Whether to sort the data after it's set.
-     */
-    setTreeRows : function(rows, doReSort /* false */) {
+    _setTreeRows : function(rows, doReSort /* false */) {
         if (this.tree) {
             // Clearing the selection
             this.selection.clearSelection();
@@ -354,6 +348,17 @@ xtk.dataTreeView.prototype = {
             // No tree yet, just assign it.
             this._rows = rows;
         }
+    },
+    /*
+     * Function for updating the tree rows, must be called to set what the
+     * tree contains in order to then display tree information.
+     * 
+     * @param rows {Array} The array of items/rows for the tree.
+     * @param doReSort {bool} Whether to sort the data after it's set.
+     */
+    setTreeRows : function(rows, doReSort /* false */) {
+        this._unfilteredRows = rows;
+        this._setTreeRows(rows, doReSort);
     },
 
     /* Sorting */
@@ -447,7 +452,7 @@ xtk.dataTreeView.prototype = {
             //dump("Just reversing sort order for existing column.\n");
             var newCurrentIndex = (this._rows.length - this.selection.currentIndex) - 1;
             this._rows.reverse();
-            this.setTreeRows(this._rows, /* doReSort */ false);
+            this._setTreeRows(this._rows, /* doReSort */ false);
             this.selection.currentIndex = newCurrentIndex;
             this.tree.ensureRowIsVisible(newCurrentIndex);
             if (this._sortDirection == xtk.dataTreeView.SORT_ASCENDING) {
@@ -513,7 +518,7 @@ xtk.dataTreeView.prototype = {
                 newCurrentIndex = i;
             }
         }
-        this.setTreeRows(sorted_rows, /* doReSort */ false);
+        this._setTreeRows(sorted_rows, /* doReSort */ false);
 
         this.selection.currentIndex = newCurrentIndex;
         this.tree.ensureRowIsVisible(newCurrentIndex);
@@ -529,5 +534,67 @@ xtk.dataTreeView.prototype = {
     },
     sortDescending: function(column) {
         this.sortByColumn(column, xtk.dataTreeView.SORT_DESCENDING);
+    },
+
+    /* filtering - case insentive matching against the text in any of the
+                   visible columns/rows.
+     */
+    filter: function(text) {
+        var filtered_rows = [];
+        if (text) {
+            text = text.toLowerCase();
+            var rows = this._unfilteredRows;
+            // Temporarily restore the original rows, this is required for the
+            // getCellText call below.
+            var original_rows = this._rows;
+            this._rows = rows;
+            try {
+                var col;
+                var visible_columns = [];
+                for (var i=0 ; i < this.tree.columns.count; i++) {
+                    col = this.tree.columns.getColumnAt(i);
+                    if (col.element.getAttribute("visible") != "false") {
+                        visible_columns.push(this.tree.columns.getColumnAt(i));
+                    }
+                }
+                var words = text.split(" ");
+                var word;
+                var matched_word;
+                var matched_all;
+                for (var i=0; i < rows.length; i++) {
+                    matched_all = true;
+                    for (var j=0; j < words.length; j++) {
+                        matched_word = false;
+                        word = words[j];
+                        if (!word)
+                            continue;
+                        for (var col_idx=0 ; col_idx < visible_columns.length; col_idx++) {
+                            col = visible_columns[col_idx];
+                            if (this.getCellText(i, col).toLowerCase().indexOf(word) != -1) {
+                                matched_word = true;
+                                break
+                            }
+                        }
+                        if (!matched_word) {
+                            matched_all = false;
+                            break;
+                        }
+                    }
+                    if (matched_all)
+                        filtered_rows.push(rows[i]);
+                }
+            } finally {
+                // Replace the rows as they were - otherwise the setTreeRows
+                // call will not have the correct row count.
+                this._rows = original_rows;
+            }
+        } else {
+            filtered_rows = this._unfilteredRows;
+        }
+
+        // Call the private "_setTreeRows" method, as it does not update the
+        // special "_unfilteredRows" property.
+        this._setTreeRows(filtered_rows, true);
     }
+
 };
