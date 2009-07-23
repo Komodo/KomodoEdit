@@ -7,7 +7,7 @@
         <variable ilk="argument" name="var" />
       </scope>
       <variable citdl="int" line="17" name="c" />
-      <scope doc="Function returning a reference:&#xA;  In this example, the property of the object returned by the find_var&#xA;  function would be set, not the copy, as it would be without using&#xA;  reference syntax." ilk="function" line="25" lineend="28" name="find_var" returns="found_var" signature="find_var($param)">
+      <scope doc="Function returning a reference:&#xA;  In this example, the property of the object returned by the find_var&#xA;  function would be set, not the copy, as it would be without using&#xA;  reference syntax." ilk="function" line="25" lineend="28" name="find_var" returns="found_var" signature="&amp;find_var($param)">
         <variable ilk="argument" name="param" />
       </scope>
       <variable citdl="find_var()" line="30" name="foo" />

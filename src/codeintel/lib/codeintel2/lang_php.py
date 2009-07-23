@@ -1506,7 +1506,7 @@ class PHPConstant(PHPVariable):
 class PHPFunction:
     def __init__(self, funcname, phpArgs, lineno, depth=0,
                  attributes=None, doc=None, classname='', classparent='',
-                 returnType=None):
+                 returnType=None, returnByRef=False):
         self.name = funcname
         self.args = phpArgs
         self.linestart = lineno
@@ -1515,10 +1515,14 @@ class PHPFunction:
         self.classname = classname
         self.classparent = classparent
         self.returnType = returnType
+        self.returnByRef = returnByRef
         self.variables = {} # all variables used in class
         # build the signature before we add any attributes that are not part
         # of the signature
-        self.signature = '%s' % (self.name)
+        if returnByRef:
+            self.signature = '&%s' % (self.name)
+        else:
+            self.signature = '%s' % (self.name)
         if attributes:
             attrs = ' '.join(attributes)
             self.shortSig = '%s %s' % (attrs, self.name)
@@ -2037,7 +2041,8 @@ class PHPParser:
             # XXX stacked functions used to work in php, need verify still is
             self.currentFunction = None
 
-    def addFunction(self, name, phpArgs=None, attributes=None, doc=None):
+    def addFunction(self, name, phpArgs=None, attributes=None, doc=None,
+                    returnByRef=False):
         log.debug("FUNC: %s(%r %r) on line %d", name, phpArgs, self.lineno)
         classname = ''
         extendsName = ''
@@ -2054,7 +2059,8 @@ class PHPParser:
                                            attributes=attributes,
                                            doc=doc,
                                            classname=classname,
-                                           classparent=extendsName)
+                                           classparent=extendsName,
+                                           returnByRef=returnByRef)
         if self.currentClass:
             self.currentClass.functions[self.currentFunction.name] = self.currentFunction
         elif self.currentInterface:
@@ -2877,6 +2883,7 @@ class PHPParser:
                     namelist, p = self._getIdentifiersFromPos(styles, text, pos)
                     log.debug("namelist:%r, p:%d", namelist, p)
                     if namelist:
+                        returnByRef = (text[pos] == "&")
                         phpArgs, p = self._getArgumentsFromPos(styles, text, p)
                         log.debug("Line %d, function: %r(%r)",
                                  self.lineno, namelist, phpArgs)
@@ -2885,7 +2892,9 @@ class PHPParser:
                                      "%r, line: %d in file: %r", namelist,
                                      self.lineno, self.filename)
                             return
-                        self.addFunction(namelist[0], phpArgs, attributes, doc=self.comment)
+                        self.addFunction(namelist[0], phpArgs, attributes,
+                                         doc=self.comment,
+                                         returnByRef=returnByRef)
                 elif keyword == "class":
                     # Examples:
                     #   class SimpleClass {
