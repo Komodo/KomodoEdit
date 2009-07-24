@@ -102,9 +102,6 @@ image.ko-searchbox-image-search {
 }
 
 image.ko-searchbox-image-clear {
-  /* Note: This image region does not (and should not) exist. */
-  -moz-image-region: rect(0px, 96px, 16px, 80px);
-  list-style-image: url("chrome://global/skin/icons/Search-close.png");
   /* The widths below are required, otherwise mousing over the image can
    * result in jerky flexing of the textbox.
    */
@@ -113,9 +110,11 @@ image.ko-searchbox-image-clear {
 }
 
 image.ko-searchbox-image-clear[empty="false"] {
-  -moz-image-region: rect(0px, 16px, 16px, 0px);
-}
-
-image.ko-searchbox-image-clear[empty="false"]:hover {
-  -moz-image-region: rect(0px, 48px, 16px, 32px);
+/* #if PLATFORM == "linux" */
+  list-style-image: url("chrome://global/skin/icons/Search-close.png");
+  -moz-image-region: rect(0px, 32px, 16px, 16px);
+/* #else */
+  list-style-image: url("chrome://mozapps/skin/extensions/searchIcons.png");
+  -moz-image-region: rect(0px, 32px, 16px, 16px);
+/* #endif */
 }
