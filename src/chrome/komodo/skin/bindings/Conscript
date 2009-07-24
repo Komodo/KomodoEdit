@@ -52,6 +52,7 @@ $cons->InstallInChrome('buttons.css');
 $cons->InstallInChrome('colorpicker.css');
 $cons->InstallInChrome('listbox.css');
 $cons->InstallInChrome('scintilla.css');
+$cons->Preprocess('widgets.p.css', 'widgets.css');
 $cons->InstallInChrome('widgets.css');
 $cons->InstallInChrome('prefwidgets.css');
 $cons->InstallInChrome('views.css');
