@@ -108,6 +108,8 @@ class KoExtShell(cmdln.Cmdln):
     @option("-d", "--source-dir",
             help="The directory with the source for the extension "
                  "(defaults to the current dir)")
+    @option("--unjarred", action="store_true", dest="unjarred",
+            help="Do not jar the chrome directory.")
     @option("--dev", action="store_const", dest="mode", const="dev",
             default="release", help="Build in development mode. See below.")
     @option("--disable-preprocessing", action="store_true",
@@ -135,6 +137,7 @@ class KoExtShell(cmdln.Cmdln):
             ppdefines = None
         koextlib.build_ext(opts.source_dir,
             support_devinstall=(opts.mode=="dev"),
+            unjarred=opts.unjarred,
             ppdefines=ppdefines,
             log=log)
 

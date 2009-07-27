@@ -468,7 +468,8 @@ def create_codeintel_lang_skel(base_dir, lang, dry_run=False, force=False,
 
 
 
-def build_ext(base_dir, support_devinstall=True, ppdefines=None, log=None):
+def build_ext(base_dir, support_devinstall=True, unjarred=False,
+              ppdefines=None, log=None):
     """Build a Komodo extension from the sources in the given dir.
     
     This reads the "install.rdf" in this directory and the appropriate
@@ -482,6 +483,9 @@ def build_ext(base_dir, support_devinstall=True, ppdefines=None, log=None):
     @param base_dir {str} The source directory path of the extension.
     @param support_devinstall {bool} Whether to copy built bits to the source
         directory to support use with a 'devinstall'. Default is True.
+    @param unjarred {bool} Whether to leave the chrome directory unjarred.
+        Default is False, meaning all chrome files (skin, content, locale)
+        are zipped up into a '$ext-name.jar' file.
     @param ppdefines {dict} Is an optional dictionary of preprocessor defines
         used for preprocessing "*.p.*" files in the source tree.
         See <http://code.google.com/p/preprocess/> for info.
@@ -529,24 +533,27 @@ def build_ext(base_dir, support_devinstall=True, ppdefines=None, log=None):
         xpi_manifest = ["install.rdf"]
         
         # Make the chrome jar.
-        chrome_dirs = [d for d in ("content", "skin", "locale") if isdir(d)]
+        chrome_dirs = [d for d in ("chrome", "content", "skin", "locale") if isdir(d)]
         if chrome_dirs:
             assert exists("chrome.manifest"), \
                 "you have chrome dirs ('%s') but no 'chrome.manifest' file" \
                 % "', '".join(chrome_dirs)
-            jar_build_dir = join(build_dir, "jar")
-            _mkdir(jar_build_dir, log.info)
-            for d in chrome_dirs:
-                _cp(d, join(jar_build_dir, d), log.info)
-            _trim_files_in_dir(jar_build_dir, exclude_pats, log.info)
-            _run_in_dir('"%s" -X -r %s.jar *' % (zip_exe, ext_info.codename),
-                        jar_build_dir, log.info)
-    
-            xpi_manifest += [
-                join(jar_build_dir, ext_info.codename+".jar"),
-                "chrome.manifest",
-            ]
-    
+            chrome_build_dir = join(build_dir, unjarred and "xpi" or "jar")
+            _mkdir(chrome_build_dir, log.info)
+            if unjarred:
+                xpi_manifest += chrome_dirs
+            else:
+                for d in chrome_dirs:
+                    _cp(d, join(chrome_build_dir, d), log.info)
+                _trim_files_in_dir(chrome_build_dir, exclude_pats, log.info)
+                # zip (jar) up the chrome
+                _run_in_dir('"%s" -X -r %s.jar *' % (zip_exe, ext_info.codename),
+                            chrome_build_dir, log.info)
+                xpi_manifest += [
+                    join(chrome_build_dir, ext_info.codename+".jar"),
+                ]
+            xpi_manifest.append("chrome.manifest")
+   
         # Handle any PyXPCOM components and idl.
         if isdir("components"):
             components_build_dir = join(build_dir, "components")
