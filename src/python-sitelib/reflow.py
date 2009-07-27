@@ -89,6 +89,9 @@ r"""
 u'The other instances in Homer of double\nnames in the language of men and gods\nare 2.813 \u03c4\u1f74\u03bd \u1f26 \u03c4\u03bf\u03b9 \u1f04\u03bd\u03b4\u03c1\u03b5\u03c2 \u0392\u03b1\u03c4 end!'
 >>> print repr(reflow(homer, 20, '\n'))
 u'The other instances\nin Homer of double\nnames in the\nlanguage of men and\ngods are 2.813 \u03c4\u1f74\u03bd \u1f26\n\u03c4\u03bf\u03b9 \u1f04\u03bd\u03b4\u03c1\u03b5\u03c2 \u0392\u03b1\u03c4 end!'
+>>> embedded_non_breaking_space = u"abcdefgh1 abcdefgh2 abcdefgh3\xa0abcdefgh4\xa0abcdefgh5 abcdefgh6"
+>>> print repr(reflow(embedded_non_breaking_space, 35, '\n'))
+u'abcdefgh1 abcdefgh2\nabcdefgh3\xa0abcdefgh4\xa0abcdefgh5\nabcdefgh6'
 """
 
 import re
@@ -340,7 +343,23 @@ class Para(list):
                 first_indent = other_indents = self[0].leadingIndent
         lineNo = 0
         lines = []
-        words = logical_line[len(first_indent):].split()
+        # See Komodo bug 83764 -- reflow breaks non-breakable spaces and
+        # Python bug 6537 -- string.split breaks non-breakable spaces
+        # The Python bug is rejected -- owner says to use textwrap
+        # Our problem is more complex, so this code hides non-breaking
+        # spaces from string.split.
+        # Note: If I use re.split([\r\n \t]+), extra newlines get added
+        # to the end of the text.
+        breakable_parts = logical_line[len(first_indent):].split(u"\xa0")
+        words = []
+        for bp in breakable_parts:
+          new_words = bp.split()
+          if words:
+            words[-1] += u"\xa0"
+            if new_words:
+              words[-1] += new_words[0]
+              del new_words[0]
+          words += new_words
         if not words: return
         curLine = first_indent + words[0]
         for word in words[1:]:
