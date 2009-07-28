@@ -121,7 +121,7 @@ class koAsyncService(object):
                 log.debug("operation run finished, return data: %r", data)
             except Exception, ex:
                 if aOpCallback:
-                    log.debug("operation %r raised exception: %r", aOp, ex)
+                    log.debug("operation: %r raised exception: %r", aOp, ex)
                     e = ServerException(nsError.NS_ERROR_FAILURE, unicode(ex))
                     aOpCallback.callback(self.RESULT_ERROR, e)
             else:
