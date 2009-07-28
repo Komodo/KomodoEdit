@@ -1816,8 +1816,19 @@ function mapped_command_vim_previous(command_details) {
     ko.commands.doCommand("cmd_bufferPrevious");
 }
 
+/**
+ * Horizontal split view.
+ */
 function mapped_command_vim_splitview(command_details) {
     ko.commands.doCommand("cmd_splittab");
+}
+
+/**
+ * Vertical split view.
+ */
+function mapped_command_vim_vsplitview(command_details) {
+    mapped_command_vim_splitview(command_details);
+    ko.commands.doCommand("cmd_rotateSplitter");
 }
 
 function mapped_command_vim_closeBuffer(command_details) {
@@ -1861,6 +1872,7 @@ VimController.special_command_mappings = {
     "set"      : mapped_command_vim_set,
     "splitview": mapped_command_vim_splitview,
     "undo"     : mapped_command_vim_undo,
+    "vsplitview": mapped_command_vim_vsplitview,
     "write"    : mapped_command_vim_write,
     "wq"       : mapped_command_vim_writequit,
     "xit"      : mapped_command_vim_writequit
