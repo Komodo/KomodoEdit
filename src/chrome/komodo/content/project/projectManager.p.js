@@ -282,6 +282,15 @@ projectManager.prototype.closeProject = function(project) {
     return this.closeProjectEvenIfDirty(project);
 }
 
+/**
+ * Return a list of the opened Komodo projects.
+ * 
+ * @returns {array} - A copy of the projects list.
+ */
+projectManager.prototype.getAllProjects= function() {
+    return this._projects.slice();
+}
+
 projectManager.prototype.getDirtyProjects= function() {
     var dirty = new Array();
     for (var i = 0; i < this._projects.length; i++) {
