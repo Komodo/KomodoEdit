@@ -121,9 +121,9 @@ class koAsyncService(object):
                 log.debug("operation run finished, return data: %r", data)
             except Exception, ex:
                 if aOpCallback:
-                    log.debug("operation run raised exception: %r", ex)
+                    log.debug("operation %r raised exception: %r", aOp, ex)
                     e = ServerException(nsError.NS_ERROR_FAILURE, unicode(ex))
-                    aOpCallback.callback(self.RESULT_ERROR, [e])
+                    aOpCallback.callback(self.RESULT_ERROR, e)
             else:
                 if aOpCallback:
                     if data is None: data = []
@@ -204,7 +204,7 @@ class koAsyncService(object):
     def run(self, name, aOp, aOpCallback, affected_uris, lock_these_uris):
         # Test if we can unwrap the operation. This ensure's that aOp is a
         # Python object! If it is not, then an exception will be raised.
-        UnwrapObject(aOp)
+        aOp = UnwrapObject(aOp)
         log.debug("Running asynchronous command: %r", name)
         t = threading.Thread(name=name,
                              target=self.__run,
