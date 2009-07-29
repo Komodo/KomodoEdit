@@ -58,3 +58,13 @@ state IN_M_STAG_ATTR_SSTRING:
 '{{' : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
 	spush_check(IN_M_STAG_ATTR_SSTRING), \
 	=> IN_TPL_DEFAULT 
+
+state IN_M_STAG_POST_TAGNAME:
+/{%\s*comment\s*%\}/ : paint(upto, M_TAGSPACE), \
+       spush_check(IN_M_STAG_IN_ATTRNAME), => IN_TPL_COMMENTBLOCK
+
+'{%' : paint(upto, M_TAGSPACE), paint(include, TPL_OPERATOR), \
+       spush_check(IN_M_STAG_IN_ATTRNAME), => IN_TPL_DEFAULT
+
+'{{'  : paint(upto, M_TAGSPACE), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_IN_ATTRNAME), => IN_TPL_DEFAULT
