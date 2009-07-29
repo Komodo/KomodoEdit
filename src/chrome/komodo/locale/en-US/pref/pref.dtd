@@ -503,6 +503,10 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePrefAllLangSize.label "Size:">
 <!ENTITY filePrefAllLangForeground.label "Foreground:">
 <!ENTITY filePrefAllLangBackground.label "Background:">
+<!ENTITY filePrefSubLanguageBackground.label "Sub-Language Background:">
+<!ENTITY filePrefUseSubLanguageBackground.label "Use a different background color when used as a sub-language">
+<!ENTITY filePrefSubLanguageBackground.accesskey "S">
+<!ENTITY filePrefUseSubLanguageBackground.accesskey "U">
 <!ENTITY styleForSpecElements.description "Set styling for language-specific syntax elements.">
 <!ENTITY filePrefAllLangLanguage.label "Language:">
 <!ENTITY filePrefAllLangLanguage.accesskey "G">

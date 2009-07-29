@@ -127,6 +127,9 @@ function initDialog() {
     dialog.specificlist = document.getElementById('specificlist')
     dialog.specificFore = document.getElementById('specificColorPickerFore')
     dialog.specificBack = document.getElementById('specificColorPickerBack')
+    dialog.specificBackBySubLanguage = document.getElementById('specificColorPickerSubLanguageBack');
+    dialog.useGlobalSubLanguageBackground = document.getElementById('useGlobalSubLanguageBackground');
+        
     dialog.specificBold = document.getElementById('specificBold')
     dialog.specificItalic = document.getElementById('specificItalic')
     dialog.languageList = document.getElementById('languageList');
@@ -147,7 +150,23 @@ function initDialog() {
 function OnPreferencePageInitalize(prefset) {
     try {
         gDialog.prefset = prefset;
-        gDialog.currentLanguage = 'Python'; // get from current view
+        var selectedLanguageName;
+        try {
+            selectedLanguageName = parent.opener.ko.views.manager.currentView.document.language;
+        } catch(ex) {
+            selectedLanguageName = "Python";
+        }
+        // Verify the language exists
+        var ok;
+        try {
+            ok = !!gLanguageRegistry.getLanguage(selectedLanguageName);
+        } catch(ex) {
+            ok = false;
+        }
+        if (!ok) {
+            selectedLanguageName = "Python";
+        }
+        gDialog.currentLanguage = selectedLanguageName;
         var schemeName = prefset.getStringPref('editor-scheme');
         gDialog.schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService()
         gDialog.currentScheme = gDialog.schemeService.getScheme(schemeName);
@@ -441,6 +460,10 @@ function setColour(colorpicker)
             case 'specificColorPickerBack':
                 gDialog.currentScheme.setBack(gDialog.currentLanguage,
                                              gDialog.currentSpecificStyle,
+                                             color);
+                break;
+            case 'specificColorPickerSubLanguageBack':
+                gDialog.currentScheme.setSubLanguageDefaultBackgroundColor(gDialog.currentLanguage,
                                              color);
                 break;
             default:
@@ -961,6 +984,12 @@ function updateSpecificStyle()
     gDialog.specificFore.color = fore;
     back = gDialog.currentScheme.getBack(gDialog.currentLanguage, style);
     gDialog.specificBack.color = back;
+    gDialog.specificBackBySubLanguage.color = 
+                gDialog.currentScheme.getSubLanguageDefaultBackgroundColor(gDialog.currentLanguage);
+    gDialog.useGlobalSubLanguageBackground.checked = 
+        gDialog.currentScheme.getGlobalSubLanguageBackgroundEnabled(gDialog.currentLanguage);
+    updateSubLanguageBackgroundField(gDialog.useGlobalSubLanguageBackground);
+                               
     bold = gDialog.currentScheme.getBold(gDialog.currentLanguage, style);
     setCheckboxButton(gDialog.specificBold, bold);
     italic = gDialog.currentScheme.getItalic(gDialog.currentLanguage, style);
@@ -980,6 +1009,25 @@ function updateSchemeColor(colorid) {
     }
 }
 
+function updateSubLanguageBackgroundField(checkbox)
+{
+    if (checkbox.checked) {
+        gDialog.specificBackBySubLanguage.removeAttribute("disabled");
+        document.getElementById("specificColorPickerSubLanguageBack_customColorPicker").removeAttribute("disabled");
+        document.getElementById("specificColorPickerSubLanguageBack_label").removeAttribute("disabled");
+    } else {
+        gDialog.specificBackBySubLanguage.setAttribute("disabled", true);
+        document.getElementById("specificColorPickerSubLanguageBack_customColorPicker").setAttribute("disabled", true);
+        document.getElementById("specificColorPickerSubLanguageBack_label").setAttribute("disabled", true);
+    }
+}
+
+function checkSubLanguageBackground(checkbox) {
+    if (!ensureWriteableScheme()) return;
+    gDialog.currentScheme.setGlobalSubLanguageBackgroundEnabled(gDialog.currentLanguage,
+                                                         checkbox.checked);
+    updateSubLanguageBackgroundField(checkbox);
+}
 
 var gFontsProp;
 var gFontsFixed;

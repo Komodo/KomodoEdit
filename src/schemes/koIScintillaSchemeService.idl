@@ -105,6 +105,13 @@ interface koIScintillaScheme : nsISupports {
 
     void resetStyle(in string language, /* null means common styles */
                     in string styleId);
+    
+    // Similar methods, but for handling UDL sublanguages.
+    void setSubLanguageDefaultBackgroundColor(in string language, in string color);
+    string getSubLanguageDefaultBackgroundColor(in string language);
+
+    void setGlobalSubLanguageBackgroundEnabled(in string language, in boolean allow);
+    boolean getGlobalSubLanguageBackgroundEnabled(in string language);
 
     void applyScheme(in ISciMoz scintilla,
                      in string language,

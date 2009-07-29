@@ -545,6 +545,26 @@
                                         class="arrow-right-6x3-icon button-toolbar-a"
                                         oncommand="customColor('specificColorPickerBack')"/>
                             </hbox>
+                            <vbox style="margin-top: 4px;">
+                                <checkbox id="useGlobalSubLanguageBackground"
+                                          oncommand="checkSubLanguageBackground(this);"
+                                          label="&filePrefUseSubLanguageBackground.label;"
+                                          accesskey="&filePrefUseSubLanguageBackground.accesskey;"/>
+                                <hbox align="center" style="margin-left: 27px;">
+                                    <label value="&filePrefSubLanguageBackground.label;"
+                                           id="specificColorPickerSubLanguageBack_label"
+                                           accesskey="&filePrefSubLanguageBackground.accesskey;"/>
+                                    <colorpicker id="specificColorPickerSubLanguageBack"
+                                                 palettename="scin-customize"
+                                                 type="button" width="20" height="20"
+                                                 persist="palettename"
+                                                 onchange="setColour(this);" />
+                                    <button id="specificColorPickerSubLanguageBack_customColorPicker"
+                                            style="margin-bottom: 6px"
+                                            class="arrow-right-6x3-icon button-toolbar-a"
+                                            oncommand="customColor('specificColorPickerSubLanguageBack')"/>
+                                </hbox>
+                            </vbox>
                         </vbox>
                     </hbox>
                 </tabpanel>

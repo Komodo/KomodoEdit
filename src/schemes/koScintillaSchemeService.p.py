@@ -67,6 +67,7 @@ ScimozStyleNo2CommonName = {}
 ScimozStyleNo2SpecificName = {}
 IndicatorName2ScimozNo = {}
 ValidStyles = {}
+_re_udl_style_name = re.compile(r'SCE_UDL_([^_]+)')
 
 
 #---- scheme handling classes
@@ -121,6 +122,7 @@ class Scheme:
     def _loadSchemeSettings(self, namespace, upgradeSettings=True):
         self._commonStyles = namespace.get('CommonStyles', {})
         self._languageStyles = namespace.get('LanguageStyles', {})
+        self._miscLanguageSettings = namespace.get('MiscLanguageSettings', {})
         self._colors = namespace.get('Colors', {})
         self._booleans = namespace.get('Booleans', {})
         self._indicators = namespace.get('Indicators', {})
@@ -222,6 +224,7 @@ class Scheme:
                                           [newname]))
         clone._commonStyles = copy.deepcopy(self._commonStyles)
         clone._languageStyles = copy.deepcopy(self._languageStyles)
+        clone._miscLanguageSettings = copy.deepcopy(self._miscLanguageSettings)
         clone._colors = copy.deepcopy(self._colors)
         clone._booleans = copy.deepcopy(self._booleans)
         clone._indicators = copy.deepcopy(self._indicators)
@@ -234,9 +237,10 @@ class Scheme:
         booleans = "Booleans = " + pprint.pformat(self._booleans)
         commonStyles = "CommonStyles = " + pprint.pformat(self._commonStyles)
         languageStyles = "LanguageStyles = " + pprint.pformat(self._languageStyles)
+        miscLanguageSettings = "MiscLanguageSettings = " + pprint.pformat(self._miscLanguageSettings)
         colors = "Colors = " + pprint.pformat(self._colors)
         indicators = "Indicators = " + pprint.pformat(self._indicators)
-        parts = [version, booleans, commonStyles, languageStyles, colors, indicators]
+        parts = [version, booleans, commonStyles, languageStyles, miscLanguageSettings, colors, indicators]
         s = '\n\n'.join(parts)
         return s
 
@@ -289,8 +293,7 @@ class Scheme:
 
     def setFore(self, language, style, mozcolor):
         self._set(language, style, mozcolor2scincolor(mozcolor), 'fore')
-        self.isDirty = 1
-
+        
     def _set(self, language, style, value, attribute):
         log.info("_set(%r, %r, %r, %r)", language, style, value, attribute)
         #log.debug("before set, value = %r", self._appliedData[style])
@@ -305,32 +308,53 @@ class Scheme:
             if style not in self._languageStyles[language]:
                 self._languageStyles[language][style] = {}
             self._languageStyles[language][style][attribute] = value
-            log.debug("after set, value = %r", self._languageStyles[language][style][attribute])
+        self.isDirty = 1
 
     def setBack(self, language, style, mozcolor):
         self._set(language, style, mozcolor2scincolor(mozcolor), 'back')
-        self.isDirty = 1
+        
+    def setSubLanguageDefaultBackgroundColor(self, language, mozcolor):
+        if not language:
+            return
+        style = 'compound_document_defaults'
+        self._set(language, style, mozcolor2scincolor(mozcolor), 'back')
+
+    def getSubLanguageDefaultBackgroundColor(self, language, useFixed=1):
+        try:
+            backgroundColor = self._languageStyles[language]\
+                                  ['compound_document_defaults']['back']
+            if backgroundColor is not None:
+                return scincolor2mozcolor(backgroundColor)
+        except KeyError:
+            pass
+        return self.getBack(language, 'default')
+
+    def setGlobalSubLanguageBackgroundEnabled(self, language, val):
+        if not language:
+            return
+        self._miscLanguageSettings.setdefault(language, {})['globalSubLanguageBackgroundEnabled'] = val
+
+    def getGlobalSubLanguageBackgroundEnabled(self, language):
+        try:
+            return self._miscLanguageSettings[language]['globalSubLanguageBackgroundEnabled']
+        except KeyError:
+            return False
 
     def setBold(self, language, style, bold):
         self._set(language, style, bold, 'bold')
-        self.isDirty = 1
     
     def setItalic(self, language, style, italic):
         self._set(language, style, italic, 'italic')
-        self.isDirty = 1
     
     def setFont(self, style, font):
         self._set('', style, font, 'face')
-        self.isDirty = 1
     
     def setFaceType(self, language, style, useFixed):
         self._set(language, style, useFixed, 'useFixed')
-        self.isDirty = 1
     
     def setSize(self, language, style, size):
         self._set(language, style, size, 'size')
-        self.isDirty = 1
-
+        
     def setIndicator(self, indic_name, style, mozcolor, alpha, draw_underneath):
         self._indicators[indic_name] = {
             'style' : style,
@@ -577,6 +601,32 @@ class Scheme:
                    and style["back"] != 0:
                     style["back"] = None
                 style.update(specificStyle)
+
+                # UDL: Grab nested sublanguages
+                # If a language is made up of sub-languages L1 ... L4,
+                # get the specific language info for languages L1 through L4,
+                # and use those.  This is where the sub-language-specific
+                # background color gets used.
+                UDLBackgroundColor = None
+                m = _re_udl_style_name.match(scimoz_name)
+                if m:
+                    family = m.group(1)
+                    try:
+                        subLanguageName = languageObj.getLanguageForFamily(family)
+                        if subLanguageName is None and family == "TPL":
+                            # Map TPL -- the template stuff -- to the SSL component
+                            family = "SSL"
+                            subLanguageName = languageObj.getLanguageForFamily(family)
+                        defaultSubLanguageStyles = subLanguageName and self._languageStyles.get(subLanguageName)
+                        if defaultSubLanguageStyles is not None:
+                            if self.getGlobalSubLanguageBackgroundEnabled(subLanguageName):
+                                UDLBackgroundColor = defaultSubLanguageStyles.get('compound_document_defaults', {}).get('back')
+                            if subLanguageName != language:
+                                style.update(defaultSubLanguageStyles.get('default', {}))
+                                style.update(defaultSubLanguageStyles.get(common_name, {}))
+                    except:
+                        log.exception("Failed to get sub-language for family %s from language %s ", family, language)
+                        
                 self._appliedData[common_name] = style
                 if useFixed != defaultUseFixed:
                     if not sys.platform.startswith('win'):
@@ -599,6 +649,9 @@ class Scheme:
                         and (defaultStyleIsNotApplicable
                              or value != defaultStyle[aspect])):
                         setter(scimoz_no, value)
+
+                if UDLBackgroundColor is not None:
+                    scimoz.styleSetBack(scimoz_no, UDLBackgroundColor)
 
         # Now do the other colors, such as cursor color
         scimoz.caretFore = self._colors['caretFore']
