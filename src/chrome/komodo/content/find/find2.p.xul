@@ -158,7 +158,7 @@
                             oncommand="regex_insert_shortcut(this);"/>
                   <menuitem label="&DAnyNonDigit.label;"
                             shortcut="\D"
-                            tooltiptext="&equivalentTo09.tooltiptext;"
+                            tooltiptext="&equivalentToNot09.tooltiptext;"
                             oncommand="regex_insert_shortcut(this);"/>
                   <menuitem label="&sAnyWhitespaceCharacter.label;"
                             shortcut="\s"
@@ -166,7 +166,7 @@
                             oncommand="regex_insert_shortcut(this);"/>
                   <menuitem label="&SAnyNonWhitespaceCharacter.label;"
                             shortcut="\S"
-                            tooltiptext="&equivalentToTNRFV.tooltiptext;"
+                            tooltiptext="&equivalentToNotTNRFV.tooltiptext;"
                             oncommand="regex_insert_shortcut(this);"/>
                   <menuitem label="&wAnyAlphanumericCharacter.label;"
                             shortcut="\w"

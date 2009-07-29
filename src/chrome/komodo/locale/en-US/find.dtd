@@ -60,8 +60,10 @@
 <!ENTITY enterFiletypesToExcludeUnix.tooltiptext "Enter filetypes to exclude from search, e.g. '*.dtd:*.obj'. Empty means none.">
 <!ENTITY enterFiletypesToIncludeWin.tooltiptext "Enter filetypes to include in search, e.g. '*.pl;*.pm'. Empty means all.">
 <!ENTITY enterFiletypesToIncludeUnix.tooltiptext "Enter filetypes to include in search, e.g. '*.pl:*.pm'. Empty means all.">
-<!ENTITY equivalentTo09.tooltiptext "equivalent to [^0-9]">
-<!ENTITY equivalentToTNRFV.tooltiptext "equivalent to [^ \t\n\r\f\v]">
+<!ENTITY equivalentTo09.tooltiptext "equivalent to [0-9]">
+<!ENTITY equivalentToNot09.tooltiptext "equivalent to [^0-9]">
+<!ENTITY equivalentToTNRFV.tooltiptext "equivalent to [ \t\n\r\f\v]">
+<!ENTITY equivalentToNotTNRFV.tooltiptext "equivalent to [^ \t\n\r\f\v]">
 <!ENTITY escapeRegexSpecialCharacters.label "escape regex special characters">
 <!ENTITY files.label "Files...">
 <!ENTITY find.label "Find">
