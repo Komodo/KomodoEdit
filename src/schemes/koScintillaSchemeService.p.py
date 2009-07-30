@@ -372,67 +372,53 @@ class Scheme:
                 style = 'default_proportional'
         return style
 
+    def _getAspectFromStyleBlocks(self, style, attribute):
+        if style in self._commonStyles:
+            styleBlock = self._commonStyles[style]
+        else:
+            fallbackstyle = self._getFallbackStyle(style)
+            try:
+                styleBlock = self._commonStyles[fallbackstyle]
+            except KeyError:
+                log.exception("No key: self._commonStyles[fallbackstyle=%r], style=%r, attribute=%r", fallbackstyle, style, attribute)
+                raise
+        return styleBlock.get(attribute, self.defaultStyle[attribute])
+
+    def _getAspectFromAppliedData(self, style, attribute):
+        aspect = None
+        if style in self._appliedData:
+            aspect = self._appliedData[style].get(attribute)
+        if aspect is None:
+            aspect = self._appliedData['default'][attribute]
+        return aspect
+
+    def _getAspect(self, language, style, attribute):
+        if not language:
+            return self._getAspectFromStyleBlocks(style, attribute)
+        else:
+            return self._getAspectFromAppliedData(style, attribute)
+
     def getFore(self, language, style):
         #print language, style
         #style = self._fixstyle(style)
-        if not language:
-            if style in self._commonStyles:
-                scincolor = self._commonStyles[style].get('fore', self.defaultStyle['fore'])
-            else:
-                fallbackstyle = self._getFallbackStyle(style)
-                scincolor = self._commonStyles[fallbackstyle].get('fore', self.defaultStyle['fore'])
-        else:
-            if style in self._appliedData:
-                scincolor = self._appliedData[style]['fore']
-            else:
-                scincolor = self._appliedData['default']['fore']
+        scincolor = self._getAspect(language, style, 'fore')
         #print "asked for fore of ", language, style, "got", scincolor
         return scincolor2mozcolor(scincolor)
         
     def getBack(self, language, style):
         #style = self._fixstyle(style)
-        if not language:
-            if style in self._commonStyles:
-                scincolor = self._commonStyles[style].get('back', self.defaultStyle['back'])
-            else:
-                fallbackstyle = self._getFallbackStyle(style)
-                scincolor = self._commonStyles[fallbackstyle].get('back', self.defaultStyle['back'])
-        else:
-            if style in self._appliedData:
-                scincolor = self._appliedData[style]['back']
-            else:
-                scincolor = self._appliedData['default']['back']
+        scincolor = self._getAspect(language, style, 'back')
         return scincolor2mozcolor(scincolor)
 
     def getBold(self, language, style):
         #style = self._fixstyle(style)
-        if not language:
-            if style in self._commonStyles:
-                bold = self._commonStyles[style].get('bold', self.defaultStyle['bold'])
-            else:
-                fallbackstyle = self._getFallbackStyle(style)
-                bold = self._commonStyles[fallbackstyle].get('bold', self.defaultStyle['bold'])
-        else:
-            if style in self._appliedData:
-                bold = self._appliedData[style]['bold']
-            else:
-                bold = self._appliedData['default']['bold']
+        bold = self._getAspect(language, style, 'bold')
         #print "getBold(%r,%r) --> %r" % (language, style, bold)
         return bold
 
     def getItalic(self, language, style):
         #style = self._fixstyle(style)
-        if not language:
-            if style in self._commonStyles:
-                italic = self._commonStyles[style].get('italic', self.defaultStyle['italic'])
-            else:
-                fallbackstyle = self._getFallbackStyle(style)
-                italic = self._commonStyles[fallbackstyle].get('italic', self.defaultStyle['italic'])
-        else:
-            if style in self._appliedData:
-                italic = self._appliedData[style]['italic']
-            else:
-                italic = self._appliedData['default']['italic']
+        italic = self._getAspect(language, style, 'italic')
         #pprint.pprint(self._appliedData)
         #print "getItalic(%r,%r) --> %r" % (language, style, italic)
         #pprint.pprint(self._appliedData)
@@ -441,10 +427,7 @@ class Scheme:
     def getFont(self, style):
         #style = self._fixstyle(style)
         # this returns a real font label
-        if style in self._commonStyles:
-            return self._commonStyles[style]['face']
-        fallbackstyle = self._getFallbackStyle(style)
-        return self._commonStyles[fallbackstyle]['face']
+        return self._getAspectFromAppliedData(style, 'face')
 
     def _getFallbackStyle(self, style):
         if style.endswith('_fixed'):
@@ -457,21 +440,11 @@ class Scheme:
     def getFaceType(self, language, style):
         #style = self._fixstyle(style)
         # this returns true for 'fixed' or false for 'proportional'
-        return self._appliedData[style]['useFixed']
+        return self._getAspectFromAppliedData(style, 'useFixed')
     
     def getSize(self, language, style):
         #style = self._fixstyle(style)
-        if not language:
-            if style in self._commonStyles:
-                return self._commonStyles[style].get('size', self.defaultStyle['size'])
-            else:
-                fallbackstyle = self._getFallbackStyle(style)
-                return self._commonStyles[fallbackstyle].get('size', self.defaultStyle['size'])
-        else:
-            if style in self._appliedData:
-                size = self._appliedData[style]['size']
-            else:
-                size = self._appliedData['default']['size']
+        size = self._getAspect(language, style, 'size')
         return size
         
     def getIndicator(self, indic_name):
