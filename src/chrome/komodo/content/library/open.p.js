@@ -77,16 +77,43 @@ function removeAmpersands(labels) {
 this.URI = function open_openURI(uri, viewType /* ="editor" */,
                                  skipRecentOpenFeature /* =false */,
                                  callback /* =null */) {
+    return this.URIAtLine(uri, null, viewType, skipRecentOpenFeature, callback);
+}
+
+/**
+ * Asynchronously open the URI in a new Komodo tab, if the file is already
+ * open then this existing tab becomes the currently focused tab.
+ *
+ * If you need the view for the file that is opened from this call, pass in
+ * a callback function argument and then this function will be called after
+ * the view is opened (or re-focused if it was already open).
+ *
+ * @param uri {String} the path or URI to open
+ * @param lineno {Number} the line number to open the file at
+ * @param viewType {String} optional default "editor" type of view
+ *        component to use. Values can be [ "editor", "browser", "diff" ].
+ * @param skipRecentOpenFeature {boolean} optional default false, can
+ *        be used when the URI to open is a project file to specify that
+ *        the feature to open files in that project should not be offered.
+ * @param callback {function} optional, to be called when the asynchronous load
+ *        is complete. This will only be called if this opens or switches to
+ *        an editor view, e.g. this won't be called for a kpf file. The view
+ *        will be passed as an argument to the function.
+ */
+this.URIAtLine = function open_openURI(uri, lineno, viewType /* ="editor" */,
+                                       skipRecentOpenFeature /* =false */,
+                                       callback /* =null */) {
     try {
         // URI can be a local path or a URI
         uri = ko.uriparse.pathToURI(uri);
         // check for an attached line # in the form of:
         // file:///filename.txt#24
-        var line = 0;
-        var m = fileLineNoRE.exec(uri);
-        if (m) {
-            uri = m[1];
-            line = m[2];
+        if (lineno == null) {
+            var m = fileLineNoRE.exec(uri);
+            if (m) {
+                uri = m[1];
+                lineno = m[2];
+            }
         }
         if (uri.match(/\.kpf$/i)) {
             ko.projects.open(uri, skipRecentOpenFeature);
@@ -136,8 +163,8 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
                 }
             }
             ko.history.note_curr_loc();
-            if (line) {
-                ko.views.manager.doFileOpenAtLineAsync(uri, line, viewType, null, -1, callback);
+            if (lineno) {
+                ko.views.manager.doFileOpenAtLineAsync(uri, lineno, viewType, null, -1, callback);
             } else {
                 ko.views.manager.doFileOpenAsync(uri, viewType, null, -1, callback);
             }
