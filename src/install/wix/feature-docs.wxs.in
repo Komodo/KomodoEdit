@@ -372,8 +372,8 @@
                 <File Id="file413" LongName="ide-4.2.html" Name="IDE42_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide-4.2.html" />
                 <File Id="file463" LongName="ide-4.3.html" Name="IDE43_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide-4.3.html" />
                 <File Id="file464" LongName="ide-4.4.html" Name="IDE44_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide-4.4.html" />
-                <File Id="file884" LongName="ide-5.0.html" Name="IDE50_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide-5.0.html" />
-                <File Id="file890" LongName="ide-5.1.html" Name="IDE51_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide-5.1.html" />
+                <File Id="file893" LongName="ide-5.0.html" Name="IDE50_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide-5.0.html" />
+                <File Id="file894" LongName="ide-5.1.html" Name="IDE51_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide-5.1.html" />
                 <File Id="file426" LongName="index.html" Name="INDEX_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\index.html" />
                 <File Id="file427" LongName="old.html" Name="OLD_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\old.html" />
               </Component>
