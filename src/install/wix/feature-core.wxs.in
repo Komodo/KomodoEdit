@@ -2630,18 +2630,18 @@
             </Directory> <!-- lib\python\Lib\distutils -->
             <Directory Id="directory96" Name="email">
               <Component Id="component90" DiskId="1" Guid="$(autowix.guid)">
-                <File Id="file2919" Name="BASE64_0.PY" LongName="base64MIME.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\base64MIME.py"/>
-                <File Id="file2920" Name="Charset.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\Charset.py"/>
-                <File Id="file2921" Name="Encoders.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\Encoders.py"/>
-                <File Id="file2922" Name="ERRORS_1.PY" LongName="Errors.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\Errors.py"/>
-                <File Id="file2923" Name="FEEDPA_0.PY" LongName="FeedParser.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\FeedParser.py"/>
-                <File Id="file2924" Name="GENERA_0.PY" LongName="Generator.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\Generator.py"/>
-                <File Id="file2925" Name="Header.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\Header.py"/>
-                <File Id="file2926" Name="ITERAT_0.PY" LongName="Iterators.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\Iterators.py"/>
-                <File Id="file2927" Name="Message.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\Message.py"/>
-                <File Id="file2935" Name="Parser.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\Parser.py"/>
-                <File Id="file2936" Name="QUOPRI_0.PY" LongName="quopriMIME.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\quopriMIME.py"/>
-                <File Id="file2937" Name="UTILS_0.PY" LongName="Utils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\Utils.py"/>
+                <File Id="file2919" Name="BASE64_0.PY" LongName="base64mime.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\base64mime.py"/>
+                <File Id="file2920" Name="charset.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\charset.py"/>
+                <File Id="file2921" Name="encoders.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\encoders.py"/>
+                <File Id="file2922" Name="ERRORS_1.PY" LongName="errors.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\errors.py"/>
+                <File Id="file2923" Name="FEEDPA_0.PY" LongName="feedparser.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\feedparser.py"/>
+                <File Id="file2924" Name="GENERA_0.PY" LongName="generator.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\generator.py"/>
+                <File Id="file2925" Name="header.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\header.py"/>
+                <File Id="file2926" Name="ITERAT_0.PY" LongName="iterators.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\iterators.py"/>
+                <File Id="file2927" Name="message.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\message.py"/>
+                <File Id="file2935" Name="parser.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\parser.py"/>
+                <File Id="file2936" Name="QUOPRI_0.PY" LongName="quoprimime.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\quoprimime.py"/>
+                <File Id="file2937" Name="UTILS_0.PY" LongName="utils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\utils.py"/>
                 <File Id="file2938" Name="_PARSE_0.PY" LongName="_parseaddr.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\_parseaddr.py"/>
                 <File Id="file2939" Name="__INI_13.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\email\__init__.py"/>
               </Component>
