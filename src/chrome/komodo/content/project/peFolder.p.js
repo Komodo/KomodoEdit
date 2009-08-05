@@ -282,13 +282,13 @@ this.addNewPart = function peFolder_add(type, partviewerId)
         }
 // #if PLATFORM == "darwin"
         if (type == 'menu' || target.type == 'menu') {
-            var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+            var _views_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
             .getService(Components.interfaces.nsIStringBundleService)
             .createBundle("chrome://komodo/locale/views.properties");
-            var message = _bundle.GetStringFromName("customMenubarsNotSupportedOnOSX.alert");
-            var text = (_bundle.GetStringFromName("bug80697ref.text")
+            var message = _views_bundle.GetStringFromName("customMenubarsNotSupportedOnOSX.alert");
+            var text = (_views_bundle.GetStringFromName("bug80697ref.text")
                         + "\n"
-                        + _bundle.GetStringFromName("preferOverlaysToCustomMenus.text"));
+                        + _views_bundle.GetStringFromName("preferOverlaysToCustomMenus.text"));
             ko.dialogs.alert(message, text);
             return;
         }
