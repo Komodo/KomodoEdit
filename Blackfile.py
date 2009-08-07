@@ -2062,6 +2062,29 @@ def CleanKomodoBuild(cfg, argv):
                     _run('rm -rf "%s"' % path)
 
 
+def DistCleanKomodoBuild(cfg, argv):
+    """Completely clean out all Komodo build, package and install bits."""
+    from os.path import abspath, join, isdir, isfile
+    CleanKomodoBuild(cfg, argv)
+    bits = [
+        join(cfg.komodoDevDir, "build"),
+        join(cfg.komodoDevDir, "export"),
+        join(cfg.komodoDevDir, "package"),
+        join(cfg.komodoDevDir, "install"),
+        join(cfg.komodoDevDir, "src", "scintilla"),
+    ]
+    for path in bits:
+        out.write("remove '%s'\n" % path)
+        if sys.platform == "win32":
+            if isdir(path):
+                _run('rd /s/q "%s"' % path)
+            else:
+                _run('attrib -R "%s"' % path)
+                _run('del "%s"' % path)
+        else:
+            _run('rm -rf "%s"' % path)
+
+
 def RunKomodo(cfg, argv):
     if sys.platform == "darwin":    # No komodo starter stub on Mac OS X.
         if not os.path.exists(cfg.mozExe):
@@ -2360,6 +2383,7 @@ commandOverrides = {
     "run": RunKomodo,
     "cleanprefs": CleanPreferences,
     "clean": CleanKomodoBuild,
+    "distclean": DistCleanKomodoBuild,
     "package": PackageKomodo,
     "upload": UploadKomodoPackages,
     "test": TestKomodo,

@@ -360,6 +360,40 @@ class Shell(tmCmd.AugmentedListCmd):
             out.endErrorItem()
                 
 
+    def do_distclean(self, argv):
+        """completely clean everything
+        
+        bk distclean [optional args depending on configuration]
+        """
+        global blackFile, blackFileName
+        # die if there is no project configuration
+        if not blackFile:
+            raise black.BlackError("attempted 'distclean' with no project "\
+                "configuration: no Blackfile.py was found")
+        try:
+            projectConfig = black.configure.ImportProjectConfig(
+                blackFileName, blackFile)
+        except ImportError:
+            out.startErrorItem()
+            out.write("error: Attempted 'distclean' command without having "\
+                      "configured. You must first configure your project.\n")
+            out.endErrorItem()
+            return 1
+
+        # Currently Black has no knowledge of how to clean a project. However,
+        # it can invoke a custom clean procedure as expressed in
+        # the commandOverrides['clean'] variable in the project Blackfile.py.
+        if HasOverride(blackFile, "distclean"):
+            return RunOverride(blackFile, projectConfig, "distclean", argv)
+        else:
+            out.startErrorItem()
+            out.write("warning: Black currently does not know how to "\
+                      "distclean anything unless you override the distclean"\
+                      "command in your Blackfile. '%s' does not do this." %\
+                      blackFileName)
+            out.endErrorItem()
+
+
     def do_run(self, argv):
         """run the application for the current project
         
