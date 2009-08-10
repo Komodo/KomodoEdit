@@ -52,6 +52,7 @@
 					hexColor = hexColor.substr(1);
 				}
 				window.cp1 = new window.Refresh.Web.ColorPicker('cp1',{startHex: hexColor, startMode: startMode});
+				window.addEventListener("keypress", colorpicker_keypress_handler, true);
 			}, true);
 			window.addEventListener("unload", function(e) {
 				var hexColor = window.cp1.getColorAsHex();
@@ -64,6 +65,7 @@
 				if (window.retval && window.arguments[0].callback) {
 					window.arguments[0].callback(hexColor);
 				}
+				window.removeEventListener("keypress", colorpicker_keypress_handler, true);
 			}, true);
 		</script>
 	</head>
