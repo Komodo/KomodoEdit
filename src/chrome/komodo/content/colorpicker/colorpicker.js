@@ -636,14 +636,5 @@ function colorpicker_keypress_handler(event)
 {
 	if (event.keyCode == KeyEvent.DOM_VK_ESCAPE) {
 	    window.close();
-	} else if (event.charCode && event.altKey && !event.ctrlKey && !event.metaKey) {
-		var ch = String.fromCharCode(event.charCode);
-		if ((ch == "O") || (ch == "o")) {
-			window.retval = 1;
-			window.close();
-		} else if ((ch == "C") || (ch == "c")) {
-			window.retval = 0;
-			window.close();
-		}
 	}
 }
