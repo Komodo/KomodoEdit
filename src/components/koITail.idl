@@ -43,7 +43,7 @@
 interface koITailObserver : nsISupports
 {
   void init(in ISciMozLite scintilla);
-  void notify(in wstring text);
+  void notify(in AString text);
 };
 
 [scriptable, uuid(B770E332-95D0-4d54-97BF-09A0194FF596)]
