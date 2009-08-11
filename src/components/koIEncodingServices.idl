@@ -67,15 +67,14 @@ interface koIEncodingServices : nsISupports {
     //   'strict': means that the lastErrorService will be used to signal errors
     //   'replace': means that a ? will be inserted instead (not recommended)
     // Both of these functions use the lastErrorSvc to report errors
-    wstring unicode(in ACString encoded_string,
+    AString unicode(in ACString encoded_string,
                     in string python_encoding_name,
                     in string errors);
-    ACString encode(in wstring unicode_string,
+    ACString encode(in AString unicode_string,
                     in string python_encoding_name,
                     in string errors);
-    void getUnicodeEncodedString(in ACString raw_string,
-                                 out wstring unicode_string,
-                                 out wstring encoding_name,
-                                 out string bom);
+    AString getUnicodeEncodedString(in ACString raw_string,
+                                    out wstring encoding_name,
+                                    out string bom);
 };
 
