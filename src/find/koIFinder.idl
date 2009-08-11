@@ -82,10 +82,10 @@ interface koIConfirmReplacerInFiles : nsITreeView {
     void stop();
 
     void toggle_mark(in PRUint32 row_idx);
-    wstring diff_from_indeces(
+    AString diff_from_indeces(
         in PRUint32 count,
         [array, size_is(count)] in PRUint32 indeces);
-    wstring marked_diff();
+    AString marked_diff();
 
     /**
      * Make the marked replacements and post results to the given
@@ -106,7 +106,7 @@ interface koIConfirmReplacerInFiles : nsITreeView {
  */
 [scriptable, uuid(a47a52dc-f93e-4f0f-ad5e-0ecff91916cc)]
 interface koIUndoReplaceController : nsISupports {
-    void set_summary(in wstring summary);
+    void set_summary(in AString summary);
 
     /**
      * Called to report the undo status so far.
@@ -123,7 +123,7 @@ interface koIUndoReplaceController : nsISupports {
      *
      * @param errmsg {string} A failure message.
      */
-    void error(in wstring errmsg);
+    void error(in AString errmsg);
 };
 
 
@@ -154,20 +154,20 @@ interface koIFindResult : nsISupports {
     attribute PRUint32 end;
     // the string found (not sure if this is really necessary, but should
     // be useful for debugging)
-    readonly attribute wstring value;
+    readonly attribute AString value;
 
     // Some data that can be filled in lazily. This data is not guaranteed to
     // be set.
     attribute PRUint32 line;
     attribute PRUint32 column;
-    attribute wstring context_;
+    attribute AString context_;
 };
 
 
 [scriptable, uuid(2EE0CACF-D3BF-44a8-BCAC-952D6418B1C6)]
 interface koIReplaceResult : koIFindResult {
     // the string with which to replace the value
-    readonly attribute wstring replacement;
+    readonly attribute AString replacement;
 };
 
 
@@ -228,7 +228,7 @@ interface koIFindOptions: nsISupports {
     
     // Return a string description of the search. E.g., if this
     // is a regex search then the result might be 'foo' -> '/foo/i'
-    wstring searchDescFromPattern(in wstring pattern);
+    AString searchDescFromPattern(in AString pattern);
 };
 
 
@@ -241,25 +241,25 @@ interface koIFindService : nsISupports {
 
     // Return the result of searching for the first "pattern" in "text".
     koIFindResult find(in wstring url,
-                       in wstring text,
-                       in wstring pattern,
+                       in AString text,
+                       in AString pattern,
                        in long start,
                        in long end);
 
     // Return a result indicating how to replace the first "pattern" in
     // "text" with "replacement".
     koIReplaceResult replace(in wstring url,
-                             in wstring text,
-                             in wstring pattern,
-                             in wstring replacement,
+                             in AString text,
+                             in AString pattern,
+                             in AString replacement,
                              in long startOffset,
                              in ISciMoz scimoz);
 
     // A faster alternative to findall() specific to Komodo usage.
     // See the implementation for more docs.
     void findallex(in wstring url,
-                   in wstring text,
-                   in wstring pattern,
+                   in AString text,
+                   in AString pattern,
                    in koIFindResultsView resultsView,
                    in PRUint32 contextOffset,
                    in ISciMoz scimoz);
@@ -267,8 +267,8 @@ interface koIFindService : nsISupports {
     // Find all lines on which the given pattern is found.
     // Returns a list of lines (0-based).
     void findalllines(in wstring url,
-                      in wstring text,
-                      in wstring pattern,
+                      in AString text,
+                      in AString pattern,
                       in PRUint32 contextOffset,
                       in ISciMoz scimoz,
                       out PRUint32 count,
@@ -287,7 +287,7 @@ interface koIFindService : nsISupports {
      *                   have passed by.
      */
     void highlightall(in ISciMoz scimoz,
-                      in wstring pattern,
+                      in AString pattern,
                       in long start,
                       in long end,
                       in long timeout);
@@ -301,10 +301,10 @@ interface koIFindService : nsISupports {
 
     // A faster alternative to replaceall() specific to Komodo usage.
     // See the implementation for more docs.
-    wstring replaceallex(in wstring url,
-                         in wstring text,
-                         in wstring pattern,
-                         in wstring replacement,
+    AString replaceallex(in wstring url,
+                         in AString text,
+                         in AString pattern,
+                         in AString replacement,
                          in boolean firstOnLine,
                          in koIFindSession session,
                          in koIFindResultsView resultsView,
@@ -319,7 +319,7 @@ interface koIFindService : nsISupports {
     //    .join() any findallinfiles thread.
     void findallinfiles(
             in long id, // session id
-            in wstring pattern,
+            in AString pattern,
             in koIFindResultsTabManager resultsMgr);
 
     // Asynchronously replace all "pattern" with "repl" and load those
@@ -330,13 +330,13 @@ interface koIFindService : nsISupports {
     //    .join() any replaceallinfiles thread.
     void replaceallinfiles(
             in long id, // session id
-            in wstring pattern,
-            in wstring repl,
+            in AString pattern,
+            in AString repl,
             in koIFindResultsTabManager resultsMgr);
 
     koIConfirmReplacerInFiles confirmreplaceallinfiles(
-            in wstring pattern,
-            in wstring repl,
+            in AString pattern,
+            in AString repl,
             in koIFindContext context_,
             in koIConfirmReplaceController controller);
     
@@ -348,7 +348,7 @@ interface koIFindService : nsISupports {
     // findallincollection session.
     void stopfindreplaceinfiles(in long id);
 
-    wstring regex_escape_string(in wstring s);
+    AString regex_escape_string(in AString s);
 
     // persistent find options
     attribute koIFindOptions options;
