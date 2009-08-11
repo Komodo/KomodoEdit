@@ -51,7 +51,7 @@ interface koIFile : nsISupports {
   void init(in wstring fileName, in string mode);
   void read(in unsigned long aCount, out unsigned long count, [array, size_is(count), retval] out octet text);
   void write([array, size_is(count)] in octet text, in unsigned long count);
-  void puts(in wstring text); // get around xpconnect limitations
+  void puts(in AString text); // get around xpconnect limitations
   void readline(in unsigned long aCount, out unsigned long count, [array, size_is(count), retval] out octet text);
   void flush();
   void close();
