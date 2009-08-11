@@ -73,8 +73,8 @@ interface koIFileEx : nsISupports
     void write([array, size_is(count)] in octet text, in unsigned long count);
     // xpconnect does not handle 'octet' correctly, so need alternative
     // to write()
-    void puts(in wstring text);
-    wstring readfile();
+    void puts(in AString text);
+    AString readfile();
     void flush();
     void close();
     void chmod(in unsigned long permissions);

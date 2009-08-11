@@ -74,3 +74,17 @@ class NullBytesTestCase(unittest.TestCase):
         self.failUnlessEqual(len(text), len(self.uni_string),
                              "Null bytes were not handled correctly: %r" % (text, ))
 
+    def test_koIFileEx(self):
+        fileSvc = components.classes['@activestate.com/koFileService;1'].\
+                         getService(components.interfaces.koIFileService)
+        tempFile = fileSvc.makeTempFile(".tmp", "w")
+        tempFile.puts(self.uni_string)
+        tempFile.close()
+        text = file(tempFile.path, "rb").read()
+        self.failUnlessEqual(len(text), len(self.enc_string),
+                             "Null bytes were not handled correctly: %r" % (text, ))
+        tempFile.open("rb")
+        text = tempFile.readfile()
+        tempFile.close()
+        self.failUnlessEqual(len(text), len(self.enc_string),
+                             "Null bytes were not handled correctly: %r" % (text, ))
