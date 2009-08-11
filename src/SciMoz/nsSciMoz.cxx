@@ -831,9 +831,9 @@ NS_IMETHODIMP SciMoz::GetText(nsAString &text)
 
 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
 	if (codePage == 0) {
-	    _cachedText = NS_ConvertASCIItoUTF16(buffer);
+	    _cachedText = NS_ConvertASCIItoUTF16(buffer, length);
 	} else {
-	    _cachedText = NS_ConvertUTF8toUTF16(buffer);
+	    _cachedText = NS_ConvertUTF8toUTF16(buffer, length);
 	}
 	delete []buffer;
 	text = _cachedText;
@@ -847,12 +847,22 @@ NS_IMETHODIMP SciMoz::SetText(const nsAString &aText)
 	fprintf(stderr,"SciMoz::SetText\n");
 #endif
 
-	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
-	if (codePage == 0) {
-	    SendEditor(SCI_SETTEXT, 0, reinterpret_cast<long>(NS_LossyConvertUTF16toASCII(aText).get()));
-	} else {
-	    SendEditor(SCI_SETTEXT, 0, reinterpret_cast<long>(NS_ConvertUTF16toUTF8(aText).get()));
-	}
+	SendEditor(SCI_CLEARALL, 0, 0);
+ 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
+	nsCString convertedText;
+ 	if (codePage == 0) {
+	    convertedText = NS_LossyConvertUTF16toASCII(aText);
+ 	} else {
+	    convertedText = NS_ConvertUTF16toUTF8(aText);
+ 	}
+
+	// To support null bytes, Komodo needs to use SCI_ADDTEXT instead of
+	// the traditional SCI_SETTEXT call, as the add text method supports
+	// the passing of a buffer length, whereas the set text call will
+	// determine the buffer length using a "strlen" call, which does not
+	// include any data after an embedded null.
+	//SendEditor(SCI_SETTEXT, 0, reinterpret_cast<long>(convertedText.get()));
+	SendEditor(SCI_ADDTEXT, convertedText.Length(), reinterpret_cast<long>(convertedText.get()));
 
 	return NS_OK;
 }

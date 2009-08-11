@@ -86,7 +86,7 @@ interface koIDocument : nsISupports
 
     attribute koICodeIntelBuffer ciBuf;
 
-    attribute wstring buffer; // The contents of the document
+    attribute AString buffer; // The contents of the document
     readonly attribute long bufferLength;
 
     attribute boolean isDirty; // There are unsaved changes to the document.
@@ -135,7 +135,7 @@ interface koIDocument : nsISupports
     readonly attribute ACString utf8Text;
     void removeUnencodeable();  
 
-    void setBufferAndEncoding(in wstring buffer, in string encoding_name);
+    void setBufferAndEncoding(in AString buffer, in string encoding_name);
 
     // document prefset
     readonly attribute koIPreferenceSet prefs;
@@ -165,7 +165,7 @@ interface koIDocument : nsISupports
     attribute long tabWidth;    // number of spaces that a tab character uses in display
     attribute boolean useTabs;  // true if tabs are used for indentation
     attribute long indentWidth; // number of spaces for an indent (typically 4 or 8)
-    wstring getUnsavedChanges();
+    AString getUnsavedChanges();
 
     // Auto-save API.    
     boolean haveAutoSave();
@@ -227,7 +227,7 @@ interface koIDocumentService: nsISupports
     
     // This should indicate that it is intended to be an error line with
     // a parseable filepath and line number.
-    void parseHotspotLine(in wstring line,
+    void parseHotspotLine(in AString line,
                           in wstring cwd,
                           out PRUint32 count,
                           [array, size_is(count)] out wstring results);
@@ -253,11 +253,11 @@ interface koIDiff : nsISupports
 {
     void initByDiffingFiles(in wstring fname1, in wstring fname2);
     void initByDiffingDocuments(in koIDocument doc1, in koIDocument doc2);
-    void initWithDiffContent(in wstring diff);
+    void initWithDiffContent(in AString diff);
 
 
-    readonly attribute wstring diff;    // the diff content
-    readonly attribute wstring warning; // a possible warning about the diff
+    readonly attribute AString diff;    // the diff content
+    readonly attribute AString warning; // a possible warning about the diff
     // These two are not available if initialized via initWithDiffContent().
     readonly attribute koIDocument doc1;
     readonly attribute koIDocument doc2;
