@@ -85,5 +85,5 @@ interface koISSHConnection : koIFTPConnection {
     //            XXX - currently stderr will always be an empty string
     //                  due to it being unsupported by paramiko.
     long runCommand(in wstring command, in boolean combineStdoutAndStderr,
-                    out wstring stdout, out wstring stderr);
+                    out AString stdout, out AString stderr);
 };
