@@ -170,7 +170,7 @@ interface koILintRequest : nsISupports {
 
     // The following attributes are for internal use and/or are set while
     // processing the request.
-    attribute wstring content;
+    attribute AString content;
     attribute koIEncoding encoding;
     attribute koILinter linter;
     attribute koILintResults results;
