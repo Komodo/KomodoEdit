@@ -55,6 +55,7 @@ keyword_style SSL_IDENTIFIER => SSL_WORD
 # recognition of 'true' and 'false' is case-insensitive!
 
 keywords [
+                # http://www.php.net/manual/en/reserved.keywords.php
                 # new to php 5.3
                 "__dir__", "__namespace__",
                 "e_deprecated", "e_user_deprecated", "php_maxpathlen",
@@ -68,7 +69,7 @@ keywords [
                 "int", "integer", "real", "double",
                 "float", "string",  "object", "bool", "boolean",
                 "this", "virtual", "parent", "null",
-                # http://www.php.net/manual/en/reserved.php#reserved.keywords
+                # general keywords
                 "and", "or", "xor", "__file__", "__line__",
                 "array", "as", "break", "case", "cfunction",
                 "class", "const", "continue", "declare"
@@ -80,7 +81,7 @@ keywords [
                 "new", "old_function", "print", "require", "require_once",
                 "return", "static", "switch", "unset", "use",
                 "var", "while", "_function_", "_class_",
-                # http://www.php.net/manual/en/reserved.constants.core.php
+                # http://www.php.net/manual/en/reserved.constants.php
                 "php_version",
                 "php_os",
                 "default_include_path",
@@ -108,7 +109,6 @@ keywords [
                 "e_user_warning",
                 "e_user_notice",
                 "e_all",
-                # http://www.php.net/manual/en/reserved.constants.standard.php
                 "extr_overwrite",
                 "extr_skip",
                 "extr_prefix_same",
