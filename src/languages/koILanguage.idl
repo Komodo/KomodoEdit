@@ -195,8 +195,8 @@ interface koILanguageRegistryService : nsISupports {
     // prefered language, and may be empty, in which case the following
     // matches should be chosen from
     // REFACTOR: s/guessLanguageFromContents/guessLanguageNamesFromContents/g
-    void guessLanguageFromContents(in wstring documentHead,
-                                   in wstring documentTail,
+    void guessLanguageFromContents(in AString documentHead,
+                                   in AString documentTail,
                                    [array, size_is(count)] out string languages,
                                    out unsigned long count);
 };
