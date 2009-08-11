@@ -61,3 +61,16 @@ class NullBytesTestCase(unittest.TestCase):
         self.failUnlessEqual(findResult.start, self.uni_string.find("byte"),
                              "Text found at the wrong position")
 
+    def test_textutils(self):
+        textUtils = components.classes['@activestate.com/koTextUtils;1'].\
+                         getService(components.interfaces.koITextUtils)
+        text = textUtils.one_line_summary_from_text(self.uni_string, 100)
+        self.failUnlessEqual(len(text), len(self.uni_string),
+                             "Null bytes were not handled correctly")
+        text = textUtils.break_up_words(self.uni_string, 6)
+        self.failUnlessEqual(len(text), len(self.uni_string)+1,
+                             "Null bytes were not handled correctly")
+        text = textUtils.break_up_lines(self.uni_string, 20)
+        self.failUnlessEqual(len(text), len(self.uni_string),
+                             "Null bytes were not handled correctly: %r" % (text, ))
+
