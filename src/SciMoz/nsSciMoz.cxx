@@ -1025,7 +1025,7 @@ void SciMoz::EndCompositing()
 	imeActive = false;
 }
 
-NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, PRUnichar ** text)
+NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
 {
 	// This is called multiple times in the middle of an 
 	// IME composition
@@ -1034,7 +1034,7 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, PRUnichar ** text
 	  return NS_OK;
 	
 	textEvent->GetText(mIMEString);
-	*text =  ToNewUnicode(mIMEString);
+	text = mIMEString;
 	
 #if 1
 	// this tells mozilla where to place IME input windows
@@ -1150,8 +1150,8 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, PRUnichar ** text
 	// in EndCompositing().
 	//
 	// bug 40960
-	if (imeActive || NS_ConvertUTF16toUTF8(mIMEString).Length() > 0)
-		ReplaceSel(*text);
+	if (imeActive || text.Length() > 0)
+		ReplaceSel(text);
 	if (imeActive && imeComposing) {
 		SetAnchor(imeStartPos);
 	} else {

@@ -41,7 +41,7 @@ unwantedValues = [ "SCI_START", "SCI_OPTIONAL_START", "SCI_LEXER_START"]
 # XPCOM layer handle translations for us or we do it manually, but
 # either way, translation will occure.
 C_out_string_types = ["char **","nsACString& ","PRUnichar **","nsAString& "]
-IDL_string_type = "wstring"
+IDL_string_type = "AString"
 
 # IDL uses string
 if IDL_string_type == "string":
