@@ -1012,6 +1012,25 @@ viewManager.prototype.openViewAsync = function(viewType, uri, tabGroup, tabIndex
 }
 
 /**
+ * Return all opened views in Komodo of type 'viewType'. If no viewType is
+ * specified then all views are returned. Use a viewType of 'editor' for the
+ * Komodo editor views.
+ *
+ * @public
+ * @since Komodo 5.2.0
+ * 
+ * @param viewType {string} optional, type of views to return, default is all
+ * @return {array}  The array of views.
+ */
+viewManager.prototype.getAllViews = function(viewType /* all */) {
+    var views = ko.views.manager.topView.getDocumentViewList(true);
+    if (!viewType || viewType == "all") {
+        return views;
+    }
+    return views.filter(function(elem, index, array) { return elem.getAttribute("type") == viewType; });
+}
+
+/**
  * Get a reference to the buffer view for the given URI and view type.
  *
  * @public
