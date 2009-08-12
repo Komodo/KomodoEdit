@@ -805,7 +805,7 @@
             <parameter name="y"/>
         <body><![CDATA[
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined') {
-                gEditorTooltipHandler.show(this, x, y);
+                gEditorTooltipHandler.show(this, x, y, -1 /* no timeout */);
             }
 
 <!-- #if PLATFORM == "darwin" -->

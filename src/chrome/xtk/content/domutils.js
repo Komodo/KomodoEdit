@@ -123,7 +123,19 @@ function() {
     return document.getElementById(this._tooltipName+"-tooltipText");
 });
 
-tooltipHandler.prototype.show = function(parentElement, x, y) {
+/**
+ * Show the tooltip on this element.
+ * @param parentElement {DomElement} - The element to show the tooltip above.
+ * @param  x {int} - The x co-ordinate.
+ * @param  y {int} - The y co-ordinate.
+ * @param  timeout {int} - Remove the tooltip after this number of milliseconds,
+ *                         if this value is <= 0, then there is no timeout.
+ */
+tooltipHandler.prototype.show = function(parentElement, x, y, timeout /* 5000 ms */) {
+    if ((typeof(timeout) == 'undefined') || (timeout == null)) {
+        timeout = 5000;
+    }
+
     if (this._hideTimeout) {
         window.clearTimeout(this._hideTimeout);
         this._hideTimeout = null;
@@ -139,7 +151,9 @@ tooltipHandler.prototype.show = function(parentElement, x, y) {
         // change in the future
         this._tooltip.setAttribute('style','height: 0px');
         this._tooltip.openPopup(parentElement,"after_pointer",x,y,false);
-        this._hideTimeout = window.setTimeout(function (me) { me.hide(); } ,5000, this);
+        if (timeout > 0) {
+            this._hideTimeout = window.setTimeout(function (me) { me.hide(); }, timeout, this);
+        }
     }
 }
 
