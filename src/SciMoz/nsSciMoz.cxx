@@ -690,9 +690,9 @@ NS_IMETHODIMP SciMoz::GetCurLine(nsAString & text, PRInt32 *_retval) {
 
 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
 	if (codePage == 0) {
-	    text =  NS_ConvertASCIItoUTF16(buffer);
+	    text =  NS_ConvertASCIItoUTF16(buffer, lineLength);
 	} else {
-	    text =  NS_ConvertUTF8toUTF16(buffer);
+	    text =  NS_ConvertUTF8toUTF16(buffer, lineLength);
 	}
 
 	delete []buffer;
@@ -716,9 +716,9 @@ NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, nsAString & text, PRInt32  *_retval)
 
 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
 	if (codePage == 0) {
-	    text =  NS_ConvertASCIItoUTF16(buffer);
+	    text =  NS_ConvertASCIItoUTF16(buffer, lineLength);
 	} else {
-	    text =  NS_ConvertUTF8toUTF16(buffer);
+	    text =  NS_ConvertUTF8toUTF16(buffer, lineLength);
 	}
 
 	delete []buffer;
@@ -773,9 +773,9 @@ NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, nsAString & _retval
 
 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
 	if (codePage == 0) {
-	    _retval =  NS_ConvertASCIItoUTF16(buffer);
+	    _retval =  NS_ConvertASCIItoUTF16(buffer, length);
 	} else {
-	    _retval =  NS_ConvertUTF8toUTF16(buffer);
+	    _retval =  NS_ConvertUTF8toUTF16(buffer, length);
 	}
 
 	delete []buffer;
@@ -940,9 +940,9 @@ NS_IMETHODIMP SciMoz::GetSelText(nsAString & aSelText)
 
 	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
 	if (codePage == 0) {
-	    aSelText =  NS_ConvertASCIItoUTF16(buffer);
+	    aSelText =  NS_ConvertASCIItoUTF16(buffer, length);
 	} else {
-	    aSelText =  NS_ConvertUTF8toUTF16(buffer);
+	    aSelText =  NS_ConvertUTF8toUTF16(buffer, length);
 	}
 
 	delete []buffer;
