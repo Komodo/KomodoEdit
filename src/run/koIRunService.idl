@@ -218,7 +218,7 @@ interface koITerminalInterrupt : nsISupports{
     // returns true if the interrupt eats the data.  If false, the terminal handler
     // will pass the data on to the regular handler.
     boolean write([array, size_is(count)] in octet text, in unsigned long count);
-    boolean puts(in wstring text); // get around xpconnect limitations
+    boolean puts(in AString text); // get around xpconnect limitations
 };
 
 [scriptable, uuid(AA8F8983-8B2B-4B27-80CB-BB04ECF6B915)]
@@ -262,7 +262,7 @@ interface koITerminalHandler : nsISupports{
     // koITerminalHandler calls itself via proxy to run the following function
     // in the UI thread.  This function should not be called otherwise, but it
     // is necessary to have this interface so Mozilla's proxy will work
-    void proxyAddText(in long length, in wstring data, in wstring io_name);
+    void proxyAddText(in long length, in AString data, in wstring io_name);
 };
 
 // One of these is used to interface between the command output window
@@ -284,7 +284,7 @@ interface koITreeOutputHandler : koITerminalHandler {
     wstring getColumn(in PRUint32 index); // e.g., "3" or "5-11"
 
     // Parse the given line.
-    void parseLine(in wstring line, out wstring file, out string lineNum,
+    void parseLine(in AString line, out wstring file, out string lineNum,
                    out string columnNum);
     // Sort the tree data by a certain key (this key typically matches
     // the <treecol id=.../>  id's).
@@ -325,19 +325,19 @@ interface koIRunProcess: nsISupports {
     /**
      * @deprecated since Komodo 4.3.0, use getStdout instead.
      */
-    wstring readStdout();
+    AString readStdout();
     /**
      * @deprecated since Komodo 4.3.0, use getStderr instead.
      */
-    wstring readStderr();
+    AString readStderr();
 
     /**
-     * These have replaced the readStdout, readStderr calls. The data for
-     * these calls is only available after the process has finished.
+     * The data for these calls is only available after the process has
+     * finished.
      * @since Komodo 4.3.0
      */
-    wstring getStdout();
-    wstring getStderr();
+    AString getStdout();
+    AString getStderr();
     
     readonly attribute wstring uuid;
 };
@@ -382,7 +382,7 @@ interface koIRunService : nsISupports {
     koIRunProcess RunInTerminal(in wstring command, in wstring cwd, in
                                 wstring env, in koITreeOutputHandler terminal,
                                 in koIRunTerminationListener termListener,
-                                in wstring input);
+                                in AString input);
 
         /**
          * Run will start the process running and then return. Run has the
@@ -404,7 +404,7 @@ interface koIRunService : nsISupports {
          *                        in a temporary file and redirected to stdin.
          */
     void Run(in wstring command, in wstring cwd, in wstring env,
-             in boolean console, in wstring input);
+             in boolean console, in AString input);
 
         /**
          * Run and capture the output/error/retval from running the given
@@ -430,7 +430,11 @@ interface koIRunService : nsISupports {
          */
     PRUint32 RunAndCaptureOutput(in wstring command,
                                  in wstring cwd, in wstring env,
-                                 in wstring input,
+                                 in AString input,
+                                 // The output and error should be an AString
+                                 // (in order to support null bytes), but
+                                 // multiple AString out values cause problems
+                                 // for Python XPCOM components: bug 84054.
                                  out wstring output, out wstring error);
 
         /**
@@ -454,7 +458,7 @@ interface koIRunService : nsISupports {
          * @returns {Components.interfaces.koIRunProcess}  The process handle.
          */
     koIRunProcess RunAndNotify(in wstring command, in wstring cwd,
-                               in wstring env, in wstring input);
+                               in wstring env, in AString input);
 };
 
 
