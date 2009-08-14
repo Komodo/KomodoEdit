@@ -85,5 +85,8 @@ interface koISSHConnection : koIFTPConnection {
     //            XXX - currently stderr will always be an empty string
     //                  due to it being unsupported by paramiko.
     long runCommand(in wstring command, in boolean combineStdoutAndStderr,
-                    out AString stdout, out AString stderr);
+                    // The stdout and stderr should be an AString (in order to
+                    // support null bytes), but multiple AString out values
+                    // cause problems for Python XPCOM components: bug 84054.
+                    out wstring stdout, out wstring stderr);
 };
