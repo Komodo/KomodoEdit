@@ -1127,6 +1127,7 @@ function Find_HighlightClearAll(scimoz) {
  */
 function Find_HighlightClearPosition(scimoz, position, length) {
     var DECORATOR_FIND_HIGHLIGHT = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
+    var hl_start, hl_end;
     [hl_start, hl_end] = ko.tabstops.findByIndicator(scimoz, DECORATOR_FIND_HIGHLIGHT, position);
     if (hl_start >= 0) {
         // There are indicators in the document.
