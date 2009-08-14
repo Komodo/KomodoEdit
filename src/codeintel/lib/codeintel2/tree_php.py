@@ -478,7 +478,21 @@ class PHPTreeEvaluator(TreeEvaluator):
                                 "namespace",
                                 ("globals", "imports", "builtins",),
                                 self.namespace_names_from_elem)
-        return namespaces
+        # We only want to see the next sub-namespace, i.e. if the expr is
+        #   \mynamespace\<|>
+        # then only return the immediate child namespaces, such as:
+        #   \mynamespace\foo
+        # but not any deeper, i.e. not:
+        #   \mynamespace\foo\bar
+        if expr:
+            namespace_depth = expr.count("\\") + 2
+        else:
+            namespace_depth = 1
+        filtered_namespaces = set()
+        for ilk, n in namespaces:
+            s = n.split("\\")
+            filtered_namespaces.add((ilk, "\\".join(s[:namespace_depth])))
+        return list(filtered_namespaces)
 
     def _interfaces_from_scope(self, expr, scoperef):
         """Return all available interface names beginning with expr"""

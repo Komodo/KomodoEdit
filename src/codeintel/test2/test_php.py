@@ -2333,18 +2333,20 @@ EOD;
         for i in (6, 14, 23, 30):
             # global namespaces - fqn
             self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
-                    [("namespace", 'bug83192_nsp'),
-                     ("namespace", 'bug83192_nsp\sub1'),
+                    [("namespace", 'bug83192_nsp'), ])
+            self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[i]),
+                    [("namespace", 'bug83192_nsp\sub1'),
                      ("namespace", 'bug83192_nsp\sub1\sub2'),
                      ])
         for i in (7, 15, 24, 31):
             # under the bug83192_nsp namespace
             self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
                     [("namespace", 'sub1'),
-                     ("namespace", 'sub1\sub2'),
                      ("function", 'afunc'),
                      ("class", 'aclass'),
                      ])
+            self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[i]),
+                    [("namespace", 'sub1\sub2'), ])
         for i in (2, 5, 10, 13, 19, 22, 27, 34):
             # sub2::sub2_class completions
             self.assertCompletionsInclude(markup_text(content, pos=positions[i]),
@@ -2952,17 +2954,21 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang,
                                      env=env)
         self.assertCompletionsInclude2(buf, test_positions[1],
+            [("namespace", r"My")])
+        self.assertCompletionsDoNotInclude2(buf, test_positions[1],
             [("namespace", r"My\Full"),
              ("namespace", r"My\Full\NSname")])
         self.assertCompletionsInclude2(buf, test_positions[2],
-            [("namespace", r"Full"),
-             ("namespace", r"Full\NSname")])
+            [("namespace", r"Full")])
+        self.assertCompletionsDoNotInclude2(buf, test_positions[1],
+            [("namespace", r"My\Full\NSname")])
         self.assertCompletionsInclude2(buf, test_positions[3],
             [("namespace", r"NSname"),
              ("class",     r"Classname"),
              ("function",  r"FullFunc")])
         self.assertCompletionsDoNotInclude2(buf, test_positions[3],
-            [("namespace", r"My\Full"), ])
+            [("namespace", r"My\Full"),
+             ("namespace", r"My"), ])
         self.assertCompletionsAre2(buf, test_positions[4],
             [("function",  r"classname_func"),
              ("variable",  r"$x")])
