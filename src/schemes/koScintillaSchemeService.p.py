@@ -106,7 +106,7 @@ class Scheme:
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 3
+    _current_scheme_version = 4
 
     def _execfile(self, fname, namespace):
         try:
@@ -188,6 +188,18 @@ class Scheme:
                     },
                 }
                 version += 1
+
+            if version == 3:  # Upgrade to v4.
+                if 'whitespaceColor' not in self._colors:
+                    names = ['default_fixed', 'default_proportional', 'default']
+                    for name in names:
+                        if name in self._commonStyles:
+                            defaultForeColor = self._commonStyles[name].get('fore')
+                            if defaultForeColor is not None:
+                                break
+                    else:
+                        defaultForeColor = 0 # fallback
+                    self._colors['whitespaceColor'] = defaultForeColor
 
             try:
                 self.save()
@@ -665,6 +677,10 @@ class Scheme:
         if foldmargin_color is not None:
             scimoz.setFoldMarginColour(1, foldmargin_color)
             scimoz.setFoldMarginHiColour(1, foldmargin_color)
+
+        whitespace_color = self._colors.get("whitespaceColor")
+        if whitespace_color is not None:
+            scimoz.setWhitespaceFore(True, whitespace_color)
 
         # Indicators: UDL transition (internal only)
         DECORATOR_UDL_FAMILY_TRANSITION = components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION

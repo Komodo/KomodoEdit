@@ -353,6 +353,10 @@
                                           label="&edgeLineBackgroundColorOfTextTooFar.label;"
                                           value="9"
                                           oncommand="updateSchemeColor('edgeColor')"/>
+                                <menuitem id="whitespaceColor"
+                                          label="&whitespaceForegroundColor.label;"
+                                          value="10"
+                                          oncommand="updateSchemeColor('whitespaceColor')"/>
                             </menupopup>
                         </menulist>
                         <colorpicker width="20" height="20"

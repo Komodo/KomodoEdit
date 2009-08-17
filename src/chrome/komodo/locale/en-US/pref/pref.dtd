@@ -429,6 +429,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY viewAndEditAssociations.label "View and Edit Associations">
 <!ENTITY wWeekday0Sunday6.label "&#37;w : weekday [0(Sunday),6]">
 <!ENTITY webBrowser.label "Web &amp; Browser">
+<!ENTITY whitespaceForegroundColor.label "Whitespace Foreground Color">
 <!ENTITY wildcard.label "Wildcard">
 <!ENTITY windowsIntegration.label "Windows Integration">
 <!ENTITY word.label "Word">
