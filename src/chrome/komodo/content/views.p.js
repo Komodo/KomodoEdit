@@ -1053,6 +1053,19 @@ viewManager.prototype.getViewForURI = function(uri, viewType) {
 }
 
 /**
+ * Get all references to the buffer view for the given URI
+ *
+ * @public
+ * @since Komodo 5.2.0
+ * 
+ * @param uri {string} URI to file
+ * @return list of {Components.interfaces.koIView} (open buffer views)
+ */
+viewManager.prototype.getAllViewsForURI = function(uri) {
+    return this.topView.findViewsForURI(uri);
+}
+
+/**
  * Get a reference to the buffer view for the given URI.
  *
  * @public

@@ -172,11 +172,11 @@ projectManager.prototype._getOpenURLsInProject = function(project) {
     return opened;
 }
 
-projectManager.prototype.forcedCloseURL = function(url) {
-    var v = ko.views.manager.getViewForURI(url);
-    if (v) {
+projectManager.prototype.forceCloseAllViewsForURL = function(url) {
+    var views = ko.views.manager.getAllViewsForURI(url);
+    for (var i = 0; i < views.length; ++i) {
         // we don't want dialogs to popup here!!!
-        v.closeUnconditionally();
+        views[i].closeUnconditionally();
     }
 }
 
@@ -275,7 +275,7 @@ projectManager.prototype.closeProject = function(project) {
 
             var i;
             for (i=0; i < urls.length; i++) {
-                this.forcedCloseURL(urls[i]);
+                this.forceCloseAllViewsForURL(urls[i]);
             }
         }
     }
