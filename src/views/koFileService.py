@@ -93,7 +93,7 @@ class koFileService(object):
 
         if doNotification:
             forceRefresh = False
-            self.fileStatusSvc.updateStatusForFiles([file], forceRefresh)
+            self.fileStatusSvc.updateStatusForFiles([file], forceRefresh, None)
         
         return file
     

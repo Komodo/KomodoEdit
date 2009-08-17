@@ -101,6 +101,9 @@ class KoFileCheckerBase:
         self.log = logging.getLogger('Ko%sChecker::%s' % (self.type.capitalize(), self.name))
         self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
+        # Global observer service.
+        self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+            getService(components.interfaces.nsIObserverService)
 
         # Copy across names from the interface in to the local instance.
         self.REASON_BACKGROUND_CHECK = components.interfaces.koIFileStatusChecker.REASON_BACKGROUND_CHECK
@@ -151,6 +154,16 @@ class KoFileCheckerBase:
 
                 # Listen for pref changes
                 prefObserverSvc.addObserver(self, prefName, 0)
+        # Register for a shutdown notification.
+        self._observerSvc.addObserver(self, 'xpcom-shutdown', 1)
+
+    def _xpcom_shutdown(self):
+        prefObserverSvc = self._globalPrefs.prefObserverService
+        for prefSetting, prefType in monitoredPrefNames.items():
+            prefName = getattr(self, prefSetting)
+            if prefName:
+                prefObserverSvc.removeObserver(self, prefName)
+        self._observerSvc.removeObserver(self, 'xpcom-shutdown')
 
     ##
     # nsIObserver interface: listens for preference changes
@@ -160,8 +173,10 @@ class KoFileCheckerBase:
         if not topic:
             return
 
-        # data is actually the pref name that was changed.
-        if topic == self.executablePrefName:
+        if topic == 'xpcom-shutdown':
+            self._xpcom_shutdown()
+        elif topic == self.executablePrefName:
+            # data is actually the pref name that was changed.
             executable = self._globalPrefs.getStringPref(topic)
             if executable != self.executable:
                 self.setExecutable(executable)

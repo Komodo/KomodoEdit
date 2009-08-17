@@ -118,6 +118,12 @@ interface koIFileStatusChecker : nsISupports {
 };
 
 
+// This is implemented in run's JavaScript code.
+[scriptable, uuid(d714f6ad-3362-405d-ad66-b30febf0b9c9)]
+interface koIFileStatusCallback: nsISupports {
+    void notifyDone();
+};
+
 /**
  * Provide a file status service that continously updates status information.
  * 
@@ -177,7 +183,8 @@ interface koIFileStatusService : nsISupports {
          */
     void updateStatusForFiles(in unsigned long count,
                               [array, size_is(count)] in koIFileEx files,
-                              in boolean forceRefresh);
+                              in boolean forceRefresh,
+                              in koIFileStatusCallback callback);
 
         /**
          * Same as updateStatusForFiles, except service finds the file and then

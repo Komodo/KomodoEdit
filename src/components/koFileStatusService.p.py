@@ -72,7 +72,7 @@ import logging
 import threading
 
 from xpcom import components, nsError, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import UnwrapObject
 
 import timeline
@@ -175,6 +175,7 @@ class KoFileStatusService:
         self._thread = None
         self._tlock = threading.Lock()
         self._cv = threading.Condition()
+        self._processing_done_condition = threading.Condition()
         timeline.leave('koFileStatusService.__init__')
 
     def init(self):
@@ -358,23 +359,39 @@ class KoFileStatusService:
         finally:
             self._cv.release()
 
-    def updateStatusForFiles(self, koIFiles, forceRefresh):
+    def updateStatusForFiles(self, koIFiles, forceRefresh, callback):
         self._cv.acquire()
         try:
             reason = self.REASON_FILE_CHANGED
             if forceRefresh:
                 reason = self.REASON_FORCED_CHECK
-            for koIFile in koIFiles:
-                uri = koIFile.URI
-                self._items_to_check.add((UnwrapObject(koIFile), uri, reason))
-                log.debug("Forced recheck of uri: %r", uri)
+            items = [(UnwrapObject(koIFile), koIFile.URI, reason) for koIFile in koIFiles]
+            for item in items:
+                self._items_to_check.add(item)
+                log.debug("updateStatusForFiles:: uri: %r", item[1])
             self._cv.notify()
         finally:
             self._cv.release()
 
+        if callback:
+            def wait_till_done(fileStatusSvc, check_items, callback):
+                self._processing_done_condition.acquire()
+                self._processing_done_condition.wait()
+                self._processing_done_condition.release()
+                # Proxy the notification back to the UI thread.
+                uiCallbackProxy = getProxyForObject(1,
+                            components.interfaces.koIFileStatusCallback,
+                            callback,
+                            PROXY_ALWAYS | PROXY_ASYNC)
+                uiCallbackProxy.notifyDone()
+
+            t = threading.Thread(target=wait_till_done, args=(self, items, callback))
+            t.setDaemon(True)
+            t.start()
+
     def updateStatusForUris(self, uris, forceRefresh):
         koIFiles = map(self._fileSvc.getFileFromURI, uris)
-        self.updateStatusForFiles(koIFiles, forceRefresh)
+        self.updateStatusForFiles(koIFiles, forceRefresh, None)
 
     ##
     # These two have been deprecated in favour of the two functions above.
@@ -384,7 +401,7 @@ class KoFileStatusService:
         warnings.warn("koIFileStatusService.getStatusForFile() is deprecated, "
                       "use updateStatusForFiles instead.",
                       DeprecationWarning)
-        self.updateStatusForFiles([koIFile], forceRefresh)
+        self.updateStatusForFiles([koIFile], forceRefresh, None)
     def getStatusForUri(self, URI, forceRefresh):
         import warnings
         warnings.warn("koIFileStatusService.getStatusForUri() is deprecated, "
@@ -399,6 +416,7 @@ class KoFileStatusService:
         while not self.shutdown:
             # Give at least a brief respite between loops.
             time.sleep(0.1)
+            _processing_done_acquired = False
             try:
                 # Initialize the working variables, this ensures we don't hold
                 # on to any koIFileEx references between runs, allowing the
@@ -422,6 +440,8 @@ class KoFileStatusService:
                        self._updateReason == self.REASON_BACKGROUND_CHECK and \
                        time_till_next_run > 0:
                         self._cv.wait(time_till_next_run)
+                    self._processing_done_condition.acquire()
+                    _processing_done_acquired = True
                     items_to_check = list(self._items_to_check)
                     self._items_to_check = set()
                     updateReason = self._updateReason
@@ -659,5 +679,9 @@ class KoFileStatusService:
                 import traceback
                 errmsg = ''.join(traceback.format_exception(*sys.exc_info()))
                 log.error('KoFileStatusService thread exception %s' % errmsg)
+            finally:
+                if _processing_done_acquired:
+                    self._processing_done_condition.notifyAll()
+                    self._processing_done_condition.release()
 
         log.info("file status thread shutting down")
