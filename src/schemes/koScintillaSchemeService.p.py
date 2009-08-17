@@ -581,7 +581,8 @@ class Scheme:
                 # and use those.  This is where the sub-language-specific
                 # background color gets used.
                 UDLBackgroundColor = None
-                m = _re_udl_style_name.match(scimoz_name)
+                # scimoz_name could be same as scimoz_no (bug 84019)
+                m = _re_udl_style_name.match(str(scimoz_name))
                 if m:
                     family = m.group(1)
                     try:
