@@ -748,7 +748,7 @@ function _ReplaceAllInView(editor, view, context, pattern, replacement,
                                                scimoz, numReplacementsObj);
     var numReplacements = numReplacementsObj.value;
 
-    if (replacementText != null) {
+    if (numReplacements > 0) {
         if (context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
             _doMarkerPreservingReplacement(editor,
                                            scimoz,
