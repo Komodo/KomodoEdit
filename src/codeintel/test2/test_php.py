@@ -2926,6 +2926,7 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         test_dir = join(self.test_dir, "test_imported_namespace_completions")
         test_content, test_positions = unmark_text(php_markup(dedent(r"""
             \<1>My\<2>Full\<3>Classname::<4>classname_func(<5>);
+            \My\Full\Classname2::<6>classname_func2(<7>);
         """)))
         manifest = [
             (join(test_dir, "subdir", "myfull.php"), php_markup(dedent(r"""
@@ -2944,6 +2945,22 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
                     function nsfunc() {}
                 }
              """))),
+            (join(test_dir, "subdir", "myfull2.php"), php_markup(dedent(r"""
+                namespace My\Full {
+                    class Classname2 {
+                        static $x2 = 1;
+                        protected $y2;
+                        function classname_func2($arg) { }
+                    }
+                    function FullFunc() {}
+                }
+                namespace My\Full\NSname2 {
+                    class nsclass2 {
+                        static $nsstatic = 0;
+                    }
+                    function nsfunc2() {}
+                }
+             """))),
             (join(test_dir, "test.php"), test_content),
         ]
         for filepath, content in manifest:
@@ -2957,14 +2974,18 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             [("namespace", r"My")])
         self.assertCompletionsDoNotInclude2(buf, test_positions[1],
             [("namespace", r"My\Full"),
-             ("namespace", r"My\Full\NSname")])
+             ("namespace", r"My\Full\NSname"),
+             ("namespace", r"My\Full\NSname2")])
         self.assertCompletionsInclude2(buf, test_positions[2],
             [("namespace", r"Full")])
         self.assertCompletionsDoNotInclude2(buf, test_positions[1],
-            [("namespace", r"My\Full\NSname")])
+            [("namespace", r"My\Full\NSname"),
+             ("namespace", r"My\Full\NSname2")])
         self.assertCompletionsInclude2(buf, test_positions[3],
             [("namespace", r"NSname"),
+             ("namespace", r"NSname2"),
              ("class",     r"Classname"),
+             ("class",     r"Classname2"),
              ("function",  r"FullFunc")])
         self.assertCompletionsDoNotInclude2(buf, test_positions[3],
             [("namespace", r"My\Full"),
@@ -2974,6 +2995,11 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
              ("variable",  r"$x")])
         self.assertCalltipIs2(buf, test_positions[5],
             "classname_func($arg)")
+        self.assertCompletionsAre2(buf, test_positions[6],
+            [("function",  r"classname_func2"),
+             ("variable",  r"$x2")])
+        self.assertCalltipIs2(buf, test_positions[7],
+            "classname_func2($arg)")
 
     @tag("bug83192", "php53")
     def test_imported_namespace_alias(self):
