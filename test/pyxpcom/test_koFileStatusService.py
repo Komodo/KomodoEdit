@@ -95,7 +95,7 @@ class TestKoFileStatusService(unittest.TestCase):
             uri = "file://" + os.path.abspath(__file__)
         file = self.__filesvc.getFileFromURI(uri)
         assert file.exists
-        self.__fileStatusSvc.updateStatusForFiles([file], False)
+        self.__fileStatusSvc.updateStatusForFiles([file], False, None)
         # Give some time to get the status.
         # Note: Edit does not have scc handling.
         #self.__obs.wait(file.URI, 5)
