@@ -152,6 +152,9 @@ class PHPTreeEvaluator(TreeEvaluator):
     php_magic_class_method_cplns = [ ("function", name) for name in
                 sorted(php_magic_class_method_data.keys()) ]
 
+    # A variable used to track the recursion depth of _hit_from_citdl().
+    eval_depth = 0
+
     #TODO: candidate for base TreeEvaluator class
     _langintel = None
     @property
@@ -180,6 +183,18 @@ class PHPTreeEvaluator(TreeEvaluator):
                 break
         return (blob, lpath)
 
+    # Un-comment for an indented log record, each indented level will represent
+    # a layer of recursion - which is quite useful for debugging.
+    #def log_start(self):
+    #    TreeEvaluator.log_start(self)
+    #    self.eval_depth = 0
+    #def debug(self, msg, *args):
+    #    msg = '  ' * self.eval_depth + msg
+    #    TreeEvaluator.debug(self, msg, *args)
+    #def info(self, msg, *args):
+    #    msg = '  ' * self.eval_depth + msg
+    #    TreeEvaluator.info(self, msg, *args)
+        
     def eval_cplns(self):
         self.log_start()
         self._imported_blobs = {}
@@ -689,6 +704,7 @@ class PHPTreeEvaluator(TreeEvaluator):
         """Resolve the given CITDL expression (starting at the given
         scope) down to a non-import/non-variable hit.
         """
+        self.eval_depth += 1
         self.log("_hit_from_citdl:: expr: %r, scoperef: %r", expr, scoperef)
         try:
             self._check_infinite_recursion(expr)
