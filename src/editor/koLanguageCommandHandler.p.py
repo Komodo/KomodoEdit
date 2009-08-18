@@ -35,7 +35,7 @@
 # ***** END LICENSE BLOCK *****
 
 import os
-from xpcom import components
+from xpcom import components, COMException
 sci_constants = components.interfaces.ISciMoz
 from xpcom.server import WrapObject, UnwrapObject
 import scimozindent
@@ -1359,14 +1359,19 @@ class GenericCommandHandler:
                 self._do_cmd_foldCollapse()
 
     def _asktabwidth(self):
+        try:
+            tabwidth = self._view.prefs.getLongPref('tabWidth')
+            if tabwidth != 0:
+                return tabwidth
+        except COMException, ex:
+            pass
         dialogproxy = components.classes['@activestate.com/asDialogProxy;1'].\
             getService(components.interfaces.asIDialogProxy)
         bundle = components.classes["@mozilla.org/intl/stringbundle;1"].\
                  getService(components.interfaces.nsIStringBundleService).\
                  createBundle("chrome://komodo/locale/editor.properties")
-        tabwidth = self._view.prefs.getLongPref('tabWidth')
         msg = bundle.GetStringFromName("tabWidthBetween0and16.message")
-        value = dialogproxy.prompt(msg, str(tabwidth), "OK", None)
+        value = dialogproxy.prompt(msg, "8", "OK", None)
         if value is not None:
             return int(value)
         else:
