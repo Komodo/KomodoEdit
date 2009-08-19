@@ -243,36 +243,27 @@ class PHPTreeEvaluator(TreeEvaluator):
                 # Return global magic methods.
                 return self.php_magic_global_method_cplns
         elif trg.type == "namespace-members":
-            # Slight hack to ensure the _hits_from_first_part will treat
-            # this expression as a namespace lookup.
-            expr = self.expr + "\\"
             # Find the completions:
             cplns = []
-            hits = self._hits_from_namespace(expr, start_scope)
+            fqn = self._fqn_for_expression(self.expr, start_scope)
+            hits = self._hits_from_namespace(fqn, start_scope)
             if hits:
                 #self.log("self.expr: %r", self.expr)
                 #self.log("hits: %r", hits)
                 cplns = list(self._members_from_hits(hits))
                 #self.log("cplns: %r", cplns)
             # Return additional sub-namespaces that start with this prefix.
-            name = expr.strip("\\")
             if hits and hits[0][0] is not None:
                 # We hit a namespace, return additional namespaces that
                 # start with the hit's fully qualified name (fqn).
-                name = hits[0][0].get("name")
-            elif not expr.startswith("\\"):
-                # Translate the namespace into a fully qualified name (fqn).
-                namespace_elem = self._namespace_elem_from_scoperef(start_scope)
-                if namespace_elem is not None:
-                    # If already inside a namespace, the name must be
-                    # morphed to include the current namespace's fqn.
-                    name = "%s\\%s" % (namespace_elem.get("name"), expr)
+                fqn = hits[0][0].get("name")
+
             self.debug("eval_cplns:: adding namespace hits that start with "
-                       "expr: %r", name)
-            namespaces = self._namespaces_from_scope(name, start_scope)
+                       "fqn: %r", fqn)
+            namespaces = self._namespaces_from_scope(fqn, start_scope)
             #self.log("namespaces: %r", namespaces)
             for ilk, n in namespaces:
-                namespace = n[len(name):]
+                namespace = n[len(fqn):]
                 if namespace and namespace.startswith("\\"):
                     cplns.append((ilk, namespace.strip("\\")))
             return cplns
@@ -860,8 +851,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                     return elem
         return None
 
-    def _hits_from_namespace(self, expr, scoperef):
-        self.log("_hits_from_namespace:: expr %r, scoperef: %r", expr, scoperef)
+    def _fqn_for_expression(self, expr, scoperef):
         expr = expr.rstrip("\\")
         fqn = None
         if expr and not expr.startswith("\\"):
@@ -876,14 +866,14 @@ class PHPTreeEvaluator(TreeEvaluator):
             elem = self._namespace_elem_from_scoperef(scoperef)
             if elem is not None:
                 # We are inside a namespace, work out the fully qualified name.
-                self.log("_hits_from_namespace:: current namespace: %r", elem)
+                self.log("_fqn_for_expression:: current namespace: %r", elem)
                 for child in elem:
                     if child.tag == "import":
                         symbol = child.get("symbol")
                         alias = child.get("alias")
                         if ((alias is None and symbol == first_token) or
                             (alias == first_token)):
-                            self.log("_hits_from_namespace:: found alias: %r",
+                            self.log("_fqn_for_expression:: found alias: %r",
                                      child)
                             fqn = "%s\\%s" % (child.get("module"), symbol)
                             if tokens[1:]:
@@ -896,9 +886,15 @@ class PHPTreeEvaluator(TreeEvaluator):
             else:
                 fqn = expr
         else:
-            fqn = expr.lstrip("\\")
+            fqn = expr
 
-        self.log("_hits_from_namespace:: fqn: %r", fqn)
+        fqn = fqn.strip("\\")
+        self.log("_fqn_for_expression:: %r => %r", expr, fqn)
+        return fqn
+
+    def _hits_from_namespace(self, fqn, scoperef):
+        self.log("_hits_from_namespace:: fqn %r, scoperef: %r", fqn, scoperef)
+
         global_scoperef = self._get_global_scoperef(scoperef)
         global_blob = self._elem_from_scoperef(global_scoperef)
 
@@ -921,8 +917,13 @@ class PHPTreeEvaluator(TreeEvaluator):
         # The last token in the namespace may be a class or a constant, instead
         # of being part of the namespace itself.
         tokens = fqn.split("\\")
+        if len(tokens) <= 1:
+            return hits
+
         fqn = "\\".join(tokens[:-1])
         last_token = tokens[-1]
+        self.log("_hits_from_namespace:: checking for sub-namespace match: %r",
+                 fqn)
 
         elem = global_blob.names.get(fqn)
         if elem is not None:
@@ -968,6 +969,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                  first_token, scoperef)
 
         if "\\" in first_token:
+            first_token = self._fqn_for_expression(first_token, scoperef)
             # It's a namespace, lookup the correstponding namespace.
             hits = self._hits_from_namespace(first_token, scoperef)
             if hits:
