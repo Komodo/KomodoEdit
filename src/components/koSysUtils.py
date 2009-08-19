@@ -358,7 +358,57 @@ class koSysUtils:
         return diff
 
     def pickColor(self, startingcolor):
-        if sys.platform.startswith("win"):
+        self.pickColorWithPositioning(startingcolor, -1, -1)
+
+    def pickColorWithPositioning(self, startingcolor, screenX, screenY):
+        prefSvc = components.classes["@activestate.com/koPrefService;1"]\
+                  .getService(components.interfaces.koIPrefService)
+        cid = prefSvc.prefs.getStringPref("colorpicker_cid")
+        try:
+            cpSvc = components.classes[cid].\
+                        getService(components.interfaces.koIColorPicker)
+        except COMException, ex:
+            # Only log an exception if a cid has been explicitly set.
+            if cid:
+                log.exception("Unable to load the colorpicker with CID: %r", cid)
+            if sys.platform.startswith("win") or sys.platform.startswith("darwin"):
+                # Default to the system color picker.
+                cid = "@activestate.com/koSystemColorPicker;1"
+            else:
+                # Default to the Komodo JavaScript color picker.
+                cid = "@activestate.com/koColorPicker;1"
+            cpSvc = components.classes[cid].\
+                        getService(components.interfaces.koIColorPicker)
+        return cpSvc.pickColorWithPositioning(startingcolor, screenX, screenY)
+
+    def byteLength(self, unicodestr):
+        utf8 = unicodestr.encode('utf-8')
+        return len(utf8)
+
+    def charIndexFromPosition(self, unicodestr, pos):
+        utf8 = unicodestr.encode('utf-8')
+        return len(utf8[:pos].decode('utf-8'))
+
+if sys.platform.startswith("win"):
+    _bundle = components.classes["@mozilla.org/intl/stringbundle;1"]\
+             .getService(components.interfaces.nsIStringBundleService)\
+             .createBundle("chrome://komodo/locale/library.properties")
+    class WindowsSystemColorPicker:
+        _com_interfaces_ = [components.interfaces.koIColorPicker]
+        _reg_clsid_ = "{a482cb10-823b-4142-9f39-65991a94f0fa}"
+        _reg_contractid_ = "@activestate.com/koSystemColorPicker;1"
+        _reg_desc_ = _bundle.GetStringFromName("windowsColorPicker.desc")
+        _reg_categories_ = [
+             ("colorpicker", _reg_desc_),
+        ]
+
+        def __init__(self):
+            self._sysUtilsSvc = None
+
+        def pickColor(self, startingcolor):
+            self.pickColorWithPositioning(startingcolor, -1, -1)
+
+        def pickColorWithPositioning(self, startingcolor, screenX, screenY):
             from wnd.dlgs.choosecolor import ChooseColor
             global colorDialog
             global customColors
@@ -369,7 +419,8 @@ class koSysUtils:
             bgr = int(b+g+r, 16)
             #log.debug("bgr in = %x (%r)", bgr, bgr)
             colorDialog.onINIT = _adjustWindow
-            res = colorDialog.Run(None, 'fullopen', 'hook', customcolors=customColors, initcolor=bgr)
+            res = colorDialog.Run(None, 'fullopen', 'hook',
+                                  customcolors=customColors, initcolor=bgr)
             if res is not None:
                 bgr = "%06x" % res
                 #log.debug("bgr out = %r", bgr)
@@ -377,7 +428,24 @@ class koSysUtils:
                 for i, x in enumerate(colorDialog._dlgs_colors):
                     customColors[i] = int(x)
                 return '#'+r+g+b            
-        elif sys.platform.startswith("darwin"):
+
+elif sys.platform.startswith("darwin"):
+    _bundle = components.classes["@mozilla.org/intl/stringbundle;1"]\
+             .getService(components.interfaces.nsIStringBundleService)\
+             .createBundle("chrome://komodo/locale/library.properties")
+    class MacOSXSystemColorPicker:
+        _com_interfaces_ = [components.interfaces.koIColorPicker]
+        _reg_clsid_ = "{434c3a68-5485-4b27-a852-e220358333f3}"
+        _reg_contractid_ = "@activestate.com/koSystemColorPicker;1"
+        _reg_desc_ = _bundle.GetStringFromName("macosxColorPicker.desc")
+        _reg_categories_ = [
+             ("colorpicker", _reg_desc_),
+        ]
+
+        def pickColor(self, startingcolor):
+            self.pickColorWithPositioning(startingcolor, -1, -1)
+
+        def pickColorWithPositioning(self, startingcolor, screenX, screenY):
             import ColorPicker
             r,g,b = int(startingcolor[1:3], 16)*256, \
                     int(startingcolor[3:5], 16)*256, \
@@ -391,20 +459,6 @@ class koSysUtils:
                  b = "%02X" % (resp[0][2]/256)
                  c = "#%s%s%s" %(r,g,b)
                  return c
-        else:
-            # Linux uses the pure JavaScript color picker.
-            cpSvc = components.classes["@activestate.com/koColorPicker;1"].\
-                        getService(components.interfaces.koIColorPicker);
-            return cpSvc.pickColor(startingcolor);
-        return None
-        
-    def byteLength(self, unicodestr):
-        utf8 = unicodestr.encode('utf-8')
-        return len(utf8)
-
-    def charIndexFromPosition(self, unicodestr, pos):
-        utf8 = unicodestr.encode('utf-8')
-        return len(utf8[:pos].decode('utf-8'))
 
 def _escapeArg(arg):
     """Escape the given command line argument for the shell."""

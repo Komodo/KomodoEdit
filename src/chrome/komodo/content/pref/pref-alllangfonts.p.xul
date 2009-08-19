@@ -655,5 +655,23 @@
             </tabpanels>
         </tabbox>
     </vbox>
+
+    <separator class="thin"/>
+
+  <!-- Custom color picker to use -->
+    <vbox id="colorpicker_vbox" style="padding: 6px;">
+        <hbox id="colorpicker_hbox" align="center">
+            <label id="colorpicker_label"
+                   value="Color Picker to use:"/>
+            <menulist id="colorpicker_menulist"
+                      oncommand="setColorpicker();">
+                <menupopup id="colorpicker_menupopup" />
+            </menulist>
+            <button id="colorpicker_test_button"
+                    oncommand="testColorpicker();"
+                    label="Test"/>
+        </hbox>
+    </vbox>
+
 </window>
 

@@ -209,6 +209,7 @@ function OnPreferencePageLoading(prefset) {
         updateFromScheme();
         initFonts();
         updateEncodingReset();
+        loadColorpickerPreferences(prefset);
     } catch (e) {
         log.error(e);
     }
@@ -1155,10 +1156,24 @@ function _findFontName(name) {
 
 function customColor(colorpickerid) {
     var colorpicker = document.getElementById(colorpickerid);
-    var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
-                    getService(Components.interfaces.koISysUtils);
     var color = colorpicker.color;
-    var newcolor = sysUtils.pickColor(color);
+    // Prefer the locally preferenced color picker:
+    var cpSvc;
+    var cid = gDialog.prefset.getStringPref("colorpicker_cid");
+    try {
+        cpSvc = Components.classes[cid].getService(Components.interfaces.koIColorPicker);
+    } catch (ex) {
+        // Only log an exception if a cid has been explicitly set.
+        if (cid) {
+            log.exception(ex, "Unable to load the colorpicker with CID: " + cid);
+        }
+        // Use the sysUtils color picker then:
+        cpSvc = Components.classes['@activestate.com/koSysUtils;1'].
+                    getService(Components.interfaces.koISysUtils);
+    }
+    var newcolor = cpSvc.pickColorWithPositioning(color,
+                                        colorpicker.boxObject.screenX,
+                                        colorpicker.boxObject.screenY);
     if (newcolor) {
         if (!ensureWriteableScheme()) return;
         colorpicker.color = newcolor;
@@ -1436,4 +1451,72 @@ function tabChanged() {
         changeLanguage();
     }
     gDialog.current_tab_id = tabId;
+}
+
+function _get_registered_colorpickers() {
+    var result = [];
+    var catMgr = Components.classes["@mozilla.org/categorymanager;1"].
+                    getService(Components.interfaces.nsICategoryManager);
+    var category = 'colorpicker';
+    var names = catMgr.enumerateCategory(category);
+    var nameObj;
+    var name;
+    var cid;
+    var shortPlatName = navigator.platform.substr(0, 3);
+    while (names.hasMoreElements()) {
+        nameObj = names.getNext();
+        nameObj.QueryInterface(Components.interfaces.nsISupportsCString);
+        name = nameObj.data;
+        cid = catMgr.getCategoryEntry(category, name);
+        if ((name == "Windows Color Picker" && shortPlatName == "Win") ||
+            (name == "Mac OS X Color Picker" && shortPlatName == "Mac")) {
+            // We want the default system color picker to be first in the list.
+            result.splice(0, 0, {"name": name, "cid": cid});
+        } else {
+            result.push({"name": name, "cid": cid});
+        }
+    }
+    return result;
+}
+
+function loadColorpickerPreferences(prefset) {
+    var menulist = document.getElementById("colorpicker_menulist");
+    var menupopup = document.getElementById("colorpicker_menupopup");
+    var menuitem;
+    var colorpicker_cid = prefset.getStringPref("colorpicker_cid");
+    var colorpickers = _get_registered_colorpickers();
+    var selectedIndex = 0;
+    for (var i=0; i < colorpickers.length; i++) {
+        menuitem = document.createElement("menuitem");
+        menuitem.setAttribute("label", colorpickers[i].name);
+        menuitem.setAttribute("cid", colorpickers[i].cid);
+        menupopup.appendChild(menuitem);
+        if (colorpicker_cid == colorpickers[i].cid) {
+            selectedIndex = i;
+        }
+    }
+    menulist.selectedIndex = selectedIndex;
+}
+
+function setColorpicker() {
+    var menulist = document.getElementById("colorpicker_menulist");
+    if (menulist.selectedItem) {
+        gDialog.prefset.setStringPref("colorpicker_cid", menulist.selectedItem.getAttribute("cid"));
+    }
+}
+
+function testColorpicker() {
+    var menulist = document.getElementById("colorpicker_menulist");
+    var menupopup = document.getElementById("colorpicker_menupopup");
+    if (menulist.selectedItem) {
+        var cid = menulist.selectedItem.getAttribute("cid");
+        try {
+            var cp = Components.classes[cid].createInstance(Components.interfaces.koIColorPicker);
+            cp.pickColorWithPositioning("#00ACDC",
+                                        menulist.boxObject.screenX,
+                                        menulist.boxObject.screenY);
+        } catch (ex) {
+            ko.dialogs.alert("Could not instantiate this color picker", ex);
+        }
+    }
 }

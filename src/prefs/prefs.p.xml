@@ -881,4 +881,7 @@
   <boolean id="hyperlinksEnabled">1</boolean>
   <boolean id="hyperlinksEnableGotoDefinition">1</boolean>
 
+  <!-- Color picker -->
+  <string id="colorpicker_cid"></string>
+
 </preference-set>

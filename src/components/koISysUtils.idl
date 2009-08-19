@@ -84,7 +84,21 @@ interface koISysUtils : nsISupports {
     wstring joinargv(in PRUint32 count, [array, size_is(count)] in wstring args);
 
     wstring diff_files(in wstring fname1, in wstring fname2);
-    string pickColor(in string startincolor);
+ 
+        /**
+         * Open the color picker dialog with the startingcolor.
+         * @param startingcolor - Color string, must use the format "#ABCDEF".
+         */
+    AString pickColor(in AString startingcolor);
+        /**
+         * Open the color picker dialog with the startingcolor at position x,y.
+         * @param startingcolor - Color string, must use the format "#ABCDEF".
+         * @param screenX - the X screen position to open the dialog at.
+         * @param screenY - the Y screen position to open the dialog at.
+         */
+    AString pickColorWithPositioning(in AString startingcolor, in long screenX,
+                                     in long screenY);
+
     long byteLength(in AString unicodestr);
     long charIndexFromPosition(in AString unicodestr, in long bytePos);
 };

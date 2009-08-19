@@ -38,5 +38,17 @@
 
 [scriptable, uuid(4e03a4be-ab01-4ce1-bc8a-104130d558a7)]
 interface koIColorPicker : nsISupports {
-    string pickColor(in string startincolor);
+        /**
+         * Open the color picker dialog with the startingcolor.
+         * @param startingcolor - Color string, must use the format "#ABCDEF".
+         */
+    string pickColor(in string startingcolor);
+        /**
+         * Open the color picker dialog with the startingcolor at position x,y.
+         * @param startingcolor - Color string, must use the format "#ABCDEF".
+         * @param screenX - the X screen position to open the dialog at.
+         * @param screenY - the Y screen position to open the dialog at.
+         */
+    string pickColorWithPositioning(in string startingcolor, in long screenX,
+                                    in long screenY);
 };

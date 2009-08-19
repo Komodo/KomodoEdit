@@ -209,7 +209,13 @@ ko.hyperlinks.ColorPickerHandler.prototype.showColorPicker = function(view, hype
     window.setTimeout(function(view_, hyperlink_, color_) {
         var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
                         getService(Components.interfaces.koISysUtils);
-        var newcolor = sysUtils.pickColor("#" + color_);
+        var x, y;
+        [x,y] = view_._last_mousemove_xy;
+        // The X and Y positions are relative to the scimoz top-left corner,
+        // but we need screen positions.
+        x += view_.boxObject.screenX;
+        y += view_.boxObject.screenY;
+        var newcolor = sysUtils.pickColorWithPositioning("#" + color_, x, y);
         if (newcolor) {
             var sm = view_.scimoz;
             sm.targetStart = hyperlink_.startPos;
