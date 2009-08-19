@@ -520,6 +520,8 @@
         <body>
         <![CDATA[
             //this.log.info('view-buffer is closing')
+            if (this._uiTimer)
+                clearTimeout(this._uiTimer);
             // force scimoz to stop ticking, bug 
             this.scimoz.focus = false; 
             try {
@@ -931,11 +933,9 @@
             // often painting during onUpdateUI doesn't work correctly since it
             // has to reenter scimoz, if we set it in a timeout, it works.
             if (this._uiTimer) {
-                this._uiTimer.stopTimeout();
-                this._uiTimer.free();
+                clearTimeout(this._uiTimer);
             }
-            this._uiTimer = new objectTimer(this, this.doUpdateUI); //XXX or ,[]);
-            this._uiTimer.startTimeout(50);
+            this._uiTimer = setTimeout(function(this_) { this_.doUpdateUI(); }, 50, this);
             ko.trace.get().leave('onUpdateUI');
             return true;
         ]]>
