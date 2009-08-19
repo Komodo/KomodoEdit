@@ -242,7 +242,7 @@ class KoCodeIntelCatalogsTreeView(TreeView):
         self._wasChanged = True
         self._rows[row_idx]["selected"] = (value == "true" and True or False)
         if self._tree:
-            self._tree.invalidateCell(row_idx, col)
+            self._tree.invalidateRow(row_idx)
 
     def getCellText(self, row_idx, col):
         if col.id == "catalogs-selected":

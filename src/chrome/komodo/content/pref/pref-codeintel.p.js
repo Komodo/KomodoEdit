@@ -132,8 +132,39 @@ function PrefCodeIntel_CatalogsOnKeyPress(event)
 {
     try {
         if (event.charCode == 32) { /* spacebar */
-            var row_idx = gWidgets.catalogs.currentIndex;
-            gCatalogsView.toggleSelection(row_idx);
+            var treeViewSelection = gCatalogsView.selection;
+            var numSelections = treeViewSelection.getRangeCount();
+            if (!numSelections) {
+                return false;
+            }
+            var row_indices = [];
+            var startRangeObj = {}, endRangeObj = {};
+            for (var i = 0; i < numSelections; i++) {
+                treeViewSelection.getRangeAt(i, startRangeObj, endRangeObj);
+                for (var j = startRangeObj.value; j <= endRangeObj.value; j++) {
+                    if (j == -1) {
+                        // treeViewSelection.getRangeAt was given invalid input
+                        // Not sure how this could happen, but catch it and continue.
+                        break;
+                    }
+                    row_indices.push(j);
+                }
+            }
+            var cs = {"catalogs-selected":1}; // unused arg the tree view wants
+            // Now determine whether we're toggling down or setting all to true.
+            // getCellValue and setCellValue uses strings "true" and "false"
+            // to manage the checked state.
+            var initState = true;
+            var lim = row_indices.length;
+            for (var i = 0; initState && i < lim; i++) {
+                initState = (initState
+                             && (gCatalogsView.getCellValue(row_indices[i], cs)
+                                 == "true"));
+            }
+            var targetState = initState ? "false" : "true";
+            for (var i = 0; i < lim; i++) {
+                gCatalogsView.setCellValue(row_indices[i], cs, targetState);
+            }
             return false;
         }
     } catch(ex) {
