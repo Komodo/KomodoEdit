@@ -1147,11 +1147,15 @@ class koDocumentBase:
                             scimoz.replaceTarget(0, '')
                         index -= length
                 if ensureFinalEOL:
-                    lastBit = scimoz.getTextRange(scimoz.length-2, scimoz.length)
+                    sciLength = scimoz.length
+                    if sciLength >= 2:
+                        lastBit = scimoz.getTextRange(sciLength - 2, sciLength)
+                    else:
+                        lastBit = scimoz.text
                     if not lastBit.endswith(eolStr):
                         if DEBUG:
                             print "INSERT FINAL EOL: %r" % eolStr
-                        scimoz.insertText(scimoz.length, eolStr)
+                        scimoz.insertText(sciLength, eolStr)
                 if cleanLineEnds:
                     
                     # If the buffer ends with > 1 blank line,
