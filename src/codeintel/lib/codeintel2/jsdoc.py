@@ -198,8 +198,8 @@ class JSDoc:
                 result.append(" ".join(attrs))
         if self.namespace:
             result.append("Namespace:  %s" % (self.namespace))
-        if self.baseclass:
-            result.append("Baseclass:  %s" % (self.baseclass))
+        if self.baseclasses:
+            result.append("baseclasses:  %s" % (self.baseclasses))
         for cp in self.params:
             result.append(str(cp))
         if self.type:
@@ -214,7 +214,7 @@ class JSDoc:
 
     def _reset(self):
         self.comment = None
-        self.baseclass = None
+        self.baseclasses = []
         self.doc = None
         self.classname = None
         self.namespace = None
@@ -290,7 +290,7 @@ class JSDoc:
         return (None, value)
 
     def _handle_base(self, value):
-        self.baseclass = value
+        self.baseclasses.append(value)
 
     # Same as base
     def _handle_extends(self, value):
@@ -525,10 +525,10 @@ def _test():
 
     jd._reset()
     jd._handle_base("YAHOO.widget.Menu")
-    assert(jd.baseclass == "YAHOO.widget.Menu")
+    assert("YAHOO.widget.Menu" in jd.baseclasses)
     jd._reset()
     jd._handle_extends("YAHOO.util.DragDrop")
-    assert(jd.baseclass == "YAHOO.util.DragDrop")
+    assert("YAHOO.util.DragDrop" in jd.baseclasses)
 
     jd._reset()
     jd._handle_type("YAHOO.widget.MenuModuleItem")

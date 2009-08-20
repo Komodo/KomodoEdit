@@ -900,6 +900,28 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
             [("namespace", "ab"), ])
 
+class JSDocTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+    def test_jsdoc_extends(self):
+        content, positions = unmark_text(dedent("""\
+            function myfoo1() {
+                this.foo1 = 1;
+            }
+            function myfoo2() {
+                this.foo2 = 2;
+            }
+            /**
+             * @extends myfoo1
+             * @extends myfoo2
+             */
+            function myinheritor() {
+                this.<1>x = 1;
+            }
+        """))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("variable", "foo1"),
+             ("variable", "foo2"),
+             ("variable", "x")])
 
 class MochiKitTestCase(CodeIntelTestCase):
     lang = "JavaScript"

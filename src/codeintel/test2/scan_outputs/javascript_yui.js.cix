@@ -15,7 +15,7 @@
             <scope ilk="function" line="43" lineend="47" name="textNodeParentChange" signature="textNodeParentChange()" />
             <variable line="49" name="label" />
           </scope>
-          <scope ilk="class" line="89" lineend="104" name="Menu">
+          <scope classrefs="YAHOO.widget.Overlay" ilk="class" line="89" lineend="104" name="Menu">
             <scope attributes="__ctor__" doc="CONSTRUCTOR: The Menu class creates a container that holds a vertical list representing&#xA;a set of options or commands.  Menu is the base class for all&#xA;menu containers." ilk="function" line="89" lineend="104" name="Menu" signature="Menu(p_oElement, p_oConfig)">
               <variable citdl="String" doc="String specifying the id attribute of the&#xA;&lt;code&gt;&amp;#60;select&amp;#62;&lt;/code&gt; element to be used as the data source&#xA;for the menu." ilk="argument" name="p_oElement" />
               <variable citdl="Object" doc="Optional. Object literal specifying the&#xA;configuration for the menu. See configuration class documentation for&#xA;more details." ilk="argument" name="p_oConfig" />

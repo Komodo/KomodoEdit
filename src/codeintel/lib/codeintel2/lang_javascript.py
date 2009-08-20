@@ -1040,7 +1040,7 @@ class JSObject:
         self.attributes = []    # Special attributes for object
         self.returnTypes = []    # List of possible return values
         self.constructor = None
-        self.extends = None
+        self.classrefs = []
         self.doc = doc
         self.isHidden = isHidden  # Special case, should not be output to cix
         if isLocal:
@@ -1074,6 +1074,10 @@ class JSObject:
 
     def isAnonymous(self):
         return self.name == "(anonymous)"
+
+    def addClassRef(self, baseclass):
+        if baseclass not in self.classrefs:
+            self.classrefs.append(baseclass)
 
     def addVariable(self, name, lineno, depth, typeNames=None, doc=None,
                     isLocal=False, path=None):
@@ -1140,8 +1144,8 @@ class JSObject:
             r = ["%s: %r, line:%d (%r)" % (self.cixname, self.name, self.line, self.parent.name) ]
         else:
             r = ["%s: %r, line:%d (None)" % (self.cixname, self.name, self.line) ]
-        if self.extends:
-            r.append("  Extends: %s" % self.extends)
+        if self.classrefs:
+            r.append("  Extends: %s" % self.classrefs)
         if self.type:
             r.append("  Type: %s" % self.type)
         for attrname in ("classes", "members", "functions", "variables"):
@@ -1157,8 +1161,8 @@ class JSObject:
         result = []
         if self.cixname == "function":
             result.append("%s%s %s(%s)" % (" " * depth, self.cixname, self.name, self.argline))
-        elif self.cixname == "class" and self.extends:
-            result.append("%s%s %s [%s]" % (" " * depth, self.cixname, self.name, self.extends))
+        elif self.cixname == "class" and self.classrefs:
+            result.append("%s%s %s [%s]" % (" " * depth, self.cixname, self.name, self.classrefs))
         elif self.cixname == "variable" and (self.type or (self.jsdoc and self.jsdoc.type)):
             result.append("%s%s %s [%s]" % (" " * depth, self.cixname, self.name, self.type or (self.jsdoc and self.jsdoc.type)))
         else:
@@ -1254,8 +1258,9 @@ class JSObject:
             elif self.parent and self.parent.cixname in ("object", "variable"):
                 createCixVariable(cixobject, "this", vartype=self.parent.name)
 
-        if self.extends:
-            addClassRef(cixobject, self.extends)
+        if self.cixname == "class":
+            for baseclass in self.classrefs:
+                addClassRef(cixobject, baseclass)
 
         allValues = self.functions.values() + self.members.values() + \
                     self.classes.values() + self.variables.values() + \
@@ -1892,7 +1897,7 @@ class JavaScriptCiler:
                 log.info("CLASS_MBR already exists: %r", partName)
         elif addType == self.ADD_CLASS_PARENT:
             log.info("CLASS_PARENT: %r", partName)
-            jsclass.extends = partName
+            jsclass.addClassRef(partName)
         elif addType == self.ADD_CLASS_CONSTRUCTOR:
             log.info("CLASS_CTOR: %r", partName)
             jsclass.constructor = partName
@@ -2126,6 +2131,11 @@ class JavaScriptCiler:
         self._convertFunctionToClassContructor(jsfunc, jsclass)
         if self.currentScope == jsfunc:
             self.currentClass = jsclass
+        # Copy across the classrefs from the jsdoc (if any).
+        if jsfunc.jsdoc and jsfunc.jsdoc.baseclasses:
+            for baseclass in jsfunc.jsdoc.baseclasses:
+                jsclass.addClassRef(baseclass)
+            jsfunc.jsdoc.baseclasses = []
         return jsclass
 
     def _convertFunctionToClosureVariable(self, jsfunc):
