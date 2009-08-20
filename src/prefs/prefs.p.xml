@@ -545,6 +545,7 @@
        in the case of HTML and XSLT. -->
   <boolean id="xmlDeclDetection">1</boolean>
   <string id="defaultHTMLDecl">-//W3C//DTD HTML 4.01//EN</string>
+  <string id="defaultHTMLDeclSystemIdentifier">"http://www.w3.org/TR/html4/strict.dtd"</string>
   <!-- Allow #! lines to override filename associations. -->
   <boolean id="shebangDetection">1</boolean>
   <!-- Allow emacs local variables in file content to override file type
