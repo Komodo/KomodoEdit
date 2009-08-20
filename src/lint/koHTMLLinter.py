@@ -48,6 +48,8 @@ import process
 
 import logging
 log = logging.getLogger("KoHTMLLinter")
+plog = logging.getLogger("KoHTMLLinter.p")
+plog.setLevel(logging.DEBUG)
 
 #---- component implementation
 
@@ -196,11 +198,15 @@ class KoHTMLCompileLinter:
             result.lineEnd = i
             
             # Move back to the first non-blank line for errors
-            # that appear on blank lines.
+            # that appear on blank lines.  In empty and
+            # near-empty buffers this result will end up at
+            # the first line (which is 1-based in the lint system)
             if result.lineStart == result.lineEnd and \
                result.columnEnd <= result.columnStart:
-                while len(datalines[result.lineStart-1]) == 0:
+                while result.lineStart > 0 and len(datalines[result.lineStart - 1]) == 0:
                     result.lineStart -= 1
+                if result.lineStart == 0:
+                    result.lineStart = 1
                 result.lineEnd = result.lineStart
                 result.columnStart = 1
                 result.columnEnd = len(datalines[result.lineStart-1]) + 1
