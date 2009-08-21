@@ -1150,23 +1150,7 @@ class JSObject:
         return bestType
 
     def __repr__(self):
-        # dump our contents to human readable form
-        if self.parent:
-            r = ["%s: %r, line:%d (%r)" % (self.cixname, self.name, self.line, self.parent.name) ]
-        else:
-            r = ["%s: %r, line:%d (None)" % (self.cixname, self.name, self.line) ]
-        if self.classrefs:
-            r.append("  Extends: %s" % self.classrefs)
-        if self.type:
-            r.append("  Type: %s" % self.type)
-        for attrname in ("classes", "members", "functions", "variables"):
-            d = getattr(self, attrname)
-            if d and len(d) > 0:
-                r.append("  %s:" % (attrname.capitalize()))
-                for v in d.values():
-                    if not v.isHidden:
-                        r.append("    %r" % v)
-        return '\n'.join(r)
+        return "\n".join(self.outline())
 
     def outline(self, depth=0):
         result = []
@@ -1345,16 +1329,7 @@ class JSFile:
         self.variables = {} # all variables used in file
 
     def __repr__(self):
-        # dump our contents to human readable form
-        r = ["File: %r" % (self.name) ]
-        for attrname in ("classes", "functions", "variables"):
-            d = getattr(self, attrname)
-            if d and len(d) > 0:
-                r.append("  %s:" % (attrname.capitalize()))
-                for v in d.values():
-                    if not v.isHidden:
-                        r.append("    %r" % v)
-        return '\n'.join(r)
+        return "\n".join(self.outline())
 
     def isAnonymous(self):
         return False
