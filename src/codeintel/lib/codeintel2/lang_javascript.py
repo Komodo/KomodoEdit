@@ -1332,13 +1332,11 @@ class JSFile:
         self.anonymous_functions = [] # anonymous functions declared in file
         self.classes = {} # classes declared in file
         self.variables = {} # all variables used in file
-        self.includes = {} # files included into this file
-        self.interfaces = {} # interfaces declared in file
 
     def __repr__(self):
         # dump our contents to human readable form
         r = ["File: %r" % (self.name) ]
-        for attrname in ("includes", "interfaces", "classes", "functions", "variables"):
+        for attrname in ("classes", "functions", "variables"):
             d = getattr(self, attrname)
             if d and len(d) > 0:
                 r.append("  %s:" % (attrname.capitalize()))
@@ -1352,7 +1350,7 @@ class JSFile:
 
     def outline(self):
         result = ["File: %r" % (self.name) ]
-        for attrname in ("includes", "interfaces", "classes", "functions", "variables"):
+        for attrname in ("classes", "functions", "variables"):
             d = getattr(self, attrname, {})
             for v in d.values():
                 result += v.outline(2)
@@ -1501,17 +1499,9 @@ class JSFile:
         return v
 
     def convertToElementTreeModule(self, cixmodule):
-        # Includes
-        for incFile, line in self.includes.items():
-            # XXX - CI2
-            cixinclude = SubElement(cixmodule, "import",
-                                    filename=incFile,
-                                    line=str(line))
-
         # Sort and include contents
         allValues = self.functions.values() + self.variables.values() + \
-                    self.interfaces.values() + self.classes.values() + \
-                    self.anonymous_functions
+                    self.classes.values() + self.anonymous_functions
         for v in sortByLine(allValues):
             if not v.isHidden:
                 v.toElementTree(cixmodule)
