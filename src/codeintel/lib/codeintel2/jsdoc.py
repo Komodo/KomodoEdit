@@ -151,6 +151,27 @@ jsdoc_tags = {
 
 }
 
+
+# stripTags from ASPN cookbook (unknown contributor)
+# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440481
+def stripTags(s):
+    """Remove the html tags from the string s -> str"""
+    # This list is neccesarry because chk() would otherwise not know
+    # that intag in stripTags() is ment, and not a new intag variable in chk().
+    intag = [False]
+
+    def chk(c):
+        if intag[0]:
+            intag[0] = (c != '>')
+            return False
+        elif c == '<':
+            intag[0] = True
+            return False
+        return True
+
+    return ''.join(c for c in s if chk(c))
+
+
 class JSDocParameter:
     def __init__(self, paramname, paramtype=None, doc=None):
         self.paramname = paramname
@@ -168,8 +189,9 @@ class JSDoc:
     A_CONSTANT = 0x10
     A_DEPRECATED = 0x20
 
-    def __init__(self, comment=None):
+    def __init__(self, comment=None, strip_html_tags=False):
         self._reset()
+        self.strip_html_tags = False
         if comment:
             # Full comment initially given
             #print "JSDoc comment: %r" % (comment)
@@ -356,6 +378,8 @@ class JSDoc:
 
     def parse(self, comment):
         self._reset()
+        if self.strip_html_tags:
+            comment = stripTags(comment)
         self.comment = comment
         if not comment:
             return False
