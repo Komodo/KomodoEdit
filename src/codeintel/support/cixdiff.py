@@ -65,7 +65,11 @@ def report_additional(elem, names):
         elem_type = childElem.get("ilk") or childElem.tag
         if elem_type == "variable" and len(childElem):
             elem_type = "namespace"
-        print "  additional %-10s %r" % (elem_type, name)
+        path = childElem.get("path")
+        if path:
+            print "  additional %-10s %-20r %s#%s" % (elem_type, name, path, childElem.get("line", ""))
+        else:
+            print "  additional %-10s %r" % (elem_type, name)
 
 def report_missing_attributes(elem, names):
     for name in sorted(names):
