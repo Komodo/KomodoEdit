@@ -405,6 +405,7 @@
                 <![CDATA[
                 var flavours = new FlavourSet();
                 flavours.appendFlavour("application/x-komodo-snippet");
+                flavours.appendFlavour("application/x-moz-file", "nsIFile");
                 flavours.appendFlavour("text/unicode");
 <!-- #if PLATFORM != "win" -->
                 flavours.appendFlavour("TEXT");

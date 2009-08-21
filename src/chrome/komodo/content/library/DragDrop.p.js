@@ -80,12 +80,12 @@ this.dragObserver = {
     },
     getSupportedFlavours: function() {
         var flavours = new FlavourSet();
+        flavours.appendFlavour("application/x-moz-file", "nsIFile");
+        flavours.appendFlavour("text/x-moz-url");
         flavours.appendFlavour("text/unicode");
 // #if PLATFORM != "win"
         flavours.appendFlavour("TEXT");
 // #endif
-        flavours.appendFlavour("text/x-moz-url");
-        flavours.appendFlavour("application/x-moz-file", "nsIFile");
         return flavours;
     },
     canDrop: function(event, session) {

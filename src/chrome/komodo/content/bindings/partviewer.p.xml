@@ -550,14 +550,14 @@
                 <body>
                 <![CDATA[
                     var flavours = new FlavourSet();
-                    flavours.appendFlavour("text/unicode");
-                    flavours.appendFlavour("application/x-komodo-part");
                     flavours.appendFlavour("application/x-komodo-snippet");
+                    flavours.appendFlavour("application/x-komodo-part");
+                    flavours.appendFlavour("application/x-moz-file", "nsIFile");
+                    flavours.appendFlavour("text/x-moz-url");
+                    flavours.appendFlavour("text/unicode");
 // #if PLATFORM != "win"
                     flavours.appendFlavour("TEXT");
 // #endif
-                    flavours.appendFlavour("text/x-moz-url");
-                    flavours.appendFlavour("application/x-moz-file", "nsIFile");
                     return flavours;
                 ]]>
                 </body>
