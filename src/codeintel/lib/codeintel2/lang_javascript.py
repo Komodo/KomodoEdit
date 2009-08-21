@@ -1072,6 +1072,17 @@ class JSObject:
             # Turn the doc list into a JSDoc object
             self.jsdoc = JSDoc("".join(self.doc))
 
+    def addAttribute(self, attr):
+        if attr not in self.attributes:
+            self.attributes.append(attr)
+
+    def removeAttribute(self, attr):
+        while attr in self.attributes:
+            self.attributes.remove(attr)
+
+    def hasChildren(self):
+        return self.variables or self.functions or self.classes or self.members
+
     def isAnonymous(self):
         return self.name == "(anonymous)"
 
@@ -1355,6 +1366,9 @@ class JSFile:
             for v in d.values():
                 result += v.outline(2)
         return result
+
+    def hasChildren(self):
+        return self.variables or self.functions or self.classes
 
     def _findScopeWithName(self, name, scopeStack, type="variables"):
         if not name:
