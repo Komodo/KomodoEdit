@@ -235,8 +235,14 @@ class koProjectPackageService:
         self._importPackage(file, dir, part)
 
     def _importPackage(self, file, dir, part):
+        from zipfile import BadZipfile
+        isTempProjectFile = True
         try:
             packageDir, projectFile = self.extractPackage(file, dir)
+        except BadZipfile, e:
+            # The file may be a kpf already (not a kpz).
+            projectFile = file
+            isTempProjectFile = False
         except Exception, e:
             log.exception(e)
             packageDir = None
@@ -247,7 +253,7 @@ class koProjectPackageService:
                                   .createInstance(components.interfaces.koIProject))
         newproject.create()
         newproject.loadQuiet(projectFile)
-        if os.path.exists(projectFile):
+        if isTempProjectFile and os.path.exists(projectFile):
             os.unlink(projectFile)
 
         if not part:
