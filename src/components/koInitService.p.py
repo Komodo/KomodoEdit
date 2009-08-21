@@ -365,6 +365,7 @@ class KoInitService(object):
 # #endif
         self.upgradeUserSettings()
         self.installSamples(False)
+        self.installTemplates()
         self.setPlatformErrorMode()
         self.setEncoding()
         self.configureDefaultEncoding()
@@ -1105,5 +1106,16 @@ class KoInitService(object):
             srcDir = os.path.join(koDirSvc.supportDir, "samples")
             log.info("installing Komodo samples to '%s'" % dstDir)
             _copy(srcDir, dstDir)
+        except Exception, e:
+            log.exception(e)
+
+    def installTemplates(self):
+        try:
+            for type in ("file", "project"):
+                # Simply creating these services will initialize the template
+                # directories on the filesystem (if they don't already exist).
+                cid = "@activestate.com/koTemplateService?type=%s;1" % (type, )
+                components.classes[cid].\
+                        getService(components.interfaces.koITemplateService)
         except Exception, e:
             log.exception(e)

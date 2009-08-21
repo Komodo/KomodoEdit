@@ -105,20 +105,16 @@ class KoTemplateService:
     _reg_contractid_ = "@activestate.com/koTemplateService?type=%s;1" % type
     _reg_desc_ = "Komodo File Template Service"
     
-    def __init__(self):
-        self.koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
-        self.rootTemplateNode = None
-        self.loaded = 0
-        self.basename = "templates"
-        self.sampleTemplateName = "Sample Custom Template.txt"
-        self.sampleTemplate = """
+    basename = "templates"
+    sampleTemplateName = "Sample Custom Template.txt"
+    sampleTemplate = """
         This is a sample custom template for Komodo. The actual template file is:
     %s
 
 You can create your own templates with any content you wish.
 See "Custom Templates" in Komodo's on-line help for more details.
 """
-        self.readmeText = """
+    readmeText = """
         Komodo User File Templates Directory
 
 Place template files in the "My Templates" folder to have them appear
@@ -131,6 +127,11 @@ folder.
 
 See "Custom Templates" in Komodo's on-line help for more information.
 """
+
+    def __init__(self):
+        self.koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        self.rootTemplateNode = None
+        self.loaded = 0
         self.initializeUserTemplateTree()
 
     def initializeUserTemplateTree(self):
@@ -235,11 +236,9 @@ class KoProjectTemplateService(KoTemplateService):
     _reg_contractid_ = "@activestate.com/koTemplateService?type=%s;1" % type
     _reg_desc_ = "Komodo Project Template Service"
 
-    def __init__(self):
-        KoTemplateService.__init__(self)
-        self.basename = "project-templates"
-        self.sampleTemplateName = "Sample Custom Template.xml"
-        self.sampleTemplate = """<?xml version="1.0" encoding="UTF-8"?>
+    basename = "project-templates"
+    sampleTemplateName = "Sample Custom Template.xml"
+    sampleTemplate = """<?xml version="1.0" encoding="UTF-8"?>
 <!-- Komodo Project File - DO NOT EDIT -->
 <project id="e6577ca4-3483-11db-bfd4-000d935d3368" name="Sample Custom Template.kpf" kpf_version="3">
 <snippet keyboard_shortcut="" name="ReadMe" set_selection="false" idref="e6577ca4-3483-11db-bfd4-000d935d3368" id="f6b2361a-3483-11db-bfd4-000d935d3368" indent_relative="false">
@@ -248,7 +247,7 @@ This is a sample custom template for Komodo. The actual template file is:\\n    
   <boolean id="import_live">1</boolean>
 </preference-set>
 </project>"""
-        self.readmeText = """
+    readmeText = """
         Komodo User Project Templates Directory
 
 Place template files in the "My Templates" folder to have them appear
@@ -261,6 +260,9 @@ folder.
 
 See "Custom Templates" in Komodo's on-line help for more information.
 """
+
+    def __init__(self):
+        KoTemplateService.__init__(self)
 
 
 class KoTemplatesView(TreeView):
