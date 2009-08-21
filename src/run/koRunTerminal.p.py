@@ -695,7 +695,12 @@ class _TerminalWriter(object):
     def close(self):
         if not self.__closed:
             log.info("_TerminalWriter.close %r" % self.__name)
-            self.__stdin.close()
+            try:
+                self.__stdin.close()
+            except IOError, ex:
+                # The file is already closed or is owned by another thread (see
+                # bug 83303) - treat it as if it had closed successfully.
+                pass
             self.__closed = 1
 
 class _TerminalReader(threading.Thread):
