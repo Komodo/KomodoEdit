@@ -3226,6 +3226,11 @@ class JavaScriptCiler:
             elif namelist == ["Ext", "extend"]:
                 # Same as what YAHOO does.
                 self._handleYAHOOExtension(styles, text, p)
+            elif namelist == ["Ext", "apply"] and text[p:p+1] == ["("]:
+                # Similar to the regular function apply (see below)
+                namelist, p = self._getIdentifiersFromPos(styles, text, p+1)
+                if namelist:
+                    self._handleFunctionApply(namelist)
         elif firstStyle == self.JS_OPERATOR:
             if text[:4] == [")", ".", "apply", "("]:
                 # Special case for function apply
