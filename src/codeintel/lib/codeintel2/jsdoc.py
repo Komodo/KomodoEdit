@@ -412,6 +412,9 @@ class JSDoc:
                         else: # This is still the main doc string
                             doc.append(sp[1])
                             in_doc = True
+                elif len(line) > 2:
+                    # In a jsdoc, but this line does not start with a star.
+                    doc.append(line)
         self.doc = "\n".join(doc).rstrip()
         # Parse the tags now
         for tagData in tagElements:
