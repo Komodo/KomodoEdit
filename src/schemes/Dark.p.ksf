@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-Version = 2
+Version = 4
 
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': True}
 
@@ -188,7 +188,8 @@ Colors = {
  'edgeColor': 6715272,
  'foldMarginColor': 0x333333,
  'selBack': 102,
- 'selFore': 16777215}
+ 'selFore': 16777215,
+ 'whitespaceColor': 0xffffff}
 
 Indicators = {
     'linter_error': {

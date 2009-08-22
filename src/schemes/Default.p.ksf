@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-Version = 2
+Version = 4
 
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': True}
 
@@ -214,7 +214,8 @@ Colors = {
  # colors will be used instead (using the system colors on Windows).
  'foldMarginColor': None,
  'selBack': 13421772,
- 'selFore': 16772846}
+ 'selFore': 16772846,
+ 'whitespaceColor': 0}
 
 Indicators = {
     'linter_error': {
