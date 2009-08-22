@@ -1072,6 +1072,11 @@ class JSObject:
             # Turn the doc list into a JSDoc object
             self.jsdoc = JSDoc("".join(self.doc))
 
+    def getFullPath(self):
+        if self.parent:
+            return self.parent.getFullPath() + [self.name]
+        return [self.name]
+
     def addAttribute(self, attr):
         if attr not in self.attributes:
             self.attributes.append(attr)
@@ -1330,6 +1335,9 @@ class JSFile:
 
     def __repr__(self):
         return "\n".join(self.outline())
+
+    def getFullPath(self):
+        return [self.name]
 
     def isAnonymous(self):
         return False
@@ -2152,17 +2160,23 @@ class JavaScriptCiler:
         else:
             applyToScope = self.cile   # Global file level
 
+        isTheFirstName = True
         for name in namelist:
-            scope = self._locateScopeForName([name], attrlist, fromScope)
+            # When looking for the first name of the scope, traverse the parent
+            # chain, subsequent names *must* reside within the current scope
+            # being checked!
+            if isTheFirstName:
+                isTheFirstName = False
+                scope = self._locateScopeForName([name], attrlist, fromScope)
+            else:
+                scope = self._findInScope(name, attrlist, fromScope)
             if not scope:
                 scope = applyToScope.addVariable(name, self.lineno, self.depth,
                                                  "Object", path=self.path)
-                # Subsequent scopes created will go as a child of the scope
-                # that was just created.
-                applyToScope = scope
                 log.info("Could not find %r in scope: %r, creating variable (type=Object) for it!!!",
                          name, fromScope.name)
             fromScope = scope
+            applyToScope = scope
         return fromScope
 
     def _findFunctionScopeWithArgument(self, argname, scope=None):
