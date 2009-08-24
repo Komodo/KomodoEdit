@@ -1854,8 +1854,12 @@ class JavaScriptCiler:
         else:
             jsclass = self.currentClass
         if not jsclass and scopeNames:
-            className = ".".join(scopeNames)
-            jsclass = JSClass(className, self.currentScope, self.lineno, self.depth, doc=doc, path=path)
+            if len(scopeNames) > 1:
+                toScope = self._findOrCreateScope(scopeNames, attrlist=("classes", "functions", "variables", ))
+            else:
+                toScope = self.currentScope
+            className = scopeNames[-1]
+            jsclass = JSClass(className, toScope, self.lineno, self.depth, doc=doc, path=path)
             self.currentScope.classes[jsclass.name] = jsclass
             log.info("CLASS: %r on line %d in %r at depth %d", jsclass.name,
                      jsclass.line, self.currentScope.name, self.depth)
