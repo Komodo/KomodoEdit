@@ -37,9 +37,6 @@
 
 <!-- A 'Test' menu for Komodo development. -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
-
 <overlay id="overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script src="chrome://komodo/content/library/logging.js"    type="application/x-javascript;version=1.7" />
   <script src="chrome://komodo/content/library/trace.js"      type="application/x-javascript;version=1.7" />
