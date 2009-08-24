@@ -702,6 +702,12 @@ end section
         super_indent = KoLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, style_info)
         if super_indent is not None:
             return super_indent
+        if continueComments:
+            inBlockCommentIndent, inLineCommentIndent = self._inCommentIndent(scimoz, scimoz.currentPos, continueComments, style_info)
+            if inLineCommentIndent is not None:
+                return inLineCommentIndent
+            elif inBlockCommentIndent is not None:
+                return inBlockCommentIndent
         
         timeline.enter('_calcIndentLevel')
         try:
