@@ -32,10 +32,23 @@ state IN_CSL_DEFAULT:
 state atLineStart:
 /([^\w\d\s]|[\-_])\1+\r?$/: paint(upto, CSL_DEFAULT), paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
 /[*`|\[]/: redo, paint(upto, CSL_DEFAULT), => AllowInline
-/\.\.\s.*::/:  paint(upto, CSL_DEFAULT), paint(include, CSL_STRING), => IN_CSL_DEFAULT
+/\.\./:  paint(upto, CSL_DEFAULT), => postDotDot01
 /\s*(?=\d)/: => processLeadingNumber
 /[$INLINEWSSTART]+/ : => AllowInline
 /./: paint(include, CSL_DEFAULT), => IN_CSL_DEFAULT
+
+state postDotDot01:
+/\s*\r?$/: paint(include, CSL_DEFAULT), => IN_CSL_DEFAULT # empty comment
+/\s/: => postDotDot02
+/./: redo, => IN_CSL_DEFAULT
+
+state postDotDot02:
+/\[.*?\]/: paint(upto, CSL_DEFAULT), paint(include, CSL_STRING), => IN_CSL_DEFAULT  # citation
+/_.*?:/    paint(upto, CSL_DEFAULT), paint(include, CSL_STRING), => IN_CSL_DEFAULT  # reference
+/.*::/:    paint(upto, CSL_DEFAULT), paint(include, CSL_STRING), => IN_CSL_DEFAULT
+/\|.*?\|.*::/: paint(upto, CSL_DEFAULT), paint(include, CSL_STRING), => IN_CSL_DEFAULT
+# Anything else is a comment
+/.*/: paint(upto, CSL_DEFAULT), paint(include, CSL_COMMENT), => IN_CSL_DEFAULT
 
 state processLeadingNumber:
 /\d+(?:[^\w\d\s]\d+)*/: paint(upto, CSL_DEFAULT), paint(include, CSL_NUMBER), => IN_CSL_DEFAULT
