@@ -1409,6 +1409,8 @@ class KoLanguageBase:
             if inBlockCommentIndent is not None:
                 indentlog.info("we're in a block comment")
                 return inBlockCommentIndent
+            if continueComments and inLineCommentIndent is not None:
+                return inLineCommentIndent
 
             shouldIndent = self._shouldIndent(scimoz, pos, style_info)
             if shouldIndent is not None:
@@ -1726,7 +1728,8 @@ class KoLanguageBase:
             return None, None
         
         # determine if we're in a line-style comment or a block-style comment
-        if style in style_info._block_comment_styles:
+        if style in style_info._block_comment_styles and \
+           'block' in self.commentDelimiterInfo:
             commentType = 'block'
             indentlog.debug("in block comment style")
             commentStartMarkerList = [x[0] for x in self.commentDelimiterInfo[commentType]]
