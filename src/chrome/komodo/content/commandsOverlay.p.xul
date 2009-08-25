@@ -44,10 +44,6 @@
      the context menu for scintilla.  -->
 
 <overlay id="commandsOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-    <script src="chrome://komodo/content/library/logging.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/trace.js"
-            type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/library/commands.js"
             type="application/x-javascript;version=1.7"/>
 <commandset id="allcommands">

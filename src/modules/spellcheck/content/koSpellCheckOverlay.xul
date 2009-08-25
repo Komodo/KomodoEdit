@@ -46,8 +46,6 @@
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     
-    <script src="chrome://komodo/content/library/trace.js"    type="application/x-javascript" />
-    <script src="chrome://komodo/content/library/logging.js"  type="application/x-javascript" />
     <script src="chrome://komodospellchecker/content/koLaunchSpellcheck.js"  type="application/x-javascript" />
 
   <commandset id="cmdset_currentview_is_editor">
