@@ -170,6 +170,7 @@ my @catalog_files = (
     "lib/codeintel2/catalogs/rails.cix",
     "lib/codeintel2/catalogs/jquery.cix",
     "lib/codeintel2/catalogs/ext.cix",
+    "lib/codeintel2/catalogs/xbl.cix",
     #TODO: "lib/codeintel2/catalogs/pecl.cix",
     #TODO: "lib/codeintel2/catalogs/drupal.cix",
 );
