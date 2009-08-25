@@ -41,9 +41,6 @@
 
 <!-- this overlay provides the vi command set for when vi mode is enabled -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
-
 <overlay id="viCommandsOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 <commandset id="allcommands">
