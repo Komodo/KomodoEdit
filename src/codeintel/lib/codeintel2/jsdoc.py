@@ -191,7 +191,7 @@ class JSDoc:
 
     def __init__(self, comment=None, strip_html_tags=False):
         self._reset()
-        self.strip_html_tags = False
+        self.strip_html_tags = strip_html_tags
         if comment:
             # Full comment initially given
             #print "JSDoc comment: %r" % (comment)
