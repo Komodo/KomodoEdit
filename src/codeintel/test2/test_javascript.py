@@ -1644,7 +1644,7 @@ class XPCOMTestCase(CodeIntelTestCase):
              ("function", "exists"),
              ("function", "initWithPath")])
 
-    @tag("bug73872", "knownfailure")
+    @tag("bug73872")
     def test_xpcom_classes_array_cplns(self):
         content, positions = unmark_text(dedent("""\
             var observerCls = Components.classes["<1>@mozilla.org/observer-service;1"];
