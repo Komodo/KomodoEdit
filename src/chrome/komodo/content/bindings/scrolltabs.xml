@@ -884,6 +884,21 @@
                 } catch(e) {/*let the event bubble*/}
             ]]>
             </handler>
+            <handler event="dragend" phase="capturing">
+            <![CDATA[
+                try {
+                    // Drag is over, re-focus on the current view - bug 84215.
+                    // Though if it's to another window - all bets are off.
+                    var sourceNode = nsDragAndDrop.mDragService.getCurrentSession().sourceNode;
+                    if (sourceNode && sourceNode.ownerDocument == document) {
+                        var view = ko.views.manager.currentView;
+                        if (view) {
+                            view.setFocus();
+                        }
+                    }
+                } catch(e) {/*let the event bubble*/}
+            ]]>
+            </handler>
         </handlers>
     </binding>
 
