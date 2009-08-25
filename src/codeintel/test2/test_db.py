@@ -749,7 +749,7 @@ class StdLibTestCase(DBTestCase):
 
         self._check_db()
 
-    @tag("knownfailure", "bug58387")
+    @tag("bug58387")
     def test_php_isset(self):
         # Brought up by Alex Fernandez on komodo-beta list for k4b1.
         stdlib51 = self.mgr.db.get_stdlib("PHP", "5.1")
