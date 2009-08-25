@@ -346,18 +346,15 @@ class XBLTestCase(XMLTestCase):
             name="xml-complete-tags-and-namespaces")
         self.assertPrecedingTriggerMatches("<body><![CDATA[ foo.<|><$> ]]></body>",
             name="javascript-complete-object-members")
-    @tag("knownfailure")
     def test_calltips(self):
         self.assertCalltipIs("<body><![CDATA[function foo(a){}\nfoo(<|>);]]></body>",
                              "foo(a)")
-    @tag("knownfailure")
     def test_cplns(self):
         self.assertCompletionsInclude(XBL_DOCTYPE+"<<|>",
             [("element", "bindings")])
         self.assertCompletionsInclude(
             "<body><![CDATA[\nvar foo='';\nfoo.<|>toLowerCase();\n]]></body>",
             [("function", "toLowerCase")])
-    @tag("knownfailure")
     def test_defns(self):
         self.assertDefnMatches(
             "<body><![CDATA[\nvar foo='';\nfoo.toL<|>owerCase();\n]]></body>",
