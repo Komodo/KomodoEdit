@@ -300,6 +300,7 @@
                       image="chrome://komodo/skin/images/new_open_shortcut.png"
                       oncommand="ko.projects.addNewPart('directoryshortcut', this.parentNode.getAttribute('partviewer'))"
                       />
+            <!-- #if PLATFORM != "darwin" -->
             <menuitem id="folder_context_newMenu"
                       label="&newCustomMenu.label;"
                       class="menuitem-iconic"
@@ -307,6 +308,7 @@
                       image="chrome://komodo/skin/images/new_custom_menu.png"
                       oncommand="ko.projects.addNewPart('menu', this.parentNode.getAttribute('partviewer'))"
                       />
+            <!-- #endif -->
             <menuitem id="folder_context_newToolbar"
                       label="&newCustomToolbar.label;"
                       class="menuitem-iconic"
