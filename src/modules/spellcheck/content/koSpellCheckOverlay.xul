@@ -40,7 +40,6 @@
   <!ENTITY % spellcheckDTD SYSTEM "chrome://komodospellchecker/locale/spellcheck.dtd">
   %spellcheckDTD;
 ]>
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
 <overlay id="komodospellcheckerOverlay"
          xmlns:html="http://www.w3.org/1999/xhtml"

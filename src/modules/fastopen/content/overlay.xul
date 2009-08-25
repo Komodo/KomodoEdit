@@ -5,8 +5,6 @@
   %fastopenDTD;
 ]>
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-
 <overlay id="fastopen-overlay"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
