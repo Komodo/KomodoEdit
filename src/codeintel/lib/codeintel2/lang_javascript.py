@@ -2131,7 +2131,7 @@ class JavaScriptCiler:
 
     def _convertFunctionToClosureVariable(self, jsfunc):
         funcName = jsfunc.name
-        log.debug("Creating variable %r, from function closure %r", funcName, funcName)
+        log.info("Creating variable %r, from function closure %r", funcName, funcName)
         jsvariable = JSVariable(funcName, jsfunc.parent, jsfunc.line,
                                 jsfunc.depth, jsfunc.type, jsfunc.doc, path=self.path)
         if jsfunc.returnTypes:
@@ -2144,8 +2144,9 @@ class JavaScriptCiler:
                 jsro.name = funcName
                 jsvariable = jsro
         parent = jsfunc.parent
-        parent.functions.pop(funcName)
-        parent.variables[funcName] = jsvariable
+        if not jsfunc.isAnonymous():
+            parent.functions.pop(funcName)
+            parent.variables[funcName] = jsvariable
         return jsvariable
 
     def _findOrCreateScope(self, namelist, attrlist=("variables", ),
@@ -3164,6 +3165,10 @@ class JavaScriptCiler:
             self._copyObjectToAnother(applyFrom, scope)
             # We need to remove the applyFrom object, it's life is done
             self._removeObjectFromScope(applyFrom)
+        elif self.lastScope and isinstance(self.lastScope, JSVariable):
+            self._copyObjectToAnother(self.lastScope, scope)
+        elif self.objectArguments and isinstance(self.objectArguments[0][1], JSObject):
+            self._copyObjectToAnother(self.objectArguments[0][1], scope)
 
     def _handleFunctionWithArguments(self):
         styles = self.styles
@@ -3227,6 +3232,7 @@ class JavaScriptCiler:
                 # Similar to the regular function apply (see below)
                 namelist, p = self._getIdentifiersFromPos(styles, text, p+1)
                 if namelist:
+                    log.info("Handling Ext.apply on: %r, line: %d", namelist, self.lineno)
                     self._handleFunctionApply(namelist)
         elif firstStyle == self.JS_OPERATOR:
             if text[:4] == [")", ".", "apply", "("]:
@@ -3330,10 +3336,11 @@ class JavaScriptCiler:
             # When we gather enough info, these will be sent to the
             # _addCodePiece() function which will analyze the info.
 
-            #print "state: %d, text: %r" % (self.state, self.text, )
-            #log.debug("state: %d, line: %d, text: %r", self.state, start_line, self.text)
             # We want to use real line numbers starting from 1 (not 0)
             start_line += 1
+            #print "state: %d, text: %r" % (self.state, self.text, )
+            #log.debug("state: %d, line: %d, self.text: %r, text: %r", self.state, start_line, self.text, text)
+
             if self.state == S_DEFAULT and len(self.styles) > 0 and \
                self.last_lineno < start_line:
                 # We have moved down line(s) and we have data, check if we
@@ -3391,6 +3398,9 @@ class JavaScriptCiler:
                             if self.state != S_IN_ARGS and last_state == S_IN_ARGS:
                                 self._handleFunctionWithArguments()
                             log.debug("Entering state %d, line: %d, col: %d", self.state, start_line, start_column)
+                        elif isinstance(self.lastScope, JSFunction) and self.text[-3:] == ['{', '(', ')']:
+                            # It's a function argument closure.
+                            self.lastScope = self._convertFunctionToClosureVariable(self.lastScope)
                     #elif op == "=":
                     #    if text == op:
                     #        log.debug("Entering S_IN_ASSIGNMENT state, line: %d, col: %d", start_line, start_column)

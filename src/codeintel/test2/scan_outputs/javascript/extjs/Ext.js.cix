@@ -1,0 +1,13 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/extjs/Ext.js">
+    <scope ilk="blob" lang="JavaScript" name="Ext.js" src="scan_inputs/javascript/extjs/Ext.js">
+      <variable citdl="Object" line="1" lineend="3" name="Ext">
+        <variable citdl="String" line="2" name="version" />
+        <variable citdl="isWindows" line="10" name="isWindows" />
+      </variable>
+      <scope attributes="__local__ private" ilk="function" line="5" lineend="12" name="(anonymous)" signature="(anonymous)()">
+        <variable attributes="__local__ private" citdl="check()" line="6" name="isWindows" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>
