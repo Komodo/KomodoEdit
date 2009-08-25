@@ -696,6 +696,7 @@ function _Observer ()
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.addObserver(this, "mru_changed",false);
+    observerSvc.addObserver(this, "primary_languages_changed",false);
     var self = this;
     this.handle_current_view_changed_setup = function(event) {
         self.handle_current_view_changed(event);
@@ -715,6 +716,7 @@ _Observer.prototype.destroy = function()
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.removeObserver(this, "mru_changed");
+    observerSvc.removeObserver(this, "primary_languages_changed");
     
     window.removeEventListener('current_view_changed',
                                this.handle_current_view_changed_setup, false);
@@ -737,6 +739,9 @@ _Observer.prototype.observe = function(subject, topic, data)
         } else if (data == "mruTemplateList") {
             _gNeedToUpdateTemplateMRUMenu = true;
         }
+        break;
+    case 'primary_languages_changed':
+        ko.uilayout.buildViewAsLanguageMenu();
         break;
     }
 }
@@ -1000,6 +1005,13 @@ this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu() {
     hdata.commandset = document.getElementById("cmdset_viewAs");
     hdata.viewAsMenu = document.getElementById("popup_viewAsLanguage");
     hdata.statusbarContextMenu = document.getElementById('statusbar-filetype-menu');
+    // If we're rebuilding a menu, delete any existing nodes.
+    for (var p in hdata) {
+        var node = hdata[p];
+        while (node.firstChild) {
+            node.removeChild(node.firstChild);
+        }
+    }
     hdata.language = null;
     if (ko.views.manager.currentView &&
         ko.views.manager.currentView.document &&

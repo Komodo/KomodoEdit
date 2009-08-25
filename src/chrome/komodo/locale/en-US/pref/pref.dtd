@@ -623,6 +623,12 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 
 <!--pref-languages.xul-->
 <!ENTITY languagesSettings.description "Komodo comes with support for a variety of languages. Core editing features are enabled by default for a large set of languages.  For additional configuration of Core languages, select the language in the tree to the left.">
+<!ENTITY filterPrimaryLanguageNames.tooltip "Filter Language Names">
+<!ENTITY languageNames.label "Language Names:">
+<!ENTITY languageNames.accesskey "L">
+<!ENTITY primaryLanguage.tooltip "Primary Language">
+<!ENTITY primaryLanguages.label "Primary Languages">
+<!ENTITY primaryLanguages.description "Checked languages show up in the main part of all language popup menus. Other languages show up in the 'Other' menu.">
 
 <!--pref-mappeduri.xul-->
 <!ENTITY mappedUri.description "Specify any mapping of a URI to a local path that you would like Komodo to use when opening files, previewing, etc.">

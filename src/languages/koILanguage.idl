@@ -36,6 +36,7 @@
 
 #include "nsISupports.idl"
 #include "nsIEnumerator.idl"
+#include "nsITreeView.idl"
 #include "ISciMoz.idl"
 #include "koIEncoding.idl"
 #include "koIEncodingServices.idl"
@@ -340,4 +341,15 @@ interface koICommenterLanguageService : koILanguageService {
     void uncomment(in ISciMoz scimoz);
 };
 
+// Based on koICodeIntelCatalogsTreeView: a tree with a managed checkbox.
+
+[scriptable, uuid(f49776db-ff6b-452e-93be-352dfd41c206)]
+interface koILanguageStatusTreeView : nsITreeView {
+    void init();
+    void save();
+    readonly attribute wstring sortColId;
+    readonly attribute wstring sortDirection;
+    attribute wstring filter;
+    void toggleStatus(in PRInt32 row_idx);
+};
 

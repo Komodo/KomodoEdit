@@ -826,7 +826,51 @@ koPrefWindow.prototype =
         }
         var openItem = document.getElementById( aComponentName );
         panelTree.selectItem( openItem );
-    }
+    },
+
+    toggleTreeItems: function(treeView, colId) {
+        try {
+            var treeViewSelection = treeView.selection;
+            var numSelections = treeViewSelection.getRangeCount();
+            if (!numSelections) {
+                return false;
+            }
+            var row_indices = [];
+            var startRangeObj = {}, endRangeObj = {};
+            for (var i = 0; i < numSelections; i++) {
+                treeViewSelection.getRangeAt(i, startRangeObj, endRangeObj);
+                for (var j = startRangeObj.value; j <= endRangeObj.value; j++) {
+                    if (j == -1) {
+                        // treeViewSelection.getRangeAt was given invalid input
+                        // Not sure how this could happen, but catch it and continue.
+                        break;
+                    }
+                    row_indices.push(j);
+                }
+            }
+            var cs = {colId:1}; // unused arg some tree view implementations want
+            // Now determine whether we're toggling down or setting all to true.
+            // getCellValue and setCellValue uses strings "true" and "false"
+            // to manage the checked state.
+            var initState = true;
+            var lim = row_indices.length;
+            for (var i = 0; initState && i < lim; i++) {
+                initState = (initState
+                             && (treeView.getCellValue(row_indices[i], cs)
+                                 == "true"));
+            }
+            var targetState = initState ? "false" : "true";
+            for (var i = 0; i < lim; i++) {
+                treeView.setCellValue(row_indices[i], cs, targetState);
+            }
+            return false;
+        } catch(ex) {
+            log.exception(ex);
+        }
+        return true;
+    },
+
+    __END__: null
 };
 
 

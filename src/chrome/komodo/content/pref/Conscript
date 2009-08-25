@@ -58,6 +58,7 @@ $cons->Preprocess('project.p.xul', 'project.xul');
 $cons->InstallInChrome('project.xul');
 
 $cons->InstallInChrome('pref-languages.xul');
+$cons->InstallInChrome('pref-languages.js');
 
 $cons->InstallInChrome('koPrefWidgets.xml');
 $cons->InstallInChrome('editenvironvar.xul');

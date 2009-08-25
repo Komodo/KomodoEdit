@@ -45,9 +45,10 @@ import re
 import logging
 from pprint import pprint, pformat
 
-from xpcom import components, nsError, ServerException, COMException
+from xpcom import components, nsError, ServerException, COMException, _xpcom
 import xpcom.server
 from xpcom.server import WrapObject, UnwrapObject
+from koTreeView import TreeView
 import directoryServiceUtils
 
 import koXMLTreeService
@@ -313,6 +314,17 @@ class KoLanguageRegistryService:
             + [otherContainer])
         return primaryContainer
 
+    def changeLanguageStatus(self, languageName, status):
+        lang = self.getLanguage(languageName)
+        lang.primary = status
+        if status:
+            self._primaryLanguageNames[languageName] = True
+        else:
+            try:
+                del self._primaryLanguageNames[languageName]
+            except KeyError:
+                pass
+
     def getLanguageNames(self):
         languageNames = self.__languageFromLanguageName.keys()
         languageNames.sort()
@@ -332,6 +344,7 @@ class KoLanguageRegistryService:
         is located in, and calls the register function.
         """
         componentDirs = directoryServiceUtils.getComponentsDirectories()
+        self._languageSpecificPrefs = self._globalPrefSvc.prefs.getPref("languages")
         for dirname in componentDirs:
             log.info("looking for languages in [%s]", dirname)
             files = glob.glob(join(dirname, 'ko*Language.py'))
@@ -344,7 +357,7 @@ class KoLanguageRegistryService:
                     if 'registerLanguage' in module:
                         module['registerLanguage'](self)
                 except Exception, e:
-                    log.exception(e)
+                    log.exception(e)            
 
     def registerLanguage(self, language):
         name = language.name
@@ -355,6 +368,14 @@ class KoLanguageRegistryService:
         self.__languageFromLanguageName[name] = language
         language = UnwrapObject(language)
         self.__accessKeyFromLanguageName[name] = language.accessKey
+
+        # Update fields based on user preferences:
+        languageKey = "languages/" + language.name
+        if self._languageSpecificPrefs.hasPref(languageKey):
+            languagePrefs = self._languageSpecificPrefs.getPref(languageKey)
+            if languagePrefs.hasPref("primary"):
+                language.primary = languagePrefs.getBooleanPref("primary")
+
         # So that we can tell that, for example:
         #     -*- mode: javascript -*-
         # means language name "JavaScript".
@@ -691,6 +712,178 @@ class KoLanguageRegistryService:
                                       components.interfaces.nsIObserver)
         self.__prefs.addObserver(self._observer)
 
+
+# Used for the Primary Languages tree widget in 
+# pref-languages.xul/js.
+# Based on KoCodeIntelCatalogsTreeView
+class KoLanguageStatusTreeView(TreeView):
+    _com_interfaces_ = [components.interfaces.koILanguageStatusTreeView,
+                        components.interfaces.nsITreeView]
+    _reg_clsid_ = "{6e0068df-0b51-47ae-9195-8309b52eb78c}"
+    _reg_contractid_ = "@activestate.com/koLanguageStatusTreeView;1"
+    _reg_desc_ = "Komodo Language Status list tree view"
+    _col_id = "languageStatus-status"
+    _prefix = "languageStatus-"
+
+    def __init__(self):
+        TreeView.__init__(self) # for debug logging: , debug="languageStatus")
+        self._rows = []
+        # Atoms for styling the checkboxes.
+        atomSvc = components.classes["@mozilla.org/atom-service;1"].\
+                  getService(components.interfaces.nsIAtomService)
+        self._sortColAtom = atomSvc.getAtom("sort-column")
+        self._filter = self._filter_lc = ""
+        
+    def init(self):
+        self._sortData = (None, None)
+        self._loadAllLanguages()
+        self._reload()
+        self._wasChanged = False
+
+    def _loadAllLanguages(self):
+        self._allRows = []
+        langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"].getService(components.interfaces.koILanguageRegistryService)
+        langNames = langRegistry.getLanguageNames()
+        for langName in langNames:
+            lang = UnwrapObject(langRegistry.getLanguage(langName))
+            if not lang.internal:
+                self._allRows.append({'name':langName,
+                                      'name_lc':langName.lower(),
+                                      'status':lang.primary,
+                                      'origStatus':lang.primary})
+
+    def _reload(self):
+        oldRowCount = len(self._rows)
+        self._rows = []
+        for row in self._allRows:
+            if not self._filter or self._filter_lc in row['name_lc']:
+                self._rows.append(row)
+        if self._sortData == (None, None):
+            self._rows.sort(key=lambda r: (r['name_lc']))
+        else:
+            # Allow for sorting by both name and status
+            sort_key, sort_is_reversed = self._sortData
+            self._do_sort(sort_key, sort_is_reversed)
+
+        if self._tree:
+            self._tree.beginUpdateBatch()
+            newRowCount = len(self._rows)
+            self._tree.rowCountChanged(oldRowCount, newRowCount - oldRowCount)
+            self._tree.invalidate()
+            self._tree.endUpdateBatch()
+
+    def save(self):
+        if not self._wasChanged:
+            return
+        langRegistry = UnwrapObject(components.classes["@activestate.com/koLanguageRegistryService;1"].getService(components.interfaces.koILanguageRegistryService))
+        languageSpecificPrefs = components.classes["@activestate.com/koPrefService;1"].\
+                            getService(components.interfaces.koIPrefService).\
+                            prefs.getPref("languages")
+        for row in self._rows:
+            langName, status, origStatus = row['name'], row['status'], row['origStatus']
+            if status != origStatus:
+                langRegistry.changeLanguageStatus(langName, status)
+                # Update the pref
+                languageKey = "languages/" + langName
+                if languageSpecificPrefs.hasPref(languageKey):
+                    languageSpecificPrefs.getPref(languageKey).setBooleanPref("primary", bool(status))
+                else:
+                    prefSet = components.classes["@activestate.com/koPreferenceSet;1"].\
+                        createInstance(components.interfaces.koIPreferenceSet)
+                    prefSet.setBooleanPref("primary", bool(status))
+                    languageSpecificPrefs.setPref(languageKey, prefSet)
+        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
+                 getService(components.interfaces.nsIObserverService)
+        obsSvcProxy = _xpcom.getProxyForObject(None,
+            components.interfaces.nsIObserverService, obsSvc,
+            _xpcom.PROXY_ALWAYS | _xpcom.PROXY_SYNC)
+        obsSvcProxy.notifyObservers(None, 'primary_languages_changed', '')
+
+    def toggleStatus(self, row_idx):
+        """Toggle selected state for the given row."""
+        self._rows[row_idx]["status"] = not self._rows[row_idx]["status"]
+        self._wasChanged = True
+        if self._tree:
+            self._tree.invalidateRow(row_idx)
+        
+
+    def set_filter(self, filter):
+        self._filter = filter
+        self._filter_lc = self._filter.lower()
+        self._reload()
+
+    def get_filter(self):
+        return self._filter
+
+    def get_sortColId(self):
+        sort_key = self._sortData[0]
+        if sort_key is None:
+            return None
+        else:
+            return "languageStatus-" + sort_key
+        
+    def get_sortDirection(self):
+        return self._sortData[1] and "descending" or "ascending"
+        
+    def get_rowCount(self):
+        return len(self._rows)
+
+    def getCellValue(self, row_idx, col):
+        assert col.id == self._col_id
+        return self._rows[row_idx]["status"] and "true" or "false"
+    
+
+    def setCellValue(self, row_idx, col, value):
+        assert col.id == self._col_id
+        self._wasChanged = True
+        self._rows[row_idx]["status"] = (value == "true" and True or False)
+        if self._tree:
+            self._tree.invalidateRow(row_idx)
+
+    def getCellText(self, row_idx, col):
+        if col.id == self._col_id:
+            return ""
+        else:
+            try:
+                key = col.id[len("languageStatus-"):]
+                return self._rows[row_idx][key]
+            except KeyError, ex:
+                raise ValueError("getCellText: unexpected col.id: %r" % col.id)
+
+    def isEditable(self, row_idx, col):
+        if col.id == self._col_id:
+            return True
+        else:
+            return False
+
+    def getColumnProperties(self, col, properties):
+        if col.id[len("languageStatus-"):] == self._sortData[0]:
+            properties.AppendElement(self._sortColAtom)
+
+    def isSorted(self):
+        return self._sortData != (None, None)
+
+    def cycleHeader(self, col):
+        sort_key = col.id[len("languageStatus-"):]
+        old_sort_key, old_sort_is_reversed = self._sortData
+        if sort_key == old_sort_key:
+            sort_is_reversed = not old_sort_is_reversed
+            self._rows.reverse()
+        else:
+            sort_is_reversed = False
+            self._do_sort(sort_key, sort_is_reversed)
+        self._sortData = (sort_key, sort_is_reversed)
+        if self._tree:
+            self._tree.invalidate()
+
+    def _do_sort(self, sort_key, sort_is_reversed):
+        if sort_key == 'status':
+            self._rows.sort(key=lambda r: (not r['status'],
+                                           r['name_lc']),
+                            reverse=sort_is_reversed)
+        else:
+            self._rows.sort(key=lambda r: r['name_lc'],
+                            reverse=sort_is_reversed)
 
 
 
