@@ -48,8 +48,6 @@ import process
 
 import logging
 log = logging.getLogger("KoHTMLLinter")
-plog = logging.getLogger("KoHTMLLinter.p")
-plog.setLevel(logging.DEBUG)
 
 #---- component implementation
 
