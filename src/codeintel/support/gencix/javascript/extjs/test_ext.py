@@ -229,5 +229,12 @@ class Ext_v22_TestCase(Ext_v20_TestCase):
         self.assert_has_scope("Ext.air.Sound")
         self.assert_has_scope("Ext.air.SystemMenu")
 
+class Ext_v30_TestCase(Ext_v20_TestCase):
+    version = "3.0"
+    version_major_minor = version
+    version_undotted = version.replace(".", "")
+    cix_tree = get_tree_from_cix(version_major_minor)
+
+
 if __name__ == "__main__":
     unittest.main()

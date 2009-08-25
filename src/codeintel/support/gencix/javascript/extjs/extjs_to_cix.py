@@ -50,9 +50,6 @@
 
     Website download from:
       * http://extjs.com/download
-
-    Tested with ext versions:
-      * Version 1.1.0     (2007-09-05)
 """
 
 import os
@@ -69,6 +66,11 @@ from codeintel2.tree import tree_2_0_from_tree_0_1
 from codeintel2.gencix_utils import *
 
 ext_data = {
+    "3.0": {
+        "download_url": "http://extjs.cachefly.net/ext-3.0.0.zip",
+        "zip_file_prefix": { "source": ["source", "air/src"],
+                             "all": "" },
+    },
     "2.2": {
         "download_url": "http://extjs.com/deploy/ext-2.2.zip",
         "zip_file_prefix": { "source": ["ext-2.2/source", "ext-2.2/air/src"],
@@ -96,14 +98,13 @@ ext_data = {
 }
 
 library_name = "Ext"
-#library_version = "1.1.1"
-library_version = "2.2"
+library_version = "3.0"
 library_version_major_minor = ".".join(library_version.split(".")[0:2])
 library_info = ext_data[library_version]
 
 def getFilesFromWebpage():
     # Gets the zip file from the website and unpacks the necessary contents
-    zippath = "tmp_js.zip"
+    zippath = "%s_%s.zip" % (library_name, library_version)
     if not os.path.exists(zippath):
         urlOpener = urllib.urlopen(library_info["download_url"])
         f = file(zippath, "wb")
@@ -134,20 +135,14 @@ def getFilesFromWebpage():
                             files[build_type][zfile.filename] = (dirpath, filename, data)
                         break
     finally:
-        #print "Leaving zip file: %s" % (zippath)
-        os.remove(zippath)
+        print "Leaving zip file: %s" % (zippath)
+        #os.remove(zippath)
     return files
 
-def updateCix(filename, content, updatePerforce=False):
-    if updatePerforce:
-        print os.popen("p4 edit %s" % (filename)).read()
-    file(filename, "w").write(content)
-    if updatePerforce:
-        diff = os.popen("p4 diff %s" % (filename)).read()
-        if len(diff.splitlines()) <= 1 and diff.find("not opened on this client") < 0:
-            print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
+def updateCix(filename, content):
+    file(filename, "wb").write(content.encode("utf-8"))
 
-def main(cix_filename, updatePerforce=False):
+def main(cix_filename):
     cix = createCixRoot(name="%s_%s" % (library_name,
                                         library_version.replace(".", "")),
                         description="%s JavaScript framework - version %s" % (
@@ -157,9 +152,10 @@ def main(cix_filename, updatePerforce=False):
     for path, (dirname, filename, content) in files["source"].items():
         dir_split = dirname.split("/")
         if ("source" in dir_split and not filename.startswith("ext-lang-")) or \
-           "src" in dir_split:
+           ("src" in dir_split and not "adapter" in dir_split):
             print "filename: %r" % (filename)
-            jscile.scan_puretext(content, updateAllScopeNames=False)
+            jscile.path = filename
+            jscile.scan_puretext(content.decode("utf-8"), updateAllScopeNames=False)
 
     jscile.cile.updateAllScopeNames()
     jscile.cile.name = "%s_%s" % (library_name.lower(),
@@ -167,7 +163,7 @@ def main(cix_filename, updatePerforce=False):
     # Convert the Javascript to CIX, content goes into cix element
     jscile.convertToElementTreeFile(cix, "JavaScript")
     # Write out the tree
-    updateCix(cix_filename, get_cix_string(cix), updatePerforce)
+    updateCix(cix_filename, get_cix_string(cix))
 
 # When run from command line
 if __name__ == '__main__':
@@ -175,12 +171,12 @@ if __name__ == '__main__':
     logging.basicConfig()
 
     parser = OptionParser()
-    parser.add_option("-u", "--update", dest="update_perforce",
-                      action="store_true", help="edit perforce cix for this file")
+    parser.add_option("-u", "--update", dest="update_inline",
+                      action="store_true", help="edit the real scc cix file")
     (opts, args) = parser.parse_args()
 
     cix_filename = "%s_%s.cix" % (library_name.lower(), library_version_major_minor)
-    if opts.update_perforce:
+    if opts.update_inline:
         scriptpath = os.path.dirname(sys.argv[0])
         if not scriptpath:
             scriptpath = "."
@@ -191,4 +187,4 @@ if __name__ == '__main__':
         for i in range(4):
             cix_directory = os.path.dirname(cix_directory)
         cix_filename = os.path.join(cix_directory, "lib", "codeintel2", "catalogs", cix_filename)
-    main(cix_filename, opts.update_perforce)
+    main(cix_filename)
