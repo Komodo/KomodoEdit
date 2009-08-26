@@ -43,7 +43,6 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
 
 <!--For the rightarrow-button-->
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>

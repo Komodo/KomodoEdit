@@ -40,6 +40,7 @@
      to properly use scintilla in a dialog or secondary window. It also handles fixing
      the context menu for scintilla.  -->
 
+<?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
 <?xul-overlay href="chrome://komodo/content/commandsOverlay.xul"?>
 
 <overlay id="scintillaOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
