@@ -21,6 +21,7 @@ except ImportError:
     import testlib
     del sys.path[0]
 
+import uriparse
 
 
 #---- test cases
@@ -537,7 +538,7 @@ class HistoryTestCase(_HistoryTestCase):
                 for i in range(100)]
         #self.history.debug_dump_recent_history()
         #self.history.debug_dump_recent_uris()
-        recent_uris = list(self.history.recent_uris(10))
+        recent_uris = list(self.history.recent_uris(10, show_all=True))
         self.assertEqual(recent_uris[0], locs[-1].uri)
         self.assertEqual(set(uris), set(recent_uris))
 
@@ -548,7 +549,7 @@ class HistoryTestCase(_HistoryTestCase):
                 for i in range(150)]
         #self.history.debug_dump_recent_history()
         #self.history.debug_dump_recent_uris()
-        recent_uris = list(self.history.recent_uris(120))
+        recent_uris = list(self.history.recent_uris(120, show_all=True), )
         self.assertEqual(len(recent_uris), 120)
 
     @testlib.tag("bug82342")
@@ -1053,6 +1054,59 @@ class ObsoleteURITestCase(_HistoryTestCase):
         for i in range((vlen - 1)/2):
             self.assertEqual(v[1 + (2 * i)][1], locs[49 - 0 - (3 * i)])
             self.assertEqual(v[2 + (2 * i)][1], locs[49 - 1 - (3 * i)])
+
+class PurgedURITestCase(_HistoryTestCase):
+
+    def _populate_history(self, last_dir):
+        this_dir = os.path.abspath(dirname(__file__))
+        data_dir = join(this_dir, "tmp", last_dir)
+        if not exists(data_dir):
+            os.mkdir(data_dir)
+        fnames = []
+        uris = []
+        for i in range(1, 6):
+            fname = join(data_dir, "f%d.txt" % (i,))
+            f = open(fname, "w")
+            f.write("# Data\n");
+            f.close()
+            fnames.append(fname)
+            uris.append(uriparse.localPathToURI(fname))
+        line_num = 10
+        limit = 10
+        for i in range(limit):
+            uri = uris[i % len(uris)]
+            self.history.note_loc(Location(uri, line_num, 0))
+            line_num += 10
+        current_loc = Location(uris[0], line_num, 0)  # idx 10, line 110
+        return fnames, uris, current_loc
+        
+    @testlib.tag("bug84060")
+    def test_dont_show_deleted_files(self):
+        last_dir = "bug84060a"
+        fnames, uris, current_loc = self._populate_history(last_dir)
+        recent_uris = list(self.history.recent_uris())
+        self.assertEqual(len(recent_uris), 5,
+                         "Expecting 5 URIs, got %d" % (len(recent_uris),))
+        # Delete u2 and u4, purge the DB
+        for i in (1, 3):
+            os.unlink(fnames[i])
+        recent_uris = list(self.history.recent_uris())
+        exp = len(uris) - 2
+        self.assertEqual(len(recent_uris), exp,
+                         "Expecting %d URIs, got %d" % (exp, len(recent_uris),))        
+        open(fnames[3], "w").write("Something\n")
+        
+        recent_uris = list(self.history.recent_uris())
+        exp = len(uris) - 1
+        actual = len(recent_uris)
+        self.assertEqual(exp, actual,
+                         "Expecting %d URIs, got %s" % (exp, actual))
+
+        recent_uris = list(self.history.recent_uris(show_all=True))
+        exp = len(uris)
+        actual = len(recent_uris)
+        self.assertEqual(exp, actual,
+                         "Expecting %d URIs, got %s" % (exp, actual))
 
 #---- mainline
 

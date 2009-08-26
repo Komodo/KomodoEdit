@@ -22,6 +22,8 @@ from itertools import islice
 from pprint import pprint, pformat
 import time
 
+import uriparse
+
 try:
     from xpcom import components
     from xpcom.server import UnwrapObject
@@ -769,7 +771,7 @@ class HistorySession(object):
                 return
             self.db.obsolete_uri(uri, uri_id, cu=cu)
             self.reload_recent_history_cache(cu, uri, undo_delta, orig_dir_was_back)
-            
+
     def reload_recent_history_cache(self, cu, obsoleted_uri=None, undo_delta=0,
             orig_dir_was_back=True):
         """Reload the cache of recent history items (`self.forward_visits`,
@@ -898,7 +900,7 @@ class HistorySession(object):
         if n > len(self.recent_back_visits):
             raise HistoryError(
                 "cannot go back %d step%s: not enough back history (%d)"
-                % (n, ("" if len(n)==1 else "s"), len(self.recent_back_visits)))
+                % (n, ("" if n == 1 else "s"), len(self.recent_back_visits)))
         
         # Go back.
         if curr_loc is not None:
@@ -1037,7 +1039,7 @@ class HistorySession(object):
             print "self._last_visit: %r" % self._last_visit
         print "--"
 
-    def recent_uris(self, n=100):
+    def recent_uris(self, n=100, show_all=False):
         """Generate the most recent N uris.
         
         @param n {int} The number of URIs to look back for. Default 100.
@@ -1050,11 +1052,14 @@ class HistorySession(object):
             while True:
                 num_remaining = n - len(uri_id_set)
                 new_uri_ids = []
-                cu.execute("SELECT uri_id"
-                           " FROM history_visit"
-                           " WHERE session_name=?"
-                           " ORDER BY timestamp DESC LIMIT ? OFFSET ?",
-                           (self.session_name, PAGE_SIZE, offset))
+                sql = "SELECT uri_id  FROM history_visit WHERE session_name=?"
+                vals = [self.session_name]
+                if not show_all:
+                    sql += " and is_obsolete=?"
+                    vals.append(False)
+                sql += " ORDER BY timestamp DESC LIMIT ? OFFSET ?"
+                vals += (PAGE_SIZE, offset)
+                cu.execute(sql, tuple(vals))
                 rows = cu.fetchall()
                 for row in rows:
                     uri_id = row[0]
@@ -1064,7 +1069,14 @@ class HistorySession(object):
                     new_uri_ids.append(uri_id)
                 #TODO:PERF: Bulk get of URI. Need Database.uris_from_uri_ids.
                 for uri_id in new_uri_ids[:num_remaining]:
-                    yield self.db.uri_from_id(uri_id, cu=cu)
+                    uri = self.db.uri_from_id(uri_id, cu=cu)
+                    if not show_all:
+                        # Filter out any that don't exist
+                        if uri.startswith("file:/"):
+                            fname = uriparse.URIToLocalPath(uri)
+                            if not exists(fname):
+                                continue
+                    yield uri
                 if len(uri_id_set) > n or len(rows) < PAGE_SIZE:
                     break
                 offset += PAGE_SIZE
@@ -1075,7 +1087,7 @@ class HistorySession(object):
         @param n {int} The number of URIs to look back for. Default 100.
         """
         print "-- recent URIs (session %s)" % self.session_name
-        for uri in self.recent_uris(n):
+        for uri in self.recent_uris(n, True):
             print uri
 
 
@@ -1230,15 +1242,15 @@ class History(object):
             session.update_marker_handles_on_close(uri, scimoz)
 
     def debug_dump_recent_uris(self, session_name=""):
-        self.sessions[session_name].debug_dump_recent_uris()
+        self.sessions[session_name].debug_dump_recent_uris(True)
 
-    def recent_uris(self, n=100, session_name=""):
+    def recent_uris(self, n=100, session_name="", show_all=False):
         """Generate the most recent N uris.
         
         @param n {int} The number of URIs to look back for. Default 100.
         @param session_name {str} Current history session name. Optional.
         """
-        return self.get_session(session_name).recent_uris(n)
+        return self.get_session(session_name).recent_uris(n, show_all)
     
     def debug_dump_recent_history(self, curr_loc=None, merge_curr_loc=True,
                                   session_name=""):
