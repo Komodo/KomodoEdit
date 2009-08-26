@@ -556,19 +556,10 @@ class KoCommenterLanguageService:
                     commentRe = re.compile("^(\s*)(%s)(.*)()()$" % re.escape(prefix))
                 commentMatch = commentRe.search(line[0])
                 if commentMatch:
-                    if not (commentMatch.group(3) + commentMatch.group(5)):
-                        # If there is no line content after the comment
-                        # delimiters then just replace the whole line with
-                        # an empty line, i.e. strip out the indent as well.
-                        # This allows a comment/uncomment cycle on a blank
-                        # line (when part of a group of lines) to not change
-                        # the line.
-                        replacementLines.append(line[1])
-                    else:
-                        replacementLines.append(commentMatch.group(1) +
-                                                commentMatch.group(3) +
-                                                commentMatch.group(5) +
-                                                line[1])
+                    replacementLines.append(commentMatch.group(1) +
+                                            commentMatch.group(3) +
+                                            commentMatch.group(5) +
+                                            line[1])
                     lastIndent = commentMatch.group(1)
                     lastPrefix = commentMatch.group(2)
                     if firstLine:
