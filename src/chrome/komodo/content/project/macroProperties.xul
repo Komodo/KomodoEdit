@@ -72,38 +72,22 @@
         ondialoghelp="ko.help.open('macro_options');"
         ondialogcancel="return Cancel()">
 
-    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
-    <!--nsDragAndDrop/nsTransferable used for Drag and Drop-->
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/library/logging.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/library/trace.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://global/content/nsDragAndDrop.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/library/color_functions.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/library/controller.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/library/commands.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/library/uriparse.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/library/dialogs.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/library/filepickers.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/library/windowManager.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/project/macroProperties.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/launch.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/markers.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/library/open.js"/>
-    <script type="application/x-javascript;version=1.7"
-            src="chrome://komodo/content/library/timers.js"/>
+    <script src="chrome://xtk/content/xtk.js"                         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/trace.js"            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/nsDragAndDrop.js"            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/color_functions.js"  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/controller.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/commands.js"         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js"         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js"      type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js"    type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/macroProperties.js"  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/launch.js"                   type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/markers.js"                  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/open.js"             type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/timers.js"           type="application/x-javascript;version=1.7"/>
 
     <hbox id="scintillaOverlayXul"/>
     <tabbox id="macroProperties" orient="vertical" flex="1">
