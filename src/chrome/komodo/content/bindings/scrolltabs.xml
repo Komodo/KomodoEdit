@@ -48,9 +48,6 @@
 
     <binding id="file-status-tab" display="xul:hbox"
             extends="chrome://global/content/bindings/tabbox.xml#tab">
-        <resources>
-            <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
-        </resources>
         <content>
             <xul:hbox class="tab-image-left" xbl:inherits="selected"/>
             <xul:hbox flex="1" class="tab-image-middle" xbl:inherits="selected" align="center">
@@ -239,10 +236,6 @@
 
     <binding id="tabs-scrollable" xbl:inherits="orient"
             extends="chrome://global/content/bindings/tabbox.xml#tabs">
-        <resources>
-            <stylesheet src="chrome://komodo/skin/bindings/buttons.css"/>
-            <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
-        </resources>
         <content>
             <xul:box xbl:inherits="orient,align,pack,dir,overflow" flex="1" class="tabstrip-box" orient="horizontal">
                 <xul:arrowscrollbox anonid="tabstrip" xbl:inherits="orient,align,pack,dir"

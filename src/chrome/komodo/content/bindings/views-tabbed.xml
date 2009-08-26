@@ -47,9 +47,6 @@
     is 2 nodes deep into tabs anonymous content-->
 <binding id="view-tabbed-list"
     extends="chrome://komodo/content/bindings/views.xml#view-base">
-    <resources>
-        <stylesheet src="chrome://komodo/skin/bindings/scrolltabs.css"/>
-    </resources>
     <content>
         <xul:tabbox type="draggable" class="native"
             orient="vertical" flex="1" id='tabbed-view'
