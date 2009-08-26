@@ -89,9 +89,6 @@
 
 <binding id="view-buffer-base"
     extends="chrome://komodo/content/bindings/views.xml#view-base">
-    <resources>
-        <stylesheet src="chrome://komodo/skin/bindings/scintilla.css"/>
-    </resources>
     <implementation name="viewbufferbase" implements="koIScintillaView, ISciMozEvents, nsIObserver">
         <property name="scintilla" onget="return document.getAnonymousNodes(this)[0];"/>
 
