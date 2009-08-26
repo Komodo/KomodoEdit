@@ -562,6 +562,7 @@ class Scheme:
             scimoz.styleSetFont(scimoz.STYLE_DEFAULT, font)
         scimoz.styleClearAll() # now all styles are the same
         defaultUseFixed = useFixed
+        usingSubLanguageBackgroundColors = False
         if language in ValidStyles:
             for (scimoz_no, scimoz_name, common_name) in ValidStyles[language]:
                 # first deal with which default style should be used.
@@ -638,13 +639,17 @@ class Scheme:
 
                 if UDLBackgroundColor is not None:
                     scimoz.styleSetBack(scimoz_no, UDLBackgroundColor)
+                    usingSubLanguageBackgroundColors = True
 
         # Now do the other colors, such as cursor color
         scimoz.caretFore = self._colors['caretFore']
         scimoz.setSelBack(1, self._colors['selBack'])
         scimoz.setSelFore(self._booleans['useSelFore'], self._colors['selFore'])
-        scimoz.caretLineBack = self._colors['caretLineBack']
-        scimoz.caretLineVisible = self._booleans['caretLineVisible']
+        if usingSubLanguageBackgroundColors:
+            scimoz.caretLineVisible = False
+        else:
+            scimoz.caretLineBack = self._colors['caretLineBack']
+            scimoz.caretLineVisible = self._booleans['caretLineVisible']
         scimoz.setHotspotActiveUnderline(0)
         scimoz.edgeColour = self._colors['edgeColor']
         scimoz.markerSetFore(MARKNUM_BOOKMARK,
