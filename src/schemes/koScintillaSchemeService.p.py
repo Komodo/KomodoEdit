@@ -217,14 +217,17 @@ class Scheme:
 
     def set_useSelFore(self, useSelFore):
         self._booleans['useSelFore'] = useSelFore
+        self.isDirty = 1
     def get_useSelFore(self):
         return self._booleans['useSelFore']
     def set_preferFixed(self, preferFixed):
         self._booleans['preferFixed'] = preferFixed
+        self.isDirty = 1
     def get_preferFixed(self):
         return self._booleans['preferFixed']
     def set_caretLineVisible(self, caretLineVisible):
         self._booleans['caretLineVisible'] = caretLineVisible
+        self.isDirty = 1
     def get_caretLineVisible(self):
         return self._booleans['caretLineVisible']
 
@@ -345,6 +348,7 @@ class Scheme:
         if not language:
             return
         self._miscLanguageSettings.setdefault(language, {})['globalSubLanguageBackgroundEnabled'] = val
+        self.isDirty = 1
 
     def getGlobalSubLanguageBackgroundEnabled(self, language):
         try:
