@@ -643,6 +643,16 @@ class HistorySession(object):
                 loc = self.db.visit_from_id(id, session_name=self.session_name, cu=cu)
             except HistoryNoLatestVisitError, ex:
                 break
+            except HistoryError, ex:
+                # This loc was most likely deleted via expiry, so all earlier
+                # locs were deleted too.  We can break here.
+                # No need to worry about overflow -- the largest
+                # sqlite3 integer value is 9,223,372,036,854,775,807
+                # At one history event/second, that's good for
+                # about 2.9E14 years of uninterrupted Komodo editing.
+                SENTINEL -= 1
+                i += 1
+                break
             if not loc.is_obsolete:
                 SENTINEL = 1000  # reset
                 if last_good_loc:
@@ -661,9 +671,9 @@ class HistorySession(object):
                 SENTINEL -= 1
             id = loc.referer_id
             if id is None or SENTINEL <= 0:
-                if last_good_loc:
-                    last_good_loc.referer_id = None
                 break
+        if last_good_loc:
+            last_good_loc.referer_id = None
 
     def _replenish_recent_back_visits(self):
         """Replenish `self.recent_back_visits` back up to its full
@@ -1098,8 +1108,8 @@ class History(object):
     instances. All the relevant methods here take an optional `session_name`
     argument (the default is the empty string).
     """
-    # Number of days after which to expire 'visit' entries (default: 365).
-    DEFAULT_LOC_EXPIRY_DAYS = 365
+    # Number of days after which to expire 'visit' entries (default: 60).
+    DEFAULT_LOC_EXPIRY_DAYS = 60
 
     closed = False
 
@@ -1174,6 +1184,7 @@ class History(object):
         return time.time() > self._loc_expiry_time
         
     def expire_locs(self, loc_expiry_days=None):
+        #start_time = time.time()
         with self.db.connect(True) as cu:
             last_loc_expiry_time = float(self.db.get_meta(
                 "last_loc_expiry_time", default=-1, cu=cu))
@@ -1191,12 +1202,40 @@ class History(object):
                     loc_expiry_days = self.loc_expiry_days
                 cutoff_time = curr_julian_time - loc_expiry_days
     
+                #cu.execute("select count(*) from history_visit")
+                #before_count = int(cu.fetchone()[0])
                 cu.execute("DELETE FROM history_visit WHERE timestamp < ?", (cutoff_time,))
+                #cu.execute("select count(*) from history_visit")
+                #after_count = int(cu.fetchone()[0])
+                #log.debug("Before count:%d, after count: %d, deleted:%d",
+                #           before_count, after_count,
+                #           before_count - after_count)
+                
                 self.db.set_meta("last_loc_expiry_time", curr_julian_time,
                                  cu=cu)
-                for session in self.sessions.values():
-                    session.reload_recent_history_cache(cu)
+                cu.execute("SELECT id FROM history_uri WHERE is_obsolete = ?",
+                           (True,))
+                rows = cu.fetchall()
+
+                # There might be a way to do this in one sql call, rather than n
+                # select count(*), uri_id from h_v where uri_id = x1 or uri_id = x2 ... ?
+                stmt_template = "SELECT COUNT(*) FROM history_visit WHERE uri_id = ?"
+                unused_uri_ids = []
+                for row in rows:
+                    uri_id = row[0]
+                    cu.execute(stmt_template, (uri_id,))
+                    inner_count = int(cu.fetchone()[0])
+                    if inner_count == 0:
+                        unused_uri_ids.append(uri_id)
+                if unused_uri_ids:
+                    stmt = ("DELETE FROM history_uri WHERE "
+                            +  " OR ".join(["id = " + str(x)
+                                            for x in unused_uri_ids]))
+                    cu.execute(stmt)
+                cu.execute("vacuum")
             self._schedule_loc_expiry(60 * 60 * 24) # 24 hours from now
+        #end_time = time.time()
+        #log.debug("Time to clean up: %r", end_time - start_time)
 
     def can_go_back(self, session_name=""):
         return self.get_session(session_name).can_go_back()
