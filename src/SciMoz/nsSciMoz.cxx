@@ -349,8 +349,11 @@ NS_IMETHODIMP SciMoz::DoBraceMatch()
 void SciMoz::Notify(long lParam) {
 	SCNotification *notification = reinterpret_cast<SCNotification *>(lParam);
 	if (isClosed) {
-	    fprintf(stderr,"SciMoz::Notify %d used when closed!\n", notification->nmhdr.code);
-	    return;
+		if (notification->nmhdr.code != SCN_PAINTED) {
+			fprintf(stderr,"SciMoz::Notify %d used when closed!\n",
+				notification->nmhdr.code);
+		}
+		return;
 	}
 #ifdef SCIMOZ_DEBUG
 	if (notification->nmhdr.code != SCN_PAINTED)
