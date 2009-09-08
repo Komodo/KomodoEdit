@@ -1,3 +1,5 @@
+Start/stop the Scintilla tick timer on focus/blur events, bug 84508.
+
 Index: macosx/ScintillaMacOSX.cxx
 ===================================================================
 --- macosx/ScintillaMacOSX.cxx	(revision 33669)
