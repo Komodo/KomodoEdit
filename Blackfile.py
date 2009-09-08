@@ -2036,11 +2036,14 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("chrome", "komododoc.manifest"),
         mozbinpath("components", "ko*.py"),
         mozbinpath("components", "ko*.pyo"),
+        mozbinpath("components", "ko*.js"),
         mozbinpath("components", "ko*.xpt"),
         mozbinpath("components", "ISciMoz*"),
         mozbinpath("components", "as*.xpt*"),
         mozbinpath("components", "as*.js"),
+        mozbinpath("components", "libko*"),
         mozbinpath("extensions"),
+        mozbinpath("updater.ini"),
 
         mozbinpath("plugins", "SciMoz.plugin"), # its name on OS X
         #TODO:
