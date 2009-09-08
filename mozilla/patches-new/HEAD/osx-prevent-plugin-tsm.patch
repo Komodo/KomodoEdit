@@ -59,3 +59,17 @@ diff -u -r1.362 nsChildView.mm
    }
 
    // With Cmd key or Ctrl+Tab or Ctrl+Esc, keyDown will be never called.
+@@ -5475,9 +5488,13 @@
+   // happen if we return NO here. This only applies to Mac OS X 10.5 and higher,
+   // previous OS versions just call "keyDown:" and not "performKeyEquivalent:"
+   // for such events.
++  // ACTIVESTATE: This is causing Komodo's Ctrl+ and Alt+ menu commands to fail,
++  //              so removing this code. See Komodo bug 78266.
++  /*
+   if (!keyDownNeverFiredEvent &&
+       (modifierFlags & (NSControlKeyMask | NSAlternateKeyMask)))
+     return handledByEmbedding;
++ */
+ 
+   if ([theEvent type] == NSKeyDown) {
+     // We trust the Gecko handled status for cmd key events. See bug 417466 for more info.
