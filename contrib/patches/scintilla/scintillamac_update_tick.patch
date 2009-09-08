@@ -1,0 +1,26 @@
+Index: macosx/ScintillaMacOSX.cxx
+===================================================================
+--- macosx/ScintillaMacOSX.cxx	(revision 33669)
++++ macosx/ScintillaMacOSX.cxx	(working copy)
+@@ -1270,20 +1270,21 @@
+ }
+ 
+ void ScintillaMacOSX::NotifyFocus(bool focus) {
+ #ifdef EXT_INPUT
+     ExtInput::activate (GetViewRef(), focus);
+ #endif
+     if (NULL != notifyProc)
+         notifyProc (notifyObj, WM_COMMAND, 
+                 (uintptr_t) ((focus ? SCEN_SETFOCUS : SCEN_KILLFOCUS) << 16),
+                 (uintptr_t) GetViewRef());
++    SetTicking(focus);
+ }
+ 
+ void ScintillaMacOSX::NotifyChange() {
+     if (NULL != notifyProc)
+         notifyProc (notifyObj, WM_COMMAND, 
+                 (uintptr_t) (SCEN_CHANGE << 16),
+                 (uintptr_t) GetViewRef());
+ }
+ 
+ void ScintillaMacOSX::registerNotifyCallback(intptr_t windowid, SciNotifyFunc callback) {
