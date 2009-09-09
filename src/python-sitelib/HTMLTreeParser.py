@@ -216,7 +216,10 @@ class HTMLTreeBuilder(ElementTree.TreeBuilder):
             l_tag = l_tag.lower()
         if l_lasttag:
             l_lasttag = lasttag.lower()
-        while l_tag != l_lasttag and l_lasttag in html_optional_close_tags:
+        while (l_tag != l_lasttag
+               and l_lasttag in html_optional_close_tags
+               and len(self._elem) > 1
+               and self._last.start[2] < self._elem[-1].start[2]):
             self.end_tag(lasttag)
             if self._elem:
                 lasttag = self._elem[-1].tag
