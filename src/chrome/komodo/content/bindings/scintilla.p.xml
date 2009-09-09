@@ -1220,13 +1220,6 @@
                     case event.DOM_VK_ENTER:
                     case event.DOM_VK_RETURN:
                         this.columnModeStartLine = -1;
-                        if (this.scimoz.autoCActive()) {
-                            this.scimoz.autoCComplete();
-                            event.stopPropagation();
-                            event.preventDefault();
-                            event.cancelBubble = true;
-                            return;
-                        }
                         break;
                     case event.DOM_VK_TAB:
                         if (this.columnModeStartLine >= 0 || this.scimoz.selectionIsRectangle) {

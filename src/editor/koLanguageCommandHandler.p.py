@@ -718,8 +718,35 @@ class GenericCommandHandler:
     def _do_cmd_newlineSame(self):
         self._do_cmd_newline('plain', 0)
 
+    def _finish_autocomplete(self, view, sm):
+        assert sm.autoCActive()
+        shouldAdjust = 0
+        # if we're closing a </ tag, then adjust it.
+        # Closing a </ tag is defined as "in XML, going backwards,
+        # we hit a < before a whitespace character, and
+        # there is a / to the right of that <.
+        if view.languageObj.supportsSmartIndent == 'XML':
+            lineno = sm.lineFromPosition(sm.currentPos)
+            startofLinePos = sm.positionFromLine(lineno)
+            line = sm.getTextRange(startofLinePos, sm.currentPos)
+            lastWS = max(line.rfind(' '), line.rfind('\t'))
+            lastBracket = line.rfind('<')
+            if lastWS < lastBracket and \
+                    lastBracket+1 < len(line) and \
+                    line[lastBracket+1] == '/':
+                shouldAdjust = 1
+        sm.autoCComplete()
+        if shouldAdjust:
+            scimozindent.adjustClosingXMLTag(sm, view.languageObj.isHTMLLanguage)
+        sm.scrollCaret()
+        return
+
     def _do_cmd_newline(self, indentStyle=None, continueComments=0):
         view = self._view
+        sm = view.scimoz
+        # Do tab autocompletion, if it's in progress.
+        if sm.autoCActive():
+            return self._finish_autocomplete(view, sm)
         if indentStyle is None:
             indentStyle = view.prefs.getStringPref('editAutoIndentStyle')
             # allowExtraNewline deals with the default of adding an extra
@@ -727,7 +754,6 @@ class GenericCommandHandler:
             allowExtraNewline = True
         else:
             allowExtraNewline = indentStyle != "plain"
-        sm = view.scimoz
         sm.beginUndoAction()
         try:
             if indentStyle == 'none':
@@ -1639,26 +1665,7 @@ class GenericCommandHandler:
 
         # Do tab autocompletion, assuming it's in progress.
         if sm.autoCActive():
-            shouldAdjust = 0
-            # if we're closing a </ tag, then adjust it.
-            # Closing a </ tag is defined as "in XML, going backwards,
-            # we hit a < before a whitespace character, and
-            # there is a / to the right of that <.
-            if view.languageObj.supportsSmartIndent == 'XML':
-                lineno = sm.lineFromPosition(sm.currentPos)
-                startofLinePos = sm.positionFromLine(lineno)
-                line = sm.getTextRange(startofLinePos, sm.currentPos)
-                lastWS = max(line.rfind(' '), line.rfind('\t'))
-                lastBracket = line.rfind('<')
-                if lastWS < lastBracket and \
-                   lastBracket+1 < len(line) and \
-                    line[lastBracket+1] == '/':
-                    shouldAdjust = 1
-            sm.autoCComplete()
-            if shouldAdjust:
-                scimozindent.adjustClosingXMLTag(sm, view.languageObj.isHTMLLanguage)
-            sm.scrollCaret()
-            return
+            return self._finish_autocomplete(view, sm)
 
         if self._handle_tabstop():
             return
