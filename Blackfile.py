@@ -2073,7 +2073,7 @@ def DistCleanKomodoBuild(cfg, argv):
     bits = [
         join(cfg.komodoDevDir, "build"),
         join(cfg.komodoDevDir, "export"),
-        join(cfg.komodoDevDir, "package"),
+        join(cfg.komodoDevDir, "packages"),
         join(cfg.komodoDevDir, "install"),
         join(cfg.komodoDevDir, "src", "scintilla"),
     ]
