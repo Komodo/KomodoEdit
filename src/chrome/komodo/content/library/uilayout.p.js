@@ -305,8 +305,10 @@ this.updateTabpickerMenu = function uilayout_updateTabpickerMenu(menupopup)
             //ko.trace.get().dumpDOM(tab.parentNode);
             if (tab.selected && ! pane.collapsed) {
                 menuitem.setAttribute('checked', 'true');
+                menuitem.disabled = true;
             } else {
                 menuitem.removeAttribute('checked');
+                menuitem.disabled = false;
             }
         }
     } catch (e) {
