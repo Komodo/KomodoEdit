@@ -664,16 +664,26 @@ class KoCommenterLanguageService:
 
         # determine preferred commenting method (if the selection is _within_
         # a line then block commenting is preferred)
-        if scimoz.selectionMode == scimoz.SC_SEL_LINES:
+        if scimoz.selectionMode == scimoz.SC_SEL_LINES or selStart == selEnd:
             preferBlockCommenting = 0
-        elif selStart != selEnd:
-            if (selStartColumn == 0 or selStart == selStartLineEndPosition) \
-               and (selEndColumn == 0 or selEnd == selEndLineEndPosition):
+        elif selEndColumn != 0 and selEnd != selEndLineEndPosition:
+            preferBlockCommenting = 1
+        elif selStartColumn == 0 or selStart == selStartLineEndPosition:
+            preferBlockCommenting = 0
+        else:
+            startLineFirstVisiblePosn = scimoz.positionFromLine(selStartLine)
+            val_sp = ord(' ')
+            val_tab = ord('\t')
+            while startLineFirstVisiblePosn < selStart:
+                ch = scimoz.getCharAt(startLineFirstVisiblePosn)
+                if ch != val_sp and ch != val_tab:
+                    break
+                # No need to use positionAfter, as we're looking for ascii chars
+                startLineFirstVisiblePosn += 1
+            if selStart == startLineFirstVisiblePosn:
                 preferBlockCommenting = 0
             else:
                 preferBlockCommenting = 1
-        else:
-            preferBlockCommenting = 0
         if self.DEBUG:
             print "prefer block commenting? %s"\
                   % (preferBlockCommenting and "yes" or "no")
