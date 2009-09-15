@@ -246,11 +246,11 @@ class KoDirs:
             #   $mozSrc/mozilla/dist/Komodo.app/Contents/MacOS (dev build)
             #   $installDir/Contents/MacOS (installation)
             # pythonExe:
-            #   $mozSrc/mozilla/dist/Komodo.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python (dev build)
-            #   $installDir/Contents/Frameworks/Python.framework/Versions/Current/bin/python (installation)
-            pythonExe = join(dirname(self.get_mozBinDir()),
-                             "Frameworks", "Python.framework",
-                             "Versions", "Current", "bin", "python")
+            #   $mozSrc/mozilla/dist/Komodo.app/Contents/MacOS/mozpython (dev build)
+            #   $installDir/Contents/MacOS/mozpython (installation)
+            # See bug 84584: On OSX if we're going to launch Komodo's python,
+            # we need to make sure it finds the siloed python lib.
+            pythonExe = join(self.get_mozBinDir(), "mozpython")
         elif sys.platform == "win32":
             # mozBinDir:
             #   $mozSrc/mozilla/dist/bin (dev build)
