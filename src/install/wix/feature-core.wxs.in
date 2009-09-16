@@ -2200,7 +2200,7 @@
             <File Id="file2572" Name="pythonw.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\pythonw.exe"/>
             <File Id="file1346" Name="python26.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\python26.exe"/>
             <File Id="file1347" Name="PYTHON_2.EXE" LongName="pythonw26.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\pythonw26.exe"/>
-            <File Id="file884" Name="python26.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\python\python26.dll" />
+            <File Id="file896" Name="python26.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\python\python26.dll" />
           </Component>
           <Directory Id="directory88" Name="DLLs">
             <Component Id="component82" DiskId="1" Guid="$(autowix.guid)">
