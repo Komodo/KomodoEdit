@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 16
+version 17
 # Needs a few things to be finished
 #  - ?? insert forward tab / insert backward tab
 #  - insert file? (Ctrl+X, I)
