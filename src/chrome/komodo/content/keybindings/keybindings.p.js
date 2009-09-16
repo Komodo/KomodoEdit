@@ -282,6 +282,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 17: Komodo 5.2.1 - Linux: convert ctrl-shift-u to ctrl-alt-u
  * 16: Komodo 5.2.0 - Add an invoke hyperlink command.
  * 15: Komodo 5.1.0 - Fix Meta+Shift+<x> keybindings on OS X to use the
  *                    shifted char if <x> is non-alpha
@@ -300,7 +301,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 16;
+const currentKeybindingVersionNumber = 17;
 
 /**
  * Remove this dictionary of keybinds.
@@ -655,6 +656,7 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_wordWrap': ["Meta+("]
             });
 // #endif
+            break;
         case 15:
             // Add hyperlink command.
 // #if PLATFORM == 'darwin'
@@ -666,6 +668,18 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_invokeHyperlink': ["Ctrl+Shift+G"]
             });
 // #endif
+            break;
+        case 16:
+            // Bug 80230, finishing change to Default.p.kkf in r29983
+// #if PLATFORM == 'linux'
+            this._remove_keybinding_sequences({
+                'cmd_convertLowerCase': ["Ctrl+Shift+U"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_convertLowerCase': ["Ctrl+Alt+U"]
+            });
+// #endif
+            break;
         }
         from_version += 1;
     }
