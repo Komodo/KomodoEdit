@@ -837,17 +837,21 @@ def _getMozSrcInfo(scheme, mozApp):
         )
 
         if mozApp == "suite":
-            pattern = re.compile("^mozilla(?:-source)?-(.*?)(?:-source)?%s$"
-                                 % re.escape(suffix))
+            patterns = [re.compile("^mozilla(?:-source)?-(.*?)(?:-source)?%s$"
+                                 % re.escape(suffix))]
         elif mozApp in ("komodo", "browser"):
-            pattern = re.compile("^firefox-(.*?)-source%s$"
-                                 % re.escape(suffix))
+            patterns = [re.compile("^firefox-(.*?)-source%s$"
+                                 % re.escape(suffix)),
+                        re.compile("^xulrunner-(.*?)-source%s$"
+                                 % re.escape(suffix))]
         else:
             raise BuildError("do we use the 'firefox-*-source.tar.gz' "
                              "tarballs for mozApp='%s' builds?" % mozApp)
-        match = pattern.match(basename(scheme))
-        if match:
-            config["mozSrcName"] = match.group(1)
+        for pattern in patterns:
+            match = pattern.match(basename(scheme))
+            if match:
+                config["mozSrcName"] = match.group(1)
+                break
         else:
             config["mozSrcName"] = name
 
@@ -2267,7 +2271,7 @@ def target_src(argv=["src"]):
         _run(" && ".join(cmds), log.info)
 
     elif mozSrcType == "tarball":
-        _extract_tarball(tarball, buildDir)
+        _extract_tarball(tarballLocalPath, buildDir)
 
     else:
         raise BuildError("unknown mozSrcType: %r" % mozSrcType)
