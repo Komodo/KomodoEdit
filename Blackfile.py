@@ -1167,7 +1167,8 @@ def ImageKomodo(cfg, argv):
         # Python. The DLLs are already beside the main komodo.exe where
         # we *do* need them.
         ibits += [
-            ("rm", iicorepath("lib", "python", "py*.dll")),
+            ("rm", iicorepath("lib", "python", "pythoncom*.dll")),
+            ("rm", iicorepath("lib", "python", "pywintypes*.dll")),
             ("rm", iicorepath("lib", "python", "w9xpopen.exe")),
         ]
     # Don't know why, but my Moz build on Windows sometimes has these two
