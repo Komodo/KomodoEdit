@@ -198,8 +198,12 @@ this.addSnippetFromText = function AddSnippetFromText(snippettext, /*koIPart*/ p
         parent = ko.projects.active.manager.getCurrentProject();
     }
 
-    var escapedtext = snippettext;
-    escapedtext = escapedtext.replace('%', '%%', 'g');
+    // Bug 84625 - don't escape '%' in snippet shortcuts
+    var parts = snippettext.split(/(\[\[%\w.*?\]\])/);
+    for (var i = 0; i < parts.length; i += 2) {
+        parts[i] = parts[i].replace('%', '%%', 'g');
+    }
+    var escapedtext = parts.join('');
     var snippet = parent.project.createPartFromType('snippet');
     snippet.type = 'snippet';
     snippet.setStringAttribute('name', snippetMakeDisplayName(snippettext));
