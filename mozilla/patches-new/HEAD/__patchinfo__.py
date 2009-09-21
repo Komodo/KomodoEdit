@@ -39,7 +39,9 @@
 import re
 
 def applicable(config):
-    if config.mozSrcType != "cvs":
+    if hasattr(config, "mozVer") and config.mozVer == "1.9":
+        return True
+    elif config.mozSrcType != "cvs":
         return False
     elif config.mozSrcCvsTag is None: # i.e. the HEAD
         return True
