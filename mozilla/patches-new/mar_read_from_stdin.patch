@@ -55,7 +55,7 @@ diff -u -r1.3 mar.c
 + * Returns 0 on success, 1 on EOF, -1 on line too long (the rest of the
 + * line will have been read and thrown away).
 + */
-+static int getline(char *buf) {
++static int mar_getline(char *buf) {
 +  int c, i = 0;
 +  int rv = 0;
 +  while ((c = getchar()) != EOF) {
@@ -98,7 +98,7 @@ diff -u -r1.3 mar.c
 +      
 +      while (1) {
 +        /* Read a line. */
-+        rv = getline(line);
++        rv = mar_getline(line);
 +        if (rv == 1) break; /* EOF */
 +        if (rv == -1) {
 +          fprintf(stderr, "mar: ERROR: stdin line too long: '%s...'\n",
