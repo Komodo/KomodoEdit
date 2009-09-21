@@ -88,6 +88,8 @@
                 this._document.observerService.removeObserver(this,'language_changed');
                 this._document.observerService.removeObserver(this,'encoding_changed');
                 this._document.observerService.removeObserver(this,'buffer_changed');
+                Components.classes["@mozilla.org/observer-service;1"].
+                getService(Components.interfaces.nsIObserverService).removeObserver(this,'scheme-changed');
                 } catch(e) {
                     this.log.exception(e);
                 }
@@ -117,6 +119,8 @@
                 val.observerService.addObserver(this,'language_changed',0);
                 val.observerService.addObserver(this,'encoding_changed',0);
                 val.observerService.addObserver(this,'buffer_changed',0);
+                Components.classes["@mozilla.org/observer-service;1"].
+                getService(Components.interfaces.nsIObserverService).addObserver(this,'scheme-changed',0);
                 this.parentView.updateLeafName(this);
                 this.parentView.updateFileStatus(this);
                 this.parentView.updateDirtyStatus(this);
@@ -195,6 +199,36 @@
                   this.log.exception(e);
                 }
             };
+            this._currentFamily = "";
+            this._highlightColors = null;
+            this._listeningLineCol = false;
+            // Duplicate of koUDLLanguageBase.familyAtPosition to avoid
+            // making the xpcom call on every call.  We know we're in
+            // a UDL file.
+            this._familyAtPosition = [];
+            var parts = [
+                ["M", Components.interfaces.ISciMoz.SCE_UDL_CSS_DEFAULT],
+                ["CSS", Components.interfaces.ISciMoz.SCE_UDL_CSL_DEFAULT],
+                ["CSL", Components.interfaces.ISciMoz.SCE_UDL_SSL_DEFAULT],
+                ["SSL", Components.interfaces.ISciMoz.SCE_UDL_TPL_DEFAULT],
+                ["TPL", Components.interfaces.ISciMoz.SCE_UDL_UPPER_BOUND + 1],
+            ];
+            for (var part, style = 0, i = 0; part = parts[i]; ++i) {
+                for (; style < part[1]; style++) {
+                    this._familyAtPosition[style] = part[0];
+                }
+            }
+            this.handle_current_view_linecol_changed = function(event) {
+                var view = event.originalTarget;
+                if (view != this_) {
+                    return;
+                }
+                if (!view.updateCurrentLineColor()) {
+                    this._listeningLineCol = false;
+                    window.removeEventListener('current_view_linecol_changed',
+                                                this.handle_current_view_linecol_changed, false);
+                }
+            };
             window.addEventListener('codeintel_deactivated_window',
                 this._on_codeintel_deactivated_window, false);
             window.addEventListener('view_document_attached',
@@ -227,6 +261,7 @@
             // special hack in commands.js to deal with focus on embed elements.
             // this.controllers.appendController(this._genericController);
 
+            this._setupHighlightColors();
             xtk.domutils.fireEvent(this, 'current_view_changed');
             this.scintilla.scimoz.hookEvents(this);
             this._inInitPhase = false;
@@ -318,6 +353,7 @@
                     this.lintBuffer.request("focussing view and have not yet linted");
                     this._everLinted = true;
                 }
+                this.updateCurrentLineColor();
                 if (typeof(gVimController) != 'undefined' &&
                                        gVimController.enabled) {
                     gVimController.onBufferFocus();
@@ -357,6 +393,8 @@
             // status so we can appropriately update our tab icons
             this.log.debug("editor view for document '"+
                            this.document.baseName+"' observed '"+topic+"'\n");
+            ("editor view for document '"+
+                           this.document.baseName+"' observed '"+topic+"'\n");
             switch (topic) {
             case 'language_changed':
                 // Multi-window story: do this on the current view only.
@@ -393,6 +431,7 @@
                     window.setTimeout("window.updateCommands('current_view_language_changed');", 1);
                     window.setTimeout("window.updateCommands('foldability_changed');", 1);
                 }
+                this._setupHighlightColors();
                 break;
             case 'title_changed':
                 // XXX need a way to observer file/title changes
@@ -454,7 +493,70 @@
                 this.scintilla.focus();
                 this.restoreLocation(locationInfo);
                 break;
+            case 'scheme-changed':
+                setTimeout(function(this_) {
+                    // view.scintilla is still using the old scheme.
+                    this_._setupHighlightColors();
+                }, 1, this);
+                break;
             }
+        ]]>
+        </body>
+        </method>
+
+        <method name="_setupHighlightColors">
+        <body>
+        <![CDATA[
+            debugger;
+            var colorInfo = {};
+            var scheme = this.scintilla.scheme;
+            this._highlightColors = {};
+            if (scheme) {
+                scheme.getHighlightColorInfo(this.languageObj,
+                                             colorInfo, {});
+                colorInfo = colorInfo.value;
+                if (colorInfo.length == 0) {
+                    if (this._listeningLineCol) {
+                        this._listeningLineCol = false;
+                        window.removeEventListener('current_view_linecol_changed',
+                                                    this.handle_current_view_linecol_changed, false);
+                        return;
+                    }
+                } else if (!this._listeningLineCol) {
+                        this._listeningLineCol = true;
+                        window.addEventListener('current_view_linecol_changed',
+                                                    this.handle_current_view_linecol_changed, false);
+                }
+                for (var i = 0; i < colorInfo.length; i++) {
+                    var familyName, color;
+                    [familyName, color] = colorInfo[i].split(":");
+                    this._highlightColors[familyName] = parseInt(color);
+                }
+            } else {
+                this.log.info("Couldn't get the scheme off the view");
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="updateCurrentLineColor">
+        <body>
+        <![CDATA[
+            if (!this._highlightColors) {
+                return false;
+            }
+            var family = this._familyAtPosition[this.scimoz.getStyleAt(this.scimoz.currentPos)];
+            if (family == this._currentFamily) {
+                return true;
+            }
+            this._currentFamily = family;
+            if (family in this._highlightColors) {
+                var pos = this.scimoz.currentPos;
+                var line = this.scimoz.lineFromPosition(pos);
+                this.scimoz.caretLineBack = this._highlightColors[family];
+            }
+	    // otherwise don't change currentLine color
+            return true;
         ]]>
         </body>
         </method>
@@ -505,6 +607,10 @@
                     this.handle_view_document_attached, false);
                 window.removeEventListener('view_document_detaching',
                     this.handle_view_document_detaching, false);
+                if (this._listeningLineCol) {
+                    window.removeEventListener('current_view_linecol_changed',
+                        this.handle_current_view_linecol_changed, false);
+                }
 
                 // XXX nothing should ever inherit from view-editor
                 // if they do, this code using __proto__ must be changed
@@ -620,9 +726,9 @@
             var prompt;
             if (this.document.isDirty) {
                 prompt = 'The file ' + baseName + ' is unsaved, and the ' +
-		         'file changed on disk.  You can use '+
+                         'file changed on disk.  You can use '+
                          '"Show Unsaved Changes" to view a diff of the ' +
-			 'changes, revert or save your changes.';
+                         'changes, revert or save your changes.';
                 title = 'Current unsaved buffer has changed on disk';
                 if (this.prefs.getBooleanPref("donotask_buffer_conflicts_with_file_on_disk")) return;
                 var choice = ko.dialogs.customButtons(

@@ -1308,6 +1308,7 @@ viewManager.prototype.handle_current_view_changed = function(event) {
     //for (var x in newcache) {
     //    dump('newcache['+ x +'] = ' + newcache[x] + '\n');
     //}
+    this.currentView.updateCurrentLineColor();
     window.setTimeout("window.updateCommands('current_view_changed');", 1);
     var update_editor_change = (oldcache.type != newcache.type) &&
         (oldcache.type == 'editor' || newcache.type== 'editor');

@@ -36,6 +36,7 @@
 
 #include "nsISupports.idl"
 #include "ISciMoz.idl"
+#include "koILanguage.idl"
 
 interface ISciMoz;
 
@@ -121,6 +122,9 @@ interface koIScintillaScheme : nsISupports {
                          in long scimozStyleNo);
     string getSpecificName(in string language,
                            in long scimozStyleNo);
+    void getHighlightColorInfo(in koILanguage languageObj,
+                               [array, size_is(count)] out wstring colorInfo,
+                               out unsigned long count);
 };
 
 [scriptable, uuid(D116A318-F894-42C5-A7D5-1F37171832AC)]

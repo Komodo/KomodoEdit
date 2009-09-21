@@ -68,6 +68,7 @@ ScimozStyleNo2SpecificName = {}
 IndicatorName2ScimozNo = {}
 ValidStyles = {}
 _re_udl_style_name = re.compile(r'SCE_UDL_([^_]+)')
+_re_color_parts = re.compile(r'(..)')
 
 
 #---- scheme handling classes
@@ -566,7 +567,6 @@ class Scheme:
             scimoz.styleSetFont(scimoz.STYLE_DEFAULT, font)
         scimoz.styleClearAll() # now all styles are the same
         defaultUseFixed = useFixed
-        usingSubLanguageBackgroundColors = False
         if language in ValidStyles:
             for (scimoz_no, scimoz_name, common_name) in ValidStyles[language]:
                 # first deal with which default style should be used.
@@ -643,17 +643,13 @@ class Scheme:
 
                 if UDLBackgroundColor is not None:
                     scimoz.styleSetBack(scimoz_no, UDLBackgroundColor)
-                    usingSubLanguageBackgroundColors = True
 
         # Now do the other colors, such as cursor color
         scimoz.caretFore = self._colors['caretFore']
         scimoz.setSelBack(1, self._colors['selBack'])
         scimoz.setSelFore(self._booleans['useSelFore'], self._colors['selFore'])
-        if usingSubLanguageBackgroundColors:
-            scimoz.caretLineVisible = False
-        else:
-            scimoz.caretLineBack = self._colors['caretLineBack']
-            scimoz.caretLineVisible = self._booleans['caretLineVisible']
+        scimoz.caretLineBack = self._colors['caretLineBack']
+        scimoz.caretLineVisible = self._booleans['caretLineVisible']
         scimoz.setHotspotActiveUnderline(0)
         scimoz.edgeColour = self._colors['edgeColor']
         scimoz.markerSetFore(MARKNUM_BOOKMARK,
@@ -752,6 +748,85 @@ class Scheme:
             return ScimozStyleNo2SpecificName[(styleno, language)]
         return ''
 
+    def _partsFromMozColor(self, mozColor):
+        mozColor = mozColor[1:]
+        pieces = [int(x, 16) for x in _re_color_parts.split(mozColor) if x]
+        return pieces
+
+    def _scinColorFromParts(self, parts):
+        return ((parts[2] * 256) + parts[1]) * 256 + parts[0]
+
+    def _calcAdjuster(self, defaultBGParts, highlightedBGParts):
+        return [x - y for (x, y) in zip(defaultBGParts, highlightedBGParts)]
+
+    def _applyAdjuster(self, adjuster, color):
+        # Try subtracting the difference: assume highlight is darker
+        parts = [x - y for (x, y) in zip(color, adjuster)]
+        if not [p for p in parts if p < 0 or p > 255]:
+            return parts
+        # Try adding the difference: move the other way (brighter in a light scheme)
+        parts = [x + y for (x, y) in zip(color, adjuster)]
+        if not [p for p in parts if p < 0 or p > 255]:
+            return parts
+        # Don't adjust.
+        return color
+
+    def getHighlightColorInfo(self, languageObj):
+        """
+        This function also serves as a gatekeeper.
+        Return [] to indicate there is no info:
+        
+        1. If this scheme doesn't highlight the current line, return []
+        
+        2. If the current language isn't UDL-based, return []
+        
+        3. If it is, but none of its sublanguages define their own color,
+        return [].
+        
+        Otherwise return an array of "<familyName>:<color value>"
+        where familyName is one of "M", "CSS", "CSL", "SSL", etc.,
+        and the color value is the decimal representation of the
+        RGB color.
+        """
+
+        if not self.get_caretLineVisible():
+            return []
+        languageObj = UnwrapObject(languageObj)
+        if not languageObj.isUDL():
+            return []
+        subLanguageNames = languageObj.getSubLanguages()
+        if len(subLanguageNames) <= 1:
+            return []
+        # Check to see if any of the sublanguages define their own bg color
+        usesBackgroundColors = False
+        for subLanguageName in subLanguageNames:
+            if self.getGlobalSubLanguageBackgroundEnabled(subLanguageName):
+                usesBackgroundColors = True
+                break
+        if not usesBackgroundColors:
+            return []
+        colorInfo = []
+        familyNames = ("M", "CSS", "CSL", "SSL", "TPL")
+        defaultBGColor = self.getBack(languageObj.name, 'default')
+        defaultBGParts = self._partsFromMozColor(defaultBGColor)
+        highlightedBGColor = self.getColor('caretLineBack')
+        highlightedBGParts = self._partsFromMozColor(highlightedBGColor)
+        adjuster = self._calcAdjuster(defaultBGParts, highlightedBGParts)
+        for familyName in familyNames:
+            subLanguageName = languageObj.getLanguageForFamily(familyName)
+            if subLanguageName:
+                if self.getGlobalSubLanguageBackgroundEnabled(subLanguageName):
+                    bgColor = self.getSubLanguageDefaultBackgroundColor(subLanguageName)
+                else:
+                    bgColor = defaultBGColor
+                bgColorParts = self._partsFromMozColor(bgColor)
+                fixedBGColor = self._applyAdjuster(adjuster, bgColorParts)
+            else:
+                fixedBGColor = highlightedBGColor
+            colorInfo.append("%s:%d" % (familyName,
+                                        self._scinColorFromParts(fixedBGColor)))
+        return colorInfo
+    
     def _buildFontSpec(self, font, encoding_name):
 # #if PLATFORM == 'win' or PLATFORM == 'darwin'
         return font
