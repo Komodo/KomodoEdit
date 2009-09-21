@@ -865,7 +865,11 @@ NS_IMETHODIMP SciMoz::SetText(const nsAString &aText)
 	// determine the buffer length using a "strlen" call, which does not
 	// include any data after an embedded null.
 	//SendEditor(SCI_SETTEXT, 0, reinterpret_cast<long>(convertedText.get()));
+	// Bug 84654: SCI_ADDTEXT pushes currentPos and anchor to the end of
+	// the text (withouth scrolling), so we need to correct their values.
 	SendEditor(SCI_ADDTEXT, convertedText.Length(), reinterpret_cast<long>(convertedText.get()));
+	SendEditor(SCI_SETCURRENTPOS, 0, 0);
+	SendEditor(SCI_SETANCHOR, 0, 0);
 
 	return NS_OK;
 }
