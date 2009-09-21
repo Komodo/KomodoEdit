@@ -1141,6 +1141,9 @@ def target_configure(argv):
             Solaris is for GTK 2. (These options really only make sense
             on Linux and Solaris.)
 
+        --no-mar
+            Do not build the bsdiff and mar modules.
+
         --xft
         --xinerama
         --perf      build with timeline and profiling support
@@ -1214,6 +1217,7 @@ def target_configure(argv):
         "configureOptions": argv[1:],
         "buildType": "release",
         "buildOpt": [],
+        "enableMar": True,
         "komodoVersion": BuildError("don't have a Komodo version: use '--komodo-version'"),
         "python": None,
         "pythonVersion": None,
@@ -1274,6 +1278,7 @@ def target_configure(argv):
              "strip", "no-strip",
              "g4", "no-g4",
              "gtk2", "gtk",
+             "no-mar",
              "with-tests", "without-tests", 
              "perf", "tools", "xft", "xinerama", "jssh", "js",
              "options=", "extensions=", "moz-config=",
@@ -1322,6 +1327,8 @@ def target_configure(argv):
             config["buildOpt"].append("gtk")
             if "gtk2" in config["buildOpt"]:
                 config["buildOpt"].remove("gtk2")
+        elif opt == "--no-mar":
+            config["enableMar"] = False
         elif opt == "--xft":
             config["buildOpt"].append("xft")
         elif opt == "--xinerama":
@@ -2596,6 +2603,8 @@ def target_pluginsdk(argv=["mozilla"]):
 def target_mbsdiff(argv=["mozilla"]):
     """Build mbsdiff module needed for building update .mar packages."""
     config = _importConfig()
+    if not config.enableMar:
+        return
     _setupMozillaEnv()
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
     builddir = os.path.join(native_objdir, 'modules', 'libbz2')
@@ -2612,6 +2621,8 @@ def target_mbsdiff(argv=["mozilla"]):
 def target_libmar(argv=["mozilla"]):
     """Build libmar module needed for building update .mar packages."""
     config = _importConfig()
+    if not config.enableMar:
+        return
     _setupMozillaEnv()
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
     libmar_dir = os.path.join(native_objdir, 'modules', 'libmar')
