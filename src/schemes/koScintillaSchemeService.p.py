@@ -69,6 +69,10 @@ IndicatorName2ScimozNo = {}
 ValidStyles = {}
 _re_udl_style_name = re.compile(r'SCE_UDL_([^_]+)')
 _re_color_parts = re.compile(r'(..)')
+_no_background_colors = {
+        'PHP' : ['PHP'],
+        'HTML' : ['HTML'],
+        };
 
 
 #---- scheme handling classes
@@ -351,9 +355,12 @@ class Scheme:
         self._miscLanguageSettings.setdefault(language, {})['globalSubLanguageBackgroundEnabled'] = val
         self.isDirty = 1
 
-    def getGlobalSubLanguageBackgroundEnabled(self, language):
+    def getGlobalSubLanguageBackgroundEnabled(self, subLanguageName, docLanguageName=None):
+        if docLanguageName in _no_background_colors \
+                and subLanguageName in _no_background_colors[docLanguageName]:
+            return False
         try:
-            return self._miscLanguageSettings[language]['globalSubLanguageBackgroundEnabled']
+            return self._miscLanguageSettings[subLanguageName]['globalSubLanguageBackgroundEnabled']
         except KeyError:
             return False
 
@@ -610,7 +617,7 @@ class Scheme:
                             subLanguageName = languageObj.getLanguageForFamily(family)
                         defaultSubLanguageStyles = subLanguageName and self._languageStyles.get(subLanguageName)
                         if defaultSubLanguageStyles is not None:
-                            if self.getGlobalSubLanguageBackgroundEnabled(subLanguageName):
+                            if self.getGlobalSubLanguageBackgroundEnabled(subLanguageName, language):
                                 UDLBackgroundColor = defaultSubLanguageStyles.get('compound_document_defaults', {}).get('back')
                             if subLanguageName != language:
                                 style.update(defaultSubLanguageStyles.get('default', {}))
@@ -800,7 +807,7 @@ class Scheme:
         # Check to see if any of the sublanguages define their own bg color
         usesBackgroundColors = False
         for subLanguageName in subLanguageNames:
-            if self.getGlobalSubLanguageBackgroundEnabled(subLanguageName):
+            if self.getGlobalSubLanguageBackgroundEnabled(subLanguageName, languageObj.name):
                 usesBackgroundColors = True
                 break
         if not usesBackgroundColors:
@@ -815,7 +822,7 @@ class Scheme:
         for familyName in familyNames:
             subLanguageName = languageObj.getLanguageForFamily(familyName)
             if subLanguageName:
-                if self.getGlobalSubLanguageBackgroundEnabled(subLanguageName):
+                if self.getGlobalSubLanguageBackgroundEnabled(subLanguageName, languageObj.name,):
                     bgColor = self.getSubLanguageDefaultBackgroundColor(subLanguageName)
                 else:
                     bgColor = defaultBGColor
