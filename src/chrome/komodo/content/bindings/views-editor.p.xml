@@ -532,6 +532,10 @@
                     [familyName, color] = colorInfo[i].split(":");
                     this._highlightColors[familyName] = parseInt(color);
                 }
+                // Force an update so the sub-highlighting gets redone.
+                // Fixes bug 84707
+                this._currentFamily = "";
+                this.updateCurrentLineColor();
             } else {
                 this.log.info("Couldn't get the scheme off the view");
             }
