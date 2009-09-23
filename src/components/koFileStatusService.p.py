@@ -254,7 +254,7 @@ class KoFileStatusService:
     # koIFileNotificationObserver interface: called on file change events.
     # @private
     def fileNotification(self, uri, flags):
-        log.debug("fileNotification received %d for %r" % (flags, uri))
+        log.debug("fileNotification received %d for %r", flags, uri)
         # This url has changed, perform a status check
         self._cv.acquire()
         try:
@@ -287,12 +287,12 @@ class KoFileStatusService:
     def observe(self, subject, topic, data):
         #print "file status service observed %r %s %s" % (subject, topic, data)
         try:
-            log.debug("status observer received %s:%s" % (topic, data))
+            log.debug("status observer received %s:%s", topic, data)
             if topic == 'komodo-startup-service':
                 self.init()
                 return
             if topic == 'xpcom-shutdown':
-                log.debug("file status got xpcom-shutdown, unloading");
+                log.debug("file status got xpcom-shutdown, unloading")
                 self.unload()
                 return
     
@@ -330,7 +330,7 @@ class KoFileStatusService:
         try:
             self._observerSvc.removeObserver(self, topic, 0)
         except:
-            log.debug("Unable to remove observer %s"%topic)
+            log.debug("Unable to remove observer %s", topic)
 
     ##
     # Stop the file status service, remove all notification observers
@@ -574,9 +574,9 @@ class KoFileStatusService:
                             # We let this go through the status checking once
                             # more in order to clean out any old information.
                             allowCheckerToRunDisabled = True
-                            log.debug("%s, not active, allowing last cleanup check."%checker.name)
+                            log.debug("%s, not active, allowing last cleanup check.", checker.name)
                         else:
-                            log.debug("Skipping %s, not active"%checker.name)
+                            log.debug("Skipping %s, not active", checker.name)
                             continue
                     else:
                         active_checker_names.append(checker.name)
@@ -620,7 +620,7 @@ class KoFileStatusService:
 
                         # check the status of the koIFile
                         try:
-                            #log.debug("%s checking %s %s" %(checker.name,koIFile.sccType,uri))
+                            #log.debug("%s checking %s %s", checker.name,koIFile.sccType,uri)
                             # Get the status for the file
                             if not checker.updateFileStatus(koIFile,
                                                             reason):
@@ -678,7 +678,7 @@ class KoFileStatusService:
                 # we re raise the exception
                 import traceback
                 errmsg = ''.join(traceback.format_exception(*sys.exc_info()))
-                log.error('KoFileStatusService thread exception %s' % errmsg)
+                log.error('KoFileStatusService thread exception %s', errmsg)
             finally:
                 if _processing_done_acquired:
                     self._processing_done_condition.notifyAll()
