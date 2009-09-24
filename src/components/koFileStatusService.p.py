@@ -175,7 +175,7 @@ class KoFileStatusService:
         self._thread = None
         self._tlock = threading.Lock()
         self._cv = threading.Condition()
-        self._processing_done_condition = threading.Condition()
+        self._processing_done_event = threading.Event()
         timeline.leave('koFileStatusService.__init__')
 
     def init(self):
@@ -369,15 +369,15 @@ class KoFileStatusService:
             for item in items:
                 self._items_to_check.add(item)
                 log.debug("updateStatusForFiles:: uri: %r", item[1])
+            if callback:
+                self._processing_done_event.clear()
             self._cv.notify()
         finally:
             self._cv.release()
 
         if callback:
             def wait_till_done(fileStatusSvc, check_items, callback):
-                self._processing_done_condition.acquire()
-                self._processing_done_condition.wait()
-                self._processing_done_condition.release()
+                self._processing_done_event.wait(60)
                 # Proxy the notification back to the UI thread.
                 uiCallbackProxy = getProxyForObject(1,
                             components.interfaces.koIFileStatusCallback,
@@ -416,7 +416,6 @@ class KoFileStatusService:
         while not self.shutdown:
             # Give at least a brief respite between loops.
             time.sleep(0.1)
-            _processing_done_acquired = False
             try:
                 # Initialize the working variables, this ensures we don't hold
                 # on to any koIFileEx references between runs, allowing the
@@ -440,8 +439,6 @@ class KoFileStatusService:
                        self._updateReason == self.REASON_BACKGROUND_CHECK and \
                        time_till_next_run > 0:
                         self._cv.wait(time_till_next_run)
-                    self._processing_done_condition.acquire()
-                    _processing_done_acquired = True
                     items_to_check = list(self._items_to_check)
                     self._items_to_check = set()
                     updateReason = self._updateReason
@@ -680,8 +677,6 @@ class KoFileStatusService:
                 errmsg = ''.join(traceback.format_exception(*sys.exc_info()))
                 log.error('KoFileStatusService thread exception %s', errmsg)
             finally:
-                if _processing_done_acquired:
-                    self._processing_done_condition.notifyAll()
-                    self._processing_done_condition.release()
+                self._processing_done_event.set()
 
         log.info("file status thread shutting down")
