@@ -61,6 +61,9 @@ class koProfile:
         stats.sort_stats(sort)
         stats.print_stats(limit)
 
+    def save_stats(self, filename):
+        self.prof.dump_stats(filename)
+
 # store in xpcom module
 xpcom._koprofiler = koProfile()
 
@@ -208,6 +211,7 @@ class xpcomShutdownObserver(object):
     def observe(self, subject, topic, data):
         if topic == "xpcom-shutdown":
             print_stats()
+            xpcom._koprofiler.save_stats("koprofile.data")
 
 xpcomObs = xpcomShutdownObserver()
 obsSvc = xpcom.components.classes["@mozilla.org/observer-service;1"].\
