@@ -19,9 +19,15 @@
 #include <pcre.h>
 
 #define UDL_DEBUG 0
+#define UDL_DEBUG_TIME 0
+#define UDL_WINDEBUG 0
 
-#if UDL_DEBUG
+#if UDL_DEBUG_TIME
 #include <sys/time.h>
+#endif
+
+#if UDL_WINDEBUG
+#include <time.h>
 #endif
 
 #include "Platform.h"
@@ -942,6 +948,8 @@ class TransitionTable {
 
 // Global info
 
+class StringStack;
+
 class MainInfo {
     private:
     TransitionTable   *p_TTable;
@@ -1100,10 +1108,12 @@ public:
               CompareFlippers);
     };
 
-    void GetFoldChangeForLine(int lineStartPos, int lineEndPos,
+    void GetFoldChangeForLine(int lineStartPos,
+                              int lineEndPos,
                              Accessor &styler,
                              int& foldChange,
-                             bool& hasNonSpace);
+                             bool& hasNonSpace,
+                              StringStack *p_tagStack);
     int NumTransitions() {
         return p_TTable->Count();
     };
@@ -1718,11 +1728,165 @@ bool MainInfo::Init(const char *p_sublang_file) {
 #pragma warning( default : 4127)
 #endif
 
-void MainInfo::GetFoldChangeForLine(int lineStartPos, int lineEndPos,
-                                   Accessor& styler,
-                                   int& foldChange,
-                                   bool& hasNonSpace
-                                   )
+// Note -- the second value is zero-terminated
+static int udl_strncasecmp(const char *a, char *b, int len) {
+    while (--len >= 0) {
+        int diff = tolower(*a++) - tolower(*b++);
+        if (diff) {
+            return diff;
+        }
+    }
+    // Verify that the both end here.
+    if (*b) {
+        return 0 - tolower(*b);
+    }
+    return 0;
+}
+
+class StringStack {
+private:
+    char *tagNameStorageBase;
+    char *tagNameStorageAvail;
+    char *tagNameStorageIndex;
+    char **stack;
+    int   stackSize;
+    int   stackIndex;
+    StringStack &operator=(StringStack&) {return *this;}; // Not avail or used
+    void finishInit(int numStackItems, int tagNameStorageSpace) {
+        stack = new char*[numStackItems];
+        stackSize = numStackItems;
+        stackIndex = 0;
+        tagNameStorageBase = new char[tagNameStorageSpace];
+        tagNameStorageIndex = tagNameStorageBase;
+        tagNameStorageAvail = tagNameStorageBase + tagNameStorageSpace * sizeof(char);
+    }
+    bool verifyStackSpace() {
+        if (stackIndex >= stackSize) {
+            char **tmp = new char*[stackSize * 2];
+            if (!tmp) {
+                return false;
+            }
+            stackSize *= 2;
+            memcpy(tmp, stack, stackIndex * sizeof(stack[0]));
+            delete[] stack;
+            stack = tmp;
+        }
+        return true;
+    }
+    bool verifyStringSpace(int strLen) {
+        if (tagNameStorageIndex + strLen + 1 > tagNameStorageAvail) {
+            int newSize = (tagNameStorageAvail - tagNameStorageBase) * 2;
+            char *tmp = new char[newSize];
+            if (!tmp) return false;
+            memcpy(tmp, tagNameStorageBase, tagNameStorageIndex - tagNameStorageBase);
+            delete[] tagNameStorageBase;
+            tagNameStorageBase = tmp;
+        }
+        return true;
+    }
+public:
+    StringStack(int n) {
+        finishInit(n, 128);
+    };
+    StringStack() {
+        finishInit(10, 128);
+    };
+    ~StringStack() {
+        delete[] stack;
+        delete[] tagNameStorageBase;
+    }
+    bool isEmpty() {
+        return stackIndex == 0;
+    };
+    void push(const char *s, int slen) {
+        verifyStackSpace();
+        verifyStringSpace(slen);
+        int i;
+        const char *ps;
+        for (i = 0, ps = s; i < slen; i++, ps++) {
+            tagNameStorageIndex[i] = tolower(*ps);
+        }
+        tagNameStorageIndex[i] = 0;
+        stack[stackIndex] = tagNameStorageIndex;
+        tagNameStorageIndex += slen + 1; // skip the null byte;
+        ++stackIndex;
+    }
+    char *top() {
+        return stackIndex == 0 ? NULL : stack[stackIndex - 1];
+    }
+    char *pop() {
+        if (stackIndex == 0) return NULL;
+        char *s = stack[stackIndex - 1];
+        tagNameStorageIndex = stack[stackIndex - 1];
+        stackIndex -= 1;
+        return s;
+    }
+    void empty() {
+        stackIndex = 0;
+        tagNameStorageIndex = tagNameStorageBase;
+    }
+    bool contains(char *s, int slen) {
+        for (int i = 0; i < stackIndex; i++) {
+            if (!udl_strncasecmp(s, stack[i], slen)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void dump() {
+        fprintf(stderr, "tagstack: stackIndex:%d, stackSize:%d, tagIndx: %d, tagAvail:%d, stack:\n   ",
+                stackIndex, stackSize,
+                tagNameStorageIndex - tagNameStorageBase,
+                tagNameStorageAvail - tagNameStorageBase);
+        for (int i = 0; i < stackIndex; i++) {
+            fprintf(stderr, "%d:%s  ", i, stack[i]);
+        }
+        fprintf(stderr, "\n");
+    }
+};
+
+static const char *html_no_close_tags[] =  {
+        "basefont", "br", "area", "link", "img", "param", "hr", "input",
+        "col", "frame", "isindex", "base", "meta", NULL
+};
+static const char *html_optional_close_tags[] = {
+        "p", "dt", "dd", "li", "option", "thead", "tfoot", "colgroup",
+        "col", "tr", "th", "td", "script", "style", NULL
+    };
+static const char *html_block_tags[] = {
+        "p", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "pre", "dl", "div", "noscript", 
+        "blockquote", "form", "hr", "table", "fieldset", "address",
+        "script", "style", NULL
+    };
+static const char *html_cannot_contain_block_tags[] = {
+    "p", "dt", "script", "style", NULL
+    };
+static const char *html_close_tag_unnecessary[] = {
+        "basefont", "br", "area", "link", "img", "param", "hr", "input",
+        "col", "frame", "isindex", "base", "meta",
+        "p", "dt", "dd", "li", "option", "thead", "tfoot", "colgroup",
+        "col", "tr", "th", "td", "script", "style", NULL
+};
+
+static bool is_member(const char *name, int len, const char **list) {
+    for (const char **item = list; *item; ++item) {
+        if (!strncmp(name, *item, len) && !(*item)[len]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+#define OMIT_TAG_DEBUG 0
+
+void MainInfo::GetFoldChangeForLine(int lineStartPos,
+                                    int lineEndPos,
+                                    Accessor& styler,
+                                    int& foldChange,
+                                    bool& hasNonSpace,
+                                    StringStack *p_tagStack
+                                    )
 {
     // Fill the line
     // lineEndPos points one past the last char we're interested in.
@@ -1736,15 +1900,201 @@ void MainInfo::GetFoldChangeForLine(int lineStartPos, int lineEndPos,
         *p_buf++ = styler[i];
     }
     *p_buf = 0;
-    hasNonSpace = strspn(buf, " \t\r\n") < lineEndPos - lineStartPos;
+    hasNonSpace = (int) strspn(buf, " \t\r\n") < lineEndPos - lineStartPos;
     int netChange = 0;
     int pos = lineStartPos;
     int i = 0;
     int lastStyle = -1;
     int currStyleStartIdx = 0;
+    bool isTagMarkupStyles[SCE_UDL_UPPER_BOUND + 1];
+    if (p_tagStack) {
+        memset(isTagMarkupStyles, 0, sizeof(isTagMarkupStyles));
+        isTagMarkupStyles[SCE_UDL_M_STAGO] =
+            isTagMarkupStyles[SCE_UDL_M_ETAGO] =
+            isTagMarkupStyles[SCE_UDL_M_EMP_TAGC] =
+            isTagMarkupStyles[SCE_UDL_M_STAGC] = true;
+    }
     while (pos < lineEndPos) {
         int style = safeStyleAt(pos, styler);
         int j;
+        if (p_tagStack
+            && isTagMarkupStyles[style]) {
+            char curChar = buf[i];
+            if (curChar == '<'
+                && (style == SCE_UDL_M_STAGO || style == SCE_UDL_M_ETAGO)) {
+#if OMIT_TAG_DEBUG
+                fprintf(stderr, "Look at an html tag...\n");
+#endif
+                int i1 = i + 1;
+                int pos1 = pos + 1;
+                if (style == SCE_UDL_M_ETAGO
+                    && safeStyleAt(pos1, styler) == SCE_UDL_M_ETAGO) {
+                    ++pos1;
+                    ++i1;
+                }
+                char *p_tag_start = &buf[i1];
+                char *p_tag_end = NULL;
+                for (; pos1 < lineEndPos; ++pos1, ++i1) {
+                    if (safeStyleAt(pos1, styler) != SCE_UDL_M_TAGNAME) {
+#if OMIT_TAG_DEBUG
+                        fprintf(stderr, "Pulling out at \"%.10s\"\n", &buf[i1 - 1]);
+#endif
+                        p_tag_end = &buf[i1];
+                        break;
+                    }
+                }
+                if (pos1 == lineEndPos) {
+#if OMIT_TAG_DEBUG
+                    fprintf(stderr, "Hit the end of the line while looking at tags\n");
+#endif
+                    goto skip_tag_stack_adjustment;
+                }
+#if OMIT_TAG_DEBUG
+                fprintf(stderr, "Looking at tag style %d, name %.*s\n", style, p_tag_end - p_tag_start, p_tag_start);
+#endif
+                char *curr_tag_name = p_tag_start;
+                int   curr_tag_len = p_tag_end - p_tag_start;
+                char *prev_tag_name = p_tagStack->top();
+#if OMIT_TAG_DEBUG
+                fprintf(stderr, "STAGO|ETAGO : prev_tag_name: %s, curr_tag_len:%d, curr_tag_name:[%.*s]\n",
+                     prev_tag_name ? prev_tag_name : "<none>",
+                      curr_tag_len, curr_tag_len, curr_tag_name);
+#endif
+                if (style == SCE_UDL_M_STAGO) {
+                    if (prev_tag_name) {
+                        // Clear pending end-tags and omissible end-tag start-tags
+                        // Don't forget to check to see if this is an empty-tag
+
+                        // <foo>...<foo>, foo is optional-close
+                        if (!strncmp(curr_tag_name, prev_tag_name, curr_tag_len)
+                            && is_member(prev_tag_name,
+                                         strlen(prev_tag_name),
+                                         html_optional_close_tags)) {
+#if OMIT_TAG_DEBUG
+                            fprintf(stderr, "Pop: html_optional_close_tags, same tag\n");
+#endif
+                            p_tagStack->pop();
+                            --netChange;
+                            // <th>|<td> ... <tr> - close the item
+                        } else if (prev_tag_name[0] == 't' // "th" or "td"
+                                   && (prev_tag_name[1] == 'h'
+                                       || prev_tag_name[1] == 'd')
+                                   && !prev_tag_name[2]
+                                   && curr_tag_len == 2
+                                   && !strncmp(curr_tag_name, "tr", 2)) {
+                            p_tagStack->pop();
+#if OMIT_TAG_DEBUG
+                            fprintf(stderr, "Pop: th|td .. tr\n");
+#endif
+                            --netChange;
+                            // <x>...<y>, x can't contain block, y is block
+                        } else if (is_member(prev_tag_name,
+                                             strlen(prev_tag_name),
+                                             html_cannot_contain_block_tags)
+                                   && is_member(curr_tag_name,
+                                                curr_tag_len,
+                                                html_block_tags)) {
+                            p_tagStack->pop();
+#if OMIT_TAG_DEBUG
+                            fprintf(stderr, "Pop: prev cannot_contain_block_tags, curr is block\n");
+#endif
+                            --netChange;
+                        }
+                    }
+#if OMIT_TAG_DEBUG
+                    fprintf(stderr, "About to push tag %.*s\n", curr_tag_len, curr_tag_name);
+#endif
+                    p_tagStack->push(curr_tag_name, curr_tag_len);
+                    // Increment the netChange at the '>'
+                } else {
+                    // assert (style == SCE_UDL_M_ETAGO);
+#if OMIT_TAG_DEBUG
+                    fprintf(stderr, "ETAGO </: curr_tag_len:%d, curr_tag_name: [%.*s]\n",
+                         curr_tag_len, curr_tag_len, curr_tag_name);
+                    fprintf(stderr, "ETAGO </: prev_tag_name: %s\n",
+                          prev_tag_name ? prev_tag_name : "<none>");
+#endif
+                    if (prev_tag_name
+                        && p_tagStack->contains(curr_tag_name, curr_tag_len)) {
+#if OMIT_TAG_DEBUG
+                        fprintf(stderr, "Stack contains tag %*.s\n",
+                              curr_tag_len, curr_tag_name);
+#endif
+                        while (udl_strncasecmp(curr_tag_name, prev_tag_name,
+                                               curr_tag_len)) {
+                            p_tagStack->pop();
+                            prev_tag_name = p_tagStack->top();
+                            --netChange;
+                        }
+                    } else {
+                        while (prev_tag_name
+                               // Verify they're different
+                               && udl_strncasecmp(curr_tag_name, prev_tag_name,
+                                                  curr_tag_len)
+                               && is_member(prev_tag_name,
+                                            strlen(prev_tag_name),
+                                            html_close_tag_unnecessary)) {
+#if OMIT_TAG_DEBUG
+                            fprintf(stderr, "Pop: ETAGO: prev:%s, curr:%.*s, diff tags, prev is html_close_tag_unnecessary\n",
+                                    prev_tag_name, curr_tag_len, curr_tag_name);
+#endif
+                            p_tagStack->pop();
+                            prev_tag_name = p_tagStack->top();
+#if OMIT_TAG_DEBUG
+                            fprintf(stderr, "ETAGO </: After POP: prev_tag_name:%s, curr_tag_len:%d, curr_tag_name: [%.*s]\n",
+                                  prev_tag_name,
+                                  curr_tag_len, curr_tag_len, curr_tag_name);
+                            p_tagStack->dump();
+#endif
+                            --netChange;
+                        }
+                    }
+                    if (prev_tag_name
+                        && !udl_strncasecmp(curr_tag_name, prev_tag_name,
+                                            curr_tag_len)) {
+                        prev_tag_name = p_tagStack->pop();
+#if OMIT_TAG_DEBUG
+                        fprintf(stderr, "Pop: ETAGO: etag == stag\n");
+#endif
+                        // Decrement the netChange at the '>'
+                    }
+                }
+#if OMIT_TAG_DEBUG
+                p_tagStack->dump();
+#endif
+                
+            } else if (style == SCE_UDL_M_EMP_TAGC
+                       && curChar == '/') {
+                p_tagStack->pop();
+#if OMIT_TAG_DEBUG
+                fprintf(stderr, "Pop: empty tag\n");
+#endif
+                
+            } else if (style == SCE_UDL_M_STAGC
+                       && curChar == '>') {
+                char *prev_tag_name = p_tagStack->top();
+#if OMIT_TAG_DEBUG
+                fprintf(stderr, "STAGC >: prev_tag_name: %s\n",
+                      prev_tag_name ? prev_tag_name : "<none>");
+#endif
+                if (prev_tag_name
+                    && is_member(prev_tag_name,
+                                 strlen(prev_tag_name),
+                                 html_no_close_tags)) {
+                    p_tagStack->pop();
+#if OMIT_TAG_DEBUG
+                    fprintf(stderr, "Pop: STAGC >: prev is html_no_close_tags\n");
+#endif
+                    --netChange; // will be flipped up later on, so this is neutral
+                }
+            }
+#if OMIT_TAG_DEBUG
+            fprintf(stderr, "Style:%d, curChar:%c\n", style, curChar);
+            p_tagStack->dump();
+#endif
+            //Force rebuild.
+        }
+    skip_tag_stack_adjustment:
         if (style == lastStyle) {
             j = currStyleStartIdx;
         } else {
@@ -2179,7 +2529,7 @@ static void synchronizeDocStart(unsigned int& startPos,
 #endif
                 } else {
 #if 0
-                    fprintf(stderr, "udl: QQQ: synchronizeDocStart: stopping at line %d => %d, pos %d => %d, docLength %d, family %d, color %d\n",
+                    fprintf(stderr, "udl: synchronizeDocStart: stopping at line %d => %d, pos %d => %d, docLength %d, family %d, color %d\n",
                             styler.GetLine(startPos),
                             startLine, startPos, newPos, length + (startPos - newPos),
                             currFamily,
@@ -2652,6 +3002,22 @@ static void setNewDelimiter(Transition      *p_TranBlock,
     }
 }
 
+#if UDL_DEBUG_TIME
+static void ShowElapsedTime(const char *where,
+                            struct timeval& t1,
+                            struct timeval& t2) {
+    int secDiff = (int) (t2.tv_sec - t1.tv_sec);
+    int msecDiff = (int) (t2.tv_usec - t1.tv_usec);
+    if (msecDiff < 0) {
+        msecDiff += 1000000;
+        secDiff -= 1;
+    }
+    fprintf(stderr, "UDL fold calc time (%s): %f msecs\n",
+            where,
+            1000 * secDiff + msecDiff/1000.0);
+}
+#endif
+
 static void ColouriseTemplate1Doc(unsigned int startPos,
                                   int length,
                                   int
@@ -2679,6 +3045,14 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
     LogEvent(true, "ColouriseTemplate1Doc", &styler);
 #endif
 
+#if UDL_DEBUG_TIME
+    struct timeval t1, t2;
+    gettimeofday(&t1, NULL);
+#endif
+#if UDL_WINDEBUG
+    time_t t1, t2;
+    t1 = time(NULL);
+#endif
     bool rc;
     WordList &wl = *keywordlists[0];
     char *p_subLanguage = wl.words[0];
@@ -2968,73 +3342,43 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
     delete p_CurrTextLine;
     delete p_BufferStateInfo;
     LogEvent(false, "ColouriseTemplate1Doc", &styler);
+#if UDL_DEBUG_TIME
+    gettimeofday(&t2, NULL);
+    ShowElapsedTime("ColouriseTemplate1Doc", t1, t2);
+#endif
+#if UDL_DEBUG
+    fprintf(stderr, "<< udl: ColouriseTemplate1Doc\n");
+#endif
+#if UDL_WINDEBUG
+    t2 = time(NULL);
+    fprintf(stderr, "ColouriseTemplate1Doc: %d secs\n", t2 - t1);
+#endif
 }
 
-//Precondition: buf can contain at least 3 chars, including the null byte.
-
-//Precondition: s points to a zero-terminated string
-
-static bool containsNonSpace(char *s) {
-    while (*s) {
-        if (!isspacechar(*s)) {
-            return true;
+static char * _getLanguageNameFromLexresPath(char *path) {
+    char *part = strstr(path, ".lexres");
+    if (!part) return part;
+    while (--part > path) {
+        if (*part == '/' || *part == '\\') {
+            return part + 1;
         }
-        ++s;
+    }
+    return NULL;
+}
+
+static bool lookingAtXMLDocument(Accessor &styler) {
+    if (styler.Length() < 6) return true;  // doens't matter too much
+    if (styler.Length() > 6
+        && styler[0] == '<'
+        && styler[1] == '?'
+        && styler[2] == 'x'
+        && styler[3] == 'm'
+        && styler[4] == 'l'
+        && styler[5] == ' ') {
+        return true;
     }
     return false;
 }
-
-static void getToken(int 	curr_style,
-                     int 	pos,
-                     int	docLength,
-                     char  *buf,
-                     int 	bufSize,
-                     Accessor &styler)
-{
-    char ch = buf[0] = styler[pos];
-    if (pos >= docLength || ch == '\n') {
-        buf[1] = 0;
-        return;
-    } else if (ch == '\r' && styler[pos + 1] == '\n') {
-        buf[1] = '\n';
-        buf[2] = 0;
-        return;
-    }
-    char *p_s = &buf[1];
-    int maxNumToCopy = docLength - pos + 1; // include zero byte
-    if (maxNumToCopy > bufSize) {
-        docLength = pos + bufSize - 1;
-    }
-    // No need to test the first char of the return buf
-    for (++pos; pos < docLength; ++pos) {
-        ch = styler[pos];
-        if (ch == '\r' || ch == '\n') {
-            break;
-        }
-        if (safeStyleAt(pos, styler) == curr_style) {
-            *p_s++ = ch;
-        } else {
-            break;
-        }
-    }
-    *p_s = 0;
-}
-
-#if UDL_DEBUG
-static void ShowElapsedTime(const char *where,
-                            struct timeval& t1,
-                            struct timeval& t2) {
-    int secDiff = (int) (t2.tv_sec - t1.tv_sec);
-    int msecDiff = (int) (t2.tv_usec - t1.tv_usec);
-    if (msecDiff < 0) {
-        msecDiff += 1000000;
-        secDiff -= 1;
-    }
-    fprintf(stderr, "UDL fold calc time (%s): %f msecs\n",
-            where,
-            1000 * secDiff + msecDiff/1000.0);
-}
-#endif
 
 static void FoldUDLDoc(unsigned int startPos, int length, int
 #if UDL_DEBUG
@@ -3045,7 +3389,7 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
 {
 #if UDL_DEBUG
     fprintf(stderr,
-            "udl: FoldUDLDoc(startPos=%d, length=%d, initStyle=%d\n",
+            ">> udl: FoldUDLDoc(startPos=%d, length=%d, initStyle=%d\n",
             startPos,
             length, initStyle);
 #endif
@@ -3058,6 +3402,18 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
     MainInfo *p_MainInfo = LexerList.Intern((*(keywordlists[0])).words[0]);
     if (!p_MainInfo || !p_MainInfo->IsReady()) {
         return;
+    }
+    StringStack *p_tagStack;
+    int lastLine;
+    //XXX: Can't use a property on the lexer, since many languages
+    // share the same lexer, so this should really  be controlled with
+    // a UDL declaration.
+    if (!lookingAtXMLDocument(styler)) {
+        p_tagStack = new StringStack;
+        lastLine = styler.GetLine(styler.Length());
+    } else {
+        p_tagStack = NULL;
+        lastLine = 0;
     }
     const bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
     // bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
@@ -3089,15 +3445,30 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
     int lineEnd = styler.GetLine(endPos);
     int startLinePos;
     int endLinePos = styler.LineStart(lineStart);
-#if UDL_DEBUG
+#if UDL_DEBUG_TIME
     struct timeval t1, t2;
     gettimeofday(&t1, NULL);
 #endif
-    for (lineNo = lineStart; lineNo <= lineEnd; lineNo++) {
+#if UDL_WINDEBUG
+    time_t t1, t2;
+    t1 = time(NULL);
+#endif
+    char *p_tagName;
+    for (lineNo = lineStart;
+         (lineNo <= lineEnd
+          || (p_tagStack
+              && lineNo <= lastLine
+              // && !p_tagStack->isEmpty()
+              && (p_tagName = p_tagStack->top()) != NULL
+              && is_member(p_tagName,
+                           strlen(p_tagName),
+                           html_close_tag_unnecessary)));
+         lineNo++) {
         startLinePos = endLinePos;
         endLinePos = lineNo == lineEnd ? endPos + 1 : styler.LineStart(lineNo + 1);
         int foldChange = 0;
-        p_MainInfo->GetFoldChangeForLine(startLinePos, endLinePos, styler, foldChange, hasNonSpace);
+        p_MainInfo->GetFoldChangeForLine(startLinePos, endLinePos, styler, foldChange, hasNonSpace, p_tagStack);
+        //fprintf(stderr, "**************** Change at line %d: %d\n", lineNo, foldChange);
         levelCurrent += foldChange;
         if (levelCurrent < 0)
             levelCurrent = 0;
@@ -3112,10 +3483,18 @@ static void FoldUDLDoc(unsigned int startPos, int length, int
         styler.SetLevel(lineNo, lev|SC_FOLDLEVELBASE);
         levelPrev = levelCurrent;
     }
+    delete p_tagStack;
     LogEvent(false, "FoldUDLDoc", &styler);
 #if UDL_DEBUG
+    fprintf(stderr, "<< udl: FoldUDLDoc\n");
+#endif
+#if UDL_DEBUG_TIME
     gettimeofday(&t2, NULL);
     ShowElapsedTime("FoldUDLDoc", t1, t2);
+#endif
+#if UDL_WINDEBUG
+    t2 = time(NULL);
+    fprintf(stderr, "FoldUDLDoc: %d secs\n", t2 - t1);
 #endif
 }
 
