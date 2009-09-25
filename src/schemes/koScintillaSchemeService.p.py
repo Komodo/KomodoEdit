@@ -413,7 +413,7 @@ class Scheme:
         if style in self._appliedData:
             aspect = self._appliedData[style].get(attribute)
         if aspect is None:
-            aspect = self._appliedData['default'][attribute]
+            aspect = self._getAspectFromStyleBlocks(style, attribute)
         return aspect
 
     def _getAspect(self, language, style, attribute):
@@ -620,7 +620,6 @@ class Scheme:
                             if self.getGlobalSubLanguageBackgroundEnabled(subLanguageName, language):
                                 UDLBackgroundColor = defaultSubLanguageStyles.get('compound_document_defaults', {}).get('back')
                             if subLanguageName != language:
-                                style.update(defaultSubLanguageStyles.get('default', {}))
                                 style.update(defaultSubLanguageStyles.get(common_name, {}))
                     except:
                         log.exception("Failed to get sub-language for family %s from language %s ", family, language)
