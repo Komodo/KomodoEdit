@@ -1248,7 +1248,7 @@
                         }
                         break;
                     case event.DOM_VK_ESCAPE:
-                        var view = ko.views.manager.currentView;
+                        var view = ko.views ? ko.views.manager.currentView : null;
                         this.columnModeStartLine = -1;
                         if (this.scimoz.autoCActive()) {
                             this.scimoz.autoCCancel();
@@ -1262,10 +1262,12 @@
                             event.preventDefault();
                             event.cancelBubble = true;
                             return;
-                        } else if (ko.tabstops) {
+                        } else if (view && ko.tabstops) {
                             ko.tabstops.clearTabstopInfo(view);
                         }
-                        view.clearMatchingTag();
+                        if (view) {
+                            view.clearMatchingTag();
+                        }
                         break;
                     case event.DOM_VK_DELETE:
                         if (ko.tabstops) {
