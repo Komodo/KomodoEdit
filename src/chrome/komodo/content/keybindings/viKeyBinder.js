@@ -1800,6 +1800,16 @@ noreadonly
 }
 
 
+function mapped_command_vim_delete(command_details) {
+    var scimoz = ko.views.manager.currentView.scimoz;
+    if (scimoz.selText) {
+        gVimController._mode = VimController.MODE_VISUAL;
+        vim_doCommand("cmd_vim_deleteOperation");
+    } else {
+        vim_doCommand("cmd_vim_lineCut");
+    }
+}
+
 function mapped_command_vim_edit(command_details) {
     ko.commands.doCommand("cmd_revert");
 }
@@ -1862,7 +1872,18 @@ function mapped_command_vim_writequit(command_details) {
     ko.commands.doCommand("cmd_bufferClose");
 }
 
+function mapped_command_vim_copy(command_details) {
+    var scimoz = ko.views.manager.currentView.scimoz;
+    if (scimoz.selText) {
+        gVimController._mode = VimController.MODE_VISUAL;
+        vim_doCommand("cmd_vim_yankOperation");
+    } else {
+        vim_doCommand("cmd_vim_yankLine");
+    }
+}
+
 VimController.special_command_mappings = {
+    "delete"   : mapped_command_vim_delete,
     "edit"     : mapped_command_vim_edit,
     "exit"     : mapped_command_vim_writequit,
     "help"     : mapped_command_vim_help,
@@ -1875,7 +1896,8 @@ VimController.special_command_mappings = {
     "vsplitview": mapped_command_vim_vsplitview,
     "write"    : mapped_command_vim_write,
     "wq"       : mapped_command_vim_writequit,
-    "xit"      : mapped_command_vim_writequit
+    "xit"      : mapped_command_vim_writequit,
+    "yank"     : mapped_command_vim_copy
 };
 
 /**
