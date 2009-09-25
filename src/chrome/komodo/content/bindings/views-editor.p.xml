@@ -507,7 +507,6 @@
         <method name="_setupHighlightColors">
         <body>
         <![CDATA[
-            debugger;
             var colorInfo = {};
             var scheme = this.scintilla.scheme;
             this._highlightColors = {};
