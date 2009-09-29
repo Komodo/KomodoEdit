@@ -1275,6 +1275,7 @@ def target_configure(argv):
     ]
     mozMakeOptions = []
     mozBuildExtensions = []
+    mozRawOptions = []
        
     # Process options.
     try:
@@ -1443,6 +1444,13 @@ def target_configure(argv):
         # we will use the 10.2.8 sdk
         # If building on panther, we do not want to use with-macos-sdk,
         # it is broken.
+
+        osx_major_ver = int(os.uname()[2].split(".")[0])
+        # The osx_major_ver has the following values:
+        #   10: Snow Leopard (OS X 10.6)
+        #   9:  Leopard (OS X 10.5)
+        #   8:  Tiger (OS X 10.4)
+
         if pi.arch == "x86":
             mozBuildOptions.append("enable-macos-target=10.4")
         else:
@@ -1468,6 +1476,23 @@ def target_configure(argv):
                              "'/Library/Frameworks'.")
     
         mozBuildOptions.append("with-macos-sdk=%s" % sdk)
+
+        # On Snow Leopard Komodo must be built as a 32-bit app and it must use
+        # gcc 4.0, specify that now. Details from:
+        #   https://developer.mozilla.org/en/Mac_OS_X_Build_Prerequisites
+        if osx_major_ver >= 10:
+            mozBuildOptions.append("target=i386-apple-darwin8.0.0")
+            mozRawOptions.append('CC="gcc-4.0 -arch i386"')
+            mozRawOptions.append('CXX="g++-4.0 -arch i386"')
+            #mozRawOptions.append('HOST_CC="gcc-4.0"')
+            #mozRawOptions.append('HOST_CXX="g++-4.0"')
+            # Other settings from Mozilla Build page:
+            mozRawOptions.append('RANLIB=ranlib')
+            mozRawOptions.append('AR=ar')
+            mozRawOptions.append('AS=$CC')
+            mozRawOptions.append('LD=ld')
+            mozRawOptions.append('STRIP="strip -x -S"')
+            mozRawOptions.append('CROSS_COMPILE=1')
 
     config["changenum"] = _getChangeNum()
     if sys.platform == "win32":
@@ -1720,6 +1745,9 @@ def target_configure(argv):
 
         for opt in mozMakeOptions:
             config["mozconfig"] += "mk_add_options %s\n" % opt
+
+        for opt in mozRawOptions:
+            config["mozconfig"] += "%s\n" % opt
 
         for opt in mozBuildOptions:
             config["mozconfig"] += "ac_add_options --%s\n" % opt
@@ -2531,6 +2559,9 @@ def target_jsstandalone(argv=["mozilla"]):
     if sys.platform.startswith("win"):
         make_env.append("USE_MSVC=1")
     make_env.append("MOZ_OBJDIR=%s" % unixy_objdir)
+    if sys.platform.startswith("darwin") and int(os.uname()[2].split(".")[0]) >= 10:
+        # Snow leopard - ensure to use gcc-4.0 to build the standalone js.
+        make_env.append('CC="gcc-4.0 -arch i386"')
     log.info("entering directory '%s' (to build js separately)",
              jsDir)
     _run_in_dir('make -f Makefile.ref clean all distbin %s'
@@ -2587,6 +2618,11 @@ def target_libmar(argv=["mozilla"]):
              libmar_dir)
     _run_in_dir('make', libmar_dir, log.info)
     return argv[1:]
+
+
+def target_js(argv):
+    """build the standalone javascript interpreter"""
+    target_jsstandalone()
 
 
 def target_all(argv):
