@@ -13,6 +13,6 @@ diff -d -u -r1.104 Makefile.in
 -CFLAGS          += $(MOZ_GTK2_CFLAGS)
 +CXXFLAGS        += $(MOZ_GTK2_CFLAGS) -I$(DEPTH)/widget/src/gtksuperwin
 +CFLAGS          += $(MOZ_GTK2_CFLAGS) -I$(DEPTH)/widget/src/gtksuperwin
- EXTRA_DSO_LDOPTS += -lgtkxtbin $(XLDFLAGS) $(XT_LIBS) $(MOZ_GTK2_LIBS) $(XLIBS) $(XEXT_LIBS) $(XCOMPOSITE_LIBS)
+ EXTRA_DSO_LDOPTS += -lgtkxtbin $(XLDFLAGS) $(XT_LIBS) $(MOZ_GTK2_LIBS) $(XLIBS)
  endif           #MOZ_ENABLE_GTK2
  
