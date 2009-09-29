@@ -1,0 +1,30 @@
+Index: widget/src/xremoteclient/XRemoteClient.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/xremoteclient/XRemoteClient.cpp,v
+retrieving revision 1.17
+diff -u -r1.17 XRemoteClient.cpp
+--- widget/src/xremoteclient/XRemoteClient.cpp	4 Apr 2005 19:08:51 -0000	1.17
++++ widget/src/xremoteclient/XRemoteClient.cpp	30 Jun 2005 22:23:00 -0000
+@@ -58,14 +58,14 @@
+ #include <poll.h>
+ #endif
+ 
+-#define MOZILLA_VERSION_PROP   "_MOZILLA_VERSION"
+-#define MOZILLA_LOCK_PROP      "_MOZILLA_LOCK"
+-#define MOZILLA_COMMAND_PROP   "_MOZILLA_COMMAND"
+-#define MOZILLA_COMMANDLINE_PROP "_MOZILLA_COMMANDLINE"
+-#define MOZILLA_RESPONSE_PROP  "_MOZILLA_RESPONSE"
+-#define MOZILLA_USER_PROP      "_MOZILLA_USER"
+-#define MOZILLA_PROFILE_PROP   "_MOZILLA_PROFILE"
+-#define MOZILLA_PROGRAM_PROP   "_MOZILLA_PROGRAM"
++#define MOZILLA_VERSION_PROP   "_KOMODOPT_CONFIG_komodoVersion_MOZILLA_VERSION"
++#define MOZILLA_LOCK_PROP      "_KOMODOPT_CONFIG_komodoVersion_MOZILLA_LOCK"
++#define MOZILLA_COMMAND_PROP   "_KOMODOPT_CONFIG_komodoVersion_MOZILLA_COMMAND"
++#define MOZILLA_COMMANDLINE_PROP "_KOMODOPT_CONFIG_komodoVersion_MOZILLA_COMMANDLINE"
++#define MOZILLA_RESPONSE_PROP  "_KOMODOPT_CONFIG_komodoVersion_MOZILLA_RESPONSE"
++#define MOZILLA_USER_PROP      "_KOMODOPT_CONFIG_komodoVersion_MOZILLA_USER"
++#define MOZILLA_PROFILE_PROP   "_KOMODOPT_CONFIG_komodoVersion_MOZILLA_PROFILE"
++#define MOZILLA_PROGRAM_PROP   "_KOMODOPT_CONFIG_komodoVersion_MOZILLA_PROGRAM"
+ 
+ #ifndef MAX_PATH
+ #define MAX_PATH 1024

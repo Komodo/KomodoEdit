@@ -1,0 +1,33 @@
+Index: configure.in
+===================================================================
+RCS file: /cvsroot/mozilla/configure.in,v
+retrieving revision 1.1482
+diff -u -r1.1482 configure.in
+--- configure.in	30 Jun 2005 00:19:17 -0000	1.1482
++++ configure.in	30 Jun 2005 22:35:14 -0000
+@@ -4379,6 +4382,18 @@
+   AC_DEFINE(MOZ_MACBROWSER)
+   ;;
+ 
++komodo)
++  MOZ_APP_NAME=komodo
++  MOZ_APP_DISPLAYNAME=Komodo
++  MOZ_XUL_APP=1
++  MOZ_XULRUNNER=1
++  MOZ_KOMODO=1
++  MOZ_APP_VERSION=`cat $topsrcdir/komodo/config/version.txt`
++  MOZ_EXTENSIONS_DEFAULT=" cookie xml-rpc xmlextras pref transformiix universalchardet webservices inspector gnomevfs negotiateauth permissions reporter"
++  AC_DEFINE(MOZ_XULRUNNER)
++  AC_DEFINE(MOZ_KOMODO)
++  ;;
++
+ standalone) 
+   MOZ_APP_NAME=mozilla
+   MOZ_APP_DISPLAYNAME=Mozilla
+@@ -4399,6 +4414,7 @@
+ AC_SUBST(MOZ_STANDALONE_COMPOSER)
+ AC_SUBST(MOZ_SUNBIRD)
+ AC_SUBST(MOZ_XULRUNNER)
++AC_SUBST(MOZ_KOMODO)
+ 
+ AC_DEFINE_UNQUOTED(MOZ_BUILD_APP,$MOZ_BUILD_APP)

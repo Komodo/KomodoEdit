@@ -37,6 +37,8 @@
 """Apply these patches to the MOZILLA_1_8_0_BRANCH Mozilla CVS branch."""
 
 def applicable(config):
+    if hasattr(config, "mozVer") and config.mozVer == 1.80:
+        return False
     if config.mozSrcType != "cvs":
         return False
     elif config.mozSrcCvsTag == "MOZILLA_1_8_0_BRANCH":

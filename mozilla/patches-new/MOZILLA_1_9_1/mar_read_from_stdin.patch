@@ -1,0 +1,136 @@
+diff
+
+https://bugzilla.mozilla.org/show_bug.cgi?id=385962
+
+Index: modules/libmar/src/mar_create.c
+===================================================================
+RCS file: /cvsroot/mozilla/modules/libmar/src/mar_create.c,v
+retrieving revision 1.2
+diff -u -r1.2 mar_create.c
+--- modules/libmar/src/mar_create.c	8 Jun 2005 17:28:19 -0000	1.2
++++ modules/libmar/src/mar_create.c	26 Jun 2007 20:42:43 -0000
+@@ -136,7 +136,7 @@
+ 
+   fp = fopen(dest, "wb");
+   if (!fp) {
+-    fprintf(stderr, "ERROR: could not create target file: %s\n", dest);
++    fprintf(stderr, "mar: ERROR: could not create target file: %s\n", dest);
+     return -1;
+   }
+ 
+@@ -149,7 +149,7 @@
+ 
+   for (i = 0; i < num_files; ++i) {
+     if (stat(files[i], &st)) {
+-      fprintf(stderr, "ERROR: file not found: %s\n", files[i]);
++      fprintf(stderr, "mar: ERROR: file not found: %s\n", files[i]);
+       goto failure;
+     }
+ 
+Index: modules/libmar/tool/mar.c
+===================================================================
+RCS file: /cvsroot/mozilla/modules/libmar/tool/mar.c,v
+retrieving revision 1.3
+diff -u -r1.3 mar.c
+--- modules/libmar/tool/mar.c	22 Jun 2005 00:26:29 -0000	1.3
++++ modules/libmar/tool/mar.c	26 Jun 2007 20:42:43 -0000
+@@ -48,6 +48,7 @@
+ 
+ static void print_usage() {
+     printf("usage: mar [-C dir] {-c|-x|-t} archive.mar [files...]\n");
++    printf("  Use '-' for 'files...' to provide files on stdin (one per line).\n");
+ }
+ 
+ static int mar_test_callback(MarFile *mar, const MarItem *item, void *unused) {
+@@ -69,6 +70,37 @@
+   return 0;
+ }
+ 
++
++#define MAXLINE 1024
++
++/* Get a line from stdin (up to MAXLINE-1 chars).
++ * Line will always be null-terminated.
++ *
++ * Returns 0 on success, 1 on EOF, -1 on line too long (the rest of the
++ * line will have been read and thrown away).
++ */
++static int mar_getline(char *buf) {
++  int c, i = 0;
++  int rv = 0;
++  while ((c = getchar()) != EOF) {
++    if (c == '\n') break;
++    if (i < MAXLINE-1)
++      buf[i++] = c;
++    else
++      rv = -1;
++  }
++  buf[i] = '\0';
++  
++  if (c == EOF && i == 0) {
++    /* Only report EOF when didn't read anything on this line, otherwise
++     * caller will miss last line.
++     */ 
++    rv = 1;
++  }
++  return rv;
++}
++
++
+ int main(int argc, char **argv) {
+   int command;
+ 
+@@ -85,7 +117,52 @@
+ 
+   switch (argv[1][1]) {
+   case 'c':
+-    return mar_create(argv[2], argc - 3, argv + 3);
++    if (argc == 4 && strcmp(argv[3], "-") == 0) {
++      /* Read files from stdin. */
++
++      #define FILES_AT_A_TIME 100
++      char line[MAXLINE];
++      int len, i, rv;
++      char **files = (char**) malloc(sizeof(char*) * FILES_AT_A_TIME);
++      int num_files_until_realloc = FILES_AT_A_TIME;
++      char *file;
++      int num_files = 0;
++      
++      while (1) {
++        /* Read a line. */
++        rv = mar_getline(line);
++        if (rv == 1) break; /* EOF */
++        if (rv == -1) {
++          fprintf(stderr, "mar: ERROR: stdin line too long: '%s...'\n",
++                  line);
++          return -1;
++        }
++        len = strlen(line);
++        if (len == 0) continue; /* skip empty lines */
++
++        /* Ensure have space in 'files' array for new file. */
++        if (num_files_until_realloc == 0) {
++          files = (char**) realloc(files, sizeof(char*) * (num_files + FILES_AT_A_TIME));
++          num_files_until_realloc = FILES_AT_A_TIME;
++        }
++
++        file = (char*) malloc(len+1);
++        strcpy(file, line);
++        files[num_files++] = file;
++        num_files_until_realloc--;
++      }
++
++      rv = mar_create(argv[2], num_files, files);
++
++      for (i = 0; i < num_files; ++i) {
++        free(files[i]);
++      }
++      free(files);
++      
++      return rv;
++    } else {
++      return mar_create(argv[2], argc - 3, argv + 3);
++    }
+   case 't':
+     return mar_test(argv[2]);
+   case 'x':

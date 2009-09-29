@@ -1,0 +1,17 @@
+diff
+
+C.f. the "MOZ_NO_REMOTE" discussion in
+Komodo-devel/src/main/xre/app/koStart.unprocessed.c
+
+--- toolkit/xre/nsNativeAppSupportWin.cpp.original	Thu Mar 09 15:47:28 2006
++++ toolkit/xre/nsNativeAppSupportWin.cpp	Thu Mar 09 15:48:23 2006
+@@ -626,7 +626,8 @@
+     NS_ENSURE_TRUE( mInstance == 0, NS_ERROR_NOT_INITIALIZED );
+     NS_ENSURE_STATE( gAppData );
+ 
+-    if (getenv("MOZ_NO_REMOTE"))
++    if (true  /* never want the DDE server, it causes Komodo cross-talk */
++        || getenv("MOZ_NO_REMOTE"))
+     {
+         *aResult = PR_TRUE;
+         return NS_OK;

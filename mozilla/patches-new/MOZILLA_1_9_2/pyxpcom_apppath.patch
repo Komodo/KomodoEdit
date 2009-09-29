@@ -1,0 +1,168 @@
+Index: extensions/python/xpcom/src/dllmain.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/dllmain.cpp,v
+retrieving revision 1.19
+diff -u -r1.19 dllmain.cpp
+--- extensions/python/xpcom/src/dllmain.cpp	5 Oct 2006 10:44:03 -0000	1.19
++++ extensions/python/xpcom/src/dllmain.cpp	4 Aug 2008 20:41:58 -0000
+@@ -96,30 +96,15 @@
+ 	PR_Unlock(g_lockMain);
+ }
+ 
+-// Ensure that any paths guaranteed by this package exist on sys.path
+-// Only called once as we are first loaded into the process.
+-void AddStandardPaths()
++bool AddSitePath(nsIFile *aFile)
+ {
+-	// Put {bin}\Python on the path if it exists.
+-	nsresult rv;
+-	nsCOMPtr<nsIFile> aFile;
+-	// XXX - this needs more thought for XULRunner - we want to stick the global
+-	// 'python' dir on sys.path (for xpcom etc), but also want to support a way
+-	// of adding a local application directory (in the case of xulrunner) too.
+-	// NS_XPCOM_CURRENT_PROCESS_DIR is the XULRunner app dir (ie, where application.ini lives)
+-	// NS_GRE_DIR is the 'bin' dir for XULRunner itself.
+-	rv = NS_GetSpecialDirectory(NS_GRE_DIR, getter_AddRefs(aFile));
+-	if (NS_FAILED(rv)) {
+-		PyXPCOM_LogError("The Python XPCOM loader could not locate the 'bin' directory");
+-		return;
+-	}
+ 	aFile->Append(NS_LITERAL_STRING("python"));
+ 	nsAutoString pathBuf;
+ 	aFile->GetPath(pathBuf);
+ 	PyObject *obPath = PySys_GetObject("path");
+ 	if (!obPath) {
+ 		PyXPCOM_LogError("The Python XPCOM loader could not get the Python sys.path variable");
+-		return;
++		return false;
+ 	}
+ 	// XXX - this should use the file-system encoding...
+ 	NS_LossyConvertUTF16toASCII pathCBuf(pathBuf);
+@@ -138,7 +123,93 @@
+ 	if (0 != PyRun_SimpleString((char *)cmdBuf.get())) {
+ 		PyXPCOM_LogError("The directory '%s' could not be added as a site directory", pathCBuf.get());
+ 		PyErr_Clear();
++		return false;
++	}
++	return true;
++}
++
++
++
++#if defined(XP_WIN) || defined(XP_UNIX)
++/* Set PYTHONHOME to '../../python' dir relative to the pyloader location
++ * (if it exists).
++ */
++PYXPCOM_EXPORT void
++PyXPCOM_SetPythonHome(nsIFile* loaderLocation) {
++    nsresult rv;
++
++    /* Look for siloed Python in ../../python relative to the pyloader.so|dll
++     * dir (i.e. the components dir).
++     */
++    nsCOMPtr<nsIFile> componentsDir;
++    rv = loaderLocation->GetParent(getter_AddRefs(componentsDir));
++    if (NS_FAILED(rv)) {
++        PyXPCOM_LogError("pyloader: Couldn't get pyloader parent dir!\n");
++        return;
++    }
++    nsCOMPtr<nsIFile> binDir;
++    rv = componentsDir->GetParent(getter_AddRefs(binDir));
++    if (NS_FAILED(rv)) {
++        PyXPCOM_LogError("pyloader: Couldn't get components parent dir!\n");
++        return;
++    }
++    nsCOMPtr<nsIFile> distDir;
++    rv = binDir->GetParent(getter_AddRefs(distDir));
++    if (NS_FAILED(rv)) {
++        PyXPCOM_LogError("pyloader: Couldn't get bin parent dir!\n");
++        return;
++    }
++    nsCOMPtr<nsILocalFile> pythonHome = do_QueryInterface(distDir);
++    rv = pythonHome->AppendRelativePath(NS_LITERAL_STRING("python"));
++    if (NS_FAILED(rv)) {
++        PyXPCOM_LogError("pyloader: Couldn't build python home dir!\n");
++        return;
++    }
++
++    PRBool exists;
++    rv = pythonHome->Exists(&exists);
++    if (NS_FAILED(rv) || !exists) return;
++
++    nsCAutoString cstr;
++    pythonHome->GetNativePath(cstr);
++    char *expr = PR_smprintf("PYTHONHOME=%s", cstr.get());
++    if (expr) {
++#ifdef DEBUG
++        PyXPCOM_LogDebug("pyloader: %s\n", expr);
++#endif
++        PR_SetEnv(expr);
++    } else {
++        PyXPCOM_LogError("pyloader: Couldn't set PYTHONHOME!\n");
++    }
++}
++#endif
++
++// Ensure that any paths guaranteed by this package exist on sys.path
++// Only called once as we are first loaded into the process.
++void AddStandardPaths()
++{
++	// Put {bin}\Python on the path if it exists.
++	nsresult rv;
++	nsCOMPtr<nsIFile> aFile;
++	// XXX - this needs more thought for XULRunner - we want to stick the global
++	// 'python' dir on sys.path (for xpcom etc), but also want to support a way
++	// of adding a local application directory (in the case of xulrunner) too.
++	// NS_XPCOM_CURRENT_PROCESS_DIR is the XULRunner app dir (ie, where application.ini lives)
++	// NS_GRE_DIR is the 'bin' dir for XULRunner itself.
++	rv = NS_GetSpecialDirectory(NS_GRE_DIR, getter_AddRefs(aFile));
++	if (NS_FAILED(rv)) {
++		PyXPCOM_LogError("The Python XPCOM loader could not locate the 'bin' directory");
++		return;
++	}
++	if (!AddSitePath(aFile)) return;
++
++	rv = NS_GetSpecialDirectory(NS_XPCOM_CURRENT_PROCESS_DIR, getter_AddRefs(aFile));
++	if (NS_FAILED(rv)) {
++		PyXPCOM_LogError("The Python XPCOM loader could not locate the 'current process' directory");
++		return;
+ 	}
++	if (!AddSitePath(aFile)) return;
++	
+ 	// and somewhat like Python itself (site, citecustomize), we attempt 
+ 	// to import "sitepyxpcom" ignoring ImportError
+ 	PyObject *mod = PyImport_ImportModule("sitepyxpcom");
+Index: extensions/python/xpcom/src/loader/pyloader.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/loader/pyloader.cpp,v
+retrieving revision 1.26
+diff -u -r1.26 pyloader.cpp
+--- extensions/python/xpcom/src/loader/pyloader.cpp	11 Apr 2006 06:12:14 -0000	1.26
++++ extensions/python/xpcom/src/loader/pyloader.cpp	4 Aug 2008 20:42:16 -0000
+@@ -99,6 +99,9 @@
+                                           nsIFile* location,
+                                           nsIModule** result)
+ {
++#if defined(XP_WIN) || defined(XP_UNIX)
++	PyXPCOM_SetPythonHome(location);
++#endif
+ 	PyXPCOM_EnsurePythonEnvironment();
+ 	NS_TIMELINE_START_TIMER("PyXPCOM: PyXPCOM NSGetModule entry point");
+ 	nsresult rc = PyXPCOM_NSGetModule(servMgr, location, result);
+Index: extensions/python/xpcom/src/PyXPCOM.h
+===================================================================
+RCS file: /cvsroot/mozilla/extensions/python/xpcom/src/PyXPCOM.h,v
+retrieving revision 1.22
+diff -u -r1.22 PyXPCOM.h
+--- extensions/python/xpcom/src/PyXPCOM.h	5 Jan 2008 06:32:35 -0000	1.22
++++ extensions/python/xpcom/src/PyXPCOM.h	4 Aug 2008 20:42:24 -0000
+@@ -633,6 +633,9 @@
+ 
+ // Initialize Python and do anything else necessary to get a functioning
+ // Python environment going...
++#if defined(XP_WIN) || defined(XP_UNIX)
++PYXPCOM_EXPORT void PyXPCOM_SetPythonHome(nsIFile* location);
++#endif
+ PYXPCOM_EXPORT void PyXPCOM_EnsurePythonEnvironment(void);
+ 
+ PYXPCOM_EXPORT void PyXPCOM_MakePendingCalls();

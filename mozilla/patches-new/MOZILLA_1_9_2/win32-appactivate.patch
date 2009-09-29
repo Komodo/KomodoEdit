@@ -1,0 +1,47 @@
+Index: widget/src/windows/nsWindow.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/windows/nsWindow.cpp,v
+retrieving revision 3.745
+diff -u -r3.745 nsWindow.cpp
+--- widget/src/windows/nsWindow.cpp	7 May 2008 04:46:38 -0000	3.745
++++ widget/src/windows/nsWindow.cpp	1 Aug 2008 22:39:55 -0000
+@@ -48,6 +48,10 @@
+  * the terms of any one of the MPL, the GPL or the LGPL.
+  *
+  * ***** END LICENSE BLOCK ***** */
++#include "nsCOMPtr.h"
++#include "nsXPCOM.h"
++#include "nsISupportsPrimitives.h"
++#include "nsServiceManagerUtils.h"
+ 
+ #if defined(DEBUG_ftang)
+ //#define KE_DEBUG
+@@ -4252,6 +4256,28 @@
+     nsMemory::HeapMinimize(PR_TRUE);
+     break;
+ #endif
++
++    case WM_ACTIVATEAPP:
++      {
++        if (mWindowType == eWindowType_toplevel) {
++            result = TRUE;
++            *aRetValue = result;
++            nsCOMPtr<nsISupportsPRBool> focusing =
++              do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID);
++            focusing->SetData(wParam);
++     
++            nsCOMPtr<nsIObserverService> obsServ =
++              do_GetService("@mozilla.org/observer-service;1");
++     
++            if (obsServ)
++              obsServ->NotifyObservers(focusing, "application-activated", nsnull);
++        } else {
++            result = FALSE;
++            *aRetValue = result;
++        }
++      }
++      break;
++
+ 
+   case WM_MOUSEWHEEL:
+   case WM_MOUSEHWHEEL:

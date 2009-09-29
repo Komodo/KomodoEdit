@@ -1,0 +1,51 @@
+Mozilla crash reporter fails to build on Ubuntu 9.10 - compile errors in
+google-breakpad. Patch provided by jtatum.
+
+Komodo bug:  http://bugs.activestate.com/show_bug.cgi?id=84640
+Mozilla bug: https://bugzilla.mozilla.org/show_bug.cgi?id=485019
+
+Index: toolkit/crashreporter/google-breakpad/src/client/linux/handler/exception_handler.cc
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/crashreporter/google-breakpad/src/client/linux/handler/exception_handler.cc,v
+retrieving revision 1.4
+diff -u -r1.4 exception_handler.cc
+--- toolkit/crashreporter/google-breakpad/src/client/linux/handler/exception_handler.cc	25 Feb 2008 18:18:08 -0000	1.4
++++ toolkit/crashreporter/google-breakpad/src/client/linux/handler/exception_handler.cc	18 Sep 2009 00:17:10 -0000
+@@ -36,6 +36,7 @@
+ 
+ #include <cassert>
+ #include <cstdlib>
++#include <cstdio>
+ #include <ctime>
+ #include <linux/limits.h>
+ 
+Index: toolkit/crashreporter/google-breakpad/src/client/linux/handler/minidump_generator.cc
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/crashreporter/google-breakpad/src/client/linux/handler/minidump_generator.cc,v
+retrieving revision 1.4
+diff -u -r1.4 minidump_generator.cc
+--- toolkit/crashreporter/google-breakpad/src/client/linux/handler/minidump_generator.cc	25 Feb 2008 18:18:08 -0000	1.4
++++ toolkit/crashreporter/google-breakpad/src/client/linux/handler/minidump_generator.cc	18 Sep 2009 00:17:10 -0000
+@@ -39,6 +39,7 @@
+ #include <sys/wait.h>
+ 
+ #include <cstdlib>
++#include <cstdio>
+ #include <ctime>
+ #include <string.h>
+
+Index: toolkit/crashreporter/google-breakpad/src/common/linux/dump_symbols.cc
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/crashreporter/google-breakpad/src/common/linux/dump_symbols.cc,v
+retrieving revision 1.5
+diff -u -r1.5 dump_symbols.cc
+--- toolkit/crashreporter/google-breakpad/src/common/linux/dump_symbols.cc	25 Feb 2008 18:18:09 -0000	1.5
++++ toolkit/crashreporter/google-breakpad/src/common/linux/dump_symbols.cc	18 Sep 2009 00:20:09 -0000
+@@ -30,6 +30,7 @@
+ #include <a.out.h>
+ #include <cstdarg>
+ #include <cstdlib>
++#include <cstdio>
+ #include <cxxabi.h>
+ #include <elf.h>
+ #include <errno.h>

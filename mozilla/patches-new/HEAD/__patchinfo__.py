@@ -39,7 +39,7 @@
 import re
 
 def applicable(config):
-    if hasattr(config, "mozVer") and config.mozVer == "1.9":
+    if hasattr(config, "mozVer") and config.mozVer == 1.90:
         return True
     elif config.mozSrcType != "cvs":
         return False

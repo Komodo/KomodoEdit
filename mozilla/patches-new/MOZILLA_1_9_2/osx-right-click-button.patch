@@ -1,0 +1,20 @@
+Index: widget/src/cocoa/nsChildView.mm
+===================================================================
+RCS file: /cvsroot/mozilla/widget/src/cocoa/nsChildView.mm,v
+retrieving revision 1.362
+diff -u -r1.362 nsChildView.mm
+--- widget/src/cocoa/nsChildView.mm	22 Jul 2008 15:19:11 -0000	1.362
++++ widget/src/cocoa/nsChildView.mm	25 Aug 2008 23:44:16 -0000
+@@ -3052,6 +3052,12 @@
+   nsMouseEvent geckoEvent(PR_TRUE, NS_MOUSE_BUTTON_UP, nsnull, nsMouseEvent::eReal);
+   [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
+ 
++  unsigned int modifierFlags = [theEvent modifierFlags];
++  if (modifierFlags & NSControlKeyMask)
++    geckoEvent.button = nsMouseEvent::eRightButton;
++  else
++    geckoEvent.button = nsMouseEvent::eLeftButton;
++
+   // create native EventRecord for use by plugins
+   EventRecord macEvent;
+   macEvent.what = mouseUp;

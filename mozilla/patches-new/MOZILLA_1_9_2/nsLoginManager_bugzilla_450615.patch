@@ -1,0 +1,44 @@
+https://bugzilla.mozilla.org/show_bug.cgi?id=450615
+PyXPCOM calls to the nsLoginManager::addLogin method will fail with the message
+"Can't add a login with both a httpRealm and formSubmitURL"
+This patch simplifies the sanity checking and thus enables PyXPCOM method calls
+for addLogin to work.
+Index: toolkit/components/passwordmgr/src/nsLoginManager.js
+===================================================================
+RCS file: /cvsroot/mozilla/toolkit/components/passwordmgr/src/nsLoginManager.js,v
+retrieving revision 1.32
+diff -d -u -8 -p -r1.32 nsLoginManager.js
+--- toolkit/components/passwordmgr/src/nsLoginManager.js	23 Jul 2008 21:44:56 -0000	1.32
++++ toolkit/components/passwordmgr/src/nsLoginManager.js	14 Aug 2008 17:15:05 -0000
+@@ -358,27 +358,22 @@ LoginManager.prototype = {
+ 
+         // For logins w/o a username, set to "", not null.
+         if (login.username == null)
+             throw "Can't add a login with a null username.";
+ 
+         if (login.password == null || login.password.length == 0)
+             throw "Can't add a login with a null or empty password.";
+ 
+-        if (login.formSubmitURL || login.formSubmitURL == "") {
+-            // We have a form submit URL. Can't have a HTTP realm.
+-            if (login.httpRealm != null)
+-                throw "Can't add a login with both a httpRealm and formSubmitURL.";
+-        } else if (login.httpRealm) {
+-            // We have a HTTP realm. Can't have a form submit URL.
+-            if (login.formSubmitURL != null)
+-                throw "Can't add a login with both a httpRealm and formSubmitURL.";
+-        } else {
++        if (!login.formSubmitURL && !login.httpRealm) {
+             // Need one or the other!
+             throw "Can't add a login without a httpRealm or formSubmitURL.";
++        } else if (login.formSubmitURL && login.httpRealm) {
++            // But cannot have both!
++            throw "Can't add a login with both a httpRealm and formSubmitURL.";
+         }
+ 
+ 
+         // Look for an existing entry.
+         var logins = this.findLogins({}, login.hostname, login.formSubmitURL,
+                                      login.httpRealm);
+ 
+         if (logins.some(function(l) login.matches(l, true)))

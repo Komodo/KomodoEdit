@@ -17,7 +17,7 @@ diff -u -r1.2 mar_extract.c
  #include "mar.h"
  #include "mar_private.h"
  
-@@ -81,12 +81,18 @@
+@@ -94,13 +94,19 @@
  #else
    fd = creat(item->name, item->flags);
  #endif
@@ -29,6 +29,7 @@ diff -u -r1.2 mar_extract.c
 +  }
  
    fp = fdopen(fd, "wb");
+ #endif
 -  if (!fp)
 +  if (!fp) {
 +    fprintf(stderr, "mar: ERROR(%d) %s: could not fdopen() descriptor for `%s'\n",
@@ -50,4 +51,3 @@ diff -u -r1.2 mar_extract.c
  
    rv = mar_enum_items(mar, mar_test_callback, NULL);
  
-

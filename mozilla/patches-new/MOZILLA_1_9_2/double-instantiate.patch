@@ -1,0 +1,31 @@
+Index: content/base/src/nsObjectLoadingContent.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/content/base/src/nsObjectLoadingContent.cpp,v
+retrieving revision 1.85
+diff -d -u -r1.85 nsObjectLoadingContent.cpp
+--- content/base/src/nsObjectLoadingContent.cpp	6 May 2008 20:49:30 -0000	1.85
++++ content/base/src/nsObjectLoadingContent.cpp	11 Jun 2008 03:28:37 -0000
+@@ -1670,6 +1670,14 @@
+   // calls.
+   mPendingInstantiateEvent = nsnull;
+ 
++  // If the plugin instance already exists, we've already instantiated!
++  nsIPluginInstance* aInstance = nsnull;
++  nsresult rv = aFrame->GetPluginInstance(aInstance);
++  if (aInstance) {
++    // plugin already created, don't do it again
++    return NS_OK;
++  }
++
+   // Mark that we're instantiating now so that we don't end up
+   // re-entering instantiation code.
+   PRBool oldInstantiatingValue = mInstantiating;
+@@ -1696,7 +1704,7 @@
+   NS_ASSERTION(aURI || !typeToUse.IsEmpty(), "Need a URI or a type");
+   LOG(("OBJLC [%p]: Calling [%p]->Instantiate(<%s>, %p)\n", this, aFrame,
+        typeToUse.get(), aURI));
+-  nsresult rv = aFrame->Instantiate(typeToUse.get(), aURI);
++  rv = aFrame->Instantiate(typeToUse.get(), aURI);
+ 
+   mInstantiating = oldInstantiatingValue;
+ 

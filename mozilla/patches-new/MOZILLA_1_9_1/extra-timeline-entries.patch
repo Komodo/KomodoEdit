@@ -1,0 +1,27 @@
+Index: content/xul/document/src/nsXULDocument.cpp
+===================================================================
+RCS file: /cvsroot/mozilla/content/xul/document/src/nsXULDocument.cpp,v
+retrieving revision 1.664.2.5.2.3
+diff -u -r1.664.2.5.2.3 nsXULDocument.cpp
+--- content/xul/document/src/nsXULDocument.cpp	11 Jan 2006 20:00:24 -0000	1.664.2.5.2.3
++++ content/xul/document/src/nsXULDocument.cpp	21 Feb 2006 17:49:56 -0000
+@@ -112,6 +112,7 @@
+ #include "nsIScriptGlobalObjectOwner.h"
+ #include "nsIScriptSecurityManager.h"
+ #include "nsNodeInfoManager.h"
++#include "nsITimelineService.h"
+ #include "nsContentCreatorFunctions.h"
+ #include "nsContentUtils.h"
+ #include "nsIParser.h"
+@@ -3051,6 +3052,11 @@
+                    ("xul: loading overlay %s", urlspec.get()));
+         }
+ #endif
++#ifdef MOZ_TIMELINE
++        nsCAutoString spec;
++        uri->GetSpec(spec);
++        NS_TIMELINE_MARK_FUNCTION1("XUL overlay load", spec.get());
++#endif
+ 
+         // Chrome documents are allowed to load overlays from anywhere.
+         // Also, any document may load a chrome:// overlay.

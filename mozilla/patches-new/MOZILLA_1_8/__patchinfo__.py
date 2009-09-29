@@ -38,7 +38,9 @@
 'MOZILLA_1_8'."""
 
 def applicable(config):
-    if config.mozSrcType != "cvs":
+    if hasattr(config, "mozVer") and config.mozVer == 1.81:
+        return False
+    elif config.mozSrcType != "cvs":
         return False
     elif config.mozSrcCvsTag is not None \
          and config.mozSrcCvsTag.startswith("MOZILLA_1_8"):
