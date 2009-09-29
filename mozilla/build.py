@@ -2313,10 +2313,11 @@ def target_src(argv=["src"]):
             repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.1/"
         else:
             repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.2/"
-        cmds = ["cd %s" % buildDir,
-                "hg clone %s mozilla" % (repo_url, )]
+        revision_arg = ""
         if config.mozSrcHgTag:
-            cmds[-1] += " --rev=%s" % (config.mozSrcHgTag)
+            revision_arg = "--rev=%s" % (config.mozSrcHgTag)
+        cmds = ["cd %s" % buildDir,
+                "hg clone %s %s mozilla" % (revision_arg, repo_url, )]
         if config.mozVer >= 1.92:
             # Checkout pyxpcom as well.
             cmds += ["cd mozilla/extensions",
