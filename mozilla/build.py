@@ -58,8 +58,6 @@ r"""
 
     For CVS tag dates, see:
         http://developer.mozilla.org/en/docs/CVS_Tags
-    (Note: Current Komodo releases are still on the Mozilla CVS trunk. I.e. not
-    yet in the Mozilla-central tree in Mercurial/HG.)
 
     Suggested convention for Komodo version numbers:
     * For development builds you should add 10 to the minor version
@@ -73,8 +71,8 @@ r"""
     * Komodo 5.2.x development builds:
         python build.py configure -k 5.12 --moz-src=cvs \
             --release --no-strip --tools
-    * Mozilla 1.9.1 builds:
-        python build.py configure -k 5.12 --moz-src=hg \
+    * Komodo 6.0 development builds:
+        python build.py configure -k 6.10 --moz-src=192 \
             --release --no-strip --tools
 """
 #
@@ -774,6 +772,7 @@ def _getMozSrcInfo(scheme, mozApp):
 
     if scheme.startswith("cvs"): # cvs[:TAG[:DATE]]
         config["mozSrcType"] = "cvs"
+        config["mozVer"] = 1.90
 
         if scheme.count(":") == 0:      # cvs
             config.update(
@@ -805,26 +804,12 @@ def _getMozSrcInfo(scheme, mozApp):
             if match:
                 ver = match.group("ver").replace("_", ".")
                 config["mozSrcName"] = "cvs"+ver
+                if ver == "1_8":
+                    config["mozSrcVer"] = 1.8
             else:
-                # Encode some well known branch names to a nice short
-                # name.
-                config["mozSrcName"] = {
-                    "DOM_AGNOSTIC_BRANCH": "cvs_agnostic",
-                }.get(tag, "cvs_"+tag)
+                config["mozSrcName"] = "cvs_"+tag
 
         config["mozSrcCvsTarball"] = None
-
-    elif scheme.startswith("hg"): # hg[:TAG[:DATE]]
-        config["mozSrcType"] = "hg"
-
-        config.update(
-            mozSrcHgTag=None,
-            mozSrcHgDate=None,
-        )
-
-        # Determine a nice short name loosely describing this Mercurial
-        # source.
-        config["mozSrcName"] = "hg"
 
     elif scheme.endswith(".tar.gz") or scheme.endswith(".tar.bz2"):
         suffix = scheme.endswith(".tar.gz") and ".tar.gz" or ".tar.bz2"
@@ -848,12 +833,40 @@ def _getMozSrcInfo(scheme, mozApp):
             raise BuildError("do we use the 'firefox-*-source.tar.gz' "
                              "tarballs for mozApp='%s' builds?" % mozApp)
         for pattern in patterns:
-            match = pattern.match(basename(scheme))
+            scheme_basename = basename(scheme)
+            match = pattern.match(scheme_basename)
             if match:
                 config["mozSrcName"] = match.group(1)
+                ver_match = re.match(r"(\d+\.\d+)\..*", match.group(1))
+                if not ver_match:
+                    raise BuildError("Could not detect source file version: %r"
+                                     % (scheme_basename, ))
+                version_num = float(ver_match.group(1))
+                # Set the Mozilla version.
+                if scheme_basename.startswith("firefox"):
+                    config["mozVer"] = { 3.0: 1.90,
+                                         3.1: 1.91,
+                                         3.5: 1.91,
+                                         3.6: 1.92,
+                                         3.7: 1.93,
+                                        }.get(version_num)
+                else:
+                    config["mozVer"] = version_num
                 break
         else:
             config["mozSrcName"] = name
+            
+    elif re.match(r"^(?P<ver>(\d+?)+)(:(?P<tag>\w+))?$", scheme): # VER[:TAG]
+        match = re.match(r"^(?P<ver>(\d+?)+)(:(?P<tag>\w+))?$", scheme)
+        config.update(
+            mozSrcType="hg",
+            mozSrcHgRepo=match.group("ver"),
+            mozSrcHgTag=match.group("tag"),
+        )
+        # Determine a nice short name loosely describing this Mercurial
+        # source.
+        config["mozSrcName"] = "moz%s" % (config["mozSrcHgRepo"], )
+        config["mozVer"] = round(int(config["mozSrcHgRepo"]) / 100.0, 2)
 
     else:
         if mozApp == "suite":
@@ -1076,27 +1089,24 @@ def target_configure(argv):
                         cvs:1.8:02/14/2006  # Valentine's Day 2006
                     See tinderbox.mozilla.org for hints on Mozilla CVS
                     tags.
-                hg
-                    Grab the source directly from Mozilla Mercurial. E.g.
-                        hg      # the latest Mercurial head
                 <path-to-tarball>
                     A path to a mozilla/firefox source tarball to use
                     for the source.
-                <ver>
+                ver[:TAG]
                     A version string indicating a specific
-                    mozilla/firefox source tarball package. E.g.:
-                         mozilla-<ver>-source.tar.gz
-                         firefox-<ver>-source.tar.gz
+                    mozilla/firefox version - the repository or tarball will be
+                    automatically worked out by the build system.
             
-            This table might help you pick a relevant CVS tag.
+            This table might help you pick a relevant scheme and tag.
 
-            Scheme         CVS Branch              Komodo Version  FF Version
-            -------------  ----------------------  --------------  ----------
-            cvs:1.8.0      MOZILLA_1_8_0_BRANCH    3.5.X           1.5.X
-            cvs:1.8.1      MOZILLA_1_8_BRANCH      4.X             2.0
-                            (1.8.1 == MOZILLA_1_8_1_BRANCH in Q3 2006)
-            cvs:1.8        MOZILLA_1_8_BRANCH      4.X             2.X
-            cvs            HEAD                    5.X             3.X
+            Scheme      Tag                     KoVer   FFVer   MozVer
+            ----------  ----------------------  ------  ------  ----------
+            cvs:1.8.0   MOZILLA_1_8_0_BRANCH    3.5.X   1.5.X   1.80
+            cvs:1.8.1   MOZILLA_1_8_BRANCH      4.X     2.0     1.81
+            cvs:1.8     MOZILLA_1_8_BRANCH      4.X     2.X     1.81
+            cvs         HEAD                    5.X     3.0.X   1.90
+            191         FIREFOX_3_5_3_RELEASE   5.3.X   3.5.3   1.91
+            192                                 6.0.X   3.6.X   1.92
 
     Other Options:
         -r, --reconfigure
@@ -1561,7 +1571,7 @@ def target_configure(argv):
 
     # Determine the exact mozilla build configuration (i.e. the content
     # of '.mozconfig') -- unless specifically given.
-    mozVer = _guess_mozilla_version_from_config(config)
+    mozVer = config["mozVer"]
     if config["mozconfig"] is None:
         if not config["official"]:
             if mozVer is None or mozVer >= 1.9:
@@ -1967,10 +1977,8 @@ def target_silo_python(argv=["silo_python"]):
         # Correct the shared object dependencies to point to the siloed
         # Python.
         log.info("relocating Python lib dependencies to the siloed Python...")
-        mozVer = _get_mozilla_version()
-        # mozVer is a string, convert to float for easy comparision
         libnames = ["_xpcom.so", "lib_xpcom.dylib", "libpyloader.dylib"]
-        if float(mozVer) >= 1.9:
+        if config.mozVer >= 1.9:
             libnames.append("libpyxpcom.dylib")
             libnames.append("libpydom.dylib")
         libs = []
@@ -2273,8 +2281,18 @@ def target_src(argv=["src"]):
             _run(" && ".join(cmds), log.info)
 
     elif mozSrcType == "hg":
-        repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.1/"
-        cmds = ["cd %s" % buildDir, "hg clone %s mozilla" % (repo_url, )]
+        if config.mozVer <= 1.91:
+            repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.1/"
+        else:
+            repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.2/"
+        cmds = ["cd %s" % buildDir,
+                "hg clone %s mozilla" % (repo_url, )]
+        if config.mozSrcHgTag:
+            cmds[-1] += " --rev=%s" % (config.mozSrcHgTag)
+        if config.mozVer >= 1.92:
+            # Checkout pyxpcom as well.
+            cmds += ["cd mozilla/extensions",
+                     "hg clone http://hg.mozilla.org/pyxpcom/ python"]
         _run(" && ".join(cmds), log.info)
 
     elif mozSrcType == "tarball":
@@ -2334,7 +2352,6 @@ def _moz_cvs_tag_from_tag_hint(tag_hint):
 
 def _get_mozilla_objdir(convert_to_native_win_path=False, force_echo_variable=False):
     config = _importConfig()
-    mozVer = _get_mozilla_version()
     srcdir = os.path.join(gBuildDir, config.srcTreeName, 'mozilla')
 
     # Get the $OBJDIR. The target for this has changed over time in
@@ -2372,63 +2389,6 @@ def _get_mozilla_objdir(convert_to_native_win_path=False, force_echo_variable=Fa
     return objdir
 
     
-#XXX Change this to _get_moz_src_milestone. Read the .txt directly?
-#    Useful somewhere?
-def _get_mozilla_version(): #XXX
-    """get the real mozilla version by using the same trick that the
-    mozilla configure script uses:
-    
-    `$PERL $srcdir/config/milestone.pl -topsrcdir $srcdir`
-    
-    While it could be easier to just read milestone.txt, I would rather
-    do it the moz way in case they change the file format later
-    """
-    config = _importConfig()
-    srcdir = os.path.join(gBuildDir, config.srcTreeName, 'mozilla')
-    milestone = os.path.join(srcdir, 'config', 'milestone.pl')
-    if sys.platform.startswith("win"):
-        # Mozilla's milestone.pl stupidly only works with UNIX path
-        # separators. Perl is fine with that on windows so just use those.
-        milestone = milestone.replace('\\', '/')
-
-    i, o, e = os.popen3('perl '+milestone+' -topsrcdir '+srcdir)
-    i.close()
-    output = o.read()
-    o.close()
-    retval = e.close()
-    
-    # only use the first 2 parts of the version
-    ver = output.split('.')[:2]
-    # strip extra info, such as 8b2
-    ver[1] = "%d" % str2int(ver[1]) 
-    return '.'.join(ver)
-
-
-def _guess_mozilla_version_from_config(config):
-    """Guess the mozilla version from the config "cvsTag" or "hgTag" setting.
-
-    Returns None if could not be determined, else returns a floating point
-    value of the mozilla version. Examples:
-        
-    """
-    mozVer = None
-    if config["mozSrcType"] == "cvs":
-        mozSrcCvsTag = config.get("mozSrcCvsTag")
-        # "mozSrcCvsTag" looks like None, "MOZILLA_<ver>_BRANCH" or "HEAD".
-        if mozSrcCvsTag:
-            match = re.search(r"MOZILLA_(?P<ver>(\d+_?)+)_BRANCH", mozSrcCvsTag)
-            if match:
-                # Turn into a floating point.
-                ver = match.group("ver").replace("_", ".", 1)
-                ver = ver.replace("_", "")
-                mozVer = float(ver)
-            elif re.search(r"FIREFOX_3_0_(\d+)_RELEASE", mozSrcCvsTag):
-                mozVer = 1.9
-    elif config["mozSrcType"] == "hg":
-        mozVer = 1.91
-    return mozVer
-
-
 def _msys_path_from_path(path):
     drive, subpath = os.path.splitdrive(path)
     msys_path = "/%s%s" % (drive[0].lower(),
@@ -2466,10 +2426,8 @@ def target_configure_mozilla(argv=["configure_mozilla"]):
                          % (buildDir, landmark))
 
     # get the moz version
-    mozVer = _get_mozilla_version()
     extensions = config.mozBuildExtensions
-    # mozVer is a string, convert to float for easy comparision
-    if float(mozVer) >= 1.9:
+    if config.mozVer >= 1.9:
         # XXX FIXME!!!!
         #if sys.platform == "win32":
         #    user_appdir = config.mozApp
@@ -2586,9 +2544,8 @@ def target_pluginsdk(argv=["mozilla"]):
     # make'ing in $mozObjDir\modules\plugin\tools\sdk\samples\common).
     config = _importConfig()
     _setupMozillaEnv()
-    mozVer = float(_get_mozilla_version())
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
-    if mozVer >= 1.91:
+    if config.mozVer >= 1.91:
         pluginDir = os.path.join(native_objdir, 'modules', 'plugin', 'sdk')
     else:
         pluginDir = os.path.join(native_objdir, 'modules', 'plugin',
@@ -2676,7 +2633,6 @@ def target_patch(argv=["patch"]):
             except which.WhichError:
                 raise BuildError("Could not find a 'patch' executable.")
 
-    config.mozVer = _get_mozilla_version()
     patchtree.log.setLevel(logging.INFO)
     patchtree.patch(config.patchesDirs,
                     srcDir,
