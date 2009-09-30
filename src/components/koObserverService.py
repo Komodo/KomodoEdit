@@ -85,6 +85,7 @@ class KoObserverService:
 
     def observe(self, dummy, topic, featureName):
         if topic == "xpcom-shutdown":
+            self._removeDead()
             if self._topics:
                 log.warn("observers not removed: %r", (self._topics.keys(),))
             self._topics = {}
@@ -119,9 +120,14 @@ class KoObserverService:
         return L
     
     def _removeDead(self):
-        for topic in self._topics:
-            self._topics[topic] = self._getLiveObservers(topic)
-                
+        for topic in self._topics.keys():
+            observers = self._getLiveObservers(topic)
+            if not observers:
+                # No observers for this topic - remove the topic altogether.
+                del self._topics[topic]
+            else:
+                self._topics[topic] = observers
+
     # void addObserver( in nsIObserver anObserver, in string aTopic, in boolean ownsWeak);
     def addObserver(self, anObserver, aTopic, ownsWeak):
         if not anObserver:
