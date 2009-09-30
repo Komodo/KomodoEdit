@@ -155,8 +155,6 @@ class koDocumentBase:
             wrapSelf = xpcom.server.WrapObject(self, components.interfaces.koIDocument)
             self._wrapSelf = _xpcom.getProxyForObject(1, components.interfaces.koIDocument,
                                               wrapSelf, _xpcom.PROXY_SYNC | _xpcom.PROXY_ALWAYS)
-        if self.prefs:
-            self.prefs.addObserver(self)
         if not self.docSettingsMgr:
             self.docSettingsMgr = components.classes['@activestate.com/koDocumentSettingsManager;1'].\
                 createInstance(components.interfaces.koIDocumentSettingsManager);
