@@ -1,0 +1,18 @@
+Patch to take CXXFLAGS from the environment on Linux.
+===================================================================
+--- gtk/makefile	(revision 34521)
++++ gtk/makefile	(working copy)
+@@ -27,13 +27,13 @@
+ THREADFLAGS=
+ endif
+ 
+ ifdef DEBUG
+-CXXFLAGS=-DDEBUG -g $(CXXBASEFLAGS) $(THREADFLAGS)
++CXXFLAGS += -DDEBUG -g $(CXXBASEFLAGS) $(THREADFLAGS)
+ else
+-CXXFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
++CXXFLAGS += -DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
+ endif
+ 
+ # If explicit setting of GTK1 or GTK2 then use that else look for
+ # pkg-config which is an OK indication that GTK2 is available

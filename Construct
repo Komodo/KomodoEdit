@@ -265,6 +265,16 @@ my %environ = (
     'SystemRoot' => $ENV{SystemRoot},
     'SystemDrive' => $ENV{SystemDrive},
 );
+
+if ($platform eq "linux") {
+    $environ{CFLAGS} = " -fPIC";
+    $environ{CXXFLAGS} = " -fPIC";
+    if ($withSymbols) {
+	$environ{'CFLAGS'} .= " -gstabs+";
+	$environ{'CXXFLAGS'} .= " -gstabs+";
+    }
+}
+
 # Needed for p4 calls in processes kicked off by Cons.
 foreach my $envvar (keys %ENV) {
     if ($envvar =~ /^P4/) {
