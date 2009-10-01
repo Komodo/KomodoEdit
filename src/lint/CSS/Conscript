@@ -117,6 +117,7 @@ else {
 
     $consLocal{'LIBPATH'} = $mozLibPath;
     $consLocal{'CPPPATH'} = "$mozIncludePath";
+    $consLocal{'CXXFLAGS'} = $consLocal{ENV}{'CXXFLAGS'};
     $consLocal{'CXXFLAGS'} .= " -I$mozDevelDist/include/content" .
         " -I$mozDevelDist/include/necko" .
         " -I$mozDevelDist/include/layout";
@@ -133,7 +134,6 @@ else {
         $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
     } else {
         $consLocal{'LDFLAGS'} = "-fPIC -shared";
-        $consLocal{'CXXFLAGS'} .= " -fPIC";
     }
     $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
