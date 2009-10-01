@@ -1121,7 +1121,7 @@ def target_configure(argv):
             for full Komodo builds), xulrunner, Firefox (a.k.a. the
             browser) or the Mozilla suite?  This is called the "mozApp".
 
-        --debug, --release
+        --debug, --release, --symbols
             specify mozilla build-type (default: release)
 
         --universal
@@ -1281,7 +1281,7 @@ def target_configure(argv):
     try:
         optlist, remainder = getopt.getopt(argv[1:], "rk:P:",
             ["reconfigure",
-             "debug", "release",
+             "debug", "release", "symbols",
              "komodo-version=", "python=", "python-version=",
              "moz-src=",
              "blessed", "universal",
@@ -1313,6 +1313,8 @@ def target_configure(argv):
             return target_configure(new_argv)
         elif opt == "--debug":
             config["buildType"] = "debug"
+        elif opt == "--symbols":
+            config["buildType"] = "symbols"
         elif opt == "--release":
             config["buildType"] = "release"
         elif opt == "--blessed":
@@ -1570,7 +1572,7 @@ def target_configure(argv):
     # Determine the build tree name (encodes src tree config), moz
     # objdir (encodes build config), and full build name (for the packages)
     # unless specifically given.
-    shortBuildType = {"release": "rel", "debug": "dbg"}[buildType]
+    shortBuildType = {"release": "rel", "debug": "dbg", "symbols": "sym"}[buildType]
     shortMozApp = {"komodo": "ko", "xulrunner": "xulr",
                    "suite": "ste", "browser": "ff"}[config["mozApp"]]
     buildOpts = config["buildOpt"][:]
@@ -1629,6 +1631,20 @@ def target_configure(argv):
         elif buildType == "debug":
             mozBuildOptions.append('enable-debug')
             mozBuildOptions.append('disable-optimize')
+        elif buildType == "symbols":
+            if sys.platform == "win32":
+                mozRawOptions.append('export MOZ_DEBUG_SYMBOLS=1')
+                mozBuildOptions.append('enable-debugger-info-modules=yes')
+            elif sys.platform == "darwin":
+                if mozVer >= 1.91:
+                    mozRawOptions.append('CFLAGS="-gdwarf-2"')
+                    mozRawOptions.append('CXXFLAGS="-gdwarf-2"')
+                else:
+                    mozRawOptions.append('CFLAGS="-g -gfull"')
+                    mozRawOptions.append('CXXFLAGS="-g -gfull"')
+            elif sys.platform.startswith("linux"):
+                mozRawOptions.append('CFLAGS="-gstabs+"')
+                mozRawOptions.append('CXXFLAGS="-gstabs+"')
 
         if "perf" in config["buildOpt"]:
             mozBuildOptions.append('enable-xpctools')
