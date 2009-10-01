@@ -2436,6 +2436,34 @@ EOD;
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
                 [("function", 'foo')])
 
+    @tag("bug84840", "php53", "knownfailure")
+    def test_class_namespace_inheritance(self):
+        test_dir = join(self.test_dir, "test_class_namespace_inheritance")
+        test_content, test_positions = unmark_text(php_markup(dedent(r"""
+            namespace bug84840\ns1;
+            class cls1 extends \bug84840\ns2\cls2 {
+              function __construct() {
+                // Cannot complete self::FOO in here
+                self::<1>
+              }
+            }
+        """)))
+        manifest = [
+            (join(test_dir, "file1.php"), php_markup(dedent(r"""
+                namespace bug84840\ns2;
+                class cls2 {
+                  const FOO_CONST = 1;
+                }
+             """))),
+            (join(test_dir, "file2.php"), test_content),
+        ]
+        for filepath, content in manifest:
+            writefile(filepath, content)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "file2.php"), lang=self.lang)
+        self.assertCompletionsInclude2(buf, test_positions[1],
+            [("constant", r"FOO_CONST")])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
