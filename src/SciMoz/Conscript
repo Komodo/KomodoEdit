@@ -371,8 +371,9 @@ else {
     $consLocal{'CXXFLAGS'} = " -DGTK -W -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti ".
         $gtkConfig;
     $consLocal{'CXXFLAGS'} .= " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES";
-    $consLocal{'CXXFLAGS'} .= " -fPIC";
-    $consLocal{'CFLAGS'} = " -fPIC"; # one of these two -fPIC's might be redundant
+    # Add the global FLAGS.
+    $consLocal{'CXXFLAGS'} .= $consLocal{ENV}{'CXXFLAGS'};
+    $consLocal{'CFLAGS'} = $consLocal{ENV}{'CFLAGS'};
 
     # Ensure that these are defined for use by mozilla headers
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
@@ -521,7 +522,6 @@ else {
         }
     } else {
         $consLocal{'LDFLAGS'} = "-fPIC -shared";
-        $consLocal{'CXXFLAGS'} .= " -fPIC";
     }
     $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
