@@ -2539,10 +2539,21 @@ class PHPParser:
                 p += 1
                 arguments = []
                 last_style = self.PHP_OPERATOR
+                namespaced = False
                 while p < len(styles):
                     if styles[p] == self.PHP_IDENTIFIER and \
                        last_style == self.PHP_OPERATOR:
-                        arguments.append(text[p])
+                        if namespaced:
+                            arguments[-1] += text[p]
+                            namespaced = False
+                        else:
+                            arguments.append(text[p])
+                    elif styles[p] == self.PHP_OPERATOR and text[p] == "\\":
+                        if not arguments or last_style != self.PHP_IDENTIFIER:
+                            arguments.append(text[p])
+                        else:
+                            arguments[-1] += text[p]
+                        namespaced = True
                     elif styles[p] != self.PHP_OPERATOR or text[p] != ",":
                         break
                     last_style = styles[p]

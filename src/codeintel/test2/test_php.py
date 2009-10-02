@@ -2436,7 +2436,7 @@ EOD;
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
                 [("function", 'foo')])
 
-    @tag("bug84840", "php53", "knownfailure")
+    @tag("bug84840", "php53")
     def test_class_namespace_inheritance(self):
         test_dir = join(self.test_dir, "test_class_namespace_inheritance")
         test_content, test_positions = unmark_text(php_markup(dedent(r"""
