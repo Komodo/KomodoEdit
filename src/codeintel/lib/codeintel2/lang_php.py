@@ -251,7 +251,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                         if DEBUG:
                             print "Keyword text: %d, %r" % (p, text)
                             ac.dump()
-                        if text not in ("parent", "self"):
+                        if text not in ("parent", "self", "static"):
                             return None
                     return Trigger(lang, TRG_FORM_CPLN, "static-members",
                                    pos, implicit)

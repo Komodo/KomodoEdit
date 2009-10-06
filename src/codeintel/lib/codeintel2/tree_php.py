@@ -978,7 +978,7 @@ class PHPTreeEvaluator(TreeEvaluator):
             if self.trg.type == "namespace-members":
                 return (None, 1)
 
-        if first_token in ("this", "self", "parent"):
+        if first_token in ("this", "self", "parent", "static"):
             # Special handling for class accessors
             self.log("_hits_from_first_part:: Special handling for %r",
                      first_token)

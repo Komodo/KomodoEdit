@@ -2464,6 +2464,24 @@ EOD;
         self.assertCompletionsInclude2(buf, test_positions[1],
             [("constant", r"FOO_CONST")])
 
+    @tag("bug84877", "php53")
+    def test_late_static_binding(self):
+        content, positions = unmark_text(php_markup(dedent(r"""
+            class A {
+                public static function who() {
+                    echo __CLASS__;
+                }
+                public static function test() {
+                    static::<1>who(<2>);
+                }
+            }
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [("function", 'test'),
+                 ("function", 'who'),])
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                             "who()")
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
