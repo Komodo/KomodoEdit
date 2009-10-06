@@ -145,6 +145,8 @@ fi
             msvc_setenv = r"C:\Program Files\Microsoft Visual Studio\VC98\bin\VCVARS32.BAT"
         elif msvc_ver.startswith("7"):
             msvc_setenv = r"C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\bin\vcvars32.bat"
+        elif msvc_ver.startswith("8"):
+            msvc_setenv = r"C:\Program Files\Microsoft Visual Studio 8\VC\bin\vcvars32.bat"
         elif msvc_ver.startswith("9"):
             msvc_setenv = r"C:\Program Files\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat"
         else:
