@@ -43,6 +43,7 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -120,112 +121,119 @@
     ]]>
     </script>
 
-    <groupbox orient="vertical">
-        <caption label="&smartEditing.label;"/>
-        <checkbox id="editTabCompletes"
-                  label="&useTabCharacterToCompleteWordsLikeCtrlSpace.label;"
-                  pref="true"/>
-        <hbox align="center">
-            <label value="&fileEditSmartWrapLines.label;"/>
-            <menulist pref="true"
-                      id="editWrapType"
-                      prefattribute="data"
-                      prefstring="editWrapType">
-                <menupopup>
-                    <menuitem data="0" label="&none.label;"/>
-                    <menuitem data="1" label="&word.label;"/>
-                    <menuitem data="2" label="&character.label;"/>
-                </menupopup>
-            </menulist>
-        </hbox>
-        <hbox align="center">
-            <label value="&fileEditSmartWrapMarkers.label;"/>
-            <menulist pref="true"
-                      id="editWordWrapMarker"
-                      prefattribute="data"
-                      prefstring="editWordWrapMarker">
-                <menupopup>
-                    <menuitem data="0" label="&none.label;"/>
-                    <menuitem data="1" label="&endOfLine.label;"/>
-                    <menuitem data="2" label="&startOfLine.label;"/>
-                    <menuitem data="3" label="&both.label;"/>
-                </menupopup>
-            </menulist>
-        </hbox>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="editsmart-prefs-vbox" flex="1" class="autoscroll">
 
-        <separator class="thin"/>
-        <checkbox id="editUseEdge"
-                  label="&showEdgeLineHighlightCharactersBeyondEdgeLine.label;"
-                  pref="true"/>
-        <hbox align="center">
-            <textbox id="editAutoWrapColumn" size="3" pref="true"/>
-            <text value="&fileEditSmartEdgeLine.label;"/>
-        </hbox>
-
-        <separator class="thin"/>
-        <checkbox id="editSmartSoftCharacters" label="&enableSoftCharacters.label;" pref="true"
-                prefstring="editSmartSoftCharacters" prefattribute="checked"
-                  oncommand="pref_softChars_doEnabling();"/>
-        <description style="margin-left: 27px;">&enableSoftCharacters.description;</description>
-        <checkbox id="enableSmartSoftCharactersInsideLine"
-                  style="margin-left: 27px;"
-                  label="&enableSmartSoftCharactersInsideLine.label;"
-                  pref="true"/>
-
-        <separator class="thin"/>
-        <checkbox id="editSmartCutCopyWithoutSelection"
-                  label="&cutCopyWithoutSelection.label;" pref="true"
-                  prefstring="editSmartCutCopyWithoutSelection"
-                  prefattribute="checked"/>
-    </groupbox>
-
-    <groupbox orient="vertical">
-        <caption label="&hyperlinks.label;"/>
-        <checkbox id="hyperlinksEnabled"
-                  label="&hyperlinksEnabled.label;"
-                  pref="true"
-                  oncommand="pref_hyperlinks_doEnabling();"/>
-        <checkbox id="hyperlinksEnableGotoDefinition"
-                  style="margin-left: 27px;"
-                  label="&hyperlinksEnableGotoDefinition.label;"
-                  pref="true"/>
-    </groupbox>
-
-    <groupbox orient="vertical">
-        <caption label="&syntaxChecking.label;"/>
-        <hbox align="center">
-            <checkbox id="editUseLinting"
-                      label="&enableBackgroundSyntaxCheckingAfter.label;"
+        <groupbox orient="vertical">
+            <caption label="&smartEditing.label;"/>
+            <checkbox id="editTabCompletes"
+                      label="&useTabCharacterToCompleteWordsLikeCtrlSpace.label;"
+                      pref="true"/>
+            <hbox align="center">
+                <label value="&fileEditSmartWrapLines.label;"/>
+                <menulist pref="true"
+                          id="editWrapType"
+                          prefattribute="data"
+                          prefstring="editWrapType">
+                    <menupopup>
+                        <menuitem data="0" label="&none.label;"/>
+                        <menuitem data="1" label="&word.label;"/>
+                        <menuitem data="2" label="&character.label;"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+            <hbox align="center">
+                <label value="&fileEditSmartWrapMarkers.label;"/>
+                <menulist pref="true"
+                          id="editWordWrapMarker"
+                          prefattribute="data"
+                          prefstring="editWordWrapMarker">
+                    <menupopup>
+                        <menuitem data="0" label="&none.label;"/>
+                        <menuitem data="1" label="&endOfLine.label;"/>
+                        <menuitem data="2" label="&startOfLine.label;"/>
+                        <menuitem data="3" label="&both.label;"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+    
+            <separator class="thin"/>
+            <checkbox id="editUseEdge"
+                      label="&showEdgeLineHighlightCharactersBeyondEdgeLine.label;"
+                      pref="true"/>
+            <hbox align="center">
+                <textbox id="editAutoWrapColumn" size="3" pref="true"/>
+                <text value="&fileEditSmartEdgeLine.label;"/>
+            </hbox>
+    
+            <separator class="thin"/>
+            <checkbox id="editSmartSoftCharacters" label="&enableSoftCharacters.label;" pref="true"
+                    prefstring="editSmartSoftCharacters" prefattribute="checked"
+                      oncommand="pref_softChars_doEnabling();"/>
+            <description style="margin-left: 27px;">&enableSoftCharacters.description;</description>
+            <checkbox id="enableSmartSoftCharactersInsideLine"
+                      style="margin-left: 27px;"
+                      label="&enableSmartSoftCharactersInsideLine.label;"
+                      pref="true"/>
+    
+            <separator class="thin"/>
+            <checkbox id="editSmartCutCopyWithoutSelection"
+                      label="&cutCopyWithoutSelection.label;" pref="true"
+                      prefstring="editSmartCutCopyWithoutSelection"
+                      prefattribute="checked"/>
+        </groupbox>
+    
+        <groupbox orient="vertical">
+            <caption label="&hyperlinks.label;"/>
+            <checkbox id="hyperlinksEnabled"
+                      label="&hyperlinksEnabled.label;"
                       pref="true"
-                      prefstring="editUseLinting"
-                      prefattribute="checked"
-                      oncommand="pref_lint_doEnabling();"/>
-            <textbox id="lintDelay" size="4" pref="true"/>
-            <label value="&msecs.label;"/>
-        </hbox>
-        <checkbox id="lintEOLs"
-                  style="margin-left: 27px;"
-                  label="&lintEOLs.label;"
-                  pref="true"/>
-    </groupbox>
+                      oncommand="pref_hyperlinks_doEnabling();"/>
+            <checkbox id="hyperlinksEnableGotoDefinition"
+                      style="margin-left: 27px;"
+                      label="&hyperlinksEnableGotoDefinition.label;"
+                      pref="true"/>
+        </groupbox>
+    
+        <groupbox orient="vertical">
+            <caption label="&syntaxChecking.label;"/>
+            <hbox align="center">
+                <checkbox id="editUseLinting"
+                          label="&enableBackgroundSyntaxCheckingAfter.label;"
+                          pref="true"
+                          prefstring="editUseLinting"
+                          prefattribute="checked"
+                          oncommand="pref_lint_doEnabling();"/>
+                <textbox id="lintDelay" size="4" pref="true"/>
+                <label value="&msecs.label;"/>
+            </hbox>
+            <checkbox id="lintEOLs"
+                      style="margin-left: 27px;"
+                      label="&lintEOLs.label;"
+                      pref="true"/>
+        </groupbox>
+    
+        <groupbox orient="vertical">
+            <caption label="&folding.label;"/>
+            <hbox align="center">
+              <label value="&fileEditSmartFoldMarkStyle.label;"/>
+              <menulist id="editFoldStyle" pref="true" prefattribute="data">
+                  <menupopup>
+                      <menuitem data="none" label="&donTShowFoldMarks.label;"/>
+                      <menuitem data="squaretree" label="&squareTrees.label;"/>
+                      <menuitem data="curvytree" label="&curvyTrees.label;"/>
+                      <menuitem data="plusminus" label="&signs.label;"/>
+                      <menuitem data="arrows" label="&arrows.label;"/>
+                  </menupopup>
+              </menulist>
+            </hbox>
+            <checkbox id="editFoldLines" label="&useHorizontalLineOnFolds.label;" pref="true"
+                      prefstring="editFoldLines" prefattribute="checked"/>
+            <checkbox id="editRestoreFoldPoints" label="&restoreFoldStateOnDocumentLoadSlowsDownFileOpening.label;" pref="true"
+                      prefstring="editRestoreFoldPoints" prefattribute="checked"/>
+        </groupbox>
 
-    <groupbox orient="vertical">
-        <caption label="&folding.label;"/>
-      <hbox align="center">
-        <label value="&fileEditSmartFoldMarkStyle.label;"/>
-        <menulist id="editFoldStyle" pref="true" prefattribute="data">
-            <menupopup>
-                <menuitem data="none" label="&donTShowFoldMarks.label;"/>
-                <menuitem data="squaretree" label="&squareTrees.label;"/>
-                <menuitem data="curvytree" label="&curvyTrees.label;"/>
-                <menuitem data="plusminus" label="&signs.label;"/>
-                <menuitem data="arrows" label="&arrows.label;"/>
-            </menupopup>
-        </menulist>
-      </hbox>
-      <checkbox id="editFoldLines" label="&useHorizontalLineOnFolds.label;" pref="true"
-                prefstring="editFoldLines" prefattribute="checked"/>
-      <checkbox id="editRestoreFoldPoints" label="&restoreFoldStateOnDocumentLoadSlowsDownFileOpening.label;" pref="true"
-                prefstring="editRestoreFoldPoints" prefattribute="checked"/>
-    </groupbox>
+    </vbox>
+
 </window>

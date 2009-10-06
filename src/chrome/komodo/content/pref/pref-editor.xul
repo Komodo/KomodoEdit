@@ -43,11 +43,12 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
-		    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-		    class="kodialog" orient="vertical"
-		    onload="parent.initPanel();">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog" orient="vertical"
+        onload="parent.initPanel();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
@@ -78,166 +79,172 @@
   <!-- nothing on this page has accesskeys because this is a temporary debug
        panel and you can damn well click the widgets! -->
 
-  <!-- this function is not in place
-  <text value="Default Language"/>
-  -->
-  <groupbox orient="vertical">
-    <caption label="&general.label;"/>
-    <grid debug="false">
-        <columns>
-            <column flex="50" autostretch="never"/>
-            <column flex="50" autostretch="never"/>
-        </columns>
-        <rows>
-            <row>
-                <checkbox id="showWhitespace" label="&showWhitespaceCharacters.label;"
-                          pref="true" prefstring="showWhitespace"
-                          prefattribute="checked"/>
-                <checkbox id="showEOL" label="&showEndOfLineCharacters.label;"
-                          pref="true" prefstring="showEOL"
-                          prefattribute="checked"/>
-            </row>
-            <row>
-                <checkbox id="showLineNumbers" label="&showLineNumbers.label;"
-                          pref="true" prefstring="showLineNumbers"
-                          prefattribute="checked"/>
-            </row>
-        </rows>
-    </grid>
-  </groupbox>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="editor-prefs-vbox" flex="1" class="autoscroll">
 
-  <groupbox orient="vertical">
-    <caption label="&cursorOptions.label;"/>
-    <hbox align="center" flex="1">
-        <hbox align="center" flex="1">
-            <label value="&cursorStyle.label;"/>
-            <menulist pref="true"
-                      id="caretStyle"
-                      prefattribute="data">
-                <menupopup>
-                    <menuitem data="1" label="&lineCursor.label;"
-                              tooltiptext="&cursorWillBeAVerticalLine.tooltiptext;"/>
-                    <menuitem data="2" label="&blockCursor.label;"
-                              tooltiptext="&cursorWillBeACharacterSizedBlock.tooltiptext;"/>
-                    <menuitem data="0" label="&invisible.label;"
-                              tooltiptext="&cursorWillNotBeShown.tooltiptext;"/>
-                </menupopup>
-            </menulist>
-        </hbox>
-        <hbox align="center" flex="1">
-            <label value="&widthLineCursor.label;"/>
-            <menulist pref="true"
-                      id="caretWidth"
-                      prefattribute="data"
-                      tooltiptext="&settingOnlyAppliesWhenTheCursorStyleIsLine.tooltiptext;">
-                <menupopup>
-                    <menuitem data="1" label="&label.1px;"/>
-                    <menuitem data="2" label="&label.2px;"/>
-                    <menuitem data="3" label="&label.3px;"/>
-                </menupopup>
-            </menulist>
-        </hbox>
-    </hbox>
-  </groupbox>
+        <!-- this function is not in place
+        <text value="Default Language"/>
+        -->
+        <groupbox orient="vertical">
+            <caption label="&general.label;"/>
+            <grid debug="false">
+                <columns>
+                    <column flex="50" autostretch="never"/>
+                    <column flex="50" autostretch="never"/>
+                </columns>
+                <rows>
+                    <row>
+                        <checkbox id="showWhitespace" label="&showWhitespaceCharacters.label;"
+                                  pref="true" prefstring="showWhitespace"
+                                  prefattribute="checked"/>
+                        <checkbox id="showEOL" label="&showEndOfLineCharacters.label;"
+                                  pref="true" prefstring="showEOL"
+                                  prefattribute="checked"/>
+                    </row>
+                    <row>
+                        <checkbox id="showLineNumbers" label="&showLineNumbers.label;"
+                                  pref="true" prefstring="showLineNumbers"
+                                  prefattribute="checked"/>
+                    </row>
+                </rows>
+            </grid>
+        </groupbox>
 
-  <groupbox id="dragdrop_groupbox" orient="vertical">
-    <caption id="dragdrop_caption" label="&dragdrop.label;"/>
-	<hbox id="dragdrop_ask_hbox" align="center">
-            <!-- When dropping a URL on Komodo: -->
-            <label id="dragdrop_ask_label" value="&droppingURL.label;"/>
-            <menulist id="dragdrop_ask_menulist"
+        <groupbox orient="vertical">
+            <caption label="&cursorOptions.label;"/>
+            <hbox align="center" flex="1">
+                <hbox align="center" flex="1">
+                    <label value="&cursorStyle.label;"/>
+                    <menulist pref="true"
+                              id="caretStyle"
+                              prefattribute="data">
+                        <menupopup>
+                            <menuitem data="1" label="&lineCursor.label;"
+                                      tooltiptext="&cursorWillBeAVerticalLine.tooltiptext;"/>
+                            <menuitem data="2" label="&blockCursor.label;"
+                                      tooltiptext="&cursorWillBeACharacterSizedBlock.tooltiptext;"/>
+                            <menuitem data="0" label="&invisible.label;"
+                                      tooltiptext="&cursorWillNotBeShown.tooltiptext;"/>
+                        </menupopup>
+                    </menulist>
+                </hbox>
+                <hbox align="center" flex="1">
+                    <label value="&widthLineCursor.label;"/>
+                    <menulist pref="true"
+                              id="caretWidth"
+                              prefattribute="data"
+                              tooltiptext="&settingOnlyAppliesWhenTheCursorStyleIsLine.tooltiptext;">
+                        <menupopup>
+                            <menuitem data="1" label="&label.1px;"/>
+                            <menuitem data="2" label="&label.2px;"/>
+                            <menuitem data="3" label="&label.3px;"/>
+                        </menupopup>
+                    </menulist>
+                </hbox>
+            </hbox>
+        </groupbox>
+
+        <groupbox id="dragdrop_groupbox" orient="vertical">
+            <caption id="dragdrop_caption" label="&dragdrop.label;"/>
+            <hbox id="dragdrop_ask_hbox" align="center">
+                <!-- When dropping a URL on Komodo: -->
+                <label id="dragdrop_ask_label" value="&droppingURL.label;"/>
+                <menulist id="dragdrop_ask_menulist"
+                          pref="true"
+                          prefattribute="data"
+                          prefstrings="donotask_dragdrop_uri,donotask_action_dragdrop_uri">
+                    <menupopup id="dragdrop_ask_menupopup">
+                        <menuitem id="dragdrop_ask_menuitem1" data="false,"   label="&askMeWhatToDo.label;"/>
+                        <menuitem id="dragdrop_ask_menuitem2" data="true,&viewSource.label;" label="&viewSource.label;"/>
+                        <menuitem id="dragdrop_ask_menuitem3" data="true,&addAURIMapping.label;" label="&addAURIMapping.label;"/>
+                        <menuitem id="dragdrop_ask_menuitem2" data="true,&dropAsText.label;" label="&dropAsText.label;"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+        </groupbox>
+
+        <groupbox orient="vertical">
+            <caption label="&confirmationDialogs.label;"/>
+            <checkbox id="checkDiskFile"
+                      label="&detectWhenFilesAreChangedOutsideTheEnvironment.label;"
                       pref="true"
-                      prefattribute="data"
-                      prefstrings="donotask_dragdrop_uri,donotask_action_dragdrop_uri">
-                <menupopup id="dragdrop_ask_menupopup">
-                    <menuitem id="dragdrop_ask_menuitem1" data="false,"   label="&askMeWhatToDo.label;"/>
-                    <menuitem id="dragdrop_ask_menuitem2" data="true,&viewSource.label;" label="&viewSource.label;"/>
-                    <menuitem id="dragdrop_ask_menuitem3" data="true,&addAURIMapping.label;" label="&addAURIMapping.label;"/>
-                    <menuitem id="dragdrop_ask_menuitem2" data="true,&dropAsText.label;" label="&dropAsText.label;"/>
-                </menupopup>
-            </menulist>
-        </hbox>
-  </groupbox>
-
-  <groupbox orient="vertical">
-    <caption label="&confirmationDialogs.label;"/>
-    <checkbox id="checkDiskFile"
-              label="&detectWhenFilesAreChangedOutsideTheEnvironment.label;"
-              pref="true"
-              oncommand="updateDoNotAskWidgets()"/>
-    <hbox align="center">
-        <label value="&fileChanged.label;"/>
-        <menulist pref="true"
-                  id="reload_changed_files"
-                  prefattribute="data"
-                  prefstrings="donotask_reload_changed_files,donotask_action_reload_changed_files">
-            <menupopup>
-                <menuitem data="false,"   label="&askMeWhatFilesToReload.label;"/>
-                <menuitem data="true,All" label="&reloadAllFiles.label;"/>
-                <menuitem data="true,None"  label="&reloadNoFiles.label;"/>
-            </menupopup>
-        </menulist>
-    </hbox>
-    <hbox align="center">
-        <label value="&fileDeleted.label;"/>
-        <menulist pref="true"
-                  prefattribute="data"
-                  id="close_deleted_files"
-                  prefstrings="donotask_close_deleted_files,donotask_action_close_deleted_files">
-            <menupopup>
-                <menuitem data="false,"   label="&askMeWhatFilesToClose.label;"/>
-                <menuitem data="true,All" label="&closeAllFiles.label;"/>
-                <menuitem data="true,None"  label="&closeNoFiles.label;"/>
-            </menupopup>
-        </menulist>
-    </hbox>
-    <checkbox id="showFileConflictAlertDialog"
-              label="&doNotAlertMeIfTheBufferIsUnsavedAndTheFileOnDiskChanged.label;"
-              style="padding-top: 5px;"
-              pref="true" prefstring="donotask_buffer_conflicts_with_file_on_disk"
-              prefattribute="checked"/>
-    <checkbox id="showFileRevertAreYouSureDialog"
-              label="&doNotAlertMeOnBufferRevert.label;"
-              style="padding-top: 5px;"
-              pref="true" prefstring="donotask_revert_buffer"
-              prefattribute="checked"/>
-  </groupbox>
-
- <groupbox orient="vertical">
-    <caption label="&scrolling.label;"/>
-    <hbox align="center">
-        <label value="&minimumNumberLineAboveBelowCursor.label;"/>
-        <textbox id="ySlop"
-                    size="3"
-                    pref="true"
-                    prefstring="ySlop"
-                    prefattribute="value"/>
-    </hbox>
-    <hbox align="center">
-        <label value="&horizScrollWidth.label;"/>
-        <textbox id="scrollWidth"
-                    size="6"
-                    pref="true"
-                    prefstring="scrollWidth"
-                    prefattribute="value"/>
-    </hbox>
-    <vbox>
-	<checkbox id="scrollEndAtLastLine" label="&enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label;"
-		  pref="true" prefstring="scrollEndAtLastLine"
-		  prefattribute="checked"/>
-	<description></description>
-    </vbox>
-  </groupbox>
-
- <groupbox orient="vertical">
-    <caption label="&tabs.label;"/>
-        <vbox>
-            <checkbox id="select_most_recent_buffer_on_buffer_close"
-                      label="&returnToMostRecentBufferOnClose.label;"
-                      pref="true"
-                      prefstring="select_most_recent_buffer_on_buffer_close"
+                      oncommand="updateDoNotAskWidgets()"/>
+            <hbox align="center">
+                <label value="&fileChanged.label;"/>
+                <menulist pref="true"
+                          id="reload_changed_files"
+                          prefattribute="data"
+                          prefstrings="donotask_reload_changed_files,donotask_action_reload_changed_files">
+                    <menupopup>
+                        <menuitem data="false,"   label="&askMeWhatFilesToReload.label;"/>
+                        <menuitem data="true,All" label="&reloadAllFiles.label;"/>
+                        <menuitem data="true,None"  label="&reloadNoFiles.label;"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+            <hbox align="center">
+                <label value="&fileDeleted.label;"/>
+                <menulist pref="true"
+                          prefattribute="data"
+                          id="close_deleted_files"
+                          prefstrings="donotask_close_deleted_files,donotask_action_close_deleted_files">
+                    <menupopup>
+                        <menuitem data="false,"   label="&askMeWhatFilesToClose.label;"/>
+                        <menuitem data="true,All" label="&closeAllFiles.label;"/>
+                        <menuitem data="true,None"  label="&closeNoFiles.label;"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+            <checkbox id="showFileConflictAlertDialog"
+                      label="&doNotAlertMeIfTheBufferIsUnsavedAndTheFileOnDiskChanged.label;"
+                      style="padding-top: 5px;"
+                      pref="true" prefstring="donotask_buffer_conflicts_with_file_on_disk"
                       prefattribute="checked"/>
-        </vbox>
-  </groupbox>
+            <checkbox id="showFileRevertAreYouSureDialog"
+                      label="&doNotAlertMeOnBufferRevert.label;"
+                      style="padding-top: 5px;"
+                      pref="true" prefstring="donotask_revert_buffer"
+                      prefattribute="checked"/>
+        </groupbox>
+
+       <groupbox orient="vertical">
+            <caption label="&scrolling.label;"/>
+            <hbox align="center">
+                <label value="&minimumNumberLineAboveBelowCursor.label;"/>
+                <textbox id="ySlop"
+                            size="3"
+                            pref="true"
+                            prefstring="ySlop"
+                            prefattribute="value"/>
+            </hbox>
+            <hbox align="center">
+                <label value="&horizScrollWidth.label;"/>
+                <textbox id="scrollWidth"
+                            size="6"
+                            pref="true"
+                            prefstring="scrollWidth"
+                            prefattribute="value"/>
+            </hbox>
+            <vbox>
+                <checkbox id="scrollEndAtLastLine" label="&enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label;"
+                          pref="true" prefstring="scrollEndAtLastLine"
+                          prefattribute="checked"/>
+                <description></description>
+            </vbox>
+        </groupbox>
+
+        <groupbox orient="vertical">
+            <caption label="&tabs.label;"/>
+            <vbox>
+                <checkbox id="select_most_recent_buffer_on_buffer_close"
+                          label="&returnToMostRecentBufferOnClose.label;"
+                          pref="true"
+                          prefstring="select_most_recent_buffer_on_buffer_close"
+                          prefattribute="checked"/>
+            </vbox>
+        </groupbox>
+
+    </vbox>
 
 </window>

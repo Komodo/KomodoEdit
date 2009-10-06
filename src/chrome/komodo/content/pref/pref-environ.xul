@@ -44,6 +44,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/prefwidgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -56,17 +57,24 @@
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/pref-environ.js" type="application/x-javascript;version=1.7"/>
 
-    <groupbox orient="vertical" flex="1">
-        <caption label="&environment.label;"/>
-        <vbox flex="1">
-            <label value="&startEnvironVar.label;" control="env-sys" class="kopadded"/>
-            <EnvPrefs id="env-sys" editable="false" flex="1"/>
-            <label value="&userEnvironVar.label;" control="user-env-prefs" class="kopadded"/>
-            <EnvPrefs id="user-env-prefs" editable="true"
-                prefwidget="true" pref="true"
-                prefstring="userEnvironmentStartupOverride" flex="1"/>
-        </vbox>
-    </groupbox>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="environ-prefs-vbox" flex="1" class="autoscroll">
+
+        <groupbox orient="vertical" flex="1">
+            <caption label="&environment.label;"/>
+            <vbox flex="1">
+                <label value="&startEnvironVar.label;" control="env-sys" class="kopadded"/>
+                <EnvPrefs id="env-sys" editable="false" flex="1"/>
+                <label value="&userEnvironVar.label;" control="user-env-prefs" class="kopadded"/>
+                <EnvPrefs id="user-env-prefs" editable="true"
+                    prefwidget="true" pref="true"
+                    prefstring="userEnvironmentStartupOverride" flex="1"/>
+            </vbox>
+        </groupbox>
+
+    </vbox>
+
 </window>
 
 

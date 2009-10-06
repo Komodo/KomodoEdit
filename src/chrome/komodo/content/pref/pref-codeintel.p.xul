@@ -61,134 +61,141 @@
     <script src="chrome://komodo/content/pref/pref-codeintel.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7" />
 
-    <hbox id="disabled-warning" style="padding-top: 100px;" collapsed="true">
-        <hbox align="start">
-            <image class="small-warning-icon spaced" flex="1"/>
-        </hbox>
-        <description flex="1">
-            &codeIntelDisabled.description;
-        </description>
-    </hbox>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="php-prefs-vbox" flex="1" class="autoscroll">
 
-    <groupbox id="groupbox-1" orient="vertical">
-        <caption label="&codeIntelligence.label;"  disabled="true"/>
-
-        <description>
-            &codeIntel.description;
-        </description>
-
-        <checkbox id="codeintel_completion_triggering_enabled"
-                  label="&enableAutomaticAutocompleteAndCalltipTriggeringWhileYouType.label;"
-                  pref="true" prefattribute="checked"/>
-
-        <separator class="thin"/>
-        <checkbox id="codeintel_completion_fillups_enabled"
-                  label="&enableAutocompleteFillUpCharacters.label;"
-                  pref="true" prefattribute="checked"/>
-        <description style="margin-left: 27px;">
-            &codeIntelAutocompleteFillUpCharacters.description;
-        </description>
-
-        <separator class="thin"/>
-        <hbox flex="1" align="center">
-            <label value="&codeIntelCalltipMaxLength.label;"/>
-            <textbox id="codeintel_calltip_max_lines"
-                     size="3"
-                     pref="true"/>
-        </hbox>
-        <hbox align="center">
-            <label value="&codeIntelCalltipMaxLineWidth.label;"/>
-            <textbox id="codeintel_calltip_max_line_width"
-                     size="3"
-                     pref="true"/>
+        <hbox id="disabled-warning" style="padding-top: 100px;" collapsed="true">
+            <hbox align="start">
+                <image class="small-warning-icon spaced" flex="1"/>
+            </hbox>
+            <description flex="1">
+                &codeIntelDisabled.description;
+            </description>
         </hbox>
 
-    </groupbox>
+        <groupbox id="groupbox-1" orient="vertical">
+            <caption label="&codeIntelligence.label;"  disabled="true"/>
 
-    <groupbox id="scanning_groupbox" orient="vertical">
-        <caption label="&codeintelScanning.caption;"/>
-        <description>
-            &codeintelScanning.description;
-        </description>
+            <description>
+                &codeIntel.description;
+            </description>
 
-        <hbox id="scan_depth_hbox" align="center">
-            <label value="&codeIntelMaxRecursiveDirectoryDepth.label;"/>
-            <textbox id="codeintel_max_recursive_dir_depth"
-                     size="3"
-                     pref="true"/>
-        </hbox>
-        <checkbox id="codeintel_scan_files_in_project"
-                  label="&codeintelScanFilesInProject.label;"
-                  pref="true"
-                  prefattribute="checked" />
-    </groupbox>
+            <checkbox id="codeintel_completion_triggering_enabled"
+                      label="&enableAutomaticAutocompleteAndCalltipTriggeringWhileYouType.label;"
+                      pref="true" prefattribute="checked"/>
+    
+            <separator class="thin"/>
+            <checkbox id="codeintel_completion_fillups_enabled"
+                      label="&enableAutocompleteFillUpCharacters.label;"
+                      pref="true" prefattribute="checked"/>
+            <description style="margin-left: 27px;">
+                &codeIntelAutocompleteFillUpCharacters.description;
+            </description>
 
-    <groupbox id="groupbox-2" orient="vertical">
-        <caption label="&APICatalogs.label;"/>
-        <description>
-            &codeIntelAPICatalogs.description;
-        </description>
-        <description>
-            &codeIntelAPICatalogsNote.description;
-        </description>
+            <separator class="thin"/>
+            <hbox flex="1" align="center">
+                <label value="&codeIntelCalltipMaxLength.label;"/>
+                <textbox id="codeintel_calltip_max_lines"
+                         size="3"
+                         pref="true"/>
+            </hbox>
+            <hbox align="center">
+                <label value="&codeIntelCalltipMaxLineWidth.label;"/>
+                <textbox id="codeintel_calltip_max_line_width"
+                         size="3"
+                         pref="true"/>
+            </hbox>
 
-        <separator class="thin"/>
-        <tree id="catalogs" flex="1"
-              seltype="multiple" class="no-border"
-              editable="true"
-              rows="6"
-              onselect="PrefCodeIntel_UpdateCatalogsUI();"
-              onclick="return PrefCodeIntel_CatalogsOnClick(event);"
-              onkeypress="return PrefCodeIntel_CatalogsOnKeyPress(event);">
-            <treecols>
-                <treecol id="catalogs-selected"
-                         type="checkbox"
-                         fixed="true"
-                         editable="true"
-                         class="treecol-image"
-                         ignoreincolumnpicker="true"
-                         tooltiptext="&selected.tooltiptext;"
-                         src="chrome://komodo/skin/images/cbox-check.gif" />
-                <splitter class="tree-splitter"/>
-                <treecol id="catalogs-name"
-                         persist="width"
-                         label="&name.label;"
-                         style="width: 7em;" />
-                <splitter class="tree-splitter"/>
-                <treecol id="catalogs-lang"
-                         label="&language.label;"
-                         persist="width"
-                         style="width: 7em;"/>
-                <splitter class="tree-splitter"/>
-                <treecol id="catalogs-description"
-                         label="&description.label;"
-                         crop="end"
-                         flex="1"
-                         persist="width" />
-                <splitter class="tree-splitter"/>
-                <treecol id="catalogs-cix_path"
-                         label="&path.label;"
-                         crop="center"
-                         flex="1"
-                         hidden="true"
-                         persist="hidden" />
-            </treecols>
-            <treechildren id="catalogs-body" flex="1"
-                          alternatingbackground="true"/>
-        </tree>
+        </groupbox>
 
-        <separator class="thin"/>
-        <hbox>
-            <spring flex="1"/>
-            <button id="remove-catalog"
-                    label="&removeCatalog.label;" 
-                    disabled="true"
-                    oncommand="PrefCodeIntel_RemoveCatalog();"/>
-            <button id="add-catalog"
-                    label="&addAnAPICatalog.label;"
-                    oncommand="PrefCodeIntel_AddCatalog();"/>
-        </hbox>
-    </groupbox>
+        <groupbox id="scanning_groupbox" orient="vertical">
+            <caption label="&codeintelScanning.caption;"/>
+            <description>
+                &codeintelScanning.description;
+            </description>
+
+            <hbox id="scan_depth_hbox" align="center">
+                <label value="&codeIntelMaxRecursiveDirectoryDepth.label;"/>
+                <textbox id="codeintel_max_recursive_dir_depth"
+                         size="3"
+                         pref="true"/>
+            </hbox>
+            <checkbox id="codeintel_scan_files_in_project"
+                      label="&codeintelScanFilesInProject.label;"
+                      pref="true"
+                      prefattribute="checked" />
+        </groupbox>
+
+        <groupbox id="groupbox-2" orient="vertical">
+            <caption label="&APICatalogs.label;"/>
+            <description>
+                &codeIntelAPICatalogs.description;
+            </description>
+            <description>
+                &codeIntelAPICatalogsNote.description;
+            </description>
+
+            <separator class="thin"/>
+            <tree id="catalogs" flex="1"
+                  seltype="multiple" class="no-border"
+                  editable="true"
+                  rows="6"
+                  onselect="PrefCodeIntel_UpdateCatalogsUI();"
+                  onclick="return PrefCodeIntel_CatalogsOnClick(event);"
+                  onkeypress="return PrefCodeIntel_CatalogsOnKeyPress(event);">
+                <treecols>
+                    <treecol id="catalogs-selected"
+                             type="checkbox"
+                             fixed="true"
+                             editable="true"
+                             class="treecol-image"
+                             ignoreincolumnpicker="true"
+                             tooltiptext="&selected.tooltiptext;"
+                             src="chrome://komodo/skin/images/cbox-check.gif" />
+                    <splitter class="tree-splitter"/>
+                    <treecol id="catalogs-name"
+                             persist="width"
+                             label="&name.label;"
+                             style="width: 7em;" />
+                    <splitter class="tree-splitter"/>
+                    <treecol id="catalogs-lang"
+                             label="&language.label;"
+                             persist="width"
+                             style="width: 7em;"/>
+                    <splitter class="tree-splitter"/>
+                    <treecol id="catalogs-description"
+                             label="&description.label;"
+                             crop="end"
+                             flex="1"
+                             persist="width" />
+                    <splitter class="tree-splitter"/>
+                    <treecol id="catalogs-cix_path"
+                             label="&path.label;"
+                             crop="center"
+                             flex="1"
+                             hidden="true"
+                             persist="hidden" />
+                </treecols>
+                <treechildren id="catalogs-body" flex="1"
+                              alternatingbackground="true"/>
+            </tree>
+
+            <separator class="thin"/>
+            <hbox>
+                <spring flex="1"/>
+                <button id="remove-catalog"
+                        label="&removeCatalog.label;" 
+                        disabled="true"
+                        oncommand="PrefCodeIntel_RemoveCatalog();"/>
+                <button id="add-catalog"
+                        label="&addAnAPICatalog.label;"
+                        oncommand="PrefCodeIntel_AddCatalog();"/>
+            </hbox>
+        </groupbox>
+
+    </vbox>
+
 </window>
 
 

@@ -46,6 +46,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/keybinding.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/codeintel.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window id="KeyPrefWindow"
         xmlns:html="http://www.w3.org/1999/xhtml"
@@ -60,21 +61,25 @@
     <script src="chrome://komodo/content/pref/pref-keys.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
 
-    <groupbox style="padding:6px;" orient="vertical">
-        <caption label="&keyBindings.label;" />
-        <description>&keyBindingsConfiguration.description;</description>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="keybinding-prefs-vbox" flex="1" class="autoscroll">
+
+        <groupbox style="padding:6px;" orient="vertical">
+            <caption label="&keyBindings.label;" />
+            <description>&keyBindingsConfiguration.description;</description>
 <!-- #if PLATFORM != 'darwin' -->
-        <separator class="thin"/>
-        <checkbox id="keybindingDisableAccesskeys"
-                  label="&removeAltKeyFromMenu.label;"
-                  pref="true"
-                  prefstring="keybindingDisableAccesskeys"
-                  prefattribute="checked"/>
+            <separator class="thin"/>
+            <checkbox id="keybindingDisableAccesskeys"
+                      label="&removeAltKeyFromMenu.label;"
+                      pref="true"
+                      prefstring="keybindingDisableAccesskeys"
+                      prefattribute="checked"/>
 <!-- #endif -->
-        <checkbox id="enableViKeybindings"
-                  label="&enableViEmulation.label;"
-                  oncommand="setViKeybindings(this);"/>
-        <separator class="thin"/>
+            <checkbox id="enableViKeybindings"
+                      label="&enableViEmulation.label;"
+                      oncommand="setViKeybindings(this);"/>
+            <separator class="thin"/>
             <label value="&keyBindingsSchemes.label;"
                     accesskey="&keyBindingsSchemes.accesskey;" control="configurations"/>
             <hbox>
@@ -91,40 +96,43 @@
                         label="&delete.label;"
                         disabled="true"/>
             </hbox>
-        <separator class="thin"/>
-        <hbox align="center">
-            <label value="&filePrefKeysCommands.label;" flex="1" accesskey="&filePrefKeysCommands.accesskey;" control="commands-filter-textbox"/>
-            <textbox id="commands-filter-textbox"
-                     class="search-box"
-                     style="min-height: 16px;"
-                     flex="1"
-                     onfocus="window.updateCommands('undo')"
-                     onblur="window.updateCommands('undo')"
-                     onkeypress="onFilterKeypress(event)"
-                     oninput="scheduleUpdateCommandList()"
-                     tooltiptext="&filterCommands.tooltiptext;"/>
-        </hbox>
-        <deck id="deck" style="height: 150px">
-            <description id="nohits" style="padding: 5px">
-                &noCommandsMatch.description;
-            </description>
-            <listbox id="keybinding-tree"
-                tooltip="aTooltip"
-                Xrows="10"
-                flex="1"
-                tooltiptext="&selectACommand.tooltiptext;"
-                onselect="selectKey(event)"
-                onclick="selectKey(event)"
-                hidecolumnpicker="true"
-                seltype="single">
-                <listcols>
-                    <listcol flex="1"/>
-                </listcols>
-            </listbox>
-        </deck>
-        <separator class="thin"/>
-        <editkeybinding id="keybinding" prefsdialog="true"
-                        onselect="ensureSelectedUsedbyKeyIsVisible(event);"/>
-    </groupbox>
+            <separator class="thin"/>
+            <hbox align="center">
+                <label value="&filePrefKeysCommands.label;" flex="1" accesskey="&filePrefKeysCommands.accesskey;" control="commands-filter-textbox"/>
+                <textbox id="commands-filter-textbox"
+                         class="search-box"
+                         style="min-height: 16px;"
+                         flex="1"
+                         onfocus="window.updateCommands('undo')"
+                         onblur="window.updateCommands('undo')"
+                         onkeypress="onFilterKeypress(event)"
+                         oninput="scheduleUpdateCommandList()"
+                         tooltiptext="&filterCommands.tooltiptext;"/>
+            </hbox>
+            <deck id="deck" style="height: 150px">
+                <description id="nohits" style="padding: 5px">
+                    &noCommandsMatch.description;
+                </description>
+                <listbox id="keybinding-tree"
+                    tooltip="aTooltip"
+                    Xrows="10"
+                    flex="1"
+                    tooltiptext="&selectACommand.tooltiptext;"
+                    onselect="selectKey(event)"
+                    onclick="selectKey(event)"
+                    hidecolumnpicker="true"
+                    seltype="single">
+                    <listcols>
+                        <listcol flex="1"/>
+                    </listcols>
+                </listbox>
+            </deck>
+            <separator class="thin"/>
+            <editkeybinding id="keybinding" prefsdialog="true"
+                            onselect="ensureSelectedUsedbyKeyIsVisible(event);"/>
+        </groupbox>
+
+    </vbox>
+
 </window>
 

@@ -59,6 +59,8 @@ $cons->InstallInChrome('tree.css');
 $cons->InstallInChrome('autocomplete.css');
 $cons->InstallInChrome('find.css');
 
+$cons->InstallInChrome('prefs/prefs.css');
+
 if ($platform eq "darwin") {
     $cons->InstallRecursive("$mozChromeDir/komodo/skin/",
                             cwd()."/src/chrome/komodo/skin/plat/mac/",

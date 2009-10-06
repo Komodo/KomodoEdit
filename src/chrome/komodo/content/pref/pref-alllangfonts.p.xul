@@ -74,602 +74,608 @@
     <script src="chrome://global/content/nsDragAndDrop.js"/>
     <hbox id="scintillaOverlayXul"/>
 
-    <vbox  style="padding: 6px;">
-        <hbox>
-            <vbox pack="end">
-                <label value="&sampleText.label;"/>
-            </vbox>
-            <!--<spacer flex="1"/>-->
-            <!--<menulist id="samplelanguagelist">-->
-            <!--    <menupopup>-->
-            <!--        <menuitem label="&htmlSample.label;"/>-->
-            <!--        <menuitem label="&pythonSample.label;"/>-->
-            <!--        <menuitem label="&perlSample.label;"/>-->
-            <!--        <menuitem label="&phpSample.label;"/>-->
-            <!--        <menuitem label="&browse.label;"/>-->
-            <!--    </menupopup>-->
-            <!--</menulist>-->
-        </hbox>
-        <view id="sample" type="buffer"
-              onblur="onSampleBlur()"
-              onfocus="onSampleFocus()"
-              onclick="onSampleClick()"
-              style="margin-left: 6px; height: 160px;"/>
-    </vbox>
-    <vbox style="padding: 6px;">
-        <label value="&schemeType.label;" accesskey="&schemeType.accesskey;" control="schemeslist"/>
-        <hbox>
-            <menulist id="schemeslist"
-                      flex="1"
-                      oncommand="schemePick(event)">
-                <menupopup id="schemespopup"/>
-            </menulist>
-            <button label="&new.label;"
-                    accesskey="&new.accesskey;"
-                    oncommand="doNew()"/>
-            <button id="deleteScheme"
-                    accesskey="&deleteScheme.accesskey;"
-                    label="&delete.label;"
-                    oncommand="doDelete()"/>
-        </hbox>
-    </vbox>
-    <separator class="thin"/>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="php-prefs-vbox" flex="1" class="autoscroll">
 
-    <vbox style="padding: 6px;">
-        <tabbox id="tabbox">
-            <tabs id="tabs" onselect="tabChanged()">
-                <tab id="fonts_tab" label="&fonts.label;" accesskey="&fonts.accesskey;"/>
-                <tab id="colors_tab" label="&colors.label;" accesskey="&colors.accesskey;" style="margin-right: 5px;"/>
-                <tab id="common_tab" label="&commonSyntax.label;" accesskey="&commonSyntax.accesskey;"/>
-                <tab id="specific_tab" label="&langSpecific.label;" accesskey="&langSpecific.accesskey;"/>
-                <tab id="indicator_tab" label="&indicators.label;" accesskey="&indicators.accesskey;"/>
-            </tabs>
-            <tabpanels>
-                <tabpanel id="fonts_panel" orient="vertical">
-                    <description style="margin-bottom: 10px;">
-                        &chooseEncodFont.description;
-                    </description>
-                    <radiogroup>
-                    <hbox align="center">
-                        <label value="&filePrefAllLangEncod.label;"
-                               accesskey="&filePrefAllLangEncod.accesskey;"
-                               control="encodingslist"/>
-                        <menulist id="encodingslist"
-                                  sizetopopup="false"
-                                  style="width: 180px"
-                                  oncommand="selectEncoding();">
-                            <menupopup id="encodingspopup"/>
-                        </menulist>
-                        <button id="encodingReset"
-                                label="&reset.label;"
-                                oncommand="onResetEncoding(event);"/>
-                    </hbox>
-                    <separator class="thin"/>
-                    <hbox>
-                    <vbox flex="1">
+        <vbox  style="padding: 6px;">
+            <hbox>
+                <vbox pack="end">
+                    <label value="&sampleText.label;"/>
+                </vbox>
+                <!--<spacer flex="1"/>-->
+                <!--<menulist id="samplelanguagelist">-->
+                <!--    <menupopup>-->
+                <!--        <menuitem label="&htmlSample.label;"/>-->
+                <!--        <menuitem label="&pythonSample.label;"/>-->
+                <!--        <menuitem label="&perlSample.label;"/>-->
+                <!--        <menuitem label="&phpSample.label;"/>-->
+                <!--        <menuitem label="&browse.label;"/>-->
+                <!--    </menupopup>-->
+                <!--</menulist>-->
+            </hbox>
+            <view id="sample" type="buffer"
+                  onblur="onSampleBlur()"
+                  onfocus="onSampleFocus()"
+                  onclick="onSampleClick()"
+                  style="margin-left: 6px; height: 160px;"/>
+        </vbox>
+        <vbox style="padding: 6px;">
+            <label value="&schemeType.label;" accesskey="&schemeType.accesskey;" control="schemeslist"/>
+            <hbox>
+                <menulist id="schemeslist"
+                          flex="1"
+                          oncommand="schemePick(event)">
+                    <menupopup id="schemespopup"/>
+                </menulist>
+                <button label="&new.label;"
+                        accesskey="&new.accesskey;"
+                        oncommand="doNew()"/>
+                <button id="deleteScheme"
+                        accesskey="&deleteScheme.accesskey;"
+                        label="&delete.label;"
+                        oncommand="doDelete()"/>
+            </hbox>
+        </vbox>
+        <separator class="thin"/>
+
+        <vbox style="padding: 6px;">
+            <tabbox id="tabbox">
+                <tabs id="tabs" onselect="tabChanged()">
+                    <tab id="fonts_tab" label="&fonts.label;" accesskey="&fonts.accesskey;"/>
+                    <tab id="colors_tab" label="&colors.label;" accesskey="&colors.accesskey;" style="margin-right: 5px;"/>
+                    <tab id="common_tab" label="&commonSyntax.label;" accesskey="&commonSyntax.accesskey;"/>
+                    <tab id="specific_tab" label="&langSpecific.label;" accesskey="&langSpecific.accesskey;"/>
+                    <tab id="indicator_tab" label="&indicators.label;" accesskey="&indicators.accesskey;"/>
+                </tabs>
+                <tabpanels>
+                    <tabpanel id="fonts_panel" orient="vertical">
+                        <description style="margin-bottom: 10px;">
+                            &chooseEncodFont.description;
+                        </description>
+                        <radiogroup>
                         <hbox align="center">
-                            <label value="&filePrefAllLangFixedWidth.label;"
-                                   accesskey="&filePrefAllLangFixedWidth.accesskey;"
-                                   control="fixed"/>
-                            <radio id="preferFixed"
-                                   oncommand="preferFixed(true)"
-                                   accesskey="&preferFixed.accesskey;"
-                                   label="&preferFixed.label;"
-                                   />
-                        </hbox>
-                        <hbox flex="1" align="center">
-                            <menulist flex="1"
-                                      style="width: 90px"
-                                      id="fixed"
-                                      oncommand="onClickFixedFont()">
-                                <menupopup/>
-                            </menulist>
-                        </hbox>
-                        <separator class="thin"/>
-                        <hbox align="center">
-                            <menulist id="fixedSize" oncommand="onClickFixedSize()">
-                                <menupopup>
-                                    <menuitem id="fixedSize_8" value="8" label="8"/>
-                                    <menuitem id="fixedSize_9" value="9" label="9"/>
-                                    <menuitem id="fixedSize_10" value="10" label="10"/>
-                                    <menuitem id="fixedSize_11" value="11" label="11"/>
-                                    <menuitem id="fixedSize_12" value="12" label="12"/>
-                                    <menuitem id="fixedSize_13" value="13" label="13"/>
-                                    <menuitem id="fixedSize_14" value="14" label="14"/>
-                                    <menuitem id="fixedSize_15" value="15" label="15"/>
-                                    <menuitem id="fixedSize_16" value="16" label="16"/>
-                                    <menuitem id="fixedSize_18" value="18" label="18"/>
-                                    <menuitem id="fixedSize_20" value="20" label="20"/>
-                                    <menuitem id="fixedSize_24" value="24" label="24"/>
-                                    <menuitem id="fixedSize_26" value="26" label="26"/>
-                                    <menuitem id="fixedSize_28" value="28" label="28"/>
-                                    <menuitem id="fixedSize_32" value="32" label="32"/>
-                                    <menuitem id="fixedSize_36" value="36" label="36"/>
-                                    <menuitem id="fixedSize_40" value="40" label="40"/>
-                                    <menuitem id="fixedSize_48" value="48" label="48"/>
-                                    <menuitem id="fixedSize_56" value="56" label="56"/>
-                                    <menuitem id="fixedSize_64" value="64" label="64"/>
-                                    <menuitem id="fixedSize_72" value="72" label="72"/>
-                                </menupopup>
-                            </menulist>
-                            <button id="fixedBold"
-                                    type="checkbox"
-                                    class="boldtext-icon button-toolbar-d"
-                                    oncommand="onClickBoldOrItalic(this)" />
-                            <button id="fixedItalic"
-                                    type="checkbox"
-                                    class="italictext-icon button-toolbar-d"
-                                    oncommand="onClickBoldOrItalic(this)" />
-                            <vbox>
-                                <hbox align="center">
-                                    <label value="&filPrefAllLangForeText;"/>
-                                    <colorpicker id="fixedColorPickerFore"
-                                                 palettename="scin-customize"
-                                                 type="button" width="20" height="20"
-                                                 persist="palettename"
-                                                 onchange="setColour(this)"/>
-                                    <button style="margin-bottom: 6px"
-                                            class="arrow-right-6x3-icon button-toolbar-a"
-                                            oncommand="customColor('fixedColorPickerFore')"/>
-                                </hbox>
-                                <hbox align="center">
-                                    <label value="&filPrefAllLangBackText;"/>
-                                    <colorpicker id="fixedColorPickerBack"
-                                                 palettename="scin-customize"
-                                                 type="button" width="20" height="20"
-                                                 persist="palettename"
-                                                 onchange="setColour(this)"/>
-                                    <button style="margin-bottom: 6px"
-                                            class="arrow-right-6x3-icon button-toolbar-a"
-                                            oncommand="customColor('fixedColorPickerBack')"/>
-                                </hbox>
-                            </vbox>
-                        </hbox>
-                    </vbox>
-                    <vbox flex="1">
-                        <hbox align="center">
-                            <label value="&filePrefAllLangProportional.label;"
-                                   control="proportional"/>
-                            <radio id="preferProp"
-                                   oncommand="preferFixed(false)"
-                                   accesskey="&preferProp.accesskey;"
-                                   label="&preferProp.label;"
-                                   />
-                        </hbox>
-                        <hbox flex="1" align="center">
-                            <menulist flex="1"
-                                      id="proportional"
-                                      style="width: 90px"
-                                      oncommand="onClickProportionalFont()">
-                                <menupopup/>
-                            </menulist>
-                        </hbox>
-                        <separator class="thin"/>
-                        <hbox align="center">
-                            <menulist id="propSize" oncommand="onClickProportionalSize()">
-                                <menupopup>
-                                    <menuitem id="propSize_8" value="8" label="8"/>
-                                    <menuitem id="propSize_9" value="9" label="9"/>
-                                    <menuitem id="propSize_10" value="10" label="10"/>
-                                    <menuitem id="propSize_11" value="11" label="11"/>
-                                    <menuitem id="propSize_12" value="12" label="12"/>
-                                    <menuitem id="propSize_13" value="13" label="13"/>
-                                    <menuitem id="propSize_14" value="14" label="14"/>
-                                    <menuitem id="propSize_15" value="15" label="15"/>
-                                    <menuitem id="propSize_16" value="16" label="16"/>
-                                    <menuitem id="propSize_18" value="18" label="18"/>
-                                    <menuitem id="propSize_20" value="20" label="20"/>
-                                    <menuitem id="propSize_24" value="24" label="24"/>
-                                    <menuitem id="propSize_26" value="26" label="26"/>
-                                    <menuitem id="propSize_28" value="28" label="28"/>
-                                    <menuitem id="propSize_32" value="32" label="32"/>
-                                    <menuitem id="propSize_36" value="36" label="36"/>
-                                    <menuitem id="propSize_40" value="40" label="40"/>
-                                    <menuitem id="propSize_48" value="48" label="48"/>
-                                    <menuitem id="propSize_56" value="56" label="56"/>
-                                    <menuitem id="propSize_64" value="64" label="64"/>
-                                    <menuitem id="propSize_72" value="72" label="72"/>
-                                </menupopup>
-                            </menulist>
-                            <button id="propBold"
-                                    class="boldtext-icon button-toolbar-d"
-                                    type="checkbox"
-                                    oncommand="onClickBoldOrItalic(this)"/>
-                            <button id="propItalic"
-                                    type="checkbox"
-                                    class="italictext-icon button-toolbar-d"
-                                    oncommand="onClickBoldOrItalic(this)"/>
-                            <vbox>
-                                <hbox align="center">
-                                    <label value="&filPrefAllLangForeText;"/>
-                                    <colorpicker id="propColorPickerFore"
-                                                 palettename="scin-customize"
-                                                 type="button" width="20" height="20"
-                                                 persist="palettename"
-                                                 onchange="setColour(this)"/>
-                                    <button style="margin-bottom: 6px"
-                                            class="arrow-right-6x3-icon button-toolbar-a"
-                                            oncommand="customColor('propColorPickerFore')"/>
-                                </hbox>
-                                <hbox align="center">
-                                    <label value="&filPrefAllLangBackText;"/>
-                                    <colorpicker id="propColorPickerBack"
-                                                 palettename="scin-customize"
-                                                 type="button" width="20" height="20"
-                                                 persist="palettename"
-                                                 onchange="setColour(this)"/>
-                                    <button style="margin-bottom: 6px"
-                                            class="arrow-right-6x3-icon button-toolbar-a"
-                                            oncommand="customColor('propColorPickerBack')"/>
-                                </hbox>
-                            </vbox>
-                        </hbox>
-                    </vbox>
-                    </hbox>
-                </radiogroup>
-                </tabpanel>
-                <tabpanel id="colors_panel" orient="vertical">
-                    <description style="margin-bottom: 10px;">
-                        &chooseColorEditorElement.description;
-                    </description>
-                    <label value="&filePrefAllLangColorChoice.label;" accesskey="&filePrefAllLangColorChoice.accesskey;" control="extracolors"/>
-                    <hbox align="center">
-                        <menulist id="extracolors">
-                            <menupopup>
-                                <menuitem id="caretLineBack"
-                                          label="&currentLineBackgroundColor.label;"
-                                          value="0"
-                                          oncommand="updateSchemeColor('caretLineBack')"/>
-                                <menuitem id="caretFore"
-                                          label="&cursorColor.label;"
-                                          value="1"
-                                          oncommand="updateSchemeColor('caretFore')"/>
-                                <menuitem id="selBack"
-                                          label="&selectionBackgroundColor.label;"
-                                          value="2"
-                                          oncommand="updateSchemeColor('selBack')"/>
-                                <menuitem id="selFore"
-                                          label="&selectionTextColor.label;"
-                                          value="3"
-                                          oncommand="updateSchemeColor('selFore')"/>
-                                <menuitem id="foldMarginColor"
-                                          label="&foldMarginColor.label;"
-                                          value="4"
-                                          oncommand="updateSchemeColor('foldMarginColor')"/>
-                                <menuitem id="bookmarkColor"
-                                          label="&bookmarkColor.label;"
-                                          value="6"
-                                          oncommand="updateSchemeColor('bookmarkColor')"/>
-                                <menuitem id="currentLineColor"
-                                          label="&debuggerCurrentLineBackgroundColor.label;"
-                                          value="7"
-                                          oncommand="updateSchemeColor('currentLineColor')"/>
-                                <menuitem id="callingLineColor"
-                                          label="&debuggerCallingLineBackgroundColor.label;"
-                                          value="8"
-                                          oncommand="updateSchemeColor('callingLineColor')"/>
-                                <menuitem id="edgeColor"
-                                          label="&edgeLineBackgroundColorOfTextTooFar.label;"
-                                          value="9"
-                                          oncommand="updateSchemeColor('edgeColor')"/>
-                                <menuitem id="whitespaceColor"
-                                          label="&whitespaceForegroundColor.label;"
-                                          value="10"
-                                          oncommand="updateSchemeColor('whitespaceColor')"/>
-                            </menupopup>
-                        </menulist>
-                        <colorpicker width="20" height="20"
-                            id="schemeColorPicker" palettename="standard" type="button"
-                            pref="true" prefattribute="color" prefstring="cursorColor"
-                            persist="palettename" onchange="setColour(this)"/>
-                        <button style="margin-bottom: 6px"
-                                class="arrow-right-6x3-icon button-toolbar-a"
-                                oncommand="customColor('schemeColorPicker')"/>
-                    </hbox>
-                    <hbox align="center">
-                        <checkbox id="useSelFore"
-                                  label="&overrideTextColorInSelection.label;"
-                                  oncommand="clickCheckbox('useSelFore', 'selFore')"/>
-                    </hbox>
-                    <hbox align="center">
-                        <checkbox id="caretLineVisible"
-                                  label="&highlightCurrentLine.label;"
-                                  oncommand="clickCheckbox('caretLineVisible', 'caretLineBack')"/>
-                    </hbox>
-                </tabpanel>
-                <tabpanel id="common_panel" orient="vertical">
-                    <description style="margin-bottom: 10px;">
-                        &styleForElements.description;
-                    </description>
-                    <vbox>
-                        <hbox align="center">
-                            <label value="&filePrefAllLangElementType.label;" accesskey="&filePrefAllLangElementType1.accesskey;" control="commonlist"/>
-                            <menulist id="commonlist"
+                            <label value="&filePrefAllLangEncod.label;"
+                                   accesskey="&filePrefAllLangEncod.accesskey;"
+                                   control="encodingslist"/>
+                            <menulist id="encodingslist"
+                                      sizetopopup="false"
                                       style="width: 180px"
-                                      oncommand="updateCommonStyle();">
-                                <menupopup id="commonpopup"/>
+                                      oncommand="selectEncoding();">
+                                <menupopup id="encodingspopup"/>
                             </menulist>
-                            <spacer class="thick"/>
-                            <button id="reset-common-defaults"
+                            <button id="encodingReset"
                                     label="&reset.label;"
-                                    oncommand="onResetCommon(event);" />
+                                    oncommand="onResetEncoding(event);"/>
                         </hbox>
-
                         <separator class="thin"/>
-                            <hbox align="center">
-                                <label value="&filePrefAllLangFace.label;"/>
-                                <menulist id="fixedOrPropCommon" oncommand="pickFaceType(this)">
-                                    <menupopup>
-                                        <menuitem value="1" label="&fixedWidth.label;" style="font-family: monospace"/>
-                                        <menuitem value="0" label="&proportional.label;" style="font-family: serif"/>
-                                    </menupopup>
-                                </menulist>
-                                <label value="&filePrefAllLangSize.label;"/>
-                                <menulist id="commonSize" oncommand="onClickCommonSize()">
-                                    <menupopup>
-                                        <menuitem id="commonSize_8" value="8" label="8"/>
-                                        <menuitem id="commonSize_9" value="9" label="9"/>
-                                        <menuitem id="commonSize_10" value="10" label="10"/>
-                                        <menuitem id="commonSize_11" value="11" label="11"/>
-                                        <menuitem id="commonSize_12" value="12" label="12"/>
-                                        <menuitem id="commonSize_13" value="13" label="13"/>
-                                        <menuitem id="commonSize_14" value="14" label="14"/>
-                                        <menuitem id="commonSize_15" value="15" label="15"/>
-                                        <menuitem id="commonSize_16" value="16" label="16"/>
-                                        <menuitem id="commonSize_18" value="18" label="18"/>
-                                        <menuitem id="commonSize_20" value="20" label="20"/>
-                                        <menuitem id="commonSize_24" value="24" label="24"/>
-                                        <menuitem id="commonSize_26" value="26" label="26"/>
-                                        <menuitem id="commonSize_28" value="28" label="28"/>
-                                        <menuitem id="commonSize_32" value="32" label="32"/>
-                                        <menuitem id="commonSize_36" value="36" label="36"/>
-                                        <menuitem id="commonSize_40" value="40" label="40"/>
-                                        <menuitem id="commonSize_48" value="48" label="48"/>
-                                        <menuitem id="commonSize_56" value="56" label="56"/>
-                                        <menuitem id="commonSize_64" value="64" label="64"/>
-                                        <menuitem id="commonSize_72" value="72" label="72"/>
-                                    </menupopup>
-                                </menulist>
-                                <button id="commonBold"
-                                    class="boldtext-icon button-toolbar-d"
-                                    type="checkbox"
-                                    oncommand="onClickBoldOrItalic(this)" />
-                                <button id="commonItalic"
-                                    class="italictext-icon button-toolbar-d"
-                                    type="checkbox"
-                                    oncommand="onClickBoldOrItalic(this)" />
-                            </hbox>
-                            <separator class="thin"/>
-                            <hbox align="center">
-                                <label value="&filePrefAllLangForeground.label;"/>
-                                <colorpicker id="commonColorPickerFore"
-                                             palettename="scin-customize"
-                                             type="button" width="20" height="20"
-                                             persist="palettename"
-                                             onchange="setColour(this)"/>
-                                <button style="margin-bottom: 6px"
-                                        class="arrow-right-6x3-icon button-toolbar-a"
-                                        oncommand="customColor('commonColorPickerFore')"/>
-                                <label value="&filePrefAllLangBackground.label;"/>
-                                <colorpicker id="commonColorPickerBack"
-                                             palettename="scin-customize"
-                                             type="button" width="20" height="20"
-                                             persist="palettename"
-                                             onchange="setColour(this)"/>
-                                <button style="margin-bottom: 6px"
-                                        class="arrow-right-6x3-icon button-toolbar-a"
-                                        oncommand="customColor('commonColorPickerBack')"/>
-                            </hbox>
-                    </vbox>
-                </tabpanel>
-                <tabpanel id="specific_panel" orient="vertical">
-                    <description style="margin-bottom: 10px;">
-                        &styleForSpecElements.description;
-                    </description>
-                    <hbox align="center">
-                        <label value="&filePrefAllLangLanguage.label;" class="kopadded" accesskey="&filePrefAllLangLanguage.accesskey;" control="languageList"/>
-                        <langlist id="languageList" oncommand="changeLanguage()"/>
-                    </hbox>
-                    <separator class="thin"/>
-                    <hbox>
+                        <hbox>
                         <vbox flex="1">
                             <hbox align="center">
-                                <label value="&filePrefAllLangElementType.label;" accesskey="&filePrefAllLangElementType2.accesskey;" control="specificlist"/>
-                                <menulist flex="1" id="specificlist" oncommand="updateSpecificStyle()">
-                                    <menupopup id="specificpopup"/>
+                                <label value="&filePrefAllLangFixedWidth.label;"
+                                       accesskey="&filePrefAllLangFixedWidth.accesskey;"
+                                       control="fixed"/>
+                                <radio id="preferFixed"
+                                       oncommand="preferFixed(true)"
+                                       accesskey="&preferFixed.accesskey;"
+                                       label="&preferFixed.label;"
+                                       />
+                            </hbox>
+                            <hbox flex="1" align="center">
+                                <menulist flex="1"
+                                          style="width: 90px"
+                                          id="fixed"
+                                          oncommand="onClickFixedFont()">
+                                    <menupopup/>
+                                </menulist>
+                            </hbox>
+                            <separator class="thin"/>
+                            <hbox align="center">
+                                <menulist id="fixedSize" oncommand="onClickFixedSize()">
+                                    <menupopup>
+                                        <menuitem id="fixedSize_8" value="8" label="8"/>
+                                        <menuitem id="fixedSize_9" value="9" label="9"/>
+                                        <menuitem id="fixedSize_10" value="10" label="10"/>
+                                        <menuitem id="fixedSize_11" value="11" label="11"/>
+                                        <menuitem id="fixedSize_12" value="12" label="12"/>
+                                        <menuitem id="fixedSize_13" value="13" label="13"/>
+                                        <menuitem id="fixedSize_14" value="14" label="14"/>
+                                        <menuitem id="fixedSize_15" value="15" label="15"/>
+                                        <menuitem id="fixedSize_16" value="16" label="16"/>
+                                        <menuitem id="fixedSize_18" value="18" label="18"/>
+                                        <menuitem id="fixedSize_20" value="20" label="20"/>
+                                        <menuitem id="fixedSize_24" value="24" label="24"/>
+                                        <menuitem id="fixedSize_26" value="26" label="26"/>
+                                        <menuitem id="fixedSize_28" value="28" label="28"/>
+                                        <menuitem id="fixedSize_32" value="32" label="32"/>
+                                        <menuitem id="fixedSize_36" value="36" label="36"/>
+                                        <menuitem id="fixedSize_40" value="40" label="40"/>
+                                        <menuitem id="fixedSize_48" value="48" label="48"/>
+                                        <menuitem id="fixedSize_56" value="56" label="56"/>
+                                        <menuitem id="fixedSize_64" value="64" label="64"/>
+                                        <menuitem id="fixedSize_72" value="72" label="72"/>
+                                    </menupopup>
+                                </menulist>
+                                <button id="fixedBold"
+                                        type="checkbox"
+                                        class="boldtext-icon button-toolbar-d"
+                                        oncommand="onClickBoldOrItalic(this)" />
+                                <button id="fixedItalic"
+                                        type="checkbox"
+                                        class="italictext-icon button-toolbar-d"
+                                        oncommand="onClickBoldOrItalic(this)" />
+                                <vbox>
+                                    <hbox align="center">
+                                        <label value="&filPrefAllLangForeText;"/>
+                                        <colorpicker id="fixedColorPickerFore"
+                                                     palettename="scin-customize"
+                                                     type="button" width="20" height="20"
+                                                     persist="palettename"
+                                                     onchange="setColour(this)"/>
+                                        <button style="margin-bottom: 6px"
+                                                class="arrow-right-6x3-icon button-toolbar-a"
+                                                oncommand="customColor('fixedColorPickerFore')"/>
+                                    </hbox>
+                                    <hbox align="center">
+                                        <label value="&filPrefAllLangBackText;"/>
+                                        <colorpicker id="fixedColorPickerBack"
+                                                     palettename="scin-customize"
+                                                     type="button" width="20" height="20"
+                                                     persist="palettename"
+                                                     onchange="setColour(this)"/>
+                                        <button style="margin-bottom: 6px"
+                                                class="arrow-right-6x3-icon button-toolbar-a"
+                                                oncommand="customColor('fixedColorPickerBack')"/>
+                                    </hbox>
+                                </vbox>
+                            </hbox>
+                        </vbox>
+                        <vbox flex="1">
+                            <hbox align="center">
+                                <label value="&filePrefAllLangProportional.label;"
+                                       control="proportional"/>
+                                <radio id="preferProp"
+                                       oncommand="preferFixed(false)"
+                                       accesskey="&preferProp.accesskey;"
+                                       label="&preferProp.label;"
+                                       />
+                            </hbox>
+                            <hbox flex="1" align="center">
+                                <menulist flex="1"
+                                          id="proportional"
+                                          style="width: 90px"
+                                          oncommand="onClickProportionalFont()">
+                                    <menupopup/>
+                                </menulist>
+                            </hbox>
+                            <separator class="thin"/>
+                            <hbox align="center">
+                                <menulist id="propSize" oncommand="onClickProportionalSize()">
+                                    <menupopup>
+                                        <menuitem id="propSize_8" value="8" label="8"/>
+                                        <menuitem id="propSize_9" value="9" label="9"/>
+                                        <menuitem id="propSize_10" value="10" label="10"/>
+                                        <menuitem id="propSize_11" value="11" label="11"/>
+                                        <menuitem id="propSize_12" value="12" label="12"/>
+                                        <menuitem id="propSize_13" value="13" label="13"/>
+                                        <menuitem id="propSize_14" value="14" label="14"/>
+                                        <menuitem id="propSize_15" value="15" label="15"/>
+                                        <menuitem id="propSize_16" value="16" label="16"/>
+                                        <menuitem id="propSize_18" value="18" label="18"/>
+                                        <menuitem id="propSize_20" value="20" label="20"/>
+                                        <menuitem id="propSize_24" value="24" label="24"/>
+                                        <menuitem id="propSize_26" value="26" label="26"/>
+                                        <menuitem id="propSize_28" value="28" label="28"/>
+                                        <menuitem id="propSize_32" value="32" label="32"/>
+                                        <menuitem id="propSize_36" value="36" label="36"/>
+                                        <menuitem id="propSize_40" value="40" label="40"/>
+                                        <menuitem id="propSize_48" value="48" label="48"/>
+                                        <menuitem id="propSize_56" value="56" label="56"/>
+                                        <menuitem id="propSize_64" value="64" label="64"/>
+                                        <menuitem id="propSize_72" value="72" label="72"/>
+                                    </menupopup>
+                                </menulist>
+                                <button id="propBold"
+                                        class="boldtext-icon button-toolbar-d"
+                                        type="checkbox"
+                                        oncommand="onClickBoldOrItalic(this)"/>
+                                <button id="propItalic"
+                                        type="checkbox"
+                                        class="italictext-icon button-toolbar-d"
+                                        oncommand="onClickBoldOrItalic(this)"/>
+                                <vbox>
+                                    <hbox align="center">
+                                        <label value="&filPrefAllLangForeText;"/>
+                                        <colorpicker id="propColorPickerFore"
+                                                     palettename="scin-customize"
+                                                     type="button" width="20" height="20"
+                                                     persist="palettename"
+                                                     onchange="setColour(this)"/>
+                                        <button style="margin-bottom: 6px"
+                                                class="arrow-right-6x3-icon button-toolbar-a"
+                                                oncommand="customColor('propColorPickerFore')"/>
+                                    </hbox>
+                                    <hbox align="center">
+                                        <label value="&filPrefAllLangBackText;"/>
+                                        <colorpicker id="propColorPickerBack"
+                                                     palettename="scin-customize"
+                                                     type="button" width="20" height="20"
+                                                     persist="palettename"
+                                                     onchange="setColour(this)"/>
+                                        <button style="margin-bottom: 6px"
+                                                class="arrow-right-6x3-icon button-toolbar-a"
+                                                oncommand="customColor('propColorPickerBack')"/>
+                                    </hbox>
+                                </vbox>
+                            </hbox>
+                        </vbox>
+                        </hbox>
+                    </radiogroup>
+                    </tabpanel>
+                    <tabpanel id="colors_panel" orient="vertical">
+                        <description style="margin-bottom: 10px;">
+                            &chooseColorEditorElement.description;
+                        </description>
+                        <label value="&filePrefAllLangColorChoice.label;" accesskey="&filePrefAllLangColorChoice.accesskey;" control="extracolors"/>
+                        <hbox align="center">
+                            <menulist id="extracolors">
+                                <menupopup>
+                                    <menuitem id="caretLineBack"
+                                              label="&currentLineBackgroundColor.label;"
+                                              value="0"
+                                              oncommand="updateSchemeColor('caretLineBack')"/>
+                                    <menuitem id="caretFore"
+                                              label="&cursorColor.label;"
+                                              value="1"
+                                              oncommand="updateSchemeColor('caretFore')"/>
+                                    <menuitem id="selBack"
+                                              label="&selectionBackgroundColor.label;"
+                                              value="2"
+                                              oncommand="updateSchemeColor('selBack')"/>
+                                    <menuitem id="selFore"
+                                              label="&selectionTextColor.label;"
+                                              value="3"
+                                              oncommand="updateSchemeColor('selFore')"/>
+                                    <menuitem id="foldMarginColor"
+                                              label="&foldMarginColor.label;"
+                                              value="4"
+                                              oncommand="updateSchemeColor('foldMarginColor')"/>
+                                    <menuitem id="bookmarkColor"
+                                              label="&bookmarkColor.label;"
+                                              value="6"
+                                              oncommand="updateSchemeColor('bookmarkColor')"/>
+                                    <menuitem id="currentLineColor"
+                                              label="&debuggerCurrentLineBackgroundColor.label;"
+                                              value="7"
+                                              oncommand="updateSchemeColor('currentLineColor')"/>
+                                    <menuitem id="callingLineColor"
+                                              label="&debuggerCallingLineBackgroundColor.label;"
+                                              value="8"
+                                              oncommand="updateSchemeColor('callingLineColor')"/>
+                                    <menuitem id="edgeColor"
+                                              label="&edgeLineBackgroundColorOfTextTooFar.label;"
+                                              value="9"
+                                              oncommand="updateSchemeColor('edgeColor')"/>
+                                    <menuitem id="whitespaceColor"
+                                              label="&whitespaceForegroundColor.label;"
+                                              value="10"
+                                              oncommand="updateSchemeColor('whitespaceColor')"/>
+                                </menupopup>
+                            </menulist>
+                            <colorpicker width="20" height="20"
+                                id="schemeColorPicker" palettename="standard" type="button"
+                                pref="true" prefattribute="color" prefstring="cursorColor"
+                                persist="palettename" onchange="setColour(this)"/>
+                            <button style="margin-bottom: 6px"
+                                    class="arrow-right-6x3-icon button-toolbar-a"
+                                    oncommand="customColor('schemeColorPicker')"/>
+                        </hbox>
+                        <hbox align="center">
+                            <checkbox id="useSelFore"
+                                      label="&overrideTextColorInSelection.label;"
+                                      oncommand="clickCheckbox('useSelFore', 'selFore')"/>
+                        </hbox>
+                        <hbox align="center">
+                            <checkbox id="caretLineVisible"
+                                      label="&highlightCurrentLine.label;"
+                                      oncommand="clickCheckbox('caretLineVisible', 'caretLineBack')"/>
+                        </hbox>
+                    </tabpanel>
+                    <tabpanel id="common_panel" orient="vertical">
+                        <description style="margin-bottom: 10px;">
+                            &styleForElements.description;
+                        </description>
+                        <vbox>
+                            <hbox align="center">
+                                <label value="&filePrefAllLangElementType.label;" accesskey="&filePrefAllLangElementType1.accesskey;" control="commonlist"/>
+                                <menulist id="commonlist"
+                                          style="width: 180px"
+                                          oncommand="updateCommonStyle();">
+                                    <menupopup id="commonpopup"/>
                                 </menulist>
                                 <spacer class="thick"/>
-                                <button id="reset-specific-defaults"
+                                <button id="reset-common-defaults"
                                         label="&reset.label;"
-                                        oncommand="onResetSpecific(event);" />
+                                        oncommand="onResetCommon(event);" />
                             </hbox>
+
                             <separator class="thin"/>
-                            <hbox align="center">
-                                <label value="&filePrefAllLangFace.label;"/>
-                                <menulist id="fixedOrPropSpecific" oncommand="pickFaceType(this)">
-                                    <menupopup>
-                                        <menuitem value="1" label="&fixedWidth.label;" style="font-family: monospace"/>
-                                        <menuitem value="0" label="&proportional.label;" style="font-family: serif"/>
-                                    </menupopup>
-                                </menulist>
-                                <label value="&filePrefAllLangSize.label;"/>
-                                <menulist id="specificSize" oncommand="onClickSpecificSize()">
-                                    <menupopup>
-                                        <menuitem id="specificSize_8" value="8" label="8"/>
-                                        <menuitem id="specificSize_9" value="9" label="9"/>
-                                        <menuitem id="specificSize_10" value="10" label="10"/>
-                                        <menuitem id="specificSize_11" value="11" label="11"/>
-                                        <menuitem id="specificSize_12" value="12" label="12"/>
-                                        <menuitem id="specificSize_13" value="13" label="13"/>
-                                        <menuitem id="specificSize_14" value="14" label="14"/>
-                                        <menuitem id="specificSize_15" value="15" label="15"/>
-                                        <menuitem id="specificSize_16" value="16" label="16"/>
-                                        <menuitem id="specificSize_18" value="18" label="18"/>
-                                        <menuitem id="specificSize_20" value="20" label="20"/>
-                                        <menuitem id="specificSize_24" value="24" label="24"/>
-                                        <menuitem id="specificSize_26" value="26" label="26"/>
-                                        <menuitem id="specificSize_28" value="28" label="28"/>
-                                        <menuitem id="specificSize_32" value="32" label="32"/>
-                                        <menuitem id="specificSize_36" value="36" label="36"/>
-                                        <menuitem id="specificSize_40" value="40" label="40"/>
-                                        <menuitem id="specificSize_48" value="48" label="48"/>
-                                        <menuitem id="specificSize_56" value="56" label="56"/>
-                                        <menuitem id="specificSize_64" value="64" label="64"/>
-                                        <menuitem id="specificSize_72" value="72" label="72"/>
-                                    </menupopup>
-                                </menulist>
-                                <button id="specificBold"
-                                    class="boldtext-icon button-toolbar-d"
-                                    type="checkbox"
-                                    oncommand="onClickBoldOrItalic(this)" />
-                                <button id="specificItalic"
-                                    class="italictext-icon button-toolbar-d"
-                                    type="checkbox"
-                                    oncommand="onClickBoldOrItalic(this)" />
-                            </hbox>
-                            <separator class="thin"/>
-                            <hbox align="center">
-                                <label value="&filePrefAllLangForeground.label;"/>
-                                <colorpicker id="specificColorPickerFore"
-                                             palettename="scin-customize"
-                                             type="button" width="20" height="20"
-                                             persist="palettename"
-                                             onchange="setColour(this)"/>
-                                <button style="margin-bottom: 6px"
-                                        class="arrow-right-6x3-icon button-toolbar-a"
-                                        oncommand="customColor('specificColorPickerFore')"/>
-                                <label value="&filePrefAllLangBackground.label;"/>
-                                <colorpicker id="specificColorPickerBack"
-                                             palettename="scin-customize"
-                                             type="button" width="20" height="20"
-                                             persist="palettename"
-                                             onchange="setColour(this)"/>
-                                <button style="margin-bottom: 6px"
-                                        class="arrow-right-6x3-icon button-toolbar-a"
-                                        oncommand="customColor('specificColorPickerBack')"/>
-                            </hbox>
-                            <vbox style="margin-top: 4px;">
-                                <checkbox id="useGlobalSubLanguageBackground"
-                                          oncommand="checkSubLanguageBackground(this);"
-                                          label="&filePrefUseSubLanguageBackground.label;"
-                                          accesskey="&filePrefUseSubLanguageBackground.accesskey;"/>
-                                <hbox align="center" style="margin-left: 27px;">
-                                    <label value="&filePrefSubLanguageBackground.label;"
-                                           id="specificColorPickerSubLanguageBack_label"
-                                           accesskey="&filePrefSubLanguageBackground.accesskey;"/>
-                                    <colorpicker id="specificColorPickerSubLanguageBack"
+                                <hbox align="center">
+                                    <label value="&filePrefAllLangFace.label;"/>
+                                    <menulist id="fixedOrPropCommon" oncommand="pickFaceType(this)">
+                                        <menupopup>
+                                            <menuitem value="1" label="&fixedWidth.label;" style="font-family: monospace"/>
+                                            <menuitem value="0" label="&proportional.label;" style="font-family: serif"/>
+                                        </menupopup>
+                                    </menulist>
+                                    <label value="&filePrefAllLangSize.label;"/>
+                                    <menulist id="commonSize" oncommand="onClickCommonSize()">
+                                        <menupopup>
+                                            <menuitem id="commonSize_8" value="8" label="8"/>
+                                            <menuitem id="commonSize_9" value="9" label="9"/>
+                                            <menuitem id="commonSize_10" value="10" label="10"/>
+                                            <menuitem id="commonSize_11" value="11" label="11"/>
+                                            <menuitem id="commonSize_12" value="12" label="12"/>
+                                            <menuitem id="commonSize_13" value="13" label="13"/>
+                                            <menuitem id="commonSize_14" value="14" label="14"/>
+                                            <menuitem id="commonSize_15" value="15" label="15"/>
+                                            <menuitem id="commonSize_16" value="16" label="16"/>
+                                            <menuitem id="commonSize_18" value="18" label="18"/>
+                                            <menuitem id="commonSize_20" value="20" label="20"/>
+                                            <menuitem id="commonSize_24" value="24" label="24"/>
+                                            <menuitem id="commonSize_26" value="26" label="26"/>
+                                            <menuitem id="commonSize_28" value="28" label="28"/>
+                                            <menuitem id="commonSize_32" value="32" label="32"/>
+                                            <menuitem id="commonSize_36" value="36" label="36"/>
+                                            <menuitem id="commonSize_40" value="40" label="40"/>
+                                            <menuitem id="commonSize_48" value="48" label="48"/>
+                                            <menuitem id="commonSize_56" value="56" label="56"/>
+                                            <menuitem id="commonSize_64" value="64" label="64"/>
+                                            <menuitem id="commonSize_72" value="72" label="72"/>
+                                        </menupopup>
+                                    </menulist>
+                                    <button id="commonBold"
+                                        class="boldtext-icon button-toolbar-d"
+                                        type="checkbox"
+                                        oncommand="onClickBoldOrItalic(this)" />
+                                    <button id="commonItalic"
+                                        class="italictext-icon button-toolbar-d"
+                                        type="checkbox"
+                                        oncommand="onClickBoldOrItalic(this)" />
+                                </hbox>
+                                <separator class="thin"/>
+                                <hbox align="center">
+                                    <label value="&filePrefAllLangForeground.label;"/>
+                                    <colorpicker id="commonColorPickerFore"
                                                  palettename="scin-customize"
                                                  type="button" width="20" height="20"
                                                  persist="palettename"
-                                                 onchange="setColour(this);" />
-                                    <button id="specificColorPickerSubLanguageBack_customColorPicker"
-                                            style="margin-bottom: 6px"
+                                                 onchange="setColour(this)"/>
+                                    <button style="margin-bottom: 6px"
                                             class="arrow-right-6x3-icon button-toolbar-a"
-                                            oncommand="customColor('specificColorPickerSubLanguageBack')"/>
+                                            oncommand="customColor('commonColorPickerFore')"/>
+                                    <label value="&filePrefAllLangBackground.label;"/>
+                                    <colorpicker id="commonColorPickerBack"
+                                                 palettename="scin-customize"
+                                                 type="button" width="20" height="20"
+                                                 persist="palettename"
+                                                 onchange="setColour(this)"/>
+                                    <button style="margin-bottom: 6px"
+                                            class="arrow-right-6x3-icon button-toolbar-a"
+                                            oncommand="customColor('commonColorPickerBack')"/>
                                 </hbox>
-                            </vbox>
                         </vbox>
-                    </hbox>
-                </tabpanel>
-
-
-                <tabpanel id="indicators_panel" orient="vertical">
-                    <description style="margin-bottom: 10px;">
-                        &indicators.description;
-                    </description>
-                    <vbox>
+                    </tabpanel>
+                    <tabpanel id="specific_panel" orient="vertical">
+                        <description style="margin-bottom: 10px;">
+                            &styleForSpecElements.description;
+                        </description>
                         <hbox align="center">
-                            <label value="&indicatorMenu.label;" accesskey="&filePrefAllLangElementType1.accesskey;" control="indicator_menulist"/>
-                            <menulist id="indicator_menulist"
-                                      oncommand="updateIndicatorStyle();">
-                                <menupopup id="indicator_popup"/>
-                            </menulist>
+                            <label value="&filePrefAllLangLanguage.label;" class="kopadded" accesskey="&filePrefAllLangLanguage.accesskey;" control="languageList"/>
+                            <langlist id="languageList" oncommand="changeLanguage()"/>
                         </hbox>
-
                         <separator class="thin"/>
-
-                        <hbox align="center" style="margin-left: 27px;">
-                            <label value="&indicStyle.label;"/>
-                            <menulist id="indicator_style_menulist"
-                                      oncommand="setIndicator();">
-                                <menupopup id="indicator_style_popup">
-                                    <menuitem id="indicator_style_plain_menuitem_0"
-                                              value="0"
-                                              label="&indicStylePlain.label;" />
-                                    <menuitem id="indicator_style_menuitem_1"
-                                              value="1"
-                                              label="&indicStyleSquiggle.label;" />
-                                    <menuitem id="indicator_style_menuitem_2"
-                                              value="2"
-                                              label="&indicStyleTT.label;" />
-                                    <menuitem id="indicator_style_menuitem_3"
-                                              value="3"
-                                              label="&indicStyleDiagonal.label;" />
-                                    <menuitem id="indicator_style_menuitem_4"
-                                              value="4"
-                                              label="&indicStyleStrike.label;" />
-                                    <menuitem id="indicator_style_menuitem_5"
-                                              value="5"
-                                              label="&indicStyleHidden.label;" />
-                                    <menuitem id="indicator_style_menuitem_6"
-                                              value="6"
-                                              label="&indicStyleBox.label;" />
-                                    <menuitem id="indicator_style_menuitem_7"
-                                              value="7"
-                                              label="&indicStyleRoundBox.label;" />
-                                </menupopup>
-                            </menulist>
+                        <hbox>
+                            <vbox flex="1">
+                                <hbox align="center">
+                                    <label value="&filePrefAllLangElementType.label;" accesskey="&filePrefAllLangElementType2.accesskey;" control="specificlist"/>
+                                    <menulist flex="1" id="specificlist" oncommand="updateSpecificStyle()">
+                                        <menupopup id="specificpopup"/>
+                                    </menulist>
+                                    <spacer class="thick"/>
+                                    <button id="reset-specific-defaults"
+                                            label="&reset.label;"
+                                            oncommand="onResetSpecific(event);" />
+                                </hbox>
+                                <separator class="thin"/>
+                                <hbox align="center">
+                                    <label value="&filePrefAllLangFace.label;"/>
+                                    <menulist id="fixedOrPropSpecific" oncommand="pickFaceType(this)">
+                                        <menupopup>
+                                            <menuitem value="1" label="&fixedWidth.label;" style="font-family: monospace"/>
+                                            <menuitem value="0" label="&proportional.label;" style="font-family: serif"/>
+                                        </menupopup>
+                                    </menulist>
+                                    <label value="&filePrefAllLangSize.label;"/>
+                                    <menulist id="specificSize" oncommand="onClickSpecificSize()">
+                                        <menupopup>
+                                            <menuitem id="specificSize_8" value="8" label="8"/>
+                                            <menuitem id="specificSize_9" value="9" label="9"/>
+                                            <menuitem id="specificSize_10" value="10" label="10"/>
+                                            <menuitem id="specificSize_11" value="11" label="11"/>
+                                            <menuitem id="specificSize_12" value="12" label="12"/>
+                                            <menuitem id="specificSize_13" value="13" label="13"/>
+                                            <menuitem id="specificSize_14" value="14" label="14"/>
+                                            <menuitem id="specificSize_15" value="15" label="15"/>
+                                            <menuitem id="specificSize_16" value="16" label="16"/>
+                                            <menuitem id="specificSize_18" value="18" label="18"/>
+                                            <menuitem id="specificSize_20" value="20" label="20"/>
+                                            <menuitem id="specificSize_24" value="24" label="24"/>
+                                            <menuitem id="specificSize_26" value="26" label="26"/>
+                                            <menuitem id="specificSize_28" value="28" label="28"/>
+                                            <menuitem id="specificSize_32" value="32" label="32"/>
+                                            <menuitem id="specificSize_36" value="36" label="36"/>
+                                            <menuitem id="specificSize_40" value="40" label="40"/>
+                                            <menuitem id="specificSize_48" value="48" label="48"/>
+                                            <menuitem id="specificSize_56" value="56" label="56"/>
+                                            <menuitem id="specificSize_64" value="64" label="64"/>
+                                            <menuitem id="specificSize_72" value="72" label="72"/>
+                                        </menupopup>
+                                    </menulist>
+                                    <button id="specificBold"
+                                        class="boldtext-icon button-toolbar-d"
+                                        type="checkbox"
+                                        oncommand="onClickBoldOrItalic(this)" />
+                                    <button id="specificItalic"
+                                        class="italictext-icon button-toolbar-d"
+                                        type="checkbox"
+                                        oncommand="onClickBoldOrItalic(this)" />
+                                </hbox>
+                                <separator class="thin"/>
+                                <hbox align="center">
+                                    <label value="&filePrefAllLangForeground.label;"/>
+                                    <colorpicker id="specificColorPickerFore"
+                                                 palettename="scin-customize"
+                                                 type="button" width="20" height="20"
+                                                 persist="palettename"
+                                                 onchange="setColour(this)"/>
+                                    <button style="margin-bottom: 6px"
+                                            class="arrow-right-6x3-icon button-toolbar-a"
+                                            oncommand="customColor('specificColorPickerFore')"/>
+                                    <label value="&filePrefAllLangBackground.label;"/>
+                                    <colorpicker id="specificColorPickerBack"
+                                                 palettename="scin-customize"
+                                                 type="button" width="20" height="20"
+                                                 persist="palettename"
+                                                 onchange="setColour(this)"/>
+                                    <button style="margin-bottom: 6px"
+                                            class="arrow-right-6x3-icon button-toolbar-a"
+                                            oncommand="customColor('specificColorPickerBack')"/>
+                                </hbox>
+                                <vbox style="margin-top: 4px;">
+                                    <checkbox id="useGlobalSubLanguageBackground"
+                                              oncommand="checkSubLanguageBackground(this);"
+                                              label="&filePrefUseSubLanguageBackground.label;"
+                                              accesskey="&filePrefUseSubLanguageBackground.accesskey;"/>
+                                    <hbox align="center" style="margin-left: 27px;">
+                                        <label value="&filePrefSubLanguageBackground.label;"
+                                               id="specificColorPickerSubLanguageBack_label"
+                                               accesskey="&filePrefSubLanguageBackground.accesskey;"/>
+                                        <colorpicker id="specificColorPickerSubLanguageBack"
+                                                     palettename="scin-customize"
+                                                     type="button" width="20" height="20"
+                                                     persist="palettename"
+                                                     onchange="setColour(this);" />
+                                        <button id="specificColorPickerSubLanguageBack_customColorPicker"
+                                                style="margin-bottom: 6px"
+                                                class="arrow-right-6x3-icon button-toolbar-a"
+                                                oncommand="customColor('specificColorPickerSubLanguageBack')"/>
+                                    </hbox>
+                                </vbox>
+                            </vbox>
                         </hbox>
+                    </tabpanel>
 
-                        <separator class="thin"/>
 
-                        <hbox align="center" style="margin-left: 27px;">
-                            <label value="&indicColor.label;"/>
-                            <colorpicker id="indicator_color"
-                                         palettename="scin-customize"
-                                         type="button" width="20" height="20"
-                                         persist="palettename"
-                                         onchange="setIndicator()"/>
-                            <button style="margin-bottom: 6px"
-                                    class="arrow-right-6x3-icon button-toolbar-a"
-                                    oncommand="customColor('indicator_color')"/>
+                    <tabpanel id="indicators_panel" orient="vertical">
+                        <description style="margin-bottom: 10px;">
+                            &indicators.description;
+                        </description>
+                        <vbox>
+                            <hbox align="center">
+                                <label value="&indicatorMenu.label;" accesskey="&filePrefAllLangElementType1.accesskey;" control="indicator_menulist"/>
+                                <menulist id="indicator_menulist"
+                                          oncommand="updateIndicatorStyle();">
+                                    <menupopup id="indicator_popup"/>
+                                </menulist>
+                            </hbox>
 
-                            <spacer class="thick" style="margin-left: 27px;"/>
+                            <separator class="thin"/>
 
-                            <label value="&indicAlpha.label;"/>
-                            <textbox id="indicator_alpha_textbox"
-                                     size="3"
-                                     oninput="setIndicator()"/>
-                        </hbox>
+                            <hbox align="center" style="margin-left: 27px;">
+                                <label value="&indicStyle.label;"/>
+                                <menulist id="indicator_style_menulist"
+                                          oncommand="setIndicator();">
+                                    <menupopup id="indicator_style_popup">
+                                        <menuitem id="indicator_style_plain_menuitem_0"
+                                                  value="0"
+                                                  label="&indicStylePlain.label;" />
+                                        <menuitem id="indicator_style_menuitem_1"
+                                                  value="1"
+                                                  label="&indicStyleSquiggle.label;" />
+                                        <menuitem id="indicator_style_menuitem_2"
+                                                  value="2"
+                                                  label="&indicStyleTT.label;" />
+                                        <menuitem id="indicator_style_menuitem_3"
+                                                  value="3"
+                                                  label="&indicStyleDiagonal.label;" />
+                                        <menuitem id="indicator_style_menuitem_4"
+                                                  value="4"
+                                                  label="&indicStyleStrike.label;" />
+                                        <menuitem id="indicator_style_menuitem_5"
+                                                  value="5"
+                                                  label="&indicStyleHidden.label;" />
+                                        <menuitem id="indicator_style_menuitem_6"
+                                                  value="6"
+                                                  label="&indicStyleBox.label;" />
+                                        <menuitem id="indicator_style_menuitem_7"
+                                                  value="7"
+                                                  label="&indicStyleRoundBox.label;" />
+                                    </menupopup>
+                                </menulist>
+                            </hbox>
 
-                        <separator class="thin"/>
+                            <separator class="thin"/>
 
-                        <hbox align="center" style="margin-left: 27px;">
-                            <checkbox id="indicator_draw_underneath_checkbox"
-                                      label="&indicDrawUnderneath.label;"
-                                      oncommand="setIndicator()" />
-                        </hbox>
-                    </vbox>
-                </tabpanel>
-            </tabpanels>
-        </tabbox>
-    </vbox>
+                            <hbox align="center" style="margin-left: 27px;">
+                                <label value="&indicColor.label;"/>
+                                <colorpicker id="indicator_color"
+                                             palettename="scin-customize"
+                                             type="button" width="20" height="20"
+                                             persist="palettename"
+                                             onchange="setIndicator()"/>
+                                <button style="margin-bottom: 6px"
+                                        class="arrow-right-6x3-icon button-toolbar-a"
+                                        oncommand="customColor('indicator_color')"/>
 
-    <separator class="thin"/>
+                                <spacer class="thick" style="margin-left: 27px;"/>
 
-  <!-- Custom color picker to use -->
-    <vbox id="colorpicker_vbox" style="padding: 6px;">
-        <hbox id="colorpicker_hbox" align="center">
-            <label id="colorpicker_label"
-                   value="Color Picker to use:"/>
-            <menulist id="colorpicker_menulist"
-                      oncommand="setColorpicker();">
-                <menupopup id="colorpicker_menupopup" />
-            </menulist>
-            <button id="colorpicker_test_button"
-                    oncommand="testColorpicker();"
-                    label="Test"/>
-        </hbox>
+                                <label value="&indicAlpha.label;"/>
+                                <textbox id="indicator_alpha_textbox"
+                                         size="3"
+                                         oninput="setIndicator()"/>
+                            </hbox>
+
+                            <separator class="thin"/>
+
+                            <hbox align="center" style="margin-left: 27px;">
+                                <checkbox id="indicator_draw_underneath_checkbox"
+                                          label="&indicDrawUnderneath.label;"
+                                          oncommand="setIndicator()" />
+                            </hbox>
+                        </vbox>
+                    </tabpanel>
+                </tabpanels>
+            </tabbox>
+        </vbox>
+
+        <separator class="thin"/>
+
+      <!-- Custom color picker to use -->
+        <vbox id="colorpicker_vbox" style="padding: 6px;">
+            <hbox id="colorpicker_hbox" align="center">
+                <label id="colorpicker_label"
+                       value="Color Picker to use:"/>
+                <menulist id="colorpicker_menulist"
+                          oncommand="setColorpicker();">
+                    <menupopup id="colorpicker_menupopup" />
+                </menulist>
+                <button id="colorpicker_test_button"
+                        oncommand="testColorpicker();"
+                        label="Test"/>
+            </hbox>
+        </vbox>
+
     </vbox>
 
 </window>
