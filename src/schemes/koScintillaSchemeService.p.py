@@ -281,6 +281,9 @@ class Scheme:
 
     def save(self):
         log.info("Doing save of %r", self.fname)
+        if not self.writeable:
+            log.error("Scheme %s is not writeable")
+            return
         f = open(self.fname, 'wt')
         f.write(self.serialize())
         f.close()

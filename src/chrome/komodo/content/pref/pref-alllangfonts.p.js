@@ -274,6 +274,10 @@ function OnPreferencePageOK(prefset)  {
         return true;
     } catch (e) {
         log.exception(e);
+        ko.dialogs.alert("Attempt to save scheme '"
+                         + schemeName
+                         + "' failed: "
+                         + e);
     }
     return false;
 }
@@ -381,10 +385,10 @@ function updateFromScheme()
         }
         gDialog.useSelFore.setAttribute('checked',
                                         gDialog.currentScheme.useSelFore);
-        updateMenuitemAndCheckbox('useSelFore', 'selFore');
+        updateMenuitemAndCheckbox('useSelFore', 'selFore', false);
         gDialog.caretLineVisible.setAttribute('checked',
                                              gDialog.currentScheme.caretLineVisible);
-        updateMenuitemAndCheckbox('caretLineVisible', 'caretLineBack');
+        updateMenuitemAndCheckbox('caretLineVisible', 'caretLineBack', false);
         updateScintilla();
         updateSchemeColor(gDialog.extracolors.selectedItem.getAttribute('id'));
         updateFonts();
@@ -821,22 +825,24 @@ function toggleMenuitem(checked, menuid)
     }
 }
 
-function updateMenuitemAndCheckbox(checkboxid, menuid)
+function updateMenuitemAndCheckbox(checkboxid, menuid, updateScheme)
 {
     try {
         var checkbox = document.getElementById(checkboxid);
         var checked = checkbox.getAttribute('checked') == "true";
-        switch (checkboxid) {
-            case 'useSelFore':
-                gDialog.currentScheme.useSelFore = checked;
-                toggleMenuitem(checked, menuid);
-                break;
-            case 'caretLineVisible':
-                gDialog.currentScheme.caretLineVisible = checked;
-                toggleMenuitem(checked, menuid);
-                break;
-            default:
-                log.exception("got updateMenuitemAndCheckbox with unknown checkboxid: "+ checkboxid);
+        toggleMenuitem(checked, menuid);
+        if (updateScheme) {
+            // gDialog.currentScheme[checkboxid] = checked;
+            switch (checkboxid) {
+                case 'useSelFore':
+                    gDialog.currentScheme.useSelFore = checked;
+                    break;
+                case 'caretLineVisible':
+                    gDialog.currentScheme.caretLineVisible = checked;
+                    break;
+                default:
+                    log.exception("got updateMenuitemAndCheckbox with unknown checkboxid: "+ checkboxid);
+            }
         }
     } catch (e) {
         log.error(e);
@@ -847,7 +853,7 @@ function clickCheckbox(id, menuid)
 {
     try {
         if (!ensureWriteableScheme()) return;
-        updateMenuitemAndCheckbox(id, menuid);
+        updateMenuitemAndCheckbox(id, menuid, true);
         updateScintilla();
     } catch (e) {
         log.error(e);
