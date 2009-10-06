@@ -63,7 +63,7 @@
 
     <!-- This main vbox is to ensure *all* the pref widgets are accessible,
          as it adds a scrollbar when the contents are too long. -->
-    <vbox id="php-prefs-vbox" flex="1" class="autoscroll">
+    <vbox id="codeintel-prefs-vbox" flex="1" class="autoscroll">
 
         <hbox id="disabled-warning" style="padding-top: 100px;" collapsed="true">
             <hbox align="start">
