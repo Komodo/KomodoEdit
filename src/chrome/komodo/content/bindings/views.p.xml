@@ -876,6 +876,15 @@
             return false;
         ]]></body>
         </method>
+        
+        // fallback updateCurrentLineColor for non-editor views
+        <method name="updateCurrentLineColor">
+        <body>
+        <![CDATA[
+        ]]>
+        </body>
+        </method>
+
 
     </implementation>
 </binding>
