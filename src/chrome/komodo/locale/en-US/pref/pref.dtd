@@ -618,9 +618,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePrefKeysCommands.accesskey "C">
 <!ENTITY noCommandsMatch.description "No commands match the specified search string.">
 
-<!--pref-language.xul-->
-<!ENTITY comingSoon.label "Coming Soon ...">
-
 <!--pref-languages.xul-->
 <!ENTITY languagesSettings.description "Komodo comes with support for a variety of languages. Core editing features are enabled by default for a large set of languages.  For additional configuration of Core languages, select the language in the tree to the left.">
 <!ENTITY filterPrimaryLanguageNames.tooltip "Filter Language Names">
