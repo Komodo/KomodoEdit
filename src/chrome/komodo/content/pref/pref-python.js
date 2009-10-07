@@ -124,11 +124,7 @@ function PrefPython_OnLoad()
 
 function loadPythonExecutable()
 {
-    var pythonExe = ko.filepicker.openExeFile();
-    if (pythonExe != null) {
-        var availInterpList = document.getElementById("pythonDefaultInterpreter");
-        availInterpList.selectedItem = availInterpList.appendItem(pythonExe, pythonExe);
-    }
+    loadExecutableIntoInterpreterList("pythonDefaultInterpreter");
 }
 
 

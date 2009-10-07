@@ -49,6 +49,7 @@ Import(
 
 $cons->InstallInChrome('prefs.js');
 
+$cons->InstallInChrome('koPrefUtils.js');
 $cons->InstallInChrome('koPrefWindow.js');
 
 $cons->Preprocess('pref.p.xul', 'pref.xul');

@@ -60,6 +60,7 @@
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/pref-perl.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
 
     <!-- This main vbox is to ensure *all* the pref widgets are accessible,

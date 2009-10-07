@@ -141,19 +141,17 @@ function PrefRuby_OnLoad()
 
 function loadRubyExecutable()
 {
-    var rubyExe = ko.filepicker.openExeFile();
-    if (rubyExe != null) {
-        var availInterpList = document.getElementById("rubyDefaultInterpreter");
-        availInterpList.selectedItem = availInterpList.appendItem(rubyExe, rubyExe);
+    if (loadExecutableIntoInterpreterList("rubyDefaultInterpreter")) {
         PrefRuby_checkVersion();
     }
 }
 
 function loadRubyLogpath()
 {
-    var rubyLog = ko.filepicker.getFolder();
+    var textbox = document.getElementById("ruby_debuggerlogpath");
+    var currentDir = getDirectoryFromTextObject(textbox);
+    var rubyLog = ko.filepicker.getFolder(currentDir);
     if (rubyLog != null) {
-        var textbox = document.getElementById("ruby_debuggerlogpath");
         textbox.value = rubyLog;
     }
 }

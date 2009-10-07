@@ -83,7 +83,9 @@ function PrefActionScript_OnLoad()
 
 function loadActionScriptExecutable()
 {
-    _finishSpecifyingExecutable(filepicker_openExeFile());
+    var textbox = document.getElementById("actionScript_interpreterPath");
+    var currentDir = getDirectoryFromTextObject(textbox);
+    _finishSpecifyingExecutable(ko.filepicker.openExeFile(currentDir));
 }
 
 function _finishSpecifyingExecutable(path) {

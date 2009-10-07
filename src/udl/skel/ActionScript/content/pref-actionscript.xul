@@ -54,6 +54,7 @@
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript"/>
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript"/>
     <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript"/>
+    <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript"/>
     <script src="chrome://actionscriptprefs/content/info.js" type="application/x-javascript"/>
     <script src="chrome://actionscriptprefs/content/prefs.js" type="application/x-javascript"/>

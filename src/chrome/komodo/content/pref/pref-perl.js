@@ -121,11 +121,7 @@ function PrefPerl_OnLoad()
 
 function loadPerlExecutable()
 {
-    var perlExe = ko.filepicker.openExeFile();
-    if (perlExe != null) {
-        var availInterpList = document.getElementById("perlDefaultInterpreter");
-        availInterpList.selectedItem = availInterpList.appendItem(perlExe, perlExe);
-    }
+    loadExecutableIntoInterpreterList("perlDefaultInterpreter");
 }
 
 function onPerlDefaultInterpreterChanged() {
