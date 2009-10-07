@@ -122,7 +122,6 @@ $cons->Preprocess('pref-php.p.xul', 'pref-php.xul');
 $cons->InstallInChrome('pref-php.xul');
 $cons->Preprocess('pref-php.p.js', 'pref-php.js');
 $cons->InstallInChrome('pref-php.js');
-$cons->InstallInChrome('pref-phpini.xul');
 
 $cons->Preprocess('pref-alllangfonts.p.xul', 'pref-alllangfonts.xul');
 $cons->InstallInChrome('pref-alllangfonts.xul');
