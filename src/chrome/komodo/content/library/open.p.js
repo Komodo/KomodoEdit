@@ -100,9 +100,9 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
  *        an editor view, e.g. this won't be called for a kpf file. The view
  *        will be passed as an argument to the function.
  */
-this.URIAtLine = function open_openURI(uri, lineno, viewType /* ="editor" */,
-                                       skipRecentOpenFeature /* =false */,
-                                       callback /* =null */) {
+this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" */,
+                                             skipRecentOpenFeature /* =false */,
+                                             callback /* =null */) {
     try {
         // URI can be a local path or a URI
         uri = ko.uriparse.pathToURI(uri);
