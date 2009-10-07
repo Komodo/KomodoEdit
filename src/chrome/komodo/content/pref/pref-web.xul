@@ -43,6 +43,7 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -57,47 +58,53 @@
     <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/pref-web.js" type="application/x-javascript;version=1.7"/>
 
-    <groupbox orient="vertical">
-        <caption label="&webBrowser.label;"/>
-        <vbox flex="1">
-            <description>&whichBrowserUse.description;</description>
-        </vbox>
-        <spacer height="5"/>
-        <hbox>
-            <menulist id="selectedbrowser"
-                      flex="1"
-                      pref="true"
-                      prefstring="browser">
-                <menupopup id="selectedbrowser-popup"/>
-            </menulist>
-            <button label="&browse.label;" oncommand="browseForBrowser();"/>
-        </hbox>
-    </groupbox>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="web-prefs-vbox" flex="1" class="autoscroll">
 
-    <groupbox orient="vertical">
-        <caption label="&previewInBrowser.label;"/>
-        <radiogroup id="browser_preview_method" flex="1" pref="true"
-                    prefattribute="value">
-            <description>&whichMethodUse.description;</description>
-            <radio value="in-tab-other-group"
-                   label="&previewInKomodoTabOtherTabGroup.label;"
-                   selected="true"/>
-            <radio value="in-tab-same-group"
-                   label="&previewInKomodoTabSameTabGroup.label;"/>
-            <radio value="external"
-                   label="&previewInExternalBrowserSpecifiedAbove.label;"/>
-        </radiogroup>
-    </groupbox>
+        <groupbox orient="vertical">
+            <caption label="&webBrowser.label;"/>
+            <vbox flex="1">
+                <description>&whichBrowserUse.description;</description>
+            </vbox>
+            <spacer height="5"/>
+            <hbox>
+                <menulist id="selectedbrowser"
+                          flex="1"
+                          pref="true"
+                          prefstring="browser">
+                    <menupopup id="selectedbrowser-popup"/>
+                </menulist>
+                <button label="&browse.label;" oncommand="browseForBrowser();"/>
+            </hbox>
+        </groupbox>
     
-    <groupbox id="connectionGroup">
-        <caption label="&connection.label;"/>
-      
-        <hbox align="center">
-            <description flex="1" control="connectionSettings">&connectionDesc.label;</description>
-            <button id="connectionSettings" icon="network" label="&connectionSettings.label;"
-                  accesskey="&connectionSettings.accesskey;"
-                  oncommand="configureProxies();"/>
-        </hbox>
-    </groupbox>
+        <groupbox orient="vertical">
+            <caption label="&previewInBrowser.label;"/>
+            <radiogroup id="browser_preview_method" flex="1" pref="true"
+                        prefattribute="value">
+                <description>&whichMethodUse.description;</description>
+                <radio value="in-tab-other-group"
+                       label="&previewInKomodoTabOtherTabGroup.label;"
+                       selected="true"/>
+                <radio value="in-tab-same-group"
+                       label="&previewInKomodoTabSameTabGroup.label;"/>
+                <radio value="external"
+                       label="&previewInExternalBrowserSpecifiedAbove.label;"/>
+            </radiogroup>
+        </groupbox>
+        
+        <groupbox id="connectionGroup">
+            <caption label="&connection.label;"/>
+          
+            <hbox align="center">
+                <description flex="1" control="connectionSettings">&connectionDesc.label;</description>
+                <button id="connectionSettings" icon="network" label="&connectionSettings.label;"
+                      accesskey="&connectionSettings.accesskey;"
+                      oncommand="configureProxies();"/>
+            </hbox>
+        </groupbox>
+
+    </vbox>
 
 </window>

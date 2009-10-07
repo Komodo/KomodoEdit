@@ -42,6 +42,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -58,39 +59,46 @@
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/launch.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/pref-folderImport.js"/>
 
-    <groupbox id="importFrame" name="importFrame" orient="vertical" flex="1">
-        <caption label="&specifyFilesToAddIntoTheCurrentFolder.label;" class="kopadded"/>
-        <vbox flex="1">
-            <checkbox id="import_live" label="&liveImport.label;"
-                      oncommand="PrefFolderImport_updateLive()"
-                      pref="true" prefstring="import_live" />
-            <label value="&directoryImportFrom.label;" class="kopadded"/>
-            <hbox align="center">
-                <textbox id="import_dirname" pref="true" flex="1" />
-                <button label="&browse.label;" oncommand="PrefFolderImport_doBrowseForDir()" />
-            </hbox>
-            <separator class="thin"/>
-            <label value="&filesToInclude.label;"/>
-            <textbox id="import_include_matches" pref="true" value=""/>
-            <separator class="thin"/>
-            <label value="&filesToExclude.label;"/>
-            <textbox id="import_exclude_matches" pref="true" value=""/>
-            <separator class="thin"/>
-            <checkbox id="recursive" label="&importSubdirectoriesRecursively.label;"
-                oncommand="PrefFolderImport_updateRecursive()"
-                pref="true" prefstring="import_recursive" />
-            <separator class="thin"/>
-            <label value="&typeFolderStructure.label;"/>
-            <menulist id="import_type"
-                      pref="true"
-                      prefattribute="data">
-                <menupopup>
-                    <menuitem id="dirs" data="useFolders" label="&importDirectoryStructure.label;"/>
-                    <menuitem data="groupByType" label="&makeAFolderPerLanguage.label;"/>
-                    <menuitem id="flat" data="makeFlat" label="&makeOneFlatList.label;"/>
-                </menupopup>
-            </menulist>
-        </vbox>
-    </groupbox>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="folder-import-prefs-vbox" flex="1" class="autoscroll">
+
+        <groupbox id="importFrame" name="importFrame" orient="vertical" flex="1">
+            <caption label="&specifyFilesToAddIntoTheCurrentFolder.label;" class="kopadded"/>
+            <vbox flex="1">
+                <checkbox id="import_live" label="&liveImport.label;"
+                          oncommand="PrefFolderImport_updateLive()"
+                          pref="true" prefstring="import_live" />
+                <label value="&directoryImportFrom.label;" class="kopadded"/>
+                <hbox align="center">
+                    <textbox id="import_dirname" pref="true" flex="1" />
+                    <button label="&browse.label;" oncommand="PrefFolderImport_doBrowseForDir()" />
+                </hbox>
+                <separator class="thin"/>
+                <label value="&filesToInclude.label;"/>
+                <textbox id="import_include_matches" pref="true" value=""/>
+                <separator class="thin"/>
+                <label value="&filesToExclude.label;"/>
+                <textbox id="import_exclude_matches" pref="true" value=""/>
+                <separator class="thin"/>
+                <checkbox id="recursive" label="&importSubdirectoriesRecursively.label;"
+                    oncommand="PrefFolderImport_updateRecursive()"
+                    pref="true" prefstring="import_recursive" />
+                <separator class="thin"/>
+                <label value="&typeFolderStructure.label;"/>
+                <menulist id="import_type"
+                          pref="true"
+                          prefattribute="data">
+                    <menupopup>
+                        <menuitem id="dirs" data="useFolders" label="&importDirectoryStructure.label;"/>
+                        <menuitem data="groupByType" label="&makeAFolderPerLanguage.label;"/>
+                        <menuitem id="flat" data="makeFlat" label="&makeOneFlatList.label;"/>
+                    </menupopup>
+                </menulist>
+            </vbox>
+        </groupbox>
+
+    </vbox>
+
 </window>
 

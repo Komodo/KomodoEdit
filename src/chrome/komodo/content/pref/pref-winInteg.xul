@@ -42,6 +42,7 @@
 
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -55,104 +56,110 @@
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/pref-winInteg.js" type="application/x-javascript;version=1.7"/>
 
-    <groupbox orient="vertical">
-        <caption label="&fileAssociations.label;"/>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="win-integ-prefs-vbox" flex="1" class="autoscroll">
 
-        <grid>
-            <columns>
-                <column flex="1"/> <!-- Edit -->
-                <column flex="1"/> <!-- Edit with Komodo -->
-            </columns>
-            <rows>
-                <row equalsize="always">
-                    <vbox flex="1" style="padding-right: 5px;">
-                        <description>&makeKomodoTheDefaultEditor.desc;</description>
-                    </vbox>
-                    <vbox flex="1" style="padding-left: 5px;">
-                        <description>&addAnEditWithKomodoAction.desc;</description>
-                    </vbox>
-                </row>
-
-                <row equalsize="always">
-                    <!-- "Edit" -->
-                    <vbox flex="1" style="padding-right: 5px;">
-                        <tree id="edit-assoc" style="min-height: 150px;"
-                              hidecolumnpicker="true" seltype="single"
-                              onselect="EditAssoc_UpdateDeleteButton();">
-                            <treecols>
-                                <treecol id="edit-assoc-extension"
-                                         hideheader="true" flex="1"/>
-                            </treecols>
-                            <treechildren id="edit-assoc-body" flex="1"/>
-                        </tree>
-                        <spacer height="5"/>
-                        <hbox pack="end">
-                            <button id="edit-assoc-add-button" label="&add.label;"
-                                    oncommand="EditAssoc_Add();"/>
-                            <button id="edit-assoc-delete-button" label="&delete.label;"
-                                    oncommand="EditAssoc_Delete();"/>
-                        </hbox>
-                    </vbox>
-
-                    <!-- "Edit with Komodo" -->
-                    <vbox flex="1" style="padding-left: 5px;">
-                        <tree id="edit-with-assoc" style="min-height: 150px;"
-                              hidecolumnpicker="true" seltype="single"
-                              onselect="EditWithAssoc_UpdateDeleteButton();">
-                            <treecols>
-                                <treecol id="edit-with-assoc-extension"
-                                         hideheader="true" flex="1"/>
-                            </treecols>
-                            <treechildren id="edit-with-assoc-body" flex="1"/>
-                        </tree>
-                        <spacer height="5"/>
-                        <hbox pack="end">
-                            <button id="edit-with-assoc-add-button" label="&add.label;"
-                                    oncommand="EditWithAssoc_Add();"/>
-                            <button id="edit-with-assoc-delete-button" label="&delete.label;"
-                                    oncommand="EditWithAssoc_Delete();"/>
-                        </hbox>
-                    </vbox>
-
-                </row>
-            </rows>
-        </grid>
-
-        <separator height="10"/>
-        <hbox>
-            <spacer flex="1"/>
-            <button label="&configureCommonAssociations.label;"
-                    style="min-width: 200px;"
-                    oncommand="PrefWinInteg_ConfigureCommonAssociations();"/>
-            <spacer flex="1"/>
-        </hbox>
-
-        <separator height="10"/>
-        <description>&otherApplicationsMayChangeFileAssociations.desc;</description>
-        <hbox>
-            <spacer flex="1"/>
-            <button label="&reApplySettingsToSystem.label;"
-                    style="min-width: 200px;"
-                    oncommand="PrefWinInteg_ApplyAssociations();"/>
-            <spacer flex="1"/>
-        </hbox>
-
-        <separator height="10"/>
-        <vbox id="file-assocs-warning" flex="1" collapsed="true">
-            <hbox flex="1">
-                <hbox align="start">
-                    <image class="small-warning-icon spaced"/>
-                </hbox>
-                <description style="color: #b82619" flex="1">&warningOneOrMOreFileAssociationNotSet;</description>
+        <groupbox orient="vertical">
+            <caption label="&fileAssociations.label;"/>
+    
+            <grid>
+                <columns>
+                    <column flex="1"/> <!-- Edit -->
+                    <column flex="1"/> <!-- Edit with Komodo -->
+                </columns>
+                <rows>
+                    <row equalsize="always">
+                        <vbox flex="1" style="padding-right: 5px;">
+                            <description>&makeKomodoTheDefaultEditor.desc;</description>
+                        </vbox>
+                        <vbox flex="1" style="padding-left: 5px;">
+                            <description>&addAnEditWithKomodoAction.desc;</description>
+                        </vbox>
+                    </row>
+    
+                    <row equalsize="always">
+                        <!-- "Edit" -->
+                        <vbox flex="1" style="padding-right: 5px;">
+                            <tree id="edit-assoc" style="min-height: 150px;"
+                                  hidecolumnpicker="true" seltype="single"
+                                  onselect="EditAssoc_UpdateDeleteButton();">
+                                <treecols>
+                                    <treecol id="edit-assoc-extension"
+                                             hideheader="true" flex="1"/>
+                                </treecols>
+                                <treechildren id="edit-assoc-body" flex="1"/>
+                            </tree>
+                            <spacer height="5"/>
+                            <hbox pack="end">
+                                <button id="edit-assoc-add-button" label="&add.label;"
+                                        oncommand="EditAssoc_Add();"/>
+                                <button id="edit-assoc-delete-button" label="&delete.label;"
+                                        oncommand="EditAssoc_Delete();"/>
+                            </hbox>
+                        </vbox>
+    
+                        <!-- "Edit with Komodo" -->
+                        <vbox flex="1" style="padding-left: 5px;">
+                            <tree id="edit-with-assoc" style="min-height: 150px;"
+                                  hidecolumnpicker="true" seltype="single"
+                                  onselect="EditWithAssoc_UpdateDeleteButton();">
+                                <treecols>
+                                    <treecol id="edit-with-assoc-extension"
+                                             hideheader="true" flex="1"/>
+                                </treecols>
+                                <treechildren id="edit-with-assoc-body" flex="1"/>
+                            </tree>
+                            <spacer height="5"/>
+                            <hbox pack="end">
+                                <button id="edit-with-assoc-add-button" label="&add.label;"
+                                        oncommand="EditWithAssoc_Add();"/>
+                                <button id="edit-with-assoc-delete-button" label="&delete.label;"
+                                        oncommand="EditWithAssoc_Delete();"/>
+                            </hbox>
+                        </vbox>
+    
+                    </row>
+                </rows>
+            </grid>
+    
+            <separator height="10"/>
+            <hbox>
+                <spacer flex="1"/>
+                <button label="&configureCommonAssociations.label;"
+                        style="min-width: 200px;"
+                        oncommand="PrefWinInteg_ConfigureCommonAssociations();"/>
+                <spacer flex="1"/>
             </hbox>
-            <textbox id="file-assocs-warning-text" multiline="true" flex="1"
-                     style="min-height: 8em;"
-                     readonly="true" wrap="off"/>
-        </vbox>
+    
+            <separator height="10"/>
+            <description>&otherApplicationsMayChangeFileAssociations.desc;</description>
+            <hbox>
+                <spacer flex="1"/>
+                <button label="&reApplySettingsToSystem.label;"
+                        style="min-width: 200px;"
+                        oncommand="PrefWinInteg_ApplyAssociations();"/>
+                <spacer flex="1"/>
+            </hbox>
+    
+            <separator height="10"/>
+            <vbox id="file-assocs-warning" flex="1" collapsed="true">
+                <hbox flex="1">
+                    <hbox align="start">
+                        <image class="small-warning-icon spaced"/>
+                    </hbox>
+                    <description style="color: #b82619" flex="1">&warningOneOrMOreFileAssociationNotSet;</description>
+                </hbox>
+                <textbox id="file-assocs-warning-text" multiline="true" flex="1"
+                         style="min-height: 8em;"
+                         readonly="true" wrap="off"/>
+            </vbox>
+    
+        </groupbox>
+    
+        <spacer flex="1"/>
 
-    </groupbox>
-
-    <spacer flex="1"/>
+    </vbox>
 
 </window>
 

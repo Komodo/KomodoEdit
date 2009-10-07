@@ -38,6 +38,7 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <!DOCTYPE window PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
   <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
@@ -61,78 +62,85 @@
         <key id="key_ass_delete" keycode="VK_DELETE" oncommand="onRemoveAssociation()"/>
     </keyset>
 
-    <groupbox orient="vertical">
-        <caption label="&viewAndEditAssociations.label;" />
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="associations-prefs-vbox" flex="1" class="autoscroll">
 
-        <description>
-            &fileAssociations.description;
-        </description>
-        <grid flex="1">
-            <columns>
-                <column flex="1"/>
-            </columns>
-            <rows>
-                <row>
-                    <listbox id="associationList" flex="1"
-                        onselect="selectAssociation(event)"
-                        style="height: 100px;"
-                        hidecolumnpicker="true" seltype="single">
-                        <listhead>
-                            <listheader label="&patterns.label;" flex="1" class="treecell-header outset"/>
-                        </listhead>
-                        <listcols>
-                            <listcol flex="1"/>
-                        </listcols>
-                    </listbox>
-                </row>
+        <groupbox orient="vertical">
+            <caption label="&viewAndEditAssociations.label;" />
+    
+            <description>
+                &fileAssociations.description;
+            </description>
+            <grid flex="1">
+                <columns>
+                    <column flex="1"/>
+                </columns>
+                <rows>
+                    <row>
+                        <listbox id="associationList" flex="1"
+                            onselect="selectAssociation(event)"
+                            style="height: 100px;"
+                            hidecolumnpicker="true" seltype="single">
+                            <listhead>
+                                <listheader label="&patterns.label;" flex="1" class="treecell-header outset"/>
+                            </listhead>
+                            <listcols>
+                                <listcol flex="1"/>
+                            </listcols>
+                        </listbox>
+                    </row>
+    
+                    <separator />
+    
+                    <row>
+                        <hbox align="center">
+                            <label id="languageLabel" control="languageList"
+                                   value="&filePrefAssocLang.label;"/>
+                            <langlist id="languageList" 
+                                      style="min-height: 2.0em;"
+                                      oncommand="updateAssociation()"/>
+                        </hbox>
+                        <spacer flex="1" />
+                        <button id="removeButton" label="&remove.label;"
+                                oncommand="onRemoveAssociation();"/>
+                    </row>
+                </rows>
+            </grid>
+        </groupbox>
+    
+        <groupbox orient="vertical">
+            <caption label="&newAssociation.label;"/>
+            <hbox align="center" flex="1">
+                <label class="label" control="addPatternTextfield" value="&patterns.label;"/>
+                <textbox flex="1"
+                       id="addPatternTextfield"
+                       oninput="updateButtonStates()"/>
+                <label class="label" control="addLanguageList" value="&filePrefAssocLang.label;"/>
+                <langlist id="addLanguageList"/>
+            </hbox>
+            <separator/>
+            <hbox align="right">
+                <button id="addButton" label="&add.label;"
+                        oncommand="onAddAssociation()"
+                        disabled="true"/>
+            </hbox>
+        </groupbox>
+    
+        <groupbox>
+            <caption label="&useFileContentToDetermineLanguage.label;"/>
+            <checkbox id="xmlDeclDetection"
+                      label="&useXmlDeclarations.label;"
+                      pref="true" prefattribute="checked"/>
+            <checkbox id="shebangDetection"
+                      label="&useShebangLine.label;"
+                      pref="true" prefattribute="checked"/>
+            <checkbox id="emacsLocalModeVariableDetection"
+                      label="&useEmacsStyleLocalModeVariableModeLocalVariables.label;"
+                      pref="true" prefattribute="checked"/>
+       </groupbox>
 
-                <separator />
+    </vbox>
 
-                <row>
-                    <hbox align="center">
-                        <label id="languageLabel" control="languageList"
-                               value="&filePrefAssocLang.label;"/>
-                        <langlist id="languageList" 
-                                  style="min-height: 2.0em;"
-                                  oncommand="updateAssociation()"/>
-                    </hbox>
-                    <spacer flex="1" />
-                    <button id="removeButton" label="&remove.label;"
-                            oncommand="onRemoveAssociation();"/>
-                </row>
-            </rows>
-        </grid>
-    </groupbox>
-
-    <groupbox orient="vertical">
-        <caption label="&newAssociation.label;"/>
-        <hbox align="center" flex="1">
-            <label class="label" control="addPatternTextfield" value="&patterns.label;"/>
-            <textbox flex="1"
-                   id="addPatternTextfield"
-                   oninput="updateButtonStates()"/>
-            <label class="label" control="addLanguageList" value="&filePrefAssocLang.label;"/>
-            <langlist id="addLanguageList"/>
-        </hbox>
-        <separator/>
-        <hbox align="right">
-            <button id="addButton" label="&add.label;"
-                    oncommand="onAddAssociation()"
-                    disabled="true"/>
-        </hbox>
-    </groupbox>
-
-    <groupbox>
-        <caption label="&useFileContentToDetermineLanguage.label;"/>
-        <checkbox id="xmlDeclDetection"
-                  label="&useXmlDeclarations.label;"
-                  pref="true" prefattribute="checked"/>
-        <checkbox id="shebangDetection"
-                  label="&useShebangLine.label;"
-                  pref="true" prefattribute="checked"/>
-        <checkbox id="emacsLocalModeVariableDetection"
-                  label="&useEmacsStyleLocalModeVariableModeLocalVariables.label;"
-                  pref="true" prefattribute="checked"/>
-   </groupbox>
 </window>
 

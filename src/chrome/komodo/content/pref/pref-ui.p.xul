@@ -43,6 +43,7 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -55,67 +56,74 @@
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/pref-ui.js" type="application/x-javascript;version=1.7"/>
 
-  <groupbox orient="vertical">
-    <caption label="&toolbars.label;"/>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="ui-prefs-vbox" flex="1" class="autoscroll">
 
-    <checkbox id="showTextButtons"
-              label="&showButtonText.label;"
-              broadcaster="cmd_toggleButtonText"
-              oncommand="updateData('showTextButtons')"/>
-    <checkbox id="showStandardToolbar"
-              label="&showStandardToolbar.label;"
-              broadcaster="cmd_viewedittoolbar"
-              oncommand="updateData('showStandardToolbar')"/>
-    <checkbox id="showFindToolbar"
-              label="&showOpenFindToolbar.label;"
-              broadcaster="cmd_viewfindtoolbar"
-              oncommand="updateData('showFindToolbar')"/>
-    <checkbox id="showMacroToolbar"
-              label="&showMacroToolbar.label;"
-              broadcaster="cmd_viewmacrotoolbar"
-              oncommand="updateData('showMacroToolbar')"/>
-    <checkbox id="showKomodoToolbar"
-              label="&showKomodoResourcesToolbar.label;"
-              broadcaster="cmd_viewkomodotoolbar"
-              oncommand="updateData('showKomodoToolbar')"/>
-  </groupbox>
+        <groupbox orient="vertical">
+            <caption label="&toolbars.label;"/>
+        
+            <checkbox id="showTextButtons"
+                      label="&showButtonText.label;"
+                      broadcaster="cmd_toggleButtonText"
+                      oncommand="updateData('showTextButtons')"/>
+            <checkbox id="showStandardToolbar"
+                      label="&showStandardToolbar.label;"
+                      broadcaster="cmd_viewedittoolbar"
+                      oncommand="updateData('showStandardToolbar')"/>
+            <checkbox id="showFindToolbar"
+                      label="&showOpenFindToolbar.label;"
+                      broadcaster="cmd_viewfindtoolbar"
+                      oncommand="updateData('showFindToolbar')"/>
+            <checkbox id="showMacroToolbar"
+                      label="&showMacroToolbar.label;"
+                      broadcaster="cmd_viewmacrotoolbar"
+                      oncommand="updateData('showMacroToolbar')"/>
+            <checkbox id="showKomodoToolbar"
+                      label="&showKomodoResourcesToolbar.label;"
+                      broadcaster="cmd_viewkomodotoolbar"
+                      oncommand="updateData('showKomodoToolbar')"/>
+        </groupbox>
+      
+        <groupbox orient="vertical">
+            <caption label="&startPage.label;"/>
+      
+            <checkbox id="show_start_page"
+                      label="&showKomodoStartPageOnStartup.label;"
+                      pref="true"
+                      prefstring="show_start_page"
+                      prefattribute="checked"/>
+            <separator class="thin"/>
+      
+            <hbox>
+                <separator style="width: 10px;"/>
+                <vbox>
+                    <checkbox id="start_page_quick_links_box_closed"
+                              label="&hideQuickLinksPane.label;"
+                              pref="true"
+                              prefattribute="checked"/>
+    
+                </vbox>
+            </hbox>
+        </groupbox>
+      
+        <groupbox>
+            <caption label="&mostRecentlyUsed.label;"/>
+            <hbox align="center">
+                <textbox id="mruProjectSize" size="3" maxlength="2"
+                           pref="true"
+                           prefattribute="value"/>
+                <label control="mruProjectSize" value="&numberOfProjects.label;"/>
+            </hbox>
+            <hbox align="center">
+                <textbox id="mruFileSize" size="3" maxlength="2"
+                           pref="true"
+                           prefattribute="value"/>
+                <label control="mruFileSize" value="&numberOfFiles.label;"/>
+            </hbox>
+        </groupbox>
 
-  <groupbox orient="vertical">
-    <caption label="&startPage.label;"/>
+    </vbox>
 
-      <checkbox id="show_start_page"
-                label="&showKomodoStartPageOnStartup.label;"
-                pref="true"
-                prefstring="show_start_page"
-                prefattribute="checked"/>
-      <separator class="thin"/>
-
-        <hbox>
-            <separator style="width: 10px;"/>
-            <vbox>
-                <checkbox id="start_page_quick_links_box_closed"
-                          label="&hideQuickLinksPane.label;"
-                          pref="true"
-                          prefattribute="checked"/>
-
-            </vbox>
-        </hbox>
-  </groupbox>
-
-  <groupbox>
-    <caption label="&mostRecentlyUsed.label;"/>
-      <hbox align="center">
-          <textbox id="mruProjectSize" size="3" maxlength="2"
-                     pref="true"
-                     prefattribute="value"/>
-          <label control="mruProjectSize" value="&numberOfProjects.label;"/>
-      </hbox>
-      <hbox align="center">
-          <textbox id="mruFileSize" size="3" maxlength="2"
-                     pref="true"
-                     prefattribute="value"/>
-          <label control="mruFileSize" value="&numberOfFiles.label;"/>
-      </hbox>
-  </groupbox>
 </window>
 

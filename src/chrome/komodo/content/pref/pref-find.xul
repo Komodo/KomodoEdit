@@ -12,6 +12,7 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -52,64 +53,71 @@
     ]]>
     </script>
 
-    <groupbox orient="vertical">
-	<caption label="&findHighlighting.label;" />
-	<checkbox id="find-highlightEnabled"
-		  label="&findHighlightEnabled.label;"
-		  pref="true"
-		  oncommand="pref_findHighlight_doEnabling();"
-		  prefattribute="checked" />
-        <vbox id="find-highlight-timeout-vbox"
-	      style="margin-left: 27px;">
-	    <hbox id="find-highlight-timeout-hbox" align="center">
-		<label id="find-highlight-timeout-label" value="&findHighlightTimeout.label;"/>
-		<textbox id="find-highlightTimeout" size="4" pref="true"/>
-		<label id="find-highlight-timeout-ms-label" value="&msecs.label;"/>
-	    </hbox>
-	    <description>
-		&findHighlightTimeout.description;
-	    </description>
-	</vbox>
-    </groupbox>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="find-prefs-vbox" flex="1" class="autoscroll">
 
-    <groupbox orient="vertical">
-	<caption label="&incrementalSearch.label;" />
-	<grid flex="1">
-	    <columns>
-		<column autostretch="never" />
-		<column flex="1" autostretch="never" />
-	    </columns>
-	    <rows>
-		<row>
-		    <hbox align="center">
-			<label style="min-width: 80px;">&filePrefEditorMatchCase.label;</label>
-		    </hbox>
-		    <menulist id="isearchCaseSensitivity"
-			      pref="true"
-			      prefattribute="data">
-			<menupopup>
-			    <menuitem data="0" label="&never.label;" />
-			    <menuitem data="1" label="&always.label;" />
-			    <menuitem data="2" label="&ifSearchStringContainsCapitalLetters.label;" />
-			</menupopup>
-		    </menulist>
-		</row>
-		<separator class="thin" />
-		<row>
-		    <hbox align="center">
-			<label style="min-width: 80px;">&filePrefEdiorUses.label;</label>
-		    </hbox>
-		    <menulist id="isearchType"
-			      pref="true"
-			      prefattribute="data">
-			<menupopup>
-			    <menuitem data="0" label="&plainText.label;" />
-			    <menuitem data="2" label="&regularExpressionsPythonSyntax.label;" />
-			    <menuitem data="1" label="&wildcard.label;" />
-			</menupopup>
-		    </menulist>
-		</row>
-	    </rows>
-	</grid>
-    </groupbox>
+        <groupbox orient="vertical">
+            <caption label="&findHighlighting.label;" />
+            <checkbox id="find-highlightEnabled"
+                      label="&findHighlightEnabled.label;"
+                      pref="true"
+                      oncommand="pref_findHighlight_doEnabling();"
+                      prefattribute="checked" />
+            <vbox id="find-highlight-timeout-vbox"
+                  style="margin-left: 27px;">
+                <hbox id="find-highlight-timeout-hbox" align="center">
+                    <label id="find-highlight-timeout-label" value="&findHighlightTimeout.label;"/>
+                    <textbox id="find-highlightTimeout" size="4" pref="true"/>
+                    <label id="find-highlight-timeout-ms-label" value="&msecs.label;"/>
+                </hbox>
+                <description>
+                    &findHighlightTimeout.description;
+                </description>
+            </vbox>
+        </groupbox>
+    
+        <groupbox orient="vertical">
+            <caption label="&incrementalSearch.label;" />
+            <grid flex="1">
+                <columns>
+                    <column autostretch="never" />
+                    <column flex="1" autostretch="never" />
+                </columns>
+                <rows>
+                    <row>
+                        <hbox align="center">
+                            <label style="min-width: 80px;">&filePrefEditorMatchCase.label;</label>
+                        </hbox>
+                        <menulist id="isearchCaseSensitivity"
+                                  pref="true"
+                                  prefattribute="data">
+                            <menupopup>
+                                <menuitem data="0" label="&never.label;" />
+                                <menuitem data="1" label="&always.label;" />
+                                <menuitem data="2" label="&ifSearchStringContainsCapitalLetters.label;" />
+                            </menupopup>
+                        </menulist>
+                    </row>
+                    <separator class="thin" />
+                    <row>
+                        <hbox align="center">
+                            <label style="min-width: 80px;">&filePrefEdiorUses.label;</label>
+                        </hbox>
+                        <menulist id="isearchType"
+                                  pref="true"
+                                  prefattribute="data">
+                            <menupopup>
+                                <menuitem data="0" label="&plainText.label;" />
+                                <menuitem data="2" label="&regularExpressionsPythonSyntax.label;" />
+                                <menuitem data="1" label="&wildcard.label;" />
+                            </menupopup>
+                        </menulist>
+                    </row>
+                </rows>
+            </grid>
+        </groupbox>
+
+    </vbox>
+
 </window>

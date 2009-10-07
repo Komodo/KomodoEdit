@@ -10,6 +10,7 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -28,30 +29,36 @@
     <script src="chrome://komodo/content/launch.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/file-advanced-properties.js" type="application/x-javascript;version=1.7"/>
 
-    <groupbox orient="vertical" id="file-performance-properties-groupbox">
-        <caption label="&filePerformanceTweaks.caption;"/>
-        <description id="file-performance-about"
-                     style="margin-top:5px; margin-bottom:10px;">
-            &filePerformanceTweakOverview.description;
-        </description>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="file-advanced-prefs-vbox" flex="1" class="autoscroll">
 
-        <description id="file-performance-about-linting"
-                     style="margin-bottom:10px;">
-            &filePerformanceTweakLintSettingLocation.description;
-        </description>
-        <checkbox id="colorizing_enabled"
-                  label="&filePerformanceTweakEnableSyntaxColorizing.label;"
-                  pref="true"
-                  prefstring="colorizing_enabled"
-                  prefattribute="checked"
-                  oncommand="update_state();" />
-        <checkbox id="codeintel_enabled"
-                  style="margin-left: 27px;"
-                  label="&filePerformanceTweakEnableCodeintel.label;"
-                  pref="true"
-                  prefstring="codeintel_enabled"
-                  prefattribute="checked"/>
+        <groupbox orient="vertical" id="file-performance-properties-groupbox">
+            <caption label="&filePerformanceTweaks.caption;"/>
+            <description id="file-performance-about"
+                         style="margin-top:5px; margin-bottom:10px;">
+                &filePerformanceTweakOverview.description;
+            </description>
+    
+            <description id="file-performance-about-linting"
+                         style="margin-bottom:10px;">
+                &filePerformanceTweakLintSettingLocation.description;
+            </description>
+            <checkbox id="colorizing_enabled"
+                      label="&filePerformanceTweakEnableSyntaxColorizing.label;"
+                      pref="true"
+                      prefstring="colorizing_enabled"
+                      prefattribute="checked"
+                      oncommand="update_state();" />
+            <checkbox id="codeintel_enabled"
+                      style="margin-left: 27px;"
+                      label="&filePerformanceTweakEnableCodeintel.label;"
+                      pref="true"
+                      prefstring="codeintel_enabled"
+                      prefattribute="checked"/>
+    
+        </groupbox>
 
-    </groupbox>
+    </vbox>
 
 </window>

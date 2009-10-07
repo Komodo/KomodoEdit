@@ -43,6 +43,7 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window id="newfilesPrefWindow"
         xmlns:html="http://www.w3.org/1999/xhtml"
@@ -57,63 +58,69 @@
     <script src="chrome://komodo/content/library/mru.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/pref-newfiles.js" type="application/x-javascript;version=1.7"/>
 
-    <groupbox orient="vertical">
-        <caption label="&newFiles.label;"/>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="newfiles-prefs-vbox" flex="1" class="autoscroll">
 
-        <vbox>
-            <description>
-                &newButtonSettings.description;
-            </description>
-            <!-- Note: There is a little bit of special handling in the
-                 JS to set the initial value of this widget. -->
-            <langlist id="fileDefaultNew" class="lang-menulist"
-                      oncommand="this.setAttribute('data',this.selection);"
-                      pref="true" prefattribute="data"/>
-       </vbox>
-       <separator class="thin"/>
-       <vbox>
-            <description>
-                &newFileEolIndicator.description;
-            </description>
-            <hbox pack="start">
-               <menulist id="endOfLine"
-                        pref="true"
-                        prefattribute="data">
-                    <!-- XXX This bugs me. One of the options should be
-                         "System default" so that Komodo prefs files can be
-                         potable between OSes. - TM -->
-                    <menupopup>
-                       <menuitem data="CRLF" label="&DOSWindowsRN.label;"/>
-                       <menuitem data="LF" label="&UNIXN.label;"/>
-                       <menuitem data="CR" label="&macClassicR.label;"/>
-                    </menupopup>
-               </menulist>
+        <groupbox orient="vertical">
+            <caption label="&newFiles.label;"/>
+    
+            <vbox>
+                <description>
+                    &newButtonSettings.description;
+                </description>
+                <!-- Note: There is a little bit of special handling in the
+                     JS to set the initial value of this widget. -->
+                <langlist id="fileDefaultNew" class="lang-menulist"
+                          oncommand="this.setAttribute('data',this.selection);"
+                          pref="true" prefattribute="data"/>
+           </vbox>
+           <separator class="thin"/>
+           <vbox>
+                <description>
+                    &newFileEolIndicator.description;
+                </description>
+                <hbox pack="start">
+                   <menulist id="endOfLine"
+                            pref="true"
+                            prefattribute="data">
+                        <!-- XXX This bugs me. One of the options should be
+                             "System default" so that Komodo prefs files can be
+                             potable between OSes. - TM -->
+                        <menupopup>
+                           <menuitem data="CRLF" label="&DOSWindowsRN.label;"/>
+                           <menuitem data="LF" label="&UNIXN.label;"/>
+                           <menuitem data="CR" label="&macClassicR.label;"/>
+                        </menupopup>
+                   </menulist>
+                </hbox>
+           </vbox>
+    
+            <separator class="thin"/>
+            <label value="&noExtensionFile.label;"/>
+            <menulist pref="true" prefattribute="data"
+                      prefstrings="donotask_ensure_new_filename_has_ext,donotask_action_ensure_new_filename_has_ext">
+                 <menupopup>
+                     <menuitem data="false,"   label="&askMeWhatToDo.label;"/>
+                     <menuitem data="true,Yes" label="&addAppropriateExtension.label;"/>
+                     <menuitem data="true,No"  label="&leaveFilenameAlone.label;"/>
+                 </menupopup>
+            </menulist>
+        </groupbox>
+    
+        <groupbox orient="vertical" id="template-prefs">
+            <caption label="&templates.label;"/>
+            <hbox align="center">
+                <textbox id="mruTemplateSize" size="2" maxlength="2"
+                         pref="true" prefattribute="value"/>
+                <label control="mruTemplateSize"
+                       value="&numberTemplatesRember.label;"/>
+                <button label="&clearList.label;"
+                        oncommand="PrefNewFiles_ClearTemplateMRU();"
+                        tooltiptext="&clearListOfRecentTemplates.tooltiptext;"/>
             </hbox>
-       </vbox>
+        </groupbox>
 
-        <separator class="thin"/>
-        <label value="&noExtensionFile.label;"/>
-        <menulist pref="true" prefattribute="data"
-                  prefstrings="donotask_ensure_new_filename_has_ext,donotask_action_ensure_new_filename_has_ext">
-             <menupopup>
-                 <menuitem data="false,"   label="&askMeWhatToDo.label;"/>
-                 <menuitem data="true,Yes" label="&addAppropriateExtension.label;"/>
-                 <menuitem data="true,No"  label="&leaveFilenameAlone.label;"/>
-             </menupopup>
-        </menulist>
-    </groupbox>
-
-    <groupbox orient="vertical" id="template-prefs">
-        <caption label="&templates.label;"/>
-        <hbox align="center">
-            <textbox id="mruTemplateSize" size="2" maxlength="2"
-                     pref="true" prefattribute="value"/>
-            <label control="mruTemplateSize"
-                   value="&numberTemplatesRember.label;"/>
-            <button label="&clearList.label;"
-                    oncommand="PrefNewFiles_ClearTemplateMRU();"
-                    tooltiptext="&clearListOfRecentTemplates.tooltiptext;"/>
-        </hbox>
-    </groupbox>
+    </vbox>
 
 </window>

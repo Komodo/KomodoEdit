@@ -43,6 +43,7 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -621,161 +622,166 @@ function applyEncodingAndBOM(encodingName, bom)
 ]]>
 </script>
 
-    <groupbox orient="vertical">
-        <caption label="&fileProperties.label;"/>
-            <grid flex="1">
-                <columns>
-                    <column style="min-width: 90px;"/>
-                    <!--<column/>-->
-                    <column flex="1"/>
-                </columns>
-                <rows>
-                    <row align="center">
-                        <label value="&filePropertiesName.label;"/>
-                        <textbox id="properties-name" readonly="true" flex="1"/>
-                    </row>
-                    <separator style="height: 8px;"/>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="file-properties-prefs-vbox" flex="1" class="autoscroll">
 
-                    <separator class="groovy-thin"/>
-
-                    <separator class="thin"/>
-                    <row align="center">
-                        <label value="&filePropertiesLocation.label;"/>
-                        <textbox id="location" readonly="true"/>
-                    </row>
-                    <separator class="thin"/>
-                    <row align="center">
-                        <label value="&filePropertiesSize.label;"/>
-                        <label id="size"/>
-                    </row>
-                    <separator class="thin"/>
-
-                    <separator class="groovy-thin"/>
-
-<!-- #if PLATFORM == "win" -->
-                    <separator class="thin"/>
-                    <row align="center">
-                        <label value="&filePropertiesCreated.label;"/>
-                        <label id="created"/>
-                    </row>
-<!-- #endif -->
-                    <separator class="thin"/>
-                    <row align="center">
-                        <label value="&filePropertiesModified.label;"/>
-                        <label id="modified"/>
-                    </row>
-                    <separator class="thin"/>
-                    <row align="center">
-                        <label value="&filePropertiesAccessed.label;"/>
-                        <label id="accessed"/>
-                    </row>
-                    <separator class="thin"/>
-
-                    <separator class="groovy-thin"/>
-
-                    <separator class="thin"/>
-                    <row align="center">
-                        <label value="&filePropertiesAttributes.label;"/>
-                        <hbox id="file_permissions_hbox"
-                              align="center">
-                            <!-- The readonly checkbox is shown for local files
-                                 on Windows, a Unix-style file mode is shown on
-                                 Mac and Linux as well as on remote files. -->
-                            <checkbox id="readonly" style="padding-left: 0px;"
-                                      label="&readOnly.label;" accesskey="&readonly.accesskey;"
-                                      oncommand="setField('readonly', this.checked);"/>
-                            <label id="file_permissions_label" />
-                            <button id="file_permissions_button"
-                                    label="&filePropertiesChangePermissions.button;"
-                                    oncommand="changeFilePermissions();" />
-                        </hbox>
-                    </row>
-                 </rows>
-            </grid>
-
-    </groupbox>
-    <groupbox id="file-settings" orient="vertical">
-       <caption label="&fileSettings.label;"/>
-            <grid flex="1">
-                <columns>
-                    <column style="min-width: 90px;"/>
-                    <!--<column/>-->
-                    <column flex="1"/>
-                </columns>
-                <rows>
-                    <row align="center">
-                        <label value="&filePropertiesLanguage.label;" control="language"
-                               accesskey="&filePropertiesLanguage.accesskey;"/>
-                        <hbox align="center" flex="1">
-                            <langlist id="language" flex="1"
-                                      oncommand="setField('language', this.selection);"/>
-                            <button id="btn-reset" label="&reset.label;" accesskey="&btnReset.accesskey;"
-                                    tooltiptext="&resetLanguageToTheDefaultForThisFileType.tooltiptext;"
-                                    oncommand="resetLanguage();"/>
-                        </hbox>
-                    </row>
-                    <separator class="thin"/>
-                    <row align="center">
-                        <label value="&filePropertiesEncoding.label;" control="encoding"
-                               accesskey="&filePropertiesEncoding.accesskey;"/>
-                        <menulist id="encoding"/>
-                    </row>
-                    <row>
-                        <spacer/>
-                        <checkbox id="bom" accesskey="&bom.accesskey;"
-                                  style="padding-left: 0px;"
-                                  oncommand="setField('encoding_and_or_bom', this.checked);"
-                                  label="&useSignatureBOM.label;"/>
-                    </row>
-                    <separator class="thin"/>
-                    <row align="center">
-                        <label value="&filePropertiesLineEndings.label;" control="lineEndings"
-                               accesskey="&filePropertiesLineEndings.accesskey;"/>
-                        <menulist id="lineEndings"
-                                  oncommand="setField('lineEndings', this.value);">
-                            <menupopup>
-                                <menuitem label="&DOSWindowsRN.label;"
-                                          value="EOL_CRLF"/>
-                                <menuitem label="&UNIXN.label;"
-                                          value="EOL_LF"/>
-                                <menuitem label="&macClassicR.label;"
-                                          value="EOL_CR"/>
-                            </menupopup>
-                        </menulist>
-                    </row>
-                    <row align="center">
-                        <spacer/>
-                        <vbox>
-                            <checkbox id="preserveLineEndings" accesskey="&preserveLineEndings.accesskey;"
+        <groupbox orient="vertical">
+            <caption label="&fileProperties.label;"/>
+                <grid flex="1">
+                    <columns>
+                        <column style="min-width: 90px;"/>
+                        <!--<column/>-->
+                        <column flex="1"/>
+                    </columns>
+                    <rows>
+                        <row align="center">
+                            <label value="&filePropertiesName.label;"/>
+                            <textbox id="properties-name" readonly="true" flex="1"/>
+                        </row>
+                        <separator style="height: 8px;"/>
+    
+                        <separator class="groovy-thin"/>
+    
+                        <separator class="thin"/>
+                        <row align="center">
+                            <label value="&filePropertiesLocation.label;"/>
+                            <textbox id="location" readonly="true"/>
+                        </row>
+                        <separator class="thin"/>
+                        <row align="center">
+                            <label value="&filePropertiesSize.label;"/>
+                            <label id="size"/>
+                        </row>
+                        <separator class="thin"/>
+    
+                        <separator class="groovy-thin"/>
+    
+    <!-- #if PLATFORM == "win" -->
+                        <separator class="thin"/>
+                        <row align="center">
+                            <label value="&filePropertiesCreated.label;"/>
+                            <label id="created"/>
+                        </row>
+    <!-- #endif -->
+                        <separator class="thin"/>
+                        <row align="center">
+                            <label value="&filePropertiesModified.label;"/>
+                            <label id="modified"/>
+                        </row>
+                        <separator class="thin"/>
+                        <row align="center">
+                            <label value="&filePropertiesAccessed.label;"/>
+                            <label id="accessed"/>
+                        </row>
+                        <separator class="thin"/>
+    
+                        <separator class="groovy-thin"/>
+    
+                        <separator class="thin"/>
+                        <row align="center">
+                            <label value="&filePropertiesAttributes.label;"/>
+                            <hbox id="file_permissions_hbox"
+                                  align="center">
+                                <!-- The readonly checkbox is shown for local files
+                                     on Windows, a Unix-style file mode is shown on
+                                     Mac and Linux as well as on remote files. -->
+                                <checkbox id="readonly" style="padding-left: 0px;"
+                                          label="&readOnly.label;" accesskey="&readonly.accesskey;"
+                                          oncommand="setField('readonly', this.checked);"/>
+                                <label id="file_permissions_label" />
+                                <button id="file_permissions_button"
+                                        label="&filePropertiesChangePermissions.button;"
+                                        oncommand="changeFilePermissions();" />
+                            </hbox>
+                        </row>
+                     </rows>
+                </grid>
+    
+        </groupbox>
+        <groupbox id="file-settings" orient="vertical">
+           <caption label="&fileSettings.label;"/>
+                <grid flex="1">
+                    <columns>
+                        <column style="min-width: 90px;"/>
+                        <!--<column/>-->
+                        <column flex="1"/>
+                    </columns>
+                    <rows>
+                        <row align="center">
+                            <label value="&filePropertiesLanguage.label;" control="language"
+                                   accesskey="&filePropertiesLanguage.accesskey;"/>
+                            <hbox align="center" flex="1">
+                                <langlist id="language" flex="1"
+                                          oncommand="setField('language', this.selection);"/>
+                                <button id="btn-reset" label="&reset.label;" accesskey="&btnReset.accesskey;"
+                                        tooltiptext="&resetLanguageToTheDefaultForThisFileType.tooltiptext;"
+                                        oncommand="resetLanguage();"/>
+                            </hbox>
+                        </row>
+                        <separator class="thin"/>
+                        <row align="center">
+                            <label value="&filePropertiesEncoding.label;" control="encoding"
+                                   accesskey="&filePropertiesEncoding.accesskey;"/>
+                            <menulist id="encoding"/>
+                        </row>
+                        <row>
+                            <spacer/>
+                            <checkbox id="bom" accesskey="&bom.accesskey;"
                                       style="padding-left: 0px;"
-                                      label="&preserveExistingLineEndings.label;"
-                                      oncommand="setField('lineEndings', document.getElementById('lineEndings').value);"/>
-                            <description id="mixedLineEndings"
-                                         value="&filePropertiesMixedEndings.description;"
-                                         style="color: #CC3333; margin-top: 0px; padding-left: 20px;"
-                                         collapsed="true"/>
-                        </vbox>
-                    </row>
-                </rows>
-            </grid>
-    </groupbox>
-    <groupbox orient="vertical" id="markupSettings">
-        <caption label="&documentMarkupSettings.label;"/>
-        <label value="&filePropertiesDefaultDoctype.label;"/>
-        <menulist id="doctypeList"
-                  flex="1">
-            <menupopup id="doctypePopup">
-                <menuitem label="&determineFromContent.label;"/>
-            </menupopup>
-        </menulist>
-        <label value="&filePropertiesDefaultNamespace.label;"/>
-        <menulist id="namespaceList"
-                  flex="1">
-            <menupopup id="namespacePopup">
-                <menuitem label="&determineFromContent.label;"/>
-            </menupopup>
-        </menulist>
-    </groupbox>
+                                      oncommand="setField('encoding_and_or_bom', this.checked);"
+                                      label="&useSignatureBOM.label;"/>
+                        </row>
+                        <separator class="thin"/>
+                        <row align="center">
+                            <label value="&filePropertiesLineEndings.label;" control="lineEndings"
+                                   accesskey="&filePropertiesLineEndings.accesskey;"/>
+                            <menulist id="lineEndings"
+                                      oncommand="setField('lineEndings', this.value);">
+                                <menupopup>
+                                    <menuitem label="&DOSWindowsRN.label;"
+                                              value="EOL_CRLF"/>
+                                    <menuitem label="&UNIXN.label;"
+                                              value="EOL_LF"/>
+                                    <menuitem label="&macClassicR.label;"
+                                              value="EOL_CR"/>
+                                </menupopup>
+                            </menulist>
+                        </row>
+                        <row align="center">
+                            <spacer/>
+                            <vbox>
+                                <checkbox id="preserveLineEndings" accesskey="&preserveLineEndings.accesskey;"
+                                          style="padding-left: 0px;"
+                                          label="&preserveExistingLineEndings.label;"
+                                          oncommand="setField('lineEndings', document.getElementById('lineEndings').value);"/>
+                                <description id="mixedLineEndings"
+                                             value="&filePropertiesMixedEndings.description;"
+                                             style="color: #CC3333; margin-top: 0px; padding-left: 20px;"
+                                             collapsed="true"/>
+                            </vbox>
+                        </row>
+                    </rows>
+                </grid>
+        </groupbox>
+        <groupbox orient="vertical" id="markupSettings">
+            <caption label="&documentMarkupSettings.label;"/>
+            <label value="&filePropertiesDefaultDoctype.label;"/>
+            <menulist id="doctypeList"
+                      flex="1">
+                <menupopup id="doctypePopup">
+                    <menuitem label="&determineFromContent.label;"/>
+                </menupopup>
+            </menulist>
+            <label value="&filePropertiesDefaultNamespace.label;"/>
+            <menulist id="namespaceList"
+                      flex="1">
+                <menupopup id="namespacePopup">
+                    <menuitem label="&determineFromContent.label;"/>
+                </menupopup>
+            </menulist>
+        </groupbox>
 
+    </vbox>
 
 </window>

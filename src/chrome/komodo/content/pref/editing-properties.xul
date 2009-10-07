@@ -43,6 +43,7 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -55,57 +56,63 @@
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/editing-properties.js" type="application/x-javascript;version=1.7"/>
 
-    <groupbox>
-        <caption label="&general.label;"/>
-        <checkbox id="showWhitespace" label="&showWhitespaceCharacters.label;"
-                  pref="true" prefstring="showWhitespace"
-                  prefattribute="checked"/>
-        <checkbox id="showEOL" label="&showEndOfLineCharacters.label;"
-                  pref="true" prefstring="showEOL"
-                  prefattribute="checked"/>
-        <checkbox id="showLineNumbers" label="&showLineNumbers.label;"
-                  pref="true" prefstring="showLineNumbers"
-                  prefattribute="checked"/>
-    </groupbox>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="editing-prefs-vbox" flex="1" class="autoscroll">
 
-    <groupbox>
-        <caption label="&smartEditing.label;"/>
-        <hbox align="center">
-            <label value="&fileEditingPropertiesWrapLines.label;"/>
-            <menulist pref="true"
-                      id="editWrapType"
-                      prefattribute="data"
-                      prefstring="editWrapType">
-                <menupopup>
-                    <menuitem data="0" label="&none.label;"/>
-                    <menuitem data="1" label="&word.label;"/>
-                    <menuitem data="2" label="&character.label;"/>
-                </menupopup>
-            </menulist>
-        </hbox>
-        <checkbox id="editUseEdge"
-                  label="&showEdgeLineHighlightCharactersBeyondEdgeLine.label;"
-                  pref="true" prefstring="editUseEdge"
-                  prefattribute="checked"/>
-        <hbox align="center">
-            <textbox id="editAutoWrapColumn" size="3" pref="true"/>
-            <label value="&fileEditingPropertiesEdgeLine.label;"
-                   control="editAutoWrapColumn"/>
-        </hbox>
-    </groupbox>
+        <groupbox>
+            <caption label="&general.label;"/>
+            <checkbox id="showWhitespace" label="&showWhitespaceCharacters.label;"
+                      pref="true" prefstring="showWhitespace"
+                      prefattribute="checked"/>
+            <checkbox id="showEOL" label="&showEndOfLineCharacters.label;"
+                      pref="true" prefstring="showEOL"
+                      prefattribute="checked"/>
+            <checkbox id="showLineNumbers" label="&showLineNumbers.label;"
+                      pref="true" prefstring="showLineNumbers"
+                      prefattribute="checked"/>
+        </groupbox>
+    
+        <groupbox>
+            <caption label="&smartEditing.label;"/>
+            <hbox align="center">
+                <label value="&fileEditingPropertiesWrapLines.label;"/>
+                <menulist pref="true"
+                          id="editWrapType"
+                          prefattribute="data"
+                          prefstring="editWrapType">
+                    <menupopup>
+                        <menuitem data="0" label="&none.label;"/>
+                        <menuitem data="1" label="&word.label;"/>
+                        <menuitem data="2" label="&character.label;"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+            <checkbox id="editUseEdge"
+                      label="&showEdgeLineHighlightCharactersBeyondEdgeLine.label;"
+                      pref="true" prefstring="editUseEdge"
+                      prefattribute="checked"/>
+            <hbox align="center">
+                <textbox id="editAutoWrapColumn" size="3" pref="true"/>
+                <label value="&fileEditingPropertiesEdgeLine.label;"
+                       control="editAutoWrapColumn"/>
+            </hbox>
+        </groupbox>
+    
+        <groupbox orient="vertical">
+            <caption label="&syntaxChecking.label;"/>
+            <checkbox id="editUseLinting"
+                      label="&enableBackgroundSyntaxChecking.label;"
+                      pref="true"
+                      prefstring="editUseLinting"
+                      prefattribute="checked"
+                      oncommand="pref_lint_doEnabling();"/>
+            <checkbox id="lintEOLs"
+                      style="margin-left: 27px;"
+                      label="&lintEOLs.label;"
+                      pref="true"/>
+        </groupbox>
 
-    <groupbox orient="vertical">
-        <caption label="&syntaxChecking.label;"/>
-        <checkbox id="editUseLinting"
-                  label="&enableBackgroundSyntaxChecking.label;"
-                  pref="true"
-                  prefstring="editUseLinting"
-                  prefattribute="checked"
-                  oncommand="pref_lint_doEnabling();"/>
-        <checkbox id="lintEOLs"
-                  style="margin-left: 27px;"
-                  label="&lintEOLs.label;"
-                  pref="true"/>
-    </groupbox>
+    </vbox>
 
 </window>

@@ -43,6 +43,7 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -53,75 +54,82 @@
     <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
 
-    <groupbox orient="vertical">
-        <caption label="&workspace.label;"/>
-        <label value="&filePrefProjectWhenStart.label;"/>
-        <menulist pref="true" prefattribute="data"
-                  prefstrings="donotask_restore_workspace,donotask_action_restore_workspace">
-             <menupopup>
-                 <menuitem data="false,"   label="&askMeWhetherToRestoreWorkspace.label;"/>
-                 <menuitem data="true,Yes" label="&restoreLastWorkspace.label;"/>
-                 <menuitem data="true,No"  label="&doNotRestoreLastWorkspace.label;"/>
-             </menupopup>
-        </menulist>
-        <checkbox id="showReopenFileFailureDialog"
-                  label="&doNotWarnWhenFilesCannotBeReOpenedOnStartup.label;"
-                  style="padding-top: 5px;"
-                  pref="true" prefstring="donotask_startup_reopen_file_error_dialog"
-                  prefattribute="checked"/>
-    </groupbox>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="projects-prefs-vbox" flex="1" class="autoscroll">
 
-    <groupbox orient="vertical">
-        <caption label="&openingAndClosingProjects.label;"/>
-        <vbox>
+        <groupbox orient="vertical">
+            <caption label="&workspace.label;"/>
+            <label value="&filePrefProjectWhenStart.label;"/>
+            <menulist pref="true" prefattribute="data"
+                      prefstrings="donotask_restore_workspace,donotask_action_restore_workspace">
+                 <menupopup>
+                     <menuitem data="false,"   label="&askMeWhetherToRestoreWorkspace.label;"/>
+                     <menuitem data="true,Yes" label="&restoreLastWorkspace.label;"/>
+                     <menuitem data="true,No"  label="&doNotRestoreLastWorkspace.label;"/>
+                 </menupopup>
+            </menulist>
+            <checkbox id="showReopenFileFailureDialog"
+                      label="&doNotWarnWhenFilesCannotBeReOpenedOnStartup.label;"
+                      style="padding-top: 5px;"
+                      pref="true" prefstring="donotask_startup_reopen_file_error_dialog"
+                      prefattribute="checked"/>
+        </groupbox>
+    
+        <groupbox orient="vertical">
+            <caption label="&openingAndClosingProjects.label;"/>
+            <vbox>
+                <hbox align="center">
+                    <label value="&filePrefProjectWhenOpenProject.label;"/>
+                    <menulist pref="true" prefattribute="data"
+                              prefstrings="donotask_open_recent_files_on_project_open,donotask_action_open_recent_files_on_project_open">
+                         <menupopup>
+                             <menuitem data="false,"   label="&askMeWhatToDo.label;"/>
+                             <menuitem data="true,Yes" label="&openRecentFiles.label;"/>
+                             <menuitem data="true,No"  label="&openNoFiles.label;"/>
+                         </menupopup>
+                    </menulist>
+                </hbox>
+                <hbox align="center">
+                    <label value="&filePrefProjectWhenCloseProject.label;"/>
+                    <menulist pref="true" prefattribute="data"
+                              prefstrings="donotask_close_all_files_on_project_close,donotask_action_close_all_files_on_project_close">
+                        <menupopup>
+                            <menuitem data="false,"   label="&askMeWhatToDo.label;"/>
+                            <menuitem data="true,Yes" label="&closeAllOpenFilesInProject.label;"/>
+                            <menuitem data="true,No"  label="&closeNoFiles.label;"/>
+                        </menupopup>
+                    </menulist>
+                </hbox>
+            </vbox>
+        </groupbox>
+    
+        <groupbox orient="vertical">
+            <caption label="&fileStatusInProjectManagerAndToolbox.label;"/>
+            <checkbox label="&updateFileStatusAutomatically.label;"
+                      id="diskBackgroundCheck" pref="true"
+                      prefstring="diskBackgroundCheck"
+                      prefattribute="checked"/>
             <hbox align="center">
-                <label value="&filePrefProjectWhenOpenProject.label;"/>
-                <menulist pref="true" prefattribute="data"
-                          prefstrings="donotask_open_recent_files_on_project_open,donotask_action_open_recent_files_on_project_open">
-                     <menupopup>
-                         <menuitem data="false,"   label="&askMeWhatToDo.label;"/>
-                         <menuitem data="true,Yes" label="&openRecentFiles.label;"/>
-                         <menuitem data="true,No"  label="&openNoFiles.label;"/>
-                     </menupopup>
-                </menulist>
+                <label value="&filePrefProjectUpdateEvery.label;"/>
+                <textbox id="diskBackgroundMinutes"
+                         size="3"
+                         pref="true"
+                         prefstring="diskBackgroundMinutes"
+                         prefattribute="value"/>
+                <label value="&filePrefProjectMinutes.label;"/>
             </hbox>
-            <hbox align="center">
-                <label value="&filePrefProjectWhenCloseProject.label;"/>
-                <menulist pref="true" prefattribute="data"
-                          prefstrings="donotask_close_all_files_on_project_close,donotask_action_close_all_files_on_project_close">
-                    <menupopup>
-                        <menuitem data="false,"   label="&askMeWhatToDo.label;"/>
-                        <menuitem data="true,Yes" label="&closeAllOpenFilesInProject.label;"/>
-                        <menuitem data="true,No"  label="&closeNoFiles.label;"/>
-                    </menupopup>
-                </menulist>
-            </hbox>
-        </vbox>
-    </groupbox>
+        </groupbox>
+    
+        <groupbox orient="vertical">
+            <caption label="&triggeringMacros.label;"/>
+    
+            <checkbox id="triggering_macros_enabled" label="&enableTriggeringOfMacrosOnKomodoEvents.label;"
+                      pref="true" prefstring="triggering_macros_enabled"
+                      prefattribute="checked"/>
+        </groupbox>
 
-    <groupbox orient="vertical">
-        <caption label="&fileStatusInProjectManagerAndToolbox.label;"/>
-        <checkbox label="&updateFileStatusAutomatically.label;"
-                  id="diskBackgroundCheck" pref="true"
-                  prefstring="diskBackgroundCheck"
-                  prefattribute="checked"/>
-        <hbox align="center">
-            <label value="&filePrefProjectUpdateEvery.label;"/>
-            <textbox id="diskBackgroundMinutes"
-                     size="3"
-                     pref="true"
-                     prefstring="diskBackgroundMinutes"
-                     prefattribute="value"/>
-            <label value="&filePrefProjectMinutes.label;"/>
-        </hbox>
-    </groupbox>
+    </vbox>
 
-    <groupbox orient="vertical">
-        <caption label="&triggeringMacros.label;"/>
-
-        <checkbox id="triggering_macros_enabled" label="&enableTriggeringOfMacrosOnKomodoEvents.label;"
-                  pref="true" prefstring="triggering_macros_enabled"
-                  prefattribute="checked"/>
-    </groupbox>
 </window>
 

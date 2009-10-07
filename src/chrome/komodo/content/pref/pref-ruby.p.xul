@@ -46,6 +46,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -61,70 +62,76 @@
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
 
-    <groupbox orient="vertical">
-        <caption label="&defaultRubyInterpreter.label;"/>
-        <vbox id="no-avail-interps-message" collapsed="true" flex="1" align="center">
-            <description style="font-weight: bold;">
-                &noRubyInterpreter.description;
-            </description>
-            <button label="&httpWwwRubyLangOrg.label;"
-                    class="button-link-a" style="cursor:pointer;"
-                    oncommand="alert('&noteRestartRuby.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
-        </vbox>
-        <vbox id="invalid-version-message" collapsed="true" flex="1" align="center">
-            <description style="font-weight: bold;">
-                &rubyDebuggerNotWorking.description;
-            </description>
-            <button label="&httpWwwRubyLangOrg.label;"
-                    class="button-link-a" style="cursor:pointer;"
-                    oncommand="alert('&noteRestartRuby.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
-        </vbox>
-        <text value="&filePrefRubyUseThisInterpreter.label;" style="padding: 2px 6px 2px 6px"/>
-        <hbox align="center">
-            <menulist id="rubyDefaultInterpreter"
-                flex="1"
-                pref="true"
-                prefstring="rubyDefaultInterpreter"
-                oncommand="PrefRuby_checkVersion();">
-                <menupopup id="avail-interp-list"/>
-            </menulist>
-            <button label="&browse.label;" oncommand="loadRubyExecutable();"/>
-        </hbox>
-    </groupbox>
-    <separator class="thin"/>
-    <groupbox orient="vertical">
-        <caption label="&backgroundSyntaxChecking.label;"/>
-        <description>
-            &filePrefRubyLevelStricness.description;
-        </description>
-        <hbox align="center">
-            <menulist id="ruby_lintOption"
-		      flex="1" pref="true" prefattribute="data">
-                <menupopup>
-                    <menuitem data="cwT" label="&errorsAndWarningsUseTaintModeCwT.label;"/>
-                    <menuitem data="cT" label="&errorsOnlyUseTaintModeCT.label;"/>
-                    <menuitem data="cw" label="&errorsAndWarningsCw.label;"/>
-                    <menuitem data="c" label="&errorsOnlyC.label;"/>
-                </menupopup>
-            </menulist>
-        </hbox>
-    </groupbox>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="ruby-prefs-vbox" flex="1" class="autoscroll">
 
-    <separator class="thin"/>
+        <groupbox orient="vertical">
+            <caption label="&defaultRubyInterpreter.label;"/>
+            <vbox id="no-avail-interps-message" collapsed="true" flex="1" align="center">
+                <description style="font-weight: bold;">
+                    &noRubyInterpreter.description;
+                </description>
+                <button label="&httpWwwRubyLangOrg.label;"
+                        class="button-link-a" style="cursor:pointer;"
+                        oncommand="alert('&noteRestartRuby.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
+            </vbox>
+            <vbox id="invalid-version-message" collapsed="true" flex="1" align="center">
+                <description style="font-weight: bold;">
+                    &rubyDebuggerNotWorking.description;
+                </description>
+                <button label="&httpWwwRubyLangOrg.label;"
+                        class="button-link-a" style="cursor:pointer;"
+                        oncommand="alert('&noteRestartRuby.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
+            </vbox>
+            <text value="&filePrefRubyUseThisInterpreter.label;" style="padding: 2px 6px 2px 6px"/>
+            <hbox align="center">
+                <menulist id="rubyDefaultInterpreter"
+                    flex="1"
+                    pref="true"
+                    prefstring="rubyDefaultInterpreter"
+                    oncommand="PrefRuby_checkVersion();">
+                    <menupopup id="avail-interp-list"/>
+                </menulist>
+                <button label="&browse.label;" oncommand="loadRubyExecutable();"/>
+            </hbox>
+        </groupbox>
+        <separator class="thin"/>
+        <groupbox orient="vertical">
+            <caption label="&backgroundSyntaxChecking.label;"/>
+            <description>
+                &filePrefRubyLevelStricness.description;
+            </description>
+            <hbox align="center">
+                <menulist id="ruby_lintOption"
+                          flex="1" pref="true" prefattribute="data">
+                    <menupopup>
+                        <menuitem data="cwT" label="&errorsAndWarningsUseTaintModeCwT.label;"/>
+                        <menuitem data="cT" label="&errorsOnlyUseTaintModeCT.label;"/>
+                        <menuitem data="cw" label="&errorsAndWarningsCw.label;"/>
+                        <menuitem data="c" label="&errorsOnlyC.label;"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+        </groupbox>
+    
+        <separator class="thin"/>
+    
+        <groupbox orient="vertical">
+            <caption label="&additionalRubyImportDirectories.label;"/>
+            <description>
+                &filePrefRubyAdditionalDirectory.description;
+            </description>
+            <pathlist
+                    id="rubyExtraPaths"
+                    flex="1"
+                    seltype="multiple"
+                    rows="4"
+                    pref="true" prefwidget="true"
+                    prefstring="rubyExtraPaths"/>
+        </groupbox>
 
-    <groupbox orient="vertical">
-        <caption label="&additionalRubyImportDirectories.label;"/>
-        <description>
-            &filePrefRubyAdditionalDirectory.description;
-        </description>
-	<pathlist
-                id="rubyExtraPaths"
-                flex="1"
-                seltype="multiple"
-                rows="4"
-		pref="true" prefwidget="true"
-                prefstring="rubyExtraPaths"/>
-    </groupbox>
+    </vbox>
 
 </window>
 

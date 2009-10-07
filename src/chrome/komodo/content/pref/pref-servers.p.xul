@@ -45,6 +45,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window id="serversPrefWindow"
     xmlns:html="http://www.w3.org/1999/xhtml"
@@ -59,108 +60,114 @@
     <script src="chrome://komodo/content/editor/fileops.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
 
-<menupopup id="dialogTooltip" />
+    <menupopup id="dialogTooltip" />
 
-<groupbox orient="vertical">
-    <caption label="&remoteAccounts.label;"/>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="server-prefs-vbox" flex="1" class="autoscroll">
 
-    <hbox flex="1">
-        <menulist id="serversList" flex="1">
-            <menupopup id ="serversPopup" />
-        </menulist>
-        <button id="buttonClear" class="list-item-add-icon button-toolbar-a"
-            label="&newServer.label;"
-            tooltiptext="&newServer.tooltiptext;" tooltip="dialogTooltip"
-            oncommand="onClearServerEntry()"/>
-        <button id="buttonDelete" class="list-item-remove-icon button-toolbar-a"
-            label="&deleteServer.label;"
-            tooltiptext="&deleteServer.tooltiptext;" tooltip="dialogTooltip"
-            oncommand="onDeleteServerEntry()"/>
-    </hbox>
-    <hbox flex="1">
-        <vbox flex="1">
-            <text value="&serverType.label;" class="kopadded"/>
-            <menulist id="server_types" oncommand="checkAddButtonStatus();">
-                <menupopup id ="server_typesPopup">
-                    <menuitem label="&FTP.label;" value="ftp"/>
-<!-- #if WITH_CRYPTO -->
-                    <menuitem label="&FTPS.label;" value="ftps"/>
-                    <menuitem label="&SFTP.label;" value="sftp"/>
-                    <menuitem label="&SCP.label;" value="scp"/>
-<!-- #endif -->
-                </menupopup>
-            </menulist>
-        </vbox>
-        <vbox id="ftp_passive_mode_vbox">
-            <text id="ftp_passive_mode_text" value="&FTP.servermode.label;" class="kopadded"/>
-            <menulist id="ftp_passive_mode" value="1">
-                <menupopup id ="ftp_passive_mode_menupopup">
-                    <menuitem label="&FTP.activemode.label;" value="0"/>
-                    <menuitem label="&FTP.passivemode.label;" value="1"/>
-                </menupopup>
-            </menulist>
-        </vbox>
-        <vbox flex="1">
-            <text value="&connectionName.label;" class="kopadded"/>
-            <textbox id="alias" flex="1" oninput="checkAddButtonStatus();"
-                     tooltiptext="&shortNameYouWishToCallThisServerConnection.tooltiptext;" />
-        </vbox>
-    </hbox>
+        <groupbox orient="vertical">
+            <caption label="&remoteAccounts.label;"/>
+        
+            <hbox flex="1">
+                <menulist id="serversList" flex="1">
+                    <menupopup id ="serversPopup" />
+                </menulist>
+                <button id="buttonClear" class="list-item-add-icon button-toolbar-a"
+                    label="&newServer.label;"
+                    tooltiptext="&newServer.tooltiptext;" tooltip="dialogTooltip"
+                    oncommand="onClearServerEntry()"/>
+                <button id="buttonDelete" class="list-item-remove-icon button-toolbar-a"
+                    label="&deleteServer.label;"
+                    tooltiptext="&deleteServer.tooltiptext;" tooltip="dialogTooltip"
+                    oncommand="onDeleteServerEntry()"/>
+            </hbox>
+            <hbox flex="1">
+                <vbox flex="1">
+                    <text value="&serverType.label;" class="kopadded"/>
+                    <menulist id="server_types" oncommand="checkAddButtonStatus();">
+                        <menupopup id ="server_typesPopup">
+                            <menuitem label="&FTP.label;" value="ftp"/>
+        <!-- #if WITH_CRYPTO -->
+                            <menuitem label="&FTPS.label;" value="ftps"/>
+                            <menuitem label="&SFTP.label;" value="sftp"/>
+                            <menuitem label="&SCP.label;" value="scp"/>
+        <!-- #endif -->
+                        </menupopup>
+                    </menulist>
+                </vbox>
+                <vbox id="ftp_passive_mode_vbox">
+                    <text id="ftp_passive_mode_text" value="&FTP.servermode.label;" class="kopadded"/>
+                    <menulist id="ftp_passive_mode" value="1">
+                        <menupopup id ="ftp_passive_mode_menupopup">
+                            <menuitem label="&FTP.activemode.label;" value="0"/>
+                            <menuitem label="&FTP.passivemode.label;" value="1"/>
+                        </menupopup>
+                    </menulist>
+                </vbox>
+                <vbox flex="1">
+                    <text value="&connectionName.label;" class="kopadded"/>
+                    <textbox id="alias" flex="1" oninput="checkAddButtonStatus();"
+                             tooltiptext="&shortNameYouWishToCallThisServerConnection.tooltiptext;" />
+                </vbox>
+            </hbox>
+        
+            <hbox flex="1">
+                <vbox flex="1">
+                    <text value="&hostName.label;" class="kopadded"/>
+                    <textbox id="hostname" flex="1" oninput="checkAddButtonStatus();"
+                             tooltiptext="&theServerNameToConnectToEitherADomainNameOrAIPAddress.tooltiptext;" />
+                </vbox>
+                <vbox flex="1">
+                    <text value="&portNumber.label;" class="kopadded"/>
+                    <textbox id="port" flex="1" oninput="checkAddButtonStatus();"
+                             tooltiptext="&ifNoPortIsGivenTheDefaultProtocolPortIsUsed.tooltiptext;" />
+                </vbox>
+            </hbox>
+            <hbox flex="1">
+                <vbox flex="1">
+                    <text value="&userName.label;" class="kopadded"/>
+                    <textbox id="username" flex="1" oninput="checkAddButtonStatus();"
+                             tooltiptext="&usernameUsedToLoginToTheRemoteServer.tooltiptext;" />
+                </vbox>
+                <vbox flex="1">
+                    <text value="&password.label;" class="kopadded"/>
+                    <textbox id="password" type="password" flex="1" oninput="checkAddButtonStatus();"
+                             tooltiptext="&ifNoPasswordIsGivenYouLlBePromptedForItUponFirstConnecting.tooltiptext;"/>
+                </vbox>
+            </hbox>
+            <vbox flex="1">
+                <text value="&defaultPath.label;" class="kopadded"/>
+                <textbox id="path" flex="1" value="" oninput="checkAddButtonStatus();"
+                         tooltiptext="&ifNoPathIsGivenTheDefaultPathIsTheCurrentDirectoryAfterLogin.tooltiptext;" />
+            </vbox>
+        
+            <separator />
+        
+            <hbox flex="1">
+                <checkbox id="anonymousCheckbox" label="&anonymousLogin.label;"
+                        oncommand="fillAnonymous();checkAddButtonStatus();" style="max-width: 40em;"/>
+                <spacer flex="1" />
+                <button  id="buttonAdd" label="&add.label;" oncommand="onAddServerEntry()"/>
+            </hbox>
+        
+            <separator />
+            <text value="&requiredFieldMark.label;" class="kopadded" />
+        </groupbox>
+        
+        <groupbox orient="vertical">
+            <caption label="&defaultConnectionTimeout.label;"/>
+            <hbox flex="1">
+                <vbox flex="1">
+                    <label value="&timeoutSeconds.label;"/>
+                    <textbox id="remotefiles_defaultConnectionTimeout"
+                             size="5"
+                             pref="true"/>
+                </vbox>
+            </hbox>
+        </groupbox>
 
-    <hbox flex="1">
-        <vbox flex="1">
-            <text value="&hostName.label;" class="kopadded"/>
-            <textbox id="hostname" flex="1" oninput="checkAddButtonStatus();"
-                     tooltiptext="&theServerNameToConnectToEitherADomainNameOrAIPAddress.tooltiptext;" />
-        </vbox>
-        <vbox flex="1">
-            <text value="&portNumber.label;" class="kopadded"/>
-            <textbox id="port" flex="1" oninput="checkAddButtonStatus();"
-                     tooltiptext="&ifNoPortIsGivenTheDefaultProtocolPortIsUsed.tooltiptext;" />
-        </vbox>
-    </hbox>
-    <hbox flex="1">
-        <vbox flex="1">
-            <text value="&userName.label;" class="kopadded"/>
-            <textbox id="username" flex="1" oninput="checkAddButtonStatus();"
-                     tooltiptext="&usernameUsedToLoginToTheRemoteServer.tooltiptext;" />
-        </vbox>
-        <vbox flex="1">
-            <text value="&password.label;" class="kopadded"/>
-            <textbox id="password" type="password" flex="1" oninput="checkAddButtonStatus();"
-                     tooltiptext="&ifNoPasswordIsGivenYouLlBePromptedForItUponFirstConnecting.tooltiptext;"/>
-        </vbox>
-    </hbox>
-    <vbox flex="1">
-        <text value="&defaultPath.label;" class="kopadded"/>
-        <textbox id="path" flex="1" value="" oninput="checkAddButtonStatus();"
-                 tooltiptext="&ifNoPathIsGivenTheDefaultPathIsTheCurrentDirectoryAfterLogin.tooltiptext;" />
     </vbox>
-
-    <separator />
-
-    <hbox flex="1">
-        <checkbox id="anonymousCheckbox" label="&anonymousLogin.label;"
-                oncommand="fillAnonymous();checkAddButtonStatus();" style="max-width: 40em;"/>
-        <spacer flex="1" />
-        <button  id="buttonAdd" label="&add.label;" oncommand="onAddServerEntry()"/>
-    </hbox>
-
-    <separator />
-    <text value="&requiredFieldMark.label;" class="kopadded" />
-</groupbox>
-
-<groupbox orient="vertical">
-    <caption label="&defaultConnectionTimeout.label;"/>
-    <hbox flex="1">
-        <vbox flex="1">
-            <label value="&timeoutSeconds.label;"/>
-            <textbox id="remotefiles_defaultConnectionTimeout"
-                     size="5"
-                     pref="true"/>
-        </vbox>
-    </hbox>
-</groupbox>
 
 </window>
 

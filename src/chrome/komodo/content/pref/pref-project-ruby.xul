@@ -46,6 +46,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -80,19 +81,25 @@ function OnPreferencePageLoading() {
 ]]>
 </script>
 
-    <groupbox orient="vertical">
-        <caption label="&additionalRubyImportDirectories.label;"/>
-        <description>
-            &filePrefProjectRubyAdditionalDirectory.description;
-        </description>
-	<pathlist
-                id="rubyExtraPaths"
-                flex="1"
-                seltype="multiple"
-                rows="4"
-		pref="true" prefwidget="true"
-                prefstring="rubyExtraPaths"/>
-    </groupbox>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="project-ruby-prefs-vbox" flex="1" class="autoscroll">
+
+        <groupbox orient="vertical">
+            <caption label="&additionalRubyImportDirectories.label;"/>
+            <description>
+                &filePrefProjectRubyAdditionalDirectory.description;
+            </description>
+            <pathlist
+                    id="rubyExtraPaths"
+                    flex="1"
+                    seltype="multiple"
+                    rows="4"
+                    pref="true" prefwidget="true"
+                    prefstring="rubyExtraPaths"/>
+        </groupbox>
+
+    </vbox>
 
 </window>
 

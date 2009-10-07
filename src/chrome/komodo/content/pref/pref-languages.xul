@@ -44,6 +44,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/tree.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
                     id="languagesPrefWindow"
@@ -56,58 +57,64 @@
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/pref-languages.js" type="application/x-javascript;version=1.7"/>
 
-    <groupbox>
-        <caption label="&languageConfigurations.label;"/>
-	<description style="margin-top: 10px;">
-        &languagesSettings.description;
-	</description>
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="languages-prefs-vbox" flex="1" class="autoscroll">
 
-	<separator class="thin"/>
-    </groupbox>
-    <separator class="thin"/>
+        <groupbox>
+            <caption label="&languageConfigurations.label;"/>
+            <description style="margin-top: 10px;">
+            &languagesSettings.description;
+            </description>
     
-    <groupbox>
-        <caption label="&primaryLanguages.label;"/>
-        <description>&primaryLanguages.description;</description>
-        <hbox align="center">
-            <spacer id="languageStatus-filter-textbox-spacer" flex="1" />
-            <label control="languageStatus-filter-textbox"
-                   value="&languageNames.label;"
-                   accesskey="&languageNames.accesskey;"/>
-            <textbox id="languageStatus-filter-textbox"
-                     class="ko-searchbox"
-                     timeout="300"
-                     type="timed"
-                     oncommand="updateLanguageNames(this.value);"/>
-        </hbox>
+            <separator class="thin"/>
+        </groupbox>
         <separator class="thin"/>
-        <tree id="languageStatus" flex="1"
-              seltype="multiple" class="no-border"
-              editable="true"
-              rows="8"
-              onclick="return PrefLanguages_OnClick(event);"
-              onkeypress="return PrefLanguages_OnKeyPress(event);">
-            <treecols>
-                <treecol id="languageStatus-status"
-                         type="checkbox"
-                         fixed="true"
-                         editable="true"
-                         class="treecol-image"
-                         ignoreincolumnpicker="true"
-                         tooltiptext="&primaryLanguage.tooltip;"
-                         src="chrome://komodo/skin/images/cbox-check.gif" />
-                <splitter class="tree-splitter"/>
-                <treecol id="languageStatus-name"
-                         persist="width"
-                         label="&name.label;"
-                         flex="1"
-                         />
-            </treecols>
-            <treechildren id="languageStatus-body" flex="1"
-                          alternatingbackground="false"
-                          ondblclick="PrefLanguages_OnDblClick(event);"/>
-        </tree>
-   </groupbox>
+        
+        <groupbox>
+            <caption label="&primaryLanguages.label;"/>
+            <description>&primaryLanguages.description;</description>
+            <hbox align="center">
+                <spacer id="languageStatus-filter-textbox-spacer" flex="1" />
+                <label control="languageStatus-filter-textbox"
+                       value="&languageNames.label;"
+                       accesskey="&languageNames.accesskey;"/>
+                <textbox id="languageStatus-filter-textbox"
+                         class="ko-searchbox"
+                         timeout="300"
+                         type="timed"
+                         oncommand="updateLanguageNames(this.value);"/>
+            </hbox>
+            <separator class="thin"/>
+            <tree id="languageStatus" flex="1"
+                  seltype="multiple" class="no-border"
+                  editable="true"
+                  rows="8"
+                  onclick="return PrefLanguages_OnClick(event);"
+                  onkeypress="return PrefLanguages_OnKeyPress(event);">
+                <treecols>
+                    <treecol id="languageStatus-status"
+                             type="checkbox"
+                             fixed="true"
+                             editable="true"
+                             class="treecol-image"
+                             ignoreincolumnpicker="true"
+                             tooltiptext="&primaryLanguage.tooltip;"
+                             src="chrome://komodo/skin/images/cbox-check.gif" />
+                    <splitter class="tree-splitter"/>
+                    <treecol id="languageStatus-name"
+                             persist="width"
+                             label="&name.label;"
+                             flex="1"
+                             />
+                </treecols>
+                <treechildren id="languageStatus-body" flex="1"
+                              alternatingbackground="false"
+                              ondblclick="PrefLanguages_OnDblClick(event);"/>
+            </tree>
+       </groupbox>
+
+    </vbox>
 
 </window>
 
