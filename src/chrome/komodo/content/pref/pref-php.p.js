@@ -136,10 +136,7 @@ function loadIniFile() {
 }
 
 function loadPHPExecutable() {
-    var path = ko.filepicker.openExeFile();
-    if (path != null) {
-        var availInterpList = document.getElementById("phpDefaultInterpreter");
-        availInterpList.selectedItem = availInterpList.appendItem(path,path);
+    if (loadExecutableIntoInterpreterList("phpDefaultInterpreter")) {
     }
 }
 
