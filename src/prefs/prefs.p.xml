@@ -597,21 +597,21 @@
 
   <!-- The commands that are run to lookup information on a per language basis -->
 <!-- #if PLATFORM == "darwin" -->
-  <string id="PerlHelpCommand">open http://www.google.com/search?q=+%2Bsite%3Aperldoc.perl.org+%W</string>
-  <string id="PythonHelpCommand">open http://www.google.com/search?q=+%2Bsite%3Adocs.python.org+%W</string>
+  <string id="PerlHelpCommand">open http://www.google.com/search?q=site%3Adocs.activestate.com%2Factiveperl+%W</string>
+  <string id="PythonHelpCommand">open http://www.google.com/search?q=site%3Adocs.activestate.com%2Factivepython+%W</string>
   <string id="PHPHelpCommand">open http://www.php.net/manual-lookup.php?pattern=%W</string>
   <string id="RubyHelpCommand">open http://www.ruby-doc.org/find/pickaxe?search=%W</string>
-  <string id="TclHelpCommand">open http://www.google.com/search?q=+%2Bsite%3Awww.tcl.tk+%W</string>
+  <string id="TclHelpCommand">open http://www.google.com/search?q=site%3Adocs.activestate.com%2Factivetcl+%W</string>
   <string id="XSLTHelpCommand">open http://www.google.com/search?q=%W+XSLT+reference</string>
   <string id="TextHelpCommand">open http://www.answers.com/%W</string>
   <string id="DefaultHelpCommand">open http://www.google.com/search?q=%W</string>
   <string id="OtherHelpCommand">open http://www.google.com/search?q=%W</string>
 <!-- #else -->
-  <string id="PerlHelpCommand">%(browser) http://www.google.com/search?q=+%2Bsite%3Aperldoc.perl.org+%W</string>
-  <string id="PythonHelpCommand">%(browser) http://www.google.com/search?q=+%2Bsite%3Adocs.python.org+%W</string>
+  <string id="PerlHelpCommand">%(browser) http://www.google.com/search?q=site%3Adocs.activestate.com%2Factiveperl+%W</string>
+  <string id="PythonHelpCommand">%(browser) http://www.google.com/search?q=site%3Adocs.activestate.com%2Factivepython+%W</string>
   <string id="PHPHelpCommand">%(browser) http://www.php.net/manual-lookup.php?pattern=%W</string>
   <string id="RubyHelpCommand">%(browser) http://www.ruby-doc.org/find/pickaxe?search=%W</string>
-  <string id="TclHelpCommand">%(browser) http://www.google.com/search?q=+%2Bsite%3Awww.tcl.tk+%W</string>
+  <string id="TclHelpCommand">%(browser) http://www.google.com/search?q=site%3Adocs.activestate.com%2Factivetcl+%W</string>
   <string id="XSLTHelpCommand">%(browser) http://www.google.com/search?q=%W+XSLT+reference</string>
   <string id="TextHelpCommand">%(browser) http://www.answers.com/%W</string>
   <string id="DefaultHelpCommand">%(browser) http://www.google.com/search?q=%W</string>

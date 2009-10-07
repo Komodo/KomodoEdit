@@ -138,10 +138,17 @@ this.language = function() {
                               getService(Components.interfaces.koILanguageRegistryService);
             var languageObj = langRegistrySvc.getLanguage(language);
             if (languageObj.searchURL) {
+                var searchURL = languageObj.searchURL;
+                if (searchURL.indexOf("?") == -1) {
+                    // search with google, encode URL correctly.
+                    searchURL = ("http://www.google.com/search?q="
+                                 + encodeURIComponent("site:" + searchURL)
+                                 + "+%W");
+                }
 // #if PLATFORM == "darwin"
-                command = "open "+languageObj.searchURL;
+                command = "open " + searchURL;
 // #else
-                command = "%(browser) "+languageObj.searchURL;
+                command = "%(browser) " + searchURL;
 // #endif
             }
         }

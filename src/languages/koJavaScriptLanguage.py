@@ -63,7 +63,8 @@ class koJavaScriptLanguage(KoLanguageBase):
     }
     _dedenting_statements = [u'throw', u'return', u'break', u'continue']
     _indenting_statements = [u'case']
-    searchURL = "http://www.google.com/search?q=site%3Ahttp%3A%2F%2Fdeveloper.mozilla.org%2Fen%2Fdocs%2FCore_JavaScript_1.5_Reference+%W"
+    searchURL = "https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference"
+    
     # matches:
     # function name
     # name: function

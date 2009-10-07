@@ -70,6 +70,12 @@ class koBashLanguage(KoLanguageBase):
         re.compile(ur'\A#!.*/(ba)?sh.*$', re.IGNORECASE | re.MULTILINE),
     ]
     
+    _lineup_chars = u"{}"
+    _lineup_open_chars = "{"
+    _lineup_close_chars = "}"
+    supportsSmartIndent = "brace"
+    searchURL = "http://www.gnu.org/software/bash/manual/html_node"
+    
     sample = """# build our tags file
 
 find src \( \( -name '*.h' \) -o \\

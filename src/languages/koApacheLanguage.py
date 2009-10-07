@@ -63,6 +63,7 @@ class koApacheLanguage(KoLanguageBase):
     defaultExtension = ".conf"
     styleBits = 6
     commentDelimiterInfo = { "line": [ "#" ]  }
+    searchURL = "http://httpd.apache.org/docs"
 
     _directives = """
     accessconfig accessfilename action addalt

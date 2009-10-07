@@ -67,6 +67,7 @@ class koCommonSQLLanguage(KoLanguageBase):
         "line": [ "--" ],
         "block": [ ("/*", "*/") ],
     }
+    searchURL = "http://www.google.com/search?q=sql+%W"
 
     def __init__(self):
         KoLanguageBase.__init__(self)

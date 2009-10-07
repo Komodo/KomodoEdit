@@ -57,6 +57,7 @@ class koHaskellLanguage(KoLanguageBase):
 
     supportsSmartIndent = "brace"
     sciMozLexer = components.interfaces.ISciMoz.SCLEX_HASKELL
+    searchURL = "http://www.haskell.org/"
 
     _stateMap = {
         'default': ('SCE_HA_DEFAULT',),

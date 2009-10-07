@@ -59,6 +59,7 @@ class KoDjangoLanguage(koHTMLLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{5c36e354-525e-11db-82d8-000d935d3368}"
     defaultExtension = '.django.html'
+    searchURL = "http://docs.djangoproject.com/en"
 
     lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'Django', 'M': 'HTML', 'CSS': 'CSS'}
 

@@ -53,7 +53,8 @@ class koBatchLanguage(KoLanguageBase):
     commentDelimiterInfo = {
         "line": [ "rem ", "REM " ],
     }
-    
+    searchURL = "http://stackoverflow.com/search?q=[batch]+%W"
+
     sample = """
     @echo off
 REM comment
