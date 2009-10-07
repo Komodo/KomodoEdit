@@ -45,7 +45,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
             .getService(Components.interfaces.nsIStringBundleService)
             .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
 
-/* Functions Related to pref-phpini.xul */
+/* Functions Related to pref-php.xul */
 function PrefPhp_OnLoad()  {
     phpAppInfoEx = Components.classes["@activestate.com/koPHPInfoInstance;1"].
             createInstance(Components.interfaces.koIPHPInfoEx);
@@ -122,12 +122,6 @@ function PrefPhp_PopulatePHPInterps()
             availInterpList.appendItem(prefExecutable,prefExecutable);
     }
     _findingInterps = false;
-}
-
-/* Functions Related to pref-phpini.xul */
-
-function PrefPhpIni_OnLoad()  {
-    parent.initPanel();
 }
 
 function PrefPhp_SelectIni() {
