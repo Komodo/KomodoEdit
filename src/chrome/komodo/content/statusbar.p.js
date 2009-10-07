@@ -103,7 +103,6 @@ var _messageStack = Components.classes["@activestate.com/koStatusMessageStack;1"
 var _observer = null;
 var _prefObserver = null;
 var _updateLintMessageTimer = null;
-var _addMessageTimer = null;
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/statusbar.properties");
@@ -403,10 +402,7 @@ function _addMessageObject(sm)
     //_messageStack.Dump();
 
     // Get the latest message and show it in the UI.
-    if (_addMessageTimer) {
-        clearTimeout(_addMessageTimer);
-    }
-    _addMessageTimer = setTimeout(_updateMessage, 200);
+    _updateMessage();
     // If this new message timesout then schedule an update for then as well.
     if (sm.timeout > 0) {
         // Allow for some inaccuracy in timeout scheduling to ensure that
@@ -418,7 +414,6 @@ function _addMessageObject(sm)
 
 function _updateMessage()
 {
-    _addMessageTimer = null;
     //dump("StatusBar: update message: current stack:\n");
     //_messageStack.Dump();
 
@@ -479,10 +474,6 @@ StatusBarObserver.prototype.destroy = function()
     if (_updateLintMessageTimer) {
         clearTimeout(_updateLintMessageTimer);
         _updateLintMessageTimer = null;
-    }
-    if (_addMessageTimer) {
-        clearTimeout(_addMessageTimer);
-        _addMessageTimer = null;
     }
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
