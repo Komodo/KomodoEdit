@@ -423,6 +423,11 @@ class Scheme:
         if not language:
             return self._getAspectFromStyleBlocks(style, attribute)
         else:
+            # Don't go to appliedData yet -- it only gets updated when
+            # we call applyScheme
+            aspect = self._languageStyles.get(language, {}).get(style, {}).get(attribute, None)
+            if aspect is not None:
+                return aspect
             return self._getAspectFromAppliedData(style, attribute)
 
     def getFore(self, language, style):
