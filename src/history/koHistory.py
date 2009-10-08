@@ -52,21 +52,14 @@ class KoHistoryService(History):
         self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
         self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
-        self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped, "history_loc_expiry_days", 0)
         
         self._observerSvc.addObserver(self._wrapped, 'xpcom-shutdown', 1)
 
     def finalize(self):
-        try:
-            self._prefSvc.prefs.prefObserverService.removeObserver(self._wrapped, "history_loc_expiry_days")
-        except ServerException, e:
-            log.exception("Unable to remove observer history_loc_expiry_days")
         self.close()
 
     def observe(self, subject, topic, data):
-        if topic == "history_loc_expiry_days":
-            self.loc_expiry_days = self._prefSvc.prefs.getLongPref(topic)
-        elif topic == "xpcom-shutdown":
+        if topic == "xpcom-shutdown":
             self.finalize()
             
     def loc_from_view_info(self, view_type,

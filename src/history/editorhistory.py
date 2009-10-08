@@ -13,7 +13,9 @@ Dev Notes:
 
 import os
 from os.path import exists, expanduser
+import re
 import sys
+import shutil
 import logging
 from contextlib import contextmanager
 import sqlite3
@@ -171,6 +173,8 @@ class Database(object):
     path = None
     
     LOC_MARKER_UPDATE_LIMIT = 100
+    
+    URIS_TO_KEEP = 500
 
     def __init__(self, path):
         self.path = path
@@ -184,19 +188,24 @@ class Database(object):
         self._uri_id_from_uri_cache = _RecentsDict(10)
         
         if not exists(self.path):
+            update_version = True
             self.create()
         else:
+            update_version = False
             try:
                 self.upgrade()
             except Exception, ex:
                 log.exception("error upgrading `%s': %s", self.path, ex)
                 self.reset()
+        self._read_db_from_disk()
+        if update_version:
+            self.set_meta("version", self.VERSION)
 
     def __repr__(self):
         return "<Database %s>" % self.path
 
     @contextmanager
-    def connect(self, commit=False, cu=None):
+    def connect(self, commit=False, inMemory=True, cu=None):
         """A context manager for a database connection/cursor. It will automatically
         close the connection and cursor.
 
@@ -213,6 +222,8 @@ class Database(object):
             making modifications, probably safer to use `self.connect(True)`.
             See "Controlling Transations" in Python's sqlite3 docs for
             details.
+        @param inMemory {bool} Whether to use an in-memory database, or
+            a disk-based database.
         @param cu {sqlite3.Cursor} An existing cursor to use. This allows
             callers to avoid the overhead of another db connection when
             already have one, while keeping the same "with"-statement
@@ -220,6 +231,13 @@ class Database(object):
         """
         if cu is not None:
             yield cu
+        elif inMemory:
+            cu = self.dbmem_cx.cursor()
+            try:
+                yield cu
+            finally:
+                if commit:
+                    self.dbmem_cx.commit()
         else:
             cx = sqlite3.connect(self.path)
             cu = cx.cursor()
@@ -234,9 +252,9 @@ class Database(object):
     def create(self):
         """Create the database file."""
         #TODO: error handling?
-        with self.connect(True) as cu:
+        with self.connect(commit=True, inMemory=False) as cu:
             cu.executescript(_g_database_schema)
-            self.set_meta("version", self.VERSION)
+            self.set_meta("version", self.VERSION, cu=cu)
 
     def reset(self, backup=True):
         """Remove the current database (possibly backing it up) and create
@@ -299,7 +317,10 @@ class Database(object):
         determine).
         """
         #TODO: error handling?
-        return self.get_meta("version")
+        ver = self.get_meta("version")
+        if ver is None:
+            ver = self.get_meta("version", inMemory=False)
+        return ver
 
     def uri_id_from_uri(self, uri, create_if_new=True, cu=None):
         """Get a `uri_id` for the given URI, possibly inserting a new row
@@ -318,7 +339,7 @@ class Database(object):
             return cache[uri]
         
         uri_id = None
-        with self.connect(cu=cu) as cu:
+        with self.connect(commit=True, cu=cu) as cu:
             cu.execute("SELECT id, is_obsolete FROM history_uri WHERE uri=?", (uri,))
             row = cu.fetchone()
             if row:
@@ -333,11 +354,10 @@ class Database(object):
                 if is_obsolete:
                     cu.execute("UPDATE history_uri SET is_obsolete=? WHERE id=?",
                                (False, uri_id))
-                    cu.connection.commit()
                 else:
                     cu.execute("INSERT INTO history_uri(uri) VALUES (?)", (uri,))
-                    cu.connection.commit()
                     uri_id = cu.lastrowid
+                cu.connection.commit()
             else:
                 uri_id = None
         
@@ -354,7 +374,7 @@ class Database(object):
         """
         if uri in self._uri_id_from_uri_cache:
             del self._uri_id_from_uri_cache[uri]
-        with self.connect(True, cu=cu) as cu:
+        with self.connect(commit=True, cu=cu) as cu:
             cu.execute("UPDATE history_visit SET is_obsolete=? WHERE uri_id=?",
                        (True, uri_id))
             cu.execute("UPDATE history_uri SET is_obsolete=? WHERE id=?",
@@ -377,7 +397,7 @@ class Database(object):
         incremented.
         """
         assert loc.id is None, "adding existing loc: %r" % loc
-        with self.connect(True, cu=cu) as cu:
+        with self.connect(commit=True, cu=cu) as cu:
             uri_id = self.uri_id_from_uri(loc.uri, cu=cu)
             cu.execute("""
                 INSERT INTO history_visit(referer_id, uri_id, line, col, view_type,
@@ -401,7 +421,7 @@ class Database(object):
         @param cu {sqlite3.Cursor} An existing cursor to use.
         """
         assert loc.referer_id != referer_id
-        with self.connect(True, cu=cu) as cu:
+        with self.connect(commit=True, cu=cu) as cu:
             loc.referer_id = referer_id
             cu.execute("UPDATE history_visit SET referer_id=? WHERE id=?",
                        (referer_id, loc.id))
@@ -425,7 +445,7 @@ class Database(object):
         @returns {Location} A location instance.
         @raises `HistoryError` if no such location exists.
         """
-        with self.connect(cu=cu) as cu:
+        with self.connect(commit=True, cu=cu) as cu:
             if id is None:
                 cu.execute("""
                     SELECT id, datetime(timestamp) FROM history_visit
@@ -511,15 +531,19 @@ class Database(object):
             for loc in local_locs_by_id.values():
                 loc.marker_handle = -1
     
-    def get_meta(self, key, default=None, cu=None):
+    def get_meta(self, key, default=None, inMemory=None, cu=None):
         """Get a value from the meta table.
         
         @param key {str} The meta key.
         @param default {str} Default value if the key is not found in the db.
+        @param inMemory {str} Whether to use the in-memory or the disk-based database.
         @param cu {sqlite3.Cursor} An existing cursor to use.
         @returns {str} The value in the database for this key, or `default`.
         """
-        with self.connect(cu=cu) as cu:
+        if cu is None and inMemory is None:
+            inMemory = hasattr(self, 'dbmem_cx')
+            # cu has priority over inMemory
+        with self.connect(inMemory=inMemory, cu=cu) as cu:
             cu.execute("SELECT value FROM history_meta WHERE key=?", (key,))
             row = cu.fetchone()
             if row is None:
@@ -534,18 +558,95 @@ class Database(object):
         @param cu {sqlite3.Cursor} An existing cursor to use.
         @returns {None}
         """
-        with self.connect(True, cu=cu) as cu:
+        with self.connect(commit=True, cu=cu) as cu:
             cu.execute("INSERT INTO history_meta(key, value) VALUES (?, ?)", 
                 (key, value))
+
+    def close(self):
+        self.dbmem_cx.commit()
+        self._write_db_to_disk()
+        self.dbmem_cu.close()
+        self.dbmem_cx.close()
 
     def del_meta(self, key):
         """Delete a key/value pair from the meta table.
         
         @param key {str} The meta key.
         """
-        with self.connect(True) as cu:
+        with self.connect(commit=True) as cu:
             cu.execute("DELETE FROM history_meta WHERE key=?", (key,))
 
+
+    def _read_db_from_disk(self):
+        self.dbmem_cx = sqlite3.connect(":memory:")
+        self.dbmem_cu = self.dbmem_cx.cursor()
+        self.dbmem_cu.executescript(_g_database_schema)
+        # Manually copy the on-disk db into the memory one in order
+        # to preserve all the triggers, indices, etc.
+        tables = re.compile(r'CREATE \s+ TABLE \s+ (.*?) \s* \(',
+                            re.I|re.X).findall(_g_database_schema)
+        with self.connect(inMemory=False) as cu:
+            for table in tables:
+                placeholders = None
+                cu.execute('select * from %s' % (table,))
+                for row in cu:
+                    if placeholders is None:
+                        placeholders = ",  ".join(list("?" * len(row)))
+                    self.dbmem_cu.execute('INSERT into %s VALUES (%s)' % (table, placeholders),
+                                          (list(row)))
+        self.dbmem_cx.commit()
+        
+    def _write_db_to_disk(self):
+        self._backup_database()
+        
+        # First remove soon-to-be obsolete URIs
+        with self.connect(commit=True) as cu:
+            dbmem_cu = self.dbmem_cu.execute('select count(*) from history_visit')
+            if dbmem_cu.fetchone()[0] <= self.URIS_TO_KEEP:
+                limiting_id = None
+            else:
+                dbmem_cu = self.dbmem_cu.execute('select id from history_visit order by id desc limit 1 offset %d' %
+                                                 (self.URIS_TO_KEEP,))
+                limiting_id = dbmem_cu.fetchone()[0]
+                
+                # Determine which URIs are in the last set but aren't
+                # in the first set, and remove them from history_uri
+                cu.execute("SELECT distinct uri_id FROM history_visit WHERE id > ?", (limiting_id,))
+                recent_uris = [x[0] for x in cu.fetchall()]
+                cu.execute("SELECT distinct uri_id FROM history_visit WHERE id <= ?", (limiting_id,))
+                older_uris = [x[0] for x in cu.fetchall()]
+                uris_to_drop = set(older_uris).difference(recent_uris)
+                if uris_to_drop:
+                    cmp_stmts = ["id = %d" % uri_id for uri_id in uris_to_drop]
+                    cu.execute("DELETE from history_uri where " + " OR ".join(cmp_stmts))
+               
+        tables = re.compile(r'CREATE \s+ TABLE \s+ (.*?) \s* \(',
+                            re.I|re.X).findall(_g_database_schema)     
+        with self.connect(commit=True, inMemory=False) as cu:
+            for table in tables:
+                cu.execute("delete from %s" % (table,))
+                if table == "history_visit" and limiting_id: continue
+                dbmem_cu = self.dbmem_cu.execute('select * from %s' % (table,))
+                placeholders = None
+                for row in dbmem_cu.fetchall():
+                    if placeholders is None:
+                        placeholders = ",  ".join(list("?" * len(row)))
+                    cu.execute('INSERT into %s VALUES (%s)' % (table, placeholders),
+                               (list(row)))
+            if limiting_id:
+                dbmem_cu = self.dbmem_cu.execute('select * from history_visit where id > ?', (limiting_id,))
+                placeholders = None
+                for row in dbmem_cu.fetchall():
+                    if placeholders is None:
+                        placeholders = ",  ".join(list("?" * len(row)))
+                    cu.execute('INSERT into %s VALUES (%s)' % (table, placeholders),
+                               (list(row)))
+            
+                
+    def _backup_database(self):
+        backup_path = self.path + ".bak"
+        shutil.copyfile(self.path, backup_path)
+                
 class HistorySession(object):
     """History handling for a single session (as identified by a
     `session_name`).
@@ -599,7 +700,7 @@ class HistorySession(object):
         
     def load(self, cu=None):
         """Load recent history from the database."""
-        with self.db.connect(True, cu=cu) as cu:
+        with self.db.connect(commit=True, cu=cu) as cu:
             # `num_forward_visits` and `top_loc_id` in the meta table help
             # us reconstruct the back/forward state. `num_forward_visits == -1`
             # indicates that these weren't saved (e.g. if Komodo crashed). In
@@ -743,7 +844,7 @@ class HistorySession(object):
         #      TODO: get the notes worked through with Eric.
         if _xpcom_:
             loc = UnwrapObject(loc)
-        log.debug("note loc: %r", loc)
+        #log.debug("note loc: %r", loc)
         referer_id = (self.recent_back_visits
             and self.recent_back_visits[0].id or None)
         self.db.add_loc(loc, referer_id)
@@ -775,7 +876,7 @@ class HistorySession(object):
         hist.obsolete_uri(loc.uri, 2, False)
 
         """
-        with self.db.connect(True) as cu:
+        with self.db.connect(commit=True) as cu:
             uri_id = self.db.uri_id_from_uri(uri, create_if_new=False, cu=cu)
             if not uri_id:
                 return
@@ -921,7 +1022,7 @@ class HistorySession(object):
             else:
                 # The user's position has changed since the last jump.
                 # Update the referer_id's to point correctly.
-                with self.db.connect(True) as cu:
+                with self.db.connect(commit=True) as cu:
                     loc = self.db.add_loc(curr_loc, referer_id=self.recent_back_visits[0].id, cu=cu)
                     if self.forward_visits:
                         # The newest loc in forward_visits must now refer
@@ -966,7 +1067,7 @@ class HistorySession(object):
                 # The user's position has changed since the last jump.
                 # We have to do some more bookeeping for the back/forward
                 # stack.
-                with self.db.connect(True) as cu:
+                with self.db.connect(commit=True) as cu:
                     referer_id = (self.recent_back_visits
                                   and self.recent_back_visits[0].id or None)
                     loc = self.db.add_loc(curr_loc, referer_id=referer_id, cu=cu)
@@ -1090,6 +1191,7 @@ class HistorySession(object):
                 if len(uri_id_set) > n or len(rows) < PAGE_SIZE:
                     break
                 offset += PAGE_SIZE
+        
 
     def debug_dump_recent_uris(self, n=100):
         """Dump the most recent N uris.
@@ -1099,7 +1201,6 @@ class HistorySession(object):
         print "-- recent URIs (session %s)" % self.session_name
         for uri in self.recent_uris(n, True):
             print uri
-
 
 class History(object):
     """The main manager object for the editor history.
@@ -1119,10 +1220,6 @@ class History(object):
         # session name -> HistorySession instance (lazily created)
         self.sessions = {}
 
-        assert loc_expiry_days is None or isinstance(loc_expiry_days, int)
-        self.loc_expiry_days = loc_expiry_days or self.DEFAULT_LOC_EXPIRY_DAYS
-        self._schedule_loc_expiry(60 * 10) # In 10 minutes
-
     def __del__(self):
         if not self.closed:
             self.close()
@@ -1134,6 +1231,7 @@ class History(object):
         for session in self.sessions.values():
             session.close()
         self.sessions = None
+        self.db.close()
         self.closed = True
 
     #TODO: consider dropping this, not used
@@ -1156,10 +1254,7 @@ class History(object):
         return self.sessions[session_name]
 
     def note_loc(self, loc):
-        new_loc = self.get_session(loc.session_name).note_loc(loc)
-        if self._should_expire_locs():
-            self.expire_locs()
-        return new_loc
+        return self.get_session(loc.session_name).note_loc(loc)
     
     def obsolete_uri(self, uri, undo_delta=0, orig_dir_was_back=True,
                      session_name=""):
@@ -1171,71 +1266,6 @@ class History(object):
         """
         self.get_session(session_name).obsolete_uri(
             uri, undo_delta, orig_dir_was_back)
-
-    def _schedule_loc_expiry(self, expiry_time):
-        """
-        @param expiry_time {int} Number of *seconds* before expired locs can be removed.
-        """
-        self._loc_expiry_time = time.time() + expiry_time
-        
-    def _should_expire_locs(self):
-        if self._loc_expiry_time <= 0:
-            return False
-        return time.time() > self._loc_expiry_time
-        
-    def expire_locs(self, loc_expiry_days=None):
-        #start_time = time.time()
-        with self.db.connect(True) as cu:
-            last_loc_expiry_time = float(self.db.get_meta(
-                "last_loc_expiry_time", default=-1, cu=cu))
-            cu.execute("SELECT julianday('now')")
-            curr_julian_time = cu.fetchone()[0]
-            if curr_julian_time - last_loc_expiry_time < 0.99:
-                # It's been less than 1 day since the last cleaning
-                # "0.99":  Allow for a fudge factor in timing, so don't
-                # test for "< 1"
-                #
-                # We still need to reschedule the next possible cleaning in 24 hours.
-                pass
-            else:
-                if not loc_expiry_days:
-                    loc_expiry_days = self.loc_expiry_days
-                cutoff_time = curr_julian_time - loc_expiry_days
-    
-                #cu.execute("select count(*) from history_visit")
-                #before_count = int(cu.fetchone()[0])
-                cu.execute("DELETE FROM history_visit WHERE timestamp < ?", (cutoff_time,))
-                #cu.execute("select count(*) from history_visit")
-                #after_count = int(cu.fetchone()[0])
-                #log.debug("Before count:%d, after count: %d, deleted:%d",
-                #           before_count, after_count,
-                #           before_count - after_count)
-                
-                self.db.set_meta("last_loc_expiry_time", curr_julian_time,
-                                 cu=cu)
-                cu.execute("SELECT id FROM history_uri WHERE is_obsolete = ?",
-                           (True,))
-                rows = cu.fetchall()
-
-                # There might be a way to do this in one sql call, rather than n
-                # select count(*), uri_id from h_v where uri_id = x1 or uri_id = x2 ... ?
-                stmt_template = "SELECT COUNT(*) FROM history_visit WHERE uri_id = ?"
-                unused_uri_ids = []
-                for row in rows:
-                    uri_id = row[0]
-                    cu.execute(stmt_template, (uri_id,))
-                    inner_count = int(cu.fetchone()[0])
-                    if inner_count == 0:
-                        unused_uri_ids.append(uri_id)
-                if unused_uri_ids:
-                    stmt = ("DELETE FROM history_uri WHERE "
-                            +  " OR ".join(["id = " + str(x)
-                                            for x in unused_uri_ids]))
-                    cu.execute(stmt)
-                cu.execute("vacuum")
-            self._schedule_loc_expiry(60 * 60 * 24) # 24 hours from now
-        #end_time = time.time()
-        #log.debug("Time to clean up: %r", end_time - start_time)
 
     def can_go_back(self, session_name=""):
         return self.get_session(session_name).can_go_back()
@@ -1290,6 +1320,9 @@ class History(object):
         @param session_name {str} Current history session name. Optional.
         """
         return self.get_session(session_name).recent_uris(n, show_all)
+    
+    def recent_uris_as_array(self, n=100, session_name="", show_all=False):
+        return list(self.recent_uris(n, session_name, show_all))
     
     def debug_dump_recent_history(self, curr_loc=None, merge_curr_loc=True,
                                   session_name=""):

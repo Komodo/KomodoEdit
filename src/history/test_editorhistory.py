@@ -23,6 +23,9 @@ except ImportError:
 
 import uriparse
 
+import logging
+log = logging.getLogger("editorhistory.test")
+#log.setLevel(logging.DEBUG)
 
 #---- test cases
 
@@ -89,7 +92,7 @@ class LocationTestCase(unittest.TestCase):
         self.assertNotEqual(a, d)
     
 
-class DatabaseTestCase(_HistoryTestCase2):
+class DatabaseTestCase(_HistoryTestCase):
     def test_version(self):
         db = self.history.db
         version = db.version
@@ -127,12 +130,15 @@ class DatabaseTestCase(_HistoryTestCase2):
         a = "file:///home/trentm/a.txt"
         db = self.history.db
         loc1 = db.add_loc(Location(a, 1, 1))
-        time.sleep(1)
+        # With faster in-memory db use (bug 84569) we need
+        # to sleep a little longer so it takes more
+        # than 2 seconds to add all three locations.
+        time.sleep(1.2)
         loc2 = db.add_loc(Location(a, 2, 2))
-        time.sleep(1)
+        time.sleep(1.2)
         loc3 = db.add_loc(Location(a, 3, 3))
         
-        with db.connect() as cu:
+        with db.connect(inMemory=True) as cu:
             # Get the latest visit.
             cu.execute("""
                 SELECT id, datetime(timestamp) FROM history_visit
@@ -241,75 +247,7 @@ class DatabaseTestCase(_HistoryTestCase2):
             self.assertEqual(a_id, actual_a_id)
             self.assertEqual(row[1], False)
 
-    def _do_common_loc_expiry_test(self):
-        """Create a database with three entries.  Now mess
-        with the timestamps so all three look older.  Then
-        call the sweeper to remove items that are at least
-        15 days old, and verify that only the newest survived.
-        """
-        a = "file:///home/tester/a.txt"
-        db = self.history.db
-        loc1 = db.add_loc(Location(a, 1, 1))
-        loc2 = db.add_loc(Location(a, 2, 2))
-        loc3 = db.add_loc(Location(a, 3, 3))
-        with db.connect(True) as cu:
-            cu.execute("SELECT julianday('now')")
-            curr_julian_time = cu.fetchone()[0]
-            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
-                       (curr_julian_time - 20, loc1.id))
-            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
-                       (curr_julian_time - 10, loc2.id))
-            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
-                       (curr_julian_time - 30, loc3.id))
-            cu.execute("SELECT count(*) from history_visit")
-            self.assertEqual(cu.fetchone()[0], 3)
-            
-        self.history.expire_locs(15)
-        
-        with db.connect() as cu:
-            cu.execute("SELECT count(*) from history_visit")
-            self.assertEqual(cu.fetchone()[0], 1)
-            cu.execute("SELECT id from history_visit")
-            rows = cu.fetchall()
-            self.assertEqual(len(rows), 1)
-            loc = rows[0]
-            self.assertEqual(loc[0], loc2.id)
-
-    def test_expire_locs(self):
-        self._do_common_loc_expiry_test()
-
-    def test_expire_locs_once_per_day(self):
-        """Run the standard test_expire_locs.
-        Now add three more old tests, try to expire them,
-        but they should survive.
-        """
-        self._do_common_loc_expiry_test()
-        a = "file:///home/tester/a.txt"
-        db = self.history.db
-        loc4 = db.add_loc(Location(a, 4, 1))
-        loc5 = db.add_loc(Location(a, 5, 2))
-        loc6 = db.add_loc(Location(a, 6, 3))
-        with db.connect(True) as cu:
-            cu.execute("SELECT julianday('now')")
-            curr_julian_time = cu.fetchone()[0]
-            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
-                       (curr_julian_time - 2000, loc4.id))
-            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
-                       (curr_julian_time - 3000, loc5.id))
-            cu.execute("UPDATE history_visit SET timestamp=? WHERE ID=?",
-                       (curr_julian_time - 4000, loc6.id))
-            cu.execute("SELECT count(*) from history_visit")
-            self.assertEqual(cu.fetchone()[0], 4)
-            
-        self.history.expire_locs(15)
-        
-        with db.connect() as cu:
-            cu.execute("SELECT count(*) from history_visit")
-            self.assertEqual(cu.fetchone()[0], 4)
-
-
-
-class HistoryTestCase(_HistoryTestCase2):
+class HistoryTestCase(_HistoryTestCase):
     def test_simple(self):
         a = "file:///home/trentm/a.txt"
         b = "file:///home/trentm/b.txt"
@@ -587,7 +525,7 @@ class HistoryTestCase(_HistoryTestCase2):
         loc_fwd = self.history.go_forward(curr_loc=None)
         self.assertEqual(loc_fwd, loc3)
 
-class HistoryMultiSessionTestCase(_HistoryTestCase2):
+class HistoryMultiSessionTestCase(_HistoryTestCase):
     # HistoryMultiSessionTestCase.test_two_sessions_basic
     def test_two_sessions_basic(self):
         a = "file:///home/tester/a.txt"
@@ -746,7 +684,7 @@ class HistoryMultiSessionTestCase(_HistoryTestCase2):
         loc = self.history.go_back(curr_loc2, 1)
         self.assertEqual(loc.line, 110)
         
-class ObsoleteURITestCase(_HistoryTestCase2):
+class ObsoleteURITestCase(_HistoryTestCase):
     """
     This testcase is not obsolete!!!
     These tests exercise marking a visited URI obsolete, removing it,
@@ -1060,27 +998,6 @@ class ObsoleteURITestCase(_HistoryTestCase2):
 
 class PurgedURITestCase(_HistoryTestCase):
 
-    def _get_curr_julian_time(self, cu):
-        with self.db.connect(True, cu=cu) as cu:
-            cu.execute("SELECT julianday('now')")
-            return int(cu.fetchone()[0])
-
-    # conditions and values are lists
-    def _age_entries(self, cu, timestamp, conditions, values):
-        with self.db.connect(True, cu=cu) as cu:
-            sql = ("UPDATE history_visit SET timestamp=? WHERE "
-                   + " AND ".join(conditions))
-            args = (timestamp, ) + tuple(values)
-            cu.execute(sql, args)
-
-    def _test_full_count(self, db, table, is_obsolete, expectedCount, cu=None):
-        with db.connect(True, cu) as cu:
-            sql = "SELECT count(*) FROM %s where is_obsolete = ? " % (table, )
-            cu.execute(sql, (is_obsolete,))
-            count = int(cu.fetchone()[0])
-            self.assertEqual(expectedCount, count,
-                             "Expecting %d visits, got %d" % (expectedCount, count,))
-
     def _populate_history(self, last_dir):
         this_dir = os.path.abspath(dirname(__file__))
         data_dir = join(this_dir, "tmp", last_dir)
@@ -1131,135 +1048,44 @@ class PurgedURITestCase(_HistoryTestCase):
         actual = len(recent_uris)
         self.assertEqual(exp, actual,
                          "Expecting %d URIs, got %s" % (exp, actual))
-    @testlib.tag("bug84060")
-    def test_expired_locs(self):
-        """Create five URIs.  Build up some history visiting them.
-        Delete one of the files, then purge, and verify db contents.
-        Then expire_locs, and recheck DB.
-        
-        Here's the actual test-plan:
-        
-        Create this history:
-        uri: u1 u2 u3 u4 u5 u1 u2 u3 u4 u5 
-        lno: 10 20 30 40 50 60 70 80 90 100
-        ts:   1  1  1  1  1  1  1  1  1  1
-        
-        Age the first five entries by 2 days:
-        uri: u1 u2 u3 u4 u5 u1 u2 u3 u4 u5 
-        lno: 10 20 30 40 50 60 70 80 90 100
-        ts:   3  3  3  3  3  1  1  1  1  1
-        
-        Delete u2 and u4, marking them obsolete
-        Purge the DB, and expire locs.  All above
-        should still be there, but u2 and u4 are obsolete
-        
-        Now Age everything by 2 more days:
-        
-        Age the first five entries by 2 days:
-        uri: u1 u2 u3 u4 u5 u1 u2 u3 u4 u5 
-        lno: 10 20 30 40 50 60 70 80 90 100
-        ts:   5  5  5  5  5  3  3  3  3  3
-        obs:  0  1  0  1  0  0  1  0  1  0
-        
-        Add 20 new entries for URIs u1 and u3:
-        
-        uri: ... u1  u3  u1  u3 ... u1  u3 
-        lno: ...110 120 130 140    290 300
-        ts:  ...  1   1   1   1 ...  1   1
-        obs: ... none are obsolete
-        
-        expire everything older than one day
-        Verify that the DB now looks like this:
-        
-        uri:  u1  u3 ...
-        lno: 110 120
-        ts:    1   1 
-        obs:   0   0
-        
-        Only u1, u3, and u5 should be in the history_uri table.
-        
-        """
-        last_dir = "bug84060b"
-        fnames, uris, current_loc = self._populate_history(last_dir)
-        v = list(self.history.recent_history(current_loc))
-        limit = 10
-        self.assertEqual(len(v), limit + 1,
-                         "Expecting %d visits, got %d" % (limit + 1, len(v),))
-        # Remember history goes backwards
-        self.assertEqual(v[-1][1].uri, uris[0])
-        self.assertEqual(v[-1][1].line, 10)
-        self.assertEqual(v[1][1].uri, uris[4])
-        self.assertEqual(v[1][1].line, 100)
-        self.assertEqual(v[0][1].uri, uris[0])
-        self.assertEqual(v[0][1].line, 110)
-        
-        self.db = db = self.history.db
-        with db.connect(True) as cu:
-            curr_julian_time = self._get_curr_julian_time(cu)
-            self._age_entries(cu, curr_julian_time - 2, ["line < ?"], [60])
 
-        v = list(self.history.recent_history(current_loc))
-        limit += 1
-        self.assertEqual(len(v), limit,
-                         "Expecting %d visits, got %d" % (limit, len(v),))
-        self.assertEqual(v[0][1].uri, uris[0])
-        self.assertEqual(v[0][1].line, 110)
-        self.assertEqual(v[1][1].uri, uris[4])
-        self.assertEqual(v[1][1].line, 100)
-        self.assertEqual(v[2][1].uri, uris[3])
-        self.assertEqual(v[2][1].line, 90)
-        
-        # Now age everything by 2 more days:
-        with db.connect(True) as cu:
-            cu.execute("UPDATE history_visit SET timestamp=? WHERE line < ?",
-                       (curr_julian_time - 4, 60))
-            cu.execute("UPDATE history_visit SET timestamp=? WHERE line >= ?",
-                       (curr_julian_time - 2, 60))
-            
-        # Now add 20 new locations
-        line_num = 110
-        for i in range(10):
-            self.history.note_loc(Location(uris[i % len(uris)], line_num, 0))
-            line_num += 10
-        current_loc = Location(uris[0], line_num, 0)  # idx 10, line 20
-
-        self._test_full_count(db, "history_visit", False, 20)
-        self.history.expire_locs(loc_expiry_days=1)
-        self._test_full_count(db, "history_visit", False, 10)
-
-        # Verify that the history works.
-        loc = self.history.go_back(current_loc, 9)
-        self.assertEqual(loc.uri, uris[1])
-        self.assertEqual(loc.line, 120)
-        current_loc = loc
-
-        # Simulate a restart.
+class ExpiredURITestCase(_HistoryTestCase):
+    @testlib.tag("bug84569")
+    def test_cull_unvisited_locations(self):
+        # Assumes that we keep the first 500 locations.
+        uri_base = "file:///home/tester/file%04x"
+        num_items_to_create = 505
+        for i in range(num_items_to_create):
+            uri = uri_base % i
+            self.history.note_loc(Location(uri, i + 1, 0))
         self.history.close()
+        # Now reopen
         self.history = History(self._db_path_)
-        v = list(self.history.recent_history(current_loc))
-        limit = 11
-        self.assertEqual(len(v), limit,
-                         "Expecting %d visits, got %d" % (limit, len(v),))
-        for i in range(9):
-            loc = v[i][1]
-            j = 4 - ((i - 1) % 5)
-            self.assertEqual(v[i][1].uri, uris[j], "i:%d, j:%d, exp:%s, got:%s" % (i, j, uris[j], v[i][1].uri))
-            self.assertEqual(v[i][1].line, 210 - i * 10)
-
-        # Verify the history works after a restart.
-        # First sync up the current_loc, then move around.
-        while self.history.can_go_forward():
-            loc = self.history.go_forward(current_loc)
-            current_loc = loc
-        loc = self.history.go_back(current_loc, 1)
-        self.assertEqual(loc.uri, uris[4])
-        self.assertEqual(loc.line, 200)
-        current_loc = loc
-        loc = self.history.go_back(current_loc, 8)
-        self.assertEqual(loc.uri, uris[1])
-        self.assertEqual(loc.line, 120)
-        current_loc = loc
-
+        # Verify that both history_uri and history_visit contain
+        # 500 items
+        limit = self.history.db.URIS_TO_KEEP
+        with self.history.db.connect(True) as cu:
+            cu.execute("select count(*) from history_visit")
+            count = int(cu.fetchone()[0])
+            self.assertEqual(count, limit,
+                             "Expected %d locs in mem:history_visit, got %d" % (limit, count))
+            cu.execute("select count(*) from history_uri")
+            count = int(cu.fetchone()[0])
+            self.assertEqual(count, limit,
+                             "Expected %d locs in mem:history_uri, got %d" % (limit, count))
+        with self.history.db.connect(True, inMemory=False) as cu:
+            cu.execute("select count(*) from history_visit")
+            count = int(cu.fetchone()[0])
+            self.assertEqual(count, limit,
+                             "Expected %d locs in file:history_visit, got %d" % (limit, count))
+            cu.execute("select count(*) from history_uri")
+            count = int(cu.fetchone()[0])
+            self.assertEqual(count, limit,
+                             "Expected %d locs in file:history_uri, got %d" % (limit, count))
+        
+                                  
+    
+        
 #---- mainline
 
 if __name__ == "__main__":

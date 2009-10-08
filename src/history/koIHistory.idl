@@ -55,13 +55,15 @@ interface koIHistoryService : nsISupports
                          out unsigned long current_idx,
                          [array, size_is(count)] out koIHistoryLocation locs,
                          out unsigned long count);
+    void recent_uris_as_array(in PRUint32 num_requested,
+                              in wstring session_name,
+                              [array, size_is(count)] out wstring uris,
+                              out unsigned long count);
     void obsolete_uri(in wstring uri,
                       in PRUint32 undo_delta,
                       in boolean undo_dir_is_back,
                       in wstring session_name);
     void update_marker_handles_on_close(in wstring uri, in ISciMoz scimoz);
-    // For testing purposes only
-    void expire_locs(in PRUint32 loc_expiry_days);
 };
 
 // update
