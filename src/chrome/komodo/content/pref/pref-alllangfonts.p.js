@@ -1062,7 +1062,7 @@ try {
             if (typeof(gFontNames[strFontSpecs[j]])=='undefined' ||
                 !gFontNames[strFontSpecs[j]]) {
                 gFontNames[strFontSpecs[j]] = strFontSpecs[j];
-		// Mozilla doesn't tell us which fonts are fixed
+                // Mozilla doesn't tell us which fonts are fixed
                 // width and which are proportional =(
                 // We could guess based on the names?
                 gFontsFixed.push(strFontSpecs[j]);
@@ -1077,19 +1077,19 @@ try {
                                                      gFontTypes[t],
                                                      new Object());
             for (j=0; j < strFontSpecs.length; j++) {
-	    	fName = strFontSpecs[j];
+                fName = strFontSpecs[j];
                 if (gFontTypes[t]=='monospace') {
-		    if (typeof(fMono[fName])=='undefined' ||
+                    if (typeof(fMono[fName])=='undefined' ||
                        !fMono[fName]) {
-		   	fMono[fName]=fName;
+                        fMono[fName]=fName;
                         gFontsFixed[gFontsFixed.length] = fName;
-		    }
+                    }
                 } else {
-		    if (typeof(fProp[fName])=='undefined' ||
+                    if (typeof(fProp[fName])=='undefined' ||
                        !fProp[fName]) {
-		   	fProp[fName]=fName;
+                        fProp[fName]=fName;
                         gFontsProp[gFontsProp.length] = fName;
-		    }
+                    }
                 }
                 if (typeof(gFontNames[fName])=='undefined' ||
                     !gFontNames[fName]) {
