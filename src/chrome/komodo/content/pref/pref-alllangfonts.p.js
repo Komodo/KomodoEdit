@@ -1038,7 +1038,6 @@ function checkSubLanguageBackground(checkbox) {
 
 var gFontsProp;
 var gFontsFixed;
-var gFontsAll;
 
 function generateFontList()
 {
@@ -1048,7 +1047,6 @@ try {
     var j;
     gFontsProp = [];
     gFontsFixed = [];
-    gFontsAll = [];
     gFontNames = {};
     var re = /^([^-]+)-([^-]+)/;
     var fProp = {};
@@ -1096,12 +1094,27 @@ try {
                 if (typeof(gFontNames[fName])=='undefined' ||
                     !gFontNames[fName]) {
                     gFontNames[fName]=fName;
-                    gFontsAll[gFontsAll.length] = fName;
                 }
             }
         }
 // #endif
     }
+// #if PLATFORM == 'win' or PLATFORM == 'darwin'
+    // Did we miss any?
+    // Assume unrecognized fonts are proportional
+    var allLanguages = enumerator.EnumerateAllFonts({});
+    var lang;
+    var lim = allLanguages.length;
+    for (i = 0; i < lim; i++) {
+        fName = allLanguages[i];
+        if (!fName) continue;
+        if (!(fName in fProp)) {
+            fProp[fName]=fName;
+            gFontsProp.push(fName);
+            gFontNames[fName]=fName;
+        }
+    }
+// #endif
 } catch (e) {
     log.exception(e);
 }
@@ -1513,7 +1526,6 @@ function setColorpicker() {
 
 function testColorpicker() {
     var menulist = document.getElementById("colorpicker_menulist");
-    var menupopup = document.getElementById("colorpicker_menupopup");
     if (menulist.selectedItem) {
         var cid = menulist.selectedItem.getAttribute("cid");
         try {
