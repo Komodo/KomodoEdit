@@ -1734,6 +1734,7 @@
                     <File Id="file158" LongName="php-5.0.cix" Name="PHP50_0.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\php-5.0.cix" />
                     <File Id="file159" LongName="php-5.1.cix" Name="PHP51_0.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\php-5.1.cix" />
                     <File Id="file1389" LongName="php-5.2.cix" Name="PHP52_0.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\php-5.2.cix" />
+                    <File Id="file898" LongName="php-5.3.cix" Name="PHP53_0.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\php-5.3.cix" />
                   </Component>
                 </Directory> <!-- lib\mozilla\python\komodo\codeintel2\stdlibs -->
               </Directory> <!-- lib\mozilla\python\komodo\codeintel2 -->
