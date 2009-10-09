@@ -14,7 +14,7 @@ function loadExecutableIntoInterpreterList(availInterpListID) {
     var currentPath = getDirectoryFromTextObject(availInterpList);
     var path = ko.filepicker.openExeFile(currentPath);
     if (path) {
-        availInterpList.appendItem(path, path);
+        availInterpList.selectedItem = availInterpList.appendItem(path, path);
         return true;
     }
     return false;
