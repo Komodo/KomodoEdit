@@ -1,0 +1,38 @@
+Temporary patch until this can be checked into pyxpcom trunk.
+
+Index: /hd2/home/toddw/as/komodo-devel_192_debug/mozilla/build/moz192-ko6.11/mozilla/extensions/python/configure.in
+--- extensions/python/configure.in  Mon Aug 17 12:08:03 2009 -0700
++++ extensions/python/configure.in  Tue Sep 29 16:27:51 2009 -0700
+@@ -3598,12 +3598,31 @@
+ dnl Mozilla specific options
+ dnl ========================================================
+ dnl The macros used for command line options
+ dnl are defined in build/autoconf/altoptions.m4.
+ 
+ 
++dnl =========================================================
++dnl = Chrome format
++dnl =========================================================
++MOZ_ARG_ENABLE_STRING([chrome-format],
++[  --enable-chrome-format=jar|flat|both|symlink
++                          Select FORMAT of chrome files (default=jar)],
++    MOZ_CHROME_FILE_FORMAT=`echo $enableval | tr A-Z a-z`)
++
++if test -z "$MOZ_CHROME_FILE_FORMAT"; then
++    MOZ_CHROME_FILE_FORMAT=jar
++fi
++
++if test "$MOZ_CHROME_FILE_FORMAT" != "jar" && 
++    test "$MOZ_CHROME_FILE_FORMAT" != "flat" &&
++    test "$MOZ_CHROME_FILE_FORMAT" != "symlink" &&
++    test "$MOZ_CHROME_FILE_FORMAT" != "both"; then
++    AC_MSG_ERROR([--enable-chrome-format must be set to either jar, flat, both, or symlink])
++fi
++
+ dnl ========================================================
+ dnl =
+ dnl = Check for external package dependencies
+ dnl =
+ dnl ========================================================
+ MOZ_ARG_HEADER(External Packages)
+

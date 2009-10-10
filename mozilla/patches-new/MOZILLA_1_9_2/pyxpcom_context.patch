@@ -1,0 +1,44 @@
+Temporary patch until this can be checked into pyxpcom trunk.
+
+Index: /hd2/home/toddw/src/mozilla/pyxpcom/pyxpcom-trunk/dom/src/nsPyContext.cpp
+--- extensions/python/dom/src/nsPyContext.cpp   Mon Sep 28 12:21:26 2009 -0700
++++ extensions/python/dom/src/nsPyContext.cpp   Tue Sep 29 15:57:45 2009 -0700
+@@ -930,6 +930,18 @@
+     PYLEAK_STAT_INCREMENT(ScriptObject);
+     CEnterLeavePython _celp;
+     Py_INCREF((PyObject *)object);
+   }
+   return NS_OK;
+ }
++
++void
++nsPythonContext::EnterModalState()
++{
++  // Nothing to do (I hope).
++}
++
++void
++nsPythonContext::LeaveModalState()
++{
++  // Nothing to do (I hope).
++}
+Index: /hd2/home/toddw/src/mozilla/pyxpcom/pyxpcom-trunk/dom/src/nsPyContext.h
+--- extensions/python/dom/src/nsPyContext.h Mon Sep 28 12:21:26 2009 -0700
++++ extensions/python/dom/src/nsPyContext.h Tue Sep 29 15:57:45 2009 -0700
+@@ -210,12 +210,15 @@
+   virtual nsresult Deserialize(nsIObjectInputStream* aStream,
+                                nsScriptObjectHolder &aResult);
+ 
+   virtual nsresult HoldScriptObject(void *object);
+   virtual nsresult DropScriptObject(void *object);
+ 
++  virtual void EnterModalState();
++  virtual void LeaveModalState();
++
+   NS_DECL_NSITIMERCALLBACK
+   
+   PyObject *PyObject_FromInterface(nsISupports *target,
+                                    const nsIID &iid)
+   {
+     return ::PyObject_FromNSDOMInterface(mDelegate, target, iid);
+

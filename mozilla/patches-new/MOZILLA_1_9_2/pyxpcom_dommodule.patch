@@ -1,0 +1,54 @@
+Temporary patch until this can be checked into pyxpcom trunk.
+
+Index: /hd2/home/toddw/src/mozilla/pyxpcom/pyxpcom-trunk/dom/src/nsPyDOMModule.cpp
+--- extensions/python/dom/src/nsPyDOMModule.cpp Mon Sep 28 12:21:26 2009 -0700
++++ extensions/python/dom/src/nsPyDOMModule.cpp Tue Sep 29 15:52:21 2009 -0700
+@@ -303,14 +303,13 @@
+         return NULL;
+ 
+     // The receiver, to get the manager.
+     nsCOMPtr<nsPIDOMEventTarget> piTarget(do_QueryInterface(target));
+     if (!piTarget) return PyXPCOM_BuildPyException(NS_ERROR_UNEXPECTED);
+ 
+-    nsCOMPtr<nsIEventListenerManager> manager;
+-    piTarget->GetListenerManager(PR_TRUE, getter_AddRefs(manager));
++    nsIEventListenerManager* manager = piTarget->GetListenerManager(PR_TRUE);
+     if (!manager) return PyXPCOM_BuildPyException(NS_ERROR_UNEXPECTED);
+ 
+     // avoid do_GetAtom - its not part of the XPCOM glue.
+     nsresult rv;
+     nsCOMPtr<nsIAtomService> atomService =
+                   do_GetService(NS_ATOMSERVICE_CONTRACTID, &rv);
+@@ -374,14 +373,13 @@
+         target = win->GetCurrentInnerWindow();
+     }
+     // The receiver, to get the manager.
+     nsCOMPtr<nsPIDOMEventTarget> piTarget(do_QueryInterface(target));
+     if (!piTarget) return PyXPCOM_BuildPyException(NS_ERROR_UNEXPECTED);
+ 
+-    nsCOMPtr<nsIEventListenerManager> manager;
+-    piTarget->GetListenerManager(PR_TRUE, getter_AddRefs(manager));
++    nsIEventListenerManager* manager = piTarget->GetListenerManager(PR_TRUE);
+     if (!manager) return PyXPCOM_BuildPyException(NS_ERROR_UNEXPECTED);
+ 
+     nsresult rv;
+     nsCOMPtr<nsIAtomService> atomService =
+                   do_GetService(NS_ATOMSERVICE_CONTRACTID, &rv);
+     if (NS_FAILED(rv))
+@@ -445,14 +443,13 @@
+         target = win->GetCurrentInnerWindow();
+     }
+     // The receiver, to get the manager.
+     nsCOMPtr<nsPIDOMEventTarget> piTarget(do_QueryInterface(target));
+     if (!piTarget) return PyXPCOM_BuildPyException(NS_ERROR_UNEXPECTED);
+ 
+-    nsCOMPtr<nsIEventListenerManager> manager;
+-    piTarget->GetListenerManager(PR_TRUE, getter_AddRefs(manager));
++    nsIEventListenerManager* manager = piTarget->GetListenerManager(PR_TRUE);
+     if (!manager) return PyXPCOM_BuildPyException(NS_ERROR_UNEXPECTED);
+ 
+     nsresult rv;
+     nsCOMPtr<nsIAtomService> atomService =
+                   do_GetService(NS_ATOMSERVICE_CONTRACTID, &rv);
+     if (NS_FAILED(rv))
+
