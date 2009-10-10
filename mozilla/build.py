@@ -1453,21 +1453,22 @@ def target_configure(argv):
         #   9:  Leopard (OS X 10.5)
         #   8:  Tiger (OS X 10.4)
 
-        if pi.arch == "x86":
-            mozBuildOptions.append("enable-macos-target=10.4")
+        mozVer = config["mozVer"]
+        sdk_ver = None
+        if mozVer >= 1.92:
+            sdk_ver = "10.5"
+        elif pi.arch == "x86":
+            sdk_ver = "10.4"
         else:
-            mozBuildOptions.append("enable-macos-target=10.3")
-        if os.path.exists("/Developer/SDKs/MacOSX10.4u.sdk"):
-            sdk = "/Developer/SDKs/MacOSX10.4u.sdk"
-        elif os.path.exists("/Developer/SDKs/MacOSX10.3.9.sdk"):
-            sdk = "/Developer/SDKs/MacOSX10.3.9.sdk"
-        elif os.path.exists("/Developer/SDKs/MacOSX10.3.0.sdk"):
-            sdk = "/Developer/SDKs/MacOSX10.3.0.sdk"
-        else:
+            sdk = "10.3"
+
+        if not sdk_ver:
             raise BuildError("You cannot build Mozilla without a platform "
                              "sdk installed. Install Xcode 1.5 and be sure "
                              "to select the 'Cross-Platform SDKs' option in "
                              "the installer.")
+        sdk = "/Developer/SDKs/MacOSX%s.sdk" % ({"10.3": "10.3.9",
+                                                 "10.4": "10.4u"}.get(sdk_ver, sdk_ver))
         if not os.path.exists("%s/Library" % sdk):
             raise BuildError("You must symlink %s/Library to /Library:\n"
                              "\tsudo ln -s /Library %s/Library"
@@ -1477,24 +1478,36 @@ def target_configure(argv):
             raise BuildError("ActivePython is not installed to "
                              "'/Library/Frameworks'.")
     
+        mozBuildOptions.append("enable-macos-target=%s" % sdk_ver)
         mozBuildOptions.append("with-macos-sdk=%s" % sdk)
 
-        # On Snow Leopard Komodo must be built as a 32-bit app and it must use
-        # gcc 4.0, specify that now. Details from:
-        #   https://developer.mozilla.org/en/Mac_OS_X_Build_Prerequisites
         if osx_major_ver >= 10:
+            # Komodo needs to be built as a 32-bit application.
+            # Snow Leopard specific build details from:
+            #   https://developer.mozilla.org/en/Mac_OS_X_Build_Prerequisites
             mozBuildOptions.append("target=i386-apple-darwin8.0.0")
-            mozRawOptions.append('CC="gcc-4.0 -arch i386"')
-            mozRawOptions.append('CXX="g++-4.0 -arch i386"')
-            #mozRawOptions.append('HOST_CC="gcc-4.0"')
-            #mozRawOptions.append('HOST_CXX="g++-4.0"')
-            # Other settings from Mozilla Build page:
             mozRawOptions.append('RANLIB=ranlib')
             mozRawOptions.append('AR=ar')
             mozRawOptions.append('AS=$CC')
             mozRawOptions.append('LD=ld')
             mozRawOptions.append('STRIP="strip -x -S"')
             mozRawOptions.append('CROSS_COMPILE=1')
+            # Crash reporter won't build either.
+            mozBuildOptions.append('disable-crashreporter')
+            if mozVer == 1.90:
+                # Mozilla 1.9.0 must use gcc 4.0, specify that now.
+                mozRawOptions.append('CC="gcc-4.0 -arch i386"')
+                mozRawOptions.append('CXX="g++-4.0 -arch i386"')
+                mozRawOptions.append('HOST_CC="gcc-4.0 -arch i386"')
+                mozRawOptions.append('HOST_CXX="g++-4.0 -arch i386"')
+            else:
+                # Mozilla 1.9.2 must use gcc 4.2, specify that now.
+                mozRawOptions.append('CC="gcc-4.2 -arch i386"')
+                mozRawOptions.append('CXX="g++-4.2 -arch i386"')
+                mozRawOptions.append('HOST_CC="gcc-4.2 -arch i386"')
+                mozRawOptions.append('HOST_CXX="g++-4.2 -arch i386"')
+        if mozVer >= 1.91:
+            mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
 
     config["changenum"] = _getChangeNum()
     if sys.platform == "win32":
@@ -1602,9 +1615,11 @@ def target_configure(argv):
     if config["mozconfig"] is None:
         if not config["official"]:
             if mozVer is None or mozVer >= 1.9:
-                mozBuildExtensions.append('python')
                 # help viewer was removed from normal builds, enable it for Komodo
                 mozBuildOptions.append("enable-help-viewer")
+                # Pyxpcom is no longer a part of the Mozilla 1.9.2+ sources.
+                if mozVer < 1.92:
+                    mozBuildExtensions.append('python')
             else:
                 mozBuildExtensions.append('python/xpcom')
 
@@ -2099,12 +2114,52 @@ def target_silo_python(argv=["silo_python"]):
 def target_pyxpcom(argv=["pyxpcom"]):
     log.info("target: pyxpcom")
     config = _importConfig()
-    pyxpcom_dir = join(gBuildDir, config.srcTreeName, "mozilla",
-                       config.mozObjDir, "extensions", "python",
-                       "xpcom")
-    cmd = "cd %s && make" % pyxpcom_dir
-    log.info(cmd)
-    os.system(cmd)
+    if config.mozVer <= 1.91:
+        pyxpcom_dir = join(gBuildDir, config.srcTreeName, "mozilla",
+                           config.mozObjDir, "extensions", "python",
+                           "xpcom")
+        cmd = "cd %s && make" % pyxpcom_dir
+        log.info(cmd)
+        os.system(cmd)
+    else:
+        # Run the autoconf to generate the configure script.
+        cmds = []
+        autoconf_path = _get_exe_path("autoconf-2.13")
+        pyxpcom_src_dir = abspath(join(gBuildDir, config.srcTreeName, "mozilla",
+                                       "extensions", "python"))
+        if sys.platform == "win32":
+            cmds.append("sh -c %s" % _msys_path_from_path(autoconf_path))
+        else:
+            cmds.append(autoconf_path)
+        _run_in_dir(" && ".join(cmds), pyxpcom_src_dir, log.info)
+
+        # Configure and build pyxpcom.
+        cmds = []
+        moz_obj_dir = abspath(join(gBuildDir, config.srcTreeName, "mozilla",
+                                   config.mozObjDir))
+        pyxpcom_obj_dir = join(moz_obj_dir, "extensions", "python")
+        if not exists(pyxpcom_obj_dir):
+            os.makedirs(pyxpcom_obj_dir)
+        #if sys.platform == "win32":
+        #    python = _msys_path_from_path(config["python"])
+        #else:
+        #    python = config["python"]
+        #cmd += "PYTHON=%s" % python
+        #ac_cv_visibility_pragma=no PYTHON="/Users/toddw/as/komodo-devel_192/mozilla/prebuilt/python2.6/macosx/Python.framework/Versions/2.6/bin/python" CC="gcc-4.2 -arch i386" CXX="g++-4.2 -arch i386" ../../../extensions/python/configure --with-libxul-sdk=../../dist --disable-tests
+        configure_flags = 'PYTHON="%s"' % (config.python, )
+        configure_flags += ' CC="gcc-4.2 -arch i386" CXX="g++-4.2 -arch i386"'
+        cmds = ["%s %s --with-libxul-sdk=%s --disable-tests" % (configure_flags, join(pyxpcom_src_dir, "configure"), join(moz_obj_dir, "dist")),
+                "make"]
+        _run_in_dir(" && ".join(cmds), pyxpcom_obj_dir, log.info)
+
+        # The above pyxpcom build creates a "dist" directory in the
+        # "extensions/python" directory, we must copy over the details to the
+        # Komodo dist directory.
+        if sys.platform.startswith("win"):
+            copy_cmd = 'copy %s %s' % (join(pyxpcom_obj_dir, "dist"), join(moz_obj_dir, "dist"))
+        else:
+            copy_cmd = 'cp -r %s %s' % (join(pyxpcom_obj_dir, "dist"), join(moz_obj_dir))
+        _run(copy_cmd, log.info)
     return argv[1:]
 
 
@@ -2559,6 +2614,10 @@ def target_jsstandalone(argv=["mozilla"]):
     config = _importConfig()
     if config.official and not config.jsStandalone:
         return argv[1:]
+    if config.mozVer >= 1.92:
+        # Nothing to do - it's already all done.
+        return argv[1:]
+
     # Build the javascript standalone interpreter seperately
     # the standalone makefile doesn't seem to know about some things,
     # we need to set a couple environment variables to get it
@@ -2653,6 +2712,7 @@ def target_all(argv):
     target_pluginsdk()
     target_mbsdiff()
     target_libmar()
+    target_pyxpcom()
     target_silo_python()
     target_regmozbuild()
     return argv[1:]
