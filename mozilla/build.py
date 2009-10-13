@@ -2114,6 +2114,7 @@ def target_silo_python(argv=["silo_python"]):
 def target_pyxpcom(argv=["pyxpcom"]):
     log.info("target: pyxpcom")
     config = _importConfig()
+    _setupMozillaEnv()
     if config.mozVer <= 1.91:
         pyxpcom_dir = join(gBuildDir, config.srcTreeName, "mozilla",
                            config.mozObjDir, "extensions", "python",
@@ -2124,7 +2125,11 @@ def target_pyxpcom(argv=["pyxpcom"]):
     else:
         # Run the autoconf to generate the configure script.
         cmds = []
-        autoconf_path = _get_exe_path("autoconf-2.13")
+        autoconf_command = "autoconf2.13"
+        if sys.platform == "win32":
+            # Windows uses a different executable name.
+            autoconf_command = "autoconf-2.13"
+        autoconf_path = _get_exe_path(autoconf_command)
         pyxpcom_src_dir = abspath(join(gBuildDir, config.srcTreeName, "mozilla",
                                        "extensions", "python"))
         if sys.platform == "win32":
@@ -2140,14 +2145,13 @@ def target_pyxpcom(argv=["pyxpcom"]):
         pyxpcom_obj_dir = join(moz_obj_dir, "extensions", "python")
         if not exists(pyxpcom_obj_dir):
             os.makedirs(pyxpcom_obj_dir)
-        #if sys.platform == "win32":
-        #    python = _msys_path_from_path(config["python"])
-        #else:
-        #    python = config["python"]
-        #cmd += "PYTHON=%s" % python
-        #ac_cv_visibility_pragma=no PYTHON="/Users/toddw/as/komodo-devel_192/mozilla/prebuilt/python2.6/macosx/Python.framework/Versions/2.6/bin/python" CC="gcc-4.2 -arch i386" CXX="g++-4.2 -arch i386" ../../../extensions/python/configure --with-libxul-sdk=../../dist --disable-tests
-        configure_flags = 'PYTHON="%s"' % (config.python, )
-        configure_flags += ' CC="gcc-4.2 -arch i386" CXX="g++-4.2 -arch i386"'
+        configure_flags = ''
+        if sys.platform.startswith("linux"):
+            configure_flags += 'PYTHON="%s"' % (config.python, )
+            configure_flags += " ac_cv_visibility_pragma=no"
+        elif system.platform == "darwin":
+            configure_flags += 'PYTHON="%s"' % (config.python, )
+            configure_flags += ' CC="gcc -arch i386" CXX="g++ -arch i386"'
         cmds = ["%s %s --with-libxul-sdk=%s --disable-tests" % (configure_flags, join(pyxpcom_src_dir, "configure"), join(moz_obj_dir, "dist")),
                 "make"]
         _run_in_dir(" && ".join(cmds), pyxpcom_obj_dir, log.info)
