@@ -1,11 +1,10 @@
 Index: extensions/python/xpcom/__init__.py
-===================================================================
-RCS file: /cvsroot/mozilla/extensions/python/xpcom/__init__.py,v
-retrieving revision 1.5
-diff -u -r1.5 extensions/python/xpcom/__init__.py
---- extensions/python/xpcom/__init__.py	20 Jan 2006 05:50:16 -0000	1.5
-+++ extensions/python/xpcom/__init__.py	13 Jun 2007 22:00:36 -0000
-@@ -39,32 +39,130 @@
+--- extensions/python/xpcom/__init__.py	Mon Aug 17 12:08:03 2009 -0700
++++ extensions/python/xpcom/__init__.py	Thu Oct 15 13:22:51 2009 -0700
+@@ -36,38 +36,136 @@
+ # ***** END LICENSE BLOCK *****
+ #
+ 
  # The XPCOM (Cross Platform COM) package.
  import exceptions
  
@@ -71,8 +70,9 @@ diff -u -r1.5 extensions/python/xpcom/__init__.py
 +            pass
 +
          self.errno = errno
-         self.msg = message
+-        self.msg = message
 -        exceptions.Exception.__init__(self, errno)
++        self.message = message
 +        self.result = errno
 +        self.name = hr_map.get(self.errno, "")
 +        self.filename = None
@@ -140,22 +140,24 @@ diff -u -r1.5 extensions/python/xpcom/__init__.py
 -            if message is None:
 -                message = ""
 -        return "%d (%s)" % (self.errno, message)
-+        if self.msg is None:
++        if self.message is None:
 +            return self.name
-+        return str(self.msg)
++        return str(self.message)
 +    def toString(self):
 +        return str(self)
  
  # An alias for Exception - allows code to say "from xpcom import COMException"
  # rather than "Exception", preventing clashes with the builtin Exception
+ COMException = Exception
+ 
+ # Exceptions thrown by servers.  It can be good for diagnostics to
 Index: extensions/python/xpcom/server/policy.py
-===================================================================
-RCS file: /cvsroot/mozilla/extensions/python/xpcom/server/policy.py,v
-retrieving revision 1.12
-diff -u -r1.12 extensions/python/xpcom/server/policy.py
---- extensions/python/xpcom/server/policy.py	16 Oct 2006 09:19:39 -0000	1.12
-+++ extensions/python/xpcom/server/policy.py	13 Jun 2007 22:07:01 -0000
-@@ -277,39 +277,63 @@
+--- extensions/python/xpcom/server/policy.py	Mon Aug 17 12:08:03 2009 -0700
++++ extensions/python/xpcom/server/policy.py	Thu Oct 15 13:25:38 2009 -0700
+@@ -274,45 +274,69 @@
+         else:
+             # A regular method.
+             func = getattr(self._obj_, name)
              return 0, func(*params)
  
      def _doHandleException(self, func_name, exc_info):
@@ -173,12 +175,6 @@ diff -u -r1.12 extensions/python/xpcom/server/policy.py
 -            # When a component raised an explicit COM exception, it is
 -            # considered 'normal' - however, we still write a debug log
 -            # record to help track these otherwise silent exceptions.
--
--            if sys.version_info < (2,4):
--                # Note that Python 2.3 does not allow an explicit exc_info tuple
--                # and passing 'True' will not work as there is no exception pending.
--                # Trick things!
--                if logger.isEnabledFor(logging.DEBUG):
 +        if isinstance(exc_val, (ServerException, COMException)):
 +            try:
 +                # we can only unwrap python exceptions, so ignore if we
@@ -189,8 +185,13 @@ diff -u -r1.12 extensions/python/xpcom/server/policy.py
 +                exc_val.setExcInfo(exc_info)
 +            except ValueError, e:
 +                pass
-+
-+            if xm and exc_val.msg is None:
+ 
+-            if sys.version_info < (2,4):
+-                # Note that Python 2.3 does not allow an explicit exc_info tuple
+-                # and passing 'True' will not work as there is no exception pending.
+-                # Trick things!
+-                if logger.isEnabledFor(logging.DEBUG):
++            if xm and exc_val.message is None:
 +                exc = xm.getCurrentException()
 +                if exc:
 +                    # someone we called raised an exception, so we're the
@@ -209,7 +210,7 @@ diff -u -r1.12 extensions/python/xpcom/server/policy.py
 +                        exc_val = exc
 +                    except ValueError, e:
 +                        pyexec = exc_val
-+                        exc_val = COMException(exc.result, exc.msg)
++                        exc_val = COMException(exc.result, exc.message)
 +                        exc_val.filename = exc.filename
 +                        exc_val.lineNumber = exc.lineNumber
 +                        exc_val.filename = exc.filename
@@ -248,3 +249,6 @@ diff -u -r1.12 extensions/python/xpcom/server/policy.py
  
      # Called whenever an unhandled Python exception is detected as a result
      # of _CallMethod_ - this exception may have been raised during the _CallMethod_
+     # invocation, or after its return, but when unpacking the results
+     # eg, type errors, such as a Python integer being used as a string "out" param.
+     def _CallMethodException_(self, com_object, index, info, params, exc_info):
