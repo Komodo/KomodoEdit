@@ -158,6 +158,7 @@ function areServerListsEquivalent(a, b) {
         a[i].hostname != b[i].hostname ||
         a[i].port != b[i].port ||
         a[i].path != b[i].path ||
+        a[i].passive != b[i].passive ||
         a[i].username != b[i].username ||
         a[i].password != b[i].password) {
       return false;

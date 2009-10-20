@@ -99,7 +99,7 @@
                 <vbox id="ftp_passive_mode_vbox">
                     <text id="ftp_passive_mode_text" value="&FTP.servermode.label;" class="kopadded"/>
                     <menulist id="ftp_passive_mode" value="1">
-                        <menupopup id ="ftp_passive_mode_menupopup">
+                        <menupopup id ="ftp_passive_mode_menupopup" oncommand="checkAddButtonStatus();">
                             <menuitem label="&FTP.activemode.label;" value="0"/>
                             <menuitem label="&FTP.passivemode.label;" value="1"/>
                         </menupopup>

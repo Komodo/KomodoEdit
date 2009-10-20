@@ -420,7 +420,7 @@ class koRemoteConnectionService:
 
         self._lock.acquire()
         try:
-            return self._getConnection(protocol, server, port, username, password, path)
+            return self._getConnection(protocol, server, port, username, password, path, passive)
         finally:
             self._lock.release()
 

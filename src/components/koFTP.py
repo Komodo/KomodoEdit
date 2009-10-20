@@ -218,7 +218,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
         """Verify that we are connected to the remote server"""
         try:
             if not self._connection:
-                self.open(self.server, self.port, self.username, self.password, "")
+                self.open(self.server, self.port, self.username, self.password, "", self.passive)
             else:
                 self._NOOP()
         except Exception, e:
@@ -229,7 +229,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
                     self.log.exception(e, "Unexpected FTP exception")
                 # connection lost, reconnect if possible
                 self.log.info("Re-opening the ftp connection because it was closed")
-                self.open(self.server, self.port, self.username, self.password, "")
+                self.open(self.server, self.port, self.username, self.password, "", self.passive)
 
     def do_close(self):
         """Close the FTP connection"""
