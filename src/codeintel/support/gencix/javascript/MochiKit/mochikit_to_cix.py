@@ -67,9 +67,7 @@ from BeautifulSoup import BeautifulSoup, NavigableString
 
 from codeintel2.gencix_utils import *
 
-MOCHIKIT_VERSION = "1.3.1"
-# 1.4.0 is still in trunk, not released yet
-#MOCHIKIT_VERSION == "1.4.0"
+MOCHIKIT_VERSION = "1.4.2"
 
 def getSubElementText(elem):
     """Return all the text of elem child elements"""
@@ -278,30 +276,14 @@ def parseWithSoup(cix_root, scopename, data):
         scope_variable = createCixVariable(mochikit_variable, scopename, vartype="Object")
         processDivTags(cix_blob, scope_variable, h1_tag)
 
-def updateCix(filename, content, updatePerforce=False):
-    if updatePerforce:
-        print os.popen("p4 edit %s" % (filename)).read()
-    file(filename, "w").write(content)
-    if updatePerforce:
-        diff = os.popen("p4 diff %s" % (filename)).read()
-        if len(diff.splitlines()) <= 1 and diff.find("not opened on this client") < 0:
-            print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
-
 # Main function
-def main(cix_filename, updatePerforce=False):
+def main(cix_filename):
     cix_root = createCixRoot(name="MochiKit", description="A lightweight JavaScript library - v%s" % (MOCHIKIT_VERSION))
 
     # svn checkout of MochiKit trunk
     co_dir = os.path.abspath("mochikit_svn")
     remove_directory(co_dir)
-    # For MochiKit 1.3.1
-    if MOCHIKIT_VERSION == "1.3.1":
-        p = os.popen("svn co http://svn.mochikit.com/mochikit/branches/MochiKit-1.3.1 mochikit_svn")
-    elif MOCHIKIT_VERSION == "1.4.0":
-        # For trunk version
-        p = os.popen("svn co http://svn.mochikit.com/mochikit/trunk mochikit_svn")
-    else:
-        raise "Unknown MochiKit version: %r" % (MOCHIKIT_VERSION)
+    p = os.popen("svn co http://svn.mochikit.com/mochikit/tags/MochiKit-%s mochikit_svn" % (MOCHIKIT_VERSION))
 
     # Read, to ensure we don't get a broken pipe before everything is done
     svn_output = p.read()
@@ -317,7 +299,7 @@ def main(cix_filename, updatePerforce=False):
     
         # Write out the tree
         cix_xml = get_cix_string(cix_root)
-        updateCix(cix_filename, cix_xml, updatePerforce)
+        file(cix_filename, "w").write(cix_xml)
         #print cix_xml
     finally:
         # Finally, remove the temporary svn directory
@@ -347,12 +329,12 @@ def _test():
 if __name__ == '__main__':
 
     parser = OptionParser()
-    parser.add_option("-u", "--update", dest="update_perforce",
-                      action="store_true", help="edit perforce cix for this file")
+    parser.add_option("-u", "--update", dest="update",
+                      action="store_true", help="update the catalogs source code")
     (opts, args) = parser.parse_args()
 
     cix_filename = "mochikit.cix"
-    if opts.update_perforce:
+    if opts.update:
         scriptpath = os.path.dirname(sys.argv[0])
         if not scriptpath:
             scriptpath = "."
@@ -364,4 +346,4 @@ if __name__ == '__main__':
             cix_directory = os.path.dirname(cix_directory)
         cix_filename = os.path.join(cix_directory, "lib", "codeintel2", "catalogs", cix_filename)
 
-    main(cix_filename, opts.update_perforce)
+    main(cix_filename)
