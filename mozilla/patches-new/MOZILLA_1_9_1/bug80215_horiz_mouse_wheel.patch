@@ -5,13 +5,13 @@ retrieving revision 1.742
 diff -u -r1.742 content/events/src/nsEventStateManager.cpp
 --- content/events/src/nsEventStateManager.cpp	8 May 2008 20:00:24 -0000	1.742
 +++ content/events/src/nsEventStateManager.cpp	28 Oct 2008 19:31:45 -0000
-@@ -1476,6 +1476,9 @@
-             ? nsIDOMNSUIEvent::SCROLL_PAGE_DOWN
-             : nsIDOMNSUIEvent::SCROLL_PAGE_UP;
+@@ -1537,6 +1537,9 @@
+             ? PRInt32(nsIDOMNSUIEvent::SCROLL_PAGE_DOWN)
+             : PRInt32(nsIDOMNSUIEvent::SCROLL_PAGE_UP);
        }
 +      if (msEvent->scrollFlags & nsMouseScrollEvent::kIsHorizontal) {
 +        msEvent->isShift = PR_TRUE;
 +      }
      }
      break;
-   case NS_QUERY_SELECTED_TEXT:
+   case NS_MOUSE_PIXEL_SCROLL:

@@ -19,14 +19,14 @@ diff -u -r1.2 mar_create.c
    }
  
 @@ -149,7 +149,7 @@
- 
-   for (i = 0; i < num_files; ++i) {
+ #else
      if (stat(files[i], &st)) {
+ #endif
 -      fprintf(stderr, "ERROR: file not found: %s\n", files[i]);
 +      fprintf(stderr, "mar: ERROR: file not found: %s\n", files[i]);
        goto failure;
      }
- 
+ #ifdef WINCE
 Index: modules/libmar/tool/mar.c
 ===================================================================
 RCS file: /cvsroot/mozilla/modules/libmar/tool/mar.c,v

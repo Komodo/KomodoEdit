@@ -58,18 +58,16 @@ diff -U 10 -r1.139 autocomplete.xml
            }
          ]]>
          </body>
-@@ -955,11 +960,13 @@
-             this.mInput = aInput;
+@@ -952,10 +957,12 @@
+             this.selectedIndex = -1;
              document.popupNode = null;
  
--            var rect = aElement.getBoundingClientRect();
--            var width = rect.right - rect.left;
+-            var width = aElement.getBoundingClientRect().width;
 -            this.setAttribute("width", width > 100 ? width : 100);
 -            // invalidate() depends on the width attribute
 -            this._invalidate();
 +            if (aElement.sizetopopup == "always" || aElement.sizetopopup == "pref") {
-+              var rect = aElement.getBoundingClientRect();
-+              var width = rect.right - rect.left;
++              var width = aElement.getBoundingClientRect().width;
 +              this.setAttribute("width", width > 100 ? width : 100);
 +              // invalidate() depends on the width attribute
 +              this._invalidate();
