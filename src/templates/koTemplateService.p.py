@@ -157,7 +157,7 @@ See "Custom Templates" in Komodo's on-line help for more information.
             
             sampleTxt = os.path.join(mytemplatesDir, self.sampleTemplateName)
             fsample = open(sampleTxt, "w")
-            fsample.write(self.sampleTemplate % sampleTxt)
+            fsample.write((self.sampleTemplate % sampleTxt).encode('utf8'))
             fsample.close()
 
         except EnvironmentError, ex:
