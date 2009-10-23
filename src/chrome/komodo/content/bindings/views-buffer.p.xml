@@ -1559,10 +1559,20 @@
         </handler>
         <handler event="blur" phase="capturing">
             <![CDATA[
-            window.setTimeout("window.updateCommands('scintilla-focus');", 1);
-            this.removeHyperlinks("blur");
-            this.clearMatchingTag();
-            this.clearKeyDownValues();
+            // We only care when SciMoz loses focus, not when changing focus
+            // between the "xul:scintilla" and "html:embed" elements. This must
+            // be done in a setTimeout, as that is the first time we can detect
+            // what the newly focused element is.
+            window.setTimeout(function(this_) {
+                var focusedNodeName = window.document.commandDispatcher.focusedElement.nodeName;
+                if (focusedNodeName != "xul:scintilla"
+                    && focusedNodeName != "html:embed") {
+                    this_.removeHyperlinks("blur");
+                    this_.clearKeyDownValues();
+                    this.clearMatchingTag();
+                    window.updateCommands('scintilla-focus');
+                }
+            }, 1, this);
             ]]>
         </handler>
         <handler event="keydown" phase="capturing">
