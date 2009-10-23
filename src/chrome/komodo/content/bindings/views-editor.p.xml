@@ -666,7 +666,10 @@
                             if (! this.save()) {
                                 return false;
                             }
-                        } // if "No" is selected, then just close.
+                        }
+                    } else if (res == "No" && !this.document.isUntitled) {
+                        // Clear the auto-save file.
+                        this.document.removeAutoSaveFile();
                     }
                 }
                 var uri;
