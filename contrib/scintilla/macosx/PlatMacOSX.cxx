@@ -321,7 +321,7 @@ void SurfaceImpl::Polygon(Scintilla::Point *pts, int npts, ColourAllocated fore,
     CGContextDrawPath( gc, kCGPathFillStroke );
 
     // Deallocate memory
-    delete points;
+    delete [] points;
     points = NULL;
 }
 
@@ -1628,7 +1628,7 @@ void ListBoxImpl::GetValue(int n, char *value, int len) {
     } else {
         value[0] = '\0';
     }
-    delete text;
+    delete [] text;
 }
 
 void ListBoxImpl::Sort() {
