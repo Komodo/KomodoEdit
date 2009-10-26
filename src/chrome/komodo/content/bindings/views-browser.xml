@@ -338,9 +338,11 @@
         <![CDATA[
             if (typeof(notify) == 'undefined') notify = true;
             this.document = doc;
-            var docCharset = this.browser.docShell.QueryInterface(
-                                Components.interfaces.nsIDocCharset);
-            docCharset.charset = this.document.encoding.python_encoding_name;
+            // Trying to set the charset can cause problems with external style
+            // sheets, see bug 84741.
+            //var docCharset = this.browser.docShell.QueryInterface(
+            //                    Components.interfaces.nsIDocCharset);
+            //docCharset.charset = this.document.encoding.python_encoding_name;
             if (!doc.isUntitled) {
                 // XXX bug (28969) unc paths
                 try {
