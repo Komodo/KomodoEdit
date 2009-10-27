@@ -395,17 +395,24 @@ window.onload = function(event) {
     _log.debug("<< window.onload");
 }
 
+ko.main.__koNum = null;
+
 window.__defineGetter__("_koNum",
 function()
 {
-    if (!('_koNum' in ko.main)) {
+    if (ko.main.__koNum == null) {
         // We need to give each window its unique ID before we start
         // hitting the history system.
-        ko.main._koNum = (Components.classes["@activestate.com/koInfoService;1"].
+        ko.main.__koNum = (Components.classes["@activestate.com/koInfoService;1"].
                           getService(Components.interfaces.koIInfoService).
                           nextWindowNum());
     }
-    return ko.main._koNum;
+    return ko.main.__koNum;
+});
+window.__defineSetter__("_koNum",
+function(val)
+{
+    ko.main.__koNum = val;
 });
         
 
