@@ -67,21 +67,9 @@ function OnPreferencePageLoading() {
 
 function OnPreferencePageOK(prefset)
 {
-    var ok = true;
-
-    // ensure that the default PHP interpreter is valid
-    var defaultInterp = prefset.getStringPref("phpDefaultInterpreter");
-    if (defaultInterp != "") {
-        var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
-            getService(Components.interfaces.koISysUtils);
-        if (! koSysUtils.IsFile(defaultInterp)) {
-            alert(_bundle.formatStringFromName("noLangInterpreterFound.alert", [programmingLanguage, defaultInterp,programmingLanguage], 3));
-            ok = false;
-            document.getElementById("phpDefaultInterpreter").focus();
-        }
-    }
-
-    return ok;
+    return checkValidInterpreterSetting(prefset,
+                                        "phpDefaultInterpreter",
+                                        programmingLanguage);
 }
 
 // Populate the (tree) list of available PHP interpreters on the current

@@ -45,21 +45,9 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 
 function OnPreferencePageOK(prefset)
 {
-    var ok = true;
-
-    // ensure that the default ruby interpreter is valid
-    var defaultInterp = prefset.getStringPref("rubyDefaultInterpreter");
-    if (defaultInterp != "") {
-        var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
-            getService(Components.interfaces.koISysUtils);
-        if (! koSysUtils.IsFile(defaultInterp)) {
-            alert(_bundle.formatStringFromName("noLangInterpreterFound.alert", [programmingLanguage, defaultInterp,programmingLanguage], 3));
-            ok = false;
-            document.getElementById("rubyDefaultInterpreter").focus();
-        }
-    }
-
-    return ok;
+    return checkValidInterpreterSetting(prefset,
+                                        "rubyDefaultInterpreter",
+                                        programmingLanguage);
 }
 
 // Populate the (tree) list of available Ruby interpreters on the current

@@ -45,20 +45,10 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 
 function OnPreferencePageOK(prefset)
 {
-    var ok = true;
-
     // ensure that the default perl interpreter is valid
-    var defaultInterp = prefset.getStringPref("perlDefaultInterpreter");
-    if (defaultInterp != "") {
-        var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
-            getService(Components.interfaces.koISysUtils);
-        if (! koSysUtils.IsFile(defaultInterp)) {
-            ko.dialogs.alert(_bundle.formatStringFromName("noLangInterpreterFound.alert", [programmingLanguage, defaultInterp,programmingLanguage], 3));
-            ok = false;
-            document.getElementById("perlDefaultInterpreter").focus();
-        }
-    }
-    return ok;
+    return checkValidInterpreterSetting(prefset,
+                                        "perlDefaultInterpreter",
+                                        programmingLanguage);
 }
 
 // Populate the (tree) list of available Perl interpreters on the current
