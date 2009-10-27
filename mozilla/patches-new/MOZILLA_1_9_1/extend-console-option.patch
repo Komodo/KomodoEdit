@@ -55,7 +55,7 @@ diff -u -r1.34 nsNativeAppSupportWin.cpp
                  if ( hCrt != -1 ) {
                      FILE *hf = ::_fdopen( hCrt, "w" );
                      if ( hf ) {
-@@ -426,9 +434,57 @@
+@@ -426,9 +434,56 @@
                      }
                  }
                  */
@@ -65,7 +65,6 @@ diff -u -r1.34 nsNativeAppSupportWin.cpp
 -                // There's little we can do, in any case.
 +                // Users wants to make sure we have a console.
 +                // Try to allocate one.
-+#ifndef WINCE
 +                BOOL rc = ::AllocConsole();
 +                if ( rc ) {
 +                    // Console allocated.  Fix it up so that output works in
