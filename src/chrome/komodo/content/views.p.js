@@ -674,7 +674,9 @@ viewManager.prototype._newViewFromURI = function(uri,
             ko.dialogs.alert(_bundle.GetStringFromName("newFileHasLongLines.prompt"),
                              _bundle.formatStringFromName("newFileAddedAsText.template",
                                                           [doc.file.displayPath,
-                                                           originalLanguage], 2));
+                                                           originalLanguage], 2),
+                             null, // title
+                             "treat_large_documents_as_text");
         }
     } catch (e)  {
         var err = _lastErrorSvc.getLastErrorMessage();

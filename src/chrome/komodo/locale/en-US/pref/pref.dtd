@@ -202,6 +202,7 @@
 <!ENTITY directoryImport.label "Directory Import">
 <!ENTITY doNotAlertMeIfTheBufferIsUnsavedAndTheFileOnDiskChanged.label "Do not alert me if the buffer is unsaved and the file on disk changed">
 <!ENTITY doNotAlertMeOnBufferRevert.label "Do not alert me when I revert a buffer">
+<!ENTITY doNotAlertMeOnLargeFileLoad.label "Do not alert me when a large buffer will be treated as plain text">
 <!ENTITY doNotRestoreLastWorkspace.label "Do not restore last workspace">
 <!ENTITY doNotWarnWhenFilesCannotBeReOpenedOnStartup.label "Do not warn when files cannot be re-opened on startup">
 <!ENTITY documentMarkupSettings.label "Document Markup Settings">

@@ -147,6 +147,7 @@
   <long id="documentByteCountThreshold">1000000</long> <!-- 1 MB -->
   <long id="documentLineCountThreshold">20000</long> <!-- 800 KB -->
   <long id="documentLineLengthThreshold">32000</long>
+  <boolean id="donotask_treat_large_documents_as_text">0</boolean>
 
 
   <string id="userEnvironmentStartupOverride"/>

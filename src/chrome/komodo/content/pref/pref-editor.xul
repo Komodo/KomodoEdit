@@ -206,6 +206,11 @@
                       style="padding-top: 5px;"
                       pref="true" prefstring="donotask_revert_buffer"
                       prefattribute="checked"/>
+            <checkbox id="treat_large_documents_as_text"
+                      label="&doNotAlertMeOnLargeFileLoad.label;"
+                      style="padding-top: 5px;"
+                      pref="true" prefstring="donotask_treat_large_documents_as_text"
+                      prefattribute="checked"/>
         </groupbox>
 
        <groupbox orient="vertical">
