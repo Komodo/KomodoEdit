@@ -825,13 +825,14 @@ function _DisplayFindResult(editor, findResult)
     // way around this that will actually work without rewriting the find subsystem.
     var startByteIndex = stringutils_bytelength(scimoz.text.slice(0, findResult.start));
     var endByteIndex = startByteIndex + stringutils_bytelength(findResult.value);
-    scimoz.setSel(startByteIndex, endByteIndex);
-
     // Ensure folded lines are expanded. We *could* conceivably have search
     // results that span lines so should ensure that the whole selection is
     // visible. XXX should include every line in btwn here
+    scimoz.gotoPos(startByteIndex);
     scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(startByteIndex));
     scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(endByteIndex));
+
+    scimoz.setSel(startByteIndex, endByteIndex);
 
     scimoz.chooseCaretX();
 }
