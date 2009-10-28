@@ -8,39 +8,29 @@ plugins to NOT handle some keyboard events.
 Index: widget/src/cocoa/nsChildView.mm
 ===================================================================
 RCS file: /cvsroot/mozilla/widget/src/cocoa/nsChildView.mm,v
-retrieving revision 1.362
-diff -u -r1.362 nsChildView.mm
---- widget/src/cocoa/nsChildView.mm	22 Jul 2008 15:19:11 -0000	1.362
-+++ widget/src/cocoa/nsChildView.mm	15 Aug 2008 00:56:52 -0000
-@@ -5228,6 +5234,9 @@
- - (void)keyDown:(NSEvent*)theEvent
+retrieving revision 1.370
+diff -u -r1.370 widget/src/cocoa/nsChildView.mm
+--- widget/src/cocoa/nsChildView.mm	29 Sep 2009 19:43:54 -0000	1.370
++++ widget/src/cocoa/nsChildView.mm	27 Oct 2009 19:53:22 -0000
+@@ -5237,6 +5237,9 @@
  {
    NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
+ 
 +/* XXX ACTIVESTATE: allowing TSM to be used on a plugin prevents keyPress
 +                    events, thus breaking our use of SciMoz.
 +                    
- 
    // If a plugin has the focus, we need to use an alternate method for
    // handling NSKeyDown and NSKeyUp events (otherwise Carbon-based IME won't
-@@ -5247,9 +5256,8 @@
-     ::TSMRemoveDocumentProperty(mPluginTSMDoc, kFocusedChildViewTSMDocPropertyTag);
+   // work in plugins like the Flash plugin).  The same strategy is used by the
+@@ -5256,6 +5259,7 @@
      return;
    }
--
-+*/
-   [self processKeyDownEvent:theEvent keyEquiv:NO];
--
-   NS_OBJC_END_TRY_ABORT_BLOCK;
- }
  
-@@ -5438,21 +5446,24 @@
-                                [[self window] firstResponder] == self)) {
-       return YES;
-     }
-   }
-   else {  // Non-embedding
-     // Perform native menu UI feedback even if we stop the event from propagating to it normally.
-     // Recall that the menu system won't actually execute any commands for keyboard command invocations.
++*/
+ #ifdef MOZ_MACBROWSER
+   PRBool handled = [self processKeyDownEvent:theEvent keyEquiv:NO];
+   if (!handled) {
+@@ -5458,7 +5462,10 @@
      //
      // If this is a plugin, we do actually perform the action on keyboard commands. See bug 428047.
      // If the action on plugins here changes the first responder, don't continue.
@@ -52,14 +42,7 @@ diff -u -r1.362 nsChildView.mm
        [(GeckoNSMenu*)mainMenu actOnKeyEquivalent:theEvent];
        if ([[self window] firstResponder] != self)
          return YES;
-     }
-     else {
-       [(GeckoNSMenu*)mainMenu performMenuUserInterfaceEffectsForEvent:theEvent];
-     }
-   }
-
-   // With Cmd key or Ctrl+Tab or Ctrl+Esc, keyDown will be never called.
-@@ -5475,9 +5488,13 @@
+@@ -5488,10 +5495,13 @@
    // happen if we return NO here. This only applies to Mac OS X 10.5 and higher,
    // previous OS versions just call "keyDown:" and not "performKeyEquivalent:"
    // for such events.
@@ -69,7 +52,8 @@ diff -u -r1.362 nsChildView.mm
    if (!keyDownNeverFiredEvent &&
        (modifierFlags & (NSControlKeyMask | NSAlternateKeyMask)))
      return handledByEmbedding;
-+ */
- 
+-
++  */
    if ([theEvent type] == NSKeyDown) {
      // We trust the Gecko handled status for cmd key events. See bug 417466 for more info.
+     if (modifierFlags & NSCommandKeyMask)
