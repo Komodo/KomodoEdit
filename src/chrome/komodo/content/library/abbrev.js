@@ -52,6 +52,7 @@ if (typeof(ko.abbrev)=='undefined') {
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/library.properties");
+var name_splitter = /\W+/;
 
 /**
  * Expands the abbreviation, if any, at the current cursor position.
@@ -176,7 +177,7 @@ this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
     var abbrev_folders = partSvc.getParts(
             "folder", "name", "Abbreviations", "*", partSvc.currentProject,
             new Object());
-    var subfolder, snippet;
+    var subfolder, snippets, snippet, slen;
     for (var i = 0; i < abbrev_folders.length; i++) {
         var abbrev_folder = abbrev_folders[i];
         for (var j = 0; j < subnames.length; j++) {
@@ -194,13 +195,20 @@ this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
             if (subfolder) {
                 //dump("findAbbrevSnippet: look in "+abbrev_folder.project.name
                 //     +"/.../Abbreviations/"+subnames[j]);
-                snippet = subfolder.getChildWithTypeAndStringAttribute(
-                    "snippet", "name", abbrev, true);
-                if (snippet) {
-                    //dump(" (found it)\n");
-                    return snippet;
-                } else {
-                    //dump(" (not here)\n");
+                snippets = {};
+                subfolder.getChildrenByType("snippet", true, snippets, {});
+                if (!snippets.value) continue;
+                snippets = snippets.value;
+                slen = snippets.length;
+                for (var k = 0; k < slen; k++) {
+                    snippet = snippets[k];
+                    if (snippet.name == abbrev) {
+                        //dump(" (found it by complete name)\n");
+                        return snippet;
+                    } else if (snippet.name.split(name_splitter)[0] == abbrev){
+                        //dump(" (found it by first part of name)\n");
+                        return snippet;
+                    }
                 }
             }
         }
