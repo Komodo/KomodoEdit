@@ -180,8 +180,17 @@ this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
     for (var i = 0; i < abbrev_folders.length; i++) {
         var abbrev_folder = abbrev_folders[i];
         for (var j = 0; j < subnames.length; j++) {
-            subfolder = abbrev_folder.getChildWithTypeAndStringAttribute(
-                "folder", "name", subnames[j], false);
+            var subnameLC = subnames[j].toLowerCase();
+            var abbrevChildren = {};
+            abbrev_folder.getChildrenByType("folder", false, abbrevChildren, {});
+            abbrevChildren = abbrevChildren.value;
+            subfolder = null;
+            for (var k = 0; k < abbrevChildren.length; k++) {
+                if (subnameLC == abbrevChildren[k].name.toLowerCase()) {
+                    subfolder = abbrevChildren[k];
+                    break;
+                }
+            }
             if (subfolder) {
                 //dump("findAbbrevSnippet: look in "+abbrev_folder.project.name
                 //     +"/.../Abbreviations/"+subnames[j]);
