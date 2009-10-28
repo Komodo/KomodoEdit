@@ -1494,8 +1494,8 @@ def target_configure(argv):
             mozRawOptions.append('CROSS_COMPILE=1')
             # Crash reporter won't build either.
             mozBuildOptions.append('disable-crashreporter')
-            if mozVer == 1.90:
-                # Mozilla 1.9.0 must use gcc 4.0, specify that now.
+            if mozVer <= 1.91:
+                # Mozilla <= 1.9.1 must use gcc 4.0, specify that now.
                 mozRawOptions.append('CC="gcc-4.0 -arch i386"')
                 mozRawOptions.append('CXX="g++-4.0 -arch i386"')
                 mozRawOptions.append('HOST_CC="gcc-4.0 -arch i386"')
