@@ -1575,7 +1575,7 @@
                     && focusedNodeName != "html:embed") {
                     this_.removeHyperlinks("blur");
                     this_.clearKeyDownValues();
-                    this.clearMatchingTag();
+                    this_.clearMatchingTag();
                     window.updateCommands('scintilla-focus');
                 }
             }, 1, this);
