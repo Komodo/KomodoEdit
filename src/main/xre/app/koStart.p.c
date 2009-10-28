@@ -110,6 +110,8 @@
 #ifdef WIN32
     #include <winsock2.h>
     #include <windows.h>
+    #include <ShFolder.h>   // For CSIDL_APPDATA
+    #include <KnownFolders.h> // For FOLDERID_RoamingAppData
     #include <process.h>
     #include <direct.h>
     #include <shlwapi.h>
@@ -1021,6 +1023,39 @@ static char* _GetOSName(void)
     return osName; 
 }
 
+#if defined(WIN32)
+// Taken from src/license/License_V8/Runtime/Common.c
+// Convert the wide-char name to a byte-char name, resorting
+// to the short name if we can't do the conversion with the current
+// code page.
+
+static BOOL
+_wide_to_ansipath(WCHAR *wpath, char *path)
+{
+    BOOL use_default = FALSE;
+    int len = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS,
+                                  wpath, (int)wcslen(wpath)+1,
+                                  path, MAX_PATH, NULL, &use_default);
+    if (len == 0 || len > MAX_PATH)
+        // Utter failure to convert wide-chars to OEMchars
+        return FALSE;
+
+    if (use_default) {
+        // Some characters couldn't be converted -- get the short name
+        WCHAR shortpath[MAX_PATH+1];
+        len = GetShortPathNameW(wpath, shortpath, MAX_PATH);
+        if (len == 0 || len > MAX_PATH)
+            return FALSE;
+
+        len = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS,
+                                  shortpath, len+1,
+                                  path, MAX_PATH, NULL, NULL);
+        if (len == 0 || len > MAX_PATH)
+            return FALSE;
+    }
+    return TRUE;
+}
+#endif
 
 /* _GetVerUserDataDir
  *   Get a (versioned) user-specific Komodo data directory. XXX This
@@ -1070,57 +1105,147 @@ static int _GetVerUserDataDir(
     
     else {
 #if defined(WIN32)
-        /* Would use the Win32 API SHGetFolderPath but it does not, in general,
-         * exist so look up:
-         *    HKEY_CURRENT_USER\Software\Microsoft\Windows\
-         *          CurrentVersion\Explorer\Shell Folders\AppData
-         * in the registry.
-         */
-        LONG retval;
-        HKEY hKey;
-        char* keyName =
-            "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders";
-        unsigned int i;
-        DWORD nValues;
-
-        retval = RegOpenKeyEx(HKEY_CURRENT_USER, keyName, 0,
-            KEY_QUERY_VALUE, &hKey);
-        if (retval != ERROR_SUCCESS) {
-            /*XXX could use FormatMessage to kick out a better error message */
-            _LogError("failed to open the registry key: '%s'.\n", keyName);
-            return 0;
+        HMODULE hShell32;
+        BOOL freeHandle = FALSE;
+        hShell32 = GetModuleHandle(TEXT("shell32.dll"));
+        if (!hShell32) {
+            hShell32 = LoadLibrary(TEXT("shell32.dll"));
+            freeHandle = TRUE;
         }
-        retval = RegQueryInfoKey(
-            hKey, NULL, NULL, NULL, NULL, NULL, NULL,
-            &nValues,  /* number of subkeys */
-            NULL, NULL, NULL, NULL);
-        if (retval != ERROR_SUCCESS) {
-            _LogError("failed to get the number of the values "\
-                "of key: '%s'.\n", keyName);
-            return 0;
-        } else if (nValues == 0) {
-            _LogError("there were no values for the key: '%s'.\n", keyName);
-            return 0;
-        }
-        for (i = 0; i < nValues; ++i) {
-            char value[MAXPATHLEN];
-            unsigned long lenValue = MAXPATHLEN;
-            BYTE data[MAXPATHLEN];
-            unsigned long lenData = MAXPATHLEN;
+        lpBuffer[0] = 0;
+        if (hShell32) {
+            // Try the Vista "SHGetKnownFolderPath" first, and then
+            // fall back to the Win2K "SHGetFolderPath"
+            // Don't bother with GetVersionEx(), because the user
+            // might have installed a service pack for the older OS that
+            // added "SHGetKnownFolderPath".
+            //
+            // This falls in the category of "test for the feature, not the OS
+            // version".
 
-            retval = RegEnumValue(hKey, i,
-                value, &lenValue, NULL, NULL, data, &lenData);
+            // Vista, W7, future versions...
+            const char *funcName = "SHGetKnownFolderPath";
+            HRESULT hr;
+            WCHAR wideCharPath[MAX_PATH+1];
+            
+            typedef HRESULT (WINAPI * SHGetKnownFolderPathFn)(const GUID *rfid,
+                                                              DWORD dwFlags,
+                                                              HANDLE hToken,
+                                                              PWSTR *ppszPath);
+            SHGetKnownFolderPathFn shGetFolderPathFunc;
+            shGetFolderPathFunc =
+                (SHGetKnownFolderPathFn) GetProcAddress(hShell32, funcName);
+
+            wideCharPath[0] = 0;
+            if (shGetFolderPathFunc) {
+                // Defined in Microsoft SDKs/Windows/v6.1/Include/KnownFolders.h
+                PWSTR path;
+                // Copy constant to a var so we can pass it by reference
+                GUID guid_RoamingAppData = FOLDERID_RoamingAppData;
+                HMODULE hOLE32;
+                hr = shGetFolderPathFunc(&guid_RoamingAppData,
+                                         0, NULL, &path);
+                if (hr == S_OK) {
+                    if (wcslen(path) < MAX_PATH) {
+                        wcscpy(wideCharPath, path);
+                    } else {
+                        fprintf(stderr, "Komodo startup: can't copy %d chars from path into %d-sized wideCharPath\n",
+                                wcslen(path), MAX_PATH);
+                    }
+                    // The MSDN docs say to use CoTaskMemFree to free this memory.
+                    // We avoid linking OLE32 on XP systems by checking to see
+                    // if it's already loaded and making a dynamic call.
+                    // If it isn't loaded, leak the few dozen bytes.
+                    hOLE32 = GetModuleHandle(TEXT("ole32.dll"));
+                    if (hOLE32) {
+                        typedef void (WINAPI * CoTaskMemFreeFn)(LPVOID pv);
+                        CoTaskMemFreeFn coTaskMemFreeFunc;
+                        coTaskMemFreeFunc = (CoTaskMemFreeFn) GetProcAddress(hOLE32, "CoTaskMemFree");
+                        if (coTaskMemFreeFunc) {
+                            coTaskMemFreeFunc(path);
+                        }
+                    }
+                }
+            }
+            if (!wideCharPath[0]) {
+                typedef HRESULT (WINAPI* SHGetFolderPathFn)(HWND hwndOwner,
+                                                           int nFolder,
+                                                           HANDLE hToken,
+                                                           DWORD dwFlags,
+                                                           WCHAR *pszPath);
+                SHGetFolderPathFn shGetFolderPathFunc;
+                funcName = "SHGetFolderPathW"; // ASCII version
+                shGetFolderPathFunc =
+                    (SHGetFolderPathFn) GetProcAddress(hShell32, funcName);
+                if (shGetFolderPathFunc) {
+                    hr = shGetFolderPathFunc(NULL, CSIDL_APPDATA,
+                                             NULL, 0, wideCharPath);
+                }
+            }
+            if (wideCharPath[0]) {
+                BOOL res = _wide_to_ansipath(wideCharPath, lpBuffer);
+                if (!res) {
+                    // Fall back to the old code.
+                    lpBuffer[0] = 0;
+                }
+            }
+            if (freeHandle) {
+                FreeLibrary(hShell32);
+            }
+        }
+
+        if (!lpBuffer[0]) {
+            /* Fallback looking at this deprecated registry key.
+             *    HKEY_CURRENT_USER\Software\Microsoft\Windows\
+             *          CurrentVersion\Explorer\Shell Folders\AppData
+             * in the registry.
+             */
+            LONG retval;
+            HKEY hKey;
+            char* keyName =
+                "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders";
+            unsigned int i;
+            DWORD nValues;
+
+            retval = RegOpenKeyEx(HKEY_CURRENT_USER, keyName, 0,
+                                  KEY_QUERY_VALUE, &hKey);
             if (retval != ERROR_SUCCESS) {
-                _LogError("enumerating index %d of key: '%s'.\n", i, keyName);
+                /*XXX could use FormatMessage to kick out a better error message */
+                _LogError("failed to open the registry key: '%s'.\n", keyName);
                 return 0;
             }
-            if (strncmp(value, "AppData", MAXPATHLEN) == 0) {
-                strncpy(lpBuffer, (char*)data, nBufferLength);
-                /*XXX should check strncpy retval for error */
-                break;
+            retval = RegQueryInfoKey(
+                                     hKey, NULL, NULL, NULL, NULL, NULL, NULL,
+                                     &nValues,  /* number of subkeys */
+                                     NULL, NULL, NULL, NULL);
+            if (retval != ERROR_SUCCESS) {
+                _LogError("failed to get the number of the values "\
+                          "of key: '%s'.\n", keyName);
+                return 0;
+            } else if (nValues == 0) {
+                _LogError("there were no values for the key: '%s'.\n", keyName);
+                return 0;
             }
-        } 
-        RegCloseKey(hKey);
+            for (i = 0; i < nValues; ++i) {
+                char value[MAXPATHLEN];
+                unsigned long lenValue = MAXPATHLEN;
+                BYTE data[MAXPATHLEN];
+                unsigned long lenData = MAXPATHLEN;
+
+                retval = RegEnumValue(hKey, i,
+                                      value, &lenValue, NULL, NULL, data, &lenData);
+                if (retval != ERROR_SUCCESS) {
+                    _LogError("enumerating index %d of key: '%s'.\n", i, keyName);
+                    return 0;
+                }
+                if (strncmp(value, "AppData", MAXPATHLEN) == 0) {
+                    strncpy(lpBuffer, (char*)data, nBufferLength);
+                    /*XXX should check strncpy retval for error */
+                    break;
+                }
+            } 
+            RegCloseKey(hKey);
+        }
         /* create the AppData dir if it does not exist */
         if (! _IsDir(lpBuffer)) {
             int retval = _mkdir(lpBuffer);
