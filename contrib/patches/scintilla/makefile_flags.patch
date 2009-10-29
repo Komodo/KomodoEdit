@@ -1,0 +1,34 @@
+Patch to take CFLAGS, LDFLAGS from the users (Cons) environment.
+===================================================================
+--- gtk/makefile	(revision 34521)
++++ gtk/makefile	(working copy)
+@@ -27,13 +27,13 @@
+ THREADFLAGS=
+ endif
+ 
+ ifdef DEBUG
+-CXXFLAGS=-DDEBUG -g $(CXXBASEFLAGS) $(THREADFLAGS)
++CXXFLAGS += -DDEBUG -g $(CXXBASEFLAGS) $(THREADFLAGS)
+ else
+-CXXFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
++CXXFLAGS += -DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
+ endif
+ 
+ # If explicit setting of GTK1 or GTK2 then use that else look for
+ # pkg-config which is an OK indication that GTK2 is available
+
+===================================================================
+--- macosx/makefile	(revision 35560)
++++ macosx/makefile	(working copy)
+@@ -32,9 +32,9 @@
+ ARCH_BASE_FLAGS=/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386
+ ARCHFLAGS=-isysroot $(ARCH_BASE_FLAGS)
+ LINK_FLAGS=-Wl,-syslibroot,$(ARCH_BASE_FLAGS)
+-DYN_FLAGS=$(LINK_FLAGS) -framework Carbon -install_name @executable_path/$(DYNAMICLIB)
++DYN_FLAGS=$(LINK_FLAGS) -framework Carbon -install_name @executable_path/$(DYNAMICLIB) $(LDFLAGS)
+ else
+-DYN_FLAGS=-framework Carbon -install_name @executable_path/$(DYNAMICLIB)
++DYN_FLAGS=-framework Carbon -install_name @executable_path/$(DYNAMICLIB) $(LDFLAGS)
+ endif
+ endif
+ 
