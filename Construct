@@ -246,6 +246,9 @@ $komodoPythonUtilsDir or die "There was a problem determining the Komodo Python 
 #---- Setup construction environment
 my %environ = (
     'PATH' => $ENV{PATH},
+    'CFLAGS' => $ENV{CFLAGS},
+    'CXXFLAGS' => $ENV{CXXFLAGS},
+    'LDFLAGS' => $ENV{LDFLAGS},
     'INCLUDE' => $ENV{INCLUDE},  #XXX should be Win only
     'LIB' => $ENV{LIB},  #XXX should be WIn only
     'TEMP' => $ENV{TEMP},
