@@ -173,18 +173,23 @@ sub _addLexer {
 
 map { _addLexer($cons, $_); } @lexers;
 
+%consLocal = $cons->copy();
+$consLocal{ENV}{'CXXFLAGS'} .= " $makeFlags";
+$consLocal{ENV}{'LDFLAGS'} .= " $makeFlags";
+$consLocal = new cons(%consLocal);
+
 push(@args, (qq(
              $unsiloedPythonExe bin/run-in-dir.py %1:d/../include/ chmod a+w Scintilla.h
              $unsiloedPythonExe bin/run-in-dir.py %1:d/../include/ chmod a+w SciLexer.h
              $unsiloedPythonExe bin/run-in-dir.py %1:d/../include/ python HFacer.py
              $unsiloedPythonExe bin/run-in-dir.py %1:d chmod a+w deps.mak
              $unsiloedPythonExe bin/run-in-dir.py %1:d make deps
-             CXXFLAGS="$makeFlags" $unsiloedPythonExe bin/run-in-dir.py %1:d make shared NATIVE=1 -f %1:f $libName
+             $unsiloedPythonExe bin/run-in-dir.py %1:d make shared NATIVE=1 -f %1:f $libName
 	     $unsiloedPythonExe bin/run-in-dir.py %1:d cp $libName $mozBin
              ))
      );
 
-$cons->Command(@args);
+$consLocal->Command(@args);
 
 
 
