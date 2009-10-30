@@ -2618,7 +2618,7 @@ def target_jsstandalone(argv=["mozilla"]):
     config = _importConfig()
     if config.official and not config.jsStandalone:
         return argv[1:]
-    if config.mozVer >= 1.92:
+    if config.mozVer >= 1.91:
         # Nothing to do - it's already all done.
         return argv[1:]
 
