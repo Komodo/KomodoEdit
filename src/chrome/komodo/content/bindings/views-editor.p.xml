@@ -156,6 +156,7 @@
             this.parentView.setContext(this, "tabContextMenu");
             this.__globalPrefs.prefObserverService.addObserver(this, 'ySlop', false);
             this.__globalPrefs.prefObserverService.addObserver(this, 'select_most_recent_buffer_on_buffer_close', false);
+            this.__globalPrefs.prefObserverService.addObserver(this, 'editor-scheme', false);
             this.scimoz.setYCaretPolicy(this.scimoz.CARET_SLOP |
                                    this.scimoz.CARET_STRICT |
                                    this.scimoz.CARET_EVEN,
@@ -493,7 +494,8 @@
                 this.scintilla.focus();
                 this.restoreLocation(locationInfo);
                 break;
-            case 'scheme-changed':
+            case 'editor-scheme': // Chose a different scheme
+            case 'scheme-changed': // Modified the current scheme
                 setTimeout(function(this_) {
                     // view.scintilla is still using the old scheme.
                     this_._setupHighlightColors();
@@ -601,6 +603,7 @@
                 }
                 this.__globalPrefs.prefObserverService.removeObserver(this, 'ySlop');
                 this.__globalPrefs.prefObserverService.removeObserver(this, 'select_most_recent_buffer_on_buffer_close');
+                this.__globalPrefs.prefObserverService.removeObserver(this, 'editor-scheme');
 
                 window.removeEventListener('codeintel_activated_window',
                     this._on_codeintel_activated_window, false);
