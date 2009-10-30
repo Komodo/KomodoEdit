@@ -121,6 +121,7 @@ else {
     $consLocal{'CXXFLAGS'} .= " -I$mozDevelDist/include/content" .
         " -I$mozDevelDist/include/necko" .
         " -I$mozDevelDist/include/layout";
+    $consLocal{'LDFLAGS'} = $consLocal{ENV}{'LDFLAGS'};
 
     
 
@@ -131,9 +132,9 @@ else {
       $consLocal{'LIBS'} = "-lxpcomglue ".$consLocal{'LIBS'};
     }
     if ($platform eq "darwin") {
-        $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
+        $consLocal{'LDFLAGS'} .= " -framework Carbon -bundle";
     } else {
-        $consLocal{'LDFLAGS'} = "-fPIC -shared";
+        $consLocal{'LDFLAGS'} .= " -fPIC -shared";
     }
     $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
