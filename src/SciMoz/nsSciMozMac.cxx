@@ -150,15 +150,9 @@ extern HIViewRef scintilla_new(void);
 }
 
 void SciMoz::NotifySignal(intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam) {
-	switch (iMessage) {
-	case WM_NOTIFY:
+	if (iMessage == WM_NOTIFY) {
 		SciMoz *s = reinterpret_cast<SciMoz *>(windowid);
 		s->Notify(lParam);
-		break;
-	case WM_COMMAND:
-		// wParam >> 16 == SCEN_SETFOCUS | SCEN_KILLFOCUS
-		// wParam >> 16 == SCEN_CHANGE
-		break;
 	}
 }
 

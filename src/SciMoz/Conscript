@@ -249,12 +249,14 @@ elsif ($platform eq "darwin") {
 
     %consLocal = $cons->copy();
     $consLocal{'LDFLAGS'} = "-dynamic";
-    $consLocal{'LIBS'} = "-bundle -lplds4 -lplc4 -lnspr4 -lxpcom -lxpcom_core -lscintilla ";
+    $consLocal{'LIBS'} = "-bundle -lxpcom_core -lscintilla -lplugingate_s";
     if ($mozVersionNumber >= 190) {
       $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
       $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
-      $consLocal{'LIBS'} .= " -L$mozDevelDist/lib ";
-      $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a ";
+      if ($mozVersionNumber == 190) {
+        $consLocal{'LIBS'} .= " -L$mozDevelDist/lib ";
+        $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a ";
+      }
     }
     # add required frameworks
     $consLocal{'LIBS'} .= "-framework Carbon -framework CoreFoundation ";
@@ -264,6 +266,10 @@ elsif ($platform eq "darwin") {
     $consLocal{'CPPPATH'} = "$scintillaBuildDir/include:$scintillaBuildDir/src:$scintillaBuildDir/macosx:$mozIncludePath:$mozDevelDist/include/java";
     $consLocal{'LIBPATH'} = "$mozLibPath:$pluginSdkObjDir/samples/common:$mozBin";
     $consLocal{'CXXFLAGS'} = " -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti -fno-common ";
+    # Add the global FLAGS.
+    $consLocal{'CXXFLAGS'} .= " $consLocal{ENV}{'CXXFLAGS'}";
+    $consLocal{'CFLAGS'} = $consLocal{ENV}{'CFLAGS'};
+    $consLocal{'LDFLAGS'} = $consLocal{ENV}{'LDFLAGS'};
     # XXX cannot build universal unless mozilla is universal
     if ($universal) {
         $consLocal{'CXXFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
@@ -284,18 +290,10 @@ elsif ($platform eq "darwin") {
     # Ensure that these are defined for use by mozilla headers
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
         " -I$pluginSdkSrcDir/samples/include ".
-        " -I$mozDevelDist/include" .
-        " -I$mozDevelDist/include/xulapp" .
-        " -I$mozDevelDist/include/widget" .
-        " -I$mozDevelDist/include/dom" .
         " -I$mozDevelDist/include/string" .
-        " -I$mozDevelDist/include/xpcom" .
         " -I$mozSrc/mozilla/xpcom/ds" .
-        " -I$mozDevelDist/include/nspr" .
         " -I$mozDevelDist/include/content" .
         " -I$mozDevelDist/include/gfx" .
-        " -I$mozDevelDist/include/plugin" .
-        " -I$mozDevelDist/include/java" .
 	" -I/Developer/Headers/FlatCarbon";
 
     if ($buildType eq 'debug') {
@@ -496,7 +494,7 @@ if ($platform eq "win") {
 else {
     %consLocal = $cons->copy();
 
-    $consLocal{'LIBPATH'} = "$mozLibPath:$mozBin";
+    $consLocal{'LIBPATH'} = "$mozLibPath:$pluginSdkObjDir/samples/common:$mozBin";
     $consLocal{'CPPPATH'} = "$mozIncludePath:$scintillaBuildDir/include:$scintillaBuildDir/src";
     $consLocal{'CXXFLAGS'} .= " -I$mozDevelDist/include/content" .
         " -I$mozDevelDist/include/necko" .
@@ -508,13 +506,17 @@ else {
 
     $consLocal{'CXX'} = "g++";
     $consLocal{'CC'} = "gcc";
-    $consLocal{'LIBS'} = "-lxpcom -lnspr4 -lplds4 -lplc4 -lxpcom_core -lscintilla ";
-    if ($mozVersionNumber >= 190) {
+    $consLocal{'LIBS'} = "-bundle -lxpcom_core -lplugingate_s -lscintilla ";
+    if ($mozVersionNumber == 190) {
       $consLocal{'LIBS'} = "-lxpcomglue ".$consLocal{'LIBS'};
     }
     if ($platform eq "darwin") {
         $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
         $consLocal{'CXXFLAGS'} .= " -DMACOSX=1 -DXP_MACOSX=1 -DNO_X11=1 ";
+        # Add the global FLAGS.
+        $consLocal{'CXXFLAGS'} .= " $consLocal{ENV}{'CXXFLAGS'}";
+        $consLocal{'CFLAGS'} .= " $consLocal{ENV}{'CFLAGS'}";
+        $consLocal{'LDFLAGS'} .= " $consLocal{ENV}{'LDFLAGS'}";
         if ($universal) {
             $consLocal{'CXXFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
             $consLocal{'CFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
