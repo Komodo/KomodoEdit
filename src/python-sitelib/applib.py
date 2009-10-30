@@ -195,6 +195,17 @@ def _get_win_folder_with_pywin32(csidl_name):
     # path.
     try:
         dir = unicode(dir)
+        has_high_char = False
+        for c in dir:
+            if ord(c) > 255:
+                has_high_char = True
+                break
+        if has_high_char:
+            try:
+                import win32api
+                dir = win32api.GetShortPathName(dir)
+            except ImportError:
+                pass
     except UnicodeError:
         pass
     return dir
@@ -210,6 +221,15 @@ def _get_win_folder_with_ctypes(csidl_name):
     
     buf = ctypes.create_unicode_buffer(1024)
     ctypes.windll.shell32.SHGetFolderPathW(None, csidl_const, None, 0, buf)
+    has_high_char = False
+    for c in dir:
+        if ord(c) > 255:
+            has_high_char = True
+            break
+    if has_high_char:
+        buf2 = ctypes.create_unicode_buffer(1024)
+        if ctypes.windll.kernel32.GetShortPathNameW(buf.value, buf2, 1024):
+            buf = buf2
     return buf.value
 
 if sys.platform == "win32":
