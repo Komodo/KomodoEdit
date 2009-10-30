@@ -1691,10 +1691,10 @@ def target_configure(argv):
             mozBuildExtensions.append('cookie')
             if mozVer < 1.91:
                 mozBuildExtensions.append('xml-rpc')
+                mozBuildExtensions.append('inspector')
             
             mozBuildExtensions.append('spellcheck')
             #mozBuildExtensions.append('typeaheadfind')
-            mozBuildExtensions.append('inspector')
             
             # XXX these fail, but we probably dont care
             #mozBuildExtensions.append('gnomevfs')
