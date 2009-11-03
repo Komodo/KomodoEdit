@@ -506,7 +506,7 @@ else {
 
     $consLocal{'CXX'} = "g++";
     $consLocal{'CC'} = "gcc";
-    $consLocal{'LIBS'} = "-bundle -lxpcom_core -lplugingate_s -lscintilla ";
+    $consLocal{'LIBS'} = "-bundle -lxpcom_core -lnspr4 -lplc4 -lplds4 -lscintilla ";
     if ($mozVersionNumber == 190) {
       $consLocal{'LIBS'} = "-lxpcomglue ".$consLocal{'LIBS'};
     }
