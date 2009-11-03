@@ -1460,7 +1460,7 @@ def target_configure(argv):
         elif pi.arch == "x86":
             sdk_ver = "10.4"
         else:
-            sdk = "10.3"
+            sdk_ver = "10.3"
 
         if not sdk_ver:
             raise BuildError("You cannot build Mozilla without a platform "
