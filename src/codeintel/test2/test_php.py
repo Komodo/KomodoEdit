@@ -3400,6 +3400,23 @@ class DefnTestCase(CodeIntelTestCase):
             ])
 
 
+class EscapingTestCase(CodeIntelTestCase):
+    lang = "PHP"
+    test_dir = join(os.getcwd(), "tmp")
+
+    @tag("bug85176")
+    def test_invalid_xml_character_removal(self):
+        content, positions = unmark_text(dedent("""\
+        <?php
+        // A funky char \x10 is here.
+        function func_bug85176() { }
+        func_bug85176(<1>);
+        ?>
+        """))
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+                             "func_bug85176()\nA funky char  is here.")
+
+
 #---- mainline
 
 if __name__ == "__main__":

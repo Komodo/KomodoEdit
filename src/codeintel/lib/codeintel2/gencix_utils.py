@@ -138,6 +138,16 @@ def getAllTextFromSubElements(elem, subelementname):
         return getText(descnodes[0])
     return None
 
+_invalid_char_re = re.compile(u'[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD]')
+def strip_invalid_xml_chars(s):
+    """Return the string with any invalid XML characters removed.
+
+    The valid characters are listed here:
+        http://www.w3.org/TR/REC-xml/#charsets
+        #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+    """
+    return _invalid_char_re.sub("", s)
+
 def setCixDoc(cixelement, doctext, parse=False):
     if parse:
         doclines = parseDocSummary(doctext.splitlines(0))
@@ -150,7 +160,7 @@ def setCixDoc(cixelement, doctext, parse=False):
     #if len(doctext) > 1000:
     #    warnings.warn("doctext for cixelement: %r has length: %d" % (
     #                    cixelement.get("name"), len(doctext)))
-    cixelement.attrib["doc"] = doctext
+    cixelement.attrib["doc"] = strip_invalid_xml_chars(doctext)
 
 def setCixDocFromNodeChildren(cixelement, node, childnodename):
     doctext = getAllTextFromSubElements(node, childnodename)
