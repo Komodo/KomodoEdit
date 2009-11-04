@@ -61,6 +61,8 @@ ko.mru = {};
     
 var gMRUPrefObserver = null;
 var _log = ko.logging.getLogger('ko.mru');
+var _os_case_sensitive = navigator.platform.toLowerCase().substr(0, 3) != "win";
+
 //_log.setLevel(ko.logging.LOG_DEBUG);
 
 
@@ -234,22 +236,15 @@ this.addURL = function MRU_addURL(prefName, url)
 {
     _log.info("MRU_addURL(prefName="+prefName+", url="+url+")");
 
-    // Never want to add kodebugger:// URLs to our MRUs.
+    // Never want to add dbgp:// URLs to our MRUs.
     // XXX:HACK This should be a special case of a sub-classed implementation
     //          of koIMRU for the recent files and projects MRUs.
-    if (url.indexOf("kodebugger://") == 0) {
+    if (url.indexOf("dbgp://") == 0) {
         return;
     }
 
-    //XXX Might want to cache or preprocess this.
-    var infoService = Components.classes['@activestate.com/koInfoService;1'].
-                      getService(Components.interfaces.koIInfoService);
-    // On *nix filesystems, files with same name different case are recognised
-    // as a separate files they are the same file on win32.
-    var caseSensitive = infoService.platform.substring(0,3) != "win";
-
     // max entries should itself come from a preference!
-    MRU_add(prefName, url, caseSensitive);
+    MRU_add(prefName, url, _os_case_sensitive);
 }
 
 
