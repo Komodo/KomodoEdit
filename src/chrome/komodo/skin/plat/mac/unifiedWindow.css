@@ -10,10 +10,8 @@
   background-color: #C9C9C9;
 }
 
-#toolbox_main > menubar,
 #toolbox_main > toolbar,
-#main-toolboxrow,
-#main-toolboxrow > toolbar {
+#main-toolboxrow > toolbaritem {
   background-color: #C9C9C9;
   border: none;
   background-image: url("chrome://komodo/skin/images/toolbar-background.gif");
@@ -29,18 +27,18 @@
 
 /* height same as background image */
 #toolbox_main > toolbar,
-#main-toolboxrow > toolbar {
+#main-toolboxrow > toolbaritem {
   height: 31px;
 }
 
 #toolbox_main > toolbar,
-#main-toolboxrow > toolbar {
+#main-toolboxrow > toolbaritem {
   padding-right: 3px;
   padding-left: 3px;
 }
 
 toolbox[mode="full"] #main-toolboxrow,
-toolbox[mode="full"] #main-toolboxrow > toolbar {
+toolbox[mode="full"] #main-toolboxrow > toolbaritem {
   background-color: #C9C9C9;
   border: none;
   background-image: none;
@@ -54,10 +52,9 @@ toolbox[mode="full"] #main-toolboxrow > toolbar {
 /* ----- INACTIVE WINDOW ----- */
 
 #komodo_main:not([active="true"]) > #toolbox_main,
-#komodo_main:not([active="true"]) > #toolbox_main > menubar,
 #komodo_main:not([active="true"]) > #toolbox_main > toolbar,
 #komodo_main:not([active="true"]) > #toolbox_main > #main-toolboxrow,
-#komodo_main:not([active="true"]) > #toolbox_main > #main-toolboxrow > toolbar {
+#komodo_main:not([active="true"]) > #toolbox_main > #main-toolboxrow > toolbaritem {
   background-color: #E4E4E4;
   background-image: url("chrome://komodo/skin/images/toolbar-background-inactive.png");
 }
@@ -78,4 +75,24 @@ toolbox[mode="full"] #main-toolboxrow > toolbar {
 
 #komodo_main:not([active="true"]) #main-toolboxrow > toolbar[mode="full"] {
   background-image: none;
+}
+
+
+
+/**
+ * Do not display the menubar toolbar on Mac - as it already has it's own
+ * top-level menu - ToddW.
+ */
+#toolbar-menubar {
+  display: none;
+}
+
+/**
+ * Remove the additional padding around the toolbar buttons. Without this the
+ * toolbar menu buttons are mis-aligned and there are spaces between the
+ * menu buttons and the regular buttons - ToddW.
+ */
+toolbarbutton {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
 }

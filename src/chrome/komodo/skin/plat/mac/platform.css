@@ -66,7 +66,7 @@ splitter[orient="horizontal"].multiview_splitter {
   border-bottom: 1px solid rgba(0,0,0,0.50);
 }
 
-toolbar[mode="full"] .toolbar-background {
+toolbar[mode="full"] toolbaritem .toolbar-background {
   background-color: #C9C9C9;
   background-image: url("chrome://global/skin/toolbar/toolbar-background-tall.png");
   border-bottom: 1px solid rgba(0,0,0,0.50);
@@ -126,55 +126,31 @@ toolbar {
   -moz-box-pack: center;
 }
 
-toolbar[mode="full"] toolbarbutton {
+toolbar[mode="full"] toolbaritem toolbarbutton {
   background: transparent;
   border: none;
 }
 
-toolbar[mode="full"] .toolbarbutton-icon,
+/**
+ * Put toolbar buttons in a bordered box.
+ */
 .toolbar-hbox toolbarbutton,
-toolbar[mode="icons"] toolbarbutton {
+toolbar[mode="icons"] toolbaritem toolbarbutton {
   border: 1px solid rgba(0,0,0,.5);
   border-bottom: 2px groove grey;
   background-image: url("chrome://global/skin/icons/button-gradient.png");
   margin: 0px;
   margin-right: -1px;
-  padding: 1px 4px;
   min-width: 24px;
   height: 24px;
 }
 
-toolbar[mode="full"] .toolbarbutton-icon {
-  margin: 0px;
-  padding: 4px;
-}
-
-.toolbar-hbox toolbarbutton:not([type="checked"]):not([disabled="true"]):hover:active,
-.toolbar-hbox toolbarbutton:not([type="checked"]):not([disabled="true"]):hover:active toolbarbutton,
-.toolbar-hbox toolbarbutton[open="true"],
-.toolbar-hbox toolbarbutton[open="true"] toolbarbutton,
+/**
+ * Use a different background to distinguish when a toolbar button is checked.
+ */
 .toolbar-hbox toolbarbutton[checked="true"],
-
-toolbar[mode="icons"] toolbarbutton:not([type="checked"]):not([disabled="true"]):hover:active,
-toolbar[mode="icons"] toolbarbutton:not([type="checked"]):not([disabled="true"]):hover:active toolbarbutton,
-toolbar[mode="icons"] toolbarbutton[open="true"],
-toolbar[mode="icons"] toolbarbutton[open="true"] toolbarbutton,
-toolbar[mode="icons"] toolbarbutton[checked="true"],
-
-toolbar[mode="full"] toolbarbutton:not([type="checked"]):not([disabled="true"]):hover:active toolbarbutton  .toolbarbutton-icon,
-toolbar[mode="full"] toolbarbutton[open="true"] .toolbarbutton-icon,
-toolbar[mode="full"] toolbarbutton[checked="true"] .toolbarbutton-icon {
-  background-image: url("chrome://komodo/skin/images/button-gradient-active.png");
-}
-
-window:not([active="true"]) .toolbar-hbox toolbarbutton:not([type="checked"]):not([disabled="true"]):hover:active,
-window:not([active="true"]) toolbar[mode="icons"] toolbarbutton:not([type="checked"]):not([disabled="true"]):hover:active,
-window:not([active="true"]) .toolbar-hbox toolbarbutton[checked="true"],
-window:not([active="true"]) toolbar[mode="icons"] toolbarbutton[checked="true"],
-
-window:not([active="true"]) toolbar[mode="full"] toolbarbutton:not([type="checked"]):not([disabled="true"]):hover:active toolbarbutton  .toolbarbutton-icon,
-window:not([active="true"]) toolbar[mode="full"] toolbarbutton[checked="true"] .toolbarbutton-icon {
-  background-image: url("chrome://komodo/skin/images/button-gradient-inactive.png");
+toolbar[mode="icons"] toolbaritem toolbarbutton[checked="true"] {
+  background-image: url(chrome://komodo/skin/images/button-gradient-inactive.png);
 }
 
 .toolbar-hbox toolbarbutton:first-child,
@@ -193,9 +169,8 @@ toolbar[mode="icons"] toolbarbutton:last-child {
   -moz-border-radius-bottomright: 4px;
 }
 
-toolbar[mode="full"] toolbarbutton > .toolbarbutton-icon,
 .toolbar-hbox .solo-button,
-toolbar[mode="icons"] .solo-button {
+toolbar[mode="icons"] toolbaritem .solo-button {
   -moz-border-radius: 4px;
 }
 
@@ -204,8 +179,6 @@ toolbar[mode="icons"] toolbarbutton toolbarbutton {
   border: none;
   background-color: transparent;
 }
-
-
 
 /* ---- Rounded search/filter textbox ---- 
  * Based on "search-box" in "toolkit/themes/pinstripe/global/textbox.css".
