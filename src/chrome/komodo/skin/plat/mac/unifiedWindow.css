@@ -37,15 +37,14 @@
   padding-left: 3px;
 }
 
-toolbox[mode="full"] #main-toolboxrow,
-toolbox[mode="full"] #main-toolboxrow > toolbaritem {
+#main-toolboxrow[mode="full"],
+#main-toolboxrow[mode="full"] > toolbaritem {
   background-color: #C9C9C9;
   border: none;
   background-image: none;
 }
 
-#main-toolboxrow > toolbar[mode="full"] {
-  background-image: none;
+#main-toolboxrow[mode="full"] {
   height: 50px;
 }
 
