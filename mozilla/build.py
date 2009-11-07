@@ -72,7 +72,7 @@ r"""
         python build.py configure -k 5.12 --moz-src=cvs \
             --release --no-strip --tools
     * Komodo 6.0 development builds:
-        python build.py configure -k 6.10 --moz-src=192 \
+        python build.py configure -k 6.10 --moz-src=191 \
             --release --no-strip --tools
 """
 #

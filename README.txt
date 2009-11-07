@@ -28,7 +28,7 @@ Build steps on Windows:
     REM ---- Build Mozilla
     cd openkomodo\mozilla
     setenv-moz-msvc6.bat
-    python build.py configure -k 5.2 --moz-src=cvs --release --no-strip --tools --moz-objdir=ko-obj
+    python build.py configure -k 6.10 --moz-src=191 --release --no-strip --tools --moz-objdir=ko-obj
     python build.py distclean all
     cd ..
     REM ---- Build Komodo
@@ -42,7 +42,7 @@ Build steps on Linux and Mac OS X:
 
     #---- Build Mozilla
     cd openkomodo/mozilla
-    python build.py configure -k 5.2 --moz-src=cvs --release \
+    python build.py configure -k 6.10 --moz-src=191 --release \
         --no-strip --tools
     python build.py distclean all
     cd ..
@@ -235,11 +235,11 @@ for Komodo, you should only need to do this once (in a while).
 3. Configure for the mozilla build. On Windows you currently want
    something like:
 
-        python build.py configure -k 5.2 --moz-src=cvs --release --no-strip --tools --moz-objdir=ko-obj
+        python build.py configure -k 6.10 --moz-src=191 --release --no-strip --tools --moz-objdir=ko-obj
 
    On other platforms:
    
-        python build.py configure -k 5.2 --moz-src=cvs --release \
+        python build.py configure -k 6.10 --moz-src=191 --release \
             --no-strip --tools
 
    What this configure-step does is create a "config.py" file that guides
@@ -247,8 +247,8 @@ for Komodo, you should only need to do this once (in a while).
    "./configure; make; make install" build trinity.
    
    What this configuration is saying is:
-   - configure for a Komodo Edit 5.2.x build
-   - use the latest Mozilla CVS HEAD sources
+   - configure for a Komodo Edit 6.10.x build
+   - use the latest Mozilla 1.9.1 source code
    - do a release (i.e. non-debug) build
    - don't strip symbol information from binaries (i.e. *don't* put
      --enable-strip in .mozconfig)
@@ -288,9 +288,9 @@ Step 3: Building Komodo
    If you built Mozilla above for a Komodo version other than the version
    mentioned in "src/version.txt", then you may have to specify your
    version. E.g. if you configured above with
-   "python configure.py -k 5.2 ..." then you'd want something like:
+   "python configure.py -k 6.10 ..." then you'd want something like:
    
-        bk configure -V 5.2.0-devel
+        bk configure -V 6.10.0-devel
 
    Run `bk help configure` for a (somewhat sparse) listing of available
    options.
