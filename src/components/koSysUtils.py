@@ -358,7 +358,7 @@ class koSysUtils:
         return diff
 
     def pickColor(self, startingcolor):
-        self.pickColorWithPositioning(startingcolor, -1, -1)
+        return self.pickColorWithPositioning(startingcolor, -1, -1)
 
     def pickColorWithPositioning(self, startingcolor, screenX, screenY):
         prefSvc = components.classes["@activestate.com/koPrefService;1"]\
@@ -406,7 +406,7 @@ if sys.platform.startswith("win"):
             self._sysUtilsSvc = None
 
         def pickColor(self, startingcolor):
-            self.pickColorWithPositioning(startingcolor, -1, -1)
+            return self.pickColorWithPositioning(startingcolor, -1, -1)
 
         def pickColorWithPositioning(self, startingcolor, screenX, screenY):
             from wnd.dlgs.choosecolor import ChooseColor
@@ -443,7 +443,7 @@ elif sys.platform.startswith("darwin"):
         ]
 
         def pickColor(self, startingcolor):
-            self.pickColorWithPositioning(startingcolor, -1, -1)
+            return self.pickColorWithPositioning(startingcolor, -1, -1)
 
         def pickColorWithPositioning(self, startingcolor, screenX, screenY):
             import ColorPicker
