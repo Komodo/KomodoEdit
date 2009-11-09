@@ -77,7 +77,7 @@ function removeAmpersands(labels) {
 this.URI = function open_openURI(uri, viewType /* ="editor" */,
                                  skipRecentOpenFeature /* =false */,
                                  callback /* =null */) {
-    return this.URIAtLine(uri, null, viewType, skipRecentOpenFeature, callback);
+    return ko.open.URIAtLine(uri, null, viewType, skipRecentOpenFeature, callback);
 }
 
 /**
