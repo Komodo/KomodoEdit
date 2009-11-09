@@ -1774,13 +1774,25 @@ private:
         return true;
     }
     bool verifyStringSpace(int strLen) {
-        if (tagNameStorageIndex + strLen + 1 > tagNameStorageAvail) {
+        int strLenWithNullByte = strLen + 1;
+        if (tagNameStorageIndex + strLenWithNullByte > tagNameStorageAvail) {
             int newSize = (tagNameStorageAvail - tagNameStorageBase) * 2;
+            int oldIndex = tagNameStorageIndex - tagNameStorageBase;
+            int sentinel = 0;
+            while (newSize < oldIndex + strLenWithNullByte) {
+                newSize *= 2;
+                if (++sentinel >= 100) {
+                    fprintf(stderr, "UDL::verifyStringSpace -- internal error calculating memory requirements\n");
+                    return false;
+                }
+            }
             char *tmp = new char[newSize];
             if (!tmp) return false;
-            memcpy(tmp, tagNameStorageBase, tagNameStorageIndex - tagNameStorageBase);
+            memcpy(tmp, tagNameStorageBase, oldIndex);
             delete[] tagNameStorageBase;
             tagNameStorageBase = tmp;
+            tagNameStorageAvail = tagNameStorageBase + newSize;
+            tagNameStorageIndex = tagNameStorageBase + oldIndex;
         }
         return true;
     }
