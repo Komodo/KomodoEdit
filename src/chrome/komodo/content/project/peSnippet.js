@@ -149,8 +149,11 @@ peSnippet.prototype.doCommand = function(command) {
         }
         break;
     case 'cmd_makeSnippetFromSelection':
-        var snippet = ko.projects.addSnippetFromText(ko.views.manager.currentView.selection);
-        ko.toolboxes.user.addItem(snippet,null);
+        // Bug 84402: Create new snippets in the user toolbox,
+        // not the current project.
+        var user_toolbox = ko.toolboxes.user;
+        var snippet = ko.projects.addSnippetFromText(ko.views.manager.currentView.selection, user_toolbox.toolbox);
+        user_toolbox.addItem(snippet, null);
     default:
         break;
     }
