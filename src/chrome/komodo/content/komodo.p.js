@@ -311,7 +311,7 @@ function onloadDelay() {
             ko.workspace.restoreWorkspace();
         }
         // handle window.arguments spec list
-        if (window.arguments && window.arguments[0]) {
+        if ('arguments' in window && window.arguments && window.arguments[0]) {
             var arg = window.arguments[0];
             if ('workspaceIndex' in arg) {
                 ko.workspace.restoreWorkspaceByIndex(window, arg.workspaceIndex);
