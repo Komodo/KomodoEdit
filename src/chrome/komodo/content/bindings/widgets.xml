@@ -170,8 +170,7 @@
 
     <!-- TODO: add a "check path validity" icon -->
 
-    <binding id="listbox-patheditor"
-             extends="xul:vbox">
+    <binding id="listbox-patheditor">
         <content type="directory" orient="vertical">
             <xul:hbox style="margin-right: 5px">
                 <xul:spring flex="1"/>
@@ -478,8 +477,7 @@
         </implementation>
     </binding>
 
-    <binding id="listbox-checklist"
-             extends="xul:vbox">
+    <binding id="listbox-checklist">
         <content>
             <xul:vbox flex="1">
                 <xul:hbox style="margin-right: 5px">
@@ -696,7 +694,7 @@
     </binding>
 
 
-    <binding id="tree-mappededitor" extends="xul:vbox">
+    <binding id="tree-mappededitor">
         <content orient="vertical" flex="1">
             <xul:hbox style="margin-right: 5px">
                 <xul:spring flex="1"/>
