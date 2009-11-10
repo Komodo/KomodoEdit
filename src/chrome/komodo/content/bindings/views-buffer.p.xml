@@ -1381,7 +1381,7 @@
                 }
             }
             for (var i=0; i < this._keys_down.length; i++) {
-                if (keyCode == this._keys_down[i][0]) {
+                if (keyCode == this._keys_down[i]) {
                     return true;
                 }
             }
@@ -1400,7 +1400,7 @@
                 }
             }
             for (var i=0; i < this._keys_down.length; i++) {
-                if (this._keys_down[i][0] /* event.keyCode */ == this.DOM_VK_CONTROL) {
+                if (this._keys_down[i] /* event.keyCode */ == this.DOM_VK_CONTROL) {
                     return true;
                 }
             }
@@ -1419,7 +1419,7 @@
                 }
             }
             for (var i=0; i < this._keys_down.length; i++) {
-                if (this._keys_down[i][0] /* event.keyCode */ == this.DOM_VK_META) {
+                if (this._keys_down[i] /* event.keyCode */ == this.DOM_VK_META) {
                     return true;
                 }
             }
@@ -1584,22 +1584,18 @@
         <handler event="keydown" phase="capturing">
             <![CDATA[
             var keyCode = event.keyCode;
-            var keydownItem = [keyCode, event.charCode]
 <!-- #if PLATFORM == "darwin" -->
             // Ensure the keydown event is not a duplicate, as the Mac will
             // often send duplicate events for CMD+key keypresses, bug 82367.
-            var kd;
             for (var i=0; i < this._keys_down.length; i++) {
-                kd = this._keys_down[i];
-                if (keydownItem[0] == kd[0] &&
-                    keydownItem[1] == kd[1]) {
+                if (keyCode == this._keys_down[i]) {
                     // Key is already there.
                     return;
                 }
             }
 <!-- #endif -->
             //dump("keydown:: keyCode: " + keyCode + "\n");
-            this._keys_down.push(keydownItem);
+            this._keys_down.push(keyCode);
 <!-- #if PLATFORM == "darwin" -->
             if (keyCode == this.DOM_VK_META) {
 <!-- #else -->
@@ -1617,13 +1613,11 @@
         <handler event="keyup" phase="capturing">
             <![CDATA[
             var keyCode = event.keyCode;
-            var charCode = event.charCode;
             //dump("keyup:: keyCode: " + keyCode + "\n");
             // This key removal is not that accurate on the Mac, as the keyCode
             // and charCode can both be 0 for Ctrl, Meta, Alt keypresses.
             for (var i=(this._keys_down.length - 1); i >=0; i--) {
-                if ((keyCode == this._keys_down[i][0]) &&
-                    (charCode == this._keys_down[i][1])) {
+                if (keyCode == this._keys_down[i]) {
                     this._keys_down.splice(i, 1);
                 }
             }
