@@ -1923,20 +1923,23 @@ function dumpUsedBys(usedbys) {
     }
 }
 
-this.manager.prototype.eventBindings = function (event) {
+this.manager.prototype.eventBindings = function (event, isKeyPressEvent) {
+    if (typeof(isKeyPressEvent) == 'undefined') {
+        isKeyPressEvent = true;
+    }
     var possible = [];
     var k;
 // #if PLATFORM == 'darwin'
-    k = this.event2keylabel(event, true);
+    k = this.event2keylabel(event, true, isKeyPressEvent);
 // #else
     // win/unix
-    k = this.event2keylabel(event, false);
+    k = this.event2keylabel(event, false, isKeyPressEvent);
 // #endif
     if (k)
         possible.push(k);
 // #if PLATFORM != 'darwin' and  PLATFORM != 'win'
     if (event.shiftKey) {
-        var k = this.event2keylabel(event, true);
+        var k = this.event2keylabel(event, true, isKeyPressEvent);
         if (k && k != possible[0])
             possible.push(k);
     }
@@ -1945,7 +1948,7 @@ this.manager.prototype.eventBindings = function (event) {
     return possible;
 }
 
-this.manager.prototype.event2keylabel = function (event, useShift) {
+this.manager.prototype.event2keylabel = function (event, useShift, isKeyPressEvent) {
     var data = [];
     try {
         if (typeof(useShift) == 'undefined') {
@@ -1968,7 +1971,9 @@ this.manager.prototype.event2keylabel = function (event, useShift) {
                      (!('originalTarget' in event) || (event.originalTarget.nodeName != "html:input"));
 
         var keypressed = null;
-        var normCharCode = event.charCode;
+        // keydown and keyup events do not set the charCode, they only set the
+        // keyCode - keypress events set the charCode.
+        var normCharCode = isKeyPressEvent ? event.charCode : 0;
         if (event.keyCode &&
             event.keyCode in VKCodes &&
             !(event.keyCode in VKModifiers) ) {
@@ -2125,7 +2130,7 @@ var gKeyHandler = function (event) {
 // #if PLATFORM != 'darwin'
 var gKeyDownHandler = function (event) {
     // get and store the keydown label
-    gKeybindingMgr.keyDownLabels = gKeybindingMgr.eventBindings(event);
+    gKeybindingMgr.keyDownLabels = gKeybindingMgr.eventBindings(event, false);
     //dump("gKeyDownHandler "+gKeybindingMgr.keyDownLabels.join(", ")+"\n");
 }
 // #endif
@@ -2166,7 +2171,7 @@ this.manager.prototype.keypressHandler = function (event) {
         if (event.charCode == 0 && (event.keyCode == 0 || !(event.keyCode in VKCodes)))
             return;
 
-        var keys = this.eventBindings(event);
+        var keys = this.eventBindings(event, true);
 // #if PLATFORM != 'darwin'
         if (this.keyDownLabels) {
             for (var kd in this.keyDownLabels) {
