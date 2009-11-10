@@ -35,6 +35,14 @@
  * ***** END LICENSE BLOCK ***** */
 
 (function() {
+
+    /**
+     * A href|src file handler - to help in opening files. Examples:
+     *    href="#main"
+     *    src="foobar.css"
+     *    href="script.js"
+     */
+
     /**
      * Open the href location.
      */
