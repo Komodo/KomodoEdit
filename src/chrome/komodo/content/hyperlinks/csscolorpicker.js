@@ -43,7 +43,7 @@
 ko.hyperlinks.ColorPickerHandler = function()
 {
     var name = "Color picker";
-    var find_regex = /#(([0-9a-f]{3}){1,2})\b|rgba?\(\s*(\d+\%?)\s*,\s*(\d+\%?)\s*,\s*(\d+\%?)\s*(,\s*(\d|\d?\.\d+)\s*)?\)/i;
+    var find_regex = /#(([0-9a-f]{3}){1,2})\b|(rgba?|hsla?)\(\s*(\d+\%?)\s*,\s*(\d+\%?)\s*,\s*(\d+\%?)\s*(,\s*(\d|\d?\.\d+)\s*)?\)/i;
     var fn = null;   /* unnecessary, as it's over-riden by the "jump" method */
     var replace_str = null;
     var lang_names = ["CSS", "HTML"];   /* Language types */
@@ -137,7 +137,7 @@ ko.hyperlinks.ColorPickerHandler.prototype.show = function(
 
         var sm = view.scimoz;
         var color = sm.getTextRange(hyperlink.startPos, hyperlink.endPos);
-        if (color.substr(0, 4) == "rgba") {
+        if (color.substr(0, 4) == "rgba" || color.substr(0, 3) == "hsl") {
             div.style.background = color;
         } else {
             color = this.colorToHex(color);
