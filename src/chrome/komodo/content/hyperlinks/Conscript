@@ -44,5 +44,6 @@ Import(
 $cons->InstallInChrome('hyperlinks.js');
 $cons->InstallInChrome('gotodefinition.js');
 $cons->InstallInChrome('regexhandler.js');
+$cons->InstallInChrome('filehandler.js');
 $cons->InstallInChrome('csscolorpicker.js');
 

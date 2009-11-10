@@ -61,6 +61,7 @@ ko.hyperlinks.RegexHandler = function(name, findRegex, fn, replace_str, lang_nam
     ko.hyperlinks.BaseHandler.apply(this, base_args);
     this.findRegex = findRegex;
     this.replace_str = replace_str;
+    this.regex_match = null;
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -87,6 +88,7 @@ ko.hyperlinks.RegexHandler.prototype.show = function(view, scimoz, position, lin
     var start = lineStartPos;
     var end;
     while (match) {
+        this.regex_match = match;
         //dump("RegexHandler:: '" + this.name + "' matched: " + match[0] + "\n");
         // The match must overlap the given position.
         start += ko.stringutils.bytelength(line.substr(0, match.index));
