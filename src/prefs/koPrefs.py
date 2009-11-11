@@ -831,6 +831,37 @@ class koOrderedPreference:
         assert self._inCollection(index)
         return self._collection[index][1]
 
+    def findStringPref(self, pref):
+        i = 0
+        for val, typ in self._collection:
+            if typ == "string" and val == pref:
+                return i
+            i += 1
+        return -1
+
+    def findStringPrefIgnoringCase(self, pref):
+        i = 0
+        pref = pref.lower()
+        for val, typ in self._collection:
+            if typ == "string" and val.lower() == pref:
+                return i
+            i += 1
+        return -1
+
+    def findAndDeleteStringPref(self, pref):
+        i = self.findStringPref(pref)
+        if i >= 0:
+            self.deletePref(i)
+            return True
+        return False
+
+    def findAndDeleteStringPrefIgnoringCase(self, pref):
+        i = self.findStringPrefIgnoringCase(pref)
+        if i >= 0:
+            self.deletePref(i)
+            return True
+        return False
+
     def get_length(self):
         return len(self._collection)
 

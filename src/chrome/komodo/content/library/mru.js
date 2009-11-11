@@ -206,15 +206,10 @@ this.add = function MRU_add(prefName, entry, caseSensitive)
 
     // If the mru list already contains this entry, first remove it so
     // that it will be reinserted at the top of the list again.
-    for (var i = 0; i < mruList.length; i++) {
-        var existingEntry = mruList.getStringPref(i);
-        if (caseSensitive && entry == existingEntry) {
-            mruList.deletePref(i);
-            break;
-        } else if (entry.toLowerCase() == existingEntry.toLowerCase()) {
-            mruList.deletePref(i);
-            break;
-        }
+    if (caseSensitive) {
+        mruList.findAndDeleteStringPref(entry);
+    } else {
+        mruList.findAndDeleteStringPrefIgnoringCase(entry);
     }
 
     // Also: keep the list constrained to the correct size.
@@ -232,6 +227,52 @@ this.add = function MRU_add(prefName, entry, caseSensitive)
 }
 
 
+/**
+ * Remove the given "entry" (a string) from the given MRU if it exists.
+ *
+ * @param prefName {string}  The mru preference with which it is associated.
+ * @param entry {string}  The entry to remove from the mru.
+ * @param caseSensitive {boolean}  How to match the entry.
+ */
+this.remove = function MRU_remove(prefName, entry, caseSensitive)
+{
+    _log.info("MRU_remove(prefName="+prefName+", entry="+entry+
+                ", caseSensitive="+caseSensitive+")");
+
+    // Validate arguments.
+    var errmsg;
+    if (!prefName) {
+        errmsg = "MRU_add: invalid argument: prefName='"+prefName+"'";
+        _log.error(errmsg);
+        throw(errmsg);
+    }
+    if (!entry) {
+        errmsg = "MRU_add: warning: no entry: prefName='"+prefName+
+                 "', entry='"+entry+"'";
+        _log.warn(errmsg)
+    }
+
+    var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
+                  getService(Components.interfaces.koIPrefService);
+
+    if (!prefSvc.prefs.hasPref(prefName)) {
+        // Nothing to remove from.
+        return;
+    }
+
+    var was_deleted;
+    var mruList = prefSvc.prefs.getPref(prefName);
+    if (caseSensitive) {
+        was_deleted = mruList.findAndDeleteStringPref(entry);
+    } else {
+        was_deleted = mruList.findAndDeleteStringPrefIgnoringCase(entry);
+    }
+    if (was_deleted) {
+        _notifyOfMRUChange(prefName);
+    }
+}
+
+
 this.addURL = function MRU_addURL(prefName, url)
 {
     _log.info("MRU_addURL(prefName="+prefName+", url="+url+")");
@@ -245,6 +286,20 @@ this.addURL = function MRU_addURL(prefName, url)
 
     // max entries should itself come from a preference!
     MRU_add(prefName, url, _os_case_sensitive);
+}
+
+
+/**
+ * Remove the given URL from the mru preference (if it exists).
+ *
+ * @param prefName {string}  The mru preference with which it is associated.
+ * @param url {string}  The URL to remove from the mru.
+ */
+this.removeURL = function MRU_removeURL(prefName, url)
+{
+    _log.info("MRU_removeURL(prefName="+prefName+", url="+url+")");
+
+    this.remove(prefName, url, _os_case_sensitive);
 }
 
 

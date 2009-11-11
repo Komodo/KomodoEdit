@@ -105,15 +105,20 @@
 
             this._document = val;
             if (val) {
+                // Remove the file from the MRU when it is opened... this may
+                // seem strange, it's because once you open the file you don't
+                // need it in the MRU - it will be re-added when the file is
+                // closed - bug 75381.
+                // Note: isSpecial typicaly denotes sockets and such, is also
+                //       used by us to identify things like dbgp files
+                //       we don't want special files in our mru
+                if (!val.isUntitled && val.file && !val.file.isSpecial) {
+                    ko.mru.removeURL("mruFileList", val.file.URI);
+                }
+
                 // We are attaching a document to this view
                 val.addReference();
                 val.addView(this);
-                // isSpecial typicaly denotes sockets and such, is also
-                // used by us to identify things like dbgp files
-                // we don't want special files in our mru
-                if (!val.isUntitled && val.file && !val.file.isSpecial) {
-                    ko.mru.addURL("mruFileList", val.file.URI);
-                }
                 // we want to listen for any changes in the document
                 val.observerService.addObserver(this,'buffer_dirty',0);
                 val.observerService.addObserver(this,'language_changed',0);
@@ -595,6 +600,13 @@
 
         <method name="closeUnconditionally">
             <body><![CDATA[
+                // isSpecial typicaly denotes sockets and such, is also
+                // used by us to identify things like dbgp files
+                // we don't want special files in our mru
+                if (!this.document.isUntitled && this.document.file && !this.document.file.isSpecial) {
+                    ko.mru.addURL("mruFileList", this.document.file.URI);
+                }
+
                 this.saveState();
                 this.document = null;
                 if (this.preview) {

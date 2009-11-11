@@ -68,6 +68,15 @@ interface koIOrderedPreference : koIPreference {
   double getDoublePref(in long index);
   boolean getBooleanPref(in long index);
  
+  // Utility methods for finding strings in an ordered preference, returns the
+  // index at which the string was found, or -1 when not found.
+  long findStringPref(in wstring pref);
+  long findStringPrefIgnoringCase(in wstring pref);
+  // Utility methods for finding and deleting strings in an ordered preference,
+  // returns true when the string found, or false when not found.
+  boolean findAndDeleteStringPref(in wstring pref);
+  boolean findAndDeleteStringPrefIgnoringCase(in wstring pref);
+
   // The number of preferences contained in the ordered collection.
   readonly attribute long length;
 
