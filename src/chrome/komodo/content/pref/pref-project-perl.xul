@@ -77,6 +77,11 @@ function OnPreferencePageLoading() {
     extraPaths.setCwd(file.dirName)
 }
 
+function OnPreferencePageOK() {
+     // override the general lang intrepreter OK function
+     return true;
+}
+
 ]]>
 </script>
 
