@@ -148,7 +148,7 @@
     <hbox id="mode_hbox" align="center">
         <label id="mode_label" value="&filePermissions.manual_mode.label;" />
         <textbox id="mode_textbox"
-                 type="timed"
+                 type="search"
                  timeout="500"
                  oncommand="setPermissions(parseInt(this.value, 8));" />
     </hbox>

@@ -82,7 +82,7 @@
                 <textbox id="languageStatus-filter-textbox"
                          class="ko-searchbox"
                          timeout="300"
-                         type="timed"
+                         type="search"
                          oncommand="updateLanguageNames(this.value);"/>
             </hbox>
             <separator class="thin"/>

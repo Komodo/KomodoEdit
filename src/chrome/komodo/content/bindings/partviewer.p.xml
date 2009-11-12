@@ -56,7 +56,7 @@
                              class="search-box"
                              style="min-width:40px; max-width:200px; margin-right:0px;"
                              flex="1"
-                             type="timed"
+                             type="search"
                              timeout="500"
                              onfocus="window.updateCommands('undo');this.select();"
                              onblur="window.updateCommands('undo')"
