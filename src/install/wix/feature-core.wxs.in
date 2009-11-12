@@ -418,6 +418,9 @@
             <File Id="file356" Name="thebes.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\thebes.dll"/>
             <File Id="file594" Name="xul.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xul.dll"/>
             <File Id="file402" Name="MOZPYT_0.EXE" LongName="mozpython.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mozpython.exe"/>
+            <File Id="file910" LongName="nspr-config" Name="NSPRCO_0" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nspr-config" />
+            <File Id="file911" Name="nssdbm3.chk" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nssdbm3.chk" />
+            <File Id="file912" LongName="update.locale" Name="UPDATE_0.LOC" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\update.locale" />
 <?if $(var.WithCrypto) = "yes" ?>
             <File Id="file1889" Name="freebl3.chk" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.chk"/>
             <File Id="file1890" Name="freebl3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.dll"/>
@@ -818,6 +821,14 @@
               <File Id="file475" Name="dom_json.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_json.xpt"/>
               <File Id="file476" Name="DOM_OF_0.XPT" LongName="dom_offline.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_offline.xpt"/>
               <File Id="file480" Name="EXTHEL_0.XPT" LongName="exthelper.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\exthelper.xpt"/>
+              <File Id="file913" LongName="dom_geolocation.xpt" Name="DOM_GE_0.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_geolocation.xpt" />
+              <File Id="file914" LongName="dom_threads.xpt" Name="DOM_TH_0.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_threads.xpt" />
+              <File Id="file915" LongName="necko_wifi.xpt" Name="NECKO__3.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_wifi.xpt" />
+              <File Id="file916" LongName="NetworkGeolocationProvider.js" Name="NETWOR_0.JS" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\NetworkGeolocationProvider.js" />
+              <File Id="file917" LongName="nsSearchService.js" Name="NSSEAR_0.JS" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsSearchService.js" />
+              <File Id="file918" LongName="nsSearchSuggestions.js" Name="NSSEAR_1.JS" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsSearchSuggestions.js" />
+              <File Id="file919" LongName="storage-mozStorage.js" Name="STORAG_1.JS" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\storage-mozStorage.js" />
+              <File Id="file920" LongName="toolkitsearch.xpt" Name="TOOLKI_1.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\toolkitsearch.xpt" />
               <File Id="file481" Name="KOPOWE_1.PY" LongName="koPowerShellLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPowerShellLanguage.py"/>
               <File Id="file482" Name="KOPROJ_1.PY" LongName="koProjectImportService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koProjectImportService.py"/>
               <File Id="file483" Name="KOPROJ_2.PY" LongName="koProjectPackageService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koProjectPackageService.py"/>
@@ -1542,6 +1553,9 @@
               <File Id="file591" Name="MICROF_0.JS" LongName="Microformats.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\Microformats.js"/>
               <File Id="file592" Name="PLURAL_0.JSM" LongName="PluralForm.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\PluralForm.jsm"/>
               <File Id="file593" Name="XPCOMU_0.JSM" LongName="XPCOMUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\XPCOMUtils.jsm"/>
+              <File Id="file921" LongName="DownloadLastDir.jsm" Name="DOWNLO_1.JSM" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\DownloadLastDir.jsm" />
+              <File Id="file922" LongName="SpatialNavigation.js" Name="SPATIA_0.JS" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\SpatialNavigation.js" />
+              <File Id="file923" LongName="WindowDraggingUtils.jsm" Name="WINDOW_0.JSM" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\WindowDraggingUtils.jsm" />
             </Component>
           </Directory> <!-- lib\mozilla\modules -->
           <Directory Id="directory66" Name="plugins">
