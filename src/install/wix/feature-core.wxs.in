@@ -386,7 +386,6 @@
             <File Id="file326" Name="ACCESS_0.DLL" LongName="AccessibleMarshal.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\AccessibleMarshal.dll"/>
             <File Id="file328" Name="DEPEND_0.LIS" LongName="dependentlibs.list" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\dependentlibs.list"/>
             <File Id="file329" Name="js.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\js.exe"/>
-            <File Id="file3904" Name="js32.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\js32.dll"/>
             <File Id="file330" Name="js3250.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\js3250.dll"/>
             <File Id="file332" Name="nspr4.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nspr4.dll"/>
             <File Id="file333" Name="plc4.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\plc4.dll"/>
@@ -407,13 +406,10 @@
             <File Id="file466" Name="CRASHR_0.EXE" LongName="crashreporter.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\crashreporter.exe"/>
             <File Id="file467" Name="CRASHR_0.INI" LongName="crashreporter.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\crashreporter.ini"/>
             <File Id="file468" Name="IA2MAR_0.DLL" LongName="IA2Marshal.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\IA2Marshal.dll"/>
-            <File Id="file469" Name="JSEXE_0.MAN" LongName="js.exe.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\js.exe.manifest"/>
-            <File Id="file470" Name="JS32DL_0.MAN" LongName="js32.dll.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\js32.dll.manifest"/>
             <File Id="file473" Name="platform.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\platform.ini"/>
             <File Id="file477" Name="pyxpcom.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\pyxpcom.dll"/>
             <File Id="file478" Name="sqlite3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\sqlite3.dll"/>
             <File Id="file344" Name="gkgfx.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\gkgfx.dll"/>
-            <File Id="file349" Name="mozlcms.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mozlcms.dll"/>
             <File Id="file351" Name="mozz.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mozz.dll"/>
             <File Id="file356" Name="thebes.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\thebes.dll"/>
             <File Id="file594" Name="xul.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\xul.dll"/>
@@ -434,7 +430,6 @@
             <File Id="file1896" Name="softokn3.chk" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\softokn3.chk"/>
             <File Id="file1897" Name="softokn3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\softokn3.dll"/>
             <File Id="file1898" Name="ssl3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\ssl3.dll"/>
-            <File Id="file479" Name="SSLTUN_0.EXE" LongName="ssltunnel.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\ssltunnel.exe"/>
 <?endif ?>
           </Component>
           <Directory Id="ChromeDir" Name="chrome">
@@ -525,7 +520,6 @@
               <File Id="file1945" Name="fastfind.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\fastfind.xpt"/>
               <File Id="file1946" Name="find.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\find.xpt"/>
               <File Id="file1947" Name="gfx.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\gfx.xpt"/>
-              <File Id="file1948" Name="history.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\history.xpt"/>
               <File Id="file1949" Name="HTMLPA_0.XPT" LongName="htmlparser.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\htmlparser.xpt"/>
               <File Id="file1950" Name="imgicon.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\imgicon.xpt"/>
               <File Id="file1951" Name="imglib2.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\imglib2.xpt"/>
@@ -753,15 +747,12 @@
               <File Id="file2204" Name="NECKO_10.XPT" LongName="necko_strconv.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_strconv.xpt"/>
               <File Id="file2205" Name="NECKO_11.XPT" LongName="necko_viewsource.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_viewsource.xpt"/>
               <File Id="file2209" Name="NSDEFA_0.JS" LongName="nsDefaultCLH.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsDefaultCLH.js"/>
-              <File Id="file2210" Name="NSDICT_0.JS" LongName="nsDictionary.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsDictionary.js"/>
               <File Id="file2211" Name="NSEXTE_0.JS" LongName="nsExtensionManager.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsExtensionManager.js"/>
               <File Id="file2212" Name="NSHELP_0.JS" LongName="nsHelperAppDlg.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsHelperAppDlg.js"/>
               <File Id="file2215" Name="NSPOST_0.JS" LongName="nsPostUpdateWin.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsPostUpdateWin.js"/>
               <File Id="file2216" Name="NSPROG_0.JS" LongName="nsProgressDialog.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsProgressDialog.js"/>
               <File Id="file2217" Name="NSPROX_0.JS" LongName="nsProxyAutoConfig.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsProxyAutoConfig.js"/>
-              <File Id="file2218" Name="NSRESE_0.JS" LongName="nsResetPref.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsResetPref.js"/>
               <File Id="file2221" Name="NSUPDA_0.JS" LongName="nsUpdateService.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsUpdateService.js"/>
-              <File Id="file2222" Name="NSXMLR_0.JS" LongName="nsXmlRpcClient.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsXmlRpcClient.js"/>
               <File Id="file2224" Name="plugin.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\plugin.xpt"/>
               <File Id="file2225" Name="pref.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pref.xpt"/>
               <File Id="file2226" Name="prefetch.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\prefetch.xpt"/>
@@ -784,7 +775,6 @@
               <File Id="file2249" Name="widget.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\widget.xpt"/>
               <File Id="file2250" Name="windowds.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\windowds.xpt"/>
               <File Id="file2251" Name="WINDOW_0.XPT" LongName="windowwatcher.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\windowwatcher.xpt"/>
-              <File Id="file2252" Name="XMLRPC_0.XPT" LongName="xml-rpc.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xml-rpc.xpt"/>
               <File Id="file2254" Name="XPCOM__0.XPT" LongName="xpcom_base.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_base.xpt"/>
               <File Id="file2255" Name="XPCOM__1.XPT" LongName="xpcom_components.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_components.xpt"/>
               <File Id="file2256" Name="xpcom_ds.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_ds.xpt"/>
@@ -890,7 +880,6 @@
               <File Id="file783" Name="spellchk.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\spellchk.dll"/>
               <File Id="file784" Name="strgcmps.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\strgcmps.dll"/>
               <File Id="file788" Name="tkautoc.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\tkautoc.dll"/>
-              <File Id="file796" Name="tkhstory.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\tkhstory.dll"/>
               <File Id="file797" Name="tkitcmps.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\tkitcmps.dll"/>
               <File Id="file798" Name="txmgr.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\txmgr.dll"/>
               <File Id="file799" Name="uconv.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\uconv.dll"/>
@@ -898,7 +887,6 @@
               <File Id="file801" Name="UNIVER_0.DLL" LongName="universalchardet.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\universalchardet.dll"/>
               <File Id="file802" Name="webbrwsr.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\webbrwsr.dll"/>
               <File Id="file803" Name="windowds.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\windowds.dll"/>
-              <File Id="file804" Name="XMLEXT_0.DLL" LongName="xmlextras.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xmlextras.dll"/>
               <File Id="file805" Name="xpc3250.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpc3250.dll"/>
               <File Id="file806" Name="XPCOM__2.DLL" LongName="xpcom_compat_c.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_compat_c.dll"/>
               <File Id="file807" Name="xppref32.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xppref32.dll"/>
@@ -1549,7 +1537,6 @@
               <File Id="file583" Name="debug.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\debug.js"/>
               <File Id="file584" Name="DOWNLO_0.JSM" LongName="DownloadUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\DownloadUtils.jsm"/>
               <File Id="file585" Name="ISO860_0.JSM" LongName="ISO8601DateUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\ISO8601DateUtils.jsm"/>
-              <File Id="file586" Name="JSON.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\JSON.jsm"/>
               <File Id="file591" Name="MICROF_0.JS" LongName="Microformats.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\Microformats.js"/>
               <File Id="file592" Name="PLURAL_0.JSM" LongName="PluralForm.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\PluralForm.jsm"/>
               <File Id="file593" Name="XPCOMU_0.JSM" LongName="XPCOMUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\XPCOMUtils.jsm"/>
@@ -3685,7 +3672,6 @@
               <File Id="file4136" Name="NSIDO_12.IDL" LongName="nsIDOMCSSStyleSheet.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMCSSStyleSheet.idl"/>
               <File Id="file4137" Name="NSIDO_13.IDL" LongName="nsIDOMCSSValue.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMCSSValue.idl"/>
               <File Id="file4138" Name="NSIDO_14.IDL" LongName="nsIDOMCSSValueList.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMCSSValueList.idl"/>
-              <File Id="file4139" Name="NSIDO_15.IDL" LongName="nsIDOMCustomEvent.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMCustomEvent.idl"/>
               <File Id="file4140" Name="NSIDO_16.IDL" LongName="nsIDOMDocument.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMDocument.idl"/>
               <File Id="file4141" Name="NSIDO_17.IDL" LongName="nsIDOMDocumentEvent.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMDocumentEvent.idl"/>
               <File Id="file4142" Name="NSIDO_18.IDL" LongName="nsIDOMDocumentFragment.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMDocumentFragment.idl"/>
