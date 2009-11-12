@@ -3767,6 +3767,17 @@
               <File Id="file4324" Name="NSID_109.IDL" LongName="nsIDOMWindow2.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMWindow2.idl"/>
               <File Id="file4325" Name="NSID_110.IDL" LongName="nsIDOMWindowCollection.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMWindowCollection.idl"/>
               <File Id="file4326" Name="NSID_111.IDL" LongName="nsIDOMWindowUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMWindowUtils.idl"/>
+              <File Id="file899" Name="NSID_112.IDL" LongName="nsIDOMHTMLAudioElement.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMHTMLAudioElement.idl" />
+              <File Id="file900" Name="NSID_113.IDL" LongName="nsIDOMHTMLByteRanges.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMHTMLByteRanges.idl" />
+              <File Id="file901" Name="NSID_114.IDL" LongName="nsIDOMHTMLMediaElement.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMHTMLMediaElement.idl" />
+              <File Id="file902" Name="NSID_115.IDL" LongName="nsIDOMHTMLMediaError.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMHTMLMediaError.idl" />
+              <File Id="file903" Name="NSID_116.IDL" LongName="nsIDOMHTMLSourceElement.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMHTMLSourceElement.idl" />
+              <File Id="file904" Name="NSID_117.IDL" LongName="nsIDOMHTMLTimeRanges.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMHTMLTimeRanges.idl" />
+              <File Id="file905" Name="NSID_118.IDL" LongName="nsIDOMHTMLVideoElement.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMHTMLVideoElement.idl" />
+              <File Id="file906" Name="NSID_119.IDL" LongName="nsIDOMHTMLVoidCallback.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMHTMLVoidCallback.idl" />
+              <File Id="file907" Name="NSID_120.IDL" LongName="nsIDOMMouseScrollEvent.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMMouseScrollEvent.idl" />
+              <File Id="file908" Name="NSID_121.IDL" LongName="nsIDOMProgressEvent.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMProgressEvent.idl" />
+              <File Id="file909" Name="NSID_122.IDL" LongName="nsIDOMStorageWindow_1_9_1.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOMStorageWindow_1_9_1.idl" />
               <File Id="file4327" Name="NSIEMB_0.IDL" LongName="nsIEmbeddingSiteWindow.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIEmbeddingSiteWindow.idl"/>
               <File Id="file4328" Name="NSIFAC_0.IDL" LongName="nsIFactory.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIFactory.idl"/>
               <File Id="file4329" Name="nsIFile.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIFile.idl"/>
