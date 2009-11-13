@@ -113,6 +113,7 @@ discardedFeatures = [
 	"getTextRange", "getText", "setText",
 	"getSelText", "getLine", "charPosAtPosition",
 	"replaceTarget", "replaceTargetRE", "searchInTarget",
+	"getModEventMask", "setModEventMask",
 ]
 
 # NOTE: Only need either the "get" or "set" version - not both (tho it doesnt hurt :-)
