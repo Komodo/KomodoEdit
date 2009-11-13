@@ -65,7 +65,7 @@
                 </xul:toolbar>
             </xul:toolbox>
 
-            <xul:browser context="context" type="content" id="content" src="about:blank" flex="1"/>
+            <xul:browser context="context" type="content" id="content" src="about:blank" flex="1" xbl:inherits="disablehistory"/>
         </xul:vbox>
     </content>
     <implementation name="viewbrowser" implements="koIBrowserView">
@@ -160,6 +160,8 @@
         <method name="resetArrowButtons">
         <body>
         <![CDATA[
+            if (this.browser.getAttribute("disablehistory") == "true")
+                return;
             if (this.browser.canGoBack)
                 this._backButton.removeAttribute('disabled');
             else
