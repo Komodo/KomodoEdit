@@ -43,6 +43,10 @@
      *    href="script.js"
      */
 
+    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/hyperlinks/hyperlinks.properties");
+
     /**
      * Open the href location.
      */
@@ -71,6 +75,9 @@
                     var scimoz_pos = ko.stringutils.bytelength(text.substr(0, pos));
                     sm.gotoPos(scimoz_pos);
                     return;
+                } else {
+                    ko.statusBar.AddMessage(_bundle.formatStringFromName("noAnchorFound.message", [filepath], 1),
+                                            "hyperlinks", 3000, true);
                 }
             } else if (filepath[0] == "\\" || filepath[0] == "/") {
                 // It's an absolute path.
@@ -86,7 +93,11 @@
                     return;
                 }
                 // #2 TODO: check against a list of known places (images, css,
-                //          etc...)
+                //          etc...).
+
+                // For now we just try to open the file - perhaps using a mapped
+                // URI will get them to the right file.
+                ko.open.URI(filepath);
             }
         }
     }
