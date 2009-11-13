@@ -1420,7 +1420,7 @@ viewManager.prototype._doCloseAll = function(ignoreFailures, closeStartPage, doN
     // returns true if all views were closed.
     var views = this.topView.getDocumentViews(true);
     var i;
-    // Uses batch mode to avoid pref hit from resetting the current view, see
+    // Uses batch mode to avoid perf hit from resetting the current view, see
     // bug 85290.
     ko.views.manager.batchMode = true;
     try {
