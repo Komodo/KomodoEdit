@@ -1420,14 +1420,21 @@ viewManager.prototype._doCloseAll = function(ignoreFailures, closeStartPage, doN
     // returns true if all views were closed.
     var views = this.topView.getDocumentViews(true);
     var i;
-    for (i = views.length-1; i >= 0; i--) {
-        // Exclude the Start Page from "Close All".
-        //   http://bugs.activestate.com/show_bug.cgi?id=27321
-        if (views[i].getAttribute("type") == "startpage" && !closeStartPage)
-            continue;
-        if (! views[i].close(doNotOfferToSave) && !ignoreFailures) {
-            return false;
+    // Uses batch mode to avoid pref hit from resetting the current view, see
+    // bug 85290.
+    ko.views.manager.batchMode = true;
+    try {
+        for (i = views.length-1; i >= 0; i--) {
+            // Exclude the Start Page from "Close All".
+            //   http://bugs.activestate.com/show_bug.cgi?id=27321
+            if (views[i].getAttribute("type") == "startpage" && !closeStartPage)
+                continue;
+            if (! views[i].close(doNotOfferToSave) && !ignoreFailures) {
+                return false;
+            }
         }
+    } finally {
+        ko.views.manager.batchMode = false;
     }
     return true;
 }
