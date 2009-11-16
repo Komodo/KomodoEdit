@@ -73,9 +73,11 @@ if ($platform eq "win") {
     $xre_dir = "$hostUserDataDir\\XRE";
     $rm_cmd = "IF EXIST \"$xre_dir\\compreg.dat\" del \"$xre_dir\\compreg.dat\"";
 }
+# Change directory to the mozBin dir to avoid regxpcom picking up the
+# incorrect libraries (most notably libsqlite on Snow Leopard).
 $cons->Command($ranRegxpcomStateFileName, qq(
     $rm_cmd
-    regxpcom
+    cd $mozBin && regxpcom
     @ echo yes> %0
     ));
 
