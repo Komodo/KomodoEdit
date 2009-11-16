@@ -222,7 +222,7 @@ def _get_win_folder_with_ctypes(csidl_name):
     buf = ctypes.create_unicode_buffer(1024)
     ctypes.windll.shell32.SHGetFolderPathW(None, csidl_const, None, 0, buf)
     has_high_char = False
-    for c in dir:
+    for c in buf:
         if ord(c) > 255:
             has_high_char = True
             break
