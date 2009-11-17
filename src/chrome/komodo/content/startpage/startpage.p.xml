@@ -432,6 +432,8 @@
                 getService(Components.interfaces.koIOs);
             this._lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                 getService(Components.interfaces.koILastErrorService);
+            this._remoteSvc = Components.classes["@activestate.com/koRemoteConnectionService;1"]
+                .getService(Components.interfaces.koIRemoteConnectionService);
             this._bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/startpage/startpage.properties");
@@ -752,7 +754,7 @@
                                  getService(Components.interfaces.koITime);
                     var path = ko.uriparse.displayPath(url);
                     return timeSvc.nice_modtime_from_path(path);
-                } else if (url.search(/^(koremote\:)/) != -1)  {
+                } else if (this._remoteSvc.isSupportedRemoteUrl(url))  {
                     msg = this._bundle.GetStringFromName("couldNotDetermineRemoteFile.message");
                 } else  {
                     msg = this._bundle.GetStringFromName("couldNotDetermine.message");
