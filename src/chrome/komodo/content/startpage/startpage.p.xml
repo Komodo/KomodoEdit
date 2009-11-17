@@ -348,7 +348,7 @@
     </content>
 </binding>
 
-<binding id="startpage-tree-mru" extends="xul:vbox">
+<binding id="startpage-tree-mru">
     <resources>
         <stylesheet src="chrome://komodo/skin/global/global.css"/>
         <stylesheet src="chrome://komodo/skin/startpage/startpage.css"/>
