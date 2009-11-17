@@ -2285,6 +2285,7 @@ viewManager.prototype.do_cmd_cancel = function() {
         sm.autoCCancel()
     } else {
         Find_HighlightClearAll(sm);
+        this.currentView.removeHyperlinks("cmd_cancel");
     }
 }
 
