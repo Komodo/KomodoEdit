@@ -20,6 +20,7 @@
 
   <menupopup id="popup_file_open">
     <menuitem id="menu_gotoFile"
+              key="key_cmd_goToFile"
               insertafter="menu_openFile"
               label="&goToFile.menuitem;"
               class="menuitem-iconic open-file-icon"
