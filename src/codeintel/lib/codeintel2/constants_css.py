@@ -457,6 +457,7 @@ CSS_ATTR_DICT = {
             'compact',
             'inherit',
             'inline',
+            'inline-block',
             'inline-table',
             'list-item',
             'marker',
