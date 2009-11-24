@@ -155,7 +155,7 @@
                             class="tabs-select-button"
                             tooltiptext="&listAllSidebars.tooltiptext;">
                         <xul:menupopup anonid="tabs-list-popup"
-                                onpopupshowing="this.parentNode.parentNode.parentNode.parentNode.getTabList();"/>
+                                onpopupshowing="document.getBindingParent(this).getTabList();"/>
                     </xul:toolbarbutton>
                     <xul:toolbarbutton anonid="panel-close-button"
                             class="tabs-closebutton"
@@ -250,7 +250,7 @@
                                class="tabs-select-button"
                                tooltiptext="&listAllTabs.tooltiptext;">
                     <xul:menupopup anonid="tabs-list-popup" position="after_end"
-                        onpopupshowing="this.parentNode.parentNode.parentNode.getTabList();"/>
+                        onpopupshowing="document.getBindingParent(this).getTabList();"/>
                 </xul:toolbarbutton>
                 <xul:toolbarbutton anonid="panel-close-button" class="tabs-closebutton"
                             collapsed="true"

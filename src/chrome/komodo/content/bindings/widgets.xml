@@ -48,7 +48,7 @@
     <!-- Language list menupopup -->
     <binding id="lang-list">
         <content>
-            <xul:menulist oncommand="this.parentNode.changedSelection(event);"
+            <xul:menulist oncommand="document.getBindingParent(this).changedSelection(event);"
                           xbl:inherits="class, selected, flex, disabled">
                 <xul:menupopup />
             </xul:menulist>
@@ -176,26 +176,26 @@
                 <xul:spring flex="1"/>
                 <xul:button class="list-item-add-icon button-toolbar-a"
                             anonid="addDir"
-                            oncommand="this.parentNode.parentNode.add()"
+                            oncommand="document.getBindingParent(this).add()"
                             tooltiptext="&add.tooltiptext;"/>
                 <xul:button class="list-item-remove-icon button-toolbar-a"
                             anonid="deleteDir"
-                            oncommand="this.parentNode.parentNode.delete()"
+                            oncommand="document.getBindingParent(this).delete()"
                             tooltiptext="&delete.tooltiptext;"/>
                 <xul:button class="list-item-up-icon button-toolbar-a"
                             anonid="moveUpDir"
-                            oncommand="this.parentNode.parentNode.moveUp()"
+                            oncommand="document.getBindingParent(this).moveUp()"
                             tooltiptext="&moveUp.tooltiptext;"/>
                 <xul:button class="list-item-down-icon button-toolbar-a"
                             anonid="moveDownDir"
-                            oncommand="this.parentNode.parentNode.moveDown()"
+                            oncommand="document.getBindingParent(this).moveDown()"
                             tooltiptext="&moveDown.tooltiptext;"/>
             </xul:hbox>
             <xul:listbox
                 flex="1"
                 seltype="multiple"
                 type="editable"
-                onclick="this.parentNode.updateButtons()"
+                onclick="document.getBindingParent(this).updateButtons()"
                 xbl:inherits="seltype,rows">
                 <children/>
             </xul:listbox>
@@ -484,11 +484,11 @@
                     <xul:spring flex="1"/>
                     <xul:button class="list-item-add-icon button-toolbar-a"
                                 id="addItem"
-                                oncommand="this.parentNode.parentNode.parentNode.addItem()"
+                                oncommand="document.getBindingParent(this).addItem()"
                                 tooltiptext="&addEntry.tooltiptext;"/>
                     <xul:button class="list-item-remove-icon button-toolbar-a"
                                 id="deleteItem"
-                                oncommand="this.parentNode.parentNode.parentNode.deleteItems()"
+                                oncommand="document.getBindingParent(this).deleteItems()"
                                 tooltiptext="&deleteEntries.tooltiptext;"/>
                 </xul:hbox>
                 <xul:listbox
@@ -498,7 +498,7 @@
                     rows="4"
                     pref="true"
                     type="editable"
-                    onclick="this.parentNode.parentNode.updateButtons()"
+                    onclick="document.getBindingParent(this).updateButtons()"
                     xbl:inherits="prefstring,flex,seltype,rows,style"/>
             </xul:vbox>
         </content>
@@ -700,24 +700,24 @@
                 <xul:spring flex="1"/>
                 <xul:button class="list-item-add-icon button-toolbar-a"
                             anonid="addDir"
-                            oncommand="this.parentNode.parentNode.add()"
+                            oncommand="document.getBindingParent(this).add()"
                             tooltiptext="&add.tooltiptext;"/>
                 <xul:button class="list-item-remove-icon button-toolbar-a"
                             anonid="deleteDir"
-                            oncommand="this.parentNode.parentNode.delete()"
+                            oncommand="document.getBindingParent(this).delete()"
                             tooltiptext="&delete.tooltiptext;"/>
                 <xul:button class="list-item-up-icon button-toolbar-a"
                             anonid="moveUpDir"
-                            oncommand="this.parentNode.parentNode.moveUp()"
+                            oncommand="document.getBindingParent(this).moveUp()"
                             tooltiptext="&moveUp.tooltiptext;"/>
                 <xul:button class="list-item-down-icon button-toolbar-a"
                             anonid="moveDownDir"
-                            oncommand="this.parentNode.parentNode.moveDown()"
+                            oncommand="document.getBindingParent(this).moveDown()"
                             tooltiptext="&moveDown.tooltiptext;"/>
             </xul:hbox>
             <xul:tree anonid="mapping" flex="1"
-                      onselect="this.parentNode.updateButtons();"
-                      ondblclick="this.parentNode.edit();">
+                      onselect="document.getBindingParent(this).updateButtons();"
+                      ondblclick="document.getBindingParent(this).edit();">
                 <xul:treecols>
                     <xul:treecol id="name" label="&URI.label;" flex="1"/>
                     <xul:splitter class="tree-splitter"/>
@@ -1094,8 +1094,8 @@
                        xbl:inherits="emptytext,onfocus,onblur,spellcheck,value,maxlength,disabled,size,readonly,tabindex,accesskey,timeout,type"/>
           <xul:image class="ko-searchbox-image-clear"
                       xbl:inherits="disabled"
-                      onclick="this.parentNode.clearSearch(event);"
-                      oncommand="this.parentNode.clearSearch(event);"/>
+                      onclick="document.getBindingParent(this).clearSearch(event);"
+                      oncommand="document.getBindingParent(this).clearSearch(event);"/>
         </content>
 
         <implementation>

@@ -53,7 +53,7 @@
             handleCtrlPageUpDown="false"
             xbl:inherit="class,style,flex,orient">
             <xul:tabs type="scrollable" xbl:inherit="orient"
-                onselect="this.parentNode.parentNode.select(event);"
+                onselect="document.getBindingParent(this).select(event);"
                 />
             <xul:tabpanels flex="1"/>
         </xul:tabbox>

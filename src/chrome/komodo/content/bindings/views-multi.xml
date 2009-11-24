@@ -57,7 +57,7 @@
                       type="tabbed"
                       class="thin-inset-border"
                       handlesctrltab="false"
-                      onclick="this.parentNode.parentNode.lastFocused=this;"
+                      onclick="document.getBindingParent(this).lastFocused=this;"
                       width="0"
                       height="0"
                       flex="1"/>
@@ -68,14 +68,14 @@
                       orient="vertical"
                       xbl:inherits="orient"
                       tooltiptext="&doubleClickToChangeOrientation.tooltiptext;"
-                      ondblclick="this.parentNode.parentNode.changeOrient();"/>
+                      ondblclick="document.getBindingParent(this).changeOrient();"/>
             <xul:view id="view-2"
                       lastfocused="false"
                       collapsed="true"
                       type="tabbed"
                       class="thin-inset-border"
                       handlesctrltab="false"
-                      onclick="this.parentNode.parentNode.lastFocused=this;"
+                      onclick="document.getBindingParent(this).lastFocused=this;"
                       width="0"
                       height="0"
                       flex="1"/>

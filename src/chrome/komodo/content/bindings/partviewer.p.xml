@@ -60,13 +60,13 @@
                              timeout="500"
                              onfocus="window.updateCommands('undo');this.select();"
                              onblur="window.updateCommands('undo')"
-                             onkeypress="this.parentNode.parentNode.parentNode.onFilterKeypress(event)"
-                             oncommand="this.parentNode.parentNode.parentNode.updateFilter()"
+                             onkeypress="document.getBindingParent(this).onFilterKeypress(event)"
+                             oncommand="document.getBindingParent(this).updateFilter()"
                              tooltiptext="&filterItems.tooltiptext;"/>
                 </xul:hbox>
                 <xul:tree id="project-tree" flex="1" enableColumnDrag='true'
-                    onmousedown="return this.parentNode.parentNode.onClick(event);"
-                    onselect="return this.parentNode.parentNode.onSelect(event);"
+                    onmousedown="return document.getBindingParent(this).onClick(event);"
+                    onselect="return document.getBindingParent(this).onSelect(event);"
                     style="margin: 0px; padding: 0px;"
                     xbl:inherits="hidecolumnpicker">
                     <xul:treecols>
@@ -79,10 +79,10 @@
                     <xul:treechildren id="tree" flex="1"
                         xbl:inherits="context=viewcontext"
                         context='projectContext'
-                        ondraggesture="nsDragAndDrop.startDrag(event,this.parentNode.parentNode.parentNode);"
-                        ondragover="nsDragAndDrop.dragOver(event,this.parentNode.parentNode.parentNode);"
-                        ondragdrop="this.parentNode.parentNode.parentNode.doDragDropEvent(event);"
-                        ondblclick="this.parentNode.parentNode.parentNode.onDblClick(event);"
+                        ondraggesture="nsDragAndDrop.startDrag(event,document.getBindingParent(this));"
+                        ondragover="nsDragAndDrop.dragOver(event,document.getBindingParent(this));"
+                        ondragdrop="document.getBindingParent(this).doDragDropEvent(event);"
+                        ondblclick="document.getBindingParent(this).onDblClick(event);"
                         class="projectTree"/>
                 </xul:tree>
             </xul:vbox>

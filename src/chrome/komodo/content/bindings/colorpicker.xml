@@ -57,12 +57,12 @@
                     class="back"
                     xbl:inherits="palettename"
                     type="button-flat" allowevents="true"
-                    onchange="this.parentNode.parentNode.pickerChange();"/>
+                    onchange="document.getBindingParent(this).pickerChange();"/>
                 <xul:colorpicker
                     class="fore"
                     xbl:inherits="palettename"
                     type="button-flat" allowevents="true"
-                    onchange="this.parentNode.parentNode.pickerChange();"/>
+                    onchange="document.getBindingParent(this).pickerChange();"/>
             </xul:stack>
         </content>
         <implementation>
