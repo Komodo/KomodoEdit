@@ -60,21 +60,21 @@
                     <xul:menupopup id="currentpopup"/>
                 </xul:menulist>
                 <xul:textbox flex="1" id="currentkey" readonly="true"/>
-                <xul:button id="clear" oncommand="parentNode.parentNode.parentNode._clear1()"
+                <xul:button id="clear" oncommand="document.getBindingParent(this)._clear1()"
                     label="&clear.label;"/>
-                <xul:button id="clearall" oncommand="parentNode.parentNode.parentNode._clearAll()"
+                <xul:button id="clearall" oncommand="document.getBindingParent(this)._clearAll()"
                     label="&clearAll.label;"/>
             </xul:hbox>
             <xul:label class="label" value="&newKeySequence.label;"
                 style="width: 110px;" align="right"/>
             <xul:hbox>
                 <xul:textbox flex="1" id="newkey"
-                    onkeypress="parentNode.parentNode.parentNode.onKeyDown(event)"/>
+                    onkeypress="document.getBindingParent(this).onKeyDown(event)"/>
                 <xul:button id="change"
-                    oncommand="parentNode.parentNode.parentNode._change()"
+                    oncommand="document.getBindingParent(this)._change()"
                     label="&change.label;" disabled="true"/>
                 <xul:button id="add"
-                    oncommand="parentNode.parentNode.parentNode._add()"
+                    oncommand="document.getBindingParent(this)._add()"
                     label="&add.label;" disabled="true"/>
             </xul:hbox>
             <xul:vbox align="center">
