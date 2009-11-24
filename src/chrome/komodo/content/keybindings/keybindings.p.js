@@ -1958,6 +1958,9 @@ this.manager.prototype.event2keylabel = function (event, useShift, isKeyPressEve
             useShift = false;
 // #endif
         }
+        if (typeof(isKeyPressEvent) == 'undefined') {
+            isKeyPressEvent = true;
+        }
         // From an event, builds the string which corresponds to the key
         // conveniently also the menu label, pretty description, etc.
     
