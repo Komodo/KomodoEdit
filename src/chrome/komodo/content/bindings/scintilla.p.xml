@@ -48,7 +48,7 @@
     scintilla requires functions from:
     chrome://komodo/content/library/color_functions.js
     -->
-    <binding id="scintilla" extends="xul:box">
+    <binding id="scintilla">
         <content>
 <!-- #if PLATFORM == "win" -->
             <html:embed type="application/x-scimoz-plugin" flex="1" width="0" height="0" xbl:inherits="focused,flex,width,height"/>

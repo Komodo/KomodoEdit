@@ -46,7 +46,7 @@
     xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <binding id="partviewer" extends="xul:hbox">
+    <binding id="partviewer">
         <content>
             <xul:vbox flex="1">
                 <xul:hbox align="center" class="partviewer-toolbar">

@@ -45,7 +45,7 @@
     xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <binding id="CGIPrefs" extends="xul:hbox">
+    <binding id="CGIPrefs">
         <content>
             <xul:vbox flex="1">
                 <xul:radiogroup id="request-method"
@@ -495,7 +495,7 @@
     </binding>
 
 
-    <binding id="EnvPrefs" extends="xul:hbox">
+    <binding id="EnvPrefs">
         <content>
             <xul:vbox flex="1">
                 <xul:tree id="envVars" flex="1"
