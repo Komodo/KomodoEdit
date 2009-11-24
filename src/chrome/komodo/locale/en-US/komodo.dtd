@@ -51,6 +51,7 @@
 <!ENTITY checkForUpdates.label "Check for Updates...">
 <!ENTITY checkSyntaxNow.label "Check syntax now">
 <!ENTITY cleanLineEndings.label "Clean Line Endings">
+<!ENTITY clearSearchHighlighting.label "Clear Highlighting">
 <!ENTITY clearWarningErrorSquigglies.label "Clear warning/error squigglies">
 <!ENTITY close.label "Close">
 <!ENTITY closeAll.label "Close All">
@@ -347,6 +348,7 @@
 <!ENTITY menuBufferNext.accesskey "x">
 <!ENTITY menuBufferPrevious.accesskey "P">
 <!ENTITY menuCleanLineEndings.accesskey "E">
+<!ENTITY menuClearSearchHighlighting.accesskey "H">
 <!ENTITY menuCloseAll.accesskey "l">
 <!ENTITY menuCode.accesskey "C">
 <!ENTITY menuComment.accesskey "C">

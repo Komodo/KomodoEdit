@@ -762,6 +762,11 @@
                                       accesskey="&menuStartIncrementalSearch.accesskey;"
                                       observes="cmd_startIncrementalSearch"
                                       />
+                            <menuitem label="&clearSearchHighlighting.label;"
+                                      id="menu_clearSearchHighlighting"
+                                      accesskey="&menuClearSearchHighlighting.accesskey;"
+                                      observes="cmd_cancel"
+                                      />
                             <menuseparator/>
                             <!-- mozilla magic...menu_preferences id makes the preference
                                 menu appear in the proper place on osx -->
