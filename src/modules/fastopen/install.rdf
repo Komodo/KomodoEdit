@@ -10,6 +10,7 @@
     <em:description>'Go to File' dialog to quickly open a file</em:description>
     <em:creator>Trent Mick</em:creator>
     <em:homepageURL>http://komodo.activestate.com/addons/fastopen/</em:homepageURL>
+    <em:iconURL>chrome://fastopen/skin/fastopen_32.png</em:iconURL>
     <em:type>2</em:type> <!-- type=extension --> 
 
     <em:targetApplication>
