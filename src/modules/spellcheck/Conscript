@@ -78,6 +78,8 @@ if ($buildFlavour eq "full") {
         "content/koSpellCheck.js",
         "content/koSpellCheckOverlay.xul",
         "content/koSpellCheck.xul",
+        "skin/Readme.txt",
+        "skin/spellcheck-32.png",
         "locale/en-US/spellcheck.dtd",
         "locale/en-US/spellcheck.properties",
         qq(
@@ -109,6 +111,7 @@ else { # dev builds
     foreach my $file (@content_files) {
         $cons->Install("$ext_dir/content", $file);
     }
+    $cons->Install("$ext_dir/skin", "skin/spellcheck-32.png");
     $cons->Install("$ext_dir/locale/en-US", "locale/en-US/spellcheck.dtd");
     $cons->Install("$ext_dir/locale/en-US", "locale/en-US/spellcheck.properties");
 }

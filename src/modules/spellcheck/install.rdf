@@ -47,6 +47,7 @@
 		<em:description>An interactive, multi-lingual, dialog-based spell-checker that uses the Mozilla-supported, Open Office-based dictionaries.</em:description>
 		<em:creator>Eric Promislow</em:creator>
 		<em:homepageURL>http://komodo.activestate.com/addons/komodospellchecker</em:homepageURL>
+		<em:iconURL>chrome://komodospellchecker/skin/spellcheck-32.png</em:iconURL>
 		<em:type>2</em:type> <!-- type=extension --> 
 
 		<em:targetApplication>
