@@ -352,7 +352,7 @@
 <!ENTITY menuCloseAll.accesskey "l">
 <!ENTITY menuCode.accesskey "C">
 <!ENTITY menuComment.accesskey "C">
-<!ENTITY menuCompareFiles.accesskey "p">
+<!ENTITY menuCompareFiles.accesskey "C">
 <!ENTITY menuDedent.accesskey "D">
 <!ENTITY menuEdit.accesskey "E">
 <!ENTITY menuEditPrefsCurrent.accesskey "l">
@@ -397,7 +397,7 @@
 <!ENTITY menuToolboxAdd.accesskey "a">
 <!ENTITY menuTools.accesskey "T">
 <!ENTITY menuToolsRecentCommands.accesskey "e">
-<!ENTITY menuToolsRunCommand.accesskey "u">
+<!ENTITY menuToolsRunCommand.accesskey "R">
 <!ENTITY menuTransientMarkExchangeWithPoint.accesskey "E">
 <!ENTITY menuTransientMarkMoveBack.accesskey "M">
 <!ENTITY menuTransientMarkSet.accesskey "T">
