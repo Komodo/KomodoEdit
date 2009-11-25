@@ -711,6 +711,16 @@
   <boolean id="donotask_restore_workspace">0</boolean>
   <string id="donotask_action_restore_workspace"></string>
 
+  <!-- Dealing with workspaces when Komodo did not shutdown correctly (crashed).
+         komodo_normal_shutdown: set to false when Komodo initially starts up
+                                 set to true after Komodo saves the workspace
+                                 during shutdown.
+       No doNotAsk pref is used with this in case their is a problem with Komodo
+       restoring the workspace, which will allow the user to bypass the
+       workspace restore.
+  -->
+  <boolean id="komodo_normal_shutdown">0</boolean>
+
   <!-- Whether to show the error dialog of reopening file failures at startup. -->
   <boolean id="donotask_startup_reopen_file_error_dialog">0</boolean>
 

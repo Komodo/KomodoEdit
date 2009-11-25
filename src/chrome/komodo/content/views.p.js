@@ -1347,6 +1347,10 @@ viewManager.prototype.handle_view_closed = function() {
         // We've closed our second view
         window.setTimeout("window.updateCommands('second_view_open_close');", 1);
     }
+    if (!ko.workspace.saveInProgress() && !ko.views.manager.batchMode) {
+        // Requires a timeout because the new document is not fully unloaded.
+        window.setTimeout(ko.workspace.saveWorkspace, 1);
+    }
 };
 
 viewManager.prototype.handle_view_opened = function() {
@@ -1360,8 +1364,12 @@ viewManager.prototype.handle_view_opened = function() {
         // We've opened our second view
         window.setTimeout("window.updateCommands('second_view_open_close');", 1);
     }
+    if (!ko.workspace.restoreInProgress() && !ko.views.manager.batchMode) {
+        // Requires a timeout because the new document is not yet fully loaded.
+        window.setTimeout(ko.workspace.saveWorkspace, 1);
+    }
 };
-        
+
 viewManager.prototype.supportsCommand = function(command) {
     if (command.indexOf("cmd_viewAs") == 0) {
         return true;
@@ -2652,6 +2660,7 @@ if (typeof(ko.workspace) == "undefined") {
 (function() {
 
 var _restoreInProgress = false;
+var _saveInProgress = false;
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/views.properties");
@@ -2659,6 +2668,11 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 this.restoreInProgress = function() {
     return _restoreInProgress;
 }
+
+this.saveInProgress = function() {
+    return _saveInProgress;
+}
+
 const multiWindowWorkspacePrefName = "windowWorkspace";
 const _mozPersistPositionDoesNotWork = 
 // #if PLATFORM == 'win' or PLATFORM == 'darwin'
@@ -2678,13 +2692,33 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     var infoSvc = Components.classes["@activestate.com/koInfoService;1"].getService();
     if (infoSvc.nonInteractiveMode) return;
 
-    if ((!gPrefs.hasPref(multiWindowWorkspacePrefName)
-         && !gPrefs.hasPref('workspace'))
-        || ko.dialogs.yesNo(_bundle.GetStringFromName("doYouWantToOpenRecentFilesAndProjects.prompt"),
-                            null, null, null, "restore_workspace") == "No")
-    {
+    var was_normal_shutdown = gPrefs.getBooleanPref('komodo_normal_shutdown');
+    if (was_normal_shutdown) {
+        gPrefs.setBooleanPref('komodo_normal_shutdown', false);
+        // Force flushing of prefs to file.
+        gPrefSvc.saveState();
+    }
+
+    // If there is a workspace to restore - prompt the user to see if they wish
+    // to restore it.
+    if (!gPrefs.hasPref(multiWindowWorkspacePrefName) && !gPrefs.hasPref('workspace')) {
+        return;
+    } else if (!was_normal_shutdown) {   // Komodo crashed
+        if (gPrefs.getBooleanPref("donotask_restore_workspace") &&
+            gPrefs.getStringPref("donotask_action_restore_workspace") == "No") {
+            // The user has explictly asked never to restore the workspace.
+            return;
+        }
+        var prompt = _bundle.GetStringFromName("restoreWorkspaceAfterCrash.prompt");
+        var title = _bundle.GetStringFromName("restoreWorkspaceAfterCrash.title");
+        if (ko.dialogs.yesNo(prompt, null, null, title) == "No") {
+            return;
+        }
+    } else if (ko.dialogs.yesNo(_bundle.GetStringFromName("doYouWantToOpenRecentFilesAndProjects.prompt"),
+                                null, null, null, "restore_workspace") == "No") {
         return;
     }
+
     if (!gPrefs.hasPref(multiWindowWorkspacePrefName)) {
         this._restoreWindowWorkspace(gPrefs.getPref('workspace'), currentWindow, _mozPersistPositionDoesNotWork);
         setTimeout(ko.uilayout.restoreTabSelections, 10, gPrefs);
@@ -2846,8 +2880,9 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         } 
     } catch(ex) {
         log.exception(ex, "Error restoring workspace:");
+    } finally {
+        _restoreInProgress = false;
     }
-    _restoreInProgress = false;
 };
 
 /*XXX: At some point remove these prefs from the global prefset:
@@ -2861,6 +2896,7 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
  */
 this.saveWorkspace = function view_saveWorkspace()
 {
+    _saveInProgress = true;
     // Ask each major component to serialize itself to a pref.
     try {
         var mainWindow = ko.windowManager.getMainWindow();
@@ -2917,6 +2953,8 @@ this.saveWorkspace = function view_saveWorkspace()
         gPrefSvc.saveState();
     } catch (e) {
         log.exception(e,"Error saving workspace: ");
+    } finally {
+        _saveInProgress = false;
     }
 }
 

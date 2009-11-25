@@ -61,8 +61,13 @@ function saveWorkspaceIfNeeded() {
 }
 
 this.quitApplication = function() {
-    saveWorkspaceIfNeeded();
-    goQuitApplication();
+    try {
+        saveWorkspaceIfNeeded();
+        gPrefs.setBooleanPref("komodo_normal_shutdown", true);
+        goQuitApplication();
+    } catch(ex) {
+        _log.exception(ex);
+    }
 };
 
 /**
