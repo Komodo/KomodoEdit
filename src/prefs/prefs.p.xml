@@ -719,7 +719,7 @@
        restoring the workspace, which will allow the user to bypass the
        workspace restore.
   -->
-  <boolean id="komodo_normal_shutdown">0</boolean>
+  <boolean id="komodo_normal_shutdown">1</boolean>
 
   <!-- Whether to show the error dialog of reopening file failures at startup. -->
   <boolean id="donotask_startup_reopen_file_error_dialog">0</boolean>
