@@ -1773,6 +1773,22 @@ private:
         }
         return true;
     }
+
+    void updateStackPointers(char *newNameStorageBase) {
+        // Old names are stored in tagNameStorageBase.
+        // The pointers to them need to be updated to point into newNameStorageBase
+
+        int i;
+        int delta;
+        char *p_dest = newNameStorageBase;
+        for (i = 0; i < stackIndex - 1; i++) {
+            delta = stack[i + 1] - stack[i];
+            stack[i] = p_dest;
+            p_dest += delta;
+        }
+        stack[i] = p_dest;
+    }
+
     bool verifyStringSpace(int strLen) {
         int strLenWithNullByte = strLen + 1;
         if (tagNameStorageIndex + strLenWithNullByte > tagNameStorageAvail) {
@@ -1789,6 +1805,7 @@ private:
             char *tmp = new char[newSize];
             if (!tmp) return false;
             memcpy(tmp, tagNameStorageBase, oldIndex);
+            updateStackPointers(tmp);
             delete[] tagNameStorageBase;
             tagNameStorageBase = tmp;
             tagNameStorageAvail = tagNameStorageBase + newSize;
