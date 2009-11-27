@@ -50,7 +50,7 @@
     /**
      * Open the href location.
      */
-    function src_href_jump_handler(filepath) {
+    function filename_jump_handler(filepath) {
         if (typeof(filepath) == 'undefined') {
             var match = src_href_handler.regex_match;
             filepath = match[2];
@@ -103,10 +103,15 @@
             }
         }
     }
+    function src_href_jump_fn() {
+        var match = src_href_handler.regex_match;
+        var filepath = match[2];
+        filename_jump_handler(filepath);
+    }
     var src_href_handler = new ko.hyperlinks.RegexHandler(
                             "Src and Href handler",
                             new RegExp("\\b(src|href)=[\\\"'](.*?)[\\\"']", "i"),
-                            src_href_jump_handler,
+                            src_href_jump_fn,
                             null,  /* Use the found string instead of a replacement. */
                             null,  /* All language types */
                             Components.interfaces.ISciMoz.INDIC_PLAIN,
@@ -141,7 +146,7 @@
     function php_jump_handler() {
         var match = php_include_handler.regex_match;
         var filepath = match[3];
-        src_href_jump_handler(filepath);
+        filename_jump_handler(filepath);
     }
     var php_include_handler = new ko.hyperlinks.RegexHandler(
             "File handler",
