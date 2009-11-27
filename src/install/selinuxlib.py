@@ -202,7 +202,7 @@ class SELinux:
 def chcon(path, context):
     """Change the security context of the given file."""
     log.debug("chcon -t %s %s", context, path)
-    cmd = 'chcon -t %s --quiet "%s"' % (context, path)
+    cmd = 'chcon -t %s "%s"' % (context, path)
     retval = os.system(cmd)
     if retval:
         raise SELinuxError("running `%s' failed", cmd)
