@@ -50,9 +50,11 @@
     /**
      * Open the href location.
      */
-    function src_href_jump_handler() {
-        var match = src_href_handler.regex_match;
-        var filepath = match[2];
+    function src_href_jump_handler(filepath) {
+        if (typeof(filepath) == 'undefined') {
+            var match = src_href_handler.regex_match;
+            filepath = match[2];
+        }
         if (filepath) {
             /**
              * @type {Components.interfaces.koIScintillaView}
@@ -129,5 +131,26 @@
             Components.interfaces.ISciMoz.INDIC_PLAIN,
             RGB(0x60,0x90,0xff))
     );
+
+
+    /**
+     * A PHP include file handler - to help in opening files. Examples:
+     *    include('functions/myfile.php');
+     *    require_once "foo/bar/myfile.php";
+     */
+    function php_jump_handler() {
+        var match = php_include_handler.regex_match;
+        var filepath = match[3];
+        src_href_jump_handler(filepath);
+    }
+    var php_include_handler = new ko.hyperlinks.RegexHandler(
+            "File handler",
+            new RegExp("(include|require|include_once|require_once)\\s*(\\(\\s*)?[\"'](.*?)[\"']\\s*\\)?", "i"),
+            php_jump_handler,
+            null,  /* Use the found string instead of a replacement. */
+            null,  /* All language types */
+            Components.interfaces.ISciMoz.INDIC_PLAIN,
+            RGB(0x60,0x90,0xff));
+    ko.hyperlinks.addHandler(php_include_handler);
 
 })();
