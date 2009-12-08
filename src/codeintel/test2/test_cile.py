@@ -198,7 +198,15 @@ def _testOneInputFile(self, fpath):
                         blob_elem.set("src", relnorm_infile)
 
             tree = pretty_tree_from_tree(tree)
+            # Due to the dynamic nature of the ciler errors (which often
+            # includes the source code line numbers), it's difficult to check
+            # that the errors are identical, so we work around this by just
+            # taking the first 30 characters of the error.
+            cile_error = tree[0].get("error")
+            if cile_error and fpath.endswith(".js"):
+                tree[0].set("error", len(cile_error) < 30 and cile_error or (cile_error[:30] + "..."))
             cix = ET.tostring(tree)
+
         except CodeIntelError, ex:
             error = traceback.format_exc()
         else:

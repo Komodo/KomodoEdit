@@ -1072,6 +1072,19 @@ class JSObject:
             # Turn the doc list into a JSDoc object
             self.jsdoc = JSDoc("".join(self.doc))
 
+    def setParent(self, parent):
+        # Validate the parent/child relationship. This is to avoid possible
+        # recursion errors - bug 85481.
+        seen_scopes = [self]
+        parent_scope = parent
+        while parent_scope:
+            if parent_scope in seen_scopes:
+                raise CodeIntelError("setParent:: recursion error, scope: %r, "
+                                     "parent: %r" % (self.name, parent_scope.name))
+            seen_scopes.append(parent_scope)
+            parent_scope = parent_scope.parent
+        self.parent = parent
+
     def getFullPath(self):
         if self.parent:
             return self.parent.getFullPath() + [self.name]
@@ -2112,7 +2125,7 @@ class JavaScriptCiler:
             parent.variables.pop(var.name, None)
         jsfunc._parent_assigned_vars = []
         jsfunc._class = jsclass
-        jsfunc.parent = jsclass
+        jsfunc.setParent(jsclass)
 
     def _convertFunctionToClass(self, jsfunc):
         """Convert the provided JSFunction into a JSClass and return it."""
@@ -2139,7 +2152,7 @@ class JavaScriptCiler:
             #print jsro
             if isinstance(jsro, JSVariable):
                 # Convert this object into the variable
-                jsro.parent = jsfunc.parent
+                jsro.setParent(jsfunc.parent)
                 jsro.line = jsfunc.line
                 jsro.name = funcName
                 jsvariable = jsro
@@ -3027,7 +3040,7 @@ class JavaScriptCiler:
                     log.warn("%s %r has parent %s %r, file: %s#%d",
                              parent.cixname, parent.name, jsother.cixname,
                              jsother.name, self.cile.name, self.lineno)
-                jsobj.parent = jsother
+                jsobj.setParent(jsother)
                 if appliedToGlobalScope:
                     # Remove the __local__ and private attributes
                     if "__local__" in jsobj.attributes:
