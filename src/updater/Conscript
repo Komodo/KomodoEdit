@@ -12,3 +12,9 @@ Import(
 );
 
 $cons->Install($mozBin, "updater.ini");
+
+if ($platform eq "darwin") {
+    # On Mac OS X, the updater.ini must also go into the updater.app directory,
+    # see bug 85523.
+    $cons->Install($mozBin . "/updater.app/Contents/MacOS", "updater.ini");
+}
