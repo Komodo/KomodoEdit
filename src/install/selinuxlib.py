@@ -198,6 +198,20 @@ class SELinux:
                 matching_context = context
         return matching_context
 
+    def allow_stack_execution(self, path):
+        # Ensure the path is allowed to have stack execution priviliges.
+        import which
+        try:
+            execstack_path = which.which("execstack")
+        except which.WhichError:
+            # Not found - nothing to do then.
+            return
+
+        log.debug("Adding stack execution priviliges for: %r", path)
+        cmd = '%s -s "%s"' % (execstack_path, path)
+        retval = os.system(cmd)
+        if retval:
+            log.warn("selinux: setting stack execution failed: %r", cmd)
 
 def chcon(path, context):
     """Change the security context of the given file."""

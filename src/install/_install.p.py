@@ -359,6 +359,12 @@ def _selinux_prepare(absInstallDir):
         return
     log.debug("SELinux is installed.")
 
+    # We must allow Komodo to have stack execution privileges, which is
+    # required by certain Python modules (ssl, hashlib), otherwise Komodo
+    # will fail to register some core PyXPCOM components - bug 85504.
+    komodoBin = join(absInstallDir, "lib", "mozilla", "komodo-bin")
+    selinux.allow_stack_execution(komodoBin)
+
     for so_path in _gen_so_paths(absInstallDir):
         if not selinux.is_path_labeled(so_path):
             log.debug("%s: setting context just won't work, skipping", 
