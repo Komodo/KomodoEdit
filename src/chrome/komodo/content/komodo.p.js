@@ -56,6 +56,7 @@ var _savedWorkspace = false;
 function saveWorkspaceIfNeeded() {
     if (!_savedWorkspace) {
         ko.workspace.saveWorkspace(true);
+        gPrefs.setBooleanPref("komodo_normal_shutdown", true);
         _savedWorkspace = true;
     }
 }
@@ -63,7 +64,6 @@ function saveWorkspaceIfNeeded() {
 this.quitApplication = function() {
     try {
         saveWorkspaceIfNeeded();
-        gPrefs.setBooleanPref("komodo_normal_shutdown", true);
         goQuitApplication();
     } catch(ex) {
         _log.exception(ex);
