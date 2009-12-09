@@ -40,6 +40,18 @@
     This is a Language Engine for the Code Intelligence (codeintel) system.
     Code Intelligence XML format. See:
         http://specs.tl.activestate.com/kd/kd-0100.html#xml-based-import-export-syntax-cix
+
+
+Future ideas and changes for the JavaScript ciler:
+
+  * give anonymous functions a unique identifier, so referencing code
+    is able to look up the correct anonymous function.
+
+  * create a class prototype structure
+
+  * separate class prototype variables and functions from the local variables
+
+  * use better push/pop handling
 """
 
 import os
