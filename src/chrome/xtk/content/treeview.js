@@ -201,7 +201,9 @@ xtk.baseTreeView.prototype = {
 
 
 
-/*
+/**
+ * A flat tree implementation.
+ * 
  * Sample Usage:
 
 XUL:
@@ -365,6 +367,12 @@ xtk.dataTreeView.prototype = {
     _sortColumn : null,
     _sortDirection : -1,
     _sortCaseInsensitive : true,
+    _reverseRowSortOrder: function(rows) {
+        var newCurrentIndex = (rows.length - this.selection.currentIndex) - 1;
+        this._setTreeRows(rows.reverse(), /* doReSort */ false);
+        this.selection.currentIndex = newCurrentIndex;
+        this.tree.ensureRowIsVisible(newCurrentIndex);
+    },
     setSortDirection: function(column, newSortDirection) {
         // Remove old sort direction
         if (this._sortColumn && this._sortColumn != column) {
@@ -414,6 +422,18 @@ xtk.dataTreeView.prototype = {
             col = this.tree.columns.getFirstColumn().element;
         }
 
+        /* if it's the same as last sorted column, just reverse the order */
+        if (this._sortColumn == col) {
+            //dump("Just reversing sort order for existing column.\n");
+            this._reverseRowSortOrder(this._rows);
+            if (this._sortDirection == xtk.dataTreeView.SORT_ASCENDING) {
+                this.setSortDirection(col, xtk.dataTreeView.SORT_DESCENDING);
+            } else {
+                this.setSortDirection(col, xtk.dataTreeView.SORT_ASCENDING);
+            }
+            return;
+        }
+
         // Function to compare two row values, compare objects are:
         //  { "data":     Text to compare,
         //    "row":      The original row the text came from
@@ -431,37 +451,9 @@ xtk.dataTreeView.prototype = {
             }
             return -1;
         };
-        function _doNumericDataCompare(compare1, compare2)
-        {
-            if (compare1 && compare2) {
-                if (compare1.data == compare2.data) {
-                    // Keep the sort order as uniform as possible.
-                    return compare1.oldindex - compare2.oldindex;
-                } else {
-                    return parseInt(compare1.data) - parseInt(compare2.data);
-                }
-            }
-            return 1;
-        };
 
         //dump("Sorting direction: " + this._sortDirection + "\n");
         //dump("Sorting by column: " + col.id + "\n");
-
-        /* if it's the same as last sorted column, just reverse the order */
-        if (this._sortColumn == col) {
-            //dump("Just reversing sort order for existing column.\n");
-            var newCurrentIndex = (this._rows.length - this.selection.currentIndex) - 1;
-            this._rows.reverse();
-            this._setTreeRows(this._rows, /* doReSort */ false);
-            this.selection.currentIndex = newCurrentIndex;
-            this.tree.ensureRowIsVisible(newCurrentIndex);
-            if (this._sortDirection == xtk.dataTreeView.SORT_ASCENDING) {
-                this.setSortDirection(col, xtk.dataTreeView.SORT_DESCENDING);
-            } else {
-                this.setSortDirection(col, xtk.dataTreeView.SORT_ASCENDING);
-            }
-            return;
-        }
 
         if (typeof(sortDirection) == 'undefined') {
             sortDirection = xtk.dataTreeView.SORT_ASCENDING;
@@ -487,12 +479,13 @@ xtk.dataTreeView.prototype = {
         // Sort the rows, using our own customized sorting function
         //dump("Beginning sort of " + unsorted_row_values.length + " rows...\n");
         var sortType = col.getAttribute("sortType");
-        var noCaseSortType = sortType;
-        if (sortType) noCaseSortType = sortType.toLowerCase();
+        var sortTypeCaseInsenitive = sortType && sortType.toLowerCase();
         var sortFunction = _doDataCompare;
-        if (noCaseSortType == "numeric") {
-            sortFunction = _doNumericDataCompare;
-        } else if (noCaseSortType.substring(0, 9)  == "function:") {
+        if (sortTypeCaseInsenitive == "numeric") {
+            for (var i=0; i < this._rows.length; i++) {
+                unsorted_row_data[i].data = parseFloat(unsorted_row_data[i].data);
+            }
+        } else if (sortTypeCaseInsenitive.substring(0, 9)  == "function:") {
             var sortFunction = this[sortType.substring(9)];
             if (!sortFunction) {
                 log.error("sortByColumn:: Function '" + sortType +
