@@ -360,8 +360,8 @@
     
                 if (def.doc) {
                     textlines.push("<hr />");
-                    //textlines.push('<i style="white-space: -moz-pre-wrap !important;">' + _simpleEscapeHtml(def.doc) + '</i>');
-                    textlines.push('<i style="white-space: -moz-pre-wrap !important;">' + def.doc + '</i>');
+                    //textlines.push('<i style="white-space: pre-wrap !important;">' + _simpleEscapeHtml(def.doc) + '</i>');
+                    textlines.push('<i style="white-space: pre-wrap !important;">' + def.doc + '</i>');
                 }
     
                 dump("textlines: " + textlines.join("\n") + "\n");
