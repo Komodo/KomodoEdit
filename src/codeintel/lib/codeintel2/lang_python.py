@@ -324,10 +324,10 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
             # Figure out which sys.path dirs belong to which lib.
             paths_from_libname = {"sitelib": [], "envlib": [], "stdlib": []}
-            STATE = "envlib"
             canon_sitelibdir = sitelibdir and normcase(sitelibdir) or None
             canon_prefix = prefix and normcase(prefix) or None
             for dir in sys_path:
+                STATE = "envlib"
                 canon_dir = normcase(dir)
                 if dir == "": # -> curdirlib (already handled)
                     continue
