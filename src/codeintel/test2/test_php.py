@@ -2482,6 +2482,24 @@ EOD;
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              "who()")
 
+    @tag("bug85534")
+    def test_clone_completions(self):
+        content, positions = unmark_text(php_markup(dedent(r"""
+            class bug85534_class {
+                public function testMethod() {
+                    $objClone = clone $this;
+                    $objClone-><1>;
+                }
+            }
+            $bug85534_var1 = new bug85534_class();
+            $bug85534_var2 = clone $bug85534_var1;
+            $bug85534_var2-><2>;
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [("function", 'testMethod')])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+                [("function", 'testMethod')])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
