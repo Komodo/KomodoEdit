@@ -93,9 +93,8 @@ function CodeIntelCompletionUIHandler(path, scimoz, language,
         }
         // Don't hide when there is no match: may just be mistyped character.
         scimoz.autoCAutoHide = false;
-        // Cancel when moving before trigger point, NOT when moving before
-        // current pos when the completion list was shown.
-        scimoz.autoCCancelAtStart = false;
+        // Cancel when moving before the pos when the completion list was shown.
+        scimoz.autoCCancelAtStart = true;
         // Order members as if all uppercase: "One result of this is that the
         // list should be sorted with the punctuation characters '[', '\',
         // ']', '^', '_', and '`' sorted after letters."
