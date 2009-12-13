@@ -351,6 +351,8 @@
 <!ENTITY menuClearSearchHighlighting.accesskey "H">
 <!ENTITY menuCloseAll.accesskey "l">
 <!ENTITY menuCode.accesskey "C">
+<!ENTITY menuCodeIntelReTriggerCompletions.label "CodeIntel Completions">
+<!ENTITY menuCodeIntelReTriggerCompletions.accesskey "O">
 <!ENTITY menuComment.accesskey "C">
 <!ENTITY menuCompareFiles.accesskey "C">
 <!ENTITY menuDedent.accesskey "D">

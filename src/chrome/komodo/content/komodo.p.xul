@@ -901,6 +901,11 @@
                                       id="menu_completeWord"
                                       observes="cmd_completeWord"
                                       />
+                            <menuitem label="&menuCodeIntelReTriggerCompletions.label;"
+                                      id="menu_codeIntelReTriggerCompletions"
+                                      accesskey="&menuCodeIntelReTriggerCompletions.accesskey;"
+                                      observes="cmd_triggerPrecedingCompletion"
+                                      />
                             <menuseparator/>
                             <menuitem label="&jumpToMatchingBrace.label;"
                                       id="menu_jumpToMatchingBrace"
