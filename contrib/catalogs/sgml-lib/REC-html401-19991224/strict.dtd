@@ -840,7 +840,7 @@ several semantically related columns together.
 <!ELEMENT STYLE - - %StyleSheet        -- style info -->
 <!ATTLIST STYLE
   %i18n;                               -- lang, dir, for use with title --
-  type        %ContentType;  #REQUIRED -- content type of style language --
+  type        (text/css)     #REQUIRED -- content type of style language --
   media       %MediaDesc;    #IMPLIED  -- designed for use with these media --
   title       %Text;         #IMPLIED  -- advisory title --
   >
@@ -848,7 +848,7 @@ several semantically related columns together.
 <!ELEMENT SCRIPT - - %Script;          -- script statements -->
 <!ATTLIST SCRIPT
   charset     %Charset;      #IMPLIED  -- char encoding of linked resource --
-  type        %ContentType;  #REQUIRED -- content type of script language --
+  type        (text/javascript)  #REQUIRED -- content type of script language --
   src         %URI;          #IMPLIED  -- URI for an external script --
   defer       (defer)        #IMPLIED  -- UA may defer execution of script --
   event       CDATA          #IMPLIED  -- reserved for possible future use --

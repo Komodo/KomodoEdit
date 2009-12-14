@@ -318,7 +318,7 @@
 <!ATTLIST style
   %i18n;
   id          ID             #IMPLIED
-  type        %ContentType;  #REQUIRED
+  type        (text/css)     #REQUIRED
   media       %MediaDesc;    #IMPLIED
   title       %Text;         #IMPLIED
   xml:space   (preserve)     #FIXED 'preserve'
@@ -329,7 +329,7 @@
 <!ATTLIST script
   id          ID             #IMPLIED
   charset     %Charset;      #IMPLIED
-  type        %ContentType;  #REQUIRED
+  type        (text/javascript)  #REQUIRED
   src         %URI;          #IMPLIED
   defer       (defer)        #IMPLIED
   xml:space   (preserve)     #FIXED 'preserve'
