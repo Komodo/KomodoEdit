@@ -499,7 +499,7 @@
 <!ATTLIST script
 	%XULElement; 
 	src CDATA #IMPLIED
-	type CDATA #IMPLIED
+	type (application/javascript|application/x-javascript|application/x-javascript;version=1.8) #IMPLIED
 >
 <!ELEMENT scrollbar (thumb*)>
 <!ATTLIST scrollbar
