@@ -91,6 +91,7 @@ var _langRegistrySvc = Components.classes["@activestate.com/koLanguageRegistrySe
 function viewManager() {
     this.log = ko.logging.getLogger('views');
     this.log.info("viewManager constructor");
+    this._shuttingDown = false;
     /**
      * The current view that is shown in Komodo's main tab.
      * @type Components.interfaces.koIScintillaView
@@ -137,6 +138,7 @@ viewManager.prototype.constructor = viewManager;
 
 viewManager.prototype.shutdown = function()
 {
+    this._shuttingDown = true;
     try {
         _observerSvc.removeObserver(this, "open_file");  // commandment
         _observerSvc.removeObserver(this, "open-url");
@@ -1437,6 +1439,11 @@ viewManager.prototype._doCloseAll = function(ignoreFailures, closeStartPage, doN
             //   http://bugs.activestate.com/show_bug.cgi?id=27321
             if (views[i].getAttribute("type") == "startpage" && !closeStartPage)
                 continue;
+            if (i == 0 && !this._shuttingDown) {
+                // Ensure the last file closure causes currentView changed
+                // notifications, to update the Komodo window title.
+                ko.views.manager.batchMode = false;
+            }
             if (! views[i].close(doNotOfferToSave) && !ignoreFailures) {
                 return false;
             }
