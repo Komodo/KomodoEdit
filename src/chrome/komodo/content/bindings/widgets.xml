@@ -317,9 +317,9 @@
                     <![CDATA[
                     try {
                         var listbox = document.getAnonymousNodes(this)[1];
-                        var deleteDir = this.getElement('button', 'deleteDir');
-                        var moveUpDir = this.getElement('button', 'moveUpDir');
-                        var moveDownDir = this.getElement('button', 'moveDownDir');
+                        var deleteDir = document.getAnonymousElementByAttribute(this, "anonid", 'deleteDir');
+                        var moveUpDir = document.getAnonymousElementByAttribute(this, "anonid", 'moveUpDir');
+                        var moveDownDir = document.getAnonymousElementByAttribute(this, "anonid", 'moveDownDir');
                         if (listbox.selectedCount > 0) {
                             deleteDir.removeAttribute('disabled');
                         } else {
@@ -449,31 +449,6 @@
                     ]]>
                 </body>
             </method>
-            <method name="getElement">
-                <parameter name="type"/>
-                <parameter name="id"/>
-                <body>
-                <![CDATA[
-                    //dump("looking for element "+type+" "+id+"\n");
-                    var v = document.getAnonymousNodes(this);
-                    var tree = null;
-                    for (var i = 0; i < v.length; i++) {
-                        try {
-                            var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", type);
-                            //dump("found "+l.length+" elements\n");
-                            for (var j = 0; j < l.length; j++) {
-                                if (l[j].getAttribute("anonid") == id) {
-                                    //dump("found element "+id+" at index "+j+"\n");
-                                    return l[j];
-                                }
-                            }
-                        } catch (e) {}
-                    }
-                    //dump("ERROR, could not find element!\n");
-                    return null;
-                ]]>
-                </body>
-            </method>
         </implementation>
     </binding>
 
@@ -493,6 +468,7 @@
                 </xul:hbox>
                 <xul:listbox
                     flex="1"
+                    anonid="listbox"
                     style="min-height: 80px"
                     seltype="multiple"
                     rows="4"
@@ -532,7 +508,7 @@
                 <body>
                 <![CDATA[
                 try {
-                    var listbox = document.getAnonymousNodes(this)[0].lastChild;
+                    var listbox = document.getAnonymousElementByAttribute(this, "anonid", "listbox");
                     var rowcount = listbox.getRowCount();
                     if (rowcount) {
                         for (var i = 0; i < rowcount; i++) {
@@ -562,7 +538,7 @@
                 <body>
                     <![CDATA[
                     try {
-                        var listbox = document.getAnonymousNodes(this)[0].lastChild;
+                        var listbox = document.getAnonymousElementByAttribute(this, "anonid", "listbox");
                         var listitem;
                         var items = listitems.split(':');
                         var item;
@@ -586,7 +562,7 @@
                 <body>
                     <![CDATA[
                     try {
-                        var listbox = document.getAnonymousNodes(this)[0].lastChild;
+                        var listbox = document.getAnonymousElementByAttribute(this, "anonid", "listbox");
                         var items = [];
                         var item;
                         for (var i = 0; i < listbox.getRowCount(); i++) {
@@ -606,8 +582,8 @@
                 <body>
                     <![CDATA[
                     try {
-                        var listbox = document.getAnonymousNodes(this)[0].lastChild;
-                        var deleteItem = this.getElement('button', 'deleteItem');
+                        var listbox = document.getAnonymousElementByAttribute(this, "anonid", "listbox");
+                        var deleteItem = document.getAnonymousElementByAttribute(this, "id", 'deleteItem');
                         if (listbox.selectedCount > 0) {
                             deleteItem.removeAttribute('disabled');
                         } else {
@@ -626,7 +602,7 @@
                 <body>
                     <![CDATA[
                     try {
-                        var listbox = document.getAnonymousNodes(this)[0].lastChild;
+                        var listbox = document.getAnonymousElementByAttribute(this, "anonid", "listbox");
                         var item = ko.dialogs.prompt("Module Name");
                         if (!item) return;
                         var listitem = document.createElement('listitem');
@@ -650,7 +626,7 @@
                 <body>
                     <![CDATA[
                     try {
-                        var listbox = document.getAnonymousNodes(this)[0].lastChild;
+                        var listbox = document.getAnonymousElementByAttribute(this, "anonid", "listbox");
                         var selectedItems = listbox.selectedItems;
                         for (var i = selectedItems.length-1; i >= 0; i--) {
                             listbox.removeChild(selectedItems[i]);
@@ -663,31 +639,6 @@
                         log.exception(e);
                     }
                     ]]>
-                </body>
-            </method>
-            <method name="getElement">
-                <parameter name="type"/>
-                <parameter name="id"/>
-                <body>
-                <![CDATA[
-                    //dump("looking for element "+type+" "+id+"\n");
-                    var v = document.getAnonymousNodes(this);
-                    var tree = null;
-                    for (var i = 0; i < v.length; i++) {
-                        try {
-                            var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", type);
-                            //dump("found "+l.length+" elements\n");
-                            for (var j = 0; j < l.length; j++) {
-                                if (l[j].getAttribute("id") == id) {
-                                    //dump("found element "+id+" at index "+j+"\n");
-                                    return l[j];
-                                }
-                            }
-                        } catch (e) {}
-                    }
-                    //dump("ERROR, could not find element!\n");
-                    return null;
-                ]]>
                 </body>
             </method>
         </implementation>
@@ -742,7 +693,7 @@
                       onget="return this.getData();"/>
 
             <property name="tree"
-                      onget="return document.getAnonymousNodes(this)[1];"/>
+                      onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'mapping');"/>
             <property name="treeView"
                       onget="return this.tree.view;"/>
             <property name="treeChildren"
@@ -873,9 +824,9 @@
                 <body>
                     <![CDATA[
                     try {
-                        var deleteDir = this.getElement('button', 'deleteDir');
-                        var moveUpDir = this.getElement('button', 'moveUpDir');
-                        var moveDownDir = this.getElement('button', 'moveDownDir');
+                        var deleteDir = document.getAnonymousElementByAttribute(this, "anonid", 'deleteDir');
+                        var moveUpDir = document.getAnonymousElementByAttribute(this, "anonid", 'moveUpDir');
+                        var moveDownDir = document.getAnonymousElementByAttribute(this, "anonid", 'moveDownDir');
                         var selCount = this.treeView.selection.count;
                         var index = this.treeView.selection.currentIndex;
                         var selItem = null;
@@ -1049,31 +1000,6 @@
                         log.exception(e);
                     }
                     ]]>
-                </body>
-            </method>
-            <method name="getElement">
-                <parameter name="type"/>
-                <parameter name="id"/>
-                <body>
-                <![CDATA[
-                    //dump("looking for element "+type+" "+id+"\n");
-                    var v = document.getAnonymousNodes(this);
-                    var tree = null;
-                    for (var i = 0; i < v.length; i++) {
-                        try {
-                            var l = v[i].getElementsByTagNameNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", type);
-                            //dump("found "+l.length+" elements\n");
-                            for (var j = 0; j < l.length; j++) {
-                                if (l[j].getAttribute("anonid") == id) {
-                                    //dump("found element "+id+" at index "+j+"\n");
-                                    return l[j];
-                                }
-                            }
-                        } catch (e) {}
-                    }
-                    //dump("ERROR, could not find element!\n");
-                    return null;
-                ]]>
                 </body>
             </method>
         </implementation>
