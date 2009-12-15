@@ -1420,7 +1420,13 @@ viewManager.prototype.is_cmd_closeAll_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_closeAll = function() {
-    this._doCloseAll();
+    // Offer to close/save all dirty files first.
+    var retval = this.canClose();
+    if (retval) {
+        // Now close all files, without offering to save each individual file,
+        // bug 85489.
+        this._doCloseAll(false, false,  /* doNotOfferToSave */ true);
+    }
 }
 
 viewManager.prototype._doCloseAll = function(ignoreFailures, closeStartPage, doNotOfferToSave) {
