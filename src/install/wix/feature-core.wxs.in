@@ -609,7 +609,6 @@
               <File Id="file2044" Name="KOIFIN_3.XPT" LongName="koIFinder.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFinder.xpt"/>
               <File Id="file2045" Name="KOIFIN_4.XPT" LongName="koIFindResultsView.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFindResultsView.xpt"/>
               <File Id="file2046" Name="KOIFIN_5.XPT" LongName="koIFindSession.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFindSession.xpt"/>
-              <File Id="file2047" Name="koIFTP.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFTP.xpt"/>
               <File Id="file2049" Name="KOIHIE_0.XPT" LongName="koIHierarchyItem.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIHierarchyItem.xpt"/>
               <File Id="file2050" Name="KOIINF_0.XPT" LongName="koIInfoService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIInfoService.xpt"/>
               <File Id="file2051" Name="KOIINI_0.XPT" LongName="koIInitService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIInitService.xpt"/>
@@ -628,6 +627,7 @@
               <File Id="file2069" Name="KOIPRO_1.XPT" LongName="koIProject.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIProject.xpt"/>
               <File Id="file2071" Name="KOIPYT_1.XPT" LongName="koIPythonProfiler.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIPythonProfiler.xpt"/>
               <File Id="file2072" Name="KOIPYT_2.XPT" LongName="koIPythonStdLib.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIPythonStdLib.xpt"/>
+              <File Id="file349" LongName="koIRemoteConnection.xpt" Name="KOIREM_2.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIRemoteConnection.xpt" />
               <File Id="file2074" Name="KOIRUN_0.XPT" LongName="koIRunService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIRunService.xpt"/>
               <File Id="file600" LongName="koIAsyncOperations.xpt" Name="KOIASY_1.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIAsyncOperations.xpt" />
               <File Id="file2077" Name="KOISCI_0.XPT" LongName="koIScintillaSchemeService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIScintillaSchemeService.xpt"/>
@@ -3587,7 +3587,6 @@
               <File Id="file3936" Name="KOIFIN_3.IDL" LongName="koIFinder.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFinder.idl"/>
               <File Id="file3937" Name="KOIFIN_4.IDL" LongName="koIFindResultsView.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFindResultsView.idl"/>
               <File Id="file3940" Name="KOIFIN_5.IDL" LongName="koIFindSession.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFindSession.idl"/>
-              <File Id="file3941" Name="koIFTP.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFTP.idl"/>
               <File Id="file3942" Name="KOIHIE_0.IDL" LongName="koIHierarchyItem.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIHierarchyItem.idl"/>
               <File Id="file831" Name="KOIHIS_0.IDL" LongName="koIHistory.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIHistory.idl"/>
               <File Id="file4061" Name="KOIINF_0.IDL" LongName="koIInfoService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIInfoService.idl"/>
@@ -3608,6 +3607,7 @@
               <File Id="file4081" Name="KOIPYT_2.IDL" LongName="koIPythonStdLib.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIPythonStdLib.idl"/>
               <File Id="file4082" Name="KOIREM_0.IDL" LongName="koIRemoteConnectionService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIRemoteConnectionService.idl"/>
               <File Id="file4083" Name="KOIREM_1.IDL" LongName="koIRemoteFileInfo.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIRemoteFileInfo.idl"/>
+              <File Id="file469" LongName="koIRemoteConnection.idl" Name="KOIREM_2.IDL" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIRemoteConnection.idl" />
               <File Id="file4085" Name="KOIRUN_0.IDL" LongName="koIRunService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIRunService.idl"/>
               <File Id="file603" LongName="koIAsyncOperations.idl" Name="KOIASY_1.IDL" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIAsyncOperations.idl" />
               <File Id="file4088" Name="KOISCI_0.IDL" LongName="koIScintillaSchemeService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIScintillaSchemeService.idl"/>
