@@ -183,8 +183,8 @@ $cons->Preprocess('remotefilelib.p.py',
 $cons->InstallPythonUtility('remotefilelib.py');
 # Ftp handling
 $cons->InstallXpcomComponent('koFTP.py');
-$cons->Install($idlExportDir, 'koIFTP.idl');
-$cons->BuildAndInstallXpt('koIFTP.idl');
+$cons->Install($idlExportDir, 'koIRemoteConnection.idl');
+$cons->BuildAndInstallXpt('koIRemoteConnection.idl');
 
 # Enable SFTP and SCP if crypto is enabled
 if ($withCrypto) {

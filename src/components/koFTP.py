@@ -123,7 +123,7 @@ class koFTP(ftplib.FTP):
 
 
 class koFTPConnection(remotefilelib.koRFConnection):
-    _com_interfaces_ = [components.interfaces.koIFTPConnection]
+    _com_interfaces_ = [components.interfaces.koIRemoteConnection]
     _reg_desc_ = "Komodo FTP Connection"
     _reg_contractid_ = "@activestate.com/koFTPConnection;1"
     _reg_clsid_ = "{76A0956E-044C-45fc-BD9B-07BC5C659E4A}"
@@ -771,7 +771,7 @@ class koFTPS(koFTP):
 
 
 class koFTPSConnection(koFTPConnection):
-    _com_interfaces_ = [components.interfaces.koIFTPConnection]
+    _com_interfaces_ = [components.interfaces.koIRemoteConnection]
     _reg_desc_ = "Komodo FTPS Connection"
     _reg_contractid_ = "@activestate.com/koFTPSConnection;1"
     _reg_clsid_ = "{1835146c-5b54-4519-94a0-8a02a7262691}"
@@ -846,7 +846,7 @@ class FTPFile:
         try:
             self._initRemoteConnection()
         except COMException, ex:
-            # koIFTPConnection will already setLastError on failure so don't
+            # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
             # re-raise it is because PyXPCOM complains on stderr if a
             # COMException passes out of the Python run-time.
@@ -862,7 +862,7 @@ class FTPFile:
                 self._initRemoteConnection()
             self.rfinfo = self._connection.list(self._uriparse.path, 1)
         except COMException, ex:
-            # koIFTPConnection will already setLastError on failure so don't
+            # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
             # re-raise it is because PyXPCOM complains on stderr if a
             # COMException passes out of the Python run-time.
@@ -875,7 +875,7 @@ class FTPFile:
         try:
             return self._connection.readFile(self._uriparse.path)
         except COMException, ex:
-            # koIFTPConnection will already setLastError on failure so don't
+            # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
             # re-raise it is because PyXPCOM complains on stderr if a
             # COMException passes out of the Python run-time.
@@ -888,7 +888,7 @@ class FTPFile:
         try:
             self._connection.writeFile(self._uriparse.path, data)
         except COMException, ex:
-            # koIFTPConnection will already setLastError on failure so don't
+            # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
             # re-raise it is because PyXPCOM complains on stderr if a
             # COMException passes out of the Python run-time.

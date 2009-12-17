@@ -385,7 +385,7 @@ class koRFConnection:
         return s
 
     #
-    # XPcom methods, available through koIFTPConnection interface
+    # XPcom methods, available through koIRemoteConnection interface
     #
     # Note: path is only used for displaying on the username/password dialog
     def open(self, server, port, username, password, path, passive=True):

@@ -46,7 +46,7 @@
 #include "nsISupports.idl"
 #include "nsILoginInfo.idl"
 #include "koIRemoteFileInfo.idl"
-#include "koIFTP.idl"
+#include "koIRemoteConnection.idl"
 
 /**
  * Komodo Server Account information.
@@ -88,7 +88,7 @@ interface koIRemoteConnectionService : nsISupports {
                                    [array, size_is(count), retval] out wstring protocols);
 
     // Return url for given connection and koRemoteFileInfo object
-    wstring getUriForConnectionAndRfInfo(in koIFTPConnection connection,
+    wstring getUriForConnectionAndRfInfo(in koIRemoteConnection connection,
                                          in koIRemoteFileInfo rfinfo);
 
     // Get a connection object given the connection parameters.
@@ -100,7 +100,7 @@ interface koIRemoteConnectionService : nsISupports {
     //  "path" is the path we want to open or go to (only used for display purposes)
     void getConnection(in wstring protocol, in wstring server, in long port,
                        in wstring username, in wstring password, in wstring path,
-                       [retval] out koIFTPConnection connection);
+                       [retval] out koIRemoteConnection connection);
 
     // Get a connection object given the connection parameters.
     //  "protocol" is the connection protocol used, i.e. "ftp", "sftp"
@@ -113,20 +113,20 @@ interface koIRemoteConnectionService : nsISupports {
     void getConnection2(in wstring protocol, in wstring server, in long port,
                         in wstring username, in wstring password,
                         in wstring path, in boolean passive,
-                        [retval] out koIFTPConnection connection);
+                        [retval] out koIRemoteConnection connection);
 
     // Return the connection object for the given URI, all the connection
     // details should be included in the supplied URI
     // ex: ftp://test:tesuser@somesite.com:21/web/info.php
     void getConnectionUsingUri(in wstring uri,
-                               [retval] out koIFTPConnection connection);
+                               [retval] out koIRemoteConnection connection);
 
     /**
      * Return the connection object for the given server alias.
      * @since Komodo 4.4.0
      */
     void getConnectionUsingServerAlias(in wstring server_alias,
-                                       [retval] out koIFTPConnection connection);
+                                       [retval] out koIRemoteConnection connection);
 
     // Return the server details for the given URI, array list
     //   0-protocol, 1-server alias, 2-hostname, 3-port,

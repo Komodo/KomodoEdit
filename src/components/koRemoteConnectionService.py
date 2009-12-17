@@ -195,7 +195,7 @@ class koRemoteConnectionService:
                 username, password = sess[:2]
 
         c = components.classes['@activestate.com/ko%sConnection;1' % (protocol.upper())].\
-            createInstance(components.interfaces.koIFTPConnection)
+            createInstance(components.interfaces.koIRemoteConnection)
         log.debug("getConnection: Opening %s %s@%s:%r", protocol, username, server, port)
         try:
             c.open(server, port, username, password, path, passive)
@@ -207,7 +207,7 @@ class koRemoteConnectionService:
             self._saveSessionInfo(sessionkey, [c.username, c.password])
             return c
         except COMException, ex:
-            # koIFTPConnection will already setLastError on failure so don't
+            # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
             # re-raise it is because PyXPCOM complains on stderr if a
             # COMException passes out of the Python run-time.
