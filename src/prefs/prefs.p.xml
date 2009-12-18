@@ -648,9 +648,9 @@
   <string id="import_include_matches"></string>
 <!-- #if PLATFORM == "win" -->
   <!-- Note: _svn may be used on windows with subversion instead of .svn -->
-  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;_svn;*%*;tmp*.html;.DS_Store</string>
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;_svn;.git;.hg;.bzr;*%*;tmp*.html;.DS_Store</string>
 <!-- #else -->
-  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;tmp*.html;.DS_Store</string>
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;.git;.hg;.bzr;*%*;tmp*.html;.DS_Store</string>
 <!-- #endif -->
   <boolean id="import_recursive">1</boolean>
   <string id="import_type">useFolders</string>
