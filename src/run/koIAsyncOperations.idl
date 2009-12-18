@@ -50,6 +50,15 @@ interface koIAsyncCallback: nsISupports {
     void callback(in long result, in nsIVariant data);
 };
 
+[scriptable, uuid(7e1b0acb-32e5-4738-bda1-fb55a77c977c)]
+interface koIAsyncCallbackWithProgress: koIAsyncCallback {
+        /**
+         * Notify that progress has been made.
+         * @param label - The type of progress.
+         * @param value - The overall progress value (0-100)
+         */
+    void onProgress(in AString label, in long value);
+};
 
 /**
  * Only Python code should be creating and running koIAsyncOperation's,
