@@ -185,4 +185,4 @@ binding cmd_wordWrap Meta+(
 
 binding cmd_goToFile Meta+Shift+O
 
-binding cmd_invokeHyperlink Meta+Shift+G
+binding cmd_invokeHyperlink Ctrl+Shift+G
