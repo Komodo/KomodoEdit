@@ -3136,6 +3136,52 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             self.assertCompletionsAre2(buf, test_positions[pos],
                 [("variable",  r"$nsstatic")])
 
+    @tag("bug85643", "php53")
+    def test_inherited_class_completions(self):
+        test_dir = join(self.test_dir, "test_inherited_class_completions")
+        test_content, test_positions = unmark_text(php_markup(dedent(r"""
+            namespace bug85643\narf {
+                class Bar1 extends \bug85643\narf\AbstractNarfClass {
+                    function test1() {
+                        $this-><1>getValue();
+                    }
+                }
+                class Bar2 extends AbstractNarfClass {
+                    function test2() {
+                        $this-><2>getValue();
+                    }
+                }
+            }
+        """)))
+        manifest = [
+            (join(test_dir, "abstract_class.php"), php_markup(dedent(r"""
+                namespace bug85643\narf {
+                    abstract class AbstractNarfClass {
+                        // Force Extending class to define this method
+                        abstract protected function getValue();
+                        // Common method
+                        public function printOut() {
+                            print $this->getValue() . "\n";
+                        }
+                    }
+                }
+             """))),
+            (join(test_dir, "test_bug85643.php"), test_content),
+        ]
+        for filepath, content in manifest:
+            writefile(filepath, content)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "test_bug85643.php"),
+                                     lang=self.lang)
+        self.assertCompletionsAre2(buf, test_positions[1],
+            [("function", "getValue"),
+             ("function", "printOut"),
+             ("function", "test1")])
+        self.assertCompletionsAre2(buf, test_positions[2],
+            [("function", "getValue"),
+             ("function", "printOut"),
+             ("function", "test2")])
+
 class DefnTestCase(CodeIntelTestCase):
     lang = "PHP"
     test_dir = join(os.getcwd(), "tmp")

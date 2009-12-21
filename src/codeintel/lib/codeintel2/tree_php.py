@@ -683,6 +683,11 @@ class PHPTreeEvaluator(TreeEvaluator):
         elem_ilk = elem.get("ilk")
         if elem_ilk == "class":
             for classref in elem.get("classrefs", "").split():
+                ns_elem = self._namespace_elem_from_scoperef(scoperef)
+                if ns_elem is not None:
+                    # For class reference inside a namespace, *always* use the
+                    # fully qualified name - bug 85643.
+                    classref = "\\" + self._fqn_for_expression(classref, scoperef)
                 self.debug("_members_from_hit: Getting members for inherited class: %r", classref)
                 try:
                     subhit = self._hit_from_citdl(classref, scoperef)
@@ -929,9 +934,13 @@ class PHPTreeEvaluator(TreeEvaluator):
         if elem is not None:
             self.log("_hits_from_namespace:: found locally(2): %r", elem)
             hit_scoperef = [global_scoperef[0], global_scoperef[1] + [elem.get("name")]]
-            hit = self._hit_from_citdl(last_token, hit_scoperef)
-            if hit and hit[0] is not None:
-                hits.append(hit)
+            try:
+                hit = self._hit_from_citdl(last_token, hit_scoperef)
+                if hit and hit[0] is not None:
+                    hits.append(hit)
+            except CodeIntelError, ex:
+                # Fall through to other possible library matches (bug 85643).
+                self.debug("no subsequent hit found locally: %s", ex)
         lpath = (fqn, )
         libs = [self.buf.stdlib] + self.libs
         for lib in libs:
