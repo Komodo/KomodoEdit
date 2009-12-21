@@ -159,3 +159,5 @@ binding cmd_vim_setRegister "
 # Projects
 binding cmd_refreshStatus Ctrl+K r
 
+# Additional mappings for commands that are overridden by Vi.
+binding cmd_toolsRunCommand Ctrl+Shift+R
