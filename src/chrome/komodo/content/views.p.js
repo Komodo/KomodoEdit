@@ -1225,9 +1225,10 @@ viewManager.prototype.handle_open_file = function(topic, data)
                     if (!view || !anchorDesc || !currentPosDesc) {
                         return;
                     }
+                    var anchor, currentPos;
                     // Are we using character index or line,column?
                     if (anchorDesc.indexOf(',') == -1) {
-                        anchor = Number(anchor);
+                        anchor = Number(anchorDesc);
                     } else {
                         subparts = anchorDesc.split(',');
                         var anchorLine = Math.max(Number(subparts[0]) - 1, 0);
@@ -1236,7 +1237,7 @@ viewManager.prototype.handle_open_file = function(topic, data)
                                                                                anchorCol);
                     }
                     if (currentPosDesc.indexOf(',') == -1) {
-                        currentPos = Number(currentPos);
+                        currentPos = Number(currentPosDesc);
                     } else {
                         subparts = currentPosDesc.split(',')
                         var currentPosLine = Math.max(Number(subparts[0]) - 1, 0);
@@ -1245,10 +1246,11 @@ viewManager.prototype.handle_open_file = function(topic, data)
                                                                                    currentPosCol);
                     }
                     // do gotoline first because it messes w/ current position and anchor.
-                    var lineNo = view.scimoz.lineFromPosition(currentPos);
-                    view.scimoz.gotoLine(Math.max(lineNo - 1, 0)); // scimoz is 0-indexed
-                    view.anchor = anchor;
-                    view.currentPos = currentPos;
+                    var scimoz = view.scimoz;
+                    var lineNo = scimoz.lineFromPosition(currentPos);
+                    scimoz.gotoLine(Math.max(lineNo - 1, 0)); // scimoz is 0-indexed
+                    scimoz.anchor = anchor;
+                    scimoz.currentPos = currentPos;
                 }
             );
             // Force the main window to the forefront
