@@ -1,5 +1,7 @@
 <!ENTITY accessModeMustIncludeEitherRdonlyWronlyOrRdwrBadMode.label "Access mode must include either rdonly, wronly, or rdwr (badMode)">
 <!ENTITY accessModeMustIncludeEitherRdonlyWronlyOrRdwrBadMode.tooltiptext "Access mode must include either rdonly, wronly, or rdwr (badMode)">
+<!ENTITY activeTcl.label "ActiveTcl:">
+<!ENTITY activeTclProStudio.label "ActiveTcl Pro Studio:">
 <!ENTITY additionalTclIncludeDirectories.label "Additional Tcl Include Directories">
 <!ENTITY ambiguousSwitchExpectWarnAmbiguous.label "Ambiguous switch (expect::warnAmbiguous)">
 <!ENTITY ambiguousSwitchExpectWarnAmbiguous.tooltiptext "Ambiguous switch (expect::warnAmbiguous)">
@@ -52,7 +54,8 @@
 <!ENTITY globCharsInWrongPortionOfPatternWarnNamespacePat.tooltiptext "Glob chars in wrong portion of pattern (warnNamespacePat)">
 <!ENTITY hasNoMeaningWarnNotSpecial.label "Has no meaning. (warnNotSpecial)">
 <!ENTITY hasNoMeaningWarnNotSpecial.tooltiptext "Has no meaning. (warnNotSpecial)">
-<!ENTITY httpWwwActiveStateComProductsASPNTcl.label "http://www.ActiveState.com/Products/ASPN_Tcl/">
+<!ENTITY httpWwwActiveStateComActiveTcl.label "http://www.activestate.com/activetcl/">
+<!ENTITY httpWwwActiveStateComActiveTclProStudio.label "http://www.activestate.com/activetcl_pro_studio/">
 <!ENTITY internalErrorInternalError.label "Internal error (internalError)">
 <!ENTITY internalErrorInternalError.tooltiptext "Internal error (internalError)">
 <!ENTITY interpreters.label "Interpreters">
@@ -162,6 +165,8 @@
 <!ENTITY noArgumentGivenForOptionSocketArgOpt.tooltiptext "No argument given for option (socketArgOpt)">
 <!ENTITY noEventsSpecifiedInBindingNoEvent.label "No events specified in binding (noEvent)">
 <!ENTITY noEventsSpecifiedInBindingNoEvent.tooltiptext "No events specified in binding (noEvent)">
+<!ENTITY noTclshInterpreterFound.description "No tclsh interpreters were found on the system's PATH. If you would like to debug and run Tcl/Tk programs in Komodo you will need to install one of:">
+<!ENTITY noWishInterpreterFound.description "No wish interpreters were found on the system's PATH. If you would like to debug and run Tcl/Tk programs in Komodo you will need to install one of:">
 <!ENTITY nonDefaultArgSpecifiedAfterDefaultNonDefAfterDef.label "Non-default arg specified after default (nonDefAfterDef)">
 <!ENTITY nonDefaultArgSpecifiedAfterDefaultNonDefAfterDef.tooltiptext "Non-default arg specified after default (nonDefAfterDef)">
 <!ENTITY nonGlobalUpvarIntoANamespaceIsUndefinedWarnUpvarNsNonsense.label "Non-global upvar into a namespace is undefined (warnUpvarNsNonsense)">

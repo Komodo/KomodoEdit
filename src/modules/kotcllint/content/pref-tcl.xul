@@ -69,12 +69,23 @@
     <groupbox orient="vertical">
         <caption label="&interpreters.label;"/>
         <vbox id="no-avail-wish-interps-message" collapsed="true" flex="1"
-              align="center">
+              align="center" style="border: 1px dotted;" >
             <description id="no-avail-wish-interps-message"
-                         style="font-weight: bold;">No wish interpreters were found on the system's PATH. If you would like to debug and run Tcl/Tk programs in Komodo you will need to install ActiveState Tcl Dev Kit or ActiveTcl.</description>
-            <button label="&httpWwwActiveStateComProductsASPNTcl.label;"
-                class="button-link-a" style="cursor:pointer;"
-                oncommand="alert('Note: Komodo must be restarted for it to recognize new Tcl installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ActiveState.com/Products/ASPN_Tcl/');"/>
+                         style="font-weight: bold;">
+                &noWishInterpreterFound.description;
+            </description>
+            <hbox align="center">
+                <label id="wish_get_activetcl_button_label" value="&activeTcl.label;" />
+                <button label="&httpWwwActiveStateComActiveTcl.label;"
+                        class="button-link-a" style="cursor:pointer;"
+                        oncommand="alert('Note: Komodo must be restarted for it to recognize new Tcl installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/activetcl/');"/>
+            </hbox>
+            <hbox align="center">
+                <label id="wish_get_tcl_dev_hit_button_label" value="&activeTclProStudio.label;" />
+                <button label="&httpWwwActiveStateComActiveTclProStudio.label;"
+                        class="button-link-a" style="cursor:pointer;"
+                        oncommand="alert('Note: Komodo must be restarted for it to recognize new Tcl installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/activetcl_pro_studio/');"/>
+            </hbox>
         </vbox>
         <label value="Use this Wish interpreter"/>
         <hbox align="center">
@@ -87,12 +98,23 @@
             <button label="&browse.label;" oncommand="loadWishExecutable();"/>
         </hbox>
         <vbox id="no-avail-tclsh-interps-message" collapsed="true" flex="1"
-              align="center">
+              align="center" style="border: 1px dotted;" >
             <description id="no-avail-tclsh-interps-message"
-                         style="font-weight: bold;">No tclsh interpreters were found on the system's PATH. If you would like to debug and run Tcl/Tk programs in Komodo you will need to install ActiveState Tcl Dev Kit or ActiveTcl.</description>
-            <button label="&httpWwwActiveStateComProductsASPNTcl.label;"
-                class="button-link-a" style="cursor:pointer;"
-                oncommand="alert('Note: Komodo must be restarted for it to recognize new Tcl installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ActiveState.com/Products/ASPN_Tcl/');"/>
+                         style="font-weight: bold;">
+                &noTclshInterpreterFound.description;
+            </description>
+            <hbox align="center">
+                <label id="tclsh_get_activetcl_button_label" value="&activeTcl.label;" />
+                <button label="&httpWwwActiveStateComActiveTcl.label;"
+                        class="button-link-a" style="cursor:pointer;"
+                        oncommand="alert('Note: Komodo must be restarted for it to recognize new Tcl installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/activetcl/');"/>
+            </hbox>
+            <hbox align="center">
+                <label id="tclsh_get_tcl_dev_hit_button_label" value="&activeTclProStudio.label;" />
+                <button label="&httpWwwActiveStateComActiveTclProStudio.label;"
+                        class="button-link-a" style="cursor:pointer;"
+                        oncommand="alert('Note: Komodo must be restarted for it to recognize new Tcl installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/activetcl_pro_studio/');"/>
+            </hbox>
         </vbox>
         <label value="Use this Tclsh interpreter" />
         <hbox align="center">
