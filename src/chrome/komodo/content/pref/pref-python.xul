@@ -73,9 +73,9 @@
                 <description style="font-weight: bold;">
                     &noPythonInterpreter.description;
                 </description>
-                <button label="&httpWwwActiveStateComProductsActivePython.label;"
+                <button label="&httpWwwActiveStateComActivePython.label;"
                         class="button-link-a" style="cursor:pointer;"
-                        oncommand="alert('&noteRestartPython.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ActiveState.com/Products/ActivePython/');"/>
+                        oncommand="alert('&noteRestartPython.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/activepython/');"/>
             </vbox>
             <text value="&filePrefPythonUseThisInterpreter.label;" style="padding: 2px 6px 2px 6px"/>
             <hbox align="center">

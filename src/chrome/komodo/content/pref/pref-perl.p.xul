@@ -73,9 +73,9 @@
                 <description style="font-weight: bold;">
                     &noPerlInterpreter.description;
                 </description>
-                <button label="&httpWwwActiveStateComProductsActivePerl.label;"
+                <button label="&httpWwwActiveStateComActivePerl.label;"
                         class="button-link-a" style="cursor:pointer;"
-                        oncommand="alert('&noteRestartPerl.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ActiveState.com/Products/ActivePerl/');"/>
+                        oncommand="alert('&noteRestartPerl.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/activeperl/');"/>
             </vbox>
             <text value="&filePrefPerlUseThisInterpreter.label;" style="padding: 2px 6px 2px 6px"/>
             <hbox align="center">

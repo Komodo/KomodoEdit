@@ -261,8 +261,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY htmHTML.label ".htm: HTML">
 <!ENTITY htmlHTML.label ".html: HTML">
 <!ENTITY httpAspnActiveStateComASPNPHP.label "http://aspn.ActiveState.com/ASPN/PHP/">
-<!ENTITY httpWwwActiveStateComProductsActivePerl.label "http://www.ActiveState.com/Products/ActivePerl/">
-<!ENTITY httpWwwActiveStateComProductsActivePython.label "http://www.ActiveState.com/Products/ActivePython/">
+<!ENTITY httpWwwActiveStateComActivePerl.label "http://www.activestate.com/activeperl/">
+<!ENTITY httpWwwActiveStateComActivePython.label "http://www.activestate.com/activepython/">
 <!ENTITY httpWwwRubyLangOrg.label "http://www.ruby-lang.org/">
 <!ENTITY hyperlinks.label "Hyperlinks">
 <!ENTITY hyperlinksEnabled.label "Enable hyperlinks (underlining of text under the mouse)">
