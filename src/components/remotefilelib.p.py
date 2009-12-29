@@ -178,6 +178,8 @@ class koRFConnection:
         raise ServerException(nsError.NS_ERROR_FAILURE, self._lasterror)
 
     def _raiseTimeoutException(self):
+        # Clear this connection from the connection cache.
+        self._rfConnectionService.removeConnectionFromCache(self)
         self._raiseServerException("Connection timed out")
 
     def _raiseWithException(self, e):
