@@ -131,7 +131,8 @@ class koServerInfo:
 # All underscore names require locking, which should happen through the
 # the use of the exposed (non-underscore) functions.
 class koRemoteConnectionService:
-    _com_interfaces_ = [components.interfaces.koIRemoteConnectionService]
+    _com_interfaces_ = [components.interfaces.koIRemoteConnectionService,
+                        components.interfaces.nsIObserver]
     _reg_desc_ = "Remote Connection Service"
     _reg_clsid_ = "{c12f592b-11a2-4172-85c2-02d87ac56887}"
     _reg_contractid_ = "@activestate.com/koRemoteConnectionService;1"
@@ -156,6 +157,11 @@ class koRemoteConnectionService:
         self._cachedFiles = {}
         # Global lock for the Remote Connection service
         self._lock = threading.Lock()
+
+        # Listen for network status changes.
+        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
+                      getService(components.interfaces.nsIObserverService)
+        obsSvc.addObserver(self, "network:offline-status-changed", True)
 
     ## Private, internal functions
     ## The lock has been acquired, just do the internal work
@@ -370,6 +376,12 @@ class koRemoteConnectionService:
 
     ## Public, exposed functions from IDL
     ## Acquire the lock and call the private methods
+
+    def observe(self, subject, topic, data):
+        # https://developer.mozilla.org/en/Observer_Notifications
+        if topic == "network:offline-status-changed":
+            if data == "offline":
+                self.clearConnectionCache()
 
     def clearConnectionCache(self):
         # Gone offline, clear the connection cache.
