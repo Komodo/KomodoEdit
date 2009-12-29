@@ -824,17 +824,16 @@ class FTPFile:
         self.log = log_FTPFile
         #self.filename = ""
         #self.ftpfile = None
-        self._connection = None
         self.lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                             .getService(components.interfaces.koILastErrorService)
         self.rfinfo = None
         self.log.debug("__init__")
 
-    def _initRemoteConnection(self):
-        self.log.debug("_initRemoteConnection()")
+    def _getRemoteConnection(self):
+        self.log.debug("_getRemoteConnection()")
         RFService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
                     getService(components.interfaces.koIRemoteConnectionService)
-        self._connection = RFService.getConnectionUsingUri(self._fulluri)
+        return RFService.getConnectionUsingUri(self._fulluri)
             
     def init(self, url, mode="r"):
         self.log.debug("init: uri: '%s'", url)
@@ -844,7 +843,7 @@ class FTPFile:
 
         # make the connection to the remote site
         try:
-            self._initRemoteConnection()
+            conn = self._getRemoteConnection()
         except COMException, ex:
             # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
@@ -853,14 +852,13 @@ class FTPFile:
             raise ServerException(ex.errno, str(ex))
         
         # Check that the file exists
-        self.rfinfo = self._connection.list(self._uriparse.path, 0)
+        self.rfinfo = conn.list(self._uriparse.path, 0)
 
     def refreshStats(self):
         self.log.debug("refreshStats: Refreshing rfinfo for '%s'", self._uriparse.path)
         try:
-            if not self._connection:
-                self._initRemoteConnection()
-            self.rfinfo = self._connection.list(self._uriparse.path, 1)
+            conn = self._getRemoteConnection()
+            self.rfinfo = conn.list(self._uriparse.path, 1)
         except COMException, ex:
             # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
@@ -870,10 +868,9 @@ class FTPFile:
 
     def read(self, n = -1):
         self.log.debug("read: size %d", n)
-        if not self._connection:
-            self._initRemoteConnection()
         try:
-            return self._connection.readFile(self._uriparse.path)
+            conn = self._getRemoteConnection()
+            return conn.readFile(self._uriparse.path)
         except COMException, ex:
             # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
@@ -883,10 +880,9 @@ class FTPFile:
 
     def write(self, data):
         self.log.debug("write: size %d", len(data))
-        if not self._connection:
-            self._initRemoteConnection()
         try:
-            self._connection.writeFile(self._uriparse.path, data)
+            conn = self._getRemoteConnection()
+            conn.writeFile(self._uriparse.path, data)
         except COMException, ex:
             # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
