@@ -856,6 +856,20 @@ class PHPTreeEvaluator(TreeEvaluator):
                     return elem
         return None
 
+    def _imported_namespace_elements_from_scoperef(self, scoperef):
+        namespace_elems = {}
+        possible_elems = [ self._namespace_elem_from_scoperef(scoperef),
+                           self._get_global_scoperef(scoperef)[0] ]
+        for elem in possible_elems:
+            if elem is not None:
+                for child in elem:
+                    if child.tag == "import":
+                        symbol = child.get("symbol")
+                        alias = child.get("alias")
+                        if symbol is not None:
+                            namespace_elems[alias or symbol] = child
+        return namespace_elems
+
     def _fqn_for_expression(self, expr, scoperef):
         expr = expr.rstrip("\\")
         fqn = None
@@ -868,28 +882,25 @@ class PHPTreeEvaluator(TreeEvaluator):
             #   * global namespaces
             tokens = expr.split("\\")
             first_token = tokens[0]
-            elem = self._namespace_elem_from_scoperef(scoperef)
+
+            used_namespaces = self._imported_namespace_elements_from_scoperef(scoperef)
+            elem = used_namespaces.get(first_token)
             if elem is not None:
-                # We are inside a namespace, work out the fully qualified name.
-                self.log("_fqn_for_expression:: current namespace: %r", elem)
-                for child in elem:
-                    if child.tag == "import":
-                        symbol = child.get("symbol")
-                        alias = child.get("alias")
-                        if ((alias is None and symbol == first_token) or
-                            (alias == first_token)):
-                            self.log("_fqn_for_expression:: found alias: %r",
-                                     child)
-                            fqn = "%s\\%s" % (child.get("module"), symbol)
-                            if tokens[1:]:
-                                fqn += "\\%s" % ("\\".join(tokens[1:]))
-                                break
-                if fqn is None:
-                    # Was not an imported/aliased namespace, treat it as a
-                    # sub-namespace of the current namespace.
-                    fqn = "%s\\%s" % (elem.get("name"), expr)
+                symbol = elem.get("symbol")
+                alias = elem.get("alias")
+                self.log("_fqn_for_expression:: found used namespace: %r", elem)
+                fqn = "%s\\%s" % (elem.get("module"), symbol)
+                if tokens[1:]:
+                    fqn += "\\%s" % ("\\".join(tokens[1:]))
             else:
-                fqn = expr
+                # Was not an imported/aliased namespace.
+                elem = self._namespace_elem_from_scoperef(scoperef)
+                if elem is not None:
+                    # We are inside a namespace, work out the fully qualified
+                    # name. Treat it as sub-namespace of the current namespace.
+                    fqn = "%s\\%s" % (elem.get("name"), expr)
+                else:
+                    fqn = expr
         else:
             fqn = expr
 
@@ -1028,11 +1039,10 @@ class PHPTreeEvaluator(TreeEvaluator):
                              "yes: %s", first_token, scoperef, first_token_elem)
                     return ([(first_token_elem, scoperef)], 1)
 
-            if elem.tag == "scope" and elem.get("ilk") == "namespace":
+            if elem.tag == "scope":
                 self.log("_hits_from_first_part:: checking namespace aliases")
-                for child in elem:
-                    if child.tag != "import":
-                        continue
+                imports = [child for child in elem if child.tag == "import"]
+                for child in imports:
                     module = child.get("module")
                     symbol = child.get("symbol")
                     alias = child.get("alias")
@@ -1523,9 +1533,9 @@ class PHPTreeEvaluator(TreeEvaluator):
         if namespace_names is None:
             namespace_names = []
             for child in elem:
-                if elem.tag == "import":
-                    symbol = elem.get("symbol")
-                    alias = elem.get("alias")
+                if child.tag == "import":
+                    symbol = child.get("symbol")
+                    alias = child.get("alias")
                     if symbol is not None:
                         namespace_names.append(alias or symbol)
             cache[cache_item_name] = namespace_names
