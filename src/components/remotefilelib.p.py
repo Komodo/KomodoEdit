@@ -817,9 +817,18 @@ class koRemoteSSH(koRFConnection):
 
     def do_verifyConnected(self):
         """Verify that we are connected to the remote server"""
-        if not self._connection or not self._connection.is_active():
-            self.log.info("Re-opening the SSH connection because it was closed")
-            self.open(self.server, self.port, self.username, self.password, "")
+        try:
+            if not self._connection or not self._connection.is_active():
+                self.open(self.server, self.port, self.username, self.password,
+                          "", self.passive)
+        except Exception, e:
+            if isinstance(e, socket.timeout):
+                self._raiseWithException(e)
+            else:
+                # Connection lost, reconnect if possible (bug 85050).
+                self.log.info("Re-opening the SSH connection because it was closed")
+                self.open(self.server, self.port, self.username, self.password,
+                          "", self.passive)
 
     def runCommand(self, command, combineStdoutAndStderr):
         channel = self._connection.open_session()
