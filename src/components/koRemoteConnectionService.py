@@ -371,6 +371,17 @@ class koRemoteConnectionService:
     ## Public, exposed functions from IDL
     ## Acquire the lock and call the private methods
 
+    def clearConnectionCache(self):
+        # Gone offline, clear the connection cache.
+        self._connections = {}
+
+    def removeConnectionFromCache(self, conn):
+        conn_key = "%s:%s:%s:%s" % (conn.protocol, conn.server,
+                                    conn.port, conn.username)
+        if conn_key in self._connections:
+            log.debug("removeConnectionFromCache: connection removed: %r",
+                      conn_key)
+            self._connections.pop(conn_key, None)
 
     # Returns True if the url is supported by the remote connection service.
     def isSupportedRemoteUrl(self, url):

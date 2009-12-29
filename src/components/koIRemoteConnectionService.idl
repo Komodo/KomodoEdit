@@ -177,4 +177,16 @@ interface koIRemoteConnectionService : nsISupports {
      */
     void saveServerInfoList(in unsigned long count,
                             [array, size_is(count)] in koIServerInfo servers);
+
+    /**
+     * Clear the connection cache.
+     * @since Komodo 6.0.0
+     */
+    void clearConnectionCache();
+
+    /**
+     * Remove this connection from the connection cache.
+     * @since Komodo 6.0.0
+     */
+    void removeConnectionFromCache(in koIFTPConnection connection);
 };
