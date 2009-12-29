@@ -3289,6 +3289,18 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
              ("function", "printOut"),
              ("function", "test2")])
 
+    @tag("bug85681", "php53")
+    def test_namespace_alias_class_completions(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            use \Foo\Bar\Baz;
+            $mybaz = new <1>Baz();
+            Baz<2>
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("namespace", "Baz")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("namespace", "Baz")])
+
 
 class DefnTestCase(CodeIntelTestCase):
     lang = "PHP"

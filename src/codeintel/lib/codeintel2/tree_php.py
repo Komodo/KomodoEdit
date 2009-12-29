@@ -210,12 +210,14 @@ class PHPTreeEvaluator(TreeEvaluator):
             retval = self._keywords_from_scope(self.expr, start_scope) + \
                      self._functions_from_scope(self.expr, start_scope) + \
                      self._constants_from_scope(self.expr, start_scope) + \
-                     self._classes_from_scope(self.expr[:3], start_scope)
+                     self._classes_from_scope(self.expr[:3], start_scope) + \
+                     self._imported_namespaces_from_scope(self.expr, start_scope)
             #if self.ctlr.is_aborted():
             #    return None
             return retval
         elif trg.type == "classes":
-            return self._classes_from_scope(None, start_scope)
+            return self._classes_from_scope(None, start_scope) + \
+                   self._imported_namespaces_from_scope(None, start_scope)
         elif trg.type == "namespaces":
             return self._namespaces_from_scope(self.expr, start_scope)
         elif trg.type == "namespace-members" and (not self.expr or self.expr == "\\"):
@@ -228,7 +230,8 @@ class PHPTreeEvaluator(TreeEvaluator):
             cplns += self._classes_from_scope(None, global_scoperef)
             return cplns
         elif trg.type == "interfaces":
-            return self._interfaces_from_scope(self.expr, start_scope)
+            return self._interfaces_from_scope(self.expr, start_scope) + \
+                   self._imported_namespaces_from_scope(self.expr, start_scope)
         elif trg.type == "magic-methods":
             elem = self._elem_from_scoperef(start_scope)
             if elem.get("ilk") == "function":
@@ -363,7 +366,10 @@ class PHPTreeEvaluator(TreeEvaluator):
             elif scope_type == "globals":
                 elemlist = [global_blob]
             elif scope_type == "namespace":
-                elemlist = [self._namespace_elem_from_scoperef(scoperef)]
+                elemlist = []
+                namespace = self._namespace_elem_from_scoperef(scoperef)
+                if namespace is not None:
+                    elemlist.append(namespace)
             elif scope_type == "builtins":
                 lib = self.buf.stdlib
                 # Find the matching names (or all names if no expr)
@@ -480,6 +486,14 @@ class PHPTreeEvaluator(TreeEvaluator):
                             "class",
                             ("locals", "globals", "imports",),
                             self.class_names_from_elem)
+
+    def _imported_namespaces_from_scope(self, expr, scoperef):
+        """Return all available class names beginning with expr"""
+        return self._element_names_from_scope_starting_with_expr(expr,
+                            scoperef,
+                            "namespace",
+                            ("namespace", "globals"),
+                            self.imported_namespace_names_from_elem)
 
     def _namespaces_from_scope(self, expr, scoperef):
         """Return all available namespaces beginning with expr"""
@@ -1526,7 +1540,6 @@ class PHPTreeEvaluator(TreeEvaluator):
             cache[cache_item_name] = class_names
         return class_names
 
-    # XXX: Not used yet...
     def imported_namespace_names_from_elem(self, elem, cache_item_name='imported_namespace_names'):
         cache = self._php_cache_from_elem(elem)
         namespace_names = cache.get(cache_item_name)
