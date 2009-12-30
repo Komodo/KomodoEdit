@@ -50,7 +50,7 @@ import URIlib
 import remotefilelib
 
 log = logging.getLogger('koRemoteConnectionService')
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 class BadServerInfoException(Exception):
     pass
