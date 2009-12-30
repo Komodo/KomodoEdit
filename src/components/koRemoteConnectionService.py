@@ -44,7 +44,6 @@ import types
 import urllib
 
 from xpcom import components, ServerException, COMException, nsError
-from xpcom.client import WeakReference
 
 import URIlib
 import remotefilelib
@@ -187,10 +186,10 @@ class koRemoteConnectionService:
         if port < 0:
             port = remotefilelib.koRFProtocolDefaultPort[protocol]
         conn_key = "%s:%s:%s:%s"%(protocol,server,port,username)
-        if conn_key in self._connections and \
-            self._connections[conn_key]():
+        c = self._connections.get(conn_key)
+        if c is not None:
             log.debug("getConnection, found cached connection")
-            return self._connections[conn_key]()
+            return c
         log.debug("getConnection, no cached connection found")
 
         sessionkey = "%s:%s:%s" % (server, port, username)
@@ -205,7 +204,7 @@ class koRemoteConnectionService:
         log.debug("getConnection: Opening %s %s@%s:%r", protocol, username, server, port)
         try:
             c.open(server, port, username, password, path, passive)
-            self._connections[conn_key] = WeakReference(c)
+            self._connections[conn_key] = c
             # Update sessionkey to contain any changes to the username, which
             # can happen if/when prompted for a username/password. Fix for bug:
             # http://bugs.activestate.com/show_bug.cgi?id=65529
