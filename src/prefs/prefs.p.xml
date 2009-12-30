@@ -183,7 +183,12 @@
 <!-- ruby end -->
 
 <!-- Remote files -->
+      <!-- How long (in seconds) to try opening a new remote connection,
+           after this period a timeout error will be raised. -->
   <long id="remotefiles_defaultConnectionTimeout">30</long>
+      <!-- How long (in seconds) to keep an in-active remote file connection
+           opened, after this period they will be closed. -->
+  <long id="remotefiles_inactiveConnectionExpirySeconds">900</long>
 
 <!-- HTTP Inspector start -->
   <boolean id="httpInspector_enabledAtStartup">0</boolean>

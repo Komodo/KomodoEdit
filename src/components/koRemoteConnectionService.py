@@ -37,6 +37,7 @@
 
 # The implementation of the Komodo LastError service.
 
+import time
 import socket
 import threading
 import logging
@@ -49,7 +50,7 @@ import URIlib
 import remotefilelib
 
 log = logging.getLogger('koRemoteConnectionService')
-#log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 
 class BadServerInfoException(Exception):
     pass
@@ -126,6 +127,110 @@ class koServerInfo:
         return loginInfo
         
 
+class RemoteConnectionCache(object):
+    def __init__(self):
+        self._cache = {}
+        self._timer = None
+        self._lock = threading.Lock()
+
+        globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
+                        getService(components.interfaces.koIPrefService).prefs
+        self.EXPIRY_SECONDS = globalPrefs.getLongPref('remotefiles_inactiveConnectionExpirySeconds')
+
+    def _timer_callback(self):
+        # Periodically, clear old connections from the cache.
+        log.debug("RemoteConnectionCache:: Got the timer callback")
+        self._lock.acquire()
+        try:
+            self._timer = None
+            for cache_key, cache_item in self._cache.items():
+                connection, cache_time = cache_item
+                if (time.time() - cache_time) > self.EXPIRY_SECONDS:
+                    log.debug("RemoteConnectionCache:: expired the cached "
+                              "connection for: %r", cache_key)
+                    self._cache.pop(cache_key, None)
+                    try:
+                        connection.close()
+                    except Exception, ex:
+                        # We don't care if there was any exception here.
+                        log.debug("RemoteConnectionCache:: exception when closing connection: %r", ex)
+            if len(self._cache) == 0:
+                # Nothing in the cache, no point in keeping the timer active.
+                log.debug("RemoteConnectionCache:: cancelled the timer, "
+                          "nothing left in the cache.")
+            else:
+                self._ensureTimerActivated()
+        finally:
+            self._lock.release()
+
+    def _ensureTimerActivated(self):
+        if not self._timer:
+            self._timer = threading.Timer(60, self._timer_callback)   # Every minute.
+            self._timer.setDaemon(True)
+            self._timer.start()
+            log.debug("RemoteConnectionCache:: started a new timer")
+
+    ##
+    # Add a connection to cache.
+    # @param cache_key {str}  The connection cache key.
+    # @param connection {koIRemoteConnection}  The connection to cache.
+    #
+    def addConnection(self, cache_key, connection):
+        self._lock.acquire()
+        try:
+            self._cache[cache_key] = (connection, time.time())
+            log.debug("RemoteConnectionCache:: cached connection for: %r", cache_key)
+            self._ensureTimerActivated()
+        finally:
+            self._lock.release()
+
+    ##
+    # Add a connection to cache.
+    # @param cache_key {str}  The connection cache key.
+    # @returns {koIRemoteConnection}  The cached connection.
+    #
+    def getConnection(self, cache_key):
+        self._lock.acquire()
+        try:
+            cache_item = self._cache.get(cache_key)
+            if cache_item is not None:
+                # There is a cached item, check if it's still alive.
+                connection, cache_time = cache_item
+                # Update the last cached time.
+                self._cache[cache_key] = (connection, time.time())
+                return connection
+            return None
+        finally:
+            self._lock.release()
+
+    ##
+    # Remove a connection from the cache.
+    # @param cache_key {str}  The connection cache key.
+    #
+    def removeConnectionWithKey(self, cache_key):
+        self._lock.acquire()
+        try:
+            cache_item = self._cache.get(cache_key)
+            if cache_item is not None:
+                log.debug("RemoteConnectionCache: connection removed: %r",
+                          cache_key)
+                self._cache.pop(cache_key, None)
+        finally:
+            self._lock.release()
+
+    ##
+    # Remove all connections from the cache and stop any timers.
+    #
+    def clearAll(self):
+        self._lock.acquire()
+        try:
+            self._cache = {}
+            if self._timer is not None:
+                self._timer.cancel()
+        finally:
+            self._lock.release()
+
+
 # The underscore names are private, and should only be used internally
 # All underscore names require locking, which should happen through the
 # the use of the exposed (non-underscore) functions.
@@ -142,7 +247,8 @@ class koRemoteConnectionService:
         # _connections is a dictionary of python connection objects. The key
         # is a combination of the connection attributes:
         #   conn_key = "%s:%s:%s:%s" % (protocol, server, port, username)
-        self._connections = {}
+        # and the value is a tuple (connection, last_used_time)
+        self._connection_cache = RemoteConnectionCache()
         # _sessionData is a dictionary of known connection information
         #   sessionkey = "%s:%s:%s" % (server, port, username)
         #   Note: Protocol is not used as different protocols should use
@@ -161,6 +267,7 @@ class koRemoteConnectionService:
         obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                       getService(components.interfaces.nsIObserverService)
         obsSvc.addObserver(self, "network:offline-status-changed", True)
+        obsSvc.addObserver(self, "xpcom-shutdown", True)
 
     ## Private, internal functions
     ## The lock has been acquired, just do the internal work
@@ -186,7 +293,7 @@ class koRemoteConnectionService:
         if port < 0:
             port = remotefilelib.koRFProtocolDefaultPort[protocol]
         conn_key = "%s:%s:%s:%s"%(protocol,server,port,username)
-        c = self._connections.get(conn_key)
+        c = self._connection_cache.getConnection(conn_key)
         if c is not None:
             log.debug("getConnection, found cached connection")
             return c
@@ -204,7 +311,7 @@ class koRemoteConnectionService:
         log.debug("getConnection: Opening %s %s@%s:%r", protocol, username, server, port)
         try:
             c.open(server, port, username, password, path, passive)
-            self._connections[conn_key] = c
+            self._connection_cache.addConnection(conn_key, c)
             # Update sessionkey to contain any changes to the username, which
             # can happen if/when prompted for a username/password. Fix for bug:
             # http://bugs.activestate.com/show_bug.cgi?id=65529
@@ -381,18 +488,17 @@ class koRemoteConnectionService:
         if topic == "network:offline-status-changed":
             if data == "offline":
                 self.clearConnectionCache()
+        elif topic == "xpcom-shutdown":
+            self._connection_cache.clearAll()
 
     def clearConnectionCache(self):
         # Gone offline, clear the connection cache.
-        self._connections = {}
+        self._connection_cache.clearAll()
 
     def removeConnectionFromCache(self, conn):
         conn_key = "%s:%s:%s:%s" % (conn.protocol, conn.server,
                                     conn.port, conn.username)
-        if conn_key in self._connections:
-            log.debug("removeConnectionFromCache: connection removed: %r",
-                      conn_key)
-            self._connections.pop(conn_key, None)
+        self._connection_cache.removeConnectionWithKey(conn_key)
 
     # Returns True if the url is supported by the remote connection service.
     def isSupportedRemoteUrl(self, url):
