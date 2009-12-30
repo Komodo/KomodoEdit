@@ -188,5 +188,5 @@ interface koIRemoteConnectionService : nsISupports {
      * Remove this connection from the connection cache.
      * @since Komodo 6.0.0
      */
-    void removeConnectionFromCache(in koIFTPConnection connection);
+    void removeConnectionFromCache(in koIRemoteConnection connection);
 };
