@@ -311,11 +311,11 @@ class ProcessOpen(Popen):
         else:
             # subprocess raises an exception otherwise.
             flags = 0
-            if sys.platform.startswith("linux") and shell:
+            if shell and sys.platform != "win32":
                 # Set a preexec function, that will make the sub-process part
                 # of the same process group as the spawned shell. This will
                 # allow us to later kill both the spawned shell and the
-                # sub-process in one go (see the kill method).
+                # sub-process in one go (see the kill method) - bug 85693.
                 def preexec_fn():
                     os.setpgid(0, 0)
                 self.__use_killpg = True
