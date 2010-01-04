@@ -43,6 +43,7 @@
 import os
 import socket
 import ssl
+import time
 import ftplib
 import httplib
 import logging
@@ -220,7 +221,13 @@ class koFTPConnection(remotefilelib.koRFConnection):
             if not self._connection:
                 self.open(self.server, self.port, self.username, self.password, "", self.passive)
             else:
-                self._NOOP()
+                # Periodically check that the connection is still alive, bug
+                # 85050.
+                current_time = time.time()
+                if (current_time - self._last_verified_time) >= 30:
+                    self.log.debug("Checking that the ftp connection is alive")
+                    self._NOOP()
+                    self._last_verified_time = current_time
         except Exception, e:
             if isinstance(e, socket.timeout):
                 self._raiseWithException(e)

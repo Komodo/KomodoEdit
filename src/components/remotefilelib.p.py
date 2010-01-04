@@ -94,6 +94,7 @@ class koRFConnection:
         self.passive = True
         self.homedirectory = None
         self._lasterror = ""
+        self._last_verified_time = 0
         self._cache_key = None  # Used for caching files
         self._directoryCache = {}
         self._lock = threading.RLock()
@@ -821,6 +822,14 @@ class koRemoteSSH(koRFConnection):
             if not self._connection or not self._connection.is_active():
                 self.open(self.server, self.port, self.username, self.password,
                           "", self.passive)
+            else:
+                # Periodically check that the connection is still alive, bug
+                # 85050.
+                current_time = time.time()
+                if (current_time - self._last_verified_time) >= 30:
+                    self.log.debug("Checking that the SSH connection is alive")
+                    self.do_getPathInfo("/")
+                    self._last_verified_time = current_time
         except Exception, e:
             if isinstance(e, socket.timeout):
                 self._raiseWithException(e)
