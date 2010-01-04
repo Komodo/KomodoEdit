@@ -54,6 +54,7 @@
         <field name="terminalHandler">null</field>
         <field name="cwd">null</field>
         <field name='promptPos'>0</field>
+        <field name='promptLine'>0</field>
         <field name='haveBufferIn'>false</field>
         <field name='history'>['']</field>
         <field name='historySelection'>0</field>
@@ -80,6 +81,7 @@
         <body>
         <![CDATA[
             ko.trace.get().enter('view-terminak:initWithTerminal')
+            //this.log.setLevel(ko.logging.LOG_DEBUG);
             this.log.info("view-terminal:initWithTerminal");
             this.terminalHandler = terminalHandler;
             this.terminalHandler.setScintilla(this.scimoz);
@@ -96,6 +98,7 @@
             this.document = null; // needed?
             this._inInitPhase = false;
             this.promptPos = 0;
+            this.promptLine = 0;
             this.haveBufferIn = false;
             this.history = [''];
             this.historySelection = 0;
@@ -160,6 +163,7 @@
             this.scimoz.text = '';
             this.scimoz.gotoPos(0);
             this.promptPos = 0;
+            this.promptLine = 0;
             this.haveBufferIn = false;
             this.history = [''];
             this.historySelection = 0;
@@ -190,8 +194,7 @@
                 if (marker)
                     this.scimoz.markerAdd(0, marker);
                 this.scimoz.gotoPos(0);
-                this.promptPos = 0;
-                this.haveBufferIn = false;
+                this.clearPrompt();
             } catch(e) {
                 this.log.exception(e);
             }
@@ -215,6 +218,16 @@
                     this.lastHistorySelection = this.historySelection + 1;
             }
             this.historySelection = 0;
+        ]]>
+        </body>
+        </method>
+
+        <method name="clearPrompt">
+        <body>
+        <![CDATA[
+            this.promptPos = 0;
+            this.promptLine = 0;
+            this.haveBufferIn = false;
         ]]>
         </body>
         </method>
@@ -253,8 +266,7 @@
                 this.scimoz.currentPos = this.scimoz.anchor = this.scimoz.length;
                 var text = this.getLineBuffer();
                 this.addLineToHistory(text);
-                this.promptPos = 0;
-                this.haveBufferIn = false;
+                this.clearPrompt();
 
                 //dump('enter in linecount '+this.scimoz.lineCount+'\n');
                 var markerStatus = this.scimoz.markerGet(this.scimoz.lineCount - 1);
@@ -369,6 +381,7 @@
         </method>
 
         <method name="setPromptPos">
+            <parameter name="lineOffset"/>
         <body>
         <![CDATA[
             // we want to ignore any text on the input line that we received
@@ -376,6 +389,9 @@
             // the first keypress after hitting enter or starting a new shell
             // we retrieve the position and use that as the prompt location.
             if (this.haveBufferIn) return;
+            if (typeof(lineOffset) == 'undefined' || lineOffset == null) {
+                lineOffset = 0;
+            }
             //dump('setPromptPos to acquire lock\n');
             this.terminalHandler.acquireLock()
             try {
@@ -385,12 +401,13 @@
                 // we only worry about this for stdin, not for an interactive prompt
                 var prompts = (1 << ko.markers.MARKNUM_INTERACTIVE_PROMPT) |
                               (1 << ko.markers.MARKNUM_INTERACTIVE_PROMPT_MORE);
-                var markerState = this.scimoz.markerGet(this.scimoz.lineCount - 1);
+                var lineNo = (this.scimoz.lineCount - 1) - lineOffset;
+                this.promptLine = lineNo;
+                var markerState = this.scimoz.markerGet(lineNo);
                 if (!(markerState & prompts)) {
-                    var linePos = this.scimoz.positionFromLine(this.scimoz.lineCount - 1);
-                    var line = this.getLineBuffer();
-                    if (line.length > 0)
-                        this.promptPos = this.scimoz.length - linePos;
+                    var linePos = this.scimoz.positionFromLine(lineNo);
+                    var lineEndPos = this.scimoz.getLineEndPosition(lineNo);
+                    this.promptPos = lineEndPos - linePos;
                 }
             } catch(e) { /* do nothing */ }
             this.terminalHandler.releaseLock()
@@ -434,13 +451,20 @@
                         var eline = this.scimoz.lineFromPosition(position + length);
                         var start = this.scimoz.positionFromLine(sline);
                         var end = this.scimoz.getLineEndPosition(eline);
-
                         // we have either paste or dropped data, handle it now
-                        this._pasteTimer = new objectTimer(this, this.doPasteHandler, [start, end-start, linesAdded]);
+                        this._pasteTimer = new objectTimer(this, this.doPasteHandler, [text, linesAdded]);
                         this._pasteTimer.startTimeout(1);
                         return true; // no further onmodified processing
+
                     } else if (length>1) {
-                        this.haveBufferIn = true;
+                        if (!this.haveBufferIn) {
+                            this.setPromptPos();
+                            // Prompt pos gets moved to the end of the pasted
+                            // text, so move it back the length of the text.
+                            if (this.promptPos > 0) {
+                                this.promptPos -= length;
+                            }
+                        }
                         return true;
                     }
                 }
@@ -451,36 +475,41 @@
         </method>
 
         <method name="doPasteHandler">
-        <parameter name="position"/>
-        <parameter name="length"/>
+        <parameter name="text"/>
         <parameter name="linesAdded"/>
         <body>
         <![CDATA[
-            // split the pasted data into lines, then send one line down
+            // split the pasted text into lines, then send one line down
             // at a time
             try {
-                var data = this.scintilla.scimoz.getTextRange(position, position+length);
-                //dump('got paste data ['+data+']\n');
-                // if data does not end with a newline, do not send the last
+                //dump('got paste text ['+text+']\n');
+                // if text does not end with a newline, do not send the last
                 // line pasted.  the user will need to hit enter to send that.
-                var lines = data.split(/\r\n|\n|\r/);
-                if (data[data.length-1] != '\n') {
+                var lines = text.split(/\r\n|\n|\r/);
+                if (text[text.length-1] != '\n') {
                     lines.splice(lines.length-1, 1);
                 }
                 // strip blank lines at end of paste block
                 while (lines.length > 1 && lines[lines.length - 1] == '\n') {
                     lines.splice(lines.length-1, 1);
                 }
-                data = lines.join('\n');
+                text = lines.join('\n');
                 for (var i = 0; i < lines.length; i++) {
                     this.addLineToHistory(lines[i]);
                 }
-                //dump('sending pasted data ['+data+']\n');
-                if (!this.terminalHandler.stdinHandler || !this.terminalHandler.stdinHandler.puts(data)) {
+                if (!this.haveBufferIn) {
+                    // Update the prompt positioning.
+                    this.setPromptPos(linesAdded);
+                    if (this.promptPos > 0) {
+                        this.promptPos -= ko.stringutils.bytelength(lines[0]);
+                    }
+                }
+
+                if (!this.terminalHandler.stdinHandler || !this.terminalHandler.stdinHandler.puts(text)) {
                     // If there is a stdin, send the input to it.
                     // There won't be for macros that write to the command output window.
                     if (this.terminalHandler.stdin) {
-                        this.terminalHandler.stdin.puts(data+'\n');
+                        this.terminalHandler.stdin.puts(text);
 		    }
                 }
                 this.scimoz.anchor = this.scimoz.selectionStart = this.scimoz.selectionEnd = this.scimoz.length;
@@ -507,7 +536,8 @@
                 //   - VK_BACKSPACE if the cursor is at column 0 _if there is a selection
 
                 this.setPromptPos();
-                var linePos = this.scimoz.positionFromLine(this.scimoz.lineCount - 1);
+                var lineNo = this.scimoz.lineCount - 1;
+                var linePos = this.scimoz.positionFromLine(lineNo);
 
                 var forbidden = false;
                 if (this.scimoz.currentPos != this.scimoz.anchor) {
@@ -519,6 +549,10 @@
                     if (event.keyCode == event.DOM_VK_RIGHT) {
                         forbidden = this.scimoz.currentPos < linePos;
                     } else { // left or back
+                        if (lineNo == this.promptLine) {
+                            // Don't go past the prompt.
+                            linePos += this.promptPos;
+                        }
                         forbidden = this.scimoz.currentPos - 1 < linePos;
                     }
                 }
