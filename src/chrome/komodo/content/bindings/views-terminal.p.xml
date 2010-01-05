@@ -421,7 +421,8 @@
         <![CDATA[
             var text = new Object();
             this.scimoz.getLine(this.scimoz.lineCount - 1, text);
-            return text.value.substring(this.promptPos, text.value.length);
+            var unicode_promptPos = ko.stringutils.charIndexFromPosition(text.value, this.promptPos);
+            return text.value.substring(unicode_promptPos, text.value.length);
         ]]>
         </body>
         </method>
