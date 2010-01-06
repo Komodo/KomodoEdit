@@ -1920,6 +1920,16 @@ def _get_js_standalone(buildDir):
             raise BuildError("error running '%s'" % cmd)
 
 
+def _disablePythonUserSiteFeature(site_filepath):
+    """Turn off the ENABLE_USER_SITE (PEP 370) feature (bug 85725)."""
+
+    log.info("Disabling user site feature in: %r", site_filepath)
+    contents = file(site_filepath, "rb").read()
+    contents = contents.replace("ENABLE_USER_SITE = None",
+                                "ENABLE_USER_SITE = False")
+    file(site_filepath, "wb").write(contents)
+
+
 def target_silo_python(argv=["silo_python"]):
     log.info("target: silo_python")
     config = _importConfig()
@@ -2001,6 +2011,9 @@ def target_silo_python(argv=["silo_python"]):
         _run("copy /y %s %s" % (join(siloDir, "python.exe"),
                                 join(mozBinDir, "mozpython.exe")))
 
+        siteFile = join(siloDir, "Lib", "site.py")
+        _disablePythonUserSiteFeature(siteFile)
+
     elif sys.platform == "darwin":
         src = join(srcDir, "Python.framework")
         dst = join(siloDir, "Python.framework")
@@ -2077,6 +2090,10 @@ def target_silo_python(argv=["silo_python"]):
             else:
                 log.error("PyXPCOM was not built correctly!\n%s", ''.join(linkage))
 
+        siteFile = join(siloDir, "Python.framework", "Versions", config.pyVer,
+                        "lib", "python%s" % (config.pyVer), "site.py")
+        _disablePythonUserSiteFeature(siteFile)
+
     else:
         _run('cp -R "%s" "%s"' % (srcDir, siloDir), log.info)
 
@@ -2107,6 +2124,9 @@ def target_silo_python(argv=["silo_python"]):
                                        "site-packages", "activestate.py")
             cmd = "%s %s --relocate" % (sys.executable, activestate_py_path)
             _run(cmd, log.info)
+
+        siteFile = join(siloDir, "lib", "python%s" % (config.pyVer), "site.py")
+        _disablePythonUserSiteFeature(siteFile)
 
     return argv[1:]
 
