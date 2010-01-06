@@ -27,7 +27,7 @@ Build steps on Windows:
 
     REM ---- Build Mozilla
     cd openkomodo\mozilla
-    setenv-moz-msvc6.bat
+    setenv-moz-msvc8.bat
     python build.py configure -k 6.10 --moz-src=191 --release --no-strip --tools --moz-objdir=ko-obj
     python build.py distclean all
     cd ..
