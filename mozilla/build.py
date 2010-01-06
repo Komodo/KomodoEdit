@@ -1925,6 +1925,7 @@ def _disablePythonUserSiteFeature(site_filepath):
 
     log.info("Disabling user site feature in: %r", site_filepath)
     contents = file(site_filepath, "rb").read()
+    assert "ENABLE_USER_SITE = None" in contents
     contents = contents.replace("ENABLE_USER_SITE = None",
                                 "ENABLE_USER_SITE = False")
     file(site_filepath, "wb").write(contents)
