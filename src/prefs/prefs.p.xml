@@ -483,6 +483,7 @@
     <preference-set id="languages/Makefile">
       <string id="Makefile/newEncoding">Default Encoding</string>
       <boolean id="Makefile/newBOM">0</boolean>
+      <boolean id="useTabs">1</boolean>
     </preference-set>
     <preference-set id="languages/Matlab">
       <string id="Matlab/newEncoding">Default Encoding</string>
