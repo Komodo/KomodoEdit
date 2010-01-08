@@ -39,11 +39,20 @@
 # needed for ftpfile
 import urlparse, urllib
 import stat, os, sys, copy
+from os.path import splitdrive
 from hashlib import md5
 import types, re
 
 win32 = sys.platform.startswith("win")
 from xpcom import components, COMException, ServerException, nsError
+
+if win32:
+    WIN32_DRIVE_REMOTE = 4
+    # Import the Win32 GetDriveTypeW API:
+    # http://msdn.microsoft.com/en-us/library/aa364939%28VS.85%29.aspx
+    from ctypes import windll
+    Win32_GetDriveTypeW = windll.kernel32.GetDriveTypeW
+    del windll
 
 import logging
 log = logging.getLogger('URIlib')
@@ -403,6 +412,9 @@ class URIParser(object):
     md5name = property(get_md5name)
 
 class FileHandlerBase(object):
+
+    isNetworkFile = False
+
     def __init__(self):
         self.clearstat()
         self._file = None
@@ -479,7 +491,8 @@ class FileHandlerBase(object):
 class FileHandler(FileHandlerBase):
     isLocal = 1
     isRemoteFile = 0
-    
+    _networkFile = None
+
     def __init__(self,path):
         FileHandlerBase.__init__(self)
         uri = URIParser(path)
@@ -491,6 +504,28 @@ class FileHandler(FileHandlerBase):
     def __del__(self):
         if self._file:
             self.close()
+
+    @property
+    def isNetworkFile(self):
+        """Return true if this file resides on a newtwork share.
+        
+        Note: For networked file, isLocal is *always* true."""
+        if self._networkFile is None:
+            if win32:
+                # Determine if file is networked using the Win32 API. The string
+                # must be a unicode object - otherwise the call will fail.
+                # TODO: Does my path ever change? If so there needs to be an
+                #       invalidate method so this call fires again.
+                drive = unicode(splitdrive(self._path)[0])
+                self._networkFile = Win32_GetDriveTypeW(drive) == WIN32_DRIVE_REMOTE
+            else:
+                self._networkFile = False
+            # TODO: Check if the user has marked this location to be treated as
+            #       a network file type (via user preferences).
+            #if not self._networkFile:
+            #    if self._path.startswith("/home/toddw/tmp"):
+            #        self._networkFile = True
+        return self._networkFile
 
     def close(self):
         if not self._file:

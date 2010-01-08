@@ -104,6 +104,13 @@ interface koIFileEx : nsISupports
     // various attributes of a file
     readonly attribute boolean isLocal;
     readonly attribute boolean isRemoteFile;    // FTP, SCP, SFTP etc...
+    // A network file is a local file (isLocal is *always* true), but it is
+    // actually residing on a mounted network drive, such as Samba, SSHFS,
+    // etc...
+    // The user is able to customize through Komodo's preferences which
+    // file locations are to be treated as network shares.
+    // Note: Network shared are automatically detected on Windows.
+    readonly attribute boolean isNetworkFile;
     readonly attribute PRInt64 lastModifiedTime;
     readonly attribute PRInt64 createdTime;
     readonly attribute PRInt64 lastAccessedTime;
