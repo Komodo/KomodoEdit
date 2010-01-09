@@ -258,7 +258,7 @@ class KoDiskFileChecker(KoFileCheckerBase):
         return True
 
     def updateFileStatus(self, koIFile, reason):
-        if koIFile.isLocal:
+        if koIFile.isLocal and not koIFile.isNetworkFile:
             time_now = time.time()
             cache_key = self._norm_uri_cache_key(koIFile.URI)
             if reason == self.REASON_BACKGROUND_CHECK and \

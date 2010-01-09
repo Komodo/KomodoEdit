@@ -895,7 +895,7 @@
                 // If the disk file has changed under us on disk, then ask the
                 // user what to do.
                 try {
-                    if (file.isLocal) {
+                    if (file.isLocal && !file.isNetworkFile) {
                         hasChanged = this.document.differentOnDisk();
                     } else {
                         // Different for remote files, we check the file stats

@@ -3080,7 +3080,7 @@ function _view_checkDiskFiles(event) {
                 view.document.isUntitled) continue;
             file = view.document.file;
             // onFocus: Don't check file changed for remote files
-            if (!file.isLocal) continue;
+            if (!file.isLocal || file.isNetworkFile) continue;
             item = new Object;
             item.type = 'view';
             item.view = view;

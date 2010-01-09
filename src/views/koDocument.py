@@ -506,6 +506,7 @@ class koDocumentBase:
     def differentOnDisk(self):
         if self.isUntitled or \
             not self.file.isLocal or \
+            self.file.isNetworkFile or \
             not self.file.exists or \
             self.file.URI.startswith('chrome://'):
             return 0

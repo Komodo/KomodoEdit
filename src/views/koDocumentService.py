@@ -221,7 +221,7 @@ class KoDocumentService:
         # way to initiate a re-stat. Don't do this for non-local files.
         # Fixes bug:
         # http://bugs.activestate.com/show_bug.cgi?id=68285
-        if file.isLocal:
+        if file.isLocal and not file.isNetworkFile:
             file.hasChanged
 
         document = components.classes["@activestate.com/koDocumentBase;1"]\
