@@ -1,0 +1,11 @@
+--- security/nss/cmd/shlibsign/sign.sh
++++ security/nss/cmd/shlibsign/sign.sh
+@@ -28,7 +28,7 @@
+     export SHLIB_PATH
+     LD_LIBRARY_PATH=${1}/lib:${4}:$LD_LIBRARY_PATH
+     export LD_LIBRARY_PATH
+-    DYLD_LIBRARY_PATH=${1}/lib:${4}:$DYLD_LIBRARY_PATH
++    DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/lib:${1}/lib:${4}
+     export DYLD_LIBRARY_PATH
+     LIBRARY_PATH=${1}/lib:${4}:$LIBRARY_PATH
+     export LIBRARY_PATH
