@@ -1754,7 +1754,13 @@ class SetLdLibraryPath(black.configure.SetPathEnvVar):
                                                    serializeAs=["env"])
             
     def _Determine_Do(self):
-        if not sys.platform.startswith("win"):
+        # Don't want to set for Mac because it causes a build problem with libsqlite3
+        # conflicts between Mac OS X 10.6's sqlite and Mozilla's. See
+        # mozilla bug 513747 for more details. The symptom is this:
+        #    dyld: Library not loaded: /usr/lib/libsqlite3.dylib
+        #      Referenced from: /System/Library/Frameworks/Security.framework/Versions/A/Security
+        #      Reason: Incompatible library version: Security requires version 9.0.0 or later, but libsqlite3.dylib provides version 1.0.0
+        if sys.platform.startswith("linux"):
             self.applicable = 1
             self.value = []
             #---- add required entries to the path
