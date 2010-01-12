@@ -121,7 +121,24 @@ Build Prerequisites for Mac OS X
 - libIDL-2.0 >= 0.8.0. Once you have MacPorts installed you need just run::
 
     sudo port sync
-    sudo port install libidl
+    sudo port install libidl universal
+
+  Warning: You must use "universal" in the above command if you are using Mac
+  OS X 10.6 (Snow Leopard), otherwise you'll get a x86_64 build of libidl,
+  where as your 32-bit Mozilla build requires an x86 build. To backout and
+  get the universal one do this:
+
+    sudo port -f uninstall installed   # or perhaps `sudo port -f uninstall libidl`
+    sudo port install libidl universal
+
+  The failure will look like this:
+
+         dyld: Library not loaded: /opt/local/lib/libIDL-2.0.dylib
+          Referenced from: /Users/trentm/as/komodo/mozilla/build/moz191-ko6.10/mozilla/ko-rel-ns-tools/dist/Komodo.app/Contents/MacOS/xpidl
+          Reason: no suitable image found.  Did find:
+                /opt/local/lib/libIDL-2.0.dylib: mach-o, but wrong architecture 
+
+  (c.f. http://richwklein.com/2009/10/27/fail-libidl-on-mac-os-x-10-6-snow-leopard/)
 
 - autoconf v2.13. Once you have MacPorts installed you need just run::
 
