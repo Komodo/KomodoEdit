@@ -1481,31 +1481,18 @@ def target_configure(argv):
         mozBuildOptions.append("enable-macos-target=%s" % sdk_ver)
         mozBuildOptions.append("with-macos-sdk=%s" % sdk)
 
-        if osx_major_ver >= 10:
+        if osx_major_ver >= 10: # aka Snow Leopard or greater
             # Komodo needs to be built as a 32-bit application.
             # Snow Leopard specific build details from:
             #   https://developer.mozilla.org/en/Mac_OS_X_Build_Prerequisites
-            mozBuildOptions.append("target=i386-apple-darwin8.0.0")
-            mozRawOptions.append('RANLIB=ranlib')
-            mozRawOptions.append('AR=ar')
-            mozRawOptions.append('AS=$CC')
-            mozRawOptions.append('LD=ld')
-            mozRawOptions.append('STRIP="strip -x -S"')
-            mozRawOptions.append('CROSS_COMPILE=1')
-            # Crash reporter won't build either.
-            mozBuildOptions.append('disable-crashreporter')
             if mozVer <= 1.91:
                 # Mozilla <= 1.9.1 must use gcc 4.0, specify that now.
                 mozRawOptions.append('CC="gcc-4.0 -arch i386"')
                 mozRawOptions.append('CXX="g++-4.0 -arch i386"')
-                mozRawOptions.append('HOST_CC="gcc-4.0 -arch i386"')
-                mozRawOptions.append('HOST_CXX="g++-4.0 -arch i386"')
             else:
                 # Mozilla 1.9.2 must use gcc 4.2, specify that now.
                 mozRawOptions.append('CC="gcc-4.2 -arch i386"')
                 mozRawOptions.append('CXX="g++-4.2 -arch i386"')
-                mozRawOptions.append('HOST_CC="gcc-4.2 -arch i386"')
-                mozRawOptions.append('HOST_CXX="g++-4.2 -arch i386"')
         if mozVer >= 1.91:
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
 
