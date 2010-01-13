@@ -1560,6 +1560,7 @@
                 <RemoveFile Id="removefile62" On="uninstall" Name="*.pyo" />
                 <File Id="file13" Name="applib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\applib.py"/>
                 <File Id="file83" Name="FILEST_0.PY" LongName="fileStatusUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\fileStatusUtils.py"/>
+                <File Id="file470" LongName="fileutils.py" Name="FILEUT_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\fileutils.py" />
                 <File Id="file2179" Name="CELEME_0.PYD" LongName="cElementTree.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\cElementTree.pyd"/>
                 <File Id="file40" Name="CIELEM_0.PYD" LongName="ciElementTree.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\ciElementTree.pyd"/>
                 <File Id="file1886" Name="DIFFLI_0.PY" LongName="difflibex.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\difflibex.py"/>
