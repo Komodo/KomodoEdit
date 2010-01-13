@@ -121,15 +121,15 @@ Build Prerequisites for Mac OS X
 - libIDL-2.0 >= 0.8.0. Once you have MacPorts installed you need just run::
 
     sudo port sync
-    sudo port install libidl universal
+    sudo port install libidl +universal
 
-  Warning: You must use "universal" in the above command if you are using Mac
+  Warning: You must use "+universal" in the above command if you are using Mac
   OS X 10.6 (Snow Leopard), otherwise you'll get a x86_64 build of libidl,
   where as your 32-bit Mozilla build requires an x86 build. To backout and
   get the universal one do this:
 
-    sudo port -f uninstall installed   # or perhaps `sudo port -f uninstall libidl`
-    sudo port install libidl universal
+    sudo port -f uninstall installed
+    sudo port install libidl +universal
 
   The failure will look like this:
 
