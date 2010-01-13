@@ -645,9 +645,15 @@ class koRemoteConnectionService:
     # Return the sorted list of servers, in koIServerInfo objects.
     def getServerInfoList(self):
         serverinfo_list = []
-        loginmanager = components.classes["@mozilla.org/login-manager;1"].\
-                            getService(components.interfaces.nsILoginManager)
-        logins = loginmanager.getAllLogins() # array of nsILoginInfo
+        try:
+            loginmanager = components.classes["@mozilla.org/login-manager;1"].\
+                                getService(components.interfaces.nsILoginManager)
+            logins = loginmanager.getAllLogins() # array of nsILoginInfo
+        except COMException, ex:
+            # TODO: Check if this is a testing environment, if it's not then
+            #       this should be an exception.
+            log.warn("Could not obtain logins from the nsILoginManager")
+            logins = []
         #print "getServerInfoList:: logins: %r" % (logins, )
         if logins:
             for logininfo in logins:
