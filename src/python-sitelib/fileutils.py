@@ -55,7 +55,16 @@ def _walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False):
 
 def walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False):
     """Modified os.walk, one that will keep track of followed symlinks in order
-    to avoid cyclical links."""
+    to avoid cyclical links. Cyclical symlinks often need to be avoided,
+    otherwise os.walk can walk forever.
+
+    Note: This does not avoid duplicates, example:
+
+        subdir
+        subdir/a
+        subdir/b => ../subdir   # avoid this
+        subdir/c => ./a         # allow this (as it's not cyclical)
+    """
 
     if not followlinks:
         return os.walk(top, topdown, onerror, followlinks)
