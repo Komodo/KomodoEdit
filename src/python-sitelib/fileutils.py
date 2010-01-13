@@ -37,7 +37,7 @@
 import os
 from os.path import islink, realpath, join
 
-def _walk_avioiding_cycles(top, topdown=True, onerror=None, followlinks=False):
+def _walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False):
     seen_rpaths = {top: 1}
     for root, dirs, files in os.walk(top, topdown, onerror, followlinks):
         # We modify the original "dirs" list, so that os.walk will then ignore
@@ -53,7 +53,7 @@ def _walk_avioiding_cycles(top, topdown=True, onerror=None, followlinks=False):
                 seen_rpaths[rpath] = 1
         yield (root, dirs, files)
 
-def walk_avioiding_cycles(top, topdown=True, onerror=None, followlinks=False):
+def walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False):
     """Modified os.walk, one that will keep track of followed symlinks in order
     to avoid cyclical links."""
 
@@ -62,6 +62,6 @@ def walk_avioiding_cycles(top, topdown=True, onerror=None, followlinks=False):
     else:
         # Can only avoid cycles if topdown is True.
         if not topdown:
-            raise Exception("walk_avioiding_cycles can only avoid cycles when "
+            raise Exception("walk_avoiding_cycles can only avoid cycles when "
                             "topdown is True")
-        return _walk_avioiding_cycles(top, topdown, onerror, followlinks)
+        return _walk_avoiding_cycles(top, topdown, onerror, followlinks)
