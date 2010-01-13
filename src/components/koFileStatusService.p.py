@@ -483,8 +483,8 @@ class KoFileStatusService:
                 all_local_files = []
                 for koIFile in self._fileSvc.getAllFiles():
                     try:
-                        if koIFile.isLocal:
-                            u = UnwrapObject(koIFile)
+                        u = UnwrapObject(koIFile)
+                        if u.isLocal and not u.isNetworkFile:
                             if u.isFile:
                                 all_local_files.append(u)
                             elif u.isDirectory:
