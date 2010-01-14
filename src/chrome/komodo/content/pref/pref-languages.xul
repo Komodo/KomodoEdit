@@ -80,7 +80,6 @@
                        value="&languageNames.label;"
                        accesskey="&languageNames.accesskey;"/>
                 <textbox id="languageStatus-filter-textbox"
-                         class="ko-searchbox"
                          timeout="300"
                          type="search"
                          oncommand="updateLanguageNames(this.value);"/>
