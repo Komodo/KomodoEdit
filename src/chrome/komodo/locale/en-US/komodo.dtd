@@ -173,6 +173,7 @@
 <!ENTITY editorSelectToNextLine.desc "Editor: Select to Next Line">
 <!ENTITY editorSelectToPreviousLine.desc "Editor: Select to Previous Line">
 <!ENTITY editorSelectToTopOfDocument.desc "Editor: Select to Top of Document">
+<!ENTITY editorSelectWordUnderCursor.desc "Editor: Select the word Under the Cursor">
 <!ENTITY editorSetMark.desc "Editor: Set Mark">
 <!ENTITY editorShowUnsavedChanges.desc "Editor: Show Unsaved Changes">
 <!ENTITY editorTabstopClear.desc "Editor: Clear Current Tabstop State">

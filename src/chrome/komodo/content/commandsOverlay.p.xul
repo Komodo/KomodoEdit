@@ -498,6 +498,10 @@
             oncommand="ko.commands.doCommand('cmd_wordPartRightExtend')"
             desc="&editorSelectNextPartOfWord.desc;"/>
         <command
+            id="cmd_selectWordUnderCursor" key="key_cmd_selectWordUnderCursor"
+            oncommand="ko.commands.doCommand('cmd_selectWordUnderCursor')"
+            desc="&editorSelectWordUnderCursor.desc;"/>
+        <command
             id="cmd_selectCharPrevious" key="key_cmd_selectCharPrevious"
             oncommand="ko.commands.doCommand('cmd_selectCharPrevious')"
             desc="&editorSelectPreviousCharacter.desc;"/>

@@ -416,6 +416,14 @@ class koScintillaController:
             sm.endUndoAction()
         return 1
 
+    def _do_cmd_selectWordUnderCursor(self):
+        sm = self.scimoz()
+        pos = sm.currentPos
+        word_start = sm.wordStartPosition(pos, True)
+        word_end = sm.wordEndPosition(pos, True)
+        sm.anchor = word_start
+        sm.currentPos = word_end
+
     def _do_cmd_lineTranspose(self):
         sm = self.scimoz()
         sm.beginUndoAction()
