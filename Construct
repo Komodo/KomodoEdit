@@ -838,7 +838,11 @@ sub build::install::JSCheck {
         }
         my %ldLibPathPrefixMap = (
             "win" => "",
-            "darwin" => "DYLD_LIBRARY_PATH=$mozDevelBin",
+            # Don't want to specify this on Mac 10.6 else hit:
+            #   dyld: Library not loaded: /usr/lib/libsqlite3.dylib
+            #     Referenced from: /System/Library/Frameworks/Security.framework/Versions/A/Security
+            #     Reason: Incompatible library version: Security requires version 9.0.0 or later, but libsqlite3.dylib provides version 1.0.0
+            #"darwin" => "DYLD_LIBRARY_PATH=$mozDevelBin",
             "linux" => "LD_LIBRARY_PATH=$mozDevelBin",
             "solaris" => "LD_LIBRARY_PATH=$mozDevelBin",
         );
