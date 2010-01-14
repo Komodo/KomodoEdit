@@ -260,22 +260,13 @@ function ensureSelectedUsedbyKeyIsVisible(event) {
     }
 }
 
-var _updateTimer = 0;
-
-function scheduleUpdateCommandList() {
-    if (_updateTimer) {
-	window.clearTimeout(_updateTimer);
-    }
-    _updateTimer = window.setTimeout("updateCommandList()", 100);
-}
-
 function updateCommandList() {
     try {
-	_updateTimer = 0;
 	// Add treeitems to the tree based on the information from the keybinding manager.
 	// This is slow, which is why it's inlined.
 	var i, command;
 	var filter = dialog.filter.value.toLowerCase();
+	var filter_words = filter.split(" ");
 	var commanditems = dialog.gKeybindingMgr.commanditems
 	var numrows = dialog.tree.getRowCount();
 	for (i = numrows-1; i >= 0 ; i--) {
@@ -283,15 +274,27 @@ function updateCommandList() {
 	}
 	var item;
 	var count = 0;
+	var desc;
 	for (i in commanditems) {
 	    command = commanditems[i];
-	    if (command.desc &&
-                (filter == '' || command.desc.toLowerCase().indexOf(filter) != -1)) {
-		item = dialog.tree.appendItem(command.desc,command);
-		item.setAttribute('name', command.name);
-		item.setAttribute('data', command.desc);
-		count ++;
+	    if (!command.desc)
+		continue;
+	    if (filter) {
+		var matched = true;
+		desc = command.desc.toLowerCase();
+		for (var j=0; j < filter_words.length; j++) {
+		    if (desc.indexOf(filter_words[j]) == -1) {
+			matched = false;
+			break;
+		    }
+		}
+		if (!matched)
+		    continue;
 	    }
+	    item = dialog.tree.appendItem(command.desc, command);
+	    item.setAttribute('name', command.name);
+	    item.setAttribute('data', command.desc);
+	    count ++;
 	}
 	if (count == 0) {
 	    dialog.deck.selectedIndex = 0;
@@ -341,39 +344,4 @@ function newConfiguration()
     updateConfigMenu();
     switchConfig(newSchemeName);
     return true;
-}
-
-function onFilterKeypress(event) {
-    try {
-        if (event.keyCode == event.DOM_VK_RETURN ||
-	    event.keyCode == event.DOM_VK_ENTER ||
-	    (event.keyCode == event.DOM_VK_TAB && !event.ctrlKey)) {
-            event.cancelBubble = true;
-            event.stopPropagation();
-            event.preventDefault();
-            dialog.tree.focus();
-	    if (dialog.tree.selectedIndex == -1) {
-		dialog.tree.selectedIndex = 0;
-	    }
-            return;
-        }
-        if (event.keyCode == event.DOM_VK_ESCAPE) {
-            if (dialog.filter.value != '') {
-                dialog.filter.value = '';
-                scheduleUpdateCommandList();
-                event.cancelBubble = true;
-                event.stopPropagation();
-                event.preventDefault();
-            }
-            return;
-        }
-        if ((event.ctrlKey || event.metaKey) && event.charCode == 'z'.charCodeAt(0)) {
-            // ctrl-z doesn't do the right thing w.r.t. calling 'oninput',
-            // so we do it ourselves.
-	    scheduleUpdateCommandList();
-        }
-    } catch (e) {
-        log.exception(e);
-    }
-
 }
