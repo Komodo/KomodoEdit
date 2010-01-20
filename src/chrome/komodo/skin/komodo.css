@@ -60,10 +60,6 @@
 toolbar[printpreview="true"] {
   -moz-binding: url("chrome://global/content/printPreviewBindings.xml#printpreviewtoolbar");
 }
-/* don't show empty toolbars */
-#main-toolboxrow > toolbar:empty {
-  display: none;
-}
 
 #main-toolboxrow {
   overflow: hidden;

@@ -52,14 +52,17 @@ var _log = ko.logging.getLogger('uilayout');
 // along with the corresponding broadcaster if it exists.
 this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbarId)
 {
-    var toolbar = document.getElementById(toolbarId);
-    if (!toolbar) {
-        _log.error("Couldn't find toolbar: " + toolbarId);
+    /**
+     * @type {Node}
+     */
+    var toolbaritem = document.getElementById(toolbarId);
+    if (!toolbaritem) {
+        _log.error("Couldn't find toolbaritem: " + toolbarId);
         return;
     }
-    var broadcasterId = toolbar.getAttribute('broadcaster');
+    var broadcasterId = toolbaritem.getAttribute('broadcaster');
     if (!broadcasterId) {
-        _log.info("No broadcaster associated with toolbar: " + toolbarId);
+        _log.info("No broadcaster associated with toolbaritem: " + toolbarId);
         return;
     }
     var broadcaster = document.getElementById(broadcasterId);
@@ -67,12 +70,46 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
         _log.error("Couldn't find broadcaster: " + broadcasterId);
         return;
     }
-    if (toolbar.hidden) {
-        toolbar.setAttribute("hidden", "false");
+    if (toolbaritem.hidden) {
+        toolbaritem.setAttribute("hidden", "false");
         broadcaster.setAttribute("checked", "true");
     } else {
-        toolbar.setAttribute("hidden", "true");
+        toolbaritem.setAttribute("hidden", "true");
         broadcaster.setAttribute("checked", "false");
+    }
+
+    // Check whether to hide the toolbox row.
+    if (toolbaritem.nodeName == "toolbar") {
+        // If this is an actual toolbar, such as the open/find toolbar then
+        // we don't need to check the child contents.
+        return;
+    }
+    /**
+     * @type {Node}
+     */
+    var toolbar = toolbaritem.parentNode;
+    while (toolbar && toolbar.nodeName != "toolbar") {
+        dump('toolbar.nodeName: ' + toolbar.nodeName + '\n');
+        toolbar = toolbaritem.parent;
+    }
+    if (!toolbar) {
+        _log.warn("Could not find the parent toolbar for: " + toolbarId);
+        return;
+    }
+    var child;
+    var all_hidden = true;
+    for (var i=0; i < toolbar.childNodes.length; i++) {
+        child = toolbar.childNodes.item(i);
+        if (!child.hasAttribute("hidden") ||
+            child.getAttribute("hidden") == "false") {
+            all_hidden = false;
+            break;
+        }
+    }
+    if (all_hidden) {
+        toolbar.setAttribute("hidden", "true");
+    } else {
+        toolbar.removeAttribute("hidden");
     }
 }
 

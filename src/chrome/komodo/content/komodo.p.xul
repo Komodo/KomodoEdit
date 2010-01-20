@@ -1567,7 +1567,7 @@
             </toolbaritem>
         </toolbar>
 
-        <toolbar id="main-toolboxrow" flex="1" align="start">
+        <toolbar id="main-toolboxrow" flex="1" align="start" persist="hidden">
             <toolbaritem
                 id="standardToolbar"
                 class="chromeclass-toolbar"
