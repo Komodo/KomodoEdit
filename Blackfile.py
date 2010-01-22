@@ -2040,10 +2040,12 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("components", "ko*.pyo"),
         mozbinpath("components", "ko*.js"),
         mozbinpath("components", "ko*.xpt"),
+        mozbinpath("components", "ko*.dll"),
         mozbinpath("components", "ISciMoz*"),
         mozbinpath("components", "as*.xpt*"),
         mozbinpath("components", "as*.js"),
         mozbinpath("components", "libko*"),
+        mozbinpath("modules", "js_beautify.js"),
         mozbinpath("extensions"),
         mozbinpath("updater.ini"),
 
