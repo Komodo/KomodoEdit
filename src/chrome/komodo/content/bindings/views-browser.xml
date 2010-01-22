@@ -130,7 +130,7 @@
                   const textToSubURI = Components.classes["@mozilla.org/intl/texttosuburi;1"]
                                                  .getService(Components.interfaces.nsITextToSubURI);
                   title = textToSubURI.unEscapeNonAsciiURI(characterSet, title);
-                  basename = ko.uriparse.baseName(title);
+                  var basename = ko.uriparse.baseName(title);
                   if (basename)
                     title = basename;
                 }
