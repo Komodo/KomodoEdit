@@ -1735,6 +1735,7 @@ class SetupMozEnv(black.configure.RunEnvScript):
             setenvFile = {
                 "vc6": "setenv-moz-msvc6.bat",
                 "vc8": "setenv-moz-msvc8.bat",
+                "vc9": "setenv-moz-msvc9.bat",
             }[compiler]
             self.value = join(mozillaDevDir, setenvFile)
         else:

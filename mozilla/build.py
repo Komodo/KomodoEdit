@@ -1406,7 +1406,7 @@ def target_configure(argv):
         elif opt == "--compiler":
             assert sys.platform == "win32", \
                 "'--compiler' configure option is only supported on Windows"
-            validCompilers = ('vc6', 'vc7', 'vc8')
+            validCompilers = ('vc6', 'vc7', 'vc8', 'vc9')
             assert optarg in validCompilers, \
                 "invalid compiler value (%s), must be one of: %s"\
                 % (optarg, validCompilers)
