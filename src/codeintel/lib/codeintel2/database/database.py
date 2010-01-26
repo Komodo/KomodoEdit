@@ -122,7 +122,7 @@ The database is divided into *zones*, primarily along
 common-implementation lines. E.g. dir under "db" is a zone.
 
 
-<base-dir>/                 # E.g. ~/.komodo/4.0/host-$HOSTNAME/codeintel
+<base-dir>/                 # E.g. ~/.komodo/6.0/codeintel
     README.txt
     VERSION
     db/

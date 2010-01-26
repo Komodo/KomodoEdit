@@ -467,7 +467,7 @@ def banner(text, ch='=', length=70):
             suffix = ch * (suffix_len/len(ch)) + ch[:suffix_len%len(ch)]
         return prefix + ' ' + text + ' ' + suffix
 
-def _get_komodo_user_data_dir(kover, hostdir=False):
+def _get_komodo_user_data_dir(kover):
     if os.environ.has_key("KOMODO_USERDATADIR"):
         userdatadir = os.environ["KOMODO_USERDATADIR"]
     if sys.platform == "win32":
@@ -481,13 +481,7 @@ def _get_komodo_user_data_dir(kover, hostdir=False):
     else:
         userdatadir = os.path.expanduser("~/.komodo")
     
-    userdatadir = os.path.join(userdatadir, kover)
-    
-    if hostdir:
-        hostname = getHostname()
-        userdatadir = os.path.join(userdatadir, "host-%s" % hostname)
-    
-    return userdatadir
+    return os.path.join(userdatadir, kover)
     
 
 def find_komodo_cidb_path():

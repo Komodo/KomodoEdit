@@ -111,17 +111,16 @@ if sys.platform.startswith("win"):
     def _getCommandmentsFileName(ver):
         return os.path.join(
             shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0),
-            "ActiveState", "Komodo", ver, "host-"+_hostname,
-            "commandments.txt")
+            "ActiveState", "Komodo", ver, "commandments.txt")
 else:
     def _getStartingLockFileName(ver):
-        return os.path.expanduser("~/.komodo/%s/host-%s/starting.lock"
+        return os.path.expanduser("~/.komodo/%s/starting.lock"
                                   % (ver, _hostname))
     def _getRunningLockFileName(ver):
-        return os.path.expanduser("~/.komodo/%s/host-%s/running.lock"
+        return os.path.expanduser("~/.komodo/%s/running.lock"
                                   % (ver, _hostname))
     def _getCommandmentsFileName(ver):
-        return os.path.expanduser("~/.komodo/%s/host-%s/commandments.fifo"
+        return os.path.expanduser("~/.komodo/%s/commandments.fifo"
                                   % (ver, _hostname))
 
 

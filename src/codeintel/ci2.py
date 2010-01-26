@@ -307,10 +307,8 @@ class Shell(cmdln.Cmdln):
         doctest.testmod()
 
     def _cidb_path_from_kover(self, kover):
-        import socket
-        ko_user_data_dir = join(
-            applib.user_data_dir("Komodo", "ActiveState", "%s.%s" % kover),
-            "host-"+socket.gethostname())
+        ko_user_data_dir = applib.user_data_dir("Komodo", "ActiveState",
+                                                "%s.%s" % kover)
         if not exists(ko_user_data_dir):
             raise OSError("`%s' does not exist" % ko_user_data_dir)
         return join(ko_user_data_dir, "codeintel.db")
