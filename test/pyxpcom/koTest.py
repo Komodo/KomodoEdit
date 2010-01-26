@@ -136,9 +136,6 @@ class KoTestService:
             if not os.path.exists(dirname(currUserDataDir)):    # KomodoIDE
                 os.mkdir(dirname(currUserDataDir))
             os.mkdir(currUserDataDir)
-        currHostUserDataDir = koDirSvc.hostUserDataDir
-        if not os.path.exists(currHostUserDataDir):
-            os.mkdir(currHostUserDataDir)
 
         # Register the test directory provider, to pick up the slack from
         # the nsXREDirProvider not having been registered.
