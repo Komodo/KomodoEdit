@@ -95,6 +95,10 @@ class KoDirs:
         return self._GetUserDataDirForVersion(self._ver_major,
                                               self._ver_minor)
 
+    def get_hostUserDataDir(self):
+        log.warn("hostUserDataDir is deprecated, use userDataDir instead")
+        return self.get_userDataDir()
+
     def get_userCacheDir(self):
         d = applib.user_cache_dir(self._appdatadir_name, "ActiveState")
         return os.path.join(d, self._ver)
