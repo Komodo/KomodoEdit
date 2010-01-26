@@ -40,7 +40,6 @@
 [scriptable, uuid(59180061-04d0-4f61-9549-2ee3bff7a4b9)]
 interface koIDirs : nsISupports {
     readonly attribute wstring userDataDir;
-    readonly attribute wstring hostUserDataDir; // host-specific dir under userDataDir
     readonly attribute wstring factoryCommonDataDir;
     readonly attribute wstring commonDataDir;
     readonly attribute wstring userCacheDir;

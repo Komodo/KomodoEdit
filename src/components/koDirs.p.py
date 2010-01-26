@@ -95,16 +95,6 @@ class KoDirs:
         return self._GetUserDataDirForVersion(self._ver_major,
                                               self._ver_minor)
 
-    def get_hostUserDataDir(self):
-        # KOMODO_HOSTNAME is set by the koStart.c startup stuff.
-        if os.environ.has_key("KOMODO_HOSTNAME"):
-            hostname = os.environ["KOMODO_HOSTNAME"]
-        else:
-            import socket
-            hostname = socket.gethostname()
-            #XXX Should this be a warning?
-        return os.path.join(self.get_userDataDir(), "host-"+hostname)
-
     def get_userCacheDir(self):
         d = applib.user_cache_dir(self._appdatadir_name, "ActiveState")
         return os.path.join(d, self._ver)
@@ -282,7 +272,7 @@ class KoDirs:
 if __name__ == "__main__":
     koDirSvc = components.classes['@activestate.com/koDirs;1']\
                .getService(components.interfaces.koIDirs)
-    dnames = ["userDataDir", "hostUserDataDir", "commonDataDir",
+    dnames = ["userDataDir", "commonDataDir",
               "factoryCommonDataDir", "supportDir", "mozBinDir",
               "binDBGPDir", "perlDBGPDir", "pythonDBGPDir"]
     for dname in dnames:
