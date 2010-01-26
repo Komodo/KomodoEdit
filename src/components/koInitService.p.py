@@ -758,7 +758,7 @@ class KoInitService(object):
                 # It is not an error if some of the files to upgrade
                 # don't exist. The user may just not have done much with
                 # the previous Komodo version to have them generated.
-                log.info("skipping '%s'" % src)
+                log.info("skipping '%s' - does not exist" % src)
                 continue
             try:
                 log.info("upgrading '%s' from '%s'" % (dst, src))
@@ -766,34 +766,6 @@ class KoInitService(object):
             except OSError, ex:
                 log.error("Could not upgrade '%s' from '%s': %s"\
                          % (dst, src, ex))
-
-    def _upgradeXREFiles(self, filesToUpgrade, prevUserDataDir, currUserDataDir):
-        upgraded = False
-        for oldFile, upgradeFunction in filesToUpgrade.items():
-            src = os.path.join(prevUserDataDir, "XRE", oldFile)
-            dst = os.path.join(currUserDataDir, "XRE", oldFile)
-            #print "Checking file does not exist: %s" % (dst)
-            if os.path.exists(dst):
-                # Should not already exist, if it does, don't do anything
-                continue
-            #print "Checking file does exists: %s" % (src)
-            if not os.path.exists(src):
-                # It is not an error if some of the files to upgrade
-                # don't exist. The user may just not have done much with
-                # the previous Komodo version to have them generated.
-                log.info("skipping '%s'" % src)
-                continue
-            # Else, upgrade from previous version
-            try:
-                #print "Upgrade function: %r" % (upgradeFunction)
-                #apply(upgradeFunction, (self, src))
-                upgradeFunction(src)
-                upgraded = True
-                log.info("upgraded '%s' from '%s'" % (dst, src))
-            except OSError, ex:
-                log.error("Could not upgrade '%s' from '%s': %s"\
-                         % (dst, src, ex))
-        return upgraded
 
     def _upgradeUserPrefs(self):
         """Upgrade any specific info in the user's prefs.xml.
@@ -872,6 +844,15 @@ class KoInitService(object):
             prefs.setLongPref("autoSaveSeconds", autoSaveSeconds)
             prefs.deletePref("autoSaveMinutes")
 
+    def _hostUserDataDir(self, userDataDir):
+        """Support for Komodo profiles that contain a host-$HOST directory."""
+        if os.environ.has_key("KOMODO_HOSTNAME"):
+            hostname = os.environ["KOMODO_HOSTNAME"]
+        else:
+            import socket
+            hostname = socket.gethostname()
+        return os.path.join(userDataDir, "host-"+hostname)
+
     def _upgradeUserDataDirFiles(self):
         """Upgrade files under the USERDATADIR if necessary.
 
@@ -895,7 +876,7 @@ class KoInitService(object):
 
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         currUserDataDir = koDirSvc.userDataDir
-        currHostUserDataDir = koDirSvc.hostUserDataDir
+        currHostUserDataDir = koDirSvc.userDataDir
         
         # These are the files/dirs that we upgrade.
         filesToUpgrade = {
@@ -910,8 +891,15 @@ class KoInitService(object):
             "apicatalogs": "apicatalogs",
             "dictionaries": "dictionaries",
         }
-        hostFilesToUpgrade = {  # files under "host-$HOST" dir to upgrade
+        # Files under "host-$HOST" dir to upgrade:
+        # Note: Prior to Komodo 6, some files were stored in a host-$HOST folder
+        #       inside the Komodo profile directory.
+        hostFilesToUpgrade = {
             "breakpoints.pickle": "breakpoints.pickle",
+            # Remote file server preferences.
+            join("XRE", "key3.db"): join("XRE", "key3.db"),
+            join("XRE", "cert8.db"): join("XRE", "cert8.db"),
+            join("XRE", "secmod.db"): join("XRE", "secmod.db"),
         }
 
         # First determine if we need to upgrade at all.
@@ -923,7 +911,7 @@ class KoInitService(object):
                 log.debug("not upgrading userdatadir files: '%s' exists", path)
                 return
         for base in hostFilesToUpgrade.keys():
-            path = join(currHostUserDataDir, base)
+            path = join(currUserDataDir, base)
             if exists(path):
                 log.debug("not upgrading userdatadir files: '%s' exists", path)
                 return
@@ -960,6 +948,8 @@ class KoInitService(object):
                 if not ver_pat.match(ver_str):  # e.g. "bogus" doesn't match
                     continue
                 ver = tuple(map(int, ver_str.split('.')))
+                if ver < (4, 0):
+                    continue # Skip versions prior to 4.0 - too old.
                 if ver > currVer:
                     continue # Skip future versions, we don't downgrade.
                 userdatadir = join(datadir, ver_str)
@@ -969,9 +959,8 @@ class KoInitService(object):
                     (ver, _splitall(userdatadir), userdatadir))
         vers_and_userdatadirs.sort()
         # This now looks like, e.g.:
-        #   [((3, 5), ['C:\\', ..., 'Komodo', '3.5'],     'C:\\...\\Komodo\\3.5'),
-        #    ((4, 0), ['C:\\', ..., 'Komodo', '4.0'],     'C:\\...\\Komodo\\4.0'),
-        #    ((4, 0), ['C:\\', ..., 'KomodoEdit', '4.0'], 'C:\\...\\KomodoEdit\\4.0')]
+        #   [((4, 0), ['C:\\', ..., 'Komodo', '4.0'],     'C:\\...\\Komodo\\4.0'),
+        #    ((5, 2), ['C:\\', ..., 'KomodoEdit', '5.2'], 'C:\\...\\KomodoEdit\\5.2')]
         # I.e., the last one in the list, if any, is the dir from which to
         # upgrade.
         if not vers_and_userdatadirs:
@@ -983,16 +972,14 @@ class KoInitService(object):
         # Upgrade.
         log.info("upgrading user settings from '%s'" % prevUserDataDir)
         self._upgradeFiles(filesToUpgrade, prevUserDataDir, currUserDataDir)
-        hostBaseName = basename(currHostUserDataDir)
-        prevHostUserDataDir = join(prevUserDataDir, hostBaseName)
-        if prevVer >= (4,0):
-            # Upgrade from 4.0 or newer, this keeps the remote files server
-            # preferences intact.
-            hostFilesToUpgrade.update({
-                join("XRE", "key3.db"): join("XRE", "key3.db"),
-                join("XRE", "cert8.db"): join("XRE", "cert8.db"),
-                join("XRE", "secmod.db"): join("XRE", "secmod.db"),
-            })
+
+        if prevVer < (6,0):
+            # Uses a separate host-$HOST directory.
+            prevHostUserDataDir = self._hostUserDataDir(prevUserDataDir)
+        else:
+            # Host dir is the same directory as userDataDir.
+            prevHostUserDataDir = prevUserDataDir
+        if prevVer >= (4,1):
             if prevVer >= (5,0):
                 # In Komodo 5.0, the Mozilla LoginManager changed the
                 # filename and format of the signons2.txt, now calling it
@@ -1031,9 +1018,13 @@ class KoInitService(object):
         from os.path import join
         prevExtensionsDir = join(prevHostUserDataDir, "XRE", "extensions")
         if not os.path.exists(prevExtensionsDir):
+            log.debug("_upgradeExtensions: no previous extension folder: %r",
+                      prevExtensionsDir)
             return
         prevExtensions = os.listdir(prevExtensionsDir)
         if not prevExtensions:
+            log.debug("_upgradeExtensions: no extensions in %r",
+                      prevExtensionsDir)
             return
         currExtensionsDir = join(currHostUserDataDir, "XRE", "extensions")
         if not os.path.exists(currExtensionsDir):
@@ -1044,6 +1035,7 @@ class KoInitService(object):
             if not neededExtensions:
                 return
         for ext in neededExtensions:
+            log.debug("_upgradeExtensions: copying extension %r", ext)
             _copy(join(prevExtensionsDir, ext), join(currExtensionsDir, ext))
 
     def _isMozDictionaryDir(self, dictionaryDir):
