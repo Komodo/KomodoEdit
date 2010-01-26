@@ -753,95 +753,6 @@ _GetProgramDir(char* argv0)
 #endif  /* WIN32 */
 
 
-static char* _GetHostName(void)
-{
-    char* periodIndex;
-#ifdef WIN32
-    /* XXX The Windows implementation is presuming that this is the only
-     *     call in this file using any of the Winsock functions. This is
-     *     required because it does the Winsock DLL startup and cleanup
-     *     work.
-     */
-    static int haveHostName = 0;
-    static char hostName[1024+1]; /* static to cheaply avoid malloc/free */
-    char *envHostname;
-    int rv;
-    
-    /* Return early if already have value from previous runs. */
-    if (haveHostName) {
-        return hostName;
-    }
-    
-    envHostname = getenv("KOMODO_HOSTNAME");
-    if (envHostname && strlen(envHostname)) {
-        strncpy(hostName, envHostname, 1024);
-        hostName[1024] = '\0'; // Should not be needed, but I err on the side of caution
-        haveHostName = 1;
-        return hostName;
-    }
-
-    /* Initialize the Winsock DLL
-     * - We'll request the same version that Python does.
-     */
-    {
-        WSADATA wsaData;
-        rv = WSAStartup(0x0101, &wsaData);
-        if (rv != 0) {
-            _LogError("could no determine the hostname: WSAStartup() "\
-                      "failed: %d\n", rv);
-            exit(rv);
-        }
-    }
-    
-    /* Get the hostname. */
-    rv = gethostname(hostName, 1024);
-    if (rv != 0) {
-        /* See socketmodule.c::set_error for example code determining
-         * an error message.
-         */
-        _LogError("could not determine the hostname: gethostname() "\
-                  "failed: %d\n", WSAGetLastError());
-        exit(rv);
-    } else {
-        haveHostName = 1;
-    }
-    
-    /* Shutdown the Winsock DLL */
-    WSACleanup();
-#else /* !WIN32 */
-    static char hostName[MAXPATHLEN+1]; /* static to cheaply avoid malloc/free */
-    static int haveHostName = 0;
-
-    if (haveHostName) {
-        return hostName;
-    }
-
-    char *envHostname = getenv("KOMODO_HOSTNAME");
-    if (envHostname && strlen(envHostname)) {
-        strncpy(hostName, envHostname, MAXPATHLEN);
-        hostName[MAXPATHLEN] = '\0'; // Should not be needed, but I err on the side of caution
-        haveHostName = 1;
-        return hostName;
-    }
-
-    int rv = gethostname(hostName, MAXPATHLEN);
-    if (rv != 0) {
-        _LogError("could not determine the hostname: %d: %s\n",
-                  errno, strerror(errno));
-        exit(rv);
-    }
-#endif
-
-    /* Bug 39926: only use first bit of hostname up to '.'. */
-    periodIndex = strchr(hostName, (int)'.');
-    if (periodIndex != NULL) {
-        *periodIndex = '\0';
-    }
-    
-    return hostName;
-}
-
-
 /* _GetOSName
  *   Get the host-specific operating system name.
  *   Return value is a null terminated string.
@@ -1387,47 +1298,6 @@ static int _GetVerUserDataDir(
 }
 
 
-/* _GetHostUserDataDir
- *   This a host-specific directory under the user-specific Komodo data
- *   directory. This should be kept in sync with koDirs.py. Return value
- *   is like the Win32 API GetTempPath, i.e. length of the path on
- *   success, 0 on failure.
- *
- *   Note: Calling this method will create this dir if it does not already
- *         exist.
- */
-static int _GetHostUserDataDir(
-    size_t nBufferLength,    /* size of buffer */
-    char*  lpBuffer          /* path buffer */
-)
-{
-    int rv = _GetVerUserDataDir(nBufferLength, lpBuffer);
-    if (rv == 0) {
-        return 0;
-    }
-
-    strncat(lpBuffer, "host-", nBufferLength-strlen(lpBuffer));
-    strncat(lpBuffer, _GetHostName(), nBufferLength-strlen(lpBuffer));
-    if (! _IsDir(lpBuffer)) {
-#ifdef WIN32
-        int retval = _mkdir(lpBuffer);
-#else
-        int retval = mkdir(lpBuffer, 0777);
-#endif
-        if (retval == -1) {
-            _LogError("error creating '%s': %s\n", lpBuffer, strerror(errno));
-            return 0;
-        }
-    }
-
-    /* ensure there is a trailing dir separator (as with GetTempPath) */
-    lpBuffer[strlen(lpBuffer)+1] = '\0';
-    lpBuffer[strlen(lpBuffer)] = SEP;
-    return strlen(lpBuffer);
-}
-
-
-
 #ifndef WIN32
 /* _fullpath - mimic the Win32 API call to convert a path from
  *             relative to absolute
@@ -1606,8 +1476,8 @@ static int _IsExecutableOnPath(char* exeName) {
 
 /* Return the mutex (file)name.
  *  Windows:  komodo-<ver>-mutex
- *  Mac OS X: ~/Library/Application Support/ActiveState/Komodo/<ver>/host-<host>/mutex.lock
- *  Unix:     ~/.komodo/<ver>/host-<host>/mutex.lock
+ *  Mac OS X: ~/Library/Application Support/ActiveState/Komodo/<ver>/mutex.lock
+ *  Unix:     ~/.komodo/<ver>/mutex.lock
  */
 static char* _KoStart_GetMutexName()
 {
@@ -1622,8 +1492,8 @@ static char* _KoStart_GetMutexName()
             exit(1);
         }
 #else
-        if (!_GetHostUserDataDir(MAXPATHLEN, buffer)) {
-            _LogError("could not determine the host user data dir\n");
+        if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
+            _LogError("could not determine the user data dir\n");
             exit(1);
         }
         strncat(buffer, "mutex.lock", MAXPATHLEN-strlen(buffer));
@@ -1636,8 +1506,8 @@ static char* _KoStart_GetMutexName()
 
 /* Return the running lock (file)name.
  *  Windows:  komodo-[ide|edit]-<ver>-running
- *  Mac OS X: ~/Library/Application Support/ActiveState/KomodoIDE/<ver>/host-<host>/running.lock
- *  Unix:     ~/.komodoide/<ver>/host-<host>/running.lock
+ *  Mac OS X: ~/Library/Application Support/ActiveState/KomodoIDE/<ver>/running.lock
+ *  Unix:     ~/.komodoide/<ver>/running.lock
  */
 static char* _KoStart_GetRunningName()
 {
@@ -1652,8 +1522,8 @@ static char* _KoStart_GetRunningName()
             exit(1);
         }
 #else
-        if (!_GetHostUserDataDir(MAXPATHLEN, buffer)) {
-            _LogError("could not determine the host user data dir\n");
+        if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
+            _LogError("could not determine the user data dir\n");
             exit(1);
         }
         strncat(buffer, "running.lock", MAXPATHLEN-strlen(buffer));
@@ -1705,17 +1575,17 @@ static char* _KoStart_GetCommandmentsEventName()
 #endif
 
 /* Return the commandments file/pipe name.
- *  Windows:  %APPDATA%\ActiveState\Komodo[IDE|Edit]\<ver>\host-<host>\commandments.txt
- *  Mac OS X: ~/Library/Application Data/Komodo[IDE|Edit]/<ver>/host-<host>/commandments.fifo
- *  Unix:     ~/.komodo[ide|edit]/<ver>/host-<host>/commandments.fifo
+ *  Windows:  %APPDATA%\ActiveState\Komodo[IDE|Edit]\<ver>\commandments.txt
+ *  Mac OS X: ~/Library/Application Data/Komodo[IDE|Edit]/<ver>/commandments.fifo
+ *  Unix:     ~/.komodo[ide|edit]/<ver>/commandments.fifo
  */
 static char* _KoStart_GetCommandmentsFileName()
 {
     static int determined = 0;
     static char buffer[MAXPATHLEN+1];
     if (!determined) {
-        if (!_GetHostUserDataDir(MAXPATHLEN, buffer)) {
-            _LogError("could not determine the host user data dir\n");
+        if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
+            _LogError("could not determine the user data dir\n");
             exit(1);
         }
 #ifdef WIN32
@@ -1735,8 +1605,8 @@ static char* _KoStart_GetFirstCommandmentsFileName()
     static int determined = 0;
     static char buffer[MAXPATHLEN+1];
     if (!determined) {
-        if (!_GetHostUserDataDir(MAXPATHLEN, buffer)) {
-            _LogError("could not determine the host user data dir\n");
+        if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
+            _LogError("could not determine the user data dir\n");
             exit(1);
         }
         strncat(buffer, "first-commandments.txt", MAXPATHLEN-strlen(buffer));
@@ -1752,8 +1622,8 @@ static char* _KoStart_GetStartupEnvFileName()
     static int determined = 0;
     static char buffer[MAXPATHLEN+1];
     if (!determined) {
-        if (!_GetHostUserDataDir(MAXPATHLEN, buffer)) {
-            _LogError("could not determine the host user data dir\n");
+        if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
+            _LogError("could not determine the user data dir\n");
             exit(1);
         }
         strncat(buffer, "startup-env.tmp", MAXPATHLEN-strlen(buffer));
@@ -1768,8 +1638,8 @@ static char* _KoStart_GetStartupLogFileName()
     static int determined = 0;
     static char buffer[MAXPATHLEN+1];
     if (!determined) {
-        if (!_GetHostUserDataDir(MAXPATHLEN, buffer)) {
-            _LogError("could not determine the host user data dir\n");
+        if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
+            _LogError("could not determine the user data dir\n");
             exit(1);
         }
         strncat(buffer, "startup.log", MAXPATHLEN-strlen(buffer));
@@ -1853,8 +1723,8 @@ void _KoStart_SetupEnvironment(const char* programDir)
 
     /* Set XRE_PROFILE_PATH and _XRE_USERAPPDATADIR to "XRE"
      * under the Komodo host user data dir. */
-    if (!_GetHostUserDataDir(MAXPATHLEN, buffer)) {
-        _LogError("could not determine the host user data dir\n");
+    if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
+        _LogError("could not determine the user data dir\n");
         exit(1);
     }
     strncat(buffer, "XRE", MAXPATHLEN-strlen(buffer));
@@ -1968,22 +1838,12 @@ void _KoStart_SetupEnvironment(const char* programDir)
     }
 
 
-    /* set some KOMODO_* vars to pass information to Komodo runtime */
-    hostName = _GetHostName();
-    _LogDebug("setting %s=%s\n", "KOMODO_HOSTNAME", hostName);
-    xpsetenv("KOMODO_HOSTNAME", hostName, 1);
-    if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
-        _LogError("could not determine the user data dir\n");
-        exit(1);
-    }
     _LogDebug("setting %s=%s\n", "_KOMODO_VERUSERDATADIR", buffer);
     xpsetenv("_KOMODO_VERUSERDATADIR", buffer, 1);
-    if (!_GetHostUserDataDir(MAXPATHLEN, buffer)) {
+    if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
         _LogError("could not determine the host user data dir\n");
         exit(1);
     }
-    _LogDebug("setting %s=%s\n", "_KOMODO_HOSTUSERDATADIR", buffer);
-    xpsetenv("_KOMODO_HOSTUSERDATADIR", buffer, 1);
     if (_KoStart_verbose) {
         _LogDebug("setting %s=1\n", "KOMODO_VERBOSE", buffer);
         xpsetenv("KOMODO_VERBOSE", "1", 1);

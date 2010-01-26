@@ -57,7 +57,7 @@ def redirect_std_handles():
     stdout_log_name = "pystdout.log"
     stderr_log_name = "pystderr.log"
 
-    log_dir = os.environ.get("_KOMODO_HOSTUSERDATADIR", None)
+    log_dir = os.environ.get("_KOMODO_VERUSERDATADIR", None)
     if log_dir is not None:
         stdout_log_path = os.path.join(log_dir, stdout_log_name)
         stderr_log_path = os.path.join(log_dir, stderr_log_name)
