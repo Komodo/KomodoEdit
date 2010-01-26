@@ -3077,31 +3077,6 @@ class UserDataDir(black.configure.Datum):
         self.determined = 1
 
 
-class HostUserDataDir(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "hostUserDataDir",
-            desc="Komodo app data dir for the current user and host")
-
-    def _Determine_Sufficient(self):
-        if self.value is None:
-            raise black.configure.ConfigureError(\
-                "Could not determine %s\n." % self.desc)
-
-    def _Determine_Do(self):
-        # Dev Note: This logic must match that in:
-        #   src/components/koDirs.py::KoDirs.get_hostUserDataDir()
-        # This should really be shared code somewhere.
-        from os.path import join
-        self.applicable = 1
-        userDataDir = black.configure.items["userDataDir"].Get()
-        if "KOMODO_HOSTNAME" in os.environ:
-            hostname = os.environ["KOMODO_HOSTNAME"]
-        else:
-            hostname = socket.gethostname()
-        self.value = join(userDataDir, "host-"+hostname)
-        self.determined = 1
-
-
 class SupportDir(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "supportDir",

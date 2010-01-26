@@ -50,7 +50,7 @@ Import(
     'sdkDir',
     'mozDevelDist',
     'compiler',
-    'hostUserDataDir',
+    'userDataDir',
     'mozVersion',
 );
 
@@ -67,10 +67,10 @@ Import(
 # that. I've found this full reregistration is necessary to get a *new*
 # interface working via "bk build" -- i.e. without having to do
 # "bk clean && bk build".
-my $xre_dir = "$hostUserDataDir/XRE";
+my $xre_dir = "$userDataDir/XRE";
 my $rm_cmd = "rm -f \"$xre_dir/compreg.dat\"";
 if ($platform eq "win") {
-    $xre_dir = "$hostUserDataDir\\XRE";
+    $xre_dir = "$userDataDir\\XRE";
     $rm_cmd = "IF EXIST \"$xre_dir\\compreg.dat\" del \"$xre_dir\\compreg.dat\"";
 }
 # Change directory to the mozBin dir to avoid regxpcom picking up the

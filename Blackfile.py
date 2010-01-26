@@ -776,7 +776,6 @@ configuration = {
     "komodoPythonUtilsDir": KomodoPythonUtilsDir(),  #XXX change to LibDir
     "installRelDir": InstallRelDir(),
     "userDataDir": UserDataDir(),
-    "hostUserDataDir": HostUserDataDir(),
     "supportDir": SupportDir(),
     "sdkDir": SDKDir(),
     "stubDir": StubDir(),       # the build dir for the Komodo starter stub
@@ -2152,15 +2151,13 @@ def CleanPreferences(cfg, argv):
             toDelete.append("/etc/komodo")
     elif what.startswith("moz"):
         #---- mozilla prefs dir
-        import socket
-        hostsubdir = "host-"+socket.gethostname()
         if sys.platform.startswith("win"):
             for csidl in (shellcon.CSIDL_APPDATA, shellcon.CSIDL_COMMON_APPDATA):
                 for subdir in ("Mozilla", "XRE"):
                     path = os.path.join(
                         str(shell.SHGetFolderPath(0, csidl, 0, 0)),
                         "ActiveState", "Komodo", cfg.komodoShortVersion,
-                        hostsubdir, subdir)
+                        subdir)
                     toDelete.append(path)
         elif sys.platform == 'darwin':
             from Carbon import Folder, Folders
@@ -2170,12 +2167,12 @@ def CleanPreferences(cfg, argv):
                         Folders.kApplicationSupportFolderType,
                         Folders.kDontCreateFolder)
                     path = os.path.join(base.FSRefMakePath(),
-                        "Komodo", cfg.komodoShortVersion, hostsubdir, subdir)
+                        "Komodo", cfg.komodoShortVersion, subdir)
                     toDelete.append(path)
         else:
             for subdir in ("Mozilla", "XRE"):
                 path = os.path.join(os.path.expanduser("~/.komodo"),
-                    cfg.komodoShortVersion, hostsubdir, subdir)
+                    cfg.komodoShortVersion, subdir)
                 toDelete.append(path)
     # delete files
     numDeleted = 0
