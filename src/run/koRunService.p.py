@@ -500,7 +500,6 @@ class KoInterpolationService:
 
             elif code == "path":
                 if pathValue in ("userDataDir",
-                                 "hostUserDataDir",
                                  "commonDataDir",
                                  "supportDir"):
                     value = getattr(self._koDirSvc, pathValue)

@@ -1598,7 +1598,7 @@ class koDocumentBase:
     def _getAutoSaveFileName(self):
         koDirs = components.classes["@activestate.com/koDirs;1"].\
                  getService(components.interfaces.koIDirs)
-        dname = os.path.join(koDirs.hostUserDataDir,  "autosave")
+        dname = os.path.join(koDirs.userDataDir,  "autosave")
         if not os.path.exists(dname):
             os.mkdir(dname)
         # retain part of the readable name

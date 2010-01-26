@@ -1112,7 +1112,7 @@ class KoCodeIntelService:
         self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
                    getService(components.interfaces.koIDirs)
         self.mgr = KoCodeIntelManager(
-            os.path.join(self._koDirSvc.hostUserDataDir, "codeintel"),
+            os.path.join(self._koDirSvc.userDataDir, "codeintel"),
             extension_pylib_dirs=extension_pylib_dirs,
             db_event_reporter=self._reportDBEvent,
             db_catalog_dirs=list(self._genDBCatalogDirs()))

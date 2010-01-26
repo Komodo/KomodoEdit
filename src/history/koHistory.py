@@ -4,7 +4,7 @@
 
 """PyXPCOM bindings for editorhistory.py for a history feature in Komodo.
 
-Database kept in $USERDATADIR/host-.../history.sqlite
+Database kept in $USERDATADIR/history.sqlite
 """
 
 import sys
@@ -41,7 +41,7 @@ class KoHistoryService(History):
     def __init__(self):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].\
             getService(components.interfaces.koIDirs)
-        db_path = join(koDirSvc.hostUserDataDir, "history.sqlite")
+        db_path = join(koDirSvc.userDataDir, "history.sqlite")
         History.__init__(self, db_path)
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)

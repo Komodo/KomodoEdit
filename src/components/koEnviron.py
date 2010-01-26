@@ -186,7 +186,7 @@ class KoUserEnviron:
             self._startupEnvBaseName = "startup-env.tmp"
             koDirs = components.classes["@activestate.com/koDirs;1"].\
                 getService(components.interfaces.koIDirs)
-            self.startupEnvFileName = os.path.join(koDirs.hostUserDataDir,
+            self.startupEnvFileName = os.path.join(koDirs.userDataDir,
                                                    "startup-env.tmp")
         else:
             self.startupEnvFileName = startupEnvFileName

@@ -470,7 +470,7 @@ class KoCommandmentService(object):
         ver = infoSvc.version          # '1.9.0-devel'
         ver = re.split('\.|-', ver)    # ['1', '9', '0', 'devel']
         ver = "%s.%s" % tuple(ver[:2]) # '1.9'
-        self._reader = _CommandmentsReader(koDirs.hostUserDataDir, ver)
+        self._reader = _CommandmentsReader(koDirs.userDataDir, ver)
         self._reader.start()
 
     def finalize(self):
