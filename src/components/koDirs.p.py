@@ -80,6 +80,18 @@ class KoDirs:
                                         "ActiveState")
         return path
 
+    def _roamingUserAppDataPath(self):
+        # Allow a special environment variable to override the User Data
+        # Dir for a Komodo run. The main motivation for this is bug
+        # 32270.
+        envPath = os.environ.get("KOMODO_USERDATADIR")
+        if envPath:
+            path = os.path.expanduser(envPath)
+        else:
+            path = applib.roaming_user_data_dir(self._appdatadir_name,
+                                                "ActiveState")
+        return path
+
     def _commonAppDataPath(self):
         return applib.site_data_dir(self._appdatadir_name, "ActiveState")
 
@@ -94,6 +106,10 @@ class KoDirs:
     def get_userDataDir(self):
         return self._GetUserDataDirForVersion(self._ver_major,
                                               self._ver_minor)
+
+    def get_roamingUserDataDir(self):
+        return os.path.join(self._roamingUserAppDataPath(),
+                            "%s.%s" % (major, minor))
 
     def get_hostUserDataDir(self):
         log.warn("hostUserDataDir is deprecated, use userDataDir instead")

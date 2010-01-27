@@ -40,6 +40,10 @@
 [scriptable, uuid(59180061-04d0-4f61-9549-2ee3bff7a4b9)]
 interface koIDirs : nsISupports {
     readonly attribute wstring userDataDir;
+    // The roamingUserDataDir only applies to Windows, it was used by Komodo 5
+    // and previous to store profile information. Komodo 6 moved to a local only
+    // user data dir.
+    readonly attribute wstring roamingUserDataDir;
     // hostUserDataDir is deprecated - it is now the same value as userDataDir.
     readonly attribute wstring hostUserDataDir;
     readonly attribute wstring factoryCommonDataDir;

@@ -111,7 +111,7 @@
     #include <winsock2.h>
     #include <windows.h>
     #include <ShFolder.h>   // For CSIDL_APPDATA
-    #include <KnownFolders.h> // For FOLDERID_RoamingAppData
+    #include <KnownFolders.h> // For FOLDERID_LocalAppData
     #include <process.h>
     #include <direct.h>
     #include <shlwapi.h>
@@ -1052,9 +1052,9 @@ static int _GetVerUserDataDir(
                 // Defined in Microsoft SDKs/Windows/v6.1/Include/KnownFolders.h
                 PWSTR path;
                 // Copy constant to a var so we can pass it by reference
-                GUID guid_RoamingAppData = FOLDERID_RoamingAppData;
+                GUID guid_LocalAppData = FOLDERID_LocalAppData;
                 HMODULE hOLE32;
-                hr = shGetFolderPathFunc(&guid_RoamingAppData,
+                hr = shGetFolderPathFunc(&guid_LocalAppData,
                                          0, NULL, &path);
                 if (hr == S_OK) {
                     if (wcslen(path) < MAX_PATH) {

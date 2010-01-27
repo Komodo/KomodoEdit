@@ -946,6 +946,15 @@ class KoInitService(object):
         elif sys.platform in ("win32", "darwin"):
             datadirs = [join(basedir, d) for d in
                         ("Komodo", "KomodoIDE", "KomodoEdit")]
+            if sys.platform == "win32":
+                # Komodo 6 on Windows moved the profile directory from the
+                # roaming app data dir, to the local app data dir (applies to
+                # Vista and Windows 7). Add these older roaming user data
+                # directories as well.
+                roaming_komodo_data_dir = koDirSvc.roamingUserDataDir
+                if roaming_komodo_data_dir != currUserDataDir:
+                    datadirs += [join(roaming_komodo_data_dir, d) for d in
+                                ("Komodo", "KomodoIDE", "KomodoEdit")]
         else:
             datadirs = [join(basedir, d) for d in
                         (".komodo", ".komodoide", ".komodoedit")]
@@ -961,7 +970,8 @@ class KoInitService(object):
                     continue
                 ver = tuple(map(int, ver_str.split('.')))
                 if ver < (4, 0):
-                    continue # Skip versions prior to 4.0 - too old.
+                    log.debug("Skipping Komodo profile: %r - too old", ver)
+                    continue # Skip versions prior to 4.0.
                 if ver > currVer:
                     continue # Skip future versions, we don't downgrade.
                 userdatadir = join(datadir, ver_str)

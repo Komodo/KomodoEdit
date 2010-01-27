@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2005-2008 ActiveState Software Inc.
+# Copyright (c) 2005-2010 ActiveState Software Inc.
 # License: MIT
 
 """Cross-platform application utilities. Mainly this includes some
@@ -36,7 +36,7 @@ class Error(Exception):
 
 
 
-def user_data_dir(appname, owner=None, version=None):
+def user_data_dir(appname, owner=None, version=None, csidl=None):
     """Return full path to the user-specific data dir for this application.
     
         "appname" is the name of application.
@@ -47,19 +47,24 @@ def user_data_dir(appname, owner=None, version=None):
             path. You might want to use this if you want multiple versions
             of your app to be able to run independently. If used, this
             would typically be "<major>.<minor>".
+        "csidl" is an optional special folder to use - only applies to Windows.
     
     Typical user data directories are:
         Win XP:     C:\Documents and Settings\USER\Application Data\<owner>\<appname>
         Mac OS X:   ~/Library/Application Support/<appname>
         Unix:       ~/.<lowercased-appname>
     
+    From Windows Vista and onwards, the user data directory was split into the
+    local app data directory and the roaming app data directory. Komodo 6 uses
+    the local one for it's user data directory - Komodo 5 used the roaming one.
+
     For Unix there is no *real* standard here. For example, Firefox uses:
     "~/.mozilla/firefox" which is a "~/.<owner>/<appname>"-type scheme.
     """
     if sys.platform.startswith("win"):
         if owner is None:
             raise Error("must specify 'owner' on Windows")
-        path = os.path.join(_get_win_folder("CSIDL_APPDATA"),
+        path = os.path.join(_get_win_folder(csidl or "CSIDL_LOCAL_APPDATA"),
                             owner, appname)
     elif sys.platform == 'darwin':
         if os.uname()[-1] == 'i386':
@@ -78,6 +83,11 @@ def user_data_dir(appname, owner=None, version=None):
         path = os.path.join(path, version)
     return path
 
+
+def roaming_user_data_dir(appname, owner=None, version=None):
+    """Retrieve the Komodo 5 user data directory."""
+    return self.user_data_dir(appname, owner=owner, version=version,
+                              csidl="CSIDL_APPDATA")
 
 def site_data_dir(appname, owner=None, version=None):
     """Return full path to the user-shared data dir for this application.
