@@ -63,7 +63,7 @@ diff -u -r1.64 xpcom/io/nsAppFileLocationProvider.cpp
  
  // Locally defined keys used by nsAppDirectoryEnumerator
  #define NS_ENV_PLUGINS_DIR          "EnvPlugins"    // env var MOZ_PLUGIN_PATH
-@@ -325,6 +331,33 @@
+@@ -325,6 +331,29 @@
  // UNIX   : ~/.mozilla/
  // WIN    : <Application Data folder on user's machine>\Mozilla
  // Mac    : :Documents:Mozilla:
@@ -82,18 +82,14 @@ diff -u -r1.64 xpcom/io/nsAppFileLocationProvider.cpp
 +// environment variable.
 +//
 +// The intended result is:
-+//      <plat-appdata-dir>/DEFAULT_PRODUCT_DIR/$KOMODO_HOSTNAME/Mozilla
++//      <plat-appdata-dir>/DEFAULT_PRODUCT_DIR/Mozilla
 +// where,
 +//      <plat-appdata-dir> is the platform-dependent application data dir, HOME
 +//          dir or whater, as defined by the code in this function;
 +//      DEFAULT_PRODUCT_DIR is a define in this file (modified for Komodo);
-+//      $KOMODO_HOSTNAME is the value of that environment variable (defined
-+//          in the shim that calls mozilla.exe for Komodo). This is just the
-+//          current hostname. Determining that here is a pain so we just pass
-+//          it in.
 +// or, if the KOMODO_USERDATADIR environment variable is defined then the path
 +// is:
-+//      $KOMODO_USERDATADIR/$KOMODO_HOSTNAME/Mozilla
++//      $KOMODO_USERDATADIR/Mozilla
  //----------------------------------------------------------------------------------------
  NS_METHOD nsAppFileLocationProvider::GetProductDirectory(nsILocalFile **aLocalFile, PRBool aLocal)
  {
@@ -125,7 +121,7 @@ diff -u -r1.64 xpcom/io/nsAppFileLocationProvider.cpp
      OSErr err = ::FSFindFolder(kUserDomain, folderType, kCreateFolder, &fsRef);
      if (err) return NS_ERROR_FAILURE;
      NS_NewLocalFile(EmptyString(), PR_TRUE, getter_AddRefs(localDir));
-@@ -394,6 +444,25 @@
+@@ -394,6 +444,13 @@
  
      rv = localDir->AppendRelativeNativePath(DEFAULT_PRODUCT_DIR);
      if (NS_FAILED(rv)) return rv;
@@ -133,18 +129,6 @@ diff -u -r1.64 xpcom/io/nsAppFileLocationProvider.cpp
 +    } // end if $KOMODO_USERDATADIR
 +
 +
-+    char* hostName = getenv("KOMODO_HOSTNAME");
-+    if (!hostName) {
-+        fprintf(stderr, "warning: KOMODO_HOSTNAME not set, not using "\
-+                        "proper Mozilla profile dir\n");
-+    } else {
-+        char hostPath[1024] = "host-";
-+        strncat(hostPath, hostName, 1024-strlen(hostPath)-1);
-+        nsCString aHostPath;
-+        aHostPath.Assign(hostPath);
-+        rv = localDir->AppendRelativeNativePath(aHostPath);
-+        if (NS_FAILED(rv)) return rv;
-+    }
 +    rv = localDir->AppendRelativeNativePath(NS_LITERAL_CSTRING("Mozilla"));
 +    if (NS_FAILED(rv)) return rv;
 +
