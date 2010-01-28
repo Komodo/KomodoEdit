@@ -951,7 +951,7 @@ class KoInitService(object):
                 # roaming app data dir, to the local app data dir (applies to
                 # Vista and Windows 7). Add these older roaming user data
                 # directories as well.
-                roaming_komodo_data_dir = koDirSvc.roamingUserDataDir
+                roaming_komodo_data_dir = dirname(dirname(koDirSvc.roamingUserDataDir))
                 if roaming_komodo_data_dir != currUserDataDir:
                     datadirs += [join(roaming_komodo_data_dir, d) for d in
                                 ("Komodo", "KomodoIDE", "KomodoEdit")]
