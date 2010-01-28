@@ -119,3 +119,21 @@ diff -u -r1.543 layout/generic/nsObjectFrame.cpp
    return NS_OK;
  }
  
+@@ -3688,6 +3704,8 @@
+   nsAutoString eventType;
+   aEvent->GetType(eventType);
+ 
++// ACTIVESTATE - we want drag events, even though we *are* a plugin.
++#if 0
+   if (mInstance) {
+     nsCOMPtr<nsIDOMDragEvent> dragEvent = do_QueryInterface(aEvent);
+     if (dragEvent) {
+@@ -3696,6 +3714,8 @@
+       aEvent->StopPropagation();
+     }
+   }
++#endif  // End ACTIVESTATE
++
+   return NS_OK;
+ }
+ 
