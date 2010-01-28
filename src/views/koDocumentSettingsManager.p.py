@@ -194,6 +194,9 @@ class koDocumentSettingsManager:
         else:
             log.warn('should set default scroll width?')
 
+        if prefs.getBooleanPref('scrollWidthTracking'):
+            scimoz.scrollWidthTracking = prefs.getBooleanPref("scrollWidthTracking")
+
         if prefs.hasLongPref('xOffset'):
             scimoz.xOffset = prefs.getLongPref('xOffset')
         else:
@@ -236,6 +239,7 @@ class koDocumentSettingsManager:
         prefs.setLongPref('anchor', scimoz.anchor)
         prefs.setLongPref('currentPos', scimoz.currentPos)
         prefs.setLongPref("scrollWidth", scimoz.scrollWidth)
+        prefs.setBooleanPrefIfDifferent("scrollWidthTracking", scimoz.scrollWidthTracking)
         prefs.setLongPref('xOffset', scimoz.xOffset)
         prefs.setLongPref('firstVisibleLine', scimoz.firstVisibleLine)
         self.setBooleanPrefIfDifferent('showWhitespace', scimoz.viewWS)
