@@ -640,6 +640,8 @@
 
   <!-- horizontal scrollbar width (in pixels) -->
   <long id="scrollWidth">2000</long>
+  <!-- Automatic adjusting of the horizontal scrollbar width to match the document. -->
+  <boolean id="scrollWidthTracking">0</boolean>
 
   <!-- Keybinding configurations -->
   <string id="keybinding-scheme">Default</string>

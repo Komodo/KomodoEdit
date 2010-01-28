@@ -231,6 +231,14 @@
                             prefstring="scrollWidth"
                             prefattribute="value"/>
             </hbox>
+            <hbox id="scrollWidthTracking_hbox" align="center">
+                <checkbox id="scrollWidthTracking"
+                          label="&horizScrollWidthTracking.label;"
+                          pref="true"
+                          prefstring="scrollWidthTracking"
+                          prefattribute="checked"
+                          tooltiptext="&horizScrollWidthTracking.tooltiptext;"/>
+            </hbox>
             <vbox>
                 <checkbox id="scrollEndAtLastLine" label="&enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label;"
                           pref="true" prefstring="scrollEndAtLastLine"

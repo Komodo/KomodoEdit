@@ -561,7 +561,9 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY fileChanged.label "If files have been changed:">
 <!ENTITY fileDeleted.label "If files have been deleted:">
 <!ENTITY minimumNumberLineAboveBelowCursor.label "Minimum number of lines to keep above and below cursor:">
-<!ENTITY horizScrollWidth.label "Horizontal scrollbar width (in pixels):">
+<!ENTITY horizScrollWidth.label "Minimum horizontal scrollbar width (in pixels):">
+<!ENTITY horizScrollWidthTracking.label "Automatically adjust the horizontal scrollbar width">
+<!ENTITY horizScrollWidthTracking.tooltiptext "When enabled, this will automatically adjust the horizontal scrollbar width to fit the document width. Note: Enabling this feature can decrease the editor performance.">
 <!ENTITY filePrefEditorMatchCase.label "Matches Case:">
 <!ENTITY filePrefEdiorUses.label "Uses:">
 <!ENTITY tabs.label "Tabs">
