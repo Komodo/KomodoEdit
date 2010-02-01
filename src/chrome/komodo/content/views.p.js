@@ -90,6 +90,7 @@ var _langRegistrySvc = Components.classes["@activestate.com/koLanguageRegistrySe
 
 function viewManager() {
     this.log = ko.logging.getLogger('views');
+    //this.log.setLevel(ko.logging.LOG_DEBUG);
     this.log.info("viewManager constructor");
     this._shuttingDown = false;
     /**
