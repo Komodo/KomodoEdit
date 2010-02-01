@@ -20,15 +20,12 @@ Patch to take CFLAGS, LDFLAGS from the users (Cons) environment.
 ===================================================================
 --- macosx/makefile	(revision 35560)
 +++ macosx/makefile	(working copy)
-@@ -32,9 +32,9 @@
- ARCH_BASE_FLAGS=/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386
+@@ -32,7 +32,7 @@
+ ARCH_BASE_FLAGS=/Developer/SDKs/MacOSX10.5.sdk -arch ppc -arch i386
  ARCHFLAGS=-isysroot $(ARCH_BASE_FLAGS)
  LINK_FLAGS=-Wl,-syslibroot,$(ARCH_BASE_FLAGS)
--DYN_FLAGS=$(LINK_FLAGS) -framework Carbon -install_name @executable_path/$(DYNAMICLIB)
-+DYN_FLAGS=$(LINK_FLAGS) -framework Carbon -install_name @executable_path/$(DYNAMICLIB) $(LDFLAGS)
- else
--DYN_FLAGS=-framework Carbon -install_name @executable_path/$(DYNAMICLIB)
-+DYN_FLAGS=-framework Carbon -install_name @executable_path/$(DYNAMICLIB) $(LDFLAGS)
+-DYN_FLAGS=$(LINK_FLAGS) -framework Carbon -bundle
++DYN_FLAGS=$(LINK_FLAGS) -framework Carbon -bundle $(LDFLAGS)
  endif
  endif
  

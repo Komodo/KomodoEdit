@@ -8,7 +8,7 @@
 #include <Python.h>
 
 #include <Accessor.h>
-#include <PropSet.h>
+#include <SC_PropSet.h>
 #include <KeyWords.h>
 
 extern PyTypeObject PyLexerModuleType;

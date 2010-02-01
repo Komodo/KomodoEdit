@@ -246,7 +246,6 @@ bool SciMoz::FindMatchingBracePosition(int &braceAtCaret, int &braceOpposite, bo
 	bool isInside = false;
 	int mask = (1 << SendEditor(SCI_GETSTYLEBITS, 0, 0)) - 1;
 	// XXX bracesStyle needs to come from language services
-	int bracesStyleCheck = bracesStyle;
 	int caretPos = SendEditor(SCI_GETCURRENTPOS, 0, 0);
 	braceAtCaret = -1;
 	braceOpposite = -1;
@@ -540,13 +539,6 @@ void SciMoz::Notify(long lParam) {
 				eventSink->OnNeedShown(notification->position, notification->length);
 			break;
 		*/
-		case SCN_POSCHANGED:
-#ifndef FAST_CODE
-			mask = ISciMozEvents::SME_POSCHANGED;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnPosChanged(notification->position);
-#endif
-			break;
 		/*
 		case SCN_PAINTED:
 			// No need to waste time with an event for this ATM.

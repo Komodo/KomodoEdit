@@ -44,7 +44,7 @@ diff -u -r1.73 LexCPP.cxx
  					lastWordWasUUID = false;
 --- src/LexPython.cxx	23 Apr 2007 01:19:47 -0000	1.46
 +++ src/LexPython.cxx	2 Oct 2007  17:16:35 -0000
-@@ -24,6 +24,38 @@
+@@ -24,8 +24,40 @@
  using namespace Scintilla;
  #endif
  
@@ -80,7 +80,9 @@ diff -u -r1.73 LexCPP.cxx
 +}
 +
 +
- enum kwType { kwOther, kwClass, kwDef, kwImport };
+ /* kwCDef, kwCTypeName only used for Cython */
+ enum kwType { kwOther, kwClass, kwDef, kwImport, kwCDef, kwCTypeName };
+ 
  static const int indicatorWhitespace = 1;
  
 @@ -103,7 +135,11 @@
@@ -94,11 +96,12 @@ diff -u -r1.73 LexCPP.cxx
 +		// Don't do anything else
 +		} else if (lineCurrent > 0) {
  			lineCurrent--;
- 			startPos = styler.LineStart(lineCurrent);
- 			if (startPos == 0)
-@@ -133,7 +169,35 @@
+ 			// Look for backslash-continued lines
+ 			while (lineCurrent > 0) {
+@@ -133,8 +169,36 @@
  	bool indentGood = true;
  	int startIndicator = sc.currentPos;
+ 	bool inContinuedString = false;
  
 +	
 +	// KOMODO

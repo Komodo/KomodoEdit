@@ -9,7 +9,7 @@
 
 #include "Platform.h"
 
-#include "PropSet.h"
+#include "SC_PropSet.h"
 #include "SVector.h"
 #include "Accessor.h"
 #include "BufferAccessor.h"
@@ -20,8 +20,8 @@
 BufferAccessor::BufferAccessor(const char * charBuf_,
                                int bufLen_,
                                char * styleBuf_,
-                               PropSet &props_) : 
-	Accessor(), props(props_), charBuf(charBuf_), bufLen(bufLen_), styleBuf(styleBuf_),
+                               SC_PropSet &props_) : 
+	Accessor(), props(props_), bufLen(bufLen_), charBuf(charBuf_), styleBuf(styleBuf_),
     chFlags(0), chWhile(0)
     
 {

@@ -2,6 +2,12 @@
 // The License.txt file describes the conditions under which this 
 // software may be distributed.
 
+#include <stdio.h>  // For NULL, for KeyWords.h
+#include <ctype.h> // For ctypes..., for KeyWords.h
+
+#include <Accessor.h>
+#include <KeyWords.h>
+
 #include "PyWordList.h"
 
 PyObject*

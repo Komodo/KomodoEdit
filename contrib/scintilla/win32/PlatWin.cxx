@@ -22,6 +22,7 @@
 #include "PlatformRes.h"
 #include "UniConversion.h"
 #include "XPM.h"
+#include "FontQuality.h"
 
 #ifndef IDC_HAND
 #define IDC_HAND MAKEINTRESOURCE(32649)
@@ -76,6 +77,10 @@ static AlphaBlendSig AlphaBlendFn = 0;
 bool IsNT() {
 	return onNT;
 }
+
+#ifdef SCI_NAMESPACE
+using namespace Scintilla;
+#endif
 
 Point Point::FromLong(long lpoint) {
 	return Point(static_cast<short>(LOWORD(lpoint)), static_cast<short>(HIWORD(lpoint)));
@@ -175,13 +180,35 @@ void Palette::Allocate(Window &) {
 	}
 }
 
-static void SetLogFont(LOGFONTA &lf, const char *faceName, int characterSet, int size, bool bold, bool italic) {
+#ifndef CLEARTYPE_QUALITY
+#define CLEARTYPE_QUALITY 5
+#endif
+
+static BYTE Win32MapFontQuality(int extraFontFlag) {
+	switch (extraFontFlag & SC_EFF_QUALITY_MASK) {
+
+		case SC_EFF_QUALITY_NON_ANTIALIASED:
+			return NONANTIALIASED_QUALITY;
+
+		case SC_EFF_QUALITY_ANTIALIASED:
+			return ANTIALIASED_QUALITY;
+
+		case SC_EFF_QUALITY_LCD_OPTIMIZED:
+			return CLEARTYPE_QUALITY;
+
+		default:
+			return SC_EFF_QUALITY_DEFAULT;
+	}
+}
+
+static void SetLogFont(LOGFONTA &lf, const char *faceName, int characterSet, int size, bool bold, bool italic, int extraFontFlag) {
 	memset(&lf, 0, sizeof(lf));
 	// The negative is to allow for leading
 	lf.lfHeight = -(abs(size));
 	lf.lfWeight = bold ? FW_BOLD : FW_NORMAL;
 	lf.lfItalic = static_cast<BYTE>(italic ? 1 : 0);
 	lf.lfCharSet = static_cast<BYTE>(characterSet);
+	lf.lfQuality = Win32MapFontQuality(extraFontFlag);
 	strncpy(lf.lfFaceName, faceName, sizeof(lf.lfFaceName));
 }
 
@@ -190,10 +217,11 @@ static void SetLogFont(LOGFONTA &lf, const char *faceName, int characterSet, int
  * If one font is the same as another, its hash will be the same, but if the hash is the
  * same then they may still be different.
  */
-static int HashFont(const char *faceName, int characterSet, int size, bool bold, bool italic) {
+static int HashFont(const char *faceName, int characterSet, int size, bool bold, bool italic, int extraFontFlag) {
 	return
 		size ^
 		(characterSet << 10) ^
+		((extraFontFlag & SC_EFF_QUALITY_MASK) << 9) ^
 		(bold ? 0x10000000 : 0) ^
 		(italic ? 0x20000000 : 0) ^
 		faceName[0];
@@ -204,70 +232,71 @@ class FontCached : Font {
 	int usage;
 	LOGFONTA lf;
 	int hash;
-	FontCached(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_);
+	FontCached(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_, int extraFontFlag_);
 	~FontCached() {}
-	bool SameAs(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_);
+	bool SameAs(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_, int extraFontFlag_);
 	virtual void Release();
 
 	static FontCached *first;
 public:
-	static FontID FindOrCreate(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_);
-	static void ReleaseId(FontID id_);
+	static FontID FindOrCreate(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_, int extraFontFlag_);
+	static void ReleaseId(FontID fid_);
 };
 
 FontCached *FontCached::first = 0;
 
-FontCached::FontCached(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_) :
+FontCached::FontCached(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_, int extraFontFlag_) :
 	next(0), usage(0), hash(0) {
-	::SetLogFont(lf, faceName_, characterSet_, size_, bold_, italic_);
-	hash = HashFont(faceName_, characterSet_, size_, bold_, italic_);
-	id = ::CreateFontIndirectA(&lf);
+	SetLogFont(lf, faceName_, characterSet_, size_, bold_, italic_, extraFontFlag_);
+	hash = HashFont(faceName_, characterSet_, size_, bold_, italic_, extraFontFlag_);
+	fid = ::CreateFontIndirectA(&lf);
 	usage = 1;
 }
 
-bool FontCached::SameAs(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_) {
+bool FontCached::SameAs(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_, int extraFontFlag_) {
 	return
 		(lf.lfHeight == -(abs(size_))) &&
 		(lf.lfWeight == (bold_ ? FW_BOLD : FW_NORMAL)) &&
 		(lf.lfItalic == static_cast<BYTE>(italic_ ? 1 : 0)) &&
 		(lf.lfCharSet == characterSet_) &&
+		(lf.lfQuality == Win32MapFontQuality(extraFontFlag_)) &&
 		0 == strcmp(lf.lfFaceName,faceName_);
 }
 
 void FontCached::Release() {
-	if (id)
-		::DeleteObject(id);
-	id = 0;
+	if (fid)
+		::DeleteObject(fid);
+	fid = 0;
 }
 
-FontID FontCached::FindOrCreate(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_) {
+FontID FontCached::FindOrCreate(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_, int extraFontFlag_) {
 	FontID ret = 0;
 	::EnterCriticalSection(&crPlatformLock);
-	int hashFind = HashFont(faceName_, characterSet_, size_, bold_, italic_);
+	int hashFind = HashFont(faceName_, characterSet_, size_, bold_, italic_, extraFontFlag_);
 	for (FontCached *cur=first; cur; cur=cur->next) {
 		if ((cur->hash == hashFind) &&
-			cur->SameAs(faceName_, characterSet_, size_, bold_, italic_)) {
+			cur->SameAs(faceName_, characterSet_, size_, bold_, italic_, extraFontFlag_)) {
 			cur->usage++;
-			ret = cur->id;
+			ret = cur->fid;
 		}
 	}
 	if (ret == 0) {
-		FontCached *fc = new FontCached(faceName_, characterSet_, size_, bold_, italic_);
+		FontCached *fc = new FontCached(faceName_, characterSet_, size_, bold_, italic_, extraFontFlag_);
 		if (fc) {
 			fc->next = first;
 			first = fc;
-			ret = fc->id;
+			ret = fc->fid;
 		}
 	}
 	::LeaveCriticalSection(&crPlatformLock);
 	return ret;
 }
 
-void FontCached::ReleaseId(FontID id_) {
+void FontCached::ReleaseId(FontID fid_) {
 	::EnterCriticalSection(&crPlatformLock);
 	FontCached **pcur=&first;
 	for (FontCached *cur=first; cur; cur=cur->next) {
-		if (cur->id == id_) {
+		if (cur->fid == fid_) {
 			cur->usage--;
 			if (cur->usage == 0) {
 				*pcur = cur->next;
@@ -283,7 +312,7 @@ void FontCached::ReleaseId(FontID id_) {
 }
 
 Font::Font() {
-	id = 0;
+	fid = 0;
 }
 
 Font::~Font() {
@@ -292,27 +321,32 @@ Font::~Font() {
 #define FONTS_CACHED
 
 void Font::Create(const char *faceName, int characterSet, int size,
-	bool bold, bool italic, bool) {
+	bool bold, bool italic, int extraFontFlag) {
 	Release();
 #ifndef FONTS_CACHED
 	LOGFONT lf;
-	::SetLogFont(lf, faceName, characterSet, size, bold, italic);
-	id = ::CreateFontIndirect(&lf);
+	SetLogFont(lf, faceName, characterSet, size, bold, italic, extraFontFlag);
+	fid = ::CreateFontIndirect(&lf);
 #else
-	id = FontCached::FindOrCreate(faceName, characterSet, size, bold, italic);
+	if (faceName)
+		fid = FontCached::FindOrCreate(faceName, characterSet, size, bold, italic, extraFontFlag);
 #endif
 }
 
 void Font::Release() {
 #ifndef FONTS_CACHED
-	if (id)
-		::DeleteObject(id);
+	if (fid)
+		::DeleteObject(fid);
 #else
-	if (id)
-		FontCached::ReleaseId(id);
+	if (fid)
+		FontCached::ReleaseId(fid);
 #endif
-	id = 0;
+	fid = 0;
 }
+
+#ifdef SCI_NAMESPACE
+namespace Scintilla {
+#endif
 
 class SurfaceImpl : public Surface {
 	bool unicodeMode;
@@ -386,6 +420,10 @@ public:
 	void SetUnicodeMode(bool unicodeMode_);
 	void SetDBCSMode(int codePage_);
 };
+
+#ifdef SCI_NAMESPACE
+} //namespace Scintilla
+#endif
 
 SurfaceImpl::SurfaceImpl() :
 	unicodeMode(false),
@@ -651,7 +689,44 @@ void SurfaceImpl::Copy(PRectangle rc, Point from, Surface &surfaceSource) {
 		static_cast<SurfaceImpl &>(surfaceSource).hdc, from.x, from.y, SRCCOPY);
 }
 
-const int MAX_US_LEN = 10000;
+// Buffer to hold strings and string position arrays without always allocating on heap.
+// May sometimes have string too long to allocate on stack. So use a fixed stack-allocated buffer
+// when less than safe size otherwise allocate on heap and free automatically.
+template<typename T, int lengthStandard>
+class VarBuffer {
+	T bufferStandard[lengthStandard];
+public:
+	T *buffer;
+	VarBuffer(size_t length) : buffer(0) {
+		if (length > lengthStandard) {
+			buffer = new T[length];
+		} else {
+			buffer = bufferStandard;
+		}
+	}
+	~VarBuffer() {
+		if (buffer != bufferStandard) {
+			delete []buffer;
+			buffer = 0;
+		}
+	}
+};
+
+const int stackBufferLength = 10000;
+class TextWide : public VarBuffer<wchar_t, stackBufferLength> {
+public:
+	int tlen;
+	TextWide(const char *s, int len, bool unicodeMode, int codePage=0) :
+		VarBuffer<wchar_t, stackBufferLength>(len) {
+		if (unicodeMode) {
+			tlen = UTF16FromUTF8(s, len, buffer, len);
+		} else {
+			// Support Asian string display in 9x English
+			tlen = ::MultiByteToWideChar(codePage, 0, s, len, buffer, len);
+		}
+	}
+};
+typedef VarBuffer<int, stackBufferLength> TextPositions;
 
 void SurfaceImpl::DrawTextCommon(PRectangle rc, Font &font_, int ybase, const char *s, int len, UINT fuOptions) {
 	SetFont(font_);
@@ -681,25 +756,15 @@ void SurfaceImpl::DrawTextCommon(PRectangle rc, Font &font_, int ybase, const ch
 		}
 	} else {
 		// Use Unicode calls
-		wchar_t tbuf[MAX_US_LEN];
-		int tlen;
-		if (unicodeMode) {
-			tlen = UTF16FromUTF8(s, len, tbuf, MAX_US_LEN);
-		} else {
-			// Support Asian string display in 9x English
-			tlen = ::MultiByteToWideChar(codePage, 0, s, len, NULL, 0);
-			if (tlen > MAX_US_LEN)
-				tlen = MAX_US_LEN;
-			::MultiByteToWideChar(codePage, 0, s, len, tbuf, tlen);
-		}
-		if (!::ExtTextOutW(hdc, x, ybase, fuOptions, &rcw, tbuf, tlen, NULL)) {
-			while (tlen > pos) {
-				int seglen = Platform::Minimum(maxSegmentLength, tlen - pos);
-				if (!::ExtTextOutW(hdc, x, ybase, fuOptions, &rcw, tbuf+pos, seglen, NULL)) {
+		const TextWide tbuf(s, len, unicodeMode, codePage);
+		if (!::ExtTextOutW(hdc, x, ybase, fuOptions, &rcw, tbuf.buffer, tbuf.tlen, NULL)) {
+			while (tbuf.tlen > pos) {
+				int seglen = Platform::Minimum(maxSegmentLength, tbuf.tlen - pos);
+				if (!::ExtTextOutW(hdc, x, ybase, fuOptions, &rcw, tbuf.buffer+pos, seglen, NULL)) {
 					PLATFORM_ASSERT(false);
 					return;
 				}
-				::GetTextExtentPoint32W(hdc, tbuf+pos, seglen, &sz);
+				::GetTextExtentPoint32W(hdc, tbuf.buffer+pos, seglen, &sz);
 				x += sz.cx;
 				pos += seglen;
 			}
@@ -738,18 +803,11 @@ void SurfaceImpl::DrawTextTransparent(PRectangle rc, Font &font_, int ybase, con
 int SurfaceImpl::WidthText(Font &font_, const char *s, int len) {
 	SetFont(font_);
 	SIZE sz={0,0};
-	if (unicodeMode) {
-		wchar_t tbuf[MAX_US_LEN];
-		int tlen = UTF16FromUTF8(s, len, tbuf, MAX_US_LEN);
-		::GetTextExtentPoint32W(hdc, tbuf, tlen, &sz);
-	} else if (IsNT() || (codePage==0) || win9xACPSame) {
+	if ((!unicodeMode) && (IsNT() || (codePage==0) || win9xACPSame)) {
 		::GetTextExtentPoint32A(hdc, s, Platform::Minimum(len, maxLenText), &sz);
 	} else {
-		// Support Asian string display in 9x English
-		wchar_t tbuf[MAX_US_LEN];
-		int tlen = ::MultiByteToWideChar(codePage, 0, s, len, NULL, 0);
-		::MultiByteToWideChar(codePage, 0, s, len, tbuf, tlen);
-		::GetTextExtentPoint32W(hdc, tbuf, tlen, &sz);
+		const TextWide tbuf(s, len, unicodeMode, codePage);
+		::GetTextExtentPoint32W(hdc, tbuf.buffer, tbuf.tlen, &sz);
 	}
 	return sz.cx;
 }
@@ -759,20 +817,19 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 	SIZE sz={0,0};
 	int fit = 0;
 	if (unicodeMode) {
-		wchar_t tbuf[MAX_US_LEN];
-		int tlen = UTF16FromUTF8(s, len, tbuf, MAX_US_LEN);
-		int poses[MAX_US_LEN];
-		fit = tlen;
-		if (!::GetTextExtentExPointW(hdc, tbuf, tlen, maxWidthMeasure, &fit, poses, &sz)) {
+		const TextWide tbuf(s, len, unicodeMode, codePage);
+		TextPositions poses(tbuf.tlen);
+		fit = tbuf.tlen;
+		if (!::GetTextExtentExPointW(hdc, tbuf.buffer, tbuf.tlen, maxWidthMeasure, &fit, poses.buffer, &sz)) {
 			// Likely to have failed because on Windows 9x where function not available
 			// So measure the character widths by measuring each initial substring
 			// Turns a linear operation into a qudratic but seems fast enough on test files
-			for (int widthSS=0; widthSS < tlen; widthSS++) {
-				::GetTextExtentPoint32W(hdc, tbuf, widthSS+1, &sz);
-				poses[widthSS] = sz.cx;
+			for (int widthSS=0; widthSS < tbuf.tlen; widthSS++) {
+				::GetTextExtentPoint32W(hdc, tbuf.buffer, widthSS+1, &sz);
+				poses.buffer[widthSS] = sz.cx;
 			}
 		}
-		// Map the widths given for UCS-2 characters back onto the UTF-8 input string
+		// Map the widths given for UTF-16 characters back onto the UTF-8 input string
 		int ui=0;
 		const unsigned char *us = reinterpret_cast<const unsigned char *>(s);
 		int i=0;
@@ -788,7 +845,7 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 				lenChar = 2;
 			}
 			for (unsigned int bytePos=0; (bytePos<lenChar) && (i<len); bytePos++) {
-				positions[i++] = poses[ui];
+				positions[i++] = poses.buffer[ui];
 			}
 			ui++;
 		}
@@ -799,37 +856,46 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 			positions[i++] = lastPos;
 		}
 	} else if (IsNT() || (codePage==0) || win9xACPSame) {
-		if (!::GetTextExtentExPointA(hdc, s, Platform::Minimum(len, maxLenText),
-			maxWidthMeasure, &fit, positions, &sz)) {
-			// Eeek - a NULL DC or other foolishness could cause this.
-			// The least we can do is set the positions to zero!
-			memset(positions, 0, len * sizeof(*positions));
-		} else if (fit < len) {
-			// For some reason, such as an incomplete DBCS character
-			// Not all the positions are filled in so make them equal to end.
-			for (int i=fit;i<len;i++)
-				positions[i] = positions[fit-1];
+		// Zero positions to avoid random behaviour on failure.
+		memset(positions, 0, len * sizeof(*positions));
+		// len may be larger than platform supports so loop over segments small enough for platform
+		int startOffset = 0;
+		while (len > 0) {
+			int lenBlock = Platform::Minimum(len, maxLenText);
+			if (!::GetTextExtentExPointA(hdc, s, lenBlock, maxWidthMeasure, &fit, positions, &sz)) {
+				// Eeek - a NULL DC or other foolishness could cause this.
+				return;
+			} else if (fit < lenBlock) {
+				// For some reason, such as an incomplete DBCS character
+				// Not all the positions are filled in so make them equal to end.
+				for (int i=fit;i<lenBlock;i++)
+					positions[i] = positions[fit-1];
+			} else if (startOffset > 0) {
+				for (int i=0;i<lenBlock;i++)
+					positions[i] += startOffset;
+			}
+			startOffset = positions[lenBlock-1];
+			len -= lenBlock;
+			positions += lenBlock;
+			s += lenBlock;
 		}
 	} else {
 		// Support Asian string display in 9x English
-		wchar_t tbuf[MAX_US_LEN];
-		int tlen = ::MultiByteToWideChar(codePage, 0, s, len, NULL, 0);
-		::MultiByteToWideChar(codePage, 0, s, len, tbuf, tlen);
-
-		int poses[MAX_US_LEN];
-		for (int widthSS=0; widthSS<tlen; widthSS++) {
-			::GetTextExtentPoint32W(hdc, tbuf, widthSS+1, &sz);
-			poses[widthSS] = sz.cx;
+		const TextWide tbuf(s, len, unicodeMode, codePage);
+		TextPositions poses(tbuf.tlen);
+		for (int widthSS=0; widthSS<tbuf.tlen; widthSS++) {
+			::GetTextExtentPoint32W(hdc, tbuf.buffer, widthSS+1, &sz);
+			poses.buffer[widthSS] = sz.cx;
 		}
 
 		int ui = 0;
 		for (int i=0;i<len;) {
 			if (::IsDBCSLeadByteEx(codePage, s[i])) {
-				positions[i] = poses[ui];
-				positions[i+1] = poses[ui];
+				positions[i] = poses.buffer[ui];
+				positions[i+1] = poses.buffer[ui];
 				i += 2;
 			} else {
-				positions[i] = poses[ui];
+				positions[i] = poses.buffer[ui];
 				i++;
 			}
 
@@ -929,28 +995,28 @@ Window::~Window() {
 }
 
 void Window::Destroy() {
-	if (id)
-		::DestroyWindow(reinterpret_cast<HWND>(id));
-	id = 0;
+	if (wid)
+		::DestroyWindow(reinterpret_cast<HWND>(wid));
+	wid = 0;
 }
 
 bool Window::HasFocus() {
-	return ::GetFocus() == id;
+	return ::GetFocus() == wid;
 }
 
 PRectangle Window::GetPosition() {
 	RECT rc;
-	::GetWindowRect(reinterpret_cast<HWND>(id), &rc);
+	::GetWindowRect(reinterpret_cast<HWND>(wid), &rc);
 	return PRectangle(rc.left, rc.top, rc.right, rc.bottom);
 }
 
 void Window::SetPosition(PRectangle rc) {
-	::SetWindowPos(reinterpret_cast<HWND>(id),
+	::SetWindowPos(reinterpret_cast<HWND>(wid),
 		0, rc.left, rc.top, rc.Width(), rc.Height(), SWP_NOZORDER|SWP_NOACTIVATE);
 }
 
 void Window::SetPositionRelative(PRectangle rc, Window w) {
-	LONG style = ::GetWindowLong(reinterpret_cast<HWND>(id), GWL_STYLE);
+	LONG style = ::GetWindowLong(reinterpret_cast<HWND>(wid), GWL_STYLE);
 	if (style & WS_POPUP) {
 		RECT rcOther;
 		::GetWindowRect(reinterpret_cast<HWND>(w.GetID()), &rcOther);
@@ -977,25 +1043,25 @@ void Window::SetPositionRelative(PRectangle rc, Window w) {
 
 PRectangle Window::GetClientPosition() {
 	RECT rc={0,0,0,0};
-	if (id)
-		::GetClientRect(reinterpret_cast<HWND>(id), &rc);
+	if (wid)
+		::GetClientRect(reinterpret_cast<HWND>(wid), &rc);
 	return  PRectangle(rc.left, rc.top, rc.right, rc.bottom);
 }
 
 void Window::Show(bool show) {
 	if (show)
-		::ShowWindow(reinterpret_cast<HWND>(id), SW_SHOWNOACTIVATE);
+		::ShowWindow(reinterpret_cast<HWND>(wid), SW_SHOWNOACTIVATE);
 	else
-		::ShowWindow(reinterpret_cast<HWND>(id), SW_HIDE);
+		::ShowWindow(reinterpret_cast<HWND>(wid), SW_HIDE);
 }
 
 void Window::InvalidateAll() {
-	::InvalidateRect(reinterpret_cast<HWND>(id), NULL, FALSE);
+	::InvalidateRect(reinterpret_cast<HWND>(wid), NULL, FALSE);
 }
 
 void Window::InvalidateRectangle(PRectangle rc) {
 	RECT rcw = RectFromPRectangle(rc);
-	::InvalidateRect(reinterpret_cast<HWND>(id), &rcw, FALSE);
+	::InvalidateRect(reinterpret_cast<HWND>(wid), &rcw, FALSE);
 }
 
 static LRESULT Window_SendMessage(Window *w, UINT msg, WPARAM wParam=0, LPARAM lParam=0) {
@@ -1049,7 +1115,7 @@ void Window::SetCursor(Cursor curs) {
 }
 
 void Window::SetTitle(const char *s) {
-	::SetWindowTextA(reinterpret_cast<HWND>(id), s);
+	::SetWindowTextA(reinterpret_cast<HWND>(wid), s);
 }
 
 /* Returns rectangle of monitor pt is on, both rect and pt are in Window's
@@ -1289,7 +1355,7 @@ void ListBoxX::Create(Window &parent_, int ctrlID_, Point location_, int lineHei
 	HWND hwndParent = reinterpret_cast<HWND>(parent->GetID());
 	HINSTANCE hinstanceParent = GetWindowInstance(hwndParent);
 	// Window created as popup so not clipped within parent client area
-	id = ::CreateWindowEx(
+	wid = ::CreateWindowEx(
 		WS_EX_WINDOWEDGE, ListBoxX_ClassName, TEXT(""),
 		WS_POPUP | WS_THICKFRAME,
 		100,100, 150,80, hwndParent,
@@ -1342,10 +1408,8 @@ PRectangle ListBoxX::GetDesiredRect() {
 	SIZE textSize = {0, 0};
 	int len = widestItem ? strlen(widestItem) : 0;
 	if (unicodeMode) {
-		wchar_t tbuf[MAX_US_LEN];
-		len = UTF16FromUTF8(widestItem, len, tbuf, sizeof(tbuf)/sizeof(wchar_t)-1);
-		tbuf[len] = L'\0';
-		::GetTextExtentPoint32W(hdc, tbuf, len, &textSize);
+		const TextWide tbuf(widestItem, len, unicodeMode);
+		::GetTextExtentPoint32W(hdc, tbuf.buffer, tbuf.tlen, &textSize);
 	} else {
 		::GetTextExtentPoint32A(hdc, widestItem, len, &textSize);
 	}
@@ -1461,10 +1525,8 @@ void ListBoxX::Draw(DRAWITEMSTRUCT *pDrawItem) {
 		::InsetRect(&rcText, TextInset.x, TextInset.y);
 
 		if (unicodeMode) {
-			wchar_t tbuf[MAX_US_LEN];
-			int tlen = UTF16FromUTF8(text, len, tbuf, sizeof(tbuf)/sizeof(wchar_t)-1);
-			tbuf[tlen] = L'\0';
-			::DrawTextW(pDrawItem->hDC, tbuf, tlen, &rcText, DT_NOPREFIX|DT_END_ELLIPSIS|DT_SINGLELINE|DT_NOCLIP);
+			const TextWide tbuf(text, len, unicodeMode);
+			::DrawTextW(pDrawItem->hDC, tbuf.buffer, tbuf.tlen, &rcText, DT_NOPREFIX|DT_END_ELLIPSIS|DT_SINGLELINE|DT_NOCLIP);
 		} else {
 			::DrawTextA(pDrawItem->hDC, text, len, &rcText, DT_NOPREFIX|DT_END_ELLIPSIS|DT_SINGLELINE|DT_NOCLIP);
 		}
@@ -1519,36 +1581,34 @@ void ListBoxX::SetList(const char *list, char separator, char typesep) {
 	Clear();
 	int size = strlen(list) + 1;
 	char *words = new char[size];
-	if (words) {
-		lti.SetWords(words);
-		memcpy(words, list, size);
-		char *startword = words;
-		char *numword = NULL;
-		int i = 0;
-		for (; words[i]; i++) {
-			if (words[i] == separator) {
-				words[i] = '\0';
-				if (numword)
-					*numword = '\0';
-				AppendListItem(startword, numword);
-				startword = words + i + 1;
-				numword = NULL;
-			} else if (words[i] == typesep) {
-				numword = words + i;
-			}
-		}
-		if (startword) {
+	lti.SetWords(words);
+	memcpy(words, list, size);
+	char *startword = words;
+	char *numword = NULL;
+	int i = 0;
+	for (; words[i]; i++) {
+		if (words[i] == separator) {
+			words[i] = '\0';
 			if (numword)
 				*numword = '\0';
 			AppendListItem(startword, numword);
+			startword = words + i + 1;
+			numword = NULL;
+		} else if (words[i] == typesep) {
+			numword = words + i;
 		}
+	}
+	if (startword) {
+		if (numword)
+			*numword = '\0';
+		AppendListItem(startword, numword);
+	}
 
-		// Finally populate the listbox itself with the correct number of items
-		int count = lti.Count();
-		::SendMessage(lb, LB_INITSTORAGE, count, 0);
-		for (int j=0; j<count; j++) {
-			::SendMessage(lb, LB_ADDSTRING, 0, j+1);
-		}
+	// Finally populate the listbox itself with the correct number of items
+	int count = lti.Count();
+	::SendMessage(lb, LB_INITSTORAGE, count, 0);
+	for (int j=0; j<count; j++) {
+		::SendMessage(lb, LB_ADDSTRING, 0, j+1);
 	}
 	SetRedraw(true);
 }
@@ -1773,53 +1833,57 @@ void ListBoxX::Paint(HDC hDC) {
 }
 
 LRESULT PASCAL ListBoxX::ControlWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	switch (uMsg) {
-	case WM_ERASEBKGND:
-		return TRUE;
+	try {
+		switch (uMsg) {
+		case WM_ERASEBKGND:
+			return TRUE;
 
-	case WM_PAINT: {
-			PAINTSTRUCT ps;
-			HDC hDC = ::BeginPaint(hWnd, &ps);
-			ListBoxX *lbx = reinterpret_cast<ListBoxX *>(PointerFromWindow(::GetParent(hWnd)));
-			if (lbx)
-				lbx->Paint(hDC);
-			::EndPaint(hWnd, &ps);
-		}
-		return 0;
-
-	case WM_MOUSEACTIVATE:
-		// This prevents the view activating when the scrollbar is clicked
-		return MA_NOACTIVATE;
-
-	case WM_LBUTTONDOWN: {
-			// We must take control of selection to prevent the ListBox activating
-			// the popup
-			LRESULT lResult = ::SendMessage(hWnd, LB_ITEMFROMPOINT, 0, lParam);
-			int item = LOWORD(lResult);
-			if (HIWORD(lResult) == 0 && item >= 0) {
-				::SendMessage(hWnd, LB_SETCURSEL, item, 0);
+		case WM_PAINT: {
+				PAINTSTRUCT ps;
+				HDC hDC = ::BeginPaint(hWnd, &ps);
+				ListBoxX *lbx = reinterpret_cast<ListBoxX *>(PointerFromWindow(::GetParent(hWnd)));
+				if (lbx)
+					lbx->Paint(hDC);
+				::EndPaint(hWnd, &ps);
 			}
-		}
-		return 0;
+			return 0;
 
-	case WM_LBUTTONUP:
-		return 0;
+		case WM_MOUSEACTIVATE:
+			// This prevents the view activating when the scrollbar is clicked
+			return MA_NOACTIVATE;
 
-	case WM_LBUTTONDBLCLK: {
-			ListBoxX *lbx = reinterpret_cast<ListBoxX *>(PointerFromWindow(::GetParent(hWnd)));
-			if (lbx) {
-				lbx->OnDoubleClick();
+		case WM_LBUTTONDOWN: {
+				// We must take control of selection to prevent the ListBox activating
+				// the popup
+				LRESULT lResult = ::SendMessage(hWnd, LB_ITEMFROMPOINT, 0, lParam);
+				int item = LOWORD(lResult);
+				if (HIWORD(lResult) == 0 && item >= 0) {
+					::SendMessage(hWnd, LB_SETCURSEL, item, 0);
+				}
 			}
-		}
-		return 0;
-	}
+			return 0;
 
-	WNDPROC prevWndProc = reinterpret_cast<WNDPROC>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-	if (prevWndProc) {
-		return ::CallWindowProc(prevWndProc, hWnd, uMsg, wParam, lParam);
-	} else {
-		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+		case WM_LBUTTONUP:
+			return 0;
+
+		case WM_LBUTTONDBLCLK: {
+				ListBoxX *lbx = reinterpret_cast<ListBoxX *>(PointerFromWindow(::GetParent(hWnd)));
+				if (lbx) {
+					lbx->OnDoubleClick();
+				}
+			}
+			return 0;
+		}
+
+		WNDPROC prevWndProc = reinterpret_cast<WNDPROC>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+		if (prevWndProc) {
+			return ::CallWindowProc(prevWndProc, hWnd, uMsg, wParam, lParam);
+		} else {
+			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+		}
+	} catch (...) {
 	}
+	return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
 LRESULT ListBoxX::WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
@@ -1967,22 +2031,22 @@ bool ListBoxX_Unregister() {
 	return ::UnregisterClass(ListBoxX_ClassName, hinstPlatformRes) != 0;
 }
 
-Menu::Menu() : id(0) {
+Menu::Menu() : mid(0) {
 }
 
 void Menu::CreatePopUp() {
 	Destroy();
-	id = ::CreatePopupMenu();
+	mid = ::CreatePopupMenu();
 }
 
 void Menu::Destroy() {
-	if (id)
-		::DestroyMenu(reinterpret_cast<HMENU>(id));
-	id = 0;
+	if (mid)
+		::DestroyMenu(reinterpret_cast<HMENU>(mid));
+	mid = 0;
 }
 
 void Menu::Show(Point pt, Window &w) {
-	::TrackPopupMenu(reinterpret_cast<HMENU>(id),
+	::TrackPopupMenu(reinterpret_cast<HMENU>(mid),
 		0, pt.x - 4, pt.y, 0,
 		reinterpret_cast<HWND>(w.GetID()), NULL);
 	Destroy();

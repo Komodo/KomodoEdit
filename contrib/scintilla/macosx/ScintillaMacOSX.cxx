@@ -334,12 +334,12 @@ HIPoint ScintillaMacOSX::GetLocalPoint(::Point pt)
 }
 
 void ScintillaMacOSX::StartDrag() {
-    if (currentPos == anchor) return;
+    if (sel.Empty()) return;
 
     // calculate the bounds of the selection
         PRectangle client = GetTextRectangle();
-    int selStart = SelectionStart();
-    int selEnd = SelectionEnd();
+    int selStart = sel.RangeMain().Start().Position();
+    int selEnd = sel.RangeMain().End().Position();
     int startLine = pdoc->LineFromPosition(selStart);
     int endLine = pdoc->LineFromPosition(selEnd);
     Point pt;
@@ -372,11 +372,6 @@ void ScintillaMacOSX::StartDrag() {
             else
                 rcSel.bottom = pt.y;
         }
-    }
-    // protect against word wrap causing left < right
-    if (rcSel.left > rcSel.right) {
-        rcSel.left = client.left;
-        rcSel.right = client.right;
     }
 
     // must convert to global coordinates for drag regions, but also save the
@@ -570,12 +565,12 @@ void ScintillaMacOSX::DragScroll()
   scrollSpeed = (lines); \
   scrollTicks = 2000;
 
-    if (posDrag == invalidPosition) {
+    if (!posDrag.IsValid()) {
         RESET_SCROLL_TIMER(1);
         return;
     }
     Point dragMouse = LocationFromPosition(posDrag);
-    int line = pdoc->LineFromPosition(posDrag);
+    int line = pdoc->LineFromPosition(posDrag.Position());
     int currentVisibleLine = cs.DisplayFromDoc(line);
     int lastVisibleLine = Platform::Minimum(topLine + LinesOnScreen() - 1, pdoc->LinesTotal() - 1);
 
@@ -594,7 +589,7 @@ void ScintillaMacOSX::DragScroll()
         }
     }
 
-    SetDragPosition(PositionFromLocation(dragMouse));
+    SetDragPosition(SPositionFromLocation(dragMouse));
 
 #undef RESET_SCROLL_TIMER
 }
@@ -608,7 +603,7 @@ bool ScintillaMacOSX::DragWithin(DragRef inDrag )
     }
 
     Point pt = GetDragPoint (inDrag);
-    SetDragPosition(PositionFromLocation(pt));
+    SetDragPosition(SPositionFromLocation(pt));
     SetDragCursor(inDrag);
 
     return true;
@@ -617,10 +612,19 @@ bool ScintillaMacOSX::DragWithin(DragRef inDrag )
 bool ScintillaMacOSX::DragLeave(DragRef inDrag )
 {
     HideDragHilite( inDrag );
-    SetDragPosition(invalidPosition);
+    SetDragPosition(SelectionPosition(invalidPosition));
     WndProc(SCI_SETCURSOR, Window::cursorArrow, 0);
     return true;
 }
+
+enum
+{
+    kFormatBad,
+    kFormatText,
+    kFormatUnicode,
+    kFormatUTF8,
+    kFormatFile
+};
 
 bool ScintillaMacOSX::GetDragData(DragRef inDrag, PasteboardRef &pasteBoard,
                                   SelectionText *selectedText, bool *isFileURL)
@@ -684,7 +688,7 @@ bool ScintillaMacOSX::GetPasteboardData(PasteboardRef &pasteBoard,
                                         bool *isFileURL)
 {
     // how many items in the pasteboard?
-    
+    CFDataRef data;
     CFStringRef textString = NULL;
     bool isRectangular = selectedText ? selectedText->rectangular : false;
     ItemCount i, itemCount;
@@ -722,25 +726,25 @@ bool ScintillaMacOSX::GetPasteboardData(PasteboardRef &pasteBoard,
             CFStringRef flavorType = (CFStringRef)CFArrayGetValueAtIndex(flavorTypeArray, j);
             if (flavorType != NULL) 
             {
-                CFStringEncoding encoding = kCFStringEncodingInvalidId;
+                int format = kFormatBad;
                 if (UTTypeConformsTo(flavorType, CFSTR("public.file-url"))) {
-                    encoding = kCFStringEncodingMacRoman;
+                    format = kFormatFile;
                     *isFileURL = true;
                 }
                 else if (UTTypeConformsTo(flavorType, CFSTR("com.scintilla.utf16-plain-text.rectangular"))) {
-                    encoding = kCFStringEncodingUnicode;
+                    format = kFormatUnicode;
                     isRectangular = true;
                 }
                 else if (UTTypeConformsTo(flavorType, CFSTR("public.utf16-plain-text"))) { // this is 'utxt'
-                    encoding = kCFStringEncodingUnicode;
+                    format = kFormatUnicode;
                 }
                 else if (UTTypeConformsTo(flavorType, CFSTR("public.utf8-plain-text"))) {
-                    encoding = kCFStringEncodingUTF8;
+                    format = kFormatUTF8;
                 }
                 else if (UTTypeConformsTo(flavorType, CFSTR("com.apple.traditional-mac-plain-text"))) { // this is 'TEXT'
-                    encoding = kCFStringEncodingMacRoman;
+                    format = kFormatText;
                 }
-                if (encoding == kCFStringEncodingInvalidId)
+                if (format == kFormatBad)
                     continue;
                 
                 // if we got a flavor match, and we have no textString, we just want
@@ -751,9 +755,24 @@ bool ScintillaMacOSX::GetPasteboardData(PasteboardRef &pasteBoard,
                 }
                 if (PasteboardCopyItemFlavorData(pasteBoard, itemID, flavorType, &flavorData) == noErr)
                 {
-                    CFIndex dataSize = CFDataGetLength(flavorData);
-                    const UInt8* dataBytes = CFDataGetBytePtr(flavorData);
-                    textString = CFStringCreateWithBytes(NULL, dataBytes, dataSize, encoding, false);
+                    CFIndex dataSize = CFDataGetLength (flavorData);
+                    const UInt8* dataBytes = CFDataGetBytePtr (flavorData);
+                    switch (format)
+                    {
+                        case kFormatFile:
+                        case kFormatText:
+                            data = CFDataCreate (NULL, dataBytes, dataSize);
+                            textString = CFStringCreateFromExternalRepresentation (NULL, data, kCFStringEncodingMacRoman);
+                            break;
+                        case kFormatUnicode:
+                            data = CFDataCreate (NULL, dataBytes, dataSize);
+                            textString = CFStringCreateFromExternalRepresentation (NULL, data, kCFStringEncodingUnicode);
+                            break;
+                        case kFormatUTF8:
+                            data = CFDataCreate (NULL, dataBytes, dataSize);
+                            textString = CFStringCreateFromExternalRepresentation (NULL, data, kCFStringEncodingUTF8);
+                            break;
+                    }
                     CFRelease (flavorData);
                     goto PasteboardDataRetrieved;
                 }
@@ -762,6 +781,7 @@ bool ScintillaMacOSX::GetPasteboardData(PasteboardRef &pasteBoard,
     }
 PasteboardDataRetrieved:
     if (flavorTypeArray != NULL) CFRelease(flavorTypeArray);
+        int newlen = 0;
     if (textString != NULL) {
         selectedText->s = GetStringFromCFString(textString, &selectedText->len);
         selectedText->rectangular = isRectangular;
@@ -780,16 +800,14 @@ char *ScintillaMacOSX::GetStringFromCFString(CFStringRef &textString, int *textL
 
     // Allocate a buffer, plus the null byte
     CFIndex numUniChars = CFStringGetLength( textString );
-    CFRange range = { 0, numUniChars };
-    CFIndex bufLen;
     CFStringEncoding encoding = ( IsUnicodeMode() ? kCFStringEncodingUTF8 : kCFStringEncodingMacRoman);
-    
-    CFStringGetBytes(textString, range, encoding, '?', false, NULL, 0, &bufLen);
-    char* cstring = new char[bufLen + 1];
+    CFIndex maximumByteLength = CFStringGetMaximumSizeForEncoding( numUniChars, encoding ) + 1;
+    char* cstring = new char[maximumByteLength];
     CFIndex usedBufferLength = 0;
-    CFIndex numCharsConverted = CFStringGetBytes( textString, range, encoding,
+    CFIndex numCharsConverted;
+    numCharsConverted = CFStringGetBytes( textString, CFRangeMake( 0, numUniChars ), encoding,
                               '?', false, reinterpret_cast<UInt8*>( cstring ),
-                              bufLen, &usedBufferLength );
+                              maximumByteLength, &usedBufferLength );
     cstring[usedBufferLength] = '\0'; // null terminate the ASCII/UTF8 string
 
     // determine whether a BOM is in the string.  Apps like Emacs prepends a BOM
@@ -816,6 +834,7 @@ OSStatus ScintillaMacOSX::DragReceive(DragRef inDrag )
 
     PasteboardRef pasteBoard;
     SelectionText selectedText;
+    CFStringRef textString = NULL;
     bool isFileURL = false;
     if (!GetDragData(inDrag, pasteBoard, &selectedText, &isFileURL)) {
         return dragNotAcceptedErr;
@@ -830,7 +849,7 @@ OSStatus ScintillaMacOSX::DragReceive(DragRef inDrag )
         GetDragAttributes( inDrag, &attributes );
         bool moving = true;
     
-        int position = PositionFromLocation(GetDragPoint(inDrag));
+        SelectionPosition position = SPositionFromLocation(GetDragPoint(inDrag));
         if ( attributes & kDragInsideSenderWindow ) {
             GetDragModifiers(inDrag, NULL, NULL, &modifiers);
             switch (modifiers & ~btnState)  // Filter out btnState (on for drop)
@@ -1438,7 +1457,7 @@ pascal OSStatus ScintillaMacOSX::CommandEventHandler( EventHandlerCallRef /*inCa
 
 bool ScintillaMacOSX::HasSelection()
 {
-    return ( SelectionEnd() - SelectionStart() > 0 );
+    return ( !sel.Empty() );
 }
 
 bool ScintillaMacOSX::CanUndo()
@@ -1465,13 +1484,13 @@ void ScintillaMacOSX::CopyToClipboard(const SelectionText &selectedText) {
 
 void ScintillaMacOSX::Copy()
 {
-    if (currentPos != anchor) {
+    if (!sel.Empty()) {
 #ifdef EXT_INPUT
         ExtInput::stop (GetViewRef()); 
 #endif
         SelectionText selectedText;
         CopySelectionRange(&selectedText);
-        //fprintf(stderr, "copied text is rectangular? %d\n", selectedText.rectangular);
+        fprintf(stderr, "copied text is rectangular? %d\n", selectedText.rectangular);
         CopyToClipboard(selectedText);
     }
 }
@@ -1507,7 +1526,7 @@ void ScintillaMacOSX::Paste(bool forceRectangular)
     PasteboardCreate( kPasteboardClipboard, &theClipboard );
     bool ok = GetPasteboardData(theClipboard, &selectedText, &isFileURL);
     CFRelease( theClipboard );
-    //fprintf(stderr, "paste is rectangular? %d\n", selectedText.rectangular);
+    fprintf(stderr, "paste is rectangular? %d\n", selectedText.rectangular);
     if (!ok || !selectedText.s)
         // no data or no flavor we support
         return;
@@ -1515,11 +1534,11 @@ void ScintillaMacOSX::Paste(bool forceRectangular)
     pdoc->BeginUndoAction();
     ClearSelection();
     if (selectedText.rectangular) {
-        int selStart = SelectionStart();
+        SelectionPosition selStart = sel.RangeMain().Start();
         PasteRectangular(selStart, selectedText.s, selectedText.len);
     } else 
-    if ( pdoc->InsertString( currentPos, selectedText.s, selectedText.len ) ) {
-        SetEmptySelection( currentPos + selectedText.len );
+    if ( pdoc->InsertString( sel.RangeMain().caret.Position(), selectedText.s, selectedText.len ) ) {
+        SetEmptySelection( sel.RangeMain().caret.Position() + selectedText.len );
     }
 
     pdoc->EndUndoAction();
@@ -1677,21 +1696,8 @@ sptr_t scintilla_send_message(void* sci, unsigned int iMessage, uptr_t wParam, s
 
 void ScintillaMacOSX::TimerFired( EventLoopTimerRef )
 {
-    if (inDragDrop) {
-        DragScroll();
-    } else
-    if (HaveMouseCapture()) {
-      if (!inDragDrop) {
-        // set the last point to fix drag selection and dragmove, Editor:Tick
-        // will handle the rest.  We have to do this because we do not get
-        // carbon events to handle this particular situation.
-        ::Point theQDPoint;
-        GetMouse (&theQDPoint);
-        HIPoint location = GetLocalPoint(theQDPoint);
-        ptMouseLast = Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) );
-      }
-    }
     Tick();
+    DragScroll();
 }
 
 OSStatus ScintillaMacOSX::BoundsChanged( UInt32 /*inOptions*/, const HIRect& inOriginalBounds, const HIRect& inCurrentBounds, RgnHandle /*inInvalRgn*/ )
@@ -1970,8 +1976,8 @@ OSStatus ScintillaMacOSX::TextInput( TCarbonEvent& event )
             AddCharUTF( buffer, usedBufferLength );
         } else {
             // WARNING: This is an untested code path as with my US keyboard, I only enter a single character at a time
-            if (pdoc->InsertString(currentPos, buffer, usedBufferLength)) {
-                SetEmptySelection(currentPos + usedBufferLength);
+            if (pdoc->InsertString(sel.RangeMain().caret.Position(), buffer, usedBufferLength)) {
+                SetEmptySelection(sel.RangeMain().caret.Position() + usedBufferLength);
             }
         }
 
@@ -2105,22 +2111,43 @@ OSStatus ScintillaMacOSX::MouseDragged( EventRecord *event )
 
 OSStatus ScintillaMacOSX::MouseDragged( HIPoint& location, UInt32 modifiers, EventMouseButton button, UInt32 clickCount )
 {
-    if (!HaveMouseCapture() && HIViewGetSuperview(GetViewRef()) != NULL) {
-        HIViewRef view;
-        HIViewGetSubviewHit(reinterpret_cast<ControlRef>(wMain.GetID()), &location, true, &view);
-        if (view) {
-            // the hit is on a subview (ie. scrollbars)
-            WndProc(SCI_SETCURSOR, Window::cursorArrow, 0);
-            return eventNotHandledErr;
-        } else {
-            // reset to normal, buttonmove will change for other area's in the editor
-            WndProc(SCI_SETCURSOR, (long int)SC_CURSORNORMAL, 0);
-        }
-    }
-    ButtonMove( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ) );
 #if !defined(CONTAINER_HANDLES_EVENTS)
+    ButtonMove( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ) );
     return noErr;
 #else
+    if (HaveMouseCapture() && !inDragDrop) {
+        MouseTrackingResult mouseStatus = 0;
+        ::Point theQDPoint;
+        UInt32 outModifiers;
+        EventTimeout inTimeout=0.1;
+        while (mouseStatus != kMouseTrackingMouseReleased) {
+            ButtonMove( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ) );
+            TrackMouseLocationWithOptions((GrafPtr)-1,
+                                          kTrackMouseLocationOptionDontConsumeMouseUp,
+                                          inTimeout,
+                                          &theQDPoint,
+                                          &outModifiers,
+                                          &mouseStatus);
+            location = GetLocalPoint(theQDPoint);
+        }
+        ButtonUp( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ),
+                  static_cast<int>( GetCurrentEventTime() / kEventDurationMillisecond ), 
+                  (modifiers & controlKey) != 0 );
+    } else {
+        if (!HaveMouseCapture() && HIViewGetSuperview(GetViewRef()) != NULL) {
+            HIViewRef view;
+            HIViewGetSubviewHit(reinterpret_cast<ControlRef>(wMain.GetID()), &location, true, &view);
+            if (view) {
+                // the hit is on a subview (ie. scrollbars)
+                WndProc(SCI_SETCURSOR, Window::cursorArrow, 0);
+                return eventNotHandledErr;
+            } else {
+                // reset to normal, buttonmove will change for other area's in the editor
+                WndProc(SCI_SETCURSOR, (long int)SC_CURSORNORMAL, 0);
+            }
+        }
+        ButtonMove( Scintilla::Point( static_cast<int>( location.x ), static_cast<int>( location.y ) ) );
+    }
     return eventNotHandledErr; // allow event to go to container
 #endif
 }

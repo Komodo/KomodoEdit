@@ -29,30 +29,30 @@ inline bool IsWhitespace (const unsigned char ch)
 // Don't make these STL maps in case we want to submit this to scintilla.
 
 static char* XSLT_TagNamesWithXPathAttribute[] = {
-  "xsl:apply-templates",
-  "xsl:copy-of",
-  "xsl:for-each",
-  "xsl:if",
-  "xsl:key",
-  "xsl:number",
-  "xsl:param",
-  "xsl:sort",
-  "xsl:template",
-  "xsl:value-of",
-  "xsl:variable",
-  "xsl:when",
-  "xsl:with-param",
+  (char *) "xsl:apply-templates",
+  (char *) "xsl:copy-of",
+  (char *) "xsl:for-each",
+  (char *) "xsl:if",
+  (char *) "xsl:key",
+  (char *) "xsl:number",
+  (char *) "xsl:param",
+  (char *) "xsl:sort",
+  (char *) "xsl:template",
+  (char *) "xsl:value-of",
+  (char *) "xsl:variable",
+  (char *) "xsl:when",
+  (char *) "xsl:with-param",
   0
 };
   
 static char* XSLT_XPath_Attributes[] = {
-  "count",
-  "from",
-  "match",
-  "select",
-  "test",
-  "use",
-  "value",
+  (char *) "count",
+  (char *) "from",
+  (char *) "match",
+  (char *) "select",
+  (char *) "test",
+  (char *) "use",
+  (char *) "value",
   0
 };
   

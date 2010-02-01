@@ -2,10 +2,7 @@ Index: macosx/ScintillaMacOSX.cxx
 ===================================================================
 --- macosx/ScintillaMacOSX.cxx	2009-04-23 13:08:29.000000000 -0700
 +++ macosx/ScintillaMacOSX.cxx	2009-04-23 13:14:40.000000000 -0700
-@@ -642,39 +642,69 @@
- 
-     CFStringEncoding encoding = ( IsUnicodeMode() ? kCFStringEncodingUTF8 : kCFStringEncodingMacRoman);
- 
+@@ -649,33 +649,63 @@
      // Create a CFString from the ASCII/UTF8 data, convert it to UTF16
      CFStringRef string = CFStringCreateWithBytes( NULL, reinterpret_cast<UInt8*>( selectedText.s ), selectedText.len - 1, encoding, false );
  
@@ -71,31 +68,22 @@ Index: macosx/ScintillaMacOSX.cxx
                                  data, 0 );
          CFRelease(data);
          data = NULL;
-     }
-     CFRelease(string);
- }
-@@ -727,20 +757,23 @@
-                     encoding = kCFStringEncodingMacRoman;
-                     *isFileURL = true;
-                 }
+@@ -734,14 +764,17 @@
                  else if (UTTypeConformsTo(flavorType, CFSTR("com.scintilla.utf16-plain-text.rectangular"))) {
-                     encoding = kCFStringEncodingUnicode;
+                     format = kFormatUnicode;
                      isRectangular = true;
                  }
                  else if (UTTypeConformsTo(flavorType, CFSTR("public.utf16-plain-text"))) { // this is 'utxt'
-                     encoding = kCFStringEncodingUnicode;
+                     format = kFormatUnicode;
                  }
 +                else if (UTTypeConformsTo(flavorType, CFSTR("public.utf16-external-plain-text"))) { // this is 'utxt'
-+                    encoding = kCFStringEncodingUnicode;
++                    format = kFormatUnicode;
 +                }
                  else if (UTTypeConformsTo(flavorType, CFSTR("public.utf8-plain-text"))) {
-                     encoding = kCFStringEncodingUTF8;
+                     format = kFormatUTF8;
                  }
                  else if (UTTypeConformsTo(flavorType, CFSTR("com.apple.traditional-mac-plain-text"))) { // this is 'TEXT'
-                     encoding = kCFStringEncodingMacRoman;
+                     format = kFormatText;
                  }
-                 if (encoding == kCFStringEncodingInvalidId)
-                     continue;
-                 
-                 // if we got a flavor match, and we have no textString, we just want
+                 if (format == kFormatBad)
 

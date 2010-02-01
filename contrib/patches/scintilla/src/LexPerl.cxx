@@ -2002,7 +2002,7 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
             // If the next character is not a legal variable character, colour 
             // the preceding variable name and return to the default state.
             } else if (isspacechar(chNext) || 
-                       isEndVar(chNext) && (chNext != '-' || chNext2 != '>')) {
+                       (isEndVar(chNext) && (chNext != '-' || chNext2 != '>'))) {
                 styler.ColourTo(i, state);
                 state = SCE_PL_DEFAULT;
                 binaryOperatorExpected = true;

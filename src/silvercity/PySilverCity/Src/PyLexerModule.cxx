@@ -96,7 +96,7 @@ PyLexerModule_tokenize_by_style(PyLexerModule* self, PyObject * args)
 {
     PyObject * pyWordLists = NULL;
     WordList ** wordLists = NULL;
-    PropSet * propset = NULL;
+    SC_PropSet * propset = NULL;
     PyObject * pyPropSet = NULL;
     PyObject * pyTokenList = NULL;
     PyObject * pyToken = NULL;

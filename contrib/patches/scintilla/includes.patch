@@ -1,8 +1,12 @@
 --- include/Scintilla.iface	2007-11-04 02:03:56.000000000 -0800
 +++ include/Scintilla.iface	2007-11-11 17:14:56.000000000 -0800
-@@ -1840,6 +1840,24 @@
+@@ -2112,14 +2112,32 @@
  # Retrieve the number of bits the current lexer needs for styling.
  get int GetStyleBitsNeeded=4011(,)
+ 
+ # Retrieve the name of the lexer.
+ # Return the length of the text.
+ get int GetLexerLanguage=4012(, stringresult text)
  
 +### ACTIVESTATE Functions 5000+ ####
 +
@@ -25,17 +29,33 @@
  # Notifications
  # Type of modification and the action which caused the modification.
  # These are defined as a bit mask to make it easy to specify which notifications are wanted.
-@@ -1991,6 +2009,9 @@
- val SCLEX_R=86
- val SCLEX_MAGIK=87
- val SCLEX_POWERSHELL=88
-+val SCLEX_XSLT=89
+ # One bit is set from each of SC_MOD_* and SC_PERFORMED_*.
+ enu ModificationFlags=SC_MOD_ SC_PERFORMED_ SC_LAST
+ val SC_MOD_INSERTTEXT=0x1
+ val SC_MOD_DELETETEXT=0x2
+@@ -2279,14 +2297,17 @@
+ val SCLEX_COBOL=92
+ val SCLEX_TACL=93
+ val SCLEX_SORCUS=94
+ val SCLEX_POWERPRO=95
+ val SCLEX_NIMROD=96
+ val SCLEX_SML=97
+ val SCLEX_MARKDOWN=98
++val SCLEX_XSLT=99
 +# User-defined languages
-+val SCLEX_UDL=90
++val SCLEX_UDL=100
  
  # When a lexer specifies its language as SCLEX_AUTOMATIC it receives a
  # value assigned in sequence from SCLEX_AUTOMATIC+1.
-@@ -2013,6 +2034,11 @@
+ val SCLEX_AUTOMATIC=1000
+ # Lexical states for SCLEX_PYTHON
+ lex Python=SCLEX_PYTHON SCE_P_
+ lex Nimrod=SCLEX_NIMROD SCE_P_
+@@ -2302,14 +2323,19 @@
+ val SCE_P_DEFNAME=9
+ val SCE_P_OPERATOR=10
+ val SCE_P_IDENTIFIER=11
+ val SCE_P_COMMENTBLOCK=12
  val SCE_P_STRINGEOL=13
  val SCE_P_WORD2=14
  val SCE_P_DECORATOR=15
@@ -46,8 +66,16 @@
 +val SCE_P_UPPER_BOUND=19
  # Lexical states for SCLEX_CPP
  lex Cpp=SCLEX_CPP SCE_C_
- lex Pascal=SCLEX_PASCAL SCE_C_
-@@ -2037,6 +2063,9 @@
+ lex BullAnt=SCLEX_BULLANT SCE_C_
+ val SCE_C_DEFAULT=0
+ val SCE_C_COMMENT=1
+ val SCE_C_COMMENTLINE=2
+ val SCE_C_COMMENTDOC=3
+@@ -2325,14 +2351,17 @@
+ val SCE_C_VERBATIM=13
+ val SCE_C_REGEX=14
+ val SCE_C_COMMENTLINEDOC=15
+ val SCE_C_WORD2=16
  val SCE_C_COMMENTDOCKEYWORD=17
  val SCE_C_COMMENTDOCKEYWORDERROR=18
  val SCE_C_GLOBALCLASS=19
@@ -57,7 +85,15 @@
  # Lexical states for SCLEX_D
  lex D=SCLEX_D SCE_D_
  val SCE_D_DEFAULT=0
-@@ -2061,26 +2090,22 @@
+ val SCE_D_COMMENT=1
+ val SCE_D_COMMENTLINE=2
+ val SCE_D_COMMENTDOC=3
+ val SCE_D_COMMENTNESTED=4
+@@ -2354,34 +2383,30 @@
+ val SCE_D_WORD5=20
+ val SCE_D_WORD6=21
+ val SCE_D_WORD7=22
+ # Lexical states for SCLEX_TCL
  lex TCL=SCLEX_TCL SCE_TCL_
  val SCE_TCL_DEFAULT=0
  val SCE_TCL_COMMENT=1
@@ -100,7 +136,15 @@
  # Lexical states for SCLEX_HTML, SCLEX_XML
  lex HTML=SCLEX_HTML SCE_H
  lex XML=SCLEX_XML SCE_H
-@@ -2246,6 +2271,14 @@
+ lex ASP=SCLEX_ASP SCE_H
+ lex PHP=SCLEX_PHP SCE_H
+ val SCE_H_DEFAULT=0
+ val SCE_H_TAG=1
+@@ -2539,14 +2564,22 @@
+ val SCE_PL_STRING_QX=28
+ val SCE_PL_STRING_QR=29
+ val SCE_PL_STRING_QW=30
+ val SCE_PL_POD_VERB=31
  val SCE_PL_SUB_PROTOTYPE=40
  val SCE_PL_FORMAT_IDENT=41
  val SCE_PL_FORMAT=42
@@ -115,9 +159,18 @@
  # Lexical states for SCLEX_RUBY
  lex Ruby=SCLEX_RUBY SCE_RB_
  val SCE_RB_DEFAULT=0
-@@ -3257,6 +3291,136 @@
- val SCE_R_INFIX=10
- val SCE_R_INFIXEOL=11
+ val SCE_RB_ERROR=1
+ val SCE_RB_COMMENTLINE=2
+ val SCE_RB_POD=3
+ val SCE_RB_NUMBER=4
+@@ -3713,14 +3746,144 @@
+ val SCE_MARKDOWN_BLOCKQUOTE=15
+ val SCE_MARKDOWN_STRIKEOUT=16
+ val SCE_MARKDOWN_HRULE=17
+ val SCE_MARKDOWN_LINK=18
+ val SCE_MARKDOWN_CODE=19
+ val SCE_MARKDOWN_CODE2=20
+ val SCE_MARKDOWN_CODEBK=21
  
 +# Lexical states for the SCLEX_XML (XML files)
 +val SCE_XML_DEFAULT=0
@@ -252,12 +305,16 @@
  # Events
  
  evt void StyleNeeded=2000(int position)
+ evt void CharAdded=2001(int ch)
+ evt void SavePointReached=2002(void)
+ evt void SavePointLeft=2003(void)
 --- include/Scintilla.h   Thu Sep 27 11:10:30 2007
 +++ include/Scintilla.h Mon Oct 29 16:38:27 2007
-@@ -680,6 +680,11 @@
+@@ -680,7 +680,12 @@
  #define SCI_GETPROPERTYEXPANDED 4009
  #define SCI_GETPROPERTYINT 4010
  #define SCI_GETSTYLEBITSNEEDED 4011
+ #define SCI_GETLEXERLANGUAGE 4012
 +#define SCI_SETDRAGPOSITION 5002
 +#define SCI_GETDRAGPOSITION 5003
 +#define SCI_POSITIONATCHAR 5004

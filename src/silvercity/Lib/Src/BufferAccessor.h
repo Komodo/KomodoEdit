@@ -14,7 +14,7 @@ protected:
 	char stylingMask;
 	int endStyled;
 
-	PropSet &props;
+	SC_PropSet &props;
     LineVector lv;
 	int bufLen;
     const char * charBuf;
@@ -30,7 +30,7 @@ public:
     BufferAccessor(const char * charBuf_,
                    int bufLen_,
                    char * styleBuf,
-                   PropSet &props_);
+                   SC_PropSet &props_);
 	~BufferAccessor();
 
 	bool Match(int pos, const char *s);

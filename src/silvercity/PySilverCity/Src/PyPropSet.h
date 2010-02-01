@@ -7,15 +7,15 @@
 
 #include <Python.h>
 
-#include <PropSet.h>
+#include <SC_PropSet.h>
 
 extern PyTypeObject PyPropSetType;
 
-class PropSetEx : public PropSet {
+class PropSetEx : public SC_PropSet {
 public:
     bool GetFirst(char **key, char **val) {
 	for (int i = 0; i < hashRoots; i++) {
-		for (Property *p = props[i]; p; p = p->next) {
+		for (SC_Property *p = props[i]; p; p = p->next) {
 			if (p) {
 				*key = p->key;
 				*val = p->val;
@@ -41,7 +41,7 @@ public:
 		// else : begin where we left
 		firstloop = false;
 
-		for (Property *p = enumnext; p; p = p->next) {
+		for (SC_Property *p = enumnext; p; p = p->next) {
 			if (p) {
 				*key = p->key;
 				*val = p->val;

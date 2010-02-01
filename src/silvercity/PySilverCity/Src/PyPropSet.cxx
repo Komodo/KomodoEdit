@@ -76,7 +76,7 @@ PyPropSet_ass_subscript(PyPropSet *self, PyObject *key, PyObject *value)
     }
 
     if (value == NULL) {
-        valueStr = "";
+        valueStr = (char *) "";
         valueSize = 0;
     }
     else

@@ -65,12 +65,89 @@ if ($buildType eq 'debug') {
 # The SciMoz build on Linux explicitly links the Lex*.o files from the
 # scintilla build AND with Cons multiple targets for a "Command" cannot be
 # specified, so have to specify a makefile call for each platform.
-my @lexers = ("Ada", "APDL", "Asn1", "AU3", "Abaqus", "Asm", "ASY", "AVE", "Baan", "Bash", "Basic",
-    "Bullant", "Caml", "Conf", "CPP", "CSS", "CLW", "Cmake", "Crontab", "Csound", "D", "Eiffel", "EScript",
-    "Erlang", "Flagship", "Forth", "Fortran", "GAP", "Gui4Cli", "Haskell", "HTML", "Inno", "Kix", "Lisp", "Lout",
-    "Lua", "Magik", "Matlab", "Metapost", "MMIXAL", "MPT", "MSSQL", "Nsis", "Opal", "Others",
-    "PB", "PLM", "Pascal", "Perl", "PowerShell", "PS", "Python", "POV", "Progress", "R", "Rebol", "Ruby", "Scriptol", "Smalltalk",
-    "Specman", "SQL", "Spice", "TADS3", "TeX", "Tcl", "UDL", "VB", "Verilog", "VHDL", "XSLT", "YAML");
+# Use one entry per line for ease of maintenance.  Bits are cheap.
+my @lexers = qw(
+    Ada
+    APDL
+    Asn1
+    AU3
+    Abaqus
+    Asm
+    ASY
+    AVE
+    Baan
+    Bash
+    Basic
+    Bullant
+    Caml
+    Conf
+    COBOL
+    CPP
+    CSS
+    CLW
+    Cmake
+    Crontab
+    Csound
+    D
+    Eiffel
+    EScript
+    Erlang
+    Flagship
+    Forth
+    Fortran
+    GAP
+    Gui4Cli
+    Haskell
+    HTML
+    Inno
+    Kix
+    Lisp
+    Lout
+    Lua
+    Magik
+    Markdown
+    Matlab
+    Metapost
+    MMIXAL
+    MPT
+    MSSQL
+    MySQL
+    Nimrod
+    Nsis
+    Opal
+    Others
+    PB
+    PLM
+    Pascal
+    Perl
+    PowerShell
+    PowerPro
+    PS
+    Python
+    POV
+    Progress
+    R
+    Rebol
+    Ruby
+    Scriptol
+    Smalltalk
+    SML
+    Sorcus
+    Specman
+    SQL
+    Spice
+    TACL
+    TADS3
+    TAL
+    TeX
+    Tcl
+    UDL
+    VB
+    Verilog
+    VHDL
+    XSLT
+    YAML
+);
 
 my @args = (
     # the generated files
@@ -113,6 +190,7 @@ my @args = (
     "../src/Editor.h",
     "../src/ExternalLexer.cxx",
     "../src/ExternalLexer.h",
+    "../src/FontQuality.h",
     "../src/Indicator.cxx",
     "../src/Indicator.h",
     "../src/KeyMap.cxx",
@@ -121,9 +199,12 @@ my @args = (
     "../src/LineMarker.cxx",
     "../src/LineMarker.h",
     "../src/Partitioning.h",
+    "../src/PerLine.cxx",
+    "../src/PerLine.h",
     "../src/PositionCache.cxx",
     "../src/PositionCache.h",
     "../src/PropSet.cxx",
+    "../src/PropSetSimple.h",
     "../src/RESearch.cxx",
     "../src/RESearch.h",
     "../src/RunStyles.cxx",
@@ -131,11 +212,14 @@ my @args = (
     "../src/SVector.h",
     "../src/ScintillaBase.cxx",
     "../src/ScintillaBase.h",
+    "../src/Selection.cxx",
+    "../src/Selection.h",
     "../src/SplitVector.h",
     "../src/Style.cxx",
     "../src/Style.h",
     "../src/StyleContext.cxx",
     "../src/StyleContext.h",
+    "../src/SVector.h",
     "../src/UniConversion.cxx",
     "../src/UniConversion.h",
     "../src/ViewStyle.cxx",

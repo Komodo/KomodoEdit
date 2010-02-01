@@ -85,7 +85,6 @@ interface ISciMozEvents : nsISupports {
     // void onMacroRecord(in long message, in long wParam, in long lParam);
     void onMarginClick(in long modifiers, in long position, in long margin);
     // void onNeedShown(in long position, in long length);
-    void onPosChanged(in long position);
     void onZoom();
     void onHotSpotDoubleClick(in long position, in long modifiers);
     // void onPainted();

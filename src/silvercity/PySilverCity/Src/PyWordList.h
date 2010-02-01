@@ -7,7 +7,7 @@
 
 #include <Python.h>
 
-#include <PropSet.h>
+#include <SC_PropSet.h>
 
 extern PyTypeObject PyWordListType;
 

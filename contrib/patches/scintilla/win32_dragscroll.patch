@@ -1,9 +1,10 @@
 --- win32/ScintillaWin.cxx	2008-08-27 11:55:17.000000000 -0700
 +++ win32/ScintillaWin.cxx	2008-08-27 12:02:32.000000000 -0700
-@@ -279,6 +285,11 @@
+@@ -279,7 +285,12 @@
  	HBITMAP sysCaretBitmap;
  	int sysCaretWidth;
  	int sysCaretHeight;
+ 	bool keysAlwaysUnicode;
 +	
 +	// XXX ActiveState drag scroll support
 +	int scrollSpeed;
@@ -12,14 +13,14 @@
  };
  
  HINSTANCE ScintillaWin::hInstance = 0;
-@@ -663,6 +678,7 @@
- 	case WM_TIMER:
- 		if (wParam == standardTimerID && timer.ticking) {
- 			Tick();
-+			DragScroll();
- 		} else if (wParam == idleTimerID && idler.state) {
- 			SendMessage(MainHWND(), SC_WIN_IDLE, 0, 1);
- 		} else {
+@@ -675,6 +675,7 @@
+ 		case WM_TIMER:
+ 			if (wParam == standardTimerID && timer.ticking) {
+ 				Tick();
++				DragScroll();
+ 			} else if (wParam == idleTimerID && idler.state) {
+ 				SendMessage(MainHWND(), SC_WIN_IDLE, 0, 1);
+ 			} else {
 @@ -1096,6 +1116,40 @@
  	return contains;
  }

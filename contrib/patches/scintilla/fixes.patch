@@ -148,7 +148,8 @@ diff -r -du src/Document.h src/Document.h
 diff -r -du src/Editor.cxx src/Editor.cxx
 --- src/Editor.cxx	2005-08-29 18:09:20.000000000 -0700
 +++ src/Editor.cxx	2007-05-01 17:00:17.000000000 -0700
-@@ -1049,6 +1061,11 @@
+@@ -806,8 +806,13 @@
+ 
  /**
   * Asks document to find a good position and then moves out of any invisible positions.
   */
@@ -157,10 +158,12 @@ diff -r -du src/Editor.cxx src/Editor.cxx
 +	return pdoc->GetBytePositionForCharOffset(bytePos, charOffset, checkLineEnd);
 +}
 +
- int Editor::MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd) {
- 	pos = pdoc->MovePositionOutsideChar(pos, moveDir, checkLineEnd);
- 	if (vs.ProtectionActive()) {
-@@ -5277,11 +5302,19 @@
+ int Editor::MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd) const {
+ 	return MovePositionOutsideChar(SelectionPosition(pos), moveDir, checkLineEnd).Position();
+ }
+ 
+@@ -5726,13 +5731,21 @@
+ 		}
  	}
  	lastClickTime = curTime;
  	lastXChosen = pt.x;
@@ -181,18 +184,13 @@ diff -r -du src/Editor.cxx src/Editor.cxx
  }
  
  bool Editor::PointIsHotspot(Point pt) {
-@@ -5451,6 +5484,7 @@
- 		SetMouseCapture(false);
- 		int newPos = PositionFromLocation(pt);
- 		newPos = MovePositionOutsideChar(newPos, currentPos - newPos);
-+		// NotifyMove(newPos); // Patch by DAA to do our fancy y caret position policy (see kombo.js)
- 		NotifyIndicatorClick(false, newPos, false, false, false);
- 		if (inDragDrop == ddDragging) {
- 			int selStart = SelectionStart();
-@@ -7538,6 +7572,26 @@
+ 	int pos = PositionFromLocation(pt, true);
+@@ -8083,7 +8096,32 @@
+ 		break;
+ 
  	case SCI_GETPASTECONVERTENDINGS:
  		return convertPastes ? 1 : 0;
- 
++ 
 +	// ACTIVESTATE Komodo-only function.
 +	case SCI_POSITIONATCHAR:
 +		// The 'false' is to ensure CRLF is treated at _two_ chars
@@ -205,21 +203,25 @@ diff -r -du src/Editor.cxx src/Editor.cxx
 +		return pdoc->FindColumn(wParam, lParam);
 +
 +	case SCI_SETDRAGPOSITION:
-+		SetDragPosition(wParam);
++		SetDragPosition(SelectionPosition(wParam));
 +		break;
 +
 +	case SCI_GETDRAGPOSITION:
-+		return posDrop;
++		return posDrop.Position();
++
++	case SCI_STOPTIMERS: // This patch from stop_timers.patch
++		SetTicking(false);
++		SetIdle(false);
 +
 +	// END ACTIVESTATE
 +
- 	default:
- 		return DefWndProc(iMessage, wParam, lParam);
- 	}
+ 
+ 	case SCI_GETCHARACTERPOINTER:
+ 		return reinterpret_cast<sptr_t>(pdoc->BufferPointer());
 diff -r -du src/Editor.h src/Editor.h
 --- src/Editor.h	2005-08-29 18:09:20.000000000 -0700
 +++ src/Editor.h	2007-05-01 17:00:17.000000000 -0700
-@@ -361,6 +361,10 @@
+@@ -361,5 +361,9 @@
  	void SetEmptySelection(int currentPos_);
  	bool RangeContainsProtected(int start, int end) const;
  	bool SelectionContainsProtected();
@@ -227,16 +229,19 @@ diff -r -du src/Editor.h src/Editor.h
 +	// ACTIVESTATE
 +	int GetBytePositionForCharOffset(int bytePos, int charOffset, bool checkLineEnd=true);
 +
- 	int MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd=true);
- 	int MovePositionTo(int newPos, selTypes sel=noSel, bool ensureVisible=true);
- 	int MovePositionSoVisible(int pos, int moveDir);
+ 	int MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd=true) const;
+  	SelectionPosition MovePositionOutsideChar(SelectionPosition pos, int moveDir, bool checkLineEnd=true) const;
+	int MovePositionTo(SelectionPosition newPos, Selection::selTypes sel=Selection::noSel, bool ensureVisible=true);
+ 	int MovePositionTo(int newPos, Selection::selTypes sel=Selection::noSel, bool ensureVisible=true);
 diff -r -du src/KeyWords.cxx src/KeyWords.cxx
 --- src/KeyWords.cxx	2005-08-29 18:09:20.000000000 -0700
 +++ src/KeyWords.cxx	2007-05-01 17:00:17.000000000 -0700
-@@ -209,7 +213,6 @@
+@@ -209,9 +213,8 @@
  	LINK_LEXER(lmSpice);
  	LINK_LEXER(lmSQL);
+ 	LINK_LEXER(lmTACL);
  	LINK_LEXER(lmTADS3);
+ 	LINK_LEXER(lmTAL);
 -	LINK_LEXER(lmTCL);
  	LINK_LEXER(lmTeX);
  	LINK_LEXER(lmVB);
@@ -281,14 +286,15 @@ diff -r -du src/ScintillaBase.cxx src/ScintillaBase.cxx
 +	if (ac.Active()) {
 +		ac.Cancel();
 +	}
-+	Editor::PasteRectangular(pos, ptr, len);
++	Editor::PasteRectangular(SelectionPosition(pos), ptr, len);
 +}
 +
  void ScintillaBase::Command(int cmdId) {
  
  	switch (cmdId) {
-@@ -180,15 +188,33 @@
- 		    (iMessage != SCI_CHARLEFTEXTEND) &&
+@@ -180,16 +188,34 @@
+ 		    (iMessage != SCI_CHARRIGHT) &&
+ 		    (iMessage != SCI_CHARRIGHTEXTEND) &&
  		    (iMessage != SCI_EDITTOGGLEOVERTYPE) &&
  		    (iMessage != SCI_DELETEBACK) &&
 -		    (iMessage != SCI_DELETEBACKNOTLINE)
@@ -314,7 +320,7 @@ diff -r -du src/ScintillaBase.cxx src/ScintillaBase.cxx
 +		//    this block can cancel the calltip at the wrong pos.
 +		/*
  		if ((iMessage == SCI_DELETEBACK) || (iMessage == SCI_DELETEBACKNOTLINE)) {
- 			if (currentPos <= ct.posStartCallTip) {
+ 			if (sel.MainCaret() <= ct.posStartCallTip) {
  				ct.CallTipCancel();
  			}
  		}

@@ -1222,13 +1222,6 @@
         <body><![CDATA[return true;]]></body>
         </method>
 
-        <method name="onPosChanged">
-        <parameter name="position"/>
-        <body>
-        <![CDATA[return true;]]>
-        </body>
-        </method>
-
         <method name="onZoom">
         <parameter name="position"/>
         <body>
@@ -1644,17 +1637,6 @@
                        flex="1"/>
     </content>
     <implementation name="viewbuffer" implements="koIScintillaView, ISciMozEvents, nsIObserver">
-        <field name="onPosChangedCB">null</field>
-        <method name="onPosChanged">
-        <parameter name="position"/>
-        <body>
-        <![CDATA[
-            if (this.onPosChangedCB) {
-                this.onPosChangedCB(position);
-            }
-        ]]>
-        </body>
-        </method>
         <field name="_foldstyle">null</field>
         <property name="foldstyle">
             <setter><![CDATA[

@@ -49,13 +49,23 @@ void SciMoz::PlatformCreate(WinID) {
 void SciMoz::Resize() {
 }
 
-NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRUint64 timeStamp, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
+NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool /* up */,
+                                      PRInt32 /* x */,
+                                      PRInt32 /* y */,
+                                      PRUint16 /* button */,
+                                      PRUint64 /* timeStamp */,
+                                      PRBool /* bShift */,
+                                      PRBool /* bCtrl */,
+                                      PRBool /* bAlt */)
+{
 	return NS_OK;
 }
 
 
 /* void ButtonMove( in long x, in long y); */
-NS_IMETHODIMP SciMoz::ButtonMove(PRInt32 x, PRInt32 y) {
+NS_IMETHODIMP SciMoz::ButtonMove(PRInt32 /* x */,
+                                 PRInt32 /* y */)
+{
 	SCIMOZ_CHECK_VALID("ButtonMove");
 	return NS_OK;
 }
@@ -280,7 +290,8 @@ NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
 }
 
 /* attribute boolean visible */
-NS_IMETHODIMP SciMoz::SetVisible(PRBool vis) {
+NS_IMETHODIMP SciMoz::SetVisible(PRBool /* vis */)
+{
 	SCIMOZ_CHECK_VALID("SetVisible");
 	return NS_OK;
 }

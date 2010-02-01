@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include <string> // for current_delimiter
+
 // Perl-compatible regular expression library -- see pcre.org
 #define PCRE_STATIC
 #include <pcre.h>
@@ -37,8 +39,6 @@
 #include "KeyWords.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
-
-#include "SString.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -1232,7 +1232,7 @@ class BufferStateInfo {
 public:
     int					curr_eol_transition;
     int					num_captured_groups;
-    SString				current_delimiter; // Scintilla Simple String object
+    std::string			current_delimiter;
     bool    				do_redo;
 
     BufferStateInfo() {
@@ -3013,7 +3013,7 @@ static void setNewDelimiter(Transition      *p_TranBlock,
         char c = p_delim_start[len];
         if (!do_opposite) {
             p_delim_start[len] = 0;
-            p_BufferStateInfo->current_delimiter = p_delim_start;
+            p_BufferStateInfo->current_delimiter = std::string(p_delim_start, len);
             p_delim_start[len] = c;
             succeeded = true;
         } else if (end_delim - start_delim != 1) {
@@ -3022,10 +3022,7 @@ static void setNewDelimiter(Transition      *p_TranBlock,
                     start_delim, end_delim, p_CurrTextLine->Val());
             succeeded = false;
         } else {
-            char buf[2];
-            buf[0] = getOpposite(*p_delim_start);
-            buf[1] = 0;
-            p_BufferStateInfo->current_delimiter = buf;
+            p_BufferStateInfo->current_delimiter = std::string(1, getOpposite(*p_delim_start));
             succeeded = true;
         }
     }

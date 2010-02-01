@@ -80,11 +80,11 @@ Index: src/Decoration.h
  	int currentIndicator;
  	int currentValue;
  	Decoration *current;
-Index: src/CellBuffer.h
+Index: src/PerLine.h
 ===================================================================
---- src/CellBuffer.h	(revision 518)
-+++ src/CellBuffer.h	(working copy)
-@@ -25,7 +25,7 @@
+--- src/PerLine.h	(revision 518)
++++ src/PerLine.h	(working copy)
+@@ -23,7 +23,7 @@
  /**
   * A marker handle set contains any number of MarkerHandleNumbers.
   */
@@ -93,7 +93,11 @@ Index: src/CellBuffer.h
  	MarkerHandleNumber *root;
  
  public:
-@@ -44,8 +44,12 @@
+Index: src/CellBuffer.h
+===================================================================
+--- src/CellBuffer.h	(revision 518)
++++ src/CellBuffer.h	(working copy)
+@@ -27,8 +27,12 @@
  /**
   * The line vector contains information about each of the lines in a cell buffer.
   */
@@ -105,8 +109,8 @@ Index: src/CellBuffer.h
 +class SCIAPI LineVector {
 +
  	Partitioning starts;
- 	SplitVector<MarkerHandleSet *> markers;
- 	SplitVector<int> levels;
+ 	PerLine *perLine;
+ 
 @@ -88,7 +92,7 @@
  /**
   * Actions are used to store all the information required to perform one undo/redo step.
@@ -166,8 +170,8 @@ Index: src/Document.h
  
  /**
   */
--class Document {
-+class SCIAPI Document {
+-class Document : PerLine {
++class SCIAPI Document : PerLine {
  
  public:
  	/** Used to pair watcher pointer with user data. */
@@ -225,8 +229,8 @@ Index: win32/scintilla_vc6.mak
  LD=link
  
  #-Zc:forScope -Zc:wchar_t
--CXXFLAGS=-Zi -TP -W4
-+CXXFLAGS=-Zi -TP -W4 -DSCIAPI_DLL
+-CXXFLAGS=-Zi -TP -W3 -EHsc
++CXXFLAGS=-Zi -TP -W3 -EHsc -DSCIAPI_DLL
  # For something scary:-Wp64
  CXXDEBUG=-Od -MTd -DDEBUG
  CXXNDEBUG=-O1 -MT -DNDEBUG

@@ -32,6 +32,7 @@ src_files.extend(
         [os.path.join('Lib/Src', file) for file in
             ["BufferAccessor.cxx",
              "LineVector.cxx",
+             "SC_PropSet.cxx",
              "Platform.cxx"]
          ]
     )
@@ -43,7 +44,6 @@ src_files.extend(
         [os.path.join(scintilla_scr, file) for file in
             ["KeyMap.cxx",
             "KeyWords.cxx",
-            "PropSet.cxx",
             "StyleContext.cxx",
             "UniConversion.cxx"]
         ]
@@ -88,6 +88,9 @@ elif sys.platform.startswith("sunos"):
     #extra_link_args.append('-shared')
     extra_objects = ['libpcre.a']
 else:
+    if sys.platform.startswith("linux"):
+        os.environ['CC'] = 'g++'
+        defines.append(('GTK',None)) 
     extra_objects = ['libpcre.a']
 
     # Depending on your gcc and Python version, one of both of the following lines might
