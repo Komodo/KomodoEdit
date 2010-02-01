@@ -2447,7 +2447,13 @@ void KoStart_IssueCommandments(const KoStartOptions* pOptions,
          * it) because the Komodo process that actually opens the files
          * will not necessarily have the same cwd.
          */
-        _fullpath(absFile, pOptions->files[i], MAXPATHLEN);
+        if (strstr(pOptions->files[i], "://") != NULL) {
+            /* Looks like a URI - leave it alone. */
+            strncpy(absFile, pOptions->files[i], MAXPATHLEN);
+            absFile[MAXPATHLEN] = "\0";  /* ensure null termination */
+        } else {
+            _fullpath(absFile, pOptions->files[i], MAXPATHLEN);
+        }
         /* Format of an "open" commandment is one of:
          *    open\t<filename>\n
          *    open\t--selection=<selection>\t<filename>\n
