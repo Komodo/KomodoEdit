@@ -520,7 +520,7 @@
             if (this._uiTimer)
                 clearTimeout(this._uiTimer);
             // force scimoz to stop ticking, bug 
-            this.scimoz.focus = false; 
+            this.scimoz.isFocused = false; 
             try {
                 this.scimoz.unhookEvents(this);  // This needs to be done in a close() method.
                 this.scintilla.controllers.removeController(this._genericController);
@@ -668,7 +668,7 @@
                handler also needs to be done here. */
             this.log.info("in setFocus");
             if (this._doNotGrabFocus) {
-                this.scimoz.focus = true;
+                this.scimoz.isFocused = true;
             } else {
                 window.setTimeout(function (me) {
                     try {

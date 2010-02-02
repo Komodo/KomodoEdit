@@ -191,7 +191,7 @@ ISController.prototype.do_cmd_rawKey= function() {
     var scintilla = ko.views.manager.currentView.scintilla;
     scintilla.key_handler = this.rawHandler;
     scintilla.addEventListener('blur', gCancelRawHandler, false);
-    scintilla.scimoz.focus = true;
+    scintilla.scimoz.isFocused = true;
     ko.statusBar.AddMessage(_bundle.GetStringFromName("enterControlCharacter"),
                             "raw_input", 0, true, true);
 }
@@ -245,7 +245,7 @@ ISController.prototype.do_cmd_repeatNextCommandBy= function() {
         var scintilla = ko.views.manager.currentView.scintilla;
         scintilla.key_handler = this.multiHandler;
         scintilla.addEventListener('blur', ko.isearch.controller.cancelMultiHandler, false);
-        scintilla.scimoz.focus = true;
+        scintilla.scimoz.isFocused = true;
         ko.isearch.controller.inRepeatCounterAccumulation = true;
         ko.isearch.controller.repeatCounter = 0;
         ko.isearch.controller.defaultRepeatCounter = ko.isearch.controller.defaultRepeatFactor;

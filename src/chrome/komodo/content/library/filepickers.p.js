@@ -78,7 +78,7 @@ function _unfocus() {
     try {
         var fv = ko.window && ko.window.focusedScintilla();
         if (fv) {
-            fv.scimoz.focus = false;
+            fv.scimoz.isFocused = false;
         }
         return fv;
     } catch(e) { /* ignore */ }
@@ -90,7 +90,7 @@ function _restorefocus(fv) {
 // #if PLATFORM == "win"
     try {
         if (fv)
-            fv.scimoz.focus = true;
+            fv.scimoz.isFocused = true;
     } catch(e) { /* ignore */ }
 // #endif
 }

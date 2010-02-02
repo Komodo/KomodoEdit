@@ -130,7 +130,7 @@ function onLoad(event) {
         update_icon(gItem.iconurl);
 
         snippetname.focus();
-        scin.focus = true; // show the caret
+        scin.isFocused = true; // show the caret
         scin.caretPeriod = 0;
         snippetname.select();
         //centerWindowOnScreen();
@@ -388,7 +388,7 @@ function Cancel()  {
 }
 
 function scintillaBlur() {
-    scin.focus = true;
+    scin.isFocused = true;
     scin.caretPeriod = 0;
 }
 

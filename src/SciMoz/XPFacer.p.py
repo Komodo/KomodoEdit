@@ -114,6 +114,9 @@ discardedFeatures = [
 	"getSelText", "getLine", "charPosAtPosition",
 	"replaceTarget", "replaceTargetRE", "searchInTarget",
 	"getModEventMask", "setModEventMask",
+	# The focus attribute was renamed to isFocused to avoid collision with
+	# the html focus() method.
+	"getFocus", "setFocus",
 ]
 
 # NOTE: Only need either the "get" or "set" version - not both (tho it doesnt hurt :-)
@@ -127,6 +130,7 @@ liteFeatures = string.split("""gotoLine gotoPos getSelectionStart getSelectionEn
                                      setLineScroll getLineScroll
                                      setXOffset getXOffset
                                      setScrollWidth getScrollWidth
+                                     getIsFocused setIsFocused
                                      """)
 
 def knownType(ifaceType):

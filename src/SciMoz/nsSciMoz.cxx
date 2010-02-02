@@ -573,6 +573,24 @@ void SciMoz::Notify(long lParam) {
 }
 
 
+/* attribute boolean isFocused; */
+NS_IMETHODIMP SciMoz::SetIsFocused(PRBool focus) {
+#ifdef SCIMOZ_DEBUG
+	printf("SciMoz::SetIsFocused\n");
+#endif
+	SCIMOZ_CHECK_VALID("SetIsFocused")	SendEditor(SCI_SETFOCUS, focus, 0);
+	return NS_OK;
+}
+
+/* attribute boolean isFocused; */
+NS_IMETHODIMP SciMoz::GetIsFocused(PRBool  *_retval) {
+#ifdef SCIMOZ_DEBUG
+	printf("SciMoz::GetIsFocused\n");
+#endif
+	SCIMOZ_CHECK_VALID("GetIsFocused")	*_retval = SendEditor(SCI_GETFOCUS, 0, 0);
+	return NS_OK;
+}
+
 
 /* void markClosed(); */
 NS_IMETHODIMP SciMoz::MarkClosed() 

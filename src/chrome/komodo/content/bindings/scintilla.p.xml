@@ -1126,7 +1126,7 @@
                 <![CDATA[
                 this.scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
                 this.scimoz.indicatorClearRange(0, this.scimoz.textLength);
-                this.scimoz.focus = true;
+                this.scimoz.isFocused = true;
                 ]]>
             </handler>
 
@@ -1142,7 +1142,7 @@
                     // "mousedown" event, and speed here isnt a real issue.
                     this._inMouseDown = -1;
                 }
-                this.scimoz.focus = false;
+                this.scimoz.isFocused = false;
                 ]]>
             </handler>
 
