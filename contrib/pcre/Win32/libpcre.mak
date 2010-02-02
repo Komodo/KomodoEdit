@@ -77,7 +77,7 @@ CLEAN :
 
 MTL=midl.exe
 CPP=cl.exe
-CPP_PROJ=/nologo /MT /W3 /GX /O2 /I "Win32" /I "." /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "PCRE_STATIC" /Fp"$(INTDIR)\libpcre.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
+CPP_PROJ=/nologo /MT /W3 /EHsc /O2 /I "Win32" /I "." /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "PCRE_STATIC" /Fp"$(INTDIR)\libpcre.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -197,7 +197,7 @@ CLEAN :
 
 MTL=midl.exe
 CPP=cl.exe
-CPP_PROJ=/nologo /MTd /W3 /Gm /GX /ZI /Od /I "Win32" /I "." /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "PCRE_STATIC" /Fp"$(INTDIR)\libpcre.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
+CPP_PROJ=/nologo /MTd /W3 /Gm /EHsc /ZI /Od /I "Win32" /I "." /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "PCRE_STATIC" /Fp"$(INTDIR)\libpcre.pch" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<

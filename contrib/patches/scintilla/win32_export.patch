@@ -97,21 +97,21 @@ Index: src/CellBuffer.h
 ===================================================================
 --- src/CellBuffer.h	(revision 518)
 +++ src/CellBuffer.h	(working copy)
-@@ -27,8 +27,12 @@
+@@ -24,7 +24,12 @@
  /**
   * The line vector contains information about each of the lines in a cell buffer.
   */
 -class LineVector {
 +#ifdef SCIAPI_DLL
++#include "PerLine.h"
 +SCIEXTERN template class SCIAPI SplitVector<MarkerHandleSet *>;
 +#endif
- 
-+class SCIAPI LineVector {
 +
++class SCIAPI LineVector {
+ 
  	Partitioning starts;
  	PerLine *perLine;
- 
-@@ -88,7 +92,7 @@
+@@ -70,7 +75,7 @@
  /**
   * Actions are used to store all the information required to perform one undo/redo step.
   */
@@ -120,7 +120,7 @@ Index: src/CellBuffer.h
  public:
  	actionType at;
  	int position;
-@@ -106,7 +110,7 @@
+@@ -88,7 +93,7 @@
  /**
   *
   */
@@ -129,7 +129,7 @@ Index: src/CellBuffer.h
  	Action *actions;
  	int lenActions;
  	int maxAction;
-@@ -149,7 +153,7 @@
+@@ -131,7 +136,7 @@
   * Based on article "Data Structures in a Bit-Mapped Text Editor"
   * by Wilfred J. Hansen, Byte January 1987, page 183.
   */

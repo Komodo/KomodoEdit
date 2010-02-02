@@ -1,7 +1,7 @@
 diff -u -r1.156 win32/ScintillaWin.cxx
 --- win32/ScintillaWin.cxx	12 May 2007 00:30:55 -0000	1.156
 +++ win32/ScintillaWin.cxx	23 May 2007 21:27:33 -0000
-@@ -94,6 +94,8 @@
+@@ -99,6 +99,8 @@
   */
  #define TOTAL_CONTROL
  
@@ -10,7 +10,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  // GCC has trouble with the standard COM ABI so do it the old C way with explicit vtables.
  
  const TCHAR scintillaClassName[] = TEXT("Scintilla");
-@@ -113,6 +115,7 @@
+@@ -122,6 +124,7 @@
  	FormatEnumerator(int pos_, CLIPFORMAT formats_[], int formatsLen_);
  };
  
@@ -18,7 +18,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  /**
   */
  class DropSource {
-@@ -139,6 +142,7 @@
+@@ -148,6 +151,7 @@
  	ScintillaWin *sci;
  	DropTarget();
  };
@@ -26,8 +26,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  
  /**
   */
-@@ -159,11 +163,12 @@
- 	CLIPFORMAT cfColumnSelect;
+@@ -169,10 +173,11 @@
  	CLIPFORMAT cfLineSelect;
  
  	HRESULT hrOle;
@@ -40,7 +39,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  	static HINSTANCE hInstance;
  
  	ScintillaWin(HWND hwnd);
-@@ -237,6 +242,7 @@
+@@ -248,6 +253,7 @@
  	// Public for benefit of Scintilla_DirectFunction
  	virtual sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
  
@@ -48,7 +47,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  	/// Implement IUnknown
  	STDMETHODIMP QueryInterface(REFIID riid, PVOID *ppv);
  	STDMETHODIMP_(ULONG)AddRef();
-@@ -252,7 +258,7 @@
+@@ -263,7 +269,7 @@
  
  	/// Implement important part of IDataObject
  	STDMETHODIMP GetData(FORMATETC *pFEIn, STGMEDIUM *pSTM);
@@ -57,7 +56,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  	// External Lexers
  #ifdef SCI_LEXER
  	void SetLexerLanguage(const char *languageName);
-@@ -261,14 +267,14 @@
+@@ -272,14 +278,14 @@
  
  	static bool Register(HINSTANCE hInstance_);
  	static bool Unregister();
@@ -74,7 +73,19 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  private:
  	// For use in creating a system caret
  	bool HasCaretSizeChanged();
-@@ -301,11 +307,11 @@
+@@ -289,6 +295,11 @@
+ 	int sysCaretWidth;
+ 	int sysCaretHeight;
+ 	bool keysAlwaysUnicode;
++	
++	// XXX ActiveState drag scroll support
++	int scrollSpeed;
++	int scrollTicks;
++	void DragScroll();
+ };
+ 
+ HINSTANCE ScintillaWin::hInstance = 0;
+@@ -317,11 +328,11 @@
  	hrOle = E_FAIL;
  
  	wMain = hwnd;
@@ -88,7 +99,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  	sysCaretBitmap = 0;
  	sysCaretWidth = 0;
  	sysCaretHeight = 0;
-@@ -345,6 +351,7 @@
+@@ -362,6 +373,7 @@
  }
  
  void ScintillaWin::StartDrag() {
@@ -96,7 +107,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  	inDragDrop = ddDragging;
  	DWORD dwEffect = 0;
  	dropWentOutside = true;
-@@ -364,6 +371,7 @@
+@@ -381,6 +393,7 @@
  	}
  	inDragDrop = ddNone;
  	SetDragPosition(SelectionPosition(invalidPosition));
@@ -104,7 +115,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  }
  
  // Avoid warnings everywhere for old style casts by concentrating them here
-@@ -562,7 +570,9 @@
+@@ -598,7 +611,9 @@
  			ctrlID = ::GetDlgCtrlID(reinterpret_cast<HWND>(wMain.GetID()));
  			// Get Intellimouse scroll line parameters
  			GetIntelliMouseParameters();
@@ -114,7 +125,15 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  			break;
  
  		case WM_COMMAND:
-@@ -690,7 +700,11 @@
+@@ -675,6 +690,7 @@
+ 		case WM_TIMER:
+ 			if (wParam == standardTimerID && timer.ticking) {
+ 				Tick();
++				DragScroll();
+ 			} else if (wParam == idleTimerID && idler.state) {
+ 				SendMessage(MainHWND(), SC_WIN_IDLE, 0, 1);
+ 			} else {
+@@ -726,7 +742,11 @@
  				(wParam & MK_SHIFT) != 0,
  				(wParam & MK_CONTROL) != 0,
  				Platform::IsKeyDown(VK_MENU));
@@ -126,7 +145,58 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  			}
  			break;
  
-@@ -1316,12 +1316,20 @@
+@@ -1125,6 +1145,41 @@
+ 	return contains;
+ }
+ 
++void ScintillaWin::DragScroll() {
++#define RESET_SCROLL_TIMER(lines) \
++  scrollSpeed = (lines); \
++  scrollTicks = 2000;
++
++    if (!posDrag.IsValid()) {
++        RESET_SCROLL_TIMER(1);
++        return;
++    }
++    int posDragPosition = posDrag.Position();
++    Point dragMouse = LocationFromPosition(posDragPosition);
++    int line = pdoc->LineFromPosition(posDragPosition);
++    int currentVisibleLine = cs.DisplayFromDoc(line);
++    int lastVisibleLine = Platform::Minimum(topLine + LinesOnScreen() - 1, pdoc->LinesTotal() - 1);
++
++    if (currentVisibleLine <= topLine && topLine > 0) {
++        ScrollTo( topLine - scrollSpeed );
++    } else if (currentVisibleLine >= lastVisibleLine) {
++        ScrollTo( topLine + scrollSpeed );
++    } else {
++        RESET_SCROLL_TIMER(1);
++        return;
++    }
++    if (scrollSpeed == 1) {
++        scrollTicks -= timer.tickSize;
++        if (scrollTicks <= 0) {
++            RESET_SCROLL_TIMER(5);
++        }
++    }
++
++    SetDragPosition(SelectionPosition(PositionFromLocation(dragMouse)));
++
++#undef RESET_SCROLL_TIMER
++}
++
+ void ScintillaWin::ScrollText(int linesToMove) {
+ 	//Platform::DebugPrintf("ScintillaWin::ScrollText %d\n", linesToMove);
+ 	::ScrollWindow(MainHWND(), 0,
+@@ -1326,7 +1381,7 @@
+ 
+ void ScintillaWin::InsertPasteText(const char *text, int len, SelectionPosition selStart, bool isRectangular, bool isLine) {
+ 	if (isRectangular) {
+-		PasteRectangular(selStart, text, len);
++		PasteRectangular(selStart.Position(), text, len);
+ 	} else {
+ 		char *convertedText = 0;
+ 		if (convertPastes) {
+@@ -1345,11 +1400,19 @@
  			}
  			if (sel.MainCaret() == insertPos) {
  				SetEmptySelection(sel.MainCaret() + len);
@@ -146,8 +216,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  			}
  		}
  		delete []convertedText;
- 	}
-@@ -1437,6 +1459,7 @@
+@@ -1498,6 +1561,7 @@
  
  #endif
  
@@ -155,7 +224,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  /// Implement IUnknown
  
  STDMETHODIMP_(ULONG)FormatEnumerator_AddRef(FormatEnumerator *fe);
-@@ -1711,6 +1734,7 @@
+@@ -1805,6 +1869,7 @@
  	vtbl = vtDropTarget;
  	sci = 0;
  }
@@ -163,7 +232,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  
  /**
   * DBCS: support Input Method Editor (IME).
-@@ -1905,6 +1929,15 @@
+@@ -2003,6 +2068,15 @@
  		break;
  	case SB_LINEDOWN:	// May move past the logical end
  		xPos += 20;
@@ -179,7 +248,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  		break;
  	case SB_PAGEUP:
  		xPos -= pageWidth;
-@@ -2002,6 +2035,7 @@
+@@ -2105,6 +2179,7 @@
  	return dwEffect;
  }
  
@@ -187,7 +256,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  /// Implement IUnknown
  STDMETHODIMP ScintillaWin::QueryInterface(REFIID riid, PVOID *ppv) {
  	*ppv = NULL;
-@@ -2185,6 +2219,7 @@
+@@ -2299,12 +2374,13 @@
  	pSTM->pUnkForRelease = 0;
  	return S_OK;
  }
@@ -195,6 +264,31 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  
  bool ScintillaWin::Register(HINSTANCE hInstance_) {
  
+ 	hInstance = hInstance_;
+ 	bool result;
+-
++#if 0
+ 	// Register the Scintilla class
+ 	if (IsNT()) {
+ 
+@@ -2324,7 +2400,7 @@
+ 		wndclass.hIconSm = 0;
+ 		result = ::RegisterClassExW(&wndclass) != 0;
+ 	} else {
+-
++#endif
+ 		// Register Scintilla as a normal character window
+ 		WNDCLASSEX wndclass;
+ 		wndclass.cbSize = sizeof(wndclass);
+@@ -2340,7 +2416,7 @@
+ 		wndclass.lpszClassName = scintillaClassName;
+ 		wndclass.hIconSm = 0;
+ 		result = ::RegisterClassEx(&wndclass) != 0;
+-	}
++	//}
+ 
+ 	if (result) {
+ 		// Register the CallTip class
 diff -r -du win32/makefile win32/makefile
 --- win32/makefile	2005-07-07 21:16:16.000000000 -0700
 +++ win32/makefile	2007-05-01 17:00:17.000000000 -0700
@@ -292,7 +386,7 @@ diff -r -du win32/scintilla_vc6.mak win32/scintilla_vc6.mak
  NOLOGO=-nologo
  
  !ELSE
-@@ -170,12 +170,14 @@
+@@ -189,12 +189,14 @@
  	$(DIR_O)\LexTACL.obj \
  	$(DIR_O)\LexTADS3.obj \
  	$(DIR_O)\LexTAL.obj \
@@ -308,7 +402,7 @@ diff -r -du win32/scintilla_vc6.mak win32/scintilla_vc6.mak
  
  #--Autogenerated -- end of automatically generated section
  
-@@ -246,6 +248,14 @@
+@@ -268,6 +270,14 @@
  $(DIR_O)\ScintillaWinS.obj: ScintillaWin.cxx
  	$(CC) $(CXXFLAGS) -DSTATIC_BUILD -c $(NAME)$@ ScintillaWin.cxx
  
@@ -323,7 +417,7 @@ diff -r -du win32/scintilla_vc6.mak win32/scintilla_vc6.mak
  # Dependencies
  
  # All lexers depend on this set of headers
-@@ -410,8 +420,6 @@
+@@ -464,8 +474,6 @@
  
  $(DIR_O)\LexTAL.obj: ..\src\LexTAL.cxx $(LEX_HEADERS)
  
@@ -332,7 +426,7 @@ diff -r -du win32/scintilla_vc6.mak win32/scintilla_vc6.mak
  $(DIR_O)\LexTeX.obj: ..\src\LexTeX.cxx $(LEX_HEADERS)
  
  $(DIR_O)\LexVB.obj: ..\src\LexVB.cxx $(LEX_HEADERS)
-@@ -422,6 +430,12 @@
+@@ -475,6 +483,12 @@
  
  $(DIR_O)\LexYAML.obj: ..\src\LexYAML.cxx $(LEX_HEADERS)
  
