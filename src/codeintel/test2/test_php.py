@@ -2500,6 +2500,47 @@ EOD;
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
                 [("function", 'testMethod')])
 
+    @tag("bug85867", "php53", "knownfailure")
+    def test_namespace_multiple_files(self):
+        test_dir = join(self.test_dir, "test_namespace_multiple_files")
+        test_content_1, test_positions_1 = unmark_text(php_markup(dedent(r"""
+            namespace bug85867\ns1;
+            class cls1 {
+              const CLS1_CONST = 1;
+            }
+            $x = new <1>;
+            cls2::<2>;
+        """)))
+        test_content_2, test_positions_2 = unmark_text(php_markup(dedent(r"""
+            namespace bug85867\ns1;
+            class cls2 {
+              const CLS2_CONST = 1;
+            }
+            $y = new <1>;
+            cls1::<2>;
+        """)))
+        manifest = [
+            (join(test_dir, "file1.php"), test_content_1),
+            (join(test_dir, "file2.php"), test_content_2),
+        ]
+        for filepath, content in manifest:
+            writefile(filepath, content)
+
+        buf1 = self.mgr.buf_from_path(join(test_dir, "file1.php"), lang=self.lang)
+        buf2 = self.mgr.buf_from_path(join(test_dir, "file2.php"), lang=self.lang)
+
+        self.assertCompletionsInclude2(buf1, test_positions_1[1],
+            [("class", r"cls1"),
+             ("class", r"cls2")])
+        self.assertCompletionsInclude2(buf1, test_positions_1[2],
+            [("constant", r"CLS2_CONST")])
+
+        self.assertCompletionsInclude2(buf2, test_positions_2[1],
+            [("class", r"cls1"),
+             ("class", r"cls2")])
+        self.assertCompletionsInclude2(buf2, test_positions_2[2],
+            [("constant", r"CLS1_CONST")])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
