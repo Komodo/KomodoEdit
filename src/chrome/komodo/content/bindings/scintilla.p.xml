@@ -1157,7 +1157,7 @@
                 // may change the behaviour here as well.
                 var cmdkey = event.ctrlKey || event.metaKey;
 <!-- #endif -->
-                if (this.scimoz.focus &&
+                if (this.scimoz.isFocused &&
                     (event.charCode == 0 || cmdkey || this.key_handler)) {
                     // Setup a callback to check if we've moved away from the
                     // adjacent soft character.
@@ -1236,7 +1236,7 @@
                             event.cancelBubble = true;
                             return;
                         } else
-                        if (this.scimoz.focus) {
+                        if (this.scimoz.isFocused) {
                             // it's ours
                             event.preventDefault();
                             if (event.shiftKey) {
@@ -1305,7 +1305,7 @@
                     return;
                 }
 
-                if (this.scimoz.focus) {
+                if (this.scimoz.isFocused) {
                     //dump("event.charCode: " + event.charCode + ", pos " + this.scimoz.currentPos + "\n");
                     var currentPos = this.scimoz.currentPos;
                     if (this.scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, currentPos)
