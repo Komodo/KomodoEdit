@@ -1056,11 +1056,7 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
 #if 1
 	// this tells mozilla where to place IME input windows
 	nsTextEventReply *textEventReply;
-#if MOZ_VERSION < 191
-	textEvent->GetEventReply(&textEventReply);
-#else
 	textEventReply = textEvent->GetEventReply();
-#endif
 	int curPos = SendEditor(SCI_GETCURRENTPOS, 0, 0);
 	int curLine = SendEditor(SCI_LINEFROMPOSITION, curPos);
 	int anchor = SendEditor(SCI_GETANCHOR, 0, 0);
@@ -1074,11 +1070,7 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
 	int p2t = 15;
 #endif
 
-#if MOZ_VERSION < 190
-#define PIXELS_TO_APP(x,y) NSIntPixelsToTwips(x,y)
-#else
 #define PIXELS_TO_APP(x,y) NSIntPixelsToAppUnits(x,y)
-#endif
 	textEventReply->mCursorPosition.x = PIXELS_TO_APP(SendEditor(SCI_POINTXFROMPOSITION, 0, anchor) + fWindow->x, p2t);
 	textEventReply->mCursorPosition.y = PIXELS_TO_APP(SendEditor(SCI_POINTYFROMPOSITION, 0, anchor) + fWindow->y, p2t);
 	textEventReply->mCursorPosition.width = fWindow->width;
@@ -1095,26 +1087,12 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
 #endif
 #endif
 	
-#if MOZ_VERSION < 191
-	nsIPrivateTextRangeList *textRangeList;
-	textEvent->GetInputRange(&textRangeList);
-#else
 	nsCOMPtr<nsIPrivateTextRangeList> textRangeList;
 	textRangeList = textEvent->GetInputRange();
-#endif
 
 	int caretOffset = 0, selLength = 0;
 	imeComposing = false;
 	PRUint16 listlen,start,stop,type;
-#if MOZ_VERSION < 191
-	textRangeList->GetLength(&listlen);
-#ifdef IME_DEBUG
-	fprintf(stderr, "nsIPrivateTextRangeList[%p] length %d\n",textRangeList, listlen);
-#endif
-	nsIPrivateTextRange* rangePtr;
-	for (int i=0;i<listlen;i++) {
-		(void)textRangeList->Item(i,&rangePtr);
-#else
 	listlen = textRangeList->GetLength();
 #ifdef IME_DEBUG
 	fprintf(stderr, "nsIPrivateTextRangeList[%p] length %d\n",textRangeList, listlen);
@@ -1122,7 +1100,6 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
 	nsCOMPtr<nsIPrivateTextRange> rangePtr;
 	for (int i=0;i<listlen;i++) {
 		rangePtr = textRangeList->Item(i);
-#endif
 
 		rangePtr->GetRangeStart(&start);
 		rangePtr->GetRangeEnd(&stop);
