@@ -86,8 +86,8 @@ def user_data_dir(appname, owner=None, version=None, csidl=None):
 
 def roaming_user_data_dir(appname, owner=None, version=None):
     """Retrieve the Komodo 5 user data directory."""
-    return self.user_data_dir(appname, owner=owner, version=version,
-                              csidl="CSIDL_APPDATA")
+    return user_data_dir(appname, owner=owner, version=version,
+                         csidl="CSIDL_APPDATA")
 
 def site_data_dir(appname, owner=None, version=None):
     """Return full path to the user-shared data dir for this application.
