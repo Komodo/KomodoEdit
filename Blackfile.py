@@ -1335,6 +1335,22 @@ def _PackageKomodoDMG(cfg):
         "osxpkg is < 2.8.6: require >=2.8.6 for Komodo DMG template fixes: %r" \
         % osxpkg_ver
 
+    # Remove unused architectures from the package, we only want to be left with
+    # the Intel (i386 or x86_64) bits. We don't use the entire image, as we want
+    # to exclude some things like xdebug, which may contain other useful
+    # architectures (which could be used for remote debugging purposes).
+    ditto_these_dirs = [
+        join(landmark, "Contents", "Frameworks"),
+        join(landmark, "Contents", "MacOS"),
+        join(landmark, "Contents", "SharedSupport", "tcl"),
+    ]
+    for original_dir in ditto_these_dirs:
+        # Strip into a new directory, then copy back the stripped parts.
+        stripped_dir = "%s.stripped" % (original_dir, )
+        _run('ditto --rsrc --arch i386 --arch x86_64 "%s" "%s"' % (original_dir, stripped_dir))
+        _rmtree(original_dir)
+        os.rename(stripped_dir, original_dir)
+
     productName = (cfg.productType == "openkomodo" and cfg.prettyProductType
                    or "Komodo-%s" % cfg.prettyProductType)
     majorVer = cfg.komodoVersion.split('.', 1)[0]
