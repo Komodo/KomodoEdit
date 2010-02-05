@@ -820,6 +820,13 @@
               <File Id="file919" LongName="storage-mozStorage.js" Name="STORAG_1.JS" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\storage-mozStorage.js" />
               <File Id="file920" LongName="toolkitsearch.xpt" Name="TOOLKI_1.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\toolkitsearch.xpt" />
               <File Id="file481" Name="KOPOWE_1.PY" LongName="koPowerShellLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPowerShellLanguage.py"/>
+              <File Id="file479" LongName="koCamlLanguage.py" Name="KOCAML_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCamlLanguage.py" />
+              <File Id="file586" LongName="koCobolLanguage.py" Name="KOCOBO_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCobolLanguage.py" />
+              <File Id="file796" LongName="koMarkdownLanguage.py" Name="KOMARK_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koMarkdownLanguage.py" />
+              <File Id="file804" LongName="koNimrodLanguage.py" Name="KONIMR_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koNimrodLanguage.py" />
+              <File Id="file924" LongName="koPowerProLanguage.py" Name="KOPOWE_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPowerProLanguage.py" />
+              <File Id="file925" LongName="koSorcusLanguage.py" Name="KOSORC_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSorcusLanguage.py" />
+              <File Id="file926" LongName="koTandemComputerLanguage.py" Name="KOTAND_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTandemComputerLanguage.py" />
               <File Id="file482" Name="KOPROJ_1.PY" LongName="koProjectImportService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koProjectImportService.py"/>
               <File Id="file483" Name="KOPROJ_2.PY" LongName="koProjectPackageService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koProjectPackageService.py"/>
               <File Id="file484" Name="KOPROJ_3.PY" LongName="koProjectService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koProjectService.py"/>
