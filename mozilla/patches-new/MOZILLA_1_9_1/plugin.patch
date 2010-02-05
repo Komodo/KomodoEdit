@@ -1,6 +1,6 @@
 Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/generic/nsObjectFrame.cpp
---- a/layout/generic/nsObjectFrame.cpp	Thu Jan 28 17:05:14 2010 -0800
-+++ b/layout/generic/nsObjectFrame.cpp	Fri Feb 05 10:15:12 2010 -0800
+--- layout/generic/nsObjectFrame.cpp	Thu Jan 28 17:05:14 2010 -0800
++++ layout/generic/nsObjectFrame.cpp	Fri Feb 05 10:15:12 2010 -0800
 @@ -746,8 +746,9 @@
    return NS_OK;
  }
