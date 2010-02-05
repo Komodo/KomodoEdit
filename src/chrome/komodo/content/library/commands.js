@@ -94,7 +94,7 @@ this.updateCommand = function _command_updateCommand(command, commandNode, contr
     try {
         var found = false;
         if (controller == undefined || controller == null) {
-            controller = _getControllerForCommand(command);
+            controller = top.document.commandDispatcher.getControllerForCommand(command);
         }
 
         var enabled = false;
@@ -131,27 +131,6 @@ this.updateCommandset = function command_updateCommandset(commandset) {
 //    ko.trace.get().stopTimer('updating commandset: ' + commandset.id);
 //    ko.trace.get().markTimer('updating commandset: ' + commandset.id);
 }
-
-function _getControllerForCommand(command) {
-    var commandDispatcher = top.document.commandDispatcher
-    var focusedElement = commandDispatcher.focusedElement;
-    var controller;
-
-    // If html:embed tag, *must* go directly to its controller.
-    // Can not use the commandDispatcher first, as some builtin commands
-    // will always be satisfied, and never defer to the plugin.
-    // this works in combination with our plugin events patch, which
-    // must be present for the plugin to get key events in the first place
-    if (focusedElement && focusedElement.parentNode &&
-        (focusedElement.tagName == "html:embed")) {
-        controller = focusedElement.parentNode.controllers.getControllerForCommand(command);
-    }
-
-    if (!controller)
-        controller = commandDispatcher.getControllerForCommand(command);
-    return controller
-}
-
 
 this.setCommandEnabled = function _command_setCommandEnabled(id, node, supported, enabled)
 {
@@ -247,9 +226,10 @@ this.doCommandAsync = function command_doCommandAsync(command, event) {
 // Execute a command.
 this.doCommand = function command_doCommand(command) {
     _log.debug("doCommand(" + command + ")");
+
     var rc = false;
     try {
-        var controller = _getControllerForCommand(command);
+        var controller = top.document.commandDispatcher.getControllerForCommand(command);
         if (controller) {
             var commandNode = document.getElementById(command);
             // ko.macros.recorder can be undefined if we're not in the main komodo.xul window (e.g. Rx commands)
