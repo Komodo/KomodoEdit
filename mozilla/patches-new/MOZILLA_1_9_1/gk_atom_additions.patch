@@ -1,0 +1,15 @@
+Komodo atom (XUL attribute) additions.
+diff -r ee8f24d3ea8c content/base/src/nsGkAtomList.h
+--- content/base/src/nsGkAtomList.h	Fri Nov 06 14:51:11 2009 -0800
++++ content/base/src/nsGkAtomList.h	Wed Feb 03 12:30:23 2010 -0800
+@@ -1656,6 +1656,10 @@
+ GK_ATOM(HongKongChinese, "zh-HK")
+ GK_ATOM(Unicode, "x-unicode")
+ 
++// Komodo additions.
++GK_ATOM(allowIME, "allowIME")
++GK_ATOM(pluginHandlesDomEvents, "pluginHandlesDomEvents")
++
+ // Names for editor transactions
+ GK_ATOM(TypingTxnName, "Typing")
+ GK_ATOM(IMETxnName, "IME")

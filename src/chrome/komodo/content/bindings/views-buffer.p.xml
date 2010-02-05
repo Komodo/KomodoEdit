@@ -573,12 +573,10 @@
             this.document = null;
             this._genericController = Components.classes['@activestate.com/koGenericCommandHandler;1'].createInstance();
             this._genericController.view = this;
-            this.scintilla.controllers.appendController(this._genericController);
 
-            // I'd like to do the latter instead of what is done above, but that doesn't
-            // work, for reasons which escape me but probably have to do with the
-            // special hack in commands.js to deal with focus on embed elements.
-            // this.controllers.appendController(this._genericController);
+            // We have to place the controller onto the scintilla element, as
+            // the scintilla element is the one that will have the focus!
+            this.scintilla.controllers.appendController(this._genericController);
 
             this.scimoz.hookEvents(this);
 
@@ -670,14 +668,7 @@
             if (this._doNotGrabFocus) {
                 this.scimoz.isFocused = true;
             } else {
-                window.setTimeout(function (me) {
-                    try {
-                        // me is null if the window closed before timeout
-                        if (me.scintilla) me.scintilla.focus();
-                    } catch(ex) {
-                        // dump("focus failed: " + ex.message + "\n");
-                    }
-                }, 1, this);
+                this.scintilla.focus();
             }
             this.doFocus(null);
             ko.trace.get().leave('view-buffer: setFocus');
@@ -1552,26 +1543,10 @@
         </handler>
         <handler event="blur" phase="capturing">
             <![CDATA[
-            // bug 82806:
-            // We only care when SciMoz loses focus, not when changing focus
-            // between the "xul:scintilla" and "html:embed" elements. This must
-            // be done in a setTimeout, as that is the first time we can detect
-            // what the newly focused element is.
-            //
-            // The right answer is to only ever focus on one of these elements,
-            // but I could not get this to work consistently in Komodo. If this
-            // is or does become consistent later, then this hack can then be
-            // removed.
-            window.setTimeout(function(this_) {
-                var focusedNodeName = window.document.commandDispatcher.focusedElement.nodeName;
-                if (focusedNodeName != "xul:scintilla"
-                    && focusedNodeName != "html:embed") {
-                    this_.removeHyperlinks("blur");
-                    this_.clearKeyDownValues();
-                    this_.clearMatchingTag();
-                    window.updateCommands('scintilla-focus');
-                }
-            }, 1, this);
+            this.removeHyperlinks("blur");
+            this.clearKeyDownValues();
+            this.clearMatchingTag();
+            window.setTimeout(window.updateCommands, 1, 'scintilla-focus');
             ]]>
         </handler>
         <handler event="keydown" phase="capturing">

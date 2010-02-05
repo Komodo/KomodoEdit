@@ -51,9 +51,26 @@
     <binding id="scintilla">
         <content>
 <!-- #if PLATFORM == "win" -->
-            <html:embed type="application/x-scimoz-plugin" flex="1" width="0" height="0" xbl:inherits="focused,flex,width,height"/>
-<!-- #else -->
-            <html:embed type="application/x-scimoz-plugin" flex="1" width="100%" height="100%" xbl:inherits="focused,flex,width,height"/>
+            <html:embed type="application/x-scimoz-plugin"
+                        xbl:inherits="flex,width,height"
+                        flex="1"
+                        width="0" height="0"
+                        pluginHandlesDomEvents="false"
+                        />
+<!-- #elif PLATFORM == "linux" -->
+            <html:embed type="application/x-scimoz-plugin"
+                        xbl:inherits="flex,width,height"
+                        flex="1"
+                        width="100%" height="100%"
+                        pluginHandlesDomEvents="false"
+                        />
+<!-- #elif PLATFORM == "darwin" -->
+            <html:embed type="application/x-scimoz-plugin"
+                        xbl:inherits="flex,width,height"
+                        flex="1"
+                        width="100%" height="100%"
+                        pluginHandlesDomEvents="true"
+                        />
 <!-- #endif -->
         </content>
         <implementation implements="nsIObserver">
@@ -1127,6 +1144,10 @@
                 this.scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
                 this.scimoz.indicatorClearRange(0, this.scimoz.textLength);
                 this.scimoz.isFocused = true;
+                // Ensure the command dispatcher is referencing the scintilla
+                // element, not the plugin element. Otherwise commands will not
+                // work correctly.
+                window.document.commandDispatcher.focusedElement = this;
                 ]]>
             </handler>
 
@@ -1461,6 +1482,10 @@
 
             <handler event="mousedown" phase="capturing">
                 <![CDATA[
+                if (!this.scimoz.isFocused) {
+                    // Focus on this Scintilla now.
+                    this.focus();
+                }
                 this.columnModeStartLine = -1;
                 var x,y;
                 [x,y] = this.getClientCoordinates(event);

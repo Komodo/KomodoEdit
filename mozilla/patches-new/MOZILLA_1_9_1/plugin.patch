@@ -1,0 +1,56 @@
+Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/generic/nsObjectFrame.cpp
+--- a/layout/generic/nsObjectFrame.cpp	Thu Jan 28 17:05:14 2010 -0800
++++ b/layout/generic/nsObjectFrame.cpp	Fri Feb 05 10:15:12 2010 -0800
+@@ -746,8 +746,9 @@
+   return NS_OK;
+ }
+ 
+-#define EMBED_DEF_WIDTH 240
+-#define EMBED_DEF_HEIGHT 200
++// XXX ActiveState
++#define EMBED_DEF_WIDTH 20
++#define EMBED_DEF_HEIGHT 20
+ 
+ /* virtual */ nscoord
+ nsObjectFrame::GetMinWidth(nsIRenderingContext *aRenderingContext)
+@@ -3752,8 +3753,15 @@
+                             anEvent.message == NS_MOUSE_BUTTON_DOWN &&
+                             static_cast<const nsMouseEvent&>(anEvent).button ==
+                               nsMouseEvent::eLeftButton &&
+-                            !mContentFocused))
++                            !mContentFocused)) {
+         rv = nsEventStatus_eConsumeNoDefault;
++      } else {
++        /* KOMODO: For the Mac, we want the plugin to determine what happens to
++                   this event, whether this event is consumed (PR_TRUE) or
++                   not (PR_FALSE).
++        */
++        rv = static_cast<nsEventStatus>(eventHandled);
++      }
+ 
+       pluginWidget->EndDrawPlugin();
+     }
+@@ -4025,7 +4031,10 @@
+   }
+ 
+   nsCOMPtr<nsIDOMEventTarget> target(do_QueryInterface(mContent));
+-  if (target) {
++  if (target && !mContent->AttrValueIs(kNameSpaceID_None,
++                                       nsGkAtoms::pluginHandlesDomEvents,
++                                       NS_LITERAL_STRING("false"),
++                                       eCaseMatters)) {
+ 
+     nsCOMPtr<nsIDOMEventListener> listener;
+     QueryInterface(NS_GET_IID(nsIDOMEventListener), getter_AddRefs(listener));
+@@ -4505,7 +4516,10 @@
+   }
+ 
+   nsCOMPtr<nsIDOMEventTarget> target(do_QueryInterface(mContent));
+-  if (target) {
++  if (target && !mContent->AttrValueIs(kNameSpaceID_None,
++                                       nsGkAtoms::pluginHandlesDomEvents,
++                                       NS_LITERAL_STRING("false"),
++                                       eCaseMatters)) {
+ 
+     nsCOMPtr<nsIDOMEventListener> listener;
+     QueryInterface(NS_GET_IID(nsIDOMEventListener), getter_AddRefs(listener));

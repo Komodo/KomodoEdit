@@ -333,6 +333,12 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 		//fprintf(stderr, "SciMoz::PlatformHandleEvent mouseDown h %d v %d\n",event->where.h, event->where.v);
 		EndCompositing();
 		if (scintilla->MouseDown(event) == noErr) return true;
+		/* Always return true here - otherwise the event will continue
+		   on and the plugin will get the focus (not what we want), we
+		   want to keep the focus on the XUL element(s). This code links
+		   together with the mozilla "plugin.patch" code.
+		*/
+		return true;
 		break;
 	case mouseUp:
 		//fprintf(stderr, "SciMoz::PlatformHandleEvent mouseUp h %d v %d\n",event->where.h, event->where.v);
