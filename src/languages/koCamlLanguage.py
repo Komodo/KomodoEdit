@@ -40,36 +40,14 @@ from koLanguageServiceBase import *
 
 def registerLanguage(registery):
     registery.registerLanguage(koCamlLanguage())
+    registery.registerLanguage(koSMLLanguage())
 
-# see http://caml.inria.fr/
-class koCamlLanguage(KoLanguageBase):
-    name = "Objective Caml"
-    _reg_desc_ = "%s Language" % name
-    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
-                       % (name)
-    _reg_clsid_ = "{23CCAA5C-53E5-11DA-9353-000D935D3368}"
-
+class _koBase_ML_Language(KoLanguageBase):
     commentDelimiterInfo = {
-        "block": [ ("(*", "*)") ]
+        "block": [ ("(*", "*)") ],
+        "markup": "*",
     }
-
-    defaultExtension = ".ml" # and .mli
-
     supportsSmartIndent = "brace"
-    sciMozLexer = components.interfaces.ISciMoz.SCLEX_CAML
-
-    _stateMap = {
-        'default': ('SCE_CAML_DEFAULT',),
-        'keywords': ('SCE_CAML_KEYWORD', 'SCE_CAML_KEYWORD2',),
-        'identifiers': ('SCE_CAML_IDENTIFIER',),
-        'comments': ('SCE_CAML_COMMENT','SCE_CAML_COMMENT1',
-                     'SCE_CAML_COMMENT2', 'SCE_CAML_COMMENT3',),
-        'operators': ('SCE_CAML_OPERATOR',),
-        'numbers': ('SCE_CAML_NUMBER',),
-        'strings': ('SCE_CAML_STRING', 'SCE_CAML_CHAR',),
-        'linenumber': ('SCE_CAML_LINENUM',),
-        'tagname': ('SCE_CAML_TAGNAME',),
-        }
     sample = """
 SAMPLE NOT AVAILABLE
 """
@@ -100,3 +78,54 @@ SAMPLE NOT AVAILABLE
         "with"]
     
     _keywords2 = ["option", "Some", "None", "ignore", "ref"]
+
+# see http://caml.inria.fr/
+class koCamlLanguage(_koBase_ML_Language):
+    name = "Objective Caml"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "{23CCAA5C-53E5-11DA-9353-000D935D3368}"
+
+    defaultExtension = ".ml" # and .mli
+
+    sciMozLexer = components.interfaces.ISciMoz.SCLEX_CAML
+
+    _stateMap = {
+        'default': ('SCE_CAML_DEFAULT',),
+        'keywords': ('SCE_CAML_KEYWORD', 'SCE_CAML_KEYWORD2',),
+        'identifiers': ('SCE_CAML_IDENTIFIER',),
+        'comments': ('SCE_CAML_COMMENT','SCE_CAML_COMMENT1',
+                     'SCE_CAML_COMMENT2', 'SCE_CAML_COMMENT3',),
+        'operators': ('SCE_CAML_OPERATOR',),
+        'numbers': ('SCE_CAML_NUMBER',),
+        'strings': ('SCE_CAML_STRING', 'SCE_CAML_CHAR',),
+        'linenumber': ('SCE_CAML_LINENUM',),
+        'tagname': ('SCE_CAML_TAGNAME',),
+        }
+    
+# see 
+class koSMLLanguage(_koBase_ML_Language):
+    name = "SML" # Standard ML
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "{A8AB7F0E-06DA-4A5E-93AC-8646FA621F47}"
+
+    defaultExtension = ".sml"
+
+    sciMozLexer = components.interfaces.ISciMoz.SCLEX_SML
+
+    _stateMap = {
+        'default': ('SCE_SML_DEFAULT',),
+        'keywords': ('SCE_SML_KEYWORD', 'SCE_SML_KEYWORD2',
+                     'SCE_SML_KEYWORD3',),
+        'identifiers': ('SCE_SML_IDENTIFIER',),
+        'comments': ('SCE_SML_COMMENT','SCE_SML_COMMENT1',
+                     'SCE_SML_COMMENT2', 'SCE_SML_COMMENT3',),
+        'operators': ('SCE_SML_OPERATOR',),
+        'numbers': ('SCE_SML_NUMBER',),
+        'strings': ('SCE_SML_STRING', 'SCE_SML_CHAR',),
+        'linenumber': ('SCE_SML_LINENUM',),
+        'tagname': ('SCE_SML_TAGNAME',),
+        }

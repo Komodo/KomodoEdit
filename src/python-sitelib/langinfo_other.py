@@ -138,7 +138,7 @@ class FlagshipLangInfo(LangInfo):
 
 class SQLLangInfo(LangInfo):
     #TODO: describe: what SQL spec does this conform to?
-    #TODO: should we have other SQL langs? E.g. for MySQL, PostgreSQL, etc.?
+    #TODO: should we have other SQL langs? E.g. for PostgreSQL, etc.?
     name = "SQL"
     conforms_to_bases = ["Text"]
     exts = [".sql"]
@@ -153,6 +153,11 @@ class MSSQLLangInfo(LangInfo):
     #TODO: describe how diff from SQLLangInfo
     name = "MSSQL"
     conforms_to_bases = ["Text"]
+
+class MySQLLangInfo(LangInfo):
+    name = "MySQL"
+    conforms_to_bases = ["Text"]
+    exts = [".sql"]
 
 
 class NSISLangInfo(LangInfo):
@@ -182,3 +187,40 @@ class LogLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
     exts = [".log"]
 
+class CobolLangInfo(LangInfo):
+    name = "COBOL"
+    conforms_to_bases = ["Text"]
+    exts = [".cbl"]
+
+class MarkdownLangInfo(LangInfo):
+    name = "Markdown"
+    conforms_to_bases = ["Text"]
+    exts = [".mdml"] # http://www.file-extensions.org/mdml-file-extension
+
+class NimrodLangInfo(LangInfo):
+    name = "Nimrod"
+    conforms_to_bases = ["Text"]
+    exts = [".nim"]
+
+class PowerProLangInfo(LangInfo):
+    name = "PowerPro"
+    conforms_to_bases = ["Text"]
+
+class SMLLangInfo(LangInfo):
+    name = "SML"
+    conforms_to_bases = ["Text"]
+    exts = [".sml"]
+
+class SorcusLangInfo(LangInfo):
+    name = "Sorcus"
+    conforms_to_bases = ["Text"]
+
+class TACLLangInfo(LangInfo):
+    name = "TACL"
+    conforms_to_bases = ["Text"]
+    exts = [".tacl"]
+
+class TALLangInfo(LangInfo):
+    name = "TAL"
+    conforms_to_bases = ["Text"]
+    exts = [".tal"]
