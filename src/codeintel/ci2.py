@@ -293,6 +293,17 @@ class Shell(cmdln.Cmdln):
         env = os.environ.copy()
         env["CODEINTEL_NO_PYXPCOM"] = "1"
         p = subprocess.Popen(cmd, cwd=testdir, env=env, shell=True)
+        p.wait()
+        return p.returncode
+
+    def do_clean_unicode_directories(self, argv):
+        """ Remove the unicode directories after running `ci2 test`."""
+        import subprocess
+        testdir = join(dirname(__file__), "test2")
+        cmd = '"%s" clean_tests.py' % (sys.executable,)
+        env = os.environ.copy()
+        p = subprocess.Popen(cmd, cwd=testdir, env=env, shell=True)
+        p.wait()
         return p.returncode
 
     def do_doctest(self, subcmd, opts):
