@@ -1009,6 +1009,7 @@ void SciMoz::StartCompositing()
 #ifdef IME_DEBUG
 	fprintf(stderr, "SciMoz::StartCompositing\n");
 #endif
+	imeComposing = true;
 	if (imeStartPos < 0) {
 		BeginUndoAction();
 		int anchor = SendEditor(SCI_GETANCHOR, 0, 0);
@@ -1052,6 +1053,10 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
 	
 	textEvent->GetText(mIMEString);
 	text = mIMEString;
+
+#ifdef IME_DEBUG
+        printf("HandleTextEvent: length: %d, [%s]\n", text.Length(), NS_ConvertUTF16toUTF8(text).get());
+#endif
 	
 #if 1
 	// this tells mozilla where to place IME input windows
@@ -1077,7 +1082,7 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
 	textEventReply->mCursorPosition.height = PIXELS_TO_APP(SendEditor(SCI_TEXTHEIGHT, curLine, 0), p2t);
 	textEventReply->mCursorIsCollapsed = false;
 #ifdef IME_DEBUG
-	fprintf(stderr, "text event cursor collapsed %d rect %d %d %d %d\n",
+	fprintf(stderr, "text event cursor:: collapsed %d rect %d %d %d %d\n",
 		textEventReply->mCursorIsCollapsed,
 		textEventReply->mCursorPosition.x,
 		textEventReply->mCursorPosition.y,
@@ -1087,55 +1092,6 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
 #endif
 #endif
 	
-	nsCOMPtr<nsIPrivateTextRangeList> textRangeList;
-	textRangeList = textEvent->GetInputRange();
-
-	int caretOffset = 0, selLength = 0;
-	imeComposing = false;
-	PRUint16 listlen,start,stop,type;
-	listlen = textRangeList->GetLength();
-#ifdef IME_DEBUG
-	fprintf(stderr, "nsIPrivateTextRangeList[%p] length %d\n",textRangeList, listlen);
-#endif
-	nsCOMPtr<nsIPrivateTextRange> rangePtr;
-	for (int i=0;i<listlen;i++) {
-		rangePtr = textRangeList->Item(i);
-
-		rangePtr->GetRangeStart(&start);
-		rangePtr->GetRangeEnd(&stop);
-		rangePtr->GetRangeType(&type);
-#ifdef IME_DEBUG
-		fprintf(stderr, "    range[%d] start=%d end=%d type=",i,start,stop);
-		if (type==nsIPrivateTextRange::TEXTRANGE_RAWINPUT) {
-		  fprintf(stderr, "TEXTRANGE_RAWINPUT\n");
-		} else if (type==nsIPrivateTextRange::TEXTRANGE_SELECTEDRAWTEXT) {
-		  fprintf(stderr, "TEXTRANGE_SELECTEDRAWTEXT\n");
-		} else if (type==nsIPrivateTextRange::TEXTRANGE_CONVERTEDTEXT) {
-		  fprintf(stderr, "TEXTRANGE_CONVERTEDTEXT\n");
-		} else if (type==nsIPrivateTextRange::TEXTRANGE_SELECTEDCONVERTEDTEXT) {
-		  fprintf(stderr, "TEXTRANGE_SELECTEDCONVERTEDTEXT\n");
-		} else if (type==nsIPrivateTextRange::TEXTRANGE_CARETPOSITION) {
-		  fprintf(stderr, "TEXTRANGE_CARETPOSITION\n");
-		}
-#endif
-		switch(type) {
-		case nsIPrivateTextRange::TEXTRANGE_RAWINPUT:
-		case nsIPrivateTextRange::TEXTRANGE_SELECTEDRAWTEXT:
-		case nsIPrivateTextRange::TEXTRANGE_CONVERTEDTEXT:
-		case nsIPrivateTextRange::TEXTRANGE_SELECTEDCONVERTEDTEXT:
-		  imeComposing = true;
-		  selLength = stop;
-		  break;
-		case nsIPrivateTextRange::TEXTRANGE_CARETPOSITION:
-		  caretOffset = start;
-		}
-	}
-	if (imeComposing && imeStartPos < 0) {
-#ifdef IME_DEBUG
-		fprintf(stderr, "ime starting\n");
-#endif
-		StartCompositing();
-	}
 	// XXX problem here, we normally only want to insert text if we're
 	// in or finishing an ime session.  However, some chinese keyboard
 	// events happen a bit differently, so we do a bit of a hack to see
@@ -1144,16 +1100,29 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
 	// in EndCompositing().
 	//
 	// bug 40960
-	if (imeActive || text.Length() > 0)
-		ReplaceSel(text);
-	if (imeActive && imeComposing) {
-		SetAnchor(imeStartPos);
-	} else {
+        if (text.Length() > 0) {
+            if (imeStartPos < 0) {
 #ifdef IME_DEBUG
-		fprintf(stderr, "ime finished\n");
+		fprintf(stderr, "ime starting\n");
 #endif
-		EndCompositing();
-	}
+		StartCompositing();
+            }
+            if (imeActive || text.Length() > 0) {
+                    ReplaceSel(text);
+            }
+            if (imeActive && imeComposing) {
+                    SetAnchor(imeStartPos);
+            } else {
+#ifdef IME_DEBUG
+                fprintf(stderr, "ime finished\n");
+#endif
+                EndCompositing();
+            }
+        } else {
+            /* This is a notification that the IME has ended, there will be a
+               forthcoming textevent with the resultant string. */
+            imeComposing = false;
+        }
 
 	return NS_OK;
 }

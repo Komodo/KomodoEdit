@@ -1,0 +1,20 @@
+Allow XUL elements to use Input Method Editing (IME). Komodo uses this on it's
+xul:scintilla elements to allow IME event handling, which it then passes down
+to the SciMoz plugin component.
+diff -r ee8f24d3ea8c content/events/src/nsIMEStateManager.cpp
+--- content/events/src/nsIMEStateManager.cpp	Fri Nov 06 14:51:11 2009 -0800
++++ content/events/src/nsIMEStateManager.cpp	Wed Feb 03 12:30:23 2010 -0800
+@@ -238,6 +238,13 @@
+     return nsIContent::IME_STATUS_DISABLE;
+   }
+ 
++  if (aContent->AttrValueIs(kNameSpaceID_None,
++                            nsGkAtoms::allowIME,
++                            NS_LITERAL_STRING("true"),
++                            eCaseMatters)) {
++    return nsIContent::IME_STATUS_ENABLE;
++  }
++
+   return aContent->GetDesiredIMEState();
+ }
+ 

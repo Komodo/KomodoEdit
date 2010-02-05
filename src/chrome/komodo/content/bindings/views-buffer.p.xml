@@ -1608,6 +1608,7 @@
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
     <content>
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext"
+                       allowIME="true"
                        mozcontext="bufferContextMenu"
                        flex="1"/>
     </content>
