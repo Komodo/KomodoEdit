@@ -192,11 +192,6 @@ class CobolLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
     exts = [".cbl"]
 
-class MarkdownLangInfo(LangInfo):
-    name = "Markdown"
-    conforms_to_bases = ["Text"]
-    exts = [".mdml"] # http://www.file-extensions.org/mdml-file-extension
-
 class NimrodLangInfo(LangInfo):
     name = "Nimrod"
     conforms_to_bases = ["Text"]
