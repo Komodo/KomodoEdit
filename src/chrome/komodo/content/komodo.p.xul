@@ -77,8 +77,8 @@
         screenX="20"
         screenY="20"
         persist="screenX screenY width height"
-        ondragover="ko.dragDrop.dragObserver.doDragOverEvent(event);return true;"
-        ondragdrop="ko.dragDrop.dragObserver.doDropEvent(event);return true;"
+        ondragover="return ko.dragdrop.onDragOver(event);"
+        ondragdrop="return ko.dragdrop.onDrop(event);"
         >
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
@@ -86,8 +86,6 @@
     <!--globalOverlay.js contains application shutdown and controller code-->
     <script src="chrome://global/content/globalOverlay.js"                type="application/x-javascript;version=1.7"/>
     <script src="chrome://global/content/printUtils.js"                   type="application/x-javascript;version=1.7"/>
-    <!--nsDragAndDrop/nsTransferable used for Drag&Drop-->
-    <script src="chrome://global/content/nsDragAndDrop.js"                type="application/x-javascript;version=1.7"/>
 
     <!--Komodo library resources-->
     <!-- "komodo.js" must be the first Komodo .js file included so that its
@@ -95,7 +93,7 @@
     <script src="chrome://komodo/content/library/logging.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/komodo.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/timers.js"               type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/DragDrop.js"             type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dragdrop.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/otherdialogs.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/controller.js"           type="application/x-javascript;version=1.7"/>

@@ -55,8 +55,7 @@ $cons->InstallInChrome('test.js');
 $cons->InstallInChrome('logging.js');
 $cons->Preprocess('windowManager.p.js', 'windowManager.js');
 $cons->InstallInChrome('windowManager.js');
-$cons->Preprocess('DragDrop.p.js', 'DragDrop.js');
-$cons->InstallInChrome('DragDrop.js');
+$cons->InstallInChrome('dragdrop.js');
 $cons->Preprocess('uilayout.p.js', 'uilayout.js',
                   {'PP_KO_TITLE_BAR_NAME' => "$komodoTitleBarName"});
 $cons->InstallInChrome('uilayout.js');
