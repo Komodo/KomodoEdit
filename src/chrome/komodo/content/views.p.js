@@ -250,11 +250,11 @@ viewManager.prototype.getDefaultDirectory = function(project) {
  */
 viewManager.prototype._newTemplate = function(defaultDir, project) {
     var view = null;
-    if (!defaultDir) {
-       defaultDir = this.getDefaultDirectory(project);
-    }
     if (!project) {
         project = ko.projects.manager.currentProject;
+    }
+    if (!defaultDir) {
+       defaultDir = this.getDefaultDirectory(project);
     }
     try {
         this.log.info("doing newTemplate: ");
