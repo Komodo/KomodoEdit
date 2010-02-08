@@ -128,14 +128,6 @@
             <field name='_dragScrollHits'>1</field>
 <!-- #endif -->
 
-            <method name="_closeToStartDragDrop">
-            <parameter name="pos"/>
-            <body> <![CDATA[
-                return (Math.abs(pos[0] - this._startDragDrop[0]) <= 2
-                        && Math.abs(pos[1] - this._startDragDrop[1]) <= 2);
-            ]]> </body>
-            </method>
-
             <!--nsIObserver implementation-->
             <method name="observe">
             <parameter name="subject"/>
@@ -428,182 +420,6 @@
                 flavours.appendFlavour("TEXT");
 <!-- #endif -->
                 return flavours;
-                ]]>
-                </body>
-            </method>
-
-            <method name="canDrop">
-                <parameter name="event"/>
-                <parameter name="session"/>
-                <body>
-                <![CDATA[
-                session.canDrop = this.getAttribute('acceptdrop')!='false';
-                return session.canDrop;
-                ]]>
-                </body>
-            </method>
-
-            <method name="onDragOver">
-                <parameter name="event"/>
-                <parameter name="flavour"/>
-                <parameter name="session"/>
-                <body>
-                <![CDATA[
-                session.canDrop = this.getAttribute('acceptdrop')!='false';
-                if (session.canDrop) {
-                    var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
-                    var y = event.clientY - this.boxObject.y; // Must allow this to be -ve so we scroll up
-                    var pos = this.scimoz.positionFromPoint(x, y);
-<!-- #if PLATFORM != "darwin" -->
-                    var docLine = this.scimoz.lineFromPosition(pos);
-                    var visibleLine = this.scimoz.visibleFromDocLine(docLine);
-                    if (visibleLine <= this.scimoz.firstVisibleLine) {
-                        if (this._dragScrollHits++ > 10) {
-                            this.scimoz.lineScroll(0,-5);
-                        } else {
-                            this.scimoz.lineScroll(0,-1);
-                        }
-                        pos = this.scimoz.positionFromPoint(x, y);
-                    } else if (visibleLine >= this.scimoz.firstVisibleLine + this.scimoz.linesOnScreen - 1) {
-                        if (this._dragScrollHits++ > 10) {
-                            this.scimoz.lineScroll(0,5);
-                        } else {
-                            this.scimoz.lineScroll(0,1);
-                        }
-                        pos = this.scimoz.positionFromPoint(x, y);
-                    } else {
-                        this._dragScrollHits=0;
-                    }
-<!-- #endif -->
-                    this.scimoz.dragPosition = pos;
-                }
-                return session.canDrop;
-                ]]>
-                </body>
-            </method>
-
-            <method name="onDragExit">
-                <parameter name="event"/>
-                <parameter name="session"/>
-                <body>
-                <![CDATA[
-                    this.scimoz.dragPosition = -1;
-                    this._inDragDrop = false;
-                    this._startDragDrop = null;
-                    return true;
-                ]]>
-                </body>
-            </method>
-
-            <method name="onDrop">
-                <parameter name="event"/>
-                <parameter name="transferData"/>
-                <parameter name="session"/>
-                <body>
-                <![CDATA[
-<!-- #if PLATFORM != "darwin" -->
-                this._dragScrollHits = 0;
-<!-- #endif -->
-                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
-                var y = event.clientY - this.boxObject.y; // Must allow this to be -ve so we scroll up
-                var pos = this.scimoz.positionFromPoint(x, y);
-                var onselection = (pos > this.scimoz.selectionStart &&
-                                    pos < this.scimoz.selectionEnd);
-
-                this.scimoz.dragPosition = -1;
-                var text;
-                if (ko && typeof(ko.dragDrop) != 'undefined') {
-                    var data = ko.dragDrop.dragObserver.onDrop(event, transferData, session)
-                    if (!data) return;
-                    if (data.flavour == "application/x-komodo-snippet" && data.snippet) {
-                        if (!onselection) {
-                            this.scimoz.gotoPos(pos);
-                        }
-                        ko.projects.snippetInsert(data.snippet);
-                        return;
-                    } 
-                    text = data.text;
-                } else {
-                    if (transferData._XferID == "TransferDataSet")
-                        text = transferData.first.first.data;
-                    else
-                        text = transferData.data;
-                }
-                // rules:
-                // 1. if it's a snippet, use the regular snippet handler to insert it
-                // 2. if from outside scimoz
-                //   a. dropped on selection, replace selection
-                //   b. insert text
-                // 3. if from inside scimoz (startdragdrop == true)
-                //   a. if droped on selection, cancel
-                //   b. if action copy, insert text
-                //   c. if action move, remove old, insert text
-
-                // first, convert line endings the correct style for this
-                // document, since the text could have come from anywhere
-                var eol = [];
-                eol[Components.interfaces.ISciMoz.SC_EOL_CR] = '\r';
-                eol[Components.interfaces.ISciMoz.SC_EOL_CRLF] = '\r\n';
-                eol[Components.interfaces.ISciMoz.SC_EOL_LF] = '\n';
-                text = text.replace(/(\r\n|\n|\r)/g, eol[this.scimoz.eOLMode]);
-                var endUndoAction = true;
-                this.scimoz.beginUndoAction();
-                try {
-<!-- #if PLATFORM == "darwin" -->
-                    if (this.scimoz.inDragSession)
-<!-- #else -->
-                    if (this._startDragDrop) 
-<!-- #endif -->
-                    {
-                        // data from inside scimoz
-                        if (onselection) return;
-                        var start = this.scimoz.selectionStart;
-                        var length = this.scimoz.selectionEnd - start;
-                        if (session.dragAction == Components.interfaces.nsIDragService.DRAGDROP_ACTION_MOVE) {
-                            this.scimoz.replaceSel(''); // remove the dragged text
-                            if (start < pos) pos -= length; // adjust where we insert our data
-                        }
-                    } else {
-                        // data from outside scimoz
-                        if (onselection) {
-                            pos = this.scimoz.selectionStart;
-                            this.scimoz.replaceSel('');
-                        } else {
-                            this.scimoz.gotoPos(pos);
-                        }
-                    }
-                    this.focus();
-                    // Bug 81413: This must be done after `this.focus()`.
-                    // Don't know what about `this.focus()` is resetting the
-                    // current position.
-                    this.scimoz.insertText(pos, text);
-                    this.scimoz.selectionStart = pos;
-                    this.scimoz.selectionEnd = pos+stringutils_bytelength(text);
-                } finally {
-                    if (endUndoAction) {
-                        this.scimoz.endUndoAction();
-                    }
-                }
-                this.scimoz.endDrop();
-                ]]>
-                </body>
-            </method>
-
-            <field name="supportsDragImage">false</field>
-            <method name="onDragStart">
-                <parameter name="event"/>
-                <parameter name="transferData"/>
-                <parameter name="dragAction"/>
-                <body>
-                <![CDATA[
-                var unicodetext = this.scimoz.selText
-                transferData.data = new TransferData();
-                transferData.data.addDataForFlavour("text/unicode",unicodetext);
-
-                this._inDragDrop = true;
-<!-- #if PLATFORM != "darwin" -->
-                this._dragScrollHits = 0;
-<!-- #endif -->
                 ]]>
                 </body>
             </method>
@@ -1542,13 +1358,6 @@
                 [x,y] = this.getClientCoordinates(event);
                 // Use by blur event for handling text selection with the mouse.
                 this._lastMousePos = [x,y];
-<!-- #if PLATFORM != "darwin" -->
-                if (this._startDragDrop && !this._inDragDrop
-                    && !this._closeToStartDragDrop([x, y])
-                    ) {
-                    nsDragAndDrop.startDrag(event,this);
-                }
-<!-- #endif -->
 
                 // Note we seem to get mousemove messages every second or so.  I
                 // think it is related to the cursor, but not sure.  It seems to originate
@@ -1562,71 +1371,6 @@
                 this.log.exception(e);
             }
                 ]]>
-            </handler>
-
-            <handler event="draggesture" phase="capturing">
-            <![CDATA[
-                try {
-                // XXX on linux, this is unecessary, and breaks drag/drop
-                //nsDragAndDrop.startDrag(event,this);
-                } catch(e) {/*let the event bubble*/}
-<!-- #if PLATFORM != "darwin" -->
-                this._dragScrollHits = 0;
-<!-- #endif -->
-            ]]>
-            </handler>
-            <handler event="dragdrop" phase="capturing">
-            <![CDATA[
-                try {
-                    if (!nsDragAndDrop.mDragSession)
-                        nsDragAndDrop.mDragSession = nsDragAndDrop.mDragService.getCurrentSession();
-                    var flavourSet = this.getSupportedFlavours();
-                    var transferData = nsTransferable.get(flavourSet, nsDragAndDrop.getDragData, true);
-                    if (transferData.dataList.length) {
-                        this.onDrop(event, transferData, nsDragAndDrop.mDragSession);
-                        event.cancelBubble = true;
-                        event.preventDefault();
-                    }
-                } catch(e) {
-                    // nsTransferable fails if the drag data type is not
-                    // supported.  We want to catch this so the event will
-                    // bubble up to the workspace.
-                    ko.dragDrop.dragObserver.doDropEvent(event);
-                    event.cancelBubble = true;
-                    event.preventDefault();
-                    //this.log.exception(e);
-                }
-<!-- #if PLATFORM != "darwin" -->
-                this._dragScrollHits = 0;
-<!-- #endif -->
-            ]]>
-            </handler>
-            <handler event="dragenter" phase="capturing">
-            <![CDATA[
-                try {
-                nsDragAndDrop.dragEnter(event,this);
-<!-- #if PLATFORM != "darwin" -->
-                this._dragScrollHits = 0;
-<!-- #endif -->
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
-            <handler event="dragexit" phase="capturing">
-            <![CDATA[
-                try {
-                nsDragAndDrop.dragExit(event,this);
-<!-- #if PLATFORM != "darwin" -->
-                this._dragScrollHits = 0;
-<!-- #endif -->
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
-            <handler event="dragover" phase="capturing">
-            <![CDATA[
-                try {
-                nsDragAndDrop.dragOver(event,this);
-                } catch(e) {/*let the event bubble*/}
-            ]]>
             </handler>
 
             <handler event="DOMMouseScroll" phase="capturing">
@@ -1652,6 +1396,232 @@
             }
             ]]>
             </handler>
+
+
+            <!--
+            ####################################
+            Scintilla drag/drop handling
+            ####################################
+            -->
+
+            <handler event="dragstart">
+                <![CDATA[
+                // Starting a drag operation in Scintilla.
+                //dump("dragenter\n");
+                event.dataTransfer.setData("text/plain", this.scimoz.selText);
+                this._inDragDrop = true;
+<!-- #if PLATFORM != "darwin" -->
+                this._dragScrollHits = 0;
+<!-- #endif -->
+                ]]>
+            </handler>
+
+            <!--
+            <handler event="dragenter" capturing="true">
+                <![CDATA[
+                // Drag operation is entering the Scintilla element.
+                dump("dragenter\n");
+                ]]>
+            </handler>
+            -->
+
+            <handler event="dragover">
+                <![CDATA[
+                //dump("dragover\n");
+                // Automatically scroll Scintilla up/down when the drag
+                // cursor moves to the top/bottom of the visible document.
+                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+                var y = event.clientY - this.boxObject.y; // Must allow this to be -ve so we scroll up
+                var pos = this.scimoz.positionFromPoint(x, y);
+<!-- #if PLATFORM != "darwin" -->
+                var docLine = this.scimoz.lineFromPosition(pos);
+                var visibleLine = this.scimoz.visibleFromDocLine(docLine);
+                if (visibleLine <= this.scimoz.firstVisibleLine) {
+                    if (this._dragScrollHits++ > 10) {
+                        this.scimoz.lineScroll(0,-5);
+                    } else {
+                        this.scimoz.lineScroll(0,-1);
+                    }
+                    pos = this.scimoz.positionFromPoint(x, y);
+                } else if (visibleLine >= this.scimoz.firstVisibleLine + this.scimoz.linesOnScreen - 1) {
+                    if (this._dragScrollHits++ > 10) {
+                        this.scimoz.lineScroll(0,5);
+                    } else {
+                        this.scimoz.lineScroll(0,1);
+                    }
+                    pos = this.scimoz.positionFromPoint(x, y);
+                } else {
+                    this._dragScrollHits=0;
+                }
+<!-- #endif -->
+                this.scimoz.dragPosition = pos;
+
+                // If you want to allow a drop, you must prevent the default
+                // handling by cancelling the event, or by returning false.
+                return false;
+                ]]>
+            </handler>
+
+            <handler event="dragleave">
+                <![CDATA[
+                // The drag/drop operation is leaving/ending for Scintilla.
+                //dump("dragleave\n");
+                this.scimoz.dragPosition = -1;
+                this._inDragDrop = false;
+                this._startDragDrop = null;
+                ]]>
+            </handler>
+
+            <!--
+            <handler event="drag">
+                <![CDATA[
+                dump("drag\n");
+                ]]>
+            </handler>
+            -->
+
+            <handler event="drop">
+                <![CDATA[
+                //dump("drop\n");
+<!-- #if PLATFORM != "darwin" -->
+                this._dragScrollHits = 0;
+<!-- #endif -->
+                var dataTransfer = event.dataTransfer;
+                if (!dataTransfer.mozItemCount) {
+                    // Nothing to do.
+                    return false;
+                }
+
+                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+                var y = event.clientY - this.boxObject.y; // Must allow this to be -ve so we scroll up
+                var pos = this.scimoz.positionFromPoint(x, y);
+                var onselection = (pos > this.scimoz.selectionStart &&
+                                    pos < this.scimoz.selectionEnd);
+
+                this.scimoz.dragPosition = -1;
+                var text;
+                if (ko && typeof(ko.dragdrop) != 'undefined') {
+                    // Allows for text/html drop types as well.
+                    var dropFlavours = ko.dragdrop.genericSupportedFlavours.concat("text/html");
+                    var koDragDropList = ko.dragdrop.unpackDropData(event.dataTransfer, dropFlavours);
+                    if (!koDragDropList) {
+                        // Cannot handle any of the dropped data.
+                        return false;
+                    }
+                    var unhandledDropData = ko.dragdrop.openDroppedUrls(koDragDropList);
+                    if (!unhandledDropData) {
+                        // The generic Komodo drop handler did all the work.
+                        event.preventDefault();
+                        return true;
+                    }
+
+                    if (unhandledDropData.length > 1) {
+                        this.log.warn('onDrop:: received multiple drop data, ' +
+                                      'only handling the first one.');
+                    }
+                    var koDropData;
+                    for (var i=0; i < unhandledDropData.length; i++) {
+                        koDropData = unhandledDropData[i];
+                        if (koDropData.isSnippet) {
+                            if (!onselection) {
+                                this.scimoz.gotoPos(pos);
+                            }
+                            ko.projects.snippetInsert(data.snippet);
+                            // We handled the snippet.
+                            event.preventDefault();
+                            return true;
+                        }
+                        if (koDropData.isHTML && koDropData.alternatives["text/plain"]) {
+                            // TODO: Should have some UI to choose between the
+                            // HTML version and the text version. For now we
+                            // just take the text.
+                            this.log.info("Both text and HTML data available - choosing text");
+                            text = koDropData.alternatives["text/plain"].value;
+                        } else {
+                            text = koDropData.value;
+                        }
+                        break;
+                    }
+                } else {
+                    // Get the first supported drop data.
+                    text = dataTransfer.mozGetDataAt(dataTransfer.mozTypesAt(0)[0], 0);
+                }
+                // rules:
+                // 1. if it's a snippet, use the regular snippet handler to insert it
+                // 2. if from outside scimoz
+                //   a. dropped on selection, replace selection
+                //   b. insert text
+                // 3. if from inside scimoz (startdragdrop == true)
+                //   a. if droped on selection, cancel
+                //   b. if action copy, insert text
+                //   c. if action move, remove old, insert text
+
+                // first, convert line endings the correct style for this
+                // document, since the text could have come from anywhere
+                var eol = [];
+                eol[Components.interfaces.ISciMoz.SC_EOL_CR] = '\r';
+                eol[Components.interfaces.ISciMoz.SC_EOL_CRLF] = '\r\n';
+                eol[Components.interfaces.ISciMoz.SC_EOL_LF] = '\n';
+                text = text.replace(/(\r\n|\n|\r)/g, eol[this.scimoz.eOLMode]);
+                var endUndoAction = true;
+                this.scimoz.beginUndoAction();
+                try {
+<!-- #if PLATFORM == "darwin" -->
+                    if (this.scimoz.inDragSession)
+<!-- #else -->
+                    if (this._startDragDrop) 
+<!-- #endif -->
+                    {
+                        // data from inside scimoz
+                        if (onselection) {
+                            event.preventDefault();
+                            return true;
+                        }
+                        var start = this.scimoz.selectionStart;
+                        var length = this.scimoz.selectionEnd - start;
+                        if (session.dragAction == Components.interfaces.nsIDragService.DRAGDROP_ACTION_MOVE) {
+                            this.scimoz.replaceSel(''); // remove the dragged text
+                            if (start < pos) pos -= length; // adjust where we insert our data
+                        }
+                    } else {
+                        // data from outside scimoz
+                        if (onselection) {
+                            pos = this.scimoz.selectionStart;
+                            this.scimoz.replaceSel('');
+                        } else {
+                            this.scimoz.gotoPos(pos);
+                        }
+                    }
+                    this.focus();
+                    // Bug 81413: This must be done after `this.focus()`.
+                    // Don't know what about `this.focus()` is resetting the
+                    // current position.
+                    this.scimoz.insertText(pos, text);
+                    this.scimoz.selectionStart = pos;
+                    this.scimoz.selectionEnd = pos+stringutils_bytelength(text);
+                } finally {
+                    if (endUndoAction) {
+                        this.scimoz.endUndoAction();
+                    }
+                }
+                this.scimoz.endDrop();
+
+                // We're handling all (or at least part) of this drop data.
+                event.preventDefault();
+                return true;
+                ]]>
+            </handler>
+
+            <!--
+            <handler event="dragend" capturing="true">
+                <![CDATA[
+                // The initial drag operation that started in Scintilla is now
+                // ended.
+                dump("dragend\n");
+                ]]>
+            </handler>
+            -->
+
         </handlers>
     </binding>
 
