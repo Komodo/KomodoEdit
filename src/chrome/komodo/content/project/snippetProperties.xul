@@ -65,48 +65,17 @@
         ondialogextra1="return Apply()"
         ondialoghelp="ko.help.open('snippet_options');">
 
-    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
-    <!--nsDragAndDrop/nsTransferable used for Drag&Drop-->
-    <script src="chrome://global/content/nsDragAndDrop.js"                type="application/x-javascript;version=1.7"/>
-    <script src="chrome://global/content/fullScreen.js"                   type="application/x-javascript;version=1.7"/>
+    <script src="chrome://xtk/content/xtk.js"                          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/fullScreen.js"                type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"           type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/trace.js"             type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/run/interpolate.js"           type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/uriparse.js"          type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/project/snippetProperties.js" type="application/x-javascript;version=1.7" />
 
     <hbox id="scintillaOverlayXul"/>
 
-<!-- from HERE -->
-    <menupopup type="buffercontext"
-        id="bufferContextMenu"/>
-    <script src="chrome://komodo/content/library/logging.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/trace.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/windowManager.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/timers.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/stringutils.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/color_functions.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/commands.js"
-            type="application/x-javascript;version=1.7"/>
-<!-- to HERE is what we need for buffer views, along with the css files above. -->
-
-    <script src="chrome://komodo/content/project/snippetProperties.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/DragDrop.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/dialogs.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/run/interpolate.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/uriparse.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/open.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/launch.js"
-            type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/markers.js"
-            type="application/x-javascript;version=1.7" />
+    <menupopup id="bufferContextMenu" type="buffercontext" />
 
     <tabbox id="snippetProperties" orient="vertical" flex="1">
         <tabs id="tabs" orient="horizontal">
