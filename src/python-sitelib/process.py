@@ -157,6 +157,9 @@ if sys.platform == "win32" and sys.getwindowsversion()[3] == 2:
                 # translate errno using _sys_errlist (or simliar), but
                 # how can this be done from Python?
                 raise WindowsError(*e.args)
+            except WindowsError:
+                log.error("process.py: can't execute %r (%s)", executable, args)
+                raise
     
             # Retain the process handle, but close the thread handle
             self._child_created = True
