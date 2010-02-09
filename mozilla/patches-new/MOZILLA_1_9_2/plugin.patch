@@ -42,6 +42,40 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/g
  
      nsCOMPtr<nsIDOMEventListener> listener;
      QueryInterface(NS_GET_IID(nsIDOMEventListener), getter_AddRefs(listener));
+@@ -4044,17 +4055,22 @@
+     target->RemoveEventListener(NS_LITERAL_STRING("keydown"), listener, PR_TRUE);
+     target->RemoveEventListener(NS_LITERAL_STRING("keyup"), listener, PR_TRUE);
+ 
+-    // Unregister drag event listener;
+-    target->RemoveEventListener(NS_LITERAL_STRING("drop"), listener, PR_TRUE);
+-    target->RemoveEventListener(NS_LITERAL_STRING("dragdrop"), listener, PR_TRUE);
+-    target->RemoveEventListener(NS_LITERAL_STRING("drag"), listener, PR_TRUE);
+-    target->RemoveEventListener(NS_LITERAL_STRING("dragenter"), listener, PR_TRUE);
+-    target->RemoveEventListener(NS_LITERAL_STRING("dragover"), listener, PR_TRUE);
+-    target->RemoveEventListener(NS_LITERAL_STRING("dragexit"), listener, PR_TRUE);
+-    target->RemoveEventListener(NS_LITERAL_STRING("dragleave"), listener, PR_TRUE);
+-    target->RemoveEventListener(NS_LITERAL_STRING("dragstart"), listener, PR_TRUE);
+-    target->RemoveEventListener(NS_LITERAL_STRING("draggesture"), listener, PR_TRUE);
+-    target->RemoveEventListener(NS_LITERAL_STRING("dragend"), listener, PR_TRUE);
++    if (!mContent->AttrValueIs(kNameSpaceID_None,
++                               nsGkAtoms::pluginHandlesDragEvents,
++                               NS_LITERAL_STRING("false"),
++                               eCaseMatters)) {
++      // Unregister drag event listener;
++      target->RemoveEventListener(NS_LITERAL_STRING("drop"), listener, PR_TRUE);
++      target->RemoveEventListener(NS_LITERAL_STRING("dragdrop"), listener, PR_TRUE);
++      target->RemoveEventListener(NS_LITERAL_STRING("drag"), listener, PR_TRUE);
++      target->RemoveEventListener(NS_LITERAL_STRING("dragenter"), listener, PR_TRUE);
++      target->RemoveEventListener(NS_LITERAL_STRING("dragover"), listener, PR_TRUE);
++      target->RemoveEventListener(NS_LITERAL_STRING("dragexit"), listener, PR_TRUE);
++      target->RemoveEventListener(NS_LITERAL_STRING("dragleave"), listener, PR_TRUE);
++      target->RemoveEventListener(NS_LITERAL_STRING("dragstart"), listener, PR_TRUE);
++      target->RemoveEventListener(NS_LITERAL_STRING("draggesture"), listener, PR_TRUE);
++      target->RemoveEventListener(NS_LITERAL_STRING("dragend"), listener, PR_TRUE);
++    }
+   }
+ 
+   if (mWidget) {
 @@ -4505,7 +4516,10 @@
    }
  
@@ -54,3 +88,37 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/g
  
      nsCOMPtr<nsIDOMEventListener> listener;
      QueryInterface(NS_GET_IID(nsIDOMEventListener), getter_AddRefs(listener));
+@@ -4524,17 +4545,22 @@
+     target->AddEventListener(NS_LITERAL_STRING("keydown"), listener, PR_TRUE);
+     target->AddEventListener(NS_LITERAL_STRING("keyup"), listener, PR_TRUE);
+ 
+-    // Register drag listener
+-    target->AddEventListener(NS_LITERAL_STRING("drop"), listener, PR_TRUE);
+-    target->AddEventListener(NS_LITERAL_STRING("dragdrop"), listener, PR_TRUE);
+-    target->AddEventListener(NS_LITERAL_STRING("drag"), listener, PR_TRUE);
+-    target->AddEventListener(NS_LITERAL_STRING("dragenter"), listener, PR_TRUE);
+-    target->AddEventListener(NS_LITERAL_STRING("dragover"), listener, PR_TRUE);
+-    target->AddEventListener(NS_LITERAL_STRING("dragleave"), listener, PR_TRUE);
+-    target->AddEventListener(NS_LITERAL_STRING("dragexit"), listener, PR_TRUE);
+-    target->AddEventListener(NS_LITERAL_STRING("dragstart"), listener, PR_TRUE);
+-    target->AddEventListener(NS_LITERAL_STRING("draggesture"), listener, PR_TRUE);
+-    target->AddEventListener(NS_LITERAL_STRING("dragend"), listener, PR_TRUE);
++    if (!mContent->AttrValueIs(kNameSpaceID_None,
++                               nsGkAtoms::pluginHandlesDragEvents,
++                               NS_LITERAL_STRING("false"),
++                               eCaseMatters)) {
++      // Register drag listener
++      target->AddEventListener(NS_LITERAL_STRING("drop"), listener, PR_TRUE);
++      target->AddEventListener(NS_LITERAL_STRING("dragdrop"), listener, PR_TRUE);
++      target->AddEventListener(NS_LITERAL_STRING("drag"), listener, PR_TRUE);
++      target->AddEventListener(NS_LITERAL_STRING("dragenter"), listener, PR_TRUE);
++      target->AddEventListener(NS_LITERAL_STRING("dragover"), listener, PR_TRUE);
++      target->AddEventListener(NS_LITERAL_STRING("dragleave"), listener, PR_TRUE);
++      target->AddEventListener(NS_LITERAL_STRING("dragexit"), listener, PR_TRUE);
++      target->AddEventListener(NS_LITERAL_STRING("dragstart"), listener, PR_TRUE);
++      target->AddEventListener(NS_LITERAL_STRING("draggesture"), listener, PR_TRUE);
++      target->AddEventListener(NS_LITERAL_STRING("dragend"), listener, PR_TRUE);
++    }
+   }
+   
+   // Register scroll position listener
