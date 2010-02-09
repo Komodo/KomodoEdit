@@ -110,7 +110,7 @@
 #ifdef WIN32
     #include <winsock2.h>
     #include <windows.h>
-    #include <ShFolder.h>   // For CSIDL_APPDATA
+    #include <ShFolder.h>   // For CSIDL_LOCAL_APPDATA
     #include <KnownFolders.h> // For FOLDERID_LocalAppData
     #include <process.h>
     #include <direct.h>
@@ -1089,7 +1089,7 @@ static int _GetVerUserDataDir(
                 shGetFolderPathFunc =
                     (SHGetFolderPathFn) GetProcAddress(hShell32, funcName);
                 if (shGetFolderPathFunc) {
-                    hr = shGetFolderPathFunc(NULL, CSIDL_APPDATA,
+                    hr = shGetFolderPathFunc(NULL, CSIDL_LOCAL_APPDATA,
                                              NULL, 0, wideCharPath);
                 }
             }
