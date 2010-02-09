@@ -488,6 +488,17 @@
                 ]]>
               </body>
             </method>
+
+            <method name="ensureTabPositionsAreSet">
+              <body>
+                <![CDATA[
+                var tabs = this._tabs.childNodes;
+                for (i = 0; i < tabs.length; i++) {
+                    tabs[i]._tPos = i;
+                }
+                ]]>
+              </body>
+            </method>
         </implementation>
 
         <handlers>
@@ -495,21 +506,18 @@
             <![CDATA[
                 //dump("scrolltabs:: dragstart\n");
                 event.dataTransfer.mozSetDataAt("komodo/tab", event.target, 0);
-                var tabs = this._tabs.childNodes;
-                for (i = 0; i < tabs.length; i++) {
-                    tabs[i]._tPos = i;
-                }
+                this.ensureTabPositionsAreSet();
                 return true;
             ]]>
             </handler>
 
-            <!--
             <handler event="dragenter">
             <![CDATA[
                 //dump("scrolltabs:: dragenter\n");
+                this.dropIndicatorBar.collapsed = false;
+                this.ensureTabPositionsAreSet();
             ]]>
             </handler>
-            -->
 
             <handler event="dragover">
             <![CDATA[
@@ -591,6 +599,13 @@
     
                 ib.collapsed = false;
                 return true;
+            ]]>
+            </handler>
+
+            <handler event="dragleave">
+            <![CDATA[
+                //dump("scrolltabs:: dragleave\n");
+                this.dropIndicatorBar.collapsed = true;
             ]]>
             </handler>
 
