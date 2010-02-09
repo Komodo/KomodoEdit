@@ -62,8 +62,6 @@
             onget="return Components.classes['@mozilla.org/observer-service;1'].
                                 getService(Components.interfaces.nsIObserverService);"/>
 
-        <property name="dragHandler">null</property>
-
         <field name="_uid">0</field>
         <property name="uid">
             <getter><![CDATA[
