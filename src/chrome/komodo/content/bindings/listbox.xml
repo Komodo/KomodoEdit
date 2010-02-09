@@ -73,7 +73,7 @@
             extends="chrome://global/content/bindings/listbox.xml#listcell">
         <content>
             <children>
-            <xul:deck id="editdeck" class="listcell-editable-deck"
+            <xul:deck id="editdeck" anonid="editdeck" class="listcell-editable-deck"
                 flex="1" orient="horizontal" pack="center" align="center">
                 <xul:label class="listcell-label"
                         xbl:inherits="value=label,flex=flexlabel,crop,disabled"
@@ -105,11 +105,7 @@
                     }
                     parent = parent.parentNode;
                 }
-                var v = document.getAnonymousNodes(this);
-                for (var i=0; i < v.length; i++) {
-                    if (v[i].id == "editdeck")
-                        this._editdeck = v[i];
-                }
+                this._editdeck = document.getAnonymousElementByAttribute(this, "anonid", "editdeck");
             } catch (e) {
                 log.exception(e);
             }
