@@ -392,7 +392,7 @@ if (typeof(ko.dragdrop)=='undefined') {
             // Take the first type - as it's the best of the types we wanted.
             var mozType;
             var mozDragData;
-            var alternatives = {};
+            var alternatives = null;
             var koDropData = null;
             for (var j=0; j < mozTypes.length; j++) {
                 mozType = mozTypes[j];
@@ -407,6 +407,9 @@ if (typeof(ko.dragdrop)=='undefined') {
                         _log.debug("onDrop:: best flavour: " + mozType);
                         ko_drop_data.push(koDropData);
                     } else {
+                        if (alternatives == null) {
+                            alternatives = {};
+                        }
                         alternatives[mozType] = new KomodoDropData(mozType, mozDragData);
                         _log.debug("onDrop:: alternative flavour: " + mozType);
                     }
