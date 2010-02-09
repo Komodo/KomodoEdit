@@ -95,46 +95,6 @@
                 }
             ]]>
             </handler>
-            <handler event="draggesture" phase="capturing">
-            <![CDATA[
-                try {
-                if (event.target.localName == 'tab')
-                    nsDragAndDrop.startDrag(event,this.getTabController());
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
-            <handler event="dragdrop" phase="capturing">
-            <![CDATA[
-                try {
-                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
-                    nsDragAndDrop.drop(event,this.getTabController());
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
-            <handler event="dragenter" phase="capturing">
-            <![CDATA[
-                try {
-                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
-                    nsDragAndDrop.dragEnter(event,this.getTabController());
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
-            <handler event="dragexit" phase="capturing">
-            <![CDATA[
-                try {
-                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
-                    nsDragAndDrop.dragExit(event,this.getTabController());
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
-            <handler event="dragover" phase="capturing">
-            <![CDATA[
-                try {
-                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
-                    nsDragAndDrop.dragOver(event,this.getTabController());
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
         </handlers>
     </binding>
 
@@ -440,8 +400,8 @@
             </xul:hbox>
             <children/>
         </content>
+
         <implementation>
-            <field name="_lastTarget">-1</field>
             <field name="dropIndicatorBar">
               document.getAnonymousElementByAttribute(this, "anonid", "drop-indicator-bar");
             </field>
@@ -509,203 +469,6 @@
                 </body>
             </method>
 
-            <field name="getDragData">null</field>
-            <method name="onDragStart">
-                <parameter name="event"/>
-                <parameter name="transferData"/>
-                <parameter name="action"/>
-                <body>
-                <![CDATA[
-                    var tabid = event.target.getAttribute('id');
-                    var draggedIndex = this.getTabIndexById(tabid);
-                    var tabpanel = document.getElementById(event.target.linkedPanel);
-                    transferData.data=new TransferData();
-                    if ('getURI' in tabpanel.firstChild) {
-                        var uri = tabpanel.firstChild.getURI();
-                        if (uri) {
-                            var title = null;
-                            var moz_url = uri;
-                            if ('title' in tabpanel.firstChild) {
-                                title = tabpanel.firstChild.title;
-                            }
-                            if (title &&
-                                uri.indexOf(title) < 0 &&
-                                title != '(untitled)') {
-                                moz_url = uri + '\n' + title;
-                            }
-                            transferData.data.addDataForFlavour("text/x-moz-url",moz_url);
-                            transferData.data.addDataForFlavour("text/unicode",uri);
-                        }
-                    }
-                    transferData.data.addDataForFlavour("text/x-tabid",tabid);
-                ]]>
-                </body>
-            </method>
-
-            <method name="getSupportedFlavours">
-                <body>
-                <![CDATA[
-                    var flavours = new FlavourSet();
-                    flavours.appendFlavour("text/x-tabid");
-                    return flavours;
-                ]]>
-                </body>
-            </method>
-
-            <method name="canDrop">
-                <parameter name="event"/>
-                <parameter name="session"/>
-                <body>
-                <![CDATA[
-                    if (!session.sourceNode ||
-                        session.sourceNode.localName != 'tab') return false;
-
-                    // If this is a different window, then need to ask the
-                    // view if moving to a another window is okay.
-                    if (session.sourceNode.ownerDocument != document) {
-                        var sourceTabbox = this.getTabController(session.sourceNode);
-                        var sourceView = sourceTabbox.parentNode.currentView;
-                        if (!sourceView.canBeOpenedInAnotherWindow()) {
-                            return false;
-                        }
-                    }
-                    
-                    var el = session.sourceNode;
-                    while (el && el != this) {
-                        if (el.localName == 'tabs') return true;
-                        el = el.parentNode;
-                    }
-                    return false;
-                ]]>
-                </body>
-            </method>
-
-            <field name="_dropTimeout">null</field>
-            <method name="onDrop">
-            <parameter name="event"/>
-            <parameter name="dropData"/>
-            <parameter name="session"/>
-            <body><![CDATA[
-                if (!session.canDrop
-                    || session.sourceNode.localName != 'tab')
-                {
-                    return false;
-                }
-
-                // Dropping tab onto self: nothing to do.
-                if (session.sourceNode.id == event.target.id) {
-                    return true;
-                }
-                
-                // Handle the drop asynchronously.
-                // [Not sure this is necessary --TM.]
-                var targetNode = (event.originalTarget.localName == 'tab'
-                                  ? event.originalTarget : event.target);
-                this._dropTimeout = new objectTimer(
-                    this, this._doDropAsync,
-                    [session.sourceNode, targetNode, event]);
-                this._dropTimeout.startTimeout(1);
-
-                event.cancelBubble = true;
-                return true;
-            ]]></body>
-            </method>
-
-            <method name="_doDropAsync">
-            <parameter name="sourceNode"/>
-            <parameter name="targetNode"/>
-            <parameter name="event"/>
-            <body><![CDATA[
-                var sourceTabbox = this.getTabController(sourceNode);
-                var targetTabbox = this;
-                var sourceIndex = sourceTabbox.getTabIndexById(sourceNode.id);
-                var targetIndex = targetTabbox.getNewIndex(event);
-                //dump("move tab at sourceIndex="+sourceIndex
-                //     +" (sourceTabbox "+sourceTabbox.parentNode.getAttribute("id")
-                //     +") to targetIndex="+targetIndex
-                //     +" (targetTabbox "+targetTabbox.parentNode.getAttribute("id")
-                //     +")\n");
-            
-                if (sourceNode.ownerDocument != document) {
-                    // 1. Moving a tab from one Komodo window to another.
-                    var sourceView = sourceTabbox.parentNode.currentView;
-                    
-                    // Gather the data we need to open the view in the
-                    // target window.
-                    var uri = sourceView.document.file.URI;
-                    var viewType = sourceView.getAttribute("type");
-                    var line = (viewType == "editor" ? sourceView.currentLine : null);
-                    var viewList = targetTabbox.parentNode;
-                    
-                    // Close the source view first to ensure unsaved
-                    // changes, etc. get handled first.
-                    if (!sourceView.close()) {
-                        return;
-                    }
-                    
-                    // Open the new view.
-                    if (line != null) {
-                        ko.views.manager.doFileOpenAtLineAsync(
-                            uri, line, viewType, viewList, targetIndex);
-                    } else {
-                        ko.views.manager.doFileOpenAsync(
-                            uri, viewType, viewList, targetIndex);
-                    }
-                    window.focus();
-                } else if (sourceTabbox != targetTabbox) {
-                    // 2. Moving to the other view-tabbed tab box in the
-                    //    same Komodo window.
-                    var sourceView = sourceTabbox.parentNode.currentView;
-                    ko.views.manager.topView.moveView(sourceView, targetIndex);
-                } else {
-                    // 3. Moving within the same view-tabbed tab box.
-                    if (targetIndex - sourceIndex == 1) {
-                        // We are dragging the tab to just after itself: no-op.
-                    } else if (targetNode.localName == 'tab') {
-                        var targetTab = targetTabbox._tabs.childNodes[targetIndex];
-                        targetTabbox._tabs.insertBefore(sourceNode, targetTab);
-                    } else { // targetNode.localName == 'tabs'
-                        // Inserting at end of the tabs.
-                        targetTabbox._tabs.appendChild(sourceNode);
-                    }
-                }
-
-                this._lastTarget = -1;
-            ]]></body>
-            </method>
-
-            <method name="onDragEnter">
-                <parameter name="event"/>
-                <parameter name="session"/>
-                <body>
-                <![CDATA[
-                    if (event.target.localName=='tab' &&
-                        session.sourceNode &&
-                        session.sourceNode.localName=='tab' &&
-                        event.target != session.sourceNode) {
-                        event.target.setAttribute('dragtarget','true');
-                        var targetIndex = this.getTabIndexById(event.target.id);
-                        if (this._lastTarget < 0) this._lastTarget = targetIndex;
-                        if (this._tabs.getAttribute('type')=='scrollable') {
-                            var targetTab = this._tabs.childNodes[targetIndex];
-                            if (targetIndex < this._tabs.childNodes.length-1 && targetIndex > this._lastTarget) {
-                                this._tabs.scrollBoxObject.ensureElementIsVisible(targetTab.nextSibling);
-                            } else if (targetIndex > 0 && targetIndex < this._lastTarget) {
-                                this._tabs.scrollBoxObject.ensureElementIsVisible(targetTab.previousSibling);
-                            }
-                            this._tabs.scrollBoxObject.ensureElementIsVisible(targetTab);
-                        }
-                        // if esc is pressed while dragging, we do not
-                        // get a dragexit call.  this timer will unset
-                        // the target style in that situation
-                        event.target._repeater = new objectTimer(event.target,event.target.removeAttribute,['dragtarget']);
-                        event.target._repeater.startTimeout(1000);
-                    }
-                    return true;
-                ]]>
-                </body>
-            </method>
-
             <method name="getNewIndex">
               <parameter name="aEvent"/>
               <body>
@@ -725,13 +488,32 @@
                 ]]>
               </body>
             </method>
+        </implementation>
 
-            <method name="onDragOver">
-                <parameter name="event"/>
-                <parameter name="flavour"/>
-                <parameter name="session"/>
-                <body>
-                <![CDATA[
+        <handlers>
+            <handler event="dragstart">
+            <![CDATA[
+                //dump("scrolltabs:: dragstart\n");
+                event.dataTransfer.mozSetDataAt("komodo/tab", event.target, 0);
+                var tabs = this._tabs.childNodes;
+                for (i = 0; i < tabs.length; i++) {
+                    tabs[i]._tPos = i;
+                }
+                return true;
+            ]]>
+            </handler>
+
+            <!--
+            <handler event="dragenter">
+            <![CDATA[
+                //dump("scrolltabs:: dragenter\n");
+            ]]>
+            </handler>
+            -->
+
+            <handler event="dragover">
+            <![CDATA[
+                //dump("scrolltabs:: dragover\n");
                 var tabStrip = this._tabs.scrollbox;
                 var ltr = (window.getComputedStyle(this.parentNode, null).direction
                            == "ltr");
@@ -809,81 +591,111 @@
     
                 ib.collapsed = false;
                 return true;
-                ]]>
-                </body>
-            </method>
+            ]]>
+            </handler>
 
-            <method name="onDragExit">
-                <parameter name="event"/>
-                <parameter name="session"/>
-                <body>
-                <![CDATA[
-                    if (event.target.localName=='tab') {
-                        this._lastTarget = this.getTabIndexById(event.target.id);
-                        event.target.removeAttribute('dragtarget');
+            <handler event="drop">
+            <![CDATA[
+                //dump("scrolltabs:: drop\n");
+
+                // Are they dragging a Komodo tab - as we don't accept any other
+                // drop data.
+                var dataTransfer = event.dataTransfer;
+                if (!dataTransfer || dataTransfer.mozItemCount != 1) {
+                    return false;
+                }
+                var mozTypes = dataTransfer.mozTypesAt(0);
+                if (mozTypes.length != "1" || mozTypes[0] != "komodo/tab") {
+                    return false;
+                }
+                var sourceTab = dataTransfer.mozGetDataAt("komodo/tab", 0);
+                if (!sourceTab) {
+                    return false;
+                }
+                var sourceTabbox = this.getTabController(sourceTab);
+                var targetTabbox = this;
+
+                var sourceIndex = sourceTabbox.getTabIndexById(sourceTab.id);
+                var targetIndex = targetTabbox.getNewIndex(event);
+                var tabs = targetTabbox._tabs.childNodes;
+                var targetTab = tabs[targetIndex];
+
+                //dump("move tab at sourceIndex="+sourceIndex
+                //     +" (sourceTabbox "+sourceTabbox.parentNode.getAttribute("id")
+                //     +") to targetIndex="+targetIndex
+                //     +" (targetTabbox "+targetTabbox.parentNode.getAttribute("id")
+                //     +")\n");
+
+                targetTabbox.dropIndicatorBar.collapsed = true;
+                sourceTabbox.dropIndicatorBar.collapsed = true;
+
+                if (sourceTab.ownerDocument != document) {
+                    // 1. Moving a tab from one Komodo window to another.
+                    var sourceView = sourceTabbox.parentNode.currentView;
+                    
+                    // Gather the data we need to open the view in the
+                    // target window.
+                    var uri = sourceView.document.file.URI;
+                    var viewType = sourceView.getAttribute("type");
+                    var line = (viewType == "editor" ? sourceView.currentLine : null);
+                    var viewList = targetTabbox.parentNode;
+                    
+                    // Close the source view first to ensure unsaved
+                    // changes, etc. get handled first.
+                    if (!sourceView.close()) {
+                        return true;
                     }
-                    this.dropIndicatorBar.collapsed = true;
-                    return true;
-                ]]>
-                </body>
-            </method>
-
-        </implementation>
-        <handlers>
-            <handler event="draggesture" phase="bubbling">
-            <![CDATA[
-                try {
-                if (event.target.localName == 'tab' &&
-                        event.target.parentNode.parentNode == this)
-                    nsDragAndDrop.startDrag(event,this);
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
-            <handler event="dragdrop" phase="bubbling">
-            <![CDATA[
-                try {
-                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
-                    nsDragAndDrop.drop(event,this);
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
-            <handler event="dragenter" phase="capturing">
-            <![CDATA[
-                try {
-                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
-                    nsDragAndDrop.dragEnter(event,this);
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
-            <handler event="dragexit" phase="capturing">
-            <![CDATA[
-                try {
-                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
-                    nsDragAndDrop.dragExit(event,this);
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
-            <handler event="dragover" phase="capturing">
-            <![CDATA[
-                try {
-                if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
-                    nsDragAndDrop.dragOver(event,this);
-                } catch(e) {/*let the event bubble*/}
-            ]]>
-            </handler>
-            <handler event="dragend" phase="capturing">
-            <![CDATA[
-                try {
-                    // Drag is over, re-focus on the current view - bug 84215.
-                    // Though if it's to another window - all bets are off.
-                    var sourceNode = nsDragAndDrop.mDragService.getCurrentSession().sourceNode;
-                    if (sourceNode && sourceNode.ownerDocument == document) {
-                        var view = ko.views.manager.currentView;
-                        if (view) {
-                            view.setFocus();
+                    
+                    // Open the new view.
+                    if (line != null) {
+                        ko.views.manager.doFileOpenAtLineAsync(
+                            uri, line, viewType, viewList, targetIndex);
+                    } else {
+                        ko.views.manager.doFileOpenAsync(
+                            uri, viewType, viewList, targetIndex);
+                    }
+                    window.focus();
+                } else if (sourceTabbox != targetTabbox) {
+                    // 2. Moving to the other view-tabbed tab box in the
+                    //    same Komodo window.
+                    var sourceView = sourceTabbox.parentNode.currentView;
+                    ko.views.manager.topView.moveView(sourceView, targetIndex);
+                } else {
+                    // 3. Moving within the same view-tabbed tab box.
+                    // Don't do anything if just dragging to the same spot.
+                    if ((sourceIndex != targetIndex) &&
+                        !(targetIndex == (sourceIndex+1) && targetIndex == tabs.length)) {
+                        if (typeof(targetTab) == 'undefined') {
+                            targetTabbox._tabs.appendChild(sourceTab);
+                        } else {
+                            targetTabbox._tabs.insertBefore(sourceTab, targetTab);
                         }
                     }
-                } catch(e) {/*let the event bubble*/}
+                    // Ensure to focus back on the editor now.
+                    var view = ko.views.manager.currentView;
+                    if (view) {
+                        view.setFocus();
+                    }
+                }
+
+                event.cancelBubble = true;
+                return true;
+            ]]>
+            </handler>
+
+            <handler event="dragend">
+            <![CDATA[
+                //dump("scrolltabs:: dragend\n");
+                this.dropIndicatorBar.collapsed = true;
+                // Drag is over, re-focus on the current view - bug 84215.
+                // Though if it's to another window - all bets are off.
+                if (event.originalTarget.ownerDocument == document) {
+                    var view = ko.views.manager.currentView;
+                    if (view) {
+                        view.setFocus();
+                    }
+                }
+                return true;
             ]]>
             </handler>
         </handlers>
