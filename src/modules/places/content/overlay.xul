@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2010 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % placesDTD SYSTEM "chrome://places/locale/places.dtd">
+  %placesDTD;
+]>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://places/skin/places.css" type="text/css"?>
+
+<overlay id="placesOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="chrome://places/content/places.js"
+            type="application/x-javascript"/>
+    <script type="application/x-javascript">
+    <![CDATA[
+    window.addEventListener("load", ko.places.onLoad, false);
+    window.addEventListener("unload", ko.places.onUnload, false);
+    ]]>
+    </script>
+
+    <menupopup id="menu_view_tabs_popup">
+        <menuitem id="show_places_tab2"
+            observes="show_places_tab"
+            insertafter="show_project_tab2"
+            oncommand="uilayout_ensureTabShown('places_tab', true)"
+            label="&Places.label;"
+            type="checkbox"
+            />
+    </menupopup>
+
+    <menupopup id="tabPicker_popup">
+        <menuitem id="show_places_tab"
+            observes="show_places_tab"
+            insertafter="show_project_tab"
+            oncommand="uilayout_ensureTabShown('places_tab', true)"
+            label="&Places.label;"
+            type="checkbox"
+            />
+    </menupopup>
+
+    <tabs id="project_toolbox_tabs">
+        <tab id="places_tab" label="&Places.label;" insertafter="project_tab"
+            oncommand="gPlacesViewMgr.focus(); gPlacesViewMgr.updateView();"
+            onfocus="gPlacesViewMgr.focus(); gPlacesViewMgr.updateView();"
+             />
+    </tabs>
+    <tabpanels id="project_toolbox_tabpanels">
+        <tabpanel flex="1" id="PlacesViewbox" insertafter="projectviewbox">
+            <vbox flex="1">
+              <description flex="1">Here's the project part!</description>
+              <splitter id="places_pane_splitter"
+                  collapse="none"
+                  splitterCmdId="cmd_viewToolbox"
+                  class="workspace_splitter"
+                  persist="collapsed"
+                  collapsed="false"
+                  orient="vertical"/>
+              <description flex="1">Here's the toolbox part!</description>
+            </vbox>
+        </tabpanel>
+    </tabpanels>
+</overlay>
