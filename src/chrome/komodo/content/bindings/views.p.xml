@@ -551,69 +551,7 @@
         </body>
         </method>
 
-        <method name="doDragDropOnView">
-        <parameter name="event"/>
-        <parameter name="dragHandler"/>
-        <body>
-        <![CDATA[
-            try {
-                if (!nsDragAndDrop.mDragSession)
-                    nsDragAndDrop.mDragSession = nsDragAndDrop.mDragService.getCurrentSession();
-                var flavourSet = dragHandler.getSupportedFlavours();
-                var transferData = nsTransferable.get(flavourSet, nsDragAndDrop.getDragData, true);
-                if (transferData.dataList.length) {
-                    dragHandler.onDrop(event, transferData, nsDragAndDrop.mDragSession);
-                }
-                return true;
-            } catch(e) {
-                // nsTransferable fails if the drag data type is not
-                // supported.  We want to catch this so the event will
-                // bubble up to the workspace.
-                // this.log.debug('doDragDropOnView failed:\n'+e);
-            }
-            return false;
-        ]]>
-        </body>
-        </method>
-
     </implementation>
-
-    <handlers>
-        <!--Because plugin dragdrop events are so messed up, we somehow
-        catch the event here.  So now we look to see if there is a
-        draghandler somewhere that we can pass the event to, or otherwise
-        ignore it and let the workspace handler catch it if it can-->
-        <handler event="dragdrop" phase="bubbling">
-        <![CDATA[
-            var ok = true;
-            if (this.currentView &&
-                typeof(this.currentView.dragHandler) != 'undefined' && 
-                this.currentView.dragHandler) {
-
-                this.log.debug('dragdrop parent has handler');
-                ok = this.doDragDropOnView(event,this.currentView.dragHandler);
-                event.cancelBubble = true;
-                event.preventDefault();
-            } else if (typeof(this.dragHandler) != 'undefined' &&
-                this.dragHandler) {
-                this.log.debug('dragdrop has handler');
-                ok = this.doDragDropOnView(event,this.dragHandler);
-                event.cancelBubble = true;
-                event.preventDefault();
-            } else {
-                this.log.debug('dragdrop no handler');
-            }
-            if (!ok || event.eventPhase == event.BUBBLING_PHASE) {
-                // our children did not handle the event, and now it is
-                // bubbling back to us.  So pass it to the workspace
-                this.log.debug('dragdrop passing off to workspace');
-                ko.dragDrop.dragObserver.doDropEvent(event);
-                event.cancelBubble = true;
-                event.preventDefault();
-            }
-        ]]>
-        </handler>
-    </handlers>
 </binding>
 
 <binding id="view-base"
