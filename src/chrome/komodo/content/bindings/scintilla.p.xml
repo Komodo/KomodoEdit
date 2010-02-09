@@ -1547,6 +1547,12 @@
                     // Get the first supported drop data.
                     text = dataTransfer.mozGetDataAt(dataTransfer.mozTypesAt(0)[0], 0);
                 }
+
+                if (!text) {
+                    // Nothing to handle.
+                    return false;
+                }
+
                 // rules:
                 // 1. if it's a snippet, use the regular snippet handler to insert it
                 // 2. if from outside scimoz
