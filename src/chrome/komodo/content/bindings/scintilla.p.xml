@@ -1409,13 +1409,15 @@
                 <![CDATA[
                 // Starting a drag operation in Scintilla.
                 //dump("dragstart\n");
-                var selection = this.scimoz.selText;
-                if (selection) {
-                    event.dataTransfer.setData("text/plain", selection);
-                    this._inDragDrop = true;
+                if (this._startDragDrop) {
+                    var selection = this.scimoz.selText;
+                    if (selection) {
+                        event.dataTransfer.setData("text/plain", selection);
+                        this._inDragDrop = true;
 <!-- #if PLATFORM != "darwin" -->
-                    this._dragScrollHits = 0;
+                        this._dragScrollHits = 0;
 <!-- #endif -->
+                    }
                 }
                 ]]>
             </handler>
