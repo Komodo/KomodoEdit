@@ -1409,6 +1409,7 @@
                     var selection = this.scimoz.selText;
                     if (selection) {
                         event.dataTransfer.setData("text/plain", selection);
+                        event.dataTransfer.effectAllowed = 'copyMove';
 <!-- #if PLATFORM != "darwin" -->
                         this._dragScrollHits = 0;
 <!-- #endif -->
