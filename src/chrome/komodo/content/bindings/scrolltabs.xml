@@ -499,6 +499,23 @@
                 ]]>
               </body>
             </method>
+
+            <method name="getSourceTabFromDataTransfer">
+              <parameter name="dataTransfer"/>
+              <body>
+                <![CDATA[
+                if (!dataTransfer || dataTransfer.mozItemCount != 1) {
+                    return false;
+                }
+                var mozTypes = dataTransfer.mozTypesAt(0);
+                if (mozTypes.length != "1" || mozTypes[0] != "komodo/tab") {
+                    return false;
+                }
+                return dataTransfer.mozGetDataAt("komodo/tab", 0);
+                ]]>
+              </body>
+            </method>
+
         </implementation>
 
         <handlers>
@@ -522,14 +539,26 @@
             <handler event="dragenter">
             <![CDATA[
                 //dump("scrolltabs:: dragenter\n");
-                this.dropIndicatorBar.collapsed = false;
-                this.ensureTabPositionsAreSet();
+                var sourceTab = this.getSourceTabFromDataTransfer(event.dataTransfer);
+                if (!sourceTab) {
+                    // Don't have the right drop data - hide the indicator.
+                    this.dropIndicatorBar.collapsed = true;
+                } else {
+                    this.dropIndicatorBar.collapsed = false;
+                    this.ensureTabPositionsAreSet();
+                }
             ]]>
             </handler>
 
             <handler event="dragover">
             <![CDATA[
                 //dump("scrolltabs:: dragover\n");
+                var ib = this.dropIndicatorBar;
+                if (ib.collapsed) {
+                    // Don't have the right drop data - ignore the event.
+                    return false;
+                }
+
                 var tabStrip = this._tabs.scrollbox;
                 var ltr = (window.getComputedStyle(this.parentNode, null).direction
                            == "ltr");
@@ -554,7 +583,6 @@
                 }
     
                 var newIndex = this.getNewIndex(event);
-                var ib = this.dropIndicatorBar;
                 var ind = ib.firstChild;
                 var tabStripBoxObject = this._tabs.scrollBoxObject;
                 var tabs = this._tabs.childNodes;
@@ -605,7 +633,6 @@
     
                 ind.style.MozMarginStart = newMargin + 'px';
     
-                ib.collapsed = false;
                 return true;
             ]]>
             </handler>
@@ -623,15 +650,7 @@
 
                 // Are they dragging a Komodo tab - as we don't accept any other
                 // drop data.
-                var dataTransfer = event.dataTransfer;
-                if (!dataTransfer || dataTransfer.mozItemCount != 1) {
-                    return false;
-                }
-                var mozTypes = dataTransfer.mozTypesAt(0);
-                if (mozTypes.length != "1" || mozTypes[0] != "komodo/tab") {
-                    return false;
-                }
-                var sourceTab = dataTransfer.mozGetDataAt("komodo/tab", 0);
+                var sourceTab = this.getSourceTabFromDataTransfer(event.dataTransfer);
                 if (!sourceTab) {
                     return false;
                 }
