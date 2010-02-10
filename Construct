@@ -61,6 +61,7 @@ my @toExport = (
     'withJSLib',
     'withDocJarring',
     'withKomodoCix',
+    'withPlaces',
     'xulrunner', # xulrunner based builds
     'xulrunnerBuildId',
     'universal', # universal binary builds for osx
@@ -403,6 +404,12 @@ if ($buildFlavour ne "full") {
     Build(
         "$build/chrome/komodo/content/test/Conscript",
         "$build/chrome/komodo/content/test/jsdb/Conscript",
+    );
+}
+
+if ($withPlaces) {
+    Build(
+	"$build/modules/places/Conscript",
     );
 }
 

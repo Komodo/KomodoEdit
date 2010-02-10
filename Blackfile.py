@@ -804,6 +804,7 @@ configuration = {
     "mozPatchesPackageName": MozPatchesPackageName(),
 
     "withCrypto": WithCrypto(), # configure with Crypto support
+    "withPlaces": WithPlaces(),
     "withCasper": WithCasper(),
     "withJSLib": WithJSLib(),
     "withDocJarring": WithDocJarring(),
@@ -2379,6 +2380,7 @@ def QuickBuild(cfg, argv, _table):
                                                "MOZILLA_VERSION": cfg.mozVersion,
                                                "BUILD_FLAVOUR": cfg.buildFlavour,
                                                "WITH_CRYPTO": cfg.withCrypto,
+                                               "WITH_PLACES": cfg.withPlaces,
                                                "WITH_CASPER": cfg.withCasper},
                                       force=1,
                                       keepLines=1,
