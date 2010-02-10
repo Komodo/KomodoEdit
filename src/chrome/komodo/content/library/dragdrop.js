@@ -523,8 +523,8 @@ if (typeof(ko.dragdrop)=='undefined') {
 
         for (var i=0; i < koDropDataList.length; i++) {
             koDropData = koDropDataList[i];
-            dump('koDropData.isURL: ' + koDropData.isURL + '\n');
-            dump('koDropData.isFileURL: ' + koDropData.isFileURL + '\n');
+            //dump('koDropData.isURL: ' + koDropData.isURL + '\n');
+            //dump('koDropData.isFileURL: ' + koDropData.isFileURL + '\n');
             if (koDropData.isURL) {
                 if ((koDropData.isFileURL) ||
                     (koDropData.isRemoteFileURL) ||
