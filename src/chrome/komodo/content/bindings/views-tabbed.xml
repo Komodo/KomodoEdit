@@ -511,51 +511,6 @@
         </body>
         </method>
     </implementation>
-    <handlers>
-        <handler event="draggesture" phase="bubbling">
-        <![CDATA[
-            try {
-            if (event.target.localName == 'tab' &&
-                    event.target.parentNode.parentNode.parentNode == this)
-                nsDragAndDrop.startDrag(event,this.tabbox);
-            } catch(e) {/*let the event bubble*/}
-        ]]>
-        </handler>
-        <handler event="dragdrop" phase="bubbling">
-        <![CDATA[
-            try {
-            if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode) {
-                nsDragAndDrop.drop(event,this.tabbox);
-            }
-            } catch(e) {/*let the event bubble*/}
-        ]]>
-        </handler>
-        <handler event="dragenter" phase="capturing">
-        <![CDATA[
-            try {
-            if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
-                nsDragAndDrop.dragEnter(event,this.tabbox);
-            } catch(e) {/*let the event bubble*/}
-        ]]>
-        </handler>
-        <handler event="dragexit" phase="capturing">
-        <![CDATA[
-            try {
-            if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
-                nsDragAndDrop.dragExit(event,this.tabbox);
-            } catch(e) {/*let the event bubble*/}
-        ]]>
-        </handler>
-        <handler event="dragover" phase="capturing">
-        <![CDATA[
-            try {
-            if (nsDragAndDrop.mDragService.getCurrentSession().sourceNode)
-                nsDragAndDrop.dragOver(event,this.tabbox);
-            } catch(e) {/*let the event bubble*/}
-        ]]>
-        </handler>
-    </handlers>
-
     </binding>
 
 </bindings>
