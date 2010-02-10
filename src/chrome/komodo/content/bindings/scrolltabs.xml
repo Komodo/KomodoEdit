@@ -505,9 +505,17 @@
             <handler event="dragstart">
             <![CDATA[
                 //dump("scrolltabs:: dragstart\n");
+                var tabsBoxObject = this._tabs.boxObject;
+                if (event.screenX < tabsBoxObject.screenX ||
+                    event.screenX > (tabsBoxObject.screenX + tabsBoxObject.width) ||
+                    event.screenY < tabsBoxObject.screenY ||
+                    event.screenY > (tabsBoxObject.screenY + tabsBoxObject.height)) {
+                    // Not dragging in the tabs section.
+                    dump("scrolltabs:: dragstart:: not in tabs area\n");
+                    return;
+                }
                 event.dataTransfer.mozSetDataAt("komodo/tab", event.target, 0);
                 this.ensureTabPositionsAreSet();
-                return true;
             ]]>
             </handler>
 
