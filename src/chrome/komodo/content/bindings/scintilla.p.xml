@@ -76,9 +76,11 @@
         </content>
         <implementation implements="nsIObserver">
             <field name='_inMouseDown'>-1</field>
+
             <!-- x,y coord list containing position initiating a drag or null -->
             <field name='_startDragDrop'>null</field> 
-            <field name='_inDragDrop'>false</field>
+            <property name="inDragDrop" onget="return this._startDragDrop != null;"/>
+
             <!-- x,y list of mousedown or mousemove, or null, used in blur -->
             <field name='_lastMousePos'>null</field> 
 
@@ -1205,6 +1207,7 @@
 
             <handler event="mouseup" phase="capturing">
                 <![CDATA[
+                //dump("scintilla: mouseup\n");
                 this.scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
                 this.scimoz.indicatorClearRange(0, this.scimoz.textLength);
                 if (event.button != 2) { // right-click is handled by us
@@ -1215,12 +1218,7 @@
 
                     // only disable scintilla mouseup if this is a single left button
                     // click.  Otherwise selections get disabled on linux
-                    if (this._startDragDrop && event.detail == 1 && event.button==0) {
-                        if (this._inDragDrop) {
-                            // XXX this should never happen unless an exception
-                            // occurs somewhere in D&D code
-                            this.log.error('scintilla mouseup during dragdrop!\n');
-                        }
+                    if (this.inDragDrop && event.detail == 1 && event.button==0) {
                         //dump('scintilla reset mouseup positions\n');
                         var pos = this.scimoz.positionFromPoint(x, y);
                         this.scimoz.selectionStart = this.scimoz.selectionEnd = pos;
@@ -1237,7 +1235,6 @@
                     }
 <!-- #endif -->
 
-                    this._inDragDrop = false;
                     this._startDragDrop = null;
 
                     // The selection may have changed as a result.
@@ -1316,7 +1313,6 @@
                 if (this.mouse_handler) {
                     this.mouse_handler(event);
                 }
-                this._inDragDrop = false;
                 this._startDragDrop = null;
                 // No need to check X or Y are in range, as we will only get
                 // this event when we do!
@@ -1409,11 +1405,10 @@
                 <![CDATA[
                 // Starting a drag operation in Scintilla.
                 //dump("dragstart\n");
-                if (this._startDragDrop) {
+                if (this.inDragDrop) {
                     var selection = this.scimoz.selText;
                     if (selection) {
                         event.dataTransfer.setData("text/plain", selection);
-                        this._inDragDrop = true;
 <!-- #if PLATFORM != "darwin" -->
                         this._dragScrollHits = 0;
 <!-- #endif -->
@@ -1471,10 +1466,8 @@
             <handler event="dragleave">
                 <![CDATA[
                 // The drag/drop operation is leaving/ending for Scintilla.
-                //dump("dragleave\n");
+                //dump("scintilla: dragleave\n");
                 this.scimoz.dragPosition = -1;
-                this._inDragDrop = false;
-                this._startDragDrop = null;
                 ]]>
             </handler>
 
@@ -1488,7 +1481,7 @@
 
             <handler event="drop">
                 <![CDATA[
-                //dump("drop\n");
+                //dump("scintilla: drop\n");
 <!-- #if PLATFORM != "darwin" -->
                 this._dragScrollHits = 0;
 <!-- #endif -->
@@ -1581,7 +1574,7 @@
 <!-- #if PLATFORM == "darwin" -->
                     if (this.scimoz.inDragSession)
 <!-- #else -->
-                    if (this._startDragDrop) 
+                    if (this.inDragDrop) 
 <!-- #endif -->
                     {
                         // data from inside scimoz
@@ -1624,15 +1617,14 @@
                 ]]>
             </handler>
 
-            <!--
             <handler event="dragend" capturing="true">
                 <![CDATA[
                 // The initial drag operation that started in Scintilla is now
                 // ended.
-                dump("dragend\n");
+                //dump("scintilla: dragend\n");
+                this._startDragDrop = null;
                 ]]>
             </handler>
-            -->
 
         </handlers>
     </binding>

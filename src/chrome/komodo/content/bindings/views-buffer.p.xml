@@ -1505,7 +1505,7 @@
                 // Bug 76721: Go to definition on Ctrl+click, but only if we
                 // aren't in the middle of a drag/drop, or have a selection, or
                 // a modified click.
-                if (scintilla._startDragDrop || scintilla._inDragDrop) {
+                if (scintilla.inDragDrop) {
                     this.removeHyperlinks("mouseup");
                     return;
                 }
