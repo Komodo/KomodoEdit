@@ -92,6 +92,8 @@
                     var panel = document.getElementById(this.linkedPanel);
                     panel.firstChild.close();
                     event.stopPropagation();
+                } else {
+                    ko.views.manager.currentView.setFocus(); 
                 }
             ]]>
             </handler>
