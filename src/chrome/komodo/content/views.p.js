@@ -1160,7 +1160,7 @@ viewManager.prototype.cacheCommandData = function(view)
     cache.canRedo = false;
     cache.canFold = false;
     cache.language = null;
-    cache.canPreview = false;
+    cache.isLocal = false;
     if (view) {
         cache.type = view.getAttribute('type');
         if (view.document) {
@@ -1169,7 +1169,7 @@ viewManager.prototype.cacheCommandData = function(view)
             if (cache.type == 'editor') {
                 cache.canUndo = view.scintilla.canUndo();
                 cache.canRedo = view.scintilla.canRedo();
-                cache.canPreview = view.document.file && view.document.file.isLocal;
+                cache.isLocal = view.document.file && view.document.file.isLocal;
             }
             if (view.document.languageObj) {
                 cache.canFold = view.document.languageObj.foldable;
@@ -1333,7 +1333,7 @@ viewManager.prototype.handle_current_view_changed = function(event) {
     if (update_editor_change || oldcache.canFold != newcache.canFold) {
         window.setTimeout("window.updateCommands('foldability_changed');", 1);
     }
-    if (update_editor_change || oldcache.canPreview != newcache.canPreview) {
+    if (update_editor_change || oldcache.isLocal != newcache.isLocal) {
         window.setTimeout("window.updateCommands('previewability_changed');",1);
     }
     if (update_editor_change || oldcache.hasSelection != newcache.hasSelection) {
