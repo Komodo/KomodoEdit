@@ -188,7 +188,7 @@ function _setMenuList(selectedServer) {
         if (indexSelect == -1)
             indexSelect = 0;
         menulist.selectedIndex = indexSelect;
-        loadServerEntryWithAlias(servers[0].alias);
+        loadServerEntryWithAlias(servers[indexSelect].alias);
     }
 }
 
