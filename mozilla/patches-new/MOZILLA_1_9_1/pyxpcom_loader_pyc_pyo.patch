@@ -1,0 +1,16 @@
+Handle Python .pyc and .pyo files as well. This avoids Mozilla having to report
+a "Failed to load XPCOM component: ..." error.
+
+Index: mozilla/extensions/python/xpcom/server/loader.py
+--- extensions/python/xpcom/server/loader.py
++++ extensions/python/xpcom/server/loader.py
+@@ -93,6 +93,9 @@
+ 
+     def _getCOMModuleForLocation(self, componentFile):
+         fqn = componentFile.path
++        if fqn[-4:] in (".pyc", ".pyo"):
++            # Allow .pyc and .pyo files as well.
++            fqn = fqn[:-1]
+         if not fqn.endswith(".py"):
+             raise xpcom.ServerException(nsError.NS_ERROR_INVALID_ARG)
+         mod = self.com_modules.get(fqn)
