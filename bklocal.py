@@ -1360,6 +1360,23 @@ class WithSymbols(black.configure.BooleanDatum):
         self.determined = 1
 
 
+class WithCrashReportSymbols(black.configure.BooleanDatum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "withCrashReportSymbols",
+            desc="should generate special crash report symbols in C/C++ "\
+                 "compilation of Komodo components",
+            acceptedOptions=("", ["with-crashreport-symbols", "without-crashreport-symbols"]))
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        self.value = 0   # do *not* include crash report symbols be default
+        for opt, optarg in self.chosenOptions:
+            if opt == "--with-crashreport-symbols":
+                self.value = 1
+            elif opt == "--without-crashreport-symbols":
+                self.value = 0
+        self.determined = 1
+
 
 class WithCrypto(black.configure.BooleanDatum):
     """Control for the following Komodo components:

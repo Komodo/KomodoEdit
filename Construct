@@ -56,6 +56,7 @@ my @toExport = (
     'installAbsDir', 'buildAbsDir',
 
     'withSymbols',              # should include debug syms for C/C++ comps
+    'withCrashReportSymbols',   # should include crash report syms for C/C++
     'withCrypto',               # should build include crypto code
     'withCasper',
     'withJSLib',
@@ -269,14 +270,31 @@ my %environ = (
     'SystemDrive' => $ENV{SystemDrive},
 );
 
+# Global compiler flags.
 if ($platform eq "linux") {
-    $environ{CFLAGS} = " -fPIC";
-    $environ{CXXFLAGS} = " -fPIC";
-    if ($withSymbols) {
+    $environ{CFLAGS} .= " -fPIC";
+    $environ{CXXFLAGS} .= " -fPIC";
+}
+
+if ($withSymbols) {
+    # Only applies to Linux
+    if ($platform eq "linux") {
+	$environ{'CFLAGS'} .= " -g";
+	$environ{'CXXFLAGS'} .= " -g";
+    }
+}
+
+if ($withCrashReportSymbols) {
+    if ($platform eq "win") {
+    } elsif ($platform eq "darwin") {
+	$environ{'CFLAGS'} .= " -gdwarf-2";
+	$environ{'CXXFLAGS'} .= " -gdwarf-2";
+    } elsif ($platform eq "linux") {
 	$environ{'CFLAGS'} .= " -gstabs+";
 	$environ{'CXXFLAGS'} .= " -gstabs+";
     }
 }
+
 
 # Needed for p4 calls in processes kicked off by Cons.
 foreach my $envvar (keys %ENV) {

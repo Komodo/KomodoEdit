@@ -751,6 +751,7 @@ configuration = {
     "versionInfoFile": VersionInfoFile(),
     "KOMODO_HOSTNAME": SetKomodoHostname(),
     "withSymbols": WithSymbols(),
+    "withCrashReportSymbols": WithCrashReportSymbols(),
     "PYTHONPATH": SetPythonPath(), 
     "PYTHONHOME": SetPythonHome(), 
     "MOZILLA_FIVE_HOME": SetMozillaFiveHome(), 
