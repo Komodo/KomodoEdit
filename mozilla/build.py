@@ -68,9 +68,9 @@ r"""
       same time without them trying to hand off to each other.
     
     Suggested configurations are:
-    * Komodo 5.2.x development builds:
-        python build.py configure -k 5.12 --moz-src=cvs \
-            --release --no-strip --tools
+    * Komodo 6.0.x release builds:
+        python build.py configure -k 6.0 --moz-src=191 \
+            --release --no-strip --tools --with-crashreport-symbols
     * Komodo 6.0 development builds:
         python build.py configure -k 6.10 --moz-src=191 \
             --release --no-strip --tools
@@ -586,6 +586,19 @@ def _setupMozillaEnv():
     os.environ["MOZ_CURRENT_PROJECT"] \
         = os.environ["MOZ_CO_PROJECT"] = _determineMozCoProject(config.mozApp)
     
+    if config.withCrashReportSymbols:
+        os.environ['export MOZ_DEBUG_SYMBOLS'] = '1'
+        if sys.platform == "darwin":
+            if config['mozVer'] >= 1.91:
+                os.environ['CFLAGS'] = "-gdwarf-2"
+                os.environ['CXXFLAGS'] = "-gdwarf-2"
+            else:
+                os.environ['CFLAGS'] = "-g -gfull"
+                os.environ['CXXFLAGS'] = "-g -gfull"
+        elif sys.platform.startswith("linux"):
+            os.environ['CFLAGS'] = "-gstabs+"
+            os.environ['CXXFLAGS'] = "-gstabs+"
+
     # ensure the mozilla build system uses our python to build with
     if config.python:
         os.environ["PYTHON"] = config.python
@@ -1131,6 +1144,9 @@ def target_configure(argv):
             Whether to strip libraries after the build. By default
             stripping *is* done.
 
+        --with-crashreport-symbols
+            Enable builds that contain crash reporting symbols.
+
         --g4, --no-g4
             (Mac OS X only) Build optimized, or not, for Altivec/7400 G4
             Processors. By default this optimization is turned on for
@@ -1240,6 +1256,7 @@ def target_configure(argv):
         "mozSrcScheme": BuildError("don't have a mozilla source scheme: "
                                    "use '--moz-src'"),
         "official": False,      # i.e. a plain Mozilla/Firefox build w/o Komodo stuff
+        "withCrashReportSymbols": False,
         "stripBuild": True,
         "compiler": None, # Windows-only; 'vc6' (the default) or 'vc7', 'vc8'
         "mozObjDir": None,
@@ -1286,6 +1303,7 @@ def target_configure(argv):
              "moz-src=",
              "blessed", "universal",
              "komodo", "xulrunner", "suite", "browser", "moz-app=",
+             "with-crashreport-symbols",
              "strip", "no-strip",
              "g4", "no-g4",
              "gtk2", "gtk",
@@ -1389,6 +1407,8 @@ def target_configure(argv):
         elif opt == "--extensions":
             for ext in optarg.split(','):
                 mozBuildExtensions.append(ext)
+        elif opt == "--with-crashreport-symbols":
+            config["withCrashReportSymbols"] = True
         elif opt == "--with-tests":
             config["withTests"] = True
         elif opt == "--without-tests":
@@ -1633,9 +1653,11 @@ def target_configure(argv):
         elif buildType == "debug":
             mozBuildOptions.append('enable-debug')
             mozBuildOptions.append('disable-optimize')
-        elif buildType == "symbols":
+
+        if config.get("withCrashReportSymbols"):
+            mozRawOptions.append('# Debug Symbols')
+            mozRawOptions.append('export MOZ_DEBUG_SYMBOLS=1')
             if sys.platform == "win32":
-                mozRawOptions.append('export MOZ_DEBUG_SYMBOLS=1')
                 mozBuildOptions.append('enable-debugger-info-modules=yes')
             elif sys.platform == "darwin":
                 if mozVer >= 1.91:
@@ -1759,7 +1781,6 @@ def target_configure(argv):
 
         if config["stripBuild"]:
             mozBuildOptions.append('enable-strip')
-            mozBuildOptions.append('enable-strip-libs')
 
         for opt in mozMakeOptions:
             config["mozconfig"] += "mk_add_options %s\n" % opt
@@ -2622,6 +2643,15 @@ def target_mozilla(argv=["mozilla"]):
         argv = argv[1:]
     return argv
 
+def target_symbols(argv=["symbols"]):
+    """collect the crash reporter symbols"""
+    config = _importConfig()
+    if config.withCrashReportSymbols:
+        log.info("target: symbols")
+        native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
+        _run_in_dir("make buildsymbols", native_objdir, log.info)
+    return argv[1:]
+
 def target_jsstandalone(argv=["mozilla"]):
     config = _importConfig()
     if config.official and not config.jsStandalone:
@@ -2726,6 +2756,7 @@ def target_all(argv):
     target_libmar()
     target_pyxpcom()
     target_silo_python()
+    target_symbols()
     target_regmozbuild()
     return argv[1:]
 
