@@ -104,7 +104,6 @@
             <field name='_mozcontext'>null</field>
             <field name='_contextShowing'>false</field>
 
-            <field name="canHandleMultipleItems">true</field>
             <field name='symbolMargin'>true</field>
             <field name="_columnModeStartLine">-1</field>
             <field name="columnModeEndLine">-1</field>

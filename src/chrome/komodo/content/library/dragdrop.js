@@ -31,8 +31,6 @@ if (typeof(ko.dragdrop)=='undefined') {
 
     /* ko.dragdrop items */
 
-    this.canHandleMultipleItems = true;
-
     this.focusWindow = function() {
         window.focus();
         window.getAttention();
