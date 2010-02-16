@@ -2756,7 +2756,6 @@ def target_all(argv):
     target_libmar()
     target_pyxpcom()
     target_silo_python()
-    target_symbols()
     target_regmozbuild()
     return argv[1:]
 
