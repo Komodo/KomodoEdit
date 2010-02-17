@@ -1667,6 +1667,24 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
              % (mozupdate, pkg_path, image_dir))
     print "created '%s'" % pkg_path
 
+def _PackageKomodoCrashReportSymbols(cfg, dryRun=False):
+    if not cfg.withCrashReportSymbols:
+        return 0
+    print "packaging 'Komodo Crash Report symbols'..."
+    symbolsDstDir = join(cfg.packagesRelDir, "symbols")
+    if not dryRun:
+        if not isdir(symbolsDstDir):
+            os.makedirs(symbolsDstDir)
+        all_symbols_zip = glob.glob(join(cfg.mozDist, "*symbols.zip"))
+        if not all_symbols_zip:
+            log.error("no symbols zip file found")
+            return 1
+        if len(all_symbols_zip) > 1:
+            log.error("multiple symbols zip file found: %r", all_symbols_zip)
+            return 1
+        _cp(all_symbols_zip[0], symbolsDstDir)
+
+    return 0
 
 
 def GrokKomodo(cfg, argv):
@@ -1755,6 +1773,7 @@ def PackageKomodo(cfg, argv):
         mozpatches      a zip of the Mozilla patches for the used moz build
         updates         update package(s) for the autoupdate system
         pad             PAD file
+        symbols         breakpad crash report symbol files
 
     Sets of packages:
         std             (the default) The standard set of packages for
@@ -1764,7 +1783,8 @@ def PackageKomodo(cfg, argv):
     """
     args = argv[1:] or ["std"]
     if "all" in args:
-        packages = ["installer", "pad", "docs", "mozpatches", "updates"]
+        packages = ["installer", "pad", "docs",
+                    "mozpatches", "updates", "symbols"]
     elif "std" in args:
         packages = ["installer", "pad"]
         packages.append("updates")
@@ -1792,6 +1812,8 @@ def PackageKomodo(cfg, argv):
             retval = _PackageKomodoPAD(cfg)
         elif package == "updates":
             retval = _PackageKomodoUpdates(cfg)
+        elif package == "symbols":
+            retval = _PackageKomodoCrashReportSymbols(cfg)
         else:
             raise ValueError("unknown package name: '%s'" % package)
         if retval:
