@@ -589,7 +589,7 @@ def _setupMozillaEnv():
     if config.withCrashReportSymbols:
         os.environ['export MOZ_DEBUG_SYMBOLS'] = '1'
         if sys.platform == "darwin":
-            if config['mozVer'] >= 1.91:
+            if config.mozVer >= 1.91:
                 os.environ['CFLAGS'] = "-gdwarf-2"
                 os.environ['CXXFLAGS'] = "-gdwarf-2"
             else:
@@ -1661,14 +1661,14 @@ def target_configure(argv):
                 mozBuildOptions.append('enable-debugger-info-modules=yes')
             elif sys.platform == "darwin":
                 if mozVer >= 1.91:
-                    mozRawOptions.append('CFLAGS="-gdwarf-2"')
-                    mozRawOptions.append('CXXFLAGS="-gdwarf-2"')
+                    mozRawOptions.append('export CFLAGS="-gdwarf-2"')
+                    mozRawOptions.append('export CXXFLAGS="-gdwarf-2"')
                 else:
-                    mozRawOptions.append('CFLAGS="-g -gfull"')
-                    mozRawOptions.append('CXXFLAGS="-g -gfull"')
+                    mozRawOptions.append('export CFLAGS="-g -gfull"')
+                    mozRawOptions.append('export CXXFLAGS="-g -gfull"')
             elif sys.platform.startswith("linux"):
-                mozRawOptions.append('CFLAGS="-gstabs+"')
-                mozRawOptions.append('CXXFLAGS="-gstabs+"')
+                mozRawOptions.append('export CFLAGS="-gstabs+"')
+                mozRawOptions.append('export CXXFLAGS="-gstabs+"')
 
         if "perf" in config["buildOpt"]:
             mozBuildOptions.append('enable-xpctools')
