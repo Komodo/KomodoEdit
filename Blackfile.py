@@ -2035,6 +2035,8 @@ def BuildKomodo(cfg, argv):
         return QuickBuild(cfg, argv, pickle.load(open('qbtable.pik', 'r')))
     if "scintilla_src" in argv:
         return GetScintillaSource(cfg, argv)
+    if "crashreportsymbols" in argv:
+        return BuildCrashReportSymbols(cfg)
     if "package_md5sums" in argv:
         return _PackageUpdateMd5sums(cfg)
     noquick = "noquick" in argv
@@ -2448,6 +2450,15 @@ def QuickBuild(cfg, argv, _table):
     # save the new state of affairs
     pickle.dump(_table, open('qbtable.pik', 'w'))
     print "quick build: done"
+
+def BuildCrashReportSymbols(cfg):
+    if not cfg.withCrashReportSymbols:
+        return
+    
+    _run('cd "%s" && make buildsymbols' % (cfg.mozDist, ))
+    if sys.platform.startswith("win"):
+        # Need to include the Komodo bits separately.
+        pass
 
 
 commandOverrides = {
