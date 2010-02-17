@@ -886,6 +886,26 @@ def _banner(text, ch='=', length=78):
             suffix = ch * (suffix_len/len(ch)) + ch[:suffix_len%len(ch)]
         return prefix + ' ' + text + ' ' + suffix
 
+def StripBinaries(topdir):
+    """Remove any unnecssary information from the Komodo binaries"""
+    import subprocess
+    print "Stripping binaries in: %r" % (topdir, )
+    if sys.platform.startswith("linux"):
+        # First, ensure the binary files we want to update are write-able.
+        chmod_cmd = ["find", '"%s"' % (topdir, ), "|",
+                     "xargs", "file", "|",
+                     "grep", "ELF", "|",
+                     "cut", "-f", "1", "-d", ":", "|",
+                     "xargs", "chmod", "u+w"]
+        _run(" ".join(chmod_cmd))
+        # Strip the binaries using the linux strip command.
+        strip_cmd = ["find", '"%s"' % (topdir, ), "|",
+                     "xargs", "file", "|",
+                     "grep", "ELF", "|",
+                     "cut", "-f", "1", "-d", ":", "|",
+                     "xargs", "strip"]
+        _run(" ".join(strip_cmd))
+
 def ImageKomodo(cfg, argv):
     """Build the Komodo install image."""
     from os.path import join, isdir, exists, dirname, basename
@@ -1317,6 +1337,13 @@ def ImageKomodo(cfg, argv):
     extensions_dir = iimozbinpath("extensions")
     if not exists(extensions_dir):
         os.makedirs(extensions_dir)
+
+    # Strip off any fat from the Komodo/Mozilla binaries to reduce the overall
+    # size.
+    # Note: This will still leave in the necessary crash-reporter information
+    #       when build with "--with-crashreport-symbols".
+    StripBinaries(iicorepath())
+
 
 def _PackageKomodoDMG(cfg):
     from os.path import join, isdir, exists, dirname, basename
