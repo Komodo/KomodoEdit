@@ -899,7 +899,10 @@ def StripBinaries(topdir):
                      "grep", "ELF", "|",
                      "cut", "-f", "1", "-d", ":", "|",
                      "xargs", "strip"]
-        _run(" ".join(strip_cmd))
+        try:
+            _run(" ".join(strip_cmd))
+        except OSError:
+            pass   # Ignore errors from trying to strip binaries.
 
 def ImageKomodo(cfg, argv):
     """Build the Komodo install image."""
