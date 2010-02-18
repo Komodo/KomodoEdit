@@ -70,6 +70,7 @@ try:
     from hashlib import md5
 except ImportError:
     from md5 import md5
+import subprocess
 import operator
 import logging
 
@@ -610,23 +611,24 @@ def __run_log(logstream, msg, *args, **kwargs):
     else:
         logstream(msg, *args, **kwargs)
 
-def _run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM):
+def _run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM, cwd=None):
     """Run the given command.
 
         "cmd" is the command to run
+        "cwd" is the directory in which the commmand is run.
         "logstream" is an optional logging stream on which to log the 
             command. If None, no logging is done. If unspecifed, this 
             looks for a Logger instance named 'log' and logs the command 
             on log.debug().
 
-    Raises OSError is the command returns a non-zero exit status.
+    Raises OSError if the command returns a non-zero exit status.
     """
-    __run_log(logstream, "running '%s'", cmd)
-    retval = os.system(cmd)
-    if hasattr(os, "WEXITSTATUS"):
-        status = os.WEXITSTATUS(retval)
+    if cwd is not None:
+        __run_log(logstream, "running '%s' in '%s'", cmd, cwd)
     else:
-        status = retval
+        __run_log(logstream, "running '%s'", cmd)
+    p = subprocess.Popen(cmd, cwd=cwd)
+    status = p.wait()
     if status:
         #TODO: add std OSError attributes or pick more approp. exception
         raise OSError("error running '%s': %r" % (cmd, status))
@@ -643,13 +645,7 @@ def _run_in_dir(cmd, cwd, logstream=_RUN_DEFAULT_LOGSTREAM):
 
     Raises OSError is the command returns a non-zero exit status.
     """
-    old_dir = os.getcwd()
-    try:
-        os.chdir(cwd)
-        __run_log(logstream, "running '%s' in '%s'", cmd, cwd)
-        _run(cmd, logstream=None)
-    finally:
-        os.chdir(old_dir)
+    _run(cmd, logstream=None, cwd=cwd)
 
 
 
@@ -2454,7 +2450,7 @@ def BuildCrashReportSymbols(cfg):
     if not cfg.withCrashReportSymbols:
         return
     
-    _run('cd "%s" && make buildsymbols' % (cfg.mozDist, ))
+    _run_in_dir('make buildsymbols', cfg.mozDist)
     if sys.platform.startswith("win"):
         # Need to include the Komodo bits separately.
         pass
