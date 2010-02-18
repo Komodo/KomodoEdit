@@ -63,7 +63,6 @@ import os, sys, os, shutil, pickle
 import time
 from os.path import join, dirname, exists, isfile, basename, abspath, \
                     isdir, splitext
-from posixpath import join as urljoin
 from fnmatch import fnmatch
 import pprint
 import glob
