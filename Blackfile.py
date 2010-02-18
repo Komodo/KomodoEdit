@@ -627,7 +627,7 @@ def _run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM, cwd=None):
         __run_log(logstream, "running '%s' in '%s'", cmd, cwd)
     else:
         __run_log(logstream, "running '%s'", cmd)
-    p = subprocess.Popen(cmd, cwd=cwd)
+    p = subprocess.Popen(cmd, cwd=cwd, shell=True)
     status = p.wait()
     if status:
         #TODO: add std OSError attributes or pick more approp. exception
