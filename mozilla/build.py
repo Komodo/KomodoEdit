@@ -322,7 +322,6 @@ moz18Only = ['xmlextras', 'pref', 'universalchardet', 'webservices',
 
 #---- directory structure globals
 
-gBuildDir = "build"
 gPackagesDir = "packages"
 gMozSrcRepositories = [
     os.curdir, "crimper:/home/apps/Komodo/support/mozilla-source"]
@@ -620,7 +619,7 @@ def _setupMozillaEnv():
         #TODO: drop what isn't necessary here
         
         #set MOZ_SRC=/export/home/jeffh/p4/Mozilla-devel/build/moz...
-        binDir = join(gBuildDir, config.srcTreeName, "mozilla",
+        binDir = join(config.buildDir, config.srcTreeName, "mozilla",
                       config.mozObjDir, "dist", "bin")
         os.environ["PATH"] = binDir + os.pathsep + os.environ["PATH"]
         
@@ -1193,6 +1192,10 @@ def target_configure(argv):
             Specify a .mozconfig file to use instead
             all above options will be ignored
     
+        --build-dir=<dir>
+            By default the build directory is named "build" top-level dir.
+            This directory can be changed with this configuration option.
+
         --build-tag=<tag>
         --src-tree-name=<name>
             By default the src tree is "named" based on the --moz-src
@@ -1249,7 +1252,7 @@ def target_configure(argv):
         "pythonVersion": None,
         "buildTag": None,
         "srcTreeName": None,
-        "buildDir": os.path.abspath(gBuildDir),
+        "buildDir": abspath("build"),
         "mozconfig": None,
         "mozApp": "komodo",
         "jsStandalone": False,
@@ -1311,6 +1314,7 @@ def target_configure(argv):
              "with-tests", "without-tests", 
              "perf", "tools", "xft", "xinerama", "jssh", "js",
              "options=", "extensions=", "moz-config=",
+             "build-dir=",
              "src-tree-name=",
              "build-name=",  # this is deprecated, use --src-tree-name
              "build-tag=",
@@ -1388,6 +1392,8 @@ def target_configure(argv):
             config["python"] = optarg
         elif opt in ("-P", "--python-version"):
             config["pythonVersion"] = optarg
+        elif opt == "--build-dir":
+            config["buildDir"] = abspath(os.path.expanduser(optarg))
         elif opt == "--build-tag":
             config["buildTag"] = optarg
         elif opt == "--build-name":
@@ -1612,7 +1618,7 @@ def target_configure(argv):
 
     # Add any patches dirs, if necessary.
     if "jssh" in config["buildOpt"]:
-        jsshDir = join(gBuildDir, config["srcTreeName"], "mozilla",
+        jsshDir = join(config["buildDir"], config["srcTreeName"], "mozilla",
                        "extensions", "jssh")
         config["patchesDirs"].append(jsshDir)
 
@@ -1821,7 +1827,7 @@ def target_configure(argv):
         # a little bit.
         mozObjDirGuess = config["mozObjDir"].replace("@CONFIG_GUESS@",
                                                      "i586-pc-msvc")
-        mozObjPathGuess = os.path.join(os.path.abspath(gBuildDir),
+        mozObjPathGuess = os.path.join(os.path.abspath(config["buildDir"]),
                                        config["srcTreeName"],
                                        "mozilla", mozObjDirGuess)
         longestPathGuess = os.path.join(mozObjPathGuess, LONGEST_SUB_PATH)
@@ -1943,7 +1949,7 @@ def target_silo_python(argv=["silo_python"]):
     log.info("target: silo_python")
     config = _importConfig()
     pyver = tuple(map(int, config.pyVer.split('.')))
-    distDir = join(gBuildDir, config.srcTreeName, "mozilla",
+    distDir = join(config.buildDir, config.srcTreeName, "mozilla",
                    config.mozObjDir, "dist")
     if sys.platform == "darwin":
         # The siloed Python framework goes in the app's "Frameworks"
@@ -2145,7 +2151,7 @@ def target_pyxpcom(argv=["pyxpcom"]):
     config = _importConfig()
     _setupMozillaEnv()
     if config.mozVer <= 1.91:
-        pyxpcom_dir = join(gBuildDir, config.srcTreeName, "mozilla",
+        pyxpcom_dir = join(config.buildDir, config.srcTreeName, "mozilla",
                            config.mozObjDir, "extensions", "python",
                            "xpcom")
         cmd = "cd %s && make" % pyxpcom_dir
@@ -2159,8 +2165,8 @@ def target_pyxpcom(argv=["pyxpcom"]):
             # Windows uses a different executable name.
             autoconf_command = "autoconf-2.13"
         autoconf_path = _get_exe_path(autoconf_command)
-        pyxpcom_src_dir = abspath(join(gBuildDir, config.srcTreeName, "mozilla",
-                                       "extensions", "python"))
+        pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
+                               "extensions", "python")
         if sys.platform == "win32":
             cmds.append("sh -c %s" % _msys_path_from_path(autoconf_path))
         else:
@@ -2169,8 +2175,8 @@ def target_pyxpcom(argv=["pyxpcom"]):
 
         # Configure and build pyxpcom.
         cmds = []
-        moz_obj_dir = abspath(join(gBuildDir, config.srcTreeName, "mozilla",
-                                   config.mozObjDir))
+        moz_obj_dir = join(config.buildDir, config.srcTreeName, "mozilla",
+                           config.mozObjDir)
         pyxpcom_obj_dir = join(moz_obj_dir, "extensions", "python")
         if not exists(pyxpcom_obj_dir):
             os.makedirs(pyxpcom_obj_dir)
@@ -2204,7 +2210,7 @@ def target_src_extra_extensions(argv=["src_extra_extensions"]):
     """
     log.info("target: src_extra_extensions")
     config = _importConfig()
-    buildDir = os.path.join(gBuildDir, config.srcTreeName)
+    buildDir = os.path.join(config.buildDir, config.srcTreeName)
     extDir = os.path.join(buildDir, 'mozilla', 'extensions')
     
     # jssh
@@ -2249,7 +2255,7 @@ def target_fastupdate(argv=["update"]):
         raise BuildError("cannot update source from CVS: mozSrcType != 'cvs'")
 
     # Abort if there is nothing to update.
-    buildDir = os.path.join(gBuildDir, config.srcTreeName)
+    buildDir = os.path.join(config.buildDir, config.srcTreeName)
     landmark = os.path.join(buildDir, "mozilla")
     if not os.path.exists(landmark):
         raise BuildError("cannot update: '%s' does not exist (use "
@@ -2268,7 +2274,7 @@ def target_update(argv=["update"]):
         raise BuildError("cannot update source: mozSrcType: %r not one of ('cvs', 'hg')")
 
     # Abort if there is nothing to update.
-    buildDir = os.path.join(gBuildDir, config.srcTreeName)
+    buildDir = os.path.join(config.buildDir, config.srcTreeName)
     landmark = os.path.join(buildDir, "mozilla")
     if not os.path.exists(landmark):
         raise BuildError("cannot update: '%s' does not exist (use "
@@ -2304,7 +2310,7 @@ def target_src(argv=["src"]):
     """get and extract mozilla source into the working directory"""
     log.info("target: src")
     config = _importConfig()
-    buildDir = os.path.join(gBuildDir, config.srcTreeName)
+    buildDir = os.path.join(config.buildDir, config.srcTreeName)
     mozSrcType = config.mozSrcType
     
     # Return immediately if source looks like it is already there.
@@ -2485,7 +2491,7 @@ def _moz_cvs_tag_from_tag_hint(tag_hint):
 
 def _get_mozilla_objdir(convert_to_native_win_path=False, force_echo_variable=False):
     config = _importConfig()
-    srcdir = os.path.join(gBuildDir, config.srcTreeName, 'mozilla')
+    srcdir = os.path.join(config.buildDir, config.srcTreeName, 'mozilla')
 
     # Get the $OBJDIR. The target for this has changed over time in
     # the moz tree.
@@ -2550,7 +2556,7 @@ def target_configure_mozilla(argv=["configure_mozilla"]):
     log.info("target: configure_mozilla")
     global gAutoConfPath
     config = _importConfig()
-    buildDir = os.path.join(gBuildDir, config.srcTreeName, "mozilla")
+    buildDir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
     
     # Bail if source isn't there.
     landmark = os.path.join(buildDir, "client.mk")
@@ -2613,7 +2619,7 @@ def target_mozilla(argv=["mozilla"]):
     log.info("target: mozilla")
     config = _importConfig()
     _setupMozillaEnv()
-    buildDir = os.path.join(gBuildDir, config.srcTreeName, "mozilla")
+    buildDir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
 
     # Bail if source isn't there.
@@ -2665,7 +2671,7 @@ def target_jsstandalone(argv=["mozilla"]):
     # we need to set a couple environment variables to get it
     # building release or with msvc
     _setupMozillaEnv()
-    buildDir = os.path.join(gBuildDir, config.srcTreeName, "mozilla")
+    buildDir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
     topDir = os.getcwd()
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
     unixy_objdir = _get_mozilla_objdir()
@@ -2854,7 +2860,7 @@ def target_distclean(argv):
     """remove the configured mozilla tree (src and objdir)"""
     log.info("target: distclean")
     config = _importConfig()
-    buildDir = os.path.join(gBuildDir, config.srcTreeName)
+    buildDir = os.path.join(config.buildDir, config.srcTreeName)
     if os.path.exists(buildDir):
         log.info("removing '%s'...", buildDir)
         if sys.platform == "win32":
@@ -2872,7 +2878,7 @@ def target_clean(argv):
     log.info("target: clean")
     config = _importConfig()
 
-    objDir = join(gBuildDir, config.srcTreeName, "mozilla",
+    objDir = join(config.buildDir, config.srcTreeName, "mozilla",
                   config.mozObjDir)
     if exists(objDir):
         log.info("rm `%s'", objDir)
