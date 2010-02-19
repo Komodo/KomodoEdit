@@ -2771,8 +2771,8 @@ def target_patch(argv=["patch"]):
     config = _importConfig()
     log.info("target: patch from %r" %config.patchesDirs)
 
-    srcDir = join("build", config.srcTreeName, "mozilla")
-    logDir = join("build", config.srcTreeName,
+    srcDir = join(config.buildDir, config.srcTreeName, "mozilla")
+    logDir = join(config.buildDir, config.srcTreeName,
                   "mozilla-patches-%s" % config.srcTreeName)
 
     # Use our local patch, if we have one.
@@ -2818,7 +2818,7 @@ def target_package_patches(argv=["package_patches"]):
     if not exists(gPackagesDir):
         os.makedirs(gPackagesDir)
 
-    buildDir = join("build", config.srcTreeName)
+    buildDir = join(config.buildDir, config.srcTreeName)
     patchesDir = "mozilla-patches-%s" % config.srcTreeName
     packagePath = join(gPackagesDir,
                        "%s-%s.zip" % (patchesDir, config.platform))
