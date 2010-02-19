@@ -1040,6 +1040,11 @@ def ImageKomodo(cfg, argv):
             ("cp", mozdistpath("bin"),    iicorepath("lib", "mozilla")),
             ("cp", mozdistpath("python"), iicorepath("lib", "python")),
         ]
+        if sys.platform == "win32":
+            # Don't need Windows debug symbol files.
+            ibits += [
+                ("rtrim", "*.pdb"),
+            ]
     ibits += [
         ("cp", supportpath(), iisupportpath()),
         ("cp", sdkpath(), iisdkpath()),
@@ -1190,11 +1195,7 @@ def ImageKomodo(cfg, argv):
             ("rm", iicorepath("lib", "python", "pywintypes*.dll")),
             ("rm", iicorepath("lib", "python", "w9xpopen.exe")),
         ]
-        # Don't need Windows debug symbol files.
-        ibits += [
-            ("rtrim", iicorepath("*.pdb")),
-        ]
-    # Don't know why, but my Moz build on Windows sometimes has these two
+i    # Don't know why, but my Moz build on Windows sometimes has these two
     # regxpcom by-products (may be a side-effect of the komodo.cix
     # generation).
     ibits += [
