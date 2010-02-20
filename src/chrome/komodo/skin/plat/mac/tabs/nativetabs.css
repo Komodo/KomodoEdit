@@ -344,14 +344,8 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   background-color: rgba(0,0,0,0.10); /* controls darkness of unselected tabs */
 }
 
-#komodo_main:not([active="true"]) .native tab {
-  color: #575757;
-}
-
-#komodo_main:not([active="true"]) .native tab[selected="true"] > .tab-image-middle,
-#komodo_main:not([active="true"]) .native tab[selected="true"] > .tab-closebutton,
-#komodo_main:not([active="true"]) .native tab[selected="true"] > .tab-close-button {
-  background-image: url("chrome://komodo/skin/tabs/tab-middle-inactive.png");
+#komodo_main:not([active="true"]) .native tab[selected="true"] {
+  background-color: #CCCCCC;
 }
 
 #komodo_main:not([active="true"]) .native tab[selected="true"] > .tab-image-left,
