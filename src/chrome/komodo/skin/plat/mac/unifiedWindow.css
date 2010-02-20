@@ -24,8 +24,6 @@
   background-image: url("chrome://komodo/skin/images/toolbar-background.gif");
   /* height same as background image */
   height: 31px;
-  padding-right: 3px;
-  padding-left: 3px;
 }
 
 #main-toolboxrow[mode="full"],
