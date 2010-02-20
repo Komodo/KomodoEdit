@@ -56,11 +56,6 @@ if ($platform eq "darwin") {
 }
 
 
-if ($platform eq "darwin") {
-$cons->InstallInChrome('toolbar-background.gif');
-$cons->InstallInChrome('toolbar-background-inactive.png');
-}
-
 $cons->Install("$supportDir/images", 'newline.gif');
 
 $cons->InstallInChrome('icon-community.png');

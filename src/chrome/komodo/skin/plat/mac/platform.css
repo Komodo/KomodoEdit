@@ -62,13 +62,11 @@ splitter[orient="horizontal"].multiview_splitter {
 
 .toolbar-background {
   background-color: #C9C9C9;
-  background-image: url("chrome://komodo/skin/images/toolbar-background-inactive.png");
   border-bottom: 1px solid rgba(0,0,0,0.50);
 }
 
 toolbar[mode="full"] toolbaritem .toolbar-background {
   background-color: #C9C9C9;
-  background-image: url("chrome://global/skin/toolbar/toolbar-background-tall.png");
   border-bottom: 1px solid rgba(0,0,0,0.50);
 }
 

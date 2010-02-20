@@ -21,7 +21,6 @@
 #main-toolboxrow > toolbaritem {
   background-color: #C9C9C9;
   border: none;
-  background-image: url("chrome://komodo/skin/images/toolbar-background.gif");
   /* height same as background image */
   height: 31px;
 }
@@ -43,7 +42,6 @@
 #komodo_main:not([active="true"]) > #toolbox_main > toolbar,
 #komodo_main:not([active="true"]) > #toolbox_main > toolbar > toolbaritem {
   background-color: #E4E4E4;
-  background-image: url("chrome://komodo/skin/images/toolbar-background-inactive.png");
 }
 
 #komodo_main:not([active="true"]) > #toolbox_main {
