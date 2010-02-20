@@ -358,6 +358,12 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   background: url("chrome://komodo/skin/tabs/tab-right-inactive.png") no-repeat;
 }
 
+tabbox {
+  /* Remove the default 5px margin around a xul tabbox. */
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
 /* Mozilla 1.9.1: remove the -12px margin set by the global tabbox.css, as it
  *                makes Komodo's tab views look stranged (merged). It's likely
  *                other changes in these nativetabs.css that causes this
