@@ -23,10 +23,11 @@
 }
 
 .native .tab-text {
+  margin-bottom: 0;
   font: message-box;
-  margin-top: 0 !important;
-  font-weight: bold !important;
-  opacity: 0.7;
+  font-weight: bold;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  height: 16px;
 }
 
 .native tab[selected="true"] .tab-text {
@@ -51,13 +52,19 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
 
 .native tab {
   -moz-appearance: none;
+  -moz-border-radius: 0 0 6px 6px;
   color: #222;
-  -moz-box-pack: center;
-  padding: 0px;
-  border: none !important;
+  margin: 0 0 1px;
+  padding: 0 5px;
+  border-style: none solid solid;
+  border-width: 3px;
+  -moz-border-right-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
+  -moz-border-bottom-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
+  -moz-border-left-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
+  -moz-background-clip: padding;
   min-width: 1px !important;
   text-align: center;
-  height: 27px;
+  height: 24px;
 }
 
 .native tab[selected="true"] {
@@ -66,7 +73,6 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
 
 .native tab[selected="true"]:focus > .tab-image-middle > .tab-text-stack > .tab-text {
   outline: 2px solid #4F8EC9;
-  outline-offset: -2px;
   -moz-outline-radius: 3px;
 }
 
@@ -102,16 +108,13 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   background: url("chrome://komodo/skin/tabs/tab-left-bkgnd.png") no-repeat;
 }
 
+/*
+ Don't think this is needed. Toddw.
 .native tab > .tab-image-middle,
 .native tab > .tab-closebutton {
-  background: url("chrome://komodo/skin/tabs/tab-middle.png") repeat-x;
   -moz-box-pack: center;
 }
-
-.native tab:not([selected="true"]) > .tab-image-middle,
-.native tab:not([selected="true"]) > .tab-close-button {
-  background: url("chrome://komodo/skin/tabs/tab-middle-bkgnd.png");
-}
+*/
 
 .native tab:not([selected="true"]) > .tab-image-middle > .tab-icon > .tab-icon-image  {
   list-style-image: url("chrome://global/skin/tree/item-grayscale.png");
@@ -128,8 +131,7 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
 }
 
 .native .tabstrip-box {
-  margin-top: -1px;
-  border-bottom: 1px solid rgba(0,0,0,0.50);
+  border-bottom: none;
   background-color: rgba(0,0,0,0.20); /* controls darkness of unselected tabs */
 }
 
@@ -138,7 +140,7 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   -moz-box-pack: center;
   -moz-box-align: center;
   background: url("chrome://komodo/skin/tabs/tabbrowser-tabs-bkgnd.png") repeat-x;
-  height: 27px;
+  height: 24px;
 }
 
 .native .tabs-left {
@@ -364,11 +366,10 @@ tabbox {
   margin-right: 0px;
 }
 
-/* Mozilla 1.9.1: remove the -12px margin set by the global tabbox.css, as it
- *                makes Komodo's tab views look stranged (merged). It's likely
- *                other changes in these nativetabs.css that causes this
- *                conflict.
- */
 tabbox > tabs {
+  /* remove the -12px margin set by the global tabbox.css */
   margin-bottom: 0px;
+  /* remove the 10px padding set by the global tabbox.css */
+  padding-left: 0px;
+  padding-right: 0px;
 }
