@@ -1195,7 +1195,7 @@ def ImageKomodo(cfg, argv):
             ("rm", iicorepath("lib", "python", "pywintypes*.dll")),
             ("rm", iicorepath("lib", "python", "w9xpopen.exe")),
         ]
-i    # Don't know why, but my Moz build on Windows sometimes has these two
+    # Don't know why, but my Moz build on Windows sometimes has these two
     # regxpcom by-products (may be a side-effect of the komodo.cix
     # generation).
     ibits += [
