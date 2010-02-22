@@ -2458,7 +2458,7 @@ def BuildCrashReportSymbols(cfg):
     if not cfg.withCrashReportSymbols:
         return
     
-    _run_in_dir('make buildsymbols', cfg.mozDist)
+    _run_in_dir('make buildsymbols', cfg.mozObjDir)
     if sys.platform.startswith("win"):
         # Need to include the Komodo bits separately.
         pass
