@@ -1674,18 +1674,31 @@ def _PackageKomodoCrashReportSymbols(cfg, dryRun=False):
     if not cfg.withCrashReportSymbols:
         return 0
     print "packaging 'Komodo Crash Report symbols'..."
-    symbolsDstDir = join(cfg.packagesRelDir, "symbols")
+    symbolsSrcDir = join(cfg.mozDist, "crashreporter-symbols")
+    symbolsDstDir = join(cfg.packagesRelDir, "crashreportsymbols")
+    if not exists(symbolsSrcDir):
+        log.error("no symbols directory found")
+        return 1
     if not dryRun:
         if not isdir(symbolsDstDir):
             os.makedirs(symbolsDstDir)
-        all_symbols_zip = glob.glob(join(cfg.mozDist, "*symbols.zip"))
-        if not all_symbols_zip:
-            log.error("no symbols zip file found")
-            return 1
-        if len(all_symbols_zip) > 1:
-            log.error("multiple symbols zip file found: %r", all_symbols_zip)
-            return 1
-        _cp(all_symbols_zip[0], symbolsDstDir)
+        pkgName = basename(cfg.installRelDir)
+        zippath = abspath(join(symbolsDstDir, "%s.zip" % (pkgName, )))
+        import zipfile
+        zip = zipfile.ZipFile(zippath, mode="w",
+                              compression=zipfile.ZIP_DEFLATED)
+        # This zip snippet comes from:
+        # http://coreygoldberg.blogspot.com/2009/07/python-zip-directories-recursively.html
+        root_len = len(symbolsSrcDir)
+        for root, dirs, files in os.walk(symbolsSrcDir):
+            archive_root = root[root_len:]
+            for f in files:
+                fullpath = join(root, f)
+                archive_name = join(archive_root, f)
+                #print f
+                zip.write(fullpath, archive_name)
+        zip.close()
+        # end snippet
 
     return 0
 
