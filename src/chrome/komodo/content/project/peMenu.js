@@ -300,7 +300,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
             // dump("peMenu.js -- Already have toolbox " + part.name + "\n");
             return;
         }
-        var toolbar = document.createElement('toolbar');
+        var toolbar = document.createElement('toolbaritem');
         toolbar.setAttribute('id', part.id);
         toolbar.setAttribute('class', "chromeclass-toolbar");
         // We need the last custom toolbox to have a flex of one
