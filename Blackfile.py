@@ -2458,7 +2458,11 @@ def BuildCrashReportSymbols(cfg):
     if not cfg.withCrashReportSymbols:
         return
     
-    _run_in_dir('make buildsymbols', cfg.mozObjDir)
+    # Needs to run with the Mozilla environment, otherwise will receive errors
+    # about being unable to load required libraries.
+    tmShUtil.RunInContext(cfg.envScriptName, [
+        'cd %s && make buildsymbols' % (cfg.mozObjDir, )
+    ])
     if sys.platform.startswith("win"):
         # Need to include the Komodo bits separately.
         pass
