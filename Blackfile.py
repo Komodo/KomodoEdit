@@ -2476,7 +2476,7 @@ def BuildCrashReportSymbols(cfg):
     tmShUtil.RunInContext(cfg.envScriptName, [
         'cd %s && make buildsymbols' % (cfg.mozObjDir, )
     ])
-    if sys.platform.startswith("win"):
+    if sys.platform.startswith("win") or sys.platform == "darwin":
         # Need to include the Komodo bits separately.
         output_dir = join(cfg.mozDist, "crashreporter-symbols")
         if not _isdir(output_dir):
@@ -2484,10 +2484,16 @@ def BuildCrashReportSymbols(cfg):
         moz_crashreporter_src_dir = join(cfg.mozSrc, "mozilla", "toolkit",
                                          "crashreporter")
         py_symbol_script = join(moz_crashreporter_src_dir, "tools", "symbolstore.py")
-        dump_symbols_exe = join(moz_crashreporter_src_dir, "tools", "win32",
-                                "dump_syms.exe")
+        options = ""
+        if sys.platform.startswith("win"):
+            dump_symbols_exe = join(moz_crashreporter_src_dir, "tools", "win32",
+                                    "dump_syms.exe")
+        else:
+            options = "-a i386"   # the wanted architecture
+            dump_symbols_exe = join(cfg.mozDist, "host", "bin", "dump_syms")
         cmd = ["python",
                py_symbol_script,       # python script to generate symbol info
+               options,
                "-s", cfg.komodoDevDir, # the base source reference directory
                dump_symbols_exe,       # executable that dumps the symbol info
                cfg.buildAbsDir,        # where to look for ".pdb" files
