@@ -2496,8 +2496,8 @@ def BuildCrashReportSymbols(cfg):
                options,
                "-s", cfg.komodoDevDir, # the base source reference directory
                dump_symbols_exe,       # executable that dumps the symbol info
-               cfg.buildAbsDir,        # where to look for ".pdb" files
                output_dir,             # where crashreporter symbol files end up
+               cfg.buildAbsDir,        # where to look for ".pdb" files
               ]
         _run(' '.join(cmd))
 
