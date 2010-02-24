@@ -151,7 +151,9 @@ if ($mozVersionNumber >= 191) {
 if ($platform eq "win") {
     $pluginName = 'npscimoz.dll';
 
-    my $LDFLAGS = "/dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcom.lib nspr4.lib plugingate_s.lib xpcom_core.lib";
+    %consLocal = $cons->copy();
+
+    my $LDFLAGS = $consLocal{'LDFLAGS'} . " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcom.lib nspr4.lib plugingate_s.lib xpcom_core.lib";
     foreach my $libDir (split(';', $mozLibPath)) {
         $LDFLAGS .= " /libpath:$libDir";
     }
@@ -163,7 +165,8 @@ if ($platform eq "win") {
     }
 
     $LDFLAGS .= " /libpath:$pluginSdkSrcDirWinPath\\samples\\common";
-    my $CXXFLAGS = "/W3 /D_WINDOWS /DWIN32 " .
+    my $CXXFLAGS = $consLocal{'CXXFLAGS'} .
+        " /W3 /D_WINDOWS /DWIN32 " .
         " /I$xScintillaBuildDir/include" .
         " /I$pluginSdkSrcDir/samples/include ".
         " /I$mozDevelDist/include/xulapp" .

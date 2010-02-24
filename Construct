@@ -286,6 +286,9 @@ if ($withSymbols) {
 
 if ($withCrashReportSymbols) {
     if ($platform eq "win") {
+	$environ{'CFLAGS'} .= " -Zi";
+	$environ{'CXXFLAGS'} .= " -Zi";
+	$environ{'LDFLAGS'} .= " /DEBUG /OPT:REF";
     } elsif ($platform eq "darwin") {
 	$environ{'CFLAGS'} .= " -gdwarf-2";
 	$environ{'CXXFLAGS'} .= " -gdwarf-2";
@@ -306,6 +309,9 @@ foreach my $envvar (keys %ENV) {
 
 $cons = new cons(
     'ENV' => \%environ,
+    'CFLAGS' => $environ{'CFLAGS'},
+    'CXXFLAGS' => $environ{'CXXFLAGS'},
+    'LDFLAGS' => $environ{'LDFLAGS'},
 );
 
 

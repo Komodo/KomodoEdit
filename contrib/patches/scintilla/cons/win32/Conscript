@@ -54,11 +54,8 @@ Import(
 # this is what we want from the scintilla build process
 $pluginName = '../bin/SciLexer.dll';
 
-# build scintilla
-my $makeFlags = "/DCONTAINER_HANDLES_EVENTS=1 /DINCLUDE_DEPRECATED_FEATURES";
-if ($buildType eq 'debug') {
-    $makeFlags .= " /DDEBUG=1";
-}
+%consLocal = $cons->copy();
+my $LDFLAGS = $consLocal{'LDFLAGS'};
 
 $cons->Command(
     [$pluginName],              # %0
@@ -229,7 +226,7 @@ $cons->Command(
 
     qq(
         $unsiloedPythonExe bin/run-in-dir.py %2:d python HFacer.py
-        set FLAGS=\"$makeFlags\" && $unsiloedPythonExe bin/run-in-dir.py %1:d nmake /nologo QUIET=0 $pluginName -f %1:f
+        set LINK=$LDFLAGS && $unsiloedPythonExe bin/run-in-dir.py %1:d nmake /nologo QUIET=0 $pluginName -f %1:f
     )
 );
 

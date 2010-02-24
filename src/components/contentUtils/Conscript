@@ -31,9 +31,11 @@ $cons->Install($idlExportDir, 'koIContentUtils.idl');
 $cons->BuildAndInstallXpt('koIContentUtils.idl');
 $cons->BuildHeaderFromIdl('koIContentUtils.idl');
 
+%consLocal = $cons->copy();
+
 if ($platform eq "win") {
-    my $LDFLAGS = "";
-    my $CXXFLAGS = "";
+    my $CXXFLAGS = $consLocal{'CXXFLAGS'};
+    my $LDFLAGS = $consLocal{'LDFLAGS'};
     foreach my $includeDir (split(';', $mozIncludePath)) {
         $CXXFLAGS .= " -I$includeDir";
     }
