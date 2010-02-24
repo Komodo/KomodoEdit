@@ -1025,6 +1025,7 @@ class KoInitService(object):
         self._upgradeExtensions(".".join([str(x) for x in prevVer]),
                                 infoSvc.version,
                                 prevHostUserDataDir, currHostUserDataDir)
+        self._upgradeUserChrome(prevHostUserDataDir, currHostUserDataDir)
 
     def upgradeUserSettings(self):
         """Called every time Komodo starts up to initialize the user profile."""
@@ -1059,6 +1060,14 @@ class KoInitService(object):
         for ext in neededExtensions:
             log.debug("_upgradeExtensions: copying extension %r", ext)
             _copy(join(prevExtensionsDir, ext), join(currExtensionsDir, ext))
+
+    def _upgradeUserChrome(self, prevHostUserDataDir, currHostUserDataDir):
+        from os.path import join
+        chrome_dir = join(prevHostUserDataDir, "XRE", "chrome")
+        if os.path.exists(chrome_dir):
+            # __copy(src-dir, target-dir) first copies contents of
+            # src-dir to target-dir, but not src-dir itself.
+            _copy(chrome_dir, join(currHostUserDataDir, "XRE", "chrome"))
 
     def _isMozDictionaryDir(self, dictionaryDir):
         # Return true if dictionaryDir contains at least one pair of files
