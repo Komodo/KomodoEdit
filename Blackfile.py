@@ -1800,9 +1800,9 @@ def PackageKomodo(cfg, argv):
     args = argv[1:] or ["std"]
     if "all" in args:
         packages = ["installer", "pad", "docs",
-                    "mozpatches", "updates", "symbols"]
+                    "mozpatches", "updates", "crashreportsymbols"]
     elif "std" in args:
-        packages = ["installer", "pad"]
+        packages = ["installer", "pad", "crashreportsymbols"]
         packages.append("updates")
     else:
         packages = args
@@ -1828,7 +1828,7 @@ def PackageKomodo(cfg, argv):
             retval = _PackageKomodoPAD(cfg)
         elif package == "updates":
             retval = _PackageKomodoUpdates(cfg)
-        elif package == "symbols":
+        elif package == "crashreportsymbols":
             retval = _PackageKomodoCrashReportSymbols(cfg)
         else:
             raise ValueError("unknown package name: '%s'" % package)
