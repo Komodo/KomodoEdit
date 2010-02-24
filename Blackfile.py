@@ -2488,7 +2488,7 @@ def BuildCrashReportSymbols(cfg):
                                 "dump_syms.exe")
         cmd = ["python",
                py_symbol_script,       # python script to generate symbol info
-               "-c", cfg.komodoDevDir, # the base source reference directory
+               "-s", cfg.komodoDevDir, # the base source reference directory
                dump_symbols_exe,       # executable that dumps the symbol info
                cfg.buildAbsDir,        # where to look for ".pdb" files
                output_dir,             # where crashreporter symbol files end up
