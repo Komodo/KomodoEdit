@@ -452,6 +452,8 @@ class koXMLPreferenceSetObjectFactory:
                 #XXX why would an AttributeError be raised?
                 log.exception("Couldn't deserialize file %r", filename)
                 return None
+            finally:
+                stream.close()
         else:
             #log.debug("No prefs file %r - returning None...", filename)
             return None

@@ -1165,7 +1165,14 @@ class koGlobalPrefService:
                 # Save the prefs.xml file, in case the user can fix it themselves.
                 old_name = defn.user_filename + ".xml"
                 new_name = "%s.corrupt_%s" % (old_name, time.strftime("%Y%m%d_%H%M%S"))
-                os.rename(old_name, new_name)
+                try:
+                    os.rename(old_name, new_name)
+                except:
+                    log.exception("Failed to rename %s => %s", old_name, new_name)
+                    try:
+                        shutil.copyfile(old_name, new_name)
+                    except:
+                        log.exception("Can't even copy file %s => %s", old_name, new_name)
                 prefs = None
             if prefs is None:
                 # No prefs?  Create a default set.
