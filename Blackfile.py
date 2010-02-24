@@ -2478,7 +2478,22 @@ def BuildCrashReportSymbols(cfg):
     ])
     if sys.platform.startswith("win"):
         # Need to include the Komodo bits separately.
-        pass
+        output_dir = join(cfg.mozDist, "crashreporter-symbols")
+        if not _isdir(output_dir):
+            _mkdir(output_dir)
+        moz_crashreporter_src_dir = join(cfg.mozSrc, "mozilla", "toolkit",
+                                         "crashreporter")
+        py_symbol_script = join(moz_crashreporter_src_dir, "tools", "symbolstore.py")
+        dump_symbols_exe = join(moz_crashreporter_src_dir, "tools", "win32",
+                                "dump_syms.exe")
+        cmd = ["python",
+               py_symbol_script,       # python script to generate symbol info
+               "-c", cfg.komodoDevDir, # the base source reference directory
+               dump_symbols_exe,       # executable that dumps the symbol info
+               cfg.buildAbsDir,        # where to look for ".pdb" files
+               output_dir,             # where crashreporter symbol files end up
+              ]
+        _run(' '.join(cmd))
 
 
 commandOverrides = {
