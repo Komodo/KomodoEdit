@@ -295,4 +295,8 @@ $cons->BuildAndInstallXpt('koIColorPicker.idl');
 #$cons->Install("$supportDir/test", "test_koIndexer.py");
 #$cons->Install("$supportDir/test", "test_koObserverService.py");
 
+# PyXPCOM extension helper.
+$cons->Install($idlExportDir, 'pyIXPCOMExtensionHelper.idl');
+$cons->BuildAndInstallXpt('pyIXPCOMExtensionHelper.idl');
+$cons->InstallXpcomComponent('pyXPCOMExtensionHelper.py');
 
