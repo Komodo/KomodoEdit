@@ -905,8 +905,6 @@
 <?endif ?>
               <File Id="file2978" Name="KOIVIC_0.XPT" LongName="koIViCommandDetail.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIViCommandDetail.xpt"/>
               <File Id="file2983" Name="KOVICO_0.PY" LongName="koViCommandDetail.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koViCommandDetail.py"/>
-              <File Id="file927" LongName="pyIXPCOMExtensionHelper.xpt" Name="PYIXPC_0.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pyIXPCOMExtensionHelper.xpt" />
-              <File Id="file928" LongName="pyXPCOMExtensionHelper.py" Name="PYXPCO_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pyXPCOMExtensionHelper.py" />
             </Component>
           </Directory> <!-- lib\mozilla\components -->
           <Directory Id="directory58" Name="defaults">
@@ -3859,7 +3857,6 @@
               <File Id="file793" Name="NSIHAS_0.IDL" LongName="nsIHashable.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIHashable.idl"/>
               <File Id="file794" Name="nsIJSON.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIJSON.idl"/>
               <File Id="file795" Name="NSIMUT_0.IDL" LongName="nsIMutableArray.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIMutableArray.idl"/>
-              <File Id="file929" LongName="pyIXPCOMExtensionHelper.idl" Name="PYIXPC_0.IDL" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\pyIXPCOMExtensionHelper.idl" />
             </Component>
           </Directory> <!-- lib\sdk\idl -->
           <Directory Id="directory6" Name="pylib">
