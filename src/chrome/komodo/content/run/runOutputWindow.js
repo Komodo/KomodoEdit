@@ -71,32 +71,8 @@ var _gTerminalHandler = null;
 var _gTerminalView = null;
 var _gProcess = null;
 var _gParseOutput = 0;
-var gRunOutput_Bound = false;
 
 //---- internal support routines
-
-function _EnsureBound()
-{
-    if (gRunOutput_Bound) return;
-
-    var treeWidget = document.getElementById("runoutput-tree");
-    var boxObject = treeWidget.treeBoxObject
-                  .QueryInterface(Components.interfaces.nsITreeBoxObject);
-
-    // we set the flag to true before we call FindResultsTab_Show
-    // otherwise we'll end up in infinite recursion.
-    gRunOutput_Bound = true;
-    if (boxObject.view == null) {
-        // We are in a collapsed state-- we need to force the tree to be visible
-        // before we can assign the view to it.
-        RunOutput_Show(window);
-    }
-    _gTerminalView = document.getElementById("runoutput-scintilla");
-    _gTerminalView.init();
-    _gTerminalView.initWithTerminal(_gTerminalHandler);
-
-    boxObject.view = _gTerminalHandler;
-}
 
 function _ClearUI()
 {
@@ -125,7 +101,20 @@ this.initialize = function RunOutput_Init() {
             return;
         }
         _ClearUI();
-        gRunOutput_Bound = false;
+
+        var treeWidget = document.getElementById("runoutput-tree");
+        var boxObject = treeWidget.treeBoxObject
+                      .QueryInterface(Components.interfaces.nsITreeBoxObject);
+    
+        if (boxObject.view == null) {
+            // We are in a collapsed state-- we need to force the tree to be visible
+            // before we can assign the view to it.
+            RunOutput_Show(window);
+        }
+        _gTerminalView = document.getElementById("runoutput-scintilla");
+        _gTerminalView.init();
+        _gTerminalView.initWithTerminal(_gTerminalHandler);
+        boxObject.view = _gTerminalHandler;
     } finally {
         ko.main.addWillCloseHandler(ko.run.output.finalize);
     }
@@ -165,7 +154,6 @@ this.getTerminal = function RunOutput_GetTerminal()
 this.startSession = function RunOutput_StartSession(command, parseOutput, parseRegex, cwd,
                                 filename, clearContent /* =true */)
 {
-    _EnsureBound();
     if (typeof clearContent == 'undefined') clearContent = true;
 
     if (_gTerminalHandler.active) {
@@ -278,7 +266,6 @@ this.show = function RunOutput_Show(editor, showParsedOutputList)
     if (!editor) {
         _log.error("show: 'editor' is not true");
     }
-    _EnsureBound();
     // open output pane in komodo.xul
     ko.uilayout.ensureOutputPaneShown(editor);
 
