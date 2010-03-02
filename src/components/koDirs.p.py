@@ -109,7 +109,7 @@ class KoDirs:
 
     def get_roamingUserDataDir(self):
         return os.path.join(self._roamingUserAppDataPath(),
-                            "%s.%s" % (major, minor))
+                            "%s.%s" % (self._ver_major, self._ver_minor))
 
     def get_hostUserDataDir(self):
         log.warn("hostUserDataDir is deprecated, use userDataDir instead")
