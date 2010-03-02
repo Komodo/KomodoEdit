@@ -400,8 +400,6 @@
             // status so we can appropriately update our tab icons
             this.log.debug("editor view for document '"+
                            this.document.baseName+"' observed '"+topic+"'\n");
-            ("editor view for document '"+
-                           this.document.baseName+"' observed '"+topic+"'\n");
             switch (topic) {
             case 'language_changed':
                 // Multi-window story: do this on the current view only.
