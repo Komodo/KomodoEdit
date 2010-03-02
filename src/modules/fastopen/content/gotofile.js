@@ -97,9 +97,13 @@ function handleQueryKeyPress(event) {
     if (keyCode == KeyEvent.DOM_VK_ENTER
         || keyCode == KeyEvent.DOM_VK_RETURN)
     {
-        // Can't turn off <Enter> firing oncommand on the <textbox type="timed">,
+        // Can't turn off <Enter> firing oncommand on the <textbox type="search">,
         // therefore tell the handler to ignore the coming one.
         _gIgnoreNextFindFiles = true;
+        // Open the selected path.
+        if (_openSelectedPaths()) {
+            window.close();
+        }
     } else if (keyCode == KeyEvent.DOM_VK_UP && event.shiftKey) {
         index = gWidgets.results.currentIndex - 1;
         if (index >= 0) {
