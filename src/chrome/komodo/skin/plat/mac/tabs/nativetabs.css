@@ -69,6 +69,8 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
 
 .native tab[selected="true"] {
   -moz-user-focus: normal;
+  /* Make the background color of the tab be the same color as the toolbar. */
+  background-color: rgba(201,201,201,1);
 }
 
 .native tab[selected="true"]:focus > .tab-image-middle > .tab-text-stack > .tab-text {

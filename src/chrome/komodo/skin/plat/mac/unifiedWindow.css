@@ -10,11 +10,10 @@
   background-color: #C9C9C9;
 }
 
-#toolbox_main {
+#komodo_main > #toolbox_main {
   padding: 0px;
   margin: 0px;
   border: none;
-  border-bottom: 1px solid rgba(0,0,0,0.50);
 }
 
 #toolbox_main > toolbar,
@@ -42,13 +41,6 @@
 #komodo_main:not([active="true"]) > #toolbox_main > toolbar,
 #komodo_main:not([active="true"]) > #toolbox_main > toolbar > toolbaritem {
   background-color: #E4E4E4;
-}
-
-#komodo_main:not([active="true"]) > #toolbox_main {
-  padding: 0px;
-  margin: 0px;
-  border: none;
-  border-bottom: 1px solid rgba(0,0,0,0.10);
 }
 
 #komodo_main:not([active="true"]) #toolbox_main[mode="full"] > toolbar {
