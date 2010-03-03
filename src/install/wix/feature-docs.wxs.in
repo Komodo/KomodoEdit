@@ -217,6 +217,7 @@
                 <File Id="file453" LongName="sections_list.png" Name="SECTIO_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sections_list.png" />
                 <File Id="file4758" Name="SINGLE_1.GIF" LongName="single_line.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\single_line.gif"/>
                 <File Id="file303" LongName="start_page.png" Name="START__0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\start_page.png" />
+                <File Id="file931" LongName="status_bar.png" Name="STATUS_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_bar.png" />
                 <File Id="file4761" Name="STATUS_9.PNG" LongName="status_icon_add.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_icon_add.png"/>
                 <File Id="file4762" Name="STATU_10.PNG" LongName="status_icon_conflict.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_icon_conflict.png"/>
                 <File Id="file4763" Name="STATU_11.PNG" LongName="status_icon_delete.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\status_icon_delete.png"/>
