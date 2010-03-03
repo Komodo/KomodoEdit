@@ -1727,7 +1727,13 @@ void _KoStart_SetupEnvironment(const char* programDir)
         _LogError("could not determine the user data dir\n");
         exit(1);
     }
-    strncat(buffer, "XRE", MAXPATHLEN-strlen(buffer));
+    _LogDebug("setting %s=%s\n", "_KOMODO_VERUSERDATADIR", buffer);
+    xpsetenv("_KOMODO_VERUSERDATADIR", buffer, 1);
+    if (_KoStart_verbose) {
+        _LogDebug("setting %s=1\n", "KOMODO_VERBOSE", buffer);
+        xpsetenv("KOMODO_VERBOSE", "1", 1);
+    }
+    strncat(buffer, "XRE", MAXPATHLEN - strlen(buffer));
     if (! _IsDir(buffer)) {
         if (!_MakeDirs(buffer)) { /* XRE startup fails if profile dir doesn't exist */
             _LogError("could not create the XRE appdata dir: '%s'\n", buffer);
@@ -1835,18 +1841,6 @@ void _KoStart_SetupEnvironment(const char* programDir)
                             "with Komodo operation: '%s'\n", envVar);
             }
         }
-    }
-
-
-    _LogDebug("setting %s=%s\n", "_KOMODO_VERUSERDATADIR", buffer);
-    xpsetenv("_KOMODO_VERUSERDATADIR", buffer, 1);
-    if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
-        _LogError("could not determine the host user data dir\n");
-        exit(1);
-    }
-    if (_KoStart_verbose) {
-        _LogDebug("setting %s=1\n", "KOMODO_VERBOSE", buffer);
-        xpsetenv("KOMODO_VERBOSE", "1", 1);
     }
 
     /* unset PYTHONPATH:
