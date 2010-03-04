@@ -833,28 +833,7 @@
         <method name="onDoubleClick">
         <body>
         <![CDATA[
-        // XXX replace with scimoz.setWordChars
-        
-            // get the selection, and see if a variable is selected,
-            // if so, make sure the entire variable is selected
-            // this adds variable prefixes $@%, etc. (dependent on lang)
-            // to the selection
-            //
-            //XXX Could do better here so that a Perl variable like @$foo
-            //    gets picked up.
-            var sm = this.scimoz;
-            var haveSelNow = sm.selectionEnd != sm.selectionStart
-            if (sm.selectionStart > 0 && haveSelNow) {
-                var indicators = null;
-                if (this.document)
-                    indicators = this.document.languageObj.variableIndicators;
-                if (indicators) {
-                    var ch = sm.getWCharAt(sm.positionBefore(sm.selectionStart));
-                    if (indicators.indexOf(ch) >= 0)
-                        sm.selectionStart = sm.positionBefore(sm.selectionStart);
-                }
-            }
-            return true;
+        return true;
         ]]>
         </body>
         </method>

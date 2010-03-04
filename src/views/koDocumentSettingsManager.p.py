@@ -48,6 +48,9 @@ def RGB(r,g,b): return r+g*256+b*256*256
 #    has the same issue.
 MARKNUM_BOOKMARK = 6
 
+import string
+_letters = string.ascii_letters + string.digits + '_'
+
 class koDocumentSettingsManager:
     _com_interfaces_ = [components.interfaces.koIDocumentSettingsManager,
                         components.interfaces.nsIObserver]
@@ -201,6 +204,12 @@ class koDocumentSettingsManager:
             scimoz.xOffset = prefs.getLongPref('xOffset')
         else:
             scimoz.xOffset = 0
+
+        if languageOb.variableIndicators:
+            scimoz.setWordChars(_letters + languageOb.variableIndicators)
+        else:
+            # Do this for cases where we change languages.
+            scimoz.setCharsDefault()
         
         # restore fold points if the user has checked that pref off.
         # We don't do it by default because the colourise(.., -1) call below
