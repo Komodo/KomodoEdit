@@ -295,6 +295,10 @@
 <!ENTITY helpMenu.accesskey "H">
 <!ENTITY helpShowKeybindings.desc "Help: Show Keybindings...">
 <!ENTITY helpStartPage.desc "Help: Start Page">
+<!ENTITY helpTroubleshootingMenu.accesskey "S">
+<!ENTITY helpTroubleshootingMenu.label "Troubleshooting">
+<!ENTITY helpTroubleshootingViewErrorLog.label "View log file">
+<!ENTITY helpTroubleshootingViewErrorLog.desc "Open the Komodo Error Log for viewing">
 <!ENTITY importFromFileSystem.label "Import from File System...">
 <!ENTITY importPackage.label "Import Package...">
 <!ENTITY increase.label "Increase">
