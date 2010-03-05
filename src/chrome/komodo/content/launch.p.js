@@ -95,20 +95,16 @@ function locateHelpWindow(contentPack) {
 /* end of contextHelp.js duplication */
 
 /**
- * open
+ * Open the Komodo help window.
  *
- * open Komodo help window
- *
- * @param {String} page  a page tag as defined in toc.xml
+ * @param page {String} A page tag as defined in toc.xml
  */
 this.open = function(page) {
     openHelp(page, 'chrome://komododoc/locale/komodohelp.rdf');
 }
 
 /**
- * language
- *
- * open language specific help for the current buffer.
+ * Opens language specific help for the current buffer.
  */
 this.language = function() {
     // Get the current document's language.
@@ -178,9 +174,7 @@ this.language = function() {
 
 
 /**
- * alternate
- *
- * uses the alternate help preference
+ * Launches the alternate help command.
  */
 this.alternate = function() {
     var command = gPrefs.getStringPref('OtherHelpCommand');
