@@ -75,6 +75,12 @@ interface koISysUtils : nsISupports {
     readonly attribute PRUint32 X_OK;
 
     void Touch(in wstring filename);
+
+    // Used to flush the standard IO handles: "sys.stdout" and "sys.stderr". Used
+    // by the Komodo view error log to ensure the log file doesn't have pending
+    // write operations.
+    void FlushStdout();
+    void FlushStderr();
     
     // some os finder style utility functions
     void MoveToTrash(in wstring filename);

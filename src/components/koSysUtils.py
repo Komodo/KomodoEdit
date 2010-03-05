@@ -161,6 +161,14 @@ class koSysUtils:
             f = open(filename, 'w')
             f.close()
 
+    def FlushStdout(self):
+        if sys.stdout:
+            sys.stdout.flush()
+
+    def FlushStderr(self):
+        if sys.stderr:
+            sys.stderr.flush()
+
     def _getManager(self):
         if self._manager:
             return self._manager
