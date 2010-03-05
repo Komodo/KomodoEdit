@@ -1399,6 +1399,11 @@
                                 accesskey="&menuHelpHelp.accesskey;"
                                 class="menuitem-iconic help-icon"
                                 />
+                            <menuitem
+                                id="menu_helpReleaseNotes"
+                                label="&releaseNotes.label;"
+                                oncommand="ko.help.open('release_notes')"
+                                />
                             <menu
                                 id="helpLanguagesMenu"
                                 label="&helpForLanguages.label;"
@@ -1501,22 +1506,30 @@
                                 label="&tryKomodoIDE.label;"
                                 oncommand="ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/komodo/downloads/');"
                             />
-                            <menuseparator/>
+                            <menuseparator id="support_separator"/>
+                            <menu
+                                id="troubleshootingMenu"
+                                label="&helpTroubleshootingMenu.label;"
+                                accesskey="&helpTroubleshootingMenu.accesskey;"
+                                >
+                                <menupopup id="help-troubleshooting-popup">
+                                    <menuitem
+                                        id="troubleshootingViewBugsMenuItem"
+                                        label="&komodoBugDatabase.label;"
+                                        observes="cmd_helpViewBugs"
+                                        />
+                                    <menuitem
+                                        id="troubleshootingViewErrorLogMenuItem"
+                                        label="&helpTroubleshootingViewErrorLog.label;"
+                                        observes="cmd_helpViewErrorLog"
+                                    />
+                                </menupopup>
+                            </menu>
                             <menuitem
                                 id="menu_helpCommunity"
                                 label="&komodoCommunity.label;"
                                 observes="cmd_helpCommunity"
                             />
-                            <menuitem
-                                id="menu_helpViewBugs"
-                                label="&komodoBugDatabase.label;"
-                                observes="cmd_helpViewBugs"
-                                />
-                            <menuitem
-                                id="menu_helpReleaseNotes"
-                                label="&releaseNotes.label;"
-                                oncommand="ko.help.open('release_notes')"
-                                />
 <!-- #if BUILD_FLAVOUR != "dev" -->
                             <menuitem
                                 id="menu_helpUpdates"

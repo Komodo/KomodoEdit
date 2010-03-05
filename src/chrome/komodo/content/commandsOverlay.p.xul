@@ -271,6 +271,10 @@
             oncommand="ko.commands.doCommandAsync('cmd_helpLanguageAlternate', event)"
             desc="&helpAlternateHelpOnSelection.desc;"/>
         <command
+            id="cmd_helpViewErrorLog" key="key_cmd_helpViewErrorLog"
+            oncommand="ko.commands.doCommandAsync('cmd_helpViewErrorLog', event)"
+            desc="&helpTroubleshootingViewErrorLog.desc;"/>
+        <command
             id="cmd_toolsWatchFile" key="key_cmd_toolsWatchFile"
             interactive="true"
             oncommand="ko.commands.doCommandAsync('cmd_toolsWatchFile', event)"

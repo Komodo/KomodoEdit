@@ -50,6 +50,10 @@ ko.help = {};
 (function () {
 var _log = ko.logging.getLogger("ko.help");
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/komodo.properties");
+
 /* XXX duplicated from help/content/contextHelp.js.  We do NOT want
    alwaysRaised attribute on the window, that's obnoxious! */
 
@@ -190,6 +194,31 @@ this.alternate = function() {
                    '', // parseRegex
                    0, // showParsedOutputList
                    "Alternate Help"); // name
+}
+
+
+/**
+ * Open the Komodo error log for viewing.
+ */
+this.viewErrorLog = function() {
+    var osSvc = Components.classes['@activestate.com/koOs;1'].getService(Components.interfaces.koIOs);
+    var dirsSvc = Components.classes['@activestate.com/koDirs;1'].getService(Components.interfaces.koIDirs);
+    var sysUtilsSvc = Components.classes['@activestate.com/koSysUtils;1'].getService(Components.interfaces.koISysUtils);
+    var logPath = osSvc.path.join(dirsSvc.userDataDir, 'pystderr.log');
+    if (osSvc.path.exists(logPath)) {
+        sysUtilsSvc.FlushStderr();
+        var windowOpts = "centerscreen,chrome,resizable,scrollbars,dialog=no,close";
+        try {
+            ko.windowManager.openDialog('chrome://komodo/content/tail/tail.xul',
+                                        "komodo:errorlog", windowOpts, logPath);
+        } catch(e) {
+            var msg = _bundle.formatStringFromName("logFileOpenFailure.alert", [e], 1);
+            ko.dialogs.alert(msg);
+        }
+    } else {
+        var msg = _bundle.formatStringFromName("logFileDoesNotExist.alert", [logPath], 1);
+        ko.dialogs.alert(msg);
+    }
 }
 
 }).apply(ko.help);

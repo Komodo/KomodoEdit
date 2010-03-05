@@ -89,6 +89,7 @@ var handlers = {
     'cmd_helpViewBugs': 'ko.browse.browseTag("bugs")',
     'cmd_helpLanguage': 'ko.help.language()',
     'cmd_helpLanguageAlternate': 'ko.help.alternate()',
+    'cmd_helpViewErrorLog': 'ko.help.viewErrorLog()',
     'cmd_toolsWatchFile': 'ko.launch.watchLocalFile()',
     'cmd_toolsRunCommand': 'ko.launch.runCommand()',
     'cmd_newWindow': 'ko.launch.newWindow()',
