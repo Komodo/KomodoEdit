@@ -105,20 +105,6 @@
             <field name='_contextShowing'>false</field>
 
             <field name='symbolMargin'>true</field>
-            <field name="_columnModeStartLine">-1</field>
-            <field name="columnModeEndLine">-1</field>
-            <property name="columnModeStartLine"
-                      onget="return this._columnModeStartLine;">
-                <setter><![CDATA[
-                    if (val >= 0 && this._columnModeStartLine < 0) {
-                        this.scimoz.beginUndoAction();
-                    } else if (val < 0 && this._columnModeStartLine >= 0) {
-                        this.scimoz.endUndoAction();
-                    }
-                    this._columnModeStartLine = val;
-                ]]>
-                </setter>
-            </property>
 <!-- #if PLATFORM != "darwin" -->
             <!-- Alt-key handling needs special care to avoid its default
                 (focusing the menu) when using `Alt+click/drag` for
@@ -366,6 +352,16 @@
                     scimoz.setMarginWidthN(2, 0);
                 }
 
+                // Allow column editing through Scintilla.
+                scimoz.multipleSelection = true;
+                scimoz.additionalSelectionTyping = true;
+                // This allows a rectangular selection to extend past the
+                // end of the line when there is a longer selected line.
+                scimoz.virtualSpaceOptions = scimoz.SCVS_RECTANGULARSELECTION;
+                // This allows Scintilla to perform indenting/dedenting when
+                // there is a rectangular selection.
+                scimoz.tabIndents = true;
+
                 this.scheme.applyScheme(scimoz, this.language, this.encoding, this.alternateFaceType); // Shouldn't do these for editor views?
                 this.inited = true;
                 prefs.prefObserverService.addObserver(this, 'editor-scheme', false);
@@ -540,411 +536,6 @@
                 ]]></body>
             </method>
 
-            <!-- Setup for a column-mode edit: set the
-              -  `columnMode*Line` vars, clear the selection, and set
-              -  the current column.
-              -->
-            <method name="doColumnModeSetup">
-            <parameter name="considerAppend"/>
-            <body><![CDATA[
-                var scimoz = this.scimoz;
-
-                var startPos = scimoz.selectionStart;
-                var endPos = scimoz.selectionEnd;
-                if (startPos > endPos) {
-                    startPos = endPos;
-                    endPos = scimoz.selectionStart;
-                }
-
-                // Must come before line-extend changes below, b/c
-                // setting `this.columnModeStartLine` has the
-                // side-effect of starting an undo-action-group.
-                this.columnModeStartLine = scimoz.lineFromPosition(startPos);
-                this.columnModeEndLine = scimoz.lineFromPosition(endPos);
-
-                var startLine = scimoz.lineFromPosition(startPos);
-                var startCol = scimoz.getColumn(startPos);
-                var endLine = scimoz.lineFromPosition(endPos);
-                var endCol = scimoz.getColumn(endPos);
-
-                // Try to infer if there user is really attempting to
-                // *append* to all lines. Because scintilla doesn't
-                // feature virtual space at the end of lines, the user
-                // can't perfectly specify this.
-                if (considerAppend
-                    && startPos == scimoz.getLineEndPosition(startLine)
-                    && endPos == scimoz.getLineEndPosition(endLine)
-                    // Special case: Although this *may* be a case
-                    // where appending to all lines is the desired
-                    // behaviour, I expect it is much more common
-                    // to want the default behaviour: insert at this
-                    // column.
-                    && ! (startCol == 0 && endCol == 0))
-                {
-                    // We infer from this that the user was trying to
-                    // select at the end of a number of lines.
-
-                    // - Find the longest line.
-                    var maxCol = 0;
-                    for (var i = startLine; i <= endLine; ++i) {
-                        maxCol = Math.max(maxCol,
-                            scimoz.getColumn(scimoz.getLineEndPosition(i)));
-                    }
-                    
-                    // - Put the cursor on that column of the start
-                    //   line (and unselect).
-                    this._extendLineToColumn(scimoz, startLine, maxCol);
-                    scimoz.currentPos = scimoz.anchor = scimoz.getLineEndPosition(startLine);
-                } else {
-                    // Clear the selection (but not the EOLs!).
-                    // Cannot use `scimoz.clear()` or `scimoz.replaceSel("")`
-                    // to clear the selection because they will clear the
-                    // newline char(s).
-                    var leftCol = Math.min(startCol, endCol);
-                    var rightCol = Math.max(startCol, endCol);
-                    for (var i = startLine; i <= endLine; ++i) {
-                        var lineEndPos = scimoz.getLineEndPosition(i);
-                        var lineEndCol = scimoz.getColumn(lineEndPos);
-                        if (lineEndCol < leftCol) {
-                            continue;
-                        }
-                        scimoz.targetStart = scimoz.positionAtColumn(i, leftCol);
-                        scimoz.targetEnd = scimoz.positionAtColumn(i,
-                                Math.min(lineEndCol, rightCol));
-                        scimoz.replaceTarget(0, "");
-                    }
-                }
-            ]]></body>
-            </method>
-
-            <!-- Working backwards from the given position, tabify or
-              -  untabify the indentation accordingly for scimoz
-              -  tab and indentation settings.
-              -->
-            <method name="_fixupIndentChars">
-            <parameter name="scimoz"/>
-            <parameter name="line"/>
-            <parameter name="column"/>
-            <body><![CDATA[
-                var pos = scimoz.positionAtColumn(line, column);
-                var indentWidth = scimoz.indent;
-                var useTabs = scimoz.useTabs;
-                var tabWidth = scimoz.tabWidth;
-                var i, prevTabColPos;
-                
-                // Start at a tab column.
-                if (column % tabWidth != 0) {
-                    column -= column % tabWidth;
-                    prevTabColPos = scimoz.positionAtColumn(line, column);
-                    if (scimoz.getTextRange(prevTabColPos, pos).search(/[^ ]/) != -1) {
-                        // Hit non-space characters: no fixing up to do.
-                        return;
-                    }
-                    pos = prevTabColPos;
-                }
-                
-                // Work backwards on tab-range at a time.
-                var prevTabCol, startPos, fixupWidth, fixupIndent;
-                while (column > 0) {
-                    prevTabCol = column - tabWidth;
-                    
-                    // Find the region to fixup (the trailing contiguous
-                    // block of whitespace).
-                    prevTabColPos = scimoz.positionAtColumn(line, prevTabCol);
-                    var stripe = scimoz.getTextRange(prevTabColPos, pos);
-                    for (i = stripe.length - 1; i >= 0; --i) {
-                        if (stripe[i] != ' ' && stripe[i] != '\t') {
-                            break;
-                        }
-                    }
-                    startPos = prevTabColPos;
-                    fixupWidth = tabWidth;
-                    if (i != -1) {
-                        // Found non-whitespace in this tab-range.
-                        if (i == tabWidth - 1) {
-                            // Found non-whitespace char at the end: no
-                            // fixing up to do in this range.
-                            return;
-                        }
-                        startPos = scimoz.positionAtColumn(
-                            line, prevTabCol + (i + 1));
-                        fixupWidth = tabWidth - (i + 1);
-                    }
-
-                    // Make the replacement to fixup.
-                    scimoz.targetStart = startPos;
-                    scimoz.targetEnd = pos;
-                    if (useTabs) {
-                        fixupIndent = '\t';
-                    } else {
-                        fixupIndent = '';
-                        for (i = 0; i < fixupWidth; ++i) {
-                            fixupIndent += ' ';
-                        }
-                    }
-                    if (fixupIndent == scimoz.getTextRange(startPos, pos)) {
-                        // Optimization: if this tab-range doesn't need
-                        // a fixup, then presume that all preceding
-                        // tab-ranges are fine too. Without this optimization
-                        // column-editing <Tab> at the end of a large
-                        // number of lines is extremely slow.
-                        return;
-                    }
-                    scimoz.replaceTarget(fixupIndent.length, fixupIndent);
-                    
-                    // If we ran into non-whitespace, then stop.
-                    if (i != -1) {
-                        return;
-                    }
-                    
-                    column = prevTabCol;
-                    pos = prevTabColPos;
-                }
-            ]]></body>
-            </method>   
-
-            <!-- Append spaces to the given line until it is of the given
-              -  length (column).
-              -->
-            <method name="_extendLineToColumn">
-            <parameter name="scimoz"/>
-            <parameter name="line"/>
-            <parameter name="column"/>
-            <body><![CDATA[
-                var lineEndPos = scimoz.getLineEndPosition(line);
-                var numSpaces = column - scimoz.getColumn(lineEndPos);
-                if (numSpaces > 0) {
-                    var toAppend = '';
-                    for (var n = 0; n < numSpaces; ++n) {
-                        toAppend += ' ';
-                    }
-                    scimoz.insertText(lineEndPos, toAppend);
-                }
-            ]]></body>
-            </method>
-
-            <method name="doColumnDeleteBackspace">
-            <parameter name="isBackspace"/>
-            <body><![CDATA[
-                var scimoz = this.scimoz;
-
-                // Trigger a new undo-session.
-                // In non-column-mode editing in Komodo an indent/dedent
-                // are separated from typing chars in undo sessions.
-                scimoz.endUndoAction();
-                scimoz.beginUndoAction();
-
-                var selWidth = Math.abs(scimoz.getColumn(scimoz.selectionStart)
-                                        - scimoz.getColumn(scimoz.selectionEnd));
-
-                if (this.columnModeStartLine < 0) {
-                    this.doColumnModeSetup(false);
-                }
-
-                // `doColumnModeSetup` removed the selected chars for us.
-                // If the width was zero to start with, then we need to
-                // remove one more char (or word).
-                var targetCol = scimoz.getColumn(scimoz.currentPos);
-                if (selWidth == 0) {
-                    if (isBackspace) {
-                        targetCol -= 1;
-                    }
-                    var endCol = targetCol + 1;
-                    for (var line = this.columnModeStartLine;
-                         line <= this.columnModeEndLine; line++) {
-                        scimoz.targetStart = scimoz.positionAtColumn(line, targetCol);
-                        scimoz.targetEnd = scimoz.positionAtColumn(line, endCol);
-                        scimoz.replaceTarget(0, "");
-                    }
-                }
-
-                // Adjust current position as appropriate for next column
-                // edit.
-                var pos = scimoz.positionAtColumn(this.columnModeStartLine, targetCol);
-                scimoz.setSel(pos, pos);  // cancel rectangular selection
-                scimoz.anchor = scimoz.currentPos = pos;
-
-                // Trigger a new undo-session.
-                // In non-column-mode editing in Komodo an indent/dedent
-                // are separated from typing chars in undo sessions.
-                scimoz.endUndoAction();
-                scimoz.beginUndoAction();
-            ]]></body>
-            </method>
-
-
-            <!-- Do a dedent in column-editing mode.
-              -  This will remove whitespace preceding the current column
-              -  back to the preceding tab-stop column. If this cannot
-              -  be done for all lines, because there is non-whitespace
-              -  in the way on one or more of the lines, then we only
-              -  go back as far as that non-whitespace character.
-              -->
-            <method name="doColumnDedent">
-            <body><![CDATA[
-                var scimoz = this.scimoz;
-
-                // Trigger a new undo-session.
-                // In non-column-mode editing in Komodo an indent/dedent
-                // are separated from typing chars in undo sessions.
-                scimoz.endUndoAction();
-                scimoz.beginUndoAction();
-
-                if (this.columnModeStartLine < 0) {
-                    this.doColumnModeSetup(false);
-                }
-
-                // Determine the target column.
-                //dump("\n-- doColumnDedent:\n");
-                var currCol = scimoz.getColumn(scimoz.currentPos); // char offset
-                var dedentWidth = (currCol % scimoz.indent) || scimoz.indent;
-                var targetCol = Math.max(0, currCol - dedentWidth);
-                if (currCol == targetCol) {
-                    return;
-                }
-
-                // If, for any of the lines, there is a non-whitespace
-                // character in the way, then we may not be able to
-                // go back that far.
-                for (var line = this.columnModeStartLine;
-                     line <= this.columnModeEndLine; line++) {
-                    var strip = scimoz.getTextRange(
-                            scimoz.positionAtColumn(line, targetCol),
-                            scimoz.positionAtColumn(line, currCol));
-                    var i, ch;
-                    for (i = strip.length-1; i >= 0; --i) {
-                        ch = strip[i];
-                        if (ch != ' ' && ch != '\t') {
-                            targetCol += (i + 1);
-                            break;
-                        }
-                    }
-                    if (currCol == targetCol) {
-                        return;
-                    }
-                }
-
-                // Dedent each line as appropriate.
-                //dump(" dedent each line from col "+currCol+" to col "+targetCol+"\n");
-                var repl, startPos, endPos;
-                var colAtStartPos, precedingCol, numSpaces;
-                for (var line = this.columnModeStartLine;
-                     line <= this.columnModeEndLine; line++) {
-                    repl = "";
-                    startPos = scimoz.positionAtColumn(line, targetCol);
-                    endPos = scimoz.positionAtColumn(line, currCol);
-                    colAtStartPos = scimoz.getColumn(startPos);
-                    if (startPos > 0 && colAtStartPos != targetCol) {
-                        // We are trying to move back into the middle of a
-                        // tab -> replace the tab with an appropriate
-                        // number of spaces.
-                        startPos = scimoz.positionBefore(startPos); // replace the tab ...
-                        precedingCol = scimoz.getColumn(startPos);
-                        numSpaces = targetCol - precedingCol;       // ... with this many spaces.
-                        for (var i = 0; i < numSpaces; ++i) {
-                            repl += ' ';
-                        }
-                    }
-
-                    scimoz.targetStart = startPos;
-                    scimoz.targetEnd = endPos;
-                    scimoz.replaceTarget(repl.length, repl);
-                }
-                
-                // Adjust current position as appropriate for next column
-                // edit.
-                var pos = scimoz.positionAtColumn(this.columnModeStartLine, targetCol);
-                scimoz.setSel(pos, pos);  // cancel rectangular selection
-                scimoz.anchor = scimoz.currentPos = pos;
-
-                // Trigger a new undo-session.
-                // In non-column-mode editing in Komodo an indent/dedent
-                // are separated from typing chars in undo sessions.
-                scimoz.endUndoAction();
-                scimoz.beginUndoAction();
-            ]]></body>
-            </method>
-
-            <!-- Indent each line in column-editing mode.
-              -  This will indent each line from the current column to
-              -  to the next tab-stop column.
-              -->
-            <method name="doColumnIndent">
-            <body><![CDATA[
-                var scimoz = this.scimoz;
-
-                // Trigger a new undo-session.
-                // In non-column-mode editing in Komodo an indent/dedent
-                // are separated from typing chars in undo sessions.
-                scimoz.endUndoAction();
-                scimoz.beginUndoAction();
-
-                if (this.columnModeStartLine < 0) {
-                    this.doColumnModeSetup(true);
-                }
-
-                // Determine the target column to which to indent.
-                //dump("\n-- doColumnIndent:\n");
-                var currCol = scimoz.getColumn(scimoz.currentPos); // char offset
-                var indentWidth = scimoz.indent - (currCol % scimoz.indent);
-                var targetCol = currCol + indentWidth;
-                var indent = '';
-                for (var i=0; i < indentWidth; ++i) {
-                    indent += ' ';
-                }
-
-                // Indent each line as appropriate.
-                //dump(" indent each line from col "+currCol+" to col "+targetCol+"\n");
-                for (var line = this.columnModeStartLine;
-                     line <= this.columnModeEndLine; line++) {
-                    this._extendLineToColumn(scimoz, line, currCol);
-                    scimoz.insertText(scimoz.positionAtColumn(line, currCol), indent);
-                    this._fixupIndentChars(scimoz, line, targetCol);
-                }
-
-                // Adjust current position as appropriate for next column
-                // edit.
-                var pos = scimoz.positionAtColumn(this.columnModeStartLine, targetCol);
-                scimoz.setSel(pos, pos);  // cancel rectangular selection
-                scimoz.anchor = scimoz.currentPos = pos;
-
-                // Trigger a new undo-session.
-                // In non-column-mode editing in Komodo an indent/dedent
-                // are separated from typing chars in undo sessions.
-                scimoz.endUndoAction();
-                scimoz.beginUndoAction();
-            ]]></body>
-            </method>
-
-            <method name="doColumnInsert">
-            <parameter name="s"/>
-            <body><![CDATA[
-                var scimoz = this.scimoz;
-
-                if (this.columnModeStartLine < 0) {
-                    this.doColumnModeSetup(true);
-                }
-
-                // Copy the character to the number of lines below at the
-                // same column.
-                var column = scimoz.getColumn(scimoz.currentPos); // char offset
-                for (var line = this.columnModeStartLine; line <= this.columnModeEndLine; line++) {
-                    if (line >= scimoz.lineCount)
-                        break;
-    
-                    // Extend this line with spaces, if necessary.
-                    this._extendLineToColumn(scimoz, line, column);
-                    scimoz.insertText(scimoz.positionAtColumn(line, column), s);
-                }
-                
-                // Adjust current position as appropriate for next column
-                // edit.
-                var pos = scimoz.positionAtColumn(this.columnModeStartLine, column + s.length);
-                scimoz.setSel(pos, pos);  // cancel rectangular selection
-                scimoz.anchor = scimoz.currentPos = pos;
-            ]]></body>
-            </method>
-            
             <method name="getClientCoordinates">
             <parameter name="event"/>
             <body><![CDATA[
@@ -1042,14 +633,12 @@
                     }
                 }
                 if (this.key_handler) {
-                    this.columnModeStartLine = -1;
                     // The key_handler will cancelBubble or preventDefault if it
                     // is necessary.
                     this.key_handler(event);
                     return;
                 }
                 if (cmdkey) {
-                    this.columnModeStartLine = -1;
                     // Keybindings handle these key events
                     return;
                 }
@@ -1058,17 +647,13 @@
                 switch (event.keyCode) {
                     case event.DOM_VK_ENTER:
                     case event.DOM_VK_RETURN:
-                        this.columnModeStartLine = -1;
                         break;
                     case event.DOM_VK_TAB:
-                        if (this.columnModeStartLine >= 0 || this.scimoz.selectionIsRectangle) {
-                            if (this.scimoz.selectionIsRectangle) {
-                                this.columnModeStartLine = -1;
-                            }
+                        if (this.scimoz.selectionIsRectangle) {
                             if (event.shiftKey) {
-                                this.doColumnDedent();
+                                this.scimoz.backTab();
                             } else {
-                                this.doColumnIndent();
+                                this.scimoz.tab();
                             }
                             event.stopPropagation();
                             event.preventDefault();
@@ -1088,7 +673,6 @@
                         break;
                     case event.DOM_VK_ESCAPE:
                         var view = ko.views ? ko.views.manager.currentView : null;
-                        this.columnModeStartLine = -1;
                         if (this.scimoz.autoCActive()) {
                             this.scimoz.autoCCancel();
                             event.stopPropagation();
@@ -1112,11 +696,8 @@
                         if (ko.tabstops) {
                             ko.tabstops.handleDelete(this.scimoz);
                         }
-                        if (this.columnModeStartLine >= 0 || this.scimoz.selectionIsRectangle) {
-                            if (this.scimoz.selectionIsRectangle) {
-                                this.columnModeStartLine = -1;
-                            }
-                            this.doColumnDeleteBackspace(false);
+                        if (this.scimoz.selectionIsRectangle) {
+                            this.scimoz.clear();
                             event.stopPropagation();
                             event.preventDefault();
                             event.cancelBubble = true;
@@ -1127,11 +708,8 @@
                         if (ko.tabstops) {
                             ko.tabstops.handleBackspace(this.scimoz);
                         }
-                        if (this.columnModeStartLine >= 0 || this.scimoz.selectionIsRectangle) {
-                            if (this.scimoz.selectionIsRectangle) {
-                                this.columnModeStartLine = -1;
-                            }
-                            this.doColumnDeleteBackspace(true);
+                        if (this.scimoz.selectionIsRectangle) {
+                            this.scimoz.deleteBack();
                             event.stopPropagation();
                             event.preventDefault();
                             event.cancelBubble = true;
@@ -1140,7 +718,6 @@
                         break;                    
                 }
                 if (event.charCode == 0) {
-                    this.columnModeStartLine = -1;
                     return;
                 }
 
@@ -1159,11 +736,6 @@
                             this.scimoz.autoCCancel();
                         }
                         this.scimoz.gotoPos(currentPos + 1);
-                    } else if (this.columnModeStartLine >= 0 || this.scimoz.selectionIsRectangle) {
-                        if (this.scimoz.selectionIsRectangle) {
-                            this.columnModeStartLine = -1;
-                        }
-                        this.doColumnInsert(String.fromCharCode(event.charCode));
                     } else {
                         this.scimoz.addChar(event.charCode);
                     }
@@ -1299,7 +871,6 @@
                     // Focus on this Scintilla now.
                     this.focus();
                 }
-                this.columnModeStartLine = -1;
                 var x,y;
                 [x,y] = this.getClientCoordinates(event);
                 this._lastMousePos = [x,y];
