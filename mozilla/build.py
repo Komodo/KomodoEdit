@@ -1215,12 +1215,10 @@ def target_configure(argv):
             build a clean unpatched mozilla or firefox
             (Note: I don't trust that this is what you get. --TM)
 
-        --compiler=<vc6|vc7|vc8>  # Windows-only
+        --compiler=<vc7|vc8|vc9>  # Windows-only
             There is *some* support for building Mozilla/Firefox with
             the non-default compiler on Windows. Currently we build with
-            VC6 and this is the default. We have done some investigation
-            with building with vc7 (mainly because Python 2.4 builds
-            with VC7) but have backed off because of various problems.
+            VC9 and this is the default.
 
         --moz-objdir=<name>
             Specify a name to use for the MOZ_OBJDIR: the directory in
@@ -1257,7 +1255,7 @@ def target_configure(argv):
         "official": False,      # i.e. a plain Mozilla/Firefox build w/o Komodo stuff
         "withCrashReportSymbols": False,
         "stripBuild": True,
-        "compiler": None, # Windows-only; 'vc6' (the default) or 'vc7', 'vc8'
+        "compiler": None, # Windows-only; 'vc9' (the default)
         "mozObjDir": None,
         "universal": False,
         "patchesDirs": ["patches-new"],
@@ -1428,7 +1426,7 @@ def target_configure(argv):
         elif opt == "--compiler":
             assert sys.platform == "win32", \
                 "'--compiler' configure option is only supported on Windows"
-            validCompilers = ('vc6', 'vc7', 'vc8', 'vc9')
+            validCompilers = ('vc7', 'vc8', 'vc9')
             assert optarg in validCompilers, \
                 "invalid compiler value (%s), must be one of: %s"\
                 % (optarg, validCompilers)
@@ -1520,10 +1518,7 @@ def target_configure(argv):
 
     config["changenum"] = _getChangeNum()
     if sys.platform == "win32":
-        if config["mozSrcScheme"].startswith("cvs:1.8"):
-            defaultWinCompiler = "vc6"
-        else:
-            defaultWinCompiler = "vc8"
+        defaultWinCompiler = "vc9"
         if not config["compiler"]:
             config["compiler"] = defaultWinCompiler
         if config["compiler"] != defaultWinCompiler:
