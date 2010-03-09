@@ -2133,6 +2133,7 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("components", "as*.js"),
         mozbinpath("components", "libko*"),
         mozbinpath("modules", "js_beautify.js"),
+        mozbinpath("plugins", "npscimoz.dll"),
         mozbinpath("extensions"),
         mozbinpath("updater.ini"),
 
@@ -2140,6 +2141,13 @@ def CleanKomodoBuild(cfg, argv):
         #TODO:
         # - SciMoz plugin on other plats
     ]
+    mozKomodoAppDir = join(cfg.mozObjDir, "komodo", "app")
+    if sys.platform == "win32":
+        bits.append(join(mozKomodoAppDir, "*.obj"))
+        bits.append(join(mozKomodoAppDir, "komodo.exe"))
+    else:
+        bits.append(join(mozKomodoAppDir, "*.o"))
+        bits.append(join(mozKomodoAppDir, "komodo-bin"))
 
     for bit in bits:
         paths = glob.glob(bit)
