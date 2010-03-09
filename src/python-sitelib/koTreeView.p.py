@@ -153,7 +153,7 @@ class TreeView(object):
         pass
     def setCellValue(self, row_idx, col, value):
         if self.log:
-            self.log.debug("setCellValue() row: %s, col: %s, value: %r", row, col.id, vlaue)
+            self.log.debug("setCellValue() row: %s, col: %s, value: %r", row, col.id, value)
     def performAction(self, action):
         if self.log:
             self.log.debug("performAction(%s)" % action)
