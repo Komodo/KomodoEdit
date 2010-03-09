@@ -129,10 +129,10 @@ import urllib
 import string
 import types
 import logging
+import subprocess
 
 sys.path.insert(0, join(dirname(__file__), "..", "util"))
 import which
-import process
 import preprocess
 import platinfo
 import patchtree
@@ -683,10 +683,10 @@ def _applyMozillaPatch(patchFile, mozSrcDir):
     # Skip out if the patch has already been applied.
     argv = baseArgv + ["--dry-run", "-R"] 
     log.debug("see if patch already applied: run %s in '%s'", argv, cwd)
-    p = process.ProcessOpen(argv, cwd=cwd)
-    p.stdin.write( open(patchFile, 'r').read() )
-    p.stdin.close()
-    p.stdout.close() # sometimes patch will hang if we don't close stdout
+    p = subprocess.Popen(argv, cwd=cwd, shell=True,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate(open(patchFile, 'r').read())
     retval = p.wait()
     if not retval: # i.e. reverse patch would apply
         log.info("Patch '%s' was already applied. Skipping.", patchFile)
@@ -695,13 +695,12 @@ def _applyMozillaPatch(patchFile, mozSrcDir):
     # Fail if the patch would not apply cleanly.
     argv = baseArgv + ["--dry-run"] 
     log.debug("see if patch will apply cleanly: run %s in '%s'", argv, cwd)
-    p = process.ProcessOpen(argv, cwd=cwd)
-    p.stdin.write( open(patchFile, 'r').read() )
-    p.stdin.close()
+    p = subprocess.Popen(argv, cwd=cwd, shell=True,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate(open(patchFile, 'r').read())
     retval = p.wait()
     if retval:
-        stdout = p.stdout.read()
-        stderr = p.stderr.read()
         raise BuildError("""\
 Patch '%s' will not apply cleanly:
    argv:    %s
@@ -719,11 +718,8 @@ Patch '%s' will not apply cleanly:
     else:
         argv = baseArgv
     log.debug("apply patch: run %s in '%s'", argv, cwd)
-    p = process.ProcessOpen(argv, cwd=cwd)
-    p.stdin.write( open(patchFile, 'r').read() )
-    p.stdin.close()
-    sys.stdout.write( p.stdout.read() )
-    sys.stdout.flush()
+    p = subprocess.Popen(argv, cwd=cwd, shell=True)
+    p.communicate(open(patchFile, 'r').read())
     retval = p.wait()
     if retval:
         raise BuildError("Error applying patch '%s': argv=%r, cwd=%r"\
@@ -2999,7 +2995,6 @@ def _capture_output(cmd):
 
 def _capture_status(argv):
     try:
-        import subprocess
         p = subprocess.Popen(argv, stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
         stdout = p.stdout.read()
