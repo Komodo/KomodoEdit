@@ -44,6 +44,7 @@ import logging
 
 import testlib
 import citestsupport
+import clean_tests
 
 
 log = logging.getLogger("test")
@@ -62,7 +63,13 @@ def setup():
         citestsupport.rmtree(citestsupport.test_db_base_dir)
 
 if __name__ == "__main__":
-    retval = testlib.harness(setup_func=setup,
-                             default_tags=default_tags)
-    sys.exit(retval)
+    try:
+        retval = testlib.harness(setup_func=setup,
+                                 default_tags=default_tags)
+        sys.exit(retval)
+    finally:
+        # Remove the special unicode files added by the codeintel system,
+        # otherwise buildbot and/or Python utilities may break when trying to
+        # remove these files.
+        clean_tests.do_clean_unicode_directories()
 
