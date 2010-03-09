@@ -154,8 +154,15 @@ fi
                         "configured python: '%s' (python='%s')"
                         % (msvc_ver, python))
         if not exists(msvc_setenv):
-            raise Error("environ script for MSVC %s does not exist: '%s'"
-                        % (msvc_ver, msvc_setenv))
+            # Try the x86 version, on Windows 7 it might be under:
+            #   C:\Program Files (x86)\
+            alt_msvc_setenv = msvc_setenv.replace("Program Files",
+                                                  "Program Files (x86)")
+            if exists(alt_msvc_setenv):
+                msvc_setenv = alt_msvc_setenv
+            else:
+                raise Error("environ script for MSVC %s does not exist: '%s'"
+                            % (msvc_ver, msvc_setenv))
         envconf.append('call "%s"' % msvc_setenv)
 
     # Setup some convenience aliases non-Windows.
