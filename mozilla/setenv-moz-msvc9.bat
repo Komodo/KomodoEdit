@@ -4,7 +4,7 @@ rem Copyright (c) 2006-2008 ActiveState Software Inc.
 rem This is a slightly modified version of mozilla-build\start-msvc8.bat:
 rem - don't start "msys\bin\bash"
 rem - add some extra paths
-echo ================ setup Mozilla/MSVC8 build env ===================
+echo ================ setup Mozilla/MSVC9 build env ===================
 
 
 rem Keep guess-msvc.bat from trouncing the current PATH.
