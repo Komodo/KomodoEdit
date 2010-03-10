@@ -63,16 +63,12 @@ from koLintResults import koLintResults
 import projectUtils
 
 log = logging.getLogger('koPythonLinter')
-#log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 
 _leading_ws_re = re.compile(r'(\s*)')
 
-class KoPythonLinter:
-    _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo Python Linter"
-    _reg_clsid_ = "{FAA3B898-5192-4463-BD37-816EDE05A5EE}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Python;1"
 
+class KoPythonCommonLinter(object):
     def __init__(self):
         self._sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
             getService(components.interfaces.koISysUtils)
@@ -81,16 +77,17 @@ class KoPythonLinter:
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
 
     def _getInterpreterAndPyver(self, prefset):
-        if prefset.hasStringPref("pythonDefaultInterpreter") and\
-           prefset.getStringPref("pythonDefaultInterpreter"):
-            python = prefset.getStringPref("pythonDefaultInterpreter")
+        pref_name = "%sDefaultInterpreter" % (self.language_name_lc)
+        if prefset.hasStringPref(pref_name) and\
+           prefset.getStringPref(pref_name):
+            python = prefset.getStringPref(pref_name)
         else:
             if sys.platform.startswith('win'):
                 exts = ['.exe']
             else:
                 exts = None
             try:
-                python = which.which("python", exts=exts, path=self._userPath)
+                python = which.which(self.language_name_lc, exts=exts, path=self._userPath)
             except which.WhichError:
                 python = None
 
@@ -98,7 +95,8 @@ class KoPythonLinter:
             pyver = self._pyverFromPython(python)
             return python, pyver
         else:
-            errmsg = "No python interpreter with which to check syntax."
+            errmsg = ("No %s interpreter with which to check syntax."
+                      % self.language_name_lc)
             raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
 
     _pyverFromPythonCache = None
@@ -106,7 +104,8 @@ class KoPythonLinter:
         if self._pyverFromPythonCache is None:
             self._pyverFromPythonCache = {}
         if python not in self._pyverFromPythonCache:
-            pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
+            pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=%s;1"
+                                             % self.language_name]\
                 .createInstance(components.interfaces.koIAppInfoEx)
             pythonInfo.executablePath = python
             verStr = pythonInfo.version
@@ -195,12 +194,15 @@ class KoPythonLinter:
         return results
 
     def lint(self, request):
+        log.debug(">> lint")
         text = request.content.encode(request.encoding.python_encoding_name)
+        log.debug(" text: %s", text)
         cwd = request.cwd
         prefset = request.document.getEffectivePrefs()
 
         try:
             python, pyver = self._getInterpreterAndPyver(prefset)
+            log.debug(" python:%s, pyver:%s", python, pyver)
             if pyver and pyver >= (3,0):
                 compilePy = os.path.join(self._koDirSvc.supportDir, "python",
                                          "py3compile.py")
@@ -240,8 +242,9 @@ class KoPythonLinter:
                     cwd = None
                     
                 pythonPath = None
-                if prefset.hasPref("pythonExtraPaths"):
-                    pythonPath = prefset.getStringPref("pythonExtraPaths")
+                prefName = "%sExtraPaths" % self.language_name_lc
+                if prefset.hasPref(prefName):
+                    pythonPath = prefset.getStringPref(prefName)
                 if pythonPath:
                     pythonPathEnv = env.get("PYTHONPATH", "")
                     if pythonPathEnv:
@@ -255,16 +258,17 @@ class KoPythonLinter:
                 p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
                 output, error = p.communicate()
                 retval = p.returncode
-                #print "-"*60, "env"
-                #pprint(env)
-                #print "-"*60, "output"
-                #print output
-                #print "-"*60, "error"
-                #print error
-                #print "-"*70
+                print "-"*60, "env"
+                pprint(env)
+                print "-"*60, "output"
+                print output
+                print "-"*60, "error"
+                print error
+                print "-"*70
                 if retval:
                     errmsg = "Error checking syntax: retval=%s, stderr=%s"\
                              % (retval, error)
+                    log.exception(errmsg)
                     raise ServerException(nsError.NS_ERROR_UNEXPECTED, errmsg)
                 else:
                     # Parse syntax errors in the output.
@@ -277,9 +281,28 @@ class KoPythonLinter:
             finally:
                 os.unlink(tmpFileName)
         except ServerException:
+            log.exception("ServerException")
             raise
         except:
             # non-ServerException's are unexpected internal errors
             log.exception("unexpected internal error")
             raise
         return results
+
+
+class KoPythonLinter(KoPythonCommonLinter):
+    language_name = "Python"
+    language_name_lc = "python"
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo Python Linter"
+    _reg_clsid_ = "{FAA3B898-5192-4463-BD37-816EDE05A5EE}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python;1"
+
+
+class KoPython3Linter(KoPythonCommonLinter):
+    language_name = "Python3"
+    language_name_lc = "python3"
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo Python3 Linter"
+    _reg_clsid_ = "{f2c7d20a-8399-453d-bbee-7e93d30841e9}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python3;1"

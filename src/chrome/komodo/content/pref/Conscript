@@ -80,6 +80,8 @@ $cons->InstallInChrome('pref-find.xul');
 $cons->InstallInChrome('pref-project-python.xul');
 $cons->InstallInChrome('pref-python.xul');
 $cons->InstallInChrome('pref-python.js');
+$cons->InstallInChrome('pref-python3.xul');
+$cons->InstallInChrome('pref-python3.js');
 
 $cons->InstallInChrome('pref-project-javascript.xul');
 $cons->Preprocess('pref-javascript.p.xul', 'pref-javascript.xul');

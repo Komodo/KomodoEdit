@@ -40,16 +40,24 @@ import re
 from langinfo import LangInfo
 
 
-class PythonLangInfo(LangInfo):
-    name = "Python"
+class _PythonCommonLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
     exts = ['.py', '.pyw']
-    magic_numbers = [
-        (0, "regex", re.compile(r'\A#!.*python.*$', re.I | re.M))
-    ]
     default_encoding = "ascii"  #TODO: link to ref defining default encoding
     # http://www.python.org/dev/peps/pep-0263/
     encoding_decl_pattern = re.compile(r"coding[:=]\s*(?P<encoding>[-\w.]+)")
+
+class PythonLangInfo(_PythonCommonLangInfo):
+    name = "Python"
+    magic_numbers = [
+        (0, "regex", re.compile(r'\A#!.*python.*$', re.I | re.M))
+    ]
+
+class Python3LangInfo(_PythonCommonLangInfo):
+    name = "Python3"
+    magic_numbers = [
+        (0, "regex", re.compile(r'\A#!.*python3.*$', re.I | re.M))
+    ]
 
 class CompiledPythonLangInfo(LangInfo):
     name = "Compiled Python"

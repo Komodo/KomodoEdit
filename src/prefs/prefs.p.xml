@@ -159,6 +159,7 @@
   <string id="xmlCatalogPaths"/>
   <string id="perlDefaultInterpreter"/>
   <string id="pythonDefaultInterpreter"/>
+  <string id="python3DefaultInterpreter"/>
   <string id="xsltDefaultInterpreter"/>
   <string id="phpDefaultInterpreter"/>
   <string id="phpConfigFile"/>
@@ -169,6 +170,7 @@
   <string id="javascriptExtraPaths"></string>
   <string id="phpExtraPaths"></string>
   <string id="pythonExtraPaths"></string>
+  <string id="python3ExtraPaths"></string>
   <string id="perlExtraPaths"></string>
 
   <!-- JavaScript linting options -->
@@ -512,6 +514,10 @@
     <preference-set id="languages/Python">
       <string id="Python/newEncoding">ascii</string>
       <boolean id="Python/newBOM">0</boolean>
+    </preference-set>
+    <preference-set id="languages/Python3">
+      <string id="Python3/newEncoding">ascii</string>
+      <boolean id="Python3/newBOM">0</boolean>
     </preference-set>
     <preference-set id="languages/Ruby">
       <string id="Ruby/newEncoding">Default Encoding</string>

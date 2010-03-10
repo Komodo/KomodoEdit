@@ -355,8 +355,11 @@ class koDocumentBase:
         contentLanguages = []
         buffer = self.get_buffer()
         if buffer:
-            contentLanguages = langRegistrySvc.guessLanguageFromContents(
-                buffer[:1000], buffer[-1000:])
+            if fileNameLanguage == "Python":
+                contentLanguages = self._distinguishPythonVersion(buffer)
+            else:
+                contentLanguages = langRegistrySvc.guessLanguageFromContents(
+                    buffer[:1000], buffer[-1000:])
             log.info("_guessLanguage: possible languages from content: %s",
                      contentLanguages)
 
@@ -1713,3 +1716,14 @@ class koDocumentBase:
 
     def get_hasTabstopInsertionTable(self):
         return self._tabstopInsertionNodes is not None
+
+    def _distinguishPythonVersion(self, buffer):
+        """
+        Look for python-3 markers first
+        """
+        import pythonVersionUtils
+        isPython3 = pythonVersionUtils.isPython3(buffer)
+        if isPython3:
+            return ["Python3"]
+        else:
+            return ["Python"]

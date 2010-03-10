@@ -210,13 +210,7 @@ class KoPerlInfoEx(KoAppInfoEx):
             self._havePerlCritic = bool(self.haveModules(["criticism", "Perl::Critic"]))
         return self._havePerlCritic
 
-class KoPythonInfoEx(KoAppInfoEx):
-    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
-                        components.interfaces.nsIObserver]
-    _reg_clsid_ = "b76bc2ee-261e-4597-b1ef-446e9bb89d7c"
-    _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Python;1"
-    _reg_desc_ = "Extended Python Information"
-    
+class KoPythonCommonInfoEx(KoAppInfoEx):
     def __init__(self):
         KoAppInfoEx.__init__(self)
         self.koInfoService = components.classes["@activestate.com/koInfoService;1"].getService();
@@ -228,12 +222,12 @@ class KoPythonInfoEx(KoAppInfoEx):
             print e
 
     def observe(self, subject, topic, data):
-        if topic == "pythonDefaultInterpreter":
+        if topic == ("%sDefaultInterpreter" % (self.languageName_lc,)):
             self.installationPath = None
         
     def _GetPythonExeName(self):
         if not self.installationPath:
-            pythonExe = self.prefService.prefs.getStringPref("pythonDefaultInterpreter")
+            pythonExe = self.prefService.prefs.getStringPref("%sDefaultInterpreter" % (self.languageName_lc,))
             if pythonExe: return pythonExe
             paths = self.FindInstallationPaths()
             if paths:
@@ -244,11 +238,15 @@ class KoPythonInfoEx(KoAppInfoEx):
 
         if sys.platform.startswith("win"):
             if self.koInfoService.buildType == "release":
-                return os.path.join(self.installationPath, "python.exe")
+                return os.path.join(self.installationPath,
+                                    "%s.exe" % (self.languageName_lc,))
             else:
-                return os.path.join(self.installationPath, "python_d.exe")
+                #XXX: Is it python3_d or python_3d or what?
+                return os.path.join(self.installationPath, 
+                                    "%s_d.exe" % (self.languageName_lc,))
         else:
-           return os.path.join(self.installationPath, "bin", "python")
+           return os.path.join(self.installationPath, "bin",
+                               self.languageName_lc)
 
     # koIAppInfoEx routines
     def FindInstallationPaths(self):
@@ -256,7 +254,8 @@ class KoPythonInfoEx(KoAppInfoEx):
             exts = ['.exe']
         else:
             exts = None
-        pythonExes = which.whichall("python", exts=exts, path=self._userPath)
+        pythonExes = which.whichall(self.languageName_lc, exts=exts,
+                                    path=self._userPath)
         pythonInstallationPaths = [self.getInstallationPathFromBinary(p)\
                                    for p in pythonExes]
         return pythonInstallationPaths
@@ -352,7 +351,7 @@ class KoPythonInfoEx(KoAppInfoEx):
             return None
         else:
             try:
-                pythonExe = which.which("python", path=self._userPath)
+                pythonExe = which.which(self.languageName_lc, path=self._userPath)
             except which.WhichError:
                 return None
             indexHtml = os.path.join(os.path.dirname(pythonExe),
@@ -366,6 +365,26 @@ class KoPythonInfoEx(KoAppInfoEx):
         """Return a web URL for help on this app, else return None."""
         return "http://aspn.activestate.com/ASPN/Products/ASPNTOC-ACTIVEPYTH"
 
+
+class KoPythonInfoEx(KoPythonCommonInfoEx):
+    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
+                        components.interfaces.nsIObserver]
+    _reg_clsid_ = "{b76bc2ee-261e-4597-b1ef-446e9bb89d7c}"
+    _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Python;1"
+    _reg_desc_ = "Extended Python Information"
+    languageName_lc = "python"
+    def __init__(self):
+        KoPythonCommonInfoEx.__init__(self)
+
+class KoPython3InfoEx(KoPythonCommonInfoEx):
+    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
+                        components.interfaces.nsIObserver]
+    _reg_clsid_ = "{e98c16e6-0b9f-4f11-8505-5012555a19b2}"
+    _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Python3;1"
+    _reg_desc_ = "Extended Python3 Information"
+    languageName_lc = "python3"
+    def __init__(self):
+        KoPythonCommonInfoEx.__init__(self)
 
 #---- components
 

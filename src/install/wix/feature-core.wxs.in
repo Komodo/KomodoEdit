@@ -1643,6 +1643,7 @@
                 <File Id="file710" LongName="ctypesutils.py" Name="CTYPES_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\ctypesutils.py" />
                 <File Id="file420" Name="runutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\runutils.py" />
 <?endif ?>
+                <File Id="file932" LongName="pythonVersionUtils.py" Name="PYTHON_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pythonVersionUtils.py" />
               </Component>
               <Directory Id="directory262" Name="CODEIN_3" LongName="codeintel2">
                 <Component Id="component245" DiskId="1" Guid="$(autowix.guid)">

@@ -477,6 +477,7 @@ StateMap['IDL'] = StateMap['C++'].copy()
 StateMap['Pascal'] = StateMap['C++'].copy()
 StateMap['VBScript'] = StateMap['VisualBasic'].copy()
 StateMap['Fortran'] = StateMap['Fortran 77'].copy()
+StateMap['Python3'] = StateMap['Python'].copy()
 
 SharedStates = {
     'bracebad' : ('STYLE_BRACEBAD',),

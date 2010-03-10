@@ -334,6 +334,14 @@
                                           helptag="python_configuration"/>
                             </treerow>
                         </treeitem>
+                        <treeitem container="false" id="python3Item">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-python3.xul"
+                                          label="&python3.label;"
+                                          helptag="python_configuration"/>
+                            </treerow>
+                        </treeitem>
 <!-- ruby start -->
                         <treeitem container="false" id="rubyItem">
                             <treerow>

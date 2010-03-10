@@ -123,6 +123,7 @@
 <!ENTITY addAppropriateExtension.label "Add appropriate extension">
 <!ENTITY additionalPerlImportDirectories.label "Additional Perl Import Directories">
 <!ENTITY additionalPythonImportDirectories.label "Additional Python Import Directories">
+<!ENTITY additionalPython3ImportDirectories.label "Additional Python 3 Import Directories">
 <!ENTITY additionalRubyImportDirectories.label "Additional Ruby Import Directories">
 <!ENTITY all.label "All">
 <!ENTITY allowCodingTagToOverrideAutoDetection.label "Allow 'coding:' tag to Override Auto-Detection">
@@ -189,6 +190,7 @@
 <!ENTITY defaultPHPInterpreter.label "Default PHP Interpreter">
 <!ENTITY defaultPerlInterpreter.label "Default Perl Interpreter">
 <!ENTITY defaultPythonInterpreter.label "Default Python Interpreter">
+<!ENTITY defaultPython3Interpreter.label "Default Python3 Interpreter">
 <!ENTITY defaultRubyInterpreter.label "Default Ruby Interpreter">
 <!ENTITY delete.label "Delete">
 <!ENTITY deleteButton.accesskey "d">
@@ -360,6 +362,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY proportional.label "Proportional">
 <!ENTITY pyPython.label ".py: Python">
 <!ENTITY python.label "Python">
+<!ENTITY python3.label "Python3">
 <!ENTITY pywPython.label ".pyw: Python">
 <!ENTITY rawData.label "Raw Data">
 <!ENTITY rbRuby.label ".rb: Ruby">
@@ -672,6 +675,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 
 <!--pref-python.xul-->
 <!ENTITY noPythonInterpreter.description "No Python interpreter was found on your system. If you would like to debug and run Python programs in Komodo you will need to install Python. You can get Python from ActiveState at">
+<!ENTITY noPython3Interpreter.description "No Python3 interpreter was found on your system. If you would like to debug and run Python3 programs in Komodo you will need to install Python3. You can get Python3 from ActiveState at">
 <!ENTITY noteRestartPython.alert "Note: Komodo must be restarted for it to recognize new Python installations.">
 <!ENTITY filePrefPythonUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefPythonAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Python path when debugging, syntax checking or in the interactive shell.">

@@ -53,6 +53,7 @@ import sciutils
 
 def registerLanguage(registery):
     registery.registerLanguage(KoPythonLanguage())
+    registery.registerLanguage(KoPython3Language())
     
 
 #---- globals
@@ -98,24 +99,34 @@ def getLastLogicalLine(text):
 
 #---- Language Service component implementations
 
-class KoPythonLexerLanguageService(KoLexerLanguageService):
+class KoPythonCommonLexerLanguageService(KoLexerLanguageService):
+    
     def __init__(self):
         KoLexerLanguageService.__init__(self)
         self.setLexer(components.interfaces.ISciMoz.SCLEX_PYTHON)
-        kwlist = set(keyword.kwlist)
-        kwlist.update(['None', 'as', 'with', 'True', 'False'])
-        self.setKeywords(0, list(kwlist))
         self.setProperty('tab.timmy.whinge.level', '1') # XXX make a user-accesible pref
         # read lexPython.cxx to understand the meaning of the levels.
         self.supportsFolding = 1
 
+class KoPythonLexerLanguageService(KoPythonCommonLexerLanguageService):
+    def __init__(self):
+        KoPythonCommonLexerLanguageService.__init__(self)
+        kwlist = set(keyword.kwlist)
+        kwlist.update(['None', 'as', 'with', 'True', 'False'])
+        self.setKeywords(0, list(kwlist))
+    
+class KoPython3LexerLanguageService(KoPythonCommonLexerLanguageService):
+    def __init__(self):
+        KoPythonCommonLexerLanguageService.__init__(self)
+        kwlist = set(['False', 'None', 'True', 'and', 'as', 'assert', 'break',
+                      'class', 'continue', 'def', 'del', 'elif', 'else',
+                      'except', 'finally', 'for', 'from', 'global', 'if',
+                      'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or',
+                    'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']
+                     )
+        self.setKeywords(0, list(kwlist))
 
-class KoPythonLanguage(KoLanguageBase):
-    name = "Python"
-    _reg_desc_ = "%s Language" % (name)
-    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
-                       % (name)
-    _reg_clsid_ = "{D90FF5C7-1FD4-4535-A0D2-47B5BDC3E7FE}"
+class KoPythonCommonLanguage(KoLanguageBase):
 
     accessKey = 'y'
     primary = 1
@@ -156,11 +167,6 @@ class Class:
     def getVariableStyles(self):
         return self._style_info._variable_styles
 
-    def get_lexer(self):
-        if self._lexer is None:
-            self._lexer = KoPythonLexerLanguageService()
-        return self._lexer
-
     # The new autocomplete/calltip functionality based on the codeintel
     # system.
     def get_codeintelcompleter(self):
@@ -178,7 +184,8 @@ class Class:
     def get_interpreter(self):
         if self._interpreter is None:
             self._interpreter =\
-                components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
+                components.classes["@activestate.com/koAppInfoEx?app=%s;1"
+                                   % self.name]\
                 .getService(components.interfaces.koIAppInfoEx)
         return self._interpreter
 
@@ -188,6 +195,30 @@ class Class:
             CommenterTestCase,
         ]
         sciutils.runSciMozTests(testCases, scimoz)
+
+class KoPythonLanguage(KoPythonCommonLanguage):
+    name = "Python"
+    _reg_desc_ = "%s Language" % (name)
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "{D90FF5C7-1FD4-4535-A0D2-47B5BDC3E7FE}"
+
+    def get_lexer(self):
+        if self._lexer is None:
+            self._lexer = KoPythonLexerLanguageService()
+        return self._lexer
+
+class KoPython3Language(KoPythonCommonLanguage):
+    name = "Python3"
+    _reg_desc_ = "%s Language" % (name)
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "{db8d60b3-f104-4622-b4d5-3324787d5149}"
+
+    def get_lexer(self):
+        if self._lexer is None:
+            self._lexer = KoPython3LexerLanguageService()
+        return self._lexer
 
 class KoPythonCodeIntelCompletionLanguageService(KoCodeIntelCompletionLanguageService):
     _com_interfaces_ = [components.interfaces.koICodeIntelCompletionLanguageService]
