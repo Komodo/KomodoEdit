@@ -159,11 +159,15 @@
             </body>
             </method>
 
+            <field name="_scimoz">null</field>
             <property name="xscimoz" onget="return document.getAnonymousNodes(this)[0].ISciMoz;"/>
             <property name="scimoz">
                 <getter><![CDATA[
-                var xblContent = document.getAnonymousNodes(this)[0];
-                return xblContent && xblContent.ISciMoz;
+                if (this._scimoz == null) {
+                    var xblContent = document.getAnonymousNodes(this)[0];
+                    this._scimoz = xblContent && xblContent.ISciMoz;
+                }
+                return this._scimoz;
                 ]]></getter>
             </property>
 
@@ -403,6 +407,7 @@
                 // made to this instance. Bug 81293.
                 // Note: There should be no more calls to scimoz after this!
                 this.scimoz.markClosed();
+                this._scimoz = null;
             ]]></body>
             </method>
 
