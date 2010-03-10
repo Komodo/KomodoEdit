@@ -1058,8 +1058,9 @@ FindResultsTabManager.prototype._doubleClick = function()
                 // XXX - This may no longer be necessary since this is using an
                 //       callback from an asynchronous function (if new view).
                 setTimeout(function() {
-                    scimoz.setSel(start, end);
-                    scimoz.chooseCaretX();
+                    var scimoz_ = view.scimoz;
+                    scimoz_.setSel(start, end);
+                    scimoz_.chooseCaretX();
                     view.setFocus();
                 } , 0);
 
