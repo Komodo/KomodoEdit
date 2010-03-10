@@ -60,7 +60,6 @@ Dev Notes:
 
 import sys
 import re
-import string
 import pprint
 import __builtin__
 
@@ -124,7 +123,7 @@ def main(argv):
     # Get around a bug in python's compile() code on Unix that does not
     # like lines ending in CRLF.
     if not sys.platform[:3] == "win":
-        s = string.replace(s, '\r\n', '\n')
+        s = s.replace('\r\n', '\n')
 
     # Get around bug in python's compile() code that requires terminal newlines
     s = s + '\n' 
