@@ -170,6 +170,7 @@ class koEncodingServices:
                     ('shift_jisx0213', 'Shift JIS X 0208', 'Shift JIS X 0208', '', 1,'shift_jisx0213'),
                     ('cp932', 'Shift JIS (CP-932)', 'CP932', '', 1,'cp932'),
 
+                    ('euc_jp', 'Japanese (EUC-JP)', 'EUC-JP', '', 1, 'euc_jp'),
                     ('euc_kr', 'Korean (EUC-KR)', 'EUC-KR', '', 1, 'euc_kr'),
                     ('cp949', 'Korean (UHC)', 'UHC', '', 1, 'cp949'),
                     ('johab', 'Korean (JOHAB)', 'JOHAB', '', 1, 'johab'),
