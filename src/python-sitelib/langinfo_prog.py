@@ -47,6 +47,8 @@ class _PythonCommonLangInfo(LangInfo):
     # http://www.python.org/dev/peps/pep-0263/
     encoding_decl_pattern = re.compile(r"coding[:=]\s*(?P<encoding>[-\w.]+)")
 
+# Where there's a conflict in extensions, put the main
+# LangInfo entry last.
 class PythonLangInfo(_PythonCommonLangInfo):
     name = "Python"
     magic_numbers = [
@@ -58,6 +60,7 @@ class Python3LangInfo(_PythonCommonLangInfo):
     magic_numbers = [
         (0, "regex", re.compile(r'\A#!.*python3.*$', re.I | re.M))
     ]
+    is_minor_variant = PythonLangInfo
 
 class CompiledPythonLangInfo(LangInfo):
     name = "Compiled Python"

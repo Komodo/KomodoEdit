@@ -148,6 +148,7 @@ class PLSQLLangInfo(LangInfo):
     name = "PL-SQL"
     conforms_to_bases = ["Text"]
     #exts = [".sql"]
+    is_minor_variant = SQLLangInfo
 
 class MSSQLLangInfo(LangInfo):
     #TODO: describe how diff from SQLLangInfo
@@ -158,6 +159,7 @@ class MySQLLangInfo(LangInfo):
     name = "MySQL"
     conforms_to_bases = ["Text"]
     exts = [".sql"]
+    is_minor_variant = SQLLangInfo
 
 
 class NSISLangInfo(LangInfo):

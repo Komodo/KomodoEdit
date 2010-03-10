@@ -120,7 +120,7 @@ warnings.simplefilter("once", InvalidLangInfoWarning)
 #---- globals
 
 log = logging.getLogger("langinfo")
-
+#log.setLevel(logging.DEBUG)
 
 
 #---- module API
@@ -423,11 +423,31 @@ class Database(object):
                                  "lang %r", ext, li.name)
                     if sys.platform in ("win32", "darwin"):
                         ext = ext.lower()
+                    do_replace = True
                     if ext in self._langinfo_from_ext:
-                        log.debug("ext conflict: %r for %r conflicts "
-                                  "with the same for %r (%r wins)", ext, li,
-                                  self._langinfo_from_ext[ext], li)
-                    self._langinfo_from_ext[ext] = li
+                        current_li = self._langinfo_from_ext[ext]
+                        variant = getattr(li, "is_minor_variant", None)
+                        if variant is not None:
+                            log.debug("ext update: ext: %s, %r is a minor variant of %r",
+                                      ext, li, current_li)
+                        elif ext.startswith(".py"):
+                            log.debug("ext update: ext: %s, %r is *not* a minor variant of %r",
+                                  ext, li, current_li)
+                        if variant is not None and variant.name == current_li.name:
+                            log.debug("ext update: found variant for ext %s, li:%r, using:%r",
+                                      ext, li, current_li)
+                            do_replace = False
+                        else:
+                            variant = getattr(current_li, "is_minor_variant", None)
+                            if variant is None or variant.name != li.name:
+                                log.debug("ext conflict: %r for %r conflicts "
+                                          "with the same for %r (%r wins)", ext, li,
+                                          self._langinfo_from_ext[ext], li)
+                            else:
+                                log.debug("ext conflict: ext:%s, replace variant %r with %r",
+                                          ext, current_li, li)
+                    if do_replace:
+                        self._langinfo_from_ext[ext] = li
             if li.filename_patterns:
                 for pat in li.filename_patterns:
                     if isinstance(pat, basestring):
@@ -490,7 +510,8 @@ class Database(object):
                 attr = getattr(module, name)
                 if (not name.startswith("_")   # skip internal bases
                     and isinstance(attr, (types.ClassType, types.TypeType))
-                    and issubclass(attr, LangInfo) and attr is not LangInfo):
+                    and issubclass(attr, LangInfo)
+                    and attr is not LangInfo):
                     norm_lang = self._norm_lang_from_lang(attr.name)
                     self._langinfo_from_norm_lang[norm_lang] = attr(self)
 
