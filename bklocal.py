@@ -1027,7 +1027,7 @@ class PythonExe(black.configure.Datum):
             acceptedOptions=("", [self.longopt+'=']))
 
     def _getVersion(self, python):
-        cmd = '%s -c "import sys; print hex(sys.hexversion)"' % python
+        cmd = '%s -c "import sys; print(hex(sys.hexversion))"' % python
         o = os.popen(cmd)
         hexverstr = o.read().strip()
         retval = o.close()
@@ -1077,7 +1077,9 @@ class PythonExe(black.configure.Datum):
             names = set([siloedPythonExeName, 
                          "python", 
                          "python%s.%s" % self.version,
-                         "python%s%s" % self.version])
+                         "python%s%s" % self.version,
+                         "python%s" % self.version, # for python3 in linux
+                         ])
             for name in names:
                 for python in which.whichall(name):
                     try:
