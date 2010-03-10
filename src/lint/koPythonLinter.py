@@ -63,9 +63,10 @@ from koLintResults import koLintResults
 import projectUtils
 
 log = logging.getLogger('koPythonLinter')
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 _leading_ws_re = re.compile(r'(\s*)')
+
 
 
 class KoPythonCommonLinter(object):
@@ -194,15 +195,12 @@ class KoPythonCommonLinter(object):
         return results
 
     def lint(self, request):
-        log.debug(">> lint")
         text = request.content.encode(request.encoding.python_encoding_name)
-        log.debug(" text: %s", text)
         cwd = request.cwd
         prefset = request.document.getEffectivePrefs()
 
         try:
             python, pyver = self._getInterpreterAndPyver(prefset)
-            log.debug(" python:%s, pyver:%s", python, pyver)
             if pyver and pyver >= (3,0):
                 compilePy = os.path.join(self._koDirSvc.supportDir, "python",
                                          "py3compile.py")
@@ -258,13 +256,13 @@ class KoPythonCommonLinter(object):
                 p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
                 output, error = p.communicate()
                 retval = p.returncode
-                print "-"*60, "env"
-                pprint(env)
-                print "-"*60, "output"
-                print output
-                print "-"*60, "error"
-                print error
-                print "-"*70
+                #print "-"*60, "env"
+                #pprint(env)
+                #print "-"*60, "output"
+                #print output
+                #print "-"*60, "error"
+                #print error
+                #print "-"*70
                 if retval:
                     errmsg = "Error checking syntax: retval=%s, stderr=%s"\
                              % (retval, error)
@@ -288,7 +286,6 @@ class KoPythonCommonLinter(object):
             log.exception("unexpected internal error")
             raise
         return results
-
 
 class KoPythonLinter(KoPythonCommonLinter):
     language_name = "Python"
