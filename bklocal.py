@@ -1078,7 +1078,6 @@ class PythonExe(black.configure.Datum):
                          "python", 
                          "python%s.%s" % self.version,
                          "python%s%s" % self.version,
-                         "python%s" % self.version, # for python3 in linux
                          ])
             for name in names:
                 for python in which.whichall(name):
