@@ -621,6 +621,7 @@
 <!-- #if PLATFORM == "darwin" -->
   <string id="PerlHelpCommand">open http://www.google.com/search?q=site%3Adocs.activestate.com%2Factiveperl+%W</string>
   <string id="PythonHelpCommand">open http://www.google.com/search?q=site%3Adocs.activestate.com%2Factivepython+%W</string>
+  <string id="Python3HelpCommand">open http://www.google.com/search?q=site%3Adocs.activestate.com%2Factivepython+%W</string>
   <string id="PHPHelpCommand">open http://www.php.net/manual-lookup.php?pattern=%W</string>
   <string id="RubyHelpCommand">open http://www.ruby-doc.org/find/pickaxe?search=%W</string>
   <string id="TclHelpCommand">open http://www.google.com/search?q=site%3Adocs.activestate.com%2Factivetcl+%W</string>
@@ -631,6 +632,7 @@
 <!-- #else -->
   <string id="PerlHelpCommand">%(browser) http://www.google.com/search?q=site%3Adocs.activestate.com%2Factiveperl+%W</string>
   <string id="PythonHelpCommand">%(browser) http://www.google.com/search?q=site%3Adocs.activestate.com%2Factivepython+%W</string>
+  <string id="Python3HelpCommand">%(browser) http://www.google.com/search?q=site%3Adocs.activestate.com%2Factivepython+%W</string>
   <string id="PHPHelpCommand">%(browser) http://www.php.net/manual-lookup.php?pattern=%W</string>
   <string id="RubyHelpCommand">%(browser) http://www.ruby-doc.org/find/pickaxe?search=%W</string>
   <string id="TclHelpCommand">%(browser) http://www.google.com/search?q=site%3Adocs.activestate.com%2Factivetcl+%W</string>
