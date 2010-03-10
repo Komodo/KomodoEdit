@@ -549,9 +549,10 @@
         <handlers>
             <handler event="focus" phase="capturing">
                 <![CDATA[
-                this.scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
-                this.scimoz.indicatorClearRange(0, this.scimoz.textLength);
-                this.scimoz.isFocused = true;
+                var scimoz = this.scimoz;
+                scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                scimoz.indicatorClearRange(0, scimoz.textLength);
+                scimoz.isFocused = true;
                 // Ensure the command dispatcher is referencing the scintilla
                 // element, not the plugin element. Otherwise commands will not
                 // work correctly.
@@ -586,26 +587,27 @@
                 // may change the behaviour here as well.
                 var cmdkey = event.ctrlKey || event.metaKey;
 <!-- #endif -->
-                if (this.scimoz.isFocused &&
+                var scimoz = this.scimoz;
+                if (scimoz.isFocused &&
                     (event.charCode == 0 || cmdkey || this.key_handler)) {
                     // Setup a callback to check if we've moved away from the
                     // adjacent soft character.
-                    var currentPos = this.scimoz.currentPos;
-                    if (this.scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, currentPos)) {
+                    var currentPos = scimoz.currentPos;
+                    if (scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, currentPos)) {
                         if (event.keyCode == event.DOM_VK_BACK_SPACE) {
                             // Separate check to see if the current char is indicated
                             if (currentPos > 0) {
-                                var rightChar = this.scimoz.getWCharAt(currentPos);
-                                var leftChar = this.scimoz.getWCharAt(currentPos - 1);
+                                var rightChar = scimoz.getWCharAt(currentPos);
+                                var leftChar = scimoz.getWCharAt(currentPos - 1);
                                 if (!this.bracketedDecoratedChars) {
                                     this.bracketedDecoratedChars = {"(":")","{":"}", "[":"]"};
                                 }
                                 if (leftChar == rightChar
                                     || (leftChar in this.bracketedDecoratedChars
                                         && this.bracketedDecoratedChars[leftChar] == rightChar)) {
-                                    this.scimoz.targetStart = currentPos;
-                                    this.scimoz.targetEnd = currentPos + 1;
-                                    this.scimoz.replaceTarget(0, "");
+                                    scimoz.targetStart = currentPos;
+                                    scimoz.targetEnd = currentPos + 1;
+                                    scimoz.replaceTarget(0, "");
                                 }
                             }
                             // And let standard handling of the backspace take place.
@@ -613,21 +615,22 @@
                             // harden any soft characters we move away from.  The only
                             // range of soft chars in a document are immediately to the right
                             // of the cursor on the same line.
-                            setTimeout(function(scimoz, softPosition, softCharDecorator) {
-                                var newPosition = scimoz.currentPos;
+                            setTimeout(function(this_, softPosition, softCharDecorator) {
+                                var scimoz_ = this_.scimoz;
+                                var newPosition = scimoz_.currentPos;
                                 if (newPosition == softPosition) {
                                     return;
                                 }
-                                var softPositionEnd = scimoz.indicatorEnd(softCharDecorator, softPosition)
+                                var softPositionEnd = scimoz_.indicatorEnd(softCharDecorator, softPosition)
                                 var clearEndPos = ((newPosition < softPosition    // moved left
                                                     || newPosition >= softPositionEnd) // moved right of last soft char
                                                    ? softPositionEnd : newPosition);
                                 if (clearEndPos > softPosition) {
-                                    scimoz.indicatorCurrent = softCharDecorator;
+                                    scimoz_.indicatorCurrent = softCharDecorator;
                                     //dump("Clear soft chars from " + softPosition + " to " + clearEndPos + "\n");
-                                    scimoz.indicatorClearRange(softPosition, clearEndPos - softPosition);
+                                    scimoz_.indicatorClearRange(softPosition, clearEndPos - softPosition);
                                 }
-                            }, 0, this.scimoz, currentPos, this.DECORATOR_SOFT_CHAR);
+                            }, 0, this, currentPos, this.DECORATOR_SOFT_CHAR);
                         }
                     }
                 }
@@ -648,18 +651,18 @@
                     case event.DOM_VK_RETURN:
                         break;
                     case event.DOM_VK_TAB:
-                        if (this.scimoz.selectionIsRectangle) {
+                        if (scimoz.selectionIsRectangle) {
                             if (event.shiftKey) {
-                                this.scimoz.backTab();
+                                scimoz.backTab();
                             } else {
-                                this.scimoz.tab();
+                                scimoz.tab();
                             }
                             event.stopPropagation();
                             event.preventDefault();
                             event.cancelBubble = true;
                             return;
                         } else
-                        if (this.scimoz.isFocused) {
+                        if (scimoz.isFocused) {
                             // it's ours
                             event.preventDefault();
                             if (event.shiftKey) {
@@ -672,14 +675,14 @@
                         break;
                     case event.DOM_VK_ESCAPE:
                         var view = ko.views ? ko.views.manager.currentView : null;
-                        if (this.scimoz.autoCActive()) {
-                            this.scimoz.autoCCancel();
+                        if (scimoz.autoCActive()) {
+                            scimoz.autoCCancel();
                             event.stopPropagation();
                             event.preventDefault();
                             event.cancelBubble = true;
                             return;
-                        } else if (this.scimoz.callTipActive()) {
-                            this.scimoz.callTipCancel();
+                        } else if (scimoz.callTipActive()) {
+                            scimoz.callTipCancel();
                             event.stopPropagation();
                             event.preventDefault();
                             event.cancelBubble = true;
@@ -693,10 +696,10 @@
                         break;
                     case event.DOM_VK_DELETE:
                         if (ko.tabstops) {
-                            ko.tabstops.handleDelete(this.scimoz);
+                            ko.tabstops.handleDelete(scimoz);
                         }
-                        if (this.scimoz.selectionIsRectangle) {
-                            this.scimoz.clear();
+                        if (scimoz.selectionIsRectangle) {
+                            scimoz.clear();
                             event.stopPropagation();
                             event.preventDefault();
                             event.cancelBubble = true;
@@ -705,10 +708,10 @@
                         break;                    
                     case event.DOM_VK_BACK_SPACE:
                         if (ko.tabstops) {
-                            ko.tabstops.handleBackspace(this.scimoz);
+                            ko.tabstops.handleBackspace(scimoz);
                         }
-                        if (this.scimoz.selectionIsRectangle) {
-                            this.scimoz.deleteBack();
+                        if (scimoz.selectionIsRectangle) {
+                            scimoz.deleteBack();
                             event.stopPropagation();
                             event.preventDefault();
                             event.cancelBubble = true;
@@ -720,23 +723,23 @@
                     return;
                 }
 
-                if (this.scimoz.isFocused) {
-                    //dump("event.charCode: " + event.charCode + ", pos " + this.scimoz.currentPos + "\n");
-                    var currentPos = this.scimoz.currentPos;
-                    if (this.scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, currentPos)
-                        && event.charCode == this.scimoz.getCharAt(currentPos)) {
-                        this.scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
-                        this.scimoz.indicatorClearRange(currentPos, 1);
-                        if (this.scimoz.autoCActive()) {
+                if (scimoz.isFocused) {
+                    //dump("event.charCode: " + event.charCode + ", pos " + scimoz.currentPos + "\n");
+                    var currentPos = scimoz.currentPos;
+                    if (scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, currentPos)
+                        && event.charCode == scimoz.getCharAt(currentPos)) {
+                        scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                        scimoz.indicatorClearRange(currentPos, 1);
+                        if (scimoz.autoCActive()) {
                             // Do this to remove an interaction between
                             // the auto-complete mechanism and the soft-character mechanism
                             // when the trigger character is also a soft character.
                             // Only current case (2007-07) is for Ruby require statements.
-                            this.scimoz.autoCCancel();
+                            scimoz.autoCCancel();
                         }
-                        this.scimoz.gotoPos(currentPos + 1);
+                        scimoz.gotoPos(currentPos + 1);
                     } else {
-                        this.scimoz.addChar(event.charCode);
+                        scimoz.addChar(event.charCode);
                     }
                     event.stopPropagation();
                     event.preventDefault();
@@ -778,8 +781,9 @@
             <handler event="mouseup" phase="capturing">
                 <![CDATA[
                 //dump("scintilla: mouseup\n");
-                this.scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
-                this.scimoz.indicatorClearRange(0, this.scimoz.textLength);
+                var scimoz = this.scimoz;
+                scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                scimoz.indicatorClearRange(0, scimoz.textLength);
                 if (event.button != 2) { // right-click is handled by us
                     
 <!-- #if PLATFORM != "darwin" and PLATFORM != "win" -->
@@ -790,15 +794,15 @@
                     // click.  Otherwise selections get disabled on linux
                     if (this.inDragDrop && event.detail == 1 && event.button==0) {
                         //dump('scintilla reset mouseup positions\n');
-                        var pos = this.scimoz.positionFromPoint(x, y);
-                        this.scimoz.selectionStart = this.scimoz.selectionEnd = pos;
-                        this.scimoz.currentPos = pos;
-                        this.scimoz.dragPosition = -1;
+                        var pos = scimoz.positionFromPoint(x, y);
+                        scimoz.selectionStart = scimoz.selectionEnd = pos;
+                        scimoz.currentPos = pos;
+                        scimoz.dragPosition = -1;
 
                     // SciMoz.buttonUp does nothing on Linux, so commenting out
                     // this pointless xpcom call - toddw.
                     //} else {
-                    //    this.scimoz.buttonUp( x, y,
+                    //    scimoz.buttonUp( x, y,
                     //                        event.button,
                     //                        event.timeStamp,
                     //                        event.shiftKey, event.ctrlKey, event.metaKey);
@@ -866,7 +870,8 @@
 
             <handler event="mousedown" phase="capturing">
                 <![CDATA[
-                if (!this.scimoz.isFocused) {
+                var scimoz = this.scimoz;
+                if (!scimoz.isFocused) {
                     // Focus on this Scintilla now.
                     this.focus();
                 }
@@ -885,30 +890,30 @@
                 this._startDragDrop = null;
                 // No need to check X or Y are in range, as we will only get
                 // this event when we do!
-                var pos = this.scimoz.positionFromPoint(x, y);
+                var pos = scimoz.positionFromPoint(x, y);
                 if (event.button != 2) { // right-click is handled by us
                     this._inMouseDown = event.button;
-                    //dump('pos: '+pos+' s: '+this.scimoz.selectionStart+' e: '+this.scimoz.selectionEnd+' style: '+this.scimoz.getStyleAt(pos)+'\n');
+                    //dump('pos: '+pos+' s: '+scimoz.selectionStart+' e: '+scimoz.selectionEnd+' style: '+scimoz.getStyleAt(pos)+'\n');
                     // If the mousedown is within a selection, start drag/drop.
                     // shift key is used to make a selection with the mouse, and
                     // is not associated with drag/drop as is ctrl.  If the
                     // shift key is pressed on click, always pass to scintilla.
                     if ((event.detail == 1) && !event.shiftKey &&
-                        (this.scimoz.selectionStart != this.scimoz.selectionEnd) &&
+                        (scimoz.selectionStart != scimoz.selectionEnd) &&
                         // Note: positionFromPointClose will return -1 if it's
                         //       not close to any characters, i.e. when clicking
                         //       on the margin or past the end of the line.
-                        (this.scimoz.positionFromPointClose(x, y) >= 0) &&
-                        (pos >= this.scimoz.selectionStart) &&
-                        (pos <= this.scimoz.selectionEnd+1)) {
+                        (scimoz.positionFromPointClose(x, y) >= 0) &&
+                        (pos >= scimoz.selectionStart) &&
+                        (pos <= scimoz.selectionEnd+1)) {
                         this._startDragDrop = [x,y];
                     }
-                } else if (this.scimoz.selectionStart == this.scimoz.selectionEnd ||
-                        pos < this.scimoz.selectionStart ||
-                        pos > this.scimoz.selectionEnd+1) {
+                } else if (scimoz.selectionStart == scimoz.selectionEnd ||
+                        pos < scimoz.selectionStart ||
+                        pos > scimoz.selectionEnd+1) {
                     // if we right click, put the cursor there unless we're clicking
                     // on a selection
-                    this.scimoz.selectionStart = this.scimoz.selectionEnd = pos;
+                    scimoz.selectionStart = scimoz.selectionEnd = pos;
                 }
 <!-- #if PLATFORM != "darwin" -->
                 if (event.altKey) {
@@ -1001,31 +1006,32 @@
                 //dump("dragover\n");
                 // Automatically scroll Scintilla up/down when the drag
                 // cursor moves to the top/bottom of the visible document.
+                var scimoz = this.scimoz;
                 var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
                 var y = event.clientY - this.boxObject.y; // Must allow this to be -ve so we scroll up
-                var pos = this.scimoz.positionFromPoint(x, y);
+                var pos = scimoz.positionFromPoint(x, y);
 <!-- #if PLATFORM != "darwin" -->
-                var docLine = this.scimoz.lineFromPosition(pos);
-                var visibleLine = this.scimoz.visibleFromDocLine(docLine);
-                if (visibleLine <= this.scimoz.firstVisibleLine) {
+                var docLine = scimoz.lineFromPosition(pos);
+                var visibleLine = scimoz.visibleFromDocLine(docLine);
+                if (visibleLine <= scimoz.firstVisibleLine) {
                     if (this._dragScrollHits++ > 10) {
-                        this.scimoz.lineScroll(0,-5);
+                        scimoz.lineScroll(0,-5);
                     } else {
-                        this.scimoz.lineScroll(0,-1);
+                        scimoz.lineScroll(0,-1);
                     }
-                    pos = this.scimoz.positionFromPoint(x, y);
-                } else if (visibleLine >= this.scimoz.firstVisibleLine + this.scimoz.linesOnScreen - 1) {
+                    pos = scimoz.positionFromPoint(x, y);
+                } else if (visibleLine >= scimoz.firstVisibleLine + scimoz.linesOnScreen - 1) {
                     if (this._dragScrollHits++ > 10) {
-                        this.scimoz.lineScroll(0,5);
+                        scimoz.lineScroll(0,5);
                     } else {
-                        this.scimoz.lineScroll(0,1);
+                        scimoz.lineScroll(0,1);
                     }
-                    pos = this.scimoz.positionFromPoint(x, y);
+                    pos = scimoz.positionFromPoint(x, y);
                 } else {
                     this._dragScrollHits=0;
                 }
 <!-- #endif -->
-                this.scimoz.dragPosition = pos;
+                scimoz.dragPosition = pos;
 
                 // If you want to allow a drop, you must prevent the default
                 // handling by cancelling the event, or by returning false.
@@ -1063,11 +1069,12 @@
 
                 var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
                 var y = event.clientY - this.boxObject.y; // Must allow this to be -ve so we scroll up
-                var pos = this.scimoz.positionFromPoint(x, y);
-                var onselection = (pos > this.scimoz.selectionStart &&
-                                    pos < this.scimoz.selectionEnd);
+                var scimoz = this.scimoz;
+                var pos = scimoz.positionFromPoint(x, y);
+                var onselection = (pos > scimoz.selectionStart &&
+                                    pos < scimoz.selectionEnd);
 
-                this.scimoz.dragPosition = -1;
+                scimoz.dragPosition = -1;
                 var text;
                 if (ko && typeof(ko.dragdrop) != 'undefined') {
                     // Allows for text/html drop types as well.
@@ -1093,7 +1100,7 @@
                         koDropData = unhandledDropData[i];
                         if (koDropData.isSnippet) {
                             if (!onselection) {
-                                this.scimoz.gotoPos(pos);
+                                scimoz.gotoPos(pos);
                             }
                             ko.projects.snippetInsert(data.snippet);
                             // We handled the snippet.
@@ -1137,12 +1144,12 @@
                 eol[Components.interfaces.ISciMoz.SC_EOL_CR] = '\r';
                 eol[Components.interfaces.ISciMoz.SC_EOL_CRLF] = '\r\n';
                 eol[Components.interfaces.ISciMoz.SC_EOL_LF] = '\n';
-                text = text.replace(/(\r\n|\n|\r)/g, eol[this.scimoz.eOLMode]);
+                text = text.replace(/(\r\n|\n|\r)/g, eol[scimoz.eOLMode]);
                 var endUndoAction = true;
-                this.scimoz.beginUndoAction();
+                scimoz.beginUndoAction();
                 try {
 <!-- #if PLATFORM == "darwin" -->
-                    if (this.scimoz.inDragSession)
+                    if (scimoz.inDragSession)
 <!-- #else -->
                     if (this.inDragDrop) 
 <!-- #endif -->
@@ -1152,34 +1159,34 @@
                             event.preventDefault();
                             return true;
                         }
-                        var start = this.scimoz.selectionStart;
-                        var length = this.scimoz.selectionEnd - start;
+                        var start = scimoz.selectionStart;
+                        var length = scimoz.selectionEnd - start;
                         if (event.dataTransfer.dropEffect == "move") {
-                            this.scimoz.replaceSel(''); // remove the dragged text
+                            scimoz.replaceSel(''); // remove the dragged text
                             if (start < pos) pos -= length; // adjust where we insert our data
                         }
                     } else {
                         // data from outside scimoz
                         if (onselection) {
-                            pos = this.scimoz.selectionStart;
-                            this.scimoz.replaceSel('');
+                            pos = scimoz.selectionStart;
+                            scimoz.replaceSel('');
                         } else {
-                            this.scimoz.gotoPos(pos);
+                            scimoz.gotoPos(pos);
                         }
                     }
                     this.focus();
                     // Bug 81413: This must be done after `this.focus()`.
                     // Don't know what about `this.focus()` is resetting the
                     // current position.
-                    this.scimoz.insertText(pos, text);
-                    this.scimoz.selectionStart = pos;
-                    this.scimoz.selectionEnd = pos+stringutils_bytelength(text);
+                    scimoz.insertText(pos, text);
+                    scimoz.selectionStart = pos;
+                    scimoz.selectionEnd = pos+stringutils_bytelength(text);
                 } finally {
                     if (endUndoAction) {
-                        this.scimoz.endUndoAction();
+                        scimoz.endUndoAction();
                     }
                 }
-                this.scimoz.endDrop();
+                scimoz.endDrop();
 
                 // We're handling all (or at least part) of this drop data.
                 event.preventDefault();
