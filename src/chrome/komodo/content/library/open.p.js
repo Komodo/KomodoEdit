@@ -55,6 +55,27 @@ function removeAmpersands(labels) {
     return ret;
 }
 
+// TODO: These would be better added to the Komodo file associations, allowing
+//       the user to then customize which file types they wish to preview as
+//       images/browser types.
+this._imageUrlREs = [
+    /.*\.png$/i,
+    /.*\.gif$/i,
+    /.*\.jpg$/i,
+    /.*\.jpeg$/i,
+    /.*\.ico$/i,
+]
+
+this.isImageUrl = function open_isImageUrl(url) {
+    var imageREs = ko.open._imageUrlREs;
+    for (var i=0; i < imageREs.length; i++) {
+        if (imageREs[i].test(url)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * Asynchronously open the URI in a new Komodo tab, if the file is already
  * open then this existing tab becomes the currently focused tab.
@@ -161,6 +182,9 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
                         // as there's something wrong with its contents.
                     }
                 }
+            } else if (!viewType && ko.open.isImageUrl(uri)) {
+                // Open the image for previewing, bug 85103.
+                viewType = "browser";
             }
             ko.history.note_curr_loc();
             if (lineno) {
@@ -378,8 +402,6 @@ this.multipleURIs = function open_openMultipleURIs(urls, viewType)
  * open a file picker, and open the files that the user selects
  */
 this.filePicker = function view_openFilesWithPicker(viewType/*='editor'*/) {
-    if (typeof(viewType)=='undefined' || !viewType) viewType = 'editor';
-
     // We want the default directory to be that of the current file if there is one
     var defaultDir = null;
     var v = ko.views.manager.currentView;
@@ -405,8 +427,6 @@ this.filePicker = function view_openFilesWithPicker(viewType/*='editor'*/) {
  */
 this.templatePicker = function view_openTemplatesWithPicker(viewType/*='editor'*/) {
     try {
-        if (typeof(viewType)=='undefined' || !viewType) viewType = 'editor';
-
         var os = Components.classes["@activestate.com/koOs;1"].getService();
         var templateSvc = Components.classes["@activestate.com/koTemplateService?type=file;1"].getService();
         var defaultDir = templateSvc.getUserTemplatesDir();

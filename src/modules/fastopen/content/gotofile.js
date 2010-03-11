@@ -225,27 +225,31 @@ function _selectTreeRow(tree, index) {
 function _openSelectedPaths() {
     var hits = gWidgets.results.view.getSelectedHits(new Object());
     var hit, viewType, tabGroup;
+    var fileUrlsToOpen = [];
+    var dirsToOpen = [];
     for (var i in hits) {
         var hit = hits[i];
         if (hit.isdir) {
-            // Selecting a dir should just enter that dir into the filter box.
-            gWidgets.query.value = gOsPath.join(
-                gOsPath.dirname(gWidgets.query.value), hit.base) + gSep;
-            findFiles(gWidgets.query.value);
-            return false;
+            dirsToOpen.push(hit.base);
         } else if (hit.type == "open-view") {
             hit.view.makeCurrent();
         } else {
             //TODO: For history hits could perhaps restore viewType. Would need
             // changes to the back end for that.
-            var viewType = "editor";
-            // Note: Komodo APIs are mixing "tabGroupId" (also "tabbedViewId") to
-            // mean either the full DOM element id (e.g. "view-1") or just the
-            // number (e.g. 1). TODO: fix this.
-            var tabGroup = null;
-            var uri = ko.uriparse.pathToURI(hit.path);
-            opener.ko.views.manager.openViewAsync(viewType, uri, tabGroup);
+            fileUrlsToOpen.push(ko.uriparse.pathToURI(hit.path));
         }
+    }
+    if (fileUrlsToOpen.length) {
+        // Note: If there are directories to open as well, these files will be
+        //       opened after the dialog closes (due to the dialog being modal).
+        opener.ko.open.multipleURIs(urlsToOpen);
+    }
+    if (dirsToOpen.length) {
+        // Selecting a dir should just enter that dir into the filter box.
+        gWidgets.query.value = gOsPath.join(
+            gOsPath.dirname(gWidgets.query.value), dirsToOpen[0]) + gSep;
+        findFiles(gWidgets.query.value);
+        return false;
     }
     return true;
 }
