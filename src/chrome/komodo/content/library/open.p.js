@@ -63,6 +63,7 @@ this._imageUrlREs = [
     /.*\.gif$/i,
     /.*\.jpg$/i,
     /.*\.jpeg$/i,
+    /.*\.bmp$/i,
     /.*\.ico$/i,
 ]
 
