@@ -83,7 +83,7 @@ if ($buildFlavour eq "full") {
         "locale/en-US/spellcheck.dtd",
         "locale/en-US/spellcheck.properties",
         qq(
-           $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X -Dr komodospellchecker.jar content locale
+           $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X -Dr komodospellchecker.jar content skin locale
            $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X komodospellchecker.xpi komodospellchecker.jar install.rdf chrome.manifest
         )
     );
