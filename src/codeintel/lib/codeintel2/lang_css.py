@@ -131,6 +131,28 @@ class CSSLexer(Lexer):
                 play-during azimuth elevation speech-rate voice-family pitch
                 pitch-range stress richness speak-punctuation speak-numeral
             """),
+            # src/silvercity/PySilverCity/Src/PyLexerModule.cxx
+            # does a sanity check calling lexer->GetNumWordLists()
+            # to make sure that the number of word-lists passed in is
+            # the same as the lexer expects.  This is done only in
+            # test code, and is affected by a change in scintilla 2,
+            # where 5 new word-lists are defined by the C++ lexer.
+            
+            # CSS3 Properties
+            SilverCity.WordList("""
+            """),
+            # Pseudo-elements
+            SilverCity.WordList("""
+            """),
+            # Browser-Specific CSS Properties
+            SilverCity.WordList("""
+            """),
+            # Browser-Specific Pseudo-classes
+            SilverCity.WordList("""
+            """),
+            # Browser-Specific Pseudo-elements
+            SilverCity.WordList("""
+            """),
         ]
 
 class _StraightCSSStyleClassifier(object):
