@@ -2396,7 +2396,21 @@ viewManager.prototype.do_cmd_exportHTMLSelection = function() {
 }
 
 viewManager.prototype.do_ViewAs = function(language) {
-    this.currentView.document.language = language;
+    var scimoz = this.currentView.scimoz;
+    var firstVisibleLine = -1;
+    if (scimoz) {
+        firstVisibleLine = scimoz.firstVisibleLine;
+    }
+    var view = this.currentView;
+    view.document.docSettingsMgr.applyViewSettingsToDocument(view);
+    view.document.language = language;
+    if (firstVisibleLine != -1 && !!(scimoz = view.scimoz)) {
+        // For some reason the settings mgr doesn't fix the scroll
+        var newFirstVisibleLine = scimoz.firstVisibleLine;
+        if (newFirstVisibleLine != firstVisibleLine) {
+            scimoz.lineScroll(0, firstVisibleLine - newFirstVisibleLine);
+        }
+    }
     // koDocumentBase.set_language sends a language_changed notification,
     // but it doesn't update the commands.
     window.setTimeout(window.updateCommands, 1, 'language_changed');
