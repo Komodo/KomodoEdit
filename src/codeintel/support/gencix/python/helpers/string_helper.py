@@ -1,3 +1,4 @@
 # string_helper.py
 
-analyze_retval_exprs = [('split', ('a string to split', ))]
+# Override the "string.split" to return a list.
+function_overrides = {'split': {'returns': 'list'}}

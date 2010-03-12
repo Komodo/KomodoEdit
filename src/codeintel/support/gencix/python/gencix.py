@@ -387,6 +387,16 @@ def docmodule(modname, root, force=False, usefile=False):
                 callableElt.set("returns", type(var).__name__)
             else:
                 print "Don't know about: %r" % expr
+                
+        function_overrides = namespace.get('function_overrides')
+        if function_overrides is not None:
+            for name in function_overrides:
+                callableElt = callables[name]
+                overrides = function_overrides[name]
+                for setting, value in overrides.items():
+                    print "  overriding %s.%s %s attribute from %r to %r" % (modname, name, setting, callableElt.get(setting), value)
+                    callableElt.set(setting, value)
+
         hidden_classes_exprs = namespace.get('hidden_classes_exprs', [])
         for expr in hidden_classes_exprs:
             playarea = module.__dict__
