@@ -734,7 +734,7 @@ var normalModeCommandMap = {
 VimController.prototype.handleCommand = function(event, commandname, keylabel, multikey) {
     try {
         /* Ensure it's going to a vi controlled scintilla component */
-        if (!this.enabled || event.target.nodeName != 'view') {
+        if (!this.enabled || event.target.nodeName != 'view' || !event.target.scintilla) {
             return false;
         }
 
