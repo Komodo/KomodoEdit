@@ -88,19 +88,19 @@ if "%USESDK%"=="1" (
     rem random VC paths which we don't want.
     rem Add the atlthunk compat library to the end of our LIB
     set "PATH=%SDKDIR%\bin;%PATH%"
-    set LIB=%SDKDIR%\lib;%LIB%;%MOZBUILDDIR%atlthunk_compat
+    set "LIB=%SDKDIR%\lib;%LIB%;%MOZBUILDDIR%atlthunk_compat"
 
     if "%USEPSDKATL%"=="1" (
         if "%USEPSDKIDL%"=="1" (
-            set INCLUDE=%SDKDIR%\include;%PSDKDIR%\include\atl;%PSDKDIR%\include;%INCLUDE%
+            set "INCLUDE=%SDKDIR%\include;%PSDKDIR%\include\atl;%PSDKDIR%\include;%INCLUDE%"
         ) else (
-            set INCLUDE=%SDKDIR%\include;%PSDKDIR%\include\atl;%INCLUDE%
+            set "INCLUDE=%SDKDIR%\include;%PSDKDIR%\include\atl;%INCLUDE%"
         )
     ) else (
         if "%USEPSDKIDL%"=="1" (
-            set INCLUDE=%SDKDIR%\include;%SDKDIR%\include\atl;%PSDKDIR%\include;%INCLUDE%
+            set "INCLUDE=%SDKDIR%\include;%SDKDIR%\include\atl;%PSDKDIR%\include;%INCLUDE%"
         ) else (
-    set INCLUDE=%SDKDIR%\include;%SDKDIR%\include\atl;%INCLUDE%
+            set "INCLUDE=%SDKDIR%\include;%SDKDIR%\include\atl;%INCLUDE%"
         )
     )
 )
