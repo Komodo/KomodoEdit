@@ -2511,6 +2511,10 @@ function vim_doCommand(command, event)
         vimlog.debug("vim_doCommand:: not initialized yet");
         return false;
     }
+    if (!ko.views.manager.currentView.scintilla) {
+        // Not a Scintilla view - we don't handle the command.
+        return false;
+    }
 
     vimlog.debug("currentRegister: " + gVimController._currentRegister);
     var rc = false;
