@@ -55,13 +55,13 @@
         <xul:vbox flex="1">
             <xul:toolbox xbl:inherits="collapsed=collapsenavbar" collapsed="false">
                 <xul:toolbar id="nav-bar" grippyhidden="true">
-                    <xul:toolbarbutton id="browser-back-button" class="browser-toolbar" crop="right" onclick="document.getBindingParent(this).back()" tooltiptext="&back.tooltiptext;" disabled="true"/>
-                    <xul:toolbarbutton id="browser-forward-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="document.getBindingParent(this).forward()" tooltiptext="&forward.tooltiptext;" disabled="true"/>
-                    <xul:toolbarbutton id="browser-reload-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="document.getBindingParent(this).reload()" tooltiptext="&reload.tooltiptext;" disabled="true"/>
-                    <xul:toolbarbutton id="browser-stop-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="document.getBindingParent(this).stop()" tooltiptext="&stop.tooltiptext;" disabled="true"/>
-                    <xul:textbox autocomplete="true" timeout="300" flex="1"
-                                    searchSessionType="urlbar" id="urlbar"
-                                onkeypress="if( event.keyCode == 13 ) { document.getBindingParent(this).open(this.value); }"/>
+                    <xul:toolbarbutton id="browser-back-button" class="browser-toolbar" crop="right" onclick="window.document.getBindingParent(this).back()" tooltiptext="&back.tooltiptext;" disabled="true"/>
+                    <xul:toolbarbutton id="browser-forward-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="window.document.getBindingParent(this).forward()" tooltiptext="&forward.tooltiptext;" disabled="true"/>
+                    <xul:toolbarbutton id="browser-reload-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="window.document.getBindingParent(this).reload()" tooltiptext="&reload.tooltiptext;" disabled="true"/>
+                    <xul:toolbarbutton id="browser-stop-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="window.document.getBindingParent(this).stop()" tooltiptext="&stop.tooltiptext;" disabled="true"/>
+                    <xul:textbox id="urlbar" autocomplete="true" timeout="300" flex="1"
+                                 searchSessionType="urlbar" 
+                                 onkeypress="if( event.keyCode == event.DOM_VK_ENTER || event.keyCode == event.DOM_VK_RETURN ) { window.document.getBindingParent(this).open(this.value); }"/>
                 </xul:toolbar>
             </xul:toolbox>
 
