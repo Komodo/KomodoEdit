@@ -55,35 +55,35 @@
         <xul:vbox flex="1">
             <xul:toolbox xbl:inherits="collapsed=collapsenavbar" collapsed="false">
                 <xul:toolbar id="nav-bar" grippyhidden="true">
-                    <xul:toolbarbutton id="browser-back-button" class="browser-toolbar" crop="right" onclick="window.document.getBindingParent(this).back()" tooltiptext="&back.tooltiptext;" disabled="true"/>
-                    <xul:toolbarbutton id="browser-forward-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="window.document.getBindingParent(this).forward()" tooltiptext="&forward.tooltiptext;" disabled="true"/>
-                    <xul:toolbarbutton id="browser-reload-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="window.document.getBindingParent(this).reload()" tooltiptext="&reload.tooltiptext;" disabled="true"/>
-                    <xul:toolbarbutton id="browser-stop-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="window.document.getBindingParent(this).stop()" tooltiptext="&stop.tooltiptext;" disabled="true"/>
-                    <xul:textbox id="urlbar" autocomplete="true" timeout="300" flex="1"
+                    <xul:toolbarbutton id="browser-back-button" anonid="browser-back-button" class="browser-toolbar" crop="right" onclick="window.document.getBindingParent(this).back()" tooltiptext="&back.tooltiptext;" disabled="true"/>
+                    <xul:toolbarbutton id="browser-forward-button" anonid="browser-forward-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="window.document.getBindingParent(this).forward()" tooltiptext="&forward.tooltiptext;" disabled="true"/>
+                    <xul:toolbarbutton id="browser-reload-button" anonid="browser-reload-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="window.document.getBindingParent(this).reload()" tooltiptext="&reload.tooltiptext;" disabled="true"/>
+                    <xul:toolbarbutton id="browser-stop-button" anonid="browser-stop-button" class="browser-toolbar" style="max-width: 10em;" crop="right" onclick="window.document.getBindingParent(this).stop()" tooltiptext="&stop.tooltiptext;" disabled="true"/>
+                    <xul:textbox id="urlbar" anonid="urlbar" autocomplete="true" timeout="300" flex="1"
                                  searchSessionType="urlbar" 
                                  onkeypress="if( event.keyCode == event.DOM_VK_ENTER || event.keyCode == event.DOM_VK_RETURN ) { window.document.getBindingParent(this).open(this.value); }"/>
                 </xul:toolbar>
             </xul:toolbox>
 
-            <xul:browser context="context" type="content" id="content" src="about:blank" flex="1" xbl:inherits="disablehistory"/>
+            <xul:browser id="content" anonid="content" context="context" type="content" src="about:blank" flex="1" xbl:inherits="disablehistory"/>
         </xul:vbox>
     </content>
     <implementation name="viewbrowser" implements="koIBrowserView">
         <property name="_backButton"
-            onget="return document.getAnonymousNodes(this)[0].firstChild.firstChild.childNodes[0];"/>
+            onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'browser-back-button');"/>
         <property name="_forwardButton"
-            onget="return document.getAnonymousNodes(this)[0].firstChild.firstChild.childNodes[1];"/>
+            onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'browser-forward-button');"/>
         <property name="_reloadButton"
-            onget="return document.getAnonymousNodes(this)[0].firstChild.firstChild.childNodes[2];"/>
+            onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'browser-reload-button');"/>
         <property name="_stopButton"
-            onget="return document.getAnonymousNodes(this)[0].firstChild.firstChild.childNodes[3];"/>
+            onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'browser-stop-button');"/>
 
         <field name="_browser">null</field>
         <property name="browser" readonly="true">
         <getter>
         <![CDATA[
             if (!this._browser) {
-                this._browser = document.getAnonymousNodes(this)[0].lastChild;
+                this._browser = window.document.getAnonymousElementByAttribute(this, 'anonid', 'content');
             }
             return this._browser;
         ]]>
@@ -94,7 +94,7 @@
         <getter>
         <![CDATA[
             if (!this._urlBar) {
-                this._urlBar = document.getAnonymousNodes(this)[0].firstChild.firstChild.lastChild;
+                this._urlBar = window.document.getAnonymousElementByAttribute(this, 'anonid', 'urlbar');
             }
             return this._urlBar;
         ]]>
