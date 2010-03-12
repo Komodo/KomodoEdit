@@ -944,9 +944,9 @@ class MochiKitTestCase(CodeIntelTestCase):
             env=env)
         calltip = dedent("""\
             roundElement(element[, options])
-            Immediately round the corners of the specified element. The
-            element can be given as either a string with the element ID,
-            or as an element object.""")
+            Immediately round the corners of the specified element.
+            element: An element ID string or a DOM node (see
+            MochiKit.DOM.getElement).""")
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
             calltip, env=env)
         self.assertCalltipIs(markup_text(content, pos=positions[4]),
@@ -962,7 +962,7 @@ class MochiKitTestCase(CodeIntelTestCase):
         calltip = dedent("""\
             toISODate(date)
             Convert a Date object to an ISO 8601 [1] date string (YYYY-
-            MM-DD)""")
+            MM-DD) Availability: Available in MochiKit 1.3.1+""")
         self.assertCalltipIs(markup_text(content, pos=positions[7]),
             calltip, env=env)
         self.assertCalltipIs(markup_text(content, pos=positions[8]),
