@@ -1046,19 +1046,13 @@ class DojoTestCase(CodeIntelTestCase):
             [("function", "addOnLoad"), ("function", "byId"),
              ("function", "require")])
         expectedCalltip = "addOnLoad(obj)\nRegisters a function to be " \
-                          "triggered after the DOM has finished loading and " \
-                          "widgets declared in markup have been instantiated. "\
-                          "Images and CSS files may or may not have finished " \
-                          "downloading when the specified function is called. "\
-                          "(Note that widgets' CSS and HTML code is " \
-                          "guaranteed to be downloaded before said widgets "\
-                          "are instantiated.)"
+                          "triggered after the DOM and dojo.require() calls " \
+                          "have finished loading."
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              expectedCalltip)
         expectedCalltip = "byId(id,doc)\nReturns DOM node with matching `id` " \
-                          "attribute or `null` if not found, similar to " \
-                          "&amp;quot;$&amp;quot; function in another library." \
-                          " If `id` is a DomNode, this function is a no-op."
+                          "attribute or `null` if not found. If `id` is a " \
+                          "DomNode, this function is a no-op."
         self.assertCalltipIs(markup_text(content, pos=positions[3]),
                              expectedCalltip)
 
