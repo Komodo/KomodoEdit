@@ -185,6 +185,7 @@
       <ComponentRef Id="component324"/>
       <ComponentRef Id="component325"/>
       <ComponentRef Id="component311"/>
+      <ComponentRef Id="component419"/>
       <ComponentRef Id="component445"/>
       <ComponentRef Id="component446"/>
       <ComponentRef Id="component447"/>
@@ -211,6 +212,7 @@
       <ComponentRef Id="component472"/>
       <ComponentRef Id="component474"/>
       <ComponentRef Id="component475"/>
+      <ComponentRef Id="component480"/>
       <ComponentRef Id="component184"/>
       <ComponentRef Id="component187"/>
       <ComponentRef Id="component190"/>
@@ -273,6 +275,7 @@
       <ComponentRef Id="component604"/>
       <ComponentRef Id="component605"/>
       <ComponentRef Id="component606"/>
+      <ComponentRef Id="component501"/>
       <ComponentRef Id="component541"/>
       <ComponentRef Id="component536"/>
       <ComponentRef Id="component495"/>
@@ -2231,6 +2234,8 @@
               <File Id="file1352" Name="_sqlite3.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\DLLs\_sqlite3.pyd"/>
               <File Id="file1353" Name="_ssl.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\DLLs\_ssl.pyd"/>
               <File Id="file634" Name="_msi.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\DLLs\_msi.pyd"/>
+              <File Id="file933" Name="_hashlib.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\DLLs\_hashlib.pyd"/>
+              <File Id="file934" Name="_MULTI_0.PYD" LongName="_multiprocessing.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\DLLs\_multiprocessing.pyd"/>
             </Component>
           </Directory> <!-- lib\python\DLLs -->
           <Directory Id="directory89" Name="include">
@@ -2964,6 +2969,10 @@
                   <File Id="file817" Name="FIX_SY_0.PY" LongName="fix_sys_exc.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_sys_exc.py"/>
                   <File Id="file818" Name="FIX_UR_0.PY" LongName="fix_urllib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_urllib.py"/>
                   <File Id="file734" Name="__INI_34.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\__init__.py"/>
+                  <File Id="file935" Name="FIX_GE_0.PY" LongName="fix_getcwdu.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_getcwdu.py"/>
+                  <File Id="file936" Name="FIX_IS_0.PY" LongName="fix_isinstance.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_isinstance.py"/>
+                  <File Id="file937" Name="FIX_RE_1.PY" LongName="fix_reduce.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_reduce.py"/>
+                  <File Id="file938" Name="FIX_SE_0.PY" LongName="fix_set_literal.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_set_literal.py"/>
                 </Component>
               </Directory> <!-- lib\python\Lib\lib2to3\fixes -->
               <Directory Id="directory388" Name="pgen2">
@@ -3025,7 +3034,7 @@
                 <File Id="file3182" Name="PYTHON_1.PY" LongName="pythoncom.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pythoncom.py"/>
                 <File Id="file3183" Name="pywin32.pth" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pywin32.pth"/>
                 <File Id="file3184" Name="README_1.TXT" LongName="README.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\README.txt"/>
-                <File Id="file769" Name="PYWIN3_1.EGG" LongName="pywin32-211.1-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pywin32-211.1-py2.6.egg-info"/>
+                <File Id="file939" Name="PYWIN3_0.EGG" LongName="pywin32-214-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pywin32-214-py2.6.egg-info"/>
                 <File Id="file1775" Name="PYWIN3_0.TXT" LongName="pywin32.version.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\pywin32.version.txt"/>
               </Component>
               <Directory Id="directory396" Name="adodbapi">
@@ -3264,6 +3273,8 @@
                     <File Id="file4030" Name="WIN32C_3.PY" LongName="win32cryptcon.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\lib\win32cryptcon.py"/>
                     <File Id="file4031" Name="WIN32V_0.PY" LongName="win32verstamp.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\lib\win32verstamp.py"/>
                     <File Id="file4032" Name="WINIOC_0.PY" LongName="winioctlcon.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\lib\winioctlcon.py"/>
+                    <File Id="file941" Name="dbi.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\lib\dbi.py"/>
+                    <File Id="file942" Name="PYWIN3_0.PY" LongName="pywin32_testutil.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\lib\pywin32_testutil.py"/>
                   </Component>
                 </Directory> <!-- lib\python\Lib\site-packages\win32\lib -->
                 <Directory Id="directory135" Name="libs">
@@ -3405,6 +3416,11 @@
                       <File Id="file3604" Name="__INI_44.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\axscript\server\__init__.py"/>
                     </Component>
                   </Directory> <!-- lib\python\Lib\site-packages\win32comext\axscript\server -->
+                  <Directory Id="directory459" Name="libs">
+                    <Component Id="component419" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file940" Name="axscript.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\axscript\libs\axscript.lib"/>
+                    </Component>
+                  </Directory> <!-- lib\python\Lib\site-packages\axscript\libs -->
                 </Directory> <!-- lib\python\Lib\site-packages\win32comext\axscript -->
                 <Directory Id="directory446" Name="bits">
                   <Component Id="component413" DiskId="1" Guid="$(autowix.guid)">
@@ -3417,6 +3433,13 @@
                     <File Id="file3613" Name="__INI_45.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\directsound\__init__.py"/>
                     <File Id="file825" Name="DIRECT_0.PYD" LongName="directsound.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\directsound\directsound.pyd"/>
                   </Component>
+                  <Directory Id="directory521" Name="test">
+                    <Component Id="component480" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file943" Name="DS_REC_0.PY" LongName="ds_record.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\directsound\test\ds_record.py"/>
+                      <File Id="file944" Name="ds_test.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\directsound\test\ds_test.py"/>
+                      <File Id="file945" Name="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\directsound\test\__init__.py"/>
+                    </Component>
+                  </Directory> <!-- lib\python\Lib\site-packages\win32comext\directsound\test -->
                 </Directory> <!-- lib\python\Lib\site-packages\win32comext\directsound -->
                 <Directory Id="directory166" Name="ifilter">
                   <Component Id="component157" DiskId="1" Guid="$(autowix.guid)">
@@ -3429,6 +3452,7 @@
                   <Component Id="component159" DiskId="1" Guid="$(autowix.guid)">
                     <File Id="file3618" Name="internet.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\internet\internet.pyd"/>
                     <File Id="file3619" Name="__INI_47.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\internet\__init__.py"/>
+                    <File Id="file946" Name="inetcon.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\internet\inetcon.py"/>
                   </Component>
                 </Directory> <!-- lib\python\Lib\site-packages\win32comext\internet -->
                 <Directory Id="directory169" Name="mapi">
@@ -3453,6 +3477,7 @@
                     <File Id="file3628" Name="shell.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\shell\shell.pyd"/>
                     <File Id="file3629" Name="shellcon.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\shell\shellcon.py"/>
                     <File Id="file3630" Name="__INI_49.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\shell\__init__.py"/>
+                    <File Id="file947" Name="KNOWNF_0.PY" LongName="knownfolders.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32comext\shell\knownfolders.py"/>
                   </Component>
                 </Directory> <!-- lib\python\Lib\site-packages\win32comext\shell -->
                 <Directory Id="directory175" Name="TASKSC_0" LongName="taskscheduler">
@@ -3527,6 +3552,11 @@
               </Directory> <!-- lib\python\Lib\xml\sax -->
             </Directory> <!-- lib\python\Lib\xml -->
           </Directory> <!-- lib\python\Lib -->
+          <Directory Id="directory542" Name="Scripts">
+            <Component Id="component501" DiskId="1" Guid="$(autowix.guid)">
+              <File Id="file950" Name="PYWIN3_1.PY" LongName="pywin32_postinstall.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Scripts\pywin32_postinstall.py"/>
+            </Component>
+          </Directory> <!-- lib\python\Scripts -->
           <Directory Id="directory181" Name="LIBS_1" LongName="libs">
             <Component Id="component172" DiskId="1" Guid="$(autowix.guid)">
               <File Id="file2306" Name="python26.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\python26.lib"/>
@@ -3543,6 +3573,8 @@
               <File Id="file2359" Name="_ssl.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\_ssl.lib"/>
               <File Id="file790" Name="sqlite3.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\sqlite3.lib"/>
               <File Id="file791" Name="_msi.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\_msi.lib"/>
+              <File Id="file948" Name="_hashlib.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\_hashlib.lib"/>
+              <File Id="file949" Name="_MULTI_0.LIB" LongName="_multiprocessing.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\_multiprocessing.lib"/>
             </Component>
           </Directory> <!-- lib\python\libs -->
         </Directory> <!-- lib\python -->
