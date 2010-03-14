@@ -3195,7 +3195,6 @@
               </Directory> <!-- lib\python\Lib\site-packages\pythonwin -->
               <Directory Id="directory123" Name="win32">
                 <Component Id="component117" DiskId="1" Guid="$(autowix.guid)">
-                  <File Id="file3310" Name="dbi.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\dbi.pyd"/>
                   <File Id="file3311" Name="LICENS_1.TXT" LongName="license.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\license.txt"/>
                   <File Id="file3312" Name="mmapfile.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\mmapfile.pyd"/>
                   <File Id="file3313" Name="odbc.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\odbc.pyd"/>
@@ -3218,7 +3217,6 @@
                   <File Id="file3329" Name="win32net.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\win32net.pyd"/>
                   <File Id="file3330" Name="win32pdh.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\win32pdh.pyd"/>
                   <File Id="file3331" Name="WIN32P_0.PYD" LongName="win32pipe.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\win32pipe.pyd"/>
-                  <File Id="file3332" Name="WIN32P_0.EXE" LongName="win32popenWin9x.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\win32popenWin9x.exe"/>
                   <File Id="file3333" Name="WIN32P_1.PYD" LongName="win32print.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\win32print.pyd"/>
                   <File Id="file3334" Name="WIN32P_2.PYD" LongName="win32process.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\win32process.pyd"/>
                   <File Id="file3335" Name="win32ras.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\site-packages\win32\win32ras.pyd"/>
