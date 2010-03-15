@@ -2,8 +2,17 @@
   <file lang="Perl" mtime="42" path="scan_inputs/bug_80856a.pl">
     <scope ilk="blob" lang="Perl" name="bug_80856a" src="scan_inputs/bug_80856a.pl">
       <import line="2" module="Digest::MD5" symbol="*" />
+      <import line="9" module="LWP::UserAgent" symbol="*" />
+      <import line="16" module="SOAP::Lite" symbol="*" />
+      <import line="19" module="HTTP::Request" symbol="*" />
       <variable attributes="__local__" citdl="Digest::MD5" line="4" name="$dig1" />
       <variable attributes="__local__" citdl="Digest::MD5" line="5" name="$dig2" />
+      <variable attributes="__local__" citdl="LWP::UserAgent" line="11" name="$a1" />
+      <variable attributes="__local__" citdl="LWP::UserAgent" line="14" name="$a2" />
+      <variable attributes="__local__" citdl="SOAP::Lite" line="17" name="$s1" />
+      <variable attributes="__local__" citdl="HTTP::Request" line="20" name="$req" />
+      <variable attributes="__local__" line="21" name="$res" />
+      <variable attributes="__local__" citdl="HTTP::Request" line="23" name="$req2" />
     </scope>
   </file>
 </codeintel>
