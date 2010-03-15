@@ -48,7 +48,11 @@ class _HistoryTestCase(unittest.TestCase):
             os.remove(self._db_path_)
         self.history = History(self._db_path_)
 
-class RecentsDictTestCase(unittest.TestCase):
+    def tearDown(self):
+        self.history.close()
+        os.unlink(self._db_path_)
+
+class RecentsDictTestCase(_HistoryTestCase):
     def test_one(self):
         d = _RecentsDict(1)
         d["a"] = 1
@@ -81,7 +85,7 @@ class RecentsDictTestCase(unittest.TestCase):
         del d["a"]
         d["c"] = 3 # Bug 82125: raises an exception here
         
-class LocationTestCase(unittest.TestCase):
+class LocationTestCase(_HistoryTestCase):
     def test_cmp(self):
         a = Location("a.txt", 1, 1)
         b = Location("a.txt", 1, 1)

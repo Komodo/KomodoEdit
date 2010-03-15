@@ -679,10 +679,6 @@ class HistorySession(object):
         self.load()
         self.closed = False
 
-    def __del__(self):
-        if not self.closed:
-            self.close()
-
     def close(self):
         if self.closed:
             return
@@ -1220,9 +1216,9 @@ class History(object):
         # session name -> HistorySession instance (lazily created)
         self.sessions = {}
 
-    def __del__(self):
-        if not self.closed:
-            self.close()
+    ####def __del__(self):
+    #    if not self.closed:
+    #        self.close()
 
     def close(self):
         """Close this history manager and all its sessions."""
