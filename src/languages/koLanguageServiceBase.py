@@ -2559,6 +2559,10 @@ class KoLanguageBase:
         finally:
             scimoz.endUndoAction()
 
+    def supportsXMLIndentHere(self, scimoz, caretPos):
+        if self.supportsSmartIndent == "XML":
+            return self
+
     def test_scimoz_(self, scimoz):
         raise NotImplementedError("No tests for UDL languages defined")
 

@@ -515,6 +515,21 @@ class KoUDLLanguage(KoLanguageBase):
         #log.debug("udl: sending keyPressed(%d, %r) to %r", ord(ch), style_info, lang_svc_obj)
         return lang_svc_obj._keyPressed(ch, scimoz, style_info)
 
+    def supportsXMLIndentHere(self, scimoz, pos):
+        if self.supportsSmartIndent == "XML":
+            return self
+        style = self._get_meaningful_style(scimoz, pos)
+        subLangSvc = self.getLangSvcAndStyleInfoFromStyle(style)[0]
+        if subLangSvc.supportsSmartIndent == "XML":
+            return subLangSvc
+        if pos == 0:
+            return
+        stylePrev = self._get_meaningful_style(scimoz, pos - 1)
+        if stylePrev == style:
+            return
+        subLangSvc = self.getLangSvcAndStyleInfoFromStyle(stylePrev)[0]
+        if subLangSvc.supportsSmartIndent == "XML":
+            return subLangSvc
 
 class KoUDLCommenterLanguageService(KoCommenterLanguageService):
     def __init__(self, langSvc):

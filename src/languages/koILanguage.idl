@@ -132,6 +132,8 @@ interface koILanguage : nsISupports {
     string computeIndent(in ISciMoz scimoz, in string indentStyle,
                          in boolean continueComments);
     void keyPressed(in wchar chr, in ISciMoz scimoz);
+    koILanguage supportsXMLIndentHere(in ISciMoz scimoz, 
+                                      in long position);
     void guessIndentation(in ISciMoz scimoz,
                           in long tabWidth,
                           in boolean defaultUsesTabs,

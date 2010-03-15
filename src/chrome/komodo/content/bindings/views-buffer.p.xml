@@ -1207,12 +1207,13 @@
         <method name="_flashMatchingTag">
         <body>
         <![CDATA[
-        if (this.languageObj.supportsSmartIndent != "XML") {
+        var scimoz = this.scimoz;
+        var actualLanguageObj = this.languageObj.supportsXMLIndentHere(scimoz, scimoz.currentPos);
+        if (!actualLanguageObj) {
             return;
         } else if (!this.prefs.getBooleanPref("showMatchingTagsOnClick")) {
             return;
         }
-        var scimoz = this.scimoz;
         var pos = scimoz.currentPos;
         var style = scimoz.getStyleAt(pos);
         if (style != scimoz.SCE_UDL_M_TAGNAME
@@ -1224,7 +1225,7 @@
         }
         var result = {};
         var constrainSearchInViewPort = this.prefs.getBooleanPref("showMatchingTags_constrainSearchInViewPort");
-        this.languageObj.getMatchingTagInfo(scimoz, pos, constrainSearchInViewPort, result, {});
+        actualLanguageObj.getMatchingTagInfo(scimoz, pos, constrainSearchInViewPort, result, {});
         if (result.value) {
             var atStartTag, s1, s2, e1, e2, t1, t2;
             atStartTag = result.value[0];

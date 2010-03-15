@@ -725,7 +725,7 @@ class GenericCommandHandler:
         # Closing a </ tag is defined as "in XML, going backwards,
         # we hit a < before a whitespace character, and
         # there is a / to the right of that <.
-        if view.languageObj.supportsSmartIndent == 'XML':
+        if view.languageObj.supportsXMLIndentHere(sm, sm.currentPos):
             lineno = sm.lineFromPosition(sm.currentPos)
             startofLinePos = sm.positionFromLine(lineno)
             line = sm.getTextRange(startofLinePos, sm.currentPos)
@@ -1220,9 +1220,10 @@ class GenericCommandHandler:
     def _findMatchingBracePosition(self, caretPos, sloppy=1):
         view = self._view
         sm = view.scimoz
-        if view.languageObj.supportsSmartIndent == "XML":
+        actualLanguageObj = UnwrapObject(view.languageObj).supportsXMLIndentHere(sm, caretPos)
+        if actualLanguageObj is not None:
             matchInfo = scimozindent.findMatchingTagPosition(
-                sm, caretPos, UnwrapObject(view.languageObj))
+                sm, caretPos, actualLanguageObj)
             if matchInfo:
                 atStart, stagi, stagf, etagi, etagf = matchInfo
                 isInside = False
