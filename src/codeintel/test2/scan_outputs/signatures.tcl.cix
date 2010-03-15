@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Tcl" mtime="42" path="scan_inputs\signatures.tcl">
-    <scope ilk="blob" lang="Tcl" name="signatures">
+  <file lang="Tcl" mtime="42" path="scan_inputs/signatures.tcl">
+    <scope ilk="blob" lang="Tcl" name="signatures" src="scan_inputs/signatures.tcl">
       <scope ilk="function" line="2" lineend="2" name="a" signature="a {}" />
       <scope ilk="function" line="3" lineend="3" name="b" signature="b {args}">
         <variable attributes="varargs" ilk="argument" name="args" />

@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Tcl" mtime="42" path="scan_inputs\namespaces.tcl">
-    <scope ilk="blob" lang="Tcl" name="namespaces">
+  <file lang="Tcl" mtime="42" path="scan_inputs/namespaces.tcl">
+    <scope ilk="blob" lang="Tcl" name="namespaces" src="scan_inputs/namespaces.tcl">
       <scope ilk="namespace" line="2" lineend="12" name="foo">
         <scope ilk="function" line="5" lineend="5" name="glibber" signature="glibber {}" />
         <scope ilk="namespace" line="7" lineend="11" name="bar">

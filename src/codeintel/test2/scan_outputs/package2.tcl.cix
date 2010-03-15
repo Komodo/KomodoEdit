@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Tcl" mtime="42" path="scan_inputs\package2.tcl">
-    <scope ilk="blob" lang="Tcl" name="package2">
+  <file lang="Tcl" mtime="42" path="scan_inputs/package2.tcl">
+    <scope ilk="blob" lang="Tcl" name="package2" src="scan_inputs/package2.tcl">
       <import line="2" module="base54" symbol="*" />
       <variable line="8" name="b" />
       <scope ilk="function" line="4" lineend="6" name="a" signature="a {foo bar}">

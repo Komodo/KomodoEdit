@@ -129,7 +129,7 @@ def make_src_scintilla(maker, log):
 
     # Purge all but the following lexer languages.
     langs_to_keep = [
-        "Python", "HTML", "Perl", "CSS", "Ruby", "TCL", "XSLT",
+        "Python", "HTML", "Perl", "CSS", "Ruby", "Tcl", "XSLT",
         "UDL",
         "Others",   # to get SCLEX_NULL
         # Hardcoded expectations in SilverCity/LanguageInfo.py
