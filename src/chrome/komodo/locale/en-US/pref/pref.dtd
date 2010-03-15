@@ -127,7 +127,7 @@
 <!ENTITY additionalRubyImportDirectories.label "Additional Ruby Import Directories">
 <!ENTITY all.label "All">
 <!ENTITY allowCodingTagToOverrideAutoDetection.label "Allow 'coding:' tag to Override Auto-Detection">
-<!ENTITY allowFileContentsToOverrideTabSettings.label "Allow file contents to override Tab settings">
+<!ENTITY allowFileContentsToOverrideTabSettings.label "Allow file contents to override Tab and Indentation settings">
 <!ENTITY allowHTMLMETATagToOverrideAutoDetection.label "Allow HTML META tag to Override Auto-Detection">
 <!ENTITY allowXMLDeclarationToOverrideAutoDetection.label "Allow XML Declaration to Override Auto-Detection">
 <!ENTITY alternateHelp.label "Alternate Help">
