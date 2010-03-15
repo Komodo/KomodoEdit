@@ -900,6 +900,21 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
             [("namespace", "ab"), ])
 
+class DOMTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+    @tag("bug86391")
+    def test_html_style_attribute(self):
+        content, positions = unmark_text(dedent("""\
+            document.getElementById("foo").<1>style.<2>;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "style")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "background"),
+             ("variable", "azimuth"),
+             ("function", "getPropertyCSSValue"),
+             ("function", "setProperty")])
+
 class JSDocTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     def test_jsdoc_extends(self):

@@ -897,7 +897,7 @@
         <variable citdl="stylesheets::MediaList" doc="A list of media types for which this style sheet may be&#xA;used." name="media" />
         <variable citdl="CSSStyleSheet" doc="The style sheet referred to by this rule, if it has been&#xA;loaded. The value of this attribute is null if the style&#xA;sheet has not yet been loaded or if it will not be loaded&#xA;(e.g." name="styleSheet" />
       </scope>
-      <scope doc="The CSSStyleDeclaration interface represents a single CSS&#xA;declaration block. This interface may be used to determine&#xA;the style properties currently set in a block or to set&#xA;style properties explicitly within the block." ilk="class" name="CSSStyleDeclaration">
+      <scope classrefs="CSS2Properties" doc="The CSSStyleDeclaration interface represents a single CSS&#xA;declaration block. This interface may be used to determine&#xA;the style properties currently set in a block or to set&#xA;style properties explicitly within the block." ilk="class" name="CSSStyleDeclaration">
         <variable citdl="DOMString" doc="The parsable textual representation of the declaration block&#xA;(excluding the surrounding curly braces). Setting this&#xA;attribute will result in the parsing of the new value and&#xA;resetting of all the properties in the declaration block&#xA;including the removal or addition of properties." name="cssText" />
         <variable citdl="Number" doc="The number of properties that have been explicitly set in&#xA;this declaration block. The range of valid indices is 0 to&#xA;length-1 inclusive." name="length" />
         <variable citdl="CSSRule" doc="The CSS rule that contains this declaration block or null if&#xA;this CSSStyleDeclaration is not attached to a CSSRule." name="parentRule" />
@@ -1707,7 +1707,7 @@
           <variable citdl="DOMString" ilk="argument" name="eventType" />
         </scope>
       </scope>
-      <scope classrefs="Node" doc="The Element interface represents an element in an HTML or&#xA;XML document. Elements may have attributes associated with&#xA;them; since the Element interface inherits from Node , the&#xA;generic Node interface attribute attributes may be used to&#xA;retrieve the set of all attributes for an element." ilk="class" name="Element">
+      <scope classrefs="Node ElementCSSInlineStyle" doc="The Element interface represents an element in an HTML or&#xA;XML document. Elements may have attributes associated with&#xA;them; since the Element interface inherits from Node , the&#xA;generic Node interface attribute attributes may be used to&#xA;retrieve the set of all attributes for an element." ilk="class" name="Element">
         <variable citdl="DOMString" doc="The name of the element. For example, in: &lt;elementExample&#xA;id=&quot;demo&quot;&gt;..." name="tagName" />
         <scope doc="Retrieves an attribute value by name." ilk="function" name="getAttribute" returns="DOMString" signature="getAttribute(name)">
           <variable citdl="DOMString" ilk="argument" name="name" />
