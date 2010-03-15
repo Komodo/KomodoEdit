@@ -175,7 +175,7 @@ function changeNewLanguage(item, name)  {
     <vbox id="indentation-prefs-vbox" flex="1" class="autoscroll">
 
         <groupbox orient="vertical">
-            <caption label="&indentation.label;"/>
+            <caption label="&indentationGlobalSettings.label;"/>
       
             <hbox align="center">
               <label value="&autoIndentStyle.label;"/>
@@ -227,7 +227,7 @@ function changeNewLanguage(item, name)  {
         </groupbox>
       
         <groupbox orient="vertical">
-            <caption label="&indentation-language.label;"/>
+            <caption label="&indentation-per-language.label;"/>
             <langlist id="langList" class="lang-menulist"
                       oncommand="changeNewLanguage(this, null)"/>
             <checkbox id="useTabsLang"
