@@ -2541,6 +2541,17 @@ EOD;
         self.assertCompletionsInclude2(buf2, test_positions_2[2],
             [("constant", r"CLS1_CONST")])
 
+    @tag("bug86386", "knownfailure")
+    def test_variable_class_hits(self):
+        content, positions = unmark_text(php_markup(dedent(r"""
+            class look {
+                public $see;
+            }
+            $look-><1>  // pops up 'see', but it's an undefined var!
+        """)))
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+                [("variable", 'see')])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
