@@ -89,6 +89,7 @@ def _setup_for_xpcom():
     # will query dirs only provided by nsXREDirProvider -- which
     # isn't registered outside of Komodo (XRE_main() isn't called).
     # The KoTestService provides a backup.
+    from xpcom import _xpcom
     from xpcom import components
     koTestSvc = components.classes["@activestate.com/koTestService;1"] \
         .getService(components.interfaces.koITestService)
