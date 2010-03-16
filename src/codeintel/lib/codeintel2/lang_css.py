@@ -83,77 +83,71 @@ WHITESPACE = tuple(" \t\r\n")  # care about '\v', '\f'?
 
 #---- language support
 
+# Taken from the Scite version 2.0.2 css.properties file
+# Silvercity wants the # of wordlists to be the same as the
+# number hardwired in the lexer, so 
+raw_word_lists = [
+    # CSS1 keywords
+    """
+    color background-color background-image background-repeat
+    background-attachment background-position background
+    font-family font-style font-variant font-weight font-size
+    font word-spacing letter-spacing text-decoration
+    vertical-align text-transform text-align text-indent
+    line-height margin-top margin-right margin-bottom margin-left
+    margin padding-top padding-right padding-bottom padding-left
+    padding border-top-width border-right-width
+    border-bottom-width border-left-width border-width border-top
+    border-right border-bottom border-left border border-color
+    border-style width height float clear display white-space
+    list-style-type list-style-image list-style-position
+    list-style
+    """,
+    # CSS pseudo-classes
+    """
+    first-letter first-line link active visited first-child focus
+    hover lang before after left right first
+    """,
+    # CSS2 keywords
+    """
+    border-top-color border-right-color border-bottom-color
+    border-left-color border-color border-top-style
+    border-right-style border-bottom-style border-left-style
+    border-style top right bottom left position z-index direction
+    unicode-bidi min-width max-width min-height max-height
+    overflow clip visibility content quotes counter-reset
+    counter-increment marker-offset size marks page-break-before
+    page-break-after page-break-inside page orphans widows
+    font-stretch font-size-adjust unicode-range units-per-em src
+    panose-1 stemv stemh slope cap-height x-height ascent descent
+    widths bbox definition-src baseline centerline mathline
+    topline text-shadow caption-side table-layout border-collapse
+    border-spacing empty-cells speak-header cursor outline
+    outline-width outline-style outline-color volume speak
+    pause-before pause-after pause cue-before cue-after cue
+    play-during azimuth elevation speech-rate voice-family pitch
+    pitch-range stress richness speak-punctuation speak-numeral
+    """,
+    # CSS3 Properties
+    "",
+    # Pseudo-elements
+    "",
+    # Browser-Specific CSS Properties
+    "",
+    # Browser-Specific Pseudo-classes
+    "",
+    # Browser-Specific Pseudo-elements
+    "",
+    ]
+    
 class CSSLexer(Lexer):
     lang = "CSS"
     def __init__(self):
         self._properties = SilverCity.PropertySet()
         self._lexer = SilverCity.find_lexer_module_by_id(ScintillaConstants.SCLEX_CSS)
-        self._keyword_lists = [
-            # See 'scite/src/css.properties'.
-            # CSS1 keywords
-            SilverCity.WordList("""
-                color background-color background-image background-repeat
-                background-attachment background-position background
-                font-family font-style font-variant font-weight font-size
-                font word-spacing letter-spacing text-decoration
-                vertical-align text-transform text-align text-indent
-                line-height margin-top margin-right margin-bottom margin-left
-                margin padding-top padding-right padding-bottom padding-left
-                padding border-top-width border-right-width
-                border-bottom-width border-left-width border-width border-top
-                border-right border-bottom border-left border border-color
-                border-style width height float clear display white-space
-                list-style-type list-style-image list-style-position
-                list-style
-            """),
-            # CSS pseudo-classes
-            SilverCity.WordList("""
-                first-letter first-line link active visited first-child focus
-                hover lang before after left right first
-            """),
-            # CSS2 keywords
-            SilverCity.WordList("""
-                border-top-color border-right-color border-bottom-color
-                border-left-color border-color border-top-style
-                border-right-style border-bottom-style border-left-style
-                border-style top right bottom left position z-index direction
-                unicode-bidi min-width max-width min-height max-height
-                overflow clip visibility content quotes counter-reset
-                counter-increment marker-offset size marks page-break-before
-                page-break-after page-break-inside page orphans widows
-                font-stretch font-size-adjust unicode-range units-per-em src
-                panose-1 stemv stemh slope cap-height x-height ascent descent
-                widths bbox definition-src baseline centerline mathline
-                topline text-shadow caption-side table-layout border-collapse
-                border-spacing empty-cells speak-header cursor outline
-                outline-width outline-style outline-color volume speak
-                pause-before pause-after pause cue-before cue-after cue
-                play-during azimuth elevation speech-rate voice-family pitch
-                pitch-range stress richness speak-punctuation speak-numeral
-            """),
-            # src/silvercity/PySilverCity/Src/PyLexerModule.cxx
-            # does a sanity check calling lexer->GetNumWordLists()
-            # to make sure that the number of word-lists passed in is
-            # the same as the lexer expects.  This is done only in
-            # test code, and is affected by a change in scintilla 2,
-            # where 5 new word-lists are defined by the C++ lexer.
-            
-            # CSS3 Properties
-            SilverCity.WordList("""
-            """),
-            # Pseudo-elements
-            SilverCity.WordList("""
-            """),
-            # Browser-Specific CSS Properties
-            SilverCity.WordList("""
-            """),
-            # Browser-Specific Pseudo-classes
-            SilverCity.WordList("""
-            """),
-            # Browser-Specific Pseudo-elements
-            SilverCity.WordList("""
-            """),
-        ]
+        self._keyword_lists = []
+        for i in range(len(raw_word_lists)):
+            self._keyword_lists.append(SilverCity.WordList(raw_word_lists[i]))
 
 class _StraightCSSStyleClassifier(object):
     def is_css_style(self, style, accessorCacheBack=None):
