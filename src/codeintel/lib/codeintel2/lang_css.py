@@ -85,7 +85,7 @@ WHITESPACE = tuple(" \t\r\n")  # care about '\v', '\f'?
 
 # Taken from the Scite version 2.0.2 css.properties file
 # Silvercity wants the # of wordlists to be the same as the
-# number hardwired in the lexer, so 
+# number hardwired in the lexer, so that's why there are 5 empty lists.
 raw_word_lists = [
     # CSS1 keywords
     """
