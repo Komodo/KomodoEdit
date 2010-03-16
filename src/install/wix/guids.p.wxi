@@ -38,8 +38,13 @@
 
 <Include>
 <!-- #if PRODUCT_TYPE == "edit" -->
+<!-- #if UPDATE_CHANNEL == "nightly" -->
+    <?define ProductCode = "9a15dd38-1c19-4a25-9e37-76b34827faa1" ?>
+    <?define UpgradeCode = "f058026e-16fb-4533-9b36-cfa7b226215f" ?>
+<!-- #else -->
     <?define ProductCode = "c0b4fe9f-1ca2-48ee-9664-3e6e1d202785" ?>
     <?define UpgradeCode = "3e045434-d6ff-4420-a57e-66193bb87bc2" ?>
+<!-- #endif -->
 <!-- #else -->
 <!-- #error "Invalid product type." -->
 <!-- #endif -->
