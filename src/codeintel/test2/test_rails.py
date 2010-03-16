@@ -445,12 +445,12 @@ class PureRailsTestCase(_BaseTestCase):
 
     @tag("bug68997")
     def test_migration_sees_model(self):
-        dirs1 = [self.test_dir, "bug68997", "app"]
+        dirs1 = [self.test_dir, "bug68997b", "app"]
         test_model_dir = join(*(dirs1 + ["models"]))
         book_path = join(test_model_dir, "book.rb")
         cart_path = join(test_model_dir, "cart.rb")
         
-        dirs2 = [self.test_dir, "bug68997", "db", "migrate"]
+        dirs2 = [self.test_dir, "bug68997b", "db", "migrate"]
         migrate_dir = join(*dirs2)
         migrate_path = join(migrate_dir, "001_create_books.rb")
         migrate_table_create_path = join(migrate_dir, "001_create_books.rb")
@@ -692,11 +692,11 @@ class PureRailsTestCase(_BaseTestCase):
 
     @tag("bug65443")
     def test_model_sees_migrations(self):
-        dirs1 = [self.test_dir, "bug68997", "app"]
+        dirs1 = [self.test_dir, "bug65443", "app"]
         test_model_dir = join(*(dirs1 + ["models"]))
         book_path = join(test_model_dir, "book.rb")
         
-        dirs2 = [self.test_dir, "bug68997", "db", "migrate"]
+        dirs2 = [self.test_dir, "bug65443", "db", "migrate"]
         migrate_dir = join(*dirs2)
         migrate_path = join(migrate_dir, "001_create_books.rb")
         migrate_table_create_path = join(migrate_dir, "001_create_books.rb")
@@ -860,14 +860,14 @@ class PureRailsTestCase(_BaseTestCase):
 
 
     def test_controller_sees_migrations(self):
-        dirs1 = [self.test_dir, "bug68997", "app"]
+        dirs1 = [self.test_dir, "bug68997c", "app"]
         test_model_dir = join(*(dirs1 + ["models"]))
         book_model_path = join(test_model_dir, "book.rb")
         
         test_controller_dir = join(*(dirs1 + ["controllers"]))
         book_controller_path = join(test_controller_dir, "book_controller.rb")
         
-        dirs2 = [self.test_dir, "bug68997", "db", "migrate"]
+        dirs2 = [self.test_dir, "bug68997c", "db", "migrate"]
         migrate_dir = join(*dirs2)
         migrate_path = join(migrate_dir, "001_create_books.rb")
         migrate_table_create_path = join(migrate_dir, "001_create_books.rb")
