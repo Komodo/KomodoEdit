@@ -89,44 +89,43 @@ WHITESPACE = tuple(" \t\r\n")  # care about '\v', '\f'?
 raw_word_lists = [
     # CSS1 keywords
     """
-    color background-color background-image background-repeat
-    background-attachment background-position background
-    font-family font-style font-variant font-weight font-size
-    font word-spacing letter-spacing text-decoration
-    vertical-align text-transform text-align text-indent
-    line-height margin-top margin-right margin-bottom margin-left
-    margin padding-top padding-right padding-bottom padding-left
-    padding border-top-width border-right-width
-    border-bottom-width border-left-width border-width border-top
-    border-right border-bottom border-left border border-color
-    border-style width height float clear display white-space
-    list-style-type list-style-image list-style-position
-    list-style
+    background background-attachment background-color background-image
+    background-position background-repeat border border-bottom
+    border-bottom-width border-color border-left border-left-width
+    border-right border-right-width border-style border-top
+    border-top-width border-width clear color display float font
+    font-family font-size font-style font-variant font-weight height
+    letter-spacing line-height list-style list-style-image
+    list-style-position list-style-type margin margin-bottom margin-left
+    margin-right margin-top padding padding-bottom padding-left
+    padding-right padding-top text-align text-decoration text-indent
+    text-transform vertical-align white-space width word-spacing
     """,
     # CSS pseudo-classes
     """
-    first-letter first-line link active visited first-child focus
-    hover lang before after left right first
+    active after before first first-child first-letter first-line
+    focus hover lang left link right visited
     """,
+
     # CSS2 keywords
     """
-    border-top-color border-right-color border-bottom-color
-    border-left-color border-color border-top-style
-    border-right-style border-bottom-style border-left-style
-    border-style top right bottom left position z-index direction
-    unicode-bidi min-width max-width min-height max-height
-    overflow clip visibility content quotes counter-reset
-    counter-increment marker-offset size marks page-break-before
-    page-break-after page-break-inside page orphans widows
-    font-stretch font-size-adjust unicode-range units-per-em src
-    panose-1 stemv stemh slope cap-height x-height ascent descent
-    widths bbox definition-src baseline centerline mathline
-    topline text-shadow caption-side table-layout border-collapse
-    border-spacing empty-cells speak-header cursor outline
-    outline-width outline-style outline-color volume speak
-    pause-before pause-after pause cue-before cue-after cue
-    play-during azimuth elevation speech-rate voice-family pitch
-    pitch-range stress richness speak-punctuation speak-numeral
+    ascent azimuth baseline bbox border-bottom-color
+    border-bottom-style border-collapse border-color border-left-color
+    border-left-style border-right-color border-right-style
+    border-spacing border-style border-top-color border-top-style
+    bottom cap-height caption-side centerline clip content
+    counter-increment counter-reset cue cue-after cue-before cursor
+    definition-src descent direction elevation empty-cells
+    font-size-adjust font-stretch left marker-offset marks mathline
+    max-height max-width min-height min-width orphans outline
+    outline-color outline-style outline-width overflow page
+    page-break-after page-break-before page-break-inside panose-1
+    pause pause-after pause-before pitch pitch-range play-during
+    position quotes richness right size slope speak speak-header
+    speak-numeral speak-punctuation speech-rate src stemh stemv stress
+    table-layout text-shadow top topline unicode-bidi unicode-range
+    units-per-em visibility voice-family volume widows widths x-height
+    z-index
     """,
     # CSS3 Properties
     "",
