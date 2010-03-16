@@ -1,7 +1,0 @@
-<codeintel version="2.0">
-  <file lang="PHP" mtime="42" path="scan_inputs/php_encoded_koi8r.php">
-    <scope ilk="blob" lang="PHP" name="php_encoded_koi8r.php" src="scan_inputs/php_encoded_koi8r.php">
-      <scope doc="&#204;&#207;&#203;&#193;&#204;&#201;&#218;&#193;&#195;&#201;&#201;" ilk="function" line="6" lineend="6" name="russion_function" signature="russion_function()" />
-    </scope>
-  </file>
-</codeintel>
