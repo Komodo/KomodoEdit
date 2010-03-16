@@ -1734,23 +1734,19 @@ class SetPath(black.configure.SetPathEnvVar):
         if d and not self.Contains(d):
             self.value.append(d)
 
-        # add the system directories
-        #   - not added first because the installed Cons, Perl, and Python
-        #     should override those in the system directories
-        if applicable:
-            for d in systemDirs:
-                if not self.Contains(d):
-                    self.value.append(d)
-
         self.determined = 1
 
     def _Serialize_AsBatch(self, stream):
         # for now append to PATH because of interaction with vcvars32.bat
-        stream.write('set PATH=%s;%%PATH%%\n' % os.pathsep.join(self.value))
+        systemDirs = black.configure.items["systemDirs"].Get()
+        paths = self.value + ["%%PATH%%"] + systemDirs
+        stream.write('set PATH=%s\n' % (os.pathsep.join(paths)))
 
     def _Serialize_AsBash(self, stream):
         # for now append to PATH because of interaction with vcvars32.bat
-        stream.write('export PATH=%s:$PATH\n' % os.pathsep.join(self.value))
+        systemDirs = black.configure.items["systemDirs"].Get()
+        paths = self.value + ["$PATH"] + systemDirs
+        stream.write('export PATH=%s\n' % (os.pathsep.join(paths)))
 
 
 class SetupMozEnv(black.configure.RunEnvScript):
