@@ -52,6 +52,7 @@ Import(
     "supportDir",
     "productType",
     "productTagLine",
+    "updateChannel",
     "komodoVersion",
     "komodoMarketingShortVersion",
     "msiRegistryId",

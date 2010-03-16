@@ -2458,6 +2458,7 @@ def QuickBuild(cfg, argv, _table):
                                                "PRODUCT_TYPE": cfg.productType,
                                                "MOZILLA_VERSION": cfg.mozVersion,
                                                "BUILD_FLAVOUR": cfg.buildFlavour,
+                                               "UPDATE_CHANNEL": cfg.updateChannel,
                                                "WITH_CRYPTO": cfg.withCrypto,
                                                "WITH_PLACES": cfg.withPlaces,
                                                "WITH_CASPER": cfg.withCasper},
