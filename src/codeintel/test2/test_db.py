@@ -1110,7 +1110,7 @@ class LangLibTestCase(DBTestCase):
             bang = 42
         """)
         buf.accessor.reset_content(new_content)
-        buf.scan()
+        buf.scan(skip_scan_time_check=True)
         self.failUnless(buf.scan_error is not None)
 
         buf.scan(skip_scan_time_check=True)
