@@ -737,7 +737,9 @@ class GnomeDesktopShortcutName(black.configure.Datum):
                 or "komodo-"+productType)
         komodoVersion = black.configure.items["komodoVersion"].Get()
         majorVer = komodoVersion.split('.', 1)[0]
-        self.value = "%s-%s.desktop" % (name, majorVer)
+        updateChannel = black.configure.items["updateChannel"].Get()
+        self.value = "komodo-%s-%s%s.desktop" % (name, majorVer,
+                                                 updateChannel == "nightly" and "-nightly" or "")
         self.determined = 1
 
 class GnomeDesktopName(black.configure.Datum):
@@ -758,7 +760,9 @@ class GnomeDesktopName(black.configure.Datum):
                 or "Komodo %s" % prettyProductType)
         komodoVersion = black.configure.items["komodoVersion"].Get()
         majorVer = komodoVersion.split('.', 1)[0]
-        self.value = "%s %s" % (name, majorVer)
+        updateChannel = black.configure.items["updateChannel"].Get()
+        self.value = "komodo-%s-%s%s.desktop" % (name, majorVer,
+                                                 updateChannel == "nightly" and " nightly" or "")
         self.determined = 1
 
 class GnomeDesktopGenericName(black.configure.Datum):
@@ -2799,9 +2803,11 @@ class KomodoFullPrettyVersion(black.configure.Datum):
         buildNum = black.configure.items["buildNum"].Get()
         productName = (productType == "openkomodo" and prettyProductType
                        or "Komodo %s" % prettyProductType)
-        self.value = "%s %s (Build %s)"\
+        updateChannel = black.configure.items["updateChannel"].Get()
+        self.value = "%s %s%s (Build %s)"\
                      % (productName,
                         _getPrettyVersion(komodoMarketingVersion),
+                        updateChannel == "nightly" and " nightly" or "",
                         buildNum)
         self.determined = 1
 
@@ -2820,8 +2826,10 @@ class KomodoTitleBarName(black.configure.Datum):
         productName = (productType == "openkomodo" and prettyProductType
                        or "Komodo %s" % prettyProductType)
         komodoMarketingShortVersion = black.configure.items["komodoMarketingShortVersion"].Get()
-        self.value = "%s %s"\
-                     % (productName, komodoMarketingShortVersion)
+        updateChannel = black.configure.items["updateChannel"].Get()
+        self.value = "%s %s%s"\
+                     % (productName, komodoMarketingShortVersion,
+                        updateChannel == "nightly" and " nightly" or "")
         self.determined = 1
 
 class KomodoAppDataDirName(black.configure.Datum):
@@ -2909,9 +2917,12 @@ class MSIKomodoPrettyId(black.configure.Datum):
         prettyProductType = black.configure.items["prettyProductType"].Get()
         productName = (productType == "openkomodo" and prettyProductType
                        or "Komodo %s" % prettyProductType)
+        updateChannel = black.configure.items["updateChannel"].Get()
         komodoVersion = black.configure.items["komodoVersion"].Get()
         majorVer = komodoVersion.split('.', 1)[0]
         self.value = "%s %s" % (productName, majorVer)
+        if updateChannel == "nightly":
+            self.value += " nightly"
         self.determined = 1
 
 class MSIProductName(black.configure.Datum):
@@ -2929,8 +2940,10 @@ class MSIProductName(black.configure.Datum):
         productName = (productType == "openkomodo" and prettyProductType
                        or "Komodo %s" % prettyProductType)
         komodoPrettyVersion = black.configure.items["komodoPrettyVersion"].Get()
-        buildNum = black.configure.items["buildNum"].Get()
+        updateChannel = black.configure.items["updateChannel"].Get()
         self.value = "ActiveState %s %s" % (productName, komodoPrettyVersion)
+        if updateChannel == "nightly":
+            self.value += " nightly"
         self.determined = 1
 
 class MSIInstallName(black.configure.Datum):
@@ -2947,9 +2960,12 @@ class MSIInstallName(black.configure.Datum):
         prettyProductType = black.configure.items["prettyProductType"].Get()
         productName = (productType == "openkomodo" and prettyProductType
                        or "Komodo %s" % prettyProductType)
+        updateChannel = black.configure.items["updateChannel"].Get()
         komodoVersion = black.configure.items["komodoVersion"].Get()
         majorVer = komodoVersion.split('.', 1)[0]
         self.value = "ActiveState %s %s" % (productName, majorVer)
+        if updateChannel == "nightly":
+            self.value += " nightly"
         self.determined = 1
 
 
