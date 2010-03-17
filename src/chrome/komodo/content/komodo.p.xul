@@ -2544,7 +2544,7 @@
         </vbox>
 
     </vbox> <!-- main window box -->
-    <browser id="printBrowser" type="content-primary" flex="1"/>
+    <browser id="printBrowser" type="content-primary" flex="1" disablehistory="true"/>
     </deck>
     <!-- we need a browser widget to do our printing for us, unfortunatly
         if we collapse or hide it, printing still fails.  So we have to
