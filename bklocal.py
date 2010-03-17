@@ -1743,7 +1743,7 @@ class SetPath(black.configure.SetPathEnvVar):
     def _Serialize_AsBatch(self, stream):
         # for now append to PATH because of interaction with vcvars32.bat
         systemDirs = black.configure.items["systemDirs"].Get()
-        paths = self.value + ["%%PATH%%"] + systemDirs
+        paths = self.value + ["%PATH%"] + systemDirs
         stream.write('set PATH=%s\n' % (os.pathsep.join(paths)))
 
     def _Serialize_AsBash(self, stream):
