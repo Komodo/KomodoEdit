@@ -734,7 +734,11 @@ var normalModeCommandMap = {
 VimController.prototype.handleCommand = function(event, commandname, keylabel, multikey) {
     try {
         /* Ensure it's going to a vi controlled scintilla component */
-        if (!this.enabled || event.target.nodeName != 'view' || !event.target.scintilla) {
+        if (!this.enabled || event.target.nodeName != 'view' ||
+            /* the cmd_cancel event actually comes through with an event target
+               that is the Komodo multi view - not sure why that is - so added
+               a special case to allow the cmd_cancel event to go through. */
+            (!event.target.scintilla && commandname != "cmd_cancel")) {
             return false;
         }
 
