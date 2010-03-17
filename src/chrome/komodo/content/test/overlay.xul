@@ -49,7 +49,7 @@
       <menupopup id="popup_test">
         <menu label="Tools" accesskey="T">
           <menupopup id="popup_test_tools">
-            <menuitem label="JavaScript Console"
+            <menuitem label="Error Console"
                     oncommand="ko.windowManager.openOrFocusDialog('chrome://global/content/console.xul',
                      'global:console',
                      'chrome,all,resizable');"/>
