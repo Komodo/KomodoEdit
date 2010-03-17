@@ -88,6 +88,7 @@ if ($buildFlavour eq "full") {
             "wix/config.wxi",
             {
                 #"PRODUCT_TYPE" => $productType, # included by default in Preprocess()
+                "PP_UPDATE_CHANNEL" => $updateChannel,
                 "PP_PRODUCT_TAG_LINE" => $productTagLine,
                 "PP_MSI_REGISTRY_ID" => $msiRegistryId,
                 "PP_MSI_IS_PRE_RELEASE_VERSION" => $isPreReleaseVersion,

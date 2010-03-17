@@ -38,7 +38,7 @@
 
 <Include>
 <!-- #if PRODUCT_TYPE == "edit" -->
-<!-- #if UPDATE_CHANNEL == "nightly" -->
+<!-- #if PP_UPDATE_CHANNEL == "nightly" -->
     <?define ProductCode = "9a15dd38-1c19-4a25-9e37-76b34827faa1" ?>
     <?define UpgradeCode = "f058026e-16fb-4533-9b36-cfa7b226215f" ?>
 <!-- #else -->
