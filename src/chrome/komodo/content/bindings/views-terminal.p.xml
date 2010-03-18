@@ -119,6 +119,7 @@
                 // Ensure the session has ended and that Scintilla is not to
                 // be accessed anymore.
                 this.terminalHandler.endSession();
+                this.terminalHandler.setAddTextCallback(null);
                 this.terminalHandler.setScintilla(null);
                 this.terminalHandler = null;
             }
