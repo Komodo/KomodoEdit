@@ -831,13 +831,13 @@ this.recordPartInvocation = function macro_recordPartInvocation(part) {
  * komodo.components -> Components
  * komodo.doCommand -> ko.commands.doCommand
  * komodo.getWordUnderCursor -> ko.interpolate.getWordUnderCursor(ko.views.manager.currentView.scimoz)
- * komodo.interpolate -> ko.interpolate.interpolateStrings
+ * komodo.interpolate -> ko.interpolate.interpolateString
  * 
  * 
  * komodo.interpolate is more correctly emulated by doing:
  * 
  * var queryTitle = "Macro '"+macro.getStringAttribute("name")+"' Query";
- * result = ko.interpolate.interpolateStrings(s, bracketed, queryTitle);
+ * result = ko.interpolate.interpolateString(s, bracketed, queryTitle);
  */
 function _KomodoJSMacroAPI(macro, view)
 {
@@ -890,7 +890,7 @@ _KomodoJSMacroAPI.prototype.interpolate = function(s, bracketed /*=false*/)
     if (this.macro) {
         queryTitle = "Macro '"+this.macro.getStringAttribute("name")+"' Query";
     }
-    return ko.interpolate.interpolateStrings(s, bracketed, queryTitle);
+    return ko.interpolate.interpolateString(s, bracketed, queryTitle);
 }
 
 }).apply(ko.macros);

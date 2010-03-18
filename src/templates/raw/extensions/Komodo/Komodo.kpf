@@ -76,7 +76,7 @@ var extensionLib = function() {
 
 extensionLib.prototype.getPath = function(relative) {
     try {
-        var prj_path = ko.interpolate.interpolateStrings('%p');
+        var prj_path = ko.interpolate.interpolateString('%p');
         path = this.os.path.join(prj_path, relative);
         return path;
     } catch(e) {
@@ -246,7 +246,7 @@ var koDirs = Components.classes['@activestate.com/koDirs;1'].
   getService(Components.interfaces.koIDirs);
 
 var pythonExe = koDirs.pythonExe;
-var projectDir = ko.interpolate.interpolateStrings('%p');
+var projectDir = ko.interpolate.interpolateString('%p');
 var scriptName = 'koext';
 
 if (appInfo.OS == 'WINNT') {
