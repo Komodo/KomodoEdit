@@ -546,6 +546,20 @@
                 </body>
             </method>
 
+            
+            <method name="clearUsedBys">
+                <body>
+                <![CDATA[
+                try {
+                    this.newkey.value = this.keyname = '';
+                    this.updateUsedBys();
+                } catch (e) {
+                    log.error(e);
+                }
+                ]]>
+                </body>
+            </method>
+
             <method name="updateUsedBys">
                 <body>
                 <![CDATA[
