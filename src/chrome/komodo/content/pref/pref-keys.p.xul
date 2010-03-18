@@ -127,7 +127,7 @@
             </deck>
             <separator class="thin"/>
             <editkeybinding id="keybinding" prefsdialog="true"
-                            onselect="ensureSelectedUsedbyKeyIsVisible(event);"/>
+                            onselect="selectCommandFromSelectedUseBy(event);"/>
         </groupbox>
 
     </vbox>

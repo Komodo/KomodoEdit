@@ -223,11 +223,12 @@ function selectKey(event, treeitem)  {
     }
     if (item) {
         dialog.editkeybinding.commandId = item.getAttribute('name');
+        dialog.editkeybinding.clearUsedBys();
         dialog.editkeybinding.updateCurrentKey();
     }
 }
 
-function ensureSelectedUsedbyKeyIsVisible(event) {
+function selectCommandFromSelectedUseBy(event) {
     // originalTarget should be the listbox defined in keybindings.xml
     var listbox = event.originalTarget;
     // Ensure it's coming from the listbox, not some other xul element
@@ -247,13 +248,15 @@ function ensureSelectedUsedbyKeyIsVisible(event) {
 	    listitem = dialog.tree.childNodes[i];
             commandName = listitem.getAttribute('data');
             if (commandName && commandAndKeyname.indexOf(commandName) == 0) {
-                //dump("Found commandName: " + commandName + "at row: " + i + "\n");
-                if (i == 0) {
-                    dialog.tree.ensureIndexIsVisible(i);
-                } else {
+                var tree_index = i;
+                if (i > 0) {
                     // Was not correct offset sometimes... not sure why needs -1
-                    dialog.tree.ensureIndexIsVisible(i-1);
+                    tree_index -= 1;
                 }
+                dialog.tree.ensureIndexIsVisible(tree_index);
+                dialog.tree.selectedIndex = tree_index;
+                dialog.editkeybinding.commandId = listitem.getAttribute('name');
+                dialog.editkeybinding.updateCurrentKey();
                 break;
             }
 	}
