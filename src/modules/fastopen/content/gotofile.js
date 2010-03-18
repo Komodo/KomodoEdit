@@ -242,7 +242,7 @@ function _openSelectedPaths() {
     if (fileUrlsToOpen.length) {
         // Note: If there are directories to open as well, these files will be
         //       opened after the dialog closes (due to the dialog being modal).
-        opener.ko.open.multipleURIs(urlsToOpen);
+        opener.ko.open.multipleURIs(fileUrlsToOpen);
     }
     if (dirsToOpen.length) {
         // Selecting a dir should just enter that dir into the filter box.
