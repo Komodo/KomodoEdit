@@ -111,6 +111,10 @@ class koTerminalHandler:
     # process still running, it should not try to forward on any communications.
     STATUS_DONE = 3
 
+    # A callback handler to be notified when addText is called (i.e. when the
+    # scintilla document receives more text).
+    _addTextCallbackHandler = None
+
     def __init__(self):
         self._lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
             .getService(components.interfaces.koILastErrorService)
@@ -345,6 +349,8 @@ class koTerminalHandler:
             self._scintilla.readOnly = ro
             self._scintilla.ensureVisible(self._scintilla.lineCount-1)
             self._scintilla.scrollCaret()
+            if self._addTextCallbackHandler is not None:
+                self._addTextCallbackHandler.callback(0, text)
           except COMException, e:
             # XXX we're catching an xpcom exception that happens
             # at shutdown. bug #28989
@@ -353,6 +359,9 @@ class koTerminalHandler:
         finally:
           self._scintilla.modEventMask = eventMask
           self.releaseLock()
+
+    def setAddTextCallback(self, handler):
+        self._addTextCallbackHandler = handler
 
     def _moveMarker(self, startMarker, startLine, marker, lastLine):
         if startMarker & (1 << marker) and startLine < lastLine:

@@ -43,6 +43,7 @@ interface koILanguage;
 
 #include "koIFile.idl"
 #include "koIPrefs.idl"
+#include "koIAsyncOperations.idl"
 
 //XXX build system can't handle recursive dependancies :-(
 //    so may need to add some addition includes.
@@ -263,6 +264,11 @@ interface koITerminalHandler : nsISupports{
     // in the UI thread.  This function should not be called otherwise, but it
     // is necessary to have this interface so Mozilla's proxy will work
     void proxyAddText(in long length, in AString data, in wstring io_name);
+
+    // When the above proxyAddText is called - this callback handler will then
+    // be called afterwards to notify that the scintilla text was added. This
+    // callbackHandler will *always* be called on the main UI thread.
+    void setAddTextCallback(in koIAsyncCallback callbackHandler);
 };
 
 // One of these is used to interface between the command output window
