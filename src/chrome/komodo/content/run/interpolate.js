@@ -328,11 +328,21 @@ this.interpolate = function Interpolate_interpolate(editor, strings, bracketedSt
     }
 }
 
-this.interpolateStrings = function(s, bracketed /*=false*/, queryTitle)
+/**
+ * Interpolate '%'-escape codes in the given string.
+ *
+ * @param s {string}  The string to interpolate.
+ * @param bracketed {bool} (optional) Whether "s" uses the bracketed
+ *        interpolate format
+ * @param queryTitle {string} (optional) Title for any query dialogs raised
+ *        during interpolation.
+ * @returns {string} The resulting interpolated string.
+ */
+this.interpolateString = function(s, bracketed /*=false*/, queryTitle)
 {
     if (typeof(queryTitle) == "undefined") queryTitle = "Interpolation Query";
     if (typeof(bracketed) == "undefined") bracketed = false;
-    _log.debug("interpolateStrings('"+s+"', bracketed="+bracketed+", queryTitle=["+queryTitle+"])");
+    _log.debug("interpolateString('"+s+"', bracketed="+bracketed+", queryTitle=["+queryTitle+"])");
     var istring = null;
 
     //XXX We are assuming that ko.interpolate.interpolate() gathers
@@ -368,6 +378,17 @@ this.interpolateStrings = function(s, bracketed /*=false*/, queryTitle)
         }
     }
     return istring;
+}
+
+/**
+ * [DEPRECATED] Interpolate the given string.
+ *
+ * @deprecated since Komodo 6.0.0a2 - use interpolateString indead.
+ */
+this.interpolateStrings = function(s, bracketed /*=false*/, queryTitle)
+{
+    ko.logging.getLogger("ko.main").warn("interpolateStrings is deprecated, use interpolateString");
+    return ko.interpolate.interpolateString(s, bracketed, queryTitle);
 }
 
 /** 
