@@ -871,6 +871,15 @@
                                               id="menu_convertLowerCase"
                                               observes="cmd_convertLowerCase"
                                               />
+                                    <menuseparator id="codeConvertHex_menuseparator"/>
+                                    <menuitem label="&codeConvertToHexMenu.label;"
+                                              id="menu_convertToHex"
+                                              observes="cmd_convertToHex"
+                                              />
+                                    <menuitem label="&codeConvertFromHexMenu.label;"
+                                              id="menu_convertFromHex"
+                                              observes="cmd_convertFromHex"
+                                              />
                                 </menupopup>
                             </menu>
                             <menuseparator/>

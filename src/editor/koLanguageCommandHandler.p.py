@@ -1091,7 +1091,10 @@ class GenericCommandHandler:
            ends up as a call to a single C++ method.  In either case,
            we're looking at about 2 extra milliseconds/line.
         """
-
+        import inspect
+        converter_fn = None
+        if inspect.isfunction(converter) or inspect.isbuiltin(converter):
+            converter_fn = converter
         sm = self._view.scimoz
         currentPos = sm.currentPos
         anchor = sm.anchor
@@ -1107,23 +1110,35 @@ class GenericCommandHandler:
                 thisSelStartPos = sm.getLineSelStartPosition(lineNo)
                 thisSelEndPos = self._lastSelectedCharPosnFromLine(sm, lineNo)
                 text = sm.getTextRange(thisSelStartPos, thisSelEndPos)
-                fixedText = getattr(text, converter)()
+                if converter_fn is not None:
+                    fixedText = converter_fn(text)
+                else:
+                    fixedText = getattr(text, converter)()
                 sm.targetStart = thisSelStartPos
                 sm.targetEnd = thisSelEndPos
                 sm.replaceTarget(len(fixedText), fixedText) # Length in chars, not bytes
+                # Adjust the selection position according to how many bytes
+                # were added or removed.
+                selEnd += (self.sysUtils.byteLength(fixedText) -
+                           self.sysUtils.byteLength(text))
         finally:
             sm.endUndoAction()
-        # Assume the number of bytes in the selection didn't change.
         sm.selectionStart = selStart
         sm.selectionEnd = selEnd
-        sm.currentPos = currentPos
-        sm.anchor = anchor
-            
+
     def _do_cmd_convertUpperCase(self):
         self._do_cmd_convertCaseByLine("upper")
 
     def _do_cmd_convertLowerCase(self):
         self._do_cmd_convertCaseByLine("lower")
+
+    def _do_cmd_convertFromHex(self):
+        from binascii import unhexlify
+        self._do_cmd_convertCaseByLine(unhexlify)
+
+    def _do_cmd_convertToHex(self):
+        from binascii import hexlify
+        self._do_cmd_convertCaseByLine(hexlify)
 
     def _is_cmd_selectToMatchingBrace_enabled(self):
         sm = self._view.scimoz

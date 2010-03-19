@@ -1287,6 +1287,16 @@
             oncommand="ko.commands.doCommand('cmd_convertLowerCase')"
             disabled="true"
             desc="&sourceCodeConvertSelectionToLowerCase.desc;"/>
+        <command
+            id="cmd_convertFromHex" key="key_cmd_convertFromHex"
+            oncommand="ko.commands.doCommand('cmd_convertFromHex')"
+            disabled="true"
+            desc="&codeConvertSelectionFromHex.desc;"/>
+        <command
+            id="cmd_convertToHex" key="key_cmd_convertToHex"
+            oncommand="ko.commands.doCommand('cmd_convertToHex')"
+            disabled="true"
+            desc="&codeConvertSelectionToHex.desc;"/>
     </commandset>
 
     <!-- Commands that are enabled when the editor has focus and

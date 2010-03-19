@@ -57,8 +57,12 @@
 <!ENTITY closeAll.label "Close All">
 <!ENTITY closeProject.label "Close Project">
 <!ENTITY code.label "Code">
+<!ENTITY codeConvertFromHexMenu.label "From Hexadecimal">
+<!ENTITY codeConvertToHexMenu.label "To Hexadecimal">
 <!ENTITY codeConvertSelectedTextMenu.label "Convert Selected Text">
 <!ENTITY codeConvertSelectedTextMenu.accesskey "V">
+<!ENTITY codeConvertSelectionFromHex.desc "Code: Convert the Selected Text from Hexadecimal">
+<!ENTITY codeConvertSelectionToHex.desc "Code: Convert the Selected Text to Hexadecimal">
 <!ENTITY collapse.label "Collapse">
 <!ENTITY collapseAll.label "Collapse All">
 <!ENTITY collapseRecursively.label "Collapse Recursively">
