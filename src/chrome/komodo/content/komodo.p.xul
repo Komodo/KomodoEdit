@@ -858,15 +858,21 @@
                                               />
                                 </menupopup>
                             </menu>
-                            <menuseparator/>
-                            <menuitem label="&makeUppercase.label;"
-                                      id="menu_convertUpperCase"
-                                      observes="cmd_convertUpperCase"
-                                      />
-                            <menuitem label="&makeLowercase.label;"
-                                      id="menu_convertLowerCase"
-                                      observes="cmd_convertLowerCase"
-                                      />
+                            <menuseparator id="codeConvert_menuseparator"/>
+                            <menu id="codeConvert_menu"
+                                  label="&codeConvertSelectedTextMenu.label;"
+                                  accesskey="&codeConvertSelectedTextMenu.accesskey;">
+                                <menupopup id="codeConvert_menupopup">
+                                    <menuitem label="&makeUppercase.label;"
+                                              id="menu_convertUpperCase"
+                                              observes="cmd_convertUpperCase"
+                                              />
+                                    <menuitem label="&makeLowercase.label;"
+                                              id="menu_convertLowerCase"
+                                              observes="cmd_convertLowerCase"
+                                              />
+                                </menupopup>
+                            </menu>
                             <menuseparator/>
                             <menuitem label="&commentRegion.label;"
                                       id="menu_comment"

@@ -57,6 +57,8 @@
 <!ENTITY closeAll.label "Close All">
 <!ENTITY closeProject.label "Close Project">
 <!ENTITY code.label "Code">
+<!ENTITY codeConvertSelectedTextMenu.label "Convert Selected Text">
+<!ENTITY codeConvertSelectedTextMenu.accesskey "V">
 <!ENTITY collapse.label "Collapse">
 <!ENTITY collapseAll.label "Collapse All">
 <!ENTITY collapseRecursively.label "Collapse Recursively">
