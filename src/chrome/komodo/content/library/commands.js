@@ -265,9 +265,9 @@ this.doCommand = function command_doCommand(command) {
         else {
             _log.info("Command " + command + " has no controller.");
         }
-    }
-    catch (e) {
+    } catch (e) {
         _log.exception(e,"An error occurred executing the "+command+" command");
+        ko.statusBar.AddMessage(e, "commands", 5000, true, false);
         throw Components.results.NS_ERROR_FAILURE;
     }
     return rc;
