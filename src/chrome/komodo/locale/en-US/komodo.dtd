@@ -544,34 +544,34 @@
 <!ENTITY showSpecificTab.tooltiptext "Show Specific Sidebar/Tab">
 <!ENTITY showTab.label "Show Tab">
 <!ENTITY showUnsavedChanges.label "Show Unsaved Changes">
-<!ENTITY sourceCodeCleanLineEndings.desc "Source Code: Clean Line Endings">
-<!ENTITY sourceCodeClearSyntaxErrorsWarnings.desc "Source Code: Clear Syntax Errors/Warnings">
-<!ENTITY sourceCodeCollapseAllFolds.desc "Source Code: Collapse All Folds">
-<!ENTITY sourceCodeCollapseFold.desc "Source Code: Collapse Fold">
-<!ENTITY sourceCodeCollapseFoldRecursively.desc "Source Code: Collapse Fold Recursively">
-<!ENTITY sourceCodeCommentRegion.desc "Source Code: Comment Region">
-<!ENTITY sourceCodeCompleteWord.desc "Source Code: Complete Word">
-<!ENTITY sourceCodeCompleteWordBackwards.desc "Source Code: Complete Word (backwards)">
-<!ENTITY sourceCodeConvertSelectionToLowerCase.desc "Source Code: Convert Selection to Lower Case">
-<!ENTITY sourceCodeConvertSelectionToUpperCase.desc "Source Code: Convert Selection to Upper Case">
-<!ENTITY sourceCodeExpandAllFolds.desc "Source Code: Expand All Folds">
-<!ENTITY sourceCodeExpandFold.desc "Source Code: Expand Fold">
-<!ENTITY sourceCodeExpandFoldRecursively.desc "Source Code: Expand Fold Recursively">
-<!ENTITY sourceCodeFindAllFunctions.desc "Source Code: Find All Functions">
-<!ENTITY sourceCodeFindNextFunction.desc "Source Code: Find Next Function">
-<!ENTITY sourceCodeFindPreviousFunction.desc "Source Code: Find Previous Function">
-<!ENTITY sourceCodeGoToDefinition.desc "Source Code: Go to Definition">
-<!ENTITY sourceCodeJumpToCorrespondingLine.desc "Source Code: Jump to corresponding line">
-<!ENTITY sourceCodeJumpToMatchingBrace.desc "Source Code: Jump to Matching Brace">
-<!ENTITY sourceCodeMatchBraces.desc "Source Code: Match Braces">
-<!ENTITY sourceCodeNextSyntaxErrorWarning.desc "Source Code: Next Syntax Error/Warning">
-<!ENTITY sourceCodeRunSyntaxCheck.desc "Source Code: Run Syntax Check">
-<!ENTITY sourceCodeSelectBlock.desc "Source Code: Select Block">
-<!ENTITY sourceCodeSelectToMatchingBrace.desc "Source Code: Select to Matching Brace">
-<!ENTITY sourceCodeTabifyRegion.desc "Source Code: Tabify Region...">
-<!ENTITY sourceCodeToggleFold.desc "Source Code: Toggle Fold">
-<!ENTITY sourceCodeUnCommentRegion.desc "Source Code: Un-comment Region">
-<!ENTITY sourceCodeUnTabifyRegion.desc "Source Code: Un-tabify Region...">
+<!ENTITY sourceCodeCleanLineEndings.desc "Code: Clean Line Endings">
+<!ENTITY sourceCodeClearSyntaxErrorsWarnings.desc "Code: Clear Syntax Errors/Warnings">
+<!ENTITY sourceCodeCollapseAllFolds.desc "Code: Collapse All Folds">
+<!ENTITY sourceCodeCollapseFold.desc "Code: Collapse Fold">
+<!ENTITY sourceCodeCollapseFoldRecursively.desc "Code: Collapse Fold Recursively">
+<!ENTITY sourceCodeCommentRegion.desc "Code: Comment Region">
+<!ENTITY sourceCodeCompleteWord.desc "Code: Complete Word">
+<!ENTITY sourceCodeCompleteWordBackwards.desc "Code: Complete Word (backwards)">
+<!ENTITY sourceCodeConvertSelectionToLowerCase.desc "Code: Convert Selection to Lower Case">
+<!ENTITY sourceCodeConvertSelectionToUpperCase.desc "Code: Convert Selection to Upper Case">
+<!ENTITY sourceCodeExpandAllFolds.desc "Code: Expand All Folds">
+<!ENTITY sourceCodeExpandFold.desc "Code: Expand Fold">
+<!ENTITY sourceCodeExpandFoldRecursively.desc "Code: Expand Fold Recursively">
+<!ENTITY sourceCodeFindAllFunctions.desc "Code: Find All Functions">
+<!ENTITY sourceCodeFindNextFunction.desc "Code: Find Next Function">
+<!ENTITY sourceCodeFindPreviousFunction.desc "Code: Find Previous Function">
+<!ENTITY sourceCodeGoToDefinition.desc "Code: Go to Definition">
+<!ENTITY sourceCodeJumpToCorrespondingLine.desc "Code: Jump to corresponding line">
+<!ENTITY sourceCodeJumpToMatchingBrace.desc "Code: Jump to Matching Brace">
+<!ENTITY sourceCodeMatchBraces.desc "Code: Match Braces">
+<!ENTITY sourceCodeNextSyntaxErrorWarning.desc "Code: Next Syntax Error/Warning">
+<!ENTITY sourceCodeRunSyntaxCheck.desc "Code: Run Syntax Check">
+<!ENTITY sourceCodeSelectBlock.desc "Code: Select Block">
+<!ENTITY sourceCodeSelectToMatchingBrace.desc "Code: Select to Matching Brace">
+<!ENTITY sourceCodeTabifyRegion.desc "Code: Tabify Region...">
+<!ENTITY sourceCodeToggleFold.desc "Code: Toggle Fold">
+<!ENTITY sourceCodeUnCommentRegion.desc "Code: Un-comment Region">
+<!ENTITY sourceCodeUnTabifyRegion.desc "Code: Un-tabify Region...">
 <!ENTITY splitView.label "Split View">
 <!ENTITY standard.label "Standard">
 <!ENTITY standardToolbar.label "Standard Toolbar">
