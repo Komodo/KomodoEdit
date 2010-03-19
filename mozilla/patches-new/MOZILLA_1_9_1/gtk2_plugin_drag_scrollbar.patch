@@ -1,0 +1,106 @@
+Komodo bug 45380.
+
+If you start dragging text in a editor window, once you move towards the button
+of the editor window, the editor screen will start scrolling down (normal and
+expected). If you keep dragging till you are over the horizontal scrollbar,
+suddely the scrolling changes to be scrolling upwards (bad, unexpected).
+
+This is because all of the event Y co-ordinates for onDragOver are incorrect,
+they are relative to the scrollbar element and not the editor screen. We fix
+this by finding the outer Mozilla window (nsWindow) and re-adjusting the event
+co-ordinates to be relevant to the Mozilla window instead of the GTK widget.
+
+diff -r d217f3c28332 widget/src/gtk2/nsWindow.cpp
+--- widget/src/gtk2/nsWindow.cpp	Fri Feb 05 21:36:07 2010 +0100
++++ widget/src/gtk2/nsWindow.cpp	Fri Mar 19 16:24:45 2010 -0700
+@@ -155,9 +155,9 @@
+ static GtkWidget *get_gtk_widget_for_gdk_window(GdkWindow *window);
+ static GdkCursor *get_gtk_cursor(nsCursor aCursor);
+ 
+-static GdkWindow *get_inner_gdk_window (GdkWindow *aWindow,
+-                                        gint x, gint y,
+-                                        gint *retx, gint *rety);
++static nsWindow *get_innermost_window_for_gdk_window(GdkWindow *outerGtkWindow,
++                                                     gint x, gint y,
++                                                     gint *retx, gint *rety);
+ 
+ static inline PRBool is_context_menu_key(const nsKeyEvent& inKeyEvent);
+ static void   key_event_to_context_menu_event(nsMouseEvent &aEvent,
+@@ -3531,9 +3531,9 @@
+     nscoord retx = 0;
+     nscoord rety = 0;
+ 
+-    GdkWindow *innerWindow = get_inner_gdk_window(aWidget->window, aX, aY,
+-                                                  &retx, &rety);
+-    nsRefPtr<nsWindow> innerMostWidget = get_window_for_gdk_window(innerWindow);
++    GdkWindow *thisWindow = aWidget->window;
++    nsRefPtr<nsWindow> innerMostWidget = get_innermost_window_for_gdk_window(thisWindow, aX, aY,
++                                                          &retx, &rety);
+ 
+     if (!innerMostWidget)
+         innerMostWidget = this;
+@@ -3634,9 +3634,9 @@
+     nscoord retx = 0;
+     nscoord rety = 0;
+ 
+-    GdkWindow *innerWindow = get_inner_gdk_window(aWidget->window, aX, aY,
+-                                                  &retx, &rety);
+-    nsRefPtr<nsWindow> innerMostWidget = get_window_for_gdk_window(innerWindow);
++    GdkWindow *thisWindow = aWidget->window;
++    nsRefPtr<nsWindow> innerMostWidget = get_innermost_window_for_gdk_window(thisWindow, aX, aY,
++                                                          &retx, &rety);
+ 
+     // set this now before any of the drag enter or leave events happen
+     dragSessionGTK->TargetSetLastContext(aWidget, aDragContext, aTime);
+@@ -5999,8 +5999,7 @@
+     window->FireDragLeaveTimer();
+ }
+ 
+-/* static */
+-GdkWindow *
++inline GdkWindow *
+ get_inner_gdk_window (GdkWindow *aWindow,
+                       gint x, gint y,
+                       gint *retx, gint *rety)
+@@ -6027,6 +6026,41 @@
+     return aWindow;
+ }
+ 
++/* static */
++nsWindow *
++get_innermost_window_for_gdk_window(GdkWindow *outerGtkWindow,
++                                    gint x, gint y,
++                                    gint *retx, gint *rety)
++{
++    gint cx, cy, cw, ch, cd;
++    GdkWindow *innerGtkWindow = NULL;
++
++    /* Get the inner most gdkWindow with these co-ordinates */
++    innerGtkWindow = get_inner_gdk_window(outerGtkWindow, x, y, retx, rety);
++
++    /* Return the first nsWindow this widget belongs to */
++    while (innerGtkWindow) {
++        if (g_object_get_data(G_OBJECT(innerGtkWindow), "nsWindow")) {
++            return get_window_for_gdk_window(innerGtkWindow);
++        }
++        if (innerGtkWindow == outerGtkWindow) {
++            /* No nsWindow found, we've already searched all the gtk windows */
++            break;
++        }
++        /* Not a nsWindow yet, try the parent then, but first */
++        /* we have to update the retx & rety co-ordinates     */
++        gdk_window_get_geometry (innerGtkWindow, &cx, &cy, &cw, &ch, &cd);
++        *retx += cx;
++        *rety += cy;
++        innerGtkWindow = gdk_window_get_parent(innerGtkWindow);
++    }
++
++    /* No appropriate nsWindow found */
++    *retx = 0;
++    *rety = 0;
++    return nsnull;
++}
++
+ inline PRBool
+ is_context_menu_key(const nsKeyEvent& aKeyEvent)
+ {
