@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2004-2006 ActiveState Software Inc.
+# Copyright (c) 2004-2010 ActiveState Software Inc.
 # Written by: Trent Mick <trentm@gmail.com>
 # License: MIT License (http://www.opensource.org/licenses/mit-license.php)
 
@@ -21,6 +21,7 @@
          'distro_ver': '9.0',
          'libcpp': 'libcpp5',
          'lsb_version': '1.3',
+         'name': 'linux-x86',
          'os': 'linux',
          'os_ver': '2.4.21'}
 
@@ -70,11 +71,11 @@
 """
 # Development notes:
 # - The name of this module is intentionally not "platform" to not
-#   conflict with (Marc-Andre Lemburg's?) platform.py in the wild.
+#   conflict with (Marc-Andre Lemburg's?) platform.py in the stdlib.
 # - YAGNI: Having a "quick/terse" mode. Will always gather all possible
 #   information unless come up with a case to NOT do so.
 
-__version_info__ = (0, 12, 0)
+__version_info__ = (0, 14, 5)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -82,6 +83,8 @@ import sys
 import re
 import tempfile
 import logging
+import errno
+import subprocess
 from pprint import pprint
 from os.path import exists
 import warnings
@@ -100,13 +103,20 @@ class InternalError(Error):
     def __str__(self):
         return Error.__str__(self) + """
 
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-* Please send an email to <trentm@gmail.com> to report this error.    *
-* I'd like to keep improving `platinfo.py' to cover as many platforms *
-* as possible. Please be sure to include the error message above and  *
-* any addition information you think might be relevant. Thanks!       *
-* -- Trent                                                            *
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *"""
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Please report this error by adding a bug here:
+*     http://code.google.com/p/platinfo/issues/list
+* or, by sending an email to <trentm@gmail.com>.
+*
+* I'd like to keep improving `platinfo.py' to cover as many platforms
+* as possible. Please be sure to include the error message above and
+* any addition information you think might be relevant. Thanks!
+* -- Trent
+*
+* platinfo version: %s
+* python version: %s
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *""" % (
+    __version_info__, sys.version_info)
 
 class LinuxDistroVersionWarning(RuntimeWarning):
     pass
@@ -119,7 +129,7 @@ warnings.simplefilter("once", LinuxDistroVersionWarning)
 class PlatInfo(object):
     """Platform information for the current machine."""
     _known_oses = set(
-        "win32 win64 hpux linux macosx aix solaris freebsd".split())
+        "win32 win64 hpux linux macosx aix solaris freebsd openbsd".split())
     _known_archs = set(
         "x86 powerpc ppc x64 x86_64 ia64 sparc sparc64 parisc".split())
 
@@ -296,7 +306,10 @@ class PlatInfo(object):
 
     def as_dict(self):
         """Return a dict representation of the platform info."""
-        return self.__dict__.copy()
+        d = self.__dict__.copy()
+        assert "name" not in d, "conflict with `name` datum"
+        d["name"] = self.name()
+        return d
 
     def as_xml(self):
         from xml.sax.saxutils import escape
@@ -325,7 +338,7 @@ class PlatInfo(object):
             self.os = "win32"
             self.arch = "x86"
         elif PROCESSOR_ARCHITECTURE == "AMD64":
-            self.os = "win32"
+            self.os = "win64"
             self.arch = "x64"
         else:
             raise InternalError("unknown Windows PROCESSOR_ARCHITECTURE: %r"
@@ -367,6 +380,8 @@ class PlatInfo(object):
         arch = uname[-1]
         if re.match(r"i\d86", arch):
             self.arch = "x86"
+        elif arch == "amd64":
+            self.arch = "x86_64"
         else:
             raise InternalError("unknown OpenBSD architecture: '%s'" % arch)
 
@@ -729,6 +744,46 @@ def platname(*rules, **kwargs):
 
 #---- internal support stuff
 
+# Note: Not using `subprocess.CalledProcessError` because that isn't in
+# Python 2.4.
+class RunError(Exception): pass
+class ExecutableNotFoundError(RunError): pass
+class NonZeroReturnCodeError(RunError): pass
+
+def _run(args, ignore_stderr=False):
+    """Run the given command.
+
+    @param args {str|list} Command strong or sequence of program arguments. The
+          program to execute is normally the first item in the args
+          sequence or the string if a string is given.
+    @param ignore_stderr {bool} If True, return only stdout; otherwise
+        return both stdout and stderr combined (2>&1)
+    @returns {str} The program output.
+    @raises {RunError} `ExecutableNotFoundError` or `NonZeroReturnCodeError`.
+    """
+    if ignore_stderr:
+        stderr_pipe = subprocess.PIPE
+    else:
+        stderr_pipe = subprocess.STDOUT
+        
+    try:
+        p = subprocess.Popen(args=args, 
+                shell=False, # prevent obtrusive shell warnings
+                stdout=subprocess.PIPE, stderr=stderr_pipe)
+    except OSError, e:
+        if e.errno == errno.ENOENT:
+            # `exe` not found
+            raise ExecutableNotFoundError('The command "%s" cannot be run: %s'
+                % (args, e))
+        raise
+
+    stdout, stderr = p.communicate()
+    if p.returncode:
+        raise NonZeroReturnCodeError('"%s" returned non-zero return code (%d)' 
+            % (args, p.returncode))
+    return stdout
+
+
 # Recipe: ver (0.1) in C:\trentm\tm\recipes\cookbook
 def _split_ver(ver_str):
     """Parse the given version into a tuple of "significant" parts.
@@ -800,9 +855,10 @@ int main(int argc, char **argv) { exit(0); }
         currdir = os.getcwd()
         os.chdir(tmpdir)
         try:
-            retval = os.system('g++ '+cxxfile)
-            if retval:
-                log.warn("could not compile test C++ file with g++: %r", retval)
+            try:
+                _run(['g++', cxxfile], ignore_stderr=True)
+            except RunError, e:
+                log.debug("could not compile test C++ file with g++: %s", e)
                 return {}
             objdump = os.popen('objdump -p a.out').read()
         finally:
@@ -1001,8 +1057,11 @@ def _setup_logging():
     hdlr.setFormatter(fmtr)
     logging.root.addHandler(hdlr)
 
-if __name__ == "__main__":
+def main(argv=None):
     import optparse
+    
+    if argv is None:
+        argv = sys.argv
 
     _setup_logging()
     usage = "usage: %prog [NAME-RULES...]"
@@ -1079,4 +1138,8 @@ more information."""
         print _banner("as_yaml", '-', length=WIDTH)
         print pi.as_yaml()
         print _banner(None, length=WIDTH)
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
 
