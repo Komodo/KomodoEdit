@@ -414,13 +414,13 @@ class CplnTestCase(CodeIntelTestCase):
         # JS completion when intermixing class definitions
         content, positions = unmark_text(dedent("""\
                 // Define class 1
-                function test_code() {
+                function intermixed_test_code() {
                     this.field1 = null;
                     this.field2 = null;
                 }
 
                 // Define class 2
-                function test_event(key, ctrl) {
+                function intermixed_test_event(key, ctrl) {
                     this.keyCode = key;
                     if (ctrl) {
                         this.ctrlKey = ctrl;
@@ -428,23 +428,23 @@ class CplnTestCase(CodeIntelTestCase):
                 }
 
                 // Define class 1 function
-                test_code.prototype.sendKeyPressEvent = function(key, ctrl) {
+                intermixed_test_code.prototype.sendKeyPressEvent = function(key, ctrl) {
                     this.<1>field1 = 1;
                 }
 
                 // Third class
-                function test_result() {
+                function intermixed_test_result() {
                     this.result = 0;
                 }
 
                 // Define class 2 function
-                test_event.prototype.getResult = function() {
+                intermixed_test_event.prototype.getResult = function() {
                     this.<2>keyCode = 101;
                 }
                 """))
         self.assertScopeLpathIs(
             markup_text(content, pos=positions[1]),
-            ["test_code", "sendKeyPressEvent"])
+            ["intermixed_test_code", "sendKeyPressEvent"])
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
             [("variable", "field1"), ("variable", "field2")])
