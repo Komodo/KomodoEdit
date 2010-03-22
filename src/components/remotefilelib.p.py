@@ -51,6 +51,8 @@ import select
 
 from xpcom import components, ServerException, nsError
 
+log = logging.getLogger('remotefilelib.p.py')
+#log.setLevel(logging.DEBUG)
 
 # Known protocols and their default ports
 koRFProtocolDefaultPort = {
@@ -324,6 +326,7 @@ class koRFConnection:
             else:
                 rfinfo.setLinkTarget(rf_link.getFilepath())
             self.log.debug("_followSymlink: File now: %s", rfinfo)
+        rfinfo.originalIsSymlink = True
         return rfinfo
 
     # As we are getting filenames from the remote system, the encoding could

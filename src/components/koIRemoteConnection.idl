@@ -45,6 +45,8 @@ interface koIRemoteConnection : nsISupports {
                  in wstring password, in wstring path, in boolean passive);
     
     // list caches results.  set refresh to true to force a refresh from the server
+    // A better name for this method would be 'stat', as it's a remote
+    // analog to the stat method, returning a koIRFI object.
     void list(in wstring path, in boolean refresh, [retval] out koIRemoteFileInfo pathinfo);
     void close();
     // refresh removes any cached information for this path and subsequent child paths

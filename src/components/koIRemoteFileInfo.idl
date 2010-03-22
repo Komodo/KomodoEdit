@@ -57,6 +57,14 @@ interface koIRemoteFileInfo : nsISupports {
     boolean isFile();
     boolean isDirectory();
     boolean isSymlink();
+
+    // Use this attribute -- the above is only useful internally
+    // near as I can determine.  RemoteFileInfo symlinks are actually
+    // resolved into hybrids: the name remains, but everything else
+    // is pointing to the eventual target.  Sometimes we need to know
+    // if the directory entry is a symlink, without caring about its target.
+    attribute boolean originalIsSymlink;
+
     boolean isReadable();
     boolean isWriteable();
     boolean isExecutable();

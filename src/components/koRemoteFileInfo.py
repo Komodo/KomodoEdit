@@ -98,6 +98,8 @@ class koRemoteFileInfo:
         self.st_mtime = 0L
         self.children = []
         self.lastListedTime = 0
+        self.originalIsSymlink = False
+            # symlink mode bit gets cleared by _followSymlink
 
     # Boolean checker methods
     def isFile(self):
