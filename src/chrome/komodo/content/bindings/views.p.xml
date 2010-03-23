@@ -706,7 +706,7 @@
         <body>
         <![CDATA[
             ko.trace.get().enter('view-base: makeCurrent');
-            if (typeof("noFocus") == "undefined") {
+            if (typeof(noFocus) == "undefined") {
                 this._doNotGrabFocus = false;
             } else {
                 this._doNotGrabFocus = noFocus;
