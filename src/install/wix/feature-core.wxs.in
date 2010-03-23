@@ -1596,6 +1596,7 @@
                 <File Id="file82" LongName="HTMLTreeParser.py" Name="HTMLTR_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\HTMLTreeParser.py" />
                 <File Id="file2312" Name="process.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\process.py"/>
                 <File Id="file866" Name="WINPRO_0.PY" LongName="winprocess.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\winprocess.py" />
+                <File Id="file769" Name="PREF_S_0.PY" LongName="pref_serialization.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pref_serialization.py"/>
                 <File Id="file2314" Name="PYXPCO_0.PY" LongName="pyxpcomProfiler.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pyxpcomProfiler.py"/>
                 <File Id="file2315" Name="reflow.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\reflow.py"/>
                 <File Id="file2317" Name="SCIMOZ_0.PY" LongName="scimozindent.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\scimozindent.py"/>
