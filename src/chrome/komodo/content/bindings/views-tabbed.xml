@@ -343,9 +343,6 @@
         <![CDATA[
             this.log.debug('view selection changed');
             view.setFocus();
-            if (! this.hasAttribute('handlesctrltab') || this.getAttribute('handlesctrltab') == 'true') {
-                this.setMostRecentView(view);
-            }
             if (view.document) {
                 xtk.domutils.fireEvent(view, 'current_view_changed');
             }
