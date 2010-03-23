@@ -316,8 +316,16 @@ function update(changed /* =null */) {
     }
 }
 
+function regex_escape_ignoring_whitespace(text) {
+    var specials = [
+          '/', '\\', '.', '*', '+', '?', '|',
+          '(', ')', '[', ']', '{', '}', '$', '^',
+    ];
+    var escape_re = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
+    return text.replace(escape_re, '\\$1');
+}
 
-function regex_escape()
+function regex_escape(ignore_whitespace /* false */)
 {
     try {
         var textbox = widgets.curr_pattern;
@@ -325,7 +333,11 @@ function regex_escape()
                                             textbox.selectionEnd);
         var escaped;
         if (selection) {
-            escaped = gFindSvc.regex_escape_string(selection);
+            if (ignore_whitespace) {
+                escaped = regex_escape_ignoring_whitespace(selection);
+            } else {
+                escaped = gFindSvc.regex_escape_string(selection);
+            }
             var selStart = textbox.selectionStart;
             textbox.value = textbox.value.slice(0, selStart)
                 + escaped + textbox.value.slice(textbox.selectionEnd);
@@ -333,7 +345,11 @@ function regex_escape()
             textbox.setSelectionRange(selStart,
                                       selStart + escaped.length);
         } else {
-            escaped = gFindSvc.regex_escape_string(textbox.value);
+            if (ignore_whitespace) {
+                escaped = regex_escape_ignoring_whitespace(textbox.value);
+            } else {
+                escaped = gFindSvc.regex_escape_string(textbox.value);
+            }
             textbox.value = escaped;
             textbox.focus();
         }
@@ -904,16 +920,21 @@ function _init() {
 
     // Determine the default pattern.
     var default_pattern = "";
+    var escape_default_pattern = false;
     if (typeof args.pattern != "undefined") {
         default_pattern = args.pattern;
+        escape_default_pattern = false;
     } else if (use_selection_as_pattern) {
         default_pattern = selection;
+        escape_default_pattern = true;
     } else {
         if (scimoz) {
             default_pattern = ko.interpolate.getWordUnderCursor(scimoz);
+            escape_default_pattern = true;
         }
         if (! default_pattern) {
             default_pattern = ko.mru.get("find-patternMru", 0);
+            escape_default_pattern = false;
         }
     }
 
@@ -950,6 +971,13 @@ function _init() {
     widgets.excludes.value = args.excludes || opts.encodedExcludeFiletypes;
     widgets.show_replace_all_results.checked = opts.showReplaceAllResults;
     widgets.confirm_replacements_in_files.checked = opts.confirmReplacementsInFiles;
+
+    if (escape_default_pattern && widgets.opt_regex.checked) {
+        /* The user wants to use a regex find/eplace from a selection (or
+           current word) in the editor, so we escape the text for them.
+           Bug 85619. */
+        regex_escape(/* ignore_whitespace */ true);
+    }
 
     switch (opts.caseSensitivity) {
     case koIFindOptions.FOC_INSENSITIVE:
