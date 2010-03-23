@@ -322,26 +322,20 @@
 
             <method name="advanceSelectedTab">
                 <parameter name="aDir"/>
+                <parameter name="aWrap"/>
                 <body>
                 <![CDATA[
                 // XXX copied from mozilla's tabbox.xml and modified to make
-                // sure that non-tab children are not selected on ctrl-tab
+                // sure that the newly selected tab has the focus.
                 var startTab = this.selectedItem;
                 var next = startTab[aDir == -1 ? "previousSibling" : "nextSibling"];
-
-                while (next != startTab && (!next || (next.getAttribute("hidden") || next.localName != 'tab'))) {
-                  if (next && (next.getAttribute("hidden") || next.localName != 'tab'))
-                    next = next[aDir == -1 ? "previousSibling" : "nextSibling"];
-                  if (!next)
-                    next = aDir == 1 ? this.childNodes[0] : this.childNodes[this.childNodes.length - 1];
+                if (!next && aWrap) {
+                  next = aDir == -1 ? this.childNodes[this.childNodes.length - 1] :
+                                      this.childNodes[0];
                 }
-
                 if (next && next != startTab) {
-                  this.selectedItem = next;
-                  if (this.getAttribute("setfocus") != "false") {
-                    next.focus();
-                    document.commandDispatcher.advanceFocusIntoSubtree(next);
-                  }
+                  this._selectNewTab(next, aDir, aWrap);
+                  ko.views.manager.currentView.setFocus();
                 }
                 ]]>
                 </body>
