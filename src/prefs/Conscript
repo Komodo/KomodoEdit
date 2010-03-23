@@ -49,6 +49,7 @@ Import(
     'platform',
     'buildFlavour',
     'mozVersion',
+    'komodoPythonUtilsDir',
     'sdkDir',
 );
 
@@ -65,6 +66,8 @@ $cons->BuildAndInstallXpt('koIOrderedPreference.idl');
 $cons->Preprocess('koIEnvView.p.idl', 'koIEnvView.idl');
 $cons->Install($idlExportDir, 'koIEnvView.idl');
 $cons->BuildAndInstallXpt('koIEnvView.idl');
+
+$cons->InstallPythonUtility('pref_serialization.py');
 
 # Install default preferences in root 
 $cons->Preprocess('prefs.p.xml', 'prefs.xml');

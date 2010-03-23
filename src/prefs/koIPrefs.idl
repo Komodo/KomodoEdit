@@ -231,3 +231,12 @@ interface koIPrefService : nsISupports {
   // Save the named preference set to disk.
   void savePrefsState(in wstring prefName);
 };
+
+/**
+ * A preference serlializer.
+ */
+[scriptable, uuid(c929dc80-3c37-4ba9-acaa-bc2d4e609a8e)]
+interface koIPreferenceSerializer : nsISupports {
+  koIPreference serializeToPreference();
+  void unserializeFromPreference(in koIPreference pref);
+};
