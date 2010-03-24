@@ -308,14 +308,6 @@
         </body>
         </method>
 
-        <method name="closeCurrentView">
-        <body>
-        <![CDATA[
-            this.currentView.closeCurrentView();
-        ]]>
-        </body>
-        </method>
-
         <method name="newView">
         <parameter name="type"/>
         <parameter name="index"/> <!-- optional index at which to insert view -->

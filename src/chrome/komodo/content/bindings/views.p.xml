@@ -454,16 +454,6 @@
             ]]></body>
         </method>
 
-        <method name="closeCurrentView">
-        <body>
-        <![CDATA[
-            if (this.currentView) {
-                this.currentView.close();
-            }
-        ]]>
-        </body>
-        </method>
-
         <method name="newView">
         <parameter name="type"/>
         <parameter name="index"/> <!-- optional index at which to insert view -->
