@@ -528,7 +528,6 @@
                 // ctrl-tab or a mouse click is done.
                 var newView = this.currentView.currentView;
                 newView.setFocus();
-                this.viewhistory.setMostRecentView(this.currentView.currentView);
                 window.setTimeout(xtk.domutils.fireEvent,
                                   1, newView, 'current_view_changed');
             }
@@ -550,12 +549,6 @@
             // handle the splitters visibility
             if (ok) {
                 nodes[0].childNodes[1].removeAttribute('collapsed');
-            }
-
-            try {
-                this.viewhistory.setMostRecentView(view);
-            } catch (e) {
-                this.log.exception(e);
             }
         ]]>
         </handler>

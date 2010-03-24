@@ -688,18 +688,13 @@
         </body>
         </method>
 
-        <!--void makeCurrent();-->
-        <field name="_doNotGrabFocus">false</field>
-
         <method name="makeCurrent">
         <parameter name="noFocus"/>
         <body>
         <![CDATA[
             ko.trace.get().enter('view-base: makeCurrent');
             if (typeof(noFocus) == "undefined") {
-                this._doNotGrabFocus = false;
-            } else {
-                this._doNotGrabFocus = noFocus;
+                noFocus = ko.views.manager.batchMode;
             }
             this.parentView.currentView = this;
             try {
@@ -711,7 +706,7 @@
                 // if is is not, we need to make it so, otherwise things
                 // go haywire.  This works, but a better solution is
                 // needed.  this also affects setstate in multiview
-                if (!this._doNotGrabFocus) {
+                if (!noFocus) {
                     if (this.parentView &&
                         this.parentView != ko.views.manager.topView.lastFocused) {
                         ko.views.manager.topView.lastFocused = this.parentView;
@@ -721,7 +716,6 @@
             } catch(e) {
                 this.log.exception(e);
             }
-            this._doNotGrabFocus = false;
             ko.trace.get().leave('view-base: makeCurrent');
         ]]>
         </body>

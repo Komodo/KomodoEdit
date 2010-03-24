@@ -76,6 +76,7 @@ this.ViewHistory = function viewhistory() {
     var self = this;
     this.handle_current_view_changed = function(event) {
         self._currentView = event.originalTarget;
+        self.setMostRecentView(self._currentView);
     };
     this.handle_view_list_closed = function(event) {
         self._currentView = null;
@@ -166,6 +167,7 @@ this.ViewHistory.prototype.ctrlup = function(event)
     window.removeEventListener("keyup", this._keylistener, true);
     this._keylistener = null;
     this.exitBufferSwitchingSession();
+    this.setMostRecentView(this._currentView);
     this._currentView.doFocus(); // needed to possibly start lint XXX want better API
 }
 
@@ -299,14 +301,6 @@ this.ViewHistory.prototype.exitBufferSwitchingSession = function()
     this.log.debug("exitBufferSwitchingSession()");
     this.inBufferSwitchingSession = false;
     ko.views.manager.batchMode = false;
-    // We need to do a current_view_changed here because the views.js
-    // observer ignores those while in the middle of a control-tab session
-    // for purposes of optimization.
-    if (this._currentView) {
-        xtk.domutils.fireEvent(this._currentView, 'current_view_changed');
-    } else {
-        xtk.domutils.fireEvent(window, 'view_list_closed');
-    }
 }
 
 this.ViewHistory.prototype.setMostRecentView = function (view)

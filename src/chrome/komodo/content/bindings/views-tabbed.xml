@@ -189,6 +189,9 @@
             try {
                 var vi = this.getViewIndex(view); // just to make sure we have it
                 this.removeTab(view.parentNode._tab);
+                if (this.currentView) {
+                    this.currentView.makeCurrent();
+                }
             } catch(e) {
                 this.log.exception(e);
             }
@@ -210,16 +213,16 @@
                 }
             }
 
-            var tabpanel = document.getElementById(tab.linkedPanel);
-            this.tabbox._tabs.removeChild(tab);
-            this.tabbox._tabpanels.removeChild(tabpanel);
-
             if (newTab) {
                 this.tabbox._tabs.selectedItem = newTab;
                 // I have to do this, otherwise the panel disappears anyway
                 tabpanel = document.getElementById(newTab.linkedPanel);
                 this.tabbox._tabpanels.selectedPanel = tabpanel;
             }
+
+            var tabpanel = document.getElementById(tab.linkedPanel);
+            this.tabbox._tabs.removeChild(tab);
+            this.tabbox._tabpanels.removeChild(tabpanel);
 
             if (this.tabbox._tabs.childNodes.length < 1) {
                 this.tabbox.firstChild.setAttribute('closedisabled','true');
@@ -342,7 +345,6 @@
         <body>
         <![CDATA[
             this.log.debug('view selection changed');
-            view.setFocus();
             if (view.document) {
                 xtk.domutils.fireEvent(view, 'current_view_changed');
             }
