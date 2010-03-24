@@ -91,6 +91,15 @@ fireEvent : function(target, eventName) {
     target.dispatchEvent(event);
 },
 
+/**
+ * Helper method to easily create a new DOM element with a bunch of (optional)
+ * attributes set.
+ *
+ * @param name {string} - The element name to create.
+ * @param attributes {object} - (Optional) A map object containing attributes
+                                names to values.
+ * @returns {domnode}
+ */
 newElement : function(name, attributes) {
     var elem = document.createElement(name);
     for (var attr in attributes) {
