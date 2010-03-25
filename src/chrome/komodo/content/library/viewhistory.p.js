@@ -293,14 +293,12 @@ this.ViewHistory.prototype.enterBufferSwitchingSession = function()
 {
     this.log.debug("enterBufferSwitchingSession()");
     this.inBufferSwitchingSession = true;
-    ko.views.manager.batchMode = true;
 }
 
 this.ViewHistory.prototype.exitBufferSwitchingSession = function()
 {
     this.log.debug("exitBufferSwitchingSession()");
     this.inBufferSwitchingSession = false;
-    ko.views.manager.batchMode = false;
 }
 
 this.ViewHistory.prototype.setMostRecentView = function (view)
