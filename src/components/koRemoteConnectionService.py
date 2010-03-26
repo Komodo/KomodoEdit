@@ -243,6 +243,10 @@ class koRemoteConnectionService:
 
     EMPTY_PASSWORD_SENTINEL = '\vKOMODO_EMPTY_PASSWORD\v'
 
+    # List of server login info - cached data, gets updated when the server
+    # prefs are modified.
+    __serverinfo_list = None
+
     def __init__(self):
         # _connections is a dictionary of python connection objects. The key
         # is a combination of the connection attributes:
@@ -644,31 +648,33 @@ class koRemoteConnectionService:
 
     # Return the sorted list of servers, in koIServerInfo objects.
     def getServerInfoList(self):
-        serverinfo_list = []
-        try:
-            loginmanager = components.classes["@mozilla.org/login-manager;1"].\
-                                getService(components.interfaces.nsILoginManager)
-            logins = loginmanager.getAllLogins() # array of nsILoginInfo
-        except COMException, ex:
-            # TODO: Check if this is a testing environment, if it's not then
-            #       this should be an exception.
-            log.warn("Could not obtain logins from the nsILoginManager")
-            logins = []
-        #print "getServerInfoList:: logins: %r" % (logins, )
-        if logins:
-            for logininfo in logins:
-                logininfo.QueryInterface(components.interfaces.nsILoginInfo)
-                serverinfo = koServerInfo()
-                try:
-                    if logininfo.password == self.EMPTY_PASSWORD_SENTINEL:
-                        logininfo.password = ''
-                    serverinfo.initFromLoginInfo(logininfo)
-                    serverinfo_list.append(serverinfo)
-                except BadServerInfoException:
-                    # Ignore non Komodo server entries.
-                    pass
-            serverinfo_list.sort(lambda a,b: cmp(a.alias.lower(), b.alias.lower()))
-        return serverinfo_list
+        if self.__serverinfo_list is None:
+            serverinfo_list = []
+            try:
+                loginmanager = components.classes["@mozilla.org/login-manager;1"].\
+                                    getService(components.interfaces.nsILoginManager)
+                logins = loginmanager.getAllLogins() # array of nsILoginInfo
+            except COMException, ex:
+                # TODO: Check if this is a testing environment, if it's not then
+                #       this should be an exception.
+                log.warn("Could not obtain logins from the nsILoginManager")
+                logins = []
+            #print "getServerInfoList:: logins: %r" % (logins, )
+            if logins:
+                for logininfo in logins:
+                    logininfo.QueryInterface(components.interfaces.nsILoginInfo)
+                    serverinfo = koServerInfo()
+                    try:
+                        if logininfo.password == self.EMPTY_PASSWORD_SENTINEL:
+                            logininfo.password = ''
+                        serverinfo.initFromLoginInfo(logininfo)
+                        serverinfo_list.append(serverinfo)
+                    except BadServerInfoException:
+                        # Ignore non Komodo server entries.
+                        pass
+                serverinfo_list.sort(lambda a,b: cmp(a.alias.lower(), b.alias.lower()))
+            self.__serverinfo_list = serverinfo_list
+        return self.__serverinfo_list
 
     def getServerInfoForAlias(self, server_alias):
         servers = self.getServerInfoList()
@@ -701,3 +707,9 @@ class koRemoteConnectionService:
                 # passwords.
                 logininfo.password = self.EMPTY_PASSWORD_SENTINEL
             loginmanager.addLogin(logininfo)
+        self.__serverinfo_list = serverinfo_list
+
+        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
+                      getService(components.interfaces.nsIObserverService)
+        obsSvc.notifyObservers(None, "server-preferences-changed", "")
+
