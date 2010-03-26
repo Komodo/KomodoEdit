@@ -60,6 +60,9 @@ $cons->InstallPythonUtility('URIlib.py');
 $cons->Install($idlExportDir, 'koIFileEx.idl');
 $cons->BuildAndInstallXpt('koIFileEx.idl');
 $cons->InstallXpcomComponent('koFileEx.py');
+
+$cons->Install($idlExportDir, 'koIFileService.idl');
+$cons->BuildAndInstallXpt('koIFileService.idl');
 $cons->InstallXpcomComponent('koFileService.py');
 
 $cons->Install($idlExportDir, 'koIDocument.idl');

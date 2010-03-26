@@ -39,7 +39,6 @@
 */
 
 #include "nsISupports.idl"
-#include "nsIObserverService.idl"
 
 /*
   koIFile represents a file on disk.
@@ -149,30 +148,4 @@ interface koIFileEx : nsISupports
                       out unsigned long key_count,
                       [array, size_is(val_count)] out wstring values,
                       out unsigned long val_count);
-};
-
-/*
-  The koIFileService provides construction and caching of file objects.
-  This can then be used by other services, such as the file status service
-*/
-
-[scriptable, uuid(F9E2D05A-B087-455B-9A62-78A095E92123)]
-interface koIFileService: nsISupports
-{
-    koIFileEx getFileFromURI(in wstring URI);
-
-    void getAllFiles([array, size_is(count)] out koIFileEx files,
-                     out PRUint32 count);
-    koIFileEx findFileByURI(in wstring URI);
-
-    void getFilesInBaseURI(in wstring path,
-                     [array, size_is(count)] out koIFileEx files,
-                     out PRUint32 count);
-
-    wstring makeTempName(in wstring suffix); 
-    wstring makeTempNameInDir(in wstring dir, in wstring suffix); 
-    koIFileEx makeTempFile(in wstring suffix, in string mode);
-    koIFileEx makeTempFileInDir(in wstring dir, in wstring suffix, in string mode);
-    void deleteAllTempFiles();
-    void deleteTempFile(in wstring fname, in boolean remove_fname);
 };
