@@ -260,7 +260,8 @@ class koRemoteConnectionService:
         self._sessionData = {}
         # _cachedFiles contains a sub-dictionary for every connection made.
         # The keys for _cachedFiles are the same as used for _connections.
-        #   conn_key = "%s:%s:%s:%s" % (protocol, server, port, username)
+        #   conn_key = "%s:%s:%s:%s" % (thread_id, protocol, server, port,
+        #                               username)
         # The sub-dictionary will contain filepaths as the keys, whilst
         # the value will be a rf_info object containing the file information.
         self._cachedFiles = {}
@@ -275,6 +276,16 @@ class koRemoteConnectionService:
 
     ## Private, internal functions
     ## The lock has been acquired, just do the internal work
+
+    def _generateCachekey(self, protocol, server, port, username):
+        """Generate a key to be used for caching the connection object.
+        
+        The currentThread() call is used to ensure each thread gets their own
+        unqiue connection.
+        """
+        conn_key = "%s:%s:%s:%s:%s" % (threading.currentThread(),
+                                       protocol, server, port, username)
+        return conn_key
 
     # We have the lock already
     def _getConnection(self, protocol, server, port, username, password, path,
@@ -296,7 +307,7 @@ class koRemoteConnectionService:
         protocol = protocol.lower()
         if port < 0:
             port = remotefilelib.koRFProtocolDefaultPort[protocol]
-        conn_key = "%s:%s:%s:%s"%(protocol,server,port,username)
+        conn_key = self._generateCachekey(protocol, server, port, username)
         c = self._connection_cache.getConnection(conn_key)
         if c is not None:
             log.debug("getConnection, found cached connection")
@@ -500,8 +511,8 @@ class koRemoteConnectionService:
         self._connection_cache.clearAll()
 
     def removeConnectionFromCache(self, conn):
-        conn_key = "%s:%s:%s:%s" % (conn.protocol, conn.server,
-                                    conn.port, conn.username)
+        conn_key = self._generateCachekey(conn.protocol, conn.server,
+                                          conn.port, conn.username)
         self._connection_cache.removeConnectionWithKey(conn_key)
 
     # Returns True if the url is supported by the remote connection service.
