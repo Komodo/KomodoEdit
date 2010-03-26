@@ -65,4 +65,9 @@ interface koIFileService: nsISupports
     koIFileEx makeTempFileInDir(in wstring dir, in wstring suffix, in string mode);
     void deleteAllTempFiles();
     void deleteTempFile(in wstring fname, in boolean remove_fname);
+
+    wstring makeTempDir(in wstring suffix, in wstring prefix);
+    wstring makeTempDirInDir(in wstring dir, in wstring suffix, in wstring prefix);
+    void deleteTempDir(in wstring dname);
+    void deleteAllTempDirs();
 };

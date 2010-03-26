@@ -41,6 +41,7 @@ from xpcom.server import WrapObject
 from xpcom.client import WeakReference
 from URIlib import URIParser
 import tempfile, os
+import shutil
 
 import logging
 log = logging.getLogger('koFileService')
@@ -56,6 +57,7 @@ class koFileService(object):
     def __init__(self):
         self._files = {}
         self._tmpfiles = {}
+        self._tmpdirs = {}
         self._uriParser = URIParser()
         self.obsSvc = components.classes["@mozilla.org/observer-service;1"].getService(components.interfaces.nsIObserverService)
         self.obsSvc.addObserver(WrapObject(self,components.interfaces.nsIObserver), "xpcom-shutdown", 0)
@@ -173,6 +175,7 @@ class koFileService(object):
     def observe(self, service, topic, extra):
         if topic == "xpcom-shutdown":
             self.deleteAllTempFiles()
+            self.deleteAllTempDirs()
     
     def makeTempName(self, suffix):
         ret = tempfile.mktemp(suffix)
@@ -209,4 +212,22 @@ class koFileService(object):
         f.open(mode)
         return f
 
+    def makeTempDir(self, suffix, prefix):
+        dname = tempfile.mkdtemp(suffix, prefix=prefix)
+        self._tmpdirs[dname] = 1
+        return dname
+
+    def makeTempDirInDir(self, dir, suffix, prefix):
+        dname = tempfile.mkdtemp(suffix, prefix=prefix, dir=dir)
+        self._tmpdirs[dname] = 1
+        return dname
+
+    def deleteTempDir(self, dname):
+        shutil.rmtree(dname, ignore_errors=True)
+        self._tmpdirs.pop(dname, None)
+
+    def deleteAllTempDirs(self):
+        for dname in self._tmpdirs.keys():
+            shutil.rmtree(dname, ignore_errors=True)
+        self._tmpdirs = {}
 
