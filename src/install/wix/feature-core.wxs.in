@@ -605,6 +605,7 @@
               <File Id="file2037" Name="koIFile.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFile.xpt"/>
               <File Id="file2038" Name="KOIFIL_0.XPT" LongName="koIFileEx.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFileEx.xpt"/>
               <File Id="file2039" Name="KOIFIL_1.XPT" LongName="koIFileLoggingService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFileLoggingService.xpt"/>
+              <File Id="file951" LongName="koIFileService.xpt" Name="KOIFIL_4.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFileService.xpt" />
               <File Id="file2040" Name="KOIFIL_2.XPT" LongName="koIFileStatusService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFileStatusService.xpt"/>
               <File Id="file2041" Name="KOIFIN_0.XPT" LongName="koIFinalizeService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFinalizeService.xpt"/>
               <File Id="file2042" Name="KOIFIN_1.XPT" LongName="koIFindBrowseForDirs.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIFindBrowseForDirs.xpt"/>
@@ -3622,6 +3623,7 @@
               <File Id="file3913" Name="KOIFIL_0.IDL" LongName="koIFileEx.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFileEx.idl"/>
               <File Id="file3914" Name="KOIFIL_1.IDL" LongName="koIFileLoggingService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFileLoggingService.idl"/>
               <File Id="file3930" Name="KOIFIL_2.IDL" LongName="koIFileNotificationService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFileNotificationService.idl"/>
+              <File Id="file952" LongName="koIFileService.idl" Name="KOIFIL_4.IDL" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFileService.idl" />
               <File Id="file3931" Name="KOIFIL_3.IDL" LongName="koIFileStatusService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFileStatusService.idl"/>
               <File Id="file3933" Name="KOIFIN_0.IDL" LongName="koIFinalizeService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFinalizeService.idl"/>
               <File Id="file3934" Name="KOIFIN_1.IDL" LongName="koIFindBrowseForDirs.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIFindBrowseForDirs.idl"/>
