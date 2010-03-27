@@ -1,0 +1,81 @@
+
+Fix the Komodo "editor stops working after changing spaces in MacOSX 10.6" bug:
+http://bugs.activestate.com/show_bug.cgi?id=84698
+
+This patch is not yet applied to the Mozilla 1.9.1 branch, but it may be
+applied to 1.9.1 sometime in the future.
+
+# HG changeset patch
+# User Steven Michaud <smichaud@pobox.com>
+# Date 1255970350 18000
+# Node ID 259e824613ea0cb13c9ba6c47178f76f2b0060a2
+# Parent 3abef873e69fc7d65ca5410db5948097a1979a85
+Bug 516249 - [10.6] Wrong event modifiers passed to plugin on switching Spaces with Ctrl-<number key>. r=josh a=jst
+
+--- layout/generic/nsObjectFrame.cpp
++++ layout/generic/nsObjectFrame.cpp
+@@ -3528,7 +3528,7 @@ static void InitializeEventRecord(EventR
+     ::GetGlobalMouse(&event->where);
+   }
+   event->when = ::TickCount();
+-  event->modifiers = ::GetCurrentEventKeyModifiers();
++  event->modifiers = ::GetCurrentKeyModifiers();
+ }
+ 
+ NPDrawingModel nsPluginInstanceOwner::GetDrawingModel()
+--- widget/src/cocoa/nsChildView.mm
++++ widget/src/cocoa/nsChildView.mm
+@@ -2027,7 +2027,7 @@ NS_IMETHODIMP nsChildView::GetToggledKey
+     default:
+       return NS_ERROR_NOT_IMPLEMENTED;
+   }
+-  PRUint32 modifierFlags = ::GetCurrentEventKeyModifiers();
++  PRUint32 modifierFlags = ::GetCurrentKeyModifiers();
+   *aLEDState = (modifierFlags & key) != 0;
+   return NS_OK;
+ 
+@@ -3075,7 +3075,7 @@ static const PRInt32 sShadowInvalidation
+   macEvent.message = 0;
+   macEvent.when = ::TickCount();
+   ::GetGlobalMouse(&macEvent.where);
+-  macEvent.modifiers = ::GetCurrentEventKeyModifiers();
++  macEvent.modifiers = ::GetCurrentKeyModifiers();
+   geckoEvent.nativeMsg = &macEvent;
+ 
+   mGeckoChild->DispatchWindowEvent(geckoEvent);
+@@ -3108,7 +3108,7 @@ static const PRInt32 sShadowInvalidation
+   macEvent.message = 0;
+   macEvent.when = ::TickCount();
+   ::GetGlobalMouse(&macEvent.where);
+-  macEvent.modifiers = ::GetCurrentEventKeyModifiers();
++  macEvent.modifiers = ::GetCurrentKeyModifiers();
+   geckoEvent.nativeMsg = &macEvent;
+ 
+   mGeckoChild->DispatchWindowEvent(geckoEvent);
+@@ -3138,7 +3138,7 @@ static nsEventStatus SendGeckoMouseEnter
+   macEvent.message = 0;
+   macEvent.when = ::TickCount();
+   ::GetGlobalMouse(&macEvent.where);
+-  macEvent.modifiers = ::GetCurrentEventKeyModifiers();
++  macEvent.modifiers = ::GetCurrentKeyModifiers();
+   event.nativeMsg = &macEvent;
+ 
+   event.exit = type;
+@@ -3266,7 +3266,7 @@ static nsEventStatus SendGeckoMouseEnter
+   macEvent.message = 0;
+   macEvent.when = ::TickCount();
+   ::GetGlobalMouse(&macEvent.where);
+-  macEvent.modifiers = ::GetCurrentEventKeyModifiers();
++  macEvent.modifiers = ::GetCurrentKeyModifiers();
+   geckoEvent.nativeMsg = &macEvent;
+ 
+   mGeckoChild->DispatchWindowEvent(geckoEvent);
+@@ -3296,7 +3296,7 @@ static nsEventStatus SendGeckoMouseEnter
+   macEvent.message = 0;
+   macEvent.when = ::TickCount();
+   ::GetGlobalMouse(&macEvent.where);
+-  macEvent.modifiers = btnState | ::GetCurrentEventKeyModifiers();
++  macEvent.modifiers = btnState | ::GetCurrentKeyModifiers();
+   geckoEvent.nativeMsg = &macEvent;
+ 
+   mGeckoChild->DispatchWindowEvent(geckoEvent);
