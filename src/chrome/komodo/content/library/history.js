@@ -643,6 +643,7 @@ function _rctab_from_event(event) {
         if (!koDocument || !koDocument.file) {
             return null;
         }
+        ko.history.note_curr_loc(view);
         // FALLTHRU
     case "browser":
         uri = view.document.file.URI;
