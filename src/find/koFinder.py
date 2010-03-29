@@ -1248,15 +1248,22 @@ class KoFindService(object):
                 if start == end:
                     # Search the whole text.
                     end = None
+                last_endChar = 0
+                last_endByte = 0
                 for match in findlib2.find_all_matches(regex, text,
                                                        start=start, end=end):
                     # Remember the match.
-                    startByte = scimoz.positionAtChar(0, match.start())
-                    byteLength = scimoz.positionAtChar(0, match.end()) - startByte
+                    startChar = match.start()
+                    endChar = match.end()
+                    startByte = scimoz.positionAtChar(last_endByte, startChar - last_endChar)
+                    endByte = scimoz.positionAtChar(startByte, endChar - startChar)
+                    byteLength = endByte - startByte
                     hightlight_matches.append((startByte, byteLength))
                     if time.time() > expired_time:
                         # Timed out.
                         break
+                    last_endByte = endByte
+                    last_endChar = endChar
                 self._lastHighlightMatches = hightlight_matches
                 self._lastHighlightRegexTuple = regexTuple
                 self._lastHighlightMd5Hexdigest = md5_hexdigest
