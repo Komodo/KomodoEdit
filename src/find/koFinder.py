@@ -1490,14 +1490,18 @@ class KoFindService(object):
             last_hit_line = None
             num_hits = 0
             curr_pos = 0  # current working position in `text'.
+            last_startByteIndex = 0
+            last_startCharIndex = 0
             for match in chain(*greppers):
                 if resultsView is not None or firstOnLine:
                     startCharIndex = match.start() + contextOffset
                     # Convert indices to *byte* offsets (as in scintilla) from
                     # *char* offsets (which is what the Python regex engine
                     # searching is using).
-                    startByteIndex = scimoz.positionAtChar(0, startCharIndex)
+                    startByteIndex = scimoz.positionAtChar(last_startByteIndex, startCharIndex - last_startCharIndex)
                     startLineNum = scimoz.lineFromPosition(startByteIndex)
+                    last_startCharIndex = startCharIndex
+                    last_startByteIndex = startByteIndex
                 if firstOnLine:
                     # If `firstOnLine == True` then we skip this hit if we
                     # already have one on this line.
@@ -1524,7 +1528,7 @@ class KoFindService(object):
                     # The 'context' is about the text before the
                     # replacement -- this changes the end point.
                     contextEndCharIndex = match.end() + contextOffset
-                    contextEndByteIndex = scimoz.positionAtChar(0, contextEndCharIndex)
+                    contextEndByteIndex = scimoz.positionAtChar(startByteIndex, contextEndCharIndex - startCharIndex)
                     contextEndLineNum = scimoz.lineFromPosition(contextEndByteIndex)
                     contextStartPos = scimoz.positionFromLine(startLineNum)
                     contextEndPos = scimoz.getLineEndPosition(contextEndLineNum)
@@ -1546,7 +1550,9 @@ class KoFindService(object):
                 # searching is using).
                 if resultsView is None and not firstOnLine: # otherwise it's already calculated.
                     startCharIndex = match.start() + contextOffset
-                    startByteIndex = scimoz.positionAtChar(0, startCharIndex)
+                    startByteIndex = scimoz.positionAtChar(last_startByteIndex, startCharIndex - last_startCharIndex)
+                    last_startCharIndex = startCharIndex
+                    last_startByteIndex = startByteIndex
                 # We use utf-8 encoding to determine the byte length because
                 # this is the encoding scintilla *always* uses for displaying
                 # text.
