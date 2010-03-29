@@ -1406,6 +1406,7 @@ class KoFindService(object):
             1. the replacement text if there was a change, otherwise null
             2. the number of replacements made
         """
+        print "replaceallex"
         try:
             # Build the appropriate regex and replacement.
             regex, munged_repl, desc = _regex_info_from_ko_find_data(
@@ -1521,8 +1522,6 @@ class KoFindService(object):
                     # Convert indices to *byte* offsets (as in scintilla) from
                     # *char* offsets (which is what the Python regex engine
                     # searching is using).
-                    endByteIndex = scimoz.positionAtChar(0, endCharIndex)
-
                     # The 'context' is about the text before the
                     # replacement -- this changes the end point.
                     contextEndCharIndex = match.end() + contextOffset
