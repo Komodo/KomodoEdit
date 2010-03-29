@@ -488,11 +488,11 @@
         <command
             id="cmd_wordPartLeft" key="key_cmd_wordPartLeft"
             oncommand="ko.commands.doCommand('cmd_wordPartLeft')"
-            desc="&editorMoveForwardPartOfWord.desc;"/>
+            desc="&editorMoveBackPartOfWord.desc;"/>
         <command
             id="cmd_wordPartRight" key="key_cmd_wordPartRight"
             oncommand="ko.commands.doCommand('cmd_wordPartRight')"
-            desc="&editorMoveBackPartOfWord.desc;"/>
+            desc="&editorMoveForwardPartOfWord.desc;"/>
         <command
             id="cmd_wordPartLeftExtend" key="key_cmd_wordPartLeftExtend"
             oncommand="ko.commands.doCommand('cmd_wordPartLeftExtend')"
