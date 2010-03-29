@@ -1316,6 +1316,8 @@ class KoFindService(object):
             self._lastHighlightMatches = []
             self._lastHighlightRegexTuple = None
             self._lastHighlightMd5Hexdigest = None
+            last_endCharIndex = 0
+            last_endByteIndex = 0
             for match in findlib2.find_all_matches(regex, text):
                 value = match.group()
                 startCharIndex = match.start() + contextOffset
@@ -1324,8 +1326,8 @@ class KoFindService(object):
                 # Convert indices to *byte* offsets (as in scintilla) from
                 # *char* offsets (which is what the Python regex engine
                 # searching is using).
-                startByteIndex = scimoz.positionAtChar(0, startCharIndex)
-                endByteIndex = scimoz.positionAtChar(0, endCharIndex)
+                startByteIndex = scimoz.positionAtChar(last_endByteIndex, (startCharIndex - last_endCharIndex))
+                endByteIndex = scimoz.positionAtChar(startByteIndex, len(value))
                 # Save the match location for highlighting purposes.
                 self._lastHighlightMatches.append((startByteIndex,
                                                    endByteIndex - startByteIndex))
@@ -1344,6 +1346,8 @@ class KoFindService(object):
                     startLineNum + 1, # 1-based line
                     startCharIndex - scimoz.positionFromLine(startLineNum) + 1, # 1-based column.
                     context)
+                last_endCharIndex = endCharIndex
+                last_endByteIndex = endByteIndex
         except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
