@@ -1406,7 +1406,6 @@ class KoFindService(object):
             1. the replacement text if there was a change, otherwise null
             2. the number of replacements made
         """
-        print "replaceallex"
         try:
             # Build the appropriate regex and replacement.
             regex, munged_repl, desc = _regex_info_from_ko_find_data(
