@@ -1378,11 +1378,15 @@ class KoFindService(object):
                 self.options.matchWord)
 
             lines = set()
+            last_startCharIndex = 0
+            last_startByteIndex = 0
             for match in findlib2.find_all_matches(regex, text):
                 startCharIndex = match.start() + contextOffset
-                startByteIndex = scimoz.positionAtChar(0, startCharIndex)
+                startByteIndex = scimoz.positionAtChar(last_startByteIndex, startCharIndex - last_startCharIndex)
                 startLineNum = scimoz.lineFromPosition(startByteIndex)
                 lines.add(startLineNum)
+                last_startCharIndex = startCharIndex
+                last_startByteIndex = startByteIndex
             
             return list(sorted(lines))
         except (re.error, ValueError, findlib2.FindError), ex:
