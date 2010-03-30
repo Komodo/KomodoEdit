@@ -1,0 +1,26 @@
+Use Komodo's browser functionality to view update URLs, as the openURL method
+is not working for Komodo - bug 86513.
+
+diff -r d217f3c28332 toolkit/mozapps/update/content/updates.js
+--- toolkit/mozapps/update/content/updates.js	Fri Feb 05 21:36:07 2010 +0100
++++ toolkit/mozapps/update/content/updates.js	Tue Mar 30 10:49:59 2010 -0700
+@@ -91,7 +91,7 @@
+  */
+ function openUpdateURL(event) {
+   if (event.button == 0)
+-    openURL(event.target.getAttribute("url"));
++    ko.browse.openUrlInDefaultBrowser(event.target.getAttribute("url"));
+ }
+ 
+ /**
+diff -r d217f3c28332 toolkit/mozapps/update/content/updates.xul
+--- toolkit/mozapps/update/content/updates.xul	Fri Feb 05 21:36:07 2010 +0100
++++ toolkit/mozapps/update/content/updates.xul	Tue Mar 30 10:49:59 2010 -0700
+@@ -63,6 +63,7 @@
+         onload="gUpdates.onLoad();">
+ 
+   <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
++  <script type="application/javascript" src="chrome://komodo/content/browse.js"/>
+   <script type="application/javascript" src="chrome://mozapps/content/update/updates.js"/>
+   
+   <stringbundleset id="updateSet">
