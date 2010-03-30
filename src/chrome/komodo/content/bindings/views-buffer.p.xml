@@ -1452,30 +1452,6 @@
         <handler event="mousedown" phase="capturing">
             <![CDATA[
             this._mouseButton = event.button;
-            ]]>
-        </handler>
-        <handler event="mousemove" phase="capturing">
-            <![CDATA[
-            var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
-            var y = event.clientY - this.boxObject.y;
-            this._last_mousemove_xy = [x, y];
-<!-- #if PLATFORM == "darwin" -->
-            if (this.isMetaKeyDown(false)) {
-<!-- #else -->
-            if (this.isCtrlKeyDown(false)) {
-<!-- #endif -->
-                // Check if the mouse has moved outside of the hyperlink, if
-                // it has then the hyperlink should be removed.
-                this.removeHyperlinks("mousemove");
-                var pos = this.scimoz.positionFromPointClose(x, y);
-                if (pos >= 0) {
-                    this.checkHyperlinks(pos, "mousemove");
-                }
-            }
-            ]]>
-        </handler>
-        <handler event="mouseup" phase="capturing">
-            <![CDATA[
             if (event.button == 0 && this._hyperlink) {
                 var scintilla = this.scintilla;
                 // Bug 76721: Go to definition on Ctrl+click, but only if we
@@ -1502,6 +1478,26 @@
             }
             this.removeHyperlinks("mouseup");
             this.clearKeyDownValues();
+            ]]>
+        </handler>
+        <handler event="mousemove" phase="capturing">
+            <![CDATA[
+            var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+            var y = event.clientY - this.boxObject.y;
+            this._last_mousemove_xy = [x, y];
+<!-- #if PLATFORM == "darwin" -->
+            if (this.isMetaKeyDown(false)) {
+<!-- #else -->
+            if (this.isCtrlKeyDown(false)) {
+<!-- #endif -->
+                // Check if the mouse has moved outside of the hyperlink, if
+                // it has then the hyperlink should be removed.
+                this.removeHyperlinks("mousemove");
+                var pos = this.scimoz.positionFromPointClose(x, y);
+                if (pos >= 0) {
+                    this.checkHyperlinks(pos, "mousemove");
+                }
+            }
             ]]>
         </handler>
         <handler event="click" phase="capturing">
