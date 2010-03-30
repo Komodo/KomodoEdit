@@ -213,13 +213,6 @@
                 }
             }
 
-            if (newTab) {
-                this.tabbox._tabs.selectedItem = newTab;
-                // I have to do this, otherwise the panel disappears anyway
-                tabpanel = document.getElementById(newTab.linkedPanel);
-                this.tabbox._tabpanels.selectedPanel = tabpanel;
-            }
-
             var tabpanel = document.getElementById(tab.linkedPanel);
             this.tabbox._tabs.removeChild(tab);
             this.tabbox._tabpanels.removeChild(tabpanel);
