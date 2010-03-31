@@ -313,6 +313,13 @@ class koOs(object):
             lastErrorSvc.setLastError(0, str(ex))
             raise
 
+    def renames(self, fn_from, fn_to):
+        try:
+            os.renames(fn_from, fn_to)
+        except Exception, ex:
+            lastErrorSvc.setLastError(0, str(ex))
+            raise
+
     def stat(self, filename):
         try:
             # See http://bugs.activestate.com/show_bug.cgi?id=21252.

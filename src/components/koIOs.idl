@@ -90,6 +90,7 @@ interface koIOs : nsISupports {
     void startfile(in wstring command);
     void mkdir(in wstring path); /* uses lastErrorSvc to report errors */
     void rename(in wstring from, in wstring to);
+    void renames(in wstring from, in wstring to);
   
     // Stat the given file. (Uses koILastErrorService to report errors.)
     void stat(in wstring filename,
