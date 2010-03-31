@@ -4046,6 +4046,8 @@
               <Component Id="component188" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file3723" Name="Ada.ada" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Ada.ada"/>
                 <File Id="file3724" Name="Baan.bc" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Baan.bc"/>
+                <File Id="file953" Name="Bash.sh" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Bash.sh" />
+                <File Id="file954" LongName="Bash (usage).sh" Name="BASHUS_0.SH" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Bash (usage).sh" />
                 <File Id="file3725" Name="Batch.bat" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Batch.bat"/>
                 <File Id="file3726" Name="Bullant.ant" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Bullant.ant"/>
                 <File Id="file3727" Name="C_0.CPP" LongName="C++.cpp" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\C++.cpp"/>
