@@ -113,16 +113,12 @@ ko.hyperlinks.ColorPickerHandler.prototype.show = function(
             var os_prefix = window.navigator.platform.substring(0, 3).toLowerCase();
             // This swatch element works better as a "tooltip" on Linux, as the
             // "popup" element causes mouse cursor flickering on mouseover.
-            // For the Mac, it's better as a "panel", otherwise there can be
-            // focus issues causing the popup to stop moving around.
             // Windows can go either way, though the "tooltip" gives a
             // nicer looking border.
-            if (os_prefix == "mac") {
-                popup = document.createElement('panel');
-                popup.setAttribute("noautofocus", "true");
-            } else {
-                popup = document.createElement('tooltip');
-            }
+            // For the Mac, it's better as a "tooltip", otherwise there can be
+            // problems clicking on the hyperlink whilst the color swatch is
+            // shown.
+            popup = document.createElement('tooltip');
             popup.setAttribute('id', 'colorpicker_swatch_popup');
             div = document.createElement('div');
             div.setAttribute("id", "colorpicker_swatch");
