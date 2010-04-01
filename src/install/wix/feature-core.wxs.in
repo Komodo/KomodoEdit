@@ -1681,6 +1681,7 @@
                   <File Id="file145" Name="lang_xbl.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_xbl.py"/>
                   <File Id="file146" Name="lang_xul.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_xul.py"/>
                   <File Id="file2277" Name="PYTHO_11.PY" LongName="pythoncile.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\pythoncile.py"/>
+                  <File Id="file955" LongName="pythoncile1.py" Name="PYTHO_12.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\pythoncile1.py" />
                   <File Id="file2915" Name="rubycile.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\rubycile.py"/>
                   <File Id="file2918" Name="RUBY_L_1.PY" LongName="ruby_lexer.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\ruby_lexer.py"/>
                   <File Id="file2940" Name="RUBY_P_1.PY" LongName="ruby_parser.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\ruby_parser.py"/>
