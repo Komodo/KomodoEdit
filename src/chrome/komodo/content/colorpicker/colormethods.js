@@ -3,8 +3,8 @@ Copyright (c) 2007 John Dyer (http://johndyer.name)
 MIT style license
 */
 
-if (!window.Refresh) window.Refresh = {};
-if (!Refresh.Web) Refresh.Web = {};
+if (typeof(Refresh) == 'undefined') window.Refresh = {};
+if (typeof(Refresh.Web) == 'undefined') Refresh.Web = {};
 
 Refresh.Web.Color = function(init) {	
 	var color = {
@@ -152,7 +152,7 @@ Refresh.Web.ColorMethods = {
 		var g = rgb.g / 255;
 		var b = rgb.b / 255;
 
-		hsv = {h:0, s:0, v:0};
+		var hsv = {h:0, s:0, v:0};
 
 		var min = 0
 		var max = 0;
@@ -174,7 +174,7 @@ Refresh.Web.ColorMethods = {
 		if (!hsv.s) {
 			hsv.h = 0;
 		} else {
-			delta = max - min;
+			var delta = max - min;
 			if (r == max) {
 				hsv.h = (g - b) / delta;
 			} else if (g == max) {
@@ -199,7 +199,7 @@ Refresh.Web.ColorMethods = {
 	},
 	hsvToRgb: function (hsv) {
 
-		rgb = {r:0, g:0, b:0};
+		var rgb = {r:0, g:0, b:0};
 		
 		var h = hsv.h;
 		var s = hsv.s;
