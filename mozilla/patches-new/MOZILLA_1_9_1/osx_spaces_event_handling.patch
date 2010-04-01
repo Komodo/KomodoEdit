@@ -25,7 +25,12 @@ Bug 516249 - [10.6] Wrong event modifiers passed to plugin on switching Spaces w
  NPDrawingModel nsPluginInstanceOwner::GetDrawingModel()
 --- widget/src/cocoa/nsChildView.mm
 +++ widget/src/cocoa/nsChildView.mm
-@@ -2027,7 +2027,7 @@ NS_IMETHODIMP nsChildView::GetToggledKey
+@@ -2395,17 +2395,17 @@ NS_IMETHODIMP nsChildView::GetToggledKey
+       break;
+     case NS_VK_NUM_LOCK:
+       key = kEventKeyModifierNumLockMask;
+       break;
+     // Mac doesn't support SCROLL_LOCK state.
      default:
        return NS_ERROR_NOT_IMPLEMENTED;
    }
@@ -34,7 +39,17 @@ Bug 516249 - [10.6] Wrong event modifiers passed to plugin on switching Spaces w
    *aLEDState = (modifierFlags & key) != 0;
    return NS_OK;
  
-@@ -3075,7 +3075,7 @@ static const PRInt32 sShadowInvalidation
+   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
+ }
+ 
+ 
+ #pragma mark -
+@@ -3653,17 +3653,17 @@ static const PRInt32 sShadowInvalidation
+     geckoEvent.button = nsMouseEvent::eLeftButton;
+ 
+   // create native EventRecord for use by plugins
+   EventRecord macEvent;
+   macEvent.what = mouseDown;
    macEvent.message = 0;
    macEvent.when = ::TickCount();
    ::GetGlobalMouse(&macEvent.where);
@@ -43,7 +58,17 @@ Bug 516249 - [10.6] Wrong event modifiers passed to plugin on switching Spaces w
    geckoEvent.nativeMsg = &macEvent;
  
    mGeckoChild->DispatchWindowEvent(geckoEvent);
-@@ -3108,7 +3108,7 @@ static const PRInt32 sShadowInvalidation
+ 
+   // XXX maybe call markedTextSelectionChanged:client: here?
+ 
+   NS_OBJC_END_TRY_ABORT_BLOCK;
+ }
+@@ -3693,17 +3693,17 @@ static const PRInt32 sShadowInvalidation
+     geckoEvent.button = nsMouseEvent::eLeftButton;
+ 
+   // create native EventRecord for use by plugins
+   EventRecord macEvent;
+   macEvent.what = mouseUp;
    macEvent.message = 0;
    macEvent.when = ::TickCount();
    ::GetGlobalMouse(&macEvent.where);
@@ -52,7 +77,17 @@ Bug 516249 - [10.6] Wrong event modifiers passed to plugin on switching Spaces w
    geckoEvent.nativeMsg = &macEvent;
  
    mGeckoChild->DispatchWindowEvent(geckoEvent);
-@@ -3138,7 +3138,7 @@ static nsEventStatus SendGeckoMouseEnter
+ 
+   NS_OBJC_END_TRY_ABORT_BLOCK;
+ }
+ 
+ 
+@@ -3724,17 +3724,17 @@ static nsEventStatus SendGeckoMouseEnter
+   event.refPoint.x = nscoord((PRInt32)localEventLocation->x);
+   event.refPoint.y = nscoord((PRInt32)localEventLocation->y);
+ 
+   EventRecord macEvent;
+   macEvent.what = adjustCursorEvent;
    macEvent.message = 0;
    macEvent.when = ::TickCount();
    ::GetGlobalMouse(&macEvent.where);
@@ -61,7 +96,17 @@ Bug 516249 - [10.6] Wrong event modifiers passed to plugin on switching Spaces w
    event.nativeMsg = &macEvent;
  
    event.exit = type;
-@@ -3266,7 +3266,7 @@ static nsEventStatus SendGeckoMouseEnter
+ 
+   nsEventStatus status;
+   widget->DispatchEvent(&event, status);
+ 
+   // After the cursor exits a view set it to a visible regular arrow cursor.
+@@ -3862,17 +3862,17 @@ static nsEventStatus SendGeckoMouseEnter
+   [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
+ 
+   // create native EventRecord for use by plugins
+   EventRecord macEvent;
+   macEvent.what = adjustCursorEvent;
    macEvent.message = 0;
    macEvent.when = ::TickCount();
    ::GetGlobalMouse(&macEvent.where);
@@ -70,7 +115,17 @@ Bug 516249 - [10.6] Wrong event modifiers passed to plugin on switching Spaces w
    geckoEvent.nativeMsg = &macEvent;
  
    mGeckoChild->DispatchWindowEvent(geckoEvent);
-@@ -3296,7 +3296,7 @@ static nsEventStatus SendGeckoMouseEnter
+ 
+   NS_OBJC_END_TRY_ABORT_BLOCK;
+ }
+ 
+ 
+@@ -3899,17 +3899,17 @@ static nsEventStatus SendGeckoMouseEnter
+   [self convertCocoaMouseEvent:theEvent toGeckoEvent:&geckoEvent];
+ 
+   // create native EventRecord for use by plugins
+   EventRecord macEvent;
+   macEvent.what = nullEvent;
    macEvent.message = 0;
    macEvent.when = ::TickCount();
    ::GetGlobalMouse(&macEvent.where);
@@ -79,3 +134,27 @@ Bug 516249 - [10.6] Wrong event modifiers passed to plugin on switching Spaces w
    geckoEvent.nativeMsg = &macEvent;
  
    mGeckoChild->DispatchWindowEvent(geckoEvent);
+ 
+   // Note, sending the above event might have destroyed our widget since we didn't retain.
+   // Fine so long as we don't access any local variables from here on.
+ 
+   gLastDragView = nil;
+@@ -4356,17 +4356,17 @@ static void ConvertCocoaKeyEventToMacEve
+               charCode = convertedCharCode;
+             //NSLog(@"charcode is %d, converted to %c, char is %@", charCode, convertedCharCode, [cocoaEvent characters]);
+             break;
+         }
+     }
+     macEvent.message = (charCode & 0x00FF) | (nsCocoaUtils::GetCocoaEventKeyCode(cocoaEvent) << 8);
+     macEvent.when = ::TickCount();
+     ::GetGlobalMouse(&macEvent.where);
+-    macEvent.modifiers = ::GetCurrentEventKeyModifiers();
++    macEvent.modifiers = ::GetCurrentKeyModifiers();
+ 
+   NS_OBJC_END_TRY_ABORT_BLOCK;
+ }
+ 
+ static PRBool IsPrintableChar(PRUnichar aChar)
+ {
+   return (aChar >= 0x20 && aChar <= 0x7E) || aChar >= 0xA0;
+ }
