@@ -1,0 +1,162 @@
+Index: lib2to3/pytree.py
+===================================================================
+--- lib2to3/pytree.py	(revision 78885)
++++ lib2to3/pytree.py	(working copy)
+@@ -26,6 +26,9 @@
+         from .pygram import python_symbols
+         # printing tokens is possible but not as useful
+         # from .pgen2 import token // token.__dict__.items():
++        from .pgen2 import token
++        for name, val in token.__dict__.items():
++            if type(val) == int: _type_reprs[val] = name
+         for name, val in python_symbols.__dict__.items():
+             if type(val) == int: _type_reprs[val] = name
+     return _type_reprs.setdefault(type_num, type_num)
+@@ -256,6 +259,27 @@
+                                type_repr(self.type),
+                                self.children)
+ 
++    #XXX trentm
++    #TODO:XXX Drop skip_children
++    def pprint(self, level=0, indent=' ', file=sys.stdout, skip_children=False):
++        file.write(indent * level)
++        file.write(self.__class__.__name__)
++        file.write("(")
++        file.write(type_repr(self.type))
++        file.write(", [")
++        if self.children and not skip_children:
++            file.write("\n")
++            for i, c in enumerate(self.children):
++                if i != 0:
++                    file.write(",\n")
++                c.pprint(level+1, indent=indent, file=file,
++                         skip_children=skip_children)
++            file.write("\n")
++            file.write(indent * level)
++        file.write("])")
++        if level == 0:
++            file.write("\n")
++
+     def __unicode__(self):
+         """
+         Return a pretty string representation.
+@@ -286,7 +310,7 @@
+         """Return a pre-order iterator for the tree."""
+         yield self
+         for child in self.children:
+-            for node in child.post_order():
++            for node in child.pre_order():
+                 yield node
+ 
+     @property
+@@ -359,9 +383,28 @@
+     def __repr__(self):
+         """Return a canonical string representation."""
+         return "%s(%r, %r)" % (self.__class__.__name__,
+-                               self.type,
++                               type_repr(self.type),
+                                self.value)
+ 
++    #XXX trentm
++    def pprint(self, level=0, indent=' ', file=sys.stdout, skip_children=False):
++        file.write(indent * level)
++        #file.write(repr(self))
++        "%s(%r, %r)"
++        file.write(self.__class__.__name__)
++        file.write("(")
++        if self.prefix is None:
++            file.write("None")
++        else:
++            file.write(repr(_one_line_summary_from_text(self.prefix, 30)))
++        file.write(", ")
++        file.write(type_repr(self.type))
++        file.write(", ")
++        file.write(repr(self.value))
++        file.write(", lineno=")
++        file.write(str(self.lineno))
++        file.write(")")
++    
+     def __unicode__(self):
+         """
+         Return a pretty string representation.
+@@ -859,3 +902,80 @@
+                     r.update(r0)
+                     r.update(r1)
+                     yield c0 + c1, r
++
++# Recipe: text_escape (0.2)
++def _escaped_text_from_text(text, escapes="eol"):
++    r"""Return escaped version of text.
++
++        "escapes" is either a mapping of chars in the source text to
++            replacement text for each such char or one of a set of
++            strings identifying a particular escape style:
++                eol
++                    replace EOL chars with '\r' and '\n', maintain the actual
++                    EOLs though too
++                whitespace
++                    replace EOL chars as above, tabs with '\t' and spaces
++                    with periods ('.')
++                eol-one-line
++                    replace EOL chars with '\r' and '\n'
++                whitespace-one-line
++                    replace EOL chars as above, tabs with '\t' and spaces
++                    with periods ('.')
++    """
++    #TODO:
++    # - Add 'c-string' style.
++    # - Add _escaped_html_from_text() with a similar call sig.
++    import re
++
++    if isinstance(escapes, basestring):
++        if escapes == "eol":
++            escapes = {'\r\n': "\\r\\n\r\n", '\n': "\\n\n", '\r': "\\r\r"}
++        elif escapes == "whitespace":
++            escapes = {'\r\n': "\\r\\n\r\n", '\n': "\\n\n", '\r': "\\r\r",
++                       '\t': "\\t", ' ': "."}
++        elif escapes == "eol-one-line":
++            escapes = {'\n': "\\n", '\r': "\\r"}
++        elif escapes == "whitespace-one-line":
++            escapes = {'\n': "\\n", '\r': "\\r", '\t': "\\t", ' ': '.'}
++        else:
++            raise ValueError("unknown text escape style: %r" % escapes)
++
++    # Sort longer replacements first to allow, e.g. '\r\n' to beat '\r' and
++    # '\n'.
++    escapes_keys = escapes.keys()
++    try:
++        escapes_keys.sort(key=lambda a: len(a), reverse=True)
++    except TypeError:
++        # Python 2.3 support: sort() takes no keyword arguments
++        escapes_keys.sort(lambda a,b: cmp(len(a), len(b)))
++        escapes_keys.reverse()
++    def repl(match):
++        val = escapes[match.group(0)]
++        return val
++    escaped = re.sub("(%s)" % '|'.join([re.escape(k) for k in escapes_keys]),
++                     repl,
++                     text)
++
++    return escaped
++
++def _one_line_summary_from_text(text, length=78,
++        escapes={'\n':"\\n", '\r':"\\r", '\t':"\\t"}):
++    r"""Summarize the given text with one line of the given length.
++
++        "text" is the text to summarize
++        "length" (default 78) is the max length for the summary
++        "escapes" is a mapping of chars in the source text to
++            replacement text for each such char. By default '\r', '\n'
++            and '\t' are escaped with their '\'-escaped repr.
++    """
++    if len(text) > length:
++        head = text[:length-3]
++    else:
++        head = text
++    escaped = _escaped_text_from_text(head, escapes)
++    if len(text) > length:
++        summary = escaped[:length-3] + "..."
++    else:
++        summary = escaped
++    return summary
++
