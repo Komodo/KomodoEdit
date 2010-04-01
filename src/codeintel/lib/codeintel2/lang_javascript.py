@@ -2912,7 +2912,7 @@ class JavaScriptCiler:
                    text[p] == ".":
                     namelist, p = self._getIdentifiersFromPos(styles, text, p+1)
                     self._variableHandler(lineno, styles, text, p, ["this"] + namelist)
-            elif keyword in ("var", "const"):
+            elif keyword in ("let", "var", "const"):
                 # Variable of current scope
                 self.in_variable_definition = True
                 namelist, p = self._getIdentifiersFromPos(styles, text, pos+1)
@@ -3475,7 +3475,7 @@ class JavaScriptCiler:
                             log.debug("Leaving S_OBJECT_ARGUMENT state, entering S_IN_ARGS state, line: %d, col: %d", start_line, start_column)
                             #print "Leaving S_OBJECT_ARGUMENT state, entering S_IN_ARGS state, line: %d, col: %d" % (start_line, start_column)
                         self.decBlock()
-                    elif op == "," and self.text[0] not in ("var", "const"):
+                    elif op == "," and self.text[0] not in ("let", "var", "const"):
                         # Ignore when it's inside arguments
                         if self.state == S_IN_ARGS:
                             self.argumentPosition += 1
