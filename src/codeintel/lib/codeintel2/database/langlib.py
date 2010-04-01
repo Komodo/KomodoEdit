@@ -960,7 +960,7 @@ class LangZone(object):
             if scan_tree:
                 for blob in scan_tree[0]:
                     lang = blob.get("lang")
-                    assert blob.get("lang") == self.lang
+                    assert blob.get("lang") == self.lang, "'%s' != '%s'" % (blob.get("lang"), self.lang)
                     blobname = blob.get("name")
                     toplevelnames_from_ilk = new_res_data.setdefault(blobname, {})
                     for toplevelname, elem in blob.names.iteritems():
