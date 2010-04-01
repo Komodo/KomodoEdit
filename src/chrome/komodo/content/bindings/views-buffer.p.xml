@@ -1525,6 +1525,13 @@
             <![CDATA[
             var keyCode = event.keyCode;
 <!-- #if PLATFORM == "darwin" -->
+            // Work around Synergy keypress problems on the Mac - bug 82430.
+            if (keyCode == 0 && event.charCode == 0) {
+                if (event.metaKey) {
+                    keyCode = this.DOM_VK_META;
+                }
+            }
+
             // Ensure the keydown event is not a duplicate, as the Mac will
             // often send duplicate events for CMD+key keypresses, bug 82367.
             for (var i=0; i < this._keys_down.length; i++) {
@@ -1561,6 +1568,14 @@
                     this._keys_down.splice(i, 1);
                 }
             }
+<!-- #if PLATFORM == "darwin" -->
+            // Work around Synergy keypress problems on the Mac - bug 82430.
+            // Note: The "event.metaKey" is false here even when the meta key
+            //       is the key in question, so if this is some type of special
+            //       key (keyCode == 0), then we clear all the keypress entries,
+            //       which is good enough for our purposes.
+            this.clearKeyDownValues();
+<!-- #endif -->
             // If the ctrl key is no longer held down, clear all hyperlinks.
             if ((this._keys_down.length == 0) ||
 <!-- #if PLATFORM == "darwin" -->
