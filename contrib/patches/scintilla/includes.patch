@@ -1,6 +1,6 @@
 --- include/Scintilla.iface	2007-11-04 02:03:56.000000000 -0800
 +++ include/Scintilla.iface	2007-11-11 17:14:56.000000000 -0800
-@@ -2112,14 +2112,32 @@
+@@ -2112,14 +2112,35 @@
  # Retrieve the number of bits the current lexer needs for styling.
  get int GetStyleBitsNeeded=4011(,)
  
@@ -24,6 +24,9 @@
 +
 +# Returns the position of the caret.
 +fun position CharPosAtPosition=5006(position pos,)
++
++# Temporarily stop mouse tracking - until the next mouse button event.
++fun void ReleaseMouseCapture=5007(,)
 +
 +
  # Notifications
@@ -326,7 +329,7 @@
  evt void SavePointLeft=2003(void)
 --- include/Scintilla.h   Thu Sep 27 11:10:30 2007
 +++ include/Scintilla.h Mon Oct 29 16:38:27 2007
-@@ -680,7 +680,12 @@
+@@ -680,7 +680,13 @@
  #define SCI_GETPROPERTYEXPANDED 4009
  #define SCI_GETPROPERTYINT 4010
  #define SCI_GETSTYLEBITSNEEDED 4011
@@ -336,6 +339,7 @@
 +#define SCI_POSITIONATCHAR 5004
 +#define SCI_POSITIONATCOLUMN 5005
 +#define SCI_CHARPOSATPOSITION 5006
++#define SCI_RELEASEMOUSECAPTURE 5007
  #define SC_MOD_INSERTTEXT 0x1
  #define SC_MOD_DELETETEXT 0x2
  #define SC_MOD_CHANGESTYLE 0x4

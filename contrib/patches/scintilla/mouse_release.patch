@@ -1,0 +1,26 @@
+Temporarily stop tracking the mouse movement. This is currently used on Linux
+to send a notificaiton that mouse has been released by the editor, such as when
+a blur event occurs whilst the mouse was down.
+
+Index: src/Editor.cxx
+===================================================================
+--- src/Editor.cxx	(revision 41207)
++++ src/Editor.cxx	(working copy)
+@@ -8411,14 +8450,17 @@
+ 		InvalidateSelection(sel.RangeMain(), true);
+ 		break;
+ 
+ 	case SCI_SWAPMAINANCHORCARET:
+ 		InvalidateSelection(sel.RangeMain());
+ 		sel.RangeMain() = SelectionRange(sel.RangeMain().anchor, sel.RangeMain().caret);
+ 		break;
+ 
++	case SCI_RELEASEMOUSECAPTURE:
++                SetMouseCapture(false);
++
+ 	default:
+ 		return DefWndProc(iMessage, wParam, lParam);
+ 	}
+ 	//Platform::DebugPrintf("end wnd proc\n");
+ 	return 0l;
+ }

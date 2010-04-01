@@ -49,15 +49,18 @@ void SciMoz::PlatformCreate(WinID) {
 void SciMoz::Resize() {
 }
 
-NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool /* up */,
+NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up,
                                       PRInt32 /* x */,
                                       PRInt32 /* y */,
-                                      PRUint16 /* button */,
+                                      PRUint16 button,
                                       PRUint64 /* timeStamp */,
                                       PRBool /* bShift */,
                                       PRBool /* bCtrl */,
                                       PRBool /* bAlt */)
 {
+	if (up and button == 0) {
+                SendEditor(SCI_RELEASEMOUSECAPTURE, 0, 0);
+        }
 	return NS_OK;
 }
 
