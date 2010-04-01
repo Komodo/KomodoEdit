@@ -162,13 +162,15 @@ class JavaScriptLangInfo(LangInfo):
                            "else", "export",
                            "false", "finally", "for", "function",
                            "if", "import", "in", "instanceof",
+                           "let",
                            "new", "null",
                            "return",
                            "switch",
                            "this", "throw", "true", "try", "typeof",
                            "undefined",
                            "var", "void",
-                           "while", "with"
+                           "while", "with",
+                           "yield",
                           ])
     keywords = common_keywords.union(
                 # Additional JavaScript reserved keywords.
