@@ -572,7 +572,7 @@
                 <![CDATA[
                 // We need to send mouseUps if we are blurred before a mouseup naturally occurs (e.g. if the user alt-tabs).
                 // Otherwise the mouseup is never picked up by scintilla and selection "keeps going on".
-                if (this._inMouseDown != -1 && event.originalTarget != this) {
+                if (this._inMouseDown != -1 && event.originalTarget == this) {
                     this.scimoz.buttonUp( this._lastMousePos[0], this._lastMousePos[1], this._inMouseDown, event.timeStamp, 0, 0, 0);
                     // The selection may have changed as a result.
                     // We could get smarter about only sending this when it truly _has_
