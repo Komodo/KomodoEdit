@@ -106,6 +106,7 @@ my @codeintel2_files = (
     "lib/codeintel2/perl_parser.py",
     "lib/codeintel2/phpdoc.py",
     "lib/codeintel2/pythoncile.py",
+    "lib/codeintel2/pythoncile1.py",
     "lib/codeintel2/rubycile.py",
     "lib/codeintel2/ruby_lexer.py",
     "lib/codeintel2/ruby_parser.py",
