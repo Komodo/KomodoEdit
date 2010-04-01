@@ -308,6 +308,7 @@ def _fillScanInputsTestCase():
                 # Python's os.walk() doesn't recognize as a dir, defaults to
                 # a file and hands it to us here. Skip those.
                 continue
+            if fpath.endswith(".swp"): continue
             if fpath.endswith("~"): continue
             if fpath.endswith(".pyc"): continue
             if fpath.endswith(".pyo"): continue
