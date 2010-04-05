@@ -596,6 +596,28 @@ class koRFConnection:
         finally:
             self._lock.release()
 
+    def createDirectories(self, path, permissions):
+        if not self._lock.acquire(blocking=False):
+            self._raiseServerException("Could not acquire remote connection lock. Multi-threaded access detected!")
+        try:
+            self.do_verifyConnected()
+            self.log.debug("createDirectories %s, %r", path, permissions)
+            orig_path = path
+            make_dir_paths = []
+            last_path = None
+            rfinfo = self.list(path)
+            while rfinfo is None:
+                if not path or path == last_path:
+                    self._raiseServerException("Could not find any parent directory for %r", orig_path)
+                make_dir_paths.append(path)
+                path = self.do_getParentPath(path)
+                rfinfo = self.list(path)
+                last_path = path
+            for path in make_dir_paths:
+                self.do_createDirectory(name, permissions)
+        finally:
+            self._lock.release()
+
     def createFile(self, name, permissions):
         if not self._lock.acquire(blocking=False):
             self._raiseServerException("Could not acquire remote connection lock. Multi-threaded access detected!")

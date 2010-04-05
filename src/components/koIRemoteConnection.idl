@@ -59,6 +59,8 @@ interface koIRemoteConnection : nsISupports {
     void currentDirectory();
     void createFile(in wstring name, in long permissions);
     void createDirectory(in wstring name, in long permissions);
+    // Recursively create all missing directories in the given path.
+    void createDirectories(in wstring path, in long permissions);
     void getHomeDirectory([retval] out wstring path);
     void getParentPath(in wstring path, [retval] out wstring parentPath);
     void chmod(in wstring path, in long permissions);
