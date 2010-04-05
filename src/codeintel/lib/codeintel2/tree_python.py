@@ -40,10 +40,63 @@
 from codeintel2.common import *
 from codeintel2.tree import TreeEvaluator
 
+base_exception_class_completions = [
+    ("class", "BaseException"),
+    ("class", "Exception"),
+    ("class", "StandardError"),
+    ("class", "ArithmeticError"),
+    ("class", "LookupError"),
+    ("class", "EnvironmentError"),
+    ("class", "AssertionError"),
+    ("class", "AttributeError"),
+    ("class", "EOFError"),
+    ("class", "FloatingPointError"),
+    ("class", "GeneratorExit"),
+    ("class", "IOError"),
+    ("class", "ImportError"),
+    ("class", "IndexError"),
+    ("class", "KeyError"),
+    ("class", "KeyboardInterrupt"),
+    ("class", "MemoryError"),
+    ("class", "NameError"),
+    ("class", "NotImplementedError"),
+    ("class", "OSError"),
+    ("class", "OverflowError"),
+    ("class", "ReferenceError"),
+    ("class", "RuntimeError"),
+    ("class", "StopIteration"),
+    ("class", "SyntaxError"),
+    ("class", "SystemError"),
+    ("class", "SystemExit"),
+    ("class", "TypeError"),
+    ("class", "UnboundLocalError"),
+    ("class", "UnicodeError"),
+    ("class", "UnicodeEncodeError"),
+    ("class", "UnicodeDecodeError"),
+    ("class", "UnicodeTranslateError"),
+    ("class", "ValueError"),
+    ("class", "VMSError"),
+    ("class", "WindowsError"),
+    ("class", "ZeroDivisionError"),
+    # Warning category exceptions.
+    ("class", "Warning"),
+    ("class", "UserWarning"),
+    ("class", "DeprecationWarning"),
+    ("class", "PendingDeprecationWarning"),
+    ("class", "SyntaxWarning"),
+    ("class", "RuntimeWarning"),
+    ("class", "FutureWarning"),
+    ("class", "ImportWarning"),
+    ("class", "UnicodeWarning"),
+]
 
 class PythonTreeEvaluator(TreeEvaluator):
     def eval_cplns(self):
         self.log_start()
+        if self.trg.type == 'available-exceptions':
+            # TODO: Should perform a lookup to determine all available exception
+            #       classes.
+            return base_exception_class_completions
         start_scoperef = self.get_start_scoperef()
         self.info("start scope is %r", start_scoperef)
         #if self.trg.type == 'available-classes':

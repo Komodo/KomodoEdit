@@ -179,6 +179,9 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             cplns = [("variable", t) for t in _g_pythondoc_tags]
             ctlr.set_cplns(cplns)
             ctlr.done("success")
+        elif trg.type == "available-exceptions":
+            evalr = PythonTreeEvaluator(ctlr, buf, trg, None, -1)
+            buf.mgr.request_eval(evalr)
         elif trg.type in ("available-imports", "module-members"):
             evalr = PythonImportsEvaluator(ctlr, buf, trg)
             buf.mgr.request_eval(evalr)
@@ -512,7 +515,10 @@ class PythonBuffer(CitadelBuffer):
             return None
 
         if last_char == " ":
-            # used for complete-available-imports and complete-module-members
+            # used for:
+            #    * complete-available-imports
+            #    * complete-module-members
+            #    * complete-available-exceptions
 
             # Triggering examples ('_' means a space here):
             #   import_                 from_
@@ -547,6 +553,10 @@ class PythonBuffer(CitadelBuffer):
                     return Trigger(self.lang, TRG_FORM_CPLN,
                                "module-members", pos, implicit,
                                imp_prefix=imp_prefix)
+
+            if line == "except" or line.endswith(" except"):
+                return Trigger(self.lang, TRG_FORM_CPLN,
+                               "available-exceptions", pos, implicit)
 
             if ch == ',':
                 # is it "from FOO import BAR, <|>" ?

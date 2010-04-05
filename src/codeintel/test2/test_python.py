@@ -408,6 +408,16 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertCITDLExprIs("@foo.bar(<|>)\ndef baz(): pass", "foo.bar")
         self.assertCITDLExprIs("@foo.<|>bar()\ndef baz(): pass", "foo")
 
+    def test_complete_available_exceptions(self):
+        name = "python-complete-available-exceptions"
+        self.assertTriggerMatches("except <|>",
+                                  name=name)
+        self.assertTriggerMatches("  except <|>",
+                                  name=name)
+        self.assertTriggerMatches("\texcept <|>",
+                                  name=name)
+        #self.assertTriggerMatches("\texcept Ex<|>",
+        #                          name=name, implicit=False)
 
 
 class CplnTestCase(CodeIntelTestCase):
@@ -1472,6 +1482,19 @@ class CplnTestCase(CodeIntelTestCase):
         # At point 6 we get a trigger, but no completions are returned.
         # this passes due to the bug:
         # self.assertCompletionsAre(markup_text(content, pos=positions[2]), None)
+
+    def test_complete_available_exceptions(self):
+        content, positions = unmark_text(dedent("""\
+            try:
+                foo()
+            except <1>
+        """))
+        cplns = [('class', 'BaseException'),
+                 ('class', 'Exception'),
+                 ('class', 'IOError'),
+                 ('class', 'ValueError'),
+                 ]
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]), cplns)
 
 
 class OldCodeIntelTestCase(CodeIntelTestCase):
