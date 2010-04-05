@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 17
+version 18
 
 # Movement and selection
 binding cmd_left  Left
@@ -205,6 +205,7 @@ binding cmd_fontZoomIn Ctrl+Shift++
 binding cmd_fontZoomIn Ctrl+Shift+=
 binding cmd_fontZoomOut Ctrl+Shift+_
 binding cmd_fontZoomOut Ctrl+Shift+-
+binding cmd_viewFullScreen Ctrl+K F11
 
 # Projects
 binding cmd_refreshStatus Ctrl+K R
