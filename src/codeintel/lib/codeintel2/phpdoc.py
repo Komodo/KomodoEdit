@@ -49,6 +49,9 @@ phpdoc_tags = {
     "example":      "Include an external example file with syntax highlighting.\n"
                     "@example reference The description",
 
+    "exception":    "Documents an exception that can be thrown by the method.\n"
+                    "@exception Exception when something bad occurs",
+
     "final":        "Document a class method that should never be overridden\n"
                     "in a child class.\n"
                     "@final",
@@ -109,6 +112,9 @@ phpdoc_tags = {
     "subpackage":   "Specify sub-package to group classes or functions and\n"
                     "defines into. Must only be used with the @package tag.\n"
                     "@subpackage subpackagename",
+
+    "throws":       "Documents an exception that can be thrown by the method.\n"
+                    "@throws Exception when something bad occurs",
 
     "todo":         "Document changes that will be made in the future.\n"
                     "@todo The description",
