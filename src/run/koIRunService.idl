@@ -40,10 +40,10 @@
 
 interface ISciMoz;
 interface koILanguage;
+interface koIAsyncCallback;
 
 #include "koIFile.idl"
 #include "koIPrefs.idl"
-#include "koIAsyncOperations.idl"
 
 //XXX build system can't handle recursive dependancies :-(
 //    so may need to add some addition includes.
