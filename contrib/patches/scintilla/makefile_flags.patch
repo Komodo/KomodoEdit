@@ -2,8 +2,16 @@ Patch to take CFLAGS, LDFLAGS from the users (Cons) environment.
 ===================================================================
 --- gtk/makefile	(revision 34521)
 +++ gtk/makefile	(working copy)
-@@ -27,11 +27,11 @@
- THREADFLAGS=
+@@ -24,7 +24,7 @@
+ vpath %.cxx ../src
+ 
+ INCLUDEDIRS=-I ../include -I ../src
+-CXXBASEFLAGS=-Wall -Wno-missing-braces -Wno-char-subscripts -Wno-strict-overflow -pedantic -Os -DGTK -DSCI_LEXER $(INCLUDEDIRS)
++CXXBASEFLAGS=-Wall -Wno-missing-braces -Wno-char-subscripts -pedantic -Os -DGTK -DSCI_LEXER $(INCLUDEDIRS)
+ 
+ ifdef NOTHREADS
+ THREADFLAGS=-DG_THREADS_IMPL_NONE
+@@ -33,9 +33,9 @@
  endif
  
  ifdef DEBUG
@@ -15,4 +23,3 @@ Patch to take CFLAGS, LDFLAGS from the users (Cons) environment.
  endif
  
  CONFIGFLAGS:=$(shell pkg-config --cflags gtk+-2.0)
- MARSHALLER=scintilla-marshal.o
