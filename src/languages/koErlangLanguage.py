@@ -63,7 +63,6 @@ class koErlangLanguage(KoLanguageBase):
         'macros': ('SCE_ERLANG_MACRO',),
         'records': ('SCE_ERLANG_RECORD',),
         'atoms': ('SCE_ERLANG_ATOM',),
-        'separators': ('SCE_ERLANG_SEPARATOR',),
         'nodes': ('SCE_ERLANG_NODE_NAME',),
         'unknown': ('SCE_ERLANG_UNKNOWN',),
     }

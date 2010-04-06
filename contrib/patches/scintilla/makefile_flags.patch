@@ -2,7 +2,7 @@ Patch to take CFLAGS, LDFLAGS from the users (Cons) environment.
 ===================================================================
 --- gtk/makefile	(revision 34521)
 +++ gtk/makefile	(working copy)
-@@ -27,13 +27,13 @@
+@@ -27,11 +27,11 @@
  THREADFLAGS=
  endif
  
@@ -14,6 +14,5 @@ Patch to take CFLAGS, LDFLAGS from the users (Cons) environment.
 +CXXFLAGS += -DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
  endif
  
- # If explicit setting of GTK1 or GTK2 then use that else look for
- # pkg-config which is an OK indication that GTK2 is available
-
+ CONFIGFLAGS:=$(shell pkg-config --cflags gtk+-2.0)
+ MARSHALLER=scintilla-marshal.o

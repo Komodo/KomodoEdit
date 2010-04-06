@@ -33,7 +33,7 @@ static char **ArrayFromWordList(char *wordlist, int *len, bool onlyLineEnds = fa
 	// For rapid determination of whether a character is a separator, build
 	// a look up table.
 	bool wordSeparator[256];
-	for (int i=0;i<256; i++) {
+	for (int i=0; i<256; i++) {
 		wordSeparator[i] = false;
 	}
 	wordSeparator['\r'] = true;
@@ -92,11 +92,11 @@ void WordList::Set(const char *s) {
 
 extern "C" int cmpString(const void *a1, const void *a2) {
 	// Can't work out the correct incantation to use modern casts here
-	return strcmp(*(char**)(a1), *(char**)(a2));
+	return strcmp(*(char **)(a1), *(char **)(a2));
 }
 
 static void SortWordList(char **words, unsigned int len) {
-	qsort(reinterpret_cast<void*>(words), len, sizeof(*words),
+	qsort(reinterpret_cast<void *>(words), len, sizeof(*words),
 	      cmpString);
 }
 
@@ -216,7 +216,7 @@ LexerModule::LexerModule(int language_,
 	LexerFunction fnLexer_,
 	const char *languageName_,
 	LexerFunction fnFolder_,
-	const char * const wordListDescriptions_[],
+        const char *const wordListDescriptions_[],
 	int styleBits_) :
 	language(language_),
 	fnLexer(fnLexer_),

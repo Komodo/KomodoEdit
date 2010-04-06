@@ -19,7 +19,7 @@ typedef BOOL bool;
 extern "C" {
 #endif
 
-#if PLAT_WIN
+#if defined(_WIN32)
 /* Return false on failure: */
 bool Scintilla_RegisterClasses(void *hInstance);
 bool Scintilla_ReleaseResources();
@@ -485,6 +485,12 @@ typedef sptr_t (*SciFnDirect)(sptr_t ptr, unsigned int iMessage, uptr_t wParam, 
 #define SC_EFF_QUALITY_LCD_OPTIMIZED 3
 #define SCI_SETFONTQUALITY 2611
 #define SCI_GETFONTQUALITY 2612
+#define SCI_SETFIRSTVISIBLELINE 2613
+#define SC_MULTIPASTE_ONCE 0
+#define SC_MULTIPASTE_EACH 1
+#define SCI_SETMULTIPASTE 2614
+#define SCI_GETMULTIPASTE 2615
+#define SCI_GETTAG 2616
 #define SCI_TARGETFROMSELECTION 2287
 #define SCI_LINESJOIN 2288
 #define SCI_LINESSPLIT 2289
@@ -900,22 +906,27 @@ struct Sci_TextToFind {
 #define TextRange Sci_TextRange
 #define TextToFind Sci_TextToFind
 
-#ifdef PLATFORM_H
+typedef void *Sci_SurfaceID;
+
+struct Sci_Rectangle {
+	int left;
+	int top;
+	int right;
+	int bottom;
+};
 
 /* This structure is used in printing and requires some of the graphics types
  * from Platform.h.  Not needed by most client code. */
 
 struct Sci_RangeToFormat {
-	SurfaceID hdc;
-	SurfaceID hdcTarget;
-	PRectangle rc;
-	PRectangle rcPage;
+	Sci_SurfaceID hdc;
+	Sci_SurfaceID hdcTarget;
+	Sci_Rectangle rc;
+	Sci_Rectangle rcPage;
 	Sci_CharacterRange chrg;
 };
 
 #define RangeToFormat Sci_RangeToFormat
-
-#endif
 
 struct Sci_NotifyHeader {
 	/* Compatible with Windows NMHDR.

@@ -66,9 +66,9 @@ Scintilla buffer before shutting down, bug 81293.
  	void StoreOnClipboard(SelectionText *clipText);
  	static void ClipboardGetSelection(GtkClipboard* clip, GtkSelectionData *selection_data, guint info, void *data);
 @@ -273,6 +287,7 @@
- #if GTK_MAJOR_VERSION < 2
- 	static gint SelectionNotify(GtkWidget *widget, GdkEventSelection *selection_event);
- #endif
+ 	static void SelectionGet(GtkWidget *widget, GtkSelectionData *selection_data,
+ 	                         guint info, guint time);
+ 	static gint SelectionClear(GtkWidget *widget, GdkEventSelection *selection_event);
 +#ifndef KOMODO_DISABLE_DRAG_DROP
  	static void DragBegin(GtkWidget *widget, GdkDragContext *context);
  	gboolean DragMotionThis(GdkDragContext *context, gint x, gint y, guint dragtime);
@@ -99,9 +99,9 @@ Scintilla buffer before shutting down, bug 81293.
 +		inResize(false),
  		capturedMouse(false), dragWasDropped(false),
  		lastKey(0), rectangularSelectionModifier(SCMOD_CTRL), parentClass(0),
- #ifdef INTERNATIONAL_INPUT
- #if GTK_MAJOR_VERSION < 2
- 		ic(NULL),
+ 		im_context(NULL),
+ 		lastWheelMouseDirection(0),
+ 		wheelMouseIntensity(0),
 @@ -396,6 +416,30 @@
  ScintillaGTK::~ScintillaGTK() {
  }
@@ -143,9 +143,9 @@ Scintilla buffer before shutting down, bug 81293.
 +		sciThis->ChangeFocusState(true);  // KOMODO INSTEAD OF FOLLOWING TWO LINES
 +		//GTK_WIDGET_SET_FLAGS(widget, GTK_HAS_FOCUS);
 +		//SetFocusState(true);
- #ifdef INTERNATIONAL_INPUT
- #if GTK_MAJOR_VERSION < 2
- 		if (ic)
+ 		if (im_context != NULL) {
+ 			gchar *str = NULL;
+ 			gint cursor_pos;
 @@ -692,8 +738,10 @@
  
  gint ScintillaGTK::FocusOutThis(GtkWidget *widget) {
@@ -157,8 +157,8 @@ Scintilla buffer before shutting down, bug 81293.
 +		//GTK_WIDGET_UNSET_FLAGS(widget, GTK_HAS_FOCUS);
 +		//SetFocusState(false);
  
- #ifdef INTERNATIONAL_INPUT
- #if GTK_MAJOR_VERSION < 2
+ 		if (PWidget(wPreedit) != NULL)
+ 			gtk_widget_hide(PWidget(wPreedit));
 @@ -719,8 +767,13 @@
  }
  
@@ -205,9 +205,9 @@ Scintilla buffer before shutting down, bug 81293.
  	                  static_cast<GdkDragAction>(GDK_ACTION_COPY | GDK_ACTION_MOVE));
 -
 +#endif
- #if GLIB_MAJOR_VERSION >= 2
  	// Set caret period based on GTK settings
  	gboolean blinkOn = false;
+ 	if (g_object_class_find_property(G_OBJECT_GET_CLASS(
 @@ -880,6 +936,9 @@
  
  void ScintillaGTK::StartDrag() {
@@ -436,23 +436,21 @@ Scintilla buffer before shutting down, bug 81293.
  			// Unknown encoding so assume in Latin1
  			char *destPrevious = dest;
  			dest = UTF8FromLatin1(dest, len);
-@@ -1545,11 +1771,15 @@
+@@ -1545,9 +1771,13 @@
  					sel.Range(sel.Main()).Start();
  
  				if (selText.rectangular) {
 -					PasteRectangular(selStart, selText.s, selText.len);
 +					PasteRectangular(selStart.Position(), selText.s, selText.len);
  				} else {
- 					selStart = SelectionPosition(InsertSpace(selStart.Position(), selStart.VirtualSpace()));
- 					if (pdoc->InsertString(selStart.Position(),selText.s, selText.len)) {
- 						SetEmptySelection(selStart.Position() + selText.len);
+ 					InsertPaste(selStart, selText.s, selText.len);
 +						// XXX ActiveState bug 33804
 +						if (ac.Active()) {
 +							AutoCompleteMoveToCurrentWord();
 +						}
- 					}
  				}
  				EnsureCaretVisible();
+ 			}
 @@ -1563,6 +1752,7 @@
  	}
  }
@@ -527,14 +525,14 @@ Scintilla buffer before shutting down, bug 81293.
  			// On X, instead of sending literal modifiers use the user specified
  			// modifier, defaulting to control instead of alt.
 @@ -1890,7 +2090,7 @@
+ 	} catch (...) {
  		errorStatus = SC_STATUS_FAILURE;
  	}
- #if GTK_MAJOR_VERSION >= 2
 -	return TRUE;
 +	return FALSE; /* ACTIVESTATE, must return false to let even through to mozilla */
- #else
- 	return FALSE;
- #endif
+ }
+ 
+ gint ScintillaGTK::Press(GtkWidget *widget, GdkEventButton *event) {
 @@ -2521,6 +2721,7 @@
  }
  #endif

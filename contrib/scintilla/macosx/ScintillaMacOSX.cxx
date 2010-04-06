@@ -1830,20 +1830,23 @@ static inline UniChar GetCharacterWithoutModifiers( EventRef rawKeyboardEvent )
     SInt16 lastKeyLayoutID = GetScriptVariable( /*currentKeyScript*/ GetScriptManagerVariable(smKeyScript), smScriptKeys);
     Handle uchrHandle = GetResource('uchr', lastKeyLayoutID);
 
-    // Translate the key press ignoring ctrl and option
-    UInt32 ignoredDeadKeys = 0;
-    UInt32 ignoredActualLength = 0;
-    UniChar unicodeKey = 0;
-    // (((modifiers & shiftKey) >> 8) & 0xFF)
-    OSStatus err;
-    err = UCKeyTranslate( reinterpret_cast<UCKeyboardLayout*>( *uchrHandle ), keyCode, kUCKeyActionDown,
-                                /* modifierKeyState */ 0, LMGetKbdType(), kUCKeyTranslateNoDeadKeysMask, &ignoredDeadKeys,
-                                /* buffer length */ 1,
-                                /* actual length */ &ignoredActualLength,
-                                /* string */ &unicodeKey );
-    assert( err == noErr );
+	if (uchrHandle) {
+		// Translate the key press ignoring ctrl and option
+		UInt32 ignoredDeadKeys = 0;
+		UInt32 ignoredActualLength = 0;
+		UniChar unicodeKey = 0;
+		// (((modifiers & shiftKey) >> 8) & 0xFF)
+		OSStatus err;
+		err = UCKeyTranslate( reinterpret_cast<UCKeyboardLayout*>( *uchrHandle ), keyCode, kUCKeyActionDown,
+									/* modifierKeyState */ 0, LMGetKbdType(), kUCKeyTranslateNoDeadKeysMask, &ignoredDeadKeys,
+									/* buffer length */ 1,
+									/* actual length */ &ignoredActualLength,
+									/* string */ &unicodeKey );
+		assert( err == noErr );
 
-    return unicodeKey;
+		return unicodeKey;
+	}
+	return 0;
 }
 
 // Text input is very annoying:

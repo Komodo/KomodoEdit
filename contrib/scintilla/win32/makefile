@@ -29,7 +29,7 @@ LDFLAGS=-mwindows -lstdc++ -limm32 -lole32 -luuid -mno-cygwin
 # Add -MMD to get dependencies
 #CXXFLAGS = -g -pg -pedantic -Os -fno-exceptions -fvtable-thunks -fno-rtti
 INCLUDEDIRS=-I ../include -I ../src
-CXXBASEFLAGS=-Wall -Wno-missing-braces -Wno-char-subscripts -pedantic $(INCLUDEDIRS) $(THUNKFLAGS) -fno-rtti -mno-cygwin
+CXXBASEFLAGS=-Wall -Wno-missing-braces -Wno-char-subscripts -Wno-strict-overflow -pedantic $(INCLUDEDIRS) $(THUNKFLAGS) -fno-rtti -mno-cygwin
 
 ifdef DEBUG
 CXXFLAGS=-DDEBUG -g $(CXXBASEFLAGS)

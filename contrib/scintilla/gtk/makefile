@@ -1,11 +1,10 @@
 # Make file for Scintilla on Linux or compatible OS
-# Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
+# Copyright 1998-2010 by Neil Hodgson <neilh@scintilla.org>
 # The License.txt file describes the conditions under which this software may be distributed.
-# This makefile assumes GCC 3.1 is used and changes will be needed to use other compilers.
+# This makefile assumes GCC 4.3 is used and changes will be needed to use other compilers.
 # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
-# Builds for GTK+ 2 if available else GTK+ 1.
-# To force GTK+ 2 build, define GTK2 on the make command line.
-# To force GTK+ 1 build, define GTK1 on the make command line.
+# Builds for GTK+ 2 and no longer supports GTK+ 1.
+# Also works with ming32-make on Windows.
 
 .SUFFIXES: .cxx .c .o .h .a
 CC = g++
@@ -13,8 +12,10 @@ CCOMP = gcc
 AR = ar
 RANLIB = touch
 
+ifndef windir
 ifeq ($(shell uname),Darwin)
 RANLIB = ranlib
+endif
 endif
 
 COMPLIB=../bin/scintilla.a
@@ -23,7 +24,7 @@ vpath %.h ../src ../include
 vpath %.cxx ../src
 
 INCLUDEDIRS=-I ../include -I ../src
-CXXBASEFLAGS=-Wall -Wno-missing-braces -Wno-char-subscripts -pedantic -Os -DGTK -DSCI_LEXER $(INCLUDEDIRS)
+CXXBASEFLAGS=-Wall -Wno-missing-braces -Wno-char-subscripts -Wno-strict-overflow -pedantic -Os -DGTK -DSCI_LEXER $(INCLUDEDIRS)
 
 ifdef NOTHREADS
 THREADFLAGS=-DG_THREADS_IMPL_NONE
@@ -37,23 +38,8 @@ else
 CXXFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
 endif
 
-# If explicit setting of GTK1 or GTK2 then use that else look for
-# pkg-config which is an OK indication that GTK2 is available
-ifdef GTK2
 CONFIGFLAGS:=$(shell pkg-config --cflags gtk+-2.0)
 MARSHALLER=scintilla-marshal.o
-else
-ifdef GTK1
-CONFIGFLAGS:=$(shell gtk-config --cflags)
-else
-ifneq (,$(findstring /,$(shell whereis pkg-config)))
-CONFIGFLAGS:=$(shell pkg-config --cflags gtk+-2.0)
-MARSHALLER=scintilla-marshal.o
-else
-CONFIGFLAGS:=$(shell gtk-config --cflags)
-endif
-endif
-endif
 
 .cxx.o:
 	$(CC) $(CONFIGFLAGS) $(CXXFLAGS) -c $<

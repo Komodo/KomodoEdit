@@ -196,26 +196,24 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  	} else {
  		char *convertedText = 0;
  		if (convertPastes) {
-@@ -1345,11 +1400,19 @@
+@@ -1345,9 +1400,17 @@
  			}
  			if (sel.MainCaret() == insertPos) {
  				SetEmptySelection(sel.MainCaret() + len);
-+                                // XXX ActiveState bug 33804
-+                                if (ac.Active()) {
-+                                        AutoCompleteMoveToCurrentWord();
-+                                }
++                               // XXX ActiveState bug 33804
++                               if (ac.Active()) {
++                               	AutoCompleteMoveToCurrentWord();
++                               }
  			}
  		} else {
- 			selStart = SelectionPosition(InsertSpace(selStart.Position(), selStart.VirtualSpace()));
- 			if (pdoc->InsertString(selStart.Position(), text, len)) {
- 				SetEmptySelection(selStart.Position() + len);
+ 			InsertPaste(selStart, text, len);
 +	                        // XXX ActiveState bug 33804
 +       	                if (ac.Active()) {
 +               	                AutoCompleteMoveToCurrentWord();
 +                       	}
- 			}
  		}
  		delete []convertedText;
+ 	}
 @@ -1498,6 +1561,7 @@
  
  #endif

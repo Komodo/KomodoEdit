@@ -372,8 +372,8 @@ class SurfaceImpl : public Surface {
 	void SetFont(Font &font_);
 
 	// Private so SurfaceImpl objects can not be copied
-	SurfaceImpl(const SurfaceImpl &) : Surface() {}
-	SurfaceImpl &operator=(const SurfaceImpl &) { return *this; }
+	SurfaceImpl(const SurfaceImpl &);
+	SurfaceImpl &operator=(const SurfaceImpl &);
 public:
 	SurfaceImpl();
 	virtual ~SurfaceImpl();
@@ -617,6 +617,18 @@ static void AllFour(DWORD *pixels, int width, int height, int x, int y, DWORD va
 #define AC_SRC_ALPHA		0x01
 #endif
 
+static DWORD dwordFromBGRA(byte b, byte g, byte r, byte a) {
+	union {
+		byte pixVal[4];
+		DWORD val;
+	} converter;
+	converter.pixVal[0] = b;
+	converter.pixVal[1] = g;
+	converter.pixVal[2] = r;
+	converter.pixVal[3] = a;
+	return converter.val;
+}
+
 void SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize, ColourAllocated fill, int alphaFill,
 		ColourAllocated outline, int alphaOutline, int /* flags*/ ) {
 	if (AlphaBlendFn && rc.Width() > 0) {
@@ -632,18 +644,17 @@ void SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize, ColourAllocated 
 
 		HBITMAP hbmOld = SelectBitmap(hMemDC, hbmMem);
 
-		byte pixVal[4] = {0};
-		DWORD valEmpty = *(reinterpret_cast<DWORD *>(pixVal));
-		pixVal[0] = static_cast<byte>(GetBValue(fill.AsLong()) * alphaFill / 255);
-		pixVal[1] = static_cast<byte>(GetGValue(fill.AsLong()) * alphaFill / 255);
-		pixVal[2] = static_cast<byte>(GetRValue(fill.AsLong()) * alphaFill / 255);
-		pixVal[3] = static_cast<byte>(alphaFill);
-		DWORD valFill = *(reinterpret_cast<DWORD *>(pixVal));
-		pixVal[0] = static_cast<byte>(GetBValue(outline.AsLong()) * alphaOutline / 255);
-		pixVal[1] = static_cast<byte>(GetGValue(outline.AsLong()) * alphaOutline / 255);
-		pixVal[2] = static_cast<byte>(GetRValue(outline.AsLong()) * alphaOutline / 255);
-		pixVal[3] = static_cast<byte>(alphaOutline);
-		DWORD valOutline = *(reinterpret_cast<DWORD *>(pixVal));
+		DWORD valEmpty = dwordFromBGRA(0,0,0,0);
+		DWORD valFill = dwordFromBGRA(
+			static_cast<byte>(GetBValue(fill.AsLong()) * alphaFill / 255),
+			static_cast<byte>(GetGValue(fill.AsLong()) * alphaFill / 255),
+			static_cast<byte>(GetRValue(fill.AsLong()) * alphaFill / 255),
+			static_cast<byte>(alphaFill));
+		DWORD valOutline = dwordFromBGRA(
+			static_cast<byte>(GetBValue(outline.AsLong()) * alphaOutline / 255),
+			static_cast<byte>(GetGValue(outline.AsLong()) * alphaOutline / 255),
+			static_cast<byte>(GetRValue(outline.AsLong()) * alphaOutline / 255),
+			static_cast<byte>(alphaOutline));
 		DWORD *pixels = reinterpret_cast<DWORD *>(image);
 		for (int y=0; y<height; y++) {
 			for (int x=0; x<width; x++) {
@@ -1283,8 +1294,8 @@ class ListBoxX : public ListBox {
 	int MinClientWidth() const;
 	int TextOffset() const;
 	Point GetClientExtent() const;
-	Point MinTrackSize() const;
-	Point MaxTrackSize() const;
+	POINT MinTrackSize() const;
+	POINT MaxTrackSize() const;
 	void SetRedraw(bool on);
 	void OnDoubleClick();
 	void ResizeToCursor();
@@ -1630,19 +1641,21 @@ int ListBoxX::MinClientWidth() const {
 	return 12 * (aveCharWidth+aveCharWidth/3);
 }
 
-Point ListBoxX::MinTrackSize() const {
+POINT ListBoxX::MinTrackSize() const {
 	PRectangle rc(0, 0, MinClientWidth(), ItemHeight());
 	AdjustWindowRect(&rc);
-	return Point(rc.Width(), rc.Height());
+	POINT ret = {rc.Width(), rc.Height()};
+	return ret;
 }
 
-Point ListBoxX::MaxTrackSize() const {
+POINT ListBoxX::MaxTrackSize() const {
 	PRectangle rc(0, 0,
 		maxCharWidth * maxItemCharacters + TextInset.x * 2 +
 		 TextOffset() + ::GetSystemMetrics(SM_CXVSCROLL),
 		ItemHeight() * lti.Count());
 	AdjustWindowRect(&rc);
-	return Point(rc.Width(), rc.Height());
+	POINT ret = {rc.Width(), rc.Height()};
+	return ret;
 }
 
 void ListBoxX::SetRedraw(bool on) {
@@ -1689,8 +1702,8 @@ void ListBoxX::ResizeToCursor() {
 			break;
 	}
 
-	Point ptMin = MinTrackSize();
-	Point ptMax = MaxTrackSize();
+	POINT ptMin = MinTrackSize();
+	POINT ptMax = MaxTrackSize();
 	// We don't allow the left edge to move at present, but just in case
 	rc.left = Platform::Maximum(Platform::Minimum(rc.left, rcPreSize.right - ptMin.x), rcPreSize.right - ptMax.x);
 	rc.top = Platform::Maximum(Platform::Minimum(rc.top, rcPreSize.bottom - ptMin.y), rcPreSize.bottom - ptMax.y);
@@ -1950,8 +1963,8 @@ LRESULT ListBoxX::WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam
 
 	case WM_GETMINMAXINFO: {
 			MINMAXINFO *minMax = reinterpret_cast<MINMAXINFO*>(lParam);
-			*reinterpret_cast<Point*>(&minMax->ptMaxTrackSize) = MaxTrackSize();
-			*reinterpret_cast<Point*>(&minMax->ptMinTrackSize) = MinTrackSize();
+			minMax->ptMaxTrackSize = MaxTrackSize();
+			minMax->ptMinTrackSize = MinTrackSize();
 		}
 		break;
 
@@ -2115,8 +2128,13 @@ public:
 	// Use GetProcAddress to get a pointer to the relevant function.
 	virtual Function FindFunction(const char *name) {
 		if (h != NULL) {
-			return static_cast<Function>(
-				(void *)(::GetProcAddress(h, name)));
+			// C++ standard doesn't like casts betwen function pointers and void pointers so use a union
+			union {
+				FARPROC fp;
+				Function f;
+			} fnConv;
+			fnConv.fp = ::GetProcAddress(h, name);
+			return fnConv.f;
 		} else
 			return NULL;
 	}

@@ -166,7 +166,7 @@ diff -r -du src/Editor.cxx src/Editor.cxx
  		}
  	}
  	lastClickTime = curTime;
- 	lastXChosen = pt.x;
+ 	lastXChosen = pt.x + xOffset;
 +	lastClick = pt; // ACTIVESTATE need this to make dblclicks work in scimoz
  	ShowCaretAtCurrentPosition();
  }
