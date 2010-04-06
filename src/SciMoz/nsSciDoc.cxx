@@ -769,6 +769,45 @@ NS_IMETHODIMP SciDoc::Allocate(PRInt32 newSize)
     return NS_OK;
 }
 
+// We need these because CaseFolder is a virtual class.
+// This code and the code in Document.cxx should be put in one place.
+
+CaseFolderTable::CaseFolderTable() {
+	for (size_t iChar=0; iChar<sizeof(mapping); iChar++) {
+		mapping[iChar] = static_cast<char>(iChar);
+	}
+}
+
+CaseFolderTable::~CaseFolderTable() {
+}
+
+size_t CaseFolderTable::Fold(char *folded, size_t sizeFolded, const char *mixed, size_t lenMixed) {
+	if (lenMixed > sizeFolded) {
+		return 0;
+	} else {
+		for (size_t i=0; i<lenMixed; i++) {
+			folded[i] = mapping[static_cast<unsigned char>(mixed[i])];
+		}
+		return lenMixed;
+	}
+}
+
+void CaseFolderTable::SetTranslation(char ch, char chTranslation) {
+	mapping[static_cast<unsigned char>(ch)] = chTranslation;
+}
+
+void CaseFolderTable::StandardASCII() {
+	for (size_t iChar=0; iChar<sizeof(mapping); iChar++) {
+		if (iChar >= 'A' && iChar <= 'Z') {
+			mapping[iChar] = static_cast<char>(iChar - 'A' + 'a');
+		} else {
+			mapping[iChar] = static_cast<char>(iChar);
+		}
+	}
+}
+
+
+
 /* long FindText (in PRInt32 minPos, in PRInt32 maxPos, in wstring s, in boolean caseSensitive, in boolean word, in boolean wordStart, in boolean regExp, in boolean posix); */
 NS_IMETHODIMP SciDoc::FindText(PRInt32 minPos, PRInt32 maxPos,
                                const PRUnichar *s, PRBool caseSensitive,
@@ -778,8 +817,9 @@ NS_IMETHODIMP SciDoc::FindText(PRInt32 minPos, PRInt32 maxPos,
     if (documentPointer==nsnull) return NS_ERROR_UNEXPECTED;
     nsCAutoString text = NS_ConvertUTF16toUTF8(s);
     int length = text.Length();
+    CaseFolderTable cf;
     *_retval = documentPointer->FindText(minPos, maxPos, reinterpret_cast<const char *>(text.get()),
-                                         caseSensitive, word, wordStart, regExp, posix, &length);
+                                         caseSensitive, word, wordStart, regExp, posix, &length, &cf);
     return NS_OK;
 }
 
