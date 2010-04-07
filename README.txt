@@ -349,6 +349,21 @@ Build Troubleshooting Notes
 
     python build.py configure ... --options=disable-javaxpcom
 
+- [Windows 7] The Mozilla build fails with::
+
+        checking whether the C++ compiler (cl  ) works... rm: cannot lstat `conftest.exe': Permission denied
+
+  The following discussion thread seems to indicate that this problem "goes
+  away" by one or both of re-starting your command shell and removing the
+  mozilla build object dir and re-starting the build.
+  <http://groups.google.com/group/mozilla.dev.platform/browse_thread/thread/bd1bd1a799835528>
+
+  In my case it worked by simply opening a new "cmd.exe" and re-starting the
+  build::
+
+        cd ...\mozilla
+        python build.py all
+
 - [Linux] On my Ubuntu Dapper install I had to install "automake1.9" to
   get "aclocal"::
   
