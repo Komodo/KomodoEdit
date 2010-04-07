@@ -359,7 +359,7 @@
                 }
 
                 // Allow column editing through Scintilla.
-                scimoz.multipleSelection = true;
+                scimoz.multipleSelection = false;
                 scimoz.additionalSelectionTyping = true;
                 // This allows a rectangular selection to extend past the
                 // end of the line when there is a longer selected line.
