@@ -1295,9 +1295,13 @@ def _assertCanApplyPatch(patchExe, patchFile, sourceDir, reverse=0,
 # Adapted from patchtree.py.
 def _getPatchExe(patchExe=None):
     import which
+    import os
+    path = os.pathsep.split(os.environ["PATH"])
+    if sys.platform == "win32":
+        path.insert(0, join(dirname(__file__), "bin-win32-x86"))
     if patchExe is None:
         try:
-            patchExe = which.which("patch")
+            patchExe = which.which("patch", path=path)
         except which.WhichError:
             raise Error("could not find a 'patch' executable on your PATH")
     # Assert that it exists.
