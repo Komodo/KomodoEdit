@@ -27,7 +27,7 @@ Build steps on Windows:
 
     REM ---- Build Mozilla
     cd openkomodo\mozilla
-    setenv-moz-msvc8.bat
+    setenv-moz-msvc9.bat
     python build.py configure -k 6.10 --moz-src=191 --release --no-strip --tools --moz-objdir=ko-obj
     python build.py distclean all
     cd ..
@@ -73,37 +73,34 @@ Read/write developer access is available via:
 Build Prerequisites for Windows
 ===============================
 
-- Python >=2.6. You can install ActivePython from here:
-  <http://downloads.activestate.com/ActivePython/windows/>
+- Python >=2.6 (but not Python 3.x yet). You can install ActivePython from here:
+  <http://downloads.activestate.com/ActivePython/releases/>
 
-- Visual C++ 8.0 (aka Visual Studio 2005) and all the Platform SDKs for
-  building Mozilla with vc8 as described here:
+- Visual C++ 9.0 (aka Visual Studio 2008) and all the Platform SDKs for
+  building Mozilla with vc9 as described here:
     http://developer.mozilla.org/en/docs/Windows_Build_Prerequisites  
+  All of Komodo's core runtime C/C++ is built with Visual C++ 9.0.
   
 - Install the latest "MozillaBuild-$ver.exe" package into *the default dir*
   (i.e. "C:\mozilla-build").
   <http://ftp.mozilla.org/pub/mozilla.org/mozilla/libraries/win32/>
 
-- Install ActivePerl 5.8.
+- Install the latest ActivePerl.
 
-  <http://downloads.activestate.com/ActivePerl/Windows/5.8/ActivePerl-5.8.8.822-MSWin32-x86-280952.msi>
+  <http://downloads.activestate.com/ActivePerl/releases/>
 
   ActivePerl is currently required for the Komodo-part of the build
   (where the "Mozilla-part of the build" is the other part). The
   MozillaBuild package (previous step) *does* include a Perl 5.6 build,
   but it is a mingw-built Perl that the Komodo build system cannot use.
-  
-  (Eventually this dependency will go away when the curent Komodo
-  Cons/Black-based system is replaced (hopefully late 2007 or early 2008.)
 
 
 
 Build Prerequisites for Mac OS X
 ================================
 
-- Python **2.6**. You can install ActivePython 2.6 from here:
-
-  <http://downloads.activestate.com/ActivePython/macosx/2.6/>
+- Python >=2.6 (but not Python 3.x yet). You can install ActivePython from here:
+  <http://downloads.activestate.com/ActivePython/releases/>
 
   If you prefer the Python builds from python.org should be sufficient
   as well.
@@ -160,10 +157,10 @@ above steps is *meant to be sufficient* to get building Komodo.
 Build Prerequisites for Linux
 =============================
 
-- Python 2.5 or greater. Your distro's Python 2.5 should be sufficient, or
-  you can install ActivePython from here:
-  
-    <http://downloads.activestate.com/ActivePython/linux/2.5/>
+- Python >=2.6 (but not Python 3.x yet). You can install ActivePython from here:
+  <http://downloads.activestate.com/ActivePython/releases/>
+
+  If you prefer, your distro's Python 2.6 should be sufficient.
 
 - Everything mentioned in the Mozilla Linux build prerequisites:
 
