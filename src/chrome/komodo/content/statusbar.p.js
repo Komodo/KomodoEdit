@@ -274,6 +274,11 @@ function _updateSelectionInformation(view) {
             selectionLabel += _bundle.formatStringFromName(
                 "selectionLineCount.label", [(Math.abs(lineEnd - lineStart) + 1)], 1);
         }
+// #if BUILD_FLAVOUR == "dev"
+        if (!selectionLabel) {
+            selectionLabel = "Pos: " + scimoz.currentPos;
+        }
+// #endif
     }
     document.getElementById("statusbar-selection").label = selectionLabel;
 }
