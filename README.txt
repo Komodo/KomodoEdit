@@ -33,7 +33,7 @@ Build steps on Windows:
     cd ..
     REM ---- Build Komodo
     set PATH=util\black;%PATH%
-    bk configure
+    bk configure -V 6.10.0-devel
     bk build
     REM ---- Run Komodo
     bk run
@@ -48,7 +48,7 @@ Build steps on Linux and Mac OS X:
     cd ..
     #---- Build Komodo
     export PATH=`pwd`/util/black:$PATH   # Komodo's "bk" build tool
-    bk configure
+    bk configure -V 6.10.0-devel
     bk build
     #---- Run Komodo
     bk run
