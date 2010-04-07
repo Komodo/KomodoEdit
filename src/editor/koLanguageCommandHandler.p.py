@@ -728,7 +728,7 @@ class GenericCommandHandler:
         if view.languageObj.supportsXMLIndentHere(sm, sm.currentPos):
             lineno = sm.lineFromPosition(sm.currentPos)
             startofLinePos = sm.positionFromLine(lineno)
-            line = sm.getTextRange(startofLinePos, sm.currentPos)
+            line = sm.getStyledText(startofLinePos, sm.currentPos)[0::2]
             lastWS = max(line.rfind(' '), line.rfind('\t'))
             lastBracket = line.rfind('<')
             if lastWS < lastBracket and \

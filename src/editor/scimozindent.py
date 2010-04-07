@@ -201,7 +201,7 @@ def _verifyLoneEndTag(scimoz, tagPos):
     lineNo = scimoz.lineFromPosition(endTagEndPos)
     lineStartPos = scimoz.positionFromLine(lineNo)
     lineEndPos = scimoz.getLineEndPosition(lineNo)
-    lineStartText = scimoz.getTextRange(lineStartPos, lineEndPos)
+    lineStartText = scimoz.getStyledText(lineStartPos, lineEndPos)[0::2]
     lineStartText = re.sub(_commentRegex, "", lineStartText)
     if (_multiStartTagsRegex.search(lineStartText)
         or _multiEndTagsRegex.search(lineStartText)):
@@ -544,13 +544,12 @@ def adjustClosingXMLTag(scimoz, isHTML=False):
     It will only do so if the end tag is the only thing to the left of
     the current position on the current line.
     """
-    beforeText = scimoz.getTextRange(0, scimoz.currentPos)
+    beforeText = scimoz.getStyledText(0, scimoz.currentPos)[0::2]
     # (for now, assuming no intervening space)
     leftCloseIndex = beforeText.rfind('</')
     if leftCloseIndex == -1:
         # no idea what to do in this case, just bail
         return
-    leftCloseIndex = len(beforeText[0:leftCloseIndex].encode('utf-8')) # bug 69731
     startTagInfo = startTagInfo_from_endTagPos(scimoz, leftCloseIndex, isHTML)
     if startTagInfo is None:
         return

@@ -1613,7 +1613,7 @@ class KoLanguageBase:
                         return None
                 # we have a comment end!
                 # find the matching comment start
-                text = scimoz.getTextRange(0, p)
+                text = scimoz.getStyledText(0, p)[0::2]
                 startOfComment = text.rfind(blockCommentStart)
                 if startOfComment == -1:
                     indentlog.info("could not find the beginning of the block comment")
@@ -2043,6 +2043,8 @@ class KoLanguageBase:
             scimoz.getWCharAt(pos-2) == '-' and
             scimoz.getWCharAt(pos-1) == '-'):
             return 'COMMENT_CLOSE'
+        # Since we don't use the absolute locations of items in this chunk
+        # of text, using characters instead of bytes is ok
         text = scimoz.getTextRange(0, scimoz.positionAfter(pos))
         lastLeftBraceIndex = text.rfind('<')
         lastSlashIndex = text.rfind('/')
@@ -2123,11 +2125,15 @@ class KoLanguageBase:
         if not stuffToLeft.strip():
             return scimozindent.makeIndentFromWidth(scimoz, scimoz.getColumn(scimoz.currentPos))
         index = scimoz.currentPos - 1
-        beforeText = scimoz.getTextRange(0, scimoz.currentPos)
+        styledText = scimoz.getStyledText(0, scimoz.currentPos)
+        # Since we're doing Python searches in the text, we need to work with
+        # the raw utf-8 bytes.
+        beforeText = styledText[0::2]
+        beforeStyles = [ord(c) for c in styledText[1::2]]
         tagStartPos = -1
         while index > 0:
-            char = scimoz.getWCharAt(index)
-            style = scimoz.getStyleAt(index) & self.stylingBitsMask
+            char = beforeText[index]
+            style = beforeStyles[index] # scimoz.getStyleAt(index)
             state = self._findXMLState(scimoz, index, char, style)
             indentlog.debug("char = %r", char)
             indentlog.debug("style = %r", style)
@@ -2145,8 +2151,7 @@ class KoLanguageBase:
                 startLine = scimoz.lineFromPosition(tagStartPos)
                 # convert from character offset to byte position --
                 # that's what getColumn wants.
-                tagStartPosForGetColumn = scimoz.positionAtChar(0, tagStartPos)
-                currentIndentWidth = scimoz.getColumn(tagStartPosForGetColumn)
+                currentIndentWidth = scimoz.getColumn(tagStartPos)
                 nextIndentWidth = (divmod(currentIndentWidth, scimoz.indent)[0] + 1) * scimoz.indent
                 indentlog.debug("currentIndentWidth = %r", currentIndentWidth)
                 indentlog.debug("nextIndentWidth= %r", nextIndentWidth)
