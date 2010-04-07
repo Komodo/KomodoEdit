@@ -1672,6 +1672,12 @@ class KomodoPythonUtilsDir(black.configure.Datum):
 
 
 class SetPath(black.configure.SetPathEnvVar):
+    # On Windows 7 this must be serialized to `bkconfig.bat` *after* the call to
+    # "setenv-moz-msvcN.bat" to ensure that "util\bin-win32-x86" is on the PATH
+    # before "C:\mozilla-build\msys\bin" so that Komodo's "patch.exe" is the
+    # one that gets used.
+    serializationOrdinal = 150
+
     def __init__(self):
         if sys.platform.startswith("win"):
             pathExt = os.environ.get("PATHEXT", None)

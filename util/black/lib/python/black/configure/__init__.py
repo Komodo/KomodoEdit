@@ -87,6 +87,11 @@ items = None            # the global dictionary of configuration items
 
 class Item:
     """A thing that needs to get done for configuration of a project."""
+
+    # Serialization of configuration vars is sorted by
+    # (<serialization ordinal>, <variable name>).
+    serializationOrdinal = 100
+
     def __init__(self, name, desc=None, serializeAs=[],
                  acceptedOptions=None, optionHelp=None):
         if desc is None:
@@ -756,7 +761,7 @@ def Configure(options, blackFileName, blackFile):
         value=streams["env"].filename)
     items["envScriptName"].Determine()
     sorteditems = items.items()
-    sorteditems.sort()
+    sorteditems.sort(key=lambda i: (i[1].serializationOrdinal, i[0]))
     for name, item in sorteditems:
         item.Serialize(streams)
     for stream in streams.values():

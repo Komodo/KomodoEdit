@@ -53,7 +53,7 @@ class BlackError(Exception):
 #                       lib/python/black/configure/...)
 _version_ = {"major": 0,
              "minor": 4,
-             "patch": 1,
+             "patch": 2,
             }
 
 def GetVersionTuple():
