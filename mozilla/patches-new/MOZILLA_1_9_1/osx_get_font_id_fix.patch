@@ -1,0 +1,168 @@
+Fix for Komodo crashing at startup do to corrupt fonts. Example stack trace:
+http://komodo.nas.activestate.com/extras/crash-reports//2010/4/1/17/bp_4QyGXn/3a8ef4a3-3db6-11df-b8b9-001372fc64fb.dump
+
+The fix comes from this Mozilla bug:
+https://bugzilla.mozilla.org/show_bug.cgi?id=514114
+
+Which was applied to the Moz 1.9.0 branch, but as yet is not applied to 1.9.1.
+
+Apparently this is a known Mac OS issue, perhaps Mac will fix this with later
+releases.
+
+Index: /home/toddw/as/komodo-devel/mozilla/build/moz191-ko6.9/mozilla/gfx/thebes/src/gfxQuartzFontCache.mm
+--- gfx/thebes/src/gfxQuartzFontCache.mm	Tue Apr 06 15:29:56 2010 -0500
++++ gfx/thebes/src/gfxQuartzFontCache.mm	Thu Apr 08 12:53:26 2010 -0700
+@@ -39,12 +39,17 @@
+  * ***** END LICENSE BLOCK ***** */
+ 
+ #include <Carbon.h>
+ 
+ #import <AppKit/AppKit.h>
+ 
++#ifdef MOZ_LOGGING
++#define FORCE_PR_LOG /* Allow logging in the release build */
++#endif /* MOZ_LOGGING */
++#include "prlog.h"
++
+ #include "gfxPlatformMac.h"
+ #include "gfxQuartzFontCache.h"
+ #include "gfxAtsuiFonts.h"
+ #include "gfxUserFontSet.h"
+ 
+ #include "nsIPref.h"  // for pref changes callback notification
+@@ -59,12 +64,18 @@
+ 
+ // _atsFontID is private; add it in our new category to NSFont
+ @interface NSFont (MozillaCategory)
+ - (ATSUFontID)_atsFontID;
+ @end
+ 
++#ifdef PR_LOGGING
++static PRLogModuleInfo *gFontInfoLog = PR_NewLogModule("fontInfoLog");
++#endif /* PR_LOGGING */
++
++#define LOG(args) PR_LOG(gFontInfoLog, PR_LOG_DEBUG, args)
++
+ // font info loader constants
+ static const PRUint32 kDelayBeforeLoadingCmaps = 8 * 1000; // 8secs
+ static const PRUint32 kIntervalBetweenLoadingCmaps = 150; // 150ms
+ static const PRUint32 kNumFontsPerSlice = 10; // read in info 10 fonts at a time
+ 
+ #define INDEX_FONT_POSTSCRIPT_NAME 0
+@@ -104,14 +115,12 @@
+ static NSString* GetNSStringForString(const nsAString& aSrc)
+ {
+     return [NSString stringWithCharacters:aSrc.BeginReading()
+                      length:aSrc.Length()];
+ }
+ 
+-static PRLogModuleInfo *gFontInfoLog = PR_NewLogModule("fontInfoLog");
+-
+ void
+ gfxQuartzFontCache::GenerateFontListKey(const nsAString& aKeyName, nsAString& aResult)
+ {
+     aResult = aKeyName;
+     ToLowerCase(aResult);
+ }
+@@ -638,13 +647,20 @@
+         return;
+     mOtherFamilyNamesInitialized = PR_TRUE;
+ 
+     NSString *familyName = GetNSStringForString(mName);
+ 
+     // read in other family names for the first face in the list
+-    MacOSFontEntry *fe = mAvailableFonts[0];
++    MacOSFontEntry *fe;
++    
++    // bug 514114 - sanity-check the font entry before use
++    if (mAvailableFonts.Length() == 0 || !(fe = mAvailableFonts[0])) {
++      LOG(("(fontinit-otherfamily) family with no names (%s)\n", 
++            NS_ConvertUTF16toUTF8(mName).get()));
++      return;
++    }
+ 
+     mHasOtherFamilyNames = ReadOtherFamilyNamesForFace(aOtherFamilyFunctor, this, familyName, fe->GetFontID());
+ 
+     // read in other names for the first face in the list with the assumption
+     // that if extra names don't exist in that face then they don't exist in
+     // other faces for the same font
+@@ -689,13 +705,20 @@
+         return;
+     mOtherFamilyNamesInitialized = PR_TRUE;
+ 
+     NSString *familyName = GetNSStringForString(mName);
+ 
+     // read in other family names for the first face in the list
+-    MacOSFontEntry *fe = mAvailableFonts[0];
++    MacOSFontEntry *fe;
++
++    // bug 514114 - sanity-check the font entry before use
++    if (mAvailableFonts.Length() == 0 || !(fe = mAvailableFonts[0])) {
++      LOG(("(fontinit-otherfamily) family with no names (%s)\n", 
++           NS_ConvertUTF16toUTF8(mName).get()));
++      return;
++    }
+ 
+     // read in other names, using the full font names as the family names
+     mHasOtherFamilyNames = ReadOtherFamilyNamesForFace(aOtherFamilyFunctor, this, familyName, fe->GetFontID(), true);    
+ }
+ 
+ /* gfxQuartzFontCache */
+@@ -762,21 +785,28 @@
+     NSString *availableFamily = nil;
+     while ((availableFamily = [families nextObject])) {
+ 
+         // make a nsString
+         GetStringForNSString(availableFamily, availableFamilyName);
+         
+-        // create a family entry
+-        MacOSFamilyEntry *familyEntry = new MacOSFamilyEntry(availableFamilyName);
+-        if (!familyEntry) break;
+-        
+         // create a font entry for each face
+         NSArray *fontfaces = [fontManager availableMembersOfFontFamily:availableFamily];  // returns an array of [psname, style name, weight, traits] elements, goofy api
+         int faceCount = [fontfaces count];
+         int faceIndex;
+ 
++        if (faceCount == 0) {
++            NS_WARNING("font family with no faces!");
++            LOG(("(fontinit) family with no faces (%s)\n", 
++                 NS_ConvertUTF16toUTF8(availableFamilyName).get()));
++            continue;
++        }
++        
++        // create a family entry
++        MacOSFamilyEntry *familyEntry = new MacOSFamilyEntry(availableFamilyName);
++        if (!familyEntry) break;
++        
+         for (faceIndex = 0; faceIndex < faceCount; faceIndex++) {
+             NSArray *face = [fontfaces objectAtIndex:faceIndex];
+             NSString *psname = [face objectAtIndex:INDEX_FONT_POSTSCRIPT_NAME];
+             PRInt32 appKitWeight = [[face objectAtIndex:INDEX_FONT_WEIGHT] unsignedIntValue];
+             PRUint32 traits = [[face objectAtIndex:INDEX_FONT_TRAITS] unsignedIntValue];
+             NSString *facename = [face objectAtIndex:INDEX_FONT_FACE_NAME];
+@@ -821,15 +851,21 @@
+             // insert into font entry array of family
+             familyEntry->AddFontEntry(fontEntry);
+         }
+ 
+         familyEntry->SortAvailableFonts();
+ 
+-        // add the family entry to the hash table
+-        ToLowerCase(availableFamilyName);
+-        mFontFamilies.Put(availableFamilyName, familyEntry);
++        if (familyEntry->mAvailableFonts.Length() != 0) {
++            // add the family entry to the hash table
++            ToLowerCase(availableFamilyName);
++            mFontFamilies.Put(availableFamilyName, familyEntry);
++        } else {
++            // weird family with no faces
++            NS_WARNING("font family with no faces!");
++            delete familyEntry;
++        }
+     }
+ 
+     InitSingleFaceList();
+ 
+     // to avoid full search of font name tables, seed the other names table with localized names from 
+     // some of the prefs fonts which are accessed via their localized names.  changes in the pref fonts will only cause
