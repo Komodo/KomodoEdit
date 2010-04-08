@@ -1296,7 +1296,7 @@ def _assertCanApplyPatch(patchExe, patchFile, sourceDir, reverse=0,
 def _getPatchExe(patchExe=None):
     import which
     import os
-    path = os.pathsep.split(os.environ["PATH"])
+    path = os.environ.get("PATH", "").split(os.pathsep)
     if sys.platform == "win32":
         path.insert(0, join(dirname(__file__), "bin-win32-x86"))
     if patchExe is None:
