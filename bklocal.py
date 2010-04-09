@@ -1700,6 +1700,12 @@ class SetPath(black.configure.SetPathEnvVar):
         else:
             systemDirs = []
 
+        # Add the local plat-specific bin dir, if any.
+        utilBinDir = join(dirname(abspath(__file__)), "util",
+            "bin-" + platinfo.platname())
+        if exists(utilBinDir):
+            self.value.append(utilBinDir)
+
         # add the Python bin directory
         applicable = black.configure.items["siloedPythonBinDir"].Determine()
         if applicable:
