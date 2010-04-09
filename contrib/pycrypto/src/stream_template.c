@@ -3,12 +3,25 @@
 /*
  *  stream_template.c : Generic framework for stream ciphers
  *
- * Distribute and use freely; there are no restrictions on further 
- * dissemination and usage except those imposed by the laws of your 
- * country of residence.  This software is provided "as is" without
- * warranty of fitness for use or suitability for any purpose, express
- * or implied. Use at your own risk or not at all. 
+ * Written by Andrew Kuchling and others
  *
+ * ===================================================================
+ * The contents of this file are dedicated to the public domain.  To
+ * the extent that dedication to the public domain is not available,
+ * everyone is granted a worldwide, perpetual, royalty-free,
+ * non-exclusive license to exercise all rights associated with the
+ * contents of this file for any purpose whatsoever.
+ * No rights are reserved.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * ===================================================================
  */
 
 
@@ -130,9 +143,11 @@ ALG_Encrypt(ALGobject *self, PyObject *args)
 				_MODULE_STRING " encrypt");
 		return NULL;
 	}
+	Py_BEGIN_ALLOW_THREADS;
 	memcpy(buffer, str, len);
 	stream_encrypt(&(self->st), buffer, len);
-	result = PyString_FromStringAndSize(buffer, len);
+	Py_END_ALLOW_THREADS;
+	result = PyString_FromStringAndSize((char *)buffer, len);
 	free(buffer);
 	return (result);
 }
@@ -143,7 +158,7 @@ static char ALG_Decrypt__doc__[] =
 static PyObject *
 ALG_Decrypt(ALGobject *self, PyObject *args)
 {
-	char *buffer, *str;
+	unsigned char *buffer, *str;
 	int len;
 	PyObject *result;
 
@@ -160,9 +175,11 @@ ALG_Decrypt(ALGobject *self, PyObject *args)
 				_MODULE_STRING " decrypt");
 		return NULL;
 	}
+	Py_BEGIN_ALLOW_THREADS;
 	memcpy(buffer, str, len);
 	stream_decrypt(&(self->st), buffer, len);
-	result = PyString_FromStringAndSize(buffer, len);
+	Py_END_ALLOW_THREADS;
+	result = PyString_FromStringAndSize((char *)buffer, len);
 	free(buffer);
 	return (result);
 }
@@ -246,3 +263,5 @@ _MODULE_NAME (void)
 	if (PyErr_Occurred())
 		Py_FatalError("can't initialize module " _MODULE_STRING);
 }
+
+/* vim:set ts=8 sw=8 sts=0 noexpandtab: */

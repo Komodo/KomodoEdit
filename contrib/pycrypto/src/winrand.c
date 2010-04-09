@@ -9,11 +9,22 @@
  * for their hardware random number generator in the 810 and 820 chipsets,
  * then define HAVE_INTEL_RNG.
  *
- * Distribute and use freely; there are no restrictions on further 
- * dissemination and usage except those imposed by the laws of your 
- * country of residence.  This software is provided "as is" without
- * warranty of fitness for use or suitability for any purpose, express
- * or implied. Use at your own risk or not at all. 
+ * =======================================================================
+ * The contents of this file are dedicated to the public domain.  To the
+ * extent that dedication to the public domain is not available, everyone
+ * is granted a worldwide, perpetual, royalty-free, non-exclusive license
+ * to exercise all rights associated with the contents of this file for
+ * any purpose whatsoever.  No rights are reserved.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * =======================================================================
  *
  */
 
@@ -60,7 +71,7 @@ WRdealloc(PyObject *ptr)
 	if (! CryptReleaseContext(o->hcp, 0)) {
 		PyErr_Format(PyExc_SystemError,
 			     "CryptReleaseContext failed, error 0x%x",
-			     GetLastError());
+			     (unsigned int) GetLastError());
 		return;
 	}
 	/* Overwrite the contents of the object */
@@ -97,11 +108,12 @@ winrandom_new(PyObject *self, PyObject *args, PyObject *kwdict)
 		return NULL;
 	}
 	if (! CryptAcquireContext(&hcp, NULL, (LPCTSTR) provname,
-				  (DWORD) provtype, 0)) {
+				  (DWORD) provtype,
+				  CRYPT_VERIFYCONTEXT | CRYPT_SILENT)) {
 		PyErr_Format(PyExc_SystemError,
 			     "CryptAcquireContext for provider \"%s\" type %i failed, error 0x%x",
 			     provname? provname : "(null)", provtype,
-			     GetLastError());
+			     (unsigned int) GetLastError());
 		return NULL;
 	}
 	res = PyObject_New(WRobject, &WRtype);
@@ -112,7 +124,6 @@ winrandom_new(PyObject *self, PyObject *args, PyObject *kwdict)
 static PyObject *
 WR_get_bytes(WRobject *self, PyObject *args)
 {
-	HCRYPTPROV hcp = 0;
 	int n, nbytes, len = 0;
 	PyObject *res;
 	char *buf, *str = NULL;
@@ -148,7 +159,7 @@ WR_get_bytes(WRobject *self, PyObject *args)
 	if (! CryptGenRandom(self->hcp, (DWORD) nbytes, (BYTE *) buf)) {
 		PyErr_Format(PyExc_SystemError,
 			     "CryptGenRandom failed, error 0x%x",
-			     GetLastError());
+			     (unsigned int) GetLastError());
 		PyMem_Free(buf);
 		return NULL;
 	}
@@ -361,6 +372,14 @@ Windows 95, Windows 98, Windows Me, Windows 2000, and Windows XP are
 FIPS-approved. Obviously FIPS-140 compliance is necessary but not 
 sufficient to provide a properly secure source of random data. 
  
+*/
+/*
+[Update: 2007-11-13]
+CryptGenRandom does not necessarily provide forward secrecy or reverse
+secrecy.  See the paper by Leo Dorrendorf and Zvi Gutterman and Benny
+Pinkas, _Cryptanalysis of the Random Number Generator of the Windows
+Operating System_, Cryptology ePrint Archive, Report 2007/419,
+http://eprint.iacr.org/2007/419
 */
 
 #endif /* MS_WIN32 */

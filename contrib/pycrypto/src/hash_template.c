@@ -1,12 +1,25 @@
 /*
  *  hash_template.c : Generic framework for hash function extension modules
  *
- * Distribute and use freely; there are no restrictions on further 
- * dissemination and usage except those imposed by the laws of your 
- * country of residence.  This software is provided "as is" without
- * warranty of fitness for use or suitability for any purpose, express
- * or implied. Use at your own risk or not at all. 
+ * Written by Andrew Kuchling and others
  *
+ * ===================================================================
+ * The contents of this file are dedicated to the public domain.  To
+ * the extent that dedication to the public domain is not available,
+ * everyone is granted a worldwide, perpetual, royalty-free,
+ * non-exclusive license to exercise all rights associated with the
+ * contents of this file for any purpose whatsoever.
+ * No rights are reserved.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * ===================================================================
  */
   
 /* Basic object type */
@@ -105,11 +118,11 @@ ALG_hexdigest(ALGobject *self, PyObject *args)
 	/* Get the raw (binary) digest value */
 	value = (PyObject *)hash_digest(&(self->st));
 	size = PyString_Size(value);
-	raw_digest = PyString_AsString(value);
+	raw_digest = (unsigned char *) PyString_AsString(value);
 
 	/* Create a new string */
 	retval = PyString_FromStringAndSize(NULL, size * 2 );
-	hex_digest = PyString_AsString(retval);
+	hex_digest = (unsigned char *) PyString_AsString(retval);
 
 	/* Make hex version of the digest */
 	for(i=j=0; i<size; i++)	
@@ -136,7 +149,9 @@ ALG_update(ALGobject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "s#", &cp, &len))
 		return NULL;
 
+	Py_BEGIN_ALLOW_THREADS;
 	hash_update(&(self->st), cp, len);
+	Py_END_ALLOW_THREADS;
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -207,8 +222,11 @@ ALG_new(PyObject *self, PyObject *args)
 		Py_DECREF(new); 
 		return NULL;
 	}
-	if (cp)
+	if (cp) {
+		Py_BEGIN_ALLOW_THREADS;
 		hash_update(&(new->st), cp, len);
+		Py_END_ALLOW_THREADS;
+	}
 
 	return (PyObject *)new;
 }

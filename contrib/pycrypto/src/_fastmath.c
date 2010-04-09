@@ -4,11 +4,27 @@
  *
  * Part of the Python Cryptography Toolkit
  *
- * Distribute and use freely; there are no restrictions on further 
- * dissemination and usage except those imposed by the laws of your 
- * country of residence.
+ * Written by Paul Swartz, Andrew Kuchling, Joris Bontje, and others
  *
- * $Id: _fastmath.c,v 1.13 2003/04/04 19:20:29 jbontje Exp $
+ * ===================================================================
+ * The contents of this file are dedicated to the public domain.  To
+ * the extent that dedication to the public domain is not available,
+ * everyone is granted a worldwide, perpetual, royalty-free,
+ * non-exclusive license to exercise all rights associated with the
+ * contents of this file for any purpose whatsoever.
+ * No rights are reserved.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * ===================================================================
+ *
+ * $Id$
  */
 
 #include <stdio.h>
@@ -17,7 +33,7 @@
 #include <longintrepr.h>				/* for conversions */
 #include <gmp.h>
 
-void
+static void
 longObjToMPZ (mpz_t m, PyLongObject * p)
 {
 	int size, i;
@@ -28,6 +44,7 @@ longObjToMPZ (mpz_t m, PyLongObject * p)
 		size = p->ob_size;
 	else
 		size = -p->ob_size;
+	mpz_set_ui (m, 0);
 	for (i = 0; i < size; i++)
 	{
 		mpz_set_ui (temp, p->ob_digit[i]);
@@ -38,7 +55,7 @@ longObjToMPZ (mpz_t m, PyLongObject * p)
 	mpz_clear (temp2);
 }
 
-PyObject *
+static PyObject *
 mpzToLongObj (mpz_t m)
 {
 	/* borrowed from gmpy */
@@ -83,8 +100,8 @@ typedef struct
 }
 rsaKey;
 
-PyObject *rsaKey_new (PyObject *, PyObject *);
-PyObject *dsaKey_new (PyObject *, PyObject *);
+static PyObject *rsaKey_new (PyObject *, PyObject *);
+static PyObject *dsaKey_new (PyObject *, PyObject *);
 
 static void dsaKey_dealloc (dsaKey *);
 static PyObject *dsaKey_getattr (dsaKey *, char *);
@@ -289,7 +306,7 @@ static PyMethodDef dsaKey__methods__[] = {
 	{NULL, NULL, 0, NULL}
 };
 
-PyObject *fastmathError;							/* raised on errors */
+static PyObject *fastmathError;							/* raised on errors */
 
 static PyTypeObject rsaKeyType = {
 	PyObject_HEAD_INIT (NULL) 0,
@@ -329,7 +346,7 @@ static PyMethodDef rsaKey__methods__[] = {
 	{NULL, NULL, 0, NULL}
 };
 
-PyObject *
+static PyObject *
 dsaKey_new (PyObject * self, PyObject * args)
 {
 	PyLongObject *y = NULL, *g = NULL, *p = NULL, *q = NULL, *x = NULL;
@@ -394,7 +411,7 @@ dsaKey_getattr (dsaKey * key, char *attr)
 	}
 }
 
-PyObject *
+static PyObject *
 dsaKey__sign (dsaKey * key, PyObject * args)
 {
 	PyObject *lm, *lk, *lr, *ls;
@@ -414,7 +431,7 @@ dsaKey__sign (dsaKey * key, PyObject * args)
 	result = dsaSign (key, m, k, r, s);
 	if (result == 1)
 	{
-		PyErr_SetString (fastmathError, "K not between 2 and q");
+		PyErr_SetString (PyExc_ValueError, "K not between 2 and q");
 		return NULL;
 	}
 	lr = mpzToLongObj (r);
@@ -426,7 +443,7 @@ dsaKey__sign (dsaKey * key, PyObject * args)
 	return Py_BuildValue ("(NN)", lr, ls);
 }
 
-PyObject *
+static PyObject *
 dsaKey__verify (dsaKey * key, PyObject * args)
 {
 	PyObject *lm, *lr, *ls;
@@ -456,7 +473,7 @@ dsaKey__verify (dsaKey * key, PyObject * args)
 	}
 }
 
-PyObject *
+static PyObject *
 dsaKey_size (dsaKey * key, PyObject * args)
 {
 	if (!PyArg_ParseTuple (args, ""))
@@ -464,7 +481,7 @@ dsaKey_size (dsaKey * key, PyObject * args)
 	return Py_BuildValue ("i", mpz_sizeinbase (key->p, 2) - 1);
 }
 
-PyObject *
+static PyObject *
 dsaKey_has_private (dsaKey * key, PyObject * args)
 {
 	if (!PyArg_ParseTuple (args, ""))
@@ -478,7 +495,7 @@ dsaKey_has_private (dsaKey * key, PyObject * args)
         }
 }
 
-PyObject *
+static PyObject *
 rsaKey_new (PyObject * self, PyObject * args)
 {
 	PyLongObject *n = NULL, *e = NULL, *d = NULL, *p = NULL, *q = NULL, 
@@ -584,7 +601,7 @@ rsaKey_getattr (rsaKey * key, char *attr)
 	}
 }
 
-PyObject *
+static PyObject *
 rsaKey__encrypt (rsaKey * key, PyObject * args)
 {
 	PyObject *l, *r;
@@ -599,7 +616,7 @@ rsaKey__encrypt (rsaKey * key, PyObject * args)
 	result = rsaEncrypt (key, v);
 	if (result == 1)
 	{
-		PyErr_SetString (fastmathError, "Plaintext too large");
+		PyErr_SetString (PyExc_ValueError, "Plaintext too large");
 		return NULL;
 	}
 	r = (PyObject *) mpzToLongObj (v);
@@ -607,7 +624,7 @@ rsaKey__encrypt (rsaKey * key, PyObject * args)
 	return Py_BuildValue ("N", r);
 }
 
-PyObject *
+static PyObject *
 rsaKey__decrypt (rsaKey * key, PyObject * args)
 {
 	PyObject *l, *r;
@@ -622,13 +639,13 @@ rsaKey__decrypt (rsaKey * key, PyObject * args)
 	result = rsaDecrypt (key, v);
 	if (result == 1)
 	{
-		PyErr_SetString (fastmathError, 
+		PyErr_SetString (PyExc_ValueError,
 				 "Ciphertext too large");
 		return NULL;
 	}
 	else if (result == 2)
 	{
-		PyErr_SetString (fastmathError, 
+		PyErr_SetString (PyExc_TypeError,
 				 "Private key not available in this object");
 		return NULL;
 	}
@@ -637,7 +654,7 @@ rsaKey__decrypt (rsaKey * key, PyObject * args)
 	return Py_BuildValue ("N", r);
 }
 
-PyObject *
+static PyObject *
 rsaKey__verify (rsaKey * key, PyObject * args)
 {
 	PyObject *l, *lsig;
@@ -662,7 +679,7 @@ rsaKey__verify (rsaKey * key, PyObject * args)
         }
 }
 
-PyObject *
+static PyObject *
 rsaKey__blind (rsaKey * key, PyObject * args)
 {
 	PyObject *l, *lblind, *r;
@@ -680,12 +697,12 @@ rsaKey__blind (rsaKey * key, PyObject * args)
 	result = rsaBlind (key, v, vblind);
 	if (result == 1)
 		{
-			PyErr_SetString (fastmathError, "Message too large");
+			PyErr_SetString (PyExc_ValueError, "Message too large");
 			return NULL;
 		}
 	else if (result == 2)
 		{
-			PyErr_SetString (fastmathError, "Blinding factor too large");
+			PyErr_SetString (PyExc_ValueError, "Blinding factor too large");
 			return NULL;
 		}
 	r = (PyObject *) mpzToLongObj (v);
@@ -694,7 +711,7 @@ rsaKey__blind (rsaKey * key, PyObject * args)
 	return Py_BuildValue ("N", r);
 }
 
-PyObject *
+static PyObject *
 rsaKey__unblind (rsaKey * key, PyObject * args)
 {
 	PyObject *l, *lblind, *r;
@@ -712,17 +729,17 @@ rsaKey__unblind (rsaKey * key, PyObject * args)
 	result = rsaUnBlind (key, v, vblind);
 	if (result == 1)
 		{
-			PyErr_SetString (fastmathError, "Message too large");
+			PyErr_SetString (PyExc_ValueError, "Message too large");
 			return NULL;
 		}
 	else if (result == 2)
 		{
-			PyErr_SetString (fastmathError, "Blinding factor too large");
+			PyErr_SetString (PyExc_ValueError, "Blinding factor too large");
 			return NULL;
 		}
 	else if (result == 3)
 		{
-			PyErr_SetString (fastmathError, "Inverse doesn't exist");
+			PyErr_SetString (PyExc_ValueError, "Inverse doesn't exist");
 			return NULL;
 		}
 	r = (PyObject *) mpzToLongObj (v);
@@ -730,8 +747,8 @@ rsaKey__unblind (rsaKey * key, PyObject * args)
 	mpz_clear (vblind);
 	return Py_BuildValue ("N", r);
 }
-  
-PyObject *
+
+static PyObject *
 rsaKey_size (rsaKey * key, PyObject * args)
 {
 	if (!PyArg_ParseTuple (args, ""))
@@ -739,7 +756,7 @@ rsaKey_size (rsaKey * key, PyObject * args)
 	return Py_BuildValue ("i", mpz_sizeinbase (key->n, 2) - 1);
 }
 
-PyObject *
+static PyObject *
 rsaKey_has_private (rsaKey * key, PyObject * args)
 {
 	if (!PyArg_ParseTuple (args, ""))
@@ -754,7 +771,7 @@ rsaKey_has_private (rsaKey * key, PyObject * args)
 }
 
 
-PyObject *
+static PyObject *
 isPrime (PyObject * self, PyObject * args)
 {
 	PyObject *l;
@@ -768,7 +785,9 @@ isPrime (PyObject * self, PyObject * args)
 	mpz_init (n);
 	longObjToMPZ (n, (PyLongObject *) l);
 
+	Py_BEGIN_ALLOW_THREADS;
 	result = mpz_probab_prime_p(n, 5);
+	Py_END_ALLOW_THREADS;
 
 	mpz_clear (n);
 

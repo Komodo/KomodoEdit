@@ -1,20 +1,53 @@
-
 /*
  *  rc2.c : Source code for the RC2 block cipher
  *
  * Part of the Python Cryptography Toolkit
  *
- * Distribute and use freely; there are no restrictions on further 
- * dissemination and usage except those imposed by the laws of your 
- * country of residence.
+ * ===================================================================
+ * This file appears to contain code from the ARC2 implementation
+ * "rc2.c" implementation (the "Original Code"), with modifications made
+ * after it was incorporated into PyCrypto (the "Modifications").
+ *
+ * To the best of our knowledge, the Original Code was placed into the
+ * public domain by its (anonymous) author:
+ *
+ *  **********************************************************************
+ * * To commemorate the 1996 RSA Data Security Conference, the following  *
+ * * code is released into the public domain by its author.  Prost!       *
+ * *                                                                      *
+ * * This cipher uses 16-bit words and little-endian byte ordering.       *
+ * * I wonder which processor it was optimized for?                       *
+ * *                                                                      *
+ * * Thanks to CodeView, SoftIce, and D86 for helping bring this code to  *
+ * * the public.                                                          *
+ *  **********************************************************************
+ *
+ * The Modifications to this file are dedicated to the public domain.
+ * To the extent that dedication to the public domain is not available,
+ * everyone is granted a worldwide, perpetual, royalty-free,
+ * non-exclusive license to exercise all rights associated with the
+ * contents of this file for any purpose whatsoever.  No rights are
+ * reserved.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * ===================================================================
  *
  */
 
 #include <string.h>  
+#include "Python.h"
 
 #define MODULE_NAME ARC2
 #define BLOCK_SIZE 8
 #define KEY_SIZE 0
+#define PCT_ARC2_MODULE  /* Defined to get ARC2's additional keyword arguments */
 
 typedef unsigned int U32;
 typedef unsigned short U16;
@@ -23,6 +56,7 @@ typedef unsigned char U8;
 typedef struct 
 {
 	U16 xkey[64];
+        int effective_keylen;
 } block_state;
 
 static void
@@ -142,9 +176,11 @@ block_init(block_state *self, U8 *key, int keylength)
 		197,243,219, 71,229,165,156,119, 10,166, 32,104,254,127,193,173
         };
 
-	/* The "bits" value may be some sort of export control weakening.
-	   We'll hardwire it to 1024. */
-#define bits 1024
+	if ((U32)keylength > sizeof(self->xkey)) {
+		PyErr_SetString(PyExc_ValueError,
+				"ARC2 key length must be less than 128 bytes");
+		return;
+	}
 
 	memcpy(self->xkey, key, keylength);
   
@@ -158,12 +194,12 @@ block_init(block_state *self, U8 *key, int keylength)
                 } while (keylength < 128);
 	}
   
-	/* Phase 2 - reduce effective key size to "bits" */
-	keylength = (bits+7) >> 3;
+	/* Phase 2 - reduce effective key size to "effective_keylen" */
+        keylength = (self->effective_keylen+7) >> 3;
 	i = 128-keylength;
 	x = permute[((U8 *)self->xkey)[i] & (255 >>
 					     (7 &
-					      ((bits %8 ) ? 8-(bits%8): 0))
+					      ((self->effective_keylen %8 ) ? 8-(self->effective_keylen%8): 0))
 		)];
 	((U8 *)self->xkey)[i] = x;
   
@@ -180,6 +216,5 @@ block_init(block_state *self, U8 *key, int keylength)
 	} while (i--);
 }
 
-#undef bits
 
 #include "block_template.c"

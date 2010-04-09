@@ -3,12 +3,25 @@
 /*
  *  block_template.c : Generic framework for block encryption algorithms
  *
- * Distribute and use freely; there are no restrictions on further 
- * dissemination and usage except those imposed by the laws of your 
- * country of residence.  This software is provided "as is" without
- * warranty of fitness for use or suitability for any purpose, express
- * or implied. Use at your own risk or not at all. 
+ * Written by Andrew Kuchling and others
  *
+ * ===================================================================
+ * The contents of this file are dedicated to the public domain.  To
+ * the extent that dedication to the public domain is not available,
+ * everyone is granted a worldwide, perpetual, royalty-free,
+ * non-exclusive license to exercise all rights associated with the
+ * contents of this file for any purpose whatsoever.
+ * No rights are reserved.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * ===================================================================
  */
 
 
@@ -22,6 +35,8 @@
 
 #include "Python.h"
 #include "modsupport.h" 
+
+#include "_counter.h"
 
 /* Cipher operation modes */
 
@@ -45,6 +60,7 @@ typedef struct
 	int mode, count, segment_size;
 	unsigned char IV[BLOCK_SIZE], oldCipher[BLOCK_SIZE];
 	PyObject *counter;
+	int counter_shortcut;
 	block_state st;
 } ALGobject;
 
@@ -59,6 +75,7 @@ newALGobject(void)
 	new = PyObject_New(ALGobject, &ALGtype);
 	new->mode = MODE_ECB;
 	new->counter = NULL;
+	new->counter_shortcut = 0;
 	return new;
 }
 
@@ -82,8 +99,8 @@ static char ALGnew__doc__[] =
 "new(key, [mode], [IV]): Return a new " _MODULE_STRING " encryption object.";
 
 static char *kwlist[] = {"key", "mode", "IV", "counter", "segment_size",
-#ifdef PCT_RC5_MODULE
-			 "version", "word_size", "rounds",
+#ifdef PCT_ARC2_MODULE
+                         "effective_keylen",
 #endif
 			 NULL};
 
@@ -94,19 +111,20 @@ ALGnew(PyObject *self, PyObject *args, PyObject *kwdict)
 	ALGobject * new=NULL;
 	int keylen, IVlen=0, mode=MODE_ECB, segment_size=0;
 	PyObject *counter = NULL;
-#ifdef PCT_RC5_MODULE
-	int version = 0x10, word_size = 32, rounds = 16; /*XXX default rounds? */
-#endif 
+	int counter_shortcut = 0;
+#ifdef PCT_ARC2_MODULE
+        int effective_keylen = 1024;    /* this is a weird default, but it's compatible with old versions of PyCrypto */
+#endif
 	/* Set default values */
 	if (!PyArg_ParseTupleAndKeywords(args, kwdict, "s#|is#Oi"
-#ifdef PCT_RC5_MODULE
-					 "iii"
-#endif 
+#ifdef PCT_ARC2_MODULE
+					 "i"
+#endif
 					 , kwlist,
 					 &key, &keylen, &mode, &IV, &IVlen,
 					 &counter, &segment_size
-#ifdef PCT_RC5_MODULE
-					 , &version, &word_size, &rounds
+#ifdef PCT_ARC2_MODULE
+					 , &effective_keylen
 #endif
 		)) 
 	{
@@ -143,45 +161,42 @@ ALGnew(PyObject *self, PyObject *args, PyObject *kwdict)
 	/* Mode-specific checks */
 	if (mode == MODE_CFB) {
 		if (segment_size == 0) segment_size = 8;
-		if (segment_size < 1 || segment_size > BLOCK_SIZE*8) {
+		if (segment_size < 1 || segment_size > BLOCK_SIZE*8 || ((segment_size & 7) != 0)) {
 			PyErr_Format(PyExc_ValueError, 
-				     "segment_size must be multiple of 8 "
-				     "between 1 and %i", BLOCK_SIZE);
+				     "segment_size must be multiple of 8 (bits) "
+				     "between 1 and %i", BLOCK_SIZE*8);
+			return NULL;
 		}
 	}
 
 	if (mode == MODE_CTR) {
-		if (!PyCallable_Check(counter)) {
+		if (counter == NULL) {
+			PyErr_SetString(PyExc_TypeError,
+					"'counter' keyword parameter is required with CTR mode");
+			return NULL;
+		} else if (PyObject_HasAttrString(counter, "__PCT_CTR_SHORTCUT__")) {
+			counter_shortcut = 1;
+		} else if (!PyCallable_Check(counter)) {
 			PyErr_SetString(PyExc_ValueError, 
 					"'counter' parameter must be a callable object");
+			return NULL;
 		}
 	} else {
 		if (counter != NULL) {
 			PyErr_SetString(PyExc_ValueError, 
 					"'counter' parameter only useful with CTR mode");
+			return NULL;
 		}
 	}
 
 	/* Cipher-specific checks */
-#ifdef PCT_RC5_MODULE
-	if (version!=0x10) {
+#ifdef PCT_ARC2_MODULE
+        if (effective_keylen<0 || effective_keylen>1024) {
 		PyErr_Format(PyExc_ValueError,
-			     "RC5: Bad RC5 algorithm version: %i",
-			     version);
+			     "RC2: effective_keylen must be between 0 and 1024, not %i",
+			     effective_keylen);
 		return NULL;
-	}
-	if (word_size!=16 && word_size!=32) {
-		PyErr_Format(PyExc_ValueError,
-			     "RC5: Unsupported word size: %i",
-			     word_size);
-		return NULL;
-	}
-	if (rounds<0 || 255<rounds) {
-		PyErr_Format(PyExc_ValueError,
-			     "RC5: rounds must be between 0 and 255, not %i",
-			     rounds);
-		return NULL;
-	}
+        }
 #endif
 
 	/* Copy parameters into object */
@@ -189,15 +204,15 @@ ALGnew(PyObject *self, PyObject *args, PyObject *kwdict)
 	new->segment_size = segment_size;
 	new->counter = counter;
 	Py_XINCREF(counter);
-#ifdef PCT_RC5_MODULE
-	new->st.version = version;
-	new->st.word_size = word_size;
-	new->st.rounds = rounds;
+	new->counter_shortcut = counter_shortcut;
+#ifdef PCT_ARC2_MODULE
+        new->st.effective_keylen = effective_keylen;
 #endif
 
 	block_init(&(new->st), key, keylen);
 	if (PyErr_Occurred())
 	{
+		Py_XDECREF(counter);
 		Py_DECREF(new);
 		return NULL;
 	}
@@ -205,7 +220,14 @@ ALGnew(PyObject *self, PyObject *args, PyObject *kwdict)
 	memset(new->oldCipher, 0, BLOCK_SIZE);
 	memcpy(new->IV, IV, IVlen);
 	new->mode = mode;
-	new->count=8;
+	switch(mode) {
+	case MODE_PGP:
+	    new->count=8;
+	    break;
+	case MODE_CTR:
+	default:
+	    new->count=BLOCK_SIZE;   /* stores how many bytes in new->oldCipher have been used */
+	}
 	return new;
 }
 
@@ -227,7 +249,8 @@ ALG_Encrypt(ALGobject *self, PyObject *args)
 		return PyString_FromStringAndSize(NULL, 0);
 	}
 	if ( (len % BLOCK_SIZE) !=0 && 
-	     (self->mode!=MODE_CFB) && (self->mode!=MODE_PGP))
+	     (self->mode!=MODE_CFB) && (self->mode!=MODE_PGP) &&
+	     (self->mode!=MODE_CTR))
 	{
 		PyErr_Format(PyExc_ValueError, 
 			     "Input strings must be "
@@ -252,6 +275,7 @@ ALG_Encrypt(ALGobject *self, PyObject *args)
 				_MODULE_STRING " encrypt");
 		return NULL;
 	}
+	Py_BEGIN_ALLOW_THREADS;
 	switch(self->mode)
 	{
 	case(MODE_ECB):      
@@ -343,41 +367,109 @@ ALG_Encrypt(ALGobject *self, PyObject *args)
 		break;
 
 	case(MODE_CTR):
-		for(i=0; i<len; i+=BLOCK_SIZE) 
-		{
-			PyObject *ctr = PyObject_CallObject(self->counter, NULL);
-			if (ctr == NULL) {
-				free(buffer);
-				return NULL;
+		/* CTR mode is a stream cipher whose keystream is generated by encrypting unique counter values.
+		 * - self->counter points to the Counter callable, which is
+		 *   responsible for generating keystream blocks
+		 * - self->count indicates the current offset within the current keystream block
+		 * - self->IV stores the current keystream block
+		 * - str stores the input string
+		 * - buffer stores the output string
+		 * - len indicates the length if the input and output strings
+		 * - i indicates the current offset within the input and output strings
+		 * - (len-i) is the number of bytes remaining to encrypt
+		 * - (BLOCK_SIZE-self->count) is the number of bytes remaining in the current keystream block
+		 */
+		i = 0;
+		while (i < len) {
+			/* If we don't need more than what remains of the current keystream block, then just XOR it in */
+			if (len-i <= BLOCK_SIZE-self->count) { /* remaining_bytes_to_encrypt <= remaining_bytes_in_IV */
+				/* XOR until the input is used up */
+				for(j=0; j<(len-i); j++) {
+					assert(i+j < len);
+					assert(self->count+j < BLOCK_SIZE);
+					buffer[i+j] = (self->IV[self->count+j] ^= str[i+j]);
+				}
+				self->count += len-i;
+				i = len;
+				continue;
 			}
-			if (!PyString_Check(ctr))
-			{
-				PyErr_SetString(PyExc_TypeError, 
-						"CTR counter function didn't return a string");
+
+			/* Use up the current keystream block */
+			for(j=0; j<BLOCK_SIZE-self->count; j++) {
+				assert(i+j < len);
+				assert(self->count+j < BLOCK_SIZE);
+				buffer[i+j] = (self->IV[self->count+j] ^= str[i+j]);
+			}
+			i += BLOCK_SIZE-self->count;
+			self->count = BLOCK_SIZE;
+
+			/* Generate a new keystream block */
+			if (self->counter_shortcut) {
+				/* CTR mode shortcut: If we're using Util.Counter,
+				 * bypass the normal Python function call mechanism
+				 * and manipulate the counter directly. */
+
+				PCT_CounterObject *ctr = (PCT_CounterObject *)(self->counter);
+				if (ctr->carry && !ctr->allow_wraparound) {
+					Py_BLOCK_THREADS;
+					PyErr_SetString(PyExc_OverflowError,
+							"counter wrapped without allow_wraparound");
+					free(buffer);
+					return NULL;
+				}
+				if (ctr->buf_size != BLOCK_SIZE) {
+					Py_BLOCK_THREADS;
+					PyErr_Format(PyExc_TypeError,
+						     "CTR counter function returned "
+						     "string not of length %i",
+						     BLOCK_SIZE);
+					free(buffer);
+					return NULL;
+				}
+				block_encrypt(&(self->st),
+					      (unsigned char *)ctr->val,
+					      self->IV);
+				ctr->inc_func(ctr);
+			} else {
+				PyObject *ctr;
+				Py_BLOCK_THREADS;
+				ctr = PyObject_CallObject(self->counter, NULL);
+				if (ctr == NULL) {
+					free(buffer);
+					return NULL;
+				}
+				if (!PyString_Check(ctr))
+				{
+					PyErr_SetString(PyExc_TypeError,
+							"CTR counter function didn't return a string");
+					Py_DECREF(ctr);
+					free(buffer);
+					return NULL;
+				}
+				if (PyString_Size(ctr) != BLOCK_SIZE) {
+					PyErr_Format(PyExc_TypeError,
+						     "CTR counter function returned "
+						     "string not of length %i",
+						     BLOCK_SIZE);
+					Py_DECREF(ctr);
+					free(buffer);
+					return NULL;
+				}
+				Py_UNBLOCK_THREADS;
+				block_encrypt(&(self->st), (unsigned char *)PyString_AsString(ctr),
+					      self->IV);
+				Py_BLOCK_THREADS;
 				Py_DECREF(ctr);
-				free(buffer);
-				return NULL;
+				Py_UNBLOCK_THREADS;
 			}
-			if (PyString_Size(ctr) != BLOCK_SIZE) {
-				PyErr_Format(PyExc_TypeError, 
-					     "CTR counter function returned "
-					     "string not of length %i",
-					     BLOCK_SIZE);
-				Py_DECREF(ctr);
-				free(buffer);
-				return NULL;
-			}
-			block_encrypt(&(self->st), PyString_AsString(ctr), 
-				      temp);
-			Py_DECREF(ctr);
-			for(j=0; j<BLOCK_SIZE; j++)
-			{
-				buffer[i+j] = str[i+j]^temp[j];
-			}
+
+			/* Move the pointer to the start of the keystream block */
+			self->count = 0;
 		}
 		break;
 
 	default:
+		Py_BLOCK_THREADS;
 		PyErr_Format(PyExc_SystemError, 
 			     "Unknown ciphertext feedback mode %i; "
 			     "this shouldn't happen",
@@ -385,7 +477,8 @@ ALG_Encrypt(ALGobject *self, PyObject *args)
 		free(buffer);
 		return NULL;
 	}
-	result=PyString_FromStringAndSize(buffer, len);
+	Py_END_ALLOW_THREADS;
+	result=PyString_FromStringAndSize((char *) buffer, len);
 	free(buffer);
 	return(result);
 }
@@ -401,7 +494,11 @@ ALG_Decrypt(ALGobject *self, PyObject *args)
 	unsigned char temp[BLOCK_SIZE];
 	int i, j, len;
 	PyObject *result;
-  
+
+	/* CTR mode decryption is identical to encryption */
+	if (self->mode == MODE_CTR)
+		return ALG_Encrypt(self, args);
+
 	if (!PyArg_Parse(args, "s#", &str, &len))
 		return NULL;
 	if (len==0)			/* Handle empty string */
@@ -433,6 +530,7 @@ ALG_Decrypt(ALGobject *self, PyObject *args)
 				" decrypt");
 		return NULL;
 	}
+	Py_BEGIN_ALLOW_THREADS;
 	switch(self->mode)
 	{
 	case(MODE_ECB):      
@@ -535,39 +633,8 @@ ALG_Decrypt(ALGobject *self, PyObject *args)
 		}      
 		break;
 
-	case (MODE_CTR):
-		for(i=0; i<len; i+=BLOCK_SIZE) 
-		{
-			PyObject *ctr = PyObject_CallObject(self->counter, NULL);
-			if (ctr == NULL) {
-				free(buffer);
-				return NULL;
-			}
-			if (!PyString_Check(ctr))
-			{
-				PyErr_SetString(PyExc_TypeError, 
-						"CTR counter function didn't return a string");
-				Py_DECREF(ctr);
-				free(buffer);
-				return NULL;
-			}
-			if (PyString_Size(ctr) != BLOCK_SIZE) {
-				PyErr_SetString(PyExc_TypeError, 
-						"CTR counter function returned string of incorrect length");
-				Py_DECREF(ctr);
-				free(buffer);
-				return NULL;
-			}
-			block_encrypt(&(self->st), PyString_AsString(ctr), temp);
-			Py_DECREF(ctr);
-			for(j=0; j<BLOCK_SIZE; j++)
-			{
-				buffer[i+j] = str[i+j]^temp[j];
-			}
-		}
-		break;
-
 	default:
+		Py_BLOCK_THREADS;
 		PyErr_Format(PyExc_SystemError, 
 			     "Unknown ciphertext feedback mode %i; "
 			     "this shouldn't happen",
@@ -575,7 +642,8 @@ ALG_Decrypt(ALGobject *self, PyObject *args)
 		free(buffer);
 		return NULL;
 	}
-	result=PyString_FromStringAndSize(buffer, len);
+	Py_END_ALLOW_THREADS;
+	result=PyString_FromStringAndSize((char *) buffer, len);
 	free(buffer);
 	return(result);
 }
@@ -677,7 +745,7 @@ ALGgetattr(PyObject *s, char *name)
   ALGobject *self = (ALGobject*)s;
   if (strcmp(name, "IV") == 0) 
     {
-      return(PyString_FromStringAndSize(self->IV, BLOCK_SIZE));
+      return(PyString_FromStringAndSize((char *) self->IV, BLOCK_SIZE));
     }
   if (strcmp(name, "mode") == 0)
      {
@@ -751,3 +819,4 @@ _MODULE_NAME (void)
 		Py_FatalError("can't initialize module " _MODULE_STRING);
 }
 
+/* vim:set ts=8 sw=8 sts=0 noexpandtab: */
