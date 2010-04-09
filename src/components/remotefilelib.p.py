@@ -668,6 +668,14 @@ class koRFConnection:
         finally:
             self._lock.release()
 
+    def invalidatePath(self, path, invalidateChildren):
+        if not self._lock.acquire(blocking=False):
+            self._raiseServerException("Could not acquire remote connection lock. Multi-threaded access detected!")
+        try:
+            self._removeFromCache(path, removeChildNodes=invalidateChildren)
+        finally:
+            self._lock.release()
+
     #
     # These XPcom methods should NOT be implemented/overwritten in child classes
     #

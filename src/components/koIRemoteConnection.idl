@@ -67,7 +67,10 @@ interface koIRemoteConnection : nsISupports {
 
     void readFile(in wstring name, out unsigned long count, [array, size_is(count), retval] out octet text);
     void writeFile(in wstring name, [array, size_is(count)] in octet text, in unsigned long count);
-    
+
+    // Remove any cached information held for this path.
+    void invalidatePath(in wstring path, in boolean invalidateChildren);
+
     attribute wstring alias;   // Server pref alias for connection
     readonly attribute wstring protocol;
     readonly attribute wstring server;
