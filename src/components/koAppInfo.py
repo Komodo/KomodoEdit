@@ -152,9 +152,13 @@ class KoPerlInfoEx(KoAppInfoEx):
         perlVersionDump, stderr = p.communicate()
         # Old perls look like: This is perl, version 5.005_03 built for MSWin32-x86-object
         # New perls look like: This is perl, v5.6.1 built for MSWin32-x86-multi-thread
-        perlVersionMatch = re.search("This is perl, v(?:ersion )?([0-9._]+)", perlVersionDump)
-        if perlVersionMatch:
-            return perlVersionMatch.group(1)
+        patterns = ["This is perl, v(?:ersion )?([0-9._]+)",
+                    "This is perl \d+, version \d+, subversion \d+ \(v([0-9._]+)\)",
+                    ]
+        for ptn in patterns:
+            perlVersionMatch = re.search(ptn, perlVersionDump)
+            if perlVersionMatch:
+                return perlVersionMatch.group(1)
         return ''
         
     def get_version(self):
