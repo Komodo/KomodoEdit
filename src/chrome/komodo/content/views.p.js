@@ -653,7 +653,9 @@ viewManager.prototype._newViewFromURI = function(uri,
         }
     }
     if (doc.file.isDirectory) {
-        ko.dialogs.alert(_bundle.formatStringFromName("komodoCannotOpenDirectories.alert", [doc.file.path], 1));
+        if (!this.notify_visited_directory(doc.file.path)) {
+            ko.dialogs.alert(_bundle.formatStringFromName("komodoCannotOpenDirectories.alert", [doc.file.path], 1));
+        }
         return null;
     }
     try {
@@ -2455,6 +2457,22 @@ viewManager.prototype.do_cmd_saveAsTemplate = function () {
         doc.save(0);
     } catch(ex) {
         this.log.exception(ex, "Error saving the current view as a template.");
+    }
+}
+
+
+viewManager.prototype.notify_visited_directory = function(path) {
+    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+        getService(Components.interfaces.nsIObserverService);
+    var cancelQuit = Components.classes["@mozilla.org/supports-PRBool;1"]
+        .createInstance(Components.interfaces.nsISupportsPRBool);
+    try {
+        observerSvc.notifyObservers(cancelQuit, 'visit_directory_proposed',
+                                    path);
+        return cancelQuit.data;
+    } catch(ex) {
+        /* no listeners for this event */
+        return false;
     }
 }
 

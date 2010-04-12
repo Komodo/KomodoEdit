@@ -118,6 +118,9 @@ function Findtoolbar_OpenTextboxKeyPress(field, event) {
                     }
                 } else {
                     if (_gOsPath.isdir(abspath)) {
+                        if (ko.views.manager.notify_visited_directory(abspath)){
+                            return;
+                        }
                         // Don't do anything w/ directories, just get ready to
                         // continue.
                         field.setSelectionRange(field.textLength,
