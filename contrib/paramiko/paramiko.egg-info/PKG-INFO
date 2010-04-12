@@ -1,12 +1,12 @@
 Metadata-Version: 1.0
 Name: paramiko
-Version: 1.7.5
+Version: 1.7.6
 Summary: SSH2 protocol library
 Home-page: http://www.lag.net/paramiko/
 Author: Robey Pointer
 Author-email: robeypointer@gmail.com
 License: LGPL
-Download-URL: http://www.lag.net/paramiko/download/paramiko-1.7.5.zip
+Download-URL: http://www.lag.net/paramiko/download/paramiko-1.7.6.zip
 Description: 
         This is a library for making SSH2 connections (client or server).
         Emphasis is on using SSH2 as an alternative to SSL for making secure

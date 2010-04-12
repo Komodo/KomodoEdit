@@ -89,7 +89,7 @@
 </div><div id="HostKeyEntry-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="HostKeyEntry-expanded"><a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
 <a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line"><tt class="py-docstring">    Representation of a line in an OpenSSH-style "known hosts" file.</tt> </tt>
 <a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
-<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line">     </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"> </tt>
 <a name="HostKeyEntry.__init__"></a><div id="HostKeyEntry.__init__-def"><a name="L37"></a><tt class="py-lineno"> 37</tt> <a class="py-toggle" href="#" id="HostKeyEntry.__init__-toggle" onclick="return toggle('HostKeyEntry.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.hostkeys.HostKeyEntry-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">hostnames</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="HostKeyEntry.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HostKeyEntry.__init__-expanded"><a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">valid</tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt class="py-name">hostnames</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt> <tt class="py-keyword">and</tt> <tt class="py-op">(</tt><tt class="py-name">key</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt> </tt>
 <a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">hostnames</tt> <tt class="py-op">=</tt> <tt class="py-name">hostnames</tt> </tt>
@@ -143,7 +143,7 @@ paramiko.PKey.get_name
 paramiko.RSAKey.get_name" class="py-name" href="#" onclick="return doclink('link-12', 'get_name', 'link-12');">get_name</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> </tt>
 <a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">                   <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">key</tt><tt class="py-op">.</tt><tt id="link-13" class="py-name" targets="Method paramiko.PKey.get_base64()=paramiko.PKey-class.html#get_base64"><a title="paramiko.PKey.get_base64" class="py-name" href="#" onclick="return doclink('link-13', 'get_base64', 'link-13');">get_base64</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
 <a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">None</tt> </tt>
-</div><a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">     </tt>
+</div><a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line"> </tt>
 <a name="HostKeyEntry.__repr__"></a><div id="HostKeyEntry.__repr__-def"><a name="L87"></a><tt class="py-lineno"> 87</tt> <a class="py-toggle" href="#" id="HostKeyEntry.__repr__-toggle" onclick="return toggle('HostKeyEntry.__repr__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.hostkeys.HostKeyEntry-class.html#__repr__">__repr__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="HostKeyEntry.__repr__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HostKeyEntry.__repr__-expanded"><a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-string">'&lt;HostKeyEntry %r: %r&gt;'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">hostnames</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">key</tt><tt class="py-op">)</tt> </tt>
 </div></div><a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"> </tt>
@@ -153,18 +153,18 @@ paramiko.RSAKey.get_name" class="py-name" href="#" onclick="return doclink('link
 <a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line"><tt class="py-docstring">    Representation of an openssh-style "known hosts" file.  Host keys can be</tt> </tt>
 <a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line"><tt class="py-docstring">    read from one or more files, and then individual hosts can be looked up to</tt> </tt>
 <a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line"><tt class="py-docstring">    verify server keys during SSH negotiation.</tt> </tt>
-<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"><tt class="py-docstring">    </tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line"><tt class="py-docstring">    A HostKeys object can be treated like a dict; any dict lookup is equivalent</tt> </tt>
 <a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"><tt class="py-docstring">    to calling L{lookup}.</tt> </tt>
-<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"><tt class="py-docstring">    </tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"><tt class="py-docstring">    @since: 1.5.3</tt> </tt>
 <a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
-<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">     </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"> </tt>
 <a name="HostKeys.__init__"></a><div id="HostKeys.__init__-def"><a name="L103"></a><tt class="py-lineno">103</tt> <a class="py-toggle" href="#" id="HostKeys.__init__-toggle" onclick="return toggle('HostKeys.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.hostkeys.HostKeys-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">filename</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="HostKeys.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HostKeys.__init__-expanded"><a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
 <a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line"><tt class="py-docstring">        Create a new HostKeys object, optionally loading keys from an openssh</tt> </tt>
 <a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line"><tt class="py-docstring">        style host-key file.</tt> </tt>
-<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line"><tt class="py-docstring">        @param filename: filename to load host keys from, or C{None}</tt> </tt>
 <a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line"><tt class="py-docstring">        @type filename: str</tt> </tt>
 <a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
@@ -172,12 +172,12 @@ paramiko.RSAKey.get_name" class="py-name" href="#" onclick="return doclink('link
 <a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_entries</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
 <a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">filename</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
 <a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-14" class="py-name" targets="Method paramiko.HostKeys.load()=paramiko.HostKeys-class.html#load"><a title="paramiko.HostKeys.load" class="py-name" href="#" onclick="return doclink('link-14', 'load', 'link-14');">load</a></tt><tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">)</tt> </tt>
-</div><a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">     </tt>
+</div><a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line"> </tt>
 <a name="HostKeys.add"></a><div id="HostKeys.add-def"><a name="L116"></a><tt class="py-lineno">116</tt> <a class="py-toggle" href="#" id="HostKeys.add-toggle" onclick="return toggle('HostKeys.add');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.hostkeys.HostKeys-class.html#add">add</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">hostname</tt><tt class="py-op">,</tt> <tt class="py-param">keytype</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="HostKeys.add-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HostKeys.add-expanded"><a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
 <a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"><tt class="py-docstring">        Add a host key entry to the table.  Any existing entry for a</tt> </tt>
 <a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line"><tt class="py-docstring">        C{(hostname, keytype)} pair will be replaced.</tt> </tt>
-<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"><tt class="py-docstring">        @param hostname: the hostname (or IP) to add</tt> </tt>
 <a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"><tt class="py-docstring">        @type hostname: str</tt> </tt>
 <a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"><tt class="py-docstring">        @param keytype: key type (C{"ssh-rsa"} or C{"ssh-dss"})</tt> </tt>
@@ -194,21 +194,21 @@ paramiko.RSAKey.get_name" class="py-name" href="#" onclick="return doclink('link
 <a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">                <tt class="py-name">e</tt><tt class="py-op">.</tt><tt class="py-name">key</tt> <tt class="py-op">=</tt> <tt class="py-name">key</tt> </tt>
 <a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> </tt>
 <a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_entries</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt id="link-16" class="py-name" targets="Class paramiko.hostkeys.HostKeyEntry=paramiko.hostkeys.HostKeyEntry-class.html"><a title="paramiko.hostkeys.HostKeyEntry" class="py-name" href="#" onclick="return doclink('link-16', 'HostKeyEntry', 'link-16');">HostKeyEntry</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-name">hostname</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">key</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
-</div><a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">             </tt>
+</div><a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line"> </tt>
 <a name="HostKeys.load"></a><div id="HostKeys.load-def"><a name="L134"></a><tt class="py-lineno">134</tt> <a class="py-toggle" href="#" id="HostKeys.load-toggle" onclick="return toggle('HostKeys.load');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.hostkeys.HostKeys-class.html#load">load</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">filename</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="HostKeys.load-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HostKeys.load-expanded"><a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
 <a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line"><tt class="py-docstring">        Read a file of known SSH host keys, in the format used by openssh.</tt> </tt>
 <a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line"><tt class="py-docstring">        This type of file unfortunately doesn't exist on Windows, but on</tt> </tt>
 <a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line"><tt class="py-docstring">        posix, it will usually be stored in</tt> </tt>
 <a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line"><tt class="py-docstring">        C{os.path.expanduser("~/.ssh/known_hosts")}.</tt> </tt>
-<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line"><tt class="py-docstring">        If this method is called multiple times, the host keys are merged,</tt> </tt>
 <a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"><tt class="py-docstring">        not cleared.  So multiple calls to C{load} will just call L{add},</tt> </tt>
 <a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"><tt class="py-docstring">        replacing any existing entries and adding new ones.</tt> </tt>
-<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line"><tt class="py-docstring">        @param filename: name of the file to read host keys from</tt> </tt>
 <a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line"><tt class="py-docstring">        @type filename: str</tt> </tt>
-<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line"><tt class="py-docstring">        @raise IOError: if there was an error reading the file</tt> </tt>
 <a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
 <a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line">        <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt id="link-17" class="py-name" targets="Method paramiko.SFTPServerInterface.open()=paramiko.SFTPServerInterface-class.html#open"><a title="paramiko.SFTPServerInterface.open" class="py-name" href="#" onclick="return doclink('link-17', 'open', 'link-17');">open</a></tt><tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">,</tt> <tt class="py-string">'r'</tt><tt class="py-op">)</tt> </tt>
@@ -231,19 +231,19 @@ paramiko.buffered_pipe.BufferedPipe.close
 paramiko.pipe.PosixPipe.close
 paramiko.pipe.WindowsPipe.close
 paramiko.win_pageant.PageantConnection.close" class="py-name" href="#" onclick="return doclink('link-20', 'close', 'link-20');">close</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
-</div><a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line">     </tt>
+</div><a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line"> </tt>
 <a name="HostKeys.save"></a><div id="HostKeys.save-def"><a name="L160"></a><tt class="py-lineno">160</tt> <a class="py-toggle" href="#" id="HostKeys.save-toggle" onclick="return toggle('HostKeys.save');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.hostkeys.HostKeys-class.html#save">save</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">filename</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="HostKeys.save-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HostKeys.save-expanded"><a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
 <a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line"><tt class="py-docstring">        Save host keys into a file, in the format used by openssh.  The order of</tt> </tt>
 <a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line"><tt class="py-docstring">        keys in the file will be preserved when possible (if these keys were</tt> </tt>
 <a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line"><tt class="py-docstring">        loaded from a file originally).  The single exception is that combined</tt> </tt>
 <a name="L165"></a><tt class="py-lineno">165</tt>  <tt class="py-line"><tt class="py-docstring">        lines will be split into individual key lines, which is arguably a bug.</tt> </tt>
-<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line"><tt class="py-docstring">        @param filename: name of the file to write</tt> </tt>
 <a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"><tt class="py-docstring">        @type filename: str</tt> </tt>
-<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line"><tt class="py-docstring">        @raise IOError: if there was an error writing the file</tt> </tt>
-<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line"><tt class="py-docstring">        @since: 1.6.1</tt> </tt>
 <a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
 <a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line">        <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt id="link-21" class="py-name"><a title="paramiko.SFTPServerInterface.open" class="py-name" href="#" onclick="return doclink('link-21', 'open', 'link-17');">open</a></tt><tt class="py-op">(</tt><tt class="py-name">filename</tt><tt class="py-op">,</tt> <tt class="py-string">'w'</tt><tt class="py-op">)</tt> </tt>
@@ -270,7 +270,7 @@ paramiko.win_pageant.PageantConnection.close" class="py-name" href="#" onclick="
 <a name="L183"></a><tt class="py-lineno">183</tt>  <tt class="py-line"><tt class="py-docstring">        Find a hostkey entry for a given hostname or IP.  If no entry is found,</tt> </tt>
 <a name="L184"></a><tt class="py-lineno">184</tt>  <tt class="py-line"><tt class="py-docstring">        C{None} is returned.  Otherwise a dictionary of keytype to key is</tt> </tt>
 <a name="L185"></a><tt class="py-lineno">185</tt>  <tt class="py-line"><tt class="py-docstring">        returned.  The keytype will be either C{"ssh-rsa"} or C{"ssh-dss"}.</tt> </tt>
-<a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L186"></a><tt class="py-lineno">186</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L187"></a><tt class="py-lineno">187</tt>  <tt class="py-line"><tt class="py-docstring">        @param hostname: the hostname (or IP) to lookup</tt> </tt>
 <a name="L188"></a><tt class="py-lineno">188</tt>  <tt class="py-line"><tt class="py-docstring">        @type hostname: str</tt> </tt>
 <a name="L189"></a><tt class="py-lineno">189</tt>  <tt class="py-line"><tt class="py-docstring">        @return: keys associated with this host (or C{None})</tt> </tt>
@@ -281,7 +281,7 @@ paramiko.win_pageant.PageantConnection.close" class="py-name" href="#" onclick="
 <a name="L194"></a><tt class="py-lineno">194</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_hostname</tt> <tt class="py-op">=</tt> <tt class="py-name">hostname</tt> </tt>
 <a name="L195"></a><tt class="py-lineno">195</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_entries</tt> <tt class="py-op">=</tt> <tt class="py-name">entries</tt> </tt>
 <a name="L196"></a><tt class="py-lineno">196</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_hostkeys</tt> <tt class="py-op">=</tt> <tt id="link-25" class="py-name" targets="Module paramiko.hostkeys=paramiko.hostkeys-module.html"><a title="paramiko.hostkeys" class="py-name" href="#" onclick="return doclink('link-25', 'hostkeys', 'link-25');">hostkeys</a></tt> </tt>
-</div><a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line">             </tt>
+</div><a name="L197"></a><tt class="py-lineno">197</tt>  <tt class="py-line"> </tt>
 <a name="L198"></a><tt class="py-lineno">198</tt>  <tt class="py-line">            <tt class="py-keyword">def</tt> <tt class="py-def-name">__getitem__</tt><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L199"></a><tt class="py-lineno">199</tt>  <tt class="py-line">                <tt class="py-keyword">for</tt> <tt class="py-name">e</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_entries</tt><tt class="py-op">:</tt> </tt>
 <a name="L200"></a><tt class="py-lineno">200</tt>  <tt class="py-line">                    <tt class="py-keyword">if</tt> <tt class="py-name">e</tt><tt class="py-op">.</tt><tt class="py-name">key</tt><tt class="py-op">.</tt><tt id="link-26" class="py-name"><a title="paramiko.AgentKey.get_name
@@ -291,7 +291,7 @@ paramiko.PKey.get_name
 paramiko.RSAKey.get_name" class="py-name" href="#" onclick="return doclink('link-26', 'get_name', 'link-12');">get_name</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> <tt class="py-op">==</tt> <tt class="py-name">key</tt><tt class="py-op">:</tt> </tt>
 <a name="L201"></a><tt class="py-lineno">201</tt>  <tt class="py-line">                        <tt class="py-keyword">return</tt> <tt class="py-name">e</tt><tt class="py-op">.</tt><tt class="py-name">key</tt> </tt>
 <a name="L202"></a><tt class="py-lineno">202</tt>  <tt class="py-line">                <tt class="py-keyword">raise</tt> <tt class="py-name">KeyError</tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt> </tt>
-</div><a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line">             </tt>
+</div><a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line"> </tt>
 <a name="L204"></a><tt class="py-lineno">204</tt>  <tt class="py-line">            <tt class="py-keyword">def</tt> <tt class="py-def-name">__setitem__</tt><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">,</tt> <tt class="py-param">val</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L205"></a><tt class="py-lineno">205</tt>  <tt class="py-line">                <tt class="py-keyword">for</tt> <tt class="py-name">e</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_entries</tt><tt class="py-op">:</tt> </tt>
 <a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line">                    <tt class="py-keyword">if</tt> <tt class="py-name">e</tt><tt class="py-op">.</tt><tt class="py-name">key</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
@@ -309,7 +309,7 @@ paramiko.RSAKey.get_name" class="py-name" href="#" onclick="return doclink('link
 <a name="L214"></a><tt class="py-lineno">214</tt>  <tt class="py-line">                    <tt class="py-name">e</tt> <tt class="py-op">=</tt> <tt id="link-28" class="py-name"><a title="paramiko.hostkeys.HostKeyEntry" class="py-name" href="#" onclick="return doclink('link-28', 'HostKeyEntry', 'link-16');">HostKeyEntry</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-name">hostname</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">val</tt><tt class="py-op">)</tt> </tt>
 <a name="L215"></a><tt class="py-lineno">215</tt>  <tt class="py-line">                    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_entries</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">e</tt><tt class="py-op">)</tt> </tt>
 <a name="L216"></a><tt class="py-lineno">216</tt>  <tt class="py-line">                    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_hostkeys</tt><tt class="py-op">.</tt><tt class="py-name">_entries</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">e</tt><tt class="py-op">)</tt> </tt>
-</div><a name="L217"></a><tt class="py-lineno">217</tt>  <tt class="py-line">             </tt>
+</div><a name="L217"></a><tt class="py-lineno">217</tt>  <tt class="py-line"> </tt>
 <a name="L218"></a><tt class="py-lineno">218</tt>  <tt class="py-line">            <tt class="py-keyword">def</tt> <tt class="py-def-name">keys</tt><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L219"></a><tt class="py-lineno">219</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-op">[</tt><tt class="py-name">e</tt><tt class="py-op">.</tt><tt class="py-name">key</tt><tt class="py-op">.</tt><tt id="link-29" class="py-name"><a title="paramiko.AgentKey.get_name
 paramiko.Channel.get_name
@@ -325,12 +325,12 @@ paramiko.RSAKey.get_name" class="py-name" href="#" onclick="return doclink('link
 <a name="L226"></a><tt class="py-lineno">226</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">entries</tt><tt class="py-op">)</tt> <tt class="py-op">==</tt> <tt class="py-number">0</tt><tt class="py-op">:</tt> </tt>
 <a name="L227"></a><tt class="py-lineno">227</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">None</tt> </tt>
 <a name="L228"></a><tt class="py-lineno">228</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">SubDict</tt><tt class="py-op">(</tt><tt class="py-name">hostname</tt><tt class="py-op">,</tt> <tt class="py-name">entries</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">)</tt> </tt>
-</div><a name="L229"></a><tt class="py-lineno">229</tt>  <tt class="py-line">     </tt>
+</div><a name="L229"></a><tt class="py-lineno">229</tt>  <tt class="py-line"> </tt>
 <a name="HostKeys.check"></a><div id="HostKeys.check-def"><a name="L230"></a><tt class="py-lineno">230</tt> <a class="py-toggle" href="#" id="HostKeys.check-toggle" onclick="return toggle('HostKeys.check');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.hostkeys.HostKeys-class.html#check">check</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">hostname</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="HostKeys.check-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HostKeys.check-expanded"><a name="L231"></a><tt class="py-lineno">231</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
 <a name="L232"></a><tt class="py-lineno">232</tt>  <tt class="py-line"><tt class="py-docstring">        Return True if the given key is associated with the given hostname</tt> </tt>
 <a name="L233"></a><tt class="py-lineno">233</tt>  <tt class="py-line"><tt class="py-docstring">        in this dictionary.</tt> </tt>
-<a name="L234"></a><tt class="py-lineno">234</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L234"></a><tt class="py-lineno">234</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L235"></a><tt class="py-lineno">235</tt>  <tt class="py-line"><tt class="py-docstring">        @param hostname: hostname (or IP) of the SSH server</tt> </tt>
 <a name="L236"></a><tt class="py-lineno">236</tt>  <tt class="py-line"><tt class="py-docstring">        @type hostname: str</tt> </tt>
 <a name="L237"></a><tt class="py-lineno">237</tt>  <tt class="py-line"><tt class="py-docstring">        @param key: the key to check</tt> </tt>
@@ -358,14 +358,14 @@ paramiko.RSAKey.get_name" class="py-name" href="#" onclick="return doclink('link
 <a name="L253"></a><tt class="py-lineno">253</tt>  <tt class="py-line"><tt class="py-docstring">        Remove all host keys from the dictionary.</tt> </tt>
 <a name="L254"></a><tt class="py-lineno">254</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
 <a name="L255"></a><tt class="py-lineno">255</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_entries</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
-</div><a name="L256"></a><tt class="py-lineno">256</tt>  <tt class="py-line">     </tt>
+</div><a name="L256"></a><tt class="py-lineno">256</tt>  <tt class="py-line"> </tt>
 <a name="HostKeys.__getitem__"></a><div id="HostKeys.__getitem__-def"><a name="L257"></a><tt class="py-lineno">257</tt> <a class="py-toggle" href="#" id="HostKeys.__getitem__-toggle" onclick="return toggle('HostKeys.__getitem__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.hostkeys.HostKeys-class.html#__getitem__">__getitem__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">key</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="HostKeys.__getitem__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HostKeys.__getitem__-expanded"><a name="L258"></a><tt class="py-lineno">258</tt>  <tt class="py-line">        <tt class="py-name">ret</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-34" class="py-name"><a title="paramiko.HostKeys.lookup
 paramiko.SSHConfig.lookup" class="py-name" href="#" onclick="return doclink('link-34', 'lookup', 'link-31');">lookup</a></tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt> </tt>
 <a name="L259"></a><tt class="py-lineno">259</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">ret</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
 <a name="L260"></a><tt class="py-lineno">260</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt class="py-name">KeyError</tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">)</tt> </tt>
 <a name="L261"></a><tt class="py-lineno">261</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">ret</tt> </tt>
-</div><a name="L262"></a><tt class="py-lineno">262</tt>  <tt class="py-line">     </tt>
+</div><a name="L262"></a><tt class="py-lineno">262</tt>  <tt class="py-line"> </tt>
 <a name="HostKeys.__setitem__"></a><div id="HostKeys.__setitem__-def"><a name="L263"></a><tt class="py-lineno">263</tt> <a class="py-toggle" href="#" id="HostKeys.__setitem__-toggle" onclick="return toggle('HostKeys.__setitem__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.hostkeys.HostKeys-class.html#__setitem__">__setitem__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">hostname</tt><tt class="py-op">,</tt> <tt class="py-param">entry</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="HostKeys.__setitem__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HostKeys.__setitem__-expanded"><a name="L264"></a><tt class="py-lineno">264</tt>  <tt class="py-line">        <tt class="py-comment"># don't use this please.</tt> </tt>
 <a name="L265"></a><tt class="py-lineno">265</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">entry</tt><tt class="py-op">)</tt> <tt class="py-op">==</tt> <tt class="py-number">0</tt><tt class="py-op">:</tt> </tt>
@@ -384,7 +384,7 @@ paramiko.RSAKey.get_name" class="py-name" href="#" onclick="return doclink('link
 <a name="L274"></a><tt class="py-lineno">274</tt>  <tt class="py-line">                    <tt class="py-name">found</tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt> </tt>
 <a name="L275"></a><tt class="py-lineno">275</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">found</tt><tt class="py-op">:</tt> </tt>
 <a name="L276"></a><tt class="py-lineno">276</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_entries</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt id="link-38" class="py-name"><a title="paramiko.hostkeys.HostKeyEntry" class="py-name" href="#" onclick="return doclink('link-38', 'HostKeyEntry', 'link-16');">HostKeyEntry</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-name">hostname</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">entry</tt><tt class="py-op">[</tt><tt class="py-name">key_type</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
-</div><a name="L277"></a><tt class="py-lineno">277</tt>  <tt class="py-line">     </tt>
+</div><a name="L277"></a><tt class="py-lineno">277</tt>  <tt class="py-line"> </tt>
 <a name="HostKeys.keys"></a><div id="HostKeys.keys-def"><a name="L278"></a><tt class="py-lineno">278</tt> <a class="py-toggle" href="#" id="HostKeys.keys-toggle" onclick="return toggle('HostKeys.keys');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.hostkeys.HostKeys-class.html#keys">keys</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="HostKeys.keys-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HostKeys.keys-expanded"><a name="L279"></a><tt class="py-lineno">279</tt>  <tt class="py-line">        <tt class="py-comment"># python 2.4 sets would be nice here.</tt> </tt>
 <a name="L280"></a><tt class="py-lineno">280</tt>  <tt class="py-line">        <tt class="py-name">ret</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
@@ -405,7 +405,7 @@ paramiko.SSHConfig.lookup" class="py-name" href="#" onclick="return doclink('lin
 </div><div id="HostKeys.hash_host-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="HostKeys.hash_host-expanded"><a name="L294"></a><tt class="py-lineno">294</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
 <a name="L295"></a><tt class="py-lineno">295</tt>  <tt class="py-line"><tt class="py-docstring">        Return a "hashed" form of the hostname, as used by openssh when storing</tt> </tt>
 <a name="L296"></a><tt class="py-lineno">296</tt>  <tt class="py-line"><tt class="py-docstring">        hashed hostnames in the known_hosts file.</tt> </tt>
-<a name="L297"></a><tt class="py-lineno">297</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
+<a name="L297"></a><tt class="py-lineno">297</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
 <a name="L298"></a><tt class="py-lineno">298</tt>  <tt class="py-line"><tt class="py-docstring">        @param hostname: the hostname to hash</tt> </tt>
 <a name="L299"></a><tt class="py-lineno">299</tt>  <tt class="py-line"><tt class="py-docstring">        @type hostname: str</tt> </tt>
 <a name="L300"></a><tt class="py-lineno">300</tt>  <tt class="py-line"><tt class="py-docstring">        @param salt: optional salt to use when hashing (must be 20 bytes long)</tt> </tt>
@@ -478,7 +478,7 @@ expandto(location.href);
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Sun Jul 19 21:28:17 2009
+    Generated by Epydoc 3.0.1 on Sun Nov  1 22:14:20 2009
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

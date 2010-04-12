@@ -119,7 +119,7 @@ paramiko.win_pageant.PageantConnection.close" class="py-name" href="#" onclick="
 <a name="L43"></a><tt class="py-lineno">43</tt>  <tt class="py-line"> </tt>
 <a name="L44"></a><tt class="py-lineno">44</tt>  <tt class="py-line">    <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
 <a name="L45"></a><tt class="py-lineno">45</tt>  <tt class="py-line">    <tt class="py-name">g</tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
-<a name="L46"></a><tt class="py-lineno">46</tt>  <tt class="py-line">     </tt>
+<a name="L46"></a><tt class="py-lineno">46</tt>  <tt class="py-line"> </tt>
 <a name="L47"></a><tt class="py-lineno">47</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">device_path</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
 <a name="L48"></a><tt class="py-lineno">48</tt>  <tt class="py-line">        <tt class="py-name">device_path</tt> <tt class="py-op">=</tt> <tt class="py-string">"/dev/urandom"</tt> </tt>
 <a name="L49"></a><tt class="py-lineno">49</tt>  <tt class="py-line"> </tt>
@@ -131,7 +131,7 @@ paramiko.win_pageant.PageantConnection.close" class="py-name" href="#" onclick="
 <a name="L55"></a><tt class="py-lineno">55</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">EnvironmentError</tt><tt class="py-op">:</tt> </tt>
 <a name="L56"></a><tt class="py-lineno">56</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-8" class="py-name" targets="Class paramiko.rng_posix.error=paramiko.rng_posix.error-class.html,Class paramiko.rng_win32.error=paramiko.rng_win32.error-class.html"><a title="paramiko.rng_posix.error
 paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-8', 'error', 'link-8');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"Unable to open /dev/urandom"</tt><tt class="py-op">)</tt> </tt>
-<a name="L57"></a><tt class="py-lineno">57</tt>  <tt class="py-line">         </tt>
+<a name="L57"></a><tt class="py-lineno">57</tt>  <tt class="py-line"> </tt>
 <a name="L58"></a><tt class="py-lineno">58</tt>  <tt class="py-line">        <tt class="py-comment"># Open a second file descriptor for sanity checking later.</tt> </tt>
 <a name="L59"></a><tt class="py-lineno">59</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
 <a name="L60"></a><tt class="py-lineno">60</tt>  <tt class="py-line">            <tt class="py-name">g</tt> <tt class="py-op">=</tt> <tt id="link-9" class="py-name"><a title="paramiko.SFTPServerInterface.open" class="py-name" href="#" onclick="return doclink('link-9', 'open', 'link-7');">open</a></tt><tt class="py-op">(</tt><tt class="py-name">device_path</tt><tt class="py-op">,</tt> <tt class="py-string">"rb"</tt><tt class="py-op">,</tt> <tt class="py-number">0</tt><tt class="py-op">)</tt> </tt>
@@ -152,7 +152,7 @@ paramiko.SFTPHandle.stat
 paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return doclink('link-13', 'stat', 'link-0');">stat</a></tt><tt class="py-op">.</tt><tt class="py-name">S_ISCHR</tt><tt class="py-op">(</tt><tt class="py-name">st</tt><tt class="py-op">.</tt><tt class="py-name">st_mode</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L67"></a><tt class="py-lineno">67</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-14" class="py-name"><a title="paramiko.rng_posix.error
 paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-14', 'error', 'link-8');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"/dev/urandom is not a character special device"</tt><tt class="py-op">)</tt> </tt>
-<a name="L68"></a><tt class="py-lineno">68</tt>  <tt class="py-line">         </tt>
+<a name="L68"></a><tt class="py-lineno">68</tt>  <tt class="py-line"> </tt>
 <a name="L69"></a><tt class="py-lineno">69</tt>  <tt class="py-line">        <tt class="py-name">st</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">fstat</tt><tt class="py-op">(</tt><tt class="py-name">g</tt><tt class="py-op">.</tt><tt id="link-15" class="py-name"><a title="paramiko.Channel.fileno
 paramiko.pipe.PosixPipe.fileno
 paramiko.pipe.WindowsPipe.fileno" class="py-name" href="#" onclick="return doclink('link-15', 'fileno', 'link-11');">fileno</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt>   <tt class="py-comment"># g</tt> </tt>
@@ -165,7 +165,7 @@ paramiko.SFTPHandle.stat
 paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return doclink('link-17', 'stat', 'link-0');">stat</a></tt><tt class="py-op">.</tt><tt class="py-name">S_ISCHR</tt><tt class="py-op">(</tt><tt class="py-name">st</tt><tt class="py-op">.</tt><tt class="py-name">st_mode</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L71"></a><tt class="py-lineno">71</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-18" class="py-name"><a title="paramiko.rng_posix.error
 paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-18', 'error', 'link-8');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"/dev/urandom is not a character special device"</tt><tt class="py-op">)</tt> </tt>
-<a name="L72"></a><tt class="py-lineno">72</tt>  <tt class="py-line">         </tt>
+<a name="L72"></a><tt class="py-lineno">72</tt>  <tt class="py-line"> </tt>
 <a name="L73"></a><tt class="py-lineno">73</tt>  <tt class="py-line">        <tt class="py-comment"># Check that /dev/urandom always returns the number of bytes requested</tt> </tt>
 <a name="L74"></a><tt class="py-lineno">74</tt>  <tt class="py-line">        <tt class="py-name">x</tt> <tt class="py-op">=</tt> <tt class="py-name">f</tt><tt class="py-op">.</tt><tt id="link-19" class="py-name"><a title="paramiko.BufferedFile.read
 paramiko.SFTPHandle.read
@@ -176,7 +176,7 @@ paramiko.buffered_pipe.BufferedPipe.read" class="py-name" href="#" onclick="retu
 <a name="L76"></a><tt class="py-lineno">76</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">x</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">20</tt> <tt class="py-keyword">or</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">y</tt><tt class="py-op">)</tt> <tt class="py-op">!=</tt> <tt class="py-number">20</tt><tt class="py-op">:</tt> </tt>
 <a name="L77"></a><tt class="py-lineno">77</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-21" class="py-name"><a title="paramiko.rng_posix.error
 paramiko.rng_win32.error" class="py-name" href="#" onclick="return doclink('link-21', 'error', 'link-8');">error</a></tt><tt class="py-op">(</tt><tt class="py-string">"Error reading from /dev/urandom: input truncated"</tt><tt class="py-op">)</tt> </tt>
-<a name="L78"></a><tt class="py-lineno">78</tt>  <tt class="py-line">     </tt>
+<a name="L78"></a><tt class="py-lineno">78</tt>  <tt class="py-line"> </tt>
 <a name="L79"></a><tt class="py-lineno">79</tt>  <tt class="py-line">        <tt class="py-comment"># Check that different reads return different data</tt> </tt>
 <a name="L80"></a><tt class="py-lineno">80</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">x</tt> <tt class="py-op">==</tt> <tt class="py-name">y</tt><tt class="py-op">:</tt> </tt>
 <a name="L81"></a><tt class="py-lineno">81</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-22" class="py-name"><a title="paramiko.rng_posix.error
@@ -263,7 +263,7 @@ expandto(location.href);
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Sun Jul 19 21:28:17 2009
+    Generated by Epydoc 3.0.1 on Sun Nov  1 22:14:18 2009
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

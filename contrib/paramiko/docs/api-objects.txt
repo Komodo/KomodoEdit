@@ -130,6 +130,7 @@ paramiko.client.__package__	paramiko.client-module.html#__package__
 paramiko.client.MSG_DISCONNECT	paramiko.client-module.html#MSG_DISCONNECT
 paramiko.client.DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE	paramiko.client-module.html#DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE
 paramiko.client.MSG_SERVICE_ACCEPT	paramiko.client-module.html#MSG_SERVICE_ACCEPT
+paramiko.client.SSH_PORT	paramiko.client-module.html#SSH_PORT
 paramiko.client.MSG_IGNORE	paramiko.client-module.html#MSG_IGNORE
 paramiko.client.WARNING	paramiko.client-module.html#WARNING
 paramiko.client.MSG_GLOBAL_REQUEST	paramiko.client-module.html#MSG_GLOBAL_REQUEST
@@ -1571,6 +1572,7 @@ paramiko.Channel.recv_stderr	paramiko.Channel-class.html#recv_stderr
 paramiko.Channel.__init__	paramiko.Channel-class.html#__init__
 paramiko.Channel._set_closed	paramiko.Channel-class.html#_set_closed
 paramiko.Channel.exit_status_ready	paramiko.Channel-class.html#exit_status_ready
+paramiko.Channel.request_x11	paramiko.Channel-class.html#request_x11
 paramiko.Channel.recv_ready	paramiko.Channel-class.html#recv_ready
 paramiko.Channel._feed_extended	paramiko.Channel-class.html#_feed_extended
 paramiko.Channel.shutdown_write	paramiko.Channel-class.html#shutdown_write
@@ -1586,7 +1588,7 @@ paramiko.Channel.recv_stderr_ready	paramiko.Channel-class.html#recv_stderr_ready
 paramiko.Channel._request_success	paramiko.Channel-class.html#_request_success
 paramiko.Channel._send_eof	paramiko.Channel-class.html#_send_eof
 paramiko.Channel._window_adjust	paramiko.Channel-class.html#_window_adjust
-paramiko.Channel.request_x11	paramiko.Channel-class.html#request_x11
+paramiko.Channel._event_pending	paramiko.Channel-class.html#_event_pending
 paramiko.Channel.__del__	paramiko.Channel-class.html#__del__
 paramiko.Channel._check_add_window	paramiko.Channel-class.html#_check_add_window
 paramiko.Channel.invoke_subsystem	paramiko.Channel-class.html#invoke_subsystem
