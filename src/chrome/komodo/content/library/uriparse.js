@@ -48,6 +48,7 @@ if (typeof(ko)=='undefined') {
  * Routines:
  *      ko.uriparse.localPathToURI(<localPath>)
  *      ko.uriparse.pathToURI(<URI or localPath>)
+ *      ko.uriparse.URIToPath(<URI or path>)
  *      ko.uriparse.URIToLocalPath(<URI or localPath>)
  *      ko.uriparse.displayPath(<localPath or URI>)
  *      ko.uriparse.baseName(<localPath or URI>)
@@ -158,6 +159,25 @@ this.pathToURI = function(path) {
     // Lookup routines like findViewsForURI and getViewsByTypeAndURI
     // in views.unprocessed.xml need to ignore case when appropriate.
     return _normalizedPathToURI(path, koFileEx);
+}
+
+/**
+ * Get the file path for the given URI.
+ *
+ *  "uri" may be a URI for a local or remote path.
+ *
+ * Returns the file path or raises an exception if there is no local file
+ * representation for that URI.
+ *
+ * Examples:
+ *  D:\trentm\foo.txt -> D:\trentm\foo.txt
+ *  file:///D:/trentm/foo.txt -> D:\trentm\foo.txt
+ *  ftp://ftp.activestate.com/ActivePython -> /ActivePython
+ */
+this.URIToPath = function(uri) {
+    var koFileEx = _getKoFileEx();
+    koFileEx.URI = uri;
+    return koFileEx.path;
 }
 
 /**

@@ -116,10 +116,19 @@ class URIParseTestCase(unittest.TestCase):
             for test in urls:
                 path = uriparse.URIToLocalPath(test[2])
                 self.failUnlessSamePath(path,test[3])
+                # Test URIToPath as well.
+                path = uriparse.URIToPath(test[2])
+                self.failUnlessSamePath(path,test[3])
 
     def test_pathToURI(self):
         remote_uri = "ftp://ftp.activestate.com/ActivePython"
         self.failUnlessSamePath(uriparse.pathToURI(remote_uri), remote_uri)
+
+    def test_URIToPath(self):
+        remote_uri = "ftp://ftp.activestate.com/ActivePython"
+        self.failUnlessSamePath(uriparse.URIToPath(remote_uri), "/ActivePython")
+        remote_uri = "sftp://sftp.activestate.com/Somepath/file.txt"
+        self.failUnlessSamePath(uriparse.URIToPath(remote_uri), "/Somepath/file.txt")
 
     def test_relativize(self):
         for base, rel, fullpath, common in self.relative:

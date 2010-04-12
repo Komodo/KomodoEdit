@@ -127,6 +127,29 @@ def _normalizedPathToURI(localPath, koFileEx):
         koFileEx.path = fixedPath
     return koFileEx.URI
 
+
+# Get the file path component from the given URI.
+#
+#  "uri" may be a URI for a local or remote path.
+#
+# Returns the file path or raises an exception if there is no representation for
+# that URI.
+#
+# Examples:
+#  D:\trentm\foo.txt -> D:\trentm\foo.txt
+#  file:///D:/trentm/foo.txt -> D:\trentm\foo.txt
+#  file://planer/d/trentm/tmp/foo.txt -> file://planer/d/trentm/tmp/foo.txt
+#  ftp://ftp.activestate.com/ActivePython -> /ActivePython
+#
+def URIToPath(uri):
+    mutex.acquire()
+    try:
+        koFileEx = _getKoFileEx()
+        koFileEx.URI = uri
+        return koFileEx.path;
+    finally:
+        mutex.release()
+
 # Get the local file path for the given URI.
 #
 #  "uri" may be a URI for a local file or a local path.
