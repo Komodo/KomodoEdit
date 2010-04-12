@@ -207,6 +207,7 @@
 <!ENTITY fileEncoding.tooltiptext "File Encoding">
 <!ENTITY filePosition.tooltiptext "File Position">
 <!ENTITY fileType.tooltiptext "File Type">
+<!ENTITY filterSymbols.tooltiptext "Filter Symbols">
 <!ENTITY find.label "Find...">
 <!ENTITY findAllFunctions.label "Find All Functions">
 <!ENTITY findFind.desc "Find: Find...">
