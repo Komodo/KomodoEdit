@@ -55,6 +55,7 @@ interface koIRemoteConnection : nsISupports {
     void rename(in wstring oldName, in wstring newName);
     void removeFile(in wstring name);
     void removeDirectory(in wstring name);
+    void removeDirectoryRecursively(in wstring path);
     void changeDirectory(in wstring path);
     void currentDirectory();
     void createFile(in wstring name, in long permissions);

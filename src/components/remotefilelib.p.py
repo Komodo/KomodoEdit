@@ -586,6 +586,34 @@ class koRFConnection:
         finally:
             self._lock.release()
 
+    def _removeDirectoryRecursively(self, path):
+        directory_rfinfo = self.list(path, 1)
+        if directory_rfinfo is None:
+            log.debug("removeRecursively: Path does not exist: %r!", path)
+            return
+        dirEntries = directory_rfinfo.getChildren()
+        # Note: dirEntries is a list of koIRemoteFileInfo objects
+        if dirEntries:
+            log.debug("removeRecursively: Removing sub contents (%d entries)",
+                      len(dirEntries))
+            for file_rfinfo in dirEntries:
+                if file_rfinfo.isDirectory():
+                    self._removeDirectoryRecursively(file_rfinfo.getFilepath())
+                else:
+                    self.removeFile(file_rfinfo.getFilepath())
+        self.removeDirectory(path)
+
+    def removeDirectoryRecursively(self, path):
+        if not self._lock.acquire(blocking=False):
+            self._raiseServerException("Could not acquire remote connection lock. Multi-threaded access detected!")
+        try:
+            self.do_verifyConnected()
+            encoded_path = self._getEncodedFilepath(path)
+            self.log.debug("remove directory recursively %s", path)
+            self._removeDirectoryRecursively(encoded_path)
+        finally:
+            self._lock.release()
+
     def createDirectory(self, name, permissions):
         if not self._lock.acquire(blocking=False):
             self._raiseServerException("Could not acquire remote connection lock. Multi-threaded access detected!")
