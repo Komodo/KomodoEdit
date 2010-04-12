@@ -36,32 +36,27 @@
  
  ***** END LICENSE BLOCK ***** -->
 
-<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
-     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
-    <Description about="urn:mozilla:install-manifest">
-        <em:id>places@activestate.com</em:id>
-        <em:name>Places</em:name>
-        <em:version>0.1</em:version>
-        <em:description>A better project system</em:description>
-        <em:creator>Eric Promislow</em:creator>
-        <em:homepageURL>http://komodo.activestate.com/addons/places/</em:homepageURL>
-        <em:type>2</em:type> <!-- type=extension --> 
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % bindingsDTD SYSTEM "chrome://komodo/locale/bindings.dtd">
+  %bindingsDTD;
+]>
 
-        <em:targetApplication>
-            <Description>
-                <!-- Komodo IDE's uuid -->
-                <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
-                <em:minVersion>5.1</em:minVersion>
-                <em:maxVersion>6.*</em:maxVersion>
-            </Description>
-        </em:targetApplication>
-        <em:targetApplication>
-            <Description>
-                <!-- Komodo Edit's uuid -->
-                <em:id>{b1042fb5-9e9c-11db-b107-000d935d3368}</em:id>
-                <em:minVersion>5.1</em:minVersion>
-                <em:maxVersion>6.*</em:maxVersion>
-            </Description>
-        </em:targetApplication>
-    </Description>
-</RDF>
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <!-- A slightly customized <tree/> for use by places
+         See bindings/widgets.xml#cbtree for the full story
+         -->
+    <binding id="places_tree_b" extends="chrome://global/content/bindings/tree.xml#tree">
+        <handlers>
+            <handler event="click" clickcount="2" phase="capturing">
+                <![CDATA[
+                    event.stopPropagation();
+                    event.cancelBubble = true;
+                    event.preventDefault();
+                ]]>
+            </handler>
+        </handlers>
+    </binding>
+</bindings>

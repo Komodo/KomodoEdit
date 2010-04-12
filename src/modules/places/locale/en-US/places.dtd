@@ -1,1 +1,81 @@
+<!-- ***** BEGIN LICENSE BLOCK *****
+ Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ 
+ The contents of this file are subject to the Mozilla Public License
+ Version 1.1 (the "License"); you may not use this file except in
+ compliance with the License. You may obtain a copy of the License at
+ http://www.mozilla.org/MPL/
+ 
+ Software distributed under the License is distributed on an "AS IS"
+ basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ License for the specific language governing rights and limitations
+ under the License.
+ 
+ The Original Code is Komodo code.
+ 
+ The Initial Developer of the Original Code is ActiveState Software Inc.
+ Portions created by ActiveState Software Inc are Copyright (C) 2000-2010
+ ActiveState Software Inc. All Rights Reserved.
+ 
+ Contributor(s):
+   ActiveState Software Inc
+ 
+ Alternatively, the contents of this file may be used under the terms of
+ either the GNU General Public License Version 2 or later (the "GPL"), or
+ the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ in which case the provisions of the GPL or the LGPL are applicable instead
+ of those above. If you wish to allow use of your version of this file only
+ under the terms of either the GPL or the LGPL, and not to allow others to
+ use your version of this file under the terms of the MPL, indicate your
+ decision by deleting the provisions above and replace them with the notice
+ and other provisions required by the GPL or the LGPL. If you do not delete
+ the provisions above, a recipient may use your version of this file under
+ the terms of any one of the MPL, the GPL or the LGPL.
+ 
+ ***** END LICENSE BLOCK ***** -->
 <!ENTITY Places.label "Places">
+<!ENTITY filters.label "Filters">
+<!ENTITY newPlace.label "New...">
+
+<!ENTITY setPlace.label "Set Place">
+<!ENTITY setRemotePlace.label "Set Remote Place">
+<!ENTITY clearPlace.label "Clear Place">
+<!ENTITY recentPlaces.label "Recent Places">
+<!ENTITY recentPlaces.accesskey "R">
+<!ENTITY placesView.tooltiptext "Places Tools">
+<!ENTITY addItemToCurrentPlace.tooltiptext "Add Item to current place">
+<!ENTITY defaultView.label "Default View">
+<!ENTITY viewAll.label "View All">
+<!ENTITY manageCustomViews.label "Manage Views...">
+
+<!ENTITY placesSetPlace.desc "Places: Set Place...">
+<!ENTITY placesSetRemotePlace.desc "Places: Set Remote Place...">
+<!ENTITY placesClearPlace.desc "Places: Clear Place...">
+
+<!ENTITY placesCutItem.desc "Places: Cut the file or folder from its parent.">
+<!ENTITY placesCopyItem.desc "Places: Copy the file or folder from its parent.">
+<!ENTITY placesPasteItem.desc "Places: Paste the file or folder into this folder.">
+<!ENTITY findInPlace.desc "Places: Search in this file/folder's directory.">
+<!ENTITY replaceInPlace.desc "Places: Search and replace in this file/folder's directory.">
+<!ENTITY deletePlaceItem.desc "Places: Move this item to the system trash.">
+<!ENTITY placeView_defaultView.desc "Places: Filter out typically unwanted items like dotfiles.">
+<!ENTITY placeView_viewAll.desc "Places: View everything.">
+<!ENTITY placeView_customView.desc "Places: Manage custom view filters.">
+
+<!ENTITY placeView.tooltiptext "Place Tools">
+<!ENTITY ShowInExplorer.label "Show in Explorer">
+<!ENTITY ShowInFinder.label "Show in Finder">
+<!ENTITY ShowInFileManager.label "Show in File Manager">
+<!ENTITY rename.label "Rename">
+<!ENTITY recentPlaces.accesskey "R">
+<!ENTITY placesBack.tooltiptext "Load the previously visited place">
+<!ENTITY placesForward.tooltiptext "Return to the next visited place">
+<!ENTITY placesRecentPlaces.tooltiptext "Pick a recent place...">
+<!ENTITY placesBack.label "Load previous place">
+<!ENTITY placesForward.label "Reload next place">
+<!ENTITY goNextPlace.desc "Places: Load previous place">
+<!ENTITY goPreviousPlace.desc "Places: Reload next place">
+
+<!-- manageViewFilters.xul -->
+<!ENTITY manageViewFilters.caption "Specify Files and Directories to Exclude">
+<!ENTITY fileSystemFilterConfiguration.label "File System Filter Configuration">

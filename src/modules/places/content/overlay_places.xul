@@ -1,0 +1,432 @@
+<?xml version="1.0"?>
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+ Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ 
+ The contents of this file are subject to the Mozilla Public License
+ Version 1.1 (the "License"); you may not use this file except in
+ compliance with the License. You may obtain a copy of the License at
+ http://www.mozilla.org/MPL/
+ 
+ Software distributed under the License is distributed on an "AS IS"
+ basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ License for the specific language governing rights and limitations
+ under the License.
+ 
+ The Original Code is Komodo code.
+ 
+ The Initial Developer of the Original Code is ActiveState Software Inc.
+ Portions created by ActiveState Software Inc are Copyright (C) 2000-2010
+ ActiveState Software Inc. All Rights Reserved.
+ 
+ Contributor(s):
+   ActiveState Software Inc
+ 
+ Alternatively, the contents of this file may be used under the terms of
+ either the GNU General Public License Version 2 or later (the "GPL"), or
+ the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ in which case the provisions of the GPL or the LGPL are applicable instead
+ of those above. If you wish to allow use of your version of this file only
+ under the terms of either the GPL or the LGPL, and not to allow others to
+ use your version of this file under the terms of the MPL, indicate your
+ decision by deleting the provisions above and replace them with the notice
+ and other provisions required by the GPL or the LGPL. If you do not delete
+ the provisions above, a recipient may use your version of this file under
+ the terms of any one of the MPL, the GPL or the LGPL.
+ 
+ ***** END LICENSE BLOCK ***** -->
+
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % placesDTD SYSTEM "chrome://places/locale/places.dtd">
+  %placesDTD;
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://places/skin/places.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
+
+<overlay id="placesOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script src="chrome://places/content/places.js"
+          type="application/x-javascript"/>
+  <script src="chrome://places/content/placeController.js"
+          type="application/x-javascript"/>
+  <script type="application/x-javascript">
+  <![CDATA[
+  //alert("Loading places/overlay.xul");
+  window.addEventListener("load", ko.places.onLoad, false);
+  window.addEventListener("unload", ko.places.onUnload, false);
+  ]]>
+  </script>
+
+    <!-- All place-related commands are context-dependent.
+         Is there a place already loaded?  Is it dirty?
+         XXX:Is the set updated at startup? -->
+  <commandset id="allcommands">
+    <commandset
+        id="cmdset_place_main"
+        oncommandupdate="ko.commands.updateCommandset(this, event)"
+        commandupdater="true"
+        events="current_view_changed,place_dirty,current_place_changed,current_place_opened,current_place_closed">
+      <command
+          id="cmd_setPlace" key="key_cmd_setPlace"
+          oncommand="ko.commands.doCommandAsync('cmd_setPlace', event)"
+          desc="&placesSetPlace.desc;"/>
+      <command
+          id="cmd_setRemotePlace" key="key_cmd_setRemotePlace"
+          oncommand="ko.commands.doCommandAsync('cmd_setRemotePlace', event)"
+          desc="&placesSetRemotePlace.desc;"/>
+      <command
+          id="cmd_clearPlace" key="key_cmd_clearPlace"
+          oncommand="ko.commands.doCommandAsync('cmd_clearPlace', event)"
+          desc="&placesClearPlace.desc;"/>
+      <command
+          id="cmd_findInPlace"
+          key="key_cmd_findInPlace"
+          oncommand="ko.commands.doCommandAsync('cmd_findInPlace', event)"
+          disabled="true"
+          desc="&findInPlace.desc;"/>
+      <command
+          id="cmd_replaceInPlace"
+          key="key_cmd_replaceInPlace"
+          oncommand="ko.commands.doCommandAsync('cmd_replaceInPlace', event)"
+          disabled="true"
+          desc="replaceInPlace.desc;"/>
+      <command
+          id="cmd_deletePlaceItem"
+          key="key_cmd_deletePlaceItem"
+          oncommand="ko.commands.doCommandAsync('cmd_deletePlaceItem', event)"
+          disabled="true"
+          desc="&deletePlaceItem.desc;"/>
+      <command
+          id="cmd_placeView_defaultView"
+          key="key_cmd_placeView_defaultView"
+          oncommand="ko.commands.doCommandAsync('cmd_placeView_defaultView', event)"
+          disabled="true"
+          desc="&placeView_defaultView.desc;"/>
+      <command
+          id="cmd_placeView_viewAll"
+          key="key_cmd_placeView_viewAll"
+          oncommand="ko.commands.doCommandAsync('cmd_placeView_viewAll', event)"
+          disabled="true"
+          desc="&placeView_viewAll.desc;"/>
+      <command
+          id="cmd_placeView_customView"
+          key="key_cmd_placeView_customView"
+          oncommand="ko.commands.doCommandAsync('cmd_placeView_customView', event)"
+          disabled="true"
+          desc="&placeView_customView.desc;"/>
+    </commandset>
+    <commandset
+        id="cmdset_place_contextMenu"
+        oncommandupdate="ko.commands.updateCommandset(this)"
+        commandupdater="true"
+        events="clipboard,current_place_changed,current_place_opened">
+      <command
+          id="cmd_cutPlaceItem"
+          key="key_cmd_cutPlaceItem"
+          oncommand="ko.commands.doCommandAsync('cmd_cutPlaceItem', event)"
+          disabled="true"
+          desc="&placesCutItem.desc;"/>
+      <command
+          id="cmd_copyPlaceItem"
+          key="key_cmd_copyPlaceItem"
+          oncommand="ko.commands.doCommandAsync('cmd_copyPlaceItem', event)"
+          disabled="true"
+          desc="&placesCopyItem.desc;"/>
+      <command
+          id="cmd_pastePlaceItem"
+          key="key_cmd_pastePlaceItem"
+          oncommand="ko.commands.doCommandAsync('cmd_pastePlaceItem', event)"
+          disabled="true"
+          desc="&placesPasteItem.desc;"/>
+    </commandset>
+    <commandset
+        id="cmdset_place_historyMenu"
+        oncommandupdate="ko.commands.updateCommandset(this)"
+        commandupdater="true"
+        events="place_history_changed">
+      <command
+          id="cmd_goNextPlace"
+          key="key_cmd_goNextPlace"
+          oncommand="ko.commands.doCommandAsync('cmd_goNextPlace', event)"
+          disabled="true"
+          desc="&goNextPlace.desc;"/>
+      <command
+          id="cmd_goPreviousPlace"
+          key="key_cmd_goPreviousPlace"
+          oncommand="ko.commands.doCommandAsync('cmd_goPreviousPlace', event)"
+          disabled="true"
+          desc="&goPreviousPlace.desc;"/>
+    </commandset>
+  </commandset>
+    
+
+  <menupopup id="menu_view_tabs_popup">
+    <menuitem id="show_places_tab2"
+        observes="show_places_tab"
+        insertafter="show_project_tab2"
+        oncommand="uilayout_ensureTabShown('places_tab', true)"
+        label="&Places.label;"
+        type="checkbox"
+        />
+  </menupopup>
+
+  <menupopup id="tabPicker_popup">
+    <menuitem id="show_places_tab"
+        observes="show_places_tab"
+        insertafter="show_project_tab"
+        oncommand="uilayout_ensureTabShown('places_tab', true)"
+        label="&Places.label;"
+        type="checkbox"
+        />
+  </menupopup>
+  
+  <menupopup id="popup_project">
+    <!-- Let it fall to the bottom of the menu for now. -->
+    <menuseparator id="project-place-menuseparator" />
+    <menuitem label="&setPlace.label;"
+              id="menu_SetPlace"
+              observes="cmd_setPlace"
+              />
+    <menuitem label="&setRemotePlace.label;"
+              id="menu_SetRemotePlace"
+              observes="cmd_setRemotePlace"
+              />
+    <menuitem label="&clearPlace.label;"
+              id="menu_clearPlace"
+              observes="cmd_clearPlace"
+              />
+    <menu
+        id="menu_mruPlaces"
+        accesskey="&recentPlaces.accesskey;"
+        class="menu_mru"
+        label="&recentPlaces.label;">
+      <!-- Too bad we can't use uilayout.js::_updateMRUMenu -->
+        <menupopup
+            id="popup_mruPlaces"
+            class="popup_mru"
+            onpopupshowing="gPlacesViewMgr.updateMRUMenu(this);" />
+    </menu>
+  </menupopup>
+
+  <tabs id="project_toolbox_tabs">
+    <tab id="places_tab" label="&Places.label;" insertafter="project_tab"
+        oncommand="gPlacesViewMgr.focus(); gPlacesViewMgr.updateView();"
+        onfocus="gPlacesViewMgr.focus(); gPlacesViewMgr.updateView();"
+         />
+  </tabs>
+  <tabpanels id="project_toolbox_tabpanels">
+    <tabpanel flex="1" id="PlaceViewbox" insertafter="projectviewbox">
+      <vbox flex="1">
+          <label id="place-view-rootPath"
+                 crop="center"
+                 class="noplace" />
+        <hbox id="place-view-vbox">
+          <!-- see partviewer in komodo.p.xul when I xblify this -->
+          <toolbarbutton id="placeView_tools"
+                  tooltiptext="&placeView.tooltiptext;"
+                  buttonstyle="pictures"
+                  type="menu"
+                  orient="horizontal"
+                  class="rightarrow-button-a project-tools-icon">
+            <menupopup id="placeView_toolsPopup">
+              <menuitem id="placeView_setButton"
+                  observes="cmd_setPlace"
+                  label="&setPlace.label;"
+                  keep="true"
+                  class="menuitem-iconic open-places-icon"/>
+              <menuitem id="placeView_setRemoteButton"
+                  observes="cmd_setRemotePlace"
+                  label="&setRemotePlace.label;"
+                  keep="true"
+                  class="menuitem-iconic open-places-icon"/>
+              <menuitem id="placeView_clearButton"
+                  observes="cmd_clearPlace"
+                  label="&clearPlace.label;"
+                  keep="true"
+                  class="menuitem-iconic close-project-icon"/>
+    <menu
+        id="menu_mruPlaces"
+        accesskey="&recentPlaces.accesskey;"
+                  keep="true"
+        class="menuitem-iconic menu_mru"
+        label="&recentPlaces.label;">
+      <!-- Too bad we can't use uilayout.js::_updateMRUMenu -->
+        <menupopup
+            id="popup_mruPlaces"
+            class="popup_mru"
+            onpopupshowing="gPlacesViewMgr.updateMRUMenu(this);" />
+    </menu>
+              <menu id="placeView_sortByMenu"
+                    label="&sortBy.label;"
+                  keep="true"
+                    accesskey="&sortBy_menu.accesskey;">
+                <menupopup id="placeView_sortByMenuPopup"
+                           onpopupshowing="ko.places.sortByOnPopupShowing(this, 'places')"/>
+              </menu>
+              <menuseparator id="places_view_separator"
+                  keep="true"/>
+              <menuitem id="placeView_defaultView"
+                  observes="cmd_placeView_defaultView"
+                  label="&defaultView.label;"
+                  keep="true"
+                  checked="true"
+                  type="checkbox" />
+              <menuitem id="placeView_viewAll"
+                  observes="cmd_placeView_viewAll"
+                  label="&viewAll.label;"
+                  keep="true"
+                  checked="true"
+                  type="checkbox" />
+              <menuseparator id="places_manage_view_separator"
+                  keep="true"/>
+              <menuitem id="placeView_customView"
+                  observes="cmd_placeView_customView"
+                  label="&manageCustomViews.label;"
+                  keep="true" />
+            </menupopup>
+          </toolbarbutton>
+          <toolbarbutton id="placesBackButton"
+              tooltiptext="&placesBack.tooltiptext;"
+              class="history-back-icon"
+              persist="buttonstyle"
+              buttonstyle="pictures"
+              observes="cmd_goPreviousPlace"
+              label="&placesBack.label;"/>
+          <toolbarbutton id="placesForwardButton"
+              class="history-forward-icon"
+              tooltiptext="&placesForward.tooltiptext;"
+              observes="cmd_goNextPlace"
+              persist="buttonstyle"
+              buttonstyle="pictures"
+              label="&placesForward.label;"/>
+          <toolbarbutton id="placesRecentLocations"
+              type="menu"
+              tooltiptext="&placesRecentPlaces.tooltiptext;"
+              >
+              <menupopup id="placesRecentPlacesMenu"
+                         context=""
+                         position="after_start"
+                         onpopupshowing="ko.places.manager.init_popup_menu_recent_locations(event);"
+                         oncommand="event.stopPropagation();"
+                         />
+          </toolbarbutton>
+          <textbox id="places-filter-textbox"
+                   style="min-width:40px; max-width:200px; margin-right:0px;"
+                   class="search-box"
+                   flex="1"
+                   type="search"
+                   timeout="200"
+                   onfocus="this.select();"
+                   onkeypress="ko.places.viewMgr.onFilterKeypress.call(ko.places.viewMgr, event)"
+                   oncommand="ko.places.viewMgr.updateFilter.call(ko.places.viewMgr)"
+                   tooltiptext="&filterSymbols.tooltiptext;"
+                   basetooltiptext="&filterSymbols.tooltiptext;"/>
+        </hbox>
+        <tree id="places-files-tree" flex="1"
+              style="margin: 0px;"
+              ondblclick="ko.places.viewMgr.onDblClick(event);"
+              onkeypress="ko.places.viewMgr.onTreeKeyPress(event);"
+              onfocus="ko.places.viewMgr.focused = true;"
+              onblur="ko.places.viewMgr.focused = false;"
+              context="_child"
+              class="placestree"
+              seltype="single">
+            <menupopup id="places-files-popup" onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);" >
+              <menuseparator id="placesContextMenu_separatorCut"
+                             keep_background="true"
+                             keep="true"/>
+              <menuitem id="placesContextMenu_cut"
+                        observes="cmd_cutPlaceItem"
+                        label="&cut.label;"
+                        keep="true"
+                        class="menuitem-iconic cut-button"
+                        />
+              <menuitem id="placesContextMenu_copy"
+                        observes="cmd_copyPlaceItem"
+                        label="&copy.label;"
+                        class="menuitem-iconic copy-button"
+                        keep="true"
+                        />
+              <menuitem id="placesContextMenu_paste"
+                        observes="cmd_pastePlaceItem"
+                        keep_background="true"
+                        class="menuitem-iconic paste-button"
+                        label="&paste.label;"
+                        keep="true"
+                        />
+              <menuseparator id="placesContextMenu_separatorFind"
+                             keep="true"
+                             />
+              <menuitem id="placesContextMenu_find"
+                        observes="cmd_findInPlace"
+                        label="&find.label;"
+                        keep="true"
+                        />
+              <menuitem id="placesContextMenu_replace"
+                        observes="cmd_replaceInPlace"
+                        label="&replace.label;"
+                        keep="true"
+                        />
+              <menuitem id="placesContextMenu_showInFinder"
+                        observes="cmd_showInFinder"
+                        label="&ShowInExplorer.label;"
+                        keep="true"
+                        />
+              <menuitem id="placesContextMenu_rename"
+                        observes="cmd_renameFile"
+                        label="&rename.label;"
+                        keep="true"
+                        />
+              <menuseparator id="placesContextMenu_separatorDelete"
+                             keep="true"
+                             />
+              <menuitem id="placesContextMenu_delete"
+                        observes="cmd_deletePlaceItem"
+                        label="&delete.label;"
+                        class="menuitem-iconic list-item-remove-icon"
+                        keep="true"
+                        />
+              <menuseparator id="placesContextMenu_separatorProperties"
+                             keep="true"
+                             intoplevel="true"/>
+              <menuitem id="placesContextMenu_editProperties"
+                        observes="cmd_editProperties"
+                        label="&properties.label;"
+                        intoplevel="true"
+                        keep="true"
+                        />
+            </menupopup>
+            <treecols>
+                <treecol id="name" flex="1"
+                         primary="true" hideheader="true"
+                         crop="center"
+                         class="treecol-header treecol-inset-header sortDirectionIndicator"
+                         persist="width"/>
+            </treecols>
+            <treechildren id="places-files-tree-body" flex="1"
+                ondragstart="ko.places.viewMgr.doStartDrag(event, this);"
+                ondragover="return ko.places.viewMgr.doDragOver(event, this);"
+                ondragenter="return ko.places.viewMgr.doDragEnter(event, this);"
+                ondrop="return ko.places.viewMgr.doDrop(event, this);"
+                ondblclick="ko.places.viewMgr.onDblClick(event, this);"
+                class="placesTree" />
+        </tree>
+        <splitter id="places_pane_splitter"
+            collapse="none"
+            splitterCmdId="cmd_viewToolbox"
+            class="workspace_splitter"
+            persist="collapsed"
+            collapsed="false"
+            orient="vertical"/>
+        <description flex="1">Here's the toolbox part!</description>
+      </vbox>
+    </tabpanel>
+  </tabpanels>
+</overlay>
