@@ -37,7 +37,41 @@
 import os
 from os.path import islink, realpath, join
 
-def _walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False):
+# Recipe: paths_from_path_patterns (0.5)
+def should_include_path(path, includes, excludes, isRemotePath=False):
+    """Return True iff the given path should be included."""
+    from os.path import basename
+    from fnmatch import fnmatch, fnmatchcase
+
+    if isRemotePath:
+        # Always perform a case sensitive comparison.
+        fnmatch = fnmatchcase
+    base = basename(path)
+    if includes:
+        for include in includes:
+            if fnmatch(base, include):
+                #try:
+                #    log.debug("include `%s' (matches `%s')", path, include)
+                #except (NameError, AttributeError):
+                #    pass
+                break
+        else:
+            #try:
+            #    log.debug("exclude `%s' (matches no includes)", path)
+            #except (NameError, AttributeError):
+            #    pass
+            return False
+    for exclude in excludes:
+        if fnmatch(base, exclude):
+            #try:
+            #    log.debug("exclude `%s' (matches `%s')", path, exclude)
+            #except (NameError, AttributeError):
+            #    pass
+            return False
+    return True
+
+def _walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False,
+                          includes=None, excludes=None):
     seen_rpaths = {top: 1}
     for root, dirs, files in os.walk(top, topdown, onerror, followlinks):
         # We modify the original "dirs" list, so that os.walk will then ignore
@@ -51,9 +85,14 @@ def _walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False):
                     dirs.remove(dir)
                     continue
                 seen_rpaths[rpath] = 1
+        if includes or excludes:
+            # The dirs must be modified in place (see comment above)!
+            dirs[:] = [dir for dir in dirs if should_include_path(dir, includes, excludes)]
+            files = [f for f in files if should_include_path(f, includes, excludes)]
         yield (root, dirs, files)
 
-def walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False):
+def walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False,
+                         includes=None, excludes=None):
     """Modified os.walk, one that will keep track of followed symlinks in order
     to avoid cyclical links. Cyclical symlinks often need to be avoided,
     otherwise os.walk can walk forever.
@@ -67,10 +106,14 @@ def walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False):
     """
 
     if not followlinks:
+        if includes or excludes:
+            raise Exception("walk_avoiding_cycles can only use includes/excludes when "
+                            "followlinks is True")
         return os.walk(top, topdown, onerror, followlinks)
     else:
         # Can only avoid cycles if topdown is True.
         if not topdown:
             raise Exception("walk_avoiding_cycles can only avoid cycles when "
                             "topdown is True")
-        return _walk_avoiding_cycles(top, topdown, onerror, followlinks)
+        return _walk_avoiding_cycles(top, topdown, onerror, followlinks,
+                                     includes, excludes)
