@@ -452,11 +452,8 @@ class koRemoteConnectionService:
     # We have the lock already
     def _setCachedRFInfo(self, cache_key, path, rfinfo):
         log.debug("_setCachedRFInfo: Adding rfinfo to cache: '%s'", path)
-        if not self._cachedFiles.has_key(cache_key):
-            self._cachedFiles[cache_key] = {}
-        cache = self._cachedFiles[cache_key]
-        # Add the rfinfo to the cache
-        cache[path] = rfinfo
+        # Start with a new cache for this item.
+        cache = {path: rfinfo}
 
         # Add all the child rfinfo's to the cache
         children = rfinfo.getChildren()
@@ -471,6 +468,7 @@ class koRemoteConnectionService:
                 # It's not cached, add it to the cache then
                 log.debug("_setCachedRFInfo: Adding new child rfinfo to cache: '%s'", child_path)
                 cache[child_path] = childRFInfo
+        self._cachedFiles[cache_key] = cache
 
     # We have the lock already
     def _getCachedRFInfo(self, cache_key, path):
