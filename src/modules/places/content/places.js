@@ -1119,6 +1119,18 @@ ManagerClass.prototype = {
         ko.launch.replaceInFiles(null, null, path);
     },
 
+    doShowInFinder: function() {
+        if (!this.currentPlaceIsLocal) {
+            return;
+        }
+        var index = gPlacesViewMgr.view.selection.currentIndex;
+        var uri = gPlacesViewMgr.view.getURIForRow(index);
+        var path = ko.uriparse.displayPath(uri);
+        var sysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].
+                    getService(Components.interfaces.koISysUtils);
+        sysUtilsSvc.ShowFileInFileManager(path);
+    },
+
     doDeletePlace: function() {
         var index = gPlacesViewMgr.view.selection.currentIndex;
         if (index == 0) {

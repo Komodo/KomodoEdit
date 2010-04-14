@@ -154,6 +154,17 @@ PlacesController.prototype.do_cmd_replaceInPlace = function() {
     ko.places.manager.doReplaceInPlace();
 }
 
+PlacesController.prototype.is_cmd_places_showInFinder_enabled = function() {
+    return ko.places.manager.currentPlaceIsLocal;
+}
+
+PlacesController.prototype.do_cmd_places_showInFinder = function() {
+    if (!this.is_cmd_places_showInFinder_enabled()) {
+        return;
+    }
+    ko.places.manager.doShowInFinder();
+}
+
 PlacesController.prototype.is_cmd_deletePlaceItem_enabled = function() {
     return true;
 }
