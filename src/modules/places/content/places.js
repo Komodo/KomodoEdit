@@ -219,6 +219,7 @@ viewMgrClass.prototype = {
         var firstFileMenuItemId_fileOpen = "placesContextMenu_file_open";
         var firstFolderMenuItemId_refreshView = "placesContextMenu_folder_refresh_view";
         var node, i = 0;
+        var isLocal = ko.places.manager.currentPlaceIsLocal;
         while (!!(node = nodes[i])) {
             if (node.getAttribute("keep") != "true") {
                 popupmenu.removeChild(node);
@@ -265,7 +266,7 @@ viewMgrClass.prototype = {
                                           + index
                                           + ");");
             if (index == 0) {
-                if (this.currentPlaceIsLocal) {
+                if (isLocal) {
                     first_item_is_root =
                         (this.view.getCellText(index, {id:'name'})
                          == ko.uriparse.URIToLocalPath(ko.places.manager.
@@ -306,12 +307,6 @@ viewMgrClass.prototype = {
                                            + index
                                            + ");"));
             newMenuItemNode = popupmenu.insertBefore(menuitem, firstCommonNode);
-            menuitem = this._makeMenuItem("placesContextMenu_refreshStatus",
-                                          _bundle_peFile.GetStringFromName("refreshStatus"),
-                                          ("gPlacesViewMgr.refreshStatus("
-                                           + index
-                                           + ");"));
-            newMenuItemNode = popupmenu.insertBefore(menuitem, newMenuItemNode);
             menuitem = this._makeMenuItem(firstFileMenuItemId_fileOpen,
                                           _bundle_peFile.GetStringFromName("open"),
                                           ("gPlacesViewMgr.openFileByIndex("
