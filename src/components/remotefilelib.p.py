@@ -742,26 +742,6 @@ import paramiko
 
 MAX_BLOCK_SIZE = 8192
 
-# Import remotefileagent, which adds putty/pageant key support, but
-# only do this for windows platforms.
-if sys.platform.startswith("win"):
-    # Putty/Pageant stuff for win32 as well as openSSH key-agent
-    from remotefileagent import KomodoAgent
-else:
-    # Default paramiko handling, uses openSSH key-agent
-    class KomodoAgent(paramiko.Agent):
-        def __init__(self):
-            # Initialise keys known through paramiko (Linux, Mac side)
-            import socket
-            try:
-                paramiko.Agent.__init__(self)
-            except socket.error, e:
-                # if SSH_AUTH_SOCK is set, but the socket file actually does
-                # not exist, we will get an exception raised.  We want to ignore
-                # the exception so that the KomodoAgent initalizes correctly,
-                # which is the expected behaviour.  bug 60897
-                pass
-
 # Implement common functions for SSH protocols
 class koRemoteSSH(koRFConnection):
     def __init__(self):
@@ -780,7 +760,7 @@ class koRemoteSSH(koRFConnection):
         # Currently paramiko supports the openSSH key-agent and Komodo
         # adds putty/pageant support for windows
         try:
-            agent = KomodoAgent()
+            agent = paramiko.Agent()
             agent_keys = agent.get_keys()
             if len(agent_keys) > 0:
                 for key in agent_keys:
