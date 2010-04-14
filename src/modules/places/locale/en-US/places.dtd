@@ -73,6 +73,7 @@
 <!ENTITY placesForward.label "Reload next place">
 <!ENTITY goNextPlace.desc "Places: Load previous place">
 <!ENTITY goPreviousPlace.desc "Places: Reload next place">
+<!ENTITY showInFinder.desc "Places: Show file/folder in the system's file manager">
 
 <!-- manageViewFilters.xul -->
 <!ENTITY manageViewFilters.caption "Specify Files and Directories to Exclude">

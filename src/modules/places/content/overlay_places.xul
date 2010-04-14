@@ -108,7 +108,7 @@
           key="key_cmd_places_showInFinder"
           oncommand="ko.commands.doCommandAsync('cmd_places_showInFinder', event)"
           disabled="true"
-          desc="&amp;XXX showInFinder.desc;"/>
+          desc="&showInFinder.desc;"/>
       <command
           id="cmd_placeView_defaultView"
           key="key_cmd_placeView_defaultView"
@@ -387,7 +387,7 @@
                         keep="true"
                         />
               <menuitem id="placesContextMenu_rename"
-                        observes="cmd_renameFile"
+                        observes="cmd_renamePlace_File"
                         label="&rename.label;"
                         keep="true"
                         />
