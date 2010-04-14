@@ -425,14 +425,6 @@
                 ondblclick="ko.places.viewMgr.onDblClick(event, this);"
                 class="placesTree" />
         </tree>
-        <splitter id="places_pane_splitter"
-            collapse="none"
-            splitterCmdId="cmd_viewToolbox"
-            class="workspace_splitter"
-            persist="collapsed"
-            collapsed="false"
-            orient="vertical"/>
-        <description flex="1">Here's the toolbox part!</description>
       </vbox>
     </tabpanel>
   </tabpanels>
