@@ -1655,7 +1655,6 @@
                 <File Id="file299" Name="mozutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\mozutils.py" />
 
 <?if $(var.WithCrypto) = "yes" ?>
-                <File Id="file3938" Name="REMOTE_3.PY" LongName="remotefileagent.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\remotefileagent.py"/>
                 <File Id="file956" Name="PYCRYP_0.EGG" LongName="pycrypto-2.1.0-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pycrypto-2.1.0-py2.6.egg-info"/>
                 <File Id="file710" LongName="ctypesutils.py" Name="CTYPES_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\ctypesutils.py" />
                 <File Id="file420" Name="runutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\runutils.py" />
