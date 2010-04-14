@@ -64,8 +64,6 @@
 
 <!ENTITY placeView.tooltiptext "Place Tools">
 <!ENTITY ShowInExplorer.label "Show in Explorer">
-<!ENTITY ShowInFinder.label "Show in Finder">
-<!ENTITY ShowInFileManager.label "Show in File Manager">
 <!ENTITY rename.label "Rename">
 <!ENTITY recentPlaces.accesskey "R">
 <!ENTITY placesBack.tooltiptext "Load the previously visited place">

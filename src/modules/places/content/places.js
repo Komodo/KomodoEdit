@@ -319,6 +319,18 @@ viewMgrClass.prototype = {
                                            + ");"));
             popupmenu.insertBefore(menuitem, newMenuItemNode);
         }
+        menuitem = popupmenu.getElementById("placesContextMenu_showInFinder");
+        var platform = navigator.platform.toLowerCase();
+        var bundle_id;
+        if (platform.substring(0, 3) == "win") {
+            bundle_id = "ShowInExplorer.label";
+        } else if (platform.substring(0, 5) == "linux") {
+            bundle_id = "ShowInFileManager.label";
+        } else {
+            bundle_id = "ShowInFinder.label";
+        }
+        menuitem.setAttribute("label",
+                              _bundle_peFile.GetStringFromName(bundle_id));
         return true;
     },
 
