@@ -104,6 +104,12 @@
           disabled="true"
           desc="&deletePlaceItem.desc;"/>
       <command
+          id="cmd_places_showInFinder"
+          key="key_cmd_places_showInFinder"
+          oncommand="ko.commands.doCommandAsync('cmd_places_showInFinder', event)"
+          disabled="true"
+          desc="&amp;XXX showInFinder.desc;"/>
+      <command
           id="cmd_placeView_defaultView"
           key="key_cmd_placeView_defaultView"
           oncommand="ko.commands.doCommandAsync('cmd_placeView_defaultView', event)"
@@ -374,8 +380,9 @@
                         label="&replace.label;"
                         keep="true"
                         />
+
               <menuitem id="placesContextMenu_showInFinder"
-                        observes="cmd_showInFinder"
+                        observes="cmd_places_showInFinder"
                         label="&ShowInExplorer.label;"
                         keep="true"
                         />
