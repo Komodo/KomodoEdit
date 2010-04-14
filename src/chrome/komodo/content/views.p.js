@@ -2798,7 +2798,7 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx)
     try {
         this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx), currentWindow, idx > 0 || _mozPersistPositionDoesNotWork);
     } catch(ex) {
-        log.exception("Can't restore workspace for window " + idx);
+        log.exception("Can't restore workspace for window " + idx + ", exception: " + ex);
     }
     var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
     if (windowWorkspacePref.hasPref(idx + 1)) {
