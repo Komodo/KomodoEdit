@@ -1,0 +1,30 @@
+Fix for remote files agent authentication exception regarding pagent temp file
+already being in use by another process, bug 86604.
+
+Index: paramiko/paramiko/win_pageant.py
+===================================================================
+--- paramiko/paramiko/win_pageant.py	(revision 42209)
++++ paramiko/paramiko/win_pageant.py	(working copy)
+@@ -77,20 +77,19 @@
+ 
+ def _query_pageant(msg):
+     hwnd = _get_pageant_window_object()
+     if not hwnd:
+         # Raise a failure to connect exception, pageant isn't running anymore!
+         return None
+ 
+     # Write our pageant request string into the file (pageant will read this to determine what to do)
+-    filename = tempfile.mktemp('.pag')
++    (fd, filename) = tempfile.mkstemp('.pag')
+     map_filename = os.path.basename(filename)
+-
+-    f = open(filename, 'w+b')
++    f = os.fdopen(fd, 'w+b')
+     f.write(msg )
+     # Ensure the rest of the file is empty, otherwise pageant will read this
+     f.write('\0' * (_AGENT_MAX_MSGLEN - len(msg)))
+     # Create the shared file map that pageant will use to read from
+     pymap = mmap.mmap(f.fileno(), _AGENT_MAX_MSGLEN, tagname=map_filename, access=mmap.ACCESS_WRITE)
+     try:
+         # Create an array buffer containing the mapped filename
+         char_buffer = array.array("c", map_filename + '\0')
