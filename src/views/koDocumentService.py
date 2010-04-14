@@ -116,12 +116,12 @@ class KoDocumentService:
         try:
             docs = []
             # clear out all of the objects w/ no references to them
-            for displayPath, wr in self._documents.items():
-                document = wr()
-                if not document:
+            for displayPath, wrappedDocRef in self._documents.items():
+                wrappedDoc = wrappedDocRef()
+                if not wrappedDoc:
                     del self._documents[displayPath]
                     continue
-                doc = UnwrapObject(document)
+                doc = UnwrapObject(wrappedDoc)
                 if doc._isDirty:
                     docs.append(doc)
             return docs
@@ -192,17 +192,17 @@ class KoDocumentService:
             return doc
         
         log.info("creating document with URI: %s", file.URI)
-        document = components.classes["@activestate.com/koDocumentBase;1"]\
+        doc = components.classes["@activestate.com/koDocumentBase;1"]\
             .createInstance(components.interfaces.koIDocument)
-        document.initWithFile(file,0)
+        doc.initWithFile(file,0)
 
         self._cDoc.acquire()
         try:
-            self._documents[document.displayPath] = WeakReference(document)
+            self._documents[doc.displayPath] = WeakReference(doc)
         finally:
             self._cDoc.release()
         timeline.leave('createDocumentFromFile')
-        return document
+        return doc
 
     #koIDocument createDocumentFromURI(in wstring uri);
     def createDocumentFromURI(self, uri):
@@ -224,17 +224,17 @@ class KoDocumentService:
         if file.isLocal and not file.isNetworkFile:
             file.hasChanged
 
-        document = components.classes["@activestate.com/koDocumentBase;1"]\
+        doc = components.classes["@activestate.com/koDocumentBase;1"]\
             .createInstance(components.interfaces.koIDocument)
-        document.initWithFile(file,0)
+        doc.initWithFile(file,0)
 
         self._cDoc.acquire()
         try:
-            self._documents[document.displayPath] = WeakReference(document)
+            self._documents[doc.displayPath] = WeakReference(doc)
         finally:
             self._cDoc.release()
         timeline.leave('createDocumentFromURI')
-        return document
+        return doc
 
     def _getEncodingFromFilename(self, fname):
         try:
@@ -323,9 +323,9 @@ class KoDocumentService:
         
         # Create a new document.
         encoding = self._getEncodingFromFilename(leafName)
-        document = components.classes["@activestate.com/koDocumentBase;1"]\
+        doc = components.classes["@activestate.com/koDocumentBase;1"]\
             .createInstance(components.interfaces.koIDocument)
-        document.initUntitled(leafName, encoding)
+        doc.initUntitled(leafName, encoding)
         eolPref = self._globalPrefsvc.prefs.getStringPref("endOfLine")
         try:
             eol = eollib.eolPref2eol[eolPref]
@@ -333,14 +333,14 @@ class KoDocumentService:
             # Be paranoid: stay with system default if pref value is bogus.
             log.exception("unexpected 'endOfLine' pref value: %r", eolPref)
             eol = eollib.EOL_PLATFORM
-        document.new_line_endings = eol
+        doc.new_line_endings = eol
 
         self._cDoc.acquire()
         try:
-            self._documents[document.displayPath] = WeakReference(document)
+            self._documents[doc.displayPath] = WeakReference(doc)
         finally:
             self._cDoc.release()
-        return document
+        return doc
     
     #void getAllDocuments([array, size_is(count)] out koIDocument documents,
     #                 out PRUint32 count);
@@ -349,12 +349,12 @@ class KoDocumentService:
         try:
             strong = []
             # clear out all of the objects w/ no references to them
-            for displayPath, wr in self._documents.items():
-                document = wr()
-                if not document:
+            for displayPath, wrappedDocRef in self._documents.items():
+                wrappedDoc = wrappedDocRef()
+                if not wrappedDoc:
                     del self._documents[displayPath]
                     continue
-                doc = UnwrapObject(document)
+                doc = UnwrapObject(wrappedDoc)
                 if doc._refcount == 0:
                     del self._documents[displayPath]
                     continue
@@ -370,18 +370,18 @@ class KoDocumentService:
         uri = p.URI = uri # cleanup uri
         self._cDoc.acquire()
         try:
-            for displayPath, wr in self._documents.items():
-                document = wr()
-                if not document:
+            for displayPath, wrappedDocRef in self._documents.items():
+                wrappedDoc = wrappedDocRef()
+                if not wrappedDoc:
                     del self._documents[displayPath]
-                elif ((document.isUntitled and fequal(document.baseName, uri)) or
-                    (not document.isUntitled and fequal(document.file.URI, uri))):
-                    doc = UnwrapObject(document)
+                elif ((wrappedDoc.isUntitled and fequal(wrappedDoc.baseName, uri)) or
+                    (not wrappedDoc.isUntitled and fequal(wrappedDoc.file.URI, uri))):
+                    doc = UnwrapObject(wrappedDoc)
                     if doc._refcount == 0:
                         log.debug("deleting reference to %s", displayPath)
                         del self._documents[displayPath]
                         return None
-                    return document
+                    return wrappedDoc
         finally:
             self._cDoc.release()
         return None
@@ -390,15 +390,15 @@ class KoDocumentService:
         self._cDoc.acquire()
         try:
             if displayPath in self._documents:
-                document = self._documents[displayPath]()
-                if not document:
+                wrappedDoc = self._documents[displayPath]()
+                if not wrappedDoc:
                     del self._documents[displayPath]
                     return None
-                doc = UnwrapObject(document)
+                doc = UnwrapObject(wrappedDoc)
                 if doc._refcount == 0:
                     del self._documents[displayPath]
                     return None
-                return document
+                return wrappedDoc
         finally:
             self._cDoc.release()
         return None
