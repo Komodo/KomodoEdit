@@ -165,6 +165,17 @@ PlacesController.prototype.do_cmd_places_showInFinder = function() {
     ko.places.manager.doShowInFinder();
 }
 
+PlacesController.prototype.is_cmd_renamePlace_File_enabled = function() {
+    return true;
+}
+
+PlacesController.prototype.do_cmd_renamePlace_File = function() {
+    if (!this.is_cmd_renamePlace_File_enabled()) {
+        return;
+    }
+    ko.places.manager.doRenameItem();
+}
+
 PlacesController.prototype.is_cmd_deletePlaceItem_enabled = function() {
     return true;
 }

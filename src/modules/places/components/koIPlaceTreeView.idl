@@ -98,6 +98,7 @@ interface koIPlaceTreeView: nsITreeView {
     boolean itemIsNonEmptyFolder(in long sourceIndex);
     void deleteItem(in long sourceIndex, in boolean deleteContents);
     void refreshView(in long sourceIndex);
+    void renameItem(in long sourceIndex, in wstring baseName, in boolean forceClobber);
     // See other API parts in koIKPFTreeView.idl
     // internal api
     void invalidate();
@@ -105,6 +106,11 @@ interface koIPlaceTreeView: nsITreeView {
     void handleCallback(in wstring callback,
                         in wstring rv,
                         in long requestID);
+};
+
+[scriptable, uuid(64c32667-e3d0-497c-840c-0c339caf7ec7)]
+interface koIPlaceToolboxTreeView: nsITreeView {
+    void loadFromFileSystem(in wstring uri); // remote or local
 };
 
 

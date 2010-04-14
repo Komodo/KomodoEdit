@@ -316,7 +316,7 @@ this.okCancel = function dialog_okCancel(prompt, response, text, title,
 //      first button is the default.
 //  "text" allows you to specify a string of text that will be display in a
 //      non-edittable selectable text box. If "text" is null or no specified
-//      then this textbox will no be shown.
+//      then this textbox will not be shown.
 //  "title" is the dialog title.
 //  "doNotAskPref", uses/requires the following two prefs:
 //      boolean donotask_<doNotAskPref>: whether to not show the dialog
@@ -965,6 +965,66 @@ this.pickIcon = function dialog_pickIcon()
     } else {
         return null;
     }
+};
+
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/komodo.properties");
+
+function rename_prompt_with_ext(currentName, lastDot) {
+    return ko.dialogs.prompt(
+                        _bundle.GetStringFromName("enterANewFilename"), // prompt
+                        null, // label
+                        currentName, // default
+                        _bundle.GetStringFromName("renameFileOrFolder"), // title
+                        null, // mruName
+                        null, // validator
+                        null, // multiline
+                        null, // screenX
+                        null, // screenY
+                        null, // tacType
+                        null, // tacParam
+                        null, // tacShowCommentColumn
+                        0, // selectionStart
+                        lastDot // selectionEnd
+                        );
+};
+
+function rename_prompt_no_ext(currentName, lastDot) {
+    return ko.dialogs.prompt(
+                             _bundle.GetStringFromName("enterANewFilename"), // prompt
+                             null, // label
+                             currentName, // default
+                             _bundle.GetStringFromName("renameFileOrFolder")); // title
+};
+
+function filename_implies_move(name) {
+    if (name.indexOf('/') != -1) return true;
+    if (name.indexOf('\\') != -1) return true;
+    if (name.indexOf('..') != -1) return true;
+    return false;
+}
+
+// A wrapper for renaming a file by selecting only the base part,
+// when there's an extension.
+//
+// currentName: the file's current name
+// 
+// returns: the new name, or null (cancel was hit)
+//
+this.renameFileWrapper = function(currentName) {
+    var lastDot = currentName.lastIndexOf(".");
+    var do_prompt = ((lastDot != -1 && lastDot < currentName.length)
+                     ? rename_prompt_with_ext
+                     : rename_prompt_no_ext);
+    var newName;
+    while (true) {
+        newName = do_prompt(currentName, lastDot);
+        if (!newName) return null; // cancel was hit
+        if (!filename_implies_move(newName)) break;
+        ko.dialogs.alert(_bundle.GetStringFromName("theFileCanBeRenamedInPlaceBut"));
+    }
+    return newName;
 }
 
 }).apply(ko.dialogs);

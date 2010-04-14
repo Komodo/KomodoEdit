@@ -110,6 +110,12 @@
           disabled="true"
           desc="&showInFinder.desc;"/>
       <command
+          id="cmd_renamePlace_File"
+          key="key_cmd_renamePlace_File"
+          oncommand="ko.commands.doCommandAsync('cmd_renamePlace_File', event)"
+          disabled="true"
+          desc="&renamePlaceItem.desc;"/>
+      <command
           id="cmd_placeView_defaultView"
           key="key_cmd_placeView_defaultView"
           oncommand="ko.commands.doCommandAsync('cmd_placeView_defaultView', event)"
@@ -388,7 +394,7 @@
                         />
               <menuitem id="placesContextMenu_rename"
                         observes="cmd_renamePlace_File"
-                        label="&rename.label;"
+                        label="&renamePlaceItem.label;"
                         keep="true"
                         />
               <menuseparator id="placesContextMenu_separatorDelete"

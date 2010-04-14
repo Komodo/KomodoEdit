@@ -319,7 +319,7 @@ viewMgrClass.prototype = {
                                            + ");"));
             popupmenu.insertBefore(menuitem, newMenuItemNode);
         }
-        menuitem = popupmenu.getElementById("placesContextMenu_showInFinder");
+        menuitem = document.getElementById("placesContextMenu_showInFinder");
         var platform = navigator.platform.toLowerCase();
         var bundle_id;
         if (platform.substring(0, 3) == "win") {
@@ -330,7 +330,7 @@ viewMgrClass.prototype = {
             bundle_id = "ShowInFinder.label";
         }
         menuitem.setAttribute("label",
-                              _bundle_peFile.GetStringFromName(bundle_id));
+                              _bundle.GetStringFromName(bundle_id));
         return true;
     },
 
@@ -1141,6 +1141,48 @@ ManagerClass.prototype = {
         var sysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].
                     getService(Components.interfaces.koISysUtils);
         sysUtilsSvc.ShowFileInFileManager(path);
+    },
+
+    _doRenameItem_file_exists_re : /renameItem failure: file (.*) exists/,
+
+    _doRenameItem_dir_exists_re: /renameItem: invalid operation: you can\'t rename existing directory: (.*)/,
+
+    doRenameItem: function() {
+        var index = gPlacesViewMgr.view.selection.currentIndex;
+        var uri = gPlacesViewMgr.view.getURIForRow(index);
+        var newname = ko.dialogs.renameFileWrapper(ko.uriparse.baseName(uri));
+        if (!newname) return;
+        try {
+            gPlacesViewMgr.view.renameItem(index, newname, false);
+        } catch(ex) {
+            var m = this._doRenameItem_file_exists_re.exec(ex.message);
+            var title;
+            if (m) {
+                var prompt = _bundle.formatStringFromName('FileExistsOverwrite.prompt',
+                                                          [m[1]], 1);
+                var response = _bundle.GetStringFromName("Yes.label");
+                title = _bundle.GetStringFromName("newFileExists.message");
+                var result = ko.dialogs.yesNo(prompt, response, null, title);
+                if (result == response) {
+                    try {
+                        gPlacesViewMgr.view.renameItem(index, newname, true);
+                    } catch(ex2) {
+                        dump("doRenameItem: " + ex2 + "\n");
+                    }
+                }
+            } else {
+                m = this._doRenameItem_dir_exists_re.exec(ex.message);
+                if (m) {
+                    title = _bundle.GetStringFromName("fileRenameFailed.message");
+                    var prompt = _bundle.formatStringFromName(
+                        'cantRenameOverExistingDirectory.template',
+                        [m[1]], 1);
+                    ko.dialogs.alert(prompt, null, title);
+                } else {
+                    dump("doRenameItem: " + ex + "\n");
+                }
+            }
+        }
     },
 
     doDeletePlace: function() {

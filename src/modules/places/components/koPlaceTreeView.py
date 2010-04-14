@@ -1282,6 +1282,33 @@ class KoPlaceTreeView(TreeView):
         # And always filter after
         self._buildFilteredView()
 
+    def renameItem(self, index, newBaseName, forceClobber):
+        rowNode = self._rows[index]
+        fileObj = rowNode.infoObject.fileObj
+        dirName = fileObj.dirName
+        path = fileObj.path
+        if self._isLocal:
+            newPath = os.path.join(dirName, newBaseName)
+            if os.path.exists(newPath):
+                if os.path.isdir(newPath):
+                    raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem: invalid operation: you can't rename existing directory: %s" % (newPath))
+                if not forceClobber:
+                    raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem failure: file %s exists" % newPath)
+                os.unlink(newPath)
+            os.rename(path, newPath)
+        else:
+            conn = self._RCService.getConnectionUsingUri(self._currentPlace_uri)
+            newPath = dirName + "/" + newBaseName
+            rfi = conn.list(newPath, False)
+            if rfi:
+                if rfi.isDirectory():
+                    raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem: invalid operation: you can't rename existing directory: %s::%s" % (conn.server, newPath))
+                if not forceClobber:
+                    raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem failure: file %s::%s exists" % (conn.server, newPath))
+                conn.removeFile(newPath)
+            conn.rename(path, newPath)
+        self.refreshView(self.getParentIndex_OffOriginalRow(index))
+            
     def toggleOpenState(self, index):
         rowNode = self._rows[index]
         #log.debug("toggleOpenState: rowNode.infoObject.isOpen: %r", rowNode.infoObject.isOpen)
