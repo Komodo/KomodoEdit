@@ -232,9 +232,15 @@ viewMgrClass.prototype = {
          *----------------
          *   Properties (*Folder:disabled)
          */
-        var popupmenu = event.target;
         var index = this._currentRow(event);
+        if (index == -1) {
+            event.stopPropagation();
+            event.cancelBubble = true;
+            event.preventDefault();
+            return false;
+        }
         var isFolder = this.view.isContainer(index);
+        var popupmenu = event.target;
         var nodes = popupmenu.childNodes;
         var firstMenuItem = nodes[0];
         var firstFolderMenuItemId_rebase = "placesContextMenu_folder_rebase";
