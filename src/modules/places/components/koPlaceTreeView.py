@@ -933,8 +933,10 @@ class KoPlaceTreeView(TreeView):
                               getPref("places").getPref("places-open-nodes")
         if openNodesByURIPrefs.hasPref(uri):
             self._nodeOpenStatusFromName = json.loads(openNodesByURIPrefs.getStringPref(uri))
+            forceOpen = False
         else:
             self._nodeOpenStatusFromName = {}
+            forceOpen = True
         
         # Update the class variable
         _HierarchyNode._nodeOpenStatusFromName = self._nodeOpenStatusFromName
@@ -959,6 +961,8 @@ class KoPlaceTreeView(TreeView):
                                     'requestID':requestID,
                                     'requester':self},
                                    'post_refreshTreeOnOpen'))
+        elif forceOpen:
+            self.toggleOpenState(0)
 
     def post_refreshTreeOnOpen(self, rv, requestID):
         newRows, beforeLen = self.getItemsByRequestID(requestID, 'items', 'beforeLen')
