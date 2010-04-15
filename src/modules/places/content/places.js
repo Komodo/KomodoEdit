@@ -62,6 +62,7 @@ var uriSpecificPrefs;
 var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 var widgets = {};
+var osPathSvc;
 
 const DEFAULT_EXCLUDE_MATCHES = ".*;*~;#*;CVS;*.bak;*.pyo;*.pyc";
 const DEFAULT_INCLUDE_MATCHES = ".login;.profile;.bashrc;.bash_profile";
@@ -168,6 +169,26 @@ viewMgrClass.prototype = {
         }
     },
 
+    addNewFile: function(index) {
+        var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileName"));
+        if (!name) return;
+        try {
+            this.view.addNewFileAtParent(name, index);
+        } catch(ex) {
+            ko.dialogs.alert(ex);
+        }
+    },
+
+    addNewFolder: function(index) {
+        var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFolderName"));
+        if (!name) return;
+        try {
+            this.view.addNewFolderAtParent(name, index);
+        } catch(ex) {
+            ko.dialogs.alert(ex);
+        }
+    },
+
     onTreeKeyPress: function(event) {
         dump("TODO: viewMgrClass.onTreeKeyPress\n");
     },
@@ -206,6 +227,8 @@ viewMgrClass.prototype = {
          *   [Source Control | Source Control on Contents] ...
          *----------------
          *   Delete
+         *   New File...
+         *   New Folder...
          *----------------
          *   Properties (*Folder:disabled)
          */
@@ -299,6 +322,18 @@ viewMgrClass.prototype = {
                 menuitem.setAttribute("disabled", "true");
             }
             popupmenu.insertBefore(menuitem, newMenuItemNode);
+            menuitem = document.getElementById("placesContextMenu_newFile");
+            menuitem.removeAttribute("disabled");
+            menuitem.setAttribute("oncommand",
+                                  ("gPlacesViewMgr.addNewFile("
+                                    + index
+                                    + ");"));
+            menuitem = document.getElementById("placesContextMenu_newFolder");
+            menuitem.removeAttribute("disabled");
+            menuitem.setAttribute("oncommand",
+                                  ("gPlacesViewMgr.addNewFolder("
+                                    + index
+                                    + ");"));
         } else {
             menuitem = this._makeMenuItem("placesContextMenu_compareFileWith",
                                           _bundle_peFile.GetStringFromName("compareFileWith"),
@@ -577,8 +612,6 @@ viewMgrClass.prototype = {
                 title = "Enter a new name for the copied file";
                 var value;
                 var newPath;
-                var osPathSvc = (Components.classes["@activestate.com/koOsPath;1"]
-                                 .getService(Components.interfaces.koIOsPath));
                 var regEx = /(.*)\((\d+)\)$/;
                 var idx;
                 var targetDirPath = targetFileInfo.dirName;
@@ -881,30 +914,44 @@ ManagerClass.prototype = {
     },
 
     openDirectory: function(dir) {
+        if (!osPathSvc.exists(dir)) {
+            var prompt = _bundle.formatStringFromName('directoryDoesntExist.prompt',
+                                                      [dir], 1);
+            ko.dialogs.alert(prompt);
+            return;
+        }
         this._enterMRU_Place();
         var uri = ko.uriparse.localPathToURI(dir);
         this._setURI(uri, true);
     },
+ 
+    _checkForExistenceByURI: function(uri) {
+        var fileObj = Components.classes["@activestate.com/koFileEx;1"].
+        createInstance(Components.interfaces.koIFileEx);
+        fileObj.URI = uri;
+        if (fileObj.isLocal) {
+            if (!osPathSvc.exists(fileObj.displayPath)) {
+                var prompt = _bundle.formatStringFromName('cantFindPath.prompt',
+                                                          [fileObj.displayPath],
+                                                          1);
+                ko.dialogs.alert(prompt);
+                _placePrefs.getPref("mru_places").deletePref(idx);
+                return false;
+            }
+        }
+        return true;
+    },
 
     loadRecentURI_byIndex: function(code, idx) {
         var uri;
+        var checkedExistence = false;
         if (code == 'M') {
             var mruList = _placePrefs.getPref("mru_places");
             uri = mruList.getStringPref(idx);
-            var fileObj = Components.classes["@activestate.com/koFileEx;1"].
-                createInstance(Components.interfaces.koIFileEx);
-            fileObj.URI = uri;
-            if (fileObj.isLocal) {
-                var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
-                    .getService(Components.interfaces.koIOsPath);
-                if (!osPathSvc.exists(fileObj.displayPath)) {
-                    ko.dialogs.alert("Can't find the path '"
-                                     + fileObj.displayPath
-                                     + "'.");
-                    _placePrefs.getPref("mru_places").deletePref(idx);
-                    return;
-                }
+            if (!this._checkForExistenceByURI(uri)) {
+                return;
             }
+            checkedExistence = true;
         } else if (code == 'P') {
             uri = this.history_prevPlaces[idx];
         } else if (code == 'F') {
@@ -913,6 +960,9 @@ ManagerClass.prototype = {
             var msg = "Don't know how to handle code '" + code + "'\n";
             log.error(msg);
             dump(msg);
+            return;
+        }
+        if (!checkedExistence && !this._checkForExistenceByURI(uri)) {
             return;
         }
         this._enterMRU_Place();
@@ -1495,6 +1545,8 @@ this._instantiateRemoteConnectionService = function() {
 
 // In these functions 'this' is top (window)
 this.onLoad = function places_onLoad() {
+    osPathSvc = (Components.classes["@activestate.com/koOsPath;1"]
+                 .getService(Components.interfaces.koIOsPath));
     // Init the prefs
     _globalPrefs = (Components.classes["@activestate.com/koPrefService;1"].
                    getService(Components.interfaces.koIPrefService).prefs);
