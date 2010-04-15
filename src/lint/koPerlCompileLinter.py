@@ -46,6 +46,7 @@ import logging
 
 
 log = logging.getLogger("koPerlCompileLinter")
+#log.setLevel(logging.DEBUG)
 
 
 
@@ -354,16 +355,22 @@ class KoPerlCompileLinter:
                 # Find them, and append an annotation to turn the Perl-Critic feature off.
                 # This will also tag comments, strings, and POD, but that won't affect
                 # lint results.
+                # This is no longer needed with Perl-Critic 1.5, which
+                # goes by the filename given in any #line directives
+                perlCriticVersion = self._appInfoEx.getPerlCriticVersion();
                 file = request.document.file
                 if file:
                     baseFileName = file.baseName[0:-len(file.ext)]
-                    munger = re.compile(r'''^\s*(?P<package1>package \s+ (?:[\w\d_]+::)*) 
+                if perlCriticVersion < 1.500:
+                        munger = re.compile(r'''^\s*(?P<package1>package \s+ (?:[\w\d_]+::)*) 
                                              (?P<baseFileName>%s)
                                              (?P<space1>\s*;)
                                              (?P<space2>\s*)
                                              (?P<rest>(?:\#.*)?)$''' % (baseFileName,),
-                                        re.MULTILINE|re.VERBOSE)
-                    text = munger.sub(self._insertPerlCriticFilenameMatchInhibitor, text)
+                                            re.MULTILINE|re.VERBOSE)
+                        text = munger.sub(self._insertPerlCriticFilenameMatchInhibitor, text)
+                elif perlCriticVersion >= 1.500 and file:
+                    text = "#line 1 " + file.baseName + "\n" + text
         tmpFileName = None
         if cwd:
             # Try to create the tempfile in the same directory as the perl
@@ -397,8 +404,12 @@ class KoPerlCompileLinter:
             perlExe = self._selectPerlExe(prefset)
             lintOptions = prefset.getStringPref("perl_lintOption")
             option = '-' + lintOptions
+            pcOption = None
             if criticLevel != 'off':
-                option += ' -Mcriticism=' + criticLevel
+                if perlCriticVersion <= 1.100:
+                    pcOption = '-Mcriticism=' + criticLevel
+                else:
+                    pcOption = '''-Mcriticism (-severity => '%s', 'as-filename' => '%s')''' % (criticLevel, baseFileName)
             perlExtraPaths = prefset.getStringPref("perlExtraPaths")
             if perlExtraPaths:
                 if sys.platform.startswith("win"):
@@ -415,11 +426,15 @@ class KoPerlCompileLinter:
             # 'use PerlTray' in comments or strings will trigger a false positive
             if sys.platform.startswith("win") and _use_perltray_module.search(text):
                 argv += ['-I', self._perlTrayDir]
-                
-            argv += [option, tmpFileName]
+
+            argv.append(option)
+            if pcOption is not None:
+                argv.append(pcOption)
+            argv.append(tmpFileName)
             cwd = cwd or None # convert '' to None (cwd=='' for new files)
             env = koprocessutils.getUserEnv()
             # We only need stderr output.
+
             p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
             stdout, stderr = p.communicate()
             lintResults = PerlWarnsToLintResults(stderr.splitlines(1),

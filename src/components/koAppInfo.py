@@ -209,7 +209,7 @@ class KoPerlInfoEx(KoAppInfoEx):
         else:
             return 1
 
-    def isPerlCriticInstalled(self, forceCheck):
+    def isPerlCriticInstalled(self, forceCheck=False):
         if self._havePerlCritic is None or forceCheck:
             self._havePerlCritic = bool(self.haveModules(["criticism", "Perl::Critic"]))
         return self._havePerlCritic
