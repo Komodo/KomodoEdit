@@ -87,6 +87,7 @@ import time
 import stat
 import types
 from cStringIO import StringIO
+from functools import partial as curry
 
 import compiler
 from compiler import ast
@@ -1268,6 +1269,13 @@ def _getAST(content):
 
 #---- public module interface
 
+_RX32 = [curry(re.compile(match, re.U).sub, repl)
+         for match, repl in (
+            (r'(\bexcept\s*)(\S.+?)\s+as\s+(\w+)\s*:', r'\1(\2,), \3:'),
+            (r'\b0[oO](\d+)', r'\1'),
+            (r'\bprint\s*\(', r'print_('),
+            (r'(\bclass.+?),?\s*\b\w+\s*=.+?(?=\))', r'\1'))]
+
 def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
     """Scan the given Python content and return Code Intelligence data
     conforming the the Code Intelligence XML format.
@@ -1305,6 +1313,11 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
     # funky *whitespace* at the end of the file.
     content = content.rstrip() + '\n'
 
+    convert3to2 = True
+    if convert3to2:
+        for rx in _RX32:
+            content = rx(content)
+    
     if type(filename) == types.UnicodeType:
         filename = filename.encode('utf-8')
     # The 'path' attribute must use normalized dir separators.
