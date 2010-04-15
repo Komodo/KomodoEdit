@@ -262,7 +262,6 @@ class KPFTreeView(TreeView):
         self._sortDir = 0
 
         self._tree = None
-        self._document = None
         self._ft = None
         self._dataLock = threading.RLock()
         self.statusObserver = None
