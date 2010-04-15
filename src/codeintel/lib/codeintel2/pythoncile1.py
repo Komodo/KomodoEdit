@@ -1269,12 +1269,12 @@ def _getAST(content):
 
 #---- public module interface
 
-_RX32 = [curry(re.compile(match, re.U).sub, repl)
-         for match, repl in (
-            (r'(\bexcept\s*)(\S.+?)\s+as\s+(\w+)\s*:', r'\1(\2,), \3:'),
-            (r'\b0[oO](\d+)', r'\1'),
-            (r'\bprint\s*\(', r'print_('),
-            (r'(\bclass.+?),?\s*\b\w+\s*=.+?(?=\))', r'\1'))]
+_python3to2_converters = [curry(re.compile(match, re.U).sub, repl)
+                            for match, repl in (
+                                (r'(\bexcept\s*)(\S.+?)\s+as\s+(\w+)\s*:', r'\1(\2,), \3:'),
+                                (r'\b0[oO](\d+)', r'\1'),
+                                (r'\bprint\s*\(', r'print_('),
+                                (r'(\bclass.+?),?\s*\b\w+\s*=.+?(?=\))', r'\1'))]
 
 def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
     """Scan the given Python content and return Code Intelligence data
@@ -1315,8 +1315,11 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
 
     convert3to2 = True
     if convert3to2:
-        for rx in _RX32:
-            content = rx(content)
+        # Apply _python3to2_converters in order to make Python3 code
+        # as compatible with pythoncile's Python2 parser as neessary
+        # for codeintel purposes.
+        for converter in _python3to2_converters:
+            content = converter(content)
     
     if type(filename) == types.UnicodeType:
         filename = filename.encode('utf-8')
