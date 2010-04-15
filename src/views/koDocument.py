@@ -142,6 +142,8 @@ class koDocumentBase:
 
         timeline.leave('koDocumentBase.__init__')
     
+    #TODO: refactor so `init` and `_dereference` actually sound like they relate (which they do)
+    #      also make `init` internal
     def init(self):
         # when we reference count upwards, we might need to recreate some components
         # this could happen if anyone keeps a reference to the document, and the document
@@ -255,10 +257,8 @@ class koDocumentBase:
                                  createInstance(components.interfaces.koIEncoding)
         if not encoding_name:
             encoding_name = self._getStringPref('encodingDefault')
-        encoding = self.encodingServices.get_encoding_info(encoding_name)\
-                       .python_encoding_name
-        self.encoding.python_encoding_name =\
-            self.encodingServices.get_canonical_python_encoding_name(encoding)
+        self.encoding.python_encoding_name = self.encodingServices.get_canonical_python_encoding_name(
+            self.encodingServices.get_encoding_info(encoding_name).python_encoding_name)
 
         if self.prefs.hasPref('language'):
             #print "found language in prefs: ", self.prefs.getStringPref('language')
