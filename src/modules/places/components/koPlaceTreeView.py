@@ -925,7 +925,8 @@ class KoPlaceTreeView(TreeView):
                                              components.interfaces.koIFileNotificationService.WATCH_DIR,
                                              _notificationsToReceive)
         else:
-            log.debug("openPlace: not local:(%s)", uri)
+            #log.debug("openPlace: not local:(%s)", uri)
+            pass
 
         self._currentPlace_uri = uri
         openNodesByURIPrefs = components.classes["@activestate.com/koPrefService;1"].\
@@ -973,6 +974,89 @@ class KoPlaceTreeView(TreeView):
             raise Exception(rv)
         self._rows += newRows
         self._tree.rowCountChanged(beforeLen, len(newRows))
+
+    def addNewFileAtParent(self, basename, parentIndex):
+        parentNode = self._rows[parentIndex]
+        parentPath = parentNode.getPath()
+        koFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                   createInstance(components.interfaces.koIFileEx)
+        if self._isLocal:
+            fullPath = os.path.join(parentPath, basename)
+            if os.path.exists(fullPath):
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                      "File %s already exists in %s" % (basename, parentPath))
+            f = open(fullPath, "w")
+            f.close()
+            koFileEx.path = fullPath
+        else:
+            conn = self._RCService.getConnectionUsingUri(self._currentPlace_uri)
+            fullPath = parentPath + "/" +  basename
+            if conn.list(fullPath, False):
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                      "File %s already exists in %s:%s" % (basename, conn.server, parentPath))
+            conn.createFile(fullPath, 0644)
+            koFileEx.URI = parentNode.getURI() + "/" + basename
+        self._insertNewItemAtParent(parentIndex, parentNode, koFileEx, basename)
+
+    def addNewFolderAtParent(self, basename, parentIndex):
+        parentNode = self._rows[parentIndex]
+        parentPath = parentNode.getPath()
+        koFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                   createInstance(components.interfaces.koIFileEx)
+        if self._isLocal:
+            fullPath = os.path.join(parentPath, basename)
+            if os.path.exists(fullPath):
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                      "File %s already exists in %s" % (basename, parentPath))
+            os.mkdir(fullPath)
+            koFileEx.path = fullPath
+        else:
+            conn = self._RCService.getConnectionUsingUri(self._currentPlace_uri)
+            fullPath = parentPath + "/" +  basename
+            if conn.list(fullPath, False):
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                      "File %s already exists in %s:%s" % (basename, conn.server, parentPath))
+            perms = self._umaskFromPermissions(self, conn.list(parentPath, False))
+            conn.createDirectory(fullPath, perms)
+            koFileEx.URI = parentNode.getURI() + "/" + basename
+        self._insertNewItemAtParent(parentIndex, parentNode, koFileEx, basename)
+
+    def _insertNewItemAtParent(self, targetIndex, targetNode, koFileEx, basename):
+        if not self.isContainer(targetIndex):
+            return
+        elif not self.isContainerOpen(targetIndex):
+            self.toggleOpenState(targetIndex)
+            return
+        if not sys.platform.startswith('lin'):
+            basename_lc = basename.lower()
+        else:
+            # Fold case on OSX and Windows
+            basename_lc = basename
+        nextParentSiblingIndex = self.getNextSiblingIndex(targetIndex)
+        if nextParentSiblingIndex == -1:
+            finalIndex = len(self._rows)  # Put the item at this point
+        else:
+            finalIndex = nextParentSiblingIndex - 1
+
+        for i in range(targetIndex + 1, finalIndex + 1):
+            row = self._rows[i]
+            currName = row.getName().lower()
+            if currName < basename_lc:
+                pass
+            elif currName == basename_lc:
+                return # it's already there.
+            else:
+                target_index = i
+                break
+        else:
+            # It goes at the end
+            target_index = finalIndex + 1
+        if target_index >= 0:
+            full_name = koFileEx.path
+            newNode = _HierarchyNode(targetNode.level + 1,
+                                   placeObject[_PLACE_FOLDER](fileObj=koFileEx))
+            self._rows.insert(target_index, newNode)
+            self._tree.rowCountChanged(target_index, 1)
 
     #---- delete-item Methods
 

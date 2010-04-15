@@ -393,6 +393,16 @@
                         class="menuitem-iconic list-item-remove-icon"
                         keep="true"
                         />
+              <menuitem id="placesContextMenu_newFile"
+                        label="&newFile.label;"
+                        class="menuitem-iconic new-file-icon"
+                        keep="true"
+                        />
+              <menuitem id="placesContextMenu_newFolder"
+                        label="&newFolder.label;"
+                        class="menuitem-iconic newfolder-icon"
+                        keep="true"
+                        />
               <menuseparator id="placesContextMenu_separatorProperties"
                              keep="true"
                              intoplevel="true"/>
