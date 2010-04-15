@@ -1,4 +1,3 @@
-
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  * 
@@ -829,7 +828,7 @@ function ManagerClass() {
 }
 
 ManagerClass.prototype = {
-    doSetLocalPlace: function() {
+    doLoadLocalPlace: function() {
         var defaultDir = null;
         var placeToTry = (this.currentPlaceIsLocal
                           ? this.currentPlace
@@ -845,7 +844,7 @@ ManagerClass.prototype = {
         var dir = ko.filepicker.getFolder(defaultDir,
                           _bundle.GetStringFromName("directoryPickerPrompt"));
         if (dir == null) {
-            log.debug("doSetLocalPlace -- filename is null\n");
+            log.debug("doLoadLocalPlace -- filename is null\n");
             return;
         }
         this._recordLastHomePlace();
@@ -853,7 +852,7 @@ ManagerClass.prototype = {
         ko.uilayout.ensureTabShown("places_tab");
     },
     
-    doSetRemotePlace: function() {
+    doLoadRemotePlace: function() {
         // No need for defaults here?
         var o = {};
         if (this.lastRemoteHomePlace) {
@@ -885,17 +884,6 @@ ManagerClass.prototype = {
         this._enterMRU_Place();
         var uri = ko.uriparse.localPathToURI(dir);
         this._setURI(uri, true);
-    },
-
-    doClearPlace: function() {
-        this._enterMRU_Place();
-        this._recordLastHomePlace();
-        gPlacesViewMgr.view.currentPlace = this.currentPlace =
-         this.currentHomePlace = null;
-        widgets.rootPath.setAttribute('class', 'noplace');
-        widgets.rootPath.value = '';
-        window.setTimeout(window.updateCommands, 1,
-                          "current_place_closed");
     },
 
     loadRecentURI_byIndex: function(code, idx) {
@@ -1225,12 +1213,38 @@ ManagerClass.prototype = {
     
     initialize: function() {
         try {
-            var uri = _globalPrefs.getPref("places").getStringPref(window._koNum);
+            var uri = null;
+            try {
+                uri = _globalPrefs.getPref("places").getStringPref(window._koNum);
+            } catch(ex) {
+            }
+            if (!uri) {
+                const nsIDirectoryServiceProvider = Components.interfaces.nsIDirectoryServiceProvider;
+                const nsIDirectoryServiceProvider_CONTRACTID = "@mozilla.org/file/directory_service;1";
+                try {
+                    var dirServiceProvider = Components.classes[nsIDirectoryServiceProvider_CONTRACTID]
+                        .getService(nsIDirectoryServiceProvider);
+                    var homeDir = dirServiceProvider.getFile("Home", {});
+                    if (!homeDir) {
+                        if (navigator.platform.toLowerCase().substr(0, 3)
+                            == "win") {
+                            homeDir = "C:\\";
+                        } else {
+                            homeDir = "/";
+                        }
+                    } else {
+                        homeDir = homeDir.path;
+                    }
+                    uri = ko.uriparse.localPathToURI(homeDir);
+                } catch(e) {
+                    log.debug("ManagerClass.initialize on homeDir: " + e+ "\n");
+                }
+            }
             if (uri) {
                 this._setURI(uri, false);
             }
         } catch(ex) {
-            log.debug("Error init'ing the viewMgrClass: " + ex + "\n");
+            log.debug("Error initializing the viewMgrClass: " + ex + "\n");
         }
         try {
             var placesPrefs = _globalPrefs.getPref("places");
