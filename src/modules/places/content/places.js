@@ -1212,39 +1212,37 @@ ManagerClass.prototype = {
     },
     
     initialize: function() {
+        var uri = null;
         try {
-            var uri = null;
-            try {
-                uri = _globalPrefs.getPref("places").getStringPref(window._koNum);
-            } catch(ex) {
-            }
-            if (!uri) {
-                const nsIDirectoryServiceProvider = Components.interfaces.nsIDirectoryServiceProvider;
-                const nsIDirectoryServiceProvider_CONTRACTID = "@mozilla.org/file/directory_service;1";
-                try {
-                    var dirServiceProvider = Components.classes[nsIDirectoryServiceProvider_CONTRACTID]
-                        .getService(nsIDirectoryServiceProvider);
-                    var homeDir = dirServiceProvider.getFile("Home", {});
-                    if (!homeDir) {
-                        if (navigator.platform.toLowerCase().substr(0, 3)
-                            == "win") {
-                            homeDir = "C:\\";
-                        } else {
-                            homeDir = "/";
-                        }
-                    } else {
-                        homeDir = homeDir.path;
-                    }
-                    uri = ko.uriparse.localPathToURI(homeDir);
-                } catch(e) {
-                    log.debug("ManagerClass.initialize on homeDir: " + e+ "\n");
-                }
-            }
-            if (uri) {
-                this._setURI(uri, false);
-            }
+            uri = _globalPrefs.getPref("places").getStringPref(window._koNum);
         } catch(ex) {
-            log.debug("Error initializing the viewMgrClass: " + ex + "\n");
+        }
+        if (!uri) {
+            const nsIDirectoryServiceProvider = Components.interfaces.nsIDirectoryServiceProvider;
+            const nsIDirectoryServiceProvider_CONTRACTID = "@mozilla.org/file/directory_service;1";
+            try {
+                var dirServiceProvider = Components.classes[nsIDirectoryServiceProvider_CONTRACTID]
+                    .getService(nsIDirectoryServiceProvider);
+                var homeDir = dirServiceProvider.getFile("Home", {});
+                if (!homeDir) {
+                    if (navigator.platform.toLowerCase().substr(0, 3)
+                        == "win") {
+                        homeDir = "C:\\";
+                    } else {
+                        homeDir = "/";
+                    }
+                } else {
+                    homeDir = homeDir.path;
+                }
+                uri = ko.uriparse.localPathToURI(homeDir);
+            } catch(e) {
+                log.debug("ManagerClass.initialize on homeDir: " + e+ "\n");
+            }
+        }
+        if (uri) {
+            try {
+                this._setURI(uri, false);
+            } catch(ex) {}
         }
         try {
             var placesPrefs = _globalPrefs.getPref("places");
@@ -1280,7 +1278,7 @@ ManagerClass.prototype = {
                 setTimeout(window.updateCommands, 100, 'place_history_changed');
             }
         } catch(ex) {
-            dump("Error init'ing the viewMgrClass: " + ex + "\n");
+            dump("Error init'ing the viewMgrClass (2): " + ex + "\n");
         }
     },
     
