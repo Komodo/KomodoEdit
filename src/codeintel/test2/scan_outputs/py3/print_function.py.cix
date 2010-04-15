@@ -1,0 +1,7 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/py3/print_function.py">
+    <scope ilk="blob" lang="Python" name="print_function" src="scan_inputs/py3/print_function.py">
+      <variable citdl="str" line="2" name="bar" />
+    </scope>
+  </file>
+</codeintel>
