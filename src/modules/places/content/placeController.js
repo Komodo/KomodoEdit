@@ -58,37 +58,24 @@ PlacesController.prototype.constructor = PlacesController;
 PlacesController.prototype.destructor = function() {
 }
 
-PlacesController.prototype.is_cmd_setPlace_enabled = function() {
-    //this.log.debug("PlacesController.prototype.is_cmd_setPlace_enabled\n");
+PlacesController.prototype.is_cmd_loadPlace_enabled = function() {
+    //this.log.debug("PlacesController.prototype.is_cmd_loadPlace_enabled\n");
     return true;
 }
 
-PlacesController.prototype.do_cmd_setPlace = function() {
-    //this.log.debug("PlacesController.prototype.do_cmd_setPlace\n");
-    ko.places.manager.doSetLocalPlace();
+PlacesController.prototype.do_cmd_loadPlace = function() {
+    //this.log.debug("PlacesController.prototype.do_cmd_loadPlace\n");
+    ko.places.manager.doLoadLocalPlace();
 }
 
-PlacesController.prototype.is_cmd_setRemotePlace_enabled = function() {
-    //this.log.debug("PlacesController.prototype.is_cmd_setRemotePlace_enabled\n");
+PlacesController.prototype.is_cmd_loadRemotePlace_enabled = function() {
+    //this.log.debug("PlacesController.prototype.is_cmd_loadRemotePlace_enabled\n");
     return true;
 }
 
-PlacesController.prototype.do_cmd_setRemotePlace = function() {
-    //this.log.debug("PlacesController.prototype.do_cmd_setRemotePlace\n");
-    ko.places.manager.doSetRemotePlace();
-}
-
-PlacesController.prototype.is_cmd_clearPlace_enabled = function() {
-    //dump("PlacesController.prototype.is_cmd_clearPlace_enabled\n");
-    return ko.places.manager.currentPlace != null;
-}
-
-PlacesController.prototype.do_cmd_clearPlace = function() {
-    if (!this.is_cmd_clearPlace_enabled()) {
-        this.log("do_cmd_clearPlace: invoked, but not enabled")
-        return;
-    }
-    ko.places.manager.doClearPlace();
+PlacesController.prototype.do_cmd_loadRemotePlace = function() {
+    //this.log.debug("PlacesController.prototype.do_cmd_loadRemotePlace\n");
+    ko.places.manager.doLoadRemotePlace();
 }
 
 // cmdset_place_contextMenu controller

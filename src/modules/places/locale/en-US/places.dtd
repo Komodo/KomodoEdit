@@ -37,9 +37,8 @@
 <!ENTITY filters.label "Filters">
 <!ENTITY newPlace.label "New...">
 
-<!ENTITY setPlace.label "Set Place">
-<!ENTITY setRemotePlace.label "Set Remote Place">
-<!ENTITY clearPlace.label "Clear Place">
+<!ENTITY loadPlace.label "Load Place">
+<!ENTITY loadRemotePlace.label "Load Remote Place">
 <!ENTITY recentPlaces.label "Recent Places">
 <!ENTITY recentPlaces.accesskey "R">
 <!ENTITY placesView.tooltiptext "Places Tools">
@@ -48,9 +47,8 @@
 <!ENTITY viewAll.label "View All">
 <!ENTITY manageCustomViews.label "Manage Views...">
 
-<!ENTITY placesSetPlace.desc "Places: Set Place...">
-<!ENTITY placesSetRemotePlace.desc "Places: Set Remote Place...">
-<!ENTITY placesClearPlace.desc "Places: Clear Place...">
+<!ENTITY placesLoadPlace.desc "Places: Load Place...">
+<!ENTITY placesLoadRemotePlace.desc "Places: Load Remote Place...">
 
 <!ENTITY placesCutItem.desc "Places: Cut the file or folder from its parent.">
 <!ENTITY placesCopyItem.desc "Places: Copy the file or folder from its parent.">

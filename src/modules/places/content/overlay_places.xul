@@ -74,17 +74,13 @@
         commandupdater="true"
         events="current_view_changed,place_dirty,current_place_changed,current_place_opened,current_place_closed">
       <command
-          id="cmd_setPlace" key="key_cmd_setPlace"
-          oncommand="ko.commands.doCommandAsync('cmd_setPlace', event)"
-          desc="&placesSetPlace.desc;"/>
+          id="cmd_loadPlace" key="key_cmd_loadPlace"
+          oncommand="ko.commands.doCommandAsync('cmd_loadPlace', event)"
+          desc="&placesLoadPlace.desc;"/>
       <command
-          id="cmd_setRemotePlace" key="key_cmd_setRemotePlace"
-          oncommand="ko.commands.doCommandAsync('cmd_setRemotePlace', event)"
-          desc="&placesSetRemotePlace.desc;"/>
-      <command
-          id="cmd_clearPlace" key="key_cmd_clearPlace"
-          oncommand="ko.commands.doCommandAsync('cmd_clearPlace', event)"
-          desc="&placesClearPlace.desc;"/>
+          id="cmd_loadRemotePlace" key="key_cmd_loadRemotePlace"
+          oncommand="ko.commands.doCommandAsync('cmd_loadRemotePlace', event)"
+          desc="&placesLoadRemotePlace.desc;"/>
       <command
           id="cmd_findInPlace"
           key="key_cmd_findInPlace"
@@ -202,17 +198,13 @@
   <menupopup id="popup_project">
     <!-- Let it fall to the bottom of the menu for now. -->
     <menuseparator id="project-place-menuseparator" />
-    <menuitem label="&setPlace.label;"
+    <menuitem label="&loadPlace.label;"
               id="menu_SetPlace"
-              observes="cmd_setPlace"
+              observes="cmd_loadPlace"
               />
-    <menuitem label="&setRemotePlace.label;"
+    <menuitem label="&loadRemotePlace.label;"
               id="menu_SetRemotePlace"
-              observes="cmd_setRemotePlace"
-              />
-    <menuitem label="&clearPlace.label;"
-              id="menu_clearPlace"
-              observes="cmd_clearPlace"
+              observes="cmd_loadRemotePlace"
               />
     <menu
         id="menu_mruPlaces"
@@ -248,21 +240,16 @@
                   orient="horizontal"
                   class="rightarrow-button-a project-tools-icon">
             <menupopup id="placeView_toolsPopup">
-              <menuitem id="placeView_setButton"
-                  observes="cmd_setPlace"
-                  label="&setPlace.label;"
+              <menuitem id="placeView_loadButton"
+                  observes="cmd_loadPlace"
+                  label="&loadPlace.label;"
                   keep="true"
                   class="menuitem-iconic open-places-icon"/>
-              <menuitem id="placeView_setRemoteButton"
-                  observes="cmd_setRemotePlace"
-                  label="&setRemotePlace.label;"
+              <menuitem id="placeView_loadRemoteButton"
+                  observes="cmd_loadRemotePlace"
+                  label="&loadRemotePlace.label;"
                   keep="true"
                   class="menuitem-iconic open-places-icon"/>
-              <menuitem id="placeView_clearButton"
-                  observes="cmd_clearPlace"
-                  label="&clearPlace.label;"
-                  keep="true"
-                  class="menuitem-iconic close-project-icon"/>
     <menu
         id="menu_mruPlaces"
         accesskey="&recentPlaces.accesskey;"
