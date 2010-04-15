@@ -192,10 +192,6 @@ if ($withCrypto) {
     $cons->InstallXpcomComponent('koSFTP.py');
     # Scp handling
     $cons->InstallXpcomComponent('koSCP.py');
-    # Putty agent
-    if ($platform eq "win") {
-        $cons->InstallPythonUtility('remotefileagent.py');
-    }
 }
 
 # Remote connection service
