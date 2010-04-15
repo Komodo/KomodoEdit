@@ -90,7 +90,7 @@ class koDocumentBase:
         self._isDirty = 0     # boolean
         self.isUntitled = 1  # boolean
         self._views = [] # scintilla widget instances
-        self._document = None # scimoz.docpointer
+        self._docPointer = None # scimoz.docPointer
         #XXX should get eol from prefs and/or from document content
         self._eol = eollib.EOL_PLATFORM
         
@@ -596,7 +596,7 @@ class koDocumentBase:
     #       own implementation. To be kept in mind for re-factoring work.
 
     def get_subLanguage(self):
-        if not self._language or not self._document:
+        if not self._language or not self._docPointer:
             return None
         languages = self.get_languageObj().getSubLanguages()
         if len(languages) < 2:
@@ -611,7 +611,7 @@ class koDocumentBase:
         return self.get_languageObj().getLanguageForFamily(family)
         
     def languageForPosition(self, pos):
-        if not self._language or not self._document:
+        if not self._language or not self._docPointer:
             return None
         languages = self.get_languageObj().getSubLanguages()
         if len(languages) < 2:
@@ -632,7 +632,7 @@ class koDocumentBase:
         self._codePage = 65001
 
     def get_buffer(self):
-        if self._document:
+        if self._docPointer:
             return self._views[0].scimoz.text
         return self._buffer
     
@@ -663,7 +663,7 @@ class koDocumentBase:
     def _set_buffer_encoded(self,text,makeDirty=1):
         timeline.enter('koDocumentBase._set_buffer_encoded')
         was_dirty = self.get_isDirty()
-        if self._document:
+        if self._docPointer:
             scimoz = self._views[0].scimoz
             cp = scimoz.currentPos
             an = scimoz.anchor
@@ -697,7 +697,7 @@ class koDocumentBase:
 
     def get_bufferLength(self):
         # XXX as we add more methods, we'll need a better system
-        if self._document:
+        if self._docPointer:
             return self._views[0].scimoz.textLength
         if self._buffer:
             return len(self._buffer)
@@ -709,7 +709,7 @@ class koDocumentBase:
                                   "Invalid line ending: %s" % le)
 
         timeline.enter('koDocumentBase.set_existing_line_endings')
-        if self._document:
+        if self._docPointer:
             scimoz = self._views[0].scimoz            
             scimoz.beginUndoAction()
             try:
@@ -1326,15 +1326,15 @@ class koDocumentBase:
         self._views.append(scintilla)
         scimoz = scintilla.scimoz
         xpself = WrapObject(self, components.interfaces.koIDocument)
-        if not self._document:
+        if not self._docPointer:
             scimoz.docPointer = 0 # create document
             self.docSettingsMgr.register(xpself, scintilla)
             self._buffer = None # clear out any old buffer we may have had
-            self._document = scimoz.docPointer
-            scimoz.addRefDocument(self._document)
+            self._docPointer = scimoz.docPointer
+            scimoz.addRefDocument(self._docPointer)
         else:
-            scimoz.addRefDocument(self._document)
-            scimoz.docPointer = self._document
+            scimoz.addRefDocument(self._docPointer)
+            scimoz.docPointer = self._docPointer
             self.docSettingsMgr.register(xpself, scintilla)
         scimoz.codePage = self._codePage
         log.info("in AddView")
@@ -1348,10 +1348,10 @@ class koDocumentBase:
                 raise ServerException(nsError.NS_ERROR_FAILURE,'SciMoz does not reference.')
             self.docSettingsMgr.unregister(scintilla)
             scimoz = scintilla.scimoz
-            scimoz.releaseDocument(self._document);
+            scimoz.releaseDocument(self._docPointer);
             if len(self._views) == 1:
                 buffer = self.get_buffer()
-                self._document = None
+                self._docPointer = None
                 self._set_buffer_encoded(buffer, 0)
                 if self.file and self.file.URI:
                     # Don't adjust markers for untitled or diff buffers, etc.
