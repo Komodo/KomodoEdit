@@ -189,19 +189,6 @@ class koDocumentBase:
 
         timeline.leave('koDocumentBase.initWithFile')
 
-    def initWithURI(self, uri):
-        timeline.enter('koDocumentBase.initWithURI')
-        log.info("initWithURI(uri=%r)", uri)
-        self.isUntitled = 0
-        filesvc = components.classes["@activestate.com/koFileService;1"] \
-                        .createInstance(components.interfaces.koIFileService)
-        self.file = filesvc.getFileFromURI(uri)
-        self._setupPrefs()
-        if self._language is None:
-            self._guessLanguage()
-        self._initCIBuf()
-        timeline.leave('koDocumentBase.initWithURI')
-
     def initUntitled(self, name, encoding):
         timeline.enter('koDocumentBase.initUntitled')
         log.info("initUntitled(name=%r, ...)", name)
