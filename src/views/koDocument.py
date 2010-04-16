@@ -199,7 +199,7 @@ class koDocumentBase:
         if self._language is None:
             self._guessLanguage()
         self._initCIBuf()
-        timeline.leave('koDocumentBase.initWithURI0')
+        timeline.leave('koDocumentBase.initUntitled')
 
     def addReference(self):
         self._refcount += 1
