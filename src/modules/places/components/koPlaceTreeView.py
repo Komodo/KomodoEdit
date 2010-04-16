@@ -265,6 +265,7 @@ class KoPlaceTreeView(TreeView):
                                       wrapSelf, PROXY_ALWAYS | PROXY_SYNC)
         self.workerThread = _WorkerThread(target=_WorkerThread.run,
                                           name="Places TreeView")
+        self.workerThread.daemon = True
         self.workerThread.start()
         self.notificationSvc = components.classes["@activestate.com/koFileNotificationService;1"].\
                                     getService(components.interfaces.koIFileNotificationService)
@@ -1057,8 +1058,12 @@ class KoPlaceTreeView(TreeView):
             target_index = finalIndex + 1
         if target_index >= 0:
             full_name = koFileEx.path
+            if koFileEx.isDirectory:
+                nodeType = _PLACE_FOLDER
+            else:
+                nodeType = _PLACE_FILE
             newNode = _HierarchyNode(targetNode.level + 1,
-                                   placeObject[_PLACE_FOLDER](fileObj=koFileEx))
+                                     placeObject[nodeType](fileObj=koFileEx))
             self._rows.insert(target_index, newNode)
             self._tree.rowCountChanged(target_index, 1)
 
