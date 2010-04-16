@@ -312,7 +312,8 @@ def komodo_to_cix(output_path, p4_edit=False):
     # We use one JavaScript ciler instance for all the files we scan. This is
     # so we can record all variable/function/etc... information into one
     # komodo.cix file.
-    jscile = JavaScriptCiler(Manager(), "komodo")
+    mgr = Manager()
+    jscile = JavaScriptCiler(mgr, "komodo")
     xtk_chrome_dir = join(_get_komodo_dev_dir(), "src", "chrome", "xtk",
                           "content")
     komodo_chrome_dir = join(_get_komodo_dev_dir(), "build", "release",
@@ -347,6 +348,9 @@ def komodo_to_cix(output_path, p4_edit=False):
     # Write out the tree
     _update_cix_file(output_path, get_cix_string(cix_komodo), p4_edit)
 
+    # Finalize the codeintel manager.
+    print "Finalizing the codeintel manager."
+    mgr.finalize()
 
 #---- mainline
 
