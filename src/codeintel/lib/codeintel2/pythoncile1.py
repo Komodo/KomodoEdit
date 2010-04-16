@@ -1274,7 +1274,8 @@ _python3to2_converters = [curry(re.compile(match, re.U).sub, repl)
                                 (r'(\bexcept\s*)(\S.+?)\s+as\s+(\w+)\s*:', r'\1(\2,), \3:'),
                                 (r'\b0[oO](\d+)', r'\1'),
                                 (r'\bprint\s*\(', r'print_('),
-                                (r'(\bclass.+?),?\s*\b\w+\s*=.+?(?=\))', r'\1'))]
+                                # change forms of class Foo(..., arg=Base1, metaclass=Cls3) to class Foo(...)
+                                (r'(\bclass\s+\w+\s*\(.*?),?\s*\w+\s*=.+?\)', r'\1)'))]
 
 def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
     """Scan the given Python content and return Code Intelligence data
@@ -1313,7 +1314,7 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
     # funky *whitespace* at the end of the file.
     content = content.rstrip() + '\n'
 
-    convert3to2 = True
+    convert3to2 = True # should be: lang == "Python3":
     if convert3to2:
         # Apply _python3to2_converters in order to make Python3 code
         # as compatible with pythoncile's Python2 parser as neessary
