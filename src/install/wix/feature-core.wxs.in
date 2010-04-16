@@ -3095,6 +3095,7 @@
                   <File Id="file717" Name="fix_next.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_next.py"/>
                   <File Id="file718" Name="FIX_NO_0.PY" LongName="fix_nonzero.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_nonzero.py"/>
                   <File Id="file719" Name="FIX_NU_0.PY" LongName="fix_numliterals.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_numliterals.py"/>
+                  <File Id="file1061" Name="FIX_OP_0.PY" LongName="fix_operator.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_operator.py" />
                   <File Id="file720" Name="FIX_PR_0.PY" LongName="fix_print.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_print.py"/>
                   <File Id="file721" Name="FIX_RA_0.PY" LongName="fix_raise.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_raise.py"/>
                   <File Id="file722" Name="FIX_RA_1.PY" LongName="fix_raw_input.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Lib\lib2to3\fixes\fix_raw_input.py"/>
