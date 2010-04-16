@@ -351,8 +351,12 @@ class KoPlaceTreeView(TreeView):
                 if target_index >= 0:
                     full_name = koFileEx.path
                     name = basename
+                    if koFileEx.isDirectory():
+                        nodeType = _PLACE_FOLDER
+                    else:
+                        nodeType = _PLACE_FILE
                     newNode = _HierarchyNode(self._rows[i].level + 1,
-                                 placeObject[_PLACE_FILE](fileObj=koFileEx))
+                                             placeObject[nodeType](fileObj=koFileEx))
                     self._rows.insert(target_index, newNode)
                     self._tree.rowCountChanged(target_index - 1, 1)
                     break
