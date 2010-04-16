@@ -51,6 +51,7 @@
   <?define WithCrypto = "PP_MSI_AVEC_CRYPTO" ?> <!-- yes|no -->
   <?define WithCasper = "PP_MSI_AVEC_CASPER" ?> <!-- yes|no -->
   <?define WithJSLib = "PP_MSI_AVEC_JSLIB" ?> <!-- yes|no -->
+  <?define WithPlaces = "PP_MSI_AVEC_PLACES" ?> <!-- yes|no -->
 
   <!-- Basic configuration data -->
   <?if $(var.IsMSIDebugBuild) = "yes" ?>

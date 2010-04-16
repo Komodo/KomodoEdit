@@ -359,6 +359,12 @@
       <ComponentRef Id="component352"/>
 <?endif ?>
 
+<?if $(var.WithPlaces) = "yes" ?>
+      <ComponentRef Id="component177"/>
+      <ComponentRef Id="component178"/>
+      <ComponentRef Id="component179"/>
+<?endif ?>
+
 <?endif ?> <!-- $(var.IsMSIDebugBuild) = "no" -->
     </FeatureRef>
 
@@ -1549,6 +1555,26 @@
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\zendframework@ActiveState.com\pylib -->
             </Directory> <!-- lib\mozilla\extensions\zendframework@ActiveState.com -->
+<?if $(var.WithPlaces) = "yes" ?>
+            <Directory Id="directory192" Name="PLACES_0.COM" LongName="places@activestate.com">
+              <Component Id="component177" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file1055" Name="CHROM_21.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\places@activestate.com\chrome.manifest"/>
+                <File Id="file1056" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\places@activestate.com\install.rdf"/>
+                <File Id="file1057" Name="places.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\places@activestate.com\places.jar"/>
+              </Component>
+              <Directory Id="directory193" Name="COMPO_27" LongName="components">
+                <Component Id="component178" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file1058" Name="KOIPLA_0.XPT" LongName="koIPlaceTreeView.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\places@activestate.com\components\koIPlaceTreeView.xpt"/>
+                  <File Id="file1059" Name="KOPLAC_0.PY" LongName="koPlaceTreeView.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\places@activestate.com\components\koPlaceTreeView.py"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\places@activestate.com\components -->
+              <Directory Id="directory194" Name="IDL_1" LongName="idl">
+                <Component Id="component179" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file1060" Name="KOIPLA_0.IDL" LongName="koIPlaceTreeView.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\places@activestate.com\idl\koIPlaceTreeView.idl"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\places@activestate.com\idl -->
+            </Directory> <!-- lib\mozilla\extensions\places@activestate.com -->
+<?endif ?>
           </Directory> <!-- lib\mozilla\extensions -->
           <Directory Id="directory65" Name="greprefs">
             <Component Id="component59" DiskId="1" Guid="$(autowix.guid)">

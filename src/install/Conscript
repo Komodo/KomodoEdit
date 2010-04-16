@@ -67,6 +67,7 @@ Import(
     "withCrypto",
     "withCasper",
     "withJSLib",
+    "withPlaces",
     "withDocJarring",
     "komodoTitleBarName",
     "gnomeDesktopName",
@@ -110,6 +111,7 @@ if ($buildFlavour eq "full") {
                 "PP_MSI_AVEC_CRYPTO" => ($withCrypto ? "yes" : "no"),
                 "PP_MSI_AVEC_CASPER" => ($withCasper ? "yes" : "no"),
                 "PP_MSI_AVEC_JSLIB" => ($withJSLib ? "yes" : "no"),
+                "PP_MSI_AVEC_PLACES" => ($withPlaces ? "yes" : "no"),
             }
         );
         $cons->Preprocess(
