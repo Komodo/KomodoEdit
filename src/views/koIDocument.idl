@@ -58,7 +58,6 @@ interface koILexerLanguageService;
 interface koIDocument : nsISupports
 {
     void initWithFile(in koIFileEx file, in boolean untitled);
-    void initWithURI(in wstring URI); // Cruft? No-one is using this. --TM
     void initUntitled(in wstring name, in wstring encoding);
 
     // Basic operations.

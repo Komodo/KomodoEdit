@@ -47,103 +47,108 @@ from xpcom.server import WrapObject, UnwrapObject
 
 
 class TestKoDocumentBase(unittest.TestCase):
-    def test_createFile(self):
-        filename = tempfile.mktemp()
-        text = "This is a test!"
-        document = components.classes["@activestate.com/koDocumentBase;1"] \
-                   .createInstance(components.interfaces.koIDocument)
+    _fileSvcCache = None
+    @property
+    def _fileSvc(self):
+        if self._fileSvcCache is None:
+            self._fileSvcCache = components.classes["@activestate.com/koFileService;1"] \
+                .getService(components.interfaces.koIFileService)
+        return self._fileSvcCache
 
+    def _koDocFromPath(self, path):
+        """Return an intialized `KoDocument` instance for the given path."""
+        import uriparse
+        uri = uriparse.localPathToURI(path)
+        return self._koDocFromURI(uri)
+    
+    def _koDocFromURI(self, uri):
+        koFile = self._fileSvc.getFileFromURI(uri)
+        koDoc = components.classes["@activestate.com/koDocumentBase;1"] \
+            .createInstance(components.interfaces.koIDocument)
+        koDoc.initWithFile(koFile, False);
+        return koDoc
+
+    def test_createFile(self):
+        text = "This is a test!"
+        path = tempfile.mktemp()
         try:
-            document.initWithURI(filename)
-            document.buffer = text
-            document.save(0)
+            koDoc = self._koDocFromPath(path)
+            koDoc.buffer = text
+            koDoc.save(0)
+            del koDoc
             
-            document = components.classes["@activestate.com/koDocumentBase;1"] \
-                       .createInstance(components.interfaces.koIDocument)
-            document.initWithURI(filename)
-            document.load()
-            assert document.buffer == text
+            koDoc2 = self._koDocFromPath(path)
+            koDoc2.load()
+            assert koDoc2.buffer == text
         finally:
-            if os.path.exists(filename):
-                os.unlink(filename) # clean up
+            if os.path.exists(path):
+                os.unlink(path) # clean up
         
     def test_revertFile(self):
-        filename = tempfile.mktemp()
+        path = tempfile.mktemp()
         try:
             # Init the test file with some content.
-            fout = open(filename, 'w')
+            fout = open(path, 'w')
             fout.write("blah\nblah\nblah")
             fout.close()
 
-            document = components.classes["@activestate.com/koDocumentBase;1"] \
-                       .createInstance(components.interfaces.koIDocument)
-            document.initWithURI(filename)
-            document.load()
-            oldtext = document.buffer
-            document.buffer = None
-            assert not document.buffer
-            document.revert()
-            assert oldtext == document.buffer
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            oldtext = koDoc.buffer
+            koDoc.buffer = None
+            assert not koDoc.buffer
+            koDoc.revert()
+            assert oldtext == koDoc.buffer
         finally:
-            if os.path.exists(filename):
-                os.unlink(filename) # clean up
+            if os.path.exists(path):
+                os.unlink(path) # clean up
 
     def test_readFile(self):
-        filename = tempfile.mktemp()
+        path = tempfile.mktemp()
         try:
             # Init the test file with some content.
-            fout = open(filename, 'w')
+            fout = open(path, 'w')
             fout.write("blah\nblah\nblah")
             fout.close()
 
-            document = components.classes["@activestate.com/koDocumentBase;1"] \
-                       .createInstance(components.interfaces.koIDocument)
-            document.initWithURI(filename)
-            document.load()
-            assert document.buffer
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            assert koDoc.buffer
         finally:
-            if os.path.exists(filename):
-                os.unlink(filename) # clean up
+            if os.path.exists(path):
+                os.unlink(path) # clean up
 
     def test_readURI(self):
-        filename = 'http://downloads.activestate.com/'
-        try:
-            document = components.classes["@activestate.com/koDocumentBase;1"] \
-                       .createInstance(components.interfaces.koIDocument)
-            document.initWithURI(filename)
-            document.load()
-            assert document.buffer
-        finally:
-            if os.path.exists(filename):
-                os.unlink(filename) # clean up
+        url = 'http://downloads.activestate.com/'
+        koDoc = self._koDocFromURI(url)
+        koDoc.load()
+        assert koDoc.buffer
 
     def test_changeLineEndings(self):
-        filename = tempfile.mktemp()
+        path = tempfile.mktemp()
         try:
             # Init the test file with some content.
-            fout = open(filename, 'w')
+            fout = open(path, 'w')
             fout.write("blah\nblah\nblah")
             fout.close()
 
-            document = components.classes["@activestate.com/koDocumentBase;1"] \
-                       .createInstance(components.interfaces.koIDocument)
-            document.initWithURI(filename)
-            document.load()
-            # does the document match our platform endings?
-            assert document.existing_line_endings == eollib.EOL_PLATFORM
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            # Does the document match our platform endings?
+            assert koDoc.existing_line_endings == eollib.EOL_PLATFORM
             # test converting to each of our endings
             for le in eollib.eolMappings.keys():
-                document.existing_line_endings = le
-                assert document.existing_line_endings == le
+                koDoc.existing_line_endings = le
+                assert koDoc.existing_line_endings == le
             # test converting to an invalid ending, should raise exception
             try:
-                document.existing_line_endings = 10
+                koDoc.existing_line_endings = 10
             except COMException, e:
                 pass
-            assert document.existing_line_endings != 10
+            assert koDoc.existing_line_endings != 10
         finally:
-            if os.path.exists(filename):
-                os.unlink(filename) # clean up
+            if os.path.exists(path):
+                os.unlink(path) # clean up
 
     def test_loadUTF8File(self):
         # expects the path to be in Komodo-devel
@@ -152,16 +157,14 @@ class TestKoDocumentBase(unittest.TestCase):
                    dirname(                           # views
                     dirname((abspath(__file__)))))),  # tests
                  "test", "stuff", "charsets", "utf-8_1.html")
-        utffile = os.path.abspath(p)
-        assert os.path.isfile(utffile)
-        document = components.classes["@activestate.com/koDocumentBase;1"] \
-                   .createInstance(components.interfaces.koIDocument)
-        document.initWithURI(utffile)
-        document.prefs.setBooleanPref('encodingAutoDetect',1)
-        document.load()
+        utf_path = os.path.abspath(p)
+        assert os.path.isfile(utf_path)
+        koDoc = self._koDocFromPath(utf_path)
+        koDoc.prefs.setBooleanPref('encodingAutoDetect', 1)
+        koDoc.load()
         # is utf8 identified?
-        assert document.encoding.python_encoding_name == 'utf-8'
-        assert document.codePage == 65001
+        assert koDoc.encoding.python_encoding_name == 'utf-8'
+        assert koDoc.codePage == 65001
 
     def test_forceEncoding(self):
         # expects the path to be in Komodo-devel
@@ -170,55 +173,51 @@ class TestKoDocumentBase(unittest.TestCase):
                    dirname(                           # views
                     dirname((abspath(__file__)))))),  # tests
                  "test", "stuff", "charsets", "utf-8_1.html")
-        utffile = os.path.abspath(p)
-        assert os.path.isfile(utffile)
-        document = components.classes["@activestate.com/koDocumentBase;1"] \
-                   .createInstance(components.interfaces.koIDocument)
-        document.initWithURI(utffile)
-        document.prefs.setBooleanPref('encodingAutoDetect',1)
-        document.load()
-        document.forceEncodingFromEncodingName('latin-1')
-        assert document.encoding.python_encoding_name == 'latin-1'
+        utf_path = os.path.abspath(p)
+        assert os.path.isfile(utf_path)
+        koDoc = self._koDocFromPath(utf_path)
+        koDoc.prefs.setBooleanPref('encodingAutoDetect',1)
+        koDoc.load()
+        koDoc.forceEncodingFromEncodingName('latin-1')
+        assert koDoc.encoding.python_encoding_name == 'latin-1'
         # this is not true any longer
-        #assert document.codePage == 0
+        #assert koDoc.codePage == 0
 
     def test_autoSaveFile(self):
-        filename = tempfile.mktemp()
+        path = tempfile.mktemp()
         buffer = "blah\nblah\nblah"
         try:
             # Init the test file with some content.
-            fout = open(filename, 'wb')
+            fout = open(path, 'wb')
             fout.write(buffer)
             fout.close()
 
-            document = components.classes["@activestate.com/koDocumentBase;1"] \
-                       .createInstance(components.interfaces.koIDocument)
-            document.initWithURI(filename)
-            document.load()
-            assert not document.haveAutoSave()
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            assert not koDoc.haveAutoSave()
             
-            # test the autosave filename
-            doc_asfn = os.path.basename(UnwrapObject(document)._getAutoSaveFileName())
-            my_asfn = "%s-%s" % (md5(document.file.URI).hexdigest(),document.file.baseName)
+            # test the autosave path
+            doc_asfn = os.path.basename(UnwrapObject(koDoc)._getAutoSaveFileName())
+            my_asfn = "%s-%s" % (md5(koDoc.file.URI).hexdigest(),koDoc.file.baseName)
             assert doc_asfn == my_asfn
             
             # document is not dirty yet
-            document.doAutoSave()
-            assert not document.haveAutoSave()
+            koDoc.doAutoSave()
+            assert not koDoc.haveAutoSave()
             
             # make the document dirty then save
-            document.isDirty = 1
-            document.doAutoSave()
-            assert document.haveAutoSave()
+            koDoc.isDirty = 1
+            koDoc.doAutoSave()
+            assert koDoc.haveAutoSave()
             
-            document.buffer = "tada"
-            document.restoreAutoSave()
-            assert document.buffer == buffer
-            document.removeAutoSaveFile()
-            assert not document.haveAutoSave()
+            koDoc.buffer = "tada"
+            koDoc.restoreAutoSave()
+            assert koDoc.buffer == buffer
+            koDoc.removeAutoSaveFile()
+            assert not koDoc.haveAutoSave()
         finally:
-            if os.path.exists(filename):
-                os.unlink(filename) # clean up
+            if os.path.exists(path):
+                os.unlink(path) # clean up
 
 #---- mainline
 
