@@ -275,7 +275,6 @@
       <ComponentRef Id="component604"/>
       <ComponentRef Id="component605"/>
       <ComponentRef Id="component606"/>
-      <ComponentRef Id="component501"/>
       <ComponentRef Id="component541"/>
       <ComponentRef Id="component536"/>
       <ComponentRef Id="component495"/>
@@ -3697,11 +3696,6 @@
               </Directory> <!-- lib\python\Lib\xml\sax -->
             </Directory> <!-- lib\python\Lib\xml -->
           </Directory> <!-- lib\python\Lib -->
-          <Directory Id="directory542" Name="Scripts">
-            <Component Id="component501" DiskId="1" Guid="$(autowix.guid)">
-              <File Id="file950" Name="PYWIN3_1.PY" LongName="pywin32_postinstall.py" Vital="yes" src="feature-core\INSTALLDIR\lib\python\Scripts\pywin32_postinstall.py"/>
-            </Component>
-          </Directory> <!-- lib\python\Scripts -->
           <Directory Id="directory181" Name="LIBS_1" LongName="libs">
             <Component Id="component172" DiskId="1" Guid="$(autowix.guid)">
               <File Id="file2306" Name="python26.lib" Vital="yes" src="feature-core\INSTALLDIR\lib\python\libs\python26.lib"/>
