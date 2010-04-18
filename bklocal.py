@@ -3100,13 +3100,8 @@ class InstallRelDir(black.configure.Datum):
             komodoMarketingVersion = black.configure.items["komodoMarketingVersion"].Get()
             buildNum = black.configure.items["buildNum"].Get()
             platName = _getDefaultPlatform(libcppVersion=True)
-            configTokens = black.configure.items["configTokens"].Get()
-            if configTokens:
-                configSuffix = '-' + '-'.join(configTokens)
-            else:
-                configSuffix = ""
-            base = "%s-%s-%s%s-%s" % (productName, komodoMarketingVersion,
-                                      buildNum, configSuffix, platName)
+            base = "%s-%s-%s-%s" % (productName, komodoMarketingVersion,
+                                      buildNum, platName)
             self.value = os.path.join("install", buildType, base)
         self.determined = 1
 
@@ -3692,14 +3687,9 @@ class KomodoInstallerPackage(black.configure.Datum):
         buildNum = black.configure.items["buildNum"].Get()
         packagesRelDir = black.configure.items["packagesRelDir"].Get()
         if platform == "win":
-            configTokens = black.configure.items["configTokens"].Get()
-            if configTokens:
-                configSuffix = '-' + '-'.join(configTokens)
-            else:
-                configSuffix = ""
             self.value = os.path.join(packagesRelDir,
-                "%s-%s-%s%s.msi"\
-                % (productName, version, buildNum, configSuffix))
+                "%s-%s-%s.msi"\
+                % (productName, version, buildNum))
         elif sys.platform == 'darwin':
             installRelDir = black.configure.items["installRelDir"].Get()
             base = os.path.basename(installRelDir)
