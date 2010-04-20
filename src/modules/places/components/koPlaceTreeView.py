@@ -374,7 +374,7 @@ class KoPlaceTreeView(TreeView):
                 if target_index >= 0:
                     full_name = koFileEx.path
                     name = basename
-                    if koFileEx.isDirectory():
+                    if koFileEx.isDirectory:
                         nodeType = _PLACE_FOLDER
                     else:
                         nodeType = _PLACE_FILE
