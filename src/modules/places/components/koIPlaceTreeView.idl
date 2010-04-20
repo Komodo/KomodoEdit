@@ -99,6 +99,7 @@ interface koIPlaceTreeView: nsITreeView {
     void addNewFolderAtParent(in wstring name, in long parentIndex);
     boolean itemIsNonEmptyFolder(in long sourceIndex);
     void deleteItem(in long sourceIndex, in boolean deleteContents);
+    void markRow(in long sourceIndex);
     void refreshView(in long sourceIndex);
     void renameItem(in long sourceIndex, in wstring baseName, in boolean forceClobber);
     // See other API parts in koIKPFTreeView.idl

@@ -189,8 +189,13 @@ viewMgrClass.prototype = {
         }
     },
 
+    onTreeClick: function(event) {
+        var index = this._currentRow(event);
+        this.view.markRow(index);
+    },
+
     onTreeKeyPress: function(event) {
-        dump("TODO: viewMgrClass.onTreeKeyPress\n");
+        //dump("TODO: viewMgrClass.onTreeKeyPress\n");
     },
     initFilesContextMenu: function(event) {
         if (event.explicitOriginalTarget.id != "places-files-tree-body") {

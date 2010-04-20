@@ -214,6 +214,8 @@ class KoPlaceTreeView(TreeView):
         self._rows = []
         self._originalRows = self._rows  # For filtering
         self._filteredRows = None
+        self._lastFilteredString = None
+        self._lastSelectedRow = -1
         self._filterString = None
         #TODO: Update this for each place 
         self.exclude_patterns = []
@@ -452,6 +454,17 @@ class KoPlaceTreeView(TreeView):
             return
         origLen = len(self._rows)
         filterString = self._filterString
+        restoreURI = None
+        if not filterString:
+            if self._lastFilteredString and self._lastSelectedRow > -1:
+                self._lastFilteredString = None
+                try:
+                    restoreURI = self._rows[self._lastSelectedRow].getURI()
+                except IndexError:
+                    log.debug("no row at %d", self._lastSelectedRow)
+        else:
+            self._lastFilteredString = filterString
+            
         for node in self._originalRows:
             node.includedInFilter = FILTER_EXCLUDED
         # Always include the first row in the full tree.
@@ -470,6 +483,27 @@ class KoPlaceTreeView(TreeView):
         delta = len(self._rows) - origLen
         self._tree.rowCountChanged(0, delta)
         self._tree.invalidate()
+        if restoreURI:
+            # Keep the selected row
+            for i in range(len(self._rows)):
+                if self._rows[i].getURI() == restoreURI:
+                    self.selection.currentIndex = i
+                    self.selection.select(i)
+                    self._tree.ensureRowIsVisible(i)
+                    self._lastSelectedRow = i
+                    # if the selected row is in the bottom half of the view,
+                    # move it to the half-way point
+                    fvrow = self._tree.getFirstVisibleRow()
+                    if fvrow + self._tree.getPageLength() < len(self._rows):
+                        lvrow = self._tree.getLastVisibleRow()
+                        midpt = (fvrow + lvrow)/2
+                        if midpt < i:
+                            self._tree.scrollToRow(fvrow + i - midpt)
+                        break
+        else:
+            self._lastSelectedRow = -1
+        
+            
 
     def _nodeMatchesFilterOrContainsAMatch(self, filterString, node,
                                            consultChildren=True):
@@ -1154,6 +1188,9 @@ class KoPlaceTreeView(TreeView):
             self._tree.invalidateRow(index)
         return index, rowNode
 
+    def markRow(self, index):
+        self._lastSelectedRow = index
+
     #---- nsITreeView Methods
     
     def get_rowCount(self):
@@ -1496,7 +1533,8 @@ class KoPlaceTreeView(TreeView):
                 self._tree.endUpdateBatch()
             return
         self._rows = self._rows[0:index + 1] + newRows + self._rows[index + 1:]
-        self._originalRows = self._rows
+        if not self._filterString:
+            self._originalRows = self._rows
         self._tree.rowCountChanged(index + 1, len(newRows))
         if doInvalidate:
             self.invalidateTree()

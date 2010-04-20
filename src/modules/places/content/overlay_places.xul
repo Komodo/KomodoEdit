@@ -331,6 +331,7 @@
         <tree id="places-files-tree" flex="1"
               style="margin: 0px;"
               ondblclick="ko.places.viewMgr.onDblClick(event);"
+              onclick="ko.places.viewMgr.onTreeClick(event);"
               onkeypress="ko.places.viewMgr.onTreeKeyPress(event);"
               onfocus="ko.places.viewMgr.focused = true;"
               onblur="ko.places.viewMgr.focused = false;"
