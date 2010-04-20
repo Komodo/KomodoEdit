@@ -197,6 +197,25 @@ FILTER_EXCLUDED = 0
 FILTER_INCLUDED = 1
 FILTER_INCLUDED_AS_PARENT = 2
 
+class _UndoCommand():
+    def __init__(self):
+        self.clearArgs()
+
+    def getArgs(self):
+        return self.fromPath, self.toPath, self.isLocal
+    
+    def clearArgs(self):
+        self.isLocal = True
+        self.fromPath = self.toPath = None
+
+    def update(self, targetFile, srcPath, isLocal):
+        self.toPath = targetFile
+        self.fromPath = srcPath
+        self.isLocal = isLocal
+
+    def canUndo(self):
+        return self.fromPath is not None
+
 class KoPlaceTreeView(TreeView):
     _com_interfaces_ = [components.interfaces.nsIObserver,
                         components.interfaces.koIPlaceTreeView,
@@ -261,6 +280,7 @@ class KoPlaceTreeView(TreeView):
             placesPrefs.setPref("places-open-nodes",
                                 components.classes["@activestate.com/koPreferenceSet;1"].createInstance())
         self.lock = threading.RLock()
+        self.dragDropUndoCommand = _UndoCommand()
         wrapSelf = WrapObject(self, components.interfaces.koIPlaceTreeView)
         self.proxySelf = getProxyForObject(None,
                                       components.interfaces.koIPlaceTreeView,
@@ -741,10 +761,14 @@ class KoPlaceTreeView(TreeView):
                               finalMsg)
             return
         elif copying and not updateTargetTree:
+            callback.callback(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL,
+                              "")
             return
         elif fixedSrcIndex == -1 or fixedTargetIndex == -1:
             # Things to do?
             self._tree.invalidate()
+            callback.callback(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL,
+                              "")
             return
         elif fixedSrcIndex != srcIndex:
             doInvalidate = True
@@ -835,6 +859,8 @@ class KoPlaceTreeView(TreeView):
         if numChangedAtSrc and srcIndex < targetIndex:
             self._tree.rowCountChanged(srcIndex, numChangedAtSrc)
         self._buildFilteredView()
+        callback.callback(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL,
+                          "")
 
     def doTreeCopyWithDestName(self, srcIndex, targetIndex, newPath, callback):
         #log.debug("doTreeCopyWithDestName: srcIndex:%d, targetIndex:%d, newPath:%s)", srcIndex, targetIndex, newPath)
@@ -910,6 +936,52 @@ class KoPlaceTreeView(TreeView):
                 self._originalRows = self._rows
                 self._tree.rowCountChanged(finalIdx, 1)
         self._buildFilteredView()
+
+    def canUndoTreeOperation(self):
+        self.lock.acquire()
+        try:
+            return self.dragDropUndoCommand.canUndo()
+        finally:
+            self.lock.release()
+
+    def do_undoTreeOperation(self):
+        self.lock.acquire()
+        try:
+            fromPath, toPath, isLocal = self.dragDropUndoCommand.getArgs()
+            self.dragDropUndoCommand.clearArgs()
+        finally:
+            self.lock.release()
+        if isLocal:
+            shutil.move(toPath, fromPath)
+            fromDir = os.path.dirname(fromPath)
+            toDir = os.path.dirname(toPath)
+        else:
+            conn = self._RCService.getConnectionUsingUri(fromPath)
+            fromFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                          createInstance(components.interfaces.koIFileEx)
+            fromFileEx.URI = fromPath
+            toFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                          createInstance(components.interfaces.koIFileEx)
+            toFileEx.URI = toPath
+            conn.rename(toFileEx.path, fromFileEx.path)
+            fromDir = fromFileEx.dirName
+            toDir = toFileEx.dirName
+        fromIndex = self._lookupPath(fromDir)
+        toIndex = self._lookupPath(toDir)
+        if fromIndex > toIndex:
+            self.refreshView(fromIndex)
+            if toIndex > -1:
+                self.refreshView(toIndex)
+        else:
+            self.refreshView(toIndex)
+            if fromIndex != -1:
+                self.refreshView(fromIndex)                
+            
+    def _lookupPath(self, path):
+        for i in range(len(self._rows)):
+            if self._rows[i].getPath() == path:
+                return i
+        return -1
         
     #---- End remote file copying
                 
@@ -949,6 +1021,7 @@ class KoPlaceTreeView(TreeView):
         self._originalRows = self._rows
         self._tree.rowCountChanged(0, -lenBefore)
         self._currentPlace_uri = None
+        self.dragDropUndoCommand.clearArgs()
         
         
     def openPlace(self, uri):
@@ -1803,16 +1876,24 @@ class _WorkerThread(threading.Thread, Queue):
 
         # When we copy or move an open folder, the target folder will be
         # closed, even if it was open before.  Windows explorer works this way.
+        clearDragDropUndoCommand = True
         if requester._isLocal:
             targetFile = os.path.join(targetDirPath, os.path.basename(srcPath))
             updateTargetTree = not os.path.exists(targetFile)
             #XXX Watch out if targetFile is an open folder.
             if not copying:
                 shutil.move(srcPath, targetFile)
+                requester.lock.acquire()
+                try:
+                    requester.dragDropUndoCommand.update(targetFile, srcPath, True)
+                finally:
+                    requester.lock.release()
+                clearDragDropUndoCommand = False
             elif requester.isContainer(srcIndex):
                 self._copyLocalFolder(srcPath, targetDirPath)
             else:
                 shutil.copy(srcPath, targetFile)
+                # Nothing to undo
         else:
             conn = requester._RCService.getConnectionUsingUri(requester._currentPlace_uri)
             try:
@@ -1822,6 +1903,12 @@ class _WorkerThread(threading.Thread, Queue):
                 #XXX Watch out if targetFile is an open folder.
                 if not copying:
                     conn.rename(srcPath, targetFile)
+                    requester.lock.acquire()
+                    try:
+                        requester.dragDropUndoCommand.update(targetNode.getURI() + "/" + srcNode.getName(), srcNode.getURI(), False)
+                    finally:
+                        requester.lock.release()
+                    clearDragDropUndoCommand = False
                 elif requester.isContainer(srcIndex):
                     requester_data['uncopied_symlinks'] = []
                     requester_data['unrecognized_filetypes'] = []
@@ -1913,6 +2000,11 @@ class _WorkerThread(threading.Thread, Queue):
             requester_data['unrecognized_filetypes'].append(rfi.getFilepath())
 
     def doTreeCopyWithDestName(self, args):
+        requester.lock.acquire()
+        try:
+            requester.dragDropUndoCommand.clearArgs()
+        finally:
+            requester.lock.release()
         requester = args['requester']
         requestID = args['requestID']
         requester.lock.acquire()

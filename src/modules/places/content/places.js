@@ -222,6 +222,7 @@ viewMgrClass.prototype = {
          *   Cut   
          *   Copy  
          *   Paste (*File: disabled, *Folder: always enabled)
+         *   Undo (undo a move)
          *----------------
          *   Find... (should be in this file|folder)
          *   Replace... (same)
@@ -558,6 +559,8 @@ viewMgrClass.prototype = {
             callback: function(result, data) {
                 if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
                     ko.dialogs.alert(data);
+                } else {
+                    window.updateCommands("did_tree_operation");
                 }
             }
         };
@@ -1406,6 +1409,20 @@ ManagerClass.prototype = {
         }
         this._setURI(targetURI, true);
         window.updateCommands('place_history_changed');
+    },
+
+    can_undoTreeOperation: function() {
+        var res = gPlacesViewMgr.view.canUndoTreeOperation();
+        return res;
+    },
+
+    undoTreeOperation: function() {
+        try {
+            gPlacesViewMgr.view.do_undoTreeOperation();
+            window.updateCommands('did_tree_operation');
+        } catch(ex) {
+            alert(ex);
+        }
     },
 
     init_popup_menu_recent_locations: function(event) {

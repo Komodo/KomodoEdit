@@ -172,6 +172,18 @@
           disabled="true"
           desc="&goPreviousPlace.desc;"/>
     </commandset>
+    <commandset
+        id="cmdset_place_treeOperations"
+        oncommandupdate="ko.commands.updateCommandset(this, event)"
+        commandupdater="true"
+        events="current_view_changed,place_dirty,current_place_changed,current_place_opened,current_place_closed,did_tree_operation">
+      <command
+          id="cmd_placeView_undoTreeOperation"
+          key="key_cmd_placeView_undoTreeOperation"
+          oncommand="ko.commands.doCommandAsync('cmd_placeView_undoTreeOperation', event)"
+          disabled="true"
+         />
+    </commandset>
   </commandset>
     
 
@@ -289,6 +301,16 @@
                   observes="cmd_placeView_customView"
                   label="&manageCustomViews.label;"
                   keep="true" />
+              <menuseparator id="places_undo_separator"
+                  keep="true"/>
+              <menuitem id="placesContextMenu_undo"
+                        observes="cmd_placeView_undoTreeOperation"
+                        oncommand="ko.places.viewMgr.undoTreeOperation()"
+                        keep_background="true"
+                        class="menuitem-iconic undo-button"
+                        label="&undo.label;"
+                        keep="true"
+                        />
             </menupopup>
           </toolbarbutton>
           <toolbarbutton id="placesBackButton"

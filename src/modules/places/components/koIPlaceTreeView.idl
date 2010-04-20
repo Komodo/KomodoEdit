@@ -94,6 +94,8 @@ interface koIPlaceTreeView: nsITreeView {
     void doTreeCopyWithDestName(in long sourceIndex, in long targetIndex,
                                 in wstring newPath,
                                 in koIAsyncCallback callbackObj);
+    boolean canUndoTreeOperation();
+    void do_undoTreeOperation();
 
     void addNewFileAtParent(in wstring name, in long parentIndex);
     void addNewFolderAtParent(in wstring name, in long parentIndex);

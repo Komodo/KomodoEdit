@@ -234,6 +234,18 @@ PlacesController.prototype.do_cmd_goNextPlace = function() {
     }
     ko.places.manager.goNextPlace();
 }
+
+PlacesController.prototype.is_cmd_placeView_undoTreeOperation_enabled = function() {
+    return ko.places.manager.can_undoTreeOperation();
+}
+
+PlacesController.prototype.do_cmd_placeView_undoTreeOperation = function() {
+    if (!this.is_cmd_placeView_undoTreeOperation_enabled()) {
+        this.log.debug("do_cmd_placeView_undoTreeOperation: invoked, but not enabled");
+        return;
+    }
+    ko.places.manager.undoTreeOperation();
+}
           
 this.PlacesController = PlacesController;  // expose thru this namespace.
 }).apply(ko.places);
