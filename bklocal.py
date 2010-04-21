@@ -1411,8 +1411,7 @@ class WithPlaces(black.configure.BooleanDatum):
         self.applicable = 1
         configTokens = black.configure.items["configTokens"].Get()
         productType = black.configure.items["productType"].Get()
-        # Disabled by default for now.  bk configure --with-places to enable.
-        self.value = 0
+        self.value = 1
         for opt, optarg in self.chosenOptions:
             if opt == "--with-places":
                 if not self.value: configTokens.append("places")
