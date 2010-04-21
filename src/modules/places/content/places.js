@@ -1512,6 +1512,9 @@ ManagerClass.prototype = {
 
     pushHistoryInfo: function(anchor_uri, destination_uri) {
         // We are about to leave anchor_uri, and move to destination_uri
+        // See kd-0247#Updating the Previous/Forward Place History for
+        // design notes for the policy used here.
+        
         var anchor_prev_idx = this.history_prevPlaces.indexOf(anchor_uri);
         var anchor_fwd_idx = this.history_forwardPlaces.indexOf(anchor_uri);
         // These should both be -1, but pull out just in case.
