@@ -54,6 +54,7 @@ from xpcom.server import WrapObject, UnwrapObject
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 
 from koTreeView import TreeView
+from koLanguageServiceBase import sendStatusMessage
 log = logging.getLogger("KoPlaceTreeView")
 log.setLevel(logging.DEBUG)
 
@@ -1012,7 +1013,7 @@ class KoPlaceTreeView(TreeView):
             #TODO: Clean out old URIs.
             openNodesByURIPrefs.setStringPref(self._currentPlace_uri,
                                               json.dumps(self._nodeOpenStatusFromName))
-            if self._isLocal:
+            if self._isLocal and self._rows:
                 path = self._rows[0].getPath()
                 self.notificationSvc.removeObserver(self, path)
             
@@ -1033,9 +1034,12 @@ class KoPlaceTreeView(TreeView):
             placeFileEx.file = placeFileEx.dirName
             uri = placeFileEx.URI
         if self._isLocal:
-            self.notificationSvc.addObserver(self, placeFileEx.path,
-                                             components.interfaces.koIFileNotificationService.WATCH_DIR,
-                                             _notificationsToReceive)
+            try:
+                self.notificationSvc.addObserver(self, placeFileEx.path,
+                                                 components.interfaces.koIFileNotificationService.WATCH_DIR,
+                                                 _notificationsToReceive)
+            except:
+                log.exception("Can't watch path: %s", placeFileEx.path)
         else:
             #log.debug("openPlace: not local:(%s)", uri)
             pass
@@ -1063,7 +1067,7 @@ class KoPlaceTreeView(TreeView):
             requestID = self.getRequestID()
             self.lock.acquire()
             try:
-                self._data[requestID] = {'beforeLen':1}
+                self._data[requestID] = {'beforeLen':1, 'items':[]}
             finally:
                 self.lock.release()
             homeFolderNode.infoObject.show_busy()
@@ -1083,6 +1087,7 @@ class KoPlaceTreeView(TreeView):
         self._tree.invalidateRow(0)
         if rv:
             # Do this after the request data was cleared
+            sendStatusMessage(rv)
             raise Exception(rv)
         self._rows += newRows
         self._tree.rowCountChanged(beforeLen, len(newRows))
@@ -1584,6 +1589,7 @@ class KoPlaceTreeView(TreeView):
         fixedIndex, rowNode = self._postRequestCommonNodeHandling(originalNode, index,
                                                     "post_toggleOpenState_Open")
         if rv:
+            sendStatusMessage(rv)
             #todo: callback.callback()
             return
         if fixedIndex == -1:
