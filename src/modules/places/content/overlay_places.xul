@@ -338,6 +338,20 @@
                          oncommand="event.stopPropagation();"
                          />
           </toolbarbutton>
+<!--
+          <toolbarbutton id="placesParentDirectories"
+              type="menu"
+              tooltiptext="&amp;placesParentDirectories.tooltiptext;"
+                  class="rightarrow-button-a folder-explore-icon">
+              >
+              <menupopup id="placesParentDirectoriesMenu"
+                         context=""
+                         position="after_start"
+                         onpopupshowing="ko.places.manager.init_popup_parent_directories(event);"
+                         oncommand="event.stopPropagation();"
+                         />
+          </toolbarbutton>
+-->
           <textbox id="places-filter-textbox"
                    style="min-width:40px; max-width:200px; margin-right:0px;"
                    class="search-box"
