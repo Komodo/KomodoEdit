@@ -1374,7 +1374,9 @@ def _PackageKomodoDMG(cfg):
     ditto_these_dirs = [
         join(landmark, "Contents", "Frameworks"),
         join(landmark, "Contents", "MacOS"),
-        join(landmark, "Contents", "SharedSupport", "tcl"),
+        # Don't strip the tcl bits - as they contain attached data that would be
+        # removed by ditto, which would cause these apps to fail, bug 86654.
+        #join(landmark, "Contents", "SharedSupport", "tcl"),
     ]
     for original_dir in ditto_these_dirs:
         # Strip into a new directory, then copy back the stripped parts.
