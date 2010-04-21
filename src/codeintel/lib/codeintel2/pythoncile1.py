@@ -506,20 +506,14 @@ class AST2CIXVisitor:
                  self.lines and self.lines[node.lineno-1])
         parent = self.nsstack[-1]
         parentIsClass = _isclass(parent)
-        name = node.name
-        if parentIsClass and name == "__init__":
-            fallbackSig = parent["name"]
-        else:
-            fallbackSig = name
-        nspath = parent["nspath"] + (name,)
+        
         namespace = {
-            "nspath": nspath,
-            "name": name,
             "types": {"function": 1},
             "returns": {},
             "arguments": [],
             "symbols": {},
         }
+        
         namespace["declaration"] = namespace
         if node.lineno: namespace["line"] = node.lineno
         lastNode = node
@@ -527,6 +521,8 @@ class AST2CIXVisitor:
             lastNode = lastNode.getChildNodes()[-1]
         if lastNode.lineno: namespace["lineend"] = lastNode.lineno
 
+        name = node.name
+        
         # Determine attributes
         attributes = []
         if name.startswith("__") and name.endswith("__"):
@@ -537,8 +533,61 @@ class AST2CIXVisitor:
             attributes.append("protected")
         if name == "__init__" and parentIsClass:
             attributes.append("__ctor__")
+            
+        # process decorators
+        prop_var = None
+        if node.decorators:
+            for deco in node.decorators.nodes:
+                prop_mode = None
+                if hasattr(deco, 'name') and deco.name == 'property':
+                    prop_mode = 'getter'
+                elif hasattr(deco, 'attrname') and deco.attrname in ('getter',
+                                                                     'setter',
+                                                                     'deleter'):
+                    prop_mode = deco.attrname
+                    
+                if prop_mode:
+                    if prop_mode == 'getter':
+                        # it's a getter, create a pseudo-var
+                        prop_var = parent["symbols"].get(name, None)
+                        if prop_var is None:
+                            prop_var = dict(name=name,
+                                            nspath=parent["nspath"] + (name,),
+                                            doc=None,
+                                            types={},
+                                            symbols={})
+                            var_attrs = ['property']
+                            if name.startswith("__") and name.endswith("__"):
+                                pass
+                            elif name.startswith("__"):
+                                var_attrs.append("private")
+                            elif name.startswith("_"):
+                                var_attrs.append("protected")
+                            prop_var["attributes"] = ' '.join(var_attrs)
+                            prop_var["declaration"] = prop_var
+                            parent["symbols"][name] = prop_var
+                        
+                        if not "is-class-var" in prop_var:
+                            prop_var["is-class-var"] = 1
+                            
+                    # hide the function  
+                    attributes += ['__hidden__']
+                    name += " (property %s)" % prop_mode
+                    
+                    # only one property decorator makes sense
+                    break
+            
         namespace["attributes"] = ' '.join(attributes)
-
+        
+        if parentIsClass and name == "__init__":
+            fallbackSig = parent["name"]
+        else:
+            fallbackSig = name
+        namespace["name"] = name
+        
+        nspath = parent["nspath"] + (name,)
+        namespace["nspath"] = nspath
+        
         # Handle arguments. The format of the relevant Function attributes
         # makes this a little bit of pain.
         defaultArgsBaseIndex = len(node.argnames) - len(node.defaults)
@@ -644,6 +693,16 @@ class AST2CIXVisitor:
         self.nsstack.append(namespace)
         self.visit(node.code)
         self.nsstack.pop()
+        
+        if prop_var:
+            # this is a property getter function,
+            # copy its return types to the corresponding property variable
+            var_types = prop_var["types"]
+            for t in namespace["returns"]:
+                if t not in var_types:
+                    var_types[t] = 0
+                else:
+                    var_types[t] += 1
 
     def visitImport(self, node):
         log.info("visitImport:%d: %r", node.lineno,
