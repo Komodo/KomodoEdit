@@ -38,29 +38,9 @@
 
 #TODO: docstring
 
-import sys
 import os
-from os.path import (join, dirname, exists, expanduser, splitext, basename,
-                     split, abspath, isabs, isdir, isfile)
-import cPickle as pickle
-import threading
-import time
-import bisect
-import fnmatch
-from glob import glob
-from pprint import pprint, pformat
+from os.path import join, dirname, abspath, isabs
 import logging
-from cStringIO import StringIO
-import codecs
-import copy
-import weakref
-import Queue
-
-import ciElementTree as ET
-from codeintel2.common import *
-from codeintel2.buffer import Buffer
-from codeintel2.util import dedent, safe_lang_from_lang, banner
-from codeintel2.tree import tree_from_cix_path
 
 
 
