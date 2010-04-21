@@ -738,8 +738,8 @@ class GnomeDesktopShortcutName(black.configure.Datum):
         komodoVersion = black.configure.items["komodoVersion"].Get()
         majorVer = komodoVersion.split('.', 1)[0]
         updateChannel = black.configure.items["updateChannel"].Get()
-        self.value = "komodo-%s-%s%s.desktop" % (name, majorVer,
-                                                 updateChannel == "nightly" and "-nightly" or "")
+        self.value = "%s-%s%s.desktop" % (name, majorVer,
+                                          updateChannel == "nightly" and "-nightly" or "")
         self.determined = 1
 
 class GnomeDesktopName(black.configure.Datum):
