@@ -1,0 +1,32 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/properties.py">
+    <scope ilk="blob" lang="Python" name="properties" src="scan_inputs/properties.py">
+      <scope classrefs="object" ilk="class" line="1" lineend="13" name="C">
+        <variable attributes="property" citdl="self._x" name="x" />
+        <scope attributes="__hidden__" ilk="function" line="3" lineend="5" name="x (property getter)" returns="self._x" signature="x (property getter)()">
+          <variable citdl="C" ilk="argument" name="self" />
+          <variable citdl="bar" line="4" name="foo" />
+        </scope>
+        <scope attributes="__hidden__" ilk="function" line="8" lineend="9" name="x (property setter)" signature="x (property setter)(value)">
+          <variable citdl="C" ilk="argument" name="self" />
+          <variable ilk="argument" name="value" />
+        </scope>
+        <variable attributes="protected __instancevar__" line="9" name="_x" />
+        <scope attributes="__hidden__" ilk="function" line="12" lineend="13" name="x (property deleter)" signature="x (property deleter)()">
+          <variable citdl="C" ilk="argument" name="self" />
+        </scope>
+      </scope>
+      <scope classrefs="C" ilk="class" line="15" lineend="22" name="D">
+        <variable attributes="property" citdl="self._x" name="x" />
+        <scope attributes="__hidden__" ilk="function" line="17" lineend="18" name="x (property getter)" returns="self._x" signature="x (property getter)()">
+          <variable citdl="D" ilk="argument" name="self" />
+        </scope>
+        <scope attributes="__hidden__" ilk="function" line="21" lineend="22" name="x (property setter)" signature="x (property setter)(value)">
+          <variable citdl="D" ilk="argument" name="self" />
+          <variable ilk="argument" name="value" />
+        </scope>
+        <variable attributes="protected __instancevar__" citdl="int" line="22" name="_x" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>
