@@ -1027,9 +1027,10 @@ class KoCodeIntelDBPreloader(threading.Thread):
             try:
                 # Stage 1: stdlibs zone
                 # For now we preload stdlibs for a hardcoded set of langs.
-                # Eventually would want to tie this to answers from a "Komodo
-                # Startup Wizard" that would ask the user what languages they
-                # use.
+                # TODO: Eventually would want to tie this to answers from a
+                # "Komodo Startup Wizard" that would ask the user what languages
+                # they use, or alternatively we should start with the languages
+                # that Komodo is configured to use (first found on the PATH).
                 self.controller.set_stage("Preloading standard library data.")
                 stdlibs_zone = self._mgr.db.get_stdlibs_zone()
                 if stdlibs_zone.can_preload():
