@@ -338,12 +338,15 @@
                          oncommand="event.stopPropagation();"
                          />
           </toolbarbutton>
-<!--
+
           <toolbarbutton id="placesParentDirectories"
               type="menu"
               tooltiptext="&amp;placesParentDirectories.tooltiptext;"
-                  class="rightarrow-button-a folder-explore-icon">
-              >
+                    orient="horizontal"
+                    persist="buttonstyle"
+                    class="folderPicker-icon"
+                    buttonstyle="pictures"
+                         label="&amp;Parent folders...">
               <menupopup id="placesParentDirectoriesMenu"
                          context=""
                          position="after_start"
@@ -351,7 +354,6 @@
                          oncommand="event.stopPropagation();"
                          />
           </toolbarbutton>
--->
           <textbox id="places-filter-textbox"
                    style="min-width:40px; max-width:200px; margin-right:0px;"
                    class="search-box"

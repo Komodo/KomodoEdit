@@ -931,6 +931,11 @@ ManagerClass.prototype = {
         this._enterMRU_Place(uri);
         this._setURI(uri, true);
     },
+
+    openURI : function(uri) {
+        this._enterMRU_Place(uri);
+        this._setURI(uri, true);
+    },
  
     _checkForExistenceByURI: function(uri) {
         var fileObj = Components.classes["@activestate.com/koFileEx;1"].
@@ -1479,6 +1484,65 @@ ManagerClass.prototype = {
                 popupMenu.appendChild(menuitem);
             }
         }
+    },
+
+    init_popup_parent_directories: function(event) {
+        var popupMenu = event.target;
+        while (popupMenu.hasChildNodes()) {
+            popupMenu.removeChild(popupMenu.lastChild);
+        }
+        var menuitem;
+        var currentURI = this.currentPlace;
+        // Just use pattern-matching to tear apart the URI and put it back
+        var menuitem;
+        var m = /(^[\w\-\+\.]+:\/\/.*?\/)(.*)/.exec(currentURI);
+        if (!m) {
+            menuitem = document.createElement("menuitem");
+            menuitem.setAttribute('label', 'isnada');
+            menuitem.setAttribute('disabled', 'true');
+            popupMenu.appendChild(menuitem);
+            return;
+        }
+        var firstPart = m[1];
+        var pathPart = m[2];
+        var parts;
+        if (!pathPart.length) {
+            parts = ['/'];
+        } else {
+            parts = pathPart.split("/");
+            if (parts[0][1] == ':') {
+                parts[0] += "\\";
+            } else {
+                parts.unshift("/");
+            }
+        }
+        var i = 0;
+        var buildingURI = firstPart;
+        parts.map(function(partName) {
+                menuitem = document.createElement("menuitem");
+                menuitem.setAttribute('label', unescape(partName));
+                menuitem.setAttribute("class", i == parts.length - 1 ? "primary_menu_item" : "menuitem_mru");
+                if (i == 0) {
+                    if (partName == '/') {
+                        partName = '';
+                    } else if (partName[partName.length - 1] == '\\') {
+                        partName = partName.substr(0, partName.length - 1) +"/";
+                    }
+                    buildingURI += partName;
+                } else {
+                    if (i > 1) {
+                        buildingURI += "/";
+                    }
+                    buildingURI += partName;
+                }
+                menuitem.setAttribute('oncommand',
+                                      ('ko.places.manager.openURI("'
+                                       + buildingURI
+                                       + '");'));
+                popupMenu.appendChild(menuitem);
+                i += 1;
+            });
+        popupMenu.selectedItem = menuitem; // last one
     },
 
     goSelectedPlace: function(blockCode, index) {

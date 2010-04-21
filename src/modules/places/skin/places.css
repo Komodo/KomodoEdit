@@ -157,3 +157,8 @@ undo-button
 {
   list-style-image : url("chrome://komodo/skin/images/undo.png");
 }
+
+#placesParentDirectories.folderPicker-icon {
+  list-style-image : url("chrome://places/skin/folder_explore.png");
+}
+
