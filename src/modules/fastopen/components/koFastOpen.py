@@ -394,24 +394,21 @@ class KomodoHistoryURIsGatherer(fastopen.Gatherer):
             self._koHistorySvcProxy = \
                 getProxyForObject(1, components.interfaces.koIHistoryService,
                                   koHistorySvc, PROXY_SYNC|PROXY_ALWAYS)
-        self._cachedHits = []
-        
+
+    _cachedHits = None
     def gather(self):
         if self._koHistorySvcProxy is not None:
-            # First yield any hits we've already gathered and cached.
-            for hit in self._cachedHits:
-                yield hit
+            if self._cachedHits is None:
+                self._cachedHits = []
+                #TODO: pref for '50' here
+                for uri in self._koHistorySvcProxy.recent_uris_as_array(50, self.sessionName):
+                    if not uri.startswith("file://"):
+                        #TODO: Is this a sufficient guard for possible history URLs?
+                        continue
+                    hit = KomodoHistoryURIHit(uri)
+                    self._cachedHits.append(hit)
             
-            # Then, yield and cache any remaining ones.
-            #TODO: pref for '50' here
-            # We can only proxy xpcom objects, so we can't use a
-            # Python generator here.  This will slow the startup a bit.
-            for uri in self._koHistorySvcProxy.recent_uris_as_array(50, self.sessionName):
-                if not uri.startswith("file://"):
-                    #TODO: Is this a sufficient guard for possible history URLs?
-                    continue
-                hit = KomodoHistoryURIHit(uri)
-                self._cachedHits.append(hit)
+            for hit in self._cachedHits:
                 yield hit
 
 class KomodoOpenViewHit(fastopen.PathHit):
