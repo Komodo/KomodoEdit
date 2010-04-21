@@ -304,11 +304,11 @@ viewMgrClass.prototype = {
                     first_item_is_root =
                         (this.view.getCellText(index, {id:'name'})
                          == ko.uriparse.URIToLocalPath(ko.places.manager.
-                                                       currentHomePlace));
+                                                       currentPlace));
                 } else {
                     first_item_is_root =
                         (this.view.getCellText(index, {id:'uri'})
-                         == ko.places.manager.currentHomePlace);
+                         == ko.places.manager.currentPlace);
                 }
             }
             menuitem.setAttribute("disabled",
@@ -316,15 +316,8 @@ viewMgrClass.prototype = {
             //XXX Is the node's path the top-level?
             newMenuItemNode = popupmenu.insertBefore(menuitem, newMenuItemNode);
 
-            var bundle_label = "rebaseFolder.label";;
-            disable_item = false;
-            if (index == 0) {
-                if (first_item_is_root) {
-                    disable_item = true;
-                } else {
-                    bundle_label = "restoreFullHierarchy.label";
-                }
-            }
+            var bundle_label = "rebaseFolder.label";
+            disable_item = index == 0;
             menuitem = this._makeMenuItem(firstFolderMenuItemId_rebase,
                                           _bundle.GetStringFromName(bundle_label),
                                           ("gPlacesViewMgr.rebaseByIndex("
@@ -717,7 +710,7 @@ viewMgrClass.prototype = {
     // Filtering routines:
 
     _updateCurrentUriViewPref: function(viewName) {
-        var uri = ko.places.manager.currentHomePlace;
+        var uri = ko.places.manager.currentPlace;
         var prefSet;
         if (uriSpecificPrefs.hasPref(uri)) {
             prefSet = uriSpecificPrefs.getPref(uri);
@@ -856,7 +849,7 @@ viewMgrClass.prototype = {
 };
 
 function ManagerClass() {
-    this.currentPlace = this.currentHomePlace = null;
+    this.currentPlace = null;
     this.currentPlaceIsLocal = true;
     this.lastHomePlace = null;
     this.lastLocalHomePlace = null;
@@ -922,7 +915,7 @@ ManagerClass.prototype = {
                + ", but can't process it with the RemoteConnectionService");
             return;
         }
-        this._enterMRU_Place();
+        this._enterMRU_Place(uri);
         this._setURI(uri, true);
         ko.uilayout.ensureTabShown("places_tab");
     },
@@ -934,8 +927,8 @@ ManagerClass.prototype = {
             ko.dialogs.alert(prompt);
             return;
         }
-        this._enterMRU_Place();
         var uri = ko.uriparse.localPathToURI(dir);
+        this._enterMRU_Place(uri);
         this._setURI(uri, true);
     },
  
@@ -979,15 +972,15 @@ ManagerClass.prototype = {
         if (!checkedExistence && !this._checkForExistenceByURI(uri)) {
             return;
         }
-        this._enterMRU_Place();
+        this._enterMRU_Place(uri);
         this._setURI(uri, true);
     },
 
-    _enterMRU_Place: function() {
-        if (!this.currentHomePlace) {
+    _enterMRU_Place: function(destination_uri) {
+        if (!this.currentPlace) {
             return;
         }
-        var uri = this.currentHomePlace;
+        var uri = gPlacesViewMgr.view.getURIForRow(0);
         var mruList;
         if (_placePrefs.hasPref("mru_places")) {
             mruList = _placePrefs.getPref("mru_places");
@@ -1020,16 +1013,16 @@ ManagerClass.prototype = {
             mruList.appendStringPref(uri);
             _placePrefs.setPref("mru_places", mruList);
         }
-        this.pushHistoryInfo(uri);
+        this.pushHistoryInfo(uri, destination_uri);
     },
 
     _recordLastHomePlace: function() {
-        if (this.currentHomePlace) {
-            this.lastHomePlace = this.currentHomePlace;
+        if (this.currentPlace) {
+            this.lastHomePlace = this.currentPlace;
             if (this.currentPlaceIsLocal) {
-                this.lastLocalHomePlace = this.currentHomePlace;
+                this.lastLocalHomePlace = this.currentPlace;
             } else {
-                this.lastRemoteHomePlace = this.currentHomePlace;
+                this.lastRemoteHomePlace = this.currentPlace;
             }
         }
     },
@@ -1039,8 +1032,7 @@ ManagerClass.prototype = {
                 createInstance(Components.interfaces.koIFileEx);
         file.URI = uri
         this.currentPlaceIsLocal = file.isLocal; 
-        gPlacesViewMgr.view.currentPlace = this.currentPlace =
-         this.currentHomePlace = uri;
+        gPlacesViewMgr.view.currentPlace = this.currentPlace = uri;
         widgets.rootPath.value = (file.scheme == "file" ? file.displayPath : uri);
         widgets.rootPath.setAttribute('class', 'someplace');
         window.setTimeout(window.updateCommands, 1,
@@ -1068,19 +1060,28 @@ ManagerClass.prototype = {
     toggleRebaseFolderByIndex: function(index) {
         var uri = gPlacesViewMgr.view.getURIForRow(index);
         if (index > 0) {
+            this._enterMRU_Place(uri);
             gPlacesViewMgr.view.currentPlace = this.currentPlace = uri;
-        } else if (uri == this.currentHomePlace) {
-            // Nothing to do
-        } else {
+        } else if (index == 0) {
             // Get the home URI back
-            gPlacesViewMgr.view.currentPlace = this.currentPlace =
-                            this.currentHomePlace;
-            gPlacesViewMgr.view.selectURI(uri)
+            var lastSlashIdx = uri.lastIndexOf("/");
+            if (lastSlashIdx == -1) return;
+            var parent_uri = uri.substr(0, lastSlashIdx);
+            this._enterMRU_Place(parent_uri);
+            gPlacesViewMgr.view.currentPlace = this.currentPlace = parent_uri;
+            if (!gPlacesViewMgr.view.isContainerOpen(0)) {
+                // Should be done as an async callback.
+                gPlacesViewMgr.view.toggleOpenState(0);
+                setTimeout(gPlacesViewMgr.view.selectURI, 1000, uri);
+            } else {
+                gPlacesViewMgr.view.selectURI(uri);
+            }
         }
     },
 
     rebaseToDirByURI: function(uri, child_uri) {
         if (typeof(child_uri) == "undefined") child_uri = null;
+        this.pushHistoryInfo(child_uri, uri);
         gPlacesViewMgr.view.currentPlace = this.currentPlace = uri;
         if (child_uri) gPlacesViewMgr.view.selectURI(child_uri)
     },
@@ -1369,7 +1370,7 @@ ManagerClass.prototype = {
                 placesPrefs.deletePref(name);
             }
         }, this);
-        this._enterMRU_Place();
+        this._enterMRU_Place(null);
         this.cleanPrefs();
         this.currentPlace = null;
         window.controllers.removeController(this.controller);
@@ -1388,8 +1389,8 @@ ManagerClass.prototype = {
             return;
         }
         var targetURI = this.history_prevPlaces.pop();
-        if (this.currentHomePlace) {
-            this.history_forwardPlaces.unshift(this.currentHomePlace);
+        if (this.currentPlace) {
+            this.history_forwardPlaces.unshift(this.currentPlace);
         }
         this._setURI(targetURI);
         window.updateCommands('place_history_changed');
@@ -1404,8 +1405,8 @@ ManagerClass.prototype = {
             return;
         }
         var targetURI = this.history_forwardPlaces.shift();
-        if (this.currentHomePlace) {
-            this.history_prevPlaces.push(this.currentHomePlace);
+        if (this.currentPlace) {
+            this.history_prevPlaces.push(this.currentPlace);
         }
         this._setURI(targetURI, true);
         window.updateCommands('place_history_changed');
@@ -1433,15 +1434,20 @@ ManagerClass.prototype = {
         var menuitem;
         if (!this.history_forwardPlaces.length
             && !this.history_forwardPlaces.length
-            && !this.currentHomePlace) {
+            && !this.currentPlace) {
             menuitem = document.createElement("menuitem");
             menuitem.label = "No places have been visited yet";
             menuitem.disabled = true;
             popupMenu.appendChild(menuitem);
             return;
         }
+        var currentURI = null;
+        try {
+            currentURI = gPlacesViewMgr.view.getURIForRow(0) ;
+        } catch(ex) {}
+        if (!currentURI) currentURI = this.currentPlace;
         var blocks = [this.history_forwardPlaces,
-                      [this.currentHomePlace],
+                      [currentURI],
                       this.history_prevPlaces];
         var codes = ['F', 'C', 'B'];
         var file = Components.classes["@activestate.com/koFileEx;1"].
@@ -1483,8 +1489,8 @@ ManagerClass.prototype = {
             uri = this.history_prevPlaces[index];
             this.history_prevPlaces.splice(index, 1);
             partsToShift = this.history_prevPlaces.splice(index);
-            if (this.currentHomePlace) {
-                partsToShift.push(this.currentHomePlace);
+            if (this.currentPlace) {
+                partsToShift.push(this.currentPlace);
             }
             if (partsToShift.length) {
                 this.history_forwardPlaces = partsToShift.concat(this.history_forwardPlaces);
@@ -1492,8 +1498,8 @@ ManagerClass.prototype = {
         } else {
             var uri = this.history_forwardPlaces[index];
             this.history_forwardPlaces.splice(index, 1);
-            if (this.currentHomePlace) {
-                this.history_prevPlaces.push(this.currentHomePlace);
+            if (this.currentPlace) {
+                this.history_prevPlaces.push(this.currentPlace);
             }
             if (index > 0) {
                 partsToShift = this.history_forwardPlaces.splice(0, index);
@@ -1504,31 +1510,60 @@ ManagerClass.prototype = {
         this._setURI(uri, true);
     },
 
-    pushHistoryInfo: function(uri) {
-        // Clear the forward arrow now.
-        this.history_forwardPlaces = [];
-        var idx = this.history_prevPlaces.indexOf(uri);
-        try {
-            if (idx > -1) {
-                if (idx == this.history_prevPlaces.length - 1) {
-                    // It's already the most recent
-                    return;
-                }
-                if (idx < this.history_prevPlaces.length - 1) {
-                    this.history_prevPlaces.splice(idx, 1);
-                }
-            }
-            this.history_prevPlaces.push(uri);
-        } finally {
-            if (this.history_prevPlaces.length > this.history_maxPrevPlaceSize) {
-                this.history_prevPlaces.splice(0,
-                               (this.history_prevPlaces.length
-                                - this.history_maxPrevPlaceSize));
-            }
-            window.updateCommands('place_history_changed');
+    pushHistoryInfo: function(anchor_uri, destination_uri) {
+        // We are about to leave anchor_uri, and move to destination_uri
+        var anchor_prev_idx = this.history_prevPlaces.indexOf(anchor_uri);
+        var anchor_fwd_idx = this.history_forwardPlaces.indexOf(anchor_uri);
+        // These should both be -1, but pull out just in case.
+        if (anchor_prev_idx >= 0) {
+            this.history_prevPlaces.splice(anchor_prev_idx, 1);
         }
+        if (anchor_fwd_idx >= 0) {
+            this.history_forwardPlaces.splice(anchor_prev_idx, 1);
+        }
+        var dest_prev_idx = this.history_prevPlaces.indexOf(destination_uri);
+        var dest_fwd_idx = this.history_forwardPlaces.indexOf(destination_uri);
+        if (dest_prev_idx >= 0) {
+            this.history_prevPlaces.splice(dest_prev_idx, 1);
+            if (dest_fwd_idx >= 0) {
+                // Shouldn't happen: target was in both lists.
+                this.history_forwardPlaces.splice(dest_fwd_idx, 1);
+            }
+        } else if (this.history_forwardPlaces.length) {
+            if (dest_fwd_idx == -1) {
+                // Copy all of them
+                dest_fwd_idx = this.history_forwardPlaces.length;
+            }
+            for (i = 0; i < dest_fwd_idx; i++) {
+                this.history_prevPlaces.push(this.history_forwardPlaces[i]);
+            }
+            this.history_forwardPlaces.splice(0, dest_fwd_idx + 1);
+        }
+        if (anchor_uri) {
+            this.history_prevPlaces.push(anchor_uri);
+        }
+        if (this.history_prevPlaces.length > this.history_maxPrevPlaceSize) {
+            this.history_prevPlaces.splice(0,
+                           (this.history_prevPlaces.length
+                            - this.history_maxPrevPlaceSize));
+        }
+        window.updateCommands('place_history_changed');
     },
-    
+
+    /*
+            // Remove others
+            while(true) {
+                dest_prev_idx = this.history_prevPlaces.indexOf(destination_uri);
+                if (dest_prev_idx == -1) break;
+                this.history_prevPlaces.splice(dest_prev_idx, 1);
+            }                
+            // Remove others
+            while(true) {
+                dest_fwd_idx = this.history_forwardPlaces.indexOf(destination_uri);
+                if (dest_fwd_idx == -1) break;
+                this.history_forwardPlaces.splice(dest_fwd_idx, 1);
+            }
+    */
     cleanPrefs: function() {
         var mru_places = _placePrefs.getPref("mru_places");
         var ids = {};
