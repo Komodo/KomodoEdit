@@ -119,6 +119,7 @@ class Manager(threading.Thread, Queue):
                 Database for more details.
         """
         threading.Thread.__init__(self, name="CodeIntel Manager")
+        self.setDaemon(True)
         Queue.__init__(self)
 
         self.citadel = Citadel(self)

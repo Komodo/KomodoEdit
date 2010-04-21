@@ -216,6 +216,7 @@ class _StagingRequestQueue(_UniqueRequestPriorityQueue):
         self._terminate = 0 # boolean telling "staging thread" to terminate
         self._stager = threading.Thread(target=self._stagingThread,
                                         name="request staging thread")
+        self._stager.setDaemon(True)
         self._stager.start()
 
     def finalize(self):
@@ -459,6 +460,7 @@ class Indexer(threading.Thread):
         TODO: add back the requestStartCB and completedCB (for batch updates)
         """
         threading.Thread.__init__(self, name="codeintel indexer")
+        self.setDaemon(True)
         self.mgr = mgr 
         self.on_scan_complete = on_scan_complete
         if self.mode == self.MODE_DAEMON:
@@ -662,6 +664,7 @@ class BatchUpdater(threading.Thread):
     def __init__(self):
         XXX
         threading.Thread.__init__(self, name="CodeIntel Batch Scheduler")
+        self.setDaemon(True)
 
         self._requests = Queue.Queue()
         self.mode = None # "upgrade", "non-upgrade" or None
