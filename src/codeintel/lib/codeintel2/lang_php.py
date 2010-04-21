@@ -1553,6 +1553,8 @@ class PHPFunction:
                         self.args.append(PHPArg(argInfo[1], citdl=argInfo[0]))
             if docinfo[2]:
                 self.returnType = docinfo[2][0]
+        if self.returnType:
+            self.signature = '%s %s' % (self.returnType, self.signature, )
         self.signature += "("
         if self.args:
             self.signature += ", ".join([x.signature for x in self.args])
