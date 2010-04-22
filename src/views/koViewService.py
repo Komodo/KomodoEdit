@@ -14,7 +14,7 @@
 # The Original Code is Komodo code.
 # 
 # The Initial Developer of the Original Code is ActiveState Software Inc.
-# Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+# Portions created by ActiveState Software Inc are Copyright (C) 2000-2010
 # ActiveState Software Inc. All Rights Reserved.
 # 
 # Contributor(s):
@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-# document object service and cache
+"""Service for handling Komodo views (basically tabs in the main window(s))."""
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.client import WeakReference
