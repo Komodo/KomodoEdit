@@ -57,6 +57,7 @@ import difflibex
 #---- globals and support routines
 
 log = logging.getLogger('koDocumentService')
+#log.setLevel(logging.DEBUG)
 
 if sys.platform.startswith("win"):
     def fequal(a, b):
