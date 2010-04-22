@@ -51,11 +51,10 @@
         orient="vertical"
         style="min-width: 40em; max-width: 55em;"
         flex="1"
-        buttons="accept,extra1"
+        buttons="accept,cancel"
         ondialoghelp="return Help();"
         ondialogaccept="return Yes();"
-        ondialogextra1="return No();"
-        ondialogcancel="return Cancel();">
+        ondialogcancel="return No();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>

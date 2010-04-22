@@ -69,7 +69,7 @@ function OnLoad()
 {
     var dialog = document.getElementById("dialog-yesno");
     var yesButton = dialog.getButton("accept");
-    var noButton = dialog.getButton("extra1");
+    var noButton = dialog.getButton("cancel");
     yesButton.setAttribute("label", "Yes");
     yesButton.setAttribute("accesskey", "y");
     noButton.setAttribute("label", "No");
@@ -175,20 +175,6 @@ function No()
     if (gDoNotAskUI) {
         var checkbox = document.getElementById("doNotAsk-checkbox");
         window.arguments[0].doNotAsk = checkbox.checked;
-    }
-    // "No" is one of the "extra" <dialog/> button. Only the "accept" and
-    // "cancel" button actions will automatically close the window, so we have
-    // to do it manually here.
-    window.close();
-    return true;
-}
-
-function Cancel()
-{
-    window.arguments[0].response = "No";
-    if (gDoNotAskUI) {
-        // Don't skip this dialog next time, if it was cancelled this time.
-        window.arguments[0].doNotAsk = false;
     }
     return true;
 }
