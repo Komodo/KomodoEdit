@@ -365,7 +365,7 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
                                                         viewType /*="editor"*/,
                                                         viewList /*=null*/)
 {
-    this.log.info("doing doFileNewFromTemplate: ");
+    this.log.info("_doFileNewFromTemplate: ");
     if (typeof(viewType) == "undefined" || viewType == null) viewType = "editor";
     if (typeof(viewList) == "undefined") viewList = null;
     if (typeof(saveto) == "undefined") saveto = null;
@@ -475,30 +475,6 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
     }
 
     return view;
-}
-
-/**
- * Create a new file based on a template, optionally add it to a project.
- * Deprecated, use the doFileNewFromTemplateAsync function instead.
- * 
- * @deprecated since 5.0.3 (this will be moved to an internal function)
- *
- * @param uri {string} optional, uri pointing to a template file
- * @param saveto {string} optional, where to save the new file
- * @param viewType {string} optional, type of buffer to open, default "editor"
- * @param viewList {Components.interfaces.koIViewList}
- *        optional, what pane to open the buffer in
- *
- * @return {Components.interfaces.koIView} the buffer view that is opened
- */
-viewManager.prototype.doFileNewFromTemplate = function(uri,
-                                                       saveto  /*=null*/,
-                                                       viewType /*="editor"*/,
-                                                       viewList /*=null*/)
-{
-    this.log.deprecated("doFileNewFromTemplate is deprecated, use " +
-                        "ko.views.manager.doFileNewFromTemplateAsync");
-    return this._doFileNewFromTemplate(uri, saveto, viewType, viewList);
 }
 
 /**

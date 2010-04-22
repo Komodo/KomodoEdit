@@ -623,7 +623,7 @@ function _updateMRUMenu(prefName)
         //              label="URL_DISPLAY_NAME"/>
         // For template MRU entries use this instead:
         //    <menuitem class="menuitem_mru"
-        //              oncommand="ko.views.manager.doFileNewFromTemplate('URL');"
+        //              oncommand="ko.views.manager.newFileFromTemplateOrTrimMRU('URL');"
         //              label="URL_BASENAME"/>
         if (!menupopup) {
             menupopup = separator.parentNode;
@@ -673,12 +673,12 @@ function _updateMRUMenu(prefName)
 }
 
 
-// This is a little wrapper for ko.views.manager.doFileNewFromTemplate() that first
-// checks to see if the template file exists, and if not: (1) does not
-// call doFileNewFromTemplate and (2) removes the template entry from the
-// given MRU. The file/view will be opened asynchronously.
+// This is a little wrapper for ko.views.manager.doFileNewFromTemplateAsync()
+// that first checks to see if the template file exists, and if not: (1) does
+// not call doFileNewFromTemplateAsync and (2) removes the template entry
+// from the given MRU. The file/view will be opened asynchronously.
 //
-// XXX The *right* way to do this is for ko.views.manager.doFileNewFromTemplate
+// XXX The *right* way to do this is for ko.views.manager.doFileNewFromTemplateAsync
 //     to return an error (code or exception) if the template doesn't exist --
 //     instead of bringing up an error dialog. Then we'd trap that error,
 //     notify the user, and trim the MRU. As it is we (practically) have to
