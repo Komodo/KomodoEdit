@@ -331,13 +331,13 @@ tabs.small > tab {
 .whiteout tab:not([selected="true"]) > .tab-image-middle > .tab-icon,
 .tabs-bottom tab:not([selected="true"]) > .tab-image-middle > .tab-icon
 {
-   -moz-opacity: 0.4;
+    opacity: 0.4;
 }
 
 .whiteout tab:not([selected="true"]):hover > .tab-image-middle > .tab-icon,
 .tabs-bottom tab:not([selected="true"]):hover > .tab-image-middle > .tab-icon
 {
-   -moz-opacity: 1.0;
+    opacity: 1.0;
 }
 
 .whiteout tab[selected="true"],
