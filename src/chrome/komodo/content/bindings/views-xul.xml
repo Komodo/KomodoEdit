@@ -49,6 +49,9 @@
         <xul:iframe flex="1"/>
     </content>
     <implementation name="viewxul" implements="koIXULView">
+        <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
+        <property name="document" onget="return this.koDoc;" onset="this.koDoc = val" />
+
         <property name="iframe" readonly="true"
             onget="return document.getAnonymousNodes(this)[0];"/>
 

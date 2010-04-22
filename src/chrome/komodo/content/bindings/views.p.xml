@@ -545,14 +545,22 @@
 <binding id="view-base"
     extends="chrome://komodo/content/bindings/views.xml#view-list-base">
     <implementation name="viewbase" implements="koIView">
-        <!--attribute koIDocument document;-->
-        <property name="document"/>
+        <!-- Note: Want to set a "document" property here that is an
+            alias for "koDoc" (`document` is deprecated). However, that
+            causes `'this.document' is undefined` errors. Don't know why.
+            Suspect it might be that a property with a getter or setter
+            actually results in XBL creating something with that name
+            but in a way that conflicts. Result: sub-classes of "view-base"
+            XBL need to define their own such alias:
+                <property name="document" onget="return this.koDoc;" onset="this.koDoc = val" />
+            -->
+        <field name="koDoc">null</field>
 
         <property name="title" readonly="true">
         <getter>
         <![CDATA[
-            if (this.document) {
-                return this.document.baseName;
+            if (this.koDoc) {
+                return this.koDoc.baseName;
             }
             return '(untitled)';
         ]]>
@@ -598,12 +606,12 @@
                 this._item.getFile = function() {return this._file};
             }
             // always update the file and uri  XXX why?
-            if (this.document) {
-                if (this.document.isUntitled) {
-                    this._item.url = this.document.baseName;
-                } else if (!this._item._file || this._item._file != this.document.file) {
-                    this._item.url = this.document.file.URI;
-                    this._item._file = this.document.file;
+            if (this.koDoc) {
+                if (this.koDoc.isUntitled) {
+                    this._item.url = this.koDoc.baseName;
+                } else if (!this._item._file || this._item._file != this.koDoc.file) {
+                    this._item.url = this.koDoc.file.URI;
+                    this._item._file = this.koDoc.file;
                     // XXX fixme
                     //this._item.updateStatus();
                 }

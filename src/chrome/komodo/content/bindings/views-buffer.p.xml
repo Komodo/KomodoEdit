@@ -90,6 +90,9 @@
 <binding id="view-buffer-base"
     extends="chrome://komodo/content/bindings/views.xml#view-base">
     <implementation name="viewbufferbase" implements="koIScintillaView, ISciMozEvents, nsIObserver">
+        <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
+        <property name="document" onget="return this.koDoc;" onset="this.koDoc = val" />
+
         <property name="scintilla" onget="return document.getAnonymousNodes(this)[0];"/>
 
         <field name="__docSvc">null</field>

@@ -970,9 +970,11 @@
 
     </content>
     <implementation name="viewstartpage" implements="koIStartPageView, nsIObserver">
+        <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
+        <property name="document" onget="return this.koDoc;" onset="this.koDoc = val" />
 
         <property name="title" readonly="true" onget="return '&startPage.title;';"/>
-
+        
         <field name="widgets">null</field>
 
         <field name="_updateTemplateMRUWhenVisible">true</field>

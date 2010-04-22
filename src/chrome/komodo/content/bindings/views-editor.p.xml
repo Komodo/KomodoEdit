@@ -71,24 +71,23 @@
 
         <field name="_everLinted">false</field>
 
-        <!--attribute koIDocument document;-->
-        <field name="_document">null</field>
-        <property name="document"
-            onget="return this._document;">
+        <field name="_koDoc">null</field>
+        <property name="koDoc"
+            onget="return this._koDoc;">
         <setter>
         <![CDATA[
             ko.trace.get().enter('document setter');
             this.log.info("view-editor:document setter");
-            if (this._document) {
+            if (this._koDoc) {
                 try {
                 // We are detaching a document from the view
                 xtk.domutils.fireEvent(this, 'view_document_detaching');
-                this._document.releaseView(this);
-                this._document.releaseReference();
-                this._document.observerService.removeObserver(this,'buffer_dirty');
-                this._document.observerService.removeObserver(this,'language_changed');
-                this._document.observerService.removeObserver(this,'encoding_changed');
-                this._document.observerService.removeObserver(this,'buffer_changed');
+                this._koDoc.releaseView(this);
+                this._koDoc.releaseReference();
+                this._koDoc.observerService.removeObserver(this,'buffer_dirty');
+                this._koDoc.observerService.removeObserver(this,'language_changed');
+                this._koDoc.observerService.removeObserver(this,'encoding_changed');
+                this._koDoc.observerService.removeObserver(this,'buffer_changed');
                 Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService).removeObserver(this,'scheme-changed');
                 } catch(e) {
@@ -104,7 +103,7 @@
             this.isCIXMLStuffEnabled = false;
             this.isCICplnEnabled = false;
 
-            this._document = val;
+            this._koDoc = val;
             if (val) {
                 // Remove the file from the MRU when it is opened... this may
                 // seem strange, it's because once you open the file you don't
@@ -1146,10 +1145,10 @@
         <method name="getState">
         <body>
         <![CDATA[
-            if (this._document.isUntitled || this._document.file.isSpecial) { return null; }
+            if (this._koDoc.isUntitled || this._koDoc.file.isSpecial) { return null; }
             var myState = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
             myState.setStringPref('viewtype', 'editor');
-            myState.setStringPref('URI', this._document.file.URI);
+            myState.setStringPref('URI', this._koDoc.file.URI);
             return myState;
         ]]>
         </body>

@@ -131,12 +131,13 @@ interface koIViewList : nsISupports
 [scriptable, uuid(CFA83607-094F-4FF8-937E-2BE52E338EB9)]
 interface koIView : koIViewList
 {
-    attribute koIDocument document;
+    attribute koIDocument document; // DEPRECATED in Komodo 6.0.0, use `koDoc` attribute
+    attribute koIDocument koDoc;
     attribute koIViewList parentView;
     void makeCurrent(in boolean doNotGrabFocus);
     readonly attribute boolean isCurrent;
     void setFocus();
-    void close(); // this will decrease the refcount on the document
+    void close(); // this will decrease the refcount on the koDocument
     void saveAs(in wstring URI); // XXX review signature
     void gotoLine(in long lineNo);
     void printView(); // 'print' is a python keyword :(
