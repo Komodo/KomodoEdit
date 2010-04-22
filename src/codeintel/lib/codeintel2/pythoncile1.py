@@ -696,13 +696,16 @@ class AST2CIXVisitor:
         
         if prop_var:
             # this is a property getter function,
-            # copy its return types to the corresponding property variable
+            # copy its return types to the corresponding property variable...
             var_types = prop_var["types"]
             for t in namespace["returns"]:
                 if t not in var_types:
                     var_types[t] = 0
                 else:
                     var_types[t] += 1
+            # ... as well as its line number
+            if "line" in namespace:
+                prop_var["line"] = namespace["line"]
 
     def visitImport(self, node):
         log.info("visitImport:%d: %r", node.lineno,
