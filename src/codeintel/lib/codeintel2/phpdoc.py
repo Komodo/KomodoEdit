@@ -77,7 +77,7 @@ phpdoc_tags = {
                     "@link http://pod.mars/ Mars Pod",
 
     "method":       "Document a 'Magic' Method of a class.\n"
-                    "@method returntype  description of method",
+                    "@method returntype someMethod() description of method",
 
     "name":         "Specify an alias to use for a procedural page or global\n"
                     "variable in displayed documentation and linking.\n"

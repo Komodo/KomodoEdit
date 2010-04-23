@@ -3635,6 +3635,29 @@ class DefnTestCase(CodeIntelTestCase):
              ("variable", "bar"),
             ])
 
+    @tag("bug86690")
+    def test_phpdoc_class_method(self):
+        # http://bugs.activestate.com/show_bug.cgi?id=86690
+        # @property shows a "magic" (virtual) method that is found inside the
+        # class.
+        content, positions = unmark_text(php_markup(dedent("""\
+            /**
+             * Show off phpdoc virtual method addition.
+             *
+             * @method int doMagicTrick() I like magic!
+             * @method mixed showRabbit() showRabbit($arg1, $arg2)  Bunnies!!
+             */
+            class Magician2 { }
+             
+            $magical = new Magician2();
+            $magical-><1>xxx;
+        """)))
+        # Single base class
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "doMagicTrick"),
+             ("function", "showRabbit"),
+            ])
+
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"

@@ -1534,7 +1534,7 @@ class PHPFunction:
 # if we add destructor attributes...
 #        elif funcname == '__destruct':
 #            attributes += ['__dtor__']
-        self.attributes = ' '.join(attributes)
+        self.attributes = attributes and ' '.join(attributes) or None
         self.doc = None
 
         if doc:
@@ -1680,6 +1680,7 @@ class PHPClass:
 
     # PHPDoc magic property sniffer.
     _re_magic_property = re.compile(r'^\s*@property(-(?P<type>read|write))?\s+((?P<citdl>\w+)\s+)?(?P<name>\$\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
+    _re_magic_method = re.compile(r'^\s*@method\s+((?P<citdl>\w+)\s+)?(?P<name>\w+)(\(\))?(?P<doc>.*?)$', re.M|re.U)
 
     def __init__(self, name, extends, lineno, depth, attributes=None,
                  interfaces=None, doc=None):
@@ -1711,6 +1712,16 @@ class PHPClass:
                     varname = match[4][1:]  # skip "$" in the name.
                     v = PHPVariable(varname, lineno, match[3], doc=match[5])
                     self.members[varname] = v
+            if self.doc.find("@method") >= 0:
+                all_matches = re.findall(self._re_magic_method, self.doc)
+                for match in all_matches:
+                    citdl = match[1] or None
+                    fnname = match[2]
+                    fndoc = match[4]
+                    phpArgs = []
+                    fn = PHPFunction(fnname, phpArgs, lineno, depth=self.depth+1,
+                                     doc=fndoc, returnType=citdl)
+                    self.functions[fnname] = fn
 
     def __repr__(self):
         # dump our contents to human readable form
