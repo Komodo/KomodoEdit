@@ -190,7 +190,7 @@ class KoLintRequest:
 
     def __init__(self):
         self.rid = None
-        self.document = None
+        self.koDoc = None
         self.uid = ''
         self.linterType = ''
         self.cwd = ''
@@ -200,6 +200,12 @@ class KoLintRequest:
         self.linter = None
         self.results = None
         self.errorString = ''
+    
+    @property
+    def document(self):
+        log.debug("`koILintRequest.document` was DEPRECATED in Komodo "
+            "6.0.0b1, use `koILintRequest.koDoc`.")
+        return self.koDoc
     
     def describe(self):
         return "<KoLintRequest: %s on uid %s>" % (self.linterType, self.uid)
@@ -271,8 +277,8 @@ class KoLintService:
         
         # Fill out the request (because document access and component
         # creation must often be done in the main thread).
-        request.content = request.document.buffer
-        request.encoding = request.document.encoding
+        request.content = request.koDoc.buffer
+        request.encoding = request.koDoc.encoding
         if request.linterType:
             request.linter = self._getLinter(request.linterType)
         # Proxy this so the worker thread can report results on this iface.
@@ -416,15 +422,15 @@ class KoLintService:
                         log.debug("manager thread: linter.lint(request) returned")
                     if TIME_LINTS: endlintlint = time.clock()
 
-                    if request.document.prefs.getBooleanPref("lintEOLs"):
+                    if request.koDoc.prefs.getBooleanPref("lintEOLs"):
                         # Also look for mixed-line endings warnings.
                         self._addMixedEOLWarnings(results, request.content,
-                            request.document.new_line_endings)
+                            request.koDoc.new_line_endings)
 
                     if TIME_LINTS:
                         endeollint = time.clock()
                         print "lint of '%s': encoding=%.3fs  lint=%.3fs  eol=%.3fs"\
-                              % (request.document.baseName,
+                              % (request.koDoc.baseName,
                                  endencodinglint-startlint,
                                  endlintlint-endencodinglint,
                                  endeollint-endlintlint)
@@ -436,7 +442,7 @@ class KoLintService:
                     # Any exceptions that are not ServerException or
                     # COMException are unexpected internal errors.
                     err = "unexpected internal error checking '%s' with '%s' linter"\
-                          % (request.document.baseName, request.linterType)
+                          % (request.koDoc.baseName, request.linterType)
                     log.exception(err)
                     request.errorString = err
                 else:

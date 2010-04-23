@@ -197,7 +197,7 @@ class KoPythonCommonLinter(object):
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
         cwd = request.cwd
-        prefset = request.document.getEffectivePrefs()
+        prefset = request.koDoc.getEffectivePrefs()
 
         try:
             python, pyver = self._getInterpreterAndPyver(prefset)
@@ -207,7 +207,7 @@ class KoPythonCommonLinter(object):
             else:
                 compilePy = os.path.join(self._koDirSvc.supportDir, "python",
                                          "pycompile.py")
-            if request.document.displayPath.startswith("macro://"):
+            if request.koDoc.displayPath.startswith("macro://"):
                 text = projectUtils.wrapPythonMacro(text)
                 leadingWS = _leading_ws_re.match(text.splitlines()[1]).group(1)
             else:

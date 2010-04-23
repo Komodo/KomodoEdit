@@ -73,9 +73,9 @@ class KoXPCShellLinter:
         # copy file-to-lint to a temp file
         jsfilename = tempfile.mktemp() + '.js'
         # convert to UNIX line terminators before splitting
-        isMacro = request.document.displayPath.startswith("macro://")
+        isMacro = request.koDoc.displayPath.startswith("macro://")
         if isMacro:
-            funcName = request.document.file.leafName;
+            funcName = request.koDoc.file.leafName;
             lastDot = funcName.rfind('.')
             if lastDot >= 0:
                 funcName = funcName[:lastDot]

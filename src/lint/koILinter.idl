@@ -160,7 +160,8 @@ interface koILintBuffer : nsISupports {
 interface koILintRequest : nsISupports {
     // This first block of attributes should be set when the request is made.
     attribute long rid; // relatively-unique request id
-    attribute koIDocument document;
+    attribute koIDocument document; // DEPRECATED in Komodo 6.0.0, use `koDoc`
+    attribute koIDocument koDoc;
     attribute string uid;        // a unique view id
     // Specifying a null linterType will just result in an encoding check
     // on the document.

@@ -439,7 +439,7 @@ this.lintBuffer.prototype._createLintRequest = function(linterType)
         var lr = Components.classes["@activestate.com/koLintRequest;1"].
                     createInstance(Components.interfaces.koILintRequest);
         lr.rid = this._lastRequestId;
-        lr.document = this.view.document;
+        lr.koDoc = this.view.koDoc;
         lr.linterType = linterType;
         lr.uid = this.view.uid;
         lr.cwd = cwd;

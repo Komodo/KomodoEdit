@@ -330,7 +330,7 @@ class KoPerlCompileLinter:
         """
         text = request.content.encode(request.encoding.python_encoding_name)
         cwd = request.cwd
-        prefset = request.document.getEffectivePrefs()
+        prefset = request.koDoc.getEffectivePrefs()
         # Remove a possible "-d" in the shebang line, this will tell Perl to
         # launch the debugger which, if the PDK is installed, is the PDK
         # debugger.  Be careful to handle single-line files correctly.
@@ -358,7 +358,7 @@ class KoPerlCompileLinter:
                 # This is no longer needed with Perl-Critic 1.5, which
                 # goes by the filename given in any #line directives
                 perlCriticVersion = self._appInfoEx.getPerlCriticVersion();
-                file = request.document.file
+                file = request.koDoc.file
                 if file:
                     baseFileName = file.baseName[0:-len(file.ext)]
                 if perlCriticVersion < 1.500:
