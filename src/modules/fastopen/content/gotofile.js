@@ -13,6 +13,7 @@ var gSession = null;   // koIFastOpenSession
 var gSep = null;       // path separator for this platform
 var gOsPath = null;
 
+var _gCurrQuery = null; // the query string last used to search
 
 
 //---- routines called by dialog
@@ -71,7 +72,7 @@ function onUnload()
  
 
 function handleDblClick() {
-    if (_openSelectedPaths()) {
+    if (_openSelectedHits()) {
         window.close();
     }
 }
@@ -81,14 +82,13 @@ function handleWindowKeyPress(event) {
     if (event.keyCode == KeyEvent.DOM_VK_ENTER
         || event.keyCode == KeyEvent.DOM_VK_RETURN)
     {
-        if (_openSelectedPaths()) {
-            window.close();
-        }
+        _handleEnter();
     } else if (event.keyCode == KeyEvent.DOM_VK_ESCAPE) {
         window.close();
     }
     //TODO: Cmd+W / Ctrl+W: see Todd's code for plat determination
 }
+
 
 var _gIgnoreNextFindFiles = false;
 function handleQueryKeyPress(event) {
@@ -97,13 +97,7 @@ function handleQueryKeyPress(event) {
     if (keyCode == KeyEvent.DOM_VK_ENTER
         || keyCode == KeyEvent.DOM_VK_RETURN)
     {
-        // Can't turn off <Enter> firing oncommand on the <textbox type="search">,
-        // therefore tell the handler to ignore the coming one.
-        _gIgnoreNextFindFiles = true;
-        // Open the selected path.
-        if (_openSelectedPaths()) {
-            window.close();
-        }
+        _handleEnter();
     } else if (keyCode == KeyEvent.DOM_VK_UP && event.shiftKey) {
         index = gWidgets.results.currentIndex - 1;
         if (index >= 0) {
@@ -152,9 +146,11 @@ function findFiles(query) {
     if (_gIgnoreNextFindFiles) {
         _gIgnoreNextFindFiles = false;
     } else {
+        _gCurrQuery = query;
         gSession.findFiles(query);
     }
 }
+
 
 
 
@@ -217,19 +213,51 @@ function _selectTreeRow(tree, index) {
     tree.treeBoxObject.ensureRowIsVisible(index);
 }
 
+/* Handle <Enter> (or <Return>) being pressed to use the current
+ * filter/selection state.
+ */
+function _handleEnter() {
+    if (gWidgets.query.value != _gCurrQuery) {
+        // The current set of results in now invalid. Need to get the first
+        // new hit, if any, from the new query.
+        _gIgnoreNextFindFiles = true;  // Cancel coming `findFiles`.
+        // Only wait for a few seconds (don't want to hang on this).
+        var hit = gSession.findFileSync(gWidgets.query.value, 3.0);
+        if (! hit) {
+            _gIgnoreNextFindFiles = false;
+            findFiles(gWidgets.query.value);
+        } else if (_openHits([hit])) {
+            window.close();
+        } 
+    } else if (_openSelectedHits()) {
+        window.close();
+    }
+}
+
 /* Open the views/paths selected in the results tree.
+ *
  * @returns {Boolean} True iff successfully opened/switched-to files/tabs.
  *      For example, this returns false for a selected dir -- which isn't opened
  *      but set into the query box.
  */
-function _openSelectedPaths() {
-    var hits = gWidgets.results.view.getSelectedHits(new Object());
+function _openSelectedHits() {
+    return _openHits(gWidgets.results.view.getSelectedHits({}));
+}
+
+/* Open the given hits.
+ *
+ * @param hits {list of koIFastOpenHit} The hits to open.
+ * @returns {Boolean} True iff successfully opened/switched-to files/tabs.
+ *      For example, this returns false for a selected dir -- which isn't opened
+ *      but set into the query box.
+ */
+function _openHits(hits) {
     var hit, viewType, tabGroup;
     var fileUrlsToOpen = [];
     var dirsToOpen = [];
     for (var i in hits) {
         var hit = hits[i];
-        if (hit.isdir) {
+        if (hit.type == "path" && hit.isdir) {
             dirsToOpen.push(hit.base);
         } else if (hit.type == "open-view") {
             hit.view.makeCurrent();
@@ -240,11 +268,8 @@ function _openSelectedPaths() {
         }
     }
     if (fileUrlsToOpen.length) {
-        // Note: If there are directories to open as well, these files will be
-        //       opened after the dialog closes (due to the dialog being modal).
         opener.ko.open.multipleURIs(fileUrlsToOpen);
-    }
-    if (dirsToOpen.length) {
+    } else if (dirsToOpen.length) {
         // Selecting a dir should just enter that dir into the filter box.
         gWidgets.query.value = gOsPath.join(
             gOsPath.dirname(gWidgets.query.value), dirsToOpen[0]) + gSep;
@@ -253,6 +278,7 @@ function _openSelectedPaths() {
     }
     return true;
 }
+
 
 /* Complete the currently selected item in the results tree.
  * This is typically hooked up to <Tab>. Its main usefulness is in descending
@@ -305,7 +331,7 @@ function _completeSelectionOrMove(moveForward, allowAdvance) {
     }
 
     // Set the new value. If it is a dir, then descend into it.
-    gWidgets.query.value = newValue;
+    gWidgets.query.value = _gCurrQuery = newValue;
     if (hit.isdir) {
         findFiles(newValue);
     }

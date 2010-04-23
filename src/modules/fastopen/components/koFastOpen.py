@@ -300,6 +300,7 @@ class KoFastOpenSession(object):
         self.historySessionName = sessionName
         self._gatherers_cache = None
 
+    #TODO: rename to gathererInfo, the current name is already inaccurate
     @property
     def gatherersAndCwds(self):
         if self._gatherers_cache is None:
@@ -326,12 +327,25 @@ class KoFastOpenSession(object):
         return self._gatherers_cache
 
     def findFiles(self, query):
+        """Asynchronously search with the given query."""
         gatherers, cwds, dirShortcuts = self.gatherersAndCwds
         self.driver.search(query, gatherers, cwds, self.path_excludes_pref,
             dirShortcuts, self.resultsView)
 
+    def findFileSync(self, query, timeout):
+        """Synchronously search with the given query and return the first hit.
+        
+        @param query {str} The query string with which to search.
+        @param timeout {float} A number of seconds to wait for that first
+            hit. If None, then don't timeout.
+        """
+        gatherers, cwds, dirShortcuts = self.gatherersAndCwds
+        return self.driver.searchOne(query, gatherers, cwds,
+            self.path_excludes_pref, dirShortcuts, timeout)
+
     def abortSearch(self):
         self.driver.abortSearch()
+
 
 class KoFastOpenService(object):
     _com_interfaces_ = [components.interfaces.koIFastOpenService,

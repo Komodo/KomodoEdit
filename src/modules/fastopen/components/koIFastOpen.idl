@@ -51,6 +51,7 @@ interface koIFastOpenTreeView: nsITreeView {
 interface koIFastOpenUIDriver: nsISupports {
     void setTreeView(in koIFastOpenTreeView view);
     void setCurrPath(in wstring path);
+
     void searchStarted();
     void searchAborted();
     void searchCompleted();
@@ -74,6 +75,10 @@ interface koIFastOpenSession: nsISupports {
     // will cancel a previous `findFiles` call. Results are returned
     // by calling the `uiDriver`.
     void findFiles(in wstring query);
+    
+    // Synchronously search with the given query string and return the first
+    // hit, or null.
+    koIFastOpenHit findFileSync(in wstring query, in double timeout);
 
     // Abort a current search (if any).
     void abortSearch();

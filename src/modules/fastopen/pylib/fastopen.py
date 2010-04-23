@@ -41,7 +41,7 @@ Be sure to stop the driver thread when done:
 
 import os
 from os.path import (exists, expanduser, join, isdir, dirname, abspath,
-    splitext, split, isabs, normcase)
+    splitext, split, isabs, normcase, normpath)
 import sys
 import logging
 import threading
@@ -185,10 +185,35 @@ class ProjectHit(PathHit):
         else:
             return u"%s %s %s" % (self.base, MDASH, self.nicedir)
 
-class StreamResultsView(object):
+
+class ResultsView(object):
     """A base implementation of the API required by 
     `Driver.search(..., resultsView)` for reporting results from a search.
     """
+    def resetHits(self):
+        pass
+    def addHit(self, hit):
+        pass
+    def addHits(self, hits):
+        pass
+    def searchStarted(self):
+        pass
+    def searchAborted(self):
+        pass
+    def searchCompleted(self):
+        pass
+
+class CaptureResultsView(ResultsView):
+    """A results view that just captures its hits."""
+    def __init__(self):
+        self.hits = []
+    def addHit(self, hit):
+        self.hits.append(hit)
+    def addHits(self, hits):
+        self.hits += hits
+
+class StreamResultsView(ResultsView):
+    """A results view that logs hits to stdout."""
     def __init__(self, stream=sys.stdout):
         self.stream = stream
     def resetHits(self):
@@ -199,12 +224,6 @@ class StreamResultsView(object):
     def addHits(self, hits):
         for hit in hits:
             self.addHit(hit)
-    def searchStarted(self):
-        pass
-    def searchAborted(self):
-        pass
-    def searchCompleted(self):
-        pass
 
 
 class Request(object):
@@ -220,13 +239,20 @@ class SearchRequest(Request):
     method on which one can wait for the request to complete.
     """
     def __init__(self, query, gatherers, cwds, pathExcludes, dirShortcuts,
-            resultsView):
+            resultsView, stopAtNHits=None):
+        """
+        ...
+        @param stopAtNHits {int} If given, is a number of hits at which to
+            stop the search. This can be used to have the search not bother
+            wasting time on results that ultimately will not be used.
+        """        
         self.query = query
         self.gatherers = gatherers
         self.cwds = cwds
         self.pathExcludes = pathExcludes
         self.dirShortcuts = dirShortcuts
         self.resultsView = resultsView
+        self.stopAtNHits = stopAtNHits
         self._event = threading.Event()
     def wait(self, timeout=None):
         self._event.wait(timeout)
@@ -292,6 +318,29 @@ class Driver(threading.Thread):
         self._queue.put(r)
         return r
 
+    def searchOne(self, query, gatherers, cwds=None, pathExcludes=None,
+            dirShortcuts=None, timeout=None):
+        """A synchonous version of `search()` that just searches for and
+        returns the top hit.
+        
+        ...
+        @param dirShortcuts {dict} A mapping of shortcut strings to
+            directories.
+        @param timeout {float} A number of seconds to wait for that first hit.
+            If None (or not given), then don't timeout.
+        @returns {Hit} The top hit or, if there isn't one, None.
+        
+        TODO: raise if timeout?
+        """
+        if pathExcludes is None:
+            pathExcludes = DEFAULT_PATH_EXCLUDES
+        resultsView = CaptureResultsView()
+        request = SearchRequest(query, gatherers, cwds or [], pathExcludes,
+            dirShortcuts, resultsView, 1)
+        self._queue.put(request)
+        request.wait(timeout)
+        return (resultsView.hits[0] if resultsView.hits else None)
+
     def run(self):
         while True:
             # Get the latest request on the queue (last one wins, with the
@@ -330,7 +379,9 @@ class Driver(threading.Thread):
         try:
             resultsView.resetHits()
             query = request.query.strip()
-            
+
+            stopAtNHits = request.stopAtNHits
+
             # See if this is a path query, i.e. a search for an absolute or
             # relative path.
             dirQueries = []
@@ -351,6 +402,7 @@ class Driver(threading.Thread):
                 if request.dirShortcuts and shortcut in request.dirShortcuts:
                     dirQueries.append(join(request.dirShortcuts[shortcut], subpath))
 
+            hitPaths = set()
             if dirQueries:
                 hitPaths = set()
                 pathExcludes = request.pathExcludes
@@ -389,13 +441,17 @@ class Driver(threading.Thread):
                         #log.debug("adding %d hits from %r (path mode)", len(hits), dirQuery)
                         if hits:
                             resultsView.addHits(hits)
+                            if stopAtNHits and len(hitPaths) >= stopAtNHits:
+                                aborted = False
+                                return
         
             else:
                 # Second value is whether to be case-sensitive in filtering.
                 queryWords = [(w, w.lower() != w, False) for w in query.split()]
                 
-                BLOCK_SIZE = 50 - 1  #TODO: ask gatherer if can just get all?
-                hitPaths = set()
+                BLOCK_SIZE = 50  #TODO: ask gatherer if can just get all?
+                if stopAtNHits:
+                    BLOCK_SIZE = min(stopAtNHits, BLOCK_SIZE)
                 generators = [(g, g.gather()) for g in request.gatherers]
                 while generators:
                     exhausted = []
@@ -408,7 +464,7 @@ class Driver(threading.Thread):
                             elif hit.match(queryWords):
                                 hits.append(hit)
                                 hitPaths.add(path)
-                            if j >= BLOCK_SIZE:
+                            if j >= BLOCK_SIZE - 1:
                                 break
                         else:
                             exhausted.append(i)
@@ -417,9 +473,20 @@ class Driver(threading.Thread):
                         #log.debug("adding %d hits from %r", len(hits), gatherer)
                         if hits:
                             resultsView.addHits(hits)
+                            if stopAtNHits and len(hitPaths) >= stopAtNHits:
+                                aborted = False
+                                return
                     if exhausted:
                         for i in reversed(exhausted):
                             del generators[i]
+            
+            hits = []
+            if hits:
+                resultsView.addHits(hits)
+                if stopAtNHits and len(hitPaths) >= stopAtNHits:
+                    aborted = False
+                    return
+            
             aborted = False
         finally:
             try:
