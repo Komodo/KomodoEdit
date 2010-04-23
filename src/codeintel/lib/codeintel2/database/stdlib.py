@@ -255,23 +255,47 @@ class StdLibsZone(object):
     to prevent corruption.
     """
     _res_index = None                   # cix-path -> last-updated
-    _vers_and_names_from_lang = None    # lang -> ordered list of (ver, name)
+    _vers_and_names_from_lang = {}      # lang -> ordered list of (ver, name)
 
     def __init__(self, db):
         self.db = db
         self.stdlibs_dir = join(dirname(dirname(__file__)), "stdlibs")
         self.base_dir = join(self.db.base_dir, "db", "stdlibs")
-        self._stdlib_from_stdlib_name = {} # cache of StdLib singletons
-        self._have_updated_stdlib_from_lang = {}
+        self._stdlib_from_stdlib_ver_and_name = {} # cache of StdLib singletons
 
-    @property
-    def vers_and_names_from_lang(self):
-        "lang -> ordered list of (ver, name)"
-        if self._vers_and_names_from_lang is None:
-            idxpath = join(self.base_dir, "vers_and_names_from_lang")
-            self._vers_and_names_from_lang \
-                = self.db.load_pickle(idxpath, {})
-        return self._vers_and_names_from_lang
+    def vers_and_names_from_lang(self, lang):
+        "Returns an ordered list of (ver, name) for the given lang."
+        #  _vers_and_names_from_lang = {
+        #    "php": [
+        #              ((4,3), "php-4.3"),
+        #              ((5.0), "php-5.0"),
+        #              ((5.1), "php-5.1"),
+        #              ((5.2), "php-5.2"),
+        #              ((5,3), "php-5.3")
+        #         ],
+        #    "ruby": [
+        #              (None, "ruby"),
+        #         ],
+        #    ...
+        #  }
+        vers_and_names = self._vers_and_names_from_lang.get(lang)
+        if vers_and_names is None:
+            # Find the available stdlibs for this language.
+            cix_glob = join(self.stdlibs_dir, safe_lang_from_lang(lang)+"*.cix")
+            cix_paths = glob(cix_glob)
+            vers_and_names = []
+            for cix_path in cix_paths:
+                name = splitext(basename(cix_path))[0]
+                if '-' in name:
+                    base, ver_str = name.split('-', 1)
+                    ver = _ver_from_ver_str(ver_str)
+                else:
+                    base = name
+                    ver = None
+                vers_and_names.append((ver, name))
+            vers_and_names.sort()
+            self._vers_and_names_from_lang[lang] = vers_and_names
+        return vers_and_names
 
     @property
     def res_index(self):
@@ -285,10 +309,6 @@ class StdLibsZone(object):
         if self._res_index is not None:
             self.db.save_pickle(join(self.base_dir, "res_index"),
                                 self._res_index)
-        if self._vers_and_names_from_lang is not None:
-            self.db.save_pickle(
-                join(self.base_dir, "vers_and_names_from_lang"),
-                self._vers_and_names_from_lang)
 
     def get_lib(self, lang, ver_str=None):
         """Return a view into the stdlibs zone for a particular language
@@ -304,11 +324,7 @@ class StdLibsZone(object):
 
         Returns None if there is not stdlib for this language.
         """
-        if lang not in self._have_updated_stdlib_from_lang:
-            self.update_lang(lang)
-            self._have_updated_stdlib_from_lang[lang] = True
-
-        vers_and_names = self.vers_and_names_from_lang.get(lang)
+        vers_and_names = self.vers_and_names_from_lang(lang)
         if not vers_and_names:
             return None
         if ver_str is None:
@@ -340,11 +356,19 @@ class StdLibsZone(object):
         log.debug("best stdlib fit for %s ver=%s in %s is %s",
                   lang, ver, vers_and_names, vers_and_names[idx])
         
-        stdlib_name = vers_and_names[idx][1]
-        if stdlib_name not in self._stdlib_from_stdlib_name:
-            self._stdlib_from_stdlib_name[stdlib_name] = StdLib(
-                self.db, join(self.base_dir, stdlib_name), lang, stdlib_name)
-        return self._stdlib_from_stdlib_name[stdlib_name]
+        stdlib_match = vers_and_names[idx]
+        stdlib_ver, stdlib_name = stdlib_match
+
+        if stdlib_match not in self._stdlib_from_stdlib_ver_and_name:
+            # TODO: This _update_lang_with_ver method should really moved into
+            #       the StdLib class.
+            self._update_lang_with_ver(lang, ver=stdlib_ver)
+            stdlib = StdLib(self.db,
+                            join(self.base_dir, stdlib_name),
+                            lang, stdlib_name)
+            self._stdlib_from_stdlib_ver_and_name[stdlib_match] = stdlib
+
+        return self._stdlib_from_stdlib_ver_and_name[stdlib_match]
 
     def _get_preload_zip(self):
         return join(self.stdlibs_dir, "stdlibs.zip")
@@ -417,13 +441,13 @@ class StdLibsZone(object):
         # ... and then do them.
         self._handle_res_todos(lang, todo)
         self.save()
-        
-    #TODO: Add ver_str option (as per get_lib above) and only update
-    #      the relevant stdlib.
-    def update_lang(self, lang, progress_cb=None):
+
+    def _update_lang_with_ver(self, lang, ver=None, progress_cb=None):
         """Import stdlib data for this lang, if necessary.
         
             "lang" is the language to update.
+            "ver" (optional) is a specific version of the language,
+                e.g. (5, 8).
             "progress_cb" (optional) is a callable that is called as
                 follows to show the progress of the update:
                     progress_cb(<desc>, <value>)
@@ -436,30 +460,32 @@ class StdLibsZone(object):
         if progress_cb:
             try:    progress_cb("Determining necessary updates...", 5)
             except: log.exception("error in progress_cb (ignoring)")
-        cix_glob = join(self.stdlibs_dir, safe_lang_from_lang(lang)+"*.cix")
+        if ver is not None:
+            ver_str = ".".join(map(str, ver))
+            cix_path = join(self.stdlibs_dir,
+                            "%s-%s.cix" % (safe_lang_from_lang(lang), ver_str))
+        else:
+            cix_path = join(self.stdlibs_dir,
+                             "%s.cix" % (safe_lang_from_lang(lang), ))
         todo = []
-        checklist = {}
-        for area, subpath in self.res_index:
-            res = AreaResource(subpath, area)
-            if fnmatch.fnmatch(res.path, cix_glob):
-                checklist[res.area_path] = True
-        for cix_path in glob(cix_glob):
-            res = AreaResource(cix_path, "ci-pkg-dir")
-            try:
-                last_updated = self.res_index[res.area_path]
-            except KeyError:
-                todo.append(("add", res))
-            else:
-                mtime = os.stat(cix_path).st_mtime
-                if last_updated != mtime: # epsilon? '>=' instead of '!='?
-                    todo.append(("update", res))
-                del checklist[res.area_path] # tick it off
-        for area, subpath in checklist:
-            todo.append(("remove", AreaResource(subpath, area)))
+        res = AreaResource(cix_path, "ci-pkg-dir")
+        try:
+            last_updated = self.res_index[res.area_path]
+        except KeyError:
+            todo.append(("add", res))
+        else:
+            mtime = os.stat(cix_path).st_mtime
+            if last_updated != mtime: # epsilon? '>=' instead of '!='?
+                todo.append(("update", res))
 
         # ... and then do them.
         self._handle_res_todos(lang, todo, progress_cb)
         self.save()
+
+    def update_lang(self, lang, progress_cb=None):
+        vers_and_names = self.vers_and_names_from_lang(lang)
+        for ver, name in vers_and_names:
+            self._update_lang_with_ver(lang, ver, progress_cb)
 
     def _handle_res_todos(self, lang, todo, progress_cb=None):
         if not todo:
@@ -493,13 +519,10 @@ class StdLibsZone(object):
                 #    more intelligently if possible.
                 self._remove_res(res, lang, name, ver)
                 self._add_res(res, lang, name, ver)
-        for vers_and_names in self.vers_and_names_from_lang.values():
-            vers_and_names.sort()
 
     def _remove_res(self, res, lang, name, ver):
         log.debug("%s stdlibs: remove %s", lang, res)
         del self.res_index[res.area_path]
-        self.vers_and_names_from_lang[lang].remove((ver, name))
         dbdir = join(self.base_dir, name)
         try:
             rmdir(dbdir)
@@ -573,8 +596,6 @@ class StdLibsZone(object):
                                 toplevelprefix_index)
 
         mtime = os.stat(cix_path).st_mtime
-        self.vers_and_names_from_lang.setdefault(lang, []) \
-            .append((ver, name))
         self.res_index[res.area_path] = mtime
 
 

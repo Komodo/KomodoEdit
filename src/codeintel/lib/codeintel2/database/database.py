@@ -145,7 +145,7 @@ common-implementation lines. E.g. dir under "db" is a zone.
         # loaded here (as needed). 
         stdlibs/
             res_index                   # cix-path -> last-updated
-            vers_and_names_from_lang    # lang -> ordered list of (ver, name)
+            vers_and_names_from_lang(lang) # ordered list of (ver, name)
             <stdlib-name>/
                 blob_index              # {blobname -> dbfile}
                 toplevelname_index      # {ilk -> toplevelname -> blobnames}
