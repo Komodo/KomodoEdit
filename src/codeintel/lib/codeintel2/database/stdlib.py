@@ -255,13 +255,13 @@ class StdLibsZone(object):
     to prevent corruption.
     """
     _res_index = None                   # cix-path -> last-updated
-    _vers_and_names_from_lang = {}      # lang -> ordered list of (ver, name)
 
     def __init__(self, db):
         self.db = db
         self.stdlibs_dir = join(dirname(dirname(__file__)), "stdlibs")
         self.base_dir = join(self.db.base_dir, "db", "stdlibs")
         self._stdlib_from_stdlib_ver_and_name = {} # cache of StdLib singletons
+        self._vers_and_names_from_lang = {} # lang -> ordered list of (ver, name)
 
     def vers_and_names_from_lang(self, lang):
         "Returns an ordered list of (ver, name) for the given lang."
