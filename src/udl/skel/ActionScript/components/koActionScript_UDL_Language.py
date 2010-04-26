@@ -153,7 +153,7 @@ class koActionScriptLinter:
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
         cwd = request.cwd
-        prefset = request.document.getEffectivePrefs()
+        prefset = request.koDoc.getEffectivePrefs()
         ascExe = self._getInterpreter(prefset)
         if ascExe is None:
             log.debug('no interpreter')

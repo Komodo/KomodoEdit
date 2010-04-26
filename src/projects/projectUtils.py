@@ -54,7 +54,8 @@ def evalPythonMacro(part, domdocument, window, scimoz, document, view, code,
     lastErrorSvc.setLastError(0, '')
     import komodo
     komodo.domdocument = domdocument
-    komodo.document = document
+    # `.document` is DEPRECATED in Komodo 6.0.0b1, use `.koDoc`.
+    komodo.koDoc = komodo.document = document
     komodo.editor = scimoz
     komodo.view = view
     komodo.window = window

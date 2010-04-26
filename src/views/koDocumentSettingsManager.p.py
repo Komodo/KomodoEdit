@@ -88,7 +88,7 @@ class koDocumentSettingsManager:
     
     def register(self, document, scintilla):
         timeline.enter("koDocumentSettingsManager.register")
-        self.document = document
+        self.koDoc = document
         if scintilla in self._scintillas:
             log.error("Already have scimoz %r for document %s",scintilla, document)
             raise ServerException
@@ -119,7 +119,7 @@ class koDocumentSettingsManager:
         # Watch for preference set changes from these pref sets.
         if not self._observing:
             self._globalPrefs.addObserver(self)
-            self.document.prefs.addObserver(self)
+            self.koDoc.prefs.addObserver(self)
             self._observing = 1
         timeline.leave("koDocumentSettingsManager.register")
         
@@ -136,18 +136,18 @@ class koDocumentSettingsManager:
                 # remove observers
                 # XXX these cause exceptions regarding weakref/null pointer, but
                 # NOT doing this we continue to leak editor wrappers.
-                self.document.prefs.removeObserver(self)
+                self.koDoc.prefs.removeObserver(self)
                 self._globalPrefs.removeObserver(self)
                 self._observing = 0
-            self.document = None
+            self.koDoc = None
         
     def applyDocumentSettingsToView(self, scintilla):
         timeline.enter("koDocumentSettingsManager.applyDocumentSettingsToView")
         scimoz = scintilla.scimoz
         # assumption: we are given a 'virgin' view, and a fully
         # capable document -- if it doesn't know something, it can figure it out.
-        languageOb = self.document.languageObj
-        document = self.document
+        languageOb = self.koDoc.languageObj
+        document = self.koDoc
         lexer = document.lexer
         if lexer is None:
             lexer = languageOb.getLanguageService(components.interfaces.koILexerLanguageService)
@@ -155,7 +155,7 @@ class koDocumentSettingsManager:
         self._setIndicators(languageOb, scimoz)
         self._applyPrefs(document.prefs, scimoz)
         
-        prefs = self.document.prefs
+        prefs = self.koDoc.prefs
 
         if prefs.hasLongPref('anchor'):
             scimoz.currentPos = scimoz.anchor = prefs.getLongPref('anchor')
@@ -234,14 +234,14 @@ class koDocumentSettingsManager:
 
     def setLongPrefIfDifferent(self, name, value):
         if self._globalPrefs.getLongPref(name) != value:
-            self.document.prefs.setLongPref(name, value)
+            self.koDoc.prefs.setLongPref(name, value)
 
     def setBooleanPrefIfDifferent(self, name, value):
-        if self.document.prefs.getBooleanPref(name) != value:
-            self.document.prefs.setBooleanPref(name, value)
+        if self.koDoc.prefs.getBooleanPref(name) != value:
+            self.koDoc.prefs.setBooleanPref(name, value)
 
     def applyViewSettingsToDocument(self, scintilla):
-        prefs = self.document.prefs
+        prefs = self.koDoc.prefs
         # these should all be conditional on not being the
         # default prefs.
         scimoz = scintilla.scimoz
@@ -335,7 +335,7 @@ class koDocumentSettingsManager:
 
     # nsIObserver interface
     def observe(self, prefSet, topic, data):
-        if (self.document and topic == self.document.prefs.id) or \
+        if (self.koDoc and topic == self.koDoc.prefs.id) or \
            topic == self._globalPrefs.id:
             # Dispatch a preference change...
             self._dispatchPrefChange(prefSet, data)
@@ -452,7 +452,7 @@ class koDocumentSettingsManager:
         (around > 10K).
         """
         # use margin 1 for folding
-        if not self.document.languageObj.foldable:
+        if not self.koDoc.languageObj.foldable:
             for scintilla in self._scintillas:
                 scintilla.scimoz.setProperty("fold", "0")
                 scintilla.scimoz.setMarginWidthN(1, 0)

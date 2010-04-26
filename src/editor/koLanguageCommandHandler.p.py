@@ -216,7 +216,7 @@ class GenericCommandHandler:
         # Ensure can use that file path (normalized, not relative,
         # etc.)
         resolvedFilePath = self._resolveDiffPath(
-            diff, currentPosFilePath, self._view.document.file)
+            diff, currentPosFilePath, self._view.koDoc.file)
         if not resolvedFilePath:
             msg = "could not jump to corresponding line: `%s' does not exist" \
                   % currentPosFilePath

@@ -282,8 +282,8 @@ class KoCPPCompileLinter:
             self._lastErrorSvc.setLastError(1, errmsg)
             raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE)
 
-        if request.document.file:
-            ext = request.document.file.ext
+        if request.koDoc.file:
+            ext = request.koDoc.file.ext
         else:
             ext = koCPPLanguage.defaultExtension
         

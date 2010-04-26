@@ -1057,7 +1057,7 @@ class KoRubyCompileLinter:
         is a problem.
         """
         
-        prefset = request.document.getEffectivePrefs()
+        prefset = request.koDoc.getEffectivePrefs()
         text = request.content.encode(request.encoding.python_encoding_name)
         cwd = request.cwd
         

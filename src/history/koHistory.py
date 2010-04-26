@@ -78,11 +78,11 @@ class KoHistoryService(History):
             empty string.
         @returns {Location}
         """
-        if view.document.file:
-            uri = view.document.file.URI
+        if view.koDoc.file:
+            uri = view.koDoc.file.URI
         elif view_type == 'editor':
             # Internal URI scheme used for unsaved buffers
-            uri = "kotemporary://" + view.uid + "/" + view.document.displayPath;
+            uri = "kotemporary://" + view.uid + "/" + view.koDoc.displayPath;
         else:
             uri = ""
         if view_type == 'editor':
@@ -95,7 +95,7 @@ class KoHistoryService(History):
                            scimoz.getColumn(pos),
                            view_type)
             loc.marker_handle = scimoz.markerAdd(line, self.MARKNUM_HISTORYLOC)
-            ciBuf = view.document.ciBuf
+            ciBuf = view.koDoc.ciBuf
             if ciBuf and hasattr(ciBuf, "curr_section_from_line"):
                 try:
                     section = ciBuf.curr_section_from_line(line + 1)
