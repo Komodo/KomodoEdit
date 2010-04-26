@@ -148,7 +148,12 @@ komodoCmdLineHandler.prototype = {
 
     for (var i = 0; i < count; ++i) {
       var curarg = cmdLine.getArgument(i);
-      if (curarg.match(/^-/)) {
+      if (curarg == "-file") {
+	// Mac OS X passes this flag before the filename arguument when using
+	// "open -a Komodo.app somefile.txt", see bug 86470. We just ignore this
+	// flag and the filename will be opened in the next iteration.
+	continue;
+      } else if (curarg.match(/^-/)) {
         Components.utils.reportError("Warning: unrecognized command line flag " + curarg + "\n");
         // To emulate the pre-nsICommandLine behavior, we ignore
         // the argument after an unrecognized flag.
