@@ -1138,17 +1138,17 @@ viewManager.prototype.cacheCommandData = function(view)
     cache.isLocal = false;
     if (view) {
         cache.type = view.getAttribute('type');
-        if (view.document) {
+        if (view.koDoc) {
             cache.hasSelection = view.selection != '';
-            cache.isDirty = view.document.isDirty
+            cache.isDirty = view.koDoc.isDirty
             if (cache.type == 'editor') {
                 cache.canUndo = view.scintilla.canUndo();
                 cache.canRedo = view.scintilla.canRedo();
-                cache.isLocal = view.document.file && view.document.file.isLocal;
+                cache.isLocal = view.koDoc.file && view.koDoc.file.isLocal;
             }
-            if (view.document.languageObj) {
-                cache.canFold = view.document.languageObj.foldable;
-                cache.language = view.document.language;
+            if (view.koDoc.languageObj) {
+                cache.canFold = view.koDoc.languageObj.foldable;
+                cache.language = view.koDoc.language;
             }
         }
     }
@@ -2400,13 +2400,13 @@ viewManager.prototype.do_cmd_editPrefsCurrent = function () {
 
 viewManager.prototype.is_cmd_createMappedURI_enabled = function () { 
     return this.currentView && this.currentView.getAttribute('type') == 'editor' &&
-        this.currentView.document && this.currentView.document.file;
+        this.currentView.koDoc && this.currentView.koDoc.file;
 }
 viewManager.prototype.do_cmd_createMappedURI = function () {
-    if (this.currentView.document.file.isLocal) {
-        ko.uriparse.addMappedURI(null, this.currentView.document.file.path);
+    if (this.currentView.koDoc.file.isLocal) {
+        ko.uriparse.addMappedURI(null, this.currentView.koDoc.file.path);
     } else {
-        var uri = this.currentView.document.file.URI;
+        var uri = this.currentView.koDoc.file.URI;
         ko.uriparse.addMappedURI(uri, null);
     }
 }
@@ -3013,7 +3013,7 @@ this.focusedScintilla = function view_focusedScintilla() {
     // and if so, return it (not the html:embed element in the latter case).
     // Otherwise, return null.
     try {
-        var commandDispatcher = top.document.commandDispatcher
+        var commandDispatcher = top.koDoc.commandDispatcher
         var focusedElement = commandDispatcher.focusedElement;
         if (!focusedElement) return null;
         if (focusedElement.tagName == 'xul:scintilla') return focusedElement;

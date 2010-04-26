@@ -1107,8 +1107,8 @@
             }
 
             // Copy over document prefs and other settings.
-            this._copyDocumentPrefs(newdocument, this.document);
-            newdocument.new_line_endings = this.document.new_line_endings;
+            this._copyDocumentPrefs(newdocument, this.koDoc);
+            newdocument.new_line_endings = this.koDoc.new_line_endings;
 
             // XXX this buffer switching is not optimal, first we copy from
             // scintilla to a non-scintilla buffer, then we turn the
@@ -1118,17 +1118,17 @@
             currentPos = this.scimoz.currentPos;
             xOffset = this.scimoz.xOffset;
             fvl = this.scimoz.firstVisibleLine;
-            newdocument.setBufferAndEncoding(this.document.buffer, this.document.encoding.python_encoding_name);
-            var codePage = this.document.codePage;
-            this.document = newdocument;
-            this.document.codePage = codePage;
-            this.document.language = ''; // trigger a re-guessing of lang
+            newdocument.setBufferAndEncoding(this.koDoc.buffer, this.koDoc.encoding.python_encoding_name);
+            var codePage = this.koDoc.codePage;
+            this.koDoc = newdocument;
+            this.koDoc.codePage = codePage;
+            this.koDoc.language = ''; // trigger a re-guessing of lang
             this._doSave();
             this.scimoz.anchor = anchor;
             this.scimoz.currentPos = currentPos;
             this.scimoz.xOffset = xOffset;
             this.scimoz.lineScroll(0, fvl-this.scimoz.firstVisibleLine);
-            this.document.docSettingsMgr.applyDocumentSettingsToView(this);
+            this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
             window.updateCommands('previewability_changed');
             this.lintBuffer.request("save as");
             return true;
@@ -1360,7 +1360,7 @@
 
         <method name="canBeOpenedInAnotherWindow">
         <body><![CDATA[
-            if (this.document.isUntitled || !this.document.file) {
+            if (this.koDoc.isUntitled || !this.koDoc.file) {
                 return false;
             }
             return true;
