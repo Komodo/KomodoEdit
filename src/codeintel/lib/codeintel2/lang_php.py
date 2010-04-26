@@ -1534,7 +1534,7 @@ class PHPFunction:
 # if we add destructor attributes...
 #        elif funcname == '__destruct':
 #            attributes += ['__dtor__']
-        self.attributes = attributes and ' '.join(attributes) or None
+        self.attributes = attributes and ' '.join(attributes) or ''
         self.doc = None
 
         if doc:
