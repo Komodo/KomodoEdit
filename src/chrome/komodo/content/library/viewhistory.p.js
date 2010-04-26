@@ -181,7 +181,7 @@ this.ViewHistory.prototype._debug_recentViews = function()
                 dump('<null>\n');
             } else {
                 var v = this._recentViews[i];
-                v = v.document ? v.document.baseName : "[doc not set]";
+                v = v.koDoc ? v.koDoc.baseName : "[doc not set]";
                 if (this._recentViews[i] == this._currentView) {
                     dump('*** ');
                 }
@@ -217,7 +217,7 @@ this.ViewHistory.prototype._getCurrentViewIdx = function() {
     if (currIndex == -1) {
         var msg = "Can't find the current view ";
         try {
-            msg += this._currentView.document.baseName;
+            msg += this._currentView.koDoc.baseName;
         } catch(e) {}
         this.log.info(msg);
         //this._debug_recentViews();
@@ -305,7 +305,7 @@ this.ViewHistory.prototype.setMostRecentView = function (view)
 {
     this.log.info("setMostRecentView");
     //if (view) {
-    //    this.log.debug("in setMostRecentView" + view.document.baseName);
+    //    this.log.debug("in setMostRecentView" + view.koDoc.baseName);
     //}
     // Bring the given view to front of the "recent views" stack (note: it may
     // not yet be *in* the stack) *unless* we are currently in a buffer
@@ -399,9 +399,9 @@ this.ViewHistory.prototype.getState = function ()
     for (var i = 0; i < this._recentViews.length; i++) {
         v = this._recentViews[i];
         if (v && v.parentView &&
-            v.document && !v.document.isUntitled &&
-            v.document.file && v.document.file.URI) {
-            state.appendStringPref(v.document.file.URI + '?parentId=' + v.parentView.getAttribute('id'));
+            v.koDoc && !v.koDoc.isUntitled &&
+            v.koDoc.file && v.koDoc.file.URI) {
+            state.appendStringPref(v.koDoc.file.URI + '?parentId=' + v.parentView.getAttribute('id'));
         }
     }
     return state;

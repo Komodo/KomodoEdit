@@ -62,7 +62,7 @@ function test_editCurrentViewPrefs()
     } else {
         var obj = new Object();
         obj.prefs = gViewMgr.currentView.prefs;
-        obj.title = 'View Preferences for: ' + gViewMgr.currentView.document.file.leafName;
+        obj.title = 'View Preferences for: ' + gViewMgr.currentView.koDoc.file.leafName;
         window.openDialog('chrome://komodo/content/library/prefs_control.xul',
                         obj.title,
                         'titlebar,chrome,resizable,close,dialog',

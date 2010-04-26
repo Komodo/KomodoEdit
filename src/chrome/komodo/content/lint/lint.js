@@ -333,7 +333,7 @@ this.lintBuffer.prototype.reportResults = function(request)
             this.errorString = request.errorString;
             if (this.lintResults) {
                 _lintDisplayer.display(this.view.scimoz, this.lintResults,
-                                       this.view.document.languageObj.indicatorBits,
+                                       this.view.koDoc.languageObj.indicatorBits,
                                        0, this.view.scimoz.length);
             }
             this._notify();
@@ -391,9 +391,9 @@ this.lintBuffer.prototype._clearResults = function()
             // common requested for a buffer modification).
             window.setTimeout(
                 function(lintDisplayer, view) {
-                    if (view && view.document) {
+                    if (view && view.koDoc) {
                         lintDisplayer.displayClear(view.scimoz,
-                            view.document.languageObj.indicatorBits);
+                            view.koDoc.languageObj.indicatorBits);
                     }
                 },
                 0, _lintDisplayer, this.view
@@ -430,10 +430,10 @@ this.lintBuffer.prototype._createLintRequest = function(linterType)
         // Linters can't chdir to a remote URL, so don't pass in a working
         // directory unless it's local.
         var cwd = null;
-        if (!this.view.document.isUntitled &&
-            this.view.document.file.isLocal)
+        if (!this.view.koDoc.isUntitled &&
+            this.view.koDoc.file.isLocal)
         {
-            cwd = this.view.document.file.dirName;
+            cwd = this.view.koDoc.file.dirName;
         }
 
         var lr = Components.classes["@activestate.com/koLintRequest;1"].
@@ -460,7 +460,7 @@ this.lintBuffer.prototype._getLinterCID = function()
     _log.debug("LintBuffer["+this.view.title+"]._getLinterCID()");
     try {
         var cid = null;
-        var linterLanguageService = this.view.document.languageObj.
+        var linterLanguageService = this.view.koDoc.languageObj.
             getLanguageService(Components.interfaces.koILinterLanguageService);
         if (linterLanguageService) {
             cid = linterLanguageService.linterCID;

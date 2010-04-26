@@ -70,7 +70,7 @@ function OnPreferencePageLoading() {
     if (parent.part) {
         file = parent.part.getFile();
     } else {
-        file = parent.view.document.file;
+        file = parent.view.koDoc.file;
     }
     var extraPaths = document.getElementById("javascriptExtraPaths");
     extraPaths.init() // must happen after onpageload

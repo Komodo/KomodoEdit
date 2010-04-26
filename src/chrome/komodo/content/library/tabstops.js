@@ -77,10 +77,10 @@ this.insertLiveText = function(scimoz_, insertionPoint, tabstopTextTree) {
  * the tab key event needs to be handled elsewhere.
  */
 this.moveToNextTabstop = function(view) {
-    if (!view.document.hasTabstopInsertionTable) {
+    if (!view.koDoc.hasTabstopInsertionTable) {
         return false;
     }
-    var tabstopInsertionTable = view.document.getTabstopInsertionTable({});
+    var tabstopInsertionTable = view.koDoc.getTabstopInsertionTable({});
     var startingPos = 0;
     var lim = tabstopInsertionTable.length;
     var scimoz = view.scimoz;
@@ -89,7 +89,7 @@ this.moveToNextTabstop = function(view) {
         this.clearLinkedTabstops(scimoz, view);
     }
     if (lim == 0) {
-        view.document.clearTabstopInsertionTable();
+        view.koDoc.clearTabstopInsertionTable();
         // Assume the last selected region was due to hitting a tabstop,
         // and move off it.  Otherwise we're stuck selecting it forever.
         if (scimoz.selectionStart < scimoz.selectionEnd) {
@@ -472,7 +472,7 @@ this.clearTabstopInfo = function(view) {
         || this._containsActiveLink(scimoz, TSC)) {
         this.clearLinkedTabstops(scimoz, view);
     }
-    view.document.setTabstopInsertionTable(0, []);
+    view.koDoc.setTabstopInsertionTable(0, []);
     var docLength = scimoz.length; // XXX: wrong with utf8?
     for (var indicator = TSZW; indicator <= TS5; indicator++) {
         scimoz.indicatorCurrent = indicator;
@@ -1092,9 +1092,9 @@ function _restoreDroppedIndicators(followingSet, prevSet, scimoz, pos, utf8Len) 
     }
 }
 
-//XXX Do we need to lock view.document.tabstopInsertionTable? 
+//XXX Do we need to lock view.koDoc.tabstopInsertionTable? 
 this._removeIndicatorsBeforeDelete = function(view, targetRangeStart, targetRangeEnd) {
-    var tabstopInsertionTable = view.document.getTabstopInsertionTable({});
+    var tabstopInsertionTable = view.koDoc.getTabstopInsertionTable({});
     var lim = tabstopInsertionTable.length;
     var scimoz = view.scimoz;
     var tsInfo, spos, epos, idx = 0;
@@ -1124,7 +1124,7 @@ this._removeIndicatorsBeforeDelete = function(view, targetRangeStart, targetRang
 
 this._deleteTabstopItem = function(view, tabstopInsertionTable, idx) {
     tabstopInsertionTable.splice(idx, 1);
-    view.document.removeTabstopInsertionNodeAt(idx);
+    view.koDoc.removeTabstopInsertionNodeAt(idx);
 };
 
 this._clearAllCurrentHits = function(scimoz, position) {

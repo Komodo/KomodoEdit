@@ -162,8 +162,8 @@ projectManager.prototype._getOpenURLsInProject = function(project) {
     var opened = [];
     var url;
     for (var i = 0; i < docs.length; i++) {
-        if (docs[i].document && docs[i].document.file) {
-            url = docs[i].document.file.URI;
+        if (docs[i].koDoc && docs[i].koDoc.file) {
+            url = docs[i].koDoc.file.URI;
             if (project.getChildByURL(url)) {
                 opened.push(url);
             }

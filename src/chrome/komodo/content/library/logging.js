@@ -451,13 +451,13 @@ this.dumpView = function dumpView(view) {
     dump("\n--------------------------------------\n");
     try {
         if (view) {
-            if (view.document) {
-                var doc = view.document;
+            if (view.koDoc) {
+                var doc = view.koDoc;
                 var nle = doc.new_line_endings;
                 var nleName = {0:"EOL_LF", 1:"EOL_CR", 2:"EOL_CRLF", 3:"EOL_MIXED", 4:"EOL_NOEOL"}[nle];
-                dump("view.document.new_line_endings: "+nle+" ("+nleName+")\n");
+                dump("view.koDoc.new_line_endings: "+nle+" ("+nleName+")\n");
             } else {
-                dump("view.document is null\n");
+                dump("view.koDoc is null\n");
             }
 
             var type = view.getAttribute("type");

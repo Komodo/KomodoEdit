@@ -325,10 +325,10 @@ this.displayPath = function open_openDisplayPath(displayPath,
     var typedView;
     for (var i = 0; i < typedViews.length; ++i) {
         typedView = typedViews[i];
-        if (! typedView.document) {
+        if (! typedView.koDoc) {
             continue;
         }
-        if (_fequal(typedView.document.displayPath, displayPath)) {
+        if (_fequal(typedView.koDoc.displayPath, displayPath)) {
             ko.history.note_curr_loc();
             typedView.makeCurrent();
             if (callback) {
@@ -407,9 +407,9 @@ this.filePicker = function view_openFilesWithPicker(viewType/*='editor'*/) {
     var defaultDir = null;
     var v = ko.views.manager.currentView;
     if (v && v.getAttribute("type") == "editor" &&
-        v.document && !v.document.isUntitled && v.document.file.isLocal)
+        v.koDoc && !v.koDoc.isUntitled && v.koDoc.file.isLocal)
     {
-        defaultDir = ko.views.manager.currentView.document.file.dirName;
+        defaultDir = ko.views.manager.currentView.koDoc.file.dirName;
     }
     
     var paths = ko.filepicker.openFiles(defaultDir);

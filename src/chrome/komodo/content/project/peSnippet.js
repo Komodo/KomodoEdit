@@ -350,7 +350,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     
     // Normalize the text to use the target view's preferred EOL.
     // (See bug 69535).
-    var eol = view.document.new_line_endings;
+    var eol = view.koDoc.new_line_endings;
     var eol_str;
     switch (eol) {
     case Components.interfaces.koIDocument.EOL_LF:
@@ -533,7 +533,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         scimoz.currentPos = oldInsertionPoint;
         // concat(): js idiom for List#clone() -- the view consumes this table
         // as it steps through it.
-        view.document.setTabstopInsertionTable(snippetInfo.tabstopInsertionTable.length,
+        view.koDoc.setTabstopInsertionTable(snippetInfo.tabstopInsertionTable.length,
                                                snippetInfo.tabstopInsertionTable);
         scimoz.endUndoAction();
         view.moveToNextTabstop();

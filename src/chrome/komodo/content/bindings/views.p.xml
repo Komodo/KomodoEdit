@@ -133,7 +133,7 @@
         <![CDATA[
             var views = this.getViews();
             for (var i = 0; i < views.length; i++) {
-                if (views[i].document == doc) return views[i];
+                if (views[i].koDoc == doc) return views[i];
             }
             return null;
         ]]>
@@ -147,7 +147,7 @@
             var views = this.getViews();
             var list = [];
             for (var i = 0; i < views.length; i++) {
-                if (views[i].document == doc)
+                if (views[i].koDoc == doc)
                     list.push(views[i]);
             }
             return list;
@@ -182,9 +182,9 @@
 
             for (var i = 0; i < views.length; i++) {
                 view = views[i];
-                if (view.document &&
-                    !view.document.isUntitled &&
-                    fequal(view.document.file.URI, find_uri.URI)
+                if (view.koDoc &&
+                    !view.koDoc.isUntitled &&
+                    fequal(view.koDoc.file.URI, find_uri.URI)
                    ) {
                     list.push(view);
                 }
@@ -280,7 +280,7 @@
             var views = this.getViews(recursive);
             var list = [];
             for (var i = 0; i < views.length; ++i) {
-                if (views[i].document) {
+                if (views[i].koDoc) {
                     list.push(views[i]);
                 }
             }
@@ -298,8 +298,8 @@
             var v;
             // now weed out the duplicates
             for (v in views) {
-                if (views[v].document && views[v].document.file)
-                    unique_views[views[v].document.file.URI] = views[v];
+                if (views[v].koDoc && views[v].koDoc.file)
+                    unique_views[views[v].koDoc.file.URI] = views[v];
             }
             // build an array from that
             views = [];
@@ -428,8 +428,8 @@
                 var typedView;
                 for (var i = 0; i < typedViews.length; ++i) {
                     typedView = typedViews[i];
-                    if (typedView.document && typedView.document.file
-                        && fequal(typedView.document.file.URI, uri)) {
+                    if (typedView.koDoc && typedView.koDoc.file
+                        && fequal(typedView.koDoc.file.URI, uri)) {
                         views = views.concat(typedView);
                     }
                 }

@@ -91,7 +91,11 @@
     extends="chrome://komodo/content/bindings/views.xml#view-base">
     <implementation name="viewbufferbase" implements="koIScintillaView, ISciMozEvents, nsIObserver">
         <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
-        <property name="document" onget="return this.koDoc;" onset="this.koDoc = val" />
+        <property name="document"
+            onget="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
+                return this.koDoc;"
+            onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
+                this.koDoc = val" />
 
         <property name="scintilla" onget="return document.getAnonymousNodes(this)[0];"/>
 
@@ -156,9 +160,9 @@
                     this._isCICplnEnabled = val;
                     if (val) {
                         this.ciCompletionUIHandler = new CodeIntelCompletionUIHandler(
-                            this.document.displayPath, this.scimoz,
+                            this.koDoc.displayPath, this.scimoz,
                             this.languageObj.name,
-                            this.document.ciBuf);
+                            this.koDoc.ciBuf);
                     }
                 } catch(ex) {
                     this.log.exception(ex);
@@ -404,11 +408,11 @@
                     this.scimoz.registerImage(iface.ACIID_NAMESPACE,        ko.markers.getPixmap("chrome://komodo/skin/images/ac_namespace.xpm"));
                 }
                 this.scimoz.autoCSeparator = this._commandCompletionSvc.completionSeparator;
-                if (this.document) { // We should get rid of the passing of files and pass the text along.
-                    if (this.document.isUntitled) {
+                if (this.koDoc) { // We should get rid of the passing of files and pass the text along.
+                    if (this.koDoc.isUntitled) {
                         this._commandCompletionSvc.scanBufferCompletion(this.scimoz, null);
                     } else {
-                        this._commandCompletionSvc.scanBufferCompletion(this.scimoz, this.document.file.URI);
+                        this._commandCompletionSvc.scanBufferCompletion(this.scimoz, this.koDoc.file.URI);
                     }
                 }
             }
@@ -506,7 +510,7 @@
             ]]></setter>
             <getter><![CDATA[
             try {
-                if (!this._lintBuffer && this.document)
+                if (!this._lintBuffer && this.koDoc)
                     this._lintBuffer = new ko.lint.lintBuffer(this);
             } catch (e) {
                 // If we have not loaded lint.js into chrome, then we
@@ -573,7 +577,7 @@
             this.language = language
             this.scintilla.encoding = 'utf-8';
             this.scintilla.init();
-            this.document = null;
+            this.koDoc = null;
             this._genericController = Components.classes['@activestate.com/koGenericCommandHandler;1'].createInstance();
             this._genericController.view = this;
 
@@ -614,7 +618,7 @@
             <body>
             <![CDATA[
             // Normalize the text to use the view's preferred EOL.
-            var eol = this.document.new_line_endings;
+            var eol = this.koDoc.new_line_endings;
             var eol_str;
             switch (eol) {
             case Components.interfaces.koIDocument.EOL_LF:
@@ -697,7 +701,7 @@
             //    e.g. typing '. (' while in a completion session? Does that
             //    trigger onCharAdded()?
 
-            var trg = this.document.ciBuf.trg_from_pos(
+            var trg = this.koDoc.ciBuf.trg_from_pos(
                         this.scimoz.currentPos, true);
             if (!trg) {
                 // Do nothing.
@@ -716,7 +720,7 @@
                     createInstance(Components.interfaces.koICodeIntelEvalController);
                 ctlr.set_ui_handler(this.ciCompletionUIHandler);
                 this._ciLastTrg = trg;
-                this.document.ciBuf.async_eval_at_trg(trg, ctlr);
+                this.koDoc.ciBuf.async_eval_at_trg(trg, ctlr);
             }
         ]]>
         </body>
@@ -766,9 +770,9 @@
         <body>
         <![CDATA[
             this.log.info("in onSavePointReached");
-            if (this.document) {
+            if (this.koDoc) {
                 // we may not have a document yet
-                this.document.isDirty = false;
+                this.koDoc.isDirty = false;
             }
             return true;
         ]]>
@@ -779,9 +783,9 @@
         <body>
         <![CDATA[
             this.log.info("in onSavePointLeft");
-            if (this.document) {
+            if (this.koDoc) {
                 // we may not have a document yet
-                this.document.isDirty = true;
+                this.koDoc.isDirty = true;
             }
             return true;
         ]]>
@@ -1040,15 +1044,15 @@
                     this.lintBuffer.request("buffer was modified");
                 }
 
-                if (this.document
+                if (this.koDoc
                     && (this.isCICitadelStuffEnabled || this.isCIXMLStuffEnabled)
                     && this._isCICplnEnabledViewPref
                     && this._isCIRescanningEnabled)
                 {
-                    gCodeIntelSvc.scan_document(this.document, linesAdded, false);
+                    gCodeIntelSvc.scan_document(this.koDoc, linesAdded, false);
                 }
 
-                if (this.document) {
+                if (this.koDoc) {
                     if ((modificationType & SC_MOD_DELETETEXT)
                         && this.commandCompletionSvc
                         && this._doAutoComplete
@@ -1065,18 +1069,18 @@
                     // looking for eol or mass paste/delete.
                     if (this.commandCompletionSvc
                         && this._doAutoComplete
-                        && !this.document.isUntitled
+                        && !this.koDoc.isUntitled
                         && (text.length > 1 || linesAdded > 0))
                     {
                         this.commandCompletionSvc.scanBufferCompletion(
-                            this.scimoz, this.document.file.URI);
+                            this.scimoz, this.koDoc.file.URI);
                     }
                 }
             }
             if ((modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT | SC_MOD_BEFOREDELETE))
                 && (modificationType & (SC_PERFORMED_USER|SC_PERFORMED_UNDO))
-                && this.document
-                && this.document.hasTabstopInsertionTable
+                && this.koDoc
+                && this.koDoc.hasTabstopInsertionTable
                 && window == ko.windowManager.getMainWindow() // : don't handle updates in other windows
                 && this == ko.window.focusedView() // focusedView: don't handle updates in other views
                ) {

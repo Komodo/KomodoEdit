@@ -459,7 +459,7 @@ VimController.prototype.updateViInternals = function() {
         // Set the cursor back to it's preferenced style. Fixes bug:
         // http://bugs.activestate.com/show_bug.cgi?id=71293
         if (typeof(ko.views.manager) != 'undefined' && ko.views.manager && ko.views.manager.currentView &&
-            ko.views.manager.currentView.document && ko.views.manager.currentView.scintilla) {
+            ko.views.manager.currentView.koDoc && ko.views.manager.currentView.scintilla) {
             var scimoz = ko.views.manager.currentView.scintilla.scimoz;
             var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
                                     getService(Components.interfaces.koIPrefService);
@@ -497,7 +497,7 @@ VimController.prototype.updateStatusBarMode = function() {
 
 VimController.prototype.updateCaretStyle = function() {
     if (typeof(ko.views.manager) != 'undefined' && ko.views.manager && ko.views.manager.currentView &&
-        ko.views.manager.currentView.document && ko.views.manager.currentView.scintilla) {
+        ko.views.manager.currentView.koDoc && ko.views.manager.currentView.scintilla) {
         var scimoz = ko.views.manager.currentView.scintilla.scimoz;
         if ((this._mode == VimController.MODE_INSERT) ||
             (this._mode == VimController.MODE_OVERTYPE)) {
@@ -514,7 +514,7 @@ VimController.prototype.updateCaretStyle = function() {
 
 VimController.prototype.updateModeIfBufferHasSelection = function(fromMouseUp) {
     if (typeof(ko.views.manager) != 'undefined' && ko.views.manager && ko.views.manager.currentView &&
-        ko.views.manager.currentView.document && ko.views.manager.currentView.scintilla) {
+        ko.views.manager.currentView.koDoc && ko.views.manager.currentView.scintilla) {
         var scimoz = ko.views.manager.currentView.scintilla.scimoz;
         if ((this.mode != VimController.MODE_VISUAL) &&
             (scimoz.currentPos != scimoz.anchor)) {
@@ -1262,7 +1262,7 @@ VimController.prototype._getTextForPaste = function() {
                    this._currentRegister == "+" /* alternative clipboard register */) {
             buf = this._getTextFromClipboard();
         } else if (this._currentRegister == "%" /* filename register */) {
-            buf = view.document.file.displayPath;
+            buf = view.koDoc.file.displayPath;
         } else if (this._currentRegister == "." /* last inserted text register */) {
             buf = this._lastInsertedKeycodes;
         } else if (this._currentRegister == ":" /* last command register */) {
@@ -1585,7 +1585,7 @@ VimController.vim_set_commands = {
         type: Number,
         defaultValue: 8,
         setFunction: function(value) {
-            ko.views.manager.currentView.document.tabWidth = value;
+            ko.views.manager.currentView.koDoc.tabWidth = value;
         },
         saveAsKomodoPref: false,
         help: "The displayed width of tab characters."
@@ -1596,7 +1596,7 @@ VimController.vim_set_commands = {
         type: Boolean,
         defaultValue: true,
         setFunction: function(value) {
-            ko.views.manager.currentView.document.useTabs = value;
+            ko.views.manager.currentView.koDoc.useTabs = value;
         },
         saveAsKomodoPref: false,
         help: "Whether to use spaces instead of tab characters for indentation."
@@ -1607,7 +1607,7 @@ VimController.vim_set_commands = {
         type: Number,
         defaultValue: 4,
         setFunction: function(value) {
-            ko.views.manager.currentView.document.indentWidth = value;
+            ko.views.manager.currentView.koDoc.indentWidth = value;
         },
         saveAsKomodoPref: false,
         help: "Number of spaces used for each indent/dedent."
@@ -1619,7 +1619,7 @@ VimController.vim_set_commands = {
         possibleValues: [ "unix", "mac", "dos" ],
         defaultValue: "dos",
         setFunction: function(value) {
-            ko.views.manager.currentView.document.new_line_endings = this["possibleValues"].indexOf(value);
+            ko.views.manager.currentView.koDoc.new_line_endings = this["possibleValues"].indexOf(value);
         },
         saveAsKomodoPref: false,
         help: "Sets the type of <EOL> characters used in the current buffer."

@@ -98,7 +98,7 @@ this.isWordCharacter = function Interpolate_isWordCharacter(ch)
 this.getWordUnderCursor = function Interpolate_getWordUnderCursor(scimoz) {
     if (!scimoz) {
         var view = ko.views.manager.currentView;
-        if (view.document) {
+        if (view.koDoc) {
             scimoz = view.scimoz;
         }
     }
@@ -113,8 +113,8 @@ this.getWordUnderCursor = function Interpolate_getWordUnderCursor(scimoz) {
 this.currentFilePath = function Interpolate_CurrentFilePath() {
     var editor = ko.windowManager.getMainWindow();
     var view = editor.ko.views.manager.currentView;
-    if (view && view.document && view.document.file && view.document.file.isLocal) {
-        return view.document.file.path;
+    if (view && view.koDoc && view.koDoc.file && view.koDoc.file.isLocal) {
+        return view.koDoc.file.path;
     }
     return '';
 }
@@ -124,8 +124,8 @@ this.currentFileProjectPath = function Interpolate_CurrentFileProjectPath() {
     var editor = ko.windowManager.getMainWindow();
     var view = editor.ko.views.manager.currentView;
     var projectFile = '';
-    if (view && view.document && view.document.file && view.document.file.isLocal) {
-        var fileURL = view.document.file.URI;
+    if (view && view.koDoc && view.koDoc.file && view.koDoc.file.isLocal) {
+        var fileURL = view.koDoc.file.URI;
         var filePart = editor.ko.projects.manager.findPartByTypeAttributeValue('file',
                                     'url', fileURL, true)
         if (filePart) {
@@ -177,8 +177,8 @@ this.getViewData = function Interpolate_getViewData(editor,
 
     // fileName
     if ( !("fileName" in viewData) ) {
-        if (view && view.document) {
-            viewData.fileName = view.document.displayPath;
+        if (view && view.koDoc) {
+            viewData.fileName = view.koDoc.displayPath;
         } else {
             viewData.fileName = null;
         }

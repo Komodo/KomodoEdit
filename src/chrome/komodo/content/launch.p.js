@@ -116,11 +116,11 @@ this.language = function() {
     var view = ko.window.focusedView();
     if (!view) view = ko.views.manager.currentView;
     if (view != null) {
-        if (view.document) {
-            language = view.document.subLanguage;
+        if (view.koDoc) {
+            language = view.koDoc.subLanguage;
             if (language == "XML") {
                 // use the primary language, not the sublanguage
-                language = view.document.language
+                language = view.koDoc.language
             }
         } else {
             language = view.language;
@@ -426,9 +426,9 @@ this.findInFiles = function(pattern /* =null */, dirs /* =null */,
     var cwd = null;
     if (view != null &&
         view.getAttribute("type") == "editor" &&
-        view.document.file &&
-        view.document.file.isLocal) {
-        cwd = view.document.file.dirName;
+        view.koDoc.file &&
+        view.koDoc.file.isLocal) {
+        cwd = view.koDoc.file.dirName;
     }
 
     // Special global to pass info to find2.xul. Passing in via

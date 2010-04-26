@@ -260,8 +260,8 @@
         <body>
         <![CDATA[
             view.parentNode._tab.label = view.title;
-            if (view.document) {
-                view.parentNode._tab.setAttribute('tooltiptext',view.document.displayPath);
+            if (view.koDoc) {
+                view.parentNode._tab.setAttribute('tooltiptext',view.koDoc.displayPath);
                 this.tabbox.firstChild.scrollBoxObject.ensureElementIsVisible(this.tabbox.firstChild.selectedItem);
             }
         ]]>
@@ -272,8 +272,8 @@
         <parameter name="view"/>
         <body>
         <![CDATA[
-            if (view.document) {
-                view.parentNode._tab.setAttribute('clean',!view.document.isDirty);
+            if (view.koDoc) {
+                view.parentNode._tab.setAttribute('clean',!view.koDoc.isDirty);
                 this.tabbox.firstChild.scrollBoxObject.ensureElementIsVisible(this.tabbox.firstChild.selectedItem);
             }
 
@@ -289,7 +289,7 @@
         <parameter name="view"/>
         <body>
         <![CDATA[
-            if (!view.document) return;
+            if (!view.koDoc) return;
 
             // here we set the images for our status indicators
             // the following attributes on the tab can be set:
@@ -300,18 +300,18 @@
             // action="chrome://komodo/skin/images/status_icon_edit.png"
             // readonly="chrome://komodo/skin/images/status_icon_readonly.png"
 
-            if (view.document.isUntitled ||
-                !view.document.file.exists ||
-                view.document.file.isWriteable) {
+            if (view.koDoc.isUntitled ||
+                !view.koDoc.file.exists ||
+                view.koDoc.file.isWriteable) {
                 view.parentNode._tab.removeAttribute('readonly');
             } else {
                 view.parentNode._tab.setAttribute('readonly',"chrome://komodo/skin/images/status_icon_readonly.png");
             }
 
-            if (!view.document.isUntitled) {
+            if (!view.koDoc.isUntitled) {
                 var asyncSvc = Components.classes['@activestate.com/koAsyncService;1'].
                                 getService(Components.interfaces.koIAsyncService);
-                if (asyncSvc.uriHasPendingOperation(view.document.file.URI)) {
+                if (asyncSvc.uriHasPendingOperation(view.koDoc.file.URI)) {
                     // This file has an asynchronous operation pending, give it
                     // the "processing" throbber gif.
                     view.parentNode._tab.setAttribute('action', asyncSvc.asynchronous_icon_url);
@@ -345,7 +345,7 @@
         <body>
         <![CDATA[
             this.log.debug('view selection changed');
-            if (view.document) {
+            if (view.koDoc) {
                 xtk.domutils.fireEvent(view, 'current_view_changed');
             }
             if (!ko.views.manager.batchMode) {

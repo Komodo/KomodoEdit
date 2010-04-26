@@ -351,7 +351,7 @@ function ContinuePart2(tests, i, lim, test, view, file) {
         scimoz.replaceSel("");
         ko.commands.doCommand('cmd_newline');
         view.scimoz.insertText(view.scimoz.currentPos, s);
-        view.document.isDirty = false;
+        view.koDoc.isDirty = false;
         numFailed += 1;
     } else {
         numPassed += 1;

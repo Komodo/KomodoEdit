@@ -50,7 +50,11 @@
     </content>
     <implementation name="viewxul" implements="koIXULView">
         <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
-        <property name="document" onget="return this.koDoc;" onset="this.koDoc = val" />
+        <property name="document"
+            onget="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
+                return this.koDoc;"
+            onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
+                this.koDoc = val" />
 
         <property name="iframe" readonly="true"
             onget="return document.getAnonymousNodes(this)[0];"/>
@@ -59,7 +63,7 @@
         <parameter name="doc"/>
         <body>
         <![CDATA[
-            this.document = doc;
+            this.koDoc = doc;
             // XXX quick hack
             this.iframe.setAttribute('src',doc.file.URI);
             this.parentView.updateLeafName(this);
@@ -72,10 +76,10 @@
         <method name="getState">
         <body>
         <![CDATA[
-            if (this.document.isUntitled) { return null; }
+            if (this.koDoc.isUntitled) { return null; }
             var myState = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
             myState.setStringPref('viewtype', 'xul');
-            myState.setStringPref('URI', this.document.file.URI);
+            myState.setStringPref('URI', this.koDoc.file.URI);
             return myState;
         ]]>
         </body>

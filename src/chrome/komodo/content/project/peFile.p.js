@@ -260,8 +260,8 @@ peFile.prototype.supportsCommand = function(command, item) {
         return true;
     case 'cmd_showUnsavedChanges':
         var view = ko.views.manager.currentView;
-        return (view && view.document && view.document.isDirty &&
-                !view.document.isUntitled);
+        return (view && view.koDoc && view.koDoc.isDirty &&
+                !view.koDoc.isUntitled);
     case 'cmd_compareFiles':
         return (items.length == 2 && items[0].type == 'file' && items[1].type == 'file');
     case 'cmd_compareFileWith':
@@ -416,10 +416,10 @@ peFile.prototype.doCommand = function(command) {
         break;
     case 'cmd_showUnsavedChanges':
         view = ko.views.manager.currentView;
-        var changes = view.document.getUnsavedChanges();
+        var changes = view.koDoc.getUnsavedChanges();
         ko.launch.diff(changes,
                        _bundle.formatStringFromName("unsavedChangesForWindowTitle",
-                                                    [view.document.displayPath],
+                                                    [view.koDoc.displayPath],
                                                     1));
         break;
     case 'cmd_compareFiles':
@@ -587,16 +587,16 @@ this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
         // always fall back to the current view
         var view = ko.views.manager.currentView;
         var item = view.item;
-        if (!view.document || view.document.isUntitled) {
+        if (!view.koDoc || view.koDoc.isUntitled) {
             // This is an unsaved file -- cannot refresh.
             return;
         }
-        item.url = view.document.file.URI;
+        item.url = view.koDoc.file.URI;
         urls.push(item.url);
 
         // Also refresh CodeIntel data for this view, if enabled.
         if (view.isCICitadelStuffEnabled || view.isCIXMLStuffEnabled) {
-            gCodeIntelSvc.scan_document(view.document, 0, false);
+            gCodeIntelSvc.scan_document(view.koDoc, 0, false);
         }
     }
     try {

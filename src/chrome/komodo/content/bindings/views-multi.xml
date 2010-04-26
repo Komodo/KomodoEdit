@@ -337,7 +337,7 @@
             // the view being split.
             view.saveState();
             var newview = this.currentView.createViewFromDocument(
-                    view.document, view.getAttribute('type'), -1);
+                    view.koDoc, view.getAttribute('type'), -1);
         ]]>
         </body>
         </method>
@@ -364,7 +364,7 @@
         <![CDATA[
             if (typeof(index) == 'undefined' || index == null) index = -1;
         
-            var doc = view.document;
+            var doc = view.koDoc;
             var viewType = view.getAttribute('type');
             view.saveState();
             ko.views.manager.batchMode = true; // There are no view changes, so nothing really need to change here.

@@ -169,7 +169,7 @@
     
             var currentPos = hyperlink.endPos;
             var style = scimoz.getStyleAt(currentPos);
-            var displayPath = view.document.displayPath;
+            var displayPath = view.koDoc.displayPath;
             var wordUnderCursor = ko.interpolate.getWordUnderCursor(scimoz);
     
             // We've told to update, but we may not need to:
@@ -190,7 +190,7 @@
             //this._lastCurrentPos = currentPos;
             //this._lastWordUnderCursor = wordUnderCursor;
     
-            var langObj = view.document.languageObj;
+            var langObj = view.koDoc.languageObj;
             var styleCount = new Object();
             var styles = langObj.getCommentStyles(styleCount);
             if (styles.indexOf(style) >= 0) {
@@ -209,13 +209,13 @@
             }
             // Create a trigger, it must be a specific position in the document,
             // due to variable scope implications etc...
-            var trg = view.document.ciBuf.defn_trg_from_pos(currentPos);
+            var trg = view.koDoc.ciBuf.defn_trg_from_pos(currentPos);
             // Create a codeintel completion handler
             var ciUIHandler = new GotoDefinitionUIHandler(
                                                     displayPath,
                                                     scimoz,
                                                     view.languageObj.name,
-                                                    view.document.ciBuf);
+                                                    view.koDoc.ciBuf);
             // Create a controller to handle results
             var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
                         createInstance(Components.interfaces.koICodeIntelEvalController);
@@ -223,7 +223,7 @@
             ctlr.set_ui_handler(ciUIHandler);
     
             // Fire off the codeintel call, which will call setDefinitionsInfo when done
-            view.document.ciBuf.async_eval_at_trg(trg, ctlr);
+            view.koDoc.ciBuf.async_eval_at_trg(trg, ctlr);
             //dump("async_called\n");
     
         } catch (ex) {

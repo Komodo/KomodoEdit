@@ -879,9 +879,9 @@ this.remoteFileBrowser = function filepicker_remoteFileBrowser(defaultUrl /*=""*
          // If the current file is a remote file, use that location, else fall
          // back to the last opened remote location.
          var currentView = ko.views.manager.currentView;
-         if (currentView && currentView.document && currentView.document.file &&
-             currentView.document.file.isRemoteFile) {
-            defaultUrl = currentView.document.file.URI;
+         if (currentView && currentView.koDoc && currentView.koDoc.file &&
+             currentView.koDoc.file.isRemoteFile) {
+            defaultUrl = currentView.koDoc.file.URI;
          }
       }
    }

@@ -113,7 +113,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 //---- helper functions
 
 function _updateEncoding(view) {
-    if (typeof(view)=='undefined' || !view || !view.document)
+    if (typeof(view)=='undefined' || !view || !view.koDoc)
         return;
     try {
         //XXX It would probably be cleaner to add an "encoding_name"
@@ -122,7 +122,7 @@ function _updateEncoding(view) {
         if (view.getAttribute("type") == "startpage") {
             _clearEncoding();
         } else {
-            var encoding = view.document.encoding.short_encoding_name;
+            var encoding = view.koDoc.encoding.short_encoding_name;
             var encodingWidget = document.getElementById('statusbar-encoding');
             encodingWidget.setAttribute("label", encoding);
         }
@@ -139,7 +139,7 @@ function _clearEncoding() {
 
 
 function _updateLanguage(view) {
-    if (typeof(view)=='undefined' || !view || !view.document)
+    if (typeof(view)=='undefined' || !view || !view.koDoc)
         return;
     try {
         //XXX It would probably be cleaner to handle the "startpage language
@@ -150,7 +150,7 @@ function _updateLanguage(view) {
             _clearLanguage();
             languageWidget.setAttribute('collapsed', 'true');
         } else {
-            var language = view.document.language;
+            var language = view.koDoc.language;
             languageWidget.setAttribute("label", language);
             languageWidget.removeAttribute('collapsed');
         }
@@ -168,7 +168,7 @@ function _clearLanguage() {
 function _updateLintMessage(view) {
     // The timeout has been called, remove the setTimeout id
     _updateLintMessageTimer = null;
-    if (!view || !view.document || !view.lintBuffer) {
+    if (!view || !view.koDoc || !view.lintBuffer) {
         return;
     }
 

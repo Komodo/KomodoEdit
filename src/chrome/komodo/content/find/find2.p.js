@@ -1330,9 +1330,9 @@ function reset_find_context(reason /* =null */) {
         var view = opener.ko.views.manager.currentView;
         if (view != null &&
             view.getAttribute("type") == "editor" &&
-            view.document.file &&
-            view.document.file.isLocal) {
-            context.cwd = view.document.file.dirName;
+            view.koDoc.file &&
+            view.koDoc.file.isLocal) {
+            context.cwd = view.koDoc.file.dirName;
         } else {
             context.cwd = gFindSvc.options.cwd;
         }

@@ -673,7 +673,7 @@
                     
                     // Gather the data we need to open the view in the
                     // target window.
-                    var uri = sourceView.document.file.URI;
+                    var uri = sourceView.koDoc.file.URI;
                     var viewType = sourceView.getAttribute("type");
                     var line = (viewType == "editor" ? sourceView.currentLine : null);
                     var viewList = targetTabbox.parentNode;

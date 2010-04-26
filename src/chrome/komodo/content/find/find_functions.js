@@ -118,10 +118,10 @@ function _GetNextView(editor, currView)
 
     // Determine the index of the current one in this list.
     var currIndex = -1;
-    if (currView.document) {
-        var currDisplayPath = currView.document.displayPath;
+    if (currView.koDoc) {
+        var currDisplayPath = currView.koDoc.displayPath;
         for (currIndex = 0; currIndex < searchableViews.length; ++currIndex) {
-            if (searchableViews[currIndex].document.displayPath == currDisplayPath)
+            if (searchableViews[currIndex].koDoc.displayPath == currDisplayPath)
                 break;
         }
     }
@@ -164,10 +164,10 @@ function _GetPreviousView(editor, currView)
 
     // Determine the index of the current one in this list.
     var currIndex = -1;
-    if (currView.document) {
-        var currDisplayPath = currView.document.displayPath;
+    if (currView.koDoc) {
+        var currDisplayPath = currView.koDoc.displayPath;
         for (currIndex = 0; currIndex < searchableViews.length; ++currIndex) {
-            if (searchableViews[currIndex].document.displayPath == currDisplayPath)
+            if (searchableViews[currIndex].koDoc.displayPath == currDisplayPath)
                 break;
         }
     }
@@ -199,7 +199,7 @@ function _GetViewFromViewId(editor, displayPath)
     // Filter out view types that cannot be searched.
     var views = editor.ko.views.manager.topView.getViews(true);
     for (var i = 0; i < views.length; ++i) {
-        if (views[i].document && views[i].document.displayPath == displayPath) {
+        if (views[i].koDoc && views[i].koDoc.displayPath == displayPath) {
             return views[i];
         }
     }
@@ -258,7 +258,7 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     var scimoz = view.scintilla.scimoz;
     // url: The unique view identifier. This is not ideal. Eventually the view
     //      system should grow unique view ids that can be used here.
-    var url = view.document.displayPath;
+    var url = view.koDoc.displayPath;
     var text; // the text to search (this is a subset of whole buffer if
               // searching within a selection)
     var contextOffset; // "text"s offset into the whole scimoz buffer
@@ -388,7 +388,7 @@ function _SetupAndFindNext(editor, context, pattern, mode,
                 if (newView == null)
                     break;  // Either there is no view or only the one.
                 view = newView;
-                url = view.document.displayPath;
+                url = view.koDoc.displayPath;
                 // restore the cursor/selection state in current document
                 scimoz.setSel(gFindSession.fileSelectionStartPos, gFindSession.fileSelectionEndPos);
                 //XXX Is this bad if the working view is not visible???
@@ -433,8 +433,8 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
         // switch to the original url if it is still open
         var firstView = _GetViewFromViewId(editor, gFindSession.firstUrl);
-        if (editor.ko.views.manager.currentView.document.displayPath
-            != firstView.document.displayPath) {
+        if (editor.ko.views.manager.currentView.koDoc.displayPath
+            != firstView.koDoc.displayPath) {
             firstView.makeCurrent(false);
         }
         scimoz.setSel(
@@ -555,7 +555,7 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
         return;
     }
     var scimoz = view.scintilla.scimoz;
-    var url = view.document.displayPath;
+    var url = view.koDoc.displayPath;
     var replaceResult = null;
     var findResult = gFindSession.GetLastFindResult();
     
@@ -650,7 +650,7 @@ function _FindAllInView(editor, view, context, pattern, resultsView,
     //
     // No return value.
 
-    var viewId = view.document.displayPath;
+    var viewId = view.koDoc.displayPath;
     var scimoz = view.scintilla.scimoz;
     var text; // the text to search (this is a subset of whole buffer if
               // searching within a selection)
@@ -687,7 +687,7 @@ function _MarkAllInView(editor, view, context, pattern)
     //
     // Returns true if hits were found in the view, false otherwise.
 
-    var viewId = view.document.displayPath;
+    var viewId = view.koDoc.displayPath;
     var scimoz = view.scintilla.scimoz;
     var text; // the text to search (this is a subset of whole buffer if
               // searching within a selection)
@@ -724,7 +724,7 @@ function _ReplaceAllInView(editor, view, context, pattern, replacement,
     //
     // Returns the number of replacements made.
 
-    var viewId = view.document.displayPath;
+    var viewId = view.koDoc.displayPath;
     var scimoz = view.scintilla.scimoz;
     var text; // the text to search (this is a subset of whole buffer if
               // searching within a selection)
@@ -796,10 +796,10 @@ function _DisplayFindResult(editor, findResult)
     // XXX Note that we are presuming that Komodo does not yet allow multiple
     //     views per document, which it eventually will. When this is possibly
     //     we must switch to storing unique view IDs in the find session.
-    // XXX We are currently using view.document.displayPath as the view's
+    // XXX We are currently using view.koDoc.displayPath as the view's
     //     "unique id". The view system does not currently provide a way to
     //     getViewFromDisplayPath() so we roll our own.
-    if (editor.ko.views.manager.currentView.document.displayPath != findResult.url) {
+    if (editor.ko.views.manager.currentView.koDoc.displayPath != findResult.url) {
         var view = _GetViewFromViewId(editor, findResult.url);
         if (view == null) {
             var err = "The view for a find result was closed before it could "+
@@ -1316,7 +1316,7 @@ function Find_FindAll(editor, context, pattern, patternAlias,
         if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
             || context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
             findLog.debug("Find_FindAll: find all in '"+
-                          editor.ko.views.manager.currentView.document.displayPath+"'\n");
+                          editor.ko.views.manager.currentView.koDoc.displayPath+"'\n");
             _FindAllInView(editor, editor.ko.views.manager.currentView, context,
                            pattern, resultsMgr.view, highlightMatches);
         } else if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
@@ -1325,7 +1325,7 @@ function Find_FindAll(editor, context, pattern, patternAlias,
             numFilesSearched = 0;
             while (view) {
                 if (_IsViewSearchable(view)) {
-                    viewId = view.document.displayPath;
+                    viewId = view.koDoc.displayPath;
                     if (gFindSession.HaveSearchedThisUrlAlready(viewId)) {
                         findLog.debug("Find_FindAll: have already searched '"+
                                       viewId+"'\n");
@@ -1408,7 +1408,7 @@ function Find_MarkAll(editor, context, pattern, patternAlias,
         var view = editor.ko.views.manager.currentView;
         var viewId;
         while (view) {
-            viewId = view.document.displayPath;
+            viewId = view.koDoc.displayPath;
             if (gFindSession.HaveSearchedThisUrlAlready(viewId)) {
                 findLog.debug("Find_MarkAll: have alread searched '"+
                               viewId+"'\n");
@@ -1606,7 +1606,7 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
     if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
         || context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
         findLog.debug("Find_ReplaceAll: replace all in '"+
-                      editor.ko.views.manager.currentView.document.displayPath+"'\n");
+                      editor.ko.views.manager.currentView.koDoc.displayPath+"'\n");
         nr = _ReplaceAllInView(editor, editor.ko.views.manager.currentView, context,
                                pattern, replacement, firstOnLine, resultsView,
                                highlightReplacements);
@@ -1617,7 +1617,7 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
         numFiles = numFilesSearched = 0;
         while (view) {
             if (_IsViewSearchable(view)) {
-                viewId = view.document.displayPath;
+                viewId = view.koDoc.displayPath;
                 if (gFindSession.HaveSearchedThisUrlAlready(viewId)) {
                     findLog.debug("Find_ReplaceAll: have already searched '"+
                                   viewId+"'\n");

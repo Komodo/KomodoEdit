@@ -88,7 +88,7 @@
                 // It's a relative path.
                 // #1 - Check current directory.
                 var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
-                var view_filepath = view.document.file.path;
+                var view_filepath = view.koDoc.file.path;
                 var try_filepath = osPathSvc.join(ko.uriparse.dirName(view_filepath), filepath);
                 if (osPathSvc.exists(try_filepath)) {
                     ko.open.URI(try_filepath);

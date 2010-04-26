@@ -54,16 +54,16 @@
 
         <property name="cwd">
              <getter><![CDATA[
-                if (this.document && ! this.document.isUntitled) {
-                    return this.document.file.dirName;
+                if (this.koDoc && ! this.koDoc.isUntitled) {
+                    return this.koDoc.file.dirName;
                 }
                 return null;
             ]]></getter>
         </property>
         <property name="prefs">
              <getter><![CDATA[
-                if (this.document && this.document.prefs) {
-                    return this.document.prefs;
+                if (this.koDoc && this.koDoc.prefs) {
+                    return this.koDoc.prefs;
                 }
                 return null;
             ]]></getter>
@@ -153,7 +153,7 @@
         <field name="_languageObj">null</field>
         <property name="languageObj"
             onset="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"
-            onget="return this.document.languageObj"/>
+            onget="return this.koDoc.languageObj"/>
 
         <method name="init">
         <body>
@@ -172,11 +172,11 @@
             var this_ = this;
             this._on_codeintel_activated_window = function(event) {
                 this_.isCICplnEnabled =
-                    gCodeIntelSvc.is_cpln_lang(this_.document.language);
+                    gCodeIntelSvc.is_cpln_lang(this_.koDoc.language);
                 this_.isCICitadelStuffEnabled =
-                    gCodeIntelSvc.is_citadel_lang(this_.document.language);
+                    gCodeIntelSvc.is_citadel_lang(this_.koDoc.language);
                 this_.isCIXMLStuffEnabled =
-                    gCodeIntelSvc.is_xml_lang(this_.document.language);
+                    gCodeIntelSvc.is_xml_lang(this_.koDoc.language);
             }
             window.addEventListener('codeintel_activated_window',
                 this._on_codeintel_activated_window, false);
@@ -256,7 +256,7 @@
             this.scintilla.symbolMargin = true;
             this.scintilla.encoding = doc.encoding.python_encoding_name;
             this.scintilla.init();
-            this.document = doc;
+            this.koDoc = doc;
 
             this._genericController = Components.classes['@activestate.com/koGenericCommandHandler;1'].createInstance();
             this._genericController.view = this;
@@ -281,7 +281,7 @@
             this.log.exception(e);
         }
         this.log.debug('scimoz code page after initWithDoc is '+this.scimoz.codePage);
-        this.log.debug('document code page after initWithDoc is '+this.document.codePage);
+        this.log.debug('document code page after initWithDoc is '+this.koDoc.codePage);
         ko.trace.get().leave('view-editor:initWithDocument')
         ]]>
         </body>
@@ -292,12 +292,12 @@
             var languageRegistryService = Components.classes['@activestate.com/koLanguageRegistryService;1'].getService(Components.interfaces.koILanguageRegistryService);
             var textLanguageService = languageRegistryService.getLanguage("Text");
             var lexer = textLanguageService.getLanguageService(Components.interfaces.koILexerLanguageService);
-            this.document.lexer = lexer;
+            this.koDoc.lexer = lexer;
             // Going to text, we need to explicitly clear the styles.
             var scimoz = this.scimoz;
             scimoz.startStyling(0, 0x3f);
             scimoz.setStyling(scimoz.length, 0);
-            this.document.docSettingsMgr.applyDocumentSettingsToView(this);
+            this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
             scimoz.tabWidth = scimoz.tabWidth;
         ]]>
         </body>
@@ -351,7 +351,7 @@
         <body>
         <![CDATA[
             try {
-                if (this.document &&
+                if (this.koDoc &&
                     !ko.views.manager.batchMode &&
                     !this._everLinted &&
                     this.lintBuffer &&
@@ -398,7 +398,7 @@
             // XXX we need to also observe changes in the file
             // status so we can appropriately update our tab icons
             this.log.debug("editor view for document '"+
-                           this.document.baseName+"' observed '"+topic+"'\n");
+                           this.koDoc.baseName+"' observed '"+topic+"'\n");
             switch (topic) {
             case 'language_changed':
                 // Multi-window story: do this on the current view only.
@@ -429,7 +429,7 @@
                         this.lintBuffer.request("language changed");
                     }
                     xtk.domutils.fireEvent(this, 'current_view_language_changed');
-                    this.document.docSettingsMgr.applyDocumentSettingsToView(this);
+                    this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
 
                     // The change in language may affect controllers
                     window.setTimeout("window.updateCommands('current_view_language_changed');", 1);
@@ -447,7 +447,7 @@
                 // If the same file is current in more than one window, including
                 // the topmost, we'll update its title bar and status in each window.
                 // Weirdness:
-                // this.document always points to the doc argument.
+                // this.koDoc always points to the doc argument.
                 if (this.parentView && typeof(this.parentView['updateDirtyStatus']) != 'undefined') {
                     this.parentView.updateDirtyStatus(this);
                     if (this.isCurrent) {
@@ -487,8 +487,8 @@
                 if (!colorizing_enabled) {
                     this._turnColourizingOff();
                 } else {
-                    this.document.lexer = null;
-                    this.document.docSettingsMgr.applyDocumentSettingsToView(this);
+                    this.koDoc.lexer = null;
+                    this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
                     var stylingPos = this.scimoz.endStyled;
                     scimoz.colourise(0, -1);
                 }
@@ -572,8 +572,8 @@
         <method name="getURI">
         <body>
         <![CDATA[
-            if (!this.document.isUntitled)
-                return this.document.file.URI;
+            if (!this.koDoc.isUntitled)
+                return this.koDoc.file.URI;
             return null;
         ]]>
         </body>
@@ -581,7 +581,7 @@
 
         <property name="isDirty">
             <getter><![CDATA[
-            return this.document && this.document.isDirty;
+            return this.koDoc && this.koDoc.isDirty;
             ]]>
             </getter>
         </property>
@@ -589,8 +589,8 @@
         <method name="saveState">
         <body>
         <![CDATA[
-            if (this.document && !this.document.isUntitled) {
-                this.document.saveState(this);
+            if (this.koDoc && !this.koDoc.isUntitled) {
+                this.koDoc.saveState(this);
             }
         ]]>
         </body>
@@ -601,12 +601,12 @@
                 // isSpecial typicaly denotes sockets and such, is also
                 // used by us to identify things like dbgp files
                 // we don't want special files in our mru
-                if (!this.document.isUntitled && this.document.file && !this.document.file.isSpecial) {
-                    ko.mru.addURL("mruFileList", this.document.file.URI);
+                if (!this.koDoc.isUntitled && this.koDoc.file && !this.koDoc.file.isSpecial) {
+                    ko.mru.addURL("mruFileList", this.koDoc.file.URI);
                 }
 
                 this.saveState();
-                this.document = null;
+                this.koDoc = null;
                 if (this.preview) {
                     this.preview.sourceView = null;
                     this.preview = null;
@@ -646,8 +646,8 @@
                 // though both "view_opened" and "view_closed" *are*.
                 xtk.domutils.fireEvent(this, 'view_closing');
 
-                var isLastDocumentInstance = (this.document
-                            && this.document.numScintillas == 1);
+                var isLastDocumentInstance = (this.koDoc
+                            && this.koDoc.numScintillas == 1);
                 // if there's more than one view on the doc, we're not closing it
                 if (isLastDocumentInstance
                     && this.getAttribute('type') == 'editor'
@@ -663,15 +663,15 @@
                 }
                     
                 if (!doNotOfferToSave && isLastDocumentInstance &&
-                    this.document.isDirty) {
+                    this.koDoc.isDirty) {
                     var res = ko.dialogs.yesNoCancel("Save changes to " +
-                                                    this.document.baseName +
+                                                    this.koDoc.baseName +
                                                     "?");
                     if (res == "Cancel") {
                         return false;
                     }
                     if (res == "Yes") {
-                        if (this.document.isUntitled) {
+                        if (this.koDoc.isUntitled) {
                             if (! this.saveAs()) {
                                 return false;
                             }
@@ -680,16 +680,16 @@
                                 return false;
                             }
                         }
-                    } else if (res == "No" && !this.document.isUntitled) {
+                    } else if (res == "No" && !this.koDoc.isUntitled) {
                         // Clear the auto-save file.
-                        this.document.removeAutoSaveFile();
+                        this.koDoc.removeAutoSaveFile();
                     }
                 }
                 var uri;
                 try {
-                    uri = this.document.file.URI;
+                    uri = this.koDoc.file.URI;
                 } catch(e) {
-                    if (this.document.file) {
+                    if (this.koDoc.file) {
                         this.log.exception(e);
                     }
                     uri = null;
@@ -717,7 +717,7 @@
         <method name="revertUnconditionally">
         <body>
         <![CDATA[
-            this.document.revert();
+            this.koDoc.revert();
         ]]>
         </body>
         </method>
@@ -725,7 +725,7 @@
         <method name="revert">
         <body>
         <![CDATA[
-            var baseName = this.document.baseName;
+            var baseName = this.koDoc.baseName;
             if (ko.dialogs.yesNo("Do you wish to revert to the last saved version of '" + baseName + "'?",
                                  "Yes", null, null, // default response, text, title
                                  "revert_buffer"
@@ -739,11 +739,11 @@
         <method name="reloadIfChanged">
         <body>
         <![CDATA[
-            if (!this.document || !this.document.differentOnDisk()) return;
-            var baseName = this.document.baseName;
+            if (!this.koDoc || !this.koDoc.differentOnDisk()) return;
+            var baseName = this.koDoc.baseName;
             var title;
             var prompt;
-            if (this.document.isDirty) {
+            if (this.koDoc.isDirty) {
                 prompt = 'The file ' + baseName + ' is unsaved, and the ' +
                          'file changed on disk.  You can use '+
                          '"Show Unsaved Changes" to view a diff of the ' +
@@ -771,14 +771,14 @@
                      'disk, do you want to reload them?';
             var items = ko.dialogs.selectFromList(title,
                                               prompt,
-                                              [this.document.file.displayPath],
+                                              [this.koDoc.file.displayPath],
                                               'zero-or-more',
                                               null,
                                              'reload_changed_files');
             if (items != null && items.length > 0) {
                 this.revertUnconditionally();
             } else {
-                this.document.isDirty = true;
+                this.koDoc.isDirty = true;
             }
         ]]>
         </body>
@@ -787,7 +787,7 @@
         <!-- Save the view's document and do associated actions.
 
              Preconditions:
-                - view.document is writeable
+                - view.koDoc is writeable
 
              Returns true iff the file is successfully saved, false
              otherwise. -->
@@ -797,7 +797,7 @@
         <![CDATA[
             if (typeof(forceSave) == 'undefined') forceSave = false;
             try {
-                this.document.save(forceSave);
+                this.koDoc.save(forceSave);
             } catch (ex) {
                 var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                                    getService(Components.interfaces.koILastErrorService);
@@ -806,7 +806,7 @@
                     msg = ex.toString();
                 }
                 ko.dialogs.alert("There was an error attempting to save '"+
-                             this.document.baseName+"': "+
+                             this.koDoc.baseName+"': "+
                              msg);
                 return false;
             }
@@ -826,12 +826,12 @@
         <method name="_validateEncoding">
         <body>
         <![CDATA[
-            var baseName = this.document.baseName;
+            var baseName = this.koDoc.baseName;
 
             // Ensure that the current file can actually be saved with the
             // current encoding.
             // XXX Untested: I don't know how to force this to test it.
-            if (! this.document.isEncodable) {
+            if (! this.koDoc.isEncodable) {
                 var prompt = "Some of the characters in '"+baseName+
                          "' cannot be saved using the current encoding.  "+
                          "Komodo can force the save by "+
@@ -856,7 +856,7 @@
                         //    if there are any. Ideally this should share
                         //    the code that currentViewPrefs.js is using
                         //    when changing the encoding.
-                        this.document.removeUnencodeable();
+                        this.koDoc.removeUnencodeable();
                     }
                 }
             }
@@ -881,20 +881,20 @@
                 }
 
                 // Untitled documents get "saved as".
-                if (this.document.isUntitled) {
+                if (this.koDoc.isUntitled) {
                     return this.saveAs();
                 }
 
                 var choice;
-                var baseName = this.document.baseName;
-                var file = this.document.file;
+                var baseName = this.koDoc.baseName;
+                var file = this.koDoc.file;
                 var hasChanged = 0;
 
                 // If the disk file has changed under us on disk, then ask the
                 // user what to do.
                 try {
                     if (file.isLocal && !file.isNetworkFile) {
-                        hasChanged = this.document.differentOnDisk();
+                        hasChanged = this.koDoc.differentOnDisk();
                     } else {
                         // Different for remote files, we check the file stats
                         // This uses a python property getter to update itself.
@@ -982,11 +982,11 @@
         <![CDATA[
         try {
             this.makeCurrent();
-            if (this.document.file && !this.document.file.isLocal) {
+            if (this.koDoc.file && !this.koDoc.file.isLocal) {
                 // Try and open to the same location as current file
-                ko.filepicker.openRemoteFiles(this.document.file.URI, this.document.file.baseName);
+                ko.filepicker.openRemoteFiles(this.koDoc.file.URI, this.koDoc.file.baseName);
             } else {
-                ko.filepicker.openRemoteFiles(null,this.document.baseName);
+                ko.filepicker.openRemoteFiles(null,this.koDoc.baseName);
             }
         } catch (e) {
             this.log.exception(e);
@@ -1005,10 +1005,10 @@
             this.makeCurrent();
             if (!this._validateEncoding()) return false;
             var uri = null;
-            if (this.document.file && !this.document.file.isLocal) {
-                uri = ko.filepicker.saveAsRemoteFiles(this.document.file.URI, this.document.file.baseName);
+            if (this.koDoc.file && !this.koDoc.file.isLocal) {
+                uri = ko.filepicker.saveAsRemoteFiles(this.koDoc.file.URI, this.koDoc.file.baseName);
             } else {
-                uri = ko.filepicker.saveAsRemoteFiles(null, this.document.baseName);
+                uri = ko.filepicker.saveAsRemoteFiles(null, this.koDoc.baseName);
             }
             if (uri == null) {
                 return false;
@@ -1036,8 +1036,8 @@
             if (!this._validateEncoding()) return false;
             var path = ko.filepicker.saveFile(
                         directory, /* default directory */
-                        this.document.displayPath, /* default name - knows about dirs */
-                        "Save '"+this.document.baseName+"' As...",
+                        this.koDoc.displayPath, /* default name - knows about dirs */
+                        "Save '"+this.koDoc.baseName+"' As...",
                         this.language);
             if (path == null) {
                 return false;
@@ -1099,7 +1099,7 @@
         }
         ko.history.note_curr_loc(this);
         try {
-            this.document.docSettingsMgr.applyViewSettingsToDocument(this);
+            this.koDoc.docSettingsMgr.applyViewSettingsToDocument(this);
             var newdocument = this.__docsvc.createDocumentFromURI(uri);
             if (newdocument.file.exists && newdocument.file.isReadOnly) {
                 ko.dialogs.alert("Unable to overwrite a readonly file.");
@@ -1254,16 +1254,16 @@
             // asking if necessary. This may return null, meaning the
             // action calling this method should abort.
             var previewPath=null;
-            if (this.document.prefs.hasStringPref("preview_path")) {
-                previewPath = this.document.prefs.getStringPref("preview_path");
+            if (this.koDoc.prefs.hasStringPref("preview_path")) {
+                previewPath = this.koDoc.prefs.getStringPref("preview_path");
             }
             if (!previewPath) {
-                var pick = ko.dialogs.pickPreview(this.document.file.displayPath);
+                var pick = ko.dialogs.pickPreview(this.koDoc.file.displayPath);
                 if (pick == null)
                     return null;
                 previewPath = pick.preview;
                 if (pick.remember) {
-                    this.document.prefs.setStringPref("preview_path",
+                    this.koDoc.prefs.setStringPref("preview_path",
                                                       previewPath);
                 }
             }
@@ -1290,7 +1290,7 @@
         //      URI to avoid problems in escaping Windows dir separators.
         //
         try {
-            if (this.document.isUntitled) {
+            if (this.koDoc.isUntitled) {
                 ko.dialogs.alert("You must save '"+this.title+
                              "' before you can preview it in the browser.");
                 return;
@@ -1328,8 +1328,8 @@
                 case "in-tab-other-group":
                     var previewURI = ko.uriparse.pathToURI(previewPath);
                     var doc;
-                    if (previewURI == this.document.file.URI) {
-                        doc = this.document;
+                    if (previewURI == this.koDoc.file.URI) {
+                        doc = this.koDoc;
                     } else {
                         doc = this.docSvc.createDocumentFromURI(previewURI);
                     }
@@ -1339,8 +1339,8 @@
                 case "in-tab-same-group":
                     var previewURI = ko.uriparse.pathToURI(previewPath);
                     var doc;
-                    if (previewURI == this.document.file.URI) {
-                        doc = this.document;
+                    if (previewURI == this.koDoc.file.URI) {
+                        doc = this.koDoc;
                     } else {
                         doc = this.docSvc.createDocumentFromURI(previewURI);
                     }

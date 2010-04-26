@@ -255,8 +255,8 @@ editor_editorController.prototype.is_cmd_viewAsGuessedLanguage_enabled = functio
 
 editor_editorController.prototype.do_cmd_viewAsGuessedLanguage = function() {
     try {
-        ko.views.manager.currentView.document.language = '';
-        ko.views.manager.currentView.document.language = ko.views.manager.currentView.document.language;
+        ko.views.manager.currentView.koDoc.language = '';
+        ko.views.manager.currentView.koDoc.language = ko.views.manager.currentView.koDoc.language;
         ko.views.manager.currentView.scimoz.colourise(0, -1);
     } catch (e) {
         log.exception(e);
@@ -267,14 +267,14 @@ editor_editorController.prototype.is_cmd_browserPreview_enabled = function() {
     var view = ko.views.manager.currentView;
     return (view != null &&
             view.getAttribute('type') == 'editor' &&
-            view.document && view.document.file && view.document.file.isLocal);
+            view.koDoc && view.koDoc.file && view.koDoc.file.isLocal);
 }
 
 editor_editorController.prototype.do_cmd_browserPreview = function() {
     var view = ko.views.manager.currentView;
     var canPreview = (view != null &&
             view.getAttribute('type') == 'editor' &&
-            view.document && view.document.file && view.document.file.isLocal);
+            view.koDoc && view.koDoc.file && view.koDoc.file.isLocal);
     if (canPreview)
         ko.views.manager.currentView.viewPreview();
 }

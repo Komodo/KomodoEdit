@@ -156,11 +156,11 @@ this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
     
     // Determine 'lang' and 'sublang', if not provided.
     var currView = ko.views.manager.currentView;
-    if (lang == null && currView && currView.document) {
-        lang = currView.document.language;
+    if (lang == null && currView && currView.koDoc) {
+        lang = currView.koDoc.language;
     }
-    if (sublang == null && currView && currView.document) {
-        sublang = currView.document.subLanguage;
+    if (sublang == null && currView && currView.koDoc) {
+        sublang = currView.koDoc.subLanguage;
     }
     
     // The list of sub-folder names under an "Abbreviations" folder in

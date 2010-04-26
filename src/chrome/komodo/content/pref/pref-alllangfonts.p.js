@@ -152,7 +152,7 @@ function OnPreferencePageInitalize(prefset) {
         gDialog.prefset = prefset;
         var selectedLanguageName;
         try {
-            selectedLanguageName = parent.opener.ko.views.manager.currentView.document.language;
+            selectedLanguageName = parent.opener.ko.views.manager.currentView.koDoc.language;
         } catch(ex) {
             selectedLanguageName = "Python";
         }

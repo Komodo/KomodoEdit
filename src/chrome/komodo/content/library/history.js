@@ -639,17 +639,17 @@ function _rctab_from_event(event) {
             // editor views are handled on document_detaching
             return null;
         }
-        var koDocument = view.document;
+        var koDocument = view.koDoc;
         if (!koDocument || !koDocument.file) {
             return null;
         }
         ko.history.note_curr_loc(view);
         // FALLTHRU
     case "browser":
-        uri = view.document.file.URI;
+        uri = view.koDoc.file.URI;
         break;
     case "startpage":
-        uri = view.document.displayPath;
+        uri = view.koDoc.displayPath;
         break;
     case "terminal":
         // Ignore closing terminal views

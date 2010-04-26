@@ -962,8 +962,8 @@ FindResultsTabManager.prototype._doubleClick = function()
             function(view) {
                 var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
                         .getService(Components.interfaces.koIOsPath);
-                if (!view || !view.document ||
-                    !osPathSvc.samepath(view.document.displayPath, displayPath))
+                if (!view || !view.koDoc ||
+                    !osPathSvc.samepath(view.koDoc.displayPath, displayPath))
                 {
                     // File wasn't opened for whatever reason.
                     return;

@@ -70,7 +70,11 @@
     </content>
     <implementation name="viewbrowser" implements="koIBrowserView">
         <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
-        <property name="document" onget="return this.koDoc;" onset="this.koDoc = val" />
+        <property name="document"
+            onget="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
+                return this.koDoc;"
+            onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
+                this.koDoc = val" />
         
         <property name="_backButton"
             onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'browser-back-button');"/>
@@ -140,8 +144,8 @@
                 catch(ex) {
                   // Do nothing.
                 }
-              } else if (this.document && !this.document.isUntitled) {
-                title = this.document.baseName;
+              } else if (this.koDoc && !this.koDoc.isUntitled) {
+                title = this.koDoc.baseName;
               } else // Still no title?  Fall back to our untitled string.
                 title = '(untitled)';
             }
@@ -153,8 +157,8 @@
         <method name="getURI">
         <body>
         <![CDATA[
-            if (this.document && !this.document.isUntitled)
-                return this.document.file.URI;
+            if (this.koDoc && !this.koDoc.isUntitled)
+                return this.koDoc.file.URI;
             return null;
         ]]>
         </body>
@@ -266,8 +270,8 @@
                 if (domWindow == domWindow.top) {
                   this.view.parentView.updateLeafName(this.view);
                   this.view.urlBar.value = aLocation.spec;
-                  if (this.view.document && this.view.document.file.URI != aLocation.spec) {
-                    this.view.document = this.docSvc.createDocumentFromURI(aLocation.spec);
+                  if (this.view.koDoc && this.view.koDoc.file.URI != aLocation.spec) {
+                    this.view.koDoc = this.docSvc.createDocumentFromURI(aLocation.spec);
                   }
                 }
               },
@@ -342,12 +346,12 @@
         <body>
         <![CDATA[
             if (typeof(notify) == 'undefined') notify = true;
-            this.document = doc;
+            this.koDoc = doc;
             // Trying to set the charset can cause problems with external style
             // sheets, see bug 84741.
             //var docCharset = this.browser.docShell.QueryInterface(
             //                    Components.interfaces.nsIDocCharset);
-            //docCharset.charset = this.document.encoding.python_encoding_name;
+            //docCharset.charset = this.koDoc.encoding.python_encoding_name;
             if (!doc.isUntitled) {
                 // XXX bug (28969) unc paths
                 try {
@@ -419,11 +423,11 @@
             restoring browser preview panes work correctly, so for now
             we take the easy route and do not restore browser preview.
 
-            if (this.document.isUntitled ||
+            if (this.koDoc.isUntitled ||
                 this.title.indexOf('about:')==0) { return null; }
             var myState = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
             myState.setStringPref('viewtype', 'browser');
-            myState.setStringPref('URI', this.document.file.URI);
+            myState.setStringPref('URI', this.koDoc.file.URI);
             return myState;
             */
         ]]>

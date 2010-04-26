@@ -103,7 +103,7 @@
             if (part) {
                 file = part.getFile();
             } else {
-                file = view.document.file;
+                file = view.koDoc.file;
             }
         } else {
             // XXX TODO get the main komodo window instead

@@ -810,11 +810,11 @@ function _updateCurrentLanguage(view)
         // If we haven't built the menu yet, don't bother.
         return;
     }
-    if (! view || !view.document || !view.document.language) {
+    if (! view || !view.koDoc || !view.koDoc.language) {
         // If we don't have a current language, don't bother either
         return;
     }
-    _setCheckedLanguage(view.document.language);
+    _setCheckedLanguage(view.koDoc.language);
 }
 
 function _setCheckedLanguage(language)
@@ -1053,9 +1053,9 @@ this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu() {
     }
     hdata.language = null;
     if (ko.views.manager.currentView &&
-        ko.views.manager.currentView.document &&
-        ko.views.manager.currentView.document.language) {
-        hdata.language = ko.views.manager.currentView.document.language;
+        ko.views.manager.currentView.koDoc &&
+        ko.views.manager.currentView.koDoc.language) {
+        hdata.language = ko.views.manager.currentView.koDoc.language;
     }
     try {
     _getHierarchy(hdata);
@@ -1214,13 +1214,13 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
             title = title.replace(/\*$/, "");
             title = title.replace(/(\s)+$/, "");
         }
-        if (view.document &&
-            view.document.file &&
+        if (view.koDoc &&
+            view.koDoc.file &&
             view.getAttribute("type") != "startpage") {
-            if (view.document.file.isLocal) {
-                title = title + ' (' + view.document.file.dirName + ')';
+            if (view.koDoc.file.isLocal) {
+                title = title + ' (' + view.koDoc.file.dirName + ')';
             } else {
-                title = view.document.displayPath;
+                title = view.koDoc.displayPath;
             }
         }
     } else {

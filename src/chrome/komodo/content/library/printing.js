@@ -85,7 +85,7 @@ this.browserPrint = function()
 this.print = function(view, preview, tofile, selectionOnly)
 {
     try {
-        var lang = view.document.languageObj;
+        var lang = view.koDoc.languageObj;
         var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService()
         var outputFile;
         if (typeof(tofile) == 'undefined') {
@@ -99,9 +99,9 @@ this.print = function(view, preview, tofile, selectionOnly)
             selectionOnly = false;
         }
         if (tofile) {
-            var newname = view.document.displayPath;
+            var newname = view.koDoc.displayPath;
             var os = Components.classes['@activestate.com/koOs;1'].getService();
-            if (view.document.isUntitled) {
+            if (view.koDoc.isUntitled) {
                 newname = os.path.realpath(os.path.join('.', newname));
             }
             newname = newname + '.html';
@@ -118,10 +118,10 @@ this.print = function(view, preview, tofile, selectionOnly)
 
         try {
             schemeService.convertToHTMLFile(view.scimoz,
-                                            view.document.displayPath,
-                                            view.document.language,
+                                            view.koDoc.displayPath,
+                                            view.koDoc.language,
                                             lang.styleBits,
-                                            view.document.encoding.python_encoding_name,
+                                            view.koDoc.encoding.python_encoding_name,
                                             fname,
                                             selectionOnly,
                                             forceColor);

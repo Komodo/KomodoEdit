@@ -227,7 +227,7 @@ function ContinuePart2(tests, i, lim, test, view, file) {
                          + "\n");
                 }
             }
-            view.document.isDirty = false;
+            view.koDoc.isDirty = false;
             setTimeout(ContinuePart3, 100, tests, i, lim, test, view, file);
         }, 300);
 }

@@ -52,7 +52,11 @@
     </content>
     <implementation name="viewterminal" implements="koIScintillaView, ISciMozEvents, nsIObserver">
         <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
-        <property name="document" onget="return this.koDoc;" onset="this.koDoc = val" />
+        <property name="document"
+            onget="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
+                return this.koDoc;"
+            onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
+                this.koDoc = val" />
 
         <field name="terminalHandler">null</field>
         <field name="cwd">null</field>
@@ -98,7 +102,7 @@
             this.scimoz.wrapMode = Components.interfaces.ISciMoz.SC_WRAP_WORD;
             this.scimoz.useTabs = 0; // don't use tabs in a terminal
             this.scimoz.setProperty('smartCloseTags', '0');
-            this.document = null; // needed?
+            this.koDoc = null; // needed?
             this._inInitPhase = false;
             this.promptPos = 0;
             this.promptLine = 0;

@@ -190,8 +190,8 @@ viewManager.prototype.postCanClose = function()
             // might exist
             for (i = 0; i < this._dirtyItems.length; i++) {
                 item = this._dirtyItems[i];
-                if (item.view && item.view.document)
-                    item.view.document.removeAutoSaveFile();
+                if (item.view && item.view.koDoc)
+                    item.view.koDoc.removeAutoSaveFile();
             }
         }
         this.shutdown();
@@ -225,9 +225,9 @@ viewManager.prototype.getDefaultDirectory = function(project) {
     }
     var v = this.currentView;
     if (v && v.getAttribute("type") == "editor" &&
-        v.document && !v.document.isUntitled && v.document.file.isLocal)
+        v.koDoc && !v.koDoc.isUntitled && v.koDoc.file.isLocal)
     {
-        defaultDir = this.currentView.document.file.dirName;
+        defaultDir = this.currentView.koDoc.file.dirName;
     } else if (project) {
         defaultDir = ko.projects.getDefaultDirectory(project);
     }
@@ -288,10 +288,10 @@ viewManager.prototype._newTemplate = function(defaultDir, project) {
         }
         window.setTimeout(function(view) {
             view.setFocus();
-            if (view.document && obj.template) {
+            if (view.koDoc && obj.template) {
                 var requestedLanguage = _langRegistrySvc.suggestLanguageForFile(obj.template);
-                if (view.document.language != requestedLanguage) {
-                    view.document.language = requestedLanguage;
+                if (view.koDoc.language != requestedLanguage) {
+                    view.koDoc.language = requestedLanguage;
                     window.updateCommands(1, 'language_changed');
                 }
             }
@@ -466,7 +466,7 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
         if (saveto) {
             doc.save(1);
         }
-        view.document.setTabstopInsertionTable(liveTextInfo.tabstopInsertionTable.length,
+        view.koDoc.setTabstopInsertionTable(liveTextInfo.tabstopInsertionTable.length,
                                                liveTextInfo.tabstopInsertionTable);
         view.moveToNextTabstop();
     }
@@ -1446,13 +1446,13 @@ viewManager.prototype.is_cmd_cleanLineEndings_supported = function() {
 viewManager.prototype.is_cmd_cleanLineEndings_enabled = function() {
     var currView = ko.views.manager.currentView;
     return (currView && currView.getAttribute("type") == "editor" &&
-            currView.document);
+            currView.koDoc);
 }
 
 viewManager.prototype.do_cmd_cleanLineEndings = function() {
     var currView = ko.views.manager.currentView;
-    if (currView && currView.getAttribute("type") == "editor" && currView.document) {
-        currView.document.cleanLineEndings();
+    if (currView && currView.getAttribute("type") == "editor" && currView.koDoc) {
+        currView.koDoc.cleanLineEndings();
     }
 }
 
@@ -1537,23 +1537,23 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
             if (urls != null) {
                 // Exclude the view if it's not in the urls list
                 // There is no way that untitled documents could be in the list
-                if (view.document.isUntitled) continue;
+                if (view.koDoc.isUntitled) continue;
                 // exclude if it's not in the list
-                if (! _elementInArray(view.document.file.URI, urls)) {
+                if (! _elementInArray(view.koDoc.file.URI, urls)) {
                     continue;
                 }
             }
             if (aboutToClose
-                && !view.document.isUntitled
-                && ko.windowManager.otherWindowHasViewForURI(view.document.file.URI)) {
+                && !view.koDoc.isUntitled
+                && ko.windowManager.otherWindowHasViewForURI(view.koDoc.file.URI)) {
                 // Untitled documents can't be in other windows.
                 continue;
             }
             // We need to deal with views that are split and that share a document
             // So we keep track of the displayPaths, and only add a view
             // if it's display path isn't already in our list.
-            if (view.document.displayPath in sofar) continue;
-            sofar[view.document.displayPath] = true;
+            if (view.koDoc.displayPath in sofar) continue;
+            sofar[view.koDoc.displayPath] = true;
             item = new Object();
             item.type = 'view';
             item.view = view;
@@ -1575,7 +1575,7 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
     if (dirtyItems.length == 0) return true; // nothing to save
     function stringifier(item) {
         if (item.type == 'view') {
-            return item.view.document.displayPath;
+            return item.view.koDoc.displayPath;
         } else {
             return ko.uriparse.displayPath(item.URL);
         }
@@ -1754,7 +1754,7 @@ viewManager.prototype.do_cmd_findNextResult = function() {
 //
 viewManager.prototype._findFunction = function(searchType) {
     try {
-        var language = ko.views.manager.currentView.document.languageObj;
+        var language = ko.views.manager.currentView.koDoc.languageObj;
         var re = language.namedBlockRE;
         var namedBlockDescription = language.namedBlockDescription;
         if (re == null || re == '')
@@ -1801,7 +1801,7 @@ viewManager.prototype.is_cmd_findNextFunction_supported = function() {
 
 viewManager.prototype.is_cmd_findNextFunction_enabled = function() {
     var view = ko.views.manager.currentView;
-    return view != null && view.document && view.document.languageObj.namedBlockRE != '';
+    return view != null && view.koDoc && view.koDoc.languageObj.namedBlockRE != '';
 }
 
 viewManager.prototype.do_cmd_findNextFunction = function() {
@@ -1814,7 +1814,7 @@ viewManager.prototype.is_cmd_findPreviousFunction_supported = function() {
 
 viewManager.prototype.is_cmd_findPreviousFunction_enabled = function() {
     var view = ko.views.manager.currentView;
-    return view != null && view.document && view.document.languageObj.namedBlockRE != '';
+    return view != null && view.koDoc && view.koDoc.languageObj.namedBlockRE != '';
 }
 
 viewManager.prototype.do_cmd_findPreviousFunction = function() {
@@ -1827,7 +1827,7 @@ viewManager.prototype.is_cmd_findAllFunctions_supported = function() {
 
 viewManager.prototype.is_cmd_findAllFunctions_enabled = function() {
     var view = ko.views.manager.currentView;
-    return view != null && view.document && view.document.languageObj.namedBlockRE != '';
+    return view != null && view.koDoc && view.koDoc.languageObj.namedBlockRE != '';
 }
 
 viewManager.prototype.do_cmd_findAllFunctions = function() {
@@ -1930,7 +1930,7 @@ viewManager.prototype.do_cmd_gotoLine = function() {
             // mruName: Don't use one because this tends to gobble up one
             // <Enter> keypress, which is annoying more than the MRU is
             // potentially useful. Use the following to get per-file-mru:
-            //      "goto_line_"+view.document.displayPath,
+            //      "goto_line_"+view.koDoc.displayPath,
             null,
             validateLine) //validator
 
@@ -1973,7 +1973,7 @@ viewManager.prototype.do_cmd_gotoLine = function() {
 viewManager.prototype.is_cmd_goToDefinition_enabled = function() {
     if (!gCodeIntelActive) return false;
     var view = ko.views.manager.currentView;
-    return (view && view.scimoz && view.document &&
+    return (view && view.scimoz && view.koDoc &&
             view.isCICitadelStuffEnabled);
 }
 
@@ -1987,7 +1987,7 @@ viewManager.prototype.is_cmd_goToDefinition_enabled = function() {
 viewManager.prototype.do_cmd_goToDefinition = function() {
     // Get citdl defn trigger from where the cursor is located
     var view = ko.views.manager.currentView;
-    var trg = view.document.ciBuf.defn_trg_from_pos(view.scimoz.currentPos);
+    var trg = view.koDoc.ciBuf.defn_trg_from_pos(view.scimoz.currentPos);
     if (!trg) {
         // Do nothing.
     } else {
@@ -1995,7 +1995,7 @@ viewManager.prototype.do_cmd_goToDefinition = function() {
         var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
                     createInstance(Components.interfaces.koICodeIntelEvalController);
         ctlr.set_ui_handler(view.ciCompletionUIHandler);
-        view.document.ciBuf.async_eval_at_trg(trg, ctlr);
+        view.koDoc.ciBuf.async_eval_at_trg(trg, ctlr);
     }
 }
 
@@ -2005,7 +2005,7 @@ viewManager.prototype.is_cmd_save_supported = function() {
 }
 
 viewManager.prototype.is_cmd_save_enabled = function() {
-    return this.currentView && this.currentView.document && this.currentView.document.isDirty;
+    return this.currentView && this.currentView.koDoc && this.currentView.koDoc.isDirty;
 }
 
 
@@ -2020,7 +2020,7 @@ viewManager.prototype.is_cmd_revert_supported = function() {
 }
 
 viewManager.prototype.is_cmd_revert_enabled = function() {
-    return this.currentView && this.currentView.document && this.currentView.document.isDirty;
+    return this.currentView && this.currentView.koDoc && this.currentView.koDoc.isDirty;
 }
 
 
@@ -2044,7 +2044,7 @@ viewManager.prototype.do_cmd_saveAll = function() {
         this.log.info("length of views is: " + views.length);
         for (i = views.length-1; i >= 0; i--) {
             view = views[i];
-            if (view.document && view.document.isDirty) {
+            if (view.koDoc && view.koDoc.isDirty) {
                 view.save(); // we'll ignore return values here.
             }
         }
@@ -2078,7 +2078,7 @@ viewManager.prototype.is_cmd_saveAs_supported = function() {
 }
 
 viewManager.prototype.is_cmd_saveAs_enabled = function() {
-    return (this.currentView && this.currentView.document &&
+    return (this.currentView && this.currentView.koDoc &&
             this.currentView.getAttribute('type') == 'editor');
 }
 
@@ -2092,7 +2092,7 @@ viewManager.prototype.is_cmd_saveAs_remote_supported = function() {
 }
 
 viewManager.prototype.is_cmd_saveAs_remote_enabled = function() {
-    return (this.currentView && this.currentView.document &&
+    return (this.currentView && this.currentView.koDoc &&
             this.currentView.getAttribute('type') == 'editor');
 }
 
@@ -2102,7 +2102,7 @@ viewManager.prototype.do_cmd_saveAs_remote = function() {
 
 // cmd_open_remote
 viewManager.prototype.do_cmd_open_remote = function() {
-    if (this.currentView && this.currentView.document &&
+    if (this.currentView && this.currentView.koDoc &&
         this.currentView.getAttribute('type') == 'editor') {
         // Open with specific location of current file if possible
         this.currentView.openRemote();
@@ -2162,7 +2162,7 @@ viewManager.prototype.is_cmd_splittab_supported = function() {
 }
 
 viewManager.prototype.is_cmd_splittab_enabled = function() {
-    return (this.currentView && this.currentView.document &&
+    return (this.currentView && this.currentView.koDoc &&
         this.topView.canSplitView(this.currentView));
 }
 
@@ -2177,7 +2177,7 @@ viewManager.prototype.is_cmd_movetab_supported = function() {
 
 viewManager.prototype.is_cmd_movetab_enabled = function() {
     return this._viewCount > 1 &&
-        this.currentView && this.currentView.document &&
+        this.currentView && this.currentView.koDoc &&
         this.topView.canMoveView(this.currentView);
 }
 
@@ -2200,7 +2200,7 @@ viewManager.prototype.is_cmd_openTabInNewWindow_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_openTabInNewWindow = function() {
-    ko.launch.newWindow(this.currentView.document.file.URI);
+    ko.launch.newWindow(this.currentView.koDoc.file.URI);
 }
 
 // cmd_moveTabToNewWindow
@@ -2221,7 +2221,7 @@ viewManager.prototype.do_cmd_moveTabToNewWindow = function() {
     // Close the tab first, because if it's dirty and we try
     // copying it to the new window first, the changes will get lost.
     // Not sure why.
-    var uri = this.currentView.document.file.URI;
+    var uri = this.currentView.koDoc.file.URI;
     if (!this.currentView.close()) {
         return;
     }
@@ -2377,8 +2377,8 @@ viewManager.prototype.do_ViewAs = function(language) {
         firstVisibleLine = scimoz.firstVisibleLine;
     }
     var view = this.currentView;
-    view.document.docSettingsMgr.applyViewSettingsToDocument(view);
-    view.document.language = language;
+    view.koDoc.docSettingsMgr.applyViewSettingsToDocument(view);
+    view.koDoc.language = language;
     if (firstVisibleLine != -1 && !!(scimoz = view.scimoz)) {
         // For some reason the settings mgr doesn't fix the scroll
         var newFirstVisibleLine = scimoz.firstVisibleLine;
@@ -2420,13 +2420,13 @@ viewManager.prototype.do_cmd_saveAsTemplate = function () {
         //TODO: The directory name "My Templates" should be localized
         var dname = os.path.join(templateSvc.getUserTemplatesDir(), "My Templates");
         var templatename = ko.filepicker.saveFile(dname,
-                                this.currentView.document.baseName);
+                                this.currentView.koDoc.baseName);
         if (!templatename) return;
         var docsvc = Components.classes['@activestate.com/koDocumentService;1']
                     .getService(Components.interfaces.koIDocumentService);
         var doc = docsvc.createDocumentFromURI(ko.uriparse.localPathToURI(templatename));
-        doc.buffer = this.currentView.document.buffer;
-        doc.encoding = this.currentView.document.encoding;
+        doc.buffer = this.currentView.koDoc.buffer;
+        doc.encoding = this.currentView.koDoc.encoding;
         doc.save(0);
     } catch(ex) {
         this.log.exception(ex, "Error saving the current view as a template.");
@@ -2581,10 +2581,10 @@ this.labelsFromView = function(view,
         sectionTitle = null;
     }
     var label = null, tooltip = null;
-    if (view.document) {
+    if (view.koDoc) {
         // Example:
         //  "C:\trentm\tmp\foo.py" -> "foo.py (C:\trentm\tmp)"
-        var doc = view.document;
+        var doc = view.koDoc;
         var path = tooltip = doc.displayPath;
         var idx = path.lastIndexOf("/");
         if (idx == -1) {
@@ -3081,10 +3081,10 @@ function _view_checkDiskFiles(event) {
             // browser views do not load via document, so will
             // always be wrong when checking hasChanged
             if (view.getAttribute('type')!='editor') continue;
-            if (typeof(view.document) == 'undefined' ||
-                !view.document ||
-                view.document.isUntitled) continue;
-            file = view.document.file;
+            if (typeof(view.koDoc) == 'undefined' ||
+                !view.koDoc ||
+                view.koDoc.isUntitled) continue;
+            file = view.koDoc.file;
             // onFocus: Don't check file changed for remote files
             if (!file.isLocal || file.isNetworkFile) continue;
             item = new Object;
@@ -3093,21 +3093,21 @@ function _view_checkDiskFiles(event) {
             item.file = file;
             if (!file.exists) {
                 removedItems.push(item);
-                view.document.isDirty = true;
+                view.koDoc.isDirty = true;
             } else {
-                if (view.document.differentOnDisk() &&
+                if (view.koDoc.differentOnDisk() &&
                     // If this is has a pending operation, the view will be
                     // updated automatically when the command finishes, we
                     // don't want to warn about it until it's finished. See bug:
                     // http://bugs.activestate.com/show_bug.cgi?id=74471
                     !_asyncSvc.uriHasPendingOperation(file.URI)) {
 
-                    if (view.document.isDirty) {
+                    if (view.koDoc.isDirty) {
                         conflictedItems.push(item);
                     } else {
                         changedItems.push(item);
                     }
-                    view.document.isDirty = true;
+                    view.koDoc.isDirty = true;
                 }
             }
         }
@@ -3165,7 +3165,7 @@ function _view_checkDiskFiles(event) {
                         items[i].view.revertUnconditionally()
                         if (gCodeIntelActive) {
                             gCodeIntelSvc.scan_document(
-                                items[i].view.document,
+                                items[i].view.koDoc,
                                 // linesAdded: using non-zero value to
                                 // encourage high-prio rescan
                                 1,
@@ -3181,8 +3181,8 @@ function _view_checkDiskFiles(event) {
         if (removedItems.length > 0) {
             for (i = 0; i < removedItems.length; ++i) {
                 if (removedItems[i].view &&
-                    removedItems[i].view.document) {
-                    removedItems[i].view.document.isDirty = true;
+                    removedItems[i].view.koDoc) {
+                    removedItems[i].view.koDoc.isDirty = true;
                 }
             }
             title = _bundle.GetStringFromName("closeDeletedFilesAndProjects.prompt");
@@ -3243,8 +3243,8 @@ this.getCwd = function view_GetCwd() {
     var view = win.ko.views.manager.currentView;
     if (view != null &&
         view.getAttribute("type") == "editor" &&
-        view.document.file &&
-        view.document.file.isLocal) {
+        view.koDoc.file &&
+        view.koDoc.file.isLocal) {
         return view.cwd;
     } else {
         var userEnvSvc = Components.classes['@activestate.com/koUserEnviron;1'].

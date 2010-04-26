@@ -102,7 +102,7 @@
         // (in toolkit/components/printing/content/printUtils.js).
         return {
           document: document,
-          currentURI: { spec: opener.ko.views.manager.currentView.document.file.URI }
+          currentURI: { spec: opener.ko.views.manager.currentView.koDoc.file.URI }
         };
     }
     // End callbacks

@@ -355,9 +355,9 @@ try {
     if (view) {
         if (view.scintilla)
             scimoz = view.scintilla.scimoz;
-        if (view.document) {
-            filename = view.document.displayPath;
-            if (view.document.file) url = view.document.file.URI;
+        if (view.koDoc) {
+            filename = view.koDoc.displayPath;
+            if (view.koDoc.file) url = view.koDoc.file.URI;
         }
     }
 

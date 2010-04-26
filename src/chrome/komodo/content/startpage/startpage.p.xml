@@ -971,7 +971,11 @@
     </content>
     <implementation name="viewstartpage" implements="koIStartPageView, nsIObserver">
         <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
-        <property name="document" onget="return this.koDoc;" onset="this.koDoc = val" />
+        <property name="document"
+            onget="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
+                return this.koDoc;"
+            onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
+                this.koDoc = val" />
 
         <property name="title" readonly="true" onget="return '&startPage.title;';"/>
         
@@ -1136,7 +1140,7 @@
         <parameter name="doc"/>
         <body> <![CDATA[
             this.log.info("initWithDocument");
-            this.document = doc;
+            this.koDoc = doc;
             this.parentView.updateLeafName(this);
             xtk.domutils.fireEvent(this, 'view_document_attached');
             xtk.domutils.fireEvent(this, 'current_view_changed');

@@ -91,7 +91,7 @@ function OnPreferencePageLoading(prefset) {
          */
         data.file = parent.part.getFile();
     } else {
-        data.file = parent.view.document.file;
+        data.file = parent.view.koDoc.file;
     }
     if (!data.file_permissions && data.file.isRemoteFile) {
         // This is a bit of a hack for remote files. Forces the file to update
@@ -126,7 +126,7 @@ function OnPreferencePageLoading(prefset) {
 
 function _getMarkupLanguage() {
     var domLanguages = ["XML", "HTML", "XHTML", "XSLT"];
-    var langSvc = parent.view.document.languageObj;
+    var langSvc = parent.view.koDoc.languageObj;
     var found = domLanguages.indexOf(langSvc.name) >= 0 ? langSvc.name:null;
     if (!found) {
         var languages = langSvc.getSubLanguages(new Object());
@@ -218,8 +218,8 @@ function OnPreferencePageClosing(prefset, ok) {
                 break;
 
             case "language":
-                if (value == "" || value != parent.view.document.language) {
-                    parent.view.document.language = value;
+                if (value == "" || value != parent.view.koDoc.language) {
+                    parent.view.koDoc.language = value;
                     xtk.domutils.fireEvent(parent.view, 'current_view_language_changed');
                 }
                 break;
@@ -227,19 +227,19 @@ function OnPreferencePageClosing(prefset, ok) {
             case "lineEndings":
                 var le;
                 if (value == "EOL_LF") {
-                    le = parent.view.document.EOL_LF;
+                    le = parent.view.koDoc.EOL_LF;
                 } else if (value == "EOL_CR") {
-                    le = parent.view.document.EOL_CR;
+                    le = parent.view.koDoc.EOL_CR;
                 } else if (value == "EOL_CRLF") {
-                    le = parent.view.document.EOL_CRLF;
+                    le = parent.view.koDoc.EOL_CRLF;
                 }
                 // If we've changed things, save it as a pref.
-                if (parent.view.document.new_line_endings != le) {
+                if (parent.view.koDoc.new_line_endings != le) {
                     var eolpref = '';
                     switch (le) {
-                        case parent.view.document.EOL_LF: eolpref = 'LF'; break;
-                        case parent.view.document.EOL_CR: eolpref = 'CR'; break;
-                        case parent.view.document.EOL_CRLF: eolpref = 'CRLF'; break;
+                        case parent.view.koDoc.EOL_LF: eolpref = 'LF'; break;
+                        case parent.view.koDoc.EOL_CR: eolpref = 'CR'; break;
+                        case parent.view.koDoc.EOL_CRLF: eolpref = 'CRLF'; break;
                         default:
                             log.error("unknown line ending: " + le);
                     }
@@ -250,10 +250,10 @@ function OnPreferencePageClosing(prefset, ok) {
                 // Make the change even if 'le' is unchanged to allow a
                 // change to "Preserve Line Endings" on EOL_MIXED files to
                 // correct the file.
-                parent.view.document.new_line_endings = le;
+                parent.view.koDoc.new_line_endings = le;
                 if (! data.preserveLineEndings.checked) {
                     // This changes the current document's line endings.
-                    parent.view.document.existing_line_endings = le;
+                    parent.view.koDoc.existing_line_endings = le;
                 }
                 break;
 
@@ -459,22 +459,22 @@ function initDocumentSettings()
     if (!parent.view) return;
     try {
         // Language
-        data.language.selection = parent.view.document.language;
+        data.language.selection = parent.view.koDoc.language;
 
         // Encoding
         initEncoding();
 
         // Line endings
-        var nle = parent.view.document.new_line_endings;
-        if (nle == parent.view.document.EOL_LF) {
+        var nle = parent.view.koDoc.new_line_endings;
+        if (nle == parent.view.koDoc.EOL_LF) {
             data.lineEndings.value = "EOL_LF";
-        } else if (nle == parent.view.document.EOL_CR) {
+        } else if (nle == parent.view.koDoc.EOL_CR) {
             data.lineEndings.value = "EOL_CR";
-        } else if (nle == parent.view.document.EOL_CRLF) {
+        } else if (nle == parent.view.koDoc.EOL_CRLF) {
             data.lineEndings.value = "EOL_CRLF";
         }
 
-        if (parent.view.document.existing_line_endings == parent.view.document.EOL_MIXED) {
+        if (parent.view.koDoc.existing_line_endings == parent.view.koDoc.EOL_MIXED) {
             if (data.mixedLineEndings.hasAttribute("collapsed"))
                 data.mixedLineEndings.removeAttribute("collapsed");
         } else {
@@ -503,7 +503,7 @@ function resetLanguage() {
 
 
 function initEncoding()  {
-    var enc = parent.view.document.encoding;  // koIEncoding object
+    var enc = parent.view.koDoc.encoding;  // koIEncoding object
     var encIndex = gEncodingSvc.get_encoding_index(enc.python_encoding_name);
 
     // Build the menupopup.
@@ -562,9 +562,9 @@ function changeEncoding(item)
 function applyEncodingAndBOM(encodingName, bom)
 {
     // Short-circuit if the encoding name is the same.
-    if (encodingName == parent.view.document.encoding.python_encoding_name) {
-        parent.view.document.encoding.use_byte_order_marker = bom;
-        parent.view.document.isDirty = true;
+    if (encodingName == parent.view.koDoc.encoding.python_encoding_name) {
+        parent.view.koDoc.encoding.use_byte_order_marker = bom;
+        parent.view.koDoc.isDirty = true;
         return true;
     }
 
@@ -573,12 +573,12 @@ function applyEncodingAndBOM(encodingName, bom)
     enc.python_encoding_name = encodingName;
     enc.use_byte_order_marker = bom;
 
-    var warning = parent.view.document.languageObj.getEncodingWarning(enc);
+    var warning = parent.view.koDoc.languageObj.getEncodingWarning(enc);
     var question = bundle.formatStringFromName(
         "areYouSureThatYouWantToChangeTheEncoding.message", [warning], 1);
     if (warning == "" || ko.dialogs.yesNo(question, "No") == "Yes") {
         try {
-            parent.view.document.encoding = enc;
+            parent.view.koDoc.encoding = enc;
             // and reset the linting
             parent.view.lintBuffer.request();
         } catch(ex) {
@@ -590,7 +590,7 @@ function applyEncodingAndBOM(encodingName, bom)
             if (errno == 0) {
                 // koDocument.set_encoding() says this is an internal error
                 err = this._bundle.formatStringFromName("internalErrorSettingTheEncoding.message",
-                        [parent.view.document.displayPath, encodingName], 2);
+                        [parent.view.koDoc.displayPath, encodingName], 2);
                 ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
             } else {
                 question = bundle.formatStringFromName("force.conversion.message", [errmsg], 1);
@@ -600,11 +600,11 @@ function applyEncodingAndBOM(encodingName, bom)
                         bundle.GetStringFromName("cancel.message")); // default
                 if (choice == bundle.GetStringFromName("force.message.two")) {
                     try {
-                        parent.view.document.forceEncodingFromEncodingName(encodingName);
+                        parent.view.koDoc.forceEncodingFromEncodingName(encodingName);
                     } catch (ex2) {
                         err = this._bundle.formatStringFromName(
                                 "theSampleProjectCouldNotBeFound.message",
-                                [parent.view.document.baseName, encodingName], 2);
+                                [parent.view.koDoc.baseName, encodingName], 2);
                         ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
                         return false;
                     }

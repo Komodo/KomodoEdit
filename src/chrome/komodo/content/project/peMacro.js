@@ -245,8 +245,8 @@ function _executeMacro(part, asynchronous, observer_arguments) {
             case 'python':
                 try {
                     var doc = null;
-                    if (view && view.document) {
-                        doc = view.document;
+                    if (view && view.koDoc) {
+                        doc = view.koDoc;
                     }
                     editor = null;
                     if (view && view.getAttribute('type') == 'editor' && view.scimoz) {
@@ -820,8 +820,9 @@ this.recordPartInvocation = function macro_recordPartInvocation(part) {
  * The original Komodo JS Macro object is deprecated, use the following
  * to map to the current correct usage
  * 
- * komodo.doc -> ko.views.manager.currentView.document
- * komodo.document -> ko.views.manager.currentView.document
+ * komodo.doc -> ko.views.manager.currentView.koDoc (DEPRECATED in Komodo 6.0.0b1, use `koDoc`)
+ * komodo.document -> ko.views.manager.currentView.koDoc (DEPRECATED in Komodo 6.0.0b1, use `koDoc`)
+ * komodo.koDoc -> ko.views.manager.currentView.koDoc
  * komodo.editor -> ko.views.manager.currentView.scimoz
  * komodo.view -> ko.views.manager.currentView
  * komodo.macro -> macro (ie. the running macro, koIPart_macro interface, available in 4.2)
@@ -843,11 +844,9 @@ function _KomodoJSMacroAPI(macro, view)
 {
     log.debug("_KomodoJSMacroAPI()");
     try {
-        this.doc = null;
-        this.document = null;
-        if (view && view.document) {
-            this.doc = view.document;
-            this.document = this.doc;
+        this.koDoc = this.doc = this.document = null;
+        if (view && view.koDoc) {
+            this.koDoc = this.doc = this.document = view.koDoc;
         }
         this.editor = null;
         if (view && view.scimoz) {
@@ -872,6 +871,8 @@ _KomodoJSMacroAPI.prototype.destructor = function() {
     delete this.editor;
     delete this.view;
     delete this.window;
+    delete this.koDoc;
+    //TODO: add this too? `delete this.doc;`
     delete this.document;
     delete this.domdocument;
 }

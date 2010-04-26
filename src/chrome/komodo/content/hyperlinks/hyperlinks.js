@@ -350,7 +350,7 @@ ko.hyperlinks = {};
      */
     this.show = function(view, position, reason)
     {
-        if (!view.document || !view.prefs.getBooleanPref("hyperlinksEnabled")) {
+        if (!view.koDoc || !view.prefs.getBooleanPref("hyperlinksEnabled")) {
             return null;
         }
         var scimoz = view.scimoz;
@@ -358,7 +358,7 @@ ko.hyperlinks = {};
         var startOfLine = scimoz.positionFromLine(lineNo);
         var endOfLine = scimoz.getLineEndPosition(lineNo);
         var line = scimoz.getTextRange(startOfLine, endOfLine);
-        var lang_name = view.document.languageForPosition(position);
+        var lang_name = view.koDoc.languageForPosition(position);
         var handlers = this.getHandlersForLang(lang_name);
         for (var i=0; i < handlers.length; i++) {
             if (handlers[i].show(view, scimoz, position, line,

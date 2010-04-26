@@ -91,7 +91,7 @@ function OnPreferencePageInitalize(prefset) {
         langPrefs.parent = prefset;
         view = parent.opener.ko.views.manager.currentView;
         if (view)
-            langToUse = view.document.language;
+            langToUse = view.koDoc.language;
         else   // default
             langToUse = "Text";
 

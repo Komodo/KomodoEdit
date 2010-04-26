@@ -60,8 +60,8 @@ function OnLoad()
         if (opener.ko.views.manager &&
             opener.ko.views.manager.currentView &&
             opener.ko.views.manager.currentView.getAttribute('type') == 'editor' &&
-            ! opener.ko.views.manager.currentView.document.isUntitled) {
-            first.value = opener.ko.views.manager.currentView.document.displayPath;
+            ! opener.ko.views.manager.currentView.koDoc.isUntitled) {
+            first.value = opener.ko.views.manager.currentView.koDoc.displayPath;
             gCWD = opener.ko.window.getCwd();
             first.searchParam = stringutils_updateSubAttr(
                 first.searchParam, "cwd", gCWD);
