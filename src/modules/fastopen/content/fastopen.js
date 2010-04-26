@@ -45,7 +45,7 @@ ko.fastopen = {};
     //        case "browser":
     //        case "editor":
     //        case "diff":
-    //            name = view.document.displayPath;
+    //            name = view.koDoc.displayPath;
     //            break;
     //        case "startpage":
     //            name = "Start Page";

@@ -491,14 +491,14 @@ class KomodoOpenViewsGatherer(fastopen.Gatherer):
                     log.debug("skip `%s' view: QI failed", viewType)
                     continue
                 if viewType in ("editor", "browser"):
-                    koFileEx = view.document.file
+                    koFileEx = view.koDoc.file
                     if koFileEx:
                         uri = koFileEx.URI
                         isLocal = koFileEx.isLocal
                     else:
                         uri = None
                         isLocal = False
-                    path = view.document.displayPath
+                    path = view.koDoc.displayPath
                 elif viewType == "startpage":
                     uri = None
                     path = "Start Page"

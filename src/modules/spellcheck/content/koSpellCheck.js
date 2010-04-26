@@ -72,7 +72,7 @@ var ko = {
             this.spellChecker.getDictionaryList(o1, {});
             var dictList = o1.value;
             if (dictList) {
-                var prefset = args.view.document.getEffectivePrefs();
+                var prefset = args.view.koDoc.getEffectivePrefs();
                 var currDocLang = this.getLastSpellCheckLanguage(prefset);
                 if (currDocLang && dictList.indexOf(currDocLang) >= 0) {
                     targetLang = currDocLang;
@@ -482,7 +482,7 @@ var ko = {
             var defaultItem = null;
             var langId;
             var i;
-            var prefset = this.document.getEffectivePrefs();
+            var prefset = this.koDoc.getEffectivePrefs();
             var currDocLang = this.getLastSpellCheckLanguage(prefset);
             var needToSetDictionary = true;
             for (i = 0; i < dictList.length; i++) {
@@ -767,7 +767,7 @@ var ko = {
                 inst.spellChecker.dictionary = item.value;
                 if (oldDictName != item.value) {
                     // dump("About to change from " + oldDictName + " to " + item.value + "\n");
-                    inst.setLastSpellCheckLanguage(inst.document.getEffectivePrefs(), item.value);
+                    inst.setLastSpellCheckLanguage(inst.koDoc.getEffectivePrefs(), item.value);
                     inst.setLastSpellCheckLanguage(inst.getGlobalPrefs(), item.value);
                     inst.FindNextWord();
                 }
@@ -815,7 +815,7 @@ var ko = {
     this.finishStartup = function finishStartup(obj) {
         try {
           var sc = new KoSpellCheck(this, obj);
-          sc.document = obj.view.document;
+          sc.koDoc = obj.view.koDoc;
           sc.view = obj.view;
           sc.FinalInit();
           this.instance = sc;
@@ -895,10 +895,10 @@ function spellchecker_Startup() {
     if (!('spellcheck_skippedWords' in koGlobal)) {
         koGlobal.spellcheck_skippedWords = {};
     }
-    obj.document = obj.view.document;
+    obj.koDoc = obj.view.koDoc;
     obj.scimoz = obj.view.scimoz;
-    if (obj.document) {
-      var currDocName = obj.document.displayPath;
+    if (obj.koDoc) {
+      var currDocName = obj.koDoc.displayPath;
       if (!(currDocName in koGlobal.spellcheck_skippedWords)) {
         koGlobal.spellcheck_skippedWords[currDocName] = {};
       }
