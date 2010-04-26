@@ -237,7 +237,7 @@ interface koIDocumentService: nsISupports
  */
 [scriptable, uuid(F42C1036-6AAA-4B9A-8623-B398983095E3)]
 interface koIDocumentSettingsManager : nsISupports {
-    void register(in koIDocument document, in koIScintillaView scintilla);
+    void register(in koIDocument koDoc, in koIScintillaView scintilla);
     void unregister(in koIScintillaView scintilla);
     void applyViewSettingsToDocument(in koIScintillaView scintilla);
     void applyDocumentSettingsToView(in koIScintillaView scintilla);

@@ -79,18 +79,18 @@ class koDocumentSettingsManager:
         timeline.mark("getting global prefs")
         self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
                             getService(components.interfaces.koIPrefService).prefs
-        self.document = None
+        self.koDoc = None
         self._observing = 0
         self._foldFlags = 0
         self._scintillas = []
         self._useAlternateFaceType = None
         timeline.leave('koDocumentSettingsManager.__init__')
     
-    def register(self, document, scintilla):
+    def register(self, koDoc, scintilla):
         timeline.enter("koDocumentSettingsManager.register")
-        self.koDoc = document
+        self.koDoc = koDoc
         if scintilla in self._scintillas:
-            log.error("Already have scimoz %r for document %s",scintilla, document)
+            log.error("Already have scimoz %r for koDoc %s",scintilla, koDoc)
             raise ServerException
         self._scintillas.append(scintilla)
         # Two cases-- either this is the first scintilla
@@ -104,12 +104,12 @@ class koDocumentSettingsManager:
             scimoz.undoCollection = 0
             scimoz.emptyUndoBuffer()
             scimoz.readOnly = 0
-            buffer = document.buffer
-            scimoz.codePage = document.codePage
+            buffer = koDoc.buffer
+            scimoz.codePage = koDoc.codePage
             scimoz.text = buffer
             scimoz.undoCollection = 1
             scimoz.setSavePoint()
-            scimoz.eOLMode = eollib.eol2scimozEOL[document.new_line_endings]
+            scimoz.eOLMode = eollib.eol2scimozEOL[koDoc.new_line_endings]
             scimoz.emptyUndoBuffer()
         else:
             scimoz.docPointer = self._scintillas[0].scimoz.docPointer
@@ -147,13 +147,13 @@ class koDocumentSettingsManager:
         # assumption: we are given a 'virgin' view, and a fully
         # capable document -- if it doesn't know something, it can figure it out.
         languageOb = self.koDoc.languageObj
-        document = self.koDoc
-        lexer = document.lexer
+        koDoc = self.koDoc
+        lexer = koDoc.lexer
         if lexer is None:
             lexer = languageOb.getLanguageService(components.interfaces.koILexerLanguageService)
         lexer.setCurrent(scimoz)
         self._setIndicators(languageOb, scimoz)
-        self._applyPrefs(document.prefs, scimoz)
+        self._applyPrefs(koDoc.prefs, scimoz)
         
         prefs = self.koDoc.prefs
 
@@ -166,7 +166,7 @@ class koDocumentSettingsManager:
         if prefs.hasPrefHere('indentWidth'):
             scimoz.indent = prefs.getLongPref('indentWidth')
         else:
-            scimoz.indent = document.indentWidth
+            scimoz.indent = koDoc.indentWidth
 
         if prefs.hasPrefHere('editUseAlternateFaceType'):
             useAlternate = prefs.getBooleanPref('editUseAlternateFaceType')
@@ -178,12 +178,12 @@ class koDocumentSettingsManager:
         if prefs.hasPrefHere('useTabs'):
             scimoz.useTabs = prefs.getBooleanPref('useTabs')
         else:
-            scimoz.useTabs = document.useTabs
+            scimoz.useTabs = koDoc.useTabs
 
         if prefs.hasPrefHere('tabWidth'):
             scimoz.tabWidth = prefs.getLongPref('tabWidth')
         else:
-            scimoz.tabWidth = document.tabWidth
+            scimoz.tabWidth = koDoc.tabWidth
 
         slop = prefs.getLongPref('ySlop')
         scimoz.setYCaretPolicy(scimoz.CARET_SLOP | scimoz.CARET_STRICT | scimoz.CARET_EVEN, slop)
