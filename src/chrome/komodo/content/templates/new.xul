@@ -54,7 +54,7 @@
         style="min-width: 45em; max-width: 45em;"
         flex="1"
         title="&newFile.title;"
-        screenX="10" screenY="10" persist="screenX screenY"
+        screenX="10" screenY="10" persist="screenX screenY width height"
         buttons="accept,extra1,cancel,help"
         ondialogaccept="return Open();"
         ondialogextra1="return OpenTemplateFolder();"

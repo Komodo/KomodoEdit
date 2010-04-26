@@ -267,10 +267,7 @@ viewManager.prototype._newTemplate = function(defaultDir, project) {
         obj.defaultDir = defaultDir;
         obj.project = project;
         obj.filename = null;
-        window.openDialog("chrome://komodo/content/templates/new.xul",
-                          "_blank",
-                          "chrome,modal,titlebar",
-                          obj);
+        ko.launch.newTemplate(obj);
         if (obj.template == null) return null;
 
         uri = ko.uriparse.localPathToURI(obj.template);

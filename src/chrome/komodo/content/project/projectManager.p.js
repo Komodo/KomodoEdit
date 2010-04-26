@@ -459,10 +459,7 @@ projectManager.prototype.newProjectFromTemplate = function() {
         var obj = new Object();
         obj.type = "project";
         obj.filename = _bundle.GetStringFromName("newProject.defaultFileName") + ".kpf";
-        window.openDialog("chrome://komodo/content/templates/new.xul",
-                          "_blank",
-                          "chrome,modal,titlebar",
-                          obj);
+        ko.launch.newTemplate(obj);
         if (obj.template == null || obj.filename == null) return false;
 
         var uri = ko.uriparse.localPathToURI(obj.filename);

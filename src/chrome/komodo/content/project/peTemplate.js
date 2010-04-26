@@ -116,10 +116,7 @@ this.addTemplate = function peTemplate_addTemplate(/*koIPart*/ parent)
     var obj = new Object();
     obj.type = "file";
     obj.templateOnly = true;
-    window.openDialog("chrome://komodo/content/templates/new.xul",
-                      "_blank",
-                      "chrome,modal,titlebar",
-                      obj);
+    ko.launch.newTemplate(obj);
     if (obj.template == null) return;
 
     var url = ko.uriparse.localPathToURI(obj.template);
