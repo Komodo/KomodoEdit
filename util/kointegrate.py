@@ -292,7 +292,7 @@ class P4Branch(Branch):
                     XXX
                     dst_path = join(dst_branch.base_dir, f["rel_path"])
                     origDstContent = open(dst_path, 'rb').read()
-                    newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id$", origDstContent)
+                    newDstContent = re.sub(r"\$Id$]+\$", "$Id$", origDstContent)
                     if newDstContent != origDstContent:
                         open(dst_path, 'wb').write(newDstContent)
                 
@@ -843,6 +843,16 @@ class SVNBranch(Branch):
                         continue
                     dryrun_patch_path = f.get("copyfrom_patch_path") or f["patch_path"]
 
+                    # If `force==True`, then skip files that don't exist
+                    # in the dest branch.
+                    if force and f["action"] == "M":
+                        dst_path = join(dst_branch.base_dir, f["rel_path"])
+                        if not exists(dst_path):
+                            # This will be logged below.
+                            #log.info("skip `%s' (action '%s'): force, doesn't exist in %s",
+                            #    f["rel_path"], f["action"], dst_branch)
+                            continue
+
                     # Awful HACK around the "$Id$" (et al) keyword expansion
                     # problem: If "$Id$" is in the patch content but it is
                     # exanded in target file, then `patch` won't be able to
@@ -856,7 +866,7 @@ class SVNBranch(Branch):
                     if "$Id$" in patchContent:
                         dst_path = join(dst_branch.base_dir, f["rel_path"])
                         origDstContent = open(dst_path, 'rb').read()
-                        newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id$", origDstContent)
+                        newDstContent = re.sub(r"\$Id$]+\$", "$Id$", origDstContent)
                         if newDstContent != origDstContent:
                             open(dst_path, 'wb').write(newDstContent)
 
@@ -946,6 +956,15 @@ class SVNBranch(Branch):
 
                 # - apply the edits
                 for f in change["files"]:
+                    # If `force==True`, then skip files that don't exist
+                    # in the dest branch.
+                    if force and f["action"] == "M":
+                        dst_path = join(dst_branch.base_dir, f["rel_path"])
+                        if not exists(dst_path):
+                            log.info("skip `%s' (action '%s'): force, doesn't exist in %s",
+                                f["rel_path"], f["action"], dst_branch)
+                            continue
+
                     if "patch_path" in f:
                         patch_path = f["patch_path"]
                         dst_path = join(dst_branch.base_dir, f["rel_path"])
@@ -1653,8 +1672,7 @@ def main(argv=sys.argv):
     parser.add_option("--non-interactive", action="store_false",
                       dest="interactive", help="no interaction")
     parser.add_option("-f", "--force", action="store_true",
-                      help="force application of patches that won't "
-                           "apply cleanly")
+        help="force application of patches that won't apply cleanly; ignore files missing in the target")
     parser.add_option("-X", "--exclude-outside-paths", action="store_true",
                       help="exclude (ignore) paths in the changeset "
                            "outside of the branch")
