@@ -67,6 +67,7 @@ ko.logging = {};
 (function() {
 
 var _gLoggingMgr = null;
+var _gSeenDeprectatedMsg = {};
 
 const LOG_NOTSET = 0;
 const LOG_DEBUG = 10;
@@ -141,13 +142,18 @@ this.Logger.prototype.warn = function(message) {
  *       JavaScript code to warn about Komodo JavaScript API deprecations.
  *
  * @param message {string}  The deprecation warning message.
+ * @param reportDuplicates {boolean}  Optional, when set to false it only logs
+ *        the first occurance of the deprecation message.
  */
-this.Logger.prototype.deprecated = function(message) {
+this.Logger.prototype.deprecated = function(message, reportDuplicates /* false */) {
     try {
         if (this._logger.getEffectiveLevel() <= LOG_WARN) {
-            this.warn(message + "\n" +
-                      getStack().replace('\n', '\n    ', 'g').slice(0, -4) +
-                      "\n");
+            if (reportDuplicates || !(message in _gSeenDeprectatedMsg)) {
+                _gSeenDeprectatedMsg[message] = true;
+                this.warn(message + "\n" +
+                          getStack().replace('\n', '\n    ', 'g').slice(0, -4) +
+                          "\n");
+            }
         }
     } catch(ex) {
         dump("*** Error in logger.deprecationWarning: "+ex+"\n");
