@@ -244,9 +244,9 @@ function _executeMacro(part, asynchronous, observer_arguments) {
                 break;
             case 'python':
                 try {
-                    var doc = null;
+                    var koDoc = null;
                     if (view && view.koDoc) {
-                        doc = view.koDoc;
+                        koDoc = view.koDoc;
                     }
                     editor = null;
                     if (view && view.getAttribute('type') == 'editor' && view.scimoz) {
@@ -254,11 +254,11 @@ function _executeMacro(part, asynchronous, observer_arguments) {
                     }
                     if (!observer_arguments) {
                         retval = part.evalAsPython(document, window, editor,
-                                                   doc, view,
+                                                   koDoc, view,
                                                    part.value, asynchronous);
                     } else {
                         retval = part.evalAsPythonObserver(document, window, editor,
-                                                   doc, view,
+                                                   koDoc, view,
                                                    part.value,
                                                    false,
                                                    observer_arguments['subject'],

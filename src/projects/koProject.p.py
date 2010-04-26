@@ -1138,17 +1138,17 @@ class koMacroPart(koPart):
             lastErrorSvc.setLastError(1, err)
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
 
-    def evalAsPython(self, domdocument, window, scimoz, document,
+    def evalAsPython(self, domdocument, window, scimoz, koDoc,
                      view, code, async):
         self._asyncMacroCheck(async)
         evalPythonMacro(WrapObject(self,self._com_interfaces_[0]),
-                        domdocument, window, scimoz, document, view, code)
+                        domdocument, window, scimoz, koDoc, view, code)
         
-    def evalAsPythonObserver(self, domdocument, window, scimoz, document,
+    def evalAsPythonObserver(self, domdocument, window, scimoz, koDoc,
                              view, code, async, subject, topic, data):
         self._asyncMacroCheck(async)
         evalPythonMacro(WrapObject(self,self._com_interfaces_[0]),
-                        domdocument, window, scimoz, document, view, code,
+                        domdocument, window, scimoz, koDoc, view, code,
                         subject, topic, data)
 
 # See factory functions below
