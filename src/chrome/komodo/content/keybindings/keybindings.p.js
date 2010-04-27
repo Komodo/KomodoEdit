@@ -1980,7 +1980,7 @@ this.manager.prototype.event2keylabel = function (event, useShift, isKeyPressEve
         // This is a little tricky because while most keystrokes that we care about spawn keypress
         // events, some only show up in keywowns.
         // if it is a modified key, then use this manager only
-        //ko.trace.get().dumpEvent(event);
+        //ko.logging.dumpEvent(event);
         var use_vi = gVimController.enabled &&
                      !(event.metaKey || event.ctrlKey || event.altKey) &&
                      (event.target.nodeName == 'view') &&
@@ -2019,12 +2019,12 @@ this.manager.prototype.event2keylabel = function (event, useShift, isKeyPressEve
         }
         if (keypressed == null) {
             //dump("NO KEY PRESSED!!!\n");
-            //ko.trace.get().dumpEvent(event);
+            //ko.logging.dumpEvent(event);
             return '';
         }
         //dump("keypressed: event.keyCode: " + event.keyCode + ", " + keypressed + "\n");
 
-        //ko.trace.get().dumpEvent(event);
+        //ko.logging.dumpEvent(event);
         if (event.metaKey) data.push("Meta");
         if (event.ctrlKey) data.push("Ctrl");
         if (event.altKey) data.push("Alt");

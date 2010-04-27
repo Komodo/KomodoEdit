@@ -139,7 +139,7 @@ test_keybindings_bindings.prototype.test_loadConfiguration = function() {
             //dump("  events created :"+events.length+"\n");
             if (events.length == 1) {
                 var found = false;
-                //ko.trace.get().dumpEvent(event);
+                //ko.logging.dumpEvent(event);
                 // see if we get back what we want
                 var bindings = gKeybindingMgr.eventBindings(events[0]);
                 for (var b in bindings) {
