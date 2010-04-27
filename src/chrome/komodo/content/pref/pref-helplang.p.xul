@@ -53,7 +53,6 @@
         onload="langhelp_OnLoad();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/pref/pref-helplang.js" type="application/x-javascript;version=1.7" />

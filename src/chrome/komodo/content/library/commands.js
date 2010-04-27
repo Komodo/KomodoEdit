@@ -90,7 +90,6 @@ function _isCheckCommand(node)
 // Returns true if the command was handled (even if it is disabled),
 // or false if no handler can be found, or an error occurs.
 this.updateCommand = function _command_updateCommand(command, commandNode, controller /* = null */) {
-//    ko.trace.get().startTimer('    updating command: ' + command);
     try {
         var found = false;
         if (controller == undefined || controller == null) {

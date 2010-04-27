@@ -52,7 +52,6 @@
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <!-- XXX: strres.js is needed so that wizardManager.js will work -->
-    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://global/content/strres.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://global/content/wizardOverlay.js" type="application/x-javascript;version=1.7"/>

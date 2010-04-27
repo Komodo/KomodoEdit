@@ -68,7 +68,6 @@
   windowtype="komodo_tail"
 >
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/color_functions.js" type="application/x-javascript;version=1.7"/>

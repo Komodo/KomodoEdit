@@ -49,8 +49,6 @@ Import(
 );
 
 $cons->InstallInChrome('timers.js');
-$cons->Preprocess('trace.p.js', 'trace.js');
-$cons->InstallInChrome('trace.js');
 $cons->InstallInChrome('test.js');
 $cons->InstallInChrome('logging.js');
 $cons->Preprocess('windowManager.p.js', 'windowManager.js');

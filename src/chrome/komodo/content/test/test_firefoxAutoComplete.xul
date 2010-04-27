@@ -51,7 +51,6 @@
         flex="1">
 
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/trace.js"   type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/test/test_firefoxAutoComplete.js" type="application/x-javascript;version=1.7"/>
 
     <popupset>

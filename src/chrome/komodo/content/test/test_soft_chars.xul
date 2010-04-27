@@ -16,7 +16,6 @@
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
   <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
-  <script src="chrome://komodo/content/library/trace.js"   type="application/x-javascript;version=1.7"/>
   <script src="chrome://komodo/content/test/test_soft_chars.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/windowManager.js"        type="application/x-javascript;version=1.7"/>

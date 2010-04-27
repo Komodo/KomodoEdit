@@ -109,7 +109,6 @@
     <script src="chrome://komodo/content/library/macros.js"               type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/isearch.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/stringutils.js"          type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/trace.js"                type="application/x-javascript;version=1.7"/>
 <!-- #if BUILD_FLAVOUR == "dev" -->
     <script src="chrome://komodo/content/library/test.js"                 type="application/x-javascript;version=1.7"/>
 <!-- #endif -->

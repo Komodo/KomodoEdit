@@ -68,7 +68,6 @@
     <script src="chrome://xtk/content/xtk.js"                          type="application/x-javascript;version=1.7"/>
     <script src="chrome://global/content/fullScreen.js"                type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js"           type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/trace.js"             type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/run/interpolate.js"           type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/library/uriparse.js"          type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/project/snippetProperties.js" type="application/x-javascript;version=1.7" />

@@ -52,7 +52,6 @@
         onload="parent.initPanel();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
 
     <!-- This main vbox is to ensure *all* the pref widgets are accessible,

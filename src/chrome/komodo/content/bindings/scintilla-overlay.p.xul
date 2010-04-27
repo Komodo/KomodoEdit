@@ -46,7 +46,6 @@
 <overlay id="scintillaOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
     <script src="chrome://komodo/content/library/logging.js"          type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/trace.js"            type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/library/windowManager.js"    type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/library/timers.js"           type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/library/stringutils.js"      type="application/x-javascript;version=1.7" />
