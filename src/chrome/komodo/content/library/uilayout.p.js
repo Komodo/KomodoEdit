@@ -338,8 +338,8 @@ this.updateTabpickerMenu = function uilayout_updateTabpickerMenu(menupopup)
             menuitem.removeAttribute('collapsed');
             menuitem.removeAttribute('hidden');
             pane = tab.parentNode.parentNode.parentNode;
-            //ko.trace.get().dumpDOM(pane);
-            //ko.trace.get().dumpDOM(tab.parentNode);
+            //ko.logging.dumpDOM(pane);
+            //ko.logging.dumpDOM(tab.parentNode);
             if (tab.selected && ! pane.collapsed) {
                 menuitem.setAttribute('checked', 'true');
                 menuitem.disabled = true;
@@ -1036,7 +1036,6 @@ function _buildMenuTree(hdata, hierarchy, toplevel) {
 // This updates the list in the View As ... menu.
 // Called by uilayout_onload
 this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu() {
-    ko.trace.get().enter('ko.uilayout.buildViewAsLanguageMenu');
     // We may already have a language, let's find out:
 
     var hdata = {};
@@ -1082,7 +1081,6 @@ this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu() {
     menuitem2.setAttribute("class", "statusbar-label");
     menuitem2.setAttribute("observes", "cmd_viewAsGuessedLanguage");
     hdata.statusbarContextMenu.appendChild(menuitem2);
-    ko.trace.get().leave('ko.uilayout.buildViewAsLanguageMenu');
 }
 
 
@@ -1255,7 +1253,6 @@ this.unload = function uilayout_unload()
 
 this.onload = function uilayout_onload()
 {
-    ko.trace.get().enter("ko.uilayout.onload");
     ko.uilayout.updateToolbarArrangement();
     addEventListener("fullscreen", ko.uilayout.onFullScreen, false);
     ko.uilayout.updateSplitterBroadcasterState('cmd_viewRightPane');
@@ -1269,7 +1266,6 @@ this.onload = function uilayout_onload()
     _prefobserver.init();
     _updateAccesskeys();
     ko.main.addWillCloseHandler(ko.uilayout.unload);
-    ko.trace.get().leave("ko.uilayout.onload");
 }
 
 this.onloadDelayed = function uilayout_onloadDelayed()

@@ -286,7 +286,6 @@ function onloadDelay() {
         // Used by perf_timeline.perf_startup. Mark before
         // commandmentSvc.initialize() because that will immediately start
         // executing queued up commandments.
-        ko.trace.get().mark("startup complete");
         ko.uilayout.onloadDelayed(); // if closed fullscreen, maximize
 
         // Opening the Start Page should be before commandment system init and

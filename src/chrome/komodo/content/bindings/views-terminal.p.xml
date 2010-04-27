@@ -87,7 +87,6 @@
         <parameter name="terminalHandler"/>
         <body>
         <![CDATA[
-            ko.trace.get().enter('view-terminak:initWithTerminal')
             //this.log.setLevel(ko.logging.LOG_DEBUG);
             this.log.info("view-terminal:initWithTerminal");
             this.terminalHandler = terminalHandler;
@@ -114,7 +113,6 @@
             // is called.  When terminalHandler.endSession is called, then
             // scimoz is made read only again.
             this.scimoz.readOnly = 1;
-            ko.trace.get().leave('view-terminal:initWithTerminal')
         ]]>
         </body>
         </method>

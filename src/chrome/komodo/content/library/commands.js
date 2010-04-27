@@ -107,13 +107,10 @@ this.updateCommand = function _command_updateCommand(command, commandNode, contr
     } catch (e) {
         _log.exception(e,"doing _updateCommand: " + command + ': ');
     }
-//    ko.trace.get().stopTimer('    updating command: ' + command);
-//    ko.trace.get().markTimer('    updating command: ' + command);
     return found;
 }
 
 this.updateCommandset = function command_updateCommandset(commandset) {
-//    ko.trace.get().startTimer('updating commandset: ' + commandset.id);
     _log.info('updateCommandset: ' + commandset.id);
     var childNodes = commandset.childNodes;
     var length = childNodes.length;
@@ -128,8 +125,6 @@ this.updateCommandset = function command_updateCommandset(commandset) {
             _log.warn("updateCommandset - " + commandset.id + " - element no " + i + " has no ID!!");
         }
     }
-//    ko.trace.get().stopTimer('updating commandset: ' + commandset.id);
-//    ko.trace.get().markTimer('updating commandset: ' + commandset.id);
 }
 
 this.setCommandEnabled = function _command_setCommandEnabled(id, node, supported, enabled)

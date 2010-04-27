@@ -116,11 +116,9 @@
         <body>
         <![CDATA[
             if (typeof(index) == 'undefined' || index == null) index = -1;
-            ko.trace.get().enter('view: createViewFromDocument');
             var view = this.newView(type, index);
             view.initWithDocument(doc);
             xtk.domutils.fireEvent(view, 'view_opened');
-            ko.trace.get().leave('view: createViewFromDocument');
             return view;
         ]]>
         </body>
@@ -461,7 +459,6 @@
         <![CDATA[
             if (typeof(index) == 'undefined' || index == null) index = -1;
             try {
-                ko.trace.get().enter('view.newView');
                 var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
                 var box = this.createNewViewContainer(index);
                 var v = document.createElementNS(XUL_NS, 'view');
@@ -471,7 +468,6 @@
                 box.appendChild(v);
                 v.init();
                 v.makeCurrent();
-                ko.trace.get().leave('view.newView');
                 return v;
             } catch(e) {
                 this.log.exception(e);
@@ -700,7 +696,6 @@
         <parameter name="noFocus"/>
         <body>
         <![CDATA[
-            ko.trace.get().enter('view-base: makeCurrent');
             if (typeof(noFocus) == "undefined") {
                 noFocus = ko.views.manager.batchMode;
             }
@@ -724,7 +719,6 @@
             } catch(e) {
                 this.log.exception(e);
             }
-            ko.trace.get().leave('view-base: makeCurrent');
         ]]>
         </body>
         </method>

@@ -559,9 +559,7 @@
         <method name="init">
         <body>
         <![CDATA[
-            ko.trace.get().enter('view: init');
             this.log.debug('view initializing');
-            ko.trace.get().leave('view: init');
         ]]>
         </body>
         </method>
@@ -573,7 +571,6 @@
         <![CDATA[
         try {
             this.log.info("view-buffer:initWithBuffer");
-            ko.trace.get().enter('view-buffer:initWithBuffer')
             this.language = language
             this.scintilla.encoding = 'utf-8';
             this.scintilla.init();
@@ -588,7 +585,6 @@
             this.scimoz.hookEvents(this);
 
             this.setBufferText(buffer);
-            ko.trace.get().leave('view-buffer:initWithBuffer')
             this._inInitPhase = false;
         } catch (e) {
             this.log.exception(e);
@@ -667,14 +663,12 @@
         <method name="setFocus">
         <body>
         <![CDATA[
-            ko.trace.get().enter('view-buffer: setFocus');
             /* doing this does not bubble the focus event back
                to ourselves, so anything we'd do in the focus
                handler also needs to be done here. */
             this.log.info("in setFocus");
             this.scintilla.focus();
             this.doFocus(null);
-            ko.trace.get().leave('view-buffer: setFocus');
         ]]>
         </body>
         </method>
@@ -897,7 +891,6 @@
         <method name="onUpdateUI">
         <body>
         <![CDATA[
-            ko.trace.get().enter('onUpdateUI');
             xtk.domutils.fireEvent(this, 'current_view_linecol_changed');
 
             // often painting during onUpdateUI doesn't work correctly since it
@@ -906,7 +899,6 @@
                 clearTimeout(this._uiTimer);
             }
             this._uiTimer = setTimeout(function(this_) { this_.doUpdateUI(); }, 50, this);
-            ko.trace.get().leave('onUpdateUI');
             return true;
         ]]>
         </body>
@@ -1019,7 +1011,6 @@
             // NOTE: Do _not_ cause any restyling to occur if in the middle
             //       of handling a SC_MOD_CHANGESTYLE.  This will cause
             //       lexing failures. See bug 26575
-            ko.trace.get().enter('onModified');
 
             const SC_MOD_BEFOREINSERT = Components.interfaces.ISciMoz.SC_MOD_BEFOREINSERT;
             const SC_MOD_BEFOREDELETE = Components.interfaces.ISciMoz.SC_MOD_BEFOREDELETE;
@@ -1129,7 +1120,6 @@
                     ko.tabstops.handleDeleteByUndo(this, this.scimoz, position, length);
                 }
             }
-            ko.trace.get().leave('onModified');
         } catch(e) { this.log.exception(e); }
         ]]>
         </body>

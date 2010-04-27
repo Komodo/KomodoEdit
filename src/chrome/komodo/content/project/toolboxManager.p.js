@@ -343,13 +343,11 @@ toolboxBaseManager.prototype.getPartsByURL = function (url) {
 }
 
 toolboxBaseManager.prototype.loadFromProject = function(project) {
-    ko.trace.get().enter('loadFromProject');
     this.viewMgr.view.toolbox = project;
     this.viewMgr.view.refresh(null);
     if (this.viewMgr.view.rowCount && this.viewMgr.view.selection) {
         this.viewMgr.view.selection.select(0);
     }
-    ko.trace.get().leave('loadFromProject');
     // Initialize the macro hooks, toolbars, menus, ...
     this.partServiceSetToolbox(project);
 }
@@ -596,7 +594,6 @@ toolboxManager.prototype.partServiceSetToolbox = function (toolbox) {
 }
 
 toolboxManager.prototype.installSamples = function(sampleToolboxPath, version) {
-    ko.trace.get().enter('toolboxManager.installSamples');
     var sample_project = Components.classes["@activestate.com/koProject;1"]
                                 .createInstance(Components.interfaces.koIProject);
     sample_project.prefset.setBooleanPref("import_live", false);
@@ -614,7 +611,6 @@ toolboxManager.prototype.installSamples = function(sampleToolboxPath, version) {
         folder.addChild(children[i].clone());
     }
     this.toolbox.addChild(folder);
-    ko.trace.get().leave('toolboxManager.installSamples');
 }
 
 function toolboxController() {

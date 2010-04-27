@@ -202,7 +202,6 @@ this.manager.prototype.getConfigurations = function () {
 
 this.manager.prototype.loadConfiguration = function (configName, forceReload /* = false */) {
     try {
-        ko.trace.get().enter('keybindingManager.loadConfiguration');
         if (typeof(forceReload) == 'undefined') forceReload = false;
         //dump("loading from " + configName + '\n');
         /* Clear the old scheme */
@@ -224,7 +223,6 @@ this.manager.prototype.loadConfiguration = function (configName, forceReload /* 
         this._configDirty = false;
         this._configUnsaved = false;
         this._configKeyTree = cloneObject(this.keyTree);
-        ko.trace.get().leave('keybindingManager.loadConfiguration');
     } catch (e) {
         _log.exception(e);
     }
@@ -232,7 +230,6 @@ this.manager.prototype.loadConfiguration = function (configName, forceReload /* 
 
 this.manager.prototype.mergeSchemeConfiguration = function (configName, forceReload /* = false */) {
     try {
-        ko.trace.get().enter('keybindingManager.mergeSchemeConfiguration');
         if (typeof(forceReload) == 'undefined') forceReload = false;
         //dump("loading from " + configName + '\n');
         //var data = this.currentScheme.data + this.keybindingSchemeService.getScheme(configName).data;
@@ -242,7 +239,6 @@ this.manager.prototype.mergeSchemeConfiguration = function (configName, forceRel
         this.currentPrefixMap = this.keyTree;
         this._configDirty = true;
         this._configUnsaved = true;
-        ko.trace.get().leave('keybindingManager.mergeSchemeConfiguration');
     } catch (e) {
         _log.exception(e);
     }
@@ -250,7 +246,6 @@ this.manager.prototype.mergeSchemeConfiguration = function (configName, forceRel
 
 this.manager.prototype.removeCommandsWithPrefix = function (prefix) {
     try {
-        ko.trace.get().enter('keybindingManager.removeCommandsWithPrefix');
         this._clearActiveBindings();
         this.clearBindings();
         this.parseConfiguration(this.currentScheme.data, true, prefix);
@@ -258,7 +253,6 @@ this.manager.prototype.removeCommandsWithPrefix = function (prefix) {
         this.currentPrefixMap = this.keyTree;
         this._configDirty = true;
         this._configUnsaved = true;
-        ko.trace.get().leave('keybindingManager.removeCommandsWithPrefix');
     } catch (e) {
         _log.exception(e);
     }
@@ -704,7 +698,6 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
 this.manager.prototype.parseConfiguration = function (data,
                                                       forceReload /* =false */,
                                                       ignoreCommandPrefix /* =null */) {
-    ko.trace.get().enter('keybindingManager.parseConfiguration');
     // Type check the arguments
     if (typeof(forceReload) == 'undefined') forceReload = true; // false; XXX
     if (typeof(ignoreCommandPrefix) == 'undefined') ignoreCommandPrefix = null;
@@ -819,8 +812,6 @@ this.manager.prototype.parseConfiguration = function (data,
 
     // Ensure vi emulation is (un)loaded
     gVimController.enable(vi_enabled);
-
-    ko.trace.get().leave('keybindingManager.parseConfiguration');
 }
 
 this.manager.prototype.learnParameter = function (commandId, parameter, keylabel) {
@@ -987,7 +978,6 @@ this.manager.prototype.walk_and_apply = function(root, keysequence) {
 }
 
 this.manager.prototype._clearActiveBindings= function() {
-    ko.trace.get().enter('keybindingManager._clearActiveBindings');
     if (! this.activeCommands) {
         //dump("null activeCommands\n");
         return;
@@ -999,7 +989,6 @@ this.manager.prototype._clearActiveBindings= function() {
         this.clearBinding(command, false);
     }
     this.activeCommands = null;
-    ko.trace.get().leave('keybindingManager._clearActiveBindings');
 }
 
 this.manager.prototype.revertToPref = function(configname) {
@@ -2265,7 +2254,6 @@ this.manager.prototype.keypressHandler = function (event) {
 this.onload = function keybindingManagerOnLoad()
 {
     try {
-        ko.trace.get().enter('keybindingManagerOnLoad');
         gKeybindingMgr = new ko.keybindings.manager();
         // Load vim key handling stuff
         VimController_onload();
@@ -2275,7 +2263,6 @@ this.onload = function keybindingManagerOnLoad()
     } catch (e) {
         _log.error(e);
     }
-    ko.trace.get().leave('keybindingManagerOnLoad');
 }
 
 // duplication of DOM_VK_ codes found at

@@ -95,7 +95,6 @@ this.getFocusedProjectView = function projects_getFocusedProjectView() {
 // which project is 'current'.
 
 function projectManager() {
-    ko.trace.get().enter('projectManager()');
     this.name = 'projectManager';
     ko.projects.BaseManager.apply(this, ["projectsChanged"]);
     this.log = ko.logging.getLogger('projectManager');
@@ -115,7 +114,6 @@ function projectManager() {
     this.viewMgr.addColumns(ko.projects.extensionManager.datapoints);
     ko.projects.extensionManager.datapoints['Name']='name';
     this._lastCurrentProject = null;
-    ko.trace.get().leave('projectManager()');
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).

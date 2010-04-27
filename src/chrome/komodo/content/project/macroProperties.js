@@ -366,7 +366,7 @@ function UpdateField(field, initializing /* =false */)
                         gRunInBackground.setAttribute('disabled', 'true');
                         gRunInBackground.setAttribute('checked', 'true');
                 }
-                //ko.trace.get().dumpDOM(gRunInBackground);
+                //ko.logging.dumpDOM(gRunInBackground);
                 break;
             case 'trigger_observer':
                 if (gTriggerObserverRunsInBackground) {

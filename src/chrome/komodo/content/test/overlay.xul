@@ -186,7 +186,7 @@
                   accesskey="E"
                   oncommand="test_TimeEvents();"/>
         <menuitem label="Dump Current View" accesskey="V"
-                  oncommand="ko.trace.get().dumpView(ko.views.manager.currentView);"/>
+                  oncommand="ko.logging.dumpView(ko.views.manager.currentView);"/>
         <menuitem label="SciMoz Tests"
                   oncommand="test_scimoz();"/>
         <menuitem label="SciMoz Auto-Indent Tests"

@@ -84,7 +84,6 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .createBundle("chrome://komodo/locale/project/projectExtensionManager.properties");
       
 function projectExtensionManager() {
-    ko.trace.get().enter('projectExtensionManager()');
     /* maps an interface string to an array of menuItem XUL elements */
     this.menus = {};
     /* when we store an interface into a map, javascript turns it into a string.
@@ -118,20 +117,17 @@ function projectExtensionManager() {
             log.exception(ex);
         }
     }, this, 10);
-    ko.trace.get().leave('projectExtensionManager()');
 }
 
 projectExtensionManager.prototype.constructor = projectExtensionManager;
 
 projectExtensionManager.prototype.init = function() {
-    ko.trace.get().enter('projectExtensionManager.init');
     var i, extension;
     for (i = 0; i < registeredExtensions.length; i++)
     {
         extension = registeredExtensions[i]
         this.registerExtension(extension);
     }
-    ko.trace.get().leave('projectExtensionManager.init');
 }
 
 projectExtensionManager.prototype.registerExtension = function(extension) {

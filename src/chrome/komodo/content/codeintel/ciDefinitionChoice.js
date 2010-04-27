@@ -95,7 +95,6 @@ _ciDefinitionChoiceTreeView.prototype.getCellText = function(row, column) {
 //
 function _ciDefinitionChoice() {
     try {
-        //ko.trace.get().enter('_ciDefinitionChoice()');
         // Get handle on needed xul elements
         this.tree = document.getElementById('ciDefinitionChoice_requestHeadersTree');
         this.treeColumn_name = document.getElementById('ciDefinitionChoice_treecol_name');
@@ -111,8 +110,6 @@ function _ciDefinitionChoice() {
         // Load the tree view and assign it to the tree
         this.treeView = new _ciDefinitionChoiceTreeView();
         this.tree.treeBoxObject.view = this.treeView;
-
-        //ko.trace.get().leave('_ciDefinitionChoice()');
     } catch (e) {
         _ciDefChoice_log.exception(e);
     }

@@ -76,7 +76,6 @@
             onget="return this._koDoc;">
         <setter>
         <![CDATA[
-            ko.trace.get().enter('document setter');
             this.log.info("view-editor:document setter");
             if (this._koDoc) {
                 try {
@@ -145,7 +144,6 @@
                 
                 xtk.domutils.fireEvent(this, 'view_document_attached');
             }
-            ko.trace.get().leave('document setter');
         ]]>
         </setter>
         </property>
@@ -251,7 +249,6 @@
         <![CDATA[
         try {
             this.log.info("view-editor:initWithDocument");
-            ko.trace.get().enter('view-editor:initWithDocument')
             this.scintilla.language = doc.language;
             this.scintilla.symbolMargin = true;
             this.scintilla.encoding = doc.encoding.python_encoding_name;
@@ -282,7 +279,6 @@
         }
         this.log.debug('scimoz code page after initWithDoc is '+this.scimoz.codePage);
         this.log.debug('document code page after initWithDoc is '+this.koDoc.codePage);
-        ko.trace.get().leave('view-editor:initWithDocument')
         ]]>
         </body>
         </method>

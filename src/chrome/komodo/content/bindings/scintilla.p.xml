@@ -275,7 +275,6 @@
                 <body>
                 <![CDATA[
             try {
-                ko.trace.get().enter('scintilla: init');
                 this.log.debug('scintilla init');
                 var prefs = Components.classes['@activestate.com/koPrefService;1'].
                                 getService(Components.interfaces.koIPrefService).prefs;
@@ -372,7 +371,6 @@
                 this.inited = true;
                 prefs.prefObserverService.addObserver(this, 'editor-scheme', false);
                 scimoz.visible = true;
-                ko.trace.get().leave('scintilla: init');
             } catch (e) {
                 this.log.exception(e);
             }
