@@ -495,8 +495,8 @@ viewManager.prototype.doFileNewFromTemplateAsync = function(uri,
 viewManager.prototype._doNewView = function(language /*= prefs.fileDefaultNew*/,
                                             viewType /*='editor'*/)
 {
-    this.log.info("doing doNewView: ");
-    ko.trace.get().enter('viewManager.doNewView');
+    this.log.info("_doNewView: ");
+    ko.trace.get().enter('viewManager._doNewView');
 
     if (typeof(viewType)=='undefined' || !viewType)
         viewType = 'editor';
@@ -508,8 +508,8 @@ viewManager.prototype._doNewView = function(language /*= prefs.fileDefaultNew*/,
     var doc = _docSvc.createUntitledDocument(language);
     var view = this.topView.createViewFromDocument(doc, viewType, -1);
 
-    ko.trace.get().leave('viewManager.doNewView');
-    this.log.info("leaving doNewView");
+    ko.trace.get().leave('viewManager._doNewView');
+    this.log.info("leaving _doNewView");
     return view;
 }
 
@@ -573,8 +573,8 @@ viewManager.prototype._newViewFromURI = function(uri,
                                                  viewList/*=null*/,
                                                  index /* =-1 */)
 {
-    this.log.info("doing newViewFromURI: " + uri);
-    ko.trace.get().enter('viewManager.newViewFromURI');
+    this.log.info("_newViewFromURI: " + uri);
+    ko.trace.get().enter('viewManager._newViewFromURI');
     if (typeof(viewType)=='undefined' || !viewType)
         viewType = 'editor';
     if (typeof(viewList)=='undefined')
@@ -652,8 +652,8 @@ viewManager.prototype._newViewFromURI = function(uri,
         .getService(Components.interfaces.koICodeIntelService);
     codeIntelSvc.scan_document(doc, 0, true);
 
-    ko.trace.get().leave('viewManager.newViewFromURI');
-    this.log.info("leaving newViewFromURI");
+    ko.trace.get().leave('viewManager._newViewFromURI');
+    this.log.info("_newViewFromURI");
     return view;
 }
 
