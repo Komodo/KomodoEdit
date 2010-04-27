@@ -952,21 +952,6 @@ viewManager.prototype.getAllViewsForURI = function(uri) {
 }
 
 /**
- * Get a reference to the buffer view for the given URI.
- *
- * @public
- * @deprecated since Komodo 4.3.0, use getViewForURI instead.
- * 
- * @param uri {string} uri to file
- * @return {Components.interfaces.koIView} the buffer view that is opened
- */
-viewManager.prototype.getViewForFile = function(uri) {
-    log.warn("viewManager.getViewForFile is deprecated, use " +
-             "viewManager.getViewForURI instead.");
-    return this.getViewForURI(uri);
-}
-
-/**
  * get a reference to a new and unsaved buffer view
  *
  * @public
