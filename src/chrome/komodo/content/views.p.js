@@ -302,24 +302,6 @@ viewManager.prototype._newTemplate = function(defaultDir, project) {
     return view;
 }
 
-/**
- * Create a new file based on a selected template, optionally add it to a
- * project. This will prompt the user to select a template.
- *
- * @deprecated since 5.1.4 (this will be moved to an internal function)
- *
- * @private
- * @param defaultDir {string} optional, current directory
- * @param project {Components.interfaces.koIProject}
- *        optional, instance of a project
- * @return {Components.interfaces.koIView} the buffer view that is opened
- */
-viewManager.prototype.newTemplate = function(defaultDir, project)
-{
-    this.log.deprecated("newTemplate is deprecated, use " +
-                        "ko.views.manager.newTemplateAsync");
-    return this._newTemplate(defaultDir, project);
-}
 
 /**
  * Asynchronously create a new file based on a selected template, optionally add
