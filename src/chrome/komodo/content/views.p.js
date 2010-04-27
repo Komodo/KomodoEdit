@@ -2971,7 +2971,7 @@ this.focusedScintilla = function view_focusedScintilla() {
     // and if so, return it (not the html:embed element in the latter case).
     // Otherwise, return null.
     try {
-        var commandDispatcher = top.koDoc.commandDispatcher
+        var commandDispatcher = top.document.commandDispatcher;
         var focusedElement = commandDispatcher.focusedElement;
         if (!focusedElement) return null;
         if (focusedElement.tagName == 'xul:scintilla') return focusedElement;
