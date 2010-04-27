@@ -757,32 +757,6 @@ viewManager.prototype._doFileOpen = function(uri,
 }
 
 /**
- * Open a file. If it is already open, then select that buffer,
- * else create a new buffer for the file.
- * Note: The "uri" will be translated using the mapped URI functionality.
- *
- * @deprecated since 5.0.3 (this will be moved to an internal function)
- *
- * @param uri {string} uri to file
- * @param viewType {string} optional, type of buffer to open, default "editor"
- * @param viewList {Components.interfaces.koIViewList}
- *      optional, what pane to open the buffer in
- * @param index {integer} optional index in the `viewList` at which to insert
- *      the new view. If not given, or -1, then the new view is appended.
- *      If there is already a view open for this `uri`, then index is ignored.
- * @return {Components.interfaces.koIView} the buffer view that is opened
- */
-viewManager.prototype.doFileOpen = function(uri,
-                                            viewType/*='editor'*/,
-                                            viewList/*=null*/,
-                                            index /* =-1 */)
-{
-    this.log.deprecated("doFileOpen is deprecated, use " +
-                        "ko.views.manager.doFileOpenAsync");
-    return this._doFileOpen(uri, viewType, viewList, index);
-}
-
-/**
  * Asyncronously open a file. If it is already open, then select that buffer,
  * else create a new buffer for the file.
  * Note: The "uri" will be translated using the mapped URI functionality.
@@ -844,34 +818,6 @@ viewManager.prototype._doFileOpenAtLine = function(uri,
         v.currentLine = lineno;
     }
     return v;
-}
-
-/**
- * Open a file at the given line number. If it is already open, then select
- * that buffer, else create a new buffer for the file.
- *
- * @deprecated since 5.0.3 (this will be moved to an internal function)
- *
- * @param uri {string} uri to file
- * @param lineno {integer} line number
- * @param viewType {string} optional, type of buffer to open, default "editor"
- * @param viewList {Components.interfaces.koIViewList}
- *        optional, what pane to open the buffer in
- * @param index {integer} optional index in the `viewList` at which to insert
- *        the new view. If not given, or -1, then the new view is appended.
- *        If there is already a view open for this `uri`, then index is ignored.
- *
- * @return {Components.interfaces.koIView} the buffer view that is opened
- */
-viewManager.prototype.doFileOpenAtLine = function(uri,
-                                                  lineno,
-                                                  viewType/*='editor'*/,
-                                                  viewList/*=null*/,
-                                                  index /* =-1 */)
-{
-    this.log.deprecated("doFileOpenAtLine is deprecated, use " +
-                        "ko.views.manager.doFileOpenAtLineAsync");
-    return this._doFileOpenAtLine(uri, lineno, viewType, viewList, index);
 }
 
 /**
