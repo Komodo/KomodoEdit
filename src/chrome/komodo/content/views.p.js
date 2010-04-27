@@ -514,24 +514,6 @@ viewManager.prototype._doNewView = function(language /*= prefs.fileDefaultNew*/,
 }
 
 /**
- * Create a new empty, unsaved editor buffer.
- *
- * @deprecated since 5.0.3 (this will be moved to an internal function)
- *
- * @param language {string} optional, language of the buffer (eg. python)
- * @param viewType {string} optional, type of buffer to open, default "editor"
- *
- * @return {Components.interfaces.koIView} the buffer view that is opened
- */
-viewManager.prototype.doNewView = function(language /*= prefs.fileDefaultNew*/,
-                                           viewType /*='editor'*/)
-{
-    this.log.deprecated("doNewView is deprecated, use " +
-                        "ko.views.manager.doNewViewAsync");
-    return this._doNewView(language, viewType);
-}
-
-/**
  * Asynchronously create a new empty, unsaved editor buffer.
  *
  * @param language {string} optional, language of the buffer (eg. python)

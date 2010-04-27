@@ -162,8 +162,9 @@ test_keybindings_toolbox.prototype.setup = function() {
   var part = this.createTestMacro();
   this.assertEqual(ko.projects.findPartById(part.id),part,"Could not create test macro");
   this.macroExecuted = false;
-  // we need a new file for one of our tests, lets open one now
-  this.view = gViewMgr.doNewView();
+  // We need a new file for one of our tests, lets open one now.
+  // Using an internal API here -- this should be async.
+  this.view = ko.views.manager._doNewView();
 }
 test_keybindings_toolbox.prototype.tearDown = function() {
   // some just-in-case cleanup

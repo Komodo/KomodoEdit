@@ -123,7 +123,8 @@ test_vi_emulation.prototype.setup = function() {
     //this.originalConfigName = this.kbm.currentConfiguration;
     //this.vim = new VimController();
     // we need a new scintilla buffer for running our tests
-    this.view = gViewMgr.doNewView();
+    // Using an internal API here -- this should be async.
+    this.view = ko.views.manager._doNewView();
     this.scimoz = this.view.scimoz;
 }
 test_vi_emulation.prototype.tearDown = function() {
