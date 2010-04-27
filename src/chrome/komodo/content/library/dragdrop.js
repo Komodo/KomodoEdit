@@ -299,7 +299,8 @@ if (typeof(ko.dragdrop)=='undefined') {
         switch(dragType) {
             case "application/x-moz-file":
                 _log.debug("onDrop:: x-moz-file: " + dragData);
-                this.value = fileProtocolHandler.getURLSpecFromFile(dragData);
+                // Ensure we decode the URI, bug 72873.
+                this.value = decodeURI(fileProtocolHandler.getURLSpecFromFile(dragData));
                 this.isURL = true;
                 break;
             case "application/x-komodo-snippet":
