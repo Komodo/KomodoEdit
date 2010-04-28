@@ -174,8 +174,10 @@ komodoCmdLineHandler.prototype = {
             getService(Ci.nsIObserverService);
       var speclist = [];
       for (var uri in urilist) {
-        if (shouldLoadURI(urilist[uri]))
-          speclist.push(urilist[uri].spec);
+        if (shouldLoadURI(urilist[uri])) {
+          // Ensure the URI is decoded, bug 72873.
+          speclist.push(decodeURI(urilist[uri].spec));
+        }
       }
       if (speclist.length) {
         if (speclist.length == 1) {
