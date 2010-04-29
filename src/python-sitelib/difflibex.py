@@ -219,7 +219,7 @@ def diff_multiple_local_filepaths(left_filepaths, right_filepaths):
         right_filedata = ''
         if isfile(left_path):
             left_filedata = file(left_path, "rb").read()
-        if isfile(left_path):
+        if isfile(right_path):
             right_filedata = file(right_path, "rb").read()
         # See if the files differ.
         if (md5(left_filedata).hexdigest() == md5(right_filedata).hexdigest()):
