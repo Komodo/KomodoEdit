@@ -47,6 +47,7 @@ __version_info__ = (0, 1, 0)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
+from os.path import join, isfile
 import sys
 import re
 from pprint import pprint
@@ -55,7 +56,9 @@ import traceback
 import logging
 import optparse
 import difflib
+from hashlib import md5
 
+from fileutils import walk_avoiding_cycles
 
 
 #---- exceptions
@@ -143,6 +146,90 @@ def infer_cwd_and_strip_from_path(path_in_diff, actual_path):
     cwd = _rstrippath(actual_path, len(_splitall(commonsuffix)))
     strip = len(_splitall(path_in_diff)) - len(_splitall(commonsuffix))
     return (cwd, strip)
+
+
+def diff_local_directories(left_dirpath, right_dirpath):
+    """Return a unified diff between the files in the left and right dirs.
+
+    If a path only exists on one side it will be assumed that the file on the
+    other side has zero content.
+    """
+    left_relpaths = set()
+    left_dirpath_len = len(left_dirpath.rstrip(os.sep)) + 1
+    for dirpath, dirs, files in walk_avoiding_cycles(left_dirpath):
+        relpath = dirpath[left_dirpath_len:]
+        left_relpaths.update([join(relpath, name) for name in files])
+
+    right_relpaths = set()
+    right_dirpath_len = len(right_dirpath.rstrip(os.sep)) + 1
+    for dirpath, dirs, files in walk_avoiding_cycles(right_dirpath):
+        relpath = dirpath[right_dirpath_len:]
+        right_relpaths.update([join(relpath, name) for name in files])
+
+    common_relpaths = left_relpaths.intersection(right_relpaths)
+    # Files deleted (i.e. on the left but not on the right)
+    removed_relpaths = left_relpaths.difference(right_relpaths)
+    # Files added (i.e. on the right but not on the left)
+    added_relpaths = right_relpaths.difference(left_relpaths)
+
+    # Make one sorted list of the paths and their respective change types.
+    change_list = [(relpath, "common") for relpath in common_relpaths ] + \
+                  [(relpath, "removed") for relpath in removed_relpaths ] + \
+                  [(relpath, "added") for relpath in added_relpaths ]
+    change_list.sort()
+
+    result = []
+    for relpath, changetype in change_list:
+        left_path = join(left_dirpath, relpath)
+        right_path = join(right_dirpath, relpath)
+        left_filedata = ''
+        right_filedata = ''
+        if changetype == "common":
+            left_filedata = file(left_path, "rb").read()
+            right_filedata = file(right_path, "rb").read()
+            # See if the files differ.
+            if (md5(left_filedata).hexdigest() == md5(right_filedata).hexdigest()):
+                # The files are the same.
+                continue
+        elif changetype == "removed":
+            left_filedata = file(left_path, "rb").read()
+        elif changetype == "added":
+            right_filedata = file(right_path, "rb").read()
+        # Perform unified diff of contents.
+        difflines = unified_diff(left_filedata.splitlines(1),
+                                 right_filedata.splitlines(1),
+                                 left_path, right_path)
+        result += difflines
+    return "".join(result)
+
+
+def diff_multiple_local_filepaths(left_filepaths, right_filepaths):
+    """Return a unified diff between the left and right filepaths.
+
+    If a filepath does not exist, it will be assumed that it is a file
+    of zero content.
+    """
+    assert left_filepaths
+    assert right_filepaths
+    assert len(left_filepaths) == len(right_filepaths)
+
+    result = []
+    for left_path, right_path in zip(left_filepaths, right_filepaths):
+        left_filedata = ''
+        right_filedata = ''
+        if isfile(left_path):
+            left_filedata = file(left_path, "rb").read()
+        if isfile(left_path):
+            right_filedata = file(right_path, "rb").read()
+        # See if the files differ.
+        if (md5(left_filedata).hexdigest() == md5(right_filedata).hexdigest()):
+            # The files are the same.
+            continue
+        # Perform unified diff of contents.
+        result += unified_diff(left_filedata.splitlines(1),
+                               right_filedata.splitlines(1),
+                               left_path, right_path)
+    return "".join(result)
 
 
 class Hunk:
