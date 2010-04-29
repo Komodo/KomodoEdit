@@ -18,7 +18,7 @@ import difflibex
 
 #---- component implementation
 
-class KoDirs(object):
+class KoDiffService(object):
     _com_interfaces_ = [components.interfaces.koIDiffService]
     _reg_clsid_ = "{d968bb67-1d39-4e8e-861c-6d4b2b1f0153}"
     _reg_contractid_ = "@activestate.com/koDiffService;1"
