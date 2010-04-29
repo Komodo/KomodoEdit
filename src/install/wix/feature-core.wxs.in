@@ -575,6 +575,7 @@
               <File Id="file4343" Name="KOICSS_0.XPT" LongName="koICSSParser.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koICSSParser.xpt"/>
               <File Id="file1986" Name="KODIFF_0.PY" LongName="koDiffLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koDiffLanguage.py"/>
               <File Id="file1987" Name="koDirs.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koDirs.py"/>
+              <File Id="file950" LongName="koDiffService.py" Name="KODIFF_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koDiffService.py" />
               <File Id="file1988" Name="KODOCU_0.PY" LongName="koDocument.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koDocument.py"/>
               <File Id="file1990" Name="KODOCU_2.PY" LongName="koDocumentService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koDocumentService.py"/>
               <File Id="file1991" Name="KODOCU_3.PY" LongName="koDocumentSettingsManager.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koDocumentSettingsManager.py"/>
@@ -612,6 +613,7 @@
               <File Id="file2023" Name="KOICOD_0.XPT" LongName="koICodeIntel.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koICodeIntel.xpt"/>
               <File Id="file2024" Name="KOICOM_0.XPT" LongName="koICommandmentService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koICommandmentService.xpt"/>
               <File Id="file2028" Name="koIDirs.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDirs.xpt"/>
+              <File Id="file1062" LongName="koIDiffService.xpt" Name="KOIDIF_0.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDiffService.xpt" />
               <File Id="file2029" Name="KOIDLL_0.PY" LongName="koIDLLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDLLanguage.py"/>
               <File Id="file2030" Name="KOIDOC_0.XPT" LongName="koIDocument.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDocument.xpt"/>
               <File Id="file2032" Name="KOIENC_0.XPT" LongName="koIEncoding.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIEncoding.xpt"/>
@@ -3752,6 +3754,7 @@
               <File Id="file865" Name="KOICOL_0.IDL" LongName="koIColorPicker.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIColorPicker.idl"/>
               <File Id="file3844" Name="KOICSS_0.IDL" LongName="koICSSParser.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICSSParser.idl"/>
               <File Id="file3852" Name="koIDirs.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIDirs.idl"/>
+              <File Id="file1063" LongName="koIDiffService.idl" Name="KOIDIF_0.IDL" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIDiffService.idl" />
               <File Id="file3873" Name="KOIDOC_0.IDL" LongName="koIDocument.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIDocument.idl"/>
               <File Id="file3874" Name="KOIENC_0.IDL" LongName="koIEncoding.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIEncoding.idl"/>
               <File Id="file3875" Name="KOIENC_1.IDL" LongName="koIEncodingServices.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIEncodingServices.idl"/>
