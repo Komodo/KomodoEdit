@@ -47,7 +47,7 @@ interface koIDiffService : nsISupports {
      * @returns string
      */
     AString diffMultipleFilepaths([array, size_is(left_count)] in wstring left_filepaths,
-                                  in unsigned long left_count),
+                                  in unsigned long left_count,
                                   [array, size_is(right_count)] in wstring right_filepaths,
                                   in unsigned long right_count);
 

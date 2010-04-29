@@ -99,6 +99,11 @@ $cons->InstallXpcomComponent('koDirs.py');
 $cons->Install($idlExportDir, 'koIDirs.idl');
 $cons->BuildAndInstallXpt('koIDirs.idl');
 
+# koIDiffService
+$cons->InstallXpcomComponent('koDiffService.py');
+$cons->Install($idlExportDir, 'koIDiffService.idl');
+$cons->BuildAndInstallXpt('koIDiffService.idl');
+
 # koIFile
 $cons->InstallXpcomComponent('koFile.py');
 $cons->Install($idlExportDir, 'koIFile.idl');
