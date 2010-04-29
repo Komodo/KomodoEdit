@@ -70,6 +70,7 @@
     <script src="chrome://komodo/content/library/logging.js"           type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/run/interpolate.js"           type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/library/uriparse.js"          type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/dialogs.js"           type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/project/snippetProperties.js" type="application/x-javascript;version=1.7" />
 
     <hbox id="scintillaOverlayXul"/>
