@@ -403,7 +403,6 @@
         <field name="_updateProjectMRUWhenVisible">true</field>
         <field name="_updateFileMRUWhenVisible">true</field>
         <field name="_log">null</field>
-        <field name="_active">null</field>
         <property name="log">
             <getter><![CDATA[
             if (!this._log) {
@@ -458,14 +457,12 @@
                 me._files = me.addTopRow(me._bundle.GetStringFromName("recentFiles.message"));
                 me.updateProjectMRUTable();
                 me.updateFileMRUTable();
-                this._active = true;
             }, 0, this);
         ]]> </body>
         </method>
 
         <method name="fini">
         <body><![CDATA[
-            this._active = false;
             var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
             obSvc.removeObserver(this, 'mru_changed');
@@ -1159,11 +1156,6 @@
         <method name="setFocus">
         <body> <![CDATA[
             this.log.info("setFocus");
-            if (!this._active) {
-                // Happens when this view gets moved elsewhere
-                this.log.info("setFocus -- leave, no longer active\n");
-                return;
-            }
             try {
                 // Lazily rebuild the MRU tables, as necessary, when this
                 // view is made visible.
