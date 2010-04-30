@@ -162,6 +162,9 @@ class _KoPlaceItem(object):
     def needsRefreshing(self):
         return self.lastUpdated == -1 or time.time() - self.lastUpdated > self.MAX_DIR_AGE
 
+    def markForRefreshing(self):
+        self.lastUpdated = -1
+
 class _HierarchyNode(object):
     def __init__(self, level, infoObject):
         self.level = level
@@ -262,6 +265,7 @@ class KoPlaceTreeView(TreeView):
         self._root = None
         self._currentPlace_uri = None
         self._rows = []
+        self._liverows = set()  # Tracking changes
         self._originalRows = self._rows  # For filtering
         self._filteredRows = None
         self._lastFilteredString = None
@@ -348,6 +352,8 @@ class KoPlaceTreeView(TreeView):
         self.workerThread.put((None, None, None))
         self.workerThread.join(3)
         self.set_currentPlace(None)
+        self._rows = []
+        self.resetLiveRows()
 
     def observe(self, subject, topic, data):
         # Taken from koKPFTreeView
@@ -361,19 +367,26 @@ class KoPlaceTreeView(TreeView):
             invalidRows = sorted([i for (i,row) in enumerate(self._rows)
                                   if row.getURI() in files], reverse=True)
             for row in invalidRows:
-                uri = self._rows[row].getURI()
+                node = self._rows[row]
+                uri = node.getURI()
                 koFileEx = components.classes["@activestate.com/koFileEx;1"].\
                            createInstance(components.interfaces.koIFileEx)
                 koFileEx.URI = uri
                 if koFileEx.exists and koFileEx.isDirectory:
                     # A file has been added to this dir.
                     # Spin off a refresh request for each row
-                    self.refreshView(row)
+                    if node.isContainer:
+                        if node.infoObject.isOpen:
+                            self.refreshView(row)
+                        else:
+                            koPlaceItem = self.getNodeForURI(uri)
+                            koPlaceItem.markForRefreshing()
                 else:
                     try:
                         #qlog.debug("About to remove uri %s from row %d", uri, row)
                         del self._rows[row]
                         self._tree.rowCountChanged(row, -1)
+                        self.resetLiveRows()
                     except AttributeError:
                         pass
                     self.removeNodeFromModel(uri)
@@ -382,6 +395,17 @@ class KoPlaceTreeView(TreeView):
     # row generator interface
     def stopped(self):
         return 0
+
+    def _addWatchForChanges(self, path):
+        try:
+            self.notificationSvc.addObserver(self, path,
+                                             components.interfaces.koIFileNotificationService.WATCH_DIR,
+                                             _notificationsToReceive)
+        except:
+            log.exception("Can't watch path: %s", path)
+        
+    def _removeWatchForChanges(self, path):
+        self.notificationSvc.removeObserver(self, path)
 
     #---------------- Model for the tree view
 
@@ -398,12 +422,9 @@ class KoPlaceTreeView(TreeView):
             pass
 
     def removeSubtreeFromModelForURI(self, uri):
-        try:
-            koPlaceItem = self.getNodeForURI(uri)
-        except KeyError:
-            pass
-        else:
-            self.removeSubtreeFromModelForURI_aux(koPlaceItem)
+        koPlaceItem = self.getNodeForURI(uri)
+        if not koPlaceItem: return
+        self.removeSubtreeFromModelForURI_aux(koPlaceItem)
         self.removeNodeFromParent(uri)
 
     def removeSubtreeFromModelForURI_aux(self, koPlaceItem):
@@ -519,7 +540,9 @@ class KoPlaceTreeView(TreeView):
             if index != -1:
                 #qlog.debug("fileNotification: About to remove uri %s from row %d", uri, row)
                 del self._rows[index]
+                self._removeWatchForChanges(koFileEx.path)
                 self.removeNodeFromModel(uri)
+                self.resetLiveRows()
         else:
             # this is a modification change, just invalidate rows
             index = self.getRowIndexForURI(uri)
@@ -1011,13 +1034,16 @@ class KoPlaceTreeView(TreeView):
                     createInstance(components.interfaces.koIFileEx)
             koFileEx.URI = newURI;
             newNode = _HierarchyNode(targetNode.level + 1, cls(fileObj=koFileEx))
-            if self.isContainerOpen(targetIndex):
-                finalIdx = self._getTargetIndex(os.path.basename(newPath), targetIndex)
-                self._rows = (self._rows[:finalIdx]
-                              + [newNode]
-                              + self._rows[finalIdx:])
-                self._originalRows = self._rows
-                self._tree.rowCountChanged(finalIdx, 1)
+            if newNode.isContainer:
+                if self._isLocal:
+                    self._addWatchForChanges(newNode.getPath())
+                if self.isContainerOpen(targetIndex):
+                    finalIdx = self._getTargetIndex(os.path.basename(newPath), targetIndex)
+                    self._rows = (self._rows[:finalIdx]
+                                  + [newNode]
+                                  + self._rows[finalIdx:])
+                    self._originalRows = self._rows
+                    self._tree.rowCountChanged(finalIdx, 1)
         self._buildFilteredView()
 
     def canUndoTreeOperation(self):
@@ -1091,7 +1117,7 @@ class KoPlaceTreeView(TreeView):
         if self._currentPlace_uri:
             if self._isLocal and self._rows:
                 path = self._rows[0].getPath()
-                self.notificationSvc.removeObserver(self, path)
+                self._removeWatchForChanges(path)
             
         lenBefore = len(self._rows)
         self._rows = []
@@ -1111,12 +1137,7 @@ class KoPlaceTreeView(TreeView):
             placeFileEx.file = placeFileEx.dirName
             uri = placeFileEx.URI
         if self._isLocal:
-            try:
-                self.notificationSvc.addObserver(self, placeFileEx.path,
-                                                 components.interfaces.koIFileNotificationService.WATCH_DIR,
-                                                 _notificationsToReceive)
-            except:
-                log.exception("Can't watch path: %s", placeFileEx.path)
+            self._addWatchForChanges(placeFileEx.path)
         else:
             #log.debug("openPlace: not local:(%s)", uri)
             pass
@@ -1182,6 +1203,7 @@ class KoPlaceTreeView(TreeView):
         before_len = len(self._rows)
         anchor_index = 0
         self._refreshTreeOnOpen_buildTree(1, 1, topModelNode)
+        self.resetLiveRows()
         after_len = len(self._rows)
         self._tree.rowCountChanged(anchor_index, after_len - before_len)
 
@@ -1310,6 +1332,7 @@ class KoPlaceTreeView(TreeView):
             index = fixedIndex
         else:
             doInvalidate = False
+        # Verify the item is deleted
         if self.isContainerOpen(index):
             nextIndex = self.getNextSiblingIndex(index)
             if nextIndex == -1:
@@ -1318,6 +1341,7 @@ class KoPlaceTreeView(TreeView):
             nextIndex = index + 1
         self.removeSubtreeFromModelForURI(self._rows[index].getURI())
         del self._rows[index:nextIndex]
+        self.resetLiveRows()
         self._tree.rowCountChanged(index, index - nextIndex)
         if doInvalidate:
             self.invalidateTree()
@@ -1590,6 +1614,7 @@ class KoPlaceTreeView(TreeView):
         self._refreshTreeOnOpen_buildTree(rowNode.level + 1,
                                           first_child_index,
                                           topModelNode)
+        self.resetLiveRows()
         after_len = len(self._rows)
         #qlog.debug("before_len: %d, before_len_2: %d, after_len:%d", before_len, before_len_2, after_len)
         numRowChanged = len(self._rows) - before_len
@@ -1602,6 +1627,22 @@ class KoPlaceTreeView(TreeView):
             self.invalidateTree()
         # And always filter after
         #self._buildFilteredView() #XXX reinstate.
+
+    def resetLiveRows(self): # from koKPFTreeView.p.py
+        if not self._isLocal:
+            return
+        # Watch closed nodes too -- then we can mark them for refershing
+        liverows = set([row.getPath()
+                        for row in self._rows
+                        if row.isContainer])
+        #print "resetLiveRows %d" % len(liverows)
+        newnodes = liverows.difference(self._liverows)
+        oldnodes = self._liverows.difference(liverows)
+        for dir in oldnodes:
+            self._removeWatchForChanges(dir)
+        for dir in newnodes:
+            self._addWatchForChanges(dir)
+        self._liverows = liverows
 
     def renameItem(self, index, newBaseName, forceClobber):
         rowNode = self._rows[index]
@@ -1701,6 +1742,7 @@ class KoPlaceTreeView(TreeView):
             #qlog.debug("toggleOpenState: numNodesRemoved:%d", numNodesRemoved)
             if numNodesRemoved:
                 self._tree.rowCountChanged(index + 1, -numNodesRemoved)
+                self.resetLiveRows()
                 #log.debug("index:%d, numNodesRemoved:%d, numLeft:%d", index, numNodesRemoved, len(self._rows))
             rowNode.infoObject.isOpen = False
         else:
@@ -1745,6 +1787,8 @@ class KoPlaceTreeView(TreeView):
         self._nodeOpenStatusFromName[uri] = True
         self._sortModel(uri)
         topModelNode = self.getNodeForURI(uri)
+        if self._isLocal:
+            self._addWatchForChanges(rowNode.getPath())
         if not topModelNode.childNodes:
             #qlog.debug("Node we opened has no children")
             rowNode.unsetContainer()
@@ -1954,7 +1998,9 @@ class _WorkerThread(threading.Thread, Queue):
             sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
                               getService(components.interfaces.koISysUtils)
             try:
-                sysUtils.MoveToTrash(path)
+                res = sysUtils.MoveToTrash(path)
+                if not res:
+                    return "Failed to remove %s" % (path,)
             except:
                 log.exception("sysUtils.MoveToTrash(%s) failed", path)
                 if os.path.isdir(path):
