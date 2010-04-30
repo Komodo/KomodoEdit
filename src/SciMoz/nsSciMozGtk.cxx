@@ -160,8 +160,6 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 #ifdef SCIMOZ_DEBUG
     fprintf(stderr,"SciMoz::PlatformSetWindow:: npwindow %p\n", npwindow);
 #endif
-    NPSetWindowCallbackStruct *ws_info = (NPSetWindowCallbackStruct *)npwindow->ws_info;
-
     if (fWindow != NULL) {
 	/* If we already have a window, clean
 	 * it up before trying to subclass
@@ -182,6 +180,7 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
     }
     
     if (npwindow) {
+        NPSetWindowCallbackStruct *ws_info = (NPSetWindowCallbackStruct *)npwindow->ws_info;
 #ifdef GTK2
 #ifdef GTK2_XEMBED
 
