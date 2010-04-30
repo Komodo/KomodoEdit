@@ -1196,8 +1196,9 @@ class KoPlaceTreeView(TreeView):
             newNode = _HierarchyNode(level,
                                      placeObject[childNode.type](fileObj=koFileEx))
             self._rows.insert(rowIndex, newNode)
+            isOpenNode = self.isContainerOpen(rowIndex)
             rowIndex += 1
-            if childNode.type == _PLACE_FOLDER:
+            if isOpenNode:
                 rowIndex = self._refreshTreeOnOpen_buildTree(level + 1, rowIndex, childNode)
         #qlog.debug("<< _refreshTreeOnOpen_buildTree(rowIndex:%d)", rowIndex)
         return rowIndex
