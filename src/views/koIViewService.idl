@@ -49,6 +49,5 @@ interface koIViewService : nsISupports
     
     readonly attribute koIView currentView;
     readonly attribute koIView topView;
-    koIView newViewFromURI(in wstring URI, in string type);
 };
 

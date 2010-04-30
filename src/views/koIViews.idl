@@ -87,8 +87,6 @@ interface koIViewList : nsISupports
     attribute koIView currentView;
     void makeNextViewCurrent();
     void makePreviousViewCurrent();
-    // Note: The "URI" will *not* be translated by the mapped URI functionality.
-    koIView newViewFromURI(in wstring URI, in string type);
 
     // Getting views. The following methods return a list of views matching
     // given criteria. By default only the viewlist's immediate views will

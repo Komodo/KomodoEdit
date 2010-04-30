@@ -639,32 +639,6 @@ viewManager.prototype._newViewFromURI = function(uri,
  * Create a new buffer and open a file into it.
  * Note: The "uri" will *not* be translated by the mapped URI functionality.
  *
- * @deprecated since 5.0.3 (this will be moved to an internal function)
- *
- * @param uri {string} uri to file
- * @param viewType {string} optional, type of buffer to open, default "editor"
- * @param viewList {Components.interfaces.koIViewList}
- *        optional, what pane to open the buffer in
- * @param index {integer} optional index in the `viewList` at which to insert
- *        the new view. If not given, or -1, then the new view is appended.
- *        If there is already a view open for this `uri`, then index is ignored.
- *
- * @return {Components.interfaces.koIView} the buffer view that is opened
- */
-viewManager.prototype.newViewFromURI = function(uri,
-                                                viewType/*='editor'*/,
-                                                viewList/*=null*/,
-                                                index /* =-1 */)
-{
-    this.log.deprecated("newViewFromURI is deprecated, use " +
-                        "ko.views.manager.newViewFromURIAsync");
-    return this._newViewFromURI(uri, viewType, viewList, index);
-}
-
-/**
- * Create a new buffer and open a file into it.
- * Note: The "uri" will *not* be translated by the mapped URI functionality.
- *
  * @param uri {string} uri to file
  * @param viewType {string} optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
@@ -979,27 +953,6 @@ viewManager.prototype.getViewForDocument = function(doc) {
     return this.topView.findViewForDocument(doc);
 }
 
-
-/**
- * Open a uri in a new view, bypassing any sanity checking on the uri.
- * This function is deprecated, use newViewFromURI instead.
- *
- * @deprecated since 5.0.3
- *
- * @param uri {string} uri to file
- * @param viewType {string} optional, type of buffer to open, default "editor"
- */
-viewManager.prototype.loadViewFromURI = function(uri, viewType/*='editor'*/)
-{
-    this.log.info("doing loadViewFromURI: " + uri);
-    if (typeof(viewType)=='undefined' || !viewType)
-        viewType = 'editor';
-    var doc = _docSvc.createDocumentFromURI(uri);
-
-    // the following line is delayed to avoid notifications during load()
-    var view = this.topView.createViewFromDocument(doc, viewType, -1);
-    this.log.info("leaving loadViewFromURI");
-}
 
 /**
  * Used to reset the cached information for the current view
