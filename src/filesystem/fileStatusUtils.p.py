@@ -57,7 +57,7 @@ monitoredPrefNames = { "enabledPrefName": types.BooleanType,
                        "backgroundDurationPrefName": types.LongType,
                        "recursivePrefName": types.BooleanType }
 
-class KoFileCheckerBase:
+class KoFileCheckerBase(object):
 
     _com_interfaces_ = [components.interfaces.nsIObserver,
                         components.interfaces.koIFileStatusChecker]
