@@ -735,10 +735,12 @@ VimController.prototype.handleCommand = function(event, commandname, keylabel, m
     try {
         /* Ensure it's going to a vi controlled scintilla component */
         if (!this.enabled || event.target.nodeName != 'view' ||
-            /* the cmd_cancel event actually comes through with an event target
-               that is the Komodo multi view - not sure why that is - so added
-               a special case to allow the cmd_cancel event to go through. */
-            (!event.target.scintilla && commandname != "cmd_cancel")) {
+            /* Certain commands like cmd_cancel and cmd_right event actually
+               comes through with an event target that is the Komodo multi view.
+               Not sure why that is - but added a special case to allow
+               multiview event targets as well. */
+            (!event.target.scintilla &&
+             event.target.getAttribute("type") != "multiview")) {
             return false;
         }
 
