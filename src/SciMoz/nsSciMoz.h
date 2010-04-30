@@ -58,11 +58,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtksignal.h>
 
-#ifdef GTK2
 #include <gtk/gtkplug.h>
-#else
-#include <gtkmozbox.h>
-#endif
 
 /* Xlib/Xt stuff */
 #ifdef MOZ_X11

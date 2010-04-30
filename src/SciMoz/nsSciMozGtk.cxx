@@ -117,11 +117,9 @@ void SciMoz::PlatformNew(void) {
                              GTK_SIGNAL_FUNC(ButtonEvents), this);
 
     Create(wEditor);
-#ifdef GTK2
     /* force a size request so that we get the correct scrollbar width/height */
     GtkRequisition child_requisition;
     gtk_widget_size_request(wEditor, &child_requisition);
-#endif
 }
 
 nsresult SciMoz::PlatformDestroy(void) {
@@ -181,7 +179,6 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
     
     if (npwindow) {
         NPSetWindowCallbackStruct *ws_info = (NPSetWindowCallbackStruct *)npwindow->ws_info;
-#ifdef GTK2
 #ifdef GTK2_XEMBED
 
 // We use both __LP64__ and _LP64 because some platforms define both, others
@@ -196,15 +193,6 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 	fPlatform.moz_box = gtk_plug_new(0);
 #endif
 	wMain = fPlatform.moz_box;
-#else /* GTK 1 */
-	GdkWindow *window = gdk_window_foreign_new((XID)npwindow->window);
-	if (!window) {
-	    fprintf(stderr, "SciMoz FAILED window %08X on display %08X\n", (XID)npwindow->window, ws_info->display);
-	    return NS_ERROR_FAILURE;
-	}
-	fPlatform.moz_box = gtk_mozbox_new(window);
-	wMain = reinterpret_cast<GtkWidget *>(npwindow->window);
-#endif
 
 	/* only set these if the above logic succeeds, otherwise we crash and burn */
 	portMain = npwindow->window;
@@ -220,7 +208,6 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 	    parked = false;
 	}
 	gtk_widget_show_all(fPlatform.moz_box);
-#ifdef GTK2
 #ifndef GTK2_XEMBED
 	/* reparent the plug to the mozilla window */
 	GdkDrawable* win = GDK_DRAWABLE(fPlatform.moz_box->window);
@@ -230,7 +217,6 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 
 	XMapWindow(GDK_DRAWABLE_XDISPLAY(win),
 		   GDK_DRAWABLE_XID(win));
-#endif
 #endif
     } else {
 	PlatformResetWindow();
