@@ -161,9 +161,6 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
     fprintf(stderr,"SciMoz::PlatformSetWindow:: npwindow %p\n", npwindow);
 #endif
     NPSetWindowCallbackStruct *ws_info = (NPSetWindowCallbackStruct *)npwindow->ws_info;
-    // This XFlush is required by NS4.x, or the display created by
-    // scintilla will not see window as existing.
-    XFlush(ws_info->display);
 
     if (fWindow != NULL) {
 	/* If we already have a window, clean
