@@ -78,6 +78,16 @@ function viewMgrClass() {
     this.default_exclude_matches = ".*;*~;#*;CVS;*.bak;*.pyo;*.pyc";
     // overides, to include:
     this.default_include_matches = ".login;.profile;.bashrc;.bash_profile";
+    this._nextSortDir = {
+        natural: 'ascending',
+        ascending: 'descending',
+        descending:'natural'
+    };
+    this._mozSortDirNameToKomodoSortDirValue = {
+        natural: Components.interfaces.koIPlaceTreeView.SORT_DIRECTION_NAME_NATURAL,
+        ascending: Components.interfaces.koIPlaceTreeView.SORT_DIRECTION_NAME_ASCENDING,
+        descending:Components.interfaces.koIPlaceTreeView.SORT_DIRECTION_NAME_DESCENDING
+    };
 };
 
 viewMgrClass.prototype = {
@@ -95,6 +105,19 @@ viewMgrClass.prototype = {
                         .QueryInterface(Components.interfaces.nsITreeBoxObject)
                         .view = this.view;
         this.view.initialize();
+        var treecol = this.tree.getElementsByTagName('treecol')[0];
+        var sortDir = treecol.getAttribute("sortDirection");
+        if (!sortDir) {
+            var placePrefs = _globalPrefs.getPref("places");
+            if (placePrefs.hasPref("sortDirection")) {
+                sortDir = placePrefs.getStringPref("sortDirection");
+            }
+            if (!sortDir || !this._nextSortDir[sortDir]) {
+                sortDir = 'natural';
+            }
+            treecol.setAttribute("sortDirection", sortDir);
+        }
+        this.view.sortBy(treecol.id, this._mozSortDirNameToKomodoSortDirValue[sortDir]);
     },
     focus: function() {
           dump("places: viewMgr.focus()\n");
@@ -192,6 +215,21 @@ viewMgrClass.prototype = {
     onTreeClick: function(event) {
         var index = this._currentRow(event);
         this.view.markRow(index);
+    },
+
+    onTreecolsClick: function(event) {
+        gEvent = event;
+        // c.f. mozilla/mailnews/base/resources/content/threadPane.js
+        var t = event.originalTarget;
+        
+        // single-click on a column
+        if (t.localName == "treecol" && event.detail == 1) {
+            var sortDir = t.getAttribute("sortDirection");
+            var newSortDir = this._nextSortDir[sortDir];
+            t.setAttribute("sortDirection", newSortDir);
+            this.view.sortBy(t.id, this._mozSortDirNameToKomodoSortDirValue[newSortDir]);
+            this.view.sortRows();
+        }
     },
 
     onTreeKeyPress: function(event) {
@@ -557,6 +595,23 @@ viewMgrClass.prototype = {
                 }
             }
         };
+        var from_uri = this.view.getURIForRow(from_index);
+        var from_view = ko.views.manager.getViewForURI(from_uri);
+        if (from_view) {
+            if (from_view.isDirty) {
+                var prompt = ("File "
+                              + ko.uriparse.URIToPath(from_uri)
+                              + " has unsaved changed.  "
+                              + (copying ? "Copy" : "Move")
+                              + " without saving?");
+                var response = "No";
+                var title = "Save changes first?";
+                var res = ko.dialogs.yesNo(prompt, response, null, title);
+                if (res != "Yes") {
+                    return;
+                }
+            }
+        }
         var res = this.view.treeOperationWouldConflict(from_index,
                                                        to_index,
                                                        copying,
@@ -676,6 +731,67 @@ viewMgrClass.prototype = {
                 }
             }
         }
+        if (!copying) {
+            var to_uri = this.view.getURIForRow(to_index);
+            callback = {
+            callback: function(result, data) {
+                    if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
+                        ko.dialogs.alert(data);
+                    } else {
+                        // Update the Komodo view
+                        if (from_view) {
+                            var orig_view_type = from_view.getAttribute("type");
+                            // var orig_tabbed_view_id = from_view.tabbedViewId;
+                            var orig_tabbed_list = document.getElementById(from_view.parentView.id);
+                            var orig_tabbed_index = ko.history.tabIndex_for_view(from_view);
+                            var scimozPropertyNames =
+                                ['anchor',
+                                 'currentPos',
+                                 'scrollWidth',
+                                 'scrollWidthTracking',
+                                 'xOffset',
+                                 'firstVisibleLine',
+                                 'useTabs',
+                                 'tabWidth',
+                                 'indent'
+                                 ];
+                            // We can't set these:
+                            var scimozDocSettingsProperties = [
+                                 'showWhitespace',
+                                 'showLineNumbers',
+                                 'showIndentationGuides',
+                                 'showEOL',
+                                 'editFoldLines',
+                                 'editWrapType'
+                                 ];
+                            var config = {};
+                            var fromScimoz = from_view.scimoz;
+                            scimozPropertyNames.map(function(name) {
+                                    config[name] = fromScimoz[name];
+                                });
+                            from_view.closeUnconditionally();
+                            var full_to_uri = to_uri + "/" + ko.uriparse.baseName(from_uri);
+                            var inner_callback = function(newView) {
+                                var newScimoz = newView.scimoz;
+                                scimozPropertyNames.map(function(name) {
+                                        try {
+                                            newScimoz[name] = config[name];
+                                        } catch(ex) {
+                                            log.exception("Can't set " + name);
+                                        }
+                                    });
+                            };
+                            ko.views.manager.doFileOpenAsync(full_to_uri,
+                                                             orig_view_type,
+                                                             orig_tabbed_list,
+                                                             orig_tabbed_index,
+                                                             inner_callback);
+                        }
+                        window.updateCommands("did_tree_operation");
+                    }
+                }
+            };
+        }
         this.view.doTreeOperation(from_index, to_index,
                                   copying, callback);
         return true;
@@ -705,6 +821,9 @@ viewMgrClass.prototype = {
     finalize: function() {
         this.view.terminate();
         this.view = null;
+        var treecol = this.tree.childNodes[0].childNodes[0];
+        _globalPrefs.getPref("places").getStringPref("sortDirection",
+                                                     treecol.getAttribute("sortDirection"));
     },
 
     // Filtering routines:

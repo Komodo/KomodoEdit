@@ -74,6 +74,7 @@
 <!ENTITY showInFinder.desc "Places: Show file/folder in the system's file manager">
 <!ENTITY renamePlaceItem.label "Rename...">
 <!ENTITY renamePlaceItem.desc "Places: Rename file or folder">
+<!ENTITY name.label "Name">
 
 <!-- manageViewFilters.xul -->
 <!ENTITY manageViewFilters.caption "Specify Files and Directories to Exclude">

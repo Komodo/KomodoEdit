@@ -48,13 +48,6 @@ interface koIPlaceTreeView: nsITreeView {
     void initialize();
     void terminate();
     
-    // Specify the sort order.
-    // directions:
-    //  0 = natural
-    //  1 = normal
-    //  -1 = reverse
-    void sortBy(in wstring key, in long direction);
-
     // What goes into the original tree.
     void setMainFilters(in wstring exclude_patterns,
                         in wstring include_patterns);
@@ -104,6 +97,14 @@ interface koIPlaceTreeView: nsITreeView {
     void markRow(in long sourceIndex);
     void refreshView(in long sourceIndex);
     void renameItem(in long sourceIndex, in wstring baseName, in boolean forceClobber);
+
+    const short SORT_DIRECTION_NAME_NATURAL = 1;
+    const short SORT_DIRECTION_NAME_ASCENDING = 2;
+    const short SORT_DIRECTION_NAME_DESCENDING = 3;
+
+    void sortBy(in wstring key, in long direction);
+    void sortRows();
+
     // See other API parts in koIKPFTreeView.idl
     // internal api
     void invalidate();

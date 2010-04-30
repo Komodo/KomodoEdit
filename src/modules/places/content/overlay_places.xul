@@ -374,6 +374,7 @@
               onfocus="ko.places.viewMgr.focused = true;"
               onblur="ko.places.viewMgr.focused = false;"
               context="_child"
+              hidecolumnpicker="true"
               class="placestree"
               seltype="single">
             <menupopup id="places-files-popup" onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);" >
@@ -452,12 +453,15 @@
                         keep="true"
                         />
             </menupopup>
-            <treecols>
+            <treecols
+               onclick="ko.places.viewMgr.onTreecolsClick(event);" >
                 <treecol id="name" flex="1"
-                         primary="true" hideheader="true"
-                         crop="center"
+                         primary="true"
+                         label="&name.label;"
+                         sortActive="true"
+                         sortDirection="natural"
                          class="treecol-header treecol-inset-header sortDirectionIndicator"
-                         persist="width"/>
+                         persist="width sortDirection"/>
             </treecols>
             <treechildren id="places-files-tree-body" flex="1"
                 ondragstart="ko.places.viewMgr.doStartDrag(event, this);"
