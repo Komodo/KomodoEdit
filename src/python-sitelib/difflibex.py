@@ -58,6 +58,7 @@ import optparse
 import difflib
 from hashlib import md5
 
+import textinfo
 from fileutils import walk_avoiding_cycles
 
 
@@ -184,17 +185,38 @@ def diff_local_directories(left_dirpath, right_dirpath):
         right_path = join(right_dirpath, relpath)
         left_filedata = ''
         right_filedata = ''
-        if changetype == "common":
-            left_filedata = file(left_path, "rb").read()
-            right_filedata = file(right_path, "rb").read()
-            # See if the files differ.
-            if (md5(left_filedata).hexdigest() == md5(right_filedata).hexdigest()):
-                # The files are the same.
-                continue
-        elif changetype == "removed":
-            left_filedata = file(left_path, "rb").read()
-        elif changetype == "added":
-            right_filedata = file(right_path, "rb").read()
+        hasBinaryContent = False
+
+        if changetype == "common" or changetype == "removed":
+            left_ti = textinfo.TextInfo.init_from_path(left_path,
+                                                       follow_symlinks=True)
+            if left_ti.is_text:
+                left_filedata = left_ti.text
+            else:
+                hasBinaryContent = True
+
+        if changetype == "common" or changetype == "added":
+            right_ti = textinfo.TextInfo.init_from_path(right_path,
+                                                        follow_symlinks=True)
+            if right_ti.is_text:
+                right_filedata = right_ti.text
+            else:
+                hasBinaryContent = True
+
+        if hasBinaryContent:
+            result.append("===================================================================\n"
+                          "--- %s\n"
+                          "+++ %s\n"
+                          "Binary files differ\n"
+                          % (left_path, right_path))
+            continue
+
+        # See if the files differ.
+        if (changetype == "common" and
+            md5(left_filedata).hexdigest() == md5(right_filedata).hexdigest()):
+            # The files are the same.
+            continue
+
         # Perform unified diff of contents.
         difflines = unified_diff(left_filedata.splitlines(1),
                                  right_filedata.splitlines(1),
@@ -215,12 +237,32 @@ def diff_multiple_local_filepaths(left_filepaths, right_filepaths):
 
     result = []
     for left_path, right_path in zip(left_filepaths, right_filepaths):
+        hasBinaryContent = False
         left_filedata = ''
         right_filedata = ''
+
         if isfile(left_path):
-            left_filedata = file(left_path, "rb").read()
+            ti = textinfo.TextInfo.init_from_path(left_path,
+                    follow_symlinks=True)
+            if ti.is_text:
+                left_filedata = ti.text
+            else:
+                hasBinaryContent = True
         if isfile(right_path):
-            right_filedata = file(right_path, "rb").read()
+            ti = textinfo.TextInfo.init_from_path(right_path,
+                    follow_symlinks=True)
+            if ti.is_text:
+                right_filedata = ti.text
+            else:
+                hasBinaryContent = True
+        if hasBinaryContent:
+            result.append("===================================================================\n"
+                          "--- %s\n"
+                          "+++ %s\n"
+                          "Binary files differ\n"
+                          % (left_path, right_path))
+            continue
+
         # See if the files differ.
         if (md5(left_filedata).hexdigest() == md5(right_filedata).hexdigest()):
             # The files are the same.
