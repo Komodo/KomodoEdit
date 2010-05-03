@@ -1023,23 +1023,21 @@ class koDocumentBase:
                 self.lastErrorSvc.setLastError(errno, errmsg)
             raise
     
-    def _getEncodedBufferText(self, mode='strict', encoding_name=None):
-        try:
-            if not encoding_name:
-                encoding_name = self.encoding.python_encoding_name
-            bl = self.get_bufferLength()
-            decodedText = self.get_buffer().encode(encoding_name,mode)
-            if self.encoding.use_byte_order_marker:
-                decodedText = self.encoding.encoding_info.byte_order_marker + decodedText
-            if bl and not len(decodedText):
-                # lengths may be different after encoding
-                errmsg = "Unable to encode the buffer to %s" % encoding_name
-                self.lastErrorSvc.setLastError(0, errmsg)
-                raise ServerException(nsError.NS_ERROR_FAILURE, errmsg)
-            return decodedText, self.get_codePage()
-        except UnicodeError, e:
-            log.error("Unable to decode document to '%s' encoding", encoding_name)
-            raise
+    def _getEncodedBufferText(self, encoding_name=None, mode='strict'):
+        """Get the buffer text encoded in a particular encoding, by
+        default the current configured encoding.
+        """
+        if not encoding_name:
+            encoding_name = self.encoding.python_encoding_name
+        encodedText = self.get_buffer().encode(encoding_name, mode)
+        if self.encoding.use_byte_order_marker:
+            encodedText = self.encoding.encoding_info.byte_order_marker + encodedText
+        if self.get_bufferLength() and not len(encodedText):
+            # Looks like we zero'd out the buffer. That's not good.
+            errmsg = "Unable to encode the buffer to %s" % encoding_name
+            self.lastErrorSvc.setLastError(0, errmsg)
+            raise ServerException(nsError.NS_ERROR_FAILURE, errmsg)
+        return encodedText
 
     def removeUnencodeable(self):
         """Remove characters from the buffer that are not encodeable with the
@@ -1064,10 +1062,20 @@ class koDocumentBase:
             raise
 
     def get_encodedText(self):
-        return self._getEncodedBufferText()[0]
+        try:
+            return self._getEncodedBufferText()
+        except UnicodeError, ex:
+            log.error("unable to encode document as %r: %s",
+                self.encoding.python_encoding_name, ex)
+            raise
 
     def get_utf8Text(self):
-        return self._getEncodedBufferText(encoding_name='utf-8')[0]
+        try:
+            return self._getEncodedBufferText("utf-8")
+        except UnicodeError, ex:
+            log.error("unable to encode document as 'utf-8': %s",
+                self.encoding.python_encoding_name, ex)
+            raise
 
     _cleanLineRe = re.compile("(.*?)([ \t]+?)?(\r\n|\n|\r)", re.MULTILINE)
     def _clean(self, ensureFinalEOL, cleanLineEnds):
@@ -1248,9 +1256,14 @@ class koDocumentBase:
                 if cleanWhiteSpace:
                     self._clean(ensureFinalEOL, cleanLineEnds)
     
-            # translate the buffer before opening the file so if it
-            # fails, we haven't truncated the file
-            data = self._getEncodedBufferText()[0]
+            # Translate the buffer before opening the file so if it
+            # fails, we haven't truncated the file.
+            try:
+                data = self._getEncodedBufferText()
+            except UnicodeError, ex:
+                log.error("unable to encode document as %r: %s",
+                    self.encoding.python_encoding_name, ex)
+                raise
 
             if not self.file.isLocal:
                 self.doAutoSave()
