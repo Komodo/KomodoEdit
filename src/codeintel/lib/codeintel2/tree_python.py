@@ -37,6 +37,8 @@
 
 """Completion evaluation code for Python"""
 
+from os.path import dirname
+
 from codeintel2.common import *
 from codeintel2.tree import TreeEvaluator
 
@@ -404,6 +406,18 @@ class PythonTreeEvaluator(TreeEvaluator):
             alias = imp_elem.get("alias")
             symbol_name = imp_elem.get("symbol")
             module_name = imp_elem.get("module")
+
+            if module_name.startswith("."):
+                # Need a different curdirlib.
+                lookuppath = self.buf.path
+                while module_name.startswith("."):
+                    lookuppath = dirname(lookuppath)
+                    module_name = module_name[1:]
+                libs = [self.mgr.db.get_lang_lib("Python", "curdirlib",
+                                                 [lookuppath])]
+                if not module_name:
+                    module_name = symbol_name
+                    symbol_name = None
 
             if symbol_name:
                 # from module import symbol, from module import symbol as alias

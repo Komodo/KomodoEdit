@@ -1391,6 +1391,106 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "howGreen"),
              ("function", "color"),])
 
+    @tag("bug78165")
+    def test_dotdot_imports_completions(self):
+        content1, positions1 = unmark_text(dedent(r'''
+            from .<1> import <2>utils
+        '''))
+        content2, positions2 = unmark_text(dedent(r'''
+            from ..<1> import <2>utils
+        '''))
+        content3, positions3 = unmark_text(dedent(r'''
+            from .utils import <1>xxx
+        '''))
+        
+        test_dir = join(self.test_dir, "test_dotdot_imports")
+        manifest = [
+            ('__init__.py', ""),
+            ('foo/__init__.py', ""),
+            ('foo/bar1.py', content1),
+            ('foo/bar2.py', content2),
+            ('foo/bar3.py', content3),
+            ('foo/utils.py', "def neumann(): pass"),
+            ('utils.py', "def morgenstern(): pass"),
+            ('frank/__init__.py', ""),
+            ('frank/bob.py', "def hi_there(): pass"),
+        ]
+        for f, c in manifest:
+            path = join(test_dir, f)
+            writefile(path, c)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar1.py"), lang="Python")
+        self.assertCompletionsInclude2(buf, positions1[1],
+            [("module", "bar1"),
+             ("module", "bar2"),
+             ("module", "utils"),])
+        self.assertCompletionsInclude2(buf, positions1[2],
+            [("module", "bar1"),
+             ("module", "bar2"),
+             ("module", "utils"),])
+
+        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar2.py"), lang="Python")
+        self.assertCompletionsInclude2(buf, positions2[1],
+            [("module", "foo"),
+             ("module", "utils"),
+             ("module", "frank"),])
+        self.assertCompletionsInclude2(buf, positions2[2],
+            [("module", "foo"),
+             ("module", "utils"),
+             ("module", "frank"),])
+
+        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar3.py"), lang="Python")
+        self.assertCompletionsInclude2(buf, positions3[1],
+            [("function", "neumann"),])
+            
+    @tag("bug78165")
+    def test_dotdot_imports(self):
+        content1, positions1 = unmark_text(dedent(r'''
+            import utils
+            utils.<1>xxx
+            from ..frank import bob
+            bob.<2>xxx
+        '''))
+        content2, positions2 = unmark_text(dedent(r'''
+            from . import utils
+            utils.<1>xxx
+        '''))
+        content3, positions3 = unmark_text(dedent(r'''
+            from .. import utils
+            utils.<1>xxx
+        '''))
+
+        test_dir = join(self.test_dir, "test_dotdot_imports")
+        manifest = [
+            ('__init__.py', ""),
+            ('foo/__init__.py', ""),
+            ('foo/bar1.py', content1),
+            ('foo/bar2.py', content2),
+            ('foo/bar3.py', content3),
+            ('foo/utils.py', "def neumann(): pass"),
+            ('utils.py', "def morgenstern(): pass"),
+            ('frank/__init__.py', ""),
+            ('frank/bob.py', "def hi_there(): pass"),
+        ]
+        for f, c in manifest:
+            path = join(test_dir, f)
+            writefile(path, c)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar1.py"), lang="Python")
+        self.assertCompletionsInclude2(buf, positions1[1],
+            [("function", "neumann"),])
+        self.assertCompletionsInclude2(buf, positions1[2],
+            [("function", "hi_there"),])
+
+        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar2.py"), lang="Python")
+        self.assertCompletionsInclude2(buf, positions2[1],
+            [("function", "neumann"),])
+        
+        buf = self.mgr.buf_from_path(join(test_dir, "foo/bar3.py"), lang="Python")
+        self.assertCompletionsInclude2(buf, positions3[1],
+            [("function", "morgenstern"),])
+    
+    
     @tag("bug55687")
     def test_hit_from_function_call(self):
         content, positions = unmark_text(dedent("""\

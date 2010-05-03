@@ -97,8 +97,6 @@ import parser
 from codeintel2.common import CILEError
 from codeintel2 import util
 
-
-
 #---- exceptions
 
 class PythonCILEError(CILEError):
@@ -721,10 +719,15 @@ class AST2CIXVisitor:
         log.info("visitFrom:%d: %r", node.lineno,
                  self.lines and self.lines[node.lineno-1])
         imports = self.nsstack[-1].setdefault("imports", [])
+        module = node.modname
+        if node.level > 0:
+            module = ("." * node.level) + module
         for symbol, alias in node.names:
-            import_ = {"module": node.modname, "symbol": symbol}
-            if node.lineno: import_["line"] = node.lineno
-            if alias: import_["alias"] = alias
+            import_ = {"module": module, "symbol": symbol}
+            if node.lineno:
+                import_["line"] = node.lineno
+            if alias:
+                import_["alias"] = alias
             imports.append(import_)
 
     #XXX
@@ -1551,4 +1554,3 @@ def main(argv):
 
 if __name__ == "__main__":
     sys.exit( main(sys.argv) )
-

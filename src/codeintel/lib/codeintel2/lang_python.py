@@ -105,9 +105,20 @@ class PythonImportsEvaluator(Evaluator):
         try:
             imp_prefix = self.trg.extra["imp_prefix"]
             if imp_prefix:
+                libs = self.buf.libs
+                if not imp_prefix[0]:
+                    if not imp_prefix[-1]:
+                        # Deal with last item being empty, i.e. "from ."
+                        imp_prefix = imp_prefix[:-1]
+                    lookuppath = self.buf.path
+                    while imp_prefix and not imp_prefix[0]:
+                        lookuppath = dirname(lookuppath)
+                        imp_prefix = imp_prefix[1:]
+                    libs = [mgr.db.get_lang_lib("Python", "curdirlib",
+                                                  [lookuppath])]
                 self.ctlr.set_desc("subimports of '%s'" % '.'.join(imp_prefix))
                 cplns = []
-                for lib in self.buf.libs:
+                for lib in libs:
                     imports = lib.get_blob_imports(imp_prefix)
                     if imports:
                         cplns.extend(
@@ -426,6 +437,9 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 #        return CitadelEvaluator.post_process_cplns(self, cplns)
 
 
+# "from", "from .", "from .."
+_dotted_from_rx = re.compile(r'from($|\s+\.+)')
+
 class PythonBuffer(CitadelBuffer):
     lang = lang
     # Fillup chars for Python: basically, any non-identifier char.
@@ -591,9 +605,17 @@ class PythonBuffer(CitadelBuffer):
             line = self._last_logical_line(working_text).strip()
             if line:
                 ch = line[-1]
-                if (isident(ch) or isdigit(ch) or ch == ')'):
+                if (isident(ch) or isdigit(ch) or ch in '.)'):
                     line = line.replace('\t', ' ')
-                    if line.startswith('from '):
+                    m = _dotted_from_rx.match(line)
+                    if m:
+                        dots = len(m.group(1).strip())
+                        # magic value for imp_prefix, means "from .<|>"
+                        imp_prefix = tuple('' for i in xrange(dots+2))
+                        return Trigger(self.lang, TRG_FORM_CPLN,
+                                       "available-imports", pos, implicit,
+                                       imp_prefix=imp_prefix)
+                    elif line.startswith('from '):
                         if ' import ' in line:
                             # we're in "from FOO import BAR." territory,
                             # which is not a trigger
