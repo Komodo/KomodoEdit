@@ -1631,10 +1631,10 @@ class KoPlaceTreeView(TreeView):
     def resetLiveRows(self): # from koKPFTreeView.p.py
         if not self._isLocal:
             return
-        # Watch closed nodes too -- then we can mark them for refershing
+        # Too expensive to watch closed nodes too -- then we can mark them for refershing
         liverows = set([row.getPath()
                         for row in self._rows
-                        if row.isContainer])
+                        if row.infoObject.isOpen])
         #print "resetLiveRows %d" % len(liverows)
         newnodes = liverows.difference(self._liverows)
         oldnodes = self._liverows.difference(liverows)
