@@ -292,7 +292,7 @@ viewManager.prototype._newTemplate = function(defaultDir, project) {
                 var requestedLanguage = _langRegistrySvc.suggestLanguageForFile(obj.template);
                 if (view.koDoc.language != requestedLanguage) {
                     view.koDoc.language = requestedLanguage;
-                    window.updateCommands(1, 'language_changed');
+                    window.updateCommands('language_changed');
                 }
             }
         }, 1, ko.views.manager.currentView);
