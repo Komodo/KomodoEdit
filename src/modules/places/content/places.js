@@ -1613,13 +1613,16 @@ ManagerClass.prototype = {
         var m = /(^[\w\-\+\.]+:\/\/.*?\/)(.*)/.exec(currentURI);
         if (!m) {
             menuitem = document.createElement("menuitem");
-            menuitem.setAttribute('label', 'isnada');
+            menuitem.setAttribute('label',
+                                  _bundle.GetStringFromName("noPartsFound"));
             menuitem.setAttribute('disabled', 'true');
             popupMenu.appendChild(menuitem);
             return;
         }
-        var firstPart = m[1];
+        var uriLeader = m[1];
         var pathPart = m[2];
+        var originalParts = pathPart.split("/")
+        var numParts = originalParts.length;
         var parts;
         if (!pathPart.length) {
             parts = ['/'];
@@ -1632,23 +1635,21 @@ ManagerClass.prototype = {
             }
         }
         var i = 0;
-        var buildingURI = firstPart;
+        var buildingURI;
+        var selectedItem = null;
+        parts.reverse();
         parts.map(function(partName) {
                 menuitem = document.createElement("menuitem");
                 menuitem.setAttribute('label', unescape(partName));
-                menuitem.setAttribute("class", i == parts.length - 1 ? "primary_menu_item" : "menuitem_mru");
                 if (i == 0) {
-                    if (partName == '/') {
-                        partName = '';
-                    } else if (partName[partName.length - 1] == '\\') {
-                        partName = partName.substr(0, partName.length - 1) +"/";
-                    }
-                    buildingURI += partName;
+                    menuitem.setAttribute("class", "primary_menu_item");
+                    selectedItem = menuitem;
                 } else {
-                    if (i > 1) {
-                        buildingURI += "/";
-                    }
-                    buildingURI += partName;
+                    menuitem.setAttribute("class", "menuitem_mru");
+                }
+                buildingURI = uriLeader + originalParts.slice(0, numParts - i).join("/");
+                if (i == numParts - 1) {
+                    buildingURI += "/";
                 }
                 menuitem.setAttribute('oncommand',
                                       ('ko.places.manager.openURI("'
@@ -1657,7 +1658,9 @@ ManagerClass.prototype = {
                 popupMenu.appendChild(menuitem);
                 i += 1;
             });
-        popupMenu.selectedItem = menuitem; // last one
+        if (selectedItem) {
+            popupMenu.selectedItem = selectedItem;
+        }
     },
 
     goSelectedPlace: function(blockCode, index) {
