@@ -207,30 +207,6 @@
         />
   </menupopup>
   
-  <menupopup id="popup_project">
-    <!-- Let it fall to the bottom of the menu for now. -->
-    <menuseparator id="project-place-menuseparator" />
-    <menuitem label="&loadPlace.label;"
-              id="menu_SetPlace"
-              observes="cmd_openDirectory"
-              />
-    <menuitem label="&loadRemotePlace.label;"
-              id="menu_SetRemotePlace"
-              observes="cmd_openRemoteDirectory"
-              />
-    <menu
-        id="menu_mruPlaces"
-        accesskey="&recentPlaces.accesskey;"
-        class="menu_mru"
-        label="&recentPlaces.label;">
-      <!-- Too bad we can't use uilayout.js::_updateMRUMenu -->
-        <menupopup
-            id="popup_mruPlaces"
-            class="popup_mru"
-            onpopupshowing="gPlacesViewMgr.updateMRUMenu(this);" />
-    </menu>
-  </menupopup>
-
   <tabs id="project_toolbox_tabs">
     <tab id="places_tab" label="&Places.label;" insertafter="project_tab"
         oncommand="gPlacesViewMgr.focus(); gPlacesViewMgr.updateView();"
@@ -262,18 +238,7 @@
                   label="&loadRemotePlace.label;"
                   keep="true"
                   class="menuitem-iconic open-places-icon"/>
-    <menu
-        id="menu_mruPlaces"
-        accesskey="&recentPlaces.accesskey;"
-                  keep="true"
-        class="menuitem-iconic menu_mru"
-        label="&recentPlaces.label;">
-      <!-- Too bad we can't use uilayout.js::_updateMRUMenu -->
-        <menupopup
-            id="popup_mruPlaces"
-            class="popup_mru"
-            onpopupshowing="gPlacesViewMgr.updateMRUMenu(this);" />
-    </menu>
+<!--
               <menu id="placeView_sortByMenu"
                     label="&sortBy.label;"
                   keep="true"
@@ -281,6 +246,7 @@
                 <menupopup id="placeView_sortByMenuPopup"
                            onpopupshowing="ko.places.sortByOnPopupShowing(this, 'places')"/>
               </menu>
+-->
               <menuseparator id="places_view_separator"
                   keep="true"/>
               <menuitem id="placeView_defaultView"
