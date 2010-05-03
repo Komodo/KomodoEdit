@@ -71,6 +71,9 @@
 <!ENTITY placesForward.label "Reload next place">
 <!ENTITY goNextPlace.desc "Places: Load previous place">
 <!ENTITY goPreviousPlace.desc "Places: Reload next place">
+<!ENTITY placesParentDirectories.tooltiptext "Parent and recent directories">
+<!ENTITY parentDirectories.label "Parent folders">
+
 <!ENTITY showInFinder.desc "Places: Show file/folder in the system's file manager">
 <!ENTITY renamePlaceItem.label "Rename...">
 <!ENTITY renamePlaceItem.desc "Places: Rename file or folder">

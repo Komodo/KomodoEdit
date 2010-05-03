@@ -330,12 +330,12 @@
 
           <toolbarbutton id="placesParentDirectories"
               type="menu"
-              tooltiptext="&amp;placesParentDirectories.tooltiptext;"
+              tooltiptext="&placesParentDirectories.tooltiptext;"
                     orient="horizontal"
                     persist="buttonstyle"
-                    class="folderPicker-icon"
+                    class="upfolder-icon"
                     buttonstyle="pictures"
-                         label="&amp;Parent folders...">
+                         label="&parentDirectories.label;">
               <menupopup id="placesParentDirectoriesMenu"
                          context=""
                          position="after_start"
