@@ -122,9 +122,12 @@ interface koIDocument : nsISupports
     // Return the language (or sub-language in the UDL case) for the given pos.
     string languageForPosition(in long position);
 
-    // encoding support
-    attribute long codePage; // the code page -- 65001 if unicode
-    attribute koIEncoding encoding; // The name of the Unicode encoding -- undefined if codepage is not 65001
+    //---- Encoding support
+    // Komodo always uses code page 65001, i.e. put scintilla in
+    // Unicode/UTF-8 mode. Setting `codePage` is DEPRECATED in
+    // Komodo 6.0.0b1 -- the set value is ignored.
+    attribute long codePage;
+    attribute koIEncoding encoding;
     readonly attribute boolean isEncodable; // true if the file can be encoded using it's current encoding settings
     void setEncodingFromEncodingName(in string encoding_name);
     void forceEncodingFromEncodingName(in string encoding_name);
