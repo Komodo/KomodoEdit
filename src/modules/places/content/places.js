@@ -971,8 +971,8 @@ function ManagerClass() {
     this.currentPlace = null;
     this.currentPlaceIsLocal = true;
     this.lastHomePlace = null;
-    this.lastLocalHomePlace = null;
-    this.lastRemoteHomePlace = null;
+    this.lastLocalDirectoryChoice = null;
+    this.lastRemoteDirectoryChoice = null;
     this.history_prevPlaces = [];
     this.history_forwardPlaces = [];
     this.history_maxPrevPlaceSize = 20;
@@ -987,11 +987,11 @@ function ManagerClass() {
 }
 
 ManagerClass.prototype = {
-    doLoadLocalPlace: function() {
+    doOpenDirectory: function() {
         var defaultDir = null;
         var placeToTry = (this.currentPlaceIsLocal
                           ? this.currentPlace
-                          : this.lastLocalHomePlace);
+                          : this.lastLocalDirectoryChoice);
         if (placeToTry) {
             var fileObj = Components.classes["@activestate.com/koFileEx;1"].
                           createInstance(Components.interfaces.koIFileEx);
@@ -1003,7 +1003,6 @@ ManagerClass.prototype = {
         var dir = ko.filepicker.getFolder(defaultDir,
                           _bundle.GetStringFromName("directoryPickerPrompt"));
         if (dir == null) {
-            log.debug("doLoadLocalPlace -- filename is null\n");
             return;
         }
         this._recordLastHomePlace();
@@ -1011,16 +1010,13 @@ ManagerClass.prototype = {
         ko.uilayout.ensureTabShown("places_tab");
     },
     
-    doLoadRemotePlace: function() {
+    doOpenRemoteDirectory: function() {
         // No need for defaults here?
-        var o = {};
-        if (this.lastRemoteHomePlace) {
-            // The dialog will go into the directory, but we want
-            // to be able to easily re-select it.
-            o.value = this.lastRemoteHomePlace.replace(new RegExp('/[^/]+$'), '');
-        }
-        ko.filepicker.browseForRemoteDir(o);
-        var uri = o.value;
+        var currentUrl = this.lastRemoteDirectoryChoice;
+        var fileBrowserRetvals = ko.filepicker.remoteFileBrowser(currentUrl, 
+                                              "" /* defaultFilename */,
+                                              Components.interfaces.nsIFilePicker.modeGetFolder);
+        var uri = fileBrowserRetvals.file;
         if (!uri) {
             return;
         }
@@ -1144,9 +1140,9 @@ ManagerClass.prototype = {
         if (this.currentPlace) {
             this.lastHomePlace = this.currentPlace;
             if (this.currentPlaceIsLocal) {
-                this.lastLocalHomePlace = this.currentPlace;
+                this.lastLocalDirectoryChoice = this.currentPlace;
             } else {
-                this.lastRemoteHomePlace = this.currentPlace;
+                this.lastRemoteDirectoryChoice = this.currentPlace;
             }
         }
     },
@@ -1435,7 +1431,7 @@ ManagerClass.prototype = {
         }
         try {
             var placesPrefs = _globalPrefs.getPref("places");
-            var name_list = ['lastLocalHomePlace', 'lastRemoteHomePlace', 'lastHomePlace'];
+            var name_list = ['lastLocalDirectoryChoice', 'lastRemoteDirectoryChoice', 'lastHomePlace'];
             name_list.map(function(name) {
                 try {
                     this[name] = placesPrefs.getStringPref(name);
@@ -1486,7 +1482,7 @@ ManagerClass.prototype = {
             });
         placesPrefs.setPref('history_forwardPlaces', forwardPlace_prefs);
         this._recordLastHomePlace();
-        var name_list = ['lastLocalHomePlace', 'lastRemoteHomePlace', 'lastHomePlace'];
+        var name_list = ['lastLocalDirectoryChoice', 'lastRemoteDirectoryChoice', 'lastHomePlace'];
         name_list.map(function(name) {
             if (this[name]) {
                 placesPrefs.setStringPref(name, this[name]);

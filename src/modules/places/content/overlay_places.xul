@@ -74,12 +74,12 @@
         commandupdater="true"
         events="current_view_changed,place_dirty,current_place_changed,current_place_opened,current_place_closed">
       <command
-          id="cmd_loadPlace" key="key_cmd_loadPlace"
-          oncommand="ko.commands.doCommandAsync('cmd_loadPlace', event)"
+          id="cmd_openDirectory" key="key_cmd_openDirectory"
+          oncommand="ko.commands.doCommandAsync('cmd_openDirectory', event)"
           desc="&placesLoadPlace.desc;"/>
       <command
-          id="cmd_loadRemotePlace" key="key_cmd_loadRemotePlace"
-          oncommand="ko.commands.doCommandAsync('cmd_loadRemotePlace', event)"
+          id="cmd_openRemoteDirectory" key="key_cmd_openRemoteDirectory"
+          oncommand="ko.commands.doCommandAsync('cmd_openRemoteDirectory', event)"
           desc="&placesLoadRemotePlace.desc;"/>
       <command
           id="cmd_findInPlace"
@@ -212,11 +212,11 @@
     <menuseparator id="project-place-menuseparator" />
     <menuitem label="&loadPlace.label;"
               id="menu_SetPlace"
-              observes="cmd_loadPlace"
+              observes="cmd_openDirectory"
               />
     <menuitem label="&loadRemotePlace.label;"
               id="menu_SetRemotePlace"
-              observes="cmd_loadRemotePlace"
+              observes="cmd_openRemoteDirectory"
               />
     <menu
         id="menu_mruPlaces"
@@ -253,12 +253,12 @@
                   class="rightarrow-button-a project-tools-icon">
             <menupopup id="placeView_toolsPopup">
               <menuitem id="placeView_loadButton"
-                  observes="cmd_loadPlace"
+                  observes="cmd_openDirectory"
                   label="&loadPlace.label;"
                   keep="true"
                   class="menuitem-iconic open-places-icon"/>
               <menuitem id="placeView_loadRemoteButton"
-                  observes="cmd_loadRemotePlace"
+                  observes="cmd_openRemoteDirectory"
                   label="&loadRemotePlace.label;"
                   keep="true"
                   class="menuitem-iconic open-places-icon"/>

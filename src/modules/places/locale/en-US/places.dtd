@@ -37,8 +37,8 @@
 <!ENTITY filters.label "Filters">
 <!ENTITY newPlace.label "New...">
 
-<!ENTITY loadPlace.label "Load Place">
-<!ENTITY loadRemotePlace.label "Load Remote Place">
+<!ENTITY loadPlace.label "Open Directory...">
+<!ENTITY loadRemotePlace.label "Open Remote Directory...">
 <!ENTITY recentPlaces.label "Recent Places">
 <!ENTITY recentPlaces.accesskey "R">
 <!ENTITY placesView.tooltiptext "Places Tools">
