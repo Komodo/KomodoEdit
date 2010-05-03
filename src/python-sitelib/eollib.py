@@ -51,6 +51,8 @@ EOL_NOEOL = 4
 if sys.platform.startswith('win'):
     EOL_PLATFORM = EOL_CRLF
 elif sys.platform.startswith('mac'):
+    # Note that this is for Mac *Classic*, i.e. before Mac OS X. We want
+    # to use `EOL_LF` as the native EOL on Mac OS X.
     EOL_PLATFORM = EOL_CR
 else:
     EOL_PLATFORM = EOL_LF
