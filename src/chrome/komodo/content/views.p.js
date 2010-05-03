@@ -1133,28 +1133,28 @@ viewManager.prototype.handle_current_view_changed = function(event) {
     //    dump('newcache['+ x +'] = ' + newcache[x] + '\n');
     //}
     this.currentView.updateCurrentLineColor();
-    window.setTimeout("window.updateCommands('current_view_changed');", 1);
+    window.setTimeout(window.updateCommands, 1, 'current_view_changed');
     var update_editor_change = (oldcache.type != newcache.type) &&
         (oldcache.type == 'editor' || newcache.type== 'editor');
     if (update_editor_change) {
-        window.setTimeout("window.updateCommands('currentview_is_editor');", 1)
+        window.setTimeout(window.updateCommands, 1, 'currentview_is_editor');
     }
-    window.setTimeout("window.updateCommands('dirty');", 1);
+    window.setTimeout(window.updateCommands, 1, 'dirty');
     if (update_editor_change || oldcache.canUndo != newcache.canUndo ||
         oldcache.canRedo != newcache.canRedo) {
-        window.setTimeout("window.updateCommands('undo');", 1);
+        window.setTimeout(window.updateCommands, 1, 'undo');
     }
     if (update_editor_change || oldcache.language != newcache.language) {
-        window.setTimeout("window.updateCommands('language_changed');", 1)
+        window.setTimeout(window.updateCommands, 1, 'language_changed');
     }
     if (update_editor_change || oldcache.canFold != newcache.canFold) {
-        window.setTimeout("window.updateCommands('foldability_changed');", 1);
+        window.setTimeout(window.updateCommands, 1, 'foldability_changed');
     }
     if (update_editor_change || oldcache.isLocal != newcache.isLocal) {
-        window.setTimeout("window.updateCommands('previewability_changed');",1);
+        window.setTimeout(window.updateCommands, 1, 'previewability_changed');
     }
     if (update_editor_change || oldcache.hasSelection != newcache.hasSelection) {
-        window.setTimeout("window.updateCommands('select');", 1);
+        window.setTimeout(window.updateCommands, 1, 'select');
     }
     this.lastviewcache = newcache;
 }
@@ -1164,10 +1164,10 @@ viewManager.prototype.handle_view_closed = function() {
     this.log.info("_viewcount is " + this._viewCount);
     if (this._viewCount == 0) {
         this.log.info("sending event: 'some_files_open'");
-        window.setTimeout("window.updateCommands('some_files_open');", 1);
+        window.setTimeout(window.updateCommands, 1, 'some_files_open');
     } else if (this._viewCount == 1) {
         // We've closed our second view
-        window.setTimeout("window.updateCommands('second_view_open_close');", 1);
+        window.setTimeout(window.updateCommands, 1, 'second_view_open_close');
     }
     if (!ko.workspace.saveInProgress() && !ko.views.manager.batchMode) {
         // Requires a timeout because the new document is not fully unloaded.
@@ -1181,10 +1181,10 @@ viewManager.prototype.handle_view_opened = function() {
     this.log.info("_viewcount is " + this._viewCount);
     if (this._viewCount == 1) {
         this.log.info("sending event: 'some_files_open'");
-        window.setTimeout("window.updateCommands('some_files_open');", 1);
+        window.setTimeout(window.updateCommands, 1, 'some_files_open');
     } else if (this._viewCount == 2) {
         // We've opened our second view
-        window.setTimeout("window.updateCommands('second_view_open_close');", 1);
+        window.setTimeout(window.updateCommands, 1, 'second_view_open_close');
     }
     if (!ko.workspace.restoreInProgress() && !ko.views.manager.batchMode) {
         // Requires a timeout because the new document is not yet fully loaded.
