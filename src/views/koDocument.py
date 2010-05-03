@@ -526,6 +526,7 @@ class koDocumentBase:
             return self.file.baseName
 
     def set_baseName(self, val):
+        # Note: AFAICT this is never called. Not much use in it anyway. --TM (2010).
         if self.isUntitled:
             self._untitledName = val
         else:
@@ -744,6 +745,9 @@ class koDocumentBase:
         else:
             self.set_existing_line_endings(self._eol)
 
+    
+    #---- Encoding
+    
     def _getStringPref(self, name, default=None):
         if self.prefs.hasPref(name):
             return self.prefs.getStringPref(name)
@@ -869,7 +873,7 @@ class koDocumentBase:
 
     def get_isEncodable(self):
         try:
-            self.encode()
+            self._getEncodedBufferText()
             return 1
         except UnicodeError:
             return 0
@@ -1019,7 +1023,7 @@ class koDocumentBase:
                 self.lastErrorSvc.setLastError(errno, errmsg)
             raise
     
-    def encode(self, mode='strict', encoding_name=None):
+    def _getEncodedBufferText(self, mode='strict', encoding_name=None):
         try:
             if not encoding_name:
                 encoding_name = self.encoding.python_encoding_name
@@ -1057,10 +1061,10 @@ class koDocumentBase:
             raise
 
     def get_encodedText(self):
-        return self.encode()[0]
+        return self._getEncodedBufferText()[0]
 
     def get_utf8Text(self):
-        return self.encode(encoding_name='utf-8')[0]
+        return self._getEncodedBufferText(encoding_name='utf-8')[0]
 
     _cleanLineRe = re.compile("(.*?)([ \t]+?)?(\r\n|\n|\r)", re.MULTILINE)
     def _clean(self, ensureFinalEOL, cleanLineEnds):
@@ -1243,7 +1247,7 @@ class koDocumentBase:
     
             # translate the buffer before opening the file so if it
             # fails, we haven't truncated the file
-            data = self.encode()[0]
+            data = self._getEncodedBufferText()[0]
 
             if not self.file.isLocal:
                 self.doAutoSave()
