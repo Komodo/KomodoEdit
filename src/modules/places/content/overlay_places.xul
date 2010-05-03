@@ -327,17 +327,6 @@
               persist="buttonstyle"
               buttonstyle="pictures"
               label="&placesForward.label;"/>
-          <toolbarbutton id="placesRecentLocations"
-              type="menu"
-              tooltiptext="&placesRecentPlaces.tooltiptext;"
-              >
-              <menupopup id="placesRecentPlacesMenu"
-                         context=""
-                         position="after_start"
-                         onpopupshowing="ko.places.manager.init_popup_menu_recent_locations(event);"
-                         oncommand="event.stopPropagation();"
-                         />
-          </toolbarbutton>
 
           <toolbarbutton id="placesParentDirectories"
               type="menu"

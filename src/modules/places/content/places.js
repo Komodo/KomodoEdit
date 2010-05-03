@@ -1546,21 +1546,11 @@ ManagerClass.prototype = {
         }
     },
 
-    init_popup_menu_recent_locations: function(event) {
-        var popupMenu = event.target;
-        while (popupMenu.hasChildNodes()) {
-            popupMenu.removeChild(popupMenu.lastChild);
-        }
+    addRecentLocations: function(popupMenu) {
+        /*
+         * Show at most 6 recent locations, and the rest in a further popup
+         */
         var menuitem;
-        if (!this.history_forwardPlaces.length
-            && !this.history_forwardPlaces.length
-            && !this.currentPlace) {
-            menuitem = document.createElement("menuitem");
-            menuitem.label = "No places have been visited yet";
-            menuitem.disabled = true;
-            popupMenu.appendChild(menuitem);
-            return;
-        }
         var currentURI = null;
         try {
             currentURI = gPlacesViewMgr.view.getURIForRow(0) ;
@@ -1572,14 +1562,21 @@ ManagerClass.prototype = {
         var codes = ['F', 'C', 'B'];
         var file = Components.classes["@activestate.com/koFileEx;1"].
                 createInstance(Components.interfaces.koIFileEx);
+        var reportedURIs = {};
+        var numWritten = 0;
+        var innerPopupMenu = null;
+        var outerPopupMenu = popupMenu;
+        var innerMenu = null;
+        var popupThreshold = 5;
         for (var i = 0; i < blocks.length; ++i) {
             var block = blocks[i];
             var code = codes[i];
             for (var j = block.length - 1; j >= 0; --j) {
                 var uri = block[j];
-                if (!uri) {
+                if (!uri || uri in reportedURIs) {
                     continue;
                 }
+                reportedURIs[uri] = true;
                 menuitem = document.createElement("menuitem");
                 menuitem.setAttribute("crop", "center");
                 file.URI = uri;
@@ -1597,11 +1594,28 @@ ManagerClass.prototype = {
                                        + j
                                        + ');'));
                 popupMenu.appendChild(menuitem);
+                numWritten += 1;
+                if (numWritten == popupThreshold) {
+                    innerMenu = document.createElement("menu");
+                    innerMenu.id = "recentItems.more";
+                    innerMenu.setAttribute('label', "More...");
+                    popupMenu.appendChild(innerMenu);
+                    innerPopupMenu = document.createElement("menupopup");
+                    innerMenu.appendChild(innerPopupMenu);
+                    popupMenu = innerPopupMenu;
+                }
             }
+        }
+        if (numWritten == popupThreshold + 1) {
+            // Pull out the "More..." inner menu, to avoid an inner menu with one item.
+            outerPopupMenu.replaceChild(innerPopupMenu.childNodes[0], innerMenu);
         }
     },
 
     init_popup_parent_directories: function(event) {
+        if (event.originalTarget.id != "placesParentDirectoriesMenu") {
+            return;
+        }
         var popupMenu = event.target;
         while (popupMenu.hasChildNodes()) {
             popupMenu.removeChild(popupMenu.lastChild);
@@ -1661,6 +1675,16 @@ ManagerClass.prototype = {
         if (selectedItem) {
             popupMenu.selectedItem = selectedItem;
         }
+        //TODO: Put the project file here, however that will work.
+        // Next put the recent places
+        if (this.history_forwardPlaces.length
+            || this.history_prevPlaces.length) {
+            menuitem = document.createElementNS(XUL_NS, 'menuseparator');
+            menuitem.id = "popup_parent_directories:sep:recentPlaces";
+            popupMenu.appendChild(menuitem);
+            this.addRecentLocations(popupMenu);
+        }
+        // Next put any starred places
     },
 
     goSelectedPlace: function(blockCode, index) {
