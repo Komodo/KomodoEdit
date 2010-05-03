@@ -1042,20 +1042,23 @@ class koDocumentBase:
             raise
 
     def removeUnencodeable(self):
+        """Remove characters from the buffer that are not encodeable with the
+        current encoding.
+        """
         try:
             encoding_name = self._getStringPref('encoding')
             if not encoding_name:
-                # XXX bug 65746.  this was not reproducable on our systems,
-                # but fixes the problem for a user with a Danish locale
-                log.error("No encoding name is available, defaulting to %s",
-                          self.encoding.python_encoding_name)
+                # Bug 65746: This was not reproducable on our systems,
+                # but fixes the problem for a user with a Danish locale.
+                log.warn("No encoding name is available, defaulting to %s",
+                    self.encoding.python_encoding_name)
                 encoding_name = self.encoding.python_encoding_name
-            decodedText = self.get_buffer().encode(encoding_name,'replace')
+            decodedText = self.get_buffer().encode(encoding_name, 'replace')
             if self.encoding.use_byte_order_marker:
                 encoding_info = self.encodingServices.get_encoding_info(encoding_name)\
                            .python_encoding_name
                 self.encoding.use_byte_order_marker = encoding_info.byte_order_marker != ''
-            self._set_buffer_encoded(unicode(decodedText,encoding_name))
+            self._set_buffer_encoded(unicode(decodedText, encoding_name))
         except Exception, e:
             log.exception(e)
             raise
