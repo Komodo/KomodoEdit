@@ -96,7 +96,8 @@ interface koIDocument : nsISupports
     // compare against the current contents of the buffer in memory.
     boolean differentOnDisk();
 
-    // The EOL_* constants must remain in sync with the ones in eol.py
+    // --- EOLs (end-of-line characters)
+    // The EOL_* constants must remain in sync with the ones in eollib.py
     const long EOL_LF = 0;
     const long EOL_CR = 1;
     const long EOL_CRLF = 2;
@@ -110,7 +111,6 @@ interface koIDocument : nsISupports
     //XXX Might want to add a get_dominant_line_ending() method to know
     //    what to use when existing_line_endings returns EOL_MIXED.
     attribute long existing_line_endings;
-
     void cleanLineEndings();
 
     attribute wstring language;  // what language is this document in?

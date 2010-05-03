@@ -46,7 +46,8 @@ from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import WrapObject, UnwrapObject
 
 
-class TestKoDocumentBase(unittest.TestCase):
+class _KoDocTestCase(unittest.TestCase):
+    """Base class for koIDocument test cases."""
     _fileSvcCache = None
     @property
     def _fileSvc(self):
@@ -68,6 +69,50 @@ class TestKoDocumentBase(unittest.TestCase):
         koDoc.initWithFile(koFile, False);
         return koDoc
 
+
+class KoDocInfoDetectionTestCase(_KoDocTestCase):
+    __tags__ = ["detection"]
+    
+    @property
+    def data_dir(self):
+        return join(dirname(abspath(__file__)), "detection_data")
+    
+    def test_basic(self):
+        for name in ("exists.py", "does not exist.py"):
+            koDoc = self._koDocFromPath(join(self.data_dir, name))
+            self.assertEqual(koDoc.language, "Python")
+    
+    def test_eol(self):
+        """Test EOL detection."""
+        EOL_LF = components.interfaces.koIDocument.EOL_LF
+        EOL_CR = components.interfaces.koIDocument.EOL_CR
+        EOL_CRLF = components.interfaces.koIDocument.EOL_CRLF
+        EOL_MIXED = components.interfaces.koIDocument.EOL_MIXED
+        EOL_NOEOL = components.interfaces.koIDocument.EOL_NOEOL
+        data = [
+            ("eol_lf.py", EOL_LF, EOL_LF),
+            ("eol_cr.py", EOL_CR, EOL_CR),
+            ("eol_crlf.py", EOL_CRLF, EOL_CRLF),
+            ("eol_mixed.py", EOL_MIXED, eollib.EOL_PLATFORM),
+            # `koIDocument.existing_line_endings` current impl. doesn't
+            # return EOL_NOEOL. Instead it traps that value and returns
+            # `new_line_endings`.
+            ("eol_empty.py", eollib.EOL_PLATFORM, eollib.EOL_PLATFORM),
+        ]
+        for name, existing_line_endings, new_line_endings in data:
+            koDoc = self._koDocFromPath(join(self.data_dir, name))
+            koDoc.load()
+            self.assertEqual(koDoc.existing_line_endings, existing_line_endings,
+                "unexpected `koDoc.existing_line_endings` value for %r: "
+                "expected %r, got %r" % (
+                    name, existing_line_endings, koDoc.existing_line_endings))
+            self.assertEqual(koDoc.new_line_endings, new_line_endings,
+                "unexpected `koDoc.new_line_endings` value for %r: "
+                "expected %r, got %r" % (
+                    name, new_line_endings, koDoc.new_line_endings))
+    
+
+class TestKoDocumentBase(_KoDocTestCase):
     def test_createFile(self):
         text = "This is a test!"
         path = tempfile.mktemp()
