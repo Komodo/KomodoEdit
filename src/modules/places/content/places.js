@@ -414,74 +414,6 @@ viewMgrClass.prototype = {
         return menuitem;
     },
 
-    updateMRUMenu: function(menupopup) {
-        var mruList = null;
-        if (_placePrefs.hasPref("mru_places")) {
-            mruList = _placePrefs.getPref("mru_places");
-        }
-        while (menupopup.firstChild) {
-            menupopup.removeChild(menupopup.lastChild);
-        }
-        var uriItems = [];
-        var i;
-        for (i = mruList.length - 1; i >= 0; i--) {
-            uriItems.push([mruList.getStringPref(i), 'M', i]);
-        }
-        var history_prevPlaces = ko.places.manager.history_prevPlaces;
-        for (i = history_prevPlaces.length - 1; i >= 0; i--) {
-            uriItems.push([history_prevPlaces[i], 'P', i]);
-        }
-        var history_forwardPlaces = ko.places.manager.history_forwardPlaces;
-        for (i = history_forwardPlaces.length - 1; i >= 0; i--) {
-            uriItems.push([history_forwardPlaces[i], 'F', i]);
-        }
-        uriItems.sort(function(a, b) {
-                if (a[0] < b[0]) return -1;
-                else if (a[0] == b[0]) return 0;
-                else return 1;
-            });
-        var uri, path, uriItem, lastURI = null;
-        var length = uriItems.length;
-        var fileObj = Components.classes["@activestate.com/koFileEx;1"].
-              createInstance(Components.interfaces.koIFileEx);
-        var menuItemNo = 0;
-        var menuitem;
-        if (length > 0) {
-            for (i = 0; i < length; ++i) {
-                uriItem = uriItems[i];
-                if (uriItem[0] == lastURI) continue;
-                fileObj.URI = lastURI = uriItem[0];
-                path = (fileObj.isLocal ? fileObj.displayPath : lastURI);
-                menuitem = document.createElement("menuitem");
-                // Mozilla does not handle duplicate accesskeys, so only putting
-                // them on first 10.
-                if ((menuItemNo + 1) <= 9) {
-                    menuitem.setAttribute("accesskey", "" + (menuItemNo+1));
-                } else if ((menuItemNo+1) == 10) {
-                    menuitem.setAttribute("accesskey", "0");
-                }
-                menuitem.setAttribute("label", (menuItemNo+1) + " " + path);
-                menuitem.setAttribute("class", "menuitem_mru");
-                menuitem.setAttribute("crop", "center");
-                menuitem.setAttribute("oncommand",
-                                      ("ko.places.manager.loadRecentURI_byIndex('"
-                                       + uriItem[1] // code
-                                       + "', "
-                                       + uriItem[2] // index
-                                       + ")"));
-                menupopup.appendChild(menuitem);
-                menuItemNo += 1;
-            }
-        } else {
-            // create a dead menu item
-            menuitem = document.createElement("menuitem");
-            var label = _bundle.GetStringFromName("noRecentDirectories");
-            menuitem.setAttribute("label", label);
-            menuitem.setAttribute("disabled", "true");
-            menupopup.appendChild(menuitem);
-        }
-    },
-
     doStartDrag: function(event, tree) {
         var index = this._currentRow(event);
         if (!this.view.canDrag(index)) {
@@ -1062,38 +994,10 @@ ManagerClass.prototype = {
                                                           [fileObj.displayPath],
                                                           1);
                 ko.dialogs.alert(prompt);
-                _placePrefs.getPref("mru_places").deletePref(idx);
                 return false;
             }
         }
         return true;
-    },
-
-    loadRecentURI_byIndex: function(code, idx) {
-        var uri;
-        var checkedExistence = false;
-        if (code == 'M') {
-            var mruList = _placePrefs.getPref("mru_places");
-            uri = mruList.getStringPref(idx);
-            if (!this._checkForExistenceByURI(uri)) {
-                return;
-            }
-            checkedExistence = true;
-        } else if (code == 'P') {
-            uri = this.history_prevPlaces[idx];
-        } else if (code == 'F') {
-            uri = this.history_forwardPlaces[idx];
-        } else {
-            var msg = "Don't know how to handle code '" + code + "'\n";
-            log.error(msg);
-            dump(msg);
-            return;
-        }
-        if (!checkedExistence && !this._checkForExistenceByURI(uri)) {
-            return;
-        }
-        this._enterMRU_Place(uri);
-        this._setURI(uri, true);
     },
 
     _enterMRU_Place: function(destination_uri) {
@@ -1101,38 +1005,6 @@ ManagerClass.prototype = {
             return;
         }
         var uri = gPlacesViewMgr.view.getURIForRow(0);
-        var mruList;
-        if (_placePrefs.hasPref("mru_places")) {
-            mruList = _placePrefs.getPref("mru_places");
-            var idx = mruList.findStringPref(uri);
-            if (idx == 0) {
-                // Do nothing: it's at the top.
-            } else if (idx > 0) {
-                // Move it to the top
-                mruList.deletePref(idx);
-                mruList.insertStringPref(0, uri);
-            } else {
-                // Add it
-                var length = mruList.length;
-                //TODO: Give this its own pref
-                var maxMRUPlaces;
-                try {
-                    maxMRUPlaces = _globalPrefs.getLongPref("mruProjectSize");
-                } catch(ex) {
-                    maxMRUPlaces = 10;
-                }
-                while (length >= maxMRUPlaces) {
-                    mruList.deletePref(length - 1);
-                    length--;
-                }
-                mruList.insertStringPref(0, uri);
-            }
-        } else {
-            mruList = Components.classes["@activestate.com/koOrderedPreference;1"].
-            createInstance(Components.interfaces.koIOrderedPreference);
-            mruList.appendStringPref(uri);
-            _placePrefs.setPref("mru_places", mruList);
-        }
         this.pushHistoryInfo(uri, destination_uri);
     },
 
@@ -1759,30 +1631,7 @@ ManagerClass.prototype = {
         window.updateCommands('place_history_changed');
     },
 
-    /*
-            // Remove others
-            while(true) {
-                dest_prev_idx = this.history_prevPlaces.indexOf(destination_uri);
-                if (dest_prev_idx == -1) break;
-                this.history_prevPlaces.splice(dest_prev_idx, 1);
-            }                
-            // Remove others
-            while(true) {
-                dest_fwd_idx = this.history_forwardPlaces.indexOf(destination_uri);
-                if (dest_fwd_idx == -1) break;
-                this.history_forwardPlaces.splice(dest_fwd_idx, 1);
-            }
-    */
     cleanPrefs: function() {
-        var mru_places = _placePrefs.getPref("mru_places");
-        var ids = {};
-        uriSpecificPrefs.getPrefIds(ids, {});
-        ids = ids.value;
-        ids.map(function(uri) {
-            if (mru_places.findStringPref(uri) == -1) {
-                uriSpecificPrefs.deletePref(uri);
-            }
-        })
     },
 
     'observe': function(cancelQuit, topic, data) {
