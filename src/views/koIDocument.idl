@@ -142,10 +142,6 @@ interface koIDocument : nsISupports
     // prefs, if not, find it in any open project and use those prefs.
     // if the document is not in a project, the return is the prefs above
     koIPreferenceSet getEffectivePrefs();
-    // this gets the *language*ExtraPaths preference, from the prefset
-    // returned by getEffectivePrefs.
-    void getExtraPaths([array, size_is(count)] out wstring paths,
-                             out unsigned long count);
     
     void saveState(in koIScintillaView scintilla);
     

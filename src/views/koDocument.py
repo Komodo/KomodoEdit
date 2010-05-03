@@ -268,13 +268,6 @@ class koDocumentBase:
                 return prefset
         return self.prefs
     
-    def getIncludeDirectories(self):
-        prefset = self.getEffectivePrefs()
-        prefname = "%sExtraPaths" % self._language
-        if prefset.hasPref(prefname):
-            return prefset.getStringPref(prefname).split(os.pathsep)
-        return []
-
     def _setLangPrefs(self):
         lprefs = self._globalPrefs.getPref("languages")
         if lprefs.hasPref("languages/"+self._language):
