@@ -1400,8 +1400,8 @@ class KoPlaceTreeView(TreeView):
         if not rowNode.koFileObject:
             return properties
         koFileObject = UnwrapObject(rowNode.koFileObject)
-        if hasattr(koFileObject, 'isReadOnly') and koFileObject.isReadOnly:
-                properties.append("isReadOnly")
+        if koFileObject.isReadOnly:
+            properties.append("isReadOnly")
         return properties
 
 
