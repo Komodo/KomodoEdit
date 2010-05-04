@@ -216,10 +216,14 @@
   <tabpanels id="project_toolbox_tabpanels">
     <tabpanel flex="1" id="PlaceViewbox" insertafter="projectviewbox">
       <vbox flex="1">
+        <hbox id="place-view-vbox" align="center">
+          <image id="place-view-rootPath-icon"
+               />
           <label id="place-view-rootPath"
-                 crop="center"
+                 style="padding-right: 2px; vertical-align:bottom; margin-bottom:0px"
+                 flex="0"
                  class="noplace" />
-        <hbox id="place-view-vbox">
+          <separator flex="1"/>
           <!-- see partviewer in komodo.p.xul when I xblify this -->
           <toolbarbutton id="placeView_tools"
                   tooltiptext="&placeView.tooltiptext;"
@@ -309,17 +313,6 @@
                          oncommand="event.stopPropagation();"
                          />
           </toolbarbutton>
-          <textbox id="places-filter-textbox"
-                   style="min-width:40px; max-width:200px; margin-right:0px;"
-                   class="search-box"
-                   flex="1"
-                   type="search"
-                   timeout="200"
-                   onfocus="this.select();"
-                   onkeypress="ko.places.viewMgr.onFilterKeypress.call(ko.places.viewMgr, event)"
-                   oncommand="ko.places.viewMgr.updateFilter.call(ko.places.viewMgr)"
-                   tooltiptext="&filterSymbols.tooltiptext;"
-                   basetooltiptext="&filterSymbols.tooltiptext;"/>
         </hbox>
         <tree id="places-files-tree" flex="1"
               style="margin: 0px;"

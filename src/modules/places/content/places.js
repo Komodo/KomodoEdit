@@ -847,55 +847,6 @@ viewMgrClass.prototype = {
             node = node.nextElementSibling;
         }
     },
-    
-    onFilterKeypress : function(event) {
-        try {
-            if (event.keyCode == event.DOM_VK_TAB && !event.ctrlKey) {
-                event.cancelBubble = true;
-                event.stopPropagation();
-                event.preventDefault();
-                this.tree.focus();
-                return;
-            } else if (event.keyCode == event.DOM_VK_ESCAPE) {
-                if (widgets.filterTextbox.value != '') {
-                    widgets.filterTextbox.value = '';
-                    this.updateFilter();
-                    event.cancelBubble = true;
-                    event.stopPropagation();
-                    event.preventDefault();
-                }
-                return;
-            }
-        } catch (e) {
-            dump("onFilterKeypress: exception: " + ex + "\n");
-            log.exception(ex);
-        }
-    },
-
-    updateFilter : function(event) {
-        try {
-            var textbox = widgets.filterTextbox;
-            var filterPattern = textbox.value;
-            try {
-                this.view.setFilter(filterPattern);
-                if (textbox.hasAttribute("error")) {
-                    textbox.removeAttribute("error");
-                    textbox.setAttribute("tooltiptext",
-                                         textbox.getAttribute("basetooltiptext"));
-                }
-            } catch (ex) { // Means an invalid regex pattern.
-                textbox.setAttribute("error", "true");
-                textbox.setAttribute("tooltiptext",
-                                     textbox.getAttribute("basetooltiptext") + " -- error in pattern: " + ex);
-            }
-            if (this.view.rowCount) {
-                this.view.selection.select(0);
-            }
-        } catch(ex) {
-            dump("updateFilter: exception: " + ex + "\n");
-            log.exception(ex);
-        }
-    },
   __ZIP__: null
 };
 
@@ -1025,8 +976,10 @@ ManagerClass.prototype = {
         file.URI = uri
         this.currentPlaceIsLocal = file.isLocal; 
         gPlacesViewMgr.view.currentPlace = this.currentPlace = uri;
-        widgets.rootPath.value = (file.scheme == "file" ? file.displayPath : uri);
+        widgets.rootPath.value = file.baseName;
+        widgets.rootPath.tooltipText = (file.scheme == "file" ? file.displayPath : uri);
         widgets.rootPath.setAttribute('class', 'someplace');
+        widgets.rootPathIcon.tooltipText = (file.scheme == "file" ? file.displayPath : uri);
         window.setTimeout(window.updateCommands, 1,
                           "current_place_opened");
         if (setThePref) {
@@ -1053,6 +1006,7 @@ ManagerClass.prototype = {
         var uri = gPlacesViewMgr.view.getURIForRow(index);
         if (index > 0) {
             this._enterMRU_Place(uri);
+            this._setURI(uri);
             gPlacesViewMgr.view.currentPlace = this.currentPlace = uri;
         } else if (index == 0) {
             // Get the home URI back
@@ -1709,7 +1663,7 @@ this.onLoad = function places_onLoad() {
             this_.manager.initialize();
         }, 5000);
     widgets.rootPath = document.getElementById("place-view-rootPath");
-    widgets.filterTextbox = document.getElementById("places-filter-textbox");
+    widgets.rootPathIcon = document.getElementById("place-view-rootPath-icon");
     widgets.placeView_defaultView_menuitem =
         document.getElementById("placeView_defaultView");
     widgets.placeView_viewAll_menuitem =

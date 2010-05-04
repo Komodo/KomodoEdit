@@ -51,8 +51,6 @@ interface koIPlaceTreeView: nsITreeView {
     // What goes into the original tree.
     void setMainFilters(in wstring exclude_patterns,
                         in wstring include_patterns);
-    // specify a filtering string on the tree.
-    void setFilter(in wstring filterString);
     
     attribute wstring currentPlace; // a URI
     

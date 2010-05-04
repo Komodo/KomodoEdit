@@ -201,7 +201,8 @@ class _HierarchyNode(object):
 
     def matchesFilter(self, filterString):
         """Returns a boolean indicating if this node matches the filter."""
-        return filterString.lower() in self.getName().lower() or fnmatch.fnmatch(self.getName(), filterString)
+        name = self.getName()
+        return filterString.lower() in name.lower() or fnmatch.fnmatch(self.getName(), filterString)
 
 import threading
 from Queue import Queue
@@ -268,9 +269,7 @@ class KoPlaceTreeView(TreeView):
         self._liverows = set()  # Tracking changes
         self._originalRows = self._rows  # For filtering
         self._filteredRows = None
-        self._lastFilteredString = None
         self._lastSelectedRow = -1
-        self._filterString = None
         #TODO: Update this for each place 
         self.exclude_patterns = []
         self.include_patterns = []
@@ -593,45 +592,13 @@ class KoPlaceTreeView(TreeView):
         self.include_patterns = include_patterns.split(';')
         self._buildFilteredView()
 
-    def setFilter(self, filterString):
-        # Run the request through the worker thread, in case other
-        # processes are working.  This will also collect multiple
-        # events into one run.
-        requestID = self.getRequestID()
-        self.lock.acquire()
-        try:
-            self._data[requestID] = {'filterString':filterString}
-        finally:
-            self.lock.release()
-        self._pending_filter_requests += 1
-        self.workerThread.put(('setFilter',
-                                {'requestID':requestID,
-                                'requester':self},
-                               'post_setFilter'))
-        
-    def post_setFilter(self, rv, requestID):
-        filterString = self.getItemsByRequestID(requestID, 'filterString')[0]
-        if not self._decrementCheckPendingFilters():
-            return
-        self._filterString = filterString
-        self._buildFilteredView()
-
     def _buildFilteredView(self):
+        #qlog.debug("_buildFilteredView: exclude:%s, include:%s", self.exclude_patterns, self.include_patterns)
         if not self._rows:
+            qlog.debug("No rows")
             return
         origLen = len(self._rows)
-        filterString = self._filterString
         restoreURI = None
-        if not filterString:
-            if self._lastFilteredString and self._lastSelectedRow > -1:
-                self._lastFilteredString = None
-                try:
-                    restoreURI = self._rows[self._lastSelectedRow].getURI()
-                except IndexError:
-                    log.debug("no row at %d", self._lastSelectedRow)
-        else:
-            self._lastFilteredString = filterString
-            
         for node in self._originalRows:
             node.includedInFilter = FILTER_EXCLUDED
         # Always include the first row in the full tree.
@@ -639,7 +606,7 @@ class KoPlaceTreeView(TreeView):
         self._filteredRows[0].includedInFilter = FILTER_INCLUDED
         for i in range(1, len(self._originalRows)):
             node = self._originalRows[i]
-            if self._nodeMatchesFilterOrContainsAMatch(filterString, node):
+            if self._nodeMatchesFilterOrContainsAMatch(node):
                 #log.debug("include node %d (%s)", i, node.getURI())
                 parentNodes = self.includeParentsInFilter(i)
                 self._filteredRows += parentNodes# [p[1] for p in parentNodes]
@@ -672,7 +639,7 @@ class KoPlaceTreeView(TreeView):
         
             
 
-    def _nodeMatchesFilterOrContainsAMatch(self, filterString, node,
+    def _nodeMatchesFilterOrContainsAMatch(self, node,
                                            consultChildren=True):
         # First pass on the main include/exclude nodes
         look_at_excludes = True
@@ -691,8 +658,7 @@ class KoPlaceTreeView(TreeView):
                         return False
         # The above are for a coarse filter.  Now having eliminated
         # the rough kind of item, we can go look at the current pattern.
-        if (look_at_filename
-            and (not filterString or node.matchesFilter(filterString))):
+        if look_at_filename:
             return True
         if not node.isContainer or node.infoObject.isOpen:
             return False
@@ -703,8 +669,7 @@ class KoPlaceTreeView(TreeView):
             self.lock.release()
         if consultChildren:
             for childNode in innerNodes:
-                if self._nodeMatchesFilterOrContainsAMatch(filterString,
-                                                           childNode,
+                if self._nodeMatchesFilterOrContainsAMatch(childNode,
                                                        consultChildren=False):
                     return True
 
@@ -1042,8 +1007,8 @@ class KoPlaceTreeView(TreeView):
                     self._rows = (self._rows[:finalIdx]
                                   + [newNode]
                                   + self._rows[finalIdx:])
-                    self._originalRows = self._rows
                     self._tree.rowCountChanged(finalIdx, 1)
+        self._originalRows = self._rows
         self._buildFilteredView()
 
     def canUndoTreeOperation(self):
@@ -1583,7 +1548,8 @@ class KoPlaceTreeView(TreeView):
             self.getItemsByRequestID(requestID, 'index', 'nextIndex', 'node', 'firstVisibleRow')
         fixedIndex, rowNode = self._postRequestCommonNodeHandling(originalNode, index,
                                                          "post_refreshView")
-        log.debug("post_refreshView: index:%d, nextIndex:%d, firstVisibleRow:%d, fixedIndex:%d, originalNode.getURI():%s, rowNode.getURI():%s",
+        if 0:
+            log.debug("post_refreshView: index:%d, nextIndex:%d, firstVisibleRow:%d, fixedIndex:%d, originalNode.getURI():%s, rowNode.getURI():%s",
                    index, nextIndex, firstVisibleRow, fixedIndex,
                    originalNode.getURI(),
                    rowNode.getURI())
@@ -1626,7 +1592,8 @@ class KoPlaceTreeView(TreeView):
         elif doInvalidate:
             self.invalidateTree()
         # And always filter after
-        #self._buildFilteredView() #XXX reinstate.
+        self._originalRows = self._rows
+        self._buildFilteredView() #XXX reinstate.
 
     def resetLiveRows(self): # from koKPFTreeView.p.py
         if not self._isLocal:
@@ -1700,12 +1667,10 @@ class KoPlaceTreeView(TreeView):
         #qlog.debug("toggleOpenState: index:%d", index)
         #qlog.debug("toggleOpenState: rowNode.infoObject.isOpen: %r", rowNode.infoObject.isOpen)
         if rowNode.infoObject.isOpen:
-            #XXX filtering...
-            if False and (self._filterString or self.exclude_patterns or self.include_patterns):
+            if self.exclude_patterns or self.include_patterns:
                 # Clear the filter
                 # Re-call this function, to close the full node
                 # Reapply the filter, and rebuild list
-                filterString = self._filterString
                 include_patterns = self.include_patterns
                 exclude_patterns = self.exclude_patterns
                 # originalIndex = self._originalRows.index(rowNode)
@@ -1714,13 +1679,12 @@ class KoPlaceTreeView(TreeView):
                 self._rows = self._originalRows
                 self._tree.rowCountChanged(0, len(self._rows) - origLen)
                 if self._rows[originalIndex].infoObject.isOpen:
-                    self._filterString = None
                     self.include_patterns = []
                     self.exclude_patterns = []
                     self.toggleOpenState(originalIndex)
-                self._filterString = filterString 
                 self.include_patterns = include_patterns
                 self.exclude_patterns = exclude_patterns
+                self._originalRows = self._rows
                 self._buildFilteredView()
                 return
             
@@ -1816,13 +1780,12 @@ class KoPlaceTreeView(TreeView):
             # Things to do?
             self._tree.invalidate()
             return
-        filterString = self._filterString
         originalIndex = self._originalRows.index(rowNode)
         self._rows = self._originalRows
         self._tree.rowCountChanged(0, len(self._rows) - origLen)
         if self._rows[originalIndex].infoObject.isOpen:
             self.toggleOpenState(originalIndex)
-        self._filterString = filterString
+        self._originalRows = self._rows
         self._buildFilteredView()
         
     def invalidateTree(self):
@@ -2220,10 +2183,6 @@ class _WorkerThread(threading.Thread, Queue):
             finally:
                 conn.close()
         requester_data['updateTargetTree'] = updateTargetTree
-        return ''
-
-    def setFilter(self, args):
-        # Just use the thread to stack up requests.
         return ''
 
     def setMainFilters(self, args):
