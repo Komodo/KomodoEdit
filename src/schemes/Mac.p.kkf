@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 17
+version 20
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
 binding cmd_blockSelect Meta+Ctrl+L
@@ -118,7 +118,7 @@ binding cmd_newlineBare  Meta+Return
 binding cmd_newlineExtra  Shift+Return 
 binding cmd_newlineSame  Meta+Shift+Return
 binding cmd_open Meta+O
-binding cmd_openProject Meta+Ctrl+O
+binding cmd_openProject Ctrl+Shift+O 
 binding cmd_pageDown  Page_Down 
 binding cmd_pageUp  Page_Up 
 binding cmd_paste Meta+V

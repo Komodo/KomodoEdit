@@ -276,6 +276,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 20: Komodo 6.0.0b1 - rejig Debug Step *, restore Fast Open binding.
  * 19: Komodo 6.0.0a2 - add a binding for cmd_viewFullScreen : ctrl-k f11
  * 18: Komodo 6.0.0a2 - add SCC checkout keybinding: ctrl-k k
  * 17: Komodo 5.2.1 - Linux: convert ctrl-shift-u to ctrl-alt-u
@@ -297,7 +298,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 19;
+const currentKeybindingVersionNumber = 20;
 
 /**
  * Remove this dictionary of keybinds.
@@ -683,6 +684,16 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
 // #if PLATFORM != 'darwin'
             this._add_keybinding_sequences({
                 'cmd_viewFullScreen': ["Ctrl+K, F11"]
+            });
+// #endif
+            break;
+        case 19:
+// #if PLATFORM == 'darwin'
+            this._remove_keybinding_sequences({
+                'cmd_openProject': ["Meta+Ctrl+O"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_openProject': ["Ctrl+Shift+O"]
             });
 // #endif
             break;
