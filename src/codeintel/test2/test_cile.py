@@ -292,7 +292,7 @@ def _testOneInputFile(self, fpath):
 def _fillScanInputsTestCase():
     for dpath, dnames, fnames in os.walk(gInputsDir):
         # Don't descend into SCC control dirs.
-        scc_dirs = [".svn", "CVS", ".hg"]
+        scc_dirs = [".svn", "CVS", ".hg", ".git"]
         for scc_dir in scc_dirs:
             if scc_dir in dnames:
                 dnames.remove(scc_dir)
@@ -308,6 +308,7 @@ def _fillScanInputsTestCase():
                 # Python's os.walk() doesn't recognize as a dir, defaults to
                 # a file and hands it to us here. Skip those.
                 continue
+            if fname == ".DS_Store": continue
             if fpath.endswith(".swp"): continue
             if fpath.endswith("~"): continue
             if fpath.endswith(".pyc"): continue
