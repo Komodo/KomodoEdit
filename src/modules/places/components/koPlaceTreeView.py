@@ -1428,8 +1428,8 @@ class KoPlaceTreeView(TreeView):
                     properties.append("sccSync")
             if scc['sccConflict']:
                 properties.append("sccConflict")
-            if hasattr(koFileObject, 'isReadOnly') and koFileObject.isReadOnly:
-                    properties.append("isReadOnly")
+        if hasattr(koFileObject, 'isReadOnly') and koFileObject.isReadOnly:
+                properties.append("isReadOnly")
         return properties
 
 
