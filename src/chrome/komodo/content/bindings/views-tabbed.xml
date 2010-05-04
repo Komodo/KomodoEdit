@@ -298,30 +298,38 @@
             // action="chrome://komodo/skin/images/status_icon_edit.png"
             // readonly="chrome://komodo/skin/images/status_icon_readonly.png"
 
-            if (view.koDoc.isUntitled ||
-                !view.koDoc.file.exists ||
-                view.koDoc.file.isWriteable) {
-                view.parentNode._tab.removeAttribute('readonly');
-            } else {
-                view.parentNode._tab.setAttribute('readonly',"chrome://komodo/skin/images/status_icon_readonly.png");
-            }
+            let tab = view.parentNode._tab;
+            let koDoc = view.koDoc;
+            let koFile = koDoc.isUntitled ? null : koDoc.file;
 
-            if (!view.koDoc.isUntitled) {
-                var asyncSvc = Components.classes['@activestate.com/koAsyncService;1'].
-                                getService(Components.interfaces.koIAsyncService);
-                if (asyncSvc.uriHasPendingOperation(view.koDoc.file.URI)) {
-                    // This file has an asynchronous operation pending, give it
-                    // the "processing" throbber gif.
-                    view.parentNode._tab.setAttribute('action', asyncSvc.asynchronous_icon_url);
-                    view.parentNode._tab.removeAttribute('status');
-                    this.tabbox.firstChild.scrollBoxObject.ensureElementIsVisible(this.tabbox.firstChild.selectedItem);
-                    return;
+            try {
+                if (koDoc.isUntitled ||
+                    !koFile.exists ||
+                    koFile.isWriteable) {
+                    tab.removeAttribute('readonly');
+                } else {
+                    tab.setAttribute('readonly',"chrome://komodo/skin/images/status_icon_readonly.png");
                 }
-            }
+    
+                if (!koDoc.isUntitled) {
+                    var asyncSvc = Components.classes['@activestate.com/koAsyncService;1'].
+                                    getService(Components.interfaces.koIAsyncService);
+                    if (asyncSvc.uriHasPendingOperation(view.koDoc.file.URI)) {
+                        // This file has an asynchronous operation pending, give it
+                        // the "processing" throbber gif.
+                        tab.setAttribute('action', asyncSvc.asynchronous_icon_url);
+                        tab.removeAttribute('status');
+                        return;
+                    }
+                }
+    
+                tab.removeAttribute('action');
+                tab.removeAttribute('status');
 
-            view.parentNode._tab.removeAttribute('action');
-            view.parentNode._tab.removeAttribute('status');
-            this.tabbox.firstChild.scrollBoxObject.ensureElementIsVisible(this.tabbox.firstChild.selectedItem);
+            } finally {
+                let tabs = this.tabbox.firstChild;
+                tabs.scrollBoxObject.ensureElementIsVisible(tabs.selectedItem);
+            }
         ]]>
         </body>
         </method>
