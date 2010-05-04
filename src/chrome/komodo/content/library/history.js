@@ -629,6 +629,20 @@ this._handle_closing_view = function(event) {
     }
 };
 
+this.tabIndex_for_view = function(view) {
+    // Use tabs, not tabpanels, as tabs get reordered when they're
+    // dragged, but tabpanels don't, and we want to capture tab order.
+    var tabBox = view.parentNode.parentNode.parentNode;
+    var tabs = tabBox.firstChild.childNodes;
+    for (var i = 0; i < tabs.length; i++) {
+        var v = document.getElementById(tabs[i].linkedPanel).firstChild;
+        if (v == view) {
+            return i;
+        }
+    }
+    return -1;
+};
+
 function _rctab_from_event(event) {
     var view = event.originalTarget;
     var uri = null;
@@ -658,18 +672,7 @@ function _rctab_from_event(event) {
         _log.warn("Unexpected view type: " + viewType + "\n");
         return null;
     }
-    var tabIndex = -1;
-    // Use tabs, not tabpanels, as tabs get reordered when they're
-    // dragged, but tabpanels don't, and we want to capture tab order.
-    var tabBox = view.parentNode.parentNode.parentNode;
-    var tabs = tabBox.firstChild.childNodes;
-    for (var i = 0; i < tabs.length; i++) {
-        var v = document.getElementById(tabs[i].linkedPanel).firstChild;
-        if (v == view) {
-            tabIndex = i;
-            break;
-        }
-    }
+    var tabIndex = ko.history.tabIndex_for_view(view);
     return {tabGroup:view.parentView.id, viewType:viewType, uri:uri,
             tabIndex:tabIndex };
 }
