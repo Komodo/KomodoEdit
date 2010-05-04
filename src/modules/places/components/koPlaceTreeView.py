@@ -1400,34 +1400,6 @@ class KoPlaceTreeView(TreeView):
         if not rowNode.koFileObject:
             return properties
         koFileObject = UnwrapObject(rowNode.koFileObject)
-        # Code taken from koKPFTreeView:: KPFTreeView._buildCellProperties
-        # missing, sccOk, sccSync, sccConflict, add, delete, edit,
-        # isReadOnly, branch, integrate
-        if hasattr(koFileObject, 'get_scc'):
-            try:
-                #log.debug("**************** File: %s: About to get scc info",
-                #          rowNode.getPath())
-                scc = koFileObject.get_scc()
-                # log.debug("scc: %s", scc)
-            except:
-                log.exception("Failed to get_scc")
-                return properties
-            if scc['sccAction']:
-                properties.append(scc['sccAction'])
-            if scc['sccOk']:
-                if isinstance(scc['sccOk'], basestring):
-                    if int(scc['sccOk']):
-                        properties.append("sccOk")
-                else:
-                    properties.append("sccOk")
-            if scc['sccSync']:
-                if isinstance(scc['sccSync'], basestring):
-                    if int(scc['sccSync']):
-                        properties.append("sccSync")
-                else:
-                    properties.append("sccSync")
-            if scc['sccConflict']:
-                properties.append("sccConflict")
         if hasattr(koFileObject, 'isReadOnly') and koFileObject.isReadOnly:
                 properties.append("isReadOnly")
         return properties
