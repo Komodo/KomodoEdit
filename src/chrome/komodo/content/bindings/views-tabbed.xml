@@ -481,14 +481,13 @@
                 // Need to notify that the view has changed (after batch mode
                 // has finished) so that the commands can be correctly
                 // enabled/disabled, bug 80942.
+                currentView.makeCurrent();
                 if (currentView == views[views.length -1]) {
                     // Note: The makeCurrent() call will notify of
                     // current_view_changed only when the view actually changes,
                     // which is not what we need here. Force an update by
                     // sending the the change notification manually.
                     xtk.domutils.fireEvent(currentView, 'current_view_changed');
-                } else {
-                    currentView.makeCurrent();
                 }
             }
             
