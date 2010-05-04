@@ -82,8 +82,24 @@ class KoDocInfoDetectionTestCase(_KoDocTestCase):
             koDoc = self._koDocFromPath(join(self.data_dir, name))
             self.assertEqual(koDoc.language, "Python")
     
+    def _mk_eol_test_files(self):
+        """Create the EOL test files. Relying on SCC systems to result in
+        the specific EOLs we want is brittle.
+        """
+        manifest = [
+            ("eol_lf.py", "\n".join("one two three".split())),
+            ("eol_cr.py", "\r".join("one two three".split())),
+            ("eol_crlf.py", "\r\n".join("one two three".split())),
+            ("eol_mixed.py", "endswith cr\rendswith crlf\r\nendswith lf\n"),
+            ("eol_empty.py", ""),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+    
     def test_eol(self):
         """Test EOL detection."""
+        self._mk_eol_test_files()
         EOL_LF = components.interfaces.koIDocument.EOL_LF
         EOL_CR = components.interfaces.koIDocument.EOL_CR
         EOL_CRLF = components.interfaces.koIDocument.EOL_CRLF
@@ -263,6 +279,20 @@ class TestKoDocumentBase(_KoDocTestCase):
         finally:
             if os.path.exists(path):
                 os.unlink(path) # clean up
+    
+
+#---- internal support stuff
+
+def _writefile(path, content, mode='wb'):
+    from os.path import dirname, exists
+    if not exists(dirname(path)):
+        os.makedirs(dirname(path))
+    fout = open(path, mode)
+    try:
+        fout.write(content)
+    finally:
+        fout.close()
+
 
 #---- mainline
 
