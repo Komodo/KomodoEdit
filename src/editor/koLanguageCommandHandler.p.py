@@ -1372,13 +1372,14 @@ class GenericCommandHandler:
         lineno = sm.lineFromPosition(sm.currentPos);
 
         if _fold_level(sm, lineno) == sm.SC_FOLDLEVELBASE:
-            return
-
-        # search up to the header
-        while not _is_header_line(sm, lineno):
-            if lineno == 0:
+            if not _is_header_line(sm, lineno):
                 return
-            lineno -= 1
+        else:
+            # search up to the header
+            while not _is_header_line(sm, lineno):
+                if lineno == 0:
+                    return
+                lineno -= 1
         
         # get the last line visible in this fold and go up from there
         lastchild = sm.getLastChild(lineno, -1)
