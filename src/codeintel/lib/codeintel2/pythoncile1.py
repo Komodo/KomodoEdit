@@ -760,7 +760,10 @@ class AST2CIXVisitor:
                   "line, isClassVar=%r)", varName,
                   '.'.join(namespace["nspath"]), rhsNode, isClassVar)
         variable = namespace["symbols"].get(varName, None)
+        
+        new_var = False
         if variable is None:
+            new_var = True
             variable = {"name": varName,
                         "nspath": namespace["nspath"]+(varName,),
                         # Could try to parse documentation from a near-by
@@ -783,11 +786,23 @@ class AST2CIXVisitor:
             variable["declaration"] = variable
             if line: variable["line"] = line
             namespace["symbols"][varName] = variable
+            
         if isClassVar and not "is-class-var" in variable:
             variable["is-class-var"] = 1
             # line number of first class-level assignment wins
-            if line: variable["line"] = line
+            if line:
+                variable["line"] = line
 
+        if (not new_var and
+            _isfunction(variable) and
+            isinstance(rhsNode, ast.CallFunc) and
+            rhsNode.args and
+            isinstance(rhsNode.args[0], ast.Name) and
+            variable["name"] == rhsNode.args[0].name
+            ):
+            # a speial case for 2.4-styled decorators
+            return
+                        
         varTypes = variable["types"]
         for t in self._guessTypes(rhsNode, namespace):
             log.info("guessed type: %s ::= %s", varName, t)
