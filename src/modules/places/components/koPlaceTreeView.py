@@ -2155,7 +2155,9 @@ class _WorkerThread(threading.Thread, Queue):
             srcURI = srcNode.getURI()
             parentURI = srcURI[:srcURI.rindex("/")]
             self.refreshTreeOnOpen_Aux(requester, parentURI, forceRefresh=True)
+            requester._sortModel(parentURI)
         self.refreshTreeOnOpen_Aux(requester, targetURI, forceRefresh=True)
+        requester._sortModel(targetURI)
         return ""
 
     #---- Local tree copying: shutil.copytree works when only target doesn't exist,
