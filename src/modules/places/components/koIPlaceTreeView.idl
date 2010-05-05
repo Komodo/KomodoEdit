@@ -47,7 +47,9 @@ interface koIPlaceTreeView: nsITreeView {
 
     void initialize();
     void terminate();
-    
+
+    void setCurrentPlaceWithCallback(in wstring uri,
+                                     in koIAsyncCallback callbackObj);    
     // What goes into the original tree.
     void setMainFilters(in wstring exclude_patterns,
                         in wstring include_patterns);
@@ -66,7 +68,6 @@ interface koIPlaceTreeView: nsITreeView {
     wstring getSelectedURI();
     void selectURI(in wstring uri);
     wstring getURIForRow(in long index);
-    boolean canDrag(in long index);
 
     const short COPY_MOVE_OK = 0;
     const short MOVE_SAME_DIR = 1;

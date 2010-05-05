@@ -60,6 +60,10 @@
 <!ENTITY placeView_viewAll.desc "Places: View everything.">
 <!ENTITY placeView_customView.desc "Places: Manage custom view filters.">
 
+<!ENTITY placesUpFolder.tooltiptext "Move Up One Directory">
+<!ENTITY placesUpFolder.label "..">
+<!ENTITY placesUpFolder.desc "Move up one directory.">
+
 <!ENTITY placeView.tooltiptext "Place Tools">
 <!ENTITY ShowInExplorer.label "Show in Explorer">
 <!ENTITY rename.label "Rename">

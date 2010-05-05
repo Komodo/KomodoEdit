@@ -226,10 +226,6 @@ _rebuildFlags = _rebuildDirFlags | _rebuildParentFlags
 _notificationsToReceive = _rebuildFlags | \
     components.interfaces.koIFileNotificationService.FS_FILE_MODIFIED
 
-FILTER_EXCLUDED = 0
-FILTER_INCLUDED = 1
-FILTER_INCLUDED_AS_PARENT = 2
-
 class _UndoCommand():
     def __init__(self):
         self.clearArgs()
@@ -361,6 +357,7 @@ class KoPlaceTreeView(TreeView):
             # No tree, Komodo is likely shutting down.
             return
         if topic == "file_status":
+            
             # find the row for the file and invalidate it
             files = data.split("\n")
             invalidRows = sorted([i for (i,row) in enumerate(self._rows)
@@ -371,15 +368,16 @@ class KoPlaceTreeView(TreeView):
                 koFileEx = components.classes["@activestate.com/koFileEx;1"].\
                            createInstance(components.interfaces.koIFileEx)
                 koFileEx.URI = uri
-                if koFileEx.exists and koFileEx.isDirectory:
-                    # A file has been added to this dir.
-                    # Spin off a refresh request for each row
-                    if node.isContainer:
-                        if node.infoObject.isOpen:
+                if koFileEx.exists:
+                    if koFileEx.isDirectory:
+                        # A file has been added to this dir.
+                        # Spin off a refresh request for each row
+                        if node.isContainer and node.infoObject.isOpen:
                             self.refreshView(row)
                         else:
                             koPlaceItem = self.getNodeForURI(uri)
-                            koPlaceItem.markForRefreshing()
+                            if koPlaceItem:
+                                koPlaceItem.markForRefreshing()
                 else:
                     try:
                         #qlog.debug("About to remove uri %s from row %d", uri, row)
@@ -502,7 +500,7 @@ class KoPlaceTreeView(TreeView):
                      _compare_item_descending]
     # Keep the items in sync with SORT_DIRECTION_NAME_NATURAL, etc.
     def _sortingAdjustCase(self, name):
-        if not sys.platform.startswith('lin'):
+        if sys.platform.startswith('lin'):
             return name
         return name.lower()
 
@@ -554,12 +552,15 @@ class KoPlaceTreeView(TreeView):
     def get_currentPlace(self):
         return self._currentPlace_uri;
     
-    def set_currentPlace(self, uri):
+    def set_currentPlace(self, uri, callback=None):
         if self._currentPlace_uri is not None:
             self.closePlace()
         if uri:
             self._currentPlace_uri = uri
-            self.openPlace(uri)
+            self.openPlace(uri, callback)
+
+    def setCurrentPlaceWithCallback(self, uri, callback):
+        self.set_currentPlace(uri, callback)
 
     def setMainFilters(self, exclude_patterns, include_patterns):
         # Run the request through the worker thread, in case other
@@ -598,107 +599,29 @@ class KoPlaceTreeView(TreeView):
             qlog.debug("No rows")
             return
         origLen = len(self._rows)
-        restoreURI = None
-        for node in self._originalRows:
-            node.includedInFilter = FILTER_EXCLUDED
+        self._filteredRows = []
         # Always include the first row in the full tree.
-        self._filteredRows = [self._originalRows[0]]
-        self._filteredRows[0].includedInFilter = FILTER_INCLUDED
-        for i in range(1, len(self._originalRows)):
+        for i in range(0, len(self._originalRows)):
             node = self._originalRows[i]
-            if self._nodeMatchesFilterOrContainsAMatch(node):
-                #log.debug("include node %d (%s)", i, node.getURI())
-                parentNodes = self.includeParentsInFilter(i)
-                self._filteredRows += parentNodes# [p[1] for p in parentNodes]
+            if self._nodePassesFilter(node):
                 self._filteredRows.append(node)
-                node.includedInFilter = FILTER_INCLUDED
                 
         self._rows = self._filteredRows
         delta = len(self._rows) - origLen
         self._tree.rowCountChanged(0, delta)
         self._tree.invalidate()
-        if restoreURI:
-            # Keep the selected row
-            for i in range(len(self._rows)):
-                if self._rows[i].getURI() == restoreURI:
-                    self.selection.currentIndex = i
-                    self.selection.select(i)
-                    self._tree.ensureRowIsVisible(i)
-                    self._lastSelectedRow = i
-                    # if the selected row is in the bottom half of the view,
-                    # move it to the half-way point
-                    fvrow = self._tree.getFirstVisibleRow()
-                    if fvrow + self._tree.getPageLength() < len(self._rows):
-                        lvrow = self._tree.getLastVisibleRow()
-                        midpt = (fvrow + lvrow)/2
-                        if midpt < i:
-                            self._tree.scrollToRow(fvrow + i - midpt)
-                        break
-        else:
-            self._lastSelectedRow = -1
-        
-            
 
-    def _nodeMatchesFilterOrContainsAMatch(self, node,
-                                           consultChildren=True):
+    def _nodePassesFilter(self, node):
         # First pass on the main include/exclude nodes
         look_at_excludes = True
-        look_at_filename = True
         for include_pattern in self.include_patterns:
             if node.matchesFilter(include_pattern):
-                look_at_excludes = False
-                break
-        if look_at_excludes:
-            for exclude_pattern in self.exclude_patterns:
-                if node.matchesFilter(exclude_pattern):
-                    if consultChildren:
-                        look_at_filename = False
-                        break
-                    else:
-                        return False
-        # The above are for a coarse filter.  Now having eliminated
-        # the rough kind of item, we can go look at the current pattern.
-        if look_at_filename:
-            return True
-        if not node.isContainer or node.infoObject.isOpen:
-            return False
-        self.lock.acquire()
-        try:
-            innerNodes = node.innerNodes
-        finally:
-            self.lock.release()
-        if consultChildren:
-            for childNode in innerNodes:
-                if self._nodeMatchesFilterOrContainsAMatch(childNode,
-                                                       consultChildren=False):
-                    return True
+                return True
+        for exclude_pattern in self.exclude_patterns:
+            if node.matchesFilter(exclude_pattern):
+                return False
+        return True
 
-    def getParentIndex_OffOriginalRow(self, index):
-        if index >= len(self._originalRows) or index < 0: return -1
-        try:
-            i = index - 1
-            level = self._originalRows[index].level
-            while i > 0 and self._originalRows[i].level >= level:
-                i -= 1
-        except IndexError, e:
-            i = -1
-        return i
-
-    def includeParentsInFilter(self, idx):
-        parentNodes = []
-        while idx > 0:
-            parentIdx = self.getParentIndex_OffOriginalRow(idx)
-            if parentIdx == -1:
-                break
-            node = self._originalRows[parentIdx]
-            if node.includedInFilter != FILTER_EXCLUDED:
-                break
-            parentNodes.insert(0, node)
-            node.includedInFilter = FILTER_INCLUDED_AS_PARENT
-            idx = parentIdx
-        return parentNodes
-        
-            
     def getRowIndexForURI(self, uri, considerFiltered=False):
         #XXX handle considerFiltered
         for i in range(len(self._rows)):
@@ -735,7 +658,7 @@ class KoPlaceTreeView(TreeView):
                                'post_selectURI'))
 
     def post_selectURI(self, rv, requestID):
-        uri = self.getItemsByRequestID(requestID, 'uri')[0]
+        uri = self.getItemsByRequestID(requestID, 'uri')
         self._rows[0].infoObject.restore_icon()
         self._tree.invalidateRow(0)
         if rv:
@@ -748,13 +671,6 @@ class KoPlaceTreeView(TreeView):
         
     def getURIForRow(self, index):
         return self._rows[index].getURI()
-        
-    def canDrag(self, index):
-        try:
-            return self._rows[index].level > 0
-            # force build.
-        except Exception, ex:
-            log.exception("canDrag: %d: fails", index)
 
     def _targetFileExists(self, localFinalTargetPath, targetPath, srcBasename,
                           isDir_OutVal):
@@ -1079,27 +995,22 @@ class KoPlaceTreeView(TreeView):
             return targetNodeLastChildIndex
 
     def closePlace(self):
-        if self._currentPlace_uri:
-            if self._isLocal and self._rows:
-                path = self._rows[0].getPath()
-                self._removeWatchForChanges(path)
-            
         lenBefore = len(self._rows)
-        self._rows = []
-        self._originalRows = self._rows
+        self._originalRows = self._rows = []
+        self.resetLiveRows()
         self._tree.rowCountChanged(0, -lenBefore)
         self._currentPlace_uri = None
         self.dragDropUndoCommand.clearArgs()
         
         
-    def openPlace(self, uri):
+    def openPlace(self, uri, callback=None):
         #qlog.debug(">> openPlace(uri:%s)", uri)
         placeFileEx = components.classes["@activestate.com/koFileEx;1"].\
                 createInstance(components.interfaces.koIFileEx)
         placeFileEx.URI = uri
         self._isLocal = placeFileEx.isLocal
         if placeFileEx.isFile:
-            placeFileEx.file = placeFileEx.dirName
+            placeFileEx.path = placeFileEx.dirName
             uri = placeFileEx.URI
         if self._isLocal:
             self._addWatchForChanges(placeFileEx.path)
@@ -1119,58 +1030,48 @@ class KoPlaceTreeView(TreeView):
         if item is None:
             item = _KoPlaceItem(_PLACE_FOLDER, uri, placeFileEx.baseName)
             self.setNodeForURI(uri, item)
-        folderObject = placeObject[_PLACE_FOLDER](fileObj=placeFileEx)
-        homeFolderNode = _HierarchyNode(0, folderObject) 
-        self._rows = [homeFolderNode]
-        self._originalRows = self._rows
-        self._tree.rowCountChanged(0, 1)
-        if folderObject.isOpen:
+        self._originalRows = self._rows = []
+        if True or folderObject.isOpen:  #TODO: remove this line
             #qlog.debug("ok folderObject.isOpen:")
             requestID = self.getRequestID()
             self.lock.acquire()
             try:
-                self._data[requestID] = {'beforeLen':1, 'uri':uri}
+                self._data[requestID] = {'uri':uri, 'callback':callback}
             finally:
                 self.lock.release()
-            homeFolderNode.infoObject.show_busy()
-            self._tree.invalidateRow(0)
             #qlog.debug("go do refreshTreeOnOpen")
             self.workerThread.put(('refreshTreeOnOpen',
                                    {'index': 0,
-                                    'node':homeFolderNode,
                                     'uri':uri,
                                     'requestID':requestID,
                                     'requester':self},
                                    'post_refreshTreeOnOpen'))
-        elif forceOpen:
-            self.toggleOpenState(0)
-        else:
-            pass
-            #qlog.debug("???? not folderObject.isOpen and not forceOpen")
 
     def post_refreshTreeOnOpen(self, rv, requestID):
         #qlog.debug(">> post_refreshTreeOnOpen")
-        uri, beforeLen = self.getItemsByRequestID(requestID, 'uri', 'beforeLen')
+        uri, callback = self.getItemsByRequestID(requestID, 'uri', 'callback')
         import pprint
         topModelNode = self.getNodeForURI(uri)
         #qlog.debug("  about to sort the model")
         self._sortModel(uri)
         #qlog.debug("  done")
-        topTreeNode = self._rows[0]
-        #qlog.debug("post_refreshTreeOnOpen: topNode(%s): %r", uri, topNode)
-        #pprint.pprint(topNode)
-        topTreeNode.infoObject.restore_icon()
-        self._tree.invalidateRow(0)
         if rv:
             # Do this after the request data was cleared
-            sendStatusMessage(rv)
-            raise Exception(rv)
+            if callback:
+                callback.callback(components.interfaces.koIAsyncCallback.RESULT_ERROR,
+                          rv)
+            else:
+                sendStatusMessage(rv)
+                raise Exception(rv)
         before_len = len(self._rows)
         anchor_index = 0
-        self._refreshTreeOnOpen_buildTree(1, 1, topModelNode)
+        self._refreshTreeOnOpen_buildTree(0, 0, topModelNode)
         self.resetLiveRows()
         after_len = len(self._rows)
         self._tree.rowCountChanged(anchor_index, after_len - before_len)
+        if callback:
+            callback.callback(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL,
+                              "")
 
     def _refreshTreeOnOpen_buildTree(self, level, rowIndex, parentNode):
         assert parentNode.type == _PLACE_FOLDER
@@ -1833,6 +1734,8 @@ class KoPlaceTreeView(TreeView):
         finally:
             del self._data[requestID]
             self.lock.release()
+        if len(values) == 1:
+            return values[0]
         return values
     
     def handleCallback(self, callback, rv, requestID):
@@ -1875,12 +1778,13 @@ class _WorkerThread(threading.Thread, Queue):
             #qlog.debug("**************** No node for uri %s", uri)
             koFileEx = components.classes["@activestate.com/koFileEx;1"].\
                        createInstance(components.interfaces.koIFileEx)
+            koFileEx.URI = uri
             if koFileEx.isDirectory:
                 nodeType = _PLACE_FOLDER
             else:
                 nodeType = _PLACE_FILE
             itemNode = _KoPlaceItem(nodeType, uri, koFileEx.baseName)
-            self.setNodeForURI(uri, itemNode)
+            requester.setNodeForURI(uri, itemNode)
         if forceRefresh or itemNode.needsRefreshing():
             if requester._isLocal:
                 items = requester.getDirListFromLocalPath(uri)
