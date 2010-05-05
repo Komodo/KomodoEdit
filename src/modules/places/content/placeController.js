@@ -211,6 +211,22 @@ PlacesController.prototype.do_cmd_placeView_customView = function() {
     ko.places.viewMgr.placeView_customView();
 }
 
+PlacesController.prototype.is_cmd_places_goUpOneFolder_enabled = function() {
+    var uri = ko.places.manager.currentPlace;
+    var fileObj = Components.classes["@activestate.com/koFileEx;1"].
+                  createInstance(Components.interfaces.koIFileEx);
+    fileObj.URI = uri;
+    return fileObj.dirName != fileObj.path;
+}
+
+PlacesController.prototype.do_cmd_places_goUpOneFolder = function() {
+    if (!this.is_cmd_places_goUpOneFolder_enabled()) {
+        this.log.debug("do_cmd_places_goUpOneFolder: invoked, but not enabled");
+        return;
+    }
+    ko.places.manager.goUpOneFolder();
+}
+
 PlacesController.prototype.is_cmd_goPreviousPlace_enabled = function() {
     return ko.places.manager.can_goPreviousPlace();
 }

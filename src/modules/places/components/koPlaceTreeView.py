@@ -174,7 +174,6 @@ class _HierarchyNode(object):
                        and self._nodeOpenStatusFromName.get(self.getURI(), False))
         if self.isContainer:
             self.childNodes = [_HierarchyNode(level + 1, _kplPlaceholder(None))]
-            self.innerNodes = []  # Used for filtering.
         else:
             self.childNodes = []
         

@@ -154,17 +154,6 @@ viewMgrClass.prototype = {
         ko.places.manager.toggleRebaseFolderByIndex(index);
     },
     
-    rebaseToParentByIndex: function(index) {
-        var uri = this.view.getURIForRow(index);
-        var parent_uri;
-        if (this.currentPlaceIsLocal) {
-            parent_uri = ko.uriparse.localPathToURI(ko.uriparse.dirName(uri));
-        } else {
-            parent_uri = uri.replace(/[/\\][^/\\]+$/, '');
-        }
-        ko.places.manager.rebaseToDirByURI(parent_uri, uri);
-    },
-    
     refreshViewByIndex: function(index) {
         this.view.refreshView(index);
     },
@@ -332,38 +321,12 @@ viewMgrClass.prototype = {
             }
             newMenuItemNode = popupmenu.insertBefore(menuitem, firstCommonNode);
 
-            menuitem = this._makeMenuItem("placesContextMenu_moveUp",
-                                          _bundle.GetStringFromName("moveUpOneLevel.label"),
-                                          "gPlacesViewMgr.rebaseToParentByIndex("
-                                          + index
-                                          + ");");
-            if (index == 0) {
-                if (isLocal) {
-                    first_item_is_root =
-                        (this.view.getCellText(index, {id:'name'})
-                         == ko.uriparse.URIToLocalPath(ko.places.manager.
-                                                       currentPlace));
-                } else {
-                    first_item_is_root =
-                        (this.view.getCellText(index, {id:'uri'})
-                         == ko.places.manager.currentPlace);
-                }
-            }
-            menuitem.setAttribute("disabled",
-                                  (first_item_is_root || index > 0).toString());
-            //XXX Is the node's path the top-level?
-            newMenuItemNode = popupmenu.insertBefore(menuitem, newMenuItemNode);
-
             var bundle_label = "rebaseFolder.label";
-            disable_item = index == 0;
             menuitem = this._makeMenuItem(firstFolderMenuItemId_rebase,
                                           _bundle.GetStringFromName(bundle_label),
                                           ("gPlacesViewMgr.rebaseByIndex("
                                            + index
                                            + ");"));
-            if (disable_item) {
-                menuitem.setAttribute("disabled", "true");
-            }
             popupmenu.insertBefore(menuitem, newMenuItemNode);
             menuitem = document.getElementById("placesContextMenu_newFile");
             menuitem.removeAttribute("disabled");
@@ -416,9 +379,6 @@ viewMgrClass.prototype = {
 
     doStartDrag: function(event, tree) {
         var index = this._currentRow(event);
-        if (!this.view.canDrag(index)) {
-            return;
-        }
         this.complainIfNotAContainer = true;
         var uri = this.view.getURIForRow(index);
         if (!uri) {
@@ -754,7 +714,7 @@ viewMgrClass.prototype = {
         this.view.terminate();
         this.view = null;
         var treecol = this.tree.childNodes[0].childNodes[0];
-        _globalPrefs.getPref("places").getStringPref("sortDirection",
+        _globalPrefs.getPref("places").setStringPref("sortDirection",
                                                      treecol.getAttribute("sortDirection"));
     },
 
@@ -955,8 +915,7 @@ ManagerClass.prototype = {
         if (!this.currentPlace) {
             return;
         }
-        var uri = gPlacesViewMgr.view.getURIForRow(0);
-        this.pushHistoryInfo(uri, destination_uri);
+        this.pushHistoryInfo(this.currentPlace, destination_uri);
     },
 
     _recordLastHomePlace: function() {
@@ -975,11 +934,38 @@ ManagerClass.prototype = {
                 createInstance(Components.interfaces.koIFileEx);
         file.URI = uri
         this.currentPlaceIsLocal = file.isLocal; 
-        gPlacesViewMgr.view.currentPlace = this.currentPlace = uri;
+        this._moveToURI(uri, setThePref);
+    },
+
+    toggleRebaseFolderByIndex: function(index) {
+        var uri = gPlacesViewMgr.view.getURIForRow(index);
+        this._enterMRU_Place(uri);
+        this._setURI(uri, true);
+    },
+
+    _moveToURI: function(uri, setThePref) {
+        if (typeof(setThePref) == "undefined") {
+            setThePref = false;
+        }
+        var statusNode = document.getElementById("place-view-rootPath-icon");
+        var busyURI = "chrome://global/skin/icons/loading_16.png";
+        statusNode.src = busyURI;
+        this.currentPlace = uri;
+        var callback = {
+            callback: function(result, data) {
+                statusNode.src = widgets.defaultFolderIconSrc;
+            }
+        };
+        gPlacesViewMgr.view.setCurrentPlaceWithCallback(uri, callback);
+        // This rest can be done async.
+        var file = Components.classes["@activestate.com/koFileEx;1"].
+                createInstance(Components.interfaces.koIFileEx);
+        file.URI = uri
         widgets.rootPath.value = file.baseName;
-        widgets.rootPath.tooltipText = (file.scheme == "file" ? file.displayPath : uri);
+        var tooltipText = (file.scheme == "file" ? file.displayPath : uri);
+        widgets.rootPath.tooltipText = tooltipText;
         widgets.rootPath.setAttribute('class', 'someplace');
-        widgets.rootPathIcon.tooltipText = (file.scheme == "file" ? file.displayPath : uri);
+        widgets.rootPathIcon.tooltipText = tooltipText;
         window.setTimeout(window.updateCommands, 1,
                           "current_place_opened");
         if (setThePref) {
@@ -1000,36 +986,6 @@ ManagerClass.prototype = {
             prefSet.setStringPref('viewName', finalViewName);
             uriSpecificPrefs.setPref(uri, prefSet);
         }
-    },
-
-    toggleRebaseFolderByIndex: function(index) {
-        var uri = gPlacesViewMgr.view.getURIForRow(index);
-        if (index > 0) {
-            this._enterMRU_Place(uri);
-            this._setURI(uri);
-            gPlacesViewMgr.view.currentPlace = this.currentPlace = uri;
-        } else if (index == 0) {
-            // Get the home URI back
-            var lastSlashIdx = uri.lastIndexOf("/");
-            if (lastSlashIdx == -1) return;
-            var parent_uri = uri.substr(0, lastSlashIdx);
-            this._enterMRU_Place(parent_uri);
-            gPlacesViewMgr.view.currentPlace = this.currentPlace = parent_uri;
-            if (!gPlacesViewMgr.view.isContainerOpen(0)) {
-                // Should be done as an async callback.
-                gPlacesViewMgr.view.toggleOpenState(0);
-                setTimeout(gPlacesViewMgr.view.selectURI, 1000, uri);
-            } else {
-                gPlacesViewMgr.view.selectURI(uri);
-            }
-        }
-    },
-
-    rebaseToDirByURI: function(uri, child_uri) {
-        if (typeof(child_uri) == "undefined") child_uri = null;
-        this.pushHistoryInfo(child_uri, uri);
-        gPlacesViewMgr.view.currentPlace = this.currentPlace = uri;
-        if (child_uri) gPlacesViewMgr.view.selectURI(child_uri)
     },
 
     /* doCutPlaceItem
@@ -1325,6 +1281,15 @@ ManagerClass.prototype = {
             getService(Components.interfaces.nsIObserverService);
         gObserverSvc.removeObserver(this, 'visit_directory_proposed');
     },
+    
+    goUpOneFolder: function() {
+        var uri = ko.places.manager.currentPlace;
+        var lastSlashIdx = uri.lastIndexOf("/");
+        if (lastSlashIdx == -1) return;
+        var parent_uri = uri.substr(0, lastSlashIdx);
+        this._enterMRU_Place(parent_uri);
+        this._setURI(parent_uri, true);
+    },
 
     can_goPreviousPlace: function() {
         return this.history_prevPlaces.length > 0;
@@ -1338,7 +1303,7 @@ ManagerClass.prototype = {
         if (this.currentPlace) {
             this.history_forwardPlaces.unshift(this.currentPlace);
         }
-        this._setURI(targetURI);
+        this._setURI(targetURI, false);
         window.updateCommands('place_history_changed');
     },
 
@@ -1664,6 +1629,7 @@ this.onLoad = function places_onLoad() {
         }, 5000);
     widgets.rootPath = document.getElementById("place-view-rootPath");
     widgets.rootPathIcon = document.getElementById("place-view-rootPath-icon");
+    widgets.defaultFolderIconSrc = widgets.rootPathIcon.src;
     widgets.placeView_defaultView_menuitem =
         document.getElementById("placeView_defaultView");
     widgets.placeView_viewAll_menuitem =
