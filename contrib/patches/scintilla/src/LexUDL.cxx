@@ -93,8 +93,6 @@ static inline int safeStyleAt(int pos, Accessor &styler) {
 
 #define MAX_KEYWORD_LENGTH 200
 
-static FILE *fp_log = NULL;
-
 static char opposite(char ch) {
     if (ch == '(')
         return ')';
@@ -130,6 +128,8 @@ static void GetCurrent(char *s, unsigned int len, unsigned int end,
 #endif
 #undef LOG_MEM
 #ifdef LOG_MEM
+
+static FILE *fp_log = NULL;
 
 #if _WIN32
 #pragma message("XXX: #undef LOG_MEM to stop logging mem usage in UDL")
@@ -1864,10 +1864,10 @@ public:
     }
 
     void dump() {
-        fprintf(stderr, "tagstack: stackIndex:%d, stackSize:%d, tagIndx: %d, tagAvail:%d, stack:\n   ",
+        fprintf(stderr, "tagstack: stackIndex:%d, stackSize:%d, tagIndx: %ld, tagAvail:%ld, stack:\n   ",
                 stackIndex, stackSize,
-                tagNameStorageIndex - tagNameStorageBase,
-                tagNameStorageAvail - tagNameStorageBase);
+                (long) (tagNameStorageIndex - tagNameStorageBase),
+                (long) (tagNameStorageAvail - tagNameStorageBase));
         for (int i = 0; i < stackIndex; i++) {
             fprintf(stderr, "%d:%s  ", i, stack[i]);
         }
@@ -3379,17 +3379,6 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
     t2 = time(NULL);
     fprintf(stderr, "ColouriseTemplate1Doc: %d secs\n", t2 - t1);
 #endif
-}
-
-static char * _getLanguageNameFromLexresPath(char *path) {
-    char *part = strstr(path, ".lexres");
-    if (!part) return part;
-    while (--part > path) {
-        if (*part == '/' || *part == '\\') {
-            return part + 1;
-        }
-    }
-    return NULL;
 }
 
 static bool lookingAtXMLDocument(Accessor &styler) {
