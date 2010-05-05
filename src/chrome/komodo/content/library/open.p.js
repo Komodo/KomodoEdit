@@ -65,12 +65,25 @@ this._imageUrlREs = [
     /.*\.jpeg$/i,
     /.*\.bmp$/i,
     /.*\.ico$/i,
-]
+];
 
 this.isImageUrl = function open_isImageUrl(url) {
     var imageREs = ko.open._imageUrlREs;
     for (var i=0; i < imageREs.length; i++) {
         if (imageREs[i].test(url)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+this._audioUrlREs = [
+    /.*\.mp3$/i,
+];
+this.isAudioUrl = function open_isAudioUrl(url) {
+    var audioREs = ko.open._audioUrlREs;
+    for (var i=0; i < audioREs.length; i++) {
+        if (audioREs[i].test(url)) {
             return true;
         }
     }
@@ -183,7 +196,8 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
                         // as there's something wrong with its contents.
                     }
                 }
-            } else if (!viewType && ko.open.isImageUrl(uri)) {
+            } else if (!viewType && (ko.open.isImageUrl(uri)
+                                     || ko.open.isAudioUrl(uri))) {
                 // Open the image for previewing, bug 85103.
                 viewType = "browser";
             }
