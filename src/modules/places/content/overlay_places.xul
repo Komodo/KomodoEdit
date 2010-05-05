@@ -226,11 +226,10 @@
           <image id="place-view-rootPath-icon"
                />
           <label id="place-view-rootPath"
-                 style="padding-right: 2px;"
-                 flex="0"
-                 crop="center"
+                 min-width="0"
+                 flex="1"
+                 crop="end"
                  class="noplace" />
-          <separator flex="1"/>
           <toolbarbutton id="placesUpFolderButton"
               tooltiptext="&placesUpFolder.tooltiptext;"
               persist="buttonstyle"
