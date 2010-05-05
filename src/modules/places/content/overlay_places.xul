@@ -129,6 +129,12 @@
           oncommand="ko.commands.doCommandAsync('cmd_placeView_customView', event)"
           disabled="true"
           desc="&placeView_customView.desc;"/>
+      <command
+          id="cmd_places_goUpOneFolder"
+          key="key_cmd_places_goUpOneFolder"
+          oncommand="ko.commands.doCommandAsync('cmd_places_goUpOneFolder', event)"
+          disabled="true"
+          desc="&placesUpFolder.desc;"/>
     </commandset>
     <commandset
         id="cmdset_place_contextMenu"
@@ -220,17 +226,24 @@
           <image id="place-view-rootPath-icon"
                />
           <label id="place-view-rootPath"
-                 style="padding-right: 2px; vertical-align:bottom; margin-bottom:0px"
+                 style="padding-right: 2px;"
                  flex="0"
+                 crop="center"
                  class="noplace" />
           <separator flex="1"/>
-          <!-- see partviewer in komodo.p.xul when I xblify this -->
+          <toolbarbutton id="placesUpFolderButton"
+              tooltiptext="&placesUpFolder.tooltiptext;"
+              persist="buttonstyle"
+              buttonstyle="pictures"
+              label="&placesUpFolder.label;"
+                         observes="cmd_places_goUpOneFolder" 
+                  class="toolbarbutton-1 places-uparrow-button"/>
           <toolbarbutton id="placeView_tools"
                   tooltiptext="&placeView.tooltiptext;"
                   buttonstyle="pictures"
                   type="menu"
                   orient="horizontal"
-                  class="rightarrow-button-a project-tools-icon">
+                  class="project-tools-icon">
             <menupopup id="placeView_toolsPopup">
               <menuitem id="placeView_loadButton"
                   observes="cmd_openDirectory"
