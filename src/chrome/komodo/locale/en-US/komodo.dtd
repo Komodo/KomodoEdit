@@ -632,12 +632,12 @@
 <!ENTITY userInterfaceShowHideKomodoResourcesToolbar.desc "User Interface: Show/Hide Komodo Resources Toolbar">
 <!ENTITY userInterfaceShowHideMacrosToolbar.desc "User Interface: Show/Hide Macros Toolbar">
 <!ENTITY userInterfaceShowHideOpenFindToolbar.desc "User Interface: Show/Hide Open/Find Toolbar">
-<!ENTITY userInterfaceShowHideOutputPane.desc "User Interface: Show/Hide Output Pane">
-<!ENTITY userInterfaceShowHideProjectsPane.desc "User Interface: Show/Hide Projects Pane">
+<!ENTITY userInterfaceShowHideBottomPane.desc "User Interface: Show/Hide Bottom Pane">
+<!ENTITY userInterfaceShowHideLeftPane.desc "User Interface: Show/Hide Left Pane">
 <!ENTITY userInterfaceShowHideProjectsTab.desc "User Interface: Show/Hide Projects Tab">
 <!ENTITY userInterfaceShowHideStandardToolbar.desc "User Interface: Show/Hide Standard Toolbar">
 <!ENTITY userInterfaceShowHideToolbarButtonText.desc "User Interface: Show/Hide Toolbar Button Text">
-<!ENTITY userInterfaceShowHideToolboxPane.desc "User Interface: Show/Hide Toolbox Pane">
+<!ENTITY userInterfaceShowHideRightPane.desc "User Interface: Show/Hide Right Pane">
 <!ENTITY userInterfaceShowHideToolboxTab.desc "User Interface: Show/Hide Toolbox Tab">
 <!ENTITY userInterfaceShowHideToolsToolbar.desc "User Interface: Show/Hide Tools Toolbar">
 <!ENTITY userInterfaceShowHideWhitespace.desc "User Interface: Show/Hide Whitespace">
