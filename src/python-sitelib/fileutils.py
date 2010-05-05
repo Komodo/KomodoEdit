@@ -37,8 +37,8 @@
 import os
 from os.path import islink, realpath, join
 
-# Recipe: paths_from_path_patterns (0.5)
-def should_include_path(path, includes, excludes, isRemotePath=False):
+# Modified recipe: paths_from_path_patterns (0.5)
+def should_include_path(path, includes=None, excludes=None, isRemotePath=False):
     """Return True iff the given path should be included."""
     from os.path import basename
     from fnmatch import fnmatch, fnmatchcase
@@ -61,13 +61,14 @@ def should_include_path(path, includes, excludes, isRemotePath=False):
             #except (NameError, AttributeError):
             #    pass
             return False
-    for exclude in excludes:
-        if fnmatch(base, exclude):
-            #try:
-            #    log.debug("exclude `%s' (matches `%s')", path, exclude)
-            #except (NameError, AttributeError):
-            #    pass
-            return False
+    if excludes:
+        for exclude in excludes:
+            if fnmatch(base, exclude):
+                #try:
+                #    log.debug("exclude `%s' (matches `%s')", path, exclude)
+                #except (NameError, AttributeError):
+                #    pass
+                return False
     return True
 
 def _walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False,
