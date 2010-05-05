@@ -224,6 +224,9 @@
       <vbox flex="1">
         <hbox id="place-view-vbox" align="center">
           <image id="place-view-rootPath-icon"
+                ondragover="return ko.places.viewMgr.doDragOverRootNode(event, this);"
+                ondragenter="return ko.places.viewMgr.doDragEnterRootNode(event, this);"
+                ondrop="return ko.places.viewMgr.doDropOnRootNode(event, this);"
                />
           <label id="place-view-rootPath"
                  min-width="0"

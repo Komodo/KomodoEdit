@@ -75,6 +75,7 @@ log.setLevel(LOG_DEBUG);
 // This object will manage the JS side of the tree view.
 function viewMgrClass() {
     this.startingIndex = -1;
+    this.startingLevel = -1;
     this.default_exclude_matches = ".*;*~;#*;CVS;*.bak;*.pyo;*.pyc";
     // overides, to include:
     this.default_include_matches = ".login;.profile;.bashrc;.bash_profile";
@@ -398,6 +399,7 @@ viewMgrClass.prototype = {
             dt.setData('text/plain', uri);
         }
         this.startingIndex = index;
+        this.startingLevel = this.view.getLevel(this.startingIndex);
         if (event.ctrlKey) {
             dt.effectAllowed = this.originalEffect = "copy";
             this.copying = true;
@@ -408,34 +410,56 @@ viewMgrClass.prototype = {
     },
 
     doDragEnter: function(event, tree) {
-        //dump("viewMgrClass.doDragEnter\n");
         return this._checkDrag(event);
     },
 
     doDragOver: function(event, tree) {
-        //dump("viewMgrClass.doDragOver\n");
         return this._checkDrag(event);
     },
+
+    doDragEnterRootNode: function(event, rootNode) {
+        return this._checkDragToRootNode(event);
+    },
+
+    doDragOverRootNode: function(event, tree) {
+        return this._checkDragToRootNode(event);
+    },
     
-    _checkDrag: function(event) {
+    _checkDragSource: function(event) {
         if (!event.dataTransfer.types.contains("application/x-moz-file")) {
             if (this.complainIfNotAContainer) {
                 log.debug("not a file data-transfer\n");
                 this.complainIfNotAContainer = false;
             }
+            return false;
         }
+        return true;
+    },    
+    _checkDragToRootNode: function(event) {
+        var inDragSource = ko.places.manager.currentPlace && this._checkDragSource(event);
+        if (inDragSource) {
+            inDragSource = this.startingLevel > 0;
+        }
+        event.dataTransfer.effectAllowed = inDragSource ? this.originalEffect : "none";
+        
+    },
+    _checkDrag: function(event) {
+        var inDragSource = this._checkDragSource(event);
         var index = this._currentRow(event);
         var retVal = false;
-        if (index == this.startingIndex) {
+        if (!inDragSource) {
+            // do nothing more
+        } else if (index == this.startingIndex) {
             // Can't drag onto oneself
         } else if (!this.view.isContainer(index)) {
             //if (this.complainIfNotAContainer) {
             //    log.debug("Not a container\n");
             //    this.complainIfNotAContainer = false;
             //}
-        } else if (index == this.view.getParentIndex(this.startingIndex)) {
+        } else if (this.startingLevel > 0
+                   && index == this.view.getParentIndex(this.startingIndex)) {
             // Can't drop into the parent
-            //TODO: Check targetIsChildOfSource here.
+            // If the starting index is 0, we can drop it anywhere on the tree.
         } else {
             retVal = true;
             //dump("this.originalEffect: " + this.originalEffect + "\n");
@@ -452,11 +476,33 @@ viewMgrClass.prototype = {
         var from_index = this.startingIndex;
         var to_index = this._currentRow(event);
         try {
-            this._finishFileCopyOperation(from_index, to_index, this.copying);
+            this._finishFileCopyOperation(from_index, {index:to_index}, this.copying);
         } catch(ex) {
             ko.dialogs.alert(ex);
         }
         this.startingIndex = -1;
+        return true;
+    },
+
+    doDropOnRootNode : function(event, tree) {
+        if (this.startingIndex == -1) {
+            log.debug("doDropOnRootNode: startingIndex: -1: don't do anything");
+            return false;
+        }
+        var from_index = this.startingIndex;
+        try {
+            var uri = ko.places.manager.currentPlace;
+            if (!uri) {
+                return false;
+            }
+            this._finishFileCopyOperation(from_index, {uri:uri}, this.copying);
+        } catch(ex) {
+            ko.dialogs.alert(ex);
+        }
+        this.startingIndex = -1;
+        event.stopPropagation();
+        event.cancelBubble = true;
+        event.preventDefault();
         return true;
     },
 
@@ -476,7 +522,7 @@ viewMgrClass.prototype = {
         }
     },
 
-    _finishFileCopyOperation: function(from_index, to_index, copying) {
+    _finishFileCopyOperation: function(from_index, to_object, copying) {
         var srcFileInfo = {}, targetFileInfo = {};
         var callback = {
             callback: function(result, data) {
@@ -500,15 +546,27 @@ viewMgrClass.prototype = {
                 var title = "Save changes first?";
                 var res = ko.dialogs.yesNo(prompt, response, null, title);
                 if (res != "Yes") {
-                    return;
+                    return false;
                 }
             }
         }
-        var res = this.view.treeOperationWouldConflict(from_index,
+        var res;
+        var to_index = null, to_uri = null;
+        if ('index' in to_object) {
+            to_index = to_object.index;
+            res = this.view.treeOperationWouldConflict(from_index,
                                                        to_index,
                                                        copying,
                                                        srcFileInfo,
                                                        targetFileInfo);
+        } else {
+            to_uri = to_object.uri;
+            res = this.view.treeOperationWouldConflictByURI(from_index,
+                                                            to_uri,
+                                                            copying,
+                                                            srcFileInfo,
+                                                            targetFileInfo);
+        }
         if (res) {
             srcFileInfo = srcFileInfo.value;
             targetFileInfo = targetFileInfo.value;
@@ -613,8 +671,13 @@ viewMgrClass.prototype = {
                             break;
                         }
                     }
-                    this.view.doTreeCopyWithDestName(from_index, to_index,
-                                                     newPath, callback);
+                    if (to_index) {
+                        this.view.doTreeCopyWithDestName(from_index, to_index,
+                                                         newPath, callback);
+                    } else {
+                        this.view.doTreeCopyWithDestNameAndURI(from_index, to_uri,
+                                                         newPath, callback);
+                    }
                     return true;
                 } finally {
                     if (conn) {
@@ -624,7 +687,9 @@ viewMgrClass.prototype = {
             }
         }
         if (!copying) {
-            var to_uri = this.view.getURIForRow(to_index);
+            if (!to_uri) {
+                to_uri = this.view.getURIForRow(to_index);
+            }
             callback = {
             callback: function(result, data) {
                     if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
@@ -632,6 +697,7 @@ viewMgrClass.prototype = {
                     } else {
                         // Update the Komodo view
                         if (from_view) {
+                            g_from_view = from_view;
                             var orig_view_type = from_view.getAttribute("type");
                             // var orig_tabbed_view_id = from_view.tabbedViewId;
                             var orig_tabbed_list = document.getElementById(from_view.parentView.id);
@@ -684,8 +750,13 @@ viewMgrClass.prototype = {
                 }
             };
         }
-        this.view.doTreeOperation(from_index, to_index,
-                                  copying, callback);
+        if (to_index !== null) {
+            this.view.doTreeOperation(from_index, to_index,
+                                      copying, callback);
+        } else {
+            this.view.doTreeOperationToRootNode(from_index, to_uri,
+                                                copying, callback);
+        }            
         return true;
     },
 

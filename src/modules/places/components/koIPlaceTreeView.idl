@@ -79,11 +79,21 @@ interface koIPlaceTreeView: nsITreeView {
                                      in boolean copying,
                                      out koIFileEx srcFileInfo,
                                      out koIFileEx targetFileInfo);
+    short treeOperationWouldConflictByURI(in long sourceIndex, in wstring uri,
+                                     in boolean copying,
+                                     out koIFileEx srcFileInfo,
+                                     out koIFileEx targetFileInfo);
     
     void doTreeOperation(in long sourceIndex, in long targetIndex,
                          in boolean copying,
                          in koIAsyncCallback callbackObj);
+    void doTreeOperationToRootNode(in long sourceIndex, in wstring to_uri,
+                         in boolean copying,
+                         in koIAsyncCallback callbackObj);
     void doTreeCopyWithDestName(in long sourceIndex, in long targetIndex,
+                                in wstring newPath,
+                                in koIAsyncCallback callbackObj);
+    void doTreeCopyWithDestNameAndURI(in long sourceIndex, in wstring to_uri,
                                 in wstring newPath,
                                 in koIAsyncCallback callbackObj);
     boolean canUndoTreeOperation();
