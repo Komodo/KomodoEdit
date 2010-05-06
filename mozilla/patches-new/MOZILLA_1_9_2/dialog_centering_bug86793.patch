@@ -1,0 +1,226 @@
+Windows opened with centerscreen were appearing on the wrong screen - bug 86793.
+
+This patch is from Mozilla central, bug reference:
+https://bugzilla.mozilla.org/show_bug.cgi?id=410337
+
+diff -r 976ec8c4d911 xpfe/appshell/public/nsIXULWindow.idl
+--- xpfe/appshell/public/nsIXULWindow.idl	Tue Apr 06 15:29:56 2010 -0500
++++ xpfe/appshell/public/nsIXULWindow.idl	Thu May 06 15:08:08 2010 -0700
+@@ -98,12 +98,15 @@
+ 
+   /**
+    * Move the window to a centered position.
+-   * @param aRelative the window relative to which the window is moved.
+-   *                  See screen parameter for details. if null, the
+-   *                  window is centered relative to the main screen.
++   * @param aRelative If not null, the window relative to which the window is
++   *                  moved. See aScreen parameter for details.
+    * @param aScreen   PR_TRUE to center the window relative to the screen
+-   *                  containing aRelative. PR_FALSE to center it relative
+-   *                  to aRelative itself.
++   *                  containing aRelative if aRelative is not null. If
++   *                  aRelative is null then relative to the screen of the
++   *                  opener window if it was initialized by passing it to
++   *                  nsWebShellWindow::Initialize. Failing that relative to
++   *                  the main screen.
++   *                  PR_FALSE to center it relative to aRelative itself.
+    * @param aAlert    PR_TRUE to move the window to an alert position,
+    *                  generally centered horizontally and 1/3 down from the top.
+    */
+diff -r 976ec8c4d911 xpfe/appshell/src/nsAppShellService.cpp
+--- xpfe/appshell/src/nsAppShellService.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ xpfe/appshell/src/nsAppShellService.cpp	Thu May 06 15:08:08 2010 -0700
+@@ -239,7 +239,10 @@
+   if (NS_SUCCEEDED(rv)) {
+     // the addref resulting from this is the owning addref for this window
+     RegisterTopLevelWindow(*aResult);
+-    (*aResult)->SetZLevel(CalculateWindowZLevel(aParent, aChromeMask));
++    nsCOMPtr<nsIXULWindow> parent;
++    if (aChromeMask & nsIWebBrowserChrome::CHROME_DEPENDENT)
++      parent = aParent;
++    (*aResult)->SetZLevel(CalculateWindowZLevel(parent, aChromeMask));
+   }
+ 
+   return rv;
+@@ -296,6 +299,10 @@
+ {
+   *aResult = nsnull;
+ 
++  nsCOMPtr<nsIXULWindow> parent;
++  if (aChromeMask & nsIWebBrowserChrome::CHROME_DEPENDENT)
++    parent = aParent;
++
+   nsRefPtr<nsWebShellWindow> window = new nsWebShellWindow();
+   NS_ENSURE_TRUE(window, NS_ERROR_OUT_OF_MEMORY);
+ 
+@@ -320,7 +327,7 @@
+   PRUint32 sheetMask = nsIWebBrowserChrome::CHROME_OPENAS_DIALOG |
+                        nsIWebBrowserChrome::CHROME_MODAL |
+                        nsIWebBrowserChrome::CHROME_OPENAS_CHROME;
+-  if (aParent && ((aChromeMask & sheetMask) == sheetMask))
++  if (parent && ((aChromeMask & sheetMask) == sheetMask))
+     widgetInitData.mWindowType = eWindowType_sheet;
+ #endif
+ 
+@@ -362,18 +369,21 @@
+     window->SetIntrinsicallySized(PR_TRUE);
+   }
+ 
+-  nsresult rv = window->Initialize(aParent, aAppShell, aUrl,
++  PRBool center = aChromeMask & nsIWebBrowserChrome::CHROME_CENTER_SCREEN;
++
++  nsresult rv = window->Initialize(parent, center ? aParent : nsnull,
++                                   aAppShell, aUrl,
+                                    aInitialWidth, aInitialHeight,
+                                    aIsHiddenWindow, widgetInitData);
+       
+   NS_ENSURE_SUCCESS(rv, rv);
+ 
+   window.swap(*aResult); // transfer reference
+-  if (aParent)
+-    aParent->AddChildWindow(*aResult);
++  if (parent)
++    parent->AddChildWindow(*aResult);
+ 
+-  if (aChromeMask & nsIWebBrowserChrome::CHROME_CENTER_SCREEN)
+-    rv = (*aResult)->Center(aParent, aParent ? PR_FALSE : PR_TRUE, PR_FALSE);
++  if (center)
++    rv = (*aResult)->Center(parent, parent ? PR_FALSE : PR_TRUE, PR_FALSE);
+ 
+   return rv;
+ }
+diff -r 976ec8c4d911 xpfe/appshell/src/nsWebShellWindow.cpp
+--- xpfe/appshell/src/nsWebShellWindow.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ xpfe/appshell/src/nsWebShellWindow.cpp	Thu May 06 15:08:08 2010 -0700
+@@ -169,7 +169,8 @@
+ NS_INTERFACE_MAP_END_INHERITING(nsXULWindow)
+ 
+ nsresult nsWebShellWindow::Initialize(nsIXULWindow* aParent,
+-                                      nsIAppShell* aShell, nsIURI* aUrl, 
++                                      nsIXULWindow* aOpener,
++                                      nsIAppShell* aShell, nsIURI* aUrl,
+                                       PRInt32 aInitialWidth,
+                                       PRInt32 aInitialHeight,
+                                       PRBool aIsHiddenWindow,
+@@ -179,7 +180,18 @@
+   nsCOMPtr<nsIWidget> parentWidget;
+ 
+   mIsHiddenWindow = aIsHiddenWindow;
+-  
++
++  nsCOMPtr<nsIBaseWindow> base(do_QueryInterface(aOpener));
++  if (base) {
++    rv = base->GetPositionAndSize(&mOpenerScreenRect.x,
++                                  &mOpenerScreenRect.y,
++                                  &mOpenerScreenRect.width,
++                                  &mOpenerScreenRect.height);
++    if (NS_FAILED(rv)) {
++      mOpenerScreenRect.Empty();
++    }
++  }
++
+   // XXX: need to get the default window size from prefs...
+   // Doesn't come from prefs... will come from CSS/XUL/RDF
+   nsRect r(0, 0, aInitialWidth, aInitialHeight);
+diff -r 976ec8c4d911 xpfe/appshell/src/nsWebShellWindow.h
+--- xpfe/appshell/src/nsWebShellWindow.h	Tue Apr 06 15:29:56 2010 -0500
++++ xpfe/appshell/src/nsWebShellWindow.h	Thu May 06 15:08:08 2010 -0700
+@@ -62,8 +62,8 @@
+   NS_DECL_ISUPPORTS_INHERITED
+ 
+   // nsWebShellWindow methods...
+-  nsresult Initialize(nsIXULWindow * aParent, nsIAppShell* aShell,
+-                      nsIURI* aUrl,
++  nsresult Initialize(nsIXULWindow * aParent, nsIXULWindow * aOpener,
++                      nsIAppShell* aShell, nsIURI* aUrl,
+                       PRInt32 aInitialWidth, PRInt32 aInitialHeight,
+                       PRBool aIsHiddenWindow,
+                       nsWidgetInitData& widgetInitData);
+diff -r 976ec8c4d911 xpfe/appshell/src/nsXULWindow.cpp
+--- xpfe/appshell/src/nsXULWindow.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ xpfe/appshell/src/nsXULWindow.cpp	Thu May 06 15:08:08 2010 -0700
+@@ -688,8 +688,15 @@
+       }
+     }
+   }
+-  if (!aRelative)
+-    screenmgr->GetPrimaryScreen(getter_AddRefs(screen));
++  if (!aRelative) {
++    if (!mOpenerScreenRect.IsEmpty()) {
++      screenmgr->ScreenForRect(mOpenerScreenRect.x, mOpenerScreenRect.y,
++                               mOpenerScreenRect.width, mOpenerScreenRect.height,
++                               getter_AddRefs(screen));
++    } else {
++      screenmgr->GetPrimaryScreen(getter_AddRefs(screen));
++    }
++  }
+ 
+   if (aScreen && screen) {
+     screen->GetAvailRect(&left, &top, &width, &height);
+@@ -1777,13 +1784,8 @@
+   NS_ENSURE_TRUE(appShell, NS_ERROR_FAILURE);
+ 
+   // Just do a normal create of a window and return.
+-  //XXXTAB remove this when appshell talks in terms of nsIXULWindow
+-  nsCOMPtr<nsIXULWindow> parent;
+-  if(aChromeFlags & nsIWebBrowserChrome::CHROME_DEPENDENT)
+-    parent = this;
+-
+   nsCOMPtr<nsIXULWindow> newWindow;
+-  appShell->CreateTopLevelWindow(parent, nsnull, aChromeFlags,
++  appShell->CreateTopLevelWindow(this, nsnull, aChromeFlags,
+                                  nsIAppShellService::SIZE_TO_CONTENT,
+                                  nsIAppShellService::SIZE_TO_CONTENT,
+                                  aAppShell, getter_AddRefs(newWindow));
+@@ -1807,10 +1809,6 @@
+   nsCOMPtr<nsIAppShellService> appShell(do_GetService(NS_APPSHELLSERVICE_CONTRACTID));
+   NS_ENSURE_TRUE(appShell, NS_ERROR_FAILURE);
+ 
+-  nsCOMPtr<nsIXULWindow> parent;
+-  if (aChromeFlags & nsIWebBrowserChrome::CHROME_DEPENDENT)
+-    parent = this;
+-
+   // We need to create a new top level window and then enter a nested
+   // loop. Eventually the new window will be told that it has loaded,
+   // at which time we know it is safe to spin out of the nested loop
+@@ -1835,9 +1833,9 @@
+   NS_ENSURE_TRUE(uri, NS_ERROR_FAILURE);
+ 
+   nsCOMPtr<nsIXULWindow> newWindow;
+-  appShell->CreateTopLevelWindow(parent, uri,
+-                                aChromeFlags, 615, 480, aAppShell,
+-                                getter_AddRefs(newWindow));
++  appShell->CreateTopLevelWindow(this, uri,
++                                 aChromeFlags, 615, 480, aAppShell,
++                                 getter_AddRefs(newWindow));
+ 
+   NS_ENSURE_TRUE(newWindow, NS_ERROR_FAILURE);
+ 
+diff -r 976ec8c4d911 xpfe/appshell/src/nsXULWindow.h
+--- xpfe/appshell/src/nsXULWindow.h	Tue Apr 06 15:29:56 2010 -0500
++++ xpfe/appshell/src/nsXULWindow.h	Thu May 06 15:08:08 2010 -0700
+@@ -69,11 +69,11 @@
+ // nsXULWindow
+ 
+ #define NS_XULWINDOW_IMPL_CID                         \
+-{ /* 2a38ef7e-3174-44ad-a785-b5a863cf5588 */          \
+-     0x2a38ef7e,                                      \
+-     0x3174,                                          \
+-     0x44ad,                                          \
+-   { 0xa7, 0x85, 0xb5, 0xa8, 0x63, 0xcf, 0x55, 0x88 } \
++{ /* 8eaec2f3-ed02-4be2-8e0f-342798477298 */          \
++     0x8eaec2f3,                                      \
++     0xed02,                                          \
++     0x4be2,                                          \
++   { 0x8e, 0x0f, 0x34, 0x27, 0x98, 0x47, 0x72, 0x98 } \
+ }
+ 
+ class nsXULWindow : public nsIBaseWindow,
+@@ -179,6 +179,7 @@
+    PRUint32                mAppPerDev; // sometimes needed when we can't get
+                                        // it from the widget
+    nsString                mTitle;
++   nsIntRect               mOpenerScreenRect; // the screen rect of the opener
+ 
+    nsCOMArray<nsIWeakReference> mTargetableShells; // targetable shells only
+ };
