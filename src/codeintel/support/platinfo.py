@@ -445,7 +445,7 @@ class PlatInfo(object):
 
         try:
             self.os_ver = uname[2].split('.', 1)[1]   # e.g. "B.11.00"
-        except IndexError, ex:
+        except IndexError:
             raise InternalError("unknown HP-UX version: could not "
                                 "parse '%s' from uname" % uname[2])
 
@@ -508,7 +508,7 @@ class PlatInfo(object):
         import MacOS
         try:
             sysv = gestalt.gestalt("sysv")
-        except MacOS.Error, ex:
+        except MacOS.Error:
             # On Mac OS X/Intel (at least on the early release dev
             # boxes) the Gestalt Manager does not seem to be intialized
             # with the standard selectors -- or the equivalent.
