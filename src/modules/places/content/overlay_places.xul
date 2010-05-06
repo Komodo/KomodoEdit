@@ -289,7 +289,7 @@
                   keep="true" />
               <menuseparator id="places_undo_separator"
                   keep="true"/>
-              <menuitem id="placesContextMenu_undo"
+              <menuitem id="placeView_undo"
                         observes="cmd_placeView_undoTreeOperation"
                         oncommand="ko.places.viewMgr.undoTreeOperation()"
                         keep_background="true"
