@@ -224,6 +224,7 @@
       <vbox flex="1">
         <hbox id="place-view-vbox" align="center">
           <image id="place-view-rootPath-icon"
+                 context="places-files-popup" onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);"
                 ondragover="return ko.places.viewMgr.doDragOverRootNode(event, this);"
                 ondragenter="return ko.places.viewMgr.doDragEnterRootNode(event, this);"
                 ondrop="return ko.places.viewMgr.doDropOnRootNode(event, this);"
@@ -361,6 +362,14 @@
                         keep_background="true"
                         class="menuitem-iconic paste-button"
                         label="&paste.label;"
+                        keep="true"
+                        />
+              <menuitem id="placesContextMenu_undo"
+                        observes="cmd_placeView_undoTreeOperation"
+                        oncommand="ko.places.viewMgr.undoTreeOperation()"
+                        keep_background="true"
+                        class="menuitem-iconic undo-button"
+                        label="&undo.label;"
                         keep="true"
                         />
               <menuseparator id="placesContextMenu_separatorFind"

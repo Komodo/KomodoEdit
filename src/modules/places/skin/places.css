@@ -38,6 +38,7 @@
  * CSS for Places UI
  */
 
+/*
 #place-view-rootPath.noplace {
   display: none;
 }
@@ -45,6 +46,7 @@
 #place-view-rootPath.someplace {
   display: inherit;
 }
+*/
 
 treechildren#places-files-tree-body::-moz-tree-image {
   margin-right: 2px;

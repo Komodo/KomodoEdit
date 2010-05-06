@@ -105,6 +105,7 @@ interface koIPlaceTreeView: nsITreeView {
     void deleteItem(in long sourceIndex, in boolean deleteContents);
     void markRow(in long sourceIndex);
     void refreshView(in long sourceIndex);
+    void refreshFullTreeView();
     void renameItem(in long sourceIndex, in wstring baseName, in boolean forceClobber);
 
     const short SORT_DIRECTION_NAME_NATURAL = 1;
