@@ -209,6 +209,25 @@
                            onpopupshowing="ko.projects.sortByDirectionOnPopupShowing(this, true);"/>
             </menu>
         </menupopup>
+
+        <panel id="gotoLine_panel"
+               onpopupshown="document.getElementById('gotoLine_textbox').focus(); document.getElementById('gotoLine_error_hbox').setAttribute('collapsed', 'true'); ">
+            <vbox id="gotoLine_vbox" maxwidth="420">
+                <description id="gotoLine_description">&gotoLine.prompt.description;</description>
+                <hbox id="gotoLine_hbox" align="center">
+                    <label id="gotoLine_label" value="&gotoLine.prompt.label;" />
+                    <textbox id="gotoLine_textbox"
+                             onkeypress="ko.views.gotoLine_onkeypress_handler(event);" />
+                </hbox>
+                <hbox id="gotoLine_error_hbox"
+                      align="center"
+                      collapsed="true">
+                    <image id="gotoLine_error_image" />
+                    <label id="gotoLine_error_label" />
+                </hbox>
+            </vbox>
+        </panel>
+
     </popupset>
 
     <popupset id="extensionPopupSet"/>

@@ -1730,85 +1730,12 @@ viewManager.prototype.is_cmd_gotoLine_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_gotoLine = function() {
-    function parseLine(line) {
-        // Return [sign, num] for the given line string.
-        //   42     sign=null, num=42
-        //   +1     sign=+, num=1
-        //   a      sign=null, num=NaN
-        var stripped = line.replace(/(^\s*|\s*$)/g, '');
-        var sign = null, num;
-        if (stripped[0] == "-" || stripped[0] == "+") {
-            sign = stripped[0];
-            num = parseInt(stripped.substring(1, stripped.length));
-        } else {
-            sign = null;
-            num = parseInt(stripped);
-        }
-        //dump("parseLine(line="+line+"): sign="+sign+", num="+num+"\n");
-        return [sign, num];
-    }
-
-    function validateLine(window, line) {
-        // Good: 1, 42, +12, -5. Bad: a, +1a, -, 3.14
-        var parsed = parseLine(line);
-        var sign = parsed[0];
-        var num = parsed[1];
-        //dump("validateLine(line="+line+"): sign="+sign+", num="+num+"\n");
-        if (isNaN(num) || num < 0) {
-            window.alert(_bundle.formatStringFromName("isInvalidYoumustEnterANumber.alert", [line], 1));
-            return false;
-        }
-        return true;
-    }
-
-    // Prompt for the line.
-    var view = ko.views.manager.currentView;
-    var line = ko.dialogs.prompt(
-            // prompt
-            _bundle.GetStringFromName("enterALineNumberToGoToPrefix.prompt"),
-            _bundle.GetStringFromName("enterLineNumber.prompt"), // label
-            null, // value
-            _bundle.GetStringFromName("goToLine.prompt"), // title
-            // mruName: Don't use one because this tends to gobble up one
-            // <Enter> keypress, which is annoying more than the MRU is
-            // potentially useful. Use the following to get per-file-mru:
-            //      "goto_line_"+view.koDoc.displayPath,
-            null,
-            validateLine) //validator
-
-    if (line == null)
-        return;  // dialog cancelled
-
-    // Go to the given line.
-    var parsed = parseLine(line);
-    var sign = parsed[0];
-    var num = parsed[1];
-    var scimoz = view.scintilla.scimoz;
-    var currLine;
-    var targetLine;
-    switch (sign) {
-    case null:
-        scimoz.gotoLine(num-1);  // scimoz handles out of bounds
-        targetLine = num - 1;
-        break;
-    case "+":
-        currLine = scimoz.lineFromPosition(scimoz.currentPos);
-        targetLine = currLine + num;
-        break;
-    case "-":
-        currLine = scimoz.lineFromPosition(scimoz.currentPos);
-        targetLine = currLine - num;
-        break;
-    default:
-        log.error("unexpected goto line 'sign' value: '"+sign+"'")
-        targetLine = null;
-        break;
-    }
-    if (targetLine != null) {
-        scimoz.gotoLine(targetLine);
-        scimoz.ensureVisible(targetLine);
-        scimoz.scrollCaret();
-    }
+    // Clear any existing line information.
+    var gotoLineTextbox = document.getElementById('gotoLine_textbox');
+    gotoLineTextbox.value = "";
+    // Show the goto line panel/popup.
+    var panel = document.getElementById("gotoLine_panel");
+    panel.openPopup(ko.views.manager.currentView);
 }
 
 // cmd_goToDefinition
@@ -2514,6 +2441,82 @@ this.labelFromPathInfo = function(baseName, dirName, lineNo, tabId,
     }
     return label;
 };
+
+this.gotoLine_onkeypress_handler = function ko_views_gotoLine_onkeypress_handler(event)
+{
+    if (event.keyCode != event.DOM_VK_ENTER &&
+        event.keyCode != event.DOM_VK_RETURN) {
+        return;
+    }
+    // Stop the event from being consumed by Komodo's keybinding manager.
+    event.preventDefault();
+    event.stopPropagation();
+
+    var gotoLineTextbox = document.getElementById("gotoLine_textbox");
+    var line = gotoLineTextbox.value;
+    if (!line)
+        return;
+
+    // Parse the line, creates [sign, num] variables for the given line string.
+    //   42     sign=null, num=42
+    //   +1     sign=+, num=1
+    //   a      sign=null, num=NaN
+    var stripped = line.replace(/(^\s*|\s*$)/g, '');
+    var sign = null;
+    var num;
+    if (stripped[0] == "-" || stripped[0] == "+") {
+        sign = stripped[0];
+        num = parseInt(stripped.substring(1, stripped.length));
+    } else {
+        sign = null;
+        num = parseInt(stripped);
+    }
+    //dump("parseLine(line="+line+"): sign="+sign+", num="+num+"\n");
+
+    // Validate the line:
+    //   Good: 1, 42, +12, -5.
+    //   Bad: a, +1a, -, 3.14
+    var errorBox = document.getElementById('gotoLine_error_hbox');
+    if (isNaN(num) || num < 0) {
+        var errorLabel = document.getElementById('gotoLine_error_label');
+        errorLabel.value = _bundle.formatStringFromName("isInvalidYoumustEnterANumber.alert", [line], 1);
+        errorBox.removeAttribute("collapsed");
+        return;
+    }
+    errorBox.setAttribute("collapsed", "true");
+
+    var gotoLinePanel = document.getElementById("gotoLine_panel");
+    gotoLinePanel.hidePopup();
+
+    // Go to the given line.
+    var view = ko.views.manager.currentView;
+    var scimoz = view.scintilla.scimoz;
+    var currLine;
+    var targetLine;
+    switch (sign) {
+        case null:
+            scimoz.gotoLine(num-1);  // scimoz handles out of bounds
+            targetLine = num - 1;
+            break;
+        case "+":
+            currLine = scimoz.lineFromPosition(scimoz.currentPos);
+            targetLine = currLine + num;
+            break;
+        case "-":
+            currLine = scimoz.lineFromPosition(scimoz.currentPos);
+            targetLine = currLine - num;
+            break;
+        default:
+            log.error("unexpected goto line 'sign' value: '"+sign+"'")
+            targetLine = null;
+            break;
+    }
+    if (targetLine != null) {
+        scimoz.gotoLine(targetLine);
+        scimoz.ensureVisible(targetLine);
+        scimoz.scrollCaret();
+    }
+}
 
 }).apply(ko.views);
 
