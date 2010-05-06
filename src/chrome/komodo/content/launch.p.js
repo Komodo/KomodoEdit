@@ -529,7 +529,7 @@ this.diff = function(diff, title /* ="Diff" */, message /* =null */)
     return ko.windowManager.openDialog(
         "chrome://komodo/content/dialogs/diff.xul",
         "_blank",
-        "chrome,all,close=yes,resizable=yes,scrollbars=yes",
+        "chrome,all,close=yes,resizable=yes,scrollbars=yes,centerscreen",
         obj);
 }
 
@@ -545,7 +545,7 @@ this.watchLocalFile = function() {
     if (filename)
         return window.openDialog("chrome://komodo/content/tail/tail.xul",
                           "_blank",
-                          "chrome,all,close=yes,resizable,scrollbars",
+                          "chrome,all,close=yes,resizable,scrollbars,centerscreen",
                           filename,
                           window);
     return null;
@@ -613,7 +613,7 @@ this.newTemplate = function newTemplate(obj)
 {
     window.openDialog("chrome://komodo/content/templates/new.xul",
                       "_blank",
-                      "chrome,modal,titlebar,resizable=yes",
+                      "chrome,modal,titlebar,resizable=yes,centerscreen",
                       obj);
 }
 

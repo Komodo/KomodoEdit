@@ -163,7 +163,7 @@ this.yesNoCancel = function dialog_yesNoCancel(prompt, response, text, title,
     obj.helpTopic = helpTopic;
     window.openDialog("chrome://komodo/content/dialogs/yesNoCancel.xul",
                       "_blank",
-                      "chrome,modal,titlebar",
+                      "chrome,modal,titlebar,centerscreen",
                       obj);
 
     if (doNotAskPref && obj.doNotAsk) {
@@ -234,7 +234,7 @@ this.yesNo = function dialog_yesNo(prompt, response, text, title, doNotAskPref,
     obj.helpTopic = helpTopic;
     window.openDialog("chrome://komodo/content/dialogs/yesNo.xul",
                       "_blank",
-                      "chrome,modal,titlebar",
+                      "chrome,modal,titlebar,centerscreen",
                       obj);
 
     if (doNotAskPref && obj.doNotAsk) {
@@ -292,7 +292,7 @@ this.okCancel = function dialog_okCancel(prompt, response, text, title,
     obj.helpTopic = helpTopic;
     window.openDialog("chrome://komodo/content/dialogs/okCancel.xul",
                       "_blank",
-                      "chrome,modal,titlebar",
+                      "chrome,modal,titlebar,centerscreen",
                       obj);
 
     if (doNotAskPref && obj.doNotAsk) {
@@ -359,7 +359,7 @@ this.customButtons = function dialog_customButtons(prompt, buttons, response, te
     obj.style = style
     window.openDialog("chrome://komodo/content/dialogs/customButtons.xul",
                       "_blank",
-                      "chrome,modal,titlebar",
+                      "chrome,modal,titlebar,centerscreen",
                       obj);
 
     if (doNotAskPref && obj.doNotAsk) {
@@ -392,7 +392,7 @@ this.alert = function dialog_alert(prompt, text, title, doNotAskPref, options)
     if (typeof(text) == 'undefined') text = null;
     if (typeof(title) == 'undefined') title = null;
     if (typeof(doNotAskPref) == 'undefined') doNotAskPref = null;
-    if (typeof(options) == 'undefined') options = "chrome,modal,titlebar";
+    if (typeof(options) == 'undefined') options = "chrome,modal,titlebar,centerscreen";
 
     // Break out early if "doNotAskPref" prefs so direct.
     var bpref = null;
@@ -492,7 +492,7 @@ this.prompt = function dialog_prompt(prompt, label, value, title, mruName,
     obj.selectionEnd = selectionEnd;
     window.openDialog("chrome://komodo/content/dialogs/prompt.xul",
                       "_blank",
-                      "chrome,modal,titlebar",
+                      "chrome,modal,titlebar,centerscreen",
                       obj);
     if (obj.retval == "OK") {
         return obj.value;
@@ -577,7 +577,7 @@ this.prompt2 = function dialog_prompt2(prompt, label1, value1, label2, value2, t
     obj.screenY = screenY;
     window.openDialog("chrome://komodo/content/dialogs/prompt.xul",
                       "_blank",
-                      "chrome,modal,titlebar",
+                      "chrome,modal,titlebar,centerscreen",
                       obj);
     if (obj.retval == "OK") {
         return [ obj.value, obj.value2 ];
@@ -647,7 +647,7 @@ this.authenticate2 = function dialog_authenticate2(prompt, server, username, all
     obj.login = login;
     window.openDialog("chrome://komodo/content/dialogs/authenticate.xul",
                       "_blank",
-                      "chrome,modal,titlebar",
+                      "chrome,modal,titlebar,centerscreen",
                       obj);
     if (obj.retval == "Cancel") {
         return null;
@@ -783,7 +783,7 @@ this.selectFromList = function dialog_selectFromList(title, prompt, items, selec
     obj.buttonNames = buttonNames;
     window.openDialog("chrome://komodo/content/dialogs/selectFromList.xul",
                       "_blank",
-                      "chrome,modal,titlebar,resizable=yes",
+                      "chrome,modal,titlebar,resizable=yes,centerscreen",
                       obj);
 
     if (doNotAskPref && obj.doNotAsk) {
@@ -861,7 +861,7 @@ this.editEnvVar = function dialog_editEnvVar(name, value, title, mruName /* dial
     obj.interpolateValues = interpolateValues;
     window.openDialog("chrome://komodo/content/dialogs/editEnvVar.xul",
                       "_blank",
-                      "chrome,modal,titlebar,resizable=yes",
+                      "chrome,modal,titlebar,resizable=yes,centerscreen",
                       obj);
     if (obj.retval == "OK") {
         return obj;
@@ -906,7 +906,7 @@ this.internalError = function dialog_internalError(error, text, exception)
     obj.text = text;
     window.openDialog("chrome://komodo/content/dialogs/internalError.xul",
                       "_blank",
-                      "chrome,modal,titlebar",
+                      "chrome,modal,titlebar,centerscreen",
                       obj);
 }
 
@@ -958,7 +958,7 @@ this.pickIcon = function dialog_pickIcon()
     var obj = new Object();
     window.openDialog("chrome://komodo/content/dialogs/iconpicker.xul",
                       "_blank",
-                      "chrome,modal,titlebar,resizable=yes",
+                      "chrome,modal,titlebar,resizable=yes,centerscreen",
                       obj);
     if (obj.retval == "OK") {
         return obj.value;
