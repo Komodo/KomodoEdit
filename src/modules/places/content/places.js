@@ -156,6 +156,7 @@ viewMgrClass.prototype = {
     },
     
     refreshViewByIndex: function(index) {
+        // pyView.refreshView(-1) ==> pyView.refreshFullTreeView()
         this.view.refreshView(index);
     },
 
@@ -225,8 +226,14 @@ viewMgrClass.prototype = {
     onTreeKeyPress: function(event) {
         //dump("TODO: viewMgrClass.onTreeKeyPress\n");
     },
+    allowed_click_nodes: ["places-files-tree-body", "place-view-rootPath-icon"],
     initFilesContextMenu: function(event) {
-        if (event.explicitOriginalTarget.id != "places-files-tree-body") {
+        var clickedNodeId = event.explicitOriginalTarget.id;
+        if (this.allowed_click_nodes.indexOf(clickedNodeId) == -1) {
+            if (clickedNodeId == "places-scc-popup") {
+                // quietly return
+                return false;
+            }
             dump("No context menu when clicking on "
                  + event.explicitOriginalTarget.id
                  + "\n");
@@ -241,13 +248,10 @@ viewMgrClass.prototype = {
         //gEvent = event;
         /*
          * Menus:
-         *   *Folder: Rebase
-         *   *Folder: Move up one level
-         *   *File: Open
+         *   *Folder: Rebase (tree folders only)
          *   *Folder: Refresh View
-         *   *File: Compare File With...
-         *   *File: ----------------
-         *   Cut   
+         *----------------
+         *   Cut   (tree items only)
          *   Copy  
          *   Paste (*File: disabled, *Folder: always enabled)
          *   Undo (undo a move)
@@ -255,25 +259,33 @@ viewMgrClass.prototype = {
          *   Find... (should be in this file|folder)
          *   Replace... (same)
          *   Show in {Explorer | File Manager | Finder}
-         *   Rename...
+         *   Rename...  (tree items only)
          *   Refresh Status
          *----------------
          *   [Source Control | Source Control on Contents] ...
          *----------------
-         *   Delete
+         *   Delete (tree items only)
          *   New File...
          *   New Folder...
          *----------------
          *   Properties (*Folder:disabled)
          */
-        var index = this._currentRow(event);
-        if (index == -1) {
-            event.stopPropagation();
-            event.cancelBubble = true;
-            event.preventDefault();
-            return false;
+        var index;
+        var isRootNode;
+        if (clickedNodeId == "place-view-rootPath-icon") {
+            index = -1;
+            isRootNode = true;
+        } else {
+            index = this._currentRow(event);
+            if (index == -1) {
+                event.stopPropagation();
+                event.cancelBubble = true;
+                event.preventDefault();
+                return false;
+            }
+            isRootNode = false;
         }
-        var isFolder = this.view.isContainer(index);
+        var isFolder = index == -1 ? true : this.view.isContainer(index);
         var popupmenu = event.target;
         var nodes = popupmenu.childNodes;
         var firstMenuItem = nodes[0];
@@ -282,15 +294,24 @@ viewMgrClass.prototype = {
         var firstFolderMenuItemId_refreshView = "placesContextMenu_folder_refresh_view";
         var node, i = 0;
         var isLocal = ko.places.manager.currentPlaceIsLocal;
+        // Do global stuff here: remove nodes from last run, and
+        // handle blanket disable/enabling
+        var disableAll = (isRootNode
+                          && widgets.rootPath.getAttribute('class') ==  'noplace');
         while (!!(node = nodes[i])) {
             if (node.getAttribute("keep") != "true") {
                 popupmenu.removeChild(node);
             } else {
+                if (disableAll) {
+                    node.setAttribute("disabled", "true");
+                } else {
+                    node.removeAttribute("disabled");
+                }
                 i++;
             }
-            if (node.id == "placesContextMenu_partPaste") {
-                node.disabled = !isFolder;
-            }
+        }
+        if (disableAll) {
+            return true;
         }
         var firstCommonNode = null;
         for (i = 0; node = nodes[i]; ++i) {
@@ -310,50 +331,60 @@ viewMgrClass.prototype = {
 
         var first_item_is_root = false;
         if (isFolder) {
-            
-            var disable_item = !this.view.isContainerOpen(index);
+            var disable_item = !isRootNode && !this.view.isContainerOpen(index);
             menuitem = this._makeMenuItem(firstFolderMenuItemId_refreshView,
                                           _bundle.GetStringFromName("refreshView.label"),
                                           ("gPlacesViewMgr.refreshViewByIndex("
-                                           + index
+                                           + index // -1 ok
                                            + ");"));
             if (disable_item) {
                 menuitem.setAttribute("disabled", "true");
             }
             newMenuItemNode = popupmenu.insertBefore(menuitem, firstCommonNode);
-
-            var bundle_label = "rebaseFolder.label";
-            menuitem = this._makeMenuItem(firstFolderMenuItemId_rebase,
-                                          _bundle.GetStringFromName(bundle_label),
-                                          ("gPlacesViewMgr.rebaseByIndex("
-                                           + index
-                                           + ");"));
-            popupmenu.insertBefore(menuitem, newMenuItemNode);
+            if (!isRootNode) {
+                var bundle_label = "rebaseFolder.label";
+                menuitem = this._makeMenuItem(firstFolderMenuItemId_rebase,
+                                              _bundle.GetStringFromName(bundle_label),
+                                              ("gPlacesViewMgr.rebaseByIndex("
+                                               + index
+                                               + ");"));
+                popupmenu.insertBefore(menuitem, newMenuItemNode);
+            }
             menuitem = document.getElementById("placesContextMenu_newFile");
             menuitem.removeAttribute("disabled");
             menuitem.setAttribute("oncommand",
                                   ("gPlacesViewMgr.addNewFile("
-                                    + index
+                                   + index // -1 is handled for isRootNode
                                     + ");"));
             menuitem = document.getElementById("placesContextMenu_newFolder");
             menuitem.removeAttribute("disabled");
             menuitem.setAttribute("oncommand",
                                   ("gPlacesViewMgr.addNewFolder("
-                                    + index
+                                   + index // -1 is handled for isRootNode
                                     + ");"));
         } else {
-            menuitem = this._makeMenuItem("placesContextMenu_compareFileWith",
-                                          _bundle_peFile.GetStringFromName("compareFileWith"),
-                                          ("gPlacesViewMgr.compareFileWith("
-                                           + index
-                                           + ");"));
-            newMenuItemNode = popupmenu.insertBefore(menuitem, firstCommonNode);
-            menuitem = this._makeMenuItem(firstFileMenuItemId_fileOpen,
-                                          _bundle_peFile.GetStringFromName("open"),
-                                          ("gPlacesViewMgr.openFileByIndex("
-                                           + index
-                                           + ");"));
-            popupmenu.insertBefore(menuitem, newMenuItemNode);
+            if (!isRootNode) {
+                menuitem = this._makeMenuItem("placesContextMenu_compareFileWith",
+                                              _bundle_peFile.GetStringFromName("compareFileWith"),
+                                              ("gPlacesViewMgr.compareFileWith("
+                                               + index
+                                               + ");"));
+                newMenuItemNode = popupmenu.insertBefore(menuitem, firstCommonNode);
+                menuitem = this._makeMenuItem(firstFileMenuItemId_fileOpen,
+                                              _bundle_peFile.GetStringFromName("open"),
+                                              ("gPlacesViewMgr.openFileByIndex("
+                                               + index
+                                               + ");"));
+                popupmenu.insertBefore(menuitem, newMenuItemNode);
+            }
+            document.getElementById("placesContextMenu_newFile").setAttribute("disabled", 'true');
+            document.getElementById("placesContextMenu_newFolder").setAttribute("disabled", 'true');
+        }
+        var renameNode = document.getElementById("placesContextMenu_rename");
+        if (isRootNode) {
+            renameNode.setAttribute("disabled", "true");
+        } else {
+            renameNode.removeAttribute("disabled");
         }
         menuitem = document.getElementById("placesContextMenu_showInFinder");
         var platform = navigator.platform.toLowerCase();
@@ -1022,41 +1053,48 @@ ManagerClass.prototype = {
         var busyURI = "chrome://global/skin/icons/loading_16.png";
         statusNode.src = busyURI;
         this.currentPlace = uri;
-        var callback = {
-            callback: function(result, data) {
-                statusNode.src = widgets.defaultFolderIconSrc;
-            }
-        };
-        gPlacesViewMgr.view.setCurrentPlaceWithCallback(uri, callback);
-        // This rest can be done async.
         var file = Components.classes["@activestate.com/koFileEx;1"].
-                createInstance(Components.interfaces.koIFileEx);
+        createInstance(Components.interfaces.koIFileEx);
         file.URI = uri
         widgets.rootPath.value = file.baseName;
         var tooltipText = (file.scheme == "file" ? file.displayPath : uri);
         widgets.rootPath.tooltipText = tooltipText;
         widgets.rootPath.setAttribute('class', 'someplace');
         widgets.rootPathIcon.tooltipText = tooltipText;
-        window.setTimeout(window.updateCommands, 1,
-                          "current_place_opened");
-        if (setThePref) {
-            _placePrefs.setStringPref(window._koNum, uri);
-        }
-        var viewName = null;
-        var prefSet;
-        if (uriSpecificPrefs.hasPref(uri)) {
-            var prefSet = uriSpecificPrefs.getPref(uri);
-            try { viewName = prefSet.getStringPref('viewName')} catch(ex) {}
-            var finalViewName = gPlacesViewMgr.placeView_updateView(viewName);
-            if (finalViewName != viewName) {
-                prefSet.setStringPref('viewName', finalViewName)
+        var callback = {
+            callback: function(result, data) {
+                statusNode.src = widgets.defaultFolderIconSrc;
+                if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
+                    widgets.rootPath.value = ""
+                    widgets.rootPath.tooltipText = "";
+                    widgets.rootPath.setAttribute('class', 'noplace');
+                    widgets.rootPathIcon.tooltipText = "";
+                    ko.dialogs.alert(data);
+                } else {
+                    window.setTimeout(window.updateCommands, 1,
+                                      "current_place_opened");
+                    if (setThePref) {
+                        _placePrefs.setStringPref(window._koNum, uri);
+                    }
+                    var viewName = null;
+                    var prefSet;
+                    if (uriSpecificPrefs.hasPref(uri)) {
+                        var prefSet = uriSpecificPrefs.getPref(uri);
+                        try { viewName = prefSet.getStringPref('viewName')} catch(ex) {}
+                        var finalViewName = gPlacesViewMgr.placeView_updateView(viewName);
+                        if (finalViewName != viewName) {
+                            prefSet.setStringPref('viewName', finalViewName)
+                                }
+                    } else {
+                        var finalViewName = gPlacesViewMgr.placeView_updateView(null);
+                        prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+                        prefSet.setStringPref('viewName', finalViewName);
+                        uriSpecificPrefs.setPref(uri, prefSet);
+                    }
+                }
             }
-        } else {
-            var finalViewName = gPlacesViewMgr.placeView_updateView(null);
-            prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
-            prefSet.setStringPref('viewName', finalViewName);
-            uriSpecificPrefs.setPref(uri, prefSet);
-        }
+        };
+        gPlacesViewMgr.view.setCurrentPlaceWithCallback(uri, callback);
     },
 
     /* doCutPlaceItem
@@ -1626,11 +1664,18 @@ ManagerClass.prototype = {
 
     'observe': function(cancelQuit, topic, data) {
         if (topic == 'visit_directory_proposed') {
-            cancelQuit.QueryInterface(Components.interfaces.nsISupportsPRBool);
-            if (cancelQuit.data) {
-               // someone else handled it (nothing else in core komodo)
-            } else {
-                cancelQuit.data = true; // we handled it.
+            var haveCancelQuit = !!cancelQuit;
+            var handleRequest = true;
+            if (haveCancelQuit) {
+                cancelQuit.QueryInterface(Components.interfaces.nsISupportsPRBool);
+                if (cancelQuit.data) {
+                    // someone else handled it (nothing else in core komodo)
+                    handleRequest = false;
+                } else {
+                    cancelQuit.data = true; // we handled it.
+                }
+            }
+            if (handleRequest) {
                 ko.places.manager.openDirectory(data);
                 ko.uilayout.ensureTabShown("places_tab");
                 gPlacesViewMgr.view.selection.select(0);
