@@ -237,12 +237,6 @@ viewMgrClass.prototype = {
             dump("No context menu when clicking on "
                  + event.explicitOriginalTarget.id
                  + "\n");
-            //XXX What do we do to prevent a small-box empty-menu from appearing?
-            /*
-            event.stopPropagation();
-            event.cancelBubble = true;
-            event.preventDefault();
-            */
             return false;
         }
         //gEvent = event;
@@ -277,13 +271,7 @@ viewMgrClass.prototype = {
             isRootNode = true;
         } else {
             index = this._currentRow(event);
-            if (index == -1) {
-                event.stopPropagation();
-                event.cancelBubble = true;
-                event.preventDefault();
-                return false;
-            }
-            isRootNode = false;
+            isRootNode = (index == -1);
         }
         var isFolder = index == -1 ? true : this.view.isContainer(index);
         var popupmenu = event.target;
@@ -330,6 +318,13 @@ viewMgrClass.prototype = {
         .createBundle("chrome://komodo/locale/project/peFile.properties");
 
         var first_item_is_root = false;
+        menuitem = document.getElementById("placesContextMenu_undo");
+        if ((isFolder || isRootNode)
+            && ko.places.manager.can_undoTreeOperation()) {
+            menuitem.removeAttribute("disabled");
+        } else {
+            menuitem.setAttribute("disabled", "true");
+        }
         if (isFolder) {
             var disable_item = !isRootNode && !this.view.isContainerOpen(index);
             menuitem = this._makeMenuItem(firstFolderMenuItemId_refreshView,
@@ -380,11 +375,18 @@ viewMgrClass.prototype = {
             document.getElementById("placesContextMenu_newFile").setAttribute("disabled", 'true');
             document.getElementById("placesContextMenu_newFolder").setAttribute("disabled", 'true');
         }
-        var renameNode = document.getElementById("placesContextMenu_rename");
-        if (isRootNode) {
-            renameNode.setAttribute("disabled", "true");
-        } else {
-            renameNode.removeAttribute("disabled");
+        var disabledRootNodeNames = ["placesContextMenu_rename",
+                                     "placesContextMenu_delete",
+                                     "placesContextMenu_cut",
+                                     "placesContextMenu_rename"];
+        for (var nonRootNodeName, i = 0;
+             nonRootNodeName = disabledRootNodeNames[i]; ++i) {
+            node = document.getElementById(nonRootNodeName);
+            if (isRootNode) {
+                node.setAttribute("disabled", "true");
+            } else {
+                node.removeAttribute("disabled");
+            }
         }
         menuitem = document.getElementById("placesContextMenu_showInFinder");
         var platform = navigator.platform.toLowerCase();
@@ -1433,8 +1435,7 @@ ManagerClass.prototype = {
     },
 
     can_undoTreeOperation: function() {
-        var res = gPlacesViewMgr.view.canUndoTreeOperation();
-        return res;
+        return gPlacesViewMgr.view.canUndoTreeOperation();
     },
 
     undoTreeOperation: function() {
