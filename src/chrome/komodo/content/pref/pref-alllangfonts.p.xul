@@ -112,7 +112,7 @@
             <tabbox id="tabbox">
                 <tabs id="tabs" onselect="tabChanged()">
                     <tab id="fonts_tab" label="&fonts.label;" accesskey="&fonts.accesskey;"/>
-                    <tab id="colors_tab" label="&colors.label;" accesskey="&colors.accesskey;" style="margin-right: 5px;"/>
+                    <tab id="colors_tab" label="&colors.label;" accesskey="&colors.accesskey;"/>
                     <tab id="common_tab" label="&commonSyntax.label;" accesskey="&commonSyntax.accesskey;"/>
                     <tab id="specific_tab" label="&langSpecific.label;" accesskey="&langSpecific.accesskey;"/>
                     <tab id="indicator_tab" label="&indicators.label;" accesskey="&indicators.accesskey;"/>
