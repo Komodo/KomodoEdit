@@ -1235,21 +1235,19 @@ class KoPlaceTreeView(TreeView):
         if item is None:
             item = _KoPlaceItem(_PLACE_FOLDER, uri, placeFileEx.baseName)
             self.setNodeForURI(uri, item)
-        if True or folderObject.isOpen:  #TODO: remove this line
-            #qlog.debug("ok folderObject.isOpen:")
-            requestID = self.getRequestID()
-            self.lock.acquire()
-            try:
-                self._data[requestID] = {'uri':uri, 'callback':callback}
-            finally:
-                self.lock.release()
-            #qlog.debug("go do refreshTreeOnOpen")
-            self.workerThread.put(('refreshTreeOnOpen',
-                                   {'index': 0,
-                                    'uri':uri,
-                                    'requestID':requestID,
-                                    'requester':self},
-                                   'post_refreshTreeOnOpen'))
+        requestID = self.getRequestID()
+        self.lock.acquire()
+        try:
+            self._data[requestID] = {'uri':uri, 'callback':callback}
+        finally:
+            self.lock.release()
+        #qlog.debug("go do refreshTreeOnOpen")
+        self.workerThread.put(('refreshTreeOnOpen',
+                               {'index': 0,
+                                'uri':uri,
+                                'requestID':requestID,
+                                'requester':self},
+                               'post_refreshTreeOnOpen'))
 
     def post_refreshTreeOnOpen(self, rv, requestID):
         #qlog.debug(">> post_refreshTreeOnOpen")
@@ -2000,7 +1998,7 @@ class _WorkerThread(threading.Thread, Queue):
     def refreshTreeOnOpen(self, args):
         uri = args['uri']
         requester = args['requester']
-        newRows = self.refreshTreeOnOpen_Aux(requester, uri)
+        self.refreshTreeOnOpen_Aux(requester, uri)
         return ""
 
     def refreshTreeOnOpen_Aux(self, requester, uri, forceRefresh=False):
