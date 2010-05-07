@@ -1224,12 +1224,7 @@ class KoPlaceTreeView(TreeView):
         self._currentPlace_koFileEx = components.classes["@activestate.com/koFileEx;1"].\
                 createInstance(components.interfaces.koIFileEx)
         self._currentPlace_koFileEx.URI = uri
-        if self._nodeOpenStatusFromName.get(uri, False):
-            #qlog.debug("openNodesByURIPrefs.hasPref(%s) is true", uri)
-            forceOpen = False
-        else:
-            #qlog.debug("???? openNodesByURIPrefs.hasPref(%s) is false", uri)
-            forceOpen = True
+        self._nodeOpenStatusFromName[uri] = True
 
         item = self.getNodeForURI(uri)
         if item is None:
