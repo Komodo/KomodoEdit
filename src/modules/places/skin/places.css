@@ -71,11 +71,6 @@ image#place-view-rootPath-icon {
   list-style-image : url("chrome://komodo/skin/images/folder-closed.png");
 }
 
-#placesUpFolderButton {
-  list-style-image : url("chrome://places/skin/arrow_up.png");
-}
-
-
 treechildren#places-files-tree-body:-moz-tree-image(places_file, sccOk) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_ok.png');
 }

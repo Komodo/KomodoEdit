@@ -234,13 +234,6 @@
                  flex="1"
                  crop="end"
                  class="noplace" />
-          <toolbarbutton id="placesUpFolderButton"
-              tooltiptext="&placesUpFolder.tooltiptext;"
-              persist="buttonstyle"
-              buttonstyle="pictures"
-              label="&placesUpFolder.label;"
-                         observes="cmd_places_goUpOneFolder" 
-                  class="toolbarbutton-1 places-uparrow-button"/>
           <toolbarbutton id="placeView_tools"
                   tooltiptext="&placeView.tooltiptext;"
                   buttonstyle="pictures"
@@ -258,6 +251,11 @@
                   label="&loadRemotePlace.label;"
                   keep="true"
                   class="menuitem-iconic open-places-icon"/>
+              <menuitem id="placeView_upOneDirectory"
+                  observes="cmd_places_goUpOneFolder"
+                  label="&placesUpFolder.label;"
+                  keep="true"
+                  class="menuitem-iconic places-uparrow-button"/>
 <!--
               <menu id="placeView_sortByMenu"
                     label="&sortBy.label;"
