@@ -2769,20 +2769,16 @@ def target_patch(argv=["patch"]):
     # - on Windows the cygwin patch can do screwy things
     # - on Solaris /usr/bin/patch isn't good enough (note that we
     #   usually *do* have GNU patch at /usr/local/bin/patch).
-    if sys.platform == "win32":
-        #TODO: Let's try the msys patch. If this works then just remove
-        #      bin-win32/patch.exe to use it.
-        patchExe = join(os.environ["MOZILLABUILD"], "msys", "bin",
-                        "patch.exe")
-    else:
-        binDir = gPlat2BinDir[sys.platform]
+    # - on Windows 7 we must use our own patch.exe, otherwise the OS may block
+    #   the patch application thinking it requires security priviledges.
+    binDir = gPlat2BinDir[sys.platform]
+    try:
+        patchExe = which.which("patch", path=[binDir])
+    except which.WhichError:
         try:
-            patchExe = which.which("patch", path=[binDir])
+            patchExe = which.which("patch")
         except which.WhichError:
-            try:
-                patchExe = which.which("patch")
-            except which.WhichError:
-                raise BuildError("Could not find a 'patch' executable.")
+            raise BuildError("Could not find a 'patch' executable.")
 
     patchtree.log.setLevel(logging.INFO)
     patchtree.patch(config.patchesDirs,
