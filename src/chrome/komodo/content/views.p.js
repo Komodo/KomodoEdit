@@ -195,11 +195,11 @@ viewManager.prototype.postCanClose = function()
             }
         }
         this.shutdown();
-        // We didn't call _doCloseAll originally when the view mgr
+        // We didn't call _doCloseViews originally when the view mgr
         // was designed around v2, for perf reasons,
         // which prob don't hold anymore.
         var ignoreFailures=true, closeStartPage=true, doNotOfferToSave=true;
-        this._doCloseAll(ignoreFailures, closeStartPage, doNotOfferToSave);
+        this._doCloseViews(null /* all */, ignoreFailures, closeStartPage, doNotOfferToSave);
     } catch(e) {
         /* moz probably already removed them */
         log.warn('exception in viewManager.postCanClose:'+e);
@@ -1245,16 +1245,24 @@ viewManager.prototype.do_cmd_closeAll = function() {
     if (retval) {
         // Now close all files, without offering to save each individual file,
         // bug 85489.
-        this._doCloseAll(false, false,  /* doNotOfferToSave */ true);
+        this._doCloseViews(null /* all */, false, false,  /* doNotOfferToSave */ true);
     }
 }
 
-viewManager.prototype._doCloseAll = function(ignoreFailures, closeStartPage, doNotOfferToSave) {
+/**
+ * Close the list of views provided.
+ * @param views {koIView} - Views to close - when no views are provided, then
+ *                          the list of all views will be used.
+ * @param ignoreFailures {boolean} - ignore any failures when closing files
+ * @param closeStartPage {boolean} - close the start page?
+ * @param doNotOfferToSave {boolean} - whether to offer to save dirty files
+ */
+viewManager.prototype._doCloseViews = function(views, ignoreFailures, closeStartPage, doNotOfferToSave) {
+    if (!views) views = this.topView.getDocumentViews(true);
     if (typeof(ignoreFailures) == "undefined") ignoreFailures = false;
     if (typeof(closeStartPage) == "undefined") closeStartPage = false;
     if (typeof(doNotOfferToSave) == "undefined") doNotOfferToSave = false;
     // returns true if all views were closed.
-    var views = this.topView.getDocumentViews(true);
     var i;
     // Uses batch mode to avoid perf hit from resetting the current view, see
     // bug 85290.
