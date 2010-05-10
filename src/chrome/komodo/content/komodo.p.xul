@@ -813,15 +813,15 @@
                     </menu>
                     <menu id="menu_code" label="&code.label;" accesskey="&menuCode.accesskey;">
                         <menupopup id="popup_sourcecode">
-                            <menuitem label="&reflowParagraph.label;"
-                                      accesskey="&menuReflow.accesskey;"
-                                      id="menu_reflow"
-                                      observes="cmd_editReflow"
+                            <menuitem label="&commentRegion.label;"
+                                      id="menu_comment"
+                                      accesskey="&menuComment.accesskey;"
+                                      observes="cmd_comment"
                                       />
-                            <menuitem label="&joinLines.label;"
-                                      id="menu_join"
-                                      accesskey="&menuJoin.accesskey;"
-                                      observes="cmd_join"
+                            <menuitem label="&unCommentRegion.label;"
+                                      id="menu_uncomment"
+                                      accesskey="&menuUncomment.accesskey;"
+                                      observes="cmd_uncomment"
                                       />
                             <menuitem label="&increaseLineIndent.label;"
                                       id="menu_indent"
@@ -833,7 +833,33 @@
                                       accesskey="&menuDedent.accesskey;"
                                       observes="cmd_dedent"
                                       />
-                            <menuseparator/>
+                            <menuitem label="&tabifyRegion.label;"
+                                      id="menu_tabify"
+                                      accesskey="&menuTabify.accesskey;"
+                                      observes="cmd_tabify"
+                                      />
+                            <menuitem label="&untabifyRegion.label;"
+                                      id="menu_untabify"
+                                      accesskey="&menuUntabify.accesskey;"
+                                      observes="cmd_untabify"
+                                      />
+                            <menuseparator id="menu_code_separator_1"/>
+                            <menuitem label="&joinLines.label;"
+                                      id="menu_join"
+                                      accesskey="&menuJoin.accesskey;"
+                                      observes="cmd_join"
+                                      />
+                            <menuitem label="&reflowParagraph.label;"
+                                      accesskey="&menuReflow.accesskey;"
+                                      id="menu_reflow"
+                                      observes="cmd_editReflow"
+                                      />
+                            <menuitem label="&cleanLineEndings.label;"
+                                      id="menu_cleanLineEndings"
+                                      accesskey="&menuCleanLineEndings.accesskey;"
+                                      observes="cmd_cleanLineEndings"
+                                      />
+                            <menuseparator id="menu_code_separator_2"/>
                             <menu id="menu_marks"
                                   label="&marks.label;"
                                   accesskey="&menuMarks.accesskey;">
@@ -900,33 +926,6 @@
                                               />
                                 </menupopup>
                             </menu>
-                            <menuseparator/>
-                            <menuitem label="&commentRegion.label;"
-                                      id="menu_comment"
-                                      accesskey="&menuComment.accesskey;"
-                                      observes="cmd_comment"
-                                      />
-                            <menuitem label="&unCommentRegion.label;"
-                                      id="menu_uncomment"
-                                      accesskey="&menuUncomment.accesskey;"
-                                      observes="cmd_uncomment"
-                                      />
-                            <menuseparator/>
-                            <menuitem label="&cleanLineEndings.label;"
-                                      id="menu_cleanLineEndings"
-                                      accesskey="&menuCleanLineEndings.accesskey;"
-                                      observes="cmd_cleanLineEndings"
-                                      />
-                            <menuitem label="&tabifyRegion.label;"
-                                      id="menu_tabify"
-                                      accesskey="&menuTabify.accesskey;"
-                                      observes="cmd_tabify"
-                                      />
-                            <menuitem label="&untabifyRegion.label;"
-                                      id="menu_untabify"
-                                      accesskey="&menuUntabify.accesskey;"
-                                      observes="cmd_untabify"
-                                      />
                             <menuseparator/>
                             <menuitem label="&completeWord.label;"
                                       id="menu_completeWord"
