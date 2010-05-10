@@ -212,6 +212,7 @@ class KoFileStatusService:
         self._thread = threading.Thread(target = KoFileStatusService._process,
                                         name = "File Status Service",
                                         args = (self,))
+        self._thread.setDaemon(True)
         self._thread.start()
         self._tlock.release()
         timeline.leave('koFileStatusService.init')
