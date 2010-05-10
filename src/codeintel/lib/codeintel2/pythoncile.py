@@ -1,3 +1,3 @@
 import os
 
-from pythoncile1 import *
+from codeintel2.pythoncile1 import *
