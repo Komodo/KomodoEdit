@@ -2103,12 +2103,12 @@
 
     <!-- Popup for clicking on the Start Page *tab* -->
     <menupopup id="startpageTabContextMenu">
-        <menuitem id="menu_movetab4"
-                  observes="cmd_movetab"
-                  label="&moveToOtherTabGroup.label;"/>
-        <menuitem id="menu_bufferClose4"
+        <menuitem id="menu_startpage_tabcontextmenu_bufferClose"
                   label="&close.label;"
                   observes="cmd_bufferClose"/>
+        <menuitem id="menu_startpage_tabcontextmenu_movetab"
+                  observes="cmd_movetab"
+                  label="&moveToOtherTabGroup.label;"/>
     </menupopup>
 
 <!-- Popup for clicking on the buffer windows -->
