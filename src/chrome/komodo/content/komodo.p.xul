@@ -2050,6 +2050,10 @@
 
 <!-- Popup for clicking on the *tab* in the Editor -->
     <menupopup id="tabContextMenu">
+        <menuitem id="buffertab-context-close"
+                  observes="cmd_bufferClose"
+                  accesskey="&menuBufferClose.accesskey;"
+                  label="&close.label;"/>
         <menuitem id="menu_movetab"
                     observes="cmd_movetab"
                     label="&moveToOtherTabGroup.label;"/>
@@ -2082,9 +2086,6 @@
             </menupopup>
         </menu>
 
-        <menuitem id="buffertab-context-close"
-                  observes="cmd_bufferClose"
-                  label="&close.label;"/>
         <menuitem id="menu_showUnsavedChanges2"
                   label="&showUnsavedChanges.label;"
                   observes="cmd_showUnsavedChanges"/>
