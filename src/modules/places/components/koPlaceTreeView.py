@@ -637,6 +637,7 @@ class KoPlaceTreeView(TreeView):
             return
         self.exclude_patterns = exclude_patterns.split(';')
         self.include_patterns = include_patterns.split(';')
+	self._wrap_refreshTreeOnOpen_buildTree()
 
     def getRowIndexForURI(self, uri):
         for (i, row) in enumerate(self._rows):
