@@ -2053,6 +2053,10 @@
                   observes="cmd_bufferClose"
                   accesskey="&menuBufferClose.accesskey;"
                   label="&close.label;"/>
+        <menuitem id="buffertab-context-close-others"
+                  observes="cmd_bufferCloseOthers"
+                  accesskey="&menuCloseOtherBuffers.accesskey;"
+                  label="&menuCloseOtherBuffers.label;"/>
         <menuitem id="menu_movetab"
                     observes="cmd_movetab"
                     label="&moveToOtherTabGroup.label;"/>
@@ -2105,7 +2109,12 @@
     <menupopup id="startpageTabContextMenu">
         <menuitem id="menu_startpage_tabcontextmenu_bufferClose"
                   label="&close.label;"
+                  accesskey="&menuBufferClose.accesskey;"
                   observes="cmd_bufferClose"/>
+        <menuitem id="menu_startpage_tabcontextmenu_bufferCloseOthers"
+                  observes="cmd_bufferCloseOthers"
+                  accesskey="&menuCloseOtherBuffers.accesskey;"
+                  label="&menuCloseOtherBuffers.label;"/>
         <menuitem id="menu_startpage_tabcontextmenu_movetab"
                   observes="cmd_movetab"
                   label="&moveToOtherTabGroup.label;"/>

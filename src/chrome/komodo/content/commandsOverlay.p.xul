@@ -755,6 +755,12 @@
             oncommand="ko.commands.doCommandAsync('cmd_bufferNextLeastRecent', event)"
             disabled="true"
             desc="&generalLeastRecentlyViewedFile.desc;"/>
+        <command
+            id="cmd_bufferCloseOthers" key="key_cmd_bufferCloseOthers"
+            oncommand="ko.commands.doCommandAsync('cmd_bufferCloseOthers', event)"
+            desc="&editorCloseOtherBuffers.desc;"
+            disabled="true"
+            />
     </commandset>
 
     <!-- Commands that need to be updated when the first file

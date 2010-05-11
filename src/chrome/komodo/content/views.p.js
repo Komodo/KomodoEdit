@@ -1288,6 +1288,40 @@ viewManager.prototype._doCloseViews = function(views, ignoreFailures, closeStart
     return true;
 }
 
+viewManager.prototype.is_cmd_bufferCloseOthers_supported = function() {
+    return 1;
+}
+
+viewManager.prototype.is_cmd_bufferCloseOthers_enabled = function() {
+    return this._viewCount > 1;
+}
+
+viewManager.prototype.do_cmd_bufferCloseOthers = function() {
+    // Offer to close/save any "other" dirty files first.
+    var currView = ko.views.manager.currentView;
+    var views = this.topView.getViews(true);
+    // We just want the other views.
+    views = views.filter(function(elem, index, array) {
+                                return elem != currView;
+                             });
+    var editorViews = views.filter(function(elem, index, array) {
+                                       return elem.getAttribute("type") == "editor";
+                                   });
+    var urls = editorViews.map(function(elem) {
+                                    return elem.document.displayPath;
+                               });
+    var retval = this.offerToSave(urls);
+    if (retval === false) {
+        // User cancelled the operation.
+        return;
+    }
+
+    // Now close the "other" files, the offering to save is already done.
+    this._doCloseViews(views, false /* ignoreFailures */,
+                       true /* closeStartPage */,
+                       true /* doNotOfferToSave */);
+}
+
 viewManager.prototype.is_cmd_cleanLineEndings_supported = function() {
     this.log.info('is_cmd_cleanLineEndings_supported');
     return 1;

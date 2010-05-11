@@ -95,6 +95,7 @@
 <!ENTITY editorCancelAutoComplete.desc "Editor: Cancel AutoComplete">
 <!ENTITY editorCloseAllBuffers.desc "Editor: Close All Buffers">
 <!ENTITY editorCloseCurrentBuffer.desc "Editor: Close Current Buffer">
+<!ENTITY editorCloseOtherBuffers.desc "Editor: Close Other Buffers">
 <!ENTITY editorCopy.desc "Editor: Copy">
 <!ENTITY editorCopyRegion.desc "Editor: Copy Region">
 <!ENTITY editorCurrentFileSettings.desc "Editor: Current File Settings">
@@ -364,6 +365,8 @@
 <!ENTITY menuCleanLineEndings.accesskey "E">
 <!ENTITY menuClearSearchHighlighting.accesskey "H">
 <!ENTITY menuCloseAll.accesskey "l">
+<!ENTITY menuCloseOtherBuffers.accesskey "H">
+<!ENTITY menuCloseOtherBuffers.label "Close Others">
 <!ENTITY menuCode.accesskey "C">
 <!ENTITY menuCodeIntelReTriggerCompletions.label "CodeIntel Completions">
 <!ENTITY menuCodeIntelReTriggerCompletions.accesskey "O">
