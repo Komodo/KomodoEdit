@@ -1137,6 +1137,8 @@ def ImageKomodo(cfg, argv):
                    iicorepath("share", "icons", "komodo48.png")),
             ("cp", join("src", "main", "komodo128.%s.png" % cfg.productType),
                    iicorepath("share", "icons", "komodo128.png")),
+            ("cp", join("src", "main", "komodo256.%s.png" % cfg.productType),
+                   iicorepath("share", "icons", "komodo256.png")),
             ("cp", join("src", "main", "komodo16.%s.xpm" % cfg.productType),
                    iicorepath("share", "icons", "komodo16.xpm")),
             ("cp", join("src", "main", "komodo32.%s.xpm" % cfg.productType),
@@ -1145,6 +1147,8 @@ def ImageKomodo(cfg, argv):
                    iicorepath("share", "icons", "komodo48.xpm")),
             ("cp", join("src", "main", "komodo128.%s.xpm" % cfg.productType),
                    iicorepath("share", "icons", "komodo128.xpm")),
+            ("cp", join("src", "main", "komodo256.%s.xpm" % cfg.productType),
+                   iicorepath("share", "icons", "komodo256.xpm")),
         ]
 
     # - Trim some stuff.
