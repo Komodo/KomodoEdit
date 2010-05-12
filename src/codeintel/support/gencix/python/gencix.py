@@ -51,8 +51,8 @@ try:
     # Codeintel's specialized elementtree.
     from ciElementTree import Element, SubElement, ElementTree
 except ImportError:
-    import warnings
-    warnings.warn("Could not import ciElementTree", category="codeintel")
+    #import warnings
+    #warnings.warn("Could not import ciElementTree", category="codeintel")
     try:
         # Python 2.5 or 2.6
         from xml.etree.cElementTree import Element, SubElement, ElementTree
@@ -62,7 +62,9 @@ except ImportError:
         except ImportError:
             from ElementTree import Element, SubElement, ElementTree
 
-import sys, time, os, __builtin__
+import sys, time, os
+if sys.version_info < (3, ):
+    import __builtin__
 from pydoc import visiblename, classname, _split_list, isdata, ispackage, getdoc
 import sys
 import re
@@ -200,11 +202,9 @@ def process_class_using_instance(rootElt, obj, name, callables):
     callables[name] = classElt
     classElt.set('attributes', '__hidden__')
 
-    attrs = filter(lambda (name, value): visiblename(name),
-               inspect.getmembers(obj, inspect.isbuiltin))
-    for (key, value) in attrs:
-        process_routine(classElt, value, key, callables)
-
+    for name, value in inspect.getmembers(obj, inspect.isbuiltin):
+        if visiblename(name):
+            process_routine(classElt, value, name, callables)
     
 def process_class(rootElt, obj, name, callables, __hidden__=False):
     doc = getsdoc(obj) or None
@@ -244,8 +244,7 @@ def process_class(rootElt, obj, name, callables, __hidden__=False):
         return True
 
     #attrs = inspect.getmembers(object, attrfilter) # should I be using getmembers or class attr's?
-    attrs = filter(lambda (name, value): attrfilter(value),
-               [(name, getattr(obj, name)) for name in obj.__dict__])
+    attrs = [(name, getattr(obj, name)) for name in obj.__dict__ if attrfilter(name)]
     for (key, value) in attrs:
         if inspect.isfunction(value) or inspect.ismethod(value) or inspect.ismethoddescriptor(value):
             process_routine(classElt, value, key, callables)
@@ -306,8 +305,8 @@ def docmodule(modname, root, force=False, usefile=False):
         modname = '__builtin__'
     try:
         obj, modulename = pydoc.resolve(modname)
-    except Exception, e:
-        print e
+    except Exception:
+        print(sys.exc_info()[1])
         return
 
     result = ''
@@ -386,7 +385,7 @@ def docmodule(modname, root, force=False, usefile=False):
                 # find out what type that is
                 callableElt.set("returns", type(var).__name__)
             else:
-                print "Don't know about: %r" % expr
+                print("Don't know about: %r" % expr)
                 
         function_overrides = namespace.get('function_overrides')
         if function_overrides is not None:
@@ -394,7 +393,7 @@ def docmodule(modname, root, force=False, usefile=False):
                 callableElt = callables[name]
                 overrides = function_overrides[name]
                 for setting, value in overrides.items():
-                    print "  overriding %s.%s %s attribute from %r to %r" % (modname, name, setting, callableElt.get(setting), value)
+                    print("  overriding %s.%s %s attribute from %r to %r" % (modname, name, setting, callableElt.get(setting), value))
                     callableElt.set(setting, value)
 
         hidden_classes_exprs = namespace.get('hidden_classes_exprs', [])
@@ -426,7 +425,7 @@ if __name__ == "__main__":
         sys.exit(0)
     root = None
     for arg in args:
-        print "Generating CIX for", arg
+        print("Generating CIX for", arg)
         if root is None or not options.onefile:
             root = Element("codeintel", name=arg, version="2.0")
             if options.name:
@@ -443,4 +442,4 @@ if __name__ == "__main__":
     if root is not None and options.onefile:
         perform_smart_analysis(root)
         writeCixFileForElement(options.onefile, root)
-    print "done."
+    print("done.")
