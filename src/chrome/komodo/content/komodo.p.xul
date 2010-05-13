@@ -140,6 +140,7 @@
     <script src="chrome://komodo/content/project/projectManager.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/projectExtensionManager.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/toolboxManager.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/toolbox2.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peFile.js"               type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peFolder.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peSnippet.js"            type="application/x-javascript;version=1.7"/>
@@ -1797,6 +1798,11 @@
                             label="&toolbox.label;"
                             />
                         <menuseparator/>
+                        <menuitem id="show_toolbox2_tab"
+                            oncommand="ko.uilayout.ensureTabShown('toolbox2_tab', true)"
+                            label="&toolbox2.label;"
+                            type="checkbox"
+                            />
                         <menuitem id="show_findresults1_tab"
                             oncommand="ko.uilayout.ensureTabShown('findresults1_tab', true)"
                             label="&findResults1.label;"
@@ -2290,6 +2296,11 @@
                              accesskey="&toolboxTab.accesskey;"
                              oncommand="ko.toolboxes.user.viewMgr.tree.focus();"
                              onfocus="ko.toolboxes.user.viewMgr.focus();"/>
+                        <tab id="toolbox2_tab" label="&toolbox2.label;"
+                             locktip="&thisToolboxIsReadOnly.locktip;"
+                             accesskey="&toolboxTab.accesskey;"
+                             oncommand="ko.toolbox2.manager.onFocus();"
+                             onfocus="ko.toolbox2.manager.onFocus();"/>
                     </tabs>
                     <tabpanels flex="1" id="right_toolbox_tabpanels"
                             onfocus="
@@ -2331,6 +2342,104 @@
                                 </partviewer>
                             </vbox>
                         </tabpanel>
+                        <tabpanel flex="1" id="toolbox2viewbox">
+                         <tabbox flex="1" id="toolbox2-tabbox"
+                                 orient="vertical" >
+                              <tabs id="toolbox2-tabs" >
+                                 <tab id="toolbox2-tab-hierarchy"
+                                      label="&amp;Hierarchy"/>
+                                 <tab id="toolbox2-tab-relevance"
+                                      label="&amp;Relevance" />
+                              </tabs>
+                              <tabpanels flex="1" id="toolbox2-tabpanels" >
+                                 <tabpanel flex="1"
+                                             id="toolbox2-hierarchy">
+                                      <vbox flex="1" id="toolbox2-hierarchy-vbox">
+                                             <label value="In hierarchy!" />
+                                      <!-- xblize this...-->
+                                          <hbox id="toolbox2-hierarchy-toolbar-a" >
+                                              <toolbarbutton    id="toolbox2_tools-a"
+                                                      tooltiptext="&amp;ools.label;"
+                                                      buttonstyle="pictures"
+                                                      type="menu"
+                                                      orient="horizontal"
+                                                      class="rightarrow-button-a project-tools-icon"/>
+                                              <textbox id="toolbox2-filter-textbox-a"
+                                                         class="search-box"
+                                                         style="min-width:40px; max-width:200px; margin-right:0px;"
+                                                         flex="1"
+                                                         type="search"
+                                                         timeout="500"
+                                                         onfocus="ko.toolbox2.focus(this);"
+                                                         onblur="window.updateCommands('undo')"
+                                                         onkeypress="ko.toolbox2.onFilterKeypress(event)"
+                                                         oncommand="ko.toolbox2.updateFilter()"
+                                                         tooltiptext="&amp; XXX filter items;"/>
+                                          </hbox >
+                                          <tree flex="1" id="toolbox2-hierarchy-tree">
+                                             <treecols>
+                                                 <treecol primary="true"
+                                                          id="toolbox2-hierarchy-tree-name"
+                                                          label="name" flex="1"
+                                                          persist="width"
+                                                          crop="left"/>
+                                             </treecols>
+                                             <treechildren id="toolbox2-hierarchy-treebody" flex="1"
+                                                           />
+                                          </tree>
+                                      </vbox>
+                                 </tabpanel>
+                                 <tabpanel flex="1"
+                                             id="toolbox2-relevance">
+                                      <vbox flex="1" id="toolbox2-relevance-vbox">
+                                             <label value="In relevance!" />
+                                     <!-- xblize this...-->
+                                          <hbox id="toolbox2-relevance-toolbar" >
+                                              <toolbarbutton id="toolbox2_tools-b"
+                                                      tooltiptext="&amp;tools.label;"
+                                                      buttonstyle="pictures"
+                                                      type="menu"
+                                                      orient="horizontal"
+                                                      class="rightarrow-button-a project-tools-icon"/>
+                                              <textbox id="toolbox2-filter-textbox-b"
+                                                         class="search-box"
+                                                         style="min-width:40px; max-width:200px; margin-right:0px;"
+                                                         flex="1"
+                                                         type="search"
+                                                         timeout="500"
+                                                         onfocus="ko.toolbox2.focus(this);"
+                                                         onblur="window.updateCommands('undo')"
+                                                         onkeypress="ko.toolbox2.onFilterKeypress(event)"
+                                                         oncommand="ko.toolbox2.updateFilter()"
+                                                         tooltiptext="&amp; XXX filter items;"/>
+                                          </hbox>
+                                          <tree flex="1">
+                                             <treecols>
+                                                 <treecol id="t1" label="rele-col1" />
+                                                 <treecol id="t2" label="rele-col2" />
+                                             </treecols>
+                                             <treechildren>
+                                                 <treeitem>
+                                                     <treerow>
+                                                         <treecell label="relevance item r1c1" />
+                                                         <treecell label="relevance item r1c2" />
+                                                         <treecell label="relevance item r1c3" />
+                                                     </treerow>
+                                                 </treeitem>
+                                                 <treeitem>
+                                                     <treerow>             
+                                                         <treecell label="relevance item r2c1" />
+                                                         <treecell label="relevance item r2c2" />
+                                                         <treecell label="relevance item r2c3" />
+                                                     </treerow>
+                                                 </treeitem>
+                                             </treechildren>
+                                          </tree>
+                                      </vbox>
+                                 </tabpanel>
+                              </tabpanels>
+                         </tabbox>
+                          </tabpanel>
                     </tabpanels>
                 </tabbox>
             </vbox>

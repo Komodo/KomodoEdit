@@ -87,3 +87,6 @@ $cons->InstallInChrome('peCommand.js');
 $cons->InstallInChrome('peURL.js');
 $cons->InstallInChrome('peMacro.js');
 $cons->InstallInChrome('peMenu.js');
+
+$cons->Preprocess('toolbox2.p.js', 'toolbox2.js');
+$cons->InstallInChrome('toolbox2.js');
