@@ -469,7 +469,7 @@ def create_codeintel_lang_skel(base_dir, lang, dry_run=False, force=False,
 
 
 def build_ext(base_dir, support_devinstall=True, unjarred=False,
-              ppdefines=None, log=None):
+              ppdefines=None, additional_includes=None, log=None):
     """Build a Komodo extension from the sources in the given dir.
     
     This reads the "install.rdf" in this directory and the appropriate
@@ -492,6 +492,8 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
         If this is None (the default), then preprocessing is not done. When
         preprocessing, *all* of the source tree except "build" and "tmp" subdirs
         are traversed.
+    @param additional_includes {list} Optional - a list of paths to include in
+        final xpi.
     @param log {logging.Logger} Optional.
     @returns {str} The path to the created .xpi file.
     """
@@ -609,6 +611,12 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
             for path in glob(join("xmlcatalogs", "*")):
                 xpi_manifest.append(path)
     
+
+        # Include any paths specified on the command line.
+        if additional_includes:
+            for path in additional_includes:
+                xpi_manifest.append(path)
+
         # Make the xpi.
         #pprint(xpi_manifest)
         xpi_build_dir = join(build_dir, "xpi")

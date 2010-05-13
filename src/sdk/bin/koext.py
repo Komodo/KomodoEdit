@@ -108,6 +108,8 @@ class KoExtShell(cmdln.Cmdln):
     @option("-d", "--source-dir",
             help="The directory with the source for the extension "
                  "(defaults to the current dir)")
+    @option("-i", "--include", action="append", dest="additional_includes",
+            help="Include this file/directory in the resulting xpi")
     @option("--unjarred", action="store_true", dest="unjarred",
             help="Do not jar the chrome directory.")
     @option("--dev", action="store_const", dest="mode", const="dev",
@@ -139,6 +141,7 @@ class KoExtShell(cmdln.Cmdln):
             support_devinstall=(opts.mode=="dev"),
             unjarred=opts.unjarred,
             ppdefines=ppdefines,
+            additional_includes=opts.additional_includes,
             log=log)
 
     @option("-d", "--source-dir",
