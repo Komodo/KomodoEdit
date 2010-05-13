@@ -211,6 +211,7 @@
 <!ENTITY filterSymbols.tooltiptext "Filter Symbols">
 <!ENTITY find.label "Find...">
 <!ENTITY findAllFunctions.label "Find All Functions">
+<!ENTITY findFilter.tooltiptext "Filter results: uses space-separated word matching">
 <!ENTITY findFind.desc "Find: Find...">
 <!ENTITY findFindInCurrProject.desc "Find: Find in Current Project...">
 <!ENTITY findFindInFiles.desc "Find: Find in Files...">

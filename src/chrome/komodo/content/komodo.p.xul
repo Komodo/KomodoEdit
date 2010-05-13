@@ -2577,6 +2577,13 @@
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
                             <hbox id="findtoolbar1-button-box" class="no-border">
+                                <textbox id="findresults1-filter-textbox"
+                                         class="search-box"
+                                         type="search"
+                                         timeout="200"
+                                         oncommand="FindResultsTab_GetManager(1).updateFilter();"
+                                         tooltiptext="&findFilter.tooltiptext;"
+                                         />
                                 <toolbarbutton id="findresults1-jumptoprev-button"
                                         class="list-item-up-icon"
                                         tooltiptext="&jumpToPreviousResult.tooltiptext;"
@@ -2639,6 +2646,13 @@
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
                             <hbox id="findtoolbar2-button-box" class="no-border">
+                                <textbox id="findresults2-filter-textbox"
+                                         class="search-box"
+                                         type="search"
+                                         timeout="200"
+                                         oncommand="FindResultsTab_GetManager(2).updateFilter();"
+                                         tooltiptext="&findFilter.tooltiptext;"
+                                         />
                                 <toolbarbutton id="findresults2-jumptoprev-button"
                                         class="list-item-up-icon"
                                         tooltiptext="&jumpToPreviousResult.tooltiptext;"

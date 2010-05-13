@@ -450,6 +450,18 @@ FindResultsTabManager.prototype.clear = function()
             .setAttribute("disabled", "true");
     document.getElementById(this._idprefix+"-jumptoprev-button")
             .setAttribute("disabled", "true");
+    var searchTextbox = document.getElementById(this._idprefix + "-filter-textbox");
+    if (searchTextbox) {  // May not exist (i.e. not yet in the TODO extension).
+        searchTextbox.value = "";
+    }
+}
+
+
+FindResultsTabManager.prototype.updateFilter = function()
+{
+    findResultsLog.info("FindResultsTabManager.updateFilter()");
+    var searchTextbox = document.getElementById(this._idprefix + "-filter-textbox");
+    this.view.SetFilterText(searchTextbox.value);
 }
 
 

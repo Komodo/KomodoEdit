@@ -125,6 +125,9 @@ interface koIFindResultsView : nsITreeView {
     // the <treecol id=.../>  id's).
     void Sort(in string sortBy);
 
+    // Filter the results using the given text.
+    void SetFilterText(in AString text);
+
     // Some useful queries into the current find results data
     PRUint32 GetNumUrls();
 };

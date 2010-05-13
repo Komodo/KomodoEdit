@@ -51,10 +51,14 @@ class KoFindResultsView(TreeView):
     _reg_contractid_ = "@activestate.com/koFindResultsView;1"
     _reg_desc_ = "Komodo Find Results Tree Table View"
 
+    _columns = None
+
     def __init__(self):
         TreeView.__init__(self, debug=0)
         #TODO: lock guard for this data
         self._data = []
+        self._unfiltered_data = []
+        self._filter_words = None
         self._tree = None
         self._sortedBy = None
         self.id = None
@@ -97,6 +101,8 @@ class KoFindResultsView(TreeView):
     def Clear(self):
         length = len(self._data)
         self._data = []
+        self._unfiltered_data = []
+        self._filter_words = None
         self._sortedBy = None
         self._tree.beginUpdateBatch()
         self._tree.rowCountChanged(0, -length)
@@ -105,6 +111,8 @@ class KoFindResultsView(TreeView):
 
     def AddFindResult(self, type, url, startIndex, endIndex, value,
                       fileName, lineNum, columnNum, context):
+        len_before = len(self._data)
+        rows_added = 0
         datum = {"type": type,
                  "url": url,
                  "startIndex": startIndex,
@@ -117,16 +125,22 @@ class KoFindResultsView(TreeView):
                  "findresults%d-context" % self.id: context}
         if type == "warning":
             datum["findresults%d-linenum" % self.id] = "-"
-        self._data.append(datum)
-        self._sortedBy = None
-        self._tree.beginUpdateBatch()
-        self._tree.rowCountChanged(len(self._data)-2, 1)
-        self._tree.invalidate()  #XXX invalidating too much here?
-        self._tree.endUpdateBatch()
+
+        self._unfiltered_data.append(datum)
+        if not self._filter_words or \
+           self._filterMatchesDatam(datum, self._filter_words):
+            self._data.append(datum)
+            rows_added += 1
+
+        if rows_added:
+            self._sortedBy = None
+            self._tree.rowCountChanged(len_before-1, rows_added)
+            self._tree.invalidateRow(len_before)
 
     def AddFindResults(self, types, urls, startIndexs, endIndexs, values,
                        fileNames, lineNums, columnNums, contexts):
         len_before = len(self._data)
+        rows_added = 0
         for (type, url, startIndex, endIndex, value, fileName, lineNum,
              columnNum, context) in zip(types, urls, startIndexs, endIndexs,
                                         values, fileNames, lineNums,
@@ -143,16 +157,25 @@ class KoFindResultsView(TreeView):
                      "findresults%d-context" % self.id: context}
             if type == "warning":
                 datum["findresults%d-linenum" % self.id] = "-"
-            self._data.append(datum)
-        self._sortedBy = None
-        self._tree.beginUpdateBatch()
-        self._tree.rowCountChanged(len_before, len(urls))
-        self._tree.invalidate()  #XXX invalidating too much here?
-        self._tree.endUpdateBatch()
+
+            self._unfiltered_data.append(datum)
+            if not self._filter_words or \
+               self._filterMatchesDatam(datum, self._filter_words):
+                self._data.append(datum)
+                rows_added += 1
+
+        if rows_added:
+            self._sortedBy = None
+            self._tree.beginUpdateBatch()
+            self._tree.rowCountChanged(len_before-1, rows_added)
+            self._tree.invalidateRange(len_before, len_before+rows_added)
+            self._tree.endUpdateBatch()
 
     def AddReplaceResult(self, type, url, startIndex, endIndex, value,
                          replacement, fileName, lineNum, columnNum,
                          context):
+        len_before = len(self._data)
+        rows_added = 0
         datum = {"type": type,
                  "url": url,
                  "startIndex": startIndex,
@@ -166,17 +189,23 @@ class KoFindResultsView(TreeView):
                  "findresults%d-context" % self.id: context}
         if type == "warning":
             datum["findresults%d-linenum" % self.id] = "-"
-        self._data.append(datum)
-        self._sortedBy = None
-        self._tree.beginUpdateBatch()
-        self._tree.rowCountChanged(len(self._data)-2, 1)
-        self._tree.invalidate()  #XXX invalidating too much here?
-        self._tree.endUpdateBatch()
+
+        self._unfiltered_data.append(datum)
+        if not self._filter_words or \
+           self._filterMatchesDatam(datum, self._filter_words):
+            self._data.append(datum)
+            rows_added += 1
+
+        if rows_added:
+            self._sortedBy = None
+            self._tree.rowCountChanged(len_before-1, rows_added)
+            self._tree.invalidateRow(len_before)
 
     def AddReplaceResults(self, types, urls, startIndexs, endIndexs,
                           values, replacements, fileNames,
                           lineNums, columnNums, contexts):
         len_before = len(self._data)
+        rows_added = 0
         for (type, url, startIndex, endIndex, value, replacement,
              fileName, lineNum, columnNum, context
              ) in zip(types, urls, startIndexs, endIndexs, values,
@@ -195,12 +224,19 @@ class KoFindResultsView(TreeView):
                      "findresults%d-context" % self.id: context}
             if type == "warning":
                 datum["findresults%d-linenum" % self.id] = "-"
-            self._data.append(datum)
-        self._sortedBy = None
-        self._tree.beginUpdateBatch()
-        self._tree.rowCountChanged(len_before, len(urls))
-        self._tree.invalidate()  #XXX invalidating too much here?
-        self._tree.endUpdateBatch()
+
+            self._unfiltered_data.append(datum)
+            if not self._filter_words or \
+               self._filterMatchesDatam(datum, self._filter_words):
+                self._data.append(datum)
+                rows_added += 1
+
+        if rows_added:
+            self._sortedBy = None
+            self._tree.beginUpdateBatch()
+            self._tree.rowCountChanged(len_before-1, rows_added)
+            self._tree.invalidateRange(len_before, len_before+rows_added)
+            self._tree.endUpdateBatch()
 
     def GetType(self, index):
         return self._data[index]["type"]
@@ -245,6 +281,66 @@ class KoFindResultsView(TreeView):
         self._tree.beginUpdateBatch()
         self._tree.invalidate()
         self._tree.endUpdateBatch()
+
+    @property
+    def columns(self):
+        # Get the list of treecolumn objects.
+        columns = self._columns
+        if columns is None:
+            columns = []
+            tree_columns = self._tree.columns
+            for col_num in range(tree_columns.count):
+                columns.append(tree_columns.getColumnAt(col_num))
+            self._columns = columns
+        return columns
+
+    def _filterMatchesDatam(self, datum, words):
+        matched = False
+        for column in self.columns:
+            # Modified form of getCellText:
+            celltext = datum[column.id]
+            if type(celltext) not in (types.StringType, types.UnicodeType):
+                celltext = str(celltext)
+            else:
+                celltext = celltext.lower()
+
+            for word in words:
+                if word not in celltext:
+                    break
+            else:
+                matched = True
+                break
+        return matched
+
+    def _filterData(self, data, words):
+        if not data or not words:
+            return data
+        new_data = []
+        row_count = len(data)
+
+        # Filter all the data rows.
+        for row_num in range(row_count):
+            if self._filterMatchesDatam(data[row_num], words):
+                new_data.append(data[row_num])
+        return new_data
+
+    def SetFilterText(self, text):
+        old_words = self._filter_words
+
+        if not text:
+            self._filter_words = None
+        else:
+            self._filter_words = text.lower().split()
+
+        if old_words != self._filter_words:
+            # Re-filter the unfiltered rows.
+            len_before = len(self._data)
+            self._data = self._filterData(self._unfiltered_data, self._filter_words)
+            self._tree.beginUpdateBatch()
+            if len_before != len(self._data):
+                self._tree.rowCountChanged(0, len(self._data) - len_before)
+            self._tree.invalidate()
+            self._tree.endUpdateBatch()
 
     def GetNumUrls(self):
         urlDict = {}
