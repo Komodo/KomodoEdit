@@ -1,0 +1,16 @@
+/* Copyright (C) 2010 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "nsITreeView.idl"
+
+/* IDL for the hierarchical Toolbox2 view
+ *
+ */
+
+[scriptable, uuid(f587b8c6-96ae-4af3-9362-a0fd40d541f7)]
+interface koIToolbox2HTreeView: nsITreeView {
+    void initialize();
+    void terminate();
+};
+

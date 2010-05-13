@@ -173,6 +173,9 @@ class Database(object):
             return [row[0] for row in rows]
 
     def getTopLevelNodes(self):
+        """
+        Return (path_id, name, nodeType of each top-level item)
+        """
         with self.connect() as cu:
             cu.execute('''select cd.path_id, cd.name, cd.type
                 from common_details as cd, hierarchy as h
@@ -181,6 +184,9 @@ class Database(object):
             return cu.fetchall()
 
     def getChildNodes(self, node_id):
+        """
+        Return (path_id, name, nodeType for each child)
+        """
         with self.connect() as cu:
             cu.execute('''select cd.path_id, cd.name, cd.type
                 from common_details as cd, hierarchy as h
@@ -268,6 +274,7 @@ class Database(object):
         if item_type in _unsupported_types:
             log.info("Dropping old-style tool type:%s, name:%s", item_type, fname)
             return # Goodbye
+        pretty_name = data['name']
         common_names = ['id', 'name', 'type']
         #log.debug("About to add tool %s in %s", fname, path)
         for name in common_names:
@@ -277,7 +284,7 @@ class Database(object):
                 log.debug("key %s not in tool %s(type %s)", name, fname, item_type)
                 pass
         with self.connect(commit=True) as cu:
-            id = self._addCommonDetails(path, fname, item_type, parent_path_id, cu)
+            id = self._addCommonDetails(path, pretty_name, item_type, parent_path_id, cu)
             prefix = '_add_'
             toolMethod = getattr(self, prefix + item_type, None)
             if not toolMethod:
@@ -607,8 +614,11 @@ class ToolboxAccessor(object):
     def __init__(self, db_path):
         self.db = Database(db_path)
 
-    def getTopLevelNodes(self):
-        return self.db.getTopLevelNodes()
+    #def getTopLevelNodes(self):
+    #    return self.db.getTopLevelNodes()
+        
+    def __getattr__(self, name):
+        return getattr(self.db, name)
 
 def main(argv):
     #dbFile = r"c:\Users\ericp\trash\menu-test.sqlite"
