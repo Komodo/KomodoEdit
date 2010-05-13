@@ -2639,30 +2639,30 @@
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
                             <hbox id="findtoolbar2-button-box" class="no-border">
-                            <toolbarbutton id="findresults2-jumptoprev-button"
-                                    class="list-item-up-icon"
-                                    tooltiptext="&jumpToPreviousResult.tooltiptext;"
-                                    oncommand="FindResultsTab_GetManager(2).jumpToPrevResult();"/>
-                            <toolbarbutton id="findresults2-jumptonext-button"
-                                    class="list-item-down-icon"
-                                    tooltiptext="&jumpToNextResult.tooltiptext;"
-                                    oncommand="FindResultsTab_GetManager(2).jumpToNextResult();"/>
-                            <toolbarseparator style="width: 10px;"/>
-                            <toolbarbutton id="findresults2-stopsearch-button"
-                                    class="find-stop-icon"
-                                    tooltiptext="&stopSearch.tooltiptext;"
-                                    oncommand="FindResultsTab_GetManager(2).stopSearch();"
-                                    disabled="true"/>
-                            <toolbarbutton id="findresults2-undoreplace-button"
-                                    class="find-undo-icon"
-                                    tooltiptext="&undoReplacements.tooltiptext;"
-                                    oncommand="FindResultsTab_GetManager(2).undoReplace();"
-                                    disabled="true"/>
-                            <toolbarseparator style="width: 10px;"/>
-                            <toolbarbutton id="findresults2-lock-button"
-                                    class="find-lock-icon"
-                                    tooltiptext="&lockUnlockFindResults.tooltiptext;"
-                                    oncommand="FindResultsTab_GetManager(2).toggleLockResults();"/>
+                                <toolbarbutton id="findresults2-jumptoprev-button"
+                                        class="list-item-up-icon"
+                                        tooltiptext="&jumpToPreviousResult.tooltiptext;"
+                                        oncommand="FindResultsTab_GetManager(2).jumpToPrevResult();"/>
+                                <toolbarbutton id="findresults2-jumptonext-button"
+                                        class="list-item-down-icon"
+                                        tooltiptext="&jumpToNextResult.tooltiptext;"
+                                        oncommand="FindResultsTab_GetManager(2).jumpToNextResult();"/>
+                                <toolbarseparator style="width: 10px;"/>
+                                <toolbarbutton id="findresults2-stopsearch-button"
+                                        class="find-stop-icon"
+                                        tooltiptext="&stopSearch.tooltiptext;"
+                                        oncommand="FindResultsTab_GetManager(2).stopSearch();"
+                                        disabled="true"/>
+                                <toolbarbutton id="findresults2-undoreplace-button"
+                                        class="find-undo-icon"
+                                        tooltiptext="&undoReplacements.tooltiptext;"
+                                        oncommand="FindResultsTab_GetManager(2).undoReplace();"
+                                        disabled="true"/>
+                                <toolbarseparator style="width: 10px;"/>
+                                <toolbarbutton id="findresults2-lock-button"
+                                        class="find-lock-icon"
+                                        tooltiptext="&lockUnlockFindResults.tooltiptext;"
+                                        oncommand="FindResultsTab_GetManager(2).toggleLockResults();"/>
                             </hbox>
                         </hbox>
                         <tree id="findresults2" flex="1"
