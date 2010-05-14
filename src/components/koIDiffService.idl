@@ -49,8 +49,8 @@ interface koIDiffService : nsISupports {
                             in AString right_dirpath);
 
     /**
-     * Perform a diff of the filepaths in the left list to the matching (by
-     * index) entry in the right filepath list. If a file exists in the left
+     * Perform a diff of the local filepaths in the left list to the matching
+     * (by index) entry in the right filepath list. If a file exists in the left
      * list but the corresponding right filepath does not exist then it will be
      * shown as deleted content (-), whilst if a file exists in the right list
      * but the corresponding left file does not exist, then it will be shown
@@ -63,4 +63,18 @@ interface koIDiffService : nsISupports {
                                   [array, size_is(right_count)] in wstring right_filepaths,
                                   in unsigned long right_count);
 
+    /**
+     * Perform a diff of the uris in the left list to the matching (by
+     * index) entry in the right uris list. If a file exists in the left
+     * list but the corresponding right filepath does not exist then it will be
+     * shown as deleted content (-), whilst if a file exists in the right list
+     * but the corresponding left file does not exist, then it will be shown
+     * as added content (+).
+     *
+     * @returns string
+     */
+    AString diffMultipleURIs([array, size_is(left_count)] in wstring left_uris,
+                             in unsigned long left_count,
+                             [array, size_is(right_count)] in wstring right_uris,
+                             in unsigned long right_count);
 };

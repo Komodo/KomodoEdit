@@ -32,21 +32,27 @@ class KoDiffService(object):
         left_koFileEx = components.classes["@activestate.com/koFileEx;1"].\
                     createInstance(components.interfaces.koIFileEx)
         left_koFileEx.URI = left_uri
-        left_koFileEx.open("rb")
-        try:
-            right_koFileEx = components.classes["@activestate.com/koFileEx;1"].\
-                        createInstance(components.interfaces.koIFileEx)
-            right_koFileEx.URI = right_uri
+        left_content = ""
+        if left_koFileEx.exists:
+            left_koFileEx.open("rb")
+            try:
+                left_content = left_koFileEx.readfile()
+            finally:
+                left_koFileEx.close()
+
+        right_koFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                    createInstance(components.interfaces.koIFileEx)
+        right_koFileEx.URI = right_uri
+        right_content = ""
+        if right_koFileEx.exists:
             right_koFileEx.open("rb")
             try:
-                return difflibex.diff_file_contents(left_koFileEx.readfile(),
-                                                    right_koFileEx.readfile(),
-                                                    left_koFileEx.path,
-                                                    right_koFileEx.path)
+                right_content = right_koFileEx.readfile()
             finally:
                 right_koFileEx.close()
-        finally:
-            left_koFileEx.close()
+
+        return difflibex.diff_file_contents(left_content, right_content,
+                                            left_koFileEx.path, right_koFileEx.path)
 
     def diffDirectories(self, left_dirpath, right_dirpath):
         return difflibex.diff_local_directories(left_dirpath, right_dirpath)
@@ -54,3 +60,9 @@ class KoDiffService(object):
     def diffMultipleFilepaths(self, left_filepaths, right_filepaths):
         return difflibex.diff_multiple_local_filepaths(left_filepaths,
                                                        right_filepaths)
+
+    def diffMultipleURIs(self, left_uris, right_uris):
+        result = []
+        for left_uri, right_uri in zip(left_uris, right_uris):
+            result.append(self.diffURIs(left_uri, right_uri))
+        return "".join(result)
