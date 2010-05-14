@@ -64,6 +64,8 @@
   ]]>
   </script>
 
+  <!-- ****************    Commands    ****************** -->
+
     <!-- All place-related commands are context-dependent.
          Is there a place already loaded?  Is it dirty?
          XXX:Is the set updated at startup? -->
@@ -191,28 +193,120 @@
          />
     </commandset>
   </commandset>
-    
 
-  <menupopup id="menu_view_tabs_popup">
-    <menuitem id="show_places_tab2"
-        observes="show_places_tab"
-        insertafter="show_project_tab2"
-        oncommand="uilayout_ensureTabShown('places_tab', true)"
-        label="&Places.label;"
-        type="checkbox"
-        />
-  </menupopup>
+  <!-- ****************    Menus    ****************** -->
 
-  <menupopup id="tabPicker_popup">
-    <menuitem id="show_places_tab"
-        observes="show_places_tab"
-        insertafter="show_project_tab"
-        oncommand="uilayout_ensureTabShown('places_tab', true)"
-        label="&Places.label;"
-        type="checkbox"
-        />
-  </menupopup>
-  
+  <popupset id="extensionPopupSet">
+
+    <menupopup id="places-files-popup" onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);" >
+      <menuseparator id="placesContextMenu_separatorCut"
+                     keep_background="true"
+                     keep="true"/>
+      <menuitem id="placesContextMenu_cut"
+                observes="cmd_cutPlaceItem"
+                label="&cut.label;"
+                keep="true"
+                class="menuitem-iconic cut-button"
+                />
+      <menuitem id="placesContextMenu_copy"
+                observes="cmd_copyPlaceItem"
+                label="&copy.label;"
+                class="menuitem-iconic copy-button"
+                keep="true"
+                />
+      <menuitem id="placesContextMenu_paste"
+                observes="cmd_pastePlaceItem"
+                keep_background="true"
+                class="menuitem-iconic paste-button"
+                label="&paste.label;"
+                keep="true"
+                />
+      <menuitem id="placesContextMenu_undo"
+                observes="cmd_placeView_undoTreeOperation"
+                oncommand="ko.places.viewMgr.undoTreeOperation()"
+                keep_background="true"
+                class="menuitem-iconic undo-button"
+                label="&undo.label;"
+                keep="true"
+                />
+      <menuseparator id="placesContextMenu_separatorFind"
+                     keep="true"
+                     />
+      <menuitem id="placesContextMenu_find"
+                observes="cmd_findInPlace"
+                label="&find.label;"
+                keep="true"
+                />
+      <menuitem id="placesContextMenu_replace"
+                observes="cmd_replaceInPlace"
+                label="&replace.label;"
+                keep="true"
+                />
+
+      <menuitem id="placesContextMenu_showInFinder"
+                observes="cmd_places_showInFinder"
+                label="&ShowInExplorer.label;"
+                keep="true"
+                />
+      <menuitem id="placesContextMenu_rename"
+                observes="cmd_renamePlace_File"
+                label="&renamePlaceItem.label;"
+                keep="true"
+                />
+      <menuseparator id="placesContextMenu_separatorDelete"
+                     keep="true"
+                     />
+      <menuitem id="placesContextMenu_delete"
+                observes="cmd_deletePlaceItem"
+                label="&delete.label;"
+                class="menuitem-iconic list-item-remove-icon"
+                keep="true"
+                />
+      <menuitem id="placesContextMenu_newFile"
+                label="&newFile.label;"
+                class="menuitem-iconic new-file-icon"
+                keep="true"
+                />
+      <menuitem id="placesContextMenu_newFolder"
+                label="&newFolder.label;"
+                class="menuitem-iconic newfolder-icon"
+                keep="true"
+                />
+      <menuseparator id="placesContextMenu_separatorProperties"
+                     keep="true"
+                     intoplevel="true"/>
+      <menuitem id="placesContextMenu_editProperties"
+                observes="cmd_editProperties"
+                label="&properties.label;"
+                intoplevel="true"
+                keep="true"
+                />
+    </menupopup>
+
+    <menupopup id="menu_view_tabs_popup">
+      <menuitem id="show_places_tab2"
+          observes="show_places_tab"
+          insertafter="show_project_tab2"
+          oncommand="uilayout_ensureTabShown('places_tab', true)"
+          label="&Places.label;"
+          type="checkbox"
+          />
+    </menupopup>
+
+    <menupopup id="tabPicker_popup">
+      <menuitem id="show_places_tab"
+          observes="show_places_tab"
+          insertafter="show_project_tab"
+          oncommand="uilayout_ensureTabShown('places_tab', true)"
+          label="&Places.label;"
+          type="checkbox"
+          />
+    </menupopup>
+
+  </popupset>
+
+  <!-- ****************    Content    ****************** -->
+
   <tabs id="project_toolbox_tabs">
     <tab id="places_tab" label="&Places.label;" insertafter="project_tab"
         oncommand="gPlacesViewMgr.focus(); gPlacesViewMgr.updateView();"
@@ -224,10 +318,11 @@
       <vbox flex="1">
         <hbox id="place-view-vbox" align="center">
           <image id="place-view-rootPath-icon"
-                 context="places-files-popup" onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);"
-                ondragover="return ko.places.viewMgr.doDragOverRootNode(event, this);"
-                ondragenter="return ko.places.viewMgr.doDragEnterRootNode(event, this);"
-                ondrop="return ko.places.viewMgr.doDropOnRootNode(event, this);"
+                 context="places-files-popup"
+                 onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);"
+                 ondragover="return ko.places.viewMgr.doDragOverRootNode(event, this);"
+                 ondragenter="return ko.places.viewMgr.doDragEnterRootNode(event, this);"
+                 ondrop="return ko.places.viewMgr.doDropOnRootNode(event, this);"
                />
           <label id="place-view-rootPath"
                  min-width="0"
@@ -335,94 +430,10 @@
               onkeypress="ko.places.viewMgr.onTreeKeyPress(event);"
               onfocus="ko.places.viewMgr.focused = true;"
               onblur="ko.places.viewMgr.focused = false;"
-              context="_child"
+              context="places-file-popup"
               hidecolumnpicker="true"
               class="placestree"
               seltype="single">
-            <menupopup id="places-files-popup" onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);" >
-              <menuseparator id="placesContextMenu_separatorCut"
-                             keep_background="true"
-                             keep="true"/>
-              <menuitem id="placesContextMenu_cut"
-                        observes="cmd_cutPlaceItem"
-                        label="&cut.label;"
-                        keep="true"
-                        class="menuitem-iconic cut-button"
-                        />
-              <menuitem id="placesContextMenu_copy"
-                        observes="cmd_copyPlaceItem"
-                        label="&copy.label;"
-                        class="menuitem-iconic copy-button"
-                        keep="true"
-                        />
-              <menuitem id="placesContextMenu_paste"
-                        observes="cmd_pastePlaceItem"
-                        keep_background="true"
-                        class="menuitem-iconic paste-button"
-                        label="&paste.label;"
-                        keep="true"
-                        />
-              <menuitem id="placesContextMenu_undo"
-                        observes="cmd_placeView_undoTreeOperation"
-                        oncommand="ko.places.viewMgr.undoTreeOperation()"
-                        keep_background="true"
-                        class="menuitem-iconic undo-button"
-                        label="&undo.label;"
-                        keep="true"
-                        />
-              <menuseparator id="placesContextMenu_separatorFind"
-                             keep="true"
-                             />
-              <menuitem id="placesContextMenu_find"
-                        observes="cmd_findInPlace"
-                        label="&find.label;"
-                        keep="true"
-                        />
-              <menuitem id="placesContextMenu_replace"
-                        observes="cmd_replaceInPlace"
-                        label="&replace.label;"
-                        keep="true"
-                        />
-
-              <menuitem id="placesContextMenu_showInFinder"
-                        observes="cmd_places_showInFinder"
-                        label="&ShowInExplorer.label;"
-                        keep="true"
-                        />
-              <menuitem id="placesContextMenu_rename"
-                        observes="cmd_renamePlace_File"
-                        label="&renamePlaceItem.label;"
-                        keep="true"
-                        />
-              <menuseparator id="placesContextMenu_separatorDelete"
-                             keep="true"
-                             />
-              <menuitem id="placesContextMenu_delete"
-                        observes="cmd_deletePlaceItem"
-                        label="&delete.label;"
-                        class="menuitem-iconic list-item-remove-icon"
-                        keep="true"
-                        />
-              <menuitem id="placesContextMenu_newFile"
-                        label="&newFile.label;"
-                        class="menuitem-iconic new-file-icon"
-                        keep="true"
-                        />
-              <menuitem id="placesContextMenu_newFolder"
-                        label="&newFolder.label;"
-                        class="menuitem-iconic newfolder-icon"
-                        keep="true"
-                        />
-              <menuseparator id="placesContextMenu_separatorProperties"
-                             keep="true"
-                             intoplevel="true"/>
-              <menuitem id="placesContextMenu_editProperties"
-                        observes="cmd_editProperties"
-                        label="&properties.label;"
-                        intoplevel="true"
-                        keep="true"
-                        />
-            </menupopup>
             <treecols
                onclick="ko.places.viewMgr.onTreecolsClick(event);" >
                 <treecol id="name" flex="1"
