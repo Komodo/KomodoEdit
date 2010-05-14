@@ -199,87 +199,68 @@
   <popupset id="extensionPopupSet">
 
     <menupopup id="places-files-popup" onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);" >
-      <menuseparator id="placesContextMenu_separatorCut"
-                     keep_background="true"
-                     keep="true"/>
+      <menuseparator id="placesContextMenu_separatorCut" />
       <menuitem id="placesContextMenu_cut"
                 observes="cmd_cutPlaceItem"
                 label="&cut.label;"
-                keep="true"
                 class="menuitem-iconic cut-button"
                 />
       <menuitem id="placesContextMenu_copy"
                 observes="cmd_copyPlaceItem"
                 label="&copy.label;"
                 class="menuitem-iconic copy-button"
-                keep="true"
                 />
       <menuitem id="placesContextMenu_paste"
                 observes="cmd_pastePlaceItem"
-                keep_background="true"
                 class="menuitem-iconic paste-button"
                 label="&paste.label;"
-                keep="true"
                 />
       <menuitem id="placesContextMenu_undo"
                 observes="cmd_placeView_undoTreeOperation"
                 oncommand="ko.places.viewMgr.undoTreeOperation()"
-                keep_background="true"
                 class="menuitem-iconic undo-button"
                 label="&undo.label;"
-                keep="true"
                 />
       <menuseparator id="placesContextMenu_separatorFind"
-                     keep="true"
                      />
       <menuitem id="placesContextMenu_find"
                 observes="cmd_findInPlace"
                 label="&find.label;"
-                keep="true"
                 />
       <menuitem id="placesContextMenu_replace"
                 observes="cmd_replaceInPlace"
                 label="&replace.label;"
-                keep="true"
                 />
 
       <menuitem id="placesContextMenu_showInFinder"
                 observes="cmd_places_showInFinder"
                 label="&ShowInExplorer.label;"
-                keep="true"
                 />
       <menuitem id="placesContextMenu_rename"
                 observes="cmd_renamePlace_File"
                 label="&renamePlaceItem.label;"
-                keep="true"
                 />
       <menuseparator id="placesContextMenu_separatorDelete"
-                     keep="true"
                      />
       <menuitem id="placesContextMenu_delete"
                 observes="cmd_deletePlaceItem"
                 label="&delete.label;"
                 class="menuitem-iconic list-item-remove-icon"
-                keep="true"
                 />
       <menuitem id="placesContextMenu_newFile"
                 label="&newFile.label;"
                 class="menuitem-iconic new-file-icon"
-                keep="true"
                 />
       <menuitem id="placesContextMenu_newFolder"
                 label="&newFolder.label;"
                 class="menuitem-iconic newfolder-icon"
-                keep="true"
                 />
       <menuseparator id="placesContextMenu_separatorProperties"
-                     keep="true"
                      intoplevel="true"/>
       <menuitem id="placesContextMenu_editProperties"
                 observes="cmd_editProperties"
                 label="&properties.label;"
                 intoplevel="true"
-                keep="true"
                 />
     </menupopup>
 
@@ -339,56 +320,45 @@
               <menuitem id="placeView_loadButton"
                   observes="cmd_openDirectory"
                   label="&loadPlace.label;"
-                  keep="true"
                   class="menuitem-iconic open-places-icon"/>
               <menuitem id="placeView_loadRemoteButton"
                   observes="cmd_openRemoteDirectory"
                   label="&loadRemotePlace.label;"
-                  keep="true"
                   class="menuitem-iconic open-places-icon"/>
               <menuitem id="placeView_upOneDirectory"
                   observes="cmd_places_goUpOneFolder"
                   label="&placesUpFolder.label;"
-                  keep="true"
                   class="menuitem-iconic places-uparrow-button"/>
 <!--
               <menu id="placeView_sortByMenu"
                     label="&sortBy.label;"
-                  keep="true"
                     accesskey="&sortBy_menu.accesskey;">
                 <menupopup id="placeView_sortByMenuPopup"
                            onpopupshowing="ko.places.sortByOnPopupShowing(this, 'places')"/>
               </menu>
 -->
-              <menuseparator id="places_view_separator"
-                  keep="true"/>
+              <menuseparator id="places_view_separator" />
               <menuitem id="placeView_defaultView"
                   observes="cmd_placeView_defaultView"
                   label="&defaultView.label;"
-                  keep="true"
                   checked="true"
                   type="checkbox" />
               <menuitem id="placeView_viewAll"
                   observes="cmd_placeView_viewAll"
                   label="&viewAll.label;"
-                  keep="true"
                   checked="true"
                   type="checkbox" />
-              <menuseparator id="places_manage_view_separator"
-                  keep="true"/>
+              <menuseparator id="places_manage_view_separator" />
               <menuitem id="placeView_customView"
                   observes="cmd_placeView_customView"
                   label="&manageCustomViews.label;"
-                  keep="true" />
-              <menuseparator id="places_undo_separator"
-                  keep="true"/>
+                   />
+              <menuseparator id="places_undo_separator" />
               <menuitem id="placeView_undo"
                         observes="cmd_placeView_undoTreeOperation"
                         oncommand="ko.places.viewMgr.undoTreeOperation()"
-                        keep_background="true"
                         class="menuitem-iconic undo-button"
                         label="&undo.label;"
-                        keep="true"
                         />
             </menupopup>
           </toolbarbutton>

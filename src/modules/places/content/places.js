@@ -287,7 +287,7 @@ viewMgrClass.prototype = {
         var disableAll = (isRootNode
                           && widgets.rootPath.getAttribute('class') ==  'noplace');
         while (!!(node = nodes[i])) {
-            if (node.getAttribute("keep") != "true") {
+            if (node.hasAttribute("dynamically_added") && node.getAttribute("dynamically_added") == "true") {
                 popupmenu.removeChild(node);
             } else {
                 if (disableAll) {
@@ -405,6 +405,7 @@ viewMgrClass.prototype = {
 
     _makeMenuItem: function(id, label, handler) {
         var menuitem = document.createElement("menuitem");
+        menuitem.setAttribute("dynamically_added", "true"); /* mark it so we can delete it later */
         menuitem.setAttribute("label", label);
         menuitem.setAttribute("id", id);
         menuitem.setAttribute("oncommand", handler);
