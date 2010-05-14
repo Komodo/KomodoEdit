@@ -230,13 +230,8 @@ viewMgrClass.prototype = {
     initFilesContextMenu: function(event) {
         var clickedNodeId = event.explicitOriginalTarget.id;
         if (this.allowed_click_nodes.indexOf(clickedNodeId) == -1) {
-            if (clickedNodeId == "places-scc-popup") {
-                // quietly return
-                return false;
-            }
-            dump("No context menu when clicking on "
-                 + event.explicitOriginalTarget.id
-                 + "\n");
+            // We don't want to fillup this context menu (i.e. it's likely a
+            // sub-menu such as the scc context menu).
             return false;
         }
         //gEvent = event;
