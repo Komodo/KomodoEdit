@@ -149,6 +149,20 @@ def infer_cwd_and_strip_from_path(path_in_diff, actual_path):
     return (cwd, strip)
 
 
+def diff_file_contents(left_content, right_content,
+                       left_filepath='', right_filepath=''):
+    """Return a unified diff between the left and right contents."""
+    # See if the content differs.
+    if left_content == right_content:
+        # The content is the same.
+        return ""
+    # Perform unified diff of contents.
+    result = unified_diff(left_content.splitlines(1),
+                          right_content.splitlines(1),
+                          left_filepath, right_filepath)
+    return "".join(result)
+
+
 def diff_local_directories(left_dirpath, right_dirpath):
     """Return a unified diff between the files in the left and right dirs.
 

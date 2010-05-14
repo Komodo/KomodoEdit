@@ -28,6 +28,26 @@ class KoDiffService(object):
         return difflibex.diff_multiple_local_filepaths([left_filepath],
                                                        [right_filepath])
 
+    def diffURIs(self, left_uri, right_uri):
+        left_koFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                    createInstance(components.interfaces.koIFileEx)
+        left_koFileEx.URI = left_uri
+        left_koFileEx.open("rb")
+        try:
+            right_koFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                        createInstance(components.interfaces.koIFileEx)
+            right_koFileEx.URI = right_uri
+            right_koFileEx.open("rb")
+            try:
+                return difflibex.diff_file_contents(left_koFileEx.readfile(),
+                                                    right_koFileEx.readfile(),
+                                                    left_koFileEx.path,
+                                                    right_koFileEx.path)
+            finally:
+                right_koFileEx.close()
+        finally:
+            left_koFileEx.close()
+
     def diffDirectories(self, left_dirpath, right_dirpath):
         return difflibex.diff_local_directories(left_dirpath, right_dirpath)
 

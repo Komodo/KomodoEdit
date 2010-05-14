@@ -21,6 +21,18 @@ interface koIDiffService : nsISupports {
                           in AString right_filepath);
 
     /**
+     * Return a unified diff between the left and right filepath.
+     *
+     * Left and right can be either local or remote locations.
+     *
+     * @param left_uri {string}  The uri for the left file.
+     * @param right_uri {string} The uri for the right file.
+     * @returns string
+     */
+    AString diffURIs(in AString left_uri,
+                     in AString right_uri);
+
+    /**
      * Perform a diff of the files in the left directory to the same (relative)
      * files in the right directory. If a file exists in the left dir but not
      * in the right dir then it will be shown as deleted content (-), whilst if
