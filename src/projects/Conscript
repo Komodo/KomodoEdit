@@ -68,8 +68,10 @@ $cons->BuildAndInstallXpt('koIKPFTreeView.idl');
 $cons->Preprocess('koKPFTreeView.p.py', 'koKPFTreeView.py');
 $cons->InstallXpcomComponent('koKPFTreeView.py');
 
+if ($buildFlavour ne 'full') {
 # Toolbox2 items
-$cons->InstallPythonUtility('koToolbox2.py');
-$cons->Install($idlExportDir, 'koIToolbox2HTreeView.idl');
-$cons->BuildAndInstallXpt('koIToolbox2HTreeView.idl');
-$cons->InstallXpcomComponent('koToolbox2HTreeView.py');
+    $cons->InstallPythonUtility('koToolbox2.py');
+    $cons->Install($idlExportDir, 'koIToolbox2HTreeView.idl');
+    $cons->BuildAndInstallXpt('koIToolbox2HTreeView.idl');
+    $cons->InstallXpcomComponent('koToolbox2HTreeView.py');
+}
