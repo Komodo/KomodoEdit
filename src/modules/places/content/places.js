@@ -1613,6 +1613,64 @@ ManagerClass.prototype = {
         this._setURI(uri, true);
     },
 
+    /**
+     * Return the indexes of the selected tree items.
+     *
+     * @returns {array} - the selected indexes.
+     */
+    getSelectedIndexes: function() {
+        // TODO: Switch to range tree code (below) when multiple selection is
+        //       supported.
+        var currentIndex = gPlacesViewMgr.view.selection.currentIndex;
+        return currentIndex >= 0 ? [currentIndex] : [];
+        /**
+         * @type {Components.interfaces.nsITreeSelection}
+         */
+        var selection = gPlacesViewMgr.view.selection;
+        var indexes = [];
+        var range;
+        var outRangeObj = {};
+        var outRangeCountObj = {};
+        for (var i=0; i < selection.getRangeCount(); i++) {
+            selection.getRangeAt(i, outRangeObj, outRangeCountObj);
+            range = outRangeObj.value;
+            for (var j=0; j < range.length; j++) {
+                indexes.push(range[j]);
+            }
+        }
+        return indexes;
+    },
+
+    /**
+     * Return the URIs for the selected tree items.
+     *
+     * @returns {array} - the selected URIs.
+     */
+    getSelectedUris: function() {
+        var indexes = this.getSelectedIndexes();
+        var uris = [];
+        for (var i=0; i < indexes.length; i++) {
+            uris.push(gPlacesViewMgr.view.getURIForRow(indexes[i]));
+        }
+        return uris;
+    },
+
+    /**
+     * Return the koIFileEx objects for the selected tree items.
+     *
+     * @returns {array} - the selected files.
+     */
+    getSelectedFiles: function() {
+        var uris = this.getSelectedUris();
+        var fileSvc = Components.classes["@activestate.com/koFileService;1"].
+                           getService(Components.interfaces.koIFileService);
+        var files = [];
+        for (var i=0; i < uris.length; i++) {
+            files.push(fileSvc.getFileFromURI(uris[i]));
+        }
+        return files;
+    },
+
     pushHistoryInfo: function(anchor_uri, destination_uri) {
         // We are about to leave anchor_uri, and move to destination_uri
         // See kd-0247#Updating the Previous/Forward Place History for
