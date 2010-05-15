@@ -2,7 +2,7 @@ from xpcom import components, COMException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import WrapObject, UnwrapObject
  
-import sys, os, re, types, string, threading
+import json, sys, os, re, types, string, threading
 from koTreeView import TreeView
 
 import koToolbox2
@@ -17,15 +17,93 @@ Manage a hierarchical view of the loaded tools
 """
 
 class _KoTool(object):
+    _com_interfaces_ = [components.interfaces.koITool]
     isContainer = False
-    def __init__(self, name, id, level):
+    def __init__(self, name, id):
         self.name = name
         self.id = id  # path_id in DB
-        self.level = level
         self.initialized = False
+        self._attributes = {'name':name}
+        self._nondb_attributes = {}
         
     def init(self, treeView):
         pass
+
+    def _finishUpdatingSelf(self, info):
+        if 'value' in info:
+            self.value = info['value']
+            del info['value']
+        for key, value in info.items():
+            self._attributes[key] = value
+
+    # Attributes...
+    def get_toolType(self):
+        return self.typeName
+
+    def get_value(self):
+        return self.value
+    
+    def hasAttribute(self, name):
+        return self._attributes.has_key(name)
+
+    def getAttribute(self, name):
+        return self._attributes[name]
+
+    def setAttribute(self, name, value):
+        if name not in self._attributes or self._attributes[name] != value: # avoid dirtification when possible.
+            self._attributes[name] = value
+            if not self.live:
+                self._project.set_isDirty(1)
+
+    def removeAttribute(self, name):
+        if name not in self._attributes: return
+        del self._attributes[name]
+        if not self.live:
+            self._project.set_isDirty(1)
+
+    def getStringAttribute(self, name):
+        return unicode(self._attributes[name])
+
+    def setStringAttribute(self, name, value):
+        self.setAttribute(name, unicode(value))
+
+    def getLongAttribute(self, name):
+        return int(self._attributes[name])
+
+    def setLongAttribute(self, name, value):
+        self.setAttribute(name, int(value))
+
+    def getBooleanAttribute(self, name):
+        return self.getLongAttribute(name) and 1 or 0
+
+    def setBooleanAttribute(self, name, value):
+        self.setAttribute(name, value and 1 or 0)
+
+    def saveToolToDisk(self, tbdbSvc):
+        if 'path' not in self._nondb_attributes:
+            self._nondb_attributes['path'] = tbdbSvc.getPath(self.id)
+        path = self._nondb_attributes['path']
+        fp = open(path, 'r')
+        data = json.load(fp, encoding="utf-8")
+        fp.close()
+        data['value'] = self.value
+        for name in self._attributes:
+            data[name] = self._attributes[name]
+        fp = open(path, 'w')
+        data = json.dump(data, fp, encoding="utf-8")
+        fp.close()
+        
+    def saveContentToDisk(self, tbdbSvc):
+        if 'path' not in self._nondb_attributes:
+            self._nondb_attributes['path'] = tbdbSvc.getPath(self.id)
+        path = self._nondb_attributes['path']
+        fp = open(path, 'r')
+        data = json.load(fp, encoding="utf-8")
+        fp.close()
+        data['value'] = self.value
+        fp = open(path, 'w')
+        data = json.dump(data, fp, encoding="utf-8")
+        fp.close()
         
 class _KoContainer(_KoTool):
     isContainer = True
@@ -39,49 +117,94 @@ class _KoContainer(_KoTool):
         self.initialized = True
 
 class _KoFolder(_KoContainer):
-    type = 'folder'
+    typeName = 'folder'
     prettytype = 'Folder'
     _iconurl = 'chrome://komodo/skin/images/folder-closed.png'
 
 class _KoMenu(_KoContainer):
-    type = 'menu'
+    typeName = 'menu'
     prettytype = 'Custom Menu'
     _iconurl = 'chrome://komodo/skin/images/menu_icon.png'
 
 class _KoToolbar(_KoContainer):
-    type = 'toolbar'
+    typeName = 'toolbar'
     prettytype = 'Custom Toolbar'
     _iconurl = 'chrome://komodo/skin/images/toolbar_icon.png'
 
 class _KoCommandTool(_KoTool):
-    type = 'command'
+    typeName = 'command'
     prettytype = 'Run Command'
     _iconurl = 'chrome://komodo/skin/images/run_commands.png'
     keybindable = 1
 
+    def updateSelf(self, toolbox_db):
+        info = toolbox_db.getCommandInfo(self.id)
+        self._finishUpdatingSelf(info)
+
 class _KoDirectoryShortcutTool(_KoTool):
-    type = 'DirectoryShortcut'
+    typeName = 'DirectoryShortcut'
     prettytype = 'Open... Shortcut'
     keybindable = 1
     _iconurl = 'chrome://komodo/skin/images/open.png'
 
+    def updateSelf(self, toolbox_db):
+        info = toolbox_db.getDirectoryShortcutInfo(self.id)
+        self._finishUpdatingSelf(info)
+
 class _KoMacroTool(_KoTool):
-    type = 'macro'
+    _com_interfaces_ = [components.interfaces.koITool]
+    typeName = 'macro'
     prettytype = 'Macro'
     _iconurl = 'chrome://komodo/skin/images/macro.png'
     keybindable = 1
 
+    def updateSelf(self, toolbox_db):
+        info = toolbox_db.getMacroInfo(self.id)
+        #log.debug("macro info: %s", info)
+        self._finishUpdatingSelf(info)
+
+    def get_url(self):
+        if self._attributes['language'] == 'JavaScript':
+            ext = ".js"
+        elif self._attributes['language'] == 'Python':
+            ext = ".py"
+        return "macro2://%s/%s%s" % (self.id, self.name, ext)
+        
+    def save(self):
+        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        # Write the changed data to the file system
+        self.saveContentToDisk(tbdbSvc)
+        tbdbSvc.saveContent(self.id, self.value)
+        self.value = self.value
+
+    def saveProperties(self):
+        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        # Write the changed data to the file system
+        self.saveToolToDisk(tbdbSvc)
+        tbdbSvc.saveMacroInfo(self.id, self.name, self.value, self._attributes)
+
 class _KoSnippetTool(_KoTool):
-    type = 'snippet'
+    typeName = 'snippet'
     prettytype = 'Snippet'
     _iconurl = 'chrome://komodo/skin/images/snippet.png'
     keybindable = 1
 
+    def updateSelf(self, toolbox_db):
+        info = toolbox_db.getSnippetInfo(self.id)
+        self._finishUpdatingSelf(info)
+
 class _KoURLTool(_KoTool):
-    type = 'URL'
+    typeName = 'URL'
     prettytype = 'URL'
     _iconurl = 'chrome://komodo/skin/images/xlink.png'
     keybindable = 1
+
+    def updateSelf(self, toolbox_db):
+        info = {}
+        self.getCommonToolDetails(path_id, info)
+        self._finishUpdatingSelf(info)
 
 class KoToolbox2HTreeView(TreeView):
     _com_interfaces_ = [components.interfaces.nsIObserver,
@@ -96,20 +219,51 @@ class KoToolbox2HTreeView(TreeView):
         self._rows = []
         self._tree = None
         self.toolbox_db = None
+        self._tools = {}  # Map a tool's id to a constructed object
+
+    def _getOrCreateTool(self, node_type, name, path_id):
+        tool = self._tools.get(path_id, None)
+        if tool is not None:
+            return tool
+        tool = createPartFromType(node_type, name, path_id)
+        tool.init(self)
+        self._tools[path_id] = tool
+        return tool
+
+    def getToolById(self, path_id):
+        path_id = int(path_id)
+        if path_id not in self._tools:
+            tool_type, name = self.toolbox_db.getValuesFromTableByKey('common_details', ['type', 'name'], 'path_id', path_id)
+            tool = createPartFromType(tool_type, name, path_id)
+            self._tools[path_id] = tool
+        return self._tools[path_id]        
         
     def initialize(self):
-        # For now just get the top-level items
+        self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
         #XXX Unhardwire this
-        log.debug(">> initialize")
-        self.toolbox_db = koToolbox2.ToolboxAccessor(r"c:\Users\ericp\trash\toolbox-test.sqlite")
+        
+        #TODO: For now just get the top-level items
+        # Later keep track of how 
+        self.toolbox_db.initialize(r"c:\Users\ericp\trash\toolbox-test.sqlite")
+        self.toolbox_db.toolManager = self
         top_level_nodes = self.toolbox_db.getTopLevelNodes()
         before_len = len(self._rows)
         for path_id, name, node_type in top_level_nodes:
-            toolPart = createPartFromType(node_type, name, path_id, 0)
-            toolPart.init(self)
+            toolPart = self._getOrCreateTool(node_type, name, path_id)
+            toolPart.level = 1
             self._rows.append(toolPart)
         after_len = len(self._rows)
         self._tree.rowCountChanged(0, after_len - before_len)
+
+    def getTool(self, index):
+        tool = self._rows[index]
+        if not tool.initialized:
+            tool.updateSelf(self.toolbox_db)
+        return tool
+
+    def get_toolType(self, index):
+        return self._rows[index].typeName
         
     #---- nsITreeView Methods
     
@@ -217,8 +371,8 @@ class KoToolbox2HTreeView(TreeView):
             if childNodes:
                 posn = index + 1
                 for path_id, name, node_type in childNodes:
-                    toolPart = createPartFromType(node_type, name, path_id, rowNode.level + 1)
-                    toolPart.init(self)
+                    toolPart = self._getOrCreateTool(node_type, name, path_id)
+                    toolPart.level = rowNode.level + 1
                     self._rows.insert(posn, toolPart)
                     posn += 1
                 #qlog.debug("rowCountChanged: index: %d, numRowChanged: %d", index, numRowChanged)
@@ -232,8 +386,8 @@ class KoToolbox2HTreeView(TreeView):
 
 _partFactoryMap = {}
 for name, value in globals().items():
-    if isinstance(value, object) and getattr(value, 'type', ''):
-        _partFactoryMap[value.type] = value
+    if isinstance(value, object) and getattr(value, 'typeName', ''):
+        _partFactoryMap[value.typeName] = value
 
 def createPartFromType(type, *args):
     if type == "project":

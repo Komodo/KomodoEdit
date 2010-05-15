@@ -8,9 +8,61 @@
  *
  */
 
+[scriptable, uuid(5c022eab-9e93-41e9-a113-4aca20f3bcb5)]
+interface koITool: nsISupports {
+    readonly attribute wstring toolType;
+    attribute wstring value;
+    attribute wstring keyboard_shortcut;
+
+    // These have to come off the tree, which has a db handle.
+    readonly attribute wstring path;
+    readonly attribute wstring url;
+    attribute long favoriteRating;
+    readonly attribute long timesRun;
+    attribute double lastRun;
+
+    // koTools maintain a dictionary of attributes, corresponding to
+    // attributes on the serialized koIPart's XML tag.
+    boolean hasAttribute(in wstring name);
+
+    nsISupports getAttribute(in wstring name);
+    void setAttribute(in wstring name, in nsISupports value);
+
+    void removeAttribute(in wstring name);
+
+    wstring getStringAttribute(in wstring name);
+    void setStringAttribute(in wstring name, in wstring value);
+
+    long getLongAttribute(in wstring name);
+    void setLongAttribute(in wstring name, in long value);
+
+    boolean getBooleanAttribute(in wstring name);
+    void setBooleanAttribute(in wstring name, in boolean value);
+
+    //TODO: Implement
+    readonly attribute wstring prefset;
+    attribute wstring tags;
+    void save();
+};
+
+[scriptable, uuid(1d1db2c4-8054-418d-a0d2-4b65c5039bb1)]
+interface koIMacroTool: koITool {
+};
+
+
 [scriptable, uuid(f587b8c6-96ae-4af3-9362-a0fd40d541f7)]
 interface koIToolbox2HTreeView: nsITreeView {
     void initialize();
     void terminate();
+    wstring get_toolType(in long index);
+
+    koITool getTool(in long index);
+
+    // Eventually these should get moved to the tool, but for
+    // now we're going to hit the database each time.
+    wstring get_path(in long index);
+    long get_favoriteRating(in long index);
+    long get_timesRun(in long index);
+    double get_lastRun(in long index);
 };
 

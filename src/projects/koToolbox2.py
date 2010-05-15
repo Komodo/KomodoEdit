@@ -200,21 +200,72 @@ class Database(object):
                        (node_id,))
             return [x[0] for x in cu.fetchall()]
 
-    def getValuesFromTableByKey(self, tableName, columnNames, keyName, keyValue):
-        stmt = "select %s from %s where %s = ?" % \
-               (", ".join(columnNames), tableName, keyName)
+    def getTypeAndNameFromId(self, node_id):
+        """
+        Return (nodeType, name based on the ID)
+        """
         with self.connect() as cu:
+            cu.execute('''select cd.name, cd.type
+                from common_details as cd, hierarchy as h
+                where h.parent_path_id == ? and cd.path_id == h.path_id''',
+                       (node_id,))
+            return cu.fetchall()
+
+    def getValuesFromTableByKey(self, table_name, columnNames, keyName, keyValue, cu=None):
+        stmt = "select %s from %s where %s = ?" % \
+               (", ".join(columnNames), table_name, keyName)
+        with self.connect(cu=cu) as cu:
             try:
                 cu.execute(stmt, (keyValue,))
             except sqlite3.OperationalError:
                 log.debug("Couldn't do [%s]", stmt)
                 raise
             return cu.fetchone()
+
+    def _convertAndJoin(self, names, sep):
+        # Return a string of form <<"name1 = ? <sep> name2 = ? ...">>
+        return sep.join([("%s = ?" % name) for name in names])
+        
+    def deleteRowByKey(self, table_name, key_names, key_values, cu=None):
+        condition = " and ".join(["%s = ?" % kname for kname in key_names])
+        with self.connect(commit=True, cu=cu) as cu:
+            cu.execute("delete from %s where %s" % (table_name, condition), key_values)
+
+    def insertRowInTable(self, table_name, target_names, target_values, cu=None):
+        cmd = "insert into %s (%s) values (%s)" % (table_name,
+                                                   ", ".join(target_names),
+                                                   ", ".join(['?'] * len(target_names)))
+        with self.connect(commit=True, cu=cu) as cu:
+            cu.execute(cmd, target_values)
+
+    def updateValuesInTableByKey(self, table_name, target_names, target_values,
+                                 key_names, key_values, cu=None):
+        target_names_str = self._convertAndJoin(target_names, ",")
+        key_names_str = self._convertAndJoin(key_names, " AND ")
+        cmd = 'update %s set %s where %s' % (table_name, target_names_str,
+                                             key_names_str)
+        args = tuple(target_values + key_values)
+        with self.connect(commit=True, cu=cu) as cu:
+            try:
+                cu.execute(cmd, args)
+            except sqlite3.OperationalError:
+                log.exception("Couldn't do [%s](%s)", stmt, args)
+                return False
+            else:
+                return True
             
     def _get_id_from_path(self, path):
         stmt = "select id from paths where path = ?"
         with self.connect() as cu:
             cu.execute(stmt, (path,))
+            row = cu.fetchone()
+            if row is None: return None
+            return row[0]
+            
+    def getPath(self, id):
+        stmt = "select path from paths where id = ?"
+        with self.connect() as cu:
+            cu.execute(stmt, (id,))
             row = cu.fetchone()
             if row is None: return None
             return row[0]
@@ -339,7 +390,7 @@ class Database(object):
             ]
         valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
         stmt = '''insert into macro(
-                  path_id, async, trigger_enabled, macro_trigger, macro_language, rank)
+                  path_id, async, trigger_enabled, trigger, language, rank)
                   values(?, ?, ?, ?, ?, ?)'''
         cu.execute(stmt, valueList)
         if data:
@@ -386,7 +437,7 @@ class Database(object):
 
     def addCommonToolDetails(self, id, data, cu):
         names_and_defaults = [
-            ('content', []),
+            ('value', []),
             ('keyboard_shortcut', ''),
             ]
         values = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
@@ -399,7 +450,7 @@ class Database(object):
             if content and not content[0]:
                 del content[0]
             content = eol.join(content)
-        stmt = '''insert into common_tool_details(path_id, content, keyboard_shortcut)
+        stmt = '''insert into common_tool_details(path_id, value, keyboard_shortcut)
                   values(?, ?, ?)'''
         cu.execute(stmt, (id, content, keyboard_shortcut))
         
@@ -451,6 +502,161 @@ class Database(object):
     def tableNameFromType(self, itemType):
         return self._tableNameFromType.get(itemType, itemType)
                 
+    def getCommandInfo(self, path_id):
+        obj = {}
+        with self.connect() as cu:
+            self.getCommonToolDetails(path_id, obj, cu)
+            names = ['insertOutput', 'parseRegex', 'operateOnSelection',
+                     'doNotOpenOutputWindow', 'showParsedOutputList',
+                     'parseOutput', 'runIn', 'cwd', 'env']
+            cu.execute(("select %s from command where path_id = ?" %
+                        ", ".join(names)), (path_id,))
+            row = cu.fetchone()
+        for i, name in enumerate(names):
+            obj[name] = row[i]
+        return obj
+
+    def getCommonToolDetails(self, path_id, obj, cu=None):
+        with self.connect(cu=cu) as cu:
+            cu.execute("""select value from common_tool_details
+                          where path_id = ?""", (path_id,))
+            obj['value'] = cu.fetchone()[0]
+            cu.execute("""select prop_name, prop_value from misc_properties
+                          where path_id = ?""", (path_id,))
+            rows = cu.fetchall()
+            for row in rows:
+                obj[row[0]] = row[1]
+        
+    def getDirectoryShortcutInfo(self, path_id):
+        obj = {}
+        with self.connect() as cu:
+            self.getCommonToolDetails(path_id, obj, cu)
+            names = ['url']
+            cu.execute("select url from directoryShortcut where path_id = ?", (path_id,))
+            row = cu.fetchone()
+            obj['url'] = row[0]
+        return obj
+
+    def getMacroInfo(self, path_id, cu=None):
+        obj = {}
+        with self.connect(cu=cu) as cu:
+            self.getCommonToolDetails(path_id, obj, cu)
+            names = ['async', 'trigger_enabled', 'trigger',
+                     'language', 'rank']
+            cu.execute(("select %s from macro where path_id = ?" %
+                        ", ".join(names)), (path_id,))
+            row = cu.fetchone()
+        for i, name in enumerate(names):
+            obj[name] = row[i]
+        return obj
+
+    # id, path and type don't change on a database, but name can
+    
+    def saveToolName(self, path_id, name):
+        with self.connect(commit=True) as cu:
+            old_name = self.getValuesFromTableByKey('common_details', ['name'],
+                                                    'path_id', path_id, cu)[0]
+            if name != old_name:
+                self.updateValuesInTableByKey('common_details', ['name'], [name],
+                                              ['path_id'], [path_id], cu)
+
+    def saveContent(self, path_id, value):
+        with self.connect(commit=True) as cu:
+            self.updateValuesInTableByKey('common_tool_details',
+                                          ['value'], [value],
+                                          ['path_id'], [path_id], cu)
+        
+    def saveMacroInfo(self, path_id, name, value, attributes):
+        work_attributes = attributes.copy()
+        with self.connect(commit=True) as cu:
+            oldMacroInfo = self.getMacroInfo(path_id, cu)
+            # Now only update the changed values.
+            # Reading from DB is cheaper than writing to it.
+            if oldMacroInfo['value'] != value:
+                log.debug("** macro %s: value changed", name)
+                self.updateValuesInTableByKey('common_tool_details',
+                                              ['value'], [value],
+                                              ['path_id'], [path_id], cu)
+                
+            names = ['async', 'trigger_enabled', 'trigger',
+                     'language', 'rank']
+            names_to_update = []
+            vals_to_update = []
+            for name in names:
+                if name in work_attributes:
+                    if oldMacroInfo[name] != work_attributes[name]:
+                        names_to_update.append(name)
+                        vals_to_update.append(work_attributes[name])
+                    del work_attributes[name]
+                    del oldMacroInfo[name]
+            log.debug("macro updates: names:%s, values:%s", names_to_update, vals_to_update)
+            if names_to_update:
+                self.updateValuesInTableByKey('macro',
+                                              names_to_update, vals_to_update,
+                                              ['path_id'], [path_id], cu)
+            for name in ['name', 'path', 'value',]:
+                try: del work_attributes[name]
+                except KeyError:
+                    pass
+                try: del oldMacroInfo[name]
+                except KeyError:
+                    pass
+            self.saveMiscInfo(path_id, work_attributes, oldMacroInfo, cu)
+            
+    def saveMiscInfo(self, path_id, oldAttrList, newAttrList, cu=None):
+        names_to_update = []
+        vals_to_update = []
+        names_to_insert = []
+        vals_to_insert = []
+        names_to_delete = []
+        new_names = newAttrList.keys()
+        old_names = oldAttrList.keys()
+        for name in new_names:
+            if name in old_names:
+                if newAttrList[name] != oldAttrList[name]:
+                    names_to_update.append(name)
+                    vals_to_update.append(newAttrList[name])
+                del oldAttrList[name]
+            else:
+                names_to_insert.append(name)
+                vals_to_insert.append(newAttrList[name])
+            del newAttrList[name]
+        for name in old_names:
+            names_to_delete.append(name)
+            del oldAttrList[name]
+            
+        log.debug("misc updates: names:%s, values:%s", names_to_update, vals_to_update)
+        log.debug("misc inserts: names:%s, values:%s", names_to_insert, vals_to_insert)
+        log.debug("misc deletions: names:%s", names_to_delete)
+        with self.connect(commit=True, cu=cu) as cu:
+            for name, val in zip(names_to_update, vals_to_update):
+                self.updateValuesInTableByKey('misc_properties',
+                                              ['prop_value'], [val],
+                                              ['path_id', 'prop_name'],
+                                              [path_id, name], cu)
+            for name, val in zip(names_to_insert, vals_to_insert):
+                self.insertRowInTable('misc_properties',
+                                      ['path_id', 'prop_name', 'prop_value'],
+                                      [path_id, name, val],
+                                      cu)
+            for name in names_to_delete:
+                self.deleteRowByKey('misc_properties',
+                                    ['path_id', 'prop_name'],
+                                    [path_id, name], cu)
+
+    def getSnippetInfo(self, path_id):
+        obj = {}
+        with self.connect() as cu:
+            self.getCommonToolDetails(path_id, obj, cu)
+            names = ['set_selection',
+                     'indent_relative']
+            cu.execute(("select %s from snippet where path_id = ?" %
+                        ", ".join(names)), (path_id,))
+            row = cu.fetchone()
+        for i, name in enumerate(names):
+            obj[name] = row[i]
+        return obj
+
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
@@ -609,7 +815,8 @@ class ToolboxLoader(object):
                 if id is not None:
                     log.debug("We never loaded path %s (id %d)", path, id)
                     self.db.deleteTree(id)
-        
+            
+# Use this class for testing only.
 class ToolboxAccessor(object):
     def __init__(self, db_path):
         self.db = Database(db_path)

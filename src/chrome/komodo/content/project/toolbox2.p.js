@@ -10,6 +10,7 @@ if (typeof(ko)=='undefined') {
     var ko = {};
 }
 if (typeof(ko.toolbox2)=='undefined') {
+    dump("**************** toolbox2.p.js: Clearing ko.toolbox2\n");
     ko.toolbox2 = {};
 }
 (function() {
@@ -41,14 +42,71 @@ _EOD_: null
 };
 
 this.onLoad = function() {
-    window.addEventListener("unload", ko.toolbox2.onUnload, false);
-    this.manager = new Toolbox2Manager();
-    this.manager.initialize();
-}
+    var this_ = ko.toolbox2;
+    window.addEventListener("unload", this_.onUnload, false);
+    var this_ = ko.toolbox2;
+    this_.manager = new Toolbox2Manager();
+    this_.manager.initialize();
+};
 
 this.onUnload = function() {
-    this.manager.terminate();
-}
+    var this_ = ko.toolbox2;
+    this_.manager.terminate();
+};
+
+this.updateContextMenu = function(event, menupopup) {
+    if (!event.explicitOriginalTarget) {
+        dump("No event.explicitOriginalTarget\n");
+        return;
+    }
+    var clickedNodeId = event.explicitOriginalTarget.id;
+    dump("updateContextMenu: clickedNodeId: " + clickedNodeId + "\n");
+    var row = {};
+    var manager = this.manager;
+    manager.tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
+    var index = row.value;
+    var toolType = manager.view.get_toolType(index);
+    if (!toolType) {
+        dump("Awp -- updateContextMenu -- no tooltype\n");
+        return;
+    }
+    this.processMenu(menupopup, toolType);
+};
+
+this.processMenu = function(menuNode, toolType) {
+    var hideUnless = menuNode.getAttribute('hideUnless');
+    if (hideUnless && hideUnless.indexOf(toolType) == -1) {
+        menuNode.setAttribute('collapsed', true);
+        return; // No need to do anything else
+    }
+    menuNode.removeAttribute('collapsed');
+    var disableNode = false;
+    var disableIf = menuNode.getAttribute('disableIf');
+    if (disableIf.indexOf(toolType) != -1) {
+        disableNode = true;
+    } else {
+        var disableIfInMenu = menuNode.getAttribute('disableIfInMenu');
+        if (disableIfInMenu && disableIfInMenu.indexOf(toolType) >= 0) {
+            //TODO: Check to see if we're in a menubar already
+            //disableNode = true;
+        }
+        if (!disableNode) {
+            var disableUnless = menuNode.getAttribute('disableUnless');
+            if (disableUnless && disableUnless.indexOf(toolType) == -1) {
+                disableNode = true;
+            }
+        }
+    }
+    if (disableNode) {
+        menuNode.setAttribute('disabled', true);
+    } else {
+        menuNode.removeAttribute('disabled');
+    }
+    var childNodes = menuNode.childNodes;
+    for (var i = childNodes.length - 1; i >= 0; --i) {
+        this.processMenu(childNodes[i], toolType);
+    }
+};
 
 }).apply(ko.toolbox2);
 

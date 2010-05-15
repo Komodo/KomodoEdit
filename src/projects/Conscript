@@ -74,4 +74,8 @@ if ($buildFlavour ne 'full') {
     $cons->Install($idlExportDir, 'koIToolbox2HTreeView.idl');
     $cons->BuildAndInstallXpt('koIToolbox2HTreeView.idl');
     $cons->InstallXpcomComponent('koToolbox2HTreeView.py');
+    
+    $cons->BuildAndInstallXpt('koIToolbox2Components.idl');
+    $cons->InstallXpcomComponent('koIToolbox2Components.idl');
+    $cons->InstallXpcomComponent('koToolbox2Components.py');
 }

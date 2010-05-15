@@ -22,7 +22,7 @@ create table common_details (
 create table common_tool_details (
     path_id INTEGER PRIMARY KEY NOT NULL ,
     tags text,
-    content TEXT,
+    value TEXT,
     keyboard_shortcut text,
     lastRun DATETIME,
     favoriteRating INTEGER NOT NULL  DEFAULT 0,
@@ -45,8 +45,8 @@ create table macro (
     path_id INTEGER PRIMARY KEY NOT NULL,
     async bool default false,
     trigger_enabled bool default false,
-    macro_trigger text,
-    macro_language text,
+    trigger text,
+    language text,
     rank INTEGER default 100
 );
 
