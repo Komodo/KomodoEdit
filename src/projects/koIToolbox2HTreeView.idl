@@ -11,6 +11,7 @@
 [scriptable, uuid(5c022eab-9e93-41e9-a113-4aca20f3bcb5)]
 interface koITool: nsISupports {
     readonly attribute wstring toolType;
+    readonly attribute wstring name;
     attribute wstring value;
     attribute wstring keyboard_shortcut;
 
