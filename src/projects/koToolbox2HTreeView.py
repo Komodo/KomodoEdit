@@ -5,12 +5,15 @@ from xpcom.server import WrapObject, UnwrapObject
 import json, sys, os, re, types, string, threading
 from koTreeView import TreeView
 
+import eollib
 import koToolbox2
 
 import logging
 
 log = logging.getLogger("Toolbox2HTreeView")
 log.setLevel(logging.DEBUG)
+
+eol = None
 
 """
 Manage a hierarchical view of the loaded tools
@@ -100,7 +103,7 @@ class _KoTool(object):
         fp = open(path, 'r')
         data = json.load(fp, encoding="utf-8")
         fp.close()
-        data['value'] = self.value
+        data['value'] = self.value.split(eol)
         fp = open(path, 'w')
         data = json.dump(data, fp, encoding="utf-8")
         fp.close()
@@ -220,6 +223,9 @@ class KoToolbox2HTreeView(TreeView):
         self._tree = None
         self.toolbox_db = None
         self._tools = {}  # Map a tool's id to a constructed object
+        global eol
+        if eol is None:
+            eol = eollib.eol2eolStr[eollib.EOL_PLATFORM]
 
     def _getOrCreateTool(self, node_type, name, path_id):
         tool = self._tools.get(path_id, None)
@@ -239,13 +245,29 @@ class KoToolbox2HTreeView(TreeView):
         return self._tools[path_id]        
         
     def initialize(self):
-        self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
         #XXX Unhardwire this
-        
+        db_path = r"c:\Users\ericp\trash\toolbox-test.sqlite"
+        schemaFile = r"c:\Users\ericp\svn\apps\komodo\src\projects\koToolbox.sql"
+        stdToolboxDir = r"c:\Users\ericp\trash\stdToolbox"
+        sharedToolboxDir = r"c:\Users\ericp\trash\sharedToolbox"
+
+        toolboxLoader = koToolbox2.ToolboxLoader(db_path, schemaFile)
+        toolboxLoader.markAllTopLevelItemsUnloaded()
+        import time
+        t1 = time.time()
+        toolboxLoader.loadToolboxDirectory(stdToolboxDir)
+        t2 = time.time()
+        log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
+        t1 = time.time()
+        toolboxLoader.loadToolboxDirectory(sharedToolboxDir)
+        t2 = time.time()
+        log.debug("Time to load shared-toolbox: %g msec", (t2 - t1) * 1000.0)
+        toolboxLoader.deleteUnloadedTopLevelItems()
         #TODO: For now just get the top-level items
         # Later keep track of how 
-        self.toolbox_db.initialize(r"c:\Users\ericp\trash\toolbox-test.sqlite")
+        self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        self.toolbox_db.initialize(db_path)
         self.toolbox_db.toolManager = self
         top_level_nodes = self.toolbox_db.getTopLevelNodes()
         before_len = len(self._rows)

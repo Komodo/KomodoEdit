@@ -493,7 +493,7 @@ class Database(object):
                     log.exception("for stmt: %s", stmt)
             stmt = "delete from %s WHERE path_id=?" % (self.tableNameFromType(itemType),)
             cu.execute(stmt, (path_id,))
-            stmt = "delete from paths WHERE id=?" % (self.tableNameFromType(itemType),)
+            stmt = "delete from %s WHERE id=?" % ("paths",)
             cu.execute(stmt, (path_id,))
     
     _tableNameFromType = {
