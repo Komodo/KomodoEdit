@@ -155,16 +155,16 @@ this.commandProperties = function command_editProperties(item)
 this.runCommand = function Run_CommandPart(cmdPart) {
     // Have to guard against new (since Komodo 2.0.0 release) command
     // attributes not being defined.
-    var parseOutput = null;
+    var parseOutput = (
     if (cmdPart.hasAttribute("parseOutput")) {
         parseOutput = cmdPart.getBooleanAttribute("parseOutput");
     }
     var parseRegex = null;
-    if (cmdPart.hasAttribute("parseOutput")) {
+    if (cmdPart.hasAttribute("parseRegex")) {
         parseRegex = cmdPart.getStringAttribute("parseRegex");
     }
     var showParsedOutputList = null;
-    if (cmdPart.hasAttribute("parseOutput")) {
+    if (cmdPart.hasAttribute("showParsedOutputList")) {
         showParsedOutputList = cmdPart.getBooleanAttribute("showParsedOutputList");
     }
     var clearOutputWindow = true;
