@@ -1015,6 +1015,21 @@
             disabled="true"
             desc="&editorGoToPreviousBookmark.desc;"/>
         <command
+            id="cmd_transientMarkSet" key="key_cmd_transientMarkSet"
+            oncommand="ko.commands.doCommandAsync('cmd_transientMarkSet', event)"
+            disabled="true"
+            desc="&editorSetMark.desc;"/>
+        <command
+            id="cmd_transientMarkExchangeWithPoint" key="key_cmd_transientMarkExchangeWithPoint"
+            oncommand="ko.commands.doCommandAsync('cmd_transientMarkExchangeWithPoint', event)"
+            disabled="true"
+            desc="&editorExchangeCurrentPointAndMark.desc;"/>
+        <command
+            id="cmd_transientMarkMoveBack" key="key_cmd_transientMarkMoveBack"
+            oncommand="ko.commands.doCommandAsync('cmd_transientMarkMoveBack', event)"
+            disabled="true"
+            desc="&editorMoveToPreviousMarkInMarkRing.desc;"/>
+        <command
             id="cmd_braceMatch" key="key_cmd_braceMatch"
             oncommand="ko.commands.doCommandAsync('cmd_braceMatch', event)"
             disabled="true"
@@ -1515,21 +1530,6 @@
             oncommand="ko.commands.doCommand('cmd_cutRegion')"
             disabled="true"
             desc="&editorCutRegion.desc;"/>
-        <command
-            id="cmd_transientMarkSet" key="key_cmd_transientMarkSet"
-            oncommand="ko.commands.doCommandAsync('cmd_transientMarkSet', event)"
-            disabled="true"
-            desc="&editorSetMark.desc;"/>
-        <command
-            id="cmd_transientMarkExchangeWithPoint" key="key_cmd_transientMarkExchangeWithPoint"
-            oncommand="ko.commands.doCommandAsync('cmd_transientMarkExchangeWithPoint', event)"
-            disabled="true"
-            desc="&editorExchangeCurrentPointAndMark.desc;"/>
-        <command
-            id="cmd_transientMarkMoveBack" key="key_cmd_transientMarkMoveBack"
-            oncommand="ko.commands.doCommandAsync('cmd_transientMarkMoveBack', event)"
-            disabled="true"
-            desc="&editorMoveToPreviousMarkInMarkRing.desc;"/>
         <command
             id="cmd_copy" key="key_cmd_copy"
             oncommand="ko.commands.doCommand('cmd_copy')"
