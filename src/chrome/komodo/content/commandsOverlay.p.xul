@@ -1196,16 +1196,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_jumpToCorrespondingLine', event)"
             disabled="true"
             desc="&sourceCodeJumpToCorrespondingLine.desc;"/>
-    </commandset>
-
-    <!-- Commands that need to be updated when the _language_ of the
-            current file changes-->
-    <commandset
-        id="cmdset_language_changed"
-        oncommandupdate="ko.commands.updateCommandset(this)"
-        commandupdater="true"
-        events="language_changed"
-        >
         <command
             id="cmd_comment" key="key_cmd_comment"
             oncommand="ko.commands.doCommand('cmd_comment')"
