@@ -823,12 +823,6 @@
         events="current_view_changed"
         >
         <command
-            id="cmd_triggerPrecedingCompletion" key="key_cmd_triggerPrecedingCompletion"
-            disabled="true"
-            oncommand="ko.commands.doCommandAsync('cmd_triggerPrecedingCompletion', event)"
-            desc="&editorTriggerPrecedingAutoCompleteListOrCallTip.desc;"/>
-
-        <command
             id="cmd_rotateSplitter" key="key_cmd_rotateSplitter"
             oncommand="ko.commands.doCommandAsync('cmd_rotateSplitter', event)"
             disabled="true"
@@ -1246,6 +1240,11 @@
             oncommand="ko.commands.doCommandAsync('cmd_jumpToCorrespondingLine', event)"
             disabled="true"
             desc="&sourceCodeJumpToCorrespondingLine.desc;"/>
+        <command
+            id="cmd_triggerPrecedingCompletion" key="key_cmd_triggerPrecedingCompletion"
+            disabled="true"
+            oncommand="ko.commands.doCommandAsync('cmd_triggerPrecedingCompletion', event)"
+            desc="&editorTriggerPrecedingAutoCompleteListOrCallTip.desc;"/>
         <command
             id="cmd_comment" key="key_cmd_comment"
             oncommand="ko.commands.doCommand('cmd_comment')"
