@@ -1250,7 +1250,7 @@
         id="cmdset_selection"
         oncommandupdate="ko.commands.updateCommandset(this)"
         commandupdater="true"
-        events="select"
+        events="select,current_view_changed"
         >
         <command
             id="cmd_makeSnippetFromSelection" key="key_cmd_makeSnippetFromSelection"
@@ -1287,16 +1287,6 @@
             oncommand="ko.commands.doCommand('cmd_convertToHex')"
             disabled="true"
             desc="&codeConvertSelectionToHex.desc;"/>
-    </commandset>
-
-    <!-- Commands that are enabled when the editor has focus and
-         a selection -->
-    <commandset
-        id="cmdset_selection"
-        oncommandupdate="ko.commands.updateCommandset(this)"
-        commandupdater="true"
-        events="select,current_view_changed"
-        >
         <command
             id="cmd_printSelection" key="key_cmd_printSelection"
             oncommand="ko.commands.doCommandAsync('cmd_printSelection', event)"
