@@ -92,7 +92,7 @@ popup[type="tooltip"] {
   margin: 0px !important;
 }
 
-statusbarpanel label[highlite="true"], 
+label[highlite="true"], 
 statusbarpanel[highlite="true"] {
   margin: 0px;
   padding: 0px;
