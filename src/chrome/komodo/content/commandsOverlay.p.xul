@@ -835,6 +835,42 @@
             disabled="true"
             desc="&userInterfaceMoveTabToANewWindow.desc;" />
 
+        <!-- Scintilla settings -->
+        <command
+            id="cmd_viewLineNumbers" key="key_cmd_viewLineNumbers"
+            type="checkbox"
+            oncommand="ko.commands.doCommandAsync('cmd_viewLineNumbers', event)"
+            disabled="true"
+            desc="&userInterfaceViewHideLineNumbers.desc;"/>
+        <command
+            id="cmd_viewIndentationGuides" key="key_cmd_viewIndentationGuides"
+            type="checkbox"
+            disabled="true"
+            oncommand="ko.commands.doCommandAsync('cmd_viewIndentationGuides', event)"
+            desc="&userInterfaceViewHideIndentationGuides.desc;"/>
+        <command
+            id="cmd_fontFixed" key="key_cmd_fontFixed"
+            disabled="true"
+            oncommand="ko.commands.doCommandAsync('cmd_fontFixed', event)"
+            desc="&userInterfaceUseFixedProportionalFont.desc;"/>
+        <command
+            id="cmd_viewWhitespace" key="key_cmd_viewWhitespace"
+            disabled="true"
+            type="checkbox"
+            oncommand="ko.commands.doCommandAsync('cmd_viewWhitespace', event)"
+            desc="&userInterfaceShowHideWhitespace.desc;"/>
+        <command
+            id="cmd_viewEOL" key="key_cmd_viewEOL"
+            type="checkbox"
+            disabled="true"
+            oncommand="ko.commands.doCommandAsync('cmd_viewEOL', event)"
+            desc="&userInterfaceShowHideEndOfLines.desc;"/>
+        <command
+            id="cmd_wordWrap" key="key_cmd_wordWrap"
+            type="checkbox"
+            oncommand="ko.commands.doCommandAsync('cmd_wordWrap', event)"
+            disabled="true"
+            desc="&userInterfaceWordWrapLongLines.desc;"/>
     </commandset>
 
     <commandset
@@ -1457,47 +1493,6 @@
             oncommand="ko.commands.doCommand('cmd_paste')"
             disabled="true"
             desc="&editorPaste.desc;"/>
-    </commandset>
-
-    <commandset id="cmset_scintillaspecific"
-        oncommandupdate="ko.commands.updateCommandset(this);"
-        commandupdater="true"
-        events="current_view_changed,scintilla-focus">
-        <command
-            id="cmd_viewLineNumbers" key="key_cmd_viewLineNumbers"
-            type="checkbox"
-            oncommand="ko.commands.doCommandAsync('cmd_viewLineNumbers', event)"
-            disabled="true"
-            desc="&userInterfaceViewHideLineNumbers.desc;"/>
-        <command
-            id="cmd_viewIndentationGuides" key="key_cmd_viewIndentationGuides"
-            type="checkbox"
-            disabled="true"
-            oncommand="ko.commands.doCommandAsync('cmd_viewIndentationGuides', event)"
-            desc="&userInterfaceViewHideIndentationGuides.desc;"/>
-        <command
-            id="cmd_fontFixed" key="key_cmd_fontFixed"
-            disabled="true"
-            oncommand="ko.commands.doCommandAsync('cmd_fontFixed', event)"
-            desc="&userInterfaceUseFixedProportionalFont.desc;"/>
-        <command
-            id="cmd_viewWhitespace" key="key_cmd_viewWhitespace"
-            disabled="true"
-            type="checkbox"
-            oncommand="ko.commands.doCommandAsync('cmd_viewWhitespace', event)"
-            desc="&userInterfaceShowHideWhitespace.desc;"/>
-        <command
-            id="cmd_viewEOL" key="key_cmd_viewEOL"
-            type="checkbox"
-            disabled="true"
-            oncommand="ko.commands.doCommandAsync('cmd_viewEOL', event)"
-            desc="&userInterfaceShowHideEndOfLines.desc;"/>
-        <command
-            id="cmd_wordWrap" key="key_cmd_wordWrap"
-            type="checkbox"
-            oncommand="ko.commands.doCommandAsync('cmd_wordWrap', event)"
-            disabled="true"
-            desc="&userInterfaceWordWrapLongLines.desc;"/>
     </commandset>
 
     <commandset
