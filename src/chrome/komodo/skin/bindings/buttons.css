@@ -286,12 +286,11 @@ button[type="button-toolbar-a"],
 }
 
 
-/** .button-text-link & .button-text-link-sparkline
+/** .button-text-link
  *
  * Two button classes meant to look somewhat like HTML links (<a/>).
  * You can use them in text (e.g. in a <description>). You can optionally
- * specify an image. Use the "-sparkline" version to have the image
- * constrained to 1em by 1em (to fit in line height).
+ * specify an image.
  *
  * If you want an image that changes on hover then the best solution is
  * to use a separate CSS class for that (e.g. see the "help-icon" class
@@ -301,8 +300,7 @@ button[type="button-toolbar-a"],
  * - Perhaps the width should not be constrained. But it *does* make it more
  *   convenient to use larger images that get scaled down proportionately.
  **/
-.button-text-link,
-.button-text-link-sparkline
+.button-text-link
 {
     -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-link-b");
     min-width           : 1px;
@@ -320,15 +318,7 @@ button[type="button-toolbar-a"],
     margin: 0px 2px 0px 0px;
     padding: 0px;
 }
-.button-text-link-sparkline .button-icon
-{
-    margin: 0px 2px 0px 0px;
-    padding: 0px;
-    max-width: 1em;
-    max-height: 1em;
-}
-.button-text-link .button-text,
-.button-text-link-sparkline .button-text
+.button-text-link .button-text
 {
     padding: 0px;
     margin: 0px;
