@@ -1288,7 +1288,7 @@
         id="cmdset_clipboard"
         oncommandupdate="ko.commands.updateCommandset(this)"
         commandupdater="true"
-        events="clipboard,current_view_changed"
+        events="clipboard,currentview_is_editor"
         >
         <command
             id="cmd_pasteAndSelect" key="key_cmd_pasteAndSelect"
