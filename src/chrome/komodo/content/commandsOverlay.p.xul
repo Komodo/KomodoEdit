@@ -788,15 +788,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_refreshStatus', event)"
             disabled="true"
             desc="&generalRefreshStatus.desc;"/>
-    </commandset>
-
-
-    <commandset
-        id="cmdset_view_dependent"
-        oncommandupdate="ko.commands.updateCommandset(this)"
-        commandupdater="true"
-        events="current_view_changed"
-        >
         <command
             id="cmd_movetab" key="key_cmd_movetab"
             oncommand="ko.commands.doCommandAsync('cmd_movetab', event)"
@@ -813,18 +804,6 @@
             disabled="true"
             desc="&userInterfaceFocusOtherSplitEditorPane.desc;"/>
         <command
-            id="cmd_rotateSplitter" key="key_cmd_rotateSplitter"
-            oncommand="ko.commands.doCommandAsync('cmd_rotateSplitter', event)"
-            disabled="true"
-            desc="&userInterfaceToggleSplitterOrientation.desc;"/>
-        <command
-            id="cmd_triggerPrecedingCompletion" key="key_cmd_triggerPrecedingCompletion"
-            disabled="true"
-            oncommand="ko.commands.doCommandAsync('cmd_triggerPrecedingCompletion', event)"
-            desc="&editorTriggerPrecedingAutoCompleteListOrCallTip.desc;"/>
-
-      <!-- these commands fire when the current view is titled -->
-        <command
             id="cmd_openTabInNewWindow" key="key_cmd_openTabInNewWindow"
             oncommand="ko.commands.doCommandAsync('cmd_openTabInNewWindow', event)"
             disabled="true"
@@ -834,6 +813,26 @@
             oncommand="ko.commands.doCommandAsync('cmd_moveTabToNewWindow', event)"
             disabled="true"
             desc="&userInterfaceMoveTabToANewWindow.desc;" />
+    </commandset>
+
+
+    <commandset
+        id="cmdset_view_dependent"
+        oncommandupdate="ko.commands.updateCommandset(this)"
+        commandupdater="true"
+        events="current_view_changed"
+        >
+        <command
+            id="cmd_triggerPrecedingCompletion" key="key_cmd_triggerPrecedingCompletion"
+            disabled="true"
+            oncommand="ko.commands.doCommandAsync('cmd_triggerPrecedingCompletion', event)"
+            desc="&editorTriggerPrecedingAutoCompleteListOrCallTip.desc;"/>
+
+        <command
+            id="cmd_rotateSplitter" key="key_cmd_rotateSplitter"
+            oncommand="ko.commands.doCommandAsync('cmd_rotateSplitter', event)"
+            disabled="true"
+            desc="&userInterfaceToggleSplitterOrientation.desc;"/>
 
         <!-- Scintilla settings -->
         <command
