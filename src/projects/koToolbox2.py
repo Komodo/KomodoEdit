@@ -423,6 +423,19 @@ class Database(object):
         if data:
             self.addMiscProperties(id, data, cu)
             
+    def _add_Template(self, id, data, item_type, cu):
+        self.addCommonToolDetails(id, data, cu)
+        names_and_defaults = [
+            ('url', ""),
+            ]
+        valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
+        stmt = '''insert into template(
+                  path_id, url)
+                  values(?, ?)'''
+        cu.execute(stmt, valueList)
+        if data:
+            self.addMiscProperties(id, data, cu)
+            
     def _add_URL(self, id, data, item_type, cu):
         # Nothing specific to do, but this way we don't issue a message. 
         self.addCommonToolDetails(id, data, cu)
@@ -548,6 +561,14 @@ class Database(object):
             row = cu.fetchone()
         for i, name in enumerate(names):
             obj[name] = row[i]
+        return obj
+        
+    def getTemplateInfo(self, path_id):
+        obj = {}
+        with self.connect() as cu:
+            self.getCommonToolDetails(path_id, obj, cu)
+            cu.execute("select url from template where path_id = ?", (path_id,))
+            obj['url'] = cu.fetchone()
         return obj
 
     # id, path and type don't change on a database, but name can

@@ -68,6 +68,11 @@ create table directoryShortcut (
     url text
 );
 
+create table template (
+    path_id INTEGER PRIMARY KEY NOT NULL,
+    url text
+);
+
 create table metadata_timestamps (
     path_id INTEGER PRIMARY KEY NOT NULL, /* path id of path containing metadata file */
     mtime REAL

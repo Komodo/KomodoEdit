@@ -91,7 +91,7 @@ this.invoke_runCommand = function(event) {
     //ko.macros.recordPartInvocation(tool);
 };
 
-this._get_tool = function(expected_type_name) {
+this._get_tool_data = function(expected_type_name) {
      var view, index, tool;
     // See peMacro.js for handling multiple items.
     var view = ko.toolbox2.manager.view;
@@ -107,9 +107,13 @@ this._get_tool = function(expected_type_name) {
     return [view, index, tool];
 };
 
+this._get_tool = function(expected_type_name) {
+    return this._get_tool_data(expected_type_name)[2];
+};
+
 // Commands
 this.invoke_runCommand = function(event) {
-    var tool = this._get_tool('command')[2];
+    var tool = this._get_tool('command');
     if (!tool) return;
     ko.projects.runCommand(tool);
 };
@@ -133,9 +137,16 @@ this.invoke_editMacro = function(event) {
 // Snippets
 
 this.invoke_insertSnippet = function(event) {
-    var tool = this._get_tool('snippet')[2];
+    var tool = this._get_tool('snippet');
     if (!tool) return;
     ko.projects.snippetInsert(tool);
+};
+
+// Templates
+this.invoke_openTemplate = function(event) {
+    var tool = this._get_tool('template');
+    if (!tool) return;
+    ko.views.manager.doFileNewFromTemplateAsync(tool.url);
 };
 
 // Generic functions on the hierarchy view tree
@@ -148,6 +159,7 @@ this._invokerNameForToolType = {
  'command' : 'invoke_runCommand',
  macro : 'invoke_executeMacro',
  snippet : 'invoke_insertSnippet',
+ template : 'invoke_openTemplate',
  __EOD__:null
 };
 

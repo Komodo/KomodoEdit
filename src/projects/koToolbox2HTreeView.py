@@ -204,6 +204,15 @@ class _KoSnippetTool(_KoTool):
         info = toolbox_db.getSnippetInfo(self.id)
         self._finishUpdatingSelf(info)
 
+class _KoTemplateTool(_KoTool):
+    typeName = 'template'
+    prettytype = 'Template'
+    _iconurl = 'chrome://komodo/skin/images/newTemplate.png'
+
+    def updateSelf(self, toolbox_db):
+        info = toolbox_db.getTemplateInfo(self.id)
+        self._finishUpdatingSelf(info)
+
 class _KoURLTool(_KoTool):
     typeName = 'URL'
     prettytype = 'URL'
