@@ -5,6 +5,7 @@
 #include "nsITreeView.idl"
 #include "koIPrefs.idl"
 
+interface koIFileEx;
 /* IDL for the hierarchical Toolbox2 view
  *
  */
@@ -42,6 +43,7 @@ interface koITool: nsISupports {
     void setBooleanAttribute(in wstring name, in boolean value);
 
     attribute koIPreferenceSet prefset;
+    koIFileEx getFile();
 
     //TODO: Implement
     attribute wstring tags;

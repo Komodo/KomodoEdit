@@ -28,6 +28,7 @@ class _KoTool(object):
         self.initialized = False
         self._attributes = {'name':name}
         self._nondb_attributes = {}
+        self._referenced_url = None  # Refers to the URL referenced by the tool, not its location
         
     def init(self, treeView):
         pass
@@ -113,6 +114,18 @@ class _KoTool(object):
         fp = open(path, 'w')
         data = json.dump(data, fp, encoding="utf-8")
         fp.close()
+
+    def getFile(self):
+        url = self.get_url()
+        if url is not None:
+            fsvc = components.classes["@activestate.com/koFileService;1"].getService(components.interfaces.koIFileService)
+            return fsvc.getFileFromURI(url)
+        return None
+
+    def get_url(self):
+        if self.hasAttribute('url'):
+            return self.getStringAttribute('url')
+        return None
         
 class _KoContainer(_KoTool):
     isContainer = True

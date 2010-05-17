@@ -118,6 +118,13 @@ this.invoke_runCommand = function(event) {
     ko.projects.runCommand(tool);
 };
 
+// DirectoryShortcuts
+this.invoke_openDirectoryShortcut = function(event) {
+    var tool = this._get_tool('DirectoryShortcut');
+    if (!tool) return;
+    ko.projects.openDirectoryShortcut(tool);
+};
+
 // Macros
 
 this.invoke_executeMacro = function(event) {
@@ -157,6 +164,7 @@ this.onTreeKeyPress = function(event) {
 
 this._invokerNameForToolType = {
  'command' : 'invoke_runCommand',
+ DirectoryShortcut: 'invoke_openDirectoryShortcut',
  macro : 'invoke_executeMacro',
  snippet : 'invoke_insertSnippet',
  template : 'invoke_openTemplate',
