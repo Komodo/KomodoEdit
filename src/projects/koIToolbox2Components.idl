@@ -1,0 +1,21 @@
+/* Copyright (C) 2010 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "koIToolbox2HTreeView.idl"
+
+/* Database accessor to the toolbox database
+ *
+ */
+
+interface koITool;
+
+[scriptable, uuid(42fb0d27-9792-4e41-8791-0cfcdafed35d)]
+interface koIToolboxDatabaseService: nsISupports {
+    // Path to a sqlite database
+    void initialize(in wstring db_path);
+    
+    koITool getTool(in long id);
+    
+};
+

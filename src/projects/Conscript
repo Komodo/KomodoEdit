@@ -69,6 +69,8 @@ $cons->Preprocess('koKPFTreeView.p.py', 'koKPFTreeView.py');
 $cons->InstallXpcomComponent('koKPFTreeView.py');
 
 if ($buildFlavour ne 'full') {
+# Temporary: paths are still hardwired.
+if (index($mozComponentsDir, 'C:\\Users\\ericp\\svn\\apps') == 0) {
 # Toolbox2 items
     $cons->InstallPythonUtility('koToolbox2.py');
     $cons->Install($idlExportDir, 'koIToolbox2HTreeView.idl');
@@ -78,4 +80,5 @@ if ($buildFlavour ne 'full') {
     $cons->BuildAndInstallXpt('koIToolbox2Components.idl');
     $cons->InstallXpcomComponent('koIToolbox2Components.idl');
     $cons->InstallXpcomComponent('koToolbox2Components.py');
+}
 }
