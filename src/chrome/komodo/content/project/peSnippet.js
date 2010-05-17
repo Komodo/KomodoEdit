@@ -159,7 +159,7 @@ peSnippet.prototype.doCommand = function(command) {
     }
 }
 
-// this is hidden away now, no namespce, the registration keeps the reference
+// this is hidden away now, no namespace, the registration keeps the reference
 // we need
 ko.projects.registerExtension(new peSnippet());
 
