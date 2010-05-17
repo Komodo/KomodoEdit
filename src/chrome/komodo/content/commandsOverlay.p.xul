@@ -840,6 +840,18 @@
             oncommand="ko.commands.doCommandAsync('cmd_triggerPrecedingCompletion', event)"
             desc="&editorTriggerPrecedingAutoCompleteListOrCallTip.desc;"/>
 
+      <!-- these commands fire when the current view is titled -->
+        <command
+            id="cmd_openTabInNewWindow" key="key_cmd_openTabInNewWindow"
+            oncommand="ko.commands.doCommandAsync('cmd_openTabInNewWindow', event)"
+            disabled="true"
+            desc="&userInterfaceOpenTabInANewWindow.desc;" />
+        <command
+            id="cmd_moveTabToNewWindow" key="key_cmd_moveTabToNewWindow"
+            oncommand="ko.commands.doCommandAsync('cmd_moveTabToNewWindow', event)"
+            disabled="true"
+            desc="&userInterfaceMoveTabToANewWindow.desc;" />
+
     </commandset>
 
     <commandset
@@ -1186,24 +1198,6 @@
             desc="&sourceCodeJumpToCorrespondingLine.desc;"/>
     </commandset>
 
-    <commandset
-        id="cmdset_view_changed_or_view_dirty"
-        oncommandupdate="ko.commands.updateCommandset(this)"
-        commandupdater="true"
-        events="dirty,current_view_changed"
-        >
-      <!-- these commands fire when the current view is titled -->
-        <command
-            id="cmd_openTabInNewWindow" key="key_cmd_openTabInNewWindow"
-            oncommand="ko.commands.doCommandAsync('cmd_openTabInNewWindow', event)"
-            disabled="true"
-            desc="&userInterfaceOpenTabInANewWindow.desc;" />
-        <command
-            id="cmd_moveTabToNewWindow" key="key_cmd_moveTabToNewWindow"
-            oncommand="ko.commands.doCommandAsync('cmd_moveTabToNewWindow', event)"
-            disabled="true"
-            desc="&userInterfaceMoveTabToANewWindow.desc;" />
-    </commandset>
     <!-- Commands that need to be updated when the _language_ of the
             current file changes-->
     <commandset
