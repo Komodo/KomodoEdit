@@ -82,6 +82,12 @@ class _KoTool(object):
     def setBooleanAttribute(self, name, value):
         self.setAttribute(name, value and 1 or 0)
 
+    def get_prefset(self):
+        #XXX TODO! Work out where prefs live in toolbox2
+        prefset = components.classes["@activestate.com/koPreferenceSet;1"] \
+                  .createInstance(components.interfaces.koIPreferenceSet)
+        return prefset
+
     def saveToolToDisk(self, tbdbSvc):
         if 'path' not in self._nondb_attributes:
             self._nondb_attributes['path'] = tbdbSvc.getPath(self.id)

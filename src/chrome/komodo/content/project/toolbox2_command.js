@@ -107,6 +107,13 @@ this._get_tool = function(expected_type_name) {
     return [view, index, tool];
 };
 
+// Commands
+this.invoke_runCommand = function(event) {
+    var tool = this._get_tool('command')[2];
+    if (!tool) return;
+    ko.projects.runCommand(tool);
+};
+
 // Macros
 
 this.invoke_executeMacro = function(event) {
@@ -138,6 +145,7 @@ this.onTreeKeyPress = function(event) {
 };
 
 this._invokerNameForToolType = {
+ 'command' : 'invoke_runCommand',
  macro : 'invoke_executeMacro',
  snippet : 'invoke_insertSnippet',
  __EOD__:null

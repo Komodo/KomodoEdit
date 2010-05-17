@@ -3,6 +3,7 @@
 
 #include "nsISupports.idl"
 #include "nsITreeView.idl"
+#include "koIPrefs.idl"
 
 /* IDL for the hierarchical Toolbox2 view
  *
@@ -40,8 +41,9 @@ interface koITool: nsISupports {
     boolean getBooleanAttribute(in wstring name);
     void setBooleanAttribute(in wstring name, in boolean value);
 
+    attribute koIPreferenceSet prefset;
+
     //TODO: Implement
-    readonly attribute wstring prefset;
     attribute wstring tags;
     void save();
 };
