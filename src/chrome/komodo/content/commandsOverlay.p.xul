@@ -798,23 +798,6 @@
         events="current_view_changed"
         >
         <command
-            id="cmd_print" key="key_cmd_print"
-            oncommand="ko.commands.doCommandAsync('cmd_print', event)"
-            disabled="true"
-            desc="&generalPrint.desc;"/>
-<!-- #if PLATFORM != "darwin" -->
-        <command
-            id="cmd_printPreview" key="key_cmd_printPreview"
-            oncommand="ko.commands.doCommandAsync('cmd_printPreview', event)"
-            disabled="true"
-            desc="&generalPrintPreview.desc;"/>
-<!-- #endif -->
-        <command
-            id="cmd_exportHTML" key="key_cmd_exportHTML"
-            oncommand="ko.commands.doCommandAsync('cmd_exportHTML', event)"
-            disabled="true"
-            desc="&generalExportAsHTML.desc;"/>
-        <command
             id="cmd_movetab" key="key_cmd_movetab"
             oncommand="ko.commands.doCommandAsync('cmd_movetab', event)"
             disabled="true"
@@ -883,6 +866,23 @@
         commandupdater="true"
         events="currentview_is_editor"
         >
+        <command
+            id="cmd_print" key="key_cmd_print"
+            oncommand="ko.commands.doCommandAsync('cmd_print', event)"
+            disabled="true"
+            desc="&generalPrint.desc;"/>
+<!-- #if PLATFORM != "darwin" -->
+        <command
+            id="cmd_printPreview" key="key_cmd_printPreview"
+            oncommand="ko.commands.doCommandAsync('cmd_printPreview', event)"
+            disabled="true"
+            desc="&generalPrintPreview.desc;"/>
+<!-- #endif -->
+        <command
+            id="cmd_exportHTML" key="key_cmd_exportHTML"
+            oncommand="ko.commands.doCommandAsync('cmd_exportHTML', event)"
+            disabled="true"
+            desc="&generalExportAsHTML.desc;"/>
         <command
             id="cmd_viewAsGuessedLanguage" key="key_cmd_viewAsGuessedLanguage"
             interactive="true"
