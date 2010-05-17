@@ -91,34 +91,44 @@ this.invoke_runCommand = function(event) {
     //ko.macros.recordPartInvocation(tool);
 };
 
-// Macros
-
-this._get_macro = function() {
+this._get_tool = function(expected_type_name) {
      var view, index, tool;
     // See peMacro.js for handling multiple items.
     var view = ko.toolbox2.manager.view;
     var index = view.selection.currentIndex;
     var tool = view.getTool(index);
-    if (tool.toolType != "macro") {
-        alert("Internal error: expected a macro, but this tool is a "
+    if (tool.toolType != expected_type_name) {
+        alert("Internal error: expected a "
+              + expected_type_name
+              + ", but this tool is a "
               + tool.toolType);
         return [view, index, null];
     }
     return [view, index, tool];
 };
 
+// Macros
+
 this.invoke_executeMacro = function(event) {
     var view, index, tool;
-    [view, index, tool] = this._get_macro();
+    [view, index, tool] = this._get_tool('macro');
     if (!tool) return;
     ko.toolbox2.executeMacro(tool);
 };
 
 this.invoke_editMacro = function(event) {
     var view, index, tool;
-    [view, index, tool] = this._get_macro();
+    [view, index, tool] = this._get_tool('macro');
     if (!tool) return;
     ko.open.URI(tool.url);
+};
+
+// Snippets
+
+this.invoke_insertSnippet = function(event) {
+    var tool = this._get_tool('snippet')[2];
+    if (!tool) return;
+    ko.projects.snippetInsert(tool);
 };
 
 // Generic functions on the hierarchy view tree
@@ -127,9 +137,9 @@ this.onTreeKeyPress = function(event) {
     // If it's a return, do it.
 };
 
-this._fixedCaseForToolType = {
- macro : 'Macro',
- snippet : 'Snippet',
+this._invokerNameForToolType = {
+ macro : 'invoke_executeMacro',
+ snippet : 'invoke_insertSnippet',
  __EOD__:null
 };
 
@@ -137,7 +147,7 @@ this.onDblClick = function(event) {
     var view = ko.toolbox2.manager.view;
     var index = view.selection.currentIndex;
     var tool = view.getTool(index);
-    var method = 'invoke_execute' + this._fixedCaseForToolType[tool.toolType];
+    var method = this._invokerNameForToolType[tool.toolType];
     if (method in this) {
         this[method](event);
     } else {
