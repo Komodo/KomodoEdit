@@ -654,6 +654,10 @@
             id="cmd_deleteBlankLines" key="key_cmd_deleteBlankLines"
             oncommand="ko.commands.doCommand('cmd_deleteBlankLines')"
             desc="&deleteBlankLines.desc;"/>
+        <command
+            id="cmd_paste" key="key_cmd_paste"
+            oncommand="ko.commands.doCommand('cmd_paste')"
+            desc="&editorPaste.desc;"/>
 
     </broadcasterset>
 
@@ -1494,18 +1498,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_toolboxExportPackage', event)"
             disabled="true"
             desc="&toolboxExportPackage.desc;"/>
-    </commandset>
-
-    <commandset
-        id="cmdset_pasting"
-        oncommandupdate="ko.commands.updateCommandset(this)"
-        commandupdater="true"
-        events="clipboard,current_view_changed,currentview_is_editor,part_selection,scintilla-focus">
-        <command
-            id="cmd_paste" key="key_cmd_paste"
-            oncommand="ko.commands.doCommand('cmd_paste')"
-            disabled="true"
-            desc="&editorPaste.desc;"/>
     </commandset>
 
     <commandset
