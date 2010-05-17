@@ -156,6 +156,23 @@ this.invoke_openTemplate = function(event) {
     ko.views.manager.doFileNewFromTemplateAsync(tool.url);
 };
 
+// URLs
+this.invoke_openURLInBrowser = function(event) {
+    var tool = this._get_tool('URL');
+    if (!tool) return;
+    ko.browse.openUrlInDefaultBrowser(tool.value);
+};
+
+this.invoke_openURLInTab = function(event) {
+    var tool = this._get_tool('URL');
+    if (tool) {
+        var docSvc = Components.classes['@activestate.com/koDocumentService;1']
+                    .getService(Components.interfaces.koIDocumentService);
+        var doc = docSvc.createDocumentFromURI(tool.value);
+        ko.views.manager.topView.createViewFromDocument(doc, 'browser', -1);
+    }
+};
+
 // Generic functions on the hierarchy view tree
 
 this.onTreeKeyPress = function(event) {
@@ -168,6 +185,7 @@ this._invokerNameForToolType = {
  macro : 'invoke_executeMacro',
  snippet : 'invoke_insertSnippet',
  template : 'invoke_openTemplate',
+ URL : 'invoke_openURLInBrowser',
  __EOD__:null
 };
 

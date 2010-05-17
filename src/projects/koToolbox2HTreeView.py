@@ -234,7 +234,7 @@ class _KoURLTool(_KoTool):
 
     def updateSelf(self, toolbox_db):
         info = {}
-        self.getCommonToolDetails(path_id, info)
+        toolbox_db.getCommonToolDetails(self.id, info)
         self._finishUpdatingSelf(info)
 
 class KoToolbox2HTreeView(TreeView):

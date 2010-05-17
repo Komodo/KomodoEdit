@@ -571,6 +571,16 @@ class Database(object):
             obj['url'] = cu.fetchone()
         return obj
 
+    def getURLInfo(self, path_id):
+        obj = {}
+        with self.connect() as cu:
+            self.getCommonToolDetails(path_id, obj, cu)
+            names = ['url']
+            cu.execute("select url from  where path_id = ?", (path_id,))
+            row = cu.fetchone()
+            obj['url'] = row[0]
+        return obj
+
     # id, path and type don't change on a database, but name can
     
     def saveToolName(self, path_id, name):
