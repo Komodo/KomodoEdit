@@ -129,14 +129,14 @@ this.invoke_openDirectoryShortcut = function(event) {
 
 this.invoke_executeMacro = function(event) {
     var view, index, tool;
-    [view, index, tool] = this._get_tool('macro');
+    var tool = this._get_tool('macro');
     if (!tool) return;
     ko.toolbox2.executeMacro(tool);
 };
 
 this.invoke_editMacro = function(event) {
     var view, index, tool;
-    [view, index, tool] = this._get_tool('macro');
+    var tool = this._get_tool('macro');
     if (!tool) return;
     ko.open.URI(tool.url);
 };
@@ -180,6 +180,16 @@ this.onTreeKeyPress = function(event) {
 };
 
 this._invokerNameForToolType = {
+ 'command' : this.invoke_runCommand,
+ DirectoryShortcut: this.invoke_openDirectoryShortcut,
+ macro : this.invoke_executeMacro,
+ snippet : this.invoke_insertSnippet,
+ template : this.invoke_openTemplate,
+ URL : this.invoke_openURLInBrowser,
+ __EOD__:null
+};
+
+this._invokerNameForToolType_xx = {
  'command' : 'invoke_runCommand',
  DirectoryShortcut: 'invoke_openDirectoryShortcut',
  macro : 'invoke_executeMacro',
@@ -189,13 +199,29 @@ this._invokerNameForToolType = {
  __EOD__:null
 };
 
-this.onDblClick = function(event) {
+this.onDblClick_x = function(event) {
     var view = ko.toolbox2.manager.view;
     var index = view.selection.currentIndex;
     var tool = view.getTool(index);
     var method = this._invokerNameForToolType[tool.toolType];
     if (method in this) {
         this[method](event);
+    } else {
+        alert("Don't know what to do with "
+              + tool.toolType
+              + " "
+              + tool.name);
+    }
+};
+
+this.onDblClick = function(event) {
+    var this_ = ko.toolbox2;
+    var view = this_.manager.view;
+    var index = view.selection.currentIndex;
+    var tool = view.getTool(index);
+    var method = this_._invokerNameForToolType[tool.toolType];
+    if (method) {
+        method.call(this_, event);
     } else {
         alert("Don't know what to do with "
               + tool.toolType

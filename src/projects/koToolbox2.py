@@ -423,7 +423,7 @@ class Database(object):
         if data:
             self.addMiscProperties(id, data, cu)
             
-    def _add_Template(self, id, data, item_type, cu):
+    def _add_template(self, id, data, item_type, cu):
         self.addCommonToolDetails(id, data, cu)
         names_and_defaults = [
             ('url', ""),
@@ -568,7 +568,7 @@ class Database(object):
         with self.connect() as cu:
             self.getCommonToolDetails(path_id, obj, cu)
             cu.execute("select url from template where path_id = ?", (path_id,))
-            obj['url'] = cu.fetchone()
+            obj['url'] = cu.fetchone()[0]
         return obj
 
     def getURLInfo(self, path_id):
