@@ -1480,7 +1480,7 @@
         id="cmdset_properties"
         oncommandupdate="ko.commands.updateCommandset(this)"
         commandupdater="true"
-        events="part_selection,current_view_changed">
+        events="part_selection,currentview_is_editor">
         <command
             id="cmd_editProperties" key="key_cmd_editProperties"
             oncommand="ko.commands.doCommandAsync('cmd_editProperties', event)"
