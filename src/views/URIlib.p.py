@@ -45,6 +45,7 @@ import types, re
 
 win32 = sys.platform.startswith("win")
 from xpcom import components, COMException, ServerException, nsError
+from xpcom.server import UnwrapObject
 
 if win32:
     WIN32_DRIVE_REMOTE = 4
@@ -67,6 +68,10 @@ def addSchemeToParser(scheme):
 
 addSchemeToParser('macro')
 addSchemeToParser('snippet')
+
+# For toolbox2 items in v.6:
+addSchemeToParser('macro2')
+addSchemeToParser('snippet2')
 
 RemoteURISchemeTypes = [ 'ftp' ]
 
@@ -1043,6 +1048,67 @@ class projectURIHandler(FileHandlerBase):
     def get_hasChangedNoStatUpdate(self):
         return 0
     hasChangedNoStatUpdate = property(get_hasChangedNoStatUpdate)
+
+class projectURI2_Handler(projectURIHandler):
+    def __del__(self):
+        if self._file:
+            self.close()
+
+    def close(self):
+        if not self._file:
+            raise URILibError("file not opened: '%s'" % self._uri.URI)
+        try:
+            if self.part and self._mode and self._mode[0] == 'w':
+                val = self._file.getvalue()
+                if val != self.part.value:
+                    toolSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                                           getService(components.interfaces.koIToolboxDatabaseService))
+                    tool = toolSvc.getToolById(self._uri.server)
+                    tool.value = val
+                    tool.save() # updates filesystem tool & DB
+        finally:
+            try:
+                self._file.close()
+            except Exception, e:
+                log.exception(e)
+            self._file = None
+        
+    def open(self, mode):
+        import StringIO
+        self._mode = mode
+        if self._file is not None:
+            raise URILibError("Cannot open a file again without closing it first!")
+        if self._stats and self._stats['exists']==0:
+            self._stats = None
+        try:
+            # get the part from the part service, get the value of the part,
+            # and insert it into a stringio object
+            if not self.part:
+                toolSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+                self.part = toolSvc.getToolById(self._uri.server)
+                self._stats = None
+            if mode and mode[0] == 'r':
+                try:
+                    text = self.part.value
+                except AttributeError:
+                    log.exception("can't get content off %s", self.part)
+                    raise
+                self._file = StringIO.StringIO(self.part.value)
+            else:
+                self._file = StringIO.StringIO()
+        except Exception:
+            # Mozilla could not open the file, so it either does not exist
+            # or some other error which we unfortunately do not get good info
+            # on from mozilla.  One example is a dbgp uri being restored
+            # on startup.  We pass here and let the file be non-existent
+            log.exception("Problems in projectURI2_Handler.open")
+            self._file = None
+            if self._stats:
+                self._stats['exists'] = 0
+                self._stats['isReadable'] = 0
+                self._stats['isReadOnly'] = 0
+        return self._file is not None
 
 if __name__=="__main__":
     # simple quick tests, unit tests are in test_URIlib.py
