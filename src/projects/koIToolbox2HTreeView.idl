@@ -45,6 +45,7 @@ interface koIToolbox2HTreeView: nsITreeView {
 
     koITool getTool(in long index);
     koITool getToolById(in long id);
+    long getIndexByTool(in koITool tool);
 
     // Eventually these should get moved to the tool, but for
     // now we're going to hit the database each time.

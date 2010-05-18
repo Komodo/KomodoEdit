@@ -343,7 +343,15 @@ class KoToolbox2HTreeView(TreeView):
             tool_type, name = self.toolbox_db.getValuesFromTableByKey('common_details', ['type', 'name'], 'path_id', path_id)
             tool = createPartFromType(tool_type, name, path_id)
             self._tools[path_id] = tool
-        return self._tools[path_id]        
+        return self._tools[path_id]
+    
+    def getIndexByTool(self, tool):
+        tool = UnwrapObject(tool)
+        try:
+            return self._rows.index(tool)
+        except ValueError, e:
+            return -1
+        
         
     def initialize(self):
         #XXX Unhardwire this

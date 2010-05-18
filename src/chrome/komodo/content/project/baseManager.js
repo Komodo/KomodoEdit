@@ -173,17 +173,18 @@ BaseManager.prototype.refreshView = function() {
 }
 
 BaseManager.prototype.invalidateItem = function(item) {
-    var index;
+    var viewMgr, index;
     if ('save' in item) {
         //!!!! v6 difference
-        //XXX: Implement this.
-        dump("Implement: var index = ko.toolbox2.manager.getIndexByTool(item);\n");
+        viewMgr = ko.toolbox2.manager;
+        index = viewMgr.view.getIndexByTool(item);
     } else {
-        index = this.viewMgr.view.getIndexByPart(item);
-        if (index >= 0) {
-            this.viewMgr.tree.treeBoxObject.invalidateRow(index);
-            return true;
-        }
+        viewMgr = this.viewMgr;
+        index = viewMgr.view.getIndexByPart(item);
+    }
+    if (index >= 0) {
+        viewMgr.tree.treeBoxObject.invalidateRow(index);
+        return true;
     }
     return false;
 }
