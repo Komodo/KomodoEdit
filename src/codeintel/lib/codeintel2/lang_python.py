@@ -38,7 +38,7 @@
 """Python support for CodeIntel"""
 
 import os
-from os.path import (isfile, isdir, exists, dirname, abspath, splitext,
+from os.path import (isfile, isdir, exists, dirname, splitext,
                      join, basename, normcase)
 import sys
 import logging
@@ -763,7 +763,7 @@ class PythonImportHandler(ImportHandler):
         else:
             searchedDirs[cpath] = 1
         if skipRareImports:
-            if (os.path.basename(dirname) == "encodings"
+            if (basename(dirname) == "encodings"
                 and "undefined.py" in names):
                 # Skip most of the specific encoding definitions (saves
                 # about 50 files).
