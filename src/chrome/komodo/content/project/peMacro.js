@@ -723,20 +723,36 @@ function _macro_error(ex, action, part) {
     ko.dialogs.alert(prompt, msg, title, null, "chrome,modal,titlebar,resizable");
 }
 
+//@@@@ v5 => v6 transition code
 this.__defineGetter__("current",
 function()
 {
     var _partSvc = Components.classes["@activestate.com/koPartService;1"]
             .getService(Components.interfaces.koIPartService);
-    return _partSvc.runningMacro;
+    try {
+        return _partSvc.runningMacro;
+    } catch(ex) {
+        // Try the toolbox2 service
+        _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
+            .getService(Components.interfaces.koIToolBox2Service);
+        return _partSvc.runningMacro;
+    }
 });
 
+//@@@@ v5 => v6 transition code
 this.__defineSetter__("current",
 function(macro)
 {
     var _partSvc = Components.classes["@activestate.com/koPartService;1"]
             .getService(Components.interfaces.koIPartService);
-    _partSvc.runningMacro = macro;
+    try {
+        _partSvc.runningMacro = macro;
+    } catch(ex) {
+        // Try the toolbox2 service
+        _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
+            .getService(Components.interfaces.koIToolBox2Service);
+        _partSvc.runningMacro = macro;
+    }
 });
 
 this.evalAsJavaScript = function macro_evalAsJavascript(__code,
