@@ -108,6 +108,10 @@ this.processMenu = function(menuNode, toolType) {
     }
 };
 
+this.findToolById = function(id) {
+    return this.manager.view.getToolById(id);
+};
+
 }).apply(ko.toolbox2);
 
 window.addEventListener("load", ko.toolbox2.onLoad, false);

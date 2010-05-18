@@ -270,6 +270,16 @@ class Database(object):
             if row is None: return None
             return row[0]
 
+    def getCustomIconIfExists(self, path_id):
+        with self.connect() as cu:
+            cu.execute("""select prop_value from misc_properties
+                          where path_id = ? and prop_name = ?""",
+                       (path_id, 'icon'))
+            row = cu.fetchone()
+            if not row:
+                return None
+            return row[0]      
+    
     # Adder functions
         
     def _addCommonDetails(self, path, name, item_type, parent_path_id, cu):
@@ -515,9 +525,9 @@ class Database(object):
     def tableNameFromType(self, itemType):
         return self._tableNameFromType.get(itemType, itemType)
                 
-    def getCommandInfo(self, path_id):
+    def getCommandInfo(self, path_id, cu=None):
         obj = {}
-        with self.connect() as cu:
+        with self.connect(cu=cu) as cu:
             self.getCommonToolDetails(path_id, obj, cu)
             names = ['insertOutput', 'parseRegex', 'operateOnSelection',
                      'doNotOpenOutputWindow', 'showParsedOutputList',
@@ -531,9 +541,11 @@ class Database(object):
 
     def getCommonToolDetails(self, path_id, obj, cu=None):
         with self.connect(cu=cu) as cu:
-            cu.execute("""select value from common_tool_details
+            cu.execute("""select value, keyboard_shortcut from common_tool_details
                           where path_id = ?""", (path_id,))
-            obj['value'] = cu.fetchone()[0]
+            row = cu.fetchone()
+            obj['value'] = row[0]
+            obj['keyboard_shortcut'] = row[1]
             cu.execute("""select prop_name, prop_value from misc_properties
                           where path_id = ?""", (path_id,))
             rows = cu.fetchall()
@@ -560,7 +572,10 @@ class Database(object):
                         ", ".join(names)), (path_id,))
             row = cu.fetchone()
         for i, name in enumerate(names):
-            obj[name] = row[i]
+            try:
+                obj[name] = row[i]
+            except TypeError:
+                log.error("couldn't get prop %s for macro id %r", name, i)
         return obj
         
     def getTemplateInfo(self, path_id):
@@ -601,14 +616,7 @@ class Database(object):
         work_attributes = attributes.copy()
         with self.connect(commit=True) as cu:
             oldMacroInfo = self.getMacroInfo(path_id, cu)
-            # Now only update the changed values.
-            # Reading from DB is cheaper than writing to it.
-            if oldMacroInfo['value'] != value:
-                log.debug("** macro %s: value changed", name)
-                self.updateValuesInTableByKey('common_tool_details',
-                                              ['value'], [value],
-                                              ['path_id'], [path_id], cu)
-                
+            self.save_commonToolDetails(path_id, oldMacroInfo, attributes, value, cu)
             names = ['async', 'trigger_enabled', 'trigger',
                      'language', 'rank']
             names_to_update = []
@@ -625,14 +633,72 @@ class Database(object):
                 self.updateValuesInTableByKey('macro',
                                               names_to_update, vals_to_update,
                                               ['path_id'], [path_id], cu)
-            for name in ['name', 'path', 'value',]:
-                try: del work_attributes[name]
-                except KeyError:
-                    pass
-                try: del oldMacroInfo[name]
-                except KeyError:
-                    pass
-            self.saveMiscInfo(path_id, work_attributes, oldMacroInfo, cu)
+            self._removeNonMiscAttributeNames(oldMacroInfo, work_attributes)
+            self.saveMiscInfo(path_id, oldMacroInfo, work_attributes, cu)
+            self.updateTimestamp(path_id, cu)
+            
+    def save_commonToolDetails(self, path_id, oldMacroInfo, attributes, new_value, cu=None):
+        # Only update the changed values.
+        # Reading from DB is cheaper than writing to it.
+        old_value = oldMacroInfo['value']
+        old_kbsc = oldMacroInfo['keyboard_shortcut']
+        new_kbsc = attributes.get('keyboard_shortcut', "")
+        if old_value != new_value or old_kbsc != new_kbsc:
+            field_names = []
+            field_values = []
+            if old_value != new_value:
+                field_names.append('value')
+                field_values.append(new_value)
+            if old_kbsc != new_kbsc:
+                field_names.append('keyboard_shortcut')
+                field_values.append(new_kbsc)
+            with self.connect(commit=True, cu=cu) as cu:
+                self.updateValuesInTableByKey('common_tool_details',
+                                              field_names, field_values,
+                                              ['path_id'], [path_id], cu)
+                
+
+    def _removeNonMiscAttributeNames(self, oldMacroInfo, work_attributes):
+        for name in ['name', 'path', 'value', 'keyboard_shortcut']:
+            try: del work_attributes[name]
+            except KeyError:
+                pass
+            try: del oldMacroInfo[name]
+            except KeyError:
+                pass
+    
+    def saveCommandInfo(self, path_id, name, value, attributes):
+        work_attributes = attributes.copy()
+        with self.connect(commit=True) as cu:
+            oldMacroInfo = self.getCommandInfo(path_id, cu)
+            self.save_commonToolDetails(path_id, oldMacroInfo, attributes, value, cu)
+                
+            names = ['insertOutput',
+                     'parseRegex',
+                     'operateOnSelection',
+                     'doNotOpenOutputWindow',
+                     'showParsedOutputList',
+                     'parseOutput',
+                     'runIn',
+                     'cwd',
+                     'env',
+                     ]
+            names_to_update = []
+            vals_to_update = []
+            for name in names:
+                if name in work_attributes:
+                    if oldMacroInfo[name] != work_attributes[name]:
+                        names_to_update.append(name)
+                        vals_to_update.append(work_attributes[name])
+                    del work_attributes[name]
+                    del oldMacroInfo[name]
+            if names_to_update:
+                self.updateValuesInTableByKey('command',
+                                              names_to_update, vals_to_update,
+                                              ['path_id'], [path_id], cu)
+            self._removeNonMiscAttributeNames(oldMacroInfo, work_attributes)
+            self.saveMiscInfo(path_id, oldMacroInfo, work_attributes, cu)
+            self.updateTimestamp(path_id, cu)
             
     def saveMiscInfo(self, path_id, oldAttrList, newAttrList, cu=None):
         names_to_update = []
@@ -652,9 +718,7 @@ class Database(object):
                 names_to_insert.append(name)
                 vals_to_insert.append(newAttrList[name])
             del newAttrList[name]
-        for name in old_names:
-            names_to_delete.append(name)
-            del oldAttrList[name]
+        names_to_delete += oldAttrList.keys()
             
         log.debug("misc updates: names:%s, values:%s", names_to_update, vals_to_update)
         log.debug("misc inserts: names:%s, values:%s", names_to_insert, vals_to_insert)
@@ -674,6 +738,15 @@ class Database(object):
                 self.deleteRowByKey('misc_properties',
                                     ['path_id', 'prop_name'],
                                     [path_id, name], cu)
+
+                
+    def updateTimestamp(self, path_id, cu=None):
+        with self.connect(commit=True, cu=cu) as cu:
+            path = self.getPath(path_id)
+            self.updateValuesInTableByKey('paths',
+                                          ['created_at'], [os.stat(path).st_mtime],
+                                          ['id'],
+                                          [path_id], cu)
 
     def getSnippetInfo(self, path_id):
         obj = {}

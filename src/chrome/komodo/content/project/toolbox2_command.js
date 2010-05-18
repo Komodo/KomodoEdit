@@ -112,72 +112,116 @@ this._get_tool = function(expected_type_name) {
 };
 
 // Commands
-this.invoke_runCommand = function(event) {
-    var tool = this._get_tool('command');
-    if (!tool) return;
+this.invoke_runCommand = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('command');
+        if (!tool) return;
+    }
     ko.projects.runCommand(tool);
+};
+ 
+this.editProperties_runCommand = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('command');
+        if (!tool) return;
+    }
+    ko.projects.commandProperties(tool);
 };
 
 // DirectoryShortcuts
-this.invoke_openDirectoryShortcut = function(event) {
-    var tool = this._get_tool('DirectoryShortcut');
-    if (!tool) return;
+this.invoke_openDirectoryShortcut = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('command');
+        if (!tool) return;
+    }
     ko.projects.openDirectoryShortcut(tool);
 };
 
 // Macros
 
-this.invoke_executeMacro = function(event) {
-    var view, index, tool;
-    var tool = this._get_tool('macro');
-    if (!tool) return;
+this.invoke_executeMacro = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('command');
+        if (!tool) return;
+    }
     ko.toolbox2.executeMacro(tool);
 };
 
-this.invoke_editMacro = function(event) {
-    var view, index, tool;
-    var tool = this._get_tool('macro');
-    if (!tool) return;
+this.invoke_editMacro = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('command');
+        if (!tool) return;
+    }
     ko.open.URI(tool.url);
 };
 
 // Snippets
 
-this.invoke_insertSnippet = function(event) {
-    var tool = this._get_tool('snippet');
-    if (!tool) return;
+this.invoke_insertSnippet = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('command');
+        if (!tool) return;
+    }
     ko.projects.snippetInsert(tool);
 };
 
 // Templates
-this.invoke_openTemplate = function(event) {
-    var tool = this._get_tool('template');
-    if (!tool) return;
+this.invoke_openTemplate = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('command');
+        if (!tool) return;
+    }
     ko.views.manager.doFileNewFromTemplateAsync(tool.url);
 };
 
 // URLs
-this.invoke_openURLInBrowser = function(event) {
-    var tool = this._get_tool('URL');
-    if (!tool) return;
+this.invoke_openURLInBrowser = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('command');
+        if (!tool) return;
+    }
     ko.browse.openUrlInDefaultBrowser(tool.value);
 };
 
-this.invoke_openURLInTab = function(event) {
-    var tool = this._get_tool('URL');
-    if (tool) {
-        var docSvc = Components.classes['@activestate.com/koDocumentService;1']
-                    .getService(Components.interfaces.koIDocumentService);
-        var doc = docSvc.createDocumentFromURI(tool.value);
-        ko.views.manager.topView.createViewFromDocument(doc, 'browser', -1);
+this.invoke_openURLInTab = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('command');
+        if (!tool) return;
     }
+    var docSvc = Components.classes['@activestate.com/koDocumentService;1']
+    .getService(Components.interfaces.koIDocumentService);
+    var doc = docSvc.createDocumentFromURI(tool.value);
+    ko.views.manager.topView.createViewFromDocument(doc, 'browser', -1);
 };
 
 // Generic functions on the hierarchy view tree
 
-this.onTreeKeyPress = function(event) {
-    // If it's a return, do it.
+this._propertyEditorNameForToolType = {
+ 'command' : this.editProperties_runCommand,
+ DirectoryShortcut: this.editProperties_openDirectoryShortcut,
+ macro : this.editProperties_executeMacro,
+ snippet : this.editProperties_insertSnippet,
+ template : this.editProperties_openTemplate,
+ URL : this.editProperties_openURL,
+ __EOD__:null
 };
+
+this.editPropertiesItem = function(event) {
+
+    var that = ko.toolbox2;
+    var view = that.manager.view;
+    var index = view.selection.currentIndex;
+    var tool = view.getTool(index);
+    var method = that._propertyEditorNameForToolType[tool.toolType];
+    if (method) {
+        method.call(that, event);
+    } else {
+        alert("Don't know how to edit properties for "
+              + tool.toolType
+              + " "
+              + tool.name);
+    }
+};    
 
 this._invokerNameForToolType = {
  'command' : this.invoke_runCommand,
@@ -189,39 +233,14 @@ this._invokerNameForToolType = {
  __EOD__:null
 };
 
-this._invokerNameForToolType_xx = {
- 'command' : 'invoke_runCommand',
- DirectoryShortcut: 'invoke_openDirectoryShortcut',
- macro : 'invoke_executeMacro',
- snippet : 'invoke_insertSnippet',
- template : 'invoke_openTemplate',
- URL : 'invoke_openURLInBrowser',
- __EOD__:null
-};
-
-this.onDblClick_x = function(event) {
-    var view = ko.toolbox2.manager.view;
-    var index = view.selection.currentIndex;
-    var tool = view.getTool(index);
-    var method = this._invokerNameForToolType[tool.toolType];
-    if (method in this) {
-        this[method](event);
-    } else {
-        alert("Don't know what to do with "
-              + tool.toolType
-              + " "
-              + tool.name);
-    }
-};
-
 this.onDblClick = function(event) {
-    var this_ = ko.toolbox2;
-    var view = this_.manager.view;
+    var that = ko.toolbox2;
+    var view = that.manager.view;
     var index = view.selection.currentIndex;
     var tool = view.getTool(index);
-    var method = this_._invokerNameForToolType[tool.toolType];
+    var method = that._invokerNameForToolType[tool.toolType];
     if (method) {
-        method.call(this_, event);
+        method.call(that, tool, event);
     } else {
         alert("Don't know what to do with "
               + tool.toolType

@@ -42,8 +42,20 @@ interface koITool: nsISupports {
     boolean getBooleanAttribute(in wstring name);
     void setBooleanAttribute(in wstring name, in boolean value);
 
+    // For compatibility with koIPart: define these so the rest of
+    // Komodo can use v6 tools.
+
+    attribute wstring id;
+    attribute wstring type; // the programmer-oriented type, e.g. "command"
+    attribute wstring prettytype;  // A user-intended version of the type: e.g. "Run Command"
+    attribute wstring iconurl;
+    
     attribute koIPreferenceSet prefset;
     koIFileEx getFile();
+    
+    wstring get_keybinding_description();
+    void applyKeybindings(in boolean recurse); // cause kb-load notifications for all relevant parts
+    void removeKeybindings(in boolean recurse); // cause kb-unload notifications for all relevant parts
 
     //TODO: Implement
     attribute wstring tags;
@@ -62,6 +74,7 @@ interface koIToolbox2HTreeView: nsITreeView {
     wstring get_toolType(in long index);
 
     koITool getTool(in long index);
+    koITool getToolById(in long id);
 
     // Eventually these should get moved to the tool, but for
     // now we're going to hit the database each time.

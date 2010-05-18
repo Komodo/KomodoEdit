@@ -461,7 +461,12 @@ function Apply()
     gPart.iconurl = iconuri;
 
     // Update the wrapper around the part (item) if it was passed in.
-    opener.ko.projects.invalidateItem(gPart);
+    if ('save' in gPart) {
+        //!!!! v6 difference
+        gPart.save();
+    } else {
+        opener.ko.projects.invalidateItem(gPart);
+    }
 
     gDlg.applyButton.setAttribute("disabled", "true");
     return true;

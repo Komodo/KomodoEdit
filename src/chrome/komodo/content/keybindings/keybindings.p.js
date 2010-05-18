@@ -1719,6 +1719,20 @@ this.manager.prototype._addRow = function(category, desc, keys) {
     return text;
 }
 
+//v6 transition
+this.manager.prototype._getPartFromId = function(param) {
+    var part = ko.projects.findPartById(param);
+    if (!part) {
+        if (ko.toolbox2) {
+            part = ko.toolbox2.findToolById(param);
+        }
+        if (!part) {
+            throw new Error("keybindings._getPartFromId: Couldn't find part with id: " + param + '\n');
+        }
+    }
+    return part;
+}
+
 this.manager.prototype.commandId2desc= function(commandname, param, label) {
     var command = this.document.getElementById(commandname);
     if (! command) {
@@ -1729,10 +1743,7 @@ this.manager.prototype.commandId2desc= function(commandname, param, label) {
         commanddesc = command.getAttribute('desc');
     }
     if (typeof(param) != 'undefined' && param && commandname == 'cmd_callPart') {
-        var part = ko.projects.findPartById(param);
-        if (!part) {
-            _log.error("Couldn't find part with id: " + param + '\n');
-        }
+        var part = this._getPartFromId(param);
         return part.get_keybinding_description() + ' [' + label + ']';
     }
     if (commanddesc == '') {
@@ -1757,10 +1768,7 @@ this.manager.prototype.commandId2shortdesc = function(commandname, param) {
         commanddesc = command.getAttribute('desc');
     }
     if (typeof(param) != 'undefined' && param && commandname == 'cmd_callPart') {
-        var part = ko.projects.findPartById(param);
-        if (!part) {
-            _log.error("Couldn't find part with id: " + param + '\n');
-        }
+        var part = this._getPartFromId(param);
         return part.get_keybinding_description();
     } else {
         if (commanddesc == '') {
@@ -1783,8 +1791,7 @@ this.manager.prototype.commandId2tabledesc= function(commandname, param) {
         commanddesc = command.getAttribute('desc');
     }
     if (typeof(param) != 'undefined' && param && commandname == 'cmd_callPart') {
-        var id = param;
-        var part = ko.projects.findPartById(id);
+        var part = this._getPartFromId(param);
         var desc = part.get_keybinding_description();
         return desc;
     }

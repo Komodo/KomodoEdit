@@ -33,6 +33,12 @@ class _KoTool(object):
     def init(self, treeView):
         pass
 
+    def getCustomIconIfExists(self, tbdbSvc):
+        iconurl = tbdbSvc.getCustomIconIfExists(self.id)
+        if iconurl:
+            self.set_iconurl(iconurl)
+        return iconurl is not None
+
     def _finishUpdatingSelf(self, info):
         if 'value' in info:
             self.value = info['value']
@@ -56,14 +62,10 @@ class _KoTool(object):
     def setAttribute(self, name, value):
         if name not in self._attributes or self._attributes[name] != value: # avoid dirtification when possible.
             self._attributes[name] = value
-            if not self.live:
-                self._project.set_isDirty(1)
 
     def removeAttribute(self, name):
         if name not in self._attributes: return
         del self._attributes[name]
-        if not self.live:
-            self._project.set_isDirty(1)
 
     def getStringAttribute(self, name):
         return unicode(self._attributes[name])
@@ -96,7 +98,8 @@ class _KoTool(object):
         fp = open(path, 'r')
         data = json.load(fp, encoding="utf-8")
         fp.close()
-        data['value'] = self.value
+        data['value'] = self.value.split(eol)
+        data['name'] = self.name
         for name in self._attributes:
             data[name] = self._attributes[name]
         fp = open(path, 'w')
@@ -126,7 +129,32 @@ class _KoTool(object):
         if self.hasAttribute('url'):
             return self.getStringAttribute('url')
         return None
-        
+
+    def get_id(self):
+        return str(self.id)
+    
+    def get_keybinding_description(self):
+        return self.prettytype + "s: " + self.name
+
+    #TODO: Reinstate handling of relative uri's
+    def get_iconurl(self):
+        if self._attributes.has_key('icon'):
+            return self._attributes['icon']
+        else:
+            return self._iconurl
+
+    def set_iconurl(self, url):
+        if not url or url == self._iconurl:
+            self.removeAttribute('icon')
+        else:
+            self.setAttribute('icon', url)
+            
+    def get_type(self):
+        return self.typeName
+
+    def set_type(self, value):
+        self.typeName = value
+   
 class _KoContainer(_KoTool):
     isContainer = True
     def __init__(self, *args):
@@ -159,6 +187,14 @@ class _KoCommandTool(_KoTool):
     _iconurl = 'chrome://komodo/skin/images/run_commands.png'
     keybindable = 1
 
+    def save(self):
+        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        # Write the changed data to the file system
+        self.saveToolToDisk(tbdbSvc)
+        if 'name' in self._attributes:
+            self.name = self._attributes['name']
+        tbdbSvc.saveCommandInfo(self.id, self.name, self.value, self._attributes)
     def updateSelf(self, toolbox_db):
         info = toolbox_db.getCommandInfo(self.id)
         self._finishUpdatingSelf(info)
@@ -261,6 +297,7 @@ class KoToolbox2HTreeView(TreeView):
             return tool
         tool = createPartFromType(node_type, name, path_id)
         tool.init(self)
+        tool.getCustomIconIfExists(self.toolbox_db)
         self._tools[path_id] = tool
         return tool
 
@@ -307,7 +344,11 @@ class KoToolbox2HTreeView(TreeView):
         self._tree.rowCountChanged(0, after_len - before_len)
 
     def getTool(self, index):
-        tool = self._rows[index]
+        try:
+            tool = self._rows[index]
+        except IndexError:
+            log.error("Failed getTool(index:%d)", index)
+            return None
         if not tool.initialized:
             tool.updateSelf(self.toolbox_db)
         return tool
@@ -334,7 +375,7 @@ class KoToolbox2HTreeView(TreeView):
         col_id = column.id
         assert col_id == "Name"
         try:
-            return self._rows[index]._iconurl
+            return self._rows[index].get_iconurl()
         except:
             return ""
         
