@@ -295,6 +295,8 @@ this.macroProperties = function macro_editProperties(item)
     var obj = new Object();
     obj.item = item;
     obj.task = 'edit';
+    //XXX Would be better to get this from the class, but it isn't exposed.
+    obj.imgsrc = 'chrome://komodo/skin/images/macro.png'; 
     window.openDialog(
         "chrome://komodo/content/project/macroProperties.xul",
         "Komodo:MacroProperties",
