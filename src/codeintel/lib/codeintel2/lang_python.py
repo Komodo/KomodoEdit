@@ -39,7 +39,7 @@
 
 import os
 from os.path import (isfile, isdir, exists, dirname, abspath, splitext,
-                     join, basename, isfile, normcase)
+                     join, basename, normcase)
 import sys
 import logging
 import random
