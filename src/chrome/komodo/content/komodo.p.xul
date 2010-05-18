@@ -141,6 +141,8 @@
     <script src="chrome://komodo/content/project/projectExtensionManager.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/toolboxManager.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/toolbox2.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/toolbox2_command.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/toolbox2_macros.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peFile.js"               type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peFolder.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peSnippet.js"            type="application/x-javascript;version=1.7"/>
@@ -418,6 +420,221 @@
                   keep="true"
                   />
     </menupopup>
+
+    <menupopup id="toolbox2Context" onpopupshowing="ko.toolbox2.updateContextMenu(event, this);">
+        <menu id="tb2ContextMenu_addMenu" label="&add.label;"
+              hideUnless="folder menu toolbar" >
+            <menupopup id="tb2ContextMenu_addPopupMenu">
+                <menuitem id="tb2_addContext_newMacro"
+                          label="&newMacro.label;"
+                          class="menuitem-iconic"
+                          accesskey="&folderContextNewMacro.accesskey;"
+                          image="chrome://komodo/skin/images/new_macro.png"
+                          oncommand="ko.projects.addNewPart('macro', this.parentNode.getAttribute('partviewer'))"
+                          />
+                <menuitem id="tb2_addContext_newSnippet"
+                          label="&newSnippet.label;"
+                          class="menuitem-iconic"
+                          accesskey="&folderContextNewSnippet.accesskey;"
+                          image="chrome://komodo/skin/images/new_snippet.png"
+                          oncommand="ko.projects.addNewPart('snippet', this.parentNode.getAttribute('partviewer'))"
+                          />
+                <menuitem id="tb2_addContext_newCommand"
+                          label="&newCommand.label;"
+                          class="menuitem-iconic"
+                          accesskey="&folderContextNewCommand.accesskey;"
+                          image="chrome://komodo/skin/images/new_run_command.png"
+                          oncommand="ko.projects.addNewPart('command', this.parentNode.getAttribute('partviewer'))"
+                          />
+                <menuitem id="tb2_addContext_newShortcut"
+                          label="&newOpenShortcut.label;"
+                          class="menuitem-iconic"
+                          accesskey="&folderContextNewShortcut.accesskey;"
+                          image="chrome://komodo/skin/images/new_open_shortcut.png"
+                          oncommand="ko.projects.addNewPart('directoryshortcut', this.parentNode.getAttribute('partviewer'))"
+                          />
+                <menuitem id="tb2_addContext_newURL"
+                          label="&newURL.label;"
+                          class="menuitem-iconic"
+                          accesskey="&folderContextNewURL.accesskey;"
+                          image="chrome://komodo/skin/images/new_url.png"
+                          oncommand="ko.projects.addNewPart('URL', this.parentNode.getAttribute('partviewer'))"
+                          />
+                <menuitem id="tb2_addContext_newTemplate"
+                          label="&newTemplate.label;"
+                          class="menuitem-iconic"
+                          accesskey="&folderContextNewTemplate.accesskey;"
+                          image="chrome://komodo/skin/images/new_template.png"
+                          oncommand="ko.projects.addNewPart('template', this.parentNode.getAttribute('partviewer'))"
+                          />
+                <menuseparator anonid="addItemSeparator" />
+                <menuitem id="tb2_addContext_newFolder"
+                          label="&newFolder.label;"
+                          accesskey="&folderContextNewFolder.accesskey;"
+                          class="menuitem-iconic"
+                          image="chrome://komodo/skin/images/new_folder.png"
+                          oncommand="ko.projects.addNewPart('newfolder', this.parentNode.getAttribute('partviewer'))"
+                          disableIfInMenu="folder toolbar menu"
+                          />
+                <!-- #if PLATFORM != "darwin" -->
+                <!-- TODO: Disable these two items if we're in a menu or toolbar -->
+                <menuitem id="tb2_addContext_newMenu"
+                          label="&newCustomMenu.label;"
+                          class="menuitem-iconic"
+                          accesskey="&folderContextNewMenu.accesskey;"
+                          image="chrome://komodo/skin/images/new_custom_menu.png"
+                          oncommand="ko.projects.addNewPart('menu', this.parentNode.getAttribute('partviewer'))"
+                          disableIfInMenu="folder toolbar menu"
+                          />
+                <!-- #endif -->
+                <menuitem id="tb2_addContext_newToolbar"
+                          label="&newCustomToolbar.label;"
+                          class="menuitem-iconic"
+                          accesskey="&folderContextNewToolbar.accesskey;"
+                          image="chrome://komodo/skin/images/new_custom_toolbar.png"
+                          oncommand="ko.projects.addNewPart('toolbar', this.parentNode.getAttribute('partviewer'))"
+                          disableIfInMenu="folder toolbar menu"
+                          />
+            </menupopup>
+            <!--
+            
+            onpopupshowing="dump('**** hey its toolbox2Context add!\n');"
+            -->
+        </menu>
+        <menuitem id="toolbox2ContextMenu_executeMacro"
+                  label="&executeMacro.label;"
+                  class="menuitem-iconic primary_menu_item"
+                  oncommand="ko.toolbox2.invoke_executeMacro(event)"
+                  hideUnless="macro"
+                  />
+        <menuitem id="toolbox2ContextMenu_editMacro"
+                  label="&editMacro.label;"
+                  class="menuitem-iconic"
+                  oncommand="ko.toolbox2.invoke_editMacro(event)"
+                  hideUnless="macro"
+                  />
+        <menuitem id="toolbox2ContextMenu_insertSnippet"
+                  label="&insertSnippet.label;"
+                  class="menuitem-iconic primary_menu_item"
+                  oncommand="ko.toolbox2.invoke_insertSnippet(event)"
+                  hideUnless="snippet"
+                  />
+        <menuitem id="toolbox2ContextMenu_runCommand"
+                  label="&run.label;"
+                  class="menuitem-iconic primary_menu_item"
+                  oncommand="ko.toolbox2.invoke_runCommand(event)"
+                  hideUnless="command"
+                  />
+        <menuitem id="toolbox2ContextMenu_openDirectory"
+                  label="&open.label;"
+                  class="menuitem-iconic primary_menu_item"
+                  oncommand="ko.toolbox2.invoke_openDirectoryShortcut(event)"
+                  hideUnless="DirectoryShortcut"
+                  />
+        <menuitem id="toolbox2ContextMenu_openURLInBrowser"
+                  label="&openURLInBrowser.label;"
+                  class="menuitem-iconic primary_menu_item"
+                  oncommand="ko.toolbox2.invoke_openURLInBrowser(event)"
+                  hideUnless="URL"
+                  />
+        <menuitem id="toolbox2ContextMenu_openURLInTab"
+                  label="&openURLInTab.label;"
+                  class="menuitem-iconic"
+                  oncommand="ko.toolbox2.invoke_openURLInTab(event)"
+                  hideUnless="URL"
+                  />
+        <menuseparator anonid="primaryseparator"
+                       />
+        <menuitem id="toolbox2ContextMenu_cut"
+                  label="&cut.label;"
+                  class="menuitem-iconic cut-button"
+                  oncommand="ko.toolbox2.cutItem(event)"
+                  />
+        <menuitem id="toolbox2ContextMenu_copy"
+                  label="&copy.label;"
+                  class="menuitem-iconic copy-button"
+                  oncommand="ko.toolbox2.copyItem(event)"
+                  />
+        <menuitem id="toolbox2ContextMenu_partPaste"
+                  keep_background="true"
+                  class="menuitem-iconic paste-button"
+                  label="&paste.label;"
+                  disableUnless="folder menu toolbar"
+                  oncommand="ko.toolbox2.pasteIntoItem(event)"
+                  />
+        <menuseparator anonid="secondaryseparator"
+                       />
+        <menuitem id="toolbox2ContextMenu_showInFileManager"
+                  keep_background="true"
+                  class="menuitem-iconic"
+<!-- #if PLATFORM == "darwin" -->
+                  label="&showInFinder.label;"
+<!-- #elif PLATFORM == "win" -->
+                  label="&showInExplorer.label;"
+<!-- #else -->
+                  label="&showInFileManager.label;"
+<!-- #endif -->
+                  oncommand="ko.toolbox2.showInFileManager(event)"
+                  />
+        <menuitem id="toolbox2ContextMenu_exportAsZipFile"
+                  keep_background="true"
+                  class="menuitem-iconic"
+                  label="&exportAsZipFile.label;"
+                  hideUnless="folder menu toolbar"
+                  oncommand="ko.toolbox2.exportAsZipFile(event)"
+                  />
+        <menuitem id="toolbox2ContextMenu_exportAsPackage"
+                  keep_background="true"
+                  class="menuitem-iconic"
+                  label="&exportPackage.label;"
+                  hideUnless="folder menu toolbar"
+                  oncommand="ko.toolbox2.exportAsPackage(event)"
+                  />
+        <menuseparator anonid="secondaryseparator_3"
+                       />
+        <menuitem id="toolbox2ContextMenu_delete"
+                  label="&delete.label;"
+                  class="menuitem-iconic list-item-remove-icon"
+                  oncommand="ko.toolbox2.deleteItem(event)"
+                  />
+        <menuseparator anonid="secondaryseparator_4"
+                       />
+        <menuitem id="toolbox2ContextMenu_editProperties"
+                  label="&properties.label;"
+                  oncommand="ko.toolbox2.editPropertiesItem(event)"
+                  disableIf="folder DirectoryShortcut template URL"
+                  />
+    </menupopup>
+    
+
+
+<!-- #if WITH_CODE_BROWSER -->
+    <menupopup id="codeBrowserContext">
+        <menuitem id="menuitem_codeBrowserGoToDefinition"
+                  observes="cmd_codeBrowserGoToDefinition"
+                  label="&goToDefinition.label;"
+                  class="menuitem-iconic"
+                  keep="true"/>
+        <menuitem id="menuitem_codeBrowserCopy"
+                  observes="cmd_copy"
+                  label="&copy.label;"
+                  class="menuitem-iconic"
+                  keep="true"/>
+        <menuseparator keep="true" />
+        <menuitem id="menuitem_codeBrowserSortFile"
+                  label="&sortByFileOrder.label;"
+                  class="menuitem-iconic"
+                  image="chrome://komodo/skin/images/codeintel_sort_by_file_order.gif"
+                  sortBy="file-order"
+                  oncommand="gCodeBrowserMgr.sortBy('file-order');"/>
+        <menuitem id="menuitem_codeBrowserSortName"
+                  label="&sortAlphabetically.label;"
+                  class="menuitem-iconic"
+                  image="chrome://komodo/skin/images/codeintel_sort_alphabetically.gif"
+                  sortBy="name"
+                  oncommand="gCodeBrowserMgr.sortBy('name');"/>
+    </menupopup>
+<!-- #endif -->
 
     <menupopup id="context-toolbox-menu">
         <menuitem id="context_toggleButtonText"
@@ -2359,7 +2576,7 @@
                                       <!-- xblize this...-->
                                           <hbox id="toolbox2-hierarchy-toolbar-a" >
                                               <toolbarbutton    id="toolbox2_tools-a"
-                                                      tooltiptext="&amp;ools.label;"
+                                                      tooltiptext="&amp;tools.label;"
                                                       buttonstyle="pictures"
                                                       type="menu"
                                                       orient="horizontal"
@@ -2376,7 +2593,10 @@
                                                          oncommand="ko.toolbox2.updateFilter()"
                                                          tooltiptext="&amp; XXX filter items;"/>
                                           </hbox >
-                                          <tree flex="1" id="toolbox2-hierarchy-tree">
+                                          <tree flex="1" id="toolbox2-hierarchy-tree"
+					        onkeypress="ko.toolbox2.onTreeKeyPress(event);"
+                                                ondblclick="ko.toolbox2.onDblClick(event);"
+                                                context="toolbox2Context">
                                              <treecols>
                                                  <treecol primary="true"
                                                           id="toolbox2-hierarchy-tree-name"
@@ -2396,7 +2616,7 @@
                                      <!-- xblize this...-->
                                           <hbox id="toolbox2-relevance-toolbar" >
                                               <toolbarbutton id="toolbox2_tools-b"
-                                                      tooltiptext="&amp;tools.label;"
+                                                      tooltiptext="&tools.label;"
                                                       buttonstyle="pictures"
                                                       type="menu"
                                                       orient="horizontal"
