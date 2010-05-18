@@ -119,6 +119,11 @@ class _KoTool(object):
         data = json.load(fp, encoding="utf-8")
         fp.close()
         data['value'] = self.value.split(eol)
+        data['name'] = getattr(self, 'name', data['name'])
+        for attr in self._attributes:
+            newVal = self._attributes[attr]
+            if attr not in data or newVal != data[attr]:
+                data[attr] = self._attributes[attr]
         fp = open(path, 'w')
         data = json.dump(data, fp, encoding="utf-8")
         fp.close()
@@ -131,6 +136,10 @@ class _KoTool(object):
                           self._attributes[name])
                 setattr(self, name, self._attributes[name])
                 del self._attributes[name]
+
+    def save(self):
+        raise ServerException, nsError("save not yet implemented for %s"
+                                       % self.get_toolType())
 
     def getFile(self):
         url = self.get_url()
@@ -205,7 +214,7 @@ class _KoCommandTool(_KoTool):
         tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
                        getService(components.interfaces.koIToolboxDatabaseService))
         # Write the changed data to the file system
-        self.save_handle_attributes(tbdbSvc)
+        self.save_handle_attributes()
         self.saveToolToDisk(tbdbSvc)
         tbdbSvc.saveCommandInfo(self.id, self.name, self.value, self._attributes)
     def updateSelf(self, toolbox_db):
@@ -261,7 +270,7 @@ class _KoMacroTool(_KoTool):
         # Write the changed data to the file system
         self.saveContentToDisk(tbdbSvc)
         tbdbSvc.saveContent(self.id, self.value)
-        self.value = self.value
+        tbdbSvc.saveMacroInfo(self.id, self.name, self.value, self._attributes)
 
     def saveProperties(self):
         tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\

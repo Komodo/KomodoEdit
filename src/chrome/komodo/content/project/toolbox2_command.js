@@ -13,84 +13,6 @@ if (typeof(ko.toolbox2)=='undefined') {
 
 (function() {
 
-this.addCommand = function addCommand(item)
-{
-    var part = item.project.createPartFromType('command');
-    part.setStringAttribute('name', "New Command");
-    var obj = new Object();
-    obj.part = part;
-    ko.windowManager.openOrFocusDialog(
-        "chrome://komodo/content/run/commandproperties.xul",
-        "Komodo:CommandProperties",
-        "chrome,close=yes,modal=yes,dependent=yes,centerscreen",
-        obj);
-    if (obj.retval == "OK") {
-        if (typeof(item)=='undefined' || !item)
-            item = ko.toolbox2.active.getSelectedItem();
-        ko.toolbox2.addItem(part,item);
-    }
-}
-
-this.commandProperties = function command_editProperties(item)
-{
-    var obj = {part:item};
-    window.openDialog(
-        "chrome://komodo/content/run/commandproperties.xul",
-        "Komodo:CommandProperties",
-        "chrome,close=yes,dependent=yes,modal=yes,centerscreen",
-        obj);
-}
-
-this.invoke_runCommand = function(event) {
-    gEvent = event;
-    var view = ko.toolbox2.manager.view;
-    var index = view.selection.currentIndex;
-    var tool = view.getTool(index);
-    if (tool.toolType != "command") {
-        alert("Internal error: expected a command, but this tool is a "
-              + tool.toolType);
-        return;
-    }
-    var parseOutput = null;
-    if (tool.hasAttribute("parseOutput")) {
-        parseOutput = tool.getBooleanAttribute("parseOutput");
-    }
-    var parseRegex = null;
-    if (tool.hasAttribute("parseRegex")) {
-        parseRegex = tool.getStringAttribute("parseRegex");
-    }
-    var showParsedOutputList = null;
-    if (tool.hasAttribute("showParsedOutputList")) {
-        showParsedOutputList = tool.getBooleanAttribute("showParsedOutputList");
-    }
-    var clearOutputWindow = true;
-    var terminationCallback = null;
-    var saveInMRU = true;
-    var saveInMacro = false;
-    var viewData = {prefSet: null}; //XXX: tool.prefset};
-    ko.run.runCommand(
-        window,
-        tool.value,
-        tool.getStringAttribute("cwd"),
-        stringutils_unescapeWhitespace(tool.getStringAttribute("env"), '\n'),
-        tool.getBooleanAttribute("insertOutput"),
-        tool.getBooleanAttribute("operateOnSelection"),
-        tool.getBooleanAttribute("doNotOpenOutputWindow"),
-        tool.getStringAttribute("runIn"),
-        parseOutput,
-        parseRegex,
-        showParsedOutputList,
-        tool.getStringAttribute("name"),
-        clearOutputWindow,
-        terminationCallback,
-        saveInMRU,
-        saveInMacro,
-        viewData
-    );
-    //XXX Reinstate on tools
-    //ko.macros.recordPartInvocation(tool);
-};
-
 this._get_tool_data = function(expected_type_name) {
      var view, index, tool;
     // See peMacro.js for handling multiple items.
@@ -173,11 +95,19 @@ this.invoke_executeMacro = function(event, tool) {
 
 this.invoke_editMacro = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('command');
+        tool = this._get_tool('macro');
         if (!tool) return;
     }
     ko.open.URI(tool.url);
 };
+
+this.editProperties_macro = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('macro');
+        if (!tool) return;
+    }
+    ko.projects.macroProperties(tool);
+}
 
 // Snippets
 
@@ -223,9 +153,9 @@ this.invoke_openURLInTab = function(event, tool) {
 this._propertyEditorNameForToolType = {
  'command' : this.editProperties_runCommand,
  DirectoryShortcut: this.editProperties_DirectoryShortcut,
- macro : this.editProperties_executeMacro,
- snippet : this.editProperties_insertSnippet,
- template : this.editProperties_openTemplate,
+ macro : this.editProperties_macro,
+ snippet : this.editProperties_snippet,
+ template : this.editProperties_template,
  URL : this.editProperties_openURL,
  __EOD__:null
 };

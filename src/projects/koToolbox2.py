@@ -675,9 +675,9 @@ class Database(object):
     def saveCommandInfo(self, path_id, name, value, attributes):
         work_attributes = attributes.copy()
         with self.connect(commit=True) as cu:
-            oldMacroInfo = self.getCommandInfo(path_id, cu)
-            self.saveToolName(path_id, name, oldMacroInfo['name'])
-            self.save_commonToolDetails(path_id, oldMacroInfo, attributes, value, cu)
+            oldCommandInfo = self.getCommandInfo(path_id, cu)
+            self.saveToolName(path_id, name, oldCommandInfo['name'])
+            self.save_commonToolDetails(path_id, oldCommandInfo, attributes, value, cu)
                 
             names = ['insertOutput',
                      'parseRegex',
@@ -689,29 +689,47 @@ class Database(object):
                      'cwd',
                      'env',
                      ]
-            names_to_update = []
-            vals_to_update = []
-            for name in names:
-                if name in work_attributes:
-                    if oldMacroInfo[name] != work_attributes[name]:
-                        names_to_update.append(name)
-                        vals_to_update.append(work_attributes[name])
-                    del work_attributes[name]
-                    del oldMacroInfo[name]
-            if names_to_update:
-                self.updateValuesInTableByKey('command',
-                                              names_to_update, vals_to_update,
-                                              ['path_id'], [path_id], cu)
-            self._removeNonMiscAttributeNames(oldMacroInfo, work_attributes)
-            self.saveMiscInfo(path_id, oldMacroInfo, work_attributes, cu)
+            self._saveNamedValuesInTable(path_id, 'command', names,
+                                         oldCommandInfo, work_attributes, cu)
+            self._removeNonMiscAttributeNames(oldCommandInfo, work_attributes)
+            self.saveMiscInfo(path_id, oldCommandInfo, work_attributes, cu)
             self.updateTimestamp(path_id, cu)
 
     def saveDirectoryShortcutInfo(self, path_id, name, value, attributes):
         work_attributes = attributes.copy()
         with self.connect(commit=True) as cu:
-            oldMacroInfo = self.getDirectoryShortcutInfo(path_id, cu)
+            oldDSInfo = self.getDirectoryShortcutInfo(path_id, cu)
+            self.saveToolName(path_id, name, oldDSInfo['name'])
+            self.save_commonToolDetails(path_id, oldDSInfo, attributes, value, cu)
+            self.saveMiscInfo(path_id, oldDSInfo, work_attributes, cu)
+            self.updateTimestamp(path_id, cu)
+
+    def _saveNamedValuesInTable(self, path_id, table_name, names, old_attributes, new_attributes, cu):
+        names_to_update = []
+        vals_to_update = []
+        for name in names:
+            if name in new_attributes:
+                if old_attributes[name] != new_attributes[name]:
+                    names_to_update.append(name)
+                    vals_to_update.append(new_attributes[name])
+                del new_attributes[name]
+                del old_attributes[name]
+        if names_to_update:
+            self.updateValuesInTableByKey(table_name,
+                                          names_to_update, vals_to_update,
+                                          ['path_id'], [path_id], cu)
+
+    def saveMacroInfo(self, path_id, name, value, attributes):
+        work_attributes = attributes.copy()
+        with self.connect(commit=True) as cu:
+            oldMacroInfo = self.getMacroInfo(path_id, cu)
             self.saveToolName(path_id, name, oldMacroInfo['name'])
             self.save_commonToolDetails(path_id, oldMacroInfo, attributes, value, cu)
+            names = ['async', 'trigger_enabled', 'trigger',
+                     'language', 'rank']
+            self._saveNamedValuesInTable(path_id, 'macro', names,
+                                         oldMacroInfo, work_attributes, cu)
+            self._removeNonMiscAttributeNames(oldMacroInfo, work_attributes)
             self.saveMiscInfo(path_id, oldMacroInfo, work_attributes, cu)
             self.updateTimestamp(path_id, cu)
             

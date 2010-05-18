@@ -161,11 +161,11 @@ function _Apply()  {
     var iconuri = document.getElementById('propertiestab_icon').getAttribute('src');
     gItem.iconurl = iconuri;
 
+    opener.ko.projects.invalidateItem(gItem);
     if ('save' in gItem) {
         //!!!! v6 difference
         gItem.save();
     } else {
-        opener.ko.projects.invalidateItem(gItem);
         // This line is most likely wrong.
         gItem.setStringAttribute('name', partname.value);
     }

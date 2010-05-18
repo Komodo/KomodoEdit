@@ -243,8 +243,13 @@ function _Apply()  {
         gPart.setBooleanAttribute('async', gRunInBackground.checked);
         gPart.setStringAttribute('language', gLanguage.selectedItem.getAttribute('id'));
         var ret = gKeybinding.apply();
-        if (gPart.project == opener.ko.toolboxes.user.toolbox)
-            opener.ko.toolboxes.user.save();
+        if ('save' in gPart) {
+            //!!!! v6 difference
+            gPart.save()
+        } else {
+            if (gPart.project == opener.ko.toolboxes.user.toolbox)
+                opener.ko.toolboxes.user.save();
+        }
         return ret;
     } catch (e) {
         log.exception(e);
