@@ -157,7 +157,11 @@ class KPFTree:
         #print "Rows:"
         #for row in rows:
         #    print row
-        liverows = set([ row['node'].get_liveDirectory() for row in self.treeview._rows if row['node'].live and row['is-open'] and hasattr(row['node'], 'get_liveDirectory') ])
+        liverows = set([ row['node'].get_liveDirectory()
+                        for row in self.treeview._rows
+                        if (row['node'].live
+                            and row['is-open']
+                            and hasattr(row['node'], 'get_liveDirectory')) ])
         #print "resetLiveRows %d" % len(liverows)
         newnodes = liverows.difference(self.liverows)
         oldnodes = self.liverows.difference(liverows)
@@ -515,10 +519,11 @@ class KPFTreeView(TreeView):
             # Or the index is in the visible range, but the tree contents
             # scroll past the end of the visible range
             nextSibling = self._getNextSiblingIndex(index)
-            if (index < firstVisRow or index >= lastVisRow or
-                (len(self._rows) > numVisRows and
-                 ((nextSibling - index) > numVisRows or
-                  len(self._rows) < (firstVisRow + numVisRows)))):
+            if (index < firstVisRow
+                or index >= lastVisRow
+                or (len(self._rows) > numVisRows
+                    and ((nextSibling - index) > numVisRows
+                         or len(self._rows) < (firstVisRow + numVisRows)))):
                 scrollToIndex = min(index, len(self._rows) - numVisRows)
                 #print "Scrolling to row: %d" % (scrollToIndex)
                 self._tree.scrollToRow(scrollToIndex)

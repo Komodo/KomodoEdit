@@ -67,7 +67,7 @@ interface koIKPFTreeView : nsITreeView {
     void addProject(in koIProject prj);
     void removeProject(in koIProject prj);
     
-    attribute nsIObserver statusObserver;
+    attribute nsIObserver statusObserver; 
 
     // set the toolbox project.  if addProject has been used, then
     // this will throw an exception
