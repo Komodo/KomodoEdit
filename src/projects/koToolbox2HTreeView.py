@@ -1,4 +1,4 @@
-from xpcom import components, COMException
+from xpcom import components, ServerException, COMException, nsError
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import WrapObject, UnwrapObject
  
@@ -68,7 +68,12 @@ class _KoTool(object):
         del self._attributes[name]
 
     def getStringAttribute(self, name):
-        return unicode(self._attributes[name])
+        try:
+            return unicode(self._attributes[name])
+        except KeyError:
+            if name == "name":
+                return self.name
+            raise
 
     def setStringAttribute(self, name, value):
         self.setAttribute(name, unicode(value))
@@ -117,6 +122,15 @@ class _KoTool(object):
         fp = open(path, 'w')
         data = json.dump(data, fp, encoding="utf-8")
         fp.close()
+
+    def save_handle_attributes(self):
+        names = ['name', 'value']
+        for name in names:
+            if name in self._attributes:
+                log.debug("Removing self._attributes %s = %s", name,
+                          self._attributes[name])
+                setattr(self, name, self._attributes[name])
+                del self._attributes[name]
 
     def getFile(self):
         url = self.get_url()
@@ -169,7 +183,7 @@ class _KoContainer(_KoTool):
 class _KoFolder(_KoContainer):
     typeName = 'folder'
     prettytype = 'Folder'
-    _iconurl = 'chrome://komodo/skin/images/folder-closed.png'
+    _iconurl = 'chrome://komodo/skin/images/folder-closed-pink.png'
 
 class _KoMenu(_KoContainer):
     typeName = 'menu'
@@ -191,9 +205,8 @@ class _KoCommandTool(_KoTool):
         tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
                        getService(components.interfaces.koIToolboxDatabaseService))
         # Write the changed data to the file system
+        self.save_handle_attributes(tbdbSvc)
         self.saveToolToDisk(tbdbSvc)
-        if 'name' in self._attributes:
-            self.name = self._attributes['name']
         tbdbSvc.saveCommandInfo(self.id, self.name, self.value, self._attributes)
     def updateSelf(self, toolbox_db):
         info = toolbox_db.getCommandInfo(self.id)
@@ -204,6 +217,20 @@ class _KoDirectoryShortcutTool(_KoTool):
     prettytype = 'Open... Shortcut'
     keybindable = 1
     _iconurl = 'chrome://komodo/skin/images/open.png'
+
+    def save(self):
+        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        self.save_handle_attributes()
+        # Write the changed data to the file system
+        self.saveToolToDisk(tbdbSvc)
+        tbdbSvc.saveDirectoryShortcutInfo(self.id, self.name, self.value, self._attributes)
+
+    def setStringAttribute(self, name, value):
+        log.debug("_KoDirectoryShortcutTool.setStringAttribute(name:%s, value:%s)",
+                  name, value)
+        _KoTool.setAttribute(self, name, unicode(value))
+
 
     def updateSelf(self, toolbox_db):
         info = toolbox_db.getDirectoryShortcutInfo(self.id)

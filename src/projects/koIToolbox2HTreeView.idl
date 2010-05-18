@@ -4,6 +4,7 @@
 #include "nsISupports.idl"
 #include "nsITreeView.idl"
 #include "koIPrefs.idl"
+#include "koIProject.idl"
 
 interface koIFileEx;
 /* IDL for the hierarchical Toolbox2 view
@@ -11,55 +12,24 @@ interface koIFileEx;
  */
 
 [scriptable, uuid(5c022eab-9e93-41e9-a113-4aca20f3bcb5)]
-interface koITool: nsISupports {
+interface koITool: koIPart_Common {
+    // New:
     readonly attribute wstring toolType;
-    readonly attribute wstring name;
-    attribute wstring value;
     attribute wstring keyboard_shortcut;
 
-    // These have to come off the tree, which has a db handle.
-    readonly attribute wstring path;
-    readonly attribute wstring url;
+    attribute wstring path;
     attribute long favoriteRating;
-    readonly attribute long timesRun;
+    attribute long timesRun;
     attribute double lastRun;
-
-    // koTools maintain a dictionary of attributes, corresponding to
-    // attributes on the serialized koIPart's XML tag.
-    boolean hasAttribute(in wstring name);
-
-    nsISupports getAttribute(in wstring name);
-    void setAttribute(in wstring name, in nsISupports value);
-
-    void removeAttribute(in wstring name);
-
-    wstring getStringAttribute(in wstring name);
-    void setStringAttribute(in wstring name, in wstring value);
-
-    long getLongAttribute(in wstring name);
-    void setLongAttribute(in wstring name, in long value);
-
-    boolean getBooleanAttribute(in wstring name);
-    void setBooleanAttribute(in wstring name, in boolean value);
-
-    // For compatibility with koIPart: define these so the rest of
-    // Komodo can use v6 tools.
-
-    attribute wstring id;
-    attribute wstring type; // the programmer-oriented type, e.g. "command"
-    attribute wstring prettytype;  // A user-intended version of the type: e.g. "Run Command"
-    attribute wstring iconurl;
-    
-    attribute koIPreferenceSet prefset;
-    koIFileEx getFile();
-    
-    wstring get_keybinding_description();
-    void applyKeybindings(in boolean recurse); // cause kb-load notifications for all relevant parts
-    void removeKeybindings(in boolean recurse); // cause kb-unload notifications for all relevant parts
 
     //TODO: Implement
     attribute wstring tags;
     void save();
+    
+    attribute koITool parent;
+    /* is the tool my ancestor? */
+    boolean isAncestor(in koITool tool);
+
 };
 
 [scriptable, uuid(1d1db2c4-8054-418d-a0d2-4b65c5039bb1)]

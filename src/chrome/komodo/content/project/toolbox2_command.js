@@ -131,10 +131,34 @@ this.editProperties_runCommand = function(event, tool) {
 // DirectoryShortcuts
 this.invoke_openDirectoryShortcut = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('command');
+        tool = this._get_tool('DirectoryShortcut');
         if (!tool) return;
     }
     ko.projects.openDirectoryShortcut(tool);
+};
+
+var peFile_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/project/peFile.properties");
+
+this.editProperties_DirectoryShortcut = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('DirectoryShortcut');
+        if (!tool) return;
+    }
+    // From peFile.p.js -- unexported prototype, so copy the code here, and
+    // update its style.
+    var obj = {
+        item : tool,
+        task: 'edit',
+        imgsrc: 'chrome://komodo/skin/images/open.png',
+        'type': 'DirectoryShortcut',
+        prettytype: peFile_bundle.GetStringFromName("directoryShortcut")
+    };
+    window.openDialog(
+        "chrome://komodo/content/project/simplePartProperties.xul",
+        "Komodo:DirectoryShortcutProperties",
+        "chrome,close=yes,dependent=yes,modal=yes,resizable=yes", obj);
 };
 
 // Macros
@@ -198,7 +222,7 @@ this.invoke_openURLInTab = function(event, tool) {
 
 this._propertyEditorNameForToolType = {
  'command' : this.editProperties_runCommand,
- DirectoryShortcut: this.editProperties_openDirectoryShortcut,
+ DirectoryShortcut: this.editProperties_DirectoryShortcut,
  macro : this.editProperties_executeMacro,
  snippet : this.editProperties_insertSnippet,
  template : this.editProperties_openTemplate,
@@ -240,7 +264,7 @@ this.onDblClick = function(event) {
     var tool = view.getTool(index);
     var method = that._invokerNameForToolType[tool.toolType];
     if (method) {
-        method.call(that, tool, event);
+        method.call(that, event, tool);
     } else {
         alert("Don't know what to do with "
               + tool.toolType

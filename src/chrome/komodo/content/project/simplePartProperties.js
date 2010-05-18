@@ -145,8 +145,11 @@ function _Apply()  {
         if (!retval) return retval;
     } catch (e) {
         opener.log.error(e);
+        log.exception(e);
+        dump(e + "\n");
         return false;
     }
+    try {
 
     var value = partvalue.value;
     if (textToValueConverter) {
@@ -157,10 +160,21 @@ function _Apply()  {
 
     var iconuri = document.getElementById('propertiestab_icon').getAttribute('src');
     gItem.iconurl = iconuri;
-    gItem.iconurl = iconuri;
 
-    opener.ko.projects.invalidateItem(gItem);
-    gItem.setStringAttribute('name', partname.value);
+    if ('save' in gItem) {
+        //!!!! v6 difference
+        gItem.save();
+    } else {
+        opener.ko.projects.invalidateItem(gItem);
+        // This line is most likely wrong.
+        gItem.setStringAttribute('name', partname.value);
+    }
+    } catch (e) {
+        opener.log.error(e);
+        log.exception(e);
+        alert("Internal error: " + e.message);
+        return false;
+    }
     return true;
 };
 

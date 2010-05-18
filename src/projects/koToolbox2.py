@@ -541,6 +541,10 @@ class Database(object):
 
     def getCommonToolDetails(self, path_id, obj, cu=None):
         with self.connect(cu=cu) as cu:
+            cu.execute("""select name from common_details
+                          where path_id = ?""", (path_id,))
+            row = cu.fetchone()
+            obj['name'] = row[0]
             cu.execute("""select value, keyboard_shortcut from common_tool_details
                           where path_id = ?""", (path_id,))
             row = cu.fetchone()
@@ -552,7 +556,7 @@ class Database(object):
             for row in rows:
                 obj[row[0]] = row[1]
         
-    def getDirectoryShortcutInfo(self, path_id):
+    def getDirectoryShortcutInfo(self, path_id, cu=None):
         obj = {}
         with self.connect() as cu:
             self.getCommonToolDetails(path_id, obj, cu)
@@ -598,10 +602,11 @@ class Database(object):
 
     # id, path and type don't change on a database, but name can
     
-    def saveToolName(self, path_id, name):
+    def saveToolName(self, path_id, name, old_name=None):
         with self.connect(commit=True) as cu:
-            old_name = self.getValuesFromTableByKey('common_details', ['name'],
-                                                    'path_id', path_id, cu)[0]
+            if old_name is None:
+                old_name = self.getValuesFromTableByKey('common_details', ['name'],
+                                                        'path_id', path_id, cu)[0]
             if name != old_name:
                 self.updateValuesInTableByKey('common_details', ['name'], [name],
                                               ['path_id'], [path_id], cu)
@@ -671,6 +676,7 @@ class Database(object):
         work_attributes = attributes.copy()
         with self.connect(commit=True) as cu:
             oldMacroInfo = self.getCommandInfo(path_id, cu)
+            self.saveToolName(path_id, name, oldMacroInfo['name'])
             self.save_commonToolDetails(path_id, oldMacroInfo, attributes, value, cu)
                 
             names = ['insertOutput',
@@ -697,6 +703,15 @@ class Database(object):
                                               names_to_update, vals_to_update,
                                               ['path_id'], [path_id], cu)
             self._removeNonMiscAttributeNames(oldMacroInfo, work_attributes)
+            self.saveMiscInfo(path_id, oldMacroInfo, work_attributes, cu)
+            self.updateTimestamp(path_id, cu)
+
+    def saveDirectoryShortcutInfo(self, path_id, name, value, attributes):
+        work_attributes = attributes.copy()
+        with self.connect(commit=True) as cu:
+            oldMacroInfo = self.getDirectoryShortcutInfo(path_id, cu)
+            self.saveToolName(path_id, name, oldMacroInfo['name'])
+            self.save_commonToolDetails(path_id, oldMacroInfo, attributes, value, cu)
             self.saveMiscInfo(path_id, oldMacroInfo, work_attributes, cu)
             self.updateTimestamp(path_id, cu)
             
