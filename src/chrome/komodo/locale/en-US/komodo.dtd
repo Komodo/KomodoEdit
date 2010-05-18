@@ -86,6 +86,7 @@
 <!ENTITY delete.label "Delete">
 <!ENTITY deleteBlankLines.desc "Editor: Delete Blank Lines">
 <!ENTITY edit.label "Edit">
+<!ENTITY editMacro.label "Edit Macro">
 <!ENTITY editorInvokeHyperlink.desc "Editor: Invoke Hyperlink">
 <!ENTITY editorAddAsSnippetToToolbox.desc "Editor: Add as Snippet to Toolbox">
 <!ENTITY editorBack.desc "Editor: Back">
@@ -195,12 +196,14 @@
 <!ENTITY editorZoomFontSizeUp.desc "Editor: Zoom Font Size Up">
 <!ENTITY enterNextCharacterAsRawLiteral.label "Enter Next Character as Raw Literal">
 <!ENTITY exchangePositionAndMark.label "Exchange Position and Mark">
+<!ENTITY executeMacro.label "Execute Macro">
 <!ENTITY existingFileS.label "Existing File(s)...">
 <!ENTITY existingRemoteFile.label "Existing Remote File...">
 <!ENTITY exit.label "Exit">
 <!ENTITY expand.label "Expand">
 <!ENTITY expandAll.label "Expand All">
 <!ENTITY expandRecursively.label "Expand Recursively">
+<!ENTITY exportAsZipFile.label "Export as Zip File...">
 <!ENTITY exportPackage.label "Export Package...">
 <!ENTITY extensionManager.accesskey "A">
 <!ENTITY extensionManager.label "Add-ons">
@@ -315,6 +318,7 @@
 <!ENTITY increase.label "Increase">
 <!ENTITY increaseLineIndent.label "Increase Line Indent">
 <!ENTITY incrementalSearch.label "Incremental Search">
+<!ENTITY insertSnippet.label "Insert Snippet">
 <!ENTITY joinLines.label "Join Lines">
 <!ENTITY jumpToCorrespondingLine.label "Jump to corresponding line">
 <!ENTITY jumpToCorrespondingLineForDiffMode.label "Jump to Corresponding Line (for Diff mode)">
@@ -426,6 +430,8 @@
 <!ENTITY menuView.accesskey "V">
 <!ENTITY menuWatchThread.accesskey "W">
 <!ENTITY menuWindow.accesskey "W">
+<!ENTITY move.label "Move">
+<!ENTITY moveButton.accesskey "M">
 <!ENTITY moveToOtherTabGroup.label "Move to Other Tab Group">
 <!ENTITY moveToPreviousMark.label "Move to Previous Mark">
 <!ENTITY moveTabToNewWindow.label "Move Tab to a New Window">
@@ -460,6 +466,8 @@
 <!ENTITY splitLine.desc "Editor: Split Line">
 <!ENTITY openProject.label "Open Project...">
 <!ENTITY openTabInNewWindow.label "Open Tab in a New Window">
+<!ENTITY openURLInBrowser.label "Open URL In Browser">
+<!ENTITY openURLInTab.label "Open URL In Tab">
 <!ENTITY pageSetup.label "Page Setup">
 <!ENTITY paste.label "Paste">
 <!ENTITY paste.tooltiptext "Paste">
@@ -552,6 +560,9 @@
 <!ENTITY showHideBottomPane.tooltiptext "Show/Hide Bottom Pane">
 <!ENTITY showHideLeftPane.tooltiptext "Show/Hide Left Pane">
 <!ENTITY showHideRightPane.tooltiptext "Show/Hide Right Pane">
+<!ENTITY showInExplorer.label "Show in Explorer">
+<!ENTITY showInFileManager.label "Show in File Manager">
+<!ENTITY showInFinder.label "Show in Finder">
 <!ENTITY showSpecificTab.tooltiptext "Show Specific Sidebar/Tab">
 <!ENTITY showTab.label "Show Tab">
 <!ENTITY showUnsavedChanges.label "Show Unsaved Changes">
