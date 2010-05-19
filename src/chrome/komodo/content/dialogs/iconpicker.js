@@ -90,7 +90,6 @@ function Pick_Icon(uri) {
 
 function selectIconFamily(event) {
     var selected = document.getElementById('icon-families').selectedItem;
-    dump(selected.getAttribute('src')+"\n");
     document.getElementById('iframe').setAttribute('src', selected.getAttribute('src'));
 }
 
