@@ -55,12 +55,13 @@ class _KoTool(object):
 
     #non-xpcom
     def fillDetails(self, itemDetailsDict):
-        non_attr_names = ['value', 'name', 'id']
+        non_attr_names = ['name', 'id']
         for name in non_attr_names:
             res = getattr(self, name, None)
             if res is not None:
                 itemDetailsDict[name] = res
         itemDetailsDict['type'] = self.get_toolType()
+        itemDetailsDict['value'] = self.value.split(eol)
         for name in self._attributes:
             itemDetailsDict[name] = self._attributes[name]
 
@@ -502,9 +503,23 @@ class KoToolbox2HTreeView(TreeView):
         else:
             lastIndex = index + 1
         tool = self._rows[index]
+        tool_id = tool.id
+        parent_tool = None
+        res = self.toolbox_db.getValuesFromTableByKey('hierarchy',
+                                                      ['parent_path_id'],
+                                                      'path_id', tool_id)
+        if res:
+            parent_tool = self._tools.get(res[0], None)
         tool.delete()
         del self._rows[index:lastIndex]
         self._tree.rowCountChanged(index, index - lastIndex)
+        if parent_tool:
+            for i, node in enumerate(parent_tool.childNodes):
+                if node[0] == tool_id:
+                    del parent_tool.childNodes[i]
+                    break
+            else:
+                log.debug("Failed to find a child node in parent %d", res[0])
         
     def initialize(self):
         #XXX Unhardwire this
