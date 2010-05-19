@@ -160,8 +160,13 @@ function OK()  {
         if (window.arguments[0].task == 'new') {
             var parentitem = window.arguments[0].parentitem;
             var item = window.arguments[0].item;
-            var active = window.arguments[0].active;
-            active.manager.addItem(item,parentitem);
+            var v6 = ('save' in item);
+            if (v6) {
+                opener.ko.toolbox2.addNewItemToParent(item, parentitem);
+            } else {
+                var active = window.arguments[0].active;
+                active.manager.addItem(item,parentitem);
+            }
         }
         return true;
     }
@@ -310,7 +315,9 @@ function Apply() {
 
     if ('save' in gItem) {
         //!!!! v6 difference
-        gItem.save();
+        if (window.arguments[0].task != 'new') {
+            gItem.save();
+        }
     } else if (gItem.project == opener.ko.toolboxes.user.toolbox)
         opener.ko.toolboxes.user.save();
 

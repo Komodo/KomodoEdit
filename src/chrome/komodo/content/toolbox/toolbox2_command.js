@@ -112,6 +112,10 @@ this.editProperties_macro = function(event, tool) {
     ko.projects.macroProperties(tool);
 };
 
+this.add_macro = function(view, index, parent, item) {
+    ko.projects.addMacro(parent, item);
+};
+
 // Snippets
 
 this.invoke_insertSnippet = function(event, tool) {
@@ -128,6 +132,10 @@ this.editProperties_snippet = function(event, tool) {
         if (!tool) return;
     }
     ko.projects.snippetProperties(tool);
+};
+
+this.add_snippet = function(view, index, parent, item) {
+    ko.projects.addSnippet(parent, item);
 };
 
 // Templates
@@ -196,10 +204,6 @@ this.editPropertiesItem = function(event) {
               + " "
               + tool.name);
     }
-};
-
-this.add_macro = function(view, index, parent, item) {
-    ko.projects.addMacro(parent, item);
 };
 
 this.addToolboxItem = function(itemType) {

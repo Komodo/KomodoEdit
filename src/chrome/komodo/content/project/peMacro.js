@@ -145,7 +145,7 @@ ko.projects.registerExtension(new peMacro());
 (function() { // ko.projects
 var log = ko.logging.getLogger('ko.projects');
 
- this.addMacro = function peMacro_addMacro(/*koIPart*/ parent,
+ this.addMacro = function peMacro_addMacro(/*koIPart|koITool*/ parent,
                                            /*koIPart|koITool*/ part )
 {
     if (typeof(part) == "undefined") {

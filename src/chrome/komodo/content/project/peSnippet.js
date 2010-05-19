@@ -175,9 +175,12 @@ this.snippetProperties = function snippet_editProperties (item)
         obj);
 }
 
-this.addSnippet = function peSnippet_addSnippet(/*koIPart*/ parent)
+this.addSnippet = function peSnippet_addSnippet(/*koIPart|koITool*/ parent,
+                                                /*koIPart|koITool*/ snippet )
 {
-    var snippet = parent.project.createPartFromType('snippet');
+    if (typeof(snippet) == "undefined") {
+        snippet = parent.project.createPartFromType('macro');
+    }
     snippet.setStringAttribute('name', 'New Snippet');
     snippet.setStringAttribute('set_selection', 'false');
     snippet.setStringAttribute('indent_relative', 'false');
