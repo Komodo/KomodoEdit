@@ -87,7 +87,7 @@ this.editProperties_DirectoryShortcut = function(event, tool) {
 
 this.invoke_executeMacro = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('command');
+        tool = this._get_tool('macro');
         if (!tool) return;
     }
     ko.toolbox2.executeMacro(tool);
@@ -107,22 +107,30 @@ this.editProperties_macro = function(event, tool) {
         if (!tool) return;
     }
     ko.projects.macroProperties(tool);
-}
+};
 
 // Snippets
 
 this.invoke_insertSnippet = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('command');
+        tool = this._get_tool('snippet');
         if (!tool) return;
     }
     ko.projects.snippetInsert(tool);
 };
 
+this.editProperties_snippet = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('snippet');
+        if (!tool) return;
+    }
+    ko.projects.snippetProperties(tool);
+};
+
 // Templates
 this.invoke_openTemplate = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('command');
+        tool = this._get_tool('template');
         if (!tool) return;
     }
     ko.views.manager.doFileNewFromTemplateAsync(tool.url);
@@ -131,7 +139,7 @@ this.invoke_openTemplate = function(event, tool) {
 // URLs
 this.invoke_openURLInBrowser = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('command');
+        tool = this._get_tool('URL');
         if (!tool) return;
     }
     ko.browse.openUrlInDefaultBrowser(tool.value);
@@ -139,7 +147,7 @@ this.invoke_openURLInBrowser = function(event, tool) {
 
 this.invoke_openURLInTab = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('command');
+        tool = this._get_tool('URL');
         if (!tool) return;
     }
     var docSvc = Components.classes['@activestate.com/koDocumentService;1']
@@ -152,12 +160,12 @@ this.invoke_openURLInTab = function(event, tool) {
 
 this._propertyEditorNameForToolType = {
  'command' : this.editProperties_runCommand,
- DirectoryShortcut: this.editProperties_DirectoryShortcut,
- macro : this.editProperties_macro,
- snippet : this.editProperties_snippet,
- template : this.editProperties_template,
- URL : this.editProperties_openURL,
- __EOD__:null
+ 'DirectoryShortcut': this.editProperties_DirectoryShortcut,
+ 'macro': this.editProperties_macro,
+ 'snippet': this.editProperties_snippet,
+ 'template': this.editProperties_template,
+ 'URL': this.editProperties_openURL,
+ '__EOD__':null
 };
 
 this.editPropertiesItem = function(event) {

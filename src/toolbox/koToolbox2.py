@@ -672,29 +672,6 @@ class Database(object):
             except KeyError:
                 pass
     
-    def saveCommandInfo(self, path_id, name, value, attributes):
-        work_attributes = attributes.copy()
-        with self.connect(commit=True) as cu:
-            oldCommandInfo = self.getCommandInfo(path_id, cu)
-            self.saveToolName(path_id, name, oldCommandInfo['name'])
-            self.save_commonToolDetails(path_id, oldCommandInfo, attributes, value, cu)
-                
-            names = ['insertOutput',
-                     'parseRegex',
-                     'operateOnSelection',
-                     'doNotOpenOutputWindow',
-                     'showParsedOutputList',
-                     'parseOutput',
-                     'runIn',
-                     'cwd',
-                     'env',
-                     ]
-            self._saveNamedValuesInTable(path_id, 'command', names,
-                                         oldCommandInfo, work_attributes, cu)
-            self._removeNonMiscAttributeNames(oldCommandInfo, work_attributes)
-            self.saveMiscInfo(path_id, oldCommandInfo, work_attributes, cu)
-            self.updateTimestamp(path_id, cu)
-
     def saveDirectoryShortcutInfo(self, path_id, name, value, attributes):
         work_attributes = attributes.copy()
         with self.connect(commit=True) as cu:
@@ -719,33 +696,37 @@ class Database(object):
                                           names_to_update, vals_to_update,
                                           ['path_id'], [path_id], cu)
 
-    def saveMacroInfo(self, path_id, name, value, attributes):
+    def saveToolInfo(self, path_id, table_name, tool_name, value, attributes,
+                     specific_names, info_getter):
         work_attributes = attributes.copy()
         with self.connect(commit=True) as cu:
-            oldMacroInfo = self.getMacroInfo(path_id, cu)
-            self.saveToolName(path_id, name, oldMacroInfo['name'])
-            self.save_commonToolDetails(path_id, oldMacroInfo, attributes, value, cu)
-            names = ['async', 'trigger_enabled', 'trigger',
-                     'language', 'rank']
-            self._saveNamedValuesInTable(path_id, 'macro', names,
-                                         oldMacroInfo, work_attributes, cu)
-            self._removeNonMiscAttributeNames(oldMacroInfo, work_attributes)
-            self.saveMiscInfo(path_id, oldMacroInfo, work_attributes, cu)
+            oldInfo = info_getter(path_id, cu)
+            self.saveToolName(path_id, tool_name, oldInfo['name'])
+            self.save_commonToolDetails(path_id, oldInfo, attributes, value, cu)
+            if specific_names:
+                self._saveNamedValuesInTable(path_id, table_name, specific_names,
+                                             oldInfo, work_attributes, cu)
+            self._removeNonMiscAttributeNames(oldInfo, work_attributes)
+            self.saveMiscInfo(path_id, oldInfo, work_attributes, cu)
             self.updateTimestamp(path_id, cu)
+
+    def saveCommandInfo(self, path_id, name, value, attributes):                
+        specific_names = ['insertOutput', 'parseRegex', 'operateOnSelection',
+                     'doNotOpenOutputWindow', 'showParsedOutputList',
+                     'parseOutput', 'runIn', 'cwd', 'env', ]
+        self.saveToolInfo(path_id, 'command', name, value, attributes,
+                          specific_names, self.getCommandInfo)
+
+    def saveMacroInfo(self, path_id, name, value, attributes):
+        specific_names = ['async', 'trigger_enabled', 'trigger',
+                          'language', 'rank']
+        self.saveToolInfo(path_id, 'macro', name, value, attributes,
+                          specific_names, self.getMacroInfo)
     
     def saveSnippetInfo(self, path_id, name, value, attributes):
-        work_attributes = attributes.copy()
-        with self.connect(commit=True) as cu:
-            oldSnippetInfo = self.getSnippetInfo(path_id, cu)
-            self.saveToolName(path_id, name, oldSnippetInfo['name'])
-            self.save_commonToolDetails(path_id, oldSnippetInfo, attributes, value, cu)
-            names = ['set_selection',
-                     'indent_relative']
-            self._saveNamedValuesInTable(path_id, 'snippet', names,
-                                         oldSnippetInfo, work_attributes, cu)
-            self._removeNonMiscAttributeNames(oldSnippetInfo, work_attributes)
-            self.saveMiscInfo(path_id, oldSnippetInfo, work_attributes, cu)
-            self.updateTimestamp(path_id, cu)
+        specific_names = ['set_selection', 'indent_relative']
+        self.saveToolInfo(path_id, 'snippet', name, value, attributes,
+                          specific_names, self.getSnippetInfo)
             
     def saveMiscInfo(self, path_id, oldAttrList, newAttrList, cu=None):
         names_to_update = []
