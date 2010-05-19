@@ -59,6 +59,14 @@ this.invoke_openDirectoryShortcut = function(event, tool) {
     ko.projects.openDirectoryShortcut(tool);
 };
 
+this.add_DirectoryShortcut = function(view, index, parent, item) {
+    var dirname = ko.filepicker.getFolder();
+    if (!dirname) return;
+    item.value = dirname;
+    item.name  = dirname.replace(/^.*[\/\\]/, "");
+    this.addNewItemToParent(item, parent);
+};
+
 var peFile_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .getService(Components.interfaces.nsIStringBundleService)
       .createBundle("chrome://komodo/locale/project/peFile.properties");
@@ -145,6 +153,11 @@ this.invoke_openTemplate = function(event, tool) {
         if (!tool) return;
     }
     ko.views.manager.doFileNewFromTemplateAsync(tool.url);
+};
+
+this.add_template = function(view, index, parent, item) {
+    throw new Error("implement me");
+    ko.projects.addSnippet(parent, item);
 };
 
 // Templates can't be edited -- Komodo 5 uses the 

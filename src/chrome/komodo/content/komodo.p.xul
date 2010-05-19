@@ -451,7 +451,7 @@
                           class="menuitem-iconic"
                           accesskey="&folderContextNewShortcut.accesskey;"
                           image="chrome://komodo/skin/images/new_open_shortcut.png"
-                          oncommand="ko.toolbox2.addToolboxItem('directoryshortcut')"
+                          oncommand="ko.toolbox2.addToolboxItem('DirectoryShortcut')"
                           />
                 <menuitem id="tb2_addContext_newURL"
                           label="&newURL.label;"
