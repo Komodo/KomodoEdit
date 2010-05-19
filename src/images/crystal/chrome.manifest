@@ -1,0 +1,5 @@
+content crystal jar:crystal.jar!/content/ xpcnativewrappers=yes
+skin crystal classic/1.0 jar:crystal.jar!/skin/
+locale crystal en-US jar:crystal.jar!/locale/en-US/
+
+overlay chrome://komodo/content/dialogs/iconpicker.xul chrome://crystal/content/overlay-iconpicker.xul
