@@ -136,6 +136,9 @@ this.invoke_openTemplate = function(event, tool) {
     ko.views.manager.doFileNewFromTemplateAsync(tool.url);
 };
 
+// Templates can't be edited -- Komodo 5 uses the 
+// file properties dialog to edit a template, which is just wrong.
+
 // URLs
 this.invoke_openURLInBrowser = function(event, tool) {
     if (typeof(tool) == 'undefined') {
@@ -156,6 +159,14 @@ this.invoke_openURLInTab = function(event, tool) {
     ko.views.manager.topView.createViewFromDocument(doc, 'browser', -1);
 };
 
+this.editProperties_URL = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._get_tool('URL');
+        if (!tool) return;
+    }
+    ko.projects.URLProperties(tool);
+};
+
 // Generic functions on the hierarchy view tree
 
 this._propertyEditorNameForToolType = {
@@ -164,12 +175,11 @@ this._propertyEditorNameForToolType = {
  'macro': this.editProperties_macro,
  'snippet': this.editProperties_snippet,
  'template': this.editProperties_template,
- 'URL': this.editProperties_openURL,
+ 'URL': this.editProperties_URL,
  '__EOD__':null
 };
 
 this.editPropertiesItem = function(event) {
-
     var that = ko.toolbox2;
     var view = that.manager.view;
     var index = view.selection.currentIndex;

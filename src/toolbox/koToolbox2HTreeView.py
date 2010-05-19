@@ -26,7 +26,7 @@ class _KoTool(object):
         self.name = name
         self.id = id  # path_id in DB
         self.initialized = False
-        self._attributes = {'name':name}
+        self._attributes = {}
         self._nondb_attributes = {}
         self._referenced_url = None  # Refers to the URL referenced by the tool, not its location
         
@@ -40,9 +40,10 @@ class _KoTool(object):
         return iconurl is not None
 
     def _finishUpdatingSelf(self, info):
-        if 'value' in info:
-            self.value = info['value']
-            del info['value']
+        for name in ['value', 'name']:
+            if name in info:
+                setattr(self, name, info[name])
+                del info[name]
         for key, value in info.items():
             self._attributes[key] = value
 
@@ -54,6 +55,9 @@ class _KoTool(object):
         return self.value
     
     def hasAttribute(self, name):
+        # Keep names out of attributes
+        if name == 'name':
+            return True
         return self._attributes.has_key(name)
 
     def getAttribute(self, name):
@@ -76,7 +80,11 @@ class _KoTool(object):
             raise
 
     def setStringAttribute(self, name, value):
-        self.setAttribute(name, unicode(value))
+        # Keep names out of attributes
+        if name == 'name':
+            self.name = value
+        else:
+            self.setAttribute(name, unicode(value))
 
     def getLongAttribute(self, name):
         return int(self._attributes[name])
@@ -178,6 +186,13 @@ class _KoTool(object):
 
     def set_type(self, value):
         self.typeName = value
+        
+    def set_name(self, name):
+        self.name = name
+
+    def get_name(self):
+        return self.name
+
    
 class _KoContainer(_KoTool):
     isContainer = True
@@ -222,29 +237,29 @@ class _KoCommandTool(_KoTool):
         info = toolbox_db.getCommandInfo(self.id)
         self._finishUpdatingSelf(info)
 
-class _KoDirectoryShortcutTool(_KoTool):
-    typeName = 'DirectoryShortcut'
-    prettytype = 'Open... Shortcut'
-    keybindable = 1
-    _iconurl = 'chrome://komodo/skin/images/open.png'
-
+class _KoURL_LikeTool(_KoTool):
+    def setStringAttribute(self, name, value):
+        _KoTool.setStringAttribute(self, name, value)
+        if name == 'value':
+            # Komodo treats the value as a URI to get a koFileEx object.
+            _KoTool.setStringAttribute(self, 'url', value)
+            
     def save(self):
         tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
                        getService(components.interfaces.koIToolboxDatabaseService))
         self.save_handle_attributes()
         # Write the changed data to the file system
         self.saveToolToDisk(tbdbSvc)
-        tbdbSvc.saveDirectoryShortcutInfo(self.id, self.name, self.value, self._attributes)
-
-    def setStringAttribute(self, name, value):
-        log.debug("_KoDirectoryShortcutTool.setStringAttribute(name:%s, value:%s)",
-                  name, value)
-        _KoTool.setAttribute(self, name, unicode(value))
-
-
+        tbdbSvc.saveSimpleToolInfo(self.id, self.name, self.value, self._attributes)
     def updateSelf(self, toolbox_db):
-        info = toolbox_db.getDirectoryShortcutInfo(self.id)
+        info = toolbox_db.getSimpleToolInfo(self.id)
         self._finishUpdatingSelf(info)
+
+class _KoDirectoryShortcutTool(_KoURL_LikeTool):
+    typeName = 'DirectoryShortcut'
+    prettytype = 'Open... Shortcut'
+    keybindable = 1
+    _iconurl = 'chrome://komodo/skin/images/open.png'
 
 class _KoMacroTool(_KoTool):
     _com_interfaces_ = [components.interfaces.koITool]
@@ -298,25 +313,16 @@ class _KoSnippetTool(_KoTool):
         info = toolbox_db.getSnippetInfo(self.id)
         self._finishUpdatingSelf(info)
 
-class _KoTemplateTool(_KoTool):
+class _KoTemplateTool(_KoURL_LikeTool):
     typeName = 'template'
     prettytype = 'Template'
     _iconurl = 'chrome://komodo/skin/images/newTemplate.png'
 
-    def updateSelf(self, toolbox_db):
-        info = toolbox_db.getTemplateInfo(self.id)
-        self._finishUpdatingSelf(info)
-
-class _KoURLTool(_KoTool):
+class _KoURLTool(_KoURL_LikeTool):
     typeName = 'URL'
     prettytype = 'URL'
     _iconurl = 'chrome://komodo/skin/images/xlink.png'
     keybindable = 1
-
-    def updateSelf(self, toolbox_db):
-        info = {}
-        toolbox_db.getCommonToolDetails(self.id, info)
-        self._finishUpdatingSelf(info)
 
 class KoToolbox2HTreeView(TreeView):
     _com_interfaces_ = [components.interfaces.nsIObserver,
@@ -365,7 +371,7 @@ class KoToolbox2HTreeView(TreeView):
     def initialize(self):
         #XXX Unhardwire this
         db_path = r"c:\Users\ericp\trash\toolbox-test.sqlite"
-        schemaFile = r"c:\Users\ericp\svn\apps\komodo\src\projects\koToolbox.sql"
+        schemaFile = r"c:\Users\ericp\svn\apps\komodo\src\toolbox\koToolbox.sql"
         stdToolboxDir = r"c:\Users\ericp\trash\stdToolbox"
         sharedToolboxDir = r"c:\Users\ericp\trash\sharedToolbox"
 

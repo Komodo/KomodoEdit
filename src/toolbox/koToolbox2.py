@@ -419,38 +419,15 @@ class Database(object):
         cu.execute(stmt, valueList)
         if data:
             self.addMiscProperties(id, data, cu)
-            
-    def _add_DirectoryShortcut(self, id, data, item_type, cu):
-        self.addCommonToolDetails(id, data, cu)
-        names_and_defaults = [
-            ('url', ""),
-            ]
-        valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
-        stmt = '''insert into directoryShortcut(
-                  path_id, url)
-                  values(?, ?)'''
-        cu.execute(stmt, valueList)
-        if data:
-            self.addMiscProperties(id, data, cu)
-            
-    def _add_template(self, id, data, item_type, cu):
-        self.addCommonToolDetails(id, data, cu)
-        names_and_defaults = [
-            ('url', ""),
-            ]
-        valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
-        stmt = '''insert into template(
-                  path_id, url)
-                  values(?, ?)'''
-        cu.execute(stmt, valueList)
-        if data:
-            self.addMiscProperties(id, data, cu)
-            
-    def _add_URL(self, id, data, item_type, cu):
-        # Nothing specific to do, but this way we don't issue a message. 
+
+    def _addSimpleItem(self, id, data, item_type, cu):
         self.addCommonToolDetails(id, data, cu)
         if data:
             self.addMiscProperties(id, data, cu)
+
+    _add_DirectoryShortcut = _addSimpleItem
+    _add_template = _addSimpleItem
+    _add_URL = _addSimpleItem
             
     def addMiscProperties(self, id, data, cu):
         for key, value in data.items():
@@ -555,15 +532,14 @@ class Database(object):
             rows = cu.fetchall()
             for row in rows:
                 obj[row[0]] = row[1]
-        
-    def getDirectoryShortcutInfo(self, path_id, cu=None):
+
+    def getSimpleToolInfo(self, path_id, cu=None):
         obj = {}
         with self.connect() as cu:
             self.getCommonToolDetails(path_id, obj, cu)
-            names = ['url']
-            cu.execute("select url from directoryShortcut where path_id = ?", (path_id,))
-            row = cu.fetchone()
-            obj['url'] = row[0]
+        obj['url'] = obj['value']
+        # Komodo accesses the value by as a URL so it can
+        # get a koFileEx obj
         return obj
 
     def getMacroInfo(self, path_id, cu=None):
@@ -580,24 +556,6 @@ class Database(object):
                 obj[name] = row[i]
             except TypeError:
                 log.error("couldn't get prop %s for macro id %r", name, i)
-        return obj
-        
-    def getTemplateInfo(self, path_id):
-        obj = {}
-        with self.connect() as cu:
-            self.getCommonToolDetails(path_id, obj, cu)
-            cu.execute("select url from template where path_id = ?", (path_id,))
-            obj['url'] = cu.fetchone()[0]
-        return obj
-
-    def getURLInfo(self, path_id):
-        obj = {}
-        with self.connect() as cu:
-            self.getCommonToolDetails(path_id, obj, cu)
-            names = ['url']
-            cu.execute("select url from  where path_id = ?", (path_id,))
-            row = cu.fetchone()
-            obj['url'] = row[0]
         return obj
 
     # id, path and type don't change on a database, but name can
@@ -617,31 +575,6 @@ class Database(object):
                                           ['value'], [value],
                                           ['path_id'], [path_id], cu)
         
-    def saveMacroInfo(self, path_id, name, value, attributes):
-        work_attributes = attributes.copy()
-        with self.connect(commit=True) as cu:
-            oldMacroInfo = self.getMacroInfo(path_id, cu)
-            self.save_commonToolDetails(path_id, oldMacroInfo, attributes, value, cu)
-            names = ['async', 'trigger_enabled', 'trigger',
-                     'language', 'rank']
-            names_to_update = []
-            vals_to_update = []
-            for name in names:
-                if name in work_attributes:
-                    if oldMacroInfo[name] != work_attributes[name]:
-                        names_to_update.append(name)
-                        vals_to_update.append(work_attributes[name])
-                    del work_attributes[name]
-                    del oldMacroInfo[name]
-            log.debug("macro updates: names:%s, values:%s", names_to_update, vals_to_update)
-            if names_to_update:
-                self.updateValuesInTableByKey('macro',
-                                              names_to_update, vals_to_update,
-                                              ['path_id'], [path_id], cu)
-            self._removeNonMiscAttributeNames(oldMacroInfo, work_attributes)
-            self.saveMiscInfo(path_id, oldMacroInfo, work_attributes, cu)
-            self.updateTimestamp(path_id, cu)
-            
     def save_commonToolDetails(self, path_id, oldMacroInfo, attributes, new_value, cu=None):
         # Only update the changed values.
         # Reading from DB is cheaper than writing to it.
@@ -672,15 +605,6 @@ class Database(object):
             except KeyError:
                 pass
     
-    def saveDirectoryShortcutInfo(self, path_id, name, value, attributes):
-        work_attributes = attributes.copy()
-        with self.connect(commit=True) as cu:
-            oldDSInfo = self.getDirectoryShortcutInfo(path_id, cu)
-            self.saveToolName(path_id, name, oldDSInfo['name'])
-            self.save_commonToolDetails(path_id, oldDSInfo, attributes, value, cu)
-            self.saveMiscInfo(path_id, oldDSInfo, work_attributes, cu)
-            self.updateTimestamp(path_id, cu)
-
     def _saveNamedValuesInTable(self, path_id, table_name, names, old_attributes, new_attributes, cu):
         names_to_update = []
         vals_to_update = []
@@ -716,6 +640,10 @@ class Database(object):
                      'parseOutput', 'runIn', 'cwd', 'env', ]
         self.saveToolInfo(path_id, 'command', name, value, attributes,
                           specific_names, self.getCommandInfo)
+
+    def saveSimpleToolInfo(self, path_id, name, value, attributes):
+        self.saveToolInfo(path_id, None, name, value, attributes,
+                          None, self.getSimpleToolInfo)
 
     def saveMacroInfo(self, path_id, name, value, attributes):
         specific_names = ['async', 'trigger_enabled', 'trigger',
@@ -969,7 +897,7 @@ def main(argv):
     #return
     #
     dbFile = r"c:\Users\ericp\trash\toolbox-test.sqlite"
-    schemaFile = r"c:\Users\ericp\svn\apps\komodo\src\projects\koToolbox.sql"
+    schemaFile = r"c:\Users\ericp\svn\apps\komodo\src\toolbox\koToolbox.sql"
     try:
         toolboxLoader = ToolboxLoader(dbFile, schemaFile)
         toolboxLoader.markAllTopLevelItemsUnloaded()
