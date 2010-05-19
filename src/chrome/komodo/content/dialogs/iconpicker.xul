@@ -69,7 +69,7 @@
     </description>
     <menulist id="icon-families"
               oncommand="selectIconFamily(event);">
-      <menupopup>
+      <menupopup id="icon-families-menupopup">
         <menuitem label="&openOfficeIcons.label;" src="chrome://openoffice/content/industrial.html"/>
         <menuitem label="&famFamFamSilkIcons.label;" src="chrome://famfamfamsilk/content/silk.html"/>
       </menupopup>
