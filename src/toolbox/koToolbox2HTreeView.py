@@ -138,8 +138,9 @@ class _KoTool(object):
                 del self._attributes[name]
 
     def save(self):
-        raise ServerException, nsError("save not yet implemented for %s"
-                                       % self.get_toolType())
+        raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
+                              ("save not yet implemented for %s"
+                               % self.get_toolType()))
 
     def getFile(self):
         url = self.get_url()
@@ -284,6 +285,14 @@ class _KoSnippetTool(_KoTool):
     prettytype = 'Snippet'
     _iconurl = 'chrome://komodo/skin/images/snippet.png'
     keybindable = 1
+
+    def save(self):
+        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        # Write the changed data to the file system
+        self.save_handle_attributes()
+        self.saveToolToDisk(tbdbSvc)
+        tbdbSvc.saveSnippetInfo(self.id, self.name, self.value, self._attributes)
 
     def updateSelf(self, toolbox_db):
         info = toolbox_db.getSnippetInfo(self.id)

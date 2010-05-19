@@ -245,7 +245,7 @@ function _Apply()  {
         var ret = gKeybinding.apply();
         if ('save' in gPart) {
             //!!!! v6 difference
-            gPart.save()
+            gPart.save();
         } else {
             if (gPart.project == opener.ko.toolboxes.user.toolbox)
                 opener.ko.toolboxes.user.save();

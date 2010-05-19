@@ -307,8 +307,11 @@ function Apply() {
 
     var iconuri = document.getElementById('snippettab_icon').getAttribute('src');
     gItem.iconurl = iconuri;
-    
-    if (gItem.project == opener.ko.toolboxes.user.toolbox)
+
+    if ('save' in gItem) {
+        //!!!! v6 difference
+        gItem.save();
+    } else if (gItem.project == opener.ko.toolboxes.user.toolbox)
         opener.ko.toolboxes.user.save();
 
     gApplyButton.setAttribute('disabled', 'true');

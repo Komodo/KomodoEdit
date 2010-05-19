@@ -732,6 +732,20 @@ class Database(object):
             self._removeNonMiscAttributeNames(oldMacroInfo, work_attributes)
             self.saveMiscInfo(path_id, oldMacroInfo, work_attributes, cu)
             self.updateTimestamp(path_id, cu)
+    
+    def saveSnippetInfo(self, path_id, name, value, attributes):
+        work_attributes = attributes.copy()
+        with self.connect(commit=True) as cu:
+            oldSnippetInfo = self.getSnippetInfo(path_id, cu)
+            self.saveToolName(path_id, name, oldSnippetInfo['name'])
+            self.save_commonToolDetails(path_id, oldSnippetInfo, attributes, value, cu)
+            names = ['set_selection',
+                     'indent_relative']
+            self._saveNamedValuesInTable(path_id, 'snippet', names,
+                                         oldSnippetInfo, work_attributes, cu)
+            self._removeNonMiscAttributeNames(oldSnippetInfo, work_attributes)
+            self.saveMiscInfo(path_id, oldSnippetInfo, work_attributes, cu)
+            self.updateTimestamp(path_id, cu)
             
     def saveMiscInfo(self, path_id, oldAttrList, newAttrList, cu=None):
         names_to_update = []
@@ -781,7 +795,7 @@ class Database(object):
                                           ['id'],
                                           [path_id], cu)
 
-    def getSnippetInfo(self, path_id):
+    def getSnippetInfo(self, path_id, cu=None):
         obj = {}
         with self.connect() as cu:
             self.getCommonToolDetails(path_id, obj, cu)
