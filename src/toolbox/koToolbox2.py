@@ -565,6 +565,10 @@ class Database(object):
                     log.debug("Can't delete from table %s", t)
             cu.execute("DELETE FROM paths WHERE id=?", (path_id,))
         if not isNested:
+            # On Windows this moves the full folder to the recycle bin
+            # as an atomic unit, so the user can get it back, but can't
+            # examine its contents.  Better than flattening a tree out
+            # and putting each item in the bin's top-level.
             sysUtilsSvc = components.classes["@activestate.com/koSysUtils;1"].\
                           getService(components.interfaces.koISysUtils);
             sysUtilsSvc.MoveToTrash(path)
