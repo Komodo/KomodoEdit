@@ -45,10 +45,7 @@
 
 <commandset id="allcommands">
 
-    <commandset id="cmdset_vim"
-                oncommandupdate="ko.commands.updateCommandset(this)"
-                commandupdater="true"
-                events="currentview_is_editor">
+    <commandset id="cmdset_vim">
          <command
             id="cmd_vim_left" key="key_cmd_vim_left"
             oncommand="vim_doCommand('cmd_vim_left', event)"
