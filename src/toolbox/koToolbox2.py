@@ -758,12 +758,8 @@ class ToolboxLoader(object):
             self.db.deleteTree(path_id)
         return update_tree
 
-    def walkFunc(self, rootDir, dirname, fnames):
-        if dirname == join(rootDir, self.koToolBoxDirName):
-            parentDirPath = rootDir
-        else:
-            parentDirPath = dirname
-        parent_id = self.db._get_id_from_path(parentDirPath)
+    def walkFunc(self, arg, dirname, fnames):
+        parent_id = self.db._get_id_from_path(dirname)
         existing_child_ids = dict([(x, 1) for x in self.db.getChildIDs(parent_id)])
         # Delete any unhandled IDs at end
         for fname in fnames:
@@ -852,20 +848,23 @@ class ToolboxLoader(object):
             return dir
 
     def loadToolboxDirectory(self, toolboxDir):
-        actualToolboxDir = join(toolboxDir, self.koToolBoxDirName)
+        if toolboxDir.endswith(self.koToolBoxDirName):
+            actualToolboxDir = toolboxDir
+        else:
+            actualToolboxDir = join(toolboxDir, self.koToolBoxDirName)
         if not exists(actualToolboxDir):
             log.error("No toolbox subdirectory %s at %s", self.koToolBoxDirName, toolboxDir)
             return
         self.db.establishConnection()
-        self._loadedPaths[toolboxDir] = True
+        self._loadedPaths[actualToolboxDir] = True
         log.debug("Reading dir %s", toolboxDir)
         try:
             result_list = self.db.getValuesFromTableByKey('paths',
                                                    ['id'],
-                                                   'path', toolboxDir)
+                                                   'path', actualToolboxDir)
             if not result_list:
-                self.db.addFolder(toolboxDir, os.path.basename(toolboxDir), None)
-            os.path.walk(actualToolboxDir, self.walkFunc, toolboxDir)
+                self.db.addFolder(actualToolboxDir, os.path.basename(toolboxDir), None)
+            os.path.walk(actualToolboxDir, self.walkFunc, None)
         finally:
             self.db.releaseConnection()
         

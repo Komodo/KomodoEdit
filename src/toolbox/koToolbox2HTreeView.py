@@ -60,6 +60,7 @@ class _KoTool(object):
             res = getattr(self, name, None)
             if res is not None:
                 itemDetailsDict[name] = res
+        itemDetailsDict['type'] = self.get_toolType()
         for name in self._attributes:
             itemDetailsDict[name] = self._attributes[name]
 
@@ -132,7 +133,7 @@ class _KoTool(object):
         for name in self._attributes:
             data[name] = self._attributes[name]
         fp = open(path, 'w')
-        data = json.dump(data, fp, encoding="utf-8")
+        data = json.dump(data, fp, encoding="utf-8", indent=2)
         fp.close()
 
     def saveNewToolToDisk(self, item, path):
@@ -143,7 +144,7 @@ class _KoTool(object):
         for name in self._attributes:
             data[name] = self._attributes[name]
         fp = open(path, 'w')
-        data = json.dump(data, fp, encoding="utf-8")
+        data = json.dump(data, fp, encoding="utf-8", indent=2)
         fp.close()
         
     def saveContentToDisk(self, tbdbSvc):
@@ -160,7 +161,7 @@ class _KoTool(object):
             if attr not in data or newVal != data[attr]:
                 data[attr] = self._attributes[attr]
         fp = open(path, 'w')
-        data = json.dump(data, fp, encoding="utf-8")
+        data = json.dump(data, fp, encoding="utf-8", indent=2)
         fp.close()
 
     def save_handle_attributes(self):

@@ -7,7 +7,7 @@ CREATE TABLE toolbox2_meta (
 
 create table paths (
     id integer unique primary key autoincrement,
-    path text unique not null,
+    path text unique not null
 );
 create index paths_path_index on paths(path);
 

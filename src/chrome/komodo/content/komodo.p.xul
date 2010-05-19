@@ -430,42 +430,42 @@
                           class="menuitem-iconic"
                           accesskey="&folderContextNewMacro.accesskey;"
                           image="chrome://komodo/skin/images/new_macro.png"
-                          oncommand="ko.projects.addNewPart('macro', this.parentNode.getAttribute('partviewer'))"
+                          oncommand="ko.toolbox2.addToolboxItem('macro')"
                           />
                 <menuitem id="tb2_addContext_newSnippet"
                           label="&newSnippet.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewSnippet.accesskey;"
                           image="chrome://komodo/skin/images/new_snippet.png"
-                          oncommand="ko.projects.addNewPart('snippet', this.parentNode.getAttribute('partviewer'))"
+                          oncommand="ko.toolbox2.addToolboxItem('snippet')"
                           />
                 <menuitem id="tb2_addContext_newCommand"
                           label="&newCommand.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewCommand.accesskey;"
                           image="chrome://komodo/skin/images/new_run_command.png"
-                          oncommand="ko.projects.addNewPart('command', this.parentNode.getAttribute('partviewer'))"
+                          oncommand="ko.toolbox2.addToolboxItem('command')"
                           />
                 <menuitem id="tb2_addContext_newShortcut"
                           label="&newOpenShortcut.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewShortcut.accesskey;"
                           image="chrome://komodo/skin/images/new_open_shortcut.png"
-                          oncommand="ko.projects.addNewPart('directoryshortcut', this.parentNode.getAttribute('partviewer'))"
+                          oncommand="ko.toolbox2.addToolboxItem('directoryshortcut')"
                           />
                 <menuitem id="tb2_addContext_newURL"
                           label="&newURL.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewURL.accesskey;"
                           image="chrome://komodo/skin/images/new_url.png"
-                          oncommand="ko.projects.addNewPart('URL', this.parentNode.getAttribute('partviewer'))"
+                          oncommand="ko.toolbox2.addToolboxItem('URL')"
                           />
                 <menuitem id="tb2_addContext_newTemplate"
                           label="&newTemplate.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewTemplate.accesskey;"
                           image="chrome://komodo/skin/images/new_template.png"
-                          oncommand="ko.projects.addNewPart('template', this.parentNode.getAttribute('partviewer'))"
+                          oncommand="ko.toolbox2.addToolboxItem('template')"
                           />
                 <menuseparator anonid="addItemSeparator" />
                 <menuitem id="tb2_addContext_newFolder"
@@ -473,7 +473,7 @@
                           accesskey="&folderContextNewFolder.accesskey;"
                           class="menuitem-iconic"
                           image="chrome://komodo/skin/images/new_folder.png"
-                          oncommand="ko.projects.addNewPart('newfolder', this.parentNode.getAttribute('partviewer'))"
+                          oncommand="ko.toolbox2.addToolboxItem('newfolder')"
                           disableIfInMenu="folder toolbar menu"
                           />
                 <!-- #if PLATFORM != "darwin" -->
@@ -483,7 +483,7 @@
                           class="menuitem-iconic"
                           accesskey="&folderContextNewMenu.accesskey;"
                           image="chrome://komodo/skin/images/new_custom_menu.png"
-                          oncommand="ko.projects.addNewPart('menu', this.parentNode.getAttribute('partviewer'))"
+                          oncommand="ko.toolbox2.addToolboxItem('menu')"
                           disableIfInMenu="folder toolbar menu"
                           />
                 <!-- #endif -->
@@ -492,7 +492,7 @@
                           class="menuitem-iconic"
                           accesskey="&folderContextNewToolbar.accesskey;"
                           image="chrome://komodo/skin/images/new_custom_toolbar.png"
-                          oncommand="ko.projects.addNewPart('toolbar', this.parentNode.getAttribute('partviewer'))"
+                          oncommand="ko.toolbox2.addToolboxItem('toolbar')"
                           disableIfInMenu="folder toolbar menu"
                           />
             </menupopup>
