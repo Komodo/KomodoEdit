@@ -1,0 +1,11 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/switch_statement_type_inference_bug86927.php">
+    <scope ilk="blob" lang="PHP" name="switch_statement_type_inference_bug86927.php" src="scan_inputs/php/switch_statement_type_inference_bug86927.php">
+      <variable attributes="__not_yet_defined__" line="2" name="something" />
+      <variable citdl="First1" line="4" name="first1" />
+      <variable citdl="First2" line="5" name="first2" />
+      <variable citdl="Default1" line="8" name="default1" />
+      <variable citdl="Default2" line="9" name="default2" />
+    </scope>
+  </file>
+</codeintel>

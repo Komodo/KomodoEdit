@@ -3101,6 +3101,9 @@ class PHPParser:
                            self.text[0] in ("if", "elseif", "else", "while", "for", "foreach", "switch"):
                             #print "Alt syntax? text: %r" % (self.text, )
                             self._addCodePiece()
+                        elif "case" in self.text or "default" in self.text:
+                            # Part of a switch statement - bug 86927.
+                            self._addCodePiece()
                     elif op == ";":
                         # Statement is done
                         if len(self.text) > 0 and \
