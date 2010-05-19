@@ -283,8 +283,8 @@ class Database(object):
     # Adder functions
         
     def _addCommonDetails(self, path, name, item_type, parent_path_id, cu):
-        stmt = 'insert into paths(path, created_at) values(?, ?)'
-        cu.execute(stmt, (path, os.stat(path).st_mtime))
+        stmt = 'insert into paths(path) values(?)'
+        cu.execute(stmt, (path,))
         id = cu.lastrowid
         stmt = '''insert into common_details
                 (path_id, name, type) values (?, ?, ?)'''
@@ -342,7 +342,7 @@ class Database(object):
             try:
                 del data[name]
             except KeyError:
-                log.debug("key %s not in tool %s(type %s)", name, fname, item_type)
+                #log.debug("key %s not in tool %s(type %s)", name, fname, item_type)
                 pass
         with self.connect(commit=True) as cu:
             id = self._addCommonDetails(path, pretty_name, item_type, parent_path_id, cu)
@@ -351,6 +351,7 @@ class Database(object):
             if not toolMethod:
                 toolMethod = getattr(self, prefix + 'genericTool')
             toolMethod(id, data, item_type, cu)
+            return id
             
     def _getValuesFromDataAndDelete(self, id, data, names_and_defaults):
         valueList = [id]
@@ -645,7 +646,6 @@ class Database(object):
                                              oldInfo, work_attributes, cu)
             self._removeNonMiscAttributeNames(oldInfo, work_attributes)
             self.saveMiscInfo(path_id, oldInfo, work_attributes, cu)
-            self.updateTimestamp(path_id, cu)
 
     def saveCommandInfo(self, path_id, name, value, attributes):                
         specific_names = ['insertOutput', 'parseRegex', 'operateOnSelection',
@@ -709,14 +709,6 @@ class Database(object):
                                     [path_id, name], cu)
 
                 
-    def updateTimestamp(self, path_id, cu=None):
-        with self.connect(commit=True, cu=cu) as cu:
-            path = self.getPath(path_id)
-            self.updateValuesInTableByKey('paths',
-                                          ['created_at'], [os.stat(path).st_mtime],
-                                          ['id'],
-                                          [path_id], cu)
-
     def getSnippetInfo(self, path_id, cu=None):
         obj = {}
         with self.connect() as cu:
@@ -782,10 +774,10 @@ class ToolboxLoader(object):
                 continue
                 
             result_list = self.db.getValuesFromTableByKey('paths',
-                                                   ['id', 'created_at'],
+                                                   ['id'],
                                                    'path', path)
             if result_list:
-                id, created_at = result_list
+                id = result_list[0]
                 try: del existing_child_ids[id]
                 except KeyError: pass
                 if id is None:
@@ -795,7 +787,7 @@ class ToolboxLoader(object):
                 else:
                     mtime = os.stat(path).st_mtime
                     #log.debug("db time: %r, stat time: %r", created_at, mtime)
-                    need_update = mtime > created_at
+                    need_update = False #TODO: mtime > time of db itself!!! created_at
                     if need_update:
                         log.debug("Rebuilding item %s (%s)", fname, dirname)
                         self.db.deleteItem(id)
@@ -869,7 +861,7 @@ class ToolboxLoader(object):
         log.debug("Reading dir %s", toolboxDir)
         try:
             result_list = self.db.getValuesFromTableByKey('paths',
-                                                   ['id', 'created_at'],
+                                                   ['id'],
                                                    'path', toolboxDir)
             if not result_list:
                 self.db.addFolder(toolboxDir, os.path.basename(toolboxDir), None)

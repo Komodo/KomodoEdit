@@ -116,6 +116,22 @@ this.processMenu = function(menuNode, toolType) {
     }
 };
 
+this.getSelectedItem = function() {
+     var selection = this.manager.view.selection;
+     if (!selection) {
+         return null;
+     }
+     var index = selection.currentIndex;
+     if (index == -1) {
+         return null;
+     }
+     return this.manager.view.getTool(index);
+};
+
+this.addNewItemToParent = function(item, parent) {
+    this.manager.view.addNewItemToParent(parent, item);
+};
+
 this.findToolById = function(id) {
     return this.manager.view.getToolById(id);
 };

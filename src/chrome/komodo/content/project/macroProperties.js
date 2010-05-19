@@ -195,11 +195,21 @@ function OK(event)  {
     if (!_Apply()) {
         return false;
     }
+    var v6 = ('save' in gPart);
     if (window.arguments[0].task == 'new') {
         var parent = window.arguments[0].parent;
-        if (typeof(parent)=='undefined' || !parent)
-            parent = opener.ko.projects.active.getSelectedItem();
-        opener.ko.projects.addItem(gPart,parent);
+        if (typeof(parent)=='undefined' || !parent) {
+            if (v6) {
+                parent = opener.ko.toolbox2.manager.getSelectedItem();
+            } else {
+                parent = opener.ko.projects.active.getSelectedItem();
+            }
+        }
+        if (v6) {
+            opener.ko.toolbox2.addNewItemToParent(gPart, parent);
+        } else {
+            opener.ko.projects.addItem(gPart,parent);
+        }
     } else if (window.arguments[0].task == 'edit') {
         //XXX Should be done through an observer.
         //XXX Reviewers: should this be done in Apply?
@@ -245,7 +255,9 @@ function _Apply()  {
         var ret = gKeybinding.apply();
         if ('save' in gPart) {
             //!!!! v6 difference
-            gPart.save();
+            if (window.arguments[0].task != 'new') {
+                gPart.save();
+            }
         } else {
             if (gPart.project == opener.ko.toolboxes.user.toolbox)
                 opener.ko.toolboxes.user.save();

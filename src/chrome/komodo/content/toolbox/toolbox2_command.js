@@ -62,6 +62,9 @@ this.invoke_openDirectoryShortcut = function(event, tool) {
 var peFile_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .getService(Components.interfaces.nsIStringBundleService)
       .createBundle("chrome://komodo/locale/project/peFile.properties");
+var peFolder_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/project/peFolder.properties");
 
 this.editProperties_DirectoryShortcut = function(event, tool) {
     if (typeof(tool) == 'undefined') {
@@ -193,9 +196,37 @@ this.editPropertiesItem = function(event) {
               + " "
               + tool.name);
     }
-};    
+};
+
+this.add_macro = function(view, index, parent, item) {
+    ko.projects.addMacro(parent, item);
+};
+
+this.addToolboxItem = function(itemType) {
+    var this_ = ko.toolbox2;
+    var method = this_["add_" + itemType];
+    if (!method) {
+        alert("toolbox2_command.js internal error: Don't know how to create a new "
+              + itemType);
+        return;
+    }
+    var view = this_.manager.view;
+    var index = view.selection.currentIndex;
+    var parent = view.getTool(index);
+    var item = view.createToolFromType(itemType);
+    method.call(this_, view, index, parent, item);
+};
 
 this.deleteItem = function(event) {
+    var question = peFolder_bundle.GetStringFromName("doYouWantToRemoveTheItemYouHaveSelected");
+    var response = "No";
+    var text = null;
+    var title = peFolder_bundle.GetStringFromName("deleteSelectedItems");
+    var result = ko.dialogs.yesNo(question, response, text, title);
+    //TODO: Add a do-not-ask pref
+    if (result != "Yes") {
+        return;
+    }
     ko.toolbox2.manager.deleteCurrentItem();
 };    
 

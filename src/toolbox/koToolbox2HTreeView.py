@@ -26,9 +26,15 @@ class _KoTool(object):
         self.name = name
         self.id = id  # path_id in DB
         self.initialized = False
+        self.value = ""
         self._attributes = {}
         self._nondb_attributes = {}
-        self._referenced_url = None  # Refers to the URL referenced by the tool, not its location
+        self.flavors = ['text/unicode','application/x-komodo-part',\
+# #if PLATFORM != "win"
+                        # XXX for a later release, scintilla needs work in this area
+                        'TEXT',#,'COMPOUND_TEXT','STRING','UTF-8' \
+# #endif
+                        ]
         
     def init(self, treeView):
         pass
@@ -47,6 +53,16 @@ class _KoTool(object):
         for key, value in info.items():
             self._attributes[key] = value
 
+    #non-xpcom
+    def fillDetails(self, itemDetailsDict):
+        non_attr_names = ['value', 'name', 'id']
+        for name in non_attr_names:
+            res = getattr(self, name, None)
+            if res is not None:
+                itemDetailsDict[name] = res
+        for name in self._attributes:
+            itemDetailsDict[name] = self._attributes[name]
+
     # Attributes...
     def get_toolType(self):
         return self.typeName
@@ -57,7 +73,7 @@ class _KoTool(object):
     def hasAttribute(self, name):
         # Keep names out of attributes
         if name == 'name':
-            return True
+            return self.name is not None
         return self._attributes.has_key(name)
 
     def getAttribute(self, name):
@@ -113,6 +129,17 @@ class _KoTool(object):
         fp.close()
         data['value'] = self.value.split(eol)
         data['name'] = self.name
+        for name in self._attributes:
+            data[name] = self._attributes[name]
+        fp = open(path, 'w')
+        data = json.dump(data, fp, encoding="utf-8")
+        fp.close()
+
+    def saveNewToolToDisk(self, item, path):
+        data = {}
+        data['value'] = self.value.split(eol)
+        data['name'] = self.name
+        data['id'] = self.id
         for name in self._attributes:
             data[name] = self._attributes[name]
         fp = open(path, 'w')
@@ -230,7 +257,7 @@ class _KoCommandTool(_KoTool):
     typeName = 'command'
     prettytype = 'Run Command'
     _iconurl = 'chrome://komodo/skin/images/run_commands.png'
-    keybindable = 1
+    keybindable = 1        
 
     def save(self):
         tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
@@ -274,6 +301,11 @@ class _KoMacroTool(_KoTool):
     _iconurl = 'chrome://komodo/skin/images/macro.png'
     keybindable = 1
 
+    def __init__(self, *args):
+        _KoTool.__init__(self, *args)
+        self.flavors.insert(0,'text/x-moz-url')
+        self._attributes['language'] = 'JavaScript'  # default.
+
     def updateSelf(self, toolbox_db):
         info = toolbox_db.getMacroInfo(self.id)
         #log.debug("macro info: %s", info)
@@ -306,6 +338,10 @@ class _KoSnippetTool(_KoTool):
     prettytype = 'Snippet'
     _iconurl = 'chrome://komodo/skin/images/snippet.png'
     keybindable = 1
+
+    def __init__(self, *args):
+        _KoTool.__init__(self, *args)
+        self.flavors.insert(0, 'application/x-komodo-snippet')
 
     def save(self):
         tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
@@ -372,6 +408,89 @@ class KoToolbox2HTreeView(TreeView):
             return self._rows.index(tool)
         except ValueError, e:
             return -1
+
+    def createToolFromType(self, tool_type):
+        temp_id = -1
+        tool = createPartFromType(tool_type, None, temp_id)
+        self._tools[temp_id] = tool
+        return tool
+
+    #TODO: Make this common with expand_toolbox.py
+    _MAX_FILENAME_LEN = 32
+    def _truncateAtWordBreak(self, name):
+        # urllib only handles ascii chars, so we do our own quoting with the
+        # other bits
+        if len(name) > self._MAX_FILENAME_LEN:
+            m1 = _re_capture_word_chars.match(name[self._MAX_FILENAME_LEN:])
+            if m1:
+                g1 = m1.group(1)
+                if len(g1) < 10:
+                    return name[:self._MAX_FILENAME_LEN] + g1
+            return name[:self._MAX_FILENAME_LEN]
+        else:
+            return name
+        
+    def _prepareUniqueFileSystemName(self, dirName, baseName, addExt=True):
+        # "slugify"
+        basePart = self._truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', baseName))
+        basePart = os.path.join(dirName, basePart)
+        extPart = (addExt and ".kotool") or ""
+        candidate = basePart + extPart
+        if not os.path.exists(candidate):
+            return candidate
+        for i in range(1, 1000):
+            candidate = "%s-%d%s" % (basePart, i, extPart)
+            if not os.path.exists(candidate):
+                log.debug("Writing out file %s/%s as %s", os.getcwd(), basePart, candidate)
+                return candidate
+        else:
+            raise Exception("File %s exists in directory %s, force is off" %
+                            (name, os.getcwd()))
+
+    def addNewItemToParent(self, parent, item):
+        #TODO: if parent is null, use the std toolbox node
+        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        parent_path = tbdbSvc.getPath(parent.id)
+        item = UnwrapObject(item)
+        item_name = item.name
+        path = self._prepareUniqueFileSystemName(parent_path, item_name, addExt=True)
+        try:
+            itemDetailsDict = {}
+            item.fillDetails(itemDetailsDict)
+            new_id = self.toolbox_db.addTool(itemDetailsDict,
+                                             item.typeName,
+                                             path,
+                                             item_name,
+                                             parent.id)
+            old_id = item.id
+            item.id = new_id
+            try:
+                del self._tools[old_id]
+            except KeyError:
+                log.error("No self._tools[%r]", old_id)
+            self._tools[new_id] = item
+            item.saveNewToolToDisk(item, path)
+        except:
+            log.exception("addNewItemToParent: failed")
+        else:
+            index = self.getIndexByTool(parent)
+            UnwrapObject(parent).childNodes.append((new_id, item_name, item.typeName))
+            isOpen = self.isContainerOpen(index)
+            if isOpen:
+                firstVisibleRow = self._tree.getFirstVisibleRow()
+                self._tree.scrollToRow(firstVisibleRow)
+                # Easy hack to resort the items
+                self.toggleOpenState(index)
+                self.toggleOpenState(index)
+                self._tree.scrollToRow(firstVisibleRow)
+                newIndex = self._rows.index(item, index + 1)
+                if newIndex > -1:
+                    index = newIndex
+                    log.debug("We found the new item at posn %d", index)
+            self.selection.currentIndex = index
+            self.selection.select(index)
+            self._tree.ensureRowIsVisible(index)
 
     def deleteToolAt(self, index):
         isOpen = self.isContainerOpen(index)
