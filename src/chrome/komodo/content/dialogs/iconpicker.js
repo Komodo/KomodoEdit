@@ -94,6 +94,44 @@ function selectIconFamily(event) {
     document.getElementById('iframe').setAttribute('src', selected.getAttribute('src'));
 }
 
+/**
+ * Work around the iframe not showing the HTML img "title" tooltip, manually
+ * creates and shows a tooltip for the HTML element when it has the "title"
+ * attribute set.
+ */
+function FillInHTMLTooltip(tipElement) {
+    // This FillInHTMLTooltip code comes from Mozilla forum:
+    //   http://forums.mozillazine.org/viewtopic.php?f=19&t=561451
+    var retVal = false;
+    if (tipElement.namespaceURI == "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul") {
+        return retVal;
+    }
+    const XLinkNS = "http://www.w3.org/1999/xlink";
+    var titleText = null;
+    var XLinkTitleText = null;
+    while (!titleText && !XLinkTitleText && tipElement) {
+        if (tipElement.nodeType == Node.ELEMENT_NODE) {
+            titleText = tipElement.getAttribute("title");
+            if (!titleText) {
+                // Try the alt attribute then.
+                titleText = tipElement.getAttribute("alt");
+            }
+            XLinkTitleText = tipElement.getAttributeNS(XLinkNS, "title");
+        }
+        tipElement = tipElement.parentNode;
+    }
+    var texts = [titleText, XLinkTitleText];
+    var tipNode = document.getElementById("aHTMLTooltip");
+    for (var i = 0; i < texts.length; ++i) {
+        var t = texts[i];
+        if (t && t.search(/\S/) >= 0) {
+            tipNode.setAttribute("label", t.replace(/\s+/g, " "));
+            retVal = true;
+        }
+    }
+    return retVal;
+}
+
 function OK()
 {
     obj.value = gCurrentURI;

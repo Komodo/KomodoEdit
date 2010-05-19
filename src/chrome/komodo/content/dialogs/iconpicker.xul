@@ -64,6 +64,7 @@
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/uriparse.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/dialogs.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/dialogs/iconpicker.js"/>
+    <tooltip id="aHTMLTooltip" onpopupshowing="return FillInHTMLTooltip(document.tooltipNode);" />
     <description>
         &iconpicker.description;
     </description>
@@ -75,7 +76,11 @@
       </menupopup>
     </menulist>
     <separator class="thin"/>
-    <iframe src="chrome://openoffice/content/industrial.html" id="iframe" flex="1" style="border: thin inset;"/>
+    <iframe id="iframe"
+            src="chrome://komodo/content/dialogs/iconlist.html" 
+            flex="1"
+            style="border: thin inset;"
+            tooltip="aHTMLTooltip"/>
     <separator class="thin"/>
     <hbox>
         <image id="icon32" style="width: 32px; height: 32px;"/>
