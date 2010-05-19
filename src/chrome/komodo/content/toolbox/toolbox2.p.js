@@ -38,6 +38,14 @@ initialize: function() {
 terminate: function() {
     dump("**************** Closing Toolbox2Manager...\n");
 },
+deleteCurrentItem: function() {
+    var index = this.view.selection.currentIndex;
+    try {
+        this.view.deleteToolAt(index);
+    } catch(ex) {
+        dump(ex + "\n");
+    }
+},
 _EOD_: null
 };
 

@@ -262,9 +262,9 @@ class Database(object):
             if row is None: return None
             return row[0]
             
-    def getPath(self, id):
+    def getPath(self, id, cu=None):
         stmt = "select path from paths where id = ?"
-        with self.connect() as cu:
+        with self.connect(cu=cu) as cu:
             cu.execute(stmt, (id,))
             row = cu.fetchone()
             if row is None: return None
@@ -469,6 +469,7 @@ class Database(object):
     def deleteTree(self, path_id):
         # Remove the tree rooted at path_id.  Anyone know some good SQL for
         # finding all the descendants in a simple membership table?
+        XXX("this is wrong")
         nodes = [path_id]
         while nodes:
             id = nodes[0]
@@ -476,26 +477,6 @@ class Database(object):
             nodes += self.getChildIDs(id)
             self.deleteItem(id)
             
-    def deleteItem(self, path_id):
-        res = self.getValuesFromTableByKey('common_details', ['type'], 'path_id', path_id)
-        if res is None:
-            log.error("No result for common_details: id:%d", path_id)
-            return
-        itemType = res[0]
-        with self.connect(commit=True) as cu:
-            for table in ['common_details', 'common_tool_details',
-                          'hierarchy', 'metadata_timestamps',
-                          'menuItem', 'misc_properties']:
-                stmt = "delete from %s WHERE path_id=?" % (table,)
-                try:
-                    cu.execute(stmt, (path_id,))
-                except sqlite3.OperationalError:
-                    log.exception("for stmt: %s", stmt)
-            stmt = "delete from %s WHERE path_id=?" % (self.tableNameFromType(itemType),)
-            cu.execute(stmt, (path_id,))
-            stmt = "delete from %s WHERE id=?" % ("paths",)
-            cu.execute(stmt, (path_id,))
-    
     _tableNameFromType = {
         # Put anomalies here.
     }
@@ -558,8 +539,36 @@ class Database(object):
                 log.error("couldn't get prop %s for macro id %r", name, i)
         return obj
 
-    # id, path and type don't change on a database, but name can
-    
+    def deleteItem(self, path_id, cu=None, isNested=False):
+        with self.connect(commit=True, cu=cu) as cu:
+            stmt = "select path_id from hierarchy where parent_path_id = ?"
+            cu.execute(stmt, (path_id,))
+            children = cu.fetchall()
+            for child_id in children:
+                self.deleteItem(child_id[0], cu, isNested=True)
+            path = self.getPath(path_id, cu)
+            tableNames = ['common_details',
+                          'common_tool_details',
+                          'misc_properties',
+                          'hierarchy',
+                          'favorites']
+            res = self.getValuesFromTableByKey('common_details', ['type'],
+                                               'path_id', path_id, cu)
+            if res:
+                tool_type = res[0]
+                if tool_type in ['snippet', 'macro', 'command']:
+                    tableNames.append(tool_type)
+            for t in tableNames:
+                try:
+                    cu.execute("DELETE FROM %s WHERE path_id=?" % t, (path_id,))
+                except:
+                    log.debug("Can't delete from table %s", t)
+            cu.execute("DELETE FROM paths WHERE id=?", (path_id,))
+        if not isNested:
+            sysUtilsSvc = components.classes["@activestate.com/koSysUtils;1"].\
+                          getService(components.interfaces.koISysUtils);
+            sysUtilsSvc.MoveToTrash(path)
+        
     def saveToolName(self, path_id, name, old_name=None):
         with self.connect(commit=True) as cu:
             if old_name is None:

@@ -22,9 +22,10 @@ interface koITool: koIPart_Common {
     attribute long timesRun;
     attribute double lastRun;
 
+    void save();
+
     //TODO: Implement
     attribute wstring tags;
-    void save();
     
     attribute koITool parent;
     /* is the tool my ancestor? */
@@ -53,5 +54,7 @@ interface koIToolbox2HTreeView: nsITreeView {
     long get_favoriteRating(in long index);
     long get_timesRun(in long index);
     double get_lastRun(in long index);
+    
+    void deleteToolAt(in long index);
 };
 

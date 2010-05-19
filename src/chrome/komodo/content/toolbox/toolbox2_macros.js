@@ -10,7 +10,7 @@ if (typeof(ko.toolbox2)=='undefined') {
 
 (function() { // ko.toolbox2 continued
 var log = ko.logging.getLogger('ko.toolbox2');
-log.setLevel(ko.logging.DEBUG);
+// log.setLevel(ko.logging.DEBUG);
 
 this.executeMacro = function macro_executeMacro(part, async, observer_arguments)
 {

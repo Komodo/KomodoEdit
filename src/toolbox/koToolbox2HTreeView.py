@@ -145,6 +145,12 @@ class _KoTool(object):
                 setattr(self, name, self._attributes[name])
                 del self._attributes[name]
 
+    def delete(self):
+        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        return tbdbSvc.deleteItem(self.id)
+        
+
     def save(self):
         raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
                               ("save not yet implemented for %s"
@@ -366,7 +372,19 @@ class KoToolbox2HTreeView(TreeView):
             return self._rows.index(tool)
         except ValueError, e:
             return -1
-        
+
+    def deleteToolAt(self, index):
+        isOpen = self.isContainerOpen(index)
+        if isOpen:
+            lastIndex = self.getNextSiblingIndex(index)
+            if lastIndex == -1:
+                lastIndex = index + 1
+        else:
+            lastIndex = index + 1
+        tool = self._rows[index]
+        tool.delete()
+        del self._rows[index:lastIndex]
+        self._tree.rowCountChanged(index, index - lastIndex)
         
     def initialize(self):
         #XXX Unhardwire this

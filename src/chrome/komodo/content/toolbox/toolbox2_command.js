@@ -195,6 +195,10 @@ this.editPropertiesItem = function(event) {
     }
 };    
 
+this.deleteItem = function(event) {
+    ko.toolbox2.manager.deleteCurrentItem();
+};    
+
 this._invokerNameForToolType = {
  'command' : this.invoke_runCommand,
  DirectoryShortcut: this.invoke_openDirectoryShortcut,
