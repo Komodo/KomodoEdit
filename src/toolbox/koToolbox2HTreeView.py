@@ -489,7 +489,6 @@ class KoToolbox2HTreeView(TreeView):
                 newIndex = self._rows.index(item, index + 1)
                 if newIndex > -1:
                     index = newIndex
-                    log.debug("We found the new item at posn %d", index)
             self.selection.currentIndex = index
             self.selection.select(index)
             self._tree.ensureRowIsVisible(index)

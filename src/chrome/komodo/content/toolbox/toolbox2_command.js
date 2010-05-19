@@ -50,6 +50,23 @@ this.editProperties_runCommand = function(event, tool) {
     ko.projects.commandProperties(tool);
 };
 
+this.add_command = function(view, index, parent, item) {
+    // Code from peCommand.addCommand, since enough of it will change.
+    item.setStringAttribute('name', "New Command");
+    var obj = {
+        part:item,
+        task:'new'
+    };
+    ko.windowManager.openOrFocusDialog(
+        "chrome://komodo/content/run/commandproperties.xul",
+        "Komodo:CommandProperties",
+        "chrome,close=yes,modal=yes,dependent=yes,centerscreen",
+        obj);
+    if (obj.retval == "OK") {
+        this.addNewItemToParent(item, parent);
+    }
+};
+
 // DirectoryShortcuts
 this.invoke_openDirectoryShortcut = function(event, tool) {
     if (typeof(tool) == 'undefined') {

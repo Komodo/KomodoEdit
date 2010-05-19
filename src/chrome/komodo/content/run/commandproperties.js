@@ -463,7 +463,9 @@ function Apply()
     // Update the wrapper around the part (item) if it was passed in.
     if ('save' in gPart) {
         //!!!! v6 difference
-        gPart.save();
+        if (window.arguments[0].task != "new") {
+            gPart.save();
+        }
     }
     opener.ko.projects.invalidateItem(gPart);
 
