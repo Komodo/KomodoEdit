@@ -605,36 +605,6 @@
                   disableIf="folder DirectoryShortcut template URL"
                   />
     </menupopup>
-    
-
-
-<!-- #if WITH_CODE_BROWSER -->
-    <menupopup id="codeBrowserContext">
-        <menuitem id="menuitem_codeBrowserGoToDefinition"
-                  observes="cmd_codeBrowserGoToDefinition"
-                  label="&goToDefinition.label;"
-                  class="menuitem-iconic"
-                  keep="true"/>
-        <menuitem id="menuitem_codeBrowserCopy"
-                  observes="cmd_copy"
-                  label="&copy.label;"
-                  class="menuitem-iconic"
-                  keep="true"/>
-        <menuseparator keep="true" />
-        <menuitem id="menuitem_codeBrowserSortFile"
-                  label="&sortByFileOrder.label;"
-                  class="menuitem-iconic"
-                  image="chrome://komodo/skin/images/codeintel_sort_by_file_order.gif"
-                  sortBy="file-order"
-                  oncommand="gCodeBrowserMgr.sortBy('file-order');"/>
-        <menuitem id="menuitem_codeBrowserSortName"
-                  label="&sortAlphabetically.label;"
-                  class="menuitem-iconic"
-                  image="chrome://komodo/skin/images/codeintel_sort_alphabetically.gif"
-                  sortBy="name"
-                  oncommand="gCodeBrowserMgr.sortBy('name');"/>
-    </menupopup>
-<!-- #endif -->
 
     <menupopup id="context-toolbox-menu">
         <menuitem id="context_toggleButtonText"
