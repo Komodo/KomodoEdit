@@ -118,6 +118,12 @@ function FillInHTMLTooltip(tipElement) {
             if (!titleText) {
                 // Try the alt attribute then.
                 titleText = tipElement.getAttribute("alt");
+                if (!titleText) {
+                    // Try the basename of the src attribute then.
+                    titleText = tipElement.getAttribute("src");
+                    titleText = titleText.split("/");
+                    titleText = titleText[titleText.length - 1];
+                }
             }
             XLinkTitleText = tipElement.getAttributeNS(XLinkNS, "title");
         }
