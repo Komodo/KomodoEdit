@@ -58,6 +58,7 @@
       <ComponentRef Id="component5"/>
       <ComponentRef Id="component6"/>
       <ComponentRef Id="component7"/>
+      <ComponentRef Id="component40"/>
       <ComponentRef Id="component52"/>
       <ComponentRef Id="component53"/>
       <ComponentRef Id="component54"/>
@@ -262,6 +263,7 @@
       <ComponentRef Id="component1"/>
       <ComponentRef Id="component56"/>
       <ComponentRef Id="component63"/>
+      <ComponentRef Id="component64"/>
       <ComponentRef Id="component65"/>
       <ComponentRef Id="component67"/>
       <ComponentRef Id="component151"/>
@@ -1009,6 +1011,13 @@
                 </Directory> <!-- lib\mozilla\extensions\actionscript_language@ActiveState.com\templates\All Languages -->
               </Directory> <!-- lib\mozilla\extensions\actionscript_language@ActiveState.com\templates -->
             </Directory> <!-- lib\mozilla\extensions\actionscript_language@ActiveState.com -->
+            <Directory Id="directory44" Name="CRYSTA_0.COM" LongName="crystal@everaldo.com">
+              <Component Id="component40" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file1064" Name="CHROM_22.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\crystal@everaldo.com\chrome.manifest"/>
+                <File Id="file1065" Name="crystal.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\crystal@everaldo.com\crystal.jar"/>
+                <File Id="file1066" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\crystal@everaldo.com\install.rdf"/>
+              </Component>
+            </Directory> <!-- lib\mozilla\extensions\crystal@everaldo.com -->
             <Directory Id="directory37" Name="FASTOP_0.COM" LongName="fastopen@activestate.com">
               <Component Id="component35" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file855" LongName="chrome.manifest" Name="CHROME_5.MAN" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\chrome.manifest" />
@@ -1032,6 +1041,13 @@
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\fastopen@activestate.com\pylib -->
             </Directory> <!-- lib\mozilla\extensions\fastopen@activestate.com -->
+            <Directory Id="directory70" Name="FUGUEP_0.COM" LongName="fugue@p.yusukekamiyamane.com">
+              <Component Id="component64" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file1067" Name="CHROM_23.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fugue@p.yusukekamiyamane.com\chrome.manifest"/>
+                <File Id="file1068" Name="fugue.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fugue@p.yusukekamiyamane.com\fugue.jar"/>
+                <File Id="file1069" Name="INSTAL_6.RDF" LongName="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fugue@p.yusukekamiyamane.com\install.rdf"/>
+              </Component>
+            </Directory> <!-- lib\mozilla\extensions\fugue@p.yusukekamiyamane.com -->
             <Directory Id="directory322" Name="HTML_L_0.COM" LongName="html_language@ActiveState.com">
               <Component Id="component257" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file166" Name="CHROM_12.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\chrome.manifest"/>
