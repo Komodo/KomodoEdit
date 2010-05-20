@@ -265,7 +265,13 @@ this.addToolboxItem = function(itemType) {
 };
 
 this.deleteItem = function(event) {
-    var question = peFolder_bundle.GetStringFromName("doYouWantToRemoveTheItemYouHaveSelected");
+    var question;
+    var indices = ko.toolbox2.getSelectedIndices();
+    if (indices.length > 1) {
+        question = peFolder_bundle.formatStringFromName("doYouWantToRemoveThe", [indices.length], 1);
+    } else {
+        question = peFolder_bundle.GetStringFromName("doYouWantToRemoveTheItemYouHaveSelected");
+    }
     var response = "No";
     var text = null;
     var title = peFolder_bundle.GetStringFromName("deleteSelectedItems");
@@ -274,7 +280,11 @@ this.deleteItem = function(event) {
     if (result != "Yes") {
         return;
     }
-    ko.toolbox2.manager.deleteCurrentItem();
+    var view = ko.toolbox2.manager.view;
+    for (var i = indices.length - 1; i >= 0; i--) {
+        view.deleteToolAt(indices[i]);
+    }
+    // ko.toolbox2.manager.deleteCurrentItem();
 };    
 
 this._invokerNameForToolType = {

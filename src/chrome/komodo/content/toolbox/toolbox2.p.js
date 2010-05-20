@@ -68,7 +68,7 @@ this.updateContextMenu = function(event, menupopup) {
         return;
     }
     var clickedNodeId = event.explicitOriginalTarget.id;
-    dump("updateContextMenu: clickedNodeId: " + clickedNodeId + "\n");
+    //dump("updateContextMenu: clickedNodeId: " + clickedNodeId + "\n");
     var row = {};
     var manager = this.manager;
     manager.tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
@@ -78,15 +78,36 @@ this.updateContextMenu = function(event, menupopup) {
         dump("Awp -- updateContextMenu -- no tooltype\n");
         return;
     }
+    this.multipleNodesSelected = manager.view.selection.count > 1;
     this.processMenu(menupopup, toolType);
 };
 
 this.processMenu = function(menuNode, toolType) {
+    //todo: testHideIf
     var hideUnless = menuNode.getAttribute('hideUnless');
+    var multipleNodesSelected = this.multipleNodesSelected;
     if (hideUnless && hideUnless.indexOf(toolType) == -1) {
         menuNode.setAttribute('collapsed', true);
         return; // No need to do anything else
     }
+    var testHideIf = menuNode.getAttribute('testHideIf');
+    if (testHideIf) {
+        testHideIf = testHideIf.split(/\s+/);
+        var leave = false;
+        testHideIf.map(function(s) {
+                if (s == 't:multipleSelection' && multipleNodesSelected) {
+                    menuNode.setAttribute('collapsed', true);
+                    leave = true;
+                } else if (s == 't:singleSelection' && !multipleNodesSelected) {
+                    menuNode.setAttribute('collapsed', true);
+                    leave = true;
+                }
+            });
+        if (leave) {
+            return;
+        }
+    }
+    
     menuNode.removeAttribute('collapsed');
     var disableNode = false;
     var disableIf = menuNode.getAttribute('disableIf');
@@ -103,6 +124,19 @@ this.processMenu = function(menuNode, toolType) {
             if (disableUnless && disableUnless.indexOf(toolType) == -1) {
                 disableNode = true;
             }
+            if (!disableNode) {
+                var testDisableIf = menuNode.getAttribute('testDisableIf');
+                if (testDisableIf) {
+                    testDisableIf = testDisableIf.split(/\s+/);
+                    testDisableIf.map(function(s) {
+                            if (s == 't:multipleSelection' && multipleNodesSelected) {
+                                disableNode = true;
+                            } else if (s == 't:singleSelection' && !multipleNodesSelected) {
+                                disableNode = true;
+                            }
+                        });
+                }
+            }
         }
     }
     if (disableNode) {
@@ -114,6 +148,21 @@ this.processMenu = function(menuNode, toolType) {
     for (var i = childNodes.length - 1; i >= 0; --i) {
         this.processMenu(childNodes[i], toolType);
     }
+};
+
+this.getSelectedIndices = function() {
+    var treeSelection = this.manager.view.selection;
+    var selectedIndices = [];
+    var numRanges = treeSelection.getRangeCount();
+    var min = {}, max = {};
+    for (var i = 0; i < numRanges; i++) {
+        treeSelection.getRangeAt(i, min, max);
+        var mx = max.value;
+        for (var j = min.value; j <= mx; j++) {
+            selectedIndices.push(j);
+        }
+    }
+    return selectedIndices;
 };
 
 this.getSelectedItem = function() {

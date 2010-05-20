@@ -423,7 +423,8 @@
 
     <menupopup id="toolbox2Context" onpopupshowing="ko.toolbox2.updateContextMenu(event, this);">
         <menu id="tb2ContextMenu_addMenu" label="&add.label;"
-              hideUnless="folder menu toolbar" >
+              hideUnless="folder menu toolbar" 
+              testHideIf="t:multipleSelection" >
             <menupopup id="tb2ContextMenu_addPopupMenu">
                 <menuitem id="tb2_addContext_newMacro"
                           label="&newMacro.label;"
@@ -496,52 +497,55 @@
                           disableIfInMenu="folder toolbar menu"
                           />
             </menupopup>
-            <!--
-            
-            onpopupshowing="dump('**** hey its toolbox2Context add!\n');"
-            -->
         </menu>
         <menuitem id="toolbox2ContextMenu_executeMacro"
                   label="&executeMacro.label;"
                   class="menuitem-iconic primary_menu_item"
                   oncommand="ko.toolbox2.invoke_executeMacro(event)"
                   hideUnless="macro"
+                  testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_editMacro"
                   label="&editMacro.label;"
                   class="menuitem-iconic"
                   oncommand="ko.toolbox2.invoke_editMacro(event)"
                   hideUnless="macro"
+                  testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_insertSnippet"
                   label="&insertSnippet.label;"
                   class="menuitem-iconic primary_menu_item"
                   oncommand="ko.toolbox2.invoke_insertSnippet(event)"
                   hideUnless="snippet"
+                  testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_runCommand"
                   label="&run.label;"
                   class="menuitem-iconic primary_menu_item"
                   oncommand="ko.toolbox2.invoke_runCommand(event)"
                   hideUnless="command"
+                  testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_openDirectory"
                   label="&open.label;"
                   class="menuitem-iconic primary_menu_item"
                   oncommand="ko.toolbox2.invoke_openDirectoryShortcut(event)"
                   hideUnless="DirectoryShortcut"
+                  testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_openURLInBrowser"
                   label="&openURLInBrowser.label;"
                   class="menuitem-iconic primary_menu_item"
                   oncommand="ko.toolbox2.invoke_openURLInBrowser(event)"
                   hideUnless="URL"
+                  testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_openURLInTab"
                   label="&openURLInTab.label;"
                   class="menuitem-iconic"
                   oncommand="ko.toolbox2.invoke_openURLInTab(event)"
                   hideUnless="URL"
+                  testDisableIf="t:multipleSelection"
                   />
         <menuseparator anonid="primaryseparator"
                        />
@@ -561,6 +565,7 @@
                   label="&paste.label;"
                   disableUnless="folder menu toolbar"
                   oncommand="ko.toolbox2.pasteIntoItem(event)"
+                  testDisableIf="t:multipleSelection"
                   />
         <menuseparator anonid="secondaryseparator"
                        />
@@ -575,6 +580,7 @@
                   label="&showInFileManager.label;"
 <!-- #endif -->
                   oncommand="ko.toolbox2.showInFileManager(event)"
+                  testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_exportAsZipFile"
                   keep_background="true"
@@ -603,6 +609,7 @@
                   label="&properties.label;"
                   oncommand="ko.toolbox2.editPropertiesItem(event)"
                   disableIf="folder template"
+                  testDisableIf="t:multipleSelection"
                   />
     </menupopup>
 
@@ -2566,6 +2573,7 @@
                                           <tree flex="1" id="toolbox2-hierarchy-tree"
 					        onkeypress="ko.toolbox2.onTreeKeyPress(event);"
                                                 ondblclick="ko.toolbox2.onDblClick(event);"
+                                                seltype="multiple"
                                                 context="toolbox2Context">
                                              <treecols>
                                                  <treecol primary="true"
