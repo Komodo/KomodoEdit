@@ -173,8 +173,17 @@ this.invoke_openTemplate = function(event, tool) {
 };
 
 this.add_template = function(view, index, parent, item) {
-    throw new Error("implement me");
-    ko.projects.addSnippet(parent, item);
+    // ref code peTemplate.js::addTemplate
+    var obj = { type:'file',
+                templateOnly:true
+    };
+    ko.launch.newTemplate(obj);
+    if (obj.template == null) return;
+    // Avoid multiple calls to uriparse.*
+    var templateName = ko.uriparse.baseName(obj.template);
+    item.setStringAttribute('name', templateName);
+    item.value = ko.uriparse.localPathToURI(obj.template);
+    this.addNewItemToParent(item, parent);
 };
 
 // Templates can't be edited -- Komodo 5 uses the 
