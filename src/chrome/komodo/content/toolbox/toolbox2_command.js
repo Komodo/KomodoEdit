@@ -217,6 +217,10 @@ this.editProperties_URL = function(event, tool) {
     ko.projects.URLProperties(tool);
 };
 
+this.add_URL = function(view, index, parent, item) {
+    ko.projects.addURL(parent, item);
+};
+
 // Generic functions on the hierarchy view tree
 
 this._propertyEditorNameForToolType = {

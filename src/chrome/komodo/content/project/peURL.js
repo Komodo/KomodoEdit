@@ -169,9 +169,12 @@ this.addURLFromText = function peURL_addURL(URLtext, /*koIPart*/ parent) {
     }
 }
 
-this.addURL = function peURL_newURL(/*koIPart*/ parent)
+this.addURL = function peURL_newURL(/*koIPart|koITool*/ parent,
+                                    /*koIPart|koITool = null */ part )
 {
-    var part = parent.project.createPartFromType('URL');
+    if (typeof(part) == "undefined") {
+        part = parent.project.createPartFromType('snippet');
+    }
     part.setStringAttribute('name', 'New URL');
     part.value = '';
     var obj = new Object();

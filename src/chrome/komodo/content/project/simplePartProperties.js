@@ -124,10 +124,14 @@ function OK()  {
     }
     if (window.arguments[0].task == 'new') {
         var parent = window.arguments[0].parent;
-        var index = -1;
-        if (typeof(parent)=='undefined' || !parent)
-            parent = opener.ko.projects.active.getSelectedItem();
-        opener.ko.projects.addItem(gItem,parent);
+        if ('save' in gItem) {
+            //!!!! v6 difference
+            opener.ko.toolbox2.addNewItemToParent(gItem, parent);
+        } else {
+            if (typeof(parent)=='undefined' || !parent)
+                parent = opener.ko.projects.active.getSelectedItem();
+            opener.ko.projects.addItem(gItem,parent);
+        }
     }
     window.close();
 };
@@ -164,7 +168,9 @@ function _Apply()  {
     opener.ko.projects.invalidateItem(gItem);
     if ('save' in gItem) {
         //!!!! v6 difference
-        gItem.save();
+        if (window.arguments[0].task != "new") {
+            gItem.save();
+        }
     } else {
         // This line is most likely wrong.
         gItem.setStringAttribute('name', partname.value);
