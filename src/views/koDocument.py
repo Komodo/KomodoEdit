@@ -748,23 +748,13 @@ class koDocumentBase:
     
     #---- Encoding
     
-    def _getStringPref(self, name, default=None):
-        if self.prefs.hasPref(name):
-            return self.prefs.getStringPref(name)
-        return default
-
-    def _getBooleanPref(self, name, default=0):
-        if self.prefs.hasPref(name):
-            return self.prefs.getBooleanPref(name)
-        return default
-
-    def _getEncodingFromName(self, name):
+    def _getEncodingPrefFromBaseName(self, baseName):
         try:
             registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
                                 getService(components.interfaces.koILanguageRegistryService)
             prefs = self._globalPrefs
             languagesPrefs = prefs.getPref('languages')
-            language = registryService.suggestLanguageForFile(name)
+            language = registryService.suggestLanguageForFile(baseName)
             if not language:
                 language = 'Text'
             encoding = 'Default Encoding'
@@ -793,7 +783,7 @@ class koDocumentBase:
                        .python_encoding_name
         tryencoding = self._getStringPref('encoding')
         if tryencoding is None or tryencoding == encoding_name:
-            tryencoding = self._getEncodingFromName(self.get_baseName())
+            tryencoding = self._getEncodingPrefFromBaseName(self.get_baseName())
         tryxmldecl = self._getBooleanPref('encodingXMLDec')
         trymeta = self._getBooleanPref('encodingHTML')
         trymodeline = self._getBooleanPref('encodingModeline')
@@ -1051,12 +1041,12 @@ class koDocumentBase:
                 log.warn("No encoding name is available, defaulting to %s",
                     self.encoding.python_encoding_name)
                 encoding_name = self.encoding.python_encoding_name
-            decodedText = self.get_buffer().encode(encoding_name, 'replace')
+            encodedText = self.get_buffer().encode(encoding_name, 'replace')
             if self.encoding.use_byte_order_marker:
                 encoding_info = self.encodingServices.get_encoding_info(encoding_name)\
                            .python_encoding_name
                 self.encoding.use_byte_order_marker = encoding_info.byte_order_marker != ''
-            self._set_buffer_encoded(unicode(decodedText, encoding_name))
+            self._set_buffer_encoded(unicode(encodedText, encoding_name))
         except Exception, e:
             log.exception(e)
             raise
@@ -1730,3 +1720,16 @@ class koDocumentBase:
             return ["Python3"]
         else:
             return ["Python"]
+
+
+    #---- internal general support methods
+    
+    def _getStringPref(self, name, default=None):
+        if self.prefs.hasPref(name):
+            return self.prefs.getStringPref(name)
+        return default
+
+    def _getBooleanPref(self, name, default=0):
+        if self.prefs.hasPref(name):
+            return self.prefs.getBooleanPref(name)
+        return default
