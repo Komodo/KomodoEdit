@@ -137,7 +137,7 @@ class _KoTool(object):
         data = json.dump(data, fp, encoding="utf-8", indent=2)
         fp.close()
 
-    def saveNewToolToDisk(self, item, path):
+    def saveNewToolToDisk(self, path):
         data = {}
         data['value'] = self.value.split(eol)
         data['name'] = self.name
@@ -240,10 +240,25 @@ class _KoContainer(_KoTool):
         self.childNodes = treeView.toolbox_db.getChildNodes(self.id)
         self.initialized = True
 
+    def saveNewToolToDisk(self, path):
+        raise Exception("Not implemented yet")
+
+    def updateSelf(self, toolbox_db):
+        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        res = tbdbSvc.getValuesFromTableByKey('common_details', ['name'], 'path_id', self.id)
+        if res:
+            self.name = res[0]
+        else:
+            self.name = "<Unknown item>"
+
 class _KoFolder(_KoContainer):
     typeName = 'folder'
     prettytype = 'Folder'
     _iconurl = 'chrome://komodo/skin/images/folder-closed-pink.png'
+
+    def saveNewToolToDisk(self, path):
+        os.mkdir(path)
 
 class _KoMenu(_KoContainer):
     typeName = 'menu'
@@ -456,15 +471,32 @@ class KoToolbox2HTreeView(TreeView):
         parent_path = tbdbSvc.getPath(parent.id)
         item = UnwrapObject(item)
         item_name = item.name
-        path = self._prepareUniqueFileSystemName(parent_path, item_name, addExt=True)
+        itemIsContainer = item.isContainer
+        if itemIsContainer:
+            # Don't do anything to this name.  If there's a dup, or
+            # it contains bad characters, give the user the actual
+            # error message.  Which is why we need to try creating
+            # the folder first, before adding its entry.
+            path = os.path.join(parent_path, item_name)
+            item.saveNewToolToDisk(path)
+        else:
+            path = self._prepareUniqueFileSystemName(parent_path, item_name, addExt=True)
         try:
             itemDetailsDict = {}
             item.fillDetails(itemDetailsDict)
-            new_id = self.toolbox_db.addTool(itemDetailsDict,
-                                             item.typeName,
-                                             path,
-                                             item_name,
-                                             parent.id)
+            if itemIsContainer:
+                new_id = self.toolbox_db.addContainerItem(itemDetailsDict,
+                                                          item.typeName,
+                                                          path,
+                                                          item_name,
+                                                          parent.id)
+            else:
+                new_id = self.toolbox_db.addTool(itemDetailsDict,
+                                                 item.typeName,
+                                                 path,
+                                                 item_name,
+                                                 parent.id)
+                
             old_id = item.id
             item.id = new_id
             try:
@@ -472,23 +504,26 @@ class KoToolbox2HTreeView(TreeView):
             except KeyError:
                 log.error("No self._tools[%r]", old_id)
             self._tools[new_id] = item
-            item.saveNewToolToDisk(item, path)
+            if not itemIsContainer:
+                item.saveNewToolToDisk(path)
         except:
             log.exception("addNewItemToParent: failed")
         else:
+            # Add and show the new item
             index = self.getIndexByTool(parent)
             UnwrapObject(parent).childNodes.append((new_id, item_name, item.typeName))
             isOpen = self.isContainerOpen(index)
-            if isOpen:
+            if isOpen or True:  #TODO: Make this a pref?
                 firstVisibleRow = self._tree.getFirstVisibleRow()
                 self._tree.scrollToRow(firstVisibleRow)
                 # Easy hack to resort the items
                 self.toggleOpenState(index)
                 self.toggleOpenState(index)
                 self._tree.scrollToRow(firstVisibleRow)
-                newIndex = self._rows.index(item, index + 1)
-                if newIndex > -1:
-                    index = newIndex
+                try:
+                    index = self._rows.index(item, index + 1)
+                except ValueError:
+                    pass
             self.selection.currentIndex = index
             self.selection.select(index)
             self._tree.ensureRowIsVisible(index)
@@ -671,6 +706,8 @@ class KoToolbox2HTreeView(TreeView):
         else:
             childNodes = sorted(rowNode.childNodes, cmp=self._compareChildNode)
             if childNodes:
+                selectedRowIndex = self.selection.currentIndex
+                firstVisibleRow = self._tree.getFirstVisibleRow()
                 posn = index + 1
                 for path_id, name, node_type in childNodes:
                     toolPart = self._getOrCreateTool(node_type, name, path_id)
@@ -679,8 +716,9 @@ class KoToolbox2HTreeView(TreeView):
                     posn += 1
                 #qlog.debug("rowCountChanged: index: %d, numRowChanged: %d", index, numRowChanged)
                 self._tree.rowCountChanged(index, len(childNodes))
-                # self._tree.scrollToRow(firstVisibleRow)
                 rowNode.isOpen = True
+                self.selection.select(selectedRowIndex)
+                self._tree.ensureRowIsVisible(selectedRowIndex)
                 
             
     def _compareChildNode(self, item1, item2):

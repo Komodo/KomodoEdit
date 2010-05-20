@@ -474,7 +474,7 @@
                           accesskey="&folderContextNewFolder.accesskey;"
                           class="menuitem-iconic"
                           image="chrome://komodo/skin/images/new_folder.png"
-                          oncommand="ko.toolbox2.addToolboxItem('newfolder')"
+                          oncommand="ko.toolbox2.addToolboxItem('folder')"
                           disableIfInMenu="folder toolbar menu"
                           />
                 <!-- #if PLATFORM != "darwin" -->

@@ -313,6 +313,11 @@ class Database(object):
                 self._addCompoundItem(path, name, data, parent_path_id, cu)
                 return
             id = self._addCommonDetails(path, name, 'folder', parent_path_id, cu)
+
+    def addContainerItem(self, data, item_type, path, fname, parent_path_id):
+        with self.connect(commit=True) as cu:
+            id = self._addCommonDetails(path, fname, 'folder', parent_path_id, cu)
+        return id
                 
     def _addCompoundItem(self, path, name, data, parent_path_id, cu):
         if name != data['name']:
@@ -497,7 +502,7 @@ class Database(object):
         for i, name in enumerate(names):
             obj[name] = row[i]
         return obj
-
+    
     def getCommonToolDetails(self, path_id, obj, cu=None):
         with self.connect(cu=cu) as cu:
             cu.execute("""select name from common_details

@@ -221,6 +221,17 @@ this.add_URL = function(view, index, parent, item) {
     ko.projects.addURL(parent, item);
 };
 
+// folders
+this.add_folder = function(view, index, parent, item) {
+    var basename = ko.dialogs.prompt(peFolder_bundle.GetStringFromName("enterFolderName"));
+    if (!basename) return;
+    item.setStringAttribute('name', basename);
+    this.addNewItemToParent(item, parent);
+};
+
+// Templates can't be edited -- Komodo 5 uses the 
+// file properties dialog to edit a template, which is just wrong.
+
 // Generic functions on the hierarchy view tree
 
 this._propertyEditorNameForToolType = {
@@ -250,6 +261,7 @@ this.editPropertiesItem = function(event) {
 };
 
 this.addToolboxItem = function(itemType) {
+    try {
     var this_ = ko.toolbox2;
     var method = this_["add_" + itemType];
     if (!method) {
@@ -262,6 +274,12 @@ this.addToolboxItem = function(itemType) {
     var parent = view.getTool(index);
     var item = view.createToolFromType(itemType);
     method.call(this_, view, index, parent, item);
+    } catch(ex) {
+        ko.dialogs.alert("Trying to add a new "
+                         + itemType
+                         + ": "
+                         + ex);
+    }
 };
 
 this.deleteItem = function(event) {
