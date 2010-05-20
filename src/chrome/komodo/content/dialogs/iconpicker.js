@@ -60,6 +60,10 @@ function OnLoad()
         okButton.setAttribute("accesskey", "o");
         var customButton = dialog.getButton("extra1");
         customButton.setAttribute("label", "Choose Other...");
+        var menulist = document.getElementById("icon-families");
+        var lastSelectedIndex = parseInt(menulist.getAttribute("lastSelectedIndex"));
+        menulist.selectedIndex = lastSelectedIndex;
+        selectIconFamily();
     } catch (e) {
         log.exception(e);
     }
@@ -135,6 +139,8 @@ function OK()
 {
     obj.value = gCurrentURI;
     obj.retval = "OK";
+    var menulist = document.getElementById("icon-families");
+    menulist.setAttribute("lastSelectedIndex", menulist.selectedIndex);
     return true;
 }
 
