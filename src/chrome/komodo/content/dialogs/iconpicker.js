@@ -121,8 +121,10 @@ function FillInHTMLTooltip(tipElement) {
                 if (!titleText) {
                     // Try the basename of the src attribute then.
                     titleText = tipElement.getAttribute("src");
-                    titleText = titleText.split("/");
-                    titleText = titleText[titleText.length - 1];
+                    if (titleText) {
+                        titleText = titleText.split("/");
+                        titleText = titleText[titleText.length - 1];
+                    }
                 }
             }
             XLinkTitleText = tipElement.getAttributeNS(XLinkNS, "title");
