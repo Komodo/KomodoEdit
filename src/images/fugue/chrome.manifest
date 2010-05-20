@@ -1,0 +1,5 @@
+content fugue jar:fugue.jar!/content/ xpcnativewrappers=yes
+skin fugue classic/1.0 jar:fugue.jar!/skin/
+locale fugue en-US jar:fugue.jar!/locale/en-US/
+
+overlay chrome://komodo/content/dialogs/iconpicker.xul chrome://fugue/content/overlay-iconpicker.xul

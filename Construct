@@ -380,6 +380,7 @@ Build(
     "$build/history/Conscript",
     "$build/images/Conscript",
     "$build/images/crystal/Conscript",
+    "$build/images/fugue/Conscript",
     "$build/install/Conscript",
     "$build/languages/Conscript",
     "$build/lint/Conscript",
