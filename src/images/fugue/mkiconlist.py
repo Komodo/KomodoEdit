@@ -27,21 +27,19 @@ function PickIcon(imgElement) {
 """
 
 footer = """
+
 <p>
 These icons are from the Fugue Icon set:<br>
 <a style="color: blue;" href="http://p.yusukekamiyamane.com/">http://p.yusukekamiyamane.com/</a>.
 </p>
 
 </body>
-</html>"""
+</html>
+"""
 
 imgtemplate = """
-<img 
-     ondblclick="ValidatedPickIcon(this);"
-     onclick="PickIcon(this);"
-     src="chrome://fugue/skin/icons/%(fname)s"
-     title="%(fname)s"/>
-"""
+<img ondblclick="ValidatedPickIcon(this);" onclick="PickIcon(this);"
+     src="chrome://fugue/skin/icons/%(fname)s"/>"""
 
 import sys, os
 print sys.argv
