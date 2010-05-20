@@ -69,6 +69,8 @@
         &iconpicker.description;
     </description>
     <menulist id="icon-families"
+              lastSelectedIndex="0"
+              persist="lastSelectedIndex"
               oncommand="selectIconFamily(event);">
       <menupopup id="icon-families-menupopup">
         <menuitem label="&openOfficeIcons.label;" src="chrome://openoffice/content/industrial.html"/>
@@ -77,7 +79,6 @@
     </menulist>
     <separator class="thin"/>
     <iframe id="iframe"
-            src="chrome://komodo/content/dialogs/iconlist.html" 
             flex="1"
             style="border: thin inset;"
             tooltip="aHTMLTooltip"/>
