@@ -36,6 +36,7 @@
 
 import os
 from os.path import islink, realpath, join
+import shutil
 
 # Modified recipe: paths_from_path_patterns (0.5)
 def should_include_path(path, includes=None, excludes=None, isRemotePath=False):
@@ -118,3 +119,17 @@ def walk_avoiding_cycles(top, topdown=True, onerror=None, followlinks=False,
                             "topdown is True")
         return _walk_avoiding_cycles(top, topdown, onerror, followlinks,
                                      includes, excludes)
+
+#---- Local tree copying: shutil.copytree works when only target doesn't exist,
+#     so copy parts manually, and use shutil.copytree for new sub-parts.
+def copyLocalFolder(srcPath, targetDirPath):
+    targetFinalPath = os.path.join(targetDirPath, os.path.basename(srcPath))
+    if not os.path.exists(targetFinalPath):
+        shutil.copytree(srcPath, targetFinalPath, symlinks=True)
+    else:
+        for d in os.listdir(srcPath):
+            candidate = os.path.join(srcPath, d)
+            if os.path.isdir(candidate):
+                copyLocalFolder(candidate, targetFinalPath)
+            else:
+                shutil.copy(candidate, os.path.join(targetFinalPath, d))

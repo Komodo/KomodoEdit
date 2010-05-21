@@ -43,6 +43,7 @@ import traceback
 import os
 import sys
 import re
+import fileutils
 import logging
 import json
 import shutil
@@ -284,8 +285,6 @@ class KoPlaceTreeView(TreeView):
 
         self._RCService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
                   getService(components.interfaces.koIRemoteConnectionService)
-        self._osPathSvc = components.classes["@activestate.com/koOsPath;1"].\
-                  getService(components.interfaces.koIOsPath)
         self._nextRequestID = 0
         
     def initialize(self):
@@ -559,7 +558,7 @@ class KoPlaceTreeView(TreeView):
                 self.refreshFullTreeView()
 
     def _fileStillExists(self, koFileEx):
-        return self._osPathSvc.exists(koFileEx.path)
+        return os.path.exists(koFileEx.path)
 
     def _moveToExistingPlace(self):
         if not self._isLocal:
@@ -578,7 +577,7 @@ class KoPlaceTreeView(TreeView):
                 self.closePlace()
                 break
             koFileEx.path = dirName
-            if self._osPathSvc.exists(koFileEx.path):
+            if os.path.exists(koFileEx.path):
                 self._observerSvc.notifyObservers(None, 'visit_directory_proposed', koFileEx.path)
                 break
 
@@ -1354,7 +1353,7 @@ class KoPlaceTreeView(TreeView):
         else:
             self._insertNewItemAtParent(parentIndex)
 
-    def _insertNewItemAtParent(self, targetIndex, targetNode, koFileEx, basename):
+    def _insertNewItemAtParent(self, targetIndex):
         if not self.isContainer(targetIndex):
             return
         elif not self.isContainerOpen(targetIndex):
@@ -2133,7 +2132,7 @@ class _WorkerThread(threading.Thread, Queue):
                     requester.lock.release()
                 clearDragDropUndoCommand = False
             elif requester.isContainer(srcIndex):
-                self._copyLocalFolder(srcPath, targetDirPath)
+                fileutils.copyLocalFolder(srcPath, targetDirPath)
             else:
                 shutil.copy(srcPath, targetFile)
                 # Nothing to undo
@@ -2188,21 +2187,6 @@ class _WorkerThread(threading.Thread, Queue):
         self.refreshTreeOnOpen_Aux(requester, targetURI, forceRefresh=True)
         requester._sortModel(targetURI)
         return ""
-
-    #---- Local tree copying: shutil.copytree works when only target doesn't exist,
-    #     so copy parts manually, and use shutil.copytree for new sub-parts.
-    
-    def _copyLocalFolder(self, srcPath, targetDirPath):
-        targetFinalPath = os.path.join(targetDirPath, os.path.basename(srcPath))
-        if not os.path.exists(targetFinalPath):
-            shutil.copytree(srcPath, targetFinalPath, symlinks=True)
-        else:
-            for d in os.listdir(srcPath):
-                candidate = os.path.join(srcPath, d)
-                if os.path.isdir(candidate):
-                    self._copyLocalFolder(candidate, targetFinalPath)
-                else:
-                    shutil.copy(candidate, os.path.join(targetFinalPath, d))
 
     #---- Remote file copying
 

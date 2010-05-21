@@ -253,7 +253,7 @@ this.editPropertiesItem = function(event) {
     if (method) {
         method.call(that, event);
     } else {
-        alert("Don't know how to edit properties for "
+        alert("toolbox2_command.js::editPropertiesItem: Interal error: Don't know how to edit properties for "
               + tool.toolType
               + " "
               + tool.name);
@@ -275,16 +275,120 @@ this.addToolboxItem = function(itemType) {
     var item = view.createToolFromType(itemType);
     method.call(this_, view, index, parent, item);
     } catch(ex) {
-        ko.dialogs.alert("Trying to add a new "
+        ko.dialogs.alert("toolbox2_command.js: Error: Trying to add a new "
                          + itemType
                          + ": "
                          + ex);
     }
 };
 
+var default_saveToolDirectory = null;
+
+this.saveToolsAs = function(event) {
+    try {
+        var numFiles, numFolders;
+        [numFiles, numFolders] = this.saveToolsAs_aux(event);
+        // Who cares about (s) -- it's only a statusbar msg
+        var msg = peFolder_bundle.formatStringFromName("copied_X_Files_Y_Folders",
+                                 [numFiles,
+                                  numFolders], 2);
+        ko.statusBar.AddMessage(msg, "editor", 5000, true);
+    } catch(ex) {
+        alert(ex);
+    }
+};
+this.saveToolsAs_aux = function(event) {
+    var this_ = ko.toolbox2;
+    var selectedIndices = this_.getSelectedIndices(/*rootsOnly=*/true);
+    if (selectedIndices.length == 0) return; // shouldn't happen
+    var toolTreeView = this_.manager.view;
+    var askForFile = (selectedIndices.length == 1
+                      && !toolTreeView.isContainer(selectedIndices[0]));
+    var targetPath;
+    var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
+                getService(Components.interfaces.koIOsPath);
+    var shutil = Components.classes["@activestate.com/koShUtil;1"].
+                getService(Components.interfaces.koIShUtil)
+    var tool, srcPath;
+    var numFiles = 0, numFolders = 0;
+    if (askForFile) {
+        var title = peFolder_bundle.GetStringFromName("locationToSaveThisItem");
+        //todo: handle filters.
+        targetPath = ko.filepicker.saveFile(default_saveToolDirectory,
+                                            srcPath);
+        if (!targetPath) return [0, 0];
+        tool = toolTreeView.getTool(selectedIndices[0]);
+        srcPath = tool.path;
+        default_saveToolDirectory = ko.uriparse.dirName(targetPath);
+        // They've already been asked if they want to overwrite
+        shutil.copy(srcPath, targetPath);
+        numFiles = 1;
+    } else {
+        var prompt = peFolder_bundle.GetStringFromName("locationToSaveTheseItems");
+        targetPath = ko.filepicker.getFolder(default_saveToolDirectory,
+                                             prompt);
+        if (!targetPath) return [0, 0];
+        default_saveToolDirectory = targetPath;
+        var overwrites = [];
+        var overwritesAreFile = {};
+        var i = 0;
+        var lim = selectedIndices.length;
+        var finalTargetPath;
+        while (i < lim) {
+            var index = selectedIndices[i];
+            var tool = toolTreeView.getTool(index);
+            srcPath = tool.path;
+            if (toolTreeView.isContainer(index)) {
+                finalTargetPath = osPathSvc.join(targetPath,
+                                            osPathSvc.basename(srcPath));
+                if (osPathSvc.exists(finalTargetPath)) {
+                    overwrites.push(srcPath);
+                    overwritesAreFile[srcPath] = false;
+                } else {
+                    toolTreeView.copyLocalFolder(srcPath, targetPath);
+                    numFolders += 1;
+                }
+                // Skip to the next sibling if it's open
+            } else {
+                finalTargetPath = osPathSvc.join(targetPath,
+                                            osPathSvc.basename(srcPath));
+                if (osPathSvc.exists(finalTargetPath)) {
+                    overwrites.push(srcPath);
+                    overwritesAreFile[srcPath] = true;
+                } else {
+                    shutil.copy(srcPath, finalTargetPath);
+                    numFiles += 1;
+                }
+            }
+            i += 1;
+        }
+        if (overwrites.length) {
+            var title = peFolder_bundle.GetStringFromName("overwriteFilesPrompt");
+            var prompt = peFolder_bundle.GetStringFromName("selectWhichFilesDirectories");
+            var selectionCondition = "zero-or-more";
+            var i = 0;      
+            var itemsToSave = ko.dialogs.selectFromList(title, prompt, overwrites, selectionCondition);
+            if (itemsToSave) {
+                itemsToSave.map(function(path) {
+                        finalTargetPath = osPathSvc.join(targetPath,
+                                                         osPathSvc.basename(path));
+                        if (overwritesAreFile[path]) {
+                            shutil.copy(path, finalTargetPath);
+                            numFiles += 1;
+                        } else {
+                            toolTreeView.copyLocalFolder(path, targetPath);
+                            numFolders += 1;
+                        }
+                });
+            }
+        }
+    }
+    return [numFiles, numFolders];
+};
+
 this.deleteItem = function(event) {
     var question;
-    var indices = ko.toolbox2.getSelectedIndices();
+    var indices = ko.toolbox2.getSelectedIndices(/*rootsOnly=*/true);
     if (indices.length > 1) {
         question = peFolder_bundle.formatStringFromName("doYouWantToRemoveThe", [indices.length], 1);
     } else {

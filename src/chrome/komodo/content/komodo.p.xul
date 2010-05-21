@@ -553,11 +553,13 @@
                   label="&cut.label;"
                   class="menuitem-iconic cut-button"
                   oncommand="ko.toolbox2.cutItem(event)"
+                  testDisableIf="t:raggedMultipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_copy"
                   label="&copy.label;"
                   class="menuitem-iconic copy-button"
                   oncommand="ko.toolbox2.copyItem(event)"
+                  testDisableIf="t:raggedMultipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_partPaste"
                   keep_background="true"
@@ -586,15 +588,15 @@
                   keep_background="true"
                   class="menuitem-iconic"
                   label="&exportAsZipFile.label;"
-                  hideUnless="folder menu toolbar"
+                  disableUnless="folder menu toolbar"
                   oncommand="ko.toolbox2.exportAsZipFile(event)"
                   />
-        <menuitem id="toolbox2ContextMenu_exportAsPackage"
+        <menuitem id="toolbox2ContextMenu_saveAs"
                   keep_background="true"
                   class="menuitem-iconic"
-                  label="&exportPackage.label;"
-                  hideUnless="folder menu toolbar"
-                  oncommand="ko.toolbox2.exportAsPackage(event)"
+                  label="&saveAs.label;"
+                  oncommand="ko.toolbox2.saveToolsAs(event)"
+                  testDisableIf="t:raggedMultipleSelection"
                   />
         <menuseparator anonid="secondaryseparator_3"
                        />

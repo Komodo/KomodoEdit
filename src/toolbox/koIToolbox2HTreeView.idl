@@ -60,5 +60,8 @@ interface koIToolbox2HTreeView: nsITreeView {
     
     void addNewItemToParent(in koITool parent, in koITool item);
     void deleteToolAt(in long index);
+
+    void copyLocalFolder(in wstring srcPath, in wstring targetDirPath);
+    long getNextSiblingIndex(in long index); // not in nsITreeView...
 };
 

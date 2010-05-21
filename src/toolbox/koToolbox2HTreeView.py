@@ -6,6 +6,7 @@ import json, sys, os, re, types, string, threading
 from koTreeView import TreeView
 
 import eollib
+import fileutils
 import koToolbox2
 
 import logging
@@ -71,6 +72,18 @@ class _KoTool(object):
 
     def get_value(self):
         return self.value
+
+    def get_path(self):
+        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        return tbdbSvc.getPath(self.id)
+
+    def set_path(self, val):
+        raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
+                              ("can't call setpath on %s %s (id %r)"
+                               % (self.get_toolType(), self.typeName, self.id)))
+                                  
+                                  
     
     def hasAttribute(self, name):
         # Keep names out of attributes
@@ -452,7 +465,7 @@ class KoToolbox2HTreeView(TreeView):
                 # And skip any selected children, if all are selected.
                 if self.isContainerOpen(index):
                     nextSiblingIndex = self.getNextSiblingIndex(index)
-                    if nextSiblingIndex <= max_index:
+                    if nextSiblingIndex <= max_index + 1:
                         index = nextSiblingIndex
                         continue  # don't increment at end of loop
                     elif (nextSiblingIndex == -1
@@ -593,6 +606,9 @@ class KoToolbox2HTreeView(TreeView):
                     break
             else:
                 log.debug("Failed to find a child node in parent %d", res[0])
+
+    def copyLocalFolder(self, srcPath, targetDirPath):
+        fileutils.copyLocalFolder(srcPath, targetDirPath)
         
     def initialize(self):
         #XXX Unhardwire this

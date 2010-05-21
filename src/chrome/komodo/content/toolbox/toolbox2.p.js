@@ -159,8 +159,10 @@ this.processMenu = function(menuNode, toolType) {
     }
 };
 
-this.getSelectedIndices = function() {
-    var treeSelection = this.manager.view.selection;
+this.getSelectedIndices = function(rootsOnly /*=false*/) {
+    if (typeof(rootsOnly) == "undefined") rootsOnly = false;
+    var view = this.manager.view;
+    var treeSelection = view.selection;
     var selectedIndices = [];
     var numRanges = treeSelection.getRangeCount();
     var min = {}, max = {};
@@ -169,6 +171,23 @@ this.getSelectedIndices = function() {
         var mx = max.value;
         for (var j = min.value; j <= mx; j++) {
             selectedIndices.push(j);
+            if (rootsOnly && view.isContainerOpen(j)) {
+                var nextSiblingIndex = view.getNextSiblingIndex(j);
+                if (nextSiblingIndex <= mx + 1) {
+                    j = nextSiblingIndex -1;
+                } else {
+                    if (nextSiblingIndex == -1
+                        && i < numRanges - 1) {
+                        throw new Error("node at row "
+                                        + j
+                                        + " supposedly at end, but we're only at range "
+                                        + (i + 1)
+                                        + " of "
+                                        + numRanges);
+                    }
+                    j = mx;
+                }
+            }
         }
     }
     return selectedIndices;
