@@ -47,6 +47,7 @@ interface koIToolbox2HTreeView: nsITreeView {
     koITool getTool(in long index);
     koITool getToolById(in long id);
     long getIndexByTool(in koITool tool);
+    boolean selectedItemsHaveSameParent();
     
     koITool createToolFromType(in wstring type);
 

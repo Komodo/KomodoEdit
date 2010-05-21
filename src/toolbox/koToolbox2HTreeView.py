@@ -426,6 +426,45 @@ class KoToolbox2HTreeView(TreeView):
         except ValueError, e:
             return -1
 
+    def selectedItemsHaveSameParent(self):
+        # Ignore all child nodes in the selection
+        treeSelection = self.selection
+        selectedIndices = []
+        parent_index = -2
+        rangeCount = treeSelection.getRangeCount()
+        for i in range(rangeCount):
+            min_index, max_index = treeSelection.getRangeAt(i)
+            index = min_index
+            while index < max_index + 1:
+                tool = self.getTool(index)
+                res = self.toolbox_db.getValuesFromTableByKey('hierarchy',
+                                                      ['parent_path_id'],
+                                                      'path_id', tool.id)
+                if not res:
+                    if parent_index != -2:
+                        return False
+                else:
+                    candidate_index = res[0]
+                    if parent_index == -2:
+                        parent_index = candidate_index
+                    elif parent_index != candidate_index:
+                        return False
+                # And skip any selected children, if all are selected.
+                if self.isContainerOpen(index):
+                    nextSiblingIndex = self.getNextSiblingIndex(index)
+                    if nextSiblingIndex <= max_index:
+                        index = nextSiblingIndex
+                        continue  # don't increment at end of loop
+                    elif (nextSiblingIndex == -1
+                          and max_index == len(self._rows) - 1
+                          and i == rangeCount - 1):
+                        return True
+                    else:
+                        return False
+                
+                index += 1 # end while index < max_index + 1:
+        return True            
+
     def createToolFromType(self, tool_type):
         temp_id = -1
         tool = createPartFromType(tool_type, None, temp_id)

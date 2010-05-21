@@ -79,6 +79,11 @@ this.updateContextMenu = function(event, menupopup) {
         return;
     }
     this.multipleNodesSelected = manager.view.selection.count > 1;
+    if (!this.multipleNodesSelected) {
+        this.raggedMultipleSelection = false;
+    } else {
+        this.raggedMultipleSelection = !manager.view.selectedItemsHaveSameParent();
+    }
     this.processMenu(menupopup, toolType);
 };
 
@@ -86,6 +91,7 @@ this.processMenu = function(menuNode, toolType) {
     //todo: testHideIf
     var hideUnless = menuNode.getAttribute('hideUnless');
     var multipleNodesSelected = this.multipleNodesSelected;
+    var raggedMultipleSelection = this.raggedMultipleSelection;
     if (hideUnless && hideUnless.indexOf(toolType) == -1) {
         menuNode.setAttribute('collapsed', true);
         return; // No need to do anything else
@@ -132,6 +138,9 @@ this.processMenu = function(menuNode, toolType) {
                             if (s == 't:multipleSelection' && multipleNodesSelected) {
                                 disableNode = true;
                             } else if (s == 't:singleSelection' && !multipleNodesSelected) {
+                                disableNode = true;
+                            } else if (s == 't:raggedMultipleSelection' && raggedMultipleSelection) {
+                                // disable unless all nodes have the same parent
                                 disableNode = true;
                             }
                         });
