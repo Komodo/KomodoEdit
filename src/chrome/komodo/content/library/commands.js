@@ -232,7 +232,7 @@ this.doCommand = function command_doCommand(command) {
                     ko.macros.recorder.appendCommand(command);
                 }
             }
-            var numRepeats = 1
+            var numRepeats = 1;
             // if commands.js is included (e.g. in a dialog) but not isearch.js,
             // then ko.isearch.controller is undefined -- we obviously can't be in
             // a 'repeated command' situation
@@ -248,7 +248,7 @@ this.doCommand = function command_doCommand(command) {
                     // (as presumably the state has now toggled)
                     // XXX - Can have params here
                     controller.doCommand(command);
-                    ko.commands.updateCommand(command, commandNode, controller)
+                    ko.commands.updateCommand(command, commandNode, controller);
                 } else {
                     // XXX - Can have params here
                     controller.doCommand(command);
