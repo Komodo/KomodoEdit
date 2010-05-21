@@ -300,7 +300,7 @@ this.saveToolsAs = function(event) {
 this.saveToolsAs_aux = function(event) {
     var this_ = ko.toolbox2;
     var selectedIndices = this_.getSelectedIndices(/*rootsOnly=*/true);
-    if (selectedIndices.length == 0) return; // shouldn't happen
+    if (selectedIndices.length == 0) return [0, 0]; // shouldn't happen
     var toolTreeView = this_.manager.view;
     var askForFile = (selectedIndices.length == 1
                       && !toolTreeView.isContainer(selectedIndices[0]));
