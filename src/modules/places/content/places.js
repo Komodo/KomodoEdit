@@ -99,9 +99,6 @@ viewMgrClass.prototype = {
         if (!this.view) {
             throw("couldn't create a koPlaceTreeView");
         }
-        if (!this.view) {
-            throw("couldn't create a koPlaceTreeView");
-        }
         this.tree.treeBoxObject
                         .QueryInterface(Components.interfaces.nsITreeBoxObject)
                         .view = this.view;
@@ -1825,7 +1822,7 @@ this.updateFilterViewMenu = function() {
     var childNodes = menupopup.childNodes;
     for (var idx = menupopup.childElementCount - 1; idx >= 0; --idx) {
         var node = childNodes[idx];
-        if (!node.getAttribute('keep')) {
+        if (node.id.indexOf("places_custom_filter_") == 0) {
             menupopup.removeChild(node);
         }
     }
