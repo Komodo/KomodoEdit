@@ -659,6 +659,51 @@
             oncommand="ko.commands.doCommand('cmd_paste')"
             desc="&editorPaste.desc;"/>
 
+        <command
+            id="cmd_buffer1" key="key_cmd_buffer1"
+            oncommand="ko.commands.doCommandAsync('cmd_buffer1', event)"
+            disabled="true"
+            desc="&generalSwitchToTab1.desc;"/>
+        <command
+            id="cmd_buffer2" key="key_cmd_buffer2"
+            oncommand="ko.commands.doCommandAsync('cmd_buffer2', event)"
+            disabled="true"
+            desc="&generalSwitchToTab2.desc;"/>
+        <command
+            id="cmd_buffer3" key="key_cmd_buffer3"
+            oncommand="ko.commands.doCommandAsync('cmd_buffer3', event)"
+            disabled="true"
+            desc="&generalSwitchToTab3.desc;"/>
+        <command
+            id="cmd_buffer4" key="key_cmd_buffer4"
+            oncommand="ko.commands.doCommandAsync('cmd_buffer4', event)"
+            disabled="true"
+            desc="&generalSwitchToTab4.desc;"/>
+        <command
+            id="cmd_buffer5" key="key_cmd_buffer5"
+            oncommand="ko.commands.doCommandAsync('cmd_buffer5', event)"
+            disabled="true"
+            desc="&generalSwitchToTab5.desc;"/>
+        <command
+            id="cmd_buffer6" key="key_cmd_buffer6"
+            oncommand="ko.commands.doCommandAsync('cmd_buffer6', event)"
+            disabled="true"
+            desc="&generalSwitchToTab6.desc;"/>
+        <command
+            id="cmd_buffer7" key="key_cmd_buffer7"
+            oncommand="ko.commands.doCommandAsync('cmd_buffer7', event)"
+            disabled="true"
+            desc="&generalSwitchToTab7.desc;"/>
+        <command
+            id="cmd_buffer8" key="key_cmd_buffer8"
+            oncommand="ko.commands.doCommandAsync('cmd_buffer8', event)"
+            disabled="true"
+            desc="&generalSwitchToTab8.desc;"/>
+        <command
+            id="cmd_buffer9" key="key_cmd_buffer9"
+            oncommand="ko.commands.doCommandAsync('cmd_buffer9', event)"
+            disabled="true"
+            desc="&generalSwitchToTab9.desc;"/>
     </broadcasterset>
 
 <!--

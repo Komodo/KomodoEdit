@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 20
+version 21
 
 # Movement and selection
 binding cmd_left  Left

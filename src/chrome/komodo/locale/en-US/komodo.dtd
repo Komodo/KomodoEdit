@@ -291,6 +291,15 @@
 <!ENTITY generalSaveAsTemplate.desc "General: Save As Template">
 <!ENTITY generalSaveProject.desc "General: Save Project">
 <!ENTITY generalSaveProjectAs.desc "General: Save Project As...">
+<!ENTITY generalSwitchToTab1.desc "General: Switch to Tab 1">
+<!ENTITY generalSwitchToTab2.desc "General: Switch to Tab 2">
+<!ENTITY generalSwitchToTab3.desc "General: Switch to Tab 3">
+<!ENTITY generalSwitchToTab4.desc "General: Switch to Tab 4">
+<!ENTITY generalSwitchToTab5.desc "General: Switch to Tab 5">
+<!ENTITY generalSwitchToTab6.desc "General: Switch to Tab 6">
+<!ENTITY generalSwitchToTab7.desc "General: Switch to Tab 7">
+<!ENTITY generalSwitchToTab8.desc "General: Switch to Tab 8">
+<!ENTITY generalSwitchToTab9.desc "General: Switch to Tab 9">
 <!ENTITY goToDefinition.label "Go to Definition">
 <!ENTITY gotoLine.label "Goto Line...">
 <!ENTITY gotoLine.prompt.description "Enter a line number to go to. Prefix + or - to move relative to the current line. For example: +4 will move forward 4 lines.">

@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 20
+version 21
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
 binding cmd_blockSelect Meta+Ctrl+L
@@ -50,6 +50,15 @@ binding cmd_bufferNextMostRecent  Meta+F6
 binding cmd_bufferNextMostRecent  Ctrl+Tab
 binding cmd_bufferNextLeastRecent Ctrl+Shift+Tab
 binding cmd_bufferPrevious Meta+Page_Up
+binding cmd_buffer1 Meta+1
+binding cmd_buffer2 Meta+2
+binding cmd_buffer3 Meta+3
+binding cmd_buffer4 Meta+4
+binding cmd_buffer5 Meta+5
+binding cmd_buffer6 Meta+6
+binding cmd_buffer7 Meta+7
+binding cmd_buffer8 Meta+8
+binding cmd_buffer9 Meta+9
 binding cmd_cancel Escape 
 binding cmd_closeAll Meta+Ctrl+W
 binding cmd_closeProject Ctrl+W

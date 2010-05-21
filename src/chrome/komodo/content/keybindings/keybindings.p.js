@@ -276,6 +276,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 21: Komodo 6.0.0b1 - add Cmd+[1..9] tab nav keybindings for Mac
  * 20: Komodo 6.0.0b1 - rejig Debug Step *, restore Fast Open binding.
  * 19: Komodo 6.0.0a2 - add a binding for cmd_viewFullScreen : ctrl-k f11
  * 18: Komodo 6.0.0a2 - add SCC checkout keybinding: ctrl-k k
@@ -298,7 +299,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 20;
+const currentKeybindingVersionNumber = 21;
 
 /**
  * Remove this dictionary of keybinds.
@@ -694,6 +695,21 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
             });
             this._add_keybinding_sequences({
                 'cmd_openProject': ["Ctrl+Shift+O"]
+            });
+// #endif
+            break;
+        case 20:
+// #if PLATFORM == 'darwin'
+            this._add_keybinding_sequences({
+                'cmd_buffer1': ["Meta+1"],
+                'cmd_buffer2': ["Meta+2"],
+                'cmd_buffer3': ["Meta+3"],
+                'cmd_buffer4': ["Meta+4"],
+                'cmd_buffer5': ["Meta+5"],
+                'cmd_buffer6': ["Meta+6"],
+                'cmd_buffer7': ["Meta+7"],
+                'cmd_buffer8': ["Meta+8"],
+                'cmd_buffer9': ["Meta+9"]
             });
 // #endif
             break;

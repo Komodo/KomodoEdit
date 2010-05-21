@@ -79,6 +79,20 @@
             ]]>
             </setter>
         </property>
+
+        <method name="setCurrentViewIndex">
+        <parameter name="index"/>  <!-- 0-based view index -->
+        <body>
+        <![CDATA[
+            try {
+                this.tabbox.selectedIndex = index;
+                ko.views.manager.currentView.setFocus();
+            } catch(e) {
+                this.log.debug(e);
+            }
+        ]]>
+        </body>
+        </method>
         
         <!--void makeNextViewCurrent();-->
         <method name="makeNextViewCurrent">

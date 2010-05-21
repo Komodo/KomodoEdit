@@ -236,6 +236,18 @@
         </body>
         </method>
 
+        <method name="setCurrentViewIndex">
+        <parameter name="index"/>  <!-- 0-based view index -->
+        <body>
+        <![CDATA[
+            var views = this.getViews();
+            if (index < views.length) {
+                this.currentView = views[index];
+            }
+        ]]>
+        </body>
+        </method>
+        
         <!--void makeNextViewCurrent();-->
         <method name="makeNextViewCurrent">
         <body>

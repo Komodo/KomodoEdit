@@ -290,6 +290,15 @@
         </body>
         </method>
 
+        <method name="setCurrentViewIndex">
+        <parameter name="index"/>  <!-- 0-based view index -->
+        <body>
+        <![CDATA[
+            return this.currentView.setCurrentViewIndex(index);
+        ]]>
+        </body>
+        </method>
+
         <!--void makeNextViewCurrent();-->
         <method name="makeNextViewCurrent">
         <body>

@@ -1923,6 +1923,36 @@ viewManager.prototype.do_cmd_open_remote = function() {
     }
 }
 
+
+// cmd_buffer[1-9] -- switch to the given tab index
+viewManager.prototype.is_cmd_buffer1_supported = function() { return true; }
+viewManager.prototype.is_cmd_buffer1_enabled = function() { return this._viewCount >= 1; }
+viewManager.prototype.do_cmd_buffer1 = function() { return this.topView.setCurrentViewIndex(1-1); }
+viewManager.prototype.is_cmd_buffer2_supported = function() { return true; }
+viewManager.prototype.is_cmd_buffer2_enabled = function() { return this._viewCount >= 2; }
+viewManager.prototype.do_cmd_buffer2 = function() { return this.topView.setCurrentViewIndex(2-1); }
+viewManager.prototype.is_cmd_buffer3_supported = function() { return true; }
+viewManager.prototype.is_cmd_buffer3_enabled = function() { return this._viewCount >= 3; }
+viewManager.prototype.do_cmd_buffer3 = function() { return this.topView.setCurrentViewIndex(3-1); }
+viewManager.prototype.is_cmd_buffer4_supported = function() { return true; }
+viewManager.prototype.is_cmd_buffer4_enabled = function() { return this._viewCount >= 4; }
+viewManager.prototype.do_cmd_buffer4 = function() { return this.topView.setCurrentViewIndex(4-1); }
+viewManager.prototype.is_cmd_buffer5_supported = function() { return true; }
+viewManager.prototype.is_cmd_buffer5_enabled = function() { return this._viewCount >= 5; }
+viewManager.prototype.do_cmd_buffer5 = function() { return this.topView.setCurrentViewIndex(5-1); }
+viewManager.prototype.is_cmd_buffer6_supported = function() { return true; }
+viewManager.prototype.is_cmd_buffer6_enabled = function() { return this._viewCount >= 6; }
+viewManager.prototype.do_cmd_buffer6 = function() { return this.topView.setCurrentViewIndex(6-1); }
+viewManager.prototype.is_cmd_buffer7_supported = function() { return true; }
+viewManager.prototype.is_cmd_buffer7_enabled = function() { return this._viewCount >= 7; }
+viewManager.prototype.do_cmd_buffer7 = function() { return this.topView.setCurrentViewIndex(7-1); }
+viewManager.prototype.is_cmd_buffer8_supported = function() { return true; }
+viewManager.prototype.is_cmd_buffer8_enabled = function() { return this._viewCount >= 8; }
+viewManager.prototype.do_cmd_buffer8 = function() { return this.topView.setCurrentViewIndex(8-1); }
+viewManager.prototype.is_cmd_buffer9_supported = function() { return true; }
+viewManager.prototype.is_cmd_buffer9_enabled = function() { return this._viewCount >= 9; }
+viewManager.prototype.do_cmd_buffer9 = function() { return this.topView.setCurrentViewIndex(9-1); }
+
 // cmd_bufferNext
 viewManager.prototype.is_cmd_bufferNext_supported = function() {
     return 1;
