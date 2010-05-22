@@ -133,6 +133,7 @@ toolbar[mode="full"] > toolbaritem > toolbarbutton {
  * Put toolbar buttons in a bordered box.
  */
 toolbar:not([mode="full"]) > toolbaritem > toolbarbutton,
+.solo-toolbaritem > toolbarbutton,
 .solo-button {
   border: 1px solid rgba(0,0,0,.5);
   border-bottom: 2px groove grey;
@@ -156,14 +157,16 @@ toolbarbutton[checked="true"] {
   background-image: url(chrome://komodo/skin/images/button-gradient-inactive.png);
 }
 
-toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:first-child {
+toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:first-child,
+.solo-toolbaritem > toolbarbutton:first-child {
   margin-left: 3px;
   padding-left: 3px;
   -moz-border-radius-topleft: 4px;
   -moz-border-radius-bottomleft: 4px;
 }
 
-toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:last-child {
+toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:last-child,
+.solo-toolbaritem > toolbarbutton:last-child {
   margin-right: 3px;
   padding-right: 3px;
   -moz-border-radius-topright: 4px;
