@@ -65,7 +65,7 @@ splitter[orient="horizontal"].multiview_splitter {
   border-bottom: 1px solid rgba(0,0,0,0.50);
 }
 
-toolbar[mode="full"] toolbaritem .toolbar-background {
+toolbar[mode="full"] > toolbaritem > .toolbar-background {
   background-color: #C9C9C9;
   border-bottom: 1px solid rgba(0,0,0,0.50);
 }
@@ -124,7 +124,7 @@ toolbar {
   -moz-box-pack: center;
 }
 
-toolbar[mode="full"] toolbaritem toolbarbutton {
+toolbar[mode="full"] > toolbaritem > toolbarbutton {
   background: transparent;
   border: none;
 }
@@ -132,13 +132,19 @@ toolbar[mode="full"] toolbaritem toolbarbutton {
 /**
  * Put toolbar buttons in a bordered box.
  */
-.toolbar-hbox toolbarbutton,
-toolbar[mode="icons"] toolbaritem toolbarbutton {
+toolbar:not([mode="full"]) > toolbaritem > toolbarbutton,
+.solo-button {
   border: 1px solid rgba(0,0,0,.5);
   border-bottom: 2px groove grey;
   background-image: url("chrome://global/skin/icons/button-gradient.png");
   margin: 0px;
   margin-right: -1px;
+}
+
+/**
+ * Want to have the main toolbar buttons a little higher than normal.
+ */
+#main-toolboxrow > toolbaritem > toolbarbutton {
   min-width: 24px;
   height: 24px;
 }
@@ -146,36 +152,26 @@ toolbar[mode="icons"] toolbaritem toolbarbutton {
 /**
  * Use a different background to distinguish when a toolbar button is checked.
  */
-.toolbar-hbox toolbarbutton[checked="true"],
-toolbar[mode="icons"] toolbaritem toolbarbutton[checked="true"] {
+toolbarbutton[checked="true"] {
   background-image: url(chrome://komodo/skin/images/button-gradient-inactive.png);
 }
 
-.toolbar-hbox toolbarbutton:first-child,
-toolbar[mode="icons"] toolbarbutton:first-child {
+toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:first-child {
   margin-left: 3px;
   padding-left: 3px;
   -moz-border-radius-topleft: 4px;
   -moz-border-radius-bottomleft: 4px;
 }
 
-.toolbar-hbox toolbarbutton:last-child,
-toolbar[mode="icons"] toolbarbutton:last-child {
+toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:last-child {
   margin-right: 3px;
   padding-right: 3px;
   -moz-border-radius-topright: 4px;
   -moz-border-radius-bottomright: 4px;
 }
 
-.toolbar-hbox .solo-button,
-toolbar[mode="icons"] toolbaritem .solo-button {
+.solo-button {
   -moz-border-radius: 4px;
-}
-
-.toolbar-hbox toolbarbutton toolbarbutton,
-toolbar[mode="icons"] toolbarbutton toolbarbutton {
-  border: none;
-  background-color: transparent;
 }
 
 /* ---- Rounded search/filter textbox ---- 
