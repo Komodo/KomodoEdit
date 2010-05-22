@@ -16,6 +16,14 @@
   border: none;
 }
 
+/**
+ * Ensure the main toolbox row extends with the same color, instead of showing a
+ * different color after the end of the toolbaritems - bug 86812.
+ */
+#main-toolboxrow {
+  -moz-appearance: none;
+}
+
 #toolbox_main > toolbar,
 #main-toolboxrow > toolbaritem {
   background-color: #C9C9C9;
