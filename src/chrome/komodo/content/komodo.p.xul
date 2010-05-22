@@ -2776,7 +2776,8 @@
                             <label id="findresults1-desc" style="height: 18px;"
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
-                            <hbox id="findtoolbar1-button-box" class="no-border">
+                            <hbox id="findtoolbar1-button-box" class="no-border"
+                                  align="center">
                                 <textbox id="findresults1-filter-textbox"
                                          class="search-box"
                                          type="search"
@@ -2845,7 +2846,8 @@
                             <label id="findresults2-desc" style="height: 15px;"
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
-                            <hbox id="findtoolbar2-button-box" class="no-border">
+                            <hbox id="findtoolbar2-button-box" class="no-border"
+                                  align="center">
                                 <textbox id="findresults2-filter-textbox"
                                          class="search-box"
                                          type="search"
