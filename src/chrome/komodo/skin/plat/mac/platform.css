@@ -150,6 +150,10 @@ toolbar:not([mode="full"]) > toolbaritem > toolbarbutton,
   height: 24px;
 }
 
+.solo-toolbaritem > toolbarbutton {
+  min-width: 24px;
+}
+
 /**
  * Use a different background to distinguish when a toolbar button is checked.
  */
