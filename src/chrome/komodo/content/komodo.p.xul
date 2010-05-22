@@ -2178,13 +2178,16 @@
                      enablehistory="true"
                      completeselectedindex="true"
                      tabscrolling="true"
-                     onblur="document.getElementById('findButton').setAttribute('class', 'find');"
-                     onfocus="Findtoolbar_FindFilesOnFocus(this, event);"
                      onmousedown="this.searchParam = stringutils_updateSubAttr(
                                     this.searchParam, 'cwd', ko.window.getCwd());"
                      ontextentered="this.focus();
                                     this.setSelectionRange(0, this.textLength);"
-                     onkeypress="Findtoolbar_FindFilesKeyPress(this, event);"/>
+                     onkeypress="Findtoolbar_FindFilesKeyPress(this, event);"
+                     onfocus="Findtoolbar_FindFilesOnFocus(this, event);"
+<!-- #if PLATFORM != "darwin" -->
+                     onblur="document.getElementById('findButton').setAttribute('class', 'find');"
+<!-- #endif -->
+                />
             <toolbarbutton id="find-toolbar-browsedirectory"
                            class="open-file-nohover-icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
                            style="min-width: 0px; margin: 0px"
