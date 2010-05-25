@@ -386,6 +386,28 @@ this.saveToolsAs_aux = function(event) {
     return [numFiles, numFolders];
 };
 
+this.exportAsZipFile = function(event) {
+    try {
+        var title = peFolder_bundle.GetStringFromName("saveItemsToZipFileAs");
+        var defaultFilterName = "Zip";
+        var fileNames = [defaultFilterName, "All"];
+        var targetPath = ko.filepicker.saveFile(default_saveToolDirectory,
+                                                null,
+                                                title,
+                                                defaultFilterName,
+                                                fileNames
+                                                );
+        if (!targetPath) return;
+        default_saveToolDirectory = ko.uriparse.dirName(targetPath);
+        numFilesZipped = ko.toolbox2.manager.view.zipSelectionToFile(targetPath);
+        msg = peFolder_bundle.formatStringFromName("zippedNTools",
+                                                   [numFilesZipped], 1);
+        ko.statusBar.AddMessage(msg, "toolbox", 5000, true);
+    } catch(ex) {
+        alert(ex);
+    }
+};
+
 this.deleteItem = function(event) {
     var question;
     var indices = ko.toolbox2.getSelectedIndices(/*rootsOnly=*/true);

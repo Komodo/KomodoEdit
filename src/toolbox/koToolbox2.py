@@ -278,10 +278,14 @@ class Database(object):
             row = cu.fetchone()
             if not row:
                 return None
-            return row[0]      
+            return row[0]
+
+    def getNextID(self, cu=None):
+        cu.execute('select seq from sqlite_sequence where name=?', ('paths',))
+        return cu.fetchone()[0]
     
     # Adder functions
-        
+
     def _addCommonDetails(self, path, name, item_type, parent_path_id, cu):
         stmt = 'insert into paths(path) values(?)'
         cu.execute(stmt, (path,))

@@ -173,7 +173,7 @@ this.getSelectedIndices = function(rootsOnly /*=false*/) {
             selectedIndices.push(j);
             if (rootsOnly && view.isContainerOpen(j)) {
                 var nextSiblingIndex = view.getNextSiblingIndex(j);
-                if (nextSiblingIndex <= mx + 1) {
+                if (nextSiblingIndex <= mx) {
                     j = nextSiblingIndex -1;
                 } else {
                     if (nextSiblingIndex == -1

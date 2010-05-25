@@ -62,6 +62,7 @@ interface koIToolbox2HTreeView: nsITreeView {
     void deleteToolAt(in long index);
 
     void copyLocalFolder(in wstring srcPath, in wstring targetDirPath);
+    long zipSelectionToFile(in wstring zipFile);
     long getNextSiblingIndex(in long index); // not in nsITreeView...
 };
 

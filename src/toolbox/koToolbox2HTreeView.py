@@ -609,6 +609,61 @@ class KoToolbox2HTreeView(TreeView):
 
     def copyLocalFolder(self, srcPath, targetDirPath):
         fileutils.copyLocalFolder(srcPath, targetDirPath)
+
+    def _zipNode(self, zf, currentDirectory):
+        nodes = os.listdir(currentDirectory)
+        numZippedItems = 0
+        for path in nodes:
+            fullPath = os.path.join(currentDirectory, path)
+            # these filenames should be "sluggified" already,
+            # although maybe not the dirnames.
+            relativePath = fullPath[self._targetZipFileRootLen:]
+            if os.path.isfile(fullPath):
+                zf.write(fullPath, relativePath)
+                numZippedItems += 1
+            elif os.path.isdir(fullPath) and not os.path.islink(fullPath):
+                numZippedItems += self._zipNode(zf, fullPath)
+        return numZippedItems
+
+    def zipSelectionToFile(self, targetZipFile):
+        selectedIndices = self.getSelectedIndices(rootsOnly=True)
+        import zipfile
+        zf = zipfile.ZipFile(targetZipFile, 'w')
+        numZippedItems = 0
+        for index in selectedIndices:
+            tool = self.getTool(index)
+            path = self.toolbox_db.getPath(tool.id)
+            if tool.isContainer and path[-1] in "\\/":
+                path = path[:-1]
+            self._targetZipFileRootLen = len(os.path.dirname(path)) + 1
+            if not tool.isContainer:
+                zf.write(path, path[self._targetZipFileRootLen:])
+                numZippedItems += 1
+            else:
+                numZippedItems += self._zipNode(zf, path)
+        return numZippedItems
+
+    def getSelectedIndices(self, rootsOnly=False):
+        treeSelection = self.selection
+        selectedIndices = []
+        numRanges = treeSelection.getRangeCount()
+        for i in range(numRanges):
+            min_index, max_index = treeSelection.getRangeAt(i)
+            index = min_index
+            while index < max_index + 1:
+                selectedIndices.append(index)
+                if rootsOnly and self.isContainerOpen(index):
+                    nextSiblingIndex = self.getNextSiblingIndex(index)
+                    if nextSiblingIndex <= max_index + 1:
+                        index = nextSiblingIndex - 1
+                    else:
+                        if nextSiblingIndex == -1 and i < numRanges - 1:
+                            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
+                              ("node at row %d supposedly at end, but we're only at range %d of %d" %
+                               (j, i + 1, numRanges)))
+                        index = max_index
+                index += 1
+        return selectedIndices
         
     def initialize(self):
         #XXX Unhardwire this
@@ -761,7 +816,7 @@ class KoToolbox2HTreeView(TreeView):
         else:
             childNodes = sorted(rowNode.childNodes, cmp=self._compareChildNode)
             if childNodes:
-                selectedRowIndex = self.selection.currentIndex
+                selectedRowIndex = index
                 firstVisibleRow = self._tree.getFirstVisibleRow()
                 posn = index + 1
                 for path_id, name, node_type in childNodes:

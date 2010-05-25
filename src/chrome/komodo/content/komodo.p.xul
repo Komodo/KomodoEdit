@@ -588,7 +588,6 @@
                   keep_background="true"
                   class="menuitem-iconic"
                   label="&exportAsZipFile.label;"
-                  disableUnless="folder menu toolbar"
                   oncommand="ko.toolbox2.exportAsZipFile(event)"
                   />
         <menuitem id="toolbox2ContextMenu_saveAs"
