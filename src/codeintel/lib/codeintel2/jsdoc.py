@@ -416,7 +416,7 @@ class JSDoc:
                 self.comment = comment
             elif line == "*":
                 doc.append("")
-            elif len(line) > 2 and line[:2] == "* ":
+            elif len(line) > 2 and line[:2] in ("* ", "*\t"):
                 sp = line.split(None, 1)
                 #print sp
                 if len(sp) > 1:
@@ -574,6 +574,10 @@ def _test():
     # Test short one-liners.
     short_type_comment = """/** @type String */"""
     jd = JSDoc(short_type_comment)
+    assert(jd.type == "String")
+
+    short_type_comment_with_tab = """/**\t@type String */"""
+    jd = JSDoc(short_type_comment_with_tab)
     assert(jd.type == "String")
 
 # Main function
