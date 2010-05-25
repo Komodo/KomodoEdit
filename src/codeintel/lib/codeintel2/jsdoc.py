@@ -397,48 +397,55 @@ class JSDoc:
             if not isJSDoc:
                 # Note: "*//**" style comes from the ciler using two comments
                 # See bug: http://bugs.activestate.com/show_bug.cgi?id=68727
-                if line == "/**" or line.endswith("*//**"):
+                if "/**" in line:
                     # It looks like a javadoc from here
                     isJSDoc = True
-            else:
-                # It's a javadoc, so parse up the fields
-                if line == "*/":
-                    isJSDoc = False
-                elif line.endswith("*//**"):
-                    self._reset()
-                    self.comment = comment
-                elif line == "*":
-                    doc.append("")
-                elif len(line) > 2 and line[:2] == "* ":
-                    sp = line.split(None, 1)
-                    #print sp
-                    if len(sp) > 1:
-                        if sp[1][0] == '@':
-                            # It's a javadoc field
-                            #print sp
-                            docfield = sp[1][1:]
-                            sp = docfield.split(None, 1)
-                            #print sp
-                            #print "Tag: %r" % (sp[0])
-                            if sp[0] == "description":
-                                if len(sp) > 1:
-                                    doc.append(sp[1])
-                                in_doc = True
-                            else:
-                                tagElements.append(sp)
-                                in_doc = False
-                        elif tagElements and doc and not in_doc: # This is a continued param field
-                            tagData = tagElements[-1]
-                            if len(tagData) == 1:
-                                tagData.append(sp[1])
-                            else:
-                                tagData[1] += "\n%s" % (sp[1])
-                        else: # This is still the main doc string
-                            doc.append(sp[1])
+                    line = line.split("/*", 1)[1]
+                    if not line or line == "*":
+                        continue
+                    if line.endswith("*/"):
+                        line = line[:-2].strip()
+                else:
+                    continue
+            # It's a javadoc, so parse up the fields
+            if line == "*/":
+                # End of the doc.
+                isJSDoc = False
+            elif line.endswith("*//**"):
+                self._reset()
+                self.comment = comment
+            elif line == "*":
+                doc.append("")
+            elif len(line) > 2 and line[:2] == "* ":
+                sp = line.split(None, 1)
+                #print sp
+                if len(sp) > 1:
+                    if sp[1][0] == '@':
+                        # It's a javadoc field
+                        #print sp
+                        docfield = sp[1][1:]
+                        sp = docfield.split(None, 1)
+                        #print sp
+                        #print "Tag: %r" % (sp[0])
+                        if sp[0] == "description":
+                            if len(sp) > 1:
+                                doc.append(sp[1])
                             in_doc = True
-                elif len(line) > 2:
-                    # In a jsdoc, but this line does not start with a star.
-                    doc.append(line)
+                        else:
+                            tagElements.append(sp)
+                            in_doc = False
+                    elif tagElements and doc and not in_doc: # This is a continued param field
+                        tagData = tagElements[-1]
+                        if len(tagData) == 1:
+                            tagData.append(sp[1])
+                        else:
+                            tagData[1] += "\n%s" % (sp[1])
+                    else: # This is still the main doc string
+                        doc.append(sp[1])
+                        in_doc = True
+            elif len(line) > 2:
+                # In a jsdoc, but this line does not start with a star.
+                doc.append(line)
         self.doc = "\n".join(doc).rstrip()
         # Parse the tags now
         for tagData in tagElements:
@@ -563,6 +570,11 @@ def _test():
     jd._reset()
     jd._handle_type("{HTMLImageElement}")
     assert(jd.type == "HTMLImageElement")
+
+    # Test short one-liners.
+    short_type_comment = """/** @type String */"""
+    jd = JSDoc(short_type_comment)
+    assert(jd.type == "String")
 
 # Main function
 def main():
