@@ -48,9 +48,6 @@
 
 <binding id="popup-buffer"
          extends="chrome://global/content/bindings/popup.xml#popup">
-    <resources>
-        <stylesheet src="chrome://komodo/skin/bindings/toolbar.css"/>
-    </resources>
     <content>
         <xul:menuitem id="buffer-context-cut"
                       label="&cut.label;"
