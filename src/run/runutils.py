@@ -36,9 +36,8 @@ def createConsoleLaunchScript(actualCommand, cwd, envDict):
         scriptFileName = tempfile.mktemp() + ".bat"
         bat = open(scriptFileName, "w")
         bat.write("@echo off\n")
-        # Escape '%' once for being in a batch file plus once for
-        # being on a "call ..." line.
-        actualCommand = actualCommand.replace("%", "%%%%")
+        # Escape '%' once for being on a "call ..." line.
+        actualCommand = actualCommand.replace("%", "%%")
         bat.write("call %s\n" % actualCommand)
         bat.write("set KOMODO_COMMAND_ERRORLEVEL=%ERRORLEVEL%\n")
         bat.write("pause\n")
