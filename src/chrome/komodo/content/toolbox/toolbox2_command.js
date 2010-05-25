@@ -14,7 +14,6 @@ if (typeof(ko.toolbox2)=='undefined') {
 (function() {
 
 this._get_tool_data = function(expected_type_name) {
-     var view, index, tool;
     // See peMacro.js for handling multiple items.
     var view = ko.toolbox2.manager.view;
     var index = view.selection.currentIndex;
@@ -275,9 +274,25 @@ this.addToolboxItem = function(itemType) {
     var item = view.createToolFromType(itemType);
     method.call(this_, view, index, parent, item);
     } catch(ex) {
-        ko.dialogs.alert("toolbox2_command.js: Error: Trying to add a new "
+        ko.dialogs.alert("toolbox2_command.js: Internal error: Trying to add a new "
                          + itemType
                          + ": "
+                         + ex);
+    }
+};
+
+this.showInFileManager = function(itemType) {
+    try {
+        var view = ko.toolbox2.manager.view;
+        var index = view.selection.currentIndex;
+        var tool = view.getTool(index);
+        var sysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].
+        getService(Components.interfaces.koISysUtils);
+        sysUtilsSvc.ShowFileInFileManager(tool.path);
+    } catch(ex) {
+        ko.dialogs.alert("toolbox2_command.js: Internal error: Trying to show "
+                         + tool.path
+                         + " in a file manager window: "
                          + ex);
     }
 };
