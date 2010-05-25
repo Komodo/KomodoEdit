@@ -39,16 +39,6 @@ tab[type="file-tab"]
   list-style-image: url("moz-icon://stock/gtk-close?size=menu");
 }
 
-.tabs-closebutton:hover,
-.tab-close-button[selected="true"]:hover {
-  list-style-image: url("moz-icon://stock/gtk-close?size=menu");
-}
-
-.tabs-closebutton:hover:active,
-.tab-close-button[selected="true"]:hover:active {
-  list-style-image: url("moz-icon://stock/gtk-close?size=menu");
-}
-
 .scroll-arrow-right-icon
 {
   list-style-image : url("chrome://komodo/skin/images/scrollArrowRight.png");
