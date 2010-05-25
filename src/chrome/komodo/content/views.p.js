@@ -2003,8 +2003,7 @@ viewManager.prototype.is_cmd_splittab_supported = function() {
 }
 
 viewManager.prototype.is_cmd_splittab_enabled = function() {
-    return (this.currentView && this.currentView.koDoc &&
-        this.topView.canSplitView(this.currentView));
+    return this._viewCount >= 1;
 }
 
 viewManager.prototype.do_cmd_splittab = function() {
@@ -2017,9 +2016,7 @@ viewManager.prototype.is_cmd_movetab_supported = function() {
 }
 
 viewManager.prototype.is_cmd_movetab_enabled = function() {
-    return this._viewCount > 1 &&
-        this.currentView && this.currentView.koDoc &&
-        this.topView.canMoveView(this.currentView);
+    return this._viewCount >= 1;
 }
 
 viewManager.prototype.do_cmd_movetab = function() {

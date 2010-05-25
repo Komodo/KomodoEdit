@@ -327,14 +327,6 @@
         </body>
         </method>
 
-        <method name="canSplitView">
-        <parameter name="view"/>
-        <body><![CDATA[
-            // Non-editor views can't be split.
-            return view.getAttribute("type") == "editor";
-        ]]></body>
-        </method>
-
         <method name="splitView">
         <parameter name="view"/>
         <body>
