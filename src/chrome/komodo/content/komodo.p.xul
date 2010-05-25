@@ -595,7 +595,6 @@
                   class="menuitem-iconic"
                   label="&saveAs.label;"
                   oncommand="ko.toolbox2.saveToolsAs(event)"
-                  testDisableIf="t:raggedMultipleSelection"
                   />
         <menuseparator anonid="secondaryseparator_3"
                        />
