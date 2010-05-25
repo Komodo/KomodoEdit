@@ -50,6 +50,7 @@ import socket   # For catching underlying socket errors
 import select
 
 from xpcom import components, ServerException, nsError
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 
 log = logging.getLogger('remotefilelib.p.py')
 #log.setLevel(logging.DEBUG)
@@ -198,7 +199,7 @@ class koRFConnection:
     def _removeFromCache(self, path, removeChildNodes=0):
         self._rfConnectionService.removeCachedRFInfo(self._cache_key, path, removeChildNodes)
 
-    def _promptForUsernameAndPassword(self, path):
+    def promptForUsernameAndPassword(self, path):
         dialogproxy = components.classes['@activestate.com/asDialogProxy;1'].\
                     getService(components.interfaces.asIDialogProxy)
         title = "Authentication"
@@ -414,7 +415,14 @@ class koRFConnection:
                     # Need at least a username, or the last login attempt
                     # failed, prompt for username and password now.
                     _username = self.username
-                    self._promptForUsernameAndPassword(path)
+                    prompter = self
+                    if threading.currentThread().name != "MainThread":
+                        # Need to proxy to the main thread.
+                        prompter = getProxyForObject(1,
+                                    components.interfaces.koIRemoteConnection,
+                                    self,
+                                    PROXY_ALWAYS | PROXY_SYNC)
+                    prompter.promptForUsernameAndPassword(path)
                     if self.authAttempt > 1 and _username != self.username and \
                        self.protocol in ("sftp", "scp"):
                         # Need to reconnect, see:

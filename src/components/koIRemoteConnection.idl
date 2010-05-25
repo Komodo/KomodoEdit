@@ -41,6 +41,7 @@
 // A remote connection instance.
 [scriptable, uuid(e953df1c-979b-48ed-b48d-0c90255564bd)]
 interface koIRemoteConnection : nsISupports {
+    void promptForUsernameAndPassword(in wstring path);
     boolean open(in wstring server, in long port, in wstring username,
                  in wstring password, in wstring path, in boolean passive);
     
