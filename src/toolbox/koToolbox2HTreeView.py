@@ -660,9 +660,23 @@ class KoToolbox2HTreeView(TreeView):
                     #TODO: Bundle all the problems into one string that gets raised back.
                     log.debug("Path %s doesn't exist", path)
                 if os.path.isdir(path):
-                    self._pasteContainerIntoTarget(targetId, targetIndex, targetPath, path, copying)
+                    self._pasteContainerIntoTarget(targetId, targetIndex, targetPath, targetTool, path, copying)
                 else:
                     self._pasteItemIntoTarget(targetIndex, targetPath, targetTool, path, copying)
+                if path != paths[-1] and self._rows[targetIndex].get_path() != targetPath:
+                    # We need to readjust the targetIndex, as something moved
+                    log.debug("pasteItemsIntoTarget: new path at targetIndex:%d is now %s, was %s",
+                              targetIndex, self._rows[targetIndex].get_path(),
+                              targetPath)
+                    if copying:
+                        log.debug("pasteItemsIntoTarget: Unexpected: target moved while copying")
+                    if targetIndex == 0:
+                        log.debug("pasteItemsIntoTarget: Unexpected: targetIndex of 0 changed during a move with copying=%r", copying)
+                    else:
+                        if self._rows[targetIndex - 1].get_path() == targetPath:
+                            log.debug("yes, decrementing targetIndex to %d",
+                                      targetIndex)
+                            targetIndex -= 1
         finally:
             after_len = len(self._rows)
             self.doUpdateRowCount = True
@@ -672,6 +686,8 @@ class KoToolbox2HTreeView(TreeView):
         self._tree.invalidate()
                 
     def _pasteItemIntoTarget(self, targetIndex, targetPath, targetTool, srcPath, copying):
+        log.debug(">> _pasteItemIntoTarget:targetPath:%s, srcPath:%s",
+                  targetPath, srcPath)
         # Only sanity check is for copying/moving into current location.
         # Otherwise no check for leaves, like are we copying
         # into a ancestor node (who cares), or is the target a child of the src
@@ -710,7 +726,6 @@ class KoToolbox2HTreeView(TreeView):
             data['value'] = eol.join(data['value'])
         newItem._finishUpdatingSelf(data)
         self.addNewItemToParent(targetTool, newItem)
-        # After addNewItemToParent, the srcPath could be at a different location.
         if self.isContainerOpen(targetIndex):
             if self.doUpdateRowCount:
                 self._tree.rowCountChanged(targetIndex, 1)
@@ -718,15 +733,18 @@ class KoToolbox2HTreeView(TreeView):
             self._removeItemByPath(srcPath)
             
     def _pasteContainerIntoTarget(self, targetId, targetIndex, targetPath, targetTool, srcPath, copying):
+        log.debug(">> _pasteContainerIntoTarget:targetPath:%s, srcPath:%s",
+                  targetPath, srcPath)
         # Sanity checks:
         # Don't paste an item into its child
         #    Includes: don't paste an item onto itself.
-        if srcPath.startswith(targetPath):
-            log.debug("Skipping child copy of %s into %s", path, targetPath)
+        if targetPath == os.path.dirname(srcPath):
+            log.debug("Skipping child copy of %s into %s", srcPath, targetPath)
             return
         #TODO: Support Menus and Toolbars!
         srcBaseName = os.path.basename(srcPath)
         finalTargetPath = os.path.join(targetPath, srcBaseName)
+        log.debug("mkdir finalTargetPath:%s", finalTargetPath)
         os.mkdir(finalTargetPath)
         # Add to the db
         newDetailsDict = {'name': srcBaseName}
@@ -736,14 +754,16 @@ class KoToolbox2HTreeView(TreeView):
                                                     srcBaseName,
                                                     targetId)
         targetTool = self.getToolById(targetId)
-        for childFile in os.listdir(targetPath):
-            path = os.path.join(targetPath, childFile)
-            if os.path.isdir(path):
-                self._pasteContainerIntoTarget(child_id, -1, finalTargetPath, targetTool, path, copying)
+        for childFile in os.listdir(srcPath):
+            newSrcPath = os.path.join(srcPath, childFile)
+            if os.path.isdir(newSrcPath):
+                self._pasteContainerIntoTarget(child_id, -1, finalTargetPath, targetTool, newSrcPath, copying)
             else:
-                self._pasteItemIntoTarget(targetIndex, targetPath, targetTool, path, copying)
+                self._pasteItemIntoTarget(targetIndex, targetPath, targetTool, newSrcPath, copying)
         if not copying:
             self._removeItemByPath(srcPath)
+        log.debug("<< _pasteContainerIntoTarget:targetPath:%s, srcPath:%s",
+                  targetPath, srcPath)
 
     def _removeItemByPath(self, srcPath):
         # Remove the tool from the self._tools cache
@@ -877,12 +897,35 @@ class KoToolbox2HTreeView(TreeView):
         finally:
             self.doUpdateRowCount = True
         self._tree.rowCountChanged(0, after_len - before_len)
+        if toolboxPrefs.hasPref("firstVisibleRow"):
+            firstVisibleRow = toolboxPrefs.getLongPref("firstVisibleRow")
+        else:
+            firstVisibleRow = -1
+        if toolboxPrefs.hasPref("currentIndex"):
+            currentIndex = toolboxPrefs.getLongPref("currentIndex")
+        else:
+            currentIndex = -1
+        if firstVisibleRow != -1:
+            log.debug("firstVisibleRow: %d", firstVisibleRow)
+            self._tree.scrollToRow(firstVisibleRow)
+        if currentIndex != -1:
+            self.selection.currentIndex = currentIndex
+            self._tree.ensureRowIsVisible(currentIndex)
+            log.debug("currentIndex: %d", currentIndex)
 
     def terminate(self):
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
-        prefs.getPref("toolbox2").setStringPref("open-nodes",
-                                  json.dumps(self._nodeOpenStatusFromName))
+        try:
+            toolboxPrefs = prefs.getPref("toolbox2")
+            toolboxPrefs.setStringPref("open-nodes",
+                                       json.dumps(self._nodeOpenStatusFromName))
+            toolboxPrefs.setLongPref("firstVisibleRow",
+                                     self._tree.getFirstVisibleRow())
+            toolboxPrefs.setLongPref("currentIndex",
+                                     self.selection.currentIndex)
+        except:
+            log.exception("problem in terminate")
 
     def getTool(self, index):
         try:

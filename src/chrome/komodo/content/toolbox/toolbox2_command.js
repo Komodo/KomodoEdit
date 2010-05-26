@@ -492,6 +492,9 @@ this._invokerNameForToolType = {
 };
 
 this.onDblClick = function(event) {
+    if (event.which != 1) {
+        return;
+    }
     var that = ko.toolbox2;
     var view = that.manager.view;
     var index = view.selection.currentIndex;
