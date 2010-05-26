@@ -20,18 +20,15 @@ tab[type="file-tab"]
 }
 
 .tabs-select-button {
-  list-style-image: url("chrome://komodo/skin/images/alltabs-box-bkgnd-icon.png");
+  list-style-image: url("chrome://komodo/skin/images/select_sidebar_mac.png");
   margin: 0;
   padding-left: 0;
   padding-right: 0;
-}
-.sidebar-buttons .tabs-select-button {
-  list-style-image: url("chrome://komodo/skin/images/select_sidebar_mac.png");
   /* Avoid bgcolor alpha-channel tweaks for .tabs-select-button not
      in a sidebar. */
   background-color: inherit !important;
 }
-.sidebar-buttons .tabs-select-button:hover {
+.tabs-select-button:hover {
   list-style-image: url("chrome://komodo/skin/images/select_sidebar_mac_hover.png");
 }
 
@@ -63,10 +60,6 @@ tab[type="file-tab"]
 .tabs-closebutton,
 .tab-close-button[selected="true"] {
   list-style-image: url("chrome://global/skin/icons/closetab.png");
-  -moz-appearance: none;
-  border: none !important;
-  background: inherit;
-  cursor: default;
 }
 
 .tabs-closebutton:hover,
