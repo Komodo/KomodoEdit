@@ -495,7 +495,21 @@ class KoToolbox2HTreeView(TreeView):
                         return False
                 
                 index += 1 # end while index < max_index + 1:
-        return True            
+        return True
+
+    # Is the node at row srcIndex an ancestor of the node at targetIndex?
+    def isAncestor(self, srcIndex, targetIndex):
+        if srcIndex < 0 or targetIndex < 0:
+            return False
+        elif srcIndex > targetIndex:
+            return False
+        elif srcIndex == targetIndex:
+            return True
+        
+        srcLevel = self._rows[srcIndex].level
+        while targetIndex > srcIndex and self._rows[targetIndex].level > srcLevel:
+            targetIndex -= 1
+        return targetIndex == srcIndex
 
     def createToolFromType(self, tool_type):
         temp_id = -1

@@ -13,6 +13,9 @@ if (typeof(ko.toolbox2)=='undefined') {
 
 (function() {
 
+this._dragSources = [];
+this._dragIndices = [];
+
 this._get_tool_data = function(expected_type_name) {
     // See peMacro.js for handling multiple items.
     var view = ko.toolbox2.manager.view;
@@ -525,6 +528,106 @@ this.onDblClick = function(event) {
               + " "
               + tool.name);
     }
+};
+
+this.doStartDrag = function(event, tree) {
+    var selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
+    var view = this.manager.view;
+    var paths = selectedIndices.map(function(index) {
+            return view.getTool(index).path;
+        }).join("\n");
+    var dt = event.dataTransfer;
+    dt.mozSetDataAt("application/x-moz-file", paths, 0);
+    dt.setData('text/plain', paths);
+    this._dragSources = paths;
+    this._dragIndices = selectedIndices;
+    if (event.ctrlKey) {
+        dt.effectAllowed = this.originalEffect = "copy";
+        this.copying = true;
+    } else {
+        dt.effectAllowed = this.originalEffect = "move";
+        this.copying = false;
+    }
+};
+
+this._currentRow = function(event, tree) {
+    var row = {};
+    tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
+    return row.value;
+};
+
+this._checkDrag = function(event, tree) {
+    var inDragSource = this._checkDragSource(event, tree);
+    event.dataTransfer.effectAllowed = inDragSource ? this.originalEffect : "none";
+    return inDragSource;
+};
+
+this._checkDragSource = function(event, tree) {
+    if (!this._dragIndices.length) {
+        //dump("not dragging anything\n");
+        return false;
+    }
+    var index = this._currentRow(event, tree);
+    if (this._dragIndices.indexOf(index) != -1) {
+        //dump("can't drag an item to itself\n");
+        return false;
+    }
+    if (!this.manager.view.isContainer(index)) {
+        //dump("target isn't an index\n");
+        return false;
+    }
+    var view = this.manager.view;
+    var candidateIndex;
+    for (var i = this._dragIndices.length - 1; i >= 0; i--) {
+        candidateIndex = this._dragIndices[i];
+        if (view.getParentIndex(candidateIndex) == index) {
+            /*
+            dump("can't copy/paste node "
+                 + candidateIndex
+                 + " to its immediate parent "
+                 + index
+                 + "\n");
+            */
+            return false;
+        }
+        if (view.isAncestor(candidateIndex, index)) {
+            /*
+            dump("can't copy/paste node "
+                 + candidateIndex
+                 + " to its descendant "
+                 + index
+                 + "\n");
+            */
+            return false;
+        }
+    }
+    return true;
+};
+
+this.doDragEnter = function(event, tree) {
+    return this._checkDrag(event, this.manager.widgets.tree);
+};
+
+this.doDragOver = function(event, tree) {
+    return this._checkDrag(event, this.manager.widgets.tree);
+};
+
+this.doDrop = function(event, tree) {
+    if (!this._dragSources.length) {
+        //dump("onDrop: no source indices to drop\n");
+        return;
+    }
+    var index = this._currentRow(event, this.manager.widgets.tree);
+    try {
+        var paths = this._dragSources;
+        var pathsa = paths.split("\n");
+        this.manager.view.pasteItemsIntoTarget(index, pathsa, pathsa.length, this.copying);
+    } catch(ex) {
+        ko.dialogs.alert("drag/drop: " + ex);
+    }
+    this._dragSources = [];
+    this._dragIndices = [];
+    return true;
 };
 
 this.onTreeKeyPress = function(event) {
