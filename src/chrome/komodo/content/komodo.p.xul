@@ -2586,6 +2586,11 @@
                                                           crop="left"/>
                                              </treecols>
                                              <treechildren id="toolbox2-hierarchy-treebody" flex="1"
+                                                           ondragstart="ko.toolbox2.doStartDrag(event, this);"
+                                                           ondragover="return ko.toolbox2.doDragOver(event, this);"
+                                                           ondragenter="return ko.toolbox2.doDragEnter(event, this);"
+                                                           ondrop="return ko.toolbox2.doDrop(event, this);"
+                                                           
                                                            />
                                           </tree>
                                       </vbox>
