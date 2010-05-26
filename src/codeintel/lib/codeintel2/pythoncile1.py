@@ -87,7 +87,7 @@ import time
 import stat
 import types
 from cStringIO import StringIO
-from functools import partial as curry
+from functools import partial
 
 import compiler
 from compiler import ast
@@ -1349,13 +1349,29 @@ def _getAST(content):
 
 #---- public module interface
 
-_python3to2_converters = [curry(re.compile(match, re.U).sub, repl)
+_strip_args_type_annotations_rx = re.compile(r'\s*:\s*[^,]+', re.U)
+
+def _strip_arg_type_annotations(defn):
+    args = _strip_args_type_annotations_rx.sub('', defn.group(2))
+    return defn.group(1) + args + defn.group(3)
+
+_python3to2_converters = [partial(re.compile(match, re.U).sub, repl)
                             for match, repl in (
+                                # except Foo as bar => except (Foo,) bar
                                 (r'(\bexcept\s*)(\S.+?)\s+as\s+(\w+)\s*:', r'\1(\2,), \3:'),
+                                # 0o123 => 123
                                 (r'\b0[oO](\d+)', r'\1'),
+                                # print(foo) => print_(foo)
                                 (r'\bprint\s*\(', r'print_('),
+                                # change forms of class Foo(metaclass=Cls3) to class Foo
+                                (r'(\bclass\s+\w+\s*)\(\s*\w+\s*=\s*\w+\s*\)\s*:', r'\1:'),
                                 # change forms of class Foo(..., arg=Base1, metaclass=Cls3) to class Foo(...)
-                                (r'(\bclass\s+\w+\s*\(.*?),?\s*\w+\s*=.+?\)', r'\1)'))]
+                                (r'(\bclass\s+\w+\s*\(.*?),?\s*\w+\s*=.+?\)\s*:', r'\1):'),
+                                # Remove return type annotations like def foo() -> int:
+                                (r'(\bdef\s+\w+\s*\(.*?\))\s*->\s*\w+\s*:', r'\1:'),
+                                # def foo(foo:Bar): => def foo(bar):
+                                (r'(\bdef\s+\w+\s*\()([^)]+:[^)]+)(\)\s*:)', _strip_arg_type_annotations),
+                                )]
 
 def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
     """Scan the given Python content and return Code Intelligence data
