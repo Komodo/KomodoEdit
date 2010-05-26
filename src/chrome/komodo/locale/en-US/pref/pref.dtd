@@ -675,8 +675,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY commentStyle.label "Comment Style:">
 
 <!--pref-python.xul-->
-<!ENTITY noPythonInterpreter.description "No Python interpreter was found on your system. If you would like to debug and run Python programs in Komodo you will need to install Python. You can get Python from ActiveState at">
-<!ENTITY noPython3Interpreter.description "No Python3 interpreter was found on your system. If you would like to debug and run Python3 programs in Komodo you will need to install Python3. You can get Python3 from ActiveState at">
+<!ENTITY noPythonInterpreter.description "No Python interpreter was found on your system PATH. If you would like to debug and run Python programs in Komodo you will need to have Python installed and then enter the path to your Python interpreter below. You can get Python from ActiveState at">
+<!ENTITY noPython3Interpreter.description "No Python3 interpreter was found on your system PATH. If you would like to debug and run Python3 programs in Komodo you will need to have Python3 installed and then enter the path to your Python3 interpreter below. You can get Python from ActiveState at">
 <!ENTITY noteRestartPython.alert "Note: Komodo must be restarted for it to recognize new Python installations.">
 <!ENTITY filePrefPythonUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefPythonAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Python path when debugging, syntax checking or in the interactive shell.">
