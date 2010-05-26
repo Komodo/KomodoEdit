@@ -226,12 +226,13 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   padding-left: 0;
   padding-right: 0;
 }
-.native .tabs-select-button:hover {
-  background-color: rgba(0,0,0,0.10);
+.native .tabs-select-button > image {
+  opacity: 0.7;
 }
-.native .tabs-select-button:hover:active,
-.native .tabs-select-button[open="true"] {
-  background-color: rgba(0,0,0,0.20);
+
+.native .tabs-select-button:hover > image {
+  list-style-image: url("chrome://komodo/skin/images/alltabs-box-bkgnd-icon.png");
+  opacity: 1.0;
 }
 
 .native .tabs-select-button  > .toolbarbutton-menu-dropmarker {
