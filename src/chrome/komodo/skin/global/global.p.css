@@ -332,13 +332,13 @@
 /* TODO: disabled versions of these */
 .find-lock-icon
 {
-  list-style-image : url("chrome://famfamfamsilk/skin/icons/lock_open.png");
+  list-style-image : url("chrome://fugue/skin/icons/lock-unlock.png");
 }
 .find-lock-icon[locked="true"],
 .find-lock-icon[locked="true"]:hover,
 .find-lock-icon[locked="true"]:hover:active
 {
-  list-style-image : url("chrome://famfamfamsilk/skin/icons/lock.png");
+  list-style-image : url("chrome://fugue/skin/icons/lock.png");
 }
 
 
