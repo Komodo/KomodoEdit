@@ -70,6 +70,11 @@ this.updateContextMenu = function(event, menupopup) {
     }
     var clickedNodeId = event.explicitOriginalTarget.id;
     //dump("updateContextMenu: clickedNodeId: " + clickedNodeId + "\n");
+    if (clickedNodeId == "tb2ContextMenu_addPopupMenu") {
+        // No further checking needed -- we're in a secondary menu for a
+        // container, and we accept everything.
+        return;
+    }
     var row = {};
     var manager = this.manager;
     manager.tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});

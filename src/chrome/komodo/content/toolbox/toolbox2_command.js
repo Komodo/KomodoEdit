@@ -18,6 +18,9 @@ this._get_tool_data = function(expected_type_name) {
     var view = ko.toolbox2.manager.view;
     var index = view.selection.currentIndex;
     var tool = view.getTool(index);
+    if (!tool) {
+        return [null, null, null];
+    }
     if (tool.toolType != expected_type_name) {
         alert("Internal error: expected a "
               + expected_type_name
@@ -221,6 +224,13 @@ this.add_URL = function(view, index, parent, item) {
 };
 
 // folders
+this.invoke_folderCommand = function(event, tool) {
+    // none of these seem to have much of an effect
+    event.cancelBubble = true;
+    event.stopPropagation();
+    event.preventDefault();
+};
+
 this.add_folder = function(view, index, parent, item) {
     var basename = ko.dialogs.prompt(peFolder_bundle.GetStringFromName("enterFolderName"));
     if (!basename) return;
@@ -482,6 +492,7 @@ this.deleteItem = function(event) {
 };    
 
 this._invokerNameForToolType = {
+ 'folder' : this.invoke_folderCommand,
  'command' : this.invoke_runCommand,
  DirectoryShortcut: this.invoke_openDirectoryShortcut,
  macro : this.invoke_executeMacro,
@@ -493,12 +504,18 @@ this._invokerNameForToolType = {
 
 this.onDblClick = function(event) {
     if (event.which != 1) {
+        dump("this.onDblClick, leaving as event.which = "
+             + event.which
+             + "\n");
         return;
     }
     var that = ko.toolbox2;
     var view = that.manager.view;
     var index = view.selection.currentIndex;
     var tool = view.getTool(index);
+    if (!tool) {
+        return;
+    }
     var method = that._invokerNameForToolType[tool.toolType];
     if (method) {
         method.call(that, event, tool);
