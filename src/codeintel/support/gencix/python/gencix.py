@@ -46,6 +46,7 @@ import optparse
 import inspect
 import types
 import pydoc
+import imp
 
 try:
     # Codeintel's specialized elementtree.
@@ -298,16 +299,30 @@ module_skips = {
           "license"],
 }
 
-def docmodule(modname, root, force=False, usefile=False):
+def docmodule(modname, root, force=False, usefile=False, dir=None):
     name = modname
     modulename = modname
     if modname == '*':
         modname = '__builtin__'
-    try:
-        obj, modulename = pydoc.resolve(modname)
-    except Exception:
-        print(sys.exc_info()[1])
-        return
+        
+    if dir:
+        modinfo = imp.find_module(modname, [dir])
+        try:
+            obj = imp.load_module(modname, *modinfo)
+        except ImportError, ex:
+            cixfile = SubElement(root, "file",
+                                 lang="Python",
+                                 mtime=str(int(time.time())),
+                                 path=os.path.basename(modinfo[1]),
+                                 error=str(ex))
+            return
+    else:
+        # no dir is given, try to load from python path
+        try:
+            obj, modulename = pydoc.resolve(modname)
+        except Exception:
+            print(sys.exc_info()[1])
+            return
 
     result = ''
     try:

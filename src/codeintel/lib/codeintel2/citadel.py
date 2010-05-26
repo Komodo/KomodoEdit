@@ -361,6 +361,65 @@ class CitadelBuffer(Buffer):
     #XXX Move citdl_expr_from_trg() here (see PythonBuffer)?
 
 
+class BinaryBuffer(CitadelBuffer):
+    def __init__(self, lang, mgr, env, path):
+                                          #mgr, accessor, env, path, encoding
+        self.lang = lang
+        super(BinaryBuffer, self).__init__(mgr, None, env, path, None)
+        
+    def scan(self, mtime=None, skip_scan_time_check=False):
+        if self.path is None:
+            raise CodeIntelError("cannot scan %s buffer: 'path' is not set (setting "
+                                 "a fake path starting with '<Unsaved>' is okay)"
+                                 % self.lang)
+
+        cile_driver = self.mgr.citadel.cile_driver_from_lang(self.lang)
+        if mtime is None:
+            mtime = time.time()
+
+        scan_tree = None
+        try:
+            scan_tree = cile_driver.scan_binary(self)
+        except CodeIntelError, ex:
+            exc_info = sys.exc_info()
+            exc_class, exc, tb = sys.exc_info()
+            tb_path, tb_lineno, tb_func = traceback.extract_tb(tb)[-1][:3]
+            scan_error = "%s (%s:%s in %s)" % (exc, tb_path, tb_lineno, tb_func)
+        except Exception, ex:
+            msg = "unexpected error scanning `%s'" % basename(self.path)
+            log.exception(msg)
+            exc_info = sys.exc_info()
+            exc_class, exc, tb = sys.exc_info()
+            tb_path, tb_lineno, tb_func = traceback.extract_tb(tb)[-1][:3]
+            scan_error = "%s: %s (%s:%s in %s)"\
+                         % (msg, exc, tb_path, tb_lineno, tb_func)
+        else:
+            scan_error = scan_tree[0].get("error")
+
+        self.acquire_lock()
+        try:
+            self._scan_time_cache = mtime
+            self._scan_error_cache = scan_error
+        finally:
+            self.release_lock()
+
+        # Put it into the database.
+        self.mgr.db.update_buf_data(self, scan_tree, mtime, scan_error,
+                                    skip_scan_time_check=skip_scan_time_check)
+        self._load_buf_data_once(True)
+        
+        #TODO: potential race condition here with Buffer.cached_sections().
+        self._sections_cache = None
+
+    def string_styles(self):
+        return []
+        
+    def comment_styles(self):
+        return []
+        
+    def number_styles(self):
+        return []
+        
 
 class ImportHandler:
     """Virtual base class for language-specific "import"-statement handlers.

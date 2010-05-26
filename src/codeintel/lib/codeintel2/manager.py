@@ -59,7 +59,7 @@ from SilverCity import ScintillaConstants
 
 from codeintel2.common import *
 from codeintel2.accessor import *
-from codeintel2.citadel import Citadel
+from codeintel2.citadel import Citadel, BinaryBuffer
 from codeintel2.buffer import ImplicitBuffer
 from codeintel2.langintel import ImplicitLangIntel
 from codeintel2.database.database import Database
@@ -354,6 +354,10 @@ class Manager(threading.Thread, Queue):
             buf = buf_class(self, accessor, env, path, encoding)
         return buf
 
+    def buf_from_binary(self, path, lang=None, env=None):
+        buf = BinaryBuffer(lang, self, env, path)
+        return buf
+    
     def buf_from_path(self, path, lang=None, env=None, encoding=None):
         if lang is None or encoding is None:
             import textinfo
@@ -364,7 +368,7 @@ class Manager(threading.Thread, Queue):
                         and ti.langinfo.komodo_name
                         or ti.langinfo.name)
             if not ti.is_text:
-                raise CodeIntelError("file is not text: %r" % (path, ))
+                return self.buf_from_binary(path, lang, env)
             encoding = ti.encoding
             content = ti.text
         else:

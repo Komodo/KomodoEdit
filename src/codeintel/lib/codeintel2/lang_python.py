@@ -47,6 +47,7 @@ import parser
 from glob import glob
 import weakref
 import re
+import imp
 from pprint import pprint, pformat
 
 import SilverCity
@@ -66,12 +67,16 @@ from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin,
                                   PythonCITDLExtractorMixin)
 
+from codeintel2.tree import tree_from_cix
+
 if _xpcom_:
     from xpcom.server import UnwrapObject
 
 
 
 #---- globals
+
+_SCAN_BINARY_FILES = True
 
 lang = "Python"
 log = logging.getLogger("codeintel.python")
@@ -303,6 +308,15 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             log.debug("Python extra lib dirs: %r", extra_dirs)
         return tuple(extra_dirs)
 
+    def get_interpreter(self, env):
+        # Gather information about the current python.
+        python = None
+        if env.has_pref("python"):
+            python = env.get_pref("python").strip() or None
+        if not python or not exists(python):
+            python = self._python_from_env(env)
+        return python
+
     def _buf_indep_libs_from_env(self, env):
         """Create the buffer-independent list of libs."""
         cache_key = "python-libs"
@@ -314,12 +328,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                                   self._invalidate_cache)
             db = self.mgr.db
 
-            # Gather information about the current python.
-            python = None
-            if env.has_pref("python"):
-                python = env.get_pref("python").strip() or None
-            if not python or not exists(python):
-                python = self._python_from_env(env)
+            python = self.get_interpreter(env)
             if not python:
                 log.warn("no Python was found from which to determine the "
                          "import path")
@@ -791,7 +800,7 @@ class PythonImportHandler(ImportHandler):
                 if path.endswith(os.path.join("win32com", "gen_py")):
                     del names[i]
                     continue
-            elif os.path.splitext(names[i])[1] in (".py", ".pyw"):
+            elif os.path.splitext(names[i])[1] in self.get_python_suffixes():
                 #XXX The list of Python extensions should be settable on
                 #    the ImportHandler and Komodo should set whatever is
                 #    set in prefs.
@@ -814,7 +823,21 @@ class PythonImportHandler(ImportHandler):
             for file in files:
                 yield file
 
-    def find_importables_in_dir(self, dir):
+    def get_python_suffixes(self):
+        yield ".py"
+        yield ".pyw"
+        for bin_suffix in self.get_binary_suffixes():
+            yield bin_suffix
+    
+    def get_binary_suffixes(self):
+        if _SCAN_BINARY_FILES:
+            yield ".pyc"
+            yield ".pyo"
+            for suffix, mode, mod_type in imp.get_suffixes():
+                if suffix[0] == '.' and mod_type  == imp.C_EXTENSION:
+                    yield suffix
+
+    def find_importables_in_dir(self, imp_dir):
         """See citadel.py::ImportHandler.find_importables_in_dir() for
         details.
 
@@ -825,21 +848,38 @@ class PythonImportHandler(ImportHandler):
         TODO: consider *.pyd/so files when have a story for binary modules
               on the fly
         """
-        if dir == "<Unsaved>":
+        if imp_dir == "<Unsaved>":
             #TODO: stop these getting in here.
             return {}
+        
         importables = {}
-        for path in glob(join(dir, "*.py")):
+        
+        for path in glob(join(imp_dir, "*.py")):
             base = basename(path)
             sans_ext = splitext(base)[0]
             if sans_ext == '__init__': continue # no need for these
             importables[sans_ext] = (base, None, False)
-        for path in glob(join(dir, "*", "__init__.py")):
-            base = path[len(dir)+1:]
+        
+        for path in glob(join(imp_dir, "*", "__init__.py")):
+            base = path[len(imp_dir)+1:]
             importables[dirname(base)] = (base, "__init__", False)
+            
+        binary_files = []
+        
+        for suffix in self.get_binary_suffixes():
+            for fn in glob(join(imp_dir, '*' + suffix)):
+                binary_files.append(fn)
+        
+        for path in binary_files:
+            base = basename(path)
+            sans_ext = splitext(base)[0]
+            if sans_ext == '__init__':
+                continue # no need to scan these
+            if sans_ext + ".py" in importables:
+                continue # already there
+            importables[sans_ext] = (base, None, False)
+            
         return importables
-
-
 
 
 class PythonCILEDriver(CILEDriver):
@@ -856,9 +896,15 @@ class PythonCILEDriver(CILEDriver):
                 raise CodeIntelError("cannot encode Python content as %r (%s)"
                                      % (encoding, ex))
         cix = pythoncile.scan(content, buf.path)
-        from codeintel2.tree import tree_from_cix
         return tree_from_cix(cix)
 
+    def scan_binary(self, buf):
+        from codeintel2 import pybinary
+        python = buf.langintel.get_interpreter(buf.env)
+        if not python:
+            raise CodeIntelError("cannot find a usable Python interpreter")
+        cix = pybinary.safe_scan(buf.path, python)
+        return tree_from_cix(cix)
 
 
 #---- internal support stuff

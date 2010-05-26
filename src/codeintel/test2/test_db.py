@@ -1299,6 +1299,37 @@ class LangLibTestCase(DBTestCase):
     #XXX test fs: Want to be able to hook in to fs-log and ensure
     #    that no fs writing is done for certain usages.
 
+    def test_python_binary_modules(self):
+        lang = "Python"
+        bin_py = join(self.test_dir, "binary.py")
+        writefile(bin_py, dedent("""
+            between = 'Scylla and Charybdis'
+            def to_be_or_not_to_be(): pass
+            class Dilemma: pass
+        """))
+        import compileall
+        compileall.compile_dir(self.test_dir)
+        os.remove(bin_py)
+        
+        bin_pyc = bin_py + 'c'
+        
+        import_handler = self.mgr.import_handler_class_from_lang['Python'](self.mgr)
+        files = list(import_handler.find_importables_in_dir(self.test_dir))
+        
+        self.failUnless('binary' in files)
+        
+        libs = self.mgr.db.get_lang_lib(lang, "curdirlib", [self.test_dir])
+        ctrl = LogEvalController()
+        blob = import_handler.import_blob_name("binary", [libs], ctrl)
+        self.failIf(blob is None)
+        del blob
+
+        log.info("assert that 'binary' is in %s", libs)
+        self.failUnless(libs.has_blob("binary"))
+        self.failUnless(libs.get_blob("binary") is not None)
+
+        self._check_db()
+
     def test_python(self):
         lang = "Python"
         dad_py = join(self.test_dir, "dad.py")

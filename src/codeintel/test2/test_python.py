@@ -1491,6 +1491,44 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "morgenstern"),])
     
     
+    @tag("bug86644")
+    def test_binary_imports(self):
+        lang = "Python"
+        
+        test_dir = join(self.test_dir, 'binary_import')
+        if os.path.exists(test_dir):
+            import shutil
+            shutil.rmtree(test_dir, True)
+        
+        bin_py = join(test_dir, "binary.py")
+        writefile(bin_py, dedent("""
+            between = 'Scylla and Charybdis'
+            def to_be_or_not_to_be(): pass
+            class Dilemma: pass
+        """))
+        import compileall
+        compileall.compile_dir(self.test_dir)
+        os.remove(bin_py)
+        
+        content1, positions1 = unmark_text(dedent(r'''
+            import binary
+            binary.<1>xxx
+        '''))
+
+        manifest = [
+            ('__init__.py', ""),
+            ('foo.py', content1),
+        ]
+        for f, c in manifest:
+            path = join(test_dir, f)
+            writefile(path, c)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "foo.py"), lang="Python")
+        self.assertCompletionsInclude2(buf, positions1[1],
+            [("function", "to_be_or_not_to_be"),
+             ("class", "Dilemma"),])
+    
+    
     @tag("bug55687")
     def test_hit_from_function_call(self):
         content, positions = unmark_text(dedent("""\

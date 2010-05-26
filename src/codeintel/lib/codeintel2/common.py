@@ -399,6 +399,13 @@ class CILEDriver(object):
         """
         raise VirtualMethodError("CILEDriver.scan_purelang")
 
+    def scan_binary(self, buf):
+        """Scan the given binary buffer and return a CIX element tree.
+
+            "buf" is an instance of this language's BinaryBuffer clas
+        """
+        raise VirtualMethodError("CILEDriver.scan_binary")
+
     def scan_multilang(self, buf, csl_cile_driver=None):
         """Scan the given multilang (UDL-based) buffer and return a CIX
         element tree.
