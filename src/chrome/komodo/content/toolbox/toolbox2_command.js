@@ -281,6 +281,41 @@ this.addToolboxItem = function(itemType) {
     }
 };
 
+// Generic top-level routines
+this._selectCurrentItems = function() {
+    this.selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
+    var view = this.manager.view;
+    var paths = this.selectedIndices.map(function(index) {
+            return view.getTool(index).path;
+            
+        });
+    xtk.clipboard.setText(paths.join("\n"));
+}
+
+this.cutItem = function(event) {
+    this.copying = false;
+    this._selectCurrentItems();
+};
+
+this.copyItem = function(event) {
+    this.copying = true;
+    this._selectCurrentItems();
+};
+
+this.pasteIntoItem = function(event) {
+    try {
+        var this_ = ko.toolbox2;
+        var view = this_.manager.view;
+        var index = view.selection.currentIndex;
+        var parent = view.getTool(index);
+        var paths = xtk.clipboard.getText().split("\n");
+        view.pasteItemsIntoTarget(index, paths, paths.length, this.copying);
+    } catch(ex) {
+        ko.dialogs.alert("toolbox2_command.js: Error: Trying to copy paths into the toolbox "
+                         + ex);
+    }
+};
+
 this.showInFileManager = function(itemType) {
     try {
         var view = ko.toolbox2.manager.view;

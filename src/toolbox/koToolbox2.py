@@ -254,7 +254,7 @@ class Database(object):
             else:
                 return True
             
-    def _get_id_from_path(self, path):
+    def get_id_from_path(self, path):
         stmt = "select id from paths where path = ?"
         with self.connect() as cu:
             cu.execute(stmt, (path,))
@@ -476,17 +476,6 @@ class Database(object):
             stmt = 'insert into metadata_timestamps(path_id, mtime) values(?, ?)'
             cu.execute(stmt, (parent_id, os.stat(metadataPath).st_mtime))
             
-    def deleteTree(self, path_id):
-        # Remove the tree rooted at path_id.  Anyone know some good SQL for
-        # finding all the descendants in a simple membership table?
-        XXX("this is wrong")
-        nodes = [path_id]
-        while nodes:
-            id = nodes[0]
-            del nodes[0]
-            nodes += self.getChildIDs(id)
-            self.deleteItem(id)
-            
     _tableNameFromType = {
         # Put anomalies here.
     }
@@ -512,6 +501,8 @@ class Database(object):
             cu.execute("""select name from common_details
                           where path_id = ?""", (path_id,))
             row = cu.fetchone()
+            if row is None:
+                raise Exception("koToolbox2.py:getCommonToolDetails internal error: path_id:%d, table:common_details => None" % (path_id,))
             obj['name'] = row[0]
             cu.execute("""select value, keyboard_shortcut from common_tool_details
                           where path_id = ?""", (path_id,))
@@ -768,7 +759,7 @@ class ToolboxLoader(object):
         return update_tree
 
     def walkFunc(self, arg, dirname, fnames):
-        parent_id = self.db._get_id_from_path(dirname)
+        parent_id = self.db.get_id_from_path(dirname)
         existing_child_ids = dict([(x, 1) for x in self.db.getChildIDs(parent_id)])
         # Delete any unhandled IDs at end
         for fname in fnames:
@@ -827,7 +818,7 @@ class ToolboxLoader(object):
                     if 'ci2' in child_name:
                         print "Stop here"
                     child_path = join(dirname, self._slugify(child_name) + self.koToolExt)
-                    child_id = self.db._get_id_from_path(child_path)
+                    child_id = self.db.get_id_from_path(child_path)
                     if child_id is None:
                         complain = True
                         try:
@@ -884,7 +875,7 @@ class ToolboxLoader(object):
     def deleteUnloadedTopLevelItems(self):
         for path, isLoaded in self._loadedPaths.items():
             if not isLoaded:
-                id = self._get_id_from_path(path)
+                id = self.get_id_from_path(path)
                 if id is not None:
                     log.debug("We never loaded path %s (id %d)", path, id)
                     self.db.deleteTree(id)

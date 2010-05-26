@@ -37,6 +37,7 @@ initialize: function() {
 },
 terminate: function() {
     dump("**************** Closing Toolbox2Manager...\n");
+    this.view.terminate();
 },
 deleteCurrentItem: function() {
     var index = this.view.selection.currentIndex;

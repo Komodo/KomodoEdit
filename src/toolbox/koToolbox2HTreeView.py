@@ -15,6 +15,7 @@ log = logging.getLogger("Toolbox2HTreeView")
 log.setLevel(logging.DEBUG)
 
 eol = None
+eol_re = re.compile(r'(?:\r?\n|\r)')
 
 """
 Manage a hierarchical view of the loaded tools
@@ -36,6 +37,15 @@ class _KoTool(object):
                         'TEXT',#,'COMPOUND_TEXT','STRING','UTF-8' \
 # #endif
                         ]
+
+    def __str__(self):
+        s = {}
+        for name in ['value', 'name']:
+            res = getattr(self, name, None)
+            if res is not None:
+                s[name] = res
+        s.update(self._attributes)
+        return str(s)
         
     def init(self, treeView):
         pass
@@ -152,9 +162,9 @@ class _KoTool(object):
 
     def saveNewToolToDisk(self, path):
         data = {}
-        data['value'] = self.value.split(eol)
+        data['value'] = eol_re.split(self.value)
+        data['type'] = self.typeName
         data['name'] = self.name
-        data['id'] = self.id
         for name in self._attributes:
             data[name] = self._attributes[name]
         fp = open(path, 'w')
@@ -168,7 +178,8 @@ class _KoTool(object):
         fp = open(path, 'r')
         data = json.load(fp, encoding="utf-8")
         fp.close()
-        data['value'] = self.value.split(eol)
+        data['value'] = eol_re.split(self.value)
+        data['type'] = self.typeName
         data['name'] = getattr(self, 'name', data['name'])
         for attr in self._attributes:
             newVal = self._attributes[attr]
@@ -407,9 +418,11 @@ class KoToolbox2HTreeView(TreeView):
     def __init__(self, debug=None):
         TreeView.__init__(self, debug=0)
         self._rows = []
+        self._nodeOpenStatusFromName = {}
         self._tree = None
         self.toolbox_db = None
         self._tools = {}  # Map a tool's id to a constructed object
+        self.doUpdateRowCount = True
         global eol
         if eol is None:
             eol = eollib.eol2eolStr[eollib.EOL_PLATFORM]
@@ -431,6 +444,13 @@ class KoToolbox2HTreeView(TreeView):
             tool = createPartFromType(tool_type, name, path_id)
             self._tools[path_id] = tool
         return self._tools[path_id]
+    
+    def getIndexByPath(self, path):
+        # This way is slower...
+        for i, tool in enumerate(self._rows):
+            if tool.get_path() == path:
+                return i
+        return -1
     
     def getIndexByTool(self, tool):
         tool = UnwrapObject(tool)
@@ -518,10 +538,9 @@ class KoToolbox2HTreeView(TreeView):
 
     def addNewItemToParent(self, parent, item):
         #TODO: if parent is null, use the std toolbox node
-        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
-        parent_path = tbdbSvc.getPath(parent.id)
         item = UnwrapObject(item)
+        parent = UnwrapObject(parent)
+        parent_path = self.toolbox_db.getPath(parent.id)
         item_name = item.name
         itemIsContainer = item.isContainer
         if itemIsContainer:
@@ -560,6 +579,7 @@ class KoToolbox2HTreeView(TreeView):
                 item.saveNewToolToDisk(path)
         except:
             log.exception("addNewItemToParent: failed")
+            raise
         else:
             # Add and show the new item
             index = self.getIndexByTool(parent)
@@ -590,6 +610,10 @@ class KoToolbox2HTreeView(TreeView):
             lastIndex = index + 1
         tool = self._rows[index]
         tool_id = tool.id
+        try:
+            del self._tools[tool_id]
+        except KeyError:
+            pass
         parent_tool = None
         res = self.toolbox_db.getValuesFromTableByKey('hierarchy',
                                                       ['parent_path_id'],
@@ -597,8 +621,14 @@ class KoToolbox2HTreeView(TreeView):
         if res:
             parent_tool = self._tools.get(res[0], None)
         tool.delete()
+        for row in self._rows[index:lastIndex]:
+            try:
+                del self._nodeOpenStatusFromName[row.get_path()]
+            except KeyError:
+                pass
         del self._rows[index:lastIndex]
-        self._tree.rowCountChanged(index, index - lastIndex)
+        if self.doUpdateRowCount:
+            self._tree.rowCountChanged(index, index - lastIndex)
         if parent_tool:
             for i, node in enumerate(parent_tool.childNodes):
                 if node[0] == tool_id:
@@ -609,6 +639,133 @@ class KoToolbox2HTreeView(TreeView):
 
     def copyLocalFolder(self, srcPath, targetDirPath):
         fileutils.copyLocalFolder(srcPath, targetDirPath)
+        
+    def pasteItemsIntoTarget(self, targetIndex, paths, copying):
+        targetTool = self.getTool(targetIndex)
+        if not targetTool.isContainer:
+            raise Exception("pasteItemsIntoTarget: item at row %d isn't a container, it's a %s" %
+                            (targetIndex, targetTool.typeName))
+        targetPath = targetTool.get_path()
+        targetId = self.toolbox_db.get_id_from_path(targetPath)
+        if targetId is None:
+            raise Exception("target %s (%d) isn't in the database" % (
+                targetPath, targetIndex
+            ))
+        before_len = len(self._rows)
+        firstVisibleRow = self._tree.getFirstVisibleRow()
+        self.doUpdateRowCount = False
+        try:
+            for path in paths:
+                if not os.path.exists(path):
+                    #TODO: Bundle all the problems into one string that gets raised back.
+                    log.debug("Path %s doesn't exist", path)
+                if os.path.isdir(path):
+                    self._pasteContainerIntoTarget(targetId, targetIndex, targetPath, path, copying)
+                else:
+                    self._pasteItemIntoTarget(targetIndex, targetPath, targetTool, path, copying)
+        finally:
+            after_len = len(self._rows)
+            self.doUpdateRowCount = True
+        delta = after_len - before_len
+        if delta:
+            self._tree.rowCountChanged(0, delta)
+        self._tree.invalidate()
+                
+    def _pasteItemIntoTarget(self, targetIndex, targetPath, targetTool, srcPath, copying):
+        # Only sanity check is for copying/moving into current location.
+        # Otherwise no check for leaves, like are we copying
+        # into a ancestor node (who cares), or is the target a child of the src
+        # -- that's impossible
+        if targetPath == os.path.dirname(srcPath):
+            log.debug("Skipping a self copy of %s into %s", srcPath, targetPath)
+            return
+        try:
+            fp = open(srcPath, 'r')
+        except:
+            log.error("Failed to open %s", srcPath)
+            return
+        try:
+            data = json.load(fp, encoding="utf-8")
+        except:
+            log.exception("Failed to json load %s", srcPath)
+            return
+        finally:
+            fp.close()
+        try:
+            typeName = data['type']
+        except KeyError:
+            #XXX: Collect this, alert the user
+            log.error("_pasteItemIntoTarget: no type field in tool %s", srcPath)
+            return
+        try:
+            del data['id']
+        except KeyError:
+            pass
+        newItem = self.createToolFromType(data['type'])
+        if 'value' in data:
+            # Value strings in .kotool files are stored as lines without CRs
+            # In the database they're stored as a single string.
+            # Convert into the database type, as that's what
+            # _finishUpdatingSelf expects
+            data['value'] = eol.join(data['value'])
+        newItem._finishUpdatingSelf(data)
+        self.addNewItemToParent(targetTool, newItem)
+        # After addNewItemToParent, the srcPath could be at a different location.
+        if self.isContainerOpen(targetIndex):
+            if self.doUpdateRowCount:
+                self._tree.rowCountChanged(targetIndex, 1)
+        if not copying:
+            self._removeItemByPath(srcPath)
+            
+    def _pasteContainerIntoTarget(self, targetId, targetIndex, targetPath, targetTool, srcPath, copying):
+        # Sanity checks:
+        # Don't paste an item into its child
+        #    Includes: don't paste an item onto itself.
+        if srcPath.startswith(targetPath):
+            log.debug("Skipping child copy of %s into %s", path, targetPath)
+            return
+        #TODO: Support Menus and Toolbars!
+        srcBaseName = os.path.basename(srcPath)
+        finalTargetPath = os.path.join(targetPath, srcBaseName)
+        os.mkdir(finalTargetPath)
+        # Add to the db
+        newDetailsDict = {'name': srcBaseName}
+        child_id = self.toolbox_db.addContainerItem(newDetailsDict,
+                                                    'folder',  ### menu|toolbar
+                                                    finalTargetPath,
+                                                    srcBaseName,
+                                                    targetId)
+        targetTool = self.getToolById(targetId)
+        for childFile in os.listdir(targetPath):
+            path = os.path.join(targetPath, childFile)
+            if os.path.isdir(path):
+                self._pasteContainerIntoTarget(child_id, -1, finalTargetPath, targetTool, path, copying)
+            else:
+                self._pasteItemIntoTarget(targetIndex, targetPath, targetTool, path, copying)
+        if not copying:
+            self._removeItemByPath(srcPath)
+
+    def _removeItemByPath(self, srcPath):
+        # Remove the tool from the self._tools cache
+        src_id = self.toolbox_db.get_id_from_path(srcPath)
+        if src_id is None:
+            log.debug("_removeItemByPath: no id for path %s", srcPath)
+            return
+        srcTool = self.getToolById(src_id)
+        if srcTool is None:
+            log.debug("_removeItemByPath: no tool for id %d", src_id)
+            return
+        try:
+            del self._tools[src_id]
+        except KeyError:
+            pass
+
+        # Remove the tool from the tree view
+        srcIndex = self.getIndexByTool(srcTool)
+        if srcIndex == -1:
+            srcIndex = self.getIndexByPath(srcPath)
+        if srcIndex >= 0:
+            self.deleteToolAt(srcIndex)
 
     def _zipNode(self, zf, currentDirectory):
         nodes = os.listdir(currentDirectory)
@@ -666,6 +823,17 @@ class KoToolbox2HTreeView(TreeView):
         return selectedIndices
         
     def initialize(self):
+        prefs = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService).prefs
+        if not prefs.hasPref("toolbox2"):
+            toolboxPrefs = components.classes["@activestate.com/koPreferenceSet;1"].createInstance()
+            prefs.setPref("toolbox2", toolboxPrefs)
+        else:
+            toolboxPrefs = prefs.getPref("toolbox2")
+        if toolboxPrefs.hasPref("open-nodes"):
+            self._nodeOpenStatusFromName = json.loads(toolboxPrefs.getStringPref("open-nodes"))
+        else:
+            self._nodeOpenStatusFromName = {}
         #XXX Unhardwire this
         db_path = r"c:\Users\ericp\trash\toolbox-test.sqlite"
         schemaFile = r"c:\Users\ericp\svn\apps\komodo\src\toolbox\koToolbox.sql"
@@ -692,12 +860,29 @@ class KoToolbox2HTreeView(TreeView):
         self.toolbox_db.toolManager = self
         top_level_nodes = self.toolbox_db.getTopLevelNodes()
         before_len = len(self._rows)
-        for path_id, name, node_type in top_level_nodes:
-            toolPart = self._getOrCreateTool(node_type, name, path_id)
-            toolPart.level = 1
-            self._rows.append(toolPart)
-        after_len = len(self._rows)
+        try:
+            self.doUpdateRowCount = False
+            for path_id, name, node_type in top_level_nodes:
+                toolPart = self._getOrCreateTool(node_type, name, path_id)
+                toolPart.level = 1
+                self._rows.append(toolPart)
+                try:
+                    if self._nodeOpenStatusFromName[toolPart.get_path()]:
+                        index = len(self._rows) - 1
+                        self._doContainerOpen(self._rows[index], index,
+                                              scrollAtEnd=False)
+                except KeyError:
+                    pass
+            after_len = len(self._rows)
+        finally:
+            self.doUpdateRowCount = True
         self._tree.rowCountChanged(0, after_len - before_len)
+
+    def terminate(self):
+        prefs = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService).prefs
+        prefs.getPref("toolbox2").setStringPref("open-nodes",
+                                  json.dumps(self._nodeOpenStatusFromName))
 
     def getTool(self, index):
         try:
@@ -797,6 +982,10 @@ class KoToolbox2HTreeView(TreeView):
     def toggleOpenState(self, index):
         rowNode = self._rows[index]
         if rowNode.isOpen:
+            try:
+                del self._nodeOpenStatusFromName[rowNode.get_path()]
+            except KeyError:
+                pass
             nextIndex = self.getNextSiblingIndex(index)
             #qlog.debug("toggleOpenState: index:%d, nextIndex:%d", index, nextIndex)
             if nextIndex == -1:
@@ -810,25 +999,42 @@ class KoToolbox2HTreeView(TreeView):
                 del self._rows[index + 1: nextIndex]
             #qlog.debug("toggleOpenState: numNodesRemoved:%d", numNodesRemoved)
             if numNodesRemoved:
-                self._tree.rowCountChanged(index + 1, -numNodesRemoved)
-                #log.debug("index:%d, numNodesRemoved:%d, numLeft:%d", index, numNodesRemoved, len(self._rows))
+                if self.doUpdateRowCount:
+                    self._tree.rowCountChanged(index, -numNodesRemoved)
             rowNode.isOpen = False
         else:
-            childNodes = sorted(rowNode.childNodes, cmp=self._compareChildNode)
-            if childNodes:
+            self._doContainerOpen(rowNode, index, scrollAtEnd=True)
+            self._nodeOpenStatusFromName[rowNode.get_path()] = True
+
+    def _doContainerOpen(self, rowNode, index, scrollAtEnd=True):
+        childNodes = sorted(rowNode.childNodes, cmp=self._compareChildNode)
+        if childNodes:
+            if scrollAtEnd:
                 selectedRowIndex = index
                 firstVisibleRow = self._tree.getFirstVisibleRow()
-                posn = index + 1
-                for path_id, name, node_type in childNodes:
-                    toolPart = self._getOrCreateTool(node_type, name, path_id)
-                    toolPart.level = rowNode.level + 1
-                    self._rows.insert(posn, toolPart)
-                    posn += 1
-                #qlog.debug("rowCountChanged: index: %d, numRowChanged: %d", index, numRowChanged)
+            posn = index + 1
+            for path_id, name, node_type in childNodes:
+                toolPart = self._getOrCreateTool(node_type, name, path_id)
+                toolPart.level = rowNode.level + 1
+                self._rows.insert(posn, toolPart)
+                posn += 1
+            if self.doUpdateRowCount:
                 self._tree.rowCountChanged(index, len(childNodes))
-                rowNode.isOpen = True
+            rowNode.isOpen = True
+            if scrollAtEnd:
                 self.selection.select(selectedRowIndex)
                 self._tree.ensureRowIsVisible(selectedRowIndex)
+            # Now open internal nodes working backwards
+            lastIndex = index + len(childNodes)
+            firstIndex = index
+            for i, row in enumerate(self._rows[lastIndex: index: -1]):
+                try:
+                    openNode = self._nodeOpenStatusFromName[row.get_path()]
+                except KeyError:
+                    pass
+                else:
+                    if openNode:
+                        self._doContainerOpen(row, lastIndex - i, scrollAtEnd=False)
                 
             
     def _compareChildNode(self, item1, item2):
