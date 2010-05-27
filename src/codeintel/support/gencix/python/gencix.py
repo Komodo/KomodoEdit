@@ -64,8 +64,10 @@ except ImportError:
             from ElementTree import Element, SubElement, ElementTree
 
 import sys, time, os
+_gIsPy3 = True
 if sys.version_info < (3, ):
     import __builtin__
+    _gIsPy3 = False
 from pydoc import visiblename, classname, _split_list, isdata, ispackage, getdoc
 import sys
 import re
@@ -309,7 +311,8 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
         modinfo = imp.find_module(modname, [dir])
         try:
             obj = imp.load_module(modname, *modinfo)
-        except ImportError, ex:
+        except ImportError:
+            ex = sys.exc_info()[1]
             cixfile = SubElement(root, "file",
                                  lang="Python",
                                  mtime=str(int(time.time())),
@@ -361,9 +364,9 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
             inspect.isroutine(value) or
             inspect.isbuiltin(value)):
             process_routine(moduleElt, value, key, callables)
-        elif inspect.isclass(value) or isinstance(value, types.TypeType):
+        elif inspect.isclass(value) or (not _gIsPy3 and isinstance(value, types.TypeType)):
             process_class(moduleElt, value, key, callables)
-        elif isinstance(value, types.InstanceType):
+        elif (_gIsPy3 and hasattr(value, 'class')) or (not _gIsPy3 and isinstance(value, types.InstanceType)):
             klass = value.__class__
             if klass.__module__ == name:
                 t = klass.__name__
