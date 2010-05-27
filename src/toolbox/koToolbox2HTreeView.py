@@ -347,6 +347,15 @@ class _KoMacroTool(_KoTool):
         self.flavors.insert(0,'text/x-moz-url')
         self._attributes['language'] = 'JavaScript'  # default.
 
+    def delete(self):
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                       .getService(components.interfaces.nsIObserverService)
+        try:
+            _observerSvc.notifyObservers(self, 'macro-unload','')
+        except Exception:
+            pass
+        _KoTool.delete(self)
+        
     def updateSelf(self, toolbox_db):
         info = toolbox_db.getMacroInfo(self.id)
         #log.debug("macro info: %s", info)
@@ -590,6 +599,13 @@ class KoToolbox2HTreeView(TreeView):
                 
             old_id = item.id
             item.id = new_id
+            if item.typeName == 'macro':
+                _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                               .getService(components.interfaces.nsIObserverService)
+                try:
+                    _observerSvc.notifyObservers(item, 'macro-load','')
+                except Exception:
+                    pass
             try:
                 del self._tools[old_id]
             except KeyError:
@@ -845,6 +861,10 @@ class KoToolbox2HTreeView(TreeView):
                 index += 1
         return selectedIndices
     
+    def getTriggerMacros(self):
+        ids = self.toolbox_db.getTriggerMacroIDs()
+        return [self.getToolById(id) for id in ids]
+    
     def refreshFullView(self):
         i = 0
         lim = len(self._rows)
@@ -916,6 +936,12 @@ class KoToolbox2HTreeView(TreeView):
                        getService(components.interfaces.koIToolboxDatabaseService))
         self.toolbox_db.initialize(db_path)
         self.toolbox_db.toolManager = self
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                .getService(components.interfaces.nsIObserverService)
+        try:
+            _observerSvc.notifyObservers(None, 'toolbox-loaded', '')
+        except Exception:
+            pass
         top_level_nodes = self.toolbox_db.getTopLevelNodes()
         before_len = len(self._rows)
         for path_id, name, node_type in top_level_nodes:
@@ -942,6 +968,13 @@ class KoToolbox2HTreeView(TreeView):
             log.debug("currentIndex: %d", currentIndex)
 
     def terminate(self):
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                .getService(components.interfaces.nsIObserverService)
+        try:
+            _observerSvc.notifyObservers(None, 'toolbox-unloaded', '')
+        except Exception:
+            log.debug("no one's watching toolbox-unloaded")
+            pass
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
         try:

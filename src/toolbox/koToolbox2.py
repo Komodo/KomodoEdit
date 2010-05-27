@@ -523,6 +523,15 @@ class Database(object):
         # Komodo accesses the value by as a URL so it can
         # get a koFileEx obj
         return obj
+    
+    def getTriggerMacroIDs(self):
+        with self.connect() as cu:
+            stmt = 'select path_id from macro where trigger_enabled = ? and trigger != ?'
+            cu.execute(stmt, (True, ""))
+            res = cu.fetchall()
+            if res is None: return
+        ids = [x[0] for x in res]
+        return ids        
 
     def getMacroInfo(self, path_id, cu=None):
         obj = {}

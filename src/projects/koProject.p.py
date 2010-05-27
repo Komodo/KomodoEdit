@@ -1116,19 +1116,7 @@ class koMacroPart(koPart):
             except OSError:
                 log.warn("Couldn't read the macro: %r, skipping conversion", fname)
                 return
-        if not self._project._quiet:
-            try:
-                self._getObserverSvc().notifyObservers(self,'macro-load','')
-            except:
-                pass # no listener
         koPart.added(self)
-
-    def removed(self, previous_parent):
-        try:
-            self._getObserverSvc().notifyObservers(self, 'macro-unload', '')
-        except:
-            pass # no listener
-        koPart.removed(self, previous_parent)
 
     def _asyncMacroCheck(self, async):
         if async:
@@ -2433,14 +2421,9 @@ class koProject(koLiveFolderPart):
         for toolbar in toolbars:
             self._getObserverSvc().notifyObservers(toolbar, 'toolbar_remove', 'toolbar_remove')
 
-    def unloadMacros(self):
-        for macro in self.getChildrenByType('macro', 1):
-            self._getObserverSvc().notifyObservers(macro, 'macro-unload', '')
-
     def close(self):
         if self._active:
             self.deactivate()
-        self.unloadMacros()
 
         self.set_isDirty(0)
         del self._urlmap

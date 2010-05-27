@@ -219,6 +219,12 @@ this.findToolById = function(id) {
     return this.manager.view.getToolById(id);
 };
 
+this.getTriggerMacros = function() {
+    var obj = {};
+    this.manager.view.getTriggerMacros(obj, {});
+    return obj.value;
+};
+
 }).apply(ko.toolbox2);
 
 window.addEventListener("load", ko.toolbox2.onLoad, false);
