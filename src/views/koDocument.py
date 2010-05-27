@@ -44,7 +44,6 @@ from hashlib import md5
 import re
 import sys
 import cStringIO
-import timeline
 import stat, os, time
 
 import eollib
@@ -74,7 +73,6 @@ class koDocumentBase:
     _DOCUMENT_SIZE_ANY_LARGE = 2
 
     def __init__(self):
-        timeline.enter('koDocumentBase.__init__')
         # Grab a reference to the global preference service.
         self._globalPrefSvc = components.classes["@activestate.com/koPrefService;1"].\
                             getService(components.interfaces.koIPrefService)
@@ -139,8 +137,6 @@ class koDocumentBase:
         # document's language service.  Useful for using a different colorizer,
         # usually text for a large document.
         self.lexer = None
-
-        timeline.leave('koDocumentBase.__init__')
     
     #TODO: refactor so `init` and `_dereference` actually sound like they relate (which they do)
     #      also make `init` internal
@@ -174,7 +170,6 @@ class koDocumentBase:
         self.ciBuf = codeIntelSvc.buf_from_koIDocument(self)
 
     def initWithFile(self, file, untitled):
-        timeline.enter('koDocumentBase.initWithFile')
         log.info("initWithFile(file=%s, ...)", file.URI)
         self.isUntitled = untitled
         self.file = file
@@ -187,10 +182,7 @@ class koDocumentBase:
         # self._initCIBuf() can be removed for all cases.
         self._initCIBuf()
 
-        timeline.leave('koDocumentBase.initWithFile')
-
     def initUntitled(self, name, encoding):
-        timeline.enter('koDocumentBase.initUntitled')
         log.info("initUntitled(name=%r, ...)", name)
         self.isUntitled = 1
         self._untitledName = name
@@ -199,7 +191,6 @@ class koDocumentBase:
         if self._language is None:
             self._guessLanguage()
         self._initCIBuf()
-        timeline.leave('koDocumentBase.initUntitled')
 
     def addReference(self):
         self._refcount += 1
@@ -222,7 +213,6 @@ class koDocumentBase:
         So after __init__, self.prefs is None, until we get an "initWith....()" call.
         Note that some things like encoding derive from prefs.
         """
-        timeline.enter('koDocumentBase._setupPrefs')
         # Create a preference set to hold doc preferences
         docStateMRU = self._globalPrefSvc.getPrefs("docStateMRU");
         if not self.isUntitled and docStateMRU.hasPref(self.file.URI):
@@ -256,7 +246,6 @@ class koDocumentBase:
         # yet not stored in prefs except if set explicitely.
         log.debug("adding prefs observer")
         self.prefs.addObserver(self)
-        timeline.leave('koDocumentBase._setupPrefs')
 
     def getEffectivePrefs(self):
         # this returns either a prefset from a project, or my own prefset
@@ -298,8 +287,6 @@ class koDocumentBase:
 
     def _guessLanguage(self):
         """Guess and set this document's language."""
-        timeline.enter('koDocumentBase._guessLanguage')
-
         # If a preferred language was specifically set for this document
         # then just use that, unless it's too large for Komodo.
 
@@ -367,7 +354,6 @@ class koDocumentBase:
             language = "Text"
         self._language = language
         self._setLangPrefs()
-        timeline.leave('koDocumentBase._guessLanguage')
 
     def loadFromURI(self, uri):
         filesvc = components.classes["@activestate.com/koFileService;1"] \
@@ -381,14 +367,12 @@ class koDocumentBase:
         self._loadFromFile(self.file)
         
     def _loadFromFile(self, file):
-        timeline.enter('koDocumentBase._loadFromFile')
         if self.get_numScintillas() > 0:
             # The file is already loaded, in another window.
             # If we don't return here, two things can happen:
             # 1. A dirty buffer in another window will be reverted
             #    to the contents on disk.
             # 2. Any markers in the document will be cleared.
-            timeline.leave('koDocumentBase._loadFromFile')
             return
         self._loadfile(file)
         self._guessLanguage()
@@ -401,9 +385,7 @@ class koDocumentBase:
             if current_eol in (eollib.EOL_MIXED, eollib.EOL_NOEOL):
                 current_eol = eollib.eolPref2eol[eolpref]
         self.set_new_line_endings(current_eol)
-            
-        timeline.leave('koDocumentBase._loadFromFile')
-        
+
     def _classifyDocumentBySize(self, data):
         """ Return 0 if it's short, 1 if it's long for a UDL-based
             file, 2 if it's long by any means.
@@ -434,7 +416,6 @@ class koDocumentBase:
         return returnFactor
 
     def _loadfile(self, file):
-        timeline.enter('koDocumentBase._loadfile')
         if file:
             data = self._get_buffer_from_file(file)
             self._documentSizeFactor = self._classifyDocumentBySize(data)
@@ -454,10 +435,8 @@ class koDocumentBase:
                 # ignore, noone listening
                 pass
         self.set_isDirty(0)
-        timeline.leave('koDocumentBase._loadfile')
         
     def _get_buffer_from_file(self, file):
-        timeline.enter('koDocumentBase._get_buffer_from_file')
         try:
             file.open('rb')
             data = file.read(-1)
@@ -469,14 +448,12 @@ class koDocumentBase:
             # PyXPCOM complains on stderr if a COMException passes out
             # of the Python run-time.
             raise ServerException(ex.errno, str(ex))
-        timeline.leave('koDocumentBase._get_buffer_from_file')
         return data
 
     def get_isDirty(self):
         return self._isDirty
     
     def set_isDirty(self,isDirty):
-        timeline.enter('koDocumentBase.set_isDirty')
         self._isDirty = isDirty
         try:
             self.observerService.notifyObservers(self,'buffer_dirty',str(isDirty))
@@ -484,7 +461,6 @@ class koDocumentBase:
             pass # no one is listening!
         if not self._isDirty:
             self.removeAutoSaveFile()
-        timeline.leave('koDocumentBase.set_isDirty')
 
     def differentOnDisk(self):
         if self.isUntitled or \
@@ -542,7 +518,6 @@ class koDocumentBase:
         return self._language
     
     def set_language(self,language):
-        timeline.enter('koDocumentBase.set_language')
         log.info("setting language to " + language);
         self._language = language
         
@@ -561,7 +536,6 @@ class koDocumentBase:
             self.observerService.notifyObservers(self,'language_changed',language)
         except COMException, e:
             pass # no one is listening!
-        timeline.leave('koDocumentBase.set_language')
 
     def get_languageObj(self):
         if self._language is None:
@@ -621,7 +595,6 @@ class koDocumentBase:
         return self._buffer
     
     def set_buffer(self, text, makeDirty=1):
-        timeline.enter('koDocumentBase.set_buffer')
         # detect encoding and set codePage, buffer
         if text:
             if not isinstance(text, unicode):
@@ -642,10 +615,8 @@ class koDocumentBase:
         log.info("set_buffer encoding %s codePage %r", self.encoding.python_encoding_name, self._codePage)
         self.prefs.setStringPref("encoding",
                                  self.encoding.python_encoding_name)
-        timeline.leave('koDocumentBase.set_buffer')
 
     def _set_buffer_encoded(self,text,makeDirty=1):
-        timeline.enter('koDocumentBase._set_buffer_encoded')
         was_dirty = self.get_isDirty()
         if self._docPointer:
             scimoz = self._views[0].scimoz
@@ -677,7 +648,6 @@ class koDocumentBase:
             self.observerService.notifyObservers(self,'buffer_changed','')
         except COMException, e:
             pass # no one is listening!
-        timeline.leave('koDocumentBase._set_buffer_encoded')
 
     def get_bufferLength(self):
         # XXX as we add more methods, we'll need a better system
@@ -692,7 +662,6 @@ class koDocumentBase:
             raise ServerException(nsError.NS_ERROR_FAILURE,
                                   "Invalid line ending: %s" % le)
 
-        timeline.enter('koDocumentBase.set_existing_line_endings')
         if self._docPointer:
             scimoz = self._views[0].scimoz            
             scimoz.beginUndoAction()
@@ -707,7 +676,6 @@ class koDocumentBase:
             self.observerService.notifyObservers(self,'buffer_changed','')
         except COMException, e:
             pass # no one is listening!
-        timeline.leave('koDocumentBase.set_existing_line_endings')
 
     def get_existing_line_endings(self):
         endings, recommended = eollib.detectEOLFormat(self.get_buffer())
@@ -1315,7 +1283,6 @@ class koDocumentBase:
     # The document manages a reference count of the views onto that
     # document. When the last view 
     def addView(self, scintilla):
-        timeline.enter('koDocumentBase.AddView')
         self._views.append(scintilla)
         scimoz = scintilla.scimoz
         xpself = WrapObject(self, components.interfaces.koIDocument)
@@ -1331,10 +1298,8 @@ class koDocumentBase:
             self.docSettingsMgr.register(xpself, scintilla)
         scimoz.codePage = self._codePage
         log.info("in AddView")
-        timeline.leave('koDocumentBase.AddView')
     
     def releaseView(self, scintilla):
-        timeline.enter('koDocumentBase.releaseView')
         try:
             #print "Releasing View"
             if scintilla not in self._views:
@@ -1356,7 +1321,6 @@ class koDocumentBase:
         except Exception, e:
             log.exception(e)
             raise
-        timeline.leave('koDocumentBase.releaseView')
 
     def getView(self):
         try:
@@ -1399,25 +1363,20 @@ class koDocumentBase:
         self.prefs.setBooleanPref('useTabs', value) # will affect _useTabs through prefs observers
 
     def get_indentWidth(self):
-        
-        timeline.enter('koDocumentBase.get_indentWidth')
-        try:
-            if self._indentWidth is None:
-                log.info("_indentWidth is None")
-                if self.prefs.hasPrefHere('indentWidth'):
-                    # get from document prefs
-                    self._indentWidth = self.prefs.getLongPref('indentWidth')
-                    log.info('got _indentWidth from prefs: %r' % self._indentWidth)
-                elif self.prefs.hasPref('useSmartTabs') and \
-                    self.prefs.getBooleanPref('useSmartTabs'):
-                    self._guessIndentWidth()
-                else:
-                    # get from global prefs
-                    self._indentWidth = self.prefs.getLongPref('indentWidth')
+        if self._indentWidth is None:
+            log.info("_indentWidth is None")
+            if self.prefs.hasPrefHere('indentWidth'):
+                # get from document prefs
+                self._indentWidth = self.prefs.getLongPref('indentWidth')
+                log.info('got _indentWidth from prefs: %r' % self._indentWidth)
+            elif self.prefs.hasPref('useSmartTabs') and \
+                self.prefs.getBooleanPref('useSmartTabs'):
+                self._guessIndentWidth()
             else:
-                log.info("_indentWidth is not none, it's %s" % self._indentWidth)
-        finally:
-            timeline.leave('koDocumentBase.get_indentWidth')
+                # get from global prefs
+                self._indentWidth = self.prefs.getLongPref('indentWidth')
+        else:
+            log.info("_indentWidth is not none, it's %s" % self._indentWidth)
         return self._indentWidth
 
     def set_indentWidth(self, value):
@@ -1434,7 +1393,6 @@ class koDocumentBase:
         self.prefs.setLongPref('tabWidth', value) # will affect _useTabs through prefs observers
 
     def _guessFileIndentation(self):
-        timeline.enter('koDocumentBase._guessFileIndentation')
         # Heuristic to determine what file indentation settings the user
         # likely wants for this file.
         log.info("in _guessFileIndentation")
@@ -1505,7 +1463,6 @@ class koDocumentBase:
                 v.scimoz.useTabs = self._useTabs
                 v.scimoz.indent = self._indentWidth
                 v.scimoz.tabWidth = self._tabWidth
-        timeline.leave('koDocumentBase._guessFileIndentation')
 
     # Guess indent-width from text content. (Taken from IDLE.)
     #
@@ -1632,7 +1589,6 @@ class koDocumentBase:
         return 0
     
     def doAutoSave(self):
-        timeline.enter('koDocumentBase.doAutoSave')
         try:
             # no point in autosaving if we're not dirty
             if not self._isDirty or self.isUntitled or not self._wrapSelf: return
@@ -1673,21 +1629,17 @@ class koDocumentBase:
                 return
         finally:
             #log.debug("doAutoSave finally")
-            timeline.leave('koDocumentBase.doAutoSave')
+            pass
     
     def restoreAutoSave(self):
         if self.isUntitled: return
-        timeline.enter('koDocumentBase.restoreAutoSave')
-        try:
-            autoSaveFile = self._getAutoSaveFile()
-            self._loadfile(autoSaveFile)
-            self.set_isDirty(1)
-            # fix the file content md5
-            data = self._get_buffer_from_file(self.file)
-            self._lastmd5 = md5(data).digest()
-        finally:
-            timeline.leave('koDocumentBase.restoreAutoSave')
-            
+        autoSaveFile = self._getAutoSaveFile()
+        self._loadfile(autoSaveFile)
+        self.set_isDirty(1)
+        # fix the file content md5
+        data = self._get_buffer_from_file(self.file)
+        self._lastmd5 = md5(data).digest()
+
     # Methods for maintaining the state of tabstop insertion
     # on the document.  When self._tabstopInsertionNodes is
     # null there are no tabstops to process.
