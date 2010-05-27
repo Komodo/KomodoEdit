@@ -48,7 +48,6 @@ import difflib
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import WrapObject, UnwrapObject
 from xpcom.client import WeakReference
-import timeline
 
 import eollib
 import difflibex
@@ -186,7 +185,6 @@ class KoDocumentService:
 
     #DEPRECATED
     def createDocumentFromFile(self, file):
-        timeline.enter('createDocumentFromFile')
         doc = self.findDocumentByURI(file.URI)
         if doc:
             log.info("found document with existing URI: %s", file.URI)
@@ -202,12 +200,10 @@ class KoDocumentService:
             self._documents[doc.displayPath] = WeakReference(doc)
         finally:
             self._cDoc.release()
-        timeline.leave('createDocumentFromFile')
         return doc
 
     #koIDocument createDocumentFromURI(in wstring uri);
     def createDocumentFromURI(self, uri):
-        timeline.enter('createDocumentFromURI')
         doc = self.findDocumentByURI(uri)
         if doc:
             log.info("found document with existing URI: %s", uri)
@@ -234,7 +230,6 @@ class KoDocumentService:
             self._documents[doc.displayPath] = WeakReference(doc)
         finally:
             self._cDoc.release()
-        timeline.leave('createDocumentFromURI')
         return doc
 
     def _getEncodingFromFilename(self, fname):
