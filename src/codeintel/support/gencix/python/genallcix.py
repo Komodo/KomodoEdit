@@ -349,7 +349,10 @@ def get_py_26_executable():
             ci_dir = dirname(dirname(dirname(dirname(abspath(__file__)))))
             sys.path.append(join(ci_dir, "support"))
             import which
-        for python_exe in which.whichall('python.exe'):
+        python_exe = "python"
+        if sys.platform.startswith('win'):
+            python_exe = "python.exe"
+        for python_exe in which.whichall(python_exe):
             version = ""
             cwd = os.path.dirname(python_exe)
             argv = [python_exe, "-c", "import sys; sys.stdout.write(sys.version)"]
