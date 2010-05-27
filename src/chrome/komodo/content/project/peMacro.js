@@ -332,7 +332,6 @@ function MacroEventHandler() {
     obsSvc.addObserver(this, 'javascript_macro',false);
     obsSvc.addObserver(this, 'command-docommand',false);
     obsSvc.addObserver(this, 'toolbox-loaded', false);
-    //obsSvc.addObserver(this, 'toolbox-unloaded', false);
 
     ko.main.addWillCloseHandler(this.finalize, this);
 
@@ -350,7 +349,6 @@ MacroEventHandler.prototype.finalize = function() {
     obsSvc.removeObserver(this, 'javascript_macro');
     obsSvc.removeObserver(this, 'command-docommand');
     obsSvc.removeObserver(this, 'toolbox-loaded');
-    //obsSvc.removeObserver(this, 'toolbox-unloaded');
     } catch(ex) {
         this.log.exception(ex);
     }
@@ -717,15 +715,6 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
                 }
                 this.loadTriggerMacros();
                 break;
-            /*
-            case 'toolbox-unloaded':
-                if (ko.windowManager.getMainWindow() != window) {
-                    dump("... return\n");
-                    return;
-                }
-                this.unloadTriggerMacros();
-                break;
-            */
         };
     } catch (e) {
         log.exception(e);
