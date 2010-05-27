@@ -485,21 +485,6 @@ MacroEventHandler.prototype.loadTriggerMacros = function() {
         });
 };
 
-/*
-  // Currently not called.
-MacroEventHandler.prototype.unloadTriggerMacros = function() {
-    for (var topic in this._trigger_observers) {
-        var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-               getService(Components.interfaces.nsIObserverService);
-        obsSvc.removeObserver(this._triggerWrapper, topic);
-        delete this._trigger_observers[topic];
-    }
-    for (var prop in this._hookedMacrosByTrigger) {
-        this._hookedMacrosByTrigger[prop] = [];
-    }
-};
-*/
-
 MacroEventHandler.prototype._addObserverMacro = function(macropart) {
     var topic = macropart.getStringAttribute('trigger_observer_topic');
     if (!(topic in this._trigger_observers)) {
