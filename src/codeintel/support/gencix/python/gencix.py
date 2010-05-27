@@ -384,7 +384,7 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
     helpername = os.path.join("helpers", modname + '_helper.py')
     namespace = {}
     if os.path.exists(helpername):
-        print >> sys.stderr, "Found helper module: %r" % helpername
+        sys.stderr.write("Found helper module: %r\n" % helpername)
         execfile(helpername, namespace, namespace)
         # look in helpername for analyze_retval_exprs, which is a list of (callable_string, *args)
         # and which corresponds to callables which when called w/ the specified args, will return
