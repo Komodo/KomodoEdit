@@ -124,6 +124,8 @@ def mkenvconf():
         join(komodo_src_dir, "util"),
     ]
     if sys.platform == "win32":
+        # Also need the winprocess module on Windows.
+        pythonpaths.append(join(dirname(komodo_src_dir), "contrib", "smallstuff"))
         envconf.append("set PYTHONPATH=%s;%%PYTHONPATH%%"
                        % os.pathsep.join(pythonpaths))
     else:
