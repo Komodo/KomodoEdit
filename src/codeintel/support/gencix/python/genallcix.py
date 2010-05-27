@@ -60,9 +60,25 @@ Generation guide:
 # Update citdl/returns expressions of the form "x.__dict__" to "dict".
 
 import gencix, os, re, sys, time, string
-from ciElementTree import Element, SubElement, ElementTree, parse
-from codeintel2 import pythoncile
-from codeintel2.tree import tree_from_cix
+
+try:
+    # Codeintel's specialized elementtree.
+    import ciElementTree as ET
+    from ciElementTree import Element, SubElement, ElementTree, parse
+except ImportError:
+    #import warnings
+    #warnings.warn("Could not import ciElementTree", category="codeintel")
+    try:
+        # Python 2.5 or 2.6
+        import xml.etree.cElementTree as ET
+        from xml.etree.cElementTree import Element, SubElement, ElementTree, parse
+    except ImportError:
+        try:
+            import cElementTree as ET
+            from cElementTree import Element, SubElement, ElementTree, parse
+        except ImportError:
+            import ElementTree as ET
+            from ElementTree import Element, SubElement, ElementTree, parse
 
 major, minor = sys.version_info[:2]
 if sys.platform == 'win32':
@@ -101,12 +117,33 @@ _moduleNameCache = {}
 def keep_module(mod):
     for regex in skip_regexen:
         if re.match(regex, mod):
-            #print "skipping:", mod
+            #print("skipping:", mod)
             return False
 
     if mod in _moduleNameCache: return False
     _moduleNameCache[mod] = True
     return True
+
+CIX_VERSION = "2.0"
+def tree_from_cix(cix):
+    """Return a (ci)tree for the given CIX content.
+
+    Raises pyexpat.ExpatError if the CIX content could not be parsed.
+    """
+    if sys.version_info[0] >= 3:
+        cix = str(cix, "UTF-8")
+    else:
+        if isinstance(cix, unicode):
+            cix = cix.encode("UTF-8", "xmlcharrefreplace")
+    tree = ET.XML(cix)
+    version = tree.get("version")
+    if version == CIX_VERSION:
+        return tree
+    elif version == "0.1":
+        from codeintel2.tree import tree_2_0_from_tree_0_1
+        return tree_2_0_from_tree_0_1(tree)
+    else:
+        raise CodeIntelError("unknown CIX version: %r" % version)
 
 def pywin32_filter(mod):
     path = module_paths.get(mod)
@@ -142,10 +179,10 @@ def gen_modules():
     for path in paths:
         # filter out junk like '' and things in user's PYTHONPATH
         if not path.lower().startswith(sys.prefix.lower()): 
-            print "SKIPPING", path
+            print("SKIPPING: %r" % (path, ))
             continue
 
-        print "EXPLORING", path
+        print("EXPLORING %r" % (path, ))
         for (dirpath, dirnames, filenames) in os.walk(path, True):
             dirnames[:] = [d for d in dirnames if d.lower() not in ('demo', 'demos', 'test', 'tests')]
 
@@ -171,22 +208,23 @@ for mod, path in gen_modules():
     module_paths[mod] = path
 
 if sys.version_info >= (2, 4):
-    module_names.sort(key=string.lower) # canonicalize the sort order
+    import operator
+    module_names.sort(key=operator.methodcaller('lower')) # canonicalize the sort order
 else:
     # Necessary for earlier versions of python, before 2.4.
     def module_name_cmp(a, b):
         return cmp(a.lower, b.lower)
     module_names.sort(module_name_cmp)
 
-print "Found %d modules" % len(module_names)
+print("Found %d modules" % len(module_names))
 
 if sys.platform.startswith('win'):
-    pywin32_module_names = (filter(pywin32_filter, module_names))
-    print "Found %d PyWin32 modules" % len(pywin32_module_names)
+    pywin32_module_names = list(filter(pywin32_filter, module_names))
+    print("Found %d PyWin32 modules" % len(pywin32_module_names))
 
-module_names = filter(keep_module, module_names)
+module_names = list(filter(keep_module, module_names))
 
-print "Kept %d modules" % len(module_names)
+print("Kept %d modules" % len(module_names))
 
 if sys.platform.startswith('win'):
     # Remove the pywin32 names from the default scan.
@@ -231,14 +269,23 @@ def merge_cix_elements(elem1, elem2, appendChildrenAsPrivate=False):
     if signature is not None and elem1.get("signature") is None:
         elem1.set("signature", signature)
 
-    names1 = set(elem1.names.keys())
-    names2 = set(elem2.names.keys())
+    children1 = {}
+    for elem in elem1.getchildren():
+        children1[elem.get('name')] = elem
+
+    children2 = {}
+    for elem in elem2.getchildren():
+        children2[elem.get('name')] = elem
+
+    names1 = set(children1.keys())
+    names2 = set(children2.keys())
+
     # Iterate over the shared children and merge these as well.
     for child_name in names1.intersection(names2):
-        merge_cix_elements(elem1.names[child_name], elem2.names[child_name])
+        merge_cix_elements(children1[child_name], children2[child_name])
     # Iterate over the names only in elem2 and add these to elem1.
     for child_name in names2.difference(names1):
-        child = elem2.names[child_name]
+        child = children2[child_name]
         if appendChildrenAsPrivate:
             attributes = child.get("attributes") or ""
             attr_split = attributes.split()
@@ -253,31 +300,105 @@ def merge_module_scopes(mod, root, tree, use_init_fallback=False, log=False):
     root_file = root.find("file")
     tree_file = tree.find("file")
     if log:
-        print "mod: %r" % (mod, )
-        print "root_file names"
-        print root_file.names[mod]
+        print("mod: %r" % (mod, ))
+        print("root_file names")
+        print([x.get("name") for x in root_file.getchildren()])
         print
-        print "tree names"
-        print tree_file.names
+        print("tree names")
+        print([x.get("name") for x in tree.getchildren()])
         print
     lastname = mod.split(".")[-1]
     try:
+        root_file_children = {}
+        for x in root_file.getchildren():
+            root_file_children[x.get('name')] = x
+
+        tree_file_children = {}
+        for x in tree_file.getchildren():
+            tree_file_children[x.get('name')] = x
+
         try:
-            merge_cix_elements(root_file.names[mod], tree_file.names[lastname],
+            merge_cix_elements(root_file_children[mod],
+                               tree_file_children[lastname],
                                appendChildrenAsPrivate=True)
         except KeyError:
-            print "%r not found in tree" % (mod, ),
+            print("%r not found in tree" % (mod, ))
             if not use_init_fallback:
                 raise
-            print ", trying '__init__'",
+            print(", trying '__init__'")
             # Try the "__init__" package name then.
             # http://bugs.activestate.com/show_bug.cgi?id=76056
-            merge_cix_elements(root_file.names[mod], tree_file.names["__init__"],
+            merge_cix_elements(root_file_children[mod],
+                               tree_file_children["__init__"],
                                appendChildrenAsPrivate=True)
-            print ", found it"
+            print(", found it")
     except KeyError:
-        print ", *not found*"
+        print(", *not found*")
         pass
+
+_py_26_executable = None
+def get_py_26_executable():
+    global _py_26_executable
+    if _py_26_executable is None:
+        import subprocess
+        try:
+            import which
+        except ImportError:
+            # Try adding support to the PYTHONPATH.
+            from os.path import abspath, dirname, join
+            ci_dir = dirname(dirname(dirname(dirname(abspath(__file__)))))
+            sys.path.append(join(ci_dir, "support"))
+            import which
+        for python_exe in which.whichall('python.exe'):
+            version = ""
+            cwd = os.path.dirname(python_exe)
+            argv = [python_exe, "-c", "import sys; sys.stdout.write(sys.version)"]
+            p = subprocess.Popen(argv, cwd=cwd, stdout=subprocess.PIPE)
+            stdout, stderr = p.communicate()
+            if not p.returncode:
+                # Some example output:
+                #   2.0 (#8, Mar  7 2001, 16:04:37) [MSC 32 bit (Intel)]
+                #   2.5.2 (r252:60911, Mar 27 2008, 17:57:18) [MSC v.1310 32 bit (Intel)]
+                #   2.6rc2 (r26rc2:66504, Sep 26 2008, 15:20:44) [MSC v.1500 32 bit (Intel)]
+                version_re = re.compile("^(\d+\.\d+)")
+                if sys.version_info[0] >= 3:
+                    stdout = str(stdout, "ascii")
+                match = version_re.match(stdout)
+                if match:
+                    version = match.group(1)
+            if version.startswith("2.6"):
+                _py_26_executable = python_exe
+                break
+        if _py_26_executable is None:
+            raise RuntimeError("No Python 2.6 executable found for ciling.")
+    return _py_26_executable
+
+def get_pythoncile_cix_tree_for_path(mod_path):
+    if sys.version_info[:2] == (2, 6):
+        # Perform the ciling using Python 2.6 codeintel ciler.
+        from codeintel2 import pythoncile
+        cix = pythoncile.scan(file(mod_path, "r").read(), mod_path)
+    else:
+        # Need to perform the ciling using a different Python.
+        from os.path import abspath, dirname, join
+        import subprocess
+        ci_dir = dirname(dirname(dirname(dirname(abspath(__file__)))))
+        ko_dir = dirname(dirname(ci_dir))
+        ci2_path = join(ci_dir, "ci2.py")
+        env = os.environ.copy()
+        pypaths = [join(ci_dir, "lib"),
+                   join(ci_dir, "support"),
+                   join(ko_dir, "src", "python-sitelib"),
+                   join(ko_dir, "src", "find"),
+                   join(ko_dir, "util"),
+                   join(ko_dir, "contrib", "smallstuff"),
+                  ]
+        env['PYTHONPATH'] = os.pathsep.join(pypaths)
+        cmd = [get_py_26_executable(), ci2_path, "scan", mod_path]
+        p = subprocess.Popen(cmd, cwd=ci_dir, env=env, stdout=subprocess.PIPE)
+        cix, stderr = p.communicate()
+    tree = tree_from_cix(cix)
+    return tree
 
 def merge_trees(tree1, tree2):
     # Merge all the elements of tree2 into tree1.
@@ -297,9 +418,9 @@ def process_module_list(module_list, fname, catalog_name=None,
                       mtime=str(0),
                       path=os.path.basename(fname))
 
-    print "Generating CIX Info: ",
+    print("Generating CIX Info: ")
     for mod in module_list:
-        print mod
+        print(mod)
         sys.stdout.flush()
         try:
             # Introspect the module.
@@ -309,27 +430,32 @@ def process_module_list(module_list, fname, catalog_name=None,
             # docs strings, line numbers...
             mod_path = module_paths.get(mod)
             if mod_path and os.path.splitext(mod_path)[1] == ".py":
-                cix = pythoncile.scan(file(mod_path, "r").read(), mod_path)
-                tree = tree_from_cix(cix)
+                # Need Python 2.6 to perform the cile.
+                tree = get_pythoncile_cix_tree_for_path(mod_path)
                 merge_module_scopes(mod, root, tree, use_init_fallback=
                                           (mod_path.endswith("__init__.py")),
                                     log=False)
-        except Exception, e:
+        except Exception:
             import traceback
-            print "\nEXCEPTION:", e, "when processing", mod
+            print("\nEXCEPTION:", sys.exc_info()[1], "when processing", mod)
             traceback.print_exc()
 
     gencix.writeCixFileForElement(fname, root)
 
-    print 'Removing references to 0xF...'
+    print('Removing references to 0xF...')
     f = open(fname, 'rb')
     data = f.read()
     f.close()
-    data = re.sub(r"&lt;(.*?) at 0x[0-9a-fA-F]+&gt;", "&lt;\\1&gt;", data)
+    if major < 3:
+        data = re.sub(r"&lt;(.*?) at 0x[0-9a-fA-F]+&gt;", "&lt;\\1&gt;", data)
+    else:
+        # Remove the \xF6 char.
+        data = data.replace(bytes("\xF6", "latin-1"), bytes("", "ascii"))
     f = open(fname, 'wb')
     f.write(data)
     f.close()
-    print "done writing generic bits: %r." % fname
+
+    print("done writing generic bits: %r." % fname)
 
 
 fname = '../../../lib/codeintel2/stdlibs/python-%d.%d.cix' % (major, minor)
@@ -393,9 +519,9 @@ if "platform" in file_elem.names:
 gencix.perform_smart_analysis(main_root)
 
 # Merge any existing CIX data with what we have just generated.
-print "Merging old cix file with the new one..."
+print("Merging old cix file with the new one...")
 merge_trees(orig_root, main_root)
 
 gencix.writeCixFileForElement(fname, orig_root)
 
-print "Please run 'ci2 test python stdlib'\n"
+print("Please run 'ci2 test python stdlib'\n")
