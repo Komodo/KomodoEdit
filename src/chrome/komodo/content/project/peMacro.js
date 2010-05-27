@@ -475,12 +475,9 @@ MacroEventHandler.prototype.addMacro = function(macropart) {
 }
 
 MacroEventHandler.prototype.loadTriggerMacros = function() {
-    macros = ko.toolbox2.getTriggerMacros();
+    var macros = ko.toolbox2.getTriggerMacros();
     var this_ = this;
     macros.map(function(macro) {
-            dump("Loaded trigger macro "
-                 + macro.name
-                 + "\n");
             this_.addMacro(macro);
         });
 };

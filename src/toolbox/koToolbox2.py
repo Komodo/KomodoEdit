@@ -524,12 +524,22 @@ class Database(object):
         # get a koFileEx obj
         return obj
     
+    # Force
+    def getIDsForToolsWithKeyboardShortcuts(self):
+        with self.connect() as cu:
+            stmt = 'select path_id from common_tool_details where keyboard_shortcut != ?'
+            cu.execute(stmt, ("",))
+            res = cu.fetchall()
+            if res is None: return []
+        ids = [x[0] for x in res]
+        return ids        
+
     def getTriggerMacroIDs(self):
         with self.connect() as cu:
             stmt = 'select path_id from macro where trigger_enabled = ? and trigger != ?'
             cu.execute(stmt, (True, ""))
             res = cu.fetchall()
-            if res is None: return
+            if res is None: return []
         ids = [x[0] for x in res]
         return ids        
 

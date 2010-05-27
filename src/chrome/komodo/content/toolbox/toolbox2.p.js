@@ -10,7 +10,6 @@ if (typeof(ko)=='undefined') {
     var ko = {};
 }
 if (typeof(ko.toolbox2)=='undefined') {
-    dump("**************** toolbox2.p.js: Clearing ko.toolbox2\n");
     ko.toolbox2 = {};
 }
 (function() {
@@ -222,6 +221,12 @@ this.findToolById = function(id) {
 this.getTriggerMacros = function() {
     var obj = {};
     this.manager.view.getTriggerMacros(obj, {});
+    return obj.value;
+};
+
+this.getToolsWithKeyboardShortcuts = function() {
+    var obj = {};
+    this.manager.view.getToolsWithKeyboardShortcuts(obj, {});
     return obj.value;
 };
 

@@ -140,6 +140,7 @@ this.manager = function keybindingManager() {
     // Each main window has an instance of this observer, and we shut each one down when the window is closed.
     observerSvc.addObserver(this, "kb-unload",false);
     observerSvc.addObserver(this, "kb-load",false);
+    observerSvc.addObserver(this, "toolbox-loaded", false);
 
     var me = this;
     this.removeListener = function() { me.finalize(); }
@@ -169,6 +170,7 @@ this.manager.prototype.finalize = function(part, topic, partId) {
         getService(Components.interfaces.nsIObserverService);
     observerSvc.removeObserver(this, "kb-unload");
     observerSvc.removeObserver(this, "kb-load");
+    observerSvc.removeObserver(this, "toolbox-loaded");
  }
 
 this.manager.prototype.observe = function(part, topic, partId) {
@@ -177,21 +179,42 @@ this.manager.prototype.observe = function(part, topic, partId) {
 
     if (topic == 'kb-unload' || topic == 'kb-load') {
         if (part.hasAttribute('keyboard_shortcut')) {
-            var keylabels = part.getStringAttribute('keyboard_shortcut').split('###');
-            var keylabel;
-            var command = 'cmd_callPart';
-            for (var i in keylabels) {
-                keylabel = keylabels[i];
-                if (keylabel != '') {
-                    var keysequence = keylabel.split(', ')
-                    if (topic == 'kb-unload') {
-                        this.clearBinding(command, partId, true);
-                    } else {
-                        this.assignKey(command, keysequence, partId);
-                        this.makeKeyActive(command, keysequence);
-                    }
-                }
+            this.manageKeyboardShortcut(part, topic, partId);
+        }
+    } else if (topic == 'toolbox-loaded') {
+        try {
+        var parts = ko.toolbox2.getToolsWithKeyboardShortcuts();
+        var i;
+        for (part, i = 0; part = parts[i]; i++) {
+            if (!part.hasAttribute('keyboard_shortcut')) {
+                dump("keybindings.p.js:: Unexpected: no keyboard_shortcut for part "
+                     + part.id
+                     + "\n");
+                continue;
             }
+            this.manageKeyboardShortcut(part, 'kb-load', part.id);
+        }
+        } catch(ex) {
+            dump("getToolsWithKeyboardShortcuts => " + ex + "\n");
+            return;
+        }
+    }
+}
+
+this.manager.prototype.manageKeyboardShortcut = function(part, topic, partId) {
+    var keylabels = part.getStringAttribute('keyboard_shortcut').split('###');
+    var keylabel;
+    var command = 'cmd_callPart';
+    for (var i in keylabels) {
+        keylabel = keylabels[i];
+        if (keylabel != '') {
+            var keysequence = keylabel.split(', ')
+                if (topic == 'kb-unload') {
+                    this.clearBinding(command, partId, true);
+                } else {
+                    this.assignKey(command, keysequence, partId);
+                    this.makeKeyActive(command, keysequence);
+                }
         }
     }
 }
@@ -1404,7 +1427,7 @@ this.manager.prototype.clearUsedBys= function(commandId, keysequence) {
 }
 
 this.manager.prototype.assignKey = function(commandId, keysequence, parameter) {
-    var sequencelabel = keysequence2keylabel(keysequence)
+    var sequencelabel = keysequence2keylabel(keysequence);
     if (typeof(parameter) == 'string' && parameter != '') {
         this.learnParameter(commandId, parameter, sequencelabel);
     }

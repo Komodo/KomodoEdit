@@ -56,6 +56,11 @@ class _KoTool(object):
             self.set_iconurl(iconurl)
         return iconurl is not None
 
+    def updateKeyboardShortcuts(self, tbdbSvc):
+        res = tbdbSvc.getValuesFromTableByKey('common_tool_details', ['keyboard_shortcut'], 'path_id', self.id)
+        if res is not None:
+            self.setStringAttribute('keyboard_shortcut', res[0])
+
     def _finishUpdatingSelf(self, info):
         for name in ['value', 'name']:
             if name in info:
@@ -102,6 +107,10 @@ class _KoTool(object):
         return self._attributes.has_key(name)
 
     def getAttribute(self, name):
+        if not self.hasAttribute(name):
+            tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                                   getService(components.interfaces.koIToolboxDatabaseService))
+            self.updateSelf(tbdbSvc)
         return self._attributes[name]
 
     def setAttribute(self, name, value):
@@ -128,7 +137,7 @@ class _KoTool(object):
             self.setAttribute(name, unicode(value))
 
     def getLongAttribute(self, name):
-        return int(self._attributes[name])
+        return int(self.getAttribute(name))
 
     def setLongAttribute(self, name, value):
         self.setAttribute(name, int(value))
@@ -448,7 +457,10 @@ class KoToolbox2HTreeView(TreeView):
     def getToolById(self, path_id):
         path_id = int(path_id)
         if path_id not in self._tools:
-            tool_type, name = self.toolbox_db.getValuesFromTableByKey('common_details', ['type', 'name'], 'path_id', path_id)
+            res = self.toolbox_db.getValuesFromTableByKey('common_details', ['type', 'name'], 'path_id', path_id)
+            if res is None:
+                return None
+            tool_type, name = res
             tool = createPartFromType(tool_type, name, path_id)
             self._tools[path_id] = tool
         return self._tools[path_id]
@@ -860,10 +872,27 @@ class KoToolbox2HTreeView(TreeView):
                         index = max_index
                 index += 1
         return selectedIndices
+
+    def _getFullyRealizedToolById(self, ids):
+        # We load tools lazily, so make sure these have the keyboard
+        # shortcuts and other info in them.
+        tools = []
+        for id in ids:
+            tool = self.getToolById(id)
+            if tool:
+                # Trigger macros need to be fully initialized,
+                # since they might be 
+                tool.updateSelf(self.toolbox_db)
+                tools.append(tool)
+        return tools
+    
+    def getToolsWithKeyboardShortcuts(self):
+        ids = self.toolbox_db.getIDsForToolsWithKeyboardShortcuts()
+        return self._getFullyRealizedToolById(ids)
     
     def getTriggerMacros(self):
         ids = self.toolbox_db.getTriggerMacroIDs()
-        return [self.getToolById(id) for id in ids]
+        return self._getFullyRealizedToolById(ids)
     
     def refreshFullView(self):
         i = 0
@@ -936,12 +965,6 @@ class KoToolbox2HTreeView(TreeView):
                        getService(components.interfaces.koIToolboxDatabaseService))
         self.toolbox_db.initialize(db_path)
         self.toolbox_db.toolManager = self
-        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
-                .getService(components.interfaces.nsIObserverService)
-        try:
-            _observerSvc.notifyObservers(None, 'toolbox-loaded', '')
-        except Exception:
-            pass
         top_level_nodes = self.toolbox_db.getTopLevelNodes()
         before_len = len(self._rows)
         for path_id, name, node_type in top_level_nodes:
@@ -966,6 +989,12 @@ class KoToolbox2HTreeView(TreeView):
             self.selection.currentIndex = currentIndex
             self._tree.ensureRowIsVisible(currentIndex)
             log.debug("currentIndex: %d", currentIndex)
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                .getService(components.interfaces.nsIObserverService)
+        try:
+            _observerSvc.notifyObservers(None, 'toolbox-loaded', '')
+        except Exception:
+            pass
 
     def terminate(self):
         prefs = components.classes["@activestate.com/koPrefService;1"].\

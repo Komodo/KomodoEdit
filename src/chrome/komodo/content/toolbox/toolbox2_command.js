@@ -123,7 +123,7 @@ this.invoke_executeMacro = function(event, tool) {
         tool = this._get_tool('macro');
         if (!tool) return;
     }
-    ko.toolbox2.executeMacro(tool);
+    ko.projects.executeMacro(tool, tool.getBooleanAttribute('async'));
 };
 
 this.invoke_editMacro = function(event, tool) {

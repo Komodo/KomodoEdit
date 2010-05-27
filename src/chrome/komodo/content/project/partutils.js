@@ -86,7 +86,13 @@ this.invokePart = function part_invokePart(part) {
  */
 this.invokePartById = function part_invokePartById(id) {
     try {
-        var part = ko.projects.findPartById(id);
+        // Try the new toolbox first.
+        var part;
+        part = ko.toolbox2.findToolById(id);
+        if (!part) {
+            //TODO: NEWTOOLBOX: Stop looking in the old project system for tools
+            part = ko.projects.findPartById(id);
+        }
         if (!part) {
             log.error("Couldnt' find part with id: " + id);
             return;

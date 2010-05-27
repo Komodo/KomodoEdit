@@ -47,7 +47,9 @@ interface koIToolbox2HTreeView: nsITreeView {
     koITool getTool(in long index);
     koITool getToolById(in long id);
     koITool getToolFromPath(in wstring path);
-    void getTriggerMacros([array, size_is(count)] out koITool flavors,
+    void getToolsWithKeyboardShortcuts([array, size_is(count)] out koITool tools,
+                                       out unsigned long count);
+    void getTriggerMacros([array, size_is(count)] out koITool tools,
                           out unsigned long count);
     long getIndexByTool(in koITool tool);
     boolean selectedItemsHaveSameParent();

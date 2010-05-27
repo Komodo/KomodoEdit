@@ -784,6 +784,7 @@ class koContainerBase(koPart):
         return None
 
     def getChildrenWithAttribute(self, attrname, recurse):
+        #No longer used in Komodo
         children = []
         for child in self.children:
             if attrname in child._attributes:
@@ -2365,7 +2366,6 @@ class koProject(koLiveFolderPart):
 
     def activate(self):
         try:
-            self.activateKeybindings()
             self.activateMenus()
             self.activateToolbars()
         except Exception, e:
@@ -2374,22 +2374,11 @@ class koProject(koLiveFolderPart):
 
     def deactivate(self):
         try:
-            self.deactivateKeybindings()
             self.deactivateMenus()
             self.deactivateToolbars()
         except Exception, e:
             log.exception(e)
         self._active = 0
-
-    def activateKeybindings(self):
-        keybound_parts = self.getChildrenWithAttribute('keyboard_shortcut', 1)
-        for part in keybound_parts:
-            self._getObserverSvc().notifyObservers(part,'kb-load', part.id)
-
-    def deactivateKeybindings(self):
-        keybound_parts = self.getChildrenWithAttribute('keyboard_shortcut', 1)
-        for part in keybound_parts:
-            self._getObserverSvc().notifyObservers(part,'kb-unload', part.id)
 
     def activateMenus(self):
         menus = self.getChildrenByType('menu', 1)
