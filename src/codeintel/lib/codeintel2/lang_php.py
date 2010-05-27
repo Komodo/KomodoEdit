@@ -2508,7 +2508,7 @@ class PHPParser:
 
             if styles[p] == self.PHP_WORD:
                 # Keyword
-                keyword = text[p]
+                keyword = text[p].lower()
                 p += 1
                 if keyword == "new":
                     typeNames, p = self._getIdentifiersFromPos(styles, text, p)
@@ -2872,7 +2872,7 @@ class PHPParser:
                 firstStyle = styles[pos]
     
             if firstStyle == self.PHP_WORD:
-                keyword = text[pos]
+                keyword = text[pos].lower()
                 pos += 1
                 if pos >= len(lines):
                     # Nothing else here, go home
@@ -3098,7 +3098,7 @@ class PHPParser:
                         # May be an alternative syntax
                         if len(self.text) > 0 and \
                            self.styles[0] == self.PHP_WORD and \
-                           self.text[0] in ("if", "elseif", "else", "while", "for", "foreach", "switch"):
+                           self.text[0].lower() in ("if", "elseif", "else", "while", "for", "foreach", "switch"):
                             #print "Alt syntax? text: %r" % (self.text, )
                             self._addCodePiece()
                         elif "case" in self.text or "default" in self.text:
@@ -3108,7 +3108,7 @@ class PHPParser:
                         # Statement is done
                         if len(self.text) > 0 and \
                            self.styles[0] == self.PHP_WORD and \
-                           self.text[-1] in ("endif", "endwhile", "endfor", "endforeach", "endswitch"):
+                           self.text[-1].lower() in ("endif", "endwhile", "endfor", "endforeach", "endswitch"):
                             # Alternative syntax, remove this from the text.
                             self.text = self.text[:-1]
                         self._addCodePiece()
