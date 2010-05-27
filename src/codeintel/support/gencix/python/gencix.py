@@ -261,10 +261,11 @@ def process_module(rootElt, obj, name, callables, modname, __hidden__=False):
 
 def process_routine(rootElt, obj, name, callables):    
     if inspect.isfunction(obj):
-        args, varargs, varkw, defaults = inspect.getargspec(obj)
-        argspec = inspect.formatargspec(
-            args, varargs, varkw, defaults)
-        sig = name+argspec
+        if _gIsPy3:
+            argspec = inspect.getfullargspec(obj)
+        else:
+            argspec = inspect.getargspec(obj)
+        sig = name + inspect.formatargspec(*argspec)
     else:
         sig = ''
     doc = getdoc(obj) or None
