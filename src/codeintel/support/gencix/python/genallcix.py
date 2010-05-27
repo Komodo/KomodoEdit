@@ -513,10 +513,13 @@ def fixup_platform_module(platform_elem):
         el.set("signature", "libc_ver(...)")
 
 # Fixup the CIX for specific modules.
-if "cgi" in file_elem.names:
-    fixup_cgi_module(file_elem.names["cgi"])
-if "platform" in file_elem.names:
-    fixup_platform_module(file_elem.names["platform"])
+file_elem_from_name = {}
+for elem in file_elem.getchildren():
+    file_elem_from_name[elem.get('name')] = elem
+if "cgi" in file_elem_from_name:
+    fixup_cgi_module(file_elem_from_name["cgi"])
+if "platform" in file_elem_from_name:
+    fixup_platform_module(file_elem_from_name["platform"])
 
 # Update the citdl information.
 gencix.perform_smart_analysis(main_root)
