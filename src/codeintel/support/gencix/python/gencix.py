@@ -385,7 +385,10 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
     namespace = {}
     if os.path.exists(helpername):
         sys.stderr.write("Found helper module: %r\n" % helpername)
-        execfile(helpername, namespace, namespace)
+        if _gIsPy3:
+            exec(compile(open(helpername).read(), os.path.basename(helpername), 'exec'), namespace, namespace)
+        else:
+            execfile(helpername, namespace, namespace)
         # look in helpername for analyze_retval_exprs, which is a list of (callable_string, *args)
         # and which corresponds to callables which when called w/ the specified args, will return
         # variables which should be used to specify the <return> subelement of the callable.
