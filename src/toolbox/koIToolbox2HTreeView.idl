@@ -46,6 +46,7 @@ interface koIToolbox2HTreeView: nsITreeView {
 
     koITool getTool(in long index);
     koITool getToolById(in long id);
+    koITool getToolFromPath(in wstring path);
     long getIndexByTool(in koITool tool);
     boolean selectedItemsHaveSameParent();
     // Is the src node an ancestor of the target node?

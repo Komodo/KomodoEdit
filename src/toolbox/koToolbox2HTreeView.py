@@ -336,7 +336,7 @@ class _KoDirectoryShortcutTool(_KoURL_LikeTool):
     _iconurl = 'chrome://komodo/skin/images/open.png'
 
 class _KoMacroTool(_KoTool):
-    _com_interfaces_ = [components.interfaces.koITool]
+    _com_interfaces_ = [components.interfaces.koIMacroTool]
     typeName = 'macro'
     prettytype = 'Macro'
     _iconurl = 'chrome://komodo/skin/images/macro.png'
@@ -443,6 +443,13 @@ class KoToolbox2HTreeView(TreeView):
             tool = createPartFromType(tool_type, name, path_id)
             self._tools[path_id] = tool
         return self._tools[path_id]
+
+    def getToolFromPath(self, path):
+        res = self.toolbox_db.getValuesFromTableByKey('paths', ['id'], 'path', path)
+        if not res:
+            return None
+        path_id = res[0]
+        return self.getToolById(path_id)
     
     def getIndexByPath(self, path):
         # This way is slower...

@@ -322,11 +322,60 @@ this.pasteIntoItem = function(event) {
         var index = view.selection.currentIndex;
         var parent = view.getTool(index);
         var paths = xtk.clipboard.getText().split("\n");
+        var loadedMacroURIs = this.copying ? [] : this._getLoadedMacros(paths);
         view.pasteItemsIntoTarget(index, paths, paths.length, this.copying);
+        this._removeLoadedMacros(loadedMacroURIs);
     } catch(ex) {
         ko.dialogs.alert("toolbox2_command.js: Error: Trying to copy paths into the toolbox "
                          + ex);
     }
+};
+
+this._getLoadedMacros = function(paths) {
+    var view = this.manager.view;
+    var clean_macros = [];
+    var dirty_macros = [];
+    var viewsManager = ko.views.manager;
+    for (var i = 0 ;i < paths.length; i++) {
+        var path = paths[i];
+        var tool = view.getToolFromPath(path);
+        if (tool && tool.toolType == 'macro') {
+            var url = tool.url;
+            var v = viewsManager.getViewForURI(url);
+            if (v) {
+                if (v.isDirty) {
+                    dirty_macros.push(url);
+                } else {
+                    clean_macros.push(url);
+                }
+            }
+        }
+    }
+    if (dirty_macros.length) {
+        var title = "Save unchanged macros?";
+        var prompt = "Some of the macros to move are loaded in the editor with unsaved changes";
+        var selectionCondition = "zero-or-more";
+        var i = 0;      
+        var itemsToSave = ko.dialogs.selectFromList(title, prompt, dirty_macros, selectionCondition);
+        for (i = 0; i < itemsToSave.length; i++) {
+            var url = itemsToSave[i];
+            var v = viewsManager.getViewForURI(url);
+            if (v) {
+                v.save(true /* skipSccCheck */);
+            }
+            clean_macros.push(url);
+        }
+    }
+    return clean_macros;
+};
+
+this._removeLoadedMacros = function(loadedMacroURIs) {
+    loadedMacroURIs.map(function(uri) {
+            var v = ko.views.manager.getViewForURI(uri);
+            if (v) {
+                v.closeUnconditionally();
+            }
+        });
 };
 
 this.showInFileManager = function(itemType) {
@@ -488,7 +537,33 @@ this.deleteItem = function(event) {
         return;
     }
     var view = ko.toolbox2.manager.view;
-    for (var i = indices.length - 1; i >= 0; i--) {
+    var i = 0;
+    var lim = indices.length;
+    while (i < lim) {
+        var index = indices[i];
+        if (view.get_toolType(index) == 'macro') {
+            var tool = view.getTool(index);
+            var url = tool.url;
+            if (ko.views.manager.getViewForURI(url)) {
+                var response = "No";
+                var text = null;
+                var title = ("Do you want to close the macro "
+                             + tool.name
+                             + "?");
+                var result = ko.dialogs.yesNoCancel(question, response, text, title);
+                if (result == "Cancel") {
+                    return;
+                } else if (result == "No") {
+                    // Pull it out of the list
+                    indices = indices.splice(i, 1);
+                    lim -= 1;
+                    i -= 1;
+                }
+            }
+        }
+        i++;
+    }
+    for (i = indices.length - 1; i >= 0; i--) {
         view.deleteToolAt(indices[i]);
     }
     // ko.toolbox2.manager.deleteCurrentItem();
@@ -615,13 +690,17 @@ this.doDragOver = function(event, tree) {
 this.doDrop = function(event, tree) {
     if (!this._dragSources.length) {
         //dump("onDrop: no source indices to drop\n");
-        return;
+        return false;
     }
     var index = this._currentRow(event, this.manager.widgets.tree);
     try {
         var paths = this._dragSources;
         var pathsa = paths.split("\n");
+        var loadedMacroURIs = this.copying ? [] : this._getLoadedMacros(pathsa);
         this.manager.view.pasteItemsIntoTarget(index, pathsa, pathsa.length, this.copying);
+        if (!this.copying) {
+            this._removeLoadedMacros(loadedMacroURIs);
+        }
     } catch(ex) {
         ko.dialogs.alert("drag/drop: " + ex);
     }
