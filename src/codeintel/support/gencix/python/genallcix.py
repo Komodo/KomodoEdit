@@ -105,7 +105,7 @@ skip_regexen = ['test\.', '.*Mozilla', '__phello__',
             '_OSA', '_Qd', '_Qdoffs', '_Qt', '_Res', '_Scrap', '_Snd', '_TE',
             '_Win', '_codecs_cn', '_codecs_hk', '_codecs_iso2022', '_codecs_jp',
             '_codecs_kr', '_codecs_tw', '_LWPCookieJar', 'idlelib\.ToolTip',
-            'idlelib\.\.*']
+            'idlelib\.\.*', 'antigravity']
 
 if sys.platform.startswith("linux"):
     skip_regexen += ["CDROM", "DLFCN", "TYPES"]
