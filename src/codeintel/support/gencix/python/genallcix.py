@@ -145,6 +145,14 @@ def tree_from_cix(cix):
     else:
         raise CodeIntelError("unknown CIX version: %r" % version)
 
+def create_names_dict(elem):
+    names_dict = {}
+    for child in elem.getchildren():
+        name = child.get('name')
+        if name is not None:
+            names_dict[child.get('name')] = child
+    return names_dict
+
 def pywin32_filter(mod):
     path = module_paths.get(mod)
     if path:
@@ -269,14 +277,8 @@ def merge_cix_elements(elem1, elem2, appendChildrenAsPrivate=False):
     if signature is not None and elem1.get("signature") is None:
         elem1.set("signature", signature)
 
-    children1 = {}
-    for elem in elem1.getchildren():
-        children1[elem.get('name')] = elem
-
-    children2 = {}
-    for elem in elem2.getchildren():
-        children2[elem.get('name')] = elem
-
+    children1 = create_names_dict(elem1)
+    children2 = create_names_dict(elem2)
     names1 = set(children1.keys())
     names2 = set(children2.keys())
 
@@ -309,13 +311,8 @@ def merge_module_scopes(mod, root, tree, use_init_fallback=False, log=False):
         print
     lastname = mod.split(".")[-1]
     try:
-        root_file_children = {}
-        for x in root_file.getchildren():
-            root_file_children[x.get('name')] = x
-
-        tree_file_children = {}
-        for x in tree_file.getchildren():
-            tree_file_children[x.get('name')] = x
+        root_file_children = create_names_dict(root_file)
+        tree_file_children = create_names_dict(tree_file)
 
         try:
             merge_cix_elements(root_file_children[mod],
@@ -488,15 +485,16 @@ file_elem = main_root[0]
 def fixup_cgi_module(cgi_elem):
     # Remove the environment strings that get set in these function signatures.
     #   http://bugs.activestate.com/show_bug.cgi?id=67610
-    el = cgi_elem.names.get("parse")
+    cgi_elem_names = create_names_dict(cgi_elem)
+    el = cgi_elem_names.get("parse")
     if el:
         el.set("signature", "parse(fp=None, environ=os.environ, keep_blank_values=0, strict_parsing=0)")
 
-    el = cgi_elem.names.get("print_environ")
+    el = cgi_elem_names.get("print_environ")
     if el:
         el.set("signature", "print_environ(environ=os.environ)")
 
-    el = cgi_elem.names.get("test")
+    el = cgi_elem_names.get("test")
     if el:
         el.set("signature", "test(environ=os.environ)")
 
@@ -504,18 +502,17 @@ def fixup_platform_module(platform_elem):
     # Remove the filename location strings that get set in these function
     # signatures.
     #   http://bugs.activestate.com/show_bug.cgi?id=67610
-    el = platform_elem.names.get("architecture")
+    platform_elem_names = create_names_dict(platform_elem)
+    el = platform_elem_names.get("architecture")
     if el:
         el.set("signature", "architecture(...)")
 
-    el = platform_elem.names.get("libc_ver")
+    el = platform_elem_names.get("libc_ver")
     if el:
         el.set("signature", "libc_ver(...)")
 
 # Fixup the CIX for specific modules.
-file_elem_from_name = {}
-for elem in file_elem.getchildren():
-    file_elem_from_name[elem.get('name')] = elem
+file_elem_from_name = create_names_dict(file_elem)
 if "cgi" in file_elem_from_name:
     fixup_cgi_module(file_elem_from_name["cgi"])
 if "platform" in file_elem_from_name:
