@@ -36,7 +36,6 @@
 
 from xpcom import components, COMException, ServerException
 import logging
-import timeline
 import eollib
 
 log = logging.getLogger('koDocumentSettingsManager')
@@ -70,13 +69,8 @@ class koDocumentSettingsManager:
                 ]
 
     def __init__(self):
-        timeline.enter('koDocumentSettingsManager.__init__')
-        
-        # get services we'll use
-        timeline.mark("getting language registry")
         self._languageRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"].\
                             getService(components.interfaces.koILanguageRegistryService) 
-        timeline.mark("getting global prefs")
         self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
                             getService(components.interfaces.koIPrefService).prefs
         self.koDoc = None
@@ -84,10 +78,8 @@ class koDocumentSettingsManager:
         self._foldFlags = 0
         self._scintillas = []
         self._useAlternateFaceType = None
-        timeline.leave('koDocumentSettingsManager.__init__')
     
     def register(self, koDoc, scintilla):
-        timeline.enter("koDocumentSettingsManager.register")
         self.koDoc = koDoc
         if scintilla in self._scintillas:
             log.error("Already have scimoz %r for koDoc %s",scintilla, koDoc)
@@ -98,7 +90,6 @@ class koDocumentSettingsManager:
         # case, then the buffer needs to be gotten from
         # the document.  In the other it's just a matter of
         # sharing docpointers
-        timeline.enter("scimoz mods")
         scimoz = scintilla.scimoz
         if len(self._scintillas) == 1:
             scimoz.undoCollection = 0
@@ -114,14 +105,12 @@ class koDocumentSettingsManager:
         else:
             scimoz.docPointer = self._scintillas[0].scimoz.docPointer
             
-        timeline.leave("scimoz mods")
         self.applyDocumentSettingsToView(scintilla)
         # Watch for preference set changes from these pref sets.
         if not self._observing:
             self._globalPrefs.addObserver(self)
             self.koDoc.prefs.addObserver(self)
             self._observing = 1
-        timeline.leave("koDocumentSettingsManager.register")
         
     def unregister(self, scintilla):
         if scintilla not in self._scintillas:
@@ -142,7 +131,6 @@ class koDocumentSettingsManager:
             self.koDoc = None
         
     def applyDocumentSettingsToView(self, scintilla):
-        timeline.enter("koDocumentSettingsManager.applyDocumentSettingsToView")
         scimoz = scintilla.scimoz
         # assumption: we are given a 'virgin' view, and a fully
         # capable document -- if it doesn't know something, it can figure it out.
@@ -230,7 +218,6 @@ class koDocumentSettingsManager:
             bookmarks = prefs.getPref("bookmarks")
             for i in range(bookmarks.length):
                 scimoz.markerAdd(bookmarks.getLongPref(i), MARKNUM_BOOKMARK)
-        timeline.leave("koDocumentSettingsManager.applyDocumentSettingsToView")
 
     def setLongPrefIfDifferent(self, name, value):
         if self._globalPrefs.getLongPref(name) != value:
@@ -488,10 +475,8 @@ class koDocumentSettingsManager:
                 scintilla.encoding = prefSet.getStringPref('encoding')
     
     def _applyPrefs(self, prefs, scimoz):
-        timeline.enter('_applyPrefs')
         for prefName in self._viewPrefList:
             self._dispatchPrefChange(prefs, prefName)
-        timeline.leave('_applyPrefs')
             
     def _apply_Default_fixed(self, prefSet):
         pass
