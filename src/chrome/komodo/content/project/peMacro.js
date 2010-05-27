@@ -331,6 +331,8 @@ function MacroEventHandler() {
     obsSvc.addObserver(this, 'macro-unload', false);
     obsSvc.addObserver(this, 'javascript_macro',false);
     obsSvc.addObserver(this, 'command-docommand',false);
+    obsSvc.addObserver(this, 'toolbox-loaded', false);
+    //obsSvc.addObserver(this, 'toolbox-unloaded', false);
 
     ko.main.addWillCloseHandler(this.finalize, this);
 
@@ -347,6 +349,8 @@ MacroEventHandler.prototype.finalize = function() {
     obsSvc.removeObserver(this, 'macro-unload');
     obsSvc.removeObserver(this, 'javascript_macro');
     obsSvc.removeObserver(this, 'command-docommand');
+    obsSvc.removeObserver(this, 'toolbox-loaded');
+    //obsSvc.removeObserver(this, 'toolbox-unloaded');
     } catch(ex) {
         this.log.exception(ex);
     }
@@ -471,6 +475,32 @@ MacroEventHandler.prototype.addMacro = function(macropart) {
         this.log.debug("Macro " + macropart.name + " has no trigger");
     }
 }
+
+MacroEventHandler.prototype.loadTriggerMacros = function() {
+    macros = ko.toolbox2.getTriggerMacros();
+    var this_ = this;
+    macros.map(function(macro) {
+            dump("Loaded trigger macro "
+                 + macro.name
+                 + "\n");
+            this_.addMacro(macro);
+        });
+};
+
+/*
+  // Currently not called.
+MacroEventHandler.prototype.unloadTriggerMacros = function() {
+    for (var topic in this._trigger_observers) {
+        var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+               getService(Components.interfaces.nsIObserverService);
+        obsSvc.removeObserver(this._triggerWrapper, topic);
+        delete this._trigger_observers[topic];
+    }
+    for (var prop in this._hookedMacrosByTrigger) {
+        this._hookedMacrosByTrigger[prop] = [];
+    }
+};
+*/
 
 MacroEventHandler.prototype._addObserverMacro = function(macropart) {
     var topic = macropart.getStringAttribute('trigger_observer_topic');
@@ -653,12 +683,14 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
                 if (ko.windowManager.getMainWindow() != window) {
                     return;
                 }
+            dump("macro-load: " + part.name + "\n");
                 this.addMacro(part);
                 break;
             case 'macro-unload':
                 if (ko.windowManager.getMainWindow() != window) {
                     return;
                 }
+            dump("macro-unload: " + part.name + "\n");
                 this.removeMacro(part);
                 break;
             case 'javascript_macro':
@@ -679,6 +711,21 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
                     //this.log.debug("command-docommand: not in current window for code: " + code);
                 }
                 break;
+            case 'toolbox-loaded':
+                if (ko.windowManager.getMainWindow() != window) {
+                    return;
+                }
+                this.loadTriggerMacros();
+                break;
+            /*
+            case 'toolbox-unloaded':
+                if (ko.windowManager.getMainWindow() != window) {
+                    dump("... return\n");
+                    return;
+                }
+                this.unloadTriggerMacros();
+                break;
+            */
         };
     } catch (e) {
         log.exception(e);

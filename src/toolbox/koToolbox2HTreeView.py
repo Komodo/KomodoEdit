@@ -968,13 +968,6 @@ class KoToolbox2HTreeView(TreeView):
             log.debug("currentIndex: %d", currentIndex)
 
     def terminate(self):
-        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
-                .getService(components.interfaces.nsIObserverService)
-        try:
-            _observerSvc.notifyObservers(None, 'toolbox-unloaded', '')
-        except Exception:
-            log.debug("no one's watching toolbox-unloaded")
-            pass
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
         try:
