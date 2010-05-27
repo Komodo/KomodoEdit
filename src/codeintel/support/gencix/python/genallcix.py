@@ -374,12 +374,12 @@ def get_py_26_executable():
     return _py_26_executable
 
 def get_pythoncile_cix_tree_for_path(mod_path):
-    if sys.version_info[:2] == (2, 6):
-        # Perform the ciling using Python 2.6 codeintel ciler.
+    try:
         from codeintel2 import pythoncile
+        # In process ciling.
         cix = pythoncile.scan(file(mod_path, "r").read(), mod_path)
-    else:
-        # Need to perform the ciling using a different Python.
+    except ImportError:
+        # Need to perform the ciling using a Python 2.6 interpreter.
         from os.path import abspath, dirname, join
         import subprocess
         ci_dir = dirname(dirname(dirname(dirname(abspath(__file__)))))
@@ -394,6 +394,20 @@ def get_pythoncile_cix_tree_for_path(mod_path):
                    join(ko_dir, "contrib", "smallstuff"),
                   ]
         env['PYTHONPATH'] = os.pathsep.join(pypaths)
+
+        if major < 3:
+            # Convert env to strings (not unicode).
+            encoding = sys.getfilesystemencoding()
+            _enc_env = {}
+            for key, value in env.items():
+                try:
+                    _enc_env[key.encode(encoding)] = value.encode(encoding)
+                except UnicodeEncodeError:
+                    # Could not encode it, warn we are dropping it.
+                    log.warn("Could not encode environment variable %r "
+                             "so removing it", key)
+            env = _enc_env
+
         cmd = [get_py_26_executable(), ci2_path, "scan", mod_path]
         p = subprocess.Popen(cmd, cwd=ci_dir, env=env, stdout=subprocess.PIPE)
         cix, stderr = p.communicate()
