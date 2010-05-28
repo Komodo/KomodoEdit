@@ -292,6 +292,10 @@ class StdLibsZone(object):
                 else:
                     base = name
                     ver = None
+                if base.lower() != lang.lower():
+                    # Only process when the base name matches the language.
+                    # I.e. skip if base is "python3" and lang is "python".
+                    continue
                 vers_and_names.append((ver, name))
             vers_and_names.sort()
             self._vers_and_names_from_lang[lang] = vers_and_names
