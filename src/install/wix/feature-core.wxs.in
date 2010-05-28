@@ -1724,6 +1724,7 @@
                   <File Id="file2220" Name="LANG_P_0.PY" LongName="lang_perl.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_perl.py"/>
                   <File Id="file2235" Name="lang_php.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_php.py"/>
                   <File Id="file2237" Name="LANG_P_1.PY" LongName="lang_python.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_python.py"/>
+                  <File Id="file1071" Name="LANG_P_2.PY" LongName="lang_python3.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_python3.py" />
                   <File Id="file2253" Name="LANG_R_0.PY" LongName="lang_ruby.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_ruby.py"/>
                   <File Id="file93" LongName="lang_ruby_common.py" Name="LANG_R_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_ruby_common.py" />
                   <File Id="file2269" Name="lang_tcl.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_tcl.py"/>
