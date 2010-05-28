@@ -306,8 +306,11 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
     name = modname
     modulename = modname
     if modname == '*':
-        modname = '__builtin__'
-        
+        if _gIsPy3:
+            modname = 'builtins'
+        else:
+            modname = '__builtin__'
+
     if dir:
         modinfo = imp.find_module(modname, [dir])
         try:
