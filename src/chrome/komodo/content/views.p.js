@@ -326,10 +326,9 @@ viewManager.prototype.newTemplateAsync = function(defaultDir, project,
 
 
 /**
- * Create a new file based on a template, optionally add it to a project.
+ * Create a new file from the given template URI.
  *
  * @private
- *
  * @param uri {string} optional, uri pointing to a template file
  * @param saveto {string} optional, where to save the new file
  * @param viewType {string} optional, type of buffer to open, default "editor"
@@ -456,8 +455,7 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
 }
 
 /**
- * Asynchronously create a new file based on a template, optionally add it
- * to a project.
+ * Asynchronously create a new file based on the given template URI.
  *
  * @param uri {string} optional, uri pointing to a template file
  * @param saveto {string} optional, where to save the new file

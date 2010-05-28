@@ -208,16 +208,20 @@ interface koITabstopInsertionNode : nsISupports
 [scriptable, uuid(CA0A2B77-781B-49E9-B394-B6F8DD56700E)]
 interface koIDocumentService: nsISupports
 {
-    koIDocument createDocumentFromFile(in koIFileEx file); //DEPRECATED
     koIDocument createDocumentFromURI(in wstring uri);
+    // In Komodo's view system "untitled" == "unsaved and unnamed".
+    koIDocument createUntitledDocument(in string language);
     
+    // These create methods are currently only used for creating a new
+    // file from a template.
+    koIDocument createDocumentFromFile(in koIFileEx file); //DEPRECATED
     koIDocument createDocumentFromTemplateURI(in wstring uri,
                                            in wstring name,
                                            in wstring ext);
     koIDocument createFileFromTemplateURI(in wstring templateURI,
                                            in wstring uri,
                                            in boolean savenow);
-    koIDocument createUntitledDocument(in string language);
+    
     void getAllDocuments([array, size_is(count)] out koIDocument documents,
                      out PRUint32 count);
     koIDocument findDocumentByURI(in wstring URI);
