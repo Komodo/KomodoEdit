@@ -108,6 +108,7 @@ this.lintBuffer = function LintBuffer(view) {
         _prefs.prefObserverService.addObserver(this, "perl_lintOption_perlCriticLevel", false);
         _prefs.prefObserverService.addObserver(this, "perl_lintOption_includeCurrentDirForLinter", false);
         _prefs.prefObserverService.addObserver(this, "pythonDefaultInterpreter", false);
+        _prefs.prefObserverService.addObserver(this, "python3DefaultInterpreter", false);
         _prefs.prefObserverService.addObserver(this, "phpDefaultInterpreter", false);
         _prefs.prefObserverService.addObserver(this, "phpConfigFile", false);
         _prefs.prefObserverService.addObserver(this, "rubyDefaultInterpreter", false);
@@ -160,6 +161,7 @@ this.lintBuffer.prototype.destructor = function()
         _prefs.prefObserverService.removeObserver(this, "perl_lintOption_perlCriticLevel");
         _prefs.prefObserverService.removeObserver(this, "perl_lintOption_includeCurrentDirForLinter");
         _prefs.prefObserverService.removeObserver(this, "pythonDefaultInterpreter");
+        _prefs.prefObserverService.removeObserver(this, "python3DefaultInterpreter");
         _prefs.prefObserverService.removeObserver(this, "phpDefaultInterpreter");
         _prefs.prefObserverService.removeObserver(this, "phpConfigFile");
         _prefs.prefObserverService.removeObserver(this, "rubyDefaultInterpreter");
@@ -201,6 +203,7 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
             break;
         // Python
         case "pythonDefaultInterpreter":
+        case "python3DefaultInterpreter":
             _log.info("LintBuffer["+this.view.title+
                            "].observed Python pref change, re-linting");
             if (lintingEnabled && this.view.languageObj.getSubLanguages(count).indexOf("Python") >= 0) {
