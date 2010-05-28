@@ -889,7 +889,7 @@
   <boolean id="codeintel_completion_fillups_enabled">0</boolean>
   <boolean id="codeintel_have_preloaded_database">0</boolean>
 <!-- #if PLATFORM == "win" -->
-  <string id="codeintel_selected_catalogs">["pywin32"]</string>
+  <string id="codeintel_selected_catalogs">["pywin32", "pywin32 (Python3)"]</string>
 <!-- #else -->
   <string id="codeintel_selected_catalogs">[]</string>
 <!-- #endif -->

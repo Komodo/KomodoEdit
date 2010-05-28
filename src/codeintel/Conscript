@@ -171,6 +171,7 @@ my @catalog_files = (
     "lib/codeintel2/catalogs/mochikit.cix",
     "lib/codeintel2/catalogs/prototype.cix",
     "lib/codeintel2/catalogs/pywin32.cix",
+    "lib/codeintel2/catalogs/python3-pywin32.cix",
     "lib/codeintel2/catalogs/rails.cix",
     "lib/codeintel2/catalogs/jquery.cix",
     "lib/codeintel2/catalogs/ext.cix",
