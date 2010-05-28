@@ -219,6 +219,16 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         except which.WhichError:
             return None
 
+    # Note: Python 1.5.2 does not support sys.version_info.
+    info_cmd = (
+        r"import sys;"
+        r"import string;"
+        r"paren = string.find(sys.version, '(');"
+        r"version = string.strip(sys.version[:paren]);"
+        r"sys.stdout.write(version+'\n');"
+        r"sys.stdout.write(sys.prefix+'\n');"
+        r"sys.stdout.write('\n'.join(sys.path));")
+
     def _python_info_from_python(self, python, env):
         """Call the given Python and return:
             (<version>, <sys.prefix>, <lib-dir>, <site-lib-dir>, <sys.path>)
@@ -226,18 +236,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         TODO: Unicode path issues?
         """
         import process
-
-        # Python 1.5.2 does not support sys.version_info.
-        info_cmd = (
-            r"import sys;"
-            r"import string;"
-            r"paren = string.find(sys.version, '(');"
-            r"version = string.strip(sys.version[:paren]);"
-            r"sys.stdout.write(version+'\n');"
-            r"sys.stdout.write(sys.prefix+'\n');"
-            r"sys.stdout.write('\n'.join(sys.path));")
-
-        argv = [python, "-c", info_cmd]
+        argv = [python, "-c", self.info_cmd]
         log.debug("run `%s -c ...'", python)
         p = process.ProcessOpen(argv, env=env.get_all_envvars(), stdin=None)
         stdout, stderr = p.communicate()
