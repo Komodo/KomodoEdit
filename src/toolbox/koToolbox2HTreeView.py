@@ -68,6 +68,7 @@ class _KoTool(object):
                 del info[name]
         for key, value in info.items():
             self._attributes[key] = value
+        self.initialized = True
 
     #non-xpcom
     def fillDetails(self, itemDetailsDict):
@@ -317,6 +318,8 @@ class _KoCommandTool(_KoTool):
         self.saveToolToDisk(tbdbSvc)
         tbdbSvc.saveCommandInfo(self.id, self.name, self.value, self._attributes)
     def updateSelf(self, toolbox_db):
+        if self.initialized:
+            return
         info = toolbox_db.getCommandInfo(self.id)
         self._finishUpdatingSelf(info)
 
@@ -335,6 +338,8 @@ class _KoURL_LikeTool(_KoTool):
         self.saveToolToDisk(tbdbSvc)
         tbdbSvc.saveSimpleToolInfo(self.id, self.name, self.value, self._attributes)
     def updateSelf(self, toolbox_db):
+        if self.initialized:
+            return
         info = toolbox_db.getSimpleToolInfo(self.id)
         self._finishUpdatingSelf(info)
 
@@ -366,6 +371,8 @@ class _KoMacroTool(_KoTool):
         _KoTool.delete(self)
         
     def updateSelf(self, toolbox_db):
+        if self.initialized:
+            return
         info = toolbox_db.getMacroInfo(self.id)
         #log.debug("macro info: %s", info)
         self._finishUpdatingSelf(info)
@@ -411,6 +418,8 @@ class _KoSnippetTool(_KoTool):
         tbdbSvc.saveSnippetInfo(self.id, self.name, self.value, self._attributes)
 
     def updateSelf(self, toolbox_db):
+        if self.initialized:
+            return
         info = toolbox_db.getSnippetInfo(self.id)
         self._finishUpdatingSelf(info)
 
@@ -885,6 +894,16 @@ class KoToolbox2HTreeView(TreeView):
                 tool.updateSelf(self.toolbox_db)
                 tools.append(tool)
         return tools
+
+    def getAbbreviationSnippet(self, abbrev, subnames):
+        id = self.toolbox_db.getAbbreviationSnippetId(abbrev, subnames)
+        if id is None:
+            return None
+        tool = self.getToolById(id)
+        if tool:
+            # Snippets need to be fully initialized
+            tool.updateSelf(self.toolbox_db)
+        return tool
     
     def getToolsWithKeyboardShortcuts(self):
         ids = self.toolbox_db.getIDsForToolsWithKeyboardShortcuts()

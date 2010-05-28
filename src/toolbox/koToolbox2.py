@@ -524,7 +524,67 @@ class Database(object):
         # get a koFileEx obj
         return obj
     
-    # Force
+    def getAbbreviationSnippetId(self, abbrev, subnames):
+        """
+        Return the first snippet whose name matches 'abbrev' from
+        a folder consisting of Abbreviations/[s in subnames],
+        ignoring case for the subnames.
+
+        This query uses self-joins so it can be done in one shot
+        to the database.
+        
+        Without the question-marks:
+        
+        select cd3.path_id, cd3.name as cd3name, cd2.name
+                from hierarchy as h2, hierarchy as h1,
+                     common_details as cd3, common_details as cd2, common_details as cd1
+                where cd1.name = "Abbreviations" and cd1.type = "folder"
+                  and h1.parent_path_id = cd1.path_id
+                  and h2.parent_path_id = h1.path_id
+                  and h2.parent_path_id = cd2.path_id and cd2.type = "folder" 
+                  and (cd2.name like subnames[0] or cd2.name like subnames[1]...)
+                  and cd3.path_id = h2.path_id and cd3.type = "snippet" and cd3.name like <abbrev>
+
+        In Sqlite, doing a 'like' on a value ignores case.  Since abbrev
+        need to be names, we don't need to worry about wildcard chars.
+        """
+        #log.debug("Look for abbrev %s in subnames %s", abbrev, subnames)
+        condition_part = ['cd2.name like ?'] * len(subnames)
+        condition = ' or '.join(condition_part)
+        stmt = """select cd3.path_id, cd3.name as cd3name, cd2.name
+                from hierarchy as h2, hierarchy as h1,
+                     common_details as cd3, common_details as cd2, common_details as cd1
+                where cd1.name = ? and cd1.type = ?
+                  and h1.parent_path_id = cd1.path_id
+                  and h2.parent_path_id = h1.path_id
+                  and h2.parent_path_id = cd2.path_id
+                  and cd2.type = ? and (%s)
+                  and cd3.path_id = h2.path_id and cd3.type = ? and cd3.name like ?
+                  """ % condition
+        test_values = ["Abbreviations", "folder", "folder"] + subnames + ["snippet", abbrev]
+        #log.debug("stmt:%s, test_values:%s", stmt, test_values)
+        with self.connect() as cu:
+            cu.execute(stmt, test_values)
+            matches = cu.fetchall()
+        if len(matches) == 0:
+            #log.debug("no matches")
+            return None
+        elif len(matches) == 1:
+            #log.debug("exactly 1 match: %s", matches[0][0])
+            return matches[0][0]
+        # Favor case-sensitive matches over non-general-folder matches.
+        exactMatches = [x for x in matches if x[1] == abbrev]
+        if len(exactMatches) == 1:
+            #log.debug("exactly 1 case-sensitive match: %d", exactMatches[0][0])
+            return exactMatches[0][0]
+        #log.debug("Got %d matches, returning %d (%s)", len(matches), matches[0][0], matches[0][1])
+        # Favor snippets that aren't in a General folder.
+        nonGeneralMatches = [x for x in matches if x[2] != "General"]
+        if nonGeneralMatches:
+            #log.debug("Got %d nonGeneralMatches, returning %d (%s)", len(nonGeneralMatches), nonGeneralMatches[0][0], nonGeneralMatches[0][1])
+            return nonGeneralMatches[0][0]
+        return matches[0][0]
+        
     def getIDsForToolsWithKeyboardShortcuts(self):
         with self.connect() as cu:
             stmt = 'select path_id from common_tool_details where keyboard_shortcut != ?'

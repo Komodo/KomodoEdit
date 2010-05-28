@@ -218,6 +218,11 @@ this.findToolById = function(id) {
     return this.manager.view.getToolById(id);
 };
 
+this.getAbbreviationSnippet = function(abbrev, subnames) {
+    return this.manager.view.getAbbreviationSnippet(abbrev, subnames,
+                                                    subnames.length);
+};
+
 this.getTriggerMacros = function() {
     var obj = {};
     this.manager.view.getTriggerMacros(obj, {});

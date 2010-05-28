@@ -170,50 +170,7 @@ this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
     if (lang && subnames.indexOf(lang) == -1) subnames.push(lang);
     if (subnames.indexOf("General") == -1) subnames.push("General");
     
-    // Look in all "Abbreviations" folders for the first appropriate
-    // snippet.
-    var partSvc = Components.classes["@activestate.com/koPartService;1"]
-            .getService(Components.interfaces.koIPartService);
-    var abbrev_folders = partSvc.getParts(
-            "folder", "name", "Abbreviations", "*", partSvc.currentProject,
-            new Object());
-    var subfolder, snippets, snippet, slen;
-    for (var i = 0; i < abbrev_folders.length; i++) {
-        var abbrev_folder = abbrev_folders[i];
-        for (var j = 0; j < subnames.length; j++) {
-            var subnameLC = subnames[j].toLowerCase();
-            var abbrevChildren = {};
-            abbrev_folder.getChildrenByType("folder", false, abbrevChildren, {});
-            abbrevChildren = abbrevChildren.value;
-            subfolder = null;
-            for (var k = 0; k < abbrevChildren.length; k++) {
-                if (subnameLC == abbrevChildren[k].name.toLowerCase()) {
-                    subfolder = abbrevChildren[k];
-                    break;
-                }
-            }
-            if (subfolder) {
-                //dump("findAbbrevSnippet: look in "+abbrev_folder.project.name
-                //     +"/.../Abbreviations/"+subnames[j]);
-                snippets = {};
-                subfolder.getChildrenByType("snippet", true, snippets, {});
-                if (!snippets.value) continue;
-                snippets = snippets.value;
-                slen = snippets.length;
-                for (var k = 0; k < slen; k++) {
-                    snippet = snippets[k];
-                    if (snippet.name == abbrev) {
-                        //dump(" (found it by complete name)\n");
-                        return snippet;
-                    } else if (snippet.name.split(name_splitter)[0] == abbrev){
-                        //dump(" (found it by first part of name)\n");
-                        return snippet;
-                    }
-                }
-            }
-        }
-    }
-    return null;
+    return ko.toolbox2.getAbbreviationSnippet(abbrev, subnames);
 }
 
 
