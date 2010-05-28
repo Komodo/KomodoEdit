@@ -322,8 +322,9 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
     def _buf_indep_libs_from_env(self, env):
         """Create the buffer-independent list of libs."""
-        cache_key = "python-libs"
-        if cache_key not in env.cache:
+        cache_key = self.lang + "-libs"
+        libs = env.cache.get(cache_key)
+        if libs is None:
             env.add_pref_observer(self.interpreterPrefName, self._invalidate_cache)
             env.add_pref_observer(self.extraPathsPrefName,
                                   self._invalidate_cache_and_rescan_extra_dirs)
@@ -389,16 +390,18 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             ]
             env.cache[cache_key] = libs
 
-        return env.cache[cache_key]
+        return libs
 
     def libs_from_buf(self, buf):
         env = buf.env
 
         # A buffer's libs depend on its env and the buf itself so
         # we cache it on the env and key off the buffer.
-        if "python-buf-libs" not in env.cache:
-            env.cache["python-buf-libs"] = weakref.WeakKeyDictionary()
-        cache = env.cache["python-buf-libs"] # <buf-weak-ref> -> <libs>
+        cache_key = self.lang + "-buf-libs"
+        cache = env.cache.get(cache_key) # <buf-weak-ref> -> <libs>
+        if cache is None:
+            cache = weakref.WeakKeyDictionary()
+            env.cache[cache_key] = cache
 
         if buf not in cache:
             # - curdirlib
@@ -416,7 +419,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         return cache[buf]
 
     def _invalidate_cache(self, env, pref_name):
-        for key in ("python-buf-libs", "python-libs"):
+        for key in (self.lang + "-buf-libs", self.lang + "-libs"):
             if key in env.cache:
                 log.debug("invalidate '%s' cache on %r", key, env)
                 del env.cache[key]
