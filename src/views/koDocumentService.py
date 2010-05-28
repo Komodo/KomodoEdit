@@ -78,7 +78,7 @@ class KoDocumentService:
     _reg_clsid_ = "{D65E6673-8DA2-40DE-8B50-18FFCC07F659}"
     
     def __init__(self):
-        self._doc_counters = {}
+        self._docCounters = {}
         self._documents = {}
         self._fileSvc = components.classes["@activestate.com/koFileService;1"]\
             .getService(components.interfaces.koIFileService)
@@ -273,7 +273,7 @@ class KoDocumentService:
         ext = ext or ""
         doc = components.classes["@activestate.com/koDocumentBase;1"]\
             .createInstance(components.interfaces.koIDocument)
-        title = "%s-%d%s" % (name, self.get_doc_counter(name), ext)
+        title = "%s-%d%s" % (name, self._docCounterFromPrefix(name), ext)
         doc.initUntitled(title, self._getEncodingFromFilename(title))
         doc.loadFromURI(uri)
         self._fixupEOL(doc)
@@ -307,7 +307,7 @@ class KoDocumentService:
             ext = koLanguage.defaultExtension
         except:
             ext = '.txt'
-        return "%s-%d%s" % (language, self.get_doc_counter(language), ext)
+        return "%s-%d%s" % (language, self._docCounterFromPrefix(language), ext)
         
     def createUntitledDocument(self, language):
         leafName = self._untitledNameFromLanguage(language)
@@ -398,11 +398,11 @@ class KoDocumentService:
             self._cDoc.release()
         return None
 
-    def get_doc_counter(self, prefix):
-        if prefix not in self._doc_counters:
-            self._doc_counters[prefix] = 0
-        self._doc_counters[prefix] += 1
-        return self._doc_counters[prefix]
+    def _docCounterFromPrefix(self, prefix):
+        if prefix not in self._docCounters:
+            self._docCounters[prefix] = 0
+        self._docCounters[prefix] += 1
+        return self._docCounters[prefix]
 
     # List of regex'es that we use to look for filename/line# in the input line
     # These should match all of the styles done by Scintilla in LexOthers.cxx,
