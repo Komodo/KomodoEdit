@@ -293,7 +293,7 @@ class KoDocumentService:
             doc.save(1)
         return doc
 
-    def getUntitledNameForLanguage(self, language):
+    def _untitledNameFromLanguage(self, language):
         if not language:
             if self._globalPrefsvc.hasPref('fileDefaultNew'):
                 language = self._globalPrefsvc.getStringPref('fileDefaultNew')
@@ -309,9 +309,8 @@ class KoDocumentService:
             ext = '.txt'
         return "%s-%d%s" % (language, self.get_doc_counter(language), ext)
         
-    #koIDocument createUntitledDocument(in string language);
     def createUntitledDocument(self, language):
-        leafName = self.getUntitledNameForLanguage(language)
+        leafName = self._untitledNameFromLanguage(language)
         # Just return the existing document for this name if there is one.
         doc = self.findDocumentByDisplayPath(leafName)
         if doc:

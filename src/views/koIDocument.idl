@@ -208,7 +208,6 @@ interface koITabstopInsertionNode : nsISupports
 [scriptable, uuid(CA0A2B77-781B-49E9-B394-B6F8DD56700E)]
 interface koIDocumentService: nsISupports
 {
-    wstring getUntitledNameForLanguage(in wstring language);
     koIDocument createDocumentFromFile(in koIFileEx file); //DEPRECATED
     koIDocument createDocumentFromURI(in wstring uri);
     
