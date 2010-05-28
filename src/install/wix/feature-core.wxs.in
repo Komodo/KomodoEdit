@@ -1784,6 +1784,7 @@
                   <Component DiskId="1" Guid="$(autowix.guid)" Id="component0">
                     <File Id="file87" Name="dojo.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\dojo.cix" />
                     <File Id="file100" Name="pywin32.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\pywin32.cix" />
+                    <File Id="file1072" LongName="python3-pywin32.cix" Name="PYTHON_4.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\python3-pywin32.cix" />
                     <File Id="file84" Name="mochikit.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\mochikit.cix" />
                     <File Id="file85" LongName="prototype.cix" Name="PROTOT_0.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\prototype.cix" />
                     <File Id="file92" Name="rails.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\rails.cix" />
