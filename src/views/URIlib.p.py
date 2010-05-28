@@ -71,7 +71,6 @@ addSchemeToParser('snippet')
 
 # For toolbox2 items in v.6:
 addSchemeToParser('macro2')
-addSchemeToParser('snippet2')
 
 RemoteURISchemeTypes = [ 'ftp' ]
 

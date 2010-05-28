@@ -69,10 +69,10 @@ class koFileEx:
                 # pass through to mozilla's uri handling
                 handler = xpURIHandler(self._URI.URI)
 
-            elif self._URI.scheme in ['macro','snippet']:
+            elif self._URI.scheme in ['macr2','snippet']:
                 handler = projectURIHandler(self._URI)
 
-            elif self._URI.scheme in ['macro2','snippet2']:
+            elif self._URI.scheme == 'macro2':
                 handler = projectURI2_Handler(self._URI)
 
             else:
