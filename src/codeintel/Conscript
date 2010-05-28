@@ -151,7 +151,7 @@ my @stdlibs_files = (
     "lib/codeintel2/stdlibs/python-2.4.cix",
     "lib/codeintel2/stdlibs/python-2.5.cix",
     "lib/codeintel2/stdlibs/python-2.6.cix",
-    "lib/codeintel2/stdlibs/python-3.1.cix",
+    "lib/codeintel2/stdlibs/python3-3.1.cix",
     "lib/codeintel2/stdlibs/perl-5.8.cix",
     "lib/codeintel2/stdlibs/ruby.cix",
     "lib/codeintel2/stdlibs/php-4.3.cix",
