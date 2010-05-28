@@ -222,6 +222,7 @@ interface koIDocumentService: nsISupports
                      out PRUint32 count);
     koIDocument findDocumentByURI(in wstring URI);
     
+    //TODO: Move this to a more suitable IDL. This has nothing to do with managing koIDocuments. 
     // This should indicate that it is intended to be an error line with
     // a parseable filepath and line number.
     void parseHotspotLine(in AString line,

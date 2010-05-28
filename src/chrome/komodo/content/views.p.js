@@ -208,15 +208,14 @@ viewManager.prototype.postCanClose = function()
 }
 
 /**
- * get the default directory based on a project or the current buffer.  This
- * is used by file open dialogs to set the initial directory of the dialog.
+ * Get the default directory based on a project or the current buffer.
  *
- * @public
+ * @private
  * @param project {Components.interfaces.koIProject}
- *        optional, instance of a project
+ *      optional, instance of a project
  * @return {string} the current "default" directory to work from.
  */
-viewManager.prototype.getDefaultDirectory = function(project) {
+viewManager.prototype._getDefaultDirectory = function(project) {
     // get the default dir from the current buffer directory, or the
     // current project directory
     var defaultDir = null;
@@ -254,7 +253,7 @@ viewManager.prototype._newTemplate = function(defaultDir, project) {
         project = ko.projects.manager.currentProject;
     }
     if (!defaultDir) {
-       defaultDir = this.getDefaultDirectory(project);
+       defaultDir = this._getDefaultDirectory(project);
     }
     try {
         this.log.info("doing newTemplate: ");
