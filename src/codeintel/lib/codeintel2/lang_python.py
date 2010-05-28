@@ -104,6 +104,8 @@ class PythonLexer(Lexer):
 
 
 class PythonImportsEvaluator(Evaluator):
+    lang = lang
+
     def __str__(self):
         return "Python imports"
     def eval(self, mgr):
@@ -119,7 +121,7 @@ class PythonImportsEvaluator(Evaluator):
                     while imp_prefix and not imp_prefix[0]:
                         lookuppath = dirname(lookuppath)
                         imp_prefix = imp_prefix[1:]
-                    libs = [mgr.db.get_lang_lib("Python", "curdirlib",
+                    libs = [mgr.db.get_lang_lib(self.lang, "curdirlib",
                                                   [lookuppath])]
                 self.ctlr.set_desc("subimports of '%s'" % '.'.join(imp_prefix))
                 cplns = []
@@ -163,7 +165,9 @@ class PythonImportsEvaluator(Evaluator):
 class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                       ProgLangTriggerIntelMixin,
                       PythonCITDLExtractorMixin):
-    lang = "Python"
+    lang = lang
+    interpreterPrefName = "python"
+    extraPathsPrefName = "pythonExtraPaths"
 
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos().
     trg_chars = tuple(" (.")
@@ -190,7 +194,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     return
             evalr = PythonTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
             buf.mgr.request_eval(evalr)
-        elif trg.id == ("Python", TRG_FORM_CPLN, "pythondoc-tags"):
+        elif trg.id == (self.lang, TRG_FORM_CPLN, "pythondoc-tags"):
             #TODO: Would like a "tag" completion image name.
             cplns = [("variable", t) for t in _g_pythondoc_tags]
             ctlr.set_cplns(cplns)
@@ -297,7 +301,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
     def _extra_dirs_from_env(self, env):
         extra_dirs = set()
-        for pref in env.get_all_prefs("pythonExtraPaths"):
+        for pref in env.get_all_prefs(self.extraPathsPrefName):
             if not pref: continue
             extra_dirs.update(d.strip() for d in pref.split(os.pathsep)
                               if exists(d.strip()))
@@ -311,8 +315,8 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
     def get_interpreter(self, env):
         # Gather information about the current python.
         python = None
-        if env.has_pref("python"):
-            python = env.get_pref("python").strip() or None
+        if env.has_pref(self.interpreterPrefName):
+            python = env.get_pref(self.interpreterPrefName).strip() or None
         if not python or not exists(python):
             python = self._python_from_env(env)
         return python
@@ -321,8 +325,8 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         """Create the buffer-independent list of libs."""
         cache_key = "python-libs"
         if cache_key not in env.cache:
-            env.add_pref_observer("python", self._invalidate_cache)
-            env.add_pref_observer("pythonExtraPaths",
+            env.add_pref_observer(self.interpreterPrefName, self._invalidate_cache)
+            env.add_pref_observer(self.extraPathsPrefName,
                                   self._invalidate_cache_and_rescan_extra_dirs)
             env.add_pref_observer("codeintel_selected_catalogs",
                                   self._invalidate_cache)
@@ -342,7 +346,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             # - extradirslib
             extra_dirs = self._extra_dirs_from_env(env)
             if extra_dirs:
-                libs.append( db.get_lang_lib("Python", "extradirslib",
+                libs.append( db.get_lang_lib(self.lang, "extradirslib",
                                 extra_dirs) )
 
             # Figure out which sys.path dirs belong to which lib.
@@ -374,15 +378,15 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
             # - envlib, sitelib, cataloglib, stdlib
             if paths_from_libname["envlib"]:
-                libs.append( db.get_lang_lib("Python", "envlib", 
+                libs.append( db.get_lang_lib(self.lang, "envlib", 
                                 paths_from_libname["envlib"]) )
             if paths_from_libname["sitelib"]:
-                libs.append( db.get_lang_lib("Python", "sitelib", 
+                libs.append( db.get_lang_lib(self.lang, "sitelib", 
                                 paths_from_libname["sitelib"]) )
             catalog_selections = env.get_pref("codeintel_selected_catalogs")
             libs += [
-                db.get_catalog_lib("Python", catalog_selections),
-                db.get_stdlib("Python", ver)
+                db.get_catalog_lib(self.lang, catalog_selections),
+                db.get_stdlib(self.lang, ver)
             ]
             env.cache[cache_key] = libs
 
@@ -405,7 +409,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             if cwd == "<Unsaved>":
                 libs = []
             else:
-                libs = [ self.mgr.db.get_lang_lib("Python", "curdirlib",
+                libs = [ self.mgr.db.get_lang_lib(self.lang, "curdirlib",
                                                   [dirname(buf.path)]) ]
 
             libs += self._buf_indep_libs_from_env(env)
@@ -423,7 +427,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         extra_dirs = self._extra_dirs_from_env(env)
         if extra_dirs:
             extradirslib = self.mgr.db.get_lang_lib(
-                "Python", "extradirslib", extra_dirs)
+                self.lang, "extradirslib", extra_dirs)
             request = PreloadLibRequest(extradirslib)
             self.mgr.idxr.stage_request(request, 1.0)
 
@@ -735,7 +739,7 @@ class PythonImportHandler(ImportHandler):
     #TODO: may not be used. If so, drop it.
     def _shellOutForPath(self, compiler):
         import process
-        argv = [compiler, "-c", "import sys; print '\\n'.join(sys.path)"]
+        argv = [compiler, "-c", "import sys; print('\\n'.join(sys.path))"]
         # Can't use -E to ignore PYTHONPATH because older versions of
         # Python don't have it (e.g. v1.5.2).
         env = dict(os.environ)
@@ -895,7 +899,7 @@ class PythonCILEDriver(CILEDriver):
             except UnicodeError, ex:
                 raise CodeIntelError("cannot encode Python content as %r (%s)"
                                      % (encoding, ex))
-        cix = pythoncile.scan(content, buf.path)
+        cix = pythoncile.scan(content, buf.path, lang=self.lang)
         return tree_from_cix(cix)
 
     def scan_binary(self, buf):
