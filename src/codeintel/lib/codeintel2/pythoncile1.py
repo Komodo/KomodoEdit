@@ -1425,8 +1425,8 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
         path = filename.replace('\\', '/')
     else:
         path = filename
-    fileAttrs = {"language": "Python",
-                 "generator": "Python",
+    fileAttrs = {"language": lang,
+                 "generator": lang,
                  "path": path}
 
     try:
