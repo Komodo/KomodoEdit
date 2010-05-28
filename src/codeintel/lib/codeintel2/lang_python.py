@@ -76,7 +76,7 @@ if _xpcom_:
 
 #---- globals
 
-_SCAN_BINARY_FILES = True
+_SCAN_BINARY_FILES = False
 
 lang = "Python"
 log = logging.getLogger("codeintel.python")
