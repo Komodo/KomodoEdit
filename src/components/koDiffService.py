@@ -61,6 +61,13 @@ class KoDiffService(object):
         return difflibex.diff_multiple_local_filepaths(left_filepaths,
                                                        right_filepaths)
 
+    def diffMultipleFilepathsOverridingDisplayPaths(self, left_filepaths,right_filepaths,
+                                                    left_displaypaths, right_displaypaths):
+        return difflibex.diff_multiple_local_filepaths(left_filepaths,
+                                                       right_filepaths,
+                                                       left_displaypaths,
+                                                       right_displaypaths)
+
     def diffMultipleURIs(self, left_uris, right_uris):
         result = []
         for left_uri, right_uri in zip(left_uris, right_uris):

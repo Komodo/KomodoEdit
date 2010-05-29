@@ -64,6 +64,21 @@ interface koIDiffService : nsISupports {
                                   in unsigned long right_count);
 
     /**
+     * Same as diffMultipleFilepaths, but has additional arguments to change
+     * the path displayed in the diff dialog.
+     *
+     * @returns string
+     */
+    AString diffMultipleFilepathsOverridingDisplayPaths([array, size_is(left_count)] in wstring left_filepaths,
+                                                        in unsigned long left_count,
+                                                        [array, size_is(right_count)] in wstring right_filepaths,
+                                                        in unsigned long right_count,
+                                                        [array, size_is(left_display_path_count)] in wstring left_display_paths,
+                                                        in unsigned long left_display_path_count,
+                                                        [array, size_is(right_display_path_count)] in wstring right_display_paths,
+                                                        in unsigned long right_display_path_count);
+
+    /**
      * Perform a diff of the uris in the left list to the matching (by
      * index) entry in the right uris list. If a file exists in the left
      * list but the corresponding right filepath does not exist then it will be

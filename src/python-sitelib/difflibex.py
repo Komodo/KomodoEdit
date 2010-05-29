@@ -239,7 +239,9 @@ def diff_local_directories(left_dirpath, right_dirpath):
     return "".join(result)
 
 
-def diff_multiple_local_filepaths(left_filepaths, right_filepaths):
+def diff_multiple_local_filepaths(left_filepaths, right_filepaths,
+                                  left_displaypaths=None,
+                                  right_displaypaths=None):
     """Return a unified diff between the left and right filepaths.
 
     If a filepath does not exist, it will be assumed that it is a file
@@ -248,9 +250,15 @@ def diff_multiple_local_filepaths(left_filepaths, right_filepaths):
     assert left_filepaths
     assert right_filepaths
     assert len(left_filepaths) == len(right_filepaths)
+    if left_displaypaths is None:
+        left_displaypaths = left_filepaths
+    if right_displaypaths is None:
+        right_displaypaths = right_filepaths
+    assert len(left_displaypaths) == len(right_displaypaths)
 
     result = []
-    for left_path, right_path in zip(left_filepaths, right_filepaths):
+    for left_path, right_path, left_display, right_display in zip(left_filepaths, right_filepaths,
+                                                                  left_displaypaths, right_displaypaths):
         hasBinaryContent = False
         left_filedata = ''
         right_filedata = ''
@@ -284,7 +292,7 @@ def diff_multiple_local_filepaths(left_filepaths, right_filepaths):
         # Perform unified diff of contents.
         result += unified_diff(left_filedata.splitlines(1),
                                right_filedata.splitlines(1),
-                               left_path, right_path)
+                               left_display, right_display)
     return "".join(result)
 
 
