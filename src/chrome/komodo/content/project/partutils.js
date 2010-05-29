@@ -86,15 +86,9 @@ this.invokePart = function part_invokePart(part) {
  */
 this.invokePartById = function part_invokePartById(id) {
     try {
-        // Try the new toolbox first.
-        var part;
-        part = ko.toolbox2.findToolById(id);
+        var part = ko.toolbox2.findToolById(id);
         if (!part) {
-            //TODO: NEWTOOLBOX: Stop looking in the old project system for tools
-            part = ko.projects.findPartById(id);
-        }
-        if (!part) {
-            log.error("Couldnt' find part with id: " + id);
+            log.error("Couldn't find part with id: " + id);
             return;
         }
         ko.projects.invokePart(part);
@@ -103,17 +97,11 @@ this.invokePartById = function part_invokePartById(id) {
     }
 }
 
-var gPartSvc = Components.classes["@activestate.com/koPartService;1"].
-        getService(Components.interfaces.koIPartService);
-
 /**
- * Given a ID, look in the projects and toolboxes until you find
- * the first part with that id (the id allocation scheme guarantees there
- * will be at most one) and return it.  Return null on failure to find such
- * a part.
+ * Return null if there is no part with the given ID.
  */
 this.findPartById = function part_findPartById(id) {
-    return gPartSvc.getPartById(id);
+    retur ko.toolbox2.findToolById(id);
 }
 
 function _getPartURL(part) {
