@@ -1857,15 +1857,6 @@ viewManager.prototype.do_cmd_saveAll = function() {
             }
         }
 
-        // Save the toolbox data
-        try {
-            ko.toolboxes.user.save();
-        } catch(ex) {
-            ko.dialogs.alert(_bundle.GetStringFromName("thereWasAnErrorSavingTheToolbox.alert"),
-                         _lastErrorSvc.getLastErrorMessage(),
-                         _bundle.GetStringFromName("toolboxSaveError.alert"));
-        }
-
         // Save all dirty projects
         var projects = ko.projects.manager.getDirtyProjects();
         for (i = 0; i < projects.length; i++) {
@@ -3127,11 +3118,6 @@ function _view_checkDiskFiles(event) {
                 text += _itemStringifier(conflictedItems[i]) + '\n'
             }
             ko.dialogs.alert(prompt, text, title, "buffer_conflicts_with_file_on_disk")
-        }
-
-        // XXX now follow up with the toolboxes
-        if (ko.toolboxes.user) {
-            ko.toolboxes.user.verifyUnchanged();
         }
     } catch(e) {
         log.exception(e);
