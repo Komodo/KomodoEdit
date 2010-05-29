@@ -186,6 +186,7 @@
       <ComponentRef Id="component324"/>
       <ComponentRef Id="component325"/>
       <ComponentRef Id="component311"/>
+      <ComponentRef Id="component404"/>
       <ComponentRef Id="component419"/>
       <ComponentRef Id="component445"/>
       <ComponentRef Id="component446"/>
@@ -932,6 +933,11 @@
               <File Id="file2983" Name="KOVICO_0.PY" LongName="koViCommandDetail.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koViCommandDetail.py"/>
               <File Id="file928" LongName="pyIXPCOMExtensionHelper.xpt" Name="PYIXPC_0.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pyIXPCOMExtensionHelper.xpt" />
               <File Id="file929" LongName="pyXPCOMExtensionHelper.py" Name="PYXPCO_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pyXPCOMExtensionHelper.py" />
+              <File Id="file1073" Name="KOITOO_0.IDL" LongName="koIToolbox2Components.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIToolbox2Components.idl"/>
+              <File Id="file1074" Name="KOITOO_0.XPT" LongName="koIToolbox2Components.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIToolbox2Components.xpt"/>
+              <File Id="file1075" Name="KOITOO_1.XPT" LongName="koIToolbox2HTreeView.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIToolbox2HTreeView.xpt"/>
+              <File Id="file1076" Name="KOTOOL_0.PY" LongName="koToolbox2Components.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koToolbox2Components.py"/>
+              <File Id="file1077" Name="KOTOOL_1.PY" LongName="koToolbox2HTreeView.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koToolbox2HTreeView.py"/>
             </Component>
           </Directory> <!-- lib\mozilla\components -->
           <Directory Id="directory58" Name="defaults">
@@ -1703,6 +1709,8 @@
                 <File Id="file420" Name="runutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\runutils.py" />
 <?endif ?>
                 <File Id="file932" LongName="pythonVersionUtils.py" Name="PYTHON_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pythonVersionUtils.py" />
+                <File Id="file1078" Name="KOMIGR_0.PY" LongName="koMigrateV5Toolboxes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koMigrateV5Toolboxes.py"/>
+                <File Id="file1079" Name="KOTOOL_2.PY" LongName="koToolbox2.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koToolbox2.py"/>
               </Component>
               <Directory Id="directory262" Name="CODEIN_3" LongName="codeintel2">
                 <Component Id="component245" DiskId="1" Guid="$(autowix.guid)">
@@ -2241,6 +2249,11 @@
                   <File Id="file2383" Name="__INIT_2.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\SilverCity\__init__.py"/>
                 </Component>
               </Directory> <!-- lib\mozilla\python\komodo\SilverCity -->
+              <Directory Id="directory432" Name="toolbox">
+                  <Component Id="component404" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file1080" Name="KOTOOL_0.SQL" LongName="koToolbox.sql" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\toolbox\koToolbox.sql"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\python\komodo\toolbox -->
             </Directory> <!-- lib\mozilla\python\komodo -->
             <Directory Id="directory333" Name="nsdom">
               <Component Id="component301" DiskId="1" Guid="$(autowix.guid)">
@@ -4050,6 +4063,8 @@
               <File Id="file4910" Name="NSIX50_2.IDL" LongName="nsIX509CertValidity.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIX509CertValidity.idl"/>
               <File Id="file4922" Name="NSROOT_0.IDL" LongName="nsrootidl.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsrootidl.idl"/>
               <File Id="file4100" Name="KOIVIC_0.IDL" LongName="koIViCommandDetail.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIViCommandDetail.idl"/>
+              <File Id="file1081" Name="KOITOO_1.IDL" LongName="koIToolbox2Components.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIToolbox2Components.idl"/>
+              <File Id="file1082" Name="KOITOO_2.IDL" LongName="koIToolbox2HTreeView.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIToolbox2HTreeView.idl"/>
               <File Id="file792" Name="nsIArray.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIArray.idl"/>
               <File Id="file793" Name="NSIHAS_0.IDL" LongName="nsIHashable.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIHashable.idl"/>
               <File Id="file794" Name="nsIJSON.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIJSON.idl"/>
