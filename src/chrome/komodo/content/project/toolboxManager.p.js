@@ -73,6 +73,7 @@ this.shared  = null;
 
 this.onload = function Toolbox_onLoad()
 {
+    return; // shut down the old toolbox.
     ko.toolboxes.user = new toolboxManager();
     ko.toolboxes.user.init();
 

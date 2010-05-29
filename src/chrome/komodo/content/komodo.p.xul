@@ -659,6 +659,10 @@
     </menu>
 
 
+    <!-- name note: this is not a Komodo toolbox, but the top-level
+      toolbar
+      -->
+
     <toolbox id="toolbox_main"
              context="context-toolbox-menu"
              persist="mode"
@@ -1987,11 +1991,6 @@
                             oncommand="ko.uilayout.ensureTabShown('project_tab', true)"
                             label="&projects.label;"
                             />
-                        <menuitem id="show_toolbox_tab"
-                            oncommand="ko.uilayout.ensureTabShown('toolbox_tab', true)"
-                            label="&toolbox.label;"
-                            />
-                        <menuseparator/>
                         <menuitem id="show_toolbox2_tab"
                             oncommand="ko.uilayout.ensureTabShown('toolbox2_tab', true)"
                             label="&toolbox2.label;"
@@ -2488,11 +2487,6 @@
                           onclose="ko.uilayout.toggleSplitter('cmd_viewRightPane');"
                           closeclass="scroll-minimize-right-icon"
                           closecollapsed="false">
-                        <tab id="toolbox_tab" label="&toolbox.label;"
-                             locktip="&thisToolboxIsReadOnly.locktip;"
-                             accesskey="&toolboxTab.accesskey;"
-                             oncommand="ko.toolboxes.user.viewMgr.tree.focus();"
-                             onfocus="ko.toolboxes.user.viewMgr.focus();"/>
                         <tab id="toolbox2_tab" label="&toolbox2.label;"
                              locktip="&thisToolboxIsReadOnly.locktip;"
                              accesskey="&toolboxTab.accesskey;"
@@ -2511,19 +2505,9 @@
                             }
                                 "
                     >
-                        <tabpanel flex="1" id="toolboxviewbox">
-                            <vbox flex="1" id="toolboxview-vbox">
-                                <partviewer
-                                    id="toolboxview"
-                                    viewcontext='toolboxContext'
-                                    tabid="toolbox_tab"
-                                    flex="1"
-                                    hidecolumnpicker="true"
-                                    treecollabel="&projectNameTreeColumn.label;"
-                                    candrag="true"
-                                    candrop="true"
-                                    lock_icon_id="toolbox_tab"
-                                    >
+                        <tabpanel flex="1" id="toolbox2viewbox">
+                            <!--
+                            put this in the new toolbox....
                                     <toolbarbutton
                                         id="toolboxView_AddItem"
                                         tooltiptext="&addItemToToolbox.tooltiptext;"
@@ -2536,10 +2520,7 @@
                                         <menupopup id="toolboxView_AddItemPopup" partviewer="toolboxview"
                                                    onpopupshowing="ko.projects.ensureAddMenu(this);"/>
                                     </toolbarbutton>
-                                </partviewer>
-                            </vbox>
-                        </tabpanel>
-                        <tabpanel flex="1" id="toolbox2viewbox">
+                        -->
                          <tabbox flex="1" id="toolbox2-tabbox"
                                  orient="vertical" >
                               <tabs id="toolbox2-tabs" >
