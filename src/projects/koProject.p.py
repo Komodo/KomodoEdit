@@ -1119,27 +1119,6 @@ class koMacroPart(koPart):
                 return
         koPart.added(self)
 
-    def _asyncMacroCheck(self, async):
-        if async:
-            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                .getService(components.interfaces.koILastErrorService)
-            err = "Asynchronous python macros not yet implemented"
-            lastErrorSvc.setLastError(1, err)
-            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
-
-    def evalAsPython(self, domdocument, window, scimoz, koDoc,
-                     view, code, async):
-        self._asyncMacroCheck(async)
-        evalPythonMacro(WrapObject(self,self._com_interfaces_[0]),
-                        domdocument, window, scimoz, koDoc, view, code)
-        
-    def evalAsPythonObserver(self, domdocument, window, scimoz, koDoc,
-                             view, code, async, subject, topic, data):
-        self._asyncMacroCheck(async)
-        evalPythonMacro(WrapObject(self,self._com_interfaces_[0]),
-                        domdocument, window, scimoz, koDoc, view, code,
-                        subject, topic, data)
-
 # See factory functions below
 class koWebServicePart(koURLPart):
     _com_interfaces_ = [components.interfaces.koIPart_URL,

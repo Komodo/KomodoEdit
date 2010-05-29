@@ -363,7 +363,7 @@ MacroEventHandler.prototype._triggersAreEnabled = function() {
 MacroEventHandler.prototype._triggerWrapper = {
     observe : function(subject, topic, data) {
         // 'this' isn't 'me', so call the global singleton
-        if (!ko) {
+        if (typeof(ko) == "undefined" || !ko) {
             //this ko has shutdown (or isn't defined yet)
             return false;
         } else if (!ko.macros.eventHandler._triggersAreEnabled()) {
@@ -756,16 +756,10 @@ function _macro_error(ex, action, part) {
 this.__defineGetter__("current",
 function()
 {
-    var _partSvc = Components.classes["@activestate.com/koPartService;1"]
-            .getService(Components.interfaces.koIPartService);
-    try {
-        return _partSvc.runningMacro;
-    } catch(ex) {
-        // Try the toolbox2 service
-        _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
-            .getService(Components.interfaces.koIToolBox2Service);
-        return _partSvc.runningMacro;
-    }
+    // Macro running has moved to the toolbox2 service
+    _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
+        .getService(Components.interfaces.koIToolBox2Service);
+    return _partSvc.runningMacro;
 });
 
 //@@@@ v5 => v6 transition code

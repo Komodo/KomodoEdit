@@ -68,6 +68,25 @@ interface koITool: koIPart_Common {
 
 [scriptable, uuid(1d1db2c4-8054-418d-a0d2-4b65c5039bb1)]
 interface koIMacroTool: koITool {
+    wstring evalAsPython(in nsIDOMDocument domdocument,
+                         in nsIDOMWindowInternal window,
+                         in ISciMoz scimoz,
+                         in koIDocument koDoc,
+                         in koIView view,
+                         in wstring code,
+                         in boolean asynchronous);
+    wstring evalAsPythonObserver(in nsIDOMDocument domdocument,
+                                 in nsIDOMWindowInternal window,
+                                 in ISciMoz scimoz,
+                                 in koIDocument koDoc,
+                                 in koIView view,
+                                 in wstring code,
+                                 in boolean asynchronous,
+                                 // These three args are same as
+                                 // nsIObserver.observe
+                                 in nsISupports subject,
+                                 in string      topic,
+                                 in wstring     data );
 };
 
 

@@ -44,6 +44,7 @@ from koTreeView import TreeView
 import eollib
 import fileutils
 import koToolbox2
+from projectUtils import *
 
 import logging
 
@@ -434,6 +435,27 @@ class _KoMacroTool(_KoTool):
         # Write the changed data to the file system
         self.saveToolToDisk(tbdbSvc)
         tbdbSvc.saveMacroInfo(self.id, self.name, self.value, self._attributes)
+
+    def _asyncMacroCheck(self, async):
+        if async:
+            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
+                .getService(components.interfaces.koILastErrorService)
+            err = "Asynchronous python macros not yet implemented"
+            lastErrorSvc.setLastError(1, err)
+            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
+
+    def evalAsPython(self, domdocument, window, scimoz, koDoc,
+                     view, code, async):
+        self._asyncMacroCheck(async)
+        evalPythonMacro(WrapObject(self,self._com_interfaces_[0]),
+                        domdocument, window, scimoz, koDoc, view, code)
+        
+    def evalAsPythonObserver(self, domdocument, window, scimoz, koDoc,
+                             view, code, async, subject, topic, data):
+        self._asyncMacroCheck(async)
+        evalPythonMacro(WrapObject(self,self._com_interfaces_[0]),
+                        domdocument, window, scimoz, koDoc, view, code,
+                        subject, topic, data)
 
 class _KoSnippetTool(_KoTool):
     typeName = 'snippet'
