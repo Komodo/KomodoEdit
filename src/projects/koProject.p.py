@@ -1033,6 +1033,8 @@ class koSnippetPart(koPart):
         project = self.get_project()
         psvc = components.classes["@activestate.com/koPartService;1"]\
                 .getService(components.interfaces.koIPartService)
+        XXX # @@@@ How do we want to set toolboxType for new tools?
+        NewTools
         if project == UnwrapObject(psvc.toolbox):
             data['toolboxType'] = 'toolbox'
         else:

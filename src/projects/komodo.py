@@ -51,6 +51,7 @@ def doCommand(commandId):
         win = None
     _observerSvc.notifyObservers(win, 'command-docommand', commandId)
 
+projectPartTypes = ['file', 'folder', 'Dialog'] # Dialog?
 def findPart(partType, name, where='*'):
     """Find a component in the Toolbox, Projects, etc.
     
@@ -68,9 +69,18 @@ def findPart(partType, name, where='*'):
     If multiple components are found with the same name, the first one wins.
     If none are found, None is returned.
     """
-    _partSvc = components.classes["@activestate.com/koPartService;1"]\
-        .getService(components.interfaces.koIPartService)
-    return _partSvc.findPartForRunningMacro(partType, name, where)
+
+    _toolboxSvc = components.classes["@activestate.com/koToolBox2Service;1"]\
+        .getService(components.interfaces.koIToolBox2Service)
+    runningMacro = _toolboxSvc.runningMacro
+    if partType in projectPartTypes:
+        _partSvc = components.classes["@activestate.com/koPartService;1"]\
+                   .getService(components.interfaces.koIPartService)
+        return _partSvc.findPart(partType, name, where, runningMacro)
+    else:
+        XXX # @@@@ Implement this
+        NewTools
+        return _toolboxSvc.findToolByTypeAndName(partType, name, where)
 
 
 def getWordUnderCursor():

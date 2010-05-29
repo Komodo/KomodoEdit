@@ -106,90 +106,9 @@ class KomodoWindowData(object):
         elif len(self._runningMacro) > 1:
             self._runningMacro.pop()
     runningMacro = property(get_runningMacro, set_runningMacro)
+
+    # NewTools: @@@@ Pull more out of koProjectService.py as needed
     
-    def isCurrent(self, project):
-        return project and project in [self._currentProject]
-
-    def set_currentProject(self, project):
-        if self._currentProject == project: return
-        if self._currentProject:
-            self._currentProject.deactivate()
-        self._currentProject = project
-        if self._currentProject:
-            self._currentProject.activate()
-        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                       getService(components.interfaces.nsIObserverService)
-        try:
-            obsSvc.notifyObservers(project, 'current_project_changed', '')
-        except:
-            pass
-
-    def get_currentProject(self):
-        return self._currentProject
-
-    def getEffectivePrefsForURL(self, url):
-        if not self._currentProject:
-            return None
-        part = self._currentProject.getChildByURL(url)
-        if part:
-            return part.prefset
-        return None
-
-    def getPartById(self, id):
-        return findPartById(id)
-
-    def findPartForRunningMacro(self, partType, name, where='*'):
-        log.warn("DEPRECATED koIPartService.findPartForRunningMacro, use koIPartService.findPart")
-        return self.findPart(partType, name, where, self.runningMacro)
-
-    def findPart(self, partType, name, where, part):
-        # See koIProject for details.
-        if part:
-            container = part.project
-        else:
-            container = None
-        if where == '*':
-            places = [container]
-        elif where == 'container':
-            places = [container]
-        for place in places:
-            if place:
-                found = place.getChildWithTypeAndStringAttribute(
-                            partType, 'name', name, 1)
-                if found:
-                    return found
-        return None
-
-    def getPart(self, type, attrname, attrvalue, where, container):
-        for part in self._genParts(type, attrname, attrvalue,
-                                   where, container):
-            return part
-
-    def getParts(self, type, attrname, attrvalue, where, container):
-        return list(
-            self._genParts(type, attrname, attrvalue, where, container)
-        )
-
-    def _genParts(self, type, attrname, attrvalue, where, container):
-        # Determine what koIProject's to search.
-        if where == '*':
-            places = [container]
-        elif where == 'container':
-            places = [container]
-        elif where == 'current project':
-            places = [self._currentProject]
-
-        # Search them.
-        for place in places:
-            if not place:
-                continue
-            #TODO: Unwrap and use iterators to improve efficiency.
-            #      Currently this can be marshalling lots of koIParts.
-            for part in place.getChildrenByType(type, True):
-                if part.getStringAttribute(attrname) == attrvalue:
-                    yield part
-
-        
 class KoToolBox2Service:
     _com_interfaces_ = [components.interfaces.koIToolBox2Service,
                         components.interfaces.nsIObserver]
