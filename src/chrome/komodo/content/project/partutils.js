@@ -101,7 +101,7 @@ this.invokePartById = function part_invokePartById(id) {
  * Return null if there is no part with the given ID.
  */
 this.findPartById = function part_findPartById(id) {
-    retur ko.toolbox2.findToolById(id);
+    return ko.toolbox2.findToolById(id);
 }
 
 function _getPartURL(part) {

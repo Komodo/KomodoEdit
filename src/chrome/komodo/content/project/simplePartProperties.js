@@ -124,14 +124,7 @@ function OK()  {
     }
     if (window.arguments[0].task == 'new') {
         var parent = window.arguments[0].parent;
-        if ('save' in gItem) {
-            //!!!! v6 difference
-            opener.ko.toolbox2.addNewItemToParent(gItem, parent);
-        } else {
-            if (typeof(parent)=='undefined' || !parent)
-                parent = opener.ko.projects.active.getSelectedItem();
-            opener.ko.projects.addItem(gItem,parent);
-        }
+        opener.ko.toolbox2.addNewItemToParent(gItem, parent);
     }
     window.close();
 };
@@ -166,14 +159,8 @@ function _Apply()  {
     gItem.iconurl = iconuri;
 
     opener.ko.projects.invalidateItem(gItem);
-    if ('save' in gItem) {
-        //!!!! v6 difference
-        if (window.arguments[0].task != "new") {
-            gItem.save();
-        }
-    } else {
-        // This line is most likely wrong.
-        gItem.setStringAttribute('name', partname.value);
+    if (window.arguments[0].task != "new") {
+        gItem.save();
     }
     } catch (e) {
         opener.log.error(e);

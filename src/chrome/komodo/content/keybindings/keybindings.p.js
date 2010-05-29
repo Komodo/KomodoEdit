@@ -1758,16 +1758,10 @@ this.manager.prototype._addRow = function(category, desc, keys) {
     return text;
 }
 
-//v6 transition
 this.manager.prototype._getPartFromId = function(param) {
-    var part = ko.projects.findPartById(param);
+    var part = ko.toolbox2.findToolById(param);
     if (!part) {
-        if (ko.toolbox2) {
-            part = ko.toolbox2.findToolById(param);
-        }
-        if (!part) {
-            throw new Error("keybindings._getPartFromId: Couldn't find part with id: " + param + '\n');
-        }
+        throw new Error("keybindings._getPartFromId: Couldn't find part with id: " + param + '\n');
     }
     return part;
 }

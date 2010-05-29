@@ -195,21 +195,12 @@ function OK(event)  {
     if (!_Apply()) {
         return false;
     }
-    var v6 = ('save' in gPart);
     if (window.arguments[0].task == 'new') {
         var parent = window.arguments[0].parent;
         if (typeof(parent)=='undefined' || !parent) {
-            if (v6) {
-                parent = opener.ko.toolbox2.manager.getSelectedItem();
-            } else {
-                parent = opener.ko.projects.active.getSelectedItem();
-            }
+            parent = opener.ko.toolbox2.manager.getSelectedItem();
         }
-        if (v6) {
-            opener.ko.toolbox2.addNewItemToParent(gPart, parent);
-        } else {
-            opener.ko.projects.addItem(gPart,parent);
-        }
+        opener.ko.toolbox2.addNewItemToParent(gPart, parent);
     } else if (window.arguments[0].task == 'edit') {
         //XXX Should be done through an observer.
         //XXX Reviewers: should this be done in Apply?
@@ -253,14 +244,8 @@ function _Apply()  {
         gPart.setBooleanAttribute('async', gRunInBackground.checked);
         gPart.setStringAttribute('language', gLanguage.selectedItem.getAttribute('id'));
         var ret = gKeybinding.apply();
-        if ('save' in gPart) {
-            //!!!! v6 difference
-            if (window.arguments[0].task != 'new') {
-                gPart.save();
-            }
-        } else {
-            if (gPart.project == opener.ko.toolboxes.user.toolbox)
-                opener.ko.toolboxes.user.save();
+        if (window.arguments[0].task != 'new') {
+            gPart.save();
         }
         return ret;
     } catch (e) {
