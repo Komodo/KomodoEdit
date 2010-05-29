@@ -192,9 +192,7 @@ this.executeMacro = function macro_executeMacro(part, async, observer_arguments)
 
 this.executeMacroById = function macro_executeMacroById(id, asynchronous) {
     try {
-        var _partSvc = Components.classes["@activestate.com/koPartService;1"]
-                .getService(Components.interfaces.koIPartService);
-        var macroPart = _partSvc.getPartById(id);
+        var macroPart = ko.toolbox2.findToolById(id);
         var retval = _executeMacro(macroPart,
                                    (asynchronous
                                     && ko.macros.recorder.mode != 'recording'));
@@ -752,30 +750,20 @@ function _macro_error(ex, action, part) {
     ko.dialogs.alert(prompt, msg, title, null, "chrome,modal,titlebar,resizable");
 }
 
-//@@@@ v5 => v6 transition code
 this.__defineGetter__("current",
 function()
 {
-    // Macro running has moved to the toolbox2 service
     _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
         .getService(Components.interfaces.koIToolBox2Service);
     return _partSvc.runningMacro;
 });
 
-//@@@@ v5 => v6 transition code
 this.__defineSetter__("current",
 function(macro)
 {
-    var _partSvc = Components.classes["@activestate.com/koPartService;1"]
-            .getService(Components.interfaces.koIPartService);
-    try {
-        _partSvc.runningMacro = macro;
-    } catch(ex) {
-        // Try the toolbox2 service
-        _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
-            .getService(Components.interfaces.koIToolBox2Service);
-        _partSvc.runningMacro = macro;
-    }
+    _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
+        .getService(Components.interfaces.koIToolBox2Service);
+    _partSvc.runningMacro = macro;
 });
 
 this.evalAsJavaScript = function macro_evalAsJavascript(__code,
