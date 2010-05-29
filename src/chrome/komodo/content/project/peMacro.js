@@ -601,6 +601,12 @@ MacroEventHandler.prototype.removeMacro = function(macropart, trigger, topic) {
     this.log.error("Couldn't remove macro from list of hooked macros.");
 }
 
+//XXX!!! Wait for two separate notifications/calls:
+// 1. toolbox-loaded notification
+// 2. call to hookOnStartup
+// Also, there's probably no longer a need for _runDelayedHooks,
+// as the triggers are loaded after the toolboxes have been loaded.
+
 var _didStartup = false;
 var _delayedHooks = [];
 

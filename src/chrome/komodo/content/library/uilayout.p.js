@@ -260,8 +260,8 @@ this.toggleTab = function uilayout_toggleTab(tabId, collapseIfFocused /* =true *
             case 'project_tab':
                 focusHandlingWidget = document.getElementById('projectview').tree;
                 break;
-            case 'toolbox_tab':
-                focusHandlingWidget = document.getElementById('toolboxview').tree;
+            case 'toolbox2_tab':
+                focusHandlingWidget = document.getElementById('toolbox2viewbox').tree;
                 break;
             case 'codebrowser_tab':
                 focusHandlingWidget = document.getElementById('codebrowser-tree');

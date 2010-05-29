@@ -18,15 +18,7 @@ Import(
     'sdkDir',
 );
 
-if ($buildFlavour ne 'full') {
-#XXX Remove this check once the database path is no longer hardwired.
-print STDERR "\$mozComponentsDir: $mozComponentsDir...\n";
-print STDERR "index: ", index($mozComponentsDir, 'C:\\Users\\ericp\\svn\\apps'), "\n";
-if (index($mozComponentsDir, 'C:\\Users\\ericp\\svn\\apps') == 0) {
-    $cons->Preprocess('toolbox2.p.js', 'toolbox2.js');
-    $cons->InstallInChrome('toolbox2.js');
-    $cons->InstallInChrome('toolbox2_command.js');
-#    $cons->InstallInChrome('toolbox2_macros.js');
-}
-}
+$cons->Preprocess('toolbox2.p.js', 'toolbox2.js');
+$cons->InstallInChrome('toolbox2.js');
+$cons->InstallInChrome('toolbox2_command.js');
 

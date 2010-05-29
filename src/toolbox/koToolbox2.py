@@ -33,11 +33,13 @@ except ImportError:
 if not _xpcom_:
     logging.basicConfig()
 log = logging.getLogger("koToolbox2")
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 eol = """
 """
 _unsupported_types = ("file", "livefolder")
-_koMetadataFilename = '.ko-metadata';
+DEFAULT_TARGET_DIRECTORY = ".ko-toolbox"
+TOOL_EXTENSION = ".kotool"
+METADATA_FILENAME = ".ko-metadata"
 
 #---- errors
 
@@ -65,7 +67,6 @@ class Database(object):
     VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile=None):
-        log.debug("Database:Init: %s", db_path)
         self.path = db_path
         self.cu = self.cx = None
         self.schemaFile = schemaFile
@@ -309,7 +310,7 @@ class Database(object):
     def addFolder(self, path, name, parent_path_id):
         #log.debug("About to add folder %s in %s", name, path)
         with self.connect(commit=True) as cu:
-            metadataPath = join(path, _koMetadataFilename)
+            metadataPath = join(path, METADATA_FILENAME)
             if exists(metadataPath):
                 fp = open(metadataPath, 'r')
                 data = json.load(fp, encoding="utf-8")
@@ -345,7 +346,7 @@ class Database(object):
             log.info("Dropping old-style tool type:%s, name:%s", item_type, fname)
             return # Goodbye
         pretty_name = data['name']
-        common_names = ['id', 'name', 'type']
+        common_names = ['name', 'type']
         #log.debug("About to add tool %s in %s", fname, path)
         for name in common_names:
             try:
@@ -804,17 +805,21 @@ class Database(object):
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
-    koToolBoxDirName = ".ko-toolbox"
     koToolExt = ".kotool"
 
     def __init__(self, db_path, schemaFile):
+        # This timestamp is only used while loading the database.
+        try:
+            self.dbTimestamp = os.stat(db_path).st_mtime
+        except:
+            self.dbTimestamp = 0
         self.db = Database(db_path, schemaFile)
         
     def deleteFolderIfMetadataChanged(self, path, fname, path_id):
         # fname is last part of path, but is in for convenience
         # path_id is id(path)
         # returns True if the item should be re-added to the database
-        metadataPath = join(path, _koMetadataFilename)
+        metadataPath = join(path, METADATA_FILENAME)
         try:
             st_res = os.stat(metadataPath)
             mtime_now = st_res.st_mtime
@@ -839,35 +844,37 @@ class ToolboxLoader(object):
 
     def walkFunc(self, arg, dirname, fnames):
         parent_id = self.db.get_id_from_path(dirname)
-        existing_child_ids = dict([(x, 1) for x in self.db.getChildIDs(parent_id)])
-        # Delete any unhandled IDs at end
+        if self.dbTimestamp:
+            existing_child_ids = dict([(x, 1) for x in self.db.getChildIDs(parent_id)])
+        #TODO: Delete any unhandled IDs at end
         for fname in fnames:
             path = join(dirname, fname)
             isDir = os.path.isdir(path)
-            isTool = os.path.splitext(fname)[1] == self.koToolExt
+            isTool = os.path.splitext(fname)[1] == TOOL_EXTENSION
             if not isDir and not isTool:
                 continue
-                
-            result_list = self.db.getValuesFromTableByKey('paths',
-                                                   ['id'],
-                                                   'path', path)
-            if result_list:
-                id = result_list[0]
-                try: del existing_child_ids[id]
-                except KeyError: pass
-                if id is None:
-                    need_update = True
-                elif isDir:
-                    need_update = self.deleteFolderIfMetadataChanged(path, fname, id)
-                else:
-                    mtime = os.stat(path).st_mtime
-                    #log.debug("db time: %r, stat time: %r", created_at, mtime)
-                    need_update = False #TODO: mtime > time of db itself!!! created_at
-                    if need_update:
-                        log.debug("Rebuilding item %s (%s)", fname, dirname)
-                        self.db.deleteItem(id)
-            else:
+            elif not self.dbTimestamp:
                 need_update = True
+            else:
+                result_list = self.db.getValuesFromTableByKey('paths',
+                                                              ['id'],
+                                                              'path', path)
+                if result_list:
+                    id = result_list[0]
+                    try: del existing_child_ids[id]
+                    except KeyError: pass
+                    if id is None:
+                        need_update = True
+                    elif isDir:
+                        need_update = self.deleteFolderIfMetadataChanged(path, fname, id)
+                    else:
+                        mtime = os.stat(path).st_mtime
+                        need_update = mtime > self.dbTimestamp
+                        if need_update:
+                            log.debug("db time: %r, stat time: %r", self.dbTimestamp, mtime)
+                            log.debug("Rebuilding item %s (%s)", fname, dirname)
+                            self.db.deleteItem(id)
+                    
             if need_update:
                 if isTool:
                     fp = open(path, 'r')
@@ -877,7 +884,7 @@ class ToolboxLoader(object):
                     self.db.addTool(data, type, path, fname, parent_id)
                 else:
                     self.db.addFolder(path, fname, parent_id)
-        metadataPath = join(dirname, _koMetadataFilename)
+        metadataPath = join(dirname, METADATA_FILENAME)
         if exists(metadataPath):
             result = self.db.getValuesFromTableByKey('metadata_timestamps', ['mtime'], 'path_id', parent_id)
             if result is None:
@@ -896,7 +903,7 @@ class ToolboxLoader(object):
                 for child_name in children:
                     if 'ci2' in child_name:
                         print "Stop here"
-                    child_path = join(dirname, self._slugify(child_name) + self.koToolExt)
+                    child_path = join(dirname, self._slugify(child_name) + TOOL_EXTENSION)
                     child_id = self.db.get_id_from_path(child_path)
                     if child_id is None:
                         complain = True
@@ -918,21 +925,14 @@ class ToolboxLoader(object):
     _slugify_re = re.compile(r'[^a-zA-Z0-9\-=\+]+')        
     def _slugify(self, s):
         return re.sub(self._slugify_re, '_', s)
-                    
-    def _adjustToolboxDir(self, dir):
-        combinedDir = join(dir, self.koToolBoxDirName)
-        if exists(combinedDir):
-            return combinedDir
-        else:
-            return dir
 
-    def loadToolboxDirectory(self, toolboxDir):
-        if toolboxDir.endswith(self.koToolBoxDirName):
+    def loadToolboxDirectory(self, toolboxName, toolboxDir):
+        if toolboxDir.endswith(DEFAULT_TARGET_DIRECTORY):
             actualToolboxDir = toolboxDir
         else:
-            actualToolboxDir = join(toolboxDir, self.koToolBoxDirName)
+            actualToolboxDir = join(toolboxDir, DEFAULT_TARGET_DIRECTORY)
         if not exists(actualToolboxDir):
-            log.error("No toolbox subdirectory %s at %s", self.koToolBoxDirName, toolboxDir)
+            log.error("No toolbox subdirectory %s at %s", DEFAULT_TARGET_DIRECTORY, toolboxDir)
             return
         self.db.establishConnection()
         self._loadedPaths[actualToolboxDir] = True
@@ -942,7 +942,7 @@ class ToolboxLoader(object):
                                                    ['id'],
                                                    'path', actualToolboxDir)
             if not result_list:
-                self.db.addFolder(actualToolboxDir, os.path.basename(toolboxDir), None)
+                self.db.addFolder(actualToolboxDir, toolboxName, None)
             os.path.walk(actualToolboxDir, self.walkFunc, None)
         finally:
             self.db.releaseConnection()

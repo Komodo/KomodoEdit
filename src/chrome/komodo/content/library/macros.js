@@ -222,7 +222,7 @@ MacroRecorder.prototype.saveToToolbox = function(macro) {
     part.setStringAttribute('trigger', "trigger_postopen");  // just to have something
     part.value = this._currentMacro.join('');
     ko.toolboxes.user.addItem(part);
-    ko.uilayout.ensureTabShown('toolbox_tab');
+    ko.uilayout.ensureTabShown('toolbox2_tab');
 }
 
 this.recorder = new MacroRecorder();

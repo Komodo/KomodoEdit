@@ -9,16 +9,21 @@ accessing the new toolbox service.
 import json
 import os
 import os.path
+from os.path import join, exists
 import re
 import sys
+import time
 import logging
 from xpcom import components, COMException, ServerException, nsError
 from xpcom.server import WrapObject, UnwrapObject
 from projectUtils import *
 
 import koToolbox2
+import koMigrateV5Toolboxes
 
 log = logging.getLogger("koToolbox2Components")
+#log.setLevel(logging.DEBUG)
+
 
 # This is just a singleton for access to the database.
 # Python-side code is expected to unwrap the object to get
@@ -152,7 +157,8 @@ class KomodoWindowData(object):
 
         
 class KoToolBox2Service:
-    _com_interfaces_ = [components.interfaces.koIToolBox2Service]
+    _com_interfaces_ = [components.interfaces.koIToolBox2Service,
+                        components.interfaces.nsIObserver]
     _reg_clsid_ = "{c9452cf9-98ec-4ab9-b730-69156c2cec53}"
     _reg_contractid_ = "@activestate.com/koToolBox2Service;1"
     _reg_desc_ = "Similar to the projectService, but for toolbox2"
@@ -228,24 +234,34 @@ class KoToolBox2Service:
     def set_runningMacro(self, macro):
         self._data[self.get_window()].runningMacro = macro
     runningMacro = property(get_runningMacro, set_runningMacro)
+    
+    def _checkMigrate(self, dataDir, label):
+        toolboxPath = join(dataDir, "toolbox.kpf")
+        toolboxDir = join(dataDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+        migrateStampPath = join(toolboxDir, ".migrated")
+        if (exists(toolboxPath)
+            and (not exists(migrateStampPath)
+                 or os.stat(toolboxPath).st_mtime > os.stat(migrateStampPath).st_mtime)):
+            curDir = os.getcwd()
+            try:
+                koMigrateV5Toolboxes.expand_toolbox(toolboxPath, dataDir, force=1)
+            finally:
+                os.chdir(curDir)
+            f = open(migrateStampPath, "w")
+            f.write("migrated %s on %s\n" % (label, time.ctime()))
+            f.close()
+        else:
+            log.debug("No need to migrate from %s to %s", toolboxPath, toolboxDir)
+            pass
 
-    def getProjectForURL(self, url):
-        return self._data[self.get_window()].getProjectForURL(url)
-
-    def getEffectivePrefsForURL(self, url):
-        return self._data[self.get_window()].getEffectivePrefsForURL(url)
-
-    def getPartById(self, id):
-        return findPartById(id)
-
-    def findPart(self, partType, name, where, part):
-        return self._data[self.get_window()].findPart(partType, name, where, part)
-
-    def getPart(self, type, attrname, attrvalue, where, container):
-        return self._data[self.get_window()].getPart(type, attrname, attrvalue, where, container)
-
-    def getParts(self, type, attrname, attrvalue, where, container):
-        return self._data[self.get_window()].getParts(type, attrname, attrvalue, where, container)
+    def migrateVersion5Toolboxes(self):
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        self._checkMigrate(koDirSvc.userDataDir, "user toolbox")
+# #if WITH_SHARED_SUPPORT
+        # We want to migrate the shared toolbox regardless of the current status on the
+        # useSharedToolbox pref.  Displaying it looks at the pref.
+        self._checkMigrate(koDirSvc.commonDataDir, "shared toolbox")
+# #endif
 
     def observe(self, subject, topic, data):
         if not subject:
@@ -259,6 +275,3 @@ class KoToolBox2Service:
             if window in self._data:
                 del self._data[window]
 
-
-
-        

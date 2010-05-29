@@ -249,7 +249,7 @@ test_keybindings_toolbox.prototype.testAsync_keybinding_runToolboxMacro_FocusPro
 test_keybindings_toolbox.prototype.testAsync_keybinding_runToolboxMacro_FocusToolbox = function() {
     this.macroExecuted = false;
     // place focus on toolbox
-    ko.uilayout.toggleTab('toolbox_tab', false);
+    ko.uilayout.toggleTab('toolbox2_tab', false);
     //dump("*** runToolboxMacro_FocusToolbox\n");
     var self = this;
     var test = new Casper.Events.test(window);

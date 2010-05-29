@@ -19,17 +19,15 @@ Import(
     'sdkDir',
 );
 
-if ($buildFlavour ne 'full') {
-# Temporary: paths are still hardwired.
-if (index($mozComponentsDir, 'C:\\Users\\ericp\\svn\\apps') == 0) {
 # Toolbox2 items
-    $cons->InstallPythonUtility('koToolbox2.py');
-    $cons->Install($idlExportDir, 'koIToolbox2HTreeView.idl');
-    $cons->BuildAndInstallXpt('koIToolbox2HTreeView.idl');
-    $cons->InstallXpcomComponent('koToolbox2HTreeView.py');
+$cons->InstallPythonUtility('koToolbox2.py');
+$cons->InstallPythonUtility('koMigrateV5Toolboxes.py');
+$cons->Install($idlExportDir, 'koIToolbox2HTreeView.idl');
+$cons->BuildAndInstallXpt('koIToolbox2HTreeView.idl');
+$cons->InstallXpcomComponent('koToolbox2HTreeView.py');
     
-    $cons->BuildAndInstallXpt('koIToolbox2Components.idl');
-    $cons->InstallXpcomComponent('koIToolbox2Components.idl');
-    $cons->InstallXpcomComponent('koToolbox2Components.py');
-}
-}
+$cons->BuildAndInstallXpt('koIToolbox2Components.idl');
+$cons->InstallXpcomComponent('koIToolbox2Components.idl');
+$cons->InstallXpcomComponent('koToolbox2Components.py');
+$cons->Install(File::Spec::Functions::catfile($komodoPythonUtilsDir,
+                                              "toolbox"), 'koToolbox.sql');

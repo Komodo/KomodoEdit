@@ -12,7 +12,7 @@ import koToolbox2
 import logging
 
 log = logging.getLogger("Toolbox2HTreeView")
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 eol = None
 eol_re = re.compile(r'(?:\r?\n|\r)')
@@ -573,7 +573,7 @@ class KoToolbox2HTreeView(TreeView):
         # "slugify"
         basePart = self._truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', baseName))
         basePart = os.path.join(dirName, basePart)
-        extPart = (addExt and ".kotool") or ""
+        extPart = (addExt and koToolbox2.TOOL_EXTENSION) or ""
         candidate = basePart + extPart
         if not os.path.exists(candidate):
             return candidate
@@ -960,23 +960,30 @@ class KoToolbox2HTreeView(TreeView):
             self._nodeOpenStatusFromName = json.loads(toolboxPrefs.getStringPref("open-nodes"))
         else:
             self._nodeOpenStatusFromName = {}
-        #XXX Unhardwire this
-        db_path = r"c:\Users\ericp\trash\toolbox-test.sqlite"
-        schemaFile = r"c:\Users\ericp\svn\apps\komodo\src\toolbox\koToolbox.sql"
-        stdToolboxDir = r"c:\Users\ericp\trash\stdToolbox"
-        sharedToolboxDir = r"c:\Users\ericp\trash\sharedToolbox"
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        db_path = os.path.join(koDirSvc.userDataDir, 'toolbox.sqlite')
+        schemaFile = os.path.join(koDirSvc.mozBinDir,
+                                  'python', 'komodo', 'toolbox',
+                                  'koToolbox.sql')
+        stdToolboxDir = os.path.join(koDirSvc.userDataDir,
+                                     koToolbox2.DEFAULT_TARGET_DIRECTORY)
 
         toolboxLoader = koToolbox2.ToolboxLoader(db_path, schemaFile)
         toolboxLoader.markAllTopLevelItemsUnloaded()
         import time
         t1 = time.time()
-        toolboxLoader.loadToolboxDirectory(stdToolboxDir)
+        toolboxLoader.loadToolboxDirectory("Standard Toolbox", stdToolboxDir)
         t2 = time.time()
         log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
-        t1 = time.time()
-        toolboxLoader.loadToolboxDirectory(sharedToolboxDir)
-        t2 = time.time()
-        log.debug("Time to load shared-toolbox: %g msec", (t2 - t1) * 1000.0)
+        #sharedToolboxDir = r"c:\Users\ericp\trash\sharedToolbox"
+        if prefs.getBooleanPref("useSharedToolbox"):
+            sharedToolboxDir = os.path.join(koDirSvc.commonDataDir,
+                                            koToolbox2.DEFAULT_TARGET_DIRECTORY)
+            t1 = time.time()
+            toolboxLoader.loadToolboxDirectory("Shared Toolbox", sharedToolboxDir)
+            t2 = time.time()
+            log.debug("Time to load shared-toolbox: %g msec", (t2 - t1) * 1000.0)
+        # else unload shared items...
         toolboxLoader.deleteUnloadedTopLevelItems()
         #TODO: For now just get the top-level items
         # Later keep track of how 
@@ -985,7 +992,7 @@ class KoToolbox2HTreeView(TreeView):
         self.toolbox_db.initialize(db_path)
         self.toolbox_db.toolManager = self
         top_level_nodes = self.toolbox_db.getTopLevelNodes()
-        before_len = len(self._rows)
+        after_len = before_len = len(self._rows)
         for path_id, name, node_type in top_level_nodes:
             toolPart = self._getOrCreateTool(node_type, name, path_id)
             toolPart.level = 0
@@ -1002,12 +1009,10 @@ class KoToolbox2HTreeView(TreeView):
         else:
             currentIndex = -1
         if firstVisibleRow != -1:
-            log.debug("firstVisibleRow: %d", firstVisibleRow)
             self._tree.scrollToRow(firstVisibleRow)
         if currentIndex != -1:
             self.selection.currentIndex = currentIndex
             self._tree.ensureRowIsVisible(currentIndex)
-            log.debug("currentIndex: %d", currentIndex)
         _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
                 .getService(components.interfaces.nsIObserverService)
         try:

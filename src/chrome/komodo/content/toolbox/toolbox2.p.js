@@ -22,6 +22,9 @@ function Toolbox2Manager() {
 
 Toolbox2Manager.prototype = {
 initialize: function() {
+    var toolbox2Svc = Components.classes["@activestate.com/koToolBox2Service;1"]
+            .getService(Components.interfaces.koIToolBox2Service);
+    toolbox2Svc.migrateVersion5Toolboxes();
     widgets.tree = document.getElementById("toolbox2-hierarchy-tree");
     this.tree = widgets.tree;
     this.view = Components.classes["@activestate.com/KoToolbox2HTreeView;1"]
