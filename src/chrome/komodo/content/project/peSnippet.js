@@ -138,10 +138,7 @@ peSnippet.prototype.isCommandEnabled = function(command, part) {
 }
 
 peSnippet.prototype.doCommand = function(command) {
-    var item = null
-    if (ko.projects.active) {
-        item = ko.projects.active.getSelectedItem();
-    }
+    var item = ko.toolbox2.getSelectedItem();
     switch (command) {
     case 'cmd_insertSnippet':
         if (item) {
@@ -151,9 +148,7 @@ peSnippet.prototype.doCommand = function(command) {
     case 'cmd_makeSnippetFromSelection':
         // Bug 84402: Create new snippets in the user toolbox,
         // not the current project.
-        var user_toolbox = ko.toolboxes.user;
-        var snippet = ko.projects.addSnippetFromText(ko.views.manager.currentView.selection, user_toolbox.toolbox);
-        user_toolbox.addItem(snippet, null);
+        ko.projects.addSnippetFromText(ko.views.manager.currentView.selection);
     default:
         break;
     }
@@ -179,7 +174,7 @@ this.addSnippet = function peSnippet_addSnippet(/*koIPart|koITool*/ parent,
                                                 /*koIPart|koITool*/ snippet )
 {
     if (typeof(snippet) == "undefined") {
-        snippet = parent.project.createPartFromType('macro');
+        snippet = ko.toolbox2.createPartFromType('macro');
     }
     snippet.setStringAttribute('name', 'New Snippet');
     snippet.setStringAttribute('set_selection', 'false');
@@ -200,17 +195,13 @@ this.addSnippet = function peSnippet_addSnippet(/*koIPart|koITool*/ parent,
 }
 
 this.addSnippetFromText = function AddSnippetFromText(snippettext, /*koIPart*/ parent) {
-    if (typeof(parent) == 'undefined' || !parent) {
-        parent = ko.projects.active.manager.getCurrentProject();
-    }
-
     // Bug 84625 - don't escape '%' in snippet shortcuts
     var parts = snippettext.split(/(\[\[%\w.*?\]\])/);
     for (var i = 0; i < parts.length; i += 2) {
         parts[i] = parts[i].replace('%', '%%', 'g');
     }
     var escapedtext = parts.join('');
-    var snippet = parent.project.createPartFromType('snippet');
+    var snippet = ko.toolbox2.createPartFromType('snippet');
     snippet.type = 'snippet';
     snippet.setStringAttribute('name', snippetMakeDisplayName(snippettext));
     snippet.setStringAttribute('set_selection', 'true');
@@ -218,7 +209,7 @@ this.addSnippetFromText = function AddSnippetFromText(snippettext, /*koIPart*/ p
     escapedtext = ANCHOR_MARKER + escapedtext + CURRENTPOS_MARKER;
     snippet.value = escapedtext;
 
-    ko.projects.addItem(snippet, parent);
+    ko.toolbox2.addItem(snippet, parent);
     return snippet;
 }
 
@@ -561,8 +552,10 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
 function snippetMakeDisplayName(text) {
     // Strip leading whitespace.
     text = text.replace( /^\s+/, "" );
-    // Strip trailing whitespace.
-    text = text.replace( /\s+$/, "" );
+    // Now keep the first 3 words (at most)
+    var ptn = /(^(?:\W*\w+){1,3})(.*)/;
+    var m = ptn.exec(text);
+    text = m[1];
     if (text.length > 30) {
         text = text.substr(0, 20) + ' ... ' + text.substr(text.length - 10, text.length)
     }
@@ -571,11 +564,4 @@ function snippetMakeDisplayName(text) {
     return text
 }
 
-
 }).apply(ko.projects);
-
-// backwards compat api, now we know why we have namespace properly
-var peSnippet_addSnippet = ko.projects.addSnippet;
-var AddSnippetFromText = ko.projects.addSnippetFromText;
-var Snippet_insert = ko.projects.snippetInsert;
-var snippet_editProperties = ko.projects.snippetProperties;

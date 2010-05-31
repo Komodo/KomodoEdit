@@ -393,7 +393,7 @@ peFile.prototype.doCommand = function(command) {
                     ko.projects.macroProperties(item, i);
                     continue;
                 case 'snippet':
-                    snippet_editProperties(item, i);
+                    ko.projects.snippetProperties(item, i);
                     continue;
                 case 'DirectoryShortcut':
                     this.editDirectoryShortcut(item, i);

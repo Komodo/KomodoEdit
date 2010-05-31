@@ -761,7 +761,7 @@ function()
 this.__defineSetter__("current",
 function(macro)
 {
-    _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
+    var _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
         .getService(Components.interfaces.koIToolBox2Service);
     _partSvc.runningMacro = macro;
 });

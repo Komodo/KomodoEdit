@@ -246,8 +246,25 @@ this.getSelectedItem = function() {
      return this.manager.view.getTool(index);
 };
 
+this.getStandardToolbox = function() {
+    var toolbox2Svc = Components.classes["@activestate.com/koToolBox2Service;1"]
+                      .getService(Components.interfaces.koIToolBox2Service);
+    return this.findToolById(toolbox2Svc.getStandardToolboxID());
+}
+
+this.addItem = function(/* koITool */ tool, /* koITool */ parent) {
+    if (typeof(parent)=='undefined' || !parent) {
+        parent = this.getStandardToolbox();
+    }
+    this.manager.view.addNewItemToParent(parent, tool);
+}
+
 this.addNewItemToParent = function(item, parent) {
     this.manager.view.addNewItemToParent(parent, item);
+};
+
+this.createPartFromType = function(toolType) {
+    return this.manager.view.createToolFromType(toolType);
 };
 
 this.findToolById = function(id) {

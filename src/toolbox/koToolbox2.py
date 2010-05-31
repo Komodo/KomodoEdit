@@ -977,9 +977,13 @@ class ToolboxLoader(object):
                                                    'path', actualToolboxDir)
             if not result_list:
                 self.db.addFolder(actualToolboxDir, toolboxName, None)
+                result_list = self.db.getValuesFromTableByKey('paths',
+                                                              ['id'],
+                                                              'path', actualToolboxDir)
             os.path.walk(actualToolboxDir, self.walkFunc, None)
         finally:
             self.db.releaseConnection()
+        return result_list[0]
         
     def markAllTopLevelItemsUnloaded(self):
         self._loadedPaths = dict([(x, False) for x in self.db.getTopLevelPaths()])

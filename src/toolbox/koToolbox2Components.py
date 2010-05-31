@@ -130,6 +130,33 @@ class KoToolBox2Service:
                     getService(components.interfaces.koIContentUtils)
 
         self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
+        self._standardToolbox = None  # Stores the top-level folder's ID
+        self._sharedToolbox = None    # Same
+        self._loadedToolboxes = {}    # Map project uri to top-level folder's 
+        self._db = None
+
+    def registerStandardToolbox(self, id):
+        log.debug("registerStandardToolbox(id:%d)", id)
+        self._standardToolbox = id
+
+    def registerSharedToolbox(self, id):
+        log.debug("registerSharedToolbox(id:%d)", id)
+        self._sharedToolbox = id
+
+    def registerUserToolbox(self, uri, id):
+        self._loadedToolboxes[uri] = id
+
+    def unregisterUserToolbox(self, uri):
+        try:
+            del self._loadedToolboxes[uri]
+        except KeyError:
+            log.debug("Didn't find uri %s in self._loadedToolboxes")
+
+    def getStandardToolboxID(self):
+        return self._standardToolbox
+
+    # Time to refactor.... ID/tools should be managed here, not in the
+    # the tree view.
 
     def _windowTypeFromWindow(self, window):
         if not window:
