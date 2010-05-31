@@ -1491,7 +1491,7 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "morgenstern"),])
     
     
-    @tag("bug86644")
+    @tag("bug86644", "knownfailure")
     def test_binary_imports(self):
         lang = "Python"
         

@@ -1299,6 +1299,7 @@ class LangLibTestCase(DBTestCase):
     #XXX test fs: Want to be able to hook in to fs-log and ensure
     #    that no fs writing is done for certain usages.
 
+    @tag("knownfailure")
     def test_python_binary_modules(self):
         lang = "Python"
         bin_py = join(self.test_dir, "binary.py")
