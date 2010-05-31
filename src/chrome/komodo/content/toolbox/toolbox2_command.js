@@ -49,7 +49,7 @@ if (typeof(ko.toolbox2)=='undefined') {
 this._dragSources = [];
 this._dragIndices = [];
 
-this._get_tool_data = function(expected_type_name) {
+this._getToolData = function(expectedTypeName) {
     // See peMacro.js for handling multiple items.
     var view = ko.toolbox2.manager.view;
     var index = view.selection.currentIndex;
@@ -57,9 +57,9 @@ this._get_tool_data = function(expected_type_name) {
     if (!tool) {
         return [null, null, null];
     }
-    if (tool.toolType != expected_type_name) {
+    if (tool.toolType != expectedTypeName) {
         alert("Internal error: expected a "
-              + expected_type_name
+              + expectedTypeName
               + ", but this tool is a "
               + tool.toolType);
         return [view, index, null];
@@ -67,22 +67,22 @@ this._get_tool_data = function(expected_type_name) {
     return [view, index, tool];
 };
 
-this._get_tool = function(expected_type_name) {
-    return this._get_tool_data(expected_type_name)[2];
+this._getTool = function(expectedTypeName) {
+    return this._getToolData(expectedTypeName)[2];
 };
 
 // Commands
 this.invoke_runCommand = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('command');
+        tool = this._getTool('command');
         if (!tool) return;
     }
     ko.projects.runCommand(tool);
 };
  
-this.editProperties_runCommand = function(event, tool) {
+this.editProperties_command = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('command');
+        tool = this._getTool('command');
         if (!tool) return;
     }
     ko.projects.commandProperties(tool);
@@ -108,7 +108,7 @@ this.add_command = function(view, index, parent, item) {
 // DirectoryShortcuts
 this.invoke_openDirectoryShortcut = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('DirectoryShortcut');
+        tool = this._getTool('DirectoryShortcut');
         if (!tool) return;
     }
     ko.projects.openDirectoryShortcut(tool);
@@ -131,7 +131,7 @@ var peFolder_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 
 this.editProperties_DirectoryShortcut = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('DirectoryShortcut');
+        tool = this._getTool('DirectoryShortcut');
         if (!tool) return;
     }
     // From peFile.p.js -- unexported prototype, so copy the code here, and
@@ -153,7 +153,7 @@ this.editProperties_DirectoryShortcut = function(event, tool) {
 
 this.invoke_executeMacro = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('macro');
+        tool = this._getTool('macro');
         if (!tool) return;
     }
     ko.projects.executeMacro(tool, tool.getBooleanAttribute('async'));
@@ -161,7 +161,7 @@ this.invoke_executeMacro = function(event, tool) {
 
 this.invoke_editMacro = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('macro');
+        tool = this._getTool('macro');
         if (!tool) return;
     }
     ko.open.URI(tool.url);
@@ -169,7 +169,7 @@ this.invoke_editMacro = function(event, tool) {
 
 this.editProperties_macro = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('macro');
+        tool = this._getTool('macro');
         if (!tool) return;
     }
     ko.projects.macroProperties(tool);
@@ -183,7 +183,7 @@ this.add_macro = function(view, index, parent, item) {
 
 this.invoke_insertSnippet = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('snippet');
+        tool = this._getTool('snippet');
         if (!tool) return;
     }
     ko.projects.snippetInsert(tool);
@@ -191,7 +191,7 @@ this.invoke_insertSnippet = function(event, tool) {
 
 this.editProperties_snippet = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('snippet');
+        tool = this._getTool('snippet');
         if (!tool) return;
     }
     ko.projects.snippetProperties(tool);
@@ -204,7 +204,7 @@ this.add_snippet = function(view, index, parent, item) {
 // Templates
 this.invoke_openTemplate = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('template');
+        tool = this._getTool('template');
         if (!tool) return;
     }
     ko.views.manager.doFileNewFromTemplateAsync(tool.url);
@@ -230,7 +230,7 @@ this.add_template = function(view, index, parent, item) {
 // URLs
 this.invoke_openURLInBrowser = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('URL');
+        tool = this._getTool('URL');
         if (!tool) return;
     }
     ko.browse.openUrlInDefaultBrowser(tool.value);
@@ -238,7 +238,7 @@ this.invoke_openURLInBrowser = function(event, tool) {
 
 this.invoke_openURLInTab = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('URL');
+        tool = this._getTool('URL');
         if (!tool) return;
     }
     var docSvc = Components.classes['@activestate.com/koDocumentService;1']
@@ -249,7 +249,7 @@ this.invoke_openURLInTab = function(event, tool) {
 
 this.editProperties_URL = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._get_tool('URL');
+        tool = this._getTool('URL');
         if (!tool) return;
     }
     ko.projects.URLProperties(tool);
@@ -279,22 +279,14 @@ this.add_folder = function(view, index, parent, item) {
 
 // Generic functions on the hierarchy view tree
 
-this._propertyEditorNameForToolType = {
- 'command' : this.editProperties_runCommand,
- 'DirectoryShortcut': this.editProperties_DirectoryShortcut,
- 'macro': this.editProperties_macro,
- 'snippet': this.editProperties_snippet,
- 'template': this.editProperties_template,
- 'URL': this.editProperties_URL,
- '__EOD__':null
-};
-
 this.editPropertiesItem = function(event) {
     var that = ko.toolbox2;
     var view = that.manager.view;
     var index = view.selection.currentIndex;
     var tool = view.getTool(index);
-    var method = that._propertyEditorNameForToolType[tool.toolType];
+    // Method construction for names like editProperties_macro
+    var methodName = 'editProperties_' + tool.toolType; 
+    var method = that[methodName];
     if (method) {
         method.call(that, event);
     } else {
@@ -366,8 +358,8 @@ this.pasteIntoItem = function(event) {
 
 this._getLoadedMacros = function(paths) {
     var view = this.manager.view;
-    var clean_macros = [];
-    var dirty_macros = [];
+    var cleanMacros = [];
+    var dirtyMacros = [];
     var viewsManager = ko.views.manager;
     for (var i = 0 ;i < paths.length; i++) {
         var path = paths[i];
@@ -377,29 +369,29 @@ this._getLoadedMacros = function(paths) {
             var v = viewsManager.getViewForURI(url);
             if (v) {
                 if (v.isDirty) {
-                    dirty_macros.push(url);
+                    dirtyMacros.push(url);
                 } else {
-                    clean_macros.push(url);
+                    cleanMacros.push(url);
                 }
             }
         }
     }
-    if (dirty_macros.length) {
+    if (dirtyMacros.length) {
         var title = "Save unchanged macros?";
         var prompt = "Some of the macros to move are loaded in the editor with unsaved changes";
         var selectionCondition = "zero-or-more";
         var i = 0;      
-        var itemsToSave = ko.dialogs.selectFromList(title, prompt, dirty_macros, selectionCondition);
+        var itemsToSave = ko.dialogs.selectFromList(title, prompt, dirtyMacros, selectionCondition);
         for (i = 0; i < itemsToSave.length; i++) {
             var url = itemsToSave[i];
             var v = viewsManager.getViewForURI(url);
             if (v) {
                 v.save(true /* skipSccCheck */);
             }
-            clean_macros.push(url);
+            cleanMacros.push(url);
         }
     }
-    return clean_macros;
+    return cleanMacros;
 };
 
 this._removeLoadedMacros = function(loadedMacroURIs) {
@@ -442,6 +434,7 @@ this.saveToolsAs = function(event) {
         alert(ex);
     }
 };
+
 this.saveToolsAs_aux = function(event) {
     var this_ = ko.toolbox2;
     var selectedIndices = this_.getSelectedIndices(/*rootsOnly=*/true);
@@ -605,12 +598,12 @@ this.deleteItem = function(event) {
 this._invokerNameForToolType = {
  'folder' : this.invoke_folderCommand,
  'command' : this.invoke_runCommand,
- DirectoryShortcut: this.invoke_openDirectoryShortcut,
- macro : this.invoke_executeMacro,
- snippet : this.invoke_insertSnippet,
- template : this.invoke_openTemplate,
- URL : this.invoke_openURLInBrowser,
- __EOD__:null
+ 'DirectoryShortcut': this.invoke_openDirectoryShortcut,
+ 'macro' : this.invoke_executeMacro,
+ 'snippet' : this.invoke_insertSnippet,
+ 'template' : this.invoke_openTemplate,
+ 'URL' : this.invoke_openURLInBrowser,
+ '__EOD__':null
 };
 
 this.onDblClick = function(event) {
