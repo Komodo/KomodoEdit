@@ -87,6 +87,7 @@ my @codeintel2_files = (
     "lib/codeintel2/lang_perl.py",
     "lib/codeintel2/lang_php.py",
     "lib/codeintel2/lang_python.py",
+    "lib/codeintel2/lang_python3.py",
     "lib/codeintel2/lang_rhtml.py",
     "lib/codeintel2/lang_ruby.py",
     "lib/codeintel2/lang_ruby_common.py",

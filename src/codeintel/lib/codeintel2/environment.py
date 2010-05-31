@@ -123,6 +123,7 @@ class Environment(object):
 
     _default_assoc_patterns_from_lang = {
         "Python": ["*.py"],
+        "Python3": ["*.py"],
         "JavaScript": ["*.js"],
         "PHP": ["*.php", "*.inc", "*.module"],
         "Perl": ["*.pm", "*.pl"],

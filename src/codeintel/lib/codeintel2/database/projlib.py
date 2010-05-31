@@ -180,7 +180,7 @@ class ProjectZone(object):
         #       Perl:    LWP::UserAgent
         #       Ruby:    yaml/context
         #       PHP:     blah/blam.php
-        if lang == "Python":
+        if lang in ("Python", "Python3"):
             return blobname+".py"
         else:
             XXX

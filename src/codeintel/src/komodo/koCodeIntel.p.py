@@ -91,6 +91,7 @@ class KoCodeIntelEnvironment(Environment):
 
     _ko_pref_name_from_ci_pref_name = {
         "python": "pythonDefaultInterpreter",
+        "python3": "python3DefaultInterpreter",
         "perl": "perlDefaultInterpreter",
         "php": "phpDefaultInterpreter",
         "ruby": "rubyDefaultInterpreter",
@@ -376,13 +377,13 @@ class KoCodeIntelManager(Manager):
                               is_cpln_lang,
                               langintel_class=langintel_class)
         
-        if lang not in ("Python", "PHP", "Perl", "Tcl", "Ruby"):
+        if lang not in ("Python", "Python3", "PHP", "Perl", "Tcl", "Ruby"):
             return
 
         #TODO: drop all this. Should be handled by Environment classes now.
 
         import_handler = self.citadel.import_handler_from_lang(lang)
-        if lang == "Python":
+        if lang in ("Python", "Python3"):
             # Set the "environment path" using the _user's_ Python
             # environment settings, because Komodo messes with that
             # environment.
@@ -408,6 +409,7 @@ class KoCodeIntelManager(Manager):
         # language's preferences panel) to the import path.
         extra_paths_pref_from_lang = {
             "Python": "pythonExtraPaths",
+            "Python3": "python3ExtraPaths",
             "Perl": "perlExtraPaths",
             "Tcl": "tclExtraPaths",
             "Ruby": "rubyExtraPaths",
@@ -490,7 +492,7 @@ class KoCodeIntelManager(Manager):
     def _getScopeLine(self, scimoz, position):
         currLine = scimoz.lineFromPosition(position)+1 # 1-based
         scopeLine = currLine
-        if self._currLanguage == "Python":
+        if self._currLanguage in ("Python", "Python3"):
             # The edits-tracking mechanism alone probably doesn't work
             # that well for Python because one can add content to a scope
             # starting from outside that scope's last-scanned
@@ -1038,7 +1040,8 @@ class KoCodeIntelDBPreloader(threading.Thread):
                 else:
                     self.controller.set_progress_value(0)
                     #self.controller.set_progress_mode("determined")
-                    langs = ["JavaScript", "Ruby", "Perl", "PHP", "Python"]
+                    langs = ["JavaScript", "Ruby", "Perl", "PHP", "Python",
+                             "Python3"]
                     value_base = 5
                     value_incr = 95/len(langs)
                     for i, lang in enumerate(langs):

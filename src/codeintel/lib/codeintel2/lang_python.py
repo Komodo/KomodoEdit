@@ -220,6 +220,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             return None
 
     # Note: Python 1.5.2 does not support sys.version_info.
+    # Note: Overridden in "lang_python3.py".
     info_cmd = (
         r"import sys;"
         r"import string;"
