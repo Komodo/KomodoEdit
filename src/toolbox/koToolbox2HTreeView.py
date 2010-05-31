@@ -701,7 +701,7 @@ class KoToolbox2HTreeView(TreeView):
             UnwrapObject(parent).childNodes.append((new_id, item_name, item.typeName))
             if showNewItem:
                 isOpen = self.isContainerOpen(index)
-                if isOpen or True:  #TODO: Make this a pref?
+                if isOpen:  #TODO: Make this a pref?
                     firstVisibleRow = self._tree.getFirstVisibleRow()
                     self._tree.scrollToRow(firstVisibleRow)
                     # Easy hack to resort the items
@@ -712,6 +712,11 @@ class KoToolbox2HTreeView(TreeView):
                         index = self._rows.index(item, index + 1)
                     except ValueError:
                         pass
+                else:
+                    self.toggleOpenState(index)
+                newIndex = self.getIndexByPath(path)
+                if newIndex >= 0:
+                    index = newIndex
                 self.selection.currentIndex = index
                 self.selection.select(index)
                 self._tree.ensureRowIsVisible(index)
@@ -1018,6 +1023,7 @@ class KoToolbox2HTreeView(TreeView):
             self._nodeOpenStatusFromName = json.loads(toolboxPrefs.getStringPref("open-nodes"))
         else:
             self._nodeOpenStatusFromName = {}
+        koToolBox2Svc = UnwrapObject(components.classes["@activestate.com/koToolBox2Service;1"].getService(components.interfaces.koIToolBox2Service))
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         db_path = os.path.join(koDirSvc.userDataDir, 'toolbox.sqlite')
         schemaFile = os.path.join(koDirSvc.mozBinDir,
@@ -1030,9 +1036,19 @@ class KoToolbox2HTreeView(TreeView):
         toolboxLoader.markAllTopLevelItemsUnloaded()
         import time
         t1 = time.time()
-        toolboxLoader.loadToolboxDirectory("Standard Toolbox", stdToolboxDir)
+        toolbox_id = toolboxLoader.loadToolboxDirectory("Standard Toolbox", stdToolboxDir)
         t2 = time.time()
         log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
+        koToolBox2Svc.registerStandardToolbox(toolbox_id)
+        if prefs.getBooleanPref("useSharedToolbox"):
+            sharedToolboxDir = os.path.join(koDirSvc.commonDataDir,
+                                            koToolbox2.DEFAULT_TARGET_DIRECTORY)
+            t1 = time.time()
+            toolbox_id = toolboxLoader.loadToolboxDirectory("Shared Toolbox", sharedToolboxDir)
+            t2 = time.time()
+            log.debug("Time to load shared-toolbox: %g msec", (t2 - t1) * 1000.0)
+            koToolBox2Svc.registerSharedToolbox(toolbox_id)
+        # else unload shared items...
         toolboxLoader.deleteUnloadedTopLevelItems()
         #TODO: For now just get the top-level items
         # Later keep track of how 
