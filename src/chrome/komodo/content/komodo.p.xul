@@ -2521,112 +2521,51 @@
                                                    onpopupshowing="ko.projects.ensureAddMenu(this);"/>
                                     </toolbarbutton>
                         -->
-                         <tabbox flex="1" id="toolbox2-tabbox"
-                                 orient="vertical" >
-                              <tabs id="toolbox2-tabs" >
-                                 <tab id="toolbox2-tab-hierarchy"
-                                      label="&amp;Hierarchy"/>
-                                 <tab id="toolbox2-tab-relevance"
-                                      label="&amp;Relevance" />
-                              </tabs>
-                              <tabpanels flex="1" id="toolbox2-tabpanels" >
-                                 <tabpanel flex="1"
-                                             id="toolbox2-hierarchy">
-                                      <vbox flex="1" id="toolbox2-hierarchy-vbox">
-                                             <label value="In hierarchy!" />
-                                      <!-- xblize this...-->
-                                          <hbox id="toolbox2-hierarchy-toolbar-a" >
-                                              <toolbarbutton    id="toolbox2_tools-a"
-                                                      tooltiptext="&amp;tools.label;"
-                                                      buttonstyle="pictures"
-                                                      type="menu"
-                                                      orient="horizontal"
-                                                      class="rightarrow-button-a project-tools-icon"/>
-                                              <textbox id="toolbox2-filter-textbox-a"
-                                                         class="search-box"
-                                                         style="min-width:40px; max-width:200px; margin-right:0px;"
-                                                         flex="1"
-                                                         type="search"
-                                                         timeout="500"
-                                                         onfocus="ko.toolbox2.focus(this);"
-                                                         onblur="window.updateCommands('undo')"
-                                                         onkeypress="ko.toolbox2.onFilterKeypress(event)"
-                                                         oncommand="ko.toolbox2.updateFilter()"
-                                                         tooltiptext="&amp; XXX filter items;"/>
-                                          </hbox >
-                                          <tree flex="1" id="toolbox2-hierarchy-tree"
-					        onkeypress="ko.toolbox2.onTreeKeyPress(event);"
-                                                ondblclick="ko.toolbox2.onDblClick(event);"
-                                                seltype="multiple"
-                                                context="toolbox2Context">
-                                             <treecols>
-                                                 <treecol primary="true"
-                                                          id="toolbox2-hierarchy-tree-name"
-                                                          label="name" flex="1"
-                                                          persist="width"
-                                                          crop="left"/>
-                                             </treecols>
-                                             <treechildren id="toolbox2-hierarchy-treebody" flex="1"
-                                                           ondragstart="ko.toolbox2.doStartDrag(event, this);"
-                                                           ondragover="return ko.toolbox2.doDragOver(event, this);"
-                                                           ondragenter="return ko.toolbox2.doDragEnter(event, this);"
-                                                           ondrop="return ko.toolbox2.doDrop(event, this);"
-                                                           
-                                                           />
-                                          </tree>
-                                      </vbox>
-                                 </tabpanel>
-                                 <tabpanel flex="1"
-                                             id="toolbox2-relevance">
-                                      <vbox flex="1" id="toolbox2-relevance-vbox">
-                                             <label value="In relevance!" />
-                                     <!-- xblize this...-->
-                                          <hbox id="toolbox2-relevance-toolbar" >
-                                              <toolbarbutton id="toolbox2_tools-b"
-                                                      tooltiptext="&tools.label;"
-                                                      buttonstyle="pictures"
-                                                      type="menu"
-                                                      orient="horizontal"
-                                                      class="rightarrow-button-a project-tools-icon"/>
-                                              <textbox id="toolbox2-filter-textbox-b"
-                                                         class="search-box"
-                                                         style="min-width:40px; max-width:200px; margin-right:0px;"
-                                                         flex="1"
-                                                         type="search"
-                                                         timeout="500"
-                                                         onfocus="ko.toolbox2.focus(this);"
-                                                         onblur="window.updateCommands('undo')"
-                                                         onkeypress="ko.toolbox2.onFilterKeypress(event)"
-                                                         oncommand="ko.toolbox2.updateFilter()"
-                                                         tooltiptext="&amp; XXX filter items;"/>
-                                          </hbox>
-                                          <tree flex="1">
-                                             <treecols>
-                                                 <treecol id="t1" label="rele-col1" />
-                                                 <treecol id="t2" label="rele-col2" />
-                                             </treecols>
-                                             <treechildren>
-                                                 <treeitem>
-                                                     <treerow>
-                                                         <treecell label="relevance item r1c1" />
-                                                         <treecell label="relevance item r1c2" />
-                                                         <treecell label="relevance item r1c3" />
-                                                     </treerow>
-                                                 </treeitem>
-                                                 <treeitem>
-                                                     <treerow>             
-                                                         <treecell label="relevance item r2c1" />
-                                                         <treecell label="relevance item r2c2" />
-                                                         <treecell label="relevance item r2c3" />
-                                                     </treerow>
-                                                 </treeitem>
-                                             </treechildren>
-                                          </tree>
-                                      </vbox>
-                                 </tabpanel>
-                              </tabpanels>
-                         </tabbox>
-                          </tabpanel>
+                            <vbox flex="1" id="toolbox2-hierarchy-vbox">
+                                <!-- #if 0 -->
+                                <hbox id="toolbox2-hierarchy-toolbar-a" >
+                                    <!-- the cog -->
+                                    <toolbarbutton    id="toolbox2_tools-a"
+                                            tooltiptext="&amp;tools.label;"
+                                            buttonstyle="pictures"
+                                            type="menu"
+                                            orient="horizontal"
+                                            class="rightarrow-button-a project-tools-icon"/>
+                                    <textbox id="toolbox2-filter-textbox-a"
+                                               class="search-box"
+                                               style="min-width:40px; max-width:200px; margin-right:0px;"
+                                               flex="1"
+                                               type="search"
+                                               timeout="500"
+                                               onfocus="ko.toolbox2.focus(this);"
+                                               onblur="window.updateCommands('undo')"
+                                               onkeypress="ko.toolbox2.onFilterKeypress(event)"
+                                               oncommand="ko.toolbox2.updateFilter()"
+                                               tooltiptext="&amp; XXX filter items;"/>
+                                </hbox >
+                                <!-- #endif -->
+                                <tree flex="1" id="toolbox2-hierarchy-tree"
+                                      onkeypress="ko.toolbox2.onTreeKeyPress(event);"
+                                      ondblclick="ko.toolbox2.onDblClick(event);"
+                                      seltype="multiple"
+                                      context="toolbox2Context">
+                                   <treecols>
+                                       <treecol primary="true"
+                                                id="toolbox2-hierarchy-tree-name"
+                                                label="Name" flex="1"
+                                                persist="width"
+                                                crop="left"/>
+                                   </treecols>
+                                   <treechildren id="toolbox2-hierarchy-treebody" flex="1"
+                                                 ondragstart="ko.toolbox2.doStartDrag(event, this);"
+                                                 ondragover="return ko.toolbox2.doDragOver(event, this);"
+                                                 ondragenter="return ko.toolbox2.doDragEnter(event, this);"
+                                                 ondrop="return ko.toolbox2.doDrop(event, this);"
+                                                 
+                                                 />
+                                </tree>
+                            </vbox>
+                        </tabpanel>
                     </tabpanels>
                 </tabbox>
             </vbox>
