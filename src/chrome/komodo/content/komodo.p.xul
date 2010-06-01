@@ -2548,12 +2548,14 @@
                                       onkeypress="ko.toolbox2.onTreeKeyPress(event);"
                                       ondblclick="ko.toolbox2.onDblClick(event);"
                                       seltype="multiple"
+                                      hidecolumnpicker="true"
                                       context="toolbox2Context">
                                    <treecols>
                                        <treecol primary="true"
                                                 id="toolbox2-hierarchy-tree-name"
-                                                label="Name" flex="1"
+                                                flex="1"
                                                 persist="width"
+                                                hideheader="true"
                                                 crop="left"/>
                                    </treecols>
                                    <treechildren id="toolbox2-hierarchy-treebody" flex="1"
