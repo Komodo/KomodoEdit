@@ -1262,6 +1262,13 @@ class KoToolbox2HTreeView(TreeView):
                 
             
     def _compareChildNode(self, item1, item2):
+        # TODO: Have a sort flag.
+        # *Always* sort folders before other items.
+        if item1[2] == 'folder':
+            if item2[2] != 'folder':
+                return -1
+        elif item2[2] == 'folder':
+            return 1
         return cmp(item1[1].lower(), item2[1].lower())
 
 _partFactoryMap = {}
