@@ -179,6 +179,20 @@ this.add_macro = function(view, index, parent, item) {
     ko.projects.addMacro(parent, item);
 };
 
+// Menus
+
+this.add_menu = function(view, index, parent, item) {
+    ko.projects.addMenu(parent, item);
+};
+
+this.editProperties_menu = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getTool('menu');
+        if (!tool) return;
+    }
+    ko.projects.menuProperties(tool);
+};
+
 // Snippets
 
 this.invoke_insertSnippet = function(event, tool) {

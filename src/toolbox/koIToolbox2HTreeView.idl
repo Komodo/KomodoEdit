@@ -89,6 +89,34 @@ interface koIMacroTool: koITool {
                                  in wstring     data );
 };
 
+[scriptable, uuid(793f34de-1c51-4dd1-a60d-15b2abfae148)]
+interface koIContainerBaseTool: koITool {
+    //Used and implemented.
+    void getChildren([array, size_is(count)] out koITool child,
+                     out unsigned long count);
+
+    koITool getChildById(in wstring id);
+    /* hasChild does not recurse */
+    boolean hasChild(in koITool child);
+    boolean isEmpty();
+    void getChildrenByType(in wstring type,
+                           in boolean recurse,
+                           [array, size_is(count)] out koITool child,
+                           out unsigned long count);
+    koITool getChildWithTypeAndStringAttribute(in wstring type,
+                                               in wstring attribname,
+                                               in wstring attribvalue,
+                                               in boolean recurse);
+    koITool getChildByAttributeValue(in wstring attribname,
+                                     in wstring attribvalue,
+                                     in boolean recurse);
+    void addChild(in koITool child);
+    void removeChild(in koITool child);
+};
+
+[scriptable, uuid(e574867b-10f5-4809-8e93-09b0ef927f33)]
+interface koIContainerTool: koIContainerBaseTool {
+};
 
 [scriptable, uuid(f587b8c6-96ae-4af3-9362-a0fd40d541f7)]
 interface koIToolbox2HTreeView: nsITreeView {
@@ -103,6 +131,10 @@ interface koIToolbox2HTreeView: nsITreeView {
     koITool getAbbreviationSnippet(in wstring abbrev,
                                 [array, size_is(count)] in wstring subnames,
                                 in unsigned long count);
+    void getCustomMenus([array, size_is(count)] out koITool tools,
+                          out unsigned long count);
+    void getCustomToolbars([array, size_is(count)] out koITool tools,
+                          out unsigned long count);
     void getToolsWithKeyboardShortcuts([array, size_is(count)] out koITool tools,
                                        out unsigned long count);
     void getTriggerMacros([array, size_is(count)] out koITool tools,

@@ -276,6 +276,18 @@ this.getAbbreviationSnippet = function(abbrev, subnames) {
                                                     subnames.length);
 };
 
+this.getCustomMenus = function() {
+    var obj = {};
+    this.manager.view.getCustomMenus(obj, {});
+    return obj.value;
+};
+
+this.getCustomToolbars = function() {
+    var obj = {};
+    this.manager.view.getCustomToolbars(obj, {});
+    return obj.value;
+};
+
 this.getTriggerMacros = function() {
     var obj = {};
     this.manager.view.getTriggerMacros(obj, {});

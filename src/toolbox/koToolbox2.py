@@ -116,6 +116,18 @@ class Database(object):
                 self.reset()
         if update_version:
             self.set_meta("version", self.VERSION)
+
+        self._specific_names = {
+            'command':['insertOutput', 'parseRegex', 'operateOnSelection',
+                     'doNotOpenOutputWindow', 'showParsedOutputList',
+                     'parseOutput', 'runIn', 'cwd', 'env', ],
+            'macro':['async', 'trigger_enabled', 'trigger',
+                          'language', 'rank'],
+            'snippet':['set_selection', 'indent_relative'],
+            'menu':['accesskey', 'priority'],
+            'toolbar':['priority'],
+            'folder':[],
+            }
             
     def __repr__(self):
         return "<Toolbox2 Database %s>" % self.path
@@ -235,6 +247,17 @@ class Database(object):
                        (node_id,))
             return [x[0] for x in cu.fetchall()]
 
+    def getParentNode(self, node_id):
+        """
+        Return (path_id, name, nodeType for each child)
+        """
+        with self.connect() as cu:
+            cu.execute('''select cd.path_id, cd.name, cd.type
+                from common_details as cd, hierarchy as h
+                where h.path_id == ? and cd.path_id == h.parent_path_id''',
+                       (node_id,))
+            return cu.fetchone()
+
     def getTypeAndNameFromId(self, node_id):
         """
         Return (nodeType, name based on the ID)
@@ -316,8 +339,9 @@ class Database(object):
             return row[0]
 
     def getNextID(self, cu=None):
-        cu.execute('select seq from sqlite_sequence where name=?', ('paths',))
-        return cu.fetchone()[0]
+        with self.connect(cu=cu) as cu:
+            cu.execute('select seq from sqlite_sequence where name=?', ('paths',))
+            return cu.fetchone()[0] + 1
     
     # Adder functions
 
@@ -355,7 +379,20 @@ class Database(object):
 
     def addContainerItem(self, data, item_type, path, fname, parent_path_id):
         with self.connect(commit=True) as cu:
-            id = self._addCommonDetails(path, fname, 'folder', parent_path_id, cu)
+            id = self._addCommonDetails(path, fname, item_type, parent_path_id, cu)
+            names = self._specific_names[item_type]
+            if names:
+                final_values = [id]
+                final_names = ['path_id']
+                for name in names:
+                    res = data.get(name, None)
+                    if res is not None:
+                        final_names.append(name)
+                        final_values.append(res)
+                questions = ", ".join(["?"] * (len(final_names)))
+                stmt = 'insert into %s(%s) values(%s)' % \
+                       (item_type, ", ".join(final_names), questions)
+                cu.execute(stmt, final_values)
         return id
                 
     def _addCompoundItem(self, path, name, data, parent_path_id, cu):
@@ -373,6 +410,12 @@ class Database(object):
             cu.execute(stmt, (id, data.get('priority', 100)))
         else:
             log.error("Got an unexpected node type of %s", node_type)
+
+    def finishAddingCompoundItem(self, item_type, id, name, path,
+                                 attributes, parent_id):
+        with self.connect(commit=True) as cu:
+            self._addCommonDetails(path, name, item_type, parent_id, cu)
+            names = self._specific_names[item_type]
     
     def addTool(self, data, item_type, path, fname, parent_path_id):
         # These should be in every item, and we don't want to keep them around
@@ -380,7 +423,8 @@ class Database(object):
             log.info("Dropping old-style tool type:%s, name:%s", item_type, fname)
             return # Goodbye
         pretty_name = data['name']
-        common_names = ['name', 'type']
+        id = data.get('id', None)
+        common_names = ['name', 'type', 'id']
         #log.debug("About to add tool %s in %s", fname, path)
         for name in common_names:
             try:
@@ -519,11 +563,9 @@ class Database(object):
                 
     def getCommandInfo(self, path_id, cu=None):
         obj = {}
+        names = self._specific_names['command']
         with self.connect(cu=cu) as cu:
             self.getCommonToolDetails(path_id, obj, cu)
-            names = ['insertOutput', 'parseRegex', 'operateOnSelection',
-                     'doNotOpenOutputWindow', 'showParsedOutputList',
-                     'parseOutput', 'runIn', 'cwd', 'env']
             cu.execute(("select %s from command where path_id = ?" %
                         ", ".join(names)), (path_id,))
             row = cu.fetchone()
@@ -531,6 +573,23 @@ class Database(object):
             obj[name] = row[i]
         return obj
     
+    def getCommonContainerDetails(self, path_id, tableName):
+        obj = {}
+        names = self._specific_names[tableName]
+        with self.connect() as cu:
+            cu.execute("""select name from common_details
+                          where path_id = ?""", (path_id,))
+            row = cu.fetchone()
+            if row:
+                obj['name'] = row[0]
+            cu.execute(("select %s from %s where path_id = ?" %
+                        (", ".join(names), tableName)), (path_id,))
+            row = cu.fetchone()
+        if row:
+            for i, name in enumerate(names):
+                obj[name] = row[i]
+        return obj
+
     def getCommonToolDetails(self, path_id, obj, cu=None):
         with self.connect(cu=cu) as cu:
             cu.execute("""select name from common_details
@@ -619,6 +678,14 @@ class Database(object):
             #log.debug("Got %d nonGeneralMatches, returning %d (%s)", len(nonGeneralMatches), nonGeneralMatches[0][0], nonGeneralMatches[0][1])
             return nonGeneralMatches[0][0]
         return matches[0][0]
+
+    def getIDsByType(self, nodeType):
+        with self.connect() as cu:
+            stmt = 'select path_id from %s' % nodeType
+            cu.execute(stmt)
+            res = cu.fetchall()
+            if res is None: return []
+        return [x[0] for x in res]
         
     def getIDsForToolsWithKeyboardShortcuts(self):
         with self.connect() as cu:
@@ -627,7 +694,7 @@ class Database(object):
             res = cu.fetchall()
             if res is None: return []
         ids = [x[0] for x in res]
-        return ids        
+        return ids
 
     def getTriggerMacroIDs(self):
         with self.connect() as cu:
@@ -640,10 +707,9 @@ class Database(object):
 
     def getMacroInfo(self, path_id, cu=None):
         obj = {}
+        names = self._specific_names['macro']
         with self.connect(cu=cu) as cu:
             self.getCommonToolDetails(path_id, obj, cu)
-            names = ['async', 'trigger_enabled', 'trigger',
-                     'language', 'rank']
             cu.execute(("select %s from macro where path_id = ?" %
                         ", ".join(names)), (path_id,))
             row = cu.fetchone()
@@ -654,13 +720,13 @@ class Database(object):
                 log.error("couldn't get prop %s for macro id %r", name, i)
         return obj
 
-    def deleteItem(self, path_id, cu=None, isNested=False):
+    def deleteItem(self, path_id, cu=None):
         with self.connect(commit=True, cu=cu) as cu:
             stmt = "select path_id from hierarchy where parent_path_id = ?"
             cu.execute(stmt, (path_id,))
             children = cu.fetchall()
             for child_id in children:
-                self.deleteItem(child_id[0], cu, isNested=True)
+                self.deleteItem(child_id[0], cu)
             path = self.getPath(path_id, cu)
             tableNames = ['common_details',
                           'common_tool_details',
@@ -671,7 +737,7 @@ class Database(object):
                                                'path_id', path_id, cu)
             if res:
                 tool_type = res[0]
-                if tool_type in ['snippet', 'macro', 'command']:
+                if tool_type in ['snippet', 'macro', 'command', 'menu', 'toolbar']:
                     tableNames.append(tool_type)
             for t in tableNames:
                 try:
@@ -679,14 +745,6 @@ class Database(object):
                 except:
                     log.debug("Can't delete from table %s", t)
             cu.execute("DELETE FROM paths WHERE id=?", (path_id,))
-        if not isNested:
-            # On Windows this moves the full folder to the recycle bin
-            # as an atomic unit, so the user can get it back, but can't
-            # examine its contents.  Better than flattening a tree out
-            # and putting each item in the bin's top-level.
-            sysUtilsSvc = components.classes["@activestate.com/koSysUtils;1"].\
-                          getService(components.interfaces.koISysUtils);
-            sysUtilsSvc.MoveToTrash(path)
         
     def saveToolName(self, path_id, name, old_name=None):
         with self.connect(commit=True) as cu:
@@ -749,39 +807,53 @@ class Database(object):
                                           ['path_id'], [path_id], cu)
 
     def saveToolInfo(self, path_id, table_name, tool_name, value, attributes,
-                     specific_names, info_getter):
+                     info_getter):
         work_attributes = attributes.copy()
         with self.connect(commit=True) as cu:
             oldInfo = info_getter(path_id, cu)
             self.saveToolName(path_id, tool_name, oldInfo['name'])
             self.save_commonToolDetails(path_id, oldInfo, attributes, value, cu)
+            specific_names = self._specific_names.get(table_name)
             if specific_names:
                 self._saveNamedValuesInTable(path_id, table_name, specific_names,
                                              oldInfo, work_attributes, cu)
             self._removeNonMiscAttributeNames(oldInfo, work_attributes)
             self.saveMiscInfo(path_id, oldInfo, work_attributes, cu)
 
-    def saveCommandInfo(self, path_id, name, value, attributes):                
-        specific_names = ['insertOutput', 'parseRegex', 'operateOnSelection',
-                     'doNotOpenOutputWindow', 'showParsedOutputList',
-                     'parseOutput', 'runIn', 'cwd', 'env', ]
+    def saveContainerInfo(self, path_id, table_name, tool_name, attributes,
+                          info_getter):
+        work_attributes = attributes.copy()
+        with self.connect(commit=True) as cu:
+            oldInfo = info_getter(path_id, cu)
+            self.saveToolName(path_id, tool_name, oldInfo['name'])
+            specific_names = self._specific_names.get(table_name, None)
+            if specific_names:
+                self._saveNamedValuesInTable(path_id, table_name, specific_names,
+                                             oldInfo, work_attributes, cu)
+
+    def saveCommandInfo(self, path_id, name, value, attributes):
         self.saveToolInfo(path_id, 'command', name, value, attributes,
-                          specific_names, self.getCommandInfo)
+                          self.getCommandInfo)
 
     def saveSimpleToolInfo(self, path_id, name, value, attributes):
         self.saveToolInfo(path_id, None, name, value, attributes,
                           None, self.getSimpleToolInfo)
 
     def saveMacroInfo(self, path_id, name, value, attributes):
-        specific_names = ['async', 'trigger_enabled', 'trigger',
-                          'language', 'rank']
         self.saveToolInfo(path_id, 'macro', name, value, attributes,
-                          specific_names, self.getMacroInfo)
+                          self.getMacroInfo)
     
     def saveSnippetInfo(self, path_id, name, value, attributes):
-        specific_names = ['set_selection', 'indent_relative']
         self.saveToolInfo(path_id, 'snippet', name, value, attributes,
-                          specific_names, self.getSnippetInfo)
+                          self.getSnippetInfo)
+    
+    def saveMenuInfo(self, path_id, tool_name, attributes):
+        self.saveContainerInfo(path_id, 'menu', tool_name, attributes,
+                               self.getMenuInfo)
+    
+    def saveToolbarInfo(self, path_id, tool_name, attributes):
+        self.saveContainerInfo(path_id, 'toolbar', tool_name, attributes,
+                               self.getToolbarInfo)
             
     def saveMiscInfo(self, path_id, oldAttrList, newAttrList, cu=None):
         names_to_update = []
@@ -821,20 +893,24 @@ class Database(object):
                 self.deleteRowByKey('misc_properties',
                                     ['path_id', 'prop_name'],
                                     [path_id, name], cu)
-
                 
     def getSnippetInfo(self, path_id, cu=None):
         obj = {}
+        names = self._specific_names.get('snippet')
         with self.connect() as cu:
             self.getCommonToolDetails(path_id, obj, cu)
-            names = ['set_selection',
-                     'indent_relative']
             cu.execute(("select %s from snippet where path_id = ?" %
                         ", ".join(names)), (path_id,))
             row = cu.fetchone()
         for i, name in enumerate(names):
             obj[name] = row[i]
         return obj
+    
+    def getMenuInfo(self, path_id, cu=None):
+        return self.getCommonContainerDetails(path_id, 'menu')
+    
+    def getToolbarInfo(self, path_id, cu=None):
+        return self.getCommonContainerDetails(path_id, 'toolbar')
 
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
@@ -873,7 +949,7 @@ class ToolboxLoader(object):
         else:
             update_tree = mtime_now > mtime_then
         if update_tree:
-            self.db.deleteTree(path_id)
+            self.db.deleteItem(path_id)
         return update_tree
 
     def walkFunc(self, arg, dirname, fnames):
@@ -908,10 +984,16 @@ class ToolboxLoader(object):
                             log.debug("db time: %r, stat time: %r", self.dbTimestamp, mtime)
                             log.debug("Rebuilding item %s (%s)", fname, dirname)
                             self.db.deleteItem(id)
+                else:
+                    need_update = True
                     
             if need_update:
                 if isTool:
-                    fp = open(path, 'r')
+                    try:
+                        fp = open(path, 'r')
+                    except IOError:
+                        log.error("database loader: Couldn't load file %s", path)
+                        continue
                     data = json.load(fp, encoding="utf-8")
                     fp.close()
                     type = data['type']
