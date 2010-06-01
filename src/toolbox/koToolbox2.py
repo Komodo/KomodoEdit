@@ -71,9 +71,13 @@ log = logging.getLogger("koToolbox2")
 eol = """
 """
 _unsupported_types = ("file", "livefolder")
-DEFAULT_TARGET_DIRECTORY = ".ko-toolbox"
-TOOL_EXTENSION = ".kotool"
-METADATA_FILENAME = ".ko-metadata"
+# for the std toolbox, shared toolboxes, and extensions
+DEFAULT_TARGET_DIRECTORY = "tools"
+# for toolboxes extracted from pre-v6 kpf files:
+PROJECT_TARGET_DIRECTORY = ".komodotools"
+
+TOOL_EXTENSION = ".komodotool"
+UI_FOLDER_FILENAME = ".folderdata"
 
 #---- errors
 
@@ -368,7 +372,7 @@ class Database(object):
     def addFolder(self, path, name, parent_path_id):
         #log.debug("About to add folder %s in %s", name, path)
         with self.connect(commit=True) as cu:
-            metadataPath = join(path, METADATA_FILENAME)
+            metadataPath = join(path, UI_FOLDER_FILENAME)
             if exists(metadataPath):
                 fp = open(metadataPath, 'r')
                 data = json.load(fp, encoding="utf-8")
@@ -929,7 +933,7 @@ class ToolboxLoader(object):
         # fname is last part of path, but is in for convenience
         # path_id is id(path)
         # returns True if the item should be re-added to the database
-        metadataPath = join(path, METADATA_FILENAME)
+        metadataPath = join(path, UI_FOLDER_FILENAME)
         try:
             st_res = os.stat(metadataPath)
             mtime_now = st_res.st_mtime
@@ -1000,7 +1004,7 @@ class ToolboxLoader(object):
                     self.db.addTool(data, type, path, fname, parent_id)
                 else:
                     self.db.addFolder(path, fname, parent_id)
-        metadataPath = join(dirname, METADATA_FILENAME)
+        metadataPath = join(dirname, UI_FOLDER_FILENAME)
         if exists(metadataPath):
             result = self.db.getValuesFromTableByKey('metadata_timestamps', ['mtime'], 'path_id', parent_id)
             if result is None:

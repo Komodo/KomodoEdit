@@ -70,7 +70,6 @@ except ImportError:
 
 nowrite = False
 _version_ = (0, 1, 0)
-log = logging.getLogger("koMigrateV5Toolboxes")
 #log.setLevel(logging.DEBUG)
 
 class ExpandToolboxException(Exception):
@@ -78,7 +77,7 @@ class ExpandToolboxException(Exception):
 
 #---- module API
 
-def expand_toolbox(toolboxFile, outdir, force=0):
+def expand_toolbox(toolboxFile, outdir, toolboxDirName=None, force=0):
     """ Write out the contents of toolboxFile to outdir
     """
     tree = ET.parse(toolboxFile)
@@ -97,9 +96,11 @@ def expand_toolbox(toolboxFile, outdir, force=0):
     elif not os.path.isdir(outdir):
         raise ExpandToolboxException("-o argument %s is not a directory, not expanding" % outdir)
     os.chdir(outdir)
-    if not os.path.exists(koToolbox2.DEFAULT_TARGET_DIRECTORY):
-        os.makedirs(koToolbox2.DEFAULT_TARGET_DIRECTORY)
-    os.chdir(koToolbox2.DEFAULT_TARGET_DIRECTORY)
+    if toolboxDirName is None:
+        toolboxDirName = koToolbox2.DEFAULT_TARGET_DIRECTORY
+    if not os.path.exists(toolboxDirName):
+        os.makedirs(toolboxDirName)
+    os.chdir(toolboxDirName)
     obsoleteItems = []
     TreeWalker(obsoleteItems, force).expandTree(dirTree)
     #todo: Write out the misc parts
@@ -215,7 +216,7 @@ class TreeWalker():
         os.chdir(q_name)
         if folderInfo:
             #TODO: Don't write out one of these if it's empty.
-            fw = open(koToolbox2.METADATA_FILENAME, 'w')
+            fw = open(koToolbox2.UI_FOLDER_FILENAME, 'w')
             json.dump(folderInfo, fw, encoding='utf-8')
             fw.close()
         self._expand_children(node)
@@ -278,6 +279,9 @@ class TreeWalker():
         
     def expandNode_livefolder(self, node):
         self.obsoleteItems.append(('livefolder', node.elt.attrib['name'], os.getcwd()))
+        
+    def expandNode_changelist(self, node):
+        self.obsoleteItems.append(('changelist', node.elt.attrib['name'], os.getcwd()))
         
     def _split_newlines(self, value):
         return re.split('\r?\n', value)
