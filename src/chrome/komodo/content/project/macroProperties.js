@@ -197,10 +197,20 @@ function OK(event)  {
     }
     if (window.arguments[0].task == 'new') {
         var parent = window.arguments[0].parent;
+        var toolbox2 = opener.ko.toolbox2;
         if (typeof(parent)=='undefined' || !parent) {
-            parent = opener.ko.toolbox2.manager.getSelectedItem();
+            var parent;
+            try {
+                parent = toolbox2.manager.getSelectedItem();
+            } catch(ex) {
+                log.exception("macroProperties::OK - can't get a selected item, use the standard toolbox:\n" + ex);
+                parent = null;
+            }
+            if (!parent) {
+                parent = toolbox2.getStandardToolbox();
+            }
         }
-        opener.ko.toolbox2.addNewItemToParent(gPart, parent);
+        toolbox2.addNewItemToParent(gPart, parent);
     } else if (window.arguments[0].task == 'edit') {
         //XXX Should be done through an observer.
         //XXX Reviewers: should this be done in Apply?

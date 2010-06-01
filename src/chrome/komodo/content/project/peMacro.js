@@ -662,19 +662,18 @@ MacroEventHandler.prototype.hookOnQuit = function peMacro_hookOnQuit() {
 MacroEventHandler.prototype.observe = function(part, topic, code)
 {
     try {
+        //dump(topic + ": " + part.name + "\n");
         switch (topic) {
             case 'macro-load':
                 if (ko.windowManager.getMainWindow() != window) {
                     return;
                 }
-            dump("macro-load: " + part.name + "\n");
                 this.addMacro(part);
                 break;
             case 'macro-unload':
                 if (ko.windowManager.getMainWindow() != window) {
                     return;
                 }
-            dump("macro-unload: " + part.name + "\n");
                 this.removeMacro(part);
                 break;
             case 'javascript_macro':

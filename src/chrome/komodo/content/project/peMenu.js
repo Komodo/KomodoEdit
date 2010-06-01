@@ -85,7 +85,6 @@ peMenu.prototype.observe = function(part, topic, dummy)
     try {
         //dump("peMenu observer "+part+", "+topic+", "+dummy+"\n");
         var menu;
-        dump("peMenu.observe: " + topic + "\n");
         switch (topic) {
             case 'toolbar_remove':
                 ko.projects.removeToolbarForPart(part);
