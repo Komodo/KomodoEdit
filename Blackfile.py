@@ -1684,15 +1684,14 @@ def _PackageKomodoCrashReportSymbols(cfg, dryRun=False):
         return 0
     print "packaging 'Komodo Crash Report symbols'..."
     symbolsSrcDir = join(cfg.mozDist, "crashreporter-symbols")
-    symbolsDstDir = join(cfg.packagesRelDir, "crashreportsymbols")
+    symbolsDstDir = join(cfg.packagesRelDir, "internal", "crashreportsymbols")
     if not exists(symbolsSrcDir):
         log.error("no 'crashreporter-symbols' directory found")
         return 1
     if not dryRun:
         if not isdir(symbolsDstDir):
             os.makedirs(symbolsDstDir)
-        pkgName = basename(cfg.installRelDir)
-        zippath = abspath(join(symbolsDstDir, "%s.zip" % (pkgName, )))
+        zippath = abspath(join(symbolsDstDir, "%s.zip" % (cfg.komodoPackageBase, )))
         import zipfile
         zip = zipfile.ZipFile(zippath, mode="w",
                               compression=zipfile.ZIP_DEFLATED)
