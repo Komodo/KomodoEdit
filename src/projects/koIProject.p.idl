@@ -212,7 +212,6 @@ interface koIProject: koIPart_livefolder {
                                 // and uses the lastErrorService to return error information
     void loadQuiet(in wstring url);  // same as load, but prevents notifications
                                     // when reading toolbars/menu's
-    void loadFromString(in wstring data, in wstring url);
     void loadFromFileSystem(in wstring url);
 
     // Check if the project kpf file has changed on disk since it was last

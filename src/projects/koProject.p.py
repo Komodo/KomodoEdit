@@ -1857,14 +1857,6 @@ class koProject(koLiveFolderPart):
         self._update_lastmd5_from_contents(contents)
         self._parseStream(StringIO(contents), url, fname)
 
-    def loadFromString(self, data, url):
-        self.lastErrorSvc.setLastError(0, '')
-        self.set_url(url)
-        assert self._url
-        assert self._relativeBasedir
-        fname = uriparse.URIToLocalPath(self._url)
-        self._loadContents(data, url, fname)
-
     def loadQuiet(self, url):
         self._quiet = 1
         self.load(url)
