@@ -421,8 +421,7 @@ this.toggleToolbarHiddenStateInPref = function peMenu_toggleToolbarHiddenStateIn
     }
 }
 
-this.addToolbar = function peMenu_addToolbar(/*koIPart*/ parent)
-{
+this.addToolbar = function peMenu_addToolbar(/*koITool*/ parent, /*koITool*/ toolbar) {
     // Ensure that the item being added to isn't a menu/toolbar or a
     // child of a menu/toolbar
     if (parent && ! ko.projects.partAcceptsMenuToolbar(parent)) {
@@ -431,9 +430,9 @@ this.addToolbar = function peMenu_addToolbar(/*koIPart*/ parent)
     }
     var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterToolbarName"));
     if (!name) return;
-    var toolbar = parent.project.createPartFromType('toolbar');
     toolbar.name = name;
-    ko.projects.addItem(toolbar,parent);
+    ko.toolbox2.addItem(toolbar, parent);
+    ko.projects.addToolbarFromPart(toolbar);
 }
 
 
@@ -578,7 +577,7 @@ function _sortItems(a,b) {
     return 0;
 }
 
-this.menuProperties = function peMenu_editProperties(item, rank) {
+this.menuProperties = function peMenu_editProperties(item) {
     var obj = new Object();
     obj.item = item;
     obj.task = 'edit';

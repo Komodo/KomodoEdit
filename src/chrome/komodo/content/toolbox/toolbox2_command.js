@@ -238,6 +238,20 @@ this.add_template = function(view, index, parent, item) {
     this.addNewItemToParent(item, parent);
 };
 
+// Toolbars
+
+this.add_toolbar = function(view, index, parent, item) {
+    ko.projects.addToolbar(parent, item);
+};
+
+this.editProperties_toolbar = function(event, tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getTool('toolbar');
+        if (!tool) return;
+    }
+    ko.projects.menuProperties(tool);
+}
+
 // Templates can't be edited -- Komodo 5 uses the 
 // file properties dialog to edit a template, which is just wrong.
 

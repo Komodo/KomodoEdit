@@ -133,9 +133,8 @@ function _Apply()  {
         } else {
             gObserverSvc.notifyObservers(gPart, 'toolbar_changed', 'part changed')
         }
-
-        opener.ko.projects.invalidateItem(gItem);
         gPart.setStringAttribute('name', partname.value);
+        gItem.save();
     } catch (e) {
         log.exception(e);
     }
