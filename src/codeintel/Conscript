@@ -114,6 +114,7 @@ my @codeintel2_files = (
     "lib/codeintel2/tclcile.py",
     "lib/codeintel2/tcl_lexer.py",
     "lib/codeintel2/tcl_parser.py",
+    "lib/codeintel2/tdparser.py",
     "lib/codeintel2/tree.py",
     "lib/codeintel2/tree_javascript.py",
     "lib/codeintel2/tree_perl.py",
