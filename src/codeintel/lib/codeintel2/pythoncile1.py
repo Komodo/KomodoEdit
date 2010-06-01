@@ -96,6 +96,7 @@ import parser
 
 from codeintel2.common import CILEError
 from codeintel2 import util
+from codeintel2 import tdparser
 
 #---- exceptions
 
@@ -1347,31 +1348,75 @@ def _getAST(content):
     return ast_
 
 
+_rx_cache = {}
+
+def _rx(pattern, flags=re.UNICODE):
+    if pattern not in _rx_cache:
+        _rx_cache[pattern] = re.compile(pattern, flags)
+    return _rx_cache[pattern]
+
+def _convert3to2(src):
+    # XXX: this might be much faster to do all this stuff by manipulating
+    #      parse trees produced by tdparser
+    
+    # except Foo as bar => except (Foo,) bar
+    src = _rx(r'(\bexcept\s*)(\S.+?)\s+as\s+(\w+)\s*:').sub(r'\1(\2,), \3:', src)
+    
+    # 0o123 => 123
+    src = _rx(r'\b0[oO](\d+)').sub(r'\1', src)
+    
+    # print(foo) => print_(foo)
+    src = _rx(r'\bprint\s*\(').sub(r'print_(', src)
+    
+    # change forms of class Foo(metaclass=Cls3) to class Foo
+    src = _rx(r'(\bclass\s+\w+\s*)\(\s*\w+\s*=\s*\w+\s*\)\s*:').sub(r'\1:', src)
+    
+    # change forms of class Foo(..., arg=Base1, metaclass=Cls3) to class Foo(...)
+    src = _rx(r'(\bclass\s+\w+\s*\(.*?),?\s*\w+\s*=.+?\)\s*:').sub(r'\1):', src)
+
+    # Remove return type annotations like def foo() -> int:
+    src = _rx(r'(\bdef\s+\w+\s*\(.*?\))\s*->\s*\w+\s*:').sub(r'\1:', src)
+
+    # def foo(foo:Bar, baz=lambda x: qoox): => def foo(bar, baz=_lambda(qoox)):
+    src = _rx(r'(\bdef\s+\w+\s*\()(.+?)(\)\s*:)').sub(_clean_func_args, src)
+    
+    return src
+
+def _clean_func_args(defn):
+    argdef = defn.group(2)
+    
+    parser = tdparser.PyExprParser()
+    arglist = parser.parse_bare_arglist(argdef)
+
+    seen_args = False
+    seen_kw = False
+    py2 = []
+    for arg in arglist:
+        name, value, type = arg
+        if name.id == "*" or name.value[:2] == "**":
+            if not seen_kw:
+                name.value = "**kwargs"
+                py2.append(arg)
+                seen_kw = True
+                seen_args = True
+        elif name.value[0] == "*":
+            if not seen_args:
+                seen_args = True
+                name.value = "*args"
+                py2.append(arg)
+        else:
+            if seen_args or seen_kw:
+                break
+            else:
+                py2.append(arg)
+    
+    cleared = tdparser.arg_list_py(py2)
+    
+    return defn.group(1) + cleared + defn.group(3)
+
+
 #---- public module interface
 
-_strip_args_type_annotations_rx = re.compile(r'\s*:\s*[^,]+', re.U)
-
-def _strip_arg_type_annotations(defn):
-    args = _strip_args_type_annotations_rx.sub('', defn.group(2))
-    return defn.group(1) + args + defn.group(3)
-
-_python3to2_converters = [partial(re.compile(match, re.U).sub, repl)
-                            for match, repl in (
-                                # except Foo as bar => except (Foo,) bar
-                                (r'(\bexcept\s*)(\S.+?)\s+as\s+(\w+)\s*:', r'\1(\2,), \3:'),
-                                # 0o123 => 123
-                                (r'\b0[oO](\d+)', r'\1'),
-                                # print(foo) => print_(foo)
-                                (r'\bprint\s*\(', r'print_('),
-                                # change forms of class Foo(metaclass=Cls3) to class Foo
-                                (r'(\bclass\s+\w+\s*)\(\s*\w+\s*=\s*\w+\s*\)\s*:', r'\1:'),
-                                # change forms of class Foo(..., arg=Base1, metaclass=Cls3) to class Foo(...)
-                                (r'(\bclass\s+\w+\s*\(.*?),?\s*\w+\s*=.+?\)\s*:', r'\1):'),
-                                # Remove return type annotations like def foo() -> int:
-                                (r'(\bdef\s+\w+\s*\(.*?\))\s*->\s*\w+\s*:', r'\1:'),
-                                # def foo(foo:Bar): => def foo(bar):
-                                (r'(\bdef\s+\w+\s*\()([^)]+:[^)]+)(\)\s*:)', _strip_arg_type_annotations),
-                                )]
 
 def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
     """Scan the given Python content and return Code Intelligence data
@@ -1412,11 +1457,9 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
 
     convert3to2 = True # should be: lang == "Python3":
     if convert3to2:
-        # Apply _python3to2_converters in order to make Python3 code
-        # as compatible with pythoncile's Python2 parser as neessary
-        # for codeintel purposes.
-        for converter in _python3to2_converters:
-            content = converter(content)
+        # Make Python3 code as compatible with pythoncile's Python2
+        # parser as neessary for codeintel purposes.
+        content = _convert3to2(content)
     
     if type(filename) == types.UnicodeType:
         filename = filename.encode('utf-8')
