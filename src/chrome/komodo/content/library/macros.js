@@ -72,7 +72,7 @@ MacroRecorder.prototype.startRecording = function() {
         this._currentMacro.push(_bundle.formatStringFromName("macroRecordedOnComment", [Date()], 1) + '\n');
         var macroVersionNumber = "2"; // must match the number in peMacro.js
         this._currentMacro.push('komodo.assertMacroVersion(' + macroVersionNumber + ');\n');
-        this._currentMacro.push("if (komodo.view && komodo.view.scintilla) { komodo.view.scintilla.focus(); }\n");
+        this._currentMacro.push("if (komodo.view) { komodo.view.setFocus(); }\n");
         this._currentMacroText = new Array();
     }
     this.mode = 'recording';
@@ -135,7 +135,7 @@ MacroRecorder.prototype.appendCommand = function(command) {
             return;
         }
         this._finishTextMacro();
-        this._currentMacro.push("komodo.doCommand('" + command +"')\n");
+        this._currentMacro.push("ko.commands.doCommand('" + command +"')\n");
     } catch (e) {
         log.exception(e);
     }
