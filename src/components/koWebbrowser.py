@@ -268,11 +268,13 @@ class KoWebbrowser(object):
         _exe_name_from_browser_type['flock'] = 'flock'
     elif sys.platform != "darwin":
         _exe_name_from_browser_type['flock'] = 'flock-bin'
+        _exe_name_from_browser_type['googlechrome'] = 'google-chrome'
     else:
         _mac_app_name_from_browser_type = {
             "firefox": "Firefox",
             "safari": "Safari",
             "camino": "Camino",
+            "googlechrome": "Google Chrome",
             "mozilla": "Mozilla",
             "opera": "Opera",
             "flock": "Flock",
@@ -369,6 +371,7 @@ class KoWebbrowser(object):
             for browser_type in ("firefox",
                                  "safari",
                                  "camino",
+                                 "googlechrome",
                                  "opera",
                                  "mozilla",
                                  "flock"):
@@ -381,6 +384,7 @@ class KoWebbrowser(object):
             for browser_type in ("firefox",
                                  "konqueror",
                                  "mozilla",
+                                 "googlechrome",
                                  "opera",
                                  "flock",
                                  "kfm"):
