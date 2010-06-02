@@ -64,7 +64,7 @@ def scan(path):
     Returns a CIX 2.0 XML string.
     """
     
-    from gencix.python import gencix
+    from codeintel2 import gencix
     
     name,_ = os.path.splitext(os.path.basename(path))
     dir = os.path.dirname(path)
