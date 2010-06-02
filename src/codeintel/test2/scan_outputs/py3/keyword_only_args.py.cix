@@ -1,0 +1,14 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/py3/keyword_only_args.py">
+    <scope ilk="blob" lang="Python" name="keyword_only_args" src="scan_inputs/py3/keyword_only_args.py">
+      <scope ilk="function" line="3" lineend="4" name="sortwords" signature="sortwords(*args)">
+        <variable attributes="varargs" ilk="argument" name="args" />
+      </scope>
+      <scope ilk="function" line="6" lineend="7" name="compare" signature="compare(a, b, **kwargs)">
+        <variable ilk="argument" name="a" />
+        <variable ilk="argument" name="b" />
+        <variable attributes="kwargs" ilk="argument" name="kwargs" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

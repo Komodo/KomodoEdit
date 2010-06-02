@@ -1,0 +1,15 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/py3/type_annotations.py">
+    <scope ilk="blob" lang="Python" name="type_annotations" src="scan_inputs/py3/type_annotations.py">
+      <scope ilk="function" line="3" lineend="4" name="func" signature="func()" />
+      <scope ilk="function" line="6" lineend="7" name="funk" signature="funk(self, it, recursive)">
+        <variable ilk="argument" name="self" />
+        <variable ilk="argument" name="it" />
+        <variable ilk="argument" name="recursive" />
+      </scope>
+      <scope ilk="function" line="9" lineend="10" name="punk" signature="punk(boo=lambda foo: &apos;bar&apos;)">
+        <variable ilk="argument" name="boo" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>
