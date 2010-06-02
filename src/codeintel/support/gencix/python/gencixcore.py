@@ -33,7 +33,7 @@ if sys.version_info < (3, ):
     _gIsPy3 = False
 from pydoc import visiblename, classname, _split_list, isdata, ispackage, getdoc
 import re
-from codeintel2.parsedocs import parseDocSummary, parsePyFuncDoc
+from parsedocs import parseDocSummary, parsePyFuncDoc
 import logging
 
 log = logging.getLogger("codeintel.gencix")

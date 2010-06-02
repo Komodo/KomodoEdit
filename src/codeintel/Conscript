@@ -133,6 +133,10 @@ foreach my $file (@codeintel2_files) {
     $cons->InstallPythonUtility($file, "codeintel2");
 }
 
+my @pygencix_files = ("support/gencix/python/gencixcore.py",
+                      "support/gencix/python/parsedocs.py");
+$cons->InstallPythonUtility(@pygencix_files, "codeintel2");
+
 my @codeintel2_database_files = (
     "lib/codeintel2/database/__init__.py",
     "lib/codeintel2/database/catalog.py",

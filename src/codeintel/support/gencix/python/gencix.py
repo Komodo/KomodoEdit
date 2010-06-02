@@ -42,7 +42,7 @@ import optparse
 import sys
 import logging
 
-from codeintel2.gencix import *
+from gencixcore import *
 
 log = logging.getLogger("stdcix")
 
