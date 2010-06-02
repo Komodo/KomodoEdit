@@ -13,23 +13,57 @@ import sys
 import cStringIO as io
 import optparse
 
+from process import ProcessOpen
+
+
+SCAN_PROCESS_TIMEOUT = 2.0
 
 class BinaryScanError(Exception): pass
 
+class TimedPopen(ProcessOpen):
+    def wait(self):
+        return super(TimedPopen, self).wait(SCAN_PROCESS_TIMEOUT)
+
 
 def safe_scan(path, python):
-    # will eventually call "main" defined below
-    proc = subprocess.Popen([python, os.path.abspath(__file__), path],
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            env=dict(PYTHONPATH=":".join(sys.path)))
+    """
+    Performs a "safe" out-of-process scan.
+    It is more safe because if the module being scanned runs amuck,
+    it will not ruin the main Komodo interpreter.
+    
+        "path"   - is a path to a binary module
+        "python" - an absolute path to the interpreter to run the scanner
+    
+    Returns a CIX 2.0 string.
+    
+    In case of errors raises a BinaryScanError.
+    """
+    # indirectly calls "_main" defined below
+    
+    # this is needed to avoid picking up a stale .pyc file.
+    myself = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "pybinary.py")
+    
+    proc = TimedPopen(cmd="%s %s %s" % (python, myself, path),
+                      env=dict(PYTHONPATH=os.pathsep.join(sys.path)))
+    
     out, err = proc.communicate()
     if err:
         raise BinaryScanError(err)
+    
     return out
     
 
 def scan(path):
+    """
+    Performs an in-process binary module scan. That means the module is
+    loaded (imported) into the current Python interpreter.
+    
+        "path" - a path to a binary module to scan
+    
+    Returns a CIX 2.0 XML string.
+    """
+    
     from gencix.python import gencix
     
     name,_ = os.path.splitext(os.path.basename(path))
@@ -52,7 +86,7 @@ def scan(path):
         stream.close()
     
 
-def main(argv):
+def _main(argv):
     parser = optparse.OptionParser(usage="%prog mdoulepath")
     (options, args) = parser.parse_args(args=argv)
     if len(args) != 1:
@@ -67,5 +101,5 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    _main(sys.argv[1:])
 
