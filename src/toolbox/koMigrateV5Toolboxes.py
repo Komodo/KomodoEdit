@@ -224,7 +224,13 @@ class TreeWalker():
         
     def expandNode_folder(self, node):
         #log.debug("expand folder %s", node.elt.get('name'))
-        self.expandContainerNode(node)
+        folderInfo = self._get_metadata(node.elt, [])
+        q_name = self._prepareUniqueFileSystemName(node, addExt=False)
+        if folderInfo['name'] != q_name:
+            folderInfo['type'] = 'folder'
+            self.expandContainerNode(node, folderInfo)
+        else:
+            self.expandContainerNode(node)
         
     def _get_metadata(self, elt, names):
         vals = {'name': elt.attrib['name']}

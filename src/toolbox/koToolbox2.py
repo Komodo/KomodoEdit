@@ -356,17 +356,13 @@ class Database(object):
         stmt = '''insert into common_details
                 (path_id, name, type) values (?, ?, ?)'''
         cu.execute(stmt, (id, name, item_type))
-        try:
-            if parent_path_id is None and item_type == "folder":
-                stmt = 'insert into hierarchy(path_id) values(?)'
-                cu.execute(stmt, (id,))
-            else:
-                stmt = 'insert into hierarchy(path_id, parent_path_id) values(?, ?)'
-                #log.debug("About to insert id:%r, parent_id:%r", id, parent_path_id)
-                cu.execute(stmt, (id, parent_path_id))
-        except:
-            pass # Stop here
-            raise
+        if parent_path_id is None and item_type == "folder":
+            stmt = 'insert into hierarchy(path_id) values(?)'
+            cu.execute(stmt, (id,))
+        else:
+            stmt = 'insert into hierarchy(path_id, parent_path_id) values(?, ?)'
+            #log.debug("About to insert id:%r, parent_id:%r", id, parent_path_id)
+            cu.execute(stmt, (id, parent_path_id))
         return id
 
     def addFolder(self, path, name, parent_path_id):
@@ -376,8 +372,12 @@ class Database(object):
             if exists(metadataPath):
                 fp = open(metadataPath, 'r')
                 data = json.load(fp, encoding="utf-8")
+                if 'name' in data:
+                    actual_name = data['name']
+                else:
+                    actual_name = name
                 fp.close()
-                self._addCompoundItem(path, name, data, parent_path_id, cu)
+                self._addCompoundItem(path, actual_name, data, parent_path_id, cu)
                 return
             id = self._addCommonDetails(path, name, 'folder', parent_path_id, cu)
 
@@ -412,6 +412,8 @@ class Database(object):
         elif node_type == 'toolbar':
             stmt = 'insert into toolbar(path_id, priority) values(?, ?)'
             cu.execute(stmt, (id, data.get('priority', 100)))
+        elif node_type == 'folder':
+            pass
         else:
             log.error("Got an unexpected node type of %s", node_type)
 
@@ -1021,8 +1023,6 @@ class ToolboxLoader(object):
                 position = 0
                 self.db.insertMetadataTimestamp(parent_id, metadataPath)
                 for child_name in children:
-                    if 'ci2' in child_name:
-                        print "Stop here"
                     child_path = join(dirname, self._slugify(child_name) + TOOL_EXTENSION)
                     child_id = self.db.get_id_from_path(child_path)
                     if child_id is None:
@@ -1110,11 +1110,13 @@ def main(argv):
         toolboxLoader.markAllTopLevelItemsUnloaded()
         import time
         t1 = time.time()
-        toolboxLoader.loadToolboxDirectory(r"c:\Users\ericp\trash\stdToolbox")
+        toolboxLoader.loadToolboxDirectory("standard directory",
+                                           r"c:\Users\ericp\trash\stdToolbox")
         t2 = time.time()
         log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
         t1 = time.time()
-        toolboxLoader.loadToolboxDirectory(r"c:\Users\ericp\trash\sharedToolbox")
+        toolboxLoader.loadToolboxDirectory("shared directory",
+                                           r"c:\Users\ericp\trash\sharedToolbox")
         t2 = time.time()
         log.debug("Time to load shared-toolbox: %g msec", (t2 - t1) * 1000.0)
         toolboxLoader.deleteUnloadedTopLevelItems()
