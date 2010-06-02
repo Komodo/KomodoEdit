@@ -464,13 +464,19 @@ this.addLiveFolder = function peFolder_addLiveFolder(dirname, /*koIPart*/ parent
 
 }).apply(ko.projects);
 
+// setTimeout in case projectManager.p.js hasn't been loaded yet.
+setTimeout(function() {
 // backwards compat api
-var peFolder_getDefaultDirectory = ko.projects.getDefaultDirectory;
-var peFolder_add = ko.projects.addNewPart;
-var peFolder_ensureFolderAdd = ko.projects.ensureAddMenu;
-var peFolder_addNewFileFromTemplate = ko.projects.addNewFileFromTemplate;
-var peFolder_addFileWithURL  = ko.projects.addFileWithURL;
-var peFolder_addFile = ko.projects.addFile;
-var peFolder_addRemoteFile = ko.projects.addRemoteFile;
-var peFolder_addFolder = ko.projects.addFolder;
-var peFolder_addLiveFolder = ko.projects.addLiveFolder;
+["getDefaultDirectory",
+"addNewFileFromTemplate",
+"addFileWithURL",
+"addFile",
+"addRemoteFile",
+"addFolder",
+"addLiveFolder"].map(function(name) {
+    ko.projects.addDeprecatedGetter("peFolder_" + name, name);
+});
+
+ko.projects.addDeprecatedGetter("peFolder_add", "addNewPart");
+ko.projects.addDeprecatedGetter("peFolder_ensureFolderAdd", "ensureAddMenu");
+    }, 1000);

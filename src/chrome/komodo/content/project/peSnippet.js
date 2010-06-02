@@ -565,3 +565,11 @@ function snippetMakeDisplayName(text) {
 }
 
 }).apply(ko.projects);
+
+// setTimeout in case projectManager.p.js hasn't been loaded yet.
+setTimeout(function() {
+ko.projects.addDeprecatedGetter("peSnippet_addSnippet", "addSnippet");
+ko.projects.addDeprecatedGetter("AddSnippetFromText", "addSnippetFromText");
+ko.projects.addDeprecatedGetter("Snippet_insert", "snippetInsert");
+ko.projects.addDeprecatedGetter("snippet_editProperties", "snippetProperties");
+    }, 1000);

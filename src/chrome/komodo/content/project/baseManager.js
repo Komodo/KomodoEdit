@@ -597,7 +597,12 @@ this.sortByMenuHandler = function project_sortByMenuHandler(menuitem, sortDir) {
 
 }).apply(ko.projects);
 
-var findItemsByURL = ko.projects.findItemsByURL;
-var removeItemsByURL = ko.projects.removeItemsByURL;
-var findPartsByURL = ko.projects.findPartsByURL;
-var invalidateItem = ko.projects.invalidateItem;
+// setTimeout in case projectManager.p.js hasn't been loaded yet.
+setTimeout(function() {
+["findItemsByURL",
+ "removeItemsByURL",
+ "findPartsByURL",
+ "invalidateItem"].map(function(name) {
+    ko.projects.addDeprecatedGetter(name);
+});
+    }, 1000);

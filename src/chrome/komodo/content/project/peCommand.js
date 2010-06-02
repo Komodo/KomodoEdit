@@ -197,6 +197,9 @@ this.runCommand = function Run_CommandPart(cmdPart) {
 
 }).apply(ko.projects);
 
-var peCommand_addCommand = ko.projects.addCommand;
-var command_editProperties = ko.projects.commandProperties;
-var Run_CommandPart = ko.projects.runCommand;
+// setTimeout in case projectManager.p.js hasn't been loaded yet.
+setTimeout(function() {
+ko.projects.addDeprecatedGetter("peCommand_addCommand", "addCommand");
+ko.projects.addDeprecatedGetter("command_editProperties", "commandProperties");
+ko.projects.addDeprecatedGetter("Run_CommandPart", "runCommand");
+    },1);

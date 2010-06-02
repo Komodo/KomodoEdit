@@ -730,13 +730,10 @@ this.exportPackageItems = function Toolbox_ExportPackageItems(items) {
 
 }).apply(ko.projects);
 
-// Backwards Compatibility API
-var Toolbox_ExportItems = ko.projects.exportItems;
-var Toolbox_ExportPackageItems = ko.projects.exportPackageItems;
-var Toolbox_ImportPackage = ko.toolboxes.importPackage;
-__defineGetter__("toolboxMgr",
-function()
-{
-    ko.projects.manager.log.error("DEPRECATED: toolboxMgr, use ko.toolboxes.user\n");
-    return ko.toolboxes.user;
-});
+// setTimeout in case projectManager.p.js hasn't been loaded yet.
+setTimeout(function() {
+ko.projects.addDeprecatedGetter("Toolbox_ExportItems", "exportItems");
+ko.projects.addDeprecatedGetter("Toolbox_ExportPackageItems", "exportPackageItems");
+ko.projects.addDeprecatedGetter("Toolbox_ImportPackage", "importPackage");
+    }, 1000);
+// Dropped: toolboxMgr

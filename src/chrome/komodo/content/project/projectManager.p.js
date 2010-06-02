@@ -1133,20 +1133,27 @@ this.handle_parts_reload = function() {
     }
 };
 
+// Backwards Compatibility API
+var _deprecated_getters_noted = {};
+this.addDeprecatedGetter = function(deprecatedName, ko_project_name) {
+    if (typeof(ko_project_name) == "undefined") {
+        ko_project_name = deprecatedName;
+    }
+    __defineGetter__(deprecatedName,
+         function() {
+            if (!(deprecatedName in _deprecated_getters_noted)) {
+                _deprecated_getters_noted[deprecatedName] = true;
+                ko.projects.manager.log.error("DEPRECATED: "
+                                              + deprecatedName
+                                              + ", use ko.projects."
+                                              + ko_project_name
+                                              + "\n");
+                         }
+                         return ko.projects[ko_project_name];
+        });
+}
+
 }).apply(ko.projects);
 
-// Backwards Compatibility API
-__defineGetter__("gProjectManager",
-function()
-{
-    ko.projects.manager.log.error("DEPRECATED: gProjectManager, use ko.projects.manager\n");
-    return ko.projects.manager;
-});
-
-__defineGetter__("gFocusedProjectView",
-function()
-{
-    ko.projects.manager.log.error("DEPRECATED: gFocusedProjectView, use ko.projects.active\n");
-    return ko.projects.active;
-});
-
+// dropped: gProjectManager // ko.projects.manager
+// dropped: gFocusedProjectView // ko.projects.active

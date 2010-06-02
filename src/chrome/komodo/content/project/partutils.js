@@ -441,9 +441,13 @@ this._importPackageViaHttp = function part__ImportPackageViaHttp(viewMgr, part, 
 
 }).apply(ko.projects);
 
-// backwards compat api
-var part_invokePart = ko.projects.invokePart;
-var part_invokePartById = ko.projects.invokePartById;
-var part_findPartById = ko.projects.findPartById;
-var part_ImportFromFS = ko.projects.importFromFileSystem;
-var part_ImportFromPackage = ko.projects.importFromPackage;
+// setTimeout in case projectManager.p.js hasn't been loaded yet.
+setTimeout(function() {
+["invokePart",
+ "invokePartById",
+ "findPartById"].map(function(name) {
+    ko.projects.addDeprecatedGetter("part_" + name, name);
+});
+ko.projects.addDeprecatedGetter("part_ImportFromFS", "importFromFileSystem");
+ko.projects.addDeprecatedGetter("part_ImportFromPackage", "importFromPackage");
+    }, 1000);

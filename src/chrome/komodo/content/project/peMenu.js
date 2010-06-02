@@ -608,39 +608,16 @@ this.menuProperties = function peMenu_editProperties(item) {
 
 }).apply(ko.projects);
 
-var deprecated_getters = {
-"peMenu_addMenu" : "addMenu",
-"peMenu_addMenuFromPart" : "addMenuFromPart",
-"peMenu_addToolbar" : "addToolbar",
-"peMenu_addToolbarFromPart" : "addToolbarFromPart",
-"peMenu_editProperties" : "menuProperties",
-"peMenu_partAcceptsMenuToolbar" : "partAcceptsMenuToolbar",
-"peMenu_removeToolbarForPart" : "removeToolbarForPart",
-"peMenu_toggleToolbarHiddenStateInPref" : "toggleToolbarHiddenStateInPref"
-};
-var _deprecated_getters_noted = {};
-for (var p in deprecated_getters) {
-    // Backwards Compatibility API
-    __defineGetter__(p,
-                     function() {
-                         if (!(p in _deprecated_getters_noted)) {
-                             _deprecated_getters_noted[p] = true;
-                             ko.projects.manager.log.error("DEPRECATED: "
-                                                           + p
-                                                           + ", use ko.projects."
-                                                           + deprecated_getters[p]
-                                                           + "\n");
-                         }
-                         return ko.projects[deprecated_getters[p]];
-                     });
-}
-/*
-var peMenu_addMenu = ko.projects.addMenu;
-var peMenu_addMenuFromPart = ko.projects.addMenuFromPart;
-var peMenu_addToolbar = ko.projects.addToolbar;
-var peMenu_addToolbarFromPart = ko.projects.addToolbarFromPart;
-var peMenu_editProperties = ko.projects.menuProperties;
-var peMenu_partAcceptsMenuToolbar = ko.projects.partAcceptsMenuToolbar;
-var peMenu_removeToolbarForPart = ko.projects.removeToolbarForPart;
-var peMenu_toggleToolbarHiddenStateInPref = ko.projects.toggleToolbarHiddenStateInPref;
-*/
+// setTimeout in case projectManager.p.js hasn't been loaded yet.
+setTimeout(function() {
+["addMenu",
+ "addMenuFromPart",
+ "addToolbar",
+ "addToolbarFromPart",
+ "partAcceptsMenuToolbar",
+ "removeToolbarForPart",
+ "toggleToolbarHiddenStateInPref"].map(function(name) {
+    ko.projects.addDeprecatedGetter("peMenu_" + name, name);
+});
+ko.projects.addDeprecatedGetter("peMenu_editProperties", "menuProperties");
+}, 1000);

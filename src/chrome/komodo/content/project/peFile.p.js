@@ -718,8 +718,22 @@ this.showDiffs = function peFile_ShowDiffs(fname1, fname2) {
 
 }).apply(ko.fileutils);
 
-// backwards compat
-var peFile_addDirectoryShortcut = ko.projects.addDirectoryShortcut;
-var peFile_Properties = ko.projects.fileProperties;
-var peFile_ShowDiffs = ko.fileutils.showDiffs;
-var OpenDirectoryShortcut = ko.projects.openDirectoryShortcut;
+// setTimeout in case projectManager.p.js hasn't been loaded yet.
+setTimeout(function() {
+ko.projects.addDeprecatedGetter("peFile_addDirectoryShortcut", "addDirectoryShortcut");
+ko.projects.addDeprecatedGetter("peFile_Properties", "fileProperties");
+ko.projects.addDeprecatedGetter("OpenDirectoryShortcut", "openDirectoryShortcut");
+    },1);
+// Do this one here.
+var _deprecated_getters_noted = {peFile_ShowDiffs:false};
+__defineGetter__('peFile_ShowDiffs',
+ function() {
+    if (!_deprecated_getters_noted.peFile_ShowDiffs) {
+        _deprecated_getters_noted.peFile_ShowDiffs = true;
+        ko.projects.manager.log.error("DEPRECATED: "
+                                      + 'peFile_ShowDiffs'
+                                      + ", use ko.fileutils.showDiffs"
+                                      + "\n");
+    }
+    return ko.fileutils.showDiffs;
+ });
