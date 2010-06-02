@@ -1132,14 +1132,6 @@ class KoToolbox2HTreeView(TreeView):
         t2 = time.time()
         log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
         koToolBox2Svc.registerStandardToolbox(toolbox_id)
-        if prefs.getBooleanPref("useSharedToolbox"):
-            sharedToolboxDir = os.path.join(koDirSvc.commonDataDir,
-                                            koToolbox2.DEFAULT_TARGET_DIRECTORY)
-            t1 = time.time()
-            toolbox_id = toolboxLoader.loadToolboxDirectory("Shared Toolbox", sharedToolboxDir)
-            t2 = time.time()
-            log.debug("Time to load shared-toolbox: %g msec", (t2 - t1) * 1000.0)
-            koToolBox2Svc.registerSharedToolbox(toolbox_id)
         # else unload shared items...
         toolboxLoader.deleteUnloadedTopLevelItems()
         #TODO: For now just get the top-level items
