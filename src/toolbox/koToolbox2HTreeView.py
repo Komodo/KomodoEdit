@@ -53,6 +53,8 @@ log = logging.getLogger("Toolbox2HTreeView")
 
 eol = None
 eol_re = re.compile(r'(?:\r?\n|\r)')
+_tbdbSvc = None  # module-global handle to the database service
+_view = None     # module-global handle to the tree-view (needs refactoring)
 
 """
 Manage a hierarchical view of the loaded tools
@@ -84,17 +86,17 @@ class _KoTool(object):
         s.update(self._attributes)
         return str(s)
         
-    def init(self, treeView):
+    def init(self):
         pass
 
-    def getCustomIconIfExists(self, tbdbSvc):
-        iconurl = tbdbSvc.getCustomIconIfExists(self.id)
+    def getCustomIconIfExists(self):
+        iconurl = _tbdbSvc.getCustomIconIfExists(self.id)
         if iconurl:
             self.set_iconurl(iconurl)
         return iconurl is not None
 
-    def updateKeyboardShortcuts(self, tbdbSvc):
-        res = tbdbSvc.getValuesFromTableByKey('common_tool_details', ['keyboard_shortcut'], 'path_id', self.id)
+    def updateKeyboardShortcuts(self):
+        res = _tbdbSvc.getValuesFromTableByKey('common_tool_details', ['keyboard_shortcut'], 'path_id', self.id)
         if res is not None:
             self.setStringAttribute('keyboard_shortcut', res[0])
 
@@ -127,17 +129,21 @@ class _KoTool(object):
         return self.value
 
     def get_path(self):
-        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
-        return tbdbSvc.getPath(self.id)
+        return _tbdbSvc.getPath(self.id)
 
     def set_path(self, val):
         raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
                               ("can't call setpath on %s %s (id %r)"
                                % (self.get_toolType(), self.typeName, self.id)))
+
+    def get_parent(self):
+        res = _tbdbSvc.getValuesFromTableByKey('hierarchy',
+                                               ['parent_path_id'],
+                                               'path_id', self.id)
+        if res is None or res[0] is None:
+            return None
+        return _view.getToolById(res[0])        
                                   
-                                  
-    
     def hasAttribute(self, name):
         # Keep names out of attributes
         if name == 'name':
@@ -146,9 +152,7 @@ class _KoTool(object):
 
     def getAttribute(self, name):
         if not self.hasAttribute(name):
-            tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                                   getService(components.interfaces.koIToolboxDatabaseService))
-            self.updateSelf(tbdbSvc)
+            self.updateSelf()
         return self._attributes[name]
 
     def setAttribute(self, name, value):
@@ -192,9 +196,9 @@ class _KoTool(object):
                   .createInstance(components.interfaces.koIPreferenceSet)
         return prefset
 
-    def saveToolToDisk(self, tbdbSvc):
+    def saveToolToDisk(self):
         if 'path' not in self._nondb_attributes:
-            self._nondb_attributes['path'] = tbdbSvc.getPath(self.id)
+            self._nondb_attributes['path'] = _tbdbSvc.getPath(self.id)
         path = self._nondb_attributes['path']
         fp = open(path, 'r')
         data = json.load(fp, encoding="utf-8")
@@ -218,9 +222,9 @@ class _KoTool(object):
         data = json.dump(data, fp, encoding="utf-8", indent=2)
         fp.close()
         
-    def saveContentToDisk(self, tbdbSvc):
+    def saveContentToDisk(self):
         if 'path' not in self._nondb_attributes:
-            self._nondb_attributes['path'] = tbdbSvc.getPath(self.id)
+            self._nondb_attributes['path'] = _tbdbSvc.getPath(self.id)
         path = self._nondb_attributes['path']
         fp = open(path, 'r')
         data = json.load(fp, encoding="utf-8")
@@ -246,10 +250,15 @@ class _KoTool(object):
                 del self._attributes[name]
 
     def delete(self):
-        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
-        return tbdbSvc.deleteItem(self.id)
-        
+        path = self.get_path()
+        _tbdbSvc.deleteItem(self.id)
+        # On Windows this moves the full folder to the recycle bin
+        # as an atomic unit, so the user can get it back, but can't
+        # examine its contents.  Better than flattening a tree out
+        # and putting each item in the bin's top-level.
+        sysUtilsSvc = components.classes["@activestate.com/koSysUtils;1"].\
+                      getService(components.interfaces.koISysUtils);
+        sysUtilsSvc.MoveToTrash(path)
 
     def save(self):
         raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
@@ -299,6 +308,23 @@ class _KoTool(object):
     def get_name(self):
         return self.name
 
+    def added(self):
+        # Are there any custom menus or toolbars that contain this item?
+        id = self.id
+        while True:
+            parentRes = _tbdbSvc.getParentNode(id)
+            if parentRes is None:
+                break
+            id, name, nodeType = parentRes
+            if nodeType in ('menu', 'toolbar'):
+                _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                               .getService(components.interfaces.nsIObserverService)
+                try:
+                    tool = _view.getToolById(id)
+                    _observerSvc.notifyObservers(tool, nodeType + '_changed', '')
+                except Exception:
+                    pass
+                break
    
 class _KoContainer(_KoTool):
     isContainer = True
@@ -307,39 +333,107 @@ class _KoContainer(_KoTool):
         self.isOpen = False
         _KoTool.__init__(self, *args)
         
-    def init(self, treeView):
-        self.childNodes = treeView.toolbox_db.getChildNodes(self.id)
+    def init(self):
+        self.childNodes = _tbdbSvc.getChildNodes(self.id)
         self.initialized = True
 
     def saveNewToolToDisk(self, path):
         raise Exception("Not implemented yet")
 
-    def updateSelf(self, toolbox_db):
-        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
-        res = tbdbSvc.getValuesFromTableByKey('common_details', ['name'], 'path_id', self.id)
+    def updateSelf(self):
+        res = _tbdbSvc.getValuesFromTableByKey('common_details', ['name'], 'path_id', self.id)
         if res:
             self.name = res[0]
         else:
             self.name = "<Unknown item>"
 
 class _KoFolder(_KoContainer):
+    _com_interfaces_ = [components.interfaces.koIContainerBaseTool]
     typeName = 'folder'
     prettytype = 'Folder'
     _iconurl = 'chrome://komodo/skin/images/folder-closed-pink.png'
 
-    def saveNewToolToDisk(self, path):
+    def trailblazeForPath(self, path):
         os.mkdir(path)
 
-class _KoMenu(_KoContainer):
+    def getChildren(self):
+        return [_view._getOrCreateTool(node[2], node[1], node[0]) for node in self.childNodes]
+    
+    def saveNewToolToDisk(self, path):
+        # Folder has already been created.
+        pass
+
+    def save(self):
+        # What about renaming a folder?
+        pass
+
+class _KoComplexContainer(_KoFolder):
+
+    def __init__(self, *args):
+        self.children = []   # Provides order of child-nodes
+        #XXX: For menus, use .ko-metadata in folders to provide
+        # order of items in nested menus.
+        _KoFolder.__init__(self, *args)
+
+    def trailblazeForPath(self, path):
+        # Throw an error message if we can't create the file,
+        # before we add an entry to the database.
+        os.mkdir(path)
+        path2 = os.path.join(path, ".ko-metadata")
+        fp = open(path2, 'w')
+        fp.close()
+
+    def saveNewToolToDisk(self, path):
+        path2 = os.path.join(path, ".ko-metadata")
+        data = {}
+        data['name'] = self.name
+        data['type'] = self.typeName
+        for name in self._attributes:
+            data[name] = self._attributes[name]
+        fp = open(path2, 'w')
+        data = json.dump(data, fp, encoding="utf-8", indent=2)
+        fp.close()
+
+    def delete(self):
+        notificationName = self.typeName + "_remove"
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                       .getService(components.interfaces.nsIObserverService)
+        try:
+            _observerSvc.notifyObservers(self, notificationName, notificationName)
+        except Exception:
+            pass
+        _KoTool.delete(self)
+
+class _KoMenu(_KoComplexContainer):
     typeName = 'menu'
     prettytype = 'Custom Menu'
     _iconurl = 'chrome://komodo/skin/images/menu_icon.png'
+    
+    def __init__(self, *args):
+        _KoComplexContainer.__init__(self, *args)
+        self._attributes['accesskey'] = ''
+        self._attributes['priority'] = 100
 
-class _KoToolbar(_KoContainer):
+    def save(self):
+        self.save_handle_attributes()
+        # What about renaming a folder?
+        #self.saveToolToDisk()
+        _tbdbSvc.saveMenuInfo(self.id, self.name, self._attributes)
+
+class _KoToolbar(_KoComplexContainer):
     typeName = 'toolbar'
     prettytype = 'Custom Toolbar'
     _iconurl = 'chrome://komodo/skin/images/toolbar_icon.png'
+
+    def __init__(self, *args):
+        _KoComplexContainer.__init__(self, *args)
+        self._attributes['priority'] = 100
+
+    def save(self):
+        self.save_handle_attributes()
+        # What about renaming a folder?
+        #self.saveToolToDisk()
+        _tbdbSvc.saveToolbarInfo(self.id, self.name, self._attributes)
 
 class _KoCommandTool(_KoTool):
     typeName = 'command'
@@ -348,16 +442,14 @@ class _KoCommandTool(_KoTool):
     keybindable = 1        
 
     def save(self):
-        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
         # Write the changed data to the file system
         self.save_handle_attributes()
-        self.saveToolToDisk(tbdbSvc)
-        tbdbSvc.saveCommandInfo(self.id, self.name, self.value, self._attributes)
-    def updateSelf(self, toolbox_db):
+        self.saveToolToDisk()
+        _tbdbSvc.saveCommandInfo(self.id, self.name, self.value, self._attributes)
+    def updateSelf(self):
         if self.initialized:
             return
-        info = toolbox_db.getCommandInfo(self.id)
+        info = _tbdbSvc.getCommandInfo(self.id)
         self._finishUpdatingSelf(info)
 
 class _KoURL_LikeTool(_KoTool):
@@ -368,16 +460,14 @@ class _KoURL_LikeTool(_KoTool):
             _KoTool.setStringAttribute(self, 'url', value)
             
     def save(self):
-        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
         self.save_handle_attributes()
         # Write the changed data to the file system
-        self.saveToolToDisk(tbdbSvc)
-        tbdbSvc.saveSimpleToolInfo(self.id, self.name, self.value, self._attributes)
-    def updateSelf(self, toolbox_db):
+        self.saveToolToDisk()
+        _tbdbSvc.saveSimpleToolInfo(self.id, self.name, self.value, self._attributes)
+    def updateSelf(self):
         if self.initialized:
             return
-        info = toolbox_db.getSimpleToolInfo(self.id)
+        info = _tbdbSvc.getSimpleToolInfo(self.id)
         self._finishUpdatingSelf(info)
 
 class _KoDirectoryShortcutTool(_KoURL_LikeTool):
@@ -407,10 +497,10 @@ class _KoMacroTool(_KoTool):
             pass
         _KoTool.delete(self)
         
-    def updateSelf(self, toolbox_db):
+    def updateSelf(self):
         if self.initialized:
             return
-        info = toolbox_db.getMacroInfo(self.id)
+        info = _tbdbSvc.getMacroInfo(self.id)
         #log.debug("macro info: %s", info)
         self._finishUpdatingSelf(info)
 
@@ -422,19 +512,15 @@ class _KoMacroTool(_KoTool):
         return "macro2://%s/%s%s" % (self.id, self.name, ext)
         
     def save(self):
-        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
         # Write the changed data to the file system
-        self.saveContentToDisk(tbdbSvc)
-        tbdbSvc.saveContent(self.id, self.value)
-        tbdbSvc.saveMacroInfo(self.id, self.name, self.value, self._attributes)
+        self.saveContentToDisk()
+        _tbdbSvc.saveContent(self.id, self.value)
+        _tbdbSvc.saveMacroInfo(self.id, self.name, self.value, self._attributes)
 
     def saveProperties(self):
-        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
         # Write the changed data to the file system
-        self.saveToolToDisk(tbdbSvc)
-        tbdbSvc.saveMacroInfo(self.id, self.name, self.value, self._attributes)
+        self.saveToolToDisk()
+        _tbdbSvc.saveMacroInfo(self.id, self.name, self.value, self._attributes)
 
     def _asyncMacroCheck(self, async):
         if async:
@@ -468,17 +554,15 @@ class _KoSnippetTool(_KoTool):
         self.flavors.insert(0, 'application/x-komodo-snippet')
 
     def save(self):
-        tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
         # Write the changed data to the file system
         self.save_handle_attributes()
-        self.saveToolToDisk(tbdbSvc)
-        tbdbSvc.saveSnippetInfo(self.id, self.name, self.value, self._attributes)
+        self.saveToolToDisk()
+        _tbdbSvc.saveSnippetInfo(self.id, self.name, self.value, self._attributes)
 
-    def updateSelf(self, toolbox_db):
+    def updateSelf(self):
         if self.initialized:
             return
-        info = toolbox_db.getSnippetInfo(self.id)
+        info = _tbdbSvc.getSnippetInfo(self.id)
         self._finishUpdatingSelf(info)
 
 class _KoTemplateTool(_KoURL_LikeTool):
@@ -516,8 +600,8 @@ class KoToolbox2HTreeView(TreeView):
         if tool is not None:
             return tool
         tool = createPartFromType(node_type, name, path_id)
-        tool.init(self)
-        tool.getCustomIconIfExists(self.toolbox_db)
+        tool.init()
+        tool.getCustomIconIfExists()
         self._tools[path_id] = tool
         return tool
 
@@ -607,9 +691,9 @@ class KoToolbox2HTreeView(TreeView):
         return targetIndex == srcIndex
 
     def createToolFromType(self, tool_type):
-        temp_id = -1
-        tool = createPartFromType(tool_type, None, temp_id)
-        self._tools[temp_id] = tool
+        id = self.toolbox_db.getNextID()
+        tool = createPartFromType(tool_type, None, id)
+        self._tools[id] = tool
         return tool
 
     #TODO: Make this common with expand_toolbox.py
@@ -657,7 +741,7 @@ class KoToolbox2HTreeView(TreeView):
             # error message.  Which is why we need to try creating
             # the folder first, before adding its entry.
             path = os.path.join(parent_path, item_name)
-            item.saveNewToolToDisk(path)
+            item.trailblazeForPath(path)
         else:
             path = self._prepareUniqueFileSystemName(parent_path, item_name, addExt=True)
         try:
@@ -690,8 +774,7 @@ class KoToolbox2HTreeView(TreeView):
             except KeyError:
                 log.error("No self._tools[%r]", old_id)
             self._tools[new_id] = item
-            if not itemIsContainer:
-                item.saveNewToolToDisk(path)
+            item.saveNewToolToDisk(path)
         except:
             log.exception("addNewItemToParent: failed")
             raise
@@ -720,6 +803,7 @@ class KoToolbox2HTreeView(TreeView):
                 self.selection.currentIndex = index
                 self.selection.select(index)
                 self._tree.ensureRowIsVisible(index)
+        item.added()
 
     def deleteToolAt(self, index):
         self._tree.beginUpdateBatch()
@@ -953,8 +1037,8 @@ class KoToolbox2HTreeView(TreeView):
             tool = self.getToolById(id)
             if tool:
                 # Trigger macros need to be fully initialized,
-                # since they might be 
-                tool.updateSelf(self.toolbox_db)
+                # since they can be invoked
+                tool.updateSelf()
                 tools.append(tool)
         return tools
 
@@ -965,11 +1049,19 @@ class KoToolbox2HTreeView(TreeView):
         tool = self.getToolById(id)
         if tool:
             # Snippets need to be fully initialized
-            tool.updateSelf(self.toolbox_db)
+            tool.updateSelf()
         return tool
     
     def getToolsWithKeyboardShortcuts(self):
         ids = self.toolbox_db.getIDsForToolsWithKeyboardShortcuts()
+        return self._getFullyRealizedToolById(ids)
+    
+    def getCustomMenus(self):
+        ids = self.toolbox_db.getIDsByType('menu')
+        return self._getFullyRealizedToolById(ids)
+    
+    def getCustomToolbars(self):
+        ids = self.toolbox_db.getIDsByType('toolbar')
         return self._getFullyRealizedToolById(ids)
     
     def getTriggerMacros(self):
@@ -1051,9 +1143,12 @@ class KoToolbox2HTreeView(TreeView):
         # else unload shared items...
         toolboxLoader.deleteUnloadedTopLevelItems()
         #TODO: For now just get the top-level items
-        # Later keep track of how 
-        self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+        # Later keep track of how
+        global _tbdbSvc, _view
+        _tbdbSvc = self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
                        getService(components.interfaces.koIToolboxDatabaseService))
+        _view = self
+
         self.toolbox_db.initialize(db_path)
         self.toolbox_db.toolManager = self
         top_level_nodes = self.toolbox_db.getTopLevelNodes()
@@ -1107,7 +1202,7 @@ class KoToolbox2HTreeView(TreeView):
             log.error("Failed getTool(index:%d)", index)
             return None
         if not tool.initialized:
-            tool.updateSelf(self.toolbox_db)
+            tool.updateSelf()
         return tool
 
     def get_toolType(self, index):

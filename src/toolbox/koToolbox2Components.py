@@ -215,16 +215,35 @@ class KoToolBox2Service:
         self._data[self.get_window()].runningMacro = macro
     runningMacro = property(get_runningMacro, set_runningMacro)
     
-    def _checkMigrate(self, dataDir, label):
-        toolboxPath = join(dataDir, "toolbox.kpf")
-        toolboxDir = join(dataDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+    def _checkMigrate(self, dataDir, label, targetDirectory, kpfName="toolbox.kpf"):
+        toolboxPath = join(dataDir, kpfName)
+        if targetDirectory == koToolbox2.PROJECT_TARGET_DIRECTORY:
+            # If the project doesn't have any tools, don't extract them
+            try:
+                f = open(toolboxPath, 'r')
+                contents = f.read()
+                f.close()
+                for tag in ['macro', 'snippet', 'command', 'DirectoryShortcut',
+                            'template', 'URL', 'menu', 'toolbar']:
+                    if ("<" + tag + " ") in contents:
+                        break
+                else:
+                    #log.debug("No tools to convert in %s", contents)
+                    return
+            except:
+                log.exception("Can't check file %s to see if it contains tools",
+                              toolboxPath)
+        toolboxDir = join(dataDir, targetDirectory)
         migrateStampPath = join(toolboxDir, ".migrated")
         if (exists(toolboxPath)
             and (not exists(migrateStampPath)
                  or os.stat(toolboxPath).st_mtime > os.stat(migrateStampPath).st_mtime)):
             curDir = os.getcwd()
             try:
-                koMigrateV5Toolboxes.expand_toolbox(toolboxPath, dataDir, force=1)
+                koMigrateV5Toolboxes.expand_toolbox(toolboxPath,
+                                                    dataDir,
+                                                  toolboxDirName=targetDirectory,
+                                                    force=1)
             finally:
                 os.chdir(curDir)
             f = open(migrateStampPath, "w")
@@ -236,7 +255,19 @@ class KoToolBox2Service:
 
     def migrateVersion5Toolboxes(self):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
-        self._checkMigrate(koDirSvc.userDataDir, "user toolbox")
+        self._checkMigrate(koDirSvc.userDataDir, "user toolbox", koToolbox2.DEFAULT_TARGET_DIRECTORY, kpfName="toolbox.kpf")
+        # We want to migrate the shared toolbox regardless of the current status on the
+        # useSharedToolbox pref.  Displaying it looks at the pref.
+        self._checkMigrate(koDirSvc.commonDataDir, "shared toolbox", koToolbox2.DEFAULT_TARGET_DIRECTORY, kpfName="toolbox.kpf")
+
+    #Non-xpcom
+    def extractToolboxFromKPF_File(self, kpfPath, projectName):
+        kpfDir, kpfName = os.path.split(kpfPath)
+        kpfPart, _ = os.path.splitext(kpfName)
+        self._checkMigrate(kpfDir, projectName,
+                           koToolbox2.PROJECT_TARGET_DIRECTORY,
+                           kpfName=kpfName)
+        
 
     def observe(self, subject, topic, data):
         if not subject:
