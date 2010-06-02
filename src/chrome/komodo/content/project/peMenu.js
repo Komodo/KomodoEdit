@@ -44,6 +44,10 @@ if (typeof(ko.projects)=='undefined') {
     ko.projects = {};
 }
 
+function _IDFromPart(part) {
+    return "ko_custom_" + part.type + "_" + part.id;
+};
+
 (function() {
 
 function peMenu() {
@@ -84,7 +88,7 @@ peMenu.prototype.observe = function(part, topic, dummy)
 {
     try {
         //dump("peMenu observer "+part+", "+topic+", "+dummy+"\n");
-        var menu;
+        var menu, id;
         switch (topic) {
             case 'toolbar_remove':
                 ko.projects.removeToolbarForPart(part);
@@ -98,9 +102,10 @@ peMenu.prototype.observe = function(part, topic, dummy)
             case 'menu_remove':
                 try {
                     // First get rid of the old menu
-                    menu = document.getElementById(part.id);
+                    id = _IDFromPart(part);
+                    menu = document.getElementById(id);
                     if (!menu) {
-                        this.log.warn("observe menu_remove: can't find menu with id: " + part.id);
+                        this.log.warn("observe menu_remove: can't find menu with id: " + id);
                         break;
                     }
                     menu.parentNode.removeChild(menu);
@@ -110,7 +115,8 @@ peMenu.prototype.observe = function(part, topic, dummy)
                 break;
             case 'part_changed':
                 try {
-                    var xulelt = document.getElementById(part.id);
+                    id = _IDFromPart(part);
+                    var xulelt = document.getElementById(id);
                     if (xulelt) {
                         xulelt.setAttribute('image', part.iconurl)
                         xulelt.setAttribute('label', part.name)
@@ -122,7 +128,8 @@ peMenu.prototype.observe = function(part, topic, dummy)
             case 'menu_changed':
                 try {
                     // First get rid of the old menu
-                    menu = document.getElementById(part.id);
+                    id = _IDFromPart(part);
+                    menu = document.getElementById(id);
                     if (!menu) {
                         break;
                     }
@@ -187,8 +194,9 @@ this.addMenuFromPart = function peMenu_addMenuFromPart(part) {
         var base_ordinal = 100;
 
         var name = part.name;
+        var id = _IDFromPart(part);
         var menubar = document.getElementById('menubar_main');
-        if (menubar.getElementsByAttribute('id', part.id).length >= 1) {
+        if (menubar.getElementsByAttribute('id', id).length >= 1) {
             // Multi-window filter.
             //dump("peMenu.js -- already have menu item "
             //     + part.name
@@ -201,7 +209,7 @@ this.addMenuFromPart = function peMenu_addMenuFromPart(part) {
         if (accesskey) {
             menu.setAttribute('accesskey', accesskey);
         }
-        menu.setAttribute('id', part.id);
+        menu.setAttribute('id', id);
         var menupopup = document.createElement('menupopup');
         menu.appendChild(menupopup);
         menu.ordinal = base_ordinal + part.getLongAttribute('priority');
@@ -216,20 +224,21 @@ this.addMenuFromPart = function peMenu_addMenuFromPart(part) {
 this.removeToolbarForPart = function peMenu_removeToolbarForPart(part) {
     try {
         // First get rid of the old menu
-        var toolbar = document.getElementById(part.id);
+        var id = _IDFromPart(part);
+        var toolbar = document.getElementById(id);
         if (!toolbar) {
-            log.error("Couldn't find toolbar with id: '" + part.id + "'");
+            log.error("Couldn't find toolbar with id: '" + id + "'");
             return;
         }
         toolbar.parentNode.removeChild(toolbar)
 
-        var menuitem = document.getElementById('context_custom_toolbar_'+part.id)
+        var menuitem = document.getElementById('context_custom_toolbar_'+id)
         menuitem.parentNode.removeChild(menuitem);
 
-        menuitem = document.getElementById('menu_custom_toolbar_'+part.id)
+        menuitem = document.getElementById('menu_custom_toolbar_'+id)
         menuitem.parentNode.removeChild(menuitem);
 
-        var broadcaster = document.getElementById('cmd_custom_toolbar_'+part.id)
+        var broadcaster = document.getElementById('cmd_custom_toolbar_'+id)
         broadcaster.parentNode.removeChild(broadcaster);
 
         var context = document.getElementById("context-toolbox-menu");
@@ -256,16 +265,17 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
 
         // minimal display ordinal an element will have
         var base_ordinal = 100;
-        var cmd_id = 'cmd_custom_toolbar_'+part.id;
-        var visible = ! ko.projects.isToolbarRememberedAsHidden(part.id);
+        var id = _IDFromPart(part);
+        var cmd_id = 'cmd_custom_toolbar_'+id;
+        var visible = ! ko.projects.isToolbarRememberedAsHidden(id);
 
         var toolbox = document.getElementById('main-toolboxrow');
-        if (toolbox.getElementsByAttribute('id', part.id).length >= 1) {
+        if (toolbox.getElementsByAttribute('id', id).length >= 1) {
             // dump("peMenu.js -- Already have toolbox " + part.name + "\n");
             return;
         }
         var toolbar = document.createElement('toolbaritem');
-        toolbar.setAttribute('id', part.id);
+        toolbar.setAttribute('id', id);
         toolbar.setAttribute('class', "chromeclass-toolbar");
         // We need the last custom toolbox to have a flex of one
         toolbar.setAttribute('buttonstyle', "pictures");
@@ -298,7 +308,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         } else {
             broadcaster.setAttribute('checked', 'false');
         }
-        broadcaster.setAttribute('oncommand', 'ko.uilayout.toggleToolbarVisibility("'+part.id+'"); ko.projects.toggleToolbarHiddenStateInPref("' + part.id + '")');
+        broadcaster.setAttribute('oncommand', 'ko.uilayout.toggleToolbarVisibility("'+id+'"); ko.projects.toggleToolbarHiddenStateInPref("' + id + '")');
         broadcasterset.appendChild(broadcaster);
 
 
@@ -308,7 +318,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         //          type="checkbox"
         //          observes="cmd_viewedittoolbar"
         //          key="key_viewToolbarEdit"/>
-        menuitem.setAttribute('id', 'context_custom_toolbar_'+part.id);
+        menuitem.setAttribute('id', 'context_custom_toolbar_'+id);
         menuitem.setAttribute('label', part.name);
         menuitem.setAttribute('type', 'checkbox');
         if (visible) {
@@ -317,7 +327,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
             menuitem.setAttribute('checked', 'false');
         }
         menuitem.setAttribute('observes', cmd_id);
-        //menuitem.setAttribute('oncommand', 'ko.uilayout.toggleToolbarVisibility("'+part.id+'");');
+        //menuitem.setAttribute('oncommand', 'ko.uilayout.toggleToolbarVisibility("'+id+'");');
         menuitem.ordinal = ordinal;
         context.appendChild(menuitem);
 
@@ -329,7 +339,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         //          type="checkbox"
         //          />
         menuitem = document.createElement('menuitem');
-        menuitem.setAttribute('id', 'menu_custom_toolbar_'+part.id);
+        menuitem.setAttribute('id', 'menu_custom_toolbar_'+id);
         menuitem.setAttribute('label', part.name);
         menuitem.setAttribute('type', 'checkbox');
         menuitem.setAttribute('persist', 'checkbox');
@@ -339,7 +349,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
             menuitem.setAttribute('checked', 'false');
         }
         menuitem.setAttribute('observes', cmd_id);
-        //menuitem.setAttribute('oncommand', 'ko.uilayout.toggleToolbarVisibility("'+part.id+'");');
+        //menuitem.setAttribute('oncommand', 'ko.uilayout.toggleToolbarVisibility("'+id+'");');
         menuitem.ordinal = ordinal;
         menu.appendChild(menuitem);
 
@@ -363,7 +373,7 @@ this.onToolboxLoaded = function() {
 
 this.updateToolbarForPart = function(part) {
     // First get rid of the old menu
-    var toolbar = document.getElementById(part.id);
+    var toolbar = document.getElementById(_IDFromPart(part));
     if (!toolbar) {
         return;
     }
@@ -438,7 +448,7 @@ this.addToolbar = function peMenu_addToolbar(/*koITool*/ parent, /*koITool*/ too
 function _createToolbaritemFromPart(toolbar, part)
 {
   try {
-    var button, name, id;
+    var button, name;
     button = document.createElement('toolbarbutton');
     if (!ko.uilayout.isButtonTextShowing()) {
         button.setAttribute('buttonstyle', 'pictures');
@@ -469,14 +479,16 @@ function _createToolbaritemFromPart(toolbar, part)
             }
             break;
         default:
-            button.setAttribute('oncommand', "ko.projects.invokePartById('" + part.id + "');");
+            var idPart = 
+            button.setAttribute('oncommand',
+                                "ko.projects.invokePartById('" + part.id + "');");
             break;
         }
     button.setAttribute('image', part.iconurl);
     button.setAttribute('tooltiptext', name);
     button.setAttribute('tooltip', 'aTooltip');
     button.setAttribute('label', name);
-    button.setAttribute('id', part.id);
+    button.setAttribute('id', _IDFromPart(part));
     return button;
   } catch (e) {
     log.exception(e);
@@ -511,7 +523,7 @@ function _createMenuItemFromPart(menupopup, part)
             menuitem.setAttribute('oncommand', "ko.projects.invokePartById('" + part.id + "');");
             break;
         }
-    menuitem.setAttribute('id', part.id);
+    menuitem.setAttribute('id', _IDFromPart(part));
     menuitem.setAttribute('image', part.iconurl);
     menuitem.setAttribute('label', name);
     if (part.hasAttribute('keyboard_shortcut')) {
