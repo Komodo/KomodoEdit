@@ -1695,12 +1695,17 @@ class KoPlaceTreeView(TreeView):
 
     def _finishRefreshingView(self, index, nextIndex, doInvalidate, rowNode,
                               firstVisibleRow):
+        topModelNode = self.getNodeForURI(rowNode.getURI())
+        if topModelNode is None:
+            # We're probably shutting down now.
+            log.debug("_finishRefreshingView: can't get a node for %s",
+                      rowNode.getURI())
+            return
         before_len = len(self._rows)
         first_child_index = index + 1
         #qlog.debug("Delete rows %d:%d", first_child_index, nextIndex)
         del self._rows[first_child_index:nextIndex]
         before_len_2 = len(self._rows)
-        topModelNode = self.getNodeForURI(rowNode.getURI())
         self._refreshTreeOnOpen_buildTree(rowNode.level + 1,
                                           first_child_index,
                                           topModelNode)
