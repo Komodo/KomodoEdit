@@ -256,9 +256,6 @@ class KoToolBox2Service:
     def migrateVersion5Toolboxes(self):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         self._checkMigrate(koDirSvc.userDataDir, "user toolbox", koToolbox2.DEFAULT_TARGET_DIRECTORY, kpfName="toolbox.kpf")
-        # We want to migrate the shared toolbox regardless of the current status on the
-        # useSharedToolbox pref.  Displaying it looks at the pref.
-        self._checkMigrate(koDirSvc.commonDataDir, "shared toolbox", koToolbox2.DEFAULT_TARGET_DIRECTORY, kpfName="toolbox.kpf")
 
     #Non-xpcom
     def extractToolboxFromKPF_File(self, kpfPath, projectName):
