@@ -649,4 +649,7 @@ treechildren::-moz-tree-image(remotefile)
 .browser-safari-icon {
     list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_safari.png");
 }
+.browser-googlechrome-icon {
+    list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_chrome.png");
+}
 
