@@ -1773,6 +1773,7 @@
                   <File Id="file194" LongName="lang_django.py" Name="LANG_D_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_django.py" />
                   <File Id="file195" LongName="lang_mason.py" Name="LANG_M_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_mason.py" />
                   <File Id="file196" LongName="lang_templatetoolkit.py" Name="LANG_T_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_templatetoolkit.py" />
+                  <File Id="file1083" Name="tdparser.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\tdparser.py"/>
                 </Component>
                 <Directory Id="directory3" Name="database">
                   <Component DiskId="1" Guid="$(autowix.guid)" Id="component1">
