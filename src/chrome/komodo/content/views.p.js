@@ -377,10 +377,8 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
         // even though there is an error, continue opening the
         // file so the user gets *something*
         if (saveto) {
-            var fileSvc = Components.classes["@activestate.com/koFileService;1"].
-                          getService(Components.interfaces.koIFileService);
-            var koFile = fileSvc.getFileFromURI(saveto);
-            doc = _docSvc.createDocumentFromFile(koFile);
+            dump("XXX using: doc = _docSvc.createDocumentFromURI('"+saveto+"')\n");
+            doc = _docSvc.createDocumentFromURI(saveto);
         } else {
             var langSvc = Components.classes["@activestate.com/koLanguageRegistryService;1"].
                 getService(Components.interfaces.koILanguageRegistryService);

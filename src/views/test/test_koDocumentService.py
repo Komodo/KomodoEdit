@@ -72,21 +72,6 @@ class TestKoDocumentService(unittest.TestCase):
         docs = self.__docsvc.getAllDocuments()
         assert len(docs) == 0
 
-    #DEPRECATED
-    def test_createDocumentFromFile(self):
-        filename = os.__file__ # returns os.pyc
-        file = self.__filesvc.getFileFromURI(filename)
-        doc = self.__docsvc.createDocumentFromFile(file)
-        doc.addReference()
-        assert doc.file.exists
-        docs = self.__docsvc.getAllDocuments()
-        assert doc in docs
-        xdoc = self.__docsvc.findDocumentByURI(doc.file.URI)
-        assert doc == xdoc
-        doc.releaseReference()
-        docs = self.__docsvc.getAllDocuments()
-        assert len(docs) == 0
-
     def test_createUntitledDocument(self):
         doc = self.__docsvc.createUntitledDocument('Python')
         doc.addReference()

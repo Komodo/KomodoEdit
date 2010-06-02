@@ -183,25 +183,6 @@ class KoDocumentService:
             self._thread.join(3)
             log.debug("thread has terminated")
 
-    #DEPRECATED
-    def createDocumentFromFile(self, file):
-        doc = self.findDocumentByURI(file.URI)
-        if doc:
-            log.info("found document with existing URI: %s", file.URI)
-            return doc
-        
-        log.info("creating document with URI: %s", file.URI)
-        doc = components.classes["@activestate.com/koDocumentBase;1"]\
-            .createInstance(components.interfaces.koIDocument)
-        doc.initWithFile(file,0)
-
-        self._cDoc.acquire()
-        try:
-            self._documents[doc.displayPath] = WeakReference(doc)
-        finally:
-            self._cDoc.release()
-        return doc
-
     #koIDocument createDocumentFromURI(in wstring uri);
     def createDocumentFromURI(self, uri):
         doc = self.findDocumentByURI(uri)

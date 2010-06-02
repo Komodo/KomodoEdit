@@ -214,7 +214,6 @@ interface koIDocumentService: nsISupports
     
     // These create methods are currently only used for creating a new
     // file from a template.
-    koIDocument createDocumentFromFile(in koIFileEx file); //DEPRECATED
     koIDocument createDocumentFromTemplateURI(in wstring uri,
                                            in wstring name,
                                            in wstring ext);
