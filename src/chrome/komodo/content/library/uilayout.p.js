@@ -209,6 +209,13 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
     var browserTypes = browserTypesObj.value;
     var mi;
 
+    mi = document.createElementNS(XUL_NS, "menuitem");
+    mi.setAttribute("label", _bundle.GetStringFromName("internalBrowser.menu.label"));
+    mi.setAttribute("tooltiptext", _bundle.GetStringFromName("internalBrowser.menu.tooltiptext"));
+    mi.setAttribute("oncommand",
+                    "ko.commands.doCommand('cmd_browserPreviewInternal'); event.stopPropagation();");
+    popup.appendChild(mi);
+
 // #if PLATFORM == "win"
     mi = document.createElementNS(XUL_NS, "menuitem");
     mi.setAttribute("label", _bundle.GetStringFromName("configuredBrowser"));
