@@ -141,6 +141,7 @@ this.manager = function keybindingManager() {
     observerSvc.addObserver(this, "kb-unload",false);
     observerSvc.addObserver(this, "kb-load",false);
     observerSvc.addObserver(this, "toolbox-loaded", false);
+    observerSvc.addObserver(this, "toolbox-unloaded", false);
 
     var me = this;
     this.removeListener = function() { me.finalize(); }
@@ -171,6 +172,7 @@ this.manager.prototype.finalize = function(part, topic, partId) {
     observerSvc.removeObserver(this, "kb-unload");
     observerSvc.removeObserver(this, "kb-load");
     observerSvc.removeObserver(this, "toolbox-loaded");
+    observerSvc.removeObserver(this, "toolbox-unloaded");
  }
 
 this.manager.prototype.observe = function(part, topic, partId) {
@@ -181,9 +183,11 @@ this.manager.prototype.observe = function(part, topic, partId) {
         if (part.hasAttribute('keyboard_shortcut')) {
             this.manageKeyboardShortcut(part, topic, partId);
         }
-    } else if (topic == 'toolbox-loaded') {
+    } else if (topic == 'toolbox-loaded' || topic == 'toolbox-unloaded') {
+        var kb_notification = topic == 'toolbox-loaded' ? 'kb-load' : 'kb-unload';
+        var toolboxDir = partId; // actual value;
         try {
-        var parts = ko.toolbox2.getToolsWithKeyboardShortcuts();
+        var parts = ko.toolbox2.getToolsWithKeyboardShortcuts(toolboxDir);
         var i;
         for (part, i = 0; part = parts[i]; i++) {
             if (!part.hasAttribute('keyboard_shortcut')) {
@@ -191,8 +195,8 @@ this.manager.prototype.observe = function(part, topic, partId) {
                      + part.id
                      + "\n");
                 continue;
-            }
-            this.manageKeyboardShortcut(part, 'kb-load', part.id);
+            }                 
+            this.manageKeyboardShortcut(part, kb_notification, part.id);
         }
         } catch(ex) {
             dump("getToolsWithKeyboardShortcuts => " + ex + "\n");
