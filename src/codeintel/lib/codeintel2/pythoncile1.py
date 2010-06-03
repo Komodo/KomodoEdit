@@ -1393,16 +1393,20 @@ def _clean_func_args(defn):
     py2 = []
     for arg in arglist:
         name, value, type = arg
-        if name.id == "*" or name.value[:2] == "**":
+        if name.id == "*":
             if not seen_kw:
                 name.value = "**kwargs"
+                py2.append(arg)
+                seen_kw = True
+                seen_args = True
+        elif name.value[:2] == "**":
+            if not seen_kw:
                 py2.append(arg)
                 seen_kw = True
                 seen_args = True
         elif name.value[0] == "*":
             if not seen_args:
                 seen_args = True
-                name.value = "*args"
                 py2.append(arg)
         else:
             if seen_args or seen_kw:
