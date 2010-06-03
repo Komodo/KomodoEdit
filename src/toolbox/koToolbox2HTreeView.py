@@ -707,24 +707,9 @@ class KoToolbox2HTreeView(TreeView):
         self._tools[id] = tool
         return tool
 
-    #TODO: Make this common with expand_toolbox.py
-    _MAX_FILENAME_LEN = 32
-    def _truncateAtWordBreak(self, name):
-        # urllib only handles ascii chars, so we do our own quoting with the
-        # other bits
-        if len(name) > self._MAX_FILENAME_LEN:
-            m1 = _re_capture_word_chars.match(name[self._MAX_FILENAME_LEN:])
-            if m1:
-                g1 = m1.group(1)
-                if len(g1) < 10:
-                    return name[:self._MAX_FILENAME_LEN] + g1
-            return name[:self._MAX_FILENAME_LEN]
-        else:
-            return name
-        
     def _prepareUniqueFileSystemName(self, dirName, baseName, addExt=True):
         # "slugify"
-        basePart = self._truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', baseName))
+        basePart = koToolbox2.truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', baseName))
         basePart = os.path.join(dirName, basePart)
         extPart = (addExt and koToolbox2.TOOL_EXTENSION) or ""
         candidate = basePart + extPart

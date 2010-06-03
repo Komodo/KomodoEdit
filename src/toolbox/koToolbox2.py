@@ -1112,6 +1112,23 @@ class ToolboxAccessor(object):
     def __getattr__(self, name):
         return getattr(self.db, name)
 
+#---- Misc. top-level routines
+_MAX_FILENAME_LEN = 32
+_re_capture_word_chars = re.compile(r'(\w+)')
+def truncateAtWordBreak(name):
+    # urllib only handles ascii chars, so we do our own quoting with the
+    # other bits
+    if len(name) > _MAX_FILENAME_LEN:
+        m1 = _re_capture_word_chars.match(name, _MAX_FILENAME_LEN)
+        if m1:
+            g1 = m1.group(1)
+            if len(g1) < 10:
+                return name[:_MAX_FILENAME_LEN] + g1
+        return name[:_MAX_FILENAME_LEN]
+    else:
+        return name
+        
+
 def main(argv):
     #dbFile = r"c:\Users\ericp\trash\menu-test.sqlite"
     #schemaFile = r"c:\Users\ericp\svn\apps\komodo\src\projects\koToolbox.sql"

@@ -155,8 +155,6 @@ class TreeBuilder(object):
         self.treeBuilder(newTree, root_id)
         return newTree
     
-_MAX_FILENAME_LEN = 32
-_re_capture_word_chars = re.compile(r'(\w+)')
 class TreeWalker():
     def __init__(self, obsoleteItems, force):
         self._force = force
@@ -174,23 +172,10 @@ class TreeWalker():
                 newChars.append('%%u%04x' % oc)  # %uxxxx -- unicode sequence
         return ''.join(newChars)
         
-    def _truncateAtWordBreak(self, name):
-        # urllib only handles ascii chars, so we do our own quoting with the
-        # other bits
-        if len(name) > _MAX_FILENAME_LEN:
-            m1 = _re_capture_word_chars.match(name[_MAX_FILENAME_LEN:])
-            if m1:
-                g1 = m1.group(1)
-                if len(g1) < 10:
-                    return name[:_MAX_FILENAME_LEN] + g1
-            return name[:_MAX_FILENAME_LEN]
-        else:
-            return name
-            
     def _prepareUniqueFileSystemName(self, node, addExt=True):
         name = node.elt.get('name')
         # "slugify"
-        basePart = self._truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', name))
+        basePart = koToolbox2.truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', name))
         extPart = (addExt and koToolbox2.TOOL_EXTENSION) or ""
         if nowrite or self._force or not os.path.exists(basePart + extPart):
             return basePart + extPart
