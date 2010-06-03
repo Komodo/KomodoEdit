@@ -39,6 +39,7 @@ from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObjec
 from xpcom.server import WrapObject, UnwrapObject
  
 import json, sys, os, re, types, string, threading
+from os.path import join
 from koTreeView import TreeView
 
 import eollib
@@ -386,12 +387,12 @@ class _KoComplexContainer(_KoFolder):
         elif not os.path.isdir(path):
             os.unlink(path)
             os.mkdir(path)
-        path2 = os.path.join(path, koToolbox2.UI_FOLDER_FILENAME)
+        path2 = join(path, koToolbox2.UI_FOLDER_FILENAME)
         fp = open(path2, 'w')
         fp.close()
 
     def saveNewToolToDisk(self, path):
-        path2 = os.path.join(path, koToolbox2.UI_FOLDER_FILENAME)
+        path2 = join(path, koToolbox2.UI_FOLDER_FILENAME)
         data = {}
         data['name'] = self.name
         data['type'] = self.typeName
@@ -710,7 +711,7 @@ class KoToolbox2HTreeView(TreeView):
     def _prepareUniqueFileSystemName(self, dirName, baseName, addExt=True):
         # "slugify"
         basePart = koToolbox2.truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', baseName))
-        basePart = os.path.join(dirName, basePart)
+        basePart = join(dirName, basePart)
         extPart = (addExt and koToolbox2.TOOL_EXTENSION) or ""
         candidate = basePart + extPart
         if not os.path.exists(candidate):
@@ -736,7 +737,7 @@ class KoToolbox2HTreeView(TreeView):
             # it contains bad characters, give the user the actual
             # error message.  Which is why we need to try creating
             # the folder first, before adding its entry.
-            path = os.path.join(parent_path, item_name)
+            path = join(parent_path, item_name)
             item.trailblazeForPath(path)
         else:
             path = self._prepareUniqueFileSystemName(parent_path, item_name, addExt=True)
@@ -932,7 +933,7 @@ class KoToolbox2HTreeView(TreeView):
         self.addNewItemToParent(targetTool, newItem, showNewItem=False)
 
         # Now we're copying the source's children into the newly created target child
-        newTargetPath = os.path.join(targetPath, os.path.basename(srcPath))
+        newTargetPath = join(targetPath, os.path.basename(srcPath))
         newTargetId = self.toolbox_db.get_id_from_path(newTargetPath)
         if newTargetId is None:
             raise Exception("new target %s isn't in the database" % (
@@ -940,7 +941,7 @@ class KoToolbox2HTreeView(TreeView):
             ))
         newTargetTool = self.getToolById(newTargetId)
         for childFile in os.listdir(srcPath):
-            newSrcPath = os.path.join(srcPath, childFile)
+            newSrcPath = join(srcPath, childFile)
             if os.path.isdir(newSrcPath):
                 self._pasteContainerIntoTarget(newTargetId, newTargetPath, newTargetTool, newSrcPath, copying)
             else:
@@ -974,7 +975,7 @@ class KoToolbox2HTreeView(TreeView):
         nodes = os.listdir(currentDirectory)
         numZippedItems = 0
         for path in nodes:
-            fullPath = os.path.join(currentDirectory, path)
+            fullPath = join(currentDirectory, path)
             # these filenames should be "sluggified" already,
             # although maybe not the dirnames.
             relativePath = fullPath[self._targetZipFileRootLen:]
@@ -1136,7 +1137,7 @@ class KoToolbox2HTreeView(TreeView):
         toolboxLoader.markAllTopLevelItemsUnloaded()
         
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
-        stdToolboxDir = os.path.join(koDirSvc.userDataDir,
+        stdToolboxDir = join(koDirSvc.userDataDir,
                                      koToolbox2.DEFAULT_TARGET_DIRECTORY)
         import time
         t1 = time.time()
@@ -1145,6 +1146,18 @@ class KoToolbox2HTreeView(TreeView):
         t2 = time.time()
         log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
         koToolBox2Svc.registerStandardToolbox(toolbox_id)
+
+        extensionDirs = UnwrapObject(components.classes["@python.org/pyXPCOMExtensionHelper;1"].getService(components.interfaces.pyIXPCOMExtensionHelper)).getExtensionDirectories()
+        for fileEx in extensionDirs:
+            # Does this happen for disabled extensions?
+            toolDir = join(fileEx.path, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+            if os.path.exists(toolDir):
+                koToolBox2Svc.activateExtensionToolbox(fileEx.path,
+                                                       koToolbox2.DEFAULT_TARGET_DIRECTORY)
+                                                       
+            #else:
+            #    log.debug("No tools in %s", fileEx.path)
+         
         
         toolboxLoader.deleteUnloadedTopLevelItems()
         self._redoTreeView()
