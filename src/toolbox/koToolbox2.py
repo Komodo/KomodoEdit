@@ -947,7 +947,7 @@ class ToolboxLoader(object):
             self.dbTimestamp = 0
         _tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
                        getService(components.interfaces.koIToolboxDatabaseService))
-        self.db = _tbdbSvc.db
+        self.db = _tbdbSvc.db = Database(db_path, schemaFile)
         
     def deleteFolderIfMetadataChanged(self, path, fname, path_id):
         # fname is last part of path, but is in for convenience

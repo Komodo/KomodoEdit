@@ -426,7 +426,7 @@ class _KoMenu(_KoComplexContainer):
         # What about renaming a folder?
         #self.saveToolToDisk()
         _tbdbSvc.saveMenuInfo(self.id, self.name, self._attributes)
-
+        
 class _KoToolbar(_KoComplexContainer):
     typeName = 'toolbar'
     prettytype = 'Custom Toolbar'
@@ -1144,55 +1144,31 @@ class KoToolbox2HTreeView(TreeView):
         schemaFile = os.path.join(koDirSvc.mozBinDir,
                                   'python', 'komodo', 'toolbox',
                                   'koToolbox.sql')
-        toolboxLoader = koToolBox2Svc.initToolboxLoader(db_path, schemaFile)
-        stdToolboxDir = os.path.join(koDirSvc.userDataDir,
-                                     koToolbox2.DEFAULT_TARGET_DIRECTORY)
-        toolboxLoader.markAllTopLevelItemsUnloaded()
-        import time
-        t1 = time.time()
-        toolbox_id = toolboxLoader.loadToolboxDirectory("Standard Toolbox", stdToolboxDir)
-        t2 = time.time()
-        log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
-        koToolBox2Svc.registerStandardToolbox(toolbox_id)
-        # else unload shared items...
-        toolboxLoader.deleteUnloadedTopLevelItems()
-        #TODO: For now just get the top-level items
-        # Later keep track of how
         global _tbdbSvc, _view
         _tbdbSvc = self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
                        getService(components.interfaces.koIToolboxDatabaseService))
         _view = self
 
-        self.toolbox_db.initialize(db_path)
+        self.toolbox_db.initialize(db_path, schemaFile)
         self.toolbox_db.toolManager = self
-        top_level_nodes = self.toolbox_db.getTopLevelNodes()
-        after_len = before_len = len(self._rows)
-        for path_id, name, node_type in top_level_nodes:
-            toolPart = self._getOrCreateTool(node_type, name, path_id)
-            toolPart.level = 0
-            self._rows.append(toolPart)
-            after_len = len(self._rows)
-        self._tree.rowCountChanged(0, after_len - before_len)
-        self.refreshFullView()
-        if toolboxPrefs.hasPref("firstVisibleRow"):
-            firstVisibleRow = toolboxPrefs.getLongPref("firstVisibleRow")
-        else:
-            firstVisibleRow = -1
-        if toolboxPrefs.hasPref("currentIndex"):
-            currentIndex = toolboxPrefs.getLongPref("currentIndex")
-        else:
-            currentIndex = -1
-        if firstVisibleRow != -1:
-            self._tree.scrollToRow(firstVisibleRow)
-        if currentIndex != -1:
-            self.selection.currentIndex = currentIndex
-            self._tree.ensureRowIsVisible(currentIndex)
-        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
-                .getService(components.interfaces.nsIObserverService)
-        try:
-            _observerSvc.notifyObservers(None, 'toolbox-loaded', '')
-        except Exception:
-            pass
+
+        toolboxLoader = koToolBox2Svc.initToolboxLoader(db_path,
+                                                        schemaFile)
+        toolboxLoader.markAllTopLevelItemsUnloaded()
+        stdToolboxDir = os.path.join(koDirSvc.userDataDir,
+                                     koToolbox2.DEFAULT_TARGET_DIRECTORY)
+        import time
+        t1 = time.time()
+        toolbox_id = toolboxLoader.loadToolboxDirectory("Standard Toolbox", stdToolboxDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+        koToolBox2Svc.notifyAddedToolbox(stdToolboxDir)
+        t2 = time.time()
+        log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
+        koToolBox2Svc.registerStandardToolbox(toolbox_id)
+        
+        toolboxLoader.deleteUnloadedTopLevelItems()
+        self._redoTreeView()
+        self._restoreView()
+        self._tree.invalidate()
 
     def observe(self, subject, topic, data):
         if not topic:

@@ -119,15 +119,15 @@ class KoToolBox2Service:
     def __init__(self):
         self.wrapped = WrapObject(self, components.interfaces.nsIObserver)
 
-        #self.ww = components.classes["@mozilla.org/embedcomp/window-watcher;1"].\
-        #                getService(components.interfaces.nsIWindowWatcher);
-        #self.ww.registerNotification(self.wrapped)
+        self.ww = components.classes["@mozilla.org/embedcomp/window-watcher;1"].\
+                        getService(components.interfaces.nsIWindowWatcher);
+        self.ww.registerNotification(self.wrapped)
 
-        #self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
-        #                getService(components.interfaces.nsIWindowMediator);
+        self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
+                        getService(components.interfaces.nsIWindowMediator);
 
-        #self._contentUtils = components.classes["@activestate.com/koContentUtils;1"].\
-        #            getService(components.interfaces.koIContentUtils)
+        self._contentUtils = components.classes["@activestate.com/koContentUtils;1"].\
+                    getService(components.interfaces.koIContentUtils)
 
         self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
         self._standardToolbox = None  # Stores the top-level folder's ID
@@ -364,9 +364,37 @@ class KoToolBox2Service:
         #window = subject.QueryInterface(components.interfaces.nsIDOMWindow)
         #if self._windowTypeFromWindow(window) != "Komodo":
         #    return
+        elif topic == "useSharedToolbox":
+            useSharedToolbox = self._prefs.getBooleanPref('useSharedToolbox')
+            if useSharedToolbox:
+                self._activateSharedToolbox(True)
+            else:
+                self._deactivateSharedToolbox()
+        elif topic in [
+                     "commonDataDirMethod",
+                     "customCommonDataDir"]:
+            #log.debug("observe toolbox: topic: %s sub:%r, data:%r", topic, subject, data)
+            useSharedToolbox = self._prefs.getBooleanPref('useSharedToolbox')
+            if useSharedToolbox:
+                self._activateSharedToolbox(True)
+            else:
+                self._deactivateSharedToolbox()
+                
+            return
+        elif True:
+            return
         elif topic == "domwindowopened":
             self._data[window] = KomodoWindowData()
         elif topic == "domwindowclosed":
             if window in self._data:
                 del self._data[window]
+        elif topic == "xpcom-shutdown":
+            for name in ["useSharedToolbox",
+                         "commonDataDirMethod",
+                         "customCommonDataDir"]:
+                self._prefs.prefObserverService.removeObserver(self._wrapped,
+                                                                       name)
+            return
+
+
 
