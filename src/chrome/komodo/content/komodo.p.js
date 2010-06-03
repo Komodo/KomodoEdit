@@ -380,6 +380,7 @@ window.onload = function(event) {
                 ko.mru.initialize();
 
                 ko.views.onload();
+                ko.toolbox2.onload();
                 ko.projects.onload();
 
                 ko.toolboxes.onload();

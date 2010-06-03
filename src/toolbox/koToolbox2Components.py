@@ -149,16 +149,28 @@ class KoToolBox2Service:
                                          "commonDataDirMethod", 0)
         self._prefs.prefObserverService.addObserver(self._wrapped,
                                          "customCommonDataDir", 0)
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                .getService(components.interfaces.nsIObserverService)
+        _observerSvc.addObserver(self._wrapped,
+                                 "project_added", 0)
+        _observerSvc.addObserver(self._wrapped,
+                                 "project_removed", 0)
+        self.initToolboxLoader()
         
         # 
         # self._prefs.prefObserverService.addObserver(self._wrapped,
         #                                 "xpcom-shutdown", 0)
 
-    def initToolboxLoader(self, db_path, schemaFile):
+    def initToolboxLoader(self):
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        db_path = os.path.join(koDirSvc.userDataDir, 'toolbox.sqlite')
+        schemaFile = os.path.join(koDirSvc.mozBinDir,
+                                  'python', 'komodo', 'toolbox',
+                                  'koToolbox.sql')
         self._db_path = db_path
-        self.toolboxLoader = koToolbox2.ToolboxLoader(db_path, schemaFile)
-        self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
+        self.db = koToolbox2.Database(db_path, schemaFile)
+        self.toolboxLoader = koToolbox2.ToolboxLoader(db_path, self.db)
+        self.toolbox_db = self.toolboxLoader.db
         return self.toolboxLoader
     
     def registerStandardToolbox(self, id):
@@ -181,6 +193,13 @@ class KoToolBox2Service:
             del self._loadedToolboxes[uri]
         except KeyError:
             log.debug("Didn't find uri %s in self._loadedToolboxes")
+
+    def toolbox_id_from_uri(self, uri):
+        try:
+            return self._loadedToolboxes[uri]
+        except KeyError:
+            log.debug("Didn't find uri %s in self._loadedToolboxes")
+            return None
 
     def getStandardToolboxID(self):
         return self._standardToolbox
@@ -309,10 +328,29 @@ class KoToolBox2Service:
         toolbox_id = self.toolboxLoader.loadToolboxDirectory("Shared Toolbox",
                                                 koDirSvc.commonDataDir,
                                            koToolbox2.DEFAULT_TARGET_DIRECTORY)
-        #TODO: Add third argument: 
         self.registerSharedToolbox(toolbox_id)
         if notifyAtEnd:
             self.notifyAddedToolbox(koDirSvc.commonDataDir)
+            self.notifyToolboxTopLevelViewChanged()
+
+    def activateProjectToolbox(self, project):
+        projectDir = project.getFile().dirName;
+        toolsDir = join(projectDir, koToolbox2.PROJECT_TARGET_DIRECTORY)
+        if exists(toolsDir) and os.path.isdir(toolsDir):
+            toolbox_id = self.toolboxLoader.loadToolboxDirectory(project.name,
+                                                                 projectDir,
+                                                                 koToolbox2.PROJECT_TARGET_DIRECTORY)
+            self.registerUserToolbox(project.url, toolbox_id)
+            self.notifyAddedToolbox(projectDir)
+            self.notifyToolboxTopLevelViewChanged()
+
+    def deactivateProjectToolbox(self, project):
+        projectDir = project.getFile().dirName;
+        self.notifyDroppedToolbox(projectDir)
+        id = self.toolbox_id_from_uri(project.url)
+        if id is not None:
+            self.toolbox_db.deleteItem(id)
+            self.unregisterUserToolbox(project.url)
             self.notifyToolboxTopLevelViewChanged()
 
     def notifyAddedToolbox(self, toolboxDir):
@@ -381,6 +419,10 @@ class KoToolBox2Service:
                 self._deactivateSharedToolbox()
                 
             return
+        elif topic == "project_added":
+            self.activateProjectToolbox(subject)
+        elif topic == "project_removed":
+            self.deactivateProjectToolbox(subject)
         elif True:
             return
         elif topic == "domwindowopened":
@@ -394,6 +436,12 @@ class KoToolBox2Service:
                          "customCommonDataDir"]:
                 self._prefs.prefObserverService.removeObserver(self._wrapped,
                                                                        name)
+                _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                    .getService(components.interfaces.nsIObserverService)
+                _observerSvc.removeObserver(self._wrapped,
+                                         "project_added")
+                _observerSvc.removeObserver(self._wrapped,
+                                            "project_removed")
             return
 
 

@@ -68,10 +68,17 @@ initialize: function() {
     this.tree.treeBoxObject
                     .QueryInterface(Components.interfaces.nsITreeBoxObject)
                     .view = this.view;
-    // Make sure all toolbox observers have registered before we set this up.
-    var this_ = this;
+    this.view.initialize();
+    // Give the toolbox observers time to have started up before
+    // notifying them that the toolbox has changed.
     setTimeout(function() {
-            this_.view.initialize();
+        var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+               getService(Components.interfaces.nsIObserverService);
+        try {
+            obsSvc.notifyObservers(null, 'toolbox-loaded', '');
+        } catch(ex) {
+            dump("Failed to notifyObservers(toolbox-loaded): " + ex + "\n");
+        }
         }, 1000);
 },
 terminate: function() {
@@ -89,10 +96,9 @@ deleteCurrentItem: function() {
 _EOD_: null
 };
 
-this.onLoad = function() {
+this.onload = function() {
     var this_ = ko.toolbox2;
-    window.addEventListener("unload", this_.onUnload, false);
-    var this_ = ko.toolbox2;
+    ko.main.addWillCloseHandler(this_.onUnload, this);
     this_.manager = new Toolbox2Manager();
     this_.manager.initialize();
 };
@@ -305,5 +311,3 @@ this.getToolsWithKeyboardShortcuts = function(dbPath) {
 };
 
 }).apply(ko.toolbox2);
-
-window.addEventListener("load", ko.toolbox2.onLoad, false);

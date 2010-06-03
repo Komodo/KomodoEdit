@@ -367,7 +367,7 @@ class Database(object):
         return id
 
     def addFolder(self, path, name, parent_path_id):
-        #log.debug("About to add folder %s in %s", name, path)
+        #log.debug("About to add container %s in %s", name, path)
         with self.connect(commit=True) as cu:
             metadataPath = join(path, UI_FOLDER_FILENAME)
             if exists(metadataPath):
@@ -686,9 +686,9 @@ class Database(object):
             return nonGeneralMatches[0][0]
         return matches[0][0]
 
-    def getIDsByType(self, nodeType, rootToolboxPath=None):
+    def getIDsByType(self, nodeType, rootToolboxPath):
         with self.connect() as cu:
-            if rootToolboxPath is None:
+            if not rootToolboxPath:
                 stmt = 'select path_id from %s' % nodeType
                 cu.execute(stmt)
             else:
@@ -700,9 +700,9 @@ class Database(object):
             if res is None: return []
         return [x[0] for x in res]
         
-    def getIDsForToolsWithKeyboardShortcuts(self, rootToolboxPath=None):
+    def getIDsForToolsWithKeyboardShortcuts(self, rootToolboxPath):
         with self.connect() as cu:
-            if rootToolboxPath is None:
+            if not rootToolboxPath:
                 stmt = 'select path_id from common_tool_details where keyboard_shortcut != ?'
                 cu.execute(stmt, ("",))
             else:
@@ -718,12 +718,18 @@ class Database(object):
 
     def getTriggerMacroIDs(self, dbPath):
         with self.connect() as cu:
-            stmt = '''select path_id from macro as m, paths as p
+            if dbPath:
+                stmt = '''select path_id from macro as m, paths as p
                       where trigger_enabled = ?
                             and trigger != ?
                             and p.id = m.path_id
                             and p.path like ?'''
-            cu.execute(stmt, (True, "", dbPath + "%"))
+                cu.execute(stmt, (True, "", dbPath + "%"))
+            else:
+                stmt = '''select path_id from macro
+                      where trigger_enabled = ?
+                            and trigger != ?'''
+                cu.execute(stmt, (True, ""))
             res = cu.fetchall()
             if res is None: return []
         ids = [x[0] for x in res]
@@ -939,7 +945,7 @@ class Database(object):
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
-    def __init__(self, db_path, schemaFile):
+    def __init__(self, db_path, db):
         # This timestamp is only used while loading the database.
         try:
             self.dbTimestamp = os.stat(db_path).st_mtime
@@ -947,7 +953,8 @@ class ToolboxLoader(object):
             self.dbTimestamp = 0
         _tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
                        getService(components.interfaces.koIToolboxDatabaseService))
-        self.db = _tbdbSvc.db = Database(db_path, schemaFile)
+        self.db = _tbdbSvc.db = db
+        self._loadedPaths = {}
         
     def deleteFolderIfMetadataChanged(self, path, fname, path_id):
         # fname is last part of path, but is in for convenience
