@@ -1139,6 +1139,11 @@ class KoToolbox2HTreeView(TreeView):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         stdToolboxDir = join(koDirSvc.userDataDir,
                                      koToolbox2.DEFAULT_TARGET_DIRECTORY)
+        if not os.path.exists(stdToolboxDir):
+            try:
+                os.mkdir(stdToolboxDir)
+            except:
+                log.error("Can't create tools dir %s", stdToolboxDir)
         import time
         t1 = time.time()
         toolbox_id = toolboxLoader.loadToolboxDirectory("Standard Toolbox", stdToolboxDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
@@ -1157,7 +1162,6 @@ class KoToolbox2HTreeView(TreeView):
                                                        
             #else:
             #    log.debug("No tools in %s", fileEx.path)
-         
         
         toolboxLoader.deleteUnloadedTopLevelItems()
         self._redoTreeView()
