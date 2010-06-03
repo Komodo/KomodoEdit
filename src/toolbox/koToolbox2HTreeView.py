@@ -373,7 +373,7 @@ class _KoComplexContainer(_KoFolder):
 
     def __init__(self, *args):
         self.children = []
-        #XXX: For menus, use .ko-metadata in folders to provide
+        #XXX: For menus, use .komodotools in folders to provide
         # order of items in nested menus.
         _KoFolder.__init__(self, *args)
 
@@ -386,12 +386,12 @@ class _KoComplexContainer(_KoFolder):
         elif not os.path.isdir(path):
             os.unlink(path)
             os.mkdir(path)
-        path2 = os.path.join(path, ".ko-metadata")
+        path2 = os.path.join(path, koToolbox2.UI_FOLDER_FILENAME)
         fp = open(path2, 'w')
         fp.close()
 
     def saveNewToolToDisk(self, path):
-        path2 = os.path.join(path, ".ko-metadata")
+        path2 = os.path.join(path, koToolbox2.UI_FOLDER_FILENAME)
         data = {}
         data['name'] = self.name
         data['type'] = self.typeName
@@ -1124,22 +1124,18 @@ class KoToolbox2HTreeView(TreeView):
         else:
             self._nodeOpenStatusFromName = {}
         koToolBox2Svc = UnwrapObject(components.classes["@activestate.com/koToolBox2Service;1"].getService(components.interfaces.koIToolBox2Service))
-        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
-        db_path = os.path.join(koDirSvc.userDataDir, 'toolbox.sqlite')
-        schemaFile = os.path.join(koDirSvc.mozBinDir,
-                                  'python', 'komodo', 'toolbox',
-                                  'koToolbox.sql')
+
         global _tbdbSvc, _view
         _tbdbSvc = self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
                        getService(components.interfaces.koIToolboxDatabaseService))
         _view = self
 
-        self.toolbox_db.initialize(db_path, schemaFile)
         self.toolbox_db.toolManager = self
 
-        toolboxLoader = koToolBox2Svc.initToolboxLoader(db_path,
-                                                        schemaFile)
+        toolboxLoader = koToolBox2Svc.toolboxLoader
         toolboxLoader.markAllTopLevelItemsUnloaded()
+        
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         stdToolboxDir = os.path.join(koDirSvc.userDataDir,
                                      koToolbox2.DEFAULT_TARGET_DIRECTORY)
         import time
