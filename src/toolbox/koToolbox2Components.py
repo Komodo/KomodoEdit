@@ -72,8 +72,8 @@ class KoToolboxDatabaseService:
     
     db = None
     toolManager = None
-    def initialize(self, db_path):
-        self.db = koToolbox2.Database(db_path)
+    def initialize(self, db_path, schemaFile):
+        self.db = koToolbox2.Database(db_path, schemaFile)
         
     def terminate(self):
         self.db = self.toolManager = None
@@ -119,29 +119,59 @@ class KoToolBox2Service:
     def __init__(self):
         self.wrapped = WrapObject(self, components.interfaces.nsIObserver)
 
-        self.ww = components.classes["@mozilla.org/embedcomp/window-watcher;1"].\
-                        getService(components.interfaces.nsIWindowWatcher);
-        self.ww.registerNotification(self.wrapped)
+        #self.ww = components.classes["@mozilla.org/embedcomp/window-watcher;1"].\
+        #                getService(components.interfaces.nsIWindowWatcher);
+        #self.ww.registerNotification(self.wrapped)
 
-        self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
-                        getService(components.interfaces.nsIWindowMediator);
+        #self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
+        #                getService(components.interfaces.nsIWindowMediator);
 
-        self._contentUtils = components.classes["@activestate.com/koContentUtils;1"].\
-                    getService(components.interfaces.koIContentUtils)
+        #self._contentUtils = components.classes["@activestate.com/koContentUtils;1"].\
+        #            getService(components.interfaces.koIContentUtils)
 
         self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
         self._standardToolbox = None  # Stores the top-level folder's ID
         self._sharedToolbox = None    # Same
         self._loadedToolboxes = {}    # Map project uri to top-level folder's 
         self._db = None
+        
+        self._wrapped = WrapObject(self, components.interfaces.nsIObserver)
+        self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService)
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].\
+            getService(components.interfaces.koIDirs)
+        self._prefs = self._prefSvc.prefs
+        self._useSharedToolbox = self._prefs.getBooleanPref('useSharedToolbox')
+        self._commonDataDir = koDirSvc.commonDataDir
+        self._prefs.prefObserverService.addObserver(self._wrapped,
+                                         "useSharedToolbox", 0)
+        self._prefs.prefObserverService.addObserver(self._wrapped,
+                                         "commonDataDirMethod", 0)
+        self._prefs.prefObserverService.addObserver(self._wrapped,
+                                         "customCommonDataDir", 0)
+        
+        # 
+        # self._prefs.prefObserverService.addObserver(self._wrapped,
+        #                                 "xpcom-shutdown", 0)
 
+    def initToolboxLoader(self, db_path, schemaFile):
+        self._db_path = db_path
+        self.toolboxLoader = koToolbox2.ToolboxLoader(db_path, schemaFile)
+        self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        return self.toolboxLoader
+    
     def registerStandardToolbox(self, id):
-        log.debug("registerStandardToolbox(id:%d)", id)
+        #log.debug("registerStandardToolbox(id:%d)", id)
         self._standardToolbox = id
 
     def registerSharedToolbox(self, id):
-        log.debug("registerSharedToolbox(id:%d)", id)
+        #log.debug("registerSharedToolbox(id:%r)", id)
         self._sharedToolbox = id
+
+    def unregisterSharedToolbox(self):
+        #log.debug("unregisterSharedToolbox()")
+        self._sharedToolbox = None
 
     def registerUserToolbox(self, uri, id):
         self._loadedToolboxes[uri] = id
@@ -256,6 +286,67 @@ class KoToolBox2Service:
     def migrateVersion5Toolboxes(self):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         self._checkMigrate(koDirSvc.userDataDir, "user toolbox", koToolbox2.DEFAULT_TARGET_DIRECTORY, kpfName="toolbox.kpf")
+        
+        if self._useSharedToolbox:
+            # The thing about the shared-toolbox is that users can
+            # have multiple different shared-toolboxes they've used in
+            # the past, so whenever we activate it, we might have to
+            # migrate it.
+            self._checkMigrate(koDirSvc.commonDataDir,
+                               "shared toolbox",
+                               koToolbox2.DEFAULT_TARGET_DIRECTORY,
+                               kpfName="toolbox.kpf")
+
+    def _activateSharedToolbox(self, notifyAtEnd=True):
+        # We have to do this as long as there might be yet another
+        # sharedDataDir with a kpf file that we haven't converted yet.
+
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        self._checkMigrate(koDirSvc.commonDataDir,
+                           "shared toolbox",
+                           koToolbox2.DEFAULT_TARGET_DIRECTORY,
+                           kpfName="toolbox.kpf")
+        toolbox_id = self.toolboxLoader.loadToolboxDirectory("Shared Toolbox",
+                                                koDirSvc.commonDataDir,
+                                           koToolbox2.DEFAULT_TARGET_DIRECTORY)
+        #TODO: Add third argument: 
+        self.registerSharedToolbox(toolbox_id)
+        if notifyAtEnd:
+            self.notifyAddedToolbox(koDirSvc.commonDataDir)
+            self.notifyToolboxTopLevelViewChanged()
+
+    def notifyAddedToolbox(self, toolboxDir):
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                .getService(components.interfaces.nsIObserverService)
+        try:
+            _observerSvc.notifyObservers(None, 'toolbox-loaded', toolboxDir)
+        except Exception:
+            pass
+
+    def notifyDroppedToolbox(self, toolboxDir):
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                .getService(components.interfaces.nsIObserverService)
+        try:
+            _observerSvc.notifyObservers(None, 'toolbox-unloaded', toolboxDir)
+        except Exception:
+            pass
+
+    def notifyToolboxTopLevelViewChanged(self):
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                .getService(components.interfaces.nsIObserverService)
+        try:
+            _observerSvc.notifyObservers(None, 'toolbox-tree-changed', '')
+        except Exception:
+            pass
+
+    def _deactivateSharedToolbox(self):
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        self.notifyDroppedToolbox(koDirSvc.commonDataDir)
+        id = self._sharedToolbox
+        if id is not None:
+            self.toolbox_db.deleteItem(id)
+        self.unregisterSharedToolbox()
+        self.notifyToolboxTopLevelViewChanged()
 
     #Non-xpcom
     def extractToolboxFromKPF_File(self, kpfPath, projectName):
@@ -267,12 +358,13 @@ class KoToolBox2Service:
         
 
     def observe(self, subject, topic, data):
+        #log.debug("observe: subject:%r, topic:%r, data:%r", subject, topic, data)
         if not subject:
             return
-        window = subject.QueryInterface(components.interfaces.nsIDOMWindow)
-        if self._windowTypeFromWindow(window) != "Komodo":
-            return
-        if topic == "domwindowopened":
+        #window = subject.QueryInterface(components.interfaces.nsIDOMWindow)
+        #if self._windowTypeFromWindow(window) != "Komodo":
+        #    return
+        elif topic == "domwindowopened":
             self._data[window] = KomodoWindowData()
         elif topic == "domwindowclosed":
             if window in self._data:

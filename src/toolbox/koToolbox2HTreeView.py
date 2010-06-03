@@ -325,7 +325,7 @@ class _KoTool(object):
                 except Exception:
                     pass
                 break
-   
+            
 class _KoContainer(_KoTool):
     isContainer = True
     def __init__(self, *args):
@@ -334,6 +334,8 @@ class _KoContainer(_KoTool):
         _KoTool.__init__(self, *args)
         
     def init(self):
+        if self.initialized:
+            return
         self.childNodes = _tbdbSvc.getChildNodes(self.id)
         self.initialized = True
 
@@ -370,15 +372,20 @@ class _KoFolder(_KoContainer):
 class _KoComplexContainer(_KoFolder):
 
     def __init__(self, *args):
-        self.children = []   # Provides order of child-nodes
+        self.children = []
         #XXX: For menus, use .ko-metadata in folders to provide
         # order of items in nested menus.
         _KoFolder.__init__(self, *args)
 
     def trailblazeForPath(self, path):
         # Throw an error message if we can't create the file,
-        # before we add an entry to the database.
-        os.mkdir(path)
+        # before we add an entry to the database.  But allow
+        # for existing paths that weren't cleared earlier.
+        if not os.path.exists(path):
+            os.mkdir(path)
+        elif not os.path.isdir(path):
+            os.unlink(path)
+            os.mkdir(path)
         path2 = os.path.join(path, ".ko-metadata")
         fp = open(path2, 'w')
         fp.close()
@@ -594,6 +601,10 @@ class KoToolbox2HTreeView(TreeView):
         global eol
         if eol is None:
             eol = eollib.eol2eolStr[eollib.EOL_PLATFORM]
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+            getService(components.interfaces.nsIObserverService)
+        _observerSvc.addObserver(self, 'toolbox-tree-changed', 0)
+        _observerSvc.addObserver(self, 'xpcom-shutdown', 0)
 
     def _getOrCreateTool(self, node_type, name, path_id):
         tool = self._tools.get(path_id, None)
@@ -1052,20 +1063,32 @@ class KoToolbox2HTreeView(TreeView):
             tool.updateSelf()
         return tool
     
-    def getToolsWithKeyboardShortcuts(self):
-        ids = self.toolbox_db.getIDsForToolsWithKeyboardShortcuts()
+    def getToolsWithKeyboardShortcuts(self, dbPath):
+        ids = self.toolbox_db.getIDsForToolsWithKeyboardShortcuts(dbPath)
         return self._getFullyRealizedToolById(ids)
     
-    def getCustomMenus(self):
-        ids = self.toolbox_db.getIDsByType('menu')
+    def getCustomMenus(self, dbPath):
+        ids = self.toolbox_db.getIDsByType('menu', dbPath)
+        for id in ids:
+            self._fillChildren(id)
         return self._getFullyRealizedToolById(ids)
     
-    def getCustomToolbars(self):
-        ids = self.toolbox_db.getIDsByType('toolbar')
+    def getCustomToolbars(self, dbPath):
+        ids = self.toolbox_db.getIDsByType('toolbar', dbPath)
+        for id in ids:
+            self._fillChildren(id)
         return self._getFullyRealizedToolById(ids)
+
+    def _fillChildren(self, id):
+        tool = self.getToolById(id)
+        tool.init()
+        for child_id, _, _ in tool.childNodes:
+            child = self.getToolById(child_id)
+            if child.isContainer:
+                self._fillChildren(child_id)
     
-    def getTriggerMacros(self):
-        ids = self.toolbox_db.getTriggerMacroIDs()
+    def getTriggerMacros(self, dbPath):
+        ids = self.toolbox_db.getTriggerMacroIDs(dbPath)
         return self._getFullyRealizedToolById(ids)
     
     def refreshFullView(self):
@@ -1121,10 +1144,9 @@ class KoToolbox2HTreeView(TreeView):
         schemaFile = os.path.join(koDirSvc.mozBinDir,
                                   'python', 'komodo', 'toolbox',
                                   'koToolbox.sql')
+        toolboxLoader = koToolBox2Svc.initToolboxLoader(db_path, schemaFile)
         stdToolboxDir = os.path.join(koDirSvc.userDataDir,
                                      koToolbox2.DEFAULT_TARGET_DIRECTORY)
-
-        toolboxLoader = koToolbox2.ToolboxLoader(db_path, schemaFile)
         toolboxLoader.markAllTopLevelItemsUnloaded()
         import time
         t1 = time.time()
@@ -1171,6 +1193,89 @@ class KoToolbox2HTreeView(TreeView):
             _observerSvc.notifyObservers(None, 'toolbox-loaded', '')
         except Exception:
             pass
+
+    def observe(self, subject, topic, data):
+        if not topic:
+            return
+        if topic == 'toolbox-tree-changed':
+            self._redoTreeView()
+        elif topic == 'xpcom-shutdown':
+            _observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                getService(components.interfaces.nsIObserverService)
+            _observerSvc.removeObserver(self, 'toolbox-tree-changed')
+            _observerSvc.removeObserver(self, 'xpcom-shutdown')
+
+    def _redoTreeView(self):
+        self._tree.beginUpdateBatch()
+        try:
+            self._redoTreeView1_aux()
+        finally:
+            pass
+            self._tree.endUpdateBatch()
+        self.refreshFullView()
+
+    def _redoTreeView1_aux(self):
+        before_len = len(self._rows)
+        top_level_nodes = self.toolbox_db.getTopLevelNodes()
+        top_level_ids = [x[0] for x in top_level_nodes]
+        index = 0
+        lim = before_len
+        while index < lim:
+            id = int(self._rows[index].id)
+            nextIndex = self.getNextSiblingIndex(index)
+            if nextIndex == -1:
+                finalIndex = lim
+            else:
+                finalIndex = nextIndex
+            if id in top_level_ids:
+                del top_level_ids[top_level_ids.index(id)]
+                index = finalIndex
+            else:
+                if nextIndex == -1:
+                    del self._rows[index:]
+                else:
+                    del self._rows[index: nextIndex]
+                numNodesRemoved = finalIndex - index
+                self._tree.rowCountChanged(index, -numNodesRemoved)
+                lim -= numNodesRemoved
+        
+        before_len = len(self._rows)
+        for path_id, name, node_type in top_level_nodes:
+            if path_id not in top_level_ids:
+                #log.debug("No need to reload tree %s", name)
+                continue
+            toolPart = self._getOrCreateTool(node_type, name, path_id)
+            toolPart.level = 0
+            self._rows.append(toolPart)
+        after_len = len(self._rows)
+        self._tree.rowCountChanged(0, after_len - before_len)
+        
+    def _restoreView(self):
+
+        toolboxPrefs = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService).prefs.getPref("toolbox2")
+        if toolboxPrefs.hasPref("firstVisibleRow"):
+            firstVisibleRow = toolboxPrefs.getLongPref("firstVisibleRow")
+        else:
+            firstVisibleRow = -1
+        greatestPossibleFirstVisibleRow = len(self._rows) - self._tree.getPageLength()
+        if greatestPossibleFirstVisibleRow < 0:
+            greatestPossibleFirstVisibleRow = 0
+        if firstVisibleRow > greatestPossibleFirstVisibleRow:
+            firstVisibleRow = greatestPossibleFirstVisibleRow
+        
+        if toolboxPrefs.hasPref("currentIndex"):
+            currentIndex = toolboxPrefs.getLongPref("currentIndex")
+        else:
+            currentIndex = -1
+        if currentIndex >= len(self._rows):
+           currentIndex =  len(self._rows) - 1
+
+        if firstVisibleRow != -1:
+            self._tree.scrollToRow(firstVisibleRow)
+        if currentIndex != -1:
+            self.selection.currentIndex = currentIndex
+            self._tree.ensureRowIsVisible(currentIndex)
 
     def terminate(self):
         prefs = components.classes["@activestate.com/koPrefService;1"].\
@@ -1325,6 +1430,7 @@ class KoToolbox2HTreeView(TreeView):
                 self.selection.select(index)
 
     def _doContainerOpen(self, rowNode, index):
+        rowNode.init()
         childNodes = sorted(rowNode.childNodes, cmp=self._compareChildNode)
         if childNodes:
             posn = index + 1

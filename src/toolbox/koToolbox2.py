@@ -71,6 +71,7 @@ log = logging.getLogger("koToolbox2")
 eol = """
 """
 _unsupported_types = ("file", "livefolder")
+
 # for the std toolbox, shared toolboxes, and extensions
 DEFAULT_TARGET_DIRECTORY = "tools"
 # for toolboxes extracted from pre-v6 kpf files:
@@ -104,7 +105,7 @@ class Database(object):
     # - 1.0.0: initial version
     VERSION = "1.0.5"
     
-    def __init__(self, db_path, schemaFile=None):
+    def __init__(self, db_path, schemaFile):
         self.path = db_path
         self.cu = self.cx = None
         self.schemaFile = schemaFile
@@ -685,27 +686,44 @@ class Database(object):
             return nonGeneralMatches[0][0]
         return matches[0][0]
 
-    def getIDsByType(self, nodeType):
+    def getIDsByType(self, nodeType, rootToolboxPath=None):
         with self.connect() as cu:
-            stmt = 'select path_id from %s' % nodeType
-            cu.execute(stmt)
+            if rootToolboxPath is None:
+                stmt = 'select path_id from %s' % nodeType
+                cu.execute(stmt)
+            else:
+                stmt = '''select path_id from %s as t, paths as p
+                          where p.id = t.path_id
+                            and p.path like ?''' % nodeType
+                cu.execute(stmt, (rootToolboxPath + "%",))
             res = cu.fetchall()
             if res is None: return []
         return [x[0] for x in res]
         
-    def getIDsForToolsWithKeyboardShortcuts(self):
+    def getIDsForToolsWithKeyboardShortcuts(self, rootToolboxPath=None):
         with self.connect() as cu:
-            stmt = 'select path_id from common_tool_details where keyboard_shortcut != ?'
-            cu.execute(stmt, ("",))
+            if rootToolboxPath is None:
+                stmt = 'select path_id from common_tool_details where keyboard_shortcut != ?'
+                cu.execute(stmt, ("",))
+            else:
+                stmt = '''select path_id from common_tool_details as t, paths as p
+                          where keyboard_shortcut != ?
+                            and p.id = t.path_id
+                            and p.path like ?'''
+                cu.execute(stmt, ("", rootToolboxPath + "%"))
             res = cu.fetchall()
             if res is None: return []
         ids = [x[0] for x in res]
         return ids
 
-    def getTriggerMacroIDs(self):
+    def getTriggerMacroIDs(self, dbPath):
         with self.connect() as cu:
-            stmt = 'select path_id from macro where trigger_enabled = ? and trigger != ?'
-            cu.execute(stmt, (True, ""))
+            stmt = '''select path_id from macro as m, paths as p
+                      where trigger_enabled = ?
+                            and trigger != ?
+                            and p.id = m.path_id
+                            and p.path like ?'''
+            cu.execute(stmt, (True, "", dbPath + "%"))
             res = cu.fetchall()
             if res is None: return []
         ids = [x[0] for x in res]
@@ -921,15 +939,15 @@ class Database(object):
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
-    koToolExt = ".kotool"
-
     def __init__(self, db_path, schemaFile):
         # This timestamp is only used while loading the database.
         try:
             self.dbTimestamp = os.stat(db_path).st_mtime
         except:
             self.dbTimestamp = 0
-        self.db = Database(db_path, schemaFile)
+        _tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        self.db = _tbdbSvc.db
         
     def deleteFolderIfMetadataChanged(self, path, fname, path_id):
         # fname is last part of path, but is in for convenience
@@ -1046,13 +1064,13 @@ class ToolboxLoader(object):
     def _slugify(self, s):
         return re.sub(self._slugify_re, '_', s)
 
-    def loadToolboxDirectory(self, toolboxName, toolboxDir):
-        if toolboxDir.endswith(DEFAULT_TARGET_DIRECTORY):
+    def loadToolboxDirectory(self, toolboxName, toolboxDir, targetDirectory):
+        if os.path.basename(toolboxDir) == targetDirectory:
             actualToolboxDir = toolboxDir
         else:
-            actualToolboxDir = join(toolboxDir, DEFAULT_TARGET_DIRECTORY)
+            actualToolboxDir = join(toolboxDir, targetDirectory)
         if not exists(actualToolboxDir):
-            log.error("No toolbox subdirectory %s at %s", DEFAULT_TARGET_DIRECTORY, toolboxDir)
+            log.error("No toolbox subdirectory %s at %s", targetDirectory, toolboxDir)
             return
         self.db.establishConnection()
         self._loadedPaths[actualToolboxDir] = True
@@ -1131,7 +1149,7 @@ def main(argv):
 """
 Notes on feeding the tree via the db:
 
-class koToolbox2Node(object):
+class koToolboxNode(object):
   node_id
   node_name
   node_type
