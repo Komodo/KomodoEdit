@@ -276,7 +276,39 @@ editor_editorController.prototype.do_cmd_browserPreview = function() {
             view.getAttribute('type') == 'editor' &&
             view.koDoc && view.koDoc.file && view.koDoc.file.isLocal);
     if (canPreview)
-        ko.views.manager.currentView.viewPreview();
+        view.viewPreview();
+}
+
+editor_editorController.prototype.is_cmd_browserPreviewInternal_enabled = function() {
+    var view = ko.views.manager.currentView;
+    return (view != null &&
+            view.getAttribute('type') == 'editor' &&
+            view.koDoc && view.koDoc.file && view.koDoc.file.isLocal);
+}
+
+editor_editorController.prototype.do_cmd_browserPreviewInternal = function() {
+    var view = ko.views.manager.currentView;
+    var canPreview = (view != null &&
+            view.getAttribute('type') == 'editor' &&
+            view.koDoc && view.koDoc.file && view.koDoc.file.isLocal);
+    if (canPreview)
+        view.createInternalViewPreview(null, view.alternateViewList);
+}
+
+editor_editorController.prototype.is_cmd_browserPreviewInternalSameTabGroup_enabled = function() {
+    var view = ko.views.manager.currentView;
+    return (view != null &&
+            view.getAttribute('type') == 'editor' &&
+            view.koDoc && view.koDoc.file && view.koDoc.file.isLocal);
+}
+
+editor_editorController.prototype.do_cmd_browserPreviewInternalSameTabGroup = function() {
+    var view = ko.views.manager.currentView;
+    var canPreview = (view != null &&
+            view.getAttribute('type') == 'editor' &&
+            view.koDoc && view.koDoc.file && view.koDoc.file.isLocal);
+    if (canPreview)
+        view.createInternalViewPreview(null, view.parentView);
 }
 
 

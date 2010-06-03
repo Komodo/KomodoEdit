@@ -645,6 +645,8 @@
 <!ENTITY untabifyRegion.label "Untabify Region">
 <!ENTITY update.label "Update">
 <!ENTITY userInterfaceBrowserPreview.desc "User Interface: Browser Preview">
+<!ENTITY userInterfaceBrowserPreviewInternal.desc "User Interface: Internal Browser Preview in Other Tab Group">
+<!ENTITY userInterfaceBrowserPreviewInternalSameTabGroup.desc "User Interface: Internal Browser Preview in Same Tab Group">
 <!ENTITY userInterfaceFocusOnBottomPane.desc "User Interface: Focus on Bottom Pane">
 <!ENTITY userInterfaceFocusOnEditor.desc "User Interface: Focus on Editor">
 <!ENTITY userInterfaceFocusOnProjectsPane.desc "User Interface: Focus on Projects Pane">

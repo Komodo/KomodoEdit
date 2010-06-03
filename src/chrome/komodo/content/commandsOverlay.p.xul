@@ -926,6 +926,16 @@
             oncommand="ko.commands.doCommandAsync('cmd_browserPreview', event)"
             disabled="true"
             desc="&userInterfaceBrowserPreview.desc;"/>
+        <command
+            id="cmd_browserPreviewInternal" key="key_cmd_browserPreviewInternal"
+            oncommand="ko.commands.doCommandAsync('cmd_browserPreviewInternal', event)"
+            disabled="true"
+            desc="&userInterfaceBrowserPreviewInternal.desc;"/>
+        <command
+            id="cmd_browserPreviewInternalSameTabGroup" key="key_cmd_browserPreviewInternalSameTabGroup"
+            oncommand="ko.commands.doCommandAsync('cmd_browserPreviewInternalSameTabGroup', event)"
+            disabled="true"
+            desc="&userInterfaceBrowserPreviewInternalSameTabGroup.desc;"/>
     </commandset>
 
     <!-- Commands that need to be updated when focus goes from
