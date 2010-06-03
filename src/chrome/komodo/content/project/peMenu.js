@@ -66,6 +66,7 @@ function peMenu() {
         obsSvc.addObserver(this, 'toolbar_changed', false);
         obsSvc.addObserver(this, 'part_changed', false);
         obsSvc.addObserver(this, 'toolbox-loaded', false);
+        obsSvc.addObserver(this, 'toolbox-unloaded', false);
     } catch (e) {
         this.log.exception(e);
     }
@@ -82,12 +83,13 @@ peMenu.prototype.finalize = function() {
     obsSvc.removeObserver(this, 'toolbar_changed');
     obsSvc.removeObserver(this, 'part_changed');
     obsSvc.removeObserver(this, 'toolbox-loaded');
+    obsSvc.removeObserver(this, 'toolbox-unloaded');
 }
 
-peMenu.prototype.observe = function(part, topic, dummy)
+peMenu.prototype.observe = function(part, topic, data)
 {
     try {
-        //dump("peMenu observer "+part+", "+topic+", "+dummy+"\n");
+        //dump("peMenu observer "+part+", "+topic+", "+data+"\n");
         var menu, id;
         switch (topic) {
             case 'toolbar_remove':
@@ -100,18 +102,7 @@ peMenu.prototype.observe = function(part, topic, dummy)
                 ko.projects.addToolbarFromPart(part);
                 break;
             case 'menu_remove':
-                try {
-                    // First get rid of the old menu
-                    id = _IDFromPart(part);
-                    menu = document.getElementById(id);
-                    if (!menu) {
-                        this.log.warn("observe menu_remove: can't find menu with id: " + id);
-                        break;
-                    }
-                    menu.parentNode.removeChild(menu);
-                } catch (e) {
-                    this.log.exception(e);
-                }
+                ko.projects.removeMenuForPart(part);
                 break;
             case 'part_changed':
                 try {
@@ -146,7 +137,15 @@ peMenu.prototype.observe = function(part, topic, dummy)
                 if (ko.windowManager.getMainWindow() != window) {
                     return;
                 }
-                ko.projects.onToolboxLoaded();
+                ko.projects.onToolboxLoaded(data);
+                break;
+            case 'toolbox-unloaded':
+                if (ko.windowManager.getMainWindow() != window) {
+                    return;
+                }
+                // Called when we're about to remove commands.
+                ko.projects.onToolboxUnloaded(data);
+                break;
         }
     } catch (e) {
         this.log.exception(e);
@@ -218,6 +217,21 @@ this.addMenuFromPart = function peMenu_addMenuFromPart(part) {
         _fillMenupopupFromPart(menupopup, part);
     } catch (e) {
         log.exception(e);
+    }
+}
+
+this.removeMenuForPart = function peMenu_removeMenuForPart(part) {
+    try {
+        // First get rid of the old menu
+        var id = _IDFromPart(part);
+        var menu = document.getElementById(id);
+        if (!menu) {
+            this.log.warn("removeMenuForPart: can't find menu with id: " + id);
+            return;
+        }
+        menu.parentNode.removeChild(menu);
+    } catch (e) {
+        this.log.exception(e);
     }
 }
 
@@ -359,15 +373,27 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
     }
 }
 
-this.onToolboxLoaded = function() {
+this.onToolboxLoaded = function(toolboxDir) {
     var this_ = this;
-    var tools = ko.toolbox2.getCustomMenus();
+    var tools = ko.toolbox2.getCustomMenus(toolboxDir);
     tools.map(function(part) {
             this_.addMenuFromPart(part);
         });
-    tools = ko.toolbox2.getCustomToolbars();
+    tools = ko.toolbox2.getCustomToolbars(toolboxDir);
     tools.map(function(part) {
             this_.addToolbarFromPart(part);
+        });
+}
+
+this.onToolboxUnloaded = function(toolboxDir) {
+    var this_ = this;
+    var tools = ko.toolbox2.getCustomMenus(toolboxDir);
+    tools.map(function(part) {
+            this_.removeMenuForPart(part);
+        });
+    tools = ko.toolbox2.getCustomToolbars(toolboxDir);
+    tools.map(function(part) {
+            this_.removeToolbarForPart(part);
         });
 }
 

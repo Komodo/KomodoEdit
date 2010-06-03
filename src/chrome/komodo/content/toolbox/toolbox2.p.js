@@ -68,7 +68,11 @@ initialize: function() {
     this.tree.treeBoxObject
                     .QueryInterface(Components.interfaces.nsITreeBoxObject)
                     .view = this.view;
-    this.view.initialize();
+    // Make sure all toolbox observers have registered before we set this up.
+    var this_ = this;
+    setTimeout(function() {
+            this_.view.initialize();
+        }, 1000);
 },
 terminate: function() {
     dump("**************** Closing Toolbox2Manager...\n");
@@ -276,27 +280,27 @@ this.getAbbreviationSnippet = function(abbrev, subnames) {
                                                     subnames.length);
 };
 
-this.getCustomMenus = function() {
+this.getCustomMenus = function(dbPath) {
     var obj = {};
-    this.manager.view.getCustomMenus(obj, {});
+    this.manager.view.getCustomMenus(dbPath, obj, {});
     return obj.value;
 };
 
-this.getCustomToolbars = function() {
+this.getCustomToolbars = function(dbPath) {
     var obj = {};
-    this.manager.view.getCustomToolbars(obj, {});
+    this.manager.view.getCustomToolbars(dbPath, obj, {});
     return obj.value;
 };
 
-this.getTriggerMacros = function() {
+this.getTriggerMacros = function(dbPath) {
     var obj = {};
-    this.manager.view.getTriggerMacros(obj, {});
+    this.manager.view.getTriggerMacros(dbPath, obj, {});
     return obj.value;
 };
 
-this.getToolsWithKeyboardShortcuts = function() {
+this.getToolsWithKeyboardShortcuts = function(dbPath) {
     var obj = {};
-    this.manager.view.getToolsWithKeyboardShortcuts(obj, {});
+    this.manager.view.getToolsWithKeyboardShortcuts(dbPath, obj, {});
     return obj.value;
 };
 

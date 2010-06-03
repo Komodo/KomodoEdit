@@ -131,14 +131,20 @@ interface koIToolbox2HTreeView: nsITreeView {
     koITool getAbbreviationSnippet(in wstring abbrev,
                                 [array, size_is(count)] in wstring subnames,
                                 in unsigned long count);
-    void getCustomMenus([array, size_is(count)] out koITool tools,
+
+    void getCustomMenus(in wstring path,
+                        [array, size_is(count)] out koITool tools,
                           out unsigned long count);
-    void getCustomToolbars([array, size_is(count)] out koITool tools,
+    void getCustomToolbars(in wstring path,
+                           [array, size_is(count)] out koITool tools,
                           out unsigned long count);
-    void getToolsWithKeyboardShortcuts([array, size_is(count)] out koITool tools,
+    void getToolsWithKeyboardShortcuts(in wstring path,
+                                       [array, size_is(count)] out koITool tools,
                                        out unsigned long count);
-    void getTriggerMacros([array, size_is(count)] out koITool tools,
+    void getTriggerMacros(in wstring path,
+                          [array, size_is(count)] out koITool tools,
                           out unsigned long count);
+
     long getIndexByTool(in koITool tool);
     boolean selectedItemsHaveSameParent();
     // Is the src node an ancestor of the target node?
