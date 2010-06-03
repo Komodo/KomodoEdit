@@ -106,6 +106,7 @@ my @codeintel2_files = (
     "lib/codeintel2/perl_lexer.py",
     "lib/codeintel2/perl_parser.py",
     "lib/codeintel2/phpdoc.py",
+    "lib/codeintel2/pybinary.py",
     "lib/codeintel2/pythoncile.py",
     "lib/codeintel2/pythoncile1.py",
     "lib/codeintel2/rubycile.py",
@@ -135,7 +136,9 @@ foreach my $file (@codeintel2_files) {
 
 my @pygencix_files = ("support/gencix/python/gencixcore.py",
                       "support/gencix/python/parsedocs.py");
-$cons->InstallPythonUtility(@pygencix_files, "codeintel2");
+foreach my $file (@pygencix_files) {
+    $cons->InstallPythonUtility($file, "gencix/python");
+}
 
 my @codeintel2_database_files = (
     "lib/codeintel2/database/__init__.py",
