@@ -344,6 +344,19 @@ class KoToolBox2Service:
             self.notifyAddedToolbox(projectDir)
             self.notifyToolboxTopLevelViewChanged()
 
+    def activateExtensionToolbox(self, extensionRootDir):
+        toolsDir = join(extensionRootDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+        if exists(toolsDir) and os.path.isdir(toolsDir):
+            name = os.path.basename(extensionRootDir)
+            toolbox_id = self.toolboxLoader.loadToolboxDirectory(name,
+                                                                 extensionRootDir,
+                                                                 koToolbox2.DEFAULT_TARGET_DIRECTORY)
+            self.registerUserToolbox(extensionRootDir, toolbox_id)
+            self.notifyAddedToolbox(extensionRootDir)
+            self.notifyToolboxTopLevelViewChanged()
+
+    # when an extension is disabled, we need to restart
+
     def deactivateProjectToolbox(self, project):
         projectDir = project.getFile().dirName;
         self.notifyDroppedToolbox(projectDir)

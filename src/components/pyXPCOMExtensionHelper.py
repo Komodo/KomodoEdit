@@ -69,7 +69,7 @@ class pyXPCOMExtensionHelper:
 
     initialized_component_dirs = set()
 
-    def getExtenionDirectories(cls):
+    def getExtensionDirectories(cls):
         directorySvc =  components.classes["@mozilla.org/file/directory_service;1"].\
                             getService(components.interfaces.nsIProperties)
         enum = directorySvc.get("XREExtDL", components.interfaces.nsISimpleEnumerator)
@@ -78,7 +78,7 @@ class pyXPCOMExtensionHelper:
             nsifile = enum.getNext().QueryInterface(components.interfaces.nsIFile)
             extensionDirs.append(nsifile)
         return extensionDirs
-    getExtenionDirectories = classmethod(getExtenionDirectories)
+    getExtensionDirectories = classmethod(getExtensionDirectories)
 
     def getComponentDirectories(cls):
         componentDirs = []
@@ -127,7 +127,7 @@ class pyXPCOMExtensionHelper:
                 sys.path.append(pylibPath)
 
         # Extension directories.
-        for extDir in cls.getExtenionDirectories():
+        for extDir in cls.getExtensionDirectories():
             pylibPath = join(extDir.path, "pylib")
             if exists(pylibPath) and pylibPath not in sys.path:
                 if verbose:
