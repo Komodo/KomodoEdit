@@ -142,7 +142,6 @@
     <script src="chrome://komodo/content/project/toolboxManager.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/toolbox/toolbox2.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/toolbox/toolbox2_command.js"       type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/toolbox/toolbox2_macros.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peFile.js"               type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peFolder.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peSnippet.js"            type="application/x-javascript;version=1.7"/>
