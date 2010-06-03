@@ -1244,6 +1244,7 @@
         </method>
 
         <method name="_getPreviewPath">
+        <parameter name="dontPromptForPath"/>
         <body>
         <![CDATA[
             // Return the user's chosen preview path for this document,
@@ -1253,7 +1254,7 @@
             if (this.koDoc.prefs.hasStringPref("preview_path")) {
                 previewPath = this.koDoc.prefs.getStringPref("preview_path");
             }
-            if (!previewPath) {
+            if (!previewPath && !dontPromptForPath) {
                 var pick = ko.dialogs.pickPreview(this.koDoc.file.displayPath);
                 if (pick == null)
                     return null;
@@ -1264,6 +1265,30 @@
                 }
             }
             return previewPath;
+        ]]>
+        </body>
+        </method>
+
+        <method name="createInternalViewPreview">
+        <parameter name="previewURI"/>
+        <parameter name="viewlist"/>
+        <body>
+        <![CDATA[
+        if (!previewURI) {
+            previewURI = this._getPreviewPath(true /* no prompting */);
+            previewURI = ko.uriparse.pathToURI(previewURI);
+        }
+        if (!previewURI) {
+            // Default to the view's own document.
+            previewURI = this.koDoc.file.URI;
+        }
+        var doc;
+        if (previewURI == this.koDoc.file.URI) {
+            doc = this.koDoc;
+        } else {
+            doc = this.docSvc.createDocumentFromURI(previewURI);
+        }
+        this.preview = viewlist.createViewFromDocument(doc, 'browser', -1);
         ]]>
         </body>
         </method>
@@ -1323,25 +1348,11 @@
                     return;
                 case "in-tab-other-group":
                     var previewURI = ko.uriparse.pathToURI(previewPath);
-                    var doc;
-                    if (previewURI == this.koDoc.file.URI) {
-                        doc = this.koDoc;
-                    } else {
-                        doc = this.docSvc.createDocumentFromURI(previewURI);
-                    }
-                    this.preview = this.alternateViewList
-                        .createViewFromDocument(doc, 'browser', -1);
+                    this.createInternalViewPreview(previewURI, this.alternateViewList);
                     break;
                 case "in-tab-same-group":
                     var previewURI = ko.uriparse.pathToURI(previewPath);
-                    var doc;
-                    if (previewURI == this.koDoc.file.URI) {
-                        doc = this.koDoc;
-                    } else {
-                        doc = this.docSvc.createDocumentFromURI(previewURI);
-                    }
-                    this.preview = this.parentView
-                        .createViewFromDocument(doc, 'browser', -1);
+                    this.createInternalViewPreview(previewURI, this.parentView);
                     break;
                 }
                 this.preview.sourceView = this;
