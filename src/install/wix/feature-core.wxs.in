@@ -337,7 +337,7 @@
       <ComponentRef Id="component12"/>
       <ComponentRef Id="component13"/>
       <ComponentRef Id="component15"/>
-      <ComponentRef Id="component552"/>
+      <ComponentRef Id="component384"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
