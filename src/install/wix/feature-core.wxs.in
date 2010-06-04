@@ -337,6 +337,7 @@
       <ComponentRef Id="component12"/>
       <ComponentRef Id="component13"/>
       <ComponentRef Id="component15"/>
+      <ComponentRef Id="component552"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -1774,6 +1775,7 @@
                   <File Id="file195" LongName="lang_mason.py" Name="LANG_M_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_mason.py" />
                   <File Id="file196" LongName="lang_templatetoolkit.py" Name="LANG_T_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_templatetoolkit.py" />
                   <File Id="file1083" Name="tdparser.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\tdparser.py"/>
+                  <File Id="file1084" Name="pybinary.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\pybinary.py"/>
                 </Component>
                 <Directory Id="directory3" Name="database">
                   <Component DiskId="1" Guid="$(autowix.guid)" Id="component1">
@@ -2002,6 +2004,14 @@
                   </Directory> <!-- lib\mozilla\python\komodo\wnd\dlgs\templates -->
                 </Directory> <!-- lib\mozilla\python\komodo\wnd\dlgs -->
               </Directory> <!-- lib\mozilla\python\komodo\wnd -->
+              <Directory Id="directory421" Name="gencix">
+                <Directory Id="directory422" Name="PYTHON_0" LongName="python">
+                  <Component Id="component384" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file1085" Name="GENCIX_1.PY" LongName="gencixcore.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\gencix\python\gencixcore.py"/>
+                    <File Id="file1086" Name="PARSED_0.PY" LongName="parsedocs.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\gencix\python\parsedocs.py"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\python\komodo\gencix\python -->
+                </Directory> <!-- lib\mozilla\python\komodo\gencix -->
 
 <?if $(var.WithCrypto) = "yes" ?>
               <Directory Id="directory362" Name="Crypto">
