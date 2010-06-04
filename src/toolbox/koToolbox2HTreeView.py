@@ -607,6 +607,8 @@ class KoToolbox2HTreeView(TreeView):
         _observerSvc.addObserver(self, 'toolbox-tree-changed', 0)
         _observerSvc.addObserver(self, 'xpcom-shutdown', 0)
 
+        self._unfilteredRows = None
+
     def _getOrCreateTool(self, node_type, name, path_id):
         tool = self._tools.get(path_id, None)
         if tool is not None:
@@ -1232,16 +1234,20 @@ class KoToolbox2HTreeView(TreeView):
             firstVisibleRow = toolboxPrefs.getLongPref("firstVisibleRow")
         else:
             firstVisibleRow = -1
+        if toolboxPrefs.hasPref("currentIndex"):
+            currentIndex = toolboxPrefs.getLongPref("currentIndex")
+        else:
+            currentIndex = -1
+
+        self._restoreViewWithSettings(firstVisibleRow, currentIndex)
+
+    def _restoreViewWithSettings(self, firstVisibleRow, currentIndex):
         greatestPossibleFirstVisibleRow = len(self._rows) - self._tree.getPageLength()
         if greatestPossibleFirstVisibleRow < 0:
             greatestPossibleFirstVisibleRow = 0
         if firstVisibleRow > greatestPossibleFirstVisibleRow:
             firstVisibleRow = greatestPossibleFirstVisibleRow
         
-        if toolboxPrefs.hasPref("currentIndex"):
-            currentIndex = toolboxPrefs.getLongPref("currentIndex")
-        else:
-            currentIndex = -1
         if currentIndex >= len(self._rows):
            currentIndex =  len(self._rows) - 1
 
@@ -1367,7 +1373,49 @@ class KoToolbox2HTreeView(TreeView):
             index += 1
         return -1
 
+    def setFilter(self, filterPattern):
+        if not filterPattern:
+            begin_len = len(self._rows)
+            self._rows = self._unfilteredRows
+            self._unfilteredRows = None
+            after_len = len(self._rows)
+            #log.debug("Had %d rows, now have %d rows", begin_len, after_len)
+            self._tree.rowCountChanged(0, after_len - begin_len)
+            self._tree.invalidate()
+            self._restoreViewWithSettings(self._unfiltered_firstVisibleRow,
+                                          self._unfiltered_currentIndex)
+        else:
+            if self._unfilteredRows is None:
+                self._unfilteredRows = self._rows
+                self._unfiltered_firstVisibleRow = self._tree.getFirstVisibleRow()
+                self._unfiltered_currentIndex = self.selection.currentIndex;
+                
+            import time
+            t1 = time.time()
+            matched_nodes = _tbdbSvc.getHierarchyMatch(filterPattern)
+            t2 = time.time()
+            #log.debug("Time to query %s: %g msec", filterPattern, (t2 - t1) * 1000.0)
+            #log.debug("matched nodes: %s", matched_nodes)
+            before_len = len(self._rows)
+            self._rows = []
+            for node in matched_nodes:
+                path_id, name, node_type, matchedPattern, level = node
+                toolPart = self._getOrCreateTool(node_type, name, path_id)
+                toolPart.level = level
+                self._rows.append(toolPart)
+            after_len = len(self._rows)
+            #log.debug("Had %d rows, now have %d rows", before_len, after_len)
+            self._tree.rowCountChanged(0, after_len - before_len)                
+            self._tree.invalidate()
+                
+            # And replace the table.
+
     def toggleOpenState(self, index, suppressUpdate=False):
+        if self._unfilteredRows:
+            # "trying to toggle while searching causes all kinds of grief"
+            # - koKPFTreeView.p.py
+            # To fix: make row info thinner.
+            return
         rowNode = self._rows[index]
         if rowNode.isOpen:
             try:

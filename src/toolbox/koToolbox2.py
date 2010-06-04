@@ -942,6 +942,57 @@ class Database(object):
     def getToolbarInfo(self, path_id, cu=None):
         return self.getCommonContainerDetails(path_id, 'toolbar')
 
+    def getHierarchyMatch(self, filterPattern):
+        """
+        This returns a table of [id, name, type, matchesPattern, level]
+        """
+        with self.connect() as cu:
+            cu.execute("""select path_id from common_details
+                          where name like ?""", ("%" + filterPattern + "%", ))
+            ids = [x[0] for x in cu.fetchall()]
+            if not ids:
+                return []
+            children_by_id = {}
+            processed_ids = dict([(id, True) for id in ids])
+            while ids:
+                q_list = " or ".join(["path_id = ?"] * len(ids))
+                cu.execute("""select path_id, parent_path_id from hierarchy
+                          where %s""" % q_list, ids)
+                rows = cu.fetchall()
+                ids = []
+                for path_id, parent_path_id in rows:
+                    children_by_id.setdefault(parent_path_id, []).append(path_id)
+                    if parent_path_id not in processed_ids:
+                        ids.append(parent_path_id)
+                        processed_ids[parent_path_id] = False
+            
+            q_list = " or ".join(["path_id = ?"] * len(processed_ids))
+            cu.execute("""select path_id, name, type from common_details
+                          where %s""" % q_list, processed_ids.keys())
+            rows = cu.fetchall()
+            row_info_by_id = dict([(row[0], list(row)) for row in rows])
+            ret_table = []
+            self._completeTable(None, children_by_id, row_info_by_id,
+                                processed_ids, 0, ret_table)
+            return ret_table
+
+    def _completeTable(self, parent_id, children_by_id, row_info_by_id,
+                       processed_ids, level,
+                       ret_table):
+        children_ids = children_by_id.get(parent_id, [])
+        log.debug("children_by_id.get(%r) => %r", parent_id, children_ids)
+        for id in children_ids:
+            ret_table.append(row_info_by_id[id] + [processed_ids[id], level])
+            self._completeTable(id, children_by_id, row_info_by_id,
+                                processed_ids, level + 1,
+                                ret_table)
+            
+                    
+                
+                
+
+            
+
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 

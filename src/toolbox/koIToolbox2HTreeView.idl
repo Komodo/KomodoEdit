@@ -169,5 +169,7 @@ interface koIToolbox2HTreeView: nsITreeView {
                               in boolean copying);
     long zipSelectionToFile(in wstring zipFile);
     long getNextSiblingIndex(in long index); // not in nsITreeView...
+
+    void setFilter(in wstring filterPattern);
 };
 

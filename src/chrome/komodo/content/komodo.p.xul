@@ -2521,26 +2521,26 @@
                                     </toolbarbutton>
                         -->
                             <vbox flex="1" id="toolbox2-hierarchy-vbox">
-                                <!-- #if 0 -->
+                                <!-- #if 1 -->
                                 <hbox id="toolbox2-hierarchy-toolbar-a" >
                                     <!-- the cog -->
                                     <toolbarbutton    id="toolbox2_tools-a"
-                                            tooltiptext="&amp;tools.label;"
+                                            tooltiptext="&tools.label;"
                                             buttonstyle="pictures"
                                             type="menu"
                                             orient="horizontal"
                                             class="rightarrow-button-a project-tools-icon"/>
-                                    <textbox id="toolbox2-filter-textbox-a"
+                                    <textbox id="toolbox2-filter-textbox"
                                                class="search-box"
                                                style="min-width:40px; max-width:200px; margin-right:0px;"
                                                flex="1"
                                                type="search"
                                                timeout="500"
-                                               onfocus="ko.toolbox2.focus(this);"
+                                               onfocus="window.updateCommands('undo');this.select();"
                                                onblur="window.updateCommands('undo')"
                                                onkeypress="ko.toolbox2.onFilterKeypress(event)"
                                                oncommand="ko.toolbox2.updateFilter()"
-                                               tooltiptext="&amp; XXX filter items;"/>
+                                               tooltiptext="&findFilter.tooltiptext;"/>
                                 </hbox >
                                 <!-- #endif -->
                                 <tree flex="1" id="toolbox2-hierarchy-tree"
