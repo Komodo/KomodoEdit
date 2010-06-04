@@ -59,6 +59,7 @@ initialize: function() {
             .getService(Components.interfaces.koIToolBox2Service);
     toolbox2Svc.migrateVersion5Toolboxes();
     widgets.tree = document.getElementById("toolbox2-hierarchy-tree");
+    widgets.filterTextbox = document.getElementById("toolbox2-filter-textbox");
     this.tree = widgets.tree;
     this.view = Components.classes["@activestate.com/KoToolbox2HTreeView;1"]
         .createInstance(Components.interfaces.koIToolbox2HTreeView);
@@ -93,6 +94,16 @@ deleteCurrentItem: function() {
         dump(ex + "\n");
     }
 },
+
+updateFilter: function(event) {
+    var textbox = this.widgets.filterTextbox;
+    var filterPattern = textbox.value;
+    this.view.setFilter(filterPattern);
+    if (this.view.rowCount) {
+        this.view.selection.select(0);
+    }
+},
+
 _EOD_: null
 };
 
@@ -308,6 +319,33 @@ this.getToolsWithKeyboardShortcuts = function(dbPath) {
     var obj = {};
     this.manager.view.getToolsWithKeyboardShortcuts(dbPath, obj, {});
     return obj.value;
+};
+
+this.onFilterKeypress = function(event) {
+    try {
+        if (event.keyCode == event.DOM_VK_TAB && !event.ctrlKey) {
+            event.cancelBubble = true;
+            event.stopPropagation();
+            event.preventDefault();
+            this.manager.widgets.tree.focus();
+            return;
+        } else if (event.keyCode == event.DOM_VK_ESCAPE) {
+            if (this.widgets.filterTextbox.value != '') {
+                this.widgets.filterTextbox.value = '';
+                this.updateFilter();
+                event.cancelBubble = true;
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            return;
+        }
+    } catch (e) {
+        log.exception(e);
+    }
+};
+
+this.updateFilter = function(event) {
+    return this.manager.updateFilter();
 };
 
 }).apply(ko.toolbox2);
