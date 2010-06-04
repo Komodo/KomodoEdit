@@ -49,6 +49,7 @@ import weakref
 import re
 import imp
 from pprint import pprint, pformat
+import itertools
 
 import SilverCity
 from SilverCity.Lexer import Lexer
@@ -209,16 +210,6 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             raise NotImplementedError("not yet implemented: completion for "
                                       "Python '%s' trigger" % trg.name)
 
-    def _python_from_env(self, env):
-        import which
-        path = [d.strip() 
-                for d in env.get_envvar("PATH", "").split(os.pathsep)
-                if d.strip()]
-        try:
-            return which.which("python", path=path) 
-        except which.WhichError:
-            return None
-
     # Note: Python 1.5.2 does not support sys.version_info.
     # Note: Overridden in "lang_python3.py".
     info_cmd = (
@@ -312,13 +303,30 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             log.debug("Python extra lib dirs: %r", extra_dirs)
         return tuple(extra_dirs)
 
-    def get_interpreter(self, env):
+    def interpreter_from_env(self, env):
+        """Returns:
+            - absolute path to either the preferred or
+              default system interpreter
+            - None if none of the above exists
+        """
         # Gather information about the current python.
         python = None
         if env.has_pref(self.interpreterPrefName):
             python = env.get_pref(self.interpreterPrefName).strip() or None
+        
         if not python or not exists(python):
-            python = self._python_from_env(env)
+            import which
+            syspath = env.get_envvar("PATH", "") 
+            path = [d.strip() for d in syspath.split(os.pathsep)
+                              if d.strip()]
+            try:
+                python = which.which("python", path=path) 
+            except which.WhichError:
+                pass # intentionally supressed
+
+        if python:
+            python = os.path.abspath(python)
+
         return python
 
     def _buf_indep_libs_from_env(self, env):
@@ -333,7 +341,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                                   self._invalidate_cache)
             db = self.mgr.db
 
-            python = self.get_interpreter(env)
+            python = self.interpreter_from_env(env)
             if not python:
                 log.warn("no Python was found from which to determine the "
                          "import path")
@@ -807,7 +815,7 @@ class PythonImportHandler(ImportHandler):
                 if path.endswith(os.path.join("win32com", "gen_py")):
                     del names[i]
                     continue
-            elif os.path.splitext(names[i])[1] in self.get_python_suffixes():
+            elif os.path.splitext(names[i])[1] in self._gen_suffixes():
                 #XXX The list of Python extensions should be settable on
                 #    the ImportHandler and Komodo should set whatever is
                 #    set in prefs.
@@ -830,13 +838,13 @@ class PythonImportHandler(ImportHandler):
             for file in files:
                 yield file
 
-    def get_python_suffixes(self):
+    def _gen_suffixes(self):
+        """Generate a sequence of scannable file suffixes in the
+           preferred order of scanning. 
+        """
         yield ".py"
         yield ".pyw"
-        for bin_suffix in self.get_binary_suffixes():
-            yield bin_suffix
-    
-    def get_binary_suffixes(self):
+        
         if _SCAN_BINARY_FILES:
             yield ".pyc"
             yield ".pyo"
@@ -850,10 +858,20 @@ class PythonImportHandler(ImportHandler):
 
         Importables for Python look like this:
             {"foo":    ("foo.py",             None,       False),
-             "foolib": ("foolib/__init__.py", "__init__", False)}
+             "foolib": ("foolib/__init__.py", "__init__", False),
+             "bar":    ("bar.pyc",            None,       False),
+             "baz":    ("baz.pyo",            None,       False),
+             "qoox":   ("qoox.pyd",           None,       False),
+             "qooz":   ("qooz.so",            None,       False),
 
-        TODO: consider *.pyd/so files when have a story for binary modules
-              on the fly
+        Note: .pyd are .so handling depends on the platform.
+        
+        If several files happen to have the same name but different
+        suffixes, the one with preferred suffix wins. The suffixe preference
+        is defined by the order of elements in the sequence generated
+        by _gen_suffixes().
+        
+        This particularly means that sources always win over binaries.
         """
         if imp_dir == "<Unsaved>":
             #TODO: stop these getting in here.
@@ -861,31 +879,27 @@ class PythonImportHandler(ImportHandler):
         
         importables = {}
         
-        for path in glob(join(imp_dir, "*.py")):
-            base = basename(path)
-            sans_ext = splitext(base)[0]
-            if sans_ext == '__init__': continue # no need for these
-            importables[sans_ext] = (base, None, False)
-        
-        for path in glob(join(imp_dir, "*", "__init__.py")):
-            base = path[len(imp_dir)+1:]
-            importables[dirname(base)] = (base, "__init__", False)
+        if os.path.isdir(imp_dir):
+            suffixes = dict((s, i) for i, s
+                                   in enumerate(self._gen_suffixes(), 1))
+            modules = []
+            for name in os.listdir(imp_dir):
+                mod, suffix = os.path.splitext(name)
+                if mod != '__init__':
+                    init = os.path.join(name, '__init__.py')
+                    if os.path.exists(os.path.join(imp_dir, init)):
+                            modules.append((0, name, (init, '__init__', False)))
+                    else:
+                        if suffix in suffixes:
+                            modules.append((suffixes[suffix], mod,
+                                            (name, None, False)))
             
-        binary_files = []
-        
-        for suffix in self.get_binary_suffixes():
-            for fn in glob(join(imp_dir, '*' + suffix)):
-                binary_files.append(fn)
-        
-        for path in binary_files:
-            base = basename(path)
-            sans_ext = splitext(base)[0]
-            if sans_ext == '__init__':
-                continue # no need to scan these
-            if sans_ext + ".py" in importables:
-                continue # already there
-            importables[sans_ext] = (base, None, False)
+            modules.sort(key=lambda mod: mod[0])
             
+            for _, mod, importable in modules:
+                if mod not in importables:
+                    importables[mod] = importable
+        
         return importables
 
 
@@ -907,7 +921,7 @@ class PythonCILEDriver(CILEDriver):
 
     def scan_binary(self, buf):
         from codeintel2 import pybinary
-        python = buf.langintel.get_interpreter(buf.env)
+        python = buf.langintel.interpreter_from_env(buf.env)
         if not python:
             raise CodeIntelError("cannot find a usable Python interpreter")
         cix = pybinary.safe_scan(buf.path, python)

@@ -1331,6 +1331,31 @@ class LangLibTestCase(DBTestCase):
 
         self._check_db()
 
+    @tag("knownfailure")
+    def test_python_so_modules(self):
+        import cmath, shutil
+        dir = os.path.dirname(cmath.__file__)
+        #ext = os.path.splitext(mod_path)[1]
+        #path = os.path.join(self.test_dir, 'xmath' + ext)
+        #shutil.copyfile(mod_path, path)
+        
+        import_handler = self.mgr.import_handler_class_from_lang['Python'](self.mgr)
+        files = list(import_handler.find_importables_in_dir(dir))
+        
+        self.failUnless('cmath' in files)
+        
+        libs = self.mgr.db.get_lang_lib("Python", "curdirlib", [dir])
+        ctrl = LogEvalController()
+        blob = import_handler.import_blob_name("cmath", [libs], ctrl)
+        self.failIf(blob is None)
+        del blob
+
+        log.info("assert that 'cmath' is in %s", libs)
+        self.failUnless(libs.has_blob("cmath"))
+        self.failUnless(libs.get_blob("cmath") is not None)
+
+        self._check_db()
+
     def test_python(self):
         lang = "Python"
         dad_py = join(self.test_dir, "dad.py")

@@ -354,7 +354,7 @@ class Manager(threading.Thread, Queue):
             buf = buf_class(self, accessor, env, path, encoding)
         return buf
 
-    def buf_from_binary(self, path, lang=None, env=None):
+    def binary_buf_from_path(self, path, lang=None, env=None):
         buf = BinaryBuffer(lang, self, env, path)
         return buf
     
@@ -368,7 +368,7 @@ class Manager(threading.Thread, Queue):
                         and ti.langinfo.komodo_name
                         or ti.langinfo.name)
             if not ti.is_text:
-                return self.buf_from_binary(path, lang, env)
+                return self.binary_buf_from_path(path, lang, env)
             encoding = ti.encoding
             content = ti.text
         else:
