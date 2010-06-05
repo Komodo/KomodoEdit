@@ -4728,7 +4728,6 @@
               <File Id="file3851" Name="RUBY_S_0.RB" LongName="ruby_sample.rb" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\ruby_sample.rb"/>
               <File Id="file3853" Name="SAMPLE_0.KPF" LongName="sample_project.kpf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\sample_project.kpf"/>
               <File Id="file3854" Name="TCL_SA_0.TCL" LongName="tcl_sample.tcl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tcl_sample.tcl"/>
-              <File Id="file3855" Name="toolbox.kpf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\toolbox.kpf"/>
               <File Id="file3856" Name="XSLT_S_0.XSL" LongName="xslt_sample.xsl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\xslt_sample.xsl"/>
             </Component>
           </Directory> <!-- lib\support\samples -->
