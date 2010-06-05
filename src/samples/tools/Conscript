@@ -27,7 +27,6 @@ for my $file (qw/
                 Open_New_Window.komodotool
                 Sample_Snippet_-_Double_Click_to_Insert.komodotool
                 toggle-word-wrap-edit.komodotool
-                shnook.komodotool
 /) {
     $cons->InstallWriteable($supportSampleDir, $file);
 }
