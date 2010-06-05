@@ -1136,7 +1136,6 @@ class KoInitService(object):
 
     def installSampleTools(self):
         try:
-            print ">>installSampleTools"
             prefs = components.classes["@activestate.com/koPrefService;1"].\
                     getService(components.interfaces.koIPrefService).prefs
             infoSvc = components.classes["@activestate.com/koInfoService;1"].\
@@ -1146,7 +1145,6 @@ class KoInitService(object):
                      getService(components.interfaces.koIDirs)
             stdToolsFolder = os.path.join(koDirs.userDataDir, 'tools')
             if not os.path.exists(stdToolsFolder):
-                print "need to make %s" % (stdToolsFolder,)
                 os.mkdir(stdToolsFolder)
                 lookAtPrefName = False
                 
@@ -1155,21 +1153,17 @@ class KoInitService(object):
             destDir = os.path.join(stdToolsFolder, folder_name)
             srcDir = os.path.join(koDirs.supportDir, 'samples', 'tools')
             if not os.path.exists(destDir):
-                print "need to populate %s from %s" % (destDir,srcDir)
                 lookAtPrefName = False
                 
             prefName = "haveInstalledSampleToolbox-Komodo" + infoSvc.version
             if lookAtPrefName and prefs.hasBooleanPref(prefName) and prefs.getBooleanPref(prefName):
-                print "<<installSampleTools: have the pref: %s" % (prefName,)
                 return
             
             import shutil
             shutil.copytree(srcDir, destDir, False)
-            print "installSampleTools: copied"
             prefs.setBooleanPref(prefName, True)
         except Exception, e:
             log.exception(e)
-        print "<<installSampleTools:done"
 
     def installTemplates(self):
         try:
