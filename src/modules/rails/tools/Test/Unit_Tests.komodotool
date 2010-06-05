@@ -1,0 +1,30 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "Unit Tests", 
+  "language": "JavaScript", 
+  "trigger_enabled": "0", 
+  "rank": "100", 
+  "trigger": "trigger_postopen", 
+  "value": [
+    "try {", 
+    "    var project = (Components.classes[\"@activestate.com/koPartService;1\"].getService().", 
+    "                       runningMacro.project);", 
+    "    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));", 
+    "    var obj = {base: 'rake', ruby: null, rake:null, env:null};", 
+    "    ko.extensions.rails.setup_associated_paths_env(obj);", 
+    "    var options = {", 
+    "        dir: (Components.classes[\"@activestate.com/koPartService;1\"].getService().", 
+    "              runningMacro.project.getFile().dirName),", 
+    "        env: obj.env,", 
+    "        __END__ : null", 
+    "    };", 
+    "    ko.extensions.rails.runCommand(this, obj.rake + ' test:units', options);", 
+    "} catch(ex) {", 
+    "    alert(ex + \"\\n\");", 
+    "}", 
+    ""
+  ], 
+  "async": "0", 
+  "type": "macro", 
+  "icon": "chrome://famfamfamsilk/skin/icons/sport_tennis.png"
+}

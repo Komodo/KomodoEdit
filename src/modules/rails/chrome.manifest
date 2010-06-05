@@ -1,0 +1,2 @@
+content rails jar:rails.jar!/content/ xpcnativewrappers=yes
+overlay chrome://komodo/content/komodo.xul chrome://rails/content/overlay.xul

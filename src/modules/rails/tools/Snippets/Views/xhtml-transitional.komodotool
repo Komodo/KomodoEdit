@@ -1,0 +1,13 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "xhtml-transitional", 
+  "value": [
+    "<!DOCTYPE html ", 
+    "     PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"", 
+    "     \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">", 
+    "!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "false"
+}

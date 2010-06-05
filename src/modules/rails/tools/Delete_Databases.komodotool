@@ -1,0 +1,31 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "Delete Databases", 
+  "language": "JavaScript", 
+  "trigger_enabled": "0", 
+  "rank": "100", 
+  "trigger": "trigger_postopen", 
+  "value": [
+    "(function() {    ", 
+    "    function deleteDatabases() {", 
+    "        var project = (Components.classes[\"@activestate.com/koPartService;1\"].getService().", 
+    "                       runningMacro.project);", 
+    "        macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));", 
+    "    ko.extensions.rails.manageDatabases(this, 'delete', 'deletion');", 
+    "    };", 
+    "    try {", 
+    "        deleteDatabases();", 
+    "    } catch(ex) {", 
+    "    if (ex.message == \"You cancelled.\") {", 
+    "        return;", 
+    "    }", 
+    "        var msg = ex + \"\\n\";", 
+    "    if ('stack' in ex) msg += ex.stack + \"\\n\";", 
+    "        alert(msg);", 
+    "    }", 
+    "})();"
+  ], 
+  "async": "0", 
+  "type": "macro", 
+  "icon": "chrome://famfamfamsilk/skin/icons/database_delete.png"
+}
