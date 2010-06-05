@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "rec", 
+  "value": [
+    "redirect_to :controller => [[%tabstop:items]]!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

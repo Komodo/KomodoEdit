@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "for", 
+  "value": [
+    "for {set [[%tabstop:START]]} {[[%tabstop:TEST]]} {[[%tabstop:NEXT]]}", 
+    "\t[[%tabstop]]", 
+    "}!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

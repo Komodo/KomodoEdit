@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "liai", 
+  "value": [
+    "<% link_to(\"[[%tabstop:text]]\", :action => \"[[%tabstop:edit]]\", :id => [[%tabstop:@item]] %>!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "false"
+}

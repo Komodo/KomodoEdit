@@ -1,0 +1,11 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "func", 
+  "value": [
+    "def [[%tabstop:name]]([[%tabstop:arg1]]):", 
+    "\t[[%tabstop:pass]]!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "ct", 
+  "value": [
+    "create_table(:[[%tabstop:table]]) do |t|", 
+    "  [[%tabstop:]]", 
+    "end!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

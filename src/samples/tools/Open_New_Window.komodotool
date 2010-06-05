@@ -1,0 +1,16 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "Open New Window", 
+  "language": "JavaScript", 
+  "trigger_enabled": "0", 
+  "rank": "100", 
+  "trigger": "trigger_postopen", 
+  "value": [
+    "window.openDialog(\"chrome://komodo/content\",", 
+    "                  \"_blank\",", 
+    "                  \"chrome,all,dialog=no\",", 
+    "                  null);"
+  ], 
+  "async": "0", 
+  "type": "macro"
+}

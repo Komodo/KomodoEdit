@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "<h4> Header 4", 
+  "value": [
+    "<h4>[[%(w:else:)]]!@#_currentPos!@#_anchor</h4>"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

@@ -1,0 +1,21 @@
+{
+  "insertOutput": "0", 
+  "keyboard_shortcut": "", 
+  "name": "Find in Files", 
+  "parseRegex": "^(?P<file>.+?):(?P<line>\\d+):(?P<content>.*)$", 
+  "operateOnSelection": "0", 
+  "cwd": "%(ask:Start Directory:%D)", 
+  "value": [
+            // #if PLATFORM == "win"
+    "findstr /s /n /c:\"%(w:orask:Search Term)\" %(ask:File Pattern:*.*)"
+    // #else
+    "find . -name \"%(ask:File Pattern:*)\" | xargs -l grep -nH \"%(w:orask:Search Term)\""
+    // #endif
+  ], 
+  "env": "", 
+  "doNotOpenOutputWindow": "0", 
+  "showParsedOutputList": "1", 
+  "type": "command", 
+  "parseOutput": "1", 
+  "runIn": "command-output-window"
+}

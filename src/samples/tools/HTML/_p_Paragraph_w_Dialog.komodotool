@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "<p> Paragraph w/Dialog", 
+  "value": [
+    "<p style=\"[[%ask:Style]]\" class=\"[[%ask:Class]]\">[[%(w:else:)]]!@#_currentPos!@#_anchor</p>"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

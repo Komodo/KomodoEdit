@@ -1,0 +1,14 @@
+{
+  "insertOutput": "0", 
+  "keyboard_shortcut": "", 
+  "name": "Make current file writeable", 
+  "operateOnSelection": "0", 
+  "value": [
+    "chmod +w %F"
+  ], 
+  "cwd": "", 
+  "env": "", 
+  "doNotOpenOutputWindow": "0", 
+  "type": "command", 
+  "runIn": "command-output-window"
+}

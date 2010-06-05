@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "<form> Form w/Dialog", 
+  "value": [
+    "<form name=\"[[%ask:Name]]\" action=\"[[%ask:Action]]\" method=\"[[%ask:Method:POST]]\" enctype=\"[[%ask:Encoding:application/x-www-form-urlencoded]]\">!@#_currentPos!@#_anchor<input type=\"submit\"/><input type=\"reset\"/></form>"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

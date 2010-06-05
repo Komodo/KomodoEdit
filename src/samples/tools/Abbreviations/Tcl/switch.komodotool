@@ -1,0 +1,17 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "switch", 
+  "value": [
+    "switch [[%tabstop:STRING]] {", 
+    "\t[[%tabstop:PATTERN]] {", 
+    "\t\t[[%tabstop:ACTION]]", 
+    "\t}", 
+    "\t[[%tabstop:PATTERN2]]", 
+    "\t\t[[%tabstop:ACTION2]]", 
+    "\t}", 
+    "}!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

@@ -1,0 +1,59 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    "cons",
+    "mozChromeDir",
+    "supportDir",
+    "platform",
+    "unsiloedPythonExe",
+    "productType",
+    "buildFlavour",
+    "mozVersion",
+);
+
+my $supportSampleDir = "$supportDir/samples/tools";
+
+for my $dir ('Abbreviations', 'HTML', 'Sample_Macros') {
+    $cons->InstallRecursive("$supportSampleDir/$dir", 
+                        #XXX must be absolute path (bug in InstallRecursive)
+			    cwd() . "/src/samples/tools/$dir",
+                            ('\.consign', '\.svn'));
+}
+for my $file (qw/
+                http_slashdot_org_.komodotool
+                Open_New_Window.komodotool
+                Sample_Snippet_-_Double_Click_to_Insert.komodotool
+                toggle-word-wrap-edit.komodotool
+                shnook.komodotool
+/) {
+    $cons->InstallWriteable($supportSampleDir, $file);
+}
+
+if ($platform eq 'win') {
+    for my $file (qw/Perldoc_on_selection_for_builtin.komodotool
+                Perldoc_on_selection_for_modules_.komodotool
+                Start_Browser.komodotool
+                pod2html_current_file.komodotool/) {
+        $cons->InstallWriteable($supportSampleDir, $file);
+    }
+    # These files differ for Windows and others
+    for my $file (qw/
+                Find_in_Files.komodotool
+                Make_current_file_writeable.komodotool/) {
+	$cons->Preprocess("${file}.win", $file);
+	$cons->InstallWriteable($supportSampleDir, $file);
+    }
+} else {
+    for my $file (qw/Count_words_in_selection_using_wc_.komodotool/) {
+        $cons->InstallWriteable($supportSampleDir, $file);
+    }
+    for my $file (qw/
+                Find_in_Files.komodotool
+                Make_current_file_writeable.komodotool/) {
+	$cons->Preprocess("${file}.std", $file);
+	$cons->InstallWriteable($supportSampleDir, $file);
+    }
+}

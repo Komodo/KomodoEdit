@@ -1,0 +1,18 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "if", 
+  "value": [
+    "if ([[%tabstop:EXPR]]) {", 
+    "\t[[%tabstop:]]", 
+    "}", 
+    "elsif ([[%tabstop:EXPR]]) {", 
+    "\t[[%tabstop:]]", 
+    "}", 
+    "else {", 
+    "\t[[%tabstop:]]", 
+    "}!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

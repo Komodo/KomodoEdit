@@ -1,0 +1,14 @@
+{
+  "insertOutput": "0", 
+  "keyboard_shortcut": "", 
+  "name": "pod2html current file", 
+  "operateOnSelection": "0", 
+  "value": [
+    "\"%(perl)\" -e print && pod2html \"%F\" > \"c:\\temp\\pod.html\" && %(browser) c:\\temp\\pod.html"
+  ], 
+  "cwd": "", 
+  "env": "", 
+  "doNotOpenOutputWindow": "0", 
+  "type": "command", 
+  "runIn": "command-output-window"
+}

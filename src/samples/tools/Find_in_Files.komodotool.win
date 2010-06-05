@@ -1,0 +1,17 @@
+{
+  "insertOutput": "0", 
+  "keyboard_shortcut": "", 
+  "name": "Find in Files", 
+  "parseRegex": "^(?P<file>.+?):(?P<line>\\d+):(?P<content>.*)$", 
+  "operateOnSelection": "0", 
+  "cwd": "%(ask:Start Directory:%D)", 
+  "value": [
+    "findstr /s /n /c:\"%(w:orask:Search Term)\" %(ask:File Pattern:*.*)"
+  ], 
+  "env": "", 
+  "doNotOpenOutputWindow": "0", 
+  "showParsedOutputList": "1", 
+  "type": "command", 
+  "parseOutput": "1", 
+  "runIn": "command-output-window"
+}

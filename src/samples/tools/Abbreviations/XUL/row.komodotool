@@ -1,0 +1,13 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "row", 
+  "value": [
+    "<row>", 
+    "  <label value=\"[[%tabstop:Label]]\"/>", 
+    "  <textbox id=\"[[%tabstop:id]]\"/>", 
+    "</row>!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

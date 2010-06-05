@@ -1,0 +1,15 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "dump", 
+  "value": [
+    "function _dump($data) {", 
+    "\tif (func_num_args() > 1) {", 
+    "\t\t$data = func_get_args();", 
+    "\t}", 
+    "\treturn \"<pre>\".print_r($data, 1).\"</pre>\";", 
+    "}!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

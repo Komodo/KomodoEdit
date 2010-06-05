@@ -1,0 +1,14 @@
+{
+  "insertOutput": "0", 
+  "keyboard_shortcut": "", 
+  "name": "Start Browser", 
+  "operateOnSelection": "0", 
+  "value": [
+    "%(browser)"
+  ], 
+  "cwd": "", 
+  "env": "", 
+  "doNotOpenOutputWindow": "0", 
+  "type": "command", 
+  "runIn": "no-console"
+}

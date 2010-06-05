@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "<A> URI Link", 
+  "value": [
+    "<a href=\"[[%w:else:]]\">[[%w:else:]]!@#_currentPos!@#_anchor</a>"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

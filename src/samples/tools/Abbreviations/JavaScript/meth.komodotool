@@ -1,0 +1,17 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "meth", 
+  "value": [
+    "/**", 
+    " * [[%tabstop1:method]]", 
+    " * @param [[%tabstop2:arg1]]", 
+    " */", 
+    " ", 
+    "[[%tabstop:Object]].prototype.[[%tabstop1]] = function [[%tabstop1]]([[%tabstop2]]) {", 
+    "\t[[%tabstop:]]", 
+    "};!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

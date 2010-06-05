@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "mod", 
+  "value": [
+    "module [[%tabstop:Name]]", 
+    "  [[%tabstop]]", 
+    "end!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

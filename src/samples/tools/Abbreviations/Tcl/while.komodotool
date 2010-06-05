@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "while", 
+  "value": [
+    "while {[[%tabstop:EXPR]]} {", 
+    "\t[[%tabstop]]", 
+    "}!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

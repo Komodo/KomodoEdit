@@ -1,0 +1,14 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "jqeach", 
+  "value": [
+    "$('[[%tabstop:selector]]').each(", 
+    "\tfunction(i) {", 
+    "\t\t[[%tabstop:]]", 
+    "\t}", 
+    ");!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

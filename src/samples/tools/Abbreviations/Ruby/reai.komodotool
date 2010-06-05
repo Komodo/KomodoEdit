@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "reai", 
+  "value": [
+    "redirect_to :action => [[%tabstop:show]], :id => [[%tabstop:@item]]!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

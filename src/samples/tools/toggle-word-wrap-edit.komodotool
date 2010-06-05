@@ -1,0 +1,33 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "toggle-word-wrap-edit", 
+  "language": "JavaScript", 
+  "trigger_enabled": "0", 
+  "rank": "100", 
+  "trigger": "trigger_postopen", 
+  "value": [
+    "try {", 
+    "    var isTrigger = (typeof(subject) != \"undefined\" && subject);", 
+    "    var view = isTrigger ? subject : ko.views.manager.currentView;", 
+    "    var scimoz = view.scimoz;", 
+    "    if (isTrigger) {", 
+    "        scimoz.wrapIndentMode = scimoz.SC_WRAPINDENT_SAME;", 
+    "        // choose from one of these:", 
+    "        // val SC_WRAPINDENT_FIXED=0", 
+    "        // val SC_WRAPINDENT_SAME=1", 
+    "        // val SC_WRAPINDENT_INDENT=2", 
+    "        return;", 
+    "    }", 
+    "    var wrapIndentMode = scimoz.wrapIndentMode;", 
+    "    wrapIndentMode = (wrapIndentMode + 1) % 3;", 
+    "    scimoz.wrapIndentMode = wrapIndentMode;", 
+    "    var msg = (\"wrap mode for file \" + view.document.displayPath + \": \"", 
+    "               + wrapIndentMode);", 
+    "    ko.statusBar.AddMessage(msg, \"Editor\", 3000, true);", 
+    "} catch(ex) {", 
+    "    dump(ex + \"\\n\");", 
+    "}"
+  ], 
+  "async": "0", 
+  "type": "macro"
+}

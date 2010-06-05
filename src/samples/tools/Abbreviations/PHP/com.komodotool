@@ -1,0 +1,13 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "com", 
+  "value": [
+    "/**", 
+    "  *  !@#_currentPos!@#_anchor ", 
+    "  */", 
+    ""
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

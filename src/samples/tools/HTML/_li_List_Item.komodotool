@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "<li> List Item", 
+  "value": [
+    "<li>[[%(w:else:)]]!@#_currentPos!@#_anchor</li>"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

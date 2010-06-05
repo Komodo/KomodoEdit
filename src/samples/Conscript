@@ -58,7 +58,6 @@ my @samples = (
     ["xslt_sample.p.xsl", "xslt_sample.xsl"],
     ["birds.p.xml", "birds.xml"],
     ["html_sample.p.html", "html_sample.html"],
-    ["toolbox.p.kpf", "toolbox.kpf"],
 );
 for $i (0 .. $#samples) {
     $cons->Preprocess($samples[$i][0], $samples[$i][1], undef, 1);

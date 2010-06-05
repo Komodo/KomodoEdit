@@ -1,0 +1,14 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "class", 
+  "value": [
+    "class [[%tabstop:name]]", 
+    "\tdef [[%tabstop]]", 
+    "\t\t[[%tabstop]]", 
+    "\tend", 
+    "end!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

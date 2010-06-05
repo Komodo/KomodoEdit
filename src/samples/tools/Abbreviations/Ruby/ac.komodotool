@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "ac", 
+  "value": [
+    "add_column :[[%tabstop:table]], :[[%tabstop:column]], :[[%tabstop:string]]!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

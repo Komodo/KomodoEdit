@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "Sample Snippet - Double Click to Insert", 
+  "value": [
+    "!@#_anchor/* Copyright (c) 2003 [[%ask:Corporation Name:Default]] Corporation. */\\n!@#_currentPos"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "false"
+}

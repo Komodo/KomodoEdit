@@ -1,0 +1,19 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "opts", 
+  "value": [
+    "from optparse import OptionParser", 
+    "parser = OptionParser()", 
+    "", 
+    "parser.add_option(\"-[[%tabstop:f]]\",", 
+    "                  \"--[[%tabstop1:file]]\",", 
+    "                  dest=\"[[%tabstop1]]\",", 
+    "                  help=\"[[%tabstop:desc]].\",", 
+    "                  default=\"[[%tabstop:DEFAULT]]\"", 
+    "                  )", 
+    "(options, args) = parser.parse_args()!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

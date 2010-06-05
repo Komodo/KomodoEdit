@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "jqstart", 
+  "value": [
+    "$(document).ready(function() {", 
+    "  !@#_currentPos!@#_anchor", 
+    "});"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

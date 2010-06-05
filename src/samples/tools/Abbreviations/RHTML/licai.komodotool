@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "licai", 
+  "value": [
+    "<% link_to(\"[[%tabstop:text]]\", :controller => \"[[%tabstop:items]]\", :action => \"[[%tabstop:index]]\", :id => [[%tabstop:@item]] %>!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

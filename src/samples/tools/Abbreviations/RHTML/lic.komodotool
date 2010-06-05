@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "lic", 
+  "value": [
+    "<% link_to(\"[[%tabstop:text]]\", :controller => \"[[%tabstop:items]]\" %>!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

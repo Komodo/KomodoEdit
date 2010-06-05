@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "<table> Table 1 row 1 col", 
+  "value": [
+    "<table><tr><td>!@#_currentPos!@#_anchor</td></tr></table>"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

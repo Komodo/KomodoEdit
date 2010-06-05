@@ -1,0 +1,24 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "class", 
+  "value": [
+    "/*", 
+    " * class [[%tabstop1:class]]", 
+    " */", 
+    "", 
+    "class [[%tabstop1]] [[%tabstop:extends [[%tabstop:class]]]] {", 
+    "\t", 
+    "\t/*", 
+    "\t * __construct()", 
+    "\t * @param $[[%tabstop2:arg]]", 
+    "\t */", 
+    "\t", 
+    "\tfunction __construct($[[%tabstop2]]) {", 
+    "\t\t[[%tabstop:parent]]", 
+    "\t}", 
+    "}!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

@@ -1,0 +1,16 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "class", 
+  "value": [
+    "/**", 
+    " * [[%tabstop1:className]]", 
+    " */", 
+    "", 
+    "var [[%tabstop1]] = function() {", 
+    "\t[[%tabstop:]]", 
+    "};!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

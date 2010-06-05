@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "<input/> Form Input w/Dialog", 
+  "value": [
+    "<input type=\"[[%ask:Type:text]]\" name=\"[[%ask:Name:]]\" value=\"[[%ask:Value:]]\" size=\"[[%ask:Size:40]]\" maxlength=\"[[%ask:Max Length:40]]\"  min=\"[[%ask:Min:]]\" max=\"[[%ask:Max:]]\" accept=\"[[%ask:Accept:]]\"/>!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "false"
+}

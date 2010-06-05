@@ -1,0 +1,17 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "drmenu", 
+  "value": [
+    "$items[] = array(", 
+    "  'path'=>'[[%tabstop:path]]',", 
+    "  'title' => t('[[%tabstop0:]]'),", 
+    "  'access' => user_access('access content'),", 
+    "  'callback' => '[[%tabstop:callback:]]',", 
+    "  'type' => 'MENU_NORMAL_ITEM',", 
+    ");", 
+    "!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

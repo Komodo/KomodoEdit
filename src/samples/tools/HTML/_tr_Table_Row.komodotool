@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "<tr> Table Row", 
+  "value": [
+    "<tr>[[%(w:else:)]]!@#_currentPos!@#_anchor</tr>"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

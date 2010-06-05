@@ -1,0 +1,14 @@
+{
+  "insertOutput": "0", 
+  "keyboard_shortcut": "", 
+  "name": "Perldoc on selection (for modules)", 
+  "operateOnSelection": "0", 
+  "value": [
+    "\"%(perl)\" -e print && perldoc -u %w | pod2html > \"c:\\temp\\pod.html\" && %(browser) c:\\temp\\pod.html"
+  ], 
+  "cwd": "", 
+  "env": "", 
+  "doNotOpenOutputWindow": "0", 
+  "type": "command", 
+  "runIn": "command-output-window"
+}

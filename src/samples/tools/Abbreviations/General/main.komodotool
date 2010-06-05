@@ -1,0 +1,11 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "main", 
+  "value": [
+    "#!/bin/env [[%tabstop:bash]]", 
+    "# [[%tabstop:scriptname]]!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "false"
+}

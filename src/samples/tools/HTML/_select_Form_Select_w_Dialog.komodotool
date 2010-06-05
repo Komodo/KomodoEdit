@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "<select> Form Select w/Dialog", 
+  "value": [
+    "<select name=\"[[%ask:Name:]]\"><option>!@#_currentPos!@#_anchor</option></select>"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

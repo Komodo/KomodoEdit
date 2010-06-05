@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "div", 
+  "value": [
+    "<div id=\"[[%tabstop:id]]\">", 
+    "\t[[%tabstop:]]", 
+    "</div>!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

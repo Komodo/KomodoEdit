@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "<em> Emphasis", 
+  "value": [
+    "<em>[[%(w:else:)]]!@#_currentPos!@#_anchor</em>"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

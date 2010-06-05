@@ -1,0 +1,21 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "main", 
+  "value": [
+    "<?xml version=\"1.0\"?>", 
+    "<?xml-stylesheet href=\"chrome://global/skin/\" type=\"text/css\"?>", 
+    "", 
+    "<window", 
+    "    id=\"[[%tabstop:id]]\"", 
+    "    title=\"[[%tabstop:title]]\"", 
+    "    orient=\"horizontal\"", 
+    "    xmlns=\"http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul\">", 
+    "    ", 
+    "    <script src=\"[[%tabstop:filename]]\" type=\"application/x-javascript;version=1.7\"/>", 
+    "    ", 
+    "</window>!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

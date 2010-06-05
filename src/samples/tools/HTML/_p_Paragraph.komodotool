@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "true", 
+  "name": "<p> Paragraph", 
+  "value": [
+    "<p>[[%(w:else:)]]!@#_currentPos!@#_anchor</p>"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}
