@@ -18,7 +18,7 @@
     "}", 
     "try {", 
     "  var view = ko.views.manager.currentView;", 
-    "  var uri = view.document.displayPath;", 
+    "  var uri = view.koDoc.displayPath;", 
     "  var self = ko.macros.current;", 
     "  var msg = '';", 
     "  var re = /^macro2:\\/\\/(\\d+)\\/(.*)/", 
