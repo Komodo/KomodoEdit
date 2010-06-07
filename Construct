@@ -395,6 +395,7 @@ Build(
     "$build/python-sitelib/koWndWrapper/Conscript",
     "$build/run/Conscript",
     "$build/samples/Conscript",
+    "$build/samples/tools/Conscript",
     "$build/schemes/Conscript",
     "$build/SciMoz/Conscript",
     "$build/silvercity/Conscript",
