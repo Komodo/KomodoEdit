@@ -768,7 +768,7 @@ function _macro_error(ex, action, part) {
 this.__defineGetter__("current",
 function()
 {
-    _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
+    var _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
         .getService(Components.interfaces.koIToolBox2Service);
     return _partSvc.runningMacro;
 });
