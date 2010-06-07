@@ -363,6 +363,8 @@ class KoPlaceTreeView(TreeView):
                            createInstance(components.interfaces.koIFileEx)
                 koFileEx.URI = uri
                 if koFileEx.exists:
+                    self._updateFileProperties(row, koFileEx)
+                    self._tree.invalidateRow(row)
                     if koFileEx.isDirectory:
                         # A file has been added to this dir.
                         # Spin off a refresh request for each row
