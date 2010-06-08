@@ -143,7 +143,7 @@ class _KoTool(object):
                                                'path_id', self.id)
         if res is None or res[0] is None:
             return None
-        return _view.getToolById(res[0])        
+        return _view.getToolById(res[0])
                                   
     def hasAttribute(self, name):
         # Keep names out of attributes
@@ -326,6 +326,18 @@ class _KoTool(object):
                 except Exception:
                     pass
                 break
+
+    # Drag/drop
+    def getDragData(self):
+        #print "getDragData ",repr(self.value)
+        return self.value
+    
+    def getDragDataByFlavor(self, flavor):
+        return self.getDragData()
+
+    def getDragFlavors(self):
+        return self.flavors
+
             
 class _KoContainer(_KoTool):
     isContainer = True
@@ -411,6 +423,9 @@ class _KoComplexContainer(_KoFolder):
         except Exception:
             pass
         _KoTool.delete(self)
+        
+    def getDragData(self):
+        return self.getStringAttribute('name')
 
 class _KoMenu(_KoComplexContainer):
     typeName = 'menu'
@@ -572,6 +587,22 @@ class _KoSnippetTool(_KoTool):
             return
         info = _tbdbSvc.getSnippetInfo(self.id)
         self._finishUpdatingSelf(info)
+
+    def getDragDataByFlavor(self, flavor):
+        if flavor == 'application/x-komodo-snippet':
+            return str(self.id)
+        else:
+            return self._getSnippetDragDataAsText()
+        
+    def getDragData(self):
+        return self._getSnippetDragDataAsText()
+        
+    _ANCHOR_MARKER = '!@#_anchor'
+    _CURRENTPOS_MARKER = '!@#_currentPos'
+    def _getSnippetDragDataAsText(self):
+        # NOTE: IT IS IMPORTANT THAT IF UNICODE COMES IN, UNICODE GOES OUT!
+        return self.value.replace(self._ANCHOR_MARKER, "", 1).replace(self._CURRENTPOS_MARKER, "", 1)
+
 
 class _KoTemplateTool(_KoURL_LikeTool):
     typeName = 'template'

@@ -662,12 +662,27 @@ this.onDblClick = function(event) {
 this.doStartDrag = function(event, tree) {
     var selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
     var view = this.manager.view;
-    var paths = selectedIndices.map(function(index) {
-            return view.getTool(index).path;
-        }).join("\n");
+    var paths;
     var dt = event.dataTransfer;
-    dt.mozSetDataAt("application/x-moz-file", paths, 0);
-    dt.setData('text/plain', paths);
+    if (selectedIndices.length == 1) {
+        var index = selectedIndices[0];
+        paths = [view.getTool(index).path];
+        var flavors = {};
+        var tool = view.getTool(index);
+        tool.getDragFlavors(flavors, {});
+        flavors = flavors.value;
+        for (var i = 0; i < flavors.length; i++) {
+            var flavor = flavors[i];
+            var dataValue = tool.getDragDataByFlavor(flavor);
+            dt.mozSetDataAt(flavor, dataValue, i);
+        }
+    } else {
+        for (var i = 0; i < selectedIndices.length; i++) {
+            var path = view.getTool(selectedIndices[i]).path;
+            dt.mozSetDataAt("application/x-moz-file", path, i);
+            dt.mozSetDataAt('text/plain', path, i);
+        }
+    }
     this._dragSources = paths;
     this._dragIndices = selectedIndices;
     if (event.ctrlKey) {

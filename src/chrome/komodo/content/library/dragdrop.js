@@ -304,26 +304,9 @@ if (typeof(ko.dragdrop)=='undefined') {
                 this.isURL = true;
                 break;
             case "application/x-komodo-snippet":
-                try {
-                    var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
-                                        .createInstance(Components.interfaces.nsIJSON);
-                    var data = nativeJSON.decode(dragData);
-                    var projectType = data.toolboxType;
-                    var project = null;
-                    if (projectType == 'project') {
-                        project = ko.projects.manager.getProjectByURL(data.projectURL);
-                    } else {
-                        var psvc = Components.classes["@activestate.com/koPartService;1"]
-                            .getService(Components.interfaces.koIPartService);
-                        project = projectType == 'toolbox' ? psvc.toolbox : psvc.sharedToolbox;
-                    }
-                    if (project) {
-                        this.value = project.getChildById(data.snippetID);
-                        this.isSnippet = true;
-                    }
-                } catch(e) {
-                    _log.debug("DragDrop.js::unpackData: application/x-komodo-snippet: " + e);
-                }
+                var snippet_id = dragData;
+                this.snippet = ko.toolbox2.findToolById(snippet_id);
+                this.isSnippet = true;
                 break;
             case "text/html":
             case "text/plain":
@@ -388,17 +371,21 @@ if (typeof(ko.dragdrop)=='undefined') {
             if (!mozTypes.length) {
                 continue;
             }
+            var supportedTypes = acceptedFlavours.filter(
+                         function(value) mozTypes.contains(value));
+            if (!supportedTypes.length) {
+                _log.info("onDrop:: no supported flavours for item  " + i
+                          + ":" + mozTypes);
+                continue;
+            }
             // Take the first type - as it's the best of the types we wanted.
             var mozType;
             var mozDragData;
             var alternatives = null;
             var koDropData = null;
-            for (var j=0; j < mozTypes.length; j++) {
-                mozType = mozTypes[j];
-                if (acceptedFlavours.indexOf(mozType) < 0) {
-                    _log.info("onDrop:: unsupported flavour: " + mozType);
-                    continue;
-                }
+            for (var j=0; j < supportedTypes.length; j++) {
+                mozType = supportedTypes[j];
+                // get flavor j for item i
                 mozDragData = dataTransfer.mozGetDataAt(mozType, i);
                 try {
                     if (koDropData == null) {
@@ -557,6 +544,3 @@ if (typeof(ko.dragdrop)=='undefined') {
     };
 
 }).apply(ko.dragdrop);
-
-// Make an easier to use namespace alias.
-ko.dd = ko.dragdrop;

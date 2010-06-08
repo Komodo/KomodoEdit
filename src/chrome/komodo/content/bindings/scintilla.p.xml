@@ -1096,6 +1096,7 @@
                 if (ko && typeof(ko.dragdrop) != 'undefined') {
                     // Allows for text/html drop types as well.
                     var dropFlavours = ko.dragdrop.genericSupportedFlavours.concat("text/html");
+                    dropFlavours.unshift('application/x-komodo-snippet');
                     var koDragDropList = ko.dragdrop.unpackDropData(event.dataTransfer, dropFlavours);
                     if (!koDragDropList) {
                         // Cannot handle any of the dropped data.
@@ -1115,11 +1116,11 @@
                     var koDropData;
                     for (var i=0; i < unhandledDropData.length; i++) {
                         koDropData = unhandledDropData[i];
-                        if (koDropData.isSnippet) {
+                        if (koDropData.isSnippet && koDropData.snippet) {
                             if (!onselection) {
                                 scimoz.gotoPos(pos);
                             }
-                            ko.projects.snippetInsert(data.snippet);
+                            ko.projects.snippetInsert(koDropData.snippet);
                             // We handled the snippet.
                             event.preventDefault();
                             return true;
@@ -1131,7 +1132,7 @@
                             this.log.info("Both text and HTML data available - choosing text");
                             text = koDropData.alternatives["text/plain"].value;
                         } else {
-                            text = koDropData.value;
+                            text = koDropData.dragData;
                         }
                         break;
                     }
