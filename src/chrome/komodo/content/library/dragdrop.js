@@ -60,14 +60,17 @@ if (typeof(ko.dragdrop)=='undefined') {
 
     this.genericSupportedFlavours = [
             "application/x-moz-file",
+            "application/x-moz-url",
             "text/x-moz-url",
             "text/uri-list",
+            "text/unicode",
             "text/plain",
     ];
 
     this.isSupportedDropFlavour = function isSupportedDropFlavour(flavour) {
         switch(flavour) {
             case "application/x-moz-file":
+            case "application/x-moz-url":
             case "text/x-moz-url":
             case "text/uri-list":
             case "text/html":

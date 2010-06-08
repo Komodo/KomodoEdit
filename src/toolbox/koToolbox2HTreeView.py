@@ -71,10 +71,10 @@ class _KoTool(object):
         self.value = ""
         self._attributes = {}
         self._nondb_attributes = {}
-        self.flavors = ['text/unicode','application/x-komodo-part',\
+        self.flavors = ['text/unicode',
 # #if PLATFORM != "win"
                         # XXX for a later release, scintilla needs work in this area
-                        'TEXT',#,'COMPOUND_TEXT','STRING','UTF-8' \
+                        #'TEXT',#,'COMPOUND_TEXT','STRING','UTF-8' \
 # #endif
                         ]
 
