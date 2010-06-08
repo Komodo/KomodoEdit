@@ -43,7 +43,7 @@ printStrings(mylist)
 
 # CallTips:
 #   - On a blank line below, enter "print string.split("
-#   - When you type the opening paranthesis "(", Komodo lists the
+#   - When you type the opening parenthesis "(", Komodo lists the
 #     parameters for how to call string.split().
 
 import string
