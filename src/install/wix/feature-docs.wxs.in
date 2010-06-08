@@ -158,6 +158,10 @@
               <File Id="file436" Name="DEBUGX_0.HTM" LongName="debugxslt.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\debugxslt.html"/>
               <File Id="file450" Name="SCC_0.HTM" LongName="scc.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\scc.html"/>
               <File Id="file451" Name="TORTOI_0.HTM" LongName="tortoisesvn_icon_license.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tortoisesvn_icon_license.html"/>
+              <File Id="file1215" Name="DB_EXP_0.HTM" LongName="db_explorer.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\db_explorer.html"/>
+              <File Id="file1216" Name="PLACES_0.HTM
+ " LongName="places.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\places.html"/>
+              <File Id="file1217" Name="PUBLIS_0.HTM" LongName="publish.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\publish.html"/>
             </Component>
             <Directory Id="directory530" Name="css">
               <Component Id="component496" DiskId="1" Guid="$(autowix.guid)">
