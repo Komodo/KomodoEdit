@@ -81,8 +81,7 @@ from projectUtils import *
 
 # kpf ver 3 == komodo 4.0
 # kpf ver 4 == komodo 4.1, fixing whitespace escape in macro's
-# kpf ver 5 == komodo 6 -- separate tools from projects
-KPF_VERSION = 5
+KPF_VERSION = 4
 gLastProjNum = 1
 
 ANCHOR_MARKER = '!@#_anchor'
@@ -284,6 +283,26 @@ class koPart(object):
             self._getObserverSvc().notifyObservers(self, 'part_changed', '')
         except Exception, unused:
             pass
+
+    def added(self):
+        # we need to walk up the chain of parent containers until we hit
+        # either a menu or a toolbar, and notify them that they need to be
+        # redrawn
+        p = self._parent
+        while p and p != p._parent:
+            # We need to detect changes to menus and toolbars that already exist
+            # the "and p._added" bit is to avoid notifying of changes to menus
+            # or toolbars in the deserialization phase (as child parts get
+            # their .added() called before their parents.
+            if (p.type == 'menu' or p.type == 'toolbar') and p._added:
+                try:
+                    self._getObserverSvc().notifyObservers(p,
+                                                           p.type + '_changed',
+                                                           'child added')
+                except:
+                    pass # no listener
+                break # no point in moving any further
+            p = p._parent
 
     def removed(self, previous_parent):
         # we need to walk up the chain of parent containers until we hit
@@ -765,7 +784,6 @@ class koContainerBase(koPart):
         return None
 
     def getChildrenWithAttribute(self, attrname, recurse):
-        #No longer used in Komodo
         children = []
         for child in self.children:
             if attrname in child._attributes:
@@ -806,6 +824,7 @@ class koContainerBase(koPart):
         self._project.registerChildByURL(child)
 
         child.applyKeybindings(1)
+        child.added()
 
     def getChildById(self, id):
         if self.id == id:
@@ -1013,8 +1032,6 @@ class koSnippetPart(koPart):
         project = self.get_project()
         psvc = components.classes["@activestate.com/koPartService;1"]\
                 .getService(components.interfaces.koIPartService)
-        XXX # @@@@ How do we want to set toolboxType for new tools?
-        NewTools
         if project == UnwrapObject(psvc.toolbox):
             data['toolboxType'] = 'toolbox'
         else:
@@ -1075,6 +1092,100 @@ class koMacroPart(koPart):
                                            self.get_name(), ext)
         return "macro://%s/%s%s" % (self.id, self.get_name(), ext)
 
+    def added(self):
+        # if we're an old-style macro, convert us to new style
+        if self.hasAttribute('filename'):
+            # need to upgrade
+            fname = self.getAttribute('filename')
+            if not os.path.exists(fname):
+                log.warn("Couldn't find the file %r referred to by a macro", fname)
+                return
+            registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
+                                         getService(components.interfaces.koILanguageRegistryService)
+            language = registryService.suggestLanguageForFile(os.path.basename(fname))
+            try:
+                file = open(fname, 'r')
+                self.value = file.read()
+                file.close()
+                self.setAttribute('language', language)
+                self.setAttribute('version', '2')
+                self.setBooleanAttribute('do_trigger', 0)
+                self.setLongAttribute('rank', 100)
+                self.setBooleanAttribute('trigger', 'trigger_presave')
+                self.removeAttribute('filename') # ADD when removeAttribute is added
+            except OSError:
+                log.warn("Couldn't read the macro: %r, skipping conversion", fname)
+                return
+        if not self._project._quiet:
+            try:
+                self._getObserverSvc().notifyObservers(self,'macro-load','')
+            except:
+                pass # no listener
+        koPart.added(self)
+
+    def removed(self, previous_parent):
+        try:
+            self._getObserverSvc().notifyObservers(self, 'macro-unload', '')
+        except:
+            pass # no listener
+        koPart.removed(self, previous_parent)
+
+    def _asyncMacroCheck(self, async):
+        if async:
+            lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
+                .getService(components.interfaces.koILastErrorService)
+            err = "Asynchronous python macros not yet implemented"
+            lastErrorSvc.setLastError(1, err)
+            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, err)
+
+    def evalAsPython(self, domdocument, window, scimoz, koDoc,
+                     view, code, async):
+        self._asyncMacroCheck(async)
+        evalPythonMacro(WrapObject(self,self._com_interfaces_[0]),
+                        domdocument, window, scimoz, koDoc, view, code)
+        
+    def evalAsPythonObserver(self, domdocument, window, scimoz, koDoc,
+                             view, code, async, subject, topic, data):
+        self._asyncMacroCheck(async)
+        evalPythonMacro(WrapObject(self,self._com_interfaces_[0]),
+                        domdocument, window, scimoz, koDoc, view, code,
+                        subject, topic, data)
+
+# See factory functions below
+class koWebServicePart(koURLPart):
+    _com_interfaces_ = [components.interfaces.koIPart_URL,
+                        components.interfaces.koIPart_webservice]
+    type = 'webservice'
+    prettytype = 'Web Service Shortcut'
+    _iconurl = 'chrome://komodo/skin/images/webServicesImg.png'
+    primaryInterface = 'koIPart_URL'
+
+    def __init__(self, project):
+        koPart.__init__(self, project)
+        self._attributes['wsdl'] = ''
+
+    def hasAttribute(self, name):
+        if name.lower() == 'url':
+            return 'wsdl' in self._attributes
+        return name in self._attributes
+
+    def get_value(self):
+        return unicode(self._attributes['wsdl'])
+
+    def getStringAttribute(self, name):
+        if name.lower() == 'url':
+            return unicode(self._attributes['wsdl'])
+        return unicode(self._attributes[name])
+
+    def setStringAttribute(self, name, value):
+        if name.lower() == 'url':
+            name = 'wsdl'
+        self.setAttribute(name, unicode(value))
+
+    def getDragData(self):
+        return self.getStringAttribute('wsdl')
+
+
 class koMenuPart(koContainer):
     _com_interfaces_ = [components.interfaces.koIPart_menu]
     type = 'menu'
@@ -1096,6 +1207,18 @@ class koMenuPart(koContainer):
                 self._getObserverSvc().notifyObservers(self, 'menu_changed', 'attribute changed')
             except:
                 pass # no listener
+
+    def added(self):
+        if self._added:
+            return
+        self._added = 1
+        if self._project._quiet or not self._project._active:
+            return
+        try:
+            self._getObserverSvc().notifyObservers(self, 'menu_create', 'menu_create')
+        except:
+            pass # no listener
+        koContainer.added(self)
 
     def removed(self, previous_parent):
         if not self._added:
@@ -1132,6 +1255,20 @@ class koToolbarPart(koContainer):
                 self._getObserverSvc().notifyObservers(self, 'toolbar_changed', 'attribute changed')
             except:
                 pass # no listener
+
+    def added(self):
+        if self._added:
+            return
+        self._added = 1
+        if self._project._quiet or not self._project._active:
+            return
+        # we've been created, we need to tell the JS side of things
+        # that we exist.
+        try:
+            self._getObserverSvc().notifyObservers(self, 'toolbar_create', 'toolbar_create')
+        except:
+            pass # no listener
+        koContainer.added(self)
 
     def removed(self, previous_parent):
         if not self._added:
@@ -1750,6 +1887,14 @@ class koProject(koLiveFolderPart):
         self._update_lastmd5_from_contents(contents)
         self._parseStream(StringIO(contents), url, fname)
 
+    def loadFromString(self, data, url):
+        self.lastErrorSvc.setLastError(0, '')
+        self.set_url(url)
+        assert self._url
+        assert self._relativeBasedir
+        fname = uriparse.URIToLocalPath(self._url)
+        self._loadContents(data, url, fname)
+
     def loadQuiet(self, url):
         self._quiet = 1
         self.load(url)
@@ -1823,9 +1968,6 @@ class koProject(koLiveFolderPart):
                             shutil = components.classes["@activestate.com/koShUtil;1"].\
                                         getService(components.interfaces.koIShUtil)
                             shutil.copyfile(fname, bakFile)
-                            if kpfVer < 5:
-                                koTBMiscSvc = UnwrapObject(components.classes["@activestate.com/koToolBox2Service;1"].getService(components.interfaces.koIToolBox2Service))
-                                koTBMiscSvc.extractToolboxFromKPF_File(fname, os.path.splitext(basename)[0])
                         except Exception, e:
                             log.exception("Error '%s' creating backup of '%s'", e, bakFile)
                         self._attributes['kpf_version'] = KPF_VERSION
@@ -2044,6 +2186,11 @@ class koProject(koLiveFolderPart):
             else:
                 log.debug("    no part for prefset idref [%s]", idref)
 
+        # this initializes menu's, toolbars, etc.  It must be done
+        # after prefs are set into the children above
+        for child in added:
+            child.added()
+
         self._loaded_from_url = self._url
         self.set_url(url)
 
@@ -2071,39 +2218,9 @@ class koProject(koLiveFolderPart):
 
 
         self.set_isDirty(dirtyAtEnd)
-        
-        if kpfVer < 5:
-            self._cullTools()
 
         dt = time.clock() - t1
         log.info("project.load\t%4.4f" % (dt))
-        
-    def _cullTools(self):
-        """ Remove any tools, and also folders that are emptied after all
-        tools are removed, as part of moving to Komodo 6, project version 5.
-        """
-        for child in self.getChildren():
-            self._cullToolOrContainer(self, child)
-    
-    _toolNames = ('macro', 'snippet', 'command', 'URL',
-                  'DirectoryShortcut', 'menu', 'toolbar', 'template')
-    def _cullToolOrContainer(self, parent, child):
-        removedItem = False
-        if child.type in self._toolNames:
-            parent.removeChild(child)
-            removedItem = True
-            self.set_isDirty(True)
-        elif child.type == 'folder':
-            removedGrandchild = False
-            for grandchild in child.getChildren()[:]: # copy the list, as we're deleting as we iterate
-                # Evaluate the function first for the side-effects
-                removedGrandchild = (self._cullToolOrContainer(child, grandchild)
-                                     or removedGrandchild)
-            if removedGrandchild and not child.getChildren():
-                # deleted all the kids, so delete self as well.
-                parent.removeChild(child)
-                removedItem = True
-        return removedItem
 
     def validateParts(self):
         myparts = [p for p in idmap.values() if p._project is self]
@@ -2260,6 +2377,7 @@ class koProject(koLiveFolderPart):
 
     def activate(self):
         try:
+            self.activateKeybindings()
             self.activateMenus()
             self.activateToolbars()
         except Exception, e:
@@ -2268,11 +2386,22 @@ class koProject(koLiveFolderPart):
 
     def deactivate(self):
         try:
+            self.deactivateKeybindings()
             self.deactivateMenus()
             self.deactivateToolbars()
         except Exception, e:
             log.exception(e)
         self._active = 0
+
+    def activateKeybindings(self):
+        keybound_parts = self.getChildrenWithAttribute('keyboard_shortcut', 1)
+        for part in keybound_parts:
+            self._getObserverSvc().notifyObservers(part,'kb-load', part.id)
+
+    def deactivateKeybindings(self):
+        keybound_parts = self.getChildrenWithAttribute('keyboard_shortcut', 1)
+        for part in keybound_parts:
+            self._getObserverSvc().notifyObservers(part,'kb-unload', part.id)
 
     def activateMenus(self):
         menus = self.getChildrenByType('menu', 1)
@@ -2304,9 +2433,14 @@ class koProject(koLiveFolderPart):
         for toolbar in toolbars:
             self._getObserverSvc().notifyObservers(toolbar, 'toolbar_remove', 'toolbar_remove')
 
+    def unloadMacros(self):
+        for macro in self.getChildrenByType('macro', 1):
+            self._getObserverSvc().notifyObservers(macro, 'macro-unload', '')
+
     def close(self):
         if self._active:
             self.deactivate()
+        self.unloadMacros()
 
         self.set_isDirty(0)
         del self._urlmap
