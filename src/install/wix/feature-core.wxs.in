@@ -942,6 +942,7 @@
               <File Id="file1075" Name="KOITOO_1.XPT" LongName="koIToolbox2HTreeView.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIToolbox2HTreeView.xpt"/>
               <File Id="file1076" Name="KOTOOL_0.PY" LongName="koToolbox2Components.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koToolbox2Components.py"/>
               <File Id="file1077" Name="KOTOOL_1.PY" LongName="koToolbox2HTreeView.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koToolbox2HTreeView.py"/>
+              <File Id="file1218" Name="koTools.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTools.py" />
             </Component>
           </Directory> <!-- lib\mozilla\components -->
           <Directory Id="directory58" Name="defaults">
