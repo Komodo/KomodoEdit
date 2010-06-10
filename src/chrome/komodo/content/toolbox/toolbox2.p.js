@@ -147,9 +147,25 @@ this.updateContextMenu = function(event, menupopup) {
     var manager = this.manager;
     manager.tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
     var index = row.value;
+    if (index == -1) {
+        // Means that we're clicking in white-space below.
+        // Item should work on the most recent folder.
+        var selection = manager.view.selection;
+        if (selection.count == 0) {
+            // Use the Standard Toolbox
+            index = 0; //XXX: Watch out: the "Standard Toolbox" folder might be implicit
+            manager.view.selection.select(index);
+        } else {
+            // This will be the last item clicked on in a multi-item selection.
+            index = selection.currentIndex; 
+        }
+    }
     var toolType = manager.view.get_toolType(index);
     if (!toolType) {
         dump("Awp -- updateContextMenu -- no tooltype\n");
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
         return;
     }
     this.multipleNodesSelected = manager.view.selection.count > 1;
