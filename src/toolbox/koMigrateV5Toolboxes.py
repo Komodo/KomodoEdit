@@ -192,30 +192,31 @@ class TreeWalker():
         for child in node.children:
             self.expandTree(child)
         
-    def expandContainerNode(self, node, folderInfo=None):
+    def expandContainerNode(self, node, folderInfo):
         q_name = self._prepareUniqueFileSystemName(node, addExt=False)
         if not os.path.exists(q_name):
             os.makedirs(q_name)
         elif not os.path.isdir(q_name):
             raise ExpandToolboxException("Found file %s in directory %s, won't delete" % (q_name, os.getcwd()))
         os.chdir(q_name)
-        if folderInfo:
-            #TODO: Don't write out one of these if it's empty.
+        try:
             fw = open(koToolbox2.UI_FOLDER_FILENAME, 'w')
-            json.dump(folderInfo, fw, encoding='utf-8')
+            try:
+                json.dump(folderInfo, fw, encoding='utf-8')
+            except:
+                log.exception("Failed to write out json info for folderInfo %s", folderInfo)
             fw.close()
+        except:
+            log.exception("Error opening file %s/%s", os.getcwd(),
+                          koToolbox2.UI_FOLDER_FILENAME)
         self._expand_children(node)
         os.chdir("..")
         
     def expandNode_folder(self, node):
         #log.debug("expand folder %s", node.elt.get('name'))
         folderInfo = self._get_metadata(node.elt, [])
-        q_name = self._prepareUniqueFileSystemName(node, addExt=False)
-        if folderInfo['name'] != q_name:
-            folderInfo['type'] = 'folder'
-            self.expandContainerNode(node, folderInfo)
-        else:
-            self.expandContainerNode(node)
+        folderInfo['type'] = 'folder'
+        self.expandContainerNode(node, folderInfo)
         
     def _get_metadata(self, elt, names):
         vals = {'name': elt.attrib['name']}

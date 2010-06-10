@@ -61,8 +61,8 @@ log = logging.getLogger("koToolbox2Components")
 
 # This is just a singleton for access to the database.
 # Python-side code is expected to unwrap the object to get
-# at the underlying database object, while
-# JS-side code will have to go through the interface.
+# at the underlying database object, and JS-code is
+# expected to call other methods.
 
 class KoToolboxDatabaseService:
     _com_interfaces_ = [components.interfaces.koIToolboxDatabaseService]
@@ -71,17 +71,12 @@ class KoToolboxDatabaseService:
     _reg_desc_ = "Access the toolbox database"
     
     db = None
-    toolManager = None
     def initialize(self, db_path, schemaFile):
         self.db = koToolbox2.Database(db_path, schemaFile)
+        return self.db
         
     def terminate(self):
-        self.db = self.toolManager = None
-    
-    # Python-side methods only:
-    
-    def getToolById(self, id):
-        return self.toolManager.getToolById(id)    
+        self.db = None
     
     def __getattr__(self, attr):
         return getattr(self.db, attr)
@@ -136,11 +131,11 @@ class KoToolBox2Service:
         self._db = None
         
         self._wrapped = WrapObject(self, components.interfaces.nsIObserver)
-        self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
+        prefSvc = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
         koDirSvc = components.classes["@activestate.com/koDirs;1"].\
             getService(components.interfaces.koIDirs)
-        self._prefs = self._prefSvc.prefs
+        self._prefs = prefSvc.prefs
         self._useSharedToolbox = self._prefs.getBooleanPref('useSharedToolbox')
         self._commonDataDir = koDirSvc.commonDataDir
         self._prefs.prefObserverService.addObserver(self._wrapped,
@@ -155,23 +150,64 @@ class KoToolBox2Service:
                                  "project_added", 0)
         _observerSvc.addObserver(self._wrapped,
                                  "project_removed", 0)
-        self.initToolboxLoader()
-        
         # 
         # self._prefs.prefObserverService.addObserver(self._wrapped,
         #                                 "xpcom-shutdown", 0)
-
-    def initToolboxLoader(self):
+        
+    def initialize(self):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
-        db_path = os.path.join(koDirSvc.userDataDir, 'toolbox.sqlite')
+        self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
+                       getService(components.interfaces.koIToolboxDatabaseService))
+        toolsMgrSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].\
+                      getService(components.interfaces.koIToolbox2ToolManager));
+        toolsMgrSvc.initialize(self.toolbox_db)
+
+        self.db_path = os.path.join(koDirSvc.userDataDir, 'toolbox.sqlite')
         schemaFile = os.path.join(koDirSvc.mozBinDir,
                                   'python', 'komodo', 'toolbox',
                                   'koToolbox.sql')
-        self._db_path = db_path
-        self.db = koToolbox2.Database(db_path, schemaFile)
-        self.toolboxLoader = koToolbox2.ToolboxLoader(db_path, self.db)
-        self.toolbox_db = self.toolboxLoader.db
-        return self.toolboxLoader
+        self.db = self.toolbox_db.initialize(self.db_path, schemaFile)
+        self.loadMainToolboxes()
+
+    def loadMainToolboxes(self):
+        self.toolboxLoader = koToolbox2.ToolboxLoader(self.db_path, self.db)
+        self.toolboxLoader.markAllTopLevelItemsUnloaded()
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        stdToolboxDir = join(koDirSvc.userDataDir,
+                             koToolbox2.DEFAULT_TARGET_DIRECTORY)
+        if not os.path.exists(stdToolboxDir):
+            try:
+                os.mkdir(stdToolboxDir)
+            except:
+                log.error("Can't create tools dir %s", stdToolboxDir)
+
+        import time
+        t1 = time.time()
+        toolbox_id = self.toolboxLoader.loadToolboxDirectory("Standard Toolbox", stdToolboxDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+        self.notifyAddedToolbox(stdToolboxDir)
+        t2 = time.time()
+        #log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
+        self.registerStandardToolbox(toolbox_id)
+        if self._prefs.getBooleanPref("useSharedToolbox"):
+            sharedToolboxDir = join(koDirSvc.commonDataDir,
+                                            koToolbox2.DEFAULT_TARGET_DIRECTORY)
+            t1 = time.time()
+            toolbox_id = self.toolboxLoader.loadToolboxDirectory("Shared Toolbox", sharedToolboxDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+            t2 = time.time()
+            #log.debug("Time to load shared-toolbox: %g msec", (t2 - t1) * 1000.0)
+            self.registerSharedToolbox(toolbox_id)
+            self.notifyAddedToolbox(sharedToolboxDir)
+
+        extensionDirs = UnwrapObject(components.classes["@python.org/pyXPCOMExtensionHelper;1"].getService(components.interfaces.pyIXPCOMExtensionHelper)).getExtensionDirectories()
+        for fileEx in extensionDirs:
+            # Does this happen for disabled extensions?
+            toolDir = join(fileEx.path, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+            if os.path.exists(toolDir):
+                self.activateExtensionToolbox(fileEx.path,
+                                              koToolbox2.DEFAULT_TARGET_DIRECTORY)
+            #else:
+            #    log.debug("No tools in %s", fileEx.path)
+        self.toolboxLoader.deleteUnloadedTopLevelItems()
     
     def registerStandardToolbox(self, id):
         #log.debug("registerStandardToolbox(id:%d)", id)

@@ -55,7 +55,7 @@ var log = ko.logging.getLogger("simplePartProperties");
 var partname, partvalue, gOKButton, keybinding, gItem, gItem;
 var shortcut_tab, part_tab, tabs, partnamelabel, gApplyButton;
 var partViewManager;
-var gItemType, gItemPrettyType;
+var gItemType;
 var textToValueConverter = null;
 var valueToTextConverter = null;
 var gDefaultPartIconURL = null;
@@ -69,8 +69,7 @@ function onLoad() {
         gApplyButton.setAttribute('accesskey', 'a');
 
         gItem = window.arguments[0].item;
-        gItemType = window.arguments[0].type;
-        gItemPrettyType = window.arguments[0].prettytype;
+        gItemType = gItem.type;
         if ('textToValueConverter' in window.arguments[0]) {
             textToValueConverter = window.arguments[0].textToValueConverter;
         }
@@ -81,10 +80,10 @@ function onLoad() {
         update_icon(gItem.iconurl);
 
         if (window.arguments[0].task == 'new') {
-            document.title = "Create New " + gItemPrettyType;
+            document.title = "Create New " + gItem.prettytype;
             gApplyButton.setAttribute('collapsed', 'true');
         } else {
-            document.title =  gItemPrettyType + " Properties";
+            document.title =  gItem.prettytype + " Properties";
         }
 
         tabs = document.getElementById('tabs');

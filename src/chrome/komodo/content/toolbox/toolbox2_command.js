@@ -57,11 +57,11 @@ this._getToolData = function(expectedTypeName) {
     if (!tool) {
         return [null, null, null];
     }
-    if (tool.toolType != expectedTypeName) {
+    if (tool.type != expectedTypeName) {
         alert("Internal error: expected a "
               + expectedTypeName
               + ", but this tool is a "
-              + tool.toolType);
+              + tool.type);
         return [view, index, null];
     }
     return [view, index, tool];
@@ -139,9 +139,7 @@ this.editProperties_DirectoryShortcut = function(event, tool) {
     var obj = {
         item : tool,
         task: 'edit',
-        imgsrc: 'chrome://komodo/skin/images/open.png',
-        'type': 'DirectoryShortcut',
-        prettytype: peFile_bundle.GetStringFromName("directoryShortcut")
+        imgsrc: 'chrome://komodo/skin/images/open.png'
     };
     window.openDialog(
         "chrome://komodo/content/project/simplePartProperties.xul",
@@ -269,10 +267,7 @@ this.invoke_openURLInTab = function(event, tool) {
         tool = this._getTool('URL');
         if (!tool) return;
     }
-    var docSvc = Components.classes['@activestate.com/koDocumentService;1']
-    .getService(Components.interfaces.koIDocumentService);
-    var doc = docSvc.createDocumentFromURI(tool.value);
-    ko.views.manager.topView.createViewFromDocument(doc, 'browser', -1);
+    ko.views.manager.doFileOpenAsync(tool.value, 'browser');
 };
 
 this.editProperties_URL = function(event, tool) {
@@ -313,13 +308,13 @@ this.editPropertiesItem = function(event) {
     var index = view.selection.currentIndex;
     var tool = view.getTool(index);
     // Method construction for names like editProperties_macro
-    var methodName = 'editProperties_' + tool.toolType; 
+    var methodName = 'editProperties_' + tool.type; 
     var method = that[methodName];
     if (method) {
         method.call(that, event);
     } else {
         alert("toolbox2_command.js::editPropertiesItem: Interal error: Don't know how to edit properties for "
-              + tool.toolType
+              + tool.type
               + " "
               + tool.name);
     }
@@ -337,7 +332,7 @@ this.addToolboxItem = function(itemType) {
     var view = this_.manager.view;
     var index = view.selection.currentIndex;
     var parent = view.getTool(index);
-    var item = view.createToolFromType(itemType);
+    var item = this.manager.toolsMgr.createToolFromType(itemType);
     method.call(this_, view, index, parent, item);
     } catch(ex) {
         ko.dialogs.alert("toolbox2_command.js: Internal error: Trying to add a new "
@@ -352,8 +347,7 @@ this._selectCurrentItems = function() {
     this.selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
     var view = this.manager.view;
     var paths = this.selectedIndices.map(function(index) {
-            return view.getTool(index).path;
-            
+            return view.getPathFromIndex(index);
         });
     xtk.clipboard.setText(paths.join("\n"));
 }
@@ -385,14 +379,14 @@ this.pasteIntoItem = function(event) {
 };
 
 this._getLoadedMacros = function(paths) {
-    var view = this.manager.view;
+    var toolsMgr = this.manager.toolsMgr;
     var cleanMacros = [];
     var dirtyMacros = [];
     var viewsManager = ko.views.manager;
-    for (var i = 0 ;i < paths.length; i++) {
+    for (var i = 0; i < paths.length; i++) {
         var path = paths[i];
-        var tool = view.getToolFromPath(path);
-        if (tool && tool.toolType == 'macro') {
+        var tool = toolsMgr.getToolFromPath(path);
+        if (tool && tool.type == 'macro') {
             var url = tool.url;
             var v = viewsManager.getViewForURI(url);
             if (v) {
@@ -435,13 +429,13 @@ this.showInFileManager = function(itemType) {
     try {
         var view = ko.toolbox2.manager.view;
         var index = view.selection.currentIndex;
-        var tool = view.getTool(index);
+        var path = view.getPathFromIndex(index);
         var sysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].
         getService(Components.interfaces.koISysUtils);
-        sysUtilsSvc.ShowFileInFileManager(tool.path);
+        sysUtilsSvc.ShowFileInFileManager(path);
     } catch(ex) {
         ko.dialogs.alert("toolbox2_command.js: Internal error: Trying to show "
-                         + tool.path
+                         + path
                          + " in a file manager window: "
                          + ex);
     }
@@ -483,8 +477,7 @@ this.saveToolsAs_aux = function(event) {
         targetPath = ko.filepicker.saveFile(default_saveToolDirectory,
                                             srcPath);
         if (!targetPath) return [0, 0];
-        tool = toolTreeView.getTool(selectedIndices[0]);
-        srcPath = tool.path;
+        srcPath = toolTreeView.getPathFromIndex(selectedIndices[0]);
         default_saveToolDirectory = ko.uriparse.dirName(targetPath);
         // They've already been asked if they want to overwrite
         shutil.copy(srcPath, targetPath);
@@ -502,8 +495,7 @@ this.saveToolsAs_aux = function(event) {
         var finalTargetPath;
         while (i < lim) {
             var index = selectedIndices[i];
-            var tool = toolTreeView.getTool(index);
-            srcPath = tool.path;
+            srcPath = toolTreeView.getPathFromIndex(index);
             if (toolTreeView.isContainer(index)) {
                 finalTargetPath = osPathSvc.join(targetPath,
                                             osPathSvc.basename(srcPath));
@@ -648,12 +640,12 @@ this.onDblClick = function(event) {
     if (!tool) {
         return;
     }
-    var method = that._invokerNameForToolType[tool.toolType];
+    var method = that._invokerNameForToolType[tool.type];
     if (method) {
         method.call(that, event, tool);
     } else {
         alert("Don't know what to do with "
-              + tool.toolType
+              + tool.type
               + " "
               + tool.name);
     }
@@ -666,9 +658,9 @@ this.doStartDrag = function(event, tree) {
     var dt = event.dataTransfer;
     if (selectedIndices.length == 1) {
         var index = selectedIndices[0];
-        paths = [view.getTool(index).path];
-        var flavors = {};
         var tool = view.getTool(index);
+        paths = [tool.path];
+        var flavors = {};
         tool.getDragFlavors(flavors, {});
         flavors = flavors.value;
         for (var i = 0; i < flavors.length; i++) {
@@ -678,7 +670,7 @@ this.doStartDrag = function(event, tree) {
         }
     } else {
         for (var i = 0; i < selectedIndices.length; i++) {
-            var path = view.getTool(selectedIndices[i]).path;
+            var path = view.getPathFromIndex(selectedIndices[i]);
             dt.mozSetDataAt("application/x-moz-file", path, i);
             dt.mozSetDataAt('text/plain', path, i);
         }

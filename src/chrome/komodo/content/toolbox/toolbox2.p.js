@@ -54,21 +54,35 @@ function Toolbox2Manager() {
 }
 
 Toolbox2Manager.prototype = {
-initialize: function() {
-    var toolbox2Svc = Components.classes["@activestate.com/koToolBox2Service;1"]
+bindComponents: function() {
+    this.toolbox2Svc = Components.classes["@activestate.com/koToolBox2Service;1"]
             .getService(Components.interfaces.koIToolBox2Service);
-    toolbox2Svc.migrateVersion5Toolboxes();
-    widgets.tree = document.getElementById("toolbox2-hierarchy-tree");
-    widgets.filterTextbox = document.getElementById("toolbox2-filter-textbox");
-    this.tree = widgets.tree;
+    if (!this.toolbox2Svc) {
+        throw("couldn't create a koIToolBox2Service");
+    }
+    this.toolsMgr = Components.classes["@activestate.com/koToolbox2ToolManager;1"]
+        .getService(Components.interfaces.koIToolbox2ToolManager);
+    if (!this.toolsMgr) {
+        throw("couldn't create a koIToolbox2ToolManager");
+    }
     this.view = Components.classes["@activestate.com/KoToolbox2HTreeView;1"]
         .createInstance(Components.interfaces.koIToolbox2HTreeView);
     if (!this.view) {
         throw("couldn't create a koIToolbox2HTreeView");
     }
+},
+initialize: function() {
+    // Create the component fields first before initializing,
+    // as callbacks to the JS code will need all three components
+    this.bindComponents();
+    widgets.tree = document.getElementById("toolbox2-hierarchy-tree");
+    widgets.filterTextbox = document.getElementById("toolbox2-filter-textbox");
+    this.tree = widgets.tree;
     this.tree.treeBoxObject
                     .QueryInterface(Components.interfaces.nsITreeBoxObject)
                     .view = this.view;
+    this.toolbox2Svc.migrateVersion5Toolboxes();
+    this.toolbox2Svc.initialize();
     this.view.initialize();
     // Give the toolbox observers time to have started up before
     // notifying them that the toolbox has changed.
@@ -83,7 +97,6 @@ initialize: function() {
         }, 1000);
 },
 terminate: function() {
-    dump("**************** Closing Toolbox2Manager...\n");
     this.view.terminate();
 },
 deleteCurrentItem: function() {
@@ -108,10 +121,9 @@ _EOD_: null
 };
 
 this.onload = function() {
-    var this_ = ko.toolbox2;
-    ko.main.addWillCloseHandler(this_.onUnload, this);
-    this_.manager = new Toolbox2Manager();
-    this_.manager.initialize();
+    ko.main.addWillCloseHandler(this.onUnload, this);
+    this.manager = new Toolbox2Manager();
+    this.manager.initialize();
 };
 
 this.onUnload = function() {
@@ -268,9 +280,7 @@ this.getSelectedItem = function() {
 };
 
 this.getStandardToolbox = function() {
-    var toolbox2Svc = Components.classes["@activestate.com/koToolBox2Service;1"]
-                      .getService(Components.interfaces.koIToolBox2Service);
-    return this.findToolById(toolbox2Svc.getStandardToolboxID());
+    return this.findToolById(this.manager.toolbox2Svc.getStandardToolboxID());
 }
 
 this.addItem = function(/* koITool */ tool, /* koITool */ parent) {
@@ -285,39 +295,39 @@ this.addNewItemToParent = function(item, parent) {
 };
 
 this.createPartFromType = function(toolType) {
-    return this.manager.view.createToolFromType(toolType);
+    return this.manager.toolsMgr.createToolFromType(toolType);
 };
 
 this.findToolById = function(id) {
-    return this.manager.view.getToolById(id);
+    return this.manager.toolsMgr.getToolById(id);
 };
 
 this.getAbbreviationSnippet = function(abbrev, subnames) {
-    return this.manager.view.getAbbreviationSnippet(abbrev, subnames,
-                                                    subnames.length);
+    return this.manager.toolsMgr.getAbbreviationSnippet(abbrev, subnames,
+                                                        subnames.length);
 };
 
 this.getCustomMenus = function(dbPath) {
     var obj = {};
-    this.manager.view.getCustomMenus(dbPath, obj, {});
+    this.manager.toolsMgr.getCustomMenus(dbPath, obj, {});
     return obj.value;
 };
 
 this.getCustomToolbars = function(dbPath) {
     var obj = {};
-    this.manager.view.getCustomToolbars(dbPath, obj, {});
+    this.manager.toolsMgr.getCustomToolbars(dbPath, obj, {});
     return obj.value;
 };
 
 this.getTriggerMacros = function(dbPath) {
     var obj = {};
-    this.manager.view.getTriggerMacros(dbPath, obj, {});
+    this.manager.toolsMgr.getTriggerMacros(dbPath, obj, {});
     return obj.value;
 };
 
 this.getToolsWithKeyboardShortcuts = function(dbPath) {
     var obj = {};
-    this.manager.view.getToolsWithKeyboardShortcuts(dbPath, obj, {});
+    this.manager.toolsMgr.getToolsWithKeyboardShortcuts(dbPath, obj, {});
     return obj.value;
 };
 

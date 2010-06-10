@@ -56,5 +56,6 @@ interface koIToolboxDatabaseService: nsISupports {
 interface koIToolBox2Service: nsISupports {
     attribute koITool runningMacro;
     long getStandardToolboxID();
+    void initialize();
     void migrateVersion5Toolboxes();
 };

@@ -1053,6 +1053,11 @@ class projectURI2_Handler(projectURIHandler):
         if self._file:
             self.close()
 
+    def getMacroTool(self):
+        toolSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].\
+                               getService(components.interfaces.koIToolbox2ToolManager))
+        return toolSvc.getToolById(self._uri.server)
+
     def close(self):
         if not self._file:
             raise URILibError("file not opened: '%s'" % self._uri.URI)
@@ -1060,9 +1065,7 @@ class projectURI2_Handler(projectURIHandler):
             if self.part and self._mode and self._mode[0] == 'w':
                 val = self._file.getvalue()
                 if val != self.part.value:
-                    toolSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                                           getService(components.interfaces.koIToolboxDatabaseService))
-                    tool = toolSvc.getToolById(self._uri.server)
+                    tool = self.getMacroTool()
                     tool.value = val
                     tool.save() # updates filesystem tool & DB
         finally:
@@ -1082,13 +1085,11 @@ class projectURI2_Handler(projectURIHandler):
         try:
             # get the part from the part service, get the value of the part,
             # and insert it into a stringio object
-            if not self.part:
-                toolSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
-                       getService(components.interfaces.koIToolboxDatabaseService))
-                self.part = toolSvc.getToolById(self._uri.server)
-                self._stats = None
             if mode and mode[0] == 'r':
                 try:
+                    if not self.part:
+                        self.part = self.getMacroTool()
+                        self._stats = None
                     text = self.part.value
                 except AttributeError:
                     log.exception("can't get content off %s", self.part)

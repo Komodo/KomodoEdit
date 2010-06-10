@@ -70,7 +70,7 @@ import re
 import logging
 
 from os.path import join, dirname
-sys.path.insert(0, join(os.getcwd(), dirname(dirname(__name__)), 'src', 'toolbox'))
+sys.path.insert(0, join(os.getcwd(), dirname(dirname(__file__)), 'src', 'toolbox'))
 print sys.path[0]
 import koToolbox2
 import koMigrateV5Toolboxes
@@ -120,7 +120,7 @@ def main(argv):
         return 1
     toolboxFile = args[0]
     try:
-        return koMigrateV5Toolboxes.expand_toolbox(toolboxFile, outdir, force)
+        return koMigrateV5Toolboxes.expand_toolbox(toolboxFile, outdir, toolboxDirName=None, force=force)
     except koMigrateV5Toolboxes.ExpandToolboxException:
         log.exception("problemo...")
         return 2
@@ -130,7 +130,3 @@ if __name__ == "__main__":
     rc = main(sys.argv)
     print("done")
     sys.exit(rc)
-
-    
-
-

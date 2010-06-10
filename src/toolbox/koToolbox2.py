@@ -80,6 +80,25 @@ PROJECT_TARGET_DIRECTORY = ".komodotools"
 TOOL_EXTENSION = ".komodotool"
 UI_FOLDER_FILENAME = ".folderdata"
 
+
+def _writeJSONData(data, new_id, path):
+    try:
+        # the json file has to be reopened because
+        # the various parts of data were deleted as
+        # they were used up, to simplify other processing.
+        fp = open(path, 'r')
+        data = json.load(fp, encoding="utf-8")
+        data['id'] = new_id
+        fp.close()
+        fp = open(path, 'w')
+        try:
+            json.dump(data, fp, encoding="utf-8", indent=2)
+        except:
+            log.exception("Failed to write json data for path %s", path)
+        fp.close()
+    except:
+        log.exception("Failed to open/close file %s", path)
+
 #---- errors
 
 class Toolbox2Error(Exception):
@@ -112,6 +131,10 @@ class Database(object):
         if not exists(db_path):
             update_version = True
             self.create()
+        elif os.path.getsize(db_path) == 0:
+            os.unlink(db_path)
+            update_version = True
+            self.create()
         else:
             update_version = False
             try:
@@ -133,6 +156,8 @@ class Database(object):
             'toolbar':['priority'],
             'folder':[],
             }
+        self.observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                           getService(components.interfaces.nsIObserverService)
             
     def __repr__(self):
         return "<Toolbox2 Database %s>" % self.path
@@ -234,6 +259,16 @@ class Database(object):
                 where h.parent_path_id is null
                       and h.path_id == cd.path_id''')
             return cu.fetchall()
+
+    def getRootIDInfo(self, id):
+        with self.connect() as cu:
+            cu.execute('''select h1.path_id, p1.path
+                          from hierarchy as h1, paths as p1, paths as p2
+                          where h1.parent_path_id is null
+                                and h1.path_id = p1.id
+                                and p2.id = ?
+                                and p2.path like (p1.path || "%")''', (id,))
+            return cu.fetchone()
 
     def getChildNodes(self, node_id):
         """
@@ -350,10 +385,25 @@ class Database(object):
     
     # Adder functions
 
-    def _addCommonDetails(self, path, name, item_type, parent_path_id, cu):
-        stmt = 'insert into paths(path) values(?)'
-        cu.execute(stmt, (path,))
-        id = cu.lastrowid
+    def _addCommonDetails(self, path, name, item_type, parent_path_id, cu, existing_id=None):
+        if existing_id is not None:
+            # Make sure it's not in the DB
+            cu.execute('select count(*) from paths where id = ?', (existing_id,))
+            res = cu.fetchone()[0]
+            if res == 1:
+                #log.debug("_addCommonDetails: found id %d in db, so assign %s/%s a new id", existing_id, item_type, name)
+                existing_id = None  # id is in use
+            else:
+                #log.debug("Reusing id %d for %s %s", existing_id, item_type, name)
+                pass
+        if existing_id is None:
+            stmt = 'insert into paths(path) values(?)'
+            cu.execute(stmt, (path,))
+            id = cu.lastrowid
+        else:
+            stmt = 'insert into paths(id, path) values(?, ?)'
+            cu.execute(stmt, (existing_id, path))
+            id = existing_id
         stmt = '''insert into common_details
                 (path_id, name, type) values (?, ?, ?)'''
         cu.execute(stmt, (id, name, item_type))
@@ -371,14 +421,24 @@ class Database(object):
         with self.connect(commit=True) as cu:
             metadataPath = join(path, UI_FOLDER_FILENAME)
             if exists(metadataPath):
-                fp = open(metadataPath, 'r')
-                data = json.load(fp, encoding="utf-8")
+                try:
+                    fp = open(metadataPath, 'r')
+                    try:
+                        data = json.load(fp, encoding="utf-8")
+                    except:
+                        log.error("Couldn't load json data for path %s", path)
+                        data = {}
+                    fp.close()
+                except:
+                    log.error("Couldn't open path %s", metadataPath)
+                old_id = int(data.get('id', -1))
                 if 'name' in data:
                     actual_name = data['name']
                 else:
                     actual_name = name
-                fp.close()
-                self._addCompoundItem(path, actual_name, data, parent_path_id, cu)
+                new_id = self._addCompoundItem(path, actual_name, data, parent_path_id, cu)
+                if new_id != old_id:
+                    _writeJSONData(data, new_id, metadataPath)
                 return
             id = self._addCommonDetails(path, name, 'folder', parent_path_id, cu)
 
@@ -406,7 +466,10 @@ class Database(object):
                       name, data['name'])
         node_type = data['type']
         # Process the children in the directory
-        id = self._addCommonDetails(path, name, node_type, parent_path_id, cu)
+        old_id = data.get('id', None)
+        if old_id is not None:
+            old_id = int(old_id)
+        id = self._addCommonDetails(path, name, node_type, parent_path_id, cu, old_id)
         if node_type == 'menu':
             stmt = 'insert into menu(path_id, accessKey, priority) values(?, ?, ?)'
             cu.execute(stmt, (id, data.get('accesskey', ""), data.get('priority', 100)))
@@ -417,6 +480,7 @@ class Database(object):
             pass
         else:
             log.error("Got an unexpected node type of %s", node_type)
+        return id
 
     def finishAddingCompoundItem(self, item_type, id, name, path,
                                  attributes, parent_id):
@@ -430,7 +494,9 @@ class Database(object):
             log.info("Dropping old-style tool type:%s, name:%s", item_type, fname)
             return # Goodbye
         pretty_name = data['name']
-        id = data.get('id', None)
+        old_id = data.get('id', None)
+        if old_id is not None:
+            old_id = int(old_id)
         common_names = ['name', 'type', 'id']
         #log.debug("About to add tool %s in %s", fname, path)
         for name in common_names:
@@ -440,13 +506,13 @@ class Database(object):
                 #log.debug("key %s not in tool %s(type %s)", name, fname, item_type)
                 pass
         with self.connect(commit=True) as cu:
-            id = self._addCommonDetails(path, pretty_name, item_type, parent_path_id, cu)
+            new_id = self._addCommonDetails(path, pretty_name, item_type, parent_path_id, cu, old_id)
             prefix = '_add_'
             toolMethod = getattr(self, prefix + item_type, None)
             if not toolMethod:
                 toolMethod = getattr(self, prefix + 'genericTool')
-            toolMethod(id, data, item_type, cu)
-            return id
+            toolMethod(new_id, data, item_type, cu)
+            return new_id
             
     def _getValuesFromDataAndDelete(self, id, data, names_and_defaults):
         valueList = [id]
@@ -530,6 +596,9 @@ class Database(object):
             log.debug("Adding misc. property %s:%s on id:%d", key, value, id)
             stmt = '''insert into misc_properties values(?, ?, ?)'''
             cu.execute(stmt, (id, key, value))
+            if key == 'icon':
+                self.notifyPossibleAppearanceChange(id,
+                                                    "icon addition")
 
     def addCommonToolDetails(self, id, data, cu):
         names_and_defaults = [
@@ -757,6 +826,8 @@ class Database(object):
             children = cu.fetchall()
             for child_id in children:
                 self.deleteItem(child_id[0], cu)
+            #TODO: Send the manager a notification that will cause
+            # it to remove item id from its tools cache.
             path = self.getPath(path_id, cu)
             tableNames = ['common_details',
                           'common_tool_details',
@@ -775,6 +846,12 @@ class Database(object):
                 except:
                     log.debug("Can't delete from table %s", t)
             cu.execute("DELETE FROM paths WHERE id=?", (path_id,))
+            try:
+                self.observerSvc.notifyObservers(None,
+                                                 'tool-deleted',
+                                                 "%s" % path_id)
+            except Exception:
+                log.exception("tool-deleted %r notification failed", id)
         
     def saveToolName(self, path_id, name, old_name=None):
         with self.connect(commit=True) as cu:
@@ -784,6 +861,15 @@ class Database(object):
             if name != old_name:
                 self.updateValuesInTableByKey('common_details', ['name'], [name],
                                               ['path_id'], [path_id], cu)
+                self.notifyPossibleAppearanceChange(path_id,
+                                                    "name: %s => %s" % (old_name, name))
+
+    def notifyPossibleAppearanceChange(self, id, reason):
+        try:
+            self.observerSvc.notifyObservers(None, 'tool-appearance-changed',
+                                        "%s" % id)
+        except Exception:
+            log.exception("notifyPossibleAppearanceChange %r/%s failed", id, reason)
 
     def saveContent(self, path_id, value):
         with self.connect(commit=True) as cu:
@@ -923,6 +1009,9 @@ class Database(object):
                 self.deleteRowByKey('misc_properties',
                                     ['path_id', 'prop_name'],
                                     [path_id, name], cu)
+        if 'icon' in old_names or 'icon' in new_names:
+            self.notifyPossibleAppearanceChange(path_id,
+                                                "icon change")
                 
     def getSnippetInfo(self, path_id, cu=None):
         obj = {}
@@ -944,7 +1033,10 @@ class Database(object):
 
     def getHierarchyMatch(self, filterPattern):
         """
-        This returns a table of [id, name, type, matchesPattern, level]
+        This returns a table of [id, name, type, matchesPattern, level].
+        It builds a subset of the tree, giving the parent-child
+        relationships for all matched items, or nodes that contain
+        matches recursively.
         """
         with self.connect() as cu:
             cu.execute("""select path_id from common_details
@@ -972,6 +1064,9 @@ class Database(object):
             rows = cu.fetchall()
             row_info_by_id = dict([(row[0], list(row)) for row in rows])
             ret_table = []
+            # The top-level nodes have a parent node of null, so we
+            # can start the tree by finding the children of the
+            # null entry.
             self._completeTable(None, children_by_id, row_info_by_id,
                                 processed_ids, 0, ret_table)
             return ret_table
@@ -986,13 +1081,11 @@ class Database(object):
             self._completeTable(id, children_by_id, row_info_by_id,
                                 processed_ids, level + 1,
                                 ret_table)
-            
-                    
-                
-                
 
-            
-
+_slugify_re = re.compile(r'[^a-zA-Z0-9\-=\+]+')
+def slugify(s):
+    return re.sub(_slugify_re, '_', s)
+                
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
@@ -1076,11 +1169,21 @@ class ToolboxLoader(object):
                     except IOError:
                         log.error("database loader: Couldn't load file %s", path)
                         continue
-                    data = json.load(fp, encoding="utf-8")
+                    try:
+                        data = json.load(fp, encoding="utf-8")
+                    except:
+                        log.error("Couldn't load json data for path %s", path)
+                        continue
                     fp.close()
                     type = data['type']
-                    self.db.addTool(data, type, path, fname, parent_id)
-                else:
+                    old_id = int(data.get('id', -1))
+                    new_id = self.db.addTool(data, type, path, fname, parent_id)
+                    if new_id != old_id:
+                        _writeJSONData(data, new_id, path)
+                    else:
+                        #log.debug("tool %s: continue to reuse id %r", path, old_id)
+                        pass
+                else:   
                     self.db.addFolder(path, fname, parent_id)
         metadataPath = join(dirname, UI_FOLDER_FILENAME)
         if exists(metadataPath):
@@ -1099,7 +1202,7 @@ class ToolboxLoader(object):
                 position = 0
                 self.db.insertMetadataTimestamp(parent_id, metadataPath)
                 for child_name in children:
-                    child_path = join(dirname, self._slugify(child_name) + TOOL_EXTENSION)
+                    child_path = join(dirname, slugify(child_name) + TOOL_EXTENSION)
                     child_id = self.db.get_id_from_path(child_path)
                     if child_id is None:
                         complain = True
@@ -1118,9 +1221,9 @@ class ToolboxLoader(object):
                         self.db.insertMenuItem(child_id, position)
                         position += 1
     
-    _slugify_re = re.compile(r'[^a-zA-Z0-9\-=\+]+')        
-    def _slugify(self, s):
-        return re.sub(self._slugify_re, '_', s)
+    
+    
+    
 
     def loadToolboxDirectory(self, toolboxName, toolboxDir, targetDirectory):
         if os.path.basename(toolboxDir) == targetDirectory:

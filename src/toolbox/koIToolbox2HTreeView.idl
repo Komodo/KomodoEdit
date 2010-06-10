@@ -46,8 +46,6 @@ interface koIFileEx;
 
 [scriptable, uuid(5c022eab-9e93-41e9-a113-4aca20f3bcb5)]
 interface koITool: koIPart_Common {
-    // New:
-    readonly attribute wstring toolType;
     attribute wstring keyboard_shortcut;
 
     attribute wstring path;
@@ -60,6 +58,7 @@ interface koITool: koIPart_Common {
     //TODO: Implement
     attribute wstring tags;
     
+    // Parent in the filesystem, but also in tree if it's visible.
     attribute koITool parent;
     /* is the tool my ancestor? */
     boolean isAncestor(in koITool tool);
@@ -124,37 +123,16 @@ interface koIToolbox2HTreeView: nsITreeView {
     void terminate();
     wstring get_toolType(in long index);
 
+    wstring getPathFromIndex(in long index);
     koITool getTool(in long index);
-    koITool getToolById(in long id);
-    koITool getToolFromPath(in wstring path);
-
-    koITool getAbbreviationSnippet(in wstring abbrev,
-                                [array, size_is(count)] in wstring subnames,
-                                in unsigned long count);
-
-    void getCustomMenus(in wstring path,
-                        [array, size_is(count)] out koITool tools,
-                          out unsigned long count);
-    void getCustomToolbars(in wstring path,
-                           [array, size_is(count)] out koITool tools,
-                          out unsigned long count);
-    void getToolsWithKeyboardShortcuts(in wstring path,
-                                       [array, size_is(count)] out koITool tools,
-                                       out unsigned long count);
-    void getTriggerMacros(in wstring path,
-                          [array, size_is(count)] out koITool tools,
-                          out unsigned long count);
 
     long getIndexByTool(in koITool tool);
     boolean selectedItemsHaveSameParent();
     // Is the src node an ancestor of the target node?
     boolean isAncestor(in long srcIndex, in long targetIndex);
     
-    koITool createToolFromType(in wstring type);
-
     // Eventually these should get moved to the tool, but for
     // now we're going to hit the database each time.
-    wstring get_path(in long index);
     long get_favoriteRating(in long index);
     long get_timesRun(in long index);
     double get_lastRun(in long index);
@@ -173,3 +151,28 @@ interface koIToolbox2HTreeView: nsITreeView {
     void setFilter(in wstring filterPattern);
 };
 
+
+[scriptable, uuid(3b9d3a45-89b3-4082-964f-74c425cdc0cb)]
+interface koIToolbox2ToolManager: nsISupports {
+    koITool createToolFromType(in wstring type);
+
+    koITool getToolById(in long id);
+    koITool getToolFromPath(in wstring path);
+    koITool getAbbreviationSnippet(in wstring abbrev,
+                                [array, size_is(count)] in wstring subnames,
+                                in unsigned long count);
+
+    void getCustomMenus(in wstring path,
+                        [array, size_is(count)] out koITool tools,
+                          out unsigned long count);
+    void getCustomToolbars(in wstring path,
+                           [array, size_is(count)] out koITool tools,
+                          out unsigned long count);
+    void getToolsWithKeyboardShortcuts(in wstring path,
+                                       [array, size_is(count)] out koITool tools,
+                                       out unsigned long count);
+    void getTriggerMacros(in wstring path,
+                          [array, size_is(count)] out koITool tools,
+                          out unsigned long count);
+
+};

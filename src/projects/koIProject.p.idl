@@ -49,6 +49,8 @@ interface koIView;
 interface koIFile;
 interface koIFileEx;
 
+interface koIPart;
+
 [scriptable, uuid(a77656db-b2e5-4f9c-83ca-e78351ae8993)]
 interface koIPart_Common: nsIObserver {
     attribute wstring id;
@@ -66,6 +68,9 @@ interface koIPart_Common: nsIObserver {
     // Content for serialization in the CDATA section. 
     // (Not used for all part types.)
     attribute wstring value;
+    // A reference to the containing project.
+    // (Currently needed to notify on URL addition.)
+    attribute koIPart project;
     
     // usually a noop, but used in toolbar/menu customization
     void added();
@@ -112,10 +117,6 @@ interface koIPart_Common: nsIObserver {
 [scriptable, uuid(8EAA9B6D-1D59-43f6-8D0E-F992429ECFE2)]
 interface koIPart: koIPart_Common {
     //koIPart-specific items:
-    
-    // A reference to the containing project.
-    // (Currently needed to notify on URL addition.)
-    attribute koIPart project;
     
     koIPart clone();
 

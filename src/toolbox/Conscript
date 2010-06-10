@@ -29,5 +29,6 @@ $cons->InstallXpcomComponent('koToolbox2HTreeView.py');
 $cons->BuildAndInstallXpt('koIToolbox2Components.idl');
 $cons->InstallXpcomComponent('koIToolbox2Components.idl');
 $cons->InstallXpcomComponent('koToolbox2Components.py');
+$cons->InstallXpcomComponent('koTools.py');
 $cons->Install(File::Spec::Functions::catfile($komodoPythonUtilsDir,
                                               "toolbox"), 'koToolbox.sql');
