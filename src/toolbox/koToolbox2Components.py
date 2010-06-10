@@ -126,24 +126,10 @@ class KoToolBox2Service:
 
         self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
         self._standardToolbox = None  # Stores the top-level folder's ID
-        self._sharedToolbox = None    # Same
         self._loadedToolboxes = {}    # Map project uri to top-level folder's 
         self._db = None
         
         self._wrapped = WrapObject(self, components.interfaces.nsIObserver)
-        prefSvc = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService)
-        koDirSvc = components.classes["@activestate.com/koDirs;1"].\
-            getService(components.interfaces.koIDirs)
-        self._prefs = prefSvc.prefs
-        self._useSharedToolbox = self._prefs.getBooleanPref('useSharedToolbox')
-        self._commonDataDir = koDirSvc.commonDataDir
-        self._prefs.prefObserverService.addObserver(self._wrapped,
-                                         "useSharedToolbox", 0)
-        self._prefs.prefObserverService.addObserver(self._wrapped,
-                                         "commonDataDirMethod", 0)
-        self._prefs.prefObserverService.addObserver(self._wrapped,
-                                         "customCommonDataDir", 0)
         _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
                 .getService(components.interfaces.nsIObserverService)
         _observerSvc.addObserver(self._wrapped,
@@ -151,8 +137,7 @@ class KoToolBox2Service:
         _observerSvc.addObserver(self._wrapped,
                                  "project_removed", 0)
         # 
-        # self._prefs.prefObserverService.addObserver(self._wrapped,
-        #                                 "xpcom-shutdown", 0)
+        # _observerSvc.addObserver(self._wrapped, 'toolbox.sqlite')
         
     def initialize(self):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
@@ -188,16 +173,7 @@ class KoToolBox2Service:
         t2 = time.time()
         #log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
         self.registerStandardToolbox(toolbox_id)
-        if self._prefs.getBooleanPref("useSharedToolbox"):
-            sharedToolboxDir = join(koDirSvc.commonDataDir,
-                                            koToolbox2.DEFAULT_TARGET_DIRECTORY)
-            t1 = time.time()
-            toolbox_id = self.toolboxLoader.loadToolboxDirectory("Shared Toolbox", sharedToolboxDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
-            t2 = time.time()
-            #log.debug("Time to load shared-toolbox: %g msec", (t2 - t1) * 1000.0)
-            self.registerSharedToolbox(toolbox_id)
-            self.notifyAddedToolbox(sharedToolboxDir)
-
+        
         extensionDirs = UnwrapObject(components.classes["@python.org/pyXPCOMExtensionHelper;1"].getService(components.interfaces.pyIXPCOMExtensionHelper)).getExtensionDirectories()
         for fileEx in extensionDirs:
             # Does this happen for disabled extensions?
@@ -212,14 +188,6 @@ class KoToolBox2Service:
     def registerStandardToolbox(self, id):
         #log.debug("registerStandardToolbox(id:%d)", id)
         self._standardToolbox = id
-
-    def registerSharedToolbox(self, id):
-        #log.debug("registerSharedToolbox(id:%r)", id)
-        self._sharedToolbox = id
-
-    def unregisterSharedToolbox(self):
-        #log.debug("unregisterSharedToolbox()")
-        self._sharedToolbox = None
 
     def registerUserToolbox(self, uri, id):
         self._loadedToolboxes[uri] = id
@@ -341,33 +309,6 @@ class KoToolBox2Service:
     def migrateVersion5Toolboxes(self):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         self._checkMigrate(koDirSvc.userDataDir, "user toolbox", koToolbox2.DEFAULT_TARGET_DIRECTORY, kpfName="toolbox.kpf")
-        
-        if self._useSharedToolbox:
-            # The thing about the shared-toolbox is that users can
-            # have multiple different shared-toolboxes they've used in
-            # the past, so whenever we activate it, we might have to
-            # migrate it.
-            self._checkMigrate(koDirSvc.commonDataDir,
-                               "shared toolbox",
-                               koToolbox2.DEFAULT_TARGET_DIRECTORY,
-                               kpfName="toolbox.kpf")
-
-    def _activateSharedToolbox(self, notifyAtEnd=True):
-        # We have to do this as long as there might be yet another
-        # sharedDataDir with a kpf file that we haven't converted yet.
-
-        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
-        self._checkMigrate(koDirSvc.commonDataDir,
-                           "shared toolbox",
-                           koToolbox2.DEFAULT_TARGET_DIRECTORY,
-                           kpfName="toolbox.kpf")
-        toolbox_id = self.toolboxLoader.loadToolboxDirectory("Shared Toolbox",
-                                                koDirSvc.commonDataDir,
-                                           koToolbox2.DEFAULT_TARGET_DIRECTORY)
-        self.registerSharedToolbox(toolbox_id)
-        if notifyAtEnd:
-            self.notifyAddedToolbox(koDirSvc.commonDataDir)
-            self.notifyToolboxTopLevelViewChanged()
 
     def activateProjectToolbox(self, project):
         projectDir = project.getFile().dirName;
@@ -426,15 +367,6 @@ class KoToolBox2Service:
         except Exception:
             pass
 
-    def _deactivateSharedToolbox(self):
-        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
-        self.notifyDroppedToolbox(koDirSvc.commonDataDir)
-        id = self._sharedToolbox
-        if id is not None:
-            self.toolbox_db.deleteItem(id)
-        self.unregisterSharedToolbox()
-        self.notifyToolboxTopLevelViewChanged()
-
     #Non-xpcom
     def extractToolboxFromKPF_File(self, kpfPath, projectName):
         kpfDir, kpfName = os.path.split(kpfPath)
@@ -451,23 +383,6 @@ class KoToolBox2Service:
         #window = subject.QueryInterface(components.interfaces.nsIDOMWindow)
         #if self._windowTypeFromWindow(window) != "Komodo":
         #    return
-        elif topic == "useSharedToolbox":
-            useSharedToolbox = self._prefs.getBooleanPref('useSharedToolbox')
-            if useSharedToolbox:
-                self._activateSharedToolbox(True)
-            else:
-                self._deactivateSharedToolbox()
-        elif topic in [
-                     "commonDataDirMethod",
-                     "customCommonDataDir"]:
-            #log.debug("observe toolbox: topic: %s sub:%r, data:%r", topic, subject, data)
-            useSharedToolbox = self._prefs.getBooleanPref('useSharedToolbox')
-            if useSharedToolbox:
-                self._activateSharedToolbox(True)
-            else:
-                self._deactivateSharedToolbox()
-                
-            return
         elif topic == "project_added":
             self.activateProjectToolbox(subject)
         elif topic == "project_removed":
@@ -480,17 +395,10 @@ class KoToolBox2Service:
             if window in self._data:
                 del self._data[window]
         elif topic == "xpcom-shutdown":
-            for name in ["useSharedToolbox",
-                         "commonDataDirMethod",
-                         "customCommonDataDir"]:
-                self._prefs.prefObserverService.removeObserver(self._wrapped,
-                                                                       name)
-                _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
-                    .getService(components.interfaces.nsIObserverService)
-                _observerSvc.removeObserver(self._wrapped,
-                                         "project_added")
-                _observerSvc.removeObserver(self._wrapped,
-                                            "project_removed")
+            _observerSvc.removeObserver(self._wrapped,
+                                        "project_added")
+            _observerSvc.removeObserver(self._wrapped,
+                                        "project_removed")
             return
 
 
