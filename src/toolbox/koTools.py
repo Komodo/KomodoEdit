@@ -332,8 +332,14 @@ class _KoFolder(_KoContainer):
         return [node[0] for node in self.childNodes]
     
     def saveNewToolToDisk(self, path):
-        # Folder has already been created.
-        pass
+        path2 = join(path, koToolbox2.UI_FOLDER_FILENAME)
+        data = {'id' : self.id,
+                'name' : self.name,
+                'type' : self.typeName,
+                }
+        fp = open(path2, 'w')
+        data = json.dump(data, fp, encoding="utf-8", indent=2)
+        fp.close()
 
     def save(self):
         # What about renaming a folder?

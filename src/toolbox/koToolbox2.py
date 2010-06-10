@@ -81,15 +81,22 @@ TOOL_EXTENSION = ".komodotool"
 UI_FOLDER_FILENAME = ".folderdata"
 
 
-def _writeJSONData(data, new_id, path):
+def _updateJSONData(data, new_id, path, noLoad=False):
     try:
         # the json file has to be reopened because
         # the various parts of data were deleted as
         # they were used up, to simplify other processing.
-        fp = open(path, 'r')
-        data = json.load(fp, encoding="utf-8")
-        data['id'] = new_id
-        fp.close()
+        if not noLoad:
+            try:
+                fp = open(path, 'r')
+                try:
+                    data = json.load(fp, encoding="utf-8")
+                    data['id'] = new_id
+                except:
+                    log.exception("Failed to read json data for path %s", path)
+                fp.close()
+            except:
+                log.exception("Failed to read file %s", path)
         fp = open(path, 'w')
         try:
             json.dump(data, fp, encoding="utf-8", indent=2)
@@ -97,7 +104,7 @@ def _writeJSONData(data, new_id, path):
             log.exception("Failed to write json data for path %s", path)
         fp.close()
     except:
-        log.exception("Failed to open/close file %s", path)
+        log.exception("Failed to write to file %s", path)
 
 #---- errors
 
@@ -438,9 +445,10 @@ class Database(object):
                     actual_name = name
                 new_id = self._addCompoundItem(path, actual_name, data, parent_path_id, cu)
                 if new_id != old_id:
-                    _writeJSONData(data, new_id, metadataPath)
-                return
+                    _updateJSONData(data, new_id, metadataPath)
+                return new_id
             id = self._addCommonDetails(path, name, 'folder', parent_path_id, cu)
+            return id
 
     def addContainerItem(self, data, item_type, path, fname, parent_path_id):
         with self.connect(commit=True) as cu:
@@ -1179,7 +1187,7 @@ class ToolboxLoader(object):
                     old_id = int(data.get('id', -1))
                     new_id = self.db.addTool(data, type, path, fname, parent_id)
                     if new_id != old_id:
-                        _writeJSONData(data, new_id, path)
+                        _updateJSONData(data, new_id, path)
                     else:
                         #log.debug("tool %s: continue to reuse id %r", path, old_id)
                         pass
@@ -1241,10 +1249,11 @@ class ToolboxLoader(object):
                                                    ['id'],
                                                    'path', actualToolboxDir)
             if not result_list:
-                self.db.addFolder(actualToolboxDir, toolboxName, None)
-                result_list = self.db.getValuesFromTableByKey('paths',
-                                                              ['id'],
-                                                              'path', actualToolboxDir)
+                new_id = self.db.addFolder(actualToolboxDir, toolboxName, None)
+                result_list = [new_id]
+                data = { 'id': new_id, 'type':'folder', 'name':toolboxName}
+                _updateJSONData(data, new_id,
+                                os.path.join(actualToolboxDir, UI_FOLDER_FILENAME), noLoad=True)
             os.path.walk(actualToolboxDir, self.walkFunc, None)
         finally:
             self.db.releaseConnection()
