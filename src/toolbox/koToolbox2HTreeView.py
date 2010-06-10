@@ -93,7 +93,7 @@ class _KoContainerHView(_KoToolHView):
             return
         #log.debug("addChild: %r/%s/%s", item.id, item.name, item.type)
         id = int(item.id)
-        self.unfilteredChildNodes += (id, item.name, item.type)
+        self.unfilteredChildNodes.append((id, item.name, item.type))
         self.childIDs.append(id)
 
     def removeChild(self, childViewItem):
