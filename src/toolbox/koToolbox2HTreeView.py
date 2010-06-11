@@ -597,6 +597,7 @@ class KoToolbox2HTreeView(TreeView):
             self._tree.scrollToRow(firstVisibleRow)
         if currentIndex != -1:
             self.selection.currentIndex = currentIndex
+            self.selection.select(currentIndex)
             self._tree.ensureRowIsVisible(currentIndex)
 
     def terminate(self):
@@ -715,15 +716,49 @@ class KoToolbox2HTreeView(TreeView):
 
     def setFilter(self, filterPattern):
         if not filterPattern:
+            if self.selection.count > 0:
+                currentIndex = self.selection.currentIndex
+                pathsToOpen = []
+                index = currentIndex
+                currentPath = self._rows[index].path
+                while True:
+                    parentIndex = self.getParentIndex(index)
+                    if parentIndex == -1 or parentIndex == index:
+                        break
+                    index = parentIndex
+                    rowNode = self._rows[index]
+                    path = rowNode.path
+                    if path in self._nodeOpenStatusFromName:
+                        break
+                    pathsToOpen.append(path)
+            else:
+                currentIndex = -1
             begin_len = len(self._rows)
             self._rows = self._unfilteredRows
             self._unfilteredRows = None
-            after_len = len(self._rows)
             #log.debug("Had %d rows, now have %d rows", begin_len, after_len)
+            if currentIndex != -1:
+                # Open up the necessary nodes first, from the highest
+                # nodes first, which happen to be the last ones we
+                # pushed on the list.
+                while pathsToOpen:
+                    path = pathsToOpen.pop()
+                    candidateIndex = self.getIndexByPath(path)
+                    if not self._rows[candidateIndex].isOpen:
+                        self._doContainerOpen(self._rows[candidateIndex],
+                                              candidateIndex)
+                # Revise: currentIndex to point to new location of currentPath
+                currentIndex = self.getIndexByPath(currentPath)
+            after_len = len(self._rows)
             self._tree.rowCountChanged(0, after_len - begin_len)
             self._tree.invalidate()
-            self._restoreViewWithSettings(self._unfiltered_firstVisibleRow,
-                                          self._unfiltered_currentIndex)
+            if currentIndex == -1:
+                fvr = self._unfiltered_firstVisibleRow
+                ufci = self._unfiltered_currentIndex
+            else:
+                fvr = -1
+                ufci = currentIndex
+            self._restoreViewWithSettings(fvr, ufci)
         else:
             if self._unfilteredRows is None:
                 self._unfilteredRows = self._rows
