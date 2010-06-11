@@ -81,29 +81,18 @@ class _KoToolHView(object):
             
 class _KoContainerHView(_KoToolHView):
     isContainer = True
+    folderTypes = ('folder', 'menu', 'toolbar')
     def rebuildChildren(self, id):
-        self.unfilteredChildNodes = _tbdbSvc.getChildNodes(id)
-        self.childIDs = [node[0] for node in self.unfilteredChildNodes]
+        self.unfilteredChildNodes = [x + (x[2] in self.folderTypes,)
+                                     for x in _tbdbSvc.getChildNodes(id)]
 
     def addChild(self, item):
-        if item.id in self.childIDs:
-            log.error("addChild item %r/%s already has item %r/%s/%s",
-                      self.id, self.name,
-                      item.id, item.type, item.name)
-            return
-        #log.debug("addChild: %r/%s/%s", item.id, item.name, item.type)
         id = int(item.id)
-        self.unfilteredChildNodes.append((id, item.name, item.type))
-        self.childIDs.append(id)
+        self.unfilteredChildNodes.append((id, item.name, item.type, item.isContainer))
+        #self.childIDs.append(id)
 
     def removeChild(self, childViewItem):
         child_id = int(childViewItem.id)
-        try:
-            idx = self.childIDs.index(child_id)
-            del self.childIDs[idx]
-        except IndexError, ValueError:
-            #log.debug("removeChild: can't find item %d in rows", child_id)
-            pass
         for i, node in enumerate(self.unfilteredChildNodes):
             if node[0] == child_id:
                 del self.unfilteredChildNodes[i]
@@ -158,9 +147,14 @@ class KoToolbox2HTreeView(TreeView):
     _reg_contractid_ = "@activestate.com/KoToolbox2HTreeView;1"
     _reg_desc_ = "KoToolbox2 Hierarchical TreeView"
 
+    _SORT_BY_NATURAL_ORDER = 1  # AKA NAME_ASCENDING_FOLDERS_FIRST
+    _SORT_BY_NAME_ASCENDING = 2
+    _SORT_BY_NAME_DESCENDING = 3
+
     def __init__(self, debug=None):
         TreeView.__init__(self, debug=0)
         self._rows = []
+        self._sortRegime = self._SORT_BY_NATURAL_ORDER
         self._nodeOpenStatusFromName = {}
         self._tree = None
         self.toolbox_db = None
@@ -669,7 +663,7 @@ class KoToolbox2HTreeView(TreeView):
         
     def isContainerEmpty(self, index):
         node = self._rows[index]
-        return node.isContainer and not node.childIDs
+        return node.isContainer and not node.unfilteredChildNodes
 
     def getParentIndex(self, index):
         if index >= len(self._rows) or index < 0: return -1
@@ -746,7 +740,7 @@ class KoToolbox2HTreeView(TreeView):
             self._rows = []
             for node in matched_nodes:
                 path_id, name, node_type, matchedPattern, level = node
-                toolPart = self._toolsManager.getOrCreateTool(node_type, name, path_id)
+                toolPart = self._toolsManager.getToolById(path_id)
                 toolView = createToolViewFromTool(toolPart) 
                 toolView.level = level
                 self._rows.append(toolView)
@@ -799,8 +793,28 @@ class KoToolbox2HTreeView(TreeView):
                 self._tree.ensureRowIsVisible(firstVisibleRow)
                 self.selection.select(index)
 
+    def _compareChildNode(self, item1, item2):
+        # Nodes contain (id, name, type, isContainer)
+        if self._sortRegime == self._SORT_BY_NATURAL_ORDER:
+            folderDiff = cmp(not item2[3], not item1[3])
+            if folderDiff:
+                return folderDiff
+        items = [item1, item2]
+        if self._sortRegime == self._SORT_BY_NAME_DESCENDING:
+            lowerIndex = 1
+            upperIndex = 0
+        else:
+            lowerIndex = 0
+            upperIndex = 1
+        return cmp(items[lowerIndex].lower(), items[upperIndex].lower())
+
+    def _sortAndExtractIDs(self, rowNode):
+        sortedNodes = sorted(rowNode.unfilteredChildNodes,
+                             cmp=self._compareChildNode)
+        return [x[0] for x in sortedNodes]
+
     def _doContainerOpen(self, rowNode, index):
-        childIDs = rowNode.childIDs # sorted(rowNode.childIDs, cmp=self._compareChildNode)
+        childIDs = self._sortAndExtractIDs(rowNode)
         if childIDs:
             posn = index + 1
             #for path_id, name, node_type in childNodes:

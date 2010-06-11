@@ -1079,12 +1079,25 @@ class Database(object):
                                 processed_ids, 0, ret_table)
             return ret_table
 
+    folderTypes = ('folder', 'menu', 'toolbar')
+    def _compareRowInfo(self, row1, row2):
+        id1, name1, type1 = row1
+        id2, name2, type2 = row2
+        isFolder1 = type1 in self.folderTypes
+        isFolder2 = type2 in self.folderTypes
+        folderDiff = cmp(not isFolder1, not isFolder2)
+        if folderDiff:
+            return folderDiff
+        return cmp(name1.lower(), name2.lower())        
+
     def _completeTable(self, parent_id, children_by_id, row_info_by_id,
                        processed_ids, level,
                        ret_table):
         children_ids = children_by_id.get(parent_id, [])
-        log.debug("children_by_id.get(%r) => %r", parent_id, children_ids)
-        for id in children_ids:
+        row_infos_to_sort = [row_info_by_id[x] for x in children_ids]
+        sorted_ids = [row[0] for row in sorted(row_infos_to_sort,
+                                               cmp=self._compareRowInfo)]
+        for id in sorted_ids:
             ret_table.append(row_info_by_id[id] + [processed_ids[id], level])
             self._completeTable(id, children_by_id, row_info_by_id,
                                 processed_ids, level + 1,
