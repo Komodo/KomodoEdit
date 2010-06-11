@@ -112,9 +112,6 @@ updateFilter: function(event) {
     var textbox = this.widgets.filterTextbox;
     var filterPattern = textbox.value;
     this.view.setFilter(filterPattern);
-    if (filterPattern && this.view.rowCount) {
-        this.view.selection.select(0);
-    }
 },
 
 _EOD_: null

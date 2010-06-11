@@ -716,10 +716,19 @@ class KoToolbox2HTreeView(TreeView):
 
     def setFilter(self, filterPattern):
         if not filterPattern:
-            if self.selection.count > 0:
-                currentIndex = self.selection.currentIndex
+            self.clearFilter()
+        else:
+            self.useFilter(filterPattern)
+            
+    def clearFilter(self):
+        currentIndex = -1
+        # Set currentIndex to the current node if it's selected,
+        # and it's a container -- the idea is to keep the container around,
+        if self.selection.count > 0:
+            index = self.selection.currentIndex
+            if self.isContainer(index):
                 pathsToOpen = []
-                index = currentIndex
+                currentIndex = index
                 currentPath = self._rows[index].path
                 while True:
                     parentIndex = self.getParentIndex(index)
@@ -731,60 +740,58 @@ class KoToolbox2HTreeView(TreeView):
                     if path in self._nodeOpenStatusFromName:
                         break
                     pathsToOpen.append(path)
-            else:
-                currentIndex = -1
-            begin_len = len(self._rows)
-            self._rows = self._unfilteredRows
-            self._unfilteredRows = None
-            #log.debug("Had %d rows, now have %d rows", begin_len, after_len)
-            if currentIndex != -1:
-                # Open up the necessary nodes first, from the highest
-                # nodes first, which happen to be the last ones we
-                # pushed on the list.
-                while pathsToOpen:
-                    path = pathsToOpen.pop()
-                    candidateIndex = self.getIndexByPath(path)
-                    if not self._rows[candidateIndex].isOpen:
-                        self._doContainerOpen(self._rows[candidateIndex],
-                                              candidateIndex)
-                # Revise: currentIndex to point to new location of currentPath
-                currentIndex = self.getIndexByPath(currentPath)
-            after_len = len(self._rows)
-            self._tree.rowCountChanged(0, after_len - begin_len)
-            self._tree.invalidate()
-            if currentIndex == -1:
-                fvr = self._unfiltered_firstVisibleRow
-                ufci = self._unfiltered_currentIndex
-            else:
-                fvr = -1
-                ufci = currentIndex
-            self._restoreViewWithSettings(fvr, ufci)
+        begin_len = len(self._rows)
+        self._rows = self._unfilteredRows
+        self._unfilteredRows = None
+        #log.debug("Had %d rows, now have %d rows", begin_len, after_len)
+        if currentIndex != -1:
+            # Open up the necessary nodes first, from the highest
+            # nodes first, which happen to be the last ones we
+            # pushed on the list.
+            while pathsToOpen:
+                path = pathsToOpen.pop()
+                candidateIndex = self.getIndexByPath(path)
+                if not self._rows[candidateIndex].isOpen:
+                    self._doContainerOpen(self._rows[candidateIndex],
+                                          candidateIndex)
+            # Revise: currentIndex to point to new location of currentPath
+            currentIndex = self.getIndexByPath(currentPath)
+        after_len = len(self._rows)
+        self._tree.rowCountChanged(0, after_len - begin_len)
+        self._tree.invalidate()
+        if currentIndex == -1:
+            fvr = self._unfiltered_firstVisibleRow
+            ufci = self._unfiltered_currentIndex
         else:
-            if self._unfilteredRows is None:
-                self._unfilteredRows = self._rows
-                self._unfiltered_firstVisibleRow = self._tree.getFirstVisibleRow()
-                self._unfiltered_currentIndex = self.selection.currentIndex;
-                
-            import time
-            t1 = time.time()
-            matched_nodes = _tbdbSvc.getHierarchyMatch(filterPattern)
-            t2 = time.time()
-            #log.debug("Time to query %s: %g msec", filterPattern, (t2 - t1) * 1000.0)
-            #log.debug("matched nodes: %s", matched_nodes)
-            before_len = len(self._rows)
-            self._rows = []
-            for node in matched_nodes:
-                path_id, name, node_type, matchedPattern, level = node
-                toolPart = self._toolsManager.getToolById(path_id)
-                toolView = createToolViewFromTool(toolPart) 
-                toolView.level = level
-                self._rows.append(toolView)
-            after_len = len(self._rows)
-            #log.debug("Had %d rows, now have %d rows", before_len, after_len)
-            self._tree.rowCountChanged(0, after_len - before_len)                
-            self._tree.invalidate()
-                
-            # And replace the table.
+            fvr = -1
+            ufci = currentIndex
+        self._restoreViewWithSettings(fvr, ufci)
+        
+    def useFilter(self, filterPattern):
+        if self._unfilteredRows is None:
+            self._unfilteredRows = self._rows
+            self._unfiltered_firstVisibleRow = self._tree.getFirstVisibleRow()
+            self._unfiltered_currentIndex = self.selection.currentIndex;
+            
+        import time
+        t1 = time.time()
+        matched_nodes = _tbdbSvc.getHierarchyMatch(filterPattern)
+        t2 = time.time()
+        #log.debug("Time to query %s: %g msec", filterPattern, (t2 - t1) * 1000.0)
+        #log.debug("matched nodes: %s", matched_nodes)
+        before_len = len(self._rows)
+        self._rows = []
+        for node in matched_nodes:
+            path_id, name, node_type, matchedPattern, level = node
+            toolPart = self._toolsManager.getToolById(path_id)
+            toolView = createToolViewFromTool(toolPart) 
+            toolView.level = level
+            self._rows.append(toolView)
+        after_len = len(self._rows)
+        #log.debug("Had %d rows, now have %d rows", before_len, after_len)
+        self._tree.rowCountChanged(0, after_len - before_len)                
+        self._tree.invalidate()
+        self._restoreViewWithSettings(0, 0)
 
     def toggleOpenState(self, index, suppressUpdate=False):
         if self._unfilteredRows:
