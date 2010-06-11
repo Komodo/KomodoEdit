@@ -666,7 +666,7 @@ this.doStartDrag = function(event, tree) {
         for (var i = 0; i < flavors.length; i++) {
             var flavor = flavors[i];
             var dataValue = tool.getDragDataByFlavor(flavor);
-            dt.mozSetDataAt(flavor, dataValue, i);
+            dt.mozSetDataAt(flavor, dataValue, 0);
         }
     } else {
         for (var i = 0; i < selectedIndices.length; i++) {
