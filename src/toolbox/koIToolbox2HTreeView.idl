@@ -119,6 +119,10 @@ interface koIContainerTool: koIContainerBaseTool {
 
 [scriptable, uuid(f587b8c6-96ae-4af3-9362-a0fd40d541f7)]
 interface koIToolbox2HTreeView: nsITreeView {
+    const short SORT_BY_NATURAL_ORDER = 1; // AKA NAME_ASCENDING_FOLDERS_FIRST
+    const short SORT_BY_NAME_ASCENDING = 2;
+    const short SORT_BY_NAME_DESCENDING = 3;
+
     void initialize();
     void terminate();
     wstring get_toolType(in long index);
@@ -149,6 +153,7 @@ interface koIToolbox2HTreeView: nsITreeView {
     long getNextSiblingIndex(in long index); // not in nsITreeView...
 
     void setFilter(in wstring filterPattern);
+    attribute long sortDirection;
 };
 
 

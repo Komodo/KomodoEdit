@@ -50,6 +50,8 @@ import logging
 
 log = logging.getLogger("Toolbox2HTreeView")
 #log.setLevel(logging.DEBUG)
+qlog = logging.getLogger("Toolbox2HTreeView")
+#qlog.setLevel(logging.DEBUG)
 
 _tbdbSvc = None  # module-global handle to the database service
 _view = None     # module-global handle to the tree-view (needs refactoring)
@@ -87,8 +89,9 @@ class _KoContainerHView(_KoToolHView):
                                      for x in _tbdbSvc.getChildNodes(id)]
 
     def addChild(self, item):
-        id = int(item.id)
-        self.unfilteredChildNodes.append((id, item.name, item.type, item.isContainer))
+        item_uw = UnwrapObject(item)
+        id = int(item_uw.id)
+        self.unfilteredChildNodes.append((id, item_uw.name, item_uw.typeName, item_uw.isContainer))
         #self.childIDs.append(id)
 
     def removeChild(self, childViewItem):
@@ -147,14 +150,14 @@ class KoToolbox2HTreeView(TreeView):
     _reg_contractid_ = "@activestate.com/KoToolbox2HTreeView;1"
     _reg_desc_ = "KoToolbox2 Hierarchical TreeView"
 
-    _SORT_BY_NATURAL_ORDER = 1  # AKA NAME_ASCENDING_FOLDERS_FIRST
-    _SORT_BY_NAME_ASCENDING = 2
-    _SORT_BY_NAME_DESCENDING = 3
+    _SORT_BY_NATURAL_ORDER = components.interfaces.koIToolbox2HTreeView.SORT_BY_NATURAL_ORDER
+    _SORT_BY_NAME_ASCENDING = components.interfaces.koIToolbox2HTreeView.SORT_BY_NAME_ASCENDING
+    _SORT_BY_NAME_DESCENDING = components.interfaces.koIToolbox2HTreeView.SORT_BY_NAME_DESCENDING
 
     def __init__(self, debug=None):
         TreeView.__init__(self, debug=0)
         self._rows = []
-        self._sortRegime = self._SORT_BY_NATURAL_ORDER
+        self._sortDirection = self._SORT_BY_NATURAL_ORDER
         self._nodeOpenStatusFromName = {}
         self._tree = None
         self.toolbox_db = None
@@ -175,6 +178,15 @@ class KoToolbox2HTreeView(TreeView):
             prefs.setPref("toolbox2", toolboxPrefs)
         else:
             toolboxPrefs = prefs.getPref("toolbox2")
+        if toolboxPrefs.hasPref("sortDirection"):
+            sortDirectionString = toolboxPrefs.getStringPref("sortDirection")
+            self._sortDirection = {'natural':self._SORT_BY_NATURAL_ORDER,
+                                   'ascending':self._SORT_BY_NAME_ASCENDING,
+                                   'descending':self._SORT_BY_NAME_DESCENDING,
+                                   }.get(sortDirectionString,
+                                         self._SORT_BY_NATURAL_ORDER)
+                                   
+            
         if toolboxPrefs.hasPref("open-nodes"):
             self._nodeOpenStatusFromName = json.loads(toolboxPrefs.getStringPref("open-nodes"))
         else:
@@ -793,6 +805,13 @@ class KoToolbox2HTreeView(TreeView):
         self._tree.invalidate()
         self._restoreViewWithSettings(0, 0)
 
+    def get_sortDirection(self):
+        return self._sortDirection
+
+    def set_sortDirection(self, value):
+        self._sortDirection = value
+        self.refreshFullView()
+
     def toggleOpenState(self, index, suppressUpdate=False):
         if self._unfilteredRows:
             # "trying to toggle while searching causes all kinds of grief"
@@ -836,27 +855,32 @@ class KoToolbox2HTreeView(TreeView):
                 self.selection.select(index)
 
     def _compareChildNode(self, item1, item2):
+        qlog.debug("_compareChildNode: %s", [item1, item2])
         # Nodes contain (id, name, type, isContainer)
-        if self._sortRegime == self._SORT_BY_NATURAL_ORDER:
-            folderDiff = cmp(not item2[3], not item1[3])
+        if self._sortDirection == self._SORT_BY_NATURAL_ORDER:
+            folderDiff = cmp(not item1[3], not item2[3])
             if folderDiff:
+                qlog.debug("_compareChildNode: folderDiff:%r", folderDiff)
                 return folderDiff
         items = [item1, item2]
-        if self._sortRegime == self._SORT_BY_NAME_DESCENDING:
+        if self._sortDirection == self._SORT_BY_NAME_DESCENDING:
             lowerIndex = 1
             upperIndex = 0
         else:
             lowerIndex = 0
             upperIndex = 1
-        return cmp(items[lowerIndex].lower(), items[upperIndex].lower())
+        return cmp(items[lowerIndex][1].lower(), items[upperIndex][1].lower())
 
     def _sortAndExtractIDs(self, rowNode):
+        qlog.debug("_sortAndExtractIDs: self._sortDirection:%d", self._sortDirection)
         sortedNodes = sorted(rowNode.unfilteredChildNodes,
                              cmp=self._compareChildNode)
+        qlog.debug("  sortedNodes:%s", sortedNodes)
         return [x[0] for x in sortedNodes]
 
     def _doContainerOpen(self, rowNode, index):
         childIDs = self._sortAndExtractIDs(rowNode)
+        qlog.debug("sorted childIDs of row %d: %s", index, childIDs)
         if childIDs:
             posn = index + 1
             #for path_id, name, node_type in childNodes:
@@ -880,17 +904,6 @@ class KoToolbox2HTreeView(TreeView):
                     if openNode:
                         self._doContainerOpen(row, lastIndex - i)
                 
-            
-    def _compareChildNode(self, item1, item2):
-        # TODO: Have a sort flag.
-        # *Always* sort folders before other items.
-        if item1[2] == 'folder':
-            if item2[2] != 'folder':
-                return -1
-        elif item2[2] == 'folder':
-            return 1
-        return cmp(item1[1].lower(), item2[1].lower())
-
 _partFactoryMap = {}
 for name, value in globals().items():
     if isinstance(value, object) and getattr(value, 'typeName', ''):

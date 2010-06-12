@@ -84,6 +84,7 @@ initialize: function() {
     this.toolbox2Svc.migrateVersion5Toolboxes();
     this.toolbox2Svc.initialize();
     this.view.initialize();
+        
     // Give the toolbox observers time to have started up before
     // notifying them that the toolbox has changed.
     setTimeout(function() {
@@ -119,6 +120,23 @@ _EOD_: null
 
 this.onload = function() {
     ko.main.addWillCloseHandler(this.onUnload, this);
+    widgets.sortNatural = document.getElementById("toolbox2-cog_sortNatural");
+    widgets.sortAscending = document.getElementById("toolbox2-cog_sortAscending");
+    widgets.sortDescending = document.getElementById("toolbox2-cog_sortDescending");
+    this._sortDirection = "natural";
+    if (_prefs.hasPref("toolbox2")) {
+        var toolboxPrefs = _prefs.getPref("toolbox2");
+        if (toolboxPrefs.hasPref("sortDirection")) {
+            this._sortDirection = toolboxPrefs.getStringPref("sortDirection");
+        }
+    }
+    var sortTypeCamelCase = ('sort'
+                             + this._sortDirection.substr(0, 1).toUpperCase()
+                             + this._sortDirection.substr(1));
+    dump("sortTypeCamelCase: ["
+         + sortTypeCamelCase
+         + "]\n");
+    widgets[sortTypeCamelCase].setAttribute('checked', 'true');
     this.manager = new Toolbox2Manager();
     this.manager.initialize();
 };
@@ -126,6 +144,22 @@ this.onload = function() {
 this.onUnload = function() {
     var this_ = ko.toolbox2;
     this_.manager.terminate();
+    try {
+        _prefs.getPref("toolbox2").setStringPref("sortDirection", this._sortDirection);
+    } catch(ex) {
+        dump("toolbox2.p.js: terminate: " + ex + "\n");
+    }
+};
+
+this._sortValuesByName = {
+    'natural': Components.interfaces.koIToolbox2HTreeView.SORT_BY_NATURAL_ORDER,
+    'ascending': Components.interfaces.koIToolbox2HTreeView.SORT_BY_NAME_ASCENDING,
+    'descending': Components.interfaces.koIToolbox2HTreeView.SORT_BY_NAME_DESCENDING
+};
+
+this.sortRows = function(sortDirection) {
+    this._sortDirection = sortDirection;
+    this.manager.view.sortDirection = this._sortValuesByName[sortDirection];
 };
 
 this.updateContextMenu = function(event, menupopup) {
