@@ -8,6 +8,9 @@ from xpcom.server import WrapObject, UnwrapObject
 import mozutils
 import weakref
 
+import logging
+log = logging.getLogger("projectUtils")
+#log.setLevel(logging.DEBUG)
 
 
 # we use a weak value dictionary to make sure that the id map doesn't end up
