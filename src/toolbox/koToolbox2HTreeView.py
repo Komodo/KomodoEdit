@@ -112,6 +112,12 @@ class _KoContainerHView(_KoToolHView):
 class _KoFolderHView(_KoContainerHView):
     typeName = 'folder'
 
+    def getImageSrc(self, index, column):
+        if self.level == 0:
+            return 'chrome://fugue/skin/icons/toolbox.png'
+        else:
+            return self.get_iconurl()
+
 class _KoComplexContainerHView(_KoFolderHView):
     pass
 
@@ -658,6 +664,10 @@ class KoToolbox2HTreeView(TreeView):
     def getImageSrc(self, index, column):
         col_id = column.id
         assert col_id == "Name"
+        node = self._rows[index]
+        method = getattr(node, "getImageSrc", None)
+        if method:
+            return method(index, column)
         try:
             return self._rows[index].get_iconurl()
         except:
