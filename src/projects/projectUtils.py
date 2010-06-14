@@ -128,7 +128,7 @@ def evalPythonMacro(part, domdocument, window, scimoz, document, view, code,
         _partSvc.runningMacro = None
         return retval
     except Exception, e:
-        log.exception("Failed to exec the macro %s", macro.name)
+        log.exception("Failed to exec the macro %s", part.name)
         _partSvc.runningMacro = None
         err = ''.join(traceback.format_exception(*sys.exc_info()))
         lastErrorSvc.setLastError(1, err)
