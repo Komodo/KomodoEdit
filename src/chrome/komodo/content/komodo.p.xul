@@ -78,7 +78,7 @@
         screenY="20"
         persist="screenX screenY width height"
         ondragover="return ko.dragdrop.onDragOver(event);"
-        ondragdrop="return ko.dragdrop.onDrop(event);"
+        ondrop="return ko.dragdrop.onDrop(event);"
         >
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
@@ -2624,7 +2624,7 @@
                 handleCtrlTab="true"
                 handleCtrlPageUpDown="true"
                 ondragover="event.cancelBubble=true; return false;"
-                ondragdrop="event.cancelBubble=true; return true;">
+                ondrop="event.cancelBubble=true; return true;">
                 <tabs type="scrollable" collapsable="true"
                     id="output_tabs" orient="horizontal"
                     splitterId="bottom_splitter"

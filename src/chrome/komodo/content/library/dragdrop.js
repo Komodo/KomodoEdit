@@ -306,6 +306,14 @@ if (typeof(ko.dragdrop)=='undefined') {
                 this.value = decodeURI(fileProtocolHandler.getURLSpecFromFile(dragData));
                 this.isURL = true;
                 break;
+            case "application/x-moz-url":
+            case "text/x-moz-url":
+                _log.debug("onDrop:: x-moz-url: " + dragData);
+                // Ensure we decode the URI, bug 72873.
+                // Note: x-moz-url has the format: "Url\nTitle\n"
+                this.value = decodeURI(dragData.split("\n")[0]);
+                this.isURL = true;
+                break;
             case "application/x-komodo-snippet":
                 var snippet_id = dragData;
                 this.snippet = ko.toolbox2.findToolById(snippet_id);
