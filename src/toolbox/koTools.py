@@ -419,7 +419,7 @@ class _KoToolbar(_KoComplexContainer):
 class _KoCommandTool(_KoTool):
     typeName = 'command'
     prettytype = 'Run Command'
-    _iconurl = 'chrome://komodo/skin/images/run_commands.png'
+    _iconurl = 'chrome://fugue/skin/icons/application-terminal.png'
     
     def save(self):
         # Write the changed data to the file system
@@ -536,7 +536,7 @@ class _KoMacroTool(_KoTool):
 class _KoSnippetTool(_KoTool):
     typeName = 'snippet'
     prettytype = 'Snippet'
-    _iconurl = 'chrome://komodo/skin/images/snippet.png'
+    _iconurl = 'chrome://fugue/skin/icons/document-snippet.png'
 
     def __init__(self, *args):
         _KoTool.__init__(self, *args)
@@ -578,7 +578,7 @@ class _KoTemplateTool(_KoURL_LikeTool):
 class _KoURLTool(_KoURL_LikeTool):
     typeName = 'URL'
     prettytype = 'URL'
-    _iconurl = 'chrome://komodo/skin/images/xlink.png'
+    _iconurl = 'chrome://fugue/skin/icons/globe.png'
     
 class KoToolbox2ToolManager(object):
     _com_interfaces_ = [components.interfaces.nsIObserver,
