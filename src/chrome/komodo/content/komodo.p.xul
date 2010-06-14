@@ -2527,9 +2527,35 @@
                                     <toolbarbutton    id="toolbox2_tools-a"
                                             tooltiptext="&tools.label;"
                                             buttonstyle="pictures"
-                                            type="menu"
                                             orient="horizontal"
-                                            class="rightarrow-button-a project-tools-icon"/>
+                                            type="menu-button"
+                                            class="rightarrow-button-a project-tools-icon">
+                                        <menupopup id="toolbox2-cog-popup">
+                                            <menuitem id="toolbox2-cog_sortNatural"
+                                                      label="&sortNatural.label;"
+                                                      type="radio"
+                                                      name="toolbox2-sort-type"
+                                                      accesskey="&sortNatural.accesskey;"
+                                                      oncommand="ko.toolbox2.sortRows('natural')"
+                                                      />
+                                            <menuitem id="toolbox2-cog_sortAscending"
+                                                      label="&sortAscending.label;"
+                                                      type="radio"
+                                                      name="toolbox2-sort-type"
+                                                      accesskey="&sortAscending.accesskey;"
+                                                      oncommand="ko.toolbox2.sortRows('ascending')"
+                                                      />
+                                            <menuitem id="toolbox2-cog_sortDescending"
+                                                      label="&sortDescending.label;"
+                                                      type="radio"
+                                                      name="toolbox2-sort-type"
+                                                      accesskey="&sortDescending.accesskey;"
+                                                      oncommand="ko.toolbox2.sortRows('descending')"
+                                                      />
+                                            <menuseparator id="toolbox2-cog_separator-1" />
+                                            <!-- put items for inserting here -->
+                                        </menupopup>
+                                    </toolbarbutton>
                                     <textbox id="toolbox2-filter-textbox"
                                                class="search-box"
                                                style="min-width:40px; max-width:200px; margin-right:0px;"
