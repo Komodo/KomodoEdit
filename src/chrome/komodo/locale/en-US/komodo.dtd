@@ -204,7 +204,6 @@
 <!ENTITY expandAll.label "Expand All">
 <!ENTITY expandRecursively.label "Expand Recursively">
 <!ENTITY exportAsZipFile.label "Export as Zip File...">
-<!ENTITY exportPackage.label "Export Package...">
 <!ENTITY extensionManager.accesskey "A">
 <!ENTITY extensionManager.label "Add-ons">
 <!ENTITY file.label "File">
@@ -323,7 +322,6 @@
 <!ENTITY helpTroubleshootingViewErrorLog.label "View log file">
 <!ENTITY helpTroubleshootingViewErrorLog.desc "Open the Komodo Error Log for viewing">
 <!ENTITY importFromFileSystem.label "Import from File System...">
-<!ENTITY importPackage.label "Import Package...">
 <!ENTITY increase.label "Increase">
 <!ENTITY increaseLineIndent.label "Increase Line Indent">
 <!ENTITY incrementalSearch.label "Incremental Search">
@@ -426,8 +424,6 @@
 <!ENTITY menuSplitTab.accesskey "S">
 <!ENTITY menuStartIncrementalSearch.accesskey "I">
 <!ENTITY menuTabify.accesskey "T">
-<!ENTITY menuToolbox.accesskey "x">
-<!ENTITY menuToolboxAdd.accesskey "a">
 <!ENTITY menuTools.accesskey "T">
 <!ENTITY menuToolsRecentCommands.accesskey "e">
 <!ENTITY menuToolsRunCommand.accesskey "R">
