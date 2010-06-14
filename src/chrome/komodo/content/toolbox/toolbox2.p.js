@@ -133,9 +133,6 @@ this.onload = function() {
     var sortTypeCamelCase = ('sort'
                              + this._sortDirection.substr(0, 1).toUpperCase()
                              + this._sortDirection.substr(1));
-    dump("sortTypeCamelCase: ["
-         + sortTypeCamelCase
-         + "]\n");
     widgets[sortTypeCamelCase].setAttribute('checked', 'true');
     this.manager = new Toolbox2Manager();
     this.manager.initialize();

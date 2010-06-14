@@ -769,3 +769,12 @@
 <!ENTITY reopenLastClosedTab.desc "General: Reopen the Last Closed Tab">
 
 <!ENTITY run.label "Run">
+
+<!-- toolbox definitions -->
+
+<!ENTITY sortNatural.label "Sort Natural">
+<!ENTITY sortNatural.accesskey "N">
+<!ENTITY sortAscending.label "Sort Ascending">
+<!ENTITY sortAscending.accesskey "A">
+<!ENTITY sortDescending.label "Sort Descending">
+<!ENTITY sortDescending.accesskey "D">
