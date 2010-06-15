@@ -324,11 +324,6 @@ this.addNewPart = function peFolder_add(type, partviewerId)
             case 'template':
                 ko.projects.addTemplate(target);
                 break;
-            case 'directoryshortcut':
-                dirname = ko.filepicker.getFolder();
-                if (!dirname) return;
-                ko.projects.addDirectoryShortcut(dirname, target);
-                break;
             case 'newfile':
                 ko.projects.addNewFileFromTemplate(target);
                 break;

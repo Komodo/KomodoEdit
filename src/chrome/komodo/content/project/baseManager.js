@@ -351,8 +351,6 @@ BaseManager.prototype.onDrop = function(event, transferDataSet, session, index) 
                 // for projects, add a live folder, for toolbox, add a shortcut
                 if (typeof(this.toolbox) == 'undefined') {
                     ko.projects.addLiveFolder(ko.uriparse.URIToLocalPath(desc.text), droppedon);
-                } else {
-                    ko.projects.addDirectoryShortcut(ko.uriparse.URIToLocalPath(desc.text), droppedon);
                 }
             } else if (desc.isFileURL && desc.text.match(/\.kpf$/)) {
                 ko.projects.open(desc.text);

@@ -133,9 +133,6 @@ class _KoCommandToolHView(_KoToolHView):
 class _KoURL_LikeToolHView(_KoToolHView):
     pass
 
-class _KoDirectoryShortcutToolHView(_KoURL_LikeToolHView):
-    typeName = 'DirectoryShortcut'
-
 class _KoMacroToolHView(_KoToolHView):
     typeName = 'macro'
 
@@ -248,7 +245,7 @@ class KoToolbox2HTreeView(TreeView):
     
     def getIndexByTool(self, tool):
         # id's are too volatile for folders, so use paths
-        path = tool.path
+        path = UnwrapObject(tool).get_path() # tool not always xpcom
         for i, row in enumerate(self._rows):
             #log.debug("%d: %s (%s/%s", i, row.path, row.typeName, row.name)
             if row.path == path:

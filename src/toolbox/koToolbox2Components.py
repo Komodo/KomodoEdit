@@ -276,7 +276,7 @@ class KoToolBox2Service:
                 f = open(toolboxPath, 'r')
                 contents = f.read()
                 f.close()
-                for tag in ['macro', 'snippet', 'command', 'DirectoryShortcut',
+                for tag in ['macro', 'snippet', 'command',
                             'template', 'URL', 'menu', 'toolbar']:
                     if ("<" + tag + " ") in contents:
                         break

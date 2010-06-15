@@ -446,13 +446,6 @@
                           image="chrome://komodo/skin/images/new_run_command.png"
                           oncommand="ko.toolbox2.addToolboxItem('command')"
                           />
-                <menuitem id="tb2_addContext_newShortcut"
-                          label="&newOpenShortcut.label;"
-                          class="menuitem-iconic"
-                          accesskey="&folderContextNewShortcut.accesskey;"
-                          image="chrome://komodo/skin/images/new_open_shortcut.png"
-                          oncommand="ko.toolbox2.addToolboxItem('DirectoryShortcut')"
-                          />
                 <menuitem id="tb2_addContext_newURL"
                           label="&newURL.label;"
                           class="menuitem-iconic"
@@ -523,13 +516,6 @@
                   class="menuitem-iconic primary_menu_item"
                   oncommand="ko.toolbox2.invoke_runCommand(event)"
                   hideUnless="command"
-                  testDisableIf="t:multipleSelection"
-                  />
-        <menuitem id="toolbox2ContextMenu_openDirectory"
-                  label="&open.label;"
-                  class="menuitem-iconic primary_menu_item"
-                  oncommand="ko.toolbox2.invoke_openDirectoryShortcut(event)"
-                  hideUnless="DirectoryShortcut"
                   testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_openURLInBrowser"

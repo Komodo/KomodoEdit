@@ -236,9 +236,6 @@ function Help() {
     case "template":
         ko.help.open("template_options");
         break;
-    case "DirectoryShortcut":
-        ko.help.open("open_shortcut_options");
-        break;
     default:
         log.error("cannot launch help: unknown part type: '"+gItemType+"'\n");
     }

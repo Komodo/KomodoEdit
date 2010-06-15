@@ -69,7 +69,6 @@ peFile.prototype.registerCommands = function() {
     em.registerCommand('cmd_openInDir', this);
     em.registerCommand('cmd_dumpPartProperties', this);
     em.registerCommand('cmd_openFilePart', this);
-    em.registerCommand('cmd_makeDirectoryShortcutFromFile', this);
     em.registerCommand('cmd_refreshStatus', this);
     em.registerCommand('cmd_editProperties', this);
     em.registerCommand('cmd_showUnsavedChanges', this);
@@ -88,7 +87,6 @@ peFile.prototype.registerCommands = function() {
 
 peFile.prototype.registerEventHandlers = function() {
     ko.projects.extensionManager.addEventHandler(Components.interfaces.koIPart_file,'ondblclick',this);
-    ko.projects.extensionManager.addEventHandler(Components.interfaces.koIDirectoryShortcut,'ondblclick',this);
     // we don't add a dblclick handler for Components.interfaces.koIPart_ProjectRef, since
     // it inherits from koIPart_file
 }
@@ -101,15 +99,6 @@ peFile.prototype.registerMenus = function() {
                                     null,
                                     null,
                                     true);
-    em.createMenuItem(Components.interfaces.koIDirectoryShortcut,
-                                    _bundle.GetStringFromName("open"),
-                                    'cmd_openInDir',
-                                    null,
-                                    null,
-                                    true /* primary */);
-    em.createMenuItem(Components.interfaces.koIPart_file,
-                                    _bundle.GetStringFromName("makeOpenShortcut"),
-                                    'cmd_makeDirectoryShortcutFromFile');
     em.createMenuItem(Components.interfaces.koIPart_file,
                                     _bundle.GetStringFromName("refreshStatus"),
                                     'cmd_refreshStatus');
@@ -216,11 +205,6 @@ peFile.prototype.supportsCommand = function(command, item) {
         if (items.length != 1) return false;
         file = items[0].getFile();
         return (items.length == 1 && items[0].type != 'project' && file && file.isLocal);
-    case 'cmd_openInDir':
-        return (items.length == 1 && items[0].type == 'DirectoryShortcut');
-    case 'cmd_makeDirectoryShortcutFromFile':
-        if (! ko.projects.active.manager.writeable()) return false;
-        return (items.length == 1 && !items[0].live && items[0].type == 'file' && items[0].url.indexOf('file://') == 0);
     case 'cmd_refreshStatus':
         // if a toolbox has focus, get the currently selected item and refresh it
         // otherwise, always refresh the currentView if there is one.
@@ -241,7 +225,6 @@ peFile.prototype.supportsCommand = function(command, item) {
                 case 'folder':
                 case 'livefolder':
                 case 'project':
-                case 'DirectoryShortcut':
                 case 'URL':
                 case 'command':
                 case 'macro':
@@ -345,20 +328,6 @@ peFile.prototype.doCommand = function(command) {
         fileStatusSvc.updateStatusForUris(1, [newfile], true /* forcerefresh */);
         ko.projects.active.view.refresh(item);
         break;
-    case 'cmd_makeDirectoryShortcutFromFile':
-        var view, url;
-        dirname = null;
-        if (typeof(item) != 'undefined' && item) {
-            url = item.getStringAttribute('url');
-            var pathSvc = Components.classes["@activestate.com/koOsPath;1"]
-                                        .getService(Components.interfaces.koIOsPath);
-            dirname = ko.uriparse.URIToLocalPath(url);
-            if (item.type != 'folder') {
-                dirname = pathSvc.dirname(dirname);
-            }
-        }
-        ko.projects.addDirectoryShortcut(dirname, item);
-        break;
     case 'cmd_refreshStatus':
         ko.projects.refreshStatus();
         break;
@@ -366,13 +335,6 @@ peFile.prototype.doCommand = function(command) {
         if (!ko.projects.active) return;
         item = ko.projects.active.getSelectedItem();
         if (item) item.dump(0);
-        break;
-    case 'cmd_openInDir':
-        if (!ko.projects.active) return;
-        item = ko.projects.active.getSelectedItem();
-        if (item) {
-            ko.projects.openDirectoryShortcut(item)
-        }
         break;
     case 'cmd_editProperties':
         //if (!ko.projects.getFocusedProjectView())
@@ -394,9 +356,6 @@ peFile.prototype.doCommand = function(command) {
                     continue;
                 case 'snippet':
                     ko.projects.snippetProperties(item, i);
-                    continue;
-                case 'DirectoryShortcut':
-                    this.editDirectoryShortcut(item, i);
                     continue;
                 case 'template':
                 case 'file':
@@ -467,26 +426,9 @@ peFile.prototype.doCommand = function(command) {
 }
 
 peFile.prototype.ondblclick = function(item,event) {
-    if (item.type == 'DirectoryShortcut') {
-        ko.projects.openDirectoryShortcut(item);
-    } else {
-        ko.open.URI(item.url);
-    }
+    ko.open.URI(item.url);
 }
 
-
-peFile.prototype.editDirectoryShortcut = function(item) {
-    var obj = new Object();
-    obj.item = item;
-    obj.task = 'edit';
-    obj.imgsrc = 'chrome://komodo/skin/images/open.png';
-    obj.type = 'DirectoryShortcut';
-    obj.prettytype = _bundle.GetStringFromName("directoryShortcut");
-    window.openDialog(
-        "chrome://komodo/content/project/simplePartProperties.xul",
-        "Komodo:DirectoryShortcutProperties",
-        "chrome,close=yes,dependent=yes,modal=yes,resizable=yes", obj);
-}
 
 peFile.prototype.doCut = function(items)
 {
@@ -555,20 +497,6 @@ ko.projects.registerExtension(new peFile());
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .getService(Components.interfaces.nsIStringBundleService)
       .createBundle("chrome://komodo/locale/project/peFile.properties");
-
-this.addDirectoryShortcut = function peFile_addDirectoryShortcut(dirname, /*koIPart*/ parent)
-{
-    if (typeof(parent) == 'undefined' || !parent)
-        parent = ko.projects.active.manager.getCurrentProject();
-    try {
-        var dirshortcut = parent.project.createPartFromType('DirectoryShortcut');
-        dirshortcut.url = dirname;
-        ko.projects.addItem(dirshortcut, parent);
-    } catch(e) {
-        log.exception(e);
-    }
-}
-
 
 this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
     var urls = [];
@@ -657,12 +585,6 @@ this.fileProperties = function peFile_Properties(item, view, folder)
     return false;
 }
 
-this.openDirectoryShortcut = function OpenDirectoryShortcut(part) {
-    var paths = ko.filepicker.openFiles(part.getFile().path);
-    if (paths == null)
-        return;
-    ko.open.multipleURIs(paths);
-}
 }).apply(ko.projects);
 
 
@@ -720,9 +642,7 @@ this.showDiffs = function peFile_ShowDiffs(fname1, fname2) {
 
 // setTimeout in case projectManager.p.js hasn't been loaded yet.
 setTimeout(function() {
-ko.projects.addDeprecatedGetter("peFile_addDirectoryShortcut", "addDirectoryShortcut");
 ko.projects.addDeprecatedGetter("peFile_Properties", "fileProperties");
-ko.projects.addDeprecatedGetter("OpenDirectoryShortcut", "openDirectoryShortcut");
     },1);
 // Do this one here.
 var _deprecated_getters_noted = {peFile_ShowDiffs:false};

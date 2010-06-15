@@ -375,10 +375,14 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
 
 this.onToolboxLoaded = function(toolboxDir) {
     var this_ = this;
-    var tools = ko.toolbox2.getCustomMenus(toolboxDir);
+    var tools;
+// #if PLATFORM != "darwin"
+    // See bug 80697
+    tools = ko.toolbox2.getCustomMenus(toolboxDir);
     tools.map(function(part) {
             this_.addMenuFromPart(part);
         });
+// #endif
     tools = ko.toolbox2.getCustomToolbars(toolboxDir);
     tools.map(function(part) {
             this_.addToolbarFromPart(part);

@@ -56,7 +56,7 @@ def findPart(partType, name, where='*'):
     """Find a component in the Toolbox, Projects, etc.
     
         "partType" is one of "command", "snippet", "macro", "template",
-            "file", "folder", "URL", "DirectoryShortcut", "Dialog", "menu",
+            "file", "folder", "URL", "Dialog", "menu",
             or "toolbar".
         "name" is the name of the component to look for.
         "where" is one of the following:

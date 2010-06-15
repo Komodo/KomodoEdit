@@ -318,10 +318,6 @@ interface koIPart_webservice: koIPart {
 interface koIPart_macro: koIPart {
 };
 
-[scriptable, uuid(1DE1C350-5975-4E6E-A4F7-7182223CE180)]
-interface koIDirectoryShortcut : koIPart {
-};
-
 [scriptable, uuid(7FC4F61B-2C30-47B2-82A2-5D5F42431931)]
 interface koIToolbox : koIPart {
 };

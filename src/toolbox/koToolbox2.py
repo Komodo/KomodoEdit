@@ -595,7 +595,6 @@ class Database(object):
         if data:
             self.addMiscProperties(id, data, cu)
 
-    _add_DirectoryShortcut = _addSimpleItem
     _add_template = _addSimpleItem
     _add_URL = _addSimpleItem
             

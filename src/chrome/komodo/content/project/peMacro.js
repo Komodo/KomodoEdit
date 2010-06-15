@@ -799,6 +799,9 @@ this.evalAsJavaScript = function macro_evalAsJavascript(__code,
             } catch(ex) {}
         }
 
+        dump("set current macro: "
+             + (part ? (part + "/" + part.name) : "<null>")
+             + "\n");
         ko.macros.current = part;
         var komodo = new _KomodoJSMacroAPI(part, view);
         var __retcode = -1;

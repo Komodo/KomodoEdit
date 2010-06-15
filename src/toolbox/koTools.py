@@ -454,11 +454,6 @@ class _KoURL_LikeTool(_KoTool):
         info = _tbdbSvc.getSimpleToolInfo(self.id)
         self._finishUpdatingSelf(info)
         
-class _KoDirectoryShortcutTool(_KoURL_LikeTool):
-    typeName = 'DirectoryShortcut'
-    prettytype = 'Open... Shortcut'
-    _iconurl = 'chrome://komodo/skin/images/open.png'
-    
 class _KoMacroTool(_KoTool):
     _com_interfaces_ = [components.interfaces.koIMacroTool]
     typeName = 'macro'

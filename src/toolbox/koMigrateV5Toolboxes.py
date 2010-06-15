@@ -232,7 +232,9 @@ class TreeWalker():
         folderInfo['children'] = [c.elt.get('name') for c in node.children]
         return folderInfo
     
-    def expandNode_DirectoryShortcut(self, node):
+    def expandNode_template(self, node):
+        # These are dropped going into version 6
+        self.obsoleteItems.append(('DirectoryShortcut', node.elt.attrib['name'], os.getcwd()))
         # Map the URL attr to the value array attr
         elt = node.elt
         if node.children:
@@ -248,8 +250,9 @@ class TreeWalker():
                 del lines[0]
             newDict['value'] = lines
             self._writeOutItem(node, newDict)
-            
-    expandNode_template = expandNode_DirectoryShortcut
+
+    def expandNode_DirectoryShortcut(self, node):
+        self.obsoleteItems.append(('DirectoryShortcut', node.elt.attrib['name'], os.getcwd()))
         
     def expandNode_menu(self, node):
         self.expandContainerNode(node,

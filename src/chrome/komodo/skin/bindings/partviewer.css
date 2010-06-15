@@ -155,8 +155,3 @@ partviewer {
 .projectTree:-moz-tree-image(ProjectRef) {
   list-style-image: url('chrome://komodo/skin/images/project_icon.png');
 }
-
-.projectTree:-moz-tree-image(DirectoryShortcut) {
-  list-style-image: url('chrome://komodo/skin/images/open_shortcut.png');
-}
-
