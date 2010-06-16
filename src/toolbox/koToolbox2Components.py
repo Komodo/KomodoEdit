@@ -220,11 +220,26 @@ class KoToolBox2Service:
         userDataDir = koDirSvc.userDataDir
         kpzExtractDir = join(userDataDir, 'extracted-kpz')
         if not os.path.exists(kpzExtractDir):
-            os.mkdir(kpzExtractDir)    
+            os.mkdir(kpzExtractDir)
+        startedWithWebResource = kpzPath.startswith("http:/")
+        if startedWithWebResource:
+            # Copy the web data to a temporary file.
+            koResource = components.classes["@activestate.com/koFileEx;1"].\
+                createInstance(components.interfaces.koIFileEx)
+            koResource.URI = kpzPath
+            kpzPath = join(kpzExtractDir, koResource.baseName)
+            koTarget = components.classes["@activestate.com/koFileEx;1"].\
+                createInstance(components.interfaces.koIFileEx)
+            koTarget.path = kpzPath
+            koTarget.open('w')
+            koResource.open('r')
+            koTarget.write(koResource.read(-1))
+            koResource.close()
+            koTarget.close()
         basedir, kpfFile = self._extractPackage(kpzPath, kpzExtractDir)
+        toolboxDirName = os.path.splitext(os.path.basename(kpzPath))[0]
         tempToolsDir = join(os.path.dirname(kpfFile), ".extract-tools")
         try:
-            toolboxDirName = os.path.splitext(os.path.basename(kpzPath))[0]
             koMigrateV5Toolboxes.expand_toolbox(kpfFile,
                                                 tempToolsDir,
                                                 toolboxDirName=toolboxDirName,
@@ -232,25 +247,33 @@ class KoToolBox2Service:
             # Now, where are the tools?
             # Usually the package is wrapped in a directory called "Project"
             childFiles = os.listdir(tempToolsDir)
-            kpfDir = None
+            kpfDir = kpfDirToDelete = None
             if len(childFiles) == 1:
                 candidate = join(tempToolsDir, childFiles[0])
                 if os.path.isdir(candidate):
-                    kpfDir = candidate
+                    kpfDirToDelete = kpfDir = candidate
+                    # Skip the hardcoded project thing
+                    if childFiles[0].lower() != 'project':
+                        childFiles = os.listdir(kpfDir)
+                        if len(childFiles) == 1 and childFiles[0].lower() == 'project':
+                            candidate = join(kpfDir, childFiles[0])
+                            if os.path.isdir(candidate):
+                                kpfDir = candidate
+                            
             if kpfDir is None and 'Project' in childFiles:
                 candidate = join(tempToolsDir, 'Project')
                 if os.path.isdir(candidate):
-                    kpfDir = candidate
-            else:
-                kpfDir = tempToolsDir
+                    kpfDirToDelete = kpfDir = candidate
+            if kpfDir is None:
+                kpfDirToDelete = kpfDir = tempToolsDir
             self.toolboxLoader.importDirectory(parentPath, kpfDir)
         except:
             log.exception("Failed to expand/import")
         finally:
-            return
-            shutil.rmtree(tempToolsDir)
-            if basedir != kpzExtractDir:
-                shutil.rmtree(basedir)
+            # Clean up
+            if startedWithWebResource:
+                os.unlink(kpzPath)
+            shutil.rmtree(kpfDirToDelete)
             os.unlink(kpfFile)
             
     def _extractPackage(self, file, dir):

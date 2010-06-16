@@ -779,3 +779,4 @@
 <!ENTITY importFilesFromFileSystem.label "Import Files from File System">
 <!ENTITY importFolderFromFileSystem.label "Import Folder from File System">
 <!ENTITY importPackage.label "Import kpz Package">
+<!ENTITY importPackageFromWeb.label "Import kpz Package From Web">

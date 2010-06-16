@@ -355,7 +355,7 @@ this.importFolderFromFileSystem = function(event) {
         this_.log.exception("importFilesFromFileSystem failed: " + ex);
     }
 };
- 
+
 this.importPackage = function(event) {
     var this_ = ko.toolbox2;
     var view = this_.manager.view;
@@ -364,9 +364,14 @@ this.importPackage = function(event) {
         index = 0;  // For the std toolbox
     }
     var targetDirectory = view.getPathFromIndex(index);
-    var title = partutils_bundle.GetStringFromName("selectPackageToImport");
+    var prompt = "Specify a URL that contains a package file"
+    var label = "URL";
+    var value = "";
+    var title = "Extract a package from the web";
+    var url = ko.dialogs.prompt(prompt, label, value, title);
     var defaultDirectory = null;
     var defaultFilename = null;
+    
     var path = ko.filepicker.openFile(defaultDirectory, defaultFilename,
                                       title,
                                       "Komodo Package", // default filter
@@ -379,6 +384,32 @@ this.importPackage = function(event) {
         this_.manager.view.reloadToolsDirectoryView(index);
     } catch(ex) {
         this_.log.exception("importFilesFromFileSystem failed: " + ex);
+    }
+};
+ 
+this._webPackageURL = "";
+this.importPackageFromWeb = function(event) {
+    var this_ = ko.toolbox2;
+    var view = this_.manager.view;
+    var index = view.selection.currentIndex;
+    if (index == -1) {
+        index = 0;  // For the std toolbox
+    }
+    var targetDirectory = view.getPathFromIndex(index);
+    var prompt = "Specify a URL that contains a package file"
+    var label = "URL";
+    var value = this._webPackageURL;
+    var title = "Extract a package from the web";
+    var url = ko.dialogs.prompt(prompt, label, value, title);
+    if (!url) {
+        return;
+    }
+    this._webPackageURL = url;
+    try {
+        this_.manager.toolbox2Svc.importV5Package(targetDirectory, url);
+        this_.manager.view.reloadToolsDirectoryView(index);
+    } catch(ex) {
+        this_.log.exception("importPackageFromWeb failed: " + ex);
     }
 };
 
