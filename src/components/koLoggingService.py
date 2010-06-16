@@ -37,12 +37,9 @@
 
 """Komodo Logging system service"""
 
-import os
-import types
 import logging
 
-from xpcom import components, nsError, ServerException, COMException, server
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+from xpcom import components
 
 
 #---- mods to the Python logging system
