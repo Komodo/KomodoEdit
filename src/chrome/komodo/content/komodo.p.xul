@@ -1211,8 +1211,9 @@
                                         checked="true"
                                         type="checkbox"
                                         />
-                                    <menuitem id="show_toolbox_tab2"
-                                        observes="show_toolbox_tab"
+                                    <menuseparator id="viewtabs_rightPane2"/>
+                                    <menuitem id="show_toolbox2_tab2"
+                                        observes="show_toolbox2_tab"
                                         oncommand="ko.uilayout.ensureTabShown('toolbox_tab', true)"
                                         label="&toolbox.label;"
                                         checked="true"
