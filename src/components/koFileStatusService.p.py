@@ -130,11 +130,9 @@ class KoFileStatusService:
     def __init__(self):
         #print "file status created"
         timeline.enter('koFileStatusService.__init__')
-        self._proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
-            getService(components.interfaces.nsIProxyObjectManager)
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        self._observerProxy = self._proxyMgr.getProxyForObject(None,
+        self._observerProxy = getProxyForObject(1,
             components.interfaces.nsIObserverService, self._observerSvc,
             PROXY_ALWAYS | PROXY_ASYNC)
         self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
@@ -145,7 +143,7 @@ class KoFileStatusService:
         self._fileNotificationSvc = \
             components.classes["@activestate.com/koFileNotificationService;1"].\
             getService(components.interfaces.koIFileNotificationService)
-        self._fileNotificationSvcAsyncProxy = self._proxyMgr.getProxyForObject(None,
+        self._fileNotificationSvcAsyncProxy = getProxyForObject(None,
             components.interfaces.koIFileNotificationService,
             self._fileNotificationSvc, PROXY_ALWAYS | PROXY_ASYNC)
         self.FNS_WATCH_FILE = components.interfaces.koIFileNotificationService.WATCH_FILE
