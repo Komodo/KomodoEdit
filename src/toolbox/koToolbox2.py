@@ -128,8 +128,10 @@ class Database(object):
     # (c) add an entry to `_upgrade_info_from_curr_ver`.
     #
     # db change log:
-    # - 1.0.0: initial version
-    VERSION = "1.0.5"
+    # - 1.0.5: initial version (due to copy/paste error)
+    # - 1.0.6: convert DirectoryShortcut tools into specialized macros
+    VERSION = "1.0.6"
+    FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
         self.path = db_path
@@ -206,10 +208,67 @@ class Database(object):
             f.close()
             self.set_meta("version", self.VERSION, cu=cu)
             
+    def reset(self, backup=True):
+        """Remove the current database (possibly backing it up) and create
+        a new empty one.
+
+        @param backup {bool} Should the original database be backed up.
+            If so, the backup is $database_file+".bak". Default true.
+        """
+        import editorhistory
+        if backup:
+            backup_path = self.path + ".bak"
+            if exists(backup_path):
+                editorhistory._rm_file(backup_path)
+            if exists(backup_path): # couldn't remove it
+                log.warn("couldn't remove old '%s' (skipping backup)",
+                         backup_path)
+                editorhistory._rm_file(self.path)
+            else:
+                os.rename(self.path, backup_path)
+        else:
+            editorhistory._rm_file(self.path)
+        self.create()
+
     def upgrade(self):
-        pass # Do nothing
-        #XXX Finish this!
+        """Upgrade the current database."""
+        # 'version' is the DB ver on disk, 'VERSION' is the target ver.
+        curr_ver = self.get_meta("version", self.FIRST_VERSION)
+        while curr_ver != self.VERSION:
+            try:
+                result_ver, upgrader, upgrader_arg \
+                    = self._upgrade_info_from_curr_ver[curr_ver]
+            except KeyError:
+                raise Toolbox2Error(
+                    "cannot upgrade from db v%s: no upgrader for this version"
+                    % curr_ver)
+            log.info("upgrading from db v%s to db v%s ...",
+                     curr_ver, result_ver)
+            if upgrader_arg is not None:
+                upgrader(self, curr_ver, result_ver, upgrader_arg)
+            else:
+                upgrader(self, curr_ver, result_ver)
+            curr_ver = result_ver
+
+    def _delete_directory_shortcuts(self, curr_ver, result_ver):
+        """These will be converted when the tools are
+        reread into the database.
+        """
+        with self.connect(commit=True) as cu:
+            cu.execute("select path_id from common_details where type = ?",
+                       ("DirectoryShortcut",))
+            path_ids = [row[0] for row in cu.fetchall()]
+            log.info("Removing %d (ids:%s) directory shortcuts from the database",
+                       len(path_ids), path_ids)
+            for path_id in path_ids:
+                self.deleteItem(path_id)
         
+        
+    _upgrade_info_from_curr_ver = {
+        # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
+        "1.0.5": (VERSION, _delete_directory_shortcuts, None),
+    }
+
     def get_meta(self, key, default=None, cu=None):
         """Get a value from the meta table.
         
@@ -433,7 +492,7 @@ class Database(object):
                     try:
                         data = json.load(fp, encoding="utf-8")
                     except:
-                        log.error("Couldn't load json data for path %s", path)
+                        log.exception("Couldn't load json data for path %s", path)
                         data = {}
                     fp.close()
                 except:
@@ -1118,6 +1177,8 @@ class ToolboxLoader(object):
         _tbdbSvc = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
                        getService(components.interfaces.koIToolboxDatabaseService))
         self.db = _tbdbSvc.db = db
+        self._toolsSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].\
+                       getService(components.interfaces.koIToolbox2ToolManager))
         self._loadedPaths = {}
         
     def deleteFolderIfMetadataChanged(self, path, fname, path_id):
@@ -1147,11 +1208,50 @@ class ToolboxLoader(object):
             self.db.deleteItem(path_id)
         return update_tree
 
-    def walkFunc(self, arg, dirname, fnames):
+    def upgradeItem(self, json_data, path):
+        if 'version' not in json_data:
+            curr_ver = '1.0.5'
+        else:
+            curr_ver = json_data['version']
+        while curr_ver != self.db.VERSION:
+            try:
+                result_ver, upgrader \
+                    = self._upgrade_info_from_curr_ver[curr_ver]
+            except KeyError:
+                raise Toolbox2Error(
+                    "cannot upgrade from tool v%s: no upgrader for this version"
+                    % curr_ver)
+            log.info("upgrading from tool v%s to tool v%s ...",
+                     curr_ver, result_ver)
+            upgrader(self, curr_ver, result_ver, json_data, path)
+            curr_ver = result_ver
+
+    def _update_version(self, curr_ver, result_ver, json_data, path):
+        log.debug("Adding version %s to json_data %s",
+                    result_ver, json_data['name'])
+        json_data['version'] = result_ver
+        try:
+            fp = open(path, 'w')
+            try:
+                json.dump(json_data, fp, encoding="utf-8", indent=2)
+            except:
+                log.exception("Can't write out json_data to %s", path)
+            fp.close()
+        except IOError:
+            log.exception("Can't open path %s for writing", path)
+            
+    _upgrade_info_from_curr_ver = {
+        # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
+        "1.0.5": ("1.0.6", _update_version),
+    }
+
+    def walkFunc(self, notifyNow, dirname, fnames):
         parent_id = self.db.get_id_from_path(dirname)
         if self.dbTimestamp:
             existing_child_ids = dict([(x, 1) for x in self.db.getChildIDs(parent_id)])
         #TODO: Delete any unhandled IDs at end
+        #if notifyNow:
+            # self._notifyDeletion(data)
         for fname in fnames:
             path = join(dirname, fname)
             isDir = os.path.isdir(path)
@@ -1180,6 +1280,7 @@ class ToolboxLoader(object):
                             log.debug("Rebuilding item %s (%s)", fname, dirname)
                             self.db.deleteItem(id)
                 else:
+                    log.debug("No entry for path %s in the db", path)
                     need_update = True
                     
             if need_update:
@@ -1191,8 +1292,13 @@ class ToolboxLoader(object):
                         continue
                     try:
                         data = json.load(fp, encoding="utf-8")
+                        if data['type'] == "DirectoryShortcut":
+                            log.info("Deleting DirectoryShortcut tool %s", path)
+                            os.unlink(path)
+                            continue
+                        self.upgradeItem(data, path)
                     except:
-                        log.error("Couldn't load json data for path %s", path)
+                        log.exception("Couldn't load json data for path %s", path)
                         continue
                     fp.close()
                     type = data['type']
@@ -1203,8 +1309,11 @@ class ToolboxLoader(object):
                     else:
                         #log.debug("tool %s: continue to reuse id %r", path, old_id)
                         pass
-                else:   
-                    self.db.addFolder(path, fname, parent_id)
+                else:
+                    new_id = self.db.addFolder(path, fname, parent_id)
+                if notifyNow:
+                    tool = self._toolsSvc.getToolById(new_id)
+                    tool.added()
         metadataPath = join(dirname, UI_FOLDER_FILENAME)
         if exists(metadataPath):
             result = self.db.getValuesFromTableByKey('metadata_timestamps', ['mtime'], 'path_id', parent_id)
@@ -1214,6 +1323,7 @@ class ToolboxLoader(object):
                 fp = open(metadataPath, 'r')
                 try:
                     data = json.load(fp, encoding="utf-8")
+                    self.upgradeItem(data, metadataPath)
                 except ValueError:
                     log.error("Couldn't process json file %s", metadataPath)
                     data = {}
@@ -1240,10 +1350,6 @@ class ToolboxLoader(object):
                     else:
                         self.db.insertMenuItem(child_id, position)
                         position += 1
-    
-    
-    
-    
 
     def loadToolboxDirectory(self, toolboxName, toolboxDir, targetDirectory):
         if os.path.basename(toolboxDir) == targetDirectory:
@@ -1253,9 +1359,9 @@ class ToolboxLoader(object):
         if not exists(actualToolboxDir):
             log.error("No toolbox subdirectory %s at %s", targetDirectory, toolboxDir)
             return
-        self.db.establishConnection()
         self._loadedPaths[actualToolboxDir] = True
         log.debug("Reading dir %s", toolboxDir)
+        self.db.establishConnection()
         try:
             result_list = self.db.getValuesFromTableByKey('paths',
                                                    ['id'],
@@ -1266,10 +1372,17 @@ class ToolboxLoader(object):
                 data = { 'id': new_id, 'type':'folder', 'name':toolboxName}
                 _updateJSONData(data, new_id,
                                 os.path.join(actualToolboxDir, UI_FOLDER_FILENAME), noLoad=True)
-            os.path.walk(actualToolboxDir, self.walkFunc, None)
+            os.path.walk(actualToolboxDir, self.walkFunc, False)
         finally:
             self.db.releaseConnection()
         return result_list[0]
+
+    def reloadToolsDirectory(self, toolDir):
+        self.db.establishConnection()
+        try:
+            os.path.walk(toolDir, self.walkFunc, True) #notifyNow
+        finally:
+            self.db.releaseConnection()            
         
     def markAllTopLevelItemsUnloaded(self):
         self._loadedPaths = dict([(x, False) for x in self.db.getTopLevelPaths()])

@@ -774,3 +774,5 @@
 <!ENTITY sortAscending.accesskey "A">
 <!ENTITY sortDescending.label "Sort Descending">
 <!ENTITY sortDescending.accesskey "D">
+<!ENTITY reloadTools.label "Reload">
+<!ENTITY reloadTools.accesskey "R">

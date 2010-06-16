@@ -88,6 +88,16 @@ peMenu.prototype.finalize = function() {
 
 peMenu.prototype.observe = function(part, topic, data)
 {
+    // On deletion, we need to find item's parents before they're
+    // deleted, and we send the notification before the item is
+    // fully removed.  So wait for it to be removed now.
+    setTimeout(function(this_) {
+            this_.observe_aux(part, topic, data);
+        }, 300, this);
+}
+
+peMenu.prototype.observe_aux = function(part, topic, data)
+{
     try {
         //dump("peMenu observer "+part+", "+topic+", "+data+"\n");
         var menu, id;

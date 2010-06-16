@@ -367,6 +367,9 @@ class KoToolBox2Service:
         except Exception:
             pass
 
+    def reloadToolsDirectory(self, toolDir):
+        self.toolboxLoader.reloadToolsDirectory(toolDir)
+
     #Non-xpcom
     def extractToolboxFromKPF_File(self, kpfPath, projectName):
         kpfDir, kpfName = os.path.split(kpfPath)

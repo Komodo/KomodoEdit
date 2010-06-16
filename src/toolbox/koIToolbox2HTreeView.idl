@@ -149,6 +149,7 @@ interface koIToolbox2HTreeView: nsITreeView {
                               [array, size_is(count)] in wstring paths,
                               in unsigned long count,
                               in boolean copying);
+    void reloadToolsDirectoryView(in long index);
     long zipSelectionToFile(in wstring zipFile);
     long getNextSiblingIndex(in long index); // not in nsITreeView...
 
@@ -179,5 +180,4 @@ interface koIToolbox2ToolManager: nsISupports {
     void getTriggerMacros(in wstring path,
                           [array, size_is(count)] out koITool tools,
                           out unsigned long count);
-
 };

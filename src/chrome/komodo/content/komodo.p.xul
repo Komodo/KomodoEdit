@@ -581,6 +581,15 @@
                   label="&saveAs.label;"
                   oncommand="ko.toolbox2.saveToolsAs(event)"
                   />
+        <menuitem id="toolbox2ContextMenu_reload"
+                  keep_background="true"
+                  class="menuitem-iconic"
+                  label="&reloadTools.label;"
+                  accesskey="&reloadTools.accesskey;"
+                  oncommand="ko.toolbox2.reloadFolder(event);"
+                  disableUnless="folder menu toolbar"
+                  testDisableIf="t:multipleSelection"
+                  />
         <menuseparator anonid="secondaryseparator_3"
                        />
         <menuitem id="toolbox2ContextMenu_delete"

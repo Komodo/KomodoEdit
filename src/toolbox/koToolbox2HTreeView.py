@@ -50,8 +50,6 @@ import logging
 
 log = logging.getLogger("Toolbox2HTreeView")
 #log.setLevel(logging.DEBUG)
-qlog = logging.getLogger("Toolbox2HTreeView")
-#qlog.setLevel(logging.DEBUG)
 
 _tbdbSvc = None  # module-global handle to the database service
 _view = None     # module-global handle to the tree-view (needs refactoring)
@@ -84,9 +82,9 @@ class _KoToolHView(object):
 class _KoContainerHView(_KoToolHView):
     isContainer = True
     folderTypes = ('folder', 'menu', 'toolbar')
-    def rebuildChildren(self, id):
+    def rebuildChildren(self):
         self.unfilteredChildNodes = [x + (x[2] in self.folderTypes,)
-                                     for x in _tbdbSvc.getChildNodes(id)]
+                                     for x in _tbdbSvc.getChildNodes(self.id)]
 
     def addChild(self, item):
         item_uw = UnwrapObject(item)
@@ -105,9 +103,9 @@ class _KoContainerHView(_KoToolHView):
             pass
         
     def __init__(self, tool):
-        self.rebuildChildren(tool.id)
-        self.isOpen = False
         _KoToolHView.__init__(self, tool)
+        self.rebuildChildren()
+        self.isOpen = False
 
 class _KoFolderHView(_KoContainerHView):
     typeName = 'folder'
@@ -213,11 +211,11 @@ class KoToolbox2HTreeView(TreeView):
         elif topic == 'tool-appearance-changed':
             # Update the tool's values, and then invalidate the row
             id = int(data)
-            tool = self._toolsMgr.getToolById(id)
-            index = self.getIndexByTool(tool)
+            index = self.getIndexById(id)
             if index == -1:
                 return
             node = self._rows[index]
+            tool = self._toolsMgr.getToolById(id)
             node.name = tool.name
             node.iconurl = tool.get_iconurl()
             self._tree.invalidateRow(index)
@@ -244,11 +242,17 @@ class KoToolbox2HTreeView(TreeView):
         return -1
     
     def getIndexByTool(self, tool):
-        # id's are too volatile for folders, so use paths
-        path = UnwrapObject(tool).get_path() # tool not always xpcom
+        path = tool.path
         for i, row in enumerate(self._rows):
             #log.debug("%d: %s (%s/%s", i, row.path, row.typeName, row.name)
             if row.path == path:
+                return i
+        return -1
+
+    def getIndexById(self, id):
+        for i, row in enumerate(self._rows):
+            #log.debug("%d: %d (%s/%s", i, row.id, row.typeName, row.name)
+            if row.id == id:
                 return i
         return -1
 
@@ -368,7 +372,7 @@ class KoToolbox2HTreeView(TreeView):
         if not targetTool.isContainer:
             raise Exception("pasteItemsIntoTarget: item at row %d isn't a container, it's a %s" %
                             (targetIndex, targetTool.typeName))
-        targetPath = targetTool.path
+        targetPath = self.getPathFromIndex(targetIndex)
         targetId = self.toolbox_db.get_id_from_path(targetPath)
         if targetId is None:
             raise Exception("target %s (%d) isn't in the database" % (
@@ -409,7 +413,7 @@ class KoToolbox2HTreeView(TreeView):
             log.debug("Skipping a self copy of %s into %s", srcPath, targetPath)
             return
         newItem = self._toolsMgr.createToolFromExistingTool(targetPath, srcPath)
-        self.addNewItemToParent(targetTool, newItem, showNewItem=False)
+        self.addNewItemToParent(targetTool, newItem)
         if not copying:
             self._removeItemByPath(srcPath)
             
@@ -424,7 +428,7 @@ class KoToolbox2HTreeView(TreeView):
         newItem = self._toolsMgr.createToolFromType('folder')
         data = {'name':os.path.basename(srcPath)}
         newItem._finishUpdatingSelf(data)
-        self.addNewItemToParent(targetTool, newItem, showNewItem=False)
+        self.addNewItemToParent(targetTool, newItem)
 
         # Now we're copying the source's children into the newly created target child
         newTargetPath = join(targetPath, os.path.basename(srcPath))
@@ -446,6 +450,12 @@ class KoToolbox2HTreeView(TreeView):
     def _removeItemByPath(self, path):
         index = self.getIndexByPath(path)
         self.deleteToolAt(index, path)
+
+    def reloadToolsDirectoryView(self, index):
+        node = self._rows[index]
+        if node.isContainer:
+            node.rebuildChildren()
+        self.refreshView(index)
 
     def _zipNode(self, zf, currentDirectory):
         nodes = os.listdir(currentDirectory)
@@ -469,7 +479,7 @@ class KoToolbox2HTreeView(TreeView):
         numZippedItems = 0
         for index in selectedIndices:
             tool = self.getTool(index)
-            path = tool.path
+            path = self.getPathFromIndex(index)
             if tool.isContainer and path[-1] in "\\/":
                 path = path[:-1]
             self._targetZipFileRootLen = len(os.path.dirname(path)) + 1
@@ -532,7 +542,7 @@ class KoToolbox2HTreeView(TreeView):
             if self.isContainerOpen(index):
                 self.toggleOpenState(index)
                 self.toggleOpenState(index, suppressUpdate=True)
-            elif self._nodeOpenStatusFromName[self._rows[index].path]:
+            elif self._nodeOpenStatusFromName.get(self._rows[index].path, None):
                 self.toggleOpenState(index, suppressUpdate=True)
         finally:
             self._tree.endUpdateBatch();
@@ -833,7 +843,7 @@ class KoToolbox2HTreeView(TreeView):
             except KeyError:
                 pass
             nextIndex = self.getNextSiblingIndex(index)
-            #qlog.debug("toggleOpenState: index:%d, nextIndex:%d", index, nextIndex)
+            #log.debug("toggleOpenState: index:%d, nextIndex:%d", index, nextIndex)
             if nextIndex == -1:
                 # example: index=5, have 13 rows,  delete 7 rows [6:13), 
                 numNodesRemoved = len(self._rows) - index - 1
@@ -862,12 +872,10 @@ class KoToolbox2HTreeView(TreeView):
                 self.selection.select(index)
 
     def _compareChildNode(self, item1, item2):
-        qlog.debug("_compareChildNode: %s", [item1, item2])
         # Nodes contain (id, name, type, isContainer)
         if self._sortDirection == self._SORT_BY_NATURAL_ORDER:
             folderDiff = cmp(not item1[3], not item2[3])
             if folderDiff:
-                qlog.debug("_compareChildNode: folderDiff:%r", folderDiff)
                 return folderDiff
         items = [item1, item2]
         if self._sortDirection == self._SORT_BY_NAME_DESCENDING:
@@ -879,15 +887,12 @@ class KoToolbox2HTreeView(TreeView):
         return cmp(items[lowerIndex][1].lower(), items[upperIndex][1].lower())
 
     def _sortAndExtractIDs(self, rowNode):
-        qlog.debug("_sortAndExtractIDs: self._sortDirection:%d", self._sortDirection)
         sortedNodes = sorted(rowNode.unfilteredChildNodes,
                              cmp=self._compareChildNode)
-        qlog.debug("  sortedNodes:%s", sortedNodes)
         return [x[0] for x in sortedNodes]
 
     def _doContainerOpen(self, rowNode, index):
         childIDs = self._sortAndExtractIDs(rowNode)
-        qlog.debug("sorted childIDs of row %d: %s", index, childIDs)
         if childIDs:
             posn = index + 1
             #for path_id, name, node_type in childNodes:

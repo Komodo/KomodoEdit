@@ -233,8 +233,6 @@ class TreeWalker():
         return folderInfo
     
     def expandNode_template(self, node):
-        # These are dropped going into version 6
-        self.obsoleteItems.append(('DirectoryShortcut', node.elt.attrib['name'], os.getcwd()))
         # Map the URL attr to the value array attr
         elt = node.elt
         if node.children:
@@ -252,7 +250,22 @@ class TreeWalker():
             self._writeOutItem(node, newDict)
 
     def expandNode_DirectoryShortcut(self, node):
-        self.obsoleteItems.append(('DirectoryShortcut', node.elt.attrib['name'], os.getcwd()))
+        # These are converted into macros in v6
+        newDict = {'type': 'macro',
+                   }
+        newDict.update(node.elt.attrib)
+        newDict.update({
+            "language": "JavaScript",
+            "trigger_enabled": "0",
+            "rank": "100",
+            "async": False,
+            "type": "macro",
+            "icon": "chrome://komodo/skin/images/open.png",
+            })
+        url = newDict['url']
+        del newDict['url']
+        newDict['value'] = [url]
+        self._writeOutItem(node, newDict)
         
     def expandNode_menu(self, node):
         self.expandContainerNode(node,

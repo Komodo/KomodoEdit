@@ -474,10 +474,10 @@ this.saveToolsAs_aux = function(event) {
     if (askForFile) {
         var title = peFolder_bundle.GetStringFromName("locationToSaveThisItem");
         //todo: handle filters.
+        srcPath = toolTreeView.getPathFromIndex(selectedIndices[0]);
         targetPath = ko.filepicker.saveFile(default_saveToolDirectory,
                                             srcPath);
         if (!targetPath) return [0, 0];
-        srcPath = toolTreeView.getPathFromIndex(selectedIndices[0]);
         default_saveToolDirectory = ko.uriparse.dirName(targetPath);
         // They've already been asked if they want to overwrite
         shutil.copy(srcPath, targetPath);
@@ -564,6 +564,22 @@ this.exportAsZipFile = function(event) {
     } catch(ex) {
         alert(ex);
     }
+};
+
+this.reloadFolder = function(event) {
+    var that = ko.toolbox2;
+    var view = that.manager.view;
+    var index = view.selection.currentIndex;
+    if (index == -1) {
+        alert("reloadFolder: can't find the clicked folder");
+        return;
+    } else if (!view.isContainer(index)) {
+        alert("reloadFolder: not a folder");
+        return;
+    }
+    var tool = view.getTool(index);
+    that.manager.toolbox2Svc.reloadToolsDirectory(tool.path)
+    that.manager.view.reloadToolsDirectoryView(index)
 };
 
 this.deleteItem = function(event) {
@@ -669,8 +685,10 @@ this.doStartDrag = function(event, tree) {
             dt.mozSetDataAt(flavor, dataValue, 0);
         }
     } else {
+        paths = [];
         for (var i = 0; i < selectedIndices.length; i++) {
             var path = view.getPathFromIndex(selectedIndices[i]);
+            paths.push(path);
             dt.mozSetDataAt("application/x-moz-file", path, i);
             dt.mozSetDataAt('text/plain', path, i);
         }
@@ -756,9 +774,8 @@ this.doDrop = function(event, tree) {
     var index = this._currentRow(event, this.manager.widgets.tree);
     try {
         var paths = this._dragSources;
-        var pathsa = paths.split("\n");
-        var loadedMacroURIs = this.copying ? [] : this._getLoadedMacros(pathsa);
-        this.manager.view.pasteItemsIntoTarget(index, pathsa, pathsa.length, this.copying);
+        var loadedMacroURIs = this.copying ? [] : this._getLoadedMacros(paths);
+        this.manager.view.pasteItemsIntoTarget(index, paths, paths.length, this.copying);
         if (!this.copying) {
             this._removeLoadedMacros(loadedMacroURIs);
         }

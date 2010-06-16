@@ -58,4 +58,5 @@ interface koIToolBox2Service: nsISupports {
     long getStandardToolboxID();
     void initialize();
     void migrateVersion5Toolboxes();
+    void reloadToolsDirectory(in wstring toolDir);
 };

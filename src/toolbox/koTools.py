@@ -41,10 +41,10 @@ class _KoTool(object):
         self.temporary = False
         self._attributes = {}
         self._nondb_attributes = {}
-        self.flavors = ['text/unicode',
+        self.flavors = ['text/unicode', 'application/x-komodo-part',
 # #if PLATFORM != "win"
                         # XXX for a later release, scintilla needs work in this area
-                        #'TEXT',#,'COMPOUND_TEXT','STRING','UTF-8' \
+                        'TEXT',#,'COMPOUND_TEXT','STRING','UTF-8' \
 # #endif
                         ]
 
@@ -111,6 +111,10 @@ class _KoTool(object):
         return self.value
 
     def get_path(self):
+        return _tbdbSvc.getPath(self.id)
+
+    @property
+    def path(self):
         return _tbdbSvc.getPath(self.id)
 
     def set_path(self, val):
@@ -182,6 +186,22 @@ class _KoTool(object):
         self.setAttribute(name, value and 1 or 0)
 
     def added(self):
+        # This routine checks creation of macros, keybindings, and
+        # toolbars, and menus
+        """
+        If the part is in a menu, send tool, 'menu_changed', <not-used>
+        If the part is in a toolbar, send tool, 'toolbar_changed', <not-used>
+        If the part has a keyboard_shortcut, send tool, 'kb-load', tool.id
+        If the part is a macro with a trigger, send tool, 'macro-load', <not-used>
+        """
+        requests = []
+        typeName = self.typeName
+        if typeName == 'macro' and self.getAttribute('trigger_enabled'):
+            requests.append([self, 'macro-load', None])
+        if self.getAttribute('keyboard_shortcut'):
+            requests.append([self, 'kb-load', str(self.id)])
+        if typeName in ('menu', 'toolbar'):
+            requests.append([self, typeName + "_created", None])
         # Are there any custom menus or toolbars that contain this item?
         id = self.id
         while True:
@@ -190,14 +210,44 @@ class _KoTool(object):
                 break
             id, name, nodeType = parentRes
             if nodeType in ('menu', 'toolbar'):
-                _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
-                               .getService(components.interfaces.nsIObserverService)
-                try:
-                    tool = _toolsManager.getToolById(id)
-                    _observerSvc.notifyObservers(tool, nodeType + '_changed', '')
-                except Exception:
-                    pass
+                requests.append([_toolsManager.getToolById(id),
+                                 nodeType + "_changed", None])
+        if requests:
+            self._sendRequests(requests)
+
+    def removed(self):
+        # This routine checks deletion of macros, keybindings, and
+        # toolbars, and menus
+        """
+        If the part is in a menu, send tool, 'menu_changed', <not-used>
+        If the part is in a toolbar, send tool, 'toolbar_changed', <not-used>
+        If the part has a keyboard_shortcut, send tool, 'kb-unload', tool.id
+        """
+        requests = []
+        typeName = self.typeName
+        if self.getAttribute('keyboard_shortcut'):
+            requests.append([self, 'kb-unload', str(self.id)])
+        # Are there any custom menus or toolbars that contain this item?
+        id = self.id
+        while True:
+            parentRes = _tbdbSvc.getParentNode(id)
+            if parentRes is None:
                 break
+            id, name, nodeType = parentRes
+            if nodeType in ('menu', 'toolbar'):
+                requests.append([_toolsManager.getToolById(id),
+                                 nodeType + "_changed", None])
+        if requests:
+            self._sendRequests(requests)
+
+    def _sendRequests(self, requests):
+        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                       .getService(components.interfaces.nsIObserverService)
+        for request in requests:
+            try:
+                _observerSvc.notifyObservers(*request)
+            except Exception:
+                pass
 
     # Drag/drop
     def getDragData(self):
@@ -265,6 +315,7 @@ class _KoTool(object):
                 del self._attributes[name]
 
     def delete(self):
+        self.removed()
         path = self.get_path()
         _tbdbSvc.deleteItem(self.id)
 
@@ -303,9 +354,8 @@ class _KoTool(object):
 class _KoContainer(_KoTool):
     isContainer = True
     def __init__(self, *args):
-        self.childNodes = []
         _KoTool.__init__(self, *args)
-
+        
     def saveNewToolToDisk(self, path):
         raise Exception("Not implemented yet")
 
@@ -326,10 +376,10 @@ class _KoFolder(_KoContainer):
         os.mkdir(path)
         
     def getChildren(self):
-        return [_manager._getOrCreateTool(node[2], node[1], node[0]) for node in self.childNodes]
+        return [_toolsManager.getToolById(id) for id in self.getChildIDs()]
     
     def getChildIDs(self):
-        return [node[0] for node in self.childNodes]
+        return _tbdbSvc.getChildIDs(self.id)
     
     def saveNewToolToDisk(self, path):
         path2 = join(path, koToolbox2.UI_FOLDER_FILENAME)
@@ -590,7 +640,7 @@ class KoToolbox2ToolManager(object):
     def __init__(self, debug=None):
         self.toolbox_db = None
         self._tools = {}  # Map a tool's id to a constructed object
-        global eol
+        global eol, _toolsManager
         if eol is None:
             eol = eollib.eol2eolStr[eollib.EOL_PLATFORM]
         _observerSvc = components.classes["@mozilla.org/observer-service;1"].\
@@ -663,13 +713,6 @@ class KoToolbox2ToolManager(object):
                 
             old_id = item.id
             item.id = new_id
-            if item.typeName == 'macro':
-                _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
-                               .getService(components.interfaces.nsIObserverService)
-                try:
-                    _observerSvc.notifyObservers(item, 'macro-load','')
-                except Exception:
-                    pass
             # Even if the old and new IDs are the same, we don't want
             # to keep the old item in the cache.
             try:
@@ -678,7 +721,6 @@ class KoToolbox2ToolManager(object):
                 log.error("No self._tools[%r]", old_id)
             self._tools[new_id] = item
             item.saveNewToolToDisk(path)
-            parent.childNodes.append((new_id, item_name, item.typeName))
             if showNewItem:
                 self._koToolboxHView.addNewItemToParent(parent, item)
             item.added()
@@ -725,7 +767,7 @@ class KoToolbox2ToolManager(object):
             del data['id']
         except KeyError:
             pass
-        newItem = self._toolsMgr.createToolFromType(data['type'])
+        newItem = self.createToolFromType(data['type'])
         # Value strings in .komodotool files are stored as an array of lines
         # In the database they're stored as a single string.
         # Convert into the database type, as that's what
@@ -733,6 +775,7 @@ class KoToolbox2ToolManager(object):
         if 'value' in data:
             data['value'] = eol.join(data['value'])
         newItem._finishUpdatingSelf(data)
+        return newItem
 
     def createToolFromType(self, tool_type):
         id = self.toolbox_db.getNextID()
@@ -762,13 +805,6 @@ class KoToolbox2ToolManager(object):
         else:
             parent_tool = None
         tool.delete()
-        if parent_tool:
-            for i, node in enumerate(parent_tool.childNodes):
-                if node[0] == tool_id:
-                    del parent_tool.childNodes[i]
-                    break
-            else:
-                log.debug("deleteTool: Failed to find child node %d in parent %d", tool_id, res[0])
         
 
     def getAbbreviationSnippet(self, abbrev, subnames):
@@ -787,7 +823,6 @@ class KoToolbox2ToolManager(object):
             tool.updateSelf()
             return tool
         tool = createPartFromType(node_type, name, path_id)
-        tool.init()
         tool.getCustomIconIfExists()
         self._tools[path_id] = tool
         return tool
@@ -828,14 +863,10 @@ class KoToolbox2ToolManager(object):
     
     def getCustomMenus(self, dbPath):
         ids = self.toolbox_db.getIDsByType('menu', dbPath)
-        for id in ids:
-            self._fillChildren(id)
         return self._getFullyRealizedToolById(ids)
     
     def getCustomToolbars(self, dbPath):
         ids = self.toolbox_db.getIDsByType('toolbar', dbPath)
-        for id in ids:
-            self._fillChildren(id)
         return self._getFullyRealizedToolById(ids)
         return self.getToolById(res[0])
     
@@ -846,14 +877,6 @@ class KoToolbox2ToolManager(object):
     def getTriggerMacros(self, dbPath):
         ids = self.toolbox_db.getTriggerMacroIDs(dbPath)
         return self._getFullyRealizedToolById(ids)
-
-    def _fillChildren(self, id):
-        tool = self.getToolById(id)
-        tool.init()
-        for child_id, _, _ in tool.childNodes:
-            child = self.getToolById(child_id)
-            if child.isContainer:
-                self._fillChildren(child_id)
 
     def _getFullyRealizedToolById(self, ids):
         # We load tools lazily, so make sure these have the keyboard
