@@ -224,6 +224,7 @@ function _handleEnter() {
         // Only wait for a few seconds (don't want to hang on this).
         var hit = gSession.findFileSync(gWidgets.query.value, 3.0);
         if (! hit) {
+            // No hit - this will leave the window open.
             _gIgnoreNextFindFiles = false;
             findFiles(gWidgets.query.value);
         } else if (_openHits([hit])) {
