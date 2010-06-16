@@ -208,6 +208,9 @@ class KoToolBox2Service:
     def getStandardToolboxID(self):
         return self._standardToolbox
     
+    def importDirectory(self, parentPath, pathToImport):
+        return self.toolboxLoader.importDirectory(parentPath, pathToImport)
+    
     def importFiles(self, parentPath, toolPaths):
         return self.toolboxLoader.importFiles(parentPath, toolPaths)
 

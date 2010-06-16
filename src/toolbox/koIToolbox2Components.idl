@@ -56,6 +56,8 @@ interface koIToolboxDatabaseService: nsISupports {
 interface koIToolBox2Service: nsISupports {
     attribute koITool runningMacro;
     long getStandardToolboxID();
+    void importDirectory(in string parentPath,
+                         in wstring pathToImport);
     void importFiles(in string parentPath,
                      [array, size_is(count)] in wstring paths,
                      in unsigned long count);

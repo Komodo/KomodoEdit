@@ -1383,6 +1383,27 @@ class ToolboxLoader(object):
             self.db.releaseConnection()
         return result_list[0]
         
+    def importDirectory(self, parentPath, pathToImport):
+        parent_id = self.db.get_id_from_path(parentPath)
+        toolboxName = os.path.basename(pathToImport)
+        dstPath = join(parentPath, toolboxName)
+        self.db.establishConnection()
+        try:
+            result_list = self.db.getValuesFromTableByKey('paths',
+                                                   ['id'],
+                                                   'path', dstPath)
+            if not result_list:
+                new_id = self.db.addFolder(dstPath, toolboxName, parent_id)
+                result_list = [new_id]
+                data = { 'id': new_id, 'type':'folder', 'name':toolboxName}
+                _updateJSONData(data, new_id,
+                                join(dstPath, UI_FOLDER_FILENAME), noLoad=True)
+            shutil.copytree(pathToImport, dstPath, False)
+            os.path.walk(dstPath, self.walkFunc, True)
+        finally:
+            self.db.releaseConnection()
+        return result_list[0]
+        
     def importFiles(self, parentPath, toolPaths):
         parent_id = self.db.get_id_from_path(parentPath)
         for srcPath in toolPaths:
@@ -1390,7 +1411,7 @@ class ToolboxLoader(object):
                 log.warn("import tool: skipping file %s as it isn't a Komodo tool, has ext %s",
                          srcPath, os.path.splitext(srcPath)[1] )
                 continue
-            destPath = os.path.join(parentPath, os.path.basename(srcPath))
+            destPath = join(parentPath, os.path.basename(srcPath))
             shutil.copy(srcPath, destPath)
             self._testAndAddItem(True, parentPath, destPath, parent_id)
             

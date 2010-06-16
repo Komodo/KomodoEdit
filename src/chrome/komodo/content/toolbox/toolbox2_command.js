@@ -342,8 +342,14 @@ this.importFolderFromFileSystem = function(event) {
     var defaultDirectory = view.getPathFromIndex(index);
     var title = "Select a folder of tools to import into the toolbox";
     var path = ko.filepicker.getFolder(defaultDirectory, title);
-    if (!paths) {
+    if (!path) {
         return;
+    }
+    try {
+        this_.manager.toolbox2Svc.importDirectory(defaultDirectory, path);
+        this_.manager.view.reloadToolsDirectoryView(index);
+    } catch(ex) {
+        this_.log.exception("importFilesFromFileSystem failed: " + ex);
     }
 };
  

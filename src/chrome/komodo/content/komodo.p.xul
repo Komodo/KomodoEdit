@@ -428,7 +428,6 @@
                   hideUnless="folder menu toolbar" 
                   testDisableIf="t:multipleSelection"
                   />
-<!--
         <menuitem id="toolbox2ContextMenu_importFolderFromFileSystem"
                   label="&importFolderFromFileSystem.label;"
                   class="menuitem-iconic"
@@ -436,6 +435,7 @@
                   hideUnless="folder menu toolbar" 
                   testDisableIf="t:multipleSelection"
                   />
+<!--
         <menuitem id="toolbox2ContextMenu_importPackage"
                   label="&importPackage.label;"
                   class="menuitem-iconic"
