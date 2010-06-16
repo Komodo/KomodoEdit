@@ -105,47 +105,12 @@ this.add_command = function(view, index, parent, item) {
     }
 };
 
-// DirectoryShortcuts
-this.invoke_openDirectoryShortcut = function(event, tool) {
-    if (typeof(tool) == 'undefined') {
-        tool = this._getTool('DirectoryShortcut');
-        if (!tool) return;
-    }
-    ko.projects.openDirectoryShortcut(tool);
-};
-
-this.add_DirectoryShortcut = function(view, index, parent, item) {
-    var dirname = ko.filepicker.getFolder();
-    if (!dirname) return;
-    item.value = dirname;
-    item.name  = dirname.replace(/^.*[\/\\]/, "");
-    this.addNewItemToParent(item, parent);
-};
-
 var peFile_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .getService(Components.interfaces.nsIStringBundleService)
       .createBundle("chrome://komodo/locale/project/peFile.properties");
 var peFolder_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .getService(Components.interfaces.nsIStringBundleService)
       .createBundle("chrome://komodo/locale/project/peFolder.properties");
-
-this.editProperties_DirectoryShortcut = function(event, tool) {
-    if (typeof(tool) == 'undefined') {
-        tool = this._getTool('DirectoryShortcut');
-        if (!tool) return;
-    }
-    // From peFile.p.js -- unexported prototype, so copy the code here, and
-    // update its style.
-    var obj = {
-        item : tool,
-        task: 'edit',
-        imgsrc: 'chrome://komodo/skin/images/open.png'
-    };
-    window.openDialog(
-        "chrome://komodo/content/project/simplePartProperties.xul",
-        "Komodo:DirectoryShortcutProperties",
-        "chrome,close=yes,dependent=yes,modal=yes,resizable=yes", obj);
-};
 
 // Macros
 
@@ -634,7 +599,6 @@ this.deleteItem = function(event) {
 this._invokerNameForToolType = {
  'folder' : this.invoke_folderCommand,
  'command' : this.invoke_runCommand,
- 'DirectoryShortcut': this.invoke_openDirectoryShortcut,
  'macro' : this.invoke_executeMacro,
  'snippet' : this.invoke_insertSnippet,
  'template' : this.invoke_openTemplate,
