@@ -730,7 +730,7 @@ class KoRunService:
         # Setup for sending status bar messages in sub-threads.
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        self._observerSvcProxy = _xpcom.getProxyForObject(None,
+        self._observerSvcProxy = _xpcom.getProxyForObject(1,
             components.interfaces.nsIObserverService, self._observerSvc,
             _xpcom.PROXY_ALWAYS | _xpcom.PROXY_SYNC)
         self._sm = components.classes["@activestate.com/koStatusMessage;1"]\
