@@ -207,9 +207,9 @@ class KoToolBox2Service:
 
     def getStandardToolboxID(self):
         return self._standardToolbox
-
-    # Time to refactor.... ID/tools should be managed here, not in the
-    # the tree view.
+    
+    def importFiles(self, parentPath, toolPaths):
+        return self.toolboxLoader.importFiles(parentPath, toolPaths)
 
     def _windowTypeFromWindow(self, window):
         if not window:

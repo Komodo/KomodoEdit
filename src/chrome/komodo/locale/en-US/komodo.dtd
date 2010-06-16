@@ -776,3 +776,6 @@
 <!ENTITY sortDescending.accesskey "D">
 <!ENTITY reloadTools.label "Reload">
 <!ENTITY reloadTools.accesskey "R">
+<!ENTITY importFilesFromFileSystem.label "Import Files from File System"
+<!ENTITY importFolderFromFileSystem.label "Import Folder from File System"
+<!ENTITY importPackage.label "Import kpz Package"

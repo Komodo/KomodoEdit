@@ -49,6 +49,7 @@ if (typeof(ko.toolbox2)=='undefined') {
 var _prefs = Components.classes["@activestate.com/koPrefService;1"].
                 getService(Components.interfaces.koIPrefService).prefs;
 var widgets = {};
+var log = ko.logging.getLogger("ko.toolbox2");
 function Toolbox2Manager() {
     this.widgets = widgets; // for ease of access?
 }
@@ -119,6 +120,7 @@ _EOD_: null
 };
 
 this.onload = function() {
+    this.log = log;
     ko.main.addWillCloseHandler(this.onUnload, this);
     widgets.sortNatural = document.getElementById("toolbox2-cog_sortNatural");
     widgets.sortAscending = document.getElementById("toolbox2-cog_sortAscending");

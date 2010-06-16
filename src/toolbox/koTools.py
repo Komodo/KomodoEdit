@@ -198,8 +198,11 @@ class _KoTool(object):
         typeName = self.typeName
         if typeName == 'macro' and self.getAttribute('trigger_enabled'):
             requests.append([self, 'macro-load', None])
-        if self.getAttribute('keyboard_shortcut'):
-            requests.append([self, 'kb-load', str(self.id)])
+        try:
+            if self.getAttribute('keyboard_shortcut'):
+                requests.append([self, 'kb-load', str(self.id)])
+        except KeyError:
+            pass
         if typeName in ('menu', 'toolbar'):
             requests.append([self, typeName + "_created", None])
         # Are there any custom menus or toolbars that contain this item?
@@ -225,8 +228,11 @@ class _KoTool(object):
         """
         requests = []
         typeName = self.typeName
-        if self.getAttribute('keyboard_shortcut'):
-            requests.append([self, 'kb-unload', str(self.id)])
+        try:
+            if self.getAttribute('keyboard_shortcut'):
+                requests.append([self, 'kb-unload', str(self.id)])
+        except KeyError:
+            pass
         # Are there any custom menus or toolbars that contain this item?
         id = self.id
         while True:

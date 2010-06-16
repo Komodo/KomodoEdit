@@ -308,6 +308,49 @@ this.addToolboxItem = function(itemType) {
 };
 
 // Generic top-level routines
+
+this.importFilesFromFileSystem = function(event) {
+    var this_ = ko.toolbox2;
+    var view = this_.manager.view;
+    var index = view.selection.currentIndex;
+    if (index == -1) {
+        index = 0;  // For the std toolbox
+    }
+    var defaultDirectory = view.getPathFromIndex(index);
+    var defaultFilename = null;
+    var title = "Select file(s) to import into the toolbox";
+    var paths = ko.filepicker.openFiles(defaultDirectory, defaultFilename,
+                                        title);
+    if (!paths) {
+        return;
+    }
+    try {
+        this_.manager.toolbox2Svc.importFiles(defaultDirectory, paths, paths.length);
+        this_.manager.view.reloadToolsDirectoryView(index);
+    } catch(ex) {
+        this_.log.exception("importFilesFromFileSystem failed: " + ex);
+    }
+};
+
+this.importFolderFromFileSystem = function(event) {
+    var this_ = ko.toolbox2;
+    var view = this_.manager.view;
+    var index = view.selection.currentIndex;
+    if (index == -1) {
+        index = 0;  // For the std toolbox
+    }
+    var defaultDirectory = view.getPathFromIndex(index);
+    var title = "Select a folder of tools to import into the toolbox";
+    var path = ko.filepicker.getFolder(defaultDirectory, title);
+    if (!paths) {
+        return;
+    }
+};
+ 
+this.importPackage = function(event) {
+    var this_ = ko.toolbox2;
+};
+
 this._selectCurrentItems = function() {
     this.selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
     var view = this.manager.view;

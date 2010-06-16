@@ -421,6 +421,29 @@
     </menupopup>
 
     <menupopup id="toolbox2Context" onpopupshowing="ko.toolbox2.updateContextMenu(event, this);">
+        <menuitem id="toolbox2ContextMenu_importFilesFromFileSystem"
+                  label="&importFilesFromFileSystem.label;"
+                  class="menuitem-iconic"
+                  oncommand="ko.toolbox2.importFilesFromFileSystem(event)"
+                  hideUnless="folder menu toolbar" 
+                  testDisableIf="t:multipleSelection"
+                  />
+<!--
+        <menuitem id="toolbox2ContextMenu_importFolderFromFileSystem"
+                  label="&importFolderFromFileSystem.label;"
+                  class="menuitem-iconic"
+                  oncommand="ko.toolbox2.importFolderFromFileSystem(event)"
+                  hideUnless="folder menu toolbar" 
+                  testDisableIf="t:multipleSelection"
+                  />
+        <menuitem id="toolbox2ContextMenu_importPackage"
+                  label="&importPackage.label;"
+                  class="menuitem-iconic"
+                  oncommand="ko.toolbox2.importPackage(event)"
+                  hideUnless="folder menu toolbar" 
+                  testDisableIf="t:multipleSelection"
+                  />
+-->
         <menu id="tb2ContextMenu_addMenu" label="&add.label;"
               hideUnless="folder menu toolbar" 
               testHideIf="t:multipleSelection" >

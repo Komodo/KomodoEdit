@@ -1244,6 +1244,71 @@ class ToolboxLoader(object):
         # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
         "1.0.5": ("1.0.6", _update_version),
     }
+    
+    def _testAndAddItem(self, notifyNow, dirname, fname, parent_id,
+                        existing_child_ids=None):
+        path = join(dirname, fname)
+        isDir = os.path.isdir(path)
+        isTool = os.path.splitext(fname)[1] == TOOL_EXTENSION
+        if not isDir and not isTool:
+            return
+        elif not self.dbTimestamp:
+            need_update = True
+        else:
+            result_list = self.db.getValuesFromTableByKey('paths',
+                                                          ['id'],
+                                                          'path', path)
+            if result_list:
+                id = result_list[0]
+                if id and existing_child_ids:
+                    try: del existing_child_ids[id]
+                    except KeyError: pass
+                if id is None:
+                    need_update = True
+                elif isDir:
+                    need_update = self.deleteFolderIfMetadataChanged(path, fname, id)
+                else:
+                    mtime = os.stat(path).st_mtime
+                    need_update = mtime > self.dbTimestamp
+                    if need_update:
+                        log.debug("db time: %r, stat time: %r", self.dbTimestamp, mtime)
+                        log.debug("Rebuilding item %s (%s)", fname, dirname)
+                        self.db.deleteItem(id)
+            else:
+                log.debug("No entry for path %s in the db", path)
+                need_update = True
+                
+        if need_update:
+            if isTool:
+                try:
+                    fp = open(path, 'r')
+                except IOError:
+                    log.error("database loader: Couldn't load file %s", path)
+                    return
+                try:
+                    data = json.load(fp, encoding="utf-8")
+                    if data['type'] == "DirectoryShortcut":
+                        log.info("Deleting DirectoryShortcut tool %s", path)
+                        os.unlink(path)
+                        return
+                    self.upgradeItem(data, path)
+                except:
+                    log.exception("Couldn't load json data for path %s", path)
+                    return
+                fp.close()
+                type = data['type']
+                old_id = int(data.get('id', -1))
+                new_id = self.db.addTool(data, type, path, fname, parent_id)
+                if new_id != old_id:
+                    _updateJSONData(data, new_id, path)
+                else:
+                    #log.debug("tool %s: continue to reuse id %r", path, old_id)
+                    pass
+            else:
+                new_id = self.db.addFolder(path, fname, parent_id)
+            if notifyNow:
+                tool = self._toolsSvc.getToolById(new_id)
+                tool.added()
 
     def walkFunc(self, notifyNow, dirname, fnames):
         parent_id = self.db.get_id_from_path(dirname)
@@ -1253,67 +1318,8 @@ class ToolboxLoader(object):
         #if notifyNow:
             # self._notifyDeletion(data)
         for fname in fnames:
-            path = join(dirname, fname)
-            isDir = os.path.isdir(path)
-            isTool = os.path.splitext(fname)[1] == TOOL_EXTENSION
-            if not isDir and not isTool:
-                continue
-            elif not self.dbTimestamp:
-                need_update = True
-            else:
-                result_list = self.db.getValuesFromTableByKey('paths',
-                                                              ['id'],
-                                                              'path', path)
-                if result_list:
-                    id = result_list[0]
-                    try: del existing_child_ids[id]
-                    except KeyError: pass
-                    if id is None:
-                        need_update = True
-                    elif isDir:
-                        need_update = self.deleteFolderIfMetadataChanged(path, fname, id)
-                    else:
-                        mtime = os.stat(path).st_mtime
-                        need_update = mtime > self.dbTimestamp
-                        if need_update:
-                            log.debug("db time: %r, stat time: %r", self.dbTimestamp, mtime)
-                            log.debug("Rebuilding item %s (%s)", fname, dirname)
-                            self.db.deleteItem(id)
-                else:
-                    log.debug("No entry for path %s in the db", path)
-                    need_update = True
-                    
-            if need_update:
-                if isTool:
-                    try:
-                        fp = open(path, 'r')
-                    except IOError:
-                        log.error("database loader: Couldn't load file %s", path)
-                        continue
-                    try:
-                        data = json.load(fp, encoding="utf-8")
-                        if data['type'] == "DirectoryShortcut":
-                            log.info("Deleting DirectoryShortcut tool %s", path)
-                            os.unlink(path)
-                            continue
-                        self.upgradeItem(data, path)
-                    except:
-                        log.exception("Couldn't load json data for path %s", path)
-                        continue
-                    fp.close()
-                    type = data['type']
-                    old_id = int(data.get('id', -1))
-                    new_id = self.db.addTool(data, type, path, fname, parent_id)
-                    if new_id != old_id:
-                        _updateJSONData(data, new_id, path)
-                    else:
-                        #log.debug("tool %s: continue to reuse id %r", path, old_id)
-                        pass
-                else:
-                    new_id = self.db.addFolder(path, fname, parent_id)
-                if notifyNow:
-                    tool = self._toolsSvc.getToolById(new_id)
-                    tool.added()
+            self._testAndAddItem(notifyNow, dirname, fname, parent_id,
+                                 existing_child_ids)
         metadataPath = join(dirname, UI_FOLDER_FILENAME)
         if exists(metadataPath):
             result = self.db.getValuesFromTableByKey('metadata_timestamps', ['mtime'], 'path_id', parent_id)
@@ -1376,6 +1382,18 @@ class ToolboxLoader(object):
         finally:
             self.db.releaseConnection()
         return result_list[0]
+        
+    def importFiles(self, parentPath, toolPaths):
+        parent_id = self.db.get_id_from_path(parentPath)
+        for srcPath in toolPaths:
+            if os.path.splitext(srcPath)[1] != TOOL_EXTENSION:
+                log.warn("import tool: skipping file %s as it isn't a Komodo tool, has ext %s",
+                         srcPath, os.path.splitext(srcPath)[1] )
+                continue
+            destPath = os.path.join(parentPath, os.path.basename(srcPath))
+            shutil.copy(srcPath, destPath)
+            self._testAndAddItem(True, parentPath, destPath, parent_id)
+            
 
     def reloadToolsDirectory(self, toolDir):
         self.db.establishConnection()
