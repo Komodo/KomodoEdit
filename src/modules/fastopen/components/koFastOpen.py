@@ -54,7 +54,11 @@ class KoFastOpenTreeView(TreeView):
     _rows = None
 
     def __init__(self, uiDriver):
-        self.uiDriver = uiDriver
+        # uiDriver is a JavaScript instance, so we must *always* proxy any
+        # calls made to this object through the main thread.
+        self.uiDriver = getProxyForObject(1, # 1 means the main thread.
+            components.interfaces.koIFastOpenUIDriver,
+            uiDriver, PROXY_ALWAYS | PROXY_SYNC)
         TreeView.__init__(self) #, debug="fastopen")
         self._tree = None
         self._selectionProxy = None
