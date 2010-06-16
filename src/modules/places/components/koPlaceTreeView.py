@@ -322,7 +322,7 @@ class KoPlaceTreeView(TreeView):
         self.lock = threading.RLock()
         self.dragDropUndoCommand = _UndoCommand()
         wrapSelf = WrapObject(self, components.interfaces.koIPlaceTreeView)
-        self.proxySelf = getProxyForObject(None,
+        self.proxySelf = getProxyForObject(1,
                                       components.interfaces.koIPlaceTreeView,
                                       wrapSelf, PROXY_ALWAYS | PROXY_SYNC)
         self.workerThread = _WorkerThread(target=_WorkerThread.run,
