@@ -348,7 +348,7 @@ class KoCodeIntelManager(Manager):
                          db_catalog_dirs=db_catalog_dirs)
         obsSvc = components.classes["@mozilla.org/observer-service;1"]\
                  .getService(components.interfaces.nsIObserverService)
-        self._proxiedObsSvc = getProxyForObject(None,
+        self._proxiedObsSvc = getProxyForObject(1,
             components.interfaces.nsIObserverService,
             obsSvc, PROXY_ALWAYS | PROXY_ASYNC)
 
@@ -671,7 +671,7 @@ class KoCodeIntelEvalController(EvalController):
         # avoid delaying this codepath. Calling setDefinitionsInfo
         # asynchronously caused hard crash, see bug:
         # http://bugs.activestate.com/show_bug.cgi?id=65188
-        self.ui_handler_proxy_sync = getProxyForObject(None,
+        self.ui_handler_proxy_sync = getProxyForObject(1,
             components.interfaces.koICodeIntelCompletionUIHandler,
             self.ui_handler, PROXY_ALWAYS | PROXY_SYNC)
 
@@ -829,7 +829,7 @@ class KoCodeIntelBatchUpdater(BatchUpdater):
 
     def set_progress_ui_handler(self, progress_ui_handler):
         self.progress_ui_handler = progress_ui_handler
-        self.progress_ui_handler_proxy = getProxyForObject(None,
+        self.progress_ui_handler_proxy = getProxyForObject(1,
             components.interfaces.koICodeIntelBatchUpdateProgressUIHandler,
             self.progress_ui_handler, PROXY_ALWAYS | PROXY_ASYNC)
         
@@ -955,7 +955,7 @@ class KoCodeIntelDBUpgrader(threading.Thread):
 
     controller = None
     def set_controller(self, controller):
-        self.controller = getProxyForObject(None,
+        self.controller = getProxyForObject(1,
             components.interfaces.koIProgressController,
             controller, PROXY_ALWAYS | PROXY_SYNC)
         self.controller.set_progress_mode("undetermined")
@@ -1013,7 +1013,7 @@ class KoCodeIntelDBPreloader(threading.Thread):
             prefs, PROXY_ALWAYS | PROXY_ASYNC)
 
     def set_controller(self, controller):
-        self.controller = getProxyForObject(None,
+        self.controller = getProxyForObject(1,
             components.interfaces.koIProgressController,
             controller, PROXY_ALWAYS | PROXY_SYNC)
         self.controller.set_progress_mode("undetermined")
@@ -1123,7 +1123,7 @@ class KoCodeIntelService:
 
         obsSvc = components.classes["@mozilla.org/observer-service;1"]\
             .getService(components.interfaces.nsIObserverService)
-        self._proxiedObsSvc = getProxyForObject(None,
+        self._proxiedObsSvc = getProxyForObject(1,
             components.interfaces.nsIObserverService,
             obsSvc, PROXY_ALWAYS | PROXY_ASYNC)
         self.partSvc = components.classes["@activestate.com/koPartService;1"]\
