@@ -137,7 +137,7 @@ class koTerminalHandler:
         registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
                getService(components.interfaces.koILanguageRegistryService)
         self.language = registryService.getLanguage('Errors');
-        self._proxyself = getProxyForObject(None, components.interfaces.koITerminalHandler,
+        self._proxyself = getProxyForObject(1, components.interfaces.koITerminalHandler,
                                             self,
                                             PROXY_ALWAYS | PROXY_SYNC)
 
