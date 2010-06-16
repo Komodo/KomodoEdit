@@ -150,10 +150,10 @@ class KoFastOpenTreeView(TreeView):
             self._rawTree = self._tree = self._selectionProxy = None
         else:
             self._rawTree = tree
-            self._tree = getProxyForObject(None,
+            self._tree = getProxyForObject(1,
                 components.interfaces.nsITreeBoxObject,
                 self._rawTree, PROXY_ALWAYS | PROXY_SYNC)
-            self._selectionProxy = getProxyForObject(None,
+            self._selectionProxy = getProxyForObject(1,
                 components.interfaces.nsITreeSelection,
                 self.selection, PROXY_ALWAYS | PROXY_SYNC)
 
