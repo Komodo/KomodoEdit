@@ -111,6 +111,9 @@ var peFile_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 var peFolder_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .getService(Components.interfaces.nsIStringBundleService)
       .createBundle("chrome://komodo/locale/project/peFolder.properties");
+var partutils_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/project/partutils.properties");
 
 // Macros
 
@@ -355,6 +358,28 @@ this.importFolderFromFileSystem = function(event) {
  
 this.importPackage = function(event) {
     var this_ = ko.toolbox2;
+    var view = this_.manager.view;
+    var index = view.selection.currentIndex;
+    if (index == -1) {
+        index = 0;  // For the std toolbox
+    }
+    var targetDirectory = view.getPathFromIndex(index);
+    var title = partutils_bundle.GetStringFromName("selectPackageToImport");
+    var defaultDirectory = null;
+    var defaultFilename = null;
+    var path = ko.filepicker.openFile(defaultDirectory, defaultFilename,
+                                      title,
+                                      "Komodo Package", // default filter
+                                      ["Komodo Package", "All"]); // filters
+    if (!path) {
+        return;
+    }
+    try {
+        this_.manager.toolbox2Svc.importV5Package(targetDirectory, path);
+        this_.manager.view.reloadToolsDirectoryView(index);
+    } catch(ex) {
+        this_.log.exception("importFilesFromFileSystem failed: " + ex);
+    }
 };
 
 this._selectCurrentItems = function() {

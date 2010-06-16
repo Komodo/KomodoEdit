@@ -45,6 +45,7 @@ import os
 import os.path
 from os.path import join, exists
 import re
+import shutil
 import sys
 import time
 import logging
@@ -213,6 +214,68 @@ class KoToolBox2Service:
     
     def importFiles(self, parentPath, toolPaths):
         return self.toolboxLoader.importFiles(parentPath, toolPaths)
+
+    def importV5Package(self, parentPath, kpzPath):
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        userDataDir = koDirSvc.userDataDir
+        kpzExtractDir = join(userDataDir, 'extracted-kpz')
+        if not os.path.exists(kpzExtractDir):
+            os.mkdir(kpzExtractDir)    
+        basedir, kpfFile = self._extractPackage(kpzPath, kpzExtractDir)
+        tempToolsDir = join(os.path.dirname(kpfFile), ".extract-tools")
+        try:
+            toolboxDirName = os.path.splitext(os.path.basename(kpzPath))[0]
+            koMigrateV5Toolboxes.expand_toolbox(kpfFile,
+                                                tempToolsDir,
+                                                toolboxDirName=toolboxDirName,
+                                                force=1)
+            # Now, where are the tools?
+            # Usually the package is wrapped in a directory called "Project"
+            childFiles = os.listdir(tempToolsDir)
+            kpfDir = None
+            if len(childFiles) == 1:
+                candidate = join(tempToolsDir, childFiles[0])
+                if os.path.isdir(candidate):
+                    kpfDir = candidate
+            if kpfDir is None and 'Project' in childFiles:
+                candidate = join(tempToolsDir, 'Project')
+                if os.path.isdir(candidate):
+                    kpfDir = candidate
+            else:
+                kpfDir = tempToolsDir
+            self.toolboxLoader.importDirectory(parentPath, kpfDir)
+        except:
+            log.exception("Failed to expand/import")
+        finally:
+            return
+            shutil.rmtree(tempToolsDir)
+            if basedir != kpzExtractDir:
+                shutil.rmtree(basedir)
+            os.unlink(kpfFile)
+            
+    def _extractPackage(self, file, dir):
+        # From the project service, but extracts only the first kpf file it finds.
+        import zipfile
+        if not dir.endswith(':') and not os.path.exists(dir):
+            os.mkdir(dir)
+
+        zf = zipfile.ZipFile(file)
+        files = zf.namelist()
+        kpf = None
+        basedir = os.path.dirname(join(dir, files[0]))
+        # extract only the kpf file
+        for name in files:
+            if os.path.splitext(name)[1] == ".kpf":
+                targetFile = join(dir, name)
+                basedir = os.path.dirname(targetFile)
+                if not os.path.exists(basedir):
+                    os.makedirs(basedir)
+                outfile = open(targetFile, 'wb')
+                outfile.write(zf.read(name))
+                outfile.flush()
+                outfile.close()
+                return basedir, os.path.join(dir, name)
+        return basedir, None        
 
     def _windowTypeFromWindow(self, window):
         if not window:

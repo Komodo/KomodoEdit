@@ -1389,6 +1389,7 @@ class ToolboxLoader(object):
         dstPath = join(parentPath, toolboxName)
         self.db.establishConnection()
         try:
+            shutil.copytree(pathToImport, dstPath, False)
             result_list = self.db.getValuesFromTableByKey('paths',
                                                    ['id'],
                                                    'path', dstPath)
@@ -1398,7 +1399,6 @@ class ToolboxLoader(object):
                 data = { 'id': new_id, 'type':'folder', 'name':toolboxName}
                 _updateJSONData(data, new_id,
                                 join(dstPath, UI_FOLDER_FILENAME), noLoad=True)
-            shutil.copytree(pathToImport, dstPath, False)
             os.path.walk(dstPath, self.walkFunc, True)
         finally:
             self.db.releaseConnection()

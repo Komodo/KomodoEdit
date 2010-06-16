@@ -435,7 +435,6 @@
                   hideUnless="folder menu toolbar" 
                   testDisableIf="t:multipleSelection"
                   />
-<!--
         <menuitem id="toolbox2ContextMenu_importPackage"
                   label="&importPackage.label;"
                   class="menuitem-iconic"
@@ -443,7 +442,6 @@
                   hideUnless="folder menu toolbar" 
                   testDisableIf="t:multipleSelection"
                   />
--->
         <menu id="tb2ContextMenu_addMenu" label="&add.label;"
               hideUnless="folder menu toolbar" 
               testHideIf="t:multipleSelection" >
