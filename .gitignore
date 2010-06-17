@@ -1,0 +1,13 @@
+*.pyc
+*.pyo
+bkconfig.*
+mozilla/build/
+mozilla/config.py
+mozilla/patches-new/komodo_app/build/Makefile.in
+mozilla/prebuilt/python2.6/macosx/
+build/
+export/
+src/scintilla/
+.consign
+test/pyxpcom/koITest.xpt
+qbtable.pik
