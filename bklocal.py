@@ -2658,17 +2658,29 @@ class SCCBranch(black.configure.Datum):
             raise black.configure.ConfigureError(
                 "Could not determine %s." % self.desc)
 
-    def _get_repo_url(self, dir):
-        stdout = _capture_stdout(['svn', 'info', dir])
-        for line in stdout.splitlines(0):
-            if re.compile(r"^URL\s*:").match(line):
-                return line.split(':', 1)[1].strip()
+    def _get_scc_branch(self, dir):
+        from posixpath import basename as ubasename
+        
+        if exists(join(dir, ".svn")):
+            stdout = _capture_stdout(['svn', 'info', dir])
+            for line in stdout.splitlines(0):
+                if re.compile(r"^URL\s*:").match(line):
+                    repo_url = line.split(':', 1)[1].strip()
+                    break
+            scc_branch = ubasename(repo_url)
+        elif exists(join(dir, ".git")):
+            stdout = _capture_stdout(['git', 'branch', '-l'])
+            for line in stdout.splitlines(0):
+                if line.startswith("*"):
+                    scc_branch = line[1:].strip()
+                    break
+            if scc_branch == "master":
+                scc_branch = "trunk"
+        return scc_branch
 
     def _Determine_Do(self):
-        from posixpath import basename as ubasename
         self.applicable = 1
-        repo_url = self._get_repo_url(dirname(__file__))
-        self.value = ubasename(repo_url)
+        self.value = self._get_scc_branch(dirname(__file__))
         self.determined = 1
 
 
