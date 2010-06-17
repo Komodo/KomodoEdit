@@ -70,7 +70,10 @@ except ImportError:
 
 nowrite = False
 _version_ = (0, 1, 0)
+_kpf_version = 5
 #log.setLevel(logging.DEBUG)
+qlog = logging.getLogger("koMigrateV5Toolboxes.q")
+qlog.setLevel(logging.DEBUG)
 
 class ExpandToolboxException(Exception):
     pass
@@ -82,6 +85,11 @@ def expand_toolbox(toolboxFile, outdir, toolboxDirName=None, force=0):
     """
     tree = ET.parse(toolboxFile)
     root = tree.getroot()
+    global _kpf_version
+    tmp_ver = root.get('kpf_version')
+    if tmp_ver is not None:
+        _kpf_version = int(tmp_ver)
+        qlog.debug("_kpf_version:%r", _kpf_version)
     prefSets = root.findall("preference-set")
     for ps in prefSets:
         root.remove(ps)
@@ -109,6 +117,28 @@ def expand_toolbox(toolboxFile, outdir, toolboxDirName=None, force=0):
                   # "\n".join(["%s: %s" % (x[0], x[1]) for x in obsoleteItems]))
     return 0
     
+# From koProject.p.py, for upgrading version 3 snippets and macros.
+
+def unescapeWhitespace(text, eol="\n"):
+    newtext = u'' # THE u IS IMPORTANT!
+    i = 0
+    while i < len(text):
+        if text[i] == '\\':
+            i += 1
+            if text[i] == 'n':
+                newtext += eol
+            elif text[i] == 't':
+                newtext += '\t'
+            elif text[i] == '\\':
+                newtext += '\\'
+            else:
+                i -= 1
+                newtext += '\\'
+        else:
+            newtext += text[i]
+        i += 1
+    return newtext
+
 class TreeNode(object):
     def __init__(self, elt):
         self.elt = elt
@@ -312,7 +342,11 @@ class TreeWalker():
         if not nowrite:
             newDict = {'type': tagName}
             newDict.update(elt.attrib)
-            lines = self._split_newlines(elt.text + elt.tail)
+            value = elt.text + elt.tail
+            if _kpf_version <= 3 and tagName in ('macro', 'snippet'):
+                qlog.debug("Unescaping the whitespace in %s %s", tagName, newDict['name'])
+                value = unescapeWhitespace(value)
+            lines = self._split_newlines(value)
             if not lines[-1]:
                 del lines[-1]
             if not lines[0]:
