@@ -66,7 +66,10 @@ from codeintel2.util import CompareNPunctLast, make_short_name_dict
 from codeintel2.langintel import LangIntel, ParenStyleCalltipIntelMixin
 from codeintel2.udl import UDLBuffer, is_udl_css_style
 from codeintel2.accessor import AccessorCache
-from codeintel2 import constants_css
+from codeintel2 import constants_css3 as constants_css
+from codeintel2 import constants_css_microsoft_extensions
+from codeintel2 import constants_css_moz_extensions
+from codeintel2 import constants_css_webkit_extensions
 
 if _xpcom_:
     from xpcom.server import UnwrapObject
@@ -410,13 +413,19 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
     # CSS attributes:
     #     key (string) is the css property (attribute) name
     #     value (list) is the possible css property (attribute) values
-    CSS_ATTRIBUTES = constants_css.CSS_ATTR_DICT
+    CSS_ATTRIBUTES = constants_css.CSS_ATTR_DICT.copy()
+    CSS_ATTRIBUTES.update(constants_css_microsoft_extensions.CSS_MICROSOFT_SPECIFIC_ATTRS_DICT)
+    CSS_ATTRIBUTES.update(constants_css_moz_extensions.CSS_MOZ_SPECIFIC_ATTRS_DICT)
+    CSS_ATTRIBUTES.update(constants_css_webkit_extensions.CSS_WEBKIT_SPECIFIC_ATTRS_DICT)
     # Setup the names triggered for "property-names"
     CSS_PROPERTY_NAMES = CSS_ATTRIBUTES.keys()
     CSS_PROPERTY_NAMES.sort(CompareNPunctLast)
 
     # Calltips for css property attributes
-    CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT = constants_css.CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT
+    CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT = constants_css.CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT.copy()
+    CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT.update(constants_css_microsoft_extensions.CSS_MICROSOFT_SPECIFIC_CALLTIP_DICT)
+    CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT.update(constants_css_moz_extensions.CSS_MOZ_SPECIFIC_CALLTIP_DICT)
+    CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT.update(constants_css_webkit_extensions.CSS_WEBKIT_SPECIFIC_CALLTIP_DICT)
 
     # Tag names
     CSS_HTML_TAG_NAMES = Keywords.hypertext_elements.split()

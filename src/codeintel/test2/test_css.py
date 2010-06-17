@@ -48,7 +48,7 @@ import logging
 from codeintel2.common import *
 from codeintel2.util import indent, dedent, banner, markup_text, \
                             unmark_text, CompareNPunctLast
-from codeintel2.constants_css import CSS_ATTR_DICT
+from codeintel2.constants_css3 import CSS_ATTR_DICT
 
 from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase
@@ -168,7 +168,7 @@ class _BaseCSSTestCase(CodeIntelTestCase):
                                   form=TRG_FORM_CALLTIP)
         self.assertNoTrigger("/*h1 { color:<|>")
         self.assertCalltipIs("h1 { color:<|>",
-                             "\n".join(textwrap.wrap("This property describes the foreground color of an element's text content",
+                             "\n".join(textwrap.wrap("This property describes the foreground color of an element's text content\n(CSS1, CSS2, CSS3)",
                                            40)))
         # assert no trig in string or URL
         self.assertNoTrigger('body { background: "../myimage.png:<|>"')
@@ -535,7 +535,7 @@ class CSS_UDL_HTMLStyleAttributes(CodeIntelTestCase):
                                   form=TRG_FORM_CALLTIP)
         self.assertNoTrigger('''<!-- <p style="color:<|>" /> -->''')
         self.assertCalltipIs('<p style="color:<|>" />',
-                             "\n".join(textwrap.wrap("This property describes the foreground color of an element's text content",
+                             "\n".join(textwrap.wrap("This property describes the foreground color of an element's text content\n(CSS1, CSS2, CSS3)",
                                            40)))
         # assert no trig in string or URL
         # XXX - Talk with Eric
