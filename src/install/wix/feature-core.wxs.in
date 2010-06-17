@@ -1726,7 +1726,12 @@
                   <File Id="file79" Name="manager.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\manager.py" />
                   <File Id="file355" Name="CITADE_0.PY" LongName="citadel_common.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\citadel_common.py"/>
                   <File Id="file1908" Name="common.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\common.py"/>
-                  <File Id="file1909" Name="CONSTA_0.PY" LongName="constants_css.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\constants_css.py"/>
+                  <File Id="file1219" LongName="constants_css1.py" Name="CONSTA_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\constants_css1.py" />
+                  <File Id="file1220" LongName="constants_css2.py" Name="CONSTA_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\constants_css2.py" />
+                  <File Id="file1223" LongName="constants_css3.py" Name="CONSTA_3.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\constants_css3.py" />
+                  <File Id="file1224" LongName="constants_css_microsoft_extensions.py" Name="CONSTA_4.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\constants_css_microsoft_extensions.py" />
+                  <File Id="file1225" LongName="constants_css_moz_extensions.py" Name="CONSTA_5.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\constants_css_moz_extensions.py" />
+                  <File Id="file1226" LongName="constants_css_webkit_extensions.py" Name="CONSTA_6.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\constants_css_webkit_extensions.py" />
                   <File Id="file121" Name="GENCIX_0.PY" LongName="gencix_utils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\gencix_utils.py"/>
                   <File Id="file461" Name="hooks.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\hooks.py" />
                   <File Id="file419" Name="phpdoc.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\phpdoc.py" />
