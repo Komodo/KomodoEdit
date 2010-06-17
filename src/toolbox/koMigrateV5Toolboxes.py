@@ -204,6 +204,10 @@ class TreeWalker():
         # "slugify"
         basePart = koToolbox2.truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', name))
         extPart = (addExt and koToolbox2.TOOL_EXTENSION) or ""
+        # The purpose for the next test is because abbrevs with
+        # names like "+" "++" and "++??" will all be mapped to
+        # the name "_".  So insist on unique filenames, even if
+        # we're in force mode.
         if (nowrite
             or not os.path.exists(basePart + extPart)
             or (self._force and basePart == name)):
