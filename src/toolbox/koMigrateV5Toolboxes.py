@@ -54,6 +54,7 @@ import time
 
 import koToolbox2
 log = logging.getLogger("koMigrateV5Toolboxes")
+#log.setLevel(logging.DEBUG)
 
 try:
     import cElementTree as ET # effbot's C module
@@ -71,9 +72,6 @@ except ImportError:
 nowrite = False
 _version_ = (0, 1, 0)
 _kpf_version = 5
-#log.setLevel(logging.DEBUG)
-qlog = logging.getLogger("koMigrateV5Toolboxes.q")
-qlog.setLevel(logging.DEBUG)
 
 class ExpandToolboxException(Exception):
     pass
@@ -89,7 +87,6 @@ def expand_toolbox(toolboxFile, outdir, toolboxDirName=None, force=0):
     tmp_ver = root.get('kpf_version')
     if tmp_ver is not None:
         _kpf_version = int(tmp_ver)
-        qlog.debug("_kpf_version:%r", _kpf_version)
     prefSets = root.findall("preference-set")
     for ps in prefSets:
         root.remove(ps)
@@ -207,9 +204,11 @@ class TreeWalker():
         # "slugify"
         basePart = koToolbox2.truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', name))
         extPart = (addExt and koToolbox2.TOOL_EXTENSION) or ""
-        if nowrite or self._force or not os.path.exists(basePart + extPart):
+        if (nowrite
+            or not os.path.exists(basePart + extPart)
+            or (self._force and basePart == name)):
             return basePart + extPart
-        for i in range(1, 1000):
+        for i in range(1, 1000000):
             candidate = "%s-%d%s" % (basePart, i, extPart)
             if not os.path.exists(candidate):
                 #log.debug("Writing out file %s/%s as %s", os.getcwd(), basePart, candidate)
@@ -344,7 +343,7 @@ class TreeWalker():
             newDict.update(elt.attrib)
             value = elt.text + elt.tail
             if _kpf_version <= 3 and tagName in ('macro', 'snippet'):
-                qlog.debug("Unescaping the whitespace in %s %s", tagName, newDict['name'])
+                #log.debug("Unescaping the whitespace in %s %s", tagName, newDict['name'])
                 value = unescapeWhitespace(value)
             lines = self._split_newlines(value)
             if not lines[-1]:
