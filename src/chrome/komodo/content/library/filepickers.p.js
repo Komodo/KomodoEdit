@@ -175,13 +175,13 @@ function _appendFilters(fp, limitTo /* =null */) {
     filters.push(["*.html", "*.htm", "*.css", "*.dtd", "*.xml", "*.xul",
                   "*.js"]);
     names.push(_bundle.GetStringFromName("komodoProject"));
-    filters.push(["*.kpf"]);
+    filters.push(["*.komodoproject", "*.kpf"]);
     names.push(_bundle.GetStringFromName("komodoPackage"));
     filters.push(["*.kpz"]);
     names.push(_bundle.GetStringFromName("komodoColorScheme"));
     filters.push(["*.ksf"]);
-    //names.push("Komodo Toolbox");
-    //filters.push(["*.ktf"]);
+    names.push("Komodo Tool");
+    filters.push(["*.komodotool"]);
     names.push(_bundle.GetStringFromName("codeIntelligenceXml"));
     filters.push(["*.cix"]);
     names.push("All");

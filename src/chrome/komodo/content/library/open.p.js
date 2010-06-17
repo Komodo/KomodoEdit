@@ -150,7 +150,7 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
                 lineno = m[2];
             }
         }
-        if (uri.match(/\.kpf$/i)) {
+        if (uri.match(/\.(?:kpf|komodoproject)$/i)) {
             ko.projects.open(uri, skipRecentOpenFeature);
         } else if (uri.match(/\.xpi$/i)) {
             if (InstallTrigger.enabled) {

@@ -79,6 +79,7 @@ PROJECT_TARGET_DIRECTORY = ".komodotools"
 
 TOOL_EXTENSION = ".komodotool"
 UI_FOLDER_FILENAME = ".folderdata"
+PROJECT_FILE_EXTENSION = ".komodoproject"
 
 
 def _updateJSONData(data, new_id, path, noLoad=False):

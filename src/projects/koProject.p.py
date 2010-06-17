@@ -81,7 +81,9 @@ from projectUtils import *
 
 # kpf ver 3 == komodo 4.0
 # kpf ver 4 == komodo 4.1, fixing whitespace escape in macro's
-KPF_VERSION = 4
+# kpf ver 5 == komodo 6 -- separate tools from projects
+KPF_VERSION = 5
+KPF_VERSION_START_CULLING = 5
 gLastProjNum = 1
 
 ANCHOR_MARKER = '!@#_anchor'
@@ -1720,6 +1722,7 @@ class koProject(koLiveFolderPart):
         events = pulldom.parse(stream)
         kpfVer = 0
         keybound_parts = []  # list of parts that have keybindings
+        canBeCulled = False
         for (event, node) in events:
             if event == pulldom.START_ELEMENT:
                 if node.tagName == 'project':
@@ -1740,23 +1743,53 @@ class koProject(koLiveFolderPart):
                         kpfVer = 1 # k 1.x-2.x
                     if kpfVer < KPF_VERSION:
                         # backup the kpf
+                        if kpfVer < KPF_VERSION_START_CULLING:
+                            canBeCulled = True
                         try:
                             bakFile = fname # in case the following lines fail for some reason
                             koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
                             basename = os.path.basename(fname)
                             bakFile = os.path.join(koDirSvc.userDataDir, "%s.%s.bak" % (basename,time.time()))
-                            msg = "Komodo is reading a KPF file version %d and is " \
-                                  "converting it to version %d: [%s], a backup " \
-                                  "will be created at [%s]." % (kpfVer, KPF_VERSION, fname, bakFile)
-                            wwatch = components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(components.interfaces.nsIWindowWatcher)
-                            prompt = wwatch.getNewPrompter(wwatch.activeWindow)
-                            prompt.alert("Project Upgrade Warning", msg)
+                            import koToolbox2
+                            newExt = koToolbox2.PROJECT_FILE_EXTENSION
+                            if not self._url.endswith(newExt):
+                                oldName = self._url
+                                newName = (os.path.splitext(oldName)[0] 
+                                           + newExt)
+                                url = newName
+                                try:
+                                    del self._attributes['name']
+                                except KeyError:
+                                    pass
+                                # Do this so name fields are updated now, becauses
+                                # the final set_url isn't done until the
+                                # project has been completely loaded.
+                                self.set_url(url)
+                                msg = (("Komodo is reading a KPF file version %d(%s) and is "
+                                        + "converting it to version %d, in a new file %s at [%s]") %
+                                       (kpfVer, fname, KPF_VERSION,
+                                        os.path.basename(newName),
+                                        os.path.dirname(newName)))
+                            else:
+                                canBeCulled = False
+                                msg = (("Komodo is reading a KPF file version %d(%s), but can't  "
+                                        + "convert it to version %d, as it ends with "
+                                        + "the extension %s.") %
+                                       (kpfVer, fname, KPF_VERSION, koToolbox2.PROJECT_FILE_EXTENSION))
+                            displayMessage = not self._path.startswith(koDirSvc.userDataDir)
+                            if displayMessage:
+                                wwatch = components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(components.interfaces.nsIWindowWatcher)
+                                prompt = wwatch.getNewPrompter(wwatch.activeWindow)
+                                prompt.alert("Project Upgrade Warning", msg)
                             log.warn(msg)
                             self.lastErrorSvc.setLastError(0, msg)
 
                             shutil = components.classes["@activestate.com/koShUtil;1"].\
                                         getService(components.interfaces.koIShUtil)
                             shutil.copyfile(fname, bakFile)
+                            if canBeCulled:
+                                koTBMiscSvc = UnwrapObject(components.classes["@activestate.com/koToolBox2Service;1"].getService(components.interfaces.koIToolBox2Service))
+                                koTBMiscSvc.extractToolboxFromKPF_File(fname, os.path.splitext(basename)[0])
                         except Exception, e:
                             log.exception("Error '%s' creating backup of '%s'", e, bakFile)
                         self._attributes['kpf_version'] = KPF_VERSION
@@ -1998,9 +2031,42 @@ class koProject(koLiveFolderPart):
 
 
         self.set_isDirty(dirtyAtEnd)
+        
+        if canBeCulled:
+            self._cullTools()
+            # Need to do this, or Komodo will think the loaded contents
+            # are out of sync with the contents on disk.
+            self.save()
 
         dt = time.clock() - t1
         log.info("project.load\t%4.4f" % (dt))
+        
+    def _cullTools(self):
+        """ Remove any tools, and also folders that are emptied after all
+        tools are removed, as part of moving to Komodo 6, project version 5.
+        """
+        for child in self.getChildren():
+            self._cullToolOrContainer(self, child)
+    
+    _toolNames = ('macro', 'snippet', 'command', 'URL',
+                  'DirectoryShortcut', 'menu', 'toolbar', 'template')
+    def _cullToolOrContainer(self, parent, child):
+        removedItem = False
+        if child.type in self._toolNames:
+            parent.removeChild(child)
+            removedItem = True
+            self.set_isDirty(True)
+        elif child.type == 'folder':
+            removedGrandchild = False
+            for grandchild in child.getChildren()[:]: # copy the list, as we're deleting as we iterate
+                # Evaluate the function first for the side-effects
+                removedGrandchild = (self._cullToolOrContainer(child, grandchild)
+                                     or removedGrandchild)
+            if removedGrandchild and not child.getChildren():
+                # deleted all the kids, so delete self as well.
+                parent.removeChild(child)
+                removedItem = True
+        return removedItem
 
     def validateParts(self):
         myparts = [p for p in idmap.values() if p._project is self]

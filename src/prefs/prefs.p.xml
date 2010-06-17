@@ -269,6 +269,7 @@
  '*.json': 'JavaScript',
  '*.jsm': 'JavaScript',
  '*.kix': 'Kix',
+ '*.komodoproject: 'XML',
  '*.kpf': 'XML',
  '*.ksf': 'Python',
  '*.lis': 'Lisp',
