@@ -52,7 +52,6 @@ if (typeof(ko.abbrev)=='undefined') {
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/library.properties");
-var name_splitter = /\W+/;
 
 /**
  * Expands the abbreviation, if any, at the current cursor position.
