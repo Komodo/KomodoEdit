@@ -6,23 +6,52 @@
 #  - Todd Whiteman
 #
 
-import os
-import sys
+import re
 import urllib
-import htmllib
-import textwrap
+import htmlentitydefs
 from os.path import exists, join
 from pprint import pprint, pformat
-from optparse import OptionParser
 from hashlib import md5
 
 from BeautifulSoup import BeautifulSoup, NavigableString
 
-def unescape(s):
-    p = htmllib.HTMLParser(None)
-    p.save_bgn()
-    p.feed(s)
-    return p.save_end()
+def unescape(text):
+    """Removes HTML or XML character references 
+       and entities from a text string.
+    from Fredrik Lundh
+    http://effbot.org/zone/re-sub.htm#unescape-html
+    """
+    text = text.replace("\r\n", "\n")
+    text = text.replace("&nbsp;", " ")
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # character reference
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError:
+                print "erreur de valeur"
+                pass
+        else:
+           # named entity
+            try:
+                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+            except KeyError:
+                print "keyerror"
+                pass
+        return text # leave as is
+    text = re.sub("&#?\w+;", fixup, text)
+    # Reduce multiple spaces.
+    text = re.sub(r"\s(\s)+", " ", text)
+    text = text.strip()
+    # Remove some other non ascii characters.
+    text = text.replace("\xab".decode("iso_8859-1"), "<")
+    text = text.replace("\xbb".decode("iso_8859-1"), ">")
+    text = text.decode('ascii')
+    return text
 
 def getHtmlForUrl(url):
     urlhash = md5(url).hexdigest()
@@ -61,7 +90,7 @@ def parseVersion(tag):
         if not text:
             continue
         if 'Firefox' in text:
-            return text
+            return text.encode('ascii')
 
 def parseValues(tag):
     values = {}
@@ -243,6 +272,17 @@ def main(filename):
     f.write("CSS_MOZ_DATA = {\n")
     for property_name in sorted(properties):
         data = properties.get(property_name)
+
+        # Convert to ascii strings.
+        description = data.get("description")
+        if description:
+            data["description"] = str(description)
+        values = data.get("values")
+        if values:
+            for key, value in values.items():
+                values.pop(key)
+                values[key.encode("ascii")] = value.encode("ascii")
+
         #values = sorted(data.get("values", {}).keys())
         #values = [x for x in values if not x.startswith("<")]
         f.write("""
