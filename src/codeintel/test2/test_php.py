@@ -2552,6 +2552,17 @@ EOD;
         self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
                 [("variable", 'see')])
 
+    @tag("bug85389")
+    def test_catch_exception(self):
+        content, positions = unmark_text(php_markup(dedent(r"""
+            try {
+            } catch ( Exception $e ) {
+                $e-><1>
+            }
+        """)))
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+            [("function", "getMessage"), ("function", "getLine")])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
