@@ -164,6 +164,7 @@
   <string id="phpDefaultInterpreter"/>
   <string id="phpConfigFile"/>
   <string id="phpCommentStyle">//,#</string>
+  <boolean id="phpLintWithINIFile">1</boolean>
 
   <!-- Additional  directories for Python, Perl, etc. These are
        stored as pathsep-separated local paths. -->
@@ -269,7 +270,7 @@
  '*.json': 'JavaScript',
  '*.jsm': 'JavaScript',
  '*.kix': 'Kix',
- '*.komodoproject: 'XML',
+ '*.komodoproject': 'XML',
  '*.kpf': 'XML',
  '*.ksf': 'Python',
  '*.lis': 'Lisp',
