@@ -379,7 +379,12 @@ class SiloedPythonVersion(black.configure.std.Datum):
             pythonExe = join(siloedPythonInstallDir, "Python.framework",
                              "Versions", "*", "bin",
                              siloedPythonExeName)
-            pythonExe = glob.glob(pythonExe)[0]
+            try:
+                pythonExe = glob.glob(pythonExe)[0]
+            except IndexError, ex:
+                raise black.configure.ConfigureError(
+                    "Could not determine %s: `%s' doesn't exist" % (
+                    self.desc, pythonExe))
         else:
             pythonExe = join(siloedPythonInstallDir, "bin",
                              siloedPythonExeName)
