@@ -803,6 +803,7 @@ configuration = {
     "withPlaces": WithPlaces(),
     "withCasper": WithCasper(),
     "withJSLib": WithJSLib(),
+    "withDocs": WithDocs(),
     "withDocJarring": WithDocJarring(),
     "withKomodoCix": WithKomodoCix(),
     "xulrunner": XULRunnerApp(), # xulrunner based builds

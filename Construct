@@ -60,7 +60,7 @@ my @toExport = (
     'withCrypto',               # should build include crypto code
     'withCasper',
     'withJSLib',
-    'withDocJarring',
+    'withDocs', 'withDocJarring',
     'withKomodoCix',
     'withPlaces',
     'xulrunner', # xulrunner based builds

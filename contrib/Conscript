@@ -59,6 +59,7 @@ Import(
     'readmeDir',
     'universal',
     'komodoDevDir',
+    'withDocs',
     'withKomodoCix',
 );
 
@@ -411,7 +412,7 @@ $consLocal->Install("$supportDir/html", $exeName);
 #---- komododoc
 # The Komodo documentation project.
 
-{
+if ($withDocs) {
     my @opts = (
         "--filter", "edit,".$productType."only",
         "--lang", "en-US",

@@ -121,7 +121,7 @@ def _capture_stdout(argv, ignore_retval=False):
         stdout = o.read()
         retval = o.close()
     if retval and not ignore_retval:
-        raise TestError("error running '%s'" % ' '.join(argv))
+        raise RuntimeError("error running '%s'" % ' '.join(argv))
     return stdout
 
 
@@ -1450,6 +1450,25 @@ class WithJSLib(black.configure.BooleanDatum):
     def _Determine_Do(self):
         self.applicable = 1
         self.value = black.configure.items["withCasper"].Get()
+        self.determined = 1
+
+class WithDocs(black.configure.BooleanDatum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "withDocs",
+            desc="include Komodo's docs",
+            acceptedOptions=("", ["with-docs", "without-docs"]))
+    def _Determine_Do(self):
+        self.applicable = 1
+        configTokens = black.configure.items["configTokens"].Get()
+        productType = black.configure.items["productType"].Get()
+        self.value = True  # DO include by default
+        for opt, optarg in self.chosenOptions:
+            if opt == "--with-docs":
+                if not self.value: configTokens.append("docs")
+                self.value = True
+            elif opt == "--without-docs":
+                if self.value: configTokens.append("nodocjar")
+                self.value = False
         self.determined = 1
 
 class WithDocJarring(black.configure.BooleanDatum):
