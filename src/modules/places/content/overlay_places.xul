@@ -398,7 +398,7 @@
               onkeypress="ko.places.viewMgr.onTreeKeyPress(event);"
               onfocus="ko.places.viewMgr.focused = true;"
               onblur="ko.places.viewMgr.focused = false;"
-              context="places-file-popup"
+              context="places-files-popup"
               hidecolumnpicker="true"
               class="placestree"
               seltype="single">
