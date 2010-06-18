@@ -1866,7 +1866,7 @@ def _PackageKomodoPAD(cfg):
 
     # The icon file.
     _cp(join("src", "main", "komodo32.%s.png" % cfg.productType),
-        join(output_dir, "komodoedit_orb_32.png" % cfg.productType))
+        join(output_dir, "komodoedit_orb_32.png"))
 
 
 def _PackageKomodoDocs(cfg):
