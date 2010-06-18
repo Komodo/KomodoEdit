@@ -27,6 +27,7 @@ def unescape(text):
     http://effbot.org/zone/re-sub.htm#unescape-html
     """
     text = text.replace("\r\n", "\n")
+    text = text.replace("&nbsp;", " ")
     def fixup(m):
         text = m.group(0)
         if text[:2] == "&#":
@@ -47,7 +48,29 @@ def unescape(text):
                 print "keyerror"
                 pass
         return text # leave as is
-    return re.sub("&#?\w+;", fixup, text)
+    text = re.sub("&#?\w+;", fixup, text)
+    # Reduce multiple spaces.
+    text = re.sub(r"\s(\s)+", " ", text)
+    text = text.strip()
+    # Remove some other non ascii characters.
+    text = text.replace("\xa0".decode("iso_8859-1"), " ")
+    text = text.replace("\xab".decode("iso_8859-1"), "<")
+    text = text.replace("\xac".decode("iso_8859-1"), "!") # not sign
+    text = text.replace("\xad".decode("iso_8859-1"), "") # soft hyphen
+    text = text.replace("\xb0".decode("iso_8859-1"), "") # degree symbol
+    text = text.replace("\xbb".decode("iso_8859-1"), ">")
+    text = text.replace(u'\u2014', "-") # mdash
+    text = text.replace(u'\u2018', "'")
+    text = text.replace(u'\u2019', "'")
+    text = text.replace(u'\u201c', "\"") # left double quotation mark
+    text = text.replace(u'\u201d', "\"") # right double quotation mark
+    text = text.replace(u'\u2026', "...") # horizontal ellipsis
+    text = text.replace(u'\u2208', "?")
+    text = text.replace(u'\u2260', "!=")
+    text = text.replace(u'\u2264', "<=")
+    text = text.replace(u'\u2265', ">=")
+    text = text.encode('ascii', 'replace')
+    return text
 
 def getNextTagWithName(tag, name):
     tag = tag.nextSibling
@@ -138,7 +161,6 @@ def parseExtraData(property_name, properties, page_info):
             break
         elif tag.name in ('h1', 'h2', 'h3'):
             break
-    description = re.sub(r"\s(\s)+", " ", description)
     property_details["description"] = description
     property_details['values'] = values
 
