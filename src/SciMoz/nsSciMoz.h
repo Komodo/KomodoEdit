@@ -309,6 +309,9 @@ public:
 
     void PlatformNew(void);
 
+    // Notify that the plugin is gone.
+    void NotifyPluginWasDestroyed(void);
+
     // Destroy is always called as we destruct.
     nsresult PlatformDestroy(void);
 

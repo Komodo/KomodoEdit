@@ -191,6 +191,10 @@ nsresult SciMoz::PlatformDestroy(void) {
             ::DestroyWindow(wParkingLot);
             wParkingLot = NULL;
     }
+    wEditor = NULL;
+    fWindow = NULL;
+    portMain = NULL;
+    wMain = NULL;
 #ifdef SCIMOZ_TIMELINE
     if (gTimelineEnabled)
         NS_TimelineMark("SciMoz: <%s@0x%p> object dieing", NS_ConvertUTF16toUTF8(name).get());

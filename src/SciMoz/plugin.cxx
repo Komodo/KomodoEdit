@@ -221,6 +221,7 @@ void nsPluginInstance::shut()
   // When the mScriptablePeer is finally released, the mScriptablePeer will
   // be the one to cleanup/destroy the plugin instance.
   if (mScriptablePeer) {
+    mScriptablePeer->NotifyPluginWasDestroyed();
 #ifdef SCIDEBUG_REFS
     int rc = mScriptablePeer->getRefCount() - 1;
     if (rc > 0) {

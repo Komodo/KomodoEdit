@@ -185,16 +185,17 @@ nsresult SciMoz::PlatformDestroy(void) {
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::PlatformDestroy wEditor %p scintilla %p\n", wEditor, scintilla);
 #endif
-	PlatformResetWindow();
-	// This must have reset out window.
-	NS_PRECONDITION(portMain==0, "Should not be possible to destruct with a window!");
-	
-	OSStatus err;
-	err = HIViewRemoveFromSuperview(wEditor);
-	delete scintilla;
-	scintilla = NULL;
-	delete wEditor;
-	wEditor = NULL;
+	if (scintilla) {
+            delete scintilla;
+            scintilla = NULL;
+        }
+	if (wEditor) {
+            PlatformResetWindow();
+            // This must have reset out window.
+            NS_PRECONDITION(portMain==0, "Should not be possible to destruct with a window!");
+            delete wEditor;
+            wEditor = NULL;
+        }
 	fPlatform.port = NULL;
 	fPlatform.container = NULL;
 	isClosed = 1;

@@ -162,6 +162,15 @@ SciMoz::~SciMoz()
 }
 
 
+void SciMoz::NotifyPluginWasDestroyed()
+{
+#ifdef SCIMOZ_DEBUG
+    fprintf(stderr, "SciMoz::NotifyPluginWasDestroyed\n");
+#endif
+    /* Remove any scintilla references - it's now dead. */
+    PlatformDestroy();
+}
+
 // So we can debug reference issues we will implement our own addref/release
 // but we could use the macros if we wanted to:
 
