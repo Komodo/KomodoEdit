@@ -368,6 +368,9 @@ class KoToolbox2HTreeView(TreeView):
         finally:
             self._tree.endUpdateBatch()
 
+    def copyLocalFolder(self, srcPath, targetDirPath):
+        fileutils.copyLocalFolder(srcPath, targetDirPath)
+
     def pasteItemsIntoTarget(self, targetIndex, paths, copying):
         targetTool = self.getTool(targetIndex)
         if not targetTool.isContainer:
@@ -387,6 +390,10 @@ class KoToolbox2HTreeView(TreeView):
                     #TODO: Bundle all the problems into one string that gets raised back.
                     log.debug("Path %s doesn't exist", path)
                 elif os.path.isdir(path):
+                    if targetPath.startswith(path):
+                        log.error("Refuse to copy path %s into one of its descendants (%s)",
+                                  path, targetPath)
+                        continue
                     try:
                         fileutils.copyLocalFolder(path, targetPath)
                     except:
@@ -408,6 +415,10 @@ class KoToolbox2HTreeView(TreeView):
                 log.debug("Path %s doesn't exist", path)
                 continue
             if os.path.isdir(path):
+                if targetPath.startswith(path):
+                    log.error("Refuse to move path %s into one of its descendants (%s)",
+                              path, targetPath)
+                    continue
                 try:
                     fileutils.copyLocalFolder(path, targetPath)
                     shutil.rmtree(path)
