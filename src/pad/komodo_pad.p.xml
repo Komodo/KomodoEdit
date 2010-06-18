@@ -113,7 +113,7 @@
 			<Application_Order_URL>http://www.activestate.com/komodo-edit</Application_Order_URL>
 			<Application_Screenshot_URL>http://www.activestate.com/padfiles/images/$PAD_SCREENSHOT_BASENAME</Application_Screenshot_URL>
 			<Application_Icon_URL>http://www.activestate.com/padfiles/images/$PAD_ICON_BASENAME</Application_Icon_URL>
-			<Application_XML_File_URL>http://www.activestate.com/padfiles/$PAD_PAD_BASENAME</Application_XML_File_URL>
+			<Application_XML_File_URL>http://www.activestate.com/padfiles/komodo_edit/$PAD_PAD_BASENAME</Application_XML_File_URL>
 		</Application_URLs>
 		<Download_URLs>
 			<Primary_Download_URL>http://downloads.activestate.com/Komodo/releases/$PAD_RELEASES_VER/$PAD_INSTALLER_PKG_NAME</Primary_Download_URL>
