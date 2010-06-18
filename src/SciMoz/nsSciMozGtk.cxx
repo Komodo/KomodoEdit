@@ -151,7 +151,11 @@ nsresult SciMoz::PlatformDestroy(void) {
 }
 
 void SciMoz::NotifySignal(GtkWidget *, gint /*wParam*/, gpointer lParam, SciMoz *scimoz) {
-	scimoz->Notify(reinterpret_cast<long>(lParam));
+        if (scimoz->isClosed) {
+            fprintf(stderr, "SciMoz is getting a GTK signal after being closed.\n");
+            return;
+        }
+        scimoz->Notify(reinterpret_cast<long>(lParam));
 }
 
 nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
