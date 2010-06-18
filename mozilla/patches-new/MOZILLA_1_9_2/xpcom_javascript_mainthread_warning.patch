@@ -1,0 +1,20 @@
+Index: mozilla/js/src/xpconnect/src/xpcwrappedjsclass.cpp
+--- js/src/xpconnect/src/xpcwrappedjsclass.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ js/src/xpconnect/src/xpcwrappedjsclass.cpp	Fri Jun 18 12:58:00 2010 -0700
+@@ -1361,12 +1361,16 @@
+     argc = paramCount -
+         (paramCount && XPT_PD_IS_RETVAL(info->params[paramCount-1].flags) ? 1 : 0);
+ 
+     if(!cx || !xpcc || !IsReflectable(methodIndex))
+         goto pre_call_clean_up;
+ 
++    if (!XPCPerThreadData::IsMainThread(cx)) {
++        fprintf(stderr, "\nWARNING: JavaScript method *not* called from main thread: %s!\n\n", name);
++    }
++
+     scriptEval.StartEvaluating(xpcWrappedJSErrorReporter);
+ 
+     xpcc->SetPendingResult(pending_result);
+     xpcc->SetException(nsnull);
+     ccx.GetThreadData()->SetException(nsnull);
+ 
