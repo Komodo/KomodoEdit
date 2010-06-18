@@ -45,6 +45,8 @@ import eollib
 import fileutils
 import koToolbox2
 from projectUtils import *
+import fileutils
+import shutil
 
 import logging
 
@@ -167,6 +169,8 @@ class KoToolbox2HTreeView(TreeView):
         _observerSvc.addObserver(self, 'toolbox-tree-changed', 0)
         _observerSvc.addObserver(self, 'tool-appearance-changed', 0)
         _observerSvc.addObserver(self, 'xpcom-shutdown', 0)
+        self.toolbox2Svc = components.classes["@activestate.com/koToolBox2Service;1"]\
+                .getService(components.interfaces.koIToolBox2Service)
 
         self._unfilteredRows = None
         self._toolsMgr = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].getService(components.interfaces.koIToolbox2ToolManager))
@@ -364,9 +368,6 @@ class KoToolbox2HTreeView(TreeView):
         finally:
             self._tree.endUpdateBatch()
 
-    def copyLocalFolder(self, srcPath, targetDirPath):
-        fileutils.copyLocalFolder(srcPath, targetDirPath)
-        
     def pasteItemsIntoTarget(self, targetIndex, paths, copying):
         targetTool = self.getTool(targetIndex)
         if not targetTool.isContainer:
@@ -378,79 +379,66 @@ class KoToolbox2HTreeView(TreeView):
             raise Exception("target %s (%d) isn't in the database" % (
                 targetPath, targetIndex
             ))
-        if not copying:
-            self._tree.beginUpdateBatch()
-        try:
+        if copying:
+            # Just copy the paths to the targetIndex, refresh the
+            # target and its children, and refresh the view
             for path in paths:
                 if not os.path.exists(path):
                     #TODO: Bundle all the problems into one string that gets raised back.
                     log.debug("Path %s doesn't exist", path)
-                if os.path.isdir(path):
-                    self._pasteContainerIntoTarget(targetId, targetPath, targetTool, path, copying)
+                elif os.path.isdir(path):
+                    try:
+                        fileutils.copyLocalFolder(path, targetPath)
+                    except:
+                        log.exception("fileutils.copyLocalFolder(src:%s to  targetPath:%s) failed", path, targetPath)
                 else:
-                    self._pasteItemIntoTarget(targetPath, targetTool, path, copying)
-                if path != paths[-1] and self._rows[targetIndex].path != targetPath:
-                    # We need to readjust the targetIndex, as something moved
-                    if copying:
-                        log.debug("pasteItemsIntoTarget: Unexpected: target moved while copying")
-                    if targetIndex == 0:
-                        log.debug("pasteItemsIntoTarget: Unexpected: targetIndex of 0 changed during a move with copying=%r", copying)
-                    else:
-                        if self._rows[targetIndex - 1].path == targetPath:
-                            targetIndex -= 1
-        finally:
-            if not copying:
-                self._tree.endUpdateBatch()
-        self.refreshFullView() #TODO: refresh only parent nodes
-        self._tree.ensureRowIsVisible(targetIndex)
-                
-    def _pasteItemIntoTarget(self, targetPath, targetTool, srcPath, copying):
-        # Only sanity check is for copying/moving into current location.
-        # Otherwise no check for leaves, like are we copying
-        # into an ancestor node (who cares), or is the target a child of the src
-        # -- that's impossible        
-        if targetPath == os.path.dirname(srcPath):
-            log.debug("Skipping a self copy of %s into %s", srcPath, targetPath)
+                    try:
+                        shutil.copy(path, targetPath)
+                    except:
+                        log.exception("Can't copy src:%s to  targetPath:%s", path, targetPath)
+            self.toolbox2Svc.reloadToolsDirectory(targetPath)
+            self.reloadToolsDirectoryView(targetIndex)
             return
-        newItem = self._toolsMgr.createToolFromExistingTool(targetPath, srcPath)
-        self.addNewItemToParent(targetTool, newItem)
-        if not copying:
-            self._removeItemByPath(srcPath)
-            
-    def _pasteContainerIntoTarget(self, targetId, targetPath, targetTool, srcPath, copying):
-        # Sanity checks:
-        # Don't paste an item into its child
-        #    Includes: don't paste an item onto itself.
-        if targetPath == os.path.dirname(srcPath):
-            log.debug("Skipping child copy of %s into %s", srcPath, targetPath)
-            return
-        #TODO: Support Menus and Toolbars!
-        newItem = self._toolsMgr.createToolFromType('folder')
-        data = {'name':os.path.basename(srcPath)}
-        newItem._finishUpdatingSelf(data)
-        self.addNewItemToParent(targetTool, newItem)
 
-        # Now we're copying the source's children into the newly created target child
-        newTargetPath = join(targetPath, os.path.basename(srcPath))
-        newTargetId = self.toolbox_db.get_id_from_path(newTargetPath)
-        if newTargetId is None:
-            raise Exception("new target %s isn't in the database" % (
-                newTargetPath,
-            ))
-        newTargetTool = self._toolsMgr.getToolById(newTargetId)
-        for childFile in os.listdir(srcPath):
-            newSrcPath = join(srcPath, childFile)
-            if os.path.isdir(newSrcPath):
-                self._pasteContainerIntoTarget(newTargetId, newTargetPath, newTargetTool, newSrcPath, copying)
+        parentIndicesToUpdate = [targetIndex]
+        # Moving is harder, because we have to track the indices we've dropped.
+        for path in paths:
+            if not os.path.exists(path):
+                #TODO: Bundle all the problems into one string that gets raised back.
+                log.debug("Path %s doesn't exist", path)
+                continue
+            if os.path.isdir(path):
+                try:
+                    fileutils.copyLocalFolder(path, targetPath)
+                    shutil.rmtree(path)
+                except:
+                    log.exception("fileutils.copyLocalFolder(src:%s to  targetPath:%s) failed", path, targetPath)
+                    continue
             else:
-                self._pasteItemIntoTarget(newTargetPath, newTargetTool, newSrcPath, copying)
-        if not copying:
-            self._removeItemByPath(srcPath)
-
-    def _removeItemByPath(self, path):
-        index = self.getIndexByPath(path)
-        self.deleteToolAt(index, path)
-
+                try:
+                    finalTargetPath = join(targetPath, os.path.basename(path))
+                    shutil.move(path, finalTargetPath)
+                except:
+                    log.exception("shutil.move(src:%s to finalTargetPath:%s) failed", path, finalTargetPath)
+                    continue
+            index = self.getIndexByPath(path)
+            parentIndex = self.getParentIndex(index)
+            if parentIndex not in parentIndicesToUpdate:
+                parentIndicesToUpdate.append(parentIndex)
+                
+        self._tree.beginUpdateBatch()
+        try:
+            parentIndicesToUpdate.sort(reverse=True)
+            for parentIndex in parentIndicesToUpdate:
+                parentPath = self.getPathFromIndex(parentIndex)
+                self.toolbox2Svc.reloadToolsDirectory(parentPath)
+                self.reloadToolsDirectoryView(parentIndex)
+        finally:
+                self._tree.endUpdateBatch()
+        #self.refreshFullView() #TODO: refresh only parentIndicesToUpdate
+        finalTargetIndex = self.getIndexByPath(targetPath)
+        self._tree.ensureRowIsVisible(finalTargetIndex)
+                
     def reloadToolsDirectoryView(self, index):
         node = self._rows[index]
         if node.isContainer:

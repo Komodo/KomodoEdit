@@ -1315,9 +1315,6 @@ class ToolboxLoader(object):
         parent_id = self.db.get_id_from_path(dirname)
         if self.dbTimestamp:
             existing_child_ids = dict([(x, 1) for x in self.db.getChildIDs(parent_id)])
-        #TODO: Delete any unhandled IDs at end
-        #if notifyNow:
-            # self._notifyDeletion(data)
         for fname in fnames:
             self._testAndAddItem(notifyNow, dirname, fname, parent_id,
                                  existing_child_ids)
@@ -1357,6 +1354,11 @@ class ToolboxLoader(object):
                     else:
                         self.db.insertMenuItem(child_id, position)
                         position += 1
+        for id in existing_child_ids:
+            if notifyNow:
+                tool = self._toolsSvc.getToolById(id)
+                tool.removed()
+            self.db.deleteItem(id)
 
     def loadToolboxDirectory(self, toolboxName, toolboxDir, targetDirectory):
         if os.path.basename(toolboxDir) == targetDirectory:
