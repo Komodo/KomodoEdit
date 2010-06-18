@@ -80,6 +80,17 @@ g_pretty_platname_from_platname = {
     "linux-libcpp6-x86_64": "Linux/x86_64 libstdc++6",
 }
 
+g_simple_platform_from_platname = {
+    "win32-x86": "windows",
+    "macosx": "mac",
+    "macosx-x86": "mac",
+    "macosx-powerpc": "mac",
+    "linux-x86": "linux",
+    "linux-libcpp5-x86": "linux",
+    "linux-libcpp6-x86": "linux",
+    "linux-libcpp6-x86_64": "linux",
+}
+
 
 class GenPadError(Exception):
     pass
@@ -137,12 +148,14 @@ def genpad(license_text_path=None, output_dir=None):
         "$PAD_PROGRAM_NAME": "Komodo %s (%s)" % (
             bkconfig.prettyProductType, pretty_platname),
         "$PAD_VERSION": bkconfig.komodoVersion,
+        "$PAD_MAJOR_VERSION": bkconfig.komodoShortVersion.split(".")[0],
         "$PAD_RELEASE_YEAR": today.year,
         "$PAD_RELEASE_MONTH": "%02d" % today.month,
         "$PAD_RELEASE_DAY": "%02d" % today.day,
         "$PAD_RELEASE_STATUS": release_status,
         "$PAD_OS_SUPPORT": os_support,
         "$PAD_SYSREQ": g_sysreqs_from_os[pi.os],
+        "$PAD_SIMPLE_PLATFORM_NAME": g_simple_platform_from_platname[pi.os],
         "$PAD_SIZE_BYTES": size_bytes,
         "$PAD_SIZE_K": int(float(size_bytes) / 1024.0),
         "$PAD_SIZE_MB": "%.1f" % (float(size_bytes) / 1024.0 / 1024.0),
@@ -150,7 +163,7 @@ def genpad(license_text_path=None, output_dir=None):
         "$PAD_INSTALLER_PKG_NAME": basename(bkconfig.komodoInstallerPackage),
         "$PAD_PAD_BASENAME": pad_basename,
         "$PAD_SCREENSHOT_BASENAME": "komodo_%s_%s.png" % (bkconfig.productType, pi.os),
-        "$PAD_ICON_BASENAME": "komodo_%s_icon.png" % bkconfig.productType,
+        "$PAD_ICON_BASENAME": "komodoedit_orb_32.png",
     }
     if not license_text_path:
         log.error("no path given for license text (use `-L` option)")

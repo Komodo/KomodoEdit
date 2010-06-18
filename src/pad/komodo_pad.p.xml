@@ -15,11 +15,11 @@
 		<Country>Canada</Country>
 		<Company_WebSite_URL>http://www.activestate.com/</Company_WebSite_URL>
 		<Contact_Info>
-			<Author_First_Name>Sheila</Author_First_Name>
-			<Author_Last_Name>Rebellato</Author_Last_Name>
+			<Author_First_Name>Shannon</Author_First_Name>
+			<Author_Last_Name>Yelland</Author_Last_Name>
 			<Author_Email>release-updates@activestate.com</Author_Email>
-			<Contact_First_Name>Sheila</Contact_First_Name>
-			<Contact_Last_Name>Rebellato</Contact_Last_Name>
+			<Contact_First_Name>Shannon</Contact_First_Name>
+			<Contact_Last_Name>Yelland</Contact_Last_Name>
 			<Contact_Email>release-updates@activestate.com</Contact_Email>
 		</Contact_Info>
 		<Support_Info>
@@ -67,25 +67,53 @@
 	</Program_Info>
 	<Program_Descriptions>
 		<English>
-			<Keywords>Komodo, Komodo IDE, Komodo Edit, dynamic languages, PHP, Perl, Python, Ruby, CSS, HTML, JavaScript, XML, Tcl, Editor, Rails, IDE, ActiveState, Debugging, Ruby on Rails, Ajax, Multi-platform, Windows, Mac OS X, Linux</Keywords>
+			<Keywords>
+                            komodo edit, komodo editor, komodo, komodoedit, comodo editor,
+                            komodo edit $PAD_SIMPLE_PLATFORM_NAME, comodo edit, activestate editor,
+                            activestate komodo edit, activestate komodo edit $PAD_MAJOR_VERSION,
+                            code editor, komodo text editor, komodo free, free editor, open source editor,
+                            dynamic languages editor, open source dynamic website editors,
+                            perl editor, php editor, python editor, ruby editor, rails editor,
+                            tcl editor, scripting languages editor, komodo edit $PAD_MAJOR_VERSION,
+                            source code editor for $PAD_SIMPLE_PLATFORM_NAME
+                        </Keywords>
 			<Char_Desc_45>Free multi-platform, multi-language editor</Char_Desc_45>
-			<Char_Desc_80>Free multi-platform, multi-language editor for dynamic languages and Ajax tech.</Char_Desc_80>
-			<Char_Desc_250>Komodo Edit is a free, open source, multi-platform, multi-language editor for dynamic languages and Ajax technology.  Background syntax checking and syntax coloring catch errors immediately, while autocomplete and calltips guide you as you write.</Char_Desc_250>
-			<Char_Desc_450>Komodo Edit is a free, open source, multi-platform, multi-language editor for dynamic languages and Ajax technology, including Perl, PHP, Python, Ruby and Tcl; plus support for browser-side code including JavaScript, CSS, HTML and XML. Background syntax checking and syntax coloring catch errors immediately, while autocomplete and calltips guide you as you write. Available on Windows, Mac OS X and Linux.</Char_Desc_450>
-			<Char_Desc_2000>Komodo Edit is a free, open source, multi-platform, multi-language editor for dynamic languages and Ajax technology, including Perl, PHP, Python, Ruby and Tcl; plus support for browser-side code including JavaScript, CSS, HTML and XML.
-
-Background syntax checking and syntax coloring catch errors immediately, while autocomplete and calltips guide you as you write. Available on Windows, Mac OS X and Linux.  XPI extensions allow you to create your own plug-ins. XPI extension support provides the same capability as Firefox, with all standard Mozilla APIs based on XUL, XBL, and XPCOM, plus our own for Python and JavaScript. 
-
-Other features include Vi emulation, Emacs keybindings, code folding and code snippets.</Char_Desc_2000>
+			<Char_Desc_80>Komodo Edit: Free multi-platform, multi-language editor: Perl, Python, Tcl</Char_Desc_80>
+			<Char_Desc_250>
+                            Komodo Edit from ActiveState: a free, multi-platform, multi-language editor
+                            (PHP, Python, Ruby, Perl, Tcl, JavaScript plus more). With background syntax
+                            checking and coloring catch errors immediately, while autocomplete and calltips
+                            guide you.
+                        </Char_Desc_250>
+			<Char_Desc_450>
+                            Komodo Edit from ActiveState is a free, multi-platform, multi-language editor
+                            (PHP, Python, Ruby, Perl and Tcl, JavaScript, CSS, HTML and template languages
+                            like RHTML, Template-Toolkit, HTML-Smarty and Django). Background syntax
+                            checking and syntax coloring catch errors immediately, while autocomplete and
+                            calltips guide you as you write.
+                        </Char_Desc_450>
+			<Char_Desc_2000>
+                            Komodo Edit from ActiveState is a free, open source, multi-platform,
+                            multi-language editor (PHP, Python, Ruby, Perl and Tcl, JavaScript, CSS, HTML
+                            and template languages like RHTML, Template-Toolkit, HTML-Smarty and Django). 
+                            Background syntax checking and syntax coloring catch errors immediately, while
+                            autocomplete and calltips guide you as you write.
+                            Available on Windows, Mac OS X and Linux.  XPI extensions allow you to create
+                            your own plug-ins. XPI extension support provides the same capability as
+                            Firefox, with all standard Mozilla APIs based on XUL, XBL, and XPCOM, plus our
+                            own for Python and JavaScript. 
+                            Other features include Vi emulation, Emacs keybindings, code folding and code
+                            snippets.
+                        </Char_Desc_2000>
 		</English>
 	</Program_Descriptions>
 	<Web_Info>
 		<Application_URLs>
-			<Application_Info_URL>http://www.activestate.com/Products/komodo_edit/</Application_Info_URL>
-			<Application_Order_URL>http://www.activestate.com/store/komodo_edit/</Application_Order_URL>
-			<Application_Screenshot_URL>http://www.activestate.com/padfiles/komodo_edit/$PAD_SCREENSHOT_BASENAME</Application_Screenshot_URL>
-			<Application_Icon_URL>http://www.activestate.com/padfiles/komodo_edit/$PAD_ICON_BASENAME</Application_Icon_URL>
-			<Application_XML_File_URL>http://www.activestate.com/padfiles/komodo_edit/$PAD_PAD_BASENAME</Application_XML_File_URL>
+			<Application_Info_URL>http://www.activestate.com/komodo-edit</Application_Info_URL>
+			<Application_Order_URL>http://www.activestate.com/komodo-edit</Application_Order_URL>
+			<Application_Screenshot_URL>http://www.activestate.com/padfiles/images/$PAD_SCREENSHOT_BASENAME</Application_Screenshot_URL>
+			<Application_Icon_URL>http://www.activestate.com/padfiles/images/$PAD_ICON_BASENAME</Application_Icon_URL>
+			<Application_XML_File_URL>http://www.activestate.com/padfiles/$PAD_PAD_BASENAME</Application_XML_File_URL>
 		</Application_URLs>
 		<Download_URLs>
 			<Primary_Download_URL>http://downloads.activestate.com/Komodo/releases/$PAD_RELEASES_VER/$PAD_INSTALLER_PKG_NAME</Primary_Download_URL>

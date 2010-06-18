@@ -1845,6 +1845,7 @@ def PackageKomodo(cfg, argv):
             raise Error("error packaging '%s': retval=%r" % (package, retval))
 
 
+
 def _PackageKomodoPAD(cfg):
     genpad_path = join("src", "pad", "genpad.py")
     output_dir = join(cfg.packagesAbsDir, "internal", "pad",
@@ -1865,7 +1866,7 @@ def _PackageKomodoPAD(cfg):
 
     # The icon file.
     _cp(join("src", "main", "komodo32.%s.png" % cfg.productType),
-        join(output_dir, "komodo_%s_icon.png" % cfg.productType))
+        join(output_dir, "komodoedit_orb_32.png" % cfg.productType))
 
 
 def _PackageKomodoDocs(cfg):
