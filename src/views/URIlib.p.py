@@ -1064,10 +1064,15 @@ class projectURI2_Handler(projectURIHandler):
         try:
             if self.part and self._mode and self._mode[0] == 'w':
                 val = self._file.getvalue()
-                if val != self.part.value:
+                origVal = self.part.value
+                if val != origVal:
                     tool = self.getMacroTool()
                     tool.value = val
-                    tool.save() # updates filesystem tool & DB
+                    try:
+                        tool.save() # updates filesystem tool & DB
+                    except:
+                        tool.value = origVal
+                        raise
         finally:
             try:
                 self._file.close()
