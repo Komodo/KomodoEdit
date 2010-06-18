@@ -80,15 +80,10 @@ g_pretty_platname_from_platname = {
     "linux-libcpp6-x86_64": "Linux/x86_64 libstdc++6",
 }
 
-g_simple_platform_from_platname = {
-    "win32-x86": "windows",
+g_simple_platform_name_from_os = {
+    "win32": "windows",
     "macosx": "mac",
-    "macosx-x86": "mac",
-    "macosx-powerpc": "mac",
-    "linux-x86": "linux",
-    "linux-libcpp5-x86": "linux",
-    "linux-libcpp6-x86": "linux",
-    "linux-libcpp6-x86_64": "linux",
+    "linux": "linux",
 }
 
 
@@ -155,7 +150,7 @@ def genpad(license_text_path=None, output_dir=None):
         "$PAD_RELEASE_STATUS": release_status,
         "$PAD_OS_SUPPORT": os_support,
         "$PAD_SYSREQ": g_sysreqs_from_os[pi.os],
-        "$PAD_SIMPLE_PLATFORM_NAME": g_simple_platform_from_platname[pi.os],
+        "$PAD_SIMPLE_PLATFORM_NAME": g_simple_platform_name_from_os[pi.os],
         "$PAD_SIZE_BYTES": size_bytes,
         "$PAD_SIZE_K": int(float(size_bytes) / 1024.0),
         "$PAD_SIZE_MB": "%.1f" % (float(size_bytes) / 1024.0 / 1024.0),
