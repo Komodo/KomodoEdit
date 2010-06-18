@@ -788,7 +788,7 @@ class Database(object):
         #log.debug("Look for abbrev %s in subnames %s", abbrev, subnames)
         condition_part = ['cd2.name like ?'] * len(subnames)
         condition = ' or '.join(condition_part)
-        stmt = """select cd3.path_id, cd3.name as cd3name, cd2.name
+        stmt = """select cd3.path_id, cd3.name as cd3name, cd2.name, cd3.type
                 from hierarchy as h2, hierarchy as h1,
                      common_details as cd3, common_details as cd2, common_details as cd1
                 where cd1.name = ? and cd1.type = ?
@@ -796,17 +796,34 @@ class Database(object):
                   and h2.parent_path_id = h1.path_id
                   and h2.parent_path_id = cd2.path_id
                   and cd2.type = ? and (%s)
-                  and cd3.path_id = h2.path_id and cd3.type = ? and cd3.name like ?
+                  and cd3.path_id = h2.path_id and ((cd3.type = ? and cd3.name like ?)
+                                                     or cd3.type = ?)
                   """ % condition
-        test_values = ["Abbreviations", "folder", "folder"] + subnames + ["snippet", abbrev]
+        test_values = ["Abbreviations", "folder", "folder"] + subnames + ["snippet", abbrev, "folder"]
         #log.debug("stmt:%s, test_values:%s", stmt, test_values)
+        matches = []
+        folder_matches = []
         with self.connect() as cu:
             cu.execute(stmt, test_values)
-            matches = cu.fetchall()
-        if len(matches) == 0:
-            #log.debug("no matches")
-            return None
-        elif len(matches) == 1:
+            rows = cu.fetchall()
+            if len(rows) == 0:
+                #log.debug("no matches")
+                return None
+            for row in rows:
+                if row[3] == 'folder':
+                    folder_matches.append(row)
+                else:
+                    matches.append(row)
+            if len(matches) == 0:
+                # First make sure the snippet exists somewhere
+                stmt = """select count(*) from common_details
+                          where type = ? and name like ?"""
+                cu.execute(stmt, ('snippet', abbrev))
+                if not cu.fetchone()[0]:
+                    return
+                # Then look in subfolders for the snippet
+                return self._getAbbreviationMatchInTree(folder_matches, abbrev, cu)
+        if len(matches) == 1:
             #log.debug("exactly 1 match: %s", matches[0][0])
             return matches[0][0]
         # Favor case-sensitive matches over non-general-folder matches.
@@ -821,6 +838,36 @@ class Database(object):
             #log.debug("Got %d nonGeneralMatches, returning %d (%s)", len(nonGeneralMatches), nonGeneralMatches[0][0], nonGeneralMatches[0][1])
             return nonGeneralMatches[0][0]
         return matches[0][0]
+        
+    def _getAbbreviationMatchInTree(self, folder_matches, abbrev, cu):
+        # Search through all Abbreviations/<lang>/<folder>
+        # looking for abbrev.  First one wins, regardless of whether it's in
+        # lang or General, and whether case matches or not.
+        
+        """ select common_details.path_id, common_details.name,  common_details.type
+            from hierarchy, common_details
+            where (hierarchy.parent_path_id = <id1> or
+                   hierarchy.parent_path_id = <id2>...)
+                  and common_details.path_id = hierarchy.path_id
+                  and ((common_details.type = 'snippet' and common_details.name like '<abbrev>')
+                        or common_details.type ='folder')
+        """
+        condition = ' or '.join(['hierarchy.parent_path_id = ?'] * len(folder_matches))
+        stmt = """select common_details.path_id, common_details.name, common_details.type
+                from hierarchy, common_details
+                where (%s)
+                      and common_details.path_id = hierarchy.path_id
+                      and ((common_details.type = ? and common_details.name like ?)
+                            or common_details.type = ?)""" % (condition,)
+        test_values = [f[0] for f in folder_matches] + ['snippet', abbrev, 'folder']
+        cu.execute(stmt, test_values)
+        child_rows = cu.fetchall()
+        if not child_rows:
+            return
+        for child_row in child_rows:
+            if child_row[2] == 'snippet':
+                return child_row[0]
+        return self._getAbbreviationMatchInTree(child_rows, abbrev, cu)
 
     def getIDsByType(self, nodeType, rootToolboxPath):
         with self.connect() as cu:
