@@ -322,8 +322,11 @@ this.importFilesFromFileSystem = function(event) {
     var defaultDirectory = view.getPathFromIndex(index);
     var defaultFilename = null;
     var title = "Select file(s) to import into the toolbox";
+    var defaultFilterName = "Komodo Tool";
+    var filterNames = [defaultFilterName, "All"]
     var paths = ko.filepicker.openFiles(defaultDirectory, defaultFilename,
-                                        title);
+                                        title,
+                                        defaultFilterName, filterNames);
     if (!paths) {
         return;
     }
@@ -786,11 +789,14 @@ this._checkDrag = function(event, tree) {
 };
 
 this._checkDragSource = function(event, tree) {
+    var index = this._currentRow(event, tree);
     if (!this._dragIndices.length) {
+        if (event.dataTransfer && this.manager.view.isContainer(index)) {
+            return true;
+        }
         //dump("not dragging anything\n");
         return false;
     }
-    var index = this._currentRow(event, tree);
     if (this._dragIndices.indexOf(index) != -1) {
         //dump("can't drag an item to itself\n");
         return false;
@@ -836,11 +842,27 @@ this.doDragOver = function(event, tree) {
 };
 
 this.doDrop = function(event, tree) {
+    var index = this._currentRow(event, this.manager.widgets.tree);
     if (!this._dragSources.length) {
+        try {
+            var koDropDataList = ko.dragdrop.unpackDropData(event.dataTransfer);
+            if (koDropDataList.length) {
+                if (index == -1) {
+                    index = 0;
+                }
+                this._handleDroppedURLs(index, koDropDataList);
+                event.cancelBubble = true;
+                event.stopPropagation();
+                event.preventDefault();
+                return true;
+            }
+        } catch(ex) {
+            alert("toolbox2_command.js: toDrop: " + ex);
+            this.log.exception("ko.toolbox2.doDrop: " + ex);
+        }
         //dump("onDrop: no source indices to drop\n");
         return false;
     }
-    var index = this._currentRow(event, this.manager.widgets.tree);
     try {
         var paths = this._dragSources;
         var loadedMacroURIs = this.copying ? [] : this._getLoadedMacros(paths);
@@ -854,6 +876,46 @@ this.doDrop = function(event, tree) {
     this._dragSources = [];
     this._dragIndices = [];
     return true;
+};
+
+this._handleDroppedURLs = function(index, koDropDataList) {
+    var koDropData;
+    var targetDirectory = this.manager.view.getPathFromIndex(index);
+    var loadedSomething = false;
+    var url;
+    for (var i=0; i < koDropDataList.length; i++) {
+        koDropData = koDropDataList[i];
+        if (koDropData.isKpzURL) {
+            url = koDropData.value;
+            this._webPackageURL = url;
+            try {
+                this.manager.toolbox2Svc.importV5Package(targetDirectory, url);
+                loadedSomething = true;
+            } catch(ex) {
+                alert("toolbox2_command.js:importV5Package failed: " + ex);
+                this.log.exception("importV5Package failed: " + ex);
+            }
+        } else if (koDropData.isKomodoToolURL) {
+            url = koDropData.value;
+            try {
+                var path = ko.uriparse.URIToLocalPath(url);
+                if (!path) {
+                    this.log.error("Remote URIs not yet supported");
+                    continue;
+                }
+                this.manager.toolbox2Svc.importFiles(targetDirectory, [path], 1);
+            } catch(ex) {
+                alert("toolbox2_command.js:importFiles failed: " + ex);
+                this.log.exception("importFiles failed: " + ex);
+            }
+        } else {
+            // dump("something else\n");
+        }
+    }
+    if (loadedSomething) {
+        this.manager.view.reloadToolsDirectoryView(index);
+    }
+    return loadedSomething;
 };
 
 this.onTreeKeyPress = function(event) {

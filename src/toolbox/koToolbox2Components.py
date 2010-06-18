@@ -231,8 +231,8 @@ class KoToolBox2Service:
             koTarget = components.classes["@activestate.com/koFileEx;1"].\
                 createInstance(components.interfaces.koIFileEx)
             koTarget.path = kpzPath
-            koTarget.open('w')
-            koResource.open('r')
+            koTarget.open('wb')
+            koResource.open('rb')
             koTarget.write(koResource.read(-1))
             koResource.close()
             koTarget.close()
@@ -272,9 +272,18 @@ class KoToolBox2Service:
         finally:
             # Clean up
             if startedWithWebResource:
-                os.unlink(kpzPath)
-            shutil.rmtree(kpfDirToDelete)
-            os.unlink(kpfFile)
+                try:
+                    os.unlink(kpzPath)
+                except:
+                    log.exception("importV5Package: failed to delete %s", kpzPath)
+            try:
+                shutil.rmtree(kpfDirToDelete)
+            except:
+                log.exception("importV5Package: failed to rmtree %s", kpfDirToDelete)
+            try:
+                os.unlink(kpfFile)
+            except:
+                log.exception("importV5Package: failed to delete %s", kpfFile)
             
     def _extractPackage(self, file, dir):
         # From the project service, but extracts only the first kpf file it finds.

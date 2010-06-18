@@ -221,6 +221,12 @@ if (typeof(ko.dragdrop)=='undefined') {
         }
     );
 
+    KomodoDropData.prototype.__defineGetter__("isKomodoToolURL",
+        function KoDropData_get_isKomodoToolURL() {
+            return this.isURL && this.value.match(/\.komodotool$/i);
+        }
+    );
+
     KomodoDropData.prototype.__defineGetter__("isDebuggerURL",
         function KoDropData_get_isDebuggerURL() {
             return this.isURL && this.value.match(/^dbgp:\/\//);
