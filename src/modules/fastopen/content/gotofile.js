@@ -143,9 +143,7 @@ function handleQueryKeyPress(event) {
 }
 
 function findFiles(query) {
-    if (_gIgnoreNextFindFiles) {
-        _gIgnoreNextFindFiles = false;
-    } else {
+    if (!_gIgnoreNextFindFiles) {
         _gCurrQuery = query;
         gSession.findFiles(query);
     }
@@ -220,17 +218,17 @@ function _handleEnter() {
     if (gWidgets.query.value != _gCurrQuery) {
         // The current set of results in now invalid. Need to get the first
         // new hit, if any, from the new query.
-        _gIgnoreNextFindFiles = true;  // Cancel coming `findFiles`.
         // Only wait for a few seconds (don't want to hang on this).
         var hit = gSession.findFileSync(gWidgets.query.value, 3.0);
         if (! hit) {
             // No hit - this will leave the window open.
-            _gIgnoreNextFindFiles = false;
             findFiles(gWidgets.query.value);
         } else if (_openHits([hit])) {
+            _gIgnoreNextFindFiles = true;  // Cancel all coming `findFiles`.
             window.close();
         } 
     } else if (_openSelectedHits()) {
+        _gIgnoreNextFindFiles = true;  // Cancel all coming `findFiles`.
         window.close();
     }
 }
