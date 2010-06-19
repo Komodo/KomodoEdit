@@ -203,6 +203,10 @@ nsresult SciMoz::PlatformDestroy(void) {
     return NS_OK;
 }
 
+void SciMoz::PlatformMarkClosed() {
+	// Nothing.
+}
+
 nsresult SciMoz::PlatformResetWindow() {
 #ifdef SCIMOZ_DEBUG
     fprintf(stderr,"SciMoz::PlatformResetWindow\n");

@@ -602,6 +602,7 @@ NS_IMETHODIMP SciMoz::GetIsFocused(PRBool  *_retval) {
 
 
 /* void markClosed(); */
+
 NS_IMETHODIMP SciMoz::MarkClosed() 
 {
 	if (!isClosed) {
@@ -611,6 +612,7 @@ NS_IMETHODIMP SciMoz::MarkClosed()
 #endif
 		// Turn off all of the scintilla timers.
 		SendEditor(SCI_STOPTIMERS, 0, 0);
+		PlatformMarkClosed();
 		isClosed = true;
 	}
 	return NS_OK;

@@ -186,6 +186,7 @@ nsresult SciMoz::PlatformDestroy(void) {
 	fprintf(stderr,"SciMoz::PlatformDestroy wEditor %p scintilla %p\n", wEditor, scintilla);
 #endif
 	if (scintilla) {
+            scintilla->unregisterNotifyCallback();
             delete scintilla;
             scintilla = NULL;
         }
@@ -200,6 +201,12 @@ nsresult SciMoz::PlatformDestroy(void) {
 	fPlatform.container = NULL;
 	isClosed = 1;
 	return NS_OK;
+}
+
+void SciMoz::PlatformMarkClosed() {
+	if (scintilla) {
+            scintilla->unregisterNotifyCallback();
+	}
 }
 
 #define WINDOW_DISABLED(a) (!a || \

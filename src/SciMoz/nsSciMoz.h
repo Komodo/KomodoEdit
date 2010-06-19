@@ -328,6 +328,9 @@ public:
 
     PRInt16 PlatformHandleEvent(void* event);
 
+    // Notify that scimoz was closed.
+    void PlatformMarkClosed(void);
+
 //    void SetMode(nsPluginMode mode) { fMode = mode; }
 
 #ifdef XP_PC
