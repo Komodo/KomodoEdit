@@ -150,6 +150,10 @@ nsresult SciMoz::PlatformDestroy(void) {
 	return NS_OK;
 }
 
+void SciMoz::PlatformMarkClosed() {
+	// Nothing.
+}
+
 void SciMoz::NotifySignal(GtkWidget *, gint /*wParam*/, gpointer lParam, SciMoz *scimoz) {
         if (scimoz->isClosed) {
             fprintf(stderr, "SciMoz is getting a GTK signal after being closed.\n");
