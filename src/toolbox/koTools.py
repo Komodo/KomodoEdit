@@ -587,7 +587,7 @@ class _KoMacroTool(_KoTool):
 class _KoSnippetTool(_KoTool):
     typeName = 'snippet'
     prettytype = 'Snippet'
-    _iconurl = 'chrome://fugue/skin/icons/document-snippet.png'
+    _iconurl = 'chrome://komodo/skin/images/cut.png'
 
     def __init__(self, *args):
         _KoTool.__init__(self, *args)
