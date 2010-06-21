@@ -554,6 +554,7 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
     if (! _IsViewSearchable(view)) {
         return;
     }
+    /** @type {Components.interfaces.ISciMoz} */
     var scimoz = view.scintilla.scimoz;
     var url = view.koDoc.displayPath;
     var replaceResult = null;
@@ -565,6 +566,7 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
     // http://bugs.activestate.com/show_bug.cgi?id=27208
     if (findResult == null) {
         findResult = _SetupAndFindNext(editor, context, pattern, "replace", true);
+        Find_HighlightClearAll(scimoz);
     }
 
     if (findResult != null) {
@@ -597,8 +599,15 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
                 replaceResult.end-replaceResult.start);
             _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte,
                                            replaceResult.replacement);
+            var replaceByteLength = stringutils_bytelength(replaceResult.replacement);
+            if (Find_HighlightingEnabled()) {
+                var DECORATOR_FIND_HIGHLIGHT = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
+                scimoz.indicatorCurrent = DECORATOR_FIND_HIGHLIGHT;
+                scimoz.indicatorFillRange(startByte, replaceByteLength);
+            }
             scimoz.anchor = startByte;
-            scimoz.currentPos = startByte + stringutils_bytelength(replaceResult.replacement);
+            scimoz.currentPos = startByte + replaceByteLength;
+            
 
             // fix up the search context as appropriate
             if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
@@ -610,7 +619,7 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
                 //XXX I think perhaps context.endIndex should be measured in
                 //    chars and not in bytes (as this stringutils_bytelength
                 //    is converting it to).
-                context.endIndex += stringutils_bytelength(replaceResult.replacement) -
+                context.endIndex += replaceByteLength -
                                     stringutils_bytelength(replaceResult.value);
             } else {
                 throw("unexpected context: name='" + context.name + "' type=" + context.type);
