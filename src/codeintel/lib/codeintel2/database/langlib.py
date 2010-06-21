@@ -287,8 +287,9 @@ class LangDirsLib(object):
             event_reported = False
             res_index = self.lang_zone.load_index(dir, "res_index", {})
             importables = self._importables_from_dir(dir)
-            for base in (i[0] for i in importables.values()
-                         if i[0] is not None):
+            importable_values = [i[0] for i in importables.values()
+                                 if i[0] is not None]
+            for base in importable_values:
                 if ctlr and ctlr.is_aborted():
                     log.debug("ctlr aborted")
                     return
@@ -308,6 +309,20 @@ class LangDirsLib(object):
                     if ctlr is not None:
                         ctlr.info("load %r", buf)
                     buf.scan_if_necessary()
+
+            # Remove scanned paths that don't exist anymore.
+            removed_values = set(res_index.keys()).difference(importable_values)
+            for base in removed_values:
+                if ctlr and ctlr.is_aborted():
+                    log.debug("ctlr aborted")
+                    return
+                if not event_reported:
+                    self.lang_zone.db.report_event(
+                        "scanning %s files in '%s'" % (self.lang, dir))
+                    event_reported = True
+                basename = join(dir, base)
+                self.lang_zone.remove_path(basename)
+
             self._have_ensured_scanned_from_dir_cache[dir] = True
 
     def _importables_from_dir(self, dir):
@@ -844,14 +859,14 @@ class LangZone(object):
         finally:
             self._release_lock()
 
-    def remove_buf_data(self, buf):
+    def remove_path(self, path):
         """Remove the given resource from the database."""
         #TODO Canonicalize path (or assert that it is canonicalized)
         #     Should have a Resource object that we pass around that
         #     handles all of this.
         self._acquire_lock()
         try:
-            dir, base = split(buf.path)
+            dir, base = split(path)
 
             res_index = self.load_index(dir, "res_index", {})
             try:
@@ -863,7 +878,7 @@ class LangZone(object):
             try:
                 blob_index = self.load_index(dir, "blob_index")
             except EnvironmentError, ex:
-                self.db.corruption("LangZone.remove_buf_data",
+                self.db.corruption("LangZone.remove_path",
                     "could not read blob_index for '%s' dir: %s" % (dir, ex),
                     "recover")
                 blob_index = {}
@@ -873,7 +888,7 @@ class LangZone(object):
                 try:
                     toplevelname_index = self.load_index(dir, "toplevelname_index")
                 except EnvironmentError, ex:
-                    self.db.corruption("LangZone.remove_buf_data",
+                    self.db.corruption("LangZone.remove_path",
                         "could not read toplevelname_index for '%s' dir: %s"
                             % (dir, ex),
                         "recover")
@@ -886,7 +901,7 @@ class LangZone(object):
                     dbfile = blob_index[blobname]
                 except KeyError:
                     blob_index_path = join(dhash, "blob_index")
-                    self.db.corruption("LangZone.remove_buf_data",
+                    self.db.corruption("LangZone.remove_path",
                         "'%s' blob not in '%s'" \
                             % (blobname, blob_index_path),
                         "ignore")
@@ -907,6 +922,10 @@ class LangZone(object):
             self._release_lock()
         #TODO Database.clean() should remove dirs that have no
         #     blob_index entries.    
+
+    def remove_buf_data(self, buf):
+        """Remove the given buffer from the database."""
+        self.remove_path(buf.path)
 
     def update_buf_data(self, buf, scan_tree, scan_time, scan_error,
                         skip_scan_time_check=False):
