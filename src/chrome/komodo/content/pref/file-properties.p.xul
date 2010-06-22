@@ -93,7 +93,7 @@ function OnPreferencePageLoading(prefset) {
         } else {
             data.file = parent.view.koDoc.file;
         }
-        if (!data.file_permissions && data.file.isRemoteFile) {
+        if (!data.file_permissions && data.file && data.file.isRemoteFile) {
             // This is a bit of a hack for remote files. Forces the file to update
             // it's stats, otherwise the permissions will not have yet been loaded,
             // making the file incorrectly look as if it has no permissions set.
