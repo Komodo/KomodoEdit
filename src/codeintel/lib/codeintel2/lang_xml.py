@@ -352,7 +352,7 @@ class XMLLangIntel(LangIntel):
 
     def get_valid_tagnames(self, buf, pos, withPrefix=False):
         node = buf.xml_node_at_pos(pos)
-        #print "get_valid_tagnames NODE %s:%s xmlns[%s] %r"%(tree.prefix(node),node.localName,node.ns,node.tag)
+        #print "get_valid_tagnames NODE %s:%s xmlns[%s] %r"%(buf.xml_tree.prefix(node),node.localName,node.ns,node.tag)
         handlerclass = buf.xml_tree_handler(node)
         tagnames = handlerclass.tagnames(buf.xml_tree, node)
         if not tagnames:
