@@ -445,9 +445,15 @@ class KoDocumentAccessor(SciMozAccessor):
             # Race conditions on file opening in Komodo can result
             # in self.doc() being None or an error in .getView().
             raise NoBufferAccessorError(str(ex))
-        scimoz_proxy = self._scimoz_proxy_from_scimoz(view.scimoz)
+        # The view is implemented in JavaScript, so we need to proxy the view in
+        # order to get the scimoz (plugin) object.
+        from xpcom import _xpcom
+        viewProxy = _xpcom.getProxyForObject(1, components.interfaces.koIScintillaView,
+                                             view, _xpcom.PROXY_SYNC)
+        scimoz = viewProxy.scimoz
+        scimoz_proxy = self._scimoz_proxy_from_scimoz(scimoz)
         self.style_mask = (1 << scimoz_proxy.styleBits) - 1
-        self._scimoz_weak_ref = WeakReference(view.scimoz)
+        self._scimoz_weak_ref = WeakReference(scimoz)
         return scimoz_proxy
         
     def scimoz(self):
