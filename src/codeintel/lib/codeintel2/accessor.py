@@ -283,12 +283,11 @@ class SilverCityAccessor(Accessor):
 class SciMozAccessor(Accessor):
     def __init__(self, scimoz, silvercity_lexer):
         self.scimoz = WeakReference(scimoz)
-        self.style_mask = (1 << scimoz.styleBits) - 1
         self.silvercity_lexer = silvercity_lexer
     def char_at_pos(self, pos):
         return self.scimoz().getWCharAt(pos)
     def style_at_pos(self, pos):
-        return self.scimoz().getStyleAt(pos) & self.style_mask
+        return self.scimoz().getStyleAt(pos)
     def line_and_col_at_pos(self, pos):
         scimoz = self.scimoz()
         line = scimoz.lineFromPosition(pos)
@@ -301,9 +300,8 @@ class SciMozAccessor(Accessor):
         if start > stop:
             # For scimoz.getStyledText(), it's (inclusive, exclusive)
             styled_text = self.scimoz().getStyledText(stop+1, start+1)
-            style_mask = self.style_mask
             for i in range(len(styled_text)-2, -2, -2):
-                yield (styled_text[i], ord(styled_text[i+1]) & style_mask)
+                yield (styled_text[i], ord(styled_text[i+1]))
         elif start == stop:
             pass
         else:
@@ -312,9 +310,8 @@ class SciMozAccessor(Accessor):
         if start < stop:
             # For scimoz.getStyledText(), it's (inclusive, exclusive)
             styled_text = self.scimoz().getStyledText(start, stop)
-            style_mask = self.style_mask
             for i in range(0, len(styled_text), 2):
-                yield (styled_text[i], ord(styled_text[i+1]) & style_mask)
+                yield (styled_text[i], ord(styled_text[i+1]))
         elif start == stop:
             pass
         else:
@@ -452,7 +449,6 @@ class KoDocumentAccessor(SciMozAccessor):
                                              view, _xpcom.PROXY_SYNC)
         scimoz = viewProxy.scimoz
         scimoz_proxy = self._scimoz_proxy_from_scimoz(scimoz)
-        self.style_mask = (1 << scimoz_proxy.styleBits) - 1
         self._scimoz_weak_ref = WeakReference(scimoz)
         return scimoz_proxy
         
@@ -460,7 +456,6 @@ class KoDocumentAccessor(SciMozAccessor):
         # Defer getting the scimoz until first need. This is required
         # because a koIDocument does not have its koIScintillaView at
         # creation time.
-        # SIDE-EFFECT: Set self.style_mask on first access.
         if self._scimoz_weak_ref is None:
             return self._get_scimoz_ref()
         scimoz = self._scimoz_weak_ref()
