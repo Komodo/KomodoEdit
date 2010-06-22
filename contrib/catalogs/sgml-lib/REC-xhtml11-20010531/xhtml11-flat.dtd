@@ -3301,7 +3301,7 @@
 <!ATTLIST %script.qname;
       %XHTML.xmlns.attrib;
       charset      %Charset.datatype;       #IMPLIED
-      type         %ContentType.datatype;   #REQUIRED
+      type         ( text/javascript )      #REQUIRED
       src          %URI.datatype;           #IMPLIED
       defer        ( defer )                #IMPLIED
       xml:space    ( preserve )             #FIXED 'preserve'
