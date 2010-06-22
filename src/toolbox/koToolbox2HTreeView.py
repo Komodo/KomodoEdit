@@ -53,8 +53,6 @@ import logging
 
 log = logging.getLogger("Toolbox2HTreeView")
 #log.setLevel(logging.DEBUG)
-qlog = logging.getLogger("Toolbox2HTreeView.q")
-#qlog.setLevel(logging.DEBUG)
 
 _tbdbSvc = None  # module-global handle to the database service
 _view = None     # module-global handle to the tree-view (needs refactoring)
@@ -121,7 +119,6 @@ class _KoFolderHView(_KoContainerHView):
         # Now we need to check to see if we're in the std toolbox range,
         # or elsewhere
         nextToolbox = _view.getNextSiblingIndexModel(0)
-        #qlog.debug("getImageSrc(index:%d) -- nextToolbox:%d", index, nextToolbox)
         if nextToolbox == -1 or index < nextToolbox - 1:
             return self.get_iconurl()
         else:
@@ -354,9 +351,7 @@ class KoToolbox2HTreeView(TreeView):
         # Work on the "model view", and then refilter into the
         # actual view, because we might be adding items to the
         # invisible toolbox.
-        qlog.debug("addNewItemToParent: item.id before is %r", item.id)
         self._toolsMgr.addNewItemToParent(parent, item, showNewItem=False)
-        qlog.debug("addNewItemToParent: item.id after is %r", item.id)
         index = self.getIndexByToolFromModel(parent)
         if index == -1:
             raise Exception(nsError.NS_ERROR_ILLEGAL_VALUE,
@@ -368,9 +363,7 @@ class KoToolbox2HTreeView(TreeView):
         if self.isContainerOpenModel(index):
             #TODO: Make showing the added item a pref?
             # Easy hack to resort the items
-            qlog.debug("Close model node %d", index)
             self.toggleOpenStateModel(index)
-            qlog.debug("Reopen model node %d", index)
             self.toggleOpenStateModel(index)
         else:
             self.toggleOpenStateModel(index)
@@ -409,7 +402,6 @@ class KoToolbox2HTreeView(TreeView):
                 pass
             del self._rows_view[index]
             del self._rows_model[index - 1]
-            qlog.debug("rowCountChanged(index:%d, -1)", index)
             self._tree.rowCountChanged(index, -1)
         finally:
             self._tree.endUpdateBatch()
@@ -508,8 +500,6 @@ class KoToolbox2HTreeView(TreeView):
         node = self._rows_model[modelIndex]
         if node.isContainer:
             node.rebuildChildren()
-        qlog.debug("reloadToolsDirectoryView: refreshView_Model(modelIndex:%d)",
-                   modelIndex)
         self.refreshView_Model(modelIndex)
         self._filter_std_toolbox()
         after_len = len(self._rows_view)
@@ -578,28 +568,14 @@ class KoToolbox2HTreeView(TreeView):
         firstVisibleRow = self._tree.getFirstVisibleRow()
         currentIndex = self.selection.currentIndex;
         while i < lim:
-            qlog.debug("refreshFullView: i:%d, path:%s, lim:%d", i, self._rows_model[i].path, lim)
             before_len = len(self._rows_model)
             if self.isContainerOpenModel(i):
-                qlog.debug("node %d is open, retoggle", i)
                 self.toggleOpenStateModel(i)
                 self.toggleOpenStateModel(i)
-            else:
-                qlog.debug("node %d is closed", i)
-                try:
-                    if (self._nodeOpenStatusFromName.get(self._rows_model[i].path, False)
-                        or self._rows_model[i].id == std_toolbox_id):
-                        # Force the stdtoolbox open
-                        qlog.debug("refreshFullView: forcing reopen on path %s", self._rows_model[i].path)
-                        qlog.debug("  _nodeOpenStatusFromName:%r", self._nodeOpenStatusFromName.get(self._rows_model[i].path, False))
-                        qlog.debug("  self._rows_model[%d].id = %d", i, self._rows_model[i].id)
-                        qlog.debug("  std_toolbox_id = %d", std_toolbox_id)
-                        self.toggleOpenStateModel(i)
-                    else:
-                        qlog.debug(" don't open node %d", i)
-                except KeyError:
-                    qlog.exception("lookup failed")
-                    pass
+            elif (self._nodeOpenStatusFromName.get(self._rows_model[i].path, False)
+                  or self._rows_model[i].id == std_toolbox_id):
+                # Force the stdtoolbox open
+                self.toggleOpenStateModel(i)
             after_len = len(self._rows_model)
             delta = after_len - before_len
             lim += delta
@@ -608,7 +584,6 @@ class KoToolbox2HTreeView(TreeView):
         self._tree.ensureRowIsVisible(firstVisibleRow)
         self.selection.select(currentIndex)
         view_after_len = len(self._rows_view)
-        qlog.debug("rowCountChanged(0, delta:%d)", view_after_len - view_before_len)
         self._tree.rowCountChanged(0, view_after_len - view_before_len)
         self._tree.invalidate()
             
@@ -631,26 +606,19 @@ class KoToolbox2HTreeView(TreeView):
     def _modelIndexFromViewIndex(self, viewIndex):
         path = self._rows_view[viewIndex].path
         if self._rows_model[viewIndex].path == path:
-            qlog.debug("_modelIndexFromViewIndex: view and model same at %d", viewIndex)
             return viewIndex
         elif self._rows_model[viewIndex + 1].path == path:
-            qlog.debug("_modelIndexFromViewIndex: view =  model - 1 at %d", viewIndex)
             return viewIndex + 1
         else:
             modelIndex = self.getIndexByPathModel(path)
-            qlog.debug("_modelIndexFromViewIndex: look up viewIndex %d(%s) => %d",
-                       viewIndex, path, modelIndex)
             return modelIndex        
 
     def refreshView_Model(self, index):
-        qlog.debug("refreshView_Model: index:%d", index)
         if self.isContainerOpenModel(index):
-            qlog.debug("   call toggleOpenStateModel twice at index:%d", index)
             self.toggleOpenStateModel(index)
             self.toggleOpenStateModel(index)
         elif self._nodeOpenStatusFromName.get(self._rows_model[index].path, None):
             # Force it open.
-            qlog.debug("   force node open at index:%d", index)
             self.toggleOpenStateModel(index)
 
     def _redoTreeView(self):
@@ -667,12 +635,9 @@ class KoToolbox2HTreeView(TreeView):
         top_level_ids = [x[0] for x in top_level_nodes]
         index = 0
         lim = len(self._rows_model)
-        qlog.debug("_redoTreeView1_aux: lim(len(self._rows_model)):%d", lim)
         while index < lim:
-            qlog.debug("try index: %d", index)
             id = int(self._rows_model[index].id)
             nextIndex = self.getNextSiblingIndexModel(index)
-            qlog.debug("getNextSiblingIndexModel: %d", nextIndex)
             if nextIndex == -1:
                 finalIndex = lim
             else:
@@ -728,7 +693,6 @@ class KoToolbox2HTreeView(TreeView):
             self._tree.ensureRowIsVisible(currentIndex)
 
     def terminate(self):
-        qlog.debug(">> **************** terminate")
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
         try:
@@ -857,13 +821,9 @@ class KoToolbox2HTreeView(TreeView):
         """
         level = self._rows_model[index].level
         node = self._rows_model[index]
-        #qlog.debug("getNextSiblingIndexModel index:%d path:%s level:%d", index, node.path, level)
         lim = len(self._rows_model)
         index += 1
         while index < lim:
-            #qlog.debug("  model node: index:%d, path:%s, level:%d", index,
-            #           self._rows_model[index].path,
-            #           self._rows_model[index].level)
             if self._rows_model[index].level <= level:
                 return index
             index += 1
@@ -915,7 +875,6 @@ class KoToolbox2HTreeView(TreeView):
             currentIndex = self.getIndexByPath(currentPath)
         self._filter_std_toolbox()
         after_len = len(self._rows_view)
-        qlog.debug("rowCountChanged(0, delta:%d)", after_len - before_len)
         self._tree.rowCountChanged(0, after_len - before_len)
         self._tree.invalidate()
         if currentIndex == -1:
@@ -949,8 +908,6 @@ class KoToolbox2HTreeView(TreeView):
             self._rows_model.append(toolView)
         self._filter_std_toolbox()
         after_len = len(self._rows_view)
-        qlog.debug("Had %d rows, now have %d rows", before_len, after_len)
-        qlog.debug("rowCountChanged(0, delta:%d)", after_len - before_len)
         self._tree.rowCountChanged(0, after_len - before_len)                
         self._tree.invalidate()
         self._restoreViewWithSettings(0, 0)
@@ -974,7 +931,6 @@ class KoToolbox2HTreeView(TreeView):
                 j = lim
             else:
                 j = next_toolbox_index
-            qlog.debug("_filter_std_toolbox: Hop from %d to %d", i, j)
             if self._rows_model[i].id == self._std_toolbox_id:
                 del self._rows_view[i]
                 startPoint = i
@@ -983,7 +939,6 @@ class KoToolbox2HTreeView(TreeView):
             i = j
         if startPoint is not None:
             for i in range(startPoint, stopPoint):
-                #qlog.debug("_filter_std_toolbox: decrement self._rows_view[%d].level to %d", i, self._rows_view[i].level)
                 self._rows_view[i].level -= 1
 
     def get_sortDirection(self):
@@ -1000,25 +955,15 @@ class KoToolbox2HTreeView(TreeView):
             # To fix: make row info thinner.
             return
 
-        qlog.debug(">> toggleOpenState, %d model rows, %d view rows",
-                   len(self._rows_model), len(self._rows_view))
         rowNode = self._rows_model[index]
         if not suppressUpdate:
             firstVisibleRow = self._tree.getFirstVisibleRow()
         before_len = len(self._rows_view)
         self.toggleOpenStateModel(index + 1)
-        qlog.debug(" after toggleOpenStateModel: %d model rows, %d view rows",
-                   len(self._rows_model), len(self._rows_view))
         self._filter_std_toolbox()
-        qlog.debug(" after _filter_std_toolbox: %d model rows, %d view rows",
-                   len(self._rows_model), len(self._rows_view))
         after_len = len(self._rows_view)
         delta = after_len - before_len
-        qlog.debug("toggleOpenState: row %d, path %s, before_len:%d, after_len:%d",
-                   index, rowNode.path, before_len, after_len)
         if delta:
-            qlog.debug("  current row-count: %d", self.get_rowCount())
-            qlog.debug("rowCountChanged(index:%d, delta:%d)", index, delta)
             self._tree.rowCountChanged(index, delta)
         if not suppressUpdate:
             self._tree.ensureRowIsVisible(firstVisibleRow)
@@ -1026,26 +971,18 @@ class KoToolbox2HTreeView(TreeView):
 
     def toggleOpenStateModel(self, index):
         rowNode = self._rows_model[index]
-        qlog.debug("toggleOpenStateModel: row at %d: %s/%s", index, rowNode.typeName, rowNode.name)
         if rowNode.isOpen:
             try:
-                qlog.debug("del self._nodeOpenStatusFromName[%s]",rowNode.path)
                 del self._nodeOpenStatusFromName[rowNode.path]
             except KeyError:
-                qlog.exception("failed to close node %s (d)", rowNode.path, index)
                 pass
             nextIndex = self.getNextSiblingIndexModel(index)
-            qlog.debug("toggleOpenStateModel: index:%d, nextIndex:%d", index, nextIndex)
             if nextIndex == -1:
                 del self._rows_model[index + 1:]
-                qlog.debug("Delete model rows %d:end", index + 1)
-                qlog.debug("We now have %d rows in the model", len(self._rows_model))
             else:
                 del self._rows_model[index + 1: nextIndex]
-                qlog.debug("Delete model rows %d:%d", index + 1, nextIndex)
             rowNode.isOpen = False
         else:
-            qlog.debug("toggleOpenStateModel: self._doContainerOpenModel(rowNode:%s, index:%d)", rowNode.path, index)
             self._doContainerOpenModel(rowNode, index)
             self._nodeOpenStatusFromName[rowNode.path] = True
 
@@ -1066,39 +1003,30 @@ class KoToolbox2HTreeView(TreeView):
 
     def _sortAndExtractIDs(self, rowNode):
         if not hasattr(rowNode, 'unfilteredChildNodes'):
-            qlog.debug("row %s doesn't have unfiltered kids")
             rowNode.rebuildChildren()
         sortedNodes = sorted(rowNode.unfilteredChildNodes,
                              cmp=self._compareChildNode)
         return [x[0] for x in sortedNodes]
 
     def _doContainerOpenModel(self, rowNode, index):
-        qlog.debug(">>_doContainerOpenModel(rowNode:%r, index:%d, path:%s", rowNode.id, index, rowNode.path)
         childIDs = self._sortAndExtractIDs(rowNode)
-        qlog.debug("childIDs:%s", childIDs)
         if childIDs:
             posn = index + 1
             #for path_id, name, node_type in childNodes:
             for path_id in childIDs:
                 toolPart = self._toolsManager.getToolById(path_id)
-                qlog.debug("_doContainerOpenModel: getToolById(path_id:%d) => %r",
-                           path_id, toolPart)
                 toolView = createToolViewFromTool(toolPart)
                 toolView.level = rowNode.level + 1
                 self._rows_model.insert(posn, toolView)
-                #qlog.debug("Insert node %d/%s at posn %d", toolPart.id, toolPart.path, posn - 1)
                 posn += 1
             rowNode.isOpen = True
             # Now open internal nodes working backwards
             lastIndex = index + len(childIDs)
             firstIndex = index
             # Work from bottom up so we don't have to readjust the index.
-            #qlog.debug("lastIndex: %d, firstIndex:%d", lastIndex, firstIndex)
             for i, row in enumerate(self._rows_model[lastIndex: index: -1]):
-                qlog.debug("Look at row %d, path %s", i + lastIndex, row.path)
                 openNode = self._nodeOpenStatusFromName.get(row.path, None)
                 if openNode:
-                    qlog.debug("It's open")
                     self._doContainerOpenModel(row, lastIndex - i)
                 
 _partFactoryMap = {}
