@@ -811,7 +811,7 @@ this._checkDrag = function(event, tree) {
 this._checkDragSource = function(event, tree) {
     var index = this._currentRow(event, tree);
     if (!this._dragIndices.length) {
-        if (event.dataTransfer) { // && this.manager.view.isContainer(index)) {
+        if (event.dataTransfer && this.manager.view.isContainer(index)) {
             return true;
         }
         //dump("not dragging anything\n");
@@ -821,12 +821,10 @@ this._checkDragSource = function(event, tree) {
         //dump("can't drag an item to itself\n");
         return false;
     }
-    /*
     if (!this.manager.view.isContainer(index)) {
         //dump("target isn't an index\n");
         return false;
     }
-    */
     var view = this.manager.view;
     var candidateIndex;
     for (var i = this._dragIndices.length - 1; i >= 0; i--) {
