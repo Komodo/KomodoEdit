@@ -192,7 +192,7 @@ class HTMLTestCase(_TheBasicsTestCase):
         self.assertCalltipIs("<script>function foo(a){}\nfoo(<|>);</script>",
                              "foo(a)")
         self.assertCalltipIs("<style> selector { font-weight:<|> asdf; } </style>",
-                             "Specifies the weight of the font")
+                             "Specifies the weight of the font\n(CSS1, CSS2, CSS3)")
     def test_cplns(self):
         self.assertCompletionsInclude(HTML_DOCTYPE+"<<|>",
             [("element", "html")])
