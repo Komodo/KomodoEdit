@@ -72,54 +72,58 @@ const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 xtk.include("domutils");
 
 function OnPreferencePageLoading(prefset) {
-    data.readonly = document.getElementById("readonly");
-    data.permissions_label = document.getElementById("file_permissions_label");
-    data.permissions_button = document.getElementById("file_permissions_button");
-    data.encoding = document.getElementById("encoding");
-    data.language = document.getElementById("language");
-    data.lineEndings = document.getElementById("lineEndings");
-    data.bom = document.getElementById("bom");
-    data.preserveLineEndings = document.getElementById("preserveLineEndings");
-    data.mixedLineEndings = document.getElementById("mixedLineEndings");
-    data.resetButton = document.getElementById("btn-reset");
-    data.changedFields = {};
-
-    if (parent.part) {
-        /**
-         * @type {Components.interfaces.koIFileEx}
-         */
-        data.file = parent.part.getFile();
-    } else {
-        data.file = parent.view.koDoc.file;
-    }
-    if (!data.file_permissions && data.file.isRemoteFile) {
-        // This is a bit of a hack for remote files. Forces the file to update
-        // it's stats, otherwise the permissions will not have yet been loaded,
-        // making the file incorrectly look as if it has no permissions set.
-        // This is occurs when the file contents have not been loaded, such as
-        // for a remote file in the project tree.
-        data.file.open("r");
-        data.file.close();
-    }
-    data.file_permissions = data.file ? data.file.permissions : 0;
-
-    data.prefset = prefset;
-
-    initViewDependentUI();
-    initFileProperties();
-
-    var lang = null;
-    if (parent.view) {
-        lang = _getMarkupLanguage();
-        if (lang) {
-            data.declPrefName = "default"+lang+"Decl";
-            data.nsPrefName = "default"+lang+"Namespace";
-            initDocumentType(prefset);
+    try {
+        data.readonly = document.getElementById("readonly");
+        data.permissions_label = document.getElementById("file_permissions_label");
+        data.permissions_button = document.getElementById("file_permissions_button");
+        data.encoding = document.getElementById("encoding");
+        data.language = document.getElementById("language");
+        data.lineEndings = document.getElementById("lineEndings");
+        data.bom = document.getElementById("bom");
+        data.preserveLineEndings = document.getElementById("preserveLineEndings");
+        data.mixedLineEndings = document.getElementById("mixedLineEndings");
+        data.resetButton = document.getElementById("btn-reset");
+        data.changedFields = {};
+    
+        if (parent.part) {
+            /**
+             * @type {Components.interfaces.koIFileEx}
+             */
+            data.file = parent.part.getFile();
+        } else {
+            data.file = parent.view.koDoc.file;
         }
-    }
-    if (!lang) {
-        var el = document.getElementById("markupSettings");
-        el.parentNode.removeChild(el);
+        if (!data.file_permissions && data.file.isRemoteFile) {
+            // This is a bit of a hack for remote files. Forces the file to update
+            // it's stats, otherwise the permissions will not have yet been loaded,
+            // making the file incorrectly look as if it has no permissions set.
+            // This is occurs when the file contents have not been loaded, such as
+            // for a remote file in the project tree.
+            data.file.open("r");
+            data.file.close();
+        }
+        data.file_permissions = data.file ? data.file.permissions : 0;
+    
+        data.prefset = prefset;
+    
+        initViewDependentUI();
+        initFileProperties();
+    
+        var lang = null;
+        if (parent.view) {
+            lang = _getMarkupLanguage();
+            if (lang) {
+                data.declPrefName = "default"+lang+"Decl";
+                data.nsPrefName = "default"+lang+"Namespace";
+                initDocumentType(prefset);
+            }
+        }
+        if (!lang) {
+            var el = document.getElementById("markupSettings");
+            el.parentNode.removeChild(el);
+        }
+    } catch (e) {
+        log.exception(e);
     }
 }
 
