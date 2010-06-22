@@ -50,6 +50,8 @@ var _prefs = Components.classes["@activestate.com/koPrefService;1"].
                 getService(Components.interfaces.koIPrefService).prefs;
 var widgets = {};
 var log = ko.logging.getLogger("ko.toolbox2");
+var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
 function Toolbox2Manager() {
     this.widgets = widgets; // for ease of access?
 }
@@ -85,6 +87,8 @@ initialize: function() {
     this.toolbox2Svc.migrateVersion5Toolboxes();
     this.toolbox2Svc.initialize();
     this.view.initialize();
+
+    this._fixCogPopupmenu();
         
     // Give the toolbox observers time to have started up before
     // notifying them that the toolbox has changed.
@@ -107,6 +111,34 @@ deleteCurrentItem: function() {
         this.view.deleteToolAt(index);
     } catch(ex) {
         dump(ex + "\n");
+    }
+},
+
+_fixCogPopupmenu: function() {
+    var popupmenu = document.getElementById("toolbox2-cog-popup");
+    var target_popupmenu = document.getElementById("toolbox2-cog_separator-1");
+    var src_popupmenu  = document.getElementById("tb2ContextMenu_addPopupMenu");
+    var childNodes = src_popupmenu.childNodes;
+    var mi;
+    for (var childNode, i = 0; i <  childNodes.length; i++) {
+        childNode = childNodes[i];
+        if (!childNode) {
+            continue;
+        }
+        if (childNode.nodeName == "menuseparator"
+            || childNode.nodeName == "menuitem") {
+            mi = document.createElementNS(XUL_NS, childNode.nodeName);
+            mi.id = childNode.id + "_cog_contextMenu";
+            if (childNode.nodeName == "menuitem") {
+                ["label", "class", "accesskey", "image"].map(function(attr) {
+                        mi.setAttribute(attr, childNode.getAttribute(attr));
+                    });
+                var cmd = childNode.getAttribute("oncommand");
+                var fixedCmd = cmd.replace('addToolboxItem', 'addToolboxItemToStdToolbox');
+                mi.setAttribute("oncommand", fixedCmd);
+            }
+            popupmenu.appendChild(mi);
+        }
     }
 },
 

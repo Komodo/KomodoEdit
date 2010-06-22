@@ -41,6 +41,7 @@ import json, sys, os, re
 from os.path import join
 from koTreeView import TreeView
 
+import copy
 import eollib
 import fileutils
 import koToolbox2
@@ -52,6 +53,8 @@ import logging
 
 log = logging.getLogger("Toolbox2HTreeView")
 #log.setLevel(logging.DEBUG)
+qlog = logging.getLogger("Toolbox2HTreeView.q")
+#qlog.setLevel(logging.DEBUG)
 
 _tbdbSvc = None  # module-global handle to the database service
 _view = None     # module-global handle to the tree-view (needs refactoring)
@@ -113,10 +116,16 @@ class _KoFolderHView(_KoContainerHView):
     typeName = 'folder'
 
     def getImageSrc(self, index, column):
-        if self.level == 0:
-            return 'chrome://fugue/skin/icons/toolbox.png'
-        else:
+        if self.level > 0:
             return self.get_iconurl()
+        # Now we need to check to see if we're in the std toolbox range,
+        # or elsewhere
+        nextToolbox = _view.getNextSiblingIndexModel(0)
+        #qlog.debug("getImageSrc(index:%d) -- nextToolbox:%d", index, nextToolbox)
+        if nextToolbox == -1 or index < nextToolbox - 1:
+            return self.get_iconurl()
+        else:
+            return 'chrome://fugue/skin/icons/toolbox.png'
 
 class _KoComplexContainerHView(_KoFolderHView):
     pass
@@ -159,7 +168,11 @@ class KoToolbox2HTreeView(TreeView):
 
     def __init__(self, debug=None):
         TreeView.__init__(self, debug=0)
-        self._rows = []
+        # The _rows_model shows all the rows currently loaded
+        # The _rows_view shows all the rows actually displayed
+        # _rows_view == _rows_model[1:] 
+        self._rows_model = []
+        self._rows_view = []
         self._sortDirection = self._SORT_BY_NATURAL_ORDER
         self._nodeOpenStatusFromName = {}
         self._tree = None
@@ -172,7 +185,7 @@ class KoToolbox2HTreeView(TreeView):
         self.toolbox2Svc = components.classes["@activestate.com/koToolBox2Service;1"]\
                 .getService(components.interfaces.koIToolBox2Service)
 
-        self._unfilteredRows = None
+        self._unfilteredRows_view = self._unfilteredRows_model = None
         self._toolsMgr = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].getService(components.interfaces.koIToolbox2ToolManager))
         
     def initialize(self):
@@ -202,6 +215,7 @@ class KoToolbox2HTreeView(TreeView):
         _view = self
         self._toolsManager = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"]
         .getService(components.interfaces.koIToolbox2ToolManager));
+        self._std_toolbox_id = self.toolbox2Svc.getStandardToolboxID()
 
         self._redoTreeView()
         self._restoreView()
@@ -218,7 +232,7 @@ class KoToolbox2HTreeView(TreeView):
             index = self.getIndexById(id)
             if index == -1:
                 return
-            node = self._rows[index]
+            node = self._rows_view[index]
             tool = self._toolsMgr.getToolById(id)
             node.name = tool.name
             node.iconurl = tool.get_iconurl()
@@ -231,30 +245,50 @@ class KoToolbox2HTreeView(TreeView):
             _observerSvc.removeObserver(self, 'xpcom-shutdown')
 
     def getPathFromIndex(self, index):
-        id = self._rows[index].id
+        id = self._rows_view[index].id
         return self.toolbox_db.getPath(id)
 
     def get_toolType(self, index):
         if index == -1:
             return None
-        return self._rows[index].typeName
+        return self._rows_view[index].typeName
     
     def getIndexByPath(self, path):
-        for i, row in enumerate(self._rows):
+        for i, row in enumerate(self._rows_view):
+            if row.path == path:
+                return i
+        return -1
+    
+    def getIndexByPathModel(self, path, viewIndex=None):
+        if viewIndex is not None:
+            if self._rows_model[viewIndex].path == path:
+                return viewIndex
+            elif (viewIndex > 0
+                  and self._rows_model[viewIndex - 1].path == path):
+                return viewIndex - 1
+        for i, row in enumerate(self._rows_model):
             if row.path == path:
                 return i
         return -1
     
     def getIndexByTool(self, tool):
         path = tool.path
-        for i, row in enumerate(self._rows):
+        for i, row in enumerate(self._rows_view):
+            #log.debug("%d: %s (%s/%s", i, row.path, row.typeName, row.name)
+            if row.path == path:
+                return i
+        return -1
+
+    def getIndexByToolFromModel(self, tool):
+        path = tool.path
+        for i, row in enumerate(self._rows_model):
             #log.debug("%d: %s (%s/%s", i, row.path, row.typeName, row.name)
             if row.path == path:
                 return i
         return -1
 
     def getIndexById(self, id):
-        for i, row in enumerate(self._rows):
+        for i, row in enumerate(self._rows_view):
             #log.debug("%d: %d (%s/%s", i, row.id, row.typeName, row.name)
             if row.id == id:
                 return i
@@ -290,7 +324,7 @@ class KoToolbox2HTreeView(TreeView):
                         index = nextSiblingIndex
                         continue  # don't increment at end of loop
                     elif (nextSiblingIndex == -1
-                          and max_index == len(self._rows) - 1
+                          and max_index == len(self._rows_view) - 1
                           and i == rangeCount - 1):
                         return True
                     else:
@@ -308,8 +342,8 @@ class KoToolbox2HTreeView(TreeView):
         elif srcIndex == targetIndex:
             return True
         
-        srcLevel = self._rows[srcIndex].level
-        while targetIndex > srcIndex and self._rows[targetIndex].level > srcLevel:
+        srcLevel = self._rows_view[srcIndex].level
+        while targetIndex > srcIndex and self._rows_view[targetIndex].level > srcLevel:
             targetIndex -= 1
         return targetIndex == srcIndex
 
@@ -317,42 +351,52 @@ class KoToolbox2HTreeView(TreeView):
         # Not XPCOM
         # Called from the model.
         # Add and show the new item
+        # Work on the "model view", and then refilter into the
+        # actual view, because we might be adding items to the
+        # invisible toolbox.
+        qlog.debug("addNewItemToParent: item.id before is %r", item.id)
         self._toolsMgr.addNewItemToParent(parent, item, showNewItem=False)
-        index = self.getIndexByTool(parent)
+        qlog.debug("addNewItemToParent: item.id after is %r", item.id)
+        index = self.getIndexByToolFromModel(parent)
         if index == -1:
             raise Exception(nsError.NS_ERROR_ILLEGAL_VALUE,
                                   ("Can't find parent %s/%s in the tree" %
                                    (parent.type, parent.name)))
-        self._rows[index].addChild(item)
-        if self.isContainerOpen(index):  #TODO: Make this a pref?
-            firstVisibleRow = self._tree.getFirstVisibleRow()
-            self._tree.scrollToRow(firstVisibleRow)
+        view_before_len = len(self._rows_view)
+        self._rows_model[index].addChild(item)
+        firstVisibleRow = self._tree.getFirstVisibleRow()
+        if self.isContainerOpenModel(index):
+            #TODO: Make showing the added item a pref?
             # Easy hack to resort the items
-            self.toggleOpenState(index)
-            self.toggleOpenState(index, suppressUpdate=True)
-            self._tree.scrollToRow(firstVisibleRow)
-            try:
-                index = self._rows.index(item, index + 1)
-            except ValueError:
-                pass
+            qlog.debug("Close model node %d", index)
+            self.toggleOpenStateModel(index)
+            qlog.debug("Reopen model node %d", index)
+            self.toggleOpenStateModel(index)
         else:
-            self.toggleOpenState(index)
-            newIndex = self.getIndexByPath(item.path)
-            if newIndex >= 0:
-                index = newIndex
-            self.selection.currentIndex = index
-            self.selection.select(index)
-            self._tree.ensureRowIsVisible(index)
+            self.toggleOpenStateModel(index)
+        self._filter_std_toolbox()
+        try:
+            newIndex = self._rows_view.index(item, index - 1)
+        except ValueError:
+            pass
+        else:
+            index = newIndex
+        view_after_len = len(self._rows_view)
+        self._tree.rowCountChanged(0, view_after_len - view_before_len)
+        self._tree.scrollToRow(firstVisibleRow)
+        self.selection.currentIndex = index
+        self.selection.select(index)
+        self._tree.ensureRowIsVisible(index)
 
     def deleteToolAt(self, index, path=None):
-        row = self._rows[index]
+        row = self._rows_view[index]
         if path is None:
             path = row.path
         self._toolsMgr.deleteTool(row.id)
 
         parentIndex = self.getParentIndex(index)
         if parentIndex > -1:
-            self._rows[parentIndex].removeChild(row)
+            self._rows_view[parentIndex].removeChild(row)
 
         # Now update the view.
         self._tree.beginUpdateBatch()
@@ -363,7 +407,9 @@ class KoToolbox2HTreeView(TreeView):
                 del self._nodeOpenStatusFromName[path]
             except KeyError:
                 pass
-            del self._rows[index]
+            del self._rows_view[index]
+            del self._rows_model[index - 1]
+            qlog.debug("rowCountChanged(index:%d, -1)", index)
             self._tree.rowCountChanged(index, -1)
         finally:
             self._tree.endUpdateBatch()
@@ -372,6 +418,10 @@ class KoToolbox2HTreeView(TreeView):
         fileutils.copyLocalFolder(srcPath, targetDirPath)
 
     def pasteItemsIntoTarget(self, targetIndex, paths, copying):
+        # We need to work with the model indices, because we're
+        # changing this tree.  We can use the current view to
+        # find the source and destination, but then need to work
+        # with model coordinates for updating the rows.
         targetTool = self.getTool(targetIndex)
         if not targetTool.isContainer:
             raise Exception("pasteItemsIntoTarget: item at row %d isn't a container, it's a %s" %
@@ -450,11 +500,20 @@ class KoToolbox2HTreeView(TreeView):
         finalTargetIndex = self.getIndexByPath(targetPath)
         self._tree.ensureRowIsVisible(finalTargetIndex)
                 
-    def reloadToolsDirectoryView(self, index):
-        node = self._rows[index]
+    def reloadToolsDirectoryView(self, viewIndex):
+        # Refresh the model tree, and refilter into the view tree
+        before_len = len(self._rows_view)
+        targetPath = self.getPathFromIndex(viewIndex)
+        modelIndex = self.getIndexByPathModel(targetPath, viewIndex)
+        node = self._rows_model[modelIndex]
         if node.isContainer:
             node.rebuildChildren()
-        self.refreshView(index)
+        qlog.debug("reloadToolsDirectoryView: refreshView_Model(modelIndex:%d)",
+                   modelIndex)
+        self.refreshView_Model(modelIndex)
+        self._filter_std_toolbox()
+        after_len = len(self._rows_view)
+        self._tree.rowCountChanged(0, after_len - before_len)
 
     def _zipNode(self, zf, currentDirectory):
         nodes = os.listdir(currentDirectory)
@@ -513,38 +572,86 @@ class KoToolbox2HTreeView(TreeView):
     
     def refreshFullView(self):
         i = 0
-        lim = len(self._rows)
-        self._tree.beginUpdateBatch();
-        try:
-            while i < lim:
-                before_len = len(self._rows)
-                if self.isContainerOpen(i):
-                    before_len = len(self._rows)
-                    self.toggleOpenState(i)
-                    self.toggleOpenState(i, suppressUpdate=True)
-                else:
-                    try:
-                        if self._nodeOpenStatusFromName[self._rows[i].path]:
-                            self.toggleOpenState(i, suppressUpdate=True)
-                    except KeyError:
-                        pass
-                after_len = len(self._rows)
-                delta = after_len - before_len
-                lim += delta
-                i += delta + 1
-        finally:
-            self._tree.endUpdateBatch();
+        lim = len(self._rows_model)
+        view_before_len = len(self._rows_view)
+        std_toolbox_id = self.toolbox2Svc.getStandardToolboxID()
+        firstVisibleRow = self._tree.getFirstVisibleRow()
+        currentIndex = self.selection.currentIndex;
+        while i < lim:
+            qlog.debug("refreshFullView: i:%d, path:%s, lim:%d", i, self._rows_model[i].path, lim)
+            before_len = len(self._rows_model)
+            if self.isContainerOpenModel(i):
+                qlog.debug("node %d is open, retoggle", i)
+                self.toggleOpenStateModel(i)
+                self.toggleOpenStateModel(i)
+            else:
+                qlog.debug("node %d is closed", i)
+                try:
+                    if (self._nodeOpenStatusFromName.get(self._rows_model[i].path, False)
+                        or self._rows_model[i].id == std_toolbox_id):
+                        # Force the stdtoolbox open
+                        qlog.debug("refreshFullView: forcing reopen on path %s", self._rows_model[i].path)
+                        qlog.debug("  _nodeOpenStatusFromName:%r", self._nodeOpenStatusFromName.get(self._rows_model[i].path, False))
+                        qlog.debug("  self._rows_model[%d].id = %d", i, self._rows_model[i].id)
+                        qlog.debug("  std_toolbox_id = %d", std_toolbox_id)
+                        self.toggleOpenStateModel(i)
+                    else:
+                        qlog.debug(" don't open node %d", i)
+                except KeyError:
+                    qlog.exception("lookup failed")
+                    pass
+            after_len = len(self._rows_model)
+            delta = after_len - before_len
+            lim += delta
+            i += delta + 1
+        self._filter_std_toolbox()
+        self._tree.ensureRowIsVisible(firstVisibleRow)
+        self.selection.select(currentIndex)
+        view_after_len = len(self._rows_view)
+        qlog.debug("rowCountChanged(0, delta:%d)", view_after_len - view_before_len)
+        self._tree.rowCountChanged(0, view_after_len - view_before_len)
+        self._tree.invalidate()
             
     def refreshView(self, index):
-        self._tree.beginUpdateBatch();
-        try:
-            if self.isContainerOpen(index):
-                self.toggleOpenState(index)
-                self.toggleOpenState(index, suppressUpdate=True)
-            elif self._nodeOpenStatusFromName.get(self._rows[index].path, None):
-                self.toggleOpenState(index, suppressUpdate=True)
-        finally:
-            self._tree.endUpdateBatch();
+        firstVisibleRow = self._tree.getFirstVisibleRow()
+        before_len = len(self._rows_view)
+        modelIndex = self._modelIndexFromViewIndex(index)
+        if self.isContainerOpenModel(index):
+            self.toggleOpenStateModel(modelIndex)
+            self.toggleOpenStateModel(modelIndex)
+        elif self._nodeOpenStatusFromName.get(self._rows_view[index].path, None):
+            self.toggleOpenStateModel(modelIndex)
+        self._filter_std_toolbox()
+        after_len = len(self._rows_view)
+        delta = after_len - before_len
+        if delta:
+            self._tree.rowCountChanged(index, delta)
+        self._tree.ensureRowIsVisible(firstVisibleRow)
+
+    def _modelIndexFromViewIndex(self, viewIndex):
+        path = self._rows_view[viewIndex].path
+        if self._rows_model[viewIndex].path == path:
+            qlog.debug("_modelIndexFromViewIndex: view and model same at %d", viewIndex)
+            return viewIndex
+        elif self._rows_model[viewIndex + 1].path == path:
+            qlog.debug("_modelIndexFromViewIndex: view =  model - 1 at %d", viewIndex)
+            return viewIndex + 1
+        else:
+            modelIndex = self.getIndexByPathModel(path)
+            qlog.debug("_modelIndexFromViewIndex: look up viewIndex %d(%s) => %d",
+                       viewIndex, path, modelIndex)
+            return modelIndex        
+
+    def refreshView_Model(self, index):
+        qlog.debug("refreshView_Model: index:%d", index)
+        if self.isContainerOpenModel(index):
+            qlog.debug("   call toggleOpenStateModel twice at index:%d", index)
+            self.toggleOpenStateModel(index)
+            self.toggleOpenStateModel(index)
+        elif self._nodeOpenStatusFromName.get(self._rows_model[index].path, None):
+            # Force it open.
+            qlog.debug("   force node open at index:%d", index)
+            self.toggleOpenStateModel(index)
 
     def _redoTreeView(self):
         self._tree.beginUpdateBatch()
@@ -556,14 +663,16 @@ class KoToolbox2HTreeView(TreeView):
         self.refreshFullView()
 
     def _redoTreeView1_aux(self):
-        before_len = len(self._rows)
         top_level_nodes = self.toolbox_db.getTopLevelNodes()
         top_level_ids = [x[0] for x in top_level_nodes]
         index = 0
-        lim = before_len
+        lim = len(self._rows_model)
+        qlog.debug("_redoTreeView1_aux: lim(len(self._rows_model)):%d", lim)
         while index < lim:
-            id = int(self._rows[index].id)
-            nextIndex = self.getNextSiblingIndex(index)
+            qlog.debug("try index: %d", index)
+            id = int(self._rows_model[index].id)
+            nextIndex = self.getNextSiblingIndexModel(index)
+            qlog.debug("getNextSiblingIndexModel: %d", nextIndex)
             if nextIndex == -1:
                 finalIndex = lim
             else:
@@ -573,14 +682,10 @@ class KoToolbox2HTreeView(TreeView):
                 index = finalIndex
             else:
                 if nextIndex == -1:
-                    del self._rows[index:]
+                    del self._rows_model[index - 1:]
                 else:
-                    del self._rows[index: nextIndex]
-                numNodesRemoved = finalIndex - index
-                self._tree.rowCountChanged(index, -numNodesRemoved)
-                lim -= numNodesRemoved
+                    del self._rows_model[index - 1: nextIndex - 1]
         
-        before_len = len(self._rows)
         for path_id, name, node_type in top_level_nodes:
             if path_id not in top_level_ids:
                 #log.debug("No need to reload tree %s", name)
@@ -588,9 +693,7 @@ class KoToolbox2HTreeView(TreeView):
             toolPart = self._toolsManager.getOrCreateTool(node_type, name, path_id)
             toolView = createToolViewFromTool(toolPart) 
             toolView.level = 0
-            self._rows.append(toolView)
-        after_len = len(self._rows)
-        self._tree.rowCountChanged(0, after_len - before_len)
+            self._rows_model.append(toolView)
         
     def _restoreView(self):
 
@@ -608,14 +711,14 @@ class KoToolbox2HTreeView(TreeView):
         self._restoreViewWithSettings(firstVisibleRow, currentIndex)
 
     def _restoreViewWithSettings(self, firstVisibleRow, currentIndex):
-        greatestPossibleFirstVisibleRow = len(self._rows) - self._tree.getPageLength()
+        greatestPossibleFirstVisibleRow = len(self._rows_view) - self._tree.getPageLength()
         if greatestPossibleFirstVisibleRow < 0:
             greatestPossibleFirstVisibleRow = 0
         if firstVisibleRow > greatestPossibleFirstVisibleRow:
             firstVisibleRow = greatestPossibleFirstVisibleRow
         
-        if currentIndex >= len(self._rows):
-           currentIndex =  len(self._rows) - 1
+        if currentIndex >= len(self._rows_view):
+           currentIndex =  len(self._rows_view) - 1
 
         if firstVisibleRow != -1:
             self._tree.scrollToRow(firstVisibleRow)
@@ -625,6 +728,7 @@ class KoToolbox2HTreeView(TreeView):
             self._tree.ensureRowIsVisible(currentIndex)
 
     def terminate(self):
+        qlog.debug(">> **************** terminate")
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
         try:
@@ -641,7 +745,7 @@ class KoToolbox2HTreeView(TreeView):
     def getTool(self, index):
         if index < 0: return None
         try:
-            id = self._rows[index].id
+            id = self._rows_view[index].id
             return self._toolsManager.getToolById(id)
         except IndexError:
             log.error("Failed getTool(index:%d), id:%r", index, id)
@@ -650,19 +754,19 @@ class KoToolbox2HTreeView(TreeView):
     def get_type(self, index):
         if index == -1:
             return None
-        return self._rows[index].typeName
+        return self._rows_view[index].typeName
         
     #---- nsITreeView Methods
     
     def get_rowCount(self):
-        return len(self._rows)
+        return len(self._rows_view)
 
     def getCellText(self, index, column):
         col_id = column.id
         assert col_id == "Name"
         #log.debug(">> getCellText:%d, %s", row, col_id)
         try:
-            return self._rows[index].name
+            return self._rows_view[index].name
         except AttributeError:
             log.debug("getCellText: No id %s at row %d", col_id, row)
             return "?"
@@ -670,46 +774,50 @@ class KoToolbox2HTreeView(TreeView):
     def getImageSrc(self, index, column):
         col_id = column.id
         assert col_id == "Name"
-        node = self._rows[index]
+        node = self._rows_view[index]
         method = getattr(node, "getImageSrc", None)
         if method:
             return method(index, column)
         try:
-            return self._rows[index].get_iconurl()
+            return self._rows_view[index].get_iconurl()
         except:
             return ""
         
     def isContainer(self, index):
         try:
-            return self._rows[index].isContainer
+            return self._rows_view[index].isContainer
         except IndexError:
             log.error("isContainer[index:%d]", index)
             return False
         
     def isContainerOpen(self, index):
-        node = self._rows[index]
+        node = self._rows_view[index]
+        return node.isContainer and node.isOpen
+        
+    def isContainerOpenModel(self, index):
+        node = self._rows_model[index]
         return node.isContainer and node.isOpen
         
     def isContainerEmpty(self, index):
-        node = self._rows[index]
+        node = self._rows_view[index]
         return node.isContainer and not node.unfilteredChildNodes
 
     def getParentIndex(self, index):
-        if index >= len(self._rows) or index < 0: return -1
+        if index >= len(self._rows_view) or index < 0: return -1
         try:
             i = index - 1
-            level = self._rows[index].level
-            while i >= 0 and self._rows[i].level >= level:
+            level = self._rows_view[index].level
+            while i >= 0 and self._rows_view[i].level >= level:
                 i -= 1
         except IndexError:
             i = -1
         return i
 
     def hasNextSibling(self, index, afterIndex):
-        if index >= len(self._rows) or index < 0: return 0
+        if index >= len(self._rows_view) or index < 0: return 0
         try:
-            current_level = self._rows[index].level
-            for next_row in self._rows[afterIndex + 1:]:
+            current_level = self._rows_view[index].level
+            for next_row in self._rows_view[afterIndex + 1:]:
                 next_row_level = next_row.level
                 if next_row_level < current_level:
                     return 0
@@ -721,7 +829,7 @@ class KoToolbox2HTreeView(TreeView):
     
     def getLevel(self, index):
         try:
-            return self._rows[index].level
+            return self._rows_view[index].level
         except IndexError:
             return -1
                                                 
@@ -733,11 +841,30 @@ class KoToolbox2HTreeView(TreeView):
         @param index {int} points to the node whose next-sibling we want to find.
         @return index of the sibling, or -1 if not found.
         """
-        level = self._rows[index].level
-        lim = len(self._rows)
+        level = self._rows_view[index].level
+        lim = len(self._rows_view)
         index += 1
         while index < lim:
-            if self._rows[index].level <= level:
+            if self._rows_view[index].level <= level:
+                return index
+            index += 1
+        return -1
+    
+    def getNextSiblingIndexModel(self, index):
+        """
+        @param index {int} points to the node whose next-sibling we want to find.
+        @return index of the sibling, or -1 if not found.
+        """
+        level = self._rows_model[index].level
+        node = self._rows_model[index]
+        #qlog.debug("getNextSiblingIndexModel index:%d path:%s level:%d", index, node.path, level)
+        lim = len(self._rows_model)
+        index += 1
+        while index < lim:
+            #qlog.debug("  model node: index:%d, path:%s, level:%d", index,
+            #           self._rows_model[index].path,
+            #           self._rows_model[index].level)
+            if self._rows_model[index].level <= level:
                 return index
             index += 1
         return -1
@@ -757,35 +884,39 @@ class KoToolbox2HTreeView(TreeView):
             if self.isContainer(index):
                 pathsToOpen = []
                 currentIndex = index
-                currentPath = self._rows[index].path
+                currentPath = self._rows_view[index].path
                 while True:
                     parentIndex = self.getParentIndex(index)
                     if parentIndex == -1 or parentIndex == index:
                         break
                     index = parentIndex
-                    rowNode = self._rows[index]
+                    rowNode = self._rows_view[index]
                     path = rowNode.path
                     if path in self._nodeOpenStatusFromName:
                         break
                     pathsToOpen.append(path)
-        begin_len = len(self._rows)
-        self._rows = self._unfilteredRows
-        self._unfilteredRows = None
-        #log.debug("Had %d rows, now have %d rows", begin_len, after_len)
+        before_len = len(self._rows_view)
+        self._rows_view = self._unfilteredRows_view
+        self._rows_model = self._unfilteredRows_model
+        self._unfilteredRows_view = self._unfilteredRows_model = None
+        #log.debug("Had %d rows, now have %d rows", before_len, after_len)
         if currentIndex != -1:
             # Open up the necessary nodes first, from the highest
             # nodes first, which happen to be the last ones we
             # pushed on the list.
+            # Work with the model nodes, not the filtered view nodes.
             while pathsToOpen:
                 path = pathsToOpen.pop()
-                candidateIndex = self.getIndexByPath(path)
-                if not self._rows[candidateIndex].isOpen:
-                    self._doContainerOpen(self._rows[candidateIndex],
-                                          candidateIndex)
+                candidateIndex = self.getIndexByPathModel(path)
+                if not self._rows_model[candidateIndex].isOpen:
+                    self._doContainerOpenModel(self._rows_model[candidateIndex],
+                                               candidateIndex)
             # Revise: currentIndex to point to new location of currentPath
             currentIndex = self.getIndexByPath(currentPath)
-        after_len = len(self._rows)
-        self._tree.rowCountChanged(0, after_len - begin_len)
+        self._filter_std_toolbox()
+        after_len = len(self._rows_view)
+        qlog.debug("rowCountChanged(0, delta:%d)", after_len - before_len)
+        self._tree.rowCountChanged(0, after_len - before_len)
         self._tree.invalidate()
         if currentIndex == -1:
             fvr = self._unfiltered_firstVisibleRow
@@ -796,8 +927,9 @@ class KoToolbox2HTreeView(TreeView):
         self._restoreViewWithSettings(fvr, ufci)
         
     def useFilter(self, filterPattern):
-        if self._unfilteredRows is None:
-            self._unfilteredRows = self._rows
+        if self._unfilteredRows_view is None:
+            self._unfilteredRows_view = self._rows_view
+            self._unfilteredRows_model = self._rows_model
             self._unfiltered_firstVisibleRow = self._tree.getFirstVisibleRow()
             self._unfiltered_currentIndex = self.selection.currentIndex;
             
@@ -807,19 +939,52 @@ class KoToolbox2HTreeView(TreeView):
         t2 = time.time()
         #log.debug("Time to query %s: %g msec", filterPattern, (t2 - t1) * 1000.0)
         #log.debug("matched nodes: %s", matched_nodes)
-        before_len = len(self._rows)
-        self._rows = []
+        before_len = len(self._rows_view)
+        self._rows_model = []
         for node in matched_nodes:
             path_id, name, node_type, matchedPattern, level = node
             toolPart = self._toolsManager.getToolById(path_id)
             toolView = createToolViewFromTool(toolPart) 
             toolView.level = level
-            self._rows.append(toolView)
-        after_len = len(self._rows)
-        #log.debug("Had %d rows, now have %d rows", before_len, after_len)
+            self._rows_model.append(toolView)
+        self._filter_std_toolbox()
+        after_len = len(self._rows_view)
+        qlog.debug("Had %d rows, now have %d rows", before_len, after_len)
+        qlog.debug("rowCountChanged(0, delta:%d)", after_len - before_len)
         self._tree.rowCountChanged(0, after_len - before_len)                
         self._tree.invalidate()
         self._restoreViewWithSettings(0, 0)
+
+    def _filter_std_toolbox(self):
+        # Copy self._rows_model to self._rows_view, removing the
+        # std toolbox node, and shifting its components down one level.
+        # Note that the std toolbox node isn't always the first one
+        # in the list.
+        if len(self._rows_model) == 0:
+            self._rows_view = []
+            return
+        # Copy, because the view's level is different from the model's.
+        self._rows_view = copy.deepcopy(self._rows_model)
+        lim = len(self._rows_model)
+        startPoint = stopPoint = None
+        i = 0
+        while i < lim:
+            next_toolbox_index = self.getNextSiblingIndexModel(i)
+            if next_toolbox_index == -1:
+                j = lim
+            else:
+                j = next_toolbox_index
+            qlog.debug("_filter_std_toolbox: Hop from %d to %d", i, j)
+            if self._rows_model[i].id == self._std_toolbox_id:
+                del self._rows_view[i]
+                startPoint = i
+                stopPoint = j - 1
+                break
+            i = j
+        if startPoint is not None:
+            for i in range(startPoint, stopPoint):
+                #qlog.debug("_filter_std_toolbox: decrement self._rows_view[%d].level to %d", i, self._rows_view[i].level)
+                self._rows_view[i].level -= 1
 
     def get_sortDirection(self):
         return self._sortDirection
@@ -829,46 +994,60 @@ class KoToolbox2HTreeView(TreeView):
         self.refreshFullView()
 
     def toggleOpenState(self, index, suppressUpdate=False):
-        if self._unfilteredRows:
+        if self._unfilteredRows_view:
             # "trying to toggle while searching causes all kinds of grief"
             # - koKPFTreeView.p.py
             # To fix: make row info thinner.
             return
-        rowNode = self._rows[index]
-        #log.debug("toggleOpenState: row at %d: %s/%s", index, rowNode.typeName, rowNode.name)
+
+        qlog.debug(">> toggleOpenState, %d model rows, %d view rows",
+                   len(self._rows_model), len(self._rows_view))
+        rowNode = self._rows_model[index]
+        if not suppressUpdate:
+            firstVisibleRow = self._tree.getFirstVisibleRow()
+        before_len = len(self._rows_view)
+        self.toggleOpenStateModel(index + 1)
+        qlog.debug(" after toggleOpenStateModel: %d model rows, %d view rows",
+                   len(self._rows_model), len(self._rows_view))
+        self._filter_std_toolbox()
+        qlog.debug(" after _filter_std_toolbox: %d model rows, %d view rows",
+                   len(self._rows_model), len(self._rows_view))
+        after_len = len(self._rows_view)
+        delta = after_len - before_len
+        qlog.debug("toggleOpenState: row %d, path %s, before_len:%d, after_len:%d",
+                   index, rowNode.path, before_len, after_len)
+        if delta:
+            qlog.debug("  current row-count: %d", self.get_rowCount())
+            qlog.debug("rowCountChanged(index:%d, delta:%d)", index, delta)
+            self._tree.rowCountChanged(index, delta)
+        if not suppressUpdate:
+            self._tree.ensureRowIsVisible(firstVisibleRow)
+            self.selection.select(index)
+
+    def toggleOpenStateModel(self, index):
+        rowNode = self._rows_model[index]
+        qlog.debug("toggleOpenStateModel: row at %d: %s/%s", index, rowNode.typeName, rowNode.name)
         if rowNode.isOpen:
             try:
+                qlog.debug("del self._nodeOpenStatusFromName[%s]",rowNode.path)
                 del self._nodeOpenStatusFromName[rowNode.path]
             except KeyError:
+                qlog.exception("failed to close node %s (d)", rowNode.path, index)
                 pass
-            nextIndex = self.getNextSiblingIndex(index)
-            #log.debug("toggleOpenState: index:%d, nextIndex:%d", index, nextIndex)
+            nextIndex = self.getNextSiblingIndexModel(index)
+            qlog.debug("toggleOpenStateModel: index:%d, nextIndex:%d", index, nextIndex)
             if nextIndex == -1:
-                # example: index=5, have 13 rows,  delete 7 rows [6:13), 
-                numNodesRemoved = len(self._rows) - index - 1
-                del self._rows[index + 1:]
+                del self._rows_model[index + 1:]
+                qlog.debug("Delete model rows %d:end", index + 1)
+                qlog.debug("We now have %d rows in the model", len(self._rows_model))
             else:
-                # example: index=5, have 13 rows, next sibling at index=10
-                # delete rows [6:10): 4 rows
-                numNodesRemoved = nextIndex - index - 1
-                del self._rows[index + 1: nextIndex]
-            #log.debug("toggleOpenState: numNodesRemoved:%d (%d:%d)", numNodesRemoved, index+1, nextIndex)
-            if numNodesRemoved:
-                self._tree.rowCountChanged(index, -numNodesRemoved)
+                del self._rows_model[index + 1: nextIndex]
+                qlog.debug("Delete model rows %d:%d", index + 1, nextIndex)
             rowNode.isOpen = False
         else:
-            if not suppressUpdate:
-                firstVisibleRow = self._tree.getFirstVisibleRow()
-            before_len = len(self._rows)
-            self._doContainerOpen(rowNode, index)
-            after_len = len(self._rows)
-            delta = after_len - before_len
-            if delta:
-                self._tree.rowCountChanged(index, delta)
+            qlog.debug("toggleOpenStateModel: self._doContainerOpenModel(rowNode:%s, index:%d)", rowNode.path, index)
+            self._doContainerOpenModel(rowNode, index)
             self._nodeOpenStatusFromName[rowNode.path] = True
-            if not suppressUpdate:
-                self._tree.ensureRowIsVisible(firstVisibleRow)
-                self.selection.select(index)
 
     def _compareChildNode(self, item1, item2):
         # Nodes contain (id, name, type, isContainer)
@@ -886,34 +1065,41 @@ class KoToolbox2HTreeView(TreeView):
         return cmp(items[lowerIndex][1].lower(), items[upperIndex][1].lower())
 
     def _sortAndExtractIDs(self, rowNode):
+        if not hasattr(rowNode, 'unfilteredChildNodes'):
+            qlog.debug("row %s doesn't have unfiltered kids")
+            rowNode.rebuildChildren()
         sortedNodes = sorted(rowNode.unfilteredChildNodes,
                              cmp=self._compareChildNode)
         return [x[0] for x in sortedNodes]
 
-    def _doContainerOpen(self, rowNode, index):
+    def _doContainerOpenModel(self, rowNode, index):
+        qlog.debug(">>_doContainerOpenModel(rowNode:%r, index:%d, path:%s", rowNode.id, index, rowNode.path)
         childIDs = self._sortAndExtractIDs(rowNode)
+        qlog.debug("childIDs:%s", childIDs)
         if childIDs:
             posn = index + 1
             #for path_id, name, node_type in childNodes:
             for path_id in childIDs:
                 toolPart = self._toolsManager.getToolById(path_id)
-                toolView = createToolViewFromTool(toolPart) 
+                qlog.debug("_doContainerOpenModel: getToolById(path_id:%d) => %r",
+                           path_id, toolPart)
+                toolView = createToolViewFromTool(toolPart)
                 toolView.level = rowNode.level + 1
-                self._rows.insert(posn, toolView)
+                self._rows_model.insert(posn, toolView)
+                #qlog.debug("Insert node %d/%s at posn %d", toolPart.id, toolPart.path, posn - 1)
                 posn += 1
             rowNode.isOpen = True
             # Now open internal nodes working backwards
             lastIndex = index + len(childIDs)
             firstIndex = index
             # Work from bottom up so we don't have to readjust the index.
-            for i, row in enumerate(self._rows[lastIndex: index: -1]):
-                try:
-                    openNode = self._nodeOpenStatusFromName[row.path]
-                except KeyError:
-                    pass
-                else:
-                    if openNode:
-                        self._doContainerOpen(row, lastIndex - i)
+            #qlog.debug("lastIndex: %d, firstIndex:%d", lastIndex, firstIndex)
+            for i, row in enumerate(self._rows_model[lastIndex: index: -1]):
+                qlog.debug("Look at row %d, path %s", i + lastIndex, row.path)
+                openNode = self._nodeOpenStatusFromName.get(row.path, None)
+                if openNode:
+                    qlog.debug("It's open")
+                    self._doContainerOpenModel(row, lastIndex - i)
                 
 _partFactoryMap = {}
 for name, value in globals().items():

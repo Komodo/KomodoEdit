@@ -86,6 +86,7 @@
     <!--globalOverlay.js contains application shutdown and controller code-->
     <script src="chrome://global/content/globalOverlay.js"                type="application/x-javascript;version=1.7"/>
     <script src="chrome://global/content/printUtils.js"                   type="application/x-javascript;version=1.7"/>
+    <script src="chrome://global/content/nsDragAndDrop.js"                   type="application/x-javascript;version=1.7"/>
 
     <!--Komodo library resources-->
     <!-- "komodo.js" must be the first Komodo .js file included so that its
@@ -2588,8 +2589,13 @@
                                                  ondragover="return ko.toolbox2.doDragOver(event, this);"
                                                  ondragenter="return ko.toolbox2.doDragEnter(event, this);"
                                                  ondrop="return ko.toolbox2.doDrop(event, this);"
-                                                 
                                                  />
+<!--
+                                                 ondragstart="ko.toolbox2.dragDropHandler.doStartDrag(event, this);"
+                                                 ondragover="return ko.toolbox2.dragDropHandler.doDragOver(event, this);"
+                                                 ondragenter="return ko.toolbox2.dragDropHandler.doDragEnter(event, this);"
+                                                 ondrop="return ko.toolbox2.dragDropHandler.doDrop(event, this);"
+                                                 -->
                                 </tree>
                             </vbox>
                         </tabpanel>

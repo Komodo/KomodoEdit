@@ -88,7 +88,7 @@ this.editProperties_command = function(event, tool) {
     ko.projects.commandProperties(tool);
 };
 
-this.add_command = function(view, index, parent, item) {
+this.add_command = function(parent, item) {
     // Code from peCommand.addCommand, since enough of it will change.
     item.setStringAttribute('name', "New Command");
     var obj = {
@@ -141,13 +141,13 @@ this.editProperties_macro = function(event, tool) {
     ko.projects.macroProperties(tool);
 };
 
-this.add_macro = function(view, index, parent, item) {
+this.add_macro = function(parent, item) {
     ko.projects.addMacro(parent, item);
 };
 
 // Menus
 
-this.add_menu = function(view, index, parent, item) {
+this.add_menu = function(parent, item) {
     ko.projects.addMenu(parent, item);
 };
 
@@ -177,7 +177,7 @@ this.editProperties_snippet = function(event, tool) {
     ko.projects.snippetProperties(tool);
 };
 
-this.add_snippet = function(view, index, parent, item) {
+this.add_snippet = function(parent, item) {
     ko.projects.addSnippet(parent, item);
 };
 
@@ -190,7 +190,7 @@ this.invoke_openTemplate = function(event, tool) {
     ko.views.manager.doFileNewFromTemplateAsync(tool.url);
 };
 
-this.add_template = function(view, index, parent, item) {
+this.add_template = function(parent, item) {
     // ref code peTemplate.js::addTemplate
     var obj = { type:'file',
                 templateOnly:true
@@ -206,7 +206,7 @@ this.add_template = function(view, index, parent, item) {
 
 // Toolbars
 
-this.add_toolbar = function(view, index, parent, item) {
+this.add_toolbar = function(parent, item) {
     ko.projects.addToolbar(parent, item);
 };
 
@@ -246,7 +246,7 @@ this.editProperties_URL = function(event, tool) {
     ko.projects.URLProperties(tool);
 };
 
-this.add_URL = function(view, index, parent, item) {
+this.add_URL = function(parent, item) {
     ko.projects.addURL(parent, item);
 };
 
@@ -258,7 +258,7 @@ this.invoke_folderCommand = function(event, tool) {
     event.preventDefault();
 };
 
-this.add_folder = function(view, index, parent, item) {
+this.add_folder = function(parent, item) {
     var basename = ko.dialogs.prompt(peFolder_bundle.GetStringFromName("enterFolderName"));
     if (!basename) return;
     item.setStringAttribute('name', basename);
@@ -301,7 +301,27 @@ this.addToolboxItem = function(itemType) {
     var index = view.selection.currentIndex;
     var parent = view.getTool(index);
     var item = this.manager.toolsMgr.createToolFromType(itemType);
-    method.call(this_, view, index, parent, item);
+    method.call(this_, parent, item);
+    } catch(ex) {
+        ko.dialogs.alert("toolbox2_command.js: Internal error: Trying to add a new "
+                         + itemType
+                         + ": "
+                         + ex);
+    }
+};
+
+this.addToolboxItemToStdToolbox = function(itemType) {
+    try {
+    var this_ = ko.toolbox2;
+    var method = this_["add_" + itemType];
+    if (!method) {
+        alert("toolbox2_command.js internal error: Don't know how to create a new "
+              + itemType);
+        return;
+    }
+    var item = this.manager.toolsMgr.createToolFromType(itemType);
+    var parent = this.manager.toolsMgr.getToolById(this.manager.toolbox2Svc.getStandardToolboxID());
+    method.call(this_, parent, item);
     } catch(ex) {
         ko.dialogs.alert("toolbox2_command.js: Internal error: Trying to add a new "
                          + itemType
@@ -791,7 +811,7 @@ this._checkDrag = function(event, tree) {
 this._checkDragSource = function(event, tree) {
     var index = this._currentRow(event, tree);
     if (!this._dragIndices.length) {
-        if (event.dataTransfer && this.manager.view.isContainer(index)) {
+        if (event.dataTransfer) { // && this.manager.view.isContainer(index)) {
             return true;
         }
         //dump("not dragging anything\n");
@@ -801,10 +821,12 @@ this._checkDragSource = function(event, tree) {
         //dump("can't drag an item to itself\n");
         return false;
     }
+    /*
     if (!this.manager.view.isContainer(index)) {
         //dump("target isn't an index\n");
         return false;
     }
+    */
     var view = this.manager.view;
     var candidateIndex;
     for (var i = this._dragIndices.length - 1; i >= 0; i--) {
@@ -863,6 +885,7 @@ this.doDrop = function(event, tree) {
         //dump("onDrop: no source indices to drop\n");
         return false;
     }
+    var res;
     try {
         var paths = this._dragSources;
         var loadedMacroURIs = this.copying ? [] : this._getLoadedMacros(paths);
@@ -870,12 +893,17 @@ this.doDrop = function(event, tree) {
         if (!this.copying) {
             this._removeLoadedMacros(loadedMacroURIs);
         }
+        res = false;
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
     } catch(ex) {
         ko.dialogs.alert("drag/drop: " + ex);
+        res = true;
     }
     this._dragSources = [];
     this._dragIndices = [];
-    return true;
+    return res;
 };
 
 this._handleDroppedURLs = function(index, koDropDataList) {
