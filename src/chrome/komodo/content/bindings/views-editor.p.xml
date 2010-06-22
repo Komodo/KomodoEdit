@@ -1275,7 +1275,7 @@
         <body>
         <![CDATA[
         if (!previewURI) {
-            previewURI = this._getPreviewPath(true /* no prompting */);
+            previewURI = this._getPreviewPath();
             previewURI = ko.uriparse.pathToURI(previewURI);
         }
         if (!previewURI) {
