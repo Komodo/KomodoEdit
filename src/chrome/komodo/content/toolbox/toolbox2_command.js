@@ -819,7 +819,7 @@ this._checkDrag = function(event, tree) {
 this._checkDragSource = function(event, tree) {
     var index = this._currentRow(event, tree);
     if (!this._dragIndices.length) {
-        if (event.dataTransfer && this.manager.view.isContainer(index)) {
+        if (event.dataTransfer) { //  && this.manager.view.isContainer(index)) {
             return true;
         }
         //dump("not dragging anything\n");
@@ -829,10 +829,10 @@ this._checkDragSource = function(event, tree) {
         //dump("can't drag an item to itself\n");
         return false;
     }
-    if (!this.manager.view.isContainer(index)) {
-        //dump("target isn't an index\n");
-        return false;
-    }
+    //if (!this.manager.view.isContainer(index)) {
+    //    //dump("target isn't an index\n");
+    //    return false;
+    //}
     var view = this.manager.view;
     var candidateIndex;
     for (var i = this._dragIndices.length - 1; i >= 0; i--) {
@@ -871,14 +871,28 @@ this.doDragOver = function(event, tree) {
 
 this.doDrop = function(event, tree) {
     var index = this._currentRow(event, this.manager.widgets.tree);
+    if (!this.manager.view.isContainer(index)) {
+        // Get the parent (or the std toolbox) and use that
+        var parentIndex = this.manager.view.getParentIndex(index);
+        if (this.manager.view.isContainer(parentIndex)) {
+            dump("**** doDrop: drop into node "
+                + parentIndex
+                + " instead of node "
+                + index+ "\n");
+            index = parentIndex;
+        } else if (this.manager.view.getLevel(index) == 0
+                   && (this.manager.view.getImageSrc(index, None)
+                       != 'chrome://fugue/skin/icons/toolbox.png')) {
+            // It's a top-level node in the std toolbox?
+            dump("Looks like we're dropping into the std toolbox\n");
+            index = -1;
+        }
+    }
     if (!this._dragSources.length) {
         if (event.dataTransfer) {
             try {
                 var koDropDataList = ko.dragdrop.unpackDropData(event.dataTransfer);
                 if (koDropDataList.length) {
-                    if (index == -1) {
-                        index = 0;
-                    }
                     this._handleDroppedURLs(index, koDropDataList);
                     event.cancelBubble = true;
                     event.stopPropagation();
@@ -919,7 +933,12 @@ this.doDrop = function(event, tree) {
 
 this._handleDroppedURLs = function(index, koDropDataList) {
     var koDropData;
-    var targetDirectory = this.manager.view.getPathFromIndex(index);
+    var targetDirectory;
+    if (index == -1) {
+        targetDirectory = this.manager.toolsMgr.getToolById(this.manager.toolbox2Svc.getStandardToolboxID()).path;
+    } else {
+        targetDirectory = this.manager.view.getPathFromIndex(index);
+    }
     var loadedSomething = false;
     var url;
     for (var i=0; i < koDropDataList.length; i++) {
@@ -952,7 +971,20 @@ this._handleDroppedURLs = function(index, koDropDataList) {
         }
     }
     if (loadedSomething) {
-        this.manager.view.reloadToolsDirectoryView(index);
+        this.manager.toolbox2Svc.reloadToolsDirectory(targetDirectory);
+        if (index == -1) {
+            // This forces redoing the whole tree, since we don't
+            // have a hook to the target node's parent.
+            var observerSvc = Components.classes["@mozilla.org/observer-service;1"]
+                    .getService(Components.interfaces.nsIObserverService);
+            try {
+                observerSvc.notifyObservers(null, 'toolbox-tree-changed', targetDirectory);
+            } catch(ex) {
+                dump("Failed to send toolbox-tree-changed: " + ex + "\n");
+            }
+        } else {
+            this.manager.view.reloadToolsDirectoryView(index);
+        }
     }
     return loadedSomething;
 };
