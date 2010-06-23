@@ -799,10 +799,15 @@ class Database(object):
                   and cd3.path_id = h2.path_id and ((cd3.type = ? and cd3.name like ?)
                                                      or cd3.type = ?)
                   """ % condition
-        test_values = ["Abbreviations", "folder", "folder"] + subnames + ["snippet", abbrev, "folder"]
+        test_values = ["Abbreviations", "folder", "folder"] + subnames + ["snippet", abbrev + "%", "folder"]
         #log.debug("stmt:%s, test_values:%s", stmt, test_values)
         matches = []
         folder_matches = []
+        if abbrev[0].isalnum():
+            self.word_part_re = re.compile(abbrev + "\\b", re.IGNORECASE)
+            word_part_case_sensitive_re = re.compile(abbrev + "\\b")
+        else:
+            self.word_part_re = re.compile(re.escape(abbrev) + r'(?:[\w\s]|$)')
         with self.connect() as cu:
             cu.execute(stmt, test_values)
             rows = cu.fetchall()
@@ -812,26 +817,30 @@ class Database(object):
             for row in rows:
                 if row[3] == 'folder':
                     folder_matches.append(row)
-                else:
+                elif self.word_part_re.match(row[1]):
+                    #log.debug("Abbrev %s, Matched %s", abbrev, row[1])
                     matches.append(row)
+                else:
+                    pass
+                    #log.debug("Abbrev %s, Failed to match %s", abbrev, row[1])
             if len(matches) == 0:
                 # First make sure the snippet exists somewhere
                 stmt = """select count(*) from common_details
                           where type = ? and name like ?"""
-                cu.execute(stmt, ('snippet', abbrev))
+                cu.execute(stmt, ('snippet', abbrev + "%"))
                 if not cu.fetchone()[0]:
                     return
                 # Then look in subfolders for the snippet
                 return self._getAbbreviationMatchInTree(folder_matches, abbrev, cu)
         if len(matches) == 1:
-            #log.debug("exactly 1 match: %s", matches[0][0])
+            #log.debug("exactly 1 match: %s", matches[0])
             return matches[0][0]
         # Favor case-sensitive matches over non-general-folder matches.
-        exactMatches = [x for x in matches if x[1] == abbrev]
+        exactMatches = [x for x in matches if word_part_case_sensitive_re.match(x[1])]
         if len(exactMatches) == 1:
-            #log.debug("exactly 1 case-sensitive match: %d", exactMatches[0][0])
+            #log.debug("exactly 1 case-sensitive match: %s", exactMatches[0])
             return exactMatches[0][0]
-        #log.debug("Got %d matches, returning %d (%s)", len(matches), matches[0][0], matches[0][1])
+        #log.debug("Got %d matches, returning %s", len(matches), matches[0])
         # Favor snippets that aren't in a General folder.
         nonGeneralMatches = [x for x in matches if x[2] != "General"]
         if nonGeneralMatches:
@@ -849,7 +858,7 @@ class Database(object):
             where (hierarchy.parent_path_id = <id1> or
                    hierarchy.parent_path_id = <id2>...)
                   and common_details.path_id = hierarchy.path_id
-                  and ((common_details.type = 'snippet' and common_details.name like '<abbrev>')
+                  and ((common_details.type = 'snippet' and common_details.name like '<abbrev>%')
                         or common_details.type ='folder')
         """
         condition = ' or '.join(['hierarchy.parent_path_id = ?'] * len(folder_matches))
@@ -859,13 +868,13 @@ class Database(object):
                       and common_details.path_id = hierarchy.path_id
                       and ((common_details.type = ? and common_details.name like ?)
                             or common_details.type = ?)""" % (condition,)
-        test_values = [f[0] for f in folder_matches] + ['snippet', abbrev, 'folder']
+        test_values = [f[0] for f in folder_matches] + ['snippet', abbrev + "%", 'folder']
         cu.execute(stmt, test_values)
         child_rows = cu.fetchall()
         if not child_rows:
             return
         for child_row in child_rows:
-            if child_row[2] == 'snippet':
+            if child_row[2] == 'snippet' and self.word_part_re.match(child_row[1]):
                 return child_row[0]
         return self._getAbbreviationMatchInTree(child_rows, abbrev, cu)
 
