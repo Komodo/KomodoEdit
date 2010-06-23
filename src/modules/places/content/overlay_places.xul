@@ -290,6 +290,8 @@
     <tab id="places_tab" label="&Places.label;" insertafter="project_tab"
         oncommand="gPlacesViewMgr.focus(); gPlacesViewMgr.updateView();"
         onfocus="gPlacesViewMgr.focus(); gPlacesViewMgr.updateView();"
+        onmovetab_unload="ko.places.onUnload();"
+        onmovetab_load="ko.places.onLoad();"
          />
   </tabs>
   <tabpanels id="project_toolbox_tabpanels">
