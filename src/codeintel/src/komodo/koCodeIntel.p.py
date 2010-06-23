@@ -108,7 +108,7 @@ class KoCodeIntelEnvironment(Environment):
         "codeintel_max_recursive_dir_depth": "long",
     }
 
-    def __init__(self, proj=None):
+    def __init__(self, proj=None, prefset=None):
         Environment.__init__(self)
 
         if proj is None:
@@ -133,6 +133,11 @@ class KoCodeIntelEnvironment(Environment):
             self.prefsets.insert(0,
                 getProxyForObject(None, components.interfaces.koIPreference,
                                   proj.prefset, PROXY_ALWAYS | PROXY_SYNC)
+            )
+        if prefset is not None:
+            self.prefsets.insert(0,
+                getProxyForObject(None, components.interfaces.koIPreference,
+                                  prefset, PROXY_ALWAYS | PROXY_SYNC)
             )
 
         # <pref-name> -> <callback-id> -> <observer-callback>
@@ -1243,23 +1248,27 @@ class KoCodeIntelService:
         unwrapped_updater = UnwrapObject(updater)
         self.mgr.batch_update(join=join, updater=unwrapped_updater)
 
-    def _proj_env_from_koIDocument(self, doc):
+    def _env_from_koIDocument(self, doc):
         """Return an Environment instance appropriate for the given
         koIDocument. If this doc is part of an open Komodo project then
-        the Environment instance will wrap that project's prefs.
+        the Environment instance will include that project's prefs.
 
-        Returns None, if this document is not part of a project.
+        Returns None, if this document does not have a prefset.
         """
         if not self.enabled:
             return None
-        if doc.file and doc.file.URI:
-            proj = self.partSvc.getProjectForURL(doc.file.URI)
-            if proj:
-                if proj.id not in self._proj_env_from_proj_id_cache:
-                    self._proj_env_from_proj_id_cache[proj.id] \
-                        = KoCodeIntelEnvironment(proj)
-                proj_env = self._proj_env_from_proj_id_cache[proj.id]
-                return proj_env
+        prefset = doc.prefs
+        if prefset is not None:
+            if doc.file and doc.file.URI:
+                proj = self.partSvc.getProjectForURL(doc.file.URI)
+                if proj:
+                    if proj.id not in self._proj_env_from_proj_id_cache:
+                        self._proj_env_from_proj_id_cache[proj.id] \
+                            = KoCodeIntelEnvironment(proj, prefset=doc.prefs)
+                    proj_env = self._proj_env_from_proj_id_cache[proj.id]
+                    return proj_env
+            env = KoCodeIntelEnvironment(proj=None, prefset=prefset)
+            return env
         return None
 
     _js_macro_environment = None
@@ -1295,7 +1304,7 @@ class KoCodeIntelService:
         else:
             # If this document is part of an open project, hook up that
             # project's prefset.
-            env = self._proj_env_from_koIDocument(doc)
+            env = self._env_from_koIDocument(doc)
         return self.mgr.buf_from_koIDocument(doc, env=env)
 
     def is_cpln_lang(self, lang):
