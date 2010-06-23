@@ -983,8 +983,11 @@ class KoToolbox2HTreeView(TreeView):
         if len(self._rows_model) == 0:
             self._rows_view = []
             return
-        # Copy, because the view's level is different from the model's.
-        self._rows_view = copy.deepcopy(self._rows_model)
+        # Copy the items, because at least one of the nodes in the
+        # original view won't be in the final view.  And when we
+        # start decrementing levels, we want to change the
+        # view but not the model items.
+        self._rows_view = self._rows_model[:]
         lim = len(self._rows_model)
         startPoint = stopPoint = None
         i = 0
@@ -1002,6 +1005,11 @@ class KoToolbox2HTreeView(TreeView):
             i = j
         if startPoint is not None:
             for i in range(startPoint, stopPoint):
+                # These need to be copied, because before filtering 
+                # _rows_view[i] === _rows_model[i].  If we don't
+                # copy then the _rows_model items will have a smaller
+                # level as well.
+                self._rows_view[i] = copy.copy(self._rows_view[i])
                 self._rows_view[i].level -= 1
 
     def get_sortDirection(self):
