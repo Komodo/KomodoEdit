@@ -283,30 +283,33 @@ class koProjectPackageService:
             os.mkdir(dir)
 
         zf = zipfile.ZipFile(file)
-        files = zf.namelist()
-        # create directory structure to house files
-        self._createstructure(file, dir)
-
-        num_files = len(files)
-        percent = self.percent
-        divisions = 100 / percent
-        perc = int(num_files / divisions)
-
-        kpf = None
-        basedir = os.path.dirname(os.path.join(dir, files[0]))
-        # extract files to directory structure
-        for name in files:
-            if name.endswith('/'):
-                continue
-            outfile = open(os.path.join(dir, name), 'wb')
-            outfile.write(zf.read(name))
-            outfile.flush()
-            outfile.close()
-            
-            if not kpf and os.path.splitext(name)[1] == ".kpf":
-                kpf = os.path.join(dir, name)
-            if os.path.basename(name) == "package.kpf":
-                kpf = os.path.join(dir, name)
+        try:
+            files = zf.namelist()
+            # create directory structure to house files
+            self._createstructure(file, dir)
+    
+            num_files = len(files)
+            percent = self.percent
+            divisions = 100 / percent
+            perc = int(num_files / divisions)
+    
+            kpf = None
+            basedir = os.path.dirname(os.path.join(dir, files[0]))
+            # extract files to directory structure
+            for name in files:
+                if name.endswith('/'):
+                    continue
+                outfile = open(os.path.join(dir, name), 'wb')
+                outfile.write(zf.read(name))
+                outfile.flush()
+                outfile.close()
+                
+                if not kpf and os.path.splitext(name)[1] == ".kpf":
+                    kpf = os.path.join(dir, name)
+                if os.path.basename(name) == "package.kpf":
+                    kpf = os.path.join(dir, name)
+        finally:
+            zf.close()
         return basedir, kpf
 
 

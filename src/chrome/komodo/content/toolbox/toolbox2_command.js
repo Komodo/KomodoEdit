@@ -343,7 +343,7 @@ this.importFilesFromFileSystem = function(event) {
     var defaultFilename = null;
     var title = "Select file(s) to import into the toolbox";
     var defaultFilterName = "Komodo Tool";
-    var filterNames = [defaultFilterName, "All"]
+    var filterNames = [defaultFilterName, "Zip", "All"]
     var paths = ko.filepicker.openFiles(defaultDirectory, defaultFilename,
                                         title,
                                         defaultFilterName, filterNames);
@@ -354,7 +354,9 @@ this.importFilesFromFileSystem = function(event) {
         this_.manager.toolbox2Svc.importFiles(defaultDirectory, paths, paths.length);
         this_.manager.view.reloadToolsDirectoryView(index);
     } catch(ex) {
-        this_.log.exception("importFilesFromFileSystem failed: " + ex);
+        var msg = "importFilesFromFileSystem failed: " + ex;
+        this_.log.exception(msg);
+        alert(msg);
     }
 };
 
@@ -375,7 +377,9 @@ this.importFolderFromFileSystem = function(event) {
         this_.manager.toolbox2Svc.importDirectory(defaultDirectory, path);
         this_.manager.view.reloadToolsDirectoryView(index);
     } catch(ex) {
-        this_.log.exception("importFilesFromFileSystem failed: " + ex);
+        var msg = "importFolderFromFileSystem failed: " + ex;
+        this_.log.exception(msg);
+        alert(msg);
     }
 };
 
@@ -406,7 +410,9 @@ this.importPackage = function(event) {
         this_.manager.toolbox2Svc.importV5Package(targetDirectory, path);
         this_.manager.view.reloadToolsDirectoryView(index);
     } catch(ex) {
-        this_.log.exception("importFilesFromFileSystem failed: " + ex);
+        var msg = "importPackage failed: " + ex;
+        this_.log.exception(msg);
+        alert(msg);
     }
 };
  
@@ -432,7 +438,9 @@ this.importPackageFromWeb = function(event) {
         this_.manager.toolbox2Svc.importV5Package(targetDirectory, url);
         this_.manager.view.reloadToolsDirectoryView(index);
     } catch(ex) {
-        this_.log.exception("importPackageFromWeb failed: " + ex);
+        var msg = "importPackageFromWeb failed: " + ex;
+        this_.log.exception(msg);
+        alert(msg);
     }
 };
 
@@ -650,8 +658,8 @@ this.exportAsZipFile = function(event) {
                                                 );
         if (!targetPath) return;
         default_saveToolDirectory = ko.uriparse.dirName(targetPath);
-        numFilesZipped = ko.toolbox2.manager.view.zipSelectionToFile(targetPath);
-        msg = peFolder_bundle.formatStringFromName("zippedNTools",
+        var numFilesZipped = ko.toolbox2.manager.view.zipSelectionToFile(targetPath);
+        var msg = peFolder_bundle.formatStringFromName("zippedNTools",
                                                    [numFilesZipped], 1);
         ko.statusBar.AddMessage(msg, "toolbox", 5000, true);
     } catch(ex) {
@@ -864,21 +872,26 @@ this.doDragOver = function(event, tree) {
 this.doDrop = function(event, tree) {
     var index = this._currentRow(event, this.manager.widgets.tree);
     if (!this._dragSources.length) {
-        try {
-            var koDropDataList = ko.dragdrop.unpackDropData(event.dataTransfer);
-            if (koDropDataList.length) {
-                if (index == -1) {
-                    index = 0;
+        if (event.dataTransfer) {
+            try {
+                var koDropDataList = ko.dragdrop.unpackDropData(event.dataTransfer);
+                if (koDropDataList.length) {
+                    if (index == -1) {
+                        index = 0;
+                    }
+                    this._handleDroppedURLs(index, koDropDataList);
+                    event.cancelBubble = true;
+                    event.stopPropagation();
+                    event.preventDefault();
+                    return true;
                 }
-                this._handleDroppedURLs(index, koDropDataList);
-                event.cancelBubble = true;
-                event.stopPropagation();
-                event.preventDefault();
-                return true;
+            } catch(ex) {
+                alert("toolbox2_command.js: toDrop: " + ex);
+                this.log.exception("ko.toolbox2.doDrop: " + ex);
             }
-        } catch(ex) {
-            alert("toolbox2_command.js: toDrop: " + ex);
-            this.log.exception("ko.toolbox2.doDrop: " + ex);
+        } else {
+            this.log.error("doDrop: no dragSources, and no event.dataTransfer");
+            dump("doDrop: no dragSources, and no event.dataTransfer\n");
         }
         //dump("onDrop: no source indices to drop\n");
         return false;
@@ -921,7 +934,7 @@ this._handleDroppedURLs = function(index, koDropDataList) {
                 alert("toolbox2_command.js:importV5Package failed: " + ex);
                 this.log.exception("importV5Package failed: " + ex);
             }
-        } else if (koDropData.isKomodoToolURL) {
+        } else if (koDropData.isKomodoToolURL || koDropData.isZipURL) {
             url = koDropData.value;
             try {
                 var path = ko.uriparse.URIToLocalPath(url);

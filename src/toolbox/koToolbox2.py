@@ -1457,15 +1457,51 @@ class ToolboxLoader(object):
     def importFiles(self, parentPath, toolPaths):
         parent_id = self.db.get_id_from_path(parentPath)
         for srcPath in toolPaths:
-            if os.path.splitext(srcPath)[1] != TOOL_EXTENSION:
+            ext = os.path.splitext(srcPath)[1]
+            if ext == TOOL_EXTENSION:
+                destPath = join(parentPath, os.path.basename(srcPath))
+                shutil.copy(srcPath, destPath)
+                self._testAndAddItem(True, parentPath, destPath, parent_id)
+            elif ext == ".zip":
+                self._importZippedFiles(srcPath, parentPath, parent_id)
+            else:
                 log.warn("import tool: skipping file %s as it isn't a Komodo tool, has ext %s",
                          srcPath, os.path.splitext(srcPath)[1] )
-                continue
-            destPath = join(parentPath, os.path.basename(srcPath))
-            shutil.copy(srcPath, destPath)
-            self._testAndAddItem(True, parentPath, destPath, parent_id)
-            
 
+    _up_dir_re = re.compile(r'(?:^|[/\\])\.\.(?:$|[/\\])')
+    def _importZippedFiles(self, srcPath, parentPath, parent_id):
+        import zipfile, tempfile
+        zf = zipfile.ZipFile(srcPath, 'r')
+        try:
+            zipped_files = zf.namelist()
+            for fname in zipped_files:
+                if fname.startswith("/"):
+                    raise Exception("filename in zip file is an absolute path: %s",
+                                    fname)
+                elif self._up_dir_re.search(fname):
+                    raise Exception("filename in zip file contains a '..': %s",
+                                    fname)
+            koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+            userDataDir = koDirSvc.userDataDir
+            extractDir = join(userDataDir, 'extracted-kpz')
+            zipExtractDir = tempfile.mkdtemp(suffix="_zip", prefix="tools_",
+                                             dir=extractDir)
+            zf.extractall(zipExtractDir)
+        finally:
+            zf.close()
+        try:
+            newFiles = []
+            for fname in os.listdir(zipExtractDir):
+                path = join(zipExtractDir, fname)
+                if os.path.isdir(path):
+                    self.importDirectory(parentPath, path)
+                else:
+                    newFiles.append(path)
+            if newFiles:
+                self.importFiles(parentPath, newFiles)
+        finally:
+            shutil.rmtree(zipExtractDir)
+            
     def reloadToolsDirectory(self, toolDir):
         self.db.establishConnection()
         try:

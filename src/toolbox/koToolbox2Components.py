@@ -210,12 +210,24 @@ class KoToolBox2Service:
         return self._standardToolbox
     
     def importDirectory(self, parentPath, pathToImport):
-        return self.toolboxLoader.importDirectory(parentPath, pathToImport)
+        try:
+            return self.toolboxLoader.importDirectory(parentPath, pathToImport)
+        except Exception, ex:
+            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, ex)
     
     def importFiles(self, parentPath, toolPaths):
-        return self.toolboxLoader.importFiles(parentPath, toolPaths)
-
+        try:
+            return self.toolboxLoader.importFiles(parentPath, toolPaths)
+        except Exception, ex:
+            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, ex)
+            
     def importV5Package(self, parentPath, kpzPath):
+        try:
+            return self.importV5Package_aux(parentPath, kpzPath)
+        except Exception, ex:
+            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, ex)
+        
+    def importV5Package_aux(self, parentPath, kpzPath):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         userDataDir = koDirSvc.userDataDir
         kpzExtractDir = join(userDataDir, 'extracted-kpz')

@@ -182,6 +182,8 @@ function _appendFilters(fp, limitTo /* =null */) {
     filters.push(["*.ksf"]);
     names.push("Komodo Tool");
     filters.push(["*.komodotool"]);
+    names.push("Zip");
+    filters.push(["*.zip"]);
     names.push(_bundle.GetStringFromName("codeIntelligenceXml"));
     filters.push(["*.cix"]);
     names.push("All");
