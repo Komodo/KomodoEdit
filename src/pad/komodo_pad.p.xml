@@ -48,7 +48,7 @@
 		<Program_Language>English</Program_Language>
 		<Program_Change_Info>Editor History; Hyperlinks; Fast-open dialog; Find highlighting</Program_Change_Info>
 		<Program_Specific_Category>Development Tools</Program_Specific_Category>
-		<Program_Category_Class>Development::Other</Program_Category_Class>
+		<Program_Category_Class>Development::Source Editors</Program_Category_Class>
 		<Program_System_Requirements>$PAD_SYSREQ</Program_System_Requirements>
 		<File_Info>
 			<File_Size_Bytes>$PAD_SIZE_BYTES</File_Size_Bytes>
