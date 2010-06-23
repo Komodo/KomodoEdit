@@ -1850,13 +1850,13 @@ def _PackageKomodoPAD(cfg):
     genpad_path = join("src", "pad", "genpad.py")
     output_dir = join(cfg.packagesAbsDir, "internal", "pad",
                       "komodo_%s" % cfg.productType)
-    license_text_path = join("src", "license_text", "LICENSE.mpl.txt")
+    eula_text_path = "EULA.txt"
     if not exists(output_dir):
         os.makedirs(output_dir)
 
     # The PAD file.
     cmd = 'python %s -d "%s" -L "%s"' % (
-        genpad_path, output_dir, license_text_path)
+        genpad_path, output_dir, eula_text_path)
     _run(cmd)
 
     # The screenshot file.

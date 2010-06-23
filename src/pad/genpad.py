@@ -64,8 +64,8 @@ g_sysreqs_from_os = {
 }
 
 g_os_support_from_os = {
-    "win32": "Windows 2000, Windows 2003, WinXP, Windows Vista Starter, Windows Vista Home Basic, Windows Vista Home Premium, Windows Vista Business, Windows Vista Enterprise, Windows Vista Ultimate, Windows Vista Home Basic x64, Windows Vista Home Premium x64, Windows Vista Business x64, Windows Vista Enterprise x64, Windows Vista Ultimate x64",
-    "macosx": "Mac OS X, Mac OS X 10.4, Mac OS X 10.5",
+    "win32": "Win2000, WinXP, WinVista, Win7 x32, Win7 x64",
+    "macosx": "Mac OS X",
     "linux": "Linux, Linux Gnome",
 }
 
@@ -94,7 +94,7 @@ class GenPadError(Exception):
 
 #---- main functionality
 
-def genpad(license_text_path=None, output_dir=None):
+def genpad(eula_text_path=None, output_dir=None):
     DEBUG = False
     if output_dir is None:
         output_dir = dirname(__file__)
@@ -160,14 +160,14 @@ def genpad(license_text_path=None, output_dir=None):
         "$PAD_SCREENSHOT_BASENAME": "komodo_%s_%s.png" % (bkconfig.productType, pi.os),
         "$PAD_ICON_BASENAME": "komodoedit_orb_32.png",
     }
-    if not license_text_path:
-        log.error("no path given for license text (use `-L` option)")
+    if not eula_text_path:
+        log.error("no path given for eula text (use `-L` option)")
         num_errors += 1
-    elif not exists(license_text_path):
-        log.error("given license text path doesn't exist: %s", license_text_path)
+    elif not exists(eula_text_path):
+        log.error("given eula text path doesn't exist: %s", eula_text_path)
         num_errors += 1
     else:
-        pad_info["$PAD_EULA"] = open(license_text_path).read()
+        pad_info["$PAD_EULA"] = open(eula_text_path).read()
     if DEBUG:
         pad_info_summary = pad_info.copy()
         pad_info_summary["$PAD_EULA"] = pad_info_summary.get("$PAD_EULA", "")[:50] + "..."
@@ -291,7 +291,7 @@ def main(argv):
     opts, args = parser.parse_args()
     if args:
         raise GenPadError("no args at accepted by genpad")
-    return genpad(license_text_path=opts.license_text_path,
+    return genpad(eula_text_path=opts.eula_text_path,
                   output_dir=opts.output_dir)
 
 
