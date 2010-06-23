@@ -152,6 +152,15 @@ class _KoURLToolHView(_KoURL_LikeToolHView):
     typeName = 'URL'
 
 class KoToolbox2HTreeView(TreeView):
+    """
+    There are actually four tree views here.  They each contain an
+    array of nodes consisting of (name, level, type, icon, path).
+    The four trees are complete (contains everything), no-toolbox,
+    filtered, and filtered-no-toolbox.
+    
+    Now the user never sees the top-level standard-toolbox, but
+    all operations on the tree work on it.
+    """
     _com_interfaces_ = [components.interfaces.nsIObserver,
                         components.interfaces.koIToolbox2HTreeView,
                         components.interfaces.nsITreeView]
@@ -226,15 +235,25 @@ class KoToolbox2HTreeView(TreeView):
         elif topic == 'tool-appearance-changed':
             # Update the tool's values, and then invalidate the row
             id = int(data)
-            index = self.getIndexById(id)
-            if index == -1:
+            view_index = self.getIndexById(id)
+            if view_index == -1:
                 return
-            node = self._rows_view[index]
+            model_index = self._modelIndexFromViewIndex(view_index)
+            if model_index == -1:
+                return
+            node = self._rows_model[model_index]
             tool = self._toolsMgr.getToolById(id)
             node.name = tool.name
             node.iconurl = tool.get_iconurl()
-            self._tree.invalidateRow(index)
-            #TODO: Get the parent, refilter and resort its nodes, and redisplay.
+            parent_index = self.getParentIndexModel(model_index)
+            if parent_index > -1:
+                self._rows_model[parent_index].rebuildChildren()
+                self.refreshView_Model(parent_index)
+            self._filter_std_toolbox()
+            view_index = self.getIndexById(id)
+            if view_index == -1:
+                return
+            self._tree.invalidateRow(view_index)
         elif topic == 'xpcom-shutdown':
             _observerSvc = components.classes["@mozilla.org/observer-service;1"].\
                 getService(components.interfaces.nsIObserverService)
@@ -386,25 +405,25 @@ class KoToolbox2HTreeView(TreeView):
         if path is None:
             path = row.path
         self._toolsMgr.deleteTool(row.id)
+        
+        # Work with the model rows, and then refilter to the view
+        model_index = self._modelIndexFromViewIndex(index)
+        if model_index != -1:
+            model_parentIndex = self.getParentIndexModel(model_index)
+            if model_parentIndex != -1:
+                self._rows_model[model_parentIndex].removeChild(self._rows_model[index])
 
-        parentIndex = self.getParentIndex(index)
-        if parentIndex > -1:
-            self._rows_view[parentIndex].removeChild(row)
-
-        # Now update the view.
-        self._tree.beginUpdateBatch()
+        before_len = len(self._rows_view)
+        if self.isContainerOpenModel(model_index):
+            self.toggleOpenStateModel(model_index)
         try:
-            if self.isContainerOpen(index):
-                self.toggleOpenState(index)
-            try:
-                del self._nodeOpenStatusFromName[path]
-            except KeyError:
-                pass
-            del self._rows_view[index]
-            del self._rows_model[index - 1]
-            self._tree.rowCountChanged(index, -1)
-        finally:
-            self._tree.endUpdateBatch()
+            del self._nodeOpenStatusFromName[path]
+        except KeyError:
+            pass
+        del self._rows_model[model_index]
+        self._filter_std_toolbox()
+        after_len = len(self._rows_view)
+        self._tree.rowCountChanged(index, after_len - before_len)
 
     def copyLocalFolder(self, srcPath, targetDirPath):
         fileutils.copyLocalFolder(srcPath, targetDirPath)
@@ -414,16 +433,25 @@ class KoToolbox2HTreeView(TreeView):
         # changing this tree.  We can use the current view to
         # find the source and destination, but then need to work
         # with model coordinates for updating the rows.
-        targetTool = self.getTool(targetIndex)
+        if targetIndex == -1:
+            stdToolboxPath = self._toolsMgr.getToolById(self.toolbox2Svc.getStandardToolboxID()).path
+            targetModelIndex = self.getIndexByPathModel(stdToolboxPath)
+        else:
+            targetModelIndex = self._modelIndexFromViewIndex(targetIndex)
+        if targetModelIndex == -1:
+            raise Exception("Can't find a model index for targetIndex: %d" % targetIndex)
+            
+        targetTool = self.getToolFromModel(targetModelIndex)
         if not targetTool.isContainer:
             raise Exception("pasteItemsIntoTarget: item at row %d isn't a container, it's a %s" %
-                            (targetIndex, targetTool.typeName))
-        targetPath = self.getPathFromIndex(targetIndex)
-        targetId = self.toolbox_db.get_id_from_path(targetPath)
+                            (targetModelIndex, targetTool.typeName))
+        targetPath = targetTool.path
+        targetId = targetTool.id
         if targetId is None:
             raise Exception("target %s (%d) isn't in the database" % (
                 targetPath, targetIndex
             ))
+                
         if copying:
             # Just copy the paths to the targetIndex, refresh the
             # target and its children, and refresh the view
@@ -446,10 +474,15 @@ class KoToolbox2HTreeView(TreeView):
                     except:
                         log.exception("Can't copy src:%s to  targetPath:%s", path, targetPath)
             self.toolbox2Svc.reloadToolsDirectory(targetPath)
-            self.reloadToolsDirectoryView(targetIndex)
+            self.reloadToolsDirectoryView_ByModel(targetModelIndex)
+            view_before_len = len(self._rows_view)
+            self._filter_std_toolbox()
+            view_after_len = len(self._rows_view)
+            self._tree.rowCountChanged(0, view_after_len - view_before_len)
+            self._tree.invalidate()
             return
 
-        parentIndicesToUpdate = [targetIndex]
+        parentIndicesToUpdate = [targetModelIndex]
         # Moving is harder, because we have to track the indices we've dropped.
         for path in paths:
             if not os.path.exists(path):
@@ -474,23 +507,26 @@ class KoToolbox2HTreeView(TreeView):
                 except:
                     log.exception("shutil.move(src:%s to finalTargetPath:%s) failed", path, finalTargetPath)
                     continue
-            index = self.getIndexByPath(path)
-            parentIndex = self.getParentIndex(index)
-            if parentIndex not in parentIndicesToUpdate:
+            index = self.getIndexByPathModel(path)
+            parentIndex = self.getParentIndexModel(index)
+            if parentIndex != -1 and parentIndex not in parentIndicesToUpdate:
                 parentIndicesToUpdate.append(parentIndex)
                 
-        self._tree.beginUpdateBatch()
-        try:
-            parentIndicesToUpdate.sort(reverse=True)
-            for parentIndex in parentIndicesToUpdate:
-                parentPath = self.getPathFromIndex(parentIndex)
-                self.toolbox2Svc.reloadToolsDirectory(parentPath)
-                self.reloadToolsDirectoryView(parentIndex)
-        finally:
-                self._tree.endUpdateBatch()
-        #self.refreshFullView() #TODO: refresh only parentIndicesToUpdate
-        finalTargetIndex = self.getIndexByPath(targetPath)
-        self._tree.ensureRowIsVisible(finalTargetIndex)
+        view_before_len = len(self._rows_view)
+        parentIndicesToUpdate.sort(reverse=True)
+        for parentIndex in parentIndicesToUpdate:
+            parentPath = self._rows_model[parentIndex].path
+            self.toolbox2Svc.reloadToolsDirectory(parentPath)
+            self.reloadToolsDirectoryView_ByModel(parentIndex)
+        self._filter_std_toolbox()
+        view_after_len = len(self._rows_view)
+        self._tree.rowCountChanged(0, view_after_len - view_before_len)
+        self._tree.invalidate()
+        if targetIndex != -1:
+            finalTargetIndex = self.getIndexByPath(targetPath)
+            if finalTargetIndex != -1:
+                self._tree.ensureRowIsVisible(finalTargetIndex)
+        # Otherwise who knows.  Leave the tree alone.
                 
     def reloadToolsDirectoryView(self, viewIndex):
         # Refresh the model tree, and refilter into the view tree
@@ -504,6 +540,13 @@ class KoToolbox2HTreeView(TreeView):
         self._filter_std_toolbox()
         after_len = len(self._rows_view)
         self._tree.rowCountChanged(0, after_len - before_len)
+
+    def reloadToolsDirectoryView_ByModel(self, modelIndex):
+        # Refresh the model tree, and refilter into the view tree
+        node = self._rows_model[modelIndex]
+        if node.isContainer:
+            node.rebuildChildren()
+        self.refreshView_Model(modelIndex)
 
     def _zipNode(self, zf, currentDirectory):
         nodes = os.listdir(currentDirectory)
@@ -715,6 +758,15 @@ class KoToolbox2HTreeView(TreeView):
             log.error("Failed getTool(index:%d), id:%r", index, id)
             return None
 
+    def getToolFromModel(self, index):
+        if index < 0: return None
+        try:
+            id = self._rows_model[index].id
+            return self._toolsManager.getToolById(id)
+        except IndexError:
+            log.error("Failed getTool(index:%d), id:%r", index, id)
+            return None
+
     def get_type(self, index):
         if index == -1:
             return None
@@ -772,6 +824,17 @@ class KoToolbox2HTreeView(TreeView):
             i = index - 1
             level = self._rows_view[index].level
             while i >= 0 and self._rows_view[i].level >= level:
+                i -= 1
+        except IndexError:
+            i = -1
+        return i
+
+    def getParentIndexModel(self, index):
+        if index >= len(self._rows_model) or index < 0: return -1
+        try:
+            i = index - 1
+            level = self._rows_model[index].level
+            while i >= 0 and self._rows_model[i].level >= level:
                 i -= 1
         except IndexError:
             i = -1
@@ -1015,6 +1078,9 @@ class KoToolbox2HTreeView(TreeView):
             #for path_id, name, node_type in childNodes:
             for path_id in childIDs:
                 toolPart = self._toolsManager.getToolById(path_id)
+                if toolPart is None:
+                    log.error("_doContainerOpenModel: getToolById(path_id:%r) => None", path_id)
+                    continue
                 toolView = createToolViewFromTool(toolPart)
                 toolView.level = rowNode.level + 1
                 self._rows_model.insert(posn, toolView)
