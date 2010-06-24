@@ -230,6 +230,10 @@ class KoToolbox2HTreeView(TreeView):
     def observe(self, subject, topic, data):
         if not topic:
             return
+        if _tbdbSvc is None:
+            # Not fully initialized, but we'll update the tree later,
+            # before startup is done.
+            return
         if topic == 'toolbox-tree-changed':
             self._redoTreeView()
         elif topic == 'tool-appearance-changed':
