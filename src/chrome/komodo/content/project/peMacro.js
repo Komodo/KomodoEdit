@@ -960,7 +960,7 @@ this.addDeprecatedGetter = function(deprecatedName, ko_macro_name) {
 // setTimeout in case projectManager.p.js hasn't been loaded yet.
 setTimeout(function() {
 ko.projects.addDeprecatedGetter("peMacro_addMacro", "addMacro");
-ko.projects.addDeprecatedGetter("acro_executeMacro", "executeMacro");
+ko.projects.addDeprecatedGetter("macro_executeMacro", "executeMacro");
 ko.projects.addDeprecatedGetter("macro_executeMacroById", "executeMacroById");
 ko.projects.addDeprecatedGetter("macro_editProperties", "macroProperties");
 
