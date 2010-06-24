@@ -286,8 +286,8 @@ def main(argv):
         version=version, description=__doc__)
     parser.add_option("-d", "--output-dir",
                       help="output dir for generate PAD file")
-    parser.add_option("-L", "--license-text-path",
-                      help="path to License text to use")
+    parser.add_option("-L", "--eula-text-path",
+                      help="path to EULA text file to use")
     opts, args = parser.parse_args()
     if args:
         raise GenPadError("no args at accepted by genpad")
