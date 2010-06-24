@@ -331,6 +331,11 @@ nsresult SciMoz::PlatformResetWindow() {
 int16 SciMoz::PlatformHandleEvent(void *ev) {
 	/* UNIX Plugins do not use HandleEvent */
 	
+        if (isClosed) {
+            fprintf(stderr, "SciMoz is getting an event after being closed.\n");
+            return false;
+        }
+
 	//fprintf(stderr,"SciMoz::PlatformHandleEvent\n");
 	EventRecord *event = (EventRecord *)ev;
 	switch (event->what)
