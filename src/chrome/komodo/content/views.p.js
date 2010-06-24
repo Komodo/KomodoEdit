@@ -2572,6 +2572,24 @@ this.gotoLine_onkeypress_handler = function ko_views_gotoLine_onkeypress_handler
     }
 }
 
+var _deprecated_getters_noted = {};
+this.addDeprecatedGetter = function(deprecatedName, namespaceName, propertyName) {
+    __defineGetter__(deprecatedName,
+         function() {
+            if (!(deprecatedName in _deprecated_getters_noted)) {
+                _deprecated_getters_noted[deprecatedName] = true;
+                ko.views.manager.log.error("DEPRECATED: "
+                                           + deprecatedName
+                                           + ", use ko."
+                                           + namespaceName
+                                           + "."
+                                           + propertyName
+                                           + "\n");
+            }
+            return ko[namespaceName][propertyName];
+        });
+};
+
 }).apply(ko.views);
 
 if (typeof(ko.workspace) == "undefined") {
@@ -3157,24 +3175,25 @@ this.getCwd = function view_GetCwd() {
 
 }).apply(ko.window);
 
+// e.g. -- first one reached by ko.open.filePicker
+ko.views.addDeprecatedGetter('view_openFilesWithPicker', 'open', 'filePicker');
+ko.views.addDeprecatedGetter('view_openTemplatesWithPicker', 'open', 'templatePicker');
+ko.views.addDeprecatedGetter('view_restoreWorkspace', 'workspace', 'restoreWorkspace');
+ko.views.addDeprecatedGetter('view_saveWorkspace', 'workspace', 'saveWorkspace');
+ko.views.addDeprecatedGetter('view_focusedScintilla', 'window', 'focusedScintilla');
+ko.views.addDeprecatedGetter('view_focusedView', 'window', 'focusedView');
+ko.views.addDeprecatedGetter('view_checkDiskFiles', 'window', 'checkDiskFiles');
 
+// setTimeout in case projectManager.p.js hasn't been loaded yet.
+setTimeout(function() {
+    ko.projects.addDeprecatedGetter('view_getFocusedProjectView',
+                                    'getFocusedProjectView');
+}, 1000);
+           
 
-// backwards compatibility api's
+// gViewMgr can be dropped in v6:
+ko.views.addDeprecatedGetter('gViewMgr', 'views', 'manager');
+
+// Convenient accessors, not to be deprecated (yet).
 var gEditorTooltipHandler = xtk.domutils.tooltips.getHandler('editorTooltip');
-var view_openFilesWithPicker = ko.open.filePicker;
-var view_openTemplatesWithPicker = ko.open.templatePicker;
 var view_elementHasFocus = xtk.domutils.elementInFocus;
-var view_restoreWorkspace = ko.workspace.restoreWorkspace;
-var view_saveWorkspace = ko.workspace.saveWorkspace;
-var view_focusedScintilla = ko.window.focusedScintilla;
-var view_focusedView = ko.window.focusedView;
-var view_checkDiskFiles = ko.window.checkDiskFiles;
-var View_GetCwd = ko.window.getCwd;
-function view_getFocusedProjectView() { return ko.projects.getFocusedProjectView(); }
-
-__defineGetter__("gViewMgr",
-function()
-{
-    ko.views.manager.log.warn("gViewMgr is deprecated, use ko.views.manager");
-    return ko.views.manager;
-});
