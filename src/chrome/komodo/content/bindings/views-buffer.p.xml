@@ -1520,7 +1520,7 @@
             var keyCode = event.keyCode;
 <!-- #if PLATFORM == "darwin" -->
             // Work around Synergy keypress problems on the Mac - bug 82430.
-            if (keyCode == 0 && event.charCode == 0) {
+            if (keyCode == 0) {
                 if (event.metaKey) {
                     keyCode = this.DOM_VK_META;
                 }
