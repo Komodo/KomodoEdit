@@ -180,8 +180,7 @@ class KoToolBox2Service:
             # Does this happen for disabled extensions?
             toolDir = join(fileEx.path, koToolbox2.DEFAULT_TARGET_DIRECTORY)
             if os.path.exists(toolDir):
-                self.activateExtensionToolbox(fileEx.path,
-                                              koToolbox2.DEFAULT_TARGET_DIRECTORY)
+                self.activateExtensionToolbox(fileEx.path)
             #else:
             #    log.debug("No tools in %s", fileEx.path)
         self.toolboxLoader.deleteUnloadedTopLevelItems()
