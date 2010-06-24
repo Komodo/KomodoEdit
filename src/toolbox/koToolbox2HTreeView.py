@@ -694,9 +694,11 @@ class KoToolbox2HTreeView(TreeView):
                 index = finalIndex
             else:
                 if nextIndex == -1:
-                    del self._rows_model[index - 1:]
+                    del self._rows_model[index:]
+                    break
                 else:
-                    del self._rows_model[index - 1: nextIndex - 1]
+                    del self._rows_model[index : nextIndex]
+                    lim -= (nextIndex - index)
         
         for path_id, name, node_type in top_level_nodes:
             if path_id not in top_level_ids:
