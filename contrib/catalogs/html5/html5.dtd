@@ -45,6 +45,9 @@
 <!ENTITY % Number "CDATA">
     <!-- one or more digits -->
 
+<!ENTITY % Date "CDATA">
+    <!-- one or more digits -->
+
 <!ENTITY % LinkTypes "CDATA">
     <!-- space-separated list of link types -->
 
@@ -80,6 +83,8 @@
 
 <!ENTITY % Pixels "CDATA">
     <!-- integer representing length in pixels -->
+
+<!ENTITY % Boolean "(true|false)">
 
 <!-- these are used for image maps -->
 
@@ -153,7 +158,18 @@
   onmouseout  %Script;       #IMPLIED
   onkeypress  %Script;       #IMPLIED
   onkeydown   %Script;       #IMPLIED
-  onkeyup     %Script;       #IMPLIED"
+  onkeyup     %Script;       #IMPLIED
+<!-- HTML 5 Mouse Events - Events triggered by a mouse, or similar user actions: -->
+  ondrag        %Script;      #IMPLIED      <!-- Script to be run when an element is dragged -->
+  ondragend     %Script;      #IMPLIED      <!-- Script to be run at the end of a drag operation -->
+  ondragenter   %Script;      #IMPLIED      <!-- Script to be run when an element has been dragged to a valid drop target -->
+  ondragleave   %Script;      #IMPLIED      <!-- Script to be run when an element leaves a valid drop target -->
+  ondragover    %Script;      #IMPLIED      <!-- Script to be run when an element is being dragged over a valid drop target -->
+  ondragstart   %Script;      #IMPLIED      <!-- Script to be run at the start of a drag operation -->
+  ondrop        %Script;      #IMPLIED      <!-- Script to be run when dragged element is being dropped -->
+  onmousewheel  %Script;      #IMPLIED      <!-- Script to be run when the mouse wheel is being rotated -->
+  onscroll      %Script;      #IMPLIED      <!-- Script to be run when an element's scrollbar is being scrolled -->
+ "
   >
 
 <!-- attributes for elements that can get the focus
@@ -169,7 +185,62 @@
   onblur      %Script;       #IMPLIED"
   >
 
-<!ENTITY % attrs "%coreattrs; %i18n; %events;">
+<!-- HTML 5 core attributes -->
+<!ENTITY % html5attrs
+ "contenteditable    %Boolean;     #IMPLIED
+  contextmenu        ID            #IMPLIED
+  draggable          (true | false | auto) #IMPLIED
+  hidden             (hidden)      #IMPLIED
+  item               CDATA         #IMPLIED
+  itemprop           CDATA         #IMPLIED
+  spellcheck         %Boolean;     #IMPLIED
+  subject            ID            #IMPLIED
+  contextmenu        ID            #IMPLIED
+  contextmenu        ID            #IMPLIED
+  contextmenu        ID            #IMPLIED
+  contextmenu        ID            #IMPLIED
+ "
+  >
+
+
+<!-- Media Events - Events triggered by medias like videos, images and audio.
+     Applies to all HTML 5 elements, but is most common in media elements, such
+     as audio, embed, img, object, and video. -->
+
+<!ENTITY % html5mediaevents
+ "onabort               %Script;      #IMPLIED  <!-- Script to be run on an abort event -->
+  oncanplay             %Script;      #IMPLIED  <!-- Script to be run when media can start play, but might has to stop for buffering -->
+  oncanplaythrough      %Script;      #IMPLIED  <!-- Script to be run when media can be played to the end, without stopping for buffering -->
+  ondurationchange      %Script;      #IMPLIED  <!-- Script to be run when the length of the media is changed -->
+  onemptied             %Script;      #IMPLIED  <!-- Script to be run when a media resource element suddenly becomes empty (network errors, errors on load etc.) -->
+  onended               %Script;      #IMPLIED  <!-- Script to be run when media has reach the end -->
+  onerror               %Script;      #IMPLIED  <!-- Script to be run when an error occurs during the loading of an element -->
+  onloadeddata          %Script;      #IMPLIED  <!-- Script to be run when media data is loaded -->
+  onloadedmetadata      %Script;      #IMPLIED  <!-- Script to be run when the duration and other media data of a media element is loaded -->
+  onloadstart           %Script;      #IMPLIED  <!-- Script to be run when the browser starts to load the media data -->
+  onpause               %Script;      #IMPLIED  <!-- Script to be run when media data is paused -->
+  onplay                %Script;      #IMPLIED  <!-- Script to be run when media data is going to start playing -->
+  onplaying             %Script;      #IMPLIED  <!-- Script to be run when media data has start playing -->
+  onprogress            %Script;      #IMPLIED  <!-- Script to be run when the browser is fetching the media data -->
+  onratechange          %Script;      #IMPLIED  <!-- Script to be run when the media data's playing rate has changed -->
+  onreadystatechange    %Script;      #IMPLIED  <!-- Script to be run when the ready-state changes -->
+  onseeked              %Script;      #IMPLIED  <!-- Script to be run when a media element's seeking attribute is no longer true, and the seeking has ended -->
+  onseeking             %Script;      #IMPLIED  <!-- Script to be run when a media element's seeking attribute is true, and the seeking has begun -->
+  onstalled             %Script;      #IMPLIED  <!-- Script to be run when there is an error in fetching media data (stalled) -->
+  onsuspend             %Script;      #IMPLIED  <!-- Script to be run when the browser has been fetching media data, but stopped before the entire media file was fetched -->
+  ontimeupdate          %Script;      #IMPLIED  <!-- Script to be run when media changes its playing position -->
+  onvolumechange        %Script;      #IMPLIED  <!-- Script to be run when media changes the volume, also when volume is set to "mute" -->
+  onwaiting             %Script;      #IMPLIED  <!-- Script to be run when media has stopped playing, but is expected to resume -->
+ "
+>
+
+
+
+
+
+
+
+<!ENTITY % attrs "%coreattrs; %i18n; %events; %html5attrs;">
 
 <!-- text alignment for p, div, h1-h6. The default is
      align="left" for ltr headings, "right" for rtl -->
@@ -187,7 +258,7 @@
 <!ENTITY % special
    "%special.basic; | %special.extra;">
 
-<!ENTITY % fontstyle.basic "i | b | u">
+<!ENTITY % fontstyle.basic "small | i | b | u">
 
 <!ENTITY % fontstyle "%fontstyle.basic;">
 
@@ -197,7 +268,10 @@
 
 <!ENTITY % phrase "%phrase.basic; | %phrase.extra;">
 
-<!ENTITY % inline.forms "input | select | textarea | label | button">
+<!ENTITY % inline.forms "input | output | select | textarea | label | button |
+                         datetime | datetime-local | data | month | week |
+                         time | number | range | email | url | menu |
+                         datalist">
 
 <!-- these can occur at block or inline level -->
 <!ENTITY % misc.inline "ins | del | script">
@@ -214,10 +288,14 @@
 
 <!ENTITY % heading "h1|h2|h3|h4|h5|h6">
 <!ENTITY % lists "ul | ol | dl">
-<!ENTITY % blocktext "pre | hr | blockquote | address | article">
+<!ENTITY % blocktext "pre | hr | blockquote | address | article | aside |
+                      summary | mark">
 
 <!ENTITY % block
-    "p | %heading; | div | %lists; | %blocktext; | fieldset | table">
+    "p | %heading; | div | %lists; | %blocktext; | fieldset | table |
+    header | footer | section | hgroup | nav | dialog | figure |
+    datagrid | canvas | audio | video | source | embed | keygen |
+    progress | ruby">
 
 <!-- %Flow; mixes block and inline and is used for list items etc. -->
 <!ENTITY % Flow "(#PCDATA | %block; | form | %inline; | %misc;)*">
@@ -243,7 +321,7 @@
 
 <!ENTITY % button.content
    "(#PCDATA | p | %heading; | div | %lists; | %blocktext; |
-      table | br | span | bdo | object | img | map |
+      table | datagrid | br | span | bdo | object | img | map |
       %fontstyle; | %phrase; | %misc;)*">
 
 <!--================ Document Structure ==================================-->
@@ -255,6 +333,8 @@
   %i18n;
   id          ID             #IMPLIED
   xmlns       %URI;          #FIXED 'http://www.w3.org/1999/xhtml'
+  <!-- HTML 5 attributes -->
+  manifest    %URI;          #IMPLIED
   >
 
 <!--================ Document Head =======================================-->
@@ -301,7 +381,8 @@
   http-equiv  CDATA          #IMPLIED
   name        CDATA          #IMPLIED
   content     CDATA          #REQUIRED
-  scheme      CDATA          #IMPLIED
+  <!-- HTML 5 attributes -->
+  charset     %Charset;      #IMPLIED
   >
 
 <!--
@@ -321,14 +402,13 @@
 <!ELEMENT link EMPTY>
 <!ATTLIST link
   %attrs;
-  charset     %Charset;      #IMPLIED
   href        %URI;          #IMPLIED
   hreflang    %LanguageCode; #IMPLIED
   type        %ContentType;  #IMPLIED
   rel         %LinkTypes;    #IMPLIED
-  rev         %LinkTypes;    #IMPLIED
   media       %MediaDesc;    #IMPLIED
-  target      %FrameTarget;  #IMPLIED
+  <!-- HTML 5 attributes -->
+  sizes       %Number;       #IMPLIED
   >
 
 <!-- style info, which may include CDATA sections -->
@@ -338,8 +418,8 @@
   id          ID             #IMPLIED
   type        (text/css)     #REQUIRED
   media       %MediaDesc;    #IMPLIED
-  title       %Text;         #IMPLIED
-  xml:space   (preserve)     #FIXED 'preserve'
+  <!-- HTML 5 attributes -->
+  scoped      (scoped)       #IMPLIED
   >
 
 <!-- script statements, which may include CDATA sections -->
@@ -351,7 +431,8 @@
   language    CDATA          #IMPLIED
   src         %URI;          #IMPLIED
   defer       (defer)        #IMPLIED
-  xml:space   (preserve)     #FIXED 'preserve'
+  <!-- HTML 5 attributes -->
+  async       (async)        #IMPLIED
   >
 
 <!-- alternate content container for non script-based rendering -->
@@ -368,16 +449,16 @@
 <!ELEMENT iframe %Flow;>
 <!ATTLIST iframe
   %coreattrs;
-  longdesc    %URI;          #IMPLIED
+  %html5attrs;
   name        NMTOKEN        #IMPLIED
   src         %URI;          #IMPLIED
-  frameborder (1|0)          "1"
-  marginwidth %Pixels;       #IMPLIED
-  marginheight %Pixels;      #IMPLIED
-  scrolling   (yes|no|auto)  "auto"
   align       %ImgAlign;     #IMPLIED
   height      %Length;       #IMPLIED
   width       %Length;       #IMPLIED
+  <!-- HTML 5 attributes -->
+  sandbox     (allow-forms | allow-same-origin | allow-scripts)        #IMPLIED
+  seamless    CDATA          #IMPLIED
+  srcdoc      CDATA          #IMPLIED
   >
 
 <!--=================== Document Body ====================================-->
@@ -393,6 +474,23 @@
   link        %Color;        #IMPLIED
   vlink       %Color;        #IMPLIED
   alink       %Color;        #IMPLIED
+<!-- HTML 5 Window Event Attributes -->
+  onafterprint    %Script;   #IMPLIED        <!-- Script to be run after the document is printed -->
+  onbeforeprint   %Script;   #IMPLIED        <!-- Script to be run before the document is printed -->
+  onbeforeonload  %Script;   #IMPLIED        <!-- Script to be run before the document loads -->
+  onerror         %Script;   #IMPLIED        <!-- Script to be run when an error occur -->
+  onhaschange     %Script;   #IMPLIED        <!-- Script to be run when the document has change -->
+  onmessage       %Script;   #IMPLIED        <!-- Script to be run when the message is triggered -->
+  onoffline       %Script;   #IMPLIED        <!-- Script to be run when the document goes offline -->
+  ononline        %Script;   #IMPLIED        <!-- Script to be run when the document comes online -->
+  onpagehide      %Script;   #IMPLIED        <!-- Script to be run when the window is hidden -->
+  onpageshow      %Script;   #IMPLIED        <!-- Script to be run when the window becomes visible -->
+  onpopstate      %Script;   #IMPLIED        <!-- Script to be run when the window's history changes -->
+  onredo          %Script;   #IMPLIED        <!-- Script to be run when the document performs a redo -->
+  onresize        %Script;   #IMPLIED        <!-- Script to be run when the window is resized -->
+  onstorage       %Script;   #IMPLIED        <!-- Script to be run when a document loads -->
+  onundo          %Script;   #IMPLIED        <!-- Script to be run when a document performs an undo -->
+  onunload        %Script;   #IMPLIED        <!-- Script to be run when the user leaves the document -->
   >
 
 <!ELEMENT div %Flow;>  <!-- generic language/style container -->
@@ -486,8 +584,9 @@
 <!ATTLIST ol
   %attrs;
   type        %OLStyle;      #IMPLIED
-  compact     (compact)      #IMPLIED
   start       %Number;       #IMPLIED
+  <!-- HTML 5 attributes -->
+  reversed    (reversed)     #IMPLIED
   >
 
 <!-- LIStyle is constrained to: "(%ULStyle;|%OLStyle;)" -->
@@ -589,16 +688,14 @@
 <!ATTLIST a
   %attrs;
   %focus;
-  charset     %Charset;      #IMPLIED
-  type        %ContentType;  #IMPLIED
-  name        NMTOKEN        #IMPLIED
   href        %URI;          #IMPLIED
   hreflang    %LanguageCode; #IMPLIED
   rel         %LinkTypes;    #IMPLIED
-  rev         %LinkTypes;    #IMPLIED
-  shape       %Shape;        "rect"
-  coords      %Coords;       #IMPLIED
   target      %FrameTarget;  #IMPLIED
+  <!-- HTML 5 attributes -->
+  media       CDATA          #IMPLIED
+  ping        %URI;          #IMPLIED
+  type        %ContentType;  #IMPLIED
   >
 
 <!--===================== Inline Elements ================================-->
@@ -611,6 +708,7 @@
 <!ELEMENT bdo %Inline;>  <!-- I18N BiDi over-ride -->
 <!ATTLIST bdo
   %coreattrs;
+  %html5attrs;
   %events;
   lang        %LanguageCode; #IMPLIED
   xml:lang    %LanguageCode; #IMPLIED
@@ -620,6 +718,7 @@
 <!ELEMENT br EMPTY>   <!-- forced line break -->
 <!ATTLIST br
   %coreattrs;
+  %html5attrs;
   clear       (left|all|right|none) "none"
   >
 
@@ -682,23 +781,16 @@
 <!ELEMENT object (#PCDATA | param | %block; | form | %inline; | %misc;)*>
 <!ATTLIST object
   %attrs;
-  declare     (declare)      #IMPLIED
-  classid     %URI;          #IMPLIED
-  codebase    %URI;          #IMPLIED
+  %html5mediaevents;
   data        %URI;          #IMPLIED
   type        %ContentType;  #IMPLIED
-  codetype    %ContentType;  #IMPLIED
-  archive     %UriList;      #IMPLIED
-  standby     %Text;         #IMPLIED
   height      %Length;       #IMPLIED
   width       %Length;       #IMPLIED
   usemap      %URI;          #IMPLIED
   name        NMTOKEN        #IMPLIED
   tabindex    %Number;       #IMPLIED
-  align       %ImgAlign;     #IMPLIED
-  border      %Pixels;       #IMPLIED
-  hspace      %Pixels;       #IMPLIED
-  vspace      %Pixels;       #IMPLIED
+  <!-- HTML 5 attributes -->
+  form        CDATA          #IMPLIED
   >
 
 <!--
@@ -712,8 +804,6 @@
   id          ID             #IMPLIED
   name        CDATA          #REQUIRED
   value       CDATA          #IMPLIED
-  valuetype   (data|ref|object) "data"
-  type        %ContentType;  #IMPLIED
   >
 
 <!--=================== Images ===========================================-->
@@ -728,6 +818,7 @@
 <!ELEMENT img EMPTY>
 <!ATTLIST img
   %attrs;
+  %html5mediaevents;
   src         %URI;          #REQUIRED
   alt         %Text;         #REQUIRED
   name        NMTOKEN        #IMPLIED
@@ -768,9 +859,14 @@
   shape       %Shape;        "rect"
   coords      %Coords;       #IMPLIED
   href        %URI;          #IMPLIED
-  nohref      (nohref)       #IMPLIED
   alt         %Text;         #REQUIRED
   target      %FrameTarget;  #IMPLIED
+  <!-- HTML 5 attributes -->
+  hreflang    %LanguageCode; #IMPLIED
+  media       CDATA          #IMPLIED
+  ping        %URI;          #IMPLIED
+  rel         (alternate | archives | author | bookmark | contact | external | first | help | icon | index | last | license | next | nofollow | noreferrer | pingback | prefetch | prev | search | stylesheet | sidebar | tag | up)          #IMPLIED
+  type        CDATA          #IMPLIED
   >
 
 <!--================ Forms ===============================================-->
@@ -784,10 +880,21 @@
   name        NMTOKEN        #IMPLIED
   enctype     %ContentType;  "application/x-www-form-urlencoded"
   onsubmit    %Script;       #IMPLIED
-  onreset     %Script;       #IMPLIED
-  accept      %ContentTypes; #IMPLIED
   accept-charset %Charsets;  #IMPLIED
   target      %FrameTarget;  #IMPLIED
+  <!-- HTML 5 Attributes -->
+  autocomplete (on|off)      #IMPLIED
+  novalidate   CDATA         #IMPLIED
+  <!-- HTML 5 Form Events
+      Applies to all HTML 5 elements, but is most common in form elements:
+   -->
+  oncontextmenu %Script;     #IMPLIED
+  onformchange  %Script;     #IMPLIED
+  onforminput   %Script;     #IMPLIED
+  onforminput   %Script;     #IMPLIED
+  oninput       %Script;     #IMPLIED
+  onforminput   %Script;     #IMPLIED
+  oninvalid     %Script;     #IMPLIED
   >
 
 <!--
@@ -798,9 +905,8 @@
 <!ATTLIST label
   %attrs;
   for         IDREF          #IMPLIED
-  accesskey   %Character;    #IMPLIED
-  onfocus     %Script;       #IMPLIED
-  onblur      %Script;       #IMPLIED
+  <!-- HTML 5 attributes -->
+  form        CDATA          #IMPLIED
   >
 
 <!ENTITY % InputType
@@ -830,6 +936,25 @@
   onchange    %Script;       #IMPLIED
   accept      %ContentTypes; #IMPLIED
   align       %ImgAlign;     #IMPLIED
+  <!-- HTML 5 attributes -->
+  autocomplete  (on|off)          #IMPLIED
+  autofocus     CDATA          #IMPLIED
+  form          CDATA          #IMPLIED
+  formaction    %URI;          #IMPLIED
+  formemctype (application/x-www-form-urlencoded | multipart/form-data | text/plain)          #IMPLIED
+  formmethod  (delete | get | post | put)          #IMPLIED
+  formvalidate CDATA           #IMPLIED
+  formtarget  (_blank | _self | _parent | _top)    #IMPLIED
+  height        %Pixels;       #IMPLIED
+  list          ID             #IMPLIED
+  max           %Number;       #IMPLIED
+  min           %Number;       #IMPLIED
+  multiple      CDATA          #IMPLIED
+  pattern       CDATA          #IMPLIED
+  placeholder   CDATA          #IMPLIED
+  required      CDATA          #IMPLIED
+  step          %Number;       #IMPLIED
+  width         %Pixels;       #IMPLIED
   >
 
 <!ELEMENT select (optgroup|option)+>  <!-- option selector -->
@@ -843,6 +968,9 @@
   onfocus     %Script;       #IMPLIED
   onblur      %Script;       #IMPLIED
   onchange    %Script;       #IMPLIED
+  <!-- HTML 5 attributes -->
+  autofocus   (autofocus)    #IMPLIED
+  form        CDATA          #IMPLIED
   >
 
 <!ELEMENT optgroup (option)+>   <!-- option group -->
@@ -872,6 +1000,14 @@
   readonly    (readonly)     #IMPLIED
   onselect    %Script;       #IMPLIED
   onchange    %Script;       #IMPLIED
+  <!-- HTML 5 attributes -->
+  autofocus     CDATA          #IMPLIED
+  cols          %Number;       #IMPLIED
+  form          CDATA          #IMPLIED
+  maxlength     %Number;       #IMPLIED
+  placeholder   CDATA          #IMPLIED
+  required      CDATA          #IMPLIED
+  wrap          (hard | soft)  "soft"
   >
 
 <!--
@@ -882,6 +1018,10 @@
 <!ELEMENT fieldset (#PCDATA | legend | %block; | form | %inline; | %misc;)*>
 <!ATTLIST fieldset
   %attrs;
+  <!-- HTML 5 attributes -->
+  disabled    CDATA          #IMPLIED
+  form        CDATA          #IMPLIED
+  name        CDATA          #IMPLIED
   >
 
 <!ENTITY % LAlign "(top|bottom|left|right)">
@@ -904,6 +1044,14 @@
   value       CDATA          #IMPLIED
   type        (button|submit|reset) "submit"
   disabled    (disabled)     #IMPLIED
+  <!-- HTML 5 attributes -->
+  autofocus   CDATA          #IMPLIED
+  form        CDATA          #IMPLIED
+  formaction  %URI;          #IMPLIED
+  formemctype (application/x-www-form-urlencoded | multipart/form-data | text/plain)          #IMPLIED
+  formmethod  (delete | get | post | put)          #IMPLIED
+  formvalidate CDATA          #IMPLIED
+  formtarget  (_blank | _self | _parent | _top)    #IMPLIED
   >
 
 <!--======================= Tables =======================================-->
@@ -963,14 +1111,6 @@
 <!ATTLIST table
   %attrs;
   summary     %Text;         #IMPLIED
-  width       %Length;       #IMPLIED
-  border      %Pixels;       #IMPLIED
-  frame       %TFrame;       #IMPLIED
-  rules       %TRules;       #IMPLIED
-  cellspacing %Length;       #IMPLIED
-  cellpadding %Length;       #IMPLIED
-  align       %TAlign;       #IMPLIED
-  bgcolor     %Color;        #IMPLIED
   >
 
 <!ENTITY % CAlign "(top|bottom|left|right)">
@@ -987,9 +1127,6 @@ several semantically related columns together.
 <!ATTLIST colgroup
   %attrs;
   span        %Number;       "1"
-  width       %MultiLength;  #IMPLIED
-  %cellhalign;
-  %cellvalign;
   >
 
 <!--
@@ -1007,9 +1144,6 @@ several semantically related columns together.
 <!ATTLIST col
   %attrs;
   span        %Number;       "1"
-  width       %MultiLength;  #IMPLIED
-  %cellhalign;
-  %cellvalign;
   >
 
 <!--
@@ -1026,27 +1160,18 @@ several semantically related columns together.
 -->
 <!ATTLIST thead
   %attrs;
-  %cellhalign;
-  %cellvalign;
   >
 
 <!ATTLIST tfoot
   %attrs;
-  %cellhalign;
-  %cellvalign;
   >
 
 <!ATTLIST tbody
   %attrs;
-  %cellhalign;
-  %cellvalign;
   >
 
 <!ATTLIST tr
   %attrs;
-  %cellhalign;
-  %cellvalign;
-  bgcolor     %Color;        #IMPLIED
   >
 
 <!-- Scope is simpler than headers attribute for common tables -->
@@ -1056,37 +1181,241 @@ several semantically related columns together.
 
 <!ATTLIST th
   %attrs;
-  abbr        %Text;         #IMPLIED
-  axis        CDATA          #IMPLIED
-  headers     IDREFS         #IMPLIED
-  scope       %Scope;        #IMPLIED
-  rowspan     %Number;       "1"
   colspan     %Number;       "1"
-  %cellhalign;
-  %cellvalign;
-  nowrap      (nowrap)       #IMPLIED
-  bgcolor     %Color;        #IMPLIED
-  width       %Length;       #IMPLIED
-  height      %Length;       #IMPLIED
+  headers     IDREFS         #IMPLIED
+  rowspan     %Number;       "1"
+  scope       %Scope;        #IMPLIED
   >
 
 <!ATTLIST td
   %attrs;
-  abbr        %Text;         #IMPLIED
-  axis        CDATA          #IMPLIED
-  headers     IDREFS         #IMPLIED
-  scope       %Scope;        #IMPLIED
-  rowspan     %Number;       "1"
   colspan     %Number;       "1"
-  %cellhalign;
-  %cellvalign;
-  nowrap      (nowrap)       #IMPLIED
-  bgcolor     %Color;        #IMPLIED
-  width       %Length;       #IMPLIED
-  height      %Length;       #IMPLIED
+  headers     IDREFS         #IMPLIED
+  rowspan     %Number;       "1"
   >
 
 <!--======================= HTML 5 new elements ===========================-->
 
+<!-- HTML 5 sections -->
+
 <!ELEMENT article (#PCDATA)>
-<!ATTLIST article %attrs;>
+<!ATTLIST article
+  %attrs;
+  cite      %URI;   #IMPLIED
+  pubdate   %Date;  #IMPLIED
+>
+
+<!ELEMENT aside (#PCDATA)>
+<!ATTLIST aside %attrs;>
+
+<!ELEMENT dialog (#PCDATA)>
+<!ATTLIST dialog %attrs;>
+
+<!ELEMENT figcaption EMPTY>
+<!ATTLIST figcaption %attrs;>
+
+<!ELEMENT figure (#PCDATA | figcaption)>
+<!ATTLIST figure %attrs;>
+
+<!ELEMENT footer (#PCDATA)>
+<!ATTLIST footer %attrs;>
+
+<!ELEMENT header (#PCDATA)>
+<!ATTLIST header %attrs;>
+
+<!ELEMENT hgroup (#PCDATA)>
+<!ATTLIST hgroup %attrs;>
+
+<!ELEMENT nav (#PCDATA)>
+<!ATTLIST nav %attrs;>
+
+<!ELEMENT section (#PCDATA)>
+<!ATTLIST section
+  %attrs;
+  cite      %URI;   #IMPLIED
+>
+
+<!ELEMENT summary (#PCDATA)>
+<!ATTLIST summary %attrs; >
+
+
+<!-- HTML 5 media controls -->
+
+<!ELEMENT audio EMPTY>
+<!ATTLIST audio
+  %attrs;
+  %html5mediaevents;
+  autoplay    CDATA   #IMPLIED
+  controls    CDATA   #IMPLIED
+  preload     CDATA    #IMPLIED
+  src         %URI;        #IMPLIED
+>
+
+<!ELEMENT source EMPTY>
+<!ATTLIST source
+  %attrs;
+  %html5mediaevents;
+  media    CDATA    #IMPLIED
+  src      %URI;    #IMPLIED
+  type     %Number; #IMPLIED
+>
+
+<!ELEMENT video EMPTY>
+<!ATTLIST video
+  %attrs;
+  %html5mediaevents;
+  autoplay    CDATA      #IMPLIED
+  controls    CDATA      #IMPLIED
+  height      %Pixels;   #IMPLIED
+  loop        CDATA      #IMPLIED
+  preload     CDATA      #IMPLIED
+  src         %URI;      #IMPLIED
+  width       %Pixels;   #IMPLIED
+>
+
+<!ELEMENT embed EMPTY>
+<!ATTLIST embed
+  %attrs;
+  %html5mediaevents;
+  height   %Pixels;   #IMPLIED
+  src      %URI;      #IMPLIED
+  type     CDATA      #IMPLIED
+  width    %Pixels;   #IMPLIED
+>
+
+<!ELEMENT canvas EMPTY>
+<!ATTLIST canvas
+  %attrs;
+  height   %Pixels;   #IMPLIED
+  width    %Pixels;   #IMPLIED
+>
+
+
+<!-- HTML 5 form input controls -->
+
+<!ELEMENT datetime (#PCDATA)>
+<!ATTLIST datetime %attrs;>
+
+<!ELEMENT datetime-local (#PCDATA)>
+<!ATTLIST datetime-local %attrs;>
+
+<!ELEMENT date (#PCDATA)>
+<!ATTLIST date %attrs;>
+
+<!ELEMENT month (#PCDATA)>
+<!ATTLIST month %attrs;>
+
+<!ELEMENT week (#PCDATA)>
+<!ATTLIST week %attrs;>
+
+<!ELEMENT time (#PCDATA)>
+<!ATTLIST time
+  %attrs;
+  datetime    %Date;   #IMPLIED
+>
+
+<!ELEMENT number (#PCDATA)>
+<!ATTLIST number %attrs;>
+
+<!ELEMENT range (#PCDATA)>
+<!ATTLIST range %attrs;>
+
+<!ELEMENT email (#PCDATA)>
+<!ATTLIST email %attrs;>
+
+<!ELEMENT url (#PCDATA)>
+<!ATTLIST url %attrs;>
+
+
+<!-- HTML 5 miscellaneous -->
+
+<!ELEMENT keygen EMPTY>
+<!ATTLIST keygen
+  %attrs;
+  autofocus   (disabled)   #IMPLIED
+  challenge   CDATA        #IMPLIED
+  disabled    CDATA        #IMPLIED
+  form        CDATA        #IMPLIED
+  keytype     (rsa)        #IMPLIED
+  name        CDATA        #IMPLIED
+>
+
+<!ELEMENT mark (#PCDATA)>
+<!ATTLIST mark %attrs;>
+
+<!ELEMENT meter EMPTY>
+<!ATTLIST meter
+  %attrs;
+  high     %Number;        #IMPLIED
+  low      %Number;        #IMPLIED
+  max      %Number;        "1"
+  min      %Number;        "0"
+  optimum  %Number;        #IMPLIED
+  value    %Number;        #IMPLIED
+>
+
+<!ELEMENT menu (#PCDATA | command)>
+<!ATTLIST menu
+  %attrs;
+  label       CDATA      #IMPLIED
+  type        (context|toolbar|list)  "list"
+>
+
+<!ELEMENT command EMPTY>
+<!ATTLIST command
+  %attrs;
+  checked     CDATA      #IMPLIED
+  disabled    CDATA      #IMPLIED
+  icon        %URI;      #IMPLIED
+  label       CDATA      #IMPLIED
+  radiogroup  CDATA      #IMPLIED
+  type       (checkbox|command|radio)  "command"
+>
+
+<!ELEMENT datagrid (#PCDATA)>
+<!ATTLIST datagrid %attrs;>
+
+<!ELEMENT datalist (#PCDATA)>
+<!ATTLIST datalist %attrs;>
+
+<!ELEMENT details (#PCDATA)>
+<!ATTLIST details
+  %attrs;
+  open   CDATA   #IMPLIED
+>
+
+<!ELEMENT datatemplate (#PCDATA)>
+<!ATTLIST datatemplate %attrs;>
+
+<!ELEMENT rule (#PCDATA)>
+<!ATTLIST rule %attrs;>
+
+<!ELEMENT nest (#PCDATA)>
+<!ATTLIST nest %attrs;>
+
+<!ELEMENT event-source (#PCDATA)>
+<!ATTLIST event-source %attrs;>
+
+<!ELEMENT output EMPTY>
+<!ATTLIST output
+  %attrs;
+  for    ID      #IMPLIED
+  form   CDATA   #IMPLIED
+  name   CDATA   #IMPLIED
+>
+
+<!ELEMENT progress (#PCDATA)>
+<!ATTLIST progress
+  %attrs;
+  max     %Number;   #IMPLIED
+  value   %Number;   #IMPLIED
+>
+
+<!ELEMENT ruby (rt+|rp+)>
+<!ELEMENT rt (#PCDATA | rp)>
+<!ELEMENT rp (#PCDATA)>
+
+<!ATTLIST ruby %attrs;>
+<!ATTLIST rt %attrs;>
+<!ATTLIST rp %attrs;>
+
