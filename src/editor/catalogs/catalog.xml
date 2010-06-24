@@ -48,4 +48,6 @@
     <nextCatalog catalog="oasis/catalog.xml"/>
     <nextCatalog catalog="docbook44/catalog.xml"/>
 
+    <nextCatalog catalog="html5/catalog.xml"/>
+
 </catalog>
