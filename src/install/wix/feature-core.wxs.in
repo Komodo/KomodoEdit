@@ -214,6 +214,7 @@
       <ComponentRef Id="component472"/>
       <ComponentRef Id="component474"/>
       <ComponentRef Id="component475"/>
+      <ComponentRef Id="component568"/>
       <ComponentRef Id="component480"/>
       <ComponentRef Id="component184"/>
       <ComponentRef Id="component187"/>
@@ -4725,6 +4726,15 @@
                 <File Id="file4690" Name="WML_11_0.XML" LongName="wml_1.1.xml" Vital="yes" src="feature-core\INSTALLDIR\lib\support\catalogs\wapforum\wml_1.1.xml"/>
               </Component>
             </Directory> <!-- lib\support\catalogs\wapforum -->
+            <Directory Id="directory612" Name="html5">
+              <Component Id="component568" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file1227" Name="catalog.xml" Vital="yes" src="feature-core\INSTALLDIR\lib\support\catalogs\html5\catalog.xml"/>
+                <File Id="file1228" Name="HTML5L_0.ENT" LongName="html5-lat1.ent" Vital="yes" src="feature-core\INSTALLDIR\lib\support\catalogs\html5\html5-lat1.ent"/>
+                <File Id="file1229" Name="HTML5S_0.ENT" LongName="html5-special.ent" Vital="yes" src="feature-core\INSTALLDIR\lib\support\catalogs\html5\html5-special.ent"/>
+                <File Id="file1230" Name="HTML5S_1.ENT" LongName="html5-symbol.ent" Vital="yes" src="feature-core\INSTALLDIR\lib\support\catalogs\html5\html5-symbol.ent"/>
+                <File Id="file1231" Name="html5.dtd" Vital="yes" src="feature-core\INSTALLDIR\lib\support\catalogs\html5\html5.dtd"/>
+              </Component>
+            </Directory> <!-- lib\support\catalogs\html5 -->
           </Directory> <!-- lib\support\catalogs -->
           <Directory Id="directory218" Name="SAMPLE_2" LongName="samples">
             <Component Id="component206" DiskId="1" Guid="$(autowix.guid)">
