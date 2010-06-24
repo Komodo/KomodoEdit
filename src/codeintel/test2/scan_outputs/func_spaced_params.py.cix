@@ -1,0 +1,10 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/func_spaced_params.py">
+    <scope ilk="blob" lang="Python" name="func_spaced_params" src="scan_inputs/func_spaced_params.py">
+      <scope ilk="function" line="3" lineend="4" name="foo" signature="foo(bar, baz)">
+        <variable ilk="argument" name="bar" />
+        <variable ilk="argument" name="baz" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

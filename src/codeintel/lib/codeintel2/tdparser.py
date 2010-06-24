@@ -1,14 +1,17 @@
 """
 A simple Top-Down Python expression parser.
 
-This parser is based on "Simple Top-Down Parsing in Python" article by
+This parser is based on the "Simple Top-Down Parsing in Python" article by
 Fredrik Lundh (http://effbot.org/zone/simple-top-down-parsing.htm)
 
 These materials could be useful for understanding ideas behind
-Top-Down approach:
+the Top-Down approach:
 
  * Top Down Operator Precedence -- Douglas Crockford
    http://javascript.crockford.com/tdop/tdop.html
+
+ * Top-Down operator precedence parsing -- Eli Benderski
+   http://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing/
 
  * Top down operator precedence -- Vaughan R. Pratt
    http://portal.acm.org/citation.cfm?doid=512927.512931
@@ -19,6 +22,8 @@ This implementation is a subject to change as it is very premature.
 import re
 import cStringIO as sio
 import tokenize
+
+class ParseError(Exception): pass
 
 type_map = {tokenize.NUMBER: "(literal)",
             tokenize.STRING: "(literal)",
@@ -35,7 +40,9 @@ def gen_python_tokens(source):
         elif token == tokenize.ENDMARKER:
             break
         else:
-            raise SyntaxError("Syntax error at (%r)" % value)
+            raise ParseError("Syntax error at (%r) in text (%r) -- "
+                             "unexpected token (%r)" % (value, source,
+                                                        tokenize.tok_name[token]))
     yield "(end)", "(end)", None, None
 
 
@@ -44,17 +51,16 @@ class Symbol(object):
     value = None
     first = second = third = None
     
-
     def __init__(self, parser, begin, end):
         self.parser = parser
         self.begin = begin
         self.end = end
     
     def nud(self):
-        raise SyntaxError("Syntax error (%r)" % self)
+        raise ParseError("Syntax error (%r)" % self)
         
     def led(self, left):
-        raise SyntaxError("Unknown operator (%r)" % self)
+        raise ParseError("Unknown operator (%r)" % self)
         
     def py(self):
         if self.id[0] != "(":
@@ -113,7 +119,7 @@ class Parser(object):
 
     def advance(self, id=None):
         if id and self.token.id != id:
-            raise SyntaxError("Expected '%r', got '%r'" % (id, self.token))
+            raise ParseError("Expected '%r', got '%r'" % (id, self.token))
         self.token = self.next()
 
     def gen_python_symbols(self, source):
@@ -131,7 +137,7 @@ class Parser(object):
                     inst = symbol(self, begin, end)
                     inst.value = value
                 else:
-                    raise SyntaxError("Unknown operator (%r)" % id)
+                    raise ParseError("Unknown operator (%r)" % id)
             yield inst
 
     def parse(self, source):
@@ -139,7 +145,7 @@ class Parser(object):
         self.token = self.next()
         result = self.expression()
         if self.token.id != "(end)":
-            raise SyntaxError("Expected end, got '%r'" % self.token)
+            raise ParseError("Expected end, got '%r'" % self.token)
         return result
 
 
@@ -361,7 +367,7 @@ def py_expr_grammar():
                     t = self.expression()
                     if self.token.id == "=":
                         if t.id != "(name)":
-                            raise SyntaxError("Expected a name, got '%r'" % arg)
+                            raise ParseError("Expected a name, got '%r'" % arg)
                         self.advance("=")
                         name = t
                         value = self.expression()
@@ -400,7 +406,7 @@ def py_expr_grammar():
     @self.method(".")
     def led(self, left):
         if self.token.id != "(name)":
-            SyntaxError("Expected an attribute name, got '%r'" % self.token)
+            ParseError("Expected an attribute name, got '%r'" % self.token)
         self.first = left
         self.second = self.token
         self.advance()
@@ -474,7 +480,7 @@ def py_expr_grammar():
     @self.method("not")
     def led(self, left):
         if self.token.id != "in":
-            raise SyntaxError("Expected 'in', got '%r'" % self.token)
+            raise ParseError("Expected 'in', got '%r'" % self.token)
         self.advance()
         self.id = "not in"
         self.first = left
@@ -493,7 +499,7 @@ def py_expr_grammar():
     @self.common
     def advance_name(self):
         if self.token.id != "(name)":
-            SyntaxError("Expected an argument name, got '%r'" % self.token)
+            ParseError("Expected an argument name, got '%r'" % self.token)
         t = self.token
         self.advance()
         return t
@@ -543,11 +549,11 @@ class PyExprParser(Parser):
     grammar = py_expr_grammar()
     
     def parse_bare_arglist(self, source):
-        self.next = self.gen_python_symbols(source).next
+        self.next = self.gen_python_symbols(source.strip()).next
         self.token = self.next()
         arglist = self.token.argument_list()
         if self.token.id != "(end)":
-            raise SyntaxError("Expected end, got '%r'" % self.token)
+            raise ParseError("Expected end, got '%r'" % self.token)
         return arglist
 
 
