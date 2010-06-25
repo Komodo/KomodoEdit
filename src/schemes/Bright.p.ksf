@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-Version = 4
+Version = 5
 
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': False}
 
