@@ -608,9 +608,6 @@
 <!ELEMENT hr EMPTY>
 <!ATTLIST hr
   %attrs;
-  align       (left|center|right) #IMPLIED
-  noshade     (noshade)      #IMPLIED
-  size        %Pixels;       #IMPLIED
   width       %Length;       #IMPLIED
   >
 
@@ -897,7 +894,6 @@
   checked     (checked)      #IMPLIED
   disabled    (disabled)     #IMPLIED
   readonly    (readonly)     #IMPLIED
-  size        CDATA          #IMPLIED
   maxlength   %Number;       #IMPLIED
   src         %URI;          #IMPLIED
   alt         CDATA          #IMPLIED
@@ -930,7 +926,6 @@
 <!ATTLIST select
   %attrs;
   name        CDATA          #IMPLIED
-  size        %Number;       #IMPLIED
   multiple    (multiple)     #IMPLIED
   disabled    (disabled)     #IMPLIED
   tabindex    %Number;       #IMPLIED
@@ -999,7 +994,6 @@
 <!ATTLIST legend
   %attrs;
   accesskey   %Character;    #IMPLIED
-  align       %LAlign;       #IMPLIED
   >
 
 <!--
