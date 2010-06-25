@@ -543,7 +543,6 @@
 <!ATTLIST ul
   %attrs;
   type        %ULStyle;     #IMPLIED
-  compact     (compact)     #IMPLIED
   >
 
 <!-- Ordered list numbering style
@@ -587,7 +586,6 @@
 <!ELEMENT dl (dt|dd)+>
 <!ATTLIST dl
   %attrs;
-  compact     (compact)      #IMPLIED
   >
 
 <!ELEMENT dt %Inline;>
