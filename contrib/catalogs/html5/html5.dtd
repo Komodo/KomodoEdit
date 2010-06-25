@@ -93,9 +93,6 @@
 <!ENTITY % Coords "CDATA">
     <!-- comma separated list of lengths -->
 
-<!-- used for object, img, input and iframe -->
-<!ENTITY % ImgAlign "(top|middle|bottom|left|right)">
-
 <!-- a color using sRGB: #RRGGBB as Hex values -->
 <!ENTITY % Color "CDATA">
 
@@ -447,7 +444,6 @@
   %html5attrs;
   name        NMTOKEN        #IMPLIED
   src         %URI;          #IMPLIED
-  align       %ImgAlign;     #IMPLIED
   height      %Length;       #IMPLIED
   width       %Length;       #IMPLIED
   <!-- HTML 5 attributes -->
@@ -805,9 +801,6 @@
   width       %Length;       #IMPLIED
   usemap      %URI;          #IMPLIED
   ismap       (ismap)        #IMPLIED
-  align       %ImgAlign;     #IMPLIED
-  hspace      %Pixels;       #IMPLIED
-  vspace      %Pixels;       #IMPLIED
   >
 
 <!-- usemap points to a map element which may be in this document
@@ -912,7 +905,6 @@
   onselect    %Script;       #IMPLIED
   onchange    %Script;       #IMPLIED
   accept      %ContentTypes; #IMPLIED
-  align       %ImgAlign;     #IMPLIED
   <!-- HTML 5 attributes -->
   autocomplete  (on|off)          #IMPLIED
   autofocus     CDATA          #IMPLIED
