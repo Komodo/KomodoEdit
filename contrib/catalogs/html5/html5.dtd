@@ -465,10 +465,6 @@
   onunload    %Script;       #IMPLIED
   background  %URI;          #IMPLIED
   bgcolor     %Color;        #IMPLIED
-  text        %Color;        #IMPLIED
-  link        %Color;        #IMPLIED
-  vlink       %Color;        #IMPLIED
-  alink       %Color;        #IMPLIED
 <!-- HTML 5 Window Event Attributes -->
   onafterprint    %Script;   #IMPLIED        <!-- Script to be run after the document is printed -->
   onbeforeprint   %Script;   #IMPLIED        <!-- Script to be run before the document is printed -->
