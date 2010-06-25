@@ -809,7 +809,6 @@
   usemap      %URI;          #IMPLIED
   ismap       (ismap)        #IMPLIED
   align       %ImgAlign;     #IMPLIED
-  border      %Length;       #IMPLIED
   hspace      %Pixels;       #IMPLIED
   vspace      %Pixels;       #IMPLIED
   >
@@ -1039,44 +1038,6 @@
 
 <!-- Derived from IETF HTML table standard, see [RFC1942] -->
 
-<!--
- The border attribute sets the thickness of the frame around the
- table. The default units are screen pixels.
-
- The frame attribute specifies which parts of the frame around
- the table should be rendered. The values are not the same as
- CALS to avoid a name clash with the valign attribute.
--->
-<!ENTITY % TFrame "(void|above|below|hsides|lhs|rhs|vsides|box|border)">
-
-<!--
- The rules attribute defines which rules to draw between cells:
-
- If rules is absent then assume:
-     "none" if border is absent or border="0" otherwise "all"
--->
-
-<!ENTITY % TRules "(none | groups | rows | cols | all)">
-  
-<!-- horizontal placement of table relative to document -->
-<!ENTITY % TAlign "(left|center|right)">
-
-<!-- horizontal alignment attributes for cell contents
-
-  char        alignment char, e.g. char=':'
-  charoff     offset for alignment char
--->
-<!ENTITY % cellhalign
-  "align      (left|center|right|justify|char) #IMPLIED
-   char       %Character;    #IMPLIED
-   charoff    %Length;       #IMPLIED"
-  >
-
-<!-- vertical alignment attributes for cell contents -->
-<!ENTITY % cellvalign
-  "valign     (top|middle|bottom|baseline) #IMPLIED"
-  >
-
 <!ELEMENT table
      (caption?, (col*|colgroup*), thead?, tfoot?, (tbody+|tr+))>
 <!ELEMENT caption  %Inline;>
@@ -1094,11 +1055,8 @@
   summary     %Text;         #IMPLIED
   >
 
-<!ENTITY % CAlign "(top|bottom|left|right)">
-
 <!ATTLIST caption
   %attrs;
-  align       %CAlign;       #IMPLIED
   >
 
 <!--
