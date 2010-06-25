@@ -120,10 +120,6 @@ class KomodoWindowData(object):
     def getPartById(self, id):
         return findPartById(id)
 
-    def findPartForRunningMacro(self, partType, name, where='*'):
-        log.warn("DEPRECATED koIPartService.findPartForRunningMacro, use koIPartService.findPart")
-        return self.findPart(partType, name, where, self.runningMacro)
-
     def findPart(self, partType, name, where, part):
         # See koIProject for details.
         if part:

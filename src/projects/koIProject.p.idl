@@ -423,11 +423,8 @@ interface koIPartService: nsISupports
         out unsigned long count,
         [retval, array, size_is(count)] out koIPart parts);
 
-    /* DEPRECATED, DO NOT USE, see getPart above */
+    /* DEPRECATED, USE, koIToolbox2Service.runningMacro instead */
     attribute koITool runningMacro;
-    koIPart findPartForRunningMacro(in wstring type,
-                                    in wstring name,
-                                    in wstring where);
 };
 
 [scriptable, uuid(bad42fbe-e309-4404-abf7-ff83d4d4c564)]
