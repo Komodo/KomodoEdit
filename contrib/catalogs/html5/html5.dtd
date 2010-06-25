@@ -242,11 +242,6 @@
 
 <!ENTITY % attrs "%coreattrs; %i18n; %events; %html5attrs;">
 
-<!-- text alignment for p, div, h1-h6. The default is
-     align="left" for ltr headings, "right" for rtl -->
-
-<!ENTITY % TextAlign "align (left|center|right|justify) #IMPLIED">
-
 <!--=================== Text Elements ====================================-->
 
 <!ENTITY % special.extra
@@ -496,7 +491,6 @@
 <!ELEMENT div %Flow;>  <!-- generic language/style container -->
 <!ATTLIST div
   %attrs;
-  %TextAlign;
   >
 
 <!--=================== Paragraphs =======================================-->
@@ -504,7 +498,6 @@
 <!ELEMENT p %Inline;>
 <!ATTLIST p
   %attrs;
-  %TextAlign;
   >
 
 <!--=================== Headings =========================================-->
@@ -517,37 +510,31 @@
 <!ELEMENT h1  %Inline;>
 <!ATTLIST h1
   %attrs;
-  %TextAlign;
   >
 
 <!ELEMENT h2 %Inline;>
 <!ATTLIST h2
   %attrs;
-  %TextAlign;
   >
 
 <!ELEMENT h3 %Inline;>
 <!ATTLIST h3
   %attrs;
-  %TextAlign;
   >
 
 <!ELEMENT h4 %Inline;>
 <!ATTLIST h4
   %attrs;
-  %TextAlign;
   >
 
 <!ELEMENT h5 %Inline;>
 <!ATTLIST h5
   %attrs;
-  %TextAlign;
   >
 
 <!ELEMENT h6 %Inline;>
 <!ATTLIST h6
   %attrs;
-  %TextAlign;
   >
 
 <!--=================== Lists ============================================-->
