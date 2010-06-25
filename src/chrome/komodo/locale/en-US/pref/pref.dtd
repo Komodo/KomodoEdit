@@ -776,6 +776,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY indicStyleHidden.label "Hidden">
 <!ENTITY indicStyleBox.label "Box Outline">
 <!ENTITY indicStyleRoundBox.label "Rounded Box">
-<!ENTITY indicAlpha.label "Alpha (0 - 100):">
+<!ENTITY indicAlpha.label "Alpha (0 - 256):">
 <!ENTITY indicColor.label "Color:">
 <!ENTITY indicDrawUnderneath.label "Draw indicator underneath the text">
