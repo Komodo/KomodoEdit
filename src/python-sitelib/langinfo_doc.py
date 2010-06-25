@@ -46,7 +46,7 @@ class HTMLLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
     exts = ['.html', '.htm']
     magic_numbers = [
-        (0, "string", "<!DOCTYPE html"),
+        (0, "string", "<!DOCTYPE html "),
         (0, "string", "<html"),
     ]
     # The default encoding is iso-8859-1 or utf-8 depending on the
@@ -70,8 +70,19 @@ class HTMLLangInfo(LangInfo):
          "-//W3C//DTD HTML 3.2 Final//EN", None),
         ("HTML 2.0", "HTML",
          "-//IETF//DTD HTML//EN", None),
-        #TODO: HTML 5
-        # c.f. http://www.elementary-group-standards.com/html/html5-doctype-is-unrecognized.html
+    ]
+
+class HTML5LangInfo(HTMLLangInfo):
+    name = "HTML5"
+    magic_numbers = [
+        (0, "string", "<!DOCTYPE html>"),
+    ]
+    _magic_number_precedence = ('HTML', -1)
+    doctypes = [
+        # <flavour>, <common-name>, <public-id>, <system-id>
+        ("HTML 5", "HTML5",
+         "-//W3C//DTD HTML 5//EN",
+         "http://www.w3.org/TR/html5/html5.dtd"),
     ]
     
 

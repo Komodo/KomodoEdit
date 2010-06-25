@@ -45,6 +45,7 @@ from codeintel2 import lang_javascript, lang_php
 
 def registerLanguage(registery):
     registery.registerLanguage(KoHTMLLanguage())
+    registery.registerLanguage(KoHTML5Language())
 
 class KoHTMLLanguage(koHTMLLanguageBase):
     name = "HTML"
@@ -99,4 +100,30 @@ class KoHTMLLanguage(koHTMLLanguageBase):
 	</ul>
       </li>
 
+"""
+
+
+class KoHTML5Language(KoHTMLLanguage):
+    name = "HTML5"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "{f662cc4c-4f86-194e-83a8-35f2f0097121}"
+
+    sample = """<!DOCTYPE html>
+<html lang-en>
+  <head>
+    <meta charset=UTF-8 />
+    <title>Sample HTML 5 document</title>
+    <style>
+      .title { color: #FF3333 }
+    </style>
+  </head>
+  <body id="body" class="body">
+    <header>
+      <h1>Sample HTML 5 document</h1>
+      <p>This is a <cite>HTML 5 document</cite></p>
+    </header>
+  </body>
+</html>
 """
