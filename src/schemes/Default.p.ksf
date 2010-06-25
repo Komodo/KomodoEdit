@@ -239,7 +239,11 @@ Indicators = {
     'tabstop_current': {
         'style' : 7,       # scimoz.INDIC_ROUNDBOX
         'color': 0x3333ff, # color format is BGR
+# #if PLATFORM == 'darwin'
+        'alpha': 50,
+# #else
         'alpha': 100,
+# #endif
         'draw_underneath' : True,
     },
     'tabstop_pending': {
@@ -251,13 +255,21 @@ Indicators = {
     'find_highlighting': {
         'style' : 7,       # scimoz.INDIC_ROUNDBOX
         'color': 0x10f0ff, # color format is BGR
+# #if PLATFORM == 'darwin'
+        'alpha': 50,
+# #else
         'alpha': 100,
+# #endif
         'draw_underneath' : True,
     },
     'tag_matching': {
         'style' : 7,       # scimoz.INDIC_ROUNDBOX
         'color': 0x0080ff, # color format is BGR
+# #if PLATFORM == 'darwin'
+        'alpha': 50,
+# #else
         'alpha': 100,
+# #endif
         'draw_underneath' : True,
     },
 }
