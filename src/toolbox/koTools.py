@@ -590,6 +590,10 @@ class _KoMacroTool(_KoTool):
                         domdocument, window, scimoz, koDoc, view, code,
                         subject, topic, data)
 
+    def get_project(self):
+        return components.classes["@activestate.com/koPartService;1"]\
+                .getService(components.interfaces.koIPartService).currentProject
+
 class _KoSnippetTool(_KoTool):
     typeName = 'snippet'
     prettytype = 'Snippet'

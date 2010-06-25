@@ -50,6 +50,7 @@ interface koIFile;
 interface koIFileEx;
 
 interface koIPart;
+interface koITool;
 
 [scriptable, uuid(a77656db-b2e5-4f9c-83ca-e78351ae8993)]
 interface koIPart_Common: nsIObserver {
@@ -423,7 +424,7 @@ interface koIPartService: nsISupports
         [retval, array, size_is(count)] out koIPart parts);
 
     /* DEPRECATED, DO NOT USE, see getPart above */
-    attribute koIPart runningMacro;
+    attribute koITool runningMacro;
     koIPart findPartForRunningMacro(in wstring type,
                                     in wstring name,
                                     in wstring where);

@@ -210,6 +210,7 @@ class KoPartService(object):
                     getService(components.interfaces.koIContentUtils)
 
         self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
+        self._toolboxSvc = None
 
     def _windowTypeFromWindow(self, window):
         if not window:
@@ -261,11 +262,27 @@ class KoPartService(object):
             self._data[window] = data
         return data
 
+    deprecated_runningMacro = False
+    def _deprecate_runningMacro(self):
+        if not self.deprecated_runningMacro:
+            self.deprecated_runningMacro = True
+            log.warn("koIPartService.runningMacro is deprecated.  Please use koIToolBox2Service.runningMacro instead.")
+
     def get_runningMacro(self):
-        return self._data[self.get_window()].runningMacro
+        # Trying to set self._toolboxSvc in __init__ triggers an
+        # xpcom exception with no info.
+        if self._toolboxSvc is None:
+            self._deprecate_runningMacro()
+            self._toolboxSvc = components.classes["@activestate.com/koToolBox2Service;1"]\
+                       .getService(components.interfaces.koIToolBox2Service)
+        return self._toolboxSvc.runningMacro
 
     def set_runningMacro(self, macro):
-        self._data[self.get_window()].runningMacro = macro
+        if self._toolboxSvc is None:
+            self._deprecate_runningMacro()
+            self._toolboxSvc = components.classes["@activestate.com/koToolBox2Service;1"]\
+                       .getService(components.interfaces.koIToolBox2Service)
+        self._toolboxSvc.runningMacro = macro
     runningMacro = property(get_runningMacro, set_runningMacro)
     
     def isCurrent(self, project):
