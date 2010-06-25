@@ -385,6 +385,20 @@ this.getAbbreviationSnippet = function(abbrev, subnames) {
                                                         subnames.length);
 };
 
+this.getViCommand = function(commandName) {
+    var folders = {};
+    this.manager.toolsMgr.getToolsByTypeAndName('folder', "Vi Commands",
+                                                folders, {});
+    folders = folders.value;
+    for (var folder, i = 0; folder = folders[i]; i++) {
+        var tool = folder.getChildByName(commandName, true);
+        if (tool) {
+            return tool;
+        }
+    }
+    return null;
+};
+
 this.getCustomMenus = function(dbPath) {
     var obj = {};
     this.manager.toolsMgr.getCustomMenus(dbPath, obj, {});

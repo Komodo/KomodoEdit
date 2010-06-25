@@ -1948,18 +1948,12 @@ VimController.prototype.runCommandDetails = function(command_details) {
 
     // See if there is a VI toolbox element to give it to, so
     // lets go and check the toolbox for this name
-    var viToolboxFolder = ko.toolboxes.user.findPartByTypeAttributeValue('folder', 'name', 'Vi Commands');
-    if (!!(viToolboxFolder)) {
-        var part = viToolboxFolder.getChildByAttributeValue('name',
-                                                            commandName,
-                                                            true /* recurse */);
-        if (part) {
-            // Invoke the macro
-            ko.projects.invokePart(part);
-            return;
-        }
+    var tool = ko.toolbox2.getViCommand(commandName);
+    if (tool) {
+        // Invoke the macro
+        ko.projects.invokePart(tool);
+        return;
     }
-
     ko.dialogs.alert("Unrecognized command: '" + commandName + "'\n\n" +
                  "You can implement additional commands by creating a toolbox folder\n" +
                  "named 'Vi Commands' and then creating a macro named '" + commandName + "'.\n" +

@@ -93,6 +93,8 @@ interface koIContainerBaseTool: koITool {
     //Used and implemented.
     void getChildren([array, size_is(count)] out koITool child,
                      out unsigned long count);
+    koITool getChildByName(in wstring name,
+                           in boolean recurse);
 
     koITool getChildById(in wstring id);
     /* hasChild does not recurse */
@@ -164,6 +166,10 @@ interface koIToolbox2ToolManager: nsISupports {
 
     koITool getToolById(in long id);
     koITool getToolFromPath(in wstring path);
+    void getToolsByTypeAndName(in wstring type, in wstring name,
+                        [array, size_is(count)] out koITool tools,
+                          out unsigned long count);
+
     koITool getAbbreviationSnippet(in wstring abbrev,
                                 [array, size_is(count)] in wstring subnames,
                                 in unsigned long count);

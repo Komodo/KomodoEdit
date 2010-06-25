@@ -400,6 +400,12 @@ class _KoFolder(_KoContainer):
     def save(self):
         # What about renaming a folder?
         pass
+
+    def getChildByName(self, name, recurse):
+        id = _tbdbSvc.getChildByName(self.id, name, recurse)
+        if id is None:
+            return None
+        return _toolsManager.getToolById(id)
     
 class _KoComplexContainer(_KoFolder):
     def trailblazeForPath(self, path):
@@ -812,6 +818,9 @@ class KoToolbox2ToolManager(object):
             parent_tool = None
         tool.delete()
         
+    def getToolsByTypeAndName(self, toolType, name):
+        ids = self.toolbox_db.getToolsByTypeAndName(toolType, name)
+        return [self.getToolById(id) for id in ids]
 
     def getAbbreviationSnippet(self, abbrev, subnames):
         id = self.toolbox_db.getAbbreviationSnippetId(abbrev, subnames)

@@ -760,6 +760,12 @@ class Database(object):
         # Komodo accesses the value by as a URL so it can
         # get a koFileEx obj
         return obj
+
+    def getToolsByTypeAndName(self, toolType, name):
+        stmt = "select path_id from common_details where type = ? and name = ?"
+        with self.connect() as cu:
+            cu.execute(stmt, (toolType, name))
+            return [x[0] for x in cu.fetchall()]
     
     def getAbbreviationSnippetId(self, abbrev, subnames):
         """
@@ -876,7 +882,50 @@ class Database(object):
         for child_row in child_rows:
             if child_row[2] == 'snippet' and self.word_part_re.match(child_row[1]):
                 return child_row[0]
+        child_rows = [x for x in child_rows if x[2] == 'folder']
         return self._getAbbreviationMatchInTree(child_rows, abbrev, cu)
+
+    def getChildByName(self, id, name, recurse):
+        """ Return the first tool that's a child of id that has the
+            specified name, matching case.
+            """
+        stmt = """select common_details.path_id
+                  from hierarchy, common_details
+                  where hierarchy.parent_path_id = ?
+                        and hierarchy.path_id = common_details.path_id
+                        and common_details.name = ?"""
+        with self.connect() as cu:
+            cu.execute(stmt, (id, name))
+            row = cu.fetchone()
+            if row:
+                return row[0]
+            if not recurse:
+                return None
+            # First make sure the item exists somewhere
+            stmt = """select count(*) from common_details where name = ?"""
+            cu.execute(stmt, (name,))
+            if not cu.fetchone()[0]:
+                return None
+            return self._getChildByNameInTree([[id]], name, cu)
+                
+    def _getChildByNameInTree(self, folder_matches, name, cu):
+        condition = ' or '.join(['hierarchy.parent_path_id = ?'] * len(folder_matches))
+        stmt = """select common_details.path_id, common_details.name, common_details.type
+                from hierarchy, common_details
+                where (%s)
+                      and common_details.path_id = hierarchy.path_id
+                      and (common_details.name = ?
+                           or common_details.type = ?)""" % (condition,)
+        test_values = [f[0] for f in folder_matches] + [name, 'folder']
+        cu.execute(stmt, test_values)
+        child_rows = cu.fetchall()
+        if not child_rows:
+            return
+        for child_row in child_rows:
+            if child_row[1] == name:
+                return child_row[0]
+        return self._getChildByNameInTree(child_rows, name, cu)
+
 
     def getIDsByType(self, nodeType, rootToolboxPath):
         with self.connect() as cu:
