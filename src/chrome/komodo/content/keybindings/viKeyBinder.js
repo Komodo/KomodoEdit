@@ -212,14 +212,24 @@ var gVim_onWindowMouseUpHandler = function(event) {
     }
 }
 
+// Used to capture view changes.
+var gVim_onCurrentViewChanged = function(event) {
+    // When the view changes - always go back to the normal mode.
+    gVimController.mode = VimController.MODE_NORMAL;
+    var view = event.originalTarget;
+    gVimController.updateCaretStyle(view.scimoz);
+}
+
 VimController.prototype.enable = function(enabled) {
     if (enabled && !this.enabled) {
         window.addEventListener('mouseup', gVim_onWindowMouseUpHandler, true);
+        window.addEventListener('current_view_changed', gVim_onCurrentViewChanged, true);
         this.loadOverlay(); // load overlay eventually sets enabled to true
     } else if (!enabled) {
         this.enabledCallback = null;
         if (this.enabled) {
             window.removeEventListener('mouseup', gVim_onWindowMouseUpHandler, true);
+            window.removeEventListener('current_view_changed', gVim_onCurrentViewChanged, true);
             this.unloadOverlay(); // unload overlay sets enabled to false
         }
     }
@@ -452,8 +462,10 @@ VimController.prototype.doCommand = function(cmdName) {
 VimController.prototype.onBufferFocus =
 VimController.prototype.updateViInternals = function() {
     if (this.enabled) {
-        this.updateCaretStyle();
-        this.updateModeIfBufferHasSelection(false);
+        if (ko.views.manager && ko.views.manager.currentView) {
+            this.updateCaretStyle(ko.views.manager.currentView.scimoz);
+            this.updateModeIfBufferHasSelection(false);
+        }
     } else {
         this.mode = VimController.MODE_NORMAL;
         // Set the cursor back to it's preferenced style. Fixes bug:
@@ -495,20 +507,19 @@ VimController.prototype.updateStatusBarMode = function() {
     this.statusBarMode.label = modeMsg;
 }
 
-VimController.prototype.updateCaretStyle = function() {
-    if (typeof(ko.views.manager) != 'undefined' && ko.views.manager && ko.views.manager.currentView &&
-        ko.views.manager.currentView.koDoc && ko.views.manager.currentView.scintilla) {
-        var scimoz = ko.views.manager.currentView.scintilla.scimoz;
-        if ((this._mode == VimController.MODE_INSERT) ||
-            (this._mode == VimController.MODE_OVERTYPE)) {
-            //scimoz.caretWidth = 2;
-            scimoz.caretStyle = scimoz.CARETSTYLE_LINE;
-            //dump("VimController:: Making caret a LINE style\n");
-        } else {
-            //scimoz.caretWidth = 1;
-            scimoz.caretStyle = scimoz.CARETSTYLE_BLOCK;
-            //dump("VimController:: Making caret a BLOCK style\n");
-        }
+VimController.prototype.updateCaretStyle = function(scimoz) {
+    if (!scimoz) {
+        return;
+    }
+    if ((this._mode == VimController.MODE_INSERT) ||
+        (this._mode == VimController.MODE_OVERTYPE)) {
+        //scimoz.caretWidth = 2;
+        scimoz.caretStyle = scimoz.CARETSTYLE_LINE;
+        //dump("VimController:: Making caret a LINE style\n");
+    } else {
+        //scimoz.caretWidth = 1;
+        scimoz.caretStyle = scimoz.CARETSTYLE_BLOCK;
+        //dump("VimController:: Making caret a BLOCK style\n");
     }
 }
 
@@ -565,13 +576,13 @@ VimController.prototype.__defineSetter__("mode", function(new_mode) {
         } else if ((new_mode == VimController.MODE_NORMAL) &&
                    (old_mode == VimController.MODE_VISUAL)) {
             // Remove any selection when leaving visual mode for normal mode
-            scimoz = ko.views.manager.currentView.scintilla.scimoz;
+            scimoz = ko.views.manager.currentView.scimoz;
             // scimoz.cancel() used to ensure removal of the selectionmode
             // http://bugs.activestate.com/show_bug.cgi?id=65580
             scimoz.cancel();
             scimoz.setSel(-1, scimoz.currentPos);  // anchorPos of -1 means remove any selection
         }
-        this.updateCaretStyle();
+        this.updateCaretStyle(scimoz || ko.views.manager.currentView.scimoz);
         this.updateStatusBarMode();
     }
 });
