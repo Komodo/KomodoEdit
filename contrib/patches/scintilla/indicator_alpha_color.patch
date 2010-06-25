@@ -1,0 +1,27 @@
+Index: /Users/toddw/as/komodo-devel/src/scintilla/macosx/PlatMacOSX.cxx
+===================================================================
+--- macosx/PlatMacOSX.cxx	(revision 53348)
++++ macosx/PlatMacOSX.cxx	(working copy)
+@@ -475,7 +475,7 @@
+         ColourDesired colour( fill.AsLong() );
+ 
+         // Set the Fill color to match
+-        CGContextSetRGBFillColor( gc, colour.GetRed() / 255.0, colour.GetGreen() / 255.0, colour.GetBlue() / 255.0, alphaFill / 100.0 );
++        CGContextSetRGBFillColor( gc, colour.GetRed() / 255.0, colour.GetGreen() / 255.0, colour.GetBlue() / 255.0, alphaFill / 255.0 );
+         CGRect rect = PRectangleToCGRect( rc );
+         CGContextFillRect( gc, rect );
+     }
+@
+Index: /Users/toddw/as/komodo-devel/src/scintilla/src/Editor.cxx
+===================================================================
+--- src/Editor.cxx	(revision 53348)
++++ src/Editor.cxx	(working copy)
+@@ -7907,7 +7932,7 @@
+ 		return (wParam <= INDIC_MAX) ? vs.indicators[wParam].under : 0;
+ 
+ 	case SCI_INDICSETALPHA:
+-		if (wParam <= INDIC_MAX && lParam >=0 && lParam <= 100) {
++		if (wParam <= INDIC_MAX && lParam >=0 && lParam <= 256) {
+ 			vs.indicators[wParam].fillAlpha = lParam;
+ 			InvalidateStyleRedraw();
+ 		}
