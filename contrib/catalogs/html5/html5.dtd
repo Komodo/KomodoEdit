@@ -700,7 +700,6 @@
 <!ATTLIST br
   %coreattrs;
   %html5attrs;
-  clear       (left|all|right|none) "none"
   >
 
 <!ELEMENT em %Inline;>   <!-- emphasis -->
