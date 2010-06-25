@@ -87,6 +87,7 @@ my @codeintel2_files = (
     "lib/codeintel2/lang_django.py",
     "lib/codeintel2/lang_css.py",
     "lib/codeintel2/lang_html.py",
+    "lib/codeintel2/lang_html5.py",
     "lib/codeintel2/lang_javascript.py",
     "lib/codeintel2/lang_mason.py",
     "lib/codeintel2/lang_perl.py",
