@@ -463,8 +463,6 @@
   %attrs;
   onload      %Script;       #IMPLIED
   onunload    %Script;       #IMPLIED
-  background  %URI;          #IMPLIED
-  bgcolor     %Color;        #IMPLIED
 <!-- HTML 5 Window Event Attributes -->
   onafterprint    %Script;   #IMPLIED        <!-- Script to be run after the document is printed -->
   onbeforeprint   %Script;   #IMPLIED        <!-- Script to be run before the document is printed -->
