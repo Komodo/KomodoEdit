@@ -651,7 +651,8 @@ class KoLanguageRegistryService:
         if self._globalPrefs.getBooleanPref('xmlDeclDetection') and \
             (not langs or 'XML' in langs):
             # it may be an XHTML file
-            if head.lower().startswith(u'<?xml'):
+            lhead = head.lower()
+            if lhead.startswith(u'<?xml'):
                 langs.append("XML")
 
             try:
@@ -673,6 +674,8 @@ class KoLanguageRegistryService:
                         langs.append(self._systemIdMap[tree.doctype[3]])
                     if tree.doctype[0].lower() == "html":
                         langs.append("HTML")
+                elif "<!doctype html>" in lhead:
+                    langs.append("HTML5")
             except Exception, e:
                 # log this, but keep on going, it's just a failure in xml
                 # parsing and we can live without it.  bug 67251
