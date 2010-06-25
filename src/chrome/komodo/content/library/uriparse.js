@@ -389,24 +389,20 @@ this.getMappedURI = function(uri, prefs)
 this.addMappedURI = function(uri, path)
 {
     if (typeof(path) == 'undefined') path=null;
+    var currentProject = ko.projects.manager.currentProject;
     var info = {
 	uri: uri,
 	path: path,
         project: "false",
-        project_name: null
+        project_name: currentProject ? currentProject.name : null
     };
-    if (ko.projects.manager.currentProject) {
-        info.project_name = ko.projects.manager.currentProject.name;
-    }
     window.openDialog('chrome://komodo/content/dialogs/editPathMap.xul', '_blank', 'chrome,modal,titlebar,resizable,centerscreen', info);
     if (!info.uri || !info.path) return false;
     // add this to the uri mapping
-    var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
-		getService(Components.interfaces.koIPrefService);
-    var prefs = prefSvc.prefs;
-    if (info.project == "true" && ko.projects.manager.currentProject) {
-        prefs = ko.projects.manager.currentProject.prefset;
-    }
+    var prefs = ((info.project == "true" && currentProject)
+                 ? currentProject.prefset
+                 : Components.classes["@activestate.com/koPrefService;1"].
+                   getService(Components.interfaces.koIPrefService).prefs);
     var mapping = prefs.getStringPref('mappedPaths');
     mapping = mapping + "::" + info.uri + "##" + info.path;
     prefs.setStringPref('mappedPaths', mapping);
