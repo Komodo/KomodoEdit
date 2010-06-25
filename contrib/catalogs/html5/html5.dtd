@@ -586,7 +586,6 @@
 <!ELEMENT hr EMPTY>
 <!ATTLIST hr
   %attrs;
-  width       %Length;       #IMPLIED
   >
 
 <!--=================== Preformatted Text ================================-->
@@ -597,8 +596,6 @@
 <!ELEMENT pre %pre.content;>
 <!ATTLIST pre
   %attrs;
-  width       %Number;      #IMPLIED
-  xml:space   (preserve)    #FIXED 'preserve'
   >
 
 <!--=================== Block-like Quotes ================================-->
@@ -1032,11 +1029,6 @@ several semantically related columns together.
 <!--
  col elements define the alignment properties for cells in
  one or more columns.
-
- The width attribute specifies the width of the columns, e.g.
-
-     width=64        width in screen pixels
-     width=0.5*      relative width of 0.5
 
  The span attribute causes the attributes of one
  col element to apply to more than one column.
