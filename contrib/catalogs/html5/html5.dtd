@@ -529,51 +529,29 @@
 
 <!--=================== Lists ============================================-->
 
-<!-- Unordered list bullet styles -->
-
-<!ENTITY % ULStyle "(disc|square|circle)">
 
 <!-- Unordered list -->
 
 <!ELEMENT ul (li)+>
 <!ATTLIST ul
   %attrs;
-  type        %ULStyle;     #IMPLIED
   >
-
-<!-- Ordered list numbering style
-
-    1   arabic numbers      1, 2, 3, ...
-    a   lower alpha         a, b, c, ...
-    A   upper alpha         A, B, C, ...
-    i   lower roman         i, ii, iii, ...
-    I   upper roman         I, II, III, ...
-
-    The style is applied to the sequence number which by default
-    is reset to 1 for the first list item in an ordered list.
--->
-<!ENTITY % OLStyle "CDATA">
 
 <!-- Ordered (numbered) list -->
 
 <!ELEMENT ol (li)+>
 <!ATTLIST ol
   %attrs;
-  type        %OLStyle;      #IMPLIED
   start       %Number;       #IMPLIED
   <!-- HTML 5 attributes -->
   reversed    (reversed)     #IMPLIED
   >
-
-<!-- LIStyle is constrained to: "(%ULStyle;|%OLStyle;)" -->
-<!ENTITY % LIStyle "CDATA">
 
 <!-- list item -->
 
 <!ELEMENT li %Flow;>
 <!ATTLIST li
   %attrs;
-  type        %LIStyle;      #IMPLIED
   value       %Number;       #IMPLIED
   >
 
