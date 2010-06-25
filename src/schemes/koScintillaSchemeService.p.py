@@ -111,7 +111,7 @@ class Scheme:
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 5
+    _current_scheme_version = 4
 
     def _execfile(self, fname, namespace):
         try:
@@ -205,18 +205,6 @@ class Scheme:
                     else:
                         defaultForeColor = 0 # fallback
                     self._colors['whitespaceColor'] = defaultForeColor
-
-            if version == 4:  # Upgrade to v5.
-# #if PLATFORM == 'darwin'
-                # Use a lower alpha value on the mac - which makes selections
-                # (slightly) easier to see, bug 82223.
-                for indic_name in ('find_highlighting', 'tag_matching', 'tabstop_current'):
-                    indic = self._indicators.get(indic_name)
-                    if indic and indic.get('alpha') == 100:
-                        indic['alpha'] = 50
-# #else
-                pass
-# #endif
 
             try:
                 self.save()
