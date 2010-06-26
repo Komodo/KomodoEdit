@@ -1749,7 +1749,7 @@
                   <File Id="file2269" Name="lang_tcl.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_tcl.py"/>
                   <File Id="file1204" Name="LANG_R_1.PY" LongName="lang_rhtml.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_rhtml.py"/>
                   <File Id="file165" LongName="lang_html.py" Name="LANG_H_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_html.py" />
-                  <File Id="file956" LongName="lang_html5.py" Name="LANG_H_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_html5.py" />
+                  <File Id="file1232" LongName="lang_html5.py" Name="LANG_H_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_html5.py" />
                   <File Id="file1205" Name="lang_xml.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_xml.py"/>
                   <File Id="file163" LongName="lang_xslt.py" Name="LANG_X_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_xslt.py" />
                   <File Id="file2271" Name="PARSEU_1.PY" LongName="parseutil.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\parseutil.py"/>
