@@ -916,8 +916,8 @@ class PythonCILEDriver(CILEDriver):
             except UnicodeError, ex:
                 raise CodeIntelError("cannot encode Python content as %r (%s)"
                                      % (encoding, ex))
-        cix = pythoncile.scan(content, buf.path, lang=self.lang)
-        return tree_from_cix(cix)
+        el = pythoncile.scan_et(content, buf.path, lang=self.lang)
+        return el
 
     def scan_binary(self, buf):
         from codeintel2 import pybinary

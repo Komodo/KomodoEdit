@@ -89,6 +89,10 @@ import types
 from cStringIO import StringIO
 from functools import partial
 
+# this particular ET is different from xml.etree and is expected
+# to be returned from scan_et() by the clients of this module
+import ciElementTree as et
+
 import compiler
 from compiler import ast
 from compiler.visitor import dumpNode, ExampleASTVisitor
@@ -148,6 +152,8 @@ def getAttrStr(attrs):
 
 # match 0x00-0x1f except TAB(0x09), LF(0x0A), and CR(0x0D)
 _encre = re.compile('([\x00-\x08\x0b\x0c\x0e-\x1f])')
+
+# XXX: this is not used anywhere, is it needed at all?
 if sys.version_info >= (2, 3):
     charrefreplace = 'xmlcharrefreplace'
 else:
@@ -181,9 +187,9 @@ def xmlencode(s):
     #        ago, and I don't recall what I mean by "avoid shuffling the data
     #        around", but it must be related to something I observed without
     #        that code.
-    return _encre.sub(
-               # replace with XML decimal char entity, e.g. '&#7;'
-               lambda m: '&#%d;'%ord(m.group(1)), s)
+    
+    # replace with XML decimal char entity, e.g. '&#7;'
+    return _encre.sub(lambda m: '&#%d;' % ord(m.group(1)), s)
 
 def cdataescape(s):
     """Return the string escaped for inclusion in an XML CDATA section.
@@ -210,6 +216,45 @@ def cdataescape(s):
     parts = s.split("]]>")
     return "]]]]><![CDATA[>".join(parts)
 
+def _unistr(x):
+    if isinstance(x, unicode):
+        return x
+    elif isinstance(x, str):
+        return x.decode('utf8')
+    else:
+        return unicode(x)
+
+def _et_attrs(attrs):
+    return dict((_unistr(k), xmlencode(_unistr(v))) for k, v in attrs.items()
+                                                    if v is not None)
+
+def _et_data(data):
+    return xmlencode(_unistr(data))
+    
+def _node_attrs(node, **kw):
+    return dict(name=node["name"],
+                line=node.get("line"),
+                doc=node.get("doc"),
+                attributes=node.get("attributes") or None,
+                **kw)
+
+def _node_citdl(node):
+    max_type = None
+    max_score = -1
+    #'guesses' is a types dict: {<type guess>: <score>, ...}
+    guesses = node.get("types", {})
+    for type, score in guesses.items():
+        if ' ' in type:
+            #XXX Drop the <start-scope> part of CITDL for now.
+            type = type.split(None,1)[0]
+        # Don't emit None types, it does not help us. Fix for bug:
+        #  http://bugs.activestate.com/show_bug.cgi?id=71989
+        if type != "None":
+            if score > max_score:
+                max_type = type
+                max_score = score
+    return max_type
+    
 
 class AST2CIXVisitor:
     """Generate Code Intelligence XML (CIX) from walking a Python AST tree.
@@ -222,7 +267,8 @@ class AST2CIXVisitor:
           original content. The generated CIX XML will also be UTF-8 encoded.
     """
     DEBUG = 0
-    def __init__(self, moduleName=None, content=None):
+    def __init__(self, moduleName=None, content=None, lang="Pyhton"):
+        self.lang = lang
         if self.DEBUG is None:
             self.DEBUG = log.isEnabledFor(logging.DEBUG)
         self.moduleName = moduleName
@@ -236,185 +282,137 @@ class AST2CIXVisitor:
             # <scope name>: <namespace dict>
         }
         self.nsstack = []
-        self.cix = []
+        self.cix = et.TreeBuilder()
 
-    def emit(self, s, level):
-        indent = '    '*level
-        if self.DEBUG:
-            sys.stdout.write(indent+s)
-        self.cix.extend([indent, s])
+    def emit_start(self, s, attrs={}):
+        self.cix.start(s, _et_attrs(attrs))
 
-    def cix_module(self, node, level):
+    def emit_data(self, data):
+        self.cix.data(_et_data(data))
+
+    def emit_end(self, s):
+        self.cix.end(s)
+
+    def emit_tag(self, s, attrs={}, data=None):
+        self.emit_start(s, _et_attrs(attrs))
+        if data is not None:
+            self.emit_data(data)
+        self.emit_end(s)
+
+    def cix_module(self, node):
         """Emit CIX for the given module namespace."""
         #log.debug("cix_module(%s, level=%r)", '.'.join(node["nspath"]), level)
         assert len(node["types"]) == 1 and "module" in node["types"]
-        attrs = {"name": node["name"]}
-        if "line" in node: attrs["line"] = node["line"]
-        self.emit('<module%s>\n' % getAttrStr(attrs), level)
-        doc = node.get("doc")
-        if doc:
-            doc = cdataescape(xmlencode(doc))
-            self.emit('<doc><![CDATA['+doc+']]></doc>\n', level+1)
+        attrs = _node_attrs(node, lang=self.lang, ilk="blob")
+        module = self.emit_start('scope', attrs)
         for import_ in node.get("imports", []):
-            self.cix_import(import_, level+1)
-        self.cix_symbols(node["symbols"], level+1)
-        self.emit('</module>\n', level)
+            self.cix_import(import_)
+        self.cix_symbols(node["symbols"])
+        self.emit_end('scope')
 
-    def cix_import(self, node, level):
+    def cix_import(self, node):
         #log.debug("cix_import(%s, level=%r)", node["module"], level)
         attrs = node
-        self.emit('<import%s/>\n' % getAttrStr(attrs), level)
+        self.emit_tag('import', attrs)
 
-    def cix_symbols(self, node, level, parentIsClass=0):
-        vars = node.values()
+    def cix_symbols(self, node, parentIsClass=0):
         # Sort variables by line order. This provide the most naturally
         # readable comparison of document with its associate CIX content.
-        vars.sort(lambda a,b: cmp(a.get("line"), b.get("line")))
+        vars = sorted(node.values(), key=lambda v: v.get("line"))
         for var in vars:
-            self.cix_symbol(var, level, parentIsClass)
+            self.cix_symbol(var, parentIsClass)
 
-    def cix_symbol(self, node, level, parentIsClass=0):
+    def cix_symbol(self, node, parentIsClass=0):
         if _isclass(node):
-            self.cix_class(node, level)
+            self.cix_class(node)
         elif _isfunction(node):
-            self.cix_function(node, level)
+            self.cix_function(node)
         else:
-            self.cix_variable(node, level, parentIsClass)
+            self.cix_variable(node, parentIsClass)
 
-    def cix_types(self, guesses, level):
-        """'guesses' is a types dict: {<type guess>: <score>, ...} """
-        typesAndScores = guesses.items()
-        typesAndScores.sort(lambda a,b: cmp(b[1], a[1])) # highest score first
-        for type_, score in typesAndScores:
-            if ' ' in type_:
-                #XXX Drop the <start-scope> part of CITDL for now.
-                type_ = type_.split(None, 1)[0]
-            # Don't emit None types, it does not help us. Fix for bug:
-            #  http://bugs.activestate.com/show_bug.cgi?id=71989
-            if type_ != "None":
-                tattrs = {"type": type_, "score": score}
-                self.emit('<type%s/>\n' % getAttrStr(tattrs), level)
-
-    def cix_variable(self, node, level, parentIsClass=0):
+    def cix_variable(self, node, parentIsClass=0):
         #log.debug("cix_variable(%s, level=%r, parentIsClass=%r)",
         #          '.'.join(node["nspath"]), level, parentIsClass)
-        attrs = {"name": node["name"]}
-        if "line" in node: attrs["line"] = node["line"]
-        if node.get("attributes"): attrs["attributes"] = node["attributes"]
+        attrs = _node_attrs(node, citdl=_node_citdl(node))
         if parentIsClass and "is-class-var" not in node:
             # Special CodeIntel <variable> attribute to distinguish from the
             # usual class variables.
-            if "attributes" in attrs:
+            if attrs["attributes"]:
                 attrs["attributes"] += " __instancevar__"
             else:
                 attrs["attributes"] = "__instancevar__"
-        if not node.get("doc") and not node["types"]:
-            self.emit('<variable%s/>\n' % getAttrStr(attrs), level)
-        else:
-            self.emit('<variable%s>\n' % getAttrStr(attrs), level)
-            doc = node.get("doc")
-            if doc:
-                doc = cdataescape(xmlencode(doc))
-                self.emit('<doc><![CDATA['+doc+']]></doc>\n', level+1)
-            self.cix_types(node["types"], level+1)
-            self.emit('</variable>\n', level)
+        self.emit_tag('variable', attrs)
 
-    def cix_classref(self, node, level):
-        #log.debug("cix_classref(%s, level=%r)", '.'.join(node["nspath"]), level)
-        attrs = {"name": node["name"]}
-        if "line" in node: attrs["line"] = node["line"]
-        if not node["types"]:
-            self.emit('<classref%s/>\n' % getAttrStr(attrs), level)
-        else:
-            self.emit('<classref%s>\n' % getAttrStr(attrs), level)
-            self.cix_types(node["types"], level+1)
-            self.emit('</classref>\n', level)
-
-    def cix_class(self, node, level):
+    def cix_class(self, node):
         #log.debug("cix_class(%s, level=%r)", '.'.join(node["nspath"]), level)
-        attrs = {"name": node["name"]}
-        if "line" in node: attrs["line"] = node["line"]
-        if "lineend" in node: attrs["lineend"] = node["lineend"]
-        if node.get("attributes"): attrs["attributes"] = node["attributes"]
-        self.emit('<class%s>\n' % getAttrStr(attrs), level)
-        if "signature" in node:
-            signature = cdataescape(xmlencode(node["signature"]))
-            self.emit('<signature><![CDATA['+signature+']]></signature>\n',
-                      level+1)
-        for classref in node["classrefs"]:
-            self.cix_classref(classref, level+1)
-        doc = node.get("doc")
-        if doc:
-            doc = cdataescape(xmlencode(doc))
-            self.emit('<doc><![CDATA['+doc+']]></doc>\n', level+1)
-        for import_ in node.get("imports", []):
-            self.cix_import(import_, level+1)
-        self.cix_symbols(node["symbols"], level+1, parentIsClass=1)
-        self.emit('</class>\n', level)
 
-    def cix_argument(self, node, level):
-        #log.debug("cix_argument(%s, level=%r)", '.'.join(node["nspath"]), level)
-        attrs = {"name": node["name"]}
-        if "line" in node: attrs["line"] = node["line"]
-        if "attributes" in node: attrs["attributes"] = node["attributes"]
-        if not node.get("doc") and not node["types"]:
-            self.emit('<argument%s/>\n' % getAttrStr(attrs), level)
+        if node["classrefs"]:
+            citdls = (t for t in (_node_citdl(n) for n in node["classrefs"])
+                        if t is not None)
+            classrefs = " ".join(citdls)
         else:
-            self.emit('<argument%s>\n' % getAttrStr(attrs), level)
-            doc = node.get("doc")
-            if doc:
-                doc = cdataescape(xmlencode(doc))
-                self.emit('<doc><![CDATA['+doc+']]></doc>\n', level+1)
-            self.cix_types(node["types"], level+1)
-            self.emit('</argument>\n', level)
+            classrefs = None
 
-    def cix_function(self, node, level):
+        attrs = _node_attrs(node,
+                            lineend=node.get("lineend"),
+                            signature=node.get("signature"),
+                            ilk="class",
+                            classrefs=classrefs)
+
+        self.emit_start('scope', attrs)
+
+        for import_ in node.get("imports", []):
+            self.cix_import(import_)
+
+        self.cix_symbols(node["symbols"], parentIsClass=1)
+        
+        self.emit_end('scope')
+
+    def cix_argument(self, node):
+        #log.debug("cix_argument(%s, level=%r)", '.'.join(node["nspath"]), level)
+        attrs = _node_attrs(node, citdl=_node_citdl(node), ilk="argument")
+        self.emit_tag('variable', attrs)
+
+    def cix_function(self, node):
         #log.debug("cix_function(%s, level=%r)", '.'.join(node["nspath"]), level)
-        attrs = {"name": node["name"]}
-        if "line" in node: attrs["line"] = node["line"]
-        if "lineend" in node: attrs["lineend"] = node["lineend"]
-        if node.get("attributes"): attrs["attributes"] = node["attributes"]
-
         # Determine the best return type.
         best_citdl = None
         max_count = 0
         for citdl, count in node["returns"].items():
             if count > max_count:
                 best_citdl = citdl
-        if best_citdl:
-            attrs["returns"] = best_citdl
 
-        self.emit('<function%s>\n' % getAttrStr(attrs), level)
+        attrs = _node_attrs(node,
+                            lineend=node.get("lineend"),
+                            returns=best_citdl,
+                            signature=node.get("signature"),
+                            ilk="function")
 
-        if "signature" in node:
-            signature = cdataescape(xmlencode(node["signature"]))
-            self.emit('<signature><![CDATA['+signature+']]></signature>\n',
-                      level+1)
-        doc = node.get("doc")
-        if doc:
-            doc = cdataescape(xmlencode(doc))
-            self.emit('<doc><![CDATA['+doc+']]></doc>\n', level+1)
+        self.emit_start("scope", attrs)
 
         for import_ in node.get("imports", []):
-            self.cix_import(import_, level+1)
+            self.cix_import(import_)
         argNames = []
         for arg in node["arguments"]:
             argNames.append(arg["name"])
-            self.cix_argument(arg, level+1)
+            self.cix_argument(arg)
         symbols = {} # don't re-emit the function arguments
         for symbolName, symbol in node["symbols"].items():
             if symbolName not in argNames:
                 symbols[symbolName] = symbol
-        self.cix_symbols(symbols, level+1)
+        self.cix_symbols(symbols)
         #XXX <returns/> if one is defined
-        self.emit('</function>\n', level)
+        self.emit_end('scope')
 
-    def getCIX(self, level=0):
+    def getCIX(self, path):
         """Return CIX content for parsed data."""
         log.debug("getCIX")
         moduleNS = self.st[()]
-        self.cix_module(moduleNS, level)
-        return "".join(self.cix)
+        self.emit_start('file', dict(lang=self.lang, path=path))
+        self.cix_module(moduleNS)
+        self.emit_end('file')
+        file = self.cix.close()
+        return file
 
     def visitModule(self, node):
         log.info("visitModule")
@@ -426,7 +424,10 @@ class AST2CIXVisitor:
         if node.doc:
             summarylines = util.parseDocSummary(node.doc.splitlines(0))
             namespace["doc"] = "\n".join(summarylines)
-        if node.lineno: namespace["line"] = node.lineno
+            
+        if node.lineno:
+            namespace["line"] = node.lineno
+
         self.st[nspath] = namespace
         self.nsstack.append(namespace)
         self.visit(node.node)
@@ -1345,12 +1346,16 @@ def _getAST(content):
         else:
             raise ValueError("cannot recover from multiple syntax errors: "
                              "line %d and then %d" % (errlineno, errlineno2))
+    
+    if ast_ is None:
+        raise ValueError("could not generate AST")
+    
     return ast_
 
 
 _rx_cache = {}
 
-def _rx(pattern, flags=re.UNICODE):
+def _rx(pattern, flags=0):
     if pattern not in _rx_cache:
         _rx_cache[pattern] = re.compile(pattern, flags)
     return _rx_cache[pattern]
@@ -1386,43 +1391,92 @@ def _clean_func_args(defn):
     argdef = defn.group(2)
     
     parser = tdparser.PyExprParser()
-    arglist = parser.parse_bare_arglist(argdef)
+    try:
+        arglist = parser.parse_bare_arglist(argdef)
 
-    seen_args = False
-    seen_kw = False
-    py2 = []
-    for arg in arglist:
-        name, value, type = arg
-        if name.id == "*":
-            if not seen_kw:
-                name.value = "**kwargs"
-                py2.append(arg)
-                seen_kw = True
-                seen_args = True
-        elif name.value[:2] == "**":
-            if not seen_kw:
-                py2.append(arg)
-                seen_kw = True
-                seen_args = True
-        elif name.value[0] == "*":
-            if not seen_args:
-                seen_args = True
-                py2.append(arg)
-        else:
-            if seen_args or seen_kw:
-                break
+        seen_args = False
+        seen_kw = False
+        py2 = []
+        for arg in arglist:
+            name, value, type = arg
+            if name.id == "*":
+                if not seen_kw:
+                    name.value = "**kwargs"
+                    py2.append(arg)
+                    seen_kw = True
+                    seen_args = True
+            elif name.value[:2] == "**":
+                if not seen_kw:
+                    py2.append(arg)
+                    seen_kw = True
+                    seen_args = True
+            elif name.value[0] == "*":
+                if not seen_args:
+                    seen_args = True
+                    py2.append(arg)
             else:
-                py2.append(arg)
-    
-    cleared = tdparser.arg_list_py(py2)
+                if seen_args or seen_kw:
+                    break
+                else:
+                    py2.append(arg)
+        
+        cleared = tdparser.arg_list_py(py2)
+    except tdparser.ParseError, ex:
+        cleared = argdef
+        log.exception("Couldn't parse (%r)" % argdef)
     
     return defn.group(1) + cleared + defn.group(3)
 
 
 #---- public module interface
 
+def scan_cix(content, filename, md5sum=None, mtime=None, lang="Python"):
+    """Scan the given Python content and return Code Intelligence data
+    conforming the the Code Intelligence XML format.
+    
+        "content" is the Python content to scan. This should be an
+            encoded string: must be a string for `md5` and
+            `compiler.parse` -- see bug 73461.
+        "filename" is the source of the Python content (used in the
+            generated output).
+        "md5sum" (optional) if the MD5 hexdigest has already been calculated
+            for the content, it can be passed in here. Otherwise this
+            is calculated.
+        "mtime" (optional) is a modified time for the file (in seconds since
+            the "epoch"). If it is not specified the _current_ time is used.
+            Note that the default is not to stat() the file and use that
+            because the given content might not reflect the saved file state.
+        "lang" (optional) is the language of the given file content.
+            Typically this is "Python" (i.e. a pure Python file), but it
+            may also be "DjangoHTML" or similar for Python embedded in
+            other documents.
+        XXX Add an optional 'eoltype' so that it need not be
+            re-calculated if already known.
+    
+    This can raise one of SyntaxError, PythonCILEError or parser.ParserError
+    if there was an error processing. Currently this implementation uses the
+    Python 'compiler' package for processing, therefore the given Python
+    content must be syntactically correct.
+    """
+    codeintel = scan_et(content, filename, md5sum, mtime, lang)
+    tree = et.ElementTree(codeintel)
 
-def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
+    stream = StringIO()
+
+    # this is against the W3C spec, but ElementTree wants it lowercase
+    tree.write(stream, "utf-8")
+    
+    raw_cix = stream.getvalue()
+    
+    # XXX: why this 0xA -> &#xA; conversion is necessary?
+    #      It makes no sense, but some tests break without it
+    #      (like cile/scaninputs/path:cdata_close.py)
+    cix = raw_cix.replace('\x0a', '&#xA;')
+    
+    return cix
+
+
+def scan_et(content, filename, md5sum=None, mtime=None, lang="Python"):
     """Scan the given Python content and return Code Intelligence data
     conforming the the Code Intelligence XML format.
     
@@ -1455,6 +1509,7 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
         md5sum = md5(content).hexdigest()
     if mtime is None:
         mtime = int(time.time())
+        
     # 'compiler' both (1) wants a newline at the end and (2) can fail on
     # funky *whitespace* at the end of the file.
     content = content.rstrip() + '\n'
@@ -1472,53 +1527,40 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
         path = filename.replace('\\', '/')
     else:
         path = filename
-    fileAttrs = {"language": lang,
-                 "generator": lang,
-                 "path": path}
 
     try:
         ast_ = _getAST(content)
-        if _gClockIt: sys.stdout.write(" (ast:%.3fs)" % (_gClock()-_gStartTime))
+        if _gClockIt:
+            sys.stdout.write(" (ast:%.3fs)" % (_gClock()-_gStartTime))
     except Exception, ex:
-        fileAttrs["error"] = str(ex)
-        file = '    <file%s/>' % getAttrStr(fileAttrs)
+        file = et.Element('file', _et_attrs(dict(lang=lang,
+                                                 path=path,
+                                                 error=str(ex))))
     else:
-        if ast_ is None:
-            # This happens, for example, with:
-            #   foo(bar, baz=1, blam)
-            fileAttrs["error"] = "could not generate AST"
-            file = '    <file%s/>' % getAttrStr(fileAttrs)
+        moduleName = os.path.splitext(os.path.basename(filename))[0]
+        visitor = AST2CIXVisitor(moduleName, content=content, lang=lang)
+        if log.isEnabledFor(logging.DEBUG):
+            walker = ExampleASTVisitor()
+            walker.VERBOSE = 1
         else:
-            fileAttrs["md5"] = md5sum
-            fileAttrs["mtime"] = mtime
-            moduleName = os.path.splitext(os.path.basename(filename))[0]
-            visitor = AST2CIXVisitor(moduleName, content=content)
-            if log.isEnabledFor(logging.DEBUG):
-                walker = ExampleASTVisitor()
-                walker.VERBOSE = 1
-            else:
-                walker = None
-            compiler.walk(ast_, visitor, walker)
-            if _gClockIt: sys.stdout.write(" (walk:%.3fs)" % (_gClock()-_gStartTime))
-            if log.isEnabledFor(logging.INFO):
-                # Dump a repr of the gathering info for debugging
-                # - We only have to dump the module namespace because
-                #   everything else should be linked from it.
-                for nspath, namespace in visitor.st.items():
-                    if len(nspath) == 0: # this is the module namespace
-                        pprint.pprint(namespace)
-            file = '    <file%s>\n\n%s\n    </file>'\
-                   % (getAttrStr(fileAttrs), visitor.getCIX(level=2))
-            if _gClockIt: sys.stdout.write(" (getCIX:%.3fs)" % (_gClock()-_gStartTime))
+            walker = None
+        compiler.walk(ast_, visitor, walker)
+        if _gClockIt: sys.stdout.write(" (walk:%.3fs)" % (_gClock()-_gStartTime))
+        if log.isEnabledFor(logging.INFO):
+            # Dump a repr of the gathering info for debugging
+            # - We only have to dump the module namespace because
+            #   everything else should be linked from it.
+            for nspath, namespace in visitor.st.items():
+                if len(nspath) == 0: # this is the module namespace
+                    pprint.pprint(namespace)
+        
+        file = visitor.getCIX(path)
+        if _gClockIt: sys.stdout.write(" (getCIX:%.3fs)" % (_gClock()-_gStartTime))
 
-    cix = '''\
-<?xml version="1.0" encoding="UTF-8"?>
-<codeintel version="0.1">
-%s
-</codeintel>
-''' % file
+    codeintel = et.Element('codeintel', _et_attrs(dict(version="2.0")))
+    codeintel.append(file)
+    return codeintel
 
-    return cix
 
 
 
@@ -1612,8 +1654,8 @@ def main(argv):
                 sys.stdout.write("scanning '%s'..." % filename)
                 global _gStartTime
                 _gStartTime = _gClock()
-            data = scan(content, filename, md5sum=md5sum, mtime=mtime,
-                        lang=lang)
+            data = scan_cix(content, filename, md5sum=md5sum, mtime=mtime,
+                            lang=lang)
             if _gClockIt:
                 sys.stdout.write(" %.3fs\n" % (_gClock()-_gStartTime))
             elif data:
@@ -1632,3 +1674,4 @@ def main(argv):
 
 if __name__ == "__main__":
     sys.exit( main(sys.argv) )
+    

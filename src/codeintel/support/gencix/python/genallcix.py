@@ -377,7 +377,7 @@ def get_pythoncile_cix_tree_for_path(mod_path):
     try:
         from codeintel2 import pythoncile
         # In process ciling.
-        cix = pythoncile.scan(file(mod_path, "r").read(), mod_path)
+        return pythoncile.scan_et(file(mod_path, "r").read(), mod_path)
     except ImportError:
         # Need to perform the ciling using a Python 2.6 interpreter.
         from os.path import abspath, dirname, join
@@ -411,8 +411,8 @@ def get_pythoncile_cix_tree_for_path(mod_path):
         cmd = [get_py_26_executable(), ci2_path, "scan", mod_path]
         p = subprocess.Popen(cmd, cwd=ci_dir, env=env, stdout=subprocess.PIPE)
         cix, stderr = p.communicate()
-    tree = tree_from_cix(cix)
-    return tree
+        tree = tree_from_cix(cix)
+        return tree
 
 def merge_trees(tree1, tree2):
     # Merge all the elements of tree2 into tree1.
