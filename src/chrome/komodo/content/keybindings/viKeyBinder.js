@@ -1232,6 +1232,11 @@ VimController.prototype.copyInternal = function (scimoz, start, end,
                                      5000, true);
             return;
         }
+        if (this._visualMode == VimController.VISUAL_LINE) {
+            // Need to include the EOL for the last line - bug 87241.
+            var lineNo = scimoz.lineFromPosition(end);
+            end = scimoz.positionFromLine(lineNo+1);
+        }
         if (start < end) {
             this._internalBuffer += scimoz.getTextRange(start, end);
             if (deleteRange) {
