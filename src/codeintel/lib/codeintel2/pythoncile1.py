@@ -267,7 +267,7 @@ class AST2CIXVisitor:
           original content. The generated CIX XML will also be UTF-8 encoded.
     """
     DEBUG = 0
-    def __init__(self, moduleName=None, content=None, lang="Pyhton"):
+    def __init__(self, moduleName=None, content=None, lang="Python"):
         self.lang = lang
         if self.DEBUG is None:
             self.DEBUG = log.isEnabledFor(logging.DEBUG)
