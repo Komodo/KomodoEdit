@@ -476,10 +476,7 @@ def remote_glob(rpattern, log=None):
         log(' '.join(argv))
     rpaths = []
     try:
-        # Don't use `capture_stdout` -- results in hang with plink on
-        # Windows (see Komodo bug 79857). Eventual best fix is probably
-        # to use `subprocess.Popen().communicate()`.
-        output = capture_output(argv)
+        output = capture_stdout(argv)
     except OSError, ex:
         pass
     else:
@@ -610,24 +607,12 @@ def capture_stdout(argv, ignore_status=False):
     p = subprocess.Popen(argv,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
-    stderr = p.stderr.read()
-    stdout = p.stdout.read()
-    status = p.wait()  # raise if non-zero status?
+    stdout, stderr = p.communicate()
+    status = p.returncode  # raise if non-zero status?
     if status and not ignore_status:
         raise OSError("running '%s' failed: %d: %s"
                       % (' '.join(argv), status, stderr))
     return stdout
-
-def capture_output(argv, ignore_status=False):
-    p = subprocess.Popen(argv,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-    output = p.stdout.read()
-    status = p.wait()  # raise if non-zero status?
-    if status and not ignore_status:
-        raise OSError("running '%s' failed: %d: %s"
-                      % (' '.join(argv), status, output))
-    return output
 
 def capture_status(argv):
     p = subprocess.Popen(argv,
