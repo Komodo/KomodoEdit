@@ -270,6 +270,9 @@ class KoPerlCompileLinter:
     _reg_desc_ = "Komodo Perl Compile Linter"
     _reg_clsid_ = "{8C9C11E9-528C-11d4-AC25-0090273E6A60}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Perl;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Perl'),
+         ]
 
     def __init__(self):
         self.sysUtils = components.classes["@activestate.com/koSysUtils;1"].\

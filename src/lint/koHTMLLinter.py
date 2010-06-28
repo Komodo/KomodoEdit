@@ -56,6 +56,9 @@ class KoHTMLCompileLinter:
     _reg_desc_ = "Komodo HTML Tidy Linter"
     _reg_clsid_ = "{DBF1E5E0-91C7-43da-870B-DB1859017102}"
     _reg_contractid_ = "@activestate.com/koLinter?language=HTML;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'HTML'),
+         ]
 
     def __init__(self):
         self.koDirs = components.classes["@activestate.com/koDirs;1"].\

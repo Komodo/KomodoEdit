@@ -57,6 +57,9 @@ class KoPHPCompileLinter:
     _reg_desc_ = "Komodo PHP Linter"
     _reg_clsid_ = "{F6F8507C-21B0-4047-9E78-A648949B118F}"
     _reg_contractid_ = "@activestate.com/koLinter?language=PHP;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'PHP'),
+         ]
 
     def __init__(self):
         self.phpInfoEx = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].\

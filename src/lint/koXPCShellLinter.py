@@ -53,6 +53,9 @@ class KoXPCShellLinter:
     _reg_desc_ = "Komodo XPCShell JavaScript Linter"
     _reg_clsid_ = "{111FBEA1-7CA3-4858-B040-E51CF5A20CE9}"
     _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'JavaScript'),
+         ]
 
     def __init__(self):
         self.infoSvc = components.classes["@activestate.com/koInfoService;1"].\

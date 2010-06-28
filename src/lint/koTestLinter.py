@@ -46,6 +46,9 @@ class KoTestLinter:
     _reg_desc_ = "Komodo Linter"
     _reg_clsid_ = "{2164884E-492F-11d4-AC24-0090273E6A60}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Test;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Test'),
+         ]
 
     def __init__(self):
         pass

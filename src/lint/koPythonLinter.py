@@ -294,6 +294,9 @@ class KoPythonLinter(KoPythonCommonLinter):
     _reg_desc_ = "Komodo Python Linter"
     _reg_clsid_ = "{FAA3B898-5192-4463-BD37-816EDE05A5EE}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Python;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", language_name),
+         ]
 
 
 class KoPython3Linter(KoPythonCommonLinter):
@@ -303,3 +306,6 @@ class KoPython3Linter(KoPythonCommonLinter):
     _reg_desc_ = "Komodo Python3 Linter"
     _reg_clsid_ = "{f2c7d20a-8399-453d-bbee-7e93d30841e9}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Python3;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", language_name),
+         ]

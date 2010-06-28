@@ -52,6 +52,9 @@ class KoCSSLinter:
     _reg_desc_ = "Komodo CSS Linter"
     _reg_clsid_ = "{F770CBE7-2AAF-492C-8900-CC512CAF5046}"
     _reg_contractid_ = "@activestate.com/koLinter?language=CSS;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'CSS'),
+         ]
 
     results = None
 
