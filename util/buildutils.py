@@ -622,6 +622,22 @@ def capture_status(argv):
     retval = p.wait()
     return retval
 
+def remote_run_capture_all(login, cmd, log=None):
+    """Run the remote command and return the (retval, stdout, stderr) result."""
+    if sys.platform == "win32":
+        if '@' not in login:
+            login = "%s@%s" % (getpass.getuser(), login)
+        cmd = 'plink -A -batch %s "%s"' % (login, cmd)
+    else:
+        cmd = 'ssh -A -o BatchMode=yes %s "%s"' % (login, cmd)
+    __run_log(logstream, "running '%s'", cmd)
+    p = subprocess.Popen(argv,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    status = p.returncode
+    return status, stdout, stderr
+
 
 
 #---- version string manipulation unexpected
