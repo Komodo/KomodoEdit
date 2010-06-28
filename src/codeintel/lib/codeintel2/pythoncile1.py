@@ -1514,8 +1514,7 @@ def scan_et(content, filename, md5sum=None, mtime=None, lang="Python"):
     # funky *whitespace* at the end of the file.
     content = content.rstrip() + '\n'
 
-    convert3to2 = True # should be: lang == "Python3":
-    if convert3to2:
+    if lang == "Python3":
         # Make Python3 code as compatible with pythoncile's Python2
         # parser as neessary for codeintel purposes.
         content = _convert3to2(content)
