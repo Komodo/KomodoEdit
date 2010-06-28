@@ -200,6 +200,9 @@ class KoTclCompileLinter:
     _reg_desc_ = "Komodo Tcl Linter"
     _reg_clsid_ = "{842EC3B2-B79B-44a2-9417-04CEA5C02BF1}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Tcl;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Tcl'),
+         ]
 
     def __init__(self):
         self._tclProRe = re.compile(r'^[^:]+:(\d+) \((\w+)\) (.*)$')
