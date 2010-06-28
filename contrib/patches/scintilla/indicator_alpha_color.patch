@@ -1,3 +1,8 @@
+Fix indicator coloring (highlighting) on the Mac, bug 82223.
+
+Dev Note: This patch has been added to the Scintilla CVS, so it can be dropped
+the next time we update Scintilla.
+
 Index: /Users/toddw/as/komodo-devel/src/scintilla/macosx/PlatMacOSX.cxx
 ===================================================================
 --- macosx/PlatMacOSX.cxx	(revision 53348)
@@ -21,7 +26,7 @@ Index: /Users/toddw/as/komodo-devel/src/scintilla/src/Editor.cxx
  
  	case SCI_INDICSETALPHA:
 -		if (wParam <= INDIC_MAX && lParam >=0 && lParam <= 100) {
-+		if (wParam <= INDIC_MAX && lParam >=0 && lParam <= 256) {
++		if (wParam <= INDIC_MAX && lParam >=0 && lParam <= 255) {
  			vs.indicators[wParam].fillAlpha = lParam;
  			InvalidateStyleRedraw();
  		}
