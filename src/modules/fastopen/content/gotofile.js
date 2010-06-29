@@ -256,7 +256,7 @@ function _openHits(hits) {
     var dirsToOpen = [];
     for (var i in hits) {
         var hit = hits[i];
-        if (hit.type == "path" && hit.isdir) {
+        if (hit.isdir) {
             dirsToOpen.push(hit.base);
         } else if (hit.type == "open-view") {
             hit.view.makeCurrent();
