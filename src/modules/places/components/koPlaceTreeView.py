@@ -59,39 +59,94 @@ from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObjec
 from koTreeView import TreeView
 from koLanguageServiceBase import sendStatusMessage
 log = logging.getLogger("KoPlaceTreeView")
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 qlog = logging.getLogger("KoPlaceTreeView.q")
-qlog.setLevel(logging.DEBUG)
+#qlog.setLevel(logging.DEBUG)
 
 class _kplBase(object):
-    def __init__(self, fileObj):
-        self.fileObj = fileObj # koIFileEx
-        if fileObj:
-            if not fileObj.URI:
-                raise Exception("No fileObj.URI")
+    """
+    Each row has these fields:
+    - level
+    - uri
+    - _name : init None, managed by property name
+    - _path : init None, managed by property path
+    - _koFile: init None, managed by property koFile, instance of koFileEx
+    - properties: init None
+    - isContainer: class attribute
+    - isOpen: should be called on _kplFolder only
+    - childNodes: should be called on _kplFolder only
+    - image_icon (off class)
+    - original_image_icon
+    - busy_count
+    """
+    def __init__(self, level, uri):
+        self.level = level
+        self.uri = uri
+        self.properties = None
+        self._koFile = None # koIFileEx
         self.original_image_icon = self.image_icon
         self.busy_count = 0
+        # Calc the others when we need them
+        self._name = self._path = self._uri = None
         
     def getCellPropertyNames(self, col_id):
         if col_id == 'name':
             return [self.image_icon]
         return []
 
-    def getName(self):
-        return self.fileObj.baseName
+    _slash_re = re.compile(r'[/\\]')
 
-    def getPath(self):
-        return self.fileObj.path
+    @property
+    def koFile(self):
+        if self._koFile is None:
+            self._koFile = components.classes["@activestate.com/koFileService;1"].\
+                           getService(components.interfaces.koIFileService).\
+                           getFileFromURI(self.uri)
+        return self._koFile
+
+    @property
+    def name(self):
+        if self._name is None:
+            self._name = self.koFile.baseName
+        return self._name
+
+    @name.setter
+    def name(self, val):
+        self._name = val
+        
+    @property
+    def path(self):
+        if self._path is None:
+            self._path = self.koFile.path
+        return self._path
+
+    @path.setter
+    def path(self, val):
+        self._path = val
+
+    def matchesPath(self, path):
+        # Don't instantiate koFileEx on every row while trying to match path
+        if self._path is None:
+            lastPart = os.path.basename(self.uri)
+            if lastPart not in path:
+                return False
+        return self.path == path            
+
+    def getName(self):
+        return self.name
+
+    #def getPath(self):
+    #    return self.path
 
     def getURI(self):
-        return self.fileObj.URI
+        return self.uri
 
     getUri = getURI   # Because of how accessors are calculated
 
-    def getCellPropertyNames(self, col_id):
-        if col_id == 'name':
-            return [self.image_icon]
-        return []
+    # Getters from the treeview
+    def getCellText(self, col_id):
+        methodName = "get" + col_id.capitalize()
+        return getattr(self, methodName)()
 
     def restore_icon(self):
         if self.busy_count > 0:
@@ -107,6 +162,11 @@ class _kplBase(object):
 class _kplFolder(_kplBase):
     image_icon = 'places_folder'
     isContainer = True
+    def __init__(self, level, uri):
+        _kplBase.__init__(self, level, uri)
+        self.childNodes = [_kplPlaceholder(level + 1, None)]
+        self.isOpen = self._nodeOpenStatusFromName.get(uri, False)
+
     def getCellPropertyNames(self, col_id):
         if col_id == 'name':
             if self.image_icon == 'places_busy':
@@ -117,17 +177,22 @@ class _kplFolder(_kplBase):
                 return [self.image_icon + "_closed"]
         return []
 
-class _kplFile(_kplBase):
+    def unsetContainer(self):
+        self.isContainer = False
+
+class _kplNonFolder(_kplBase):
+    isOpen = False
+    isContainer = False
+    childNodes = []
+
+class _kplFile(_kplNonFolder):
     image_icon = 'places_file'
-    isContainer = False
     
-class _kplPlaceholder(_kplBase):
-    image_icon = None
-    isContainer = False
-    
-class _kplOther(_kplBase):
+class _kplOther(_kplNonFolder):
     image_icon = 'places_other'
-    isContainer = False
+    
+class _kplPlaceholder(_kplNonFolder):
+    image_icon = None
     
 _PLACE_FOLDER = 1
 _PLACE_FILE = 2
@@ -137,6 +202,7 @@ _PLACE_PLACEHOLDER = 4 # Not used
 placeObject = {
     _PLACE_FOLDER : _kplFolder,
     _PLACE_FILE   : _kplFile,
+    _PLACE_OTHER  : _kplOther,
 }
 
 class _KoPlaceItem(object):
@@ -165,39 +231,6 @@ class _KoPlaceItem(object):
 
     def markForRefreshing(self):
         self.lastUpdated = -1
-
-class _HierarchyNode(object):
-    def __init__(self, level, infoObject):
-        self.level = level
-        self.infoObject = infoObject
-        self.isContainer = infoObject.isContainer
-        self.infoObject.isOpen = (self.isContainer
-                       and self._nodeOpenStatusFromName.get(self.getURI(), False))
-        if self.isContainer:
-            self.childNodes = [_HierarchyNode(level + 1, _kplPlaceholder(None))]
-        else:
-            self.childNodes = []
-        
-    def getURI(self):
-        return self.infoObject.getURI()
-            
-    def getName(self):
-        return self.infoObject.getName()
-
-    def getCellText(self, col_id):
-        methodName = "get" + col_id.capitalize()
-        return getattr(self.infoObject, methodName)()
-
-    def getCellPropertyNames(self, col_id):
-        return self.infoObject.getCellPropertyNames(col_id)
-
-    def getPath(self):
-        #XXX Store URIs, return paths or file names on demand
-        # Cache leafnames
-        return self.infoObject.getPath()
-
-    def unsetContainer(self):
-        self.isContainer = False
 
 import threading
 from Queue import Queue
@@ -318,11 +351,11 @@ class KoPlaceTreeView(TreeView):
         else:
             self._nodeOpenStatusFromName = json.loads(placesPrefs.getStringPref("places-open-nodes-v2"))
         # Make this attr work like a class variable
-        _HierarchyNode._nodeOpenStatusFromName = self._nodeOpenStatusFromName
+        _kplBase._nodeOpenStatusFromName = self._nodeOpenStatusFromName
         self.lock = threading.RLock()
         self.dragDropUndoCommand = _UndoCommand()
         wrapSelf = WrapObject(self, components.interfaces.koIPlaceTreeView)
-        self.proxySelf = getProxyForObject(1,
+        self.proxySelf = getProxyForObject(None,
                                       components.interfaces.koIPlaceTreeView,
                                       wrapSelf, PROXY_ALWAYS | PROXY_SYNC)
         self.workerThread = _WorkerThread(target=_WorkerThread.run,
@@ -355,20 +388,18 @@ class KoPlaceTreeView(TreeView):
             # find the row for the file and invalidate it
             files = data.split("\n")
             invalidRows = sorted([i for (i,row) in enumerate(self._rows)
-                                  if row.getURI() in files], reverse=True)
+                                  if row.uri in files], reverse=True)
             for row in invalidRows:
                 node = self._rows[row]
-                uri = node.getURI()
-                koFileEx = components.classes["@activestate.com/koFileEx;1"].\
-                           createInstance(components.interfaces.koIFileEx)
-                koFileEx.URI = uri
+                uri = node.uri
+                koFileEx = node.koFile
                 if koFileEx.exists:
-                    self._updateFileProperties(row, koFileEx)
+                    self._updateFileProperties(row)
                     self._tree.invalidateRow(row)
                     if koFileEx.isDirectory:
                         # A file has been added to this dir.
                         # Spin off a refresh request for each row
-                        if node.isContainer and node.infoObject.isOpen:
+                        if node.isContainer and node.isOpen:
                             self.refreshView(row)
                         else:
                             koPlaceItem = self.getNodeForURI(uri)
@@ -554,7 +585,7 @@ class KoPlaceTreeView(TreeView):
             # this is a modification change, just invalidate rows
             index = self.getRowIndexForURI(uri)
             if index >= 0:
-                self._updateFileProperties(index, koFileEx)
+                self._updateFileProperties(index)
                 self._tree.invalidateRow(index)
             else:
                 self.refreshFullTreeView()
@@ -638,11 +669,11 @@ class KoPlaceTreeView(TreeView):
             return
         self.exclude_patterns = exclude_patterns.split(';')
         self.include_patterns = include_patterns.split(';')
-	self._wrap_refreshTreeOnOpen_buildTree()
+        self._wrap_refreshTreeOnOpen_buildTree()
 
     def getRowIndexForURI(self, uri):
         for (i, row) in enumerate(self._rows):
-            if row.getURI() == i:
+            if row.uri == i:
                 return i
         return -1
 
@@ -657,7 +688,7 @@ class KoPlaceTreeView(TreeView):
             self.selection.currentIndex = index
             return
         node = self._rows[0]
-        if node.infoObject.isOpen:
+        if node.isOpen:
             return
         requestID = self.getRequestID()
         self.lock.acquire()
@@ -665,7 +696,7 @@ class KoPlaceTreeView(TreeView):
             self._data[requestID] = {'uri':uri}
         finally:
             self.lock.release()
-        node.infoObject.show_busy()
+        node.show_busy()
         self._tree.invalidateRow(0)
         self.workerThread.put(('selectURI_toggleNodeOpen',
                                 {'requestID':requestID,
@@ -676,7 +707,7 @@ class KoPlaceTreeView(TreeView):
 
     def post_selectURI(self, rv, requestID):
         uri = self.getItemsByRequestID(requestID, 'uri')
-        self._rows[0].infoObject.restore_icon()
+        self._rows[0].restore_icon()
         self._tree.invalidateRow(0)
         if rv:
             raise Exception(rv)
@@ -687,7 +718,7 @@ class KoPlaceTreeView(TreeView):
             self._tree.ensureRowIsVisible(index)
         
     def getURIForRow(self, index):
-        return self._rows[index].getURI()
+        return self._rows[index].uri
 
     def _targetFileExists(self, localFinalTargetPath, targetPath, srcBasename,
                           isDir_OutVal):
@@ -720,10 +751,10 @@ class KoPlaceTreeView(TreeView):
 
     def treeOperationWouldConflict(self, srcIndex, targetIndex, copying):
         srcNode = self._rows[srcIndex]
-        srcBasename = srcNode.getName()
-        srcPath = srcNode.getPath()
+        srcBasename = srcNode.name
+        srcPath = srcNode.path
         targetNode = self._rows[targetIndex]
-        targetPath = targetNode.getPath()
+        targetPath = targetNode.path
         finalTargetPath = self._isLocal and os.path.join(targetPath, srcBasename) or (targetPath + "/" + srcBasename)
         isDir_OutVal = {}
 
@@ -753,8 +784,8 @@ class KoPlaceTreeView(TreeView):
             srcFileInfo.path = srcPath
             finalTargetFileInfo.path = finalTargetPath
         else:
-            srcFileInfo.URI = srcNode.getURI()
-            finalTargetFileInfo.URI = targetNode.getURI() + "/" + srcBasename
+            srcFileInfo.URI = srcNode.uri
+            finalTargetFileInfo.URI = targetNode.uri + "/" + srcBasename
         return res, srcFileInfo, finalTargetFileInfo
 
     def treeOperationWouldConflictByURI(self, srcIndex, targetURI, copying):
@@ -765,7 +796,7 @@ class KoPlaceTreeView(TreeView):
         srcNode = self._rows[srcIndex]
         finalTargetFileInfo = components.classes["@activestate.com/koFileEx;1"].\
                           createInstance(components.interfaces.koIFileEx)
-        finalTargetFileInfo.URI = targetURI + "/" + srcNode.getName()
+        finalTargetFileInfo.URI = targetURI + "/" + srcNode.name
         isDir_OutVal = {}
 
         if srcNode.level == 0:
@@ -789,7 +820,7 @@ class KoPlaceTreeView(TreeView):
         
         srcFileInfo = components.classes["@activestate.com/koFileEx;1"].\
                           createInstance(components.interfaces.koIFileEx)
-        srcFileInfo.URI = srcNode.getURI()
+        srcFileInfo.URI = srcNode.uri
         return res, srcFileInfo, finalTargetFileInfo
 
     def _targetIsChildOfSource(self, srcIndex, targetIndex):
@@ -823,9 +854,9 @@ class KoPlaceTreeView(TreeView):
                                     }
         finally:
             self.lock.release()
-        srcNode.infoObject.show_busy()
+        srcNode.show_busy()
         self._tree.invalidateRow(srcIndex)
-        targetNode.infoObject.show_busy()
+        targetNode.show_busy()
         self._tree.invalidateRow(targetIndex)
         #log.debug("%s %s %s", copying and "copy" or "move", srcPath, targetDirPath)
         if not copying and self.getParentIndex(srcIndex) == targetIndex:
@@ -834,7 +865,7 @@ class KoPlaceTreeView(TreeView):
         elif self.isContainer(srcIndex) and self._targetIsChildOfSource(srcIndex, targetIndex):
             raise Exception("Can't %s a folder (%s) into one of its own sub-folders (%s)" %
                             ((copying and "copy") or "move",
-                                srcNode.getPath(), targetNode.getPath()))
+                                srcNode.path, targetNode.path))
         
         self.workerThread.put(('doTreeOperation',
                                {'requestID':requestID,
@@ -938,7 +969,7 @@ class KoPlaceTreeView(TreeView):
                                     }
         finally:
             self.lock.release()
-        srcNode.infoObject.show_busy()
+        srcNode.show_busy()
         self._tree.invalidateRow(srcIndex)
         #TODO: Make the top-node look busy
         #log.debug("%s %s %s", copying and "copy" or "move", srcPath, targetDirPath)
@@ -1014,11 +1045,11 @@ class KoPlaceTreeView(TreeView):
                                     }
         finally:
             self.lock.release()
-        srcNode.infoObject.show_busy()
+        srcNode.show_busy()
         self._tree.invalidateRow(srcIndex)
-        targetNode.infoObject.show_busy()
+        targetNode.show_busy()
         self._tree.invalidateRow(targetIndex)
-        #log.debug("%s %s %s", "copy", srcNode.getPath(), targetNode.getPath())
+        #log.debug("%s %s %s", "copy", srcNode.path, targetNode.path)
         self.workerThread.put(('doTreeCopyWithDestName',
                                {'requestID':requestID,
                                 'requester':self},
@@ -1055,9 +1086,9 @@ class KoPlaceTreeView(TreeView):
             srcNode = originalSrcNode
             targetNode = originalTargetNode
 
-        topModelNode = self.getNodeForURI(targetNode.getURI())
+        topModelNode = self.getNodeForURI(targetNode.uri)
         if topModelNode is None:
-            log.error("Unexpected error: there is no current koPlaceItem for %s", targetNode.getURI())
+            log.error("Unexpected error: there is no current koPlaceItem for %s", targetNode.uri)
             return
         if not self.isContainerOpen(targetIndex):
             return
@@ -1086,11 +1117,11 @@ class KoPlaceTreeView(TreeView):
                                     }
         finally:
             self.lock.release()
-        srcNode.infoObject.show_busy()
+        srcNode.show_busy()
         self._tree.invalidateRow(srcIndex)
-        targetNode.infoObject.show_busy()
+        targetNode.show_busy()
         self._tree.invalidateRow(targetIndex)
-        #log.debug("%s %s %s", "copy", srcNode.getPath(), targetNode.getPath())
+        #log.debug("%s %s %s", "copy", srcNode.path, targetNode.path)
         self.workerThread.put(('doTreeCopyWithDestNameAndURI',
                                {'requestID':requestID,
                                 'requester':self},
@@ -1170,8 +1201,8 @@ class KoPlaceTreeView(TreeView):
                 self.refreshView(fromIndex)
             
     def _lookupPath(self, path):
-        for i in range(len(self._rows)):
-            if self._rows[i].getPath() == path:
+        for (i, row) in enumerate(self._rows):
+            if row.matchesPath(path):
                 return i
         return -1
         
@@ -1190,7 +1221,7 @@ class KoPlaceTreeView(TreeView):
         for i in range(targetNodeFirstChildIndex, targetNodeLastChildIndex):
             candidateNode = self._rows[i]
             if (candidateNode.level == targetLevel
-                and candidateNode.getName().lower() > newBaseName_lc):
+                and candidateNode.name.lower() > newBaseName_lc):
                 return i
         else:
             log.debug("Must be the highest node at this level")
@@ -1285,19 +1316,15 @@ class KoPlaceTreeView(TreeView):
         if parentNode.type != _PLACE_FOLDER:
             log.error(("_refreshTreeOnOpen_buildTree: called on non-folder "
                        + "%s at index %d"),
-                      parentNode.getName(), rowIndex)
+                      parentNode.name, rowIndex)
             return
                         
-        #qlog.debug(">> _refreshTreeOnOpen_buildTree: level:%d, rowIndex:%d", level, rowIndex)
+        qlog.debug(">> _refreshTreeOnOpen_buildTree: level:%d, rowIndex:%d", level, rowIndex)
         for childNode in parentNode.childNodes:
             childName = childNode.name
             if self._namePassesFilter(childName):
-                koFileEx = components.classes["@activestate.com/koFileEx;1"].\
-                           createInstance(components.interfaces.koIFileEx)
-                koFileEx.URI = childNode.uri
-                #qlog.debug("insert %s at slot %d", koFileEx.baseName, rowIndex)
-                newNode = _HierarchyNode(level,
-                                         placeObject[childNode.type](fileObj=koFileEx))
+                qlog.debug("insert %s at slot %d", childNode.uri, rowIndex)
+                newNode = placeObject[childNode.type](level, childNode.uri)
                 self._rows.insert(rowIndex, newNode)
                 isOpenNode = self.isContainerOpen(rowIndex)
                 rowIndex += 1
@@ -1311,7 +1338,7 @@ class KoPlaceTreeView(TreeView):
         if parentIndex == -1:
             parentPath = self._currentPlace_koFileEx.path
         else:
-            parentPath = self._rows[parentIndex].getPath()
+            parentPath = self._rows[parentIndex].path
         if self._isLocal:
             fullPath = os.path.join(parentPath, basename)
             if os.path.exists(fullPath):
@@ -1335,7 +1362,7 @@ class KoPlaceTreeView(TreeView):
         if parentIndex == -1:
             parentPath = self._currentPlace_koFileEx.path
         else:
-            parentPath = self._rows[parentIndex].getPath()
+            parentPath = self._rows[parentIndex].path
         if self._isLocal:
             fullPath = os.path.join(parentPath, basename)
             if os.path.exists(fullPath):
@@ -1373,7 +1400,7 @@ class KoPlaceTreeView(TreeView):
         if (index < len(self._rows) - 1
             and rowNode.level < self._rows[index + 1].level):
             return True
-        uri = rowNode.getURI()
+        uri = rowNode.uri
         modelNode = self.getNodeForURI(uri)
         if modelNode.childNodes:
             return True
@@ -1381,7 +1408,7 @@ class KoPlaceTreeView(TreeView):
             return False
         # Look at the system, don't rely on the tree.
         # No point updating the childNodes list, as we're about to delete this node.
-        path = rowNode.getPath()
+        path = rowNode.path
         if self._isLocal:
             return len(os.listdir(path)) > 0
         conn = self._RCService.getConnectionUsingUri(uri)
@@ -1407,7 +1434,7 @@ class KoPlaceTreeView(TreeView):
                                      }
         finally:
             self.lock.release()
-        rowNode.infoObject.show_busy()
+        rowNode.show_busy()
         self._tree.invalidateRow(index)
         self.workerThread.put(('deleteItem',
                                {'index': index,
@@ -1437,7 +1464,7 @@ class KoPlaceTreeView(TreeView):
                 nextIndex = len(self._rows)
         else:
             nextIndex = index + 1
-        self.removeSubtreeFromModelForURI(self._rows[index].getURI())
+        self.removeSubtreeFromModelForURI(self._rows[index].uri)
         del self._rows[index:nextIndex]
         self.resetLiveRows()
         self._tree.rowCountChanged(index, index - nextIndex)
@@ -1445,7 +1472,7 @@ class KoPlaceTreeView(TreeView):
             self.invalidateTree()
 
     def _postRequestCommonNodeHandling(self, originalNode, index, context):
-        originalNode.infoObject.restore_icon()
+        originalNode.restore_icon()
         if index >= len(self._rows):
             log.error("_postRequestCommonNodeHandling: index:%d, # rows:%d",
                       index, len(self._rows))
@@ -1461,9 +1488,9 @@ class KoPlaceTreeView(TreeView):
             except ValueError:
                 # Nodes have changed, try looking by uri
                 i = 0
-                uri = originalNode.getURI()
+                uri = originalNode.uri
                 for row in self._rows:
-                    if uri == row.getURI():
+                    if uri == row.uri:
                         log.debug("Found uri %s at index %d", uri, i)
                         index = i
                         rowNode = row
@@ -1508,7 +1535,7 @@ class KoPlaceTreeView(TreeView):
             log.exception("getCellProperties(row_idx:%d, col_id:%r",
                           row_idx, col_id)
             return ""
-        if not hasattr(rowNode, 'properties'):
+        if rowNode.properties is None:
             # Like in koKPFTreeView.p.py, these are kept cached, unless
             # there's a change.  Changes within Komodo will be broadcast
             # via notifications
@@ -1517,12 +1544,11 @@ class KoPlaceTreeView(TreeView):
             properties.AppendElement(self.atomSvc.getAtom(prop))
             # ???? self._atomsFromName[prop])
     
-    def _updateFileProperties(self, idx, koFileEx):
+    def _updateFileProperties(self, idx):
         rowNode = self._rows[idx]
-        rowNode.koFileObject = koFileEx
         try:
-            #log.debug("_updateFileProperties: idx:%d, koFileEx:%s", idx, koFileEx.path)
-            del rowNode.properties
+            #log.debug("_updateFileProperties: idx:%d", idx)
+            rowNode.properties = None
         except AttributeError:
             pass
             
@@ -1530,15 +1556,10 @@ class KoPlaceTreeView(TreeView):
         properties = []
         if not self._isLocal:
             return properties
-        node = rowNode.infoObject
-        if not hasattr(rowNode, 'koFileEx'):
-            rowNode.koFileObject = \
-               components.classes["@activestate.com/koFileService;1"].\
-               getService(components.interfaces.koIFileService).\
-               getFileFromURI(rowNode.getURI())
-        if not rowNode.koFileObject:
+        koFileObject = rowNode.koFile
+        if not koFileObject:
             return properties
-        koFileObject = UnwrapObject(rowNode.koFileObject)
+        koFileObject = UnwrapObject(koFileObject)
         if koFileObject.isReadOnly:
             properties.append("isReadOnly")
         return properties
@@ -1546,11 +1567,11 @@ class KoPlaceTreeView(TreeView):
 
     def isContainer(self, index):
         #log.debug(">> isContainer[%d] => %r", index, self._rows[index].isContainer)
-        return self._rows[index].infoObject.isContainer
+        return self._rows[index].isContainer
     
     def isContainerOpen(self, index):
-        #log.debug(">> isContainerOpen[%d] => %r", index, self._rows[index].infoObject.isOpen)
-        return self._rows[index].infoObject.isOpen
+        #log.debug(">> isContainerOpen[%d] => %r", index, self._rows[index].isOpen)
+        return self._rows[index].isOpen
         
     def isContainerEmpty(self, index):
         #log.debug(">> isContainerEmpty[%d] => %r", index, len(self._rows[index].childNodes) == 0)
@@ -1558,10 +1579,9 @@ class KoPlaceTreeView(TreeView):
             return self.isContainer(index) and len(self._rows[index].childNodes) == 0
         except AttributeError, ex:
             node = self._rows[index]
-            log.exception("level: %d, infoObject:%r, connectorObject:%r, isContainer:%r",
+            log.exception("level: %d, uri:%s, isContainer:%r",
                            node.level,
-                           node.infoObject,
-                           node.connectorObject,
+                           node.uri,
                            node.isContainer)
             return False
 
@@ -1614,8 +1634,8 @@ class KoPlaceTreeView(TreeView):
             return
         rowNode = self._rows[index]
         #qlog.debug("refreshView(index:%d)", index)
-        if not rowNode.infoObject.isOpen:
-            #qlog.debug("not rowNode.infoObject.isOpen:")
+        if not rowNode.isOpen:
+            #qlog.debug("not rowNode.isOpen:")
             return
         nextIndex = self.getNextSiblingIndex(index)
         #qlog.debug("nextIndex: %d", nextIndex)
@@ -1631,12 +1651,12 @@ class KoPlaceTreeView(TreeView):
                                      'node':rowNode}
         finally:
             self.lock.release()
-        rowNode.infoObject.show_busy()
+        rowNode.show_busy()
         self._tree.invalidateRow(index)
         self.workerThread.put(('toggleOpenState_Open',
                                {'index': index,
                                 'node':rowNode,
-                                'uri':rowNode.getURI(),
+                                'uri':rowNode.uri,
                                 'forceRefresh':True,
                                 'requestID':requestID,
                                 'requester':self},
@@ -1648,10 +1668,10 @@ class KoPlaceTreeView(TreeView):
         fixedIndex, rowNode = self._postRequestCommonNodeHandling(originalNode, index,
                                                          "post_refreshView")
         if 0:
-            log.debug("post_refreshView: index:%d, nextIndex:%d, firstVisibleRow:%d, fixedIndex:%d, originalNode.getURI():%s, rowNode.getURI():%s",
+            log.debug("post_refreshView: index:%d, nextIndex:%d, firstVisibleRow:%d, fixedIndex:%d, originalNode.uri:%s, rowNode.uri:%s",
                    index, nextIndex, firstVisibleRow, fixedIndex,
-                   originalNode.getURI(),
-                   rowNode.getURI())
+                   originalNode.uri,
+                   rowNode.uri)
         if fixedIndex == -1:
             #qlog.debug("Invalidate, return")
             self._tree.invalidate()
@@ -1697,11 +1717,11 @@ class KoPlaceTreeView(TreeView):
 
     def _finishRefreshingView(self, index, nextIndex, doInvalidate, rowNode,
                               firstVisibleRow):
-        topModelNode = self.getNodeForURI(rowNode.getURI())
+        topModelNode = self.getNodeForURI(rowNode.uri)
         if topModelNode is None:
             # We're probably shutting down now.
             log.debug("_finishRefreshingView: can't get a node for %s",
-                      rowNode.getURI())
+                      rowNode.uri)
             return
         before_len = len(self._rows)
         first_child_index = index + 1
@@ -1727,9 +1747,9 @@ class KoPlaceTreeView(TreeView):
         if not self._isLocal:
             return
         # Too expensive to watch closed nodes too -- then we can mark them for refreshing
-        liverows = set([row.getPath()
+        liverows = set([row.path
                         for row in self._rows
-                        if row.infoObject.isOpen])
+                        if row.isOpen])
         #print "resetLiveRows %d" % len(liverows)
         newnodes = liverows.difference(self._liverows)
         oldnodes = self._liverows.difference(liverows)
@@ -1741,9 +1761,9 @@ class KoPlaceTreeView(TreeView):
 
     def renameItem(self, index, newBaseName, forceClobber):
         rowNode = self._rows[index]
-        fileObj = rowNode.infoObject.fileObj
-        dirName = fileObj.dirName
-        path = fileObj.path
+        koFile = rowNode.koFile
+        dirName = koFile.dirName
+        path = koFile.path
         if self._isLocal:
             newPath = os.path.join(dirName, newBaseName)
             if os.path.exists(newPath):
@@ -1764,7 +1784,7 @@ class KoPlaceTreeView(TreeView):
                     raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem failure: file %s::%s exists" % (conn.server, newPath))
                 conn.removeFile(newPath)
             conn.rename(path, newPath)
-        uri = fileObj.URI
+        uri = koFile.URI
         self.removeSubtreeFromModelForURI(uri)
         parent_uri = uri[:uri.rindex("/")]
         index = self.getRowIndexForURI(parent_uri)
@@ -1794,10 +1814,10 @@ class KoPlaceTreeView(TreeView):
     def toggleOpenState(self, index):
         rowNode = self._rows[index]
         #qlog.debug("toggleOpenState: index:%d", index)
-        #qlog.debug("toggleOpenState: rowNode.infoObject.isOpen: %r", rowNode.infoObject.isOpen)
-        if rowNode.infoObject.isOpen:
+        #qlog.debug("toggleOpenState: rowNode.isOpen: %r", rowNode.isOpen)
+        if rowNode.isOpen:
             try:
-                del self._nodeOpenStatusFromName[rowNode.getURI()]
+                del self._nodeOpenStatusFromName[rowNode.uri]
             except KeyError:
                 pass
             nextIndex = self.getNextSiblingIndex(index)
@@ -1816,7 +1836,7 @@ class KoPlaceTreeView(TreeView):
                 self._tree.rowCountChanged(index + 1, -numNodesRemoved)
                 self.resetLiveRows()
                 #log.debug("index:%d, numNodesRemoved:%d, numLeft:%d", index, numNodesRemoved, len(self._rows))
-            rowNode.infoObject.isOpen = False
+            rowNode.isOpen = False
         else:
             requestID = self.getRequestID()
             self.lock.acquire()
@@ -1827,12 +1847,12 @@ class KoPlaceTreeView(TreeView):
                                          }
             finally:
                 self.lock.release()
-            rowNode.infoObject.show_busy()
+            rowNode.show_busy()
             self._tree.invalidateRow(index)
             self.workerThread.put(('toggleOpenState_Open',
                                    {'index': index,
                                     'node':rowNode,
-                                    'uri':rowNode.getURI(),
+                                    'uri':rowNode.uri,
                                     'forceRefresh':False,
                                     'requestID':requestID,
                                     'requester':self},
@@ -1855,12 +1875,12 @@ class KoPlaceTreeView(TreeView):
             index = fixedIndex
         else:
             doInvalidate = False
-        uri = rowNode.getURI()
+        uri = rowNode.uri
         self._nodeOpenStatusFromName[uri] = True
         self._sortModel(uri)
         topModelNode = self.getNodeForURI(uri)
         if self._isLocal:
-            self._addWatchForChanges(rowNode.getPath())
+            self._addWatchForChanges(rowNode.path)
         if not topModelNode.childNodes:
             #qlog.debug("Node we opened has no children")
             rowNode.unsetContainer()
@@ -1872,7 +1892,7 @@ class KoPlaceTreeView(TreeView):
                 self._tree.endUpdateBatch()
             return
         firstVisibleRow = self._tree.getFirstVisibleRow()
-        rowNode.infoObject.isOpen = True
+        rowNode.isOpen = True
         self._tree.invalidateRow(index)
         self._finishRefreshingView(index, index + 1, doInvalidate, rowNode,
                                    firstVisibleRow)
@@ -1889,7 +1909,7 @@ class KoPlaceTreeView(TreeView):
             self._tree.invalidate()
             return
         self._tree.rowCountChanged(0, len(self._rows) - origLen)
-        if self._rows[fixedIndex].infoObject.isOpen:
+        if self._rows[fixedIndex].isOpen:
             self.toggleOpenState(fixedIndex)
         
     def invalidateTree(self):
@@ -2063,7 +2083,7 @@ class _WorkerThread(threading.Thread, Queue):
         node = args['node']
         requester = args['requester']
         deleteContents = args['deleteContents']
-        path = node.getPath()
+        path = node.path
         if requester._isLocal:
             sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
                               getService(components.interfaces.koISysUtils)
@@ -2082,7 +2102,7 @@ class _WorkerThread(threading.Thread, Queue):
                 else:
                     os.unlink(path)
         else:
-            uri = node.getURI()
+            uri = node.uri
             conn = requester._RCService.getConnectionUsingUri(uri)
             try:
                 rfi = conn.list(path, True)
@@ -2111,16 +2131,13 @@ class _WorkerThread(threading.Thread, Queue):
         targetNode = requester_data.get('targetNode', None)
         if targetNode is None:
             targetURI = requester_data.get('targetURI', None)
-            koFileEx = components.classes["@activestate.com/koFileEx;1"].\
-                       createInstance(components.interfaces.koIFileEx)
-            koFileEx.URI = targetURI
-            targetDirPath = koFileEx.path
+            targetDirPath = uriparse.URIToPath(targetURI)
         else:
-            targetURI = targetNode.getURI()
-            targetDirPath = targetNode.getPath()
+            targetURI = targetNode.uri
+            targetDirPath = targetNode.path
         copying = requester_data['copying']
         
-        srcPath = srcNode.getPath()
+        srcPath = srcNode.path
         finalMsg = ""
 
         # When we copy or move an open folder, the target folder will be
@@ -2146,7 +2163,7 @@ class _WorkerThread(threading.Thread, Queue):
         else:
             conn = requester._RCService.getConnectionUsingUri(requester._currentPlace_uri)
             try:
-                targetFile = targetDirPath + "/" + srcNode.getName()
+                targetFile = targetDirPath + "/" + srcNode.name
                 target_rfi = conn.list(targetFile, True)
                 updateTargetTree = not target_rfi
                 #XXX Watch out if targetFile is an open folder.
@@ -2154,7 +2171,7 @@ class _WorkerThread(threading.Thread, Queue):
                     conn.rename(srcPath, targetFile)
                     requester.lock.acquire()
                     try:
-                        requester.dragDropUndoCommand.update(targetURI + "/" + srcNode.getName(), srcNode.getURI(), False)
+                        requester.dragDropUndoCommand.update(targetURI + "/" + srcNode.name, srcNode.uri, False)
                     finally:
                         requester.lock.release()
                     clearDragDropUndoCommand = False
@@ -2187,7 +2204,7 @@ class _WorkerThread(threading.Thread, Queue):
         requester_data['finalMsg'] = finalMsg
         requester_data['updateTargetTree'] = updateTargetTree
         if not copying:
-            srcURI = srcNode.getURI()
+            srcURI = srcNode.uri
             parentURI = srcURI[:srcURI.rindex("/")]
             self.refreshTreeOnOpen_Aux(requester, parentURI, forceRefresh=True)
             requester._sortModel(parentURI)
@@ -2258,8 +2275,8 @@ class _WorkerThread(threading.Thread, Queue):
         targetNode = requester_data['targetNode']
         newPath = requester_data['newPath']
         
-        srcPath = srcNode.getPath()
-        targetDirPath = targetNode.getPath()
+        srcPath = srcNode.path
+        targetDirPath = targetNode.path
         updateTargetTree = False
         if requester._isLocal:
             try:
@@ -2285,7 +2302,7 @@ class _WorkerThread(threading.Thread, Queue):
             finally:
                 conn.close()
         requester_data['updateTargetTree'] = updateTargetTree
-        requester._sortModel(targetNode.getURI())
+        requester._sortModel(targetNode.uri)
         return ''
 
     def doTreeCopyWithDestNameAndURI(self, args):
@@ -2304,7 +2321,7 @@ class _WorkerThread(threading.Thread, Queue):
         srcNode = requester_data['srcNode']
         newPath = requester_data['newPath']
         
-        srcPath = srcNode.getPath()
+        srcPath = srcNode.path
         updateTargetTree = False
         if requester._isLocal:
             try:
@@ -2330,7 +2347,7 @@ class _WorkerThread(threading.Thread, Queue):
             finally:
                 conn.close()
         requester_data['updateTargetTree'] = updateTargetTree
-        requester._sortModel(targetNode.getURI())
+        requester._sortModel(targetNode.uri)
         return ''
 
     def setMainFilters(self, args):
