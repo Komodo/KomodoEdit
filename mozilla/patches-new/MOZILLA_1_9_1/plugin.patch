@@ -48,7 +48,7 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/g
  
        pluginWidget->EndDrawPlugin();
      }
-@@ -4025,7 +4031,10 @@
+@@ -4025,7 +4037,7 @@
    }
  
    nsCOMPtr<nsIDOMEventTarget> target(do_QueryInterface(mContent));
