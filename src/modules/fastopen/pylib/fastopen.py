@@ -72,6 +72,8 @@ DEFAULT_PATH_EXCLUDES = ["*.pyc", "*.pyo", "*.gz", "*.exe", "*.obj",
     ".DS_Store",
     ".svn", "_svn", ".git", "CVS", ".hg", ".bzr"]
 
+KOMODO_PROJECT_EXT = ".komodoproject"
+
 
 
 #---- errors
@@ -625,8 +627,8 @@ class KomodoProjectGatherer(Gatherer):
     def gather(self):
         #XXX:TODO the cached/indexed version
         project_name = self.project.get_name()
-        if project_name.endswith(".kpf"):
-            project_name = project_name[:-4]
+        if project_name.endswith(KOMODO_PROJECT_EXT):
+            project_name = project_name[:-len(KOMODO_PROJECT_EXT)]
         base_dir = self.base_dir
         i = 0
         for path in self.project.genLocalPaths():
@@ -640,8 +642,8 @@ class CachingKomodoProjectGatherer(Gatherer):
         self.base_dir = (project.get_liveDirectory()
             if self._is_project_live(project) else None)
         project_name = self.project.get_name()
-        if project_name.endswith(".kpf"):
-            project_name = project_name[:-4]
+        if project_name.endswith(KOMODO_PROJECT_EXT):
+            project_name = project_name[:-len(KOMODO_PROJECT_EXT)]
         self.project_name = project_name
         self._hits = []  # cache of already generated hits
     
@@ -731,7 +733,7 @@ class MockKomodoProject(object):
         @param slow {bool} Whether to be slow in returning results from
             genLocalPaths. Default is false.
         """
-        # Really the 'id' in the .kpf file, but we'll fake it well
+        # Really the 'id' in the .komodoproject file, but we'll fake it well
         # enough for here.
         self.id = md5(name).hexdigest()
         self._name = name
@@ -741,7 +743,7 @@ class MockKomodoProject(object):
         else:
             self._includes = includes
         if excludes is None:
-            self._excludes = "*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;*.kpf".split(';')
+            self._excludes = "*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;.hg;.git;.bzr;*%*;*.kpf;*.komodoproject".split(';')
         else:
             self._excludes = excludes
         self._prefset = MockKomodoPrefset(import_live=is_live)
@@ -787,7 +789,7 @@ def _test1(query):
         gatherers = Gatherers()
         gatherers.append(DirGatherer("cwd", os.getcwd()))
         gatherers.append(CachingKomodoProjectGatherer(
-            MockKomodoProject("fastopen.kpf",
+            MockKomodoProject("fastopen" + KOMODO_PROJECT_EXT,
                 expanduser("~/as/komodo/src/modules/fastopen"),
                 excludes=["build", "tmp", "*.xpi", "*.pyc", "*.pyo", ".svn"],
                 slow=False)))
@@ -823,7 +825,7 @@ def _test2(query):
         gatherers = Gatherers()
         gatherers.append(DirGatherer("cwd", os.getcwd()))
         gatherers.append(CachingKomodoProjectGatherer(
-            MockKomodoProject("komodo.kpf",
+            MockKomodoProject("komodo" + KOMODO_PROJECT_EXT,
                 expanduser("~/as/komodo"),
                 excludes=["build", "tmp", "log", "contrib",
                     "*.xpi", "*.pyc", "*.pyo", ".svn"],
