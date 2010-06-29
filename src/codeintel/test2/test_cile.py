@@ -317,6 +317,9 @@ def _fillScanInputsTestCase():
             if fpath.endswith(".options"): continue # skip input option files
             if fpath.endswith(".tags"): continue # skip tags files
             lang = guess_lang_from_path(fpath)
+            # Manual hack to detect as Python 3.
+            if lang == "Python" and "py3" in fpath:
+                lang = "Python3"
             safe_lang = safe_lang_from_lang(lang)
 
             testFunction \
