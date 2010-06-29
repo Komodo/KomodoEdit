@@ -579,7 +579,7 @@ sub cons::Preprocess {
     #        # #endif
     my ($env, $srcFile, $dstFile, $subsref, $doNotKeepLines) = @_;
     my $substStr = "";
-    if (%$subsref) {
+    if ($subsref && %$subsref) {
         $substStr .= "-s";
         foreach my $subkey (keys %$subsref) {
             my $value = $$subsref{$subkey};
