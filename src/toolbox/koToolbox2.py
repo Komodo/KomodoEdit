@@ -1471,8 +1471,7 @@ class ToolboxLoader(object):
         else:
             actualToolboxDir = join(toolboxDir, targetDirectory)
         if not exists(actualToolboxDir):
-            log.error("No toolbox subdirectory %s at %s", targetDirectory, toolboxDir)
-            return
+            os.makedirs(actualToolboxDir)
         self._loadedPaths[actualToolboxDir] = True
         log.debug("Reading dir %s", toolboxDir)
         self.db.establishConnection()
