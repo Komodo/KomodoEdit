@@ -552,6 +552,32 @@ class KoToolbox2HTreeView(TreeView):
             node.rebuildChildren()
         self.refreshView_Model(modelIndex)
 
+    def renameTool(self, viewIndex, newName):
+        if not self.isContainer(viewIndex):
+            return
+        modelIndex = self._modelIndexFromViewIndex(viewIndex)
+        modelNode = self._rows_model[modelIndex]
+        self._toolsMgr.renameContainer(modelNode.id, newName)
+        # We have to refresh the subtree, because the top-node and
+        # all its children now have different paths.
+        newNode = self._toolsManager.getToolById(modelNode.id)
+        modelNode.path = newNode.path
+        modelNode.name = newNode.name
+        if not self.isContainerOpen(viewIndex) and not self.isContainerOpenModel(modelIndex):
+            viewNode = self._rows_view[viewIndex]
+            viewNode.path = newNode.path
+            viewNode.name = newNode.name
+            self._tree.invalidateRow(viewIndex)
+        else:
+            self._tree.beginUpdateBatch()
+            try:
+                self.refreshView(viewIndex)
+                # Expect that the viewIndex of the item we're renaming won't
+                # change during the refresh.
+                self._tree.invalidateRow(viewIndex)
+            finally:
+                self._tree.endUpdateBatch()
+
     def _zipNode(self, zf, currentDirectory):
         nodes = os.listdir(currentDirectory)
         numZippedItems = 0

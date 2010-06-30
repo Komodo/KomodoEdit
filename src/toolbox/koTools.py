@@ -398,8 +398,33 @@ class _KoFolder(_KoContainer):
         fp.close()
 
     def save(self):
-        # What about renaming a folder?
-        pass
+        # This handles only renames
+        metadataPath = join(self.path, koToolbox2.UI_FOLDER_FILENAME)
+        if not os.path.exists(metadataPath):
+            self.saveNewToolToDisk(self.path)
+        else:
+            try:
+                fp = open(metadataPath, 'r')
+                try:
+                    data = json.load(fp, encoding="utf-8")
+                except:
+                    log.exception("Couldn't load json data for path %s", path)
+                fp.close()
+            except:
+                log.error("Couldn't open path %s", metadataPath)
+            else:
+                if data['name'] != self.name:
+                    data['name'] = self.name
+                    try:
+                        fp = open(metadataPath, 'w')
+                        try:
+                            json.dump(data, fp, encoding="utf-8", indent=2)
+                        except:
+                            log.exception("Failed to write json data for path %s", path)
+                        fp.close()
+                    except:
+                        log.exception("Failed to write to file %s", path)
+        self._postSave()
 
     def getChildByName(self, name, recurse):
         id = _tbdbSvc.getChildByName(self.id, name, recurse)
@@ -457,10 +482,8 @@ class _KoMenu(_KoComplexContainer):
 
     def save(self):
         self.save_handle_attributes()
-        # What about renaming a folder?
-        #self.saveToolToDisk()
+        _KoFolder.save(self)
         _tbdbSvc.saveMenuInfo(self.id, self.name, self._attributes)
-        self._postSave()
     
 class _KoToolbar(_KoComplexContainer):
     typeName = 'toolbar'
@@ -473,10 +496,8 @@ class _KoToolbar(_KoComplexContainer):
 
     def save(self):
         self.save_handle_attributes()
-        # What about renaming a folder?
-        #self.saveToolToDisk()
+        _KoFolder.save(self)
         _tbdbSvc.saveToolbarInfo(self.id, self.name, self._attributes)
-        self._postSave()
 
 class _KoCommandTool(_KoTool):
     typeName = 'command'
@@ -744,15 +765,17 @@ class KoToolbox2ToolManager(object):
             log.exception("addNewItemToParent: failed")
             raise
 
-    def _prepareUniqueFileSystemName(self, dirName, baseName):
+    def _prepareUniqueFileSystemName(self, dirName, baseName, ext=None):
+        if ext is None:
+            ext = koToolbox2.TOOL_EXTENSION
         # "slugify"
         basePart = koToolbox2.truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', baseName))
         basePart = join(dirName, basePart)
-        candidate = basePart + koToolbox2.TOOL_EXTENSION
+        candidate = basePart + ext
         if not os.path.exists(candidate):
             return candidate
         for i in range(1, 1000):
-            candidate = "%s-%d%s" % (basePart, i, koToolbox2.TOOL_EXTENSION)
+            candidate = "%s-%d%s" % (basePart, i, ext)
             if not os.path.exists(candidate):
                 #log.debug("Writing out file %s/%s as %s", os.getcwd(), basePart, candidate)
                 return candidate
@@ -909,6 +932,32 @@ class KoToolbox2ToolManager(object):
                 tool.updateSelf()
                 tools.append(tool)
         return tools
+
+    def renameContainer(self, id, newName):
+        tool = self.getToolById(id)
+        parentTool = tool.get_parent()
+        if parentTool is None:
+            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
+                                  "Can't rename a top-level folder")
+        oldPath = tool.path
+        tool.name = newName
+        # If this fails, show the error in the UI
+        tool.save()
+        path = parentTool.path
+        newPathOnDisk = self._prepareUniqueFileSystemName(path, newName, ext="")
+
+        # If renaming the folder fails, show the error, but don't bother
+        # fixing the name field in the saved .folderdata file.  Komodo
+        # will fix that up next time it starts up..
+        os.rename(oldPath, newPathOnDisk)
+
+        # There shouldn't be an exception in the database.
+        self.toolbox_db.renameTool(id, newName, newPathOnDisk)
+        try:
+            # Remove this item from the cache, since its name changed.
+            del self._tools[id]
+        except KeyError:
+            pass
 
 _partFactoryMap = {}
 for name, value in globals().items():

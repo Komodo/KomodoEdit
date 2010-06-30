@@ -513,6 +513,7 @@
 <!ENTITY quitApplicationCmdMac.accesskey "Q">
 <!ENTITY quitApplicationCmdWin.label "Exit">
 <!ENTITY quitApplicationCmdWin.accesskey "x">
+<!ENTITY rename.label "Rename...">
 <!ENTITY reImport.label "Re-import">
 <!ENTITY reImportFromFileSystemWithSameSettings.tooltiptext "Re-import from File System with same settings">
 <!ENTITY reImportFromFileSystemWithTheSameSettings.tooltiptext "Re-Import from File System with the same settings">

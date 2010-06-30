@@ -697,6 +697,14 @@ class Database(object):
         with self.connect(commit=True) as cu:
             stmt = 'insert into metadata_timestamps(path_id, mtime) values(?, ?)'
             cu.execute(stmt, (parent_id, os.stat(metadataPath).st_mtime))
+
+    def renameTool(self, id, newName, newPath):
+        self.updateValuesInTableByKey('common_details',
+                                      ['name'], [newName],
+                                      ['path_id'], [id])
+        self.updateValuesInTableByKey('paths',
+                                      ['path'], [newPath],
+                                      ['id'], [id])
             
     _tableNameFromType = {
         # Put anomalies here.
