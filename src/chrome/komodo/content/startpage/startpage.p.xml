@@ -356,7 +356,7 @@
     <content orient="vertical" flex="1">
         <xul:tree anonid="mru-tree" flex="1" class="no-border"
                   hidecolumnpicker="true"
-                  ondblclick="this.parentNode.oncommand(event);"
+                  ondblclick="window.document.getBindingParent(this).oncommand(event);"
                   context="_child"
                   tooltip="_child">
             <xul:treecols style="height: 0px">
@@ -378,15 +378,15 @@
             <xul:menuitem anonid="context_open"
                       label="&open.label;"
                       class="menuitem-iconic open-file-icon"
-                      oncommand="this.parentNode.parentNode.parentNode.openSelected();"
+                      oncommand="window.document.getBindingParent(this).openSelected();"
                       />
             <xul:menuitem anonid="context_remove"
                       label="&remove.label;"
                       class="menuitem-iconic list-item-remove-icon"
-                      oncommand="this.parentNode.parentNode.parentNode.removeSelected();"
+                      oncommand="window.document.getBindingParent(this).removeSelected();"
                       />
             </xul:menupopup>
-            <xul:tooltip onpopupshowing="return this.parentNode.parentNode.onTooltipPopup(event);" crop="center">
+            <xul:tooltip onpopupshowing="return window.document.getBindingParent(this).onTooltipPopup(event);" crop="center">
                 <xul:label anonid="tooltiptext" value="" crop="center"/>
             </xul:tooltip>
         </xul:tree>
@@ -891,11 +891,11 @@
             <xul:box type="startpage" anonid="landingPageBox" title="&whatSNew.title;"
                      pref="start_page_landing_box_closed" ordinal="0"
                      onboxopen="
-                        this.parentNode.parentNode.loadLandingPage();
+                        window.document.getBindingParent(this).loadLandingPage();
                      ">
             <xul:browser anonid="landingPage" style="height: 200px;" flex="1"
                          type="content" disablehistory="true"
-                         onmousedown="this.parentNode.parentNode.parentNode.browserOnClick(event);"
+                         onmousedown="window.document.getBindingParent(this).browserOnClick(event);"
                          onclick="
                             event.stopPropagation();
                             event.preventDefault();
@@ -915,13 +915,13 @@
                     <xul:box>
                         <xul:box type="startpage-bullet"
                                  title="&openSampleProject.title;"
-                                 oncommand="this.parentNode.parentNode.parentNode.parentNode.parentNode.openSampleProject();"
+                                 oncommand="window.document.getBindingParent(this).openSampleProject();"
                                  class="open-sample">
                             <xul:description width="240px">&openSampleProject.description;</xul:description>
                         </xul:box>
                         <xul:box type="startpage-bullet"
                                  title="&checkConfiguration.title;"
-                                 oncommand="this.parentNode.parentNode.parentNode.parentNode.parentNode.checkConfiguration();"
+                                 oncommand="window.document.getBindingParent(this).checkConfiguration();"
                                  class="properties-icon">
                             <xul:description width="240px">&checkConfiguration.description;</xul:description>  
                         </xul:box>
