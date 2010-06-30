@@ -102,6 +102,8 @@ class KoObserverService:
                     L.append(wr)
             except Exception, e:
                 # bug 72807, pyxpcom failure on trunk
+                # This is occurs when a JavaScript observer has not removed
+                # it's observer before it was cleaned up (garbage collected).
                 log.exception(e)
         return L
 
