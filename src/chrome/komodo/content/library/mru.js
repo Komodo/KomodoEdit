@@ -87,29 +87,25 @@ function _MRUPrefObserver()
 {
     this.prefSvc = Components.classes["@activestate.com/koPrefService;1"].
                   getService(Components.interfaces.koIPrefService);
-    this.prefSvc.prefs.addObserver(this);
+    var prefObserverService = this.prefSvc.prefs.prefObserverService;
+    prefObserverService.addObserver(this, "mruProjectSize", true);
+    prefObserverService.addObserver(this, "mruFileSize", true);
+    prefObserverService.addObserver(this, "mruTemplateSize", true);
 };
 _MRUPrefObserver.prototype.destroy = function()
 {
     this.prefSvc = Components.classes["@activestate.com/koPrefService;1"].
                   getService(Components.interfaces.koIPrefService);
-    this.prefSvc.prefs.removeObserver(this);
+    var prefObserverService = this.prefSvc.prefs.prefObserverService;
+    prefObserverService.removeObserver(this, "mruProjectSize");
+    prefObserverService.removeObserver(this, "mruFileSize");
+    prefObserverService.removeObserver(this, "mruTemplateSize");
     this.prefSvc = null;
 }
-_MRUPrefObserver.prototype.observe = function(prefSet, prefSetID, sizePrefName)
+_MRUPrefObserver.prototype.observe = function(prefSet, sizePrefName, data)
 {
     // Adjust the size of MRUs if the size preference for that MRU changes.
-    if (sizePrefName.slice(0, 3) != "mru"
-        || sizePrefName.slice(-4) != "Size")
-    {
-        return;
-    }
-    if (!this.prefSvc.prefs.hasPref(sizePrefName)) {
-        return;
-    }
-
-    _log.info("observed pref '" + sizePrefName + "' change (prefSet=" +
-                prefSet + ", prefSetID=" + prefSetID + ")");
+    _log.info("observed pref '" + sizePrefName);
     var listPrefName = sizePrefName.replace("Size", "List");
     var mruList = null;
     if (this.prefSvc.prefs.hasPref(listPrefName)) {
