@@ -160,7 +160,11 @@ class koDocumentBase:
     def _dereference(self):
         # prevent any chance of a circular reference
         self.docSettingsMgr = None
-        self.prefs.removeObserver(self)
+        if self.prefs:
+            prefObserver = self.prefs.prefObserverService
+            prefObserver.removeObserver(self, 'useTabs')
+            prefObserver.removeObserver(self, 'indentWidth')
+            prefObserver.removeObserver(self, 'tabWidth')
         self._wrapSelf = None
         self.ciBuf = None
 
@@ -245,11 +249,10 @@ class koDocumentBase:
         # through getters because e.g. indentWidth is computed on some cases, and
         # yet not stored in prefs except if set explicitely.
         log.debug("adding prefs observer")
-        # TODO: Would be nice to have an explicit remove observer, as we rely
-        #       on the pref observer holding a weak reference at the moment.
-        self.prefs.prefObserverService.addObserver(self, 'useTabs', True)
-        self.prefs.prefObserverService.addObserver(self, 'indentWidth', True)
-        self.prefs.prefObserverService.addObserver(self, 'tabWidth', True)
+        prefObserver = self.prefs.prefObserverService
+        prefObserver.addObserver(self, 'useTabs', True)
+        prefObserver.addObserver(self, 'indentWidth', True)
+        prefObserver.addObserver(self, 'tabWidth', True)
 
     def getEffectivePrefs(self):
         # this returns either a prefset from a project, or my own prefset
