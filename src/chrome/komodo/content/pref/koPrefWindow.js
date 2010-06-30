@@ -193,7 +193,7 @@ koPrefWindow.prototype =
         // modified preferences.
         this.prefset = prefset.clone();
         this.orig_prefset = prefset;
-        this.orig_prefset.addObserver(this);
+        this.orig_prefset.prefObserverService.addObserver(this, '' /* all prefs */, true);
 
         // debug
         //cnt=new Object(); ids=new Object();this.prefset.getPrefIds(ids, cnt);
@@ -202,7 +202,7 @@ koPrefWindow.prototype =
 
     observe: function(subject, topic, data) {
         if (typeof(prefLog) != "undefined" && prefLog) {
-            prefLog.warn("Original prefset changed while in pref window ("+topic+","+data+"). "+
+            prefLog.warn("The '"+topic+"' preference has changed while the pref window was open. "+
                          "If you get this message, a pref panel is incorrectly modifying prefs "+
                          "and the modified value will be lost.");
         }
@@ -210,7 +210,7 @@ koPrefWindow.prototype =
     
     finalizePrefset: function() {
         try {
-            this.orig_prefset.removeObserver(this);
+            this.orig_prefset.prefObserverService.removeObserver(this, '' /* all prefs */);
         } catch(e) { /* do nothing */ }
         this.prefset = this.orig_prefset;
         this.orig_prefset = null;
@@ -617,7 +617,7 @@ koPrefWindow.prototype =
         // erroneous messages about prefs getting updated
         if (this.orig_prefset) {
             try {
-                this.orig_prefset.removeObserver(this);
+                this.orig_prefset.prefObserverService.removeObserver(this, '' /* all prefs */);
             } catch(e) { /* do nothing */ }
             this.orig_prefset.update(this.prefset);
         }
