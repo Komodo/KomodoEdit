@@ -239,7 +239,6 @@
                 <File Id="file263" LongName="toolbar_std.png" Name="TOOLBA_5.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_std.png" />
                 <File Id="file264" LongName="toolbar_tools.png" Name="TOOLBA_6.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_tools.png" />
                 <File Id="file265" LongName="toolbar_wkspc.png" Name="TOOLBA_7.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_wkspc.png" />
-                <File Id="file302" LongName="sidebar_changelists.png" Name="SIDEBA_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_changelists.png" />
                 <File Id="file856" LongName="sidebar_code.png" Name="SIDEBA_1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_code.png" />
                 <File Id="file857" LongName="sidebar_dom.png" Name="SIDEBA_2.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_dom.png" />
                 <File Id="file858" LongName="sidebar_projects.png" Name="SIDEBA_3.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_projects.png" />
