@@ -74,7 +74,7 @@ class koDocumentSettingsManager:
         self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
                             getService(components.interfaces.koIPrefService).prefs
         self.koDoc = None
-        self._observing = 0
+        self._observed_prefs = None
         self._foldFlags = 0
         self._scintillas = []
         self._useAlternateFaceType = None
@@ -107,11 +107,19 @@ class koDocumentSettingsManager:
             
         self.applyDocumentSettingsToView(scintilla)
         # Watch for preference set changes from these pref sets.
-        if not self._observing:
-            self._globalPrefs.addObserver(self)
-            self.koDoc.prefs.addObserver(self)
-            self._observing = 1
-        
+        if self._observed_prefs is None:
+            pref_topics = []
+            for name in dir(self):
+                if name.startswith("_apply_"):
+                    pref_topics.append(name[len("_apply_"):])
+            #print 'pref_topics: %r' % (pref_topics, )
+            if pref_topics:
+                globalPrefObserverSvc = self._globalPrefs.prefObserverService
+                globalPrefObserverSvc.addObserverForTopics(self, pref_topics, True)
+                docPrefObserverSvc = self.koDoc.prefs.prefObserverService
+                docPrefObserverSvc.addObserverForTopics(self, pref_topics, True)
+            self._observed_prefs = pref_topics
+
     def unregister(self, scintilla):
         if scintilla not in self._scintillas:
             log.error("can't unregister unknown scimoz: %r", scintilla)
@@ -121,13 +129,15 @@ class koDocumentSettingsManager:
             # We just got rid of the last view for this document
             # We should save the state of that last view
             self.applyViewSettingsToDocument(scintilla)
-            if self._observing:
+            if self._observed_prefs:
                 # remove observers
                 # XXX these cause exceptions regarding weakref/null pointer, but
                 # NOT doing this we continue to leak editor wrappers.
-                self.koDoc.prefs.removeObserver(self)
-                self._globalPrefs.removeObserver(self)
-                self._observing = 0
+                globalPrefObserverSvc = self._globalPrefs.prefObserverService
+                globalPrefObserverSvc.removeObserverForTopics(self, self._observed_prefs)
+                docPrefObserverSvc = self.koDoc.prefs.prefObserverService
+                docPrefObserverSvc.removeObserverForTopics(self, self._observed_prefs)
+                self._observed_prefs = None
             self.koDoc = None
         
     def applyDocumentSettingsToView(self, scintilla):
@@ -322,12 +332,9 @@ class koDocumentSettingsManager:
 
     # nsIObserver interface
     def observe(self, prefSet, topic, data):
-        if (self.koDoc and topic == self.koDoc.prefs.id) or \
-           topic == self._globalPrefs.id:
-            # Dispatch a preference change...
-            self._dispatchPrefChange(prefSet, data)
-        else:
-            log.warn("Unexpected Observe() topic %s" % data)
+        # Dispatch a preference change...
+        print 'topic: %r' % (topic, )
+        self._dispatchPrefChange(prefSet, topic)
 
     # Probably should make this function table-based to reduce
     # duplication of effort.
