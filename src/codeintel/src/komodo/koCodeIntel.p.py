@@ -987,9 +987,11 @@ class KoCodeIntelDBUpgrader(threading.Thread):
             errmsg = None
             errtext = None
 
-        prefSvc = components.classes["@activestate.com/koPrefService;1"]\
+        prefs = components.classes["@activestate.com/koPrefService;1"]\
                     .getService().prefs # global prefs
-        prefSvc.setBooleanPref("codeintel_have_preloaded_database", 0)
+        proxiedPrefs = getProxyForObject(1, components.interfaces.koIPreference,
+                          prefs, PROXY_ALWAYS | PROXY_SYNC)
+        proxiedPrefs.setBooleanPref("codeintel_have_preloaded_database", 0)
 
         self.controller.done(errmsg, errtext)
 
