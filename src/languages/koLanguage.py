@@ -713,7 +713,9 @@ class KoLanguageRegistryService:
         # __init__.  FIXME!
         self._observer = xpcom.server.WrapObject(self,
                                       components.interfaces.nsIObserver)
-        self.__prefs.addObserver(self._observer)
+        self.__prefs.prefObserverService.addObserver(self._observer,
+                                                     'fileAssociationDiffs',
+                                                     True)
 
 
 # Used for the Primary Languages tree widget in 
