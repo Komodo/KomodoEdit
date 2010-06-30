@@ -66,7 +66,8 @@ log = logging.getLogger('KoObserverService')
 # a base class to implement observer services
 
 class KoObserverService:
-    _com_interfaces_ = [components.interfaces.nsIObserverService,
+    _com_interfaces_ = [components.interfaces.koIObserverService,
+                        components.interfaces.nsIObserverService,
                         components.interfaces.nsIObserver]
     _reg_clsid_ = "3B7D0418-1533-4F03-A759-896C058A734A"
     _reg_contractid_ = "@activestate.com/koObserverService;1"
@@ -129,57 +130,84 @@ class KoObserverService:
                 self._topics[topic] = observers
 
     # void addObserver( in nsIObserver anObserver, in string aTopic, in boolean ownsWeak);
+    def _addObserver(self, anObserver, aTopic, ownsWeak):
+        if not aTopic in self._topics:
+            self._topics[aTopic] = []
+
+        # Not removing dead observers here... this was causing hangs at
+        # startup (a deadlock Todd's linux machine). After digging into this
+        # hang, the reason was that two threads (PHP and Python lint
+        # threads) were calling addObserver at the same time. The Python
+        # thread acquired the lock and was in the process of removing dead
+        # observers (iterating over the observers) and the PHP addObserver
+        # call came along and hit the above "cv.acquire()" and was locked,
+        # but the Python thread did not resume and the result was a
+        # deadlock. I don't know the exact PyXPCOM / Python reasons of
+        # how/why. Removing the _removeDead() call does not have much
+        # affect to this service, so it's a safe enough change.
+        #else:
+        #    self._removeDead()
+
+        # Ignoring the ownsWeak argument, always try to create a
+        # weakreference, see comments in bug 80145.
+        try:
+            anObserver = WeakReference(anObserver)
+        except COMException:
+            pass
+        self._topics[aTopic].append(anObserver)
+
     def addObserver(self, anObserver, aTopic, ownsWeak):
         if not anObserver:
-            raise ServerException(nsError.NS_ERROR_FAILURE,"Invalid Observer")
+            raise ServerException(nsError.NS_ERROR_FAILURE, "Invalid Observer")
         self.cv.acquire()
         try:
-            if not aTopic in self._topics:
-                self._topics[aTopic] = []
-
-            # Not removing dead observers here... this was causing hangs at
-            # startup (a deadlock Todd's linux machine). After digging into this
-            # hang, the reason was that two threads (PHP and Python lint
-            # threads) were calling addObserver at the same time. The Python
-            # thread acquired the lock and was in the process of removing dead
-            # observers (iterating over the observers) and the PHP addObserver
-            # call came along and hit the above "cv.acquire()" and was locked,
-            # but the Python thread did not resume and the result was a
-            # deadlock. I don't know the exact PyXPCOM / Python reasons of
-            # how/why. Removing the _removeDead() call does not have much
-            # affect to this service, so it's a safe enough change.
-            #else:
-            #    self._removeDead()
-
-            # Ignoring the ownsWeak argument, always try to create a
-            # weakreference, see comments in bug 80145.
-            try:
-                anObserver = WeakReference(anObserver)
-            except COMException:
-                pass
-            self._topics[aTopic].append(anObserver)
+            self._addObserver(anObserver, aTopic, ownsWeak)
         finally:
             self.cv.release()
     
+    # void addObserverForTopics( in nsIObserver anObserver, in array aTopics, in boolean ownsWeak);
+    def addObserverForTopics(self, anObserver, aTopics, ownsWeak):
+        if not anObserver:
+            raise ServerException(nsError.NS_ERROR_FAILURE, "Invalid Observer")
+        self.cv.acquire()
+        try:
+            for aTopic in aTopics:
+                self._addObserver(anObserver, aTopic, ownsWeak)
+        finally:
+            self.cv.release()
+    
+    def _removeObserver(self, anObserver, aTopic):
+        if aTopic in self._topics:
+            # get non-weakref'd list of observers so
+            # we can compare the observer we got with
+            # that list.  This list (observers) will be the same
+            # size/order as the original (self._topics[aTopic])
+            # so we can use the index from the new to delete from
+            # the old.  probably need to deal with thread safety here
+            observers = self._getObservers(aTopic)
+            if anObserver in observers:
+                del self._topics[aTopic][observers.index(anObserver)]
+            else:
+                raise ServerException(nsError.NS_ERROR_FAILURE,"Observer not in topic list %s"%aTopic)
+        else:
+            raise ServerException(nsError.NS_ERROR_FAILURE,"No Observers for Topic %s"%aTopic)
+
     # void removeObserver( in nsIObserver anObserver, in string aTopic );
     def removeObserver(self, anObserver, aTopic):
         self.cv.acquire()
         try:
             self._removeDead()
-            if aTopic in self._topics:
-                # get non-weakref'd list of observers so
-                # we can compare the observer we got with
-                # that list.  This list (observers) will be the same
-                # size/order as the original (self._topics[aTopic])
-                # so we can use the index from the new to delete from
-                # the old.  probably need to deal with thread safety here
-                observers = self._getObservers(aTopic)
-                if anObserver in observers:
-                    del self._topics[aTopic][observers.index(anObserver)]
-                else:
-                    raise ServerException(nsError.NS_ERROR_FAILURE,"Observer not in topic list %s"%aTopic)
-            else:
-                raise ServerException(nsError.NS_ERROR_FAILURE,"No Observers for Topic %s"%aTopic)
+            self._removeObserver(anObserver, aTopic)
+        finally:
+            self.cv.release()
+
+    # void removeObserverForTopics( in nsIObserver anObserver, in array aTopics );
+    def removeObserverForTopics(self, anObserver, aTopics):
+        self.cv.acquire()
+        try:
+            self._removeDead()
+            for aTopic in aTopics:
+                self._removeObserver(anObserver, aTopic)
         finally:
             self.cv.release()
     

@@ -67,6 +67,8 @@ Import(
 # a python implementation of nsIObserverService
 # does not need an idl, it implements nsIObserverService only
 $cons->InstallXpcomComponent('koObserverService.py');
+$cons->Install($idlExportDir, 'koIObserverService.idl');
+$cons->BuildAndInstallXpt('koIObserverService.idl');
 
 # asIJSProxy
 $cons->InstallXpcomComponent('asJSDialogProxy.js');
