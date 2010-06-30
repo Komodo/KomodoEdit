@@ -1,4 +1,4 @@
- #!/usr/bin/env python
+#!/usr/bin/env python
 # Copyright (c) 2010 ActiveState
 # See the file LICENSE.txt for licensing information.
 
