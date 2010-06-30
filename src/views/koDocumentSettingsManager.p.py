@@ -333,7 +333,7 @@ class koDocumentSettingsManager:
     # nsIObserver interface
     def observe(self, prefSet, topic, data):
         # Dispatch a preference change...
-        print 'topic: %r' % (topic, )
+        #print 'topic: %r' % (topic, )
         self._dispatchPrefChange(prefSet, topic)
 
     # Probably should make this function table-based to reduce
