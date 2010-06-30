@@ -334,7 +334,7 @@ def py_expr_grammar():
 
     @self.method("(")
     def nud(self):
-        symbol.first = []
+        self.first = []
         comma = False
         if self.token.id != ")":
             while 1:
