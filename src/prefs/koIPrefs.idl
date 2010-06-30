@@ -40,6 +40,7 @@
 #include "nsIObserver.idl"
 
 interface koIFile;
+interface koIObserverService;
 
 // A component which provides a unit test.
 [scriptable, uuid(899516f6-06a4-4ffa-b75e-7616f43030a3)]
@@ -101,11 +102,12 @@ interface koIPreferenceObserver: nsISupports {
      */
     readonly attribute nsIObserverService observerService;
     
-    // because traditionaly the preference observing was done on
-    // prefset id's, we need a seperate observer service if we
-    // want to observe on a preference name instead.  For these,
-    // the prefset id is sent as the data, and prefname as the topic
-    readonly attribute nsIObserverService prefObserverService;
+    /**
+     * Used to monitor preference changes. Can monitor individual preferences,
+     * or all preferences when the preference name '' (empty string) is used.
+     * The prefset id is sent as the data, and prefname as the topic.
+     */
+    readonly attribute koIObserverService prefObserverService;
     
     /**
      * @deprecated since Komodo 6.0.0, use prefObserverService instead.
