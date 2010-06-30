@@ -1001,6 +1001,7 @@
                 this.widgets.openSelectedButton = document.getAnonymousElementByAttribute(this, "anonid", "sp-open-selected-button");
                 this.widgets.removeSelectedButton = document.getAnonymousElementByAttribute(this, "anonid", "sp-remove-selected-button");
                 this.widgets.quickLinksBox = document.getAnonymousElementByAttribute(this, "anonid", "quick-links-box");
+                this.widgets.landingPageBox = document.getAnonymousElementByAttribute(this, "anonid", "landingPageBox");
 
                 window.setTimeout(function (el) {
                     var t = document.createElement("mrutree");
@@ -1108,7 +1109,10 @@
                 // Finalize the "Recent Projects & Recent Files" mru-tree.
                 this.widgets.mrubox.firstChild.firstChild.fini();
 
+                // Finalize all the widgets that use pref observers.
                 this.widgets.quickLinksBox.finalize();
+                this.widgets.landingPageBox.finalize();
+                this.widgets.mrubox.finalize();
             } catch(ex) {
                 this.log.error(ex);
             }
