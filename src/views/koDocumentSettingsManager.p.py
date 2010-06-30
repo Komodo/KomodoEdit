@@ -61,11 +61,8 @@ class koDocumentSettingsManager:
     _viewPrefList = ['showWhitespace', 'showIndentationGuides', 'showEOL',
                      'editUseAlternateFaceType', 'showLineNumbers',
                      'editWrapType', 'editAutoWrapColumn', 'editUseEdge',
-                     'encoding', 'editFoldStyle', 'anchor', 'currentPos',
+                     'encoding', 'editFoldStyle',
                      'editFoldLines', 'indentWidth', 'caretStyle', 'caretWidth',
-                     # Code Intelligence stuff:
-                     'codeintel_completion_triggering_enabled',
-                     'codeintel_rescan_while_typing_enabled',
                 ]
 
     def __init__(self):
