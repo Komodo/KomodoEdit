@@ -245,7 +245,11 @@ class koDocumentBase:
         # through getters because e.g. indentWidth is computed on some cases, and
         # yet not stored in prefs except if set explicitely.
         log.debug("adding prefs observer")
-        self.prefs.addObserver(self)
+        # TODO: Would be nice to have an explicit remove observer, as we rely
+        #       on the pref observer holding a weak reference at the moment.
+        self.prefs.prefObserverService.addObserver(self, 'useTabs', True)
+        self.prefs.prefObserverService.addObserver(self, 'indentWidth', True)
+        self.prefs.prefObserverService.addObserver(self, 'tabWidth', True)
 
     def getEffectivePrefs(self):
         # this returns either a prefset from a project, or my own prefset
