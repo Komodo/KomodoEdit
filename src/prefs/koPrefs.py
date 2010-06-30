@@ -224,11 +224,12 @@ class koPreferenceSet:
         self.prefs = {}
         self.parent = None
 
+    ##
+    # @deprecated since 6.0.0
+    #
     def get_observerService(self):
-        # this does global observing of all prefs (see addobserver below) which
-        # the mozilla implementation doesnt handle the way we want
-        # where possible, we should change to using the prefObserverService
-        # and observe specific pref changes rather than all pref changes
+        # This is deprecated, everyone should be using the prefObserverService
+        # below for monitoring pref changes.
         if not self._observerService:
             self._observerService = components.classes['@activestate.com/koObserverService;1'].\
                            createInstance(components.interfaces.nsIObserverService)
@@ -621,10 +622,24 @@ class koPreferenceSet:
             if parent != self:
                 parent._notifyPreferenceChange(pref_id, prefset)
 
+    ##
+    # @deprecated since 6.0.0
+    #
     def addObserver( self, anObserver):
+        import warnings
+        warnings.warn("'koPreference.addObserver' is now deprecated. Please "
+                      "use 'koPreference.prefObserverService.addObserver'",
+                      DeprecationWarning)
         self.get_observerService().addObserver(anObserver, '', 0)
 
+    ##
+    # @deprecated since 6.0.0
+    #
     def removeObserver( self, anObserver ):
+        import warnings
+        warnings.warn("'koPreference.removeObserver' is now deprecated. Please "
+                      "use 'koPreference.prefObserverService.removeObserver'",
+                      DeprecationWarning)
         try:
             self.get_observerService().removeObserver(anObserver, '')
         except COMException, e:

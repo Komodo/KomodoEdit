@@ -94,7 +94,11 @@ interface koIPreferenceSimpleValue : koIPreference {
 // nsIObserver interface for the notification.
 [scriptable, uuid(0720887f-ebd3-45d8-a236-7a6c3585dfa0)]
 interface koIPreferenceObserver: nsISupports {
-    // prefset id is the topic, pref name is the data
+    /**
+     * prefset id is the topic, pref name is the data
+     *
+     * @deprecated since Komodo 6.0.0, use prefObserverService instead.
+     */
     readonly attribute nsIObserverService observerService;
     
     // because traditionaly the preference observing was done on
@@ -103,7 +107,13 @@ interface koIPreferenceObserver: nsISupports {
     // the prefset id is sent as the data, and prefname as the topic
     readonly attribute nsIObserverService prefObserverService;
     
+    /**
+     * @deprecated since Komodo 6.0.0, use prefObserverService instead.
+     */
     void addObserver( in nsIObserver anObserver);
+    /**
+     * @deprecated since Komodo 6.0.0, use prefObserverService instead.
+     */
     void removeObserver( in nsIObserver anObserver);
 };
 
