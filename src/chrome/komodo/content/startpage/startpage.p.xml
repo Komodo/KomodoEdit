@@ -441,7 +441,7 @@
             var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
             obSvc.addObserver(this, 'mru_changed', false);
-            gPrefs.addObserver(this);
+            gPrefs.prefObserverService.addObserver(this, "defaultDateFormat", true);
             try {
                 this.homePathLC = (Components.classes["@mozilla.org/file/directory_service;1"]
                                 .createInstance(Components.interfaces.nsIProperties)
@@ -466,7 +466,7 @@
             var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
             obSvc.removeObserver(this, 'mru_changed');
-            gPrefs.removeObserver(this);
+            gPrefs.prefObserverService.removeObserver(this, "defaultDateFormat");
         ]]></body>
         </method>
 
@@ -773,14 +773,7 @@
                           ", data="+data+")");
             try {
                 // Observing (1) pref and (2) plain nsIObserver notifications.
-                // Below we key on the notification "name", whose def'n
-                // depends on the type of notification.
-                var name;
-                if (topic == "") {
-                    name = data;  // presumably this is a pref notification
-                } else {
-                    name = topic; // a normal notification
-                }
+                var name = topic;
 
                 switch (name) {
                 case "mru_changed":
