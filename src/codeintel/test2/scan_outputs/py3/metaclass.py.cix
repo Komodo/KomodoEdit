@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs/py3/metaclass.py">
-    <scope ilk="blob" lang="Python" name="metaclass" src="scan_inputs/py3/metaclass.py">
+  <file lang="Python3" mtime="42" path="scan_inputs/py3/metaclass.py">
+    <scope ilk="blob" lang="Python3" name="metaclass" src="scan_inputs/py3/metaclass.py">
       <scope classrefs="Foo" ilk="class" line="3" lineend="4" name="Meta0" />
       <scope ilk="class" line="6" lineend="7" name="Meta1" />
       <scope classrefs="Foo" ilk="class" line="9" lineend="10" name="Meta2" />
