@@ -299,7 +299,7 @@ this.toggleTab = function uilayout_toggleTab(tabId, collapseIfFocused /* =true *
             }
         }
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
