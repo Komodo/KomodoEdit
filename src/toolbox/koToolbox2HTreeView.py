@@ -553,17 +553,19 @@ class KoToolbox2HTreeView(TreeView):
         self.refreshView_Model(modelIndex)
 
     def renameTool(self, viewIndex, newName):
-        if not self.isContainer(viewIndex):
-            return
+        isContainer = self.isContainer(viewIndex)
         modelIndex = self._modelIndexFromViewIndex(viewIndex)
         modelNode = self._rows_model[modelIndex]
-        self._toolsMgr.renameContainer(modelNode.id, newName)
+        if isContainer:
+            self._toolsMgr.renameItem(modelNode.id, newName)
+        else:
+            self._toolsMgr.renameContainer(modelNode.id, newName)
         # We have to refresh the subtree, because the top-node and
         # all its children now have different paths.
         newNode = self._toolsManager.getToolById(modelNode.id)
         modelNode.path = newNode.path
         modelNode.name = newNode.name
-        if not self.isContainerOpen(viewIndex) and not self.isContainerOpenModel(modelIndex):
+        if not (isContainer and self.isContainerOpen(viewIndex)):
             viewNode = self._rows_view[viewIndex]
             viewNode.path = newNode.path
             viewNode.name = newNode.name

@@ -959,6 +959,28 @@ class KoToolbox2ToolManager(object):
         except KeyError:
             pass
 
+    def renameItem(self, id, newName):
+        tool = self.getToolById(id)
+        parentTool = tool.get_parent()
+        if parentTool is None:
+            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
+                                  "Can't rename a top-level folder")
+        oldPath = tool.path
+        tool.name = newName
+        # If this fails, show the error in the UI
+        tool.save()
+        newPathOnDisk = self._prepareUniqueFileSystemName(parentTool.path,
+                                                          newName)
+        os.rename(oldPath, newPathOnDisk)
+
+        # There shouldn't be an exception in the database.
+        self.toolbox_db.renameTool(id, newName, newPathOnDisk)
+        try:
+            # Remove this item from the cache, since its name changed.
+            del self._tools[id]
+        except KeyError:
+            pass
+
 _partFactoryMap = {}
 for name, value in globals().items():
     if isinstance(value, object) and getattr(value, 'typeName', ''):
