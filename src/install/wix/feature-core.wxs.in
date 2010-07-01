@@ -651,6 +651,7 @@
               <File Id="file2059" Name="KOIMAC_0.XPT" LongName="koIMacroService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIMacroService.xpt"/>
               <File Id="file2060" Name="KOINFO_0.PY" LongName="koInfoService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koInfoService.py"/>
               <File Id="file2061" Name="KOINIT_0.PY" LongName="koInitService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koInitService.py"/>
+              <File Id="file302"  Name="KOIOBS_0.XPT" LongName="koIObserverService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIObserverService.xpt"/>
               <File Id="file2063" Name="KOIORD_0.XPT" LongName="koIOrderedPreference.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIOrderedPreference.xpt"/>
               <File Id="file2064" Name="koIOs.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIOs.xpt"/>
               <File Id="file2067" Name="koIPrefs.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIPrefs.xpt"/>
@@ -3838,6 +3839,7 @@
               <File Id="file4069" Name="KOILIN_0.IDL" LongName="koILinter.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koILinter.idl"/>
               <File Id="file4070" Name="KOILOG_0.IDL" LongName="koILoggingService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koILoggingService.idl"/>
               <File Id="file4071" Name="KOIMAC_0.IDL" LongName="koIMacroService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIMacroService.idl"/>
+              <File Id="file1233" Name="KOIOBS_0.IDL" LongName="koIObserverService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIObserverService.idl"/>
               <File Id="file4072" Name="KOIORD_0.IDL" LongName="koIOrderedPreference.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIOrderedPreference.idl"/>
               <File Id="file4073" Name="koIOs.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIOs.idl"/>
               <File Id="file4076" Name="koIPrefs.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIPrefs.idl"/>
