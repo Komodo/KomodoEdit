@@ -456,10 +456,17 @@ def remote_symlink(src, dst, log=None):
     cmd = "ln -s %s %s" % (src_path, dst_path)
     remote_run(src_login, cmd, log=log)
 
+
 def remote_rm(rpath, log=None):
     assert ' ' not in rpath
     login, path = rpath.split(':', 1)
     cmd = 'rm -f %s' % path
+    remote_run(login, cmd, log=log)
+
+def remote_rm_recursive(rpath, log=None):
+    assert ' ' not in rpath
+    login, path = rpath.split(':', 1)
+    cmd = 'rm -rf %s' % path
     remote_run(login, cmd, log=log)
 
 def remote_glob(rpattern, log=None):
