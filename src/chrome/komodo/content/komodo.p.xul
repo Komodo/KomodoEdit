@@ -2495,9 +2495,7 @@
                           closecollapsed="false">
                         <tab id="toolbox2_tab" label="&toolbox2.label;"
                              locktip="&thisToolboxIsReadOnly.locktip;"
-                             accesskey="&toolboxTab.accesskey;"
-                             oncommand="ko.toolbox2.manager.onFocus();"
-                             onfocus="ko.toolbox2.manager.onFocus();"/>
+                             accesskey="&toolboxTab.accesskey;"/>
                     </tabs>
                     <tabpanels flex="1" id="right_toolbox_tabpanels"
                             onfocus="
