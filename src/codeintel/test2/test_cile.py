@@ -131,7 +131,7 @@ def _diffContext(diff, n=3):
     return context
 
 
-def _testOneInputFile(self, fpath):
+def _testOneInputFile(self, fpath, tags=None):
     _debug = False  # Set to true to dump status info for each test run.
 
     infile = os.path.join(gInputsDir, fpath) # input
@@ -179,7 +179,10 @@ def _testOneInputFile(self, fpath):
     sys.stderr = StringIO.StringIO()
     try:
         try:
-            buf = self.mgr.buf_from_path(infile)
+            lang = None
+            if tags and "python3" in tags:
+                lang = "Python3"
+            buf = self.mgr.buf_from_path(infile, lang=lang)
             buf.scan(**opts)
             tree = buf.tree
 
@@ -322,14 +325,14 @@ def _fillScanInputsTestCase():
                 lang = "Python3"
             safe_lang = safe_lang_from_lang(lang)
 
-            testFunction \
-                = lambda self, fpath=fpath: _testOneInputFile(self, fpath)
-
             # Set tags for this test case.
             tags = [safe_lang]
             tagspath = join(dpath, fname + ".tags") # ws-separate set of tags
             if exists(tagspath):
                 tags += open(tagspath, 'r').read().split()
+
+            testFunction \
+                = lambda self, fpath=fpath: _testOneInputFile(self, fpath, tags=tags)
             testFunction.tags = tags
 
             name = "test_path:"+fpath
