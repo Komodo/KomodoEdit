@@ -118,10 +118,10 @@ viewMgrClass.prototype = {
         this.view.sortBy(treecol.id, this._mozSortDirNameToKomodoSortDirValue[sortDir]);
     },
     focus: function() {
-          dump("places: viewMgr.focus()\n");
+          //dump("places: viewMgr.focus()\n");
       },
     updateView: function() {
-          dump("places: viewMgr.updateView()\n");
+          //dump("places: viewMgr.updateView()\n");
       },
     _currentRow: function(event) {
         var row = {};
