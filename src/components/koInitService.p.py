@@ -1158,9 +1158,10 @@ class KoInitService(object):
             prefName = "haveInstalledSampleToolbox-Komodo" + infoSvc.version
             if lookAtPrefName and prefs.hasBooleanPref(prefName) and prefs.getBooleanPref(prefName):
                 return
-            
-            import shutil
-            shutil.copytree(srcDir, destDir, False)
+
+            # Copy (or merge if samples already exist locally) new samples.
+            import fileutils
+            fileutils.copyLocalFolder(srcDir, destDir)
             prefs.setBooleanPref(prefName, True)
         except Exception, e:
             log.exception(e)
