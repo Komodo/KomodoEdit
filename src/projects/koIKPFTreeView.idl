@@ -43,10 +43,8 @@ interface koIPart;
 
 [scriptable, uuid(1A75CE5D-D15B-11DA-9B14-000D935D3368)]
 interface koIKPFTreeView : nsITreeView {
-    // save tree-specific prefs for the project/toolbox
+    // save tree-specific prefs for the project
     // this happens automatically when adding/removing a project in the tree
-    // or when setting the toolbox attribute.  setting toolbox to null saves
-    // prefs for that toolbox also.  These may be removed later
     void restorePrefs(in koIProject prj);
     void savePrefs(in koIProject prj);
 
@@ -67,11 +65,7 @@ interface koIKPFTreeView : nsITreeView {
     void addProject(in koIProject prj);
     void removeProject(in koIProject prj);
     
-    attribute nsIObserver statusObserver; 
-
-    // set the toolbox project.  if addProject has been used, then
-    // this will throw an exception
-    attribute koIProject toolbox;
+    attribute nsIObserver statusObserver;
     
     // get/set the current project for the tree, throws an exception if
     // the project is not in the tree.  is the same as toolbox if the

@@ -122,10 +122,10 @@ def compareNode(a, b, field):
         return cmp(aval.lower(), bval.lower())
     return cmp(aval, bval)
 
-# base class for the tree node generation.  this is subclassed by either the
-# single kpf tree or the multi kpf tree.  It is used inside the nsITreeView
-# below.  The treeview cannot use both at the same time and will throw
-# exceptions if an attempt is made.
+# base class for the tree node generation. It is subclassed by the
+# KPFMultiView, which, as of v6, is used only for a single view on
+# a tree, and could be deleted soon.
+
 class KPFTree:
     # tree support
     def __init__(self, treeview):
@@ -177,31 +177,6 @@ class KPFTree:
             except COMException, ex:
                 log.warn("resetLiveRows: addObserver failed for dir %s", dir)
         self.liverows = liverows
-
-# the KPFSingleTree class is used for tree views that do not have multiple projects
-# for instance, toolbox and shared toolbox, where a single kpf file is used in
-# the view
-class KPFSingleTree(KPFTree):
-    def __init__(self, treeview, kpf):
-        KPFTree.__init__(self, treeview)
-        self.kpf = kpf
-        self.children = kpf.getChildren()
-
-    def generateRows(self, generator, nodeIsOpen, sortBy='name', level=0,
-                     filterString=None, sortDir=0, childrenOnly=0):
-
-        log.debug("KPFSingleTree::generateRows")
-        children = self.children[:]
-        numChildren = len(self.children)
-        if numChildren > 1:
-            self._sortNodes(children, sortBy, sortDir, force=True)
-
-        for i in range(numChildren):
-            child = children[i]
-            child.generateRows(generator, nodeIsOpen, sortBy, level, filterString, sortDir=sortDir)
-
-        #self.kpf.generateRows(generator, nodeIsOpen, sortBy, level, filterString, sortDir=sortDir, childrenOnly=1)
-        self.resetLiveRows()
 
 # the KPFMultiTree class is used for tree views that can have multiple projects
 # for instance, the project view
@@ -392,37 +367,8 @@ class KPFTreeView(TreeView):
             self._tree.invalidate()
 
     # nsIProjectTreeView
-    def set_toolbox(self, kpf):
-        if isinstance(self._root, KPFMultiTree):
-            raise Exception("Toolbox set into project tree")
-        if self._root:
-            self.savePrefs(self._root.kpf)
-        if not kpf:
-            if not self._root:
-                return
-
-            # remove rows for project
-            self._dataLock.acquire()
-            try:
-                num_rows = len(self._rows)
-                self._rows = []
-                self._tree.rowCountChanged(0, -num_rows)
-                self._root = None
-            finally:
-                self._dataLock.release()
-    
-            return
-
-        kpf = UnwrapObject(kpf)
-        self.restorePrefs(kpf)
-        self._root = KPFSingleTree(self, kpf)
-        
-    def get_toolbox(self):
-        return self._root.kpf
 
     def addProject(self, kpf):
-        if isinstance(self._root, KPFSingleTree):
-            raise Exception("Project added to toolbox tree")
         self._partSvc.addProject(kpf)
         kpf = UnwrapObject(kpf)
         self.restorePrefs(kpf)
@@ -434,8 +380,6 @@ class KPFTreeView(TreeView):
             self._nodeIsOpen[kpf.id] = True
     
     def removeProject(self, kpfWrapped):
-        if isinstance(self._root, KPFSingleTree):
-            raise Exception("Project removal from toolbox tree")
         self._partSvc.removeProject(kpfWrapped)
         kpf = UnwrapObject(kpfWrapped)
         index = self._root.children.index(kpf)
@@ -480,17 +424,14 @@ class KPFTreeView(TreeView):
     def savePrefs(self, kpf):
         prefSvc = components.classes["@activestate.com/koPrefService;1"]\
                             .getService().prefs # global prefs
-        if isinstance(self._root, KPFSingleTree):
-            nodeIsOpen = self._nodeIsOpen
-        else:
-            # multi tree, we want JUST the project passed in.  Get all the
-            # id's from the project, and then get the matching id's from
-            # nodeIsOpen
-            kpf = UnwrapObject(kpf)
-            nodeIsOpen = {}
-            for id in self._nodeIsOpen.keys():
-                if kpf.getChildById(id):
-                    nodeIsOpen[id] = self._nodeIsOpen[id]
+        # multi tree, we want JUST the project passed in.  Get all the
+        # id's from the project, and then get the matching id's from
+        # nodeIsOpen
+        kpf = UnwrapObject(kpf)
+        nodeIsOpen = {}
+        for id in self._nodeIsOpen.keys():
+            if kpf.getChildById(id):
+                nodeIsOpen[id] = self._nodeIsOpen[id]
         prefSvc.setStringPref("kpf_open_nodes_%s" % kpf.id,
                               repr(nodeIsOpen))
 
@@ -498,8 +439,6 @@ class KPFTreeView(TreeView):
         return self._partSvc.currentProject
     
     def set_currentProject(self, prj):
-        if isinstance(self._root, KPFSingleTree):
-            raise Exception("Use toolbox member to set the toolbox")
         self._partSvc.currentProject = prj
         project = UnwrapObject(prj)
         if project and project not in self._root.children:
