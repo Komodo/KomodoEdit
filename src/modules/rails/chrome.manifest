@@ -1,2 +1,13 @@
-content rails jar:rails.jar!/content/ xpcnativewrappers=yes
-overlay chrome://komodo/content/komodo.xul chrome://rails/content/overlay.xul
+
+
+content railsTools content/ xpcnativewrappers=yes
+skin railsTools classic/1.0 skin/
+locale railsTools en-US locale/en-US/
+
+
+
+
+
+overlay chrome://komodo/content/komodo.xul chrome://railsTools/content/overlay_rails.xul
+overlay chrome://komodo/content/pref/pref.xul chrome://railsTools/content/pref_overlay_rails.xul
+

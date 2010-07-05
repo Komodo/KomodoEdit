@@ -2,20 +2,19 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
     <Description about="urn:mozilla:install-manifest">
-        <em:id>rails@activestate.com</em:id>
-        <em:name>Rails</em:name>
+        <em:id>railsTools@activestate.com</em:id>
+        <em:name>Ruby on Rails Komodo Tools</em:name>
         <em:version>0.1</em:version>
-        <em:description>Rails tools</em:description>
+        <em:description>Tools for building, editing, and debugging Rails apps in Komodo</em:description>
         <em:creator>Eric Promislow</em:creator>
-        <em:homepageURL>http://komodo.activestate.com/addons/rails/</em:homepageURL>
-        <em:creator>ActiveState Software Inc.</em:creator>
+        <em:homepageURL>http://activestate.com/rails</em:homepageURL>
         <em:type>2</em:type> <!-- type=extension --> 
 
         <em:targetApplication>
             <Description>
                 <!-- Komodo IDE's uuid -->
                 <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
-                <em:minVersion>4.1</em:minVersion>
+                <em:minVersion>6.0</em:minVersion>
                 <em:maxVersion>6.*</em:maxVersion>
             </Description>
         </em:targetApplication>
@@ -23,7 +22,7 @@
             <Description>
                 <!-- Komodo Edit's uuid -->
                 <em:id>{b1042fb5-9e9c-11db-b107-000d935d3368}</em:id>
-                <em:minVersion>4.1</em:minVersion>
+                <em:minVersion>6.0</em:minVersion>
                 <em:maxVersion>6.*</em:maxVersion>
             </Description>
         </em:targetApplication>
