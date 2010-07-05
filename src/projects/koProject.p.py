@@ -908,6 +908,38 @@ def ProjectShortcut(url, name, project):
     part._attributes['name'] = name
     return part
 
+# These are in for compatibility reasons, but they no longer do anything
+
+class koSnippetPart(koPart):
+    type = 'snippet'
+    
+class koCommandPart(koPart):
+    type = 'command'
+
+class koTemplatePart(koPart):
+    type = 'template'
+    
+class koURLPart(koPart):
+    type = 'URL'
+
+class koMacroPart(koPart):
+    type = 'macro'
+
+class koDirectoryShortcut(koPart):
+    type = 'DirectoryShortcut'
+
+class koMenuPart(koContainer):
+    type = 'menu'
+
+class koToolbarPart(koContainer):
+    type = 'toolbar'
+
+class koChangeListPart(koContainer):
+    type = 'changelist'
+
+class koToolbox(koPart):
+    type = 'Toolbox'
+
 # See factory functions below
 class koFolderPart(koContainer):
     _com_interfaces_ = [components.interfaces.koIPart_folder]
@@ -1340,6 +1372,8 @@ class koProject(koLiveFolderPart):
     # The last md5 is used for comparing between load/saves to ensure that
     # there are no changes outside of what Komodo makes.
     _lastmd5 = None
+    _obsoletePartNames = ('macro', 'snippet', 'command', 'template',
+                          'DirectoryShortcut', 'URL')
 
     def __init__(self):
         self._isDirty = 0
@@ -1649,7 +1683,6 @@ class koProject(koLiveFolderPart):
                     part.value = ''
                     partstack.append(part)
                     continue
-
                 else:
                     # create our new part instance
                     try:
@@ -1833,7 +1866,7 @@ class koProject(koLiveFolderPart):
         """ Remove any tools, and also folders that are emptied after all
         tools are removed, as part of moving to Komodo 6, project version 5.
         """
-        for child in self.getChildren():
+        for child in self.getChildren()[:]:  # copy because we're deleting as we go
             self._cullToolOrContainer(self, child)
     
     _toolNames = ('macro', 'snippet', 'command', 'URL',
