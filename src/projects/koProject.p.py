@@ -77,6 +77,7 @@ from URIlib import URIParser, RemoteURISchemeTypes
 from koXMLPrefs import NodeToPrefset
 from eollib import newl
 from findlib2 import paths_from_path_patterns
+import koToolbox2
 from projectUtils import *
 
 # kpf ver 3 == komodo 4.0
@@ -91,6 +92,8 @@ CURRENTPOS_MARKER = '!@#_currentPos'
 
 log = logging.getLogger("koProject")
 #log.setLevel(logging.DEBUG)
+qlog = logging.getLogger("koProject.q")
+qlog.setLevel(logging.DEBUG)
 
 #---- support routines
 
@@ -484,8 +487,10 @@ class koPart(object):
             parts = list(urlparse.urlparse(self._url))
             slashlocation = parts[2].rindex('/')
             parts[2] = parts[2][:slashlocation+1] + name
-            if parts[2].find('.kpf') < 0:
-                parts[2] = parts[2] + '.kpf'
+            ext = os.path.splitext(parts[2])
+            if not ext in ('.kpf', koToolbox2.PROJECT_FILE_EXTENSION):
+                qlog.debug("ext:%s, Adding extension to parts[2]:%s", ext, parts[2])
+                parts[2] += koToolbox2.PROJECT_FILE_EXTENSION
             self._url = urlparse.urlunparse(tuple(parts))
             self._setPathAndName()
         self.setStringAttribute('name', self._name)

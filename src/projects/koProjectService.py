@@ -294,3 +294,27 @@ class KoPartService(object):
             if window in self._data:
                 del self._data[window]
 
+    def renameProject(self, oldPath, newPath):
+        """
+        We want to update the name field of the new project file without
+        changing any of the other markup.  Using ElementTree drops the
+        comments, and using the koProject serializer is too cumbersome.
+        So make a quick white-box change.
+        """
+        import os, os.path, re
+        oldName = os.path.basename(oldPath)
+        newName = os.path.basename(newPath)
+        fd = open(oldPath, 'rb')
+        contents = fd.read()
+        ptn = re.compile(r'''(.*\bname\s*=\s*)(["'])%s\2(.*)''' % (re.escape(oldName),), re.DOTALL)
+        m = ptn.match(contents)
+        if not m:
+            log.error("Can't find the name attribute in file %s", oldPath)
+            os.rename(oldPath, newPath)
+        else:
+            newContents = m.group(1) + m.group(2) + newName + m.group(2) + m.group(3)
+            fd = open(newPath, 'wb')
+            fd.write(newContents)
+            fd.close()
+            os.unlink(oldPath)        
+

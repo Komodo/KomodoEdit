@@ -977,7 +977,7 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
                     "Yes", null, null, // default response, text, title
                     "open_recent_files_on_project_open");
                 if (action == "Cancel") {
-                    return;
+                    return false;
                 }
             }
         }
@@ -993,6 +993,7 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
             }
         }
     }
+    return true;
 }
 
 /*
@@ -1014,15 +1015,32 @@ this.renameProject = function ProjectRename(project)
     if (!this.manager.closeProject()) {
         return;
     }
-    var osSvc = Components.classes["@activestate.com/koOs;1"]
-        .getService(Components.interfaces.koIOs);
     var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
         .getService(Components.interfaces.koIOsPath);
     var newPath = osPathSvc.join(oldKoFile.dirName, newname);
     try {
-        osSvc.rename(oldKoFile.path, newPath);
+        // This call both updates the project's name field (while it isn't loaded)
+        // and renames the file
+        var partSvc = Components.classes["@activestate.com/koPartService;1"]
+            .getService(Components.interfaces.koIPartService);
+        partSvc.renameProject(oldKoFile.path, newPath);
+            
         var newURL = ko.uriparse.localPathToURI(newPath);
         this.open(newURL);
+        /*
+        setTimeout(function(this_) {
+                try {
+                    this_.open(newURL);
+                } catch(ex) {
+                    ko.dialogs.alert("Failed to open "
+                                    + newPath
+                                    + ":"
+                                    + ex);
+                    this_.manager.log.exception(ex);
+                }
+            }, 10000, this);
+        */
+        /*
         var newProject = this.manager.currentProject;
         if (newProject) {
             // Update the project's name field.
@@ -1030,6 +1048,7 @@ this.renameProject = function ProjectRename(project)
             newProject.save();
             _obSvc.notifyObservers(this, 'project_renamed', newURL + "##" + newname);
         }
+        */
     } catch(ex) {
         ko.dialogs.alert("Failed to rename "
                          + oldKoFile.path

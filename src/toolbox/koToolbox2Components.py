@@ -435,17 +435,6 @@ class KoToolBox2Service:
             self.notifyAddedToolbox(projectDir)
             self.notifyToolboxTopLevelViewChanged()
 
-    def renameProjectToolbox(self, uri_name):
-        uri, name = uri_name.split('##', 1);
-        if not name:
-            log.error("renameProjectToolbox: Unexpected input for renameProjectToolbox: %s", uri_name)
-            return
-        tb = self.getProjectToolbox(uri)
-        if not tb:
-            log.error("renameProjectToolbox: Can't find a toolbox for uri %s", uri)
-            return
-        log.error("XXX: Waiting for rename-tools: can't rename the project toolbox yet")
-
     def activateExtensionToolbox(self, extensionRootDir):
         toolsDir = join(extensionRootDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
         if exists(toolsDir) and os.path.isdir(toolsDir):
@@ -515,8 +504,6 @@ class KoToolBox2Service:
             self.activateProjectToolbox(subject)
         elif topic == "project_removed":
             self.deactivateProjectToolbox(subject)
-        elif topic == "project_renamed":
-            self.renameProjectToolbox(data)
         elif True:
             return
         elif topic == "domwindowopened":

@@ -698,13 +698,14 @@ class Database(object):
             stmt = 'insert into metadata_timestamps(path_id, mtime) values(?, ?)'
             cu.execute(stmt, (parent_id, os.stat(metadataPath).st_mtime))
 
-    def renameTool(self, id, newName, newPath):
+    def renameTool(self, id, newName, newPath=None):
         self.updateValuesInTableByKey('common_details',
                                       ['name'], [newName],
                                       ['path_id'], [id])
-        self.updateValuesInTableByKey('paths',
-                                      ['path'], [newPath],
-                                      ['id'], [id])
+        if newPath is not None:
+            self.updateValuesInTableByKey('paths',
+                                          ['path'], [newPath],
+                                          ['id'], [id])
             
     _tableNameFromType = {
         # Put anomalies here.
@@ -1503,8 +1504,22 @@ class ToolboxLoader(object):
                 result_list = [new_id]
                 data = { 'id': new_id, 'type':'folder', 'name':toolboxName}
                 _updateJSONData(data, new_id,
-                                os.path.join(actualToolboxDir, UI_FOLDER_FILENAME), noLoad=True)
+                                os.path.join(actualToolboxDir, UI_FOLDER_FILENAME), noLoad=True)                        
+                    
             os.path.walk(actualToolboxDir, self.walkFunc, False)
+            # Check the name of the item
+            res = self.db.getValuesFromTableByKey('paths',
+                                                   ['id'],
+                                                   'path', actualToolboxDir)
+            if res is None:
+                log.error("After walking the dir, id(%s) is None", actualToolboxDir)
+                return
+            currentName = self.db.getValuesFromTableByKey('common_details',
+                                                          ['name'],
+                                                          'path_id', res[0])[0]
+            if currentName != toolboxName:
+                self.db.renameTool(res[0], toolboxName)
+            
         finally:
             self.db.releaseConnection()
         return result_list[0]

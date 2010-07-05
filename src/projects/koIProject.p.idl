@@ -407,6 +407,8 @@ interface koIPartService: nsISupports
 
     /* DEPRECATED, USE, koIToolbox2Service.runningMacro instead */
     attribute koITool runningMacro;
+
+    void renameProject(in wstring oldPath, in wstring newPath);
 };
 
 [scriptable, uuid(bad42fbe-e309-4404-abf7-ff83d4d4c564)]
