@@ -1407,14 +1407,6 @@
                                       id="menu_projectOpenProject"
                                       observes="cmd_openProject"
                                       />
-<!--
-                            <menu label="&moose.makeActiveProject.label;"
-                                  id="menu_projectMakeActive"
-                                  observes="broadcaster_projectCurrent">
-                                <menupopup  id="menu_projectMakeActive_popup"
-                                    onpopupshowing="ko.projects.manager.getProjectsMenu(this);"/>
-                            </menu>
--->
                             <menu id="menu_projectAdd" label="&add.label;" accesskey="&menuProjectAdd.accesskey;"
                                   observes="broadcaster_projectCurrent">
                                   <menupopup id="projectAdd_popup" partviewer="projectview"
