@@ -378,7 +378,8 @@ this.getProjectToolbox = function(uri) {
 }
 
 this.getStandardToolbox = function() {
-    return this.findToolById(this.manager.toolbox2Svc.getStandardToolboxID());
+    return this.manager.toolbox2Svc.getStandardToolbox();
+    //return this.findToolById(this.manager.toolbox2Svc.getStandardToolboxID());
 }
 
 this.addItem = function(/* koITool */ tool, /* koITool */ parent) {

@@ -146,9 +146,9 @@ class KoToolBox2Service:
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
                        getService(components.interfaces.koIToolboxDatabaseService))
-        toolsMgrSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].\
+        self._toolsMgrSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].\
                       getService(components.interfaces.koIToolbox2ToolManager));
-        toolsMgrSvc.initialize(self.toolbox_db)
+        self._toolsMgrSvc.initialize(self.toolbox_db)
 
         self.db_path = os.path.join(koDirSvc.userDataDir, 'toolbox.sqlite')
         schemaFile = os.path.join(koDirSvc.mozBinDir,
@@ -212,7 +212,13 @@ class KoToolBox2Service:
 
     def getStandardToolboxID(self):
         return self._standardToolbox
+
+    def getStandardToolbox(self):
+        return self._toolsMgrSvc.getToolById(self._standardToolbox)
     
+    def getSharedToolbox(self):
+        return self._toolsMgrSvc.getToolById(self._sharedToolbox)
+
     def importDirectory(self, parentPath, pathToImport):
         try:
             return self.toolboxLoader.importDirectory(parentPath, pathToImport)
