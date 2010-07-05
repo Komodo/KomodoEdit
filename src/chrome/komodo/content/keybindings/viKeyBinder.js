@@ -581,6 +581,7 @@ VimController.prototype.__defineSetter__("mode", function(new_mode) {
             // http://bugs.activestate.com/show_bug.cgi?id=65580
             scimoz.cancel();
             scimoz.setSel(-1, scimoz.currentPos);  // anchorPos of -1 means remove any selection
+            this._visualMode = VimController.VISUAL_CHAR;
         }
         this.updateCaretStyle(scimoz || ko.views.manager.currentView.scimoz);
         this.updateStatusBarMode();
