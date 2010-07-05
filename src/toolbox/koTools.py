@@ -357,6 +357,9 @@ class _KoTool(object):
     def get_id(self):
         return str(self.id)
 
+    def get_prefset(self):
+        return _toolsManager.get_prefset(self.id)
+
 class _KoContainer(_KoTool):
     isContainer = True
     def __init__(self, *args):
@@ -695,6 +698,10 @@ class KoToolbox2ToolManager(object):
     def initialize(self, toolbox_db_svc):
         global _tbdbSvc
         _tbdbSvc = self.toolbox_db = toolbox_db_svc
+        self._koToolBox2Service = UnwrapObject(components.classes["@activestate.com/koToolBox2Service;1"].getService(components.interfaces.koIToolBox2Service))
+        self._koProjectService = UnwrapObject(components.classes["@activestate.com/koPartService;1"].getService(components.interfaces.koIPartService))
+        self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
+                       getService(components.interfaces.koIPrefService).prefs
 
     def terminate(self):
         pass # placeholder
@@ -986,6 +993,23 @@ class KoToolbox2ToolManager(object):
             del self._tools[id]
         except KeyError:
             pass
+
+    def getToolRoot(self, id):
+        return self.toolbox_db.getRootId(id)
+
+    # Commands: get the prefset for a command by getting it either
+    # from the current project, if that's who owns the tool,
+    # or use the global prefs.
+
+    def get_prefset(self, toolId):
+        rootId = self.getToolRoot(toolId)
+        projectURL = self._koToolBox2Service.getProjectURL(rootId)
+        if projectURL is not None:
+            proj = self._koProjectService.getProjectForURL(projectURL)
+            if proj is not None:
+                return proj.prefset
+        return self._globalPrefs
+
 
 _partFactoryMap = {}
 for name, value in globals().items():

@@ -365,6 +365,16 @@ class Database(object):
                        (node_id,))
             return cu.fetchone()
 
+    def getRootId(self, id):
+        with self.connect() as cu:
+            while True:
+                stmt = 'select parent_path_id from hierarchy where path_id = ?'
+                cu.execute(stmt, (id,))
+                parent_id = cu.fetchone()[0]
+                if parent_id is None or parent_id == id:
+                    return id
+                id = parent_id
+
     def getTypeAndNameFromId(self, node_id):
         """
         Return (nodeType, name based on the ID)

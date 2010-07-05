@@ -210,6 +210,11 @@ class KoToolBox2Service:
     def getProjectToolbox(self, uri):
         return self._loadedToolboxes[uri]
 
+    def getProjectURL(self, rootId):
+        for url, id in self._loadedToolboxes.iteritems():
+            if id == rootId:
+                return url
+        
     def getStandardToolboxID(self):
         return self._standardToolbox
 
