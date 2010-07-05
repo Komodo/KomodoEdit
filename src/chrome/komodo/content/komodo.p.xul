@@ -276,64 +276,6 @@
                       image="chrome://komodo/skin/images/remote_file.png"
                       oncommand="ko.projects.addNewPart('remotefiles', this.parentNode.getAttribute('partviewer'))"
                       />
-            <menuitem id="folder_context_newSnippet"
-                      label="&newSnippet.label;"
-                      class="menuitem-iconic"
-                      accesskey="&folderContextNewSnippet.accesskey;"
-                      image="chrome://komodo/skin/images/new_snippet.png"
-                      oncommand="ko.projects.addNewPart('snippet', this.parentNode.getAttribute('partviewer'))"
-                      />
-            <menuitem id="folder_context_newCommand"
-                      label="&newCommand.label;"
-                      class="menuitem-iconic"
-                      accesskey="&folderContextNewCommand.accesskey;"
-                      image="chrome://komodo/skin/images/new_run_command.png"
-                      oncommand="ko.projects.addNewPart('command', this.parentNode.getAttribute('partviewer'))"
-                      />
-            <menuitem id="folder_context_newTemplate"
-                      label="&newTemplate.label;"
-                      class="menuitem-iconic"
-                      accesskey="&folderContextNewTemplate.accesskey;"
-                      image="chrome://komodo/skin/images/new_template.png"
-                      oncommand="ko.projects.addNewPart('template', this.parentNode.getAttribute('partviewer'))"
-                      />
-            <menuitem id="folder_context_newURL"
-                      label="&newURL.label;"
-                      class="menuitem-iconic"
-                      accesskey="&folderContextNewURL.accesskey;"
-                      image="chrome://komodo/skin/images/new_url.png"
-                      oncommand="ko.projects.addNewPart('URL', this.parentNode.getAttribute('partviewer'))"
-                      />
-            <menuitem id="folder_context_newMacro"
-                      label="&newMacro.label;"
-                      class="menuitem-iconic"
-                      accesskey="&folderContextNewMacro.accesskey;"
-                      image="chrome://komodo/skin/images/new_macro.png"
-                      oncommand="ko.projects.addNewPart('macro', this.parentNode.getAttribute('partviewer'))"
-                      />
-            <menuitem id="folder_context_newShortcut"
-                      label="&newOpenShortcut.label;"
-                      class="menuitem-iconic"
-                      accesskey="&folderContextNewShortcut.accesskey;"
-                      image="chrome://komodo/skin/images/new_open_shortcut.png"
-                      oncommand="ko.projects.addNewPart('directoryshortcut', this.parentNode.getAttribute('partviewer'))"
-                      />
-            <!-- #if PLATFORM != "darwin" -->
-            <menuitem id="folder_context_newMenu"
-                      label="&newCustomMenu.label;"
-                      class="menuitem-iconic"
-                      accesskey="&folderContextNewMenu.accesskey;"
-                      image="chrome://komodo/skin/images/new_custom_menu.png"
-                      oncommand="ko.projects.addNewPart('menu', this.parentNode.getAttribute('partviewer'))"
-                      />
-            <!-- #endif -->
-            <menuitem id="folder_context_newToolbar"
-                      label="&newCustomToolbar.label;"
-                      class="menuitem-iconic"
-                      accesskey="&folderContextNewToolbar.accesskey;"
-                      image="chrome://komodo/skin/images/new_custom_toolbar.png"
-                      oncommand="ko.projects.addNewPart('toolbar', this.parentNode.getAttribute('partviewer'))"
-                      />
         </menupopup>
     </menu>
 
