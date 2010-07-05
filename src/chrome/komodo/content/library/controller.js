@@ -45,7 +45,7 @@ var Controller = xtk.Controller;
 (function() {
 
 var handlers = {
-    'cmd_helpAbout': 'ko.browse.about()',
+    'cmd_helpAbout': 'ko.launch.about()',
     'cmd_viewBottomPane': 'ko.uilayout.togglePane(\'bottom_splitter\', \'output_tabs\', \'cmd_viewBottomPane\');',
     'cmd_viewLeftPane': 'ko.uilayout.togglePane(\'workspace_left_splitter\', \'project_toolbox_tabs\', \'cmd_viewLeftPane\');',
     'cmd_viewRightPane': 'ko.uilayout.togglePane(\'workspace_right_splitter\', \'right_toolbox_tabs\', \'cmd_viewRightPane\');',

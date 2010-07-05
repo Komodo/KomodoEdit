@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Komodo Credits</title>
+
+<style>
+html {
+  background-color: white;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #666;
+  text-align: left;
+  padding: 0;
+  margin: 0;
+}
+
+* {
+  cursor: default;
+  -moz-user-select: none;
+}
+
+#creditsBox {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  bottom: 8px;
+  overflow: hidden;
+  width: 90%;
+  padding-left: 15px;
+  text-align: left;
+}
+
+pre {
+  font-family: Arial, sans-serif;
+}
+
+#title {
+  margin: 250px 0 30px 0;
+  font-weight: bold;
+  color: #555;
+}
+#contributors {
+  margin-bottom: 270px;
+}
+
+#fadeouttop {
+  /* Note: -moz-linear-gradient only in Gecko 1.9.2, i.e. not in K6.0.
+   *  background:-moz-linear-gradient(center top, #FFFFFF, rgba(255, 255, 255, 0)) repeat scroll 0 0 transparent;
+   */
+  height:70px;
+  left:0;
+  right:0;
+  position:fixed;
+  top:0;
+  z-index:50;
+}
+#fadeoutbottom {
+  /* Note: -moz-linear-gradient only in Gecko 1.9.2, i.e. not in K6.0.
+   *  background:-moz-linear-gradient(center bottom, #FFFFFF, rgba(255, 255, 255, 0)) repeat scroll 0 0 transparent;
+   */
+  height:20px;
+  left:0;
+  right:0;
+  position:fixed;
+  bottom:0;
+  z-index:50;
+} 
+</style>
+
+<script type="application/x-javascript">
+var gCreditsInterval = -1;
+
+function uninit()
+{
+  if (gCreditsInterval > -1)
+    clearInterval(gCreditsInterval);
+}
+
+function init()
+{
+  var cb = document.getElementById("creditsBox");
+  cb.scrollTop = 0;
+  setTimeout(runCredits, 2000);
+}
+
+function runCredits()
+{
+  gCreditsInterval = setInterval("creditsCallback()", 25);
+}
+
+function creditsCallback()
+{
+  var cb = document.getElementById("creditsBox");
+  var newtop = cb.scrollTop + 1;
+  cb.scrollTop = newtop;
+  if (cb.scrollTop != newtop) {
+    // we're at the bottom
+    clearInterval(gCreditsInterval);
+    setTimeout(function() { cb.scrollTop = 0 }, 10000);
+  }
+}
+</script>
+
+</head>
+<body onload="init();" onunload="uninit();">
+
+<div id="fadeouttop"></div>
+<div id="creditsBox">
+  <div id="title">Komodo contributors &raquo;</div>
+  <pre id="contributors">
+<!-- #include PP_CONTRIBUTORS_PATH -->
+  </pre>
+</div>
+<div id="fadeoutbottom"></div>
+
+</body>
+</html>

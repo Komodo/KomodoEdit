@@ -222,15 +222,6 @@ this.updateHelpLanguagesPopup = function browse_UpdateHelpLanguagesPopup() {
     }
 }
 
-/**
- * show our about dialog
- * XXX DEPRECATE, this should be dialog.about or ko.about
- */
-this.about = function browse_About() {
-  window.open("chrome://komodo/content/about.xul",
-              "komodo_about",
-              "chrome,dialog,modal");
-}
 
 // XXX move these to a properties file or prefs.js
 var tag2uri = {

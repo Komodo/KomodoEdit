@@ -488,6 +488,16 @@ this.replaceInFiles = function(pattern /* =null */, repl /* =null */,
 
 
 /**
+ * Show Komodo's about dialog.
+ */
+this.about = function about() {
+    ko.windowManager.openDialog("chrome://komodo/content/about/about.xul",
+        "komodo_about",
+        "chrome,centerscreen,titlebar,resizable=no");
+}
+
+
+/**
  * runCommand
  *
  * open the run command dialog

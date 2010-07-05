@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
+
+<!-- Copyright (c) 2000-2010 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Komodo's About dialog box -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+
+<window id="dialog-about"
+        window_type="komodo_about"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&aboutKomodo.title;"
+        onload="onLoad()"
+        orient="vertical"
+        flex="1"
+        width="550"
+        height="500">
+    
+    <keyset id="keys">
+        <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
+        <key keycode="VK_ENTER" oncommand="window.close();"/>
+        <key keycode="VK_RETURN" oncommand="window.close();"/>
+<!-- #if PLATFORM != "darwin" -->
+        <key key="W" modifiers="control" oncommand="window.close();" />
+        <key key="C" modifiers="control" oncommand="copyBuildInfo();" />
+<!-- #else -->
+        <key key="W" modifiers="meta" oncommand="window.close();" />
+        <key key="C" modifiers="meta" oncommand="copyBuildInfo();" />
+<!-- #endif -->
+    </keyset>
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/about/about.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/browse.js" type="application/x-javascript;version=1.7"/>
+
+    <iframe id="iframe" src="chrome://komodo/content/about/about.html" flex="1"/>
+</window>
+

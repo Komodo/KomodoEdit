@@ -71,13 +71,6 @@ $cons->InstallInChrome('editor.js');
 $cons->InstallInChrome('markers.js');
 # $cons->Depends('komodo.unprocessed.xul', 'testmenu.xul');
 
-$cons->Preprocess('credits.p.xhtml', 'credits.xhtml',
-    {'PP_CONTRIBUTORS_PATH' => "$komodoDevDir/CONTRIBUTORS.txt"});
-$cons->InstallInChrome("credits.xhtml");
-$cons->Depends('credits.p.xhtml', "$komodoDevDir/CONTRIBUTORS.txt");
-$cons->InstallInChrome("about.xul");
-$cons->InstallInChrome("about.js");
-
 $cons->Preprocess('testkeys.p.xul', 'testkeys.xul');
 $cons->InstallInChrome("testkeys.xul");
 $cons->Preprocess('testkeys.p.js', 'testkeys.js');
@@ -85,4 +78,17 @@ $cons->InstallInChrome("testkeys.js");
 $cons->InstallInChrome("testscintilla.xul");
 $cons->InstallInChrome("printPreview.xul");
 $cons->InstallInChrome("hiddenWindow.xul");
+
+# "About" dialog files.
+$cons->Preprocess('about/credits.p.html', 'about/credits.html',
+    {'PP_CONTRIBUTORS_PATH' => "$komodoDevDir/CONTRIBUTORS.txt"});
+$cons->InstallInChrome("about/credits.html");
+$cons->Depends('about/credits.p.html', "$komodoDevDir/CONTRIBUTORS.txt");
+$cons->Preprocess('about/about.p.xul', 'about/about.xul');
+$cons->InstallInChrome("about/about.xul");
+$cons->InstallAs("$mozChromeDir/komodo/content/about/img/komodo.png",
+    "$komodoDevDir/src/main/komodo256.$productType.png");
+$cons->InstallRecursive("$mozChromeDir/komodo/content/about",
+    cwd()."/src/chrome/komodo/content/about",
+    ('\.svn', 'about.p.xul', 'credits.p.html'));
 

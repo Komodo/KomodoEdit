@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>About Komodo</title>
+  <style>
+  /* {{{ as brand fonts */
+  /* Swiss 721 Condensed Bold. Used for ActiveState's site banner headers.
+   * Note: The name of the font files from ShannonP had "Swis" instead of
+   * "Swiss". Don't know why. I'm intentionally using "swiss" for the class
+   * name.
+   */
+  @font-face {
+      font-family: 'Swis721CnBTBold';
+      src: url('font/swis721_cn_bt_bold-webfont.woff') format('woff'), url('font/swis721_cn_bt_bold-webfont.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+  }
+  .as_font_swiss721cnbold {
+      font-weight: normal; 
+      font-style: normal;
+      line-height: normal;
+      font-family: 'Swis721CnBTBold', sans-serif;
+  }
+  
+  /* See the ActiveState Web Styleguide for more color specs. */
+  .as_brand_red {
+      color: #ae1a27;  
+  }
+  .as_brand_blue {
+      color: #026981;
+  }
+  /* }}} */
+
+  body {
+    font-family: Arial;
+    font-size: 14px;
+    text-align: right;
+    color: #666;
+    background: #fff url("img/bodybg.gif") repeat-x;
+  }
+  
+  #content {
+    padding: 10px;
+  }
+  
+  #logo {
+    color: black;
+  }
+  #icon {
+    position: fixed;
+    bottom: -50px;
+    right: -50px;
+  }
+  h1 {
+    margin: 20px 0 5px 0;
+    border: none;
+    padding: 0;
+    font-size: 100%;
+    font-weight: bold;
+    color: #555;
+  }
+  #credits {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+  }
+  #creditsIframe {
+    height: 256px;
+    width: 175px;
+    border: none;
+  }
+  </style>
+</head>
+<body>
+  <img id="icon" src="img/komodo.png" />
+
+  <div id="content">
+    <div id="logo" class="as_font_swiss721cnbold" style="font-size: 36px;">Active<span class="as_brand_red">State</span> Komodo IDE</div>
+
+    <h1>&laquo; license info</h1>
+    <div id="licenseinfo"></div>
+
+    <h1>&laquo; build info</h1>
+    <div id="buildinfo"></div>
+
+  </div>
+  
+  <div id="credits">
+    <iframe id="creditsIframe" src="credits.html" style="background-color: blue; padding:0; margin: 0;" />
+  </div>
+</body>
+</html>
