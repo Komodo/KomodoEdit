@@ -421,7 +421,7 @@ class KoRubyInfoEx(KoAppInfoEx):
             if rubyExe: return rubyExe
             paths = self.FindInstallationPaths()
             if paths:
-                self.installationPath = paths[0]
+                self.set_executablePath(paths[0])
             else:
                 return None
         if sys.platform.startswith("win"):
