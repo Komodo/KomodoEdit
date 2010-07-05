@@ -237,9 +237,6 @@ class koPart(object):
         # add the new id to the maps
         self._restoreData()
 
-    def get_keybinding_description(self):
-        return self.prettytype + "s: " + self._attributes['name']
-
     def _getObserverSvc(self):
         if not self._observerSvc:
             self._observerSvc = components.classes["@mozilla.org/observer-service;1"]\
@@ -623,30 +620,6 @@ class koPart(object):
         self._project.set_isDirty(dirty)
         return part
 
-    def applyKeybindings(self, recurse):
-        if not self._project._active:
-            return
-        if self._attributes.get('keyboard_shortcut', ''):
-            try:
-                self._getObserverSvc().notifyObservers(self, 'kb-load', self.id)
-            except Exception, unused:
-                pass
-        if recurse and hasattr(self, "children"):
-            for child in self.children:
-                child.applyKeybindings(recurse)
-
-    def removeKeybindings(self, recurse):
-        if not self._project._active:
-            return
-        if self._attributes.get('keyboard_shortcut', ''):
-            try:
-                self._getObserverSvc().notifyObservers(self, 'kb-unload', self.id)
-            except Exception, unused:
-                pass
-        if recurse and hasattr(self, "children"):
-            for child in self.children:
-                child.removeKeybindings(recurse)
-
     def generateRows(self, generator, nodeIsOpen, sortBy='name', level=0,
                      filterString=None, sortDir=0, childrenOnly=0):
 
@@ -790,9 +763,6 @@ class koContainerBase(koPart):
         self._project.set_isDirty(1)
         self._project.registerChildByURL(child)
 
-        child.applyKeybindings(1)
-
-
     def getChildById(self, id):
         if self.id == id:
             return self
@@ -820,9 +790,6 @@ class koContainerBase(koPart):
 
         self._project.set_isDirty(1)
         self._project.forgetChildByURL(child)
-
-        child.removeKeybindings(1)
-
         previous_parent = child._parent
         child.destroy()
 
@@ -935,170 +902,6 @@ def ProjectShortcut(url, name, project):
     part._attributes['url'] = url
     part._attributes['name'] = name
     return part
-
-def unescapeWhitespace(text, eol="\n"):
-    newtext = u'' # THE u IS IMPORTANT!
-    i = 0
-    while i < len(text):
-        if text[i] == '\\':
-            i += 1
-            if text[i] == 'n':
-                newtext += eol
-            elif text[i] == 't':
-                newtext += '\t'
-            elif text[i] == '\\':
-                newtext += '\\'
-            else:
-                i -= 1
-                newtext += '\\'
-        else:
-            newtext += text[i]
-        i += 1
-    return newtext
-
-class koSnippetPart(koPart):
-    _com_interfaces_ = [components.interfaces.koIPart_snippet]
-    type = 'snippet'
-    prettytype = 'Snippet'
-    _iconurl = 'chrome://komodo/skin/images/snippet.png'
-    primaryInterface = 'koIPart_snippet'
-    keybindable = 1
-    
-    def __init__(self, project):
-        koPart.__init__(self, project)
-        self.flavors.insert(0, 'application/x-komodo-snippet')
-
-    def get_url(self):
-        # build a macro url
-        return "snippet://%s/%s" % (self.id, self.get_name())
-
-    def getDragFlavors(self):
-        return self.flavors
-    
-    def getDragDataByFlavor(self, flavor):
-        if flavor == 'application/x-komodo-snippet':
-            return self._getSnippetDragDataAsJSON()
-        else:
-            return self._getSnippetDragDataAsText()
-
-    def getDragData(self):
-        return self._getSnippetDragDataAsText(self)
-        
-    def _getSnippetDragDataAsJSON(self):
-        # Note: It is important that if Unicode comes in, Unicode goes out!
-        data = { 'snippetID' : self.id }
-        project = self.get_project()
-        psvc = components.classes["@activestate.com/koPartService;1"]\
-                .getService(components.interfaces.koIPartService)
-        if project == UnwrapObject(psvc.toolbox):
-            data['toolboxType'] = 'toolbox'
-        else:
-            data['toolboxType'] = 'project'
-            data['projectURL'] = project.get_url()
-        return json.dumps(data)
-        
-    def _getSnippetDragDataAsText(self):
-        # NOTE: IT IS IMPORTANT THAT IF UNICODE COMES IN, UNICODE GOES OUT!
-        return self.value.replace(ANCHOR_MARKER, "", 1).replace(CURRENTPOS_MARKER, "", 1)
-
-class koCommandPart(koPart):
-    _com_interfaces_ = [components.interfaces.koIPart_command]
-    type = 'command'
-    prettytype = 'Run Command'
-    _iconurl = 'chrome://komodo/skin/images/run_commands.png'
-    primaryInterface = 'koIPart_command'
-    keybindable = 1
-
-class koTemplatePart(koPart):
-    _com_interfaces_ = [components.interfaces.koIPart_template]
-    type = 'template'
-    prettytype = 'Template'
-    _iconurl = 'chrome://komodo/skin/images/newTemplate.png'
-    primaryInterface = 'koIPart_template'
-
-class koURLPart(koPart):
-    _com_interfaces_ = [components.interfaces.koIPart_URL]
-    type = 'URL'
-    prettytype = 'URL'
-    _iconurl = 'chrome://komodo/skin/images/xlink.png'
-    keybindable = 1
-    primaryInterface = 'koIPart_URL'
-
-class koMacroPart(koPart):
-    _com_interfaces_ = [components.interfaces.koIPart_macro]
-    type = 'macro'
-    prettytype = 'Macro'
-    _iconurl = 'chrome://komodo/skin/images/macro.png'
-    primaryInterface = 'koIPart_macro'
-    keybindable = 1
-
-    def __init__(self, project):
-        koPart.__init__(self, project)
-        self.flavors.insert(0,'text/x-moz-url')
-        self._attributes['language'] = 'JavaScript'  # default.
-
-    def get_url(self):
-        # build a macro url
-        # hack for extension so buffers get the correct language:
-        ext = ""
-        if self._attributes['language'] == 'JavaScript':
-            ext = ".js"
-        elif self._attributes['language'] == 'Python':
-            ext = ".py"
-        if self._project:
-            return "macro://%s/%s/%s%s" % (self.id, self._project.get_name(),
-                                           self.get_name(), ext)
-        return "macro://%s/%s%s" % (self.id, self.get_name(), ext)
-
-class koMenuPart(koContainer):
-    _com_interfaces_ = [components.interfaces.koIPart_menu]
-    type = 'menu'
-    prettytype = 'Custom Menu'
-    _iconurl = 'chrome://komodo/skin/images/menu_icon.png'
-    _added = 0
-    primaryInterface = 'koIPart_menu'
-
-    def __init__(self, project):
-        koContainer.__init__(self, project)
-        self._attributes['accesskey'] = ''
-        self._attributes['priority'] = 100
-        self._added = 0
-
-    def setAttribute(self, name, value):
-        koContainer.setAttribute(self, name, value)
-        if self._added and not self._project._quiet and self._project._active:
-            try:
-                self._getObserverSvc().notifyObservers(self, 'menu_changed', 'attribute changed')
-            except:
-                pass # no listener
-
-    def getDragData(self):
-        return self.getStringAttribute('name')
-
-
-class koToolbarPart(koContainer):
-    _com_interfaces_ = [components.interfaces.koIPart_toolbar]
-    type = 'toolbar'
-    prettytype = 'Custom Toolbar'
-    _iconurl = 'chrome://komodo/skin/images/toolbar_icon.png'
-    primaryInterface = 'koIPart_toolbar'
-
-    def __init__(self, project):
-        koContainer.__init__(self, project)
-        self._added = 0
-        self._attributes['priority'] = 100
-
-    def setAttribute(self, name, value):
-        koContainer.setAttribute(self, name, value)
-        if self._added and not self._project._quiet and self._project._active:
-            try:
-                self._getObserverSvc().notifyObservers(self, 'toolbar_changed', 'attribute changed')
-            except:
-                pass # no listener
-
-    def getDragData(self):
-        return self.getStringAttribute('name')
-
 
 # See factory functions below
 class koFolderPart(koContainer):
@@ -1721,7 +1524,6 @@ class koProject(koLiveFolderPart):
         dirtyAtEnd = 0
         events = pulldom.parse(stream)
         kpfVer = 0
-        keybound_parts = []  # list of parts that have keybindings
         canBeCulled = False
         for (event, node) in events:
             if event == pulldom.START_ELEMENT:
@@ -1865,36 +1667,30 @@ class koProject(koLiveFolderPart):
 
                     # XXX need to decentralize this processing
                     if 'url' in part._attributes:
-                        if (not part._attributes['url'] or
-                            (part._attributes['url'] == 'None' and \
-                             part.type in ("snippet", "macro", "command"))):
-                            log.warn("Ignoring 'None' url attribute in %s '%s'", part.type, part._attributes.get('name') or 'Unknown')
-                            del part._attributes['url']
-                        else:
-                            value = part._attributes['url']
-                            if value.find('://') == -1: # it is not an real URL -- it must be relative
-                                part._tmpAttributes['relativeurl'] = value
-                                value = uriparse.UnRelativizeURL(self._relativeBasedir, value)
-                                part._attributes['url'] = part._tmpAttributes['url'] = value
-                            elif value.startswith("koremote://"):
-                                try:
-                                    re_split_url = re.compile(r'^(.*?)://(.*?)/(.*)$')
-                                    url_parts_match = re_split_url.match(value)
-                                    if url_parts_match:
-                                        url_parts = url_parts_match.groups()
-                                        server_alias = url_parts[1]
-                                        url_subparts_match = re_split_url.match(url_parts[2])
-                                        if url_subparts_match:
-                                            url_subparts = url_subparts_match.groups()
-                                            if not server_alias:
-                                                server_alias = url_subparts[1]
-                                            value = "%s://%s/%s" % (url_subparts[0],
-                                                                    server_alias,
-                                                                    url_subparts[2])
-                                            part._attributes['url'] = part._tmpAttributes['url'] = value
-                                except:
-                                    log.exception("Unexpected exception converting koremote url: %r", value)
-                            self._urlmap[value] = part
+                        value = part._attributes['url']
+                        if value.find('://') == -1: # it is not an real URL -- it must be relative
+                            part._tmpAttributes['relativeurl'] = value
+                            value = uriparse.UnRelativizeURL(self._relativeBasedir, value)
+                            part._attributes['url'] = part._tmpAttributes['url'] = value
+                        elif value.startswith("koremote://"):
+                            try:
+                                re_split_url = re.compile(r'^(.*?)://(.*?)/(.*)$')
+                                url_parts_match = re_split_url.match(value)
+                                if url_parts_match:
+                                    url_parts = url_parts_match.groups()
+                                    server_alias = url_parts[1]
+                                    url_subparts_match = re_split_url.match(url_parts[2])
+                                    if url_subparts_match:
+                                        url_subparts = url_subparts_match.groups()
+                                        if not server_alias:
+                                            server_alias = url_subparts[1]
+                                        value = "%s://%s/%s" % (url_subparts[0],
+                                                                server_alias,
+                                                                url_subparts[2])
+                                        part._attributes['url'] = part._tmpAttributes['url'] = value
+                            except:
+                                log.exception("Unexpected exception converting koremote url: %r", value)
+                        self._urlmap[value] = part
                     if 'iconrelpath' in part._attributes and part._attributes['iconrelpath']:
                         # fixup our old icon paths
                         value = part._attributes['iconrelpath']
@@ -1922,9 +1718,6 @@ class koProject(koLiveFolderPart):
                             value = part._attributes['startup']
                             part._tmpAttributes['relativestartup'] = value
                             part._attributes['startup'] = part._tmpAttributes['startup'] = uriparse.UnRelativizeURL(self._relativeBasedir, value)
-                    if 'keyboard_shortcut' in part._attributes and \
-                       part._attributes['keyboard_shortcut']:
-                        keybound_parts.append(part)
 
                     # be sure to handle children that got deserialized before the parent
                     # in this case, there are two child array's, but the one in the part
@@ -1954,12 +1747,6 @@ class koProject(koLiveFolderPart):
                     # get an exception, it's an invalid project
                     part = partstack[-1]
                     childpart._attributes['idref'] = part.id
-
-                if kpfVer < 4:
-                    if childpart.type in ['macro', 'snippet']:
-                        # unescape the whitespace escaping from earlier kpf versions
-                        childpart.value = unescapeWhitespace(childpart.value)
-                        dirtyAtEnd = 1
 
                 # we need to insert the parts into our map, so we can
                 # build the structure later
@@ -2006,10 +1793,6 @@ class koProject(koLiveFolderPart):
 
         self._loaded_from_url = self._url
         self.set_url(url)
-
-        if self._active:
-            for part in keybound_parts:
-                self._getObserverSvc().notifyObservers(part,'kb-load', part.id)
 
         # now figure out if we're a live project.  In a load, we're only live
         # if the project has prefs that says we are.

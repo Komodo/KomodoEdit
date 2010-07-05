@@ -110,9 +110,6 @@ interface koIPart_Common: nsIObserver {
     wstring getDragDataByFlavor(in wstring flavor); 
     void getDragFlavors([array, size_is(count)] out wstring flavors,
                      out unsigned long count);
-    
-    void applyKeybindings(in boolean recurse); // cause kb-load notifications for all relevant parts
-    void removeKeybindings(in boolean recurse); // cause kb-unload notifications for all relevant parts
 };
 
 [scriptable, uuid(8EAA9B6D-1D59-43f6-8D0E-F992429ECFE2)]
@@ -349,12 +346,9 @@ interface koIPartService: nsISupports
     void getProjects([array, size_is(count)] out koIProject project,
                              out unsigned long count);
 
-    attribute koIProject toolbox;
-    attribute koIProject sharedToolbox;
+    attribute koITool toolbox;
+    attribute koITool sharedToolbox;
     attribute koIProject currentProject;
-
-    void setToolboxForWindow(in koIProject project, in nsIDOMWindow window);
-    void setSharedToolboxForWindow(in koIProject project, in nsIDOMWindow window);
 
     /**
      * Searches the specified koIProjects (e.g. a project, a toolbox)

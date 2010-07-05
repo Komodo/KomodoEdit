@@ -145,7 +145,7 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
  *      the sub-lang of the current cursor position in the current view is
  *      used. Specify "General" to *not* search for a sub-lang-specific
  *      abbreviation.
- * @returns {Components.interfaces.koIPart_snippet} the relevant snippet,
+ * @returns {Components.interfaces.koITool} the relevant snippet,
  *      or null if no snippet is found.
  */
 this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
@@ -176,7 +176,7 @@ this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
 /**
  * Insert an abbreviation snippet into a buffer.
  *
- * @param snippet {Components.interfaces.koIPart_snippet} The snippet part
+ * @param snippet {Components.interfaces.koITool} The snippet part
  *      to insert. You can use `ko.abbrev.findAbbrevSnippet()` to get one.
  * @param view {Components.interfaces.koIView} The buffer view in which to
  *      insert the snippet. Optional. If not specified then the current

@@ -55,6 +55,8 @@ interface koIToolboxDatabaseService: nsISupports {
 [scriptable, uuid(60bee3f3-739b-4776-bef3-d95a66f646a1)]
 interface koIToolBox2Service: nsISupports {
     attribute koITool runningMacro;
+    koITool getStandardToolbox();
+    koITool getSharedToolbox();
     long getStandardToolboxID();
     void importDirectory(in string parentPath,
                          in wstring pathToImport);

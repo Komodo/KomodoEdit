@@ -14,8 +14,6 @@ class KomodoWindowData(object):
     """A class to hold info about a particular top-level Komodo window."""
     
     def __init__(self):
-        self._toolbox = None
-        self._sharedToolbox = None
         self._currentProject = None
         self._projects = []
         
@@ -23,39 +21,8 @@ class KomodoWindowData(object):
         self._runningMacro = [None]
 
 
-    def get_runningMacro(self):
-        return self._runningMacro[-1]
-    def set_runningMacro(self, macro):
-        if macro:
-            self._runningMacro.append(macro)
-        elif len(self._runningMacro) > 1:
-            self._runningMacro.pop()
-    runningMacro = property(get_runningMacro, set_runningMacro)
-    
     def isCurrent(self, project):
-        return project and project in [self._currentProject, self._toolbox, self._sharedToolbox]
-
-    def set_toolbox(self, project):
-        if self._toolbox == project: return
-        if self._toolbox:
-            self._toolbox.deactivate()
-        self._toolbox = project
-        if self._toolbox:
-            self._toolbox.activate()
-
-    def get_toolbox(self):
-        return self._toolbox
-
-    def set_sharedToolbox(self, project):
-        if self._sharedToolbox == project: return
-        if self._sharedToolbox:
-            self._sharedToolbox.deactivate()
-        self._sharedToolbox = project
-        if self._sharedToolbox:
-            self._sharedToolbox.activate()
-
-    def get_sharedToolbox(self):
-        return self._sharedToolbox
+        return project and project in [self._currentProject]
 
     def set_currentProject(self, project):
         if self._currentProject == project: return
@@ -125,28 +92,20 @@ class KomodoWindowData(object):
         log.warn("DEPRECATED koIPartService.findPartForRunningMacro, use koIPartService.findPart")
         return self.findPart(partType, name, where, self.runningMacro)
 
+    //**** New tools: verify findPart is used only to find parts, not tools.
     def findPart(self, partType, name, where, part):
+	if where != "*":
+	    log.error("DEPRECATED: calling koIPartService.findPart with container != '*' (set to %s)", where)
         # See koIProject for details.
-        if part:
-            container = part.project
-        else:
-            container = None
-        if where == '*':
-            places = [container, self._toolbox, self._sharedToolbox]
-        elif where == 'container':
-            places = [container]
-        elif where == 'toolbox':
-            places = [self._toolbox]
-        elif where == 'shared toolbox':
-            places = [self._sharedToolbox]
-        elif where == 'toolboxes':
-            places = [self._toolbox, self._sharedToolbox]
-        for place in places:
-            if place:
-                found = place.getChildWithTypeAndStringAttribute(
+        if not part:
+            return None
+	container = part.project
+	if not container:
+	    return None
+	found = container.getChildWithTypeAndStringAttribute(
                             partType, 'name', name, 1)
-                if found:
-                    return found
+	if found:
+	    return found
         return None
 
     def getPart(self, type, attrname, attrvalue, where, container):
@@ -160,31 +119,17 @@ class KomodoWindowData(object):
         )
 
     def _genParts(self, type, attrname, attrvalue, where, container):
+	if where != "*":
+	    log.error("DEPRECATED: calling koIPartService._genParts with container != '*' (set to %s)", where)
         # Determine what koIProject's to search.
-        if where == '*':
-            places = [container, self._toolbox, self._sharedToolbox]
-        elif where == 'container':
-            places = [container]
-        elif where == 'current project':
-            places = [self._currentProject]
-        elif where == 'projects':
-            places = self._projects
-        elif where == 'toolbox':
-            places = [self._toolbox]
-        elif where == 'shared toolbox':
-            places = [self._sharedToolbox]
-        elif where == 'toolboxes':
-            places = [self._toolbox, self._sharedToolbox]
-
+	if not container:
+	    return None
         # Search them.
-        for place in places:
-            if not place:
-                continue
-            #TODO: Unwrap and use iterators to improve efficiency.
-            #      Currently this can be marshalling lots of koIParts.
-            for part in place.getChildrenByType(type, True):
-                if part.getStringAttribute(attrname) == attrvalue:
-                    yield part
+	#TODO: Unwrap and use iterators to improve efficiency.
+	#      Currently this can be marshalling lots of koIParts.
+	for part in place.getChildrenByType(type, True):
+	    if part.getStringAttribute(attrname) == attrvalue:
+		yield part
 
 
 class KoPartService(object):
@@ -274,24 +219,24 @@ class KoPartService(object):
         return self._data[self.get_window()].isCurrent(project)
 
     def set_toolbox(self, project):
-        return self._data[self.get_window()].set_toolbox(project)
+        raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
+			      "Komodo no longer supports setting the toolbox")
 
     def get_toolbox(self):
-        return self._data[self.get_window()].get_toolbox()
-
-    def setToolboxForWindow(self, project, window):
-        data = self.get_data_for_window(window)
-        return data.set_toolbox(project)
+        log.warn("DEPRECATED koIPartService.toolbox, use koIToolBox2Service.getStandardToolbox")
+        return components.classes["@activestate.com/koToolBox2Service;1"].\
+                       getService(components.interfaces.koIToolBox2Service).\
+		       getStandardToolbox()
 
     def set_sharedToolbox(self, project):
-        return self._data[self.get_window()].set_sharedToolbox(project)
+        raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
+			      "Komodo no longer supports setting the shared toolbox via the project system.")
 
     def get_sharedToolbox(self):
-        return self._data[self.get_window()].get_sharedToolbox()
-
-    def setSharedToolboxForWindow(self, project, window):
-        data = self.get_data_for_window(window)
-        return data.set_sharedToolbox(project)
+        log.error("DEPRECATED koIPartService.toolbox, use koIToolBox2Service.getStandardToolbox")
+        return components.classes["@activestate.com/koToolBox2Service;1"].\
+                       getService(components.interfaces.koIToolBox2Service).\
+		       getSharedToolbox()
 
     def set_currentProject(self, project):
         return self._data[self.get_window()].set_currentProject(project)
