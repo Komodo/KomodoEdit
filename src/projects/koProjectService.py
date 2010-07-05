@@ -7,6 +7,7 @@ from projectUtils import *
 
 import logging
 log = logging.getLogger("koProjectService")
+log.setLevel(logging.DEBUG)
 
 
 class KomodoWindowData(object):
@@ -120,6 +121,10 @@ class KomodoWindowData(object):
     def getPartById(self, id):
         return findPartById(id)
 
+    def findPartForRunningMacro(self, partType, name, where='*'):
+        log.warn("DEPRECATED koIPartService.findPartForRunningMacro, use koIPartService.findPart")
+        return self.findPart(partType, name, where, self.runningMacro)
+
     def findPart(self, partType, name, where, part):
         # See koIProject for details.
         if part:
@@ -206,7 +211,6 @@ class KoPartService(object):
                     getService(components.interfaces.koIContentUtils)
 
         self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
-        self._toolboxSvc = None
 
     def _windowTypeFromWindow(self, window):
         if not window:
@@ -258,28 +262,13 @@ class KoPartService(object):
             self._data[window] = data
         return data
 
-    deprecated_runningMacro = False
-    def _deprecate_runningMacro(self):
-        if not self.deprecated_runningMacro:
-            self.deprecated_runningMacro = True
-            log.warn("koIPartService.runningMacro is deprecated.  Please use koIToolBox2Service.runningMacro instead.")
-
     def get_runningMacro(self):
-        # Trying to set self._toolboxSvc in __init__ triggers an
-        # xpcom exception with no info.
-        if self._toolboxSvc is None:
-            self._deprecate_runningMacro()
-            self._toolboxSvc = components.classes["@activestate.com/koToolBox2Service;1"]\
-                       .getService(components.interfaces.koIToolBox2Service)
-        return self._toolboxSvc.runningMacro
+        raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
+                              """Use components.classes["@activestate.com/koToolBox2Service;1"].getService(components.interfaces.koIToolBox2Service).runningMacro instead of koPartService""")
 
     def set_runningMacro(self, macro):
-        if self._toolboxSvc is None:
-            self._deprecate_runningMacro()
-            self._toolboxSvc = components.classes["@activestate.com/koToolBox2Service;1"]\
-                       .getService(components.interfaces.koIToolBox2Service)
-        self._toolboxSvc.runningMacro = macro
-    runningMacro = property(get_runningMacro, set_runningMacro)
+        raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
+                              """Use components.classes["@activestate.com/koToolBox2Service;1"].getService(components.interfaces.koIToolBox2Service).runningMacro setter instead of koPartService""")
     
     def isCurrent(self, project):
         return self._data[self.get_window()].isCurrent(project)
