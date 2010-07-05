@@ -95,6 +95,9 @@ interface koIContainerBaseTool: koITool {
                      out unsigned long count);
     koITool getChildByName(in wstring name,
                            in boolean recurse);
+    koITool getChildByTypeAndName(in wstring type,
+                                  in wstring name,
+                                  in boolean recurse);
 
     koITool getChildById(in wstring id);
     /* hasChild does not recurse */

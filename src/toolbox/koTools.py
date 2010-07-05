@@ -431,6 +431,12 @@ class _KoFolder(_KoContainer):
         if id is None:
             return None
         return _toolsManager.getToolById(id)
+
+    def getChildByTypeAndName(self, typeName, itemName, recurse):
+        id = _tbdbSvc.getChildByTypeAndName(self.id, typeName, itemName, recurse)
+        if id is None:
+            return None
+        return _toolsManager.getToolById(id)
     
 class _KoComplexContainer(_KoFolder):
     def trailblazeForPath(self, path):

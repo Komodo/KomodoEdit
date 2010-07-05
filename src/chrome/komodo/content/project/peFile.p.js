@@ -225,15 +225,6 @@ peFile.prototype.supportsCommand = function(command, item) {
                 case 'folder':
                 case 'livefolder':
                 case 'project':
-                case 'URL':
-                case 'command':
-                case 'macro':
-                case 'snippet':
-                case 'template':
-                case 'webservice':
-                    // leave in so we have support for old project files
-                case 'menu':
-                case 'toolbar':
                     continue;
                 default:
                     //dump('returning false because type is not correct\n');
@@ -343,21 +334,6 @@ peFile.prototype.doCommand = function(command) {
         for (i = 0; i < items.length; i++) {
             item = items[i];
             switch (item.type) {
-                case 'webservice':
-                    // leave in so we have support for old project files
-                case 'URL':
-                    ko.projects.URLProperties(item, i);
-                    continue;
-                case 'command':
-                    ko.projects.commandProperties(item, i);
-                    continue;
-                case 'macro':
-                    ko.projects.macroProperties(item, i);
-                    continue;
-                case 'snippet':
-                    ko.projects.snippetProperties(item, i);
-                    continue;
-                case 'template':
                 case 'file':
                     ko.projects.fileProperties(item, null, false);
                     continue;
@@ -365,10 +341,6 @@ peFile.prototype.doCommand = function(command) {
                 case 'livefolder':
                 case 'project':
                     ko.projects.fileProperties(item, null, true);
-                    continue;
-                case 'menu':
-                case 'toolbar':
-                    ko.projects.menuProperties(item, i);
                     continue;
             }
         }

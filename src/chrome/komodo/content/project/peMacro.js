@@ -41,107 +41,6 @@ if (typeof(ko.projects)=='undefined') {
     ko.projects = {};
 }
 
-(function() {
-
-function peMacro() {
-    this.name = 'peMacro';
-    this.log = ko.logging.getLogger('peMacro');
-    //this.log.setLevel(ko.logging.LOG_DEBUG);
-}
-
-// The following two lines ensure proper inheritance (see Flanagan, p. 144).
-peMacro.prototype.constructor = peMacro;
-
-peMacro.prototype.init = function() {
-}
-
-peMacro.prototype.registerCommands = function() {
-    ko.projects.extensionManager.registerCommand('cmd_executeMacro', this);
-    ko.projects.extensionManager.registerCommand('cmd_openMacroPart', this);
-}
-
-peMacro.prototype.registerEventHandlers = function() {
-    ko.projects.extensionManager.addEventHandler(Components.interfaces.koIPart_macro,
-                                     'ondblclick', this);
-}
-
-peMacro.prototype.registerMenus = function() {
-    ko.projects.extensionManager.createMenuItem(Components.interfaces.koIPart_macro,
-                                    'Execute Macro',
-                                    'cmd_executeMacro',
-                                    null,
-                                    null,
-                                    true);
-    ko.projects.extensionManager.createMenuItem(Components.interfaces.koIPart_macro,
-                                    'Edit Macro','cmd_openMacroPart',
-                                    null,
-                                    null,
-                                    false);
-}
-
-peMacro.prototype.ondblclick = function(item,event) {
-    if (item.type != 'macro') return;
-    ko.projects.executeMacro(item);
-}
-
-peMacro.prototype.supportsCommand = function(command, item) {
-    if (ko.projects.active == null) return false;
-    var items = ko.projects.active.getSelectedItems();
-    var i;
-    switch (command) {
-    case 'cmd_executeMacro':
-        if (items.length == 1 && items[0]
-            && items[0].type == 'macro') {
-            return true;
-        } else {
-            return false;
-        }
-        break;
-    case 'cmd_openMacroPart':
-        for (i = 0; i < items.length; i++) {
-            if (items[i].type == 'macro') return true;
-        }
-        return false;
-    default:
-        break;
-    }
-    return false;
-}
-
-peMacro.prototype.isCommandEnabled = peMacro.prototype.supportsCommand;
-
-peMacro.prototype.doCommand = function(command) {
-    var cmd = null;
-    var item = null;
-    switch (command) {
-    case 'cmd_openMacroPart':
-        // get the current selection, then open the file
-        if (ko.projects.active == null) return;
-        var items = ko.projects.active.getSelectedItems();
-        if (!items) return;
-        var paths = [];
-        var i;
-        for (i = 0; i < items.length; i++) {
-            if (items[i].type == 'macro') paths.push(items[i].url);
-        }
-        ko.open.multipleURIs(paths);
-        break;
-    case 'cmd_executeMacro':
-        item = ko.projects.active.getSelectedItem();
-        ko.projects.executeMacro(item);
-        break;
-    default:
-        break;
-    }
-}
-
-// this is hidden away now, no namespce, the registration keeps the reference
-// we need
-ko.projects.registerExtension(new peMacro());
-}).apply();
-
-
-
 (function() { // ko.projects
 var log = ko.logging.getLogger('ko.projects');
 
@@ -293,22 +192,17 @@ function _executeMacro(part, asynchronous, observer_arguments) {
 
 this.macroProperties = function macro_editProperties(item)
 {
-    var obj = new Object();
-    obj.item = item;
-    obj.task = 'edit';
-    //XXX Would be better to get this from the class, but it isn't exposed.
-    obj.imgsrc = 'chrome://komodo/skin/images/macro.png'; 
+    var obj = {item : item,
+               task : 'edit',
+               //XXX Would be better to get this from the class, but it isn't exposed.
+               imgsrc : 'chrome://komodo/skin/images/macro.png'};
     window.openDialog(
         "chrome://komodo/content/project/macroProperties.xul",
         "Komodo:MacroProperties",
         "chrome,centerscreen,close=yes,dependent=no,resizable=yes", obj);
 }
 
-
-
 }).apply(ko.projects);
-
-
 
 (function() {
 

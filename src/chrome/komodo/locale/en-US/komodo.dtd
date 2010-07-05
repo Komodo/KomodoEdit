@@ -361,7 +361,6 @@
 <!ENTITY macroToolbar.tooltiptext "Macro Toolbar">
 <!ENTITY macros.label "Macros">
 <!ENTITY mailLists.label "Mail Lists">
-<!ENTITY makeActiveProject.label "Make Active Project...">
 <!ENTITY makeLowercase.label "Make Lowercase">
 <!ENTITY makeUppercase.label "Make Uppercase">
 <!ENTITY marks.label "Marks">
@@ -551,7 +550,7 @@
 <!ENTITY saveFile.tooltiptext "Save File">
 <!ENTITY saveLastMacroToToolbox.tooltiptext "Save Last Macro to Toolbox">
 <!ENTITY saveProject.label "Save Project">
-<!ENTITY saveProjectAs.label "Save Project As...">
+<!ENTITY renameProject.label "Rename Project...">
 <!ENTITY saveRemotelyAs.label "Save Remotely As...">
 <!ENTITY saveToToolbox.label "Save to Toolbox">
 <!ENTITY scrollCurrentLineToCenterOfScreen.label "Scroll Current Line to Center of Screen">

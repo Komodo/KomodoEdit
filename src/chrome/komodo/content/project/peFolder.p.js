@@ -280,19 +280,6 @@ this.addNewPart = function peFolder_add(type, partviewerId)
             target = partviewer.manager.getCurrentProject();
             ko.projects.active = partviewer;
         }
-// #if PLATFORM == "darwin"
-        if (type == 'menu' || target.type == 'menu') {
-            var _views_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-            .getService(Components.interfaces.nsIStringBundleService)
-            .createBundle("chrome://komodo/locale/views.properties");
-            var message = _views_bundle.GetStringFromName("customMenubarsNotSupportedOnOSX.alert");
-            var text = (_views_bundle.GetStringFromName("bug80697ref.text")
-                        + "\n"
-                        + _views_bundle.GetStringFromName("preferOverlaysToCustomMenus.text"));
-            ko.dialogs.alert(message, text);
-            return;
-        }
-// #endif
 
         // type can be:
         //   'files': add existing files
@@ -300,29 +287,8 @@ this.addNewPart = function peFolder_add(type, partviewerId)
             case 'files':
                 ko.projects.addFile(target);
                 break;
-            case 'snippet':
-                ko.projects.addSnippet(target);
-                break;
-            case 'command':
-                ko.projects.addCommand(target);
-                break;
-            case 'menu':
-                ko.projects.addMenu(target);
-                break;
-            case 'toolbar':
-                ko.projects.addToolbar(target);
-                break;
-            case 'URL':
-                ko.projects.addURL(target);
-                break;
-            case 'macro':
-                ko.projects.addMacro(target);
-                break;
             case 'remotefiles':
                 ko.projects.addRemoteFile(target);
-                break;
-            case 'template':
-                ko.projects.addTemplate(target);
                 break;
             case 'newfile':
                 ko.projects.addNewFileFromTemplate(target);
@@ -345,11 +311,6 @@ this.addNewPart = function peFolder_add(type, partviewerId)
                 dirname = ko.filepicker.getFolder(starting_dir);
                 if (!dirname) return;
                 ko.projects.addLiveFolder(dirname, target);
-                break;
-            case 'changelist':
-                var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterChangeListName"));
-                if (!name) return;
-                ko.projects.addSimplePart(name, target, "changelist");
                 break;
             default:
                 log.error("Unknown item type called to ko.projects.add: " + type);

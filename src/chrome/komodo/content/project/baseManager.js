@@ -69,14 +69,10 @@ BaseManager.prototype.addItem = function(/* koIPart */ part, index) {
 BaseManager.prototype.removeItem = function(item, skipdialog) {
     if (typeof(skipdialog)=='undefined') skipdialog = false;
     if (!skipdialog) {
-        var container;
-        if (this == ko.toolboxes.user) {
-            container = 'Toolbox';
-        } else if (item.project) {
-            container = " project '" + item.project.name + "'";
-        } else {
+        if (!item.project) {
             return false;
         }
+        var container = " project '" + item.project.name + "'";
         var question = "Do you want to remove the " + item.type +
                        " '" +
                        item.name + "' from the " + container + "?";
@@ -439,18 +435,8 @@ this.invalidateItem = function invalidateItem(item)
     }
 }
 
-this.getManagerForItem = function(item) {
-    if (item) {
-        var managers = ko.projects.managers;
-        for (var i=0; i < managers.length; i++) {
-            if (managers[i].hasProject(item.project)) return managers[i];
-        }
-    }
-    return ko.projects.active.manager;
-}
-
 this.addItem = function(item, parent) {
-    var manager = ko.projects.getManagerForItem(parent);
+    var manager = ko.projects.manager;
     manager.addItem(item,parent);
     // Ensure the added item is visible, bug 71373.
     var partindex = ko.projects.active.getIndexByPart(item);
@@ -506,10 +492,8 @@ this.sortByDirectionOnPopupShowing = function project_sortByDirectionOnPopupShow
         var viewMgr;
         if (partType == "project") {
             viewMgr = ko.projects.manager.viewMgr;
-        } else if (partType == "toolbox") {
-            viewMgr = ko.toolboxes.user.viewMgr;
-        } else if (partType == "shared toolbox") {
-            viewMgr = ko.toolboxes.shared.viewMgr;
+        } else {
+            throw new Error("ko.projects.sortByDirectionOnPopupShowing: Unexpected partType of '" + partType + "'");
         }
         isSortedColumn = (viewMgr.sortBy == menu.getAttribute("datapointname"));
         currentSortDir = viewMgr.sortDir;
@@ -584,10 +568,8 @@ this.sortByMenuHandler = function project_sortByMenuHandler(menuitem, sortDir) {
         var viewMgr;
         if (partType == "project") {
             viewMgr = ko.projects.manager.viewMgr;
-        } else if (partType == "toolbox") {
-            viewMgr = ko.toolboxes.user.viewMgr;
-        } else if (partType == "shared toolbox") {
-            viewMgr = ko.toolboxes.shared.viewMgr;
+        } else {
+            throw new Error("ko.projects.sortByMenuHandler: Unexpected partType of '" + partType + "'");
         }
         viewMgr.sort(sort_column, sortDir);
     }

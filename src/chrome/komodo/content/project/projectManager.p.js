@@ -60,10 +60,10 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 this.manager = null;
 
-var _activeView = null;
-
 var _obSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
+
+var _activeView = null;
 
 
 /**
@@ -82,17 +82,25 @@ function(view)
     _activeView = view;
 });
 
+//gone: ko.projects.manager.lastCurrentProject
+//gone: ko.projects.manager._projects
+//gone: ko.projects.manager.getProjectsMenu (and xul tag)
+//gone: ko.projects.manager.hasProject
+//gone: ko.projects.manager.managers
+//gone: ko.projects.manager.getAllProjects
+
+//gone: ko.toolboxes.importPackage -- can't import packages into toolboxes now
 /**
  * does the active view have real focus, if so, return it, otherwise null.
  */
 this.getFocusedProjectView = function projects_getFocusedProjectView() {
-    if (_activeView && xtk.domutils.elementInFocus(_activeView.manager.viewMgr))
+    if (_activeView && xtk.domutils.elementInFocus(_activeView.manager.viewMgr)) {
         return _activeView;
+    }
     return null;
 }
 
-//----- The projectManager class manages the set of open projects and
-// which project is 'current'.
+//----- The projectManager class manages the current project, if there is one.
 
 function projectManager() {
     this.name = 'projectManager';
@@ -105,7 +113,7 @@ function projectManager() {
         return;
     }
     this.viewMgr.onLoad(this);
-    ko.projects.managers.push(this);
+    this.currentProject = null;
     // Make sure that there is always a active view
     ko.projects.active = this.viewMgr;
     // register our command handlers
@@ -113,46 +121,11 @@ function projectManager() {
     // add our default datapoint
     this.viewMgr.addColumns(ko.projects.extensionManager.datapoints);
     ko.projects.extensionManager.datapoints['Name']='name';
-    this._lastCurrentProject = null;
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
 projectManager.prototype = new ko.projects.BaseManager();
 projectManager.prototype.constructor = projectManager;
-
-projectManager.prototype.getProjectsMenu = function(popup)
-{
-    // used by top level project->set active menu
-    var children = popup.childNodes;
-    var i,mi;
-    for (i = children.length - 1; i >= 0; i--) {
-        popup.removeChild(children[i]);
-    }
-    if (this._projects.length > 0) {
-        for (var project in this._projects) {
-            mi = document.createElementNS(XUL_NS, 'menuitem');
-            mi.setAttribute('label',this._projects[project].name);
-            mi.setAttribute('oncommand','ko.projects.manager.setCurrentProject(this.value);');
-            mi.setAttribute('type','checkbox');
-            mi.value = this._projects[project];
-            if (this.currentProject == this._projects[project]) {
-                mi.setAttribute('checked','true');
-            }
-            popup.appendChild(mi);
-        }
-    } else {
-        // add an 'empty' menu item
-        mi = document.createElementNS(XUL_NS, 'menuitem');
-        mi.setAttribute('label', _bundle.GetStringFromName("noOpenProjects.label"));
-        mi.setAttribute('disabled','true');
-        popup.appendChild(mi);
-    }
-    return true;
-}
-
-projectManager.prototype.hasProject = function(project) {
-    return this._projects.indexOf(project) > -1;
-}
 
 projectManager.prototype._getOpenURLsInProject = function(project) {
     // Find out if any child elements are currently open
@@ -208,34 +181,30 @@ projectManager.prototype._saveProjectViewState = function(project) {
 }
 
 projectManager.prototype.closeProjectEvenIfDirty = function(project) {
+    if (typeof(project) == "undefined") project = this.currentProject;
+    if (!project) {
+        // No project to close.
+        return true;
+    }
     // Remove the project node/part from the Projects tree.
     this.viewMgr.view.removeProject(project);
     // the active project has been reset
-    if (this.currentProject) {
-        this._lastCurrentProject = this.currentProject;
-    }
-
     // Forget about any notifications made for this project.
     this.notifiedClearProject(project);
-
-    // remove the project from our list
-    try {
-        var id = this._projects.indexOf(project);
-        this._projects.splice(id, 1);
-    } catch(e) {
-        // XXX FIXME SMC currently broken with live projects
-    }
     project.close();
-
+    this.currentProject = null;
     ko.mru.addURL("mruProjectList", project.url);
-    if (this._projects.length == 0) {
-        window.updateCommands('some_projects_open');
-    }
+    window.updateCommands('some_projects_open');
     this.viewMgr.view.invalidate();
     return true;
 }
 
-projectManager.prototype.closeProject = function(project) {
+projectManager.prototype.closeProject = function(project /*=this.currentProject*/) {
+    if (typeof(project) == "undefined") project = this.currentProject;
+    if (!project) {
+        // No project to close.
+        return true;
+    }
     if (project.isDirty) {
         var question = _bundle.formatStringFromName("saveChangesToProject.message", [project.name], 1);
         var answer = ko.dialogs.yesNoCancel(question);
@@ -280,37 +249,18 @@ projectManager.prototype.closeProject = function(project) {
     return this.closeProjectEvenIfDirty(project);
 }
 
-/**
- * Return a list of the opened Komodo projects.
- * 
- * @returns {array} - A copy of the projects list.
- */
-projectManager.prototype.getAllProjects= function() {
-    return this._projects.slice();
-}
-
-projectManager.prototype.getDirtyProjects= function() {
-    var dirty = new Array();
-    for (var i = 0; i < this._projects.length; i++) {
-        if (this._projects[i].isDirty) {
-            dirty.push(this._projects[i]);
-        }
-    }
-    return dirty;
+projectManager.prototype.getDirtyProjects = function() {
+    return (this.currentProject && this.currentProject.isDirty
+            ? [this.currentProject]
+            : []);
 }
 
 projectManager.prototype.closeAllProjects = function() {
-    for (var i = this._projects.length - 1; i >= 0; i--) {
-        if (!this.closeProject(this._projects[i])) return false;
-    }
-    return true;
+    return this.closeProject();
 }
 
 projectManager.prototype.closeAllProjectsEvenIfDirty = function() {
-    for (var i = this._projects.length - 1; i >= 0; i--) {
-        if (!this.closeProjectEvenIfDirty(this._projects[i])) return false;
-    }
-    return true;
+    return this.closeProjectEvenIfDirty();
 }
 
 projectManager.prototype._notified_projects = {};
@@ -424,6 +374,9 @@ projectManager.prototype.saveProject = function(project, skip_scc_check) {
 }
 
 projectManager.prototype.newProject = function(url) {
+    if (!this.closeProject()) {
+        return false;
+    }
     var project = Components.classes["@activestate.com/koProject;1"]
                                         .createInstance(Components.interfaces.koIProject);
     project.create();
@@ -451,6 +404,9 @@ projectManager.prototype._saveNewProject = function(project) {
 projectManager.prototype.newProjectFromTemplate = function() {
     try {
         this.log.info("doing newTemplate: ");
+        if (!this.closeProject()) {
+            return false;
+        }
         var lastErrorSvc = Components.classes['@activestate.com/koLastErrorService;1'].getService();
         var template;
         // Get template selection from the user.
@@ -479,10 +435,22 @@ projectManager.prototype.newProjectFromTemplate = function() {
 
         var ok = this._saveNewProject(project);
         if (ok) {
-            // run the creation macro
-            var macro = project.getChildWithTypeAndStringAttribute('macro', 'name', 'oncreate', 1);
-            if (macro)
-                ko.projects.executeMacro(macro);
+            var toolbox = ko.toolbox2.getProjectToolbox(project.url);
+            if (toolbox) {
+                // run the creation macro
+                var macro = toolbox.getChildByTypeAndName('macro', 'oncreate', 1);
+                if (macro) {
+                    ko.projects.executeMacro(macro);
+                } else {
+                    this.log.debug("No oncreate macro found");
+                }
+            } else {
+                this.log.debug("No toolbox found at "
+                               + project.getFile().path);
+            }
+        } else {
+            this.log.debug("Couldn't save the new project "
+                           + project.getFile().path);
         }
         return ok;
     } catch(ex) {
@@ -574,7 +542,6 @@ projectManager.prototype.loadProject = function(url) {
 }
 
 projectManager.prototype._addProject = function(project) {
-    this._projects[this._projects.length] = project;
     // add project to project tree
     this.viewMgr.view.addProject(project);
     this.viewMgr.view.refresh(project);
@@ -594,12 +561,8 @@ projectManager.prototype._addProject = function(project) {
 }
 
 projectManager.prototype.getProjectByURL = function(url) {
-    for (var i = this._projects.length - 1; i >= 0; --i) {
-        var project = this._projects[i];
-        if (project.url == url) {
-            return project;
-        }
-    }
+    if (!this.currentProject) return null;
+    if (this.currentProject.url == url) return this.currentProject;
     return null;
 }
 
@@ -607,21 +570,6 @@ projectManager.prototype.__defineSetter__("currentProject",
 function(project)
 {
     this.viewMgr.view.currentProject = project;
-    this._lastCurrentProject = project;
-    /* XXX FIXME SMC old logic, broken with live projects
-    if (this._projects.indexOf(project) >= 0) {
-        this.viewMgr.view.currentProject = project;
-    } else {
-        log.error("trying to set a project as current project, but it is not in the projects list "+project.name+" "+this._projects.indexOf(project)+"\n");
-        dump("projects...\n");
-        for (var i = 0; i < this._projects.length; i++) {
-            dump("   project "+i+" is "+ this._projects[i].name+"\n");
-            dump("    "+this._projects[i].QueryInterface(Components.interfaces.nsISupports)+" == "+project.QueryInterface(Components.interfaces.nsISupports)+" ? "+(this._projects[i].QueryInterface(Components.interfaces.nsISupports)==project.QueryInterface(Components.interfaces.nsISupports)?"YES":"NO")+"\n");
-            this._projects[i].dump(0);
-        }
-        project.dump(0);
-    }
-    */
     this.refreshView();
     window.updateCommands('current_project_changed');
 });
@@ -636,21 +584,11 @@ function()
     return this.viewMgr.view.currentProject;
 });
 
-projectManager.prototype.__defineGetter__("lastCurrentProject",
-function()
-{
-    // At shutdown the projects are unloaded from the view
-    // before the saveWorkspace routine runs.
-    return this._lastCurrentProject;
-});
-
 projectManager.prototype.getCurrentProject = function() {
     return this.currentProject;
 }
 
 projectManager.prototype.getSelectedProject = function() {
-    var node = this.viewMgr.view.getSelectedItem();
-    if (node) return node.project;
     return this.currentProject;
 }
 
@@ -663,7 +601,7 @@ projectManager.prototype.registerCommands = function() {
     em.registerCommand("cmd_setActiveProject",this);
     em.registerCommand("cmd_closeProject",this);
     em.registerCommand("cmd_saveProject",this);
-    em.registerCommand("cmd_saveProjectAs",this);
+    em.registerCommand("cmd_renameProject",this);
     em.registerCommand("cmd_saveProjectAsTemplate",this);
     em.registerCommand("cmd_revertProject",this);
     em.registerCommand("cmd_importFromFS_Project",this);
@@ -679,7 +617,7 @@ projectManager.prototype.registerCommands = function() {
     em.createMenuItem(Components.interfaces.koIProject,
         _bundle.GetStringFromName("saveProject.label"), 'cmd_saveProject');
     em.createMenuItem(Components.interfaces.koIProject,
-        _bundle.GetStringFromName("saveProjectAs.label"), 'cmd_saveProjectAs');
+        _bundle.GetStringFromName("renameProject.label"), 'cmd_renameProject');
     em.createMenuItem(Components.interfaces.koIProject,
         _bundle.GetStringFromName("createTemplateFromProject.label"), 'cmd_saveProjectAsTemplate');
     em.createMenuItem(Components.interfaces.koIProject,
@@ -699,7 +637,7 @@ projectManager.prototype.supportsCommand = function(command, item) {
     case "cmd_openProject":
     case "cmd_openProjectFromURL":
     case "cmd_closeProject":
-    case "cmd_saveProjectAs":
+    case "cmd_renameProject":
     case "cmd_importPackageToToolbox":
     case "cmd_saveProjectAsTemplate":
     case "cmd_importFromFS_Project":
@@ -745,7 +683,7 @@ projectManager.prototype.isCommandEnabled = function(command) {
         return this.currentProject != null && !this.currentProject.live;
     case "cmd_findInCurrProject":
     case "cmd_replaceInCurrProject":
-    case "cmd_saveProjectAs":
+    case "cmd_renameProject":
         return this.getSelectedProject() != null;
     }
     } catch(e) {
@@ -764,7 +702,7 @@ projectManager.prototype.doCommand = function(command) {
     case "cmd_newProject":
         filename = ko.filepicker.saveFile(
             null, // defaultDir
-            _bundle.GetStringFromName("newProject.defaultFileName") + ".kpf", // defaultFilename
+            _bundle.GetStringFromName("newProject.defaultFileName") + ".komodoproject", // defaultFilename
             _bundle.GetStringFromName("newProject.title"), // title
             _bundle.GetStringFromName("komodoProject.message"), // defaultFilterName
                 [_bundle.GetStringFromName("komodoProject.message"),
@@ -801,8 +739,8 @@ projectManager.prototype.doCommand = function(command) {
     case "cmd_revertProject":
         this.revertProject(this.getSelectedProject());
         break;
-    case "cmd_saveProjectAs":
-        ko.projects.saveProjectAs(this.getSelectedProject());
+    case "cmd_renameProject":
+        ko.projects.renameProject(this.getSelectedProject());
         break;
     case "cmd_saveProjectAsTemplate":
         this.saveProjectAsTemplate(this.getSelectedProject());
@@ -897,85 +835,65 @@ projectManager.prototype.addItem = function(/* koIPart */ part, /* koIPart */ pa
 
 
 projectManager.prototype.getItemsByURL = function(url, type) {
-    var items = [];
-    var item;
-    for (var i in this._projects) {
-        item = this.findItemByURLInProject(this._projects[i], type, url);
-        if (item != null) items.push(item);
+    if (this.currentProject) {
+        var item = this.findItemByURLInProject(this.currentProject, type, url);
+        if (item != null) return [item];
     }
-    return items;
+    return [];
 }
 
 projectManager.prototype.getPartsByURL = function(url) {
-    var part;
-    var parts = [];
-    for (var i in this._projects) {
-        part = this._projects[i].getChildByAttributeValue('url', url, true);
-        if (part != null) parts.push(part);
+    if (this.currentProject) {
+        var part = this.currentProject.getChildByAttributeValue('url', url, true);
+        if (part != null) return [part];
     }
-    return parts;
+    return [];
 }
 
 /* We may need to optimize this if these functions end up being called a lot
   Currently they're only called when the GUI builder creates new files */
 
 projectManager.prototype.findItemByURL = function(url) {
-    for (var i in this._projects) {
-        var item = this.findItemByURLInProject(this._projects[i], null, url);
+    if (this.currentProject) {
+        var item = this.findItemByURLInProject(this.currentProject, null, url);
         if (item != null) return item;
     }
     return null;
 }
 
 projectManager.prototype.isLivePath = function(url) {
-    for (var i in this._projects) {
-        if (this._projects[i].containsLiveURL(url)) return true;
-    }
-    return false;
+    return this.currentProject && this.currentProject.containsLiveURL(url);
 }
 
-projectManager.prototype.findItemByURLInProject = function (project, type, url) {
+projectManager.prototype.findItemByURLInProject = function(project, type, url) {
     var child = project.getChildWithTypeAndStringAttribute(type, "url", url, true);
     if (child) return child;
     if (project.url == url || (project.hasAttribute('url')
-            && project.getStringAttribute('url') == url)) {
+                               && project.getStringAttribute('url') == url)) {
         return project;
     }
     return null;
 }
 
 projectManager.prototype.findItemByAttributeValue = function(attribute, value) {
-    var item;
-    for (var i in this._projects) {
-        item = this.findChildByAttributeValue(this._projects[i], attribute, value);
+    if (this.currentProject) {
+        var item = this.findChildByAttributeValue(this.currentProject, attribute, value);
         if (item != null) return item;
     }
     return null;
 }
 
-projectManager.prototype.findPartByTypeAttributeValue= function (type, attribute, value) {
-    var part;
+projectManager.prototype.findPartByTypeAttributeValue = function(type, attribute, value) {
     if (this.currentProject) {
-        part = this.currentProject.getChildWithTypeAndStringAttribute(type,attribute, value, true);
-        if (part) return part;
-    }
-    for (var i in this._projects) {
-        if (this._projects[i] == this.currentProject) continue; // skip current project, already looked there
-        part = this._projects[i].getChildWithTypeAndStringAttribute(type,attribute, value, true);
+        var part = this.currentProject.getChildWithTypeAndStringAttribute(type,attribute, value, true);
         if (part) return part;
     }
     return null;
 }
 
-projectManager.prototype.findPartByAttributeValue= function (attribute, value) {
-    var part;
+projectManager.prototype.findPartByAttributeValue = function(attribute, value) {
     if (this.currentProject) {
-        part = this.currentProject.getChildByAttributeValue(attribute, value, true);
-        if (part) return part;
-    }
-    for (var i in this._projects) {
-        if (this._projects[i] == this.currentProject) continue; // skip current project, already looked there
-        part = this._projects[i].getChildByAttributeValue(attribute, value, true);
+        var part = this.currentProject.getChildByAttributeValue(attribute, value, true);
         if (part) return part;
     }
     return null;
@@ -983,19 +901,14 @@ projectManager.prototype.findPartByAttributeValue= function (attribute, value) {
 
 projectManager.prototype.getState = function ()
 {
-    if (this._projects.length == 0) {
+    if (!this.currentProject) {
         return null; // persist nothing
     }
     // Return a pref to add to the persisted 'workspace'
     var opened_projects = Components.classes['@activestate.com/koOrderedPreference;1'].createInstance();
     opened_projects.id = 'opened_projects';
-    var i, project, url;
-    for (i = 0; i < this._projects.length; i++) {
-        project = this._projects[i];
-        url = project.url;
-        this.viewMgr.view.savePrefs(project);
-        opened_projects.appendStringPref(url);
-    }
+    this.viewMgr.view.savePrefs(this.currentProject);
+    opened_projects.appendStringPref(this.currentProject.url);
     return opened_projects;
 }
 
@@ -1038,6 +951,9 @@ projectManager.prototype.effectivePrefs = function () {
 
 
 this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* false */) {
+    if (!this.manager.closeProject()) {
+        return false;
+    }
     var action = null;
     var opened_files = [];
     if (typeof(skipRecentOpenFeature) == 'undefined') {
@@ -1079,44 +995,51 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
     }
 }
 
-this.saveProjectAs = function ProjectSaveAs(project)
+/*
+ * renameProject: a downgraded version of saveProjectAs, because
+ * copying a v5-style project to a different directory leavs all
+ * the file links pointing back at the original directory.
+ */
+this.renameProject = function ProjectRename(project)
 {
-    var localPath = ko.filepicker.saveFile(
-            null, project.url, // default dir and filename
-            _bundle.GetStringFromName("saveprojectas.title"), // title
-            _bundle.GetStringFromName("komodoProject.message"), // default filter name
-                [_bundle.GetStringFromName("komodoProject.message"),
-                _bundle.GetStringFromName("all.message")]); // filter names to show
-    if (localPath == null) {
-        return false;
+    var oldKoFile = project.getFile();
+    if (!oldKoFile.isLocal) {
+        ko.dialogs.alert("Sorry, only local projects can be renamed");
+        return;
     }
-    var url = ko.uriparse.localPathToURI(localPath);
-
-    if (ko.projects.manager.getProjectByURL(url) != null) {
-        ko.dialogs.alert(_bundle.formatStringFromName("projectIsAlreadyLoaded.alert",
-            [url], 1));
-        return false;
+    var newname = ko.dialogs.renameFileWrapper(project.name);
+    if (!newname) {
+        return;
     }
-
-    project.url = url;
-    project.name = ko.uriparse.baseName(url);
+    if (!this.manager.closeProject()) {
+        return;
+    }
+    var osSvc = Components.classes["@activestate.com/koOs;1"]
+        .getService(Components.interfaces.koIOs);
+    var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
+        .getService(Components.interfaces.koIOsPath);
+    var newPath = osPathSvc.join(oldKoFile.dirName, newname);
     try {
-        project.save();
+        osSvc.rename(oldKoFile.path, newPath);
+        var newURL = ko.uriparse.localPathToURI(newPath);
+        this.open(newURL);
+        var newProject = this.manager.currentProject;
+        if (newProject) {
+            // Update the project's name field.
+            newProject.name = newname;
+            newProject.save();
+            _obSvc.notifyObservers(this, 'project_renamed', newURL + "##" + newname);
+        }
     } catch(ex) {
-        var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
-            getService(Components.interfaces.koILastErrorService);
-        ko.dialogs.alert(_bundle.formatStringFromName("thereWasAnErrorSavingProject.alert",
-            [project.name, lastErrorSvc.getLastErrorMessage()], 2));
-        return false;
+        ko.dialogs.alert("Failed to rename "
+                         + oldKoFile.path
+                         + " to "
+                         + newPath
+                         + ": "
+                         + ex);
+        // Reopen the project.
+        this.open(oldKoFile.URI);
     }
-
-    // Update the MRU projects list.
-    ko.mru.addURL("mruProjectList", url);
-    try {
-        _obSvc.notifyObservers(this,'file_changed', project.url);
-    } catch(e) { /* exception if no listeners */ }
-    window.updateCommands('project_dirty');
-    return true;
 }
 
 this.onload = function() {
@@ -1124,32 +1047,20 @@ this.onload = function() {
     ko.projects.manager = new projectManager();
 }
 
-// support parts_reload which is notified from keybindings manager
-
 this.handle_parts_reload = function() {
-    var managers = ko.projects.managers;
-    for (var i=0; i < managers.length; i++) {
-        managers[i].applyPartKeybindings();
-    }
+    this.manager.applyPartKeybindings();
 };
 
 // Backwards Compatibility API
-var _deprecated_getters_noted = {};
 this.addDeprecatedGetter = function(deprecatedName, ko_project_name) {
     if (typeof(ko_project_name) == "undefined") {
         ko_project_name = deprecatedName;
     }
     __defineGetter__(deprecatedName,
          function() {
-            if (!(deprecatedName in _deprecated_getters_noted)) {
-                _deprecated_getters_noted[deprecatedName] = true;
-                ko.projects.manager.log.error("DEPRECATED: "
-                                              + deprecatedName
-                                              + ", use ko.projects."
-                                              + ko_project_name
-                                              + "\n");
-                         }
-                         return ko.projects[ko_project_name];
+             this._deprecatedNameTest(deprecatedName,
+                                      "ko.projects." + ko_project_name);
+             return ko.projects[ko_project_name];
         });
 }
 

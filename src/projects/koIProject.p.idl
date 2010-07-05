@@ -259,18 +259,6 @@ interface koIPart_snippet: koIPart {
 };
 
 
-[scriptable, uuid(4FCEB967-6C72-41fc-9668-D81EAB1577DC)]
-interface koIPart_template: koIPart {
-    // The 'template' koIPart (as best as I can tell --TM) uses the following
-    // attributes:
-    //      "name" (string) is the name of the template, typically this is
-    //          the basename of the template URI. The name extension currently
-    //          implies the template language.
-    //
-    // The .value attribute is the template URI.
-};
-
-
 [scriptable, uuid(4DA537A9-6E1F-4c52-A602-50D09FD61E30)]
 interface koIPart_command: koIPart {
     // The 'command' koIPart uses the following attributes (see

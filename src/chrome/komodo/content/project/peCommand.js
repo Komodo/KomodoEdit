@@ -47,99 +47,6 @@ if (typeof(ko.projects)=='undefined') {
 }
 
 (function() {
-//---- The extension implementation.
-
-function peCommand() {
-    this.name = 'peCommand';
-}
-
-// The following two lines ensure proper inheritance (see Flanagan, p. 144).
-peCommand.prototype.constructor = peCommand;
-
-peCommand.prototype.init = function() {
-}
-
-peCommand.prototype.registerCommands = function() {
-    ko.projects.extensionManager.registerCommand('cmd_runCommand', this);
-}
-
-peCommand.prototype.registerEventHandlers = function() {
-    ko.projects.extensionManager.addEventHandler(Components.interfaces.koIPart_command,
-                                     'ondblclick', this);
-}
-
-peCommand.prototype.registerMenus = function() {
-    ko.projects.extensionManager.createMenuItem(Components.interfaces.koIPart_command,
-                                    'Run', 'cmd_runCommand',
-                                    null,
-                                    null,
-                                    true);
-}
-
-peCommand.prototype.ondblclick = function(item,event) {
-    if (item.type != 'command') return;
-    ko.projects.runCommand(item);
-}
-
-peCommand.prototype.supportsCommand = function(command, part) {
-    var view = ko.projects.active;
-    if (!view) return false;
-    //dump("supportsCommand for " + command +'\n');
-    switch (command) {
-    case 'cmd_runCommand':
-        var items = ko.projects.active.getSelectedItems();
-        if (items.length == 1 && items[0]
-            && items[0].type == 'command') {
-            return true;
-        } else {
-            return false;
-        }
-    default:
-        break;
-    }
-    return false;
-}
-
-peCommand.prototype.isCommandEnabled = peCommand.prototype.supportsCommand;
-
-peCommand.prototype.doCommand = function(command) {
-    var item = null;
-    switch (command) {
-    case 'cmd_runCommand':
-        item = ko.projects.active.getSelectedItem();
-        ko.projects.runCommand(item);
-        break;
-    default:
-        break;
-    }
-}
-
-// this is hidden away now, no namespce, the registration keeps the reference
-// we need
-ko.projects.registerExtension(new peCommand());
-}).apply();
-
-
-(function() {
-
-
-this.addCommand = function peCommand_addCommand(item)
-{
-    var part = item.project.createPartFromType('command');
-    part.setStringAttribute('name', "New Command");
-    var obj = new Object();
-    obj.part = part;
-    ko.windowManager.openOrFocusDialog(
-        "chrome://komodo/content/run/commandproperties.xul",
-        "Komodo:CommandProperties",
-        "chrome,close=yes,modal=yes,dependent=yes,centerscreen",
-        obj);
-    if (obj.retval == "OK") {
-        if (typeof(item)=='undefined' || !item)
-            item = ko.projects.active.getSelectedItem();
-        ko.projects.addItem(part,item);
-    }
-}
 
 this.commandProperties = function command_editProperties(item)
 {
@@ -202,4 +109,6 @@ setTimeout(function() {
 ko.projects.addDeprecatedGetter("peCommand_addCommand", "addCommand");
 ko.projects.addDeprecatedGetter("command_editProperties", "commandProperties");
 ko.projects.addDeprecatedGetter("Run_CommandPart", "runCommand");
-    },1);
+ko.views.addDeprecatedGetter('ko.projects.addCommand', 'toolbox2', 'add_command');
+    }, 1);
+

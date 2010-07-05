@@ -1503,8 +1503,8 @@
             tooltiptext="&reImportFromFileSystemWithTheSameSettings.tooltiptext;"
             desc="&generalPerformTheImportFromFileSystemAgainRefreshes.desc;"/>
         <command
-            id="cmd_saveProjectAs" key="key_cmd_saveProjectAs"
-            oncommand="ko.commands.doCommandAsync('cmd_saveProjectAs', event)"
+            id="cmd_renameProject" key="key_cmd_renameProject"
+            oncommand="ko.commands.doCommandAsync('cmd_renameProject', event)"
             disabled="true"
             desc="&generalSaveProjectAs.desc;"/>
         <command

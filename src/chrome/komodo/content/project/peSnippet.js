@@ -65,23 +65,9 @@ peSnippet.prototype.registerCommands = function() {
     ko.projects.extensionManager.registerCommand('cmd_makeSnippetFromSelection', this);
 }
 
-peSnippet.prototype.registerEventHandlers = function() {
-    ko.projects.extensionManager.addEventHandler(Components.interfaces.koIPart_snippet,'ondblclick',this);
-}
+peSnippet.prototype.registerEventHandlers = function() {}
 
-peSnippet.prototype.registerMenus = function() {
-    ko.projects.extensionManager.createMenuItem(Components.interfaces.koIPart_snippet,
-                                    'Insert Snippet',
-                                    'cmd_insertSnippet',
-                                    null,
-                                    null,
-                                    true);
-}
-
-peSnippet.prototype.ondblclick = function(item,event) {
-    if (item.type != 'snippet') return;
-    ko.projects.snippetInsert(item);
-}
+peSnippet.prototype.registerMenus = function() {}
 
 peSnippet.prototype.supportsCommand = function(command, part) {
     if (command == 'cmd_makeSnippetFromSelection') return true;

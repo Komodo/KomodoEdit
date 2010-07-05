@@ -383,7 +383,6 @@ window.onload = function(event) {
                 ko.toolbox2.onload();
                 ko.projects.onload();
 
-                ko.toolboxes.onload();
                 ko.uilayout.onload();
             } catch(ex) {
                 _log.exception(ex);

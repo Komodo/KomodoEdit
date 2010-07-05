@@ -945,6 +945,10 @@ class KoFindOptions:
         self.multilinePrefName = "find-multiline"
         self.confirmReplacementsInFilesPrefName = "find-confirmReplacementsInFiles"
 
+        global gPrefSvc
+        if gPrefSvc is None:
+            gPrefSvc = components.classes["@activestate.com/koPrefService;1"]\
+                       .getService(components.interfaces.koIPrefService)
         self.patternType = gPrefSvc.prefs.getLongPref(self.patternTypePrefName)
         self.caseSensitivity = gPrefSvc.prefs.getLongPref(self.caseSensitivityPrefName)
         self.matchWord = gPrefSvc.prefs.getBooleanPref(self.matchWordPrefName)
@@ -1111,8 +1115,9 @@ class KoFindService(object):
 
     def __init__(self):
         global gPrefSvc, gLastErrorSvc
-        gPrefSvc = components.classes["@activestate.com/koPrefService;1"]\
-                  .getService(components.interfaces.koIPrefService)
+        if gPrefSvc is None:
+            gPrefSvc = components.classes["@activestate.com/koPrefService;1"]\
+                       .getService(components.interfaces.koIPrefService)
         gLastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                        .getService(components.interfaces.koILastErrorService)
 

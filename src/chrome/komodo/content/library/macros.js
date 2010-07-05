@@ -214,14 +214,14 @@ MacroRecorder.prototype.saveToToolbox = function(macro) {
     var name = ko.dialogs.prompt(_bundle.GetStringFromName("macroName"),
                                  _bundle.GetStringFromName("enterNameForNewMacro"));
     if (!name) return;
-    var part = ko.toolboxes.user.toolbox.createPartFromType('macro');
+    var part = ko.toolbox2.createPartFromType('macro');
     part.setStringAttribute('name', name);
     part.setStringAttribute('language', 'JavaScript');
     part.setBooleanAttribute('async', false);
     part.setBooleanAttribute('trigger_enabled', false);
     part.setStringAttribute('trigger', "trigger_postopen");  // just to have something
     part.value = this._currentMacro.join('');
-    ko.toolboxes.user.addItem(part);
+    ko.toolbox2.addItem(part);
     ko.uilayout.ensureTabShown('toolbox2_tab');
 }
 

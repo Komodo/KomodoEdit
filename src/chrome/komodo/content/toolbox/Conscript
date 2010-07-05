@@ -20,5 +20,6 @@ Import(
 
 $cons->Preprocess('toolbox2.p.js', 'toolbox2.js');
 $cons->InstallInChrome('toolbox2.js');
+$cons->Preprocess('toolbox2_command.p.js', 'toolbox2_command.js');
 $cons->InstallInChrome('toolbox2_command.js');
 

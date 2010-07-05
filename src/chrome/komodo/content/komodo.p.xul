@@ -379,48 +379,6 @@
                   keep="true"
                   />
     </menupopup>
-    <menupopup id="toolboxContext">
-        <menuseparator anonid="primaryseparator"
-                       keep_background="true"
-                       keep="true"/>
-        <menuitem id="toolboxContextMenu_cut"
-                  observes="cmd_cut"
-                  label="&cut.label;"
-                  keep="true"
-                  class="menuitem-iconic cut-button"
-                  />
-        <menuitem id="toolboxContextMenu_copy"
-                  observes="cmd_copy"
-                  label="&copy.label;"
-                  class="menuitem-iconic copy-button"
-                  keep="true"
-                  />
-        <menuitem id="toolboxContextMenu_partPaste"
-                  observes="cmd_paste"
-                  keep_background="true"
-                  class="menuitem-iconic paste-button"
-                  label="&paste.label;"
-                  keep="true"
-                  />
-        <menuseparator anonid="secondaryseparator"
-                       keep="true"
-                       />
-        <menuitem id="toolboxContextMenu_delete"
-                  observes="cmd_delete"
-                  label="&delete.label;"
-                  class="menuitem-iconic list-item-remove-icon"
-                  keep="true"
-                  />
-        <menuseparator keep="true"
-                       intoplevel="true"/>
-        <menuitem id="toolboxContextMenu_editProperties"
-                  observes="cmd_editProperties"
-                  label="&properties.label;"
-                  intoplevel="true"
-                  keep="true"
-                  />
-    </menupopup>
-
     <menupopup id="toolbox2Context" onpopupshowing="ko.toolbox2.updateContextMenu(event, this);">
         <menuitem id="toolbox2ContextMenu_importFilesFromFileSystem"
                   label="&importFilesFromFileSystem.label;"
@@ -539,6 +497,7 @@
                   oncommand="ko.toolbox2.invoke_insertSnippet(event)"
                   hideUnless="snippet"
                   testDisableIf="t:multipleSelection"
+                  testDisableUnless="cmd:cmd_insertSnippet"
                   />
         <menuitem id="toolbox2ContextMenu_runCommand"
                   label="&run.label;"
@@ -810,9 +769,9 @@
                                       id="menu_saveProject"
                                       observes="cmd_saveProject"
                                       />
-                            <menuitem label="&saveProjectAs.label;"
-                                      id="menu_saveProjectAs"
-                                      observes="cmd_saveProjectAs"
+                            <menuitem label="&renameProject.label;"
+                                      id="menu_renameProject"
+                                      observes="cmd_renameProject"
                                       />
                             <menuseparator/>
                             <menuitem label="&refreshStatus.label;"
@@ -1448,12 +1407,14 @@
                                       id="menu_projectOpenProject"
                                       observes="cmd_openProject"
                                       />
-                            <menu label="&makeActiveProject.label;"
+<!--
+                            <menu label="&moose.makeActiveProject.label;"
                                   id="menu_projectMakeActive"
                                   observes="broadcaster_projectCurrent">
                                 <menupopup  id="menu_projectMakeActive_popup"
                                     onpopupshowing="ko.projects.manager.getProjectsMenu(this);"/>
                             </menu>
+-->
                             <menu id="menu_projectAdd" label="&add.label;" accesskey="&menuProjectAdd.accesskey;"
                                   observes="broadcaster_projectCurrent">
                                   <menupopup id="projectAdd_popup" partviewer="projectview"
@@ -1483,9 +1444,9 @@
                                       id="menu_saveProject"
                                       observes="cmd_saveProject"
                                       />
-                            <menuitem label="&saveProjectAs.label;"
-                                      id="menu_saveProjectAs"
-                                      observes="cmd_saveProjectAs"
+                            <menuitem label="&renameProject.label;"
+                                      id="menu_renameProject"
+                                      observes="cmd_renameProject"
                                       />
                             <menuitem label="&createTemplateFromProject.label;"
                                       id="menu_saveProjectAsTemplate"

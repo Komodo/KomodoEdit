@@ -57,6 +57,8 @@ interface koIToolBox2Service: nsISupports {
     attribute koITool runningMacro;
     koITool getStandardToolbox();
     koITool getSharedToolbox();
+    koITool getExtensionToolbox(in wstring extensionName);
+    koITool getProjectToolbox(in wstring uri);
     long getStandardToolboxID();
     void importDirectory(in string parentPath,
                          in wstring pathToImport);

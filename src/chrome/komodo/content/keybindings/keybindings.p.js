@@ -1059,7 +1059,6 @@ this.manager.prototype.revertToPref = function(configname) {
     this.currentConfiguration = configname;
     this.currentScheme = this.keybindingSchemeService.getScheme(this.currentConfiguration);
     this.loadConfiguration(this.currentConfiguration);
-    ko.projects.handle_parts_reload();
 }
 
 this.manager.prototype.saveAndApply = function(prefset) {
@@ -1081,7 +1080,6 @@ this.manager.prototype.saveAndApply = function(prefset) {
         this.saveCurrentConfiguration();
         this._saveKnownConfigs();
         this.loadConfiguration(this.currentConfiguration, true);
-        ko.projects.handle_parts_reload();
     } catch (e) {
         _log.exception(e);
     }

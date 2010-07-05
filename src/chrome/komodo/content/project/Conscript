@@ -82,7 +82,6 @@ $cons->InstallInChrome('peFile.js');
 $cons->Preprocess('peFolder.p.js', 'peFolder.js');
 $cons->InstallInChrome('peFolder.js');
 $cons->InstallInChrome('peSnippet.js');
-$cons->InstallInChrome('peTemplate.js');
 $cons->InstallInChrome('peCommand.js');
 $cons->InstallInChrome('peURL.js');
 $cons->InstallInChrome('peMacro.js');

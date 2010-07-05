@@ -62,14 +62,18 @@ if (typeof(ko.toolboxes)=='undefined') {
 //
 (function() {
 
-this.user = null;
-this.shared  = null;
-
-this.onload = function Toolbox_onLoad()
-{
-    ko.toolboxes.user = new toolboxManager();
-    ko.toolboxes.user.init();
-}
+var _deprecated_getters_noted = {};
+this.__defineGetter__('user',
+    function() {
+        if (!('user' in _deprecated_getters_noted)) {
+            _deprecated_getters_noted['user'] = true;
+            ko.projects.manager.log.error("DEPRECATED: "
+                                          + 'ko.toolboxes.user'
+                                          + ", use ko.toolbox2"
+                                          + "\n");
+        }
+        return ko.toolbox2;
+});
 
 function toolboxBaseManager() {
 }
@@ -86,15 +90,17 @@ toolboxBaseManager.prototype._init = function(prettyName, elementid, fname) {
 //gone: writeable()
 //gone: removeItem()
 //gone: removeItems()
+//gone: shared
+//gone: user
+//gone: scc
 
 //****Compatibility alias
 toolboxBaseManager.prototype.addItem = function(/* koIPart */ part, /* koIPart */ parent) {
-  this.log.debug("Calling toolboxBaseManager.addItem");
+    this.log.debug("Calling toolboxBaseManager.addItem");
     if (typeof(parent)=='undefined' || !parent) {
         parent = ko.toolbox2.getStandardToolbox();
     }
-    // else { ... } Don't bother with v1 compatibility.
-  ko.toolbox2.addItem(part, parent);
+    ko.toolbox2.addItem(part, parent);
 }
 
 //gone: hasProject(project)
@@ -150,8 +156,6 @@ toolboxManager.prototype.constructor = toolboxManager;
 //gone: partServiceSetToolbox(toolbox)
 //gone: installSamples(sampleToolboxPath, version)
 //gone: sharedToolboxManager()
-
-
 function toolboxController() {
 }
 
@@ -177,21 +181,12 @@ toolboxController.prototype.do_cmd_toolboxExportPackage = function () {
     }
 }
 
-this.importPackage = function Toolbox_ImportPackage(uri) {
-    ko.projects.importFromPackage(ko.toolboxes.user.viewMgr,
-                                  ko.toolboxes.user.toolbox,
-                                  uri);
-}
-
-
 this.addCommand = function AddCommandToToolbox(command, cwd, env, insertOutput,
                              operateOnSelection, doNotOpenOutputWindow, runIn,
                              parseOutput, parseRegex, showParsedOutputList,
                              name /* default=command */ )
 {
-    var toolboxMgr = ko.toolboxes.user;
-    var part = toolboxMgr.toolbox.createPartFromType('command');
-    part.type = 'command';
+    var part = ko.toolbox2.createPartFromType('command');
     part.value = command;
     if (typeof(name) == 'undefined' || ! name) {
         name = command;
@@ -206,8 +201,8 @@ this.addCommand = function AddCommandToToolbox(command, cwd, env, insertOutput,
     part.setBooleanAttribute('parseOutput', parseOutput);
     part.setStringAttribute('parseRegex', parseRegex);
     part.setBooleanAttribute('showParsedOutputList', showParsedOutputList);
-    toolboxMgr.addItem(part);
-    ko.uilayout.ensureTabShown('toolbox_tab');
+    ko.toolbox2.addItem(part);
+    ko.uilayout.ensureTabShown('toolbox2_tab');
 }
 
 }).apply(ko.toolboxes);

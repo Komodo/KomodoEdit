@@ -893,7 +893,7 @@ class Database(object):
         child_rows = [x for x in child_rows if x[2] == 'folder']
         return self._getAbbreviationMatchInTree(child_rows, abbrev, cu)
 
-    def getChildByName(self, id, name, recurse):
+    def getChildByName(self, id, name, recurse, typeName=None):
         """ Return the first tool that's a child of id that has the
             specified name, matching case.
             """
@@ -902,8 +902,12 @@ class Database(object):
                   where hierarchy.parent_path_id = ?
                         and hierarchy.path_id = common_details.path_id
                         and common_details.name = ?"""
+        test_values = [id, name]
+        if typeName:
+            stmt += " and common_details.type = ?"
+            test_values.append(typeName)
         with self.connect() as cu:
-            cu.execute(stmt, (id, name))
+            cu.execute(stmt, test_values)
             row = cu.fetchone()
             if row:
                 return row[0]
@@ -914,17 +918,22 @@ class Database(object):
             cu.execute(stmt, (name,))
             if not cu.fetchone()[0]:
                 return None
-            return self._getChildByNameInTree([[id]], name, cu)
+            return self._getChildByNameInTree([[id]], name, cu, typeName)
                 
-    def _getChildByNameInTree(self, folder_matches, name, cu):
+    def _getChildByNameInTree(self, folder_matches, name, cu, typeName=None):
         condition = ' or '.join(['hierarchy.parent_path_id = ?'] * len(folder_matches))
+        if typeName:
+            qualifer = " and common_details.type = ?"
+            test_values = [f[0] for f in folder_matches] + [name, typeName, 'folder']
+        else:
+            qualifer = ""
+            test_values = [f[0] for f in folder_matches] + [name, 'folder']
         stmt = """select common_details.path_id, common_details.name, common_details.type
                 from hierarchy, common_details
                 where (%s)
                       and common_details.path_id = hierarchy.path_id
-                      and (common_details.name = ?
-                           or common_details.type = ?)""" % (condition,)
-        test_values = [f[0] for f in folder_matches] + [name, 'folder']
+                      and ((common_details.name = ? %s)
+                           or common_details.type = ?)""" % (condition, qualifer)
         cu.execute(stmt, test_values)
         child_rows = cu.fetchall()
         if not child_rows:
@@ -932,8 +941,10 @@ class Database(object):
         for child_row in child_rows:
             if child_row[1] == name:
                 return child_row[0]
-        return self._getChildByNameInTree(child_rows, name, cu)
+        return self._getChildByNameInTree(child_rows, name, cu, typeName)
 
+    def getChildByTypeAndName(self, id, typeName, itemName, recurse):
+        return self.getChildByName(id, itemName, recurse, typeName)
 
     def getIDsByType(self, nodeType, rootToolboxPath):
         with self.connect() as cu:

@@ -298,6 +298,22 @@ this.processMenu = function(menuNode, toolType) {
                         });
                 }
             }
+            if (!disableNode) {
+                var testDisableUnless = menuNode.getAttribute('testDisableUnless');
+                if (testDisableUnless) {
+                    testDisableUnless = testDisableUnless.split(/\s+/);
+                    var cmdPrefix = 'cmd:';
+                    testDisableUnless.map(function(s) {
+                            if (s.indexOf(cmdPrefix) == 0) {
+                                var cmdName = s.substring(cmdPrefix.length);
+                                var controller = top.document.commandDispatcher.getControllerForCommand(cmdName);
+                                if (controller && !controller.isCommandEnabled(command)) {
+                                    disableNode = true;
+                                }
+                            }
+                        });
+                }
+            }
         }
     }
     if (disableNode) {
@@ -356,6 +372,10 @@ this.getSelectedItem = function() {
      }
      return this.manager.view.getTool(index);
 };
+
+this.getProjectToolbox = function(uri) {
+    return this.manager.toolbox2Svc.getProjectToolbox(uri);
+}
 
 this.getStandardToolbox = function() {
     return this.findToolById(this.manager.toolbox2Svc.getStandardToolboxID());

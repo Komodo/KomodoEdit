@@ -92,7 +92,7 @@ class KomodoWindowData(object):
         log.warn("DEPRECATED koIPartService.findPartForRunningMacro, use koIPartService.findPart")
         return self.findPart(partType, name, where, self.runningMacro)
 
-    //**** New tools: verify findPart is used only to find parts, not tools.
+    # **** New tools: verify findPart is used only to find parts, not tools.
     def findPart(self, partType, name, where, part):
 	if where != "*":
 	    log.error("DEPRECATED: calling koIPartService.findPart with container != '*' (set to %s)", where)
@@ -121,15 +121,12 @@ class KomodoWindowData(object):
     def _genParts(self, type, attrname, attrvalue, where, container):
 	if where != "*":
 	    log.error("DEPRECATED: calling koIPartService._genParts with container != '*' (set to %s)", where)
-        # Determine what koIProject's to search.
-	if not container:
-	    return None
-        # Search them.
 	#TODO: Unwrap and use iterators to improve efficiency.
 	#      Currently this can be marshalling lots of koIParts.
-	for part in place.getChildrenByType(type, True):
-	    if part.getStringAttribute(attrname) == attrvalue:
-		yield part
+        if container:
+            for part in place.getChildrenByType(type, True):
+                if part.getStringAttribute(attrname) == attrvalue:
+                    yield part
 
 
 class KoPartService(object):
@@ -207,28 +204,27 @@ class KoPartService(object):
             self._data[window] = data
         return data
 
-    deprecated_runningMacro = False
     def _deprecate_runningMacro(self):
-        if not self.deprecated_runningMacro:
+        if getattr(self, '_deprecated_runningMacro', None) is None:
             self.deprecated_runningMacro = True
             log.warn("koIPartService.runningMacro is deprecated.  Please use koIToolBox2Service.runningMacro instead.")
 
-    def get_runningMacro(self):
-        # Trying to set self._toolboxSvc in __init__ triggers an
-        # xpcom exception with no info.
-        if self._toolboxSvc is None:
-            self._deprecate_runningMacro()
+    @property
+    def toolboxSvc(self):
+        if getattr(self, '_toolboxSvc', None) is None:
             self._toolboxSvc = components.classes["@activestate.com/koToolBox2Service;1"]\
                        .getService(components.interfaces.koIToolBox2Service)
-        return self._toolboxSvc.runningMacro
+        return self._toolboxSvc
+    
+    @property
+    def runningMacro(self):
+        self._deprecate_runningMacro()
+        return self.toolboxSvc.runningMacro
 
+    @runningMacro.setter
     def set_runningMacro(self, macro):
-        if self._toolboxSvc is None:
-            self._deprecate_runningMacro()
-            self._toolboxSvc = components.classes["@activestate.com/koToolBox2Service;1"]\
-                       .getService(components.interfaces.koIToolBox2Service)
-        self._toolboxSvc.runningMacro = macro
-    runningMacro = property(get_runningMacro, set_runningMacro)
+        self._deprecate_runningMacro()
+        self.toolboxSvc.runningMacro = macro
     
     def isCurrent(self, project):
         return self._data[self.get_window()].isCurrent(project)
