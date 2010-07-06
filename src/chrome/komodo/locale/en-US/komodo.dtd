@@ -624,7 +624,7 @@
 <!ENTITY toggleRight.label "Toggle Right">
 <!ENTITY toolbars.label "Toolbars">
 <!ENTITY toolbox.label "Toolbox">
-<!ENTITY toolbox2.label "New Toolbox">
+<!ENTITY toolbox2.label "Toolbox">
 <!ENTITY toolboxExportPackage.desc "Toolbox: Export Package">
 <!ENTITY toolboxTab.accesskey "b">
 <!ENTITY tools.label "Tools">
