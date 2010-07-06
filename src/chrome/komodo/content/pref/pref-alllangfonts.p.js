@@ -147,19 +147,30 @@ function initDialog() {
     return dialog;
 }
 
-function OnPreferencePageInitalize(prefset) {
+function SetDefaultLanguage() {
     try {
-        gDialog.prefset = prefset;
+        var prefset = gDialog.prefset;
         var selectedLanguageName;
+        var p = "prefs.fontsColorsLanguages.langSpecific.lang";
         try {
-            selectedLanguageName = parent.opener.ko.views.manager.currentView.koDoc.language;
+            if (prefset.hasStringPref(p)) {
+                selectedLanguageName = prefset.getStringPref(p);
+            } else {
+                selectedLanguageName = parent.opener.ko.views.manager.currentView.koDoc.language;
+            }
         } catch(ex) {
             selectedLanguageName = "Python";
         }
         // Verify the language exists
         var ok;
         try {
-            ok = !!gLanguageRegistry.getLanguage(selectedLanguageName);
+            let koLang = gLanguageRegistry.getLanguage(selectedLanguageName);
+            ok = !!koLang;
+            if (ok) {
+                // The language service can return a language that has a
+                // different name (i.e. "Python" when the language does not exist).
+                selectedLanguageName = koLang.name;
+            }
         } catch(ex) {
             ok = false;
         }
@@ -170,6 +181,7 @@ function OnPreferencePageInitalize(prefset) {
         var schemeName = prefset.getStringPref('editor-scheme');
         gDialog.schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService()
         gDialog.currentScheme = gDialog.schemeService.getScheme(schemeName);
+        gDialog.languageList.selection = selectedLanguageName;
     } catch (e) {
         log.error(e);
     }
@@ -179,10 +191,10 @@ function OnPreferencePageLoading(prefset) {
     try {
         generateFontList();
         gDialog.prefset = prefset;
+        SetDefaultLanguage();
         gDialog.bufferView.scimoz.setMarginWidthN(2,0);
         gDialog.bufferView.scimoz.setMarginWidthN(1,0);
         gDialog.bufferView.scimoz.setMarginWidthN(0,0);
-        gDialog.languageList.selection = gDialog.currentLanguage;
         gDialog.currentEncoding = 'default';
         updateEncodingPopup();
         setupSchemes();
@@ -191,10 +203,6 @@ function OnPreferencePageLoading(prefset) {
         var p = "prefs.fontsColorsLanguages.whichTab";
         if (prefset.hasLongPref(p)) {
             gDialog.tabbox.selectedIndex = prefset.getLongPref(p);
-        }
-        p = "prefs.fontsColorsLanguages.langSpecific.lang";
-        if (prefset.hasStringPref(p)) {
-            gDialog.languageList.selection = prefset.getStringPref(p);
         }
 
         p = "prefs.fontsColorsLanguages.colors.extraColors";
@@ -211,7 +219,7 @@ function OnPreferencePageLoading(prefset) {
         updateEncodingReset();
         loadColorpickerPreferences(prefset);
     } catch (e) {
-        log.error(e);
+        log.exception(e);
     }
 }
 
