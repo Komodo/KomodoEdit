@@ -1,0 +1,211 @@
+The Komodo menu was being styled (colored) correctly from the GTK theme.
+Bug 86191.
+
+Patch originally from the below Mozilla bug:
+https://bugzilla.mozilla.org/show_bug.cgi?id=496454
+
+diff -r 976ec8c4d911 layout/style/nsCSSKeywordList.h
+--- layout/style/nsCSSKeywordList.h	Tue Apr 06 15:29:56 2010 -0500
++++ layout/style/nsCSSKeywordList.h	Tue Jul 06 12:10:50 2010 -0700
+@@ -154,6 +154,7 @@
+ CSS_KEY(-moz-max-content, _moz_max_content)
+ CSS_KEY(-moz-menuhover, _moz_menuhover)
+ CSS_KEY(-moz-menuhovertext, _moz_menuhovertext)
++CSS_KEY(-moz-menubartext, _moz_menubartext)
+ CSS_KEY(-moz-menubarhovertext, _moz_menubarhovertext)
+ CSS_KEY(-moz-middle-with-baseline, _moz_middle_with_baseline)
+ CSS_KEY(-moz-min-content, _moz_min_content)
+diff -r 976ec8c4d911 layout/style/nsCSSProps.cpp
+--- layout/style/nsCSSProps.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ layout/style/nsCSSProps.cpp	Tue Jul 06 12:10:50 2010 -0700
+@@ -529,6 +529,7 @@
+   eCSSKeyword__moz_mac_secondaryhighlight, nsILookAndFeel::eColor__moz_mac_secondaryhighlight,
+   eCSSKeyword__moz_menuhover, nsILookAndFeel::eColor__moz_menuhover,
+   eCSSKeyword__moz_menuhovertext, nsILookAndFeel::eColor__moz_menuhovertext,
++  eCSSKeyword__moz_menubartext, nsILookAndFeel::eColor__moz_menubartext,
+   eCSSKeyword__moz_menubarhovertext, nsILookAndFeel::eColor__moz_menubarhovertext,
+   eCSSKeyword__moz_oddtreerow, nsILookAndFeel::eColor__moz_oddtreerow,
+   eCSSKeyword__moz_visitedhyperlinktext, NS_COLOR_MOZ_VISITEDHYPERLINKTEXT,
+diff -r 976ec8c4d911 toolkit/themes/gnomestripe/global/menu.css
+--- toolkit/themes/gnomestripe/global/menu.css	Tue Apr 06 15:29:56 2010 -0500
++++ toolkit/themes/gnomestripe/global/menu.css	Tue Jul 06 12:10:50 2010 -0700
+@@ -74,14 +74,15 @@
+ 
+ menubar > menu {
+   padding: 0px 4px;
++  color: -moz-menubartext;
+ }
+ 
+ menubar > menu[_moz-menuactive="true"] {
+-  color: MenuText;
++  color: -moz-menubartext;
+ }
+ 
+ menubar > menu[open] {
+-  color: -moz-menuhovertext;
++  color: -moz-menubarhovertext;
+   background-color: -moz-menuhover;
+ }
+ menuitem.spell-suggestion {
+diff -r 976ec8c4d911 widget/public/nsILookAndFeel.h
+--- widget/public/nsILookAndFeel.h	Tue Apr 06 15:29:56 2010 -0500
++++ widget/public/nsILookAndFeel.h	Tue Jul 06 12:10:50 2010 -0700
+@@ -137,6 +137,7 @@
+     eColor__moz_buttonhovertext,                             //used to button text, when mouse is over
+     eColor__moz_menuhover,                                   //used to menu item background, when mouse is over
+     eColor__moz_menuhovertext,                               //used to menu item text, when mouse is over
++    eColor__moz_menubartext,                                 //used to menu bar item text
+     eColor__moz_menubarhovertext,                            //used to menu bar item text, when mouse is over
+     // On platforms where these colors are the same as
+     // -moz-field, use -moz-fieldtext as foreground color
+diff -r 976ec8c4d911 widget/src/beos/nsLookAndFeel.cpp
+--- widget/src/beos/nsLookAndFeel.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ widget/src/beos/nsLookAndFeel.cpp	Tue Jul 06 12:10:50 2010 -0700
+@@ -220,6 +220,7 @@
+       }
+       break;
+     case eColor_menutext:
++    case eColor__moz_menubartext:
+       {
+         color = ui_color(B_MENU_ITEM_TEXT_COLOR);
+         aColor = NS_RGB(color.red, color.green, color.blue);
+diff -r 976ec8c4d911 widget/src/cocoa/nsChildView.mm
+--- widget/src/cocoa/nsLookAndFeel.mm	Tue Apr 06 15:29:56 2010 -0500
++++ widget/src/cocoa/nsLookAndFeel.mm	Tue Jul 06 12:10:50 2010 -0700
+@@ -176,6 +176,7 @@
+       res = GetMacTextColor(kThemeTextColorWindowHeaderActive, aColor, NS_RGB(0x00,0x00,0x00));
+       break;
+     case eColor_menutext:
++    case eColor__moz_menubartext:
+       res = GetMacTextColor(kThemeTextColorMenuItemActive, aColor, NS_RGB(0x00,0x00,0x00));
+       break;
+     case eColor_infotext:
+diff -r 976ec8c4d911 widget/src/cocoa/nsToolkit.h
+--- widget/src/gtk2/nsLookAndFeel.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ widget/src/gtk2/nsLookAndFeel.cpp	Tue Jul 06 12:10:50 2010 -0700
+@@ -48,6 +48,8 @@
+ 
+ nscolor   nsLookAndFeel::sInfoText = 0;
+ nscolor   nsLookAndFeel::sInfoBackground = 0;
++nscolor   nsLookAndFeel::sMenuBarText = 0;
++nscolor   nsLookAndFeel::sMenuBarHoverText = 0;
+ nscolor   nsLookAndFeel::sMenuText = 0;
+ nscolor   nsLookAndFeel::sMenuHover = 0;
+ nscolor   nsLookAndFeel::sMenuHoverText = 0;
+@@ -309,6 +311,12 @@
+     case eColor__moz_nativehyperlinktext:
+         aColor = sNativeHyperLinkText;
+         break;
++    case eColor__moz_menubartext:
++        aColor = sMenuBarText;
++        break;
++    case eColor__moz_menubarhovertext:
++        aColor = sMenuBarHoverText;
++        break;
+     default:
+         /* default color is BLACK */
+         aColor = 0;
+@@ -652,7 +660,7 @@
+     gtk_object_sink(GTK_OBJECT(menu));
+ 
+     gtk_container_add(GTK_CONTAINER(menuitem), accel_label);
+-    gtk_menu_append(GTK_MENU(menu), menuitem);
++    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+ 
+     gtk_widget_set_rc_style(accel_label);
+     gtk_widget_set_rc_style(menu);
+@@ -685,28 +693,38 @@
+     GtkWidget *window = gtk_window_new(GTK_WINDOW_POPUP);
+     GtkWidget *treeView = gtk_tree_view_new();
+     GtkWidget *linkButton = gtk_link_button_new("http://example.com/");
++    GtkWidget *menuBar = gtk_menu_bar_new();
+ 
+     gtk_container_add(GTK_CONTAINER(button), label);
+     gtk_container_add(GTK_CONTAINER(parent), button);
+     gtk_container_add(GTK_CONTAINER(parent), treeView);
+     gtk_container_add(GTK_CONTAINER(parent), linkButton);
++    gtk_container_add(GTK_CONTAINER(parent), menuBar);
+     gtk_container_add(GTK_CONTAINER(window), parent);
+ 
+     gtk_widget_set_rc_style(button);
+     gtk_widget_set_rc_style(label);
+     gtk_widget_set_rc_style(treeView);
+     gtk_widget_set_rc_style(linkButton);
++    gtk_widget_set_rc_style(menuBar);
+ 
+     gtk_widget_realize(button);
+     gtk_widget_realize(label);
+     gtk_widget_realize(treeView);
+     gtk_widget_realize(linkButton);
++    gtk_widget_realize(menuBar);
+ 
+     style = gtk_widget_get_style(label);
+     if (style) {
+         sButtonText = GDK_COLOR_TO_NS_RGB(style->fg[GTK_STATE_NORMAL]);
+     }
+ 
++    style = gtk_widget_get_style(menuBar);
++    if (style) {
++        sMenuBarText = GDK_COLOR_TO_NS_RGB(style->fg[GTK_STATE_NORMAL]);
++        sMenuBarHoverText = GDK_COLOR_TO_NS_RGB(style->fg[GTK_STATE_SELECTED]);
++    }
++
+     // GTK's guide to fancy odd row background colors:
+     // 1) Check if a theme explicitly defines an odd row color
+     // 2) If not, check if it defines an even row color, and darken it
+diff -r 976ec8c4d911 widget/src/gtk2/nsLookAndFeel.h
+--- widget/src/gtk2/nsLookAndFeel.h	Tue Apr 06 15:29:56 2010 -0500
++++ widget/src/gtk2/nsLookAndFeel.h	Tue Jul 06 12:10:50 2010 -0700
+@@ -64,6 +64,8 @@
+     static nscolor sInfoBackground;
+     static nscolor sInfoText;
+     static nscolor sMenuBackground;
++    static nscolor sMenuBarText;
++    static nscolor sMenuBarHoverText;
+     static nscolor sMenuText;
+     static nscolor sMenuHover;
+     static nscolor sMenuHoverText;
+diff -r 976ec8c4d911 widget/src/gtk2/nsWindow.cpp
+--- widget/src/os2/nsLookAndFeel.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ widget/src/os2/nsLookAndFeel.cpp	Tue Jul 06 12:10:50 2010 -0700
+@@ -175,6 +175,7 @@
+       idx = SYSCLR_MENU;
+       break;
+     case eColor_menutext:
++    case eColor__moz_menubartext:
+       idx = SYSCLR_MENUTEXT;
+       break;
+     case eColor_scrollbar:
+diff -r 976ec8c4d911 widget/src/qt/nsLookAndFeel.cpp
+--- widget/src/qt/nsLookAndFeel.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ widget/src/qt/nsLookAndFeel.cpp	Tue Jul 06 12:10:50 2010 -0700
+@@ -207,6 +207,7 @@
+       break;
+ 
+     case eColor_menutext:
++    case eColor__moz_menubartext:
+       aColor = QCOLOR_TO_NS_RGB(palette.color(QPalette::Normal, QPalette::Text));
+       break;
+ 
+diff -r 976ec8c4d911 widget/src/windows/nsLookAndFeel.cpp
+--- widget/src/windows/nsLookAndFeel.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ widget/src/windows/nsLookAndFeel.cpp	Tue Jul 06 12:10:50 2010 -0700
+@@ -246,6 +246,7 @@
+       idx = COLOR_MENU;
+       break;
+     case eColor_menutext:
++    case eColor__moz_menubartext:
+       idx = COLOR_MENUTEXT;
+       break;
+     case eColor_scrollbar:
+diff -r 976ec8c4d911 widget/src/xpwidgets/nsXPLookAndFeel.cpp
+--- widget/src/xpwidgets/nsXPLookAndFeel.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ widget/src/xpwidgets/nsXPLookAndFeel.cpp	Tue Jul 06 12:10:50 2010 -0700
+@@ -226,6 +226,7 @@
+   "ui.-moz_buttonhovertext",
+   "ui.-moz_menuhover",
+   "ui.-moz_menuhovertext",
++  "ui.-moz_menubartext",
+   "ui.-moz_menubarhovertext",
+   "ui.-moz_eventreerow",
+   "ui.-moz_oddtreerow",
