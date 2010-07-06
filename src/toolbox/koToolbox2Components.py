@@ -333,7 +333,9 @@ class KoToolBox2Service:
                 outfile.write(zf.read(name))
                 outfile.flush()
                 outfile.close()
+                zf.close()
                 return basedir, os.path.join(dir, name)
+        zf.close()
         return basedir, None        
 
     def _windowTypeFromWindow(self, window):

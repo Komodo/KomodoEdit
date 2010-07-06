@@ -116,11 +116,32 @@ deleteCurrentItem: function() {
 
 _fixCogPopupmenu: function() {
     var popupmenu = document.getElementById("toolbox2-cog-popup");
-    var target_popupmenu = document.getElementById("toolbox2-cog_separator-1");
+    var mi, childNode, i;
+    // Pull these nodes out of the root menu
+    var childNodes = document.getElementById("toolbox2Context").childNodes;
+    for (i = 0; i < childNodes.length; i++) {
+        childNode = childNodes[i];
+        if (!childNode || childNode.nodeName != "menuitem") {
+            continue;
+        } else if (childNode.getAttribute('label').indexOf("Import") != 0) {
+            break;
+        }
+        mi = document.createElementNS(XUL_NS, childNode.nodeName);
+        mi.id = childNode.id + "_cog_contextMenu";
+        if (childNode.nodeName == "menuitem") {
+            ["label", "class", "accesskey", "image"].map(function(attr) {
+                    mi.setAttribute(attr, childNode.getAttribute(attr));
+                });
+            var cmd = childNode.getAttribute("oncommand");
+            var fixedCmd = cmd.replace('(event)', '_toStdToolbox(event)');
+            mi.setAttribute("oncommand", fixedCmd);
+        }
+        popupmenu.appendChild(mi);
+    }
     var src_popupmenu  = document.getElementById("tb2ContextMenu_addPopupMenu");
     var childNodes = src_popupmenu.childNodes;
-    var mi;
-    for (var childNode, i = 0; i <  childNodes.length; i++) {
+    popupmenu.appendChild(document.createElementNS(XUL_NS, 'menuseparator'));
+    for (i = 0; i <  childNodes.length; i++) {
         childNode = childNodes[i];
         if (!childNode) {
             continue;

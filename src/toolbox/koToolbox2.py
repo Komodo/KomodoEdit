@@ -41,6 +41,7 @@
 See KD 252 for details.
 
 """
+import fileutils
 import json
 import os
 from os.path import exists, join
@@ -1561,9 +1562,11 @@ class ToolboxLoader(object):
         parent_id = self.db.get_id_from_path(parentPath)
         toolboxName = os.path.basename(pathToImport)
         dstPath = join(parentPath, toolboxName)
+        if exists(dstPath):
+            dstPath = parentPath
         self.db.establishConnection()
         try:
-            shutil.copytree(pathToImport, dstPath, False)
+            fileutils.copyLocalFolder(pathToImport, dstPath)
             result_list = self.db.getValuesFromTableByKey('paths',
                                                    ['id'],
                                                    'path', dstPath)

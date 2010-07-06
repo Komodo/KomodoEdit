@@ -154,6 +154,7 @@ interface koIToolbox2HTreeView: nsITreeView {
                               [array, size_is(count)] in wstring paths,
                               in unsigned long count,
                               in boolean copying);
+    void refreshFullView();
     void reloadToolsDirectoryView(in long index);
     void renameTool(in long index, in wstring newName);
     long zipSelectionToFile(in wstring zipFile);
