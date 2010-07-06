@@ -203,6 +203,21 @@
   list-style-image : url("chrome://komodo/skin/images/small-x_disable.png");
 }
 
+.clear-text-icon
+{
+  list-style-image : url("chrome://fugue/skin/icons/application-run.png");
+}
+.clear-text-icon:hover
+{
+  opacity: 0.80;
+}
+.clear-text-icon[disabled="true"],
+.clear-text-icon[disabled="true"]:hover,
+.clear-text-icon[disabled="true"]:hover:active
+{
+  opacity: 0.25;
+}
+
 .bulletlist-icon
 {
   list-style-image : url("chrome://komodo/skin/images/bulletlist.png");
