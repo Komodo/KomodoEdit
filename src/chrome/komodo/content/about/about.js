@@ -50,10 +50,6 @@ function onLoad()
 {
     var iframe = window.frames[0];
 
-    // Fill in Komodo License information.
-    var licenseInfoWidget = iframe.document.getElementById("licenseinfo");
-    licenseInfoWidget.appendChild(iframe.document.createTextNode(infoSvc.licenseInfo));
-
     // Fill in Komodo build information.
     var buildInfoWidget = iframe.document.getElementById("buildinfo");
     var buildInfo = _getBuildInfo();
