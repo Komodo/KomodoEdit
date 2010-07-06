@@ -226,7 +226,8 @@ projectManager.prototype.closeProject = function(project /*=this.currentProject*
     var urls = this._getOpenURLsInProject(project);
     if (urls.length != 0) {
         var action = ko.dialogs.yesNoCancel(
-                _bundle.GetStringFromName("closeTheOpenedFilesFromThisProject.message"),
+                _bundle.formatStringFromName("closeTheOpenedFilesFromProjectNamed.template",
+                                         [project.name], 1),
                 "No", null, null, // default response, text, title
                 "close_all_files_on_project_close");
         if (action == "Cancel") {
