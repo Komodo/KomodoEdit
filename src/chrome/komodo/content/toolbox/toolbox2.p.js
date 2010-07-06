@@ -307,7 +307,7 @@ this.processMenu = function(menuNode, toolType) {
                             if (s.indexOf(cmdPrefix) == 0) {
                                 var cmdName = s.substring(cmdPrefix.length);
                                 var controller = top.document.commandDispatcher.getControllerForCommand(cmdName);
-                                if (controller && !controller.isCommandEnabled(command)) {
+                                if (controller && !controller.isCommandEnabled(cmdName)) {
                                     disableNode = true;
                                 }
                             }
