@@ -53,8 +53,8 @@
         orient="vertical"
         flex="1"
         width="550"
-        height="400"
-        persist="width, height, screenx, screeny">
+        height="440"
+        persist="screenx, screeny">
     
     <keyset id="keys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
