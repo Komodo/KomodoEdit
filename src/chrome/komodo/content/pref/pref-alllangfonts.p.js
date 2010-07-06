@@ -311,7 +311,7 @@ function loadSample()
     var language = gDialog.currentLanguage;
     var sample = gLanguageRegistry.getLanguage(language).sample;
     if (! sample) {
-        sample = "No sample for " + language + " available in this interim release.";
+        sample = "No sample for " + language + " available.";
     }
     gDialog.bufferView.initWithBuffer(sample, language);
     gDialog.bufferView.anchor = sample.length/4;
