@@ -556,29 +556,26 @@ class KoToolbox2HTreeView(TreeView):
         isContainer = self.isContainer(viewIndex)
         modelIndex = self._modelIndexFromViewIndex(viewIndex)
         modelNode = self._rows_model[modelIndex]
+        if modelNode.level == 0:
+            raise Exception("can't rename top-level folder %s" % modelNode.name)
         if isContainer:
-            self._toolsMgr.renameItem(modelNode.id, newName)
-        else:
             self._toolsMgr.renameContainer(modelNode.id, newName)
+        else:
+            self._toolsMgr.renameItem(modelNode.id, newName)
         # We have to refresh the subtree, because the top-node and
         # all its children now have different paths.
         newNode = self._toolsManager.getToolById(modelNode.id)
         modelNode.path = newNode.path
         modelNode.name = newNode.name
-        if not (isContainer and self.isContainerOpen(viewIndex)):
-            viewNode = self._rows_view[viewIndex]
-            viewNode.path = newNode.path
-            viewNode.name = newNode.name
-            self._tree.invalidateRow(viewIndex)
-        else:
-            self._tree.beginUpdateBatch()
-            try:
-                self.refreshView(viewIndex)
-                # Expect that the viewIndex of the item we're renaming won't
-                # change during the refresh.
-                self._tree.invalidateRow(viewIndex)
-            finally:
-                self._tree.endUpdateBatch()
+
+        # Also uncache the parent's children, so they get resorted
+        parentModelIndex = self.getParentIndexModel(modelIndex)
+        try:
+            del self._rows_model[parentModelIndex].unfilteredChildNodes
+        except AttributeError:
+            pass            
+        # Do a full refresh to make sure the toolbox is resorted correctly
+        self.refreshFullView()
 
     def _zipNode(self, zf, currentDirectory):
         nodes = os.listdir(currentDirectory)

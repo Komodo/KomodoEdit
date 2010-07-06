@@ -971,6 +971,14 @@ class KoToolbox2ToolManager(object):
             del self._tools[id]
         except KeyError:
             pass
+        # Update the paths of all child nodes.
+        ids = self.toolbox_db.updateChildPaths(id, oldPath, newPathOnDisk)
+        for id in ids:
+            try:
+                # Remove this item from the cache, since its name changed.
+                del self._tools[id]
+            except KeyError:
+                pass
 
     def renameItem(self, id, newName):
         tool = self.getToolById(id)

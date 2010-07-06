@@ -716,6 +716,29 @@ class Database(object):
             self.updateValuesInTableByKey('paths',
                                           ['path'], [newPath],
                                           ['id'], [id])
+
+    def updateChildPaths(self, root_id, old_path, new_path):
+        stmt = '''select h.path_id, p.path, cd.type
+                  from hierarchy as h, paths as p, common_details as cd
+                  where h.parent_path_id = ? and p.id = h.path_id and cd.path_id = p.id'''
+        with self.connect(commit=True) as cu:
+            pending_ids = [root_id]
+            changed_ids = []
+            while pending_ids:
+                parent_id = pending_ids.pop()
+                cu.execute(stmt, (parent_id,))
+                rows = cu.fetchall()
+                for child_id, child_path, child_type in rows:
+                    if not child_path.startswith(old_path):
+                        raise Exception("child id %d, path %s doesn't start with oldPath %s" %  (child_id, child_path, old_path))
+                    new_child_path = new_path + child_path[len(old_path):]
+                    self.updateValuesInTableByKey('paths',
+                                                  ['path'], [new_child_path],
+                                                  ['id'], [child_id])
+                    changed_ids.append(child_id)
+                    if child_type == 'folder':
+                        pending_ids.append(child_id)
+        return changed_ids
             
     _tableNameFromType = {
         # Put anomalies here.

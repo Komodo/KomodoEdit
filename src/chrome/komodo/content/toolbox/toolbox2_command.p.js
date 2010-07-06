@@ -480,6 +480,83 @@ this.renameItem = function(event) {
     }
 };
 
+this.editPropertiesItem = function(event) {
+    var that = ko.toolbox2;
+    var view = that.manager.view;
+    var index = view.selection.currentIndex;
+    var tool = view.getTool(index);
+    // Method construction for names like editProperties_macro
+    var methodName = 'editProperties_' + tool.type; 
+    var method = that[methodName];
+    if (method) {
+        method.call(that, event);
+    } else {
+        alert("toolbox2_command.js::editPropertiesItem: Interal error: Don't know how to edit properties for "
+              + tool.type
+              + " "
+              + tool.name);
+    }
+};
+
+this.renameItem = function(event) {
+    var this_ = ko.toolbox2;
+    var view = this_.manager.view;
+    var index = view.selection.currentIndex;
+    var prompt, text, title;
+    var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/komodo.properties");
+    if (index == -1) {
+        var title = _bundle.GetStringFromName("errorTryingRenameTool");
+        var text = _bundle.GetStringFromName("noItemSelectedRename");
+        prompt = null;
+        ko.dialogs.alert(prompt, text, title);
+    }
+    var tool = view.getTool(index);
+    var oldName = tool.name;
+    prompt = _bundle.GetStringFromName("enterANewFilename");
+    var label = null;
+    var value = tool.name;
+    title = _bundle.GetStringFromName("renameFileOrFolder");
+    var mruName = null;
+    var validator = function(window, suggestedValue) {
+        if (!suggestedValue) {
+            alert(_bundle.GetStringFromName("toolNameCannotBeEmpty"));
+            return false;
+        } else if (/^\s+$/.test(suggestedValue)) {
+            alert(_bundle.GetStringFromName("toolNameShouldContainNonSpaceCharacters"));
+        }
+        return true;
+    };
+    var newName = ko.dialogs.prompt(
+        prompt,
+        label,
+        value,
+        title,
+        null, // mruName
+        validator,
+        null, // multiline
+        null, // screenX
+        null, // screenY
+        null, // tacType
+        null, // tacParam
+        null, // tacShowCommentColumn
+        0, // selectionStart
+        oldName.length // selectionEnd
+                                    );
+    if (!newName) {
+        return;
+    }
+    try {
+        view.renameTool(index, newName);
+    } catch(ex) {
+        title = _bundle.GetStringFromName("errorTryingRenameTool");
+        prompt = null;
+        text = ex.message;
+        ko.dialogs.alert(prompt, text, title);
+    }
+}
+
 this._selectCurrentItems = function() {
     this.selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
     var view = this.manager.view;
