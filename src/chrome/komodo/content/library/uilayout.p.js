@@ -746,6 +746,7 @@ function _Observer ()
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.addObserver(this, "mru_changed",false);
     observerSvc.addObserver(this, "primary_languages_changed",false);
+    observerSvc.addObserver(this, "current_project_changed", false);
     var self = this;
     this.handle_current_view_changed_setup = function(event) {
         self.handle_current_view_changed(event);
@@ -766,6 +767,7 @@ _Observer.prototype.destroy = function()
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.removeObserver(this, "mru_changed");
     observerSvc.removeObserver(this, "primary_languages_changed");
+    observerSvc.removeObserver(this, "current_project_changed");
     
     window.removeEventListener('current_view_changed',
                                this.handle_current_view_changed_setup, false);
@@ -791,6 +793,9 @@ _Observer.prototype.observe = function(subject, topic, data)
         break;
     case 'primary_languages_changed':
         ko.uilayout.buildViewAsLanguageMenu();
+        break;
+    case 'current_project_changed':
+        ko.uilayout.updateTitlebar(ko.views.manager.currentView);
         break;
     }
 }
@@ -1214,6 +1219,7 @@ this.ensureTabShown = function uilayout_ensureTabShown(tabId, focusToo) {
    Have to keep in mind debugging state */
 this.updateTitlebar = function uilayout_updateTitlebar(view)  {
     var title = "";
+    var currentProject = ko.projects.manager.currentProject;
     if (view != null)  {
         title = view.title;
         if (view.isDirty)  {
@@ -1226,7 +1232,13 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
             view.koDoc.file &&
             view.getAttribute("type") != "startpage") {
             if (view.koDoc.file.isLocal) {
-                title = title + ' (' + view.koDoc.file.dirName + ')';
+                title += ' (' + ko.stringutils.contractUser(view.koDoc.file.dirName);
+                if (currentProject) {
+                    var projectName = currentProject.name;
+                    var projectRootName = projectName.substr(0, projectName.lastIndexOf('.'));
+                    title += " {" + projectRootName + "}";
+                }
+                title += ')';
             } else {
                 title = view.koDoc.displayPath;
             }
@@ -1234,6 +1246,7 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
     } else {
         title="";
     }
+    
 
     var branding = '';
 //#if PLATFORM == "darwin"
