@@ -2014,9 +2014,15 @@ def ExtractPrebuiltPython(cfg, argv):
     
     This is required for some of the Mozilla build parts (komodo/app/xre).
     """
-    zip_basename = "%s-%s" % (cfg.platform, cfg.architecture)
     if sys.platform == "win32":
-        zip_basename += "-%s" % (cfg.compiler)
+        zip_basename = "win32-%s-%s" % (cfg.architecture, cfg.compiler)
+    elif sys.platform.startswith("darwin"):
+        zip_basename = "macosx"
+    elif sys.platform.startswith("linux"):
+        zip_basename = "linux-%s" % (cfg.architecture)
+    else:
+        raise BuildError("ExtractPrebuiltPython:: unknown platform: %r",
+                         sys.platform)
     prebuiltDir = join("mozilla", "prebuilt", "python%s" % cfg.siloedPyVer,
                        zip_basename)
 
