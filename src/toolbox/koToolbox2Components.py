@@ -267,6 +267,12 @@ class KoToolBox2Service:
         kpfDirToDelete = basedir
         toolboxDirName = os.path.splitext(os.path.basename(kpzPath))[0]
         tempToolsDir = join(os.path.dirname(kpfFile), ".extract-tools")
+        if exists(tempToolsDir):
+            try:
+                shutil.rmtree(tempToolsDir)
+            except:
+                log.exception("importV5Package: failed to rmtree %s", tempToolsDir)
+                
         try:
             koMigrateV5Toolboxes.expand_toolbox(kpfFile,
                                                 tempToolsDir,
@@ -308,10 +314,6 @@ class KoToolBox2Service:
                 shutil.rmtree(kpfDirToDelete)
             except:
                 log.exception("importV5Package: failed to rmtree %s", kpfDirToDelete)
-            try:
-                os.unlink(kpfFile)
-            except:
-                log.exception("importV5Package: failed to delete %s", kpfFile)
             
     def _extractPackage(self, file, dir):
         # From the project service, but extracts only the first kpf file it finds.
