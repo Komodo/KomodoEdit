@@ -279,7 +279,10 @@ this.toggleTab = function uilayout_toggleTab(tabId, collapseIfFocused /* =true *
             splitterWidget.getAttribute('collapsed') == 'true') {
             ko.uilayout.toggleSplitter(cmdId);
             tabs.selectedItem = tab;
-            focusHandlingWidget.focus();
+            if (focusHandlingWidget)
+                focusHandlingWidget.focus();
+            else
+                tabs.parentNode.selectedTab.focus();
         } else {
             if (collapseIfFocused) {
                 // Before we collapse it, figure out whether the focus is in this
