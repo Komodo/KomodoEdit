@@ -395,6 +395,7 @@ function scintillaBlur() {
 
 function scintillaFocus() {
     scin.caretPeriod = 500;
+    snippetvalue.setFocus(); // needed to fix bug 87311
 }
 
 function InsertShortcut(shortcutWidget) {
