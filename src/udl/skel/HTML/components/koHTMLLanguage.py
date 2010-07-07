@@ -127,3 +127,7 @@ class KoHTML5Language(KoHTMLLanguage):
   </body>
 </html>
 """
+
+    def get_linter(self):
+        return self._get_linter_from_lang(self.name)
+    

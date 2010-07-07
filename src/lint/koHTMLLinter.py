@@ -74,7 +74,10 @@ class KoHTMLCompileLinter:
             components.interfaces.koIPrefService, self._prefSvc,
             PROXY_ALWAYS | PROXY_SYNC)
 
-    def lint(self, request):
+    def filterLines(self, lines):
+        return lines
+
+    def lint(self, request, argv_additions=None):
         text = request.content.encode(request.encoding.python_encoding_name)
         cwd = request.cwd
 
@@ -111,7 +114,9 @@ class KoHTMLCompileLinter:
             
         argv = [os.path.join(self.koDirs.supportDir, "html", "tidy"),
                 '-errors', '-quiet', enc]
-        
+        if argv_additions:
+            argv += argv_additions
+
         if accessibility != '0':
             argv += ['-access', accessibility]
         if configFile:
@@ -120,6 +125,8 @@ class KoHTMLCompileLinter:
         cwd = cwd or None
         # Ignore stdout, as tidy dumps a cleaned up version of the input
         # file on it, which we don't care about.
+        log.debug("Running tidy argv: %r", argv)
+        #print ("Running tidy argv: %s" % (" ".join(argv)))
         p = process.ProcessOpen(argv, cwd=cwd)
         stdout, stderr = p.communicate(text)
         lines = stderr.splitlines(1)
@@ -142,6 +149,7 @@ class KoHTMLCompileLinter:
         # <snip ...useful suggestion paragraph that we should consider using>
         # Quickly strip out uninteresting lines.
         lines = [l for l in lines if l.startswith('line ')]
+        lines = self.filterLines(lines)
         results = koLintResults()
         resultRe = re.compile("""^
             line\s(?P<line>\d+)
@@ -214,3 +222,31 @@ class KoHTMLCompileLinter:
 
             results.addResult(result)
         return results
+
+
+class KoHTML5CompileLinter(KoHTMLCompileLinter):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo HTML 5 Tidy Linter"
+    _reg_clsid_ = "{06b2f705-849d-462f-aafb-bb2e4dfd6d37}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=HTML5;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'HTML5'),
+         ]
+
+    
+    html5_tidy_argv_additions = [
+        "--new-blocklevel-tags", "section,header,footer,hgroup,nav,dialog,datalist,details,figcaption,figure,meter,output,progress",
+        "--new-pre-tags", "article,aside,summary,mark",
+        "--new-inline-tags", "video,audio,canvas,source,embed,ruby,rt,rp,keygen,menu,command,time",
+    ]
+
+    def lint(self, request):
+        return KoHTMLCompileLinter.lint(self, request, self.html5_tidy_argv_additions)
+
+    def filterLines(self, lines):
+        newlines = []
+        for line in lines:
+            if "is not approved by W3C" in line:
+                continue
+            newlines.append(line)
+        return newlines
