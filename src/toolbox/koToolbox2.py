@@ -1566,7 +1566,7 @@ class ToolboxLoader(object):
             dstPath = parentPath
         self.db.establishConnection()
         try:
-            fileutils.copyLocalFolder(pathToImport, dstPath)
+            fileutils.copyLocalFolder(pathToImport, parentPath)
             result_list = self.db.getValuesFromTableByKey('paths',
                                                    ['id'],
                                                    'path', dstPath)

@@ -264,6 +264,7 @@ class KoToolBox2Service:
             koResource.close()
             koTarget.close()
         basedir, kpfFile = self._extractPackage(kpzPath, kpzExtractDir)
+        kpfDirToDelete = basedir
         toolboxDirName = os.path.splitext(os.path.basename(kpzPath))[0]
         tempToolsDir = join(os.path.dirname(kpfFile), ".extract-tools")
         try:
@@ -274,25 +275,25 @@ class KoToolBox2Service:
             # Now, where are the tools?
             # Usually the package is wrapped in a directory called "Project"
             childFiles = os.listdir(tempToolsDir)
-            kpfDir = kpfDirToDelete = None
+            kpfDir = None
             if len(childFiles) == 1:
                 candidate = join(tempToolsDir, childFiles[0])
                 if os.path.isdir(candidate):
-                    kpfDirToDelete = kpfDir = candidate
+                    kpfDir = candidate
                     # Skip the hardcoded project thing
                     if childFiles[0].lower() != 'project':
                         childFiles = os.listdir(kpfDir)
                         if len(childFiles) == 1 and childFiles[0].lower() == 'project':
                             candidate = join(kpfDir, childFiles[0])
                             if os.path.isdir(candidate):
-                                kpfDir = candidate
+                                kpfDir = candidate                
                             
             if kpfDir is None and 'Project' in childFiles:
                 candidate = join(tempToolsDir, 'Project')
                 if os.path.isdir(candidate):
-                    kpfDirToDelete = kpfDir = candidate
+                    kpfDir = candidate
             if kpfDir is None:
-                kpfDirToDelete = kpfDir = tempToolsDir
+                kpfDir = tempToolsDir
             self.toolboxLoader.importDirectory(parentPath, kpfDir)
         except:
             log.exception("Failed to expand/import")

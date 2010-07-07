@@ -633,20 +633,22 @@ class KoToolbox2HTreeView(TreeView):
         return selectedIndices
     
     def refreshFullView(self):
-        i = 0
         lim = len(self._rows_model)
         view_before_len = len(self._rows_view)
         std_toolbox_id = self.toolbox2Svc.getStandardToolboxID()
         firstVisibleRow = self._tree.getFirstVisibleRow()
         currentIndex = self.selection.currentIndex;
+        i = 0
         while i < lim:
             before_len = len(self._rows_model)
             if self.isContainerOpenModel(i):
+                del self._rows_model[i].unfilteredChildNodes
                 self.toggleOpenStateModel(i)
                 self.toggleOpenStateModel(i)
             elif (self._nodeOpenStatusFromName.get(self._rows_model[i].path, False)
                   or self._rows_model[i].id == std_toolbox_id):
                 # Force the stdtoolbox open
+                del self._rows_model[i].unfilteredChildNodes
                 self.toggleOpenStateModel(i)
             after_len = len(self._rows_model)
             delta = after_len - before_len
