@@ -2009,6 +2009,40 @@ def JarChrome(chromeTree, cfg, argv):
 
 
 
+def ExtractPrebuiltPython(cfg, argv):
+    """Unzip the prebuilt python files if they don't exist.
+    
+    This is required for some of the Mozilla build parts (komodo/app/xre).
+    """
+    zip_basename = "%s-%s" % (cfg.platform, cfg.architecture)
+    if sys.platform == "win32":
+        zip_basename += "-%s" % (cfg.compiler)
+    prebuiltDir = join("mozilla", "prebuilt", "python%s" % cfg.siloedPyVer,
+                       zip_basename)
+
+    # If the dirs exists and is out-of-date: remove it.
+    mtime_zip = os.stat(prebuiltDir+".zip").st_mtime
+    if exists(prebuiltDir) \
+       and os.stat(prebuiltDir).st_mtime < mtime_zip:
+        log.info("removing out of date unzip of prebuilt python "
+                 "in `%s'", prebuiltDir)
+        if sys.platform == "win32":
+            _run('rd /s/q "%s"' % prebuiltDir)
+        else:
+            _run('rm -rf "%s"' % prebuiltDir)
+
+    # If the dir doesn't exist then we need to crack it there.
+    if not exists(prebuiltDir):
+        log.info("unzipping prebuilt python in `%s'", prebuiltDir)
+        prebuiltZip = prebuiltDir + ".zip"
+        if not exists(prebuiltZip):
+            raise BuildError("prebuilt Python zip doesn't exist: %s"
+                             % prebuiltZip)
+        _run_in_dir("unzip -q -d %s %s"
+                    % (basename(prebuiltDir), basename(prebuiltZip)),
+                    dirname(prebuiltDir), log.debug)
+
+
 def GetScintillaSource(cfg, argv):
     """Copy the scintilla source to src/scintilla/... and patch it.
 
@@ -2068,6 +2102,9 @@ def BuildKomodo(cfg, argv):
     noquick = "noquick" in argv
     if noquick:
         argv.remove("noquick")     
+
+    # Unzip the prebuilt Python if necessary.
+    retval = ExtractPrebuiltPython(cfg, argv)
 
     # Get and patch the scintilla source if necessary.
     retval = GetScintillaSource(cfg, argv)
