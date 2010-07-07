@@ -135,6 +135,24 @@
           oncommand="ko.commands.doCommandAsync('cmd_places_goUpOneFolder', event)"
           disabled="true"
           desc="&placesUpFolder.desc;"/>
+      <command
+          id="cmd_placeView_sortNatural"
+          key="key_cmd_placeView_sortNatural"
+          oncommand="ko.commands.doCommandAsync('cmd_placeView_sortNatural', event)"
+          disabled="true"
+          desc="&placeView_sortNatural.desc;"/>
+      <command
+          id="cmd_placeView_sortAscending"
+          key="key_cmd_placeView_sortAscending"
+          oncommand="ko.commands.doCommandAsync('cmd_placeView_sortAscending', event)"
+          disabled="true"
+          desc="&placeView_sortAscending.desc;"/>
+      <command
+          id="cmd_placeView_sortDescending"
+          key="key_cmd_placeView_sortDescending"
+          oncommand="ko.commands.doCommandAsync('cmd_placeView_sortDescending', event)"
+          disabled="true"
+          desc="&placeView_sortDescending.desc;"/>
     </commandset>
     <commandset
         id="cmdset_place_contextMenu"
@@ -349,6 +367,33 @@
                   checked="true"
                   type="checkbox" />
               <menuseparator id="places_manage_view_separator" />
+              <menu id="placeView_sort"
+                    label="Sort"
+                    >
+               <menupopup id="placeView_sortPopup">
+                    <menuitem id="placeView_sortNatural"
+                              observes="cmd_placeView_sortNatural"
+                              label="&sortNatural.label;"
+                              type="radio"
+                              name="placeView-sort-type"
+                              accesskey="&sortNatural.accesskey;"
+                              />
+                    <menuitem id="placeView_sortAscending"
+                              observes="cmd_placeView_sortAscending"
+                              label="&sortAscending.label;"
+                              type="radio"
+                              name="placeView-sort-type"
+                              accesskey="&sortAscending.accesskey;"
+                              />
+                    <menuitem id="placeView_sortDescending"
+                              observes="cmd_placeView_sortDescending"
+                              label="&sortDescending.label;"
+                              type="radio"
+                              name="placeView-sort-type"
+                              accesskey="&sortDescending.accesskey;"
+                              />
+               </menupopup>
+              </menu>
               <menuitem id="placeView_customView"
                   observes="cmd_placeView_customView"
                   label="&manageCustomViews.label;"
@@ -404,15 +449,11 @@
               hidecolumnpicker="true"
               class="placestree"
               seltype="single">
-            <treecols
-               onclick="ko.places.viewMgr.onTreecolsClick(event);" >
+            <treecols id="places-files-treecols">
                 <treecol id="name" flex="1"
                          primary="true"
-                         label="&name.label;"
-                         sortActive="true"
-                         sortDirection="natural"
-                         class="treecol-header treecol-inset-header sortDirectionIndicator"
-                         persist="width sortDirection"/>
+                         hideheader="true"
+                         persist="width"/>
             </treecols>
             <treechildren id="places-files-tree-body" flex="1"
                 ondragstart="ko.places.viewMgr.doStartDrag(event, this);"

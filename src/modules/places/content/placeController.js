@@ -262,6 +262,30 @@ PlacesController.prototype.do_cmd_placeView_undoTreeOperation = function() {
     }
     ko.places.manager.undoTreeOperation();
 }
+
+PlacesController.prototype.is_cmd_placeView_sortNatural_enabled = function() {
+    return true;
+}
+
+PlacesController.prototype.do_cmd_placeView_sortNatural = function() {
+    ko.places.manager.sortNatural();
+}
+
+PlacesController.prototype.is_cmd_placeView_sortAscending_enabled = function() {
+    return true;
+}
+
+PlacesController.prototype.do_cmd_placeView_sortAscending = function() {
+    ko.places.manager.sortAscending();
+}
+
+PlacesController.prototype.is_cmd_placeView_sortDescending_enabled = function() {
+    return true;
+}
+
+PlacesController.prototype.do_cmd_placeView_sortDescending = function() {
+    ko.places.manager.sortDescending();
+}
           
 this.PlacesController = PlacesController;  // expose thru this namespace.
 }).apply(ko.places);

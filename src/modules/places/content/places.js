@@ -79,11 +79,6 @@ function viewMgrClass() {
     this.default_exclude_matches = ".*;*~;#*;CVS;*.bak;*.pyo;*.pyc";
     // overides, to include:
     this.default_include_matches = ".login;.profile;.bashrc;.bash_profile";
-    this._nextSortDir = {
-        natural: 'ascending',
-        ascending: 'descending',
-        descending:'natural'
-    };
     this._mozSortDirNameToKomodoSortDirValue = {
         natural: Components.interfaces.koIPlaceTreeView.SORT_DIRECTION_NAME_NATURAL,
         ascending: Components.interfaces.koIPlaceTreeView.SORT_DIRECTION_NAME_ASCENDING,
@@ -103,20 +98,41 @@ viewMgrClass.prototype = {
                         .QueryInterface(Components.interfaces.nsITreeBoxObject)
                         .view = this.view;
         this.view.initialize();
-        var treecol = this.tree.getElementsByTagName('treecol')[0];
-        var sortDir = treecol.getAttribute("sortDirection");
-        if (!sortDir) {
-            var placePrefs = _globalPrefs.getPref("places");
-            if (placePrefs.hasPref("sortDirection")) {
-                sortDir = placePrefs.getStringPref("sortDirection");
-            }
-            if (!sortDir || !this._nextSortDir[sortDir]) {
-                sortDir = 'natural';
-            }
-            treecol.setAttribute("sortDirection", sortDir);
+        var sortDir;
+        var placePrefs = _globalPrefs.getPref("places");
+        if (placePrefs.hasPref("sortDirection")) {
+            var sortDir = placePrefs.getStringPref("sortDirection");
         }
-        this.view.sortBy(treecol.id, this._mozSortDirNameToKomodoSortDirValue[sortDir]);
+        if (!sortDir) {
+            sortDir = 'natural';
+        }
+        var sortMenuPopup = document.getElementById("placeView_sortPopup");
+        var childNodes = sortMenuPopup.childNodes;
+        var targetSortId = "placeView_sort" + sortDir[0].toUpperCase() + sortDir.substr(1);
+        var madeChange = false;
+        for (var childNode, i = 0; childNode = childNodes[i]; i++) {
+            if (childNode.id == targetSortId) {
+                childNode.setAttribute('checked', 'true');
+                madeChange = true;
+            } else {
+                childNode.removeAttribute('checked');
+            }
+        }
+        if (!madeChange) {
+            log.debug("Failed to find a sortDir of " + sortDir + "\n");
+            sortDir = "natural";
+            childNodes[0].setAttribute('checked', 'true');
+        }
+        this.sortDirection = sortDir;
+        this.view.sortBy("Name", this._mozSortDirNameToKomodoSortDirValue[sortDir]);
     },
+    
+    sortByDirection: function(sortDirection) {
+        this.view.sortBy("Name", this._mozSortDirNameToKomodoSortDirValue[sortDirection]);
+        this.view.sortRows();
+        this.sortDirection = sortDirection;
+    },
+    
     focus: function() {
           //dump("places: viewMgr.focus()\n");
       },
@@ -203,21 +219,6 @@ viewMgrClass.prototype = {
     onTreeClick: function(event) {
         var index = this._currentRow(event);
         this.view.markRow(index);
-    },
-
-    onTreecolsClick: function(event) {
-        gEvent = event;
-        // c.f. mozilla/mailnews/base/resources/content/threadPane.js
-        var t = event.originalTarget;
-        
-        // single-click on a column
-        if (t.localName == "treecol" && event.detail == 1) {
-            var sortDir = t.getAttribute("sortDirection");
-            var newSortDir = this._nextSortDir[sortDir];
-            t.setAttribute("sortDirection", newSortDir);
-            this.view.sortBy(t.id, this._mozSortDirNameToKomodoSortDirValue[newSortDir]);
-            this.view.sortRows();
-        }
     },
 
     onTreeKeyPress: function(event) {
@@ -810,9 +811,8 @@ viewMgrClass.prototype = {
     finalize: function() {
         this.view.terminate();
         this.view = null;
-        var treecol = this.tree.childNodes[0].childNodes[0];
         _globalPrefs.getPref("places").setStringPref("sortDirection",
-                                                     treecol.getAttribute("sortDirection"));
+                                                     this.sortDirection);
     },
 
     // Filtering routines:
@@ -1438,6 +1438,22 @@ ManagerClass.prototype = {
         } catch(ex) {
             alert(ex);
         }
+    },
+
+    _sortByDirection: function(sortDirection) {
+        ko.places.viewMgr.sortByDirection(sortDirection);
+    },
+
+    sortNatural: function() {
+        this._sortByDirection("natural");
+    },
+
+    sortAscending: function() {
+        this._sortByDirection("ascending");
+    },
+
+    sortDescending: function() {
+        this._sortByDirection("descending");
     },
 
     addRecentLocations: function(popupMenu) {

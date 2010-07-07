@@ -1806,6 +1806,7 @@ class KoPlaceTreeView(TreeView):
             return
         self._sortModel(self._currentPlace_uri)
         self._wrap_refreshTreeOnOpen_buildTree()
+        self._tree.invalidate()
 
     def sortBy(self, sortKey, direction):
         self._sortedBy = sortKey
