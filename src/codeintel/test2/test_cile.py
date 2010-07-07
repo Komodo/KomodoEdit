@@ -331,12 +331,14 @@ def _fillScanInputsTestCase():
             if exists(tagspath):
                 tags += open(tagspath, 'r').read().split()
 
-            testFunction \
-                = lambda self, fpath=fpath: _testOneInputFile(self, fpath, tags=tags)
-            testFunction.tags = tags
+            def makeTestFunction(fpath_, tags_):
+                testFunction \
+                    = lambda self, fpath=fpath_: _testOneInputFile(self, fpath_, tags=tags_)
+                testFunction.tags = tags_
+                return testFunction
 
             name = "test_path:"+fpath
-            setattr(ScanInputsTestCase, name, testFunction)
+            setattr(ScanInputsTestCase, name, makeTestFunction(fpath, tags))
 
     _addUnicodeScanInputTests()
 
