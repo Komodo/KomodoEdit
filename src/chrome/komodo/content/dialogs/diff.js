@@ -67,6 +67,8 @@ function DiffWindow()
     xtk.include('domutils');
     var view = document.getElementById('view');
     view.init();
+    // Ensure the context menu is the diff-specific menu.
+    view.setAttribute("mozcontext", "diffContextMenu");
 
     try {
         _diffDocument = view.docSvc.createUntitledDocument("Diff"); // koIDocument

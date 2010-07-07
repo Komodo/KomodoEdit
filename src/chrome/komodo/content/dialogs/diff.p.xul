@@ -108,7 +108,7 @@
                  oncommand="document.getElementById('view').revealPositionInEditor()"/>
     </commandset>
 
-    <menupopup id="bufferContextMenu">
+    <menupopup id="diffContextMenu">
         <menuitem label="&previousDiff.label;"
                   class="menuitem-iconic previous-diff-icon"
                   observes="cmd_jumpToPreviousDiff"/>
