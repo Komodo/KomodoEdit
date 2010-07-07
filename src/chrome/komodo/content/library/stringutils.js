@@ -178,6 +178,37 @@ this.strip = function(s) {
     return s.replace(/(^\s*|\s*$)/g, ''); // strip whitespace;
 }
 
+/**
+ * Use koIOs.expanduser to expand a leading "~".  This contracts it.
+ *
+ * @param path {string}
+ * @returns one of ~/..., ~name/..., or path
+ */
+
+this.contractUser = function(path) {
+    var userEnvironment = Components.classes["@mozilla.org/process/environment;1"].getService(Components.interfaces.nsIEnvironment);
+    var homePath = userEnvironment.get("HOME");
+    if (!homePath) {
+        return path;
+    }
+    if (path.indexOf(homePath) == 0) {
+        return "~" + path.substr(homePath.length);
+    }
+    var userName = userEnvironment.get("USER");
+    if (!userName) {
+        return path;
+    }
+    var idx = homePath.lastIndexOf(userName);
+    if (idx == -1) {
+        return path;
+    }
+    var userPrefix = homePath.substr(0, idx) + userName;
+    if (path.indexOf(userPrefix) == 0) {
+        return "~" + userName + path.substr(userPrefix.length);
+    }
+    return path;
+};
+
 }).apply(ko.stringutils);
 
 var stringutils_escapeWhitespace = ko.stringutils.escapeWhitespace;
