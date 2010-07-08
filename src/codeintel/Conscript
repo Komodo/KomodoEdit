@@ -189,6 +189,7 @@ my @catalog_files = (
     "lib/codeintel2/catalogs/python3-pywin32.cix",
     "lib/codeintel2/catalogs/rails.cix",
     "lib/codeintel2/catalogs/jquery.cix",
+    "lib/codeintel2/catalogs/html5_canvas2d.cix",
     "lib/codeintel2/catalogs/ext.cix",
     "lib/codeintel2/catalogs/xbl.cix",
     #TODO: "lib/codeintel2/catalogs/pecl.cix",
