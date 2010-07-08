@@ -924,6 +924,7 @@ function ManagerClass() {
     var gObserverSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
     gObserverSvc.addObserver(this, 'visit_directory_proposed', false);
+    gObserverSvc.addObserver(this, 'current_project_changed', false);
 }
 
 ManagerClass.prototype = {
@@ -1040,6 +1041,20 @@ ManagerClass.prototype = {
         this._setURI(uri, true);
     },
 
+    _checkProjectMatch: function() {
+        var uri = this.currentPlace;
+        var project = ko.projects.manager.currentProject;
+        var classValue;
+        if (!uri || !project) {
+            classValue = "normal";
+        } else {
+            var projectURI = project.url;
+            var projectDir = projectURI.substr(0, projectURI.lastIndexOf("/"));
+            var classValue = (uri == projectDir) ? "project" : "normal";
+        }
+        widgets.rootPathIcon.setAttribute('class', classValue);
+    },        
+
     _moveToURI: function(uri, setThePref) {
         if (typeof(setThePref) == "undefined") {
             setThePref = false;
@@ -1054,7 +1069,7 @@ ManagerClass.prototype = {
         widgets.rootPath.value = file.baseName;
         var tooltipText = (file.scheme == "file" ? file.displayPath : uri);
         widgets.rootPath.tooltipText = tooltipText;
-        widgets.rootPath.setAttribute('class', 'someplace');
+        this._checkProjectMatch();
         widgets.rootPathIcon.tooltipText = tooltipText;
         var callback = {
             callback: function(result, data) {
@@ -1384,6 +1399,7 @@ ManagerClass.prototype = {
         var gObserverSvc = Components.classes["@mozilla.org/observer-service;1"].
             getService(Components.interfaces.nsIObserverService);
         gObserverSvc.removeObserver(this, 'visit_directory_proposed');
+        gObserverSvc.removeObserver(this, 'current_project_changed');
     },
     
     goUpOneFolder: function() {
@@ -1748,6 +1764,8 @@ ManagerClass.prototype = {
                 ko.uilayout.ensureTabShown("places_tab");
                 gPlacesViewMgr.view.selection.select(0);
             }
+        } else if (topic == 'current_project_changed') {
+            this._checkProjectMatch();
         }
     },
     __ZIP__: null

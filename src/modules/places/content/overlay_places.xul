@@ -317,6 +317,7 @@
       <vbox flex="1">
         <hbox id="place-view-vbox" align="center">
           <image id="place-view-rootPath-icon"
+                 class="normal"
                  context="places-files-popup"
                  onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);"
                  ondragover="return ko.places.viewMgr.doDragOverRootNode(event, this);"
