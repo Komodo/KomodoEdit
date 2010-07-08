@@ -443,6 +443,9 @@ toolbarbutton {
 .reveal-in-editor-icon {
   list-style-image : url("chrome://komodo/skin/images/famfamfam/page_white_go.png");
 }
+.move-to-editor-icon {
+  list-style-image : url("chrome://fugue/skin/icons/arrow-curve-000-double.png");
+}
 
 menuitem.history-nav-item {
   max-width: 60em;

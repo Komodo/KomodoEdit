@@ -52,6 +52,8 @@
 <!ENTITY listAllTabs.tooltiptext "List all tabs">
 <!ENTITY mapsTo.label "Maps to">
 <!ENTITY moveDown.tooltiptext "Move Down">
+<!ENTITY moveToEditor.label "Move to Editor">
+<!ENTITY moveToEditor.tooltiptext "Move this diff into an editor tab">
 <!ENTITY moveUp.tooltiptext "Move Up">
 <!ENTITY name.label "Name">
 <!ENTITY next.label " Next">

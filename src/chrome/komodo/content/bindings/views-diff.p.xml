@@ -77,6 +77,13 @@
                     align="center"
                     class="reveal-in-editor-icon"
                     label="&reveal.label;"/>
+                <xul:toolbarbutton id="move-to-editor-button"
+                    tooltiptext="&moveToEditor.tooltiptext;"
+                    oncommand="moveToEditor()"
+                    style="-moz-box-orient: horizontal;"
+                    align="center"
+                    class="move-to-editor-icon"
+                    label="&moveToEditor.label;"/>
                 <xul:spacer flex="1"/>
                 <xul:hbox anonid="message-box" align="center" collapsed="true">
                     <xul:image src="chrome://komodo/skin/images/famfamfam/information.png"/>
@@ -375,6 +382,17 @@
             ]]></body>
         </method>
 
+        <method name="moveToEditor">
+            <body><![CDATA[
+                var ko_api = window.opener.ko;
+                var text = this.scimoz.text;
+                ko_api.views.manager.doNewViewAsync('Diff', 'editor', function(view) {
+                    view.koDoc.buffer = text;
+                    view.koDoc.isDirty = false;
+                });
+                window.close();
+            ]]></body>
+        </method>
 
         <!-- Return a resolved absolute and existing path for the given
              file path indicated in a diff. This may ask the user to
