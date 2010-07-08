@@ -461,11 +461,13 @@ class koDocumentBase:
         return self._isDirty
     
     def set_isDirty(self,isDirty):
+        dirtyStateChanged = (self._isDirty != isDirty)
         self._isDirty = isDirty
-        try:
-            self.observerService.notifyObservers(self,'buffer_dirty',str(isDirty))
-        except COMException, e:
-            pass # no one is listening!
+        if dirtyStateChanged:
+            try:
+                self.observerService.notifyObservers(self,'buffer_dirty',str(isDirty))
+            except COMException, e:
+                pass # no one is listening!
         if not self._isDirty:
             self.removeAutoSaveFile()
 
