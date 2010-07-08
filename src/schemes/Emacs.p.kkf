@@ -212,9 +212,7 @@ binding cmd_fontZoomIn Ctrl+Shift++
 binding cmd_fontZoomIn Ctrl+Shift+=
 binding cmd_fontZoomOut Ctrl+Shift+-
 binding cmd_viewFullScreen Ctrl+C F11
-# #if PLATFORM == "linux"
 binding cmd_uncomment  Ctrl+2
-# #endif
 binding cmd_uncomment  Ctrl+Shift+3
 binding cmd_uncomment  Ctrl+C u
 binding cmd_comment  Ctrl+3

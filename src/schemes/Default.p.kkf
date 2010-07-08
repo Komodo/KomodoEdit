@@ -112,9 +112,7 @@ binding cmd_editProperties Alt+Return
 binding cmd_toolsRunCommand Ctrl+R
 
 # Comment handling
-# #if PLATFORM == "linux"
 binding cmd_uncomment  Ctrl+2
-# #endif
 binding cmd_uncomment  Ctrl+Shift+3
 binding cmd_comment  Ctrl+3
 
