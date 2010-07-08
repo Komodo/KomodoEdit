@@ -1148,7 +1148,6 @@ class KoInitService(object):
                 os.mkdir(stdToolsFolder)
                 lookAtPrefName = False
                 
-
             folder_name = "Samples (%s)" % str(infoSvc.version)
             destDir = os.path.join(stdToolsFolder, folder_name)
             srcDir = os.path.join(koDirs.supportDir, 'samples', 'tools')
@@ -1157,10 +1156,23 @@ class KoInitService(object):
             if lookAtPrefName and prefs.hasBooleanPref(prefName) and prefs.getBooleanPref(prefName):
                 return
 
-            # Copy (or merge if samples already exist locally) new samples.
+            installedSampleTools = True
             import fileutils
-            fileutils.copyLocalFolder(srcDir, destDir)
-            prefs.setBooleanPref(prefName, True)
+            import shutil
+            for name in os.listdir(srcDir):
+                srcChild = os.path.join(srcDir, name)
+                try:
+                    if os.path.isdir(srcChild):
+                        fileutils.copyLocalFolder(srcChild, destDir)
+                    else:
+                        shutil.copy(srcChild, destDir)
+                except:
+                    # logging doesn't always work in this file, so print the
+                    # traceback as well.
+                    log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcChild, destDir)
+                    installedSampleTools = False
+                    
+            prefs.setBooleanPref(prefName, installedSampleTools)
         except Exception:
             log.exception("installSampleTools")
 
