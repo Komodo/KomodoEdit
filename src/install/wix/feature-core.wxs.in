@@ -1816,6 +1816,7 @@
                     <File Id="file287" Name="jquery.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\jquery.cix" />
                     <File Id="file3" Name="ext.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\ext.cix" />
                     <File Id="file895" Name="xbl.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\xbl.cix" />
+                    <File Id="file1234" LongName="html5_canvas2d.cix" Name="HTML5__0.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\catalogs\html5_canvas2d.cix" />
                   </Component>
                 </Directory> <!-- lib\mozilla\python\komodo\codeintel2\catalogs -->
                 <Directory Id="directory404" Name="stdlibs">
