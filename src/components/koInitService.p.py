@@ -85,8 +85,8 @@ if os.environ.has_key("KO_DEBUG_PORT"):
     try:
         from dbgp.client import brk
         brk(port=int(os.environ["KO_DEBUG_PORT"]))
-    except Exception, e:
-        log.exception(e)
+    except Exception:
+        log.exception("trying to get env")
         pass
 # #endif
 
@@ -396,8 +396,8 @@ class KoInitService(object):
                     svc = components.classes[cid].\
                         getService(components.interfaces.nsIObserver)
                     svc.observe(None, "komodo-startup-service", None)
-                except Exception, e:
-                    log.exception(e, "Unable to start %r service: %r", name, cid)
+                except Exception:
+                    log.exception("Unable to start %r service: %r", name, cid)
             observerSvc.addObserver(self, "quit-application", 1)
         elif topic == "quit-application":
             observerSvc.removeObserver(self, "quit-application")
@@ -506,7 +506,7 @@ class KoInitService(object):
             else:
                 log.debug('Unable to set encoding for locale %s'%\
                             os.getenv('LANG'))
-        except Exception, e:
+        except Exception:
             log.debug('Unable to determine system locale settings')
         return None
     
@@ -514,14 +514,14 @@ class KoInitService(object):
         log.debug('in _setlocale')
         try:
             locale.setlocale(locale.LC_ALL,'')
-        except Exception, e:
-            log.exception(e)
+        except Exception:
+            log.exception("_setlocale")
             log.warn('Unable to setlocale for %s'%os.getenv('LANG'))
             return None
         try:
             return self._setencoding()
-        except Exception, e:
-            log.exception(e)
+        except Exception:
+            log.exception("_setlocale")
             log.warn('Unable to set encoding for locale %s'%os.getenv('LANG'))
         return None
 
@@ -532,12 +532,12 @@ class KoInitService(object):
             if orig_lang and orig_lang.lower().endswith('@euro'):
                 lang = orig_lang[:orig_lang.find('@euro')]
                 os.environ[var] = lang
-        
+    
     def setEncoding(self):
         try:
             self._setEncoding()
-        except Exception, e:
-            log.exception(e, "koInitService setEncoding failed")
+        except Exception:
+            log.exception("koInitService setEncoding failed")
 
     def _setEncoding(self):
         log.debug("in setEncoding")
@@ -721,8 +721,8 @@ class KoInitService(object):
         try:
             import koprocessutils
             koprocessutils.initialize()
-        except Exception, e:
-            log.exception(e)
+        except Exception:
+            log.exception("initProcessUtils")
 
     def platformCheck(self):
         if sys.platform == "darwin":
@@ -1033,8 +1033,8 @@ class KoInitService(object):
         try:
             self._upgradeUserDataDirFiles()
             self._upgradeUserPrefs()
-        except Exception, e:
-            log.exception(e)
+        except Exception:
+            log.exception("upgradeUserSettings")
 
     def _upgradeExtensions(self, prevVersion, currentVersion,
                            prevHostUserDataDir, currHostUserDataDir):
@@ -1113,7 +1113,7 @@ class KoInitService(object):
             # Prime the pump for the `langinfo' database.
             import langinfo
             lidb = langinfo.set_default_dirs(pylibDirs)
-        except Exception, e:
+        except Exception:
             log.exception("error initializing from extensions")
 
     def installSamples(self, force):
@@ -1131,8 +1131,8 @@ class KoInitService(object):
             srcDir = os.path.join(koDirSvc.supportDir, "samples")
             log.info("installing Komodo samples to '%s'" % dstDir)
             _copy(srcDir, dstDir)
-        except Exception, e:
-            log.exception(e)
+        except Exception:
+            log.exception("installSamples")
 
     def installSampleTools(self):
         try:
@@ -1152,8 +1152,6 @@ class KoInitService(object):
             folder_name = "Samples (%s)" % str(infoSvc.version)
             destDir = os.path.join(stdToolsFolder, folder_name)
             srcDir = os.path.join(koDirs.supportDir, 'samples', 'tools')
-            if not os.path.exists(destDir):
-                lookAtPrefName = False
                 
             prefName = "haveInstalledSampleToolbox-Komodo" + infoSvc.version
             if lookAtPrefName and prefs.hasBooleanPref(prefName) and prefs.getBooleanPref(prefName):
@@ -1163,8 +1161,8 @@ class KoInitService(object):
             import fileutils
             fileutils.copyLocalFolder(srcDir, destDir)
             prefs.setBooleanPref(prefName, True)
-        except Exception, e:
-            log.exception(e)
+        except Exception:
+            log.exception("installSampleTools")
 
     def installTemplates(self):
         try:
@@ -1174,5 +1172,5 @@ class KoInitService(object):
                 cid = "@activestate.com/koTemplateService?type=%s;1" % (type, )
                 components.classes[cid].\
                         getService(components.interfaces.koITemplateService)
-        except Exception, e:
-            log.exception(e)
+        except Exception:
+            log.exception("installTemplates")
