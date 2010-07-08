@@ -434,6 +434,13 @@ class koXMLPreferenceSetObjectFactory:
                 return prefObject
             else:
                 log.warn("the dePickledCache object was None")
+                try:
+                    # Remove the bad pickle file.
+                    os.remove(cacheFilename)
+                except:
+                    # Couldn't remove the bad pickle cache - ignore it.
+                    pass
+                cacheFilename
         else:
             log.info("cacheFilename for %r is None, so doing it the slow way",
                      filename)
