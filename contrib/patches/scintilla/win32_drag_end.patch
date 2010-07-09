@@ -1,6 +1,8 @@
-@@ -1113,16 +1133,18 @@
- }
- 
+Index: /home/toddw/as/komodo-devel/src/scintilla/win32/ScintillaWin.cxx
+===================================================================
+--- win32/ScintillaWin.cxx	(revision 42054)
++++ win32/ScintillaWin.cxx	(working copy)
+@@ -1113,12 +1133,14 @@
  void ScintillaWin::SetMouseCapture(bool on) {
  	if (mouseDownCaptures) {
  		if (on) {
@@ -15,5 +17,3 @@
  }
  
  bool ScintillaWin::HaveMouseCapture() {
- 	// Cannot just see if GetCapture is this window as the scroll bar also sets capture for the window
- 	return capturedMouse;
