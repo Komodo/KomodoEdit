@@ -228,6 +228,8 @@ print("Found %d modules" % len(module_names))
 
 if sys.platform.startswith('win'):
     pywin32_module_names = list(filter(pywin32_filter, module_names))
+    # Manually add certain win32 modules - bug 87357.
+    pywin32_module_names += ["win32ui", "win32uiole", "dde"]
     print("Found %d PyWin32 modules" % len(pywin32_module_names))
 
 module_names = list(filter(keep_module, module_names))
