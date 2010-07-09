@@ -142,10 +142,17 @@ class PythonImportsEvaluator(Evaluator):
                             for name in blob.names:
                                 elem = blob.names[name]
                                 cplns.append((elem.get("ilk") or elem.tag, name))
-                            #TODO: Should also add symbols from
-                            #      top-level imports in this blob.
+                            
                             #TODO: Consider using the value of __all__
                             #      if defined.
+                            for e in blob:
+                                attrs = e.get("attributes", "").split()
+                                if "__hidden__" not in attrs:
+                                    try:
+                                        cplns += self._members_from_elem(e, mgr)
+                                    except CodeIntelError, ex:
+                                        self.warn("%s (skipping members for %s)",
+                                                  ex, e)
                     if cplns:
                         break
                 
@@ -161,6 +168,50 @@ class PythonImportsEvaluator(Evaluator):
                 self.ctlr.set_cplns(cplns)
         finally:
             self.ctlr.done("success")
+
+    #XXX: This function is shamelessly copy/pasted from
+    #     tree_python.py:PythonTreeEvaluator because there was no clear
+    #     way to reuse this shared functionality. See another XXX below, though.
+    def _members_from_elem(self, elem, mgr):
+        """Return the appropriate set of autocomplete completions for
+        the given element. Typically this is just one, but can be more for
+        '*'-imports
+        """
+        members = set()
+        if elem.tag == "import":
+            alias = elem.get("alias")
+            symbol_name = elem.get("symbol")
+            module_name = elem.get("module")
+            if symbol_name:
+                import_handler = mgr.citadel.import_handler_from_lang(self.trg.lang)
+                try:
+                    blob = import_handler.import_blob_name(
+                                module_name, self.buf.libs, self.ctlr)
+                except:
+                    self.warn("limitation in handling imports in imported modules")
+                    raise
+
+                if symbol_name == "*": # can it be so?
+                    for m_name, m_elem in blob.names.items():
+                        m_type = m_elem.get("ilk") or m_elem.tag
+                        members.add( (m_type, m_name) )
+                elif symbol_name in blob.names:
+                    symbol = blob.names[symbol_name]
+                    member_type = (symbol.get("ilk") or symbol.tag)
+                    members.add( (member_type, alias or symbol_name) )
+                else:
+                    self.warn("could not resolve %r", elem)
+                    #XXX: This would take copying the whole PythonTreeEvaluator
+                    #     to implement this. It feels pretty much clear at
+                    #     the moment that PythonImportsEvaluator is a special
+                    #     case of PythonTreeEvaluator.
+                    return []
+            else:
+                cpln_name = alias or module_name.split('.', 1)[0]
+                members.add( ("module", cpln_name) )
+        else:
+            members.add((elem.get("ilk") or elem.tag, elem.get("name")) )
+        return members
 
 
 class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,

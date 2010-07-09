@@ -1327,6 +1327,31 @@ class CplnTestCase(CodeIntelTestCase):
         '''))
         self.assertCalltipIs(markup_text(content, pos=positions[1]), "isRipe()")
 
+    @tag("bug83524")
+    def test_top_level_imports(self):
+        content1, positions1 = unmark_text(dedent(r'''
+            from x import <1>; # should see "types" and "abspath" here
+        '''))
+
+        test_dir = join(self.test_dir, "test_toplevel_imports")
+        manifest = [
+            ("x.py", dedent("""
+                import types
+                from os.path import abspath
+                def fun(): pass
+             """)),
+            ("y.py", content1)]
+        
+        for f, c in manifest:
+            path = join(test_dir, f)
+            writefile(path, c)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "y.py"), lang="Python")
+        self.assertCompletionsInclude2(buf, positions1[1],
+            [("module", "types"),
+             ("function", "abspath"),
+             ("function", "fun")])
+
     @tag("bug45822", "knownfailure")
     def test_relative_imports(self):
         content1, positions1 = unmark_text(dedent(r'''
