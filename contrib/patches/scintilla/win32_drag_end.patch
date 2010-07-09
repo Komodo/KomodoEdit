@@ -1,0 +1,19 @@
+@@ -1113,16 +1133,18 @@
+ }
+ 
+ void ScintillaWin::SetMouseCapture(bool on) {
+ 	if (mouseDownCaptures) {
+ 		if (on) {
+ 			::SetCapture(MainHWND());
+ 		} else {
+ 			::ReleaseCapture();
++                        // KOMODO: Disable drag drop tracking - bug 87342.
++			inDragDrop = ddNone;
+ 		}
+ 	}
+ 	capturedMouse = on;
+ }
+ 
+ bool ScintillaWin::HaveMouseCapture() {
+ 	// Cannot just see if GetCapture is this window as the scroll bar also sets capture for the window
+ 	return capturedMouse;

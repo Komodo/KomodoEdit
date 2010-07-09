@@ -538,6 +538,8 @@ NS_IMETHODIMP SciMoz::SetVisible(PRBool vis) {
 NS_IMETHODIMP SciMoz::EndDrop()
 {
 	SCIMOZ_CHECK_VALID("EndDrop");
+	// This will disable drag drop tracking - bug 87342.
+	SendEditor(SCI_RELEASEMOUSECAPTURE, 0, 0);
 	return NS_OK;
 }
 

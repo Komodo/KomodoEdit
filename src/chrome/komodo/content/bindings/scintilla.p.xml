@@ -1218,6 +1218,10 @@
                 // ended.
                 //dump("scintilla: dragend\n");
                 this._startDragDrop = null;
+<!-- #if PLATFORM == "win" -->
+                    // Ensure the mouse capture is released - bug 87342.
+                    this.scimoz.endDrop();
+<!-- #endif -->
                 ]]>
             </handler>
 
