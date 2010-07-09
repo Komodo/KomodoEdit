@@ -122,6 +122,7 @@
                     <xul:toolbarbutton anonid="panel-close-button"
                             class="tabs-closebutton"
                             collapsed="true"
+                            buttonstyle="pictures"
                             xbl:inherits="onclick=onclose,collapsed=closecollapsed,disabled=closedisabled"/>
                 </xul:hbox>
                 <xul:box anonid="left-scroll" collapsed="true" flex="0">
