@@ -1006,6 +1006,71 @@
 
     </binding>
 
+    <!-- Widget used to display vertical text. -->
+    <binding id="vertical_label"
+             extends="chrome://global/content/bindings/general.xml#basecontrol">
+        <content>
+            <xul:vbox anonid="text_hbox" class="vertical-label-vbox"
+                      xbl:inherits="flex, disabled, rotation">
+            </xul:vbox>
+        </content>
+
+        <implementation>
+
+            <constructor>
+                <![CDATA[
+                this._label = "";
+                if (this.getAttribute("label")) {
+                    this.value = this.getAttribute("label");
+                }
+                ]]>
+            </constructor>
+
+            <property name="value">
+                <setter>
+                    <![CDATA[
+                    this._label = val;
+                    var text_hbox = document.getAnonymousElementByAttribute(this, 'anonid', 'text_hbox');
+                    var nextSibling = text_hbox.firstChild;
+                    var labelSibling;
+                    while (nextSibling) {
+                        labelSibling = nextSibling;
+                        nextSibling = labelSibling.nextSibling;
+                        if (labelSibling.localName == 'label') {
+                            text_hbox.removeChild(labelSibling);
+                        }
+                    }
+                    var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+                    var labelElement;
+                    var rotation = parseInt(this.getAttribute("rotation")) % 360;
+                    if (rotation < 180) {
+                        for (var i=0; i < val.length; i++) {
+                            labelElement = document.createElementNS(XUL_NS, "label");
+                            labelElement.setAttribute("value", val.substring(i, i+1));
+                            labelElement.setAttribute("class", "vertical-button-text");
+                            text_hbox.appendChild(labelElement);
+                        }
+                    } else {
+                        for (var i=val.length-1; i >= 0; i--) {
+                            labelElement = document.createElementNS(XUL_NS, "label");
+                            labelElement.setAttribute("value", val.substring(i, i+1));
+                            labelElement.setAttribute("class", "vertical-button-text");
+                            text_hbox.appendChild(labelElement);
+                        }
+                    }
+                    ]]>
+                </setter>
+                <getter>
+                    <![CDATA[
+                    return this._label;
+                    ]]>
+                </getter>
+            </property>
+
+        </implementation>
+
+    </binding>
+
 </bindings>
 
 

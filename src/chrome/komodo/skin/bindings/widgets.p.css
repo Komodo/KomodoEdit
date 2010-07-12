@@ -81,3 +81,40 @@ menu.menulist-subLevel > menupopup  > menuitem {
   max-width: none;
   list-style-image: none;
 }
+
+
+/**
+ * Vertical text label.
+ */
+label.vertical_text
+{
+    -moz-binding        : url("chrome://komodo/content/bindings/widgets.xml#vertical_label");
+}
+
+.vertical-label-vbox
+{
+    text-align          : center;
+    padding             : 4px 0 4px 0;
+}
+
+.vertical-label-vbox > label
+{
+    margin              : 0;
+    padding             : 0;
+    margin-left         : 4px;
+    margin-top          : -3px;
+    margin-bottom       : -3px;
+}
+
+.vertical-label-vbox[rotation="90"] > label
+{
+    -moz-transform      : rotate(90deg);
+}
+.vertical-label-vbox[rotation="180"] > label
+{
+    -moz-transform      : rotate(180deg);
+}
+.vertical-label-vbox[rotation="270"] > label
+{
+    -moz-transform      : rotate(270deg);
+}
