@@ -366,6 +366,7 @@ class CodeIntelTestCase(unittest.TestCase):
         content, data = unmark_text(
             self.adjust_content(markedup_content))
         buf = self.mgr.buf_from_content(content, lang=lang, path=path)
+        buf.scan(skip_scan_time_check=True)
         actual_blob, actual_lpath = buf.scoperef_from_pos(data["pos"])
         self.failUnlessEqual(lpath, actual_lpath,
             "unexpected %s scope lookup path (lpath) at the given position\n"
