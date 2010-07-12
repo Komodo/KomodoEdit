@@ -187,3 +187,16 @@ tab > .tab-text {
 treechildren#toolbox2-hierarchy-treebody::-moz-tree-image {
     padding-right: 2px;
 }
+
+/**
+ * Goto line panel styling.
+ */
+#gotoLine_panel {
+}
+
+#gotoLine_vbox {
+    padding: 4px;
+}
+
+#gotoLine_description {
+}
