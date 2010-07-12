@@ -371,7 +371,7 @@ class KoPlaceTreeView(TreeView):
         prefs.getPref("places").setStringPref("places-open-nodes-v2",
                                   json.dumps(self._nodeOpenStatusFromName))
         self._observerSvc.removeObserver(self, "file_status")
-        self.workerThread.put((None, None, None))
+        self.workerThread.shutdown();
         self.workerThread.join(3)
         self.set_currentPlace(None)
         self._rows = []
@@ -2004,19 +2004,25 @@ class _WorkerThread(threading.Thread, Queue):
     def __init__(self, **kwargs):
         threading.Thread.__init__(self, kwargs)
         Queue.__init__(self)
+        self._isShuttingDown = False
+
+    def shutdown(self):
+        self._isShuttingDown = True
+        self.put((None, None, None))
 
     def run(self):
         while 1:
             request, args, callback = self.get()
-            if not request:
+            if not request or self._isShuttingDown:
                 break
             try:
                 rv = getattr(self, request)(args)
             except:
                 log.exception("Request:%s", request)
                 rv = "Exception: request:%s, message:%s" % (request, sys.exc_info()[1])
-            treeView = args['requester']
-            treeView.proxySelf.handleCallback(callback, rv, args['requestID'])
+            if not self._isShuttingDown:
+                treeView = args['requester']
+                treeView.proxySelf.handleCallback(callback, rv, args['requestID'])
 
     def refreshTreeOnOpen(self, args):
         uri = args['uri']
