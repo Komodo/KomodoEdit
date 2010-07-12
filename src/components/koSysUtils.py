@@ -186,7 +186,8 @@ class koSysUtils:
         if sys.platform.startswith("win"):
             import ctypesutils
             ctypesutils.move_to_trash(filename)
-        elif sys.platform.startswith("darwin"):
+            return
+        if sys.platform.startswith("darwin"):
             try:
                 import findertools
                 findertools.movetotrash(filename)
@@ -197,7 +198,6 @@ class koSysUtils:
                 trashfolder = Carbon.Folder.FSFindFolder(fss.as_tuple()[0], 'trsh', 0)
                 trash = trashfolder.as_pathname()
                 toTrash = os.path.join(trash, os.path.basename(filename))
-                os.rename(filename, toTrash)
         else:
             # Gnome:
             #   Newer Ubuntu and gnome systems use the "gvfs-trash", storing
@@ -207,29 +207,52 @@ class koSysUtils:
             # KDE:
             #   it might be better to use kfmclient.
             manager = self._getManager()
+            if manager != "kde" and os.path.exists("/usr/bin/gvfs-trash"):
+                os.system('/usr/bin/gvfs-trash "%s"' % (filename, ))
+                if not os.path.exists(filename):
+                    return
             trash = os.path.expanduser("~/.Trash")
+            if not os.path.exists(trash):
+                trash = os.path.expanduser("~/.local/share/Trash")
+                if not os.path.exists(trash):
+                    trash = os.path.expanduser("~/.Trash")
+                    os.mkdir(trash)
             toTrash = os.path.join(trash, os.path.basename(filename))
             if manager == "kde":
-                if not os.path.exists(trash):
-                    os.mkdir(trash)
                 os.system('kfmclient move "%s" "%s"' % (filename, toTrash))
-            else:
-                if os.path.exists("/usr/bin/gvfs-trash"):
-                    os.system('/usr/bin/gvfs-trash "%s"' % (filename, ))
+
+        if os.path.exists(filename):
+            # Platform-specific ways of moving the item to the trash either
+            # weren't applicable, or failed, so use a generic method.
+            if not os.path.exists(trash):
+                try:
+                    os.mkdir(trash)
+                except:
+                    log.exception("Can't create directory %s", trash)
+                    return
+            elif os.path.exists(toTrash):
+                try:
+                    # shutil.move doesn't overwrite existing items
+                    if os.path.isdir(toTrash):
+                        shutil.rmtree(toTrash, ignore_errors=False)
+                    else:
+                        os.unlink(toTrash)
+                except:
+                    log.exception("Can't remove existing file/dir %s", toTrash)
+                    return
+            # Finally, try either moving the source to the trash, or
+            # do a copy & rename
+            try:
+                shutil.move(filename, toTrash)
+            except OSError, ex:
+                if ex.errno == 18:
+                    # OSError: [Errno 18] Invalid cross-device link
+                    # Try to copy the file and then remove the original,
+                    # see bug 81138.
+                    shutil.copy(filename, toTrash)
+                    os.remove(filename)
                 else:
-                    if not os.path.exists(trash):
-                        os.mkdir(trash)
-                    try:
-                        os.rename(filename, toTrash)
-                    except OSError, ex:
-                        if ex.errno == 18:
-                            # OSError: [Errno 18] Invalid cross-device link
-                            # Try to copy the file and then remove the original,
-                            # see bug 81138.
-                            shutil.copy(filename, toTrash)
-                            os.remove(filename)
-                        else:
-                            raise
+                    raise
 
     def ShowFileInFileManager(self, filename):
         # nsILocalFile handles some of this
