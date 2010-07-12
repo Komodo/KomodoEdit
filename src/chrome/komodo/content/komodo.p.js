@@ -420,6 +420,19 @@ function(val)
 });
         
 
+var _deprecated_getters_noted = {};
+var _log = ko.logging.getLogger("ko.main");
+this.__deprecatedNameTest = function(deprecatedName, supportedName) {
+    if (!(deprecatedName in _deprecated_getters_noted)) {
+        _deprecated_getters_noted[deprecatedName] = true;
+        _log.error("DEPRECATED: "
+                   + deprecatedName
+                   + ", please use "
+                   + supportedName
+                   + "\n");
+    }
+};
+
 }).apply(ko.main);
 
 ko.mozhacks = {};

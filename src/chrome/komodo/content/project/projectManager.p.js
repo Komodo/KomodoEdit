@@ -1078,8 +1078,8 @@ this.addDeprecatedGetter = function(deprecatedName, ko_project_name) {
     }
     __defineGetter__(deprecatedName,
          function() {
-             this._deprecatedNameTest(deprecatedName,
-                                      "ko.projects." + ko_project_name);
+             ko.main.__deprecatedNameTest(deprecatedName,
+                                        "ko.projects." + ko_project_name);
              return ko.projects[ko_project_name];
         });
 }
