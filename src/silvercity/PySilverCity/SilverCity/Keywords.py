@@ -131,7 +131,7 @@ vxml_attributes=\
 
 vxml_keywords = vxml_elements + " " + vxml_attributes + " " + "public !doctype"
 
-hypertext_elements=\
+html4_elements=\
     "a abbr acronym address applet area b base basefont " \
     "bdo big blockquote body br button caption center " \
     "cite code col colgroup dd del dfn dir div dl dt em " \
@@ -142,6 +142,14 @@ hypertext_elements=\
     "script select small span strike strong style sub sup " \
     "table tbody td textarea tfoot th thead title tr tt u ul " \
     "var xml xmlns"
+
+html5_elements=\
+    "article aside audio canvas command datalist details dialog " \
+    "embed figcaption figure footer header hgroup keygen mark menu " \
+    "meter nav output progress rp rt ruby section source summary " \
+    "time video"
+
+hypertext_elements = html4_elements + " " + html5_elements
 
 hypertext_attributes=\
     "abbr accept-charset accept accesskey action align alink " \
