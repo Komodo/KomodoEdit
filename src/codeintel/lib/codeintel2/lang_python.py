@@ -155,7 +155,8 @@ class PythonImportsEvaluator(Evaluator):
                                                   ex, e)
                     if cplns:
                         break
-                
+                if cplns:
+                    cplns = list(set(cplns))  # remove duplicates
             else:
                 self.ctlr.set_desc("available imports")
                 all_imports = set()
