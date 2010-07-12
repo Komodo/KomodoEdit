@@ -217,6 +217,7 @@
                 </xul:toolbarbutton>
                 <xul:toolbarbutton anonid="panel-close-button" class="tabs-closebutton"
                             collapsed="true"
+                            buttonstyle="pictures"
                             xbl:inherits="onclick=onclose,
                                           collapsed=closecollapsed,
                                           disabled=closedisabled,
