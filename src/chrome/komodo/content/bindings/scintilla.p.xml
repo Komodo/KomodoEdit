@@ -829,10 +829,10 @@
                     this._startDragDrop = null;
 
                     // The selection may have changed as a result.
-                    // We could get smarter about only sending this when it truly _has_
-                    // changed, but this would require remembering the position in the
-                    // "mousedown" event, and speed here isnt a real issue.
-                    window.updateCommands("select")
+                    if (scimoz.selText != this._mouseDownSelection) {
+                        window.updateCommands("select");
+                    }
+                    this._mouseDownSelection = "";
                     this._inMouseDown = -1;
                 } else if (this._mozcontext && !this._contextShowing) {
                     this._mozcontext.openPopup(
@@ -894,6 +894,7 @@
                 }
                 var x,y;
                 [x,y] = this.getClientCoordinates(event);
+                this._mouseDownSelection = scimoz.selText;
                 this._lastMousePos = [x,y];
                 if (this._contextShowing && this._mozcontext) {
                     // XXX http://bugs.activestate.com/show_bug.cgi?id=20537
