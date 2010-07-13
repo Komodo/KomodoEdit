@@ -2280,18 +2280,7 @@
                              oncommand="ko.projects.manager.viewMgr.tree.focus();"
                              onfocus="ko.projects.manager.viewMgr.focus();"/>
                     </tabs>
-                    <tabpanels flex="1" id="project_toolbox_tabpanels"
-                            onfocus="
-                            if (!ko.views.manager.batchMode) {
-                                window.updateCommands('select');
-                            }
-                                "
-                            onblur="
-                            if (!ko.views.manager.batchMode) {
-                                window.updateCommands('select');
-                            }
-                                "
-                    >
+                    <tabpanels flex="1" id="project_toolbox_tabpanels">
                         <tabpanel flex="1" id="projectviewbox">
                             <vbox flex="1" id="projectview-vbox">
                                 <partviewer
@@ -2392,18 +2381,7 @@
                              locktip="&thisToolboxIsReadOnly.locktip;"
                              accesskey="&toolboxTab.accesskey;"/>
                     </tabs>
-                    <tabpanels flex="1" id="right_toolbox_tabpanels"
-                            onfocus="
-                            if (!ko.views.manager.batchMode) {
-                                window.updateCommands('select');
-                            }
-                                "
-                            onblur="
-                            if (!ko.views.manager.batchMode) {
-                                window.updateCommands('select');
-                            }
-                                "
-                    >
+                    <tabpanels flex="1" id="right_toolbox_tabpanels">
                         <tabpanel flex="1" id="toolbox2viewbox">
                             <!--
                             put this in the new toolbox....
@@ -2462,8 +2440,7 @@
                                                flex="1"
                                                type="search"
                                                timeout="500"
-                                               onfocus="window.updateCommands('undo');this.select();"
-                                               onblur="window.updateCommands('undo')"
+                                               onfocus="this.select();"
                                                onkeypress="ko.toolbox2.onFilterKeypress(event)"
                                                oncommand="ko.toolbox2.updateFilter()"
                                                tooltiptext="&findFilter.tooltiptext;"/>
