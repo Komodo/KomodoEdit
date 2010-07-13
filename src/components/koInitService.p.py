@@ -867,11 +867,9 @@ class KoInitService(object):
             macosx:  ~/Library/Application Support/Komodo[IDE|Edit]/X.Y
             linux:   ~/.komodo[ide|edit]/X.Y
 
-        If the upgrade is necessary, this method will upgrade from:
-        - a previous version of Komodo (IDE, Edit, Personal, Pro); or
-        - a Komodo of the same version but different flavour. E.g., if this
-          is Komodo IDE 4.0 and the user has run Komodo Edit 4.0, this will
-          upgrade from the user's Komodo Edit 4.0 settings.
+        If the upgrade is necessary, this method will upgrade from a previous
+        version of Komodo (Edit, Personal, Pro), but will *not* upgrade from
+        a Komodo IDE profile.
         """
         from os.path import dirname, basename, join, exists
 
@@ -941,12 +939,11 @@ class KoInitService(object):
 
         # Determine from which Komodo userdatadir we should upgrade.
         basedir, base = os.path.split(dirname(currUserDataDir))
-        if base not in ("KomodoIDE", "KomodoEdit", ".komodoide", ".komodoedit"):
+        if base not in ("KomodoEdit", ".komodoedit"):
             # Looks like KOMODO_USERDATADIR is being used.
             datadirs = [dirname(currUserDataDir)]
         elif sys.platform in ("win32", "darwin"):
-            datadirs = [join(basedir, d) for d in
-                        ("Komodo", "KomodoIDE", "KomodoEdit")]
+            datadirs = [join(basedir, d) for d in ("Komodo", "KomodoEdit")]
             if sys.platform == "win32":
                 # Komodo 6 on Windows moved the profile directory from the
                 # roaming app data dir, to the local app data dir (applies to
@@ -955,10 +952,9 @@ class KoInitService(object):
                 roaming_komodo_data_dir = dirname(dirname(koDirSvc.roamingUserDataDir))
                 if roaming_komodo_data_dir != currUserDataDir:
                     datadirs += [join(roaming_komodo_data_dir, d) for d in
-                                ("Komodo", "KomodoIDE", "KomodoEdit")]
+                                ("Komodo", "KomodoEdit")]
         else:
-            datadirs = [join(basedir, d) for d in
-                        (".komodo", ".komodoide", ".komodoedit")]
+            datadirs = [join(basedir, d) for d in (".komodo", ".komodoedit")]
         ver_pat = re.compile(r"^\d+\.\d+$")
         vers_and_userdatadirs = []
         for datadir in datadirs:
