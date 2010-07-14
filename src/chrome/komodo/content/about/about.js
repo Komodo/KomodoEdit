@@ -63,7 +63,12 @@ function onLoad()
 function copyBuildInfo(event) {
     const clipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].  
         getService(Components.interfaces.nsIClipboardHelper);  
-    clipboardHelper.copyString(_getBuildInfo()); 
+    var iframe = window.frames[0];
+    var selection = iframe.getSelection().toString();
+    if (!selection) {
+        selection = _getBuildInfo();
+    }
+    clipboardHelper.copyString(selection); 
 }
 
 
