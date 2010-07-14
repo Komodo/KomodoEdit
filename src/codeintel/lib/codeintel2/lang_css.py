@@ -1085,8 +1085,9 @@ class CSSBuffer(Buffer):
     # Removed '.' - conflict with floating point values: .5em (bug 80126)
     # Removed '{' - gets in way of "rule {" style declarations (bug 82358)
     # Removed '#' - gets in the way of hex colors and id selectors (bug 82968)
-    cpln_fillup_chars = " '\";},>/"
-    cpln_stop_chars = " ('\";{},.>/"
+    # Removed '>' - gets in the way of child selectors (bug 87403)
+    cpln_fillup_chars = " '\";},/"
+    cpln_stop_chars = " ('\";{},./"
 
 
 
