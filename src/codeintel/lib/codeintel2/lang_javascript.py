@@ -682,6 +682,9 @@ class JavaScriptLangIntel(CitadelLangIntel,
 
             # - cataloglib, stdlib
             catalog_selections = env.get_pref("codeintel_selected_catalogs")
+            if buf.lang == "HTML5":
+                # Implicit HTML 5 catalog additions.
+                libs.append(db.get_catalog_lib("JavaScript", ["html5_canvas2d"]))
             libs += [
                 db.get_catalog_lib("JavaScript", catalog_selections),
                 db.get_stdlib("JavaScript"),
