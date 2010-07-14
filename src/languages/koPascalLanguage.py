@@ -57,6 +57,7 @@ class koPascalLanguage(KoLanguageBase):
         #"line": [ "//" ],
         "block": [ ("{",  "}"),
                    ("(*", "*)") ],
+        "markup": "*",
     }
     supportsSmartIndent = "brace"
     
