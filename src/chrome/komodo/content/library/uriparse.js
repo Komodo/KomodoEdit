@@ -325,6 +325,24 @@ this.commonURIPrefixAndPathsFromURIs = function(uris) {
 }
 
 /**
+ * Return the relative path from 'fromPath' to 'toPath'.
+ *
+ * @param fromPath {string}  The local path to work from.
+ * @param fromPath {string}  The local path to get to.
+ * @returns {string}  Relative path.
+ */
+this.relativePath = function ko_uriparse_relativePath(fromPath, toPath)
+{
+    var nsFileFrom = Components.classes["@mozilla.org/file/local;1"]
+                          .createInstance(Components.interfaces.nsILocalFile);
+    nsFileFrom.initWithPath(fromPath);
+    var nsFileTo = Components.classes["@mozilla.org/file/local;1"]
+                          .createInstance(Components.interfaces.nsILocalFile);
+    nsFileTo.initWithPath(toPath);
+    return nsFileTo.getRelativeDescriptor(nsFileFrom);
+}
+
+/**
  * Uses the supplied URI to check if there are any special mappings setup
  * in order to change this URI into another location. If there is a match,
  * return the new URI, else return the original URI.
