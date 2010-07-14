@@ -952,11 +952,9 @@ this._invokerNameForToolType = {
  '__EOD__':null
 };
 
-this.onDblClick = function(event) {
-    if (event.which != 1) {
-        dump("this.onDblClick, leaving as event.which = "
-             + event.which
-             + "\n");
+this.onDblClick = function(event, checkMouseClick/*=true*/) {
+    if (typeof(checkMouseClick) == "undefined") checkMouseClick = true;
+    if (checkMouseClick && event.which != 1) {
         return;
     }
     var that = ko.toolbox2;
@@ -1201,13 +1199,15 @@ this._handleDroppedURLs = function(index, koDropDataList) {
 
 this.onTreeKeyPress = function(event) {
     try {
-        if (event.keyCode == event.DOM_VK_ENTER
-            || event.keyCode == event.DOM_VK_RETURN)
-        {
-            event.cancelBubble = true;
-            event.stopPropagation();
-            event.preventDefault();
-            this.onDblClick(event);
+        if ((event.keyCode == event.DOM_VK_ENTER
+             || event.keyCode == event.DOM_VK_RETURN)
+            && !event.shiftKey && !event.ctrlKey && !event.altKey) {
+            var t = event.originalTarget;
+            if (t.localName == "treechildren" || t.localName == 'tree') {
+                event.cancelBubble = true;
+                event.preventDefault();
+                this.onDblClick(event, false);
+            }
         }
     } catch(ex) {
         dump("onTreeKeyPress: error: " + ex + "\n");
