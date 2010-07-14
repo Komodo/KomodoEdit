@@ -87,8 +87,8 @@ def at_stmt_end(token_type, token_string):
 def safe_get_next_token(tokenizer):
     try:
         return tokenizer.next()
-    except tokenize.TokenError:
-        log.exception("problem getting next token")
+    except (tokenize.TokenError, IndentationError):
+        log.debug("problem getting next token")
         raise StopIteration
     
 def _calc_py2_py3_scores(textWrapper):
@@ -260,6 +260,12 @@ def _stringify(buffer):
     return text
 
 def getScores(buffer):
+    """Return a 2-tuple (python-2-score, python-3-score) indicating hits of
+    constructs for that particular language in the given buffer. If there is
+    an error calculating this returns (0, 0).
+    
+    TODO: This should take an encoding arg, rather than guessing again.
+    """
     text = _stringify(buffer)
     if text == -1:
         return (0, 0)
@@ -269,18 +275,26 @@ def getScores(buffer):
     log.debug("Python2: %d, Python3: %d", scores[0], scores[1])
     return scores
 
-# C:\Users\ericp\svn\apps\komodo\contrib\twisted\TwistedCore-2.4.0\twisted\cred\checkers.py  
     
 if __name__ == '__main__':
-    argc = len(sys.argv)
+    import os
+    logging.basicConfig()
     f = _FileWrapper()
-    if argc == 1:
+    if len(sys.argv) == 1:
         code = """\
-c = a <> b
+def foo():
+    try:
+        pass
+     TestSkipped:   # this causes tokenize to raise IndentationError
+        pass
 """
         f.set_text(code)
         # f.set_stdin()
         print _calc_py2_py3_scores(f)
     else:
-        f.set_file(sys.argv[-1])
-        print _calc_py2_py3_scores(f)
+        import os
+        for path in sys.argv[1:]:
+            if not os.path.isfile(path):
+                continue
+            f.set_file(path)
+            print "%s: %r" % (path, _calc_py2_py3_scores(f))
