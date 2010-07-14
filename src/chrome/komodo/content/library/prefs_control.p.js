@@ -65,6 +65,7 @@ var view = {
         switch (type) {
             case 'long':
             case 'boolean':
+            case 'double':
             case 'string':
                 return false;
             default:
@@ -160,6 +161,7 @@ function getNearestIndexOfPref(pref)
 function prefObject(prefName, prefIndex)
 {
     this.prefName = prefName;
+    this.prefName_lowered = prefName.toLowerCase();
 }
 
 const PREF_IS_DEFAULT_VALUE = 0;
@@ -195,6 +197,11 @@ function fetchPref(prefName, prefIndex)
         pref.prefType = 'long';
         // convert to a string
         pref.prefValue = gPrefs.getLongPref(prefName).toString();
+        break;
+        case 'double':
+        pref.prefType = 'double';
+        // convert to a string
+        pref.prefValue = gPrefs.getDoublePref(prefName).toString();
         break;
         case 'string':
         pref.prefType = 'string';
@@ -308,9 +315,9 @@ function prefNameSortFunction(x, y)
             return -gSortDirection;
         return 0;
     } else {
-        if (x.prefName > y.prefName)
+        if (x.prefName_lowered > y.prefName_lowered)
             return gSortDirection;
-        if (x.prefName < y.prefName)
+        if (x.prefName_lowered < y.prefName_lowered)
             return -gSortDirection;
         return 0;
     }
@@ -440,6 +447,9 @@ function ModifyPref(entry)
                     alert("There was an error setting the pref: " + lastErrorSvc.getLastErrorMessage());
                     return false;
                 }
+                break;
+            case 'double':
+                gPrefs.setDoublePref(entry.prefName, parseFloat(value));
                 break;
             case 'string':
                 gPrefs.setStringPref(entry.prefName, value);
