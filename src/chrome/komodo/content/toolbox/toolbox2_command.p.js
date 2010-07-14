@@ -348,7 +348,7 @@ this.importFilesFromFileSystem = function(event) {
     var title = komodo_bundle.GetStringFromName("selectFilesToImportToolbox");
     var defaultFilterName = "Komodo Tool";
     var filterNames = [defaultFilterName, "Zip", "All"]
-    var paths = ko.filepicker.openFiles(defaultDirectory, defaultFilename,
+    var paths = ko.filepicker.browseForFiles(defaultDirectory, defaultFilename,
                                         title,
                                         defaultFilterName, filterNames);
     if (!paths) {
@@ -402,7 +402,7 @@ this.importPackage = function(event) {
     var defaultDirectory = null;
     var defaultFilename = null;
     
-    var path = ko.filepicker.openFile(defaultDirectory, defaultFilename,
+    var path = ko.filepicker.browseForFile(defaultDirectory, defaultFilename,
                                       title,
                                       "Komodo Package", // default filter
                                       ["Komodo Package", "All"]); // filters
@@ -492,7 +492,7 @@ this.importFilesFromFileSystem_toStdToolbox = function(event) {
     var title = komodo_bundle.GetStringFromName("selectFilesToImportToolbox");
     var defaultFilterName = "Komodo Tool";
     var filterNames = [defaultFilterName, "Zip", "All"]
-    var paths = ko.filepicker.openFiles(defaultDirectory, defaultFilename,
+    var paths = ko.filepicker.browseForFiles(defaultDirectory, defaultFilename,
                                         title,
                                         defaultFilterName, filterNames);
     if (!paths) {
@@ -537,7 +537,7 @@ this.importPackage_toStdToolbox = function(event) {
     var defaultDirectory = null;
     var defaultFilename = null;
     
-    var path = ko.filepicker.openFile(defaultDirectory, defaultFilename,
+    var path = ko.filepicker.browseForFile(defaultDirectory, defaultFilename,
                                       title,
                                       "Komodo Package", // default filter
                                       ["Komodo Package", "All"]); // filters

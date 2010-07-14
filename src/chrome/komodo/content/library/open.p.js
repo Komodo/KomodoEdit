@@ -426,7 +426,7 @@ this.filePicker = function view_openFilesWithPicker(viewType/*='editor'*/) {
         defaultDir = ko.views.manager.currentView.koDoc.file.dirName;
     }
     
-    var paths = ko.filepicker.openFiles(defaultDir);
+    var paths = ko.filepicker.browseForFiles(defaultDir);
     if (paths == null) {
         return;
     }
@@ -445,7 +445,7 @@ this.templatePicker = function view_openTemplatesWithPicker(viewType/*='editor'*
         var os = Components.classes["@activestate.com/koOs;1"].getService();
         var templateSvc = Components.classes["@activestate.com/koTemplateService?type=file;1"].getService();
         var defaultDir = templateSvc.getUserTemplatesDir();
-        var paths = ko.filepicker.openFiles(defaultDir);
+        var paths = ko.filepicker.browseForFiles(defaultDir);
         if (paths == null)
             return;
         ko.open.multipleURIs(paths, viewType);

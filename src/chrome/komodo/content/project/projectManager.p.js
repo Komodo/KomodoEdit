@@ -722,7 +722,7 @@ projectManager.prototype.doCommand = function(command) {
         var defaultFilterName = _bundle.GetStringFromName("komodoProject.message");
         var filterNames = [_bundle.GetStringFromName("komodoProject.message"),
                            _bundle.GetStringFromName("all.message")];
-        filename = ko.filepicker.openFile(defaultDirectory /* =null */,
+        filename = ko.filepicker.browseForFile(defaultDirectory /* =null */,
                              defaultFilename /* =null */,
                              title /* ="Open File" */,
                              defaultFilterName /* ="All" */,

@@ -173,7 +173,7 @@ function PrefCodeIntel_AddCatalog()
         //TODO: A "don't ask again" dialog explaining what catalogs are on
         //      disk, where to look for them, how to make them, etc.
 
-        var cix_paths = ko.filepicker.openFiles(
+        var cix_paths = ko.filepicker.browseForFiles(
                 null, null,
                 "Add API Catalog", // title
                 "Code Intelligence XML", // defaultFilterName

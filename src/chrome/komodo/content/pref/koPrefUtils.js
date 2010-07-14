@@ -45,7 +45,7 @@ function getDirectoryFromTextObject(textlikeObject) {
 function loadExecutableIntoInterpreterList(availInterpListID) {
     var availInterpList = document.getElementById(availInterpListID);
     var currentPath = getDirectoryFromTextObject(availInterpList);
-    var path = ko.filepicker.openExeFile(currentPath);
+    var path = ko.filepicker.browseForExeFile(currentPath);
     if (path) {
         availInterpList.selectedItem = availInterpList.appendItem(path, path);
         return true;

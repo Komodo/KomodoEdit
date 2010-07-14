@@ -139,13 +139,13 @@
             <menuitem label="getFolder"
                       oncommand="test_ko.filepicker.getFolder();"/>
             <menuitem label="openFiles"
-                      oncommand="test_ko.filepicker.openFiles();"/>
+                      oncommand="test_ko.filepicker.browseForFiles();"/>
             <menuitem label="saveFile"
                       oncommand="test_ko.filepicker.saveFile();"/>
             <menuitem label="openFile"
-                      oncommand="test_ko.filepicker.openFile();"/>
+                      oncommand="test_ko.filepicker.browseForFile();"/>
             <menuitem label="openExeFile"
-                      oncommand="test_ko.filepicker.openExeFile();"/>
+                      oncommand="test_ko.filepicker.browseForExeFile();"/>
           </menupopup>
         </menu>
         <menu label="Prefs" accesskey="P">

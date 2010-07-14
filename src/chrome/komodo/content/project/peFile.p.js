@@ -367,7 +367,7 @@ peFile.prototype.doCommand = function(command) {
         var file = items[0].getFile()
         fname = file.URI;
         var pickerDir = file.isLocal? file.dirName : '';
-        otherfile = ko.filepicker.openFile(pickerDir);
+        otherfile = ko.filepicker.browseForFile(pickerDir);
         if (otherfile) {
             ko.fileutils.showDiffs(fname, otherfile);
         }

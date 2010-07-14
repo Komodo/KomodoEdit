@@ -91,7 +91,7 @@ function OnLoad()
 
 function choose(which)
 {
-    var file = ko.filepicker.openFile(null, null, _bundle.formatStringFromName("pleaseSelectFile.message", [which], 1));
+    var file = ko.filepicker.browseForFile(null, null, _bundle.formatStringFromName("pleaseSelectFile.message", [which], 1));
     if (!file) return;
     document.getElementById(which).value = file;
     updateOK();

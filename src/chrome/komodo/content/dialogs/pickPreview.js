@@ -193,7 +193,7 @@ function Browse()
             defaultDir = opener.ko.uriparse.dirName(localPath);
             defaultFile = null;
         }
-        var path = ko.filepicker.openFile(
+        var path = ko.filepicker.browseForFile(
                     defaultDir, // default dir
                     defaultFile, // default filename
                     _bundle.formatStringFromName("selectFileToPreview", [gBasename], 1), // title

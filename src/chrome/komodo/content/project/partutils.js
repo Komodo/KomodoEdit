@@ -312,7 +312,7 @@ this.reimportFromFileSystem = function part_ReImportFromFS(part) {
  */
 this.importFromPackage = function part_ImportFromPackage(viewMgr, part, uri) {
     if (!uri) {
-        var filename = ko.filepicker.openFile(
+        var filename = ko.filepicker.browseForFile(
             null, null, // default dir and filename
             _bundle.GetStringFromName("selectPackageToImport"), // title
             "Komodo Package", // default filter

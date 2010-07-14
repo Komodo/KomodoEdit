@@ -112,7 +112,7 @@ function Findtoolbar_OpenTextboxKeyPress(field, event) {
                         dirname = null;
                         filename = abspath;
                     }
-                    var paths = ko.filepicker.openFiles(dirname, filename);
+                    var paths = ko.filepicker.browseForFiles(dirname, filename);
                     if (paths) {
                         ko.open.multipleURIs(paths, 'editor');
                     }

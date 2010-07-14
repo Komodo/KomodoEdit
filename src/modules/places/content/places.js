@@ -190,7 +190,7 @@ viewMgrClass.prototype = {
                 createInstance(Components.interfaces.koIFileEx);
         file.URI = uri
         var pickerDir = file.isLocal? file.dirName : '';
-        var otherfile = ko.filepicker.openFile(pickerDir);
+        var otherfile = ko.filepicker.browseForFile(pickerDir);
         if (otherfile) {
             ko.fileutils.showDiffs(file.path, otherfile);
         }

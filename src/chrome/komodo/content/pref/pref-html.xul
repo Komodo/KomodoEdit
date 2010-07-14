@@ -63,7 +63,7 @@
     {
         var textbox = document.getElementById("tidy_configpath");
         var currentDir = getDirectoryFromTextObject(textbox);
-        var file = ko.filepicker.openFile(currentDir);
+        var file = ko.filepicker.browseForFile(currentDir);
         if (file != null) {
             textbox.value = file;
         }

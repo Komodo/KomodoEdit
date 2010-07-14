@@ -551,7 +551,7 @@ this.diff = function(diff, title /* ="Diff" */, message /* =null */)
  *
  */
 this.watchLocalFile = function() {
-    var filename = ko.filepicker.openFile();
+    var filename = ko.filepicker.browseForFile();
     if (filename)
         return window.openDialog("chrome://komodo/content/tail/tail.xul",
                           "_blank",

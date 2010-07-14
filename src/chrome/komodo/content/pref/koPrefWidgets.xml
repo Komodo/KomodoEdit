@@ -276,7 +276,7 @@
                 <parameter name="element_id"/>
                 <body><![CDATA[
                     var textField = this.getElement("textbox",element_id);
-                    var path = ko.filepicker.openFile(null, textField.value);
+                    var path = ko.filepicker.browseForFile(null, textField.value);
                     if (path != null) {
                         textField.value = path;
                     }

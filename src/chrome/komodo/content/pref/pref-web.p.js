@@ -99,7 +99,7 @@ function _addBrowser(browser, browserType /* =null */) {
 }
 
 function browseForBrowser() {
-    var path = ko.filepicker.openExeFile();
+    var path = ko.filepicker.browseForExeFile();
     if (path == null) {
         return null;
     }

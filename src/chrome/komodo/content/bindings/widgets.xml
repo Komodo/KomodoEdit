@@ -373,7 +373,7 @@
                             path = ko.filepicker.getFolder(defaultDir,
                                     "Select a folder to add to the list");
                         } else {
-                            path = ko.filepicker.openFiles(defaultDir, null,
+                            path = ko.filepicker.browseForFiles(defaultDir, null,
                                     "Select a folder to add to the list");
                         }
                         if (!path) return;

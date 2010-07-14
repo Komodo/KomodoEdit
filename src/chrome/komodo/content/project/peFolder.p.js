@@ -372,7 +372,7 @@ this.addFile = function peFolder_addFile(parent_item)
         log.error("No default dir for parent_item(" + parent_item + ")");
         defaultDir = ko.projects.manager.getSelectedProject().getFile().dirName;
     }
-    var files = ko.filepicker.openFiles(defaultDir, // default dir
+    var files = ko.filepicker.browseForFiles(defaultDir, // default dir
                                      null, // default filename
                                      _bundle.GetStringFromName("addFilesToProject")); // title
     if (files == null) {

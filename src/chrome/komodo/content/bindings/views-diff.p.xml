@@ -438,7 +438,7 @@
                 if (response == "Cancel") {
                     return null;
                 }
-                resolvedPath = ko.filepicker.openFile(
+                resolvedPath = ko.filepicker.browseForFile(
                     this._cwd || osSvc.getcwd(), // default dir
                     null, // default filename
                     "Browse to '" + ko.uriparse.baseName(path) + "'", // title

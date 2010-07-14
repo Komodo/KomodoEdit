@@ -154,7 +154,7 @@ function OK()
 
 function PickCustom()
 {
-    var path = ko.filepicker.openFile(null, null, 'Select an Icon File',
+    var path = ko.filepicker.browseForFile(null, null, 'Select an Icon File',
                                    'Icon', ['Icon', 'All']);
     if (!path) return;
     Pick_Icon(ko.uriparse.localPathToURI(path));

@@ -117,7 +117,7 @@ function PrefPhp_SelectIni() {
 
 function loadIniFile() {
     var current = document.getElementById("phpConfigFile").value;
-    var path = ko.filepicker.openFile(null, current, null, "INI", ["INI", "All"]);
+    var path = ko.filepicker.browseForFile(null, current, null, "INI", ["INI", "All"]);
     if (path != null) {
         document.getElementById("phpConfigFile").value = path;
     }
