@@ -49,6 +49,8 @@ import shutil
 import sys
 import time
 import logging
+from pprint import pprint
+
 from xpcom import components, COMException, ServerException, nsError
 from xpcom.server import WrapObject, UnwrapObject
 from projectUtils import *
@@ -65,7 +67,7 @@ log = logging.getLogger("koToolbox2Components")
 # at the underlying database object, and JS-code is
 # expected to call other methods.
 
-class KoToolboxDatabaseService:
+class KoToolboxDatabaseService(object):
     _com_interfaces_ = [components.interfaces.koIToolboxDatabaseService]
     _reg_clsid_ = "{a68427e7-9180-40b3-89ad-91440714dede}"
     _reg_contractid_ = "@activestate.com/KoToolboxDatabaseService;1"
@@ -104,8 +106,22 @@ class KomodoWindowData(object):
     runningMacro = property(get_runningMacro, set_runningMacro)
 
     # NewTools: @@@@ Pull more out of koProjectService.py as needed
+
+
+class KoToolInfo(object):
+    """A light structure to hold info about a tool.
+    Used by `.findTools()` below.
+    """
+    _com_interfaces_ = [components.interfaces.koIToolInfo]
+    def __init__(self, path_id, type, name, **kwargs):
+        self.path_id = path_id
+        self.type = type
+        self.name = name
+        for k,v in kwargs:
+            setattr(self, k, v)
+
     
-class KoToolBox2Service:
+class KoToolBox2Service(object):
     _com_interfaces_ = [components.interfaces.koIToolBox2Service,
                         components.interfaces.nsIObserver]
     _reg_clsid_ = "{c9452cf9-98ec-4ab9-b730-69156c2cec53}"
@@ -507,7 +523,14 @@ class KoToolBox2Service:
         self._checkMigrate(kpfDir, projectName,
                            koToolbox2.PROJECT_TARGET_DIRECTORY,
                            kpfName=kpfName)
-        
+
+    def findTools(self, query):
+        #TODO: use 'count' and return full count. Add limit and offset args.
+        with self.db.connect() as cu:
+            cu.execute("""select path_id, type, name from common_details
+                where name like ?""", ("%" + query + "%", ))
+            hits = [KoToolInfo(*tuple(x)) for x in cu.fetchall()]
+        return hits
 
     def observe(self, subject, topic, data):
         #log.debug("observe: subject:%r, topic:%r, data:%r", subject, topic, data)

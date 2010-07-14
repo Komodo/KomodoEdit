@@ -49,8 +49,20 @@ interface koIToolboxDatabaseService: nsISupports {
     void initialize(in wstring db_path);
     
     koITool getTool(in long id);
-    
 };
+
+
+/* Light struct of koITool data for use by `.findTools()` below. Not returning
+ * full `koITool` instances for perf (though that this might be a perf
+ * problem hasn't been validated).
+ */
+[scriptable, uuid(29ee318b-a831-364f-9d48-aa54d4a0a1c9)]
+interface koIToolInfo: nsISupports {
+    readonly attribute long path_id;
+    readonly attribute wstring type;
+    readonly attribute wstring name;
+};
+
 
 [scriptable, uuid(60bee3f3-739b-4776-bef3-d95a66f646a1)]
 interface koIToolBox2Service: nsISupports {
@@ -70,4 +82,10 @@ interface koIToolBox2Service: nsISupports {
     void initialize();
     void migrateVersion5Toolboxes();
     void reloadToolsDirectory(in wstring toolDir);
+
+    // Find and return all tools matching the given query.
+    void findTools(in wstring query,
+        out PRUint32 count,
+        [retval, array, size_is(count)] out koIToolInfo hits);
 };
+
