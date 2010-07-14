@@ -88,7 +88,7 @@ function CodeIntelCompletionUIHandler(path, scimoz, language,
         this._lastRecentPrecedingCompletionAttemptTime = null;
         this._lastRecentPrecedingCompletionAttemptTimeout = 3.0;
 
-        if (gPrefs.getBooleanPref("codeintel_completion_fillups_enabled")) {
+        if (gPrefs.getBooleanPref("codeintel_completion_auto_fillups_enabled")) {
             scimoz.autoCSetFillUps(this.completionFillups);
         }
         // Don't hide when there is no match: may just be mistyped character.
@@ -131,7 +131,7 @@ function CodeIntelCompletionUIHandler(path, scimoz, language,
         this._defns = [];
 
         gPrefs.prefObserverService.addObserver(this,
-            "codeintel_completion_fillups_enabled", 0);
+            "codeintel_completion_auto_fillups_enabled", 0);
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }
@@ -154,7 +154,7 @@ CodeIntelCompletionUIHandler.prototype.finalize = function() {
     this.scimoz = null;
     try {
         gPrefs.prefObserverService.removeObserver(this,
-            "codeintel_completion_fillups_enabled");
+            "codeintel_completion_auto_fillups_enabled");
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
     }    
@@ -167,8 +167,8 @@ CodeIntelCompletionUIHandler.prototype.observe = function(prefSet, prefName, pre
     //                      this.path+"'s completion UI handler");
     try {
         switch (prefName) {
-        case "codeintel_completion_fillups_enabled":
-            if (gPrefs.getBooleanPref("codeintel_completion_fillups_enabled")) {
+        case "codeintel_completion_auto_fillups_enabled":
+            if (gPrefs.getBooleanPref("codeintel_completion_auto_fillups_enabled")) {
                 this.scimoz.autoCSetFillUps(this.completionFillups);
             } else {
                 this.scimoz.autoCSetFillUps("");

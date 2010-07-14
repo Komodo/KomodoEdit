@@ -863,8 +863,8 @@
             onscreen when showing a calltip.
         "codeintel_calltip_max_line_width" the maximum width of individual
             calltip lines when showing a calltip.
-        "codeintel_completion_fillups_enabled" indicates whether the fill-up
-            functionality of AutoComplete is enabled. "Fill-up" is where
+        "codeintel_completion_auto_fillups_enabled" indicates whether the
+            fill-up functionality of AutoComplete is enabled. "Fill-up" is where
             typing a certain char (like '(' or '.') during an AutoComplete
             session will trigger insertion of the current completion *and*
             that char. This is separate from the usual insertion via <Tab>
@@ -890,7 +890,7 @@
   <boolean id="codeintel_browser_show_all_projects">0</boolean> <!-- not implemented -->
   <long id="codeintel_calltip_max_lines">20</long>
   <long id="codeintel_calltip_max_line_width">60</long>
-  <boolean id="codeintel_completion_fillups_enabled">0</boolean>
+  <boolean id="codeintel_completion_auto_fillups_enabled">0</boolean>
   <boolean id="codeintel_have_preloaded_database">0</boolean>
 <!-- #if PLATFORM == "win" -->
   <string id="codeintel_selected_catalogs">["pywin32", "pywin32 (Python3)"]</string>
