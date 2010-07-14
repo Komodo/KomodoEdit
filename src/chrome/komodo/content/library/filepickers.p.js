@@ -494,8 +494,8 @@ this.browseForFile = function filepicker_openFile(defaultDirectory /* =null */,
                              defaultFilterName /* ="All" */,
                              filterNames /* =null */)
 {
-    return _browseForFile.call(this, _getOpenFilePicker, defaultDirectory,
-                               defaultFilename, title, defaultFilterName, filterNames);
+    return _browseForFile(_getOpenFilePicker, defaultDirectory,
+                          defaultFilename, title, defaultFilterName, filterNames);
 }
 
 /**
