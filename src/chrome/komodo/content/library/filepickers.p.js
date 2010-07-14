@@ -41,17 +41,17 @@ if (typeof(ko)=='undefined') {
 /* Interface functions for using nsIFilePicker in Komodo.
  *
  * Methods:
- *      ko.filepicker.openFile(...)        Pick a file for open.
- *      ko.filepicker.openExeFile(...)     Pick an executable file for open.
- *      ko.filepicker.saveFile(...)        Pick a file for saving.
- *      ko.filepicker.openFiles(...)       Pick multiple files for open.
- *      ko.filepicker.getFolder(...)       Pick a folder/directory.
+ *      ko.filepicker.browseForFile(...)      Pick an existing file.
+ *      ko.filepicker.browseForExeFile(...)   Pick an existing executable file.
+ *      ko.filepicker.browseForFiles(...)     Pick multiple existing files.
+ *      ko.filepicker.saveFile(...)           Pick an existing or new file.
+ *      ko.filepicker.getFolder(...)          Pick an existing folder/directory.
  *
  * Example:
  *  Most of filepicker_*() methods have the same options so this example should
  *  translate to all of them. Say you would like the user to open a saved macro
  *  file. The following might be appropriate:
- *      var path = ko.filepicker.openFile(<macros dir>, // default dir
+ *      var path = ko.filepicker.browseForFile(<macros dir>, // default dir
  *                                     null, // default filename
  *                                     "Open Macro", // title
  *                                     "JavaScript", // default filter name
@@ -412,50 +412,19 @@ function _getGetFolderPicker(title) {
 }
 
 
-
-//---- public methods
-
-/**
- * Pick a file for open.
- *
- * @param {String} "defaultDirectory" (optional) is the directory in which to start looking.
- *      If left unspecified (or null) the last directory in which this file
- *      picker was opened is used.
- * @param {String} "defaultFilename" (optional) is a suggested filename for the user to
- *      choose. If "defaultDirectory" is not specified then a fullpath can be
- *      used here to specify a default directory and filename. E.g.,
- *          filepicker_openFile(null, "D:\\trentm\\foo.txt");
- *      will set the default dir and filename to "D:\\trentm" and "foo.txt",
- *      respectively.
- * @param {String} "title" (optional) is the title for the file picker dialog.
- * @param {String} "defaultFilterName" (optional) is the name of a filter which should be
- *      selected by default in the file picker dialog. By default the "All"
- *      File filter is the default. Other filters are any of Komodo's supported
- *      languages, e.g. "Python", "PHP", plus some special filters like "Komodo
- *      Project" and "Web".
- * @param {Array} "filterNames" (optional) is a list of filter names to which to restrict the
- *      file picker.  If this is not specified (or null) the whole set of
- *      standard filters is used.  It is recommended that "All" always be
- *      included, and included last.  For example, the following might be
- *      appropriate for picking a Komodo macro file:
- *          ["Python", "JavaScript", "All"]
- *
- * @returns {String} the full local path the selected file, or null if the dialog is
- * cancelled.
- */
-this.openFile = function filepicker_openFile(defaultDirectory /* =null */,
-                             defaultFilename /* =null */,
-                             title /* ="Open File" */,
-                             defaultFilterName /* ="All" */,
-                             filterNames /* =null */)
+function _browseForFile(pickerFn,
+                        defaultDirectory /* =null */,
+                        defaultFilename /* =null */,
+                        title /* ="Open File" */,
+                        defaultFilterName /* ="All" */,
+                        filterNames /* =null */)
 {
     if (typeof(defaultDirectory) == 'undefined') defaultDirectory = null;
     if (typeof(defaultFilename) == 'undefined') defaultFilename = null;
     if (typeof(title) == 'undefined' || title == null) title = "Open File";
     if (typeof(defaultFilterName) == 'undefined') defaultFilterName = null;
     if (typeof(filterNames) == 'undefined') filterNames = null;
-    var fp = _getOpenFilePicker(title, defaultFilterName,
-                                           filterNames);
+    var fp = pickerFn(title, defaultFilterName, filterNames);
 
     if (!defaultDirectory && defaultFilename) {
         try {
@@ -489,6 +458,46 @@ this.openFile = function filepicker_openFile(defaultDirectory /* =null */,
     return null;
 }
 
+//---- public methods
+
+/**
+ * Browse for a file.
+ *
+ * @param {String} "defaultDirectory" (optional) is the directory in which to start looking.
+ *      If left unspecified (or null) the last directory in which this file
+ *      picker was opened is used.
+ * @param {String} "defaultFilename" (optional) is a suggested filename for the user to
+ *      choose. If "defaultDirectory" is not specified then a fullpath can be
+ *      used here to specify a default directory and filename. E.g.,
+ *          filepicker_openFile(null, "D:\\trentm\\foo.txt");
+ *      will set the default dir and filename to "D:\\trentm" and "foo.txt",
+ *      respectively.
+ * @param {String} "title" (optional) is the title for the file picker dialog.
+ * @param {String} "defaultFilterName" (optional) is the name of a filter which should be
+ *      selected by default in the file picker dialog. By default the "All"
+ *      File filter is the default. Other filters are any of Komodo's supported
+ *      languages, e.g. "Python", "PHP", plus some special filters like "Komodo
+ *      Project" and "Web".
+ * @param {Array} "filterNames" (optional) is a list of filter names to which to restrict the
+ *      file picker.  If this is not specified (or null) the whole set of
+ *      standard filters is used.  It is recommended that "All" always be
+ *      included, and included last.  For example, the following might be
+ *      appropriate for picking a Komodo macro file:
+ *          ["Python", "JavaScript", "All"]
+ *
+ * @returns {String} the full local path the selected file, or null if the dialog is
+ * cancelled.
+ */
+this.browseForFile = function filepicker_openFile(defaultDirectory /* =null */,
+                             defaultFilename /* =null */,
+                             title /* ="Open File" */,
+                             defaultFilterName /* ="All" */,
+                             filterNames /* =null */)
+{
+    _browseForFile.call(this, _getOpenFilePicker, defaultDirectory,
+                        defaultFilename, title, defaultFilterName, filterNames);
+}
+
 /**
  * Pick an executable file for open.
  *
@@ -505,45 +514,15 @@ this.openFile = function filepicker_openFile(defaultDirectory /* =null */,
  *
  * @returns {String} the full local path the selected file, or null.
  */
-this.openExeFile = function filepicker_openExeFile(defaultDirectory /* =null */,
+this.browseForExeFile = function filepicker_openExeFile(defaultDirectory /* =null */,
                                 defaultFilename /* =null */,
                                 title /* ="Open Executable File" */)
 {
-    if (typeof(defaultDirectory) == 'undefined') defaultDirectory = null;
-    if (typeof(defaultFilename) == 'undefined') defaultFilename = null;
+    // Same as browseForFile, but with less arguments.
     if (typeof(title) == 'undefined' || title == null) title = "Open Executable File";
-    var fp = _getOpenExeFilePicker(title);
-
-    if (!defaultDirectory && defaultFilename) {
-        try {
-            defaultDirectory = ko.uriparse.dirName(defaultFilename);
-        } catch (ex) { /* do nothing */ }
-    }
-    if (defaultDirectory) {
-        try {
-            var localFile = Components.classes["@mozilla.org/file/local;1"]
-                            .createInstance(Components.interfaces.nsILocalFile);
-            localFile.initWithPath(defaultDirectory);
-            fp.displayDirectory = localFile;
-        } catch (ex) {
-            _log.error("problem setting '"+defaultDirectory+
-                                 "' as default directory for file picker");
-        }
-    }
-    if (defaultFilename) {
-        fp.defaultString = ko.uriparse.baseName(defaultFilename);
-    } else {
-        fp.defaultString = null;
-    }
-
-    var fv = _unfocus();
-    var retval = fp.show();
-    _restorefocus(fv);
-    if (retval == Components.interfaces.nsIFilePicker.returnOK) {
-        //XXX Should we do any special handling if this is a symlink?
-        return fp.file.path;
-    }
-    return null;
+    return ko.filepicker.browseForFile(defaultDirectory, defaultFilename, title,
+                                       null, null,
+                                       _getOpenFilePicker);
 }
 
 /**
@@ -681,7 +660,7 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
 }
 
 /**
- * Pick multiple files for open.
+ * Pick multiple files.
  *
  * @param {String} "defaultDirectory" (optional) is the directory in which to start looking.
  *      If left unspecified (or null) the last directory in which this file
@@ -707,7 +686,7 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
  *
  * @returns {Array} a list of the paths selected or null if the dialog is cancelled.
  */
-this.openFiles = function filepicker_openFiles(defaultDirectory /* =null */,
+this.browseForFiles = function filepicker_openFiles(defaultDirectory /* =null */,
                               defaultFilename /* =null */,
                               title /* ="Open File" */,
                               defaultFilterName /* ="All" */,
@@ -1035,6 +1014,47 @@ this.browseForRemoteDir = function filepicker_browseForRemoteDir(textbox) {
     }
 };
 
+/**
+ * Same as ko.filepicker.browseForFile.
+ *
+ * @deprecated since Komodo 6.0.0
+ */
+this.openFile = function filepicker_openFile(defaultDirectory /* =null */,
+                             defaultFilename /* =null */,
+                             title /* ="Open File" */,
+                             defaultFilterName /* ="All" */,
+                             filterNames /* =null */) {
+    _log.deprecated('`ko.filepicker.openFile` is deprecated, use `ko.filepicker.browseForFile`');
+    return ko.filepicker.browseForFile.apply(this, arguments);
+}
+
+/**
+ * Same as ko.filepicker.browseForExeFile.
+ *
+ * @deprecated since Komodo 6.0.0
+ */
+this.openExeFile = function filepicker_openExeFile(defaultDirectory /* =null */,
+                             defaultFilename /* =null */,
+                             title /* ="Open Executable File" */) {
+    _log.deprecated('`ko.filepicker.openExeFile` is deprecated, use `ko.filepicker.browseForExeFile`');
+    return ko.filepicker.browseForFile.apply(this, arguments);
+}
+
+/**
+ * Same as ko.filepicker.browseForFiles.
+ *
+ * @deprecated since Komodo 6.0.0
+ */
+this.openFiles = function filepicker_openFiles(defaultDirectory /* =null */,
+                              defaultFilename /* =null */,
+                              title /* ="Open File" */,
+                              defaultFilterName /* ="All" */,
+                              filterNames /* =null */)
+{
+    _log.deprecated('`ko.filepicker.openFiles` is deprecated, use `ko.filepicker.browseForFiles`');
+    return ko.filepicker.browseForFiles.apply(this, arguments);
+}
+
 }).apply(ko.filepicker);
 
 // backwards compatibility api
@@ -1048,3 +1068,4 @@ var filepicker_openRemoteFiles = ko.filepicker.openRemoteFiles;
 var filepicker_saveAsRemoteFiles = ko.filepicker.saveAsRemoteFiles;
 var filepicker_browseForDir = ko.filepicker.browseForDir;
 var filepicker_browseForRemoteDir = ko.filepicker.browseForRemoteDir;
+
