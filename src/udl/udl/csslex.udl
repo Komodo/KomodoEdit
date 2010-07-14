@@ -276,7 +276,7 @@ delimiter: paint(upto, CSS_DEFAULT), paint(include, M_STRING) => IN_M_STAG_POST_
 /\/\*.*?\*\//: paint(upto, CSS_DEFAULT), paint(include, CSS_COMMENT)
 /[$WS]+/  : #stay
 /[\-+]?\d+(?:\.\d*)?(?:[Ee][\-+]?\d+)?/: paint(upto, CSS_DEFAULT), paint(include, CSS_NUMBER)
-/(?:$NMSTART)(?:$NMCHAR)*/ : paint(upto, CSS_DEFAULT), paint(include, CSS_IDENTIFIER)
+/$NMCHAR+/ : paint(upto, CSS_DEFAULT), paint(include, CSS_IDENTIFIER)
 /[`~\$%^\&\*()=\[\];:,<>\/\?{}@!\.\#]/: paint(upto, CSS_DEFAULT), paint(include, CSS_OPERATOR)
 
 state IN_CSS_STAG_ATTR_COMMENT:
