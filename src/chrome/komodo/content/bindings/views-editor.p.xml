@@ -961,6 +961,7 @@
                 }
 
             } catch(ex) {
+                Components.utils.reportError(ex);
                 ko.dialogs.internalError("Unexpected internal error saving '"+this.title+"'.",
                                          ex, ex);
                 this.log.exception(ex, "Error in editor view .save()");
@@ -1129,6 +1130,7 @@
             this.lintBuffer.request("save as");
             return true;
         } catch (ex) {
+            Components.utils.reportError(ex);
             ko.dialogs.internalError("Unexpected internal error saving (Save As) '"+this.title+"'.",
                                      ex, ex);
             this.log.exception(ex, "Error in editor view .saveAs()");
