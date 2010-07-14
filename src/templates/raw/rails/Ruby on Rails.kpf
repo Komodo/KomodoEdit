@@ -568,7 +568,7 @@ if (!('as_rails_macros' in ko)
                 } else {
                     defaultFilename = appNameExe;
                 }
-                appPath = ko.filepicker.openExeFile(null, defaultFilename,
+                appPath = ko.filepicker.browseForExeFile(null, defaultFilename,
                                                        "Location of " + appName);
                 if (!appPath) {
                     throw new Error("You cancelled.");

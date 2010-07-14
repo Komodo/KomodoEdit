@@ -85,7 +85,7 @@ function loadActionScriptExecutable()
 {
     var textbox = document.getElementById("actionScript_interpreterPath");
     var currentDir = getDirectoryFromTextObject(textbox);
-    _finishSpecifyingExecutable(ko.filepicker.openExeFile(currentDir));
+    _finishSpecifyingExecutable(ko.filepicker.browseForExeFile(currentDir));
 }
 
 function _finishSpecifyingExecutable(path) {
