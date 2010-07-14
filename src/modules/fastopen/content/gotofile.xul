@@ -31,7 +31,7 @@
     
   <vbox flex="1">
     <hbox style="margin: 10px;">
-      <textbox id="query" type="search" timeout="200"
+      <textbox id="query" type="search" timeout="100"
           oncommand="findFiles(this.value)"
           onkeypress="handleQueryKeyPress(event)"
           class="search-box"
