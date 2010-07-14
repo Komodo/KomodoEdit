@@ -1060,8 +1060,9 @@ function openSelectedFile() {
         hasDirectory = true;
         break;
       }
-      if (file.isSymlink)
+      if (file.isSymlink) {
         file.init(file.target);
+      }
   }
 
   if (hasDirectory) return;
