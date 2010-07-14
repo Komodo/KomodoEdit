@@ -207,13 +207,13 @@ class KoPartService(object):
     def _deprecate_runningMacro(self):
         if getattr(self, '_deprecated_runningMacro', None) is None:
             self.deprecated_runningMacro = True
-            log.warn("koIPartService.runningMacro is deprecated.  Please use koIToolBox2Service.runningMacro instead.")
+            log.warn("koIPartService.runningMacro is deprecated.  Please use koIToolbox2Service.runningMacro instead.")
 
     @property
     def toolboxSvc(self):
         if getattr(self, '_toolboxSvc', None) is None:
-            self._toolboxSvc = components.classes["@activestate.com/koToolBox2Service;1"]\
-                       .getService(components.interfaces.koIToolBox2Service)
+            self._toolboxSvc = components.classes["@activestate.com/koToolbox2Service;1"]\
+                       .getService(components.interfaces.koIToolbox2Service)
         return self._toolboxSvc
     
     @property
@@ -234,9 +234,9 @@ class KoPartService(object):
 			      "Komodo no longer supports setting the toolbox")
 
     def get_toolbox(self):
-        log.warn("DEPRECATED koIPartService.toolbox, use koIToolBox2Service.getStandardToolbox")
-        return components.classes["@activestate.com/koToolBox2Service;1"].\
-                       getService(components.interfaces.koIToolBox2Service).\
+        log.warn("DEPRECATED koIPartService.toolbox, use koIToolbox2Service.getStandardToolbox")
+        return components.classes["@activestate.com/koToolbox2Service;1"].\
+                       getService(components.interfaces.koIToolbox2Service).\
 		       getStandardToolbox()
 
     def set_sharedToolbox(self, project):
@@ -244,9 +244,9 @@ class KoPartService(object):
 			      "Komodo no longer supports setting the shared toolbox via the project system.")
 
     def get_sharedToolbox(self):
-        log.error("DEPRECATED koIPartService.toolbox, use koIToolBox2Service.getStandardToolbox")
-        return components.classes["@activestate.com/koToolBox2Service;1"].\
-                       getService(components.interfaces.koIToolBox2Service).\
+        log.error("DEPRECATED koIPartService.toolbox, use koIToolbox2Service.getStandardToolbox")
+        return components.classes["@activestate.com/koToolbox2Service;1"].\
+                       getService(components.interfaces.koIToolbox2Service).\
 		       getSharedToolbox()
 
     def set_currentProject(self, project):

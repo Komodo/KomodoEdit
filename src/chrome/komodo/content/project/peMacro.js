@@ -662,16 +662,16 @@ function _macro_error(ex, action, part) {
 this.__defineGetter__("current",
 function()
 {
-    var _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
-        .getService(Components.interfaces.koIToolBox2Service);
+    var _partSvc = Components.classes["@activestate.com/koToolbox2Service;1"]
+        .getService(Components.interfaces.koIToolbox2Service);
     return _partSvc.runningMacro;
 });
 
 this.__defineSetter__("current",
 function(macro)
 {
-    var _partSvc = Components.classes["@activestate.com/koToolBox2Service;1"]
-        .getService(Components.interfaces.koIToolBox2Service);
+    var _partSvc = Components.classes["@activestate.com/koToolbox2Service;1"]
+        .getService(Components.interfaces.koIToolbox2Service);
     _partSvc.runningMacro = macro;
 });
 

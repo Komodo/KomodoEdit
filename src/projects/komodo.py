@@ -70,8 +70,8 @@ def findPart(partType, name, where='*'):
     If none are found, None is returned.
     """
 
-    _toolboxSvc = components.classes["@activestate.com/koToolBox2Service;1"]\
-        .getService(components.interfaces.koIToolBox2Service)
+    _toolboxSvc = components.classes["@activestate.com/koToolbox2Service;1"]\
+        .getService(components.interfaces.koIToolbox2Service)
     runningMacro = _toolboxSvc.runningMacro
     if partType in projectPartTypes:
         _partSvc = components.classes["@activestate.com/koPartService;1"]\

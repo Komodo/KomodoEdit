@@ -1629,7 +1629,7 @@ class koProject(koLiveFolderPart):
                                         getService(components.interfaces.koIShUtil)
                             shutil.copyfile(fname, bakFile)
                             if canBeCulled:
-                                koTBMiscSvc = UnwrapObject(components.classes["@activestate.com/koToolBox2Service;1"].getService(components.interfaces.koIToolBox2Service))
+                                koTBMiscSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2Service;1"].getService(components.interfaces.koIToolbox2Service))
                                 koTBMiscSvc.extractToolboxFromKPF_File(fname, os.path.splitext(basename)[0])
                         except Exception, e:
                             log.exception("Error '%s' creating backup of '%s'", e, bakFile)

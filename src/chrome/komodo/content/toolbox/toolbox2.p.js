@@ -58,10 +58,10 @@ function Toolbox2Manager() {
 
 Toolbox2Manager.prototype = {
 bindComponents: function() {
-    this.toolbox2Svc = Components.classes["@activestate.com/koToolBox2Service;1"]
-            .getService(Components.interfaces.koIToolBox2Service);
+    this.toolbox2Svc = Components.classes["@activestate.com/koToolbox2Service;1"]
+            .getService(Components.interfaces.koIToolbox2Service);
     if (!this.toolbox2Svc) {
-        throw("couldn't create a koIToolBox2Service");
+        throw("couldn't create a koIToolbox2Service");
     }
     this.toolsMgr = Components.classes["@activestate.com/koToolbox2ToolManager;1"]
         .getService(Components.interfaces.koIToolbox2ToolManager);

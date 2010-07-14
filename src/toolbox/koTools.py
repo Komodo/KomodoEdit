@@ -698,7 +698,7 @@ class KoToolbox2ToolManager(object):
     def initialize(self, toolbox_db_svc):
         global _tbdbSvc
         _tbdbSvc = self.toolbox_db = toolbox_db_svc
-        self._koToolBox2Service = UnwrapObject(components.classes["@activestate.com/koToolBox2Service;1"].getService(components.interfaces.koIToolBox2Service))
+        self._koToolbox2Service = UnwrapObject(components.classes["@activestate.com/koToolbox2Service;1"].getService(components.interfaces.koIToolbox2Service))
         self._koProjectService = UnwrapObject(components.classes["@activestate.com/koPartService;1"].getService(components.interfaces.koIPartService))
         self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
                        getService(components.interfaces.koIPrefService).prefs
@@ -1011,7 +1011,7 @@ class KoToolbox2ToolManager(object):
 
     def get_prefset(self, toolId):
         rootId = self.getToolRoot(toolId)
-        projectURL = self._koToolBox2Service.getProjectURL(rootId)
+        projectURL = self._koToolbox2Service.getProjectURL(rootId)
         if projectURL is not None:
             proj = self._koProjectService.getProjectForURL(projectURL)
             if proj is not None:

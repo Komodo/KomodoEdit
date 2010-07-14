@@ -188,8 +188,8 @@ class KoToolbox2HTreeView(TreeView):
         _observerSvc.addObserver(self, 'toolbox-tree-changed', 0)
         _observerSvc.addObserver(self, 'tool-appearance-changed', 0)
         _observerSvc.addObserver(self, 'xpcom-shutdown', 0)
-        self.toolbox2Svc = components.classes["@activestate.com/koToolBox2Service;1"]\
-                .getService(components.interfaces.koIToolBox2Service)
+        self.toolbox2Svc = components.classes["@activestate.com/koToolbox2Service;1"]\
+                .getService(components.interfaces.koIToolbox2Service)
 
         self._unfilteredRows_view = self._unfilteredRows_model = None
         self._toolsMgr = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].getService(components.interfaces.koIToolbox2ToolManager))

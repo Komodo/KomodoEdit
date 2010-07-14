@@ -121,11 +121,11 @@ class KoToolInfo(object):
             setattr(self, k, v)
 
     
-class KoToolBox2Service(object):
-    _com_interfaces_ = [components.interfaces.koIToolBox2Service,
+class KoToolbox2Service(object):
+    _com_interfaces_ = [components.interfaces.koIToolbox2Service,
                         components.interfaces.nsIObserver]
-    _reg_clsid_ = "{c9452cf9-98ec-4ab9-b730-69156c2cec53}"
-    _reg_contractid_ = "@activestate.com/koToolBox2Service;1"
+    _reg_clsid_ = "{cb9d6082-fc69-2d42-857a-2490e94fa518}"
+    _reg_contractid_ = "@activestate.com/koToolbox2Service;1"
     _reg_desc_ = "Similar to the projectService, but for toolbox2"
     
     def __init__(self):

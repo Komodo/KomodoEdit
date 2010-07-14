@@ -108,8 +108,8 @@ def evalPythonMacro(part, domdocument, window, scimoz, document, view, code,
         macroGlobals['topic'] = topic
         macroGlobals['data'] = data
 
-    _partSvc = components.classes["@activestate.com/koToolBox2Service;1"]\
-        .getService(components.interfaces.koIToolBox2Service)
+    _partSvc = components.classes["@activestate.com/koToolbox2Service;1"]\
+        .getService(components.interfaces.koIToolbox2Service)
     _partSvc.runningMacro = part
 
     # Put the Python macro code in a "_code()" function and eval it.

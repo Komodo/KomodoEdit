@@ -64,8 +64,8 @@ interface koIToolInfo: nsISupports {
 };
 
 
-[scriptable, uuid(60bee3f3-739b-4776-bef3-d95a66f646a1)]
-interface koIToolBox2Service: nsISupports {
+[scriptable, uuid(d4fd50c8-5b19-b041-97ad-2d8009f7de57)]
+interface koIToolbox2Service: nsISupports {
     attribute koITool runningMacro;
     koITool getStandardToolbox();
     koITool getSharedToolbox();
