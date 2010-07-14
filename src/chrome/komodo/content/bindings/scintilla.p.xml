@@ -562,7 +562,9 @@
                 // Ensure the command dispatcher is referencing the scintilla
                 // element, not the plugin element. Otherwise commands will not
                 // work correctly.
-                window.document.commandDispatcher.focusedElement = this;
+                if (window.document.commandDispatcher.focusedElement != this) {
+                    window.document.commandDispatcher.focusedElement = this;
+                }
                 ]]>
             </handler>
 
