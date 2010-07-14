@@ -1087,7 +1087,7 @@ class CSSBuffer(Buffer):
     # Removed '#' - gets in the way of hex colors and id selectors (bug 82968)
     # Removed '>' - gets in the way of child selectors (bug 87403)
     cpln_fillup_chars = " '\";},/"
-    cpln_stop_chars = " ('\";{},./"
+    cpln_stop_chars = " ('\";{},.>/"
 
 
 
