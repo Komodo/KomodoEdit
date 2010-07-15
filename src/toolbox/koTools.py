@@ -682,6 +682,13 @@ class _KoURLTool(_KoURLToolBase):
     _iconurl = 'chrome://fugue/skin/icons/globe.png'
 
 
+koToolClassFromTypeName = {}  # intentionally public
+for _obj in globals().values():
+    if (isinstance(_obj, type) and issubclass(_obj, _KoTool)
+        and getattr(_obj, "typeName", None)):
+        koToolClassFromTypeName[_obj.typeName] = _obj
+
+
 
 #---- tool manager
     
@@ -845,7 +852,7 @@ class KoToolbox2ToolManager(object):
 
     def createToolFromType(self, tool_type):
         id = self.toolbox_db.getNextID()
-        tool = createPartFromType(tool_type, None, id) # no name yet
+        tool = koToolClassFromTypeName[tool_type](None, id) # no name yet
         # Should be no worries if the user cancels on this.
         # The tool with this ID won't be in the database or the tree,
         # so the only way to hit this ID again is via this method,
@@ -891,7 +898,7 @@ class KoToolbox2ToolManager(object):
         if tool is not None:
             tool.updateSelf()
             return tool
-        tool = createPartFromType(node_type, name, path_id)
+        tool = koToolClassFromTypeName[node_type](name, path_id)
         tool.getCustomIconIfExists()
         self._tools[path_id] = tool
         return tool
@@ -902,7 +909,7 @@ class KoToolbox2ToolManager(object):
             res = self.toolbox_db.getValuesFromTableByKey('common_details', ['type', 'name'], 'path_id', path_id)
             if res is None:
                 return None
-            tool = createPartFromType(res[0], res[1], path_id)
+            tool = koToolClassFromTypeName[res[0]](res[1], path_id)
             self._cullCache()
             self._tools[path_id] = tool
         else:
@@ -1031,12 +1038,3 @@ class KoToolbox2ToolManager(object):
             if proj is not None:
                 return proj.prefset
         return self._globalPrefs
-
-
-_partFactoryMap = {}
-for name, value in globals().items():
-    if isinstance(value, object) and getattr(value, 'typeName', ''):
-        _partFactoryMap[value.typeName] = value
-
-def createPartFromType(type, *args):
-    return _partFactoryMap[type](*args)

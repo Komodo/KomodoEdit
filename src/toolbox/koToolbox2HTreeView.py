@@ -155,6 +155,16 @@ class _KoURLToolHView(_KoToolHView):
     typeName = 'URL'
 
 
+_viewClassFromTypeName = {}
+for _obj in globals().values():
+    if (isinstance(_obj, type) and issubclass(_obj, _KoToolHView)
+        and getattr(_obj, "typeName", None)):
+        _viewClassFromTypeName[_obj.typeName] = _obj
+
+def _koToolHViewFromTool(tool):
+    return _viewClassFromTypeName[tool.typeName](tool)
+
+
 
 #---- Toolbox tree view
 
@@ -739,7 +749,7 @@ class KoToolbox2HTreeView(TreeView):
                 #log.debug("No need to reload tree %s", name)
                 continue
             toolPart = self._toolsManager.getOrCreateTool(node_type, name, path_id)
-            toolView = createToolViewFromTool(toolPart) 
+            toolView = _koToolHViewFromTool(toolPart) 
             toolView.level = 0
             self._rows_model.append(toolView)
         
@@ -1006,7 +1016,7 @@ class KoToolbox2HTreeView(TreeView):
         for node in matched_nodes:
             path_id, name, node_type, matchedPattern, level = node
             toolPart = self._toolsManager.getToolById(path_id)
-            toolView = createToolViewFromTool(toolPart) 
+            toolView = _koToolHViewFromTool(toolPart) 
             toolView.level = level
             self._rows_model.append(toolView)
         self._filter_std_toolbox()
@@ -1129,7 +1139,7 @@ class KoToolbox2HTreeView(TreeView):
                 if toolPart is None:
                     log.error("_doContainerOpenModel: getToolById(path_id:%r) => None", path_id)
                     continue
-                toolView = createToolViewFromTool(toolPart)
+                toolView = _koToolHViewFromTool(toolPart)
                 toolView.level = rowNode.level + 1
                 self._rows_model.insert(posn, toolView)
                 posn += 1
@@ -1142,12 +1152,4 @@ class KoToolbox2HTreeView(TreeView):
                 openNode = self._nodeOpenStatusFromName.get(row.path, None)
                 if openNode:
                     self._doContainerOpenModel(row, lastIndex - i)
-                
-_partFactoryMap = {}
-for name, value in globals().items():
-    if isinstance(value, object) and getattr(value, 'typeName', ''):
-        _partFactoryMap[value.typeName] = value
-
-def createToolViewFromTool(tool):
-    return _partFactoryMap[tool.typeName](tool)
 
