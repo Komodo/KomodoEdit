@@ -34,22 +34,26 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+import sys
+import os
+import json
+from os.path import join
+import copy
+import shutil
+import logging
+
 from xpcom import components, ServerException, nsError
 from xpcom.server import WrapObject, UnwrapObject
- 
-import json, sys, os, re
-from os.path import join
-from koTreeView import TreeView
-
-import copy
-import eollib
-import fileutils
-import koToolbox2
 from projectUtils import *
 import fileutils
-import shutil
+import eollib
+import fileutils
+from koTreeView import TreeView
 
-import logging
+import koToolbox2
+
+
+#---- globals
 
 log = logging.getLogger("Toolbox2HTreeView")
 #log.setLevel(logging.DEBUG)
