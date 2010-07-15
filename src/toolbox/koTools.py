@@ -2,22 +2,27 @@
 # Copyright (c) 2010 ActiveState
 # See the file LICENSE.txt for licensing information.
 
-from xpcom import components, ServerException, nsError
-from xpcom.server import WrapObject, UnwrapObject
- 
-import json, sys, os, re
-from os.path import join
-import logging
-
-import eollib
-import koToolbox2
-import projectUtils
-import random
-
 """
 Information about the individual tools is stored here.  These
 objects act like a cache around the database.
 """
+
+import os
+import sys
+import re
+import json
+from os.path import join
+import logging
+import random
+
+from xpcom import components, ServerException, nsError
+from xpcom.server import WrapObject, UnwrapObject
+import eollib
+import projectUtils
+ 
+import koToolbox2
+
+
 
 #---- Globals
 
@@ -28,6 +33,7 @@ eol = None
 eol_re = re.compile(r'(?:\r?\n|\r)')
 
 _toolsManager = None
+
 
 
 #---- `koITool` class hierarchy
