@@ -693,16 +693,16 @@ for _obj in globals().values():
 #---- tool manager
     
 class KoToolbox2ToolManager(object):
-    _com_interfaces_ = [components.interfaces.nsIObserver,
-                        components.interfaces.koIToolbox2ToolManager]
-    _reg_clsid_ = "{2db1d469-6745-4691-8657-67118371d866}"
-    _reg_contractid_ = "@activestate.com/koToolbox2ToolManager;1"
-    _reg_desc_ = "KoToolbox2 Tools Manager"
     """
     This singleton class creates new tools, and caches existing
     tools by ID.  It acts as an intermediary between the
     front-end, loaded tools, and the toolbox database.
     """
+    _com_interfaces_ = [components.interfaces.nsIObserver,
+                        components.interfaces.koIToolbox2ToolManager]
+    _reg_clsid_ = "{2db1d469-6745-4691-8657-67118371d866}"
+    _reg_contractid_ = "@activestate.com/koToolbox2ToolManager;1"
+    _reg_desc_ = "KoToolbox2 Tools Manager"
 
     def __init__(self, debug=None):
         self.toolbox_db = None
