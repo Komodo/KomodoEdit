@@ -526,6 +526,8 @@ class KoToolbox2Service(object):
 
     def findTools(self, query):
         #TODO: use 'count' and return full count. Add limit and offset args.
+        #TODO: return actual koITool instances: necessary to properly get_iconurl()
+        #      for custom icons
         with self.db.connect() as cu:
             cu.execute("""select path_id, type, name from common_details
                 where name like ?""", ("%" + query + "%", ))

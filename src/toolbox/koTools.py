@@ -682,11 +682,11 @@ class _KoURLTool(_KoURLToolBase):
     _iconurl = 'chrome://fugue/skin/icons/globe.png'
 
 
-koToolClassFromTypeName = {}  # intentionally public
+_koToolClassFromTypeName = {}
 for _obj in globals().values():
     if (isinstance(_obj, type) and issubclass(_obj, _KoTool)
         and getattr(_obj, "typeName", None)):
-        koToolClassFromTypeName[_obj.typeName] = _obj
+        _koToolClassFromTypeName[_obj.typeName] = _obj
 
 
 
@@ -852,7 +852,7 @@ class KoToolbox2ToolManager(object):
 
     def createToolFromType(self, tool_type):
         id = self.toolbox_db.getNextID()
-        tool = koToolClassFromTypeName[tool_type](None, id) # no name yet
+        tool = _koToolClassFromTypeName[tool_type](None, id) # no name yet
         # Should be no worries if the user cancels on this.
         # The tool with this ID won't be in the database or the tree,
         # so the only way to hit this ID again is via this method,
@@ -898,7 +898,7 @@ class KoToolbox2ToolManager(object):
         if tool is not None:
             tool.updateSelf()
             return tool
-        tool = koToolClassFromTypeName[node_type](name, path_id)
+        tool = _koToolClassFromTypeName[node_type](name, path_id)
         tool.getCustomIconIfExists()
         self._tools[path_id] = tool
         return tool
@@ -909,7 +909,7 @@ class KoToolbox2ToolManager(object):
             res = self.toolbox_db.getValuesFromTableByKey('common_details', ['type', 'name'], 'path_id', path_id)
             if res is None:
                 return None
-            tool = koToolClassFromTypeName[res[0]](res[1], path_id)
+            tool = _koToolClassFromTypeName[res[0]](res[1], path_id)
             self._cullCache()
             self._tools[path_id] = tool
         else:
