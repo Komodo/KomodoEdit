@@ -34,6 +34,11 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+"""
+Manage a hierarchical view of the loaded tools.  The hierarchy stores
+only the name, id, iconurl of a tool, and a list of filtered child nodes by id.
+"""
+
 import sys
 import os
 import json
@@ -64,9 +69,6 @@ _view = None     # module-global handle to the tree-view (needs refactoring)
 
 
 #---- Classes used for rows of a toolbox hierarchical view
-# Manage a hierarchical view of the loaded tools.  The hierarchy stores
-# only the name, id, iconurl of a tool, and a list of filtered child nodes by
-# id.
 
 class _KoToolHView(object):
     isContainer = False
