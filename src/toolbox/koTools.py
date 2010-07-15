@@ -29,6 +29,9 @@ eol_re = re.compile(r'(?:\r?\n|\r)')
 
 _toolsManager = None
 
+
+#---- `koITool` class hierarchy
+
 class _KoTool(object):
     _com_interfaces_ = [components.interfaces.koITool]
     isContainer = False
@@ -526,26 +529,6 @@ class _KoCommandTool(_KoTool):
         info = _tbdbSvc.getCommandInfo(self.id)
         self._finishUpdatingSelf(info)
 
-class _KoURL_LikeTool(_KoTool):
-    def setStringAttribute(self, name, value):
-        _KoTool.setStringAttribute(self, name, value)
-        if name == 'value':
-            # Komodo treats the value as a URI to get a koFileEx object.
-            _KoTool.setStringAttribute(self, 'url', value)
-            
-    def save(self):
-        self.save_handle_attributes()
-        # Write the changed data to the file system
-        self.saveToolToDisk()
-        _tbdbSvc.saveSimpleToolInfo(self.id, self.name, self.value, self._attributes)
-        self._postSave()
-
-    def updateSelf(self):
-        if self.initialized:
-            return
-        info = _tbdbSvc.getSimpleToolInfo(self.id)
-        self._finishUpdatingSelf(info)
-        
 class _KoMacroTool(_KoTool):
     _com_interfaces_ = [components.interfaces.koIMacroTool]
     typeName = 'macro'
@@ -661,6 +644,27 @@ class _KoSnippetTool(_KoTool):
         # NOTE: IT IS IMPORTANT THAT IF UNICODE COMES IN, UNICODE GOES OUT!
         return self.value.replace(self._ANCHOR_MARKER, "", 1).replace(self._CURRENTPOS_MARKER, "", 1)
 
+
+class _KoURL_LikeTool(_KoTool):
+    def setStringAttribute(self, name, value):
+        _KoTool.setStringAttribute(self, name, value)
+        if name == 'value':
+            # Komodo treats the value as a URI to get a koFileEx object.
+            _KoTool.setStringAttribute(self, 'url', value)
+            
+    def save(self):
+        self.save_handle_attributes()
+        # Write the changed data to the file system
+        self.saveToolToDisk()
+        _tbdbSvc.saveSimpleToolInfo(self.id, self.name, self.value, self._attributes)
+        self._postSave()
+
+    def updateSelf(self):
+        if self.initialized:
+            return
+        info = _tbdbSvc.getSimpleToolInfo(self.id)
+        self._finishUpdatingSelf(info)
+        
 class _KoTemplateTool(_KoURL_LikeTool):
     typeName = 'template'
     prettytype = 'Template'
@@ -670,6 +674,10 @@ class _KoURLTool(_KoURL_LikeTool):
     typeName = 'URL'
     prettytype = 'URL'
     _iconurl = 'chrome://fugue/skin/icons/globe.png'
+
+
+
+#---- tool manager
     
 class KoToolbox2ToolManager(object):
     _com_interfaces_ = [components.interfaces.nsIObserver,

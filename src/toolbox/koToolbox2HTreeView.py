@@ -57,10 +57,12 @@ log = logging.getLogger("Toolbox2HTreeView")
 _tbdbSvc = None  # module-global handle to the database service
 _view = None     # module-global handle to the tree-view (needs refactoring)
 
-"""
-Manage a hierarchical view of the loaded tools.  The hierarchy stores
-only the name, id, iconurl of a tool, and a list of filtered child nodes by id
-"""
+
+
+#---- Classes used for rows of a toolbox hierarchical view
+# Manage a hierarchical view of the loaded tools.  The hierarchy stores
+# only the name, id, iconurl of a tool, and a list of filtered child nodes by
+# id.
 
 class _KoToolHView(object):
     isContainer = False
@@ -136,20 +138,24 @@ class _KoToolbarHView(_KoComplexContainerHView):
 class _KoCommandToolHView(_KoToolHView):
     typeName = 'command'
 
-class _KoURL_LikeToolHView(_KoToolHView):
-    pass
-
 class _KoMacroToolHView(_KoToolHView):
     typeName = 'macro'
 
 class _KoSnippetToolHView(_KoToolHView):
     typeName = 'snippet'
 
+class _KoURL_LikeToolHView(_KoToolHView):
+    pass
+
 class _KoTemplateToolHView(_KoURL_LikeToolHView):
     typeName = 'template'
 
 class _KoURLToolHView(_KoURL_LikeToolHView):
     typeName = 'URL'
+
+
+
+#---- Toolbox tree view
 
 class KoToolbox2HTreeView(TreeView):
     """
