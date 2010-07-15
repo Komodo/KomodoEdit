@@ -651,7 +651,7 @@ class _KoSnippetTool(_KoTool):
         return self.value.replace(self._ANCHOR_MARKER, "", 1).replace(self._CURRENTPOS_MARKER, "", 1)
 
 
-class _KoURL_LikeTool(_KoTool):
+class _KoURLToolBase(_KoTool):
     def setStringAttribute(self, name, value):
         _KoTool.setStringAttribute(self, name, value)
         if name == 'value':
@@ -671,12 +671,12 @@ class _KoURL_LikeTool(_KoTool):
         info = _tbdbSvc.getSimpleToolInfo(self.id)
         self._finishUpdatingSelf(info)
         
-class _KoTemplateTool(_KoURL_LikeTool):
+class _KoTemplateTool(_KoURLToolBase):
     typeName = 'template'
     prettytype = 'Template'
     _iconurl = 'chrome://komodo/skin/images/newTemplate.png'
 
-class _KoURLTool(_KoURL_LikeTool):
+class _KoURLTool(_KoURLToolBase):
     typeName = 'URL'
     prettytype = 'URL'
     _iconurl = 'chrome://fugue/skin/icons/globe.png'

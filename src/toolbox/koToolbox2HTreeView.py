@@ -58,6 +58,7 @@ from koTreeView import TreeView
 import koToolbox2
 
 
+
 #---- globals
 
 log = logging.getLogger("Toolbox2HTreeView")
@@ -112,7 +113,7 @@ class _KoContainerHView(_KoToolHView):
         else:
             #log.debug("Failed to find a child node in parent %d", self.id)
             pass
-        
+
     def __init__(self, tool):
         _KoToolHView.__init__(self, tool)
         self.rebuildChildren()
@@ -150,13 +151,10 @@ class _KoMacroToolHView(_KoToolHView):
 class _KoSnippetToolHView(_KoToolHView):
     typeName = 'snippet'
 
-class _KoURL_LikeToolHView(_KoToolHView):
-    pass
-
-class _KoTemplateToolHView(_KoURL_LikeToolHView):
+class _KoTemplateToolHView(_KoToolHView):
     typeName = 'template'
 
-class _KoURLToolHView(_KoURL_LikeToolHView):
+class _KoURLToolHView(_KoToolHView):
     typeName = 'URL'
 
 
