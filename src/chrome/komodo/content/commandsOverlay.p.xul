@@ -729,7 +729,7 @@
         id="cmdset_undo"
         oncommandupdate="ko.commands.updateCommandset(this)"
         commandupdater="true"
-        events="undo,currentview_is_editor,scintilla-focus">
+        events="undo,currentview_is_editor,current_view_changed">
         <command
             id="cmd_undo" key="key_cmd_undo"
             oncommand="ko.commands.doCommand('cmd_undo')"
@@ -1559,7 +1559,7 @@
         id="cmdset_cutcopydelete"
         oncommandupdate="ko.commands.updateCommandset(this);"
         commandupdater="true"
-        events="currentview_is_editor,part_selection,scintilla-focus">
+        events="currentview_is_editor,part_selection,current_view_changed">
         <command
             id="cmd_cut" key="key_cmd_cut"
             oncommand="ko.commands.doCommand('cmd_cut')"
