@@ -133,13 +133,10 @@ class _KoFolderHView(_KoContainerHView):
         else:
             return 'chrome://fugue/skin/icons/toolbox.png'
 
-class _KoComplexContainerHView(_KoFolderHView):
-    pass
-
-class _KoMenuHView(_KoComplexContainerHView):
+class _KoMenuHView(_KoFolderHView):
     typeName = 'menu'
         
-class _KoToolbarHView(_KoComplexContainerHView):
+class _KoToolbarHView(_KoFolderHView):
     typeName = 'toolbar'
 
 class _KoCommandToolHView(_KoToolHView):
