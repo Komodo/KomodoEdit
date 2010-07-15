@@ -299,6 +299,9 @@ this.ViewHistory.prototype.exitBufferSwitchingSession = function()
 {
     this.log.debug("exitBufferSwitchingSession()");
     this.inBufferSwitchingSession = false;
+    // Perf: Now that the user has finished switching to the tab they want, we
+    //       can update all of the necessary commands for the new view.
+    ko.views.manager.updateCommands();
 }
 
 this.ViewHistory.prototype.setMostRecentView = function (view)
