@@ -1118,6 +1118,11 @@ viewManager.prototype.handle_current_view_changed = function(event) {
         // break out early -- we don't want to update controllers at this point.
         return;
     }
+
+    this.updateCommands();
+}
+
+viewManager.prototype.updateCommands = function() {
     var oldcache = this.lastviewcache;
     var newcache = this.cacheCommandData(this.currentView);
     //for (var x in oldcache) {
