@@ -2517,7 +2517,10 @@
                          by mouse and Ctrl[+Shift]+Tab -->
                     <tab id="runoutput_tab" label="&commandOutput.label;"
                         onmousedown="document.getElementById('runoutput-deck').focus();"
-                        onfocus="document.getElementById('runoutput-deck').focus();"/>
+                        onfocus="document.getElementById('runoutput-deck').focus();"
+                        onmovetab_unload="ko.run.output.finalize();"
+                        onmovetab_load="ko.run.output.initialize();"
+                        />
                     <tab id="findresults1_tab" label="&findResults1.label;"
                          collapsed="true" hidden="true"
                          onmousedown="document.getElementById('findresults1-body').focus();"
