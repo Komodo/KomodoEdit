@@ -61,6 +61,7 @@ interface koIToolInfo: nsISupports {
     readonly attribute long path_id;
     readonly attribute wstring type;
     readonly attribute wstring name;
+    readonly attribute wstring iconUrl;
 };
 
 

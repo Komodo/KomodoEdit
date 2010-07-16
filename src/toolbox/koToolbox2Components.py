@@ -113,12 +113,28 @@ class KoToolInfo(object):
     Used by `.findTools()` below.
     """
     _com_interfaces_ = [components.interfaces.koIToolInfo]
-    def __init__(self, path_id, type, name, **kwargs):
+    def __init__(self, toolMgr, path_id, type, name, **kwargs):
+        self._toolMgr = toolMgr
         self.path_id = path_id
         self.type = type
         self.name = name
         for k,v in kwargs:
             setattr(self, k, v)
+
+    _koTool = None
+    @property
+    def koTool(self):
+        """Lazily retrieved (because it takes one or more DB accesses)
+        `koITool` for this tool info.
+        """
+        if self._koTool is None:
+            self._koTool = self._toolMgr.getOrCreateTool(self.type, self.name,
+                self.path_id)
+        return self._koTool
+
+    @property
+    def iconUrl(self):
+        return self.koTool.get_iconurl()
 
     
 class KoToolbox2Service(object):
@@ -526,12 +542,11 @@ class KoToolbox2Service(object):
 
     def findTools(self, query):
         #TODO: use 'count' and return full count. Add limit and offset args.
-        #TODO: return actual koITool instances: necessary to properly get_iconurl()
-        #      for custom icons
         with self.db.connect() as cu:
             cu.execute("""select path_id, type, name from common_details
                 where name like ?""", ("%" + query + "%", ))
-            hits = [KoToolInfo(*tuple(x)) for x in cu.fetchall()]
+            hits = [KoToolInfo(self._toolsMgrSvc, *tuple(x))
+                for x in cu.fetchall()]
         return hits
 
     def observe(self, subject, topic, data):
