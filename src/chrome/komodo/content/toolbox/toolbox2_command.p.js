@@ -97,15 +97,9 @@ this.add_command = function(parent, item) {
     }
 };
 
-var peFile_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-      .getService(Components.interfaces.nsIStringBundleService)
-      .createBundle("chrome://komodo/locale/project/peFile.properties");
 var peFolder_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .getService(Components.interfaces.nsIStringBundleService)
       .createBundle("chrome://komodo/locale/project/peFolder.properties");
-var partutils_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-      .getService(Components.interfaces.nsIStringBundleService)
-      .createBundle("chrome://komodo/locale/project/partutils.properties");
 var komodo_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .getService(Components.interfaces.nsIStringBundleService)
       .createBundle("chrome://komodo/locale/komodo.properties");
