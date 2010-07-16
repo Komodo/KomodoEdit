@@ -1191,7 +1191,7 @@ viewManager.prototype.handle_view_opened = function() {
     }
 };
 
-viewManager.prototype.supportsCommand = function(command) {
+viewManager.prototype.supportsCommand = function viewManager_supportsCommand(command) {
     if (command.indexOf("cmd_viewAs") == 0) {
         return true;
     }
@@ -1199,7 +1199,7 @@ viewManager.prototype.supportsCommand = function(command) {
     return Controller.prototype.supportsCommand.apply(this, [command]);
 }
 
-viewManager.prototype.isCommandEnabled = function(command) {
+viewManager.prototype.isCommandEnabled = function viewManager_isCommandEnabled(command) {
     if (command.indexOf("cmd_viewAs") == 0) {
         // XXX we want to use a broadcaster for this, there are too many.
         var rc = ko.views.manager.currentView && ko.views.manager.currentView.getAttribute('type') == 'editor'
@@ -1210,7 +1210,7 @@ viewManager.prototype.isCommandEnabled = function(command) {
     return Controller.prototype.isCommandEnabled.apply(this, [command]);
 }
 
-viewManager.prototype.doCommand = function(command) {
+viewManager.prototype.doCommand = function viewManager_doCommand(command) {
     Controller.prototype.doCommand.apply(this, [command]);
 }
 
