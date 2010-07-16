@@ -258,24 +258,6 @@ this.add_folder = function(parent, item) {
 
 // Generic functions on the hierarchy view tree
 
-this.editPropertiesItem = function(event) {
-    var that = ko.toolbox2;
-    var view = that.manager.view;
-    var index = view.selection.currentIndex;
-    var tool = view.getTool(index);
-    // Method construction for names like editProperties_macro
-    var methodName = 'editProperties_' + tool.type; 
-    var method = that[methodName];
-    if (method) {
-        method.call(that, event);
-    } else {
-        alert("toolbox2_command.js::editPropertiesItem: Interal error: Don't know how to edit properties for "
-              + tool.type
-              + " "
-              + tool.name);
-    }
-};
-
 this.addToolboxItem = function(itemType) {
     try {
     var this_ = ko.toolbox2;
