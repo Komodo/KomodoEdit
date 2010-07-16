@@ -72,7 +72,7 @@ this._getTool = function(expectedTypeName) {
 };
 
 // Commands
-this.invoke_runCommand = function(event, tool) {
+this.invoke_runCommand = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getTool('command');
         if (!tool) return;
@@ -120,7 +120,7 @@ var komodo_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 
 // Macros
 
-this.invoke_executeMacro = function(event, tool) {
+this.invoke_executeMacro = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getTool('macro');
         if (!tool) return;
@@ -128,7 +128,7 @@ this.invoke_executeMacro = function(event, tool) {
     ko.projects.executeMacro(tool, tool.getBooleanAttribute('async'));
 };
 
-this.invoke_editMacro = function(event, tool) {
+this.invoke_editMacro = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getTool('macro');
         if (!tool) return;
@@ -164,7 +164,7 @@ this.editProperties_menu = function(event, tool) {
 
 // Snippets
 
-this.invoke_insertSnippet = function(event, tool) {
+this.invoke_insertSnippet = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getTool('snippet');
         if (!tool) return;
@@ -172,7 +172,7 @@ this.invoke_insertSnippet = function(event, tool) {
     ko.projects.snippetInsert(tool);
 };
 
-this.editProperties_snippet = function(event, tool) {
+this.editProperties_snippet = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getTool('snippet');
         if (!tool) return;
@@ -185,7 +185,7 @@ this.add_snippet = function(parent, item) {
 };
 
 // Templates
-this.invoke_openTemplate = function(event, tool) {
+this.invoke_openTemplate = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getTool('template');
         if (!tool) return;
@@ -225,7 +225,7 @@ this.editProperties_toolbar = function(event, tool) {
 // file properties dialog to edit a template, which is just wrong.
 
 // URLs
-this.invoke_openURLInBrowser = function(event, tool) {
+this.invoke_openURLInBrowser = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getTool('URL');
         if (!tool) return;
@@ -233,7 +233,7 @@ this.invoke_openURLInBrowser = function(event, tool) {
     ko.browse.openUrlInDefaultBrowser(tool.value);
 };
 
-this.invoke_openURLInTab = function(event, tool) {
+this.invoke_openURLInTab = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getTool('URL');
         if (!tool) return;
@@ -254,13 +254,6 @@ this.add_URL = function(parent, item) {
 };
 
 // folders
-this.invoke_folderCommand = function(event, tool) {
-    // none of these seem to have much of an effect
-    event.cancelBubble = true;
-    event.stopPropagation();
-    event.preventDefault();
-};
-
 this.add_folder = function(parent, item) {
     var basename = ko.dialogs.prompt(peFolder_bundle.GetStringFromName("enterFolderName"));
     if (!basename) return;
@@ -942,15 +935,18 @@ this.deleteItem = function(event) {
     // ko.toolbox2.manager.deleteCurrentItem();
 };    
 
-this._invokerNameForToolType = {
- 'folder' : this.invoke_folderCommand,
- 'command' : this.invoke_runCommand,
- 'macro' : this.invoke_executeMacro,
- 'snippet' : this.invoke_insertSnippet,
- 'template' : this.invoke_openTemplate,
- 'URL' : this.invoke_openURLInBrowser,
- '__EOD__':null
-};
+
+/* Invoke the given koITool. */
+this.invokeTool = function(tool) {
+    var _invoker = {
+        'command': this.invoke_runCommand,
+        'macro': this.invoke_executeMacro,
+        'snippet': this.invoke_insertSnippet,
+        'template': this.invoke_openTemplate,
+        'URL': this.invoke_openURLInBrowser
+    }[tool.type];
+    _invoker(tool);
+}
 
 this.onDblClick = function(event, checkMouseClick/*=true*/) {
     if (typeof(checkMouseClick) == "undefined") checkMouseClick = true;
@@ -962,17 +958,15 @@ this.onDblClick = function(event, checkMouseClick/*=true*/) {
     var index = view.selection.currentIndex;
     var tool = view.getTool(index);
     if (!tool) {
+        return; 
+    } else if (tool.type == "folder") { /* "folder" tools aren't really tools */
+        // none of these seem to have much of an effect
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
         return;
     }
-    var method = that._invokerNameForToolType[tool.type];
-    if (method) {
-        method.call(that, event, tool);
-    } else {
-        alert("Don't know what to do with "
-              + tool.type
-              + " "
-              + tool.name);
-    }
+    this.invokeTool(tool);
 };
 
 this.doStartDrag = function(event, tree) {
