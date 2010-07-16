@@ -408,42 +408,6 @@ this.importPackageFromWeb = function(event) {
     }
 };
 
-
-this.renameItem = function(event) {
-    try {
-        var this_ = ko.toolbox2;
-        var view = this_.manager.view;
-        var index = view.selection.currentIndex;
-        var tool = view.getTool(index);
-        var oldName = tool.name;
-        var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-        .getService(Components.interfaces.nsIStringBundleService)
-        .createBundle("chrome://komodo/locale/komodo.properties");
-        var newName = ko.dialogs.prompt(
-                        _bundle.GetStringFromName("enterANewFilename"), // prompt
-                        null, // label
-                        oldName, // default
-                        _bundle.GetStringFromName("renameFileOrFolder"), // title
-                        null, // mruName
-                        null, // validator
-                        null, // multiline
-                        null, // screenX
-                        null, // screenY
-                        null, // tacType
-                        null, // tacParam
-                        null, // tacShowCommentColumn
-                        0, // selectionStart
-                        oldName.length // selectionEnd
-                        );
-        if (!newName) {
-            return;
-        }
-        this_.manager.view.renameTool(index, newName)
-    } catch(ex) {
-        ko.dialogs.alert("renameItem: Error: " + ex);
-    }
-};
-
 // Routines that import into the top-level standard toolbox
 
 this.importFilesFromFileSystem_toStdToolbox = function(event) {
