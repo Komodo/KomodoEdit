@@ -925,6 +925,7 @@ function ManagerClass() {
         getService(Components.interfaces.nsIObserverService);
     gObserverSvc.addObserver(this, 'visit_directory_proposed', false);
     gObserverSvc.addObserver(this, 'current_project_changed', false);
+    gObserverSvc.addObserver(this, 'project_opened', false);
 }
 
 ManagerClass.prototype = {
@@ -1048,9 +1049,8 @@ ManagerClass.prototype = {
         if (!uri || !project) {
             classValue = "normal";
         } else {
-            var projectURI = project.url;
-            var projectDir = projectURI.substr(0, projectURI.lastIndexOf("/"));
-            var classValue = (uri == projectDir) ? "project" : "normal";
+            var targetDirURI = this._getActualProjectDir(project);
+            var classValue = (uri == targetDirURI) ? "project" : "normal";
         }
         widgets.rootPathIcon.setAttribute('class', classValue);
     },        
@@ -1067,6 +1067,7 @@ ManagerClass.prototype = {
         createInstance(Components.interfaces.koIFileEx);
         file.URI = uri
         widgets.rootPath.value = file.baseName;
+        widgets.rootPath.setAttribute('class', 'someplace');
         var tooltipText = (file.scheme == "file" ? file.displayPath : uri);
         widgets.rootPath.tooltipText = tooltipText;
         this._checkProjectMatch();
@@ -1400,6 +1401,7 @@ ManagerClass.prototype = {
             getService(Components.interfaces.nsIObserverService);
         gObserverSvc.removeObserver(this, 'visit_directory_proposed');
         gObserverSvc.removeObserver(this, 'current_project_changed');
+        gObserverSvc.removeObserver(this, 'project_opened');
     },
     
     goUpOneFolder: function() {
@@ -1746,8 +1748,9 @@ ManagerClass.prototype = {
     cleanPrefs: function() {
     },
 
-    'observe': function(cancelQuit, topic, data) {
+    'observe': function(subject, topic, data) {
         if (topic == 'visit_directory_proposed') {
+            var cancelQuit = subject;
             var haveCancelQuit = !!cancelQuit;
             var handleRequest = true;
             if (haveCancelQuit) {
@@ -1766,7 +1769,29 @@ ManagerClass.prototype = {
             }
         } else if (topic == 'current_project_changed') {
             this._checkProjectMatch();
+        } else if (topic == 'project_opened') {
+            var project = subject;
+            var targetDirURI = this._getActualProjectDir(project);
+            if (targetDirURI) {
+                ko.places.manager.openURI(targetDirURI);
+            }
         }
+    },
+    _getActualProjectDir: function(project) {
+        try {
+            var baseDir = project.prefset.getStringPref("import_dirname");
+            if (baseDir) {
+                var baseURI = ko.uriparse.localPathToURI(baseDir);
+                if (baseURI) {
+                    return baseURI;
+                }
+            }
+        } catch(ex) {
+            // Probably can ignore this.
+            log.exception("_getActualProjectDir: " + ex + "\n");
+        }
+        var uri = project.url;
+        return uri.substr(0, uri.lastIndexOf("/"));
     },
     __ZIP__: null
 };
