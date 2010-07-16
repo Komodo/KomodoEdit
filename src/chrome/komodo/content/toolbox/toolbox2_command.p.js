@@ -72,7 +72,7 @@ this.invoke_runCommand = function(tool) {
     ko.projects.runCommand(tool);
 };
  
-this.editProperties_command = function(event, tool) {
+this.editProperties_command = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getSelectedTool('command');
         if (!tool) return;
@@ -122,7 +122,7 @@ this.invoke_editMacro = function(tool) {
     ko.open.URI(tool.url);
 };
 
-this.editProperties_macro = function(event, tool) {
+this.editProperties_macro = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getSelectedTool('macro');
         if (!tool) return;
@@ -140,7 +140,7 @@ this.add_menu = function(parent, item) {
     ko.projects.addMenu(parent, item);
 };
 
-this.editProperties_menu = function(event, tool) {
+this.editProperties_menu = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getSelectedTool('menu');
         if (!tool) return;
@@ -199,7 +199,7 @@ this.add_toolbar = function(parent, item) {
     ko.projects.addToolbar(parent, item);
 };
 
-this.editProperties_toolbar = function(event, tool) {
+this.editProperties_toolbar = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getSelectedTool('toolbar');
         if (!tool) return;
@@ -227,7 +227,7 @@ this.invoke_openURLInTab = function(tool) {
     ko.views.manager.doFileOpenAsync(tool.value, 'browser');
 };
 
-this.editProperties_URL = function(event, tool) {
+this.editProperties_URL = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getSelectedTool('URL');
         if (!tool) return;
@@ -539,21 +539,9 @@ this.importPackageFromWeb_toStdToolbox = function(event) {
 };
 
 this.editPropertiesItem = function(event) {
-    var that = ko.toolbox2;
-    var view = that.manager.view;
-    var index = view.selection.currentIndex;
-    var tool = view.getTool(index);
-    // Method construction for names like editProperties_macro
-    var methodName = 'editProperties_' + tool.type; 
-    var method = that[methodName];
-    if (method) {
-        method.call(that, event);
-    } else {
-        alert("toolbox2_command.js::editPropertiesItem: Interal error: Don't know how to edit properties for "
-              + tool.type
-              + " "
-              + tool.name);
-    }
+    var view = ko.toolbox2.manager.view;
+    var tool = view.getTool(view.selection.currentIndex);
+    this.editPropertiesTool(tool);
 };
 
 this.renameItem = function(event) {
@@ -915,6 +903,19 @@ this.invokeTool = function(tool) {
     }[tool.type];
     _invoker(tool);
 }
+
+/* Edit properties of the given koITool. */
+this.editPropertiesTool = function(tool) {
+    var methodName = 'editProperties_' + tool.type; 
+    var method = ko.toolbox2[methodName];
+    if (method) {
+        method.call(ko.toolbox2, {}, tool);
+    } else {
+        alert("Interal error: don't know how to edit properties for "
+            + tool.type + " " + tool.name);
+    }
+};
+
 
 this.onDblClick = function(event, checkMouseClick/*=true*/) {
     if (typeof(checkMouseClick) == "undefined") checkMouseClick = true;
