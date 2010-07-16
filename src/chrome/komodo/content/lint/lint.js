@@ -92,6 +92,32 @@ var _prefs = Components.classes["@activestate.com/koPrefService;1"].
 // for all JS-side linting handling for that view.
 //
 
+var global_pref_observer_topics = [
+    "editUseLinting",
+    "lintEOLs",
+    "perlDefaultInterpreter",
+    "perl_lintOption",
+    "perl_lintOption_perlCriticLevel",
+    "perl_lintOption_includeCurrentDirForLinter",
+    "pythonDefaultInterpreter",
+    "python3DefaultInterpreter",
+    "phpDefaultInterpreter",
+    "phpConfigFile",
+    "rubyDefaultInterpreter",
+    "ruby_lintOption",
+    "lintJavaScriptEnableWarnings",
+    "lintJavaScriptEnableStrict",
+    "tidy_errorlevel",
+    "tidy_accessibility",
+    "tidy_configpath",
+];
+
+var view_pref_observer_topics = [
+    "editUseLinting",
+    "lintEOLs",
+    "endOfLine",
+];
+
 this.lintBuffer = function LintBuffer(view) {
     _log.info("LintBuffer["+view.title+"].constructor()");
     try {
@@ -101,27 +127,15 @@ this.lintBuffer = function LintBuffer(view) {
         this.errorString = null;
         this._lastRequestId = 0; // used to ensure only the last request is used
 
-        _prefs.prefObserverService.addObserver(this, "editUseLinting", false);
-        _prefs.prefObserverService.addObserver(this, "lintEOLs", false);
-        _prefs.prefObserverService.addObserver(this, "perlDefaultInterpreter", false);
-        _prefs.prefObserverService.addObserver(this, "perl_lintOption", false);
-        _prefs.prefObserverService.addObserver(this, "perl_lintOption_perlCriticLevel", false);
-        _prefs.prefObserverService.addObserver(this, "perl_lintOption_includeCurrentDirForLinter", false);
-        _prefs.prefObserverService.addObserver(this, "pythonDefaultInterpreter", false);
-        _prefs.prefObserverService.addObserver(this, "python3DefaultInterpreter", false);
-        _prefs.prefObserverService.addObserver(this, "phpDefaultInterpreter", false);
-        _prefs.prefObserverService.addObserver(this, "phpConfigFile", false);
-        _prefs.prefObserverService.addObserver(this, "rubyDefaultInterpreter", false);
-        _prefs.prefObserverService.addObserver(this, "ruby_lintOption", false);
-        _prefs.prefObserverService.addObserver(this, "lintJavaScriptEnableWarnings", false);
-        _prefs.prefObserverService.addObserver(this, "lintJavaScriptEnableStrict", false);
-        _prefs.prefObserverService.addObserver(this, "tidy_errorlevel", false);
-        _prefs.prefObserverService.addObserver(this, "tidy_accessibility", false);
-        _prefs.prefObserverService.addObserver(this, "tidy_configpath", false);
+        var globalPrefObserverService = _prefs.prefObserverService;
+        globalPrefObserverService.addObserverForTopics(this,
+                                                       global_pref_observer_topics.length,
+                                                       global_pref_observer_topics, false);
 
-        this.view.prefs.prefObserverService.addObserver(this, "editUseLinting", false);
-        this.view.prefs.prefObserverService.addObserver(this, "lintEOLs", false);
-        this.view.prefs.prefObserverService.addObserver(this, "endOfLine", false);
+        var viewPrefObserverService = this.view.prefs.prefObserverService;
+        viewPrefObserverService.addObserverForTopics(this,
+                                                     view_pref_observer_topics.length,
+                                                     view_pref_observer_topics, false);
 
         this._lintTimer = null; // used to control when lint requests are issued
     } catch(ex) {
@@ -150,27 +164,15 @@ this.lintBuffer.prototype.destructor = function()
         this._cancelDelayedRequest();
         this._clearResults();
 
-        this.view.prefs.prefObserverService.removeObserver(this, "editUseLinting");
-        this.view.prefs.prefObserverService.removeObserver(this, "lintEOLs");
-        this.view.prefs.prefObserverService.removeObserver(this, "endOfLine");
+        var viewPrefObserverService = this.view.prefs.prefObserverService;
+        viewPrefObserverService.removeObserverForTopics(this,
+                                                        view_pref_observer_topics.length,
+                                                        view_pref_observer_topics);
 
-        _prefs.prefObserverService.removeObserver(this, "editUseLinting");
-        _prefs.prefObserverService.removeObserver(this, "lintEOLs");
-        _prefs.prefObserverService.removeObserver(this, "perlDefaultInterpreter");
-        _prefs.prefObserverService.removeObserver(this, "perl_lintOption");
-        _prefs.prefObserverService.removeObserver(this, "perl_lintOption_perlCriticLevel");
-        _prefs.prefObserverService.removeObserver(this, "perl_lintOption_includeCurrentDirForLinter");
-        _prefs.prefObserverService.removeObserver(this, "pythonDefaultInterpreter");
-        _prefs.prefObserverService.removeObserver(this, "python3DefaultInterpreter");
-        _prefs.prefObserverService.removeObserver(this, "phpDefaultInterpreter");
-        _prefs.prefObserverService.removeObserver(this, "phpConfigFile");
-        _prefs.prefObserverService.removeObserver(this, "rubyDefaultInterpreter");
-        _prefs.prefObserverService.removeObserver(this, "ruby_lintOption");
-        _prefs.prefObserverService.removeObserver(this, "lintJavaScriptEnableWarnings");
-        _prefs.prefObserverService.removeObserver(this, "lintJavaScriptEnableStrict");
-        _prefs.prefObserverService.removeObserver(this, "tidy_errorlevel");
-        _prefs.prefObserverService.removeObserver(this, "tidy_accessibility");
-        _prefs.prefObserverService.removeObserver(this, "tidy_configpath");
+        var globalPrefObserverService = _prefs.prefObserverService;
+        globalPrefObserverService.removeObserverForTopics(this,
+                                                          global_pref_observer_topics.length,
+                                                          global_pref_observer_topics);
 
         this.view = null; // drop reference to the view
     } catch(ex) {
