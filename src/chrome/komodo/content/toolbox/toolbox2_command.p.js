@@ -49,32 +49,24 @@ if (typeof(ko.toolbox2)=='undefined') {
 this._dragSources = [];
 this._dragIndices = [];
 
-this._getToolData = function(expectedTypeName) {
-    // See peMacro.js for handling multiple items.
+this._getSelectedTool = function(assertOfType /* =type */) {
     var view = ko.toolbox2.manager.view;
-    var index = view.selection.currentIndex;
-    var tool = view.getTool(index);
-    if (!tool) {
-        return [null, null, null];
-    }
-    if (tool.type != expectedTypeName) {
+    var tool = view.getTool(view.selection.currentIndex);
+    if (assertOfType && tool.type != assertOfType) {
+        /* TODO(trentm): Eric, when is this sanity check useful? */
         alert("Internal error: expected a "
               + expectedTypeName
               + ", but this tool is a "
               + tool.type);
-        return [view, index, null];
+        return null;
     }
-    return [view, index, tool];
-};
-
-this._getTool = function(expectedTypeName) {
-    return this._getToolData(expectedTypeName)[2];
+    return tool;
 };
 
 // Commands
 this.invoke_runCommand = function(tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('command');
+        tool = this._getSelectedTool('command');
         if (!tool) return;
     }
     ko.projects.runCommand(tool);
@@ -82,7 +74,7 @@ this.invoke_runCommand = function(tool) {
  
 this.editProperties_command = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('command');
+        tool = this._getSelectedTool('command');
         if (!tool) return;
     }
     ko.projects.commandProperties(tool);
@@ -122,7 +114,7 @@ var komodo_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 
 this.invoke_executeMacro = function(tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('macro');
+        tool = this._getSelectedTool('macro');
         if (!tool) return;
     }
     ko.projects.executeMacro(tool, tool.getBooleanAttribute('async'));
@@ -130,7 +122,7 @@ this.invoke_executeMacro = function(tool) {
 
 this.invoke_editMacro = function(tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('macro');
+        tool = this._getSelectedTool('macro');
         if (!tool) return;
     }
     ko.open.URI(tool.url);
@@ -138,7 +130,7 @@ this.invoke_editMacro = function(tool) {
 
 this.editProperties_macro = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('macro');
+        tool = this._getSelectedTool('macro');
         if (!tool) return;
     }
     ko.projects.macroProperties(tool);
@@ -156,7 +148,7 @@ this.add_menu = function(parent, item) {
 
 this.editProperties_menu = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('menu');
+        tool = this._getSelectedTool('menu');
         if (!tool) return;
     }
     ko.projects.menuProperties(tool);
@@ -166,7 +158,7 @@ this.editProperties_menu = function(event, tool) {
 
 this.invoke_insertSnippet = function(tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('snippet');
+        tool = this._getSelectedTool('snippet');
         if (!tool) return;
     }
     ko.projects.snippetInsert(tool);
@@ -174,7 +166,7 @@ this.invoke_insertSnippet = function(tool) {
 
 this.editProperties_snippet = function(tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('snippet');
+        tool = this._getSelectedTool('snippet');
         if (!tool) return;
     }
     ko.projects.snippetProperties(tool);
@@ -187,7 +179,7 @@ this.add_snippet = function(parent, item) {
 // Templates
 this.invoke_openTemplate = function(tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('template');
+        tool = this._getSelectedTool('template');
         if (!tool) return;
     }
     ko.views.manager.doFileNewFromTemplateAsync(tool.url);
@@ -215,7 +207,7 @@ this.add_toolbar = function(parent, item) {
 
 this.editProperties_toolbar = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('toolbar');
+        tool = this._getSelectedTool('toolbar');
         if (!tool) return;
     }
     ko.projects.menuProperties(tool);
@@ -227,7 +219,7 @@ this.editProperties_toolbar = function(event, tool) {
 // URLs
 this.invoke_openURLInBrowser = function(tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('URL');
+        tool = this._getSelectedTool('URL');
         if (!tool) return;
     }
     ko.browse.openUrlInDefaultBrowser(tool.value);
@@ -235,7 +227,7 @@ this.invoke_openURLInBrowser = function(tool) {
 
 this.invoke_openURLInTab = function(tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('URL');
+        tool = this._getSelectedTool('URL');
         if (!tool) return;
     }
     ko.views.manager.doFileOpenAsync(tool.value, 'browser');
@@ -243,7 +235,7 @@ this.invoke_openURLInTab = function(tool) {
 
 this.editProperties_URL = function(event, tool) {
     if (typeof(tool) == 'undefined') {
-        tool = this._getTool('URL');
+        tool = this._getSelectedTool('URL');
         if (!tool) return;
     }
     ko.projects.URLProperties(tool);
