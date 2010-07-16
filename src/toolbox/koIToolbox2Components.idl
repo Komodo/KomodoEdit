@@ -62,6 +62,7 @@ interface koIToolInfo: nsISupports {
     readonly attribute wstring type;
     readonly attribute wstring name;
     readonly attribute wstring iconUrl;
+    readonly attribute koITool koTool;
 };
 
 
