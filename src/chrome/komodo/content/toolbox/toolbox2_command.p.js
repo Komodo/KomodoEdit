@@ -53,7 +53,7 @@ this._getSelectedTool = function(assertOfType /* =type */) {
     var view = ko.toolbox2.manager.view;
     var tool = view.getTool(view.selection.currentIndex);
     if (assertOfType && tool.type != assertOfType) {
-        /* TODO(trentm): Eric, when is this sanity check useful? */
+        /* Note: This whole "assertOfType" is just a dev sanity check. Can be pulled out sometime. */
         alert("Internal error: expected a "
               + expectedTypeName
               + ", but this tool is a "
@@ -71,7 +71,7 @@ this.invoke_runCommand = function(tool) {
     }
     ko.projects.runCommand(tool);
 };
- 
+
 this.editProperties_command = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getSelectedTool('command');
