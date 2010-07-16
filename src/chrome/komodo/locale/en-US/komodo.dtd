@@ -436,7 +436,7 @@
 <!ENTITY menuWindow.accesskey "W">
 <!ENTITY move.label "Move">
 <!ENTITY moveButton.accesskey "M">
-<!ENTITY moveToOtherTabGroup.label "Move to Other Tab Group">
+<!ENTITY moveToOtherTabGroup.label "Move to Other Split View">
 <!ENTITY moveToPreviousMark.label "Move to Previous Mark">
 <!ENTITY moveTabToNewWindow.label "Move Tab to a New Window">
 <!ENTITY new.label "New">
@@ -537,7 +537,7 @@
 <!ENTITY replaceInCurrProject.label "Replace in Current Project...">
 <!ENTITY revert.label "Revert">
 <!ENTITY revertProject.label "Revert Project">
-<!ENTITY rotateTabGroups.label "Rotate Tab Groups">
+<!ENTITY rotateTabGroups.label "Rotate Split View">
 <!ENTITY runCommand.label "Run Command...">
 <!ENTITY runLast.label "Run Last">
 <!ENTITY runLastMacro.label "Run Last Macro">
@@ -641,8 +641,8 @@
 <!ENTITY untabifyRegion.label "Untabify Region">
 <!ENTITY update.label "Update">
 <!ENTITY userInterfaceBrowserPreview.desc "User Interface: Browser Preview">
-<!ENTITY userInterfaceBrowserPreviewInternal.desc "User Interface: Internal Browser Preview in Other Tab Group">
-<!ENTITY userInterfaceBrowserPreviewInternalSameTabGroup.desc "User Interface: Internal Browser Preview in Same Tab Group">
+<!ENTITY userInterfaceBrowserPreviewInternal.desc "User Interface: Internal Browser Preview in Other Split View">
+<!ENTITY userInterfaceBrowserPreviewInternalSameTabGroup.desc "User Interface: Internal Browser Preview in Same Split View">
 <!ENTITY userInterfaceFocusOnBottomPane.desc "User Interface: Focus on Bottom Pane">
 <!ENTITY userInterfaceFocusOnEditor.desc "User Interface: Focus on Editor">
 <!ENTITY userInterfaceFocusOnProjectsPane.desc "User Interface: Focus on Projects Pane">
