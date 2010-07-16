@@ -5,6 +5,8 @@
   %fastopenDTD;
 ]>
 
+<?xml-stylesheet href="chrome://fastopen/skin/fastopen.css" type="text/css"?>
+
 <overlay id="fastopen-overlay"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -16,6 +18,9 @@
     <command id="cmd_goToFile"
              oncommand="ko.fastopen.open_gotofile_dialog();"
              desc="&fastOpenGoToFile.desc;" />
+    <command id="cmd_invokeTool"
+             oncommand="ko.fastopen.open_invoketool_panel();"
+             desc="&fastOpenInvokeTool.desc;" />
   </commandset>
 
   <menupopup id="popup_file_open">
@@ -26,4 +31,42 @@
               class="menuitem-iconic open-file-icon"
               observes="cmd_goToFile" />
   </menupopup>
+  
+  <menupopup id="popup_tools">
+    <menuitem id="menu_invokeTool"
+              key="key_cmd_invokeTool"
+              insertafter="menu_macros"
+              label="&invokeTool.menuitem;"
+              observes="cmd_goToFile" />
+  </menupopup>
+        
+  <popupset id="extensionPopupSet">
+    <panel id="invoketool_panel"
+        onpopupshown="ko.fastopen.invoketool.onPopupShown()"
+        onkeypress="ko.fastopen.invoketool.onPanelKeyPress(event)">
+      <vbox flex="1">
+        <hbox style="margin: 10px;">
+          <textbox id="invoketool_query" type="search" timeout="200"
+              oncommand="ko.fastopen.invoketool.findTools()"
+              onkeypress="ko.fastopen.invoketool.onQueryKeyPress(event)"
+              class="search-box"
+              flex="1" />
+        </hbox>
+    
+        <tree id="invoketool_results" flex="1" hidecolumnpicker="true"
+            ondblclick="ko.fastopen.invoketool.onTreeDblClick(event)"
+            onselect="this.view.selectionChanged()"
+            style="margin: 0px;">
+          <treecols>
+              <treecol id="invoketool_result" hideheader="true" flex="1"/>
+          </treecols>
+          <treechildren />
+        </tree>
+      
+        <statusbar id="invoketool_statusbar">
+          <statusbarpanel id="invoketool_statusbar_panel" crop="end" flex="1" />
+        </statusbar>
+      </vbox>
+    </panel>
+  </popupset>
 </overlay>

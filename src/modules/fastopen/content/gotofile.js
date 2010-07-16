@@ -104,6 +104,7 @@ function handleQueryKeyPress(event) {
             _extendSelectTreeRow(gWidgets.results, index);
         }
         event.preventDefault();
+        event.stopPropagation();
     } else if (keyCode == KeyEvent.DOM_VK_DOWN && event.shiftKey) {
         index = gWidgets.results.currentIndex + 1;
         if (index < 0) {
@@ -113,12 +114,15 @@ function handleQueryKeyPress(event) {
             _extendSelectTreeRow(gWidgets.results, index);
         }
         event.preventDefault();
+        event.stopPropagation();
     } else if (keyCode == KeyEvent.DOM_VK_TAB && event.shiftKey) {
         _completeSelectionOrMove(false, true);
         event.preventDefault();
+        event.stopPropagation();
     } else if (keyCode == KeyEvent.DOM_VK_TAB) {
         _completeSelectionOrMove(true, true);
         event.preventDefault();
+        event.stopPropagation();
     } else if (keyCode == KeyEvent.DOM_VK_UP
             /* Ctrl+p for Emacs-y people. */
             || (event.ctrlKey && event.charCode === 112)) {
@@ -127,6 +131,7 @@ function handleQueryKeyPress(event) {
             _selectTreeRow(gWidgets.results, index);
         }
         event.preventDefault();
+        event.stopPropagation();
     } else if (keyCode == KeyEvent.DOM_VK_DOWN
             /* Ctrl+n for Emacs-y people. */
             || (event.ctrlKey && event.charCode === 110)) {
@@ -138,6 +143,7 @@ function handleQueryKeyPress(event) {
             _selectTreeRow(gWidgets.results, index);
         }
         event.preventDefault();
+        event.stopPropagation();
     }
     //TODO: page up/down
 }

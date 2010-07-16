@@ -3,6 +3,8 @@
 <!ENTITY default.label "Default:">
 <!ENTITY goToFile.menuitem "Go to File...">
 <!ENTITY fastOpenGoToFile.desc "Fast Open: Go to File...">
+<!ENTITY fastOpenInvokeTool.desc "Fast Open: Invoke Tool...">
 <!ENTITY goToFile.window.title "Go to File">
 <!ENTITY enableGoToolIntegration.label "Enable go-tool integration">
 <!ENTITY goToolIntegration.description "'Go' is a small command-line tool for changing directories quickly.">
+<!ENTITY invokeTool.menuitem "Invoke Tool">
