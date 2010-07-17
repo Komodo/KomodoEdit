@@ -271,6 +271,8 @@
             ]]>
             </destructor>
 
+            <field name="pref_topics">['editor-scheme', 'scrollEndAtLastLine']</field>
+
             <method name="init">
                 <body>
                 <![CDATA[
@@ -318,7 +320,6 @@
                 // XXX this allows us to scroll the last line to the top of the
                 // view of the buffer. Not sure if we will keep this in, or
                 // perhaps make it a pref
-                prefs.prefObserverService.addObserver(this, 'scrollEndAtLastLine', false);
                 if (prefs.getBooleanPref("scrollEndAtLastLine"))
                     scimoz.endAtLastLine = false;
 
@@ -369,7 +370,10 @@
 
                 this.scheme.applyScheme(scimoz, this.language, this.encoding, this.alternateFaceType); // Shouldn't do these for editor views?
                 this.inited = true;
-                prefs.prefObserverService.addObserver(this, 'editor-scheme', false);
+                prefs.prefObserverService.addObserverForTopics(this,
+                                                               this.pref_topics.length,
+                                                               this.pref_topics,
+                                                               false);
                 scimoz.visible = true;
             } catch (e) {
                 this.log.exception(e);
@@ -386,8 +390,9 @@
                 try {
                     var prefs = Components.classes['@activestate.com/koPrefService;1'].
                                     getService(Components.interfaces.koIPrefService).prefs;
-                    prefs.prefObserverService.removeObserver(this, 'editor-scheme');
-                    prefs.prefObserverService.removeObserver(this, 'scrollEndAtLastLine');
+                    prefs.prefObserverService.removeObserverForTopics(this,
+                                                                      this.pref_topics.length,
+                                                                      this.pref_topics);
                 } catch (e) {
                     this.log.debug('pref observer service gone already');
                 }
