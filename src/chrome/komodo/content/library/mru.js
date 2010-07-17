@@ -79,6 +79,11 @@ function _notifyOfMRUChange(prefName)
     }
 }
 
+var pref_observer_topics = [
+    'mruProjectSize',
+    'mruFileSize',
+    'mruTemplateSize',
+];
 
 /* Observe changes to MRUs *size* prefs matching the name "mru*Size" and trim
  * the associated "mru*List" pref if necessary.
@@ -88,18 +93,19 @@ function _MRUPrefObserver()
     this.prefSvc = Components.classes["@activestate.com/koPrefService;1"].
                   getService(Components.interfaces.koIPrefService);
     var prefObserverService = this.prefSvc.prefs.prefObserverService;
-    prefObserverService.addObserver(this, "mruProjectSize", true);
-    prefObserverService.addObserver(this, "mruFileSize", true);
-    prefObserverService.addObserver(this, "mruTemplateSize", true);
+    prefObserverService.addObserverForTopics(this,
+                                             pref_observer_topics.length,
+                                             pref_observer_topics,
+                                             true);
 };
 _MRUPrefObserver.prototype.destroy = function()
 {
     this.prefSvc = Components.classes["@activestate.com/koPrefService;1"].
                   getService(Components.interfaces.koIPrefService);
     var prefObserverService = this.prefSvc.prefs.prefObserverService;
-    prefObserverService.removeObserver(this, "mruProjectSize");
-    prefObserverService.removeObserver(this, "mruFileSize");
-    prefObserverService.removeObserver(this, "mruTemplateSize");
+    prefObserverService.removeObserverForTopics(this,
+                                                pref_observer_topics.length,
+                                                pref_observer_topics);
     this.prefSvc = null;
 }
 _MRUPrefObserver.prototype.observe = function(prefSet, sizePrefName, data)
