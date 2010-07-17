@@ -71,6 +71,21 @@
 
         <field name="_everLinted">false</field>
 
+        <field name="_view_pref_observer_topics">
+            [
+                'codeintel_enabled',
+                'colorizing_enabled'
+            ]
+        </field>
+
+        <field name="_koDoc_observer_topics">
+            [
+                'buffer_dirty',
+                'language_changed',
+                'encoding_changed'
+            ]
+        </field>
+
         <field name="_koDoc">null</field>
         <property name="koDoc"
             onget="return this._koDoc;">
@@ -81,12 +96,15 @@
                 try {
                 // We are detaching a document from the view
                 xtk.domutils.fireEvent(this, 'view_document_detaching');
+                var viewPrefObserverService = this.prefs.prefObserverService;
+                viewPrefObserverService.removeObserverForTopics(this,
+                                                                this._view_pref_observer_topics.length,
+                                                                this._view_pref_observer_topics);
+                this._koDoc.observerService.removeObserverForTopics(this,
+                                                                    this._koDoc_observer_topics.length,
+                                                                    this._koDoc_observer_topics);
                 this._koDoc.releaseView(this);
                 this._koDoc.releaseReference();
-                this._koDoc.observerService.removeObserver(this,'buffer_dirty');
-                this._koDoc.observerService.removeObserver(this,'language_changed');
-                this._koDoc.observerService.removeObserver(this,'encoding_changed');
-                this._koDoc.observerService.removeObserver(this,'buffer_changed');
                 Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService).removeObserver(this,'scheme-changed');
                 } catch(e) {
@@ -119,10 +137,15 @@
                 val.addReference();
                 val.addView(this);
                 // we want to listen for any changes in the document
-                val.observerService.addObserver(this,'buffer_dirty',0);
-                val.observerService.addObserver(this,'language_changed',0);
-                val.observerService.addObserver(this,'encoding_changed',0);
-                val.observerService.addObserver(this,'buffer_changed',0);
+                val.observerService.addObserverForTopics(this,
+                                                         this._koDoc_observer_topics.length,
+                                                         this._koDoc_observer_topics,
+                                                         0);
+                var viewPrefObserverService = this.prefs.prefObserverService;
+                viewPrefObserverService.addObserverForTopics(this,
+                                                             this._view_pref_observer_topics.length,
+                                                             this._view_pref_observer_topics,
+                                                             false);
                 Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService).addObserver(this,'scheme-changed',0);
                 this.parentView.updateLeafName(this);
@@ -153,13 +176,24 @@
             onset="throw Components.results.NS_ERROR_NOT_IMPLEMENTED;"
             onget="return this.koDoc.languageObj"/>
 
+        <field name="_global_pref_observer_topics">
+            [
+                'ySlop',
+                'select_most_recent_buffer_on_buffer_close',
+                'debuggerMaxTooltipSize',
+                'editor-scheme'
+            ]
+        </field>
+
         <method name="init">
         <body>
         <![CDATA[
             this.parentView.setContext(this, "tabContextMenu");
-            this.__globalPrefs.prefObserverService.addObserver(this, 'ySlop', false);
-            this.__globalPrefs.prefObserverService.addObserver(this, 'select_most_recent_buffer_on_buffer_close', false);
-            this.__globalPrefs.prefObserverService.addObserver(this, 'editor-scheme', false);
+            var prefObserverService = this.__globalPrefs.prefObserverService;
+            prefObserverService.addObserverForTopics(this,
+                                                     this._global_pref_observer_topics.length,
+                                                     this._global_pref_observer_topics,
+                                                     false);
             this.scimoz.setYCaretPolicy(this.scimoz.CARET_SLOP |
                                    this.scimoz.CARET_STRICT |
                                    this.scimoz.CARET_EVEN,
@@ -183,26 +217,6 @@
                 this_.isCICitadelStuffEnabled = false;
                 this_.isCIXMLStuffEnabled = false;
             }
-            this.handle_view_document_attached = function(event) {
-                var view = event.originalTarget;
-                if (view != this_) {
-                    return;
-                }
-                view.prefs.prefObserverService.addObserver(view, 'codeintel_enabled', false);
-                view.prefs.prefObserverService.addObserver(view, 'colorizing_enabled', false);
-            };
-            this.handle_view_document_detaching = function(event) {
-                var view = event.originalTarget;
-                if (view != this_) {
-                    return;
-                }
-                try {
-                    view.prefs.prefObserverService.removeObserver(view, 'codeintel_enabled');
-                    view.prefs.prefObserverService.removeObserver(view, 'colorizing_enabled');
-                } catch(e) {
-                  this.log.exception(e);
-                }
-            };
             this._currentFamily = "";
             this._highlightColors = null;
             this._listeningLineCol = false;
@@ -235,10 +249,6 @@
             };
             window.addEventListener('codeintel_deactivated_window',
                 this._on_codeintel_deactivated_window, false);
-            window.addEventListener('view_document_attached',
-                this.handle_view_document_attached, false);
-            window.addEventListener('view_document_detaching',
-                this.handle_view_document_detaching, false);
         ]]>
         </body>
         </method>
@@ -607,9 +617,10 @@
                     this.preview.sourceView = null;
                     this.preview = null;
                 }
-                this.__globalPrefs.prefObserverService.removeObserver(this, 'ySlop');
-                this.__globalPrefs.prefObserverService.removeObserver(this, 'select_most_recent_buffer_on_buffer_close');
-                this.__globalPrefs.prefObserverService.removeObserver(this, 'editor-scheme');
+                var prefObserverService = this.__globalPrefs.prefObserverService;
+                prefObserverService.removeObserverForTopics(this,
+                                                            this._global_pref_observer_topics.length,
+                                                            this._global_pref_observer_topics);
 
                 window.removeEventListener('codeintel_activated_window',
                     this._on_codeintel_activated_window, false);
