@@ -475,14 +475,10 @@ class koPreferenceSet:
         pickleCache(self, filename)
 
     def serializeToFile(self, filename):
-        stream = components.classes["@activestate.com/koLocalFile;1"].\
-                 createInstance().QueryInterface(components.interfaces.koILocalFile)
-        stream.init(filename, 'w')
-        
-        writeXMLHeader(stream)
-        self.serialize(stream, "")
-        writeXMLFooter(stream)
-        stream.close()
+        with file(filename, "wb") as stream:
+            writeXMLHeader(stream)
+            self.serialize(stream, "")
+            writeXMLFooter(stream)
         self.serializeToFileFast(filename + "c")
 
     def serialize(self, stream, basedir):
@@ -712,12 +708,8 @@ class koPrefWrapper:
         pickleCache(self, filename)
         
     def serializeToFile(self, filename):
-        stream = components.classes["@activestate.com/koLocalFile;1"].\
-                 createInstance().QueryInterface(components.interfaces.koILocalFile)
-        stream.init(filename, 'w')
-
-        self.serialize(stream, "")
-        stream.close()
+        with file(filename, "wb") as stream:
+            self.serialize(stream, "")
         self.serializeToFileFast(filename+"c")
 
     def serialize(self, stream, basedir):
@@ -917,12 +909,8 @@ class koOrderedPreference:
         return True
 
     def serializeToFile(self, filename):
-        stream = components.classes["@activestate.com/koLocalFile;1"].\
-                 createInstance().QueryInterface(components.interfaces.koILocalFile)
-        stream.init(filename, 'w')        
-
-        self.serialize(stream, "")
-        stream.close()
+        with file(filename, "wb") as stream:
+            self.serialize(stream, "")
 
     def serialize(self, stream, basedir):
         if self.id:
@@ -931,6 +919,8 @@ class koOrderedPreference:
         else:
             stream.write('<ordered-preference>%s' % newl)
         for pref, typ in self._collection:
+            if typ == "object":
+                pref = UnwrapObject(pref)
             serializePref(stream, pref, typ, basedir)
         stream.write('</ordered-preference>%s' % newl)
 
@@ -1003,14 +993,10 @@ class koPreferenceCache:
         assert self._is_sane()
     
     def serializeToFile(self, filename):
-        stream = components.classes["@activestate.com/koLocalFile;1"].\
-                 createInstance().QueryInterface(components.interfaces.koILocalFile)
-        stream.init(filename, 'w')
-        
-        writeXMLHeader(stream)
-        self.serialize(stream, "")
-        writeXMLFooter(stream)
-        stream.close()
+        with file(filename, "wb") as stream:
+            writeXMLHeader(stream)
+            self.serialize(stream, "")
+            writeXMLFooter(stream)
         # Should this be self.serializeToFileFast(...)?
         pickleCache(self, filename+"c")
 
@@ -1026,7 +1012,7 @@ class koPreferenceCache:
         for index in indexes:
             id = self.index_map[index]
             pref = self.pref_map[id][0]
-            serializePref(stream, pref, "object", id, basedir)
+            serializePref(stream, UnwrapObject(pref), "object", id, basedir)
         stream.write('</preference-cache>%s' % newl)
 
     # koIPreference interface
@@ -1293,9 +1279,9 @@ class koGlobalPrefService:
         log.info("serializing pref state %s to file: %r", prefName, fname)
         # prefs.dump(0)
         if defn.save_format in [koGlobalPreferenceDefinition.SAVE_DEFAULT, koGlobalPreferenceDefinition.SAVE_XML_ONLY]:
-            prefs.serializeToFile(fname)
+            UnwrapObject(prefs).serializeToFile(fname)
         if defn.save_format in [koGlobalPreferenceDefinition.SAVE_DEFAULT, koGlobalPreferenceDefinition.SAVE_FAST_ONLY]:
-            prefs.serializeToFileFast(fname + "c")
+            UnwrapObject(prefs).serializeToFileFast(fname + "c")
         
     def get_effectivePrefs(self):
         if self._partSvc.currentProject:
