@@ -91,64 +91,54 @@ class KoObserverService:
             #    log.warn("observers not removed: %r", (self._topics.keys(),))
             self._topics = {}
 
-    # returns list of observers that are not dead
-    def _getLiveObservers(self, topic):
-        L = []
-        if topic not in self._topics:
-            return L
-        for wr in self._topics[topic]:
-            try:
-                if not callable(wr) or wr() is not None:
-                    L.append(wr)
-            except Exception, e:
-                # bug 72807, pyxpcom failure on trunk
-                # This is occurs when a JavaScript observer has not removed
-                # it's observer before it was cleaned up (garbage collected).
-                log.exception(e)
-        return L
-
-    # returns list of strong refs for observers in topic
-    def _getObservers(self, topic):
-        L = []
-        if topic not in self._topics:
-            return L
-        for wr in self._topics[topic]:
-            o = None
-            if callable(wr):
-                o = wr()
-            else:
-                o = wr
-            if o is not None:
-                L.append(o)
-        return L
-    
-    def _removeDead(self):
-        for topic in self._topics.keys():
+    def dump(self, topics=None):
+        print
+        print "KoObserverService"
+        if topics is None:
+            topics = self._topics.keys()
+        for topic in topics:
             observers = self._getLiveObservers(topic)
-            if not observers:
-                # No observers for this topic - remove the topic altogether.
-                del self._topics[topic]
-            else:
-                self._topics[topic] = observers
+            print "  %r (%d observers)" % (topic, len(observers))
+        print
+
+    # Returns list of observers that are not dead. Maintains a 1-1 match for
+    # the returned observers to the "self._topics[topic]" weak references.
+    def _getLiveObservers(self, topic):
+        wr_observers = self._topics.get(topic)
+        if wr_observers is None:
+            return None
+        L = []
+        if wr_observers:
+            for i in range(len(wr_observers)-1, -1, -1):
+                wr = wr_observers[i]
+                if not callable(wr):
+                    L.insert(0, wr)
+                else:
+                    try:
+                        observer = wr()
+                        if observer is not None:
+                            L.insert(0, observer)
+                            continue
+                    except Exception:
+                        # bug 72807, pyxpcom failure on trunk
+                        # This is occurs when a JavaScript observer has not removed
+                        # it's observer before it was cleaned up (garbage collected).
+                        #log.exception("WeakReference failed for topic: %r, wr: %r", topic, wr)
+                        pass
+                    # It's dead, remove it.
+                    log.debug("Removed a dead observer for topic: %r", topic)
+                    wr_observers.pop(i)
+            # There are no live observers left, remove the topic itself.
+            if not wr_observers:
+                self._topics.pop(topic)
+        return L
 
     # void addObserver( in nsIObserver anObserver, in string aTopic, in boolean ownsWeak);
     def _addObserver(self, anObserver, aTopic, ownsWeak):
-        if not aTopic in self._topics:
-            self._topics[aTopic] = []
-
-        # Not removing dead observers here... this was causing hangs at
-        # startup (a deadlock Todd's linux machine). After digging into this
-        # hang, the reason was that two threads (PHP and Python lint
-        # threads) were calling addObserver at the same time. The Python
-        # thread acquired the lock and was in the process of removing dead
-        # observers (iterating over the observers) and the PHP addObserver
-        # call came along and hit the above "cv.acquire()" and was locked,
-        # but the Python thread did not resume and the result was a
-        # deadlock. I don't know the exact PyXPCOM / Python reasons of
-        # how/why. Removing the _removeDead() call does not have much
-        # affect to this service, so it's a safe enough change.
-        #else:
-        #    self._removeDead()
+        wr_observers = self._topics.get(aTopic)
+        if wr_observers is None:
+            wr_observers = []
+            self._topics[aTopic] = wr_observers
 
         # Ignoring the ownsWeak argument, always try to create a
         # weakreference, see comments in bug 80145.
@@ -156,7 +146,7 @@ class KoObserverService:
             anObserver = WeakReference(anObserver)
         except COMException:
             pass
-        self._topics[aTopic].append(anObserver)
+        wr_observers.append(anObserver)
 
     def addObserver(self, anObserver, aTopic, ownsWeak):
         if not anObserver:
@@ -179,26 +169,27 @@ class KoObserverService:
             self.cv.release()
     
     def _removeObserver(self, anObserver, aTopic):
-        if aTopic in self._topics:
-            # get non-weakref'd list of observers so
-            # we can compare the observer we got with
-            # that list.  This list (observers) will be the same
-            # size/order as the original (self._topics[aTopic])
-            # so we can use the index from the new to delete from
-            # the old.  probably need to deal with thread safety here
-            observers = self._getObservers(aTopic)
-            if anObserver in observers:
-                del self._topics[aTopic][observers.index(anObserver)]
-            else:
-                raise ServerException(nsError.NS_ERROR_FAILURE,"Observer not in topic list %s"%aTopic)
-        else:
-            raise ServerException(nsError.NS_ERROR_FAILURE,"No Observers for Topic %s"%aTopic)
+        # Get non-weakref'd list of observers so we can compare the observer we
+        # got with that list. This list (observers) will be the same size/order
+        # as the original (self._topics[aTopic]). Probably need to deal with
+        # thread safety here?
+        observers = self._getLiveObservers(aTopic)
+        if observers is None:
+            raise ServerException(nsError.NS_ERROR_FAILURE,"No Observers for Topic %r"%aTopic)
+        try:
+            idx = observers.index(anObserver)
+            wr_observers = self._topics.get(aTopic)
+            wr_observers.pop(idx)
+            if not wr_observers:
+                # Can remove the topic as well.
+                self._topics.pop(aTopic)
+        except ValueError:
+            raise ServerException(nsError.NS_ERROR_FAILURE,"Observer not in topic list %s"%aTopic)
 
     # void removeObserver( in nsIObserver anObserver, in string aTopic );
     def removeObserver(self, anObserver, aTopic):
         self.cv.acquire()
         try:
-            self._removeDead()
             self._removeObserver(anObserver, aTopic)
         finally:
             self.cv.release()
@@ -207,7 +198,6 @@ class KoObserverService:
     def removeObserverForTopics(self, anObserver, aTopics):
         self.cv.acquire()
         try:
-            self._removeDead()
             for aTopic in aTopics:
                 self._removeObserver(anObserver, aTopic)
         finally:
@@ -217,53 +207,43 @@ class KoObserverService:
     #                      in string aTopic, 
     #                      in wstring someData );
     def notifyObservers(self, aSubject, aTopic, someData):
+        ok = 0
         self.cv.acquire()
         try:
-            self._removeDead()
+            if aTopic:
+                topic_observers = self._getLiveObservers(aTopic)
+            # A twist, the empty topic is global and recieves all notifications!
+            catchall_observers = self._getLiveObservers('')
         finally:
             self.cv.release()
-        ok = 0
-        if aTopic and aTopic in self._topics:
-            self.cv.acquire()
-            try:
-                observers = self._getObservers(aTopic)
-            finally:
-                self.cv.release()
-            for observer in observers:
-                if observer:
-                    try:
-                        observer.observe(aSubject, aTopic, someData)
-                    except:
-                        log.debug("Caught Exception on observe: %s:%s"%(aTopic, someData))
-                        #raise
-                    ok = 1
 
-        # a twist, we an empty topic is global and recieves all
-        # notifications!
-        if '' in self._topics:
-            self.cv.acquire()
-            try:
-                observers = self._getObservers('')
-            finally:
-                self.cv.release()
-            for observer in observers:
-                if observer:
-                    try:
-                        observer.observe(aSubject, aTopic, someData)
-                    except:
-                        log.debug("Caught Exception on observe: %s:%s"%(aTopic, someData))
-                        raise
-                    ok = 1
-        
-        if not ok:
-            raise ServerException(nsError.NS_ERROR_FAILURE,"No Observers for Topic %s"%aTopic)
+        if topic_observers:
+            for observer in topic_observers:
+                try:
+                    observer.observe(aSubject, aTopic, someData)
+                except:
+                    log.debug("Caught Exception on observe: %s:%s"%(aTopic, someData))
+                    #raise
+                ok = 1
+
+        if catchall_observers:
+            for observer in catchall_observers:
+                try:
+                    observer.observe(aSubject, aTopic, someData)
+                except:
+                    log.debug("Caught Exception on observe: %s:%s"%(aTopic, someData))
+                    raise
+                ok = 1
+
+        # No need to raise an exception if no one is listening.
+        #if not ok:
+        #    raise ServerException(nsError.NS_ERROR_FAILURE,"No Observers for Topic %s"%aTopic)
     
     # nsISimpleEnumerator enumerateObservers( in string aTopic );
     def enumerateObservers(self, aTopic):
         self.cv.acquire()
         try:
-            self._removeDead()
-            vals = self._getObservers(aTopic)
+            vals = self._getLiveObservers(aTopic)
         finally:
             self.cv.release()
         return SimpleEnumerator(vals)
