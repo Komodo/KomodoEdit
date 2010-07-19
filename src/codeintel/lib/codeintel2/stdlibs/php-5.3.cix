@@ -3418,7 +3418,8 @@
       <scope name="quotemeta" signature="quotemeta(string str)" returns="string" doc="Quotes meta characters" ilk="function" src="string.c"/>
       <scope name="ord" signature="ord(string character)" returns="int" doc="Returns ASCII value of character" ilk="function" src="string.c"/>
       <scope name="chr" signature="chr(int ascii)" returns="string" doc="Converts ASCII code to a character" ilk="function" src="string.c"/>
-      <scope name="ucfirst" signature="ucfirst(string str)" returns="string" doc="Make a string's first character lowercase" ilk="function" src="string.c"/>
+      <scope name="lcfirst" signature="lcfirst(string str)" returns="string" doc="Make a string's first character lowercase" ilk="function" src="string.c"/>
+      <scope name="ucfirst" signature="ucfirst(string str)" returns="string" doc="Make a string's first character uppercase" ilk="function" src="string.c"/>
       <scope name="ucwords" signature="ucwords(string str)" returns="string" doc="Uppercase the first character of every word in a string" ilk="function" src="string.c"/>
       <scope name="strtr" signature="strtr(string str, string from[, string to])" returns="string" doc="Translates characters in str using given translation&#10;tables" ilk="function" src="string.c"/>
       <scope name="strrev" signature="strrev(string str)" returns="string" doc="Reverse a string" ilk="function" src="string.c"/>
@@ -4749,7 +4750,6 @@
       <scope name="pg_clientencoding" signature="pg_clientencoding( [ connection ] )" ilk="function"/>
       <scope name="pg_setclientencoding" signature="pg_setclientencoding( [ connection ], [ encoding ] )" ilk="function"/>
       <scope name="spl_autoload_functions" signature="spl_autoload_functions()" ilk="function"/>
-      <scope name="lcfirst" signature="lcfirst( str )" ilk="function"/>
       <scope name="forward_static_call_array" signature="forward_static_call_array( function_name, parameters )" ilk="function"/>
       <scope name="ob_list_handlers" signature="ob_list_handlers()" ilk="function"/>
       <variable name="_COOKIE" citdl="array"/>

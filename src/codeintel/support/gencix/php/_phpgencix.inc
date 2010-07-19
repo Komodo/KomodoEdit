@@ -117,6 +117,9 @@ class phpSrcParser {
                 foreach($matches as $match) {
                     
                     $tmp = $this->_parse($match, $fpath);
+                    if (!is_array($tmp)) {
+                        continue;
+                    }
                     
                     if(array_key_exists('class', $tmp) && $tmp['name'] != '') { // this is a class method
                         if(!array_key_exists($tmp['class'],$this->func_data['classes'])) {
@@ -151,7 +154,9 @@ class phpSrcParser {
             $this->_builtins($ver);
             $this->_aliases();
         }
-        
+
+        $this->_fixups($ver);
+
         //global $c; echo "grabbed back $c functions from the abyss???";
         return $this->_stats();
     }
@@ -261,12 +266,17 @@ class phpSrcParser {
             array('name' => 'GLOBALS' , 'citdl'=>'array', ),
         );
         
-        $this->func_data['constants'] = array(
+        $magic_constants = array(
             array('name' => '__LINE__','citdl'=>'string', 'ilk' => 'constant'),
             array('name' => '__FILE__','citdl'=>'string', 'ilk' => 'constant'),
             array('name' => '__FUNCTION__', 'citdl'=>'string', 'ilk' => 'constant'),
             array('name' => '__CLASS__', 'citdl'=>'string', 'ilk' => 'constant'),
             array('name' => '__METHOD__', 'citdl'=>'string', 'ilk' => 'constant'),
+        );
+        
+        $this->func_data['constants'] = array_merge(
+          $this->_get_constants(),
+          $magic_constants
         );
 
         $functions = array(
@@ -315,6 +325,19 @@ class phpSrcParser {
         );
         $tmp = $this->func_data['functions'];
         $this->func_data['functions'] = array_merge($functions, $tmp);
+    }
+    
+    function _get_constants() {
+      $out = array();
+      $tpl = array('citdl'=>'int', 'ilk' => 'constant');
+      $const_arr = get_defined_constants();
+      foreach($const_arr as $name=>$val) {
+        $tmp = $tpl;
+        $tmp['name'] = $name;
+        $tmp['citdl'] = gettype($val);
+        $out[] = $tmp;
+      }
+      return $out;
     }
 
     
@@ -373,6 +396,22 @@ class phpSrcParser {
         }
     }
     
+    function _fixups($ver) {
+        // Fixup lcfirst and ucfirst, bug 87426.
+        $ucfirst = $this->func_data['functions']['ucfirst'];
+        if (is_array($ucfirst) &&
+            $ucfirst['doc'] == "Make a string's first character lowercase") {
+            print "Fixing 'ucfirst' and 'lcfirst'";
+            // Add lcfirst.
+            $lcfirst = $ucfirst;
+            $lcfirst['name'] = 'lcfirst';
+            $lcfirst['signature'] = 'lcfirst(string str)';
+            $this->func_data['functions']['lcfirst'] = $lcfirst;
+            // Fixup ucfirst.
+            $this->func_data['functions']['ucfirst'] = $ucfirst;
+        }
+    }
+
     function _remove_key($target, $arr) {
         $out = array();
         foreach($arr as $key=>$val) {
@@ -394,12 +433,19 @@ class phpSrcParser {
         }
         return $tmp;
     }
+    
+    function _class_const_parser() {
+      
+    }
 
     function _class_parser($match, $file) {
         global $class_count; $class_count++;
         $rx = '([\S]+?)::(([\S]+?)\([\S\ ]*?\))([\S\s]+)';
         $c_matches = array();
         preg_match_all("/$rx/", $match[1], $c_matches, PREG_SET_ORDER);
+        if (count($c_matches == 0)) {
+            return NULL;
+        }
         $c_matches = $c_matches[0];
         $out = array(
             'name'=>$this->_clean($c_matches[3]),
@@ -427,16 +473,24 @@ class phpSrcParser {
         $f_matches = array();
         preg_match_all("/$rx/", $match[1], $f_matches, PREG_SET_ORDER);
         
-        $f_matches = $f_matches[0];
+        if(is_array($f_matches) && (count($f_matches) > 0) && is_array($f_matches[0])) {
+          $f_matches = $f_matches[0];
+        }
         global $c;
-        if(!is_array($f_matches)) {
+        if(!is_array($f_matches) || (count($f_matches) == 0)) {
             //print_r($match);
             $rx2 = '([\w]+)\ (([\S]+?)\([\S\s]*?\))([\S\s]+)';
             $f_matches = array();
             preg_match_all("/$rx2/",$match[1], $f_matches, PREG_SET_ORDER);
             
-            $f_matches = $f_matches[0]; //XXX hackery
-            $c++;
+            if (count($f_matches) > 0) {
+                $f_matches = $f_matches[0]; //XXX hackery
+                $c++;
+            }
+        }
+
+        if(count($f_matches) == 0) {
+            return NULL;
         }
         
         $out = array(
@@ -562,8 +616,8 @@ class phpCixGenerator {
         
         if($this->data['constants']) {
             foreach($this->data['constants'] as $con) {
-                $fnode = $this->_gen_scope($con, $cix);
-                $global->appendChild($fnode);
+                $cnode = $this->_new_domnode($cix, 'variable', $con);
+                $global->appendChild($cnode);
             }
         }
         
