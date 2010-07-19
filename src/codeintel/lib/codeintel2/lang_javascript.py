@@ -2179,6 +2179,12 @@ class JavaScriptCiler:
 
     def _findOrCreateScope(self, namelist, attrlist=("variables", ),
                            fromScope=None, isLocal=False):
+        # Don't create a window scope - bug 87442.
+        if namelist[0] == "window":
+            fromScope = self.cile
+            namelist =  namelist[1:]
+            if not namelist:
+                return fromScope
         # Ensure the scope exists, else create it
         # Find the base scope first
         if fromScope is None:
