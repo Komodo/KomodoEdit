@@ -1257,7 +1257,8 @@ class KoPlaceTreeView(TreeView):
         self._currentPlace_koFileEx = components.classes["@activestate.com/koFileEx;1"].\
                 createInstance(components.interfaces.koIFileEx)
         self._currentPlace_koFileEx.URI = uri
-        self._nodeOpenStatusFromName[uri] = True
+        self._nodeOpenStatusFromName[uri] = time.time()
+        self._trimOpenStatusDict()
 
         item = self.getNodeForURI(uri)
         if item is None:
@@ -1297,6 +1298,18 @@ class KoPlaceTreeView(TreeView):
         if callback:
             callback.callback(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL,
                               "")
+
+    OPEN_PLACES_LIMIT = 100
+    def _trimOpenStatusDict(self):
+        diff_count = len(self._nodeOpenStatusFromName) - self.OPEN_PLACES_LIMIT
+        if diff_count > self.OPEN_PLACES_LIMIT * 0.1:
+            # The oldest items are the smallest, and come first
+            keys_sorted_by_time = [a2 for a1, a2 in
+                               sorted([(y,x) for x, y in self._nodeOpenStatusFromName.items()])
+                              ]
+            for k in keys_sorted_by_time[0 : diff_count]:
+                del self._nodeOpenStatusFromName[k]            
+
 
     def _matchesFilter(self, name, filterString):
         return filterString.lower() in name.lower() or fnmatch.fnmatch(name, filterString)
@@ -1877,7 +1890,8 @@ class KoPlaceTreeView(TreeView):
         else:
             doInvalidate = False
         uri = rowNode.uri
-        self._nodeOpenStatusFromName[uri] = True
+        self._nodeOpenStatusFromName[uri] = time.time()
+        self._trimOpenStatusDict()
         self._sortModel(uri)
         topModelNode = self.getNodeForURI(uri)
         if self._isLocal:
