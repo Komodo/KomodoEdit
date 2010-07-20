@@ -997,8 +997,7 @@ class koPreferenceCache:
             writeXMLHeader(stream)
             self.serialize(stream, "")
             writeXMLFooter(stream)
-        # Should this be self.serializeToFileFast(...)?
-        pickleCache(self, filename+"c")
+        self.serializeToFileFast(filename+"c")
 
     def serializeToFileFast(self, filename):
         pickleCache(self, filename)
