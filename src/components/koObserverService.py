@@ -246,5 +246,7 @@ class KoObserverService:
             vals = self._getLiveObservers(aTopic)
         finally:
             self.cv.release()
+        if vals is None:
+            vals = []
         return SimpleEnumerator(vals)
 
