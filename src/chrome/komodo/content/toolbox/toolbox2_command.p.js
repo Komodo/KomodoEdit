@@ -873,7 +873,7 @@ this.editPropertiesTool = function(tool) {
     var methodName = 'editProperties_' + tool.type; 
     var method = ko.toolbox2[methodName];
     if (method) {
-        method.call(ko.toolbox2, {}, tool);
+        method.call(ko.toolbox2, tool);
     } else {
         alert("Interal error: don't know how to edit properties for "
             + tool.type + " " + tool.name);
