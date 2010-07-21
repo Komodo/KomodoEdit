@@ -657,6 +657,9 @@ class Scheme:
 
                 if UDLBackgroundColor is not None:
                     scimoz.styleSetBack(scimoz_no, UDLBackgroundColor)
+                    # Use EOL filled to ensure the background color continues
+                    # for the full width of the line - bug 86167.
+                    scimoz.styleSetEOLFilled(scimoz_no, True)
 
         # Now do the other colors, such as cursor color
         scimoz.caretFore = self._colors['caretFore']
