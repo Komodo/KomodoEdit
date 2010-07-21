@@ -1035,11 +1035,11 @@ class KoCodeIntelDBPreloader(threading.Thread):
         try:
             try:
                 # Stage 1: stdlibs zone
-                # For now we preload stdlibs for a hardcoded set of langs.
+                # Currently updates the stdlibs for languages that Komodo is
+                # configured to use (first found on the PATH or set in prefs).
                 # TODO: Eventually would want to tie this to answers from a
-                # "Komodo Startup Wizard" that would ask the user what languages
-                # they use, or alternatively we should start with the languages
-                # that Komodo is configured to use (first found on the PATH).
+                #       "Komodo Startup Wizard" that would ask the user what
+                #       languages they use.
                 self.controller.set_stage("Preloading standard library data.")
                 stdlibs_zone = self._mgr.db.get_stdlibs_zone()
                 if stdlibs_zone.can_preload():
@@ -1056,7 +1056,23 @@ class KoCodeIntelDBPreloader(threading.Thread):
                             return
                         self.controller.set_progress_value(value_base)
                         self.value_span = (value_base, value_base+value_incr)
-                        stdlibs_zone.update_lang(lang, self.progress_cb)
+                        ver = None
+                        try:
+                            langAppInfo = components.classes["@activestate.com/koAppInfoEx?app=%s;1" % lang] \
+                                         .getService(components.interfaces.koIAppInfoEx)
+                        except COMException:
+                            # No AppInfo, update everything for this lang.
+                            stdlibs_zone.update_lang(lang, self.progress_cb)
+                        else:
+                            if langAppInfo.executablePath:
+                                # Get the version and update this lang.
+                                ver_match = re.search("([0-9]+.[0-9]+)", langAppInfo.version)
+                                if ver_match:
+                                    ver = ver_match.group(1)
+                                stdlibs_zone.update_lang(lang, self.progress_cb, ver=ver)
+                            else:
+                                # Just update the progress.
+                                self.progress_cb("", value_base)
                         value_base += value_incr
                 
                 # Stage 2: catalog zone

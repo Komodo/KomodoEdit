@@ -486,8 +486,16 @@ class StdLibsZone(object):
         self._handle_res_todos(lang, todo, progress_cb)
         self.save()
 
-    def update_lang(self, lang, progress_cb=None):
+    def update_lang(self, lang, progress_cb=None, ver=None):
         vers_and_names = self.vers_and_names_from_lang(lang)
+        if ver is not None:
+            ver = _ver_from_ver_str(ver)
+            key = (ver, "zzz") # 'zzz' > any stdlib name (e.g., 'zzz' > 'php-4.2')
+            idx = max(0, bisect.bisect_right(vers_and_names, key)-1)
+            log.debug("update_lang: best stdlib fit for %s ver=%s in %s is %s",
+                      lang, ver, vers_and_names, vers_and_names[idx])
+            # Just update the one version for this language.
+            vers_and_names = [vers_and_names[idx]]
         for ver, name in vers_and_names:
             self._update_lang_with_ver(lang, ver, progress_cb)
 
