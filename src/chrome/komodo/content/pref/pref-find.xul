@@ -29,6 +29,7 @@
     <![CDATA[
 	function pref_find_OnLoad() {
 	    parent.initPanel();
+	    pref_findSkipLargeFiles_doEnabling();
 	    pref_findHighlight_doEnabling();
 	}
     
@@ -40,6 +41,13 @@
 	    } else {
 		elt.setAttribute('disabled', true);
 	    }
+	}
+
+	function pref_findSkipLargeFiles_doEnabling() {
+	    var elemSkipLargeFilesEnabled = document.getElementById("find-skipLargeFilesEnabled");
+	    var enabled = elemSkipLargeFilesEnabled.checked;
+	    var elemFileSize = document.getElementById("find-skipFileSizesLargerThan");
+	    _pref_setElementEnabledState(elemFileSize, enabled);
 	}
     
 	function pref_findHighlight_doEnabling() {
@@ -55,6 +63,23 @@
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="find-prefs-vbox" flex="1" class="autoscroll">
 
+        <groupbox orient="vertical">
+            <caption label="&findInFiles.label;" />
+            <checkbox id="find-skipLargeFilesEnabled"
+                      label="&findSkipLargeFilesEnabled.label;"
+                      pref="true"
+                      oncommand="pref_findSkipLargeFiles_doEnabling();"
+                      prefattribute="checked" />
+            <vbox id="find-skiplargefiles-vbox"
+                  style="margin-left: 27px;">
+                <hbox id="find-skiplargefiles-hbox" align="center">
+                    <label id="find-skiplargefiles-label" value="&findSkipFilesLargerThan.label;"/>
+                    <textbox id="find-skipFileSizesLargerThan" size="12" pref="true"/>
+                    <label id="find-skiplargefiles-bytes-label" value="&bytes.label;"/>
+                </hbox>
+            </vbox>
+        </groupbox>
+    
         <groupbox orient="vertical">
             <caption label="&findHighlighting.label;" />
             <checkbox id="find-highlightEnabled"

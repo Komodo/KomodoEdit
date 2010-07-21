@@ -124,6 +124,7 @@ def find(paths, includes=None, excludes=None, env=None):
 def grep(regex, paths, files_with_matches=False,
          treat_binary_files_as_text=False,
          skip_unknown_lang_paths=False,
+         skip_filesizes_larger_than=None,
          first_on_line=False,
          includes=None, excludes=None,
          env=None):
@@ -141,6 +142,8 @@ def grep(regex, paths, files_with_matches=False,
         This is useful when doing *replacements* to be safe about not
         wrecking havoc in binary files that happen to look like plain
         text.
+    @param skip_filesizes_larger_than {int} in bytes, if set this is used
+        to skip files that are larger in size than this value.
     @param first_on_line {boolean} A boolean indicating, if True, that only
         the first hit on a line should be replaced. Default is False. (This
         is to support Vi's replace with the 'g' flag.)
@@ -155,6 +158,15 @@ def grep(regex, paths, files_with_matches=False,
 
     for path in paths:
         path = normpath(path)
+        if skip_filesizes_larger_than:
+            try:
+                statinfo = os.stat(path)
+                if statinfo.st_size > skip_filesizes_larger_than:
+                    yield SkipLargeFilePath(path, statinfo.st_size)
+                    continue
+            except EnvironmentError, ex:
+                yield SkipPath(path, "error determining file info: %s" % ex)
+                continue
         try:
             ti = textinfo.TextInfo.init_from_path(path,
                     follow_symlinks=True, env=env)
@@ -214,6 +226,7 @@ def grep(regex, paths, files_with_matches=False,
 
 
 def replace(regex, repl, paths,
+            skip_filesizes_larger_than=None,
             first_on_line=False,
             includes=None, excludes=None,
             summary=None, env=None):
@@ -243,6 +256,8 @@ def replace(regex, repl, paths,
     @param regex {regular expression} is the regex with which to search
     @param repl {string} is the replacement string
     @param paths {generator} is the list of paths to process
+    @param skip_filesizes_larger_than {int} in bytes, if set this is used
+        to skip files that are larger in size than this value.
     @param first_on_line {boolean} A boolean indicating, if True, that only
         the first hit on a line should be replaced. Default is False. (This
         is to support Vi's replace with the 'g' flag.)
@@ -256,6 +271,7 @@ def replace(regex, repl, paths,
     """
     journal = None
     grepper = grep(regex, paths, skip_unknown_lang_paths=True,
+                   skip_filesizes_larger_than=skip_filesizes_larger_than,
                    first_on_line=first_on_line,
                    includes=includes, excludes=excludes, env=env)
     for fhits in grouped_by_path(grepper):
@@ -512,6 +528,12 @@ class SkipUnknownLangPath(SkipPath):
     """
     def __init__(self, path):
         SkipPath.__init__(self, path, "unknown language")
+
+class SkipLargeFilePath(SkipPath):
+    """Event yielded when skipping a path because its filesize is too large."""
+    def __init__(self, path, size):
+        SkipPath.__init__(self, path, "too large: %d bytes" % (size))
+        self.size = size
 
 class SkipNoHitsInPath(SkipPath):
     """Event yielded when skipping a path with no hits during grep()

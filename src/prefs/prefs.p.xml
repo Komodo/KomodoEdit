@@ -385,6 +385,8 @@
        `<menulist id="search-in-menu">` of "find2.xul").
        -->
   <string id="find-lastInFilesContext">files</string>
+  <boolean id="find-skipLargeFilesEnabled">1</boolean>
+  <long id="find-skipFileSizesLargerThan">104857600</long> <!-- 100 MB -->
 
   <long id="editWrapType">0</long>
   <long id="editWordWrapMarker">0</long>

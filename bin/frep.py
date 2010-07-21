@@ -119,12 +119,12 @@ except ImportError:
 try:
     import findlib2
     from findlib2 import Hit, StartJournal, SkipUnknownLangPath, \
-        ReplaceDiff, ReplaceHitGroup, Journal
+        SkipLargeFilePath, ReplaceDiff, ReplaceHitGroup, Journal
 except ImportError:
     sys.path.insert(0, join(ko_dir, "src", "find"))
     import findlib2
     from findlib2 import Hit, StartJournal, SkipUnknownLangPath, \
-        ReplaceDiff, ReplaceHitGroup, Journal
+        SkipLargeFilePath, ReplaceDiff, ReplaceHitGroup, Journal
 
 
 
@@ -418,6 +418,9 @@ def main_replace(regex, repl, paths, includes, excludes, confirm, argv, opts):
                         includes=includes, excludes=excludes):
             if isinstance(event, StartJournal):
                 journal = event.journal
+                continue
+            elif isinstance(event, SkipLargeFilePath):
+                log.debug("Skip `%s' (file too large: %d).", event.path, event.size)
                 continue
             elif isinstance(event, SkipUnknownLangPath):
                 log.debug("Skip `%s' (don't know lang).", event.path)

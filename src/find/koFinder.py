@@ -194,6 +194,9 @@ class _FindReplaceThread(threading.Thread):
         self.num_paths_with_hits = 0
         self.num_paths_searched = 0
         self.num_paths_skipped = 0
+        self.skip_filesizes_larger_than = None
+        if gPrefSvc.prefs.getBooleanPref("find-skipLargeFilesEnabled"):
+            self.skip_filesizes_larger_than = gPrefSvc.prefs.getLongPref("find-skipFileSizesLargerThan")
         self.journal = None
         try:
             if self._stopped:
@@ -261,7 +264,8 @@ class _FindReplaceThread(threading.Thread):
 
     def _find_in_paths(self, regex, paths):
         last_path_with_hits = None
-        for event in findlib2.grep(regex, paths, env=self.env):
+        for event in findlib2.grep(regex, paths, env=self.env,
+                                   skip_filesizes_larger_than=self.skip_filesizes_larger_than):
             if self._stopped:
                 return
 
@@ -280,6 +284,7 @@ class _FindReplaceThread(threading.Thread):
 
     def _replace_in_paths(self, regex, repl, desc, paths):
         for event in findlib2.replace(regex, repl, paths, summary=desc,
+                                      skip_filesizes_larger_than=self.skip_filesizes_larger_than,
                                       env=self.env):
             if self._stopped:
                 return
@@ -495,12 +500,16 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         # Rule: If self._stopped is true then this code MUST NOT use
         #       self.controllerProxy because it may have been destroyed.
 
+        skip_filesizes_larger_than = None
+        if gPrefSvc.prefs.getBooleanPref("find-skipLargeFilesEnabled"):
+            skip_filesizes_larger_than = gPrefSvc.prefs.getLongPref("find-skipFileSizesLargerThan")
         try:
             if self._stopped:
                 return
 
             for event in findlib2.replace(self.regex, self.repl,
                                           self.paths, summary=self.desc,
+                                          skip_filesizes_larger_than=skip_filesizes_larger_than,
                                           env=self.env):
                 if self._stopped:
                     return
@@ -511,6 +520,8 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                 elif isinstance(event, findlib2.SkipPath):
                     self.num_paths_searched += 1
                     if isinstance(event, findlib2.SkipUnknownLangPath):
+                        self._add_skipped_path(event)
+                    elif isinstance(event, findlib2.SkipLargeFilePath):
                         self._add_skipped_path(event)
                     elif isinstance(event, findlib2.SkipBinaryPath):
                         #TODO: put these as warning rows in the UI?
