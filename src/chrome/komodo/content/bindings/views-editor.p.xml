@@ -237,6 +237,9 @@
                 }
             }
             this.handle_current_view_linecol_changed = function(event) {
+                // TODO: We shouldn't need to use this updateCurrentLineColor
+                //       hack, we should be using Scintilla caretLineBackAlpha
+                //       setting instead, removing the need for this function.
                 var view = event.originalTarget;
                 if (view != this_) {
                     return;
