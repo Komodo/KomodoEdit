@@ -1824,6 +1824,7 @@
                     <File Id="file127" Name="JAVASC_1.CIX" LongName="javascript.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\javascript.cix"/>
                     <File Id="file106" LongName="perl-5.8.cix" Name="PERL58_0.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\perl-5.8.cix" />
                     <File Id="file1235" LongName="perl-5.10.cix" Name="PERL51_0.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\perl-5.10.cix" />
+                    <File Id="NEWFILE" LongName="perl-5.12.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\perl-5.12.cix" />
                     <File Id="file129" LongName="python-2.4.cix" Name="PYTHON_0.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\python-2.4.cix" />
                     <File Id="file203" LongName="python-2.5.cix" Name="PYTHON_1.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\python-2.5.cix" />
                     <File Id="file897" LongName="python-2.6.cix" Name="PYTHON_2.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\python-2.6.cix" />
