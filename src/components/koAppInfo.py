@@ -293,6 +293,8 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         version = ""
 
         pythonExe = self.get_executablePath()
+        if pythonExe is None:
+            return version
         cwd = os.path.dirname(pythonExe)
         env = koprocessutils.getUserEnv()
 
