@@ -1039,6 +1039,7 @@ class GenericCommandHandler:
                 sm.anchor = sm.positionFromLine(endLine+1)
             sm.currentPos = sm.positionFromLine(startLine)
             sm.ensureVisibleEnforcePolicy(startLine)
+        sm.sendUpdateCommands("select")
 
     def _is_cmd_comment_enabled(self):
         commenter = self._view.languageObj.getLanguageService(
