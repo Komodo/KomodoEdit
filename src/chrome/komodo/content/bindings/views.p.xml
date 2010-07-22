@@ -811,7 +811,7 @@
         ]]></body>
         </method>
         
-        // fallback updateCurrentLineColor for non-editor views
+        <!-- Fallback updateCurrentLineColor for non-editor views. -->
         <method name="updateCurrentLineColor">
         <body>
         <![CDATA[
