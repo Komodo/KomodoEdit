@@ -1167,7 +1167,9 @@
                     this._updateTemplateMRUWhenVisible = false;
                 }
 
-                //this.widgets.fileMRUSelectCheckbox.focus();
+                // Update the focus, otherwise the command system may think the
+                // focus is still on an editor view.
+                this.focus();
             } catch(ex) {
                 this.log.error("setFocus error: "+ex);
             }
