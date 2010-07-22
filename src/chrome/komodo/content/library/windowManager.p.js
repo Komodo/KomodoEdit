@@ -100,11 +100,13 @@ ko.windowManager = {
      * that Komodo wants in general.
      */
     openDialog: function(/* ... */) {
+// #if PLATFORM == "darwin"
         if (arguments.length < 2 || !arguments[2]) {
             arguments[2] = "chrome,dialog=no";
         } else if (arguments[2].indexOf("dialog") < 0) {
             arguments[2] = "dialog=no,"+arguments[2];
         }
+// #endif
         var args = [];
         for (var i = 0; i < arguments.length; i++) {
             args[i] = arguments[i];
