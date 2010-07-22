@@ -55,6 +55,7 @@ ko.commands = {};
 
 var _log = ko.logging.getLogger('commands');
 //_log.setLevel(ko.logging.LOG_DEBUG);
+//_log.setLevel(ko.logging.LOG_INFO);
 
 // Returns "true" is the command is a "checkbox" type command - ie,
 // if supported, the "isCommandEnabled()" function determines the check-state,
@@ -100,6 +101,8 @@ this.updateCommand = function _command_updateCommand(command, commandNode, contr
         if (controller) {
             enabled = controller.isCommandEnabled(command);
             found = true;
+        } else {
+            _log.info("No controller found for command: " + command);
         }
         _log.debug("Command: " + command + " is set to " + enabled)
         ko.commands.setCommandEnabled(command, commandNode, found, enabled);
