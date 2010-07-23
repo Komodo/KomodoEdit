@@ -8,6 +8,9 @@ from codeintel2.util import CompareNPunctLast
 from codeintel2.constants_css1 import CSS_ATTR_DICT as CSS1_ATTR_DICT
 from codeintel2.constants_css1 import CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT as CSS1_PROPERTY_ATTRIBUTE_CALLTIPS_DICT
 
+CSS_PSEUDO_CLASS_NAMES = """first-letter first-line link active visited
+        first-child focus hover lang before after left right first""".split()
+
 CSS2_SPECIFIC_ATTRS_DICT = {
     'azimuth'   : [
         'behind',

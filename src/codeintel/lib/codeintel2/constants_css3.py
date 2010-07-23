@@ -9,6 +9,36 @@ from codeintel2.constants_css1 import CSS_ATTR_DICT as CSS1_SPECIFIC_ATTRS_DICT
 from codeintel2.constants_css1 import CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT as CSS1_SPECIFIC_CALLTIP_DICT
 from codeintel2.constants_css2 import CSS2_SPECIFIC_ATTRS_DICT, CSS2_SPECIFIC_CALLTIP_DICT
 
+CSS_PSEUDO_CLASS_NAMES = """
+    root
+    nth-child(
+    nth-last-child(
+    nth-of-type(
+    nth-last-of-type(
+    first-child
+    last-child
+    first-of-type
+    last-of-type
+    only-child
+    only-of-type
+    empty
+    link
+    visited
+    active
+    hover
+    focus
+    target
+    lang(
+    enabled
+    disabled
+    checked
+    first-line
+    first-letter
+    before
+    after
+    not(
+""".split()
+
 
 
 ### START: Auto generated

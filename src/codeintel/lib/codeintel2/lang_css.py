@@ -431,8 +431,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
     CSS_HTML_TAG_NAMES = Keywords.hypertext_elements.split()
 
     # pseudo-class-names
-    CSS_PSEUDO_CLASS_NAMES = """first-letter first-line link active visited
-        first-child focus hover lang before after left right first""".split()
+    CSS_PSEUDO_CLASS_NAMES = constants_css.CSS_PSEUDO_CLASS_NAMES
     CSS_PSEUDO_CLASS_NAMES.sort(CompareNPunctLast)
 
     # at rules
