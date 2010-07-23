@@ -435,7 +435,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
     CSS_PSEUDO_CLASS_NAMES.sort(CompareNPunctLast)
 
     # at rules
-    CSS_AT_RULE_NAMES = ["import", "media", "charset", "font-face", "page"]
+    CSS_AT_RULE_NAMES = ["import", "media", "charset", "font-face", "page", "namespace"]
     CSS_AT_RULE_NAMES.sort(CompareNPunctLast)
 
 
