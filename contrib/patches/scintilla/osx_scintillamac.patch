@@ -70,6 +70,25 @@ Index: macosx/ScintillaMacOSX.cxx
                          case kFormatUTF8:
                              data = CFDataCreate (NULL, dataBytes, dataSize);
                              textString = CFStringCreateFromExternalRepresentation (NULL, data, kCFStringEncodingUTF8);
+@@ -782,10 +815,16 @@
+ PasteboardDataRetrieved:
+     if (flavorTypeArray != NULL) CFRelease(flavorTypeArray);
+         int newlen = 0;
+     if (textString != NULL) {
+-        selectedText->s = GetStringFromCFString(textString, &selectedText->len);
+-        selectedText->rectangular = isRectangular;
++        if (CFStringGetLength(textString) == 0) {
++            // Bug 85437 -- GetStringFromCFString() with a zero bytes
++            // crashes on osx.
++            haveMatch = false;
++        } else {
++            selectedText->s = GetStringFromCFString(textString, &selectedText->len);
++            selectedText->rectangular = isRectangular;
++        }
+         // Default allocator releases both the CFString and the UniChar buffer (text)
+         CFRelease( textString );
+         textString = NULL;
+     }
 @@ -1295,8 +1328,9 @@
      if (NULL != notifyProc)
          notifyProc (notifyObj, WM_COMMAND, 
