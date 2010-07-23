@@ -176,13 +176,6 @@ class koScintillaController:
                 sm.callTipCancel()
             targetPos = None
             if self._lastcutposition is not None and sm.currentPos == self._lastcutposition:
-                # we need to remove a line from the undo buffer
-                lines = self._cutbuffer.splitlines(1)
-                self._cutbuffer = ''.join(lines[:-1])
-                decoded = self._cutbuffer.encode('utf-8')
-                byteLen = len(decoded)
-                #print "undo copyText %d %r" % (byteLen, decoded)
-                sm.copyText(byteLen, self._cutbuffer)
                 # note where we want to be post undo
                 targetPos = self._lastcutposition
             sm.undo()
@@ -243,14 +236,18 @@ class koScintillaController:
             lineNo = sm.lineFromPosition(sm.currentPos)
             lineStart = sm.positionFromLine(lineNo)
             nextLineStartPos = sm.positionFromLine(lineNo + 1)
-            if sm.getLineEndPosition(lineNo) == nextLineStartPos:
-                # At last line of doc, buffer doesn't end with an EOL
-                # Unlike copy, here we can append a newline
-                import eollib
-                eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
-                sm.insertText(sm.length, eol)
-                nextLineStartPos += len(eol)
-            self._doSmartCut(lineStart, nextLineStartPos)
+            sm.beginUndoAction()
+            try:
+                if sm.getLineEndPosition(lineNo) == nextLineStartPos:
+                    # At last line of doc, buffer doesn't end with an EOL
+                    # Unlike copy, here we can append a newline
+                    import eollib
+                    eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
+                    sm.insertText(sm.length, eol)
+                    nextLineStartPos += len(eol)
+                self._doSmartCut(lineStart, nextLineStartPos)
+            finally:
+                sm.endUndoAction()
             return
         methname= '_do_'+command_name
         attr = getattr(self, methname, None)
