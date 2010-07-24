@@ -692,7 +692,8 @@ class KoLanguageRegistryService:
                     shebangLangs.append(language)
             if len(shebangLangs) > 1:
                 self._sendStatusMessage("language determination error: "
-                                        "ambiguous shebang (#!) line")
+                    "ambiguous shebang (#!) line: indicates all of '%s'"
+                    % "', '".join(shebangLangs))
             else:
                 langs = shebangLangs
 

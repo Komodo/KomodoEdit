@@ -127,17 +127,13 @@ class KoPython3LexerLanguageService(KoPythonCommonLexerLanguageService):
         self.setKeywords(0, list(kwlist))
 
 class KoPythonCommonLanguage(KoLanguageBase):
-
     accessKey = 'y'
     primary = 1
-    shebangPatterns = [
-        re.compile(ur'\A#!.*python.*$', re.IGNORECASE | re.MULTILINE),
-    ]
     namedBlockRE = "^[ \t]*?(def\s+[^\(]+\([^\)]*?\):|class\s+[^:]*?:)"
     namedBlockDescription = 'Python functions and classes'
     defaultExtension = ".py"
     # XXX read url from some config file
-    downloadURL = 'http://www.ActiveState.com/Products/ActivePython'
+    downloadURL = 'http://www.activestate.com/activepython'
     commentDelimiterInfo = { "line": [ "#" ]  }
     _indent_open_chars = ':{[('
     _lineup_open_chars = "([{" 
@@ -189,6 +185,10 @@ class KoPythonLanguage(KoPythonCommonLanguage):
                        % (name)
     _reg_clsid_ = "{D90FF5C7-1FD4-4535-A0D2-47B5BDC3E7FE}"
 
+    shebangPatterns = [
+        re.compile(ur'\A#!.*python(?!3).*$', re.IGNORECASE | re.MULTILINE),
+    ]
+
     def get_lexer(self):
         if self._lexer is None:
             self._lexer = KoPythonLexerLanguageService()
@@ -200,6 +200,10 @@ class KoPython3Language(KoPythonCommonLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{db8d60b3-f104-4622-b4d5-3324787d5149}"
+
+    shebangPatterns = [
+        re.compile(ur'\A#!.*python3.*$', re.IGNORECASE | re.MULTILINE),
+    ]
 
     def get_lexer(self):
         if self._lexer is None:

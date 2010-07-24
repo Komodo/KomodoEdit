@@ -52,7 +52,7 @@ class _PythonCommonLangInfo(LangInfo):
 class PythonLangInfo(_PythonCommonLangInfo):
     name = "Python"
     magic_numbers = [
-        (0, "regex", re.compile(r'\A#!.*python.*$', re.I | re.M))
+        (0, "regex", re.compile(r'\A#!.*python(?!3).*$', re.I | re.M))
     ]
 
 class Python3LangInfo(_PythonCommonLangInfo):
