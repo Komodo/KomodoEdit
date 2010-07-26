@@ -466,8 +466,8 @@ class KoLanguageRegistryService:
         return ([p  for p,ln in associations],
                 [ln for p,ln in associations])
 
-    def saveFileAssociations(self, patterns, languageNames):
-        """Save the given set of file associations.
+    def createFileAssociationPrefString(self, patterns, languageNames):
+        """Create a pref string from the given set of file associations.
         
         Typically called by the "File Associations" preferences panel.
         Instead of saving the full associations list in the user's prefs, we
@@ -490,13 +490,12 @@ class KoLanguageRegistryService:
         deletions = [('-', p, ln) for (p, ln) in factoryAssociations.keys()
                                    if (p, ln) not in associations]
         diffs = additions + deletions
-        self._globalPrefs.setStringPref("fileAssociationDiffs", repr(diffs))
+        return repr(diffs)
 
-        # Dev Note: Should we be trapping any error here?
-        #lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
-        #    getService(components.interfaces.koILastErrorService)
-        #lastErrorSvc.setLastError(1, "boom!")
-        #raise ServerException(nsError.NS_ERROR_UNEXPECTED)
+    def saveFileAssociations(self, patterns, languageNames):
+        """Save the given set of file associations."""
+        assocPref = self.createFileAssociationPrefString(patterns, languageNames)
+        self._globalPrefs.setStringPref("fileAssociationDiffs", assocPref)
 
     def _sendStatusMessage(self, msg, timeout=3000, highlight=1):
         observerSvc = components.classes["@mozilla.org/observer-service;1"]\

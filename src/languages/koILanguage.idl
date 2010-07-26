@@ -178,6 +178,13 @@ interface koILanguageRegistryService : nsISupports {
             out unsigned long languageName_count,
             [array, size_is(languageName_count)] out wstring languageNames);
 
+    // Create the fileAssociationDiffs string from the given associations.
+    AString createFileAssociationPrefString(
+            in unsigned long pattern_count,
+            [array, size_is(pattern_count)] in wstring patterns,
+            in unsigned long languageName_count,
+            [array, size_is(languageName_count)] in wstring languageNames);
+
     // Save the given set of file associations.
     //
     // This raises an exception sets an error message on koILastErrorService
