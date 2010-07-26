@@ -197,6 +197,7 @@ class UpgradeTestCase(DBTestCase):
             finally:
                 mgr.finalize()
 
+YUI_BLOB_NAME = "yui_v2.8.1"
 
 class CatalogTestCase(DBTestCase):
     test_catalog_dir = join(os.getcwd(), "tmp")
@@ -294,7 +295,7 @@ class CatalogTestCase(DBTestCase):
         catalogs_zone = self.mgr.db.get_catalogs_zone()
         catalogs_zone.update() # make sure yui.cix is loaded
         yui_lpaths = catalogs_zone.lpaths_from_lang_and_blobname(
-                        "JavaScript", "yui")
+                        "JavaScript", YUI_BLOB_NAME)
         self.failUnless(("YAHOO",) in yui_lpaths)
 
     def test_toplevelname_index(self):
@@ -319,7 +320,7 @@ class CatalogTestCase(DBTestCase):
 
         # Hack to trigger filling-out of toplevelname_index.
         catalogs_zone.lpaths_from_lang_and_blobname(lang, name)
-        catalogs_zone.lpaths_from_lang_and_blobname(lang, "yui")
+        catalogs_zone.lpaths_from_lang_and_blobname(lang, YUI_BLOB_NAME)
 
         # toplevelname_index: {lang -> ilk -> toplevelname -> res_id -> blobnames}
         toplevelname_index = catalogs_zone.toplevelname_index
@@ -347,8 +348,8 @@ class CatalogTestCase(DBTestCase):
 
         # Baseline: test with no selection.
         catalog_lib = self.mgr.db.get_catalog_lib("JavaScript")
-        self.failUnless( catalog_lib.has_blob("yui") )
-        self.failUnless( catalog_lib.get_blob("yui") is not None )
+        self.failUnless( catalog_lib.has_blob(YUI_BLOB_NAME) )
+        self.failUnless( catalog_lib.get_blob(YUI_BLOB_NAME) is not None )
         self.failUnless( catalog_lib.hits_from_lpath(("YAHOO",)) )
         self.failUnless( catalog_lib.has_blob("MochiKit.DateTime") )
         self.failUnless( catalog_lib.get_blob("MochiKit.DateTime") is not None )
@@ -361,8 +362,8 @@ class CatalogTestCase(DBTestCase):
                       [join(catalog_dir, "mochikit.cix")]) # path selector
         for selection in selections:
             catalog_lib = self.mgr.db.get_catalog_lib("JavaScript", selection)
-            self.failIf( catalog_lib.has_blob("yui") )
-            self.failIf( catalog_lib.get_blob("yui") is not None )
+            self.failIf( catalog_lib.has_blob(YUI_BLOB_NAME) )
+            self.failIf( catalog_lib.get_blob(YUI_BLOB_NAME) is not None )
             self.failIf( catalog_lib.hits_from_lpath(("YAHOO",)) )
             self.failUnless( catalog_lib.has_blob("MochiKit.DateTime") )
             self.failUnless( catalog_lib.get_blob("MochiKit.DateTime") is not None )
@@ -374,8 +375,8 @@ class CatalogTestCase(DBTestCase):
                       [join(catalog_dir, "yui.cix")]) # path selector
         for selection in selections:
             catalog_lib = self.mgr.db.get_catalog_lib("JavaScript", selection)
-            self.failUnless( catalog_lib.has_blob("yui") )
-            self.failUnless( catalog_lib.get_blob("yui") is not None )
+            self.failUnless( catalog_lib.has_blob(YUI_BLOB_NAME) )
+            self.failUnless( catalog_lib.get_blob(YUI_BLOB_NAME) is not None )
             self.failUnless( catalog_lib.hits_from_lpath(("YAHOO",)) )
             self.failIf( catalog_lib.has_blob("MochiKit.DateTime") )
             self.failIf( catalog_lib.get_blob("MochiKit.DateTime") is not None )
