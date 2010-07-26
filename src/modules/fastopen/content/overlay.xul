@@ -37,7 +37,7 @@
               key="key_cmd_invokeTool"
               insertafter="menu_macros"
               label="&invokeTool.menuitem;"
-              observes="cmd_goToFile" />
+              observes="cmd_invokeTool" />
   </menupopup>
         
   <popupset id="extensionPopupSet">
