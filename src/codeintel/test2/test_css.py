@@ -423,7 +423,7 @@ class _BaseCSSTestCase(CodeIntelTestCase):
             }
             .cursor:<1>h<2>ov
         """))
-        pseudo_results = [("pseudo-class", s) for s in ("active", "visited", "link", "hover", "first")]
+        pseudo_results = [("pseudo-class", s) for s in ("active", "visited", "link", "hover", "first-child")]
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
                                       pseudo_results)
         self.assertNoTrigger(markup_text(content, pos=positions[2]))
