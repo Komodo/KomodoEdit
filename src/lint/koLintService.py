@@ -190,7 +190,7 @@ class KoLintRequest:
 
     def __init__(self):
         self.rid = None
-        self.koDoc = None
+        self._koDoc = None
         self.uid = ''
         self.linterType = ''
         self.cwd = ''
@@ -206,7 +206,17 @@ class KoLintRequest:
         log.debug("`koILintRequest.document` was DEPRECATED in Komodo "
             "6.0.0b1, use `koILintRequest.koDoc`.")
         return self.koDoc
-    
+
+    def get_koDoc(self):
+        return self._koDoc
+
+    def set_koDoc(self, val):
+        # Access to the koDoc *must* be from the main thread, otherwise
+        # Komodo may crash!
+        self._koDoc = getProxyForObject(1,
+            components.interfaces.koIDocument, val,
+            PROXY_ALWAYS | PROXY_SYNC)
+
     def describe(self):
         return "<KoLintRequest: %s on uid %s>" % (self.linterType, self.uid)
 
