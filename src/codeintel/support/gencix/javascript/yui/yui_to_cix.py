@@ -50,15 +50,6 @@
 
     Website download from:
       * http://sourceforge.net/projects/yui
-
-    Tested with yui versions:
-      * Version 2.5.2     (2008-05-29)
-      * Version 2.5.0     (2008-02-20)
-      * Version 2.4.1     (2007-12-20)
-      * Version 2.3.1     (2007-12-05)
-      * Version 2.2.2     (2007-06-11)
-      * Version 0.12.0    (2006-11-30)
-      * Version 0.11.3    (2006-08-28)
 """
 
 import os
@@ -76,6 +67,15 @@ from codeintel2.tree import tree_2_0_from_tree_0_1
 from codeintel2.gencix_utils import *
 
 yui_data = {
+    "3.0.0b1": {
+        "download_url": "http://yuilibrary.com/downloads/yui3/yui_3.0.0b1.zip",
+    },
+    "2.8.1": {
+        "download_url": "http://yuilibrary.com/downloads/yui2/yui_2.8.1.zip",
+    },
+    "2.7.0": {
+        "download_url": "http://yuilibrary.com/downloads/yui2/yui_2.7.0b.zip",
+    },
     "2.5.2": {
         "download_url": "http://superb-west.dl.sourceforge.net/sourceforge/yui/yui_2.5.2.zip",
     },
@@ -99,14 +99,15 @@ yui_data = {
     },
 }
 
-yui_version = "2.5.2"
+yui_version = "2.8.1"
 yui_major_minor_version = yui_version.rsplit(".", 1)[0]
 yui_info = yui_data[yui_version]
 
 def getYUIFilesFromWebpage():
     # Gets the zip file from the website and unpacks the necessary contents
-    zippath = "yui.zip"
+    zippath = "yui_%s.zip" % (yui_version, )
     if not os.path.exists(zippath):
+        print "Downloading yui version %s" % (yui_version, )
         urlOpener = urllib.urlopen(yui_info["download_url"])
         f = file(zippath, "wb")
         f.write(urlOpener.read())
@@ -125,8 +126,8 @@ def getYUIFilesFromWebpage():
                     data = zf.read(zfile.filename)
                     files[filename] = data
     finally:
-        #print "Leaving zip file: %s" % (zippath)
-        os.remove(zippath)
+        print "Leaving zip file: %s" % (zippath)
+        #os.remove(zippath)
     return files
 
 def updateCix(filename, content, updatePerforce=False):
@@ -149,14 +150,18 @@ def main(cix_filename, updatePerforce=False):
     for filename, content in files.items():
         if filename in ("utilities.js",
                         "yahoo-dom-event.js",   # v2.2.0
-                        "yahoo-event-dom.js"):  # v2.2.2
+                        "yahoo-event-dom.js",
+                        "yuiloader-dom-event.js"):  # v2.7.0
             # This is just a compressed up version of multiple files
             continue
         print "filename: %r" % (filename)
+        jscile.path = filename
         jscile.scan_puretext(content, updateAllScopeNames=False)
+    print "updating scope names"
     jscile.cile.updateAllScopeNames()
     # Convert the Javascript to CIX, content goes into cix element
     #jscile.toElementTree(cix)
+    print "converting to cix"
     jscile.convertToElementTreeFile(cix_yui, "JavaScript")
 
     #mergeElementTreeScopes(cix_yui_module)
@@ -164,7 +169,9 @@ def main(cix_filename, updatePerforce=False):
     #remove_cix_line_numbers_from_tree(cix_yui)
 
     # Write out the tree
+    print "writing cix"
     updateCix(cix_filename, get_cix_string(cix_yui), updatePerforce)
+    print "done"
 
 # When run from command line
 if __name__ == '__main__':
@@ -176,7 +183,7 @@ if __name__ == '__main__':
                       action="store_true", help="edit perforce cix for this file")
     (opts, args) = parser.parse_args()
 
-    cix_filename = "yui_%s.cix" % (yui_major_minor_version, )
+    cix_filename = "yui_v%s.cix" % (yui_major_minor_version, )
     if opts.update_perforce:
         scriptpath = os.path.dirname(sys.argv[0])
         if not scriptpath:
