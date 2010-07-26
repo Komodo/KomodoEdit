@@ -182,7 +182,7 @@ class KoLanguageRegistryService:
         timeline.leave('KoLanguageRegistryService.__init__')
 
     def observe(self, aSubject, aTopic, someData):
-        if someData == "fileAssociationDiffs":
+        if aTopic == "fileAssociationDiffs":
             self.__languageNameFromPattern = None
             self.__languageNameFromExtOrBasename = None
             self.__patternsFromLanguageName = None
