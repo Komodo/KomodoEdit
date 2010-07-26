@@ -347,7 +347,7 @@ class _BaseCSSTestCase(CodeIntelTestCase):
         # XXX - Scopped for now
         #self.assertTriggerMatches("a :hov<|>er", name=trigger_name)
         self.assertTriggerDoesNotMatch("h1 { color: <|>", name=trigger_name)
-        pseudo_names = ["active", "visited", "link", "hover", "first"]
+        pseudo_names = ["active", "visited", "link", "hover", "first-child"]
         self.assertCompletionsInclude(":<|>link", [ ("pseudo-class", s) for s in pseudo_names ])
         # No triggers if there was a space between the ":" and the identifier
         self.assertNoTrigger('body { background: "a: <|>link"')
