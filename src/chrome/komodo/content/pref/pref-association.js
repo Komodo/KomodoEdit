@@ -109,28 +109,6 @@ function OnPreferencePageLoading(prefset) {
   dialog.associationList.selectedIndex = 0;
 }
 
-function OnPreferencePageClosing(prefset, ok) {
-    if (!ok) return;
-    var patterns = new Array();
-    var languageNames = new Array();
-    for (var i=0; i < data.associations.length; i++) {
-      patterns.push(data.associations[i].pattern);
-      languageNames.push(data.associations[i].language);
-    }
-    try {
-      gLangRegistry.saveFileAssociations(patterns.length, patterns,
-          languageNames.length, languageNames);
-    } catch(ex) {
-      var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"]
-                         .getService(Components.interfaces.koILastErrorService);
-      //XXX This error message isn't really actionable. Offer to throw away
-      //    these changes? Use ko.dialogs.internalError?
-      ko.dialogs.alert("There was an error saving your file association changes: "
-                   +lastErrorSvc.getLastErrorMessage());
-    }
-}
-
-
 function OnPreferencePageOK(prefset) {
     var pattern = dialog.addPatternTextfield.value;
     if (pattern) {
@@ -151,6 +129,30 @@ function OnPreferencePageOK(prefset) {
             }
         }
     }
+
+    // Save the associations to the prefs.
+
+    var patterns = new Array();
+    var languageNames = new Array();
+    for (var i=0; i < data.associations.length; i++) {
+      patterns.push(data.associations[i].pattern);
+      languageNames.push(data.associations[i].language);
+    }
+    try {
+      var assocPref = gLangRegistry.createFileAssociationPrefString(patterns.length,
+                                                    patterns,
+                                                    languageNames.length,
+                                                    languageNames);
+      prefset.setStringPref("fileAssociationDiffs", assocPref);
+    } catch(ex) {
+      var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"]
+                         .getService(Components.interfaces.koILastErrorService);
+      //XXX This error message isn't really actionable. Offer to throw away
+      //    these changes? Use ko.dialogs.internalError?
+      ko.dialogs.alert("There was an error saving your file association changes: "
+                   +lastErrorSvc.getLastErrorMessage());
+    }
+
     return true;
 }
 
