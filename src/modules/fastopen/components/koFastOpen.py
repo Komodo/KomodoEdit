@@ -314,7 +314,9 @@ class KoFastOpenSession(object):
                 kovg = KomodoOpenViewsGatherer(self.views)
                 g.append(kovg)
                 cwds = list(kovg.cwds)
-            g.append(KomodoHistoryURIsGatherer(self.historySessionName))
+            if self.project:
+                g.append(fastopen.CachingKomodoProjectGatherer(
+                    UnwrapObject(self.project)))
             if cwds:
                 g.append(fastopen.DirGatherer("cwd", cwds, True,
                     self.path_excludes_pref))
@@ -324,9 +326,7 @@ class KoFastOpenSession(object):
                 dirShortcuts = gog.getShortcuts()
             else:
                 dirShortcuts = None
-            if self.project:
-                g.append(fastopen.CachingKomodoProjectGatherer(
-                    UnwrapObject(self.project)))
+            g.append(KomodoHistoryURIsGatherer(self.historySessionName))
             self._gatherers_cache = (g, cwds, dirShortcuts)
         return self._gatherers_cache
 
