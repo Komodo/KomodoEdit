@@ -511,7 +511,7 @@ class FileHandler(FileHandlerBase):
 
     @property
     def isNetworkFile(self):
-        """Return true if this file resides on a newtwork share.
+        """Return true if this file resides on a network share.
         
         Note: For networked file, isLocal is *always* true."""
         if self._networkFile is None:
