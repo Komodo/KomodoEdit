@@ -66,9 +66,13 @@
                    Visit the go-tool project site.</html:a>
             </description>
         </vbox>
-        <checkbox id="fastopen_enable_history_gatherer"
-                  label="&enableHistoryGatherer.label;"
-                  pref="true" prefattribute="checked"
-                  preftype="boolean" />
+        <hbox>
+          <checkbox id="fastopen_enable_history_gatherer"
+                    label="&enableHistoryGatherer.label;"
+                    pref="true" prefattribute="checked"
+                    preftype="boolean" />
+          <textbox id="fastopen_history_num_entries"
+              size="3" pref="true"/>
+        </hbox>
     </groupbox>
 </window>

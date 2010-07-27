@@ -9,7 +9,7 @@
 <!ENTITY enableCwdGatherer.label "Enable 'Current Working Directory(ies)' gatherer">
 <!ENTITY goToFileDialogFilters.desc "Exclude files matching the following patterns (leave empty for the default):">
 <!ENTITY enableGoToolIntegration.label "Enable go-tool integration">
-<!ENTITY enableHistoryGatherer.label "Enable 'History' gatherer">
+<!ENTITY enableHistoryGatherer.label "Enable 'History' gatherer. Max number of entries:">
 <!ENTITY enableOpenFilesGatherer.label "Enable 'Open Files' gatherer">
 <!ENTITY enableProjectGatherer.label "Enable 'Current Project' gatherer">
 <!ENTITY goToolIntegration.description "'Go' is a small command-line tool for changing directories quickly.">

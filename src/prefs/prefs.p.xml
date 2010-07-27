@@ -936,5 +936,6 @@
   <boolean id="fastopen_enable_history_gatherer">1</boolean>
   <boolean id="fastopen_enable_cwd_gatherer">1</boolean>
   <boolean id="fastopen_enable_project_gatherer">1</boolean>
+  <long id="fastopen_history_num_entries">50</long>
 
 </preference-set>

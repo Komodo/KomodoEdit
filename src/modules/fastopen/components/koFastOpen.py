@@ -298,6 +298,13 @@ class KoFastOpenSession(object):
         if self._globalPrefs.hasBooleanPref("fastopen_enable_project_gatherer"):
             enable = self._globalPrefs.getBooleanPref("fastopen_enable_project_gatherer")
         return enable
+
+    @property
+    def pref_history_num_entries(self):
+        value = 50
+        if self._globalPrefs.hasLongPref("fastopen_history_num_entries"):
+            value = self._globalPrefs.getLongPref("fastopen_history_num_entries")
+        return value
     
     _excludes_splitter = re.compile(r'(?<!\\)[;:,]') # be liberal about splitter char
     def _excludes_from_str(self, excludes_str):
@@ -360,7 +367,8 @@ class KoFastOpenSession(object):
             else:
                 dirShortcuts = None
             if self.pref_enable_history_gatherer:
-                g.append(KomodoHistoryURIsGatherer(self.historySessionName))
+                g.append(KomodoHistoryURIsGatherer(self.historySessionName,
+                    self.pref_history_num_entries))
             self._gatherers_cache = (g, cwds, dirShortcuts)
         return self._gatherers_cache
 
@@ -435,8 +443,9 @@ class KomodoHistoryURIsGatherer(fastopen.Gatherer):
     """Gather recent URIs from the history."""
     name = "history"
     
-    def __init__(self, sessionName):
+    def __init__(self, sessionName, numEntries=50):
         self.sessionName = sessionName
+        self.numEntries = numEntries
         try:
             koHistorySvc = components.classes["@activestate.com/koHistoryService;1"].\
                 getService(components.interfaces.koIHistoryService)
@@ -452,8 +461,8 @@ class KomodoHistoryURIsGatherer(fastopen.Gatherer):
         if self._koHistorySvcProxy is not None:
             if self._cachedHits is None:
                 self._cachedHits = []
-                #TODO: pref for '50' here
-                for uri in self._koHistorySvcProxy.recent_uris_as_array(50, self.sessionName):
+                for uri in self._koHistorySvcProxy.recent_uris_as_array(
+                        self.numEntries, self.sessionName):
                     if not uri.startswith("file://"):
                         #TODO: Is this a sufficient guard for possible history URLs?
                         continue
