@@ -1193,7 +1193,7 @@ class koDocumentBase:
             # required for the subsequent check. Psychotically, this is
             # the only way to initiate a re-stat.
             # Don't do this for non-local files
-            if self.file.isLocal:
+            if self.file.isLocal and not self.file.isNetworkFile:
                 self.file.hasChanged 
             if not self.file.isWriteable:
                 # reset the mode
