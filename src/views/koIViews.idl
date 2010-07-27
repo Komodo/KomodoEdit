@@ -47,20 +47,6 @@
 
 #include "koIPrefs.idl"
 
-/*
-
-See specs/tech/views.txt for the motivation.
-
-The following interfaces are defined:
- - koIView
- - koIViewList
-
-Unresolved issues:
-
- -- Interactions with the GUI Builder service (or with other similar
-    external 'file' managers.
-
-*/
 
 // forward declarations
 interface koIView;
