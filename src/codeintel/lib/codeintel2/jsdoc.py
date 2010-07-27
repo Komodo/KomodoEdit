@@ -297,9 +297,11 @@ class JSDoc:
     #  "{Boolean}       true if the date is OOM"
     #  "el {HTMLElement} the element to animate"
     #  "{string}  sCategory  The log category for the message."
+    #  "String The name of this dude."
     def _getTypeFieldFromString(self, value):
         """Return tuple (type, rest of string)"""
-
+        if not value.strip():
+            return (None, None)
         sp = value.split("{", 1)
         if len(sp) > 1:
             before = sp[0]
@@ -309,6 +311,11 @@ class JSDoc:
             if len(sp) > 1:
                 after = sp[1]
                 return (self._getTypeField(value), before + after)
+        else:
+            sp = value.split(None, 1)
+            if len(sp) > 1:
+                return (self._getTypeField(sp[0]), sp[1])
+            return (self._getTypeField(sp[0]), '')
         return (None, value)
 
     def _handle_base(self, value):
