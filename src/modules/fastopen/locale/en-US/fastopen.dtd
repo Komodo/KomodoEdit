@@ -1,10 +1,16 @@
 <!ENTITY fastOpen.label "Fast Open">
-<!ENTITY goToFileDialogFilters.description "'Go to File' dialog filters for paths from the current working directory. Leave empty for the default.">
+<!ENTITY goToFileSettings.label "'Go To File...' Dialog Settings">
 <!ENTITY default.label "Default:">
 <!ENTITY goToFile.menuitem "Go to File...">
 <!ENTITY fastOpenGoToFile.desc "Fast Open: Go to File...">
 <!ENTITY fastOpenInvokeTool.desc "Fast Open: Invoke Tool...">
 <!ENTITY goToFile.window.title "Go to File">
+<!ENTITY goToFileDialogIntro.desc "Preferences for the 'Go to File...' dialog.">
+<!ENTITY enableCwdGatherer.label "Enable 'Current Working Directory(ies)' gatherer">
+<!ENTITY goToFileDialogFilters.desc "Exclude files matching the following patterns (leave empty for the default):">
 <!ENTITY enableGoToolIntegration.label "Enable go-tool integration">
+<!ENTITY enableHistoryGatherer.label "Enable 'History' gatherer">
+<!ENTITY enableOpenFilesGatherer.label "Enable 'Open Files' gatherer">
+<!ENTITY enableProjectGatherer.label "Enable 'Current Project' gatherer">
 <!ENTITY goToolIntegration.description "'Go' is a small command-line tool for changing directories quickly.">
 <!ENTITY invokeTool.menuitem "Invoke Tool">

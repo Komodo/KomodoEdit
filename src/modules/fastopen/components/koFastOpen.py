@@ -237,19 +237,25 @@ class KoFastOpenSession(object):
         self.resultsView = KoFastOpenTreeView(uiDriver)
         self.uiDriver.setTreeView(self.resultsView)
 
+    _globalPrefsCache = None
     @property
-    def path_excludes_pref(self):
+    def _globalPrefs(self):
+        if self._globalPrefsCache is None:
+            self._globalPrefsCache = components.classes["@activestate.com/koPrefService;1"].\
+                getService(components.interfaces.koIPrefService).prefs
+        return self._globalPrefsCache
+
+    @property
+    def pref_path_excludes(self):
         """Get, convert to list and normalize `fastopen_path_excludes` pref.
         
         The list is stored as a ';'-separated string (':' and ',' also allowed
         as separators). Whitespace is stripped. Preceed a separator char with
         '\' to have it *not* separate.
         """
-        prefs = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService).prefs
         excludes = None
-        if prefs.hasStringPref("fastopen_path_excludes"):
-            excludes_str = prefs.getStringPref("fastopen_path_excludes")
+        if self._globalPrefs.hasStringPref("fastopen_path_excludes"):
+            excludes_str = self._globalPrefs.getStringPref("fastopen_path_excludes")
             if excludes_str.strip():  # empty means "use default"
                 excludes = self._excludes_from_str(excludes_str)
         return excludes
@@ -260,11 +266,37 @@ class KoFastOpenSession(object):
         
         http://code.google.com/p/go-tool
         """
-        prefs = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService).prefs
         enable = False
-        if prefs.hasBooleanPref("fastopen_enable_go_tool"):
-            enable = prefs.getBooleanPref("fastopen_enable_go_tool")
+        if self._globalPrefs.hasBooleanPref("fastopen_enable_go_tool"):
+            enable = self._globalPrefs.getBooleanPref("fastopen_enable_go_tool")
+        return enable
+
+    @property
+    def pref_enable_open_views_gatherer(self):
+        enable = True
+        if self._globalPrefs.hasBooleanPref("fastopen_enable_open_views_gatherer"):
+            enable = self._globalPrefs.getBooleanPref("fastopen_enable_open_views_gatherer")
+        return enable
+
+    @property
+    def pref_enable_history_gatherer(self):
+        enable = True
+        if self._globalPrefs.hasBooleanPref("fastopen_enable_history_gatherer"):
+            enable = self._globalPrefs.getBooleanPref("fastopen_enable_history_gatherer")
+        return enable
+
+    @property
+    def pref_enable_cwd_gatherer(self):
+        enable = True
+        if self._globalPrefs.hasBooleanPref("fastopen_enable_cwd_gatherer"):
+            enable = self._globalPrefs.getBooleanPref("fastopen_enable_cwd_gatherer")
+        return enable
+
+    @property
+    def pref_enable_project_gatherer(self):
+        enable = True
+        if self._globalPrefs.hasBooleanPref("fastopen_enable_project_gatherer"):
+            enable = self._globalPrefs.getBooleanPref("fastopen_enable_project_gatherer")
         return enable
     
     _excludes_splitter = re.compile(r'(?<!\\)[;:,]') # be liberal about splitter char
@@ -312,28 +344,30 @@ class KoFastOpenSession(object):
             cwds = None
             if self.views:
                 kovg = KomodoOpenViewsGatherer(self.views)
-                g.append(kovg)
+                if self.pref_enable_open_views_gatherer:
+                    g.append(kovg)
                 cwds = list(kovg.cwds)
-            if self.project:
+            if self.pref_enable_project_gatherer and self.project:
                 g.append(fastopen.CachingKomodoProjectGatherer(
                     UnwrapObject(self.project)))
-            if cwds:
+            if self.pref_enable_cwd_gatherer and cwds:
                 g.append(fastopen.DirGatherer("cwd", cwds, True,
-                    self.path_excludes_pref))
+                    self.pref_path_excludes))
             if self.pref_enable_go_tool:
                 gog = fastopen.GoGatherer()
                 g.append(gog)
                 dirShortcuts = gog.getShortcuts()
             else:
                 dirShortcuts = None
-            g.append(KomodoHistoryURIsGatherer(self.historySessionName))
+            if self.pref_enable_history_gatherer:
+                g.append(KomodoHistoryURIsGatherer(self.historySessionName))
             self._gatherers_cache = (g, cwds, dirShortcuts)
         return self._gatherers_cache
 
     def findFiles(self, query):
         """Asynchronously search with the given query."""
         gatherers, cwds, dirShortcuts = self.gatherersAndCwds
-        self.driver.search(query, gatherers, cwds, self.path_excludes_pref,
+        self.driver.search(query, gatherers, cwds, self.pref_path_excludes,
             dirShortcuts, self.resultsView)
 
     def findFileSync(self, query, timeout):
@@ -345,7 +379,7 @@ class KoFastOpenSession(object):
         """
         gatherers, cwds, dirShortcuts = self.gatherersAndCwds
         return self.driver.searchOne(query, gatherers, cwds,
-            self.path_excludes_pref, dirShortcuts, timeout)
+            self.pref_path_excludes, dirShortcuts, timeout)
 
     def abortSearch(self):
         self.driver.abortSearch()

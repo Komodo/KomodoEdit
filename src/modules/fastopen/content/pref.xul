@@ -13,6 +13,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         orient="vertical"
         onload="onLoad()">
 
@@ -30,31 +31,44 @@
     ]]></script>
     
     <groupbox id="groupbox" orient="vertical">
-        <caption label="&fastOpen.label;" />
-        
-        <description>
-            &goToFileDialogFilters.description;
-        </description>
-        <textbox id="fastopen_path_excludes" pref="true" preftype="string" value="" />
-        <hbox>
-            <label value="&default.label;" />
-            <textbox id="default" readonly="true" class="plain" flex="1" />
-        </hbox>
-    
-        <separator/>
+        <caption label="&goToFileSettings.label;" />
+        <checkbox id="fastopen_enable_open_views_gatherer"
+                  label="&enableOpenFilesGatherer.label;"
+                  pref="true" prefattribute="checked"
+                  preftype="boolean" />
+        <checkbox id="fastopen_enable_project_gatherer"
+                  label="&enableProjectGatherer.label;"
+                  pref="true" prefattribute="checked"
+                  preftype="boolean" />
+        <checkbox id="fastopen_enable_cwd_gatherer"
+                  label="&enableCwdGatherer.label;"
+                  pref="true" prefattribute="checked"
+                  preftype="boolean" />
+        <vbox style="margin-left: 22px;">
+          <description>&goToFileDialogFilters.desc;</description>
+          <textbox id="fastopen_path_excludes" pref="true" preftype="string" value="" />
+          <hbox>
+              <label value="&default.label;" />
+              <textbox id="default" readonly="true" class="plain" flex="1" />
+          </hbox>
+        </vbox>
         <checkbox id="fastopen_enable_go_tool"
                   label="&enableGoToolIntegration.label;"
                   pref="true" prefattribute="checked"
                   preftype="boolean" />
-        <vbox style="margin-left: 22px; margin-bottom: 10px;">
+        <vbox style="margin-left: 22px">
             <description>
-                &goToolIntegration.description;
+              &goToolIntegration.description;
+              <html:a
+                  class="button-link"
+                  style="color: #b82619;"
+                  onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://code.google.com/p/go-tool/');">
+                   Visit the go-tool project site.</html:a>
             </description>
-            <separator class="thin"/>
-            <button label="Visit the go-tool project site."
-                class="button-link"
-                style="margin: -10px; color: #b82619;"
-                onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://code.google.com/p/go-tool/');"/>
         </vbox>
+        <checkbox id="fastopen_enable_history_gatherer"
+                  label="&enableHistoryGatherer.label;"
+                  pref="true" prefattribute="checked"
+                  preftype="boolean" />
     </groupbox>
 </window>

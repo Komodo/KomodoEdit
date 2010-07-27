@@ -927,4 +927,14 @@
   <!-- Color picker -->
   <string id="colorpicker_cid"></string>
 
+  <!-- fastopen
+      Really these prefs don't belong here, but I don't see a better way for the
+      *extension* to provide default values for prefs so UI state in the prefs
+      panel is correct. -->
+  <boolean id="fastopen_enable_go_tool">0</boolean>
+  <boolean id="fastopen_enable_open_views_gatherer">1</boolean>
+  <boolean id="fastopen_enable_history_gatherer">1</boolean>
+  <boolean id="fastopen_enable_cwd_gatherer">1</boolean>
+  <boolean id="fastopen_enable_project_gatherer">1</boolean>
+
 </preference-set>
