@@ -903,7 +903,11 @@
                 // If the disk file has changed under us on disk, then ask the
                 // user what to do.
                 try {
-                    if (file.isLocal && !file.isNetworkFile) {
+                    if (file.isLocal) {
+                        // We have to do the same here for networked files
+                        // because of how the stat handling works for local
+                        // files. Otherwise we'd always get a warning about the
+                        // file having changed - bug 68010.
                         hasChanged = this.koDoc.differentOnDisk();
                     } else {
                         // Different for remote files, we check the file stats
