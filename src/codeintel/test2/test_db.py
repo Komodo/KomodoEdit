@@ -205,10 +205,11 @@ class CatalogTestCase(DBTestCase):
 
     def setUp(self):
         DBTestCase.setUp(self)
-        if sys.platform == "win32":
-            run('rd /s/q "%s"' % self.test_catalog_dir)
-        else:
-            run('rm -rf "%s"' % self.test_catalog_dir)
+        if exists(self.test_catalog_dir):
+            if sys.platform == "win32":
+                run('rd /s/q "%s"' % self.test_catalog_dir)
+            else:
+                run('rm -rf "%s"' % self.test_catalog_dir)
         log.debug("mkdir `%s'", self.test_catalog_dir)
         os.makedirs(self.test_catalog_dir)
 
@@ -765,10 +766,11 @@ class MultiLangLibTestCase(DBTestCase):
     def setUp(self):
         DBTestCase.setUp(self)
         #TODO: shouldn't be doing this here.
-        if sys.platform == "win32":
-            run('rd /s/q "%s"' % self.test_dir)
-        else:
-            run('rm -rf "%s"' % self.test_dir)
+        if exists(self.test_dir):
+            if sys.platform == "win32":
+                run('rd /s/q "%s"' % self.test_dir)
+            else:
+                run('rm -rf "%s"' % self.test_dir)
         log.debug("mkdir `%s'", self.test_dir)
         os.makedirs(self.test_dir)
 
@@ -1490,10 +1492,11 @@ class ProjTestCase(DBTestCase):
 
     def setUp(self):
         DBTestCase.setUp(self)
-        if sys.platform == "win32":
-            run('rd /s/q "%s"' % self.test_dir)
-        else:
-            run('rm -rf "%s"' % self.test_dir)
+        if exists(self.test_dir):
+            if sys.platform == "win32":
+                run('rd /s/q "%s"' % self.test_dir)
+            else:
+                run('rm -rf "%s"' % self.test_dir)
         log.debug("mkdir `%s'", self.test_dir)
         os.makedirs(self.test_dir)
 
