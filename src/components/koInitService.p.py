@@ -1144,14 +1144,17 @@ class KoInitService(object):
                 os.mkdir(stdToolsFolder)
                 lookAtPrefName = False
                 
-            folder_name = "Samples (%s)" % str(infoSvc.version)
-            destDir = os.path.join(stdToolsFolder, folder_name)
-            srcDir = os.path.join(koDirs.supportDir, 'samples', 'tools')
-                
             prefName = "haveInstalledSampleToolbox-Komodo" + infoSvc.version
             if lookAtPrefName and prefs.hasBooleanPref(prefName) and prefs.getBooleanPref(prefName):
                 return
 
+            folder_name = "Samples (%s)" % str(infoSvc.version)
+            destDir = os.path.join(stdToolsFolder, folder_name)
+            srcDir = os.path.join(koDirs.supportDir, 'samples', 'tools')
+            # Must ensure the destination directory exists - bug 87470.
+            if not os.path.exists(destDir):
+                os.makedirs(destDir)
+                
             installedSampleTools = True
             import fileutils
             import shutil
