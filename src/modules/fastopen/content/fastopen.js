@@ -6,6 +6,8 @@
  * Defines the "ko.fastopen" namespace.
  */
 
+xtk.include("treeview");
+
 if (typeof(ko) == 'undefined') {
     var ko = {};
 }
