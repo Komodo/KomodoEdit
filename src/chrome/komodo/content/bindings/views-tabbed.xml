@@ -453,7 +453,7 @@
                     }
                     var doc = docSvc.findDocumentByURI(uri);
                     if (!doc) {
-                        doc = docSvc.createDocumentFromURI(uri);
+                        doc = docSvc.createNewDocumentFromURI(uri);
                         if (doc.file.exists) {
                             if (doc.haveAutoSave() &&
                                 ko.dialogs.yesNo("It appears the file '"+doc.file.displayPath+
