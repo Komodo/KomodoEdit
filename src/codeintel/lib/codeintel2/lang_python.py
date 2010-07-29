@@ -414,6 +414,9 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             paths_from_libname = {"sitelib": [], "envlib": [], "stdlib": []}
             canon_sitelibdir = sitelibdir and normcase(sitelibdir) or None
             canon_prefix = prefix and normcase(prefix) or None
+            canon_libdir = normcase(libdir)
+            canon_libdir_plat_prefix = normcase(join(libdir, "plat-"))
+            canon_libdir_lib_prefix = normcase(join(libdir, "lib-"))
             for dir in sys_path:
                 STATE = "envlib"
                 canon_dir = normcase(dir)
@@ -429,7 +432,10 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     continue
                 elif canon_dir.startswith(canon_sitelibdir):
                     STATE = "sitelib"
-                elif canon_dir.startswith(canon_prefix):
+                # Check against the known list of standard library locations.
+                elif canon_dir == canon_libdir or \
+                     canon_dir.startswith(canon_libdir_plat_prefix) or \
+                     canon_dir.startswith(canon_libdir_lib_prefix):
                     STATE = "stdlib"
                 if not exists(dir):
                     continue
