@@ -398,7 +398,30 @@ class KoInitService(object):
                     svc.observe(None, "komodo-startup-service", None)
                 except Exception:
                     log.exception("Unable to start %r service: %r", name, cid)
+            observerSvc.addObserver(self, "komodo-ui-started", 1)
             observerSvc.addObserver(self, "quit-application", 1)
+        elif topic == "komodo-ui-started":
+            observerSvc.removeObserver(self, "komodo-ui-started")
+            # get all delayed komodo-startup components and instantiate them
+            catman = components.classes["@mozilla.org/categorymanager;1"].\
+                            getService(components.interfaces.nsICategoryManager)
+            category = 'komodo-delayed-startup-service'
+            names = catman.enumerateCategory(category)
+            while names.hasMoreElements():
+                nameObj = names.getNext()
+                nameObj.QueryInterface(components.interfaces.nsISupportsCString)
+                name = nameObj.data
+                cid = catman.getCategoryEntry(category, name)
+                if cid.startswith("service,"):
+                    cid = cid[8:]
+                log.info("Adding delayed startup service for %r: %r", name, cid)
+                try:
+                    svc = components.classes[cid].\
+                        getService(components.interfaces.nsIObserver)
+                    svc.observe(None, "komodo-delayed-startup-service", None)
+                except Exception:
+                    log.exception("Unable to start %r service: %r", name, cid)
+            
         elif topic == "quit-application":
             observerSvc.removeObserver(self, "quit-application")
             self._clearBrowserCache()
