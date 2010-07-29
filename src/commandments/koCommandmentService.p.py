@@ -423,7 +423,7 @@ class KoCommandmentService(object):
     _reg_contractid_ = "@activestate.com/koCommandmentService;1"
     _reg_desc_ = "Komodo commandment system service"
     _reg_categories_ = [
-        ("komodo-startup-service", "koCommandmentService", True),
+        ("komodo-delayed-startup-service", "koCommandmentService", True),
     ]
 
     def __init__(self):
@@ -438,18 +438,12 @@ class KoCommandmentService(object):
 
         self._observer = WrapObject(self, components.interfaces.nsIObserver)
         _gObserverSvc.addObserver(self._observer, 'xpcom-shutdown', 1)
-        _gObserverSvc.addObserver(self._observer, 'komodo-ui-started', 1)
 
         # Platform-specific handle on object indicating Komodo is running.
         self._running = None
         # Commandment reader thread.
         self._reader = None
 
-    def initialize(self):
-        log.debug("KoCommandmentService.initialize()")
-        if self._reader:
-            # we're already initialized
-            return
         if sys.platform.startswith("win"):
             global _gHWnd
             try:
@@ -482,12 +476,6 @@ class KoCommandmentService(object):
         if topic == 'xpcom-shutdown':
             _gObserverSvc.removeObserver(self._observer, 'xpcom-shutdown')
             self.finalize()
-        elif topic == 'komodo-ui-started':
-            # Need to ensure that the view-manager for at least one Komodo
-            # window is up and running, so that it will receive open_file
-            # notifications.
-            _gObserverSvc.removeObserver(self._observer, 'komodo-ui-started')
-            self.initialize()
  
     def handleCommandment(self, commandment):
         # For testing only: this will be obselete when the commandment
