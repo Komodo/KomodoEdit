@@ -1787,9 +1787,17 @@ viewManager.prototype.do_cmd_gotoLine = function() {
     // Clear any existing line information.
     var gotoLineTextbox = document.getElementById('gotoLine_textbox');
     gotoLineTextbox.value = "";
+    // Get the current scintilla position.
+    var currentView = ko.views.manager.currentView;
+    /** @type {Components.interfaces.ISciMoz} */
+    var scimoz = currentView.scimoz;
+    var middleLine = scimoz.firstVisibleLine + (scimoz.linesOnScreen / 2) - 5;
+    var pos = scimoz.positionFromLine(middleLine);
+    var x = scimoz.pointXFromPosition(pos);
+    var y = scimoz.pointYFromPosition(pos);
     // Show the goto line panel/popup.
     var panel = document.getElementById("gotoLine_panel");
-    panel.openPopup(ko.views.manager.currentView);
+    panel.openPopup(ko.views.manager.currentView, "after_pointer", x, y);
 }
 
 // cmd_goToDefinition
