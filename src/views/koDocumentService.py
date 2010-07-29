@@ -183,13 +183,8 @@ class KoDocumentService:
             self._thread.join(3)
             log.debug("thread has terminated")
 
-    #koIDocument createDocumentFromURI(in wstring uri);
-    def createDocumentFromURI(self, uri):
-        doc = self.findDocumentByURI(uri)
-        if doc:
-            log.info("found document with existing URI: %s", uri)
-            return doc
-        
+    #koIDocument createNewDocumentFromURI(in wstring uri);
+    def createNewDocumentFromURI(self, uri):
         log.info("creating document with URI: %s", uri)
         file = self._fileSvc.getFileFromURI(uri)
 
@@ -212,6 +207,14 @@ class KoDocumentService:
         finally:
             self._cDoc.release()
         return doc
+
+    #koIDocument createDocumentFromURI(in wstring uri);
+    def createDocumentFromURI(self, uri):
+        doc = self.findDocumentByURI(uri)
+        if doc:
+            log.info("found document with existing URI: %s", uri)
+            return doc
+        return self.createNewDocumentFromURI(uri)
 
     def _getEncodingFromFilename(self, fname):
         try:

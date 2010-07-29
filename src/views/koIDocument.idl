@@ -208,6 +208,10 @@ interface koITabstopInsertionNode : nsISupports
 [scriptable, uuid(CA0A2B77-781B-49E9-B394-B6F8DD56700E)]
 interface koIDocumentService: nsISupports
 {
+    // Creates a new document for this uri.
+    koIDocument createNewDocumentFromURI(in wstring uri);
+    // Like createNewDocumentFromURI, though first checks to see if a doc with
+    // this uri already exists, and if it does it returns the existing one.
     koIDocument createDocumentFromURI(in wstring uri);
     // In Komodo's view system "untitled" == "unsaved and unnamed".
     koIDocument createUntitledDocument(in string language);
