@@ -201,12 +201,15 @@ class PythonImportsEvaluator(Evaluator):
                     member_type = (symbol.get("ilk") or symbol.tag)
                     members.add( (member_type, alias or symbol_name) )
                 else:
-                    log.warn("could not resolve %r", elem)
-                    #XXX: This would take copying the whole PythonTreeEvaluator
-                    #     to implement this. It feels pretty much clear at
-                    #     the moment that PythonImportsEvaluator is a special
-                    #     case of PythonTreeEvaluator.
-                    return []
+                    # To correctly determine the type, we'd need to
+                    # examine all the imports of this blob, and then see
+                    # if any of those imports match the name... which is
+                    # better left to the tree evaluator (tree_python).
+                    #
+                    # For now, we just add it as an unknown type.
+                    members.add( ('unknown', alias or symbol_name))
+                    log.info("could not resolve symbol %r on %r, added as 'unknown'",
+                             symbol_name, module_name)
             else:
                 cpln_name = alias or module_name.split('.', 1)[0]
                 members.add( ("module", cpln_name) )
