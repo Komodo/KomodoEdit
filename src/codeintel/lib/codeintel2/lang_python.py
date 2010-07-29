@@ -151,7 +151,7 @@ class PythonImportsEvaluator(Evaluator):
                                     try:
                                         cplns += self._members_from_elem(e, mgr)
                                     except CodeIntelError, ex:
-                                        self.warn("%s (skipping members for %s)",
+                                        log.warn("%s (skipping members for %s)",
                                                   ex, e)
                     if cplns:
                         break
@@ -189,7 +189,7 @@ class PythonImportsEvaluator(Evaluator):
                     blob = import_handler.import_blob_name(
                                 module_name, self.buf.libs, self.ctlr)
                 except:
-                    self.warn("limitation in handling imports in imported modules")
+                    log.warn("limitation in handling imports in imported modules")
                     raise
 
                 if symbol_name == "*": # can it be so?
@@ -201,7 +201,7 @@ class PythonImportsEvaluator(Evaluator):
                     member_type = (symbol.get("ilk") or symbol.tag)
                     members.add( (member_type, alias or symbol_name) )
                 else:
-                    self.warn("could not resolve %r", elem)
+                    log.warn("could not resolve %r", elem)
                     #XXX: This would take copying the whole PythonTreeEvaluator
                     #     to implement this. It feels pretty much clear at
                     #     the moment that PythonImportsEvaluator is a special
