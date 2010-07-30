@@ -2009,9 +2009,6 @@
 <!-- #endif -->
             <textbox id="textbox_open"
                      tooltiptext="&open.tooltiptext;"
-<!-- #if PLATFORM == "darwin" -->
-                     accesskey="&openLabel.accesskey;"
-<!-- #endif -->
                      type="autocomplete"
                      class="search-box search-box-open-icon"
                      style="min-height: 16px;"
@@ -2030,7 +2027,11 @@
                      completeselectedindex="true"
                      ontextentered="this.focus();
                                     this.setSelectionRange(this.textLength, this.textLength);"
-                     onkeypress="Findtoolbar_OpenTextboxKeyPress(this, event);"/>
+                     onkeypress="Findtoolbar_OpenTextboxKeyPress(this, event);"
+<!-- #if PLATFORM == "darwin" -->
+                     accesskey="&openLabel.accesskey;"
+<!-- #endif -->
+                     />
             <toolbarseparator/>
 <!-- #if PLATFORM != "darwin" -->
             <image id="findButton" class="find"/>
