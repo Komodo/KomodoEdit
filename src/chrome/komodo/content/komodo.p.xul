@@ -2043,9 +2043,6 @@
 <!-- #endif -->
             <textbox id="textbox_find"
                      tooltiptext="&pressEnterToFind.tooltiptext;"
-<!-- #if PLATFORM == "darwin" -->
-                     accesskey="&findLabel.accesskey;"
-<!-- #endif -->
                      type="autocomplete"
                      class="search-box"
                      style="min-height: 16px;"
@@ -2060,7 +2057,11 @@
                      completeselectedindex="true"
                      ontextentered="this.focus();
                                     this.setSelectionRange(0, this.textLength);"
-                     onkeypress="Findtoolbar_FindTextboxKeyPress(this, event);"/>
+                     onkeypress="Findtoolbar_FindTextboxKeyPress(this, event);"
+<!-- #if PLATFORM == "darwin" -->
+                     accesskey="&findLabel.accesskey;"
+<!-- #endif -->
+                    />
             <label value="&komodoFindToolbarIn.label;"
                    style="margin-left: 0px; margin-right: 0px"/>
             <textbox id="textbox_findInFiles"
