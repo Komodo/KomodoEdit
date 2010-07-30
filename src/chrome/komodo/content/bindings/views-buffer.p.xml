@@ -417,11 +417,18 @@
             ]]></getter>
         </property>
 
-        <property name="currentLine"
-            onset="this.scimoz.ensureVisibleEnforcePolicy(val-1);
-                   this.scimoz.gotoLine(val-1);
-                   this.scimoz.scrollCaret();"
-            onget="return this.scimoz.lineFromPosition(this.scimoz.currentPos)+1;"/>
+        <property name="currentLine">
+            <getter><![CDATA[
+                return this.scimoz.lineFromPosition(this.scimoz.currentPos)+1;
+            ]]></getter>
+            <setter><![CDATA[
+                var scimoz = this.scimoz;
+                var lineno = val-1;
+                scimoz.ensureVisibleEnforcePolicy(lineno);
+                scimoz.gotoLine(lineno);
+                scimoz.scrollCaret();
+            ]]></setter>
+        </property>
 
         <property name="currentColumn"
             onget="return this.scimoz.getColumn(this.scimoz.currentPos)+1;"
