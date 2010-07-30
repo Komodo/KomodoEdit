@@ -451,37 +451,37 @@
                     if (existingViews.length > 0) {
                         continue;
                     }
-                    var doc = docSvc.findDocumentByURI(uri);
-                    if (!doc) {
-                        doc = docSvc.createNewDocumentFromURI(uri);
-                        if (doc.file.exists) {
-                            if (doc.haveAutoSave() &&
-                                ko.dialogs.yesNo("It appears the file '"+doc.file.displayPath+
+                    var koDoc = docSvc.findDocumentByURI(uri);
+                    if (!koDoc) {
+                        koDoc = docSvc.createNewDocumentFromURI(uri);
+                        if (koDoc.file.exists) {
+                            if (koDoc.haveAutoSave() &&
+                                ko.dialogs.yesNo("It appears the file '"+koDoc.file.displayPath+
                                             "' was not properly saved, would you "+
                                             "like to restore the backup?", "Yes") == "Yes") {
-                                doc.restoreAutoSave();
+                                koDoc.restoreAutoSave();
                             } else {
                                 try {
-                                    doc.load();
+                                    koDoc.load();
                                 } catch (e) {
                                     // This will catch remote file opening exceptions,
                                     // which has already set the lastException value.
-                                    this.log.warn("Couldn't re-open file: " + doc.file.path);
+                                    this.log.warn("Couldn't re-open file: " + koDoc.file.path);
                                     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
                                                        getService(Components.interfaces.koILastErrorService);
-                                    fileOpenFailures.push("'" + doc.file.path + "' : " + lastErrorSvc.getLastErrorMessage());
+                                    fileOpenFailures.push("'" + koDoc.file.path + "' : " + lastErrorSvc.getLastErrorMessage());
                                     continue;
                                 }
                             }
                         }
                     }
-                    if (doc.file.exists) {
+                    if (koDoc.file.exists) {
                         var view = this.newView(viewType);
-                        view.initWithDocument(doc);
+                        view.initWithDocument(koDoc);
                         xtk.domutils.fireEvent(view, 'view_opened');
                     } else {
-                        fileOpenFailures.push("'" + doc.file.path + "' : it does not exist.");
-                        this.log.warn("Couldn't re-open file: '" + doc.file.path + "', it does not exist.");
+                        fileOpenFailures.push("'" + koDoc.file.path + "' : it does not exist.");
+                        this.log.warn("Couldn't re-open file: '" + koDoc.file.path + "', it does not exist.");
                     }
                 }
             } finally {
