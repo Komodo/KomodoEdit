@@ -43,7 +43,7 @@ if (typeof(ko)=='undefined') {
  */
 ko.open = {};
 (function() {
-var fileLineNoRE = /^(.*)#(\d+)$/;
+var fileLineNoRE = /^(.*)[#:](\d+)$/;
 
 var _viewsBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
@@ -142,7 +142,8 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
         // URI can be a local path or a URI
         uri = ko.uriparse.pathToURI(uri);
         // check for an attached line # in the form of:
-        // file:///filename.txt#24
+        // file:///filename.txt#24   or
+        // file:///filename.txt:24
         if (lineno == null) {
             var m = fileLineNoRE.exec(uri);
             if (m) {
