@@ -99,7 +99,7 @@ ko.hyperlinks.ColorPickerHandler.prototype.show = function(
     var hyperlink;
     // Check if it's a named css color, else try the regex matching.
     if ((start < end) &&
-        (ko.hyperlinks.ColorPickerHandler.named_css_colors.indexOf(scimoz.getTextRange(start, end)) >= 0)) {
+        (ko.hyperlinks.ColorPickerHandler.named_css_colors.indexOf(scimoz.getTextRange(start, end).toLowerCase()) >= 0)) {
         hyperlink = this.setHyperlink(view, start, end, null);
     } else {
         hyperlink = ko.hyperlinks.RegexHandler.prototype.show.apply(this, arguments);
