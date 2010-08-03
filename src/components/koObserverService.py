@@ -207,7 +207,6 @@ class KoObserverService:
     #                      in string aTopic, 
     #                      in wstring someData );
     def notifyObservers(self, aSubject, aTopic, someData):
-        ok = 0
         topic_observers = None
         catchall_observers = None
 
@@ -225,23 +224,15 @@ class KoObserverService:
                 try:
                     observer.observe(aSubject, aTopic, someData)
                 except:
-                    log.debug("Caught Exception on observe: %s:%s"%(aTopic, someData))
-                    #raise
-                ok = 1
+                    log.exception("notifyObservers:: topic: %r, data: %r", aTopic, someData)
 
         if catchall_observers:
             for observer in catchall_observers:
                 try:
                     observer.observe(aSubject, aTopic, someData)
                 except:
-                    log.debug("Caught Exception on observe: %s:%s"%(aTopic, someData))
-                    raise
-                ok = 1
+                    log.exception("notifyObservers::all: topic: %r, data: %r", aTopic, someData)
 
-        # No need to raise an exception if no one is listening.
-        #if not ok:
-        #    raise ServerException(nsError.NS_ERROR_FAILURE,"No Observers for Topic %s"%aTopic)
-    
     # nsISimpleEnumerator enumerateObservers( in string aTopic );
     def enumerateObservers(self, aTopic):
         self.cv.acquire()
