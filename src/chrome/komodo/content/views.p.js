@@ -2798,6 +2798,11 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
                 currentWindow.maximize();
             }
         }
+        // Opening the Start Page should be before commandment system init and
+        // workspace restoration because it should be the first view opened.
+        if (gPrefs.getBooleanPref("show_start_page")) {
+            ko.open.startPage();
+        }
         if (workspace.hasPref('opened_projects')) {
             pref = workspace.getPref('opened_projects');
             wko.projects.manager.setState(pref);
