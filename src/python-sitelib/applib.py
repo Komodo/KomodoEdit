@@ -144,7 +144,7 @@ def user_cache_dir(appname, owner=None, version=None):
             of your app to be able to run independently. If used, this
             would typically be "<major>.<minor>".
     
-    Typical user data directories are:
+    Typical user cache directories are:
         Win XP:     C:\Documents and Settings\USER\Local Settings\Application Data\<owner>\<appname>
         Mac OS X:   ~/Library/Caches/<appname>
         Unix:       ~/.<lowercased-appname>/caches
