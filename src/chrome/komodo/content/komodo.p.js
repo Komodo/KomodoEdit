@@ -288,12 +288,6 @@ function onloadDelay() {
         // executing queued up commandments.
         ko.uilayout.onloadDelayed(); // if closed fullscreen, maximize
 
-        // Opening the Start Page should be before commandment system init and
-        // workspace restoration because it should be the first view opened.
-        if (gPrefs.getBooleanPref("show_start_page")) {
-            ko.open.startPage();
-        }
-
         // the offer to restore the workspace needs to be after the
         // commandments system is initialized because the commandments mechanism
         // is how the determination of 'running in non-interactive mode' happens,
