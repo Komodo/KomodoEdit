@@ -208,6 +208,9 @@ class KoObserverService:
     #                      in wstring someData );
     def notifyObservers(self, aSubject, aTopic, someData):
         ok = 0
+        topic_observers = None
+        catchall_observers = None
+
         self.cv.acquire()
         try:
             if aTopic:
