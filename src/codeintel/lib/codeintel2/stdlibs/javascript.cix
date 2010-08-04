@@ -406,7 +406,7 @@
         <scope doc="Helper to implement the onreadystatechange callback member.&#xA;You should not need to use this." ilk="function" line="293" lineend="293" name="handleEvent" signature="handleEvent()" />
       </scope>
       <variable citdl="Window" name="window" />
-      <scope ilk="class" name="Window">
+      <scope classrefs="EventTarget" ilk="class" name="Window">
         <variable name="content" />
         <variable doc="Returns a reference to the content element in the current&#xA;window." name="_content" />
         <variable doc="This property indicates whether the current window is closed&#xA;or not" name="closed" />
@@ -1707,7 +1707,7 @@
           <variable citdl="DOMString" ilk="argument" name="eventType" />
         </scope>
       </scope>
-      <scope classrefs="Node ElementCSSInlineStyle" doc="The Element interface represents an element in an HTML or&#xA;XML document. Elements may have attributes associated with&#xA;them; since the Element interface inherits from Node , the&#xA;generic Node interface attribute attributes may be used to&#xA;retrieve the set of all attributes for an element." ilk="class" name="Element">
+      <scope classrefs="Node ElementCSSInlineStyle EventTarget" doc="The Element interface represents an element in an HTML or&#xA;XML document. Elements may have attributes associated with&#xA;them; since the Element interface inherits from Node , the&#xA;generic Node interface attribute attributes may be used to&#xA;retrieve the set of all attributes for an element." ilk="class" name="Element">
         <variable citdl="DOMString" doc="The name of the element. For example, in: &lt;elementExample&#xA;id=&quot;demo&quot;&gt;..." name="tagName" />
         <scope doc="Retrieves an attribute value by name." ilk="function" name="getAttribute" returns="DOMString" signature="getAttribute(name)">
           <variable citdl="DOMString" ilk="argument" name="name" />
