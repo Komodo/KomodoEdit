@@ -2122,8 +2122,8 @@ class _WorkerThread(threading.Thread, Queue):
                               getService(components.interfaces.koISysUtils)
             try:
                 res = sysUtils.MoveToTrash(path)
-                if not res:
-                    log.error("Failed to remove %s" % (path,))
+                if os.path.exists(path):
+                    log.error("Failed to remove local file %s" % (path,))
                     return False
             except:
                 log.exception("sysUtils.MoveToTrash(%s) failed", path)
