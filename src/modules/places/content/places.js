@@ -843,6 +843,7 @@ viewMgrClass.prototype = {
         for (i = 0; i < lim; i++) {
             var srcURI = finalSrcURIs[i];
             var callback = null;
+            var from_uri = from_uris[i];
             if (!copying) {
                 var from_view = ko.views.manager.getViewForURI(srcURI);
                 callback = {
