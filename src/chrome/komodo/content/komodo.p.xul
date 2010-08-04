@@ -48,7 +48,6 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/bindings/partviewer.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/scrolltabs.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/sidebar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
@@ -88,6 +87,11 @@
     <script src="chrome://global/content/printUtils.js"                   type="application/x-javascript;version=1.7"/>
     <script src="chrome://global/content/nsDragAndDrop.js"                   type="application/x-javascript;version=1.7"/>
 
+    <!--Contributed library resources-->
+<!-- #if BUILD_FLAVOUR == "dev" -->
+    <script src="chrome://komodo/content/contrib/jquery.js" type="application/x-javascript;version=1.7"/>
+<!-- #endif -->
+
     <!--Komodo library resources-->
     <!-- "komodo.js" must be the first Komodo .js file included so that its
          top-level code can be sure that it is run first. -->
@@ -110,6 +114,7 @@
     <script src="chrome://komodo/content/library/macros.js"               type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/isearch.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/stringutils.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/treeutils.js"            type="application/x-javascript;version=1.7"/>
 <!-- #if BUILD_FLAVOUR == "dev" -->
     <script src="chrome://komodo/content/library/test.js"                 type="application/x-javascript;version=1.7"/>
 <!-- #endif -->
@@ -156,6 +161,8 @@
     <script src="chrome://komodo/content/library/eggs.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/abbrev.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/hyperlinks.js"        type="application/x-javascript;version=1.7"/>
+    <!-- The order of these hyperlink scripts is important, as it sets the
+         priority of the hyperlink handlers. -->
     <script src="chrome://komodo/content/hyperlinks/regexhandler.js"      type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/filehandler.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/csscolorpicker.js"    type="application/x-javascript;version=1.7"/>
@@ -168,50 +175,6 @@
             <description multiline="true" id="editorTooltip-tooltipText" class="tooltip-label" flex="1"/>
         </tooltip>
         <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
-
-        <menupopup id="project_sortDirection_menupopup">
-            <menuitem id="project_sortDirection_natural_menuitem"
-                      type="checkbox"
-                      sortdir="0"
-                      label="&projectSortDirectionNatural.label;"
-                      accesskey="&projectSortDirectionNatural.accesskey;"
-                      oncommand="ko.projects.sortByMenuHandler(this, 0);"/>
-            <menuitem id="project_sortDirection_ascending_menuitem"
-                      type="checkbox"
-                      sortdir="1"
-                      label="&projectSortDirectionAscending.label;"
-                      accesskey="&projectSortDirectionAscending.accesskey;"
-                      oncommand="ko.projects.sortByMenuHandler(this, 1);"/>
-            <menuitem id="project_sortDirection_descending_menuitem"
-                      type="checkbox"
-                      sortdir="-1"
-                      label="&projectSortDirectionDescending.label;"
-                      accesskey="&projectSortDirectionDescending.accesskey;"
-                      oncommand="ko.projects.sortByMenuHandler(this, -1);"/>
-        </menupopup>
-
-        <!-- This menupopup is dynamically added to the part specific sortBy
-             menus through the "ko.projects.sortByOnPopupShowing" call.
-        
-             These menuitems have some special attributes:
-                "datapointname": the internal name of the column to sort, this
-                                 field should not be localized.
-                "appliesto": specifies the base project type this applies to.
-                             The value is a space separated list and must be one
-                             of the following values:
-                               * project (applies to Komodo projects)
-                               * toolbox (applies to Komodo toolboxes)
-        -->
-        <menupopup id="project_sortBy_menupopup">
-            <menu id="project_sortBy_name_menu"
-                  label="&projectNameTreeColumn.label;"
-                  accesskey="&projectNameTreeColumn.accesskey;"
-                  datapointname="name"
-                  appliesto="project toolbox">
-                <menupopup id="project_sortByName_menupopup"
-                           onpopupshowing="ko.projects.sortByDirectionOnPopupShowing(this, true);"/>
-            </menu>
-        </menupopup>
 
         <panel id="gotoLine_panel"
                onpopupshown="document.getElementById('gotoLine_textbox').focus(); document.getElementById('gotoLine_error_hbox').setAttribute('collapsed', 'true'); ">
@@ -235,92 +198,6 @@
 
     <popupset id="extensionPopupSet"/>
 
-    <menu
-        collapsed="true"
-        id="folder_context"
-        label="&add.label;"
-        accesskey="&folderContext.accesskey;">
-        <menupopup id="folder_context_popup">
-            <menuitem id="folder_context_newFile"
-                      label="&newFile.label;"
-                      accesskey="&folderContextNewFile.accesskey;"
-                      class="menuitem-iconic"
-                      image="chrome://komodo/skin/images/new_file.png"
-                      oncommand="ko.projects.addNewPart('newfile', this.parentNode.getAttribute('partviewer'))"
-                      />
-            <menuitem id="folder_context_newFolder"
-                      label="&newFolder.label;"
-                      accesskey="&folderContextNewFolder.accesskey;"
-                      class="menuitem-iconic"
-                      image="chrome://komodo/skin/images/new_folder.png"
-                      oncommand="ko.projects.addNewPart('newfolder', this.parentNode.getAttribute('partviewer'))"
-                      />
-            <menuitem id="folder_context_newLiveFolder"
-                      label="&newLiveFolder.label;"
-                      accesskey="&folderContextNewLiveFolder.accesskey;"
-                      class="menuitem-iconic"
-                      image="chrome://komodo/skin/images/new_live_folder.png"
-                      oncommand="ko.projects.addNewPart('livefolder', this.parentNode.getAttribute('partviewer'))"
-                      />
-            <menuitem id="folder_context_existingFile"
-                      label="&existingFileS.label;"
-                      class="menuitem-iconic"
-                      accesskey="&folderContextExistingFile.accesskey;"
-                      image="chrome://komodo/skin/images/existing_file.png"
-                      oncommand="ko.projects.addNewPart('files', this.parentNode.getAttribute('partviewer'))"
-                      />
-            <menuitem id="folder_context_remoteFile"
-                      label="&existingRemoteFile.label;"
-                      class="menuitem-iconic"
-                      accesskey="&folderContextRemoteFile.accesskey;"
-                      image="chrome://komodo/skin/images/remote_file.png"
-                      oncommand="ko.projects.addNewPart('remotefiles', this.parentNode.getAttribute('partviewer'))"
-                      />
-        </menupopup>
-    </menu>
-
-
-    <menupopup id="projectContext">
-        <menuseparator anonid="primaryseparator"
-                       keep_background="true"
-                       keep="true"/>
-        <menuitem id="projectContextMenu_cut"
-                  observes="cmd_cut"
-                  label="&cut.label;"
-                  keep="true"
-                  class="menuitem-iconic cut-button"
-                  />
-        <menuitem id="projectContextMenu_copy"
-                  observes="cmd_copy"
-                  label="&copy.label;"
-                  class="menuitem-iconic copy-button"
-                  keep="true"
-                  />
-        <menuitem id="projectContextMenu_partPaste"
-                  observes="cmd_paste"
-                  keep_background="true"
-                  class="menuitem-iconic paste-button"
-                  label="&paste.label;"
-                  keep="true"
-                  />
-        <menuseparator anonid="secondaryseparator"
-                       keep="true"
-                       />
-        <menuitem id="projectContextMenu_delete"
-                  observes="cmd_delete"
-                  label="&delete.label;"
-                  class="menuitem-iconic list-item-remove-icon"
-                  keep="true"
-                  />
-        <menuseparator keep="true"
-                       intoplevel="true"/>
-        <menuitem id="projectContextMenu_editProperties"
-                  observes="cmd_editProperties"
-                  label="&properties.label;"
-                  intoplevel="true"
-                  keep="true"
-                  />
-    </menupopup>
     <menupopup id="toolbox2Context" onpopupshowing="ko.toolbox2.updateContextMenu(event, this);">
         <menuitem id="toolbox2ContextMenu_importFilesFromFileSystem"
                   label="&importFilesFromFileSystem.label;"
@@ -1142,13 +1019,6 @@
                                     onpopupshowing="ko.uilayout.updateTabpickerMenu(this)"
                                     type="menu"
                                     >
-                                    <menuitem id="show_project_tab2"
-                                        observes="show_project_tab"
-                                        oncommand="ko.uilayout.ensureTabShown('project_tab', true)"
-                                        label="&projects.label;"
-                                        checked="true"
-                                        type="checkbox"
-                                        />
                                     <menuseparator id="viewtabs_rightPane2"/>
                                     <menuitem id="show_toolbox2_tab2"
                                         observes="show_toolbox2_tab"
@@ -1330,8 +1200,7 @@
                         </menupopup>
                     </menu>
                     <menu id="menu_project" label="&project.label;" accesskey="&menuProject.accesskey;">
-                        <menupopup id="popup_project"
-                            onpopupshowing="ko.projects.extensionManager.updateToplevelMenu('popup_project', event, 'projectview')">
+                        <menupopup id="popup_project" >
                             <menu id="menu_project_submenu" label="&selection.label;">
                                 <menupopup/>
                             </menu>
@@ -1885,29 +1754,31 @@
                     persist="buttonstyle"
                     class="tabPicker-icon"
                     buttonstyle="pictures"
-                    onpopupshowing="ko.uilayout.updateTabpickerMenu(this)"
                     label="&showTab.label;">
-                    <menupopup id="tabPicker_popup">
-                        <menuitem id="show_project_tab"
-                            oncommand="ko.uilayout.ensureTabShown('project_tab', true)"
-                            label="&projects.label;"
-                            />
+                    <menupopup id="tabPicker_popup"
+                               onpopupshowing="ko.uilayout.updateTabpickerMenu(this)">
+                        <menuseparator id="viewtabs_rightPane"/>
                         <menuitem id="show_toolbox2_tab"
                             oncommand="ko.uilayout.ensureTabShown('toolbox2_tab', true)"
                             label="&toolbox2.label;"
                             type="checkbox"
                             />
+                        <menuseparator id="viewtabs_rightPane0"/>
+                        <!-- The other menu already claimed viewtabs_rightPane -->
                         <menuitem id="show_findresults1_tab"
                             oncommand="ko.uilayout.ensureTabShown('findresults1_tab', true)"
                             label="&findResults1.label;"
+                            type="checkbox"
                             />
                         <menuitem id="show_findresults2_tab"
                             oncommand="ko.uilayout.ensureTabShown('findresults2_tab', true)"
                             label="&findResults2.label;"
+                            type="checkbox"
                             />
                         <menuitem id="show_runoutput_tab"
                             oncommand="ko.uilayout.ensureTabShown('runoutput_tab', true)"
                             label="&commandOutput.label;"
+                            type="checkbox"
                             />
                     </menupopup>
                 </toolbarbutton>
@@ -1988,7 +1859,6 @@
                     label="&bugs.label;"/>
             </toolbaritem>
         </toolbar>
-
         <toolbar class="chromeclass-toolbar"
                  id="findToolbar"
                  align="center"
@@ -2061,7 +1931,7 @@
 <!-- #if PLATFORM == "darwin" -->
                      accesskey="&findLabel.accesskey;"
 <!-- #endif -->
-                    />
+                     />
             <label value="&komodoFindToolbarIn.label;"
                    style="margin-left: 0px; margin-right: 0px"/>
             <textbox id="textbox_findInFiles"
@@ -2278,65 +2148,8 @@
                           onclose="ko.uilayout.toggleSplitter('cmd_viewLeftPane');"
                           closeclass="scroll-minimize-left-icon"
                           closecollapsed="false">
-                        <tab id="project_tab" label="&projects.label;"
-                             oncommand="ko.projects.manager.viewMgr.tree.focus();"
-                             onfocus="ko.projects.manager.viewMgr.focus();"/>
                     </tabs>
                     <tabpanels flex="1" id="project_toolbox_tabpanels">
-                        <tabpanel flex="1" id="projectviewbox">
-                            <vbox flex="1" id="projectview-vbox">
-                                <partviewer
-                                    id="projectview"
-                                    viewcontext='projectContext'
-                                    tabid="project_tab"
-                                    flex="1"
-                                    menuobserves="broadcaster_projectCurrent"
-                                    treecollabel="&projectNameTreeColumn.label;"
-                                    candrag="true"
-                                    candrop="true">
-                                    <toolbarbutton id="projectView_tools"
-                                            tooltiptext="&projectView.tooltiptext;"
-                                            buttonstyle="pictures"
-                                            type="menu"
-                                            orient="horizontal"
-                                            class="rightarrow-button-a project-tools-icon">
-                                        <menupopup id="projectView_toolsPopup">
-                                            <menuitem id="projectView_newProjectButton"
-                                                observes="cmd_newProject"
-                                                label="&newProject.label;"
-                                                class="menuitem-iconic new-project-icon"/>
-                                            <menuitem id="projectView_openButton"
-                                                observes="cmd_openProject"
-                                                label="&openProject.label;"
-                                                class="menuitem-iconic open-project-icon"/>
-                                            <menuitem id="projectView_saveButton"
-                                                observes="cmd_saveProject"
-                                                label="&saveProject.label;"
-                                                class="menuitem-iconic save-buffer-icon"/>
-                                            <menu id="projectView_sortByMenu"
-                                                  label="&sortBy.label;"
-                                                  accesskey="&sortBy_menu.accesskey;">
-                                                  <menupopup id="projectView_sortByMenuPopup"
-                                                             onpopupshowing="ko.projects.sortByOnPopupShowing(this, 'project')"/>
-                                            </menu>
-                                        </menupopup>
-                                    </toolbarbutton>
-                                    <toolbarbutton
-                                        id="projectView_AddItem"
-                                        tooltiptext="&addItemToCurrentProject.tooltiptext;"
-                                        buttonstyle="pictures"
-                                        label="&add.label;"
-                                        type="menu"
-                                        orient="horizontal"
-                                        class="rightarrow-button-a addToolboxItemButton"
-                                        observes="broadcaster_projectCurrent"
-                                        >
-                                        <menupopup id="projectView_AddItemPopup" partviewer="projectview"
-                                                   onpopupshowing="ko.projects.ensureAddMenu(this);"/>
-                                    </toolbarbutton>
-                                </partviewer>
-                            </vbox>
-                        </tabpanel>
                    </tabpanels>
                 </tabbox>
             </vbox>
@@ -2385,21 +2198,6 @@
                     </tabs>
                     <tabpanels flex="1" id="right_toolbox_tabpanels">
                         <tabpanel flex="1" id="toolbox2viewbox">
-                            <!--
-                            put this in the new toolbox....
-                                    <toolbarbutton
-                                        id="toolboxView_AddItem"
-                                        tooltiptext="&addItemToToolbox.tooltiptext;"
-                                        buttonstyle="pictures"
-                                        label="&add.label;"
-                                        type="menu"
-                                        orient="horizontal"
-                                        class="rightarrow-button-a addToolboxItemButton"
-                                        >
-                                        <menupopup id="toolboxView_AddItemPopup" partviewer="toolboxview"
-                                                   onpopupshowing="ko.projects.ensureAddMenu(this);"/>
-                                    </toolbarbutton>
-                        -->
                             <vbox flex="1" id="toolbox2-hierarchy-vbox">
                                 <!-- #if 1 -->
                                 <hbox id="toolbox2-hierarchy-toolbar-a" >
@@ -2468,12 +2266,6 @@
                                                  ondragenter="return ko.toolbox2.doDragEnter(event, this);"
                                                  ondrop="return ko.toolbox2.doDrop(event, this);"
                                                  />
-<!--
-                                                 ondragstart="ko.toolbox2.dragDropHandler.doStartDrag(event, this);"
-                                                 ondragover="return ko.toolbox2.dragDropHandler.doDragOver(event, this);"
-                                                 ondragenter="return ko.toolbox2.dragDropHandler.doDragEnter(event, this);"
-                                                 ondrop="return ko.toolbox2.dragDropHandler.doDrop(event, this);"
-                                                 -->
                                 </tree>
                             </vbox>
                         </tabpanel>

@@ -74,8 +74,7 @@ log.setLevel(LOG_DEBUG);
 // give it an appropriate name.
 // This object will manage the JS side of the tree view.
 function viewMgrClass() {
-    this.startingIndex = -1;
-    this.startingLevel = -1;
+    this.localDragDrop = false;
     this.default_exclude_matches = ".*;*~;#*;CVS;*.bak;*.pyo;*.pyc";
     // overides, to include:
     this.default_include_matches = ".login;.profile;.bashrc;.bash_profile";
@@ -152,7 +151,10 @@ viewMgrClass.prototype = {
         var index = this._currentRow(event);
         var isFolder = this.view.isContainer(index);
         if (!isFolder) {
-            this.openFileByIndex(index);
+            var uri = this.view.getURIForRow(index);
+            if (uri) {
+                ko.open.URI(uri);
+            }
         } else {
             ko.places.manager.toggleRebaseFolderByIndex(index);
             //TODO: get this to stop the folder from toggling?
@@ -163,20 +165,11 @@ viewMgrClass.prototype = {
         event.cancelBubble = true;
         event.preventDefault();
     },
-
-    rebaseByIndex: function(index) {
-        ko.places.manager.toggleRebaseFolderByIndex(index);
-    },
     
     refreshViewByIndex: function(index) {
-        // pyView.refreshView(-1) ==> pyView.refreshFullTreeView()
         this.view.refreshView(index);
     },
-
-    openFileByIndex: function(index) {
-        ko.open.URI(this.view.getURIForRow(index));
-    },
-
+    
     refreshStatus: function(index) {
         var uri = this.view.getURIForRow(index);
         var fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].getService(Components.interfaces.koIFileStatusService);
@@ -184,7 +177,21 @@ viewMgrClass.prototype = {
                                           true /* forcerefresh */);
     },
 
-    compareFileWith: function(index) {
+    getSelectedURIs: function(rootsOnly) {
+        var view = this.view;
+        var selectedIndices = ko.treeutils.getSelectedIndices(view, rootsOnly);
+        return selectedIndices.map(function(row) {
+                return view.getURIForRow(row);
+            });
+    },
+    
+    openFilesByIndex: function(event) {
+        var uris = this.getSelectedURIs(false);
+        ko.open.multipleURIs(uris);
+    },
+
+    compareFileWith: function(event) {
+        var index = this._currentRow(event);
         var uri = this.view.getURIForRow(index);
         var file = Components.classes["@activestate.com/koFileEx;1"].
                 createInstance(Components.interfaces.koIFileEx);
@@ -194,6 +201,18 @@ viewMgrClass.prototype = {
         if (otherfile) {
             ko.fileutils.showDiffs(file.path, otherfile);
         }
+    },
+
+    compareFiles: function(event) {
+        var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false);
+        if (selectedIndices.length != 2) {
+            log.error("compareFiles: Failed: expecting 2 items, got "
+                      + selectedIndices.length);
+            return;
+        }
+        var fname = this.view.getURIForRow(selectedIndices[0]);
+        var otherfile = this.view.getURIForRow(selectedIndices[1]);
+        ko.fileutils.showDiffs(fname, otherfile);
     },
 
     addNewFile: function(index) {
@@ -223,182 +242,216 @@ viewMgrClass.prototype = {
 
     onTreeKeyPress: function(event) {
         //dump("TODO: viewMgrClass.onTreeKeyPress\n");
+        if ((event.keyCode == event.DOM_VK_ENTER
+             || event.keyCode == event.DOM_VK_RETURN)
+            && !event.shiftKey && !event.ctrlKey && !event.altKey) {
+            var t = event.originalTarget;
+            if (t.localName == "treechildren" || t.localName == 'tree') {
+                // If all the items are files, open them.
+                var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false);
+                for (var index, i = 0; i < selectedIndices.length; i++) {
+                    index = selectedIndices[0];
+                    if (this.view.isContainer(index)) {
+                        if (selectedIndices.length > 1) {
+                            event.cancelBubble = true;
+                            event.preventDefault();
+                        }
+                        return;
+                    }
+                }
+                event.cancelBubble = true;
+                event.preventDefault();
+                this.openFilesByIndex();
+            }
+        }
     },
     allowed_click_nodes: ["places-files-tree-body", "place-view-rootPath-icon"],
-    initFilesContextMenu: function(event) {
+    initFilesContextMenu: function(event, menupopup) {
         var clickedNodeId = event.explicitOriginalTarget.id;
         if (this.allowed_click_nodes.indexOf(clickedNodeId) == -1) {
             // We don't want to fillup this context menu (i.e. it's likely a
             // sub-menu such as the scc context menu).
             return false;
         }
-        //gEvent = event;
-        /*
-         * Menus:
-         *   *Folder: Rebase (tree folders only)
-         *   *Folder: Refresh View
-         *----------------
-         *   Cut   (tree items only)
-         *   Copy  
-         *   Paste (*File: disabled, *Folder: always enabled)
-         *   Undo (undo a move)
-         *----------------
-         *   Find... (should be in this file|folder)
-         *   Replace... (same)
-         *   Show in {Explorer | File Manager | Finder}
-         *   Rename...  (tree items only)
-         *   Refresh Status
-         *----------------
-         *   [Source Control | Source Control on Contents] ...
-         *----------------
-         *   Delete (tree items only)
-         *   New File...
-         *   New Folder...
-         *----------------
-         *   Properties (*Folder:disabled)
-         */
+        // Work on one item only, later move to multipleItems
+        var row = {};
+        this.tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
+        var index = row.value;
+        if (index == -1) {
+            // Means that we're clicking in white-space below.
+            // Item should work on the  recent folder.
+            var selection = this.view.selection;
+            if (selection.count == 0) {
+                // Use the Standard Toolbox
+                index = 0; //XXX: Watch out: the "Standard Toolbox" folder might be implicit
+                this.view.selection.select(index);
+            } else {
+                // This will be the last item clicked on in a multi-item selection.
+                index = selection.currentIndex; 
+            }
+        }
+        var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false /*rootsOnly*/);
         var index;
         var isRootNode;
+        var itemTypes = null;
         if (clickedNodeId == "place-view-rootPath-icon") {
             index = -1;
             isRootNode = true;
+            itemTypes = ["project"];
         } else {
             index = this._currentRow(event);
             isRootNode = (index == -1);
+            if (isRootNode) {
+                itemTypes = ["project"];
+            } else {
+                itemTypes = [];
+                var sawFolder = false;
+                var sawFile = false;
+                var view = this.view;
+                selectedIndices.map(function(index) {
+                        if (view.isContainer(index)) {
+                            sawFolder = true;
+                        } else {
+                            sawFile = true;
+                        }
+                    });
+                if (sawFile) {
+                    itemTypes.push('file');
+                }
+                if (sawFolder) {
+                    itemTypes.push('folder');
+                }
+            }
         }
-        var isFolder = index == -1 ? true : this.view.isContainer(index);
-        var popupmenu = event.target;
-        var nodes = popupmenu.childNodes;
-        var firstMenuItem = nodes[0];
-        var firstFolderMenuItemId_rebase = "placesContextMenu_folder_rebase";
-        var firstFileMenuItemId_fileOpen = "placesContextMenu_file_open";
-        var firstFolderMenuItemId_refreshView = "placesContextMenu_folder_refresh_view";
-        var node, i = 0;
         var isLocal = ko.places.manager.currentPlaceIsLocal;
-        // Do global stuff here: remove nodes from last run, and
-        // handle blanket disable/enabling
         var disableAll = (isRootNode
                           && widgets.rootPath.getAttribute('class') ==  'noplace');
-        while (!!(node = nodes[i])) {
-            if (node.hasAttribute("dynamically_added") && node.getAttribute("dynamically_added") == "true") {
-                popupmenu.removeChild(node);
-            } else {
-                if (disableAll) {
-                    node.setAttribute("disabled", "true");
-                } else {
-                    node.removeAttribute("disabled");
-                }
-                i++;
-            }
-        }
-        if (disableAll) {
-            return true;
-        }
-        var firstCommonNode = null;
-        for (i = 0; node = nodes[i]; ++i) {
-            if (node.id == "placesContextMenu_separatorCut") {
-                firstCommonNode = node;
-                break;
-            }
-        }
-        if (!firstCommonNode) {
-            dump("Can't find the common menu item placesContextMenu_separatorCut");
-            return false;
-        }
-        var menuitem, newMenuItemNode;
-        var _bundle_peFile = Components.classes["@mozilla.org/intl/stringbundle;1"]
-        .getService(Components.interfaces.nsIStringBundleService)
-        .createBundle("chrome://komodo/locale/project/peFile.properties");
-
-        var first_item_is_root = false;
-        menuitem = document.getElementById("placesContextMenu_undo");
-        if ((isFolder || isRootNode)
-            && ko.places.manager.can_undoTreeOperation()) {
-            menuitem.removeAttribute("disabled");
-        } else {
-            menuitem.setAttribute("disabled", "true");
-        }
-        if (isFolder) {
-            var disable_item = !isRootNode && !this.view.isContainerOpen(index);
-            menuitem = this._makeMenuItem(firstFolderMenuItemId_refreshView,
-                                          _bundle.GetStringFromName("refreshView.label"),
-                                          ("gPlacesViewMgr.refreshViewByIndex("
-                                           + index // -1 ok
-                                           + ");"));
-            if (disable_item) {
-                menuitem.setAttribute("disabled", "true");
-            }
-            newMenuItemNode = popupmenu.insertBefore(menuitem, firstCommonNode);
-            if (!isRootNode) {
-                var bundle_label = "rebaseFolder.label";
-                menuitem = this._makeMenuItem(firstFolderMenuItemId_rebase,
-                                              _bundle.GetStringFromName(bundle_label),
-                                              ("gPlacesViewMgr.rebaseByIndex("
-                                               + index
-                                               + ");"));
-                popupmenu.insertBefore(menuitem, newMenuItemNode);
-            }
-            menuitem = document.getElementById("placesContextMenu_newFile");
-            menuitem.removeAttribute("disabled");
-            menuitem.setAttribute("oncommand",
-                                  ("gPlacesViewMgr.addNewFile("
-                                   + index // -1 is handled for isRootNode
-                                    + ");"));
-            menuitem = document.getElementById("placesContextMenu_newFolder");
-            menuitem.removeAttribute("disabled");
-            menuitem.setAttribute("oncommand",
-                                  ("gPlacesViewMgr.addNewFolder("
-                                   + index // -1 is handled for isRootNode
-                                    + ");"));
-        } else {
-            if (!isRootNode) {
-                menuitem = this._makeMenuItem("placesContextMenu_compareFileWith",
-                                              _bundle_peFile.GetStringFromName("compareFileWith"),
-                                              ("gPlacesViewMgr.compareFileWith("
-                                               + index
-                                               + ");"));
-                newMenuItemNode = popupmenu.insertBefore(menuitem, firstCommonNode);
-                menuitem = this._makeMenuItem(firstFileMenuItemId_fileOpen,
-                                              _bundle_peFile.GetStringFromName("open"),
-                                              ("gPlacesViewMgr.openFileByIndex("
-                                               + index
-                                               + ");"));
-                popupmenu.insertBefore(menuitem, newMenuItemNode);
-            }
-            document.getElementById("placesContextMenu_newFile").setAttribute("disabled", 'true');
-            document.getElementById("placesContextMenu_newFolder").setAttribute("disabled", 'true');
-        }
-        var disabledRootNodeNames = ["placesContextMenu_rename",
-                                     "placesContextMenu_delete",
-                                     "placesContextMenu_cut",
-                                     "placesContextMenu_rename"];
-        for (var nonRootNodeName, i = 0;
-             nonRootNodeName = disabledRootNodeNames[i]; ++i) {
-            node = document.getElementById(nonRootNodeName);
-            if (isRootNode) {
-                node.setAttribute("disabled", "true");
-            } else {
-                node.removeAttribute("disabled");
-            }
-        }
-        menuitem = document.getElementById("placesContextMenu_showInFinder");
-        var platform = navigator.platform.toLowerCase();
-        var bundle_id;
-        if (platform.substring(0, 3) == "win") {
-            bundle_id = "ShowInExplorer.label";
-        } else if (platform.substring(0, 5) == "linux") {
-            bundle_id = "ShowInFileManager.label";
-        } else {
-            bundle_id = "ShowInFinder.label";
-        }
-        menuitem.setAttribute("label",
-                              _bundle.GetStringFromName(bundle_id));
+        this._selectionInfo = {
+            itemTypes: itemTypes,
+            index:index,
+            isLocal:isLocal,
+            disableAll:disableAll,
+            multipleNodesSelected: selectedIndices.length > 1,
+            selectedTwoItems: selectedIndices.length == 2,
+            __END__:null
+        };
+        this._processMenu_TopLevel(menupopup);
+        delete this._selectionInfo;
         return true;
+    },
+
+    _matchAnyType: function(typeListAttr, typesSelectedArray) {
+        if (!typeListAttr) {
+            return false;
+        } else if (typesSelectedArray.length == 1) {
+            return typeListAttr.indexOf(typesSelectedArray[0]) != -1;
+        }
+        for (var typeName, i = 0; typeName = typesSelectedArray[i]; i++) {
+            if (typeListAttr.indexOf(typeName) != -1) {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    _processMenu_TopLevel: function(menuNode) {
+        var selectionInfo = this._selectionInfo;
+        var itemTypes = selectionInfo.itemTypes;
+        if (this._matchAnyType(menuNode.getAttribute('hideIf'), itemTypes)) {
+            menuNode.setAttribute('collapsed', true);
+            return; // No need to do anything else
+        }
+        var hideUnless = menuNode.getAttribute('hideUnless');
+        if (hideUnless) {
+            // Need to match all
+            for (var typeName, i = 0; typeName = itemTypes[i]; i++) {
+                if (hideUnless.indexOf(typeName) == -1) {
+                    menuNode.setAttribute('collapsed', true);
+                    return; // No need to do anything else
+                }
+            }
+        }
+        var testHideIf = menuNode.getAttribute('testHideIf');
+        if (testHideIf) {
+            testHideIf = testHideIf.split(/\s+/);
+            var leave = false;
+            testHideIf.map(function(s) {
+                    if (s == 't:multipleSelection' && selectionInfo.multipleNodesSelected) {
+                        menuNode.setAttribute('collapsed', true);
+                        leave = true;
+                    } else if (s == 't:singleSelection' && !selectionInfo.multipleNodesSelected) {
+                        menuNode.setAttribute('collapsed', true);
+                        leave = true;
+                    } else if (s == 't:selectedTwoItems' && !selectionInfo.selectedTwoItems) {
+                        menuNode.setAttribute('collapsed', true);
+                        leave = true;
+                    }
+                });
+            if (leave) {
+                return;
+            }
+        }
+        var testEval_HideIf = menuNode.getAttribute('testEval_HideIf');
+        if (testEval_HideIf) {
+            try {
+                var res = eval(testEval_HideIf);
+                if (res) {
+                    menuNode.setAttribute('collapsed', true);
+                    return;
+                }
+            } catch(ex) {
+                log.exception("Failed to eval '"
+                              + testEval_HideIf
+                              + ": " + ex);
+            }
+        }
+    
+        menuNode.removeAttribute('collapsed');
+        var disableNode = false;
+        if (this._matchAnyType(menuNode.getAttribute('disableIf'), itemTypes)) {
+            disableNode = true;
+        } else {
+            var testDisableIf = menuNode.getAttribute('testDisableIf');
+            if (testDisableIf) {
+                testDisableIf = testDisableIf.split(/\s+/);
+                testDisableIf.map(function(s) {
+                        if (s == 't:multipleSelection' && selectionInfo.multipleNodesSelected) {
+                            disableNode = true;
+                        } else if (s == 't:isRemote' && !selectionInfo.isLocal) {
+                            disableNode = true;
+                        }
+                    });
+            }
+            if (!disableNode) {
+                var testEval_DisableIf = menuNode.getAttribute('testEval_DisableIf');
+                if (testEval_DisableIf) {
+                    try {
+                        var res = eval(testEval_DisableIf);
+                        if (res) {
+                            disableNode = true;
+                        }
+                    } catch(ex) {
+                        log.exception("Failed to eval '"
+                                      + testEval_DisableIf
+                                      + ": " + ex);
+                        disableNode = true;
+                    }
+                }
+            }
+        }
+        if (disableNode) {
+            menuNode.setAttribute('disabled', true);
+        } else {
+            menuNode.removeAttribute('disabled');
+        }
+        var childNodes = menuNode.childNodes;
+        for (var i = childNodes.length - 1; i >= 0; --i) {
+            this._processMenu_TopLevel(childNodes[i]);
+        }
     },
 
     _makeMenuItem: function(id, label, handler) {
         var menuitem = document.createElement("menuitem");
-        menuitem.setAttribute("dynamically_added", "true"); /* mark it so we can delete it later */
         menuitem.setAttribute("label", label);
         menuitem.setAttribute("id", id);
         menuitem.setAttribute("oncommand", handler);
@@ -406,27 +459,26 @@ viewMgrClass.prototype = {
     },
 
     doStartDrag: function(event, tree) {
-        var index = this._currentRow(event);
-        this.complainIfNotAContainer = true;
-        var uri = this.view.getURIForRow(index);
-        if (!uri) {
-            return;
-        }
-        var path;
+        var uris = gPlacesViewMgr.getSelectedURIs(true);
+        this.complainIfNotAContainer = true;  // used for internal logging only
         var dt = event.dataTransfer;
-        if (this.currentPlaceIsLocal) {
-            var nsLocalFile = Components.classes["@mozilla.org/file/local;1"]
-                .createInstance(Components.interfaces.nsILocalFile);
-            path = ko.uriparse.URIToLocalPath(uri);
-            nsLocalFile.initWithPath(path);
-            dt.mozSetDataAt("application/x-moz-file", nsLocalFile, 0);
-            dt.setData('text/plain', path);
-        } else {
-            dt.mozSetDataAt("application/x-moz-file", uri, 0);
-            dt.setData('text/plain', uri);
+        var uri, lim = uris.length;
+        for (var i = 0; i < lim && (uri = uris[i]); i++) {
+            if (this.currentPlaceIsLocal) {
+                // Do this for drag/drop onto things like file managers.
+                var nsLocalFile = Components.classes["@mozilla.org/file/local;1"]
+                    .createInstance(Components.interfaces.nsILocalFile);
+                path = ko.uriparse.URIToLocalPath(uri);
+                nsLocalFile.initWithPath(path);
+                dt.mozSetDataAt("application/x-moz-file", nsLocalFile, i);
+                dt.mozSetDataAt("text/uri-list", uri, i);
+                dt.mozSetDataAt('text/plain', ko.uriparse.URIToLocalPath(uri), i);
+            } else {
+                dt.mozSetDataAt("text/uri-list", uri, i);
+                dt.mozSetDataAt('text/plain', uri, i);
+            }
         }
-        this.startingIndex = index;
-        this.startingLevel = this.view.getLevel(this.startingIndex);
+        this.localDragDrop = true;
         if (event.ctrlKey) {
             dt.effectAllowed = this.originalEffect = "copy";
             this.copying = true;
@@ -453,19 +505,29 @@ viewMgrClass.prototype = {
     },
     
     _checkDragSource: function(event) {
-        if (!event.dataTransfer.types.contains("application/x-moz-file")) {
-            if (this.complainIfNotAContainer) {
-                log.debug("not a file data-transfer\n");
-                this.complainIfNotAContainer = false;
+        // All dragged items must be URIs for the drag source to be valid.
+        var dt = event.dataTransfer;
+        for (var i = 0; i < dt.mozItemCount; i++) {
+            if (!event.dataTransfer.mozTypesAt(i).contains("text/uri-list")) {
+                if (this.complainIfNotAContainer) {
+                    log.debug("not a file data-transfer\n");
+                    this.complainIfNotAContainer = false;
+                }
+                return false;
             }
-            return false;
         }
         return true;
     },    
     _checkDragToRootNode: function(event) {
         var inDragSource = ko.places.manager.currentPlace && this._checkDragSource(event);
         if (inDragSource) {
-            inDragSource = this.startingLevel > 0;
+            var dt = event.dataTransfer;
+            for (var i = 0; i < dt.mozItemCount; i++) {
+                if (dt.mozGetDataAt("text/uri-list", i) == this.currentPlace) {
+                    inDragSource = false;
+                    break;
+                }
+            }
         }
         event.dataTransfer.effectAllowed = inDragSource ? this.originalEffect : "none";
         
@@ -476,17 +538,15 @@ viewMgrClass.prototype = {
         var retVal = false;
         if (!inDragSource) {
             // do nothing more
-        } else if (index == this.startingIndex) {
+        } else if (this._draggingOntoSelf(event, index)) {
             // Can't drag onto oneself
         } else if (!this.view.isContainer(index)) {
             //if (this.complainIfNotAContainer) {
             //    log.debug("Not a container\n");
             //    this.complainIfNotAContainer = false;
             //}
-        } else if (this.startingLevel > 0
-                   && index == this.view.getParentIndex(this.startingIndex)) {
-            // Can't drop into the parent
-            // If the starting index is 0, we can drop it anywhere on the tree.
+        } else if (this._draggingOntoParent(event, index)) {
+            // Can't drag self into its parent.
         } else {
             retVal = true;
             //dump("this.originalEffect: " + this.originalEffect + "\n");
@@ -494,45 +554,88 @@ viewMgrClass.prototype = {
         event.dataTransfer.effectAllowed = retVal ? this.originalEffect : "none";
         return retVal;
     },
-
-    doDrop : function(event, tree) {
-        if (this.startingIndex == -1) {
-            log.debug("onDrop: startingIndex: -1: don't do anything");
-            return false;
+    _draggingOntoSelf: function(event, index) {
+        var uri = gPlacesViewMgr.view.getURIForRow(index);
+        var dt = event.dataTransfer;
+        for (var i = 0; i < dt.mozItemCount; i++) {
+            if (dt.mozGetDataAt("text/uri-list", i) == uri) {
+                return true;
+            }
         }
-        var from_index = this.startingIndex;
-        var to_index = this._currentRow(event);
-        try {
-            this._finishFileCopyOperation(from_index, {index:to_index}, this.copying);
-        } catch(ex) {
-            ko.dialogs.alert(ex);
-        }
-        this.startingIndex = -1;
-        return true;
+        return false;
     },
 
-    doDropOnRootNode : function(event, tree) {
-        if (this.startingIndex == -1) {
-            log.debug("doDropOnRootNode: startingIndex: -1: don't do anything");
+    _draggingOntoParent: function(event, index) {
+        var target_uri = gPlacesViewMgr.view.getURIForRow(index);
+        var dt = event.dataTransfer;
+        for (var i = 0; i < dt.mozItemCount; i++) {
+            var src_uri = dt.mozGetDataAt("text/uri-list", i);
+            var srcParent_uri = src_uri.substring(0, src_uri.lastIndexOf("/"));
+            if (srcParent_uri == target_uri) {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    _getDraggedURIs: function(event) {
+        var from_uris = [];
+        var dt = event.dataTransfer;
+        for (var i = 0; i < dt.mozItemCount; i++) {
+            from_uris.push(dt.mozGetDataAt("text/uri-list", i));
+        }
+        return from_uris;
+    },
+
+    doDrop : function(event, tree) {
+        var index = this._currentRow(event);
+        var target_uri = gPlacesViewMgr.view.getURIForRow(index);
+        var from_uris = this._getDraggedURIs(event);
+        if (from_uris.length == 0) {
+            log.debug("doDrop: no from_uris\n");
             return false;
         }
-        var from_index = this.startingIndex;
+        // If the drag didn't originate with this window, we should copy,
+        // not move the items.
+        var copying = (!this.localDragDrop || this.copying);
         try {
-            var uri = ko.places.manager.currentPlace;
-            if (!uri) {
-                return false;
-            }
-            this._finishFileCopyOperation(from_index, {uri:uri}, this.copying);
+            this._finishFileCopyOperation(from_uris, target_uri, index, copying);
         } catch(ex) {
             ko.dialogs.alert(ex);
         }
-        this.startingIndex = -1;
+        this.copying = this.localDragDrop = false;
         event.stopPropagation();
         event.cancelBubble = true;
         event.preventDefault();
         return true;
     },
 
+    doDropOnRootNode : function(event, tree) {
+        var target_uri = ko.places.manager.currentPlace;
+        var from_uris = this._getDraggedURIs(event);
+        if (from_uris.length == 0) {
+            log.debug("doDropOnRootNode: no from_uris\n");
+            return false;
+        }
+        // If the drag didn't originate with this window, we should copy,
+        // not move the items.
+        var copying = (!this.localDragDrop || this.copying);
+        try {
+            this._finishFileCopyOperation(from_uris, target_uri, -1, copying);
+        } catch(ex) {
+            ko.dialogs.alert(ex);
+        }
+        this.copying = this.localDragDrop = false;
+        event.stopPropagation();
+        event.cancelBubble = true;
+        event.preventDefault();
+        return true;
+    },
+
+    doEndDrag: function(event, tree) {
+        var dt = event.dataTransfer;
+    },
+    
     _universalNewPath: function(conn, osPathSvc, path, basename) {
         if (!conn) {
             return osPathSvc.join(path, basename);
@@ -549,9 +652,10 @@ viewMgrClass.prototype = {
         }
     },
 
-    _finishFileCopyOperation: function(from_index, to_object, copying) {
-        var srcFileInfo = {}, targetFileInfo = {};
-        var callback = {
+    _finishFileCopyOperation: function(from_uris, to_uri, target_index, copying) {
+        // target_index can be -1 if we're dropping on the root node
+        var srcFileInfoObjs = {}, targetFileInfoObjs = {};
+        var simple_callback = {
             callback: function(result, data) {
                 if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
                     ko.dialogs.alert(data);
@@ -560,66 +664,67 @@ viewMgrClass.prototype = {
                 }
             }
         };
-        var from_uri = this.view.getURIForRow(from_index);
-        var from_view = ko.views.manager.getViewForURI(from_uri);
-        if (from_view) {
-            if (from_view.isDirty) {
-                var prompt = ("File "
-                              + ko.uriparse.URIToPath(from_uri)
-                              + " has unsaved changed.  "
-                              + (copying ? "Copy" : "Move")
-                              + " without saving?");
-                var response = "No";
-                var title = "Save changes first?";
-                var res = ko.dialogs.yesNo(prompt, response, null, title);
-                if (res != "Yes") {
-                    return false;
-                }
+        var dirty_paths = [];
+        from_uris.map(function(uri) {
+            var from_view = ko.views.manager.getViewForURI(uri);
+            if (from_view && from_view.isDirty) {
+                dirty_paths.push(ko.uriparse.URIToPath(uri));
+            }
+        });
+        if (dirty_paths.length) {
+            var prompt;
+            operation = _bundle.GetStringFromName(copying ? "Copy.label" : "Move.label");
+            if (dirty_paths.length == 1) {
+                prompt = _bundle.formatStringFromName("fileSingularXHasUnsavedChanges_opWithoutSaving.prompt",
+                                                      [dirty_paths[0], operation], 2);
+            } else {
+                prompt = _bundle.formatStringFromName("filesPluralXHaveUnsavedChanges_opWithoutSaving.prompt",
+                                                      [dirty_paths.join(", "), operation], 2);
+            }
+            var response = _bundle.GetStringFromName("No.label");
+            var title =  _bundle.GetStringFromName("saveChangesFirst.prompt");
+            var res = ko.dialogs.yesNo(prompt, response, null, title);
+            if (res != _bundle.GetStringFromName("Yes.label")) {
+                return false;
             }
         }
-        var res;
-        var to_index = null, to_uri = null;
-        if ('index' in to_object) {
-            to_index = to_object.index;
-            res = this.view.treeOperationWouldConflict(from_index,
-                                                       to_index,
-                                                       copying,
-                                                       srcFileInfo,
-                                                       targetFileInfo);
-        } else {
-            to_uri = to_object.uri;
-            res = this.view.treeOperationWouldConflictByURI(from_index,
-                                                            to_uri,
-                                                            copying,
-                                                            srcFileInfo,
-                                                            targetFileInfo);
-        }
-        if (res) {
-            srcFileInfo = srcFileInfo.value;
-            targetFileInfo = targetFileInfo.value;
+        var statuses = {};
+        this.view.treeOperationWouldConflict_MultipleSrc(from_uris,
+                                                         from_uris.length,
+                                                         to_uri,
+                                                         copying,
+                                                         {}, statuses,
+                                                         srcFileInfoObjs,
+                                                         targetFileInfoObjs);
+        statuses = statuses.value;
+        srcFileInfoObjs = srcFileInfoObjs.value;
+        targetFileInfoObjs = targetFileInfoObjs.value;
+        var lim = statuses.length;
+        var finalSrcURIs = [];
+        var finalTargetURIs = [];
+        var existingSrcDirectories = [];
+        var selfDirectories = [];
+        var newPaths = [];
+        for (var i = 0; i < lim; i++) {
+            var res = statuses[i];
+            var srcFileInfo = srcFileInfoObjs[i];
             // targetFileInfo points at the existing file
+            var targetFileInfo = targetFileInfoObjs[i];
+            if (!res) {
+                finalSrcURIs.push(srcFileInfo.URI);
+                finalTargetURIs.push(targetFileInfo.URI);
+                continue;
+            }
             var srcFileInfoText = this._formatFileInfo(srcFileInfo);
             var targetFileInfoText = this._formatFileInfo(targetFileInfo);
             var prompt = "File already exists";//@@@
             var buttons, text, title;
             if (res == Components.interfaces.koIPlaceTreeView.COPY_MOVE_WOULD_KILL_DIR) {
-                title = "Directory already exists";
-                prompt = "Replacing a directory within Komodo isn't supported";
-                text = ("For source file "
-                        + srcFileInfo.baseName
-                        + " in directory "
-                        + srcFileInfo.dirName);
-                ko.dialogs.alert(prompt, text, title);
-                return true;
+                existingSrcDirectories.push(srcFileInfo);
+                continue;
             } else if (res == Components.interfaces.koIPlaceTreeView.MOVE_SAME_DIR) {
-                title = "Not moving the file anywhere";
-                prompt = "You can't move a file into its own directory";
-                text = ("For file "
-                        + srcFileInfo.baseName
-                        + ", "
-                        + srcFileInfo.dirName);
-                ko.dialogs.alert(prompt, text, title);
-                return true;
+                selfDirectories.push(srcFileInfo);
+                continue;
             }
             title = "File already exists";//@@@
             var buttons;
@@ -643,7 +748,9 @@ viewMgrClass.prototype = {
             if (!response || response == "Cancel") {
                 return true;
             } else if (response == "Overwrite") {
-                // do nothing, just copy it over
+                // Copy/move it over anyways.
+                finalSrcURIs.push(srcFileInfo.URI);
+                finalTargetURIs.push(targetFileInfo.URI);
             } else if (response == "Copy with New Name") {
                 // This is where we need a new dialog.
                 var newName = srcFileInfo.baseName;
@@ -698,14 +805,9 @@ viewMgrClass.prototype = {
                             break;
                         }
                     }
-                    if (to_index) {
-                        this.view.doTreeCopyWithDestName(from_index, to_index,
-                                                         newPath, callback);
-                    } else {
-                        this.view.doTreeCopyWithDestNameAndURI(from_index, to_uri,
-                                                         newPath, callback);
-                    }
-                    return true;
+                    newPaths[finalSrcURIs.length] = newPath;
+                    finalSrcURIs.push(srcFileInfo.URI);
+                    finalTargetURIs.push(targetFileInfo.URI);
                 } finally {
                     if (conn) {
                         conn.close();
@@ -713,23 +815,48 @@ viewMgrClass.prototype = {
                 }
             }
         }
-        if (!copying) {
-            if (!to_uri) {
-                to_uri = this.view.getURIForRow(to_index);
-            }
-            callback = {
-            callback: function(result, data) {
-                    if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
-                        ko.dialogs.alert(data);
-                    } else {
-                        // Update the Komodo view
-                        if (from_view) {
-                            g_from_view = from_view;
-                            var orig_view_type = from_view.getAttribute("type");
-                            // var orig_tabbed_view_id = from_view.tabbedViewId;
-                            var orig_tabbed_list = document.getElementById(from_view.parentView.id);
-                            var orig_tabbed_index = ko.history.tabIndex_for_view(from_view);
-                            var scimozPropertyNames =
+        if (existingSrcDirectories.length > 0) {
+            title = _bundle.GetStringFromName("directoryAlreadyExists.label");
+            prompt = _bundle.GetStringFromName("replacingDirectoryNotSupported.label");
+            text = (_bundle.GetStringFromName("forFollowingFiles.label")
+                    + existingSrcDirectories.map(function(srcFileInfo) {
+                            return (_bundle.GetStringFromName("sourceFilePrefix")
+                                    + srcFileInfo.baseName
+                                    + _bundle.GetStringFromName("directoryPrefix")
+                                    + srcFileInfo.dirName);
+                        }).join(", "));
+            ko.dialogs.alert(prompt, text, title);
+        }
+        if (selfDirectories.length > 0) {
+            title = _bundle.GetStringFromName("notMovingFileAnywhere.label");
+            prompt = _bundle.GetStringFromName("cantMoveFileIntoItsOwnDirectory.label");
+            text = (_bundle.GetStringFromName("forFollowingFiles.label")
+                    + existingSrcDirectories.map(function(srcFileInfo) {
+                            return (_bundle.GetStringFromName("sourceFilePrefix")
+                                    + srcFileInfo.baseName
+                                    + _bundle.GetStringFromName("directoryPrefix")
+                                    + srcFileInfo.dirName);
+                        }).join(", "));
+            ko.dialogs.alert(prompt, text, title);
+        }
+        lim = finalSrcURIs.length;
+        for (i = 0; i < lim; i++) {
+            var srcURI = finalSrcURIs[i];
+            var callback = null;
+            if (!copying) {
+                var from_view = ko.views.manager.getViewForURI(srcURI);
+                callback = {
+                callback: function(result, data) {
+                        if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
+                            ko.dialogs.alert(data);
+                        } else {
+                            // Update the Komodo view
+                            if (from_view) {
+                                var orig_view_type = from_view.getAttribute("type");
+                                // var orig_tabbed_view_id = from_view.tabbedViewId;
+                                var orig_tabbed_list = document.getElementById(from_view.parentView.id);
+                                var orig_tabbed_index = ko.history.tabIndex_for_view(from_view);
+                                var scimozPropertyNames =
                                 ['anchor',
                                  'currentPos',
                                  'scrollWidth',
@@ -740,50 +867,59 @@ viewMgrClass.prototype = {
                                  'tabWidth',
                                  'indent'
                                  ];
-                            // We can't set these:
-                            var scimozDocSettingsProperties = [
-                                 'showWhitespace',
-                                 'showLineNumbers',
-                                 'showIndentationGuides',
-                                 'showEOL',
-                                 'editFoldLines',
-                                 'editWrapType'
-                                 ];
-                            var config = {};
-                            var fromScimoz = from_view.scimoz;
-                            scimozPropertyNames.map(function(name) {
-                                    config[name] = fromScimoz[name];
-                                });
-                            from_view.closeUnconditionally();
-                            var full_to_uri = to_uri + "/" + ko.uriparse.baseName(from_uri);
-                            var inner_callback = function(newView) {
-                                var newScimoz = newView.scimoz;
+                                // We can't set these:
+                                var scimozDocSettingsProperties = [
+                                                                   'showWhitespace',
+                                                                   'showLineNumbers',
+                                                                   'showIndentationGuides',
+                                                                   'showEOL',
+                                                                   'editFoldLines',
+                                                                   'editWrapType'
+                                                                   ];
+                                var config = {};
+                                var fromScimoz = from_view.scimoz;
                                 scimozPropertyNames.map(function(name) {
-                                        try {
-                                            newScimoz[name] = config[name];
-                                        } catch(ex) {
-                                            log.exception("Can't set " + name);
-                                        }
+                                        config[name] = fromScimoz[name];
                                     });
-                            };
-                            ko.views.manager.doFileOpenAsync(full_to_uri,
-                                                             orig_view_type,
-                                                             orig_tabbed_list,
-                                                             orig_tabbed_index,
-                                                             inner_callback);
+                                from_view.closeUnconditionally();
+                                var full_to_uri = to_uri + "/" + ko.uriparse.baseName(from_uri);
+                                var inner_callback = function(newView) {
+                                    var newScimoz = newView.scimoz;
+                                    scimozPropertyNames.map(function(name) {
+                                            try {
+                                                newScimoz[name] = config[name];
+                                            } catch(ex) {
+                                                log.exception("Can't set " + name);
+                                            }
+                                        });
+                                };
+                                ko.views.manager.doFileOpenAsync(full_to_uri,
+                                                                 orig_view_type,
+                                                                 orig_tabbed_list,
+                                                                 orig_tabbed_index,
+                                                                 inner_callback);
+                            }
+                            window.updateCommands("did_tree_operation");
                         }
-                        window.updateCommands("did_tree_operation");
                     }
-                }
-            };
+                };
+            }
+            if (typeof(newPaths[i]) != "undefined") {
+                this.view.doTreeCopyWithDestNameAndURI(srcURI, to_uri,
+                                                       target_index,
+                                                       newPaths[i],
+                                                       callback);
+            } else {
+                this.view.doTreeOperation(srcURI, to_uri, target_index,
+                                          copying,
+                                          copying ? simple_callback : callback);
+            }
         }
-        if (to_index !== null) {
-            this.view.doTreeOperation(from_index, to_index,
-                                      copying, callback);
-        } else {
-            this.view.doTreeOperationToRootNode(from_index, to_uri,
-                                                copying, callback);
-        }            
+        if (to_uri == ko.places.manager.currentPlace) {
+            this.view.refreshFullTreeView();
+            this.tree.treeBoxObject.invalidate();
+        }
+        this.view.selection.clearSelection();
         return true;
     },
 
@@ -919,7 +1055,7 @@ function ManagerClass() {
     this.focused = false;
     this.controller = new ko.places.PlacesController();
     window.controllers.appendController(this.controller);
-    this.copying = null;
+    this.copying = false;
     
     var gObserverSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
@@ -1119,34 +1255,27 @@ ManagerClass.prototype = {
      */
     doCutPlaceItem: function() {
         this.copying = false;
-        this._selectCurrentItem();
+        this._selectCurrentItems();
     },
 
     doCopyPlaceItem: function() {
         this.copying = true;
-        this._selectCurrentItem();
+        this._selectCurrentItems();
     },
 
-    _selectCurrentItem: function() {
-        var index = gPlacesViewMgr.view.selection.currentIndex;
-        var uri = gPlacesViewMgr.view.getURIForRow(index);
-        xtk.clipboard.setText(uri);
+    _selectCurrentItems: function() {
+        var rootsOnly = true;
+        var uris = gPlacesViewMgr.getSelectedURIs(true);
+        xtk.clipboard.setText(uris.join("\n"));
         window.setTimeout(window.updateCommands, 1, "clipboard");
     },
 
     doPastePlaceItem: function() {
-        var srcURI = xtk.clipboard.getText();
-        var srcIndex = gPlacesViewMgr.view.getRowIndexForURI(srcURI);
-        if (srcIndex == -1) {
-            //XXX: Watch out for remote files.
-            ko.dialogs.alert("Can't find file "
-                             + ko.uriparse.URIToLocalPath(srcURI)
-                             + " in the current tree");
-            return;
-        }
+        var srcURIs = xtk.clipboard.getText().split(/\n/);
         var index = gPlacesViewMgr.view.selection.currentIndex;
+        var target_uri = gPlacesViewMgr.view.getURIForRow(index);
         try {
-            gPlacesViewMgr._finishFileCopyOperation(srcIndex, index,
+            gPlacesViewMgr._finishFileCopyOperation(srcURIs, target_uri, index,
                                                     this.copying);
         } catch(ex) {
             ko.dialogs.alert(ex);
@@ -1169,45 +1298,52 @@ ManagerClass.prototype = {
     //               targetObject, propName, waitTime, timeLeft, workerFunc);
     //},
 
-    doFindInPlace: function() {
+    _clickedOnRoot: function() {
+        return document.popupNode == widgets.rootPathIcon;
+    },
+
+    _launchFindOrReplace: function(launcher, numNulls) {
         if (!this.currentPlaceIsLocal) {
             return;
         }
-        //var findWindow = ko.launch.find(null, true);
-        var index = gPlacesViewMgr.view.selection.currentIndex;
-        var uri = gPlacesViewMgr.view.getURIForRow(index);
-        var isFolder = gPlacesViewMgr.view.isContainer(index);
-        var path = isFolder ? ko.uriparse.displayPath(uri) : ko.uriparse.dirName(uri) ;
-        dump("doFindInPlace: let's launch findInFiles(" + path + ")\n");
-        ko.launch.findInFiles(null, path);
-        //this._waitForProperty(findWindow, 'widgets', 50, 1000,
-        //    function() {
-        //        var fwWidgets = findWindow.widgets;
-        //        fwWidgets.search_in_menu.value = 'files';
-        //        findWindow.update('search-in');
-        //        fwWidgets.dirs.value = path;
-        //        fwWidgets.search_in_subdirs.checked = isFolder;
-        //    });
+        var path;
+        var args = [];
+        for (; numNulls > 0; numNulls--) {
+            args.push(null);
+        }
+        if (this._clickedOnRoot()) {
+            path = ko.uriparse.displayPath(this.currentPlace);
+        } else {
+            //var findWindow = ko.launch.find(null, true);
+            var index = gPlacesViewMgr.view.selection.currentIndex;
+            var uri = gPlacesViewMgr.view.getURIForRow(index);
+            var isFolder = gPlacesViewMgr.view.isContainer(index);
+            path = isFolder ? ko.uriparse.displayPath(uri) : ko.uriparse.dirName(uri) ;
+        }
+        args.push(path);
+        launcher.apply(ko.launch, args);
+    },
+
+    doFindInPlace: function() {
+        this._launchFindOrReplace(ko.launch.findInFiles, 1);
     },
 
     doReplaceInPlace: function() {
-        if (!this.currentPlaceIsLocal) {
-            return;
-        }
-        var index = gPlacesViewMgr.view.selection.currentIndex;
-        var uri = gPlacesViewMgr.view.getURIForRow(index);
-        var isFolder = gPlacesViewMgr.view.isContainer(index);
-        var path = isFolder ? ko.uriparse.displayPath(uri) : ko.uriparse.dirName(uri) ;
-        ko.launch.replaceInFiles(null, null, path);
+        this._launchFindOrReplace(ko.launch.replaceInFiles, 2);
     },
 
     doShowInFinder: function() {
         if (!this.currentPlaceIsLocal) {
             return;
         }
-        var index = gPlacesViewMgr.view.selection.currentIndex;
-        var uri = gPlacesViewMgr.view.getURIForRow(index);
-        var path = ko.uriparse.displayPath(uri);
+        var path;
+        if (this._clickedOnRoot()) {
+            path = ko.uriparse.displayPath(this.currentPlace);
+        } else {
+            var index = gPlacesViewMgr.view.selection.currentIndex;
+            var uri = gPlacesViewMgr.view.getURIForRow(index);
+            path = ko.uriparse.displayPath(uri);
+        }
         var sysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].
                     getService(Components.interfaces.koISysUtils);
         sysUtilsSvc.ShowFileInFileManager(path);
@@ -1256,9 +1392,8 @@ ManagerClass.prototype = {
     },
 
     doDeletePlace: function() {
-        var index = gPlacesViewMgr.view.selection.currentIndex;
-        if (index == 0) {
-            ko.dialogs.alert(_bundle.GetStringFromName("cantDeleteFullTreeView"));
+        var indexes = ko.treeutils.getSelectedIndices(gPlacesViewMgr.view, true);
+        if (indexes.length == 0) {
             return;
         }
         var deleteContents = false;
@@ -1266,38 +1401,80 @@ ManagerClass.prototype = {
         var response = _bundle.GetStringFromName("no");
         var text = null;
         var title;
-        if (gPlacesViewMgr.view.itemIsNonEmptyFolder(index)) {
-            //XXX: Adjust when we handle multiple selected items
-            prompt = _bundle.formatStringFromName(
-                      "deleteNonEmptyFolderPrompt",
-                      [gPlacesViewMgr.view.getCellText(index, {id:'name'})],
-                      1);
-            title = _bundle.GetStringFromName("aboutToDeleteNonEmptyFolder");
-            deleteContents = true;
-        } else {
-            var peFolderBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-            .getService(Components.interfaces.nsIStringBundleService)
-            .createBundle("chrome://komodo/locale/project/peFolder.properties");
-            prompt = peFolderBundle.GetStringFromName(
-                      "doYouWantToRemoveTheItemYouHaveSelected");
-            title = peFolderBundle.GetStringFromName("deleteSelectedItems");
+        var msg = "";
+        var nonEmptyFolders = [];
+        var otherItemCount = 0;
+        for (var i = 0; i < indexes.length; i++) {
+            var index = indexes[i];
+            if (gPlacesViewMgr.view.itemIsNonEmptyFolder(index)) {
+                nonEmptyFolders.push(gPlacesViewMgr.view.getCellText(index, {id:'name'}));
+            } else {
+                otherItemCount += 1;
+            }
         }
-        if (!this.currentPlaceIsLocal) {
-            prompt += ("  "
-                       + _bundle.GetStringFromName("remoteDeleteNotReversible"));
+        if (nonEmptyFolders.length) {
+            msg += (_bundle.GetStringFromName("youHaveSelected.piece")
+                    + " "
+                    + (nonEmptyFolders.length == 1
+                       ? _bundle.GetStringFromName("selectedSingularFolder.piece")
+                       : _bundle.formatStringFromName("selectedSingularItem.piece",
+                                                      [nonEmptyFolders.length], 1)));
         }
+        if (otherItemCount) {
+            if (nonEmptyFolders.length) {
+                msg += " " + _bundle.GetStringFromName("and.piece") + " ";
+            } else {
+                msg = _bundle.GetStringFromName("youHaveSelected.piece") + " ";
+            }
+            msg += (nonEmptyFolders.length == 1
+                       ? _bundle.GetStringFromName("selectedSingularItem.piece")
+                       : _bundle.formatStringFromName("selectedPluralItems.piece",
+                                                      [otherItemCount], 1));
+        }
+        msg += (".  " +
+                _bundle.GetStringFromName((nonEmptyFolders.length + otherItemCount == 1)
+                                          ? "okToDeleteSingular.promptOK"
+                                          : "okToDeletePlural.prompt"));
+        title = _bundle.GetStringFromName("deletionCheck.prompt");
+        prompt = msg;
         var response = ko.dialogs.yesNo(prompt, response, text, title);
         if (response != _bundle.GetStringFromName("yes")) {
             return;
         }
+        // Loop in reverse-order so we don't have to adjust for deleted indices
+        indexes.sort(function(a, b) { return b - a; });
+        var uris = [];
+        for (var i=0; i < indexes.length; i++) {
+            uris.push(gPlacesViewMgr.view.getURIForRow(indexes[i]));
+        }
         try {
-            gPlacesViewMgr.view.deleteItem(index, deleteContents);
+            gPlacesViewMgr.view.deleteItems(indexes.length, indexes,
+                                            uris.length, uris);
         } catch(ex) {
             alert(ex);
-            return;
         }
     },
-    
+    /*
+
+                 _bundle.formatStringFromName(
+                                              "deleteNonEmptyFolderPrompt",
+                                              [gPlacesViewMgr.view.getCellText(index, {id:'name'})],
+                                              1);
+        title = _bundle.GetStringFromName("aboutToDeleteNonEmptyFolder");
+                deleteContents = true;
+            } else {
+                var peFolderBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                    .getService(Components.interfaces.nsIStringBundleService)
+                    .createBundle("chrome://komodo/locale/project/peFolder.properties");
+                prompt = peFolderBundle.GetStringFromName(
+                                                          "doYouWantToRemoveTheItemYouHaveSelected");
+                title = peFolderBundle.GetStringFromName("deleteSelectedItems");
+            }
+            if (!this.currentPlaceIsLocal) {
+                prompt += ("  "
+                           + _bundle.GetStringFromName("remoteDeleteNotReversible"));
+            }
+    */
     initialize: function() {
         var uri = null;
         try {
@@ -1645,40 +1822,13 @@ ManagerClass.prototype = {
     },
 
     /**
-     * Return the indexes of the selected tree items.
-     *
-     * @returns {array} - the selected indexes.
-     */
-    getSelectedIndexes: function() {
-        // TODO: Switch to range tree code (below) when multiple selection is
-        //       supported.
-        var currentIndex = gPlacesViewMgr.view.selection.currentIndex;
-        return currentIndex >= 0 ? [currentIndex] : [];
-        /**
-         * @type {Components.interfaces.nsITreeSelection}
-         */
-        var selection = gPlacesViewMgr.view.selection;
-        var indexes = [];
-        var range;
-        var outRangeObj = {};
-        var outRangeCountObj = {};
-        for (var i=0; i < selection.getRangeCount(); i++) {
-            selection.getRangeAt(i, outRangeObj, outRangeCountObj);
-            range = outRangeObj.value;
-            for (var j=0; j < range.length; j++) {
-                indexes.push(range[j]);
-            }
-        }
-        return indexes;
-    },
-
-    /**
      * Return the URIs for the selected tree items.
      *
      * @returns {array} - the selected URIs.
      */
     getSelectedUris: function() {
-        var indexes = this.getSelectedIndexes();
+        var indexes = ko.treeutils.getSelectedIndices(gPlacesViewMgr.view,
+                                                      /*rootsOnly=*/false);
         var uris = [];
         for (var i=0; i < indexes.length; i++) {
             uris.push(gPlacesViewMgr.view.getURIForRow(indexes[i]));
@@ -1700,6 +1850,29 @@ ManagerClass.prototype = {
             files.push(fileSvc.getFileFromURI(uris[i]));
         }
         return files;
+    },
+    
+    _getItemByIndex: function(index) {
+        var viewObj = gPlacesViewMgr.view;
+        var uri = viewObj.getURIForRow(index);
+        var itemType = viewObj.isContainer(index) ? 'folder' : 'file';
+        return new ItemWrapper(uri, itemType);        
+    },
+    
+    /** These functions return pseudo-parts for
+     * files, folders, and projects, so the old API
+     * can use them easily.
+     */
+    getSelectedItem: function() {
+        var index = gPlacesViewMgr.view.selection.currentIndex;
+        return this._getItemByIndex(index);
+    },
+    
+    getSelectedItems: function(rootsOnly) {
+        if (typeof(rootsOnly) == "undefined") rootsOnly = false;
+        var indexes = ko.treeutils.getSelectedIndices(gPlacesViewMgr.view,
+                                                      rootsOnly);
+        return indexes.map(this._getItemByIndex);
     },
 
     pushHistoryInfo: function(anchor_uri, destination_uri) {
@@ -1793,8 +1966,73 @@ ManagerClass.prototype = {
         var uri = project.url;
         return uri.substr(0, uri.lastIndexOf("/"));
     },
+    
+    refreshItem: function(item) {
+        var index = gPlacesViewMgr.view.getRowIndexForURI(item.uri);
+        if (index == -1) {
+            return;
+        }
+        gPlacesViewMgr.refreshViewByIndex(index);
+    },
+
+    // Menu handlers
+    
+    rebaseFolder: function(event) {
+        var view = gPlacesViewMgr.view;
+        var index = view.selection.currentIndex;
+        if (index == -1) {
+            return;
+        }
+        this.toggleRebaseFolderByIndex(index);
+    },
+    
+    refreshView: function(event) {
+        var view = gPlacesViewMgr.view;
+        var index = view.selection.currentIndex;
+        if (index == -1) {
+            return;
+        }
+        gPlacesViewMgr.refreshViewByIndex(index);
+    },
     __ZIP__: null
 };
+
+/** ItemWrapper class -- wrap places URIs in an object
+ * that implements old project icons.
+ */
+
+function ItemWrapper(uri, type) {
+    this.uri = uri;
+    this.type = type; // one of 'file', 'folder', or 'project'
+}
+ItemWrapper.prototype.__defineGetter__("file", function() {
+    return this.getFile();
+});
+ItemWrapper.prototype.__defineGetter__("isLocal", function() {
+    return ko.places.manager.currentPlaceIsLocal;
+});
+ItemWrapper.prototype.getFile = function() {
+    if (!('_koFileEx' in this)) {
+        var fileObj = Components.classes["@activestate.com/koFileEx;1"].
+                      createInstance(Components.interfaces.koIFileEx);
+        fileObj.URI = this.uri;
+        this._koFileEx = fileObj;
+    }
+    return this._koFileEx;
+};
+ItemWrapper.prototype.__defineGetter__("name", function() {
+    return this.getFile().leafName;
+});
+ItemWrapper.prototype.__defineGetter__("prefset", function() {
+    if (widgets.rootPathIcon.getAttribute('class') == 'normal') {
+        var view = ko.views.manager.getViewForURI(this.uri);
+        if (view) {
+            return view.prefs;
+        }        
+    }
+    var currentProject = ko.projects.manager.currentProject;
+    return currentProject ? currentProject.prefset : null;
+});
 
 this._instantiateRemoteConnectionService = function() { 
     // From publish-dialog.js
@@ -1845,6 +2083,19 @@ this.onLoad = function places_onLoad() {
     } else {
         uriSpecificPrefs = _placePrefs.getPref('current_filter_by_uri');
     }
+
+    var showInFinderMenuItem = document.getElementById("placesContextMenu_showInFinder");
+    var platform = navigator.platform.toLowerCase();
+    var bundle_id;
+    if (platform.substring(0, 3) == "win") {
+        bundle_id = "ShowInExplorer.label";
+    } else if (platform.substring(0, 5) == "linux") {
+        bundle_id = "ShowInFileManager.label";
+    } else {
+        bundle_id = "ShowInFinder.label";
+    }
+    showInFinderMenuItem.setAttribute("label",
+                                      _bundle.GetStringFromName(bundle_id));
     
     var this_ = ko.places;
     this_._instantiateRemoteConnectionService();
@@ -1871,6 +2122,14 @@ this.onUnload = function places_onUnload() {
     this_.manager.finalize();
     this_.viewMgr.finalize();
     this_.manager = this_._viewMgr = null;
+};
+
+this.getFocusedPlacesView = function() {
+    if (xtk.domutils.elementInFocus(document.getElementById('placesViewbox'))) {
+        return this;
+    }
+    return null;
+
 };
 
 this.updateFilterViewMenu = function() {

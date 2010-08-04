@@ -63,64 +63,26 @@ this.manager = null;
 var _obSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
 
-var _activeView = null;
-
-
-/**
- * The active view is the last project view to have received focus.  It does
- * not mean that the view currently has focus.
- */
-this.__defineGetter__("active",
-function()
-{
-    return _activeView;
-});
-
-this.__defineSetter__("active",
-function(view)
-{
-    _activeView = view;
-});
-
 //gone: ko.projects.manager.lastCurrentProject
+//gone: ko.projects.manager.activeView
 //gone: ko.projects.manager._projects
 //gone: ko.projects.manager.getProjectsMenu (and xul tag)
 //gone: ko.projects.manager.hasProject
 //gone: ko.projects.manager.managers
 //gone: ko.projects.manager.getAllProjects
-
+//gone: ko.projects.manager.getFocusedProjectView
+//gone: ko.projects.manager.findItemByAttributeValue
 //gone: ko.toolboxes.importPackage -- can't import packages into toolboxes now
-/**
- * does the active view have real focus, if so, return it, otherwise null.
- */
-this.getFocusedProjectView = function projects_getFocusedProjectView() {
-    if (_activeView && xtk.domutils.elementInFocus(_activeView.manager.viewMgr)) {
-        return _activeView;
-    }
-    return null;
-}
 
 //----- The projectManager class manages the current project, if there is one.
 
 function projectManager() {
     this.name = 'projectManager';
-    ko.projects.BaseManager.apply(this, ["projectsChanged"]);
+    ko.projects.BaseManager.apply(this, []);
     this.log = ko.logging.getLogger('projectManager');
     this._projects = [];
-    this.viewMgr = document.getElementById('projectview');
-    if (!this.viewMgr) {
-        this.log.error("couldnt' find id 'projectview'");
-        return;
-    }
-    this.viewMgr.onLoad(this);
-    this.currentProject = null;
-    // Make sure that there is always a active view
-    ko.projects.active = this.viewMgr;
-    // register our command handlers
+    this._currentProject = null;
     this.registerCommands();
-    // add our default datapoint
-    this.viewMgr.addColumns(ko.projects.extensionManager.datapoints);
-    ko.projects.extensionManager.datapoints['Name']='name';
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -186,8 +148,6 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
         // No project to close.
         return true;
     }
-    // Remove the project node/part from the Projects tree.
-    this.viewMgr.view.removeProject(project);
     // the active project has been reset
     // Forget about any notifications made for this project.
     this.notifiedClearProject(project);
@@ -195,7 +155,6 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
     this.currentProject = null;
     ko.mru.addURL("mruProjectList", project.url);
     window.updateCommands('some_projects_open');
-    this.viewMgr.view.invalidate();
     return true;
 }
 
@@ -359,9 +318,6 @@ projectManager.prototype.saveProject = function(project, skip_scc_check) {
                 [project.name, lastErrorSvc.getLastErrorMessage()], 2));
             return false;
         }
-        // invalidate so the dirty status shows correctly
-        // XXX fixme, can we optimize this?  is it necessary?
-        this.viewMgr.tree.treeBoxObject.invalidate();
 
         // Clear any notifications, as the project has been updated.
         this.notifiedClearProject(project);
@@ -544,8 +500,6 @@ projectManager.prototype.loadProject = function(url) {
 
 projectManager.prototype._addProject = function(project) {
     // add project to project tree
-    this.viewMgr.view.addProject(project);
-    this.viewMgr.view.refresh(project);
     this.setCurrentProject(project);
 
     // Let the file status service know it has work to do.
@@ -555,7 +509,6 @@ projectManager.prototype._addProject = function(project) {
 
     ko.mru.addURL("mruProjectList", project.url);
     window.setCursor("auto");
-    this.viewMgr.focus(); // always set focus here when loading projects
     window.updateCommands('some_projects_open');
     
     return project;
@@ -570,9 +523,13 @@ projectManager.prototype.getProjectByURL = function(url) {
 projectManager.prototype.__defineSetter__("currentProject",
 function(project)
 {
-    this.viewMgr.view.currentProject = project;
-    this.refreshView();
-    window.updateCommands('current_project_changed');
+    if (this._currentProject != project) {
+        this._currentProject = project;
+        window.updateCommands('current_project_changed');
+    }
+    var partSvc = Components.classes["@activestate.com/koPartService;1"]
+        .getService(Components.interfaces.koIPartService);
+    partSvc.currentProject = project;
 });
 
 projectManager.prototype.setCurrentProject = function(project) {
@@ -582,7 +539,7 @@ projectManager.prototype.setCurrentProject = function(project) {
 projectManager.prototype.__defineGetter__("currentProject",
 function()
 {
-    return this.viewMgr.view.currentProject;
+    return this._currentProject;
 });
 
 projectManager.prototype.getCurrentProject = function() {
@@ -628,8 +585,7 @@ projectManager.prototype.registerCommands = function() {
 }
 
 projectManager.prototype.supportsCommand = function(command, item) {
-    // avoid startup confusion
-    if (!ko.projects.active) return false;
+
 
     switch(command) {
     case "cmd_setActiveProject":
@@ -668,12 +624,6 @@ projectManager.prototype.isCommandEnabled = function(command) {
     case "cmd_saveProjectAsTemplate":
         return true;
     case "cmd_closeProject":
-        var broadcaster = document.getElementById('broadcaster_projectCurrent');
-        if (this._projects.length == 0) {
-            broadcaster.setAttribute('disabled', 'true');
-        } else if (broadcaster.hasAttribute('disabled')) {
-            broadcaster.removeAttribute('disabled');
-        }
         return this.getSelectedProject() != null;
     case "cmd_saveProject":
     case "cmd_revertProject":
@@ -826,8 +776,6 @@ projectManager.prototype.addItem = function(/* koIPart */ part, /* koIPart */ pa
                 return false;
         }
         parent.addChild(part);
-        this.viewMgr.view.refresh(part.parent);
-        this.viewMgr.view.selection.select(this.viewMgr.view.getIndexByPart(part));
         window.updateCommands('project_dirty');
         return true;
     } catch(e) { }
@@ -876,14 +824,6 @@ projectManager.prototype.findItemByURLInProject = function(project, type, url) {
     return null;
 }
 
-projectManager.prototype.findItemByAttributeValue = function(attribute, value) {
-    if (this.currentProject) {
-        var item = this.findChildByAttributeValue(this.currentProject, attribute, value);
-        if (item != null) return item;
-    }
-    return null;
-}
-
 projectManager.prototype.findPartByTypeAttributeValue = function(type, attribute, value) {
     if (this.currentProject) {
         var part = this.currentProject.getChildWithTypeAndStringAttribute(type,attribute, value, true);
@@ -908,7 +848,6 @@ projectManager.prototype.getState = function ()
     // Return a pref to add to the persisted 'workspace'
     var opened_projects = Components.classes['@activestate.com/koOrderedPreference;1'].createInstance();
     opened_projects.id = 'opened_projects';
-    this.viewMgr.view.savePrefs(this.currentProject);
     opened_projects.appendStringPref(this.currentProject.url);
     return opened_projects;
 }
@@ -962,7 +901,7 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
     }
     if (!ko.workspace.restoreInProgress()) {
         // another part of the workspace restoration will show the tab if necessary
-        ko.uilayout.ensureTabShown('project_tab');
+        ko.uilayout.ensureTabShown('places_tab');
     }
 
     var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
@@ -1068,6 +1007,7 @@ this.renameProject = function ProjectRename(project)
 this.onload = function() {
     ko.projects.extensionManager.init();
     ko.projects.manager = new projectManager();
+    ko.projects.active = this;
 }
 
 this.handle_parts_reload = function() {

@@ -134,7 +134,7 @@ toolboxBaseManager.prototype.findItemByAttributeValue = function(attribute, valu
 //gone: unload()
 //gone: getter currentProject
 //gone: getCurrentProject()
-
+this.toolboxBaseManager = toolboxBaseManager;
 
 
 
@@ -156,6 +156,11 @@ toolboxManager.prototype.constructor = toolboxManager;
 //gone: partServiceSetToolbox(toolbox)
 //gone: installSamples(sampleToolboxPath, version)
 //gone: sharedToolboxManager()
+//gone: partServiceSetToolbox(toolbox)
+//gone: Toolbox_ExportItems and ko.projects.exportItems
+
+// This is still needed for exporting projects.
+
 function toolboxController() {
 }
 
@@ -206,62 +211,6 @@ this.addCommand = function AddCommandToToolbox(command, cwd, env, insertOutput,
 }
 
 }).apply(ko.toolboxes);
-
-(function() { // ko.projects
-this.exportItems = function Toolbox_ExportItems(items) {
-    var defaultfilename = "exported.kpf";
-    var filename = ko.filepicker.saveFile(
-            null, defaultfilename, // default dir and filename
-            "Export Selected Items To...", // title
-            "Komodo Project", // default filter
-            ["Komodo Project", "All"]); // filters
-            // When have .ktf files changes to this:
-            //"Komodo Toolbox", // default filter
-            //["Komodo Toolbox", "Komodo Project", "All"]);
-    if (filename == null)
-        return;
-
-    var project = Components.classes["@activestate.com/koProject;1"]
-                  .createInstance(Components.interfaces.koIProject);
-    try {
-        var url = ko.uriparse.localPathToURI(filename);
-        project.create();
-        project.prefset.setBooleanPref("import_live", false);
-        project.url = url;
-        var i;
-        for (i = 0; i < items.length; i++) {
-            project.addChild(items[i]);
-        }
-        project.save();
-    } catch(ex) {
-        var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
-            getService(Components.interfaces.koILastErrorService);
-        alert('There was an error exporting project "' +
-              project.name + '": ' +
-              lastErrorSvc.getLastErrorMessage());
-    }
-}
-
-this.exportPackageItems = function Toolbox_ExportPackageItems(items) {
-    if (typeof(items) == 'undefined' || !items || items.length < 1) {
-        ko.dialogs.alert("Please select items in the toolbox to export first.");
-        return;
-    }
-    var localPath = ko.filepicker.saveFile(
-            null, items[0].name + ".kpz", // default dir and filename
-            "Export Selected Items to a Package", // title
-            "Komodo Package", // default filter name
-            ["All"]); // filter names to show
-    if (localPath == null) {
-        return;
-    }
-    var packager = Components.classes["@activestate.com/koProjectPackageService;1"]
-                      .getService(Components.interfaces.koIProjectPackageService);
-    packager.packageParts(localPath, items.length, items, true);
-}
-
-
-}).apply(ko.projects);
 
 // setTimeout in case projectManager.p.js hasn't been loaded yet.
 setTimeout(function() {

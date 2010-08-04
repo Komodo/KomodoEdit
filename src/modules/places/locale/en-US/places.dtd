@@ -33,6 +33,11 @@
  the terms of any one of the MPL, the GPL or the LGPL.
  
  ***** END LICENSE BLOCK ***** -->
+
+<!ENTITY rebaseFolder.label "Make This Folder Root">
+<!ENTITY refreshView.label "Refresh View">
+<!ENTITY compareFileWith "Compare File With…">
+
 <!ENTITY Places.label "Places">
 <!ENTITY filters.label "Filters">
 <!ENTITY newPlace.label "New...">

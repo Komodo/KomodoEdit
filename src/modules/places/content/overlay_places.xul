@@ -214,12 +214,47 @@
 
   <popupset id="extensionPopupSet">
 
-    <menupopup id="places-files-popup" onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);" >
-      <menuseparator id="placesContextMenu_separatorCut" />
+    <menupopup id="places-files-popup" onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event, this);" >
+      <!-- types to test are one of [ folder | file | project ] -->
+      <menuitem id="placesContextMenu_folder_rebase"
+                oncommand="ko.places.manager.rebaseFolder(event)"
+                label="&rebaseFolder.label;"
+                class="menuitem-iconic"
+                hideIf="file project"
+                testDisableIf="t:multipleSelection"
+                />
+      <menuitem id="placesContextMenu_folder_refresh_view"
+                oncommand="ko.places.manager.refreshView(event)"
+                label="&refreshView.label;"
+                class="menuitem-iconic"
+                hideIf="file project"
+                />
+      <menuitem id="placesContextMenu_file_open"
+                oncommand="ko.places.viewMgr.openFilesByIndex(event)"
+                label="&open.label;"
+                class="menuitem-iconic primary_menu_item"
+                hideIf="folder project"
+                />
+      <menuitem id="placesContextMenu_compareFileWith"
+                oncommand="ko.places.viewMgr.compareFileWith(event)"
+                label="&compareFileWith;"
+                class="menuitem-iconic"
+                hideUnless="file"
+                testHideIf="t:multipleSelection"
+                />
+      <menuitem id="placesContextMenu_compareFiles"
+                oncommand="ko.places.viewMgr.compareFiles(event)"
+                label="&compareFiles.label;"
+                class="menuitem-iconic"
+                hideIf="folder project"
+                testHideIf="t:selectedTwoItems"
+                />
+      <menuseparator id="placesContextMenu_separatorCut"/>
       <menuitem id="placesContextMenu_cut"
                 observes="cmd_cutPlaceItem"
                 label="&cut.label;"
                 class="menuitem-iconic cut-button"
+                disableIf="project"
                 />
       <menuitem id="placesContextMenu_copy"
                 observes="cmd_copyPlaceItem"
@@ -230,53 +265,76 @@
                 observes="cmd_pastePlaceItem"
                 class="menuitem-iconic paste-button"
                 label="&paste.label;"
+                disableIf="project file"
+                testDisableIf="t:multipleSelection"
                 />
       <menuitem id="placesContextMenu_undo"
                 observes="cmd_placeView_undoTreeOperation"
                 oncommand="ko.places.viewMgr.undoTreeOperation()"
                 class="menuitem-iconic undo-button"
                 label="&undo.label;"
+                testDisableIf="t:multipleSelection"
+                testEval_DisableIf="gPlacesViewMgr.view.canUndoTreeOperation()"
                 />
       <menuseparator id="placesContextMenu_separatorFind"
                      />
       <menuitem id="placesContextMenu_find"
-                observes="cmd_findInPlace"
                 label="&find.label;"
+                observes="cmd_findInPlace"
+                testDisableIf="t:multipleSelection t:isRemote"
                 />
       <menuitem id="placesContextMenu_replace"
                 observes="cmd_replaceInPlace"
                 label="&replace.label;"
+                testDisableIf="t:multipleSelection t:isRemote"
                 />
 
+      <!-- Put in correct platform-specific label in the JS init code -->
       <menuitem id="placesContextMenu_showInFinder"
                 observes="cmd_places_showInFinder"
                 label="&ShowInExplorer.label;"
+                testDisableIf="t:multipleSelection t:isRemote"
                 />
       <menuitem id="placesContextMenu_rename"
                 observes="cmd_renamePlace_File"
                 label="&renamePlaceItem.label;"
+                disableIf="project"
+                testDisableIf="t:multipleSelection"
                 />
-      <menuseparator id="placesContextMenu_separatorDelete"
-                     />
+      <menuitem id="placesContextMenu_refresh_status"
+                observes="cmd_refreshStatus"
+                label="&refreshStatus.label;"
+                class="menuitem-iconic"
+                testDisableIf="t:isRemote"
+                />
+      <menuseparator id="placesContextMenu_separatorDelete" />
       <menuitem id="placesContextMenu_delete"
                 observes="cmd_deletePlaceItem"
                 label="&delete.label;"
                 class="menuitem-iconic list-item-remove-icon"
+                disableIf="project"
                 />
       <menuitem id="placesContextMenu_newFile"
                 label="&newFile.label;"
                 class="menuitem-iconic new-file-icon"
+                testDisableIf="t:multipleSelection"
+                hideUnless="folder"
                 />
+      <!-- gPlacesViewMgr.addNewFile(index) -->
       <menuitem id="placesContextMenu_newFolder"
                 label="&newFolder.label;"
-                class="menuitem-iconic newfolder-icon"
+                class="menuitem-iconic new-folder-icon"
+                testDisableIf="t:multipleSelection"
                 />
+      <!-- gPlacesViewMgr.addNewFolder(index) -->
       <menuseparator id="placesContextMenu_separatorProperties"
                      intoplevel="true"/>
       <menuitem id="placesContextMenu_editProperties"
                 observes="cmd_editProperties"
                 label="&properties.label;"
                 intoplevel="true"
+                disableIf="folder"
+                testDisableIf="t:multipleSelection"
                 />
     </menupopup>
 
@@ -301,11 +359,40 @@
     </menupopup>
 
   </popupset>
+<!--
+    Insertion position: project_tab is now gone, and on Komodo Edit,
+    there's no codebrowser, so we can fall back to the first position
+    (position="1") if the insertbefore element isn't found.    
+-->
+    <menupopup id="menu_view_tabs_popup">
+      <menuitem id="show_places_tab2"
+          observes="show_places_tab"
+          insertbefore="show_codebrowser_tab2"
+          insertafter="show_project_tab2"
+          position="1"
+          oncommand="uilayout_ensureTabShown('places_tab', true)"
+          label="&Places.label;"
+          type="checkbox"
+          />
+    </menupopup>
+
+    <menupopup id="tabPicker_popup">
+      <menuitem id="show_places_tab"
+          observes="show_places_tab"
+          insertbefore="show_codebrowser_tab"
+          insertafter="show_project_tab"
+          position="1"
+          oncommand="uilayout_ensureTabShown('places_tab', true)"
+          label="&Places.label;"
+          type="checkbox"
+          />
+    </menupopup>
 
   <!-- ****************    Content    ****************** -->
 
   <tabs id="project_toolbox_tabs">
-    <tab id="places_tab" label="&Places.label;" insertafter="project_tab"
+    <tab id="places_tab" label="&Places.label;" insertbefore="codebrowser_tab"
+         position="1"
         oncommand="gPlacesViewMgr.focus(); gPlacesViewMgr.updateView();"
         onfocus="gPlacesViewMgr.focus(); gPlacesViewMgr.updateView();"
         onmovetab_unload="ko.places.onUnload();"
@@ -313,13 +400,17 @@
          />
   </tabs>
   <tabpanels id="project_toolbox_tabpanels">
-    <tabpanel flex="1" id="PlaceViewbox" insertafter="projectviewbox">
+    <tabpanel flex="1" id="placesViewbox"
+              insertbefore="codebrowserviewbox"
+              position="1">
       <vbox flex="1">
         <hbox id="place-view-vbox" align="center">
+          <!--
+                 onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);"
+-->
           <image id="place-view-rootPath-icon"
                  class="normal"
                  context="places-files-popup"
-                 onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);"
                  ondragover="return ko.places.viewMgr.doDragOverRootNode(event, this);"
                  ondragenter="return ko.places.viewMgr.doDragEnterRootNode(event, this);"
                  ondrop="return ko.places.viewMgr.doDropOnRootNode(event, this);"
@@ -398,13 +489,45 @@
               <menuitem id="placeView_customView"
                   observes="cmd_placeView_customView"
                   label="&manageCustomViews.label;"
-                   />
+                  />
               <menuseparator id="places_undo_separator" />
               <menuitem id="placeView_undo"
                         observes="cmd_placeView_undoTreeOperation"
                         oncommand="ko.places.viewMgr.undoTreeOperation()"
                         class="menuitem-iconic undo-button"
                         label="&undo.label;"
+                        />
+              <menuseparator id="places_undo_separator" />
+              <menuitem id="placeView_undo"
+                        observes="cmd_placeView_undoTreeOperation"
+                        oncommand="ko.places.viewMgr.undoTreeOperation()"
+                        class="menuitem-iconic undo-button"
+                        label="&undo.label;"
+                        />
+              <menuseparator id="places_project_separator" />
+              <menuitem id="placeView_project_open"
+                        observes="cmd_placeView_openProject"
+                        oncommand="ko.places.viewMgr.openProject()"
+                        class="menuitem-iconic"
+                        label="&openProject.label;"
+                        />
+              <menuitem id="placeView_project_new"
+                        observes="cmd_placeView_newProject"
+                        oncommand="ko.places.viewMgr.newProject()"
+                        class="menuitem-iconic"
+                        label="&newProject.label;"
+                        />
+              <menuitem id="placeView_project_close"
+                        observes="cmd_placeView_closeProject"
+                        oncommand="ko.places.viewMgr.closeProject()"
+                        class="menuitem-iconic"
+                        label="&closeProject.label;"
+                        />
+              <menuitem id="placeView_project_preferences"
+                        observes="cmd_placeView_openProjectPreferences"
+                        oncommand="ko.places.viewMgr.openProjectPreferences()"
+                        class="menuitem-iconic"
+                        label="project preferences &amp;XXX"
                         />
             </menupopup>
           </toolbarbutton>
@@ -446,10 +569,12 @@
               onkeypress="ko.places.viewMgr.onTreeKeyPress(event);"
               onfocus="ko.places.viewMgr.focused = true;"
               onblur="ko.places.viewMgr.focused = false;"
+              ondrop="return ko.places.viewMgr.doDrop(event, this);"
+              ondragend="ko.places.viewMgr.doEndDrag(event, this);"
               context="places-files-popup"
               hidecolumnpicker="true"
               class="placestree"
-              seltype="single">
+              seltype="multiple">
             <treecols id="places-files-treecols">
                 <treecol id="name" flex="1"
                          primary="true"
@@ -460,8 +585,8 @@
                 ondragstart="ko.places.viewMgr.doStartDrag(event, this);"
                 ondragover="return ko.places.viewMgr.doDragOver(event, this);"
                 ondragenter="return ko.places.viewMgr.doDragEnter(event, this);"
-                ondrop="return ko.places.viewMgr.doDrop(event, this);"
                 ondblclick="ko.places.viewMgr.onDblClick(event, this);"
+                ondrop="return ko.places.viewMgr.doDrop(event, this);"
                 class="placesTree" />
         </tree>
       </vbox>
