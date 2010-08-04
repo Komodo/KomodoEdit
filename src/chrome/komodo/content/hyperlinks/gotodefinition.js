@@ -36,6 +36,8 @@
 
 (function() {
 
+    var log = ko.logging.getLogger('hyperlinks::GotoDefinition');
+
     /**
      * A goto defintion hyperlink handler.
      *
@@ -99,6 +101,12 @@
     this.GotoDefinitionHandler.prototype.show = function(
                     view, scimoz, position, line, lineStartPos, lineEndPos, reason)
     {
+        // If the popup tooltip is already open, leave it alone and return.
+        var tooltip = document.getElementById("hyperlink_gotodefinition_tooltip");
+        if (tooltip && tooltip.state == "open") {
+            return null;
+        }
+        
         // For goto definition, if this view does not support codeintel
         // citadel stuff, then goto definition is not supported and
         // there is no need to mark any hyperlinks.
@@ -136,6 +144,10 @@
      */
     this.GotoDefinitionHandler.prototype.remove = function(view, hyperlink, reason)
     {
+        if (reason == "mousemove") {
+            // Don't remove the hyperlink on mousemove events.
+            return false;
+        }
         ko.hyperlinks.BaseHandler.prototype.remove.apply(this, arguments);
         var tooltip = document.getElementById("hyperlink_gotodefinition_tooltip");
         if (tooltip) {
@@ -153,7 +165,9 @@
     this.GotoDefinitionHandler.prototype.dwell = function(view, hyperlink)
     {
         ko.hyperlinks.BaseHandler.prototype.dwell.apply(this, arguments);
-        //this._getDefinition(view, hyperlink);
+        if (view.isCICitadelStuffEnabled) {
+            this._getDefinition(view, hyperlink);
+        }
     }
 
     /**
@@ -199,24 +213,11 @@
                 return;
             }
     
-            styles = langObj.getNamedStyles("keywords", styleCount);
-            if (styles.indexOf(style) >= 0) {
-                // Continue on, as it may have completion info too
-            }
-    
-            // See if we can find out more information using goto definition
-            if (!view.isCICitadelStuffEnabled) {
-                return;
-            }
             // Create a trigger, it must be a specific position in the document,
             // due to variable scope implications etc...
             var trg = view.koDoc.ciBuf.defn_trg_from_pos(currentPos);
             // Create a codeintel completion handler
-            var ciUIHandler = new GotoDefinitionUIHandler(
-                                                    displayPath,
-                                                    scimoz,
-                                                    view.languageObj.name,
-                                                    view.koDoc.ciBuf);
+            var ciUIHandler = new GotoDefinitionUIHandler();
             // Create a controller to handle results
             var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
                         createInstance(Components.interfaces.koICodeIntelEvalController);
@@ -228,8 +229,7 @@
             //dump("async_called\n");
     
         } catch (ex) {
-            dump("codeHelper exception: " + ex.fileName + ":" + ex.lineNumber + ":" + ex + "\n");
-            ko.logging.dumpStack();
+            log.exception(ex);
         }
     }
 
@@ -281,6 +281,7 @@
      */
     function _setDefinitionsInfo(count, ciDefns, triggerPos) {
         try {
+            /** @type {Components.interfaces.koIScintillaView} */
             var view = ko.views.manager.currentView;
             var defns = ciDefns;
             // defns is an array of koICodeIntelDefinition
@@ -293,13 +294,10 @@
                 if (tooltip == null) {
                     tooltip = document.createElement('panel');
                     tooltip.setAttribute("noautofocus", "true");
-                    //tooltip.setAttribute("noautohide", "true");
                     tooltip.setAttribute('id', 'hyperlink_gotodefinition_tooltip');
                     div = document.createElement('div');
                     div.setAttribute("id", "hyperlink_gotodefinition_div");
                     div.setAttribute("class", "hyperlink_gotodefinition_div");
-                    div.setAttribute("width", "400");
-                    div.setAttribute("height", "300");
                     tooltip.appendChild(div);
                     document.documentElement.appendChild(tooltip);
                 } else {
@@ -310,17 +308,16 @@
                     }
                 }
     
-                // Basic layout we want
-                // id="codehelper_lblName"
-                //             class="codehelper_name"
-                //             onclick="">
-                //</html:strong>
-                //<html:strong id="codehelper_lblSignature">
-                //</html:strong>
-                //<html:br />
-                //<html:i id="codehelper_lblDoc">
-                //</html:i>
-                //<html:br />
+                // The layout we want:
+                //<div>
+                //  <span> Name </span> <span> Signature </span>
+                //  <hr/>
+                //  <span> Lang </span>
+                //  <span> Type </span>
+                //  <span> Attrs </span>
+                //  <hr/>
+                //  <span> Doc </span>
+                //</div>
     
                 var textlines = [];
                 var cmd = "";
@@ -328,10 +325,10 @@
                     cmd = "open_openURI('" + def.path + "#" + def.line + "');";
                     //dump("cmd: " + cmd + "\n");
                 }
-                textlines.push('<strong class="codehelper_name" onclick="'
-                               + cmd + '">' + def.name + "</strong>");
+                textlines.push('<span class="codehelper_name" onclick="'
+                               + cmd + '">' + def.name + "</span>");
                 if (def.ilk == "function") {
-                    textlines.push('<strong>(' + def.signature.split("(", 2)[1] + '</strong>');
+                    textlines.push('<span class="codehelper_signature">(' + def.signature.split("(", 2)[1] + '</span>');
                 }
     
                 textlines.push("<hr />");
@@ -362,10 +359,10 @@
                 if (def.doc) {
                     textlines.push("<hr />");
                     //textlines.push('<i style="white-space: pre-wrap !important;">' + _simpleEscapeHtml(def.doc) + '</i>');
-                    textlines.push('<i style="white-space: pre-wrap !important;">' + def.doc + '</i>');
+                    textlines.push('<span class="codehelper_doc">' + def.doc + '</span>');
                 }
     
-                dump("textlines: " + textlines.join("\n") + "\n");
+                //dump("textlines:\n\n" + textlines.join("\n") + "\n\n");
     
                 //tooltip.contents = textlines.join("\n");
                 var node = _parseXULAndReturnElement(textlines.join("\n"));
@@ -377,31 +374,30 @@
                         div.appendChild(elem);
                     }
                 }
-                var totalHeight = div.boxObject.height;
-                totalHeight += parseFloat(getComputedStyle(tooltip, null)
-                                         .getPropertyValue("border-top-width"))
-                             + parseFloat(getComputedStyle(tooltip, null)
-                                         .getPropertyValue("border-bottom-width"))
-                             + parseFloat(getComputedStyle(tooltip, null)
-                                         .getPropertyValue("padding-top"))
-                             + parseFloat(getComputedStyle(tooltip, null)
-                                         .getPropertyValue("padding-bottom"));
-                tooltip.minHeight = totalHeight;
-                //tooltip.sizeTo(tooltip.width, tooltip.boxObject.height);
+
+                // Ensure the tooltip colors match the editor colors.
+                var foreColor = view.scheme.getFore(view.languageObj.name, "default");
+                tooltip.style.color = foreColor;
+
                 var x, y;
                 [x,y] = view._last_mousemove_xy;
                 tooltip.openPopup(view, "after_pointer", x, y, false, false);
             }
         } catch (ex) {
-            dump("codeHelper::setDefinitionsInfo:: exception: " + ex + "\n");
+            log.exception(ex);
         }
     }
     
-    var GotoDefinitionUIHandler = function(path, scimoz, language, 
-                                           /* codeintel.Buffer */ buf) {
-        CodeIntelCompletionUIHandler.apply(this, [path, scimoz, language, buf]);
+    var GotoDefinitionUIHandler = function() {
     }
 
+    GotoDefinitionUIHandler.prototype.QueryInterface = function(iid) {
+        if (iid.equals(Components.interfaces.koICodeIntelCompletionUIHandler) ||
+            iid.equals(Components.interfaces.nsISupports)) {
+            return this;
+        }
+        throw Components.results.NS_ERROR_NO_INTERFACE;
+    }
     GotoDefinitionUIHandler.prototype.setStatusMessage = function() {
         // Do nothing...
     }

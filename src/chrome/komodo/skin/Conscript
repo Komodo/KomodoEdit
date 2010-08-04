@@ -55,6 +55,7 @@ $cons->Preprocess('toolbar.p.css', 'toolbar.css');
 $cons->InstallInChrome('toolbar.css');
 $cons->InstallInChrome('browser.css');
 $cons->InstallInChrome('codeintel.css');
+$cons->InstallInChrome('hyperlinks.css');
 $cons->InstallInChrome('tree.css');
 $cons->InstallInChrome('autocomplete.css');
 $cons->InstallInChrome('find.css');
