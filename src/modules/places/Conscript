@@ -55,7 +55,7 @@ if (!$local) {
     $cons->Preprocess("chrome.p.manifest", "chrome.manifest", {MODE => 'full'});
     $cons->KoExt("koinstall");
 } else {
-    if (0) {
+    if (1) {
     print STDERR "Places: don't forget to reinstate regular koinstall by setting \$local to 0\n";
     $cons->Preprocess("chrome.p.manifest", "chrome.manifest", {MODE => 'dev'});
     # For quick development, comment out the "KoExt" call above and 

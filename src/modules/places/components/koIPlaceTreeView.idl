@@ -74,17 +74,22 @@ interface koIPlaceTreeView: nsITreeView {
     const short MOVE_OTHER_DIR_FILENAME_CONFLICT = 2;
     const short COPY_FILENAME_CONFLICT = 3;
     const short COPY_MOVE_WOULD_KILL_DIR = 4;
+    const short SRC_CONTAINS_TARGET = 4;
     
-    short treeOperationWouldConflict(in long sourceIndex, in long targetIndex,
-                                     in boolean copying,
-                                     out koIFileEx srcFileInfo,
-                                     out koIFileEx targetFileInfo);
-    short treeOperationWouldConflictByURI(in long sourceIndex, in wstring uri,
-                                     in boolean copying,
-                                     out koIFileEx srcFileInfo,
-                                     out koIFileEx targetFileInfo);
+    void treeOperationWouldConflict_MultipleSrc
+        (
+         [array, size_is(count_srcURIs)] in wstring srcURIs,
+         in unsigned long count_srcURIs,
+         in wstring targetURI,
+         in boolean copying,
+         out unsigned long count,
+         [array, size_is(count)] out long res,
+         [array, size_is(count)] out koIFileEx srcFileInfo,
+         [array, size_is(count)] out koIFileEx targetFileInfo);
     
-    void doTreeOperation(in long sourceIndex, in long targetIndex,
+    void doTreeOperation(in wstring sourceURI,
+                         in wstring targetURI,
+                         in long targetIndex,
                          in boolean copying,
                          in koIAsyncCallback callbackObj);
     void doTreeOperationToRootNode(in long sourceIndex, in wstring to_uri,
@@ -93,16 +98,21 @@ interface koIPlaceTreeView: nsITreeView {
     void doTreeCopyWithDestName(in long sourceIndex, in long targetIndex,
                                 in wstring newPath,
                                 in koIAsyncCallback callbackObj);
-    void doTreeCopyWithDestNameAndURI(in long sourceIndex, in wstring to_uri,
-                                in wstring newPath,
-                                in koIAsyncCallback callbackObj);
+    void doTreeCopyWithDestNameAndURI(in wstring sourceURI,
+                                      in wstring targetURI,
+                                      in long targetIndex,
+                                      in wstring newPath,
+                                      in koIAsyncCallback callbackObj);
     boolean canUndoTreeOperation();
     void do_undoTreeOperation();
 
     void addNewFileAtParent(in wstring name, in long parentIndex);
     void addNewFolderAtParent(in wstring name, in long parentIndex);
     boolean itemIsNonEmptyFolder(in long sourceIndex);
-    void deleteItem(in long sourceIndex, in boolean deleteContents);
+    void deleteItems(in unsigned long count_indices, 
+                     [array, size_is(count_indices)] in long indices,
+                     in unsigned long count_srcURIs, 
+                     [array, size_is(count_srcURIs)] in wstring srcURIs);
     void markRow(in long sourceIndex);
     void refreshView(in long sourceIndex);
     void refreshFullTreeView();
@@ -114,6 +124,9 @@ interface koIPlaceTreeView: nsITreeView {
 
     void sortBy(in wstring key, in long direction);
     void sortRows();
+
+    // Augment the tree API
+    long getNextSiblingIndex(in long index);
 
     // See other API parts in koIKPFTreeView.idl
     // internal api

@@ -351,35 +351,7 @@ this.processMenu = function(menuNode, toolType) {
 this.getSelectedIndices = function(rootsOnly /*=false*/) {
     if (typeof(rootsOnly) == "undefined") rootsOnly = false;
     var view = this.manager.view;
-    var treeSelection = view.selection;
-    var selectedIndices = [];
-    var numRanges = treeSelection.getRangeCount();
-    var min = {}, max = {};
-    for (var i = 0; i < numRanges; i++) {
-        treeSelection.getRangeAt(i, min, max);
-        var mx = max.value;
-        for (var j = min.value; j <= mx; j++) {
-            selectedIndices.push(j);
-            if (rootsOnly && view.isContainerOpen(j)) {
-                var nextSiblingIndex = view.getNextSiblingIndex(j);
-                if (nextSiblingIndex <= mx) {
-                    j = nextSiblingIndex -1;
-                } else {
-                    if (nextSiblingIndex == -1
-                        && i < numRanges - 1) {
-                        throw new Error("node at row "
-                                        + j
-                                        + " supposedly at end, but we're only at range "
-                                        + (i + 1)
-                                        + " of "
-                                        + numRanges);
-                    }
-                    j = mx;
-                }
-            }
-        }
-    }
-    return selectedIndices;
+    return ko.treeutils.getSelectedIndices(view, rootsOnly);
 };
 
 this.getSelectedItem = function() {
@@ -425,6 +397,13 @@ this.findToolById = function(id) {
 this.getAbbreviationSnippet = function(abbrev, subnames) {
     return this.manager.toolsMgr.getAbbreviationSnippet(abbrev, subnames,
                                                         subnames.length);
+};
+
+this.getToolsByTypeAndName = function(toolType, toolName) {
+    var tools = {};
+    this.manager.toolsMgr.getToolsByTypeAndName(toolType, toolName,
+                                                tools, {});
+    return tools.value;
 };
 
 this.getViCommand = function(commandName) {
@@ -485,6 +464,13 @@ this.onFilterKeypress = function(event) {
         }
     } catch (e) {
         log.exception(e);
+    }
+};
+
+this.removeItem = function(item) {
+    var index = this.manager.view.getIndexByTool(item);
+    if (index != -1) {
+        this.manager.view.deleteToolAt(index);
     }
 };
 

@@ -473,7 +473,7 @@ class KoPlaceTreeView(TreeView):
             pass
 
     def removeNodeFromParent(self, uri):
-        parent_uri = uri[:uri.rindex("/")]
+        parent_uri = self._getURIParent(uri)
         parent_node = self.getNodeForURI(parent_uri)
         if parent_node:
             for (i, child_node) in enumerate(parent_node.childNodes):
@@ -490,6 +490,7 @@ class KoPlaceTreeView(TreeView):
         self.removeNodeForURI(uri)
         try:
             del self._nodeOpenStatusFromName[uri]
+            parent_node.markForRefreshing()
         except KeyError:
             pass
 
@@ -564,7 +565,7 @@ class KoPlaceTreeView(TreeView):
 
         dirname = koFileEx.dirName
         if flags & _createdFlags:
-            parent_uri = uri[:uri.rindex("/")]
+            parent_uri = self._getURIParent(uri)
             index = self.getRowIndexForURI(parent_uri)
             if index != -1:
                 self.refreshView(index)
@@ -673,7 +674,7 @@ class KoPlaceTreeView(TreeView):
 
     def getRowIndexForURI(self, uri):
         for (i, row) in enumerate(self._rows):
-            if row.uri == i:
+            if row.uri == uri:
                 return i
         return -1
 
@@ -760,9 +761,9 @@ class KoPlaceTreeView(TreeView):
 
         if self.getParentIndex(srcIndex) == targetIndex:
             if copying:
-                res = components.interfaces.koIPlaceTreeView.MOVE_SAME_DIR
-            else:
                 res = components.interfaces.koIPlaceTreeView.COPY_FILENAME_CONFLICT
+            else:
+                res = components.interfaces.koIPlaceTreeView.MOVE_SAME_DIR
         elif self._targetFileExists(finalTargetPath, targetPath,
                                     srcBasename, isDir_OutVal):
             if isDir_OutVal['value']:
@@ -823,6 +824,55 @@ class KoPlaceTreeView(TreeView):
         srcFileInfo.URI = srcNode.uri
         return res, srcFileInfo, finalTargetFileInfo
 
+    def _targetIsParent(self, srcURI, targetURI):
+        srcURIParent = self._getURIParent(srcURI)
+        return srcURIParent == targetURI
+
+    def _srcContainsTarget(self, srcURI, targetURI):
+        return targetURI.startswith(srcURI)
+
+    def treeOperationWouldConflict_MultipleSrc(self, srcURIs, targetURI, copying):
+        statuses = []
+        srcKoExFiles = []
+        destKoExFiles = []
+        for srcURI in srcURIs:
+            srcFileInfo = components.classes["@activestate.com/koFileEx;1"].\
+                          createInstance(components.interfaces.koIFileEx)
+            srcFileInfo.URI = srcURI
+            srcBaseName = srcFileInfo.baseName
+            
+            finalTargetFileInfo = components.classes["@activestate.com/koFileEx;1"].\
+                                  createInstance(components.interfaces.koIFileEx)
+            finalTargetFileInfo.URI = targetURI + "/" + srcBaseName
+            isDir_OutVal = {}
+            if self._targetIsParent(srcURI, targetURI):
+                if copying:
+                    res = components.interfaces.koIPlaceTreeView.COPY_FILENAME_CONFLICT
+                else:
+                    res = components.interfaces.koIPlaceTreeView.MOVE_SAME_DIR
+            elif self._targetFileExistsByFileExObj(finalTargetFileInfo,
+                                                   isDir_OutVal):
+                if isDir_OutVal['value']:
+                    # We support copying directories with a merge, but not moving them.
+                    if copying:
+                        res = components.interfaces.koIPlaceTreeView.COPY_MOVE_OK
+                    else:
+                        res = components.interfaces.koIPlaceTreeView.COPY_MOVE_WOULD_KILL_DIR
+                elif copying:
+                    res = components.interfaces.koIPlaceTreeView.COPY_FILENAME_CONFLICT
+                else:
+                    res = components.interfaces.koIPlaceTreeView.MOVE_OTHER_DIR_FILENAME_CONFLICT
+            elif self._srcContainsTarget(srcURI, targetURI):
+                res = components.interfaces.koIPlaceTreeView.SRC_CONTAINS_TARGET
+            else:
+                res = components.interfaces.koIPlaceTreeView.COPY_MOVE_OK
+
+            statuses.append(res)
+            srcKoExFiles.append(srcFileInfo)
+            destKoExFiles.append(finalTargetFileInfo)
+
+        return statuses, srcKoExFiles, destKoExFiles
+
     def _targetIsChildOfSource(self, srcIndex, targetIndex):
         if targetIndex < srcIndex:
             return False
@@ -832,59 +882,77 @@ class KoPlaceTreeView(TreeView):
         if nextSib == -1:
             return True
         return srcIndex < targetIndex < nextSib
+
+    def _getURIParent(self, uri):
+        return uri[:uri.rindex("/")]
+
+    def _endsWithSlash(self, uri):
+        if uri[-1] != "/":
+            return uri + "/"
+        return uri
+
+    def _copyMoveSanityChecks(self, srcURI, targetURI, copying):
+        if self._getURIParent(srcURI) == targetURI:
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                  "Can't copy/move an item on to its own container.");
+        elif targetURI.startswith(self._endsWithSlash(srcURI)):
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                  "Can't %s a folder (%s) into one of its own sub-folders (%s)" %
+                                  ((copying and "copy") or "move",
+                                   srcURI, targetURI))
         
-    def doTreeOperation(self, srcIndex, targetIndex, copying, callback):
-        """TODO:
-        If the source is in SCC, do the appropriate SCC operations on it.
-        
-        XXX: This should definitely be async.
-        """
-        srcNode = self._rows[srcIndex]
+    def doTreeOperation(self, srcURI, targetURI, targetIndex, copying,callback):
         targetNode = self._rows[targetIndex]
         requestID = self.getRequestID()
         self.lock.acquire()
         try:
             self._data[requestID] = {'copying':copying,
-                                     'srcIndex': srcIndex,
-                                     'srcNode': srcNode,
+                                     'srcURI': srcURI,
+                                     'targetURI': targetURI,
                                      'targetIndex': targetIndex,
-                                     'targetNode': targetNode,
                                      'final_msg': '',
                                      'callback': callback,
                                     }
         finally:
             self.lock.release()
-        srcNode.show_busy()
-        self._tree.invalidateRow(srcIndex)
+        self._copyMoveSanityChecks(srcURI, targetURI, copying)
+
+        #srcNode.show_busy()
+        #self._tree.invalidateRow(srcIndex)
         targetNode.show_busy()
         self._tree.invalidateRow(targetIndex)
         #log.debug("%s %s %s", copying and "copy" or "move", srcPath, targetDirPath)
-        if not copying and self.getParentIndex(srcIndex) == targetIndex:
-            log.debug("Can't copy/move an item on to its own container.")
-            return
-        elif self.isContainer(srcIndex) and self._targetIsChildOfSource(srcIndex, targetIndex):
-            raise Exception("Can't %s a folder (%s) into one of its own sub-folders (%s)" %
-                            ((copying and "copy") or "move",
-                                srcNode.path, targetNode.path))
-        
-        self.workerThread.put(('doTreeOperation',
+        self.workerThread.put(('doTreeOperation_WorkerThread',
                                {'requestID':requestID,
                                 'requester':self},
                                'post_doTreeOperation'))
 
     def post_doTreeOperation(self, rv, requestID):
-        copying, srcIndex, originalSrcNode, targetIndex, originalTargetNode,\
+        copying, srcURI, targetURI, oldTargetIndex, \
             finalMsg, updateTargetTree, callback = self.getItemsByRequestID(
-                requestID, 'copying', 'srcIndex', 'srcNode',
-                'targetIndex', 'targetNode', 'finalMsg',
+                requestID, 'copying', 'srcURI', 'targetURI',
+                'targetIndex', 'finalMsg',
                 'updateTargetTree', 'callback')
         # Restore busy nodes.
-        fixedSrcIndex, fixedSrcNode = \
-           self._postRequestCommonNodeHandling(originalSrcNode, srcIndex,
-                                               "post_doTreeOperation")
-        fixedTargetIndex, fixedTargetNode = \
-           self._postRequestCommonNodeHandling(originalTargetNode, targetIndex,
-                                               "post_doTreeOperation")
+        srcIndex = self.getRowIndexForURI(srcURI)
+        srcNode = (srcIndex != -1 and self._rows[srcIndex]) or None
+        if srcNode:
+            srcNode.restore_icon()
+            
+        targetNode = None
+        try:
+            targetNode = self._rows[oldTargetIndex]
+            if targetNode.uri != targetURI:
+                targetNode = None
+            else:
+                targetIndex = oldTargetIndex
+        except IndexError:
+            pass
+        if targetNode is None:
+            targetIndex = self.getRowIndexForURI(targetURI)
+            targetNode = (targetIndex != -1 and self._rows[targetIndex]) or None
+        if targetNode:
+            targetNode.restore_icon()
         if rv:
             log.error("post_doTreeOperation: %s", rv)
             callback.callback(components.interfaces.koIAsyncCallback.RESULT_ERROR,
@@ -894,24 +962,12 @@ class KoPlaceTreeView(TreeView):
             callback.callback(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL,
                               "")
             return
-        elif fixedSrcIndex == -1 or fixedTargetIndex == -1:
+        elif srcIndex == -1 or targetIndex == -1:
             # Things to do?
             self._tree.invalidate()
             callback.callback(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL,
                               "")
             return
-        elif fixedSrcIndex != srcIndex:
-            doInvalidate = True
-            srcIndex = fixedSrcIndex
-            srcNode = self._rows[srcIndex]
-        elif fixedTargetIndex != targetIndex:
-            doInvalidate = True
-            targetIndex = fixedTargetIndex
-            targetNode = self._rows[targetIndex]
-        else:
-            doInvalidate = False
-            srcNode = originalSrcNode
-            targetNode = originalTargetNode
             
         # The worker thread updated the models; here we update the views.
         firstVisibleRow = self._tree.getFirstVisibleRow()
@@ -936,6 +992,8 @@ class KoPlaceTreeView(TreeView):
                 and parentSrcIndex > targetNextIndex)
                or (parentSrcIndex < targetIndex
                 and parentNextIndex < targetIndex))
+        #XXX: Track the original srcIndex to determine when this is true.
+        doInvalidate = True
         if parentSrcIndex > targetIndex:
             self._finishRefreshingView(parentSrcIndex, parentNextIndex,
                                        doInvalidate, self._rows[parentSrcIndex],
@@ -976,7 +1034,7 @@ class KoPlaceTreeView(TreeView):
         if not copying and srcNode.level == 0:
             log.debug("Can't copy/move an item on to its own container.")
             return
-        self.workerThread.put(('doTreeOperation',
+        self.workerThread.put(('doTreeOperation_WorkerThread',
                                {'requestID':requestID,
                                 'requester':self},
                                'post_doTreeOperationToRootNode'))
@@ -1028,135 +1086,54 @@ class KoPlaceTreeView(TreeView):
         self._wrap_refreshTreeOnOpen_buildTree()
         callback.callback(components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL,
                           "")
-
-    def doTreeCopyWithDestName(self, srcIndex, targetIndex, newPath, callback):
-        #log.debug("doTreeCopyWithDestName: srcIndex:%d, targetIndex:%d, newPath:%s)", srcIndex, targetIndex, newPath)
-        srcNode = self._rows[srcIndex]
+        
+    def doTreeCopyWithDestNameAndURI(self, srcURI, targetURI, targetIndex, newPath, callback):
         targetNode = self._rows[targetIndex]
         requestID = self.getRequestID()
         self.lock.acquire()
         try:
-            self._data[requestID] = {'srcIndex': srcIndex,
-                                     'srcNode': srcNode,
-                                     'targetIndex': targetIndex,
-                                     'targetNode': targetNode,
-                                     'newPath': newPath,
-                                     'callback': callback,
-                                    }
-        finally:
-            self.lock.release()
-        srcNode.show_busy()
-        self._tree.invalidateRow(srcIndex)
-        targetNode.show_busy()
-        self._tree.invalidateRow(targetIndex)
-        #log.debug("%s %s %s", "copy", srcNode.path, targetNode.path)
-        self.workerThread.put(('doTreeCopyWithDestName',
-                               {'requestID':requestID,
-                                'requester':self},
-                               'post_doTreeCopyWithDestName'))
-        
-    def post_doTreeCopyWithDestName(self, rv, requestID):
-        srcIndex, originalSrcNode, targetIndex, originalTargetNode,\
-            newPath, updateTargetTree, callback = self.getItemsByRequestID(
-                requestID, 'srcIndex', 'srcNode',
-                'targetIndex', 'targetNode', 'newPath',
-                'updateTargetTree', 'callback')
-        if rv:
-            callback.callback(components.interfaces.koIAsyncCallback.RESULT_ERROR,
-                              rv)
-            return
-        fixedSrcIndex, fixedSrcNode = \
-           self._postRequestCommonNodeHandling(originalSrcNode, srcIndex,
-                                               "post_doTreeCopyWithDestName")
-        fixedTargetIndex, fixedTargetNode = \
-           self._postRequestCommonNodeHandling(originalTargetNode, targetIndex,
-                                               "post_doTreeCopyWithDestName")
-        if not updateTargetTree:
-            return
-        if fixedSrcIndex == -1 or fixedTargetIndex == -1:
-            # Things to do?
-            return
-        elif fixedSrcIndex != srcIndex:
-            srcIndex = fixedSrcIndex
-            srcNode = self._rows[srcIndex]
-        elif fixedTargetIndex != targetIndex:
-            targetIndex = fixedTargetIndex
-            targetNode = self._rows[targetIndex]
-        else:
-            srcNode = originalSrcNode
-            targetNode = originalTargetNode
-
-        topModelNode = self.getNodeForURI(targetNode.uri)
-        if topModelNode is None:
-            log.error("Unexpected error: there is no current koPlaceItem for %s", targetNode.uri)
-            return
-        if not self.isContainerOpen(targetIndex):
-            return
-        nextIndex = self.getNextSiblingIndex(targetIndex)
-        if nextIndex == -1:
-            nextIndex = len(self._rows)
-        before_len = len(self._rows)
-        del self._rows[targetIndex + 1:nextIndex]
-        self._refreshTreeOnOpen_buildTree(targetNode.level, targetIndex,
-                                          topModelNode)
-        after_len = len(self._rows)
-        self._tree.rowCountChanged(anchor_index, after_len - before_len)
-        self.resetLiveRows()
-
-    def doTreeCopyWithDestNameAndURI(self, srcIndex, targetURI, newPath, callback):
-        #log.debug("doTreeCopyWithDestName: srcIndex:%d, targetURI:%s, newPath:%s)", srcIndex, targetIndex, newPath)
-        srcNode = self._rows[srcIndex]
-        requestID = self.getRequestID()
-        self.lock.acquire()
-        try:
-            self._data[requestID] = {'srcIndex': srcIndex,
-                                     'srcNode': srcNode,
+            self._data[requestID] = {'srcURI': srcURI,
                                      'targetURI': targetURI,
+                                     'targetIndex': targetIndex,
                                      'newPath': newPath,
                                      'callback': callback,
                                     }
         finally:
             self.lock.release()
-        srcNode.show_busy()
-        self._tree.invalidateRow(srcIndex)
+        self._copyMoveSanityChecks(srcURI, targetURI, True)
+
         targetNode.show_busy()
         self._tree.invalidateRow(targetIndex)
         #log.debug("%s %s %s", "copy", srcNode.path, targetNode.path)
-        self.workerThread.put(('doTreeCopyWithDestNameAndURI',
+        self.workerThread.put(('doTreeCopyWithDestNameAndURI_WorkerThread',
                                {'requestID':requestID,
                                 'requester':self},
                                'post_doTreeCopyWithDestNameAndURI'))
         
     def post_doTreeCopyWithDestNameAndURI(self, rv, requestID):
-        srcIndex, originalSrcNode, targetURI,\
+        srcURI, targetURI, targetIndex, \
             newPath, updateTargetTree, callback = self.getItemsByRequestID(
-                requestID, 'srcIndex', 'srcNode',
-                'targetURI', 'newPath',
-                'updateTargetTree', 'callback')
-        fixedSrcIndex, fixedSrcNode = \
-           self._postRequestCommonNodeHandling(originalSrcNode, srcIndex,
-                                               "post_doTreeCopyWithDestNameAndURI")
-        if rv:
+                requestID, 'srcURI', 'targetURI', 'targetIndex',
+                'newPath', 'updateTargetTree', 'callback')
+
+        targetNode = None
+        try:
+            targetNode = self._rows[targetIndex]
+            if targetNode.uri != targetURI:
+                targetNode = None
+        except IndexError:
+            pass
+        if targetNode is None:
+            targetIndex = self.getRowIndexForURI(targetURI)
+            targetNode = (targetIndex != -1 and self._rows[targetIndex]) or None
+        if targetNode:
+            targetNode.restore_icon()
+        
+        if rv and callback:
             callback.callback(components.interfaces.koIAsyncCallback.RESULT_ERROR,
                               rv)
             return
         if not updateTargetTree:
-            return
-        if fixedSrcIndex == -1:
-            # Things to do?
-            self._tree.invalidate()
-            return
-        elif fixedSrcIndex != srcIndex:
-            doInvalidate = True
-            srcIndex = fixedSrcIndex
-            srcNode = self._rows[srcIndex]
-        else:
-            doInvalidate = False
-            srcNode = originalSrcNode
-
-        topModelNode = self.getNodeForURI(targetURI)
-        if topModelNode is None:
-            log.error("Unexpected error: there is no current koPlaceItem for %s", targetURI)
             return
         self._wrap_refreshTreeOnOpen_buildTree()
 
@@ -1332,7 +1309,6 @@ class KoPlaceTreeView(TreeView):
                       parentNode.name, rowIndex)
             return
                         
-        qlog.debug(">> _refreshTreeOnOpen_buildTree: level:%d, rowIndex:%d", level, rowIndex)
         for childNode in parentNode.childNodes:
             childName = childNode.name
             if self._namePassesFilter(childName):
@@ -1432,57 +1408,73 @@ class KoPlaceTreeView(TreeView):
         finally:
             conn.close()
 
-    def deleteItem(self, index, deleteContents):
+    def deleteItems(self, indices, uris):
         self.lock.acquire()
         try:
             self.dragDropUndoCommand.clearArgs()
         finally:
             self.lock.release()
         requestID = self.getRequestID()
-        rowNode = self._rows[index]
         self.lock.acquire()
         try:
-            self._data[requestID] = {'index':index,
-                                     'node':rowNode,
+            self._data[requestID] = {'indices':indices,
+                                     'nodes_to_remove':[],
+                                     'uris':uris,
                                      }
         finally:
             self.lock.release()
-        rowNode.show_busy()
-        self._tree.invalidateRow(index)
-        self.workerThread.put(('deleteItem',
-                               {'index': index,
-                                'deleteContents':deleteContents,
-                                'node':rowNode,
-                                'requestID':requestID,
+        for index in indices:
+            node = self._rows[index]
+            node.show_busy()
+            self._tree.invalidateRow(index)
+        self.workerThread.put(('deleteItems_workerThread',
+                                {'requestID':requestID,
                                 'requester':self},
-                               'post_deleteItem'))
-
-    def post_deleteItem(self, rv, requestID):
-        index, originalNode = self.getItemsByRequestID(requestID, 'index', 'node')
-        fixedIndex, rowNode = self._postRequestCommonNodeHandling(originalNode, index,
-                                                    "post_deleteItem")
+                               'post_deleteItems'))
+        
+    def post_deleteItems(self, rv, requestID):
+        indices, nodes_to_remove, uris = self.getItemsByRequestID(requestID, 'indices', 'nodes_to_remove', 'uris')
         if rv:
             sendStatusMessage(rv)
             #todo: callback.callback()
             return
-        if fixedIndex != index:
-            doInvalidate = True
-            index = fixedIndex
-        else:
-            doInvalidate = False
-        # Verify the item is deleted
-        if self.isContainerOpen(index):
-            nextIndex = self.getNextSiblingIndex(index)
-            if nextIndex == -1:
-                nextIndex = len(self._rows)
-        else:
-            nextIndex = index + 1
-        self.removeSubtreeFromModelForURI(self._rows[index].uri)
-        del self._rows[index:nextIndex]
-        self.resetLiveRows()
-        self._tree.rowCountChanged(index, index - nextIndex)
-        if doInvalidate:
-            self.invalidateTree()
+        doInvalidate = False
+        self._tree.beginUpdateBatch()
+        try:
+            for uri, index in reversed(zip(uris, indices)):
+                try:
+                    node = self._rows[index]
+                except IndexError:
+                    node = None
+                if node is not None and node.uri == uri:
+                    # Good
+                    actualIndex = index
+                else:
+                    actualIndex = self.getRowIndexForURI(uri)
+                    if actualIndex == -1:
+                        #XXX How do we stop the node from spinning?
+                        log.error("post_deleteItems: Can't find URI %s", uri)
+                        continue
+                    doInvalidate = True
+                node = self._rows[actualIndex]
+                if node is None:
+                    log.error("post_deleteItems: looking for URI %s: node %d is null", actualIndex)
+                    continue
+                node.restore_icon()
+                if self.isContainerOpen(actualIndex):
+                    nextIndex = self.getNextSiblingIndex(actualIndex)
+                    if nextIndex == -1:
+                        nextIndex = len(self._rows)
+                else:
+                    nextIndex = actualIndex + 1
+                self.removeSubtreeFromModelForURI(uri)
+                del self._rows[actualIndex:nextIndex]
+                self.resetLiveRows()
+                self._tree.rowCountChanged(actualIndex, actualIndex - nextIndex)
+            if doInvalidate:
+                self.invalidateTree()
+        finally:
+            self._tree.endUpdateBatch()
 
     def _postRequestCommonNodeHandling(self, originalNode, index, context):
         originalNode.restore_icon()
@@ -1695,9 +1687,7 @@ class KoPlaceTreeView(TreeView):
             nextIndex = self.getNextSiblingIndex(index)
             if nextIndex == -1:
                 nextIndex = len(self._rows)
-            doInvalidate = True
-        else:
-            doInvalidate = False
+        doInvalidate = True
         self._finishRefreshingView(index, nextIndex, doInvalidate, rowNode,
                                    firstVisibleRow)
 
@@ -1799,11 +1789,13 @@ class KoPlaceTreeView(TreeView):
             conn.rename(path, newPath)
         uri = koFile.URI
         self.removeSubtreeFromModelForURI(uri)
-        parent_uri = uri[:uri.rindex("/")]
-        index = self.getRowIndexForURI(parent_uri)
-        if index != -1:
-            #qlog.debug("renameItem: refresh parent %s at %d", parent_uri, index)
-            self.refreshView(index)
+        parent_uri = self._getURIParent(uri)
+        parent_index = self.getRowIndexForURI(parent_uri)
+        if parent_index != -1:
+            #qlog.debug("renameItem: refresh parent %s at %d", parent_uri, parent_index)
+            self.refreshView(parent_index)
+        else:
+            self.refreshFullTreeView()
 
     def _wrap_refreshTreeOnOpen_buildTree(self):
         before_len = len(self._rows)
@@ -1812,6 +1804,7 @@ class KoPlaceTreeView(TreeView):
         self._refreshTreeOnOpen_buildTree(0, 0, topModelNode)
         after_len = len(self._rows)
         self._tree.rowCountChanged(0, after_len - before_len)
+        self.invalidateTree()
         self.resetLiveRows()
 
     def sortRows(self):
@@ -2100,18 +2093,38 @@ class _WorkerThread(threading.Thread, Queue):
             else:
                 conn.removeFile(path)
 
-    def deleteItem(self, args):
-        node = args['node']
+    def deleteItems_workerThread(self, args):
         requester = args['requester']
-        deleteContents = args['deleteContents']
-        path = node.path
-        if requester._isLocal:
+        requestID = args['requestID']
+        requester.lock.acquire()
+        try:
+            requester_data = requester._data[requestID]
+        finally:
+            requester.lock.release()
+        uris = requester_data['uris']
+        indices = requester_data['indices']
+        nodes_to_remove = requester_data['nodes_to_remove']
+
+        for uri, index in reversed(zip(uris, indices)):
+            try:
+                if self._do_deleteItem(requester, uri, index):
+                    nodes_to_remove.append(index)
+            except:
+                log.exception("Failed to delete %s", uri)
+        
+    def _do_deleteItem(self, requester, uri, index):
+        koFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                   createInstance(components.interfaces.koIFileEx)
+        koFileEx.URI = uri
+        path = koFileEx.path
+        if koFileEx.isLocal:
             sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
                               getService(components.interfaces.koISysUtils)
             try:
                 res = sysUtils.MoveToTrash(path)
                 if not res:
-                    return "Failed to remove %s" % (path,)
+                    log.error("Failed to remove %s" % (path,))
+                    return False
             except:
                 log.exception("sysUtils.MoveToTrash(%s) failed", path)
                 if os.path.isdir(path):
@@ -2122,8 +2135,8 @@ class _WorkerThread(threading.Thread, Queue):
                         os.rmdir(path)
                 else:
                     os.unlink(path)
+            return not koFileEx.exists
         else:
-            uri = node.uri
             conn = requester._RCService.getConnectionUsingUri(uri)
             try:
                 rfi = conn.list(path, True)
@@ -2134,12 +2147,13 @@ class _WorkerThread(threading.Thread, Queue):
                     conn.removeFile(path)
                 rfi2 = conn.list(path, False)
                 if rfi2:
-                    return("deleteItem: failed to delete %s on server %s" % (path, conn.server))
+                    log.error("deleteItem: failed to delete %s on server %s" % (path, conn.server))
+                    return False
             finally:
                 conn.close()
-        return ""
+            return True
 
-    def doTreeOperation(self, args):
+    def doTreeOperation_WorkerThread(self, args):
         requester = args['requester']
         requestID = args['requestID']
         requester.lock.acquire()
@@ -2147,62 +2161,85 @@ class _WorkerThread(threading.Thread, Queue):
             requester_data = requester._data[requestID]
         finally:
             requester.lock.release()
-        srcIndex = requester_data['srcIndex']
-        srcNode = requester_data['srcNode']
-        targetNode = requester_data.get('targetNode', None)
-        if targetNode is None:
-            targetURI = requester_data.get('targetURI', None)
-            targetDirPath = uriparse.URIToPath(targetURI)
-        else:
-            targetURI = targetNode.uri
-            targetDirPath = targetNode.path
+        srcURI = requester_data['srcURI']
+        targetURI = requester_data['targetURI']
+        targetIndex = requester_data['targetIndex']
         copying = requester_data['copying']
         
-        srcPath = srcNode.path
         finalMsg = ""
+        errorMsg = ""
+        srcFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                       createInstance(components.interfaces.koIFileEx)
+        srcFileEx.URI = srcURI
+        targetFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                       createInstance(components.interfaces.koIFileEx)
+        targetFileEx.URI = targetURI
 
         # When we copy or move an open folder, the target folder will be
         # closed, even if it was open before.  Windows explorer works this way.
-        clearDragDropUndoCommand = True
-        if requester._isLocal:
-            targetFile = os.path.join(targetDirPath, os.path.basename(srcPath))
-            updateTargetTree = not os.path.exists(targetFile)
+        updateTargetTree = False
+        srcPath = srcFileEx.path
+        if srcFileEx.isLocal and targetFileEx.isLocal:
+            finalTargetFilePath = os.path.join(targetFileEx.path,
+                                               srcFileEx.baseName)
+            srcPath = srcPath
+            updateTargetTree = not os.path.exists(finalTargetFilePath)
             #XXX Watch out if targetFile is an open folder.
             if not copying:
-                shutil.move(srcPath, targetFile)
+                shutil.move(srcPath, finalTargetFilePath)
                 requester.lock.acquire()
                 try:
-                    requester.dragDropUndoCommand.update(targetFile, srcPath, True)
+                    requester.dragDropUndoCommand.update(finalTargetFilePath, srcPath, True)
                 finally:
                     requester.lock.release()
-                clearDragDropUndoCommand = False
-            elif requester.isContainer(srcIndex):
-                fileutils.copyLocalFolder(srcPath, targetDirPath)
+            elif srcFileEx.isDirectory:
+                fileutils.copyLocalFolder(srcPath, finalTargetFilePath)
             else:
-                shutil.copy(srcPath, targetFile)
+                shutil.copy(srcPath, finalTargetFilePath)
                 # Nothing to undo
-        else:
-            conn = requester._RCService.getConnectionUsingUri(requester._currentPlace_uri)
+        elif ((not srcFileEx.isLocal)
+              and (not targetFileEx.isLocal)
+              and srcFileEx.server == targetFileEx.server):
+            conn = requester._RCService.getConnectionUsingUri(srcURI)
             try:
-                targetFile = targetDirPath + "/" + srcNode.name
-                target_rfi = conn.list(targetFile, True)
+                finalTargetFilePath = targetFileEx.path + "/" + srcFileEx.baseName
+                target_rfi = conn.list(finalTargetFilePath, True)
                 updateTargetTree = not target_rfi
                 #XXX Watch out if targetFile is an open folder.
                 if not copying:
-                    conn.rename(srcPath, targetFile)
+                    try:
+                        conn.rename(srcPath, finalTargetFilePath)
+                    except:
+                        log.exception("Can't rename %s, %s", srcPath, finalTargetFilePath)
+                        if target_rfi:
+                            # File already exists, so we can't just rename it
+                            try:
+                                newTempName = "%s-%f" % (finalTargetFilePath,
+                                                         time.time())
+                                conn.rename(finalTargetFilePath, newTempName)
+                                conn.rename(srcPath, finalTargetFilePath)
+                                try:
+                                    conn.removeFile(newTempName)
+                                except:
+                                    log.exception("Can't remove file %s", newTempName)
+                                    try:
+                                        conn.removeDirectoryRecursively(newTempName)
+                                    except:
+                                        log.exception("Can't remove dir %s", newTempName)
+                            except:
+                                log.exception("Can't rename this thing")
                     requester.lock.acquire()
                     try:
-                        requester.dragDropUndoCommand.update(targetURI + "/" + srcNode.name, srcNode.uri, False)
+                        requester.dragDropUndoCommand.update(targetURI + "/" + srcFileEx.baseName, srcURI, False)
                     finally:
                         requester.lock.release()
-                    clearDragDropUndoCommand = False
-                elif requester.isContainer(srcIndex):
+                elif srcFileEx.isDirectory:
                     requester_data['uncopied_symlinks'] = []
                     requester_data['unrecognized_filetypes'] = []
-                    self._copyRemoteFolder(conn, srcPath, targetDirPath, requester_data)
+                    self._copyRemoteFolder(conn, srcPath, targetFileEx.dirName, requester_data)
                     if requester_data['uncopied_symlinks'] or requester_data['unrecognized_filetypes']:
                         finalMsg = ("There were problems copying folder %s to %s:\n"
-                               % (srcPath, targetDirPath))
+                               % (srcPath, targetFileEx.dirName))
                         if requester_data['uncopied_symlinks']:
                             finalMsg += "\nThe following symbolic links weren't copied:\n"
                             finalMsg += "\n    ".join(requester_data['uncopied_symlinks'])
@@ -2210,23 +2247,25 @@ class _WorkerThread(threading.Thread, Queue):
                             finalMsg += "\nThe following files had an unexpected type:\n"
                             finalMsg += "\n    ".join(requester_data['unrecognized_filetypes'])
                 else:
+                    # Copy infile outfile
                     try:
-                        data = "<not read yet>"
-                        # Determine if there's nothing left to do after copying
                         data = conn.readFile(srcPath)
-                        conn.writeFile(targetFile, data)
+                        conn.writeFile(finalTargetFilePath, data)
                     except:
-                        log.exception("can't copy file %s (data:%s))",
+                        log.exception("can't copy file %s (data:%r))",
                                       srcPath, data)
-                        return ("Exception: can't copy file %s (data:%s)): %s" %
-                                srcPath, data, sys.exc_info()[1])
+                        errorMsg = "Exception: can't copy file %s (data:%s)): %s" % (srcPath, data, sys.exc_info()[1])
+                                
             finally:
                 conn.close()
+        else:
+            errorMsg = "drag/drop across different servers not yet supported"
         requester_data['finalMsg'] = finalMsg
         requester_data['updateTargetTree'] = updateTargetTree
+        if errorMsg:
+            return errorMsg
         if not copying:
-            srcURI = srcNode.uri
-            parentURI = srcURI[:srcURI.rindex("/")]
+            parentURI = requester._getURIParent(srcURI)
             self.refreshTreeOnOpen_Aux(requester, parentURI, forceRefresh=True)
             requester._sortModel(parentURI)
         self.refreshTreeOnOpen_Aux(requester, targetURI, forceRefresh=True)
@@ -2278,7 +2317,8 @@ class _WorkerThread(threading.Thread, Queue):
         else:
             requester_data['unrecognized_filetypes'].append(rfi.getFilepath())
 
-    def doTreeCopyWithDestName(self, args):
+    def doTreeCopyWithDestNameAndURI_WorkerThread(self, args):
+        requester = args['requester']
         requester.lock.acquire()
         try:
             requester.dragDropUndoCommand.clearArgs()
@@ -2291,20 +2331,23 @@ class _WorkerThread(threading.Thread, Queue):
             requester_data = requester._data[requestID]
         finally:
             requester.lock.release()
-        srcIndex = requester_data['srcIndex']
-        srcNode = requester_data['srcNode']
-        targetNode = requester_data['targetNode']
+        srcURI = requester_data['srcURI']
+        targetURI = requester_data['targetURI']
         newPath = requester_data['newPath']
         
-        srcPath = srcNode.path
-        targetDirPath = targetNode.path
+        srcFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                       createInstance(components.interfaces.koIFileEx)
+        srcFileEx.URI = srcURI
+        srcPath = srcFileEx.path
         updateTargetTree = False
-        if requester._isLocal:
+        # This is always done in the same window, so both nodes are
+        # always on the same server.
+        if srcFileEx.isLocal:
             try:
                 updateTargetTree = not os.path.exists(newPath)
                 shutil.copy(srcPath, newPath)
             except (Exception, IOError), ex:
-                finalMsg = ("doTreeCopyWithDestName: can't copy %s to %s: %s" %
+                finalMsg = ("doTreeCopyWithDestNameAndURI_WorkerThread: can't copy %s to %s: %s" %
                             (srcPath, newPath, ex.message))
                 log.exception("%s", finalMsg)
                 return finalMsg
@@ -2316,59 +2359,14 @@ class _WorkerThread(threading.Thread, Queue):
                 data = conn.readFile(srcPath)
                 conn.writeFile(newPath, data)
             except:
-                finalMsg = ("doTreeCopyWithDestName: can't copy file %s to %s: %s" %
+                finalMsg = ("doTreeCopyWithDestNameAndURI_WorkerThread: can't copy file %s to %s: %s" %
                             (srcPath, newPath, ex.message))
                 log.exception("%s", finalMsg)
                 return finalMsg
             finally:
                 conn.close()
         requester_data['updateTargetTree'] = updateTargetTree
-        requester._sortModel(targetNode.uri)
-        return ''
-
-    def doTreeCopyWithDestNameAndURI(self, args):
-        requester.lock.acquire()
-        try:
-            requester.dragDropUndoCommand.clearArgs()
-        finally:
-            requester.lock.release()
-        requester = args['requester']
-        requestID = args['requestID']
-        requester.lock.acquire()
-        try:
-            requester_data = requester._data[requestID]
-        finally:
-            requester.lock.release()
-        srcNode = requester_data['srcNode']
-        newPath = requester_data['newPath']
-        
-        srcPath = srcNode.path
-        updateTargetTree = False
-        if requester._isLocal:
-            try:
-                updateTargetTree = not os.path.exists(newPath)
-                shutil.copy(srcPath, newPath)
-            except (Exception, IOError), ex:
-                finalMsg = ("doTreeCopyWithDestName: can't copy %s to %s: %s" %
-                            (srcPath, newPath, ex.message))
-                log.exception("%s", finalMsg)
-                return finalMsg
-        else:
-            conn = requester._RCService.getConnectionUsingUri(requester._currentPlace_uri)
-            target_rfi = conn.list(newPath, True)
-            updateTargetTree = not target_rfi
-            try:
-                data = conn.readFile(srcPath)
-                conn.writeFile(newPath, data)
-            except:
-                finalMsg = ("doTreeCopyWithDestName: can't copy file %s to %s: %s" %
-                            (srcPath, newPath, ex.message))
-                log.exception("%s", finalMsg)
-                return finalMsg
-            finally:
-                conn.close()
-        requester_data['updateTargetTree'] = updateTargetTree
-        requester._sortModel(targetNode.uri)
+        requester._sortModel(targetURI)
         return ''
 
     def setMainFilters(self, args):

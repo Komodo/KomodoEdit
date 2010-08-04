@@ -1488,9 +1488,6 @@
         commandupdater="true"
         events="some_projects_open">
 
-        <broadcaster
-            id="broadcaster_projectCurrent" key="key_broadcaster_projectCurrent"
-            disabled="true"/>
         <command
             id="cmd_importFromFS_Project" key="key_cmd_importFromFS_Project"
             oncommand="ko.commands.doCommandAsync('cmd_importFromFS_Project', event)"

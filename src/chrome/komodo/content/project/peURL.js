@@ -58,11 +58,12 @@ this.URLProperties = function peURL_editProperties(/*koIPart*/ item)
         "chrome,centerscreen,close=yes,dependent=yes,modal=yes,resizable=yes", obj);
 }
 
-this.addURLFromText = function peURL_addURL(URLtext, /*koIPart*/ parent) {
+this.addURLFromText = function peURL_addURL(URLtext, /*koITool*/ parent) {
     if (typeof(parent) == 'undefined' || !parent)
-        parent = ko.projects.active.manager.getCurrentProject();
+        parent = ko.toolbox2.getStandardToolbox();
     try {
-        var URL = parent.project.createPartFromType('URL');
+        var uriTool = ko.toolbox2.createPartFromType('URL');
+        uriTool.type = 'URL';
         var name = URLtext;
         var value = URLtext;
         if (URLtext.search("\n")) {
@@ -70,9 +71,9 @@ this.addURLFromText = function peURL_addURL(URLtext, /*koIPart*/ parent) {
             name = typeof(s[1])!='undefined'?s[1]:s[0];
             value = s[0];
         }
-        URL.setStringAttribute('name', name);
-        URL.value = value;
-        ko.projects.addItem(URL,parent);
+        uriTool.setStringAttribute('name', name);
+        uriTool.value = value;
+        ko.toolbox2.addItem(uriTool, parent);
         //dump("leaving AddURL\n");
     } catch (e) {
         _log.exception(e);

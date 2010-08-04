@@ -63,6 +63,7 @@ $cons->InstallInChrome('mru.js');
 $cons->InstallInChrome('color_functions.js');
 $cons->InstallInChrome('printing.js');
 $cons->InstallInChrome('stringutils.js');
+$cons->InstallInChrome('treeutils.js');
 $cons->InstallInChrome('uriparse.js');
 $cons->InstallInChrome('commands.js');
 $cons->InstallInChrome('controller.js');

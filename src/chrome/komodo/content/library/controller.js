@@ -49,7 +49,6 @@ var handlers = {
     'cmd_viewBottomPane': 'ko.uilayout.togglePane(\'bottom_splitter\', \'output_tabs\', \'cmd_viewBottomPane\');',
     'cmd_viewLeftPane': 'ko.uilayout.togglePane(\'workspace_left_splitter\', \'project_toolbox_tabs\', \'cmd_viewLeftPane\');',
     'cmd_viewRightPane': 'ko.uilayout.togglePane(\'workspace_right_splitter\', \'right_toolbox_tabs\', \'cmd_viewRightPane\');',
-    'cmd_viewProjects': 'ko.uilayout.toggleTab(\'project_tab\')',
     'cmd_viewToolbox': 'ko.uilayout.toggleTab(\'toolbox2_tab\')',
     'cmd_focusProjectPane': 'ko.uilayout.focusPane(\'project_toolbox_tabs\')',
     'cmd_focusToolboxPane': 'ko.uilayout.focusPane(\'right_toolbox_tabs\')',

@@ -8,7 +8,7 @@ if (typeof(ko.projects)=='undefined') {
     ko.projects = {};
 }
 
-(function() {
+var moo = (function() {
 
 var log = ko.logging.getLogger('peFolder');
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
@@ -61,8 +61,10 @@ peFolder.prototype.registerEventHandlers = function() {
 peFolder.prototype.supportsCommand = function(command, item) {
 try {
     //dump('for ' + command + '\n');
-    if (!ko.projects.active) return false;
-    var items = ko.projects.active.getSelectedItems();
+    if (!ko.places.currentPlace) {
+        return false;
+    }
+    var items = ko.places.manager.getSelectedFiles();
     var havemultiple = items.length > 1;
     //dump('for ' + command + ', items.length == ' + items.length + '\n');
     switch (command) {
@@ -101,7 +103,7 @@ try {
     switch (command) {
         case 'cmd_delete':
             // Delete is enabled for any part selection that isn't a project.
-            if (ko.projects.getFocusedProjectView()) {
+            if (ko.places.getFocusedPlacesView()) {
                 if (!ko.projects.active.manager.writeable()) return false;
                 item = ko.projects.active.getSelectedItem();
                 if (!item) return false;
@@ -176,7 +178,7 @@ peFolder.prototype.doCommand = function(command) {
         break;
     case 'cmd_delete':
         // this cmd_delete handler only implements for our part viewers
-        if (!ko.projects.getFocusedProjectView()) return;
+        if (!ko.places.getFocusedPlacesView()) return;
         var items = ko.projects.active.getSelectedItems();
         if (items.length < 1) return;
         var havemultiple = (items.length > 1);
@@ -418,7 +420,7 @@ this.addLiveFolder = function peFolder_addLiveFolder(dirname, /*koIPart*/ parent
     ko.projects.addItem(folder,parent);
 }
 
-}).apply(ko.projects);
+    }); // .apply(ko.projects);
 
 // setTimeout in case projectManager.p.js hasn't been loaded yet.
 setTimeout(function() {

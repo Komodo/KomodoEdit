@@ -112,7 +112,7 @@ AsyncEventTest.prototype = new Casper.UnitTest.TestCaseAsync();
 AsyncEventTest.prototype.constructor = AsyncEventTest;
 AsyncEventTest.prototype.setup = function() {
     // make sure the project pane is open, and the project tab is selected
-    uilayout_toggleTab('project_tab');
+    uilayout_toggleTab('places_tab');
 }
 AsyncEventTest.prototype.test_async = function() {
     var self = this;

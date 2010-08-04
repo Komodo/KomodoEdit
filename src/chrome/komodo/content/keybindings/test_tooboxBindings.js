@@ -157,10 +157,10 @@ test_keybindings_toolbox.prototype = new Casper.UnitTest.TestCaseSerialClassAsyn
 test_keybindings_toolbox.prototype.constructor = test_keybindings_toolbox;
 
 test_keybindings_toolbox.prototype.setup = function() {
-  var item = ko.toolboxes.user.findItemByAttributeValue('name', 'keybinding test macro');
-  this.assertNull(item, 'keybinding test macro already exists');
+  var items = ko.toolbox2.getToolsByTypeAndName('macro', 'keybinding test macro');
+  this.assertEqual(items.length, 0, 'keybinding test macro already exists');
   var part = this.createTestMacro();
-  this.assertEqual(ko.projects.findPartById(part.id),part,"Could not create test macro");
+  this.assertEqual(ko.toolbox2.findToolById(part.id), part, "Could not create test macro");
   this.macroExecuted = false;
   // We need a new file for one of our tests, lets open one now.
   // Using an internal API here -- this should be async.
@@ -168,8 +168,7 @@ test_keybindings_toolbox.prototype.setup = function() {
 }
 test_keybindings_toolbox.prototype.tearDown = function() {
   // some just-in-case cleanup
-  var item = ko.toolboxes.user.findItemByAttributeValue('name', 'keybinding test macro');
-  ko.toolboxes.user.removeItem(item, true);
+  var items = ko.toolbox2.getToolsByTypeAndName('macro', 'keybinding test macro');
   this.view.close();
 }
 
@@ -182,21 +181,21 @@ test_keybindings_toolbox.prototype.createTestMacro = function() {
     part.setLongAttribute('rank', 0);
     part.setBooleanAttribute('async', false);
     part.setStringAttribute('language', 'JavaScript');
-    ko.toolboxes.user.addItem(part);
+    ko.toolbox2.addItem(part);
     return part;
 }
 
 test_keybindings_toolbox.prototype.test_toolbox_runMacro = function() {
     // just a quick test that the macro works
     this.assertFalse(this.macroExecuted, "macro was already executed?");
-    var item = ko.toolboxes.user.findItemByAttributeValue('name', 'keybinding test macro');
+    var item = ko.toolbox2.getToolsByTypeAndName('macro', 'keybinding test macro')[0];
     ko.projects.executeMacroById(item.id, false);
     this.assertTrue(this.macroExecuted, "macro was not executed");
     this.macroExecuted = false;
 }
 
 test_keybindings_toolbox.prototype.test_keybinding_toolboxMacro = function() {
-    var item = ko.toolboxes.user.findItemByAttributeValue('name', 'keybinding test macro');
+    var item = ko.toolbox2.getToolsByTypeAndName('macro', 'keybinding test macro')[0];
     var cmd = "cmd_callPart";
     var keylabel = "Ctrl+K, Ctrl+B";
     var commandParam = item.id;
@@ -235,7 +234,7 @@ test_keybindings_toolbox.prototype.testAsync_keybinding_runToolboxMacro_FocusPro
     this.macroExecuted = false;
     // place focus on project
     //ko.commands.doCommand('cmd_viewRightPane');
-    ko.uilayout.toggleTab('project_tab', false);
+    ko.uilayout.toggleTab('places_tab', false);
     //dump("*** runToolboxMacro_FocusProjects\n");
     var self = this;
     var test = new Casper.Events.test(window);
@@ -284,7 +283,7 @@ test_keybindings_toolbox.prototype.complete_runToolboxMacro = function(e, expect
 }
 
 test_keybindings_toolbox.prototype.test_changeKey_toolboxMacro = function() {
-    var item = ko.toolboxes.user.findItemByAttributeValue('name', 'keybinding test macro');
+    var item = ko.toolbox2.getToolsByTypeAndName('macro', 'keybinding test macro')[0];
     var cmd = "cmd_callPart";
     var keylabel = "Ctrl+K, K";
     var oldkeylabel = "Ctrl+K, Ctrl+B";
@@ -319,7 +318,7 @@ test_keybindings_toolbox.prototype.testAsync_keybinding_runToolboxMacro_newBindi
 }
 
 test_keybindings_toolbox.prototype.test_clearSequence_toolboxMacro = function() {
-    var item = ko.toolboxes.user.findItemByAttributeValue('name', 'keybinding test macro');
+    var item = ko.toolbox2.getToolsByTypeAndName('macro', 'keybinding test macro')[0];
     var commandParam = item.id;
     var cmd = "cmd_callPart";
     var keylabel = "Ctrl+K, K";

@@ -89,9 +89,6 @@ class koProjectPackageService:
                 newpart = part.copyToProject(newproject)
                 newproject.addChild(newpart)
 
-    def packageParts(self, packagePath, partList, overwrite):
-        self._packageParts(packagePath, partList=partList, overwrite=overwrite)
-
     # a list of parts instead of project
     def _packageParts(self, packagePath, partList=None, orig_project=None,
                             live=0, extradir=1, overwrite=0):

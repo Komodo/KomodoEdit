@@ -43,8 +43,6 @@
 <!ENTITY aboutName.accesskey "A">
 <!ENTITY add.label "Add">
 <!ENTITY addAsSnippetInToolbox.label "Add as Snippet in Toolbox">
-<!ENTITY addItemToCurrentProject.tooltiptext "Add Item to current project">
-<!ENTITY addItemToToolbox.tooltiptext "Add Item to Toolbox">
 <!ENTITY browseForDirectoriesToAddToSearchList.tooltiptext "Browse for directories to add to search list">
 <!ENTITY bugs.label "Bugs">
 <!ENTITY buttonText.label "Button Text">
@@ -237,7 +235,6 @@
 <!ENTITY findResults2.label "Find Results 2">
 <!ENTITY findToolbarBrowsedirectory.accesskey "y">
 <!ENTITY fold.label "Fold">
-<!ENTITY folderContext.accesskey "A">
 <!ENTITY folderContextExistingFile.accesskey "i">
 <!ENTITY folderContextNewCommand.accesskey "c">
 <!ENTITY folderContextNewFile.accesskey "f">
@@ -503,7 +500,6 @@
 <!ENTITY projectsToolboxAddNewFileFromTemplate.desc "Projects/Toolbox: Add New File From Template...">
 <!ENTITY projectsToolboxAddNewFolder.desc "Projects/Toolbox: Add New Folder...">
 <!ENTITY projectsToolboxAddRemoteFile.desc "Projects/Toolbox: Add Remote File...">
-<!ENTITY projectView.tooltiptext "Project Tools">
 <!ENTITY properties.label "Properties">
 <!ENTITY propertiesAndSettings.label "Properties and Settings">
 <!ENTITY quitApplicationCmd.label "Quit">
@@ -734,14 +730,6 @@
 <!ENTITY komodoFindToolbarOpen.label "Open">
 <!ENTITY komodoFindToolbarIn.label "in">
 <!ENTITY menuHelpCheckForUpdates.accesskey "U">
-<!ENTITY projectNameTreeColumn.label "Name">
-<!ENTITY projectNameTreeColumn.accesskey "N">
-<!ENTITY projectSortDirectionNatural.label "Natural">
-<!ENTITY projectSortDirectionNatural.accesskey "N">
-<!ENTITY projectSortDirectionAscending.label "Ascending">
-<!ENTITY projectSortDirectionAscending.accesskey "A">
-<!ENTITY projectSortDirectionDescending.label "Descending">
-<!ENTITY projectSortDirectionDescending.accesskey "D">
 
 <!--commented in file commandsOverlay.xul-->
 <!--

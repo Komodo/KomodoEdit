@@ -56,5 +56,4 @@ $cons->Preprocess('widgets.p.css', 'widgets.css');
 $cons->InstallInChrome('widgets.css');
 $cons->InstallInChrome('prefwidgets.css');
 $cons->InstallInChrome('views.css');
-$cons->InstallInChrome('partviewer.css');
 $cons->InstallInChrome('keybinding.css');

@@ -416,12 +416,6 @@ interface koIProjectPackageService: nsISupports {
     // takes a name and a project, calls packageParts with the projects children
     void packageProject(in wstring packageName, in koIProject project, in boolean overwrite);
 
-    // takes a name and a list of parts, creates a zip file
-    void packageParts(in wstring packageName,
-                      in unsigned long count,
-                      [array, size_is(count)] in koIPart child,
-                      in boolean overwrite);
-    
     // extracts the package at packagePath to the destination directory
     void extractPackage(in wstring packagePath, in wstring destinationPath);
 

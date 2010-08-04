@@ -320,6 +320,7 @@ if (typeof(ko.dragdrop)=='undefined') {
                 break;
             case "application/x-moz-url":
             case "text/x-moz-url":
+            case "text/uri-list":
                 _log.debug("onDrop:: x-moz-url: " + dragData);
                 // Ensure we decode the URI, bug 72873.
                 // Note: x-moz-url has the format: "Url\nTitle\n"

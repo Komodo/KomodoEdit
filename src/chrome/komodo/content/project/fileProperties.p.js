@@ -251,7 +251,6 @@ function Apply()  {
         gItem.prefset.setStringPref('import_include_matches', includeFilter.value);
         gItem.prefset.setStringPref('import_exclude_matches', excludeFilter.value);
     }
-    opener.ko.projects.active.view.refresh(gItem);
     updateApply();
 }
 

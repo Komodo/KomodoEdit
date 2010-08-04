@@ -101,23 +101,6 @@ this.findPartById = function part_findPartById(id) {
     return ko.toolbox2.findToolById(id);
 }
 
-function _getPartURL(part) {
-    if (part.hasAttribute('url')) {
-        // Is it a project or a folder?
-        var url = part.getStringAttribute('url')
-        var pathSvc = Components.classes["@activestate.com/koOsPath;1"]
-                                .getService(Components.interfaces.koIOsPath);
-        var dirname = ko.uriparse.URIToLocalPath(url);
-        if (part.type == 'project') {
-            dirname = pathSvc.dirname(dirname);
-        }
-        return dirname;
-    } else if (part.parent) {
-        return _getPartURL(part.parent);
-    }
-    return null;
-}
-
 this.importFromFileSystem = function part_ImportFromFS(part, baseURL) {
     try {
     if (!part) return false;

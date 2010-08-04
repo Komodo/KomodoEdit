@@ -48,45 +48,49 @@ test_keybindings_bug44719.prototype = new Casper.UnitTest.TestCaseSerialClassAsy
 test_keybindings_bug44719.prototype.constructor = test_keybindings_bug44719;
 
 test_keybindings_bug44719.prototype.setup = function() {
-  ko.projects.active = ko.toolboxes.user.viewMgr;
   this.folderName = 'bug 44719 test folder';
-  var folder = ko.toolboxes.user.findItemByAttributeValue('name', this.folderName);
-  this.assertNull(folder, 'keybinding test folder already exists');
+  var folders = ko.toolbox2.getToolsByTypeAndName('folder', this.folderName);
+  this.assertEqual(0, folders.length, 'keybinding test folder already exists');
+
+  var folder = ko.toolbox2.manager.toolsMgr.createToolFromType('folder');
+  folder.setStringAttribute('name', this.folderName);
+  ko.toolbox2.addItem(folder);
   
-  ko.projects.addFolder(this.folderName, ko.toolboxes.user.viewMgr.view.toolbox);
-  folder = ko.toolboxes.user.findItemByAttributeValue('name', this.folderName);
-  this.assertNotNull(folder, 'could not retrieve folder');
-  var index = ko.toolboxes.user.viewMgr.view.getIndexByPart(folder);
+  folders = ko.toolbox2.getToolsByTypeAndName('folder', this.folderName);
+  this.assertNotEqual(folders.length, 'could not retrieve folder');
+  folder = folders[0];
+  var index = ko.toolbox2.manager.view.getIndexByTool(folder);
   //dump("folder index is "+index+"\n");
   
   this.snippetName = 'bug 44719 test snippet';
-  var item = ko.toolboxes.user.findItemByAttributeValue('name', this.snippetName);
-  this.assertNull(item, 'keybinding test snippet already exists');
+  var items = ko.toolbox2.getToolsByTypeAndName('snippet', this.snippetName);
+  this.assertEqual(0, items.length, 'keybinding test snippet already exists');
 
-  var snippet = ko.projects.addSnippetFromText(this.snippetName, item);
-  this.assertEqual(ko.projects.findPartById(snippet.id),snippet,"Could not create test snippet");
+  var snippet = ko.projects.addSnippetFromText(this.snippetName, folder);
+  this.assertEqual(ko.toolbox2.getToolsByTypeAndName('snippet', this.snippetName)[0],
+                   snippet,
+                   "Could not create test snippet");
 
   this.snippetExecuted = false;
 }
 
 test_keybindings_bug44719.prototype.tearDown = function() {
-    var item = ko.toolboxes.user.findItemByAttributeValue('name', this.folderName);
-    if (item)
-        ko.toolboxes.user.removeItem(item, true);
-    item = ko.toolboxes.user.findItemByAttributeValue('name', this.snippetName);
-    if (item)
-        ko.toolboxes.user.removeItem(item, true);
+    var items = ko.toolbox2.getToolsByTypeAndName('folder', this.folderName);
+    items.map(ko.toolbox2.removeItem);
+    items = ko.toolbox2.getToolsByTypeAndName('snippet', this.snippetName);
+    items.map(ko.toolbox2.removeItem);
 }
 
 test_keybindings_bug44719.prototype.test_toggleFolderOpen = function() {
-  var folder = ko.toolboxes.user.findItemByAttributeValue('name', this.folderName);
-  var index = ko.toolboxes.user.viewMgr.view.getIndexByPart(folder);
-  ko.toolboxes.user.viewMgr.view.toggleOpenState(index);
-  this.assertTrue(ko.toolboxes.user.viewMgr.view.isContainerOpen(index),"Folder did not open");
+  var folder = ko.toolbox2.getToolsByTypeAndName('folder', this.folderName)[0];
+  var index = ko.toolbox2.manager.view.getIndexByTool(folder);
+  ko.toolbox2.manager.view.toggleOpenState(index);
+  this.assertTrue(ko.toolbox2.manager.view.isContainerOpen(index),
+                  "Folder did not open");
 }
 
 test_keybindings_bug44719.prototype.test_addKeyBinding = function() {
-    var item = ko.toolboxes.user.findItemByAttributeValue('name', this.snippetName);
+    var item = ko.toolbox2.getToolsByTypeAndName('snippet', this.snippetName)[0];
     this.assertNotNull(item , 'could not find snippet!');
     var cmd = "cmd_callPart";
     var keylabel = "Ctrl+K, B";
@@ -113,7 +117,7 @@ test_keybindings_bug44719.prototype.test_movesnippetOutOfFolder = function() {
     // move the snippet into a folder
     var cmd = "cmd_callPart";
     var keylabel = "Ctrl+K, B";
-    var snippet = ko.toolboxes.user.findItemByAttributeValue('name', this.snippetName);
+    var snippet = ko.toolbox2.getToolsByTypeAndName('snippet', this.snippetName)[0];
     this.assertNotNull(snippet , 'could not find snippet!');
     var commandParam = snippet.id;
 
@@ -123,12 +127,11 @@ test_keybindings_bug44719.prototype.test_movesnippetOutOfFolder = function() {
 
     var newpart = snippet.clone();
     
-    ko.toolboxes.user.removeItem(snippet,true);
     // assert the keybinding doesn't exist
     seqList = gKeybindingMgr.command2keysequences(cmd)
     this.assertFalse(seqList.indexOf(keylabel) >= 0, "item bindings did not get removed");
 
-    ko.toolboxes.user.addItem(newpart);
+    ko.toolbox2.addItem(newpart);
     // assert the keybinding exists
     commandParam = newpart.id;
     seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
@@ -140,13 +143,13 @@ test_keybindings_bug44719.prototype.test_movesnippetIntoFolder = function() {
     // move the snippet into a folder
     var cmd = "cmd_callPart";
     var keylabel = "Ctrl+K, B";
-    var snippet = ko.toolboxes.user.findItemByAttributeValue('name', this.snippetName);
+    var snippet = ko.toolbox2.getToolsByTypeAndName('snippet', this.snippetName)[0];
     this.assertNotNull(snippet , 'could not find snippet!');
     var commandParam = snippet.id;
-    var folder = ko.toolboxes.user.findItemByAttributeValue('name', this.folderName);
+    var folder = ko.toolbox2.getToolsByTypeAndName('folder', this.folderName)[0];
     this.assertNotNull(folder , 'could not find folder!');
-    var index = ko.toolboxes.user.viewMgr.view.getIndexByPart(folder);
-    //ko.toolboxes.user.viewMgr.view.toggleOpenState(index);
+    var index = ko.toolbox2.manager.view.getIndexByTool(folder);
+    //ko.toolbox2.manager.view.toggleOpenState(index);
 
     // assert the keybinding exists
     var seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
@@ -154,12 +157,11 @@ test_keybindings_bug44719.prototype.test_movesnippetIntoFolder = function() {
 
     var newpart = snippet.clone();
       
-    ko.toolboxes.user.removeItem(snippet,true);
     // assert the keybinding doesn't exist
     seqList = gKeybindingMgr.command2keysequences(cmd)
     this.assertFalse(seqList.indexOf(keylabel) >= 0, "item bindings did not get removed");
     
-    ko.toolboxes.user.addItem(newpart, folder);
+    ko.toolbox2.addNewItemToParent(newpart, folder);
     // assert the keybinding exists
     commandParam = newpart.id;
     seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
@@ -170,21 +172,19 @@ test_keybindings_bug44719.prototype.test_removeChildBindings = function() {
     // this tests whether keybindings of children are recursivly removed when
     // we remove a folder that has children with bindings
     
-    var snippet = ko.toolboxes.user.findItemByAttributeValue('name', this.snippetName);
+    var snippet = ko.toolbox2.getToolsByTypeAndName('snippet', this.snippetName)[0];
     this.assertNotNull(snippet , 'could not find snippet!');
     var commandParam = snippet.id;
     // we remove the folder, the child bindings should also be removed
-    var folder = ko.toolboxes.user.findItemByAttributeValue('name', this.folderName);
+    var folder = ko.toolbox2.getToolsByTypeAndName('folder', this.folderName)[0];
     this.assertNotNull(folder , 'could not find folder!');
-    ko.toolboxes.user.removeItem(folder, true);
 
     var cmd = "cmd_callPart";
     var keylabel = "Ctrl+K, B";
-    
+    ko.toolbox2.removeItem(folder);
     // assert the snippet is removed from the toolbox
-    snippet = ko.toolboxes.user.findItemByAttributeValue('name', this.snippetName);
-    this.assertNull(snippet, "snippet did not get deleted with folder");
-    
+    var items = ko.toolbox2.getToolsByTypeAndName('snippet', this.snippetName);
+    this.assertEqual(0, items.length, "snippet did not get deleted with folder");
     // assert our binding no longer exists
     seqList = gKeybindingMgr.command2keysequences(cmd)
     this.assertFalse(seqList.indexOf(keylabel) >= 0, "item bindings did not get removed");
