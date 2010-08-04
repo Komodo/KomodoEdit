@@ -1016,7 +1016,7 @@
           <variable citdl="DOMString" ilk="argument" name="name" />
         </scope>
       </scope>
-      <scope classrefs="Document" doc="An HTMLDocument is the root of the HTML hierarchy and holds&#xA;the entire content. Besides providing access to the&#xA;hierarchy, it also provides some convenience methods for&#xA;accessing certain sets of information from the document." ilk="class" name="HTMLDocument">
+      <scope classrefs="Document DocumentEvent" doc="An HTMLDocument is the root of the HTML hierarchy and holds&#xA;the entire content. Besides providing access to the&#xA;hierarchy, it also provides some convenience methods for&#xA;accessing certain sets of information from the document." ilk="class" name="HTMLDocument">
         <variable citdl="DOMString" doc="The title of a document as specified by the TITLE element in&#xA;the head of the document." name="title" />
         <variable citdl="DOMString" doc="Returns the URI of the page that linked to this page. The&#xA;value is an empty string if the user navigated to the page&#xA;directly (not through a link, but, for example, via a&#xA;bookmark)." name="referrer" />
         <variable citdl="DOMString" doc="The domain name of the server that served the document, or&#xA;null if the server cannot be identified by a domain name." name="domain" />
@@ -1703,7 +1703,7 @@
         </scope>
       </scope>
       <scope doc="The DocumentEvent interface provides a mechanism by which&#xA;the user can create an Event of a type supported by the&#xA;implementation. It is expected that the DocumentEvent&#xA;interface will be implemented on the same object which&#xA;implements the Document interface in an implementation which&#xA;supports the Event model." ilk="class" name="DocumentEvent">
-        <scope doc="" ilk="function" name="createEvent" returns="Event" signature="createEvent(eventType)">
+        <scope doc="The eventType parameter specifies the type of Event interface to be created. If the Event interface specified is supported by the implementation this method will return a new Event of the interface type requested. If the Event is to be dispatched via the dispatchEvent method the appropriate event init method must be called after creation in order to initialize the Event's values." ilk="function" name="createEvent" returns="Event" signature="createEvent(eventType)">
           <variable citdl="DOMString" ilk="argument" name="eventType" />
         </scope>
       </scope>
