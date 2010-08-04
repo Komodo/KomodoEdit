@@ -162,6 +162,7 @@ ko.hyperlinks.ColorPickerHandler.prototype.remove = function(view, hyperlink, re
     if (popup) {
         popup.hidePopup();
     }
+    return true;
 }
 
 /**

@@ -1430,11 +1430,13 @@
         <body>
             <![CDATA[
             if (this._hyperlink) {
-                this._hyperlink.remove(this, reason);
-                var scimoz = this.scimoz;
-                scimoz.indicatorCurrent = this.INDICATOR_HYPERLINK;
-                scimoz.indicatorClearRange(0, scimoz.textLength);
-                this._hyperlink = null;
+                if (this._hyperlink.remove(this, reason)) {
+                    // It can be removed.
+                    var scimoz = this.scimoz;
+                    scimoz.indicatorCurrent = this.INDICATOR_HYPERLINK;
+                    scimoz.indicatorClearRange(0, scimoz.textLength);
+                    this._hyperlink = null;
+                }
             }
             ]]>
         </body>

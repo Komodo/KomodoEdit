@@ -141,6 +141,7 @@
         if (tooltip) {
             tooltip.hidePopup();
         }
+        return true;
     }
 
     /**
