@@ -462,7 +462,8 @@ class KoRubyInfoEx(KoAppInfoEx):
         if match:
             return match.group(1)
         else:
-            raise ''
+            msg = "Can't find a version in `%s -v` output of '%s'/'%s'" % (rubyExe, rubyVersionDump, stderr)
+            raise ServerException(nsError.NS_ERROR_UNEXPECTED, msg)
     
     def get_version(self):
         rubyExe = self._GetRubyExeName()
