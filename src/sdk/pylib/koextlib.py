@@ -655,6 +655,16 @@ def dev_install(base_dir, force=False, dry_run=False, log=None):
     ko_info = KomodoInfo()
             
     dev_dir = abspath(base_dir)
+    """
+    Seems that pointer files, on Windows at least, need to have
+    a trailing slash at the end of the path when moving from
+    a true extension directory to a pointer file.
+
+    The samples at http://blog.mozilla.com/addons/2009/01/28/how-to-develop-a-firefox-extension/
+    use a trailing slash, but there's no text stating that it's required.
+    """
+    if not dev_dir.endswith(os.sep) and sys.platform == "win32":
+        dev_dir += os.sep
     ext_file = join(ko_info.ext_base_dir, ext_info.id)
     if isfile(ext_file):
         contents = open(ext_file, 'r').read().strip()
