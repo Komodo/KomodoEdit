@@ -583,10 +583,13 @@ class koPreferenceSet:
             print "%sPreference Set: id = '%s'" % ("  " * indent, self.id)
         print '%s  chained = %d' % ("  " * indent, self.chainNotifications)
         parent = UnwrapObject(self.parent)
-        print '%s  parent = %r' % ("  " * indent, parent)
-        p_vals = [decomify(val[0]) for val in parent.prefs.values()]
-        if self not in p_vals:
-            print "%s  !!!! parent doesn't own me !!!!" % ("  " * indent)
+        if parent is not None:
+            print '%s  parent = %r' % ("  " * indent, parent)
+            p_vals = [decomify(val[0]) for val in parent.prefs.values()]
+            if self not in p_vals:
+                print "%s  !!!! parent doesn't own me !!!!" % ("  " * indent)
+        else:
+            print '%s  parent is None' % ("  " * indent,)
         for (foo, bar) in self.prefs.items():
             print '%s  %s = %s' % ("  " * indent, foo, bar)
             if hasattr(bar[0], "parent") and UnwrapObject(bar[0].parent) != self:
