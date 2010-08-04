@@ -317,6 +317,7 @@
       <menuitem id="placesContextMenu_newFile"
                 label="&newFile.label;"
                 class="menuitem-iconic new-file-icon"
+                oncommand="ko.places.viewMgr.addNewFile()"
                 testDisableIf="t:multipleSelection"
                 hideUnless="folder"
                 />
@@ -324,6 +325,7 @@
       <menuitem id="placesContextMenu_newFolder"
                 label="&newFolder.label;"
                 class="menuitem-iconic new-folder-icon"
+                oncommand="ko.places.viewMgr.addNewFolder()"
                 testDisableIf="t:multipleSelection"
                 />
       <!-- gPlacesViewMgr.addNewFolder(index) -->

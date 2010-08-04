@@ -215,20 +215,22 @@ viewMgrClass.prototype = {
         ko.fileutils.showDiffs(fname, otherfile);
     },
 
-    addNewFile: function(index) {
+    addNewFile: function() {
         var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileName"));
         if (!name) return;
         try {
+            var index = this.view.selection.currentIndex;
             this.view.addNewFileAtParent(name, index);
         } catch(ex) {
             ko.dialogs.alert(ex);
         }
     },
 
-    addNewFolder: function(index) {
+    addNewFolder: function() {
         var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFolderName"));
         if (!name) return;
         try {
+            var index = this.view.selection.currentIndex;
             this.view.addNewFolderAtParent(name, index);
         } catch(ex) {
             ko.dialogs.alert(ex);
