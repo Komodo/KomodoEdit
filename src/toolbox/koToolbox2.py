@@ -590,8 +590,11 @@ class Database(object):
             toolMethod = getattr(self, prefix + item_type, None)
             if not toolMethod:
                 toolMethod = getattr(self, prefix + 'genericTool')
-            toolMethod(new_id, data, item_type, cu)
-            return new_id
+            notifications = toolMethod(new_id, data, item_type, cu)
+        if notifications is not None:
+            for path_id, details in notifications:
+                self.notifyPossibleAppearanceChange(path_id, details)
+        return new_id
             
     def _getValuesFromDataAndDelete(self, id, data, names_and_defaults):
         valueList = [id]
@@ -622,13 +625,13 @@ class Database(object):
                   values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''' % (nameList,)
         cu.execute(stmt, valueList)
         if data:
-            self.addMiscProperties(id, data, cu)
+            return self.addMiscProperties(id, data, cu)
     
     def _add_genericTool(self, id, data, item_type, cu):
         log.debug("Handling generic tool for type %s", item_type)
         self.addCommonToolDetails(id, data, cu)
         if data:
-            self.addMiscProperties(id, data, cu)
+            return self.addMiscProperties(id, data, cu)
             
     def _add_macro(self, id, data, item_type, cu):
         self.addCommonToolDetails(id, data, cu)
@@ -645,7 +648,7 @@ class Database(object):
                   values(?, ?, ?, ?, ?, ?)'''
         cu.execute(stmt, valueList)
         if data:
-            self.addMiscProperties(id, data, cu)
+            return self.addMiscProperties(id, data, cu)
             
     def _add_snippet(self, id, data, item_type, cu):
         self.addCommonToolDetails(id, data, cu)
@@ -659,24 +662,25 @@ class Database(object):
                   values(?, ?, ?)'''
         cu.execute(stmt, valueList)
         if data:
-            self.addMiscProperties(id, data, cu)
+            return self.addMiscProperties(id, data, cu)
 
     def _addSimpleItem(self, id, data, item_type, cu):
         self.addCommonToolDetails(id, data, cu)
         if data:
-            self.addMiscProperties(id, data, cu)
+            return self.addMiscProperties(id, data, cu)
 
     _add_template = _addSimpleItem
     _add_URL = _addSimpleItem
             
     def addMiscProperties(self, id, data, cu):
+        notifications = []
         for key, value in data.items():
             log.debug("Adding misc. property %s:%s on id:%d", key, value, id)
             stmt = '''insert into misc_properties values(?, ?, ?)'''
             cu.execute(stmt, (id, key, value))
             if key == 'icon':
-                self.notifyPossibleAppearanceChange(id,
-                                                    "icon addition")
+                notifications.append((id, "icon addition"))
+        return notifications
 
     def addCommonToolDetails(self, id, data, cu):
         names_and_defaults = [
@@ -797,7 +801,7 @@ class Database(object):
 
     def getSimpleToolInfo(self, path_id, cu=None):
         obj = {}
-        with self.connect() as cu:
+        with self.connect(cu=cu) as cu:
             self.getCommonToolDetails(path_id, obj, cu)
         obj['url'] = obj['value']
         # Komodo accesses the value by as a URL so it can
@@ -1087,8 +1091,7 @@ class Database(object):
             if name != old_name:
                 self.updateValuesInTableByKey('common_details', ['name'], [name],
                                               ['path_id'], [path_id], cu)
-                self.notifyPossibleAppearanceChange(path_id,
-                                                    "name: %s => %s" % (old_name, name))
+                return (path_id, "name: %s => %s" % (old_name, name))
 
     def notifyPossibleAppearanceChange(self, id, reason):
         try:
@@ -1151,27 +1154,43 @@ class Database(object):
     def saveToolInfo(self, path_id, table_name, tool_name, value, attributes,
                      info_getter):
         work_attributes = attributes.copy()
+        notifications = []
         with self.connect(commit=True) as cu:
             oldInfo = info_getter(path_id, cu)
-            self.saveToolName(path_id, tool_name, oldInfo['name'])
+            change_info = self.saveToolName(path_id, tool_name, oldInfo['name'])
+            if change_info is not None:
+                notifications.append(change_info)
             self.save_commonToolDetails(path_id, oldInfo, attributes, value, cu)
-            specific_names = self._specific_names.get(table_name)
-            if specific_names:
-                self._saveNamedValuesInTable(path_id, table_name, specific_names,
-                                             oldInfo, work_attributes, cu)
+            if table_name is not None:
+                specific_names = self._specific_names.get(table_name)
+                if specific_names:
+                    self._saveNamedValuesInTable(path_id, table_name, specific_names,
+                                                 oldInfo, work_attributes, cu)
             self._removeNonMiscAttributeNames(oldInfo, work_attributes)
-            self.saveMiscInfo(path_id, oldInfo, work_attributes, cu)
+            change_info = self.saveMiscInfo(path_id, oldInfo, work_attributes, cu)
+            if change_info is not None:
+                notifications.append(change_info)
+        # Notifications have to be sent after we've released a db connection,
+        # since they can use the db as well.
+        for path_id, details in notifications:
+            self.notifyPossibleAppearanceChange(path_id, details)
+            
 
     def saveContainerInfo(self, path_id, table_name, tool_name, attributes,
                           info_getter):
         work_attributes = attributes.copy()
+        notifications = []
         with self.connect(commit=True) as cu:
             oldInfo = info_getter(path_id, cu)
-            self.saveToolName(path_id, tool_name, oldInfo['name'])
+            change_info = self.saveToolName(path_id, tool_name, oldInfo['name'])
+            if change_info is not None:
+                notifications.append(change_info)
             specific_names = self._specific_names.get(table_name, None)
             if specific_names:
                 self._saveNamedValuesInTable(path_id, table_name, specific_names,
                                              oldInfo, work_attributes, cu)
+        for path_id, details in notifications:
+            self.notifyPossibleAppearanceChange(path_id, details)
 
     def saveCommandInfo(self, path_id, name, value, attributes):
         self.saveToolInfo(path_id, 'command', name, value, attributes,
@@ -1179,7 +1198,7 @@ class Database(object):
 
     def saveSimpleToolInfo(self, path_id, name, value, attributes):
         self.saveToolInfo(path_id, None, name, value, attributes,
-                          None, self.getSimpleToolInfo)
+                          self.getSimpleToolInfo)
 
     def saveMacroInfo(self, path_id, name, value, attributes):
         self.saveToolInfo(path_id, 'macro', name, value, attributes,
@@ -1236,8 +1255,7 @@ class Database(object):
                                     ['path_id', 'prop_name'],
                                     [path_id, name], cu)
         if 'icon' in old_names or 'icon' in new_names:
-            self.notifyPossibleAppearanceChange(path_id,
-                                                "icon change")
+            return (path_id, "icon change")
                 
     def getSnippetInfo(self, path_id, cu=None):
         obj = {}
