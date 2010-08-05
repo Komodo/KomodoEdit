@@ -53,6 +53,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/startpage/startpage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/codeintel.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/hyperlinks.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/find.css" type="text/css"?>
 
