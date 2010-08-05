@@ -31,6 +31,94 @@ Index: macosx/ScintillaMacOSX.cxx
      ExtInput::detach (GetViewRef());
  #endif
  }
+@@ -345,33 +345,65 @@
+     Point pt;
+     int startPos, endPos, ep;
+     Rect rcSel;
+-    rcSel.top = rcSel.bottom = rcSel.right = rcSel.left = -1;
+-    for (int l = startLine; l <= endLine; l++) {
+-        startPos = WndProc(SCI_GETLINESELSTARTPOSITION, l, 0);
+-        endPos = WndProc(SCI_GETLINESELENDPOSITION, l, 0);
+-        if (endPos == startPos) continue;
++    
++    if (startLine==endLine && WndProc(SCI_GETWRAPMODE, 0, 0) != SC_WRAP_NONE) {
++        // Komodo bug http://bugs.activestate.com/show_bug.cgi?id=87571
++        // Scintilla bug https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3040200&group_id=2439
++        // If the width on a wrapped-line selection is negative,
++        // find a better bounding rectangle.
++      
++        Point ptStart, ptEnd;
++        startPos = WndProc(SCI_GETLINESELSTARTPOSITION, startLine, 0);
++        endPos =   WndProc(SCI_GETLINESELENDPOSITION,   startLine, 0);
+         // step back a position if we're counting the newline
+-        ep = WndProc(SCI_GETLINEENDPOSITION, l, 0);
++        ep =       WndProc(SCI_GETLINEENDPOSITION,      startLine, 0);
+         if (endPos > ep) endPos = ep;
++        ptStart = LocationFromPosition(startPos);
++        ptEnd =   LocationFromPosition(endPos);
++        if (ptStart.y == ptEnd.y) {
++            // We're just selecting part of one visible line
++            rcSel.left = ptStart.x;
++            rcSel.right = ptEnd.x < client.right ? ptEnd.x : client.right;
++        } else {
++            // Find the bounding box.
++            startPos = WndProc(SCI_POSITIONFROMLINE, startLine, 0);
++            rcSel.left = LocationFromPosition(startPos).x;
++            rcSel.right = client.right;
++        }
++        rcSel.top = ptStart.y;
++        rcSel.bottom = ptEnd.y + vs.lineHeight;
++        if (rcSel.bottom > client.bottom) {
++            rcSel.bottom = client.bottom;
++        }
++    } else {
++        rcSel.top = rcSel.bottom = rcSel.right = rcSel.left = -1;
++        for (int l = startLine; l <= endLine; l++) {
++            startPos = WndProc(SCI_GETLINESELSTARTPOSITION, l, 0);
++            endPos = WndProc(SCI_GETLINESELENDPOSITION, l, 0);
++            if (endPos == startPos) continue;
++            // step back a position if we're counting the newline
++            ep = WndProc(SCI_GETLINEENDPOSITION, l, 0);
++            if (endPos > ep) endPos = ep;
+   
+-        pt = LocationFromPosition(startPos); // top left of line selection
+-        if (pt.x < rcSel.left || rcSel.left < 0) rcSel.left = pt.x;
+-        if (pt.y < rcSel.top || rcSel.top < 0) rcSel.top = pt.y;
++            pt = LocationFromPosition(startPos); // top left of line selection
++            if (pt.x < rcSel.left || rcSel.left < 0) rcSel.left = pt.x;
++            if (pt.y < rcSel.top || rcSel.top < 0) rcSel.top = pt.y;
+   
+-        pt = LocationFromPosition(endPos); // top right of line selection
+-        pt.y += vs.lineHeight; // get to the bottom of the line
+-        if (pt.x > rcSel.right || rcSel.right < 0) {
+-            if (pt.x > client.right)
+-                rcSel.right = client.right;
+-            else
+-                rcSel.right = pt.x;
++            pt = LocationFromPosition(endPos); // top right of line selection
++            pt.y += vs.lineHeight; // get to the bottom of the line
++            if (pt.x > rcSel.right || rcSel.right < 0) {
++                if (pt.x > client.right)
++                    rcSel.right = client.right;
++                else
++                    rcSel.right = pt.x;
++            }
++            if (pt.y > rcSel.bottom || rcSel.bottom < 0) {
++                if (pt.y > client.bottom)
++                    rcSel.bottom = client.bottom;
++                else
++                    rcSel.bottom = pt.y;
++            }
+         }
+-        if (pt.y > rcSel.bottom || rcSel.bottom < 0) {
+-            if (pt.y > client.bottom)
+-                rcSel.bottom = client.bottom;
+-            else
+-                rcSel.bottom = pt.y;
+-        }
+     }
+ 
+     // must convert to global coordinates for drag regions, but also save the
 @@ -434,7 +434,7 @@
      SelectionText selectedText;
      CopySelectionRange(&selectedText);
