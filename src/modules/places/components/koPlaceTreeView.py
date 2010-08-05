@@ -540,6 +540,10 @@ class KoPlaceTreeView(TreeView):
             parent_uri = self._getURIParent(uri)
             index = self.getRowIndexForURI(parent_uri)
             if index != -1:
+                # Refresh this directory.
+                # TODO: We know a file or directory has been added here,
+                #       why not just add this one new entry into the
+                #       tree and invalidate?
                 self.refreshView(index)
             else:
                 self.refreshFullTreeView()  # partly async
