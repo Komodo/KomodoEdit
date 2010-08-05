@@ -1,8 +1,14 @@
 #hyperlink_gotodefinition_tooltip {
     -moz-appearance: none;
     -moz-border-radius: 6px 6px 6px 6px;
-    background-color: rgb(128, 128, 128);
-    /*opacity: 0.7;*/
+}
+
+#hyperlink_gotodefinition_tooltip.light {
+    background-color: #CCCCCC;
+}
+
+#hyperlink_gotodefinition_tooltip.dark {
+    background-color: #808080;
 }
 
 #hyperlink_gotodefinition_div {
