@@ -367,9 +367,8 @@
                      crop="center"/>
             <xul:splitter class="tree-splitter"/>
             <xul:treecol id="tree-date" hideheader="true"
-                     flex="1"
                      persist="width"
-                     style="width: 5em;"/>
+                     style="min-width: 10em;"/>
             </xul:treecols>
             <xul:treechildren flex="1">
                 <children/>
