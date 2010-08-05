@@ -733,10 +733,12 @@
         <command
             id="cmd_undo" key="key_cmd_undo"
             oncommand="ko.commands.doCommand('cmd_undo')"
+            disabled="true"
             desc="&editorUndo.desc;"/>
         <command
             id="cmd_redo" key="key_cmd_redo"
             oncommand="ko.commands.doCommand('cmd_redo')"
+            disabled="true"
             desc="&editorRedo.desc;"/>
     </commandset>
 
