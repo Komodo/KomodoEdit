@@ -384,47 +384,19 @@ class KoPlaceTreeView(TreeView):
             # No tree, Komodo is likely shutting down.
             return
         if topic == "file_status":
+            #log.debug("observe: file_status: data: %s", data)
             
             # find the row for the file and invalidate it
             files = data.split("\n")
             invalidRows = sorted([i for (i,row) in enumerate(self._rows)
                                   if row.uri in files], reverse=True)
-            for row in invalidRows:
-                node = self._rows[row]
-                uri = node.uri
-                koFileEx = node.koFile
-                if koFileEx.exists:
+            self._tree.beginUpdateBatch()
+            try:
+                for row in invalidRows:
                     self._updateFileProperties(row)
                     self._tree.invalidateRow(row)
-                    if koFileEx.isDirectory:
-                        # A file has been added to this dir.
-                        # Spin off a refresh request for each row
-                        if node.isContainer and node.isOpen:
-                            self.refreshView(row)
-                        else:
-                            koPlaceItem = self.getNodeForURI(uri)
-                            if koPlaceItem:
-                                koPlaceItem.markForRefreshing()
-                else:
-                    try:
-                        #qlog.debug("About to remove uri %s from row %d", uri, row)
-                        del self._rows[row]
-                        self._tree.rowCountChanged(row, -1)
-                        self.resetLiveRows()
-                    except AttributeError:
-                        pass
-                    self.removeNodeFromModel(uri)
-            # And handle a top-level change...
-            if self._isLocal and self._currentPlace_koFileEx:
-                currentPath = self._currentPlace_koFileEx.path
-                if currentPath in files:
-                    if self._fileStillExists(_currentPlace_koFileEx):
-                        # Refresh the whole thing...
-                        self._wrap_refreshTreeOnOpen_buildTree() #async
-                        return
-                    else:
-                        self._moveToExistingPlace()
-        #qlog.debug("<< observe")
+            finally:
+                self._tree.endUpdateBatch()
 
     # row generator interface
     def stopped(self):
