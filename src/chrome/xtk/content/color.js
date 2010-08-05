@@ -176,4 +176,38 @@ this.scaler.prototype.scaleToRGB = function(w) {
     return this.NanometerToRGB(Math.round(380.0 + (w * (this.topScale - 380.0))));
 }
 
+/**
+ * Return whether this is a dark color.
+ * @param hexstring {string} - Hexadecimal string of the color.
+ * @returns {Boolean}
+ */
+this.isDark = function xtk_isDark(hexstring) {
+    if (hexstring[0] == "#") {
+        hexstring = hexstring.slice(1);
+    }
+    if (hexstring.length == "3") {
+        // Support short hex strings like "fff"
+        hexstring = hexstring[0] + hexstring[0] +
+                    hexstring[1] + hexstring[1] +
+                    hexstring[2] + hexstring[2];
+    }
+    var color_parts = [parseInt(hexstring.slice(0, 2), 16),
+                       parseInt(hexstring.slice(2, 4), 16),
+                       parseInt(hexstring.slice(4, 6), 16)];
+    var dark_items = color_parts.filter(
+                function(elem, index, elemlist) {
+                    return elem < 128;
+                });
+    return dark_items.length > 1;
+}
+
+/**
+ * Return whether this is a light color.
+ * @param hexstring {string} - Hexadecimal string of the color.
+ * @returns {Boolean}
+ */
+this.isLight = function xtk_isLight(hexstring) {
+    return !(xtk.color.isDark(hexstring));
+}
+
 }).apply(xtk.color);
