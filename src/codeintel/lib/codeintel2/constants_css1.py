@@ -589,6 +589,8 @@ CSS_ATTR_DICT = {
             'normal',
             'nowrap',
             'pre',
+            'pre-wrap',
+            'pre-line',
             '!important',
         ],
     'width'     : [
