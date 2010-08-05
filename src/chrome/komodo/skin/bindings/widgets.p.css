@@ -84,11 +84,61 @@ menu.menulist-subLevel > menupopup  > menuitem {
 
 
 /**
+ * Vertical tab text in a tabbox.
+ */
+tabbox.vertical_tabs
+{
+    -moz-box-orient     : horizontal;
+}
+tabbox.vertical_tabs tabpanels
+{
+    /* Remove the 1px border on top of the tabbox panels. */
+    border-top-width    : 0;
+}
+tabbox.vertical_tabs tabpanel
+{
+    /* A tabpanel that has a special tabpanel header label. */
+    -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tabpanel-vertical-text");
+}
+
+tabbox.vertical_tabs label.tab-text
+{
+    font-weight: bold !important;
+    color: #535f6d;
+}
+
+tabbox.vertical_tabs tabs
+{
+    /* Vertical tabs with special handling of tab selection. */
+    -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tabs-vertical-text");
+    -moz-box-orient     : vertical;
+}
+tabbox.vertical_tabs.native tabs
+{
+    /* Remove native tab background image (nativetabs.css) */
+    background-image:     none;
+}
+tabbox.vertical_tabs tab
+{
+    /* Vertical tab with vertical text labels. */
+    -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tab-vertical-text");
+    /*-moz-appearance     : textfield;*/
+    -moz-appearance     : button;
+    /*-moz-appearance     : none;*/
+    min-width           : 1.5em;
+    max-width           : 3em;
+    margin              : 0;
+    padding             : 0;
+}
+
+/**
  * Vertical text label.
  */
 label.vertical_text
 {
     -moz-binding        : url("chrome://komodo/content/bindings/widgets.xml#vertical_label");
+    margin-left         : 0px;
+    margin-right        : 0px;
 }
 
 .vertical-label-vbox
@@ -101,7 +151,7 @@ label.vertical_text
 {
     margin              : 0;
     padding             : 0;
-    margin-left         : 4px;
+    /*margin-left         : 4px;*/
     margin-top          : -3px;
     margin-bottom       : -3px;
 }
