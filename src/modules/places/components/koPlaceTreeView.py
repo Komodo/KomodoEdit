@@ -549,6 +549,7 @@ class KoPlaceTreeView(TreeView):
             if index != -1:
                 #qlog.debug("fileNotification: About to remove uri %s from row %d", uri, row)
                 del self._rows[index]
+                self._tree.rowCountChanged(index, -1)
                 self._removeWatchForChanges(koFileEx.path)
                 self.removeNodeFromModel(uri)
                 self.resetLiveRows()
