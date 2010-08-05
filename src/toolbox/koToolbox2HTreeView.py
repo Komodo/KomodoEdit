@@ -722,6 +722,9 @@ class KoToolbox2HTreeView(TreeView):
         self.refreshFullView()
 
     def _redoTreeView1_aux(self):
+        if self.toolbox_db is None:
+            log.error("_redoTreeView: self.toolbox_db is None")
+            return
         top_level_nodes = self.toolbox_db.getTopLevelNodes()
         top_level_ids = [x[0] for x in top_level_nodes]
         index = 0
