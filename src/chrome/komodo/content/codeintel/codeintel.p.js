@@ -358,6 +358,15 @@ CodeIntelCompletionUIHandler.prototype._setCallTipInfo = function(
         }
         calltip = calltip_lines.join("\n");
 
+        // Ensure the calltip is displayed relative to the current
+        // cursor position - bug 87587.
+        var curLine = this.scimoz.lineFromPosition(curPos);
+        var callTipLine = this.scimoz.lineFromPosition(triggerPos);
+        if (callTipLine != curLine) {
+            var triggerColumn = this.scimoz.getColumn(triggerPos);
+            triggerPos = this.scimoz.positionAtColumn(curLine, triggerColumn);
+        }
+
         this.scimoz.callTipShow(triggerPos, calltip);
         this.scimoz.callTipSetHlt(hltStart, hltEnd);
         var callTipItem = {"triggerPos": triggerPos, "calltip": calltip};
