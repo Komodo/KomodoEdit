@@ -58,6 +58,10 @@ PlacesController.prototype.constructor = PlacesController;
 PlacesController.prototype.destructor = function() {
 }
 
+PlacesController.prototype.do_cmd_viewPlaces = function() {
+    ko.uilayout.toggleTab('places_tab');
+}
+
 PlacesController.prototype.is_cmd_openDirectory_enabled = function() {
     //this.log.debug("PlacesController.prototype.is_cmd_openDirectory_enabled\n");
     return true;

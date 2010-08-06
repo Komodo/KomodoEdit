@@ -68,6 +68,15 @@
          Is there a place already loaded?  Is it dirty?
          XXX:Is the set updated at startup? -->
   <commandset id="allcommands">
+
+    <broadcasterset id="broadcasterset_global">
+      <broadcaster
+            id="cmd_viewPlaces" key="key_cmd_viewPlaces"
+            desc="&userInterfaceShowHidePlacesTab.desc;"
+            autoCheck="false"
+            oncommand="ko.commands.doCommandAsync('cmd_viewPlaces', event)"/>
+    </broadcasterset>
+
     <commandset
         id="cmdset_place_main"
         oncommandupdate="ko.commands.updateCommandset(this, event)"

@@ -52,6 +52,8 @@
 <!ENTITY viewAll.label "View All">
 <!ENTITY manageCustomViews.label "Manage Views...">
 
+<!ENTITY userInterfaceShowHidePlacesTab.desc "User Interface: Show/Hide Places Tab">
+
 <!ENTITY placesLoadPlace.desc "Places: Load Place...">
 <!ENTITY placesLoadRemotePlace.desc "Places: Load Remote Place...">
 
