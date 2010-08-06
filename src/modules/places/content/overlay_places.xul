@@ -441,14 +441,6 @@
                   observes="cmd_places_goUpOneFolder"
                   label="&placesUpFolder.label;"
                   class="menuitem-iconic places-uparrow-button"/>
-<!--
-              <menu id="placeView_sortByMenu"
-                    label="&sortBy.label;"
-                    accesskey="&sortBy_menu.accesskey;">
-                <menupopup id="placeView_sortByMenuPopup"
-                           onpopupshowing="ko.places.sortByOnPopupShowing(this, 'places')"/>
-              </menu>
--->
               <menuseparator id="places_view_separator" />
               <menuitem id="placeView_defaultView"
                   observes="cmd_placeView_defaultView"
