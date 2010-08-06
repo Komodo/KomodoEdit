@@ -148,6 +148,8 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
         // No project to close.
         return true;
     }
+    ko.toolbox2.manager.toolbox2Svc.deactivateProjectToolbox(project);
+    
     // the active project has been reset
     // Forget about any notifications made for this project.
     this.notifiedClearProject(project);
@@ -499,8 +501,9 @@ projectManager.prototype.loadProject = function(url) {
 }
 
 projectManager.prototype._addProject = function(project) {
-    // add project to project tree
     this.setCurrentProject(project);
+    // add project's toolbox to tools tree
+    ko.toolbox2.manager.toolbox2Svc.activateProjectToolbox(project);
 
     // Let the file status service know it has work to do.
     var fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].

@@ -166,13 +166,10 @@ class KoToolbox2Service(object):
         _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
                 .getService(components.interfaces.nsIObserverService)
         _observerSvc.addObserver(self._wrapped,
-                                 "project_added", 0)
-        _observerSvc.addObserver(self._wrapped,
-                                 "project_removed", 0)
-        _observerSvc.addObserver(self._wrapped,
                                  "project_renamed", 0)
         # 
-        # _observerSvc.addObserver(self._wrapped, 'toolbox.sqlite')
+        # self._prefs.prefObserverService.addObserver(self._wrapped,
+        #                                 "xpcom-shutdown", 0)
         
     def initialize(self):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
@@ -556,10 +553,6 @@ class KoToolbox2Service(object):
         #window = subject.QueryInterface(components.interfaces.nsIDOMWindow)
         #if self._windowTypeFromWindow(window) != "Komodo":
         #    return
-        elif topic == "project_added":
-            self.activateProjectToolbox(subject)
-        elif topic == "project_removed":
-            self.deactivateProjectToolbox(subject)
         elif True:
             return
         elif topic == "domwindowopened":
@@ -568,10 +561,6 @@ class KoToolbox2Service(object):
             if window in self._data:
                 del self._data[window]
         elif topic == "xpcom-shutdown":
-            _observerSvc.removeObserver(self._wrapped,
-                                        "project_added")
-            _observerSvc.removeObserver(self._wrapped,
-                                        "project_removed")
             _observerSvc.removeObserver(self._wrapped,
                                         "project_renamed")
             return
