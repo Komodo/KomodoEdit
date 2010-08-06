@@ -72,11 +72,6 @@
             box="right_toolbox_area"
             oncommand="ko.commands.doCommandAsync('cmd_viewRightPane', event)"/>
         <broadcaster
-            id="cmd_viewProjects" key="key_cmd_viewProjects"
-            desc="&userInterfaceShowHideProjectsTab.desc;"
-            autoCheck="false"
-            oncommand="ko.commands.doCommandAsync('cmd_viewProjects', event)"/>
-        <broadcaster
             id="cmd_viewToolbox" key="key_cmd_viewToolbox"
             desc="&userInterfaceShowHideToolboxTab.desc;"
             autoCheck="false"

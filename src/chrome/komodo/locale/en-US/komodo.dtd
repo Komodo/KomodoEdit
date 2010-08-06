@@ -655,7 +655,6 @@
 <!ENTITY userInterfaceShowHideOpenFindToolbar.desc "User Interface: Show/Hide Open/Find Toolbar">
 <!ENTITY userInterfaceShowHideBottomPane.desc "User Interface: Show/Hide Bottom Pane">
 <!ENTITY userInterfaceShowHideLeftPane.desc "User Interface: Show/Hide Left Pane">
-<!ENTITY userInterfaceShowHideProjectsTab.desc "User Interface: Show/Hide Projects Tab">
 <!ENTITY userInterfaceShowHideStandardToolbar.desc "User Interface: Show/Hide Standard Toolbar">
 <!ENTITY userInterfaceShowHideToolbarButtonText.desc "User Interface: Show/Hide Toolbar Button Text">
 <!ENTITY userInterfaceShowHideRightPane.desc "User Interface: Show/Hide Right Pane">
