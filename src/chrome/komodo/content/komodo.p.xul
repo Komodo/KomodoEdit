@@ -1202,10 +1202,6 @@
                     </menu>
                     <menu id="menu_project" label="&project.label;" accesskey="&menuProject.accesskey;">
                         <menupopup id="popup_project" >
-                            <menu id="menu_project_submenu" label="&selection.label;">
-                                <menupopup/>
-                            </menu>
-                            <menuseparator id="project-menuseparator"/>
                             <menuitem label="&newProject.label;"
                                       id="menu_projectNewProject"
                                       observes="cmd_newProject"
