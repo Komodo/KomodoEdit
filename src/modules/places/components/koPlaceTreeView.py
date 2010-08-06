@@ -291,7 +291,7 @@ class KoPlaceTreeView(TreeView):
         self._currentPlace_uri = None
         self._currentPlace_koFileEx = None
         self._rows = []
-        self._liverows = set()  # Tracking changes
+        self._watchedDirectories = set()  # Tracking filesystem changes
         self._lastSelectedRow = -1
         #TODO: Update this for each place 
         self.exclude_patterns = []
@@ -375,7 +375,7 @@ class KoPlaceTreeView(TreeView):
         self.workerThread.join(3)
         self.set_currentPlace(None)
         self._rows = []
-        self.resetLiveRows()
+        self.resetDirectoryWatches()
 
     def observe(self, subject, topic, data):
         # Taken from koKPFTreeView
@@ -556,7 +556,7 @@ class KoPlaceTreeView(TreeView):
                 self._tree.rowCountChanged(index, -1)
                 self._removeWatchForChanges(koFileEx.path)
                 self.removeNodeFromModel(uri)
-                self.resetLiveRows()
+                self.resetDirectoryWatches()
             elif uri == self._currentPlace_uri:
                 self._moveToExistingPlace()
         else:
@@ -1184,7 +1184,7 @@ class KoPlaceTreeView(TreeView):
     def closePlace(self):
         lenBefore = len(self._rows)
         self._rows = []
-        self.resetLiveRows()
+        self.resetDirectoryWatches()
         self._tree.rowCountChanged(0, -lenBefore)
         self._currentPlace_uri = None
         self._currentPlace_koFileEx = None
@@ -1446,7 +1446,7 @@ class KoPlaceTreeView(TreeView):
                     nextIndex = actualIndex + 1
                 self.removeSubtreeFromModelForURI(uri)
                 del self._rows[actualIndex:nextIndex]
-                self.resetLiveRows()
+                self.resetDirectoryWatches()
                 self._tree.rowCountChanged(actualIndex, actualIndex - nextIndex)
             if doInvalidate:
                 self.invalidateTree()
@@ -1711,7 +1711,7 @@ class KoPlaceTreeView(TreeView):
         self._refreshTreeOnOpen_buildTree(rowNode.level + 1,
                                           first_child_index,
                                           topModelNode)
-        self.resetLiveRows()
+        self.resetDirectoryWatches()
         after_len = len(self._rows)
         #qlog.debug("before_len: %d, before_len_2: %d, after_len:%d", before_len, before_len_2, after_len)
         numRowChanged = len(self._rows) - before_len
@@ -1723,21 +1723,19 @@ class KoPlaceTreeView(TreeView):
         elif doInvalidate:
             self.invalidateTree()
 
-    def resetLiveRows(self): # from koKPFTreeView.p.py
+    def resetDirectoryWatches(self): # from koKPFTreeView.p.py
         if not self._isLocal:
             return
         # Too expensive to watch closed nodes too -- then we can mark them for refreshing
-        liverows = set([row.path
-                        for row in self._rows
-                        if row.isOpen])
-        #print "resetLiveRows %d" % len(liverows)
-        newnodes = liverows.difference(self._liverows)
-        oldnodes = self._liverows.difference(liverows)
-        for dir in oldnodes:
+        openedDirs = set([row.path for row in self._rows if row.isOpen])
+        #print "resetDirectoryWatches %d" % len(openedDirs)
+        newDirs = openedDirs.difference(self._watchedDirectories)
+        removedDirs = self._watchedDirectories.difference(openedDirs)
+        for dir in removedDirs:
             self._removeWatchForChanges(dir)
-        for dir in newnodes:
+        for dir in newDirs:
             self._addWatchForChanges(dir)
-        self._liverows = liverows
+        self._watchedDirectories = openedDirs
 
     def renameItem(self, index, newBaseName, forceClobber):
         rowNode = self._rows[index]
@@ -1782,7 +1780,7 @@ class KoPlaceTreeView(TreeView):
         after_len = len(self._rows)
         self._tree.rowCountChanged(0, after_len - before_len)
         self.invalidateTree()
-        self.resetLiveRows()
+        self.resetDirectoryWatches()
 
     def sortRows(self):
         if not self._rows:
@@ -1818,7 +1816,7 @@ class KoPlaceTreeView(TreeView):
             #qlog.debug("toggleOpenState: numNodesRemoved:%d", numNodesRemoved)
             if numNodesRemoved:
                 self._tree.rowCountChanged(index + 1, -numNodesRemoved)
-                self.resetLiveRows()
+                self.resetDirectoryWatches()
                 #log.debug("index:%d, numNodesRemoved:%d, numLeft:%d", index, numNodesRemoved, len(self._rows))
             rowNode.isOpen = False
         else:
