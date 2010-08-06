@@ -933,9 +933,7 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
             }
         }
     }
-    try {
-        _obSvc.notifyObservers(project, 'project_opened', project.url);
-    } catch(e) { /* exception if no listeners */ }
+    xtk.domutils.fireEvent(window, 'project_opened');
     return true;
 }
 

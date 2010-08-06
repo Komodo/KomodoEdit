@@ -1064,7 +1064,8 @@ function ManagerClass() {
         getService(Components.interfaces.nsIObserverService);
     gObserverSvc.addObserver(this, 'visit_directory_proposed', false);
     gObserverSvc.addObserver(this, 'current_project_changed', false);
-    gObserverSvc.addObserver(this, 'project_opened', false);
+    window.addEventListener('project_opened',
+                            this.handle_project_opened_setup, false);
 }
 
 ManagerClass.prototype = {
@@ -1581,7 +1582,8 @@ ManagerClass.prototype = {
             getService(Components.interfaces.nsIObserverService);
         gObserverSvc.removeObserver(this, 'visit_directory_proposed');
         gObserverSvc.removeObserver(this, 'current_project_changed');
-        gObserverSvc.removeObserver(this, 'project_opened');
+        window.removeEventListener('project_opened',
+                                   this.handle_project_opened_setup, false);
     },
     
     goUpOneFolder: function() {
@@ -1945,12 +1947,18 @@ ManagerClass.prototype = {
             }
         } else if (topic == 'current_project_changed') {
             this._checkProjectMatch();
-        } else if (topic == 'project_opened') {
-            var project = subject;
-            var targetDirURI = this._getActualProjectDir(project);
-            if (targetDirURI) {
-                ko.places.manager.openURI(targetDirURI);
-            }
+        }
+    },
+    
+    handle_project_opened_setup: function(event) {
+        ko.places.manager.handle_project_opened(event);
+    },
+    
+    handle_project_opened: function(event) {
+        var project = ko.projects.manager.currentProject;
+        var targetDirURI = this._getActualProjectDir(project);
+        if (targetDirURI) {
+            ko.places.manager.openURI(targetDirURI);
         }
     },
     _getActualProjectDir: function(project) {
