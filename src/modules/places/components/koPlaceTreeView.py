@@ -397,6 +397,7 @@ class KoPlaceTreeView(TreeView):
                     self._tree.invalidateRow(row)
             finally:
                 self._tree.endUpdateBatch()
+        #qlog.debug("<< observe")
 
     # row generator interface
     def stopped(self):
@@ -536,6 +537,7 @@ class KoPlaceTreeView(TreeView):
         #print "   path is [%r] dirname [%r]"%(koFileEx.path, koFileEx.dirName)
 
         dirname = koFileEx.dirName
+        #log.debug("fileNotification: uri:%s, flags:0x%02x", uri, flags)
         if flags & _createdFlags:
             parent_uri = self._getURIParent(uri)
             index = self.getRowIndexForURI(parent_uri)
@@ -551,7 +553,7 @@ class KoPlaceTreeView(TreeView):
         elif flags & _deletedFlags:
             index = self.getRowIndexForURI(uri)
             if index != -1:
-                #qlog.debug("fileNotification: About to remove uri %s from row %d", uri, row)
+                #log.debug("fileNotification: About to remove uri %s from row %d", uri, row)
                 del self._rows[index]
                 self._tree.rowCountChanged(index, -1)
                 self._removeWatchForChanges(koFileEx.path)
@@ -1879,6 +1881,9 @@ class KoPlaceTreeView(TreeView):
         self._tree.invalidateRow(index)
         self._finishRefreshingView(index, index + 1, doInvalidate, rowNode,
                                    firstVisibleRow)
+        self.selection.currentIndex = index
+        self.selection.select(index)
+        self._tree.ensureRowIsVisible(index)
 
     def post_toggleOpenState_FilteredClose(self, rv, requestID):
         # 
