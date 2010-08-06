@@ -1220,13 +1220,6 @@
                                   <menupopup id="projectAdd_popup" partviewer="projectview"
                                               onpopupshowing="ko.projects.ensureAddMenu(this);"/>
                             </menu>
-                            <menu id="menu_projectSortBy"
-                                  label="&sortBy.label;"
-                                  accesskey="&sortBy_menu.accesskey;"
-                                  observes="cmd_projectSortBy">
-                                  <menupopup id="menupopup_projectSortBy"
-                                             onpopupshowing="ko.projects.sortByOnPopupShowing(this, 'project')"/>
-                            </menu>
                             <menuitem label="&importFromFileSystem.label;"
                                       id="menu_importFromFS"
                                       observes="cmd_importFromFS_Project"
