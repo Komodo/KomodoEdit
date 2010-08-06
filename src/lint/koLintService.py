@@ -203,9 +203,14 @@ class KoLintRequest:
     
     @property
     def document(self):
-        log.debug("`koILintRequest.document` was DEPRECATED in Komodo "
-            "6.0.0b1, use `koILintRequest.koDoc`.")
+        import warnings
+        warnings.warn("`koILintRequest.document` was DEPRECATED in Komodo "
+                      "6.0.0b1, use `koILintRequest.koDoc`.")
         return self.koDoc
+
+    @property
+    def koDoc(self):
+        return self._koDoc
 
     def get_koDoc(self):
         return self._koDoc
