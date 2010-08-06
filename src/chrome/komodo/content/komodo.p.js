@@ -329,6 +329,7 @@ function onloadDelay() {
                 for (var i in urllist) {
                     ko.open.URI(urllist[i]);
                 }
+                setTimeout(ko.uilayout.syncTabSelections, 10);
             }
         }
         

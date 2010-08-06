@@ -1439,6 +1439,44 @@ this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
     }
 }
 
+this.syncTabSelections = function uilayout_syncTabSelections() {
+    // Fix bug http://bugs.activestate.com/show_bug.cgi?id=87584:
+    // This is called at startup for new additional windows that don't 
+    // have a set of workspace-specific prefs to consult.
+    //
+    // The problem is that Mozilla uses persisted and default items
+    // to determine which workspace-level tabs are collapsed, and
+    // which toolbar buttons show up checked, but these defaults
+    // aren't always in sync, even though the XUL specifies they
+    // should be persisted.
+    //
+    // If a tab is closed, the button should be in its unchecked
+    // state, and vice versa.
+    
+    function isCollapsed(node) {
+        if (!node.hasAttribute("collapsed")) {
+            return false;
+        } else {
+            return node.getAttribute("collapsed") == 'true';
+        }
+    }
+    function syncTabUI(tabboxID) {
+        var tabbox = document.getElementById(tabboxID);
+        var buttonID = _buttonIdFromTabboxId[tabboxID];
+        var button = document.getElementById(buttonID);
+        if (button.checked == isCollapsed(tabbox.parentNode)) {
+            button.checked = !button.checked;
+        }
+    }
+    try {
+        syncTabUI('leftTabBox');
+        syncTabUI('rightTabBox');
+        syncTabUI('output_area');
+    } catch (e) {
+        _log.exception("Couldn't sync selected tab: " + e);
+    }
+}
+
 }).apply(ko.uilayout);
 
 // backwards compatibility api
