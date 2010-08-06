@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 21
+version 22
 # Needs a few things to be finished
 #  - ?? insert forward tab / insert backward tab
 #  - insert file? (Ctrl+X, I)
@@ -128,7 +128,7 @@ binding cmd_new Ctrl+Shift+N
 binding cmd_open Ctrl+X Ctrl+F
 binding cmd_openProject Ctrl+Shift+J
 binding cmd_viewBottomPane Ctrl+Shift+M
-binding cmd_viewProjects Ctrl+Shift+P
+binding cmd_viewPlaces Ctrl+Shift+P
 binding cmd_viewToolbox Ctrl+Shift+L
 
 binding cmd_reopenLastClosedTab Ctrl+Shift+T

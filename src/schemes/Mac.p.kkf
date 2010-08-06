@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-version 21
+version 22
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
 binding cmd_blockSelect Meta+Ctrl+L
@@ -184,7 +184,7 @@ binding cmd_reopenLastClosedTab Meta+Shift+T
 binding cmd_viewEOL Meta+&
 binding cmd_viewIndentationGuides Meta+%
 binding cmd_viewLineNumbers Meta+Ctrl+4
-binding cmd_viewProjects Ctrl+Shift+P
+binding cmd_viewPlaces Ctrl+Shift+P
 binding cmd_viewToolbox Ctrl+Shift+L
 binding cmd_viewWhitespace Meta+*
 binding cmd_wordLeft  Alt+Left

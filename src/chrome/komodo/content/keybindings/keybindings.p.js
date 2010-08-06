@@ -303,6 +303,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 22: Komodo 6.0.0rc1 - remapped 'cmd_viewProjects' => 'cmd_viewPlaces'
  * 21: Komodo 6.0.0b1 - add Cmd+[1..9] tab nav keybindings for Mac
  * 20: Komodo 6.0.0b1 - rejig Debug Step *, restore Fast Open binding.
  * 19: Komodo 6.0.0a2 - add a binding for cmd_viewFullScreen : ctrl-k f11
@@ -326,7 +327,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 21;
+const currentKeybindingVersionNumber = 22;
 
 /**
  * Remove this dictionary of keybinds.
@@ -739,6 +740,15 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_buffer9': ["Meta+9"]
             });
 // #endif
+            break;
+        case 21:
+            // Remap the Project keybindings to Places.
+            this._remove_keybinding_sequences({
+                'cmd_viewProjects': ["Ctrl+Shift+P"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_viewPlaces': ["Ctrl+Shift+P"]
+            });
             break;
         }
         from_version += 1;
