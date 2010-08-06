@@ -16,7 +16,7 @@ Index: /home/toddw/as/komodo-devel/mozilla/build/moz191-ko6.9/mozilla/toolkit/co
        <xul:tree anonid="tree" class="autocomplete-tree plain" hidecolumnpicker="true" flex="1" seltype="single">
          <xul:treecols anonid="treecols">
 -          <xul:treecol id="treecolAutoCompleteValue" class="autocomplete-treecol" flex="1" overflow="true"/>
-+          <xul:treecol id="treecolAutoCompleteValue" class="autocomplete-treecol" flex="1" overflow="true" crop="start"/>
++          <xul:treecol id="treecolAutoCompleteValue" class="autocomplete-treecol" flex="1" overflow="true" xbl:inherits="crop"/>
          </xul:treecols>
          <xul:treechildren class="autocomplete-treebody"/>
        </xul:tree>

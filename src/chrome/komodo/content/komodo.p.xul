@@ -175,7 +175,7 @@
         <tooltip id="editorTooltip" flex="1">
             <description multiline="true" id="editorTooltip-tooltipText" class="tooltip-label" flex="1"/>
         </tooltip>
-        <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
+        <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true" crop="start"/>
 
         <panel id="gotoLine_panel"
                onpopupshown="document.getElementById('gotoLine_textbox').focus(); document.getElementById('gotoLine_error_hbox').setAttribute('collapsed', 'true'); ">
