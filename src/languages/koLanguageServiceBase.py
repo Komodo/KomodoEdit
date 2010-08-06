@@ -1733,6 +1733,16 @@ class KoLanguageBase:
            'block' in self.commentDelimiterInfo:
             commentType = 'block'
             indentlog.debug("in block comment style")
+            # see if our current position matches the ends of block comments
+            # This assumes all comment delim chars are ascii
+            commentEndMarkers = [markerPair[1]
+                                 for markerPair in self.commentDelimiterInfo['block']]
+            max_comment_len = max([len(x) for x in commentEndMarkers])
+            lastTextPart = scimoz.getTextRange(pos - max_comment_len, pos)
+            for commentEndMarker in commentEndMarkers:
+                if lastTextPart.endswith(commentEndMarker):
+                    #indentlog.debug("found a comment-end at pos:%d", pos)
+                    return None, None
             commentStartMarkerList = [x[0] for x in self.commentDelimiterInfo[commentType]]
         else:
             commentType = 'line'
