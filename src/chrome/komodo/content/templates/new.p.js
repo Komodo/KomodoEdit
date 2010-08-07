@@ -140,8 +140,8 @@ function OnLoad()
             el.setAttribute('collapsed', 'true');
         } else if (options.project) {
             var name = options.project.name;
-            if (name.slice(-4, name.length) == ".kpf") {
-                name = name.slice(0, -4);  // drop .kpf extension
+            if (name.slice(-4, name.length) == ".komodoproject") {
+                name = name.slice(0, ".komodoproject".length);  // drop extension
             }
             elAddToProject.setAttribute("label",
                 _bundle.formatStringFromName("addToProject.label", [name], 1));
@@ -308,9 +308,9 @@ function Open()
             var fExt = ko.uriparse.ext(filename);
             var tExt = ko.uriparse.ext(window.arguments[0].template);
             if (options.type == "project") {
-                // Projects are always .kpf files
-                if (fExt != ".kpf") {
-                    filename += ".kpf";
+                // Projects are always .komodoproject files
+                if (fExt != ".komodoproject") {
+                    filename += ".komodoproject";
                 }
             } else if (tExt && !fExt) {
                 var basename = ko.uriparse.baseName(filename);
