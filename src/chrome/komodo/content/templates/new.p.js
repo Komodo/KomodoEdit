@@ -140,7 +140,7 @@ function OnLoad()
             el.setAttribute('collapsed', 'true');
         } else if (options.project) {
             var name = options.project.name;
-            if (name.slice(-4, name.length) == ".komodoproject") {
+            if (name.slice(".komodoproject".length, name.length) == ".komodoproject") {
                 name = name.slice(0, ".komodoproject".length);  // drop extension
             }
             elAddToProject.setAttribute("label",
