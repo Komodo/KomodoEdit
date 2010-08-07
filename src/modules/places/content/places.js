@@ -2108,14 +2108,10 @@ this.onLoad = function places_onLoad() {
     showInFinderMenuItem.setAttribute("label",
                                       _bundle.GetStringFromName(bundle_id));
     
-    var this_ = ko.places;
-    this_._instantiateRemoteConnectionService();
-    this_.viewMgr = gPlacesViewMgr = new viewMgrClass();
-    this_.viewMgr.initialize();
-    this_.manager = new ManagerClass();
-    setTimeout(function() {
-            this_.manager.initialize();
-        }, 5000);
+    ko.places._instantiateRemoteConnectionService();
+    ko.places.viewMgr = gPlacesViewMgr = new viewMgrClass();
+    ko.places.viewMgr.initialize();
+    ko.places.manager = new ManagerClass();
     widgets.rootPath = document.getElementById("place-view-rootPath");
     widgets.rootPathIcon = document.getElementById("place-view-rootPath-icon");
     widgets.defaultFolderIconSrc = widgets.rootPathIcon.src;
@@ -2125,14 +2121,14 @@ this.onLoad = function places_onLoad() {
         document.getElementById("placeView_viewAll");
     widgets.placeView_customView_menuitem =
         document.getElementById("placeView_customView");
-    this_.updateFilterViewMenu();
+    ko.places.updateFilterViewMenu();
+    ko.places.manager.initialize();
 };
 
 this.onUnload = function places_onUnload() {
-    var this_ = ko.places;
-    this_.manager.finalize();
-    this_.viewMgr.finalize();
-    this_.manager = this_._viewMgr = null;
+    ko.places.manager.finalize();
+    ko.places.viewMgr.finalize();
+    ko.places.manager = ko.places._viewMgr = null;
 };
 
 this.getFocusedPlacesView = function() {
