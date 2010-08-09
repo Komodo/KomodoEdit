@@ -145,6 +145,18 @@
             <Verb Id="open" Command="Open" Target="[!KomodoExe]" Argument='"%1" %*' />
           </Extension>
         </ProgId>
+        <ProgId Id="Komodo.Project2" Description="Komodo Project File"
+            Advertise="no" Icon="[!KomodoExe]" IconIndex="1">
+          <Extension Id="komodoproject">
+            <Verb Id="open" Command="Open" Target="[!KomodoExe]" Argument='"%1" %*' />
+          </Extension>
+        </ProgId>
+        <ProgId Id="Komodo.Tool" Description="Komodo Tool"
+            Advertise="no" Icon="[!KomodoExe]" IconIndex="1">
+          <Extension Id="komodotool">
+            <Verb Id="open" Command="Open" Target="[!KomodoExe]" Argument='"%1" %*' />
+          </Extension>
+        </ProgId>
       </Component>
     </DirectoryRef>
 
