@@ -69,6 +69,9 @@ pref("extensions.logging.enabled", false);
 // Hides the install button in the add-ons mgr
 pref("extensions.hideInstallButton", true);
 
+// Less delay for the Add-on install dialog.
+pref("security.dialog_enable_delay", 500);
+
 // Preferences for the Get Add-ons pane
 pref("extensions.getAddons.showPane", true);
 pref("extensions.getAddons.browseAddons", "http://community.activestate.com/addons");
