@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<codeintel version="2.0" name="Canvas" description="HTML 5 (Canvas, Web Messaging, Microdata)">
+<codeintel version="2.0" name="HTML 5" description="HTML 5 (Canvas, Web Messaging, Microdata)">
   <file lang="JavaScript" mtime="1260576157" path="nsIDOMCanvasRenderingContext2D.idl">
     <scope ilk="blob" lang="JavaScript" name="html5_api">
 
