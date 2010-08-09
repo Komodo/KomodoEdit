@@ -47,6 +47,8 @@
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>kpf</string>
+				<string>komodoproject</string>
+				<string>komodotool</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>kpf.icns</string>
