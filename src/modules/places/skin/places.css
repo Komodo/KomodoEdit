@@ -176,3 +176,7 @@ undo-button
   list-style-image : url("chrome://places/skin/folder_explore.png");
 }
 
+#place-view-vbox {
+    /* Give some padding around the places toolbar box. */
+    padding-left: 4px;
+}
