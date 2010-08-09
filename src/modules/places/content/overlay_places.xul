@@ -336,6 +336,7 @@
                 class="menuitem-iconic new-folder-icon"
                 oncommand="ko.places.viewMgr.addNewFolder()"
                 testDisableIf="t:multipleSelection"
+                hideUnless="folder"
                 />
       <!-- gPlacesViewMgr.addNewFolder(index) -->
       <menuseparator id="placesContextMenu_separatorProperties"
