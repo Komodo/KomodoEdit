@@ -2122,7 +2122,11 @@ this.onLoad = function places_onLoad() {
     widgets.placeView_customView_menuitem =
         document.getElementById("placeView_customView");
     ko.places.updateFilterViewMenu();
-    ko.places.manager.initialize();
+    // The "initialize" routine needs to be in a timeout, otherwise the
+    // tree will always show a pending icon and never updates.
+    window.setTimeout(function() {
+            ko.places.manager.initialize();
+        }, 1);
 };
 
 this.onUnload = function places_onUnload() {
