@@ -414,7 +414,7 @@
   <tabpanels id="project_toolbox_tabpanels">
     <tabpanel flex="1" id="placesViewbox"
               insertbefore="codebrowserviewbox"
-              position="1">
+              position="0">
       <vbox flex="1">
         <hbox id="place-view-vbox" align="center">
           <!--
