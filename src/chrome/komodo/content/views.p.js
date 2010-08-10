@@ -211,49 +211,41 @@ viewManager.prototype.postCanClose = function()
  * Get the default directory based on a project or the current buffer.
  *
  * @private
- * @param project {Components.interfaces.koIProject}
- *      optional, instance of a project
  * @return {string} the current "default" directory to work from.
  */
-viewManager.prototype._getDefaultDirectory = function(project) {
+viewManager.prototype._getDefaultDirectory = function() {
     // get the default dir from the current buffer directory, or the
     // current project directory
     var defaultDir = null;
-    if (!project) {
-        project = ko.projects.manager.currentProject;
-    }
-    var v = this.currentView;
-    if (v && v.getAttribute("type") == "editor" &&
-        v.koDoc && !v.koDoc.isUntitled && v.koDoc.file.isLocal)
-    {
-        defaultDir = this.currentView.koDoc.file.dirName;
-    } else if (project) {
-        defaultDir = ko.projects.getDefaultDirectory(project);
+    var project = ko.projects.manager.currentProject;
+    if (project) {
+        defaultDir = project.liveDirectory;
     }
     if (!defaultDir) {
-        // XXX TODO
-        // lets use the users home dir on non-windows platforms
+        var v = this.currentView;
+        if (v && v.getAttribute("type") == "editor" &&
+            v.koDoc && !v.koDoc.isUntitled && v.koDoc.file.isLocal)
+        {
+            defaultDir = this.currentView.koDoc.file.dirName;
+        } else if (ko.places) {
+            defaultDir = ko.places.manager.currentPlace;
+        }
     }
     return defaultDir;
 }
 
 /**
- * Create a new file based on a selected template, optionally add it to a
- * project.  this will prompt the user to select a template.
+ * Create a new file based on a selected template. This will prompt the
+ * user to select a template.
  *
  * @private
  * @param defaultDir {string} optional, current directory
- * @param project {Components.interfaces.koIProject}
- *        optional, instance of a project
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
-viewManager.prototype._newTemplate = function(defaultDir, project) {
+viewManager.prototype._newTemplate = function(defaultDir) {
     var view = null;
-    if (!project) {
-        project = ko.projects.manager.currentProject;
-    }
     if (!defaultDir) {
-       defaultDir = this._getDefaultDirectory(project);
+       defaultDir = this._getDefaultDirectory();
     }
     try {
         this.log.info("doing newTemplate: ");
@@ -264,7 +256,6 @@ viewManager.prototype._newTemplate = function(defaultDir, project) {
         var obj = new Object();
         obj.type = "file";
         obj.defaultDir = defaultDir;
-        obj.project = project;
         obj.filename = null;
         ko.launch.newTemplate(obj);
         if (obj.template == null) return null;
@@ -274,17 +265,6 @@ viewManager.prototype._newTemplate = function(defaultDir, project) {
             saveto = ko.uriparse.pathToURI(obj.filename);
         view = this._doFileNewFromTemplate(uri, saveto);
         if (!view) return null;
-        if (saveto && obj.addToProject && project) {
-            // does the project have a live folder that is the base
-            // for the new filename?  If so, we do nothing.  Otherwise,
-            // we add the file to the currently selected (if any) folder
-            // for the current project
-            if (!project.containsLiveURL(saveto)) {
-                // don't pass a koipart here, it will get the selected folder
-                // to add the file to.
-                ko.projects.addFileWithURL(saveto, project);
-            }
-        }
         window.setTimeout(function(view) {
             view.setFocus();
             if (view.koDoc && obj.template) {
@@ -303,17 +283,15 @@ viewManager.prototype._newTemplate = function(defaultDir, project) {
 
 
 /**
- * Asynchronously create a new file based on a selected template, optionally add
- * it to a project. This will prompt the user to select a template.
+ * Asynchronously create a new file based on a selected template. This
+ * will prompt the user to select a template.
  *
  * @public
  * @param defaultDir {string} optional, current directory
- * @param project {Components.interfaces.koIProject}
- *        optional, instance of a project
  * @param callback {function} optional, to be called when the asynchronous load
  *        is complete. The view will be passed as an argument to the function.
  */
-viewManager.prototype.newTemplateAsync = function(defaultDir, project,
+viewManager.prototype.newTemplateAsync = function(defaultDir,
                                                   callback /*=null*/)
 {
     window.setTimeout(function(mgr, defaultDir_, project_, callback_) {
