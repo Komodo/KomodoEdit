@@ -125,8 +125,7 @@
                          autocompletepopup="popupTextboxAutoComplete"
                          enablehistory="true"
                          completeselectedindex="true"
-                         onfocus="this.setSelectionRange(0,this.value.length);"
-                         oninput="resetAddToProject();"/>
+                         onfocus="this.setSelectionRange(0,this.value.length);"/>
             </row>
             <row align="center">
                 <label value="&directory.label;" control="dirname" accesskey="&directory.accesskey;"/>
@@ -150,11 +149,6 @@
         </rows>
     </grid>
 
-    <vbox id="add-to" flex="1">
-    <checkbox id="add-to-project" label="&addToCurrentProject.label;"
-              accesskey="&addToProject.accesskey;" style="padding-left: 0px;"
-              tooltiptext="&addTheNewFileToYourCurrentProject.tooltiptext;"/>
-    </vbox>
     <separator class="thin"/>
 
 </dialog>

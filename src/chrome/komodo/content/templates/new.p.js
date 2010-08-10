@@ -46,14 +46,6 @@
  *      filename
  *          Optional default value to be used for the "Filename" textbox.
  *          If not specified, the Filename textbox will start empty.
- *      project
- *          Indicates the project to which the "Add to Current Project"
- *          applied. Only used if type=="file".
- *      addToProjectOverride
- *          Optional boolean indicating if the "Add to Current Project"
- *          checkbox should be checked. If this is not specified, the checked
- *          state will be the last user setting. Only used if type=="file"
- *          and 'project' is set.
  *      templateOnly
  *          Is an optional boolean to limit the UI to just the selection of a
  *          template path. (Used by "Add Template..." in the Toolbox).
@@ -66,9 +58,6 @@
  *      filename
  *          Full path to the selected target file, or null if the user didn't
  *          specify one.
- *      addToProject
- *          Set to true if "Add to Current Project" was checked and relevant.
- *          It is not relevant if no filename was given.
  */
 
 
@@ -81,7 +70,6 @@ var gCategoriesView = null;
 var gTemplatesView = null;
 
 var options = null;
-var elAddToProject = null;
 var openButton;
 
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
@@ -117,15 +105,11 @@ function OnLoad()
             defaultDir: window.arguments[0].defaultDir || "",
             filename: window.arguments[0].filename || "",
             project: window.arguments[0].project || null,
-            addToProjectOverride: window.arguments[0].addToProjectOverride || null,
             templateOnly: window.arguments[0].templateOnly || false
         };
         
-        elAddToProject = document.getElementById("add-to-project");
         if (options.type == "project") {
             document.title = _bundle.GetStringFromName("newProject.title");
-            elAddToProject.parentNode.removeChild(elAddToProject);
-            elAddToProject = null;
             // Project packages do not support remote filesystems.
             el = document.getElementById("remoteFileDir");
             el.parentNode.removeChild(el);
@@ -134,8 +118,6 @@ function OnLoad()
             el.setAttribute("accesskey", _bundle.GetStringFromName("browse.accesskey"));
         } else if (options.templateOnly) {
             document.title = _bundle.GetStringFromName("selectFileTemplate.title");
-            elAddToProject.parentNode.removeChild(elAddToProject);
-            elAddToProject = null;
             el = document.getElementById("filepicker");
             el.setAttribute('collapsed', 'true');
         } else if (options.project) {
@@ -143,23 +125,10 @@ function OnLoad()
             if (name.slice(".komodoproject".length, name.length) == ".komodoproject") {
                 name = name.slice(0, ".komodoproject".length);  // drop extension
             }
-            elAddToProject.setAttribute("label",
-                _bundle.formatStringFromName("addToProject.label", [name], 1));
-            if (options.addToProjectOverride != null) {
-                elAddToProject.checked = options.addToProjectOverride;
-            } else {
-                elAddToProject.checked
-                    = gPrefs.getBooleanPref("new_file_add_to_project");
-            }
-        } else {
-            // No project.
-            elAddToProject.parentNode.removeChild(elAddToProject);
-            elAddToProject = null;
         }
 
         document.getElementById('dirname').value = options.defaultDir;
         document.getElementById('filename').value = options.filename;
-        resetAddToProject();
         
         gTemplateSvc = Components.classes["@activestate.com/koTemplateService?type="+options.type+";1"].getService();
         gTemplatesView = Components.classes["@activestate.com/koTemplatesView;1"].createInstance();
@@ -221,19 +190,6 @@ function CategoriesOnSelectionChange()
     }
 }
 
-function resetAddToProject()
-{
-    if (!elAddToProject) return false;
-    var filename = document.getElementById('filename');
-    if (!filename.value) {
-        elAddToProject.setAttribute('disabled','true');
-        return false;
-    } else {
-        elAddToProject.removeAttribute('disabled');
-    }
-    return true;
-}
-
 function TemplatesOnSelectionChange()
 {
     try {
@@ -284,20 +240,6 @@ function Open()
                 getService(Components.interfaces.koIOsPath);
         window.arguments[0].template = gTemplatesView.getSelectedTemplate();
 
-        if (elAddToProject) {
-            if (!elAddToProject.getAttribute('disabled')) {
-                window.arguments[0].addToProject = elAddToProject.checked;
-                if (options.addToProjectOverride == null) {
-                    gPrefs.setBooleanPref("new_file_add_to_project",
-                                          elAddToProject.checked);
-                }
-            } else {
-                window.arguments[0].addToProject = false;
-            }
-        } else {
-            window.arguments[0].addToProject = null;
-        }
-        
         var filename = document.getElementById('filename').value;
         if (filename) {
             var answer;
@@ -375,7 +317,6 @@ function Cancel()
     try {
         window.arguments[0].template = null;
         window.arguments[0].filename = null;
-        window.arguments[0].addToProject = null;
     } catch(ex) {
         log.exception(ex, "Error canceling 'New File' dialog.");
     }
