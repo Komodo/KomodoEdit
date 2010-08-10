@@ -101,10 +101,9 @@ tabbox.vertical_tabs tabpanel
     -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tabpanel-vertical-text");
 }
 
-tabbox.vertical_tabs label.tab-text
+tabbox.vertical_tabs tab[selected="true"] label.tab-text
 {
-    font-weight: bold !important;
-    color: #535f6d;
+    font-weight: bold;
 }
 
 tabbox.vertical_tabs tabs
