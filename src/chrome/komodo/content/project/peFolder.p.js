@@ -22,5 +22,4 @@ setTimeout(function() {
 });
 
 ko.projects.addDeprecatedGetter("peFolder_add", "addNewPart");
-ko.projects.addDeprecatedGetter("peFolder_ensureFolderAdd", "ensureAddMenu");
     }, 1000);

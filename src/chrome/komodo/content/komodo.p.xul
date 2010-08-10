@@ -1215,11 +1215,6 @@
                                       id="menu_projectOpenProject"
                                       observes="cmd_openProject"
                                       />
-                            <menu id="menu_projectAdd" label="&add.label;" accesskey="&menuProjectAdd.accesskey;"
-                                  observes="broadcaster_projectCurrent">
-                                  <menupopup id="projectAdd_popup" partviewer="projectview"
-                                              onpopupshowing="ko.projects.ensureAddMenu(this);"/>
-                            </menu>
                             <menuitem label="&importFromFileSystem.label;"
                                       id="menu_importFromFS"
                                       observes="cmd_importFromFS_Project"
