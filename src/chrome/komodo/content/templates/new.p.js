@@ -104,7 +104,6 @@ function OnLoad()
             type: window.arguments[0].type,
             defaultDir: window.arguments[0].defaultDir || "",
             filename: window.arguments[0].filename || "",
-            project: window.arguments[0].project || null,
             templateOnly: window.arguments[0].templateOnly || false
         };
         
@@ -120,11 +119,6 @@ function OnLoad()
             document.title = _bundle.GetStringFromName("selectFileTemplate.title");
             el = document.getElementById("filepicker");
             el.setAttribute('collapsed', 'true');
-        } else if (options.project) {
-            var name = options.project.name;
-            if (name.slice(".komodoproject".length, name.length) == ".komodoproject") {
-                name = name.slice(0, ".komodoproject".length);  // drop extension
-            }
         }
 
         document.getElementById('dirname').value = options.defaultDir;
