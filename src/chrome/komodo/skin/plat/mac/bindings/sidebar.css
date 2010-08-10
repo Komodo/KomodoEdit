@@ -37,7 +37,7 @@ tabbox.sidepanel
 tabbox.sidepanel > tabs,
 tabbox.sidepanel > tabpanels,
 tabbox.sidepanel > tabpanels > tabpanel,
-tabbox.sidepanel > tabpanels > tabpanel > vbox,
+tabbox.sidepanel > tabpanels > tabpanel > vbox
 {
   -moz-appearance: none;
   border: None;
