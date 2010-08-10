@@ -2123,12 +2123,14 @@
                 width="200"
                 collapsed="true"
                 persist="width collapsed">
-                <tabbox orient="vertical"
+                <tabbox id="leftTabBox"
                         flex="1"
-                        id="leftTabBox"
-                        class="sidepanel">
-                    <tabs type="sidebar" collapsable="true"
-                          id="project_toolbox_tabs" orient="horizontal"
+                        orient="horizontal"
+                        class="native vertical_tabs"
+                        rotation="270">
+                    <tabs id="project_toolbox_tabs"
+                          orient="vertical"
+                          collapsable="true"
                           splitterId="workspace_left_splitter"
                           onclose="ko.uilayout.toggleSplitter('cmd_viewLeftPane');"
                           closeclass="scroll-minimize-left-icon"
