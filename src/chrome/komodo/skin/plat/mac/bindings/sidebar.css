@@ -102,3 +102,28 @@ tabbox.sidepanel tree treechildren::-moz-tree-row(selected) {
 #komodo_main:not([active="true"]) tabbox.sidepanel tree treechildren::-moz-tree-row {
   background-color: #E4E4E4;
 }
+
+
+/**
+ * Vertical sidebar tabs - Mac specific settings.
+ */
+tabbox.vertical_tabs
+{
+  border: none;
+  padding: 0px;
+  margin: 0px;
+  background-color: #d4dde5;
+}
+
+#komodo_main:not([active="true"]) tabbox.vertical_tabs {
+  background-color: #E4E4E4;
+}
+
+tabbox.vertical_tabs tabpanel label.tab-text {
+    /* Same style as for `sidebar-title` in Mozilla's 
+       "pinstripe/browser/browser.css". */
+    font-weight: bold !important;
+    font-size: small;
+    color: #535f6d;
+}
+
