@@ -1215,7 +1215,7 @@ class koLiveFolderPart(koFolderPart):
 
     def genLocalPaths(self):
         """Generate all contained local paths."""
-        from os.path import join, dirname, basename
+        from os.path import join
         
         prefset = self.get_prefset()
         base_dir = self.get_liveDirectory()
