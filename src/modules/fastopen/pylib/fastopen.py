@@ -618,12 +618,7 @@ class KomodoProjectGatherer(Gatherer):
     def __init__(self, project):
         self.project = project
         self.name = "project '%s'" % project.get_name()
-        self.base_dir = (project.get_liveDirectory()
-            if self._is_project_live(project) else None)
-    def _is_project_live(self, project):
-        prefset = project.get_prefset()
-        return (prefset.hasBooleanPref("import_live")
-                and prefset.getBooleanPref("import_live"))
+        self.base_dir = project.get_liveDirectory()
     def gather(self):
         #XXX:TODO the cached/indexed version
         project_name = self.project.get_name()
@@ -639,18 +634,12 @@ class CachingKomodoProjectGatherer(Gatherer):
     def __init__(self, project):
         self.project = project
         self.name = "project '%s'" % project.get_name()
-        self.base_dir = (project.get_liveDirectory()
-            if self._is_project_live(project) else None)
+        self.base_dir = project.get_liveDirectory()
         project_name = self.project.get_name()
         if project_name.endswith(KOMODO_PROJECT_EXT):
             project_name = project_name[:-len(KOMODO_PROJECT_EXT)]
         self.project_name = project_name
         self._hits = []  # cache of already generated hits
-    
-    def _is_project_live(self, project):
-        prefset = project.get_prefset()
-        return (prefset.hasBooleanPref("import_live")
-                and prefset.getBooleanPref("import_live"))
     
     _raw_generator = None
     def gather(self):
