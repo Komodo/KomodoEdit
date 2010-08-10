@@ -1008,20 +1008,6 @@ class koFolderPart(koContainer):
             self.flavors.insert(0,'text/x-moz-url')
         return self.flavors
 
-    def genLocalPaths(self):
-        """Generate all contained local paths."""
-        for child in self.getChildren():
-            type = child.type
-            name = child.getStringAttribute("name")
-            if type == "file":
-                url = child.getStringAttribute("url")
-                path = _local_path_from_url(url)
-                if path is not None:
-                    yield path
-            elif type in ("folder", "livefolder"):
-                for path in child.genLocalPaths():
-                    yield path
-
 
 class koLiveFolderPart(koFolderPart):
     _com_interfaces_ = [components.interfaces.koIPart_livefolder,
@@ -1228,107 +1214,28 @@ class koLiveFolderPart(koFolderPart):
         return self.children
 
     def genLocalPaths(self):
-        """Generate all contained local paths.
-
-        Limitations:
-        - Komodo currently allows the import_* prefs in a live folder
-          tree to *change at any level* in the tree. This currently
-          isn't supported here. Either it should be or Komodo's projects
-          should disallow this facility.
-        
-        TODO: Most of this implementation is identical to
-              `koProject.genLocalPaths`. They should share.
-        """
+        """Generate all contained local paths."""
         from os.path import join, dirname, basename
         
-        # `self._childmap`, unfortunately mixes in "live" children with
-        # "static" ones. E.g.:
-        #   Project foo.kpf (live):
-        #       File foo.txt (in foo.kpf's live import)
-        #       File bar.txt (*not* in foo.kpf's live import, added manually)
-        # So, we'll track the immediate children that we've yielded here
-        # to ensure we don't emit the same one twice.
-        already_yielded_child_name_set = set()
-
-        # Handle live elements.
-        # Need to do the live bits first, because these are used to
-        # distinguish if elements from `self._childmap` are live or
-        # static.
         prefset = self.get_prefset()
-        is_live = (prefset.hasBooleanPref("import_live")
-                   and prefset.getBooleanPref("import_live"))
-        if is_live:
-            base_dir = self.get_liveDirectory()
-            recursive = prefset.getBooleanPref("import_recursive")
-            excludes = [p for p in prefset.getStringPref("import_exclude_matches").split(';') if p]
-            includes = [p for p in prefset.getStringPref("import_include_matches").split(';') if p]
-            excludes.append("*.kpf")  # Live folders always exclude .kpf files.
-            if recursive:
-                path_patterns = [base_dir]
-            else:
-                path_patterns = [join(base_dir, "*"),
-                                 join(base_dir, ".*")]
-            
-            base_dir_length = len(base_dir)
-            for path in paths_from_path_patterns(
-                    path_patterns,
-                    recursive=recursive,
-                    includes=includes,
-                    excludes=excludes,
-                    on_error=None,
-                    follow_symlinks=True,
-                    skip_dupe_dirs=False):
-                sep_idx = path.find(os.sep, base_dir_length+1)
-                if sep_idx == -1:
-                    already_yielded_child_name_set.add(basename(path))
-                else:
-                    already_yielded_child_name_set.add(path[base_dir_length+1:sep_idx])
-                yield path
+        base_dir = self.get_liveDirectory()
+        excludes = [p for p in prefset.getStringPref("import_exclude_matches").split(';') if p]
+        includes = [p for p in prefset.getStringPref("import_include_matches").split(';') if p]
+        excludes.append("*.kpf")  # Live folders always exclude .kpf files.
+        excludes.append("*.komodoproject")  # Live folders always exclude .komodoproject files.
+        path_patterns = [join(base_dir, "*"), join(base_dir, ".*")]
+        
+        base_dir_length = len(base_dir)
+        for path in paths_from_path_patterns(
+                path_patterns,
+                recursive=True,
+                includes=includes,
+                excludes=excludes,
+                on_error=None,
+                follow_symlinks=True,
+                skip_dupe_dirs=False):
+            yield path
 
-        # Handle all "static" elements added to the project.
-        childmap = self._project._childmap  #WARNING: accessing internal `_childmap`
-        id = self._attributes["id"]
-        for child in childmap[id]:
-            name = child.getStringAttribute("name")
-            type = child.type
-            if type == "file":
-                if name in already_yielded_child_name_set:
-                    continue
-                url = child.getStringAttribute("url")
-                if not url.startswith("file://"):
-                    # Only want local files.
-                    continue
-                yield _local_path_from_url(url)
-            elif type == "folder":
-                for path in child.genLocalPaths():
-                    yield path
-            elif type == "livefolder":
-                if name in already_yielded_child_name_set:
-                    # Komodo projects allow groups (aka static folders)
-                    # in a live folder. If so, this shows up in
-                    # `self._childmap`. We walk the child map to see
-                    # if there are <koFolderPart>s under this tree.
-                    #
-                    # Note: We are punting on looking for static files
-                    # and separate live folder bases under this live
-                    # folder. Komodo projects *allow* these, but they
-                    # shouldn't: it is crazy.
-                    descendant_ids_to_trace = [child.getStringAttribute("id")]
-                    while descendant_ids_to_trace:
-                        descendant_id = descendant_ids_to_trace.pop()
-                        if descendant_id not in childmap:
-                            continue
-                        for c in childmap[descendant_id]:
-                            t = c.type
-                            if t == "folder":
-                                for path in c.genLocalPaths():
-                                    yield path
-                            elif t == "livefolder":
-                                descendant_ids_to_trace.append(
-                                    c.getStringAttribute("id"))
-                else:
-                    for path in child.genLocalPaths():
-                        yield path
 
 
 def Folder(url, name, project, live=0):
