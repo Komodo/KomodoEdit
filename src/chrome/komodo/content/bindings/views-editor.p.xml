@@ -92,7 +92,9 @@
         <setter>
         <![CDATA[
             this.log.info("view-editor:document setter");
+            var hadKoDoc = false;
             if (this._koDoc) {
+                hadKoDoc = true;
                 try {
                 // We are detaching a document from the view
                 xtk.domutils.fireEvent(this, 'view_document_detaching');
@@ -151,6 +153,11 @@
                 this.parentView.updateLeafName(this);
                 this.parentView.updateFileStatus(this);
                 this.parentView.updateDirtyStatus(this);
+                if (hadKoDoc) {
+                    // Have to update the title bar for the new document
+                    // path - bug 87615.
+                    ko.uilayout.updateTitlebar(this);
+                }
 
                 if (!ko.views.manager.batchMode &&
                     this.lintBuffer &&
