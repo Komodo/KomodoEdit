@@ -127,3 +127,9 @@ tabbox.vertical_tabs tabpanel label.tab-text {
     color: #535f6d;
 }
 
+tabbox.vertical_tabs tab > .tab-text,
+tabbox.vertical_tabs .tab-middle {
+  /* Remove left/right padding around the tab */
+  padding-left: 0;
+  padding-right: 0;
+}
