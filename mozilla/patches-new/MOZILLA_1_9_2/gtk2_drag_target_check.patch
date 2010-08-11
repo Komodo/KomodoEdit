@@ -1,0 +1,36 @@
+Don't try and get the gtk drag data when there is no target set. This is to
+stop these warnings on drag/drop operations:
+Gtk-CRITICAL **: gtk_drag_get_data: assertion `GTK_IS_WIDGET (widget)' failed
+
+Index: /home/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/widget/src/gtk2/nsDragService.cpp
+--- widget/src/gtk2/nsDragService.cpp
++++ widget/src/gtk2/nsDragService.cpp
+@@ -971,16 +971,18 @@
+                                    mTargetWidget, mTargetDragContext));
+     // reset our target data areas
+     TargetResetData();
+-    gtk_drag_get_data(mTargetWidget, mTargetDragContext, aFlavor, mTargetTime);
+-    
+-    PR_LOG(sDragLm, PR_LOG_DEBUG, ("about to start inner iteration."));
+-    PRTime entryTime = PR_Now();
+-    while (!mTargetDragDataReceived && mDoingDrag) {
+-        // check the number of iterations
+-        PR_LOG(sDragLm, PR_LOG_DEBUG, ("doing iteration...\n"));
+-        PR_Sleep(20*PR_TicksPerSecond()/1000);  /* sleep for 20 ms/iteration */
+-        if (PR_Now()-entryTime > NS_DND_TIMEOUT) break;
+-        gtk_main_iteration();
++    if (mTargetWidget && mTargetDragContext) {
++        gtk_drag_get_data(mTargetWidget, mTargetDragContext, aFlavor, mTargetTime);
++        
++        PR_LOG(sDragLm, PR_LOG_DEBUG, ("about to start inner iteration."));
++        PRTime entryTime = PR_Now();
++        while (!mTargetDragDataReceived && mDoingDrag) {
++            // check the number of iterations
++            PR_LOG(sDragLm, PR_LOG_DEBUG, ("doing iteration...\n"));
++            PR_Sleep(20*PR_TicksPerSecond()/1000);  /* sleep for 20 ms/iteration */
++            if (PR_Now()-entryTime > NS_DND_TIMEOUT) break;
++            gtk_main_iteration();
++        }
+     }
+     PR_LOG(sDragLm, PR_LOG_DEBUG, ("finished inner iteration\n"));
+ }
