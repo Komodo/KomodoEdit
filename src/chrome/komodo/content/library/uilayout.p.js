@@ -578,7 +578,7 @@ var FullScreen =
   
 };
 
-function _updateMRUMenu(prefName)
+function _updateMRUMenu(prefName, limit)
 {
     // Update a MRU menu popup under the file menu.
     //    "prefName" indicate which MRU menu to update.
@@ -588,8 +588,8 @@ function _updateMRUMenu(prefName)
     //     factored out.
     var popupId, separatorId, prettyName;
     if (prefName == "mruProjectList") {
-        popupId = "popup_mruProjects"; // MRU list is the whole popup.
-        separatorId = null;
+        popupId = null; // was:"popup_mruProjects"; // MRU list is the whole popup.
+        separatorId = "menu_projects_mru_separator";
         prettyName = "Projects";
     } else if (prefName == "mruFileList") {
         popupId = "popup_mruFiles"; // MRU list is the whole popup.
@@ -636,21 +636,35 @@ function _updateMRUMenu(prefName)
             menupopup = separator.parentNode;
         }
         var length = mruList.length;
+        var labelNum = 1;
         for (var i = 0; i < length; i++) {
+            if (limit && i == limit && limit < length - 1) {
+                var m1 = document.createElementNS(XUL_NS, "menu");
+                var moreLabel = _bundle.GetStringFromName("more");
+                m1.setAttribute("label", moreLabel);
+                m1.setAttribute("accesskey", moreLabel.substr(0, 1));
+                var m2 = document.createElementNS(XUL_NS, "menupopup");
+                m2.setAttribute("onpopupshowing", "event.stopPropagation();");
+                m1.appendChild(m2);
+                menupopup.appendChild(m1);
+                menupopup = m2;
+                labelNum = 1;
+            }
             var url = mruList.getStringPref(i);
             menuitem = document.createElement("menuitem");
             // Mozilla does not handle duplicate accesskeys, so only putting
             // them on first 10.
-            if ((i+1) <= 9) {
-                menuitem.setAttribute("accesskey", "" + (i+1));
-            } else if ((i+1) == 10) {
+            if (labelNum <= 9) {
+                menuitem.setAttribute("accesskey", "" + labelNum);
+            } else if (labelNum == 10) {
                 menuitem.setAttribute("accesskey", "0");
             }
             if (prefName == "mruTemplateList") {
-                menuitem.setAttribute("label", (i+1)+" "+ko.uriparse.baseName(url));
+                menuitem.setAttribute("label", labelNum + " " + ko.uriparse.baseName(url));
             } else {
-                menuitem.setAttribute("label", (i+1)+" "+ko.uriparse.displayPath(url));
+                menuitem.setAttribute("label", labelNum + " " + ko.uriparse.displayPath(url));
             }
+            labelNum++;
             menuitem.setAttribute("class", "menuitem_mru");
             menuitem.setAttribute("crop", "center");
             // XXX:HACK: For whatever reason, the "observes" attribute is
@@ -719,19 +733,22 @@ var _gNeedToUpdateFileMRUMenu = false;
 var _gNeedToUpdateProjectMRUMenu = false;
 var _gNeedToUpdateTemplateMRUMenu = false;
 
-this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru)
+this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, limit)
 {
+    if (typeof(limit) == "undefined") {
+        limit = 0;
+    }
     // (Re)build the identified MRU menu if necessary.
     //    "mru" is either "project" or "file", indicating which MRU menu
     //        to update.
     if (mru == "project" && _gNeedToUpdateProjectMRUMenu) {
-        _updateMRUMenu("mruProjectList");
+        _updateMRUMenu("mruProjectList", limit);
         _gNeedToUpdateProjectMRUMenu = false;
     } else if (mru == "file" && _gNeedToUpdateFileMRUMenu) {
-        _updateMRUMenu("mruFileList");
+        _updateMRUMenu("mruFileList", limit);
         _gNeedToUpdateFileMRUMenu = false;
     } else if (mru == "template" && _gNeedToUpdateTemplateMRUMenu) {
-        _updateMRUMenu("mruTemplateList");
+        _updateMRUMenu("mruTemplateList", limit);
         _gNeedToUpdateTemplateMRUMenu = false;
     }
 }

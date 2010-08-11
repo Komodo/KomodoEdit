@@ -1249,19 +1249,7 @@
                                       id="menu_projectProperties"
                                       observes="cmd_projectProperties"
                                       accesskey="&projectProperties.accesskey;"/>
-                                      
-                            <menu
-                                id="menu_mruProjects"
-                                accesskey="&menuMruProjects.accesskey;"
-                                label="&recentProjects.label;">
-                                <menupopup
-                                    id="popup_mruProjects"
-                                    class="popup_mru_xxx"
-                                    onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project');">
-                                    <!-- menuitems are added dynamically for each entry
-                                        in the project MRU -->
-                                </menupopup>
-                            </menu>
+                            <menuseparator id="menu_projects_mru_separator"/>
                         </menupopup>
                     </menu>
                     <menu id="menu_tools" label="&tools.label;" accesskey="&menuTools.accesskey;">

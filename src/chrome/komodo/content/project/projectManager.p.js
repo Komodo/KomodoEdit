@@ -532,23 +532,8 @@ projectManager.prototype._finishUpdateProjectMenu = function(menuNode) {
                 }
                 break;
             case "menuseparator":
-                if (false && node.id == "menu_project_mru_separator") {
-                    var nextNode;
-                    while (true) {
-                        nextNode = node.nextSibling;
-                        if (nextNode.id == "menu_project_properties_separator"){
-                            break;
-                        }
-                        menuNode.removeChild(nextNode);
-                    }
-                    // And add the projects in two parts: first 5 inline,
-                    // rest under a "More" submenu.
-                    var prefName = 'mruProjectList';
-                    if (!gPrefs.hasPref(prefName)) {
-                        // Nothing left to do, convenient that we can break
-                        break;
-                    }
-                    var mruList = gPrefs.getPref(prefName);
+                if (node.id == "menu_project_mru_separator") {
+                    ko.uilayout.updateMRUMenuIfNecessary('project', 5);
                 }
                 break;
             case "menu":
