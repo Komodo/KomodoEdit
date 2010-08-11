@@ -2045,6 +2045,10 @@ ItemWrapper.prototype.__defineGetter__("prefset", function() {
     return currentProject ? currentProject.prefset : null;
 });
 
+this.getItemWrapper = function(url, type) {
+    return new ItemWrapper(url, type);
+}
+
 this._instantiateRemoteConnectionService = function() { 
     // From publish-dialog.js
     // Have to initialize these services before we launch publishing -

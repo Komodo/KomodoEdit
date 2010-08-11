@@ -400,8 +400,10 @@ this.fileProperties = function peFile_Properties(item, view, folder)
         if (resp.res != "ok") {
             return false;
         }
-        // make the tree refresh this part
-        if (item) {
+        if (item.type == 'project') {
+            window.updateCommands('project_dirty');
+        } else if (item) {
+            // make the tree refresh this part
             ko.places.manager.refreshItem(item);
         }
         return true;

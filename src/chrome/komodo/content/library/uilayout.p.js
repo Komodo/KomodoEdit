@@ -743,7 +743,6 @@ function _Observer ()
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.addObserver(this, "mru_changed",false);
     observerSvc.addObserver(this, "primary_languages_changed",false);
-    observerSvc.addObserver(this, "current_project_changed", false);
     var self = this;
     this.handle_current_view_changed_setup = function(event) {
         self.handle_current_view_changed(event);
@@ -757,6 +756,10 @@ function _Observer ()
                             this.handle_current_view_language_changed, false);
     window.addEventListener('view_list_closed',
                             this.handle_view_list_closed_setup, false);
+    window.addEventListener('current_project_changed',
+                            this.handle_project_changed, false);
+    window.addEventListener('project_opened',
+                            this.handle_project_changed, false);
 };
 _Observer.prototype.destroy = function()
 {
@@ -764,7 +767,6 @@ _Observer.prototype.destroy = function()
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.removeObserver(this, "mru_changed");
     observerSvc.removeObserver(this, "primary_languages_changed");
-    observerSvc.removeObserver(this, "current_project_changed");
     
     window.removeEventListener('current_view_changed',
                                this.handle_current_view_changed_setup, false);
@@ -772,6 +774,10 @@ _Observer.prototype.destroy = function()
                                this.handle_current_view_language_changed, false);
     window.removeEventListener('view_list_closed',
                                this.handle_view_list_closed_setup, false);
+    window.removeEventListener('current_project_changed',
+                               this.handle_project_changed, false);
+    window.removeEventListener('project_opened',
+                               this.handle_project_changed, false);
 }
 _Observer.prototype.observe = function(subject, topic, data)
 {
@@ -792,6 +798,7 @@ _Observer.prototype.observe = function(subject, topic, data)
         ko.uilayout.buildViewAsLanguageMenu();
         break;
     case 'current_project_changed':
+    case 'project_opened':
         ko.uilayout.updateTitlebar(ko.views.manager.currentView);
         break;
     }
@@ -810,6 +817,9 @@ _Observer.prototype.handle_current_view_changed = function(event) {
 _Observer.prototype.handle_current_view_language_changed = function(event) {
     _log.info("GOT current_view_language_changed");
     _updateCurrentLanguage(event.originalTarget);
+}
+_Observer.prototype.handle_project_changed = function(event) {
+    ko.uilayout.updateTitlebar(ko.views.manager.currentView);
 }
 
 _Observer.prototype.handle_view_list_closed = function(event) {
@@ -1230,9 +1240,8 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
             view.getAttribute("type") != "startpage") {
             if (view.koDoc.file.isLocal) {
                 title += ' (' + ko.stringutils.contractUser(view.koDoc.file.dirName);
-                if (currentProject) {
-                    var projectName = currentProject.name;
-                    var projectRootName = projectName.substr(0, projectName.lastIndexOf('.'));
+                var projectRootName = ko.projects.manager.projectBaseName();
+                if (projectRootName) {
                     title += " {" + projectRootName + "}";
                 }
                 title += ')';

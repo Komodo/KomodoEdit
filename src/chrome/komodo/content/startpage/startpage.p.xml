@@ -946,11 +946,6 @@
                                   class="button-link new-project-icon"
                                   observes="cmd_newProject"
                                   />
-                        <xul:button label="&newProjectFromTemplate.label;"
-                                  anonid="menu_newProjectFromTemplate"
-                                  class="button-link new-project-icon"
-                                  observes="cmd_newProjectFromTemplate"
-                                  />
                         <xul:menuseparator anonid="sp-template-mru-rows"/>
                     </xul:vbox>
                 </xul:hbox>

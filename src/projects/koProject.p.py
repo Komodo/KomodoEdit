@@ -487,7 +487,7 @@ class koPart(object):
             parts = list(urlparse.urlparse(self._url))
             slashlocation = parts[2].rindex('/')
             parts[2] = parts[2][:slashlocation+1] + name
-            ext = os.path.splitext(parts[2])
+            ext = os.path.splitext(parts[2])[1]
             if not ext in ('.kpf', koToolbox2.PROJECT_FILE_EXTENSION):
                 qlog.debug("ext:%s, Adding extension to parts[2]:%s", ext, parts[2])
                 parts[2] += koToolbox2.PROJECT_FILE_EXTENSION
@@ -1532,12 +1532,13 @@ class koProject(koLiveFolderPart):
                             log.warn(msg)
                             self.lastErrorSvc.setLastError(0, msg)
 
-                            shutil = components.classes["@activestate.com/koShUtil;1"].\
-                                        getService(components.interfaces.koIShUtil)
-                            shutil.copyfile(fname, bakFile)
                             if canBeCulled:
                                 koTBMiscSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2Service;1"].getService(components.interfaces.koIToolbox2Service))
                                 koTBMiscSvc.extractToolboxFromKPF_File(fname, os.path.splitext(basename)[0])
+                            else:
+                                shutil = components.classes["@activestate.com/koShUtil;1"].\
+                                            getService(components.interfaces.koIShUtil)
+                                shutil.copyfile(fname, bakFile)
                         except Exception, e:
                             log.exception("Error '%s' creating backup of '%s'", e, bakFile)
                         self._attributes['kpf_version'] = KPF_VERSION

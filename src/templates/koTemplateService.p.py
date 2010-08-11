@@ -229,6 +229,46 @@ to use Komodo's numerous standard %s templates.""" % (self.type, str(ex), self.t
     def getSharedTemplatesDir(self):
         return os.path.join(self.koDirSvc.commonDataDir, self.basename)
 
+    def walkFuncForKPZOnly(self, dirname):
+        items = []
+        fnames = os.listdir(dirname)
+        for f in fnames:
+            path = os.path.join(dirname, f)
+            if f.endswith(".kpz"):
+                items.append(path)
+            elif os.path.isdir(path):
+                items += self.walkFuncForKPZOnly(path)
+        return items
+
+    def walkFuncForKPZ(self, dirname):
+        if not os.path.exists(dirname):
+            return []
+        fnames = os.listdir(dirname)
+        finalItems = []
+        for f in fnames:
+            path = os.path.join(dirname, f)
+            if os.path.isdir(path):
+                items = self.walkFuncForKPZOnly(path)
+                if items:
+                    items.sort()
+                    finalItems.append([f, items])
+        return finalItems
+
+    def getJSONTree(self):
+        dirs = [self.getDefaultTemplatesDir(), self.getUserTemplatesDir()]
+        sharedDir = self.getSharedTemplatesDir()
+        if sharedDir:
+            dirs.append(sharedDir)
+        dirs.sort()
+        finalItems = []
+        
+        for d in dirs:
+            items = self.walkFuncForKPZ(d)
+            if items:
+                finalItems += items
+        import json
+        return json.dumps(finalItems)
+
 class KoProjectTemplateService(KoTemplateService):
     type = "project"
     _com_interfaces_ = [components.interfaces.koITemplateService]

@@ -72,6 +72,8 @@ interface koITemplateService : nsISupports {
     wstring getDefaultTemplatesDir();
     wstring getUserTemplatesDir();
     wstring getSharedTemplatesDir();
+    
+    wstring getJSONTree();
 };
 
 [scriptable, uuid(A116EEDF-C8C9-42BD-AEEE-FDCCBA0456B7)]
