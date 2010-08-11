@@ -496,16 +496,6 @@
                                               class="menuitem-iconic new-file-icon"
                                               observes="cmd_newTemplate"
                                               />
-                                    <menuitem label="&newProject.label;"
-                                              id="menu_newProject"
-                                              class="menuitem-iconic new-project-icon"
-                                              observes="cmd_newProject"
-                                              />
-                                    <menuitem label="&newProjectFromTemplate.label;"
-                                              id="menu_newProjectFromTemplate"
-                                              class="menuitem-iconic new-project-icon"
-                                              observes="cmd_newProjectFromTemplate"
-                                              />
                                     <menuseparator id="separator_mruTemplates"/>
                                     <!-- menuitems are added dynamically for each
                                          entry in the file MRU -->
@@ -528,11 +518,6 @@
                                               id="menu_openTemplateFile"
                                               class="menuitem-iconic new-template-icon"
                                               observes="cmd_openTemplate"
-                                              />
-                                    <menuseparator/>
-                                    <menuitem label="&project.label;"
-                                              id="menu_openProject"
-                                              observes="cmd_openProject"
                                               />
                                 </menupopup>
                             </menu>
@@ -671,19 +656,6 @@
                                     <!-- menuitems are added dynamically for each entry
                                                     in the file MRU -->
                                     </menupopup>
-                            </menu>
-                            <menu
-                                id="menu_mruProjects"
-                                accesskey="&menuMruProjects.accesskey;"
-                                label="&recentProjects.label;"
-                                class="menu_mru">
-                                <menupopup
-                                    id="popup_mruProjects"
-                                    class="popup_mru"
-                                    onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project');">
-                                    <!-- menuitems are added dynamically for each entry
-                                        in the project MRU -->
-                                </menupopup>
                             </menu>
                             <!-- more mozilla menu magic for osx.  FileQuit id's are
                                  necessary for proper aqua menu's -->
@@ -1201,49 +1173,95 @@
                         </menupopup>
                     </menu>
                     <menu id="menu_project" label="&project.label;" accesskey="&menuProject.accesskey;">
-                        <menupopup id="popup_project" >
-                            <menuitem label="&newProject.label;"
-                                      id="menu_projectNewProject"
-                                      observes="cmd_newProject"
-                                      />
-                            <menuitem label="&newProjectFromTemplate.label;"
-                                      id="menu_projectNewProjectFromTemplate"
-                                      class="menuitem-iconic new-project-icon"
-                                      observes="cmd_newProjectFromTemplate"
-                                      />
-                            <menuitem label="&openProject.label;"
-                                      id="menu_projectOpenProject"
-                                      observes="cmd_openProject"
-                                      />
-                            <menuitem label="&importFromFileSystem.label;"
-                                      id="menu_importFromFS"
-                                      observes="cmd_importFromFS_Project"
-                                      />
-                            <menuitem label="&reImport.label;"
-                                      id="menu_reimportFromFS"
-                                      tooltiptext="&reImportFromFileSystemWithSameSettings.tooltiptext;"
-                                      observes="cmd_reimportFromFS_Project"
+                        <menupopup id="popup_project"
+                                   onpopupshowing="ko.projects.manager.updateProjectMenu(event, this)">
+                            <menuitem label="&showProjectInPlaces.label;"
+                                      id="menu_showProjectInPlaces"
+                                      observes="cmd_showProjectInPlaces"
+                                      addProjectName="true"
                                       />
                             <menuitem label="&closeProject.label;"
                                       id="menu_closeProject"
                                       observes="cmd_closeProject"
+                                      addProjectName="true"
                                       />
                             <menuitem label="&saveProject.label;"
                                       id="menu_saveProject"
                                       observes="cmd_saveProject"
+                                      addProjectName="true"
+                                      />
+                            <menuitem label="&saveProjectAs.label;"
+                                      id="menu_saveProjectAs"
+                                      observes="cmd_saveProjectAs"
                                       />
                             <menuitem label="&renameProject.label;"
                                       id="menu_renameProject"
                                       observes="cmd_renameProject"
                                       />
-                            <menuitem label="&createTemplateFromProject.label;"
-                                      id="menu_saveProjectAsTemplate"
-                                      observes="cmd_saveProjectAsTemplate"
-                                      />
                             <menuitem label="&revertProject.label;"
                                       id="menu_revertProject"
                                       observes="cmd_revertProject"
                                       />
+                            <menuseparator id="menu_project_save_separator"/>
+                            <menuitem label="&openProjectInNewWindow.label;"
+                                      id="menu_projectOpenProject"
+                                      observes="cmd_openProject"
+                                      />
+                            <!-- Either open a new project here, or replace
+                                 the window's current project.  Only the
+                                 label changes.
+                                 -->
+                            <menuitem label="&replaceProject.label;"
+                                      id="menu_replaceProject"
+                                      observes="cmd_replaceProject"
+                                      labelTest="t:project|&replaceProject.label;|&openProject.label;"
+                                      />
+                            <menuitem label="&newProject.label;"
+                                      id="menu_projectNewProject"
+                                      class="menuitem-iconic new-project-icon"
+                   
+                                      observes="cmd_newProject"
+                                      />
+                            <menuseparator id="menu_project_new_separator"/>
+                            <menu id="menu_project_templates"
+                                  label="&templates.label;"
+                                  accesskey="&templates.accesskey;">
+                                <menupopup id="popup_project_templates"
+                                          onpopupshowing="ko.projects.manager.loadTemplateMenuItems(event, this)">
+                                    <menuseparator id="menu_project_builtin_templates_separator"/>
+                                    <menuitem label="&createTemplateFromProject.label;"
+                                              id="menu_saveProjectAsTemplate"
+                                              accesskey="&createTemplateFromProject.accesskey;"
+                                              observes="cmd_saveProjectAsTemplate"
+                                              />
+                                </menupopup>
+                            </menu>
+<!--
+                            <menuitem label="&newProjectFromTemplate.label;"
+                                      id="menu_newProjectFromTemplate"
+                                      class="menuitem-iconic new-project-icon"
+                                      observes="cmd_newProjectFromTemplate"
+                                      />
+-->
+                            <menuseparator id="menu_project_mru_separator"/>
+                            <menuitem label="&properties.label;"
+                                      class="menuitem-iconic"
+                                      id="menu_projectProperties"
+                                      observes="cmd_projectProperties"
+                                      accesskey="&projectProperties.accesskey;"/>
+                                      
+                            <menu
+                                id="menu_mruProjects"
+                                accesskey="&menuMruProjects.accesskey;"
+                                label="&recentProjects.label;">
+                                <menupopup
+                                    id="popup_mruProjects"
+                                    class="popup_mru_xxx"
+                                    onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('project');">
+                                    <!-- menuitems are added dynamically for each entry
+                                        in the project MRU -->
+                                </menupopup>
+                            </menu>
                         </menupopup>
                     </menu>
                     <menu id="menu_tools" label="&tools.label;" accesskey="&menuTools.accesskey;">

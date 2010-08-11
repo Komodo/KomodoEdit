@@ -341,10 +341,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_newProject', event)"
             desc="&generalNewProject.desc;"/>
         <command
-            id="cmd_newProjectFromTemplate" key="key_cmd_newProjectFromTemplate"
-            oncommand="ko.commands.doCommandAsync('cmd_newProjectFromTemplate', event)"
-            desc="&generalNewProjectFromTemplate.desc;"/>
-        <command
             id="cmd_openProject" key="key_cmd_openProject"
             oncommand="ko.commands.doCommandAsync('cmd_openProject', event)"
             desc="&generalOpenProject.desc;"/>
@@ -1483,7 +1479,7 @@
         id="cmdset_projects"
         oncommandupdate="ko.commands.updateCommandset(this)"
         commandupdater="true"
-        events="some_projects_open">
+        events="some_projects_open,current_project_changed">
 
         <command
             id="cmd_importFromFS_Project" key="key_cmd_importFromFS_Project"
@@ -1521,6 +1517,32 @@
             disabled="true"
             oncommand="ko.commands.doCommandAsync('cmd_replaceInCurrProject', event)"
             desc="&findReplaceInCurrProject.desc;"/>
+        <command
+            id="cmd_saveProjectAs" key="key_cmd_saveProjectAs"
+            oncommand="ko.commands.doCommandAsync('cmd_saveProjectAs', event)"
+            disabled="true"
+            desc="&generalSaveProjectAs.desc;"/>
+        <command
+            id="cmd_replaceProject" key="key_cmd_replaceProject"
+            oncommand="ko.commands.doCommandAsync('cmd_replaceProject', event)"
+            disabled="true"
+            desc="&generalReplaceProject.desc;"/>
+        <command
+            id="cmd_projectProperties" key="key_cmd_projectProperties"
+            oncommand="ko.commands.doCommandAsync('cmd_projectProperties', event)"
+            disabled="true"
+            desc="&projectProperties.desc;"/>
+    </commandset>
+    <commandset
+        id="cmdset_projects_places"
+        oncommandupdate="ko.commands.updateCommandset(this)"
+        commandupdater="true"
+        events="some_projects_open,current_project_changed,current_place_opened">
+        <command
+            id="cmd_showProjectInPlaces" key="key_cmd_showProjectInPlaces"
+            oncommand="ko.commands.doCommandAsync('cmd_showProjectInPlaces', event)"
+            disabled="true"
+            desc="&showProjectInPlaces.desc;"/>
     </commandset>
 
     <!-- Commands that need updating based on changes in non-editor

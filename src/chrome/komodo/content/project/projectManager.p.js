@@ -354,33 +354,50 @@ projectManager.prototype._saveNewProject = function(project) {
         return false;
     }
     this._addProject(project);
+    ko.places.manager.openURI(project.uri);
     try {
         _obSvc.notifyObservers(this, 'file_project', project.url);
     } catch(e) { /* exception if no listeners */ }
     return true;
 }
 
-projectManager.prototype.newProjectFromTemplate = function() {
+projectManager.prototype._getNewProjectPath = function() {
+    return ko.filepicker.saveFile(
+        null, // defaultDir
+        _bundle.GetStringFromName("newProject.defaultFileName") + ".komodoproject", // defaultFilename
+        _bundle.GetStringFromName("newProject.title"), // title
+        _bundle.GetStringFromName("komodoProject.message"), // defaultFilterName
+        [_bundle.GetStringFromName("komodoProject.message"),
+         _bundle.GetStringFromName("all.message")]); // filterNames
+};
+
+projectManager.prototype.newProjectFromTemplate = function(templatePath) {
     try {
         this.log.info("doing newTemplate: ");
         if (!this.closeProject()) {
             return false;
         }
         var lastErrorSvc = Components.classes['@activestate.com/koLastErrorService;1'].getService();
-        var template;
-        // Get template selection from the user.
-        var obj = new Object();
-        obj.type = "project";
-        obj.filename = _bundle.GetStringFromName("newProject.defaultFileName") + ".kpf";
-        ko.launch.newTemplate(obj);
-        if (obj.template == null || obj.filename == null) return false;
-
-        var uri = ko.uriparse.localPathToURI(obj.filename);
+        var projectPath;
+        if (typeof(templatePath) == "undefined") {
+            // Get template selection from the user.
+            var obj = new Object();
+            obj.type = "project";
+            obj.filename = _bundle.GetStringFromName("newProject.defaultFileName") + ".kpf";
+            ko.launch.newTemplate(obj);
+            if (obj.template == null || obj.filename == null) return false;
+            templatePath = obj.template;
+            projectPath = obj.path;            
+        } else {
+            projectPath = this._getNewProjectPath();
+        }
+        if (!projectPath) return false;
+        var uri = ko.uriparse.localPathToURI(projectPath);
         var extractLocation = ko.uriparse.dirName(uri);
 
         var packager = Components.classes["@activestate.com/koProjectPackageService;1"]
                           .getService(Components.interfaces.koIProjectPackageService);
-        var project = packager.newProjectFromPackage(obj.template, extractLocation);
+        var project = packager.newProjectFromPackage(templatePath, extractLocation);
         project.url = uri;
         // Next two lines fix bug 82385, fallout from bug 82050:
         // Show project name in the project tree.  Projects built from
@@ -436,9 +453,7 @@ projectManager.prototype.saveProjectAsTemplate = function (project) {
         var dname = os.path.join(templateSvc.getUserTemplatesDir(),
                 _bundle.GetStringFromName("myTemplates.message"));
 
-        var file = project.getFile();
-        var basename = file.baseName;
-        var name = basename.slice(0, basename.length-file.ext.length);
+        var name = this.projectBaseName(project);
 
         var templatePath = ko.filepicker.saveFile(dname, name+".kpz");
         if (!templatePath) return;
@@ -460,6 +475,131 @@ projectManager.prototype.revertProject = function(project) {
     this.closeProjectEvenIfDirty(project);
     this.loadProject(project.url);
 }
+
+projectManager.prototype.updateProjectMenu = function(event, menupopup) {
+    //XXX: See places.js:initFilesContextMenu if there's a problem
+    var projectRootName = ko.projects.manager.projectBaseName();
+    this._projectLabel = projectRootName && (" (" + projectRootName + ")");
+    this._finishUpdateProjectMenu(menupopup);
+}
+
+projectManager.prototype.projectBaseName = function(project) {
+    if (typeof(project) == "undefined") {
+        project = this.currentProject;
+    }
+    if (!project) return null;
+    var file = project.getFile();
+    return file.baseName.substr(0, file.baseName.length - file.ext.length);
+};
+
+projectManager.prototype._projectMenuMatcher = /^(.*?)( \(.*\))$/;
+projectManager.prototype._projectTestLabelMatcher = /^t:project\|(.+)\|(.+)$/;
+projectManager.prototype._finishUpdateProjectMenu = function(menuNode) {
+    var childNodes = menuNode.childNodes;
+    for (var i = 0; i < childNodes.length; i++) {
+        var node = childNodes[i];
+        switch(node.nodeName) {
+            case "menuitem":
+                if (node.getAttribute("addProjectName") == "true") {
+                    var label = node.getAttribute("label");
+                    var m = this._projectMenuMatcher.exec(label);
+                    if (!m) {
+                        if (!this._projectLabel) {
+                            // nothing to do
+                        } else {
+                            node.setAttribute("label", label + this._projectLabel);
+                        }
+                    } else {
+                        if (!this._projectLabel) {
+                            node.setAttribute("label", m[1]);
+                            // nothing to do
+                        } else {
+                            // Note that project might have changed since the
+                            // last time this menu was updated, so update it.
+                            node.setAttribute("label", m[1] + this._projectLabel);
+                        }
+                    }
+                }
+                if (node.hasAttribute("labelTest")) {
+                    var test = node.getAttribute("labelTest");
+                    var m = this._projectTestLabelMatcher.exec(test);
+                    if (m) {
+                        node.setAttribute("label",
+                                          this._projectLabel ? m[1] : m[2]);
+                    } else {
+                        dump("Can't process test [" + test + "]\n");
+                    }
+                }
+                break;
+            case "menuseparator":
+                if (false && node.id == "menu_project_mru_separator") {
+                    var nextNode;
+                    while (true) {
+                        nextNode = node.nextSibling;
+                        if (nextNode.id == "menu_project_properties_separator"){
+                            break;
+                        }
+                        menuNode.removeChild(nextNode);
+                    }
+                    // And add the projects in two parts: first 5 inline,
+                    // rest under a "More" submenu.
+                    var prefName = 'mruProjectList';
+                    if (!gPrefs.hasPref(prefName)) {
+                        // Nothing left to do, convenient that we can break
+                        break;
+                    }
+                    var mruList = gPrefs.getPref(prefName);
+                }
+                break;
+            case "menu":
+                break;
+            case "menupopup":
+                // This popup only handles the top-level nodes.
+                break;
+        }
+    }
+    return true;
+};
+
+projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
+    //XXX: See places.js:initFilesContextMenu if there's a problem
+    var childNodes = menupopup.childNodes;
+    if (childNodes[0].id != "menu_project_builtin_templates_separator") {
+        // We already did this
+        return true;
+    }
+    var templateSvc = Components.classes["@activestate.com/koTemplateService?type=project;1"].getService();
+    templateSvc.loadTemplates();
+    var tree = Components.classes["@mozilla.org/dom/json;1"]
+    .createInstance(Components.interfaces.nsIJSON).decode(templateSvc.getJSONTree());
+    var refChild = childNodes[0];
+    for (var i = 0; i < tree.length; i++) {
+        var entry = tree[i];
+        
+        var dirName = entry[0];
+        var kpzPaths = entry[1];
+        var m1 = document.createElementNS(XUL_NS, "menu");
+        m1.setAttribute("label", dirName);
+        m1.setAttribute("accesskey", dirName.substring(0, 1));
+        var m2 = document.createElementNS(XUL_NS, "menupopup");
+        for (var j = 0; j < kpzPaths.length; j++) {
+            var path = kpzPaths[j];
+            var m3 = document.createElementNS(XUL_NS, "menuitem");
+            var baseName = ko.uriparse.baseName(path);
+            m3.setAttribute("label", baseName);
+            m3.setAttribute("oncommand",
+                            ("ko.projects.manager.newProjectFromTemplate('"
+                             + path
+                             + "');"));
+            m3.setAttribute("accesskey", baseName.substring(0, 1));
+            m2.appendChild(m3);
+        }
+        m1.appendChild(m2);
+        menupopup.insertBefore(m1, refChild);
+    }
+    return true;
+};
+
 
 projectManager.prototype.loadProject = function(url) {
     if (this.getProjectByURL(url)) {
@@ -528,6 +668,7 @@ function(project)
 {
     if (this._currentProject != project) {
         this._currentProject = project;
+        xtk.domutils.fireEvent(window, 'current_project_changed');
         window.updateCommands('current_project_changed');
     }
     var partSvc = Components.classes["@activestate.com/koPartService;1"]
@@ -555,60 +696,44 @@ projectManager.prototype.getSelectedProject = function() {
 
 projectManager.prototype.registerCommands = function() {
     var em = ko.projects.extensionManager;
+    em.registerCommand("cmd_closeProject",this);
+    em.registerCommand("cmd_findInCurrProject",this);
+    em.registerCommand("cmd_importFromFS_Project",this);
+    em.registerCommand("cmd_importPackageToToolbox",this);
     em.registerCommand("cmd_newProject",this);
-    em.registerCommand("cmd_newProjectFromTemplate",this);
     em.registerCommand("cmd_openProject",this);
     em.registerCommand("cmd_openProjectFromURL",this);
-    em.registerCommand("cmd_setActiveProject",this);
-    em.registerCommand("cmd_closeProject",this);
-    em.registerCommand("cmd_saveProject",this);
+    em.registerCommand("cmd_projectProperties",this);
     em.registerCommand("cmd_renameProject",this);
-    em.registerCommand("cmd_saveProjectAsTemplate",this);
-    em.registerCommand("cmd_revertProject",this);
-    em.registerCommand("cmd_importFromFS_Project",this);
-    em.registerCommand("cmd_reimportFromFS_Project",this);
-    em.registerCommand("cmd_importPackageToToolbox",this);
-    em.registerCommand("cmd_findInCurrProject",this);
+    em.registerCommand("cmd_replaceProject",this);
     em.registerCommand("cmd_replaceInCurrProject",this);
-
-    em.createMenuItem(Components.interfaces.koIProject,
-        _bundle.GetStringFromName("makeActiveProject.label"), 'cmd_setActiveProject');
-    em.createMenuItem(Components.interfaces.koIProject,
-        _bundle.GetStringFromName("closeProject.label"), 'cmd_closeProject');
-    em.createMenuItem(Components.interfaces.koIProject,
-        _bundle.GetStringFromName("saveProject.label"), 'cmd_saveProject');
-    em.createMenuItem(Components.interfaces.koIProject,
-        _bundle.GetStringFromName("renameProject.label"), 'cmd_renameProject');
-    em.createMenuItem(Components.interfaces.koIProject,
-        _bundle.GetStringFromName("createTemplateFromProject.label"), 'cmd_saveProjectAsTemplate');
-    em.createMenuItem(Components.interfaces.koIProject,
-        _bundle.GetStringFromName("revertProject.label"), 'cmd_revertProject');
-    em.createMenuItem(Components.interfaces.koIToolbox,
-        _bundle.GetStringFromName("importPackageIntoToolbox"), 'cmd_importPackageToToolbox');
+    em.registerCommand("cmd_revertProject",this);
+    em.registerCommand("cmd_saveProject",this);
+    em.registerCommand("cmd_saveProjectAs",this);
+    em.registerCommand("cmd_saveProjectAsTemplate",this);
+    em.registerCommand("cmd_setActiveProject",this);
+    em.registerCommand("cmd_showProjectInPlaces",this);
 }
 
 projectManager.prototype.supportsCommand = function(command, item) {
-
-
     switch(command) {
-    case "cmd_setActiveProject":
-    case "cmd_newProjectFromTemplate":
+    case "cmd_closeProject":
+    case "cmd_findInCurrProject":
+    case "cmd_importFromFS_Project":
+    case "cmd_importPackageToToolbox":
     case "cmd_newProject":
     case "cmd_openProject":
     case "cmd_openProjectFromURL":
-    case "cmd_closeProject":
+    case "cmd_projectProperties":
     case "cmd_renameProject":
-    case "cmd_importPackageToToolbox":
-    case "cmd_saveProjectAsTemplate":
-    case "cmd_importFromFS_Project":
-    case "cmd_reimportFromFS_Project":
-    case "cmd_findInCurrProject":
+    case "cmd_replaceProject":
     case "cmd_replaceInCurrProject":
-        return true;
     case "cmd_revertProject":
     case "cmd_saveProject":
-        var prj = this.getSelectedProject();
-        return (prj && prj.isDirty);
+    case "cmd_saveProjectAsTemplate":
+    case "cmd_saveProjectAs":
+    case "cmd_setActiveProject":
+    case "cmd_showProjectInPlaces":
     default:
         return false;
     }
@@ -620,25 +745,31 @@ projectManager.prototype.isCommandEnabled = function(command) {
     case "cmd_setActiveProject":
         return this.currentProject != this.getSelectedProject();
         break;
-    case "cmd_newProjectFromTemplate":
     case "cmd_newProject":
-    case "cmd_openProject":
     case "cmd_importPackageToToolbox":
+    case "cmd_openProject":
+    case "cmd_replaceProject": // same thing as cmd_openProject
     case "cmd_saveProjectAsTemplate":
         return true;
     case "cmd_closeProject":
+    case "cmd_findInCurrProject":
+    case "cmd_projectProperties":
+    case "cmd_renameProject":
+    case "cmd_replaceInCurrProject":
+    case "cmd_saveProjectAs":
         return this.getSelectedProject() != null;
+    case "cmd_showProjectInPlaces":
+        // Verify places is loaded
+        if (!ko.places) return false;
+        var project = this.getSelectedProject();
+        if (!project) return false;
+        return ko.places.manager.currentPlace != this._parentURI(project.url);
     case "cmd_saveProject":
     case "cmd_revertProject":
         var project = this.getSelectedProject();
         return (project && project.isDirty);
     case "cmd_importFromFS_Project":
-    case "cmd_reimportFromFS_Project":
         return this.currentProject != null && !this.currentProject.live;
-    case "cmd_findInCurrProject":
-    case "cmd_replaceInCurrProject":
-    case "cmd_renameProject":
-        return this.getSelectedProject() != null;
     }
     } catch(e) {
         this.log.exception(e);
@@ -646,29 +777,29 @@ projectManager.prototype.isCommandEnabled = function(command) {
     return false; // shutup strict js
 }
 
+projectManager.prototype._parentURI = function(uri) {
+    return uri.substr(0, uri.lastIndexOf("/"));
+};
+
 projectManager.prototype.doCommand = function(command) {
     var filename, uri;
     var project;
     switch(command) {
+    case "cmd_showProjectInPlaces":
+        ko.places.manager.openURI(this._parentURI(this.getSelectedProject().url));
+        break;
     case "cmd_setActiveProject":
         this.currentProject = this.getSelectedProject();
         break;
     case "cmd_newProject":
-        filename = ko.filepicker.saveFile(
-            null, // defaultDir
-            _bundle.GetStringFromName("newProject.defaultFileName") + ".komodoproject", // defaultFilename
-            _bundle.GetStringFromName("newProject.title"), // title
-            _bundle.GetStringFromName("komodoProject.message"), // defaultFilterName
-                [_bundle.GetStringFromName("komodoProject.message"),
-                    _bundle.GetStringFromName("all.message")]); // filterNames
+        filename = this._getNewProjectPath();
         if (filename == null) return;
         uri = ko.uriparse.localPathToURI(filename);
         this.newProject(uri);
         break;
-    case "cmd_newProjectFromTemplate":
-        this.newProjectFromTemplate();
-        break;
     case "cmd_openProject":
+    case "cmd_replaceProject": // same thing as cmd_openProject, but here
+        // This opens a project in a new window.
         var defaultDirectory = null;
         var defaultFilename = null;
         var title = _bundle.GetStringFromName("openProject.title");
@@ -681,8 +812,12 @@ projectManager.prototype.doCommand = function(command) {
                              defaultFilterName /* ="All" */,
                              filterNames /* =null */)
         if (filename == null) return;
-        uri = ko.uriparse.localPathToURI(filename);
-        ko.projects.open(uri);
+        if (command == "cmd_openProject") {
+            ko.launch.newWindow(filename);
+        } else {
+            uri = ko.uriparse.localPathToURI(filename);
+            ko.projects.open(uri);
+        }
         break;
     case "cmd_closeProject":
         this.closeProject(this.getSelectedProject());
@@ -690,8 +825,14 @@ projectManager.prototype.doCommand = function(command) {
     case "cmd_saveProject":
         this.saveProject(this.getSelectedProject());
         break;
+    case "cmd_saveProjectAs":
+        ko.projects.saveProjectAs(this.getSelectedProject());
+        break;
     case "cmd_revertProject":
         this.revertProject(this.getSelectedProject());
+        break;
+    case "cmd_projectProperties":
+        ko.projects.fileProperties(ko.places.getItemWrapper(this.getSelectedProject().url, 'project'));
         break;
     case "cmd_renameProject":
         ko.projects.renameProject(this.getSelectedProject());
@@ -705,13 +846,6 @@ projectManager.prototype.doCommand = function(command) {
     case "cmd_importFromFS_Project":
         if (this.currentProject != null && !this.currentProject.live) {
             ko.projects.importFromFileSystem(this.currentProject);
-            ko.projects.active.view.refresh(this.currentProject);
-            ko.projects.active.view.selectPart(this.currentProject);
-        }
-        break;
-    case "cmd_reimportFromFS_Project":
-        if (this.currentProject != null && !this.currentProject.live) {
-            ko.projects.reimportFromFileSystem(this.currentProject);
             ko.projects.active.view.refresh(this.currentProject);
             ko.projects.active.view.selectPart(this.currentProject);
         }
@@ -940,9 +1074,50 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
     return true;
 }
 
+this.saveProjectAs = function ProjectSaveAs(project)
+{
+    var localPath = ko.filepicker.saveFile(
+            null, project.url, // default dir and filename
+            _bundle.GetStringFromName("saveprojectas.title"), // title
+            _bundle.GetStringFromName("komodoProject.message"), // default filter name
+                [_bundle.GetStringFromName("komodoProject.message"),
+                _bundle.GetStringFromName("all.message")]); // filter names to show
+    if (localPath == null) {
+        return false;
+    }
+    var url = ko.uriparse.localPathToURI(localPath);
+
+    if (ko.projects.manager.getProjectByURL(url) != null) {
+        ko.dialogs.alert(_bundle.formatStringFromName("projectIsAlreadyLoaded.alert",
+            [url], 1));
+        return false;
+    }
+
+    project.url = url;
+    // project.name = ko.uriparse.baseName(url);
+    try {
+        project.save();
+    } catch(ex) {
+        var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+            getService(Components.interfaces.koILastErrorService);
+        ko.dialogs.alert(_bundle.formatStringFromName("thereWasAnErrorSavingProject.alert",
+            [project.name, lastErrorSvc.getLastErrorMessage()], 2));
+        return false;
+    }
+
+    // Update the MRU projects list.
+    ko.mru.addURL("mruProjectList", url);
+    try {
+        _obSvc.notifyObservers(this,'file_changed', project.url);
+    } catch(e) { /* exception if no listeners */ }
+    xtk.domutils.fireEvent(window, 'project_opened');
+    window.updateCommands('project_dirty');
+    return true;
+}
+
 /*
  * renameProject: a downgraded version of saveProjectAs, because
- * copying a v5-style project to a different directory leavs all
+ * copying a v5-style project to a different directory leaves all
  * the file links pointing back at the original directory.
  */
 this.renameProject = function ProjectRename(project)
@@ -971,6 +1146,14 @@ this.renameProject = function ProjectRename(project)
             
         var newURL = ko.uriparse.localPathToURI(newPath);
         this.open(newURL);
+        if ((ko.places.manager.currentPlace + "/").indexOf(newURL) == 0) {
+            // Need to get places to refresh its view to show the new project file.
+            ko.places.view.refreshView(-1);
+            //XXX: The new name isn't showing up in places.
+            // Not a critical bug, because .komodoproject files will
+            // probably be hidden anyway.
+        }
+        xtk.domutils.fireEvent(window, 'current_project_changed');
         /*
         setTimeout(function(this_) {
                 try {

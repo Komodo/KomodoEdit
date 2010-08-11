@@ -75,6 +75,7 @@
 <!ENTITY copy.tooltiptext "Copy">
 <!ENTITY copyButton.accesskey "C">
 <!ENTITY createTemplateFromProject.label "Create Template From Project...">
+<!ENTITY createTemplateFromProject.accesskey "C">
 <!ENTITY currentFileSettings.label "Current File Settings...">
 <!ENTITY cut.label "Cut">
 <!ENTITY cut.tooltiptext "Cut">
@@ -278,6 +279,7 @@
 <!ENTITY generalPrintSetup.desc "General: Print Setup...">
 <!ENTITY generalQuit.desc "General: Quit">
 <!ENTITY generalRefreshStatus.desc "General: Refresh Status">
+<!ENTITY generalReplaceProject.desc "General: Replace Project">
 <!ENTITY generalRevert.desc "General: Revert">
 <!ENTITY generalRevertProject.desc "General: Revert Project">
 <!ENTITY generalSave.desc "General: Save">
@@ -466,6 +468,8 @@
 <!ENTITY openLine.desc "Editor: Open Line">
 <!ENTITY splitLine.desc "Editor: Split Line">
 <!ENTITY openProject.label "Open Project...">
+<!ENTITY openProjectInNewWindow.label "Open Project In New Window...">
+<!ENTITY replaceProject.label "Replace Project...">
 <!ENTITY openTabInNewWindow.label "Open Tab in a New Window">
 <!ENTITY openURLInBrowser.label "Open URL In Browser">
 <!ENTITY openURLInTab.label "Open URL In Tab">
@@ -501,6 +505,8 @@
 <!ENTITY projectsToolboxAddNewFolder.desc "Projects/Toolbox: Add New Folder...">
 <!ENTITY projectsToolboxAddRemoteFile.desc "Projects/Toolbox: Add Remote File...">
 <!ENTITY properties.label "Properties">
+<!ENTITY projectProperties.accesskey "P">
+<!ENTITY projectProperties.desc "Projects/Toolbox: Properties">
 <!ENTITY propertiesAndSettings.label "Properties and Settings">
 <!ENTITY quitApplicationCmd.label "Quit">
 <!ENTITY quitApplicationCmd.accesskey "Q">
@@ -509,7 +515,6 @@
 <!ENTITY quitApplicationCmdWin.label "Exit">
 <!ENTITY quitApplicationCmdWin.accesskey "x">
 <!ENTITY rename.label "Rename...">
-<!ENTITY reImport.label "Re-import">
 <!ENTITY reImportFromFileSystemWithSameSettings.tooltiptext "Re-import from File System with same settings">
 <!ENTITY reImportFromFileSystemWithTheSameSettings.tooltiptext "Re-Import from File System with the same settings">
 <!ENTITY ready.label "Ready">
@@ -546,6 +551,7 @@
 <!ENTITY saveFile.tooltiptext "Save File">
 <!ENTITY saveLastMacroToToolbox.tooltiptext "Save Last Macro to Toolbox">
 <!ENTITY saveProject.label "Save Project">
+<!ENTITY saveProjectAs.label "Save Project As...">
 <!ENTITY renameProject.label "Rename Project...">
 <!ENTITY saveRemotelyAs.label "Save Remotely As...">
 <!ENTITY saveToToolbox.label "Save to Toolbox">
@@ -564,6 +570,8 @@
 <!ENTITY showInExplorer.label "Show in Explorer">
 <!ENTITY showInFileManager.label "Show in File Manager">
 <!ENTITY showInFinder.label "Show in Finder">
+<!ENTITY showProjectInPlaces.desc "General: Show in Places">
+<!ENTITY showProjectInPlaces.label "Show in Places">
 <!ENTITY showSpecificTab.tooltiptext "Show Specific Sidebar/Tab">
 <!ENTITY showTab.label "Show Tab">
 <!ENTITY showUnsavedChanges.label "Show Unsaved Changes">
@@ -609,6 +617,8 @@
 <!ENTITY tabifyRegion.label "Tabify Region">
 <!ENTITY tabs.label "Tabs &amp; Sidebars">
 <!ENTITY template.label "Template">
+<!ENTITY templates.label "Templates">
+<!ENTITY templates.accesskey "t">
 <!ENTITY templateFile.label "Template File...">
 <!ENTITY terminateProcess.tooltiptext "Terminate Process">
 <!ENTITY thisToolboxIsReadOnly.locktip "This toolbox is read-only.">
