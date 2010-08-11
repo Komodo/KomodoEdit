@@ -46,8 +46,6 @@ tab[selected="true"] {
 }
 
 tab:not([selected="true"]):hover {
-  margin: 2px 0px 0px;
-  padding: 2px 4px 1px;
   background-image: url("chrome://komodo/skin/tabs/tab-hover-bkgnd.png");
 }
 
