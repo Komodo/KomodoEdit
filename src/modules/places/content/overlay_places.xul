@@ -490,13 +490,6 @@
                         class="menuitem-iconic undo-button"
                         label="&undo.label;"
                         />
-              <menuseparator id="places_undo_separator" />
-              <menuitem id="placeView_undo"
-                        observes="cmd_placeView_undoTreeOperation"
-                        oncommand="ko.places.viewMgr.undoTreeOperation()"
-                        class="menuitem-iconic undo-button"
-                        label="&undo.label;"
-                        />
               <menuseparator id="places_project_separator" />
               <menuitem id="placeView_project_open"
                         observes="cmd_placeView_openProject"
