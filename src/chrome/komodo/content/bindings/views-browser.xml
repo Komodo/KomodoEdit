@@ -76,6 +76,10 @@
             onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
                 this.koDoc = val" />
         
+        <!-- The tempPreviewFile is used for remote files and untitled files,
+             in order to be able to show a browser preview. -->
+        <field name="tempPreviewFile">null</field>
+
         <property name="_backButton"
             onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'browser-back-button');"/>
         <property name="_forwardButton"
@@ -118,7 +122,8 @@
         <![CDATA[
             var title = this.browser.contentTitle;
             if (!title) {
-              if (this.browser.currentURI && this.browser.currentURI.spec) {
+              if (!this.tempPreviewFile && this.browser.currentURI &&
+                  this.browser.currentURI.spec) {
                 try {
                   title = this.mURIFixup.createExposableURI(this.browser.currentURI).spec;
                 }
@@ -270,7 +275,8 @@
                 if (domWindow == domWindow.top) {
                   this.view.parentView.updateLeafName(this.view);
                   this.view.urlBar.value = aLocation.spec;
-                  if (this.view.koDoc && this.view.koDoc.file.URI != aLocation.spec) {
+                  if (this.view.koDoc && this.view.koDoc.file.URI != aLocation.spec &&
+                      !this.view.tempPreviewFile) {
                     this.view.koDoc = this.docSvc.createDocumentFromURI(aLocation.spec);
                   }
                 }
@@ -352,13 +358,27 @@
             //var docCharset = this.browser.docShell.QueryInterface(
             //                    Components.interfaces.nsIDocCharset);
             //docCharset.charset = this.koDoc.encoding.python_encoding_name;
-            if (!doc.isUntitled) {
-                // XXX bug (28969) unc paths
+            var needsTempFile = doc.isUntitled || !doc.file.isLocal;
+            var koFileEx;
+            if (needsTempFile) {
+                var koFileService = Components.classes["@activestate.com/koFileService;1"].
+                                        createInstance(Components.interfaces.koIFileService);
+                koFileEx = koFileService.makeTempFile(".html", "wb");
                 try {
-                    this.browser.loadURI(doc.file.URI, null);
-                } catch(e) {
-                    this.browser.loadURI(doc.file.path, null);
+                    koFileEx.puts(doc.buffer);
+                } finally {
+                    koFileEx.close();
                 }
+                this.tempPreviewFile = koFileEx;
+            } else {
+                koFileEx = doc.file;
+                this.tempPreviewFile = null;
+            }
+            // XXX bug (28969) unc paths
+            try {
+                this.browser.loadURI(koFileEx.URI, null);
+            } catch(e) {
+                this.browser.loadURI(koFileEx.path, null);
             }
             this.setBusy(true);
             this.resetArrowButtons();
@@ -407,6 +427,15 @@
         <method name="reload">
         <body>
         <![CDATA[
+            if (this.tempPreviewFile) {
+                // Update the temp file from the koDoc.
+                this.tempPreviewFile.open("wb");
+                try {
+                    this.tempPreviewFile.puts(this.koDoc.buffer);
+                } finally {
+                    this.tempPreviewFile.close();
+                }
+            }
             this.browser.reload();
             this.setBusy(true);
         ]]>

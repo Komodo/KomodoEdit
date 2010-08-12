@@ -267,14 +267,14 @@ editor_editorController.prototype.is_cmd_browserPreview_enabled = function() {
     var view = ko.views.manager.currentView;
     return (view != null &&
             view.getAttribute('type') == 'editor' &&
-            view.koDoc && view.koDoc.file && view.koDoc.file.isLocal);
+            view.koDoc && view.koDoc.file);
 }
 
 editor_editorController.prototype.do_cmd_browserPreview = function() {
     var view = ko.views.manager.currentView;
     var canPreview = (view != null &&
             view.getAttribute('type') == 'editor' &&
-            view.koDoc && view.koDoc.file && view.koDoc.file.isLocal);
+            view.koDoc && view.koDoc.file);
     if (canPreview)
         view.viewPreview();
 }
