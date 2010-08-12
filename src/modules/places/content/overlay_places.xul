@@ -394,8 +394,8 @@
   <tabs id="project_toolbox_tabs">
     <tab id="places_tab" label="&Places.label;" insertbefore="codebrowser_tab"
          position="1"
-        oncommand="ko.places.manager.focus(); ko.places.manager.updateView();"
-        onfocus="ko.places.manager.focus(); ko.places.manager.updateView();"
+        oncommand="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
+        onfocus="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
         onmovetab_unload="ko.places.onUnload();"
         onmovetab_load="ko.places.onLoad();"
          />
