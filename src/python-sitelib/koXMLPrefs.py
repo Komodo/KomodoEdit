@@ -104,7 +104,7 @@ def pickleCache(object, filename):
             import shutil
             try:
                 shutil.move(pickleFilename, filename)
-            except IOError, details:
+            except OSError, details:
                 # Could not move, resort to a copy then.
                 shutil.copy(pickleFilename, filename)
 
