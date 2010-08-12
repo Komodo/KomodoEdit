@@ -520,7 +520,7 @@
                         observes="cmd_placeView_openProjectPreferences"
                         oncommand="ko.places.viewMgr.openProjectPreferences()"
                         class="menuitem-iconic"
-                        label="project preferences &amp;XXX"
+                        label="&projectPreferences.label;"
                         />
             </menupopup>
           </toolbarbutton>
