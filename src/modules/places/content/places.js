@@ -1215,6 +1215,7 @@ ManagerClass.prototype = {
         widgets.rootPath.tooltipText = tooltipText;
         this._checkProjectMatch();
         widgets.rootPathIcon.tooltipText = tooltipText;
+        var this_ = this;
         var callback = {
             callback: function(result, data) {
                 statusNode.src = widgets.defaultFolderIconSrc;
@@ -1223,6 +1224,7 @@ ManagerClass.prototype = {
                     widgets.rootPath.tooltipText = "";
                     widgets.rootPath.setAttribute('class', 'noplace');
                     widgets.rootPathIcon.tooltipText = "";
+                    this_.currentPlace = null;
                     ko.dialogs.alert(data);
                 } else {
                     window.setTimeout(window.updateCommands, 1,
