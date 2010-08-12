@@ -102,7 +102,11 @@ def pickleCache(object, filename):
             # Avoid copying bytes when writing to a profile file,
             # although this is hard to do on Windows
             import shutil
-            shutil.move(pickleFilename, filename)
+            try:
+                shutil.move(pickleFilename, filename)
+            except IOError, details:
+                # Could not move, resort to a copy then.
+                shutil.copy(pickleFilename, filename)
 
 def pickleCacheOKToLoad(xml_filename):
     """
