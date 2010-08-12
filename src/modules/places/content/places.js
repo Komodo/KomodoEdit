@@ -329,6 +329,7 @@ viewMgrClass.prototype = {
         var disableAll = (isRootNode
                           && widgets.rootPath.getAttribute('class') ==  'noplace');
         this._selectionInfo = {
+            classIsntProject: event.explicitOriginalTarget.getAttribute('class') != 'project',
             itemTypes: itemTypes,
             index:index,
             isLocal:isLocal,
@@ -420,6 +421,8 @@ viewMgrClass.prototype = {
                         if (s == 't:multipleSelection' && selectionInfo.multipleNodesSelected) {
                             disableNode = true;
                         } else if (s == 't:isRemote' && !selectionInfo.isLocal) {
+                            disableNode = true;
+                        } else if (s == 't:classIsntProject' && selectionInfo.classIsntProject) {
                             disableNode = true;
                         }
                     });
