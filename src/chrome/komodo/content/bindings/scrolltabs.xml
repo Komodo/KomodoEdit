@@ -824,6 +824,16 @@
             <xul:spacer class="tabs-right" flex="1"/>
         </content>
 
+        <implementation>
+            <method name="updateSelectedTabLabel">
+              <body>
+              <![CDATA[
+                this._tabbox.selectedPanel.setAttribute("label", this.selectedItem.label);
+              ]]>
+              </body>
+            </method>
+        </implementation>
+
         <handlers>
             <handler event="select" phase="bubbling">
             <![CDATA[
@@ -831,7 +841,7 @@
                 // be done once, and would be better done in a constructor, but
                 // I couldn't get it to work that way, so instead the label is
                 // set everytime the tab panel changes - not a big issue.
-                this._tabbox.selectedPanel.setAttribute("label", this.selectedItem.label);
+                this.updateSelectedTabLabel();
             ]]>
             </handler>
         </handlers>
