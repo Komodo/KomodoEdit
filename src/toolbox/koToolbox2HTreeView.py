@@ -45,6 +45,7 @@ import json
 from os.path import join
 import copy
 import shutil
+import time
 import logging
 
 from xpcom import components, ServerException, nsError
@@ -793,6 +794,22 @@ class KoToolbox2HTreeView(TreeView):
             getService(components.interfaces.koIPrefService).prefs
         try:
             toolboxPrefs = prefs.getPref("toolbox2")
+
+            if prefs.hasPref("toolbox-open-nodes-size"):
+                lim = prefs.getLongPref("toolbox-open-nodes-size")
+            else:
+                lim = 100
+                prefs.setLongPref("toolbox-open-nodes-size", lim)
+            if len(self._nodeOpenStatusFromName) > lim:
+                log.debug("self._nodeOpenStatusFromName has %d nodes, crop to %d",
+                          len(self._nodeOpenStatusFromName), lim)
+                try:
+                    newDict = dict(sorted(self._nodeOpenStatusFromName.items(),
+                                          cmp=lambda x, y: cmp(y[1], x[1]))[:lim])
+                    self._nodeOpenStatusFromName = newDict
+                except:
+                    log.exception("Problem trying to cull the list")
+
             toolboxPrefs.setStringPref("open-nodes",
                                        json.dumps(self._nodeOpenStatusFromName))
             toolboxPrefs.setLongPref("firstVisibleRow",
@@ -1008,7 +1025,6 @@ class KoToolbox2HTreeView(TreeView):
             self._unfiltered_firstVisibleRow = self._tree.getFirstVisibleRow()
             self._unfiltered_currentIndex = self.selection.currentIndex;
             
-        import time
         t1 = time.time()
         matched_nodes = _tbdbSvc.getHierarchyMatch(filterPattern)
         t2 = time.time()
@@ -1108,7 +1124,7 @@ class KoToolbox2HTreeView(TreeView):
             rowNode.isOpen = False
         else:
             self._doContainerOpenModel(rowNode, index)
-            self._nodeOpenStatusFromName[rowNode.path] = True
+            self._nodeOpenStatusFromName[rowNode.path] = time.time()
 
     def _compareChildNode(self, item1, item2):
         # Nodes contain (id, name, type, isContainer)

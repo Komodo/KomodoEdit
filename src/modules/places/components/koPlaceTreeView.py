@@ -368,6 +368,21 @@ class KoPlaceTreeView(TreeView):
     def terminate(self): # should be finalize
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
+        if prefs.hasPref("places-open-nodes-size"):
+            lim = prefs.getLongPref("places-open-nodes-size")
+        else:
+            lim = 100
+            prefs.setLongPref("places-open-nodes-size", lim)
+        if len(self._nodeOpenStatusFromName) > lim:
+            log.debug("self._nodeOpenStatusFromName has %d nodes, crop to %d",
+                      len(self._nodeOpenStatusFromName), lim)
+            try:
+                newDict = dict(sorted(self._nodeOpenStatusFromName.items(),
+                                      cmp=lambda x, y: cmp(y[1], x[1]))[:lim])
+                self._nodeOpenStatusFromName = newDict
+            except:
+                log.exception("Problem trying to cull the list")
+            
         prefs.getPref("places").setStringPref("places-open-nodes-v2",
                                   json.dumps(self._nodeOpenStatusFromName))
         self._observerSvc.removeObserver(self, "file_status")
