@@ -367,7 +367,9 @@ this.getSelectedItem = function() {
 };
 
 this.getProjectToolbox = function(uri) {
-    return this.manager.toolbox2Svc.getProjectToolbox(uri);
+    var id = this.manager.toolbox2Svc.getProjectToolboxId(uri);
+    if (id == -1) return null;
+    return this.manager.toolsMgr.getToolById(id);
 }
 
 this.getStandardToolbox = function() {

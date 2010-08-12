@@ -71,11 +71,12 @@ interface koIPart;
 interface koIToolbox2Service: nsISupports {
     attribute koITool runningMacro;
     void activateProjectToolbox(in koIPart project);
+    void createProjectToolbox(in koIPart project);
     void deactivateProjectToolbox(in koIPart project);
     koITool getStandardToolbox();
     koITool getSharedToolbox();
     koITool getExtensionToolbox(in wstring extensionName);
-    koITool getProjectToolbox(in wstring uri);
+    long getProjectToolboxId(in wstring uri);
     long getStandardToolboxID();
     void importDirectory(in string parentPath,
                          in wstring pathToImport);

@@ -236,8 +236,11 @@ class KoToolbox2Service(object):
             log.debug("Didn't find uri %s in self._loadedToolboxes")
             return None
 
-    def getProjectToolbox(self, uri):
-        return self._loadedToolboxes[uri]
+    def getProjectToolboxId(self, uri):
+        id = self._loadedToolboxes.get(uri, None)
+        if id is None:
+            return -1
+        return id
 
     def getProjectURL(self, rootId):
         for url, id in self._loadedToolboxes.iteritems():
@@ -479,6 +482,16 @@ class KoToolbox2Service(object):
             self.registerUserToolbox(project.url, toolbox_id)
             self.notifyAddedToolbox(projectDir)
             self.notifyToolboxTopLevelViewChanged()
+
+    def createProjectToolbox(self, project):
+        projectDir = project.getFile().dirName;
+        toolsDir = join(projectDir, koToolbox2.PROJECT_TARGET_DIRECTORY)
+        if not exists(toolsDir):
+            os.mkdir(toolsDir)
+            self.activateProjectToolbox(project)
+        else:
+            log.error("createProjectToolbox: project:%s (%s): toolbox already exists",
+                      project.name, projectDir);
 
     def activateExtensionToolbox(self, extensionRootDir):
         toolsDir = join(extensionRootDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
