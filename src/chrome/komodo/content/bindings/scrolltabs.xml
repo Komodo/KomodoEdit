@@ -534,21 +534,30 @@
               </body>
             </method>
 
+            <method name="eventIsInTabsElement">
+              <parameter name="event" />
+              <body>
+                <![CDATA[
+                var tabsBoxObject = this._tabs.boxObject;
+                if (event.screenX < tabsBoxObject.screenX ||
+                    event.screenX > (tabsBoxObject.screenX + tabsBoxObject.width) ||
+                    event.screenY < tabsBoxObject.screenY ||
+                    event.screenY > (tabsBoxObject.screenY + tabsBoxObject.height)) {
+                    // Not in the tabs section.
+                    //dump("scrolltabs:: event:: not in tabs area\n");
+                    return false;
+                }
+                return true;
+                ]]>
+              </body>
+            </method>
+                    
         </implementation>
 
         <handlers>
             <handler event="dragstart">
             <![CDATA[
                 //dump("scrolltabs:: dragstart\n");
-                var tabsBoxObject = this._tabs.boxObject;
-                if (event.screenX < tabsBoxObject.screenX ||
-                    event.screenX > (tabsBoxObject.screenX + tabsBoxObject.width) ||
-                    event.screenY < tabsBoxObject.screenY ||
-                    event.screenY > (tabsBoxObject.screenY + tabsBoxObject.height)) {
-                    // Not dragging in the tabs section, ignore the event.
-                    //dump("scrolltabs:: dragstart:: not in tabs area\n");
-                    return;
-                }
                 event.dataTransfer.mozSetDataAt("komodo/tab", event.target, 0);
                 this.ensureTabPositionsAreSet();
             ]]>
@@ -557,13 +566,15 @@
             <handler event="dragenter">
             <![CDATA[
                 //dump("scrolltabs:: dragenter\n");
-                var sourceTab = this.getSourceTabFromDataTransfer(event.dataTransfer);
-                if (!sourceTab) {
-                    // Don't have the right drop data - hide the indicator.
-                    this.dropIndicatorBar.collapsed = true;
-                } else {
-                    this.dropIndicatorBar.collapsed = false;
-                    this.ensureTabPositionsAreSet();
+                if (this.eventIsInTabsElement(event)) {
+                    var sourceTab = this.getSourceTabFromDataTransfer(event.dataTransfer);
+                    if (!sourceTab) {
+                        // Don't have the right drop data - hide the indicator.
+                        this.dropIndicatorBar.collapsed = true;
+                    } else {
+                        this.dropIndicatorBar.collapsed = false;
+                        this.ensureTabPositionsAreSet();
+                    }
                 }
             ]]>
             </handler>
