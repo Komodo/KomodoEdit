@@ -267,7 +267,8 @@ viewMgrClass.prototype = {
             }
         }
     },
-    allowed_click_nodes: ["places-files-tree-body", "place-view-rootPath-icon"],
+    allowed_click_nodes: ["places-files-tree-body",
+                          "place-view-rootPath-icon-toolbarbutton"],
     initFilesContextMenu: function(event, menupopup) {
         var clickedNodeId = event.explicitOriginalTarget.id;
         if (this.allowed_click_nodes.indexOf(clickedNodeId) == -1) {
@@ -296,7 +297,7 @@ viewMgrClass.prototype = {
         var index;
         var isRootNode;
         var itemTypes = null;
-        if (clickedNodeId == "place-view-rootPath-icon") {
+        if (clickedNodeId == "place-view-rootPath-icon-toolbarbutton") {
             index = -1;
             isRootNode = true;
             itemTypes = ["project"];
@@ -1187,7 +1188,7 @@ ManagerClass.prototype = {
 
     _checkProjectMatch: function() {
         var classValue = this._currentPlaceMatchesCurrentProject() ? "project" : "normal";
-        widgets.rootPathIcon.setAttribute('class', classValue);
+        widgets.rootPathToolbar.setAttribute('class', classValue);
     },
 
     _currentPlaceMatchesCurrentProject: function() {
@@ -1204,9 +1205,9 @@ ManagerClass.prototype = {
         if (typeof(setThePref) == "undefined") {
             setThePref = false;
         }
-        var statusNode = document.getElementById("place-view-rootPath-icon");
+        var statusNode = document.getElementById("place-view-rootPath-icon-toolbarbutton");
         var busyURI = "chrome://global/skin/icons/loading_16.png";
-        statusNode.src = busyURI;
+        statusNode.setAttribute('image', busyURI);
         this.currentPlace = uri;
         var file = Components.classes["@activestate.com/koFileEx;1"].
         createInstance(Components.interfaces.koIFileEx);
@@ -1216,16 +1217,16 @@ ManagerClass.prototype = {
         var tooltipText = (file.scheme == "file" ? file.displayPath : uri);
         widgets.rootPath.tooltipText = tooltipText;
         this._checkProjectMatch();
-        widgets.rootPathIcon.tooltipText = tooltipText;
+        widgets.rootPathToolbar.tooltipText = tooltipText;
         var this_ = this;
         var callback = {
             callback: function(result, data) {
-                statusNode.src = widgets.defaultFolderIconSrc;
+                statusNode.setAttribute('image', widgets.defaultFolderIconSrc);
                 if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
                     widgets.rootPath.value = ""
                     widgets.rootPath.tooltipText = "";
                     widgets.rootPath.setAttribute('class', 'noplace');
-                    widgets.rootPathIcon.tooltipText = "";
+                    widgets.rootPathToolbar.tooltipText = "";
                     this_.currentPlace = null;
                     ko.dialogs.alert(data);
                 } else {
@@ -1310,7 +1311,7 @@ ManagerClass.prototype = {
     //},
 
     _clickedOnRoot: function() {
-        return document.popupNode == widgets.rootPathIcon;
+        return document.popupNode == widgets.rootPathToolbar;
     },
 
     _launchFindOrReplace: function(launcher, numNulls) {
@@ -2069,7 +2070,7 @@ ItemWrapper.prototype.__defineGetter__("name", function() {
     return this.getFile().leafName;
 });
 ItemWrapper.prototype.__defineGetter__("prefset", function() {
-    if (widgets.rootPathIcon.getAttribute('class') == 'normal') {
+    if (widgets.rootPathToolbar.getAttribute('class') == 'normal') {
         var view = ko.views.manager.getViewForURI(this.uri);
         if (view) {
             return view.prefs;
@@ -2151,8 +2152,8 @@ this.onLoad = function places_onLoad() {
     ko.places.viewMgr.initialize();
     ko.places.manager = new ManagerClass();
     widgets.rootPath = document.getElementById("place-view-rootPath");
-    widgets.rootPathIcon = document.getElementById("place-view-rootPath-icon");
-    widgets.defaultFolderIconSrc = widgets.rootPathIcon.src;
+    widgets.rootPathToolbar = document.getElementById("place-view-rootPath-icon-toolbarbutton");
+    widgets.defaultFolderIconSrc = widgets.rootPathToolbar.getAttribute('image');
     widgets.placeView_defaultView_menuitem =
         document.getElementById("placeView_defaultView");
     widgets.placeView_viewAll_menuitem =

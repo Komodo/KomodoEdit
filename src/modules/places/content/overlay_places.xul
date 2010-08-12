@@ -406,16 +406,25 @@
               position="0">
       <vbox flex="1">
         <hbox id="place-view-vbox" align="center">
-          <!--
-                 onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event);"
--->
-          <image id="place-view-rootPath-icon"
-                 class="normal"
-                 context="places-files-popup"
-                 ondragover="return ko.places.viewMgr.doDragOverRootNode(event, this);"
-                 ondragenter="return ko.places.viewMgr.doDragEnterRootNode(event, this);"
-                 ondrop="return ko.places.viewMgr.doDropOnRootNode(event, this);"
-               />
+          <toolbarbutton id="place-view-rootPath-icon-toolbarbutton"
+                         class="normal"
+                         context="places-files-popup"
+                         ondragover="return ko.places.viewMgr.doDragOverRootNode(event, this);"
+                         ondragenter="return ko.places.viewMgr.doDragEnterRootNode(event, this);"
+                         ondrop="return ko.places.viewMgr.doDropOnRootNode(event, this);"
+                         type="menu"
+                         tooltiptext="&placesParentDirectories.tooltiptext;"
+                         orient="horizontal"
+                         persist="buttonstyle"
+                         buttonstyle="pictures"
+                         >
+              <menupopup id="placesParentDirectoriesMenu"
+                         context=""
+                         position="after_start"
+                         onpopupshowing="ko.places.manager.init_popup_parent_directories(event);"
+                         oncommand="event.stopPropagation();"
+                         />
+          </toolbarbutton>
           <label id="place-view-rootPath"
                  min-width="0"
                  flex="1"
@@ -530,22 +539,6 @@
               persist="buttonstyle"
               buttonstyle="pictures"
               label="&placesForward.label;"/>
-
-          <toolbarbutton id="placesParentDirectories"
-              type="menu"
-              tooltiptext="&placesParentDirectories.tooltiptext;"
-                    orient="horizontal"
-                    persist="buttonstyle"
-                    class="upfolder-icon"
-                    buttonstyle="pictures"
-                         label="&parentDirectories.label;">
-              <menupopup id="placesParentDirectoriesMenu"
-                         context=""
-                         position="after_start"
-                         onpopupshowing="ko.places.manager.init_popup_parent_directories(event);"
-                         oncommand="event.stopPropagation();"
-                         />
-          </toolbarbutton>
         </hbox>
         <tree id="places-files-tree" flex="1"
               style="margin: 0px;"
