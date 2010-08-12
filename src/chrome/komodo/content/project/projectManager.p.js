@@ -750,7 +750,7 @@ projectManager.prototype.isCommandEnabled = function(command) {
         if (!ko.places) return false;
         var project = this.getSelectedProject();
         if (!project) return false;
-        return ko.places.manager.placeIsAtProjectDir(project);
+        return !ko.places.manager.placeIsAtProjectDir(project);
     case "cmd_saveProject":
     case "cmd_revertProject":
         var project = this.getSelectedProject();
