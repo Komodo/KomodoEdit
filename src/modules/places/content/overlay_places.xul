@@ -510,8 +510,7 @@
                         label="&closeProject.label;"
                         />
               <menuitem id="placeView_project_preferences"
-                        observes="cmd_placeView_openProjectPreferences"
-                        oncommand="ko.places.viewMgr.openProjectPreferences()"
+                        observes="cmd_projectProperties"
                         class="menuitem-iconic"
                         label="&projectPreferences.label;"
                         />
