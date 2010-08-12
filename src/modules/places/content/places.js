@@ -1186,17 +1186,19 @@ ManagerClass.prototype = {
     },
 
     _checkProjectMatch: function() {
+        var classValue = this._currentPlaceMatchesCurrentProject() ? "project" : "normal";
+        widgets.rootPathIcon.setAttribute('class', classValue);
+    },
+
+    _currentPlaceMatchesCurrentProject: function() {
         var uri = this.currentPlace;
         var project = ko.projects.manager.currentProject;
-        var classValue;
         if (!uri || !project) {
-            classValue = "normal";
-        } else {
-            var targetDirURI = this._getActualProjectDir(project);
-            var classValue = (uri == targetDirURI) ? "project" : "normal";
+            return false;
         }
-        widgets.rootPathIcon.setAttribute('class', classValue);
-    },        
+        var targetDirURI = this._getActualProjectDir(project);
+        return uri == targetDirURI;
+    },
 
     _moveToURI: function(uri, setThePref) {
         if (typeof(setThePref) == "undefined") {
@@ -1966,13 +1968,40 @@ ManagerClass.prototype = {
             ko.places.manager.openURI(targetDirURI);
         }
     },
+
+    placeIsAtProjectDir: function(project) {
+        return this.currentPlace == this._getActualProjectDir(project);
+    },
+
+    moveToProjectDir: function(project) {
+        var projectDirURI = this._getActualProjectDir(project);
+        ko.places.manager.openURI(projectDirURI);
+    },
+    
     _getActualProjectDir: function(project) {
         try {
-            var baseDir = project.prefset.getStringPref("import_dirname");
+            var prefset = project.prefset
+            var baseDir = prefset.getStringPref("import_dirname");
             if (baseDir) {
                 var baseURI = ko.uriparse.localPathToURI(baseDir);
                 if (baseURI) {
                     return baseURI;
+                }
+            } else if (prefset.hasPref("import_live")) {
+                var import_live = prefset.getBooleanPref("import_live");
+                if (!import_live) {
+                    var importedDirs = {};
+                    project.getChildrenByType('livefolder', true, importedDirs, {});
+                    importedDirs = importedDirs.value;
+                    if (importedDirs.length == 1) {
+                        var uri = importedDirs[0].url;
+                        var koFileEx = Components.classes["@activestate.com/koFileEx;1"].
+                            createInstance(Components.interfaces.koIFileEx);
+                        koFileEx.URI = uri;
+                        if (koFileEx.exists) {
+                            return uri;
+                        }
+                    }
                 }
             }
         } catch(ex) {

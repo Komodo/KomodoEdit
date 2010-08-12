@@ -750,7 +750,7 @@ projectManager.prototype.isCommandEnabled = function(command) {
         if (!ko.places) return false;
         var project = this.getSelectedProject();
         if (!project) return false;
-        return ko.places.manager.currentPlace != this._parentURI(project.url);
+        return ko.places.manager.placeIsAtProjectDir(project);
     case "cmd_saveProject":
     case "cmd_revertProject":
         var project = this.getSelectedProject();
@@ -776,7 +776,7 @@ projectManager.prototype.doCommand = function(command) {
     var project;
     switch(command) {
     case "cmd_showProjectInPlaces":
-        ko.places.manager.openURI(this._parentURI(this.getSelectedProject().url));
+        ko.places.manager.moveToProjectDir(this.getSelectedProject());
         break;
     case "cmd_setActiveProject":
         this.currentProject = this.getSelectedProject();
