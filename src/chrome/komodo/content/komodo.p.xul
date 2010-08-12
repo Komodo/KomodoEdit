@@ -1236,13 +1236,11 @@
                                               />
                                 </menupopup>
                             </menu>
-<!--
-                            <menuitem label="&newProjectFromTemplate.label;"
-                                      id="menu_newProjectFromTemplate"
-                                      class="menuitem-iconic new-project-icon"
-                                      observes="cmd_newProjectFromTemplate"
+                            <menuitem label="&createProjectToolbox.label;"
+                                      id="menu_createProjectToolbox"
+                                      class="menuitem-iconic"
+                                      observes="cmd_createProjectToolbox"
                                       />
--->
                             <menuseparator id="menu_project_mru_separator"/>
                             <menuitem label="&properties.label;"
                                       class="menuitem-iconic"

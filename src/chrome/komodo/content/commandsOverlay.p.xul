@@ -1518,6 +1518,11 @@
             oncommand="ko.commands.doCommandAsync('cmd_replaceInCurrProject', event)"
             desc="&findReplaceInCurrProject.desc;"/>
         <command
+            id="cmd_createProjectToolbox" key="key_cmd_createProjectToolbox"
+            disabled="true"
+            oncommand="ko.commands.doCommandAsync('cmd_createProjectToolbox', event)"
+            desc="&createProjectToolbox.desc;"/>
+        <command
             id="cmd_saveProjectAs" key="key_cmd_saveProjectAs"
             oncommand="ko.commands.doCommandAsync('cmd_saveProjectAs', event)"
             disabled="true"
