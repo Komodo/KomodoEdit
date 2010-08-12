@@ -804,8 +804,9 @@ class KoToolbox2HTreeView(TreeView):
                 log.debug("self._nodeOpenStatusFromName has %d nodes, crop to %d",
                           len(self._nodeOpenStatusFromName), lim)
                 try:
+                    import operator
                     newDict = dict(sorted(self._nodeOpenStatusFromName.items(),
-                                          key=lambda x: x[1], reverse=True)[:lim])
+                                          key=operator.itemgetter(1), reverse=True)[:lim])
                     self._nodeOpenStatusFromName = newDict
                 except:
                     log.exception("Problem trying to cull the list")
