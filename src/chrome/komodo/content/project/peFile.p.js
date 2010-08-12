@@ -86,28 +86,6 @@ peFile.prototype.registerEventHandlers = function() {
 }
 
 peFile.prototype.registerMenus = function() {
-    var em = ko.projects.extensionManager;
-    em.createMenuItem(Components.interfaces.koIPart_file,
-                                    _bundle.GetStringFromName("refreshStatus"),
-                                    'cmd_refreshStatus');
-    em.createMenuItem(Components.interfaces.koIPart_file,
-                                    _bundle.GetStringFromName("showUnsavedChanges"),
-                                    'cmd_showUnsavedChanges');
-    em.createMenuItem(Components.interfaces.koIPart_file,
-                                    _bundle.GetStringFromName("compareFiles"),
-                                    'cmd_compareFiles');
-    em.createMenuItem(Components.interfaces.koIPart,
-                                    _bundle.GetStringFromName("find"),
-                                    'cmd_findInPart');
-    em.createMenuItem(Components.interfaces.koIPart,
-                                    _bundle.GetStringFromName("replace"),
-                                    'cmd_replaceInPart');
-    em.createMenuItem(Components.interfaces.koIPart,
-                                    _bundle.GetStringFromName("rename"),
-                                    'cmd_renameFile');
-    em.createMenuItem(Components.interfaces.koIPart_file,
-                                    _bundle.GetStringFromName("compareFileWith"),
-                                    'cmd_compareFileWith');
 }
 
 peFile.prototype.supportsCommand = function(command, item) {
