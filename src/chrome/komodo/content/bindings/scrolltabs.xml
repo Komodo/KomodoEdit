@@ -468,7 +468,6 @@
         <handlers>
             <handler event="underflow" phase="capturing">
             <![CDATA[
-                dump("underflowing\n");
                 this.removeAttribute("overflow");
                 this.scrollBoxObject.scrollTo(0, 0)
             ]]>
@@ -476,7 +475,6 @@
 
             <handler event="overflow" phase="capturing">
             <![CDATA[
-                dump("overflowing\n");
                 this.setAttribute("overflow", "true");
                 this.scrollBoxObject.ensureElementIsVisible(this.selectedItem);
             ]]>
@@ -542,7 +540,6 @@
                 var pixelsToScroll = 0;
                 if (this.getAttribute("overflow") == "true") {
                   var targetAnonid = event.originalTarget.getAttribute("anonid");
-                  dump('targetAnonid: ' + targetAnonid + '\n');
                   switch (targetAnonid) {
                     case "scrollbutton-up":
                       pixelsToScroll = tabStrip.scrollIncrement * -1;
@@ -558,7 +555,6 @@
                 }
     
                 var newIndex = this.getNewIndex(event);
-                dump('newIndex: ' + newIndex + '\n');
                 var ind = ib.firstChild;
                 var tabStripBoxObject = this.scrollBoxObject;
                 var tabs = this.childNodes;
@@ -578,7 +574,6 @@
                                             this.boxObject.width - minMargin];
                 }
                 var newMargin, tabBoxObject;
-                dump('pixelsToScroll: ' + pixelsToScroll + '\n');
                 if (pixelsToScroll) {
                   // if we are scrolling, put the drop indicator at the edge
                   // so that it doesn't jump while scrolling
@@ -587,9 +582,6 @@
                   if (newIndex == tabs.length) {
                     tabBoxObject = tabs[newIndex-1].boxObject;
                     if (ltr) {
-                        dump('tabBoxObject.screenX: ' + tabBoxObject.screenX + '\n');
-                        dump('this.boxObject.screenX: ' + this.boxObject.screenX + '\n');
-                        dump('tabBoxObject.width: ' + tabBoxObject.width + '\n');
                       newMargin = (tabBoxObject.screenX - this.boxObject.screenX)
                                   + tabBoxObject.width;
                     } else {
@@ -606,9 +598,6 @@
                     }
                   }
                   // ensure we never place the drop indicator beyond our limits
-                  dump('newMargin: ' + newMargin + '\n');
-                  dump('minMargin: ' + minMargin + '\n');
-                  dump('maxMargin: ' + maxMargin + '\n');
                   if (newMargin < minMargin) {
                     newMargin = minMargin;
                   } else if (newMargin > maxMargin) {
@@ -618,7 +607,6 @@
     
                 ind.style.MozMarginStart = newMargin + 'px';
                 //ind.style.MozMarginStart = '102px';
-                dump("\n");
     
                 return true;
             ]]>
