@@ -130,6 +130,12 @@ tabbox.vertical_tabs tab
     padding             : 0;
 }
 
+tabbox.vertical_tabs .tabs-left
+{
+    /* Ensures the tabs are vertically centered. */
+    -moz-box-flex: 1;
+}
+
 /**
  * Vertical text label.
  */
