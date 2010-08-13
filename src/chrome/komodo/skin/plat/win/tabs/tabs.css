@@ -293,3 +293,39 @@ tab[selected="true"] > .tab-close-button {
   -moz-border-radius-topleft: 0px;
   -moz-border-radius-topright: 2px;
 }
+
+
+/**
+ * Side panes - Vertical tabs
+ */
+
+tabbox.vertical_tabs tabpanels
+{
+  /* Drop the border and padding from the top. */
+  padding: 0;
+}
+
+tabbox.vertical_tabs tabpanel
+{
+  /* Drop the border and padding from the top. */
+  border-top: 0;
+}
+
+/* Drop the default 1 pixel border around trees and make the top border
+ * blend into the side panel toolbar/header (same as in sidebar.css).
+ */
+tabbox.vertical_tabs tree {
+  -moz-appearance: none;
+  border: 0;
+  margin: 0;
+  border-top: 1px solid ThreeDShadow;
+}
+
+.tabpanel-vertical-text-vbox {
+  padding: 0;
+  border-left: 1px solid ThreeDShadow;
+}
+
+.tabpanel-vertical-text-hbox {
+  -moz-appearance: -moz-win-browsertabbar-toolbox;
+}
