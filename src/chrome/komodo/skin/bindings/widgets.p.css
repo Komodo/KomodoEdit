@@ -112,11 +112,6 @@ tabbox.vertical_tabs tabs
     -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tabs-vertical-text");
     -moz-box-orient     : vertical;
 }
-tabbox.vertical_tabs.native tabs
-{
-    /* Remove native tab background image (nativetabs.css) */
-    background-image:     none;
-}
 tabbox.vertical_tabs tab
 {
     /* Vertical tab with vertical text labels. */

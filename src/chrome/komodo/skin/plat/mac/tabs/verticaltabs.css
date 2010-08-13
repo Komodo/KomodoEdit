@@ -14,6 +14,12 @@ tabbox.vertical_tabs
   background-color: #E4E4E4;
 }
 
+tabbox.vertical_tabs.native tabs
+{
+  /* Remove native tab background image (nativetabs.css) */
+  background-image:     none;
+}
+
 tabbox.vertical_tabs tabpanel label.tab-text {
     /* Same style as for `sidebar-title` in Mozilla's 
        "pinstripe/browser/browser.css". */
