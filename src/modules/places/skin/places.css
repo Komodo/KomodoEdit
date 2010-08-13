@@ -67,16 +67,10 @@ treechildren#places-files-tree-body::-moz-tree-image(places_busy) {
   list-style-image : url("chrome://global/skin/icons/loading_16.png");
 }
 
-/*
-this is redundant, use the fallback
-image#place-view-rootPath-icon[class="normal"] {
-  list-style-image : url("chrome://komodo/skin/images/folder-closed.png");
-}
-*/
-image#place-view-rootPath-icon[class="project"] {
+toolbarbutton#place-view-rootPath-icon-toolbarbutton[class="project"] {
   list-style-image : url("chrome://komodo/skin/images/project_icon.png");
 }
-image#place-view-rootPath-icon {
+toolbarbutton#place-view-rootPath-icon-toolbarbutton {
   list-style-image : url("chrome://komodo/skin/images/folder-closed.png");
 }
 

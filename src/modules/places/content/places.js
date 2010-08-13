@@ -1286,6 +1286,19 @@ ManagerClass.prototype = {
         var srcURIs = xtk.clipboard.getText().split(/\n/);
         var index = gPlacesViewMgr.view.selection.currentIndex;
         var target_uri = gPlacesViewMgr.view.getURIForRow(index);
+        var koTargetFileEx = Components.classes["@activestate.com/koFileEx;1"].
+        createInstance(Components.interfaces.koIFileEx);
+        koTargetFileEx.URI = target_uri;
+        if (koTargetFileEx.isFile) {
+            target_uri = target_uri.substr(0, target_uri.lastIndexOf("/"));
+            index = gPlacesViewMgr.view.getRowIndexForURI(target_uri);
+            if (index == -1) {
+                var prompt = _bundle.formatStringFromName('cantFindFilesParentInTree.prompt',
+                                          [koTargetFileEx.displayPath], 1);
+                ko.dialogs.alert(prompt);
+                return;
+            }
+        }
         try {
             gPlacesViewMgr._finishFileCopyOperation(srcURIs, target_uri, index,
                                                     this.copying);

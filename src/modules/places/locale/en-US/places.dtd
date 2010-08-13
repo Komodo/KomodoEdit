@@ -57,9 +57,6 @@
 <!ENTITY placesLoadPlace.desc "Places: Load Place...">
 <!ENTITY placesLoadRemotePlace.desc "Places: Load Remote Place...">
 
-<!ENTITY placesCutItem.desc "Places: Cut the file or folder from its parent.">
-<!ENTITY placesCopyItem.desc "Places: Copy the file or folder from its parent.">
-<!ENTITY placesPasteItem.desc "Places: Paste the file or folder into this folder.">
 <!ENTITY findInPlace.desc "Places: Search in this file/folder's directory.">
 <!ENTITY replaceInPlace.desc "Places: Search and replace in this file/folder's directory.">
 <!ENTITY deletePlaceItem.desc "Places: Move this item to the system trash.">

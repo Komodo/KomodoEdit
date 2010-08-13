@@ -51,12 +51,6 @@ function PlacesController() {
     this.log = getLoggingMgr().getLogger("PlacesController");
     this.log.setLevel(ko.logging.LOG_DEBUG);
 }
-// The following two lines ensure proper inheritance (see Flanagan, p. 144).
-PlacesController.prototype = new xtk.Controller();
-PlacesController.prototype.constructor = PlacesController;
-
-PlacesController.prototype.destructor = function() {
-}
 
 PlacesController.prototype.do_cmd_viewPlaces = function() {
     ko.uilayout.toggleTab('places_tab');
@@ -92,19 +86,19 @@ PlacesController.prototype.do_cmd_cutPlaceItem = function() {
     ko.places.manager.doCutPlaceItem();
 }
 
-PlacesController.prototype.is_cmd_copyPlaceItem_enabled = function() {
+PlacesController.prototype.is_cmd_copy_enabled = function() {
     return true;
 },
 
-PlacesController.prototype.do_cmd_copyPlaceItem = function() {
-    if (!this.is_cmd_copyPlaceItem_enabled()) {
-        this.log("do_cmd_copyPlaceItem: invoked, but not enabled")
+PlacesController.prototype.do_cmd_copy = function() {
+    if (!this.is_cmd_copy_enabled()) {
+        this.log("do_cmd_copy: invoked, but not enabled")
         return;
     }
     ko.places.manager.doCopyPlaceItem();
 }
 
-PlacesController.prototype.is_cmd_pastePlaceItem_enabled = function() {
+PlacesController.prototype.is_cmd_paste_enabled = function() {
     if (ko.places.manager.copying == null) {
         return false;
     } else if (!xtk.clipboard.containsFlavors(["text/unicode"])) {
@@ -113,9 +107,9 @@ PlacesController.prototype.is_cmd_pastePlaceItem_enabled = function() {
     return true;
 }
 
-PlacesController.prototype.do_cmd_pastePlaceItem = function() {
-    if (!this.is_cmd_pastePlaceItem_enabled()) {
-        this.log.debug("do_cmd_pastePlaceItem: invoked, but not enabled");
+PlacesController.prototype.do_cmd_paste = function() {
+    if (!this.is_cmd_paste_enabled()) {
+        this.log.debug("do_cmd_paste: invoked, but not enabled");
         return;
     }
     ko.places.manager.doPastePlaceItem();
@@ -291,5 +285,22 @@ PlacesController.prototype.do_cmd_placeView_sortDescending = function() {
     ko.places.manager.sortDescending();
 }
           
+PlacesController.prototype.supportsCommand = function(command) {
+    return ("is_" + command + "_enabled") in this;
+};
+          
+PlacesController.prototype.isCommandEnabled = function(command) {
+    return this["is_" + command + "_enabled"]();
+};
+    
+PlacesController.prototype.doCommand = function(command) {
+    return this["do_" + command]();
+};
+    
+
 this.PlacesController = PlacesController;  // expose thru this namespace.
+
+var controller = new PlacesController();
+window.controllers.insertControllerAt(0, controller);
+
 }).apply(ko.places);

@@ -168,24 +168,6 @@
         oncommandupdate="ko.commands.updateCommandset(this)"
         commandupdater="true"
         events="clipboard,current_place_changed,current_place_opened">
-      <command
-          id="cmd_cutPlaceItem"
-          key="key_cmd_cutPlaceItem"
-          oncommand="ko.commands.doCommandAsync('cmd_cutPlaceItem', event)"
-          disabled="true"
-          desc="&placesCutItem.desc;"/>
-      <command
-          id="cmd_copyPlaceItem"
-          key="key_cmd_copyPlaceItem"
-          oncommand="ko.commands.doCommandAsync('cmd_copyPlaceItem', event)"
-          disabled="true"
-          desc="&placesCopyItem.desc;"/>
-      <command
-          id="cmd_pastePlaceItem"
-          key="key_cmd_pastePlaceItem"
-          oncommand="ko.commands.doCommandAsync('cmd_pastePlaceItem', event)"
-          disabled="true"
-          desc="&placesPasteItem.desc;"/>
     </commandset>
     <commandset
         id="cmdset_place_historyMenu"
@@ -261,18 +243,18 @@
       <menuseparator id="placesContextMenu_separatorCut"
                 hideIf="project"/>
       <menuitem id="placesContextMenu_cut"
-                observes="cmd_cutPlaceItem"
+                observes="cmd_cut"
                 label="&cut.label;"
                 class="menuitem-iconic cut-button"
                 disableIf="project"
                 />
       <menuitem id="placesContextMenu_copy"
-                observes="cmd_copyPlaceItem"
+                observes="cmd_copy"
                 label="&copy.label;"
                 class="menuitem-iconic copy-button"
                 />
       <menuitem id="placesContextMenu_paste"
-                observes="cmd_pastePlaceItem"
+                observes="cmd_paste"
                 class="menuitem-iconic paste-button"
                 label="&paste.label;"
                 disableIf="project file"
