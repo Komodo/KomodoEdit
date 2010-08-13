@@ -14,10 +14,27 @@ tabbox.vertical_tabs
   background-color: #E4E4E4;
 }
 
-tabbox.vertical_tabs.native tabs
+tabbox.vertical_tabs tabs
 {
   /* Remove native tab background image (nativetabs.css) */
   background-image:     none;
+}
+
+tabbox.vertical_tabs tab
+{
+  width: 2em;
+  -moz-border-top-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
+}
+
+tabbox.vertical_tabs[rotation="270"] tab
+{
+  -moz-border-radius: 6px 0 0 6px;
+}
+
+tabbox.vertical_tabs[rotation="90"] tab
+{
+  -moz-border-radius: 0 6px 6px 0;
+  margin-left: -5px;
 }
 
 tabbox.vertical_tabs tabpanel label.tab-text {
