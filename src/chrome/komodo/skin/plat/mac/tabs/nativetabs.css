@@ -25,13 +25,12 @@
 .native .tab-text {
   margin-bottom: 0;
   font: message-box;
-  font-weight: bold;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
   height: 16px;
 }
 
 .native tab[selected="true"] .tab-text {
-  opacity: 0.6;
+  font-weight: bold;
 }
 
 view[lastfocused="true"] .native tab[selected="true"] .tab-icon,
