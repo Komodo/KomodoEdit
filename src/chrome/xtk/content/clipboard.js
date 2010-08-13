@@ -94,7 +94,11 @@ var _cbSvc = Components.classes["@mozilla.org/widget/clipboard;1"]
                 .getService(Components.interfaces.nsIClipboard);
 var flavorSupportsCStringMap = {};
 
-this._getTextFlavor = function(textFlavor) {
+this.emptyClipboard = function() {
+    _cbSvc.emptyClipboard(_cbSvc.kGlobalClipboard);
+}
+
+this.getTextFlavor = function(textFlavor) {
     var transferable = this.createTransferable();
     var text = null;
     if (_cbSvc && transferable) {
@@ -121,7 +125,7 @@ this._getTextFlavor = function(textFlavor) {
  * @returns {string}  The html text from the clipboard.
  */
 this.getHtml = function() {
-    return this._getTextFlavor("text/html");
+    return this.getTextFlavor("text/html");
 }
 
 /**
@@ -129,7 +133,7 @@ this.getHtml = function() {
  * @returns {string}  The text from the clipboard.
  */
 this.getText = function() {
-    return this._getTextFlavor("text/unicode");
+    return this.getTextFlavor("text/unicode");
 }
 
 /**
