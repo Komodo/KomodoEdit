@@ -1,0 +1,61 @@
+/**
+ * Side panes - Vertical tabs
+ */
+
+tabbox.vertical_tabs tabpanels
+{
+  /* Drop the border and padding from the top. */
+  padding: 0;
+}
+
+tabbox.vertical_tabs tabpanel
+{
+  /* Drop the border and padding from the top. */
+  border-top: 0;
+}
+
+tabbox.vertical_tabs tab
+{
+  /* Let our own native tab styling above work on the vertical tabs. */
+  -moz-appearance: none;
+  /* Undo horizontal-specific native tab css styling from above. */
+  border-bottom: solid 1px;
+  -moz-border-radius-bottomleft: 2px;
+  -moz-border-radius-bottomright: 2px;
+}
+
+tabbox.vertical_tabs tab:hover {
+  /* Undo horizontal-specific native tab css styling from above. */
+  border-top-width: 2px;
+}
+
+tabbox.vertical_tabs tab[selected="true"]
+{
+  /* Undo horizontal-specific native tab css styling from above. */
+  -moz-border-radius-bottomleft: 4px;
+  -moz-border-radius-bottomright: 4px;
+}
+
+tabbox.vertical_tabs tab[selected="true"]:hover {
+  /* Undo horizontal-specific native tab css styling from above. */
+  border-top-width: 1px;
+}
+
+/* Drop the default 1 pixel border around trees and make the top border
+ * blend into the side panel toolbar/header (same as in sidebar.css).
+ */
+tabbox.vertical_tabs tree {
+  -moz-appearance: none;
+  border: 0;
+  margin: 0;
+  border-top: 1px solid ThreeDShadow;
+}
+
+.tabpanel-vertical-text-vbox {
+  padding: 0;
+  border-left: 1px solid ThreeDShadow;
+}
+
+.tabpanel-vertical-text-hbox {
+  -moz-appearance: -moz-win-browsertabbar-toolbox;
+}
