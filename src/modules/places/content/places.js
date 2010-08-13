@@ -133,6 +133,7 @@ viewMgrClass.prototype = {
     
     focus: function() {
           //dump("places: viewMgr.focus()\n");
+          this.tree.focus();
       },
     updateView: function() {
           //dump("places: viewMgr.updateView()\n");
