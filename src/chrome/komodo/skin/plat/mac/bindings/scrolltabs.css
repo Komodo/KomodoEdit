@@ -1,7 +1,6 @@
 /* Copyright (c) 2000-2006 ActiveState Software Inc.
    See the file LICENSE.txt for licensing information. */
 
-@import url("chrome://komodo/skin/tabs/nativetabs.css");
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 tabbox[type="draggable"]
