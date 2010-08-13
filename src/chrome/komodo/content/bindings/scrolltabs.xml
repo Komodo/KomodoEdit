@@ -851,8 +851,9 @@
     <binding id="tabpanel-vertical-text" xbl:inherits="orient">
 
         <content>
-            <xul:vbox xbl:inherits="flex">
-                <xul:hbox>
+            <xul:vbox xbl:inherits="flex"
+                      class="tabpanel-vertical-text-vbox">
+                <xul:hbox class="tabpanel-vertical-text-hbox">
                     <xul:label anonid="label" class="tab-text" xbl:inherits="value=label"/>
                     <xul:spacer flex="1"/>
                     <xul:toolbarbutton anonid="panel-close-button"
