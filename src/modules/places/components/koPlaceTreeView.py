@@ -2182,7 +2182,12 @@ class _WorkerThread(threading.Thread, Queue):
             updateTargetTree = not os.path.exists(finalTargetFilePath)
             #XXX Watch out if targetFile is an open folder.
             if not copying:
-                shutil.move(srcPath, finalTargetFilePath)
+                try:
+                    shutil.move(srcPath, finalTargetFilePath)
+                except IOError, ex:
+                    finalMsg = ("doTreeOperation_WorkerThread: can't copy %s to %s: %s" %
+                                (srcPath, finalTargetFilePath, ex.message))
+                    return finalMsg
                 requester.lock.acquire()
                 try:
                     requester.dragDropUndoCommand.update(finalTargetFilePath, srcPath, True)
