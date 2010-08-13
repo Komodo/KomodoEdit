@@ -1,4 +1,5 @@
 @import url("chrome://komodo/skin/tabs/nativetabs.css");
+@import url("chrome://komodo/skin/tabs/verticaltabs.css");
 
 /* "workspace_splitter": A splitter used between main panes in the
  * Komodo window.
