@@ -74,7 +74,6 @@ log.setLevel(LOG_DEBUG);
 // give it an appropriate name.
 // This object will manage the JS side of the tree view.
 function viewMgrClass() {
-    this.localDragDrop = false;
     this.default_exclude_matches = ".*;*~;#*;CVS;*.bak;*.pyo;*.pyc";
     // overides, to include:
     this.default_include_matches = ".login;.profile;.bashrc;.bash_profile";
@@ -484,14 +483,7 @@ viewMgrClass.prototype = {
                 dt.mozSetDataAt('text/plain', uri, i);
             }
         }
-        this.localDragDrop = true;
-        if (event.ctrlKey) {
-            dt.effectAllowed = this.originalEffect = "copy";
-            this.copying = true;
-        } else {
-            dt.effectAllowed = this.originalEffect = "move";
-            this.copying = false;
-        }
+        dt.effectAllowed = "copymove";
     },
 
     doDragEnter: function(event, tree) {
@@ -590,26 +582,36 @@ viewMgrClass.prototype = {
         for (var i = 0; i < dt.mozItemCount; i++) {
             from_uris.push(dt.mozGetDataAt("text/uri-list", i));
         }
-        return from_uris;
+        var dropEffect = dt.dropEffect;
+        return [from_uris, dropEffect];
     },
 
     doDrop : function(event, tree) {
         var index = this._currentRow(event);
         var target_uri = gPlacesViewMgr.view.getURIForRow(index);
-        var from_uris = this._getDraggedURIs(event);
+        this._finishDrop(event, target_uri, index);
+    },
+    
+    _finishDrop : function(event, target_uri, index) {
+        var dt = event.dataTransfer;
+        var from_uris, dropEffect, copying;
+        [from_uris, dropEffect] = this._getDraggedURIs(event);
         if (from_uris.length == 0) {
-            log.debug("doDrop: no from_uris\n");
+            log.debug("_finishDrop: no from_uris\n");
+            return false;
+        } else if (dropEffect == "none") {
+            log.debug("_finishDrop: no drag/drop here\n");
+            return false;
+        } else if (dropEffect == "link") {
+            ko.dialogs.alert("don't know how to drag/drop a link");
             return false;
         }
-        // If the drag didn't originate with this window, we should copy,
-        // not move the items.
-        var copying = (!this.localDragDrop || this.copying);
+        copying = (dropEffect == "copy");
         try {
             this._finishFileCopyOperation(from_uris, target_uri, index, copying);
         } catch(ex) {
             ko.dialogs.alert(ex);
         }
-        this.copying = this.localDragDrop = false;
         event.stopPropagation();
         event.cancelBubble = true;
         event.preventDefault();
@@ -618,24 +620,7 @@ viewMgrClass.prototype = {
 
     doDropOnRootNode : function(event, tree) {
         var target_uri = ko.places.manager.currentPlace;
-        var from_uris = this._getDraggedURIs(event);
-        if (from_uris.length == 0) {
-            log.debug("doDropOnRootNode: no from_uris\n");
-            return false;
-        }
-        // If the drag didn't originate with this window, we should copy,
-        // not move the items.
-        var copying = (!this.localDragDrop || this.copying);
-        try {
-            this._finishFileCopyOperation(from_uris, target_uri, -1, copying);
-        } catch(ex) {
-            ko.dialogs.alert(ex);
-        }
-        this.copying = this.localDragDrop = false;
-        event.stopPropagation();
-        event.cancelBubble = true;
-        event.preventDefault();
-        return true;
+        this._finishDrop(event, target_uri, -1);
     },
 
     doEndDrag: function(event, tree) {
@@ -1062,7 +1047,6 @@ function ManagerClass() {
     this.focused = false;
     this.controller = new ko.places.PlacesController();
     window.controllers.appendController(this.controller);
-    this.copying = false;
     
     var gObserverSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
@@ -1257,33 +1241,35 @@ ManagerClass.prototype = {
     },
 
     /* doCutPlaceItem
-     * This is a bit weird until we work out how to do it.
      * Marking an item with 'cut' does nothing, until we do
      * a paste on it, and then it gets moved.
-     * Maybe at some point we can color the icon differently...
      *
-     * Best would be to actually remove it from the folder, but
-     * then we really need full undo to give users a better experience.
+     * An entry is placed on the clipboard to tell other Komodo
+     * windows what to do.
      */
     doCutPlaceItem: function() {
-        this.copying = false;
-        this._selectCurrentItems();
+        this._selectCurrentItems(false);
     },
 
     doCopyPlaceItem: function() {
-        this.copying = true;
-        this._selectCurrentItems();
+        this._selectCurrentItems(true);
     },
 
-    _selectCurrentItems: function() {
+    _selectCurrentItems: function(isCopying) {
         var rootsOnly = true;
         var uris = gPlacesViewMgr.getSelectedURIs(true);
-        xtk.clipboard.setText(uris.join("\n"));
+        var uriList = uris.join("\n");
+        var transferable = xtk.clipboard.addTextDataFlavor("text/unicode", uriList);
+        xtk.clipboard.addTextDataFlavor("x-application/komodo-places",
+                                        isCopying ? "1" : "0" , transferable);
+        xtk.clipboard.copyFromTransferable(transferable);
         window.setTimeout(window.updateCommands, 1, "clipboard");
     },
 
     doPastePlaceItem: function() {
         var srcURIs = xtk.clipboard.getText().split(/\n/);
+        var isCopying = xtk.clipboard.getTextFlavor("x-application/komodo-places");
+        isCopying = parseInt(isCopying);
         var index = gPlacesViewMgr.view.selection.currentIndex;
         var target_uri = gPlacesViewMgr.view.getURIForRow(index);
         var koTargetFileEx = Components.classes["@activestate.com/koFileEx;1"].
@@ -1301,11 +1287,13 @@ ManagerClass.prototype = {
         }
         try {
             gPlacesViewMgr._finishFileCopyOperation(srcURIs, target_uri, index,
-                                                    this.copying);
+                                                    isCopying);
         } catch(ex) {
             ko.dialogs.alert(ex);
         }
-        this.copying = null;
+        if (!isCopying) {
+            xtk.clipboard.emptyClipboard();
+        }
         window.setTimeout(window.updateCommands, 1, "clipboard");
     },
 

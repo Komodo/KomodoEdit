@@ -79,10 +79,10 @@ PlacesController.prototype.do_cmd_openRemoteDirectory = function() {
 // cmdset_place_contextMenu controller
 
 // PlacesController.prototype.is_cmd_bufferClose_supported -- always.
-PlacesController.prototype.is_cmd_cutPlaceItem_enabled = function() {
+PlacesController.prototype.is_cmd_cut_enabled = function() {
     return true;
 }
-PlacesController.prototype.do_cmd_cutPlaceItem = function() {
+PlacesController.prototype.do_cmd_cut = function() {
     ko.places.manager.doCutPlaceItem();
 }
 
@@ -99,12 +99,7 @@ PlacesController.prototype.do_cmd_copy = function() {
 }
 
 PlacesController.prototype.is_cmd_paste_enabled = function() {
-    if (ko.places.manager.copying == null) {
-        return false;
-    } else if (!xtk.clipboard.containsFlavors(["text/unicode"])) {
-        return false;
-    }
-    return true;
+    return xtk.clipboard.containsFlavors(["x-application/komodo-places"]);
 }
 
 PlacesController.prototype.do_cmd_paste = function() {
