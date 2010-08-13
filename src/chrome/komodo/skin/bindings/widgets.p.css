@@ -121,9 +121,7 @@ tabbox.vertical_tabs tab
 {
     /* Vertical tab with vertical text labels. */
     -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tab-vertical-text");
-    /*-moz-appearance     : textfield;*/
-    -moz-appearance     : button;
-    /*-moz-appearance     : none;*/
+    -moz-appearance     : none;
     min-width           : 1.5em;
     max-width           : 3em;
     margin              : 0;
