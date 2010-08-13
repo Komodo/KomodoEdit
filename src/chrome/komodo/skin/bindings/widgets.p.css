@@ -146,11 +146,17 @@ label.vertical_text
     padding             : 4px 0 4px 0;
 }
 
-.vertical-label-vbox > label
+.vertical-button-text
 {
     margin              : 0;
     padding             : 0;
-    /*margin-left         : 4px;*/
+    margin-top          : -4px;
+    margin-bottom       : -4px;
+}
+
+.vertical-button-text-uppercase
+{
+    /* Captialized characters need a little more room. */
     margin-top          : -3px;
     margin-bottom       : -3px;
 }
