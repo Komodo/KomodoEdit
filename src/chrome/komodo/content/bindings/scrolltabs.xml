@@ -853,7 +853,8 @@
         <content>
             <xul:vbox xbl:inherits="flex"
                       class="tabpanel-vertical-text-vbox">
-                <xul:hbox class="tabpanel-vertical-text-hbox">
+                <xul:hbox class="tabpanel-vertical-text-hbox"
+                          align="center">
                     <xul:label anonid="label" class="tab-text" xbl:inherits="value=label"/>
                     <xul:spacer flex="1"/>
                     <xul:toolbarbutton anonid="panel-close-button"
