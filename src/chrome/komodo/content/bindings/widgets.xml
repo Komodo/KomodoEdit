@@ -1042,19 +1042,30 @@
                     }
                     var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
                     var labelElement;
+                    var char;
                     var rotation = parseInt(this.getAttribute("rotation")) % 360;
                     if (rotation < 180) {
                         for (var i=0; i < val.length; i++) {
+                            char = val.substring(i, i+1);
                             labelElement = document.createElementNS(XUL_NS, "label");
-                            labelElement.setAttribute("value", val.substring(i, i+1));
-                            labelElement.setAttribute("class", "vertical-button-text");
+                            labelElement.setAttribute("value", char);
+                            if (char.toUpperCase() == char) {
+                                labelElement.setAttribute("class", "vertical-button-text vertical-button-text-uppercase");
+                            } else {
+                                labelElement.setAttribute("class", "vertical-button-text");
+                            }
                             text_hbox.appendChild(labelElement);
                         }
                     } else {
                         for (var i=val.length-1; i >= 0; i--) {
+                            char = val.substring(i, i+1);
                             labelElement = document.createElementNS(XUL_NS, "label");
-                            labelElement.setAttribute("value", val.substring(i, i+1));
-                            labelElement.setAttribute("class", "vertical-button-text");
+                            labelElement.setAttribute("value", char);
+                            if (char.toUpperCase() == char) {
+                                labelElement.setAttribute("class", "vertical-button-text vertical-button-text-uppercase");
+                            } else {
+                                labelElement.setAttribute("class", "vertical-button-text");
+                            }
                             text_hbox.appendChild(labelElement);
                         }
                     }
