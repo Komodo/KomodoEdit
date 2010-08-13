@@ -1,0 +1,14 @@
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+tabbox.vertical_tabs tab
+{
+    /* Make vertical tabs look like real tabs. */
+    -moz-appearance     : tab;
+}
+
+tabbox.vertical_tabs tab[selected="true"]
+{
+    /* A little bottom margin helps to cover the fact that the bottom
+       border is missing from the native tab. */
+    margin-bottom: 2px;
+}
