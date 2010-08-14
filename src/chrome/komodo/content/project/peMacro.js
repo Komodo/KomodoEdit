@@ -223,8 +223,12 @@ function MacroEventHandler() {
     obsSvc.addObserver(this, 'macro-unload', false);
     obsSvc.addObserver(this, 'javascript_macro',false);
     obsSvc.addObserver(this, 'command-docommand',false);
-    obsSvc.addObserver(this, 'toolbox-loaded', false);
+    obsSvc.addObserver(this, 'toolbox-loaded-local', false);
+    obsSvc.addObserver(this, 'toolbox-loaded-global', false);
+    obsSvc.addObserver(this, 'toolbox-loaded', false); // synonym for global
     obsSvc.addObserver(this, 'toolbox-unloaded', false);
+    obsSvc.addObserver(this, 'toolbox-unloaded-local', false);
+    obsSvc.addObserver(this, 'toolbox-unloaded-global', false);
 
     ko.main.addWillCloseHandler(this.finalize, this);
 
@@ -241,8 +245,12 @@ MacroEventHandler.prototype.finalize = function() {
     obsSvc.removeObserver(this, 'macro-unload');
     obsSvc.removeObserver(this, 'javascript_macro');
     obsSvc.removeObserver(this, 'command-docommand');
-    obsSvc.removeObserver(this, 'toolbox-loaded');
+    obsSvc.removeObserver(this, 'toolbox-loaded-local');
+    obsSvc.removeObserver(this, 'toolbox-loaded-global');
+    obsSvc.removeObserver(this, 'toolbox-loaded'); // synonym for global
     obsSvc.removeObserver(this, 'toolbox-unloaded');
+    obsSvc.removeObserver(this, 'toolbox-unloaded-local');
+    obsSvc.removeObserver(this, 'toolbox-unloaded-global');
     } catch(ex) {
         this.log.exception(ex);
     }
@@ -599,13 +607,19 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
                 }
                 break;
             case 'toolbox-loaded':
-                if (ko.windowManager.getMainWindow() != window) {
+            case 'toolbox-loaded-local':
+            case 'toolbox-loaded-global':
+                if (topic != 'toolbox-loaded-global'
+                    && ko.windowManager.getMainWindow() != window) {
                     return;
                 }
                 this.loadTriggerMacros(code);
                 break;
             case 'toolbox-unloaded':
-                if (ko.windowManager.getMainWindow() != window) {
+            case 'toolbox-unloaded-local':
+            case 'toolbox-unloaded-global':
+                if (topic != 'toolbox-unloaded-global'
+                    && ko.windowManager.getMainWindow() != window) {
                     return;
                 }
                 this.unloadTriggerMacros(code);

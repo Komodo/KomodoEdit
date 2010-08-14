@@ -66,7 +66,12 @@ function peMenu() {
         obsSvc.addObserver(this, 'toolbar_changed', false);
         obsSvc.addObserver(this, 'part_changed', false);
         obsSvc.addObserver(this, 'toolbox-loaded', false);
+        obsSvc.addObserver(this, 'toolbox-loaded-local', false);
+        obsSvc.addObserver(this, 'toolbox-loaded-global', false);
+        obsSvc.addObserver(this, 'toolbox-loaded', false); // synonym for global
         obsSvc.addObserver(this, 'toolbox-unloaded', false);
+        obsSvc.addObserver(this, 'toolbox-unloaded-local', false);
+        obsSvc.addObserver(this, 'toolbox-unloaded-global', false);
     } catch (e) {
         this.log.exception(e);
     }
@@ -82,8 +87,12 @@ peMenu.prototype.finalize = function() {
     obsSvc.removeObserver(this, 'toolbar_remove');
     obsSvc.removeObserver(this, 'toolbar_changed');
     obsSvc.removeObserver(this, 'part_changed');
-    obsSvc.removeObserver(this, 'toolbox-loaded');
+    obsSvc.removeObserver(this, 'toolbox-loaded-local');
+    obsSvc.removeObserver(this, 'toolbox-loaded-global');
+    obsSvc.removeObserver(this, 'toolbox-loaded'); // synonym for global
     obsSvc.removeObserver(this, 'toolbox-unloaded');
+    obsSvc.removeObserver(this, 'toolbox-unloaded-local');
+    obsSvc.removeObserver(this, 'toolbox-unloaded-global');
 }
 
 peMenu.prototype.observe = function(part, topic, data)
@@ -144,13 +153,19 @@ peMenu.prototype.observe_aux = function(part, topic, data)
                 ko.projects.addMenuFromPart(part);
                 break;
             case 'toolbox-loaded':
-                if (ko.windowManager.getMainWindow() != window) {
+            case 'toolbox-loaded-local':
+            case 'toolbox-loaded-global':
+                if (topic != 'toolbox-loaded-global'
+                    && ko.windowManager.getMainWindow() != window) {
                     return;
                 }
                 ko.projects.onToolboxLoaded(data);
                 break;
             case 'toolbox-unloaded':
-                if (ko.windowManager.getMainWindow() != window) {
+            case 'toolbox-unloaded-local':
+            case 'toolbox-unloaded-global':
+                if (topic != 'toolbox-unloaded-global'
+                    && ko.windowManager.getMainWindow() != window) {
                     return;
                 }
                 // Called when we're about to remove commands.

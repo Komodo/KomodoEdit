@@ -1069,7 +1069,7 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
             }
         }
     }
-    xtk.domutils.fireEvent(window, 'project_opened');
+    setTimeout(xtk.domutils.fireEvent, 10, window, 'project_opened');
     return true;
 }
 

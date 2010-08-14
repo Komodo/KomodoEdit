@@ -140,8 +140,12 @@ this.manager = function keybindingManager() {
     // Each main window has an instance of this observer, and we shut each one down when the window is closed.
     observerSvc.addObserver(this, "kb-unload",false);
     observerSvc.addObserver(this, "kb-load",false);
-    observerSvc.addObserver(this, "toolbox-loaded", false);
-    observerSvc.addObserver(this, "toolbox-unloaded", false);
+    observerSvc.addObserver(this, 'toolbox-loaded-local', false);
+    observerSvc.addObserver(this, 'toolbox-loaded-global', false);
+    observerSvc.addObserver(this, 'toolbox-loaded', false); // synonym for global
+    observerSvc.addObserver(this, 'toolbox-unloaded', false);
+    observerSvc.addObserver(this, 'toolbox-unloaded-local', false);
+    observerSvc.addObserver(this, 'toolbox-unloaded-global', false);
 
     var me = this;
     this.removeListener = function() { me.finalize(); }
@@ -171,8 +175,12 @@ this.manager.prototype.finalize = function(part, topic, partId) {
         getService(Components.interfaces.nsIObserverService);
     observerSvc.removeObserver(this, "kb-unload");
     observerSvc.removeObserver(this, "kb-load");
-    observerSvc.removeObserver(this, "toolbox-loaded");
-    observerSvc.removeObserver(this, "toolbox-unloaded");
+    observerSvc.removeObserver(this, 'toolbox-loaded-local');
+    observerSvc.removeObserver(this, 'toolbox-loaded-global');
+    observerSvc.removeObserver(this, 'toolbox-loaded'); // synonym for global
+    observerSvc.removeObserver(this, 'toolbox-unloaded');
+    observerSvc.removeObserver(this, 'toolbox-unloaded-local');
+    observerSvc.removeObserver(this, 'toolbox-unloaded-global');
  }
 
 this.manager.prototype.observe = function(part, topic, partId) {
@@ -183,8 +191,10 @@ this.manager.prototype.observe = function(part, topic, partId) {
         if (part.hasAttribute('keyboard_shortcut')) {
             this.manageKeyboardShortcut(part, topic, partId);
         }
-    } else if (topic == 'toolbox-loaded' || topic == 'toolbox-unloaded') {
-        var kb_notification = topic == 'toolbox-loaded' ? 'kb-load' : 'kb-unload';
+    } else if (topic in ['toolbox-loaded', 'toolbox-loaded-local',
+                         'toolbox-loaded-global', 'toolbox-unloaded',
+                         'toolbox-unloaded-local', 'toolbox-unloaded-global']) {
+        var kb_notification = topic.indexOf('toolbox-loaded') == 0 ? 'kb-load' : 'kb-unload';
         var toolboxDir = partId; // actual value;
         try {
         var parts = ko.toolbox2.getToolsWithKeyboardShortcuts(toolboxDir);

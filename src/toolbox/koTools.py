@@ -213,6 +213,7 @@ class _KoTool(object):
         except KeyError:
             pass
         if typeName in ('menu', 'toolbar'):
+            # menu_created and toolbar_created notifications are done here
             requests.append([self, typeName + "_created", None])
         # Are there any custom menus or toolbars that contain this item?
         id = self.id
@@ -221,6 +222,7 @@ class _KoTool(object):
             if parentRes is None:
                 break
             id, name, nodeType = parentRes
+            # menu_changed and toolbar_changed notifications are done here
             if nodeType in ('menu', 'toolbar'):
                 requests.append([_toolsManager.getToolById(id),
                                  nodeType + "_changed", None])
@@ -477,6 +479,7 @@ class _KoComplexContainer(_KoFolder):
 
     def delete(self):
         notificationName = self.typeName + "_remove"
+        # menu_remove and toolbar_remove notifications are done here
         _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
                        .getService(components.interfaces.nsIObserverService)
         try:

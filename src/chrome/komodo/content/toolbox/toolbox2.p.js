@@ -86,23 +86,33 @@ initialize: function() {
                     .view = this.view;
     this.toolbox2Svc.migrateVersion5Toolboxes();
     this.toolbox2Svc.initialize();
-    this.view.initialize();
+    var currentProject;
+    try {
+        currentProject = ko.projects.manager.currentProject;
+    } catch(ex) {
+        currentProject = null;
+    }
+    this.view.initialize(currentProject);
 
     this._fixCogPopupmenu();
         
+    var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+    getService(Components.interfaces.nsIObserverService);
+    obsSvc.addObserver(this, 'toolbox-tree-changed', 0);
     // Give the toolbox observers time to have started up before
     // notifying them that the toolbox has changed.
     setTimeout(function() {
-        var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-               getService(Components.interfaces.nsIObserverService);
         try {
-            obsSvc.notifyObservers(null, 'toolbox-loaded', '');
+            obsSvc.notifyObservers(null, 'toolbox-loaded-global', '');
         } catch(ex) {
-            dump("Failed to notifyObservers(toolbox-loaded): " + ex + "\n");
+            dump("Failed to notifyObservers(toolbox-loaded-global): " + ex + "\n");
         }
         }, 1000);
 },
 terminate: function() {
+    var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+    getService(Components.interfaces.nsIObserverService);
+    obsSvc.removeObserver(this, 'toolbox-tree-changed');
     this.view.terminate();
 },
 deleteCurrentItem: function() {
@@ -167,6 +177,12 @@ updateFilter: function(event) {
     var textbox = this.widgets.filterTextbox;
     var filterPattern = textbox.value;
     this.view.setFilter(filterPattern);
+},
+
+observe: function(subject, topic, data) {
+    if (topic == 'toolbox-tree-changed') {
+        ko.toolbox2.manager.view.redoTreeView(ko.projects.manager.currentProject);
+    }
 },
 
 _EOD_: null

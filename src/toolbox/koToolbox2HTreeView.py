@@ -203,7 +203,6 @@ class KoToolbox2HTreeView(TreeView):
         self.toolbox_db = None
         _observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        _observerSvc.addObserver(self, 'toolbox-tree-changed', 0)
         _observerSvc.addObserver(self, 'tool-appearance-changed', 0)
         _observerSvc.addObserver(self, 'xpcom-shutdown', 0)
         self.toolbox2Svc = components.classes["@activestate.com/koToolbox2Service;1"]\
@@ -212,7 +211,7 @@ class KoToolbox2HTreeView(TreeView):
         self._unfilteredRows_view = self._unfilteredRows_model = None
         self._toolsMgr = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].getService(components.interfaces.koIToolbox2ToolManager))
         
-    def initialize(self):
+    def initialize(self, currentProject):
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
         if not prefs.hasPref("toolbox2"):
@@ -241,7 +240,7 @@ class KoToolbox2HTreeView(TreeView):
         .getService(components.interfaces.koIToolbox2ToolManager));
         self._std_toolbox_id = self.toolbox2Svc.getStandardToolboxID()
 
-        self._redoTreeView()
+        self._redoTreeView(currentProject)
         self._restoreView()
         self._tree.invalidate()
 
@@ -252,8 +251,6 @@ class KoToolbox2HTreeView(TreeView):
             # Not fully initialized, but we'll update the tree later,
             # before startup is done.
             return
-        if topic == 'toolbox-tree-changed':
-            self._redoTreeView()
         elif topic == 'tool-appearance-changed':
             # Update the tool's values, and then invalidate the row
             id = int(data)
@@ -279,7 +276,6 @@ class KoToolbox2HTreeView(TreeView):
         elif topic == 'xpcom-shutdown':
             _observerSvc = components.classes["@mozilla.org/observer-service;1"].\
                 getService(components.interfaces.nsIObserverService)
-            _observerSvc.removeObserver(self, 'toolbox-tree-changed')
             _observerSvc.removeObserver(self, 'xpcom-shutdown')
 
     def getPathFromIndex(self, index):
@@ -713,21 +709,29 @@ class KoToolbox2HTreeView(TreeView):
             # Force it open.
             self.toggleOpenStateModel(index)
 
-    def _redoTreeView(self):
+    def redoTreeView(self, currentProject):
+        self._redoTreeView(currentProject)
+
+    def _redoTreeView(self, currentProject=None):
         self._tree.beginUpdateBatch()
         try:
-            self._redoTreeView1_aux()
+            self._redoTreeView1_aux(currentProject)
         finally:
             pass
             self._tree.endUpdateBatch()
         self.refreshFullView()
 
-    def _redoTreeView1_aux(self):
+    def _redoTreeView1_aux(self, currentProject):
         if self.toolbox_db is None:
             log.error("_redoTreeView: self.toolbox_db is None")
             return
         top_level_nodes = self.toolbox_db.getTopLevelNodes()
         top_level_ids = [x[0] for x in top_level_nodes]
+        tagged_project_ids = UnwrapObject(self.toolbox2Svc).getLoadedProjectIDs(currentProject)
+        ids_to_drop = [id for id, isLocal in tagged_project_ids if not isLocal]
+        if ids_to_drop:
+            f_top_level_ids = list(set(top_level_ids) - set(ids_to_drop))
+            top_level_ids = f_top_level_ids
         index = 0
         lim = len(self._rows_model)
         while index < lim:

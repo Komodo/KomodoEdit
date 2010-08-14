@@ -1966,9 +1966,11 @@ ManagerClass.prototype = {
     
     handle_project_opened: function(event) {
         var project = ko.projects.manager.currentProject;
-        var targetDirURI = this._getActualProjectDir(project);
-        if (targetDirURI) {
-            ko.places.manager.openURI(targetDirURI);
+        if (project) {
+            var targetDirURI = this._getActualProjectDir(project);
+            if (targetDirURI) {
+                ko.places.manager.openURI(targetDirURI);
+            }
         }
     },
 

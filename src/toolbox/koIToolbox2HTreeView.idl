@@ -128,7 +128,7 @@ interface koIToolbox2HTreeView: nsITreeView {
     const short SORT_BY_NAME_ASCENDING = 2;
     const short SORT_BY_NAME_DESCENDING = 3;
 
-    void initialize();
+    void initialize(in koIPart currentProject);
     void terminate();
     wstring get_toolType(in long index);
 
@@ -154,6 +154,13 @@ interface koIToolbox2HTreeView: nsITreeView {
                               [array, size_is(count)] in wstring paths,
                               in unsigned long count,
                               in boolean copying);
+
+    // This routine figures out which top-level nodes to display
+    // in the tree, and rebuilds it.
+    void redoTreeView(in koIPart currentProject);
+
+    // This routine assumes that we're keeping
+    // the current toolboxes, and just refreshes the tree.
     void refreshFullView();
     void reloadToolsDirectoryView(in long index);
     void renameTool(in long index, in wstring newName);
