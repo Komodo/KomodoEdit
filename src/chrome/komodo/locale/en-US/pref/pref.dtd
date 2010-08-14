@@ -651,6 +651,15 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY numberOfProjects.label "Number of Projects">
 <!ENTITY numberOfFiles.label "Number of Files">
 
+<!--pref-ui-tabs.xul-->
+<!ENTITY sidePaneTabStyles.caption "Side Pane Layouts">
+<!ENTITY uiPaneSidepanes.left.layout.label "Left pane layout: ">
+<!ENTITY uiPaneSidepanes.right.layout.label "Right pane layout: ">
+<!ENTITY uiPaneSidepanes.bottom.layout.label "Bottom pane layout: ">
+<!ENTITY uiPaneSidebars.menuitem.label "Single tab">
+<!ENTITY uiPaneHorizontalTabs.menuitem.label "Horizontal tabs">
+<!ENTITY uiPaneVerticalTabs.menuitem.label "Vertical tabs">
+
 <!--pref-perl.xul-->
 <!ENTITY noPerlInterpreter.description "No Perl interpreter was found on your system. If you would like to debug and run Perl programs in Komodo you will need to install Perl. You can get Perl from ActiveState at">
 <!ENTITY noteRestartPerl.alert "Note: Komodo must be restarted for it to recognize new Perl installations.">

@@ -111,6 +111,8 @@ $cons->InstallInChrome('pref-ui.xul');
 $cons->Preprocess('pref-ui.p.js', 'pref-ui.js');
 $cons->InstallInChrome('pref-ui.js');
 
+$cons->InstallInChrome('pref-ui-tabs.xul');
+
 $cons->InstallInChrome('pref-printing.xul');
 
 $cons->InstallInChrome('pref-proxies.xul');

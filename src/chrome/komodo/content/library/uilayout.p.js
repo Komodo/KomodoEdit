@@ -248,7 +248,8 @@ this.focusPane = function uilayout_focusPane(tabsId)
     ko.uilayout.toggleTab(tabId, false);
 }
 
-this.toggleTab = function uilayout_toggleTab(tabId, collapseIfFocused /* =true */)
+this.toggleTab = function uilayout_toggleTab(tabId, collapseIfFocused /* =true */,
+                                             collapseIfAlreadySelected /* false */)
 {
     try {
         // if called with collapseIfFocused=false, we will only ensure that
@@ -281,6 +282,11 @@ this.toggleTab = function uilayout_toggleTab(tabId, collapseIfFocused /* =true *
             else
                 tabs.parentNode.selectedTab.focus();
         } else {
+            if (collapseIfAlreadySelected && 
+                (tabs.parentNode.selectedTab == tab)) {
+                ko.uilayout.toggleSplitter(cmdId);
+                return;
+            }
             if (collapseIfFocused) {
                 // Before we collapse it, figure out whether the focus is in this
                 // panel.  If so, then move it back to the editor
@@ -1314,13 +1320,78 @@ this.onload = function uilayout_onload()
     ko.main.addWillCloseHandler(ko.uilayout.unload);
 }
 
+this._setTabPaneLayoutForTabbox = function(layout, tabbox, position) {
+    var tabs = tabbox.tabs;
+    if (position == "right" && layout != "vertical") {
+        tabbox.removeAttribute("dir");
+    }
+    switch (layout) {
+        case "sidebar":
+            tabbox.setAttribute("orient", "vertical");
+            tabs.setAttribute("orient", "horizontal");
+            tabs.setAttribute("type", "sidebar");
+            tabbox.setAttribute("class", "sidepanel");
+            // This label updating has to happen in a timeout, otherwise it
+            // won't get applied correctly.
+            window.setTimeout(function() { tabs.setAttribute("label", tabs.selectedItem.getAttribute("label")); }, 1);
+            break;
+        case "vertical":
+            tabs.setAttribute("orient", "vertical");
+            tabs.removeAttribute("type");
+            if (position == "left") {
+                tabbox.setAttribute("rotation", "270");
+            } else if (position == "right") {
+                tabbox.setAttribute("rotation", "90");
+                tabbox.setAttribute("dir", "reverse");
+            }
+            tabbox.setAttribute("orient", "horizontal");
+            tabbox.setAttribute("class", "native vertical_tabs");
+            // This label updating has to happen in a timeout, otherwise it
+            // won't get applied correctly.
+            window.setTimeout(function() { tabs.updateSelectedTabLabel(); }, 1);
+            break;
+        case "horizontal":
+            tabbox.setAttribute("orient", "vertical");
+            tabs.setAttribute("orient", "horizontal");
+            tabbox.setAttribute("class", "native");
+            // This type setting has to occur in a timeout, otherwise it
+            // won't get applied correctly.
+            window.setTimeout(function() { tabs.setAttribute("type", "scrollable"); }, 1);
+            break;
+    }
+}
+
+/**
+ * Sets the user's tab pane layout to match the Komodo appearance preferences.
+ */
+this.setTabPaneLayout = function uilayout_setTabPaneLayout() {
+    // Set the tab pane layout.
+    var leftTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.left.layout");
+    var leftTabbox = document.getElementById("leftTabBox");
+    ko.uilayout._setTabPaneLayoutForTabbox(leftTabStyle, leftTabbox, "left");
+
+    var rightTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.right.layout");
+    var rightTabbox = document.getElementById("rightTabBox");
+    ko.uilayout._setTabPaneLayoutForTabbox(rightTabStyle, rightTabbox, "right");
+
+    var bottomTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.bottom.layout");
+    var bottomTabbox = document.getElementById("output_area");
+    ko.uilayout._setTabPaneLayoutForTabbox(bottomTabStyle, bottomTabbox, "bottom");
+}
+
 this.onloadDelayed = function uilayout_onloadDelayed()
 {
-    if (gPrefs.getBooleanPref("startupFullScreen")) {
-        ko.uilayout.fullScreen();
-    }
-    else if (gPrefs.getBooleanPref("startupMaximized")) {
-        window.maximize()
+    try {
+        if (gPrefs.getBooleanPref("startupFullScreen")) {
+            ko.uilayout.fullScreen();
+        }
+        else if (gPrefs.getBooleanPref("startupMaximized")) {
+            window.maximize()
+        }
+    
+        ko.uilayout.setTabPaneLayout();
+    } catch (e) {
+        _log.exception("Couldn't restore layout:" + e);
     }
 }
 
@@ -1365,15 +1436,36 @@ function _enableAccesskey(elt, enable) {
     }
 }
 
-// A pref observer to watch if the user turns the access keys pref on or off.
+// A pref observer to watch for ui-related pref changes.
 function _PrefObserver() {};
-_PrefObserver.prototype.observe = function(prefSet, prefSetID, prefName)
+_PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
 {
-    _updateAccesskeys();
+    if (prefName == "keybindingDisableAccesskeys") {
+        _updateAccesskeys();
+
+    } else if (prefName == "ui.tabs.sidepanes.left.layout") {
+        // Set the tab pane layout.
+        var leftTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.left.layout");
+        var leftTabbox = document.getElementById("leftTabBox");
+        ko.uilayout._setTabPaneLayoutForTabbox(leftTabStyle, leftTabbox, "left");
+
+    } else if (prefName == "ui.tabs.sidepanes.right.layout") {
+        var rightTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.right.layout");
+        var rightTabbox = document.getElementById("rightTabBox");
+        ko.uilayout._setTabPaneLayoutForTabbox(rightTabStyle, rightTabbox, "right");
+
+    } else if (prefName == "ui.tabs.sidepanes.bottom.layout") {
+        var bottomTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.bottom.layout");
+        var bottomTabbox = document.getElementById("output_area");
+        ko.uilayout._setTabPaneLayoutForTabbox(bottomTabStyle, bottomTabbox, "bottom");
+    }
 };
 
 _PrefObserver.prototype.init = function() {
     gPrefs.prefObserverService.addObserver(this, "keybindingDisableAccesskeys", false);
+    gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.left.layout", false);
+    gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.right.layout", false);
+    gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.bottom.layout", false);
 }
 
 _PrefObserver.prototype.destroy = function() {

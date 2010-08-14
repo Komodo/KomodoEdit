@@ -171,13 +171,22 @@
             </treecols>
 
             <treechildren id="panelChildren" flex="1">
-                <treeitem container="false" id="uiSettingsItem">
+                <treeitem container="true" id="uiSettingsItem">
                     <treerow>
                         <treecell class="treecell-indent"
                                   url="chrome://komodo/content/pref/pref-ui.xul"
                                   label="&appearance.label;"
                                   helptag="appearance"/>
                     </treerow>
+                    <treechildren id="uiSettingsItemChildren" flex="1">
+                        <treeitem container="false" id="tweakuiSettings">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-ui-tabs.xul"
+                                          label="Tabs"/>
+                            </treerow>
+                        </treeitem>
+                    </treechildren>
                 </treeitem>
 
                 <treeitem container="false" id="codeIntelItem">

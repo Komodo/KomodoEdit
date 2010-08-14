@@ -102,6 +102,10 @@
 
   <boolean id="uiRxSeparateWindow">0</boolean>
 
+  <string id="ui.tabs.sidepanes.left.layout">vertical</string>
+  <string id="ui.tabs.sidepanes.right.layout">sidebar</string>
+  <string id="ui.tabs.sidepanes.bottom.layout">horizontal</string>
+
   <long id="mruProjectSize">5</long>
   <long id="mruFileSize">10</long>
   <long id="mruTemplateSize">5</long>
