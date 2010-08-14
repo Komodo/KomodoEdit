@@ -160,7 +160,10 @@ class KoToolbox2Service(object):
         self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
         self._standardToolbox = None  # Stores the top-level folder's ID
         self._loadedToolboxes = {}    # Map project uri to top-level folder's 
+        self._loadedToolboxes = {}    # Map project uri to top-level folder's id
+        self._tbFromExtension = {}    # Map folder ID to a boolean
         self._db = None
+        self._inited = False
         
         self._wrapped = WrapObject(self, components.interfaces.nsIObserver)
         _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
@@ -172,6 +175,9 @@ class KoToolbox2Service(object):
         #                                 "xpcom-shutdown", 0)
         
     def initialize(self):
+        if self._inited:
+            return
+        self._inited = True
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         self.toolbox_db = UnwrapObject(components.classes["@activestate.com/KoToolboxDatabaseService;1"].\
                        getService(components.interfaces.koIToolboxDatabaseService))
@@ -201,7 +207,7 @@ class KoToolbox2Service(object):
         import time
         t1 = time.time()
         toolbox_id = self.toolboxLoader.loadToolboxDirectory("Standard Toolbox", stdToolboxDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
-        self.notifyAddedToolbox(stdToolboxDir)
+        self.notifyAddedToolbox(stdToolboxDir, notifyAllWindows=True)
         t2 = time.time()
         #log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
         self.registerStandardToolbox(toolbox_id)
@@ -220,14 +226,32 @@ class KoToolbox2Service(object):
         #log.debug("registerStandardToolbox(id:%d)", id)
         self._standardToolbox = id
 
-    def registerUserToolbox(self, uri, id):
+    def registerUserToolbox(self, uri, id, isFromExtension):
         self._loadedToolboxes[uri] = id
+        self._tbFromExtension[id] = isFromExtension
 
     def unregisterUserToolbox(self, uri):
         try:
-            del self._loadedToolboxes[uri]
+            id = self._loadedToolboxes[uri]
         except KeyError:
             log.debug("Didn't find uri %s in self._loadedToolboxes")
+            return
+        try:
+            del self._tbFromExtension[id]
+        except KeyError:
+            pass
+        del self._loadedToolboxes[uri]
+
+    def getLoadedProjectIDs(self, currentProject):
+        """
+        Return a list of tuples of (toolID, bool:isCurrentProject)
+        """
+        if not self._loadedToolboxes:
+            return []
+        currentProjectURI = currentProject and currentProject.url
+        return [(id, uri == currentProjectURI)
+                for uri, id in self._loadedToolboxes.items()
+                if not self._tbFromExtension.get(id, False)]
 
     def toolbox_id_from_uri(self, uri):
         try:
@@ -469,6 +493,8 @@ class KoToolbox2Service(object):
             pass
 
     def migrateVersion5Toolboxes(self):
+        if self._inited:
+            return
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         self._checkMigrate(koDirSvc.userDataDir, "user toolbox", koToolbox2.DEFAULT_TARGET_DIRECTORY, kpfName="toolbox.kpf")
 
@@ -479,8 +505,8 @@ class KoToolbox2Service(object):
             toolbox_id = self.toolboxLoader.loadToolboxDirectory(project.name,
                                                                  projectDir,
                                                                  koToolbox2.PROJECT_TARGET_DIRECTORY)
-            self.registerUserToolbox(project.url, toolbox_id)
-            self.notifyAddedToolbox(projectDir)
+            self.registerUserToolbox(project.url, toolbox_id, False)
+            self.notifyAddedToolbox(projectDir, notifyAllWindows=False)
             self.notifyToolboxTopLevelViewChanged()
 
     def createProjectToolbox(self, project):
@@ -500,34 +526,36 @@ class KoToolbox2Service(object):
             toolbox_id = self.toolboxLoader.loadToolboxDirectory(name,
                                                                  extensionRootDir,
                                                                  koToolbox2.DEFAULT_TARGET_DIRECTORY)
-            self.registerUserToolbox(extensionRootDir, toolbox_id)
-            self.notifyAddedToolbox(extensionRootDir)
+            self.registerUserToolbox(extensionRootDir, toolbox_id, True)
+            self.notifyAddedToolbox(extensionRootDir, notifyAllWindows=True)
             self.notifyToolboxTopLevelViewChanged()
 
     # when an extension is disabled, we need to restart
 
     def deactivateProjectToolbox(self, project):
         projectDir = project.getFile().dirName;
-        self.notifyDroppedToolbox(projectDir)
+        self.notifyDroppedToolbox(projectDir, notifyAllWindows=False)
         id = self.toolbox_id_from_uri(project.url)
         if id is not None:
             self.toolbox_db.deleteItem(id)
             self.unregisterUserToolbox(project.url)
             self.notifyToolboxTopLevelViewChanged()
 
-    def notifyAddedToolbox(self, toolboxDir):
+    def notifyAddedToolbox(self, toolboxDir, notifyAllWindows=True):
         _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
                 .getService(components.interfaces.nsIObserverService)
         try:
-            _observerSvc.notifyObservers(None, 'toolbox-loaded', toolboxDir)
+            subject = (notifyAllWindows and 'toolbox-loaded-global') or 'toolbox-loaded-local'
+            _observerSvc.notifyObservers(None, subject, toolboxDir)
         except Exception:
             pass
 
-    def notifyDroppedToolbox(self, toolboxDir):
+    def notifyDroppedToolbox(self, toolboxDir, notifyAllWindows=True):
         _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
                 .getService(components.interfaces.nsIObserverService)
         try:
-            _observerSvc.notifyObservers(None, 'toolbox-unloaded', toolboxDir)
+            subject = (notifyAllWindows and 'toolbox-unloaded-global') or 'toolbox-unloaded-local'
+            _observerSvc.notifyObservers(None, subject, toolboxDir)
         except Exception:
             pass
 
