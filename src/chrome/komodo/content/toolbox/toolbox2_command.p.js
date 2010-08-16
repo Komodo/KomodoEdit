@@ -1023,21 +1023,21 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
                 this.log.error("ko.toolbox2.doDrop: can't drop directory "
                                + sourceURI
                                + " onto itself");
-                return;
+                return false;
             }
             var sourceURIParent = sourceURI.substr(0, sourceURI.lastIndexOf("/"));
             if (targetURI == sourceURIParent) {
                 this.log.error("ko.toolbox2.doDrop: can't drop the item "
                                + sourceURI
                                + " onto its parent.");
-                return;
+                return false;
             }
             else if ((sourceURI + "/").indexOf(targetURI) == 0) {
                 this.log.error("ko.toolbox2.doDrop: can't drop the item "
                                + sourceURI
                                + " onto its  descendant "
                                + targetURI);
-                return;
+                return false;
             }
         }
     }
