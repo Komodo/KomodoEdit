@@ -942,18 +942,6 @@
 
                     <menu id="navigation_menu" label="&navigation.menu.label;" accesskey="&navigation.menu.accesskey;">
                         <menupopup id="naviation_menupopup">
-                            <menuitem label="&jumpToMatchingBrace.label;"
-                                      id="menu_jumpToMatchingBrace"
-                                      observes="cmd_jumpToMatchingBrace"
-                                      />
-                            <menuitem id="menu_goToDefinition"
-                                      label="&goToDefinition.label;"
-                                      observes="cmd_goToDefinition"/>
-                            <menuitem id="editor-jump-corresponding"
-                                      label="&jumpToCorrespondingLineForDiffMode.label;"
-                                      class="menuitem-iconic reveal-in-editor-icon"
-                                      observes="cmd_jumpToCorrespondingLine"/>
-                            <menuseparator/>
                             <menuitem label="&historyBack.label;"
                                       id="menu_historyBack"
 <!-- #if PLATFORM != "darwin" -->
@@ -968,6 +956,38 @@
 <!-- #endif -->
                                       observes="cmd_historyForward"
                                       />
+
+                            <menuseparator id="naviation_menupopup_separator_1"/>
+
+                            <menuitem
+                                id="menu_bufferNext"
+                                label="&nextFile.label;"
+                                accesskey="&menuBufferNext.accesskey;"
+                                class="menuitem-iconic next-buffer-icon"
+                                observes="cmd_bufferNext"
+                            />
+                            <menuitem
+                                id="menu_bufferPrevious"
+                                label="&previousFile.label;"
+                                accesskey="&menuBufferPrevious.accesskey;"
+                                class="menuitem-iconic previous-buffer-icon"
+                                observes="cmd_bufferPrevious"
+                            />
+
+                            <menuseparator id="naviation_menupopup_separator_2"/>
+
+                            <menuitem id="menu_goToDefinition"
+                                      label="&goToDefinition.label;"
+                                      observes="cmd_goToDefinition"/>
+                            <menuitem label="&jumpToMatchingBrace.label;"
+                                      id="menu_jumpToMatchingBrace"
+                                      observes="cmd_jumpToMatchingBrace"
+                                      />
+                            <menuitem id="editor-jump-corresponding"
+                                      label="&jumpToCorrespondingLineForDiffMode.label;"
+                                      class="menuitem-iconic reveal-in-editor-icon"
+                                      observes="cmd_jumpToCorrespondingLine"/>
+                            <menuseparator/>
                             <menuitem label="&findNextFunction.label;"
                                       id="menu_findNextFunction"
                                       observes="cmd_findNextFunction"
@@ -1348,21 +1368,6 @@
                                 observes="cmd_openStartPage"
                                 accesskey="&menuOpenStartPage.accesskey;"
                                 />
-                            <menuseparator/>
-                            <menuitem
-                                id="menu_bufferNext"
-                                label="&nextFile.label;"
-                                accesskey="&menuBufferNext.accesskey;"
-                                class="menuitem-iconic next-buffer-icon"
-                                observes="cmd_bufferNext"
-                            />
-                            <menuitem
-                                id="menu_bufferPrevious"
-                                label="&previousFile.label;"
-                                accesskey="&menuBufferPrevious.accesskey;"
-                                class="menuitem-iconic previous-buffer-icon"
-                                observes="cmd_bufferPrevious"
-                            />
                             <menuseparator/>
                             <menuitem
                                 id="menu_moveTab"
