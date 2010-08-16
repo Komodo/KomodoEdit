@@ -61,8 +61,14 @@ function saveWorkspaceIfNeeded() {
     }
 }
 
+/**
+ * Is this window being closed?
+ */
+this.windowIsClosing = false;
+
 this.quitApplication = function() {
     try {
+        ko.main.windowIsClosing = true;
         saveWorkspaceIfNeeded();
         goQuitApplication();
     } catch(ex) {
@@ -98,6 +104,7 @@ this._onClose = function(event) {
         event.cancelBubble = true;
         return;
     }
+    ko.main.windowIsClosing = true;
     ko.main.runWillCloseHandlers();
 
     window.removeEventListener("close", ko.main._onClose, true);
