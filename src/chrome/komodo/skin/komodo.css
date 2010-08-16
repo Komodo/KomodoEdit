@@ -147,7 +147,7 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
 }
 
 #statusbar-check.syntax-warning {
-    list-style-image: url("chrome://komodo/skin/images/icon_check_error.png");
+    list-style-image: url("chrome://komodo/skin/images/icon_check_warning.png");
 }
 
 #statusbar-check.syntax-error {
