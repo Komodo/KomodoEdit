@@ -632,7 +632,7 @@
                 var sourceTabbox = this.getTabController(sourceTab);
                 var targetTabbox = this.getTabController(this);
 
-                var sourceIndex = sourceTabbox.getTabIndexById(sourceTab.id);
+                var sourceIndex = sourceTabbox.tabs.getIndexOfItem(sourceTab);
                 var targetIndex = this.getNewIndex(event);
                 var tabs = this.childNodes;
                 var targetTab = tabs[targetIndex];
