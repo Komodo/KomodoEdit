@@ -296,6 +296,10 @@ PlacesController.prototype.doCommand = function(command) {
 this.PlacesController = PlacesController;  // expose thru this namespace.
 
 var controller = new PlacesController();
+/*
+  The places controller is given a higher priority in order to override common
+  commands like 'cmd_copy' and 'cmd_paste', when focus is on the places tree.
+ */
 window.controllers.insertControllerAt(0, controller);
 
 }).apply(ko.places);
