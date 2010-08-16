@@ -79,7 +79,7 @@ class koMarkdownLanguage(KoLanguageBase):
                    ),
         'identifiers': ('SCE_MARKDOWN_CODEBK',),
     }
-    defaultExtension = '.mdml'
+    defaultExtension = '.md'
     commentDelimiterInfo = {"line": [ ";" ]}
     
     sample = """No sample is available."""

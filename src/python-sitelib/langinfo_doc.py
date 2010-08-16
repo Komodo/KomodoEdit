@@ -257,12 +257,12 @@ class MarkdownLangInfo(LangInfo):
     """
     name = "Markdown"
     conforms_to_bases = ["Text"]
-    exts = [".md", ".markdown", ".mdown", "markdn",
-            ".mdml"]
-    # First four extensions are used in some other editors
-    # last is at http://www.file-extensions.org/mdml-file-extension
-
-    exts = [".markdown"]
+    exts = [
+        # from other editors and what Github's markup processing supports
+        ".md", ".markdown", ".mdown", ".mkdn", ".mkd",
+        # from <http://www.file-extensions.org/mdml-file-extension>
+        ".mdml",
+    ]
 
 class RichTextFormatLangInfo(LangInfo):
     """Rich Text Format"""
