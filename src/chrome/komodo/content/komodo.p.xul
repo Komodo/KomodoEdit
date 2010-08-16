@@ -945,36 +945,36 @@
                                       class="menuitem-iconic history-back-icon"
 <!-- #endif -->
                                       observes="cmd_historyBack"
-                                    />
-                          <menuitem label="&historyForward.label;"
-                                    id="menu_historyForward"
+                                      />
+                            <menuitem label="&historyForward.label;"
+                                      id="menu_historyForward"
 <!-- #if PLATFORM != "darwin" -->
-                                    class="menuitem-iconic history-forward-icon"
+                                      class="menuitem-iconic history-forward-icon"
 <!-- #endif -->
-                                    observes="cmd_historyForward"
-                                    />
-                          <menuitem label="&findNextFunction.label;"
-                                    id="menu_findNextFunction"
-                                    observes="cmd_findNextFunction"
-                                    />
-                          <menuitem label="&findPreviousFunction.label;"
-                                    id="menu_findPreviousFunction"
-                                    observes="cmd_findPreviousFunction"
-                                    />
-                          <menuitem label="&findAllFunctions.label;"
-                                    id="menu_findAllFunctions"
-                                    observes="cmd_findAllFunctions"
-                                    />
-                          <menuseparator/>
-                          <menuitem label="&enterNextCharacterAsRawLiteral.label;"
-                                    id="menu_rawKey"
-                                    observes="cmd_rawKey"
-                                    />
-                          <menuitem label="&repeatNextKeystrokeNTimes.label;"
-                                    id="menu_repeatNextCommandBy"
-                                    observes="cmd_repeatNextCommandBy"
-                                    />
-                      </menupopup>
+                                      observes="cmd_historyForward"
+                                      />
+                            <menuitem label="&findNextFunction.label;"
+                                      id="menu_findNextFunction"
+                                      observes="cmd_findNextFunction"
+                                      />
+                            <menuitem label="&findPreviousFunction.label;"
+                                      id="menu_findPreviousFunction"
+                                      observes="cmd_findPreviousFunction"
+                                      />
+                            <menuitem label="&findAllFunctions.label;"
+                                      id="menu_findAllFunctions"
+                                      observes="cmd_findAllFunctions"
+                                      />
+                            <menuseparator/>
+                            <menuitem label="&enterNextCharacterAsRawLiteral.label;"
+                                      id="menu_rawKey"
+                                      observes="cmd_rawKey"
+                                      />
+                            <menuitem label="&repeatNextKeystrokeNTimes.label;"
+                                      id="menu_repeatNextCommandBy"
+                                      observes="cmd_repeatNextCommandBy"
+                                      />
+                        </menupopup>
                     </menu>
 
 
