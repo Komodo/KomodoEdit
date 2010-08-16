@@ -764,7 +764,46 @@
             <xul:spacer class="tabs-right" flex="1"/>
         </content>
 
-        <implementation>
+        <implementation implements="nsIDOMEventListener">
+
+            <constructor>
+                this.addEventListener("DOMNodeInserted", this, true);
+                this.addEventListener("DOMNodeRemoved", this, true);
+                this.setTabVisibility();
+            </constructor>
+
+            <destructor>
+                this.removeEventListener("DOMNodeInserted", this, true);
+                this.removeEventListener("DOMNodeRemoved", this, true);
+            </destructor>
+
+            <method name="handleEvent">
+              <parameter name="event" />
+              <body>
+              <![CDATA[
+                // Related node is the parent of the node
+                // that was inserted/deleted.
+                if (event.relatedNode == this) {
+                    this.setTabVisibility();
+                }
+              ]]>
+              </body>
+            </method>
+
+            <method name="setTabVisibility">
+              <body>
+              <![CDATA[
+                if (this.childNodes.length <= 1) {
+                    // Hide the tabs.
+                    this.setAttribute("collapsed", "true");
+                } else {
+                    // Show the tabs.
+                    this.removeAttribute("collapsed");
+                }
+              ]]>
+              </body>
+            </method>
+
             <method name="updateSelectedTabLabel">
               <body>
               <![CDATA[
