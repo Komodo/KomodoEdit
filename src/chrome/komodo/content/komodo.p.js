@@ -174,7 +174,6 @@ this.runCanCloseHandlers = function() {
 var _willCloseHandlers = []; // synonym: willCloseHandlers
 
 /**
- * addWillCloseHandler
  * Register a routine to be called when a Komodo window is closed.
  * To register a simple routine do this:
  *      ko.main.addWillCloseHandler(<routine>)
@@ -188,6 +187,18 @@ this.addWillCloseHandler = function(handler, object /*=null*/) {
     callback.handler = handler;
     callback.object = object;
     _willCloseHandlers.push(callback);
+};
+
+/**
+ * Remove the given handler from the list of do-close handlers.
+ */
+this.removeWillCloseHandler = function(handler) {
+    for (var i=0; i < _willCloseHandlers.length; i++) {
+        if (_willCloseHandlers[i].handler == handler) {
+            _willCloseHandlers.splice(i, 1);
+            break;
+        }
+    }
 };
 
 this.runWillCloseHandlers = function() {
