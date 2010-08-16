@@ -365,7 +365,6 @@
 <!ENTITY mailLists.label "Mail Lists">
 <!ENTITY makeLowercase.label "Make Lowercase">
 <!ENTITY makeUppercase.label "Make Uppercase">
-<!ENTITY marks.label "Marks">
 <!ENTITY menuBlockSelect.accesskey "B">
 <!ENTITY menuBookmarkGotoNext.accesskey "N">
 <!ENTITY menuBookmarkGotoPrevious.accesskey "P">
@@ -401,7 +400,6 @@
 <!ENTITY menuIndent.accesskey "I">
 <!ENTITY menuJoin.accesskey "J">
 <!ENTITY menuMacros.accesskey "M">
-<!ENTITY menuMarks.accesskey "M">
 <!ENTITY menuMoveTab.accesskey "M">
 <!ENTITY menuMruFiles.accesskey "F">
 <!ENTITY menuMruProjects.accesskey "t">

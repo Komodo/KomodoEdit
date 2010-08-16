@@ -840,49 +840,6 @@
                                       accesskey="&menuCleanLineEndings.accesskey;"
                                       observes="cmd_cleanLineEndings"
                                       />
-                            <menuseparator id="menu_code_separator_2"/>
-                            <menu id="menu_marks"
-                                  label="&marks.label;"
-                                  accesskey="&menuMarks.accesskey;">
-                                <menupopup id="popup_marks">
-                                    <menuitem label="&toggleBookmark.label;"
-                                              id="menu_bookmarkToggle"
-                                              accesskey="&menuBookmarkToggle.accesskey;"
-                                              observes="cmd_bookmarkToggle"
-                                              />
-                                    <menuitem label="&removeAllBookmarks.label;"
-                                              id="menu_bookmarkRemoveAll"
-                                              accesskey="&menuBookmarkRemoveAll.accesskey;"
-                                              observes="cmd_bookmarkRemoveAll"
-                                              />
-                                    <menuitem label="&nextBookmark.label;"
-                                              id="menu_bookmarkGotoNext"
-                                              accesskey="&menuBookmarkGotoNext.accesskey;"
-                                              observes="cmd_bookmarkGotoNext"
-                                              />
-                                    <menuitem label="&previousBookmark.label;"
-                                              accesskey="&menuBookmarkGotoPrevious.accesskey;"
-                                              id="menu_bookmarkGotoPrevious"
-                                              observes="cmd_bookmarkGotoPrevious"
-                                              />
-                                    <menuseparator/>
-                                    <menuitem label="&setTransientMark.label;"
-                                              id="menu_transientMarkSet"
-                                              accesskey="&menuTransientMarkSet.accesskey;"
-                                              observes="cmd_transientMarkSet"
-                                              />
-                                    <menuitem label="&exchangePositionAndMark.label;"
-                                              id="menu_transientMarkExchangeWithPoint"
-                                              accesskey="&menuTransientMarkExchangeWithPoint.accesskey;"
-                                              observes="cmd_transientMarkExchangeWithPoint"
-                                              />
-                                    <menuitem label="&moveToPreviousMark.label;"
-                                              id="menu_transientMarkMoveBack"
-                                              accesskey="&menuTransientMarkMoveBack.accesskey;"
-                                              observes="cmd_transientMarkMoveBack"
-                                              />
-                                </menupopup>
-                            </menu>
                             <menuseparator id="codeConvert_menuseparator"/>
                             <menu id="codeConvert_menu"
                                   label="&codeConvertSelectedTextMenu.label;"
@@ -1005,6 +962,29 @@
                                       observes="cmd_findAllFunctions"
                                       />
                         </menupopup>
+
+                        <menuseparator id="naviation_menupopup_bookmarks_separator"/>
+
+                        <menuitem label="&toggleBookmark.label;"
+                                  id="menu_bookmarkToggle"
+                                  accesskey="&menuBookmarkToggle.accesskey;"
+                                  observes="cmd_bookmarkToggle"
+                                  />
+                        <menuitem label="&nextBookmark.label;"
+                                  id="menu_bookmarkGotoNext"
+                                  accesskey="&menuBookmarkGotoNext.accesskey;"
+                                  observes="cmd_bookmarkGotoNext"
+                                  />
+                        <menuitem label="&previousBookmark.label;"
+                                  accesskey="&menuBookmarkGotoPrevious.accesskey;"
+                                  id="menu_bookmarkGotoPrevious"
+                                  observes="cmd_bookmarkGotoPrevious"
+                                  />
+                        <menuitem label="&removeAllBookmarks.label;"
+                                  id="menu_bookmarkRemoveAll"
+                                  accesskey="&menuBookmarkRemoveAll.accesskey;"
+                                  observes="cmd_bookmarkRemoveAll"
+                                  />
                     </menu>
 
 
