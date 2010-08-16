@@ -3,11 +3,6 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-tabbox[type="draggable"]
-{
-  -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabbox-draggable');
-}
-
 tabs[type="scrollable"]
 {
   -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-scrollable');

@@ -718,66 +718,6 @@
         </handlers>
     </binding>
 
-    <!-- Used clues from tabBindings.xul -->
-    <binding id="tabbox-draggable" xbl:inherits="orient"
-        extends="chrome://global/content/bindings/tabbox.xml#tabbox">
-        <content>
-            <children/>
-        </content>
-
-        <implementation>
-
-            <method name="getTabIndexById">
-                <parameter name="id"/>
-                <body>
-                <![CDATA[
-                    for(var i = 0; i < this._tabs.childNodes.length; i++) {
-                        if(this._tabs.childNodes[i].getAttribute('id') == id) {
-                            return i;
-                        }
-                    }
-                    return -1;
-                ]]>
-                </body>
-            </method>
-
-            <method name="getTabById">
-                <parameter name="id"/>
-                <body>
-                <![CDATA[
-                    for (var i = 0; i < this._tabs.childNodes.length; i++) {
-                        if (this._tabs.childNodes[i].getAttribute('id') == id)
-                            return this._tabs.childNodes[i];
-                    }
-                    return null;
-                ]]>
-                </body>
-            </method>
-
-            <method name="getTabIdByIndex">
-                <parameter name="index"/>
-                <body>
-                <![CDATA[
-                    if(index >= 0 && index < this._tabs.childNodes.length) {
-                        return this._tabs.childNodes[index].getAttribute('id');
-                    }
-                    return "";
-                ]]>
-                </body>
-            </method>
-
-            <method name="advanceSelectedTab">
-                <parameter name="dir"/>
-                <body>
-                    <![CDATA[
-                    this._tabs.advanceSelectedTab(dir, true);
-                    ]]>
-                </body>
-            </method>
-            
-        </implementation>
-
-    </binding>
 
     <!-- This is bound to <tabbox type="vertical">, and currently used for
          Komodo's side panes. -->
