@@ -50,7 +50,8 @@ class _KoTool(object):
         self.temporary = False
         self._attributes = {}
         self._nondb_attributes = {}
-        self.flavors = ['text/unicode', 'application/x-komodo-part',
+        self.flavors = ['text/uri-list',
+                        'text/unicode', 'application/x-komodo-part',
 # #if PLATFORM != "win"
                         # XXX for a later release, scintilla needs work in this area
                         'TEXT',#,'COMPOUND_TEXT','STRING','UTF-8' \
@@ -213,7 +214,7 @@ class _KoTool(object):
         except KeyError:
             pass
         if typeName in ('menu', 'toolbar'):
-            # menu_created and toolbar_created notifications are done here
+            mac# menu_created and toolbar_created notifications are done here
             requests.append([self, typeName + "_created", None])
         # Are there any custom menus or toolbars that contain this item?
         id = self.id
@@ -272,6 +273,8 @@ class _KoTool(object):
         return self.value
     
     def getDragDataByFlavor(self, flavor):
+        if flavor in ("text/x-moz-url", "application/x-moz-file", "text/uri-list"):
+            return self.path
         return self.getDragData()
 
     def getDragFlavors(self):
@@ -641,8 +644,10 @@ class _KoSnippetTool(_KoTool):
     def getDragDataByFlavor(self, flavor):
         if flavor == 'application/x-komodo-snippet':
             return str(self.id)
-        else:
+        elif flavor == 'text/unicode':
             return self._getSnippetDragDataAsText()
+        else:
+            return _KoTool.getDragDataByFlavor(self, flavor)
         
     def getDragData(self):
         return self._getSnippetDragDataAsText()

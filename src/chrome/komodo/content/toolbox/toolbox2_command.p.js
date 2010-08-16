@@ -46,9 +46,6 @@ if (typeof(ko.toolbox2)=='undefined') {
 
 (function() {
 
-this._dragSources = [];
-this._dragIndices = [];
-
 this._getSelectedTool = function(assertOfType /* =type */) {
     var view = ko.toolbox2.manager.view;
     var tool = view.getTool(view.selection.currentIndex);
@@ -567,23 +564,26 @@ this.renameItem = function(event) {
     }
 }
 
-this._selectCurrentItems = function() {
+this._selectCurrentItems = function(isCopying) {
     this.selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
     var view = this.manager.view;
     var paths = this.selectedIndices.map(function(index) {
             return view.getPathFromIndex(index);
         });
-    xtk.clipboard.setText(paths.join("\n"));
+    var pathList = paths.join("\n");
+    var transferable = xtk.clipboard.addTextDataFlavor("text/unicode", pathList);
+    xtk.clipboard.addTextDataFlavor("x-application/komodo-toolbox",
+                                    isCopying ? "1" : "0" , transferable);
+    xtk.clipboard.copyFromTransferable(transferable);
+    window.setTimeout(window.updateCommands, 1, "clipboard");
 }
 
 this.cutItem = function(event) {
-    this.copying = false;
-    this._selectCurrentItems();
+    this._selectCurrentItems(false);
 };
 
 this.copyItem = function(event) {
-    this.copying = true;
-    this._selectCurrentItems();
+    this._selectCurrentItems(true);
 };
 
 this.pasteIntoItem = function(event) {
@@ -593,11 +593,14 @@ this.pasteIntoItem = function(event) {
         var index = view.selection.currentIndex;
         var parent = view.getTool(index);
         var paths = xtk.clipboard.getText().split("\n");
-        var loadedMacroURIs = this.copying ? [] : this._getLoadedMacros(paths);
-        view.pasteItemsIntoTarget(index, paths, paths.length, this.copying);
-        this._removeLoadedMacros(loadedMacroURIs);
+        var isCopying = xtk.clipboard.getTextFlavor("x-application/komodo-toolbox");
+        isCopying = parseInt(isCopying);
+        view.pasteItemsIntoTarget(index, paths, paths.length, isCopying);
+        if (!isCopying) {
+            this._removeLoadedMacros(this._getLoadedMacros(paths));
+        }
     } catch(ex) {
-        ko.dialogs.alert("toolbox2_command.js: Error: Trying to copy paths into the toolbox "
+        ko.dialogs.alert("toolbox2_command.js: Error: Trying to copy paths into the toolbox: "
                          + ex);
     }
 };
@@ -902,6 +905,24 @@ this.onDblClick = function(event, checkMouseClick/*=true*/) {
     this.invokeTool(tool);
 };
 
+this._addFlavors = function(dt, currentFlavors, path, index) {
+    const mozFileFlavor = "application/x-moz-file";
+    const uriListFlavor = "text/uri-list";
+    const textPlainFlavor = "text/unicode";
+    if (currentFlavors.indexOf(mozFileFlavor) == -1) {
+        var nsLocalFile = Components.classes["@mozilla.org/file/local;1"]
+            .createInstance(Components.interfaces.nsILocalFile);
+        nsLocalFile.initWithPath(path);
+        dt.mozSetDataAt(mozFileFlavor, nsLocalFile, index);
+    }
+    if (currentFlavors.indexOf(uriListFlavor) == -1) {
+        dt.mozSetDataAt(uriListFlavor, ko.uriparse.localPathToURI(path), index);
+    }
+    if (currentFlavors.indexOf(textPlainFlavor) == -1) {
+        dt.mozSetDataAt(textPlainFlavor, path, index);
+    }
+},
+
 this.doStartDrag = function(event, tree) {
     var selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
     var view = this.manager.view;
@@ -917,26 +938,25 @@ this.doStartDrag = function(event, tree) {
         for (var i = 0; i < flavors.length; i++) {
             var flavor = flavors[i];
             var dataValue = tool.getDragDataByFlavor(flavor);
+            if (flavor == "application/x-moz-file") {
+                // XPCOM limitation -- we only get a string back.
+                var nsLocalFile = Components.classes["@mozilla.org/file/local;1"]
+                    .createInstance(Components.interfaces.nsILocalFile);
+                nsLocalFile.initWithPath(dataValue);
+                dataValue = nsLocalFile;
+            }
             dt.mozSetDataAt(flavor, dataValue, 0);
         }
+        this._addFlavors(dt, flavors, tool.path, 0);
     } else {
         paths = [];
         for (var i = 0; i < selectedIndices.length; i++) {
             var path = view.getPathFromIndex(selectedIndices[i]);
             paths.push(path);
-            dt.mozSetDataAt("application/x-moz-file", path, i);
-            dt.mozSetDataAt('text/plain', path, i);
+            this._addFlavors(dt, [], path, i);
         }
     }
-    this._dragSources = paths;
-    this._dragIndices = selectedIndices;
-    if (event.ctrlKey) {
-        dt.effectAllowed = this.originalEffect = "copy";
-        this.copying = true;
-    } else {
-        dt.effectAllowed = this.originalEffect = "move";
-        this.copying = false;
-    }
+    dt.effectAllowed = "copymove";
 };
 
 this._currentRow = function(event, tree) {
@@ -945,67 +965,9 @@ this._currentRow = function(event, tree) {
     return row.value;
 };
 
-this._checkDrag = function(event, tree) {
-    var inDragSource = this._checkDragSource(event, tree);
-    event.dataTransfer.effectAllowed = inDragSource ? this.originalEffect : "none";
-    return inDragSource;
-};
-
-this._checkDragSource = function(event, tree) {
-    var index = this._currentRow(event, tree);
-    if (!this._dragIndices.length) {
-        if (event.dataTransfer) { //  && this.manager.view.isContainer(index)) {
-            return true;
-        }
-        //dump("not dragging anything\n");
-        return false;
-    }
-    if (this._dragIndices.indexOf(index) != -1) {
-        //dump("can't drag an item to itself\n");
-        return false;
-    }
-    //if (!this.manager.view.isContainer(index)) {
-    //    //dump("target isn't an index\n");
-    //    return false;
-    //}
-    var view = this.manager.view;
-    var candidateIndex;
-    for (var i = this._dragIndices.length - 1; i >= 0; i--) {
-        candidateIndex = this._dragIndices[i];
-        if (view.getParentIndex(candidateIndex) == index) {
-            /*
-            dump("can't copy/paste node "
-                 + candidateIndex
-                 + " to its immediate parent "
-                 + index
-                 + "\n");
-            */
-            return false;
-        }
-        if (view.isAncestor(candidateIndex, index)) {
-            /*
-            dump("can't copy/paste node "
-                 + candidateIndex
-                 + " to its descendant "
-                 + index
-                 + "\n");
-            */
-            return false;
-        }
-    }
-    return true;
-};
-
-this.doDragEnter = function(event, tree) {
-    return this._checkDrag(event, this.manager.widgets.tree);
-};
-
-this.doDragOver = function(event, tree) {
-    return this._checkDrag(event, this.manager.widgets.tree);
-};
-
 this.doDrop = function(event, tree) {
     var index = this._currentRow(event, this.manager.widgets.tree);
+    // Here we have to verify what we're doing.
     if (!this.manager.view.isContainer(index)) {
         // Get the parent (or the std toolbox) and use that
         var parentIndex = this.manager.view.getParentIndex(index);
@@ -1023,50 +985,24 @@ this.doDrop = function(event, tree) {
             index = -1;
         }
     }
-    if (!this._dragSources.length) {
-        if (event.dataTransfer) {
-            try {
-                var koDropDataList = ko.dragdrop.unpackDropData(event.dataTransfer);
-                if (koDropDataList.length) {
-                    this._handleDroppedURLs(index, koDropDataList);
-                    event.cancelBubble = true;
-                    event.stopPropagation();
-                    event.preventDefault();
-                    return true;
-                }
-            } catch(ex) {
-                alert("toolbox2_command.js: toDrop: " + ex);
-                this.log.exception("ko.toolbox2.doDrop: " + ex);
-            }
-        } else {
-            this.log.error("doDrop: no dragSources, and no event.dataTransfer");
-            dump("doDrop: no dragSources, and no event.dataTransfer\n");
-        }
-        //dump("onDrop: no source indices to drop\n");
-        return false;
-    }
-    var res;
+    var dt = event.dataTransfer;
+    // We're either moving/copying one or more tools to a folder,
+    // or we're dropping a blob of text, and will turn it into a snippet.
     try {
-        var paths = this._dragSources;
-        var loadedMacroURIs = this.copying ? [] : this._getLoadedMacros(paths);
-        this.manager.view.pasteItemsIntoTarget(index, paths, paths.length, this.copying);
-        if (!this.copying) {
-            this._removeLoadedMacros(loadedMacroURIs);
-        }
-        res = false;
+        var koDropDataList = ko.dragdrop.unpackDropData(dt);
+        this._handleDroppedURLs(index, koDropDataList, dt.dropEffect == "copy");
         event.cancelBubble = true;
         event.stopPropagation();
         event.preventDefault();
+        return true;
     } catch(ex) {
-        ko.dialogs.alert("drag/drop: " + ex);
-        res = true;
+        alert("toolbox2_command.js: toDrop: error: " + ex);
+        this.log.exception("ko.toolbox2.doDrop: " + ex);
+        return false;
     }
-    this._dragSources = [];
-    this._dragIndices = [];
-    return res;
 };
 
-this._handleDroppedURLs = function(index, koDropDataList) {
+this._handleDroppedURLs = function(index, koDropDataList, copying) {
     var koDropData;
     var targetDirectory;
     if (index == -1) {
@@ -1074,9 +1010,38 @@ this._handleDroppedURLs = function(index, koDropDataList) {
     } else {
         targetDirectory = this.manager.view.getPathFromIndex(index);
     }
+    var targetURI = ko.uriparse.localPathToURI(targetDirectory);
     var loadedSomething = false;
     var url;
-    for (var i=0; i < koDropDataList.length; i++) {
+    var view = this.manager.view;
+    // First verify that all of the items can be dropped on the target.
+    for (var i = 0; i < koDropDataList.length; i++) {
+        koDropData = koDropDataList[i];
+        if (koDropData.isKomodoToolURL) {
+            var sourceURI = koDropData.value;
+            if (targetURI == sourceURI) {
+                this.log.error("ko.toolbox2.doDrop: can't drop directory "
+                               + sourceURI
+                               + " onto itself");
+                return;
+            }
+            var sourceURIParent = sourceURI.substr(0, sourceURI.lastIndexOf("/"));
+            if (targetURI == sourceURIParent) {
+                this.log.error("ko.toolbox2.doDrop: can't drop the item "
+                               + sourceURI
+                               + " onto its parent.");
+                return;
+            }
+            else if ((sourceURI + "/").indexOf(targetURI) == 0) {
+                this.log.error("ko.toolbox2.doDrop: can't drop the item "
+                               + sourceURI
+                               + " onto its  descendant "
+                               + targetURI);
+                return;
+            }
+        }
+    }
+    for (var i = 0; i < koDropDataList.length; i++) {
         koDropData = koDropDataList[i];
         if (koDropData.isKpzURL) {
             url = koDropData.value;
@@ -1097,6 +1062,9 @@ this._handleDroppedURLs = function(index, koDropDataList) {
                     continue;
                 }
                 this.manager.toolbox2Svc.importFiles(targetDirectory, [path], 1);
+                //XXX: Add an arg to importFiles to delete the imported file if
+                // importing succeeds.
+                loadedSomething = true;
             } catch(ex) {
                 alert("toolbox2_command.js:importFiles failed: " + ex);
                 this.log.exception("importFiles failed: " + ex);
