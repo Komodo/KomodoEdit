@@ -502,6 +502,7 @@
 <!ENTITY printSettings.label "Print Settings">
 <!ENTITY printToHTMLFile.label "Print to HTML File...">
 <!ENTITY project.label "Project">
+<!ENTITY projectPreferences.label "Project Preferences...">
 <!ENTITY projects.label "Projects">
 <!ENTITY projectsToolboxAddNewFile.desc "Projects/Toolbox: Add New File...">
 <!ENTITY projectsToolboxAddNewFileFromTemplate.desc "Projects/Toolbox: Add New File From Template...">
