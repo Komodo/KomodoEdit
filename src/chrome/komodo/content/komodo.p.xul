@@ -984,6 +984,17 @@
                                       accesskey="&menuBookmarkRemoveAll.accesskey;"
                                       observes="cmd_bookmarkRemoveAll"
                                       />
+
+                            <menuseparator id="naviation_menupopup_scroll_separator"/>
+    
+                            <menuitem label="&scrollCurrentLineToCenterOfScreen.label;"
+                                      id="menu_editCenterVertically"
+                                      observes="cmd_editCenterVertically"
+                                      />
+                            <menuitem label="&scrollCurrentLineToTopOfScreen.label;"
+                                      id="move_editMoveCurrentLineToTop"
+                                      observes="cmd_editMoveCurrentLineToTop"
+                                      />
                         </menupopup>
                     </menu>
 
@@ -1169,15 +1180,6 @@
                                               />
                                 </menupopup>
                             </menu>
-                            <menuseparator/>
-                            <menuitem label="&scrollCurrentLineToCenterOfScreen.label;"
-                                      id="menu_editCenterVertically"
-                                      observes="cmd_editCenterVertically"
-                                      />
-                            <menuitem label="&scrollCurrentLineToTopOfScreen.label;"
-                                      id="move_editMoveCurrentLineToTop"
-                                      observes="cmd_editMoveCurrentLineToTop"
-                                      />
                         </menupopup>
                     </menu>
                     <menu id="menu_project" label="&project.label;" accesskey="&menuProject.accesskey;">
