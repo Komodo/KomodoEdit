@@ -135,6 +135,26 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
 }
 
 
+/**
+ * Syntax checking statusbar images.
+ */
+#statusbar-check.syntax-okay {
+    list-style-image: url("chrome://komodo/skin/images/icon_check_ok.png");
+}
+
+#statusbar-check.syntax-in-progress {
+    list-style-image: url("chrome://komodo/skin/images/icon_check_inprogress.png");
+}
+
+#statusbar-check.syntax-warning {
+    list-style-image: url("chrome://komodo/skin/images/icon_check_error.png");
+}
+
+#statusbar-check.syntax-error {
+    list-style-image: url("chrome://komodo/skin/images/icon_check_error.png");
+}
+
+
 .primary_menu_item {
     font-weight: bold;
 }

@@ -323,8 +323,7 @@ function _clearLineCol() {
 
 function _clearCheck() {
     var checkWidget = document.getElementById('statusbar-check');
-    checkWidget.setAttribute('image',
-        "chrome://komodo/skin/images/icon_check_ok.png");
+    checkWidget.setAttribute('class', 'syntax-okay');
 }
 
 function _updateCheck(view) {
@@ -339,7 +338,6 @@ try {
     if (typeof(view.lintBuffer) == "undefined" || !view.lintBuffer)
     {
         checkWidget.setAttribute('collapsed', 'true');
-        checkWidget.removeAttribute("image");
         checkWidget.setAttribute("tooltiptext",
                 _bundle.GetStringFromName("syntaxCheckingStatus.tooltip"));
         return;
@@ -355,8 +353,7 @@ try {
     // Is there an error in the linter?
     var lintError = view.lintBuffer.errorString;
     if (lintError) {
-        checkWidget.setAttribute('image',
-            "chrome://komodo/skin/images/icon_check_error.png");
+        checkWidget.setAttribute('class', 'syntax-error');
         checkWidget.setAttribute("tooltiptext",lintError);
         return;
     }
@@ -365,34 +362,37 @@ try {
     //   lintResults == null        -> inprogress
     //   lintResults.length == 0    -> ok
     //   lintResults.length > 0     -> errors/warnings
+    /** @type {Components.interfaces.koILintResults} */
     var lintResults = view.lintBuffer.lintResults;
     if (!lintResults) {
         if (checkingEnabled) {
             checkWidget.setAttribute("tooltiptext",
                 _bundle.GetStringFromName("syntaxCheckingStatusInProgress.tooltip"));
-            checkWidget.setAttribute('image',
-                "chrome://komodo/skin/images/icon_check_inprogress.png");
+            checkWidget.setAttribute('class', 'syntax-in-progress');
         } else {
             checkWidget.setAttribute("tooltiptext",
                 _bundle.GetStringFromName("automaticSyntaxCheckingDisabled.tooltip"));
-            checkWidget.setAttribute('image',
-                "chrome://komodo/skin/images/icon_check_ok.png");
+            checkWidget.setAttribute('class', 'syntax-okay');
         }
     } else {
         var resultsObj = new Object();
         var numResultsObj = new Object();
         lintResults.getResults(resultsObj, numResultsObj);
         if (numResultsObj.value == 0) {
-            checkWidget.setAttribute('image',
-                "chrome://komodo/skin/images/icon_check_ok.png");
+            checkWidget.setAttribute('class', 'syntax-okay');
             checkWidget.setAttribute("tooltiptext",
                 _bundle.GetStringFromName("syntaxCheckingStatusOk.tooltip"));
         } else {
-            checkWidget.setAttribute('image',
-                "chrome://komodo/skin/images/icon_check_error.png");
+            var numErrors = lintResults.getNumErrors();
+            var numWarnings = lintResults.getNumWarnings();
+            if (numErrors > 0) {
+                checkWidget.setAttribute('class', 'syntax-error');
+            } else {
+                checkWidget.setAttribute('class', 'syntax-warning');
+            }
             checkWidget.setAttribute("tooltiptext",
                 _bundle.formatStringFromName("syntaxCheckingStatusErrors.tooltip",
-                    [lintResults.getNumErrors(), lintResults.getNumWarnings()], 2));
+                    [numErrors, numWarnings], 2));
         }
     }
 } catch(ex) {
