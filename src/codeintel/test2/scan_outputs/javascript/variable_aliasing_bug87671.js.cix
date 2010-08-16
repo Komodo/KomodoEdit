@@ -1,0 +1,12 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/variable_aliasing_bug87671.js">
+    <scope ilk="blob" lang="JavaScript" name="variable_aliasing_bug87671.js" src="scan_inputs/javascript/variable_aliasing_bug87671.js">
+      <variable citdl="Object" line="2" lineend="6" name="myobj">
+        <variable citdl="Number" line="3" name="a" />
+        <variable citdl="Number" line="4" name="b" />
+        <variable citdl="Number" line="5" name="c" />
+      </variable>
+      <variable citdl="myobj" line="10" name="otherobj" />
+    </scope>
+  </file>
+</codeintel>

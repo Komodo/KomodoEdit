@@ -1459,12 +1459,14 @@ class JSFile:
                     varType = jsvariable.type
                     if varType:
                         actualType = self._lookupVariableType(varType, jsvariable, scopeStack + [jstype])
-                        if actualType:
-                            if isinstance(actualType, JSVariable):
-                                #print "ActualType is: %r" % (actualType.type)
+                        if actualType and actualType != jsvariable:
+                            if isinstance(actualType, JSVariable) and not actualType.hasChildren():
+                                log.debug("variable %r: replacing type %r with %r",
+                                          jsvariable.name, jsvariable.type, actualType.type)
                                 jsvariable.type = actualType.type
                             else:
-                                #print "ActualType is: %r" % (actualType.name)
+                                log.debug("variable %r: replacing type %r with %r",
+                                          jsvariable.name, jsvariable.type, actualType.name)
                                 jsvariable.type = actualType.name
             # Lookup function return type values
             if isinstance(jstype, JSFunction):
