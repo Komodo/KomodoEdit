@@ -976,6 +976,10 @@
 
                             <menuseparator id="naviation_menupopup_separator_2"/>
 
+                            <menuitem label="&gotoLine.label;"
+                                      id="menu_gotoLine"
+                                      observes="cmd_gotoLine"
+                                      />
                             <menuitem id="menu_goToDefinition"
                                       label="&goToDefinition.label;"
                                       observes="cmd_goToDefinition"/>
@@ -1108,10 +1112,6 @@
                                 </menupopup>
                             </menu>
                             <menuseparator/>
-                            <menuitem label="&gotoLine.label;"
-                                      id="menu_gotoLine"
-                                      observes="cmd_gotoLine"
-                                      />
                             <menu id="menu_viewAsLanguage"
                                   label="&viewAsLanguage.label;"
                                   accesskey="&viewAsLanguage.accesskey;"
