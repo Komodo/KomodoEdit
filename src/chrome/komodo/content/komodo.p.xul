@@ -918,10 +918,6 @@
                                       observes="cmd_triggerPrecedingCompletion"
                                       />
                             <menuseparator/>
-                            <menuitem label="&jumpToMatchingBrace.label;"
-                                      id="menu_jumpToMatchingBrace"
-                                      observes="cmd_jumpToMatchingBrace"
-                                      />
                             <menuitem label="&selectToMatchingBrace.label;"
                                       id="menu_selectToMatchingBrace"
                                       observes="cmd_selectToMatchingBrace"
@@ -930,6 +926,25 @@
                                       id="menu_blockSelect"
                                       accesskey="&menuBlockSelect.accesskey;"
                                       observes="cmd_blockSelect"
+                                      />
+                            <menuseparator/>
+                            <menuitem label="&enterNextCharacterAsRawLiteral.label;"
+                                      id="menu_rawKey"
+                                      observes="cmd_rawKey"
+                                      />
+                            <menuitem label="&repeatNextKeystrokeNTimes.label;"
+                                      id="menu_repeatNextCommandBy"
+                                      observes="cmd_repeatNextCommandBy"
+                                      />
+                        </menupopup>
+                    </menu>
+
+
+                    <menu id="navigation_menu" label="&navigation.menu.label;" accesskey="&navigation.menu.accesskey;">
+                        <menupopup id="naviation_menupopup">
+                            <menuitem label="&jumpToMatchingBrace.label;"
+                                      id="menu_jumpToMatchingBrace"
+                                      observes="cmd_jumpToMatchingBrace"
                                       />
                             <menuitem id="menu_goToDefinition"
                                       label="&goToDefinition.label;"
@@ -965,21 +980,6 @@
                                       id="menu_findAllFunctions"
                                       observes="cmd_findAllFunctions"
                                       />
-                            <menuseparator/>
-                            <menuitem label="&enterNextCharacterAsRawLiteral.label;"
-                                      id="menu_rawKey"
-                                      observes="cmd_rawKey"
-                                      />
-                            <menuitem label="&repeatNextKeystrokeNTimes.label;"
-                                      id="menu_repeatNextCommandBy"
-                                      observes="cmd_repeatNextCommandBy"
-                                      />
-                        </menupopup>
-                    </menu>
-
-
-                    <menu id="navigation_menu" label="&navigation.menu.label;" accesskey="&navigation.menu.accesskey;">
-                        <menupopup id="naviation_menupopup">
                         </menupopup>
                     </menu>
 
