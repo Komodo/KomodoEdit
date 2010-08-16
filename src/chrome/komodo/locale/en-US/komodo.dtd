@@ -441,6 +441,8 @@
 <!ENTITY moveToOtherTabGroup.label "Move to Other Split View">
 <!ENTITY moveToPreviousMark.label "Move to Previous Mark">
 <!ENTITY moveTabToNewWindow.label "Move Tab to a New Window">
+<!ENTITY navigation.menu.accesskey "N">
+<!ENTITY navigation.menu.label "Navigation">
 <!ENTITY new.label "New">
 <!ENTITY newCommand.label "New Command...">
 <!ENTITY newCustomMenu.label "New Custom Menu">

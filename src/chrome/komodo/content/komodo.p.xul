@@ -975,8 +975,16 @@
                                     observes="cmd_repeatNextCommandBy"
                                     />
                       </menupopup>
-                  </menu>
-                  <menu id="menu_view" label="&view.label;" accesskey="&menuView.accesskey;">
+                    </menu>
+
+
+                    <menu id="navigation_menu" label="&navigation.menu.label;" accesskey="&navigation.menu.accesskey;">
+                        <menupopup id="naviation_menupopup">
+                        </menupopup>
+                    </menu>
+
+
+                    <menu id="menu_view" label="&view.label;" accesskey="&menuView.accesskey;">
                       <menupopup id="popup_view"
                                  onpopupshowing="ko.uilayout.updateFullScreen(this)">
 <!-- #if PLATFORM != "darwin" -->
