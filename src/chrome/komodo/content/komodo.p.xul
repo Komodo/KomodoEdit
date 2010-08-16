@@ -961,30 +961,30 @@
                                       id="menu_findAllFunctions"
                                       observes="cmd_findAllFunctions"
                                       />
+
+                            <menuseparator id="naviation_menupopup_bookmarks_separator"/>
+    
+                            <menuitem label="&toggleBookmark.label;"
+                                      id="menu_bookmarkToggle"
+                                      accesskey="&menuBookmarkToggle.accesskey;"
+                                      observes="cmd_bookmarkToggle"
+                                      />
+                            <menuitem label="&nextBookmark.label;"
+                                      id="menu_bookmarkGotoNext"
+                                      accesskey="&menuBookmarkGotoNext.accesskey;"
+                                      observes="cmd_bookmarkGotoNext"
+                                      />
+                            <menuitem label="&previousBookmark.label;"
+                                      accesskey="&menuBookmarkGotoPrevious.accesskey;"
+                                      id="menu_bookmarkGotoPrevious"
+                                      observes="cmd_bookmarkGotoPrevious"
+                                      />
+                            <menuitem label="&removeAllBookmarks.label;"
+                                      id="menu_bookmarkRemoveAll"
+                                      accesskey="&menuBookmarkRemoveAll.accesskey;"
+                                      observes="cmd_bookmarkRemoveAll"
+                                      />
                         </menupopup>
-
-                        <menuseparator id="naviation_menupopup_bookmarks_separator"/>
-
-                        <menuitem label="&toggleBookmark.label;"
-                                  id="menu_bookmarkToggle"
-                                  accesskey="&menuBookmarkToggle.accesskey;"
-                                  observes="cmd_bookmarkToggle"
-                                  />
-                        <menuitem label="&nextBookmark.label;"
-                                  id="menu_bookmarkGotoNext"
-                                  accesskey="&menuBookmarkGotoNext.accesskey;"
-                                  observes="cmd_bookmarkGotoNext"
-                                  />
-                        <menuitem label="&previousBookmark.label;"
-                                  accesskey="&menuBookmarkGotoPrevious.accesskey;"
-                                  id="menu_bookmarkGotoPrevious"
-                                  observes="cmd_bookmarkGotoPrevious"
-                                  />
-                        <menuitem label="&removeAllBookmarks.label;"
-                                  id="menu_bookmarkRemoveAll"
-                                  accesskey="&menuBookmarkRemoveAll.accesskey;"
-                                  observes="cmd_bookmarkRemoveAll"
-                                  />
                     </menu>
 
 
