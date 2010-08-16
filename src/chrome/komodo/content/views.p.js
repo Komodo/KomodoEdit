@@ -1159,7 +1159,8 @@ viewManager.prototype.handle_view_closed = function() {
         // We've closed our second view
         window.setTimeout(window.updateCommands, 1, 'second_view_open_close');
     }
-    if (!ko.workspace.saveInProgress() && !ko.views.manager.batchMode) {
+    if (!ko.workspace.saveInProgress() && !ko.views.manager.batchMode &&
+        !ko.main.windowIsClosing) {
         // Requires a timeout because the new document is not fully unloaded.
         window.setTimeout(ko.workspace.saveWorkspace, 1);
     }
@@ -1176,7 +1177,8 @@ viewManager.prototype.handle_view_opened = function() {
         // We've opened our second view
         window.setTimeout(window.updateCommands, 1, 'second_view_open_close');
     }
-    if (!ko.workspace.restoreInProgress() && !ko.views.manager.batchMode) {
+    if (!ko.workspace.saveInProgress() && !ko.views.manager.batchMode &&
+        !ko.main.windowIsClosing) {
         // Requires a timeout because the new document is not yet fully loaded.
         window.setTimeout(ko.workspace.saveWorkspace, 1);
     }
