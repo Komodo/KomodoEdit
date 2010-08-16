@@ -128,6 +128,9 @@ this.finalize = function RunOutput_Fini()
         _gTerminalView = null;
     }
     _gTerminalHandler = null;
+    if (!ko.main.windowIsClosing) {
+        ko.main.removeWillCloseHandler(ko.run.output.finalize);
+    }
 }
 
 
