@@ -712,11 +712,6 @@
                                       accesskey="&pasteButton.accesskey;"
                                       observes="cmd_paste"
                                       />
-                            <menuitem label="&delete.label;"
-                                      id="menu_delete"
-                                      class="menuitem-iconic list-item-remove-icon"
-                                      observes="cmd_delete"
-                                      />
                             <menuseparator id="edit_menu_select_separator"/>
                             <menu id="edit_menu_select_menu"
                                   label="&select.menu.label;"
