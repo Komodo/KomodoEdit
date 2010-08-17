@@ -313,6 +313,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 23: Komodo 6.0.0rc1 - add keybinding for cmd_invokeTool
  * 22: Komodo 6.0.0rc1 - remapped 'cmd_viewProjects' => 'cmd_viewPlaces'
  * 21: Komodo 6.0.0b1 - add Cmd+[1..9] tab nav keybindings for Mac
  * 20: Komodo 6.0.0b1 - rejig Debug Step *, restore Fast Open binding.
@@ -337,7 +338,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 22;
+const currentKeybindingVersionNumber = 23;
 
 /**
  * Remove this dictionary of keybinds.
@@ -759,6 +760,17 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
             this._add_keybinding_sequences({
                 'cmd_viewPlaces': ["Ctrl+Shift+P"]
             });
+            break;
+        case 22:
+// #if PLATFORM == 'darwin'
+            this._add_keybinding_sequences({
+                'cmd_invokeTool': ["Meta+Shift+K"]
+            });
+// #else
+            this._add_keybinding_sequences({
+                'cmd_invokeTool': ["Ctrl+Shift+K"]
+            });
+// #endif
             break;
         }
         from_version += 1;

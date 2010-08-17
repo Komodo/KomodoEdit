@@ -1,4 +1,5 @@
-version 22
+version 23
+
 # Needs a few things to be finished
 #  - ?? insert forward tab / insert backward tab
 #  - insert file? (Ctrl+X, I)
@@ -218,3 +219,4 @@ binding cmd_goToDefinition Escape .
 binding cmd_goToFile Ctrl+Shift+O
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
+binding cmd_invokeTool Ctrl+Shift+K

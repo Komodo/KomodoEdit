@@ -1,4 +1,4 @@
-version 22
+version 23
 
 # Movement and selection
 binding cmd_left  Left
@@ -191,3 +191,4 @@ binding cmd_selectRectPageDown Alt+Shift+Page_Down
 binding cmd_goToFile Ctrl+Shift+O
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
+binding cmd_invokeTool Ctrl+Shift+K
