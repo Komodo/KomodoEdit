@@ -1008,12 +1008,6 @@
                     <menu id="menu_view" label="&view.label;" accesskey="&menuView.accesskey;">
                       <menupopup id="popup_view"
                                  onpopupshowing="ko.uilayout.updateFullScreen(this)">
-                            <menuitem
-                                id="menu_openStartPage"
-                                label="&startPage.label;"
-                                observes="cmd_openStartPage"
-                                accesskey="&menuOpenStartPage.accesskey;"
-                                />
                             <menu label="&tabs.label;" id="menu_view_tabs">
                                 <menupopup
                                     id="menu_view_tabs_popup"
@@ -1107,20 +1101,17 @@
                                     <menuseparator collapsed="true"/>
                                 </menupopup>
                             </menu>
-                            <menuseparator/>
-                            <menu id="menu_viewAsLanguage"
-                                  label="&viewAsLanguage.label;"
-                                  accesskey="&viewAsLanguage.accesskey;"
-                                  observes="cmd_viewAsLanguage">
-                                <menupopup id="popup_viewAsLanguage"
-                                           onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();"
-                                           />
-                            </menu>
+                            <menuitem
+                                id="menu_openStartPage"
+                                label="&startPage.label;"
+                                observes="cmd_openStartPage"
+                                accesskey="&menuOpenStartPage.accesskey;"
+                                />
                             <menuitem id="menu_previewInBrowser"
-                                      label="&previewInBrowser.label;"
-                                      accesskey="&menuPreviewInBrowser.accesskey;"
+                                      label="&browserPreview.menu.label;"
+                                      accesskey="&browserPreview.menu.accesskey;"
                                       observes="cmd_browserPreview"/>
-                            <menuseparator/>
+                            <menuseparator id="view_menu_editor_settings_menuseparator"/>
                             <menuitem id="menu_viewWhitespace"
                                       label="&viewWhitespace.label;"
                                       observes="cmd_viewWhitespace"
@@ -1141,6 +1132,15 @@
                                       label="&wordWrap.label;"
                                       observes="cmd_wordWrap"
                                       />
+                            <menuseparator id="view_menu_menuseparator_2"/>
+                            <menu id="menu_viewAsLanguage"
+                                  label="&viewAsLanguage.label;"
+                                  accesskey="&viewAsLanguage.accesskey;"
+                                  observes="cmd_viewAsLanguage">
+                                <menupopup id="popup_viewAsLanguage"
+                                           onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();"
+                                           />
+                            </menu>
                             <menuitem label="&increaseFont.label;"
                                       id="menu_fontZoomIn"
                                       observes="cmd_fontZoomIn"
