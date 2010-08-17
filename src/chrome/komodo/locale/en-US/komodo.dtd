@@ -305,6 +305,8 @@
 <!ENTITY gotoLine.label "Goto Line...">
 <!ENTITY gotoLine.prompt.description "Enter a line number to go to. Prefix + or - to move relative to the current line. For example: +4 will move forward 4 lines.">
 <!ENTITY gotoLine.prompt.label "Enter line number:">
+<!ENTITY goToTab.menu.accesskey "A">
+<!ENTITY goToTab.menu.label "Go to Tab">
 <!ENTITY help.label "Help">
 <!ENTITY help.tooltiptext "Help">
 <!ENTITY helpAboutKomodo.desc "Help: About Komodo">

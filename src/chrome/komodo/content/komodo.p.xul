@@ -944,6 +944,12 @@
                                       id="menu_jumpToMatchingBrace"
                                       observes="cmd_jumpToMatchingBrace"
                                       />
+                            <menu id="goToTab_menu"
+                                  label="&goToTab.menu.label;"
+                                  accesskey="&goToTab.menu.accesskey;">
+                                <menupopup id="goToTab_menupopup"
+                                           onpopupshowing="ko.uilayout.updateWindowList(this);" />
+                            </menu>
                             <menuitem id="editor-jump-corresponding"
                                       label="&jumpToCorrespondingLineForDiffMode.label;"
                                       class="menuitem-iconic reveal-in-editor-icon"
@@ -1323,8 +1329,7 @@
                         </menupopup>
                     </menu>
                     <menu id="menu_window" label="&window.label;" accesskey="&menuWindow.accesskey;" ordinal="9995">
-                        <menupopup id="popup_window"
-                            onpopupshowing="ko.uilayout.updateWindowList(this);">
+                        <menupopup id="popup_window">
                             <menuitem
                                 id="menu_newWindow"
                                 label="&newWindow.label;"
@@ -1369,9 +1374,6 @@
                                 accesskey="&menuRotateSplitter.accesskey;"
                                 observes="cmd_rotateSplitter"
                             />
-                            <menuseparator id="window-menu-separator" collapsed="true"/>
-        
-        
                         </menupopup>
                     </menu>
                     <menu id="help_menu" label="&help.label;" accesskey="&helpMenu.accesskey;"

@@ -954,19 +954,12 @@ function _compareView(a, b) {
 // this when it is being shown to reset itself.
 this.updateWindowList = function uilayout_updateWindowList(popup) {
     try {
-        var separator = document.getElementById('window-menu-separator');
         var views = ko.views.manager.topView.getDocumentViews(true);
         // clear out checked items first
         var items = popup.getElementsByAttribute('data', 'fileItem');
         var i = 0;
         while (items.length > 0) {
             popup.removeChild(items[0]);
-        }
-        if (views.length == 0) {
-            // re-enable this for first item
-            separator.setAttribute('collapsed','true');
-        } else {
-            separator.removeAttribute('collapsed');
         }
         views.sort(_compareView);
         var mi;
