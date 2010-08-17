@@ -1494,10 +1494,8 @@ class koProject(koLiveFolderPart):
                         if kpfVer < KPF_VERSION_START_CULLING:
                             canBeCulled = True
                         try:
-                            bakFile = fname # in case the following lines fail for some reason
                             koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
                             basename = os.path.basename(fname)
-                            bakFile = os.path.join(koDirSvc.userDataDir, "%s.%s.bak" % (basename,time.time()))
                             import koToolbox2
                             newExt = koToolbox2.PROJECT_FILE_EXTENSION
                             if not self._url.endswith(newExt):
@@ -1524,23 +1522,22 @@ class koProject(koLiveFolderPart):
                                         + "convert it to version %d, as it ends with "
                                         + "the extension %s.") %
                                        (kpfVer, fname, KPF_VERSION, koToolbox2.PROJECT_FILE_EXTENSION))
-                            displayMessage = not self._path.startswith(koDirSvc.userDataDir)
+                            displayMessage = False # not self._path.startswith(koDirSvc.userDataDir)
                             if displayMessage:
                                 wwatch = components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(components.interfaces.nsIWindowWatcher)
                                 prompt = wwatch.getNewPrompter(wwatch.activeWindow)
                                 prompt.alert("Project Upgrade Warning", msg)
+                            _level = log.level
+                            log.setLevel(logging.WARNING)
                             log.warn(msg)
+                            log.setLevel(_level)
                             self.lastErrorSvc.setLastError(0, msg)
 
                             if canBeCulled:
                                 koTBMiscSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2Service;1"].getService(components.interfaces.koIToolbox2Service))
                                 koTBMiscSvc.extractToolboxFromKPF_File(fname, os.path.splitext(basename)[0])
-                            else:
-                                shutil = components.classes["@activestate.com/koShUtil;1"].\
-                                            getService(components.interfaces.koIShUtil)
-                                shutil.copyfile(fname, bakFile)
                         except Exception, e:
-                            log.exception("Error '%s' creating backup of '%s'", e, bakFile)
+                            log.exception("Error '%s' reading project file '%s'", e, fname)
                         self._attributes['kpf_version'] = KPF_VERSION
                         dirtyAtEnd = 1
                     elif kpfVer > KPF_VERSION:
