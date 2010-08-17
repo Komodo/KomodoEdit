@@ -44,6 +44,8 @@
 <!ENTITY add.label "Add">
 <!ENTITY addAsSnippetInToolbox.label "Add as Snippet in Toolbox">
 <!ENTITY browseForDirectoriesToAddToSearchList.tooltiptext "Browse for directories to add to search list">
+<!ENTITY browserPreview.menu.accesskey "B">
+<!ENTITY browserPreview.menu.label "Browser Preview">
 <!ENTITY bugs.label "Bugs">
 <!ENTITY buttonText.label "Button Text">
 <!ENTITY checkForUpdates.label "Check for Updates...">
@@ -407,7 +409,6 @@
 <!ENTITY menuMruProjects.accesskey "t">
 <!ENTITY menuOpenStartPage.accesskey "t">
 <!ENTITY menuPreferences.accesskey "e">
-<!ENTITY menuPreviewInBrowser.accesskey "v">
 <!ENTITY menuPrint.accesskey "P">
 <!ENTITY menuPrintPreview.accesskey "e">
 <!ENTITY menuPrintSettings.accesskey "g">
@@ -491,7 +492,6 @@
 <!ENTITY pressEnterToFindInFiles.tooltiptext "Press Enter to Find in Files">
 <!ENTITY preview.label "Preview">
 <!ENTITY previewBufferInBrowser.tooltiptext "Preview Buffer in Browser">
-<!ENTITY previewInBrowser.label "Preview in Browser">
 <!ENTITY previousBookmark.label "Previous Bookmark">
 <!ENTITY previousFile.label "Previous File">
 <!ENTITY print.label "Print">
