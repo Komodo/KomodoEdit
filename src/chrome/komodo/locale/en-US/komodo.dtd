@@ -83,7 +83,7 @@
 <!ENTITY cut.label "Cut">
 <!ENTITY cut.tooltiptext "Cut">
 <!ENTITY cutButton.accesskey "T">
-<!ENTITY decrease.label "Decrease">
+<!ENTITY decreaseFont.label "Decrease Font Size">
 <!ENTITY decreaseLineIndent.label "Decrease Line Indent">
 <!ENTITY delete.label "Delete">
 <!ENTITY deleteBlankLines.desc "Editor: Delete Blank Lines">
@@ -326,7 +326,7 @@
 <!ENTITY helpTroubleshootingViewErrorLog.label "View log file">
 <!ENTITY helpTroubleshootingViewErrorLog.desc "Open the Komodo Error Log for viewing">
 <!ENTITY importFromFileSystem.label "Import from File System...">
-<!ENTITY increase.label "Increase">
+<!ENTITY increaseFont.label "Increase Font Size">
 <!ENTITY increaseLineIndent.label "Increase Line Indent">
 <!ENTITY incrementalSearch.label "Incremental Search">
 <!ENTITY insertSnippet.label "Insert Snippet">
