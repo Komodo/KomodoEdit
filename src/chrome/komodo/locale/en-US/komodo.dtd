@@ -86,7 +86,7 @@
 <!ENTITY cut.tooltiptext "Cut">
 <!ENTITY cutButton.accesskey "T">
 <!ENTITY decreaseFont.label "Decrease Font Size">
-<!ENTITY decreaseLineIndent.label "Decrease Line Indent">
+<!ENTITY decreaseLineIndent.label "Dedent">
 <!ENTITY delete.label "Delete">
 <!ENTITY deleteBlankLines.desc "Editor: Delete Blank Lines">
 <!ENTITY edit.label "Edit">
@@ -108,7 +108,7 @@
 <!ENTITY editorCutLine.desc "Editor: Cut Line">
 <!ENTITY editorCutRegion.desc "Editor: Cut Region">
 <!ENTITY editorCutRestOfLine.desc "Editor: Cut rest of line">
-<!ENTITY editorDecreaseLineIndent.desc "Editor: Decrease Line Indent">
+<!ENTITY editorDecreaseLineIndent.desc "Editor: Decrease Line Indentation">
 <!ENTITY editorDelete.desc "Editor: Delete">
 <!ENTITY editorDeleteLine.desc "Editor: Delete Line">
 <!ENTITY editorDeleteWordLeft.desc "Editor: Delete Word Left">
@@ -126,7 +126,7 @@
 <!ENTITY editorGoToPreviousBookmark.desc "Editor: Go to Previous Bookmark">
 <!ENTITY editorGoToPreviousLine.desc "Editor: Go to Previous Line">
 <!ENTITY editorGoToTopOfDocument.desc "Editor: Go to Top of Document">
-<!ENTITY editorIncreaseLineIndent.desc "Editor: Increase Line Indent">
+<!ENTITY editorIncreaseLineIndent.desc "Editor: Increase Line Indentation">
 <!ENTITY editorInsertNewline.desc "Editor: Insert Newline">
 <!ENTITY editorInsertNewlineAlignWithCurrentLine.desc "Editor: Insert Newline (align with current line)">
 <!ENTITY editorInsertNewlineContinueComments.desc "Editor: Insert Newline (continue comments)">
@@ -329,7 +329,7 @@
 <!ENTITY helpTroubleshootingViewErrorLog.desc "Open the Komodo Error Log for viewing">
 <!ENTITY importFromFileSystem.label "Import from File System...">
 <!ENTITY increaseFont.label "Increase Font Size">
-<!ENTITY increaseLineIndent.label "Increase Line Indent">
+<!ENTITY increaseLineIndent.label "Indent">
 <!ENTITY incrementalSearch.label "Incremental Search">
 <!ENTITY insertSnippet.label "Insert Snippet">
 <!ENTITY joinLines.label "Join Lines">
