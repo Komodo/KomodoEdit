@@ -115,8 +115,8 @@ binding cmd_startIncrementalSearchBackwards Ctrl+Shift+I
 # Buffer management
 binding cmd_save Ctrl+S
 binding cmd_saveAll Ctrl+Shift+S
-binding cmd_newTemplate Ctrl+N
-binding cmd_new Ctrl+Shift+N
+binding cmd_new Ctrl+N
+binding cmd_newTemplate Ctrl+Shift+N
 binding cmd_open Ctrl+O
 binding cmd_openProject Ctrl+Shift+J
 binding cmd_bufferClose Ctrl+W
