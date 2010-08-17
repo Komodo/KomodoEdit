@@ -199,6 +199,7 @@
                 <File Id="file266" LongName="main_menu.png" Name="MAIN_M_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\main_menu.png" />
                 <File Id="file4723" Name="MULTIP_1.GIF" LongName="multiple_line.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\multiple_line.gif"/>
                 <File Id="file4724" Name="MULTI__1.GIF" LongName="multi_single.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\multi_single.gif"/>
+                <File Id="file1237" LongName="publish_sync.png" Name="PUBLIS_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\publish_sync.png" />
                 <File Id="file4736" Name="RUNCO_15.PNG" LongName="runcommand_adv.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_adv.png"/>
                 <File Id="file4737" Name="RUNCO_16.PNG" LongName="runcommand_ask1.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_ask1.png"/>
                 <File Id="file4738" Name="RUNCO_17.PNG" LongName="runcommand_ask2.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\runcommand_ask2.png"/>
