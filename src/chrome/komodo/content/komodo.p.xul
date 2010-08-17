@@ -1008,6 +1008,12 @@
                     <menu id="menu_view" label="&view.label;" accesskey="&menuView.accesskey;">
                       <menupopup id="popup_view"
                                  onpopupshowing="ko.uilayout.updateFullScreen(this)">
+                            <menuitem
+                                id="menu_openStartPage"
+                                label="&startPage.label;"
+                                observes="cmd_openStartPage"
+                                accesskey="&menuOpenStartPage.accesskey;"
+                                />
 <!-- #if PLATFORM != "darwin" -->
                             <menuitem label="&fullScreen.label;"
                                       id="menuitem_fullScreen"
@@ -1349,12 +1355,6 @@
                                 accesskey="&menuCloseAll.accesskey;"
                                 observes="cmd_closeAll"
                             />
-                            <menuitem
-                                id="menu_openStartPage"
-                                label="&startPage.label;"
-                                observes="cmd_openStartPage"
-                                accesskey="&menuOpenStartPage.accesskey;"
-                                />
                             <menuseparator/>
                             <menuitem
                                 id="menu_moveTab"
