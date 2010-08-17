@@ -1014,13 +1014,6 @@
                                 observes="cmd_openStartPage"
                                 accesskey="&menuOpenStartPage.accesskey;"
                                 />
-<!-- #if PLATFORM != "darwin" -->
-                            <menuitem label="&fullScreen.label;"
-                                      id="menuitem_fullScreen"
-                                      type="checkbox"
-                                      observes="cmd_viewFullScreen"
-                                      />
-<!-- #endif -->
                             <menu label="&tabs.label;" id="menu_view_tabs">
                                 <menupopup
                                     id="menu_view_tabs_popup"
@@ -1156,6 +1149,13 @@
                                       id="menu_fontZoomOut"
                                       observes="cmd_fontZoomOut"
                                       />
+<!-- #if PLATFORM != "darwin" -->
+                            <menuitem label="&fullScreen.label;"
+                                      id="menuitem_fullScreen"
+                                      type="checkbox"
+                                      observes="cmd_viewFullScreen"
+                                      />
+<!-- #endif -->
                             <menuseparator id="view_menu_fold_separator"/>
                             <menu id="menu_fold" label="&fold.label;">
                                 <menupopup id="popup_fold">
