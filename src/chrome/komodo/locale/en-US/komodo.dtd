@@ -54,7 +54,14 @@
 <!ENTITY clearSearchHighlighting.label "Clear Highlighting">
 <!ENTITY clearWarningErrorSquigglies.label "Clear warning/error squigglies">
 <!ENTITY close.label "Close">
-<!ENTITY closeAll.label "Close All">
+<!ENTITY close.menu.accesskey "C">
+<!ENTITY close.menu.label "Close">
+<!ENTITY closeAllTabs.menuitem.accesskey "A">
+<!ENTITY closeAllTabs.menuitem.label "All tabs">
+<!ENTITY closeOtherTabs.menuitem.accesskey "O">
+<!ENTITY closeOtherTabs.menuitem.label "Other tabs">
+<!ENTITY closeTab.menuitem.accesskey "T">
+<!ENTITY closeTab.menuitem.label "Current tab">
 <!ENTITY closeProject.label "Close Project">
 <!ENTITY code.label "Code">
 <!ENTITY codeConvertFromHexMenu.label "From Hexadecimal">
@@ -375,12 +382,10 @@
 <!ENTITY menuBookmarkRemoveAll.accesskey "R">
 <!ENTITY menuBookmarkToggle.accesskey "T">
 <!ENTITY menuBufferClose.accesskey "C">
-<!ENTITY menuBufferClose2.accesskey "C">
 <!ENTITY menuBufferNext.accesskey "x">
 <!ENTITY menuBufferPrevious.accesskey "P">
 <!ENTITY menuCleanLineEndings.accesskey "E">
 <!ENTITY menuClearSearchHighlighting.accesskey "H">
-<!ENTITY menuCloseAll.accesskey "l">
 <!ENTITY menuCloseOtherBuffers.accesskey "H">
 <!ENTITY menuCloseOtherBuffers.label "Close Others">
 <!ENTITY menuCode.accesskey "C">
