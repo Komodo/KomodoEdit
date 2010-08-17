@@ -95,6 +95,11 @@ tabbox.vertical_tabs tabpanels
     /* Remove the 1px border on top of the tabbox panels. */
     border-top-width    : 0;
 }
+tabbox tabpanel
+{
+    /* The normal tabpanel. Required due to bug 87690. */
+    -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tabpanel-normal");
+}
 tabbox.vertical_tabs tabpanel
 {
     /* A tabpanel that has a special tabpanel header label. */

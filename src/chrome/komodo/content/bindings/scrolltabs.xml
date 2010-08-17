@@ -780,6 +780,7 @@
               <body>
               <![CDATA[
                 // Must use this (as destuctors don't fire properly).
+                this.setAttribute("collapsed", "false");
                 this.removeEventListener("DOMNodeInserted", this, true);
                 this.removeEventListener("DOMNodeRemoved", this, true);
               ]]>
@@ -873,6 +874,17 @@
               </body>
             </method>>
         </implementation>
+
+    </binding>
+
+
+    <!-- Needed to be able to reset/remove the vertical tabpanel
+         binding - bug 87690. -->
+    <binding id="tabpanel-normal" xbl:inherits="orient">
+
+        <content>
+            <children />
+        </content>
 
     </binding>
 
