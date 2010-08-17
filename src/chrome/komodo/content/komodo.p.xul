@@ -2215,7 +2215,7 @@
                                             tooltiptext="&tools.label;"
                                             buttonstyle="pictures"
                                             orient="horizontal"
-                                            type="menu-button"
+                                            type="menu"
                                             class="rightarrow-button-a project-tools-icon">
                                         <menupopup id="toolbox2-cog-popup">
                                             <menuitem id="toolbox2-cog_sortNatural"
