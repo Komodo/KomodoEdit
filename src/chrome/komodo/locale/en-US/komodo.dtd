@@ -563,9 +563,13 @@
 <!ENTITY saveToToolbox.label "Save to Toolbox">
 <!ENTITY scrollCurrentLineToCenterOfScreen.label "Scroll Current Line to Center of Screen">
 <!ENTITY scrollCurrentLineToTopOfScreen.label "Scroll Current Line to Top of Screen">
+<!ENTITY select.menu.accesskey "S">
+<!ENTITY select.menu.label "Select">
 <!ENTITY selectAll.label "Select All">
+<!ENTITY selectAll.menu.accesskey "A">
 <!ENTITY selectBlock.label "Select Block">
 <!ENTITY selectToMatchingBrace.label "Select to Matching Brace">
+<!ENTITY selectToMatchingBrace.menu.accesskey "C">
 <!ENTITY selection.label "selection">
 <!ENTITY selectionInformation.tooltiptext "Selection Information">
 <!ENTITY setTransientMark.label "Set Transient Mark">

@@ -717,11 +717,28 @@
                                       class="menuitem-iconic list-item-remove-icon"
                                       observes="cmd_delete"
                                       />
-                            <menuseparator/>
-                            <menuitem label="&selectAll.label;"
-                                      id="menu_editSelectAll"
-                                      observes="cmd_selectAll"
-                                      />
+                            <menuseparator id="edit_menu_select_separator"/>
+                            <menu id="edit_menu_select_menu"
+                                  label="&select.menu.label;"
+                                  accesskey="&select.menu.accesskey;">
+                                <menupopup id="edit_menu_select_menupopup">
+                                    <menuitem label="&selectAll.label;"
+                                              id="menu_editSelectAll"
+                                              accesskey="&selectAll.menu.accesskey;"
+                                              observes="cmd_selectAll"
+                                              />
+                                    <menuitem label="&selectBlock.label;"
+                                              id="menu_blockSelect"
+                                              accesskey="&menuBlockSelect.accesskey;"
+                                              observes="cmd_blockSelect"
+                                              />
+                                    <menuitem label="&selectToMatchingBrace.label;"
+                                              id="menu_selectToMatchingBrace"
+                                              accesskey="&selectToMatchingBrace.menu.accesskey;"
+                                              observes="cmd_selectToMatchingBrace"
+                                              />
+                                </menupopup>
+                            </menu>
                             <menuseparator/>
                             <menuitem label="&find.label;"
                                       id="menu_find"
@@ -873,16 +890,6 @@
                                       id="menu_codeIntelReTriggerCompletions"
                                       accesskey="&menuCodeIntelReTriggerCompletions.accesskey;"
                                       observes="cmd_triggerPrecedingCompletion"
-                                      />
-                            <menuseparator/>
-                            <menuitem label="&selectToMatchingBrace.label;"
-                                      id="menu_selectToMatchingBrace"
-                                      observes="cmd_selectToMatchingBrace"
-                                      />
-                            <menuitem label="&selectBlock.label;"
-                                      id="menu_blockSelect"
-                                      accesskey="&menuBlockSelect.accesskey;"
-                                      observes="cmd_blockSelect"
                                       />
                             <menuseparator/>
                             <menuitem label="&enterNextCharacterAsRawLiteral.label;"
