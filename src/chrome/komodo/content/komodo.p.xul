@@ -1962,10 +1962,33 @@
                 label="&paste.label;"
                 class="menuitem-iconic paste-button"
                 observes="cmd_paste"/>
-        <menuitem id="editor-context-editSelectAll"
-                label="&selectAll.label;"
-                observes="cmd_selectAll"/>
+
+        <menuseparator id="editor_context_select_separator"/>
+
+        <menu id="editor_context_select_menu"
+              label="&select.menu.label;"
+              accesskey="&select.menu.accesskey;">
+            <menupopup id="editor_context_select_menupopup">
+                <menuitem label="&selectAll.label;"
+                          id="menu_editSelectAll"
+                          accesskey="&selectAll.menu.accesskey;"
+                          observes="cmd_selectAll"
+                          />
+                <menuitem label="&selectBlock.label;"
+                          id="menu_blockSelect"
+                          accesskey="&menuBlockSelect.accesskey;"
+                          observes="cmd_blockSelect"
+                          />
+                <menuitem label="&selectToMatchingBrace.label;"
+                          id="menu_selectToMatchingBrace"
+                          accesskey="&selectToMatchingBrace.menu.accesskey;"
+                          observes="cmd_selectToMatchingBrace"
+                          />
+            </menupopup>
+        </menu>
+
         <menuseparator id="context-sep-paste"/>
+
         <menuitem id="editor-context-makeSnippet"
                 label="&addAsSnippetInToolbox.label;"
                 observes="cmd_makeSnippetFromSelection"/>
