@@ -209,22 +209,15 @@ $cons->InstallInChrome('prompt_stdin.xpm');
 $cons->InstallInChrome("transparent_white.png");
 
 # new seperate images for Add Item toolbars
-$cons->InstallInChrome('new_custom_menu.png');
-$cons->InstallInChrome('new_custom_toolbar.png');
 $cons->InstallInChrome('new_dialog.png');
 $cons->InstallInChrome('new_file.png');
 $cons->InstallInChrome('existing_file.png');
 $cons->InstallInChrome('new_folder.png');
 $cons->InstallInChrome('new_live_folder.png');
-$cons->InstallInChrome('new_macro.png');
 $cons->InstallInChrome('new_open_shortcut.png');
 $cons->InstallInChrome('new_project.png');
 $cons->InstallInChrome('new_project_hover.png');
 $cons->InstallInChrome('remote_file.png');
-$cons->InstallInChrome('new_run_command.png');
-$cons->InstallInChrome('new_snippet.png');
-$cons->InstallInChrome('new_template.png');
-$cons->InstallInChrome('new_url.png');
 
 $cons->InstallInChrome('open_project.png');
 $cons->InstallInChrome('open_project_hover.png');

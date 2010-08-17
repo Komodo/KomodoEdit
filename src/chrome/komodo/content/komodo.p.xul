@@ -232,39 +232,42 @@
               hideUnless="folder menu toolbar" 
               testHideIf="t:multipleSelection" >
             <menupopup id="tb2ContextMenu_addPopupMenu">
+              <!-- Don't use CSS on the IDs because this menu gets
+                   copied with slightly different IDs, and classes are overkill.
+                  -->
                 <menuitem id="tb2_addContext_newMacro"
                           label="&newMacro.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewMacro.accesskey;"
-                          image="chrome://komodo/skin/images/new_macro.png"
+                          image="chrome://komodo/skin/images/macro.png"
                           oncommand="ko.toolbox2.addToolboxItem('macro')"
                           />
                 <menuitem id="tb2_addContext_newSnippet"
                           label="&newSnippet.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewSnippet.accesskey;"
-                          image="chrome://komodo/skin/images/new_snippet.png"
+                          image="chrome://komodo/skin/images/cut.png"
                           oncommand="ko.toolbox2.addToolboxItem('snippet')"
                           />
                 <menuitem id="tb2_addContext_newCommand"
                           label="&newCommand.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewCommand.accesskey;"
-                          image="chrome://komodo/skin/images/new_run_command.png"
+                          image="chrome://fugue/skin/icons/application-terminal.png"
                           oncommand="ko.toolbox2.addToolboxItem('command')"
                           />
                 <menuitem id="tb2_addContext_newURL"
                           label="&newURL.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewURL.accesskey;"
-                          image="chrome://komodo/skin/images/new_url.png"
+                          image="chrome://fugue/skin/icons/globe.png"
                           oncommand="ko.toolbox2.addToolboxItem('URL')"
                           />
                 <menuitem id="tb2_addContext_newTemplate"
                           label="&newTemplate.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewTemplate.accesskey;"
-                          image="chrome://komodo/skin/images/new_template.png"
+                          image="chrome://komodo/skin/images/newTemplate.png"
                           oncommand="ko.toolbox2.addToolboxItem('template')"
                           />
                 <menuseparator anonid="addItemSeparator" />
@@ -282,7 +285,7 @@
                           label="&newCustomMenu.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewMenu.accesskey;"
-                          image="chrome://komodo/skin/images/new_custom_menu.png"
+                          image="chrome://komodo/skin/images/menu_icon.png"
                           oncommand="ko.toolbox2.addToolboxItem('menu')"
                           disableIfInMenu="folder toolbar menu"
                           />
@@ -291,7 +294,7 @@
                           label="&newCustomToolbar.label;"
                           class="menuitem-iconic"
                           accesskey="&folderContextNewToolbar.accesskey;"
-                          image="chrome://komodo/skin/images/new_custom_toolbar.png"
+                          image="chrome://komodo/skin/images/toolbar_icon.png"
                           oncommand="ko.toolbox2.addToolboxItem('toolbar')"
                           disableIfInMenu="folder toolbar menu"
                           />
