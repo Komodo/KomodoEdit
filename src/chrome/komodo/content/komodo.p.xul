@@ -1148,11 +1148,11 @@
                                       label="&wordWrap.label;"
                                       observes="cmd_wordWrap"
                                       />
-                            <menuitem label="&increase.label;"
+                            <menuitem label="&increaseFont.label;"
                                       id="menu_fontZoomIn"
                                       observes="cmd_fontZoomIn"
                                       />
-                            <menuitem label="&decrease.label;"
+                            <menuitem label="&decreaseFont.label;"
                                       id="menu_fontZoomOut"
                                       observes="cmd_fontZoomOut"
                                       />
