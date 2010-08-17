@@ -572,6 +572,7 @@ this._selectCurrentItems = function(isCopying) {
         });
     var pathList = paths.join("\n");
     var transferable = xtk.clipboard.addTextDataFlavor("text/unicode", pathList);
+    var transferable = xtk.clipboard.addTextDataFlavor("text/plain", pathList);
     xtk.clipboard.addTextDataFlavor("x-application/komodo-toolbox",
                                     isCopying ? "1" : "0" , transferable);
     xtk.clipboard.copyFromTransferable(transferable);
@@ -920,7 +921,8 @@ this.onDblClick = function(event, checkMouseClick/*=true*/) {
 this._addFlavors = function(dt, currentFlavors, path, index) {
     const mozFileFlavor = "application/x-moz-file";
     const uriListFlavor = "text/uri-list";
-    const textPlainFlavor = "text/unicode";
+    const textUnicodeFlavor = "text/unicode";
+    const textPlainFlavor = "text/plain";
     if (currentFlavors.indexOf(mozFileFlavor) == -1) {
         var nsLocalFile = Components.classes["@mozilla.org/file/local;1"]
             .createInstance(Components.interfaces.nsILocalFile);
@@ -932,6 +934,9 @@ this._addFlavors = function(dt, currentFlavors, path, index) {
     }
     if (currentFlavors.indexOf(textPlainFlavor) == -1) {
         dt.mozSetDataAt(textPlainFlavor, path, index);
+    }
+    if (currentFlavors.indexOf(textUnicodeFlavor) == -1) {
+        dt.mozSetDataAt(textUnicodeFlavor, path, index);
     }
 },
 
@@ -984,10 +989,6 @@ this.doDrop = function(event, tree) {
         // Get the parent (or the std toolbox) and use that
         var parentIndex = this.manager.view.getParentIndex(index);
         if (this.manager.view.isContainer(parentIndex)) {
-            dump("**** doDrop: drop into node "
-                + parentIndex
-                + " instead of node "
-                + index+ "\n");
             index = parentIndex;
         } else if (this.manager.view.getLevel(index) == 0
                    && (this.manager.view.getImageSrc(index, None)
