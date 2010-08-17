@@ -99,7 +99,7 @@
         <body>
         <![CDATA[
             try {
-                this.tabbox.advanceSelectedTab(1);
+                this.tabbox.tabs.advanceSelectedTab(1, true /* allow wrapping */);
             } catch(e) {
                 this.log.debug(e);
             }
@@ -112,7 +112,7 @@
         <body>
         <![CDATA[
             try {
-                this.tabbox.advanceSelectedTab(-1);
+                this.tabbox.tabs.advanceSelectedTab(-1, true /* allow wrapping */);
             } catch(e) {
                 this.log.debug(e);
             }
