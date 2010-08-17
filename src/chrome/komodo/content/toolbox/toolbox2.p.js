@@ -251,7 +251,7 @@ this.updateContextMenu = function(event, menupopup) {
         manager.view.selection.clearSelection();
         event.stopPropagation();
         event.preventDefault();
-        return true;
+        return;
     }
     var toolType = manager.view.get_toolType(index);
     if (!toolType) {
