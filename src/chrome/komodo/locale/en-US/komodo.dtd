@@ -467,7 +467,7 @@
 <!ENTITY newWindow.label "New Window">
 <!ENTITY newURL.label "New URL...">
 <!ENTITY nextBookmark.label "Next Bookmark">
-<!ENTITY nextFile.label "Next File">
+<!ENTITY nextFile.label "Next Tab">
 <!ENTITY noSelection.label "No selection">
 <!ENTITY open.label "Open...">
 <!ENTITY open.tooltiptext "Open">
@@ -498,7 +498,7 @@
 <!ENTITY preview.label "Preview">
 <!ENTITY previewBufferInBrowser.tooltiptext "Preview Buffer in Browser">
 <!ENTITY previousBookmark.label "Previous Bookmark">
-<!ENTITY previousFile.label "Previous File">
+<!ENTITY previousFile.label "Previous Tab">
 <!ENTITY print.label "Print">
 <!ENTITY print.tooltiptext "Print">
 <!ENTITY printPreview.label "Print Preview">
