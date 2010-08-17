@@ -884,9 +884,21 @@ this.editPropertiesTool = function(tool) {
 };
 
 
+this.onTreeClick = function(event) {
+    var index = this._currentRow(event, this.manager.widgets.tree);
+    if (index == -1) {
+        this.manager.view.selection.clearSelection();
+    }
+};
+
 this.onDblClick = function(event, checkMouseClick/*=true*/) {
     if (typeof(checkMouseClick) == "undefined") checkMouseClick = true;
     if (checkMouseClick && event.which != 1) {
+        return;
+    }
+    // Verify that we're still on an item
+    if (this._currentRow(event, this.manager.widgets.tree) == -1) {
+        this.manager.view.selection.clearSelection();
         return;
     }
     var that = ko.toolbox2;

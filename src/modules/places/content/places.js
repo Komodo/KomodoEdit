@@ -239,7 +239,11 @@ viewMgrClass.prototype = {
 
     onTreeClick: function(event) {
         var index = this._currentRow(event);
-        this.view.markRow(index);
+        if (index == -1) {
+            this.view.selection.clearSelection();
+        } else {
+            this.view.markRow(index);
+        }
     },
 
     onTreeKeyPress: function(event) {
@@ -282,19 +286,13 @@ viewMgrClass.prototype = {
         var index = row.value;
         if (index == -1) {
             // Means that we're clicking in white-space below.
-            // Item should work on the  recent folder.
-            var selection = this.view.selection;
-            if (selection.count == 0) {
-                // Use the Standard Toolbox
-                index = 0; //XXX: Watch out: the "Standard Toolbox" folder might be implicit
-                this.view.selection.select(index);
-            } else {
-                // This will be the last item clicked on in a multi-item selection.
-                index = selection.currentIndex; 
-            }
+            // Clear the selection, and return.
+            this.view.selection.clearSelection();
+            event.stopPropagation();
+            event.preventDefault();
+            return false;
         }
         var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false /*rootsOnly*/);
-        var index;
         var isRootNode;
         var itemTypes = null;
         if (clickedNodeId == "place-view-rootPath-icon-toolbarbutton") {

@@ -2258,6 +2258,7 @@
                                 <tree flex="1" id="toolbox2-hierarchy-tree"
                                       onkeypress="ko.toolbox2.onTreeKeyPress(event);"
                                       ondblclick="ko.toolbox2.onDblClick(event);"
+                                      onclick="ko.toolbox2.onTreeClick(event);"
                                       seltype="multiple"
                                       hidecolumnpicker="true"
                                       context="toolbox2Context">
