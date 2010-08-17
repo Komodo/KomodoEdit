@@ -625,7 +625,7 @@ this.checkForUpdates = function checkForUpdates()
 
 this.newWindow = function newWindow(uri /* =null */)
 {
-    args = {};
+    var args = {};
     if (typeof(uri) != "undefined") {
         args.uris = [uri];
     }
