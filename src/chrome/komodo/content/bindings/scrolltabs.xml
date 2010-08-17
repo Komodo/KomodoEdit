@@ -773,9 +773,18 @@
             </constructor>
 
             <destructor>
+                this.unHookBinding();
+            </destructor>
+
+            <method name="unHookBinding">
+              <body>
+              <![CDATA[
+                // Must use this (as destuctors don't fire properly).
                 this.removeEventListener("DOMNodeInserted", this, true);
                 this.removeEventListener("DOMNodeRemoved", this, true);
-            </destructor>
+              ]]>
+              </body>
+            </method>
 
             <method name="handleEvent">
               <parameter name="event" />

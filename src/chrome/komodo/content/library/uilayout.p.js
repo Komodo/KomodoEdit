@@ -1320,6 +1320,12 @@ this._setTabPaneLayoutForTabbox = function(layout, tabbox, position) {
     }
     switch (layout) {
         case "sidebar":
+            if (tabbox.getAttribute("class").indexOf("vertical_tabs") >= 0) {
+                // Ensure to properly unhook the vertical tabs event handlers
+                // when switching bindings - otherwise exceptions will be raised
+                // when any adding/deleting of nodes occurs.
+                tabs.unHookBinding();
+            }
             tabbox.setAttribute("orient", "vertical");
             tabs.setAttribute("orient", "horizontal");
             tabs.setAttribute("type", "sidebar");
@@ -1344,6 +1350,12 @@ this._setTabPaneLayoutForTabbox = function(layout, tabbox, position) {
             window.setTimeout(function() { tabs.updateSelectedTabLabel(); }, 1);
             break;
         case "horizontal":
+            if (tabbox.getAttribute("class").indexOf("vertical_tabs") >= 0) {
+                // Ensure to properly unhook the vertical tabs event handlers
+                // when switching bindings - otherwise exceptions will be raised
+                // when any adding/deleting of nodes occurs.
+                tabs.unHookBinding();
+            }
             tabbox.setAttribute("orient", "vertical");
             tabs.setAttribute("orient", "horizontal");
             tabbox.setAttribute("class", "native");
