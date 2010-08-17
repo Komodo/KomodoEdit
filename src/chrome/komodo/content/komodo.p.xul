@@ -521,13 +521,29 @@
                                               />
                                 </menupopup>
                             </menu>
-                            <menuitem
-                                id="menu_bufferClose"
-                                label="&close.label;"
-                                class="menuitem-iconic close-buffer-icon"
-                                accesskey="&menuBufferClose.accesskey;"
-                                observes="cmd_bufferClose"
-                                />
+                            <menu id="close_menu"
+                                  label="&close.menu.label;"
+                                  accesskey="&close.menu.accesskey;"
+                                  >
+                                <menupopup id="close_menupopup">
+                                    <menuitem id="close_tab_menuitem"
+                                              label="&closeTab.menuitem.label;"
+                                              accesskey="&closeTab.menuitem.accesskey;"
+                                              class="menuitem-iconic close-buffer-icon"
+                                              observes="cmd_bufferClose"
+                                        />
+                                    <menuitem id="close_other_tabs_menuitem"
+                                              label="&closeOtherTabs.menuitem.label;"
+                                              accesskey="&closeOtherTabs.menuitem.accesskey;"
+                                              observes="cmd_bufferCloseOthers"
+                                              />
+                                    <menuitem id="menu_closeAll"
+                                              label="&closeAllTabs.menuitem.label;"
+                                              accesskey="&closeAllTabs.menuitem.accesskey;"
+                                              observes="cmd_closeAll"
+                                    />
+                                </menupopup>
+                            </menu>
                             <menuseparator/>
                             <menuitem label="&save.label;"
                                       id="menu_save"
@@ -1336,19 +1352,6 @@
                                 label="&newWindow.label;"
                                 accesskey="&newWindow.accesskey;"
                                 observes="cmd_newWindow"
-                            />
-                            <menuitem
-                                id="menu_bufferClose2"
-                                label="&close.label;"
-                                class="menuitem-iconic close-buffer-icon"
-                                accesskey="&menuBufferClose2.accesskey;"
-                                observes="cmd_bufferClose"
-                            />
-                            <menuitem
-                                id="menu_closeAll"
-                                label="&closeAll.label;"
-                                accesskey="&menuCloseAll.accesskey;"
-                                observes="cmd_closeAll"
                             />
                             <menuseparator/>
                             <menuitem
