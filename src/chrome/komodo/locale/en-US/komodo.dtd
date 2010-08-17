@@ -57,11 +57,11 @@
 <!ENTITY close.menu.accesskey "C">
 <!ENTITY close.menu.label "Close">
 <!ENTITY closeAllTabs.menuitem.accesskey "A">
-<!ENTITY closeAllTabs.menuitem.label "All tabs">
+<!ENTITY closeAllTabs.menuitem.label "All Tabs">
 <!ENTITY closeOtherTabs.menuitem.accesskey "O">
-<!ENTITY closeOtherTabs.menuitem.label "Other tabs">
+<!ENTITY closeOtherTabs.menuitem.label "Other Tabs">
 <!ENTITY closeTab.menuitem.accesskey "T">
-<!ENTITY closeTab.menuitem.label "Current tab">
+<!ENTITY closeTab.menuitem.label "Current Tab">
 <!ENTITY closeProject.label "Close Project">
 <!ENTITY code.label "Code">
 <!ENTITY codeConvertFromHexMenu.label "From Hexadecimal">
