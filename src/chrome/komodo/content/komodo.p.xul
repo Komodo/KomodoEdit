@@ -1148,22 +1148,15 @@
                                       label="&wordWrap.label;"
                                       observes="cmd_wordWrap"
                                       />
-                            <menu id="menu_font" label="&font.label;">
-                                <menupopup id="popup_font">
-                                    <menuitem label="&increase.label;"
-                                              id="menu_fontZoomIn"
-                                              observes="cmd_fontZoomIn"
-                                              />
-                                    <menuitem label="&decrease.label;"
-                                              id="menu_fontZoomOut"
-                                              observes="cmd_fontZoomOut"
-                                              />
-                                    <menuitem label="&toggleFixedProportionalFonts.label;"
-                                              id="menu_fontFixed"
-                                              observes="cmd_fontFixed"
-                                              />
-                                </menupopup>
-                            </menu>
+                            <menuitem label="&increase.label;"
+                                      id="menu_fontZoomIn"
+                                      observes="cmd_fontZoomIn"
+                                      />
+                            <menuitem label="&decrease.label;"
+                                      id="menu_fontZoomOut"
+                                      observes="cmd_fontZoomOut"
+                                      />
+                            <menuseparator id="view_menu_fold_separator"/>
                             <menu id="menu_fold" label="&fold.label;">
                                 <menupopup id="popup_fold">
                                     <menuitem label="&expand.label;"
