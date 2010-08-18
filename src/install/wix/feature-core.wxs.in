@@ -4797,6 +4797,7 @@
                     <File Id="file1112" Name="CLASS_0.KOM" LongName="class.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\JavaScript\class.komodotool"/>
                     <File Id="file1113" Name="COM_1.KOM" LongName="com.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\JavaScript\com.komodotool"/>
                     <File Id="file1114" Name="DOC_0.KOM" LongName="doc.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\JavaScript\doc.komodotool"/>
+                    <File Id="file1238" Name="FOR_1.KOM" LongName="for.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\JavaScript\for.komodotool" />
                     <File Id="file1115" Name="FUNC_0.KOM" LongName="func.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\JavaScript\func.komodotool"/>
                     <File Id="file1116" Name="METH_0.KOM" LongName="meth.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\JavaScript\meth.komodotool"/>
                     <File Id="file1117" Name="NAMESP_0.KOM" LongName="namespace.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\JavaScript\namespace.komodotool"/>
@@ -4843,6 +4844,7 @@
                   <Component Id="component624" DiskId="1" Guid="$(autowix.guid)">
                     <File Id="file1139" Name="CLASS_2.KOM" LongName="class.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\class.komodotool"/>
                     <File Id="file1140" Name="DOC_2.KOM" LongName="doc.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\doc.komodotool"/>
+                    <File Id="file1239" Name="FOR_2.KOM" LongName="for.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\for.komodotool" />
                     <File Id="file1141" Name="FUNC_2.KOM" LongName="func.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\func.komodotool"/>
                     <File Id="file1142" Name="MAIN_2.KOM" LongName="main.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\main.komodotool"/>
                     <File Id="file1143" Name="METH_1.KOM" LongName="meth.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\meth.komodotool"/>
