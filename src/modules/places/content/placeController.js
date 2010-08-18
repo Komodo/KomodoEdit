@@ -52,6 +52,10 @@ function PlacesController() {
     this.log.setLevel(ko.logging.LOG_DEBUG);
 }
 
+PlacesController.prototype.is_cmd_viewPlaces_enabled = function() {
+    return true;
+}
+
 PlacesController.prototype.do_cmd_viewPlaces = function() {
     ko.uilayout.toggleTab('places_tab');
 }
