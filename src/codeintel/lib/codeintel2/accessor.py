@@ -41,6 +41,7 @@ lexer-based styled buffers.
 """
 
 import bisect
+import threading
 
 from SilverCity import ScintillaConstants
 
@@ -50,6 +51,7 @@ from codeintel2 import util
 if _xpcom_:
     from xpcom import components
     from xpcom.client import WeakReference
+    from xpcom._xpcom import getProxyForObject, PROXY_SYNC, PROXY_ALWAYS
     from xpcom import COMException
 
 
@@ -427,14 +429,7 @@ class KoDocumentAccessor(SciMozAccessor):
     def __init__(self, doc, silvercity_lexer):
         self.doc = WeakReference(doc)
         self.silvercity_lexer = silvercity_lexer
-    _scimoz_weak_ref = None
     
-    def _scimoz_proxy_from_scimoz(self, scimoz):
-        from xpcom import _xpcom
-        # Do NOT use PROXY_ALWAYS.
-        return _xpcom.getProxyForObject(1, components.interfaces.ISciMoz,
-            scimoz, _xpcom.PROXY_SYNC)
-        
     def _get_scimoz_ref(self):
         try:
             view = self.doc().getView()
@@ -442,31 +437,36 @@ class KoDocumentAccessor(SciMozAccessor):
             # Race conditions on file opening in Komodo can result
             # in self.doc() being None or an error in .getView().
             raise NoBufferAccessorError(str(ex))
-        # The view is implemented in JavaScript, so we need to proxy the view in
-        # order to get the scimoz (plugin) object.
-        from xpcom import _xpcom
-        viewProxy = _xpcom.getProxyForObject(1, components.interfaces.koIScintillaView,
-                                             view, _xpcom.PROXY_SYNC)
-        scimoz = viewProxy.scimoz
-        scimoz_proxy = self._scimoz_proxy_from_scimoz(scimoz)
-        self._scimoz_weak_ref = WeakReference(scimoz)
-        return scimoz_proxy
-        
+        return view.scimoz
+
+    if _xpcom_:
+        # The view is implemented in JavaScript, so we need to proxy the
+        # _get_scimoz_ref() call in order to get the scimoz (plugin)
+        # object, then we make a proxy for the scimoz object and return
+        # it.
+        #
+        # The ProxyToMainThread decorator is required, to ensure *all*
+        # the "koDoc" and "view" calls are run on the main thread.
+        # Without this Komodo can crash in garbage collection,
+        # complaining that JS objects were used/created on a thread.
+
+        @components.ProxyToMainThread
+        def _get_proxied_scimoz_ref(self):
+            scimoz = self._get_scimoz_ref()
+            # Proxy it up and return.
+            return getProxyForObject(1, components.interfaces.ISciMoz,
+                scimoz, PROXY_SYNC | PROXY_ALWAYS)
+
     def scimoz(self):
-        # Defer getting the scimoz until first need. This is required
-        # because a koIDocument does not have its koIScintillaView at
-        # creation time.
-        if self._scimoz_weak_ref is None:
+        """Re-get scimoz every time it's needed.
+        
+        This ensures scimoz will be properly proxied when calling off
+        the main thread."""
+
+        if not _xpcom_ or threading.currentThread().name == "MainThread":
             return self._get_scimoz_ref()
-        scimoz = self._scimoz_weak_ref()
-        if scimoz:
-            scimoz_proxy = self._scimoz_proxy_from_scimoz(scimoz)
-            # The scimoz.isOwned will check to ensure the Plugin is still alive.
-            # Bug 82032.
-            if scimoz_proxy.isOwned:
-                return scimoz_proxy
-        # SciMoz reference is invalid, try to get a new weakref. bug 73020
-        return self._get_scimoz_ref()
+        else:
+            return self._get_proxied_scimoz_ref()
 
 
 class AccessorCache:
