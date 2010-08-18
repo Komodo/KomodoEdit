@@ -15,21 +15,23 @@ Example command line:
 header = """<html>
 <body>
 <style>img:hover { border-color: black; }</style>
-<style>img { border-color: white; }</style>
+<style>img { border-width: 1px; border-color: white; padding: 4px; }</style>
+<script>
+function ValidatedPickIcon(imgElement) {
+    parent.ValidatedPickIcon(imgElement.getAttribute('src'));
+}
+function PickIcon(imgElement) {
+    parent.Pick_Icon(imgElement.getAttribute('src'));
+}
+</script>
 """
 
 footer = """</body>
 </html>"""
 
 imgtemplate = """
-<img border="1"
-     ondblclick="parent.ValidatedPickIcon('chrome://crystal/skin/icons/%(fname)s');"
-     onclick="parent.Pick_Icon('chrome://crystal/skin/icons/%(fname)s');"
-     src="chrome://crystal/skin/icons/%(fname)s"
-     alt="%(fname)s"
-     title="%(fname)s"
-     style="padding: 4px;"/>
-"""
+<img ondblclick="ValidatedPickIcon(this);" onclick="PickIcon(this);"
+     src="chrome://crystal/skin/icons/%(fname)s"/>"""
 
 import sys, os
 print sys.argv
