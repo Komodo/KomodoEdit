@@ -315,10 +315,10 @@ CodeIntelCompletionUIHandler.prototype._setCallTipInfo = function(
                           "(calltip, triggerPos="+triggerPos+
                           ", explicit="+explicit+")");
     try {
+        var curPos = this.scimoz.currentPos;
         if (!explicit) {
             // If the trigger is no longer relevant, then drop the calltip.
             // - if the current position is before the trigger pos
-            var curPos = this.scimoz.currentPos;
             if (curPos < triggerPos) {
                 _gCodeIntel_log.info("aborting calltip at "+triggerPos+
                                      ": cursor is before trigger position");
