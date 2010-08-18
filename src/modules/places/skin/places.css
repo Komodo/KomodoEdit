@@ -174,3 +174,41 @@ undo-button
     /* Give some padding around the places toolbar box. */
     padding-left: 4px;
 }
+
+/* places view projects sidebar */
+#placesViewbox_projects_show_hide[class="hide-projects"] {
+/* 270-degrees means pointing down */
+  list-style-image : url("chrome://fugue/skin/icons/control-270.png");
+}
+#placesViewbox_projects_show_hide[class="show-projects"] {
+/* 90-degrees means pointing up */
+  list-style-image : url("chrome://fugue/skin/icons/control-090.png");
+}
+
+
+#placesViewbox_projects_hbox[projects="hide"] {
+    border-top: solid 1px black;
+    margin-top: 1px;
+}
+
+#placesViewbox_projects_hbox[projects="show"] {
+    border-top: none;
+    margin-top: 0px;
+}
+
+#places_projects_splitter[projects="hide"] {
+  visibility: collapse;
+}
+
+#places_projects_splitter[projects="show"] {
+  visibility: visible;
+}
+
+#placesViewbox_projects_tree_vbox[projects="show"] {
+  visibility: visible;
+}
+
+#placesViewbox_projects_tree_vbox[projects="hide"] {
+  visibility: collapse;
+}
+

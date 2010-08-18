@@ -386,7 +386,9 @@
     <tabpanel flex="1" id="placesViewbox"
               insertbefore="codebrowserviewbox"
               position="0">
-      <vbox flex="1">
+     <vbox flex="1" id="placesViewbox_placesWrapper">
+      <vbox flex="1"
+            id="placesViewbox_places">
         <hbox id="place-view-vbox" align="center">
           <toolbarbutton id="place-view-rootPath-icon-toolbarbutton"
                          class="normal"
@@ -550,6 +552,60 @@
                 class="placesTree" />
         </tree>
       </vbox>
+      
+      <splitter id="places_projects_splitter"
+                orient="vertical"
+                resizeafter="farthest"
+                collapse="none" />
+           
+      <hbox id="placesViewbox_projects_hbox">
+        <label id="placesViewbox_projects_hbox_label_1"
+               min-width="0"
+               flex="1"
+               value="Projects"
+               />
+        <label id="placesViewbox_projects_hbox_currentProjectName"
+               min-width="0"
+               flex="1"
+               crop="end"
+               value=""
+                />
+        <toolbarbutton id="placesViewbox_projects_show_hide"
+                       tooltiptext="hide projects"
+                       buttonstyle="pictures"
+                       oncommand="ko.places.toggleProjectsView(event, this)"
+                       direction="down"
+                       persist="class"
+                       class="hide-projects" />
+      </hbox>
+      <vbox flex="1" id="placesViewbox_projects_tree_vbox"
+              class="show"
+              persist="class">
+        <tree id="placesViewbox_projects_tree"
+               rows="2"
+               flex="1"
+              style="margin: 0px;"
+              hidecolumnpicker="true"
+              seltype="single">
+          <treecols>
+               <treecol id="placesViewbox_projects_tree-col1" label="col1" flex="1"/>
+               <treecol id="placesViewbox_projects_tree-col2" label="col2" flex="1"/>
+          </treecols>
+          <treechildren>
+               <treeitem>
+                    <treerow>
+                         <treecell label="cell 1.1" />
+                         <treecell label="cell 1.2" />
+                    </treerow></treeitem>
+               <treeitem>
+                    <treerow>
+                         <treecell label="cell 2.1" />
+                         <treecell label="cell 2.2" />
+                    </treerow></treeitem>
+          </treechildren>
+        </tree>
+      </vbox>
+     </vbox>
     </tabpanel>
   </tabpanels>
 </overlay>

@@ -2162,12 +2162,28 @@ this.onLoad = function places_onLoad() {
         document.getElementById("placeView_viewAll");
     widgets.placeView_customView_menuitem =
         document.getElementById("placeView_customView");
+    widgets.placeView_toggleProjectsToolbarButton =
+        document.getElementById("placesViewbox_projects_show_hide");
+    widgets.placeView_projectsTree =
+        document.getElementById("placesViewbox_projects_tree");
+    widgets.placeView_projectsTreeVbox =
+        document.getElementById("placesViewbox_projects_tree_vbox");
     ko.places.updateFilterViewMenu();
     // The "initialize" routine needs to be in a timeout, otherwise the
     // tree will always show a pending icon and never updates.
     window.setTimeout(function() {
             ko.places.manager.initialize();
         }, 1);
+    var collapseProjectsTree;
+    if (widgets.placeView_projectsTreeVbox.getAttribute("projects") == "hide") {
+        collapseProjectsTree = true;
+    } else {
+        if (widgets.placeView_projectsTreeVbox.getAttribute("projects") != "show") {
+            widgets.placeView_projectsTreeVbox.setAttribute("projects", "show");
+        }
+        collapseProjectsTree = false;
+    }
+    ko.places.setProjectsView(collapseProjectsTree);
 };
 
 this.onUnload = function places_onUnload() {
@@ -2182,6 +2198,30 @@ this.getFocusedPlacesView = function() {
     }
     return null;
 
+};
+
+this.toggleProjectsView = function(event, toolbarbutton) {
+    var dir = widgets.placeView_toggleProjectsToolbarButton.getAttribute("direction");
+    this.setProjectsView(dir == "down");
+};
+
+this.setProjectsView = function(collapseProjectsTree) {
+    var newDir, newClass, projectsPanelState;
+    if (collapseProjectsTree) {
+        newDir = "up";
+        newClass = "show-projects";
+        projectsPanelState = "hide";
+    } else {
+        newDir = "down";
+        newClass = "hide-projects";
+        projectsPanelState = "show";
+    }
+    var button = widgets.placeView_toggleProjectsToolbarButton;
+    button.setAttribute("direction", newDir);
+    button.setAttribute("class", newClass);
+    widgets.placeView_projectsTreeVbox.setAttribute("projects", projectsPanelState);
+    document.getElementById("placesViewbox_projects_hbox").setAttribute("projects", projectsPanelState);
+    document.getElementById("places_projects_splitter").setAttribute("projects", projectsPanelState);
 };
 
 this.updateFilterViewMenu = function() {
