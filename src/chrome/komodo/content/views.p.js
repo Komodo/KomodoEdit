@@ -294,12 +294,12 @@ viewManager.prototype._newTemplate = function(defaultDir) {
 viewManager.prototype.newTemplateAsync = function(defaultDir,
                                                   callback /*=null*/)
 {
-    window.setTimeout(function(mgr, defaultDir_, project_, callback_) {
-        var view = mgr._newTemplate(defaultDir_, project_);
+    window.setTimeout(function(mgr, defaultDir_, callback_) {
+        var view = mgr._newTemplate(defaultDir_);
         if (callback_) {
             callback_(view);
         }
-    }, 1, this, defaultDir, project, callback);
+    }, 1, this, defaultDir, callback);
 }
 
 
