@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "for", 
+  "value": [
+    "for (var [[%tabstop1:i]]=0; [[%tabstop1]] < [[%tabstop:obj]].length; [[%tabstop1:i]]++) {", 
+    "\t[[%tabstop:!@#_currentPos!@#_anchor]]", 
+    "}"
+  ], 
+  "set_selection": "true", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}
