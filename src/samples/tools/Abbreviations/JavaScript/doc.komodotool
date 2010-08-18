@@ -5,7 +5,7 @@
   "value": [
     "/**", 
     " * [[%tabstop:docs]]", 
-    "*/!@#_currentPos!@#_anchor"
+    " */!@#_currentPos!@#_anchor"
   ], 
   "type": "snippet", 
   "indent_relative": "true"
