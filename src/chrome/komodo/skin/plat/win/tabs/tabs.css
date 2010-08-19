@@ -100,8 +100,13 @@ tab[selected="true"]:focus > .tab-text {
 /* Tab DnD indicator */
 .tab-drop-indicator-bar {
   height: 11px;
-  margin-top: -11px;
   position: relative;
+}
+
+.tab-drop-indicator-bar:not([collapsed="true"]) {
+  /* These values affect the use of the bottom pane splitter on Windows, so
+     only set them when the indicator bar is visible - bug 87678. */
+  margin-top: -11px;
   /* set -moz-margin-start to -1/2 indicator width: */
   -moz-margin-start: -5px;
 }
