@@ -55,7 +55,7 @@
         width="550"
         height="440"
         persist="screenx, screeny">
-    
+
     <keyset id="keys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
         <key keycode="VK_ENTER" oncommand="window.close();"/>
@@ -74,6 +74,8 @@
     <script src="chrome://komodo/content/about/about.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/browse.js" type="application/x-javascript;version=1.7"/>
 
-    <iframe id="iframe" src="chrome://komodo/content/about/about.html" flex="1"/>
+    <iframe id="iframe" src="chrome://komodo/content/about/about.html" flex="1"
+            onclick="iframeOnClickHandler(event);"
+            />
 </window>
 

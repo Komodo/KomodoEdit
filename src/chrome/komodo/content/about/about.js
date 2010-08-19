@@ -71,6 +71,11 @@ function copyBuildInfo(event) {
     clipboardHelper.copyString(selection); 
 }
 
+function iframeOnClickHandler(event) {
+    if (event.target.getAttribute('id') == 'copy_button') {
+        copyBuildInfo();
+    }
+}
 
 //---- internal support stuff
 
