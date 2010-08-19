@@ -375,34 +375,39 @@ this.getSelectedItem = function() {
      return this.manager.view.getTool(index);
 };
 
+this.getContainerFromIndex = function(index) {
+    var item;
+    if (index == -1) {
+        item = this.getStandardToolbox();
+    } else if (this.manager.view.isContainer(index)) {
+        item = this.manager.view.getTool(index);
+    } else if (this.manager.view.getLevel(index) == 0) {
+            // It's a top-level non-container, so it lies in the std toolbox
+        item = this.getStandardToolbox();
+    } else {
+        index = this.manager.view.getParentIndex(index);
+        if (index == -1) {
+            log.warn("toolbox2.p.js.getContainerFromIndex: Tool has no parent");
+            item = this.getStandardToolbox();
+        } else if (!this.manager.view.isContainer(index)) {
+            log.warn("toolbox2.p.js.getContainerFromIndex: Tool's parent ("
+                     + index
+                     + ") isn't a container");
+            item = this.getStandardToolbox();
+        } else {
+            item = this.manager.view.getTool(index);
+        }
+    }
+    return item;
+};
+
 this.getSelectedContainer = function() {
     var item = this.getSelectedItem();
     if (!item) {
         item = this.getStandardToolbox();
     } else {
-        var view = this.manager.view;
-        var index = view.getIndexByTool(item);
-        if (!view.isContainer(index)) {
-            if (view.getLevel(index) == 0) {
-                // It's a top-level non-container, so it lies in the std toolbox
-                item = this.getStandardToolbox();
-            } else {
-                index = view.getParentIndex(index);
-                if (index == -1) {
-                    log.warn("Tool has no parent");
-                    item = this.getStandardToolbox();
-                } else if (!view.isContainer(index)) {
-                    log.warn("Tool's parent ("
-                             + index
-                             + ") isn't a container");
-                    item = this.getStandardToolbox();
-                } else {
-                    item = view.getTool(index);
-                }
-            }
-        } else {
-            item = view.getTool(index);
-        }
+        var index = this.manager.view.getIndexByTool(item);
+        return this.getContainerFromIndex(index);
     }
     return item;
 };

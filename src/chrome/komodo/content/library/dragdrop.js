@@ -227,6 +227,12 @@ if (typeof(ko.dragdrop)=='undefined') {
         }
     );
 
+    KomodoDropData.prototype.__defineGetter__("isText",
+        function KoDropData_get_isKpfURL() {
+            return ['text/plain', 'text/unicode'].indexOf(this.dragType) != -1;
+        }
+    );
+
     KomodoDropData.prototype.__defineGetter__("isZipURL",
         function KoDropData_get_isZipURL() {
             return this.isURL && this.value.match(/\.zip/i);

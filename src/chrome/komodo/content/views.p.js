@@ -106,6 +106,7 @@ function viewManager() {
     _observerSvc.addObserver(this, "open-url",false);
     _observerSvc.addObserver(this, "SciMoz:FileDrop", false);
     _observerSvc.addObserver(this, "file_status", false);
+    _observerSvc.addObserver(this, "select", false);
     var self = this;
     this.handle_current_view_changed_setup = function(event) {
         self.handle_current_view_changed(event);
@@ -145,6 +146,7 @@ viewManager.prototype.shutdown = function()
         _observerSvc.removeObserver(this, "open-url");
         _observerSvc.removeObserver(this, "SciMoz:FileDrop");
         _observerSvc.removeObserver(this, "file_status");
+        _observerSvc.removeObserver(this, "select");
         window.removeEventListener('current_view_changed',
                                 this.handle_current_view_changed_setup, false);
         window.removeEventListener('view_list_closed',
@@ -1080,6 +1082,8 @@ viewManager.prototype.observe = function(subject, topic, data)
                 }
             }
             break;
+        case 'select':
+         window.updateCommands('select');
     }
 }
 

@@ -1098,6 +1098,12 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
                 alert("toolbox2_command.js:importFiles failed: " + ex);
                 this.log.exception("importFiles failed: " + ex);
             }
+        } else if (koDropData.isText) {
+            // Create a snippet
+            var parent = this.getContainerFromIndex(index);
+            ko.projects.addSnippetFromText(koDropData.value, parent);
+            loadedSomething = true;
+            break;
         } else {
             // dump("something else\n");
         }

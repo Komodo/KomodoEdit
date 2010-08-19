@@ -81,11 +81,9 @@ peSnippet.prototype.isCommandEnabled = function(command, part) {
                 // This is one of the few isCommandEnabled methods that can
                 // trigger a xbl "document.getAnonymousNodes(this) has no properties"
                 // exception.
-                dump(ex + "\n");
                 return false;
             }
         }
-        dump("selection: " + sel + "\n");
         return (sel != '');
     }
     return false;
@@ -97,7 +95,7 @@ peSnippet.prototype.doCommand = function(command) {
     case 'cmd_makeSnippetFromSelection':
         // Create new snippets in the current toolbox
         var parent = ko.toolbox2.getSelectedContainer();
-        var snippet = ko.projects.addSnippetFromText(ko.views.manager.currentView.selection, parent);
+        ko.projects.addSnippetFromText(ko.views.manager.currentView.selection, parent);
     default:
         break;
     }
