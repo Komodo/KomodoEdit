@@ -2298,6 +2298,29 @@ this.updateFilterViewMenu = function() {
     });
 };
 
+this.restoreWorkspacePrefs = function(workspace) {
+    if (!workspace.hasPref("workspacePlaces")) {
+        return;
+    }
+    var placePanelPrefs = workspace.getPref("workspacePlaces");
+    if (placePanelPrefs.hasPref("topPanelHeight")) {
+        document.getElementById("placesViewbox_places").height =
+            placePanelPrefs.getLongPref("topPanelHeight");
+    }
+};
+
+this.saveWorkspacePrefs = function(workspace) {
+    var placePanelPrefs;
+    if (workspace.hasPref("workspacePlaces")) {
+        placePanelPrefs = workspace.getPref("workspacePlaces");
+    } else {
+        placePanelPrefs = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+        workspace.setPref("workspacePlaces", placePanelPrefs);
+    }
+    placePanelPrefs.setLongPref("topPanelHeight",
+                document.getElementById("placesViewbox_places").height);    
+};
+
 xtk.include("treeview");
 this.recentProjectsTreeView = function() {
     xtk.dataTreeView.apply(this, []);
