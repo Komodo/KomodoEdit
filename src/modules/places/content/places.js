@@ -284,7 +284,8 @@ viewMgrClass.prototype = {
         var row = {};
         this.tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
         var index = row.value;
-        if (index == -1) {
+        if (index == -1
+            && clickedNodeId != "place-view-rootPath-icon-toolbarbutton") {
             // Means that we're clicking in white-space below.
             // Clear the selection, and return.
             this.view.selection.clearSelection();
