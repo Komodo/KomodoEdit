@@ -212,3 +212,6 @@ undo-button
   visibility: collapse;
 }
 
+.recentProjectsTree:-moz-tree-cell-text(projectActive) {
+    font-weight: bold;
+}

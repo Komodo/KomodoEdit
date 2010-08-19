@@ -90,7 +90,7 @@ viewMgrClass.prototype = {
         this.view = Components.classes["@activestate.com/koPlaceTreeView;1"]
             .createInstance(Components.interfaces.koIPlaceTreeView);
         if (!this.view) {
-            throw("couldn't create a koPlaceTreeView");
+            throw new Error("couldn't create a koPlaceTreeView");
         }
         this.tree.treeBoxObject
                         .QueryInterface(Components.interfaces.nsITreeBoxObject)
@@ -2184,12 +2184,26 @@ this.onLoad = function places_onLoad() {
         collapseProjectsTree = false;
     }
     ko.places.setProjectsView(collapseProjectsTree);
+    ko.places.createProjectMRUView();
 };
 
 this.onUnload = function places_onUnload() {
     ko.places.manager.finalize();
     ko.places.viewMgr.finalize();
+    ko.places.rpTreeView.terminate();
     ko.places.manager = ko.places._viewMgr = null;
+};
+
+this.createProjectMRUView = function() {
+    this.rpTree = document.getElementById("placesViewbox_projects_tree");
+    this.rpTreeView = new this.recentProjectsTreeView();
+    if (!this.rpTreeView) {
+        throw new Error("couldn't create a recentProjectsTreeView");
+    }
+    this.rpTree.treeBoxObject
+                        .QueryInterface(Components.interfaces.nsITreeBoxObject)
+                        .view = this.rpTreeView;
+    this.rpTreeView.initialize();    
 };
 
 this.getFocusedPlacesView = function() {
@@ -2197,7 +2211,6 @@ this.getFocusedPlacesView = function() {
         return this;
     }
     return null;
-
 };
 
 this.toggleProjectsView = function(event, toolbarbutton) {
@@ -2255,6 +2268,57 @@ this.updateFilterViewMenu = function() {
         menuitem.setAttribute("oncommand", "ko.places.viewMgr.placeView_selectCustomView('" + prefName + "');");
         menupopup.insertBefore(menuitem, sep);    
     });
+};
+
+xtk.include("treeview");
+this.recentProjectsTreeView = function() {
+    xtk.dataTreeView.apply(this, []);
+    this._atomService = Components.classes["@mozilla.org/atom-service;1"].
+                            getService(Components.interfaces.nsIAtomService);
+}
+this.recentProjectsTreeView.prototype = new xtk.dataTreeView();
+this.recentProjectsTreeView.prototype.constructor = this.recentProjectsTreeView;
+
+this.recentProjectsTreeView.prototype.initialize = function() {
+    this._resetRows();
+    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+            getService(Components.interfaces.nsIObserverService);
+    observerSvc.addObserver(this, "mru_changed", false);
+};
+this.recentProjectsTreeView.prototype.terminate = function() {
+    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                    getService(Components.interfaces.nsIObserverService);
+    observerSvc.removeObserver(this, "mru_changed");
+};
+this.recentProjectsTreeView.prototype._resetRows = function() {
+    var i = 0;
+    this.rows = ko.mru.getAll("mruProjectList").map(function(uri) {
+            var lastSlash = uri.lastIndexOf('/');
+            var extStart = uri.lastIndexOf('.komodoproject');
+            return [uri, uri.substring(lastSlash + 1, extStart)];
+        });
+};
+this.recentProjectsTreeView.prototype.observe = function(subject, topic, data) {
+    if (data == "mruProjectList") {
+        this._resetRows();
+    }
+};
+// NSITreeView methods.
+this.recentProjectsTreeView.prototype.getCellText = function(row, column) {
+    return this.rows[row][1];
+};
+this.recentProjectsTreeView.prototype.getCellValue = function(row, column) {
+    return this.rows[row][1];
+};
+this.recentProjectsTreeView.prototype.getImageSrc = function(row, column) {
+    return 'chrome://komodo/skin/images/project_icon.png'
+};
+this.recentProjectsTreeView.prototype.getCellProperties = function(index, column, properties) {
+    var row = this.rows[index];
+    var currentProject = ko.projects.manager.currentProject;
+    if (currentProject && currentProject.url == row[0]) {
+        properties.AppendElement(this._atomService.getAtom("projectActive"));
+    }
 };
 
 }).apply(ko.places);

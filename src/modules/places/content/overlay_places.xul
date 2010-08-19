@@ -588,21 +588,17 @@
               hidecolumnpicker="true"
               seltype="single">
           <treecols>
-               <treecol id="placesViewbox_projects_tree-col1" label="col1" flex="1"/>
-               <treecol id="placesViewbox_projects_tree-col2" label="col2" flex="1"/>
+               <treecol
+                  id="placesViewbox_projects_tree_projectName"
+                  flex="1"
+                  primary="true"
+                  hideheader="true"
+                  />
           </treecols>
-          <treechildren>
-               <treeitem>
-                    <treerow>
-                         <treecell label="cell 1.1" />
-                         <treecell label="cell 1.2" />
-                    </treerow></treeitem>
-               <treeitem>
-                    <treerow>
-                         <treecell label="cell 2.1" />
-                         <treecell label="cell 2.2" />
-                    </treerow></treeitem>
-          </treechildren>
+          <treechildren
+             id="placesViewbox_projects_tree_body"
+             flex="1"
+             class="recentProjectsTree" />
         </tree>
       </vbox>
      </vbox>
