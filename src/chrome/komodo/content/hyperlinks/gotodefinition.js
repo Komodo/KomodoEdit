@@ -207,9 +207,11 @@
     
             var langObj = view.koDoc.languageObj;
             var styleCount = new Object();
-            var styles = langObj.getCommentStyles(styleCount);
-            if (styles.indexOf(style) >= 0) {
-                // Doesn't work in comments.
+            var commentStyles = langObj.getCommentStyles(styleCount);
+            var stringStyles = langObj.getStringStyles(styleCount);
+            if ((commentStyles.indexOf(style) >= 0) ||
+                (stringStyles.indexOf(style) >= 0)){
+                // Doesn't work in strings or comments.
                 return;
             }
     
