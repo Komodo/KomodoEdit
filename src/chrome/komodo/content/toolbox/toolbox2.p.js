@@ -365,7 +365,7 @@ this.getSelectedIndices = function(rootsOnly /*=false*/) {
 
 this.getSelectedItem = function() {
      var selection = this.manager.view.selection;
-     if (!selection) {
+     if (!selection || !selection.count) {
          return null;
      }
      var index = selection.currentIndex;
@@ -373,6 +373,38 @@ this.getSelectedItem = function() {
          return null;
      }
      return this.manager.view.getTool(index);
+};
+
+this.getSelectedContainer = function() {
+    var item = this.getSelectedItem();
+    if (!item) {
+        item = this.getStandardToolbox();
+    } else {
+        var view = this.manager.view;
+        var index = view.getIndexByTool(item);
+        if (!view.isContainer(index)) {
+            if (view.getLevel(index) == 0) {
+                // It's a top-level non-container, so it lies in the std toolbox
+                item = this.getStandardToolbox();
+            } else {
+                index = view.getParentIndex(index);
+                if (index == -1) {
+                    log.warn("Tool has no parent");
+                    item = this.getStandardToolbox();
+                } else if (!view.isContainer(index)) {
+                    log.warn("Tool's parent ("
+                             + index
+                             + ") isn't a container");
+                    item = this.getStandardToolbox();
+                } else {
+                    item = view.getTool(index);
+                }
+            }
+        } else {
+            item = view.getTool(index);
+        }
+    }
+    return item;
 };
 
 this.getProjectToolbox = function(uri) {
@@ -386,11 +418,21 @@ this.getStandardToolbox = function() {
     //return this.findToolById(this.manager.toolbox2Svc.getStandardToolboxID());
 }
 
-this.addItem = function(/* koITool */ tool, /* koITool */ parent) {
+ this.addItem = function(/* koITool */ tool, /* koITool */ parent,
+                         selectItem /*false*/) {
+    if (typeof(selectItem) == 'undefined') selectItem = false;
     if (typeof(parent)=='undefined' || !parent) {
         parent = this.getStandardToolbox();
     }
-    this.manager.view.addNewItemToParent(parent, tool);
+    var view = this.manager.view;
+    view.addNewItemToParent(parent, tool);
+    if (selectItem) {
+        var index = view.getIndexByTool(tool);
+        if (index != -1) {
+            view.selection.currentIndex = index;
+            view.selection.select(index);
+        }
+    }
 }
 
 this.addNewItemToParent = function(item, parent) {

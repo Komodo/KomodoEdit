@@ -49,6 +49,63 @@ var CURRENTPOS_MARKER = '!@#_currentPos';
 
 var _wrapsSelectionRE = /\[\[%[sS]\]\]/;
 
+function peSnippet() {
+    this.name = 'peSnippet';
+}
+peSnippet.prototype.constructor = peSnippet;
+peSnippet.prototype.init = function() {
+}
+
+peSnippet.prototype.registerCommands = function() {
+    ko.projects.extensionManager.registerCommand('cmd_makeSnippetFromSelection', this);
+}
+
+peSnippet.prototype.registerEventHandlers = function() {}
+
+peSnippet.prototype.registerMenus = function() {}
+
+peSnippet.prototype.supportsCommand = function(command, part) {
+    return command == 'cmd_makeSnippetFromSelection';
+}
+
+
+peSnippet.prototype.isCommandEnabled = function(command, part) {
+    switch (command) {
+    case 'cmd_makeSnippetFromSelection':
+        var sel = '';
+        if (ko.views.manager.currentView &&
+            ko.views.manager.currentView.getAttribute('type') == 'editor') {
+            try {
+                sel = ko.views.manager.currentView.selection;
+            } catch(ex) {
+                // This is one of the few isCommandEnabled methods that can
+                // trigger a xbl "document.getAnonymousNodes(this) has no properties"
+                // exception.
+                dump(ex + "\n");
+                return false;
+            }
+        }
+        dump("selection: " + sel + "\n");
+        return (sel != '');
+    }
+    return false;
+}
+
+peSnippet.prototype.doCommand = function(command) {
+    var item = null;
+    switch (command) {
+    case 'cmd_makeSnippetFromSelection':
+        // Create new snippets in the current toolbox
+        var parent = ko.toolbox2.getSelectedContainer();
+        var snippet = ko.projects.addSnippetFromText(ko.views.manager.currentView.selection, parent);
+    default:
+        break;
+    }
+}
+// this is hidden away now, no namespce, the registration keeps the reference
+// we need
+ko.projects.registerExtension(new peSnippet());
+
 this.snippetProperties = function snippet_editProperties (item)
 {
     var obj = new Object();
@@ -65,7 +122,7 @@ this.addSnippet = function peSnippet_addSnippet(/*koIPart|koITool*/ parent,
                                                 /*koIPart|koITool*/ snippet )
 {
     if (typeof(snippet) == "undefined") {
-        snippet = ko.toolbox2.createPartFromType('macro');
+        snippet = ko.toolbox2.createPartFromType('snippet');
     }
     snippet.setStringAttribute('name', 'New Snippet');
     snippet.setStringAttribute('set_selection', 'false');
@@ -100,7 +157,7 @@ this.addSnippetFromText = function AddSnippetFromText(snippettext, /*koIPart*/ p
     escapedtext = ANCHOR_MARKER + escapedtext + CURRENTPOS_MARKER;
     snippet.value = escapedtext;
 
-    ko.toolbox2.addItem(snippet, parent);
+    ko.toolbox2.addItem(snippet, parent, /*selectItem=*/true);
     return snippet;
 }
 
