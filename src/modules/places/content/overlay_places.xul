@@ -483,30 +483,6 @@
                         class="menuitem-iconic undo-button"
                         label="&undo.label;"
                         />
-              <menuseparator id="places_project_separator" />
-              <menuitem id="placeView_project_open"
-                        observes="cmd_placeView_openProject"
-                        oncommand="ko.places.viewMgr.openProject()"
-                        class="menuitem-iconic"
-                        label="&openProject.label;"
-                        />
-              <menuitem id="placeView_project_new"
-                        observes="cmd_placeView_newProject"
-                        oncommand="ko.places.viewMgr.newProject()"
-                        class="menuitem-iconic"
-                        label="&newProject.label;"
-                        />
-              <menuitem id="placeView_project_close"
-                        observes="cmd_placeView_closeProject"
-                        oncommand="ko.places.viewMgr.closeProject()"
-                        class="menuitem-iconic"
-                        label="&closeProject.label;"
-                        />
-              <menuitem id="placeView_project_preferences"
-                        observes="cmd_projectProperties"
-                        class="menuitem-iconic"
-                        label="&projectPreferences.label;"
-                        />
             </menupopup>
           </toolbarbutton>
           <toolbarbutton id="placesBackButton"
@@ -570,6 +546,19 @@
                crop="end"
                value=""
                 />
+        <toolbarbutton id="placesViewbox_projects_tools"
+               tooltiptext="&placeView.tooltiptext;"
+               buttonstyle="pictures"
+               type="menu"
+               orient="horizontal"
+               class="project-tools-icon">
+          <menupopup id="placesViewbox_projects_tools_popup"
+                     onpopupshowing="ko.projects.manager.updateProjectMenu(event, this)"/>
+          <!-- This popup menu is set in places.js: initProjectMRUCogMenu, basically
+          copied from the main project menu, skipping denoted nodes, and resetting
+          the ID attributes so they'll stay unique.
+          -->
+        </toolbarbutton>
         <toolbarbutton id="placesViewbox_projects_show_hide"
                        tooltiptext="hide projects"
                        buttonstyle="pictures"

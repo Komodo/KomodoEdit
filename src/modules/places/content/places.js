@@ -2195,7 +2195,24 @@ this.onLoad = function places_onLoad() {
         }
     };
     mruProjectViewerID = setInterval(launch_createProjectMRUView, 50);
+    ko.places.initProjectMRUCogMenu();
 }
+
+this.initProjectMRUCogMenu = function() {
+    var srcMenu = document.getElementById("popup_project");
+    var destMenu = document.getElementById("placesViewbox_projects_tools_popup");
+    var srcNodes = srcMenu.childNodes;
+    var node, newNode;
+    var len = srcNodes.length;
+    for (var i = 0; i < len; i++) {
+        node = srcNodes[i];
+        if (node.getAttribute("skipCopyToCogMenu") != "true") {
+            newNode = node.cloneNode(false);
+            newNode.id = node.id + "_places_projects_cog";
+            destMenu.appendChild(newNode);
+        }
+    }
+};
 
 this.onUnload = function places_onUnload() {
     ko.places.manager.finalize();
