@@ -598,6 +598,7 @@
           <treechildren
              id="placesViewbox_projects_tree_body"
              flex="1"
+             ondblclick="ko.places.onProjectTreeDblClick(event, this);"
              class="recentProjectsTree" />
         </tree>
       </vbox>

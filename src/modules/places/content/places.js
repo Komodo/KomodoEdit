@@ -2206,6 +2206,24 @@ this.createProjectMRUView = function() {
     this.rpTreeView.initialize();    
 };
 
+this.onProjectTreeDblClick = function(event) {
+    if (event.which != 1) {
+        return;
+    }
+    var row = {};
+    this.rpTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
+    var index = row.value;
+    if (index != -1) {
+        var uri = this.rpTreeView.getCellValue(index);
+        var currentProject = ko.projects.manager.currentProject;
+        if (!currentProject || currentProject.url != uri) {
+            ko.projects.open(uri);
+        }
+    }
+    event.stopPropagation();
+    event.preventDefault();
+};
+
 this.getFocusedPlacesView = function() {
     if (xtk.domutils.elementInFocus(document.getElementById('placesViewbox'))) {
         return this;
@@ -2308,7 +2326,7 @@ this.recentProjectsTreeView.prototype.getCellText = function(row, column) {
     return this.rows[row][1];
 };
 this.recentProjectsTreeView.prototype.getCellValue = function(row, column) {
-    return this.rows[row][1];
+    return this.rows[row][0];
 };
 this.recentProjectsTreeView.prototype.getImageSrc = function(row, column) {
     return 'chrome://komodo/skin/images/project_icon.png'
