@@ -2184,8 +2184,17 @@ this.onLoad = function places_onLoad() {
         collapseProjectsTree = false;
     }
     ko.places.setProjectsView(collapseProjectsTree);
-    ko.places.createProjectMRUView();
-};
+    // Wait until ko.projects.manager exists before
+    // init'ing the projects view tree.
+    var mruProjectViewerID;
+    var launch_createProjectMRUView = function() {
+        if (ko.projects && ko.projects.manager) {
+            clearInterval(mruProjectViewerID);
+            ko.places.createProjectMRUView();
+        }
+    };
+    mruProjectViewerID = setInterval(launch_createProjectMRUView, 50);
+}
 
 this.onUnload = function places_onUnload() {
     ko.places.manager.finalize();
