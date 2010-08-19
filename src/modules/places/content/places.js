@@ -2309,12 +2309,18 @@ this.recentProjectsTreeView.prototype.terminate = function() {
     observerSvc.removeObserver(this, "mru_changed");
 };
 this.recentProjectsTreeView.prototype._resetRows = function() {
-    var i = 0;
-    this.rows = ko.mru.getAll("mruProjectList").map(function(uri) {
+    var rows = ko.mru.getAll("mruProjectList").map(function(uri) {
             var lastSlash = uri.lastIndexOf('/');
             var extStart = uri.lastIndexOf('.komodoproject');
-            return [uri, uri.substring(lastSlash + 1, extStart)];
+            var name = uri.substring(lastSlash + 1, extStart);
+            return [uri, name, name.toLowerCase()];
         });
+    rows.sort(function(a, b) {
+            var a1 = a[2], b1 = b[2];
+            return a1 < b1 ? -1 : a1 > b1 ? 1 : 0;
+            });
+    var finalRows = rows.map(function(a) a.slice(0, 2));
+    this.rows = finalRows;
 };
 this.recentProjectsTreeView.prototype.observe = function(subject, topic, data) {
     if (data == "mruProjectList") {
