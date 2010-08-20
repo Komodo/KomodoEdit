@@ -191,7 +191,7 @@ viewMgrClass.prototype = {
     },
 
     compareFileWith: function(event) {
-        var index = this._currentRow(event);
+        var index = ko.treeutils.getSelectedIndices(this.view, false)[0];
         var uri = this.view.getURIForRow(index);
         var file = Components.classes["@activestate.com/koFileEx;1"].
                 createInstance(Components.interfaces.koIFileEx);
@@ -272,7 +272,8 @@ viewMgrClass.prototype = {
         }
     },
     allowed_click_nodes: ["places-files-tree-body",
-                          "place-view-rootPath-icon-toolbarbutton"],
+                          "place-view-rootPath-icon-toolbarbutton",
+                          "places-files-tree"],
     initFilesContextMenu: function(event, menupopup) {
         var clickedNodeId = event.explicitOriginalTarget.id;
         if (this.allowed_click_nodes.indexOf(clickedNodeId) == -1) {
@@ -302,6 +303,7 @@ viewMgrClass.prototype = {
             itemTypes = ["project"];
         } else {
             index = this._currentRow(event);
+            dump("Init Menu: index: " + index + "\n");
             isRootNode = (index == -1);
             if (isRootNode) {
                 itemTypes = ["project"];
