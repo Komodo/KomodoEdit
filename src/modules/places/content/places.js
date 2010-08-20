@@ -1162,7 +1162,10 @@ ManagerClass.prototype = {
         var file = Components.classes["@activestate.com/koFileEx;1"].
                 createInstance(Components.interfaces.koIFileEx);
         file.URI = uri
-        this.currentPlaceIsLocal = file.isLocal; 
+        this.currentPlaceIsLocal = file.isLocal;
+        
+        var id;
+        var viewMgr = ko.places.viewMgr;
         this._moveToURI(uri, setThePref);
     },
 
@@ -1970,7 +1973,11 @@ ManagerClass.prototype = {
         if (project) {
             var targetDirURI = this._getActualProjectDir(project);
             if (targetDirURI) {
-                ko.places.manager.openURI(targetDirURI);
+                // Delay, because at startup the tree might not be
+                // fully initialized.
+                setTimeout(function() {
+                        ko.places.manager.openURI(targetDirURI);
+                    }, 100);
             }
         }
     },
@@ -2235,6 +2242,71 @@ this.createProjectMRUView = function() {
     this.rpTreeView.initialize();    
 };
 
+// Methods for dealing with the projects tree context menu.
+
+this._projectTestLabelMatcher = /^t:project\|(.+)\|(.+)$/;
+this.initProjectsContextMenu = function(event, menupopup) {
+    var row = {};
+    this.rpTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
+    var index = row.value;
+    if (index == -1) {
+        // Means that we're clicking in white-space below.
+        // Clear the selection, and return.
+        this.rpTreeView.selection.clearSelection();
+        event.stopPropagation();
+        event.preventDefault();
+        return false;
+    }
+    var selectedUrl = this.rpTreeView.getCellValue(index);
+    var selectionInfo = {};
+    var currentProject = ko.projects.manager.currentProject;
+    selectionInfo.currentProject = (currentProject
+                                    && currentProject.url == selectedUrl);
+    selectionInfo.projectIsDirty = selectionInfo.currentProject && currentProject.isDirty;
+    var projectIsOpen = false;
+    var windows = ko.windowManager.getWindows();
+    for (var win, i = 0; win = windows[i]; i++) {
+        var otherProject = win.ko.projects.manager.currentProject;
+        if (otherProject && otherProject.url == selectedUrl) {
+            projectIsOpen = true;
+            break;
+        }
+    }
+    selectionInfo.projectIsOpen = projectIsOpen;
+    
+    var childNodes = menupopup.childNodes;
+    for (var menuNode, i = 0; menuNode = childNodes[i]; i++) {
+        var disableNode = false;
+        var directive = menuNode.getAttribute('disableIf');
+        if (directive) {
+            if ((directive in selectionInfo) && selectionInfo[directive]) {
+                disableNode = true;
+            } 
+        }
+        if (!disableNode
+            && !!(directive = menuNode.getAttribute('disableUnless'))
+            && (!(directive in selectionInfo)
+                || !selectionInfo[directive])) {
+            disableNode = true;
+        }
+        if (disableNode) {
+            menuNode.setAttribute('disabled', true);
+        } else {
+            menuNode.removeAttribute('disabled');
+        }
+        if (menuNode.hasAttribute("labelTest")) {
+            var test = menuNode.getAttribute("labelTest");
+            var m = this._projectTestLabelMatcher.exec(test);
+            if (m) {
+                menuNode.setAttribute("label",
+                                  selectionInfo.currentProject ? m[1] : m[2]);
+            } else {
+                dump("Can't process test [" + test + "]\n");
+            }
+        }
+    }
+};
+
 this.onProjectTreeDblClick = function(event) {
     if (event.which != 1) {
         return;
@@ -2247,10 +2319,59 @@ this.onProjectTreeDblClick = function(event) {
         var currentProject = ko.projects.manager.currentProject;
         if (!currentProject || currentProject.url != uri) {
             ko.projects.open(uri);
+        } else {
+            this.showProjectInPlaces();
         }
     }
     event.stopPropagation();
     event.preventDefault();
+};
+
+this.showProjectInPlaces = function() {
+    ko.places.manager.moveToProjectDir(ko.projects.manager.currentProject);
+};
+
+this.closeProject = function() {
+    ko.projects.manager.closeProject(ko.projects.manager.currentProject);
+};
+
+this.saveProject = function() {
+    ko.projects.manager.saveProject(ko.projects.manager.currentProject);
+};
+
+this.saveProjectAs = function() {
+    ko.projects.saveProjectAs(ko.projects.manager.currentProject);
+};
+
+this.revertProject = function() {
+    ko.projects.manager.revertProject(ko.projects.manager.currentProject);
+};
+
+this.openProjectInNewWindow = function() {
+    this._openProject(true);
+};
+
+this.openProjectInCurrentWindow = function() {
+    this._openProject(false);
+}
+
+this._openProject = function(inNewWindow) {
+    var index = this.rpTreeView.selection.currentIndex;
+    if (index == -1) {
+        return;
+    }
+    var uri = this.rpTreeView.getCellValue(index);
+    if (inNewWindow) {
+        ko.launch.newWindow(uri);
+    } else {
+        ko.projects.open(uri);
+    }
+};
+
+this.editProjectProperties = function() {
+    ko.projects.fileProperties(
+        ko.places.getItemWrapper(
+            ko.projects.manager.currentProject.url, 'project'));
 };
 
 this.getFocusedPlacesView = function() {
