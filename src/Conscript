@@ -139,6 +139,8 @@ $cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsIAutoComplete*.idl");
     $cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsIEnumerator.idl");
 # The following needed for koIProject usage.
     $cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsIDOMWindowInternal.idl");
+# The following needed for koIAsyncOperations usage.
+    $cons->InstallGlob("$sdkDir/idl", "$mozDevelDist/idl/nsIVariant.idl");
 
 
 if ($platform eq "win") {
