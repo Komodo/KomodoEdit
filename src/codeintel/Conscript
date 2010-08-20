@@ -50,7 +50,6 @@ Import(
     'buildFlavour',
     'unsiloedPythonExe',
     'komodoDevDir',
-    "siloedPython",
     'sdkDir',
     'withKomodoCix',
 );
@@ -266,7 +265,7 @@ if ($withKomodoCix) {
         #  xpcom.Exception: The interface 'koICodeIntelTrigger' does not exist
         $ranRegxpcomStateFileName,
         qq(
-            $siloedPython %1 -o %0
+            mozpython %1 -o %0
         )
     );
     #TODO: Should refine the exclude patterns here so only depend on the minimal
