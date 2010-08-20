@@ -1261,6 +1261,7 @@
                             <menuseparator id="menu_project_new_separator"/>
                             <menu id="menu_project_templates"
                                   label="&templates.label;"
+                                  skipCopyToCogMenu="true"
                                   accesskey="&templates.accesskey;">
                                 <menupopup id="popup_project_templates"
                                           onpopupshowing="ko.projects.manager.loadTemplateMenuItems(event, this)">
@@ -1277,13 +1278,15 @@
                                       class="menuitem-iconic"
                                       observes="cmd_createProjectToolbox"
                                       />
-                            <menuseparator id="menu_project_mru_separator"/>
+                            <menuseparator id="menu_project_mru_separator"
+                                  skipCopyToCogMenu="true" />
                             <menuitem label="&properties.label;"
                                       class="menuitem-iconic"
                                       id="menu_projectProperties"
                                       observes="cmd_projectProperties"
                                       accesskey="&projectProperties.accesskey;"/>
-                            <menuseparator id="menu_projects_mru_separator"/>
+                            <menuseparator id="menu_projects_mru_separator"
+                                  skipCopyToCogMenu="true" />
                         </menupopup>
                     </menu>
                     <menu id="menu_tools" label="&tools.label;" accesskey="&menuTools.accesskey;">
