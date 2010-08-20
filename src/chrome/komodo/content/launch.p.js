@@ -236,10 +236,8 @@ this.find2_dialog_args = null;
  *
  * @param pattern {String} The pattern to search for.
  */
-this.find = function(pattern /* =null */,
-                     useOpenOrFocusDialog /* false */ ) {
+this.find = function(pattern /* =null */) {
     if (typeof(pattern) == 'undefined') pattern = null;
-    if (typeof(useOpenOrFocusDialog) == 'undefined') useOpenOrFocusDialog = false;
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
@@ -260,8 +258,7 @@ this.find = function(pattern /* =null */,
     // handler on find2.xul, but then you run into problems attempting
     // to focus the pattern textbox. (Or at least I did when experimenting
     // on Windows.)
-    var openMethod = useOpenOrFocusDialog ? 'openOrFocusDialog' : 'openDialog';
-    return ko.windowManager[openMethod](
+    return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
         "chrome,close=yes,centerscreen");
