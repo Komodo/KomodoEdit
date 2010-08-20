@@ -417,8 +417,6 @@ this.replaceInCurrProject = function(pattern /* =null */, repl /* =null */) {
  */
 this.findInFiles = function(pattern /* =null */, dirs /* =null */,
                             includes /* =null */, excludes /* =null */) {
-    dirs = this._checkDirInPlaces(dirs);
-    
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
@@ -454,22 +452,6 @@ this.findInFiles = function(pattern /* =null */, dirs /* =null */,
 }
 
 /**
- * Look to see if the places sidebar has the focus, before transfering
- * focus to the hidden inputBuffer.
- */
- this._checkDirInPlaces = function(dirs) {
-    if (dirs == null && ko.places && ko.places.getFocusedPlacesView()) {
-        var item = ko.places.manager.getSelectedItem(); // ItemWrapper
-        if (item.type == 'file') {
-            dirs = item.file.dirName;
-        } else {
-            dirs = item.file.path;
-        }
-    }
-    return dirs;
- };
-
-/**
  * Open Find dialog to make replacements in files.
  *
  * @param pattern {String}
@@ -481,8 +463,6 @@ this.findInFiles = function(pattern /* =null */, dirs /* =null */,
 this.replaceInFiles = function(pattern /* =null */, repl /* =null */,
                                dirs /* =null */, includes /* =null */,
                                excludes /* =null */) {
-    dirs = this._checkDirInPlaces(dirs);
-
     // Transfer focus to the hidden input buffer to capture keystrokes
     // from the user while find2.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
