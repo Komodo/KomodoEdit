@@ -228,7 +228,7 @@ if (typeof(ko.dragdrop)=='undefined') {
     );
 
     KomodoDropData.prototype.__defineGetter__("isText",
-        function KoDropData_get_isKpfURL() {
+        function KoDropData_get_isText() {
             return ['text/plain', 'text/unicode'].indexOf(this.dragType) != -1;
         }
     );
