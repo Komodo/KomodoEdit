@@ -61,10 +61,6 @@
           </treecols>
           <treechildren />
         </tree>
-      
-        <statusbar id="invoketool_statusbar">
-          <statusbarpanel id="invoketool_statusbar_panel" crop="end" flex="1" />
-        </statusbar>
       </vbox>
     </panel>
   </popupset>
