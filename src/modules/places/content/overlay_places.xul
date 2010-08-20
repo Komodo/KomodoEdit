@@ -595,6 +595,9 @@
                 resizeafter="farthest"
                 collapse="none" />
            
+<deck id="placesSubpanel" selectedIndex="0" orient="vertical" flex="1">
+<vbox id="placesProjectsSubpanel">
+
       <hbox id="placesViewbox_projects_hbox">
         <label id="placesViewbox_projects_hbox_label_1"
                min-width="0"
@@ -654,7 +657,11 @@
              class="recentProjectsTree" />
         </tree>
       </vbox>
-     </vbox>
+
+</vbox>
+</deck>
+      
+      </vbox>
     </tabpanel>
   </tabpanels>
 </overlay>
