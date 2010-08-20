@@ -120,7 +120,7 @@ ko.hyperlinks.RegexHandler.prototype.show = function(view, scimoz, position, lin
 ko.hyperlinks.addHandler(
     new ko.hyperlinks.RegexHandler(
         "Hyperlinks",
-        new RegExp("(https?|ftps?|sftp|scp):[^'\"<>()[\\]\\s]+", "i"),
+        new RegExp("(https?|ftps?):[^'\"<>()[\\]\\s]+", "i"),
         ko.browse.openUrlInDefaultBrowser,
         null,  /* Use the found string instead of a replacement. */
         null,  /* All language types */
@@ -130,8 +130,8 @@ ko.hyperlinks.addHandler(
 
 ko.hyperlinks.addHandler(
     new ko.hyperlinks.RegexHandler(
-        "ActiveState bugs",
-        new RegExp("chrome:[^'\"<>()[\\]\\s]+", "i"),
+        "Other File URIs",
+        new RegExp("(chrome|sftp|scp):[^'\"<>()[\\]\\s]+", "i"),
         ko.open.URI,
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
