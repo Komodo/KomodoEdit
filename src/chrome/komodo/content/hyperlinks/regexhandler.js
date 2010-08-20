@@ -113,25 +113,111 @@ ko.hyperlinks.RegexHandler.prototype.show = function(view, scimoz, position, lin
     return null;
 }
 
-// Add some basic hyperlink handlers.
+
+/**
+ * Preview handler - can show image preview on dwelling.
+ *
+ * @class
+ * @base ko.hyperlinks.RegexHandler
+ */
+ko.hyperlinks.ImagePreviewHandler = function(name, regex, fn, replace_str, lang_names,
+                                             indic_style, indic_color)
+{
+    ko.hyperlinks.RegexHandler.apply(this, arguments);
+};
+
+// The following two lines ensure proper inheritance (see Flanagan, p. 144).
+ko.hyperlinks.ImagePreviewHandler.prototype = new ko.hyperlinks.RegexHandler();
+ko.hyperlinks.ImagePreviewHandler.prototype.constructor = ko.hyperlinks.ImagePreviewHandler;
+
+/**
+ * Remove this hyperlink instance.
+ *
+ * @param view {Components.interfaces.koIScintillaView}  The view instance.
+ * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink instance.
+ * @param reason {string}  What the triggering event reason was, can be one
+ *        of "keyup", "mousemove", "mouseup" or "blur".
+ */
+ko.hyperlinks.ImagePreviewHandler.prototype.remove = function(view, hyperlink, reason)
+{
+    if (reason == "mousemove") {
+        // Don't remove the hyperlink on mousemove events.
+        return false;
+    }
+    ko.hyperlinks.BaseHandler.prototype.remove.apply(this, arguments);
+    var panel = document.getElementById("hyperlink_preview_panel");
+    if (panel) {
+        panel.hidePopup();
+    }
+    return true;
+};
+
+/**
+ * Called when the mouse dwells on this hyperlink.
+ *
+ * @param view {Components.interfaces.koIScintillaView}  The view instance.
+ * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink instance.
+ */
+ko.hyperlinks.ImagePreviewHandler.prototype.dwell = function(view, hyperlink)
+{
+    ko.hyperlinks.BaseHandler.prototype.dwell.apply(this, arguments);
+    var chromeURI = this.regex_match[0];
+    if (!ko.open.isImageUrl(chromeURI)) {
+        return;
+    }
+    var iframe;
+    var panel = document.getElementById("hyperlink_preview_panel");
+    if (panel == null) {
+        panel = document.createElement('panel');
+        panel.setAttribute("noautofocus", "true");
+        panel.setAttribute('id', 'hyperlink_preview_panel');
+        iframe = document.createElement('iframe');
+        iframe.setAttribute("id", "hyperlink_preview_iframe");
+        iframe.setAttribute("class", "hyperlink_preview_iframe");
+        panel.appendChild(iframe);
+        document.documentElement.appendChild(panel);
+    } else {
+        iframe = document.getElementById("hyperlink_preview_iframe");
+    }
+    iframe.setAttribute("src", this.regex_match[0]);
+    var x, y;
+    [x,y] = view._last_mousemove_xy;
+    panel.openPopup(view, "after_pointer", x, y, false, false);
+};
+
+
+
+// Add the hyperlink handlers.
 
 // XXX: These regex handlers need to become Komodo preference settings.
 
 ko.hyperlinks.addHandler(
-    new ko.hyperlinks.RegexHandler(
-        "Hyperlinks",
-        new RegExp("(https?|ftps?):[^'\"<>()[\\]\\s]+", "i"),
+    new ko.hyperlinks.ImagePreviewHandler(
+        "Image Previewer",
+        new RegExp("https?:[^'\"<>()[\\]\\s]+", "i"),
         ko.browse.openUrlInDefaultBrowser,
         null,  /* Use the found string instead of a replacement. */
-        null,  /* All language types */
+        null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
         RGB(0x60,0x90,0xff))
 );
 
 ko.hyperlinks.addHandler(
+    new ko.hyperlinks.ImagePreviewHandler(
+        "Chrome Previewer",
+        new RegExp("chrome:[^'\"<>()[\\]\\s]+", "i"),
+        ko.open.URI,
+        null,  /* Use the found string instead of a replacement. */
+        null   /* All language types */,
+        Components.interfaces.ISciMoz.INDIC_PLAIN,
+        RGB(0x60,0x90,0xff))
+);
+
+
+ko.hyperlinks.addHandler(
     new ko.hyperlinks.RegexHandler(
         "Other File URIs",
-        new RegExp("(chrome|sftp|scp):[^'\"<>()[\\]\\s]+", "i"),
+        new RegExp("(ftp?|sftp|scp):[^'\"<>()[\\]\\s]+", "i"),
         ko.open.URI,
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
