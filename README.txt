@@ -349,6 +349,51 @@ Build Troubleshooting Notes
 
     python build.py configure ... --options=disable-javaxpcom
 
+- [Windows] The Mozilla build fails with::
+
+        target: patch from ['patches-new']
+        preprocess: warn: defaulting content type for 'patches-new\MOZILLA_1_9_1\silo-mo
+        zilla-profiles.ppatch' to 'Text'
+        preprocess: warn: defaulting content type for 'patches-new\MOZILLA_1_9_1\silo-mo
+        zilla-runtime.ppatch' to 'Text'
+        Traceback (most recent call last):
+          File "build.py", line 3199, in <module>
+            sys.exit( main(sys.argv) )
+          File "build.py", line 3195, in main
+            return build(args)
+          File "build.py", line 3019, in build
+            newArgv = targetFunc(argv)
+          File "build.py", line 2711, in target_all
+            target_patch()
+          File "build.py", line 2754, in target_patch
+            patchExe=patchExe)
+          File "..\util\patchtree.py", line 760, in patch
+            patchArgs=action[3])
+          File "..\util\patchtree.py", line 395, in _assertCanApplyPatch
+            stdout, stderr, retval = _run(argv, cwd=sourceDir, stdin=patchContent)
+          File "..\util\patchtree.py", line 157, in _run
+            stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+          File "C:\Python26\lib\subprocess.py", line 633, in __init__
+            errread, errwrite)
+          File "C:\Python26\lib\subprocess.py", line 842, in _execute_child
+            startupinfo)
+        WindowsError: [Error 740] The requested operation requires elevation
+
+  This is a problem with an attempt to use "patch.exe" and Windows refusing
+  to run it witout elevated privs. It is doing so because of a boneheaded
+  heuristic. Details here:
+  <http://butnottoohard.blogspot.com/2010/01/windows-7-chronicles-gnu-patch-mtexe.html>
+
+  The solution is to explicitly mark this executable to request those privs.
+
+        cd komodo\mozilla
+        setenv-moz-msvc9.bat      (if you haven't already)
+        cd bin-win32
+        mt -manifest patch.exe.manifest -outputresource:patch.exe;1
+
+  Note: We *have* applied this to patch.exe in the Komodo source tree, but
+  for some reason it rears its ugly head time and again. Don't know why.
+
 - [Windows 7] The Mozilla build fails with::
 
         checking whether the C++ compiler (cl  ) works... rm: cannot lstat `conftest.exe': Permission denied
