@@ -1103,6 +1103,15 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
 #endif
 #endif
 	
+	// If there is no textRangeList, then this is the end of the IME session
+	// and we need to "harden" any IME input (hardening is done by setting
+	// imeComposing to false).
+	nsCOMPtr<nsIPrivateTextRangeList> textRangeList;
+	textRangeList = textEvent->GetInputRange();
+	if (!textRangeList || (textRangeList->GetLength() == 0)) {
+		imeComposing = false;
+	}
+
 	// XXX problem here, we normally only want to insert text if we're
 	// in or finishing an ime session.  However, some chinese keyboard
 	// events happen a bit differently, so we do a bit of a hack to see
