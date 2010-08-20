@@ -921,7 +921,7 @@ function _init() {
     // Determine the default pattern.
     var default_pattern = "";
     var escape_default_pattern = false;
-    if (typeof args.pattern != "undefined") {
+    if (args.pattern != null) {   /* null or undefined */
         default_pattern = args.pattern;
         escape_default_pattern = false;
     } else if (use_selection_as_pattern) {
