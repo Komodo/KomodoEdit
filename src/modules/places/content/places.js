@@ -2487,7 +2487,7 @@ this.recentProjectsTreeView.prototype._resetRows = function() {
     var rows = ko.mru.getAll("mruProjectList").map(function(uri) {
             var m = uriPickerRegex.exec(uri);
             if (m) {
-                return [uri, m[1], m[1].toLowerCase()];
+                return [uri, m[1]];
             }
             var lastSlash = uri.lastIndexOf('/');
             var extStart = uri.lastIndexOf('.komodoproject');
@@ -2495,14 +2495,10 @@ this.recentProjectsTreeView.prototype._resetRows = function() {
                 extStart = uri.lastIndexOf('.kpf');
             }
             var name = uri.substring(lastSlash + 1, extStart);
-            return [uri, name, name.toLowerCase()];
+            return [uri, name];
         });
-    rows.sort(function(a, b) {
-            var a1 = a[2], b1 = b[2];
-            return a1 < b1 ? -1 : a1 > b1 ? 1 : 0;
-            });
-    var finalRows = rows.map(function(a) a.slice(0, 2));
-    this.rows = finalRows;
+    rows.reverse();
+    this.rows = rows;
 };
 this.recentProjectsTreeView.prototype.observe = function(subject, topic, data) {
     if (data == "mruProjectList") {
