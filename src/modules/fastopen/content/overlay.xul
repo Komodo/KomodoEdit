@@ -49,7 +49,6 @@
           <textbox id="invoketool_query" type="search" timeout="200"
               oncommand="ko.fastopen.invoketool.findTools()"
               onkeypress="ko.fastopen.invoketool.onQueryKeyPress(event)"
-              class="search-box"
               flex="1" />
         </hbox>
     

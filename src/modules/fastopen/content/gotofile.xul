@@ -34,7 +34,6 @@
       <textbox id="query" type="search" timeout="100"
           oncommand="findFiles(this.value)"
           onkeypress="handleQueryKeyPress(event)"
-          class="search-box"
           flex="1" />
       <!-- This hbox is used to stop the throbber image from stretching. -->
       <hbox align="center">

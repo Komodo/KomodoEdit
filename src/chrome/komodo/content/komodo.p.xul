@@ -1870,7 +1870,6 @@
             <textbox id="textbox_open"
                      tooltiptext="&open.tooltiptext;"
                      type="autocomplete"
-                     class="search-box search-box-open-icon"
                      style="min-height: 16px;"
                      flex="1"
                      maxrows="10"
@@ -1904,7 +1903,6 @@
             <textbox id="textbox_find"
                      tooltiptext="&pressEnterToFind.tooltiptext;"
                      type="autocomplete"
-                     class="search-box"
                      style="min-height: 16px;"
                      flex="1"
                      maxrows="10"
@@ -1927,7 +1925,6 @@
             <textbox id="textbox_findInFiles"
                      tooltiptext="&pressEnterToFindInFiles.tooltiptext;"
                      type="autocomplete"
-                     class="search-box search-box-no-icon"
                      style="min-height: 16px;"
                      flex="1"
                      size="30"
@@ -2250,7 +2247,6 @@
                                         </menupopup>
                                     </toolbarbutton>
                                     <textbox id="toolbox2-filter-textbox"
-                                               class="search-box"
                                                style="min-width:40px; max-width:200px; margin-right:0px;"
                                                flex="1"
                                                type="search"
@@ -2423,7 +2419,6 @@
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
                             <textbox id="findresults1-filter-textbox"
-                                     class="search-box"
                                      type="search"
                                      timeout="200"
                                      oncommand="FindResultsTab_GetManager(1).updateFilter();"
@@ -2493,7 +2488,6 @@
                                    flex="1" crop="center"/>
                             <separator flex="1"/>
                             <textbox id="findresults2-filter-textbox"
-                                     class="search-box"
                                      type="search"
                                      timeout="200"
                                      oncommand="FindResultsTab_GetManager(2).updateFilter();"
