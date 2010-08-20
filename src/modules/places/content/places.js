@@ -2358,10 +2358,19 @@ this.recentProjectsTreeView.prototype.terminate = function() {
                     getService(Components.interfaces.nsIObserverService);
     observerSvc.removeObserver(this, "mru_changed");
 };
+
+var uriPickerRegex = /^.*\/(.+?)\.(?:kpf|komodoproject)$/;
 this.recentProjectsTreeView.prototype._resetRows = function() {
     var rows = ko.mru.getAll("mruProjectList").map(function(uri) {
+            var m = uriPickerRegex.exec(uri);
+            if (m) {
+                return [uri, m[1], m[1].toLowerCase()];
+            }
             var lastSlash = uri.lastIndexOf('/');
             var extStart = uri.lastIndexOf('.komodoproject');
+            if (extStart == -1) {
+                extStart = uri.lastIndexOf('.kpf');
+            }
             var name = uri.substring(lastSlash + 1, extStart);
             return [uri, name, name.toLowerCase()];
         });
