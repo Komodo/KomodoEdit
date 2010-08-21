@@ -595,8 +595,8 @@
                 resizeafter="farthest"
                 collapse="none" />
            
-<deck id="placesSubpanel" selectedIndex="0" orient="vertical" flex="1">
-<vbox id="placesProjectsSubpanel">
+<!--<deck id="placesSubpanel" selectedIndex="0" orient="vertical" flex="1">-->
+<!--<vbox id="placesProjectsSubpanel" flex="1">-->
 
       <hbox id="placesViewbox_projects_hbox">
         <label id="placesViewbox_projects_hbox_label_1"
@@ -658,8 +658,8 @@
         </tree>
       </vbox>
 
-</vbox>
-</deck>
+<!--</vbox>-->
+<!--</deck>-->
       
       </vbox>
     </tabpanel>
