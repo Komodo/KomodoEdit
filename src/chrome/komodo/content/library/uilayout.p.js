@@ -1241,34 +1241,29 @@ this.ensureTabShown = function uilayout_ensureTabShown(tabId, focusToo) {
 /* Update the titlebar
    Have to keep in mind debugging state */
 this.updateTitlebar = function uilayout_updateTitlebar(view)  {
-    var title = "";
-    var currentProject = ko.projects.manager.currentProject;
+    var projectPart, viewPart = "";
+    var projectRootName = ko.projects.manager.projectBaseName();
+    var projectPart = (projectRootName
+                       ? "{" + projectRootName + "} "
+                       : "");
     if (view != null)  {
-        title = view.title;
+        viewPart = view.title;
         if (view.isDirty)  {
-            title = title.concat("*");
-        } else  {
-            title = title.replace(/\*$/, "");
-            title = title.replace(/(\s)+$/, "");
+            viewPart += "*";
         }
         if (view.koDoc &&
             view.koDoc.file &&
             view.getAttribute("type") != "startpage") {
             if (view.koDoc.file.isLocal) {
-                title += ' (' + ko.stringutils.contractUser(view.koDoc.file.dirName);
-                var projectRootName = ko.projects.manager.projectBaseName();
-                if (projectRootName) {
-                    title += " {" + projectRootName + "}";
-                }
-                title += ')';
+                viewPart += ' (' + ko.stringutils.contractUser(view.koDoc.file.dirName) + ')';
             } else {
-                title = view.koDoc.displayPath;
+                viewPart = view.koDoc.displayPath;
             }
         }
     } else {
-        title="";
+        viewPart="";
     }
-    
+    var title = projectPart + viewPart;
 
     var branding = '';
 //#if PLATFORM == "darwin"
