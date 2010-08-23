@@ -1241,12 +1241,18 @@ this.ensureTabShown = function uilayout_ensureTabShown(tabId, focusToo) {
 /* Update the titlebar
    Have to keep in mind debugging state */
 this.updateTitlebar = function uilayout_updateTitlebar(view)  {
-    var projectPart, viewPart = "";
+    var viewPart = "";
+    var preProjectPart, projectPart, postProjectPart;
+    var postTitlePart = "";
     var projectRootName = ko.projects.manager.projectBaseName();
-    var projectPart = (projectRootName
-                       ? "{" + projectRootName + "} "
-                       : "");
-    if (view != null)  {
+    if (view == null)  {
+        if (projectRootName) {
+            preProjectPart = "(";
+            postProjectPart = ")";
+        } else {
+            preProjectPart = postProjectPart = "";
+        }
+    } else {
         viewPart = view.title;
         if (view.isDirty)  {
             viewPart += "*";
@@ -1254,16 +1260,30 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
         if (view.koDoc &&
             view.koDoc.file &&
             view.getAttribute("type") != "startpage") {
-            if (view.koDoc.file.isLocal) {
-                viewPart += ' (' + ko.stringutils.contractUser(view.koDoc.file.dirName) + ')';
-            } else {
-                viewPart = view.koDoc.displayPath;
+            var fullPath = (view.koDoc.file.isLocal
+                            ? view.koDoc.file.dirName
+                            : view.koDoc.displayPath);
+            viewPart += ' (' + ko.stringutils.contractUser(fullPath);
+            if (projectRootName) {
+                preProjectPart = ", ";
             }
+            postProjectPart = "";
+            postTitlePart = ")";
+        } else if (projectRootName) {
+            preProjectPart = " (";
+            postProjectPart = ")";
         }
-    } else {
-        viewPart="";
     }
-    var title = projectPart + viewPart;
+    if (projectRootName) {
+        viewPart += (preProjectPart
+                     + _bundle.GetStringFromName("Project")
+                     + " "
+                     + projectRootName
+                     + postProjectPart
+                     );
+    }
+    viewPart += postTitlePart;
+    var title = viewPart;
 
     var branding = '';
 //#if PLATFORM == "darwin"
