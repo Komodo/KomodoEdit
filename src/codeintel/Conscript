@@ -50,6 +50,7 @@ Import(
     'buildFlavour',
     'unsiloedPythonExe',
     'komodoDevDir',
+    'siloedPython',
     'sdkDir',
     'withKomodoCix',
 );
@@ -245,6 +246,7 @@ if ($withKomodoCix) {
     my $komodoCix = "$komodoPythonUtilsDir/codeintel2/catalogs/komodo.cix";
     my $pydExt = ($platform eq "win" ? ".pyd" : ".so");
     my $cElementTreeExt = "$komodoPythonUtilsDir/cElementTree$pydExt";
+    my $pythonToUse = ($platform eq "win" ? $siloedPython: "mozpython");
     $consLocal->Command(
         $komodoCix,
         # files needed to do the generation
@@ -265,7 +267,7 @@ if ($withKomodoCix) {
         #  xpcom.Exception: The interface 'koICodeIntelTrigger' does not exist
         $ranRegxpcomStateFileName,
         qq(
-            mozpython %1 -o %0
+            $pythonToUse %1 -o %0
         )
     );
     #TODO: Should refine the exclude patterns here so only depend on the minimal
