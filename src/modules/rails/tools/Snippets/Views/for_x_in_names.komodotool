@@ -1,12 +1,13 @@
 {
   "keyboard_shortcut": "", 
-  "set_selection": "true", 
   "name": "for x in names", 
   "value": [
     "<% for [[%tabstop:name]] in [[%tabstop:name]]s %>", 
     "  <%= !@#_currentPos!@#_anchor [[%tabstop:name]] %>", 
     "<% end %>"
   ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
   "type": "snippet", 
   "indent_relative": "true"
 }

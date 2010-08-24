@@ -1,6 +1,5 @@
 {
   "keyboard_shortcut": "", 
-  "set_selection": "true", 
   "name": "xhtml-transitional", 
   "value": [
     "<!DOCTYPE html ", 
@@ -8,6 +7,8 @@
     "     \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">", 
     "!@#_currentPos!@#_anchor"
   ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
   "type": "snippet", 
   "indent_relative": "false"
 }

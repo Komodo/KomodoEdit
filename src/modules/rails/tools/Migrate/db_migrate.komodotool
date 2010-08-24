@@ -24,6 +24,7 @@
     "}", 
     ""
   ], 
+  "version": "1.0.7", 
   "async": "0", 
   "type": "macro", 
   "icon": "chrome://famfamfamsilk/skin/icons/database_refresh.png"

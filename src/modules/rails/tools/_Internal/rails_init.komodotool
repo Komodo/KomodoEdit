@@ -520,6 +520,7 @@
     "    // dump(\"ko.extensions.rails already exists, type = \" + typeof(ko.extensions.rails) + \"\\n\");", 
     "}"
   ], 
+  "version": "1.0.7", 
   "async": "0", 
   "type": "macro"
 }

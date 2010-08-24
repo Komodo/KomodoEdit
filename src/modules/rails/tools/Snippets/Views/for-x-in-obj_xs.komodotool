@@ -1,12 +1,13 @@
 {
   "keyboard_shortcut": "", 
-  "set_selection": "true", 
   "name": "for-x-in-obj.xs", 
   "value": [
     "<% for [[%tabstop:name]] in [[%tabstop:object]].[[%tabstop:name]]s %>", 
     "  <%= !@#_currentPos!@#_anchor [[%tabstop:name]].[[%tabstop:attribute]] %>", 
     "<% end %>"
   ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
   "type": "snippet", 
   "indent_relative": "true"
 }
