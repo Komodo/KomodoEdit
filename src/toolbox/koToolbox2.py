@@ -83,31 +83,6 @@ UI_FOLDER_FILENAME = ".folderdata"
 PROJECT_FILE_EXTENSION = ".komodoproject"
 
 
-def _updateJSONData(data, new_id, path, noLoad=False):
-    try:
-        # the json file has to be reopened because
-        # the various parts of data were deleted as
-        # they were used up, to simplify other processing.
-        if not noLoad:
-            try:
-                fp = open(path, 'r')
-                try:
-                    data = json.load(fp, encoding="utf-8")
-                    data['id'] = new_id
-                except:
-                    log.exception("Failed to read json data for path %s", path)
-                fp.close()
-            except:
-                log.exception("Failed to read file %s", path)
-        fp = open(path, 'w')
-        try:
-            json.dump(data, fp, encoding="utf-8", indent=2)
-        except:
-            log.exception("Failed to write json data for path %s", path)
-        fp.close()
-    except:
-        log.exception("Failed to write to file %s", path)
-
 #---- errors
 
 class Toolbox2Error(Exception):
@@ -132,9 +107,10 @@ class Database(object):
     # db change log:
     # - 1.0.5: initial version (due to copy/paste error)
     # - 1.0.6: convert DirectoryShortcut tools into specialized macros
-    # - 1.0.7: signal change in items
+    # - 1.0.7: signal change in items: items get their own versions
     # - 1.0.8: remove version fields from the misc_properties table.
-    VERSION = "1.0.8"
+    # - 1.0.9: signal change in items: removing id's
+    VERSION = "1.0.9"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -283,6 +259,7 @@ class Database(object):
         "1.0.5": ('1.0.6', _delete_directory_shortcuts, None),
         "1.0.6": ('1.0.7', _signal_item_version_change, None),
         "1.0.7": ('1.0.8', _delete_version_field_from_misc_properties, None),
+        "1.0.8": ('1.0.9', _signal_item_version_change, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -375,6 +352,14 @@ class Database(object):
     def getChildIDs(self, node_id):
         with self.connect() as cu:
             cu.execute('''select path_id from hierarchy where parent_path_id == ?''',
+                       (node_id,))
+            return [x[0] for x in cu.fetchall()]
+
+    def getChildPaths(self, node_id):
+        with self.connect() as cu:
+            cu.execute('''select p.path
+                       from paths as p, hierarchy as h
+                       where h.parent_path_id = ? and h.path_id = p.id''',
                        (node_id,))
             return [x[0] for x in cu.fetchall()]
 
@@ -486,25 +471,10 @@ class Database(object):
     
     # Adder functions
 
-    def _addCommonDetails(self, path, name, item_type, parent_path_id, cu, existing_id=None):
-        if existing_id is not None:
-            # Make sure it's not in the DB
-            cu.execute('select count(*) from paths where id = ?', (existing_id,))
-            res = cu.fetchone()[0]
-            if res == 1:
-                #log.debug("_addCommonDetails: found id %d in db, so assign %s/%s a new id", existing_id, item_type, name)
-                existing_id = None  # id is in use
-            else:
-                #log.debug("Reusing id %d for %s %s", existing_id, item_type, name)
-                pass
-        if existing_id is None:
-            stmt = 'insert into paths(path) values(?)'
-            cu.execute(stmt, (path,))
-            id = cu.lastrowid
-        else:
-            stmt = 'insert into paths(id, path) values(?, ?)'
-            cu.execute(stmt, (existing_id, path))
-            id = existing_id
+    def _addCommonDetails(self, path, name, item_type, parent_path_id, cu):
+        stmt = 'insert into paths(path) values(?)'
+        cu.execute(stmt, (path,))
+        id = cu.lastrowid
         stmt = '''insert into common_details
                 (path_id, name, type) values (?, ?, ?)'''
         cu.execute(stmt, (id, name, item_type))
@@ -532,14 +502,11 @@ class Database(object):
                     fp.close()
                 except:
                     log.error("Couldn't open path %s", metadataPath)
-                old_id = int(data.get('id', -1))
                 if 'name' in data:
                     actual_name = data['name']
                 else:
                     actual_name = name
                 new_id = self._addCompoundItem(path, actual_name, data, parent_path_id, cu)
-                if new_id != old_id:
-                    _updateJSONData(data, new_id, metadataPath)
                 return new_id
             id = self._addCommonDetails(path, name, 'folder', parent_path_id, cu)
             return id
@@ -568,10 +535,7 @@ class Database(object):
                       name, data['name'])
         node_type = data['type']
         # Process the children in the directory
-        old_id = data.get('id', None)
-        if old_id is not None:
-            old_id = int(old_id)
-        id = self._addCommonDetails(path, name, node_type, parent_path_id, cu, old_id)
+        id = self._addCommonDetails(path, name, node_type, parent_path_id, cu)
         if node_type == 'menu':
             stmt = 'insert into menu(path_id, accessKey, priority) values(?, ?, ?)'
             cu.execute(stmt, (id, data.get('accesskey', ""), data.get('priority', 100)))
@@ -596,9 +560,6 @@ class Database(object):
             log.info("Dropping old-style tool type:%s, name:%s", item_type, fname)
             return # Goodbye
         pretty_name = data['name']
-        old_id = data.get('id', None)
-        if old_id is not None:
-            old_id = int(old_id)
         common_names = ['name', 'type', 'id', 'version']
         #log.debug("About to add tool %s in %s", fname, path)
         for name in common_names:
@@ -608,7 +569,7 @@ class Database(object):
                 #log.debug("key %s not in tool %s(type %s)", name, fname, item_type)
                 pass
         with self.connect(commit=True) as cu:
-            new_id = self._addCommonDetails(path, pretty_name, item_type, parent_path_id, cu, old_id)
+            new_id = self._addCommonDetails(path, pretty_name, item_type, parent_path_id, cu)
             prefix = '_add_'
             toolMethod = getattr(self, prefix + item_type, None)
             if not toolMethod:
@@ -1369,7 +1330,7 @@ def slugify(s):
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
-    ITEM_VERSION = "1.0.6"
+    ITEM_VERSION = "1.0.7"
     FIRST_ITEM_VERSION = "1.0.5"
 
     def __init__(self, db_path, db):
@@ -1427,9 +1388,18 @@ class ToolboxLoader(object):
         except IOError:
             log.exception("Can't open path %s for writing", path)
 
+    def _remove_id_field(self, curr_ver, result_ver, json_data, path):
+        try:
+            del json_data['id']
+        except KeyError:
+            pass
+        self._update_version(curr_ver, result_ver, json_data, path)
+            
+
     _upgrade_item_info_from_curr_ver = {
         # <item's version>: (<resultant version>, <upgrader method>)
         '1.0.5': ('1.0.6', _update_version),
+        '1.0.6': ('1.0.7', _remove_id_field),
      }
 
     def upgradeItem(self, json_data, path):
@@ -1451,7 +1421,7 @@ class ToolboxLoader(object):
             curr_ver = result_ver
     
     def _testAndAddItem(self, notifyNow, dirname, fname, parent_id,
-                        existing_child_ids=None):
+                        existing_child_paths=None):
         path = join(dirname, fname)
         isDir = os.path.isdir(path)
         isTool = os.path.splitext(fname)[1] == TOOL_EXTENSION
@@ -1466,8 +1436,8 @@ class ToolboxLoader(object):
                                                           'path', path)
             if result_list:
                 id = result_list[0]
-                if id and existing_child_ids:
-                    try: del existing_child_ids[id]
+                if id and existing_child_paths:
+                    try: del existing_child_paths[path]
                     except KeyError: pass
                 if id is None:
                     need_update = True
@@ -1511,13 +1481,7 @@ class ToolboxLoader(object):
                 if need_disk_based_update_only:
                     return
                 type = data['type']
-                old_id = int(data.get('id', -1))
                 new_id = self.db.addTool(data, type, path, fname, parent_id)
-                if new_id != old_id:
-                    _updateJSONData(data, new_id, path)
-                else:
-                    #log.debug("tool %s: continue to reuse id %r", path, old_id)
-                    pass
             else:
                 new_id = self.db.addFolder(path, fname, parent_id)
             if notifyNow:
@@ -1527,10 +1491,10 @@ class ToolboxLoader(object):
     def walkFunc(self, notifyNow, dirname, fnames):
         parent_id = self.db.get_id_from_path(dirname)
         if self.dbTimestamp:
-            existing_child_ids = dict([(x, 1) for x in self.db.getChildIDs(parent_id)])
+            existing_child_paths = dict([(x, 1) for x in self.db.getChildPaths(parent_id)])
         for fname in fnames:
             self._testAndAddItem(notifyNow, dirname, fname, parent_id,
-                                 existing_child_ids)
+                                 existing_child_paths)
         metadataPath = join(dirname, UI_FOLDER_FILENAME)
         if exists(metadataPath):
             result = self.db.getValuesFromTableByKey('metadata_timestamps', ['mtime'], 'path_id', parent_id)
@@ -1567,7 +1531,10 @@ class ToolboxLoader(object):
                     else:
                         self.db.insertMenuItem(child_id, position)
                         position += 1
-        for id in existing_child_ids:
+        for path in existing_child_paths:
+            # Getting an id value should never fail here, or the path would
+            # have been removed from existing_child_paths in _testAndAddItem
+            id = self.db.getValuesFromTableByKey('paths', ['id'], 'path', path)
             if notifyNow:
                 tool = self._toolsSvc.getToolById(id)
                 tool.removed()
@@ -1590,9 +1557,6 @@ class ToolboxLoader(object):
             if not result_list:
                 new_id = self.db.addFolder(actualToolboxDir, toolboxName, None)
                 result_list = [new_id]
-                data = { 'id': new_id, 'type':'folder', 'name':toolboxName}
-                _updateJSONData(data, new_id,
-                                os.path.join(actualToolboxDir, UI_FOLDER_FILENAME), noLoad=True)                        
                     
             os.path.walk(actualToolboxDir, self.walkFunc, False)
             # Check the name of the item
@@ -1627,9 +1591,6 @@ class ToolboxLoader(object):
             if not result_list:
                 new_id = self.db.addFolder(dstPath, toolboxName, parent_id)
                 result_list = [new_id]
-                data = { 'id': new_id, 'type':'folder', 'name':toolboxName}
-                _updateJSONData(data, new_id,
-                                join(dstPath, UI_FOLDER_FILENAME), noLoad=True)
             os.path.walk(dstPath, self.walkFunc, True)
         finally:
             self.db.releaseConnection()
