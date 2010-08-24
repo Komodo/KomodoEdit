@@ -1346,6 +1346,9 @@ def slugify(s):
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
+    ITEM_VERSION = "1.0.6"
+    FIRST_ITEM_VERSION = "1.0.5"
+
     def __init__(self, db_path, db):
         # This timestamp is only used while loading the database.
         try:
@@ -1386,23 +1389,6 @@ class ToolboxLoader(object):
             self.db.deleteItem(path_id)
         return update_tree
 
-    def upgradeItem(self, json_data, path):
-        if 'version' not in json_data:
-            curr_ver = '1.0.5'
-        else:
-            curr_ver = json_data['version']
-        while curr_ver != self.db.VERSION:
-            try:
-                result_ver, upgrader \
-                    = self._upgrade_info_from_curr_ver[curr_ver]
-            except KeyError:
-                raise Toolbox2Error(
-                    "cannot upgrade from tool v%s: no upgrader for this version"
-                    % curr_ver)
-            log.info("upgrading from tool v%s to tool v%s ...",
-                     curr_ver, result_ver)
-            upgrader(self, curr_ver, result_ver, json_data, path)
-            curr_ver = result_ver
 
     def _update_version(self, curr_ver, result_ver, json_data, path):
         log.debug("Adding version %s to json_data %s",
@@ -1417,11 +1403,32 @@ class ToolboxLoader(object):
             fp.close()
         except IOError:
             log.exception("Can't open path %s for writing", path)
-            
-    _upgrade_info_from_curr_ver = {
-        # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
-        "1.0.5": ("1.0.6", _update_version),
-    }
+
+    def _item_update_version(self, curr_ver, result_ver, json_data, path):
+        return
+
+    _upgrade_item_info_from_curr_ver = {
+        # <item's version>: (<resultant version>, <upgrader method>)
+        '1.0.5': ('1.0.6', _item_update_version),
+     }
+
+    def upgradeItem(self, json_data, path):
+        if 'version' not in json_data:
+            curr_ver = self.FIRST_ITEM_VERSION
+        else:
+            curr_ver = json_data['version']
+        while curr_ver != self.ITEM_VERSION:
+            try:
+                result_ver, upgrader \
+                    = self._upgrade_item_info_from_curr_ver[curr_ver]
+            except KeyError:
+                raise Toolbox2Error(
+                    "cannot upgrade from tool v%s: no upgrader for this version"
+                    % curr_ver)
+            log.info("upgrading from tool v%s to tool v%s ...",
+                     curr_ver, result_ver)
+            upgrader(self, curr_ver, result_ver, json_data, path)
+            curr_ver = result_ver
     
     def _testAndAddItem(self, notifyNow, dirname, fname, parent_id,
                         existing_child_ids=None):
