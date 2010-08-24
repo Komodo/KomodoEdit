@@ -110,7 +110,8 @@ class Database(object):
     # - 1.0.7: signal change in items: items get their own versions
     # - 1.0.8: remove version fields from the misc_properties table.
     # - 1.0.9: signal change in items: removing id's
-    VERSION = "1.0.9"
+    # - 1.0.10: remove .svn folders, etc., from the toolbox database.
+    VERSION = "1.0.10"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -118,6 +119,7 @@ class Database(object):
         self.cu = self.cx = None
         self.schemaFile = schemaFile
         self.item_version_changed = False
+        self.check_remove_scc_dir = False
         if not exists(db_path):
             self.create()
         elif os.path.getsize(db_path) == 0:
@@ -254,12 +256,16 @@ class Database(object):
     def _signal_item_version_change(self, curr_ver, result_ver):
         self.item_version_changed = True
         
+    def _signal_check_remove_scc_dir(self, curr_ver, result_ver):
+        self.check_remove_scc_dir = True
+        
     _upgrade_info_from_curr_ver = {
         # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
-        "1.0.5": ('1.0.6', _delete_directory_shortcuts, None),
-        "1.0.6": ('1.0.7', _signal_item_version_change, None),
-        "1.0.7": ('1.0.8', _delete_version_field_from_misc_properties, None),
-        "1.0.8": ('1.0.9', _signal_item_version_change, None),
+        "1.0.5": ('1.0.6',  _delete_directory_shortcuts, None),
+        "1.0.6": ('1.0.7',  _signal_item_version_change, None),
+        "1.0.7": ('1.0.8',  _delete_version_field_from_misc_properties, None),
+        "1.0.8": ('1.0.9',  _signal_item_version_change, None),
+        "1.0.9": ('1.0.10', _signal_check_remove_scc_dir, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -1345,6 +1351,7 @@ class ToolboxLoader(object):
         self._toolsSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].\
                        getService(components.interfaces.koIToolbox2ToolManager))
         self._loadedPaths = {}
+        self._excludedFolders = ['.svn', 'CVS', '.hg', '.bzr']
         
     def deleteFolderIfMetadataChanged(self, path, fname, path_id):
         # fname is last part of path, but is in for convenience
@@ -1489,6 +1496,18 @@ class ToolboxLoader(object):
                 tool.added()
 
     def walkFunc(self, notifyNow, dirname, fnames):
+        if os.path.basename(dirname) in self._excludedFolders:
+            if self.db.check_remove_scc_dir:
+                # See if we should remove this item, and its children
+                # from the database
+                result_list = self.db.getValuesFromTableByKey('paths', ['id'], 'path', dirname)
+                if result_list is not None:
+                    id = result_list[0]
+                    # Delete it from the db, and don't load its children
+                    self.db.deleteItem(id)
+            # Make sure walkFunc doesn't process any of this dir's children
+            del fnames[:]
+            return
         parent_id = self.db.get_id_from_path(dirname)
         if self.dbTimestamp:
             existing_child_paths = dict([(x, 1) for x in self.db.getChildPaths(parent_id)])
@@ -1534,7 +1553,7 @@ class ToolboxLoader(object):
         for path in existing_child_paths:
             # Getting an id value should never fail here, or the path would
             # have been removed from existing_child_paths in _testAndAddItem
-            id = self.db.getValuesFromTableByKey('paths', ['id'], 'path', path)
+            id = self.db.getValuesFromTableByKey('paths', ['id'], 'path', path)[0]
             if notifyNow:
                 tool = self._toolsSvc.getToolById(id)
                 tool.removed()
