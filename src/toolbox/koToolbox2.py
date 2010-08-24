@@ -132,29 +132,26 @@ class Database(object):
     # db change log:
     # - 1.0.5: initial version (due to copy/paste error)
     # - 1.0.6: convert DirectoryShortcut tools into specialized macros
-    VERSION = "1.0.6"
+    # - 1.0.7: signal change in items
+    VERSION = "1.0.7"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
         self.path = db_path
         self.cu = self.cx = None
         self.schemaFile = schemaFile
+        self.item_version_changed = False
         if not exists(db_path):
-            update_version = True
             self.create()
         elif os.path.getsize(db_path) == 0:
             os.unlink(db_path)
-            update_version = True
             self.create()
         else:
-            update_version = False
             try:
                 self.upgrade()
             except Exception, ex:
                 log.exception("error upgrading `%s': %s", self.path, ex)
                 self.reset()
-        if update_version:
-            self.set_meta("version", self.VERSION)
 
         self._specific_names = {
             'command':['insertOutput', 'parseRegex', 'operateOnSelection',
@@ -236,6 +233,7 @@ class Database(object):
         """Upgrade the current database."""
         # 'version' is the DB ver on disk, 'VERSION' is the target ver.
         curr_ver = self.get_meta("version", self.FIRST_VERSION)
+        starting_ver = curr_ver
         while curr_ver != self.VERSION:
             try:
                 result_ver, upgrader, upgrader_arg \
@@ -251,6 +249,8 @@ class Database(object):
             else:
                 upgrader(self, curr_ver, result_ver)
             curr_ver = result_ver
+        if starting_ver != self.VERSION:
+            self.update_meta("version", self.VERSION)
 
     def _delete_directory_shortcuts(self, curr_ver, result_ver):
         """These will be converted when the tools are
@@ -264,11 +264,14 @@ class Database(object):
                        len(path_ids), path_ids)
             for path_id in path_ids:
                 self.deleteItem(path_id)
-        
+                
+    def _signal_item_version_change(self, curr_ver, result_ver):
+        self.item_version_changed = True
         
     _upgrade_info_from_curr_ver = {
         # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
         "1.0.5": (VERSION, _delete_directory_shortcuts, None),
+        "1.0.6": (VERSION, _signal_item_version_change, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -285,7 +288,7 @@ class Database(object):
             if row is None:
                 return default
             return row[0]
-    
+            
     def set_meta(self, key, value, cu=None):
         """Set a value into the meta table.
         
@@ -297,6 +300,15 @@ class Database(object):
         with self.connect(commit=True, cu=cu) as cu:
             cu.execute("INSERT INTO toolbox2_meta(key, value) VALUES (?, ?)", 
                 (key, value))
+
+    def update_meta(self, key, value, cu=None):
+        with self.connect(commit=True, cu=cu) as cu:
+            try:
+                cu.execute("UPDATE toolbox2_meta SET value=? where key=?",
+                           (value, key))
+            except sqlite3.OperationalError:
+                log.error("Error updating meta table:%s", ex.message)
+                self.set_meta(key, value, cu)
 
     def del_meta(self, key):
         """Delete a key/value pair from the meta table.
@@ -1440,6 +1452,7 @@ class ToolboxLoader(object):
         elif not self.dbTimestamp:
             need_update = True
         else:
+            need_disk_based_update_only = False
             result_list = self.db.getValuesFromTableByKey('paths',
                                                           ['id'],
                                                           'path', path)
@@ -1459,6 +1472,10 @@ class ToolboxLoader(object):
                         log.debug("db time: %r, stat time: %r", self.dbTimestamp, mtime)
                         log.debug("Rebuilding item %s (%s)", fname, dirname)
                         self.db.deleteItem(id)
+                    elif self.db.item_version_changed:
+                        #log.debug("self.db.item_version_changed: true. check for individual tool version change")
+                        need_update = True
+                        need_disk_based_update_only = True
             else:
                 log.debug("No entry for path %s in the db", path)
                 need_update = True
@@ -1466,21 +1483,25 @@ class ToolboxLoader(object):
         if need_update:
             if isTool:
                 try:
-                    fp = open(path, 'r')
-                except IOError:
-                    log.error("database loader: Couldn't load file %s", path)
-                    return
-                try:
-                    data = json.load(fp, encoding="utf-8")
-                    if data['type'] == "DirectoryShortcut":
-                        log.info("Deleting DirectoryShortcut tool %s", path)
-                        os.unlink(path)
+                    try:
+                        fp = open(path, 'r')
+                    except IOError:
+                        log.error("database loader: Couldn't load file %s", path)
                         return
-                    self.upgradeItem(data, path)
-                except:
-                    log.exception("Couldn't load json data for path %s", path)
+                    try:
+                        data = json.load(fp, encoding="utf-8")
+                        if data['type'] == "DirectoryShortcut":
+                            log.info("Deleting DirectoryShortcut tool %s", path)
+                            os.unlink(path)
+                            return
+                        self.upgradeItem(data, path)
+                    except:
+                        log.exception("Couldn't load json data for path %s", path)
+                        return
+                finally:
+                    fp.close()
+                if need_disk_based_update_only:
                     return
-                fp.close()
                 type = data['type']
                 old_id = int(data.get('id', -1))
                 new_id = self.db.addTool(data, type, path, fname, parent_id)
