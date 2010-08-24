@@ -19,6 +19,7 @@ Matt Herdon
 Rob Hernandez
 Jeff Hobbs
 Neil Hodgson
+Mike Ivanov
 Brian King
 Andreas Kupries
 Chad Lindstrom
@@ -26,6 +27,7 @@ Marcus Lund
 Andy McKay
 Trent Mick
 Luke Pacholski
+Shannon Pawliw
 Paul Prescod
 Eric Promislow
 Damien Prystay
