@@ -133,7 +133,8 @@ class Database(object):
     # - 1.0.5: initial version (due to copy/paste error)
     # - 1.0.6: convert DirectoryShortcut tools into specialized macros
     # - 1.0.7: signal change in items
-    VERSION = "1.0.7"
+    # - 1.0.8: remove version fields from the misc_properties table.
+    VERSION = "1.0.8"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -264,14 +265,24 @@ class Database(object):
                        len(path_ids), path_ids)
             for path_id in path_ids:
                 self.deleteItem(path_id)
-                
+                         
+    def _delete_version_field_from_misc_properties(self, curr_ver, result_ver):
+        """
+        In version 1.0.6, version fields ended up in the misc_properties
+        table.  This was a mistake.
+        """
+        with self.connect(commit=True) as cu:
+            cu.execute("delete from misc_properties where prop_name = ?",
+                       ("version",))
+            
     def _signal_item_version_change(self, curr_ver, result_ver):
         self.item_version_changed = True
         
     _upgrade_info_from_curr_ver = {
         # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
-        "1.0.5": (VERSION, _delete_directory_shortcuts, None),
-        "1.0.6": (VERSION, _signal_item_version_change, None),
+        "1.0.5": ('1.0.6', _delete_directory_shortcuts, None),
+        "1.0.6": ('1.0.7', _signal_item_version_change, None),
+        "1.0.7": ('1.0.8', _delete_version_field_from_misc_properties, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -588,7 +599,7 @@ class Database(object):
         old_id = data.get('id', None)
         if old_id is not None:
             old_id = int(old_id)
-        common_names = ['name', 'type', 'id']
+        common_names = ['name', 'type', 'id', 'version']
         #log.debug("About to add tool %s in %s", fname, path)
         for name in common_names:
             try:
@@ -1416,12 +1427,9 @@ class ToolboxLoader(object):
         except IOError:
             log.exception("Can't open path %s for writing", path)
 
-    def _item_update_version(self, curr_ver, result_ver, json_data, path):
-        return
-
     _upgrade_item_info_from_curr_ver = {
         # <item's version>: (<resultant version>, <upgrader method>)
-        '1.0.5': ('1.0.6', _item_update_version),
+        '1.0.5': ('1.0.6', _update_version),
      }
 
     def upgradeItem(self, json_data, path):
