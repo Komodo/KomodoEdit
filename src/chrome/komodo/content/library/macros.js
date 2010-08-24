@@ -47,6 +47,8 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/library.properties");
 
+this.CURRENT_MACRO_VERSION = 3;
+
 function MacroRecorder() {
     this.mode = 'stopped';
     this._currentMacro = new Array();
@@ -70,8 +72,7 @@ MacroRecorder.prototype.startRecording = function() {
         }
         this._currentMacro = new Array();
         this._currentMacro.push(_bundle.formatStringFromName("macroRecordedOnComment", [Date()], 1) + '\n');
-        var macroVersionNumber = "2"; // must match the number in peMacro.js
-        this._currentMacro.push('komodo.assertMacroVersion(' + macroVersionNumber + ');\n');
+        this._currentMacro.push('komodo.assertMacroVersion(' + ko.macros.CURRENT_MACRO_VERSION + ');\n');
         this._currentMacro.push("if (komodo.view) { komodo.view.setFocus(); }\n");
         this._currentMacroText = new Array();
     }

@@ -753,7 +753,7 @@ this.recordPartInvocation = function macro_recordPartInvocation(part) {
             wko.macros.recorder.mode == 'recording') {
             var name = part.getStringAttribute('name');
             var type = part.type;
-            var runtxt = "_part = komodo.findPart('"+type+"', '" + name + "'" + ", '*')\n";
+            var runtxt = "_part = komodo.findPart('"+type+"', '" + name + "'" + ")\n";
             runtxt += "if (!_part) {alert(\"Couldn't find a " + type + " called '" + name + "' when executing macro.\"); return\n}\n";
             runtxt += "ko.projects.invokePart(_part);\n";
             wko.macros.recorder.appendCode(runtxt);
@@ -810,7 +810,6 @@ function _KomodoJSMacroAPI(macro, view)
         this.window = window;
         this.domdocument = document;
         this.components = Components;
-
     } catch(ex) {
         log.exception(ex);
     }
@@ -827,9 +826,21 @@ _KomodoJSMacroAPI.prototype.destructor = function() {
     delete this.domdocument;
 }
 
-_KomodoJSMacroAPI.prototype.assertMacroVersion = function(version) {};
+_KomodoJSMacroAPI.prototype.assertMacroVersion = function(version) {
+    if (version < ko.macros.CURRENT_MACRO_VERSION) {
+        alert("This macro was generated with an older version of Komodo, "
+              + "and might no longer work correctly.  \n"
+              + "This message can be suppressed by editing the macro "
+              + "and changing the 'assertMacroVersion' value to "
+              + ko.macros.CURRENT_MACRO_VERSION);
+    }
+};
 _KomodoJSMacroAPI.prototype.doCommand = ko.commands.doCommand;
-_KomodoJSMacroAPI.prototype.findPart = ko.projects.findPart;
+_KomodoJSMacroAPI.prototype.findPart = function(toolType, toolName) {
+    var res = ko.toolbox2.getToolsByTypeAndName(toolType, toolName);
+    if (!res.length) return null;
+    return res[0];
+}
 _KomodoJSMacroAPI.prototype.getWordUnderCursor = function()
 {
     return ko.interpolate.getWordUnderCursor(this.editor);
