@@ -384,7 +384,6 @@
           labelTest="t:project|&replaceProject.label;|&openProject.label;"
           oncommand="ko.places.openProjectInCurrentWindow();" />
       <menuitem label="&properties.label;"
-          class="menuitem-iconic"
           id="menu_projectProperties_projectsContext"
           disableUnless="currentProject"
           oncommand="ko.places.editProjectProperties();"
