@@ -449,11 +449,11 @@
 }
 
 .project-tools-icon {
-  list-style-image : url("chrome://komodo/skin/global/images/cog.png");
+  list-style-image : url("chrome://fugue/skin/icons/gear.png");
 }
 .project-tools-icon:hover {
   /* TODO: A disabled version of this icon. */
-  list-style-image : url("chrome://komodo/skin/global/images/cog.png");
+  list-style-image : url("chrome://fugue/skin/icons/gear.png");
 }
 
 .open-project-icon {
