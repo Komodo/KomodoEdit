@@ -2435,24 +2435,6 @@ this.updateFilterViewMenu = function() {
     });
 };
 
-//XXX:TODO: remove workspace prefs here: not needed
-this.restoreWorkspacePrefs = function(workspace) {
-    if (!workspace.hasPref("workspacePlaces")) {
-        return;
-    }
-    var placePanelPrefs = workspace.getPref("workspacePlaces");
-};
-
-this.saveWorkspacePrefs = function(workspace) {
-    var placePanelPrefs;
-    if (workspace.hasPref("workspacePlaces")) {
-        placePanelPrefs = workspace.getPref("workspacePlaces");
-    } else {
-        placePanelPrefs = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
-        workspace.setPref("workspacePlaces", placePanelPrefs);
-    }
-};
-
 xtk.include("treeview");
 this.recentProjectsTreeView = function() {
     xtk.dataTreeView.apply(this, []);

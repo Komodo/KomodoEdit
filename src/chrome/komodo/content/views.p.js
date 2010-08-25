@@ -2814,13 +2814,6 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         if (wko.history) {
             wko.history.restore_prefs(workspace);
         }
-        if (wko.places) {
-            try {
-                wko.places.restoreWorkspacePrefs(workspace);
-            } catch(ex) {
-                log.exception("wko.places.restoreWorkspacePrefs: " + ex);
-            }
-        }
         wko._hasFocus = (workspace.hasBooleanPref('hasFocus')
                          && workspace.getBooleanPref('hasFocus'));
         var infoService = Components.classes["@activestate.com/koInfoService;1"].
@@ -2908,13 +2901,6 @@ this.saveWorkspace = function view_saveWorkspace()
             if (wko.history) {
                 wko.history.save_prefs(workspace);
             }
-            if (wko.places) {
-                try {
-                    wko.places.saveWorkspacePrefs(workspace);
-                } catch(ex) {
-                    log.exception("wko.places.saveWorkspacePrefs: " + ex);
-                }
-             }
         }
         // Save prefs
         gPrefSvc.saveState();
