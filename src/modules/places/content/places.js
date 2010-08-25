@@ -66,6 +66,8 @@ var osPathSvc;
 
 const DEFAULT_EXCLUDE_MATCHES = ".*;*~;#*;CVS;*.bak;*.pyo;*.pyc";
 const DEFAULT_INCLUDE_MATCHES = ".login;.profile;.bashrc;.bash_profile";
+
+const PROJECT_URI_REGEX = /^.*\/(.+?)\.(?:kpf|komodoproject)$/;
     
 var log = getLoggingMgr().getLogger("places_js");
 log.setLevel(LOG_DEBUG);
@@ -1964,7 +1966,9 @@ ManagerClass.prototype = {
         } else if (topic == 'current_project_changed') {
             this._checkProjectMatch();
         } else if (topic == 'file_changed') {
-            ko.places.rpTree.treeBoxObject.invalidate();
+            if (PROJECT_URI_REGEX.text(data)) {
+                ko.places.rpTree.treeBoxObject.invalidate();
+            }
         }
     },
     
@@ -2456,10 +2460,9 @@ this.recentProjectsTreeView.prototype.terminate = function() {
     observerSvc.removeObserver(this, "mru_changed");
 };
 
-var uriPickerRegex = /^.*\/(.+?)\.(?:kpf|komodoproject)$/;
 this.recentProjectsTreeView.prototype._resetRows = function() {
     var rows = ko.mru.getAll("mruProjectList").map(function(uri) {
-            var m = uriPickerRegex.exec(uri);
+            var m = PROJECT_URI_REGEX.exec(uri);
             if (m) {
                 return [uri, m[1]];
             }
