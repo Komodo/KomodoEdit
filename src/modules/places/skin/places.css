@@ -154,12 +154,11 @@ treechildren#places-files-tree-body:-moz-tree-image(places_file, sccConflict, ed
 /* bindings */
 
 tree.placestree {
-    -moz-binding: url('chrome://places/content/widgets-places.xml#places_tree_b');
+  -moz-binding: url('chrome://places/content/widgets-places.xml#places_tree_b');
 }
 
 /* Copied from skin/toolbar.p.css, which uses an ID */
-undo-button
-{
+undo-button {
   list-style-image : url("chrome://komodo/skin/images/undo.png");
 }
 
@@ -168,8 +167,8 @@ undo-button
 }
 
 #place-view-vbox {
-    /* Give some padding around the places toolbar box. */
-    padding-left: 4px;
+  /* Give some padding around the places toolbar box. */
+  padding-left: 4px;
 }
 
 
@@ -203,5 +202,5 @@ undo-button
 /* ---- Places "Projects" subpanel ---- */
 
 .recentProjectsTree:-moz-tree-cell-text(projectActive) {
-    font-weight: bold;
+  font-weight: bold;
 }
