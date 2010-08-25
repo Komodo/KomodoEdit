@@ -594,7 +594,7 @@
           resizeafter="farthest"
           ondblclick="ko.places.toggleSubpanel()"
           collapse="none">
-        <hbox flex="1" style="height: 22px;">
+        <hbox flex="1" >
           <deck id="placesSubpanelTitlebarDeck" flex="1">
             <!-- subpanel titlebar 0: Projects -->
             <hbox align="center" flex="1">
