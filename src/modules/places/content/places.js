@@ -1967,7 +1967,7 @@ ManagerClass.prototype = {
             this._checkProjectMatch();
         } else if (topic == 'file_changed') {
             if (PROJECT_URI_REGEX.text(data)) {
-                ko.places.rpTree.treeBoxObject.invalidate();
+                ko.places.projectsTree.treeBoxObject.invalidate();
             }
         }
     },
@@ -2220,20 +2220,20 @@ this.initProjectMRUCogMenu = function() {
 this.onUnload = function places_onUnload() {
     ko.places.manager.finalize();
     ko.places.viewMgr.finalize();
-    ko.places.rpTreeView.terminate();
+    ko.places.projectsTreeView.terminate();
     ko.places.manager = ko.places._viewMgr = null;
 };
 
 this.createProjectMRUView = function() {
-    this.rpTree = document.getElementById("placesSubpanelProjects");
-    this.rpTreeView = new this.recentProjectsTreeView();
-    if (!this.rpTreeView) {
+    this.projectsTree = document.getElementById("placesSubpanelProjects");
+    this.projectsTreeView = new this.recentProjectsTreeView();
+    if (!this.projectsTreeView) {
         throw new Error("couldn't create a recentProjectsTreeView");
     }
-    this.rpTree.treeBoxObject
+    this.projectsTree.treeBoxObject
                         .QueryInterface(Components.interfaces.nsITreeBoxObject)
-                        .view = this.rpTreeView;
-    this.rpTreeView.initialize();    
+                        .view = this.projectsTreeView;
+    this.projectsTreeView.initialize();    
 };
 
 // Methods for dealing with the projects tree context menu.
@@ -2241,17 +2241,17 @@ this.createProjectMRUView = function() {
 this._projectTestLabelMatcher = /^t:project\|(.+)\|(.+)$/;
 this.initProjectsContextMenu = function(event, menupopup) {
     var row = {};
-    this.rpTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
+    this.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
     var index = row.value;
     if (index == -1) {
         // Means that we're clicking in white-space below.
         // Clear the selection, and return.
-        this.rpTreeView.selection.clearSelection();
+        this.projectsTreeView.selection.clearSelection();
         event.stopPropagation();
         event.preventDefault();
         return false;
     }
-    var selectedUrl = this.rpTreeView.getCellValue(index);
+    var selectedUrl = this.projectsTreeView.getCellValue(index);
     var selectionInfo = {};
     var currentProject = ko.projects.manager.currentProject;
     selectionInfo.currentProject = (currentProject
@@ -2306,10 +2306,10 @@ this.onProjectTreeDblClick = function(event) {
         return;
     }
     var row = {};
-    this.rpTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
+    this.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
     var index = row.value;
     if (index != -1) {
-        var uri = this.rpTreeView.getCellValue(index);
+        var uri = this.projectsTreeView.getCellValue(index);
         var currentProject = ko.projects.manager.currentProject;
         if (!currentProject || currentProject.url != uri) {
             ko.projects.open(uri);
@@ -2350,11 +2350,11 @@ this.openProjectInCurrentWindow = function() {
 }
 
 this._openProject = function(inNewWindow) {
-    var index = this.rpTreeView.selection.currentIndex;
+    var index = this.projectsTreeView.selection.currentIndex;
     if (index == -1) {
         return;
     }
-    var uri = this.rpTreeView.getCellValue(index);
+    var uri = this.projectsTreeView.getCellValue(index);
     if (inNewWindow) {
         ko.launch.newWindow(uri);
     } else {
