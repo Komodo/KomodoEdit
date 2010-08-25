@@ -340,7 +340,7 @@
                 testDisableIf="t:classIsntProject"
                 />
     </menupopup>
-    <menupopup id="places_projectsContextMenu"
+    <menupopup id="placesSubpanelProjectsContextMenu"
                onpopupshowing="ko.places.initProjectsContextMenu(event, this);" >
      <!--
      show in places
@@ -589,79 +589,69 @@
                 class="placesTree" />
         </tree>
       </vbox>
-      
-      <splitter id="places_projects_splitter"
-                orient="vertical"
-                resizeafter="farthest"
-                collapse="none" />
-           
-<!--<deck id="placesSubpanel" selectedIndex="0" orient="vertical" flex="1">-->
-<!--<vbox id="placesProjectsSubpanel" flex="1">-->
 
-      <hbox id="placesViewbox_projects_hbox">
-        <label id="placesViewbox_projects_hbox_label_1"
-               min-width="0"
-               flex="1"
-               value="Projects"
-               />
-        <label id="placesViewbox_projects_hbox_currentProjectName"
-               min-width="0"
-               flex="1"
-               crop="end"
-               value=""
-                />
-        <toolbarbutton id="placesViewbox_projects_tools"
-               tooltiptext="&placeView.tooltiptext;"
-               buttonstyle="pictures"
-               type="menu"
-               orient="horizontal"
-               class="project-tools-icon">
-          <menupopup id="placesViewbox_projects_tools_popup"
-                     onpopupshowing="ko.projects.manager.updateProjectMenu(event, this)"/>
-          <!-- This popup menu is set in places.js: initProjectMRUCogMenu, basically
-          copied from the main project menu, skipping denoted nodes, and resetting
-          the ID attributes so they'll stay unique.
-          -->
-        </toolbarbutton>
-        <toolbarbutton id="placesViewbox_projects_show_hide"
-                       tooltiptext="hide projects"
-                       buttonstyle="pictures"
-                       oncommand="ko.places.toggleProjectsView(event, this)"
-                       direction="down"
-                       persist="class"
-                       class="hide-projects" />
-      </hbox>
-      <vbox flex="1" id="placesViewbox_projects_tree_vbox"
-              class="show"
-              persist="class">
-        <tree id="placesViewbox_projects_tree"
-               rows="2"
-               flex="1"
-              style="margin: 0px;"
-              hidecolumnpicker="true"
-              context="places-projects-popup"
-              seltype="single">
+      <!-- The "Places" sidebar has a "subpanel" area. Currently the only
+        subpanel is the "Projects" subpanel that shows recent projects.
+        However, the structure below uses decks so that we can eventually add
+        others. If/when we do that, we'll need to add some UI for switching
+        between subpanels.
+        
+        To add a subpanel there are *two* decks to which to add:
+        1. `placesSubpanelTitlebarDeck` for the subpanel's titlebar, which
+           also acts as the splitter.
+        2. `placesSubpanelDeck` is the main content area for the subpanel
+        -->
+
+      <splitter id="placesSubpanelSplitter"
+          orient="vertical"
+          resizeafter="farthest"
+          ondblclick="ko.places.toggleSubpanel()"
+          collapse="none">
+        <hbox flex="1" style="height: 22px;">
+          <deck id="placesSubpanelTitlebarDeck" flex="1">
+            <!-- subpanel titlebar 0: Projects -->
+            <hbox align="center" flex="1">
+              <label value="Projects" flex="1" />
+              <toolbarbutton id="placesSubpanelProjectsTools"
+                  buttonstyle="pictures"
+                  type="menu"
+                  orient="horizontal"
+                  class="project-tools-icon">
+                <menupopup id="placesSubpanelProjectsToolsPopup"
+                    onpopupshowing="ko.projects.manager.updateProjectMenu(event, this)"/>
+              </toolbarbutton>
+            </hbox>
+          </deck>
+          <toolbarbutton id="placesSubpanelToggle"
+              buttonstyle="pictures"
+              oncommand="ko.places.toggleSubpanel()"
+              persist="state"
+              state="open" />
+        </hbox>
+      </splitter>
+
+      <deck id="placesSubpanelDeck" selectedIndex="0" orient="vertical"
+          height="250" minheight="75" persist="height">
+        <!-- subpanel 0: Projects -->
+        <tree id="placesSubpanelProjects"
+            flex="1"
+            height="100"
+            style="margin: 0px;"
+            hidecolumnpicker="true"
+            context="places-projects-popup"
+            seltype="single">
           <treecols>
-               <treecol
-                  id="placesViewbox_projects_tree_projectName"
-                  flex="1"
-                  primary="true"
-                  hideheader="true"
-                  />
+            <treecol flex="1" primary="true" hideheader="true" />
           </treecols>
           <treechildren
-             id="placesViewbox_projects_tree_body"
-             flex="1"
-             ondblclick="ko.places.onProjectTreeDblClick(event, this);"
-             context="places_projectsContextMenu"
-             class="recentProjectsTree" />
+              flex="1"
+              ondblclick="ko.places.onProjectTreeDblClick(event, this);"
+              context="placesSubpanelProjectsContextMenu"
+              class="recentProjectsTree" />
         </tree>
-      </vbox>
+      </deck>
 
-<!--</vbox>-->
-<!--</deck>-->
-      
-      </vbox>
+     </vbox>
     </tabpanel>
   </tabpanels>
 </overlay>

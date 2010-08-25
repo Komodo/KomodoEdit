@@ -172,42 +172,35 @@ undo-button
     padding-left: 4px;
 }
 
-/* places view projects sidebar */
-#placesViewbox_projects_show_hide[class="hide-projects"] {
-/* 270-degrees means pointing down */
+
+/* ---- Places subpanel ---- */
+
+#placesSubpanelToggle[state="open"] {
   list-style-image : url("chrome://fugue/skin/icons/control-270.png");
 }
-#placesViewbox_projects_show_hide[class="show-projects"] {
-/* 90-degrees means pointing up */
+#placesSubpanelToggle[state="collapsed"] {
   list-style-image : url("chrome://fugue/skin/icons/control-090.png");
 }
 
-
-#placesViewbox_projects_hbox[projects="hide"] {
-    border-top: solid 1px black;
-    margin-top: 1px;
+/* No default grippy image. Splitter-like cursor as appropriate. */
+#placesSubpanelSplitter {
+  background: transparent !important;
+  border: none;
+  border-top: solid 1px ThreeDShadow;
+}
+#placesSubpanelSplitter > grippy {
+  background-image: none !important;
+}
+#placesSubpanelSplitter,
+#placesSubpanelSplitter label {
+  cursor: ns-resize;
+}
+#placesSubpanelSplitter toolbarbutton  {
+  cursor: default;
 }
 
-#placesViewbox_projects_hbox[projects="show"] {
-    border-top: none;
-    margin-top: 0px;
-}
 
-#places_projects_splitter[projects="hide"] {
-  visibility: collapse;
-}
-
-#places_projects_splitter[projects="show"] {
-  visibility: visible;
-}
-
-#placesViewbox_projects_tree_vbox[projects="show"] {
-  visibility: visible;
-}
-
-#placesViewbox_projects_tree_vbox[projects="hide"] {
-  visibility: collapse;
-}
+/* ---- Places "Projects" subpanel ---- */
 
 .recentProjectsTree:-moz-tree-cell-text(projectActive) {
     font-weight: bold;

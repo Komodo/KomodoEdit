@@ -2176,28 +2176,14 @@ this.onLoad = function places_onLoad() {
         document.getElementById("placeView_viewAll");
     widgets.placeView_customView_menuitem =
         document.getElementById("placeView_customView");
-    widgets.placeView_toggleProjectsToolbarButton =
-        document.getElementById("placesViewbox_projects_show_hide");
-    widgets.placeView_projectsTree =
-        document.getElementById("placesViewbox_projects_tree");
-    widgets.placeView_projectsTreeVbox =
-        document.getElementById("placesViewbox_projects_tree_vbox");
     ko.places.updateFilterViewMenu();
     // The "initialize" routine needs to be in a timeout, otherwise the
     // tree will always show a pending icon and never updates.
     window.setTimeout(function() {
             ko.places.manager.initialize();
         }, 1);
-    var collapseProjectsTree;
-    if (widgets.placeView_projectsTreeVbox.getAttribute("projects") == "hide") {
-        collapseProjectsTree = true;
-    } else {
-        if (widgets.placeView_projectsTreeVbox.getAttribute("projects") != "show") {
-            widgets.placeView_projectsTreeVbox.setAttribute("projects", "show");
-        }
-        collapseProjectsTree = false;
-    }
-    ko.places.setProjectsView(collapseProjectsTree);
+    ko.places._updateSubpanelFromState();
+    
     // Wait until ko.projects.manager exists before
     // init'ing the projects view tree.
     var mruProjectViewerID;
@@ -2213,7 +2199,7 @@ this.onLoad = function places_onLoad() {
 
 this.initProjectMRUCogMenu = function() {
     var srcMenu = document.getElementById("popup_project");
-    var destMenu = document.getElementById("placesViewbox_projects_tools_popup");
+    var destMenu = document.getElementById("placesSubpanelProjectsToolsPopup");
     var srcNodes = srcMenu.childNodes;
     var node, newNode;
     var len = srcNodes.length;
@@ -2235,7 +2221,7 @@ this.onUnload = function places_onUnload() {
 };
 
 this.createProjectMRUView = function() {
-    this.rpTree = document.getElementById("placesViewbox_projects_tree");
+    this.rpTree = document.getElementById("placesSubpanelProjects");
     this.rpTreeView = new this.recentProjectsTreeView();
     if (!this.rpTreeView) {
         throw new Error("couldn't create a recentProjectsTreeView");
@@ -2385,29 +2371,36 @@ this.getFocusedPlacesView = function() {
     return null;
 };
 
-this.toggleProjectsView = function(event, toolbarbutton) {
-    var dir = widgets.placeView_toggleProjectsToolbarButton.getAttribute("direction");
-    this.setProjectsView(dir == "down");
+
+this.toggleSubpanel = function() {
+    var button = document.getElementById("placesSubpanelToggle");
+    var state = button.getAttribute("state");
+    switch(state) {
+    case "collapsed":
+        button.setAttribute("state", "open");
+        break;
+    case "open":
+    default:
+        button.setAttribute("state", "collapsed");
+        break;
+    }
+    this._updateSubpanelFromState();
 };
 
-this.setProjectsView = function(collapseProjectsTree) {
-    var newDir, newClass, projectsPanelState;
-    if (collapseProjectsTree) {
-        newDir = "up";
-        newClass = "show-projects";
-        projectsPanelState = "hide";
-    } else {
-        newDir = "down";
-        newClass = "hide-projects";
-        projectsPanelState = "show";
+this._updateSubpanelFromState = function() {
+    var button = document.getElementById("placesSubpanelToggle");
+    var deck = document.getElementById("placesSubpanelDeck");
+    var state = button.getAttribute("state");
+    switch(state) {
+    case "collapsed":
+        deck.collapsed = true;
+        break;
+    case "open":
+    default:
+        deck.collapsed = false;
+        break;
     }
-    var button = widgets.placeView_toggleProjectsToolbarButton;
-    button.setAttribute("direction", newDir);
-    button.setAttribute("class", newClass);
-    widgets.placeView_projectsTreeVbox.setAttribute("projects", projectsPanelState);
-    document.getElementById("placesViewbox_projects_hbox").setAttribute("projects", projectsPanelState);
-    document.getElementById("places_projects_splitter").setAttribute("projects", projectsPanelState);
-};
+}
 
 this.updateFilterViewMenu = function() {
     // Find which node is checked.  Then update the menu, maintaining
@@ -2442,15 +2435,12 @@ this.updateFilterViewMenu = function() {
     });
 };
 
+//XXX:TODO: remove workspace prefs here: not needed
 this.restoreWorkspacePrefs = function(workspace) {
     if (!workspace.hasPref("workspacePlaces")) {
         return;
     }
     var placePanelPrefs = workspace.getPref("workspacePlaces");
-    if (placePanelPrefs.hasPref("topPanelHeight")) {
-        document.getElementById("placesViewbox_places").height =
-            placePanelPrefs.getLongPref("topPanelHeight");
-    }
 };
 
 this.saveWorkspacePrefs = function(workspace) {
@@ -2461,8 +2451,6 @@ this.saveWorkspacePrefs = function(workspace) {
         placePanelPrefs = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
         workspace.setPref("workspacePlaces", placePanelPrefs);
     }
-    placePanelPrefs.setLongPref("topPanelHeight",
-                document.getElementById("placesViewbox_places").height);    
 };
 
 xtk.include("treeview");
