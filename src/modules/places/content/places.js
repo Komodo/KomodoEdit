@@ -1054,6 +1054,7 @@ function ManagerClass() {
         getService(Components.interfaces.nsIObserverService);
     gObserverSvc.addObserver(this, 'visit_directory_proposed', false);
     gObserverSvc.addObserver(this, 'current_project_changed', false);
+    gObserverSvc.addObserver(this, 'file_changed', false);
     window.addEventListener('project_opened',
                             this.handle_project_opened_setup, false);
 }
@@ -1596,6 +1597,7 @@ ManagerClass.prototype = {
             getService(Components.interfaces.nsIObserverService);
         gObserverSvc.removeObserver(this, 'visit_directory_proposed');
         gObserverSvc.removeObserver(this, 'current_project_changed');
+        gObserverSvc.removeObserver(this, 'file_changed');
         window.removeEventListener('project_opened',
                                    this.handle_project_opened_setup, false);
     },
@@ -1961,6 +1963,8 @@ ManagerClass.prototype = {
             }
         } else if (topic == 'current_project_changed') {
             this._checkProjectMatch();
+        } else if (topic == 'file_changed') {
+            ko.places.rpTree.treeBoxObject.invalidate();
         }
     },
     
@@ -2507,7 +2511,15 @@ this.recentProjectsTreeView.prototype.observe = function(subject, topic, data) {
 };
 // NSITreeView methods.
 this.recentProjectsTreeView.prototype.getCellText = function(row, column) {
-    return this.rows[row][1];
+    var row = this.rows[row];
+    var currentProject = ko.projects.manager.currentProject;
+    if (currentProject
+        && currentProject.isDirty
+        && currentProject.url == row[0]) {
+        return row[1] + "*";
+    } else {
+        return row[1];
+    }
 };
 this.recentProjectsTreeView.prototype.getCellValue = function(row, column) {
     return this.rows[row][0];
