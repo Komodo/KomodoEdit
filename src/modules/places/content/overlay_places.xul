@@ -340,67 +340,55 @@
                 testDisableIf="t:classIsntProject"
                 />
     </menupopup>
+
     <menupopup id="placesSubpanelProjectsContextMenu"
-               onpopupshowing="ko.places.initProjectsContextMenu(event, this);" >
-     <!--
-     show in places
-     close
-     save
-     save project as...
-     revert
-     ======
-     open in a new window (if not open)
-     open here (if not open)
-     properties
-     -->
-     <menuitem label="&showProjectInPlaces.label;"
-               id="menu_showProjectInPlaces_projectsContext"
-               disableUnless="currentProject"
-               oncommand="ko.places.showProjectInPlaces();"
-               />
-     <menuitem label="&closeProject.label;"
-               id="menu_closeProject_projectsContext"
-               disableUnless="currentProject"
-               oncommand="ko.places.closeProject();"
-               />
-     <menuitem label="&saveProject.label;"
-               id="menu_saveProject_projectsContext"
-               disableUnless="projectIsDirty"
-               oncommand="ko.places.saveProject();"
-               />
-     <menuitem label="&saveProjectAs.label;"
-               id="menu_saveProjectAs_projectsContext"
-               disableUnless="currentProject"
-               oncommand="ko.places.saveProjectAs();"
-               />
-     <!--
-     <menuitem label="&renameProject.label;"
-               id="menu_renameProject_projectsContext"
-               oncommand="ko.places.renameProject();"
-               />
-     -->
-     <menuitem label="&revertProject.label;"
-               id="menu_revertProject_projectsContext"
-               disableUnless="projectIsDirty"
-               oncommand="ko.places.revertProject();"
-                    />
-     <menuseparator id="menu_project_save_separator_projectsContext"/>
-     <menuitem label="&openProjectInNewWindow.label;"
-               id="menu_projectOpenProject_projectsContext"
-               disableIf="projectIsOpen"
-               oncommand="ko.places.openProjectInNewWindow();"
-          />
-     <menuitem label="&replaceProject.label;"
-               id="menu_replaceProject_projectsContext"
-               labelTest="t:project|&replaceProject.label;|&openProject.label;"
-               oncommand="ko.places.openProjectInCurrentWindow();"
-          />
-     <menuitem label="&properties.label;"
-               class="menuitem-iconic"
-               id="menu_projectProperties_projectsContext"
-               disableUnless="currentProject"
-               oncommand="ko.places.editProjectProperties();"
-               accesskey="&projectProperties.accesskey;"/>
+        onpopupshowing="ko.places.initProjectsContextMenu(event, this);" >
+      <!--
+      show in places
+      close
+      save
+      save project as...
+      revert
+      ======
+      open in a new window (if not open)
+      open here (if not open)
+      properties
+      -->
+      <menuitem label="&showProjectInPlaces.label;"
+          id="menu_showProjectInPlaces_projectsContext"
+          disableUnless="currentProject"
+          oncommand="ko.places.showProjectInPlaces();" />
+      <menuitem label="&closeProject.label;"
+          id="menu_closeProject_projectsContext"
+          disableUnless="currentProject"
+          oncommand="ko.places.closeProject();" />
+      <menuitem label="&saveProject.label;"
+          id="menu_saveProject_projectsContext"
+          disableUnless="projectIsDirty"
+          oncommand="ko.places.saveProject();" />
+      <menuitem label="&saveProjectAs.label;"
+          id="menu_saveProjectAs_projectsContext"
+          disableUnless="currentProject"
+          oncommand="ko.places.saveProjectAs();" />
+      <menuitem label="&revertProject.label;"
+          id="menu_revertProject_projectsContext"
+          disableUnless="projectIsDirty"
+          oncommand="ko.places.revertProject();" />
+      <menuseparator id="menu_project_save_separator_projectsContext"/>
+      <menuitem label="&openProjectInNewWindow.label;"
+          id="menu_projectOpenProject_projectsContext"
+          disableIf="projectIsOpen"
+          oncommand="ko.places.openProjectInNewWindow();" />
+      <menuitem label="&replaceProject.label;"
+          id="menu_replaceProject_projectsContext"
+          labelTest="t:project|&replaceProject.label;|&openProject.label;"
+          oncommand="ko.places.openProjectInCurrentWindow();" />
+      <menuitem label="&properties.label;"
+          class="menuitem-iconic"
+          id="menu_projectProperties_projectsContext"
+          disableUnless="currentProject"
+          oncommand="ko.places.editProjectProperties();"
+          accesskey="&projectProperties.accesskey;" />
     </menupopup>
   </popupset>
 <!--
