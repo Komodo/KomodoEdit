@@ -58,20 +58,24 @@ function peMenu() {
         this.log = ko.logging.getLogger('peMenu');
         var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                            getService(Components.interfaces.nsIObserverService);
-        obsSvc.addObserver(this, 'menu_create', false);
-        obsSvc.addObserver(this, 'menu_changed', false);
-        obsSvc.addObserver(this, 'menu_remove', false);
-        obsSvc.addObserver(this, 'toolbar_create', false);
-        obsSvc.addObserver(this, 'toolbar_remove', false);
-        obsSvc.addObserver(this, 'toolbar_changed', false);
-        obsSvc.addObserver(this, 'part_changed', false);
-        obsSvc.addObserver(this, 'toolbox-loaded', false);
-        obsSvc.addObserver(this, 'toolbox-loaded-local', false);
-        obsSvc.addObserver(this, 'toolbox-loaded-global', false);
-        obsSvc.addObserver(this, 'toolbox-loaded', false); // synonym for global
-        obsSvc.addObserver(this, 'toolbox-unloaded', false);
-        obsSvc.addObserver(this, 'toolbox-unloaded-local', false);
-        obsSvc.addObserver(this, 'toolbox-unloaded-global', false);
+        this.observables = {
+            'menu_create': true,
+            'menu_changed': true,
+            'menu_remove': false,
+            'toolbar_create': true,
+            'toolbar_remove': false,
+            'toolbar_changed': true,
+            'part_changed': true,
+            'toolbox-loaded': true,
+            'toolbox-loaded-local': true,
+            'toolbox-loaded-global': true,
+            'toolbox-loaded': true, // synonym for global
+            'toolbox-unloaded': false,
+            'toolbox-unloaded-local': false,
+            'toolbox-unloaded-global': false};
+        for (var name in this.observables) {
+            obsSvc.addObserver(this, name, false);
+        }
     } catch (e) {
         this.log.exception(e);
     }
@@ -80,29 +84,23 @@ function peMenu() {
 peMenu.prototype.finalize = function() {
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                        getService(Components.interfaces.nsIObserverService);
-    obsSvc.removeObserver(this, 'menu_create');
-    obsSvc.removeObserver(this, 'menu_changed');
-    obsSvc.removeObserver(this, 'menu_remove');
-    obsSvc.removeObserver(this, 'toolbar_create');
-    obsSvc.removeObserver(this, 'toolbar_remove');
-    obsSvc.removeObserver(this, 'toolbar_changed');
-    obsSvc.removeObserver(this, 'part_changed');
-    obsSvc.removeObserver(this, 'toolbox-loaded-local');
-    obsSvc.removeObserver(this, 'toolbox-loaded-global');
-    obsSvc.removeObserver(this, 'toolbox-loaded'); // synonym for global
-    obsSvc.removeObserver(this, 'toolbox-unloaded');
-    obsSvc.removeObserver(this, 'toolbox-unloaded-local');
-    obsSvc.removeObserver(this, 'toolbox-unloaded-global');
+    for (var name in this.observables) {
+        obsSvc.removeObserver(this, name);
+    }
 }
 
 peMenu.prototype.observe = function(part, topic, data)
 {
-    // On deletion, we need to find item's parents before they're
-    // deleted, and we send the notification before the item is
-    // fully removed.  So wait for it to be removed now.
-    setTimeout(function(this_) {
-            this_.observe_aux(part, topic, data);
-        }, 300, this);
+    // Notifications can be deferred if they're waiting for
+    // an addition  or change to the database.  Others need
+    // to fire before a deletion occurs, so we do them right away.
+    if (!this.observables[topic]) {
+        this.observe_aux(part, topic, data);
+    } else {
+        setTimeout(function(this_) {
+                this_.observe_aux(part, topic, data);
+            }, 300, this);
+    }
 }
 
 peMenu.prototype.observe_aux = function(part, topic, data)
@@ -188,6 +186,7 @@ var prefSvc = Components.classes['@activestate.com/koPrefService;1'].
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .getService(Components.interfaces.nsIStringBundleService)
       .createBundle("chrome://komodo/locale/project/peMenu.properties");
+var log = ko.logging.getLogger('peMenu');
 
 this.partAcceptsMenuToolbar = function peMenu_partAcceptsMenuToolbar(part) {
     // Used to check early whether a part can be added
@@ -251,12 +250,12 @@ this.removeMenuForPart = function peMenu_removeMenuForPart(part) {
         var id = _IDFromPart(part);
         var menu = document.getElementById(id);
         if (!menu) {
-            this.log.warn("removeMenuForPart: can't find menu with id: " + id);
+            log.warn("removeMenuForPart: can't find menu with id: " + id);
             return;
         }
         menu.parentNode.removeChild(menu);
     } catch (e) {
-        this.log.exception(e);
+        log.exception(e);
     }
 }
 
