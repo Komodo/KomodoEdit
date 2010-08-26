@@ -382,6 +382,7 @@
                 <File Id="file927" LongName="ide-5.2.html" Name="IDE52_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\ide-5.2.html" />
                 <File Id="file426" LongName="index.html" Name="INDEX_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\index.html" />
                 <File Id="file427" LongName="old.html" Name="OLD_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\old.html" />
+                <File Id="file1241" Name="APICHA_0.HTM" LongName="api-changes.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\releases\api-changes.html"/>
               </Component>
             </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\releases -->
             <Directory Id="directory599" Name="tutorial">
