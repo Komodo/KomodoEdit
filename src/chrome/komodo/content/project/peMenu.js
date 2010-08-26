@@ -69,7 +69,6 @@ function peMenu() {
             'toolbox-loaded': true,
             'toolbox-loaded-local': true,
             'toolbox-loaded-global': true,
-            'toolbox-loaded': true, // synonym for global
             'toolbox-unloaded': false,
             'toolbox-unloaded-local': false,
             'toolbox-unloaded-global': false};
