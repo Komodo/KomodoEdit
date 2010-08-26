@@ -2046,6 +2046,8 @@ class _WorkerThread(threading.Thread, Queue):
                 nodeType = _PLACE_FILE
             itemNode = _KoPlaceItem(nodeType, uri, koFileEx.baseName)
             requester.setNodeForURI(uri, itemNode)
+        if itemNode.type != _PLACE_FOLDER:
+            return
         if forceRefresh or itemNode.needsRefreshing():
             if requester._isLocal:
                 items = requester.getDirListFromLocalPath(uri)

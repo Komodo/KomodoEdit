@@ -250,29 +250,95 @@ viewMgrClass.prototype = {
 
     onTreeKeyPress: function(event) {
         //dump("TODO: viewMgrClass.onTreeKeyPress\n");
-        if ((event.keyCode == event.DOM_VK_ENTER
-             || event.keyCode == event.DOM_VK_RETURN)
-            && !event.shiftKey && !event.ctrlKey && !event.altKey) {
-            var t = event.originalTarget;
-            if (t.localName == "treechildren" || t.localName == 'tree') {
-                // If all the items are files, open them.
-                var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false);
-                for (var index, i = 0; i < selectedIndices.length; i++) {
-                    index = selectedIndices[0];
-                    if (this.view.isContainer(index)) {
-                        if (selectedIndices.length > 1) {
-                            event.cancelBubble = true;
-                            event.preventDefault();
+        if (event.shiftKey || event.ctrlKey || event.altKey) {
+            return;
+        }
+        var t = event.originalTarget;
+        if (t.localName != "treechildren" && t.localName != 'tree') {
+            return;
+        }
+        if (event.keyCode == event.DOM_VK_ENTER
+            || event.keyCode == event.DOM_VK_RETURN) {
+            // If all the items are files, open them.
+            var indicesToToggle = [];
+            var urisToOpen = [];
+            var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false);
+            var selectedURIs = ko.places.manager.getSelectedUris();
+            for (var index, i = 0; i < selectedIndices.length; i++) {
+                index = selectedIndices[i];
+                if (this.view.isContainer(index)) {
+                    // Remember to process them in reverse order,
+                    // so we don't need to renumber the nodes as they're expanded.
+                    indicesToToggle.push(index);
+                } else {
+                    urisToOpen.push(this.view.getURIForRow(index));
+                }
+            }
+            if (urisToOpen.length) {
+                ko.open.multipleURIs(urisToOpen);
+            }
+            var reselectOriginalURIset = function() {
+                var view = ko.places.viewMgr.view;
+                var ranges = [];
+                var lastIndex = -2;
+                var startingIndex = -1;
+                for (var i = 0; i < selectedURIs.length; i++) {
+                    var index = view.getRowIndexForURI(selectedURIs[i]);
+                    if (index == -1) {
+                        // do nothing -- this node is now hidden
+                        continue;
+                    }
+                    if (index > lastIndex + 1) {
+                        if (startingIndex >= 0) {
+                            ranges.push([startingIndex, lastIndex]);
                         }
+                        startingIndex = index;
+                    }
+                    lastIndex = index;
+                }
+                ranges.push([startingIndex, lastIndex]);
+                var treeSelection = view.selection;
+                treeSelection.rangedSelect(ranges[0][0], ranges[0][1], false);
+                for (var i = 1; i < ranges.length; i++) {
+                    treeSelection.rangedSelect(ranges[i][0], ranges[i][1], true);
+                }
+            };
+            //TODO: Recast this to a single function call to the backend
+            // which will open and select all the nodes in one go.
+            if (indicesToToggle.length) {
+                var view = this.view;
+                var f = function(i) {
+                    if (i < 0) {
+                        reselectOriginalURIset();
                         return;
                     }
+                    var index = indicesToToggle[i];
+                    try {
+                        view.toggleOpenState(index);
+                    } catch(ex) {
+                        log.exception("Error toggleOpenState on index:"
+                                      + index
+                                      + ", :"
+                                      + ex
+                                      + "\n");
+                    }
+                    setTimeout(f, 100, i - 1);
                 }
-                event.cancelBubble = true;
-                event.preventDefault();
-                this.openFilesByIndex();
+                f(indicesToToggle.length - 1);
+            } else {
+                reselectOriginalURIset();
             }
+        } else if (event.keyCode == event.DOM_VK_DELETE) {
+            ko.places.manager.doDeletePlace();
+        } else {
+            return false;
         }
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
+        return true;
     },
+
     allowed_click_nodes: ["places-files-tree-body",
                           "placesRootButton",
                           "places-files-tree"],
@@ -1058,6 +1124,8 @@ function ManagerClass() {
     gObserverSvc.addObserver(this, 'file_changed', false);
     window.addEventListener('project_opened',
                             this.handle_project_opened_setup, false);
+    window.addEventListener('keypress',
+                            this.handle_keypress_setup, true);
 }
 
 ManagerClass.prototype = {
@@ -1445,7 +1513,7 @@ ManagerClass.prototype = {
             } else {
                 msg = _bundle.GetStringFromName("youHaveSelected.piece") + " ";
             }
-            msg += (nonEmptyFolders.length == 1
+            msg += (otherItemCount == 1
                        ? _bundle.GetStringFromName("selectedSingularItem.piece")
                        : _bundle.formatStringFromName("selectedPluralItems.piece",
                                                       [otherItemCount], 1));
@@ -1600,6 +1668,8 @@ ManagerClass.prototype = {
         gObserverSvc.removeObserver(this, 'file_changed');
         window.removeEventListener('project_opened',
                                    this.handle_project_opened_setup, false);
+        window.removeEventListener('keypress',
+                                   this.handle_keypress_setup, true);
     },
     
     goUpOneFolder: function() {
@@ -1972,6 +2042,10 @@ ManagerClass.prototype = {
     
     handle_project_opened_setup: function(event) {
         ko.places.manager.handle_project_opened(event);
+    },
+    
+    handle_keypress_setup: function(event) {
+        return ko.places.viewMgr.onTreeKeyPress(event);
     },
     
     handle_project_opened: function(event) {
