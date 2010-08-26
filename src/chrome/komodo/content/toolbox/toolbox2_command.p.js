@@ -1161,11 +1161,18 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
 
 this.onTreeKeyPress = function(event) {
     try {
-        if (event.shiftKey || event.ctrlKey || event.altKey) {
-            return false;
-        }
         var t = event.originalTarget;
         if (t.localName != "treechildren" && t.localName != 'tree') {
+            return false;
+        }
+        if (this._arrowKeys.indexOf(event.keyCode) >= 0) {
+            // Nothing to do but squelch the keycode
+            event.cancelBubble = true;
+            event.stopPropagation();
+            event.preventDefault();
+            return true;
+        }
+        if (event.shiftKey || event.ctrlKey || event.altKey) {
             return false;
         }
         if (event.keyCode == event.DOM_VK_ENTER
@@ -1199,5 +1206,4 @@ this.onTreeKeyPress = function(event) {
     }
     return false;
 }
-
 }).apply(ko.toolbox2);

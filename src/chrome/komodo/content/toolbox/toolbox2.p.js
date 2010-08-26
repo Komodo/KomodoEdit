@@ -209,6 +209,12 @@ this.onload = function() {
     this.manager.initialize();
     widgets.tree.addEventListener('keypress',
                                   this.handle_keypress_setup, true);
+    //  _arrowKeys used by onTreeKeyPress, easier to init here.
+    var nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
+    this._arrowKeys = [nsIDOMKeyEvent.DOM_VK_UP,
+                       nsIDOMKeyEvent.DOM_VK_DOWN,
+                       nsIDOMKeyEvent.DOM_VK_LEFT,
+                       nsIDOMKeyEvent.DOM_VK_RIGHT];
 };
 
 this.onUnload = function() {

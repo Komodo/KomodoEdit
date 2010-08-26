@@ -125,6 +125,12 @@ viewMgrClass.prototype = {
         }
         this.sortDirection = sortDir;
         this.view.sortBy("Name", this._mozSortDirNameToKomodoSortDirValue[sortDir]);
+        //  _arrowKeys used by onTreeKeyPress, easier to init here.
+        var nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
+        this._arrowKeys = [nsIDOMKeyEvent.DOM_VK_UP,
+                           nsIDOMKeyEvent.DOM_VK_DOWN,
+                           nsIDOMKeyEvent.DOM_VK_LEFT,
+                           nsIDOMKeyEvent.DOM_VK_RIGHT];
     },
     
     sortByDirection: function(sortDirection) {
@@ -249,12 +255,18 @@ viewMgrClass.prototype = {
     },
 
     onTreeKeyPress: function(event) {
-        //dump("TODO: viewMgrClass.onTreeKeyPress\n");
-        if (event.shiftKey || event.ctrlKey || event.altKey) {
-            return;
-        }
         var t = event.originalTarget;
         if (t.localName != "treechildren" && t.localName != 'tree') {
+            return;
+        }
+        if (this._arrowKeys.indexOf(event.keyCode) >= 0) {
+            // Nothing to do but squelch the keycode
+            event.stopPropagation();
+            event.preventDefault();
+            return;
+        }
+        //dump("TODO: viewMgrClass.onTreeKeyPress\n");
+        if (event.shiftKey || event.ctrlKey || event.altKey) {
             return;
         }
         if (event.keyCode == event.DOM_VK_ENTER
@@ -2529,7 +2541,11 @@ this.recentProjectsTreeView.prototype.initialize = function() {
 this.recentProjectsTreeView.prototype.terminate = function() {
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
-    observerSvc.removeObserver(this, "mru_changed");
+    try {
+        observerSvc.removeObserver(this, "mru_changed");
+    } catch(ex) {
+        // Sometimes during shutdown this throws a 0x80004005 exception
+    }
 };
 
 this.recentProjectsTreeView.prototype._resetRows = function() {
