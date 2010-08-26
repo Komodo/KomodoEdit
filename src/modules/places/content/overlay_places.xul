@@ -445,7 +445,7 @@
               position="0">
      <vbox flex="1" id="placesViewbox_placesWrapper">
       <vbox flex="1" id="placesViewbox_places">
-        <hbox align="center" class="toolbar-box">
+        <hbox align="center" id="placesToolbar" class="toolbar-box">
           <toolbarbutton id="placesRootButton"
                          class="normal"
                          context="places-files-popup"
