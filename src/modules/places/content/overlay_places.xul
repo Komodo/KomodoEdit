@@ -61,6 +61,11 @@
   window.addEventListener("unload", ko.places.onUnload, false);
   ]]>
   </script>
+  
+  <popupset>
+    <popup id="placesSubpanelProjectsToolsPopup"
+        onpopupshowing="ko.projects.manager.updateProjectMenu(event, this);"/>
+  </popupset>
 
   <!-- ****************    Commands    ****************** -->
 
@@ -592,14 +597,17 @@
             <!-- subpanel titlebar 0: Projects -->
             <hbox align="center" flex="1">
               <label value="Projects" flex="1" />
+              <!-- Note: We intentionally do not use a child 'menupopup' element
+                here because there is some interaction with the containing
+                splitter such that you can't invoke the menu entries, at least
+                on Mac. Using a separate 'popup' outside of the splitter is
+                a workaround. -->
               <toolbarbutton id="placesSubpanelProjectsTools"
                   buttonstyle="pictures"
                   type="menu"
                   orient="horizontal"
-                  class="project-tools-icon">
-                <menupopup id="placesSubpanelProjectsToolsPopup"
-                    onpopupshowing="ko.projects.manager.updateProjectMenu(event, this)"/>
-              </toolbarbutton>
+                  class="project-tools-icon"
+                  popup="placesSubpanelProjectsToolsPopup"/>
             </hbox>
           </deck>
           <toolbarbutton id="placesSubpanelToggle"
