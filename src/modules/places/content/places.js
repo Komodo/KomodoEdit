@@ -1182,18 +1182,24 @@ ManagerClass.prototype = {
         return uri == targetDirURI;
     },
     
+    /* Change places to the given dir.
+     *
+     * @param dirURI {string} The directory to which to switch, as a URI.
+     *      This is presumed to be a directory (i.e. not a file) and to
+     *      exist.
+     * @param save {Boolean} Whether to save this dir in the places dir history.
+     *      Default is false.
+     */
     _setDirURI: function(dirURI, save /* =false */) {
         if (typeof(save) == "undefined") {
             save = false;
         }
-        
+
         var koFile = Components.classes["@activestate.com/koFileEx;1"].
                 createInstance(Components.interfaces.koIFileEx);
         koFile.URI = dirURI;
         this.currentPlaceIsLocal = koFile.isLocal;
-        
-        // Ensure this is a dir. Else raise.
-        
+
         var statusNode = document.getElementById("place-view-rootPath-icon-toolbarbutton");
         var busyURI = "chrome://global/skin/icons/loading_16.png";
         statusNode.setAttribute('image', busyURI);
