@@ -463,7 +463,6 @@
                  crop="end"
                  class="noplace" />
           <toolbarbutton id="placeView_tools"
-                  tooltiptext="&placeView.tooltiptext;"
                   buttonstyle="pictures"
                   type="menu"
                   orient="horizontal"
@@ -534,15 +533,13 @@
               class="history-back-icon"
               persist="buttonstyle"
               buttonstyle="pictures"
-              observes="cmd_goPreviousPlace"
-              label="&placesBack.label;"/>
+              observes="cmd_goPreviousPlace" />
           <toolbarbutton id="placesForwardButton"
               class="history-forward-icon"
               tooltiptext="&placesForward.tooltiptext;"
               observes="cmd_goNextPlace"
               persist="buttonstyle"
-              buttonstyle="pictures"
-              label="&placesForward.label;"/>
+              buttonstyle="pictures" />
         </hbox>
         <tree id="places-files-tree" flex="1"
               style="margin: 0px;"
