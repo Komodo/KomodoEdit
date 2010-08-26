@@ -1161,19 +1161,43 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
 
 this.onTreeKeyPress = function(event) {
     try {
-        if ((event.keyCode == event.DOM_VK_ENTER
-             || event.keyCode == event.DOM_VK_RETURN)
-            && !event.shiftKey && !event.ctrlKey && !event.altKey) {
-            var t = event.originalTarget;
-            if (t.localName == "treechildren" || t.localName == 'tree') {
-                event.cancelBubble = true;
-                event.preventDefault();
-                this.onDblClick(event, false);
-            }
+        if (event.shiftKey || event.ctrlKey || event.altKey) {
+            return false;
         }
+        var t = event.originalTarget;
+        if (t.localName != "treechildren" && t.localName != 'tree') {
+            return false;
+        }
+        if (event.keyCode == event.DOM_VK_ENTER
+            || event.keyCode == event.DOM_VK_RETURN) {
+            // Unlike places, allow only one item to be acted on.
+            var view = this.manager.view;
+            var selectedIndices = ko.treeutils.getSelectedIndices(view, true);
+            if (selectedIndices.length > 1) {
+                var msg = peFolder_bundle.GetStringFromName("onlyInvokeOneTool");
+                alert(msg);
+            } else {
+                var index = selectedIndices[0];
+                if (view.isContainer(index)) {
+                    view.toggleOpenState(index);
+                } else {
+                    this.invokeTool(view.getTool(index));
+                }
+                view.selection.select(index);
+            }
+        } else if (event.keyCode == event.DOM_VK_DELETE) {
+            this.deleteItem(event);
+        } else {
+            return false;
+        }
+        event.cancelBubble = true;
+        event.stopPropagation();
+        event.preventDefault();
+        return true;
     } catch(ex) {
-        dump("onTreeKeyPress: error: " + ex + "\n");
+        this.log.exception("onTreeKeyPress: error: " + ex + "\n");
     }
+    return false;
 }
 
 }).apply(ko.toolbox2);

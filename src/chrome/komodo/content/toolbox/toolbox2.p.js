@@ -207,9 +207,13 @@ this.onload = function() {
     widgets[sortTypeCamelCase].setAttribute('checked', 'true');
     this.manager = new Toolbox2Manager();
     this.manager.initialize();
+    widgets.tree.addEventListener('keypress',
+                                  this.handle_keypress_setup, true);
 };
 
 this.onUnload = function() {
+    widgets.tree.removeEventListener('keypress',
+                                     this.handle_keypress_setup, true);
     var this_ = ko.toolbox2;
     this_.manager.terminate();
     try {
@@ -501,6 +505,10 @@ this.getToolsWithKeyboardShortcuts = function(dbPath) {
     this.manager.toolsMgr.getToolsWithKeyboardShortcuts(dbPath, obj, {});
     return obj.value;
 };
+
+this.handle_keypress_setup = function(event) {
+    return ko.toolbox2.onTreeKeyPress(event);
+}
 
 this.onFilterKeypress = function(event) {
     try {
