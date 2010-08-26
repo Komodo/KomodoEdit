@@ -471,16 +471,13 @@
             <menupopup id="placeView_toolsPopup">
               <menuitem id="placeView_loadButton"
                   observes="cmd_openDirectory"
-                  label="&loadPlace.label;"
-                  class="menuitem-iconic open-places-icon"/>
+                  label="&loadPlace.label;" />
               <menuitem id="placeView_loadRemoteButton"
                   observes="cmd_openRemoteDirectory"
-                  label="&loadRemotePlace.label;"
-                  class="menuitem-iconic open-places-icon"/>
+                  label="&loadRemotePlace.label;" />
               <menuitem id="placeView_upOneDirectory"
                   observes="cmd_places_goUpOneFolder"
-                  label="&placesUpFolder.label;"
-                  class="menuitem-iconic places-uparrow-button"/>
+                  label="&placesUpFolder.label;" />
               <menuseparator id="places_view_separator" />
               <menuitem id="placeView_defaultView"
                   observes="cmd_placeView_defaultView"
@@ -528,7 +525,6 @@
               <menuitem id="placeView_undo"
                         observes="cmd_placeView_undoTreeOperation"
                         oncommand="ko.places.viewMgr.undoTreeOperation()"
-                        class="menuitem-iconic undo-button"
                         label="&undo.label;"
                         />
             </menupopup>
