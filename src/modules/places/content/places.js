@@ -1124,7 +1124,8 @@ function ManagerClass() {
     gObserverSvc.addObserver(this, 'file_changed', false);
     window.addEventListener('project_opened',
                             this.handle_project_opened_setup, false);
-    window.addEventListener('keypress',
+    
+    document.getElementById("places-files-tree").addEventListener('keypress',
                             this.handle_keypress_setup, true);
 }
 
@@ -1668,7 +1669,7 @@ ManagerClass.prototype = {
         gObserverSvc.removeObserver(this, 'file_changed');
         window.removeEventListener('project_opened',
                                    this.handle_project_opened_setup, false);
-        window.removeEventListener('keypress',
+        document.getElementById("places-files-tree").removeEventListener('keypress',
                                    this.handle_keypress_setup, true);
     },
     
