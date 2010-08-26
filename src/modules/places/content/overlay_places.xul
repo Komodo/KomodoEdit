@@ -444,9 +444,8 @@
               insertbefore="codebrowserviewbox"
               position="0">
      <vbox flex="1" id="placesViewbox_placesWrapper">
-      <vbox flex="1"
-            id="placesViewbox_places">
-        <hbox id="place-view-vbox" align="center" class="toolbar-box">
+      <vbox flex="1" id="placesViewbox_places">
+        <hbox align="center" class="toolbar-box">
           <toolbarbutton id="placesRootButton"
                          class="normal"
                          context="places-files-popup"
