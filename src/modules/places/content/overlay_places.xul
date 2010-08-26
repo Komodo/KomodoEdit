@@ -44,6 +44,7 @@
   %komodoDTD;
 ]>
 <?xml-stylesheet href="chrome://places/skin/places.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
 
 <overlay id="placesOverlay"
          xmlns:html="http://www.w3.org/1999/xhtml"
@@ -62,6 +63,7 @@
   ]]>
   </script>
   
+  <!-- XXX move this popup to the lower popupset -->
   <popupset>
     <popup id="placesSubpanelProjectsToolsPopup"
         onpopupshowing="ko.projects.manager.updateProjectMenu(event, this);"/>
@@ -444,19 +446,15 @@
      <vbox flex="1" id="placesViewbox_placesWrapper">
       <vbox flex="1"
             id="placesViewbox_places">
-        <hbox id="place-view-vbox" align="center">
-          <toolbarbutton id="place-view-rootPath-icon-toolbarbutton"
+        <hbox id="place-view-vbox" align="center" class="toolbar-box">
+          <toolbarbutton id="placesRootButton"
                          class="normal"
                          context="places-files-popup"
                          ondragover="return ko.places.viewMgr.doDragOverRootNode(event, this);"
                          ondragenter="return ko.places.viewMgr.doDragEnterRootNode(event, this);"
                          ondrop="return ko.places.viewMgr.doDropOnRootNode(event, this);"
                          type="menu"
-                         tooltiptext="&placesParentDirectories.tooltiptext;"
-                         orient="horizontal"
-                         persist="buttonstyle"
-                         buttonstyle="pictures"
-                         >
+                         orient="horizontal">
               <menupopup id="placesParentDirectoriesMenu"
                          context=""
                          position="after_start"
@@ -464,11 +462,7 @@
                          oncommand="event.stopPropagation();"
                          />
           </toolbarbutton>
-          <label id="place-view-rootPath"
-                 min-width="0"
-                 flex="1"
-                 crop="end"
-                 class="noplace" />
+          <spacer flex="1" />
           <toolbarbutton id="placeView_tools"
                   buttonstyle="pictures"
                   type="menu"

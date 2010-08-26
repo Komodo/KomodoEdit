@@ -38,15 +38,15 @@
  * CSS for Places UI
  */
 
-/*
-#place-view-rootPath.noplace {
-  display: none;
+toolbarbutton#placesRootButton {
+  list-style-image: url("chrome://komodo/skin/images/folder-closed.png");
+  margin-left: 0px;
+}
+toolbarbutton#placesRootButton label {
+  margin-left: 4px;
+  margin-right: 2px;
 }
 
-#place-view-rootPath.someplace {
-  display: inherit;
-}
-*/
 
 treechildren#places-files-tree-body::-moz-tree-image {
   margin-right: 2px;
@@ -65,10 +65,6 @@ treechildren#places-files-tree-body::-moz-tree-image(places_file) {
 }
 treechildren#places-files-tree-body::-moz-tree-image(places_busy) {
   list-style-image : url("chrome://global/skin/icons/loading_16.png");
-}
-
-toolbarbutton#place-view-rootPath-icon-toolbarbutton {
-  list-style-image : url("chrome://komodo/skin/images/folder-closed.png");
 }
 
 treechildren#places-files-tree-body:-moz-tree-image(places_file, sccOk) {
@@ -164,11 +160,6 @@ undo-button {
 
 #placesParentDirectories.folderPicker-icon {
   list-style-image : url("chrome://places/skin/folder_explore.png");
-}
-
-#place-view-vbox {
-  /* Give some padding around the places toolbar box. */
-  padding-left: 4px;
 }
 
 

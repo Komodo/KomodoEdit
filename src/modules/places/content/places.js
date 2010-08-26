@@ -274,7 +274,7 @@ viewMgrClass.prototype = {
         }
     },
     allowed_click_nodes: ["places-files-tree-body",
-                          "place-view-rootPath-icon-toolbarbutton",
+                          "placesRootButton",
                           "places-files-tree"],
     initFilesContextMenu: function(event, menupopup) {
         var clickedNodeId = event.explicitOriginalTarget.id;
@@ -288,7 +288,7 @@ viewMgrClass.prototype = {
         this.tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
         var index = row.value;
         if (index == -1
-            && clickedNodeId != "place-view-rootPath-icon-toolbarbutton") {
+            && clickedNodeId != "placesRootButton") {
             // Means that we're clicking in white-space below.
             // Clear the selection, and return.
             this.view.selection.clearSelection();
@@ -299,7 +299,7 @@ viewMgrClass.prototype = {
         var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false /*rootsOnly*/);
         var isRootNode;
         var itemTypes = null;
-        if (clickedNodeId == "place-view-rootPath-icon-toolbarbutton") {
+        if (clickedNodeId == "placesRootButton") {
             index = -1;
             isRootNode = true;
             itemTypes = ["project"];
@@ -330,8 +330,7 @@ viewMgrClass.prototype = {
             }
         }
         var isLocal = ko.places.manager.currentPlaceIsLocal;
-        var disableAll = (isRootNode
-                          && widgets.rootPath.getAttribute('class') ==  'noplace');
+        var disableAll = (isRootNode && widgets.rootButton.label == "");
         this._selectionInfo = {
             classIsntProject: event.explicitOriginalTarget.getAttribute('class') != 'project',
             itemTypes: itemTypes,
@@ -1169,7 +1168,7 @@ ManagerClass.prototype = {
 
     _checkProjectMatch: function() {
         var classValue = this._currentPlaceMatchesCurrentProject() ? "project" : "normal";
-        widgets.rootPathToolbar.setAttribute('class', classValue);
+        widgets.rootButton.setAttribute('class', classValue);
     },
 
     _currentPlaceMatchesCurrentProject: function() {
@@ -1200,28 +1199,24 @@ ManagerClass.prototype = {
         koFile.URI = dirURI;
         this.currentPlaceIsLocal = koFile.isLocal;
 
-        var statusNode = document.getElementById("place-view-rootPath-icon-toolbarbutton");
+        var statusNode = document.getElementById("placesRootButton");
         var busyURI = "chrome://global/skin/icons/loading_16.png";
         statusNode.setAttribute('image', busyURI);
         this.currentPlace = dirURI;
         var file = Components.classes["@activestate.com/koFileEx;1"].
         createInstance(Components.interfaces.koIFileEx);
-        file.URI = dirURI
-        widgets.rootPath.value = file.baseName;
-        widgets.rootPath.setAttribute('class', 'someplace');
-        var tooltipText = (file.scheme == "file" ? file.displayPath : dirURI);
-        widgets.rootPath.tooltipText = tooltipText;
+        file.URI = dirURI;
+        widgets.rootButton.label = file.baseName;
         this._checkProjectMatch();
-        widgets.rootPathToolbar.tooltipText = tooltipText;
+        widgets.rootButton.tooltipText = (
+            file.scheme == "file" ? file.displayPath : dirURI);
         var this_ = this;
         var callback = {
             callback: function(result, data) {
                 statusNode.setAttribute('image', widgets.defaultFolderIconSrc);
                 if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
-                    widgets.rootPath.value = ""
-                    widgets.rootPath.tooltipText = "";
-                    widgets.rootPath.setAttribute('class', 'noplace');
-                    widgets.rootPathToolbar.tooltipText = "";
+                    widgets.rootButton.label = "";
+                    widgets.rootButton.tooltipText = "";
                     this_.currentPlace = null;
                     ko.dialogs.alert(data);
                 } else {
@@ -1323,7 +1318,7 @@ ManagerClass.prototype = {
     //},
 
     _clickedOnRoot: function() {
-        return document.popupNode == widgets.rootPathToolbar;
+        return document.popupNode == widgets.rootButton;
     },
 
     _launchFindOrReplace: function(launcher, numNulls) {
@@ -2093,7 +2088,7 @@ ItemWrapper.prototype.__defineGetter__("name", function() {
     return this.getFile().leafName;
 });
 ItemWrapper.prototype.__defineGetter__("prefset", function() {
-    if (widgets.rootPathToolbar.getAttribute('class') == 'normal') {
+    if (widgets.rootButton.getAttribute('class') == 'normal') {
         var view = ko.views.manager.getViewForURI(this.uri);
         if (view) {
             return view.prefs;
@@ -2174,9 +2169,8 @@ this.onLoad = function places_onLoad() {
     ko.places.viewMgr = gPlacesViewMgr = new viewMgrClass();
     ko.places.viewMgr.initialize();
     ko.places.manager = new ManagerClass();
-    widgets.rootPath = document.getElementById("place-view-rootPath");
-    widgets.rootPathToolbar = document.getElementById("place-view-rootPath-icon-toolbarbutton");
-    widgets.defaultFolderIconSrc = widgets.rootPathToolbar.getAttribute('image');
+    widgets.rootButton = document.getElementById("placesRootButton");
+    widgets.defaultFolderIconSrc = widgets.rootButton.getAttribute('image');
     widgets.placeView_defaultView_menuitem =
         document.getElementById("placeView_defaultView");
     widgets.placeView_viewAll_menuitem =
