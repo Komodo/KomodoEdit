@@ -1254,8 +1254,6 @@
                                       />
                             <menuitem label="&newProject.label;"
                                       id="menu_projectNewProject"
-                                      class="menuitem-iconic new-project-icon"
-                   
                                       observes="cmd_newProject"
                                       />
                             <menuseparator id="menu_project_new_separator"/>
@@ -1275,13 +1273,11 @@
                             </menu>
                             <menuitem label="&createProjectToolbox.label;"
                                       id="menu_createProjectToolbox"
-                                      class="menuitem-iconic"
                                       observes="cmd_createProjectToolbox"
                                       />
                             <menuseparator id="menu_project_mru_separator"
                                   skipCopyToCogMenu="true" />
                             <menuitem label="&properties.label;"
-                                      class="menuitem-iconic"
                                       id="menu_projectProperties"
                                       observes="cmd_projectProperties"
                                       accesskey="&projectProperties.accesskey;"/>
