@@ -619,7 +619,7 @@
       </splitter>
 
       <deck id="placesSubpanelDeck" selectedIndex="0" orient="vertical"
-          height="250" minheight="75" persist="height">
+          height="250" minheight="50" persist="height">
         <!-- subpanel 0: Projects -->
         <tree id="placesSubpanelProjects"
             flex="1"
