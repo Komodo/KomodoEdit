@@ -1106,7 +1106,7 @@ ManagerClass.prototype = {
             return;
         }
         this._enterMRU_Place(uri);
-        this._setURI(uri, true);
+        this._setDirURI(uri, true);
         ko.uilayout.ensureTabShown("places_tab");
     },
 
@@ -1119,12 +1119,12 @@ ManagerClass.prototype = {
         }
         var uri = ko.uriparse.localPathToURI(dir);
         this._enterMRU_Place(uri);
-        this._setURI(uri, true);
+        this._setDirURI(uri, true);
     },
 
     openURI : function(uri) {
         this._enterMRU_Place(uri);
-        this._setURI(uri, true);
+        this._setDirURI(uri, true);
     },
  
     _checkForExistenceByURI: function(uri) {
@@ -1160,17 +1160,6 @@ ManagerClass.prototype = {
             }
         }
     },
-    
-    _setURI: function(uri, setThePref) {
-        var file = Components.classes["@activestate.com/koFileEx;1"].
-                createInstance(Components.interfaces.koIFileEx);
-        file.URI = uri
-        this.currentPlaceIsLocal = file.isLocal;
-        
-        var id;
-        var viewMgr = ko.places.viewMgr;
-        this._moveToURI(uri, setThePref);
-    },
 
     toggleRebaseFolderByIndex: function(index) {
         var uri = gPlacesViewMgr.view.getURIForRow(index);
@@ -1192,21 +1181,29 @@ ManagerClass.prototype = {
         var targetDirURI = this._getActualProjectDir(project);
         return uri == targetDirURI;
     },
-
-    _moveToURI: function(uri, setThePref) {
-        if (typeof(setThePref) == "undefined") {
-            setThePref = false;
+    
+    _setDirURI: function(dirURI, save /* =false */) {
+        if (typeof(save) == "undefined") {
+            save = false;
         }
+        
+        var koFile = Components.classes["@activestate.com/koFileEx;1"].
+                createInstance(Components.interfaces.koIFileEx);
+        koFile.URI = dirURI;
+        this.currentPlaceIsLocal = koFile.isLocal;
+        
+        // Ensure this is a dir. Else raise.
+        
         var statusNode = document.getElementById("place-view-rootPath-icon-toolbarbutton");
         var busyURI = "chrome://global/skin/icons/loading_16.png";
         statusNode.setAttribute('image', busyURI);
-        this.currentPlace = uri;
+        this.currentPlace = dirURI;
         var file = Components.classes["@activestate.com/koFileEx;1"].
         createInstance(Components.interfaces.koIFileEx);
-        file.URI = uri
+        file.URI = dirURI
         widgets.rootPath.value = file.baseName;
         widgets.rootPath.setAttribute('class', 'someplace');
-        var tooltipText = (file.scheme == "file" ? file.displayPath : uri);
+        var tooltipText = (file.scheme == "file" ? file.displayPath : dirURI);
         widgets.rootPath.tooltipText = tooltipText;
         this._checkProjectMatch();
         widgets.rootPathToolbar.tooltipText = tooltipText;
@@ -1224,13 +1221,13 @@ ManagerClass.prototype = {
                 } else {
                     window.setTimeout(window.updateCommands, 1,
                                       "current_place_opened");
-                    if (setThePref) {
-                        _placePrefs.setStringPref(window._koNum, uri);
+                    if (save) {
+                        _placePrefs.setStringPref(window._koNum, dirURI);
                     }
                     var viewName = null;
                     var prefSet;
-                    if (uriSpecificPrefs.hasPref(uri)) {
-                        var prefSet = uriSpecificPrefs.getPref(uri);
+                    if (uriSpecificPrefs.hasPref(dirURI)) {
+                        var prefSet = uriSpecificPrefs.getPref(dirURI);
                         try { viewName = prefSet.getStringPref('viewName')} catch(ex) {}
                         var finalViewName = gPlacesViewMgr.placeView_updateView(viewName);
                         if (finalViewName != viewName) {
@@ -1240,12 +1237,12 @@ ManagerClass.prototype = {
                         var finalViewName = gPlacesViewMgr.placeView_updateView(null);
                         prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
                         prefSet.setStringPref('viewName', finalViewName);
-                        uriSpecificPrefs.setPref(uri, prefSet);
+                        uriSpecificPrefs.setPref(dirURI, prefSet);
                     }
                 }
             }
         };
-        gPlacesViewMgr.view.setCurrentPlaceWithCallback(uri, callback);
+        gPlacesViewMgr.view.setCurrentPlaceWithCallback(dirURI, callback);
     },
 
     /* doCutPlaceItem
@@ -1526,7 +1523,7 @@ ManagerClass.prototype = {
         }
         if (uri) {
             try {
-                this._setURI(uri, false);
+                this._setDirURI(uri, false);
             } catch(ex) {}
         }
         try {
@@ -1610,7 +1607,7 @@ ManagerClass.prototype = {
         if (lastSlashIdx == -1) return;
         var parent_uri = uri.substr(0, lastSlashIdx);
         this._enterMRU_Place(parent_uri);
-        this._setURI(parent_uri, true);
+        this._setDirURI(parent_uri, true);
     },
 
     can_goPreviousPlace: function() {
@@ -1625,7 +1622,7 @@ ManagerClass.prototype = {
         if (this.currentPlace) {
             this.history_forwardPlaces.unshift(this.currentPlace);
         }
-        this._setURI(targetURI, false);
+        this._setDirURI(targetURI, false);
         window.updateCommands('place_history_changed');
     },
 
@@ -1641,7 +1638,7 @@ ManagerClass.prototype = {
         if (this.currentPlace) {
             this.history_prevPlaces.push(this.currentPlace);
         }
-        this._setURI(targetURI, true);
+        this._setDirURI(targetURI, true);
         window.updateCommands('place_history_changed');
     },
 
@@ -1841,7 +1838,7 @@ ManagerClass.prototype = {
             }
         }
         window.updateCommands('place_history_changed');
-        this._setURI(uri, true);
+        this._setDirURI(uri, true);
     },
 
     /**
