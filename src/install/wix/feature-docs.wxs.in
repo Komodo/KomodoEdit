@@ -218,6 +218,7 @@
                 <File Id="file277" LongName="rx_button.png" Name="RX_BUT_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\rx_button.png" />
                 <File Id="file4752" Name="rx_match.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\rx_match.png"/>
                 <File Id="file4753" Name="RX_MAT_1.PNG" LongName="rx_matches.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\rx_matches.png"/>
+                <File Id="file1240" LongName="scc_commit_dialog.png" Name="SCC_CO_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\scc_commit_dialog.png" />
                 <File Id="file453" LongName="sections_list.png" Name="SECTIO_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sections_list.png" />
                 <File Id="file4758" Name="SINGLE_1.GIF" LongName="single_line.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\single_line.gif"/>
                 <File Id="file303" LongName="start_page.png" Name="START__0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\start_page.png" />
