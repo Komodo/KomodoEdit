@@ -278,26 +278,28 @@
       <menuitem id="placesContextMenu_find"
                 label="&find.label;"
                 observes="cmd_findInPlace"
+                class="menuitem-iconic"
                 testDisableIf="t:multipleSelection t:isRemote"
                 />
       <menuitem id="placesContextMenu_replace"
                 observes="cmd_replaceInPlace"
                 label="&replace.label;"
+                class="menuitem-iconic"
                 testDisableIf="t:multipleSelection t:isRemote"
                 />
 
-      <!-- Put in correct platform-specific label in the JS init code -->
+      <!-- Init code puts in the platform-specific label. -->
       <menuitem id="placesContextMenu_showInFinder"
                 observes="cmd_places_showInFinder"
                 label="&ShowInExplorer.label;"
-                testDisableIf="t:multipleSelection t:isRemote"
-                />
+                class="menuitem-iconic"
+                testDisableIf="t:multipleSelection t:isRemote" />
       <menuitem id="placesContextMenu_rename"
                 observes="cmd_renamePlace_File"
                 label="&renamePlaceItem.label;"
+                class="menuitem-iconic"
                 disableIf="project"
-                testDisableIf="t:multipleSelection"
-                />
+                testDisableIf="t:multipleSelection" />
       <menuitem id="placesContextMenu_refresh_status"
                 observes="cmd_refreshStatus"
                 label="&refreshStatus.label;"
@@ -318,7 +320,6 @@
                 testDisableIf="t:multipleSelection"
                 hideUnless="folder"
                 />
-      <!-- gPlacesViewMgr.addNewFile(index) -->
       <menuitem id="placesContextMenu_newFolder"
                 label="&newFolder.label;"
                 class="menuitem-iconic new-folder-icon"
@@ -326,7 +327,6 @@
                 testDisableIf="t:multipleSelection"
                 hideUnless="folder"
                 />
-      <!-- gPlacesViewMgr.addNewFolder(index) -->
       <menuseparator id="placesContextMenu_separatorProperties"
                      intoplevel="true"/>
       <menuitem id="placesContextMenu_editProperties"
@@ -335,6 +335,7 @@
                 intoplevel="true"
                 disableIf="folder"
                 hideIf="project"
+                class="menuitem-iconic"
                 testDisableIf="t:multipleSelection"
                 />
       <menuitem id="placesContextMenu_editProjectProperties"
@@ -342,6 +343,7 @@
                 label="&properties.label;"
                 intoplevel="true"
                 hideUnless="project"
+                class="menuitem-iconic"
                 testDisableIf="t:classIsntProject"
                 />
     </menupopup>
