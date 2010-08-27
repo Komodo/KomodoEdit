@@ -139,7 +139,9 @@ this.manager = function keybindingManager() {
         getService(Components.interfaces.nsIObserverService);
     // Each main window has an instance of this observer, and we shut each one down when the window is closed.
     observerSvc.addObserver(this, "kb-unload",false);
+    observerSvc.addObserver(this, "kb-unload-global",false);
     observerSvc.addObserver(this, "kb-load",false);
+    observerSvc.addObserver(this, "kb-load-global",false);
     observerSvc.addObserver(this, 'toolbox-loaded-local', false);
     observerSvc.addObserver(this, 'toolbox-loaded-global', false);
     observerSvc.addObserver(this, 'toolbox-loaded', false); // synonym for global
@@ -173,8 +175,8 @@ this.manager.prototype.finalize = function(part, topic, partId) {
     window.removeEventListener("unload", this.removeListener, false);
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
-    observerSvc.removeObserver(this, "kb-unload");
-    observerSvc.removeObserver(this, "kb-load");
+    observerSvc.removeObserver(this, "kb-unload-global");
+    observerSvc.removeObserver(this, "kb-load-global");
     observerSvc.removeObserver(this, 'toolbox-loaded-local');
     observerSvc.removeObserver(this, 'toolbox-loaded-global');
     observerSvc.removeObserver(this, 'toolbox-loaded'); // synonym for global
@@ -187,7 +189,13 @@ this.manager.prototype.observe = function(part, topic, partId) {
     // Two notifications are observed by the keybinding manager -- kb-load and kb-unload.
     // see the notification HOWTO for details
 
-    if (topic == 'kb-unload' || topic == 'kb-load') {
+    if (topic.indexOf('kb-') == 0) {
+        if (topic.indexOf('-global') == -1
+            && ko.windowManager.getMainWindow() != window) {
+            return;
+        } else {
+            topic = topic.indexOf('kb-load') == 0 ? 'kb-load' : 'kb-unload';
+        }
         if (part.hasAttribute('keyboard_shortcut')) {
             this.manageKeyboardShortcut(part, topic, partId);
         }
