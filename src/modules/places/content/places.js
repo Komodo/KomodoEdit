@@ -2610,8 +2610,8 @@ this.recentProjectsTreeView.prototype.observe = function(subject, topic, data) {
     }
 };
 // NSITreeView methods.
-this.recentProjectsTreeView.prototype.getCellText = function(row, column) {
-    var row = this.rows[row];
+this.recentProjectsTreeView.prototype.getCellText = function(index, column) {
+    var row = this.rows[index];
     var currentProject = ko.projects.manager.currentProject;
     if (currentProject
         && currentProject.isDirty
@@ -2621,10 +2621,10 @@ this.recentProjectsTreeView.prototype.getCellText = function(row, column) {
         return row[1];
     }
 };
-this.recentProjectsTreeView.prototype.getCellValue = function(row, column) {
-    return this.rows[row][0];
+this.recentProjectsTreeView.prototype.getCellValue = function(index, column) {
+    return this.rows[index][0];
 };
-this.recentProjectsTreeView.prototype.getImageSrc = function(row, column) {
+this.recentProjectsTreeView.prototype.getImageSrc = function(index, column) {
     return 'chrome://komodo/skin/images/project_icon.png'
 };
 this.recentProjectsTreeView.prototype.getCellProperties = function(index, column, properties) {
