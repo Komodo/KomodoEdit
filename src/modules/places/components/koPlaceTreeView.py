@@ -674,45 +674,23 @@ class KoPlaceTreeView(TreeView):
         return -1
 
     def selectURI(self, uri):
-        """This is the last part of a call, so this can use a callback on
-        the toggleOpenState part
+        """If the given URI is one of the current rows in the tree,
+        then select it.
+        
+        Note: This will *not* open directory nodes in the tree to
+        find a possible row for the given URI.
+        
+        @param uri {str} The URI to select.
         """
         if len(self._rows) == 0:
             return
         index = self.getRowIndexForURI(uri)
         if index >= 0:
             self.selection.currentIndex = index
-            return
-        node = self._rows[0]
-        if node.isOpen:
-            return
-        requestID = self.getRequestID()
-        self.lock.acquire()
-        try:
-            self._data[requestID] = {'uri':uri}
-        finally:
-            self.lock.release()
-        node.show_busy()
-        self._tree.invalidateRow(0)
-        self.workerThread.put(('selectURI_toggleNodeOpen',
-                                {'requestID':requestID,
-                                 'node':node,
-                                 'uri':uri,
-                                'requester':self},
-                               'post_selectURI'))
-
-    def post_selectURI(self, rv, requestID):
-        uri = self.getItemsByRequestID(requestID, 'uri')
-        self._rows[0].restore_icon()
-        self._tree.invalidateRow(0)
-        if rv:
-            raise Exception(rv)
-        index = self.getRowIndexForURI(uri)
-        if index >= -1:
-            self.selection.currentIndex = index
             self.selection.select(index)
             self._tree.ensureRowIsVisible(index)
-        
+            return
+
     def getURIForRow(self, index):
         return self._rows[index].uri
 
@@ -2068,12 +2046,6 @@ class _WorkerThread(threading.Thread, Queue):
         #qlog.debug("toggleOpenState_Open: forceRefresh:%r", forceRefresh)
         self.refreshTreeOnOpen_Aux(requester, uri, forceRefresh)
         requester._sortModel(uri)
-        return ""
-
-    def selectURI_toggleNodeOpen(self, args):
-        requester = args['requester']
-        uri = args['uri']
-        self.refreshTreeOnOpen_Aux(requester, uri)
         return ""
 
     def _deleteRemoteDirectoryContents(self, conn, rfi):
