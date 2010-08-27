@@ -2787,18 +2787,6 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         if (gPrefs.getBooleanPref("show_start_page")) {
             ko.open.startPage();
         }
-        if (workspace.hasPref('opened_projects')) {
-            pref = workspace.getPref('opened_projects');
-            wko.projects.manager.setState(pref);
-            if (workspace.hasPref('current_project')) {
-                var url = workspace.getStringPref('current_project');
-                // If a project with that url is loaded, make it current
-                var proj = wko.projects.manager.getProjectByURL(url);
-                if (proj) {
-                    wko.projects.manager.currentProject = proj;
-                }
-            }
-        }
         workspace.getPrefIds(ids, cnt);
         for (var i = 0; i < ids.value.length; i++) {
             id = ids.value[i];
@@ -2814,29 +2802,49 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         if (wko.history) {
             wko.history.restore_prefs(workspace);
         }
+        this.initializeEssentials(currentWindow, workspace);
+
+        // Now projects depends on places, so open it after
+        if (workspace.hasPref('opened_projects')) {
+            pref = workspace.getPref('opened_projects');
+            wko.projects.manager.setState(pref);
+            if (workspace.hasPref('current_project')) {
+                var url = workspace.getStringPref('current_project');
+                // If a project with that url is loaded, make it current
+                var proj = wko.projects.manager.getProjectByURL(url);
+                if (proj) {
+                    wko.projects.manager.currentProject = proj;
+                }
+            }
+        }
         wko._hasFocus = (workspace.hasBooleanPref('hasFocus')
                          && workspace.getBooleanPref('hasFocus'));
-        var infoService = Components.classes["@activestate.com/koInfoService;1"].
-                            getService(Components.interfaces.koIInfoService);
-        if (workspace.hasPref('windowNum')) {
-            var windowNum = workspace.getLongPref('windowNum');
-            currentWindow._koNum = windowNum;
-            try {
-                infoService.setUsedWindowNum(windowNum);
-            } catch(ex) {
-                // It turns out that the window # saved in the old workspace
-                // has already been assigned.
-                currentWindow._koNum = infoService.nextWindowNum();
-            }
-        } else {
-            currentWindow._koNum = infoService.nextWindowNum();
-        } 
     } catch(ex) {
         log.exception(ex, "Error restoring workspace:");
     } finally {
         _restoreInProgress = false;
     }
 };
+
+this.initializeEssentials = function(currentWindow, workspace /*=null*/) {
+    if (typeof(workspace) == undefined) workspace=null;
+    var infoService = Components.classes["@activestate.com/koInfoService;1"].
+    getService(Components.interfaces.koIInfoService);
+    if (workspace && workspace.hasPref('windowNum')) {
+        var windowNum = workspace.getLongPref('windowNum');
+        currentWindow._koNum = windowNum;
+        try {
+            infoService.setUsedWindowNum(windowNum);
+        } catch(ex) {
+            // It turns out that the window # saved in the old workspace
+            // has already been assigned.
+            currentWindow._koNum = infoService.nextWindowNum();
+        }
+    } else {
+        currentWindow._koNum = infoService.nextWindowNum();
+    }
+    xtk.domutils.fireEvent(window, 'workspace_restored');
+}
 
 /*XXX: At some point remove these prefs from the global prefset:
  * uilayout_bottomTabBoxSelectedTabId

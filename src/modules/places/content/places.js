@@ -2241,8 +2241,9 @@ this._instantiateRemoteConnectionService = function() {
     loginmanager.getAllLogins(logins);
 };
 
-// In these functions 'this' is top (window)
+// In this function 'this' is top (window)
 this.onLoad = function places_onLoad() {
+    ko.main.addWillCloseHandler(ko.places.onUnload);
     osPathSvc = (Components.classes["@activestate.com/koOsPath;1"]
                  .getService(Components.interfaces.koIOsPath));
     // Init the prefs

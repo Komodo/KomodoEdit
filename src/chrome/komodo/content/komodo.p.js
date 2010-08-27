@@ -332,6 +332,8 @@ function onloadDelay() {
             if ('workspaceIndex' in arg) {
                 ko.workspace.restoreWorkspaceByIndex(window, arg.workspaceIndex);
             } else {
+                // There is no workspace to restore, but init window essentials
+                ko.workspace.initializeEssentials(window);
                 var urllist;
                 if ('uris' in arg) {
                     urllist = arg.uris; // Called from ko.launch.newWindow(uri)

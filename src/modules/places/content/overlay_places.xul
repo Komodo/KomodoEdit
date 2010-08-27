@@ -57,9 +57,7 @@
           type="application/x-javascript"/>
   <script type="application/x-javascript">
   <![CDATA[
-  //alert("Loading places/overlay.xul");
-  window.addEventListener("load", ko.places.onLoad, false);
-  window.addEventListener("unload", ko.places.onUnload, false);
+  window.addEventListener("workspace_restored", ko.places.onLoad, false);
   ]]>
   </script>
   
