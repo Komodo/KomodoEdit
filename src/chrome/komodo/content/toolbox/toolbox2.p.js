@@ -454,6 +454,18 @@ this.addNewItemToParent = function(item, parent) {
     this.manager.view.addNewItemToParent(parent, item);
 };
 
+this.applyKeybindings = function () {
+    var tools = {};
+    this.manager.toolsMgr.getToolsWithKeyboardShortcuts("", tools, {});
+    tools = tools.value;
+    var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                    getService(Components.interfaces.nsIObserverService);
+    for (var i = 0; i < tools.length; i++) {
+        var tool = tools[i];
+        obsSvc.notifyObservers(tool, 'kb-load', tool.id);
+    }
+}
+
 this.createPartFromType = function(toolType) {
     return this.manager.toolsMgr.createToolFromType(toolType);
 };

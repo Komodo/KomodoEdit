@@ -1091,6 +1091,7 @@ this.manager.prototype.revertToPref = function(configname) {
     this.currentConfiguration = configname;
     this.currentScheme = this.keybindingSchemeService.getScheme(this.currentConfiguration);
     this.loadConfiguration(this.currentConfiguration);
+    ko.toolbox2.applyKeybindings(true); 
 }
 
 this.manager.prototype.saveAndApply = function(prefset) {
@@ -1112,6 +1113,7 @@ this.manager.prototype.saveAndApply = function(prefset) {
         this.saveCurrentConfiguration();
         this._saveKnownConfigs();
         this.loadConfiguration(this.currentConfiguration, true);
+        ko.toolbox2.applyKeybindings(); 
     } catch (e) {
         _log.exception(e);
     }
@@ -1155,6 +1157,7 @@ this.manager.prototype.switchConfiguration= function (newconfigname) {
     this.offerToSave()
     try {
         this.loadConfiguration(newconfigname, true);
+        ko.toolbox2.applyKeybindings(); 
     } catch (e) {
         _log.error(e);
     }

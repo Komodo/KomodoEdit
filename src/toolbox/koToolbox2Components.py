@@ -548,11 +548,23 @@ class KoToolbox2Service(object):
             subject = (notifyAllWindows and 'toolbox-loaded-global') or 'toolbox-loaded-local'
             _observerSvc.notifyObservers(None, subject, toolboxDir)
         except Exception:
-            pass
-
+            log.exception("notifyAddedToolbox: notify %s failed", subject)
+        tools = self._toolsMgrSvc.getToolsWithKeyboardShortcuts(toolboxDir)
+        for tool in tools:
+            try:
+                _observerSvc.notifyObservers(tool, 'kb-load', str(tool.id))
+            except Exception:
+                log.exception("notifyAddedToolbox: notify kb-load: failed")
+                
     def notifyDroppedToolbox(self, toolboxDir, notifyAllWindows=True):
         _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
                 .getService(components.interfaces.nsIObserverService)
+        tools = self._toolsMgrSvc.getToolsWithKeyboardShortcuts(toolboxDir)
+        for tool in tools:
+            try:
+                _observerSvc.notifyObservers(tool, 'kb-unload', str(tool.id))
+            except Exception:
+                log.exception("notifyAddedToolbox: notify kb-unload: failed")
         try:
             subject = (notifyAllWindows and 'toolbox-unloaded-global') or 'toolbox-unloaded-local'
             _observerSvc.notifyObservers(None, subject, toolboxDir)
