@@ -550,9 +550,10 @@ class KoToolbox2Service(object):
         except Exception:
             log.exception("notifyAddedToolbox: notify %s failed", subject)
         tools = self._toolsMgrSvc.getToolsWithKeyboardShortcuts(toolboxDir)
+        subject = (notifyAllWindows and 'kb-load-global') or 'kb-load'
         for tool in tools:
             try:
-                _observerSvc.notifyObservers(tool, 'kb-load', str(tool.id))
+                _observerSvc.notifyObservers(tool, subject, str(tool.id))
             except Exception:
                 log.exception("notifyAddedToolbox: notify kb-load: failed")
                 
@@ -560,9 +561,10 @@ class KoToolbox2Service(object):
         _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
                 .getService(components.interfaces.nsIObserverService)
         tools = self._toolsMgrSvc.getToolsWithKeyboardShortcuts(toolboxDir)
+        subject = (notifyAllWindows and 'kb-unload-global') or 'kb-unload'
         for tool in tools:
             try:
-                _observerSvc.notifyObservers(tool, 'kb-unload', str(tool.id))
+                _observerSvc.notifyObservers(tool, subject, str(tool.id))
             except Exception:
                 log.exception("notifyAddedToolbox: notify kb-unload: failed")
         try:
