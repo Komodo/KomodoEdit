@@ -1091,7 +1091,7 @@ this.manager.prototype.revertToPref = function(configname) {
     this.currentConfiguration = configname;
     this.currentScheme = this.keybindingSchemeService.getScheme(this.currentConfiguration);
     this.loadConfiguration(this.currentConfiguration);
-    ko.toolbox2.applyKeybindings(true); 
+    ko.toolbox2.applyKeybindings(); 
 }
 
 this.manager.prototype.saveAndApply = function(prefset) {
