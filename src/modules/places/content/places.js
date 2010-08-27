@@ -1161,8 +1161,12 @@ ManagerClass.prototype = {
             return;
         }
         this._recordLastHomePlace();
-        this.openDirectory(dir);
-        ko.uilayout.ensureTabShown("places_tab");
+        try {
+            this.openDirectory(dir);
+        } catch(ex) {
+            _notify(ex.message || ex);
+            return;
+        }
     },
     
     doOpenRemoteDirectory: function() {
@@ -1185,26 +1189,46 @@ ManagerClass.prototype = {
                + ", but can't process it with the RemoteConnectionService");
             return;
         }
-        this._enterMRU_Place(uri);
-        this._setDirURI(uri, true);
-        ko.uilayout.ensureTabShown("places_tab");
+        this.openDirURI(uri);
     },
 
-    openDirectory: function(dir) {
+    /* Set the given local directory path as the root in places
+     *
+     * @param dir {String} The directory to open.
+     * @param baseName {String} Optional file basename in the directory
+     *      to select.
+     * @exception {"message": <error-message>} if the dir doesn't exist or isn't
+     *      a directory.
+     */
+    openDirectory: function(dir, baseName) {
+        var err;
         if (!osPathSvc.exists(dir)) {
-            var prompt = _bundle.formatStringFromName('directoryDoesntExist.prompt',
-                                                      [dir], 1);
-            ko.dialogs.alert(prompt);
-            return;
+            throw {
+                "message": _bundle.formatStringFromName(
+                    'doesNotExist', [dir], 1)
+            };
+        } else if (!osPathSvc.isdir(dir)) {
+            throw {
+                "message": _bundle.formatStringFromName(
+                    'isNotADirectory', [dir], 1)
+            };
         }
-        var uri = ko.uriparse.localPathToURI(dir);
-        this._enterMRU_Place(uri);
-        this._setDirURI(uri, true);
+        var dirURI = ko.uriparse.localPathToURI(dir);
+        this._enterMRU_Place(dirURI);
+        this._setDirURI(dirURI, true, baseName);
+        ko.uilayout.ensureTabShown("places_tab", true);
     },
 
-    openURI : function(uri) {
-        this._enterMRU_Place(uri);
-        this._setDirURI(uri, true);
+    /* Set the given directory URI as the root in places.
+     *
+     * @param dirURI {String} The directory URI to open.
+     * @param baseName {String} Optional file base name in the directory
+     *      to select.
+     */
+    openDirURI: function(dirURI, baseName) {
+        this._enterMRU_Place(dirURI);
+        this._setDirURI(dirURI, true, baseName);
+        ko.uilayout.ensureTabShown("places_tab", true);
     },
  
     _checkForExistenceByURI: function(uri) {
@@ -1244,7 +1268,7 @@ ManagerClass.prototype = {
     toggleRebaseFolderByIndex: function(index) {
         var uri = gPlacesViewMgr.view.getURIForRow(index);
         this._enterMRU_Place(uri);
-        this._setURI(uri, true);
+        this._setDirURI(uri, true);
     },
 
     _checkProjectMatch: function() {
@@ -1269,30 +1293,34 @@ ManagerClass.prototype = {
      *      exist.
      * @param save {Boolean} Whether to save this dir in the places dir history.
      *      Default is false.
+     * @param baseName {String} Optional file base name in the dir to select.
+     *      If the base name cannot be found in the directory, no error is
+     *      raised.
      */
-    _setDirURI: function(dirURI, save /* =false */) {
-        if (typeof(save) == "undefined") {
-            save = false;
-        }
+    _setDirURI: function(dirURI, save /* =false */, baseName /* =null */) {
+        if (typeof(save) == "undefined") { save = false; }
+        if (typeof(baseName) == "undefined") { baseName = null; }
+        
+        var statusNode = document.getElementById("placesRootButton");
+        var busyURI = "chrome://global/skin/icons/loading_16.png";
+        statusNode.setAttribute('image', busyURI);
 
         var koFile = Components.classes["@activestate.com/koFileEx;1"].
                 createInstance(Components.interfaces.koIFileEx);
         koFile.URI = dirURI;
         this.currentPlaceIsLocal = koFile.isLocal;
 
-        var statusNode = document.getElementById("placesRootButton");
-        var busyURI = "chrome://global/skin/icons/loading_16.png";
-        statusNode.setAttribute('image', busyURI);
         this.currentPlace = dirURI;
         var file = Components.classes["@activestate.com/koFileEx;1"].
-        createInstance(Components.interfaces.koIFileEx);
+            createInstance(Components.interfaces.koIFileEx);
         file.URI = dirURI;
         widgets.rootButton.label = file.baseName;
         this._checkProjectMatch();
         widgets.rootButton.tooltipText = (
             file.scheme == "file" ? file.displayPath : dirURI);
+
         var this_ = this;
-        var callback = {
+        var callback = {    // koIAsyncCallback
             callback: function(result, data) {
                 statusNode.setAttribute('image', widgets.defaultFolderIconSrc);
                 if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
@@ -1301,6 +1329,10 @@ ManagerClass.prototype = {
                     this_.currentPlace = null;
                     ko.dialogs.alert(data);
                 } else {
+                    if (baseName) {
+                        var uri = dirURI + '/' + baseName;
+                        ko.places.viewMgr.view.selectURI(uri);
+                    }
                     window.setTimeout(window.updateCommands, 1,
                                       "current_place_opened");
                     if (save) {
@@ -1309,12 +1341,14 @@ ManagerClass.prototype = {
                     var viewName = null;
                     var prefSet;
                     if (uriSpecificPrefs.hasPref(dirURI)) {
-                        var prefSet = uriSpecificPrefs.getPref(dirURI);
-                        try { viewName = prefSet.getStringPref('viewName')} catch(ex) {}
+                        prefSet = uriSpecificPrefs.getPref(dirURI);
+                        try {
+                            viewName = prefSet.getStringPref('viewName')
+                        } catch(ex) {}
                         var finalViewName = gPlacesViewMgr.placeView_updateView(viewName);
                         if (finalViewName != viewName) {
                             prefSet.setStringPref('viewName', finalViewName)
-                                }
+                        }
                     } else {
                         var finalViewName = gPlacesViewMgr.placeView_updateView(null);
                         prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
@@ -1875,7 +1909,7 @@ ManagerClass.prototype = {
                     buildingURI += "/";
                 }
                 menuitem.setAttribute('oncommand',
-                                      ('ko.places.manager.openURI("'
+                                      ('ko.places.manager.openDirURI("'
                                        + buildingURI
                                        + '");'));
                 popupMenu.appendChild(menuitem);
@@ -2040,8 +2074,12 @@ ManagerClass.prototype = {
                 }
             }
             if (handleRequest) {
-                ko.places.manager.openDirectory(data);
-                ko.uilayout.ensureTabShown("places_tab");
+                try {
+                    ko.places.manager.openDirectory(data);
+                } catch(ex) {
+                    _notify(ex.message || ex);
+                    return;
+                }
                 gPlacesViewMgr.view.selection.select(0);
             }
         } else if (topic == 'current_project_changed') {
@@ -2069,7 +2107,7 @@ ManagerClass.prototype = {
                 // Delay, because at startup the tree might not be
                 // fully initialized.
                 setTimeout(function() {
-                        ko.places.manager.openURI(targetDirURI);
+                        ko.places.manager.openDirURI(targetDirURI);
                     }, 100);
             }
         }
@@ -2081,7 +2119,7 @@ ManagerClass.prototype = {
 
     moveToProjectDir: function(project) {
         var projectDirURI = this._getActualProjectDir(project);
-        ko.places.manager.openURI(projectDirURI);
+        ko.places.manager.openDirURI(projectDirURI);
     },
     
     _getActualProjectDir: function(project) {
@@ -2595,5 +2633,28 @@ this.recentProjectsTreeView.prototype.getCellProperties = function(index, column
         properties.AppendElement(this._atomService.getAtom("projectActive"));
     }
 };
+
+
+//---- internal support stuff
+
+function _notify(label, value, image, priority, buttons) {
+    var notificationBox = document.getElementById("komodo-notificationbox");
+    value = value || 'places-warning';
+    // Other interesting ones: information.png, exclamation.png
+    image = image || "chrome://famfamfamsilk/skin/icons/error.png";
+    priority = priority || notificationBox.PRIORITY_WARNING_LOW;
+    buttons = buttons || [];
+    
+    var existing;
+    while (true) {
+        existing = notificationBox.getNotificationWithValue(value);
+        if (!existing) {
+            break;
+        }
+        notificationBox.removeNotification(existing);
+    }
+
+    notificationBox.appendNotification(label, value, image, priority, buttons);
+}
 
 }).apply(ko.places);
