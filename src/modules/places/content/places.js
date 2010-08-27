@@ -1215,8 +1215,11 @@ ManagerClass.prototype = {
         }
         var dirURI = ko.uriparse.localPathToURI(dir);
         this._enterMRU_Place(dirURI);
-        this._setDirURI(dirURI, true, baseName);
-        ko.uilayout.ensureTabShown("places_tab", true);
+        this._setDirURI(dirURI,
+                        {save:true,
+                         baseName:baseName,
+                         onSuccess:this._setDirURI_successFunc_history_changed});
+        
     },
 
     /* Set the given directory URI as the root in places.
@@ -1227,8 +1230,10 @@ ManagerClass.prototype = {
      */
     openDirURI: function(dirURI, baseName) {
         this._enterMRU_Place(dirURI);
-        this._setDirURI(dirURI, true, baseName);
-        ko.uilayout.ensureTabShown("places_tab", true);
+        this._setDirURI(dirURI,
+                        {save:true,
+                                baseName:baseName,
+                                onSuccess:this._setDirURI_successFunc_show_tab});
     },
  
     _checkForExistenceByURI: function(uri) {
@@ -1268,7 +1273,7 @@ ManagerClass.prototype = {
     toggleRebaseFolderByIndex: function(index) {
         var uri = gPlacesViewMgr.view.getURIForRow(index);
         this._enterMRU_Place(uri);
-        this._setDirURI(uri, true);
+        this._setDirURI(uri, {save:true});
     },
 
     _checkProjectMatch: function() {
@@ -1291,16 +1296,24 @@ ManagerClass.prototype = {
      * @param dirURI {string} The directory to which to switch, as a URI.
      *      This is presumed to be a directory (i.e. not a file) and to
      *      exist.
-     * @param save {Boolean} Whether to save this dir in the places dir history.
+     * @param args {Object} Can contain the following fields
+     *        save {Boolean} Whether to save this dir in the places dir history.
      *      Default is false.
-     * @param baseName {String} Optional file base name in the dir to select.
+     *        onSuccess {void(void)}: function to call from callback on success
+     *      Default is null.
+     *        onFailure {void(void)}: function to call from callback on failure
+     *      Default is null.
+     *        baseName {String} Optional file base name in the dir to select.
      *      If the base name cannot be found in the directory, no error is
      *      raised.
      */
-    _setDirURI: function(dirURI, save /* =false */, baseName /* =null */) {
-        if (typeof(save) == "undefined") { save = false; }
-        if (typeof(baseName) == "undefined") { baseName = null; }
-        
+    _setDirURI: function(dirURI, args) {
+        var save = args.save === undefined ? false : args.save;
+        var baseName = args.baseName === undefined ? null : args.baseName;
+        var onSuccess = args.onSuccess === undefined ? null : args.onSuccess;
+        var onFailure = args.onFailure === undefined ? null : args.onFailure;
+
+        var this_ = this;
         var statusNode = document.getElementById("placesRootButton");
         var busyURI = "chrome://global/skin/icons/loading_16.png";
         statusNode.setAttribute('image', busyURI);
@@ -1328,6 +1341,13 @@ ManagerClass.prototype = {
                     widgets.rootButton.tooltipText = "";
                     this_.currentPlace = null;
                     ko.dialogs.alert(data);
+                    if (onFailure) {
+                        try {
+                            onFailure.apply(this_);
+                        } catch(ex) {
+                            log.exception("_setDirURI::onFailure: " + ex);
+                        }
+                    }
                 } else {
                     if (baseName) {
                         var uri = dirURI + '/' + baseName;
@@ -1354,6 +1374,13 @@ ManagerClass.prototype = {
                         prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
                         prefSet.setStringPref('viewName', finalViewName);
                         uriSpecificPrefs.setPref(dirURI, prefSet);
+                    }
+                    if (onSuccess) {
+                        try {
+                            onSuccess.apply(this_);
+                        } catch(ex) {
+                            log.exception("_setDirURI::onSuccess: " + ex);
+                        }
                     }
                 }
             }
@@ -1639,7 +1666,19 @@ ManagerClass.prototype = {
         }
         if (uri) {
             try {
-                this._setDirURI(uri, false);
+                var successFunc = function() {
+                    // If we're moving to a URI that's in the history list,
+                    // pull it out.
+                    var names = {'history_prevPlaces':null,
+                                 'history_forwardPlaces':null};
+                    for (var name in names) {
+                        var index = this[name].indexOf(uri);
+                        if (index > -1) {
+                            this[name].splice(index, 1);
+                        }
+                    }
+                };
+                this._setDirURI(uri, {save:false, onSuccess:successFunc});
             } catch(ex) {}
         }
         try {
@@ -1725,23 +1764,46 @@ ManagerClass.prototype = {
         if (lastSlashIdx == -1) return;
         var parent_uri = uri.substr(0, lastSlashIdx);
         this._enterMRU_Place(parent_uri);
-        this._setDirURI(parent_uri, true);
+        this._setDirURI(parent_uri, {save:true});
     },
 
     can_goPreviousPlace: function() {
         return this.history_prevPlaces.length > 0;
     },
 
+    _setDirURI_successFunc_history_changed: function() {
+        window.updateCommands('place_history_changed');
+    },
+
+    _setDirURI_successFunc_show_tab: function() {
+        ko.uilayout.ensureTabShown("places_tab", true);
+    },
+    
     goPreviousPlace: function() {
         if (this.history_prevPlaces.length == 0) {
             return;
         }
+        var currentURI = this.currentPlace;
         var targetURI = this.history_prevPlaces.pop();
-        if (this.currentPlace) {
-            this.history_forwardPlaces.unshift(this.currentPlace);
+        if (currentURI) {
+            this.history_forwardPlaces.unshift(currentURI);
         }
-        this._setDirURI(targetURI, false);
-        window.updateCommands('place_history_changed');
+        var failureFunc = function() {
+            if (this.history_prevPlaces.length) {
+                targetURI = this.history_prevPlaces.pop();
+                this._setDirURI(targetURI, {save:false,
+                                            onSuccess:this._setDirURI_successFunc_history_changed,
+                                            onFailure:failureFunc});
+            } else {
+                // Go back to the starting place
+                this.history_forwardPlaces.shift();
+                this._setDirURI(currentURI,
+                                {save:false, onSuccess:this._setDirURI_successFunc_history_changed});
+            }
+        };
+        this._setDirURI(targetURI,
+                        {save:false, onSuccess:this._setDirURI_successFunc_history_changed,
+                         onFailure:failureFunc});
     },
 
     can_goNextPlace: function() {
@@ -1752,12 +1814,27 @@ ManagerClass.prototype = {
         if (this.history_forwardPlaces.length == 0) {
             return;
         }
+        var currentURI = this.currentPlace;
         var targetURI = this.history_forwardPlaces.shift();
-        if (this.currentPlace) {
-            this.history_prevPlaces.push(this.currentPlace);
+        if (currentURI) {
+            this.history_prevPlaces.push(currentURI);
         }
-        this._setDirURI(targetURI, true);
-        window.updateCommands('place_history_changed');
+        var failureFunc = function() {
+            if (this.history_forwardPlaces.length) {
+                targetURI = this.history_forwardPlaces.shift();
+                this._setDirURI(targetURI, {save:false,
+                                            onSuccess:this._setDirURI_successFunc_history_changed,
+                                            onFailure:failureFunc});
+            } else {
+                // Go back to the starting place
+                this.history_prevPlaces.pop();
+                this._setDirURI(currentURI,
+                                {save:false, onSuccess:this._setDirURI_successFunc_history_changed});
+            }
+        };
+        this._setDirURI(targetURI,
+                        {save:false, onSuccess:this._setDirURI_successFunc_history_changed,
+                         onFailure:failureFunc});
     },
 
     can_undoTreeOperation: function() {
@@ -1794,13 +1871,9 @@ ManagerClass.prototype = {
          * Show at most 6 recent locations, and the rest in a further popup
          */
         var menuitem;
-        var currentURI = null;
-        try {
-            currentURI = gPlacesViewMgr.view.getURIForRow(0) ;
-        } catch(ex) {}
-        if (!currentURI) currentURI = this.currentPlace;
+        var currentURI = this.currentPlace;
         var blocks = [this.history_forwardPlaces,
-                      [currentURI],
+                      currentURI ? [currentURI] : [],
                       this.history_prevPlaces];
         var codes = ['F', 'C', 'B'];
         var file = Components.classes["@activestate.com/koFileEx;1"].
@@ -1934,29 +2007,56 @@ ManagerClass.prototype = {
         var uri, partsToShift;
         if (blockCode == 'C') {
             return; // Nothing to do
-        } else if (blockCode == 'B') {
+        }
+        var failureFunc = null;
+        var currentURI = this.currentPlace;
+        var partsToShift = [];
+        if (blockCode == 'B') {
             uri = this.history_prevPlaces[index];
             this.history_prevPlaces.splice(index, 1);
             partsToShift = this.history_prevPlaces.splice(index);
-            if (this.currentPlace) {
-                partsToShift.push(this.currentPlace);
+            if (currentURI) {
+                partsToShift.push(currentURI);
             }
             if (partsToShift.length) {
                 this.history_forwardPlaces = partsToShift.concat(this.history_forwardPlaces);
             }
+            failureFunc = function() {
+                var partsToShiftBack = this.history_forwardPlaces.splice(0, partsToShift.length);
+                this.history_prevPlaces = this.history_prevPlaces.concat(partsToShiftBack);
+                // remove the currentURI from the forward block
+                if (currentURI) {
+                    this.history_forwardPlaces.shift();
+                    this._setDirURI(currentURI, {save:false});
+                } // else no place to go back to
+            }
         } else {
             var uri = this.history_forwardPlaces[index];
+            var shiftBackIndex = this.history_prevPlaces.length;
             this.history_forwardPlaces.splice(index, 1);
-            if (this.currentPlace) {
-                this.history_prevPlaces.push(this.currentPlace);
+            if (currentURI) {
+                this.history_prevPlaces.push(currentURI);
+                shiftBackIndex += 1;
             }
             if (index > 0) {
                 partsToShift = this.history_forwardPlaces.splice(0, index);
                 this.history_prevPlaces = this.history_prevPlaces.concat(partsToShift);
             }
+            failureFunc = function() {
+                var partsToShiftBack = this.history_prevPlaces.splice(shiftBackIndex);
+                this.history_forwardPlaces = partsToShiftBack.concat(this.history_forwardPlaces.concat);
+                // remove the currentURI from the prev block
+                if (currentURI) {
+                    this.history_prevPlaces.pop();
+                    this._setDirURI(currentURI, {save:false});
+                } else {
+                    // No place to go back to.
+                }
+            }
         }
-        window.updateCommands('place_history_changed');
-        this._setDirURI(uri, true);
+        this._setDirURI(uri, {save:true,
+                              onSuccess:this._setDirURI_successFunc_history_changed,
+                              onFailure:failureFunc});
     },
 
     /**
@@ -2422,6 +2522,7 @@ this.initProjectsContextMenu = function(event, menupopup) {
             }
         }
     }
+    return true;
 };
 
 this.onProjectTreeDblClick = function(event) {
