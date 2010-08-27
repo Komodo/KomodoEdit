@@ -165,7 +165,7 @@ class GoHit(PathHit):
         self.shortcut = shortcut
         self.dir = dir
         # Setup attributes expected by the inherited PathHit methods.
-        self.path = "%s#%s" % (shortcut, dir)
+        self.path = dir
         self.dir_normcase = normcase(dir)
         self.base = shortcut
         self.ibase = shortcut.lower()

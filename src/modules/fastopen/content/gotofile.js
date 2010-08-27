@@ -14,6 +14,7 @@ var gSep = null;       // path separator for this platform
 var gOsPath = null;
 
 var _gCurrQuery = null; // the query string last used to search
+var _gIsMac = navigator.platform.match(/^Mac/);
 
 
 //---- routines called by dialog
@@ -25,8 +26,11 @@ function onLoad()
             query: document.getElementById("query"),
             throbber: document.getElementById("throbber"),
             results: document.getElementById("results"),
-            statusbarPath: document.getElementById("statusbar-path")
+            statusbarPath: document.getElementById("statusbar-path"),
+            statusbarNote: document.getElementById("statusbar-note")
         }
+        gWidgets.statusbarNote.label = ("(" + (_gIsMac ? "Cmd" : "Ctrl")
+            + "+Enter to open in Places)");
         
         var osSvc = Components.classes["@activestate.com/koOs;1"]
             .getService(Components.interfaces.koIOs);
@@ -97,7 +101,13 @@ function handleQueryKeyPress(event) {
     if (keyCode == KeyEvent.DOM_VK_ENTER
         || keyCode == KeyEvent.DOM_VK_RETURN)
     {
-        _handleEnter();
+        if (_gIsMac && event.metaKey || event.ctrlKey) {
+            _handleAlternativeEnter();
+        } else {
+            _handleEnter();
+        }
+        event.preventDefault();
+        event.stopPropagation();
     } else if (keyCode == KeyEvent.DOM_VK_UP && event.shiftKey) {
         index = gWidgets.results.currentIndex - 1;
         if (index >= 0) {
@@ -239,6 +249,55 @@ function _handleEnter() {
     }
 }
 
+/* Handle <Ctrl+Enter> (<Cmd+Enter> on Mac) being pressed to use the current
+ * filter/selection state: open in places.
+ */
+function _handleAlternativeEnter() {
+    if (gWidgets.query.value != _gCurrQuery) {
+        // The current set of results in now invalid. Need to get the first
+        // new hit, if any, from the new query.
+        // Only wait for a few seconds (don't want to hang on this).
+        var hit = gSession.findFileSync(gWidgets.query.value, 3.0);
+        if (! hit) {
+            // No hit - this will leave the window open.
+            findFiles(gWidgets.query.value);
+        } else {
+            _openHitInPlaces(hit);
+            _gIgnoreNextFindFiles = true;  // Cancel all coming `findFiles`.
+            window.close();
+        } 
+    } else {
+        _openFirstSelectedHitInPlaces();
+        _gIgnoreNextFindFiles = true;  // Cancel all coming `findFiles`.
+        window.close();
+    }
+}
+
+function _openFirstSelectedHitInPlaces() {
+    var selectedHits = gWidgets.results.view.getSelectedHits({})
+    if (selectedHits.length) {
+        _openHitInPlaces(selectedHits[0]);
+    }
+}
+
+/* Open the given hit in Places.
+ *
+ * @param hit {koIFastOpenHit} The hit to open.
+ */
+function _openHitInPlaces(hit) {
+    if (!opener.ko.places) {
+        return;
+    }
+    var dir, baseName;
+    if (hit.isdir) {
+        dir = hit.path;
+    } else {
+        dir = hit.dir;
+        baseName = hit.base;
+    }
+    opener.ko.places.manager.openDirectory(dir, baseName);
+}
+
 /* Open the views/paths selected in the results tree.
  *
  * @returns {Boolean} True iff successfully opened/switched-to files/tabs.
@@ -342,6 +401,4 @@ function _completeSelectionOrMove(moveForward, allowAdvance) {
     }
     return null;
 }
-
-
 

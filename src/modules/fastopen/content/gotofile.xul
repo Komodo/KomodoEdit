@@ -53,6 +53,7 @@
   
     <statusbar id="statusbar">
       <statusbarpanel id="statusbar-path" crop="center" flex="1" />
+      <statusbarpanel id="statusbar-note" style="color: #333"/>
     </statusbar>
   </vbox>
 </window>
