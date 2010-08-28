@@ -337,7 +337,6 @@
                 <File Id="file4896" Name="TOUR_195.GIF" LongName="tourlet_viewcss_viewout.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\tourlet_viewcss_viewout.gif"/>
                 <File Id="file4897" Name="verbose.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\verbose.gif"/>
                 <File Id="file4902" Name="x.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\x.gif"/>
-                <File Id="file29" Name="PROJE_15.PNG" LongName="project_new_project.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\project_new_project.png"/>
                 <File Id="file30" Name="PROJTB_0.PNG" LongName="projtb_add_butt.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\projtb_add_butt.png"/>
                 <File Id="file251" LongName="break_request.png" Name="BREAK__0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\break_request.png" />
                 <File Id="file252" LongName="break_response.png" Name="BREAK__1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\break_response.png" />
