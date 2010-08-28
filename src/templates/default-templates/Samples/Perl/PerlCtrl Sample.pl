@@ -4,7 +4,7 @@
 #   regsvr32 <PDK - PerlCtrl>.dll
 #
 # Note: This functionality is only available if the Perl Dev Kit is
-# installed. See: http://www.ActiveState.com/Products/Perl_Dev_Kit/
+# installed. See: http://www.activestate.com/perl-dev-kit
 #
 # The Hello method is included as a sample of how to specify method
 # signatures for the PerlCOM compiler. The pod documentation is

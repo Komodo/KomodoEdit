@@ -195,7 +195,7 @@ class KoPerlInfoEx(KoAppInfoEx):
 
     def get_webHelpURL(self):
         """Return a web URL for help on this app, else return None."""
-        return "http://aspn.activestate.com/ASPN/docs/ActivePerl/perlmain.html"
+        return "http://docs.activestate.com/activeperl/"
     
     # koIPerlInfoEx routines
     def haveModules(self, modules):
@@ -369,7 +369,7 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
 
     def get_webHelpURL(self):
         """Return a web URL for help on this app, else return None."""
-        return "http://aspn.activestate.com/ASPN/Products/ASPNTOC-ACTIVEPYTH"
+        return "http://docs.activestate.com/activepython/"
 
 
 class KoPythonInfoEx(KoPythonCommonInfoEx):
@@ -647,7 +647,7 @@ class KoTclInfoEx(KoAppInfoEx):
         return None
 
     def get_webHelpURL(self):
-        return "http://aspn.activestate.com/ASPN/docs/ActiveTcl/at.welcome.html"
+        return "http://docs.activestate.com/activetcl/"
 
     def getInstallationPathFromBinary(self, binaryPath):
         return os.path.dirname(os.path.dirname(binaryPath))
