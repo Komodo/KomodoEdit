@@ -1,4 +1,4 @@
-version 23
+version 24
 
 # Needs a few things to be finished
 #  - ?? insert forward tab / insert backward tab
@@ -175,7 +175,9 @@ binding cmd_lineScrollUp  Ctrl+Z
 binding cmd_selectLinePrevious  Shift+Up
 binding cmd_fontZoomIn Ctrl+Shift++
 binding cmd_fontZoomIn Ctrl+Shift+=
+binding cmd_fontZoomIn Ctrl+=
 binding cmd_fontZoomOut Ctrl+Shift+-
+binding cmd_fontZoomOut Ctrl+-
 binding cmd_viewFullScreen Ctrl+C F11
 binding cmd_uncomment  Ctrl+2
 binding cmd_uncomment  Ctrl+Shift+3

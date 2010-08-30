@@ -1,4 +1,4 @@
-version 23
+version 24
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -68,7 +68,9 @@ binding cmd_findPreviousFunction  Shift+F8
 binding cmd_focusEditor Ctrl+Shift+E
 binding cmd_focusSource Ctrl+K Ctrl+S
 binding cmd_fontZoomIn Meta++
+binding cmd_fontZoomIn Meta+=
 binding cmd_fontZoomOut Meta+_
+binding cmd_fontZoomOut Meta+-
 binding cmd_gotoLine Meta+L
 binding cmd_helpHelp  Meta+?
 binding cmd_helpHelp  Meta+Shift+/

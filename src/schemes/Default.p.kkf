@@ -1,4 +1,4 @@
-version 23
+version 24
 
 # Movement and selection
 binding cmd_left  Left
@@ -165,8 +165,10 @@ binding cmd_toggleButtonText Ctrl+Shift+B
 # Zoom
 binding cmd_fontZoomIn Ctrl+Shift++
 binding cmd_fontZoomIn Ctrl+Shift+=
+binding cmd_fontZoomIn Ctrl+=
 binding cmd_fontZoomOut Ctrl+Shift+_
 binding cmd_fontZoomOut Ctrl+Shift+-
+binding cmd_fontZoomOut Ctrl+-
 binding cmd_viewFullScreen Ctrl+K F11
 
 # Projects
