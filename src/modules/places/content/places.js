@@ -257,17 +257,17 @@ viewMgrClass.prototype = {
     onTreeKeyPress: function(event) {
         var t = event.originalTarget;
         if (t.localName != "treechildren" && t.localName != 'tree') {
-            return;
+            return false;
         }
         if (this._arrowKeys.indexOf(event.keyCode) >= 0) {
             // Nothing to do but squelch the keycode
             event.stopPropagation();
             event.preventDefault();
-            return;
+            return false;
         }
         //dump("TODO: viewMgrClass.onTreeKeyPress\n");
         if (event.shiftKey || event.ctrlKey || event.altKey) {
-            return;
+            return false;
         }
         if (event.keyCode == event.DOM_VK_ENTER
             || event.keyCode == event.DOM_VK_RETURN) {
@@ -322,7 +322,7 @@ viewMgrClass.prototype = {
                 var f = function(i) {
                     if (i < 0) {
                         reselectOriginalURIset();
-                        return;
+                        return false;
                     }
                     var index = indicesToToggle[i];
                     try {
