@@ -245,6 +245,7 @@ function wrap_OK() {
     //}
     if (madeChange) {
         g_ResultObj.needsChange = madeChange;
+        g_ResultObj.currentFilterName = currentFilterName;
     }
     return true;
 }

@@ -1078,6 +1078,10 @@ viewMgrClass.prototype = {
                                     resultObj);
         if (resultObj.needsChange) {
             ko.places.updateFilterViewMenu();
+            var filterName = resultObj.currentFilterName;
+            if (filterName) {
+                ko.places.viewMgr.placeView_selectCustomView(filterName);
+            }
         }
     },
     
