@@ -779,7 +779,7 @@
                 <![CDATA[
                 // Text events are used for IME. These need to be passed down to
                 // SciMoz in order to get the IME information from the event.
-                this.scimoz.handleTextEvent(event);
+                this.scimoz.handleTextEvent(event, this.boxObject.screenX, this.boxObject.screenY);
                 ]]>
             </handler>
 

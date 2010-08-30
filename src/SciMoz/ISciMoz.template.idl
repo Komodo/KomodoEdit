@@ -117,7 +117,9 @@ interface ISciMozLite : nsISupports {
         // used on OSX to see if scintilla initiated a drag session
         readonly attribute boolean inDragSession;
 
-	AString handleTextEvent(in nsIDOMEvent event);
+	// IME handling. Screen X and Y are the positions of the scimoz topleft
+	// corner.
+	AString handleTextEvent(in nsIDOMEvent event, in long screenx, in long screeny);
 
         // We override the modEventMask handling in order to workaround a
         // "scimoz.text" problem, where the scimoz text attribute does not

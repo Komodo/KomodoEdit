@@ -1054,7 +1054,7 @@ void SciMoz::EndCompositing()
 	imeActive = false;
 }
 
-NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
+NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, PRInt32 screenx, PRInt32 screeny, nsAString & text)
 {
 	// This is called multiple times in the middle of an 
 	// IME composition
@@ -1083,12 +1083,12 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsAString & text)
 	float  p2t;
 	p2t = mDeviceContext->DevUnitsToAppUnits();
 #else
-	int p2t = 15;
+	int p2t = 60;
 #endif
 
 #define PIXELS_TO_APP(x,y) NSIntPixelsToAppUnits(x,y)
-	textEventReply->mCursorPosition.x = PIXELS_TO_APP(SendEditor(SCI_POINTXFROMPOSITION, 0, anchor) + fWindow->x, p2t);
-	textEventReply->mCursorPosition.y = PIXELS_TO_APP(SendEditor(SCI_POINTYFROMPOSITION, 0, anchor) + fWindow->y, p2t);
+	textEventReply->mCursorPosition.x = PIXELS_TO_APP(SendEditor(SCI_POINTXFROMPOSITION, 0, anchor) + screenx, p2t);
+	textEventReply->mCursorPosition.y = PIXELS_TO_APP(SendEditor(SCI_POINTYFROMPOSITION, 0, anchor) + screeny, p2t);
 	textEventReply->mCursorPosition.width = fWindow->width;
 	textEventReply->mCursorPosition.height = PIXELS_TO_APP(SendEditor(SCI_TEXTHEIGHT, curLine, 0), p2t);
 	textEventReply->mCursorIsCollapsed = false;
