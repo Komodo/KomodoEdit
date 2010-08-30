@@ -659,12 +659,16 @@ class KoPlaceTreeView(TreeView):
                 return False
         return True
 
+    _non_ws_rx = re.compile(r'\S')
+    def _keepNonWSFilters(self, patternList):
+        return [x for x in patternList.split(';') if x and self._non_ws_rx.search(x)]
+
     def post_setMainFilters(self, rv, requestID):
         exclude_patterns, include_patterns = self.getItemsByRequestID(requestID, 'exclude_patterns', 'include_patterns')
         if not self._decrementCheckPendingFilters():
             return
-        self.exclude_patterns = exclude_patterns.split(';')
-        self.include_patterns = include_patterns.split(';')
+        self.exclude_patterns = self._keepNonWSFilters(exclude_patterns)
+        self.include_patterns = self._keepNonWSFilters(include_patterns)
         self._wrap_refreshTreeOnOpen_buildTree()
 
     def getRowIndexForURI(self, uri):
