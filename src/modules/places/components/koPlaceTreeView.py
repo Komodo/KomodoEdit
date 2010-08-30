@@ -91,7 +91,15 @@ class _kplBase(object):
         
     def getCellPropertyNames(self, col_id):
         if col_id == 'name':
-            return [self.image_icon]
+            koFile = self.koFile
+            if 'link' in self.name:
+                qlog.debug("folder %s: isLink:%r", self.name, self.koFile.isSymlink)
+            if not koFile.exists:
+                return ['missing_file_symlink']
+            elif koFile.isSymlink:
+                return ['places_file_symlink']
+            else:
+                return [self.image_icon]
         return []
 
     _slash_re = re.compile(r'[/\\]')
@@ -102,6 +110,10 @@ class _kplBase(object):
             self._koFile = components.classes["@activestate.com/koFileService;1"].\
                            getService(components.interfaces.koIFileService).\
                            getFileFromURI(self.uri)
+            qlog.debug("koFile getter: file:%s, isLink:%r",
+                       self._koFile.path,
+                       self._koFile.isSymlink)
+                       
         return self._koFile
 
     @property
@@ -171,10 +183,15 @@ class _kplFolder(_kplBase):
         if col_id == 'name':
             if self.image_icon == 'places_busy':
                 return ['places_busy']
-            elif self.isOpen:
-                return [self.image_icon + "_open"]
+            baseName = self.image_icon
+            if self.koFile.isSymlink:
+                baseName += "_symlink"
+            if 'link' in self.name:
+                qlog.debug("folder %s: isLink:%r", self.name, self.koFile.isSymlink)
+            if self.isOpen:
+                return [baseName + "_open"]
             else:
-                return [self.image_icon + "_closed"]
+                return [baseName + "_closed"]
         return []
 
     def unsetContainer(self):
@@ -311,7 +328,7 @@ class KoPlaceTreeView(TreeView):
         self._data = {} # How threads share results
 
         self._tree = None
-        self._ignoreNextToggleOpenState = False
+        self._honorNextToggleOpenState = True
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
         self._wrapSelf = WrapObject(self, components.interfaces.nsIObserver)
@@ -329,6 +346,10 @@ class KoPlaceTreeView(TreeView):
                      "places_folder_open",
                      "places_folder_closed",
                      "places_file",
+                     "places_folder_symlink_open",
+                     "places_folder_symlink_closed",
+                     "places_file_symlink",
+                     "missing_file_symlink",
                      ]:
             self._atomsFromName[name] = self.atomSvc.getAtom(name)
         prefs = components.classes["@activestate.com/koPrefService;1"].\
@@ -1290,7 +1311,7 @@ class KoPlaceTreeView(TreeView):
         for childNode in parentNode.childNodes:
             childName = childNode.name
             if self._namePassesFilter(childName):
-                qlog.debug("insert %s at slot %d", childNode.uri, rowIndex)
+                qlog.debug("insert %s (%s) at slot %d", childNode.uri, childNode.type, rowIndex)
                 newNode = placeObject[childNode.type](level, childNode.uri)
                 self._rows.insert(rowIndex, newNode)
                 isOpenNode = self.isContainerOpen(rowIndex)
@@ -1508,6 +1529,9 @@ class KoPlaceTreeView(TreeView):
         col_id = column.id
         try:
             rowNode = self._rows[row_idx]
+            zips = rowNode.getCellPropertyNames(col_id)
+            qlog.debug("props(row:%d) name:%s) : %s",
+                       row_idx, rowNode.name,  zips)
             for propName in rowNode.getCellPropertyNames(col_id):
                 try:
                     properties.AppendElement(self._atomsFromName[propName])
@@ -1793,13 +1817,17 @@ class KoPlaceTreeView(TreeView):
     def sortBy(self, sortKey, direction):
         self._sortedBy = sortKey
         self._sortDir = direction
+
+    def set_handleNextToggleOpenState(self, val):
+        self._honorNextToggleOpenState = val
              
-    def ignoreNextToggleOpenState(self):
-        self._ignoreNextToggleOpenState = True
+    def get_handleNextToggleOpenState(self):
+        # Not used by Komodo, here for completeness
+        return self._honorNextToggleOpenState
 
     def toggleOpenState(self, index):
-        if self._ignoreNextToggleOpenState:
-            self._ignoreNextToggleOpenState = False
+        if not self._honorNextToggleOpenState:
+            self._honorNextToggleOpenState = True
             return
         rowNode = self._rows[index]
         #qlog.debug("toggleOpenState: index:%d", index)

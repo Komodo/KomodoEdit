@@ -132,7 +132,7 @@ interface koIPlaceTreeView: nsITreeView {
     // internal api
     void invalidate();
 
-    void ignoreNextToggleOpenState();
+    attribute boolean handleNextToggleOpenState;
     
     void handleCallback(in wstring callback,
                         in wstring rv,

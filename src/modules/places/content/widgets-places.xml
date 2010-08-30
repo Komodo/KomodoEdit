@@ -79,7 +79,11 @@
             </handler>
             <handler event="keypress" keycode="vk_return" phase="target">
                 <![CDATA[
-                    ko.places.viewMgr.view.ignoreNextToggleOpenState(event);
+		    ko.places.viewMgr.view.handleNextToggleOpenState = false;
+		    setTimeout(function() {
+		        // Re-enable it later, after the events have blown through.
+			ko.places.viewMgr.view.handleNextToggleOpenState = true;
+		    }, 1);
                     event.stopPropagation();
                     event.preventDefault();
                     return true;
