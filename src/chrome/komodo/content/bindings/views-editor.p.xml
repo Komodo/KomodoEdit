@@ -830,7 +830,7 @@
             // reset those items that are buffer dependent
             // new objects will be recreated on request
             this.item = null;
-            if (this.preview) {
+            if (this.preview && this.preview.reload) {
                 this.preview.reload();
             }
 
