@@ -311,6 +311,7 @@ class KoPlaceTreeView(TreeView):
         self._data = {} # How threads share results
 
         self._tree = None
+        self._ignoreNextToggleOpenState = False
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
         self._wrapSelf = WrapObject(self, components.interfaces.nsIObserver)
@@ -1792,8 +1793,14 @@ class KoPlaceTreeView(TreeView):
     def sortBy(self, sortKey, direction):
         self._sortedBy = sortKey
         self._sortDir = direction
-            
+             
+    def ignoreNextToggleOpenState(self):
+        self._ignoreNextToggleOpenState = True
+
     def toggleOpenState(self, index):
+        if self._ignoreNextToggleOpenState:
+            self._ignoreNextToggleOpenState = False
+            return
         rowNode = self._rows[index]
         #qlog.debug("toggleOpenState: index:%d", index)
         #qlog.debug("toggleOpenState: rowNode.isOpen: %r", rowNode.isOpen)

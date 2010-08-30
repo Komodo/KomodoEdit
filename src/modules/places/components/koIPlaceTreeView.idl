@@ -131,6 +131,8 @@ interface koIPlaceTreeView: nsITreeView {
     // See other API parts in koIKPFTreeView.idl
     // internal api
     void invalidate();
+
+    void ignoreNextToggleOpenState();
     
     void handleCallback(in wstring callback,
                         in wstring rv,

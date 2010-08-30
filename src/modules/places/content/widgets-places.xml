@@ -49,12 +49,40 @@
          See bindings/widgets.xml#cbtree for the full story
          -->
     <binding id="places_tree_b" extends="chrome://global/content/bindings/tree.xml#tree">
+        <implementation name="placesTree" implements="nsISupports">
+        <method name="handleReturnKey">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            if (event.shiftKey || event.ctrlKey || event.altKey) {
+                return;
+            }
+            ko.places.viewMgr.handleReturnKeyPress(event);
+            event.stopPropagation();
+            event.preventDefault();
+            return true;
+        ]]>
+        </body>
+        </method>
+        </implementation>
         <handlers>
-            <handler event="click" clickcount="2" phase="capturing">
+            <handler event="keypress" keycode="vk_enter" phase="capturing">
                 <![CDATA[
+                    this.handleReturnKey(event);
+                ]]>
+            </handler>
+            <handler event="keypress" keycode="vk_return" phase="capturing">
+                <![CDATA[
+                    this.handleReturnKey(event);
+                    return true;
+                ]]>
+            </handler>
+            <handler event="keypress" keycode="vk_return" phase="target">
+                <![CDATA[
+                    ko.places.viewMgr.view.ignoreNextToggleOpenState(event);
                     event.stopPropagation();
-                    event.cancelBubble = true;
                     event.preventDefault();
+                    return true;
                 ]]>
             </handler>
         </handlers>

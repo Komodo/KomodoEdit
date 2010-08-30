@@ -254,6 +254,35 @@ viewMgrClass.prototype = {
         }
     },
 
+    handleReturnKeyPress: function(event) {
+        // Either open one file or rebase one folder. Mixtures not allowed.
+        var folderIndexToUse = null;
+        var urisToOpen = [];
+        var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false);
+        var selectedURIs = ko.places.manager.getSelectedUris();
+        for (var index, i = 0; i < selectedIndices.length; i++) {
+            index = selectedIndices[i];
+            if (this.view.isContainer(index)) {
+                if (folderIndexToUse !== null) {
+                    ko.dialogs.alert(_bundle.GetStringFromName("selectOnlyOneFolder.prompt"));
+                    return;
+                }
+                folderIndexToUse = index;
+            } else {
+                urisToOpen.push(this.view.getURIForRow(index));
+            }
+        }
+        if (urisToOpen.length && folderIndexToUse !== null) {
+            ko.dialogs.alert(_bundle.GetStringFromName("selectionContainsMixtureOfFilesAndFolders.prompt"));
+            return;            
+        }
+        if (urisToOpen.length) {
+            ko.open.multipleURIs(urisToOpen);
+        } else if (folderIndexToUse !== null) {
+            ko.places.manager.toggleRebaseFolderByIndex(index);
+        }
+    },
+
     onTreeKeyPress: function(event) {
         var t = event.originalTarget;
         if (t.localName != "treechildren" && t.localName != 'tree') {
@@ -271,75 +300,10 @@ viewMgrClass.prototype = {
         }
         if (event.keyCode == event.DOM_VK_ENTER
             || event.keyCode == event.DOM_VK_RETURN) {
-            // If all the items are files, open them.
-            var indicesToToggle = [];
-            var urisToOpen = [];
-            var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false);
-            var selectedURIs = ko.places.manager.getSelectedUris();
-            for (var index, i = 0; i < selectedIndices.length; i++) {
-                index = selectedIndices[i];
-                if (this.view.isContainer(index)) {
-                    // Remember to process them in reverse order,
-                    // so we don't need to renumber the nodes as they're expanded.
-                    indicesToToggle.push(index);
-                } else {
-                    urisToOpen.push(this.view.getURIForRow(index));
-                }
-            }
-            if (urisToOpen.length) {
-                ko.open.multipleURIs(urisToOpen);
-            }
-            var reselectOriginalURIset = function() {
-                var view = ko.places.viewMgr.view;
-                var ranges = [];
-                var lastIndex = -2;
-                var startingIndex = -1;
-                for (var i = 0; i < selectedURIs.length; i++) {
-                    var index = view.getRowIndexForURI(selectedURIs[i]);
-                    if (index == -1) {
-                        // do nothing -- this node is now hidden
-                        continue;
-                    }
-                    if (index > lastIndex + 1) {
-                        if (startingIndex >= 0) {
-                            ranges.push([startingIndex, lastIndex]);
-                        }
-                        startingIndex = index;
-                    }
-                    lastIndex = index;
-                }
-                ranges.push([startingIndex, lastIndex]);
-                var treeSelection = view.selection;
-                treeSelection.rangedSelect(ranges[0][0], ranges[0][1], false);
-                for (var i = 1; i < ranges.length; i++) {
-                    treeSelection.rangedSelect(ranges[i][0], ranges[i][1], true);
-                }
-            };
-            //TODO: Recast this to a single function call to the backend
-            // which will open and select all the nodes in one go.
-            if (indicesToToggle.length) {
-                var view = this.view;
-                var f = function(i) {
-                    if (i < 0) {
-                        reselectOriginalURIset();
-                        return false;
-                    }
-                    var index = indicesToToggle[i];
-                    try {
-                        view.toggleOpenState(index);
-                    } catch(ex) {
-                        log.exception("Error toggleOpenState on index:"
-                                      + index
-                                      + ", :"
-                                      + ex
-                                      + "\n");
-                    }
-                    setTimeout(f, 100, i - 1);
-                }
-                f(indicesToToggle.length - 1);
-            } else {
-                reselectOriginalURIset();
-            }
+            // ENTER/RETURN should be handled by xbl bindings.
+            event.stopPropagation();
+            event.preventDefault();
+            return true;
         } else if (event.keyCode == event.DOM_VK_DELETE) {
             ko.places.manager.doDeletePlace();
         } else {
