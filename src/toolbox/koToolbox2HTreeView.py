@@ -388,6 +388,20 @@ class KoToolbox2HTreeView(TreeView):
         # Work on the "model view", and then refilter into the
         # actual view, because we might be adding items to the
         # invisible toolbox.
+        if self._unfilteredRows_view:
+            # Bug 87806 - add the item to the full unfiltered view,
+            # and then refilter it.
+            try:
+                filterPattern = self._filterPattern
+                self.clearFilter()
+                try:
+                    self.addNewItemToParent(parent, item)
+                finally:
+                    self.useFilter(filterPattern)
+            except:
+                log.error("koToolbox2HTreeView.py: addNewItemToParent failed: %s", ex.message)
+            return
+                
         self._toolsMgr.addNewItemToParent(parent, item, showNewItem=False)
         index = self.getIndexByToolFromModel(parent)
         if index == -1:
@@ -997,6 +1011,7 @@ class KoToolbox2HTreeView(TreeView):
         self._rows_view = self._unfilteredRows_view
         self._rows_model = self._unfilteredRows_model
         self._unfilteredRows_view = self._unfilteredRows_model = None
+        self._filterPattern = None
         #log.debug("Had %d rows, now have %d rows", before_len, after_len)
         if currentIndex != -1:
             # Open up the necessary nodes first, from the highest
@@ -1029,6 +1044,7 @@ class KoToolbox2HTreeView(TreeView):
             self._unfilteredRows_model = self._rows_model
             self._unfiltered_firstVisibleRow = self._tree.getFirstVisibleRow()
             self._unfiltered_currentIndex = self.selection.currentIndex;
+            self._filterPattern = filterPattern
             
         t1 = time.time()
         matched_nodes = _tbdbSvc.getHierarchyMatch(filterPattern)
