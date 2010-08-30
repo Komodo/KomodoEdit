@@ -469,6 +469,191 @@
         <menupopup id="hidden-toolbox-popup"/>
     </menu>
 
+<!-- Popup for clicking on the *content area* in the Editor -->
+    <menupopup id="editorContextMenu">
+        <menuitem id="editor-context-cut"
+                label="&cut.label;"
+                class="menuitem-iconic cut-button"
+                observes="cmd_cut"/>
+        <menuitem id="editor-context-copy"
+                label="&copy.label;"
+                class="menuitem-iconic copy-button"
+                observes="cmd_copy"/>
+        <menuitem id="editor-context-paste"
+                label="&paste.label;"
+                class="menuitem-iconic paste-button"
+                observes="cmd_paste"/>
+
+        <menuseparator id="editor_context_select_separator"/>
+
+        <menu id="editor_context_select_menu"
+              label="&select.menu.label;"
+              accesskey="&select.menu.accesskey;">
+            <menupopup id="editor_context_select_menupopup">
+                <menuitem label="&selectAll.label;"
+                          id="menu_editSelectAll"
+                          accesskey="&selectAll.menu.accesskey;"
+                          observes="cmd_selectAll"
+                          />
+                <menuitem label="&selectBlock.label;"
+                          id="menu_blockSelect"
+                          accesskey="&menuBlockSelect.accesskey;"
+                          observes="cmd_blockSelect"
+                          />
+                <menuitem label="&selectToMatchingBrace.label;"
+                          id="menu_selectToMatchingBrace"
+                          accesskey="&selectToMatchingBrace.menu.accesskey;"
+                          observes="cmd_selectToMatchingBrace"
+                          />
+            </menupopup>
+        </menu>
+
+        <menuseparator id="context-sep-paste"/>
+
+        <menuitem id="editor-context-makeSnippet"
+                label="&addAsSnippetInToolbox.label;"
+                observes="cmd_makeSnippetFromSelection"/>
+        <menuitem id="editor-go-to-definition"
+                label="&goToDefinition.label;"
+                observes="cmd_goToDefinition"/>
+        <menuitem id="editor-jump-corresponding"
+                label="&jumpToCorrespondingLine.label;"
+                class="menuitem-iconic reveal-in-editor-icon"
+                observes="cmd_jumpToCorrespondingLine"/>
+        <menuitem label="&toggleBookmark.label;"
+                id="menu_bookmarkToggle"
+                observes="cmd_bookmarkToggle"/>
+        <menuseparator id="context-sep-debug"/>
+        <menuitem id="menu_showUnsavedChanges"
+                  label="&showUnsavedChanges.label;"
+                  observes="cmd_showUnsavedChanges"/>
+        <menuitem id="editor-context-print"
+                class="menuitem-iconic print-button"
+                label="&print.label;"
+                observes="cmd_print"/>
+        <menuseparator/>
+        <menuitem id="menu_refreshStatus2"
+                label="&refreshStatus.label;"
+                observes="cmd_refreshStatus"/>
+        <menuseparator id="editor-context-sep-extensions"/>
+        <!-- Note: two separators in a row is okay because we always expect
+             to have at least one user of this space (the spell checker). -->
+        <menuseparator id="editor-context-sep-properties"/>
+        <menuitem id="editor-context-mapuri"
+                  label="&createMappedURI.label;"
+                  observes="cmd_createMappedURI"/>
+        <menuitem id="editor-context-properties"
+                label="&propertiesAndSettings.label;"
+                observes="cmd_editPrefsCurrent"/>
+    </menupopup>
+
+<!-- Popup for clicking on the *tab* in the Editor -->
+    <menupopup id="tabContextMenu">
+        <menuitem id="buffertab-context-close"
+                  observes="cmd_bufferClose"
+                  accesskey="&menuBufferClose.accesskey;"
+                  label="&close.label;"/>
+        <menuitem id="buffertab-context-close-others"
+                  observes="cmd_bufferCloseOthers"
+                  accesskey="&menuCloseOtherBuffers.accesskey;"
+                  label="&menuCloseOtherBuffers.label;"/>
+        <menuitem id="menu_movetab"
+                    observes="cmd_movetab"
+                    label="&moveToOtherTabGroup.label;"/>
+        <menuitem id="menu_openTabInNewWindow"
+                    observes="cmd_openTabInNewWindow"
+                    label="&openTabInNewWindow.label;"/>
+        <menuitem id="menu_moveTabToNewWindow"
+                    observes="cmd_moveTabToNewWindow"
+                    label="&moveTabToNewWindow.label;"/>
+        <menuitem id="menu_splittab"
+                    observes="cmd_splittab"
+                    label="&splitView.label;"/>
+        <menuseparator />
+        <menuitem id="menu_save2"
+                  class="menuitem-iconic save-buffer-icon"
+                  observes="cmd_save"
+                  label="&save.label;"/>
+        <menu id="menu_saveAsSubMenu"
+              label="&saveAs.label;">
+            <menupopup id="menu_saveAsSubPopup">
+                <menuitem id="menu_saveAs2"
+                    observes="cmd_saveAs"
+                    label="&localFile.label;"/>
+                <menuitem id="menu_saveAs_remote2"
+                    observes="cmd_saveAs_remote"
+                    label="&remoteFile.label;"/>
+                <menuitem id="menu_saveAsTemplate2"
+                    observes="cmd_saveAsTemplate"
+                    label="&template.label;"/>
+            </menupopup>
+        </menu>
+
+        <menuitem id="menu_showUnsavedChanges2"
+                  label="&showUnsavedChanges.label;"
+                  observes="cmd_showUnsavedChanges"/>
+        <menuseparator/>
+        <menuitem id="menu_refreshStatus3"
+                  label="&refreshStatus.label;"
+                  observes="cmd_refreshStatus"/>
+        <menuseparator id="buffertab-context-sep-properties"/>
+        <menuitem id="buffertab-context-mapuri"
+                  label="&createMappedURI.label;"
+                  observes="cmd_createMappedURI"/>
+        <menuitem id="buffertab-context-properties"
+                  label="&propertiesAndSettings.label;"
+                  observes="cmd_editPrefsCurrent"/>
+    </menupopup>
+
+    <!-- Popup for clicking on the Start Page *tab* -->
+    <menupopup id="startpageTabContextMenu">
+        <menuitem id="menu_startpage_tabcontextmenu_bufferClose"
+                  label="&close.label;"
+                  accesskey="&menuBufferClose.accesskey;"
+                  observes="cmd_bufferClose"/>
+        <menuitem id="menu_startpage_tabcontextmenu_bufferCloseOthers"
+                  observes="cmd_bufferCloseOthers"
+                  accesskey="&menuCloseOtherBuffers.accesskey;"
+                  label="&menuCloseOtherBuffers.label;"/>
+        <menuitem id="menu_startpage_tabcontextmenu_movetab"
+                  observes="cmd_movetab"
+                  label="&moveToOtherTabGroup.label;"/>
+    </menupopup>
+
+<!-- Popup for clicking on the buffer windows -->
+    <menupopup id="bufferContextMenu">
+        <menuitem id="buffer-context-copy"
+                label="&copy.label;"
+                class="menuitem-iconic copy-button"
+                observes="cmd_copy"/>
+        <menuitem id="buffer-context-paste"
+                label="&paste.label;"
+                class="menuitem-iconic paste-button"
+                observes="cmd_paste"/>
+        <menuitem id="buffer-context-editSelectAll"
+                label="&selectAll.label;"
+                observes="cmd_selectAll"/>
+        <menuseparator id="context-buffer-sep-paste"/>
+        <menuitem id="buffer-view-whitespace"
+                  label="&viewWhitespace.label;"
+                  observes="cmd_viewWhitespace"/>
+        <menuitem id="buffer-view-indentation-guides"
+                  label="&viewIndentationGuides.label;"
+                  observes="cmd_viewIndentationGuides"/>
+        <menuitem id="buffer-view-line-numbers"
+                  label="&viewLineNumbers.label;"
+                  observes="cmd_viewLineNumbers"/>
+        <menuitem id="buffer-view-eol-markers"
+                  label="&viewEOLMarkers.label;"
+                  observes="cmd_viewEOL"/>
+        <menuitem id="buffer-view-word-wrap"
+                  label="&wordWrap.label;"
+                  observes="cmd_wordWrap"/>
+        <menuitem id="buffer-view-jump-to-line"
+                  label="&jumpToCorrespondingLine.label;"
+                  observes="cmd_jumpToCorrespondingLine"/>
+    </menupopup>
+
 
     <!-- name note: this is not a Komodo toolbox, but the top-level
       toolbar
@@ -1949,191 +2134,6 @@
         </toolbar>
 
     </toolbox>
-
-<!-- Popup for clicking on the *content area* in the Editor -->
-    <menupopup id="editorContextMenu">
-        <menuitem id="editor-context-cut"
-                label="&cut.label;"
-                class="menuitem-iconic cut-button"
-                observes="cmd_cut"/>
-        <menuitem id="editor-context-copy"
-                label="&copy.label;"
-                class="menuitem-iconic copy-button"
-                observes="cmd_copy"/>
-        <menuitem id="editor-context-paste"
-                label="&paste.label;"
-                class="menuitem-iconic paste-button"
-                observes="cmd_paste"/>
-
-        <menuseparator id="editor_context_select_separator"/>
-
-        <menu id="editor_context_select_menu"
-              label="&select.menu.label;"
-              accesskey="&select.menu.accesskey;">
-            <menupopup id="editor_context_select_menupopup">
-                <menuitem label="&selectAll.label;"
-                          id="menu_editSelectAll"
-                          accesskey="&selectAll.menu.accesskey;"
-                          observes="cmd_selectAll"
-                          />
-                <menuitem label="&selectBlock.label;"
-                          id="menu_blockSelect"
-                          accesskey="&menuBlockSelect.accesskey;"
-                          observes="cmd_blockSelect"
-                          />
-                <menuitem label="&selectToMatchingBrace.label;"
-                          id="menu_selectToMatchingBrace"
-                          accesskey="&selectToMatchingBrace.menu.accesskey;"
-                          observes="cmd_selectToMatchingBrace"
-                          />
-            </menupopup>
-        </menu>
-
-        <menuseparator id="context-sep-paste"/>
-
-        <menuitem id="editor-context-makeSnippet"
-                label="&addAsSnippetInToolbox.label;"
-                observes="cmd_makeSnippetFromSelection"/>
-        <menuitem id="editor-go-to-definition"
-                label="&goToDefinition.label;"
-                observes="cmd_goToDefinition"/>
-        <menuitem id="editor-jump-corresponding"
-                label="&jumpToCorrespondingLine.label;"
-                class="menuitem-iconic reveal-in-editor-icon"
-                observes="cmd_jumpToCorrespondingLine"/>
-        <menuitem label="&toggleBookmark.label;"
-                id="menu_bookmarkToggle"
-                observes="cmd_bookmarkToggle"/>
-        <menuseparator id="context-sep-debug"/>
-        <menuitem id="menu_showUnsavedChanges"
-                  label="&showUnsavedChanges.label;"
-                  observes="cmd_showUnsavedChanges"/>
-        <menuitem id="editor-context-print"
-                class="menuitem-iconic print-button"
-                label="&print.label;"
-                observes="cmd_print"/>
-        <menuseparator/>
-        <menuitem id="menu_refreshStatus2"
-                label="&refreshStatus.label;"
-                observes="cmd_refreshStatus"/>
-        <menuseparator id="editor-context-sep-extensions"/>
-        <!-- Note: two separators in a row is okay because we always expect
-             to have at least one user of this space (the spell checker). -->
-        <menuseparator id="editor-context-sep-properties"/>
-        <menuitem id="editor-context-mapuri"
-                  label="&createMappedURI.label;"
-                  observes="cmd_createMappedURI"/>
-        <menuitem id="editor-context-properties"
-                label="&propertiesAndSettings.label;"
-                observes="cmd_editPrefsCurrent"/>
-    </menupopup>
-
-<!-- Popup for clicking on the *tab* in the Editor -->
-    <menupopup id="tabContextMenu">
-        <menuitem id="buffertab-context-close"
-                  observes="cmd_bufferClose"
-                  accesskey="&menuBufferClose.accesskey;"
-                  label="&close.label;"/>
-        <menuitem id="buffertab-context-close-others"
-                  observes="cmd_bufferCloseOthers"
-                  accesskey="&menuCloseOtherBuffers.accesskey;"
-                  label="&menuCloseOtherBuffers.label;"/>
-        <menuitem id="menu_movetab"
-                    observes="cmd_movetab"
-                    label="&moveToOtherTabGroup.label;"/>
-        <menuitem id="menu_openTabInNewWindow"
-                    observes="cmd_openTabInNewWindow"
-                    label="&openTabInNewWindow.label;"/>
-        <menuitem id="menu_moveTabToNewWindow"
-                    observes="cmd_moveTabToNewWindow"
-                    label="&moveTabToNewWindow.label;"/>
-        <menuitem id="menu_splittab"
-                    observes="cmd_splittab"
-                    label="&splitView.label;"/>
-        <menuseparator />
-        <menuitem id="menu_save2"
-                  class="menuitem-iconic save-buffer-icon"
-                  observes="cmd_save"
-                  label="&save.label;"/>
-        <menu id="menu_saveAsSubMenu"
-              label="&saveAs.label;">
-            <menupopup id="menu_saveAsSubPopup">
-                <menuitem id="menu_saveAs2"
-                    observes="cmd_saveAs"
-                    label="&localFile.label;"/>
-                <menuitem id="menu_saveAs_remote2"
-                    observes="cmd_saveAs_remote"
-                    label="&remoteFile.label;"/>
-                <menuitem id="menu_saveAsTemplate2"
-                    observes="cmd_saveAsTemplate"
-                    label="&template.label;"/>
-            </menupopup>
-        </menu>
-
-        <menuitem id="menu_showUnsavedChanges2"
-                  label="&showUnsavedChanges.label;"
-                  observes="cmd_showUnsavedChanges"/>
-        <menuseparator/>
-        <menuitem id="menu_refreshStatus3"
-                  label="&refreshStatus.label;"
-                  observes="cmd_refreshStatus"/>
-        <menuseparator id="buffertab-context-sep-properties"/>
-        <menuitem id="buffertab-context-mapuri"
-                  label="&createMappedURI.label;"
-                  observes="cmd_createMappedURI"/>
-        <menuitem id="buffertab-context-properties"
-                  label="&propertiesAndSettings.label;"
-                  observes="cmd_editPrefsCurrent"/>
-    </menupopup>
-
-    <!-- Popup for clicking on the Start Page *tab* -->
-    <menupopup id="startpageTabContextMenu">
-        <menuitem id="menu_startpage_tabcontextmenu_bufferClose"
-                  label="&close.label;"
-                  accesskey="&menuBufferClose.accesskey;"
-                  observes="cmd_bufferClose"/>
-        <menuitem id="menu_startpage_tabcontextmenu_bufferCloseOthers"
-                  observes="cmd_bufferCloseOthers"
-                  accesskey="&menuCloseOtherBuffers.accesskey;"
-                  label="&menuCloseOtherBuffers.label;"/>
-        <menuitem id="menu_startpage_tabcontextmenu_movetab"
-                  observes="cmd_movetab"
-                  label="&moveToOtherTabGroup.label;"/>
-    </menupopup>
-
-<!-- Popup for clicking on the buffer windows -->
-    <menupopup id="bufferContextMenu">
-        <menuitem id="buffer-context-copy"
-                label="&copy.label;"
-                class="menuitem-iconic copy-button"
-                observes="cmd_copy"/>
-        <menuitem id="buffer-context-paste"
-                label="&paste.label;"
-                class="menuitem-iconic paste-button"
-                observes="cmd_paste"/>
-        <menuitem id="buffer-context-editSelectAll"
-                label="&selectAll.label;"
-                observes="cmd_selectAll"/>
-        <menuseparator id="context-buffer-sep-paste"/>
-        <menuitem id="buffer-view-whitespace"
-                  label="&viewWhitespace.label;"
-                  observes="cmd_viewWhitespace"/>
-        <menuitem id="buffer-view-indentation-guides"
-                  label="&viewIndentationGuides.label;"
-                  observes="cmd_viewIndentationGuides"/>
-        <menuitem id="buffer-view-line-numbers"
-                  label="&viewLineNumbers.label;"
-                  observes="cmd_viewLineNumbers"/>
-        <menuitem id="buffer-view-eol-markers"
-                  label="&viewEOLMarkers.label;"
-                  observes="cmd_viewEOL"/>
-        <menuitem id="buffer-view-word-wrap"
-                  label="&wordWrap.label;"
-                  observes="cmd_wordWrap"/>
-        <menuitem id="buffer-view-jump-to-line"
-                  label="&jumpToCorrespondingLine.label;"
-                  observes="cmd_jumpToCorrespondingLine"/>
-    </menupopup>
 
     <!-- main window box -->
     <notificationbox id="komodo-notificationbox"/>
