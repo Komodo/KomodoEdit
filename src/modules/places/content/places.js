@@ -1037,7 +1037,21 @@ viewMgrClass.prototype = {
         }
         prefSet.setStringPref('viewName', viewName);
     },
-                
+
+    _getCurrentFilterPrefName: function() {
+        var uri = ko.places.manager.currentPlace;
+        if (!uri) return null;
+        var prefSet;
+        if (uriSpecificPrefs.hasPref(uri)) {
+            prefSet = uriSpecificPrefs.getPref(uri);
+            if (!prefSet.hasStringPref('viewName')) {
+                return null;
+            }
+            return prefSet.getStringPref('viewName');
+        } else {
+            return null;
+        }
+    },                
 
     placeView_defaultView: function() {
         gPlacesViewMgr.view.setMainFilters(this.default_exclude_matches,
@@ -1071,7 +1085,8 @@ viewMgrClass.prototype = {
 
     placeView_customView: function() {
         // Use the same format as managing the list of servers.
-        var resultObj = {needsChange:true};
+        var currentFilterName = this._getCurrentFilterPrefName();
+        var resultObj = {needsChange:true, currentFilterName:currentFilterName};
         ko.windowManager.openDialog("chrome://places/content/manageViewFilters.xul",
                                     "_blank",
                                     "chrome,all,dialog=yes,modal=yes",

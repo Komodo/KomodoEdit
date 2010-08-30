@@ -81,7 +81,15 @@ function wrapOnLoad() {
     currentFilterName = prefNames[0];
     var currentFilter = filterPrefValues[currentFilterName];
     setup_widgets(currentFilter);
-    widgets.configNameMenu.selectedIndex = 0;
+    var currentViewName = g_ResultObj.currentFilterName;
+    var elts = widgets.configNameMenu.
+        getElementsByAttribute("value", currentViewName);
+    if (elts.length == 1) {
+        widgets.configNameMenu.value = currentViewName;
+    } else {
+        widgets.configNameMenu.selectedIndex = 0;
+    }
+    doChangeFilter(widgets.configNameMenu);
 }
 
 function setup_widgets(filter) {
