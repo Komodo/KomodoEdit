@@ -130,6 +130,7 @@
 
     <script src="chrome://komodo/content/library/viewhistory.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/tabstops.js"            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/encodingmenu.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/prefs.js"                   type="application/x-javascript;version=1.7"/>
 
     <script src="chrome://komodo/content/keybindings/viKeyBinder.js"      type="application/x-javascript;version=1.7"/>
@@ -2598,7 +2599,20 @@
         </statusbarpanel>
         <statusbarpanel id="statusbar-encoding"
                         tooltiptext="&fileEncoding.tooltiptext;"
-                        style="min-width: 6em;"/>
+                        style="min-width: 6em;">
+            <toolbarbutton class="statusbar-label"
+                  id="statusbar-encoding-label"
+                  flex="1"
+                  orient="horizontal"
+                  type="menu"
+                  persist="buttonstyle"
+                  buttonstyle="text">
+                <menupopup id="statusbar-encoding-menupopup"
+                           class="menulist-menupopup"
+                           onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
+            </toolbarbutton>
+        </statusbarpanel>
+
         <statusbarpanel id="statusbar-line-col"
                         tooltiptext="&filePosition.tooltiptext;"
                         style="min-width: 10.5em;"/>
