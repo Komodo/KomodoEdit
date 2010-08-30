@@ -785,12 +785,14 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
 // #if PLATFORM == 'darwin'
             this._add_keybinding_sequences({
                 'cmd_fontZoomIn' : ["Meta+="],
-                'cmd_fontZoomOut': ["Meta+-"]
+                'cmd_fontZoomOut': ["Meta+-"],
+                'cmd_fontZoomReset': ["Meta+0"]
             });
 // #else
             this._add_keybinding_sequences({
                 'cmd_fontZoomIn' : ["Ctrl+="],
-                'cmd_fontZoomOut': ["Ctrl+-"]
+                'cmd_fontZoomOut': ["Ctrl+-"],
+                'cmd_fontZoomReset': ["Ctrl+0"]
             });
 // #endif
             break;

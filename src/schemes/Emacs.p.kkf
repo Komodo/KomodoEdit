@@ -178,6 +178,7 @@ binding cmd_fontZoomIn Ctrl+Shift+=
 binding cmd_fontZoomIn Ctrl+=
 binding cmd_fontZoomOut Ctrl+Shift+-
 binding cmd_fontZoomOut Ctrl+-
+binding cmd_fontZoomReset Ctrl+0
 binding cmd_viewFullScreen Ctrl+C F11
 binding cmd_uncomment  Ctrl+2
 binding cmd_uncomment  Ctrl+Shift+3

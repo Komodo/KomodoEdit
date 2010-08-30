@@ -203,6 +203,7 @@
 <!ENTITY editorTransposeCurrentAndPreviousWords.desc "Editor: Transpose Current and Previous Words">
 <!ENTITY editorTriggerPrecedingAutoCompleteListOrCallTip.desc "Editor: Trigger preceding AutoComplete list or CallTip">
 <!ENTITY editorUndo.desc "Editor: Undo">
+<!ENTITY editorZoomFontSizeReset.desc "Editor: Zoom: Reset to Default Size">
 <!ENTITY editorZoomFontSizeDown.desc "Editor: Zoom Font Size Down">
 <!ENTITY editorZoomFontSizeUp.desc "Editor: Zoom Font Size Up">
 <!ENTITY enterNextCharacterAsRawLiteral.label "Enter Next Character as Raw Literal">

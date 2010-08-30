@@ -71,6 +71,7 @@ binding cmd_fontZoomIn Meta++
 binding cmd_fontZoomIn Meta+=
 binding cmd_fontZoomOut Meta+_
 binding cmd_fontZoomOut Meta+-
+binding cmd_fontZoomReset Meta+0
 binding cmd_gotoLine Meta+L
 binding cmd_helpHelp  Meta+?
 binding cmd_helpHelp  Meta+Shift+/
