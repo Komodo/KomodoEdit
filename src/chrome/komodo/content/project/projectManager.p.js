@@ -327,6 +327,7 @@ projectManager.prototype.saveProject = function(project, skip_scc_check) {
         try {
             _obSvc.notifyObservers(this, 'file_changed', project.url);
         } catch(e) { /* exception if no listeners */ }
+        xtk.domutils.fireEvent(window, 'current_project_saved');
         window.updateCommands('project_dirty');
     }
     return true;
@@ -354,7 +355,7 @@ projectManager.prototype._saveNewProject = function(project) {
         return false;
     }
     this._addProject(project);
-    ko.places.manager.openURI(project.uri);
+    xtk.domutils.fireEvent(window, 'project_opened');
     try {
         _obSvc.notifyObservers(this, 'file_project', project.url);
     } catch(e) { /* exception if no listeners */ }
