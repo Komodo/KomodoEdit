@@ -19,6 +19,7 @@ from xpcom import components, ServerException, nsError
 from xpcom.server import WrapObject, UnwrapObject
 import eollib
 import projectUtils
+import uriparse
  
 import koToolbox2
 
@@ -51,7 +52,7 @@ class _KoTool(object):
         self._attributes = {}
         self._nondb_attributes = {}
         self.flavors = ['text/uri-list',
-                        'text/unicode', 'application/x-komodo-part',
+                        'text/unicode', 'text/plain', 'application/x-komodo-part',
 # #if PLATFORM != "win"
                         # XXX for a later release, scintilla needs work in this area
                         'TEXT',#,'COMPOUND_TEXT','STRING','UTF-8' \
@@ -273,8 +274,10 @@ class _KoTool(object):
         return self.value
     
     def getDragDataByFlavor(self, flavor):
-        if flavor in ("text/x-moz-url", "application/x-moz-file", "text/uri-list"):
+        if flavor == "application/x-moz-file":
             return self.path
+        elif flavor in ("text/x-moz-url", "text/uri-list"):
+            return uriparse.localPathToURI(self.path)
         return self.getDragData()
 
     def getDragFlavors(self):
@@ -644,7 +647,7 @@ class _KoSnippetTool(_KoTool):
     def getDragDataByFlavor(self, flavor):
         if flavor == 'application/x-komodo-snippet':
             return str(self.id)
-        elif flavor == 'text/unicode':
+        elif flavor in ('text/unicode', 'text/plain'):
             return self._getSnippetDragDataAsText()
         else:
             return _KoTool.getDragDataByFlavor(self, flavor)
