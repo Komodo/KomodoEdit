@@ -226,6 +226,7 @@ class KoPartService(object):
         self._deprecate_runningMacro()
         self.toolboxSvc.runningMacro = macro
     
+    @components.ProxyToMainThread
     def isCurrent(self, project):
         return self._data[self.get_window()].isCurrent(project)
 
@@ -249,36 +250,46 @@ class KoPartService(object):
                        getService(components.interfaces.koIToolbox2Service).\
 		       getSharedToolbox()
 
+    @components.ProxyToMainThread
     def set_currentProject(self, project):
         return self._data[self.get_window()].set_currentProject(project)
 
+    @components.ProxyToMainThread
     def get_currentProject(self):
         return self._data[self.get_window()].get_currentProject()
 
+    @components.ProxyToMainThread
     def addProject(self, project):
         return self._data[self.get_window()].addProject(project)
 
+    @components.ProxyToMainThread
     def removeProject(self, project):
         return self._data[self.get_window()].removeProject(project)
 
+    @components.ProxyToMainThread
     def getProjects(self):
         return self._data[self.get_window()].getProjects()
 
+    @components.ProxyToMainThread
     def getProjectForURL(self, url):
         return self._data[self.get_window()].getProjectForURL(url)
 
+    @components.ProxyToMainThread
     def getEffectivePrefsForURL(self, url):
         return self._data[self.get_window()].getEffectivePrefsForURL(url)
 
     def getPartById(self, id):
         return findPartById(id)
 
+    @components.ProxyToMainThread
     def findPart(self, partType, name, where, part):
         return self._data[self.get_window()].findPart(partType, name, where, part)
 
+    @components.ProxyToMainThread
     def getPart(self, type, attrname, attrvalue, where, container):
         return self._data[self.get_window()].getPart(type, attrname, attrvalue, where, container)
 
+    @components.ProxyToMainThread
     def getParts(self, type, attrname, attrvalue, where, container):
         return self._data[self.get_window()].getParts(type, attrname, attrvalue, where, container)
 
