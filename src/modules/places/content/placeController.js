@@ -85,7 +85,7 @@ PlacesController.prototype.do_cmd_openRemoteDirectory = function() {
 // PlacesController.prototype.is_cmd_bufferClose_supported -- always.
 
 PlacesController.prototype._places_can_take_keycommands = function() {
-    return ko.places.getFocusedPlacesView();
+    return true;
 };
 
 PlacesController.prototype.is_cmd_cut_enabled = function() {
@@ -109,7 +109,8 @@ PlacesController.prototype.do_cmd_copy = function() {
 
 PlacesController.prototype.is_cmd_paste_enabled = function() {
     return (this._places_can_take_keycommands()
-            && xtk.clipboard.containsFlavors(["x-application/komodo-places"]));
+            && xtk.clipboard.containsFlavors(["x-application/komodo-places",
+                                              "text/uri-list"]));
 }
 
 PlacesController.prototype.do_cmd_paste = function() {

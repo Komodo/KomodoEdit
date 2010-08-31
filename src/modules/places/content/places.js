@@ -1398,9 +1398,16 @@ ManagerClass.prototype = {
     },
 
     doPastePlaceItem: function() {
-        var srcURIs = xtk.clipboard.getText().split(/\n/);
-        var isCopying = xtk.clipboard.getTextFlavor("x-application/komodo-places");
-        isCopying = parseInt(isCopying);
+        var srcURIs = null;
+        if (xtk.clipboard.containsFlavors(['text/uri-list'])) {
+            srcURIs = xtk.clipboard.getTextFlavor('text/uri-list').split(/\n/);
+        } else {
+            srcURIs = xtk.clipboard.getText().split(/\n/);
+        }
+        var isCopying = true;
+        if (xtk.clipboard.containsFlavors(["x-application/komodo-places"])) {
+            isCopying = parseInt(xtk.clipboard.getTextFlavor("x-application/komodo-places"));
+        }
         var index = gPlacesViewMgr.view.selection.currentIndex;
         var target_uri = gPlacesViewMgr.view.getURIForRow(index);
         var koTargetFileEx = Components.classes["@activestate.com/koFileEx;1"].

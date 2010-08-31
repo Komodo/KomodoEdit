@@ -571,7 +571,9 @@ this._selectCurrentItems = function(isCopying) {
             return view.getPathFromIndex(index);
         });
     var pathList = paths.join("\n");
-    var transferable = xtk.clipboard.addTextDataFlavor("text/unicode", pathList);
+    var uriList = paths.map(ko.uriparse.localPathToURI).join("\n");
+    var transferable = xtk.clipboard.addTextDataFlavor("text/uri-list", uriList);
+    xtk.clipboard.addTextDataFlavor("text/unicode", pathList, transferable);
     xtk.clipboard.addTextDataFlavor("text/plain", pathList, transferable);
     xtk.clipboard.addTextDataFlavor("x-application/komodo-toolbox",
                                     isCopying ? "1" : "0" , transferable);
@@ -1233,7 +1235,7 @@ var ToolboxController = function() {
 };
 ToolboxController.prototype = {
     _toolbox_can_take_keycommands: function() {
-        return xtk.domutils.elementInFocus(document.getElementById("toolbox2-hierarchy-tree"));
+        return true;
     },
     is_cmd_cut_enabled: function() {
         return this._toolbox_can_take_keycommands();
@@ -1252,9 +1254,9 @@ ToolboxController.prototype = {
         ko.toolbox2.copyItem();
     },
     is_cmd_paste_enabled: function() {
-        // return true;
         return (this._toolbox_can_take_keycommands()
-                && xtk.clipboard.containsFlavors(["x-application/komodo-toolbox"]));
+                && xtk.clipboard.containsFlavors(["x-application/komodo-toolbox",
+                                                  "text/uri-list"]));
     },
     do_cmd_paste: function() {
         if (!this.is_cmd_paste_enabled()) {
