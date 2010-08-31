@@ -572,7 +572,7 @@ this._selectCurrentItems = function(isCopying) {
         });
     var pathList = paths.join("\n");
     var transferable = xtk.clipboard.addTextDataFlavor("text/unicode", pathList);
-    var transferable = xtk.clipboard.addTextDataFlavor("text/plain", pathList);
+    xtk.clipboard.addTextDataFlavor("text/plain", pathList, transferable);
     xtk.clipboard.addTextDataFlavor("x-application/komodo-toolbox",
                                     isCopying ? "1" : "0" , transferable);
     xtk.clipboard.copyFromTransferable(transferable);
@@ -1037,6 +1037,7 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
     } else {
         targetDirectory = this.manager.view.getPathFromIndex(index);
     }
+    var parent = this.getContainerFromIndex(index);
     var targetURI = this._removeTrailingSlash(ko.uriparse.localPathToURI(targetDirectory));
     var loadedSomething = false;
     var url;
@@ -1091,20 +1092,37 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
                     continue;
                 }
                 this.manager.toolbox2Svc.importFiles(targetDirectory, [path], 1);
-                //XXX: Add an arg to importFiles to delete the imported file if
+                //TODO: Add an arg to importFiles to delete the imported file if
                 // importing succeeds.
                 loadedSomething = true;
             } catch(ex) {
                 alert("toolbox2_command.js:importFiles failed: " + ex);
                 this.log.exception("importFiles failed: " + ex);
             }
+        } else if (koDropData.isDirectoryURL) {
+            url = koDropData.value;
+            urls.push(url);
+            try {
+                var path = ko.uriparse.URIToLocalPath(url);
+                if (!path) {
+                    this.log.error("Remote URIs not yet supported");
+                    continue;
+                }
+                this.manager.toolbox2Svc.importDirectory(targetDirectory, path, 1);
+                loadedSomething = true;
+            } catch(ex) {
+                var msg = ("drag/drop directory " + path + " failed: " + ex);
+                alert("toolbox2_command.js: " + msg);
+                this.log.exception("importFiles failed: " + msg);
+            }
         } else if (koDropData.isText) {
             // Create a snippet
-            var parent = this.getContainerFromIndex(index);
             ko.projects.addSnippetFromText(koDropData.value, parent);
             loadedSomething = true;
             break;
         } else {
+            alert("Internal error: Komodo doesn't know how to drag/drop "
+                           + koDropData.value);
             // dump("something else\n");
         }
     }
@@ -1155,6 +1173,7 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
             }
             this._removeLoadedMacros(this._getLoadedMacros(paths));
         }
+        this.manager.widgets.tree.treeBoxObject.invalidate();
     }
     return loadedSomething;
 };

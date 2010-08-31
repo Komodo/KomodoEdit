@@ -239,6 +239,16 @@ if (typeof(ko.dragdrop)=='undefined') {
         }
     );
 
+    KomodoDropData.prototype.__defineGetter__("isDirectoryURL",
+         function () {
+            var uri = this.value;
+            var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                .createInstance(Components.interfaces.koIFileEx);
+            koFileEx.URI = this.value;
+            return koFileEx.isDirectory;
+        }
+    );
+
     KomodoDropData.prototype.__defineGetter__("isDebuggerURL",
         function KoDropData_get_isDebuggerURL() {
             return this.isURL && this.value.match(/^dbgp:\/\//);
