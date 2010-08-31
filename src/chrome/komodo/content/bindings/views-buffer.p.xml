@@ -1518,6 +1518,9 @@
         </handler>
         <handler event="blur" phase="capturing">
             <![CDATA[
+            // Remove editor tooltip.
+            if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined')
+                gEditorTooltipHandler.hide();
             this.removeHyperlinks("blur");
             this.clearKeyDownValues();
             this.clearMatchingTag();
