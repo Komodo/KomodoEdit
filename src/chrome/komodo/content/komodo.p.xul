@@ -474,14 +474,17 @@
     <menupopup id="editorContextMenu">
         <menuitem id="editor-context-cut"
                 label="&cut.label;"
+                accesskey="&cutButton.accesskey;"
                 class="menuitem-iconic cut-button"
                 observes="cmd_cut"/>
         <menuitem id="editor-context-copy"
                 label="&copy.label;"
+                accesskey="&copyButton.accesskey;"
                 class="menuitem-iconic copy-button"
                 observes="cmd_copy"/>
         <menuitem id="editor-context-paste"
                 label="&paste.label;"
+                accesskey="&pasteButton.accesskey;"
                 class="menuitem-iconic paste-button"
                 observes="cmd_paste"/>
 
