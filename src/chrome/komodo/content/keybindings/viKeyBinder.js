@@ -680,6 +680,7 @@ VimController.prototype.updateCursorAndSelection = function(scimoz,
         // Set anchor to the same spot, so we don't have a selection
         vimlog.debug("updateCursorAndSelection:: NOT Visual Mode: Removing any selection");
         scimoz.anchor = newCurrentPos;
+        scimoz.scrollCaret();
     } else {
         vimlog.debug("updateCursorAndSelection:: Nothing changed");
     }
