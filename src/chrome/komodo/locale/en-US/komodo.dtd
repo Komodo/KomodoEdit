@@ -445,7 +445,7 @@
 <!ENTITY menuWindow.accesskey "W">
 <!ENTITY move.label "Move">
 <!ENTITY moveButton.accesskey "M">
-<!ENTITY moveToOtherTabGroup.label "Move to Other Split View">
+<!ENTITY moveToOtherTabGroup.label "Move to Split View">
 <!ENTITY moveToPreviousMark.label "Move to Previous Mark">
 <!ENTITY moveTabToNewWindow.label "Move Tab to a New Window">
 <!ENTITY navigation.menu.accesskey "N">
@@ -663,13 +663,13 @@
 <!ENTITY untabifyRegion.label "Untabify Region">
 <!ENTITY update.label "Update">
 <!ENTITY userInterfaceBrowserPreview.desc "User Interface: Browser Preview">
-<!ENTITY userInterfaceBrowserPreviewInternal.desc "User Interface: Internal Browser Preview in Other Split View">
-<!ENTITY userInterfaceBrowserPreviewInternalSameTabGroup.desc "User Interface: Internal Browser Preview in Same Split View">
+<!ENTITY userInterfaceBrowserPreviewInternal.desc "User Interface: Internal Browser Preview - Split View">
+<!ENTITY userInterfaceBrowserPreviewInternalSameTabGroup.desc "User Interface: Internal Browser Preview - Same View">
 <!ENTITY userInterfaceFocusOnBottomPane.desc "User Interface: Focus on Bottom Pane">
 <!ENTITY userInterfaceFocusOnEditor.desc "User Interface: Focus on Editor">
 <!ENTITY userInterfaceFocusOnProjectsPane.desc "User Interface: Focus on Projects Pane">
 <!ENTITY userInterfaceFocusOnToolboxPane.desc "User Interface: Focus on Toolbox Pane">
-<!ENTITY userInterfaceFocusOtherSplitEditorPane.desc "User Interface: Focus other split editor pane">
+<!ENTITY userInterfaceFocusOtherSplitEditorPane.desc "User Interface: Focus on Other Split View">
 <!ENTITY userInterfaceFullScreen.desc "User Interface: Full Screen">
 <!ENTITY userInterfaceMoveTabToAnotherTabWindow.desc "User Interface: Move tab to another tab window">
 <!ENTITY userInterfaceMoveTabToANewWindow.desc "User Interface: Move tab to a new window">
