@@ -580,22 +580,27 @@ this._selectCurrentItems = function(isCopying) {
 }
 
 this.cutItem = function(event) {
+    if (typeof(event) == "undefined") event = null;
     this._selectCurrentItems(false);
 };
 
 this.copyItem = function(event) {
+    if (typeof(event) == "undefined") event = null;
     this._selectCurrentItems(true);
 };
 
 this.pasteIntoItem = function(event) {
+    if (typeof(event) == "undefined") event = null;
     try {
         var this_ = ko.toolbox2;
         var view = this_.manager.view;
         var index = view.selection.currentIndex;
         var parent = view.getTool(index);
         var paths = xtk.clipboard.getText().split("\n");
-        var isCopying = xtk.clipboard.getTextFlavor("x-application/komodo-toolbox");
-        isCopying = parseInt(isCopying);
+        var isCopying = true;
+        if (xtk.clipboard.containsFlavors(["x-application/komodo-toolbox"])) {
+            isCopying = parseInt(xtk.clipboard.getTextFlavor("x-application/komodo-toolbox"));
+        }
         view.pasteItemsIntoTarget(index, paths, paths.length, isCopying);
         if (!isCopying) {
             this._removeLoadedMacros(this._getLoadedMacros(paths));
@@ -1221,4 +1226,61 @@ this.onTreeKeyPress = function(event) {
     }
     return false;
 }
+
+var ToolboxController = function() {
+    this.log = getLoggingMgr().getLogger("ToolboxController");
+    this.log.setLevel(ko.logging.LOG_DEBUG);
+};
+ToolboxController.prototype = {
+    _toolbox_can_take_keycommands: function() {
+        return xtk.domutils.elementInFocus(document.getElementById("toolbox2-hierarchy-tree"));
+    },
+    is_cmd_cut_enabled: function() {
+        return this._toolbox_can_take_keycommands();
+    },
+    do_cmd_cut: function() {
+        ko.toolbox2.cutItem();
+    },
+    is_cmd_copy_enabled: function() {
+        return this._toolbox_can_take_keycommands();
+    },
+    do_cmd_copy: function() {
+        if (!this.is_cmd_copy_enabled()) {
+            this.log.debug("do_cmd_copy: invoked, but not enabled")
+            return;
+        }
+        ko.toolbox2.copyItem();
+    },
+    is_cmd_paste_enabled: function() {
+        // return true;
+        return (this._toolbox_can_take_keycommands()
+                && xtk.clipboard.containsFlavors(["x-application/komodo-toolbox"]));
+    },
+    do_cmd_paste: function() {
+        if (!this.is_cmd_paste_enabled()) {
+            this.log.debug("do_cmd_paste: invoked, but not enabled");
+            return;
+        }
+        ko.toolbox2.pasteIntoItem();
+    },
+    supportsCommand: function(command) {
+        return ("is_" + command + "_enabled") in this;
+    },
+    isCommandEnabled: function(command) {
+        return this["is_" + command + "_enabled"]();
+    },
+    doCommand: function(command) {
+        return this["do_" + command]();
+    },
+    __EOD__: null
+};
+
+ window.addEventListener("load", function() {
+ try {
+document.getElementById("toolbox2-hierarchy-tree").controllers.insertControllerAt(0, new ToolboxController());
+ } catch(ex) {
+     this_.log.error("Failed to set a toolbox controller: " + ex + "\n");
+ }
+     }, true);
+
 }).apply(ko.toolbox2);

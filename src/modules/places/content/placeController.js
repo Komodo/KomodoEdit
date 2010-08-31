@@ -310,6 +310,12 @@ var controller = new PlacesController();
   The places controller is given a higher priority in order to override common
   commands like 'cmd_copy' and 'cmd_paste', when focus is on the places tree.
  */
-window.controllers.insertControllerAt(0, controller);
+ window.addEventListener("load", function() {
+ try {
+document.getElementById("places-files-tree").controllers.insertControllerAt(0, controller);
+ } catch(ex) {
+     this.log.error("Failed to set a places controller: " + ex + "\n");
+ }
+     }, true);
 
 }).apply(ko.places);
