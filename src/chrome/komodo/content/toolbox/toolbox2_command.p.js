@@ -943,12 +943,10 @@ this._addFlavors = function(dt, currentFlavors, path, index) {
 this.doStartDrag = function(event, tree) {
     var selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
     var view = this.manager.view;
-    var paths;
     var dt = event.dataTransfer;
     if (selectedIndices.length == 1) {
         var index = selectedIndices[0];
         var tool = view.getTool(index);
-        paths = [tool.path];
         var flavors = {};
         tool.getDragFlavors(flavors, {});
         flavors = flavors.value;
@@ -966,10 +964,8 @@ this.doStartDrag = function(event, tree) {
         }
         this._addFlavors(dt, flavors, tool.path, 0);
     } else {
-        paths = [];
         for (var i = 0; i < selectedIndices.length; i++) {
             var path = view.getPathFromIndex(selectedIndices[i]);
-            paths.push(path);
             this._addFlavors(dt, [], path, i);
         }
     }
