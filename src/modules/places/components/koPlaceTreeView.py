@@ -497,6 +497,8 @@ class KoPlaceTreeView(TreeView):
                 #qlog.debug("removeChildNode: didn't find %s in %s", uri, parent_uri)
 
     def removeNodeFromModel(self, uri):
+        parent_uri = self._getURIParent(uri)
+        parent_node = self.getNodeForURI(parent_uri)
         self.removeNodeFromParent(uri)
         self.removeNodeForURI(uri)
         try:
