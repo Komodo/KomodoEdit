@@ -2266,6 +2266,19 @@ viewManager.prototype.do_cmd_saveAsTemplate = function () {
     }
 }
 
+// cmd_fontZoomSizeReset
+viewManager.prototype.is_cmd_fontZoomSizeReset_supported = function() {
+    return true;
+}
+
+viewManager.prototype.is_cmd_fontZoomSizeReset_enabled = function() {
+    return this.currentView && this.currentView.scintilla;
+}
+
+viewManager.prototype.do_cmd_fontZoomSizeReset = function() {
+    this.currentView.scimoz.zoom = 0;
+}
+
 
 viewManager.prototype.notify_visited_directory = function(path) {
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
