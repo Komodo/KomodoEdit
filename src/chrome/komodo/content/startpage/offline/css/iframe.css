@@ -93,7 +93,7 @@ a {
   text-decoration: none;
 }
 a:hover {
-  text-shadow: 0px 0px 1px #026981;
+  text-decoration: underline;
 }
 ul {
   padding: 0;
