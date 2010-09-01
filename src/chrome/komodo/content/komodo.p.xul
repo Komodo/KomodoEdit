@@ -696,6 +696,12 @@
                                               class="menuitem-iconic new-template-icon"
                                               observes="cmd_newTemplate"
                                               />
+                                    <menuitem
+                                        id="menu_newWindow"
+                                        label="&newWindow.label;"
+                                        accesskey="&newWindow.accesskey;"
+                                        observes="cmd_newWindow"
+                                    />
                                     <menuseparator id="separator_mruTemplates"/>
                                     <!-- menuitems are added dynamically for each
                                          entry in the file MRU -->
@@ -1579,16 +1585,7 @@
                                       />
                         </menupopup>
                     </menu>
-                    <menu id="menu_window" label="&window.label;" accesskey="&menuWindow.accesskey;" ordinal="9995">
-                        <menupopup id="popup_window">
-                            <menuitem
-                                id="menu_newWindow"
-                                label="&newWindow.label;"
-                                accesskey="&newWindow.accesskey;"
-                                observes="cmd_newWindow"
-                            />
-                        </menupopup>
-                    </menu>
+
                     <menu id="help_menu" label="&help.label;" accesskey="&helpMenu.accesskey;"
                         ordinal="9996">
                         <menupopup id="popup_help">
