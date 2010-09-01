@@ -67,6 +67,7 @@ menu.menulist-subLevel {
   -moz-box-align: start;
 }
 
+#statusbar-encoding-menupopup > menuitem > .menu-text,
 menu.menulist-subLevel > .menu-text,
 menu.menulist-subLevel > menupopup  > menuitem > .menu-text {
     margin-left: 2px !important;
