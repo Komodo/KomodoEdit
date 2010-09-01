@@ -1022,7 +1022,7 @@
             var browser = document.getAnonymousElementByAttribute(this, "anonid", "landingPage");
             var url = gPrefs.getStringPref('start_page_landing_box_url');
             if (!url) {
-                browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.xhtml");
+                browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.html");
                 return;
             }
 
@@ -1044,12 +1044,12 @@
                     webNav.loadURI(url, flags, null, null, null);
                 } else {
                     this_.log.warn("unable to connect, status "+req.status);
-                    req._browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.xhtml");
+                    req._browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.html");
                 }
             };
             req.onerror = function (event) {
                 this_.log.info("unable to connect (probably offline)");
-                req._browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.xhtml");
+                req._browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.html");
             }
             req.send(null);
             // kep a reference
