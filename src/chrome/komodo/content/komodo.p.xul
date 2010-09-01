@@ -693,7 +693,7 @@
                                     <menuitem id="menu_file_newFileFromTemplate"
                                               label="&newFileFromTemplate.label;"
                                               accesskey="&newFileFromTemplate.accesskey;"
-                                              class="menuitem-iconic"
+                                              class="menuitem-iconic new-template-icon"
                                               observes="cmd_newTemplate"
                                               />
                                     <menuseparator id="separator_mruTemplates"/>
