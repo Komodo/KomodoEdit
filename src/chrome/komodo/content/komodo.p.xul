@@ -1057,7 +1057,9 @@
                                       accesskey="&menuUntabify.accesskey;"
                                       observes="cmd_untabify"
                                       />
+
                             <menuseparator id="menu_code_separator_1"/>
+
                             <menuitem label="&joinLines.label;"
                                       id="menu_join"
                                       accesskey="&menuJoin.accesskey;"
@@ -1073,7 +1075,9 @@
                                       accesskey="&menuCleanLineEndings.accesskey;"
                                       observes="cmd_cleanLineEndings"
                                       />
+
                             <menuseparator id="codeConvert_menuseparator"/>
+
                             <menu id="codeConvert_menu"
                                   label="&codeConvertSelectedTextMenu.label;"
                                   accesskey="&codeConvertSelectedTextMenu.accesskey;">
@@ -1086,7 +1090,9 @@
                                               id="menu_convertLowerCase"
                                               observes="cmd_convertLowerCase"
                                               />
+
                                     <menuseparator id="codeConvertHex_menuseparator"/>
+
                                     <menuitem label="&codeConvertToHexMenu.label;"
                                               id="menu_convertToHex"
                                               observes="cmd_convertToHex"
@@ -1097,7 +1103,9 @@
                                               />
                                 </menupopup>
                             </menu>
-                            <menuseparator/>
+
+                            <menuseparator id="code_codeintel_menuseparator/>
+
                             <menuitem label="&completeWord.label;"
                                       id="menu_completeWord"
                                       observes="cmd_completeWord"
@@ -1107,7 +1115,9 @@
                                       accesskey="&menuCodeIntelReTriggerCompletions.accesskey;"
                                       observes="cmd_triggerPrecedingCompletion"
                                       />
-                            <menuseparator/>
+
+                            <menuseparator id="code_keys_menuseparator/>
+
                             <menuitem label="&enterNextCharacterAsRawLiteral.label;"
                                       id="menu_rawKey"
                                       observes="cmd_rawKey"
