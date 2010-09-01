@@ -739,7 +739,35 @@
                                     />
                                 </menupopup>
                             </menu>
-                            <menuseparator/>
+
+                            <menuseparator id="file_recent_menuseparator"/>
+
+                            <menu
+                                id="menu_recentlyClosedTabs"
+                                accesskey="&menuRecentlyClosedTabs.accesskey;"
+                                class="menu_mru"
+                                label="&recentlyClosedTabs.label;">
+                                <menupopup
+                                    id="popup_recentlyClosedTabs"
+                                    class="popup_mru"
+                                    onpopupshowing="ko.history.rctabs_build_menu(this);" />
+                            </menu>
+                            <menu
+                                id="menu_mruFiles"
+                                accesskey="&menuMruFiles.accesskey;"
+                                class="menu_mru"
+                                label="&recentFiles.label;">
+                                <menupopup
+                                    id="popup_mruFiles"
+                                    class="popup_mru"
+                                    onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('file');">
+                                    <!-- menuitems are added dynamically for each entry
+                                                    in the file MRU -->
+                                    </menupopup>
+                            </menu>
+
+                            <menuseparator id="file_save_menuseparator"/>
+
                             <menuitem label="&save.label;"
                                       id="menu_save"
                                       class="menuitem-iconic save-buffer-icon"
@@ -843,30 +871,6 @@
                                               observes="cmd_exportHTMLSelection"
                                               />
                                 </menupopup>
-                            </menu>
-                            <menuseparator/>
-                            <menu
-                                id="menu_recentlyClosedTabs"
-                                accesskey="&menuRecentlyClosedTabs.accesskey;"
-                                class="menu_mru"
-                                label="&recentlyClosedTabs.label;">
-                                <menupopup
-                                    id="popup_recentlyClosedTabs"
-                                    class="popup_mru"
-                                    onpopupshowing="ko.history.rctabs_build_menu(this);" />
-                            </menu>
-                            <menu
-                                id="menu_mruFiles"
-                                accesskey="&menuMruFiles.accesskey;"
-                                class="menu_mru"
-                                label="&recentFiles.label;">
-                                <menupopup
-                                    id="popup_mruFiles"
-                                    class="popup_mru"
-                                    onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('file');">
-                                    <!-- menuitems are added dynamically for each entry
-                                                    in the file MRU -->
-                                    </menupopup>
                             </menu>
                             <!-- more mozilla menu magic for osx.  FileQuit id's are
                                  necessary for proper aqua menu's -->
