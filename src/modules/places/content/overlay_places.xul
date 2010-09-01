@@ -212,6 +212,9 @@
 
     <menupopup id="places-files-popup" onpopupshowing="ko.places.viewMgr.initFilesContextMenu(event, this);" >
       <!-- types to test are one of [ folder | file | project ] -->
+      <!-- "project" refers to the currentPlace icon, which isn't
+           necessarily a project.
+           -->
       <menuitem id="placesContextMenu_folder_rebase"
                 oncommand="ko.places.manager.rebaseFolder(event)"
                 label="&rebaseFolder.label;"
@@ -262,7 +265,7 @@
                 observes="cmd_paste"
                 class="menuitem-iconic paste-button"
                 label="&paste.label;"
-                disableIf="project file"
+                disableIf="file"
                 testDisableIf="t:multipleSelection"
                 />
       <menuitem id="placesContextMenu_undo"
@@ -304,8 +307,8 @@
                 observes="cmd_refreshStatus"
                 label="&refreshStatus.label;"
                 class="menuitem-iconic"
-                testDisableIf="t:isRemote"
-                />
+                disableIf="project"
+                testDisableIf="t:isRemote" />
       <menuseparator id="placesContextMenu_separatorDelete" />
       <menuitem id="placesContextMenu_delete"
                 observes="cmd_deletePlaceItem"
@@ -318,14 +321,14 @@
                 class="menuitem-iconic new-file-icon"
                 oncommand="ko.places.viewMgr.addNewFile()"
                 testDisableIf="t:multipleSelection"
-                hideUnless="folder"
+                hideIf="file"
                 />
       <menuitem id="placesContextMenu_newFolder"
                 label="&newFolder.label;"
                 class="menuitem-iconic new-folder-icon"
                 oncommand="ko.places.viewMgr.addNewFolder()"
                 testDisableIf="t:multipleSelection"
-                hideUnless="folder"
+                hideIf="file"
                 />
       <menuseparator id="placesContextMenu_separatorProperties"
                      intoplevel="true"/>
