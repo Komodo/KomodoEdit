@@ -1460,10 +1460,6 @@
                                               />
                                 </menupopup>
                             </menu>
-                            <menuitem label="&createProjectToolbox.label;"
-                                      id="menu_createProjectToolbox"
-                                      observes="cmd_createProjectToolbox"
-                                      />
                             <menuseparator id="menu_project_mru_separator"
                                   skipCopyToCogMenu="true" />
                             <menuitem label="&properties.label;"
