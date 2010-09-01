@@ -905,7 +905,9 @@
                                       accesskey="&redoButton.accesskey;"
                                       observes="cmd_redo"
                                       />
-                            <menuseparator/>
+
+                            <menuseparator id="edit_cut_menuseparator/>
+
                             <menuitem label="&cut.label;"
                                       id="cutButton"
                                       class="menuitem-iconic cut-button"
@@ -924,7 +926,9 @@
                                       accesskey="&pasteButton.accesskey;"
                                       observes="cmd_paste"
                                       />
+
                             <menuseparator id="edit_menu_select_separator"/>
+
                             <menu id="edit_menu_select_menu"
                                   label="&select.menu.label;"
                                   accesskey="&select.menu.accesskey;">
@@ -946,7 +950,9 @@
                                               />
                                 </menupopup>
                             </menu>
-                            <menuseparator/>
+
+                            <menuseparator id="edit_find_menuseparator/>
+
                             <menuitem label="&find.label;"
                                       id="menu_find"
                                       accesskey="&menuFind.accesskey;"
@@ -988,7 +994,9 @@
                                       accesskey="&menuClearSearchHighlighting.accesskey;"
                                       observes="cmd_cancel"
                                       />
-                            <menuseparator/>
+
+                            <menuseparator id="edit_pref_menuseparator/>
+
                             <!-- mozilla magic...menu_preferences id makes the preference
                                 menu appear in the proper place on osx -->
                             <menuitem label="&preferences.label;"
@@ -1016,6 +1024,7 @@
 <!-- #endif -->
                         </menupopup>
                     </menu>
+
                     <menu id="menu_code" label="&code.label;" accesskey="&menuCode.accesskey;">
                         <menupopup id="popup_sourcecode">
                             <menuitem label="&commentRegion.label;"
