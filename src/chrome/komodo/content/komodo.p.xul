@@ -1187,7 +1187,9 @@
                                       label="&jumpToCorrespondingLineForDiffMode.label;"
                                       class="menuitem-iconic reveal-in-editor-icon"
                                       observes="cmd_jumpToCorrespondingLine"/>
-                            <menuseparator/>
+
+                            <menuseparator id="naviation_menupopup_find_separator"/>
+
                             <menuitem label="&findNextFunction.label;"
                                       id="menu_findNextFunction"
                                       observes="cmd_findNextFunction"
