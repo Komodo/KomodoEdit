@@ -1296,7 +1296,9 @@
                                               persist="checked"
                                               type="checkbox"
                                               />
-                                    <menuseparator/>
+
+                                    <menuseparator id="popup_toolbars_category_separator"/>
+
                                     <menuitem label="&standard.label;"
                                               id="menu_viewedittoolbar"
                                               observes="cmd_viewedittoolbar"
