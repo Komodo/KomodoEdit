@@ -799,16 +799,16 @@
                                       id="menu_showUnsavedChanges"
                                       observes="cmd_showUnsavedChanges"
                                       />
+                            <menuitem label="&revert.label;"
+                                      id="menu_revert"
+                                      accesskey="&menuRevert.accesskey;"
+                                      observes="cmd_revert"
+                                      />
                             <menuitem label="&saveAll.label;"
                                       id="menu_saveAll"
                                       observes="cmd_saveAll"
                                       class="menuitem-iconic save-all-buffers-icon"
                                       accesskey="&menuSaveAll.accesskey;"
-                                      />
-                            <menuitem label="&revert.label;"
-                                      id="menu_revert"
-                                      accesskey="&menuRevert.accesskey;"
-                                      observes="cmd_revert"
                                       />
                             <menuseparator/>
                             <menuitem label="&closeProject.label;"
