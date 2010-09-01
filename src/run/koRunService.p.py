@@ -263,6 +263,9 @@ class KoInterpolationService:
             codeMap['W'] = urllib.quote_plus(selection)
         return codeMap
 
+    special_modifiers = ("lowercase", "uppercase", "capitalize",
+                         "dirname", "basename")
+
     def _getCodeRes(self, codeMap, bracketed):
         """Return a list of regular expressions suitable for parsing
         code blocks out of strings.
@@ -288,9 +291,10 @@ class KoInterpolationService:
                             (:(?P<field1>[^:]*?)    # an optional field 1
                                 (:(?P<field2>.*?))? # an optional field 2
                             )?
+                            (:(?P<modifier>%s))?    # special modifiers
                         \)
                     )
-                \s*\]\]""" % '|'.join(allCharCodes),
+                \s*\]\]""" % ('|'.join(allCharCodes), '|'.join(self.special_modifiers)),
                 # Parse bracketed codes _without_ parentheses:
                 #   [[%w]]  [[%ask:Search for:default value]]
                 """\[\[\s*                          # opening bracketing
@@ -300,8 +304,9 @@ class KoInterpolationService:
                         (:(?P<field1>[^:]*?)        # an optional field 1
                             (:(?P<field2>.*?))?     # an optional field 2
                         )?
+                        (:(?P<modifier>%s))?        # special modifiers
                     )
-                \]\]""" % '|'.join(allCharCodes),
+                \]\]""" % ('|'.join(allCharCodes), '|'.join(self.special_modifiers)),
             ]
         else:
             codeReStrs = [
@@ -314,8 +319,9 @@ class KoInterpolationService:
                         (:(?P<field1>[^:]*?)    # an optional field 1
                             (:(?P<field2>.*?))? # an optional field 2
                         )?
+                        (:(?P<modifier>%s))?    # special modifiers
                     \)
-                )""" % '|'.join(allCharCodes),
+                )""" % ('|'.join(allCharCodes), '|'.join(self.special_modifiers)),
                 # Parse codes _without_ parentheses:
                 #   %w, %ask:Search:default
                 """%%(                          # a leading percent char
@@ -324,7 +330,8 @@ class KoInterpolationService:
                     (:(?P<field1>[^\s:]*)       # an opt field 1 (no spaces)
                         (:(?P<field2>[^\s]*))?  # an opt field 2 (no spaces)
                     )?
-                )""" % '|'.join(allCharCodes),
+                    (:(?P<modifier>%s))?        # special modifiers
+                )""" % ('|'.join(allCharCodes), '|'.join(self.special_modifiers)),
             ]
         codeRes = [re.compile(s, re.VERBOSE) for s in codeReStrs]
         return codeRes
@@ -391,8 +398,15 @@ class KoInterpolationService:
             # The meaning of "field1" and "field2" depends on the "code".
             hit = match.groupdict()
             code = hit["code"]
+            modifier = hit["modifier"]
             field1 = hit["field1"]
             field2 = hit["field2"]
+            if field1 in self.special_modifiers:
+                modifier = field1
+                field1 = None
+            if field2 in self.special_modifiers:
+                modifier = field2
+                field2 = None
             defaultValue = ""
             defaultAnswer = ""
             question = ""
@@ -561,6 +575,17 @@ class KoInterpolationService:
             idx = match.end()
             if backref:
                 backrefs[backref] = value
+            if modifier:
+                if modifier == "lowercase":
+                    value = value.lower()
+                elif modifier == "uppercase":
+                    value = value.upper()
+                elif modifier == "capitalize":
+                    value = value.capitalize()
+                elif modifier == "dirname":
+                    value = os.path.dirname(value)
+                elif modifier == "basename":
+                    value = os.path.basename(value)
             i1s += value
         return i1s
 
