@@ -201,36 +201,39 @@
     <popupset id="extensionPopupSet"/>
 
     <menupopup id="toolbox2Context" onpopupshowing="ko.toolbox2.updateContextMenu(event, this);">
+      <!-- "standardToolbox" denotes that the user clicked on the empty region,
+           like "project" in the places toolbox.
+           -->
         <menuitem id="toolbox2ContextMenu_importFilesFromFileSystem"
                   label="&importFilesFromFileSystem.label;"
                   class="menuitem-iconic"
                   oncommand="ko.toolbox2.importFilesFromFileSystem(event)"
-                  hideUnless="folder menu toolbar" 
+                  hideUnless="folder menu toolbar standardToolbox" 
                   testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_importFolderFromFileSystem"
                   label="&importFolderFromFileSystem.label;"
                   class="menuitem-iconic"
                   oncommand="ko.toolbox2.importFolderFromFileSystem(event)"
-                  hideUnless="folder menu toolbar" 
+                  hideUnless="folder menu toolbar standardToolbox" 
                   testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_importPackage"
                   label="&importPackage.label;"
                   class="menuitem-iconic"
                   oncommand="ko.toolbox2.importPackage(event)"
-                  hideUnless="folder menu toolbar" 
+                  hideUnless="folder menu toolbar standardToolbox" 
                   testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_importPackageFromWeb"
                   label="&importPackageFromWeb.label;"
                   class="menuitem-iconic"
                   oncommand="ko.toolbox2.importPackageFromWeb(event)"
-                  hideUnless="folder menu toolbar" 
+                  hideUnless="folder menu toolbar standardToolbox" 
                   testDisableIf="t:multipleSelection"
                   />
         <menu id="tb2ContextMenu_addMenu" label="&add.label;"
-              hideUnless="folder menu toolbar" 
+              hideUnless="folder menu toolbar standardToolbox" 
               testHideIf="t:multipleSelection" >
             <menupopup id="tb2ContextMenu_addPopupMenu">
               <!-- Don't use CSS on the IDs because this menu gets
@@ -350,6 +353,7 @@
                   label="&cut.label;"
                   class="menuitem-iconic cut-button"
                   oncommand="ko.toolbox2.cutItem(event)"
+                  hideIf="standardToolbox"
                   testDisableIf="t:raggedMultipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_copy"
@@ -362,7 +366,7 @@
                   keep_background="true"
                   class="menuitem-iconic paste-button"
                   label="&paste.label;"
-                  disableUnless="folder menu toolbar"
+                  disableUnless="folder menu toolbar standardToolbox"
                   oncommand="ko.toolbox2.pasteIntoItem(event)"
                   testDisableIf="t:multipleSelection"
                   />
@@ -391,12 +395,14 @@
                   keep_background="true"
                   class="menuitem-iconic"
                   label="&saveAsDotDotDot.label;"
+                  disableIf="standardToolbox"
                   oncommand="ko.toolbox2.saveToolsAs(event)"
                   />
         <menuitem id="toolbox2ContextMenu_renameItem"
                   label="&rename.label;"
                   class="menuitem-iconic"
                   oncommand="ko.toolbox2.renameItem(event)"
+                  disableIf="standardToolbox"
                   testDisableIf="t:multipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_reload"
@@ -405,7 +411,7 @@
                   label="&reloadTools.label;"
                   accesskey="&reloadTools.accesskey;"
                   oncommand="ko.toolbox2.reloadFolder(event);"
-                  disableUnless="folder menu toolbar"
+                  disableUnless="folder menu toolbar standardToolbox"
                   testDisableIf="t:multipleSelection"
                   />
         <menuseparator anonid="secondaryseparator_3"
@@ -413,6 +419,7 @@
         <menuitem id="toolbox2ContextMenu_delete"
                   label="&delete.label;"
                   class="menuitem-iconic list-item-remove-icon"
+                  disableIf="standardToolbox"
                   oncommand="ko.toolbox2.deleteItem(event)"
                   />
         <menuseparator anonid="secondaryseparator_4"
@@ -420,7 +427,7 @@
         <menuitem id="toolbox2ContextMenu_editProperties"
                   label="&properties.label;"
                   oncommand="ko.toolbox2.editPropertiesItem(event)"
-                  disableIf="folder template"
+                  disableIf="folder template standardToolbox"
                   testDisableIf="t:multipleSelection"
                   />
     </menupopup>
