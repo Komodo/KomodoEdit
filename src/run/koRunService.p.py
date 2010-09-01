@@ -386,9 +386,13 @@ class KoInterpolationService:
 
             i1s += s[idx:match.start()]
 
+            # Value is the result of interpreting the interpolate code.
+            value = ""
             # The meaning of "field1" and "field2" depends on the "code".
             hit = match.groupdict()
             code = hit["code"]
+            field1 = hit["field1"]
+            field2 = hit["field2"]
             defaultValue = ""
             defaultAnswer = ""
             question = ""
@@ -397,29 +401,29 @@ class KoInterpolationService:
             else:
                 backref = None
             if code in ("ask", "askpass"):
-                question = hit["field1"]
-                defaultAnswer = hit["field2"]
+                question = field1
+                defaultAnswer = field2
             elif code == "date":
-                format = hit["field1"]
-                if hit["field2"] is not None:
+                format = field1
+                if field2 is not None:
                     # Allow %(date:%H:%M:%S) to yield a format="%H:%M:%S".
-                    format += ":"+hit["field2"]
+                    format += ":"+field2
             elif code =="pref":
-                prefName = hit["field1"]
-                defaultValue = hit["field2"]
+                prefName = field1
+                defaultValue = field2
             elif code =="path":
-                pathValue = hit["field1"]
+                pathValue = field1
             elif code =="debugger":
-                name = hit["field1"]
+                name = field1
             else:
-                modifier = hit["field1"]
-                if modifier == "orask":
-                    question = hit["field2"]
-                elif modifier == "else":
-                    default = hit["field2"] or ""
-                elif modifier is not None:
-                    errmsg = "Unexpected modifier '%s' in '%s'"\
-                             % (modifier, s[match.start():match.end()])
+                alternative = field1
+                if alternative == "orask":
+                    question = field2
+                elif alternative == "else":
+                    default = field2 or ""
+                elif alternative is not None:
+                    errmsg = "Unexpected alternative '%s' in '%s'"\
+                             % (alternative, s[match.start():match.end()])
                     _gLastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
                                                 errmsg)
                     raise ServerException(nsError.NS_ERROR_INVALID_ARG, errmsg)
@@ -428,11 +432,11 @@ class KoInterpolationService:
             if backref and backref in backrefs:
                 # This is a back-reference. Use the value of the
                 # original reference.
-                i1s += backrefs[backref]
+                value = backrefs[backref]
 
             elif code in ("ask", "askpass"):
                 # The "ask" code means that we will ask the user always.
-                id = "%%(__query%d__)" % len(queries)
+                value = "%%(__query%d__)" % len(queries)
                 if question:
                     mruName = str(question)
                 else:
@@ -456,15 +460,12 @@ class KoInterpolationService:
                         defaultAnswer = iDefaultAnswer
                     
                     
-                q = KoInterpolationQuery(id=id, code=code, question=question,
+                q = KoInterpolationQuery(id=value, code=code, question=question,
                                          mruName=mruName,
                                          answer=defaultAnswer,
                                          necessary=1,
                                          isPassword=(code == "askpass"))
                 queries.append( q )
-                i1s += id
-                if backref:
-                    backrefs[backref] = id
                 
             elif code == "pref":
                 if prefSet is None:
@@ -493,10 +494,6 @@ class KoInterpolationService:
                     _gLastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
                                                 errmsg)
                     raise ServerException(nsError.NS_ERROR_INVALID_ARG, errmsg)
-                
-                i1s += value
-                if backref:
-                    backrefs[backref] = value
 
             elif code == "path":
                 if pathValue in ("userDataDir",
@@ -510,25 +507,19 @@ class KoInterpolationService:
                                                 errmsg)
                     raise ServerException(nsError.NS_ERROR_INVALID_ARG, errmsg)
 
-                i1s += value
-                if backref:
-                    backrefs[backref] = value
             elif code == "date":
                 import time
                 if format is None:
                     format = self._prefs.getStringPref("defaultDateFormat")
                 t = time.localtime(time.time())
                 value = time.strftime(format, t)
-                i1s += value
-                if backref:
-                    backrefs[backref] = value
 
-            elif modifier == "orask":
-                # The "orask" modifier means we only ask if no value in
+            elif alternative == "orask":
+                # The "orask" alternative means we only ask if no value in
                 # the given context could be determined. We generate a
                 # "query" in either case, but the query is only "necessary"
                 # if no value could be determined.
-                id = "%%(__query%d__)" % len(queries)
+                value = "%%(__query%d__)" % len(queries)
                 if question:
                     mruName = str(question)
                 else:
@@ -542,36 +533,35 @@ class KoInterpolationService:
                     answer = None
                 necessary = answer is None
 
-                q = KoInterpolationQuery(id=id, code=code, question=question,
+                q = KoInterpolationQuery(id=value, code=code, question=question,
                                          mruName=mruName, answer=answer,
                                          necessary=necessary,
                                          isPassword=False)
                 queries.append( q )
-                i1s += id
-                if backref:
-                    backrefs[backref] = id
 
             else:
                 replacement = codeMap[code]
                 if replacement is None:
-                    if modifier == "else":
+                    if alternative == "else":
                         replacement = default
                     else:
                         replacement = s[match.start():match.end()]
                 if callable(replacement):
                     replacement = replacement()
                 elif isinstance(replacement, Exception):
-                    if modifier == "else":
+                    if alternative == "else":
                         replacement = default
                     else:
                         raise replacement
                 if indentReplacement:
-                    i1s +=  self._indentLines(replacement, s, match.start())
+                    value =  self._indentLines(replacement, s, match.start())
                 else:
-                    i1s += replacement
-                if backref:
-                    backrefs[backref] = replacement
+                    value = replacement
+
             idx = match.end()
+            if backref:
+                backrefs[backref] = value
+            i1s += value
         return i1s
 
     def _indentLines(self, replacement, source, idx):
