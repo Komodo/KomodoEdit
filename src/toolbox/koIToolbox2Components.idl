@@ -71,7 +71,6 @@ interface koIPart;
 interface koIToolbox2Service: nsISupports {
     attribute koITool runningMacro;
     void activateProjectToolbox(in koIPart project);
-    void createProjectToolbox(in koIPart project);
     void deactivateProjectToolbox(in koIPart project);
     koITool getStandardToolbox();
     koITool getSharedToolbox();

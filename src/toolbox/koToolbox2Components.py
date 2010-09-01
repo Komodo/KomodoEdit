@@ -501,23 +501,18 @@ class KoToolbox2Service(object):
     def activateProjectToolbox(self, project):
         projectDir = project.getFile().dirName;
         toolsDir = join(projectDir, koToolbox2.PROJECT_TARGET_DIRECTORY)
-        if exists(toolsDir) and os.path.isdir(toolsDir):
-            toolbox_id = self.toolboxLoader.loadToolboxDirectory(project.name,
+        if not exists(toolsDir):
+            os.mkdir(toolsDir)
+        if os.path.isdir(toolsDir):
+            # If there's already a file by that name in the directory,
+            # leave it there, and don't show a toolbox.
+            toolboxName = os.path.splitext(project.name)[0]
+            toolbox_id = self.toolboxLoader.loadToolboxDirectory(toolboxName,
                                                                  projectDir,
                                                                  koToolbox2.PROJECT_TARGET_DIRECTORY)
             self.registerUserToolbox(project.url, toolbox_id, False)
             self.notifyAddedToolbox(projectDir, notifyAllWindows=False)
             self.notifyToolboxTopLevelViewChanged()
-
-    def createProjectToolbox(self, project):
-        projectDir = project.getFile().dirName;
-        toolsDir = join(projectDir, koToolbox2.PROJECT_TARGET_DIRECTORY)
-        if not exists(toolsDir):
-            os.mkdir(toolsDir)
-            self.activateProjectToolbox(project)
-        else:
-            log.error("createProjectToolbox: project:%s (%s): toolbox already exists",
-                      project.name, projectDir);
 
     def activateExtensionToolbox(self, extensionRootDir):
         toolsDir = join(extensionRootDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
@@ -540,6 +535,12 @@ class KoToolbox2Service(object):
             self.toolbox_db.deleteItem(id)
             self.unregisterUserToolbox(project.url)
             self.notifyToolboxTopLevelViewChanged()
+        toolsDir = join(projectDir, koToolbox2.PROJECT_TARGET_DIRECTORY)
+        if not os.listdir(toolsDir):
+            try:
+                os.rmdir(toolsDir)
+            except:
+                log.exception("Failed to remove %s", toolsDir)
 
     def notifyAddedToolbox(self, toolboxDir, notifyAllWindows=True):
         _observerSvc = components.classes["@mozilla.org/observer-service;1"]\

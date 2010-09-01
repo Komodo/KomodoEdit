@@ -683,7 +683,6 @@ projectManager.prototype.getSelectedProject = function() {
 projectManager.prototype.registerCommands = function() {
     var em = ko.projects.extensionManager;
     em.registerCommand("cmd_closeProject",this);
-    em.registerCommand("cmd_createProjectToolbox",this);
     em.registerCommand("cmd_findInCurrProject",this);
     em.registerCommand("cmd_importFromFS_Project",this);
     em.registerCommand("cmd_importPackageToToolbox",this);
@@ -705,7 +704,6 @@ projectManager.prototype.registerCommands = function() {
 projectManager.prototype.supportsCommand = function(command, item) {
     switch(command) {
     case "cmd_closeProject":
-    case "cmd_createProjectToolbox":
     case "cmd_findInCurrProject":
     case "cmd_importFromFS_Project":
     case "cmd_importPackageToToolbox":
@@ -758,9 +756,6 @@ projectManager.prototype.isCommandEnabled = function(command) {
         return (project && project.isDirty);
     case "cmd_importFromFS_Project":
         return this.currentProject != null && !this.currentProject.live;
-    case "cmd_createProjectToolbox":
-        var project = this.getSelectedProject();
-        return project && !ko.toolbox2.getProjectToolbox(project.url);
     }
     } catch(e) {
         this.log.exception(e);
@@ -840,15 +835,6 @@ projectManager.prototype.doCommand = function(command) {
             ko.projects.active.view.refresh(this.currentProject);
             ko.projects.active.view.selectPart(this.currentProject);
         }
-        break;
-    case "cmd_createProjectToolbox":
-        var project = this.getSelectedProject();
-        if (!project) {
-            this.log.error("cmd_createProjectToolbox: no project");
-            return;
-        }
-        ko.toolbox2.manager.toolbox2Svc.createProjectToolbox(project);
-        window.updateCommands('some_projects_open');
         break;
     case "cmd_findInCurrProject":
         ko.launch.findInCurrProject();

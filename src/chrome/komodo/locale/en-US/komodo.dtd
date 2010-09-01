@@ -83,9 +83,6 @@
 <!ENTITY copy.label "Copy">
 <!ENTITY copy.tooltiptext "Copy">
 <!ENTITY copyButton.accesskey "C">
-<!ENTITY createProjectToolbox.label "Create Project Toolbox">
-<!ENTITY createProjectToolbox.accesskey "C">
-<!ENTITY createProjectToolbox.desc "Projects/Toolbox: Create a Toolbox for the Current Project">
 <!ENTITY createTemplateFromProject.label "Create Template From Project...">
 <!ENTITY createTemplateFromProject.accesskey "C">
 <!ENTITY currentFileSettings.label "Current File Settings...">
