@@ -810,14 +810,18 @@
                                       class="menuitem-iconic save-all-buffers-icon"
                                       accesskey="&menuSaveAll.accesskey;"
                                       />
-                            <menuseparator/>
+
+                            <menuseparator id="file_refresh_menuseparator"/>
+
                             <menuitem label="&refreshStatus.label;"
                                       id="menu_refreshStatus"
                                       accesskey="&menuRefreshStatus.accesskey;"
                                       observes="cmd_refreshStatus"
                                       >
                             </menuitem>
-                            <menuseparator/>
+
+                            <menuseparator id="file_print_menuseparator"/>
+
                             <menu id="menu_Printmenu"
                                   label="&print.label;">
                                 <menupopup id="popup_Printmenu">
