@@ -563,8 +563,13 @@ class KoToolbox2HTreeView(TreeView):
     def reloadToolsDirectoryView(self, viewIndex):
         # Refresh the model tree, and refilter into the view tree
         before_len = len(self._rows_view)
-        targetPath = self.getPathFromIndex(viewIndex)
-        modelIndex = self.getIndexByPathModel(targetPath, viewIndex)
+        if viewIndex == -1:
+            modelIndex = 0
+            tool = self.getToolFromModel(0)
+            targetPath = tool.path
+        else:
+            targetPath = self.getPathFromIndex(viewIndex)
+            modelIndex = self.getIndexByPathModel(targetPath, viewIndex)
         node = self._rows_model[modelIndex]
         if node.isContainer:
             node.rebuildChildren()

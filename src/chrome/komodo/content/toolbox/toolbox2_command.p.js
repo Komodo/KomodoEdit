@@ -293,17 +293,28 @@ this.addToolboxItemToStdToolbox = function(itemType) {
 
 // Generic top-level routines
 
-this.importFilesFromFileSystem = function(event) {
-    var this_ = ko.toolbox2;
-    var view = this_.manager.view;
-    var index = view.selection.currentIndex;
-    if (index == -1) {
-        index = 0;  // For the std toolbox
+this._clickedOnRoot = function() {
+    return (document.popupNode.id == "toolbox2-hierarchy-treebody"
+            && this.manager.view.selection.count == 0);
+};
+
+this._determineTargetDirectory_CallMethod = function(method) {
+    var view = this.manager.view;
+    var index;
+    var defaultDirectory;
+    if (this._clickedOnRoot()) {
+        index = -1;  // For the std toolbox
+        defaultDirectory = this.manager.toolbox2Svc.getStandardToolbox().path;
+    } else {
+        index = view.selection.currentIndex;
+        defaultDirectory = view.getPathFromIndex(index);
     }
-    var defaultDirectory = view.getPathFromIndex(index);
-    var defaultFilename = null;
-    
+    method.call(this, defaultDirectory, index);
+ };
+
+this.importFilesFromFileSystem_common = function(defaultDirectory, index) {
     var title = komodo_bundle.GetStringFromName("selectFilesToImportToolbox");
+    var defaultFilename = null;
     var defaultFilterName = "Komodo Tool";
     var filterNames = [defaultFilterName, "Zip", "All"]
     var paths = ko.filepicker.browseForFiles(defaultDirectory, defaultFilename,
@@ -313,79 +324,70 @@ this.importFilesFromFileSystem = function(event) {
         return;
     }
     try {
-        this_.manager.toolbox2Svc.importFiles(defaultDirectory, paths, paths.length);
-        this_.manager.view.reloadToolsDirectoryView(index);
+        this.manager.toolbox2Svc.importFiles(defaultDirectory, paths.length, paths);
+        this.manager.view.reloadToolsDirectoryView(index);
     } catch(ex) {
         var msg = komodo_bundle.formatStringFromName("importFilesFromFileSystemFailed.template", [ex], 1);
-        this_.log.exception(msg);
+        this.log.exception(msg);
+        alert(msg);
+    }
+};
+
+this.importFilesFromFileSystem = function(event) {
+    ko.toolbox2._determineTargetDirectory_CallMethod(this.importFilesFromFileSystem_common);
+}
+
+this.importFolderFromFileSystem_common = function(defaultDirectory, index) {
+    var title = komodo_bundle.GetStringFromName("selectFolderOfToolsToImport");
+    var path = ko.filepicker.getFolder(defaultDirectory, title);
+    if (!path) {
+        return;
+    }
+    try {
+        this.manager.toolbox2Svc.importDirectory(defaultDirectory, path);
+        this.manager.view.reloadToolsDirectoryView(index);
+    } catch(ex) {
+        var msg = komodo_bundle.formatStringFromName("importFolderFromFileSystemFailed.template", [ex], 1);
+        this.log.exception(msg);
         alert(msg);
     }
 };
 
 this.importFolderFromFileSystem = function(event) {
-    var this_ = ko.toolbox2;
-    var view = this_.manager.view;
-    var index = view.selection.currentIndex;
-    if (index == -1) {
-        index = 0;  // For the std toolbox
-    }
-    var defaultDirectory = view.getPathFromIndex(index);
-    var title = komodo_bundle.GetStringFromName("selectFolderOfToolsToImport");
-    var path = ko.filepicker.getFolder(defaultDirectory, title);
+    ko.toolbox2._determineTargetDirectory_CallMethod(this.importFolderFromFileSystem_common);
+}
+
+this.importPackage_common = function(targetDirectory, index) {
+    var prompt = komodo_bundle.GetStringFromName("specifyURLThatContainsAPackageFile");
+    var label = "URL";
+    var value = "";
+    var title = komodo_bundle.GetStringFromName("importVersion5Package");
+    var defaultDirectory = null;
+    var defaultFilename = null;
+    
+    var path = ko.filepicker.browseForFile(defaultDirectory, defaultFilename,
+                                      title,
+                                      "Komodo Package", // default filter
+                                      ["Komodo Package", "All"]); // filters
     if (!path) {
         return;
     }
     try {
-        this_.manager.toolbox2Svc.importDirectory(defaultDirectory, path);
-        this_.manager.view.reloadToolsDirectoryView(index);
+        this.manager.toolbox2Svc.importV5Package(targetDirectory, path);
+        this.manager.view.reloadToolsDirectoryView(index);
     } catch(ex) {
-        var msg = komodo_bundle.formatStringFromName("importFolderFromFileSystemFailed.template", [ex], 1);
-        this_.log.exception(msg);
+        var msg = komodo_bundle.formatStringFromName("importPackageFailed.template", [ex], 1);
+        this.log.exception(msg);
         alert(msg);
     }
 };
 
 this.importPackage = function(event) {
-    var this_ = ko.toolbox2;
-    var view = this_.manager.view;
-    var index = view.selection.currentIndex;
-    if (index == -1) {
-        index = 0;  // For the std toolbox
-    }
-    var targetDirectory = view.getPathFromIndex(index);
-    var prompt = komodo_bundle.GetStringFromName("specifyURLThatContainsAPackageFile");
-    var label = "URL";
-    var value = "";
-    var title = komodo_bundle.GetStringFromName("importVersion5Package");
-    var defaultDirectory = null;
-    var defaultFilename = null;
-    
-    var path = ko.filepicker.browseForFile(defaultDirectory, defaultFilename,
-                                      title,
-                                      "Komodo Package", // default filter
-                                      ["Komodo Package", "All"]); // filters
-    if (!path) {
-        return;
-    }
-    try {
-        this_.manager.toolbox2Svc.importV5Package(targetDirectory, path);
-        this_.manager.view.reloadToolsDirectoryView(index);
-    } catch(ex) {
-        var msg = komodo_bundle.formatStringFromName("importPackageFailed.template", [ex], 1);
-        this_.log.exception(msg);
-        alert(msg);
-    }
+    ko.toolbox2._determineTargetDirectory_CallMethod(this.importPackage_common);
 };
  
 this._webPackageURL = "";
-this.importPackageFromWeb = function(event) {
-    var this_ = ko.toolbox2;
-    var view = this_.manager.view;
-    var index = view.selection.currentIndex;
-    if (index == -1) {
-        index = 0;  // For the std toolbox
-    }
-    var targetDirectory = view.getPathFromIndex(index);
+this.importPackageFromWeb_common = function(targetDirectory, index) {
     var prompt = komodo_bundle.GetStringFromName("specifyURLThatContainsAPackageFile");
     var label = "URL";
     var value = this._webPackageURL;
@@ -396,107 +398,40 @@ this.importPackageFromWeb = function(event) {
     }
     this._webPackageURL = url;
     try {
-        this_.manager.toolbox2Svc.importV5Package(targetDirectory, url);
-        this_.manager.view.reloadToolsDirectoryView(index);
+        this.manager.toolbox2Svc.importV5Package(targetDirectory, url);
+        this.manager.view.reloadToolsDirectoryView(index);
     } catch(ex) {
         var msg = "importPackageFromWeb failed: " + ex;
-        this_.log.exception(msg);
+        this.log.exception(msg);
         alert(msg);
     }
+};
+
+this.importPackageFromWeb = function(event) {
+    ko.toolbox2._determineTargetDirectory_CallMethod(this.importPackageFromWeb_common);
 };
 
 // Routines that import into the top-level standard toolbox
+// These are called by changing the menu item commands in
+// ko.toolbox2.Toolbox2Manager._fixCogPopupmenu
 
 this.importFilesFromFileSystem_toStdToolbox = function(event) {
-    var this_ = ko.toolbox2;
-    var defaultDirectory = null;
-    var defaultFilename = null;
-    var title = komodo_bundle.GetStringFromName("selectFilesToImportToolbox");
-    var defaultFilterName = "Komodo Tool";
-    var filterNames = [defaultFilterName, "Zip", "All"]
-    var paths = ko.filepicker.browseForFiles(defaultDirectory, defaultFilename,
-                                        title,
-                                        defaultFilterName, filterNames);
-    if (!paths) {
-        return;
-    }
-    try {
-        var targetDirectory = this_.manager.toolbox2Svc.getStandardToolbox().path;
-        this_.manager.toolbox2Svc.importFiles(targetDirectory, paths, paths.length);
-        this_.manager.view.refreshFullView();
-    } catch(ex) {
-        var msg = komodo_bundle.formatStringFromName("importFilesFromFileSystemFailed.template", [ex], 1);
-        this_.log.exception(msg);
-        alert(msg);
-    }
+    this.importFilesFromFileSystem_common(this.manager.toolbox2Svc.getStandardToolbox().path, -1);
 };
 
 this.importFolderFromFileSystem_toStdToolbox = function(event) {
-    var this_ = ko.toolbox2;
-    var defaultDirectory = null;
-    var title = komodo_bundle.GetStringFromName("selectFolderOfToolsToImport");
-    var path = ko.filepicker.getFolder(defaultDirectory, title);
-    if (!path) {
-        return;
-    }
-    try {
-        var targetDirectory = this_.manager.toolbox2Svc.getStandardToolbox().path;
-        this_.manager.toolbox2Svc.importDirectory(targetDirectory, path);
-        this_.manager.view.refreshFullView();
-    } catch(ex) {
-        var msg = komodo_bundle.formatStringFromName("importFolderFromFileSystemFailed.template", [ex], 1);
-        this_.log.exception(msg);
-        alert(msg);
-    }
+    var targetDirectory = this.manager.toolbox2Svc.getStandardToolbox().path;
+    this.importFolderFromFileSystem_common(targetDirectory, -1);
 };
 
 this.importPackage_toStdToolbox = function(event) {
-    var this_ = ko.toolbox2;
-    var prompt = komodo_bundle.GetStringFromName("specifyURLThatContainsAPackageFile");
-    var label = "URL";
-    var value = "";
-    var title = komodo_bundle.GetStringFromName("importVersion5Package");
-    var defaultDirectory = null;
-    var defaultFilename = null;
-    
-    var path = ko.filepicker.browseForFile(defaultDirectory, defaultFilename,
-                                      title,
-                                      "Komodo Package", // default filter
-                                      ["Komodo Package", "All"]); // filters
-    if (!path) {
-        return;
-    }
-    try {
-        var targetDirectory = this_.manager.toolbox2Svc.getStandardToolbox().path;
-        this_.manager.toolbox2Svc.importV5Package(targetDirectory, path);
-        this_.manager.view.refreshFullView();
-    } catch(ex) {
-        var msg = komodo_bundle.formatStringFromName("importPackageFailed.template", [ex], 1);
-        this_.log.exception(msg);
-        alert(msg);
-    }
+    var targetDirectory = this.manager.toolbox2Svc.getStandardToolbox().path;
+    this.importPackage_common(targetDirectory, -1);
 };
  
 this.importPackageFromWeb_toStdToolbox = function(event) {
-    var this_ = ko.toolbox2;
-    var prompt = komodo_bundle.GetStringFromName("specifyURLThatContainsAPackageFile");
-    var label = "URL";
-    var value = this._webPackageURL;
-    var title = komodo_bundle.GetStringFromName("extractAPackageFromTheWeb");
-    var url = ko.dialogs.prompt(prompt, label, value, title);
-    if (!url) {
-        return;
-    }
-    this._webPackageURL = url;
-    try {
-        var targetDirectory = this_.manager.toolbox2Svc.getStandardToolbox().path;
-        this_.manager.toolbox2Svc.importV5Package(targetDirectory, url);
-        this_.manager.view.refreshFullView();
-    } catch(ex) {
-        var msg = "importPackageFromWeb failed: " + ex;
-        this_.log.exception(msg);
-        alert(msg);
-    }
+    var targetDirectory = this.manager.toolbox2Svc.getStandardToolbox().path;
+    this.importPackageFromWeb_toStdToolbox_common(targetDirectory, -1);
 };
 
 this.editPropertiesItem = function(event) {

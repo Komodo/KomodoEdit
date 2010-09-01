@@ -77,12 +77,12 @@ interface koIToolbox2Service: nsISupports {
     koITool getExtensionToolbox(in wstring extensionName);
     long getProjectToolboxId(in wstring uri);
     long getStandardToolboxID();
-    void importDirectory(in string parentPath,
+    void importDirectory(in wstring parentPath,
                          in wstring pathToImport);
-    void importFiles(in string parentPath,
-                     [array, size_is(count)] in wstring paths,
-                     in unsigned long count);
-    void importV5Package(in string parentPath,
+    void importFiles(in wstring parentPath,
+                     in unsigned long count,
+                     [array, size_is(count)] in wstring paths);
+    void importV5Package(in wstring parentPath,
                          in wstring packagePath);
     void initialize();
     void migrateVersion5Toolboxes();

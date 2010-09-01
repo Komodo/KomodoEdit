@@ -256,25 +256,22 @@ this.updateContextMenu = function(event, menupopup) {
     var manager = this.manager;
     manager.tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
     var index = row.value;
+    var toolType;
     if (index == -1) {
-        // Means that we're clicking in white-space below.
-        manager.view.selection.clearSelection();
-        event.stopPropagation();
-        event.preventDefault();
-        return;
-    }
-    var toolType = manager.view.get_toolType(index);
-    if (!toolType) {
-        dump("Awp -- updateContextMenu -- no tooltype\n");
-        event.stopPropagation();
-        event.preventDefault();
-        return;
-    }
-    this.multipleNodesSelected = manager.view.selection.count > 1;
-    if (!this.multipleNodesSelected) {
+        toolType = "standardToolbox";
+        this.multipleNodesSelected = false;
         this.raggedMultipleSelection = false;
     } else {
-        this.raggedMultipleSelection = !manager.view.selectedItemsHaveSameParent();
+        toolType = manager.view.get_toolType(index);
+        if (!toolType) {
+            dump("Awp -- updateContextMenu -- no tooltype\n");
+            event.stopPropagation();
+            event.preventDefault();
+            return;
+        }
+        this.multipleNodesSelected = manager.view.selection.count > 1;
+        this.raggedMultipleSelection = (this.multipleNodesSelected
+                                        && !manager.view.selectedItemsHaveSameParent());
     }
     this.processMenu(menupopup, toolType);
 };
@@ -282,12 +279,17 @@ this.updateContextMenu = function(event, menupopup) {
 this.processMenu = function(menuNode, toolType) {
     //todo: testHideIf
     var hideUnless = menuNode.getAttribute('hideUnless');
-    var multipleNodesSelected = this.multipleNodesSelected;
-    var raggedMultipleSelection = this.raggedMultipleSelection;
     if (hideUnless && hideUnless.indexOf(toolType) == -1) {
         menuNode.setAttribute('collapsed', true);
         return; // No need to do anything else
     }
+    var hideIf = menuNode.getAttribute('hideIf');
+    if (hideIf && hideIf.indexOf(toolType) == 0) {
+        menuNode.setAttribute('collapsed', true);
+        return; // No need to do anything else
+    }
+    var multipleNodesSelected = this.multipleNodesSelected;
+    var raggedMultipleSelection = this.raggedMultipleSelection;
     var testHideIf = menuNode.getAttribute('testHideIf');
     if (testHideIf) {
         testHideIf = testHideIf.split(/\s+/);
