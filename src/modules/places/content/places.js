@@ -329,14 +329,9 @@ viewMgrClass.prototype = {
         var row = {};
         this.tree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
         var index = row.value;
-        if (index == -1
-            && clickedNodeId != "placesRootButton") {
-            // Means that we're clicking in white-space below.
-            // Clear the selection, and return.
-            this.view.selection.clearSelection();
-            event.stopPropagation();
-            event.preventDefault();
-            return false;
+        var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false /*rootsOnly*/);
+        if (index == -1) {
+            clickedNodeId = "placesRootButton";
         }
         var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false /*rootsOnly*/);
         var isRootNode;
@@ -1387,9 +1382,13 @@ ManagerClass.prototype = {
     },
 
     _selectCurrentItems: function(isCopying) {
-        var rootsOnly = true;
-        var uris = gPlacesViewMgr.getSelectedURIs(true);
-        var uriList = uris.join("\n");
+        var uriList;
+        if (this._clickedOnRoot()) {
+            uriList = this.currentPlace;
+        } else {
+            var uris = gPlacesViewMgr.getSelectedURIs(true);
+            uriList = uris.join("\n");
+        }
         var transferable = xtk.clipboard.addTextDataFlavor("text/unicode", uriList);
         xtk.clipboard.addTextDataFlavor("x-application/komodo-places",
                                         isCopying ? "1" : "0" , transferable);
@@ -1408,19 +1407,31 @@ ManagerClass.prototype = {
         if (xtk.clipboard.containsFlavors(["x-application/komodo-places"])) {
             isCopying = parseInt(xtk.clipboard.getTextFlavor("x-application/komodo-places"));
         }
-        var index = gPlacesViewMgr.view.selection.currentIndex;
-        var target_uri = gPlacesViewMgr.view.getURIForRow(index);
+        var target_uri;
+        var index;
+        if (this._clickedOnRoot()) {
+            index = -1;
+            target_uri = this.currentPlace;
+        } else {
+            index = gPlacesViewMgr.view.selection.currentIndex;
+            target_uri = gPlacesViewMgr.view.getURIForRow(index);
+        }
         var koTargetFileEx = Components.classes["@activestate.com/koFileEx;1"].
-        createInstance(Components.interfaces.koIFileEx);
+                             createInstance(Components.interfaces.koIFileEx);
         koTargetFileEx.URI = target_uri;
         if (koTargetFileEx.isFile) {
             target_uri = target_uri.substr(0, target_uri.lastIndexOf("/"));
-            index = gPlacesViewMgr.view.getRowIndexForURI(target_uri);
-            if (index == -1) {
-                var prompt = _bundle.formatStringFromName('cantFindFilesParentInTree.prompt',
-                                          [koTargetFileEx.displayPath], 1);
-                ko.dialogs.alert(prompt);
-                return;
+            var parent_index = gPlacesViewMgr.view.getRowIndexForURI(target_uri);
+            if (parent_index == -1) {
+                // Are we at top-level?
+                if (gPlacesViewMgr.view.getLevel(index) == 0) {
+                    index = -1;
+                } else {
+                    var prompt = _bundle.formatStringFromName('cantFindFilesParentInTree.prompt',
+                                                              [koTargetFileEx.displayPath], 1);
+                    ko.dialogs.alert(prompt);
+                    return;
+                }
             }
         }
         try {
@@ -1450,7 +1461,9 @@ ManagerClass.prototype = {
     //},
 
     _clickedOnRoot: function() {
-        return document.popupNode == widgets.rootButton;
+        if (document.popupNode == widgets.rootButton) return true;
+        return (document.popupNode.id == "places-files-tree-body"
+                && gPlacesViewMgr.view.selection.count == 0);
     },
 
     _launchFindOrReplace: function(launcher, numNulls) {
