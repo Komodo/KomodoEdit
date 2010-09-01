@@ -635,7 +635,6 @@
 <!ENTITY template.label "Template">
 <!ENTITY templates.label "Templates">
 <!ENTITY templates.accesskey "t">
-<!ENTITY templateFile.label "Template File...">
 <!ENTITY terminateProcess.tooltiptext "Terminate Process">
 <!ENTITY thisToolboxIsReadOnly.locktip "This toolbox is read-only.">
 <!ENTITY toggleBookmark.label "Toggle Bookmark">

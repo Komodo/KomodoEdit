@@ -714,11 +714,6 @@
                                               id="menu_openRemoteFile"
                                               observes="cmd_open_remote"
                                               />
-                                    <menuitem label="&templateFile.label;"
-                                              id="menu_openTemplateFile"
-                                              class="menuitem-iconic new-template-icon"
-                                              observes="cmd_openTemplate"
-                                              />
                                 </menupopup>
                             </menu>
                             <menu id="close_menu"
