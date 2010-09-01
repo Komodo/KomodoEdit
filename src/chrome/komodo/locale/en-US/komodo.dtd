@@ -557,7 +557,9 @@
 <!ENTITY save.label "Save">
 <!ENTITY saveAll.label "Save All">
 <!ENTITY saveAllFiles.tooltiptext "Save All Files">
-<!ENTITY saveAs.label "Save As...">
+<!ENTITY saveAs.label "Save As">
+<!ENTITY saveAsDotDotDot.label "Save As...">
+<!ENTITY saveAsLocal.label "Local...">
 <!ENTITY saveAsTemplate.label "Save As Template...">
 <!ENTITY saveFile.label "Save File">
 <!ENTITY saveFile.tooltiptext "Save File">

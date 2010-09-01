@@ -390,7 +390,7 @@
         <menuitem id="toolbox2ContextMenu_saveAs"
                   keep_background="true"
                   class="menuitem-iconic"
-                  label="&saveAs.label;"
+                  label="&saveAsDotDotDot.label;"
                   oncommand="ko.toolbox2.saveToolsAs(event)"
                   />
         <menuitem id="toolbox2ContextMenu_renameItem"
@@ -774,24 +774,30 @@
                                       observes="cmd_save"
                                       accesskey="&menuSave.accesskey;"
                                       />
+                            <menu id="file_saveAs_menu"
+                                  accesskey="&menuSaveAs.accesskey;"
+                                  label="&saveAs.label;">
+                                <menupopup id="file_saveAs_menupopup">
+                                    <menuitem label="&localFile.label;"
+                                              id="menu_saveAs"
+                                              observes="cmd_saveAs"
+                                              accesskey="&menuSaveAs.accesskey;"
+                                              />
+                                    <menuitem label="&remoteFile.label;"
+                                              disabled="true"
+                                              id="menu_saveAsRemote"
+                                              observes="cmd_saveAs_remote"
+                                              />
+                                    <menuitem label="&template.label;"
+                                              id="menu_saveAsTemplate"
+                                              observes="cmd_saveAsTemplate"
+                                              />
+                                </menupopup>
+                            </menu>
                             <menuitem label="&showUnsavedChanges.label;"
                                       accesskey="&menuShowUnsavedChanges.accesskey;"
                                       id="menu_showUnsavedChanges"
                                       observes="cmd_showUnsavedChanges"
-                                      />
-                            <menuitem label="&saveAs.label;"
-                                      id="menu_saveAs"
-                                      observes="cmd_saveAs"
-                                      accesskey="&menuSaveAs.accesskey;"
-                                      />
-                            <menuitem label="&saveRemotelyAs.label;"
-                                      disabled="true"
-                                      id="menu_saveAsRemote"
-                                      observes="cmd_saveAs_remote"
-                                      />
-                            <menuitem label="&saveAsTemplate.label;"
-                                      id="menu_saveAsTemplate"
-                                      observes="cmd_saveAsTemplate"
                                       />
                             <menuitem label="&saveAll.label;"
                                       id="menu_saveAll"
