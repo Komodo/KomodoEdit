@@ -1,7 +1,7 @@
 <!ENTITY fastOpen.label "Fast Open">
 <!ENTITY goToFileSettings.label "'Go To File...' Dialog Settings">
 <!ENTITY default.label "Default:">
-<!ENTITY goToFile.menuitem "Go to File...">
+<!ENTITY goToFile.menuitem "Fast Open...">
 <!ENTITY fastOpenGoToFile.desc "Fast Open: Go to File...">
 <!ENTITY fastOpenInvokeTool.desc "Fast Open: Invoke Tool...">
 <!ENTITY goToFile.window.title "Go to File">
