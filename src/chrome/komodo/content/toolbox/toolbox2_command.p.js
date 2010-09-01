@@ -249,46 +249,39 @@ this.add_folder = function(parent, item) {
 
 // Generic functions on the hierarchy view tree
 
-this.addToolboxItem = function(itemType) {
+this.addToolboxItem_common = function(parent, itemType) {
     try {
-    var this_ = ko.toolbox2;
-    var method = this_["add_" + itemType];
-    if (!method) {
-        alert("toolbox2_command.js internal error: Don't know how to create a new "
-              + itemType);
-        return;
-    }
-    var view = this_.manager.view;
-    var index = view.selection.currentIndex;
-    var parent = view.getTool(index);
-    var item = this.manager.toolsMgr.createToolFromType(itemType);
-    method.call(this_, parent, item);
+        var method = this["add_" + itemType];
+        if (!method) {
+            alert("toolbox2_command.js internal error: Don't know how to create a new "
+                  + itemType);
+            return;
+        }
+        var item = this.manager.toolsMgr.createToolFromType(itemType);
+        method.call(this, parent, item);
     } catch(ex) {
         ko.dialogs.alert("toolbox2_command.js: Internal error: Trying to add a new "
                          + itemType
                          + ": "
                          + ex);
     }
+}
+
+this.addToolboxItem = function(itemType) {
+    var parent;
+    if (this._clickedOnRoot()) {
+        parent = this.manager.toolbox2Svc.getStandardToolbox();
+    } else {
+        var view = this.manager.view;
+        var index = view.selection.currentIndex;
+        parent = view.getTool(index);
+    }
+    this.addToolboxItem_common(parent, itemType);
 };
 
 this.addToolboxItemToStdToolbox = function(itemType) {
-    try {
-    var this_ = ko.toolbox2;
-    var method = this_["add_" + itemType];
-    if (!method) {
-        alert("toolbox2_command.js internal error: Don't know how to create a new "
-              + itemType);
-        return;
-    }
-    var item = this.manager.toolsMgr.createToolFromType(itemType);
-    var parent = this.manager.toolsMgr.getToolById(this.manager.toolbox2Svc.getStandardToolboxID());
-    method.call(this_, parent, item);
-    } catch(ex) {
-        ko.dialogs.alert("toolbox2_command.js: Internal error: Trying to add a new "
-                         + itemType
-                         + ": "
-                         + ex);
-    }
+    var parent = this.manager.toolbox2Svc.getStandardToolbox();
+    this.addToolboxItem_common(parent, itemType);
 };
 
 // Generic top-level routines
