@@ -811,19 +811,6 @@
                                       accesskey="&menuSaveAll.accesskey;"
                                       />
                             <menuseparator/>
-                            <menuitem label="&closeProject.label;"
-                                      id="menu_closeProject"
-                                      observes="cmd_closeProject"
-                                      />
-                            <menuitem label="&saveProject.label;"
-                                      id="menu_saveProject"
-                                      observes="cmd_saveProject"
-                                      />
-                            <menuitem label="&renameProject.label;"
-                                      id="menu_renameProject"
-                                      observes="cmd_renameProject"
-                                      />
-                            <menuseparator/>
                             <menuitem label="&refreshStatus.label;"
                                       id="menu_refreshStatus"
                                       accesskey="&menuRefreshStatus.accesskey;"
