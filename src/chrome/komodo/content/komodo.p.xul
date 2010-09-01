@@ -684,8 +684,16 @@
                                   accesskey="&menuFileNew.accesskey;">
                                 <menupopup id="popup_filenew"
                                            onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('template');">
-                                    <menuitem id="menu_file_newFile" label="&newFile.label;"
+                                    <menuitem id="menu_file_newFile"
+                                              label="&newFile.label;"
+                                              accesskey="&newFile.accesskey;"
                                               class="menuitem-iconic new-file-icon"
+                                              observes="cmd_new"
+                                              />
+                                    <menuitem id="menu_file_newFileFromTemplate"
+                                              label="&newFileFromTemplate.label;"
+                                              accesskey="&newFileFromTemplate.accesskey;"
+                                              class="menuitem-iconic"
                                               observes="cmd_newTemplate"
                                               />
                                     <menuseparator id="separator_mruTemplates"/>

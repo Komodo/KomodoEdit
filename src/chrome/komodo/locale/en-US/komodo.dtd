@@ -451,7 +451,10 @@
 <!ENTITY newCommand.label "New Command...">
 <!ENTITY newCustomMenu.label "New Custom Menu">
 <!ENTITY newCustomToolbar.label "New Custom Toolbar">
-<!ENTITY newFile.label "New File...">
+<!ENTITY newFile.accesskey "F">
+<!ENTITY newFile.label "File">
+<!ENTITY newFileFromTemplate.accesskey "T">
+<!ENTITY newFileFromTemplate.label "File from Template...">
 <!ENTITY newFileUsingDefaultLanguage.tooltiptext "New File Using Default Language">
 <!ENTITY newFolder.label "New Folder...">
 <!ENTITY newLiveFolder.label "New Live Folder...">
