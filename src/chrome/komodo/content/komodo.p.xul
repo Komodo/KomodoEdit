@@ -1346,7 +1346,27 @@
                                       label="&browserPreview.menu.label;"
                                       accesskey="&browserPreview.menu.accesskey;"
                                       observes="cmd_browserPreview"/>
+
+                            <menuseparator id="view_menu_splitview_menuseparator"/>
+
+                            <menuitem id="menu_moveTab"
+                                      label="&moveToOtherTabGroup.label;"
+                                      accesskey="&menuMoveTab.accesskey;"
+                                      observes="cmd_movetab"
+                                      />
+                            <menuitem id="menu_splitTab"
+                                      label="&splitView.label;"
+                                      accesskey="&menuSplitTab.accesskey;"
+                                      observes="cmd_splittab"
+                                      />
+                            <menuitem id="menu_rotateSplitter"
+                                      label="&rotateTabGroups.label;"
+                                      accesskey="&menuRotateSplitter.accesskey;"
+                                      observes="cmd_rotateSplitter"
+                                      />
+
                             <menuseparator id="view_menu_editor_settings_menuseparator"/>
+
                             <menuitem id="menu_viewWhitespace"
                                       label="&viewWhitespace.label;"
                                       observes="cmd_viewWhitespace"
@@ -1566,25 +1586,6 @@
                                 label="&newWindow.label;"
                                 accesskey="&newWindow.accesskey;"
                                 observes="cmd_newWindow"
-                            />
-                            <menuseparator/>
-                            <menuitem
-                                id="menu_moveTab"
-                                label="&moveToOtherTabGroup.label;"
-                                accesskey="&menuMoveTab.accesskey;"
-                                observes="cmd_movetab"
-                            />
-                            <menuitem
-                                id="menu_splitTab"
-                                label="&splitView.label;"
-                                accesskey="&menuSplitTab.accesskey;"
-                                observes="cmd_splittab"
-                            />
-                            <menuitem
-                                id="menu_rotateSplitter"
-                                label="&rotateTabGroups.label;"
-                                accesskey="&menuRotateSplitter.accesskey;"
-                                observes="cmd_rotateSplitter"
                             />
                         </menupopup>
                     </menu>
