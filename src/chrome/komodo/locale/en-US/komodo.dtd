@@ -266,7 +266,6 @@
 <!ENTITY generalEditProperties.desc "General: Edit Properties">
 <!ENTITY generalExportAsHTML.desc "General: Export as HTML...">
 <!ENTITY generalExportSelectionAsHTML.desc "General: Export Selection as HTML...">
-<!ENTITY generalImportFromFileSystemIntoCurrentProject.desc "General: Import From File System into Current Project">
 <!ENTITY generalLeastRecentlyViewedFile.desc "General: Least Recently Viewed File">
 <!ENTITY generalMostRecentlyViewedFile.desc "General: Most Recently Viewed File">
 <!ENTITY generalNewFile.desc "General: New File...">

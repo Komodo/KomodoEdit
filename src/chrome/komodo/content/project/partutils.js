@@ -101,64 +101,6 @@ this.findPartById = function part_findPartById(id) {
     return ko.toolbox2.findToolById(id);
 }
 
-this.importFromFileSystem = function part_ImportFromFS(part, baseURL) {
-    try {
-    if (!part) return false;
-    if (typeof(baseURL) == undefined) {
-        baseURL = null;
-    }
-
-    var resp = new Object();
-    resp.include = part.prefset.getStringPref("import_include_matches");
-    resp.exclude = part.prefset.getStringPref("import_exclude_matches");
-    resp.recursive= part.prefset.getBooleanPref("import_recursive");
-    resp.importType= part.prefset.getStringPref("import_type");
-    if (part.prefset.hasPrefHere("import_dirname")) {
-        resp.dirname = part.prefset.getStringPref("import_dirname");
-    } else {
-        if (baseURL) {
-            resp.dirname = ko.uriparse.URIToLocalPath(baseURL);
-        } else {
-            resp.dirname = _getPartURL(part);
-            if (!resp.dirname) {
-                var os = Components.classes["@activestate.com/koOs;1"].getService();
-                resp.dirname = os.getcwd();
-            }
-        }
-    }
-    resp.res = '';
-    resp.part = part;
-    resp.global = window;
-
-    ko.windowManager.openOrFocusDialog(
-            "chrome://komodo/content/project/importFromFS.xul",
-        'komodo_import',
-        "chrome,modal,dependent,close=yes",
-        resp);
-    if (resp.res != true) {
-        return false;
-    }
-    if (resp.include != part.prefset.getStringPref("import_include_matches")) {
-        part.prefset.setStringPref("import_include_matches", resp.include);
-    }
-    if (resp.exclude != part.prefset.getStringPref("import_exclude_matches")) {
-        part.prefset.setStringPref("import_exclude_matches", resp.exclude);
-    }
-    if (resp.recursive != part.prefset.getBooleanPref("import_recursive")) {
-        part.prefset.setBooleanPref("import_recursive", resp.recursive);
-    }
-    if (resp.importType != part.prefset.getStringPref("import_type")) {
-        part.prefset.setStringPref("import_type", resp.importType);
-    }
-    if (resp.dirname != part.prefset.getStringPref("import_dirname")) {
-        part.prefset.setStringPref("import_dirname", resp.dirname);
-    }
-    } catch(e) {
-        log.exception(e);
-    }
-    return true;
-}
-
 /**
  * Recursively removes virtual files and folders, but does not
  * remove any folders that have been added manually or parts

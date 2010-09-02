@@ -58,8 +58,6 @@ $cons->InstallInChrome('partutils.js');
 
 $cons->Preprocess('projectExtensionManager.p.js', 'projectExtensionManager.js');
 $cons->InstallInChrome('projectExtensionManager.js');
-$cons->InstallInChrome('importFromFS.xul');
-$cons->InstallInChrome('importFromFS.js');
 $cons->InstallInChrome('baseManager.js');
 $cons->Preprocess('toolboxManager.p.js', 'toolboxManager.js');
 $cons->InstallInChrome('toolboxManager.js');

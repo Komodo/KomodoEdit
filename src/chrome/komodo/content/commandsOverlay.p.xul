@@ -1487,11 +1487,6 @@
         events="some_projects_open,current_project_changed">
 
         <command
-            id="cmd_importFromFS_Project" key="key_cmd_importFromFS_Project"
-            oncommand="ko.commands.doCommandAsync('cmd_importFromFS_Project', event)"
-            disabled="false"
-            desc="&generalImportFromFileSystemIntoCurrentProject.desc;"/>
-        <command
             id="cmd_reimportFromFS_Project" key="key_cmd_reimportFromFS_Project"
             oncommand="ko.commands.doCommandAsync('cmd_reimportFromFS_Project', event)"
             disabled="false"
