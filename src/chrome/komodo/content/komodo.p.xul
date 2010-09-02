@@ -353,7 +353,7 @@
                   label="&cut.label;"
                   class="menuitem-iconic cut-button"
                   oncommand="ko.toolbox2.cutItem(event)"
-                  hideIf="standardToolbox"
+                  disableIf="standardToolbox"
                   testDisableIf="t:raggedMultipleSelection"
                   />
         <menuitem id="toolbox2ContextMenu_copy"
@@ -368,7 +368,7 @@
                   label="&paste.label;"
                   disableUnless="folder menu toolbar standardToolbox"
                   oncommand="ko.toolbox2.pasteIntoItem(event)"
-                  testDisableIf="t:multipleSelection"
+                  testDisableIf="t:multipleSelection t:clipboardHasNoURI"
                   />
         <menuseparator anonid="secondaryseparator"
                        />

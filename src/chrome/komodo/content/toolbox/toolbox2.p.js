@@ -283,11 +283,12 @@ this.processMenu = function(menuNode, toolType) {
         menuNode.setAttribute('collapsed', true);
         return; // No need to do anything else
     }
-    var hideIf = menuNode.getAttribute('hideIf');
-    if (hideIf && hideIf.indexOf(toolType) == 0) {
-        menuNode.setAttribute('collapsed', true);
-        return; // No need to do anything else
-    }
+    //NOTE: hideIf isn't currently used...
+    //var hideIf = menuNode.getAttribute('hideIf');
+    //if (hideIf && hideIf.indexOf(toolType) == 0) {
+    //    menuNode.setAttribute('collapsed', true);
+    //    return; // No need to do anything else
+    //}
     var multipleNodesSelected = this.multipleNodesSelected;
     var raggedMultipleSelection = this.raggedMultipleSelection;
     var testHideIf = menuNode.getAttribute('testHideIf');
@@ -329,12 +330,19 @@ this.processMenu = function(menuNode, toolType) {
                 if (testDisableIf) {
                     testDisableIf = testDisableIf.split(/\s+/);
                     testDisableIf.map(function(s) {
-                            if (s == 't:multipleSelection' && multipleNodesSelected) {
+                            if (disableNode) {
+                                // Don't bother with further tests
+                            } else if (s == 't:multipleSelection' && multipleNodesSelected) {
                                 disableNode = true;
                             } else if (s == 't:singleSelection' && !multipleNodesSelected) {
                                 disableNode = true;
                             } else if (s == 't:raggedMultipleSelection' && raggedMultipleSelection) {
                                 // disable unless all nodes have the same parent
+                                disableNode = true;
+                            } else if (s == 't:clipboardHasNoURI'
+                                       && !xtk.clipboard.containsFlavors(["text/uri-list"])) {
+                                // This could be more sophisticated:
+                                // Distinguish snippet-pasting vs. URI-pasting.
                                 disableNode = true;
                             }
                         });

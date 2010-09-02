@@ -493,12 +493,18 @@ this.renameItem = function(event) {
 }
 
 this._selectCurrentItems = function(isCopying) {
-    this.selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
-    var view = this.manager.view;
-    var paths = this.selectedIndices.map(function(index) {
-            return view.getPathFromIndex(index);
-        });
-    var pathList = paths.join("\n");
+    var paths, pathList;
+    if (this._clickedOnRoot()) {
+        pathList = this.manager.toolbox2Svc.getStandardToolbox().path;
+        paths = [pathList];
+    } else {
+        this.selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
+        var view = this.manager.view;
+        paths = this.selectedIndices.map(function(index) {
+                return view.getPathFromIndex(index);
+            });
+        pathList = paths.join("\n");
+    }
     var uriList = paths.map(ko.uriparse.localPathToURI).join("\n");
     var transferable = xtk.clipboard.addTextDataFlavor("text/uri-list", uriList);
     xtk.clipboard.addTextDataFlavor("text/unicode", pathList, transferable);
@@ -510,7 +516,13 @@ this._selectCurrentItems = function(isCopying) {
 }
 
 this.cutItem = function(event) {
-    if (typeof(event) == "undefined") event = null;
+    if (this._clickedOnRoot()) {
+        // Don't allow the standard toolbox to be "cut"
+        var msg = peFolder_bundle.GetStringFromName("cantCutStandardToolbox");
+        ko.statusBar.AddMessage(msg, "editor", 3000, true);
+
+        return;
+    }
     this._selectCurrentItems(false);
 };
 
@@ -522,10 +534,8 @@ this.copyItem = function(event) {
 this.pasteIntoItem = function(event) {
     if (typeof(event) == "undefined") event = null;
     try {
-        var this_ = ko.toolbox2;
-        var view = this_.manager.view;
-        var index = view.selection.currentIndex;
-        var parent = view.getTool(index);
+        var view = this.manager.view;
+        var index = this._clickedOnRoot() ?  -1 : view.selection.currentIndex;
         var paths = xtk.clipboard.getText().split("\n");
         var isCopying = true;
         if (xtk.clipboard.containsFlavors(["x-application/komodo-toolbox"])) {
