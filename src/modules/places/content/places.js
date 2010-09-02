@@ -224,10 +224,10 @@ viewMgrClass.prototype = {
     },
 
     addNewFile: function() {
+        var index = ko.places.manager._clickedOnRoot() ? -1 : this.view.selection.currentIndex;
         var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileName"));
         if (!name) return;
         try {
-            var index = this.view.selection.currentIndex;
             this.view.addNewFileAtParent(name, index);
         } catch(ex) {
             ko.dialogs.alert(ex);
@@ -235,10 +235,10 @@ viewMgrClass.prototype = {
     },
 
     addNewFolder: function() {
+        var index = ko.places.manager._clickedOnRoot() ? -1 : this.view.selection.currentIndex;
         var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFolderName"));
         if (!name) return;
         try {
-            var index = this.view.selection.currentIndex;
             this.view.addNewFolderAtParent(name, index);
         } catch(ex) {
             ko.dialogs.alert(ex);
