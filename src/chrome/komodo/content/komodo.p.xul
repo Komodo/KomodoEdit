@@ -580,7 +580,9 @@
         <menuitem id="menu_splittab"
                     observes="cmd_splittab"
                     label="&splitView.label;"/>
-        <menuseparator />
+
+        <menuseparator id="tabContextMenu_separator_1" />
+
         <menuitem id="menu_save2"
                   class="menuitem-iconic save-buffer-icon"
                   observes="cmd_save"
@@ -603,11 +605,15 @@
         <menuitem id="menu_showUnsavedChanges2"
                   label="&showUnsavedChanges.label;"
                   observes="cmd_showUnsavedChanges"/>
-        <menuseparator/>
+
+        <menuseparator id="tabContextMenu_separator_2" />
+
         <menuitem id="menu_refreshStatus3"
                   label="&refreshStatus.label;"
                   observes="cmd_refreshStatus"/>
+
         <menuseparator id="buffertab-context-sep-properties"/>
+
         <menuitem id="buffertab-context-mapuri"
                   label="&createMappedURI.label;"
                   observes="cmd_createMappedURI"/>
