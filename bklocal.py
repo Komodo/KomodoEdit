@@ -2747,7 +2747,7 @@ class KomodoVersion(black.configure.Datum):
                 "source code. See the --komodo-version "\
                 "configure option to override.\n" % self.desc)
         # Ensure correct version string form.
-        ver_pat = re.compile(r"^\d+\.\d+\.\d+(-(alpha\d+|beta\d+|devel))?$")
+        ver_pat = re.compile(r"^\d+\.\d+\.\d+(-(alpha\d+|beta\d+|rc\d+|devel))?$")
         if not ver_pat.search(self.value):
             raise black.configure.ConfigureError(
                 "invalid komodo version string: %r  (must match '%s')"
