@@ -115,7 +115,7 @@ def genpad(eula_text_path=None, output_dir=None):
     # Gather PAD info.
     if len(ver_info) > 3 and ver_info[3] == 'a':
         release_status = "Alpha"
-    elif len(ver_info) > 3 and ver_info[3] == 'b':
+    elif len(ver_info) > 3 and ver_info[3] in ('b', 'c'):
         release_status = "Beta"
     elif ver_info[2] == 0:
         release_status = "Major Update"
@@ -252,7 +252,7 @@ def _ver_info_from_long_ver_str(long_ver_str):
             quality_name, quality_num = s, None
         else:
             quality_name, quality_num = s[:i], int(s[i:])
-        quality = {'alpha': 'a', 'beta': 'b', 'devel': 'd'}[quality_name]
+        quality = {'alpha': 'a', 'beta': 'b', 'rc': 'c', 'devel': 'd'}[quality_name]
         return quality, quality_num
 
     bits = []
