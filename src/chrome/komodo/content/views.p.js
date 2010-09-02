@@ -2815,7 +2815,8 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         if (wko.history) {
             wko.history.restore_prefs(workspace);
         }
-        this.initializeEssentials(currentWindow, workspace);
+        // Don't open startPage here (bug 87854)
+        this.initializeEssentials(currentWindow, workspace, false);
 
         // Now projects depends on places, so open it after
         if (workspace.hasPref('opened_projects')) {
@@ -2840,9 +2841,13 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
 };
 
 this._calledInitializeEssentials = false;
-this.initializeEssentials = function(currentWindow, workspace /*=null*/) {
-    if (this._calledInitializeEssentials) return;
-    if (typeof(workspace) == undefined) workspace=null;
+this.initializeEssentials = function(currentWindow, workspace /*=null*/,
+                                     showStartPage /*true*/) {
+    if (this._calledInitializeEssentials) {
+        return;
+    }
+    if (typeof(workspace) == "undefined") workspace=null;
+    if (typeof(showStartPage) == "undefined") showStartPage=true;
     var infoService = Components.classes["@activestate.com/koInfoService;1"].
     getService(Components.interfaces.koIInfoService);
     if (workspace && workspace.hasPref('windowNum')) {
@@ -2857,6 +2862,9 @@ this.initializeEssentials = function(currentWindow, workspace /*=null*/) {
         }
     } else {
         currentWindow._koNum = infoService.nextWindowNum();
+    }
+    if (showStartPage && gPrefs.getBooleanPref("show_start_page")) {
+        ko.open.startPage();
     }
     xtk.domutils.fireEvent(window, 'workspace_restored');
     this._calledInitializeEssentials = true;
