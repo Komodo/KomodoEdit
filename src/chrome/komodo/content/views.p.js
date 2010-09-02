@@ -2839,7 +2839,9 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
     }
 };
 
+this._calledInitializeEssentials = false;
 this.initializeEssentials = function(currentWindow, workspace /*=null*/) {
+    if (this._calledInitializeEssentials) return;
     if (typeof(workspace) == undefined) workspace=null;
     var infoService = Components.classes["@activestate.com/koInfoService;1"].
     getService(Components.interfaces.koIInfoService);
@@ -2857,6 +2859,7 @@ this.initializeEssentials = function(currentWindow, workspace /*=null*/) {
         currentWindow._koNum = infoService.nextWindowNum();
     }
     xtk.domutils.fireEvent(window, 'workspace_restored');
+    this._calledInitializeEssentials = true;
 }
 
 /*XXX: At some point remove these prefs from the global prefset:

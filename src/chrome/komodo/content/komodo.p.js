@@ -352,6 +352,10 @@ function onloadDelay() {
                 setTimeout(ko.uilayout.syncTabSelections, 10);
             }
         }
+        // Some paths through the above block might not have called this,
+        // so call it now to be sure.  See bug 87856
+        
+        ko.workspace.initializeEssentials(window);
         
         ko.mozhacks.pluginContextMenu();
         ko.history.init();
