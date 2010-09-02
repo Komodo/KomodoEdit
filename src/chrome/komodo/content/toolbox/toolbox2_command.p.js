@@ -936,7 +936,7 @@ this._currentRow = function(event, tree) {
 this.doDrop = function(event, tree) {
     var index = this._currentRow(event, this.manager.widgets.tree);
     // Here we have to verify what we're doing.
-    if (!this.manager.view.isContainer(index)) {
+    if (index != -1 && !this.manager.view.isContainer(index)) {
         // Get the parent (or the std toolbox) and use that
         var parentIndex = this.manager.view.getParentIndex(index);
         if (this.manager.view.isContainer(parentIndex)) {
@@ -1042,7 +1042,7 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
                     this.log.error("Remote URIs not yet supported");
                     continue;
                 }
-                this.manager.toolbox2Svc.importFiles(targetDirectory, [path], 1);
+                this.manager.toolbox2Svc.importFiles(targetDirectory, 1, [path]);
                 //TODO: Add an arg to importFiles to delete the imported file if
                 // importing succeeds.
                 loadedSomething = true;
