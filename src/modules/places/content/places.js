@@ -2695,7 +2695,7 @@ this.recentProjectsTreeView.prototype._resetRows = function() {
     var rows = ko.mru.getAll("mruProjectList").map(function(uri) {
             var m = PROJECT_URI_REGEX.exec(uri);
             if (m) {
-                return [uri, m[1]];
+                return [uri, decodeURIComponent(m[1])];
             }
             var lastSlash = uri.lastIndexOf('/');
             var extStart = uri.lastIndexOf('.komodoproject');
@@ -2703,7 +2703,7 @@ this.recentProjectsTreeView.prototype._resetRows = function() {
                 extStart = uri.lastIndexOf('.kpf');
             }
             var name = uri.substring(lastSlash + 1, extStart);
-            return [uri, name];
+            return [uri, decodeURIComponent(name)];
         });
     rows.reverse();
     this.rows = rows;
