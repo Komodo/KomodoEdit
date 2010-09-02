@@ -317,7 +317,7 @@
                 disableIf="project"
                 />
       <menuitem id="placesContextMenu_newFile"
-                label="&newFile.label;"
+                label="&newFilesPlace.label;"
                 class="menuitem-iconic new-file-icon"
                 oncommand="ko.places.viewMgr.addNewFile()"
                 testDisableIf="t:multipleSelection"

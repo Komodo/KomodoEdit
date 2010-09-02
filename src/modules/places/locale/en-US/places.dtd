@@ -41,6 +41,7 @@
 <!ENTITY Places.label "Places">
 <!ENTITY filters.label "Filters">
 <!ENTITY newPlace.label "New...">
+<!ENTITY newFilesPlace.label "New File...">
 
 <!ENTITY loadPlace.label "Open Directory...">
 <!ENTITY loadRemotePlace.label "Open Remote Directory...">
