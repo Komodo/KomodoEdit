@@ -412,7 +412,7 @@ def _ver_info_from_long_ver_str(long_ver_str):
             quality_name, quality_num = s, None
         else:
             quality_name, quality_num = s[:i], int(s[i:])
-        quality = {'alpha': 'a', 'beta': 'b', 'devel': 'd'}[quality_name]
+        quality = {'alpha': 'a', 'beta': 'b', 'rc': 'c', 'devel': 'd'}[quality_name]
         return quality, quality_num
 
     bits = []
