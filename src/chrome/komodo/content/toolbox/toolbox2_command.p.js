@@ -600,9 +600,14 @@ this._removeLoadedMacros = function(loadedMacroURIs) {
 
 this.showInFileManager = function(itemType) {
     try {
-        var view = ko.toolbox2.manager.view;
-        var index = view.selection.currentIndex;
-        var path = view.getPathFromIndex(index);
+        var path;
+        if (this._clickedOnRoot()) {
+            path = this.manager.toolbox2Svc.getStandardToolbox().path;
+        } else {
+            var view = ko.toolbox2.manager.view;
+            var index = view.selection.currentIndex;
+            path = view.getPathFromIndex(index);
+        }
         var sysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].
         getService(Components.interfaces.koISysUtils);
         sysUtilsSvc.ShowFileInFileManager(path);
