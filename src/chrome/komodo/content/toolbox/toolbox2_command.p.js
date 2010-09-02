@@ -735,7 +735,7 @@ this.exportAsZipFile = function(event) {
                                                 );
         if (!targetPath) return;
         default_saveToolDirectory = ko.uriparse.dirName(targetPath);
-        var numFilesZipped = ko.toolbox2.manager.view.zipSelectionToFile(targetPath);
+        var numFilesZipped = ko.toolbox2.manager.view.zipSelectionToFile(targetPath, this._clickedOnRoot());
         var msg = peFolder_bundle.formatStringFromName("zippedNTools",
                                                    [numFilesZipped], 1);
         ko.statusBar.AddMessage(msg, "toolbox", 5000, true);
@@ -745,19 +745,24 @@ this.exportAsZipFile = function(event) {
 };
 
 this.reloadFolder = function(event) {
-    var that = ko.toolbox2;
-    var view = that.manager.view;
-    var index = view.selection.currentIndex;
-    if (index == -1) {
-        alert("reloadFolder: can't find the clicked folder");
-        return;
-    } else if (!view.isContainer(index)) {
-        alert("reloadFolder: not a folder");
-        return;
+    var index, tool;
+    var view = this.manager.view;
+    if (this._clickedOnRoot()) {
+        index = -1;
+        tool = this.manager.toolbox2Svc.getStandardToolbox();
+    } else {
+        index = view.selection.currentIndex;
+        if (index == -1) {
+            alert("reloadFolder: can't find the clicked folder");
+            return;
+        } else if (!view.isContainer(index)) {
+            alert("reloadFolder: not a folder");
+            return;
+        }
+        tool = view.getTool(index);
     }
-    var tool = view.getTool(index);
-    that.manager.toolbox2Svc.reloadToolsDirectory(tool.path)
-    that.manager.view.reloadToolsDirectoryView(index)
+    this.manager.toolbox2Svc.reloadToolsDirectory(tool.path)
+    this.manager.view.reloadToolsDirectoryView(index)
 };
 
 this.deleteItem = function(event) {

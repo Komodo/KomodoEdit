@@ -164,7 +164,7 @@ interface koIToolbox2HTreeView: nsITreeView {
     void refreshFullView();
     void reloadToolsDirectoryView(in long index);
     void renameTool(in long index, in wstring newName);
-    long zipSelectionToFile(in wstring zipFile);
+    long zipSelectionToFile(in wstring zipFile, in boolean zipStandardToolboxOnly);
     long getNextSiblingIndex(in long index); // not in nsITreeView...
 
     void setFilter(in wstring filterPattern);

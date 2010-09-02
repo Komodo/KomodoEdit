@@ -625,22 +625,43 @@ class KoToolbox2HTreeView(TreeView):
                 numZippedItems += self._zipNode(zf, fullPath)
         return numZippedItems
 
-    def zipSelectionToFile(self, targetZipFile):
+    def zipSelectionToFile(self, targetZipFile, zipStandardToolboxOnly):
+        if zipStandardToolboxOnly:
+            return self._zipStandardToolbox(targetZipFile)
+        else:
+            return self._zipSelectedFiles(targetZipFile)
+
+    def _zipStandardToolbox(self, targetZipFile):
+        path = self.toolbox2Svc.getStandardToolbox().path
+        import zipfile
+        zf = zipfile.ZipFile(targetZipFile, 'w')
+        try:
+            if path[-1] in "\\/":
+                path = path[:-1]
+            self._targetZipFileRootLen = len(os.path.dirname(path)) + 1
+            return self._zipNode(zf, path)
+        finally:
+            zf.close()
+    
+    def _zipSelectedFiles(self, targetZipFile):
         selectedIndices = self.getSelectedIndices(rootsOnly=True)
         import zipfile
         zf = zipfile.ZipFile(targetZipFile, 'w')
-        numZippedItems = 0
-        for index in selectedIndices:
-            tool = self.getTool(index)
-            path = self.getPathFromIndex(index)
-            if tool.isContainer and path[-1] in "\\/":
-                path = path[:-1]
-            self._targetZipFileRootLen = len(os.path.dirname(path)) + 1
-            if not tool.isContainer:
-                zf.write(path, path[self._targetZipFileRootLen:])
-                numZippedItems += 1
-            else:
-                numZippedItems += self._zipNode(zf, path)
+        try:
+            numZippedItems = 0
+            for index in selectedIndices:
+                tool = self.getTool(index)
+                path = self.getPathFromIndex(index)
+                if tool.isContainer and path[-1] in "\\/":
+                    path = path[:-1]
+                self._targetZipFileRootLen = len(os.path.dirname(path)) + 1
+                if not tool.isContainer:
+                    zf.write(path, path[self._targetZipFileRootLen:])
+                    numZippedItems += 1
+                else:
+                    numZippedItems += self._zipNode(zf, path)
+        finally:
+            zf.close()
         return numZippedItems
 
     def getSelectedIndices(self, rootsOnly=False):
