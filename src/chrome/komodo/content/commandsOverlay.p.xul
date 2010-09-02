@@ -1525,7 +1525,7 @@
         <command
             id="cmd_replaceProject" key="key_cmd_replaceProject"
             oncommand="ko.commands.doCommandAsync('cmd_replaceProject', event)"
-            disabled="true"
+            disabled="false"
             desc="&generalReplaceProject.desc;"/>
         <command
             id="cmd_projectProperties" key="key_cmd_projectProperties"
