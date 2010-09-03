@@ -698,3 +698,44 @@ function _CodeIntel_DeactivateWindow()
 }
 
 
+if (typeof(ko)=='undefined') {
+    var ko = {};
+}
+if (typeof(ko.codeintel)=='undefined') {
+    ko.codeintel = {};
+}
+
+(function() {
+
+    var log = ko.logging.getLogger('codeintel_js');
+    
+    /**
+     * Trigger a completion (i.e. an autocomplete or calltip session)
+     * if appropriate.
+     */
+    this.trigger = function ko_codeintel_trigger(view) {
+
+        var scimoz = view.scimoz;
+        var ciBuffer = view.koDoc.ciBuf;
+        var trg = ciBuffer.trg_from_pos(scimoz.currentPos, true);
+        if (!trg) {
+            // Do nothing.
+        } else if (scimoz.autoCActive() && view._ciLastTrg &&
+                   trg.is_same(view._ciLastTrg))
+        {
+            // Bug 55378: Don't re-eval trigger if same one is showing.
+            // PERF: Consider passing _ciLastTrg to trg_from_pos() if
+            //       autoCActive to allow to abort early if looks like
+            //       equivalent trigger will be generated.
+        } else {
+            // PERF: Should we re-use controllers? Need a pool then?
+            //       Try to save and re-use ctlr on each view.
+            var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
+                        createInstance(Components.interfaces.koICodeIntelEvalController);
+            ctlr.set_ui_handler(view.ciCompletionUIHandler);
+            view._ciLastTrg = trg;
+            ciBuffer.async_eval_at_trg(trg, ctlr);
+        }
+    }
+
+}).apply(ko.codeintel);

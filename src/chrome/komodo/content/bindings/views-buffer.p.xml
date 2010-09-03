@@ -689,41 +689,6 @@
         </body>
         </method>
 
-        <method name="_handleCITriggering">
-        <body>
-        <![CDATA[
-            // Trigger a completion (i.e. an autocomplete or calltip session)
-            // if appropriate.
-            //XXX Do we need triggering to happen for
-            //    an insertion that does not come via onCharAdded()?
-            //    e.g. typing '. (' while in a completion session? Does that
-            //    trigger onCharAdded()?
-
-            var trg = this.koDoc.ciBuf.trg_from_pos(
-                        this.scimoz.currentPos, true);
-            if (!trg) {
-                // Do nothing.
-            } else if (this.scimoz.autoCActive() && this._ciLastTrg
-                && trg.is_same(this._ciLastTrg))
-            {
-                // Bug 55378: Don't re-eval trigger if same one is showing.
-                // PERF: Consider passing _ciLastTrg to trg_from_pos() if
-                //       autoCActive to allow to abort early if looks like
-                //       equivalent trigger will be generated.
-            } else {
-                // PERF: Should we re-use controllers? Need a pool then?
-                //       Try to save and re-use ctlr on each view.
-                var ctlr = 
-                    Components.classes["@activestate.com/koCodeIntelEvalController;1"].
-                    createInstance(Components.interfaces.koICodeIntelEvalController);
-                ctlr.set_ui_handler(this.ciCompletionUIHandler);
-                this._ciLastTrg = trg;
-                this.koDoc.ciBuf.async_eval_at_trg(trg, ctlr);
-            }
-        ]]>
-        </body>
-        </method>
-
         <method name="doCommandCompletion">
         <body>
         <![CDATA[
@@ -874,7 +839,8 @@
             var _lastCharAdded = this.lastCharAdded;
             if (_lastCharAdded) {
                 if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
-                    this._handleCITriggering();
+                    // Trigger completions or calltip.
+                    ko.codeintel.trigger(this);
                 }
 
                 this.doCommandCompletion();
