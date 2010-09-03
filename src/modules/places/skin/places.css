@@ -38,13 +38,12 @@
  * CSS for Places UI
  */
 
-toolbarbutton#placesRootButton {
+#placesRootButton {
   list-style-image: url("chrome://komodo/skin/images/folder-closed.png");
-  margin-left: 0px;
 }
-toolbarbutton#placesRootButton label {
-  margin-left: 4px;
-  margin-right: 2px;
+#placesRootButton > label {
+  /* Need to give some additional padding between the icon and the label. */
+  padding-left: 4px;
 }
 
 
