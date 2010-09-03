@@ -60,6 +60,8 @@ var _placePrefs;
 var filterPrefs;
 var uriSpecificPrefs;
 var projectSpecificFilterPrefs;
+const MAX_URI_PREFS_TO_TRACK = 60;
+const MAX_PROJECT_URI_PREFS_TO_TRACK = 20;
 var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 var widgets = {};
@@ -999,6 +1001,7 @@ viewMgrClass.prototype = {
             uriSpecificPrefs.setPref(uri, prefSet);
         }
         prefSet.setStringPref('viewName', viewName);
+        prefSet.setStringPref('timestamp', new Date().valueOf());
 
         // And do project-specific views
         var project = ko.projects.manager.currentProject;
@@ -1010,6 +1013,7 @@ viewMgrClass.prototype = {
                 prefSet = projectSpecificFilterPrefs.getPref(project.url);
             }
             prefSet.setStringPref("viewName", viewName);
+            prefSet.setStringPref('timestamp', new Date().valueOf());
         }
     },
 
@@ -1022,6 +1026,7 @@ viewMgrClass.prototype = {
             if (!prefSet.hasStringPref('viewName')) {
                 return null;
             }
+            prefSet.setStringPref('timestamp', new Date().valueOf());
             return prefSet.getStringPref('viewName');
         } else {
             return null;
@@ -1387,6 +1392,7 @@ ManagerClass.prototype = {
                         } else {
                             prefSet = projectSpecificFilterPrefs.getPref(project.url);
                             viewName = prefSet.getStringPref("viewName");
+                            prefSet.setStringPref('timestamp', new Date().valueOf());
                         }
                         gPlacesViewMgr.placeView_updateView(viewName);
                     }
@@ -1398,12 +1404,14 @@ ManagerClass.prototype = {
                                     } catch(ex) {}
                             var finalViewName = gPlacesViewMgr.placeView_updateView(viewName);
                             if (finalViewName != viewName) {
-                                prefSet.setStringPref('viewName', finalViewName)
+                                prefSet.setStringPref('viewName', finalViewName);
+                                prefSet.setStringPref('timestamp', new Date().valueOf());
                                     }
                         } else {
                             var finalViewName = gPlacesViewMgr.placeView_updateView(null);
                             prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
                             prefSet.setStringPref('viewName', finalViewName);
+                            prefSet.setStringPref('timestamp', new Date().valueOf());
                             uriSpecificPrefs.setPref(dirURI, prefSet);
                         }
                     }
@@ -2214,6 +2222,40 @@ ManagerClass.prototype = {
     },
 
     cleanPrefs: function() {
+        var sorter = function(a, b) {
+            var t1 = a[2];
+            var t2 = b[2];
+            if (t1.length == t2.length) {
+                var s1 = t1.toLowerCase();
+                var s2 = t2.toLowerCase();
+                return s1 < s2 ? -1 : s1 > s2 ? +1 : 0;
+            }
+            return t1.length - t2.length;
+        }
+        var removeOldestViewTrackers = function(prefName, maxArraySize) {
+            var ids = {};
+            var uriPrefs = _placePrefs.getPref(prefName);
+            uriPrefs.getPrefIds(ids, {});
+            ids = ids.value;
+            if (ids.length > maxArraySize) {
+                var nameValueTimeArray = ids.map(function(id) {
+                        var pref = uriPrefs.getPref(id);
+                        return [id,
+                                pref.getStringPref("viewName"),
+                                (pref.hasPref("timestamp")
+                                 ? pref.getStringPref("timestamp") : "0")];
+                    });
+                nameValueTimeArray.sort(sorter);
+                var numToExcise = nameValueTimeArray.length - maxArraySize;
+                for (var i = 0; i < numToExcise; i++) {
+                    uriPrefs.deletePref(nameValueTimeArray[i][0]);
+                }
+            }
+        }
+        removeOldestViewTrackers("current_filter_by_uri",
+                                 MAX_URI_PREFS_TO_TRACK);
+        removeOldestViewTrackers("current_project_filter_by_uri",
+                                 MAX_PROJECT_URI_PREFS_TO_TRACK);
     },
 
     'observe': function(subject, topic, data) {
