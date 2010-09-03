@@ -428,6 +428,10 @@
   list-style-image : url("chrome://komodo/skin/images/newText.png");
 }
 
+.new-window-icon {
+  list-style-image : url("chrome://komodo/skin/images/komodo_16x16.png");
+}
+
 .open-file-nohover-icon {
   list-style-image : url("chrome://komodo/skin/images/open.png");
 }

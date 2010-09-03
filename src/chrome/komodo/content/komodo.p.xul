@@ -712,6 +712,7 @@
                                     <menuitem id="menu_newWindow"
                                               label="&newWindow.label;"
                                               accesskey="&newWindow.accesskey;"
+                                              class="menuitem-iconic new-window-icon"
                                               observes="cmd_newWindow"
                                               />
                                     <menuseparator id="separator_mruTemplates"/>
