@@ -86,7 +86,7 @@
         id="cmdset_place_main"
         oncommandupdate="ko.commands.updateCommandset(this, event)"
         commandupdater="true"
-        events="current_view_changed,place_dirty,current_place_changed,current_place_opened,current_place_closed">
+        events="current_view_changed,place_dirty,current_place_changed,current_place_opened,current_place_closed,some_projects_open">
       <command
           id="cmd_openDirectory" key="key_cmd_openDirectory"
           oncommand="ko.commands.doCommandAsync('cmd_openDirectory', event)"

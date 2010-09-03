@@ -59,6 +59,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 var _placePrefs;
 var filterPrefs;
 var uriSpecificPrefs;
+var projectSpecificFilterPrefs;
 var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 var widgets = {};
@@ -68,6 +69,9 @@ const DEFAULT_EXCLUDE_MATCHES = ".*;*~;#*;CVS;*.bak;*.pyo;*.pyc";
 const DEFAULT_INCLUDE_MATCHES = ".login;.profile;.bashrc;.bash_profile";
 
 const PROJECT_URI_REGEX = /^.*\/(.+?)\.(?:kpf|komodoproject)$/;
+
+const CURRENT_PROJECT_FILTER_NAME = "Current Project";
+this.CURRENT_PROJECT_FILTER_NAME = CURRENT_PROJECT_FILTER_NAME;
     
 var log = getLoggingMgr().getLogger("places_js");
 log.setLevel(LOG_DEBUG);
@@ -995,6 +999,18 @@ viewMgrClass.prototype = {
             uriSpecificPrefs.setPref(uri, prefSet);
         }
         prefSet.setStringPref('viewName', viewName);
+
+        // And do project-specific views
+        var project = ko.projects.manager.currentProject;
+        if (project) {
+            if (!projectSpecificFilterPrefs.hasPref(project.url)) {
+                prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+                projectSpecificFilterPrefs.setPref(project.url, prefSet);
+            } else {
+                prefSet = projectSpecificFilterPrefs.getPref(project.url);
+            }
+            prefSet.setStringPref("viewName", viewName);
+        }
     },
 
     _getCurrentFilterPrefName: function() {
@@ -1028,7 +1044,7 @@ viewMgrClass.prototype = {
         }
         gPlacesViewMgr._uncheckAll();
         widgets.placeView_currentProject_menuitem.setAttribute('checked', 'true');
-        this._updateCurrentUriViewPref("currentProject");
+        this._updateCurrentUriViewPref(CURRENT_PROJECT_FILTER_NAME);
         var prefset = project.prefset;
         try {
             gPlacesViewMgr.view.setMainFilters(prefset.getStringPref('import_exclude_matches'),
@@ -1056,7 +1072,9 @@ viewMgrClass.prototype = {
             this._updateCurrentUriViewPref(prefName);
             return true;
         } catch(ex) {
-            log.exception("Can't find prefName in menu: " + prefName + ":: " + ex + "\n");
+            log.exception("Can't find prefName '"
+                          + prefName
+                          + "' in menu:: " + ex + "\n");
             return false;
         }
     },
@@ -1064,16 +1082,16 @@ viewMgrClass.prototype = {
     placeView_customView: function() {
         // Use the same format as managing the list of servers.
         var currentFilterName = this._getCurrentFilterPrefName();
-        var resultObj = {needsChange:true, currentFilterName:currentFilterName};
+        var resultObj = {needsChange:false, currentFilterName:currentFilterName};
         ko.windowManager.openDialog("chrome://places/content/manageViewFilters.xul",
                                     "_blank",
                                     "chrome,all,dialog=yes,modal=yes",
                                     resultObj);
         if (resultObj.needsChange) {
             ko.places.updateFilterViewMenu();
-            var filterName = resultObj.currentFilterName;
-            if (filterName) {
-                ko.places.viewMgr.placeView_selectCustomView(filterName);
+            var viewName = resultObj.currentFilterName;
+            if (viewName) {
+                ko.places.viewMgr.placeView_updateView(viewName);
             }
         }
     },
@@ -1086,8 +1104,10 @@ viewMgrClass.prototype = {
         } else if (viewName == "*") {
             this.placeView_viewAll();
             return viewName;
-        }
-        else if (!filterPrefs.hasPref(viewName)) {
+        } else if (viewName == CURRENT_PROJECT_FILTER_NAME) {
+            this.placeView_currentProject();
+            return viewName;
+        } else if (!filterPrefs.hasPref(viewName)) {
             // do default.
         } else {
             if (this.placeView_selectCustomView(viewName)) {
@@ -1357,20 +1377,35 @@ ManagerClass.prototype = {
                     }
                     var viewName = null;
                     var prefSet;
-                    if (uriSpecificPrefs.hasPref(dirURI)) {
-                        prefSet = uriSpecificPrefs.getPref(dirURI);
-                        try {
-                            viewName = prefSet.getStringPref('viewName')
-                        } catch(ex) {}
-                        var finalViewName = gPlacesViewMgr.placeView_updateView(viewName);
-                        if (finalViewName != viewName) {
-                            prefSet.setStringPref('viewName', finalViewName)
+                    var project = ko.projects.manager.currentProject;
+                    if (project) {
+                        if (!projectSpecificFilterPrefs.hasPref(project.url)) {
+                            viewName = CURRENT_PROJECT_FILTER_NAME;
+                            prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+                            projectSpecificFilterPrefs.setPref(project.url, prefSet);
+                            prefSet.setStringPref("viewName", viewName);
+                        } else {
+                            prefSet = projectSpecificFilterPrefs.getPref(project.url);
+                            viewName = prefSet.getStringPref("viewName");
                         }
-                    } else {
-                        var finalViewName = gPlacesViewMgr.placeView_updateView(null);
-                        prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
-                        prefSet.setStringPref('viewName', finalViewName);
-                        uriSpecificPrefs.setPref(dirURI, prefSet);
+                        gPlacesViewMgr.placeView_updateView(viewName);
+                    }
+                    if (viewName === null) {
+                        if (uriSpecificPrefs.hasPref(dirURI)) {
+                            prefSet = uriSpecificPrefs.getPref(dirURI);
+                            try {
+                                viewName = prefSet.getStringPref('viewName')
+                                    } catch(ex) {}
+                            var finalViewName = gPlacesViewMgr.placeView_updateView(viewName);
+                            if (finalViewName != viewName) {
+                                prefSet.setStringPref('viewName', finalViewName)
+                                    }
+                        } else {
+                            var finalViewName = gPlacesViewMgr.placeView_updateView(null);
+                            prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+                            prefSet.setStringPref('viewName', finalViewName);
+                            uriSpecificPrefs.setPref(dirURI, prefSet);
+                        }
                     }
                     if (onSuccess) {
                         try {
@@ -2229,6 +2264,11 @@ ManagerClass.prototype = {
                 // Delay, because at startup the tree might not be
                 // fully initialized.
                 setTimeout(function() {
+                        var currentProjectFilterPrefs = filterPrefs.getPref(CURRENT_PROJECT_FILTER_NAME);
+                        ["include_matches", "exclude_matches"].map(function(name) {
+                                currentProjectFilterPrefs.setStringPref(name,
+                                                                        project.prefset.getStringPref("import_" + name));
+                });
                         ko.places.manager.openDirURI(targetDirURI);
                     }, 100);
             }
@@ -2403,14 +2443,40 @@ this.onLoad = function places_onLoad() {
         var prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
         prefSet.setStringPref("exclude_matches", DEFAULT_EXCLUDE_MATCHES);
         prefSet.setStringPref("include_matches", DEFAULT_INCLUDE_MATCHES);
-        prefSet.setBooleanPref("readonly", true);
         filterPrefs.setPref(defaultName, prefSet);
     }
+    defaultName = "View All";
+    if (!filterPrefs.hasPref(defaultName)) {
+        prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+        prefSet.setStringPref("exclude_matches", "");
+        prefSet.setStringPref("include_matches", "");
+        filterPrefs.setPref(defaultName, prefSet);
+    }
+    defaultName = CURRENT_PROJECT_FILTER_NAME;
+    if (!filterPrefs.hasPref(defaultName)) {
+        prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+        prefSet.setStringPref("exclude_matches", "");
+        prefSet.setStringPref("include_matches", "");
+        filterPrefs.setPref(CURRENT_PROJECT_FILTER_NAME, prefSet);
+    }
+    [_bundle.GetStringFromName("default"), "View All",
+     CURRENT_PROJECT_FILTER_NAME].map(function(name) {
+             prefSet = filterPrefs.getPref(name);
+             prefSet.setBooleanPref("builtin", true);
+             prefSet.setBooleanPref("readonly", true);
+         });
+    
     if (!_placePrefs.hasPref('current_filter_by_uri')) {
         uriSpecificPrefs = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
         _placePrefs.setPref('current_filter_by_uri', uriSpecificPrefs);
     } else {
         uriSpecificPrefs = _placePrefs.getPref('current_filter_by_uri');
+    }
+    if (!_placePrefs.hasPref('current_project_filter_by_uri')) {
+        projectSpecificFilterPrefs = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+        _placePrefs.setPref('current_project_filter_by_uri', projectSpecificFilterPrefs);
+    } else {
+        projectSpecificFilterPrefs = _placePrefs.getPref('current_project_filter_by_uri');
     }
 
     var showInFinderMenuItem = document.getElementById("placesContextMenu_showInFinder");
@@ -2684,19 +2750,25 @@ this.updateFilterViewMenu = function() {
     var defaultName = _bundle.GetStringFromName("default");
     var sep = document.getElementById("places_manage_view_separator");
     var menuitem;
+    var addedCustomFilter = false;
     ids.map(function(prefName) {
-        if (prefName == defaultName) {
-            // It's already there.
-            return;
+        if (!filterPrefs.getPref(prefName).hasBooleanPref("builtin")) {
+            menuitem = document.createElementNS(XUL_NS, 'menuitem');
+            menuitem.setAttribute("id", "places_custom_filter_" + prefName);
+            menuitem.setAttribute('label',  prefName);
+            menuitem.setAttribute("type", "checkbox");
+            menuitem.setAttribute("checked", "false");
+            menuitem.setAttribute("oncommand", "ko.places.viewMgr.placeView_selectCustomView('" + prefName + "');");
+            menupopup.insertBefore(menuitem, sep);
+            addedCustomFilter = true;
         }
-        menuitem = document.createElementNS(XUL_NS, 'menuitem');
-        menuitem.setAttribute("id", "places_custom_filter_" + prefName);
-        menuitem.setAttribute('label',  prefName);
-        menuitem.setAttribute("type", "checkbox");
-        menuitem.setAttribute("checked", "false");
-        menuitem.setAttribute("oncommand", "ko.places.viewMgr.placeView_selectCustomView('" + prefName + "');");
-        menupopup.insertBefore(menuitem, sep);    
     });
+    if (addedCustomFilter) {
+        menuitem = document.createElementNS(XUL_NS, 'menuseparator');
+        menuitem.id = "popup_parent_directories:sep:customViews";
+        menupopup.insertBefore(menuitem,
+                               document.getElementById("placeView_viewAll").nextSibling);
+    }
 };
 
 xtk.include("treeview");

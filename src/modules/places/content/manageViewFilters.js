@@ -66,7 +66,7 @@ function wrapOnLoad() {
     var obj = {};
     filterPrefs.getPrefIds(obj, {});
     var defaultName = _bundle.GetStringFromName("default");
-    var prefNames = obj.value.filter(function(x) { return x != defaultName });
+    var prefNames = obj.value;
     prefNames.map(function(prefName) {
         var filter = filterPrefs.getPref(prefName);
         filterPrefValues[prefName] = {
@@ -77,9 +77,18 @@ function wrapOnLoad() {
             isNew:            false,
             __EOF_:           null // allow comma on last real item.
         };
-        widgets.configNameMenu.appendItem(prefName, prefName);
+        if (filter.hasPref("builtin")
+            && filter.getBooleanPref("builtin")
+            && prefName == opener.ko.places.CURRENT_PROJECT_FILTER_NAME
+            && !opener.ko.projects.manager.currentProject) {
+            // Don't add this one
+            delete filterPrefValues[prefName];
+        } else {
+            widgets.configNameMenu.appendItem(prefName, prefName);
+        }
     });
-    currentFilterName = prefNames[0];
+    currentFilterName = (g_ResultObj.currentFilterName
+                         || widgets.configNameMenu.childNodes[0].childNodes[0].label);
     var currentFilter = filterPrefValues[currentFilterName];
     setup_widgets(currentFilter);
     var currentViewName = g_ResultObj.currentFilterName;
@@ -121,6 +130,18 @@ function wrap_doChangeFilter(target) {
         return;
     }
     var oldFilter = grabCurrentWidgetValues(currentFilterName);
+    if (oldFilter.dirty) {
+        var prompt = _bundle.formatStringFromName('saveChangesToChangedFilters.format',
+                                                  [currentFilterName], 1);
+        var res = opener.ko.dialogs.yesNoCancel(prompt, "Yes");
+        if (res == "Cancel") {
+            return;
+        } else if (res == "Yes") {
+            prefSet = filterPrefs.getPref(currentFilterName);
+            prefSet.setStringPref("exclude_matches", oldFilter.exclude_matches);
+            prefSet.setStringPref("include_matches", oldFilter.include_matches);
+        }
+    }
     var i = 0;
     var newFilter = filterPrefValues[currentFilterName = newFilterName];
     setup_widgets(newFilter);
