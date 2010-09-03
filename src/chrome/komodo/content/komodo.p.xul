@@ -709,12 +709,11 @@
                                               class="menuitem-iconic new-template-icon"
                                               observes="cmd_newTemplate"
                                               />
-                                    <menuitem
-                                        id="menu_newWindow"
-                                        label="&newWindow.label;"
-                                        accesskey="&newWindow.accesskey;"
-                                        observes="cmd_newWindow"
-                                    />
+                                    <menuitem id="menu_newWindow"
+                                              label="&newWindow.label;"
+                                              accesskey="&newWindow.accesskey;"
+                                              observes="cmd_newWindow"
+                                              />
                                     <menuseparator id="separator_mruTemplates"/>
                                     <!-- menuitems are added dynamically for each
                                          entry in the file MRU -->
