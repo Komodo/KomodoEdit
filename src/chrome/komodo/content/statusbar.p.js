@@ -109,6 +109,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 var _file_pref_bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
         .getService(Components.interfaces.nsIStringBundleService)
         .createBundle("chrome://komodo/locale/pref/file-properties.properties");
+var updateMessageRequestID = 0;
 
 //_log.setLevel(ko.logging.LOG_DEBUG);
 
@@ -416,7 +417,7 @@ function _addMessageObject(sm)
         // Allow for some inaccuracy in timeout scheduling to ensure that
         // the message has actually timed-out before updating.
         var epsilon = 300;
-        setTimeout(_updateMessage, sm.timeout+epsilon);
+        updateMessageRequestID = setTimeout(_updateMessage, sm.timeout+epsilon);
     }
 }
 
@@ -426,6 +427,7 @@ function _updateMessage()
     //_messageStack.Dump();
 
     // Get the latest message and show it in the UI.
+    updateMessageRequestID = 0;
     var sm = _messageStack.Top();
     var messageWidget = document.getElementById('statusbar-message');
     if (sm) {
@@ -498,6 +500,10 @@ StatusBarObserver.prototype.destroy = function()
                                this.handle_current_view_linecol_changed, false);
     window.removeEventListener('view_closed',
                                this.handle_current_view_open_or_closed, false);
+    if (updateMessageRequestID) {
+        clearTimeout(updateMessageRequestID);
+        updateMessageRequestID = 0;
+    }    
     _messageStack = null;
     _observer = null;
     _prefObserver = null; 
