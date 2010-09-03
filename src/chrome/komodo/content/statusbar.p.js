@@ -428,6 +428,11 @@ function _updateMessage()
 
     // Get the latest message and show it in the UI.
     updateMessageRequestID = 0;
+    if (!_messageStack) {
+        // This shouldn't happen, since I'm doing a clearTimeout on
+        // updateMessageRequestID at shutdown, but allow for it anyway.
+        return;
+    }
     var sm = _messageStack.Top();
     var messageWidget = document.getElementById('statusbar-message');
     if (sm) {
