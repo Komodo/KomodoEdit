@@ -36,8 +36,7 @@
 
 /* A wizard to import files from disk into an existing Komodo project. */
 
-var dirname, include, exclude, importType, recursive, flat, itype, dirs, part, importLive;
-var dialog;
+var dirname, include, exclude, importLive, project, browse_import_dirname;
 
 function PrefFolderImport_OnLoad() {
     parent.hPrefWindow.onpageload();
@@ -48,28 +47,28 @@ function OnPreferencePageLoading(prefset) {
     include = document.getElementById('import_include_matches');
     exclude = document.getElementById('import_exclude_matches');
     importLive = document.getElementById('import_live');
-    recursive = document.getElementById('recursive');
-    importType= document.getElementById('import_type');
-    flat = document.getElementById('flat');
-    dirs = document.getElementById('dirs');
 
     // set the dirname if the pref is not already set
-    if (!prefset.hasPrefHere("import_live") && typeof(parent.part) != 'undefined' && parent.part) {
+    project = ((typeof(parent.part) != 'undefined' && parent.part)
+               ? parent.part.project : null);
+    if (!project) {
+        dump("**************** pref-folderImport.js -- no project found\n");
+    }
+    if (project && !prefset.hasPrefHere("import_live")) {
         // get real value from project itself
-        importLive.checked = parent.part.live;
-        if (parent.part.live) {
-            dirname.value = parent.part.liveDirectory;
+        importLive.checked = project.live;
+        if (project.live) {
+            dirname.value = project.liveDirectory;
         }
     }
     PrefFolderImport_updateLive();
-    PrefFolderImport_updateRecursive();
 }
 
 function OnPreferencePageOK(prefset) {
-    if (typeof(parent.part) != 'undefined' && parent.part) {
+    if (project) {
         // if the pref was not previously set, and the dirname is unchanged,
         // do not set the pref
-        if (!importLive.checked || dirname.value == parent.part.liveDirectory) {
+        if (!importLive.checked || dirname.value == project.liveDirectory) {
             prefset.deletePref("import_dirname");
         }
     }
@@ -82,28 +81,10 @@ function PrefFolderImport_doBrowseForDir() {
     if (dir) dirname.value = dir;
 };
 
-function PrefFolderImport_updateRecursive()
-{
-    if (recursive.checked)  {
-        dirs.removeAttribute('disabled');
-    } else {
-        if (importType.selectedIndex == 0) {
-            importType.selectedIndex = 2;  /* Gotta change it if we're disabling recursive */
-        };
-        dirs.setAttribute('disabled', 'true');
-    }
-};
-
 function PrefFolderImport_updateLive() {
     if (importLive.checked) {
-        // disable items that are not used with live folders
-        recursive.setAttribute('disabled','true');
-        importType.setAttribute('disabled','true');
-        if (!dirname.value && parent.part) {
-            dirname.value = parent.part.liveDirectory;
+        if (!dirname.value && project) {
+            dirname.value = project.liveDirectory;
         }
-    } else {
-        recursive.removeAttribute('disabled');
-        importType.removeAttribute('disabled');
     }
 }

@@ -2227,26 +2227,30 @@ ManagerClass.prototype = {
     
     _getActualProjectDir: function(project) {
         try {
-            var prefset = project.prefset
-            var baseDir = prefset.getStringPref("import_dirname");
-            if (baseDir) {
-                var baseURI = ko.uriparse.localPathToURI(baseDir);
-                if (baseURI) {
-                    return baseURI;
+            var prefset = project.prefset;
+            // import_live only if the pref is set to false
+            var import_live = (!prefset.hasPref("import_live")
+                               || prefset.getBooleanPref("import_live"));
+            if (import_live) {
+                var importedDirs = {};
+                project.getChildrenByType('livefolder', true, importedDirs, {});
+                importedDirs = importedDirs.value;
+                if (importedDirs.length == 1) {
+                    var uri = importedDirs[0].url;
+                    var koFileEx = Components.classes["@activestate.com/koFileEx;1"].
+                        createInstance(Components.interfaces.koIFileEx);
+                    koFileEx.URI = uri;
+                    if (koFileEx.exists) {
+                        return uri;
+                    }
                 }
-            } else if (prefset.hasPref("import_live")) {
-                var import_live = prefset.getBooleanPref("import_live");
-                if (!import_live) {
-                    var importedDirs = {};
-                    project.getChildrenByType('livefolder', true, importedDirs, {});
-                    importedDirs = importedDirs.value;
-                    if (importedDirs.length == 1) {
-                        var uri = importedDirs[0].url;
-                        var koFileEx = Components.classes["@activestate.com/koFileEx;1"].
-                            createInstance(Components.interfaces.koIFileEx);
-                        koFileEx.URI = uri;
-                        if (koFileEx.exists) {
-                            return uri;
+                // If that didn't work, try the import_dirname pref
+                if (prefset.hasStringPref("import_dirname")) {
+                    var baseDir = prefset.getStringPref("import_dirname");
+                    if (baseDir) {
+                        var baseURI = ko.uriparse.localPathToURI(baseDir);
+                        if (baseURI) {
+                            return baseURI;
                         }
                     }
                 }
@@ -2296,6 +2300,9 @@ ManagerClass.prototype = {
 function ItemWrapper(uri, type) {
     this.uri = uri;
     this.type = type; // one of 'file', 'folder', or 'project'
+    if (type == 'project') {
+        this.project = ko.projects.manager.currentProject;
+    }
 }
 ItemWrapper.prototype.__defineGetter__("file", function() {
     return this.getFile();
@@ -2322,9 +2329,9 @@ ItemWrapper.prototype.__defineGetter__("prefset", function() {
             return view.prefs;
         }        
     }
-    var currentProject = ko.projects.manager.currentProject;
-    return currentProject ? currentProject.prefset : null;
+    return this.project && this.project.prefset;
 });
+            
 
 this.getItemWrapper = function(url, type) {
     return new ItemWrapper(url, type);
@@ -2590,9 +2597,8 @@ this._openProject = function(inNewWindow) {
 };
 
 this.editProjectProperties = function() {
-    ko.projects.fileProperties(
-        ko.places.getItemWrapper(
-            ko.projects.manager.currentProject.url, 'project'));
+    var item = ko.places.getItemWrapper(ko.projects.manager.currentProject.url, 'project');
+    ko.projects.fileProperties(item, null, true);
 };
 
 this.getFocusedPlacesView = function() {

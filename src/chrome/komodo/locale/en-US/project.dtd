@@ -59,9 +59,7 @@
 <!ENTITY general.label "General">
 <!ENTITY guidANewGUID.label "[[&#37;guid]]: A new GUID">
 <!ENTITY helpOnShortcuts.label "Help on Shortcuts...">
-<!ENTITY importDirectoryStructure.label "Import directory structure">
 <!ENTITY importFromFileSystem.title "Import from File System">
-<!ENTITY importSubdirectoriesRecursively.label "Import Subdirectories Recursively">
 <!ENTITY javaScript.accesskey "j">
 <!ENTITY javaScript.label "JavaScript">
 <!ENTITY k.accesskey "k">
@@ -72,8 +70,6 @@
 <!ENTITY macroShouldTriggerOnAKomodoEvent.label "Macro should trigger on a Komodo event">
 <!ENTITY maintainIndentationContextAfterInsertion.label "Maintain indentation context after insertion">
 <!ENTITY maintainSelectedTextOrCursorPositionAfterInsertion.label "Maintain selected text or cursor position after insertion">
-<!ENTITY makeAFolderPerLanguage.label "Make a folder per language">
-<!ENTITY makeOneFlatList.label "Make one flat list">
 <!ENTITY onASystemNotification.label "On a system notification:">
 <!ENTITY onShutdownTheMacroCanReturnTrueToPreventShutdown.label "On shutdown (the macro can return true to prevent shutdown)">
 <!ENTITY onStartup.label "On startup">
@@ -125,11 +121,6 @@
 <!ENTITY filesToInclude.label "Files to include: (empty means 'all')">
 <!ENTITY filesToExclude.label "Files and directories to exclude: (empty means 'none')">
 <!ENTITY filePropertiesNA.label "N/A">
-
-<!--importFromFS.xul-->
-<!ENTITY directoryImportFrom.label "Directory to import from:">
-<!ENTITY browseForDyrectoryLoc.label "Browse for directory location:">
-<!ENTITY typeFolderStructure.label "Type of folder structure to create:">
 
 <!--macroProperties.xul-->
 <!ENTITY language.label "Language: ">

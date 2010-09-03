@@ -814,7 +814,8 @@ projectManager.prototype.doCommand = function(command) {
         this.revertProject(this.getSelectedProject());
         break;
     case "cmd_projectProperties":
-        ko.projects.fileProperties(ko.places.getItemWrapper(this.getSelectedProject().url, 'project'));
+        var item = ko.places.getItemWrapper(this.getSelectedProject().url, 'project');
+        ko.projects.fileProperties(item, null, true);
         break;
     case "cmd_renameProject":
         ko.projects.renameProject(this.getSelectedProject());

@@ -71,7 +71,7 @@
                 <label value="&directoryImportFrom.label;" class="kopadded"/>
                 <hbox align="center">
                     <textbox id="import_dirname" pref="true" flex="1" />
-                    <button label="&browse.label;" oncommand="PrefFolderImport_doBrowseForDir()" />
+                    <button label="&browse.label;" id="browse_import_dirname" oncommand="PrefFolderImport_doBrowseForDir()" />
                 </hbox>
                 <separator class="thin"/>
                 <label value="&filesToInclude.label;"/>
@@ -79,21 +79,6 @@
                 <separator class="thin"/>
                 <label value="&filesToExclude.label;"/>
                 <textbox id="import_exclude_matches" pref="true" value=""/>
-                <separator class="thin"/>
-                <checkbox id="recursive" label="&importSubdirectoriesRecursively.label;"
-                    oncommand="PrefFolderImport_updateRecursive()"
-                    pref="true" prefstring="import_recursive" />
-                <separator class="thin"/>
-                <label value="&typeFolderStructure.label;"/>
-                <menulist id="import_type"
-                          pref="true"
-                          prefattribute="data">
-                    <menupopup>
-                        <menuitem id="dirs" data="useFolders" label="&importDirectoryStructure.label;"/>
-                        <menuitem data="groupByType" label="&makeAFolderPerLanguage.label;"/>
-                        <menuitem id="flat" data="makeFlat" label="&makeOneFlatList.label;"/>
-                    </menupopup>
-                </menulist>
             </vbox>
         </groupbox>
 
