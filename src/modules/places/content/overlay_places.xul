@@ -132,6 +132,12 @@
           disabled="true"
           desc="&placeView_defaultView.desc;"/>
       <command
+          id="cmd_placeView_currentProject"
+          key="key_cmd_placeView_currentProject"
+          oncommand="ko.commands.doCommandAsync('cmd_placeView_currentProject', event)"
+          disabled="true"
+          desc="&placeView_currentProject.desc;"/>
+      <command
           id="cmd_placeView_viewAll"
           key="key_cmd_placeView_viewAll"
           oncommand="ko.commands.doCommandAsync('cmd_placeView_viewAll', event)"
@@ -482,6 +488,11 @@
               <menuitem id="placeView_defaultView"
                   observes="cmd_placeView_defaultView"
                   label="&defaultView.label;"
+                  checked="true"
+                  type="checkbox" />
+              <menuitem id="placeView_currentProject"
+                  observes="cmd_placeView_currentProject"
+                  label="&currentProjectView.label;"
                   checked="true"
                   type="checkbox" />
               <menuitem id="placeView_viewAll"

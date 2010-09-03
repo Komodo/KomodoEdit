@@ -1020,6 +1020,25 @@ viewMgrClass.prototype = {
         this._updateCurrentUriViewPref("Default");
     },
 
+    placeView_currentProject: function() {
+        var project = ko.projects.manager.currentProject;
+        if (!project) {
+            this.placeView_defaultView();
+            return;
+        }
+        gPlacesViewMgr._uncheckAll();
+        widgets.placeView_currentProject_menuitem.setAttribute('checked', 'true');
+        this._updateCurrentUriViewPref("currentProject");
+        var prefset = project.prefset;
+        try {
+            gPlacesViewMgr.view.setMainFilters(prefset.getStringPref('import_exclude_matches'),
+                                           prefset.getStringPref('import_include_matches'));
+        } catch(ex) {
+            log.exception("getting prefs failed: " + ex + "\n");
+            this.placeView_defaultView();
+        }
+    },
+
     placeView_viewAll: function() {
         gPlacesViewMgr.view.setMainFilters("", "");
         gPlacesViewMgr._uncheckAll();
@@ -2415,6 +2434,8 @@ this.onLoad = function places_onLoad() {
     widgets.defaultFolderIconSrc = widgets.rootButton.getAttribute('image');
     widgets.placeView_defaultView_menuitem =
         document.getElementById("placeView_defaultView");
+    widgets.placeView_currentProject_menuitem =
+        document.getElementById("placeView_currentProject");
     widgets.placeView_viewAll_menuitem =
         document.getElementById("placeView_viewAll");
     widgets.placeView_customView_menuitem =

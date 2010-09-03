@@ -65,7 +65,8 @@ function wrapOnLoad() {
     filterPrefs = placePrefs.getPref("filters");
     var obj = {};
     filterPrefs.getPrefIds(obj, {});
-    var prefNames = obj.value;
+    var defaultName = _bundle.GetStringFromName("default");
+    var prefNames = obj.value.filter(function(x) { return x != defaultName });
     prefNames.map(function(prefName) {
         var filter = filterPrefs.getPref(prefName);
         filterPrefValues[prefName] = {
@@ -218,13 +219,12 @@ function OK() {
 }
 function wrap_OK() {
     var madeChange = false;
-    grabCurrentWidgetValues(currentFilterName);
+    var currentFilter = grabCurrentWidgetValues(currentFilterName);
     for (var filterName in filterPrefValues) {
-        var filter = filterPrefValues[filterName];
         var prefSet = null;
         var isNew = false;
-        if (filter.dirty) {
-            if (!filter.isNew) {
+        if (currentFilter.dirty) {
+            if (!currentFilter.isNew) {
                 try {
                     prefSet = filterPrefs.getPref(filterName);
                 } catch(ex) {
@@ -236,8 +236,8 @@ function wrap_OK() {
                 var prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
                 isNew = true;
             }
-            prefSet.setStringPref("exclude_matches", filter.exclude_matches);
-            prefSet.setStringPref("include_matches", filter.include_matches);
+            prefSet.setStringPref("exclude_matches", currentFilter.exclude_matches);
+            prefSet.setStringPref("include_matches", currentFilter.include_matches);
             prefSet.setBooleanPref("readonly", false);
             if (isNew) {
                 filterPrefs.setPref(filterName, prefSet);
@@ -251,6 +251,9 @@ function wrap_OK() {
     //if (madeChange) {
     //    placePrefs.setPref("filters", filterPrefs);
     //}
+    if (!madeChange && g_ResultObj.currentFilterName != currentFilterName) {
+        madeChange = true;
+    }
     if (madeChange) {
         g_ResultObj.needsChange = madeChange;
         g_ResultObj.currentFilterName = currentFilterName;

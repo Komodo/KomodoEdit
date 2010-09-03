@@ -50,6 +50,7 @@
 <!ENTITY placesView.tooltiptext "Places Tools">
 <!ENTITY addItemToCurrentPlace.tooltiptext "Add Item to current place">
 <!ENTITY defaultView.label "Default View">
+<!ENTITY currentProjectView.label "Current Project View">
 <!ENTITY viewAll.label "View All">
 <!ENTITY manageCustomViews.label "Manage Views...">
 
@@ -62,6 +63,7 @@
 <!ENTITY replaceInPlace.desc "Places: Search and replace in this file/folder's directory.">
 <!ENTITY deletePlaceItem.desc "Places: Move this item to the system trash.">
 <!ENTITY placeView_defaultView.desc "Places: Filter out typically unwanted items like dotfiles.">
+<!ENTITY placeView_currentProject.desc "Places: Use the filter associated with the current project.">
 <!ENTITY placeView_viewAll.desc "Places: View everything.">
 <!ENTITY placeView_customView.desc "Places: Manage custom view filters.">
 

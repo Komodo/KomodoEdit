@@ -191,6 +191,18 @@ PlacesController.prototype.do_cmd_placeView_defaultView = function() {
     ko.places.viewMgr.placeView_defaultView();
 }
 
+PlacesController.prototype.is_cmd_placeView_currentProject_enabled = function() {
+    return !!ko.projects.manager.currentProject;
+}
+
+PlacesController.prototype.do_cmd_placeView_currentProject = function() {
+    if (!this.is_cmd_placeView_currentProject_enabled()) {
+        this.log.debug("do_cmd_placeView_currentProject: invoked, but not enabled");
+        return;
+    }
+    ko.places.viewMgr.placeView_currentProject();
+}
+
 PlacesController.prototype.is_cmd_placeView_viewAll_enabled = function() {
     return true;
 }
