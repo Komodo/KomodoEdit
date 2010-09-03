@@ -63,14 +63,10 @@
     <vbox id="folder-import-prefs-vbox" flex="1" class="autoscroll">
 
         <groupbox id="importFrame" name="importFrame" orient="vertical" flex="1">
-            <caption label="&specifyFilesToAddIntoTheCurrentFolder.label;" class="kopadded"/>
+            <caption label="&specifyTheProjectsActualLocation.label;" class="kopadded"/>
             <vbox flex="1">
-                <checkbox id="import_live" label="&liveImport.label;"
-                          oncommand="PrefFolderImport_updateLive()"
-                          pref="true" prefstring="import_live" />
-                <label value="&directoryImportFrom.label;" class="kopadded"/>
                 <hbox align="center">
-                    <textbox id="import_dirname" pref="true" flex="1" />
+                    <textbox id="import_dirname" pref="true" prefstring="import_dirname" flex="1" />
                     <button label="&browse.label;" id="browse_import_dirname" oncommand="PrefFolderImport_doBrowseForDir()" />
                 </hbox>
                 <separator class="thin"/>

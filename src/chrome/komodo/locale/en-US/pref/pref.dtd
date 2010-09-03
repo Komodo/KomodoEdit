@@ -409,7 +409,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY signs.label "+/- signs">
 <!ENTITY smartEditing.label "Smart Editing">
 <!ENTITY sourceCodeControlProperties.label "Source Code Control Properties">
-<!ENTITY specifyFilesToAddIntoTheCurrentFolder.label "Specify files to add into the current folder">
+<!ENTITY specifyTheProjectsActualLocation.label "Specify the folder associated with this project.">
 <!ENTITY squareTrees.label "Square Trees">
 <!ENTITY startOfLine.label "Start of line">
 <!ENTITY startPage.label "Start Page">
@@ -596,7 +596,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY findSkipFilesLargerThan.label "Larger than:">
 
 <!--pref-folderimport.xul-->
-<!ENTITY directoryImportFrom.label "Directory to import from">
 <!ENTITY filesToInclude.label "Files to include: (empty means 'all')">
 <!ENTITY filesToExclude.label "Files and directories to exclude: (empty means 'none')">
 <!ENTITY typeFolderStructure.label "Type of folder structure to create:">
@@ -686,6 +685,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePrefPhpInifileDirectory.description "Directory containing php.ini">
 <!ENTITY phpFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
 <!ENTITY commentStyle.label "Comment Style:">
+<!ENTITY syntaxCheckWithINIFile.label "Load php.ini during syntax checking:">
+<!ENTITY useINI.accesskey "I">
 
 <!--pref-python.xul-->
 <!ENTITY noPythonInterpreter.description "No Python interpreter was found on your system PATH. If you would like to debug and run Python programs in Komodo you will need to have Python installed and then enter the path to your Python interpreter below. You can get Python from ActiveState at">

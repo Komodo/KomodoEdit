@@ -2228,10 +2228,16 @@ ManagerClass.prototype = {
     _getActualProjectDir: function(project) {
         try {
             var prefset = project.prefset;
-            // import_live only if the pref is set to false
+            
+            // Bug 87843:
+            // import_live means that Komodo is pointing at another
+            // directory.  v5 does this via the import_live boolean pref
+            // and then the project.livefolder attribute.  v6 just looks
+            // at the import_dirname field, which is also used in v5.
             var import_live = (!prefset.hasPref("import_live")
                                || prefset.getBooleanPref("import_live"));
-            if (import_live) {
+            if (!import_live) {
+                // First check v5 legacy projects.
                 var importedDirs = {};
                 project.getChildrenByType('livefolder', true, importedDirs, {});
                 importedDirs = importedDirs.value;

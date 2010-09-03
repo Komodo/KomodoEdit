@@ -46,33 +46,15 @@ function OnPreferencePageLoading(prefset) {
     dirname = document.getElementById('import_dirname');
     include = document.getElementById('import_include_matches');
     exclude = document.getElementById('import_exclude_matches');
-    importLive = document.getElementById('import_live');
 
     // set the dirname if the pref is not already set
     project = ((typeof(parent.part) != 'undefined' && parent.part)
                ? parent.part.project : null);
     if (!project) {
         dump("**************** pref-folderImport.js -- no project found\n");
+    } else {
+        dirname.value = project.liveDirectory;
     }
-    if (project && !prefset.hasPrefHere("import_live")) {
-        // get real value from project itself
-        importLive.checked = project.live;
-        if (project.live) {
-            dirname.value = project.liveDirectory;
-        }
-    }
-    PrefFolderImport_updateLive();
-}
-
-function OnPreferencePageOK(prefset) {
-    if (project) {
-        // if the pref was not previously set, and the dirname is unchanged,
-        // do not set the pref
-        if (!importLive.checked || dirname.value == project.liveDirectory) {
-            prefset.deletePref("import_dirname");
-        }
-    }
-    return true;
 }
 
 // Utility functions for the various panels.
@@ -80,11 +62,3 @@ function PrefFolderImport_doBrowseForDir() {
     var dir = ko.filepicker.getFolder(dirname.value);
     if (dir) dirname.value = dir;
 };
-
-function PrefFolderImport_updateLive() {
-    if (importLive.checked) {
-        if (!dirname.value && project) {
-            dirname.value = project.liveDirectory;
-        }
-    }
-}
