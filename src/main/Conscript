@@ -100,6 +100,20 @@ if ($platform ne "win" && $platform ne "darwin") { # i.e. GTK
                      "komodo48.$productType.png");
 }
 
+# Install these images into the Komodo chrome, so the application UI can make
+# use of them as well.
+$cons->InstallAs("$mozBin/chrome/komodo/skin/images/komodo_16x16.png",
+                 "komodo16.$productType.png");
+$cons->InstallAs("$mozBin/chrome/komodo/skin/images/komodo_32x32.png",
+                 "komodo32.$productType.png");
+$cons->InstallAs("$mozBin/chrome/komodo/skin/images/komodo_48x48.png",
+                 "komodo48.$productType.png");
+$cons->InstallAs("$mozBin/chrome/komodo/skin/images/komodo_64x64.png",
+                 "komodo64.$productType.png");
+$cons->InstallAs("$mozBin/chrome/komodo/skin/images/komodo_128x128.png",
+                 "komodo128.$productType.png");
+$cons->InstallAs("$mozBin/chrome/komodo/skin/images/komodo_256x256.png",
+                 "komodo256.$productType.png");
 
 
 # XRE-based Komodo startup:
