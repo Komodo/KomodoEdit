@@ -743,7 +743,6 @@
                                     <menuitem id="close_tab_menuitem"
                                               label="&closeTab.menuitem.label;"
                                               accesskey="&closeTab.menuitem.accesskey;"
-                                              class="menuitem-iconic close-buffer-icon"
                                               observes="cmd_bufferClose"
                                         />
                                     <menuitem id="close_other_tabs_menuitem"
