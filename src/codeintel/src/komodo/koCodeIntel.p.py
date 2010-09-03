@@ -1155,9 +1155,6 @@ class KoCodeIntelService:
         self._wrappedSelf = WrapObject(self, components.interfaces.nsIObserver)
         obsSvc.addObserver(self._wrappedSelf, 'quit-application', True)
 
-        #TODO: Currently this never gets cleared.
-        self._proj_env_from_proj_id_cache = {}
-
     def _genDBCatalogDirs(self):
         """Yield all possible dirs in which to look for API Catalogs.
 
@@ -1277,14 +1274,6 @@ class KoCodeIntelService:
             return None
         prefset = doc.prefs
         if prefset is not None:
-            if doc.file and doc.file.URI:
-                proj = self.partSvc.getProjectForURL(doc.file.URI)
-                if proj:
-                    if proj.id not in self._proj_env_from_proj_id_cache:
-                        self._proj_env_from_proj_id_cache[proj.id] \
-                            = KoCodeIntelEnvironment(proj, prefset=doc.prefs)
-                    proj_env = self._proj_env_from_proj_id_cache[proj.id]
-                    return proj_env
             env = KoCodeIntelEnvironment(proj=None, prefset=prefset)
             return env
         return None
