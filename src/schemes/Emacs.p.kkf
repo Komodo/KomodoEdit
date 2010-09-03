@@ -173,6 +173,7 @@ binding cmd_linePrevious  Ctrl+P
 binding cmd_lineScrollUp  Ctrl+Up
 binding cmd_lineScrollUp  Ctrl+Z
 binding cmd_selectLinePrevious  Shift+Up
+binding cmd_fontZoomIn Ctrl++
 binding cmd_fontZoomIn Ctrl+=
 binding cmd_fontZoomIn Ctrl+Shift++
 binding cmd_fontZoomIn Ctrl+Shift+=

@@ -163,6 +163,7 @@ binding cmd_reopenLastClosedTab Ctrl+Shift+T
 binding cmd_toggleButtonText Ctrl+Shift+B
 
 # Zoom
+binding cmd_fontZoomIn Ctrl++
 binding cmd_fontZoomIn Ctrl+=
 binding cmd_fontZoomIn Ctrl+Shift++
 binding cmd_fontZoomIn Ctrl+Shift+=
