@@ -584,7 +584,6 @@
         <menuseparator id="tabContextMenu_separator_1" />
 
         <menuitem id="menu_save2"
-                  class="menuitem-iconic save-buffer-icon"
                   observes="cmd_save"
                   label="&save.label;"/>
         <menu id="menu_saveAsSubMenu"
