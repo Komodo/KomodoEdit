@@ -147,6 +147,10 @@ class Buffer(object):
     def lang_from_pos(self, pos):
         return self.lang
 
+    def set_project(self, project):
+        if self.env:
+            self.env.set_project(project)
+
     def trg_from_pos(self, pos, implicit=True):
         """If the given position is a _likely_ trigger point, return a
         relevant Trigger instance. Otherwise return the None.

@@ -717,6 +717,16 @@ if (typeof(ko.codeintel)=='undefined') {
 
         var scimoz = view.scimoz;
         var ciBuffer = view.koDoc.ciBuf;
+
+        // Hack: Assign the project on this buffer. Would prefer if this was
+        //       managed by the codeintel system itself, but at present there is
+        //       a disconnect between projects (which are per window) and the
+        //       codeintel service (which is a singleton).
+        var currentProject = ko.projects.manager.currentProject;
+        if (currentProject) {
+            ciBuffer.project = currentProject;
+        }
+
         var trg = ciBuffer.trg_from_pos(scimoz.currentPos, true);
         if (!trg) {
             // Do nothing.

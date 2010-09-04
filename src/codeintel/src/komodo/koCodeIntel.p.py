@@ -108,15 +108,11 @@ class KoCodeIntelEnvironment(Environment):
         "codeintel_max_recursive_dir_depth": "long",
     }
 
+    name = "Default"
+    _unwrapped_proj_weakref = None
+
     def __init__(self, proj=None, prefset=None):
         Environment.__init__(self)
-
-        if proj is None:
-            self.name = "Default"
-            self._unwrapped_proj_weakref = None
-        else:
-            self.name = proj.name
-            self._unwrapped_proj_weakref = weakref.ref(UnwrapObject(proj))
 
         # 'self.prefsets' is the ordered list of prefsets in which to look
         # for prefs.
@@ -127,18 +123,15 @@ class KoCodeIntelEnvironment(Environment):
             getProxyForObject(None, components.interfaces.koIPreference,
                               prefSvc.prefs, PROXY_ALWAYS | PROXY_SYNC)
         ]
-        if proj is not None:
-            # Typically this is the prefset for the project to which a
-            # document belongs.
-            self.prefsets.insert(0,
-                getProxyForObject(None, components.interfaces.koIPreference,
-                                  proj.prefset, PROXY_ALWAYS | PROXY_SYNC)
-            )
         if prefset is not None:
+            # Per-file preferences.
             self.prefsets.insert(0,
                 getProxyForObject(None, components.interfaces.koIPreference,
                                   prefset, PROXY_ALWAYS | PROXY_SYNC)
             )
+
+        if proj:
+            self.set_project(proj)
 
         # <pref-name> -> <callback-id> -> <observer-callback>
         self._pref_observer_callbacks_from_name = {}
@@ -159,6 +152,27 @@ class KoCodeIntelEnvironment(Environment):
 
     def __repr__(self):
         return "<%s Environment>" % self.name
+
+    def set_project(self, proj):
+        if len(self.prefsets) > 2:
+            # Remove the old projects prefset.
+            self.prefsets.pop(1)
+        if proj is None:
+            self.name = "Default"
+            self._unwrapped_proj_weakref = None
+        else:
+            self.name = proj.name
+            proj_weakref = weakref.ref(UnwrapObject(proj))
+            if proj_weakref != self._unwrapped_proj_weakref:
+                self._unwrapped_proj_weakref = proj_weakref
+                # Ensure the cache is cleared, so any project settings get
+                # re-created.
+                self.cache = {}
+            # This is prefset for the current Komodo project.
+            self.prefsets.insert(1,
+                getProxyForObject(None, components.interfaces.koIPreference,
+                                  proj.prefset, PROXY_ALWAYS | PROXY_SYNC)
+            )
 
     def has_envvar(self, name):
         return self._userEnvSvc.has(name)

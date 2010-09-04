@@ -41,8 +41,8 @@
 
 interface ISciMoz;
 interface koIDocument;
-interface nsIDOMElement;
 interface koIShowsProgress;
+interface koIProject;
 interface koIPreference;
 interface koICodeIntelBuffer;
 interface koICodeIntelService;
@@ -235,6 +235,8 @@ interface koICodeIntelEvalController: nsISupports {
 interface koICodeIntelBuffer: nsISupports {
     readonly attribute wstring path;
     readonly attribute wstring lang;
+
+    attribute koIProject project;  // The current Komodo project.
 
     readonly attribute wstring cpln_fillup_chars;
     readonly attribute wstring cpln_stop_chars;
