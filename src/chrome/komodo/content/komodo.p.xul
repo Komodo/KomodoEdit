@@ -1201,7 +1201,6 @@
                             </menu>
                             <menuitem id="editor-jump-corresponding"
                                       label="&jumpToCorrespondingLineForDiffMode.label;"
-                                      class="menuitem-iconic reveal-in-editor-icon"
                                       observes="cmd_jumpToCorrespondingLine"/>
 
                             <menuseparator id="naviation_menupopup_find_separator"/>
