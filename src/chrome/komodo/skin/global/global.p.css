@@ -638,6 +638,11 @@ treechildren::-moz-tree-image(remotefile)
   list-style-image: url('chrome://komodo/skin/images/file_icon.png');
 }
 
+/* Komodo icons */
+
+.komodo-16x16 {
+    list-style-image: url("chrome://komodo/skin/images/komodo_16x16.png");
+}
 
 /* Browser icons */
 
