@@ -217,3 +217,20 @@ toolbar #historyRecentLocations:hover:active:not([disabled]),
 toolbar #historyRecentLocations[open="true"] {
   -moz-image-region: rect(46px, 664px, 69px, 649px);
 }
+
+/**
+ * The Mac menu's are mis-aligned when mixing menuitems that contain an images
+ * with ones that do not. We try to fix this by giving the non-image menuitems
+ * the same indentation as the imaged ones.
+ *
+ * Unfortunately this does not get applied to the main menubar (I'm not sure
+ * why), so this styling is applied to context menus, toolbar menus, etc...
+ */
+menupopup.has-iconic-menuitems .menu-text {
+  padding-left: 20px;
+}
+
+menupopup.has-iconic-menuitems menuitem[type="checkbox"] .menu-iconic-text {
+  padding-left: 20px;
+}
+
