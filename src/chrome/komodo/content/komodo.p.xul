@@ -788,7 +788,6 @@
 
                             <menuitem label="&save.label;"
                                       id="menu_save"
-                                      class="menuitem-iconic save-buffer-icon"
                                       observes="cmd_save"
                                       accesskey="&menuSave.accesskey;"
                                       />
@@ -825,7 +824,6 @@
                             <menuitem label="&saveAll.label;"
                                       id="menu_saveAll"
                                       observes="cmd_saveAll"
-                                      class="menuitem-iconic save-all-buffers-icon"
                                       accesskey="&menuSaveAll.accesskey;"
                                       />
 
