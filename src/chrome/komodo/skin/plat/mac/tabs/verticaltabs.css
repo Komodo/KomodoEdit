@@ -29,12 +29,15 @@ tabbox.vertical_tabs tab
 tabbox.vertical_tabs[rotation="270"] tab
 {
   -moz-border-radius: 6px 0 0 6px;
+  border-bottom: 3px solid;
+  border-left: none;
 }
 
 tabbox.vertical_tabs[rotation="90"] tab
 {
   -moz-border-radius: 0 6px 6px 0;
-  margin-left: -5px;
+  border-bottom: 3px solid;
+  border-right: none;
 }
 
 tabbox.vertical_tabs tabpanel label.tab-text {
