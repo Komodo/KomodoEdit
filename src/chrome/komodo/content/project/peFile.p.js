@@ -378,15 +378,21 @@ this.fileProperties = function peFile_Properties(item, view, folder)
         if (resp.res != "ok") {
             return false;
         }
-        if (item.type == 'project') {
-            window.updateCommands('project_dirty');
-        } else if (item) {
-            // make the tree refresh this part
-            ko.places.manager.refreshItem(item);
+        if (item) {
+            if (item.type == 'project') {
+                window.updateCommands('project_dirty');
+            } else {
+                // make the tree refresh this part
+                ko.places.manager.refreshItem(item);
+            }
         }
         return true;
     } catch (e) {
         log.exception(e);
+    } finally {
+        if (view) {
+            view.scintilla.focus();
+        }
     }
     return false;
 }
