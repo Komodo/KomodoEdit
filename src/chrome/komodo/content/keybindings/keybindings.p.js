@@ -791,9 +791,11 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
 // #else
             this._add_keybinding_sequences({
                 'cmd_fontZoomIn' : ["Ctrl++"],
-                'cmd_fontZoomIn' : ["Ctrl+="],
                 'cmd_fontZoomOut': ["Ctrl+-"],
                 'cmd_fontZoomReset': ["Ctrl+0"]
+            });
+            this._add_keybinding_sequences({
+                'cmd_fontZoomIn' : ["Ctrl+="]
             });
 // #endif
             break;
