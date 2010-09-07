@@ -67,8 +67,8 @@ var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 var widgets = {};
 var osPathSvc;
 
-const DEFAULT_EXCLUDE_MATCHES = ".*;*~;#*;CVS;*.bak;*.pyo;*.pyc";
-const DEFAULT_INCLUDE_MATCHES = ".login;.profile;.bashrc;.bash_profile";
+const DEFAULT_EXCLUDE_MATCHES = "*~;#*;CVS;*.bak;*.pyo;*.pyc;.svn;.git;.hg;.bzr;.DS_Store";
+const DEFAULT_INCLUDE_MATCHES = "";
 
 const PROJECT_URI_REGEX = /^.*\/(.+?)\.(?:kpf|komodoproject)$/;
 
@@ -137,6 +137,32 @@ viewMgrClass.prototype = {
                            nsIDOMKeyEvent.DOM_VK_DOWN,
                            nsIDOMKeyEvent.DOM_VK_LEFT,
                            nsIDOMKeyEvent.DOM_VK_RIGHT];
+        var prefsToWatch = ["import_exclude_matches", "import_include_matches"];
+        _globalPrefs.prefObserverService.addObserverForTopics(this,
+                                                              prefsToWatch.length,
+                                                              prefsToWatch, false);
+    },
+
+    observe: function(subject, topic, data) {
+        var project;
+        if (["import_exclude_matches", "import_exclude_matches"].indexOf(topic)
+            >= 0
+            && (widgets.placeView_currentProject_menuitem.getAttribute('checked')
+                == 'true')
+            && (project = ko.projects.manager.currentProject)) {
+            this._updateViewPrefsFromProjectPrefs(project);
+        }
+    },
+
+    _updateViewPrefsFromProjectPrefs: function(project) {
+        var prefset = project.prefset;
+        try {
+            gPlacesViewMgr.view.setMainFilters(prefset.getStringPref('import_exclude_matches'),
+                                           prefset.getStringPref('import_include_matches'));
+        } catch(ex) {
+            log.exception("getting prefs failed: " + ex + "\n");
+            this.placeView_defaultView();
+        }
     },
     
     sortByDirection: function(sortDirection) {
@@ -1050,14 +1076,7 @@ viewMgrClass.prototype = {
         gPlacesViewMgr._uncheckAll();
         widgets.placeView_currentProject_menuitem.setAttribute('checked', 'true');
         this._updateCurrentUriViewPref(CURRENT_PROJECT_FILTER_NAME);
-        var prefset = project.prefset;
-        try {
-            gPlacesViewMgr.view.setMainFilters(prefset.getStringPref('import_exclude_matches'),
-                                           prefset.getStringPref('import_include_matches'));
-        } catch(ex) {
-            log.exception("getting prefs failed: " + ex + "\n");
-            this.placeView_defaultView();
-        }
+        this._updateViewPrefsFromProjectPrefs(project);
     },
 
     placeView_viewAll: function() {
@@ -2497,6 +2516,8 @@ this.onLoad = function places_onLoad() {
     defaultName = CURRENT_PROJECT_FILTER_NAME;
     if (!filterPrefs.hasPref(defaultName)) {
         prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+        // These filters aren't actually used, but it's easier if this
+        // filter is fully built up for the menus.
         prefSet.setStringPref("exclude_matches", "");
         prefSet.setStringPref("include_matches", "");
         filterPrefs.setPref(CURRENT_PROJECT_FILTER_NAME, prefSet);
