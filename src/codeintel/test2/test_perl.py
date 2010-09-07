@@ -401,7 +401,7 @@ class CplnTestCase(CodeIntelTestCase):
     def test_citdl_expr_and_prefix_filter_from_trg(self):
         self.assertCITDLExprIs("split <|>", "split")
         self.assertCITDLExprIs("chmod(<|>", "chmod")
-        self.assertCITDLExprIs("&$make_coffee(<|>", "&$make_coffee")
+        self.assertCITDLExprIs("&$make_coffee(<|>", "$make_coffee")
         self.assertCITDLExprIs("$foo . $bar-><|>", "$bar")
         self.assertCITDLExprIs("foo[split <|>", "split")
         #XXX Might want to consider aborting on the following case because
@@ -441,11 +441,11 @@ class CplnTestCase(CodeIntelTestCase):
             $Foo::Bar::<|>      # Foo::Bar '$'
             @Foo::Bar::<|>      # Foo::Bar '@'
             %Foo::Bar::<|>      # Foo::Bar '%'
-            &Foo::Bar::<|>      # Foo::Bar '&'
+            &Foo::Bar::<|>      # Foo::Bar ''
             *Foo::Bar::<|>      # Foo::Bar '*'
             @$Foo::Bar::<|>     # Foo::Bar '@$'
             %$Foo::Bar::<|>     # Foo::Bar '%$'
-            &$Foo::Bar::<|>     # Foo::Bar '&$'
+            &$Foo::Bar::<|>     # Foo::Bar '$'
             $Foo::Bar(<|>       # Foo.$Bar
             $Foo::Bar <|>       # Foo.$Bar
 
@@ -457,8 +457,8 @@ class CplnTestCase(CodeIntelTestCase):
             @baz-><|>     # @baz
             %baz-><|>     # %baz
             *baz-><|>     # *baz
-            &baz-><|>     # &baz
-            &$baz-><|>    # &$baz
+            &baz-><|>     # baz
+            &$baz-><|>    # $baz
             \$baz-><|>    # \$baz
             $foo = \*baz-><|>        # \*baz
             $::bar-><|>              # $bar
@@ -467,8 +467,8 @@ class CplnTestCase(CodeIntelTestCase):
             @FOO::Bar2::_baz(<|>     # FOO::Bar2.@_baz
             %FOO::Bar2::_baz(<|>     # FOO::Bar2.%_baz
             *FOO::Bar2::_baz(<|>     # FOO::Bar2.*_baz
-            &FOO::Bar2::_baz(<|>     # FOO::Bar2.&_baz
-            &$FOO::Bar2::_baz(<|>    # FOO::Bar2.&$_baz
+            &FOO::Bar2::_baz(<|>     # FOO::Bar2._baz
+            &$FOO::Bar2::_baz(<|>    # FOO::Bar2.$_baz
             \$FOO::Bar2::_baz(<|>    # FOO::Bar2.\$_baz
             \*FOO::Bar2::_baz(<|>    # FOO::Bar2.\*_baz
 

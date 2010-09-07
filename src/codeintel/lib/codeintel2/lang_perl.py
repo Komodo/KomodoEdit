@@ -79,6 +79,7 @@ line_end_re = re.compile("(?:\r\n|\r)")
 
 lang = "Perl"
 log = logging.getLogger("codeintel.perl")
+#log.setLevel(logging.DEBUG)
 CACHING = True #XXX obsolete, kill it
 
 
@@ -745,6 +746,8 @@ class PerlLangIntel(CitadelLangIntel,
           abort at indexing, function call arguments, etc. where recognizing
           string/number/regex boundaries would be useful. This info might be
           useful later if this algorithm is beefed up.
+        - Ignore ampersand, e.g. &foo. This is just an old way to call perl
+          functions - bug 87870, we can just ignore it for codeintel.
         
         Examples:
        
@@ -753,7 +756,7 @@ class PerlLangIntel(CitadelLangIntel,
             split <|>                   split                   split
             chmod(<|>                   chmod                   chmod
             $Foo::bar(<|>               $Foo::bar               Foo.$bar
-            &$make_coffee(<|>           &$make_coffee           &$make_coffee
+            &$make_coffee(<|>           &$make_coffee           $make_coffee
             Win32::OLE-><|>             Win32::OLE              Win32::OLE
             Win32::OLE->GetObject(<|>   Win32::OLE->GetObject   Win32::OLE.GetObject
             split join <|>              join                    join
@@ -842,6 +845,8 @@ class PerlLangIntel(CitadelLangIntel,
                 citdl = None
                 break
             prefix = match.group("prefix") or ""
+            if "&" in prefix:
+                prefix = prefix.replace("&", "")
             scope = match.group("scope")
             name = match.group("name")
 
