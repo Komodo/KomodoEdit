@@ -57,6 +57,7 @@ class KoXPCShellLinter:
          ("category-komodo-linter", 'JavaScript'),
          ]
 
+    _is_macro_re = re.compile("macro2?://")
     def __init__(self):
         self.infoSvc = components.classes["@activestate.com/koInfoService;1"].\
             getService(components.interfaces.koIInfoService)
@@ -76,7 +77,7 @@ class KoXPCShellLinter:
         # copy file-to-lint to a temp file
         jsfilename = tempfile.mktemp() + '.js'
         # convert to UNIX line terminators before splitting
-        isMacro = request.koDoc.displayPath.startswith("macro://")
+        isMacro = self._is_macro_re.match(request.koDoc.displayPath)
         if isMacro:
             funcName = request.koDoc.file.leafName;
             lastDot = funcName.rfind('.')
