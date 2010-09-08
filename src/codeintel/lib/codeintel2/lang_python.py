@@ -384,6 +384,19 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
         return python
 
+    def python_info_from_env(self, env):
+        cache_key = self.lang + "-info"
+        info = env.cache.get(cache_key)
+        if info is None:
+            python = self.interpreter_from_env(env)
+            if not python:
+                log.warn("no Python was found from which to determine the "
+                         "codeintel information")
+                info = None, None, None, None, []
+            else:
+                info = self._python_info_from_python(python, env)
+        return info
+
     def _buf_indep_libs_from_env(self, env):
         """Create the buffer-independent list of libs."""
         cache_key = self.lang + "-libs"
@@ -396,15 +409,8 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                                   self._invalidate_cache)
             db = self.mgr.db
 
-            python = self.interpreter_from_env(env)
-            if not python:
-                log.warn("no Python was found from which to determine the "
-                         "import path")
-                ver, prefix, libdir, sitelibdir, sys_path \
-                    = None, None, None, None, []
-            else:
-                ver, prefix, libdir, sitelibdir, sys_path \
-                    = self._python_info_from_python(python, env)
+            ver, prefix, libdir, sitelibdir, sys_path \
+                = self.python_info_from_env(env)
             libs = []
 
             # - extradirslib
