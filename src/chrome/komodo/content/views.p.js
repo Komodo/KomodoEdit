@@ -1660,7 +1660,6 @@ viewManager.prototype._findFunction = function(searchType) {
         var context = Components.classes["@activestate.com/koFindContext;1"]
                       .createInstance(Components.interfaces.koIFindContext);
         context.type = Components.interfaces.koIFindContext.FCT_CURRENT_DOC;
-        context.name = _bundle.GetStringFromName("theCurrentDocument.name");
         if (searchType == "all") {
             Find_FindAll(window, context, re, namedBlockDescription);
         } else {
