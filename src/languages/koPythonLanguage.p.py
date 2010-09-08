@@ -196,6 +196,7 @@ class KoPythonLanguage(KoPythonCommonLanguage):
 
 class KoPython3Language(KoPythonCommonLanguage):
     name = "Python3"
+    accessKey = '3'
     _reg_desc_ = "%s Language" % (name)
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
