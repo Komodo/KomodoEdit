@@ -67,6 +67,10 @@ if (typeof(ko.dragdrop)=='undefined') {
             "text/plain",
     ];
 
+    this.windowSupportedFlavours = this.genericSupportedFlavours.concat([
+            "komodo/tab",
+    ]);
+
     this.isSupportedDropFlavour = function isSupportedDropFlavour(flavour) {
         switch(flavour) {
             case "application/x-moz-file":
@@ -328,6 +332,46 @@ if (typeof(ko.dragdrop)=='undefined') {
      */
     KomodoDropData.prototype.unpack = function KoDropData_unpack(dragType, dragData) {
         switch(dragType) {
+            case "komodo/tab":
+                _log.debug("onDrop:: komodo/tab: " + dragData);
+                // If it's dropped on a different Komodo window, then
+                // move that tab to the target window.
+                var sourceTab = dragData;
+                if (sourceTab.ownerDocument != document) {
+                    // Moving a tab from one Komodo window to another.
+                    var sourceTabbox = sourceTab.parentNode;
+                    while (sourceTabbox && sourceTabbox.localName != "tabbox") {
+                        sourceTabbox = sourceTabbox.parentNode;
+                    }
+                    if (!sourceTabbox) {
+                        return;
+                    }
+                    // Must hide the source drop indicator.
+                    sourceTabbox._tabs.dropIndicatorBar.collapsed = true;
+
+                    // Gather the data we need to open the view in the
+                    // target window.
+                    var sourceView = sourceTabbox.parentNode.currentView;
+                    var uri = sourceView.koDoc.file.URI;
+                    var viewType = sourceView.getAttribute("type");
+                    var line = (viewType == "editor" ? sourceView.currentLine : null);
+
+                    // Close the source view first to ensure unsaved
+                    // changes, etc. get handled first.
+                    if (!sourceView.close()) {
+                        return;
+                    }
+
+                    // Open the new view, maintaining cursor position.
+                    if (line != null) {
+                        ko.views.manager.doFileOpenAtLineAsync(
+                            uri, line, viewType);
+                    } else {
+                        ko.views.manager.doFileOpenAsync(uri, viewType);
+                    }
+                    window.focus();
+                }
+                break;
             case "application/x-moz-file":
                 _log.debug("onDrop:: x-moz-file: " + dragData);
                 // Ensure we decode the URI, bug 72873.
@@ -402,7 +446,7 @@ if (typeof(ko.dragdrop)=='undefined') {
      */
     this.unpackDropData = function unpackDropData(dataTransfer, acceptedFlavours) {
         if (typeof(acceptedFlavours) == 'undefined' || acceptedFlavours == null) {
-            acceptedFlavours = ko.dragdrop.genericSupportedFlavours;
+            acceptedFlavours = ko.dragdrop.windowSupportedFlavours;
         }
 
         var ko_drop_data = [];
