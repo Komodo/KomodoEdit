@@ -105,6 +105,7 @@ class KoHTMLLanguage(koHTMLLanguageBase):
 
 class KoHTML5Language(KoHTMLLanguage):
     name = "HTML5"
+    accessKey = '5'
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
