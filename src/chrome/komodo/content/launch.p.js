@@ -109,8 +109,10 @@ this.open = function(page) {
 
 /**
  * Opens language specific help for the current buffer.
+ *
+ * @param searchTerm {string}  Open language help for this search term.
  */
-this.language = function() {
+this.language = function(searchTerm) {
     // Get the current document's language.
     var language = null;
     var view = ko.window.focusedView();
@@ -160,6 +162,10 @@ this.language = function() {
         // Couldn't find language-specific help command -- use the default one.
         command = gPrefs.getStringPref('DefaultHelpCommand');
         name = "Help";
+    }
+
+    if (searchTerm && command.indexOf("%W") >= 0) {
+        command = command.replace("%W", searchTerm);
     }
 
     ko.run.runCommand(window,
