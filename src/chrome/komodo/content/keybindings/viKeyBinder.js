@@ -2451,9 +2451,11 @@ VimController.command_mappings = {
                                                                     VimController.WORKS_IN_VISUAL_MODE ],
     "cmd_vim_indent" :              [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MODIFY_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
+                                                                    VimController.SPECIAL_REPEAT_HANDLING |
                                                                     VimController.CANCELS_VISUAL_MODE ],
     "cmd_vim_dedent" :              [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MODIFY_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
+                                                                    VimController.SPECIAL_REPEAT_HANDLING |
                                                                     VimController.CANCELS_VISUAL_MODE ],
     "cmd_vim_indent_visual" :       [ "cmd_indent",                 VimController.REPEATABLE_ACTION | VimController.MODIFY_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
@@ -3508,18 +3510,28 @@ function cmd_vim_overtype(scimoz, turnOn) {
     }
 }
 
-function cmd_vim_dedent(scimoz) {
-    // Vi moves to the start of the text, we simulate that here
-    ko.commands.doCommand('cmd_homeAbsolute');
-    ko.commands.doCommand('cmd_home');
+function cmd_vim_dedent(scimoz, repeatCount) {
+    var lineNo = scimoz.lineFromPosition(gVimController._currentPos);
+    var endLineNo = Math.min(scimoz.lineCount, lineNo + repeatCount);
+    var anchor = scimoz.positionFromLine(lineNo);
+    scimoz.setSel(anchor,
+                  scimoz.getLineEndPosition(endLineNo));
     ko.commands.doCommand('cmd_dedent');
+    scimoz.currentPos = anchor;
+    // Vi moves to the start of the text, we simulate that here.
+    ko.commands.doCommand('cmd_home');
 }
 
-function cmd_vim_indent(scimoz) {
-    // Vi moves to the start of the text, we simulate that here
-    ko.commands.doCommand('cmd_homeAbsolute');
-    ko.commands.doCommand('cmd_home');
+function cmd_vim_indent(scimoz, repeatCount) {
+    var lineNo = scimoz.lineFromPosition(gVimController._currentPos);
+    var endLineNo = Math.min(scimoz.lineCount, lineNo + repeatCount);
+    var anchor = scimoz.positionFromLine(lineNo);
+    scimoz.setSel(anchor,
+                  scimoz.getLineEndPosition(endLineNo));
     ko.commands.doCommand('cmd_indent');
+    scimoz.currentPos = anchor;
+    // Vi moves to the start of the text, we simulate that here.
+    ko.commands.doCommand('cmd_home');
 }
 
 //
