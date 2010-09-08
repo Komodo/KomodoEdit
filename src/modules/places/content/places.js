@@ -2354,8 +2354,8 @@ ManagerClass.prototype = {
             // directory.  v5 does this via the import_live boolean pref
             // and then the project.livefolder attribute.  v6 just looks
             // at the import_dirname field, which is also used in v5.
-            var import_live = (!prefset.hasPref("import_live")
-                               || prefset.getBooleanPref("import_live"));
+            var import_live = (prefset.hasPref("import_live")
+                               && prefset.getBooleanPref("import_live"));
             if (!import_live) {
                 // First check v5 legacy projects.
                 var importedDirs = {};
@@ -2370,14 +2370,15 @@ ManagerClass.prototype = {
                         return uri;
                     }
                 }
-                // If that didn't work, try the import_dirname pref
-                if (prefset.hasStringPref("import_dirname")) {
-                    var baseDir = prefset.getStringPref("import_dirname");
-                    if (baseDir) {
-                        var baseURI = ko.uriparse.localPathToURI(baseDir);
-                        if (baseURI) {
-                            return baseURI;
-                        }
+            }
+            // If that didn't work, try the import_dirname pref
+            // This pref doesn't depend on the v5 'import_live' pref.
+            if (prefset.hasStringPref("import_dirname")) {
+                var baseDir = prefset.getStringPref("import_dirname");
+                if (baseDir) {
+                    var baseURI = ko.uriparse.localPathToURI(baseDir);
+                    if (baseURI) {
+                        return baseURI;
                     }
                 }
             }
