@@ -241,6 +241,7 @@
      ********************************************************/
 
     function _simpleEscapeHtml(s) {
+        s = s.replace("&", "&amp;", "g");
         s = s.replace("<", "&lt;", "g");
         return s.replace(">", "&gt;", "g");
     }
@@ -289,6 +290,7 @@
             // defns is an array of koICodeIntelDefinition
             if (defns && defns.length > 0) {
                 // Just display the first available one
+                /** @type {Components.interfaces.koICodeIntelDefinition} */
                 var def = defns[0];
     
                 var div;
@@ -340,6 +342,14 @@
                 //fullname = fullname.replace(".", ". ");
                 //datalines.push("Scope: " + fullname.substring(0, fullname.length - (def.name.length + 1)));
                 datalines.push("Lang:  " + def.lang);
+                var path = def.path;
+                if (path && def.line >= 0) {
+                    if (path.length > 60) {
+                        // Shorten it down.
+                        path = path.substr(0, 20) + " ... " + path.substr(-40);
+                    }
+                    datalines.push("Defined in: " + path);
+                }
                 if (def.ilk == "variable" ||
                     (def.ilk == "argument" && def.citdl)) {
                     datalines.push("Type:  " + def.citdl);
@@ -355,13 +365,13 @@
                     //datalines.push(def.attributes);
                 }
                 for (var i=0; i < datalines.length; i++) {
-                    textlines.push("<span>" + _simpleEscapeHtml(datalines[i]) + "</span><br />");
+                    textlines.push('<span class="codehelper_info">' + _simpleEscapeHtml(datalines[i]) + "</span><br />");
                 }
     
                 if (def.doc) {
                     textlines.push("<hr />");
                     //textlines.push('<i style="white-space: pre-wrap !important;">' + _simpleEscapeHtml(def.doc) + '</i>');
-                    textlines.push('<span class="codehelper_doc">' + def.doc + '</span>');
+                    textlines.push('<span class="codehelper_doc">' + _simpleEscapeHtml(def.doc) + '</span>');
                 }
     
                 //dump("textlines:\n\n" + textlines.join("\n") + "\n\n");
