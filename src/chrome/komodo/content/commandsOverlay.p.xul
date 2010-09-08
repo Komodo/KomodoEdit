@@ -1090,8 +1090,8 @@
             disabled="true"
             desc="&editorZoomFontSizeDown.desc;"/>
         <command
-            id="cmd_fontZoomSizeReset" key="key_cmd_fontZoomSizeReset"
-            oncommand="ko.commands.doCommandAsync('cmd_fontZoomSizeReset', event)"
+            id="cmd_fontZoomReset" key="key_cmd_fontZoomReset"
+            oncommand="ko.commands.doCommandAsync('cmd_fontZoomReset', event)"
             disabled="true"
             desc="&editorZoomFontSizeReset.desc;"/>
         <command

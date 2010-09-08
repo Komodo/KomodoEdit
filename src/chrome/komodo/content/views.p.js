@@ -2266,17 +2266,19 @@ viewManager.prototype.do_cmd_saveAsTemplate = function () {
     }
 }
 
-// cmd_fontZoomSizeReset
-viewManager.prototype.is_cmd_fontZoomSizeReset_supported = function() {
+// cmd_fontZoomReset
+viewManager.prototype.is_cmd_fontZoomReset_supported = function() {
     return true;
 }
 
-viewManager.prototype.is_cmd_fontZoomSizeReset_enabled = function() {
+viewManager.prototype.is_cmd_fontZoomReset_enabled = function() {
     return this.currentView && this.currentView.scintilla;
 }
 
-viewManager.prototype.do_cmd_fontZoomSizeReset = function() {
-    this.currentView.scimoz.zoom = 0;
+viewManager.prototype.do_cmd_fontZoomReset = function() {
+    if (this.currentView && this.currentView.getAttribute('type') == 'editor') {
+        this.currentView.scimoz.zoom = 0;
+    }
 }
 
 
