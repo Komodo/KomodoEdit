@@ -459,6 +459,7 @@ CodeIntelCompletionUIHandler.prototype._setDefinitionsInfo = function(
                           ", num defns="+defns.length+")");
     try {
         if (defns && defns.length > 0) {
+            /** @type {Components.interfaces.koICodeIntelDefinition} */
             var defn = defns[0];
             if (defns.length > 1) {
                 // Show choice of definitions, user can choose one
@@ -483,6 +484,15 @@ CodeIntelCompletionUIHandler.prototype._setDefinitionsInfo = function(
                 ko.history.note_curr_loc();
                 ko.views.manager.doFileOpenAtLineAsync(ko.uriparse.pathToURI(defn.path), defn.line);
             } else {
+                // No file, prompt to see if the user wants to view the online
+                // language help for this symbol - bug 65296.
+                var prompt = "Cannot show definition: symbol is defined " +
+                             "in the stdlib or in an API catalog. Would " +
+                             "you like to open the online language " +
+                             "help for this symbol?";
+                if (ko.dialogs.yesNo(prompt, "Yes", null, "Online Definition", "gotoDefinitionOnline") == 'Yes') {
+                    ko.help.language(defn.name);
+                };
                 // No file information for ...
                 _gCodeIntel_log.info("goto definition at "+triggerPos+
                                      ": no path information, as symbol is defined in a CIX.");
