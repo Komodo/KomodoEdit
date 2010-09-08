@@ -37,7 +37,7 @@
 
 """Completion evaluation code for Python"""
 
-from os.path import dirname
+from os.path import dirname, join, exists, isdir
 
 from codeintel2.common import *
 from codeintel2.tree import TreeEvaluator
@@ -119,6 +119,22 @@ class PythonTreeEvaluator(TreeEvaluator):
         self.info("start scope is %r", start_scoperef)
         hit = self._hit_from_citdl(self.expr, start_scoperef, defn_only=True)
         return [ self._defn_from_hit(hit) ]
+
+    def _defn_from_hit(self, hit):
+        defn = TreeEvaluator._defn_from_hit(self, hit)
+        if not defn.path:
+            # Locate the module in the users own Python stdlib,
+            # bug 65296.
+            langintel = self.buf.langintel
+            info = langintel.python_info_from_env(self.buf.env)
+            ver, prefix, libdir, sitelibdir, sys_path = info
+            if libdir:
+                path = join(libdir, blob.get("name"))
+                if exists(path + ".py"):
+                    defn.path = path + ".py"
+                elif isdir(path) and exists(join(path, "__init__.py")):
+                    defn.path = join(path, "__init__.py")
+        return defn
 
     #def _available_classes(self, scoperef, consumed):
     #    matches = set()
