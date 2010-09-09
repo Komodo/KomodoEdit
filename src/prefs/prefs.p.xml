@@ -271,7 +271,7 @@
  '*.inc': 'PHP',
  '*.java': 'Java',
  '*.js': 'JavaScript',
- '*.json': 'JavaScript',
+ '*.json': 'JSON',
  '*.jsm': 'JavaScript',
  '*.kix': 'Kix',
  '*.komodoproject': 'XML',

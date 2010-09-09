@@ -133,6 +133,7 @@ LanguageFactoryStyles['C++'] = copy.deepcopy(LanguageFactoryStyles['JavaScript']
 LanguageFactoryStyles['IDL'] = copy.deepcopy(LanguageFactoryStyles['JavaScript'])
 LanguageFactoryStyles['C#'] = copy.deepcopy(LanguageFactoryStyles['JavaScript'])
 LanguageFactoryStyles['Java'] = copy.deepcopy(LanguageFactoryStyles['JavaScript'])
+LanguageFactoryStyles['JSON'] = copy.deepcopy(LanguageFactoryStyles['JavaScript'])
 
 #<string id="style/PHP/tag/fore">activeblue</string>
 #<string id="style/PHP/tagunknown/fore">activeorange</string>

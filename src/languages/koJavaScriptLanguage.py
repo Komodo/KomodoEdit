@@ -43,9 +43,6 @@ from langinfo_prog import JavaScriptLangInfo
 from koLanguageServiceBase import *
 
 
-def registerLanguage(registery):
-    registery.registerLanguage(koJavaScriptLanguage())
-
 class koJavaScriptLanguage(KoLanguageBase):
     name = "JavaScript"
     _reg_desc_ = "%s Language" % name
@@ -108,3 +105,28 @@ class koJavaScriptLanguage(KoLanguageBase):
             self._lexer.supportsFolding = 1
         return self._lexer
 
+class koJSONLanguage(koJavaScriptLanguage):
+    name = "JSON"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "{879fa591-80f4-4f6c-b571-a7999d97a8cd}"
+
+    accessKey = 'n'
+    primary = 1
+    defaultExtension = ".json"
+
+    sample = """{
+    "glossary": {
+        "title": "example glossary",
+        "GlossDiv": {
+           "example": "foo"
+        }
+    }
+}
+"""
+
+
+def registerLanguage(registery):
+    registery.registerLanguage(koJavaScriptLanguage())
+    registery.registerLanguage(koJSONLanguage())

@@ -471,6 +471,7 @@ StateMap = {
 
 #Derivatives (Shared lexers)
 StateMap['JavaScript'] = StateMap['C++'].copy()
+StateMap['JSON'] = StateMap['C++'].copy()
 StateMap['Java'] = StateMap['C++'].copy()
 StateMap['C#'] = StateMap['C++'].copy()
 StateMap['HLSL'] = StateMap['C++'].copy()
