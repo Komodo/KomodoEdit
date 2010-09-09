@@ -2278,7 +2278,7 @@
                                         </menupopup>
                                     </toolbarbutton>
                                     <textbox id="toolbox2-filter-textbox"
-                                               style="min-width:40px; max-width:200px; margin-right:0px;"
+                                               style="min-width:40px;"
                                                flex="1"
                                                type="search"
                                                timeout="500"
