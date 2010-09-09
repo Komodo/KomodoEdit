@@ -70,8 +70,9 @@ class KoXPCShellLinter:
                     components.interfaces.koIPrefService, prefSvc,
                     PROXY_ALWAYS | PROXY_SYNC)
 
-    def lint(self, request):
-        text = request.content.encode(request.encoding.python_encoding_name)
+    def lint(self, request, text=None):
+        if text is None:
+            text = request.content.encode(request.encoding.python_encoding_name)
         cwd = request.cwd
 
         # copy file-to-lint to a temp file
@@ -219,3 +220,16 @@ class KoXPCShellLinter:
         return results
 
 
+class KoJSONLinter(KoXPCShellLinter):
+    language = "JSON"
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo XPCShell %s Linter" % (language, )
+    _reg_clsid_ = "{bcd7d132-734c-4d06-811c-383705ccb514}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=%s;1" % (language, )
+    _reg_categories_ = [
+         ("category-komodo-linter", language),
+         ]
+
+    def lint(self, request):
+        text = "var x = " + request.content.encode(request.encoding.python_encoding_name)
+        return KoXPCShellLinter.lint(self, request, text)
