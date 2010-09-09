@@ -171,6 +171,10 @@ class JSONLangInfo(LangInfo):
     conforms_to_bases = ["JavaScript"]
     exts = [".json"]
 
+    section_regexes = [
+        ("namespace", re.compile(r'"(?P<name>[^"]*?)"\s*:\s*{', re.M)),
+    ]
+
 class DTDLangInfo(LangInfo):
     name = "DTD"
     conforms_to_bases = ["Text"]
