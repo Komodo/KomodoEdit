@@ -374,7 +374,6 @@ viewMgrClass.prototype = {
             itemTypes = ["project"];
         } else {
             index = this._currentRow(event);
-            dump("Init Menu: index: " + index + "\n");
             isRootNode = (index == -1);
             if (isRootNode) {
                 itemTypes = ["project"];
