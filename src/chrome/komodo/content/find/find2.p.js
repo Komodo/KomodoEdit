@@ -1035,7 +1035,7 @@ function _init() {
     // search as before.  Possibly restore a previous "in files" mode.
     var in_files_modes = {
         "findinlastfiles": true,
-        "replaceinlastfiles": true,
+        "replaceinlastfiles": true
     };
     if (mode in in_files_modes) {
         var verb;
