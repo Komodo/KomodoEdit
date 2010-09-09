@@ -129,6 +129,7 @@ class PythonTreeEvaluator(TreeEvaluator):
             info = langintel.python_info_from_env(self.buf.env)
             ver, prefix, libdir, sitelibdir, sys_path = info
             if libdir:
+                elem, (blob, lpath) = hit
                 path = join(libdir, blob.get("name"))
                 if exists(path + ".py"):
                     defn.path = path + ".py"
