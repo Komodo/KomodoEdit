@@ -197,7 +197,7 @@ class KoFileCheckerBase(object):
             if backgroundEnabled != self.backgroundEnabled:
                 self.backgroundEnabled = backgroundEnabled
         elif topic == self.backgroundDurationPrefName:
-            backgroundDuration = self._globalPrefs.getBooleanPref(topic) * 60
+            backgroundDuration = self._globalPrefs.getLongPref(topic) * 60
             if backgroundDuration != self.backgroundDuration:
                 self.backgroundDuration = backgroundDuration
         elif topic == self.recursivePrefName:
