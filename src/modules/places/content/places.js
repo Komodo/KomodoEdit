@@ -1662,7 +1662,7 @@ ManagerClass.prototype = {
                     + " "
                     + (nonEmptyFolders.length == 1
                        ? _bundle.GetStringFromName("selectedSingularFolder.piece")
-                       : _bundle.formatStringFromName("selectedSingularItem.piece",
+                       : _bundle.formatStringFromName("selectedPluralFolders.piece",
                                                       [nonEmptyFolders.length], 1)));
         }
         if (otherItemCount) {
