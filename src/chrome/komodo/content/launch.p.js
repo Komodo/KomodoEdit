@@ -440,13 +440,14 @@ this.findInFiles = function(pattern /* =null */, dirs /* =null */,
 
     // Special global to pass info to find2.xul. Passing in via
     // openDialog() doesn't work if the dialog is already up.
+    var mode = dirs ? "findinfiles" : "findinlastfiles";
     ko.launch.find2_dialog_args = {
         "pattern": pattern,
         "dirs": dirs,
         "includes": includes,
         "excludes": excludes,
         "cwd": cwd,
-        "mode": "findinfiles"
+        "mode": mode
     };
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
@@ -476,13 +477,14 @@ this.replaceInFiles = function(pattern /* =null */, repl /* =null */,
 
     // Special global to pass info to find2.xul. Passing in via
     // openDialog() doesn't work if the dialog is already up.
+    var mode = dirs ? "replaceinfiles" : "replaceinlastfiles";
     ko.launch.find2_dialog_args = {
         "pattern": pattern,
         "repl": repl,
         "dirs": dirs,
         "includes": includes,
         "excludes": excludes,
-        "mode": "replaceinfiles"
+        "mode": mode
     };
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.

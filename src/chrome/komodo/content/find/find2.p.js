@@ -996,9 +996,7 @@ function _init() {
     var mode = args.mode || "find";
 
     // - Setup for there being a current project.
-    var koPartSvc = Components.classes["@activestate.com/koPartService;1"]
-            .getService(Components.interfaces.koIPartService);
-    var curr_proj = koPartSvc.currentProject;
+    var curr_proj = opener.ko.projects.manager.currentProject;
     if (curr_proj) {
         _collapse_widget(widgets.search_in_curr_project, false);
         _hide_widget(widgets.search_in_curr_project, false);
@@ -1033,17 +1031,11 @@ function _init() {
         _g_collection_context = null;
     }
     
-    // - Possibly restore a previous "in files" mode.
-    var in_files_modes = ["findinfiles", "findincurrproject",
-            "findinopenfiles", "replaceinfiles", "replaceincurrproject",
-            "replaceinopenfiles"];
+    // - If the mode is a generic '*inlastfiles', try to do the same
+    // search as before.  Possibly restore a previous "in files" mode.
     var in_files_modes = {
-        "findinfiles": true,
-        "findincurrproject": true,
-        "findinopenfiles": true,
-        "replaceinfiles": true,
-        "replaceincurrproject": true,
-        "replaceinopenfiles": true
+        "findinlastfiles": true,
+        "replaceinlastfiles": true,
     };
     if (mode in in_files_modes) {
         var verb;
