@@ -1,0 +1,76 @@
+Index: src/LexCPP.cxx
+===================================================================
+--- src/LexCPP.cxx	(revision 56134)
++++ src/LexCPP.cxx	(working copy)
+@@ -43,20 +43,43 @@
+ 	int pos = (int) sc.currentPos;
+ 	while (--pos > 0) {
+ 		char ch = styler[pos];
+ 		if (ch == '+' || ch == '-') {
+ 			return styler[pos - 1] == ch;
+ 		}
+ 	}
+ 	return false;
+ }
+ 
++static bool followsReturnKeyword(StyleContext &sc, Accessor &styler) {
++    // Don't look at styles, so no need to flush.
++	int pos = (int) sc.currentPos;
++	int currentLine = styler.GetLine(pos);
++	int lineStartPos = styler.LineStart(currentLine);
++	char ch;
++	while (--pos > lineStartPos) {
++        ch = styler.SafeGetCharAt(pos);
++        if (ch != ' ' && ch != '\t') {
++			break;
++		}
++	}
++	char *retBack = "nruter";
++	char *s = retBack;
++	while (*s
++	       && pos >= lineStartPos
++	       && styler.SafeGetCharAt(pos) == *s) {
++		s++;
++		pos--;
++	}
++	return !*s;
++}
++
+ static void ColouriseCppDoc(unsigned int startPos, int length, int initStyle, WordList *keywordlists[],
+                             Accessor &styler, bool caseSensitive) {
+ 
+ 	WordList &keywords = *keywordlists[0];
+ 	WordList &keywords2 = *keywordlists[1];
+ 	WordList &keywords3 = *keywordlists[2];
+ 	WordList &keywords4 = *keywordlists[3];
+ 
+ 	// property styling.within.preprocessor
+ 	//	For C++ code, determines whether all preprocessor code is styled in the preprocessor style (0, the default)
+@@ -322,22 +345,25 @@
+ 				} else {
+ 					sc.SetState(SCE_C_COMMENT);
+ 				}
+ 				sc.Forward();	// Eat the * so it isn't used for the end of the comment
+ 			} else if (sc.Match('/', '/')) {
+ 				if ((sc.Match("///") && !sc.Match("////")) || sc.Match("//!"))
+ 					// Support of Qt/Doxygen doc. style
+ 					sc.SetState(SCE_C_COMMENTLINEDOC);
+ 				else
+ 					sc.SetState(SCE_C_COMMENTLINE);
+-			} else if (sc.ch == '/' && setOKBeforeRE.Contains(chPrevNonWhite) &&
+-				(!setCouldBePostOp.Contains(chPrevNonWhite) || !FollowsPostfixOperator(sc, styler))) {
++			} else if (sc.ch == '/'
++				   && (setOKBeforeRE.Contains(chPrevNonWhite)
++				       || followsReturnKeyword(sc, styler))
++				   && (!setCouldBePostOp.Contains(chPrevNonWhite)
++				       || !FollowsPostfixOperator(sc, styler))) {
+ 				sc.SetState(SCE_C_REGEX);	// JavaScript's RegEx
+ 			} else if (sc.ch == '\"') {
+ 				sc.SetState(SCE_C_STRING);
+ 				isIncludePreprocessor = false;	// ensure that '>' won't end the string
+ 			} else if (isIncludePreprocessor && sc.ch == '<') {
+ 				sc.SetState(SCE_C_STRING);
+ 			} else if (sc.ch == '\'') {
+ 				sc.SetState(SCE_C_CHARACTER);
+ 			} else if (sc.ch == '#' && visibleChars == 0) {
+ 				// Preprocessor commands are alone on their line
