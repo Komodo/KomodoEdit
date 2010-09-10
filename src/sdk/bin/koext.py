@@ -118,6 +118,8 @@ class KoExtShell(cmdln.Cmdln):
             help="Disable preprocessing of '*.p.*' files in the source tree. "
                  "This is just paranioa in case the new preprocessing "
                  "facility here causes problems in building extensions.")
+    @option("--define", action="append", dest="defines",
+            help="Define a preprocessor variable, format 'name=value'.")
     def do_build(self, subcmd, opts):
         """${cmd_name}: build a Komodo extension
 
@@ -135,6 +137,12 @@ class KoExtShell(cmdln.Cmdln):
         ppdefines = {
             "MODE": opts.mode,
         }
+        if opts.defines:
+            for pp_definition in opts.defines:
+                def_split = pp_definition.split("=", 1)
+                if len(def_split) == 2:
+                    name, value = def_split
+                    ppdefines[name] = value
         if opts.disable_preprocessing:
             ppdefines = None
         koextlib.build_ext(opts.source_dir,
@@ -153,6 +161,8 @@ class KoExtShell(cmdln.Cmdln):
     @option("--disable-preprocessing", action="store_true",
             help="Disable preprocessing of '*.p.*' files in the source tree. "
                  "See `koext help build`.")
+    @option("--define", action="append", dest="defines",
+            help="Define a preprocessor variable, format 'name=value'.")
     def _do_koinstall(self, subcmd, opts):
         """${cmd_name}: build and install this extension into a Komodo build
 
@@ -168,6 +178,12 @@ class KoExtShell(cmdln.Cmdln):
         ppdefines = {
             "MODE": opts.mode,
         }
+        if opts.defines:
+            for pp_definition in opts.defines:
+                def_split = pp_definition.split("=", 1)
+                if len(def_split) == 2:
+                    name, value = def_split
+                    ppdefines[name] = value
         if opts.disable_preprocessing:
             ppdefines = None
         koextlib.komodo_build_install(opts.source_dir,
