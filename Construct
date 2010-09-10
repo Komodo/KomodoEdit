@@ -507,6 +507,13 @@ sub cons::KoExt {
     defined($mozBin) or die "*** mozBin is not defined for KoExt\n";
     defined($unsiloedPythonExe) or die "*** unsiloedPythonExe is not defined for KoExt\n";
 
+    # Add commonly used preprocessor values - only when they are imported/defined.
+    my $pp_defines = "";
+    defined($platform) and $pp_defines .= " --define PLATFORM=$platform";
+    defined($productType) and $pp_defines .= " --define PRODUCT_TYPE=$productType";
+    defined($buildFlavour) and $pp_defines .= " --define BUILD_FLAVOUR=$buildFlavour";
+    defined($mozVersion) and $pp_defines .= " --define MOZILLA_VERSION=$mozVersion";
+
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
     my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     $cons->Command(
@@ -519,7 +526,7 @@ sub cons::KoExt {
         "$build/ranregxpcom.consjunk",
         "$mozBin/is_dev_tree.txt",
         qq(
-            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v $args -d %0:d
+            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v $args -d %0:d $pp_defines
             touch %0
         )
     );
