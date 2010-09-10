@@ -270,6 +270,10 @@
             oncommand="ko.commands.doCommandAsync('cmd_helpViewErrorLog', event)"
             desc="&helpTroubleshootingViewErrorLog.desc;"/>
         <command
+            id="cmd_helpContactUs" key="key_cmd_helpContactUs"
+            oncommand="ko.commands.doCommandAsync('cmd_helpContactUs', event)"
+            desc="&helpTroubleshootingContactUs.desc;"/>
+        <command
             id="cmd_toolsWatchFile" key="key_cmd_toolsWatchFile"
             interactive="true"
             oncommand="ko.commands.doCommandAsync('cmd_toolsWatchFile', event)"

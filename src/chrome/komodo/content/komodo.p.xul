@@ -1721,14 +1721,22 @@
                                 >
                                 <menupopup id="help-troubleshooting-popup">
                                     <menuitem
+                                        id="troubleshootingViewErrorLogMenuItem"
+                                        accesskey="&helpTroubleshootingViewErrorLog.accesskey;"
+                                        label="&helpTroubleshootingViewErrorLog.label;"
+                                        observes="cmd_helpViewErrorLog"
+                                    />
+                                    <menuitem
                                         id="troubleshootingViewBugsMenuItem"
+                                        accesskey="&komodoBugDatabase.accesskey;"
                                         label="&komodoBugDatabase.label;"
                                         observes="cmd_helpViewBugs"
                                         />
                                     <menuitem
-                                        id="troubleshootingViewErrorLogMenuItem"
-                                        label="&helpTroubleshootingViewErrorLog.label;"
-                                        observes="cmd_helpViewErrorLog"
+                                        id="troubleshootingContactUsMenuItem"
+                                        accesskey="&helpTroubleshootingContactUs.accesskey;"
+                                        label="&helpTroubleshootingContactUs.label;"
+                                        observes="cmd_helpContactUs"
                                     />
                                 </menupopup>
                             </menu>

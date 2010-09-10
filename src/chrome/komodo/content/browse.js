@@ -227,8 +227,8 @@ this.updateHelpLanguagesPopup = function browse_UpdateHelpLanguagesPopup() {
 var tag2uri = {
     'mailLists': "http://aspn.activestate.com/ASPN/Mail/Browse/Threaded/komodo-discuss",
     'community': "http://community.activestate.com/products/Komodo",
-    
-    'bugs': "http://bugs.activestate.com/query.cgi?format=specific&product=Komodo"
+    'bugs': "http://bugs.activestate.com/query.cgi?format=specific&product=Komodo",
+    'contactus': "http://www.activestate.com/company/contact-us"
 };
 
 /**

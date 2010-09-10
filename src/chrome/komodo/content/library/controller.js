@@ -86,6 +86,7 @@ var handlers = {
     'cmd_helpKomodoMailLists': 'ko.browse.browseTag("mailLists")',
     'cmd_helpCommunity': 'ko.browse.browseTag("community")',
     'cmd_helpViewBugs': 'ko.browse.browseTag("bugs")',
+    'cmd_helpContactUs': 'ko.browse.browseTag("contactus")',
     'cmd_helpLanguage': 'ko.help.language()',
     'cmd_helpLanguageAlternate': 'ko.help.alternate()',
     'cmd_helpViewErrorLog': 'ko.help.viewErrorLog()',
