@@ -18,3 +18,13 @@ tabbox.vertical_tabs tab[selected="true"]
        border is missing from the native tab. */
     margin-bottom: 2px;
 }
+
+/* Same styling as sidebar was using (see sidebar.css) */
+tabbox.vertical_tabs tree
+{
+  -moz-appearance: none;
+  border: 0;
+  margin: 0;
+  border-top: 1px solid;
+}
+
