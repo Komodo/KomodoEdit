@@ -366,7 +366,6 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
                 # XXX quick fix bug 65913
                 log.exception(e)
                 pass # pass and use original value
-        pref = cgi.escape(pref)
         data = u'  <string'
         for a,v in attrs.items():
             data += ' %s="%s"' % (a,v)
