@@ -1768,15 +1768,8 @@ ManagerClass.prototype = {
             var placesPrefs = _globalPrefs.getPref("places");
             var name_list = ['lastLocalDirectoryChoice', 'lastRemoteDirectoryChoice', 'lastHomePlace'];
             name_list.map(function(name) {
-                try {
+                if (placesPrefs.hasStringPref(name)) {
                     this[name] = placesPrefs.getStringPref(name);
-                } catch(ex) {
-                    if (placesPrefs.hasStringPref(name)) {
-                        log.exception("placesPrefs.hasStringPref('"
-                                      + name
-                                      + "'), but got exception: "
-                                      + ex);
-                    }
                 }
             }, this);
                     
