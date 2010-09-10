@@ -950,11 +950,15 @@ this.doDrop = function(event, tree) {
         }
     }
     var dt = event.dataTransfer;
+    var dropEffect = dt.dropEffect;
+    // The dropEffect field is only good for internal drag/drop.
+    // If it's set to none, look at the ctrl key.
+    var copying = (dropEffect != "none" ? dropEffect == "copy" : event.ctrlKey);
     // We're either moving/copying one or more tools to a folder,
     // or we're dropping a blob of text, and will turn it into a snippet.
     try {
         var koDropDataList = ko.dragdrop.unpackDropData(dt);
-        this._handleDroppedURLs(index, koDropDataList, dt.dropEffect == "copy");
+        this._handleDroppedURLs(index, koDropDataList, copying);
         event.cancelBubble = true;
         event.stopPropagation();
         event.preventDefault();
