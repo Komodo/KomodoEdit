@@ -1178,6 +1178,12 @@
                                 class="menuitem-iconic previous-buffer-icon"
                                 observes="cmd_bufferPrevious"
                             />
+                            <menu id="goToTab_menu"
+                                  label="&goToTab.menu.label;"
+                                  accesskey="&goToTab.menu.accesskey;">
+                                <menupopup id="goToTab_menupopup"
+                                           onpopupshowing="ko.uilayout.updateWindowList(this);" />
+                            </menu>
 
                             <menuseparator id="naviation_menupopup_separator_2"/>
 
@@ -1192,12 +1198,6 @@
                                       id="menu_jumpToMatchingBrace"
                                       observes="cmd_jumpToMatchingBrace"
                                       />
-                            <menu id="goToTab_menu"
-                                  label="&goToTab.menu.label;"
-                                  accesskey="&goToTab.menu.accesskey;">
-                                <menupopup id="goToTab_menupopup"
-                                           onpopupshowing="ko.uilayout.updateWindowList(this);" />
-                            </menu>
                             <menuitem id="editor-jump-corresponding"
                                       label="&jumpToCorrespondingLineForDiffMode.label;"
                                       observes="cmd_jumpToCorrespondingLine"/>
