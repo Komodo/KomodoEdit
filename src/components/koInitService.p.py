@@ -922,6 +922,7 @@ class KoInitService(object):
             join("XRE", "key3.db"): join("XRE", "key3.db"),
             join("XRE", "cert8.db"): join("XRE", "cert8.db"),
             join("XRE", "secmod.db"): join("XRE", "secmod.db"),
+            join("XRE", "extensions.rdf"): join("XRE", "extensions.rdf"),
         }
 
         # Get the current version.
