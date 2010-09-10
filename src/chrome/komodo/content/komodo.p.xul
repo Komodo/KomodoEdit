@@ -2236,9 +2236,11 @@
                 <tabbox orient="vertical"
                         flex="1"
                         id="rightTabBox"
-                        class="sidepanel">
-                    <tabs type="sidebar" collapsable="true"
-                          id="right_toolbox_tabs" orient="horizontal"
+                        class="native vertical_tabs"
+                        rotation="90">
+                    <tabs id="right_toolbox_tabs"
+                          orient="vertical"
+                          collapsable="true"
                           splitterId="workspace_right_splitter"
                           onclose="ko.uilayout.toggleSplitter('cmd_viewRightPane');"
                           closeclass="scroll-minimize-right-icon"
