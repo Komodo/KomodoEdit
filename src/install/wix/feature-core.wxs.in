@@ -1105,16 +1105,16 @@
                   </Component>
                 </Directory> <!-- lib\mozilla\extensions\html_language@ActiveState.com\templates\Common -->
                 <Directory Id="directory328" Name="Samples">
+                  <Directory Id="directory126" Name="HTML5">
+                    <Component Id="component107" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file606" Name="ARTICL_0.HTM" LongName="Article.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5\Article.html"/>
+                      <File Id="file607" Name="AUDIO_0.HTM" LongName="Audio.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5\Audio.html"/>
+                      <File Id="file608" Name="CANVAS_0.HTM" LongName="Canvas.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5\Canvas.html"/>
+                      <File Id="file615" Name="LAYOUT_0.HTM" LongName="Layout.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5\Layout.html"/>
+                      <File Id="file1242" Name="VIDEO_0.HTM" LongName="Video.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5\Video.html"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5 -->
                   <Component Id="component306" DiskId="1" Guid="$(autowix.guid)">
-                    <Directory Id="directory126" Name="HTML5">
-                      <Component Id="component107" DiskId="1" Guid="$(autowix.guid)">
-                        <File Id="file606" Name="ARTICL_0.HTM" LongName="Article.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5\Article.html"/>
-                        <File Id="file607" Name="AUDIO_0.HTM" LongName="Audio.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5\Audio.html"/>
-                        <File Id="file608" Name="CANVAS_0.HTM" LongName="Canvas.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5\Canvas.html"/>
-                        <File Id="file615" Name="LAYOUT_0.HTM" LongName="Layout.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5\Layout.html"/>
-                        <File Id="file1242" Name="VIDEO_0.HTM" LongName="Video.html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5\Video.html"/>
-                      </Component>
-                    </Directory> <!-- lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML5 -->
                     <File Id="file173" Name="HTML40_0.HTM" LongName="HTML (4.01).html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML (4.01).html"/>
                     <File Id="file174" Name="HTMLXH_1.HTM" LongName="HTML (XHTML).html" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\html_language@ActiveState.com\templates\Samples\HTML (XHTML).html"/>
                   </Component>
