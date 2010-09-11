@@ -399,6 +399,11 @@
           id="menu_replaceProject_projectsContext"
           labelTest="t:project|&replaceProject.label;|&openProject.label;"
           oncommand="ko.places.openProjectInCurrentWindow();" />
+      <menuitem label="&removeProjectListing.label;"
+          id="menu_removeProjectListing_projectsContext"
+          disableIf="currentProject"
+          oncommand="ko.places.removeProjectListing();" />
+      <menuseparator id="menu_project_properties_separator_projectsContext"/>
       <menuitem label="&properties.label;"
           id="menu_projectProperties_projectsContext"
           disableUnless="currentProject"

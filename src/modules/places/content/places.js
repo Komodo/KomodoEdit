@@ -2738,6 +2738,20 @@ this.openProjectInCurrentWindow = function() {
     this._openProject(false);
 }
 
+this.removeProjectListing = function() {
+    var index = this.projectsTreeView.selection.currentIndex;
+    if (index == -1) {
+        log.debug("removeProjectListing: No index");
+        return;
+    }
+    var uri = this.projectsTreeView.getCellValue(index);
+    if (!uri) {
+        log.debug("removeProjectListing: No uri at index:" + index);
+        return;
+    }
+    ko.mru.deleteValue('mruProjectList', uri, true/*notify */);
+}
+
 this._openProject = function(inNewWindow) {
     var index = this.projectsTreeView.selection.currentIndex;
     if (index == -1) {

@@ -372,6 +372,26 @@ this.del = function MRU_del(prefName, index, notify)
     }
 }
 
+this.deleteValue = function MRU_deleteValue(prefName, prefValue, notify)
+{
+    _log.info("MRU_deleteByValue(prefName="+prefName+", prefValue="+prefValue+")");
+    if (typeof(notify) == 'undefined')
+        notify = true;
+    // Remove the identified entry from the MRU list.
+    var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
+                  getService(Components.interfaces.koIPrefService);
+    if (prefSvc.prefs.hasPref(prefName)) {
+        var mruList = prefSvc.prefs.getPref(prefName);
+        var index = mruList.findStringPref(prefValue);
+        if (index != -1) {
+            mruList.deletePref(index);
+            if (notify) {
+                _notifyOfMRUChange(prefName);
+            }
+        }
+    }
+}
+
 this.reset = function MRU_reset(prefName)
 {
     _log.info("MRU_reset(prefName="+prefName+")");
