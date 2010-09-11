@@ -576,6 +576,9 @@ viewMgrClass.prototype = {
     _checkDragSource: function(event) {
         // All dragged items must be URIs for the drag source to be valid.
         var dt = event.dataTransfer;
+        if (!dt) {
+            return false;
+        }
         for (var i = 0; i < dt.mozItemCount; i++) {
             if (!event.dataTransfer.mozTypesAt(i).contains("text/uri-list")) {
                 if (this.complainIfNotAContainer) {
@@ -620,7 +623,9 @@ viewMgrClass.prototype = {
             retVal = true;
             //dump("this.originalEffect: " + this.originalEffect + "\n");
         }
-        event.dataTransfer.effectAllowed = retVal ? this.originalEffect : "none";
+        if (event.dataTransfer) {
+            event.dataTransfer.effectAllowed = retVal ? this.originalEffect : "none";
+        }
         return retVal;
     },
     _draggingOntoSelf: function(event, index) {
@@ -677,7 +682,8 @@ viewMgrClass.prototype = {
             ko.dialogs.alert("don't know how to drag/drop a link");
             return false;
         }
-        copying = (dropEffect == "copy");
+        // See bug 87924
+        copying = (dropEffect != 'none' ? dropEffect == "copy" : event.ctrlKey);
         try {
             this._finishFileCopyOperation(from_uris, target_uri, index, copying);
         } catch(ex) {
