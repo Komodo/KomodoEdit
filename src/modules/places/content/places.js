@@ -1905,7 +1905,13 @@ ManagerClass.prototype = {
     },
 
     _setDirURI_successFunc_show_tab: function() {
-        ko.uilayout.ensureTabShown("places_tab", true);
+        // Don't cause a focus change triggered from workspace restore - bug 87868.
+        if (ko.projects.manager._project_opened_during_workspace_restore) {
+            ko.uilayout.ensureTabShown("places_tab", false);
+            ko.projects.manager._project_opened_during_workspace_restore = false;
+        } else {
+            ko.uilayout.ensureTabShown("places_tab", true);
+        }
     },
     
     goPreviousPlace: function() {

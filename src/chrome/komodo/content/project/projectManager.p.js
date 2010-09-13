@@ -82,6 +82,7 @@ function projectManager() {
     this.log = ko.logging.getLogger('projectManager');
     this._projects = [];
     this._currentProject = null;
+    this._project_opened_during_workspace_restore = false;
     this.registerCommands();
 }
 
@@ -1031,6 +1032,10 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
             }
         }
     }
+    // Need to remember if the project was opened during the workspace restore,
+    // bug 87868. If we didn't use a setTimeout here, then we could detect the
+    // workspace was restoring and wouldn't need this variable.
+    ko.projects.manager._project_opened_during_workspace_restore = ko.workspace.restoreInProgress();
     setTimeout(xtk.domutils.fireEvent, 10, window, 'project_opened');
     return true;
 }
