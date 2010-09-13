@@ -3328,6 +3328,9 @@ function cmd_vim_cancel(scimoz) {
             //ko.commands.doCommand('cmd_left');
             gVimController._currentPos = scimoz.positionBefore(gVimController._currentPos);
         }
+        if (scimoz.autoCActive()) {
+            scimoz.autoCCancel();
+        }
     }
     gVimController.mode = VimController.MODE_NORMAL;
     gVimController.repeatCount = 0;
