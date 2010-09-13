@@ -1502,14 +1502,14 @@
 
                             <menuseparator id="menu_project_separator_2"/>
 
-                            <menuitem label="&showProjectInPlaces.label;"
-                                      id="menu_showProjectInPlaces"
-                                      observes="cmd_showProjectInPlaces"
-                                      addProjectName="true"
-                                      />
                             <menuitem label="&closeProject.label;"
                                       id="menu_closeProject"
                                       observes="cmd_closeProject"
+                                      addProjectName="true"
+                                      />
+                            <menuitem label="&showProjectInPlaces.label;"
+                                      id="menu_showProjectInPlaces"
+                                      observes="cmd_showProjectInPlaces"
                                       addProjectName="true"
                                       />
                             <menuitem label="&saveProject.label;"
