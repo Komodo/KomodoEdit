@@ -575,7 +575,7 @@ projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
             m3.setAttribute("label", baseName);
             m3.setAttribute("oncommand",
                             ("ko.projects.manager.newProjectFromTemplate('"
-                             + path
+                             + path.replace(/\\/g, '\\\\')
                              + "');"));
             m3.setAttribute("accesskey", baseName.substring(0, 1));
             m2.appendChild(m3);
