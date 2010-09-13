@@ -61,7 +61,7 @@ from koLanguageServiceBase import sendStatusMessage
 log = logging.getLogger("KoPlaceTreeView")
 #log.setLevel(logging.DEBUG)
 qlog = logging.getLogger("KoPlaceTreeView.q")
-#qlog.setLevel(logging.DEBUG)
+qlog.setLevel(logging.DEBUG)
 
 class _kplBase(object):
     """
@@ -110,9 +110,9 @@ class _kplBase(object):
             self._koFile = components.classes["@activestate.com/koFileService;1"].\
                            getService(components.interfaces.koIFileService).\
                            getFileFromURI(self.uri)
-            qlog.debug("koFile getter: file:%s, isLink:%r",
-                       self._koFile.path,
-                       self._koFile.isSymlink)
+####            qlog.debug("koFile getter: file:%s, isLink:%r",
+####                       self._koFile.path,
+####                       self._koFile.isSymlink)
                        
         return self._koFile
 
@@ -187,15 +187,13 @@ class _kplFolder(_kplBase):
             if self.koFile.isSymlink:
                 baseName += "_symlink"
             if 'link' in self.name:
-                qlog.debug("folder %s: isLink:%r", self.name, self.koFile.isSymlink)
+                pass
+                ####qlog.debug("folder %s: isLink:%r", self.name, self.koFile.isSymlink)
             if self.isOpen:
                 return [baseName + "_open"]
             else:
                 return [baseName + "_closed"]
         return []
-
-    def unsetContainer(self):
-        self.isContainer = False
 
 class _kplNonFolder(_kplBase):
     isOpen = False
@@ -1313,7 +1311,7 @@ class KoPlaceTreeView(TreeView):
         for childNode in parentNode.childNodes:
             childName = childNode.name
             if self._namePassesFilter(childName):
-                qlog.debug("insert %s (%s) at slot %d", childNode.uri, childNode.type, rowIndex)
+                ####qlog.debug("insert %s (%s) at slot %d", childNode.uri, childNode.type, rowIndex)
                 newNode = placeObject[childNode.type](level, childNode.uri)
                 self._rows.insert(rowIndex, newNode)
                 isOpenNode = self.isContainerOpen(rowIndex)
@@ -1532,8 +1530,8 @@ class KoPlaceTreeView(TreeView):
         try:
             rowNode = self._rows[row_idx]
             zips = rowNode.getCellPropertyNames(col_id)
-            qlog.debug("props(row:%d) name:%s) : %s",
-                       row_idx, rowNode.name,  zips)
+####            qlog.debug("props(row:%d) name:%s) : %s",
+####                       row_idx, rowNode.name,  zips)
             for propName in rowNode.getCellPropertyNames(col_id):
                 try:
                     properties.AppendElement(self._atomsFromName[propName])
@@ -1903,7 +1901,6 @@ class KoPlaceTreeView(TreeView):
             self._addWatchForChanges(rowNode.path)
         if not topModelNode.childNodes:
             #qlog.debug("Node we opened has no children")
-            rowNode.unsetContainer()
             if doInvalidate:
                 self.invalidateTree()
             else:
