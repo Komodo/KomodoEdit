@@ -395,9 +395,8 @@
           id="menu_projectOpenProject_projectsContext"
           disableIf="projectIsOpen"
           oncommand="ko.places.openProjectInNewWindow();" />
-      <menuitem label="&replaceProject.label;"
-          id="menu_replaceProject_projectsContext"
-          labelTest="t:project|&replaceProject.label;|&openProject.label;"
+      <menuitem label="&openProject.label;"
+          id="menu_openProject_projectsContext"
           oncommand="ko.places.openProjectInCurrentWindow();" />
       <menuitem label="&removeProjectListing.label;"
           id="menu_removeProjectListing_projectsContext"

@@ -2676,16 +2676,6 @@ this.initProjectsContextMenu = function(event, menupopup) {
         } else {
             menuNode.removeAttribute('disabled');
         }
-        if (menuNode.hasAttribute("labelTest")) {
-            var test = menuNode.getAttribute("labelTest");
-            var m = this._projectTestLabelMatcher.exec(test);
-            if (m) {
-                menuNode.setAttribute("label",
-                                  selectionInfo.currentProject ? m[1] : m[2]);
-            } else {
-                dump("Can't process test [" + test + "]\n");
-            }
-        }
     }
     return true;
 };
