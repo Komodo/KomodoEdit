@@ -547,9 +547,11 @@ viewMgrClass.prototype = {
                 path = ko.uriparse.URIToLocalPath(uri);
                 nsLocalFile.initWithPath(path);
                 dt.mozSetDataAt("application/x-moz-file", nsLocalFile, i);
+                dt.mozSetDataAt("text/x-moz-url", uri, i);
                 dt.mozSetDataAt("text/uri-list", uri, i);
                 dt.mozSetDataAt('text/plain', ko.uriparse.URIToLocalPath(uri), i);
             } else {
+                dt.mozSetDataAt("text/x-moz-url", uri, i);
                 dt.mozSetDataAt("text/uri-list", uri, i);
                 dt.mozSetDataAt('text/plain', uri, i);
             }
@@ -577,10 +579,12 @@ viewMgrClass.prototype = {
         // All dragged items must be URIs for the drag source to be valid.
         var dt = event.dataTransfer;
         if (!dt) {
+            log.info("_checkDragSource: No dataTransfer");
             return false;
         }
         for (var i = 0; i < dt.mozItemCount; i++) {
-            if (!event.dataTransfer.mozTypesAt(i).contains("text/uri-list")) {
+            if (!event.dataTransfer.mozTypesAt(i).contains("text/uri-list")
+                && !event.dataTransfer.mozTypesAt(i).contains("text/x-moz-url")) {
                 if (this.complainIfNotAContainer) {
                     log.debug("not a file data-transfer\n");
                     this.complainIfNotAContainer = false;
@@ -610,53 +614,39 @@ viewMgrClass.prototype = {
         var retVal = false;
         if (!inDragSource) {
             // do nothing more
-        } else if (this._draggingOntoSelf(event, index)) {
-            // Can't drag onto oneself
-        } else if (!this.view.isContainer(index)) {
-            //if (this.complainIfNotAContainer) {
-            //    log.debug("Not a container\n");
-            //    this.complainIfNotAContainer = false;
-            //}
-        } else if (this._draggingOntoParent(event, index)) {
-            // Can't drag self into its parent.
         } else {
             retVal = true;
             //dump("this.originalEffect: " + this.originalEffect + "\n");
         }
         if (event.dataTransfer) {
-            event.dataTransfer.effectAllowed = retVal ? this.originalEffect : "none";
+            event.dataTransfer.effectAllowed = "copyMove";
+        } else {
+            log.debug("_checkDrag: no event.dataTransfer");
         }
         return retVal;
     },
-    _draggingOntoSelf: function(event, index) {
-        var uri = gPlacesViewMgr.view.getURIForRow(index);
-        var dt = event.dataTransfer;
-        for (var i = 0; i < dt.mozItemCount; i++) {
-            if (dt.mozGetDataAt("text/uri-list", i) == uri) {
-                return true;
-            }
+    _addTrailingSlash: function(uri) {
+        if (uri[uri.length - 1] != "/") {
+            return uri + "/";
         }
-        return false;
+        return uri;
     },
 
-    _draggingOntoParent: function(event, index) {
-        var target_uri = gPlacesViewMgr.view.getURIForRow(index);
-        var dt = event.dataTransfer;
-        for (var i = 0; i < dt.mozItemCount; i++) {
-            var src_uri = dt.mozGetDataAt("text/uri-list", i);
-            var srcParent_uri = src_uri.substring(0, src_uri.lastIndexOf("/"));
-            if (srcParent_uri == target_uri) {
-                return true;
-            }
+    _removeTrailingSlash: function(uri) {
+        if (uri[uri.length - 1] == "/") {
+            return uri.substring(0, uri.length - 1);
         }
-        return false;
+        return uri;
     },
 
     _getDraggedURIs: function(event) {
-        var from_uris = [];
         var dt = event.dataTransfer;
-        for (var i = 0; i < dt.mozItemCount; i++) {
-            from_uris.push(dt.mozGetDataAt("text/uri-list", i));
+        var koDropDataList = ko.dragdrop.unpackDropData(dt);
+        var from_uris = [];
+        for (var i = 0; i < koDropDataList.length; i++) {
+            var koDropData = koDropDataList[i];
+            from_uris.push(koDropData.value);
+            
         }
         var dropEffect = dt.dropEffect;
         return [from_uris, dropEffect];
@@ -664,8 +654,37 @@ viewMgrClass.prototype = {
 
     doDrop : function(event, tree) {
         var index = this._currentRow(event);
-        var target_uri = gPlacesViewMgr.view.getURIForRow(index);
-        this._finishDrop(event, target_uri, index);
+        if (index == -1) {
+            this.doDropOnRootNode(event, tree);
+            return;
+        }
+        var treeView = gPlacesViewMgr.view;
+        var target_uri;
+        if (treeView.isContainer(index)) {
+            target_uri = treeView.getURIForRow(index);
+        } else if (treeView.getLevel(index) == 0) {
+            target_uri = ko.places.manager.currentPlace;
+        } else {
+            var parentIndex = treeView.getParentIndex(index);
+            if (parentIndex == -1) {
+                log.error("Can't find a parent index for index:" + index);
+                return;
+            }
+            index = parentIndex;
+            target_uri = treeView.getURIForRow(index);
+        }
+        if (!this._finishDrop(event, target_uri, index)) {
+            event.stopPropagation();
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    },
+
+    _dropProblem: function(msg) {
+        log.error(msg);
+        ko.statusBar.AddMessage(msg, "editor", 10 * 1000, true);
+        return false;
     },
     
     _finishDrop : function(event, target_uri, index) {
@@ -673,15 +692,38 @@ viewMgrClass.prototype = {
         var from_uris, dropEffect, copying;
         [from_uris, dropEffect] = this._getDraggedURIs(event);
         if (from_uris.length == 0) {
-            log.debug("_finishDrop: no from_uris\n");
-            return false;
+            return this._dropProblem("_finishDrop: no from_uris");
         } else if (dropEffect == "none") {
-            log.debug("_finishDrop: no drag/drop here\n");
-            return false;
+            return this._dropProblem("_finishDrop: no drag/drop here");
         } else if (dropEffect == "link") {
-            ko.dialogs.alert("don't know how to drag/drop a link");
-            return false;
+            return this._dropProblem("don't know how to drag/drop a link");
         }
+        var target_uri_no_slash = this._removeTrailingSlash(target_uri);
+        for (var i = 0; i < from_uris.length; i++) {
+            var source_uri = from_uris[i];
+            var source_uri_no_slash = this._removeTrailingSlash(source_uri);
+            if (target_uri_no_slash == source_uri_no_slash) {
+                return this._dropProblem("places.doDrop: can't drop directory "
+                                    + source_uri_no_slash
+                                    + " onto itself");
+                return false;
+            }
+            var source_uri_parent_no_slash = source_uri_no_slash.substr(0, source_uri_no_slash.lastIndexOf("/"));
+            if (target_uri_no_slash == source_uri_parent_no_slash) {
+                return this._dropProblem("places.doDrop: can't drop the item "
+                                    + source_uri_no_slash
+                                    + " onto its parent.");
+                return false;
+            }
+            else if (target_uri.indexOf(this._addTrailingSlash(source_uri_no_slash)) == 0) {
+                return this._dropProblem("places.doDrop: can't drop the item "
+                                    + source_uri
+                                    + " onto its  descendant "
+                                    + target_uri);
+                return false;
+            }
+        }
+
         // See bug 87924
         copying = (dropEffect != 'none' ? dropEffect == "copy" : event.ctrlKey);
         try {
@@ -697,7 +739,12 @@ viewMgrClass.prototype = {
 
     doDropOnRootNode : function(event, tree) {
         var target_uri = ko.places.manager.currentPlace;
-        this._finishDrop(event, target_uri, -1);
+        if (!this._finishDrop(event, target_uri, -1)) {
+            event.stopPropagation();
+            event.preventDefault();
+            return false;
+        }
+        return true;
     },
 
     doEndDrag: function(event, tree) {
