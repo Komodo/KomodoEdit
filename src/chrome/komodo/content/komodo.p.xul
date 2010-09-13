@@ -1529,7 +1529,7 @@
                                       id="menu_revertProject"
                                       observes="cmd_revertProject"
                                       />
-                            <menuseparator id="menu_project_mru_separator"
+                            <menuseparator id="menu_project_separator_3"
                                   skipCopyToCogMenu="true" />
                             <menuitem label="&properties.label;"
                                       id="menu_projectProperties"
