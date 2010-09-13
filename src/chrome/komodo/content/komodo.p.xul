@@ -1529,8 +1529,9 @@
                                       id="menu_revertProject"
                                       observes="cmd_revertProject"
                                       />
-                            <menuseparator id="menu_project_separator_3"
-                                  skipCopyToCogMenu="true" />
+
+                            <menuseparator id="menu_project_separator_3"/>
+
                             <menuitem label="&properties.label;"
                                       id="menu_projectProperties"
                                       observes="cmd_projectProperties"
