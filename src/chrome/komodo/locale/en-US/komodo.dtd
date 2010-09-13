@@ -461,6 +461,7 @@
 <!ENTITY newFileFromTemplate.label "File from Template...">
 <!ENTITY newFileUsingDefaultLanguage.tooltiptext "New File Using Default Language">
 <!ENTITY newFolder.label "New Folder...">
+<!ENTITY newFromTemplate.label "New From Template">
 <!ENTITY newLiveFolder.label "New Live Folder...">
 <!ENTITY newMacro.label "New Macro...">
 <!ENTITY newOpenShortcut.label "New Open... Shortcut">

@@ -522,11 +522,6 @@ projectManager.prototype._finishUpdateProjectMenu = function(menuNode) {
                     }
                 }
                 break;
-            case "menuseparator":
-                if (node.id == "menu_project_mru_separator") {
-                    ko.uilayout.updateMRUMenuIfNecessary('project', 5);
-                }
-                break;
             case "menu":
                 break;
             case "menupopup":

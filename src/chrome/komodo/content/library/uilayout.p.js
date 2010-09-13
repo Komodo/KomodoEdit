@@ -595,8 +595,7 @@ function _updateMRUMenu(prefName, limit)
     //     factored out.
     var popupId, separatorId, prettyName;
     if (prefName == "mruProjectList") {
-        popupId = null; // was:"popup_mruProjects"; // MRU list is the whole popup.
-        separatorId = "menu_projects_mru_separator";
+        popupId = "recentProjects_menupopup";
         prettyName = "Projects";
     } else if (prefName == "mruFileList") {
         popupId = "popup_mruFiles"; // MRU list is the whole popup.
