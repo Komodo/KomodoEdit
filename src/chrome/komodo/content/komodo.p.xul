@@ -1494,14 +1494,9 @@
                                       id="menu_projectOpenProject"
                                       observes="cmd_openProject"
                                       />
-                            <!-- Either open a new project here, or replace
-                                 the window's current project.  Only the
-                                 label changes.
-                                 -->
-                            <menuitem label="&replaceProject.label;"
-                                      id="menu_replaceProject"
-                                      observes="cmd_replaceProject"
-                                      labelTest="t:project|&replaceProject.label;|&openProject.label;"
+                            <menuitem label="&openProject.label;"
+                                      id="menu_openProject"
+                                      observes="cmd_openProject"
                                       />
                             <menuitem label="&newProject.label;"
                                       id="menu_projectNewProject"
