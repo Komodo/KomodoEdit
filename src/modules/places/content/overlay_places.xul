@@ -390,19 +390,23 @@
           id="menu_revertProject_projectsContext"
           disableUnless="projectIsDirty"
           oncommand="ko.places.revertProject();" />
+
       <menuseparator id="menu_project_save_separator_projectsContext"/>
+
+      <menuitem label="&openProject.label;"
+          id="menu_openProject_projectsContext"
+          oncommand="ko.places.openProjectInCurrentWindow();" />
       <menuitem label="&openProjectInNewWindow.label;"
           id="menu_projectOpenProject_projectsContext"
           disableIf="projectIsOpen"
           oncommand="ko.places.openProjectInNewWindow();" />
-      <menuitem label="&openProject.label;"
-          id="menu_openProject_projectsContext"
-          oncommand="ko.places.openProjectInCurrentWindow();" />
       <menuitem label="&removeProjectListing.label;"
           id="menu_removeProjectListing_projectsContext"
           disableIf="currentProject"
           oncommand="ko.places.removeProjectListing();" />
+
       <menuseparator id="menu_project_properties_separator_projectsContext"/>
+
       <menuitem label="&properties.label;"
           id="menu_projectProperties_projectsContext"
           disableUnless="currentProject"
