@@ -1570,6 +1570,16 @@ class koProject(koLiveFolderPart):
                     if prefset.hasPrefHere("mappedPaths"):
                         upgradeutils.upgrade_mapped_uris_for_prefset(prefset)
 
+                    if kpfVer < 5 and prefset.hasPrefHere("import_exclude_matches"):
+                        # Add filtering for the new project file types.
+                        value = prefset.getStringPref("import_exclude_matches")
+                        values = value.split(";")
+                        if "*.kpf" in values and not "*.komodoproject" in values:
+                            values.append("*.komodoproject")
+                            values.append(".komodotools")
+                            value = ";".join(values)
+                            prefset.setStringPref("import_exclude_matches", value)
+
                     prefset.addObserver(self)
                     self._prefmap[prefset.idref] = prefset
                     #print "adding pref to [%s]" % node.attributes['idref']
