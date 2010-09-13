@@ -348,7 +348,7 @@ BaseManager.prototype.onDrop = function(event, transferDataSet, session, index) 
                 if (typeof(this.toolbox) == 'undefined') {
                     ko.projects.addLiveFolder(ko.uriparse.URIToLocalPath(desc.text), droppedon);
                 }
-            } else if (desc.isFileURL && desc.text.match(/\.kpf$/)) {
+            } else if (desc.isFileURL && desc.text.match(/\.komodoproject$/)) {
                 ko.projects.open(desc.text);
             } else {
                 // XXX should check that the project doesn't already have the URL
