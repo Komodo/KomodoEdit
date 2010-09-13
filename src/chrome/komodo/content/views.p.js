@@ -3232,13 +3232,6 @@ ko.views.addDeprecatedGetter('view_focusedScintilla', 'window', 'focusedScintill
 ko.views.addDeprecatedGetter('view_focusedView', 'window', 'focusedView');
 ko.views.addDeprecatedGetter('view_checkDiskFiles', 'window', 'checkDiskFiles');
 
-// setTimeout in case projectManager.p.js hasn't been loaded yet.
-setTimeout(function() {
-    ko.projects.addDeprecatedGetter('view_getFocusedProjectView',
-                                    'getFocusedProjectView');
-}, 1000);
-           
-
 // gViewMgr can be dropped in v6:
 ko.views.addDeprecatedGetter('gViewMgr', 'views', 'manager');
 
