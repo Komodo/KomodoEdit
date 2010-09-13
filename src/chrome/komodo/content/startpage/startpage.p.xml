@@ -1282,13 +1282,13 @@
                         getService(Components.interfaces.koIDirs);
                 var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
                         getService(Components.interfaces.koIOsPath);
-                var sampleKpfPath = osPathSvc.joinlist(3,
-                        [koDirSvc.userDataDir, "samples", "sample_project.kpf"]);
+                var sampleProjectPath = osPathSvc.joinlist(3,
+                        [koDirSvc.userDataDir, "samples", "sample_project.komodoproject"]);
                 
-                if (! osPathSvc.exists(sampleKpfPath)) {
+                if (! osPathSvc.exists(sampleProjectPath)) {
                     var response = ko.dialogs.okCancel(this._bundle.formatStringFromName(
                                 "theSampleProjectCouldNotBeFound.message",
-                                [sampleKpfPath], 1),
+                                [sampleProjectPath], 1),
                                 "Cancel");
                     if (response == "OK") {
                         var initSvc = Components.classes["@activestate.com/koInitService;1"].
@@ -1299,8 +1299,8 @@
                     }
                 }
 
-                var sampleKpfUrl = ko.uriparse.pathToURI(sampleKpfPath);
-                ko.projects.open(sampleKpfUrl);
+                var sampleProjectPath = ko.uriparse.pathToURI(sampleProjectPath);
+                ko.projects.open(sampleProjectPath);
             } catch (ex) {
                 this.log.exception(ex,"openSampleProject error: "+ex);
             }

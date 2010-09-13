@@ -48,7 +48,7 @@ Import(
 );
 
 my @samples = (
-    ["sample_project.p.kpf", "sample_project.kpf"],
+    ["sample_project.p.komodoproject", "sample_project.komodoproject"],
     ["perl_sample.p.pl", "perl_sample.pl"],
     ["python_sample.p.py", "python_sample.py"],
     ["ruby_sample.p.rb", "ruby_sample.rb"],
