@@ -521,16 +521,6 @@ projectManager.prototype._finishUpdateProjectMenu = function(menuNode) {
                         }
                     }
                 }
-                if (node.hasAttribute("labelTest")) {
-                    var test = node.getAttribute("labelTest");
-                    var m = this._projectTestLabelMatcher.exec(test);
-                    if (m) {
-                        node.setAttribute("label",
-                                          this._projectLabel ? m[1] : m[2]);
-                    } else {
-                        dump("Can't process test [" + test + "]\n");
-                    }
-                }
                 break;
             case "menuseparator":
                 if (node.id == "menu_project_mru_separator") {
