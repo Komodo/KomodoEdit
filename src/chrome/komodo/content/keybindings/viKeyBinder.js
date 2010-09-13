@@ -1095,24 +1095,7 @@ VimController.prototype.inputBufferSaveHistory = function (value)
 
 VimController.prototype._getTextFromClipboard = function () {
     try {
-        var clip = Components.classes["@mozilla.org/widget/clipboard;1"].
-                        getService(Components.interfaces.nsIClipboard);
-        var trans = Components.classes["@mozilla.org/widget/transferable;1"].
-                        createInstance(Components.interfaces.nsITransferable);
-        if (!clip || !trans) {
-            return "";
-        }
-        trans.addDataFlavor("text/unicode");
-        clip.getData(trans, clip.kGlobalClipboard);
-        var dataObj = new Object();
-        var len = new Object();
-        trans.getTransferData ("text/unicode", dataObj, len);
-        if (dataObj) {
-            dataObj = dataObj.value.QueryInterface(Components.interfaces.nsISupportsWString);
-            if (dataObj) {
-                return dataObj.data;
-            }
-        }
+        return xtk.clipboard.getText();
     } catch (e) {
         vimlog.exception(e);
     }
@@ -1121,27 +1104,7 @@ VimController.prototype._getTextFromClipboard = function () {
 
 VimController.prototype._copyTextToClipboard = function(text) {
     try {
-        // Get clipboard.
-        var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"].
-                                getService(Components.interfaces.nsIClipboard);
-    
-        // Create tranferable that will transfer the text.
-        var transferable = Components.classes["@mozilla.org/widget/transferable;1"].
-                                createInstance(Components.interfaces.nsITransferable);
-
-        if (clipboard && transferable) {
-            transferable.addDataFlavor("text/unicode");
-            // Create wrapper for text.
-            var data = Components.classes["@mozilla.org/supports-string;1"].
-                            createInstance(Components.interfaces.nsISupportsString);
-            if (data) {
-                data.data = text;
-                transferable.setTransferData("text/unicode", data, text.length * 2);
-                // Put on clipboard.
-                clipboard.setData(transferable, null,
-                                  Components.interfaces.nsIClipboard.kGlobalClipboard);
-            }
-        }
+        xtk.clipboard.setText(text);
     } catch (e) {
         vimlog.exception(e);
     }
