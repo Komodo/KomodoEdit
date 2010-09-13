@@ -384,7 +384,7 @@ projectManager.prototype.newProjectFromTemplate = function(templatePath) {
             // Get template selection from the user.
             var obj = new Object();
             obj.type = "project";
-            obj.filename = _bundle.GetStringFromName("newProject.defaultFileName") + ".kpf";
+            obj.filename = _bundle.GetStringFromName("newProject.defaultFileName") + ".komodoproject";
             ko.launch.newTemplate(obj);
             if (obj.template == null || obj.filename == null) return false;
             templatePath = obj.template;
