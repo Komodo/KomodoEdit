@@ -3437,24 +3437,42 @@ function cmd_vim_toggleVisualBlockMode(scimoz) {
 
 // Special commands
 function cmd_vim_doReplaceChar(scimoz, repeatCount) {
-    // Only perform the deletion if there is a character to
-    // replace it with. Never replace past the end of the line.
-    var currentPos = gVimController._currentPos;
-    var lineNo = scimoz.lineFromPosition(currentPos);
-    var lineEndPos = scimoz.getLineEndPosition(lineNo);
-    var text = scimoz.getTextRange(currentPos, lineEndPos);
-    if (text.length < repeatCount) {
-        return;
-    }
-    scimoz.targetStart = currentPos;
-    scimoz.targetEnd = currentPos + ko.stringutils.bytelength(text.substring(0, repeatCount));
-    var newtext = gVimController._lastReplaceChar;
-    for (var i=1; i < repeatCount; i++) {
-        newtext += newtext[0];
-    }
-    scimoz.replaceTarget(newtext.length, newtext);
-    if (repeatCount > 1) {
-        gVimController._currentPos += (newtext_length -1);
+    // When in VISUAL mode with active selection, we replace the selection and ignore repeatCount
+    if ((gVimController._lastMode == VimController.MODE_VISUAL) &&
+        (gVimController._currentPos != gVimController._anchor)) {
+        var new_currentPos = Math.min(gVimController._currentPos, gVimController._anchor);
+        var newtext = gVimController._lastReplaceChar;
+        for (var i=1; i < scimoz.selText.length; i++) {
+            if (('\r' == scimoz.selText.charAt(i)) || ('\n' == scimoz.selText.charAt(i))) {
+                newtext += scimoz.selText.charAt(i);
+            } else {
+                newtext += newtext[0];
+            }
+        }
+        scimoz.replaceSel(newtext);
+        gVimController._currentPos = new_currentPos;
+        gVimController._lastRepeatCount = newtext.length;
+    } else {
+        // Only perform the deletion to the end of the line if there are characters
+        var currentPos = gVimController._currentPos;
+        var lineNo = scimoz.lineFromPosition(currentPos);
+        var lineEndPos = scimoz.getLineEndPosition(lineNo);
+        var text = scimoz.getTextRange(currentPos, lineEndPos);
+        if (text.length < 1) {
+            return;
+        } else if (text.length < repeatCount) {
+            repeatCount = text.length;
+        }
+        scimoz.targetStart = currentPos;
+        scimoz.targetEnd = currentPos + ko.stringutils.bytelength(text.substring(0, repeatCount));
+        var newtext = gVimController._lastReplaceChar;
+        for (var i=1; i < repeatCount; i++) {
+            newtext += newtext[0];
+        }
+        scimoz.replaceTarget(newtext.length, newtext);
+        if (repeatCount > 1) {
+            gVimController._currentPos += (newtext.length -1);
+        }
     }
     gVimController._lastModifyCommand = 'cmd_vim_doReplaceChar';
 }
