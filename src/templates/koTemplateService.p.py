@@ -254,16 +254,36 @@ to use Komodo's numerous standard %s templates.""" % (self.type, str(ex), self.t
                     finalItems.append([f, items])
         return finalItems
 
+    def _getLeaves(self, tree):
+        leaves = []
+        headers = []
+        for node in tree:
+            headers.append(node[0])
+            leaves += node[1]
+        return headers, leaves
+
     def getJSONTree(self):
-        dirs = [self.getDefaultTemplatesDir(), self.getUserTemplatesDir()]
+        items = self.walkFuncForKPZ(self.getDefaultTemplatesDir())
+        headers, leaves = self._getLeaves(items)
+        candidates = ['Komodo', 'Common'];
+        if len(leaves) <= 8:
+            for x in candidates:
+                if x in headers:
+                    header = x
+                    break
+            else:
+                header = candidates[0]
+            finalItems = [[header, leaves]]
+        else:
+            finalItems = [items]
+
+        items = self.walkFuncForKPZ(self.getUserTemplatesDir())
+        if items:
+            finalItems += items
+            
         sharedDir = self.getSharedTemplatesDir()
         if sharedDir:
-            dirs.append(sharedDir)
-        dirs.sort()
-        finalItems = []
-        
-        for d in dirs:
-            items = self.walkFuncForKPZ(d)
+            items = self.walkFuncForKPZ(sharedDir)
             if items:
                 finalItems += items
         import json
