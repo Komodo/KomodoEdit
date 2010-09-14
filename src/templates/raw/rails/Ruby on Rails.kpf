@@ -174,9 +174,8 @@ try {
         projectManager.currentProject = project;
         // delete the creation macro
         try {
-            var macro = getMacroFromProject(project, 'oncreate');
+            var macro = getMacroFromProject(project, macro_name);
             if (macro) {
-                dump("&gt;&gt;&gt;&gt; removeThisMacro:getIndexByTool #1\n");
                 var index = toolboxView.getIndexByTool(macro);
                 if (index != -1) {
                     toolboxView.deleteToolAt(index);
@@ -192,7 +191,7 @@ try {
                     macro.parent.removeChild(macro);
                 }
             } else {
-                dump("Can't find the oncreate macro")
+                dump("Can't find the macro '" + macro_name + "'\n");
             }
         } catch(ex) {
             dialog_alert("removeThisMacro: " + ex);
