@@ -3478,7 +3478,7 @@ function cmd_vim_overtype(scimoz, turnOn) {
 
 function cmd_vim_dedent(scimoz, repeatCount) {
     var lineNo = scimoz.lineFromPosition(gVimController._currentPos);
-    var endLineNo = Math.min(scimoz.lineCount, lineNo + repeatCount);
+    var endLineNo = Math.min(scimoz.lineCount, lineNo + repeatCount - 1);
     var anchor = scimoz.positionFromLine(lineNo);
     scimoz.setSel(anchor,
                   scimoz.getLineEndPosition(endLineNo));
@@ -3490,7 +3490,7 @@ function cmd_vim_dedent(scimoz, repeatCount) {
 
 function cmd_vim_indent(scimoz, repeatCount) {
     var lineNo = scimoz.lineFromPosition(gVimController._currentPos);
-    var endLineNo = Math.min(scimoz.lineCount, lineNo + repeatCount);
+    var endLineNo = Math.min(scimoz.lineCount, lineNo + repeatCount - 1);
     var anchor = scimoz.positionFromLine(lineNo);
     scimoz.setSel(anchor,
                   scimoz.getLineEndPosition(endLineNo));
