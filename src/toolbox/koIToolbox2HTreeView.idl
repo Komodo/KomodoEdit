@@ -46,22 +46,22 @@ interface koIFileEx;
 
 [scriptable, uuid(5c022eab-9e93-41e9-a113-4aca20f3bcb5)]
 interface koITool: koIPart_Common {
-    attribute wstring keyboard_shortcut;
+    //NOTYET: attribute wstring keyboard_shortcut;
 
     attribute wstring path;
-    attribute long favoriteRating;
-    attribute long timesRun;
-    attribute double lastRun;
+    //NOTYET: attribute long favoriteRating;
+    //NOTYET: attribute long timesRun;
+    //NOTYET: attribute double lastRun;
 
     void save();
 
     //TODO: Implement
-    attribute wstring tags;
+    //NOTYET: attribute wstring tags;
     
     // Parent in the filesystem, but also in tree if it's visible.
     attribute koITool parent;
     /* is the tool my ancestor? */
-    boolean isAncestor(in koITool tool);
+    //NOTYET: boolean isAncestor(in koITool tool);
 
 };
 
@@ -99,21 +99,26 @@ interface koIContainerBaseTool: koITool {
                                   in wstring name,
                                   in boolean recurse);
 
-    koITool getChildById(in wstring id);
+    //OBSOLETE koITool getChildById(in wstring id);
     /* hasChild does not recurse */
-    boolean hasChild(in koITool child);
-    boolean isEmpty();
-    void getChildrenByType(in wstring type,
+    //OBSOLETE boolean hasChild(in koITool child);
+    //OBSOLETE boolean isEmpty();
+    /*NOTYET: void getChildrenByType(in wstring type,
                            in boolean recurse,
                            [array, size_is(count)] out koITool child,
                            out unsigned long count);
+    */
+    /*OBSOLETE
     koITool getChildWithTypeAndStringAttribute(in wstring type,
                                                in wstring attribname,
                                                in wstring attribvalue,
                                                in boolean recurse);
+    */
+    /*OBSOLETE
     koITool getChildByAttributeValue(in wstring attribname,
                                      in wstring attribvalue,
                                      in boolean recurse);
+    */
     void addChild(in koITool child);
     void removeChild(in koITool child);
 };
@@ -142,9 +147,9 @@ interface koIToolbox2HTreeView: nsITreeView {
     
     // Eventually these should get moved to the tool, but for
     // now we're going to hit the database each time.
-    long get_favoriteRating(in long index);
-    long get_timesRun(in long index);
-    double get_lastRun(in long index);
+    //NOTYET: long get_favoriteRating(in long index);
+    //NOTYET: long get_timesRun(in long index);
+    //NOTYET: double get_lastRun(in long index);
     
     void addNewItemToParent(in koITool parent, in koITool item);
     void deleteToolAt(in long index);

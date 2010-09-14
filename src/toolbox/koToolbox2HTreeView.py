@@ -210,6 +210,7 @@ class KoToolbox2HTreeView(TreeView):
 
         self._unfilteredRows_view = self._unfilteredRows_model = None
         self._toolsMgr = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].getService(components.interfaces.koIToolbox2ToolManager))
+        self._toolsMgr.set_hierarchicalView(self)
         
     def initialize(self, currentProject):
         prefs = components.classes["@activestate.com/koPrefService;1"].\
@@ -603,10 +604,7 @@ class KoToolbox2HTreeView(TreeView):
 
         # Also uncache the parent's children, so they get resorted
         parentModelIndex = self.getParentIndexModel(modelIndex)
-        try:
-            del self._rows_model[parentModelIndex].unfilteredChildNodes
-        except AttributeError:
-            pass            
+        self._removeChildNodes(self._rows_model[parentModelIndex])
         # Do a full refresh to make sure the toolbox is resorted correctly
         self.refreshFullView()
 
@@ -685,6 +683,12 @@ class KoToolbox2HTreeView(TreeView):
                         index = max_index
                 index += 1
         return selectedIndices
+
+    def _removeChildNodes(self, node):
+        try:
+            del node.unfilteredChildNodes
+        except AttributeError:
+            pass
     
     def refreshFullView(self):
         lim = len(self._rows_model)
@@ -696,13 +700,13 @@ class KoToolbox2HTreeView(TreeView):
         while i < lim:
             before_len = len(self._rows_model)
             if self.isContainerOpenModel(i):
-                del self._rows_model[i].unfilteredChildNodes
+                self._removeChildNodes(self._rows_model[i])
                 self.toggleOpenStateModel(i)
                 self.toggleOpenStateModel(i)
             elif (self._nodeOpenStatusFromName.get(self._rows_model[i].path, False)
                   or self._rows_model[i].id == std_toolbox_id):
                 # Force the stdtoolbox open
-                del self._rows_model[i].unfilteredChildNodes
+                self._removeChildNodes(self._rows_model[i])
                 self.toggleOpenStateModel(i)
             after_len = len(self._rows_model)
             delta = after_len - before_len
@@ -931,7 +935,7 @@ class KoToolbox2HTreeView(TreeView):
         
     def isContainerEmpty(self, index):
         node = self._rows_view[index]
-        return node.isContainer and not node.unfilteredChildNodes
+        return node.isContainer and not getattr(node, 'unfilteredChildNodes', None)
 
     def getParentIndex(self, index):
         if index >= len(self._rows_view) or index < 0: return -1

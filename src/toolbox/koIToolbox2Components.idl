@@ -74,7 +74,7 @@ interface koIToolbox2Service: nsISupports {
     void deactivateProjectToolbox(in koIPart project);
     koITool getStandardToolbox();
     koITool getSharedToolbox();
-    koITool getExtensionToolbox(in wstring extensionName);
+    //NOTYET: koITool getExtensionToolbox(in wstring extensionName);
     long getProjectToolboxId(in wstring uri);
     long getStandardToolboxID();
     void importDirectory(in wstring parentPath,
