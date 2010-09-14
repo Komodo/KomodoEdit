@@ -127,7 +127,6 @@ class koScintillaController:
     def isCommandEnabled( self, command_name ):
         # Result: boolean
         # In: param0: wstring
-        sm = self.scimoz()
         meth = getattr(self, "_is_%s_enabled" % (str(command_name),), None)
         if meth is None:
             # Handle the fact it may be a bool property that can be toggled.
@@ -136,6 +135,7 @@ class koScintillaController:
             if attr == 0: # not in map
                 attr = prop_name = command_map.get(command_name)
                 if attr is not None:
+                    sm = self.scimoz()
                     attr = getattr(sm, attr)
                     if type(attr) == type(0):
                         # Cache for next time.
@@ -151,6 +151,7 @@ class koScintillaController:
                 rc = 1
             else:
                 # We have a remembered property name - use it.
+                sm = self.scimoz()
                 rc = getattr(sm, attr)
         else:
             # Custom function - do it
