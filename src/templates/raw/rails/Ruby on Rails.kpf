@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Komodo Project File - DO NOT EDIT -->
-<project id="69941f56-c540-4b4d-9340-2c5b72b4a17b" kpf_version="4">
+<project id="69941f56-c540-4b4d-9340-2c5b72b4a17b" kpf_version="4" name="Ruby on Rails.kpf">
 <folder id="c9760047-cb56-41da-a048-efb713bd4505" idref="06a3dadd-41d1-4583-8e52-bb1aa2942633" name="Views">
 </folder>
 <macro async="0" icon="chrome://famfamfamsilk/skin/icons/script.png" id="18d83122-e6b6-43f9-9357-5f77c6031575" idref="2ba70ba4-2177-43c1-a167-02ae5a040634" keyboard_shortcut="" language="JavaScript" name="controller" rank="100" trigger="trigger_postopen" trigger_enabled="0">
@@ -101,7 +101,7 @@ try {
     var obj = {base: 'rake', ruby: null, rake:null, env:null};
     ko.as_rails_macros.setup_associated_paths_env(obj);
     var options = {
-        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
+        dir: (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
               runningMacro.project.getFile().dirName),
         env: obj.env,
         __END__ : null
@@ -116,7 +116,7 @@ try {
     var obj = {base: 'rake', ruby: null, rake:null, env:null};
     ko.as_rails_macros.setup_associated_paths_env(obj);
     var options = {
-        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
+        dir: (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
               runningMacro.project.getFile().dirName),
         env: obj.env,
         __END__ : null
@@ -135,7 +135,7 @@ try {
     var obj = {base: 'rake', ruby:null, rake:null, env:null};
     ko.as_rails_macros.setup_associated_paths_env(obj);
     var options = {
-        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
+        dir: (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
               runningMacro.project.getFile().dirName),
         env: obj.env,
         __END__ : null
@@ -153,19 +153,68 @@ try {
 (function() {
     var os = Components.classes["@activestate.com/koOs;1"].getService();
     var ospath = os.path;
+    var toolbox2Svc = ko.toolbox2.manager.toolbox2Svc;
+    var toolsMgr = ko.toolbox2.manager.toolsMgr;
+    var toolboxView = ko.toolbox2.manager.view;
+
+    function getMacroFromProject(project, macro_name) {
+        var toolbox = ko.toolbox2.getProjectToolbox(project.url);
+        if (!toolbox) {
+            throw new Error("Couldn't find a toolbox for project " + project.name);
+        }
+        var macro = toolbox.getChildByTypeAndName('macro', macro_name, 1);
+        if (!macro) {
+            throw new Error("Couldn't find macro " + macro_name + " in project " + project.name);
+        }
+        return macro;
+    }
     
     function removeThisMacro(project, macro_name) {
         var projectManager = ko.projects.manager;
         projectManager.currentProject = project;
         // delete the creation macro
-        var macro = project.getChildWithTypeAndStringAttribute('macro', 'name', macro_name, 1);
-        if (macro) {
-            // ko.projects.manager.removeItem(macro, true);
-            macro.parent.removeChild(macro);
-            projectManager.viewMgr.view.refresh(project);
+        try {
+            var macro = getMacroFromProject(project, 'oncreate');
+            if (macro) {
+                dump("&gt;&gt;&gt;&gt; removeThisMacro:getIndexByTool #1\n");
+                var index = toolboxView.getIndexByTool(macro);
+                if (index != -1) {
+                    toolboxView.deleteToolAt(index);
+                    if (macro.parent) {
+                        var parentIndex = toolboxView.getIndexByTool(macro.parent);
+                        if (parentIndex != -1) {
+                            toolboxView.reloadToolsDirectoryView(parentIndex);
+                        }
+                    } else {
+                        dump("macro " + macro_name + " has no parent!\n");
+                    }
+                } else {
+                    macro.parent.removeChild(macro);
+                }
+            } else {
+                dump("Can't find the oncreate macro")
+            }
+        } catch(ex) {
+            dialog_alert("removeThisMacro: " + ex);
+        }
+    }
+
+    function openAtNode(project) {
+        var toolbox = ko.toolbox2.getProjectToolbox(project.url);
+        if (toolbox) {
+            var index = toolboxView.getIndexByTool(toolbox);
+            if (index == -1) {
+                dump("Can't find toolbox " + toolbox.name + "\n");
+                return;
+            }
+            if (!toolboxView.isContainerOpen(index)) {
+                toolboxView.toggleOpenState(index);
+            }
+            if (!toolboxView.isContainerOpen(index + 1)) {
+                toolboxView.toggleOpenState(index + 1);
+            }
         } else {
-            dialog_alert("couldn't find the oncreate macro in " +
-                         project.name);
+            dump("Can't find toolbox for project " + project.name + "\n");
         }
     }
     
@@ -264,7 +313,7 @@ try {
     }
     
     function runRailsCommand() {
-        var runningMacro = Components.classes["@activestate.com/koPartService;1"].
+        var runningMacro = Components.classes["@activestate.com/koToolbox2Service;1"].
                            getService().runningMacro;
         var project = runningMacro.project;
         var projectURI = project.url;
@@ -278,6 +327,8 @@ try {
         // Always remove the oncreate macro at the end of processing,
         // regardless of which path we take.
         setTimeout(removeThisMacro, 1000, project, 'oncreate');
+        setTimeout(openAtNode, 1000, project);
+
         // Remove the debugger macro on Komodo Edit
         if (Components.classes['@activestate.com/koInfoService;1'].
                   getService(Components.interfaces.koIInfoService).productType != 'ide') {
@@ -414,7 +465,8 @@ try {
                 for (var i = 0; i &lt; my_patches.length; i++) {
                     patch = my_patches[i];
                     var macro_name = patch[0];
-                    var macro = project.getChildWithTypeAndStringAttribute('macro', 'name', macro_name, 1);
+		    try {
+                    var macro = getMacroFromProject(project, macro_name);
                     if (macro) {
                         var s = macro.value;
                         var needle = patch[1];
@@ -427,11 +479,14 @@ try {
                             macro.value = s.replace(needle, patch[2]);
                         }
                     }
+		    } catch(ex) {
+		        ko.dialogs.alert("Rails project template: " + ex);
+		    }
                 }
             }
             // finally run rails_init
-            var rails_init = project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1);
-            if (macro) {
+            var rails_init = getMacroFromProject(project, 'rails_init', 1);
+            if (rails_init) {
                 // Simulate a notification-triggered macro call.
                 ko.projects.executeMacro(rails_init, false,
                                          {subject: project,
@@ -476,7 +531,7 @@ try {
 })();
 </macro>
 <macro async="1" id="5a126170-d3a0-4f35-8565-c034d4b6708c" idref="8298ccca-9dd7-4355-9183-f4fb7e55d655" keyboard_shortcut="" language="JavaScript" name="rails_init" rank="100" trigger="trigger_observer" trigger_enabled="1" trigger_observer_topic="project_added">
-var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+var project = (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
                        runningMacro.project);
 if (typeof(subject) == "undefined") subject = null;
 else {
@@ -783,7 +838,7 @@ if (!('as_rails_macros' in ko)
                                                            railsTypeName,
                                                            part_names) {
             var name;
-            var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+            var project = (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
                            runningMacro.project);
             if (part_names) {
                 var name_list;
@@ -907,7 +962,7 @@ if (!('as_rails_macros' in ko)
         mysqladminPath : null,
         
         getConfig : function() {
-            var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+            var project = (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
                            runningMacro.project);
             var os = Components.classes["@activestate.com/koOs;1"].getService();
             var ospath = os.path;
@@ -1030,7 +1085,7 @@ try {
     var obj = {base: 'rake', ruby: null, rake:null, env:null};
     ko.as_rails_macros.setup_associated_paths_env(obj);
     var options = {
-        dir: (Components.classes["@activestate.com/koPartService;1"].getService().
+        dir: (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
               runningMacro.project.getFile().dirName),
         env: obj.env,
         __END__ : null
@@ -1042,7 +1097,7 @@ try {
 </macro>
 <macro async="0" icon="chrome://famfamfamsilk/skin/icons/plugin.png" id="0133a64e-755e-458c-8b25-c6a282e342c0" idref="9d4d054b-1569-4857-b189-eb6f9a33623b" keyboard_shortcut="" language="JavaScript" name="in-place-editor" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 try {
-    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+    var project = (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
                        runningMacro.project);
     ko.as_rails_macros.installPlugin(this, project,
                                   'http://svn.rubyonrails.org/rails/plugins/in_place_editing/');
@@ -1052,7 +1107,7 @@ try {
 </macro>
 <macro async="0" icon="chrome://famfamfamsilk/skin/icons/plugin.png" id="a9fcc5d4-1211-4abf-b953-3001e26d34d4" idref="9d4d054b-1569-4857-b189-eb6f9a33623b" keyboard_shortcut="" language="JavaScript" name="will_paginate" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 try {
-    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+    var project = (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
                        runningMacro.project);
     ko.as_rails_macros.installPlugin(this, project,
                                   'svn://errtheblog.com/svn/plugins/will_paginate');
@@ -1062,7 +1117,7 @@ try {
 </macro>
 <macro async="0" icon="chrome://famfamfamsilk/skin/icons/plugin.png" id="d640ef8e-c7cb-4665-b497-0cbc4e2d96ed" idref="9d4d054b-1569-4857-b189-eb6f9a33623b" keyboard_shortcut="" language="JavaScript" name="autocomplete" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 try {
-    var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+    var project = (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
                        runningMacro.project);
     ko.as_rails_macros.installPlugin(this, project,
                                   'http://svn.rubyonrails.org/rails/plugins/auto_complete');
@@ -1122,7 +1177,7 @@ try {
             }
         }
         var port = ko.dbg.listener.port;
-        var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+        var project = (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
                        runningMacro.project);
         launchDebugger(this, project, host, port, rbpath);
     } catch(ex) {
@@ -1132,7 +1187,7 @@ try {
 <macro async="0" icon="chrome://famfamfamsilk/skin/icons/application_go.png" id="fc42d2e6-99da-4057-b417-326f628d8826" idref="b2a306df-1c4d-4a2b-a24c-0d9b876b7cf7" keyboard_shortcut="" language="JavaScript" name="run server" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 (function() {
     try {
-        var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+        var project = (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
                         runningMacro.project);
         ko.as_rails_macros.launchRubyAppInConsole(this, project, 'script/server');
     } catch(ex) {
@@ -1142,7 +1197,7 @@ try {
 <macro async="0" icon="chrome://famfamfamsilk/skin/icons/application_osx_terminal.png" id="fe81589e-08ce-4618-bc12-9d35d90d7ded" idref="b2a306df-1c4d-4a2b-a24c-0d9b876b7cf7" keyboard_shortcut="" language="JavaScript" name="rails console" rank="100" trigger="trigger_postopen" trigger_enabled="0">
 (function() {
     try {
-        var project = (Components.classes["@activestate.com/koPartService;1"].getService().
+        var project = (Components.classes["@activestate.com/koToolbox2Service;1"].getService().
                         runningMacro.project);
         var rawRubyPath = ko.as_rails_macros.get_path_by_ko_pref('ruby');
         var osPathSvc =
