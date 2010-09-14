@@ -536,9 +536,12 @@ projectManager.prototype._finishUpdateProjectMenu = function(menuNode) {
 projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
     //XXX: See places.js:initFilesContextMenu if there's a problem
     var childNodes = menupopup.childNodes;
-    if (childNodes[0].id != "menu_project_builtin_templates_separator") {
-        // We already did this
-        return true;
+    while (childNodes[0].id != "menu_project_builtin_templates_separator") {
+        menupopup.removeChild(childNodes[0]);
+        if (childNodes.length == 0) {
+            // sanity check
+            break;
+        }
     }
     var templateSvc = Components.classes["@activestate.com/koTemplateService?type=project;1"].getService();
     templateSvc.loadTemplates();
@@ -554,6 +557,7 @@ projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
         m1.setAttribute("label", dirName);
         m1.setAttribute("accesskey", dirName.substring(0, 1));
         var m2 = document.createElementNS(XUL_NS, "menupopup");
+        m2.setAttribute("onpopupshowing", "event.stopPropagation();");
         for (var j = 0; j < kpzPaths.length; j++) {
             var path = kpzPaths[j];
             var m3 = document.createElementNS(XUL_NS, "menuitem");
