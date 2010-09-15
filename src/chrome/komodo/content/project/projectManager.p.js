@@ -677,10 +677,10 @@ projectManager.prototype.registerCommands = function() {
     em.registerCommand("cmd_importPackageToToolbox",this);
     em.registerCommand("cmd_newProject",this);
     em.registerCommand("cmd_openProject",this);
+    em.registerCommand("cmd_openProjectNewWindow",this);
     em.registerCommand("cmd_openProjectFromURL",this);
     em.registerCommand("cmd_projectProperties",this);
     em.registerCommand("cmd_renameProject",this);
-    em.registerCommand("cmd_replaceProject",this);
     em.registerCommand("cmd_replaceInCurrProject",this);
     em.registerCommand("cmd_revertProject",this);
     em.registerCommand("cmd_saveProject",this);
@@ -697,10 +697,10 @@ projectManager.prototype.supportsCommand = function(command, item) {
     case "cmd_importPackageToToolbox":
     case "cmd_newProject":
     case "cmd_openProject":
+    case "cmd_openProjectNewWindow":
     case "cmd_openProjectFromURL":
     case "cmd_projectProperties":
     case "cmd_renameProject":
-    case "cmd_replaceProject":
     case "cmd_replaceInCurrProject":
     case "cmd_revertProject":
     case "cmd_saveProject":
@@ -722,7 +722,7 @@ projectManager.prototype.isCommandEnabled = function(command) {
     case "cmd_newProject":
     case "cmd_importPackageToToolbox":
     case "cmd_openProject":
-    case "cmd_replaceProject": // same thing as cmd_openProject
+    case "cmd_openProjectNewWindow":
     case "cmd_saveProjectAsTemplate":
         return true;
     case "cmd_closeProject":
@@ -770,7 +770,7 @@ projectManager.prototype.doCommand = function(command) {
         this.newProject(uri);
         break;
     case "cmd_openProject":
-    case "cmd_replaceProject": // same thing as cmd_openProject, but here
+    case "cmd_openProjectNewWindow":
         // This opens a project in a new window.
         var defaultDirectory = null;
         var defaultFilename = null;
@@ -784,7 +784,7 @@ projectManager.prototype.doCommand = function(command) {
                              defaultFilterName /* ="All" */,
                              filterNames /* =null */)
         if (filename == null) return;
-        if (command == "cmd_openProject") {
+        if (command == "cmd_openProjectNewWindow") {
             ko.launch.newWindow(filename);
         } else {
             uri = ko.uriparse.localPathToURI(filename);

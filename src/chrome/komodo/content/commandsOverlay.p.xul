@@ -348,7 +348,10 @@
             id="cmd_openProject" key="key_cmd_openProject"
             oncommand="ko.commands.doCommandAsync('cmd_openProject', event)"
             desc="&generalOpenProject.desc;"/>
-
+        <command
+            id="cmd_openProjectNewWindow" key="key_cmd_openProjectNewWindow"
+            oncommand="ko.commands.doCommandAsync('cmd_openProjectNewWindow', event)"
+            desc="&generalOpenProjectInNewWindow.desc;"/>
         <command
             id="cmd_saveAll" key="key_cmd_saveAll"
             oncommand="ko.commands.doCommandAsync('cmd_saveAll', event)"
@@ -1526,11 +1529,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_saveProjectAs', event)"
             disabled="true"
             desc="&generalSaveProjectAs.desc;"/>
-        <command
-            id="cmd_replaceProject" key="key_cmd_replaceProject"
-            oncommand="ko.commands.doCommandAsync('cmd_replaceProject', event)"
-            disabled="false"
-            desc="&generalReplaceProject.desc;"/>
         <command
             id="cmd_projectProperties" key="key_cmd_projectProperties"
             oncommand="ko.commands.doCommandAsync('cmd_projectProperties', event)"

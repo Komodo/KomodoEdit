@@ -1470,7 +1470,7 @@
                                       />
                             <menuitem label="&openProjectInNewWindow.label;"
                                       id="menu_projectOpenProject"
-                                      observes="cmd_openProject"
+                                      observes="cmd_openProjectNewWindow"
                                       />
                             <menu id="menu_recentProjects"
                                   skipCopyToCogMenu="true"

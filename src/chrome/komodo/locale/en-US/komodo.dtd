@@ -276,6 +276,7 @@
 <!ENTITY generalNextFile.desc "General: Next File">
 <!ENTITY generalOpenFileDialog.desc "General: Open File dialog...">
 <!ENTITY generalOpenProject.desc "General: Open Project...">
+<!ENTITY generalOpenProjectInNewWindow.desc "General: Open Project in a New Window">
 <!ENTITY generalOpenRemoteFileDialog.desc "General: Open Remote File dialog...">
 <!ENTITY generalOpenTemplate.desc "General: Open Template...">
 <!ENTITY generalPerformTheImportFromFileSystemAgainRefreshes.desc "General: Perform the import from file system again (refreshes)">
@@ -288,7 +289,6 @@
 <!ENTITY generalPrintSetup.desc "General: Print Setup...">
 <!ENTITY generalQuit.desc "General: Quit">
 <!ENTITY generalRefreshStatus.desc "General: Refresh Status">
-<!ENTITY generalReplaceProject.desc "General: Replace Project">
 <!ENTITY generalRevert.desc "General: Revert">
 <!ENTITY generalRevertProject.desc "General: Revert Project">
 <!ENTITY generalSave.desc "General: Save">
