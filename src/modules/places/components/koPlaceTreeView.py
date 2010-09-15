@@ -1529,7 +1529,7 @@ class KoPlaceTreeView(TreeView):
         col_id = column.id
         try:
             rowNode = self._rows[row_idx]
-            zips = rowNode.getCellPropertyNames(col_id)
+####        zips = rowNode.getCellPropertyNames(col_id)
 ####            qlog.debug("props(row:%d) name:%s) : %s",
 ####                       row_idx, rowNode.name,  zips)
             for propName in rowNode.getCellPropertyNames(col_id):
