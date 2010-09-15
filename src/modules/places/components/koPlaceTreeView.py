@@ -1546,13 +1546,13 @@ class KoPlaceTreeView(TreeView):
                           row_idx, col_id)
             return ""
         if rowNode.properties is None:
-            # Like in koKPFTreeView.p.py, these are kept cached, unless
-            # there's a change.  Changes within Komodo will be broadcast
-            # via notifications
-            rowNode.properties = self._buildCellProperties(rowNode)
-        for prop in rowNode.properties:
-            properties.AppendElement(self.atomSvc.getAtom(prop))
-            # ???? self._atomsFromName[prop])
+            # These values are cached, until there is a file_status change.
+            atomProperties = []
+            for prop in self._buildCellProperties(rowNode):
+                atomProperties.append(self.atomSvc.getAtom(prop))
+            rowNode.properties = atomProperties
+        for atomProp in rowNode.properties:
+            properties.AppendElement(atomProp)
     
     def _updateFileProperties(self, idx):
         rowNode = self._rows[idx]
