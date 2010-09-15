@@ -61,7 +61,7 @@ from koLanguageServiceBase import sendStatusMessage
 log = logging.getLogger("KoPlaceTreeView")
 #log.setLevel(logging.DEBUG)
 qlog = logging.getLogger("KoPlaceTreeView.q")
-qlog.setLevel(logging.DEBUG)
+#qlog.setLevel(logging.DEBUG)
 
 class _kplBase(object):
     """
@@ -1962,7 +1962,7 @@ class KoPlaceTreeView(TreeView):
                 itemType = _PLACE_FILE
             else:
                 itemType = _PLACE_OTHER
-            item = self._finishGettingItem(uri + "/" + name, name, itemType)
+            item = self._finishGettingItem(uriparse.localPathToURI(full_name), name, itemType)
             items.append(item)
         return items
 

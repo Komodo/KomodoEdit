@@ -1420,7 +1420,8 @@ ManagerClass.prototype = {
         var file = Components.classes["@activestate.com/koFileEx;1"].
             createInstance(Components.interfaces.koIFileEx);
         file.URI = dirURI;
-        widgets.rootButton.label = file.baseName;
+        // watch out: baseName("/") => ""
+        widgets.rootButton.label = file.baseName || file.path;
         this._checkProjectMatch();
         widgets.rootButton.tooltipText = (
             file.scheme == "file" ? file.displayPath : dirURI);
