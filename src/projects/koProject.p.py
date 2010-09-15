@@ -1158,7 +1158,10 @@ class koLiveFolderPart(koFolderPart):
 
         importService = components.classes["@activestate.com/koFileImportingService;1"].\
                         getService(components.interfaces.koIFileImportingService)
-        filenames = set(importService.findCandidateFiles(self, path, include, exclude, recursive))
+        if ":/" in path and not path.startswith("file:/"):
+            filenames = set(importService.findCandidateFilesRemotely(self, path, include, exclude, recursive))
+        else:
+            filenames = set(importService.findCandidateFiles(self, path, include, exclude, recursive))
         if not forcerefresh and self._lastfetch and not self._lastfetch.symmetric_difference(filenames):
             #print "bail early, no change in children"
             return

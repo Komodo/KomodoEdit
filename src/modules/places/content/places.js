@@ -656,7 +656,7 @@ viewMgrClass.prototype = {
         var index = this._currentRow(event);
         if (index == -1) {
             this.doDropOnRootNode(event, tree);
-            return;
+            return true;
         }
         var treeView = gPlacesViewMgr.view;
         var target_uri;
@@ -668,7 +668,7 @@ viewMgrClass.prototype = {
             var parentIndex = treeView.getParentIndex(index);
             if (parentIndex == -1) {
                 log.error("Can't find a parent index for index:" + index);
-                return;
+                return true;
             }
             index = parentIndex;
             target_uri = treeView.getURIForRow(index);
@@ -1370,7 +1370,7 @@ ManagerClass.prototype = {
     },
 
     _checkProjectMatch: function() {
-        var classValue = this._currentPlaceMatchesCurrentProject() ? "project" : "normal";
+        var classValue =  (this.currentPlaceIsLocal ? "normal" : "remote");
         widgets.rootButton.setAttribute('class', classValue);
     },
 
@@ -2412,6 +2412,7 @@ ManagerClass.prototype = {
             // at the import_dirname field, which is also used in v5.
             var import_live = (prefset.hasPref("import_live")
                                && prefset.getBooleanPref("import_live"));
+            var koFileEx = null;
             if (!import_live) {
                 // First check v5 legacy projects.
                 var importedDirs = {};
@@ -2419,7 +2420,7 @@ ManagerClass.prototype = {
                 importedDirs = importedDirs.value;
                 if (importedDirs.length == 1) {
                     var uri = importedDirs[0].url;
-                    var koFileEx = Components.classes["@activestate.com/koFileEx;1"].
+                    koFileEx = Components.classes["@activestate.com/koFileEx;1"].
                         createInstance(Components.interfaces.koIFileEx);
                     koFileEx.URI = uri;
                     if (koFileEx.exists) {
@@ -2432,10 +2433,14 @@ ManagerClass.prototype = {
             if (prefset.hasStringPref("import_dirname")) {
                 var baseDir = prefset.getStringPref("import_dirname");
                 if (baseDir) {
-                    var baseURI = ko.uriparse.localPathToURI(baseDir);
-                    if (baseURI) {
-                        return baseURI;
+                    koFileEx = Components.classes["@activestate.com/koFileEx;1"].
+                        createInstance(Components.interfaces.koIFileEx);
+                    if (baseDir.indexOf("://") == -1) {
+                        koFileEx.path = baseDir;
+                    } else {
+                        koFileEx.URI = baseDir;
                     }
+                    return koFileEx.URI;
                 }
             }
         } catch(ex) {

@@ -65,10 +65,21 @@
         <groupbox id="importFrame" name="importFrame" orient="vertical" flex="1">
             <caption label="&specifyTheProjectsActualLocation.label;" class="kopadded"/>
             <vbox flex="1">
-                <hbox align="center">
-                    <textbox id="import_dirname" pref="true" prefstring="import_dirname" flex="1" />
-                    <button label="&browse.label;" id="browse_import_dirname" oncommand="PrefFolderImport_doBrowseForDir()" />
-                </hbox>
+               <grid align="center" id="baseDirPickerGrid">
+                  <columns>
+                     <column flex="4" />
+                     <column flex="1" />
+                  </columns>
+                  <rows>
+                     <row>
+                        <textbox id="import_dirname" pref="true" prefstring="import_dirname" flex="1" />
+                        <button label="&browse.label;" id="browse_import_dirname" oncommand="PrefFolderImport_doBrowseForDir()" />
+                     </row>
+                     <row><label value=""/>
+                     <button label="Browse Remote" id="browse_import_remote_dirname" oncommand="PrefFolderImport_doBrowseForRemoteDir()" />
+                     </row>
+                  </rows>
+               </grid>
                 <separator class="thin"/>
                 <label value="&filesToInclude.label;"/>
                 <textbox id="import_include_matches" pref="true" value=""/>

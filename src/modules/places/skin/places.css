@@ -41,6 +41,9 @@
 #placesRootButton {
   list-style-image: url("chrome://komodo/skin/images/folder-closed.png");
 }
+#placesRootButton.remote {
+  list-style-image: url("chrome://famfamfamsilk/skin/icons/folder_link.png");
+}
 #placesRootButton > label {
   /* Need to give some additional padding between the icon and the label. */
   padding-left: 4px;
