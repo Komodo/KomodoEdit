@@ -83,6 +83,7 @@ class _kplBase(object):
         self.level = level
         self.uri = uri
         self.properties = None
+        self.propertyNames = None
         self._koFile = None # koIFileEx
         self.original_image_icon = self.image_icon
         self.busy_count = 0
@@ -90,14 +91,15 @@ class _kplBase(object):
         self._name = self._path = self._uri = None
         
     def getCellPropertyNames(self, col_id):
+        if self.propertyNames is None:
+            self.propertyNames = self.getCellPropertyNames_aux(col_id)
+        return self.propertyNames
+
+    def getCellPropertyNames_aux(self, col_id):
         if col_id == 'name':
             koFile = self.koFile
-            if 'link' in self.name:
-                qlog.debug("folder %s: isLink:%r", self.name, self.koFile.isSymlink)
             if not koFile.exists:
                 return ['missing_file_symlink']
-            elif koFile.isSymlink:
-                return ['places_file_symlink']
             else:
                 return [self.image_icon]
         return []
@@ -180,15 +182,16 @@ class _kplFolder(_kplBase):
         self.isOpen = self._nodeOpenStatusFromName.get(uri, False)
 
     def getCellPropertyNames(self, col_id):
+        if self.propertyNames is None:
+            self.propertyNames = self.getCellPropertyNames_aux(col_id)
+            qlog.debug("folder.getCellPropertyNames: folder.propertyNames: %s", self.propertyNames)
+        return self.propertyNames
+    
+    def getCellPropertyNames_aux(self, col_id):
         if col_id == 'name':
             if self.image_icon == 'places_busy':
                 return ['places_busy']
             baseName = self.image_icon
-            if self.koFile.isSymlink:
-                baseName += "_symlink"
-            if 'link' in self.name:
-                pass
-                ####qlog.debug("folder %s: isLink:%r", self.name, self.koFile.isSymlink)
             if self.isOpen:
                 return [baseName + "_open"]
             else:
@@ -1556,6 +1559,7 @@ class KoPlaceTreeView(TreeView):
         try:
             #log.debug("_updateFileProperties: idx:%d", idx)
             rowNode.properties = None
+            rowNode.propertyNames = None
         except AttributeError:
             pass
             
@@ -1801,7 +1805,11 @@ class KoPlaceTreeView(TreeView):
         before_len = len(self._rows)
         self._rows = []
         topModelNode = self.getNodeForURI(self._currentPlace_uri)
-        self._refreshTreeOnOpen_buildTree(0, 0, topModelNode)
+        if topModelNode is None:
+            log.error("_wrap_refreshTreeOnOpen_buildTree: top node for place:%s is None",
+                      self._currentPlace_uri)
+        else:
+            self._refreshTreeOnOpen_buildTree(0, 0, topModelNode)
         after_len = len(self._rows)
         self._tree.rowCountChanged(0, after_len - before_len)
         self.invalidateTree()
