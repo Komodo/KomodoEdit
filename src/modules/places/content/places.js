@@ -2103,6 +2103,10 @@ ManagerClass.prototype = {
         var i = 0;
         var buildingURI;
         var selectedItem = null;
+        var isUNC = new RegExp('^file://[^/]+/$');
+        if (isUNC.test(uriLeader)) {
+            parts.shift();
+        }
         parts.reverse();
         parts.map(function(partName) {
                 menuitem = document.createElement("menuitem");
