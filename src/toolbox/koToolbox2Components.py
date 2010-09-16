@@ -189,8 +189,11 @@ class KoToolbox2Service(object):
         schemaFile = os.path.join(koDirSvc.mozBinDir,
                                   'python', 'komodo', 'toolbox',
                                   'koToolbox.sql')
-        self.db = self.toolbox_db.initialize(self.db_path, schemaFile)
-        self.loadMainToolboxes()
+        try:
+            self.db = self.toolbox_db.initialize(self.db_path, schemaFile)
+            self.loadMainToolboxes()
+        except:
+            log.exception("Error initializing toolboxes")
 
     def loadMainToolboxes(self):
         self.toolboxLoader = koToolbox2.ToolboxLoader(self.db_path, self.db)
@@ -358,7 +361,7 @@ class KoToolbox2Service(object):
                 kpfDir = tempToolsDir
             self.toolboxLoader.importDirectory(parentPath, kpfDir)
         except:
-            log.exception("Failed to expand/import")
+            log.exception("Failed to expand/import package based at %s", parentPath)
         finally:
             # Clean up
             if startedWithWebResource:
@@ -483,6 +486,8 @@ class KoToolbox2Service(object):
                                                     dataDir,
                                                   toolboxDirName=targetDirectory,
                                                     force=1)
+            except:
+                log.exception("Failed to migrate toolbox %s", toolboxPath)
             finally:
                 os.chdir(curDir)
             f = open(migrateStampPath, "w")
