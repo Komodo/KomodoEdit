@@ -1190,7 +1190,7 @@
                         }
                         var start = scimoz.selectionStart;
                         var length = scimoz.selectionEnd - start;
-                        if (event.dataTransfer.dropEffect == "move") {
+                        if (event.dataTransfer.dropEffect != "copy") {
                             scimoz.replaceSel(''); // remove the dragged text
                             if (start < pos) pos -= length; // adjust where we insert our data
                         }
