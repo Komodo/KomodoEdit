@@ -360,8 +360,15 @@ class TreeWalker():
     def expandTree(self, node):
         tagName = node.elt.tag
         method = getattr(self, 'expandNode_' + tagName, None)
-        if method:
-            method(node)
-        else:
-            self.expandItem(node, tagName)
+        try:
+            if method:
+                method(node)
+            else:
+                self.expandItem(node, tagName)
+        except KeyError:
+            try:
+                name = node.elt.get('name')
+            except:
+                name = "<unknown name>"
+            log.exception("Failed to expand item %s:%s", tagName, name)
     
