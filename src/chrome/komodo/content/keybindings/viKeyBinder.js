@@ -579,6 +579,7 @@ VimController.prototype.__defineSetter__("mode", function(new_mode) {
             scimoz = ko.views.manager.currentView.scimoz;
             // scimoz.cancel() used to ensure removal of the selectionmode
             // http://bugs.activestate.com/show_bug.cgi?id=65580
+            scimoz.selectionMode = scimoz.SC_SEL_STREAM;
             scimoz.cancel();
             scimoz.setSel(-1, scimoz.currentPos);  // anchorPos of -1 means remove any selection
             this._visualMode = VimController.VISUAL_CHAR;
@@ -3413,6 +3414,10 @@ function _toggleVisualMode(scimoz, visual_type) {
             scimoz.selectionMode = scimoz.SC_SEL_LINES;
         } else if (visual_type == VimController.VISUAL_BLOCK) {
             scimoz.selectionMode = scimoz.SC_SEL_RECTANGLE;
+            // After setting the selection mode, need to ensure the cursor has
+            // not moved:
+            scimoz.anchor = gVimController._anchor;
+            scimoz.currentPos = gVimController._currentPos;
         }
         if (wasInDifferentVisualMode) {
             // Ensure the status bar shows the correct visual mode
