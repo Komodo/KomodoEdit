@@ -79,7 +79,8 @@ class ExpandToolboxException(Exception):
 #---- module API
 
 def expand_toolbox(toolboxFile, outdir, toolboxDirName=None, force=0):
-    """ Write out the contents of toolboxFile to outdir
+    """ Write out the contents of toolboxFile to outdir.
+        Callers should wrap this in a try/except block to allow unexpected input.
     """
     tree = ET.parse(toolboxFile)
     root = tree.getroot()
@@ -92,14 +93,11 @@ def expand_toolbox(toolboxFile, outdir, toolboxDirName=None, force=0):
         root.remove(ps)
     dirTree = TreeBuilder().reassembleTree(tree)
         
-    # dir_based_tree = convert_tree(tree)
-    #from codeintel2.tree import pretty_tree_from_tree
-    #print pretty_tree_from_tree(tree)
-    #print "stop here"
     if not os.path.exists(outdir):
+        # Allow an exception here
         os.makedirs(outdir)
     elif not os.path.isdir(outdir):
-        raise ExpandToolboxException("-o argument %s is not a directory, not expanding" % outdir)
+        raise ExpandToolboxException("outdir %s is not a directory, not expanding" % outdir)
     os.chdir(outdir)
     if toolboxDirName is None:
         toolboxDirName = koToolbox2.DEFAULT_TARGET_DIRECTORY
@@ -273,8 +271,12 @@ class TreeWalker():
         if not nowrite:
             newDict = {'type': elt.tag}
             newDict.update(elt.attrib)
-            lines = self._split_newlines(newDict['url'])
-            del newDict['url']
+            if newDict.has_key('url'):
+                payload = newDict['url']
+                del newDict['url']
+            else:
+                payload = elt.text + elt.tail
+            lines = self._split_newlines(payload.strip())
             if not lines[-1]:
                 del lines[-1]
             if not lines[0]:
