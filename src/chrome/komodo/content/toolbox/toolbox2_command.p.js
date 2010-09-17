@@ -287,8 +287,9 @@ this.addToolboxItemToStdToolbox = function(itemType) {
 // Generic top-level routines
 
 this._clickedOnRoot = function() {
-    return (document.popupNode.id == "toolbox2-hierarchy-treebody"
-            && this.manager.view.selection.count == 0);
+    return (this.manager.view.selection.count == 0
+            && document.popupNode
+            && document.popupNode.id == "toolbox2-hierarchy-treebody");
 };
 
 this._determineTargetDirectory_CallMethod = function(method) {
