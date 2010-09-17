@@ -1,0 +1,11 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "walk", 
+  "value": [
+    "for root, dirs, files in os.walk([[%tabstop:dirname]]):", 
+    "\t[[%tabstop:pass]]!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}
