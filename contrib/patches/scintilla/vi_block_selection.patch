@@ -4,8 +4,8 @@ always enforce the selection to be a block selection.
 http://bugs.activestate.com/show_bug.cgi?id=87281
 
 Index: C:\as\komodo-devel\src\scintilla\src\Selection.h
---- src\Selection.h 
-+++ src\Selection.h (unsaved) 
+--- src/Selection.h 
++++ src/Selection.h (unsaved) 
 @@ -144,6 +144,7 @@
  	Selection();
  	~Selection();
@@ -15,8 +15,8 @@ Index: C:\as\komodo-devel\src\scintilla\src\Selection.h
  	int MainAnchor() const;
  	SelectionRange &Rectangular();
 Index: C:\as\komodo-devel\src\scintilla\src\Selection.cxx
---- src\Selection.cxx 
-+++ src\Selection.cxx (unsaved) 
+--- src/Selection.cxx 
++++ src/Selection.cxx (unsaved) 
 @@ -156,7 +156,7 @@
  	}
  }
@@ -27,8 +27,8 @@ Index: C:\as\komodo-devel\src\scintilla\src\Selection.cxx
  }
  
 Index: C:\as\komodo-devel\src\scintilla\src\Editor.cxx
---- src\Editor.cxx 
-+++ src\Editor.cxx (unsaved) 
+--- src/Editor.cxx 
++++ src/Editor.cxx (unsaved) 
 @@ -866,6 +866,9 @@
  }
  
