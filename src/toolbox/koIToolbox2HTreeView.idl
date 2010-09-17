@@ -173,6 +173,7 @@ interface koIToolbox2HTreeView: nsITreeView {
     long getNextSiblingIndex(in long index); // not in nsITreeView...
 
     void setFilter(in wstring filterPattern);
+    boolean isToolboxRow(in long index);
     attribute long sortDirection;
 };
 

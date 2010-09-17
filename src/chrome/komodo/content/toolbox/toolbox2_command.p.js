@@ -496,11 +496,29 @@ this.renameItem = function(event) {
 this._selectCurrentItems = function(isCopying) {
     var paths, pathList;
     if (this._clickedOnRoot()) {
+        if (!isCopying) {
+            var msg = peFolder_bundle.GetStringFromName("cantCutStandardToolbox");
+            ko.dialogs.alert(msg);
+            return;
+        }
         pathList = this.manager.toolbox2Svc.getStandardToolbox().path;
         paths = [pathList];
     } else {
         this.selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
         var view = this.manager.view;
+        if (!isCopying) {
+            // Don't let them cut a toolbox
+            var index;
+            for (var j = 0; j < this.selectedIndices.length; j++) {
+                index = this.selectedIndices[j];
+                if (view.isToolboxRow(index)) {
+                    var msg = peFolder_bundle.formatStringFromName("cantCutToolbox.format",
+                                                                   [view.getCellText(index, {id:"name"})], 1);
+                    ko.dialogs.alert(msg);
+                    return;
+                }
+            }
+        }
         paths = this.selectedIndices.map(function(index) {
                 return view.getPathFromIndex(index);
             });
@@ -769,6 +787,20 @@ this.reloadFolder = function(event) {
 this.deleteItem = function(event) {
     var question;
     var indices = ko.toolbox2.getSelectedIndices(/*rootsOnly=*/true);
+    var view = ko.toolbox2.manager.view;
+    var i;
+    var lim = indices.length;
+    var index;
+    for (i = 0; i < lim; i++) {
+        index = indices[i];
+        if (view.isToolboxRow(index)) {
+            var msg = peFolder_bundle.formatStringFromName("cantDeleteToolbox.format",
+                                                           [view.getCellText(index, {id:"name"})], 1);
+            ko.dialogs.alert(msg);
+            return;
+        }
+    }
+        
     if (indices.length > 1) {
         question = peFolder_bundle.formatStringFromName("doYouWantToRemoveThe", [indices.length], 1);
     } else {
@@ -782,9 +814,7 @@ this.deleteItem = function(event) {
     if (result != "Yes") {
         return;
     }
-    var view = ko.toolbox2.manager.view;
-    var i = 0;
-    var lim = indices.length;
+    i = 0;
     while (i < lim) {
         var index = indices[i];
         if (view.get_toolType(index) == 'macro') {

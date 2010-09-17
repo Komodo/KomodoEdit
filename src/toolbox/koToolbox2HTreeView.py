@@ -91,6 +91,9 @@ class _KoToolHView(object):
 
     def get_iconurl(self):
         return self.iconurl
+
+    def isToolboxRow(self, index):
+        return False
             
 class _KoContainerHView(_KoToolHView):
     isContainer = True
@@ -123,16 +126,22 @@ class _KoContainerHView(_KoToolHView):
 class _KoFolderHView(_KoContainerHView):
     typeName = 'folder'
 
-    def getImageSrc(self, index, column):
+    def isToolboxRow(self, index):
         if self.level > 0:
-            return self.get_iconurl()
+            return False
         # Now we need to check to see if we're in the std toolbox range,
         # or elsewhere
         nextToolbox = _view.getNextSiblingIndexModel(0)
         if nextToolbox == -1 or index < nextToolbox - 1:
-            return self.get_iconurl()
+            return False
         else:
+            return True
+
+    def getImageSrc(self, index, column):
+        if self.isToolboxRow(index):
             return 'chrome://fugue/skin/icons/toolbox.png'
+        else:
+            return self.get_iconurl()
 
 class _KoMenuHView(_KoFolderHView):
     typeName = 'menu'
@@ -919,6 +928,12 @@ class KoToolbox2HTreeView(TreeView):
             return self._rows_view[index].get_iconurl()
         except:
             return ""
+
+    def isToolboxRow(self, index):
+        try:
+            return self._rows_view[index].isToolboxRow(index)
+        except IndexError:
+            return False
         
     def isContainer(self, index):
         try:
