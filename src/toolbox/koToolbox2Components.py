@@ -113,11 +113,12 @@ class KoToolInfo(object):
     Used by `.findTools()` below.
     """
     _com_interfaces_ = [components.interfaces.koIToolInfo]
-    def __init__(self, toolMgr, path_id, type, name, **kwargs):
+    def __init__(self, toolMgr, path_id, type, name, subDir, **kwargs):
         self._toolMgr = toolMgr
         self.path_id = path_id
         self.type = type
         self.name = name
+        self.subDir = subDir  # subdir in the toolbox tree
         for k,v in kwargs:
             setattr(self, k, v)
 
@@ -209,7 +210,7 @@ class KoToolbox2Service(object):
 
         import time
         t1 = time.time()
-        toolbox_id = self.toolboxLoader.loadToolboxDirectory("Standard Toolbox", stdToolboxDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+        toolbox_id = self.toolboxLoader.loadToolboxDirectory("", stdToolboxDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
         self.notifyAddedToolbox(stdToolboxDir, notifyAllWindows=True)
         t2 = time.time()
         #log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
@@ -598,15 +599,58 @@ class KoToolbox2Service(object):
                            koToolbox2.PROJECT_TARGET_DIRECTORY,
                            kpfName=kpfName)
 
-    def findTools(self, query):
-        #TODO: use 'count' and return full count. Add limit and offset args.
-        with self.db.connect() as cu:
-            cu.execute("""select path_id, type, name from common_details
-                where name like ?""", ("%" + query + "%", ))
-            hits = [KoToolInfo(self._toolsMgrSvc, *tuple(x))
-                for x in cu.fetchall()]
-        return hits
+    def findTools(self, query, langs):
+        """Find a list of tools matching the given query.
+        
+        @param query {str} A query string. A space-separated list
+            of search terms to match against tool names.
+        @param langs {list} An ordering list of language scope names
+            to be used for results ordering.
+        @returns {list of KoToolInfo}
+        
+        Dev Notes:
+        - TODO: match against subDir, lower sort order
+        - case-sensitivity (http://www.sqlite.org/pragma.html#pragma_case_sensitive_like)
+          Note that we can't do case-sensitivity per query word,
+          as in fastopen if we continue to use multiple LIKEs in
+          one SELECT.
+        """
+        def markup(word):
+            escaped = word.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
+            return '%' + escaped + '%'
 
+        hits = []
+        with self.db.connect() as cu:
+            subDirFromId = self.db.getSubDirFromIdMap(cu=cu)
+            sql = [
+                "SELECT path_id, type, name FROM common_details",
+                "WHERE type != 'folder'",
+            ]
+            args = []
+            for word in query.split():
+                sql.append("AND name LIKE ? ESCAPE '\\'")
+                args.append(markup(word))
+            cu.execute(' '.join(sql), tuple(args))
+            hits = [(x[0], x[1], x[2], subDirFromId.get(x[0], ""))
+                for x in cu.fetchall()]
+        
+        # Sorting results:
+        # - Sort tools to the top that are in a toolbox dir that
+        #   matches the name of the current cursor sublang.
+        if langs:
+            def indexof(lst, item):
+                try:
+                    return lst.index(item)
+                except ValueError:
+                    return 999  # higher than anything
+            def sortkey(hit):
+                subDirParts = hit[3].split('/')
+                langIndex = min(indexof(langs, p) for p in subDirParts)
+                return (langIndex,)
+            hits.sort(key=sortkey)
+
+        return [KoToolInfo(self._toolsMgrSvc, *hit) for hit in hits]
+    
     def observe(self, subject, topic, data):
         #log.debug("observe: subject:%r, topic:%r, data:%r", subject, topic, data)
         if not subject:

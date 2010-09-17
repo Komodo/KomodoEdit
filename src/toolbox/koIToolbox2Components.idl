@@ -63,6 +63,7 @@ interface koIToolInfo: nsISupports {
     readonly attribute wstring name;
     readonly attribute wstring iconUrl;
     readonly attribute koITool koTool;
+    readonly attribute wstring subDir;
 };
 
 interface koIPart;
@@ -90,7 +91,9 @@ interface koIToolbox2Service: nsISupports {
 
     // Find and return all tools matching the given query.
     void findTools(in wstring query,
-        out PRUint32 count,
-        [retval, array, size_is(count)] out koIToolInfo hits);
+        in PRUint32 langCount,
+        [array, size_is(langCount)] in wstring langs,
+        out PRUint32 hitCount,
+        [retval, array, size_is(hitCount)] out koIToolInfo hits);
 };
 

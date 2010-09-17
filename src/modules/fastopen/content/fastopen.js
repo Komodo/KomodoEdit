@@ -106,18 +106,36 @@ ko.fastopen.invoketool = {};
             this._treeView = new ToolsTreeView();
             var resultsTree = document.getElementById("invoketool_results");
             resultsTree.treeBoxObject.view = this._treeView;
-            this.findTools();
         }
+        this.findTools();
         var queryTextbox = document.getElementById("invoketool_query");
         queryTextbox.focus();
         queryTextbox.select();
     }
     
     this.findTools = function findTools() {
-        var query = document.getElementById("invoketool_query").value;
         var tbSvc = Components.classes["@activestate.com/koToolbox2Service;1"]
             .getService(Components.interfaces.koIToolbox2Service);
-        var hits = tbSvc.findTools(query, {});
+        
+        // Get ordered list of best language scope (a *list* for
+        // multi-language files).
+        var currView = ko.views.manager.currentView;
+        var langs = [];
+        if (currView && currView.koDoc) {
+            var koDoc = currView.koDoc;
+            langs.push(koDoc.subLanguage);  // lang at current cursor position
+            if (langs.indexOf(koDoc.language) === -1) {
+                langs.push(koDoc.language);
+            }
+            currView.koDoc.languageObj.getSubLanguages({}).forEach(function(lang) {
+                if (langs.indexOf(lang) === -1) {
+                    langs.push(lang);
+                }
+            });
+        }
+        
+        var query = document.getElementById("invoketool_query").value;
+        var hits = tbSvc.findTools(query, langs.length, langs, {});
         this._treeView.setHits(hits);
         //TODO: move tree selection to first one
     }
@@ -275,7 +293,7 @@ ko.fastopen.invoketool = {};
     ToolsTreeView.prototype.constructor = ToolsTreeView;
 
     ToolsTreeView.prototype.setHits = function(hits) {
-        this._hits = hits;
+        this._hits = hits;  
         this.mTotalRows = hits.length;
         if (this.mTree) {
             this.mTree.beginUpdateBatch();
@@ -302,7 +320,12 @@ ko.fastopen.invoketool = {};
 
     ToolsTreeView.prototype.getCellText = function(rowIdx, column) {
         try {
-            return this._hits[rowIdx].name;
+            var hit = this._hits[rowIdx];
+            var text = hit.name;
+            if (hit.subDir) {
+                text += " \u2014 " + hit.subDir;
+            }
+            return text;
         } catch (ex) {
             return "(error: "+ex+")";
         }

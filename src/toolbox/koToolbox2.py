@@ -314,6 +314,32 @@ class Database(object):
 
     #---- Accessor functions
     
+    _subDirFromIdCache = None
+    def getSubDirFromIdMap(self, cu=None):
+        """Return a dict mapping the tool id to toolbox relative
+        path.
+        """
+        if self._subDirFromIdCache is None:
+            with self.connect(cu=cu) as cu:
+                cu.execute("""select path_id, name from common_details""")
+                nameFromId = dict((x[0], x[1]) for x in cu.fetchall())
+                cu.execute("""select path_id, parent_path_id from hierarchy""")
+                parentIdFromId = dict(cu.fetchall())
+                subDirFromId = self._subDirFromIdCache = {}
+                for id in nameFromId:
+                    parents = [parentIdFromId[id]]
+                    while parents[-1]:
+                        parents.append(parentIdFromId[parents[-1]])
+                    del parents[-1]
+                    parents.reverse()
+                    subDir = '/'.join(nameFromId[i] for i in parents
+                        if nameFromId[i])
+                    subDirFromId[id] = subDir
+        return self._subDirFromIdCache
+    
+    def _resetSubDirFromIdMap(self):
+        self._subDirFromIdCache = None
+    
     def getTopLevelPaths(self):
         with self.connect() as cu:
             cu.execute('''select p.path
@@ -584,6 +610,7 @@ class Database(object):
         if notifications is not None:
             for path_id, details in notifications:
                 self.notifyPossibleAppearanceChange(path_id, details)
+        self._resetSubDirFromIdMap()
         return new_id
             
     def _getValuesFromDataAndDelete(self, id, data, names_and_defaults):
@@ -711,6 +738,7 @@ class Database(object):
             self.updateValuesInTableByKey('paths',
                                           ['path'], [newPath],
                                           ['id'], [id])
+        self._resetSubDirFromIdMap()
 
     def updateChildPaths(self, root_id, old_path, new_path):
         stmt = '''select h.path_id, p.path, cd.type
@@ -1072,6 +1100,7 @@ class Database(object):
                                                  "%s" % path_id)
             except Exception:
                 log.exception("tool-deleted %r notification failed", id)
+        self._resetSubDirFromIdMap()
         
     def saveToolName(self, path_id, name, old_name=None):
         with self.connect(commit=True) as cu:
@@ -1164,7 +1193,7 @@ class Database(object):
         # since they can use the db as well.
         for path_id, details in notifications:
             self.notifyPossibleAppearanceChange(path_id, details)
-            
+        self._resetSubDirFromIdMap()
 
     def saveContainerInfo(self, path_id, table_name, tool_name, attributes,
                           info_getter):
