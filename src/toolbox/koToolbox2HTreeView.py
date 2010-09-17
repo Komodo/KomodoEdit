@@ -757,6 +757,8 @@ class KoToolbox2HTreeView(TreeView):
         self._redoTreeView(currentProject)
 
     def _redoTreeView(self, currentProject=None):
+        if not self._tree:
+            return
         self._tree.beginUpdateBatch()
         try:
             self._redoTreeView1_aux(currentProject)
