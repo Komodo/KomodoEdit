@@ -1,0 +1,10 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "text", 
+  "value": [
+    "<label>[[%tabstop:Label]]<input type=\"text\" id=\"[[%tabstop:id]]\"/></label>!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

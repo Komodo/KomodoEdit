@@ -110,6 +110,8 @@ class KoHTML5Language(KoHTMLLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{f662cc4c-4f86-194e-83a8-35f2f0097121}"
+    
+    lang_from_udl_family = {'CSL': 'JavaScript', 'M': 'HTML5', 'CSS': 'CSS'}
 
     sample = """<!DOCTYPE html>
 <html lang-en>
