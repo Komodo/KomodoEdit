@@ -512,6 +512,10 @@ class KoRubyInfoEx(KoAppInfoEx):
         self._executables = []
         installationPaths = None
         self._executables = which.whichall('ruby', exts=exts, path=self._userPath)
+        if not self._executables:
+            current_ruby_path = self.prefService.prefs.getStringPref("rubyDefaultInterpreter")
+            if current_ruby_path:
+                self._executables = [current_ruby_path]
         if self._executables:
             installationPaths = [self.getInstallationPathFromBinary(p)\
                                    for p in self._executables]

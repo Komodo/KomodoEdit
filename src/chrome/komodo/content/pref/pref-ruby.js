@@ -84,6 +84,7 @@ function PrefRuby_PopulateRubyInterps()
         appInfoEx.executablePath = prefExecutable;
     }
     PrefRuby_checkVersion();
+    document.getElementById("no-avail-interps-message").setAttribute("collapsed", "true");
     _findingInterps = false;
 }
 
