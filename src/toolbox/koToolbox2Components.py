@@ -621,7 +621,7 @@ class KoToolbox2Service(object):
 
         hits = []
         with self.db.connect() as cu:
-            subDirFromId = self.db.getSubDirFromIdMap(cu=cu)
+            infoFromId = self.db.getInfoFromIdMap(cu=cu)  # id -> (name, subDir)
             sql = [
                 "SELECT path_id, type, name FROM common_details",
                 "WHERE type != 'folder'",
@@ -631,25 +631,55 @@ class KoToolbox2Service(object):
                 sql.append("AND name LIKE ? ESCAPE '\\'")
                 args.append(markup(word))
             cu.execute(' '.join(sql), tuple(args))
-            hits = [(x[0], x[1], x[2], subDirFromId.get(x[0], ""))
+            # (id, type, name, subdir, matched-in-name)
+            hits = [(x[0], x[1], x[2], infoFromId.get(x[0], ['', ''])[1], True)
                 for x in cu.fetchall()]
         
+            # Add any hits in the subdir.
+            # - TODO:PERF This could be made faster by reversing `infoFromId`
+            #   and finding all subDirs that have matches. Then get the
+            #   corresponding ids. Otherwise we are duplicating "word in subDir"
+            #   for the same values of "subDir".
+            nameHitIds = set(h[0] for h in hits)
+            subDirHitIds = []
+            words = [w.lower() for w in query.split()]
+            for id, info in infoFromId.items():
+                if id in nameHitIds:
+                    continue
+                name, subDir = info
+                nameLower = name.lower()
+                subDirLower = subDir.lower()
+                for word in words:
+                    if word not in subDirLower and word not in nameLower:
+                        break
+                else:
+                    subDirHitIds.append(id)
+            if subDirHitIds:
+                sql = "SELECT path_id, type, name FROM common_details WHERE type != 'folder'"
+                if len(subDirHitIds) == 1:
+                    sql += " AND path_id = %s" % subDirHitIds[0]
+                else:
+                    sql += " AND path_id IN %s" % repr(tuple(subDirHitIds))
+                cu.execute(sql)
+                hits += [(x[0], x[1], x[2], infoFromId.get(x[0], ['', ''])[1], False)
+                    for x in cu.fetchall()]
+
         # Sorting results:
+        # - Prefer matches in the name (vs. a match in the subDir)
         # - Sort tools to the top that are in a toolbox dir that
         #   matches the name of the current cursor sublang.
-        if langs:
-            def indexof(lst, item):
-                try:
-                    return lst.index(item)
-                except ValueError:
-                    return 999  # higher than anything
-            def sortkey(hit):
-                subDirParts = hit[3].split('/')
-                langIndex = min(indexof(langs, p) for p in subDirParts)
-                return (langIndex,)
-            hits.sort(key=sortkey)
+        def indexof(lst, item):
+            try:
+                return lst.index(item)
+            except ValueError:
+                return 999  # higher than anything
+        def sortkey(hit):
+            subDirParts = hit[3].split('/')
+            langIndex = min(indexof(langs, p) for p in subDirParts)
+            return (not hit[4], langIndex,)
+        hits.sort(key=sortkey)
 
-        return [KoToolInfo(self._toolsMgrSvc, *hit) for hit in hits]
+        return [KoToolInfo(self._toolsMgrSvc, *hit[:-1]) for hit in hits]
     
     def observe(self, subject, topic, data):
         #log.debug("observe: subject:%r, topic:%r, data:%r", subject, topic, data)
