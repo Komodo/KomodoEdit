@@ -53,6 +53,11 @@ pref("general.startup.browser", false);
 pref("komodo.chromeURL","chrome://komodo/content/");
 pref("toolkit.chromeURL","chrome://komodo/content/");
 pref("browser.chromeURL","chrome://komodo/content/");
+#ifdef XP_MACOSX
+// Special hidden window for the Mac, to allow file open dialog copy/paste.
+// See bug 85838 for details.
+pref("browser.hiddenWindowChromeURL","chrome://komodo/content/hiddenWindow.xul");
+#endif
 pref("xpinstall.dialog.confirm", "chrome://mozapps/content/xpinstall/xpinstallConfirm.xul");
 pref("xpinstall.dialog.progress.skin", "chrome://mozapps/content/extensions/extensions.xul");
 pref("xpinstall.dialog.progress.chrome", "chrome://mozapps/content/extensions/extensions.xul");

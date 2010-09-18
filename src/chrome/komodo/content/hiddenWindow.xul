@@ -36,8 +36,34 @@
  
  ***** END LICENSE BLOCK ***** -->
 
+<!--
+This hidden window is only used on the Mac, see bug 85838.
+
+It's used to allow keyboard commands when using the File open dialog.
+
+This hiddenWindow is only used when the "browser.hiddenWindowChromeURL" pref is
+set to a chrome URL.
+-->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
+
 <window id="main-window"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <stringbundleset id="stringbundleset"/>
+    
+    <commandset id="mainCommandSet"/>
+    <commandset id="baseMenuCommandSet"/>
+    <commandset id="placesCommands"/>
+    
+    <broadcasterset id="mainBroadcasterSet"/>
+    
+    <keyset id="mainKeyset"/>
+    <keyset id="baseMenuKeyset"/>
+    
+    <menubar id="main-menubar"/>
 
 </window>
