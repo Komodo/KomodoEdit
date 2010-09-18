@@ -1307,12 +1307,8 @@ ManagerClass.prototype = {
             };
         }
         var dirURI = ko.uriparse.localPathToURI(dir);
+        this.openDirURI(dirURI, baseName);
         this._enterMRU_Place(dirURI);
-        this._setDirURI(dirURI,
-                        {save:true,
-                         baseName:baseName,
-                         onSuccess:this._setDirURI_successFunc_history_changed});
-        
     },
 
     /* Set the given directory URI as the root in places.
