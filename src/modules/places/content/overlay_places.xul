@@ -459,7 +459,7 @@
               insertbefore="codebrowserviewbox"
               position="0">
      <vbox flex="1" id="placesViewbox_placesWrapper">
-      <vbox flex="1" id="placesViewbox_places">
+      <vbox flex="99" id="placesViewbox_places">
         <hbox align="center" id="placesToolbar" class="toolbar-box">
           <toolbarbutton id="placesRootButton"
                          class="normal"
@@ -633,7 +633,7 @@
       </splitter>
 
       <deck id="placesSubpanelDeck" selectedIndex="0" orient="vertical"
-          height="250" minheight="50" persist="height">
+          height="250" minheight="50" persist="height" flex="1">
         <!-- subpanel 0: Projects -->
         <tree id="placesSubpanelProjects"
             flex="1"
