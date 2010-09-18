@@ -31,16 +31,14 @@ splitter[orient="horizontal"].workspace_splitter_right {
  * Komodo editor pane.
  */
 splitter[orient="vertical"].multiview_splitter {
-  min-height: 1px;
-  height: 2px;
-  background-image: none !important;
-  background-color: rgba(0,0,0,0.35);
+  border-top: 1px solid #838383;
+  background-color: #ccc;
+  background-position: 50% 70%; /* center the grippy dot */
 }
 splitter[orient="horizontal"].multiview_splitter {
-  min-width: 1px;
-  width: 3px;
-  background-image: none !important;
-  background-color: rgba(0,0,0,0.35);
+  border-left: 1px solid #838383;
+  border-right: 1px solid #838383;
+  background-color: #ccc;
 }
 
 
