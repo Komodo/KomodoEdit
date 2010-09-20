@@ -819,7 +819,7 @@ class KoCodeIntelEvalController(EvalController):
                 log.exception("problem logging eval failure: self.log=%r", self.log)
                 msg = "error evaluating '%s'" % desc
             self.ui_handler_proxy_sync.setStatusMessage(
-                msg, not self.trg.implicit)
+                msg, (self.trg and not self.trg.implicit or False))
 
         EvalController.done(self, reason)
         #XXX Should we clean up the UI handler and proxy? Are we leaking?

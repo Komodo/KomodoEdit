@@ -429,18 +429,24 @@ class Manager(threading.Thread, Queue):
             try:
                 self._handle_eval_sess(eval_sess)
             except:
-                exc_info = sys.exc_info()
-                tb_path, tb_lineno, tb_func \
-                    = traceback.extract_tb(exc_info[2])[-1][:3]
-                if hasattr(exc_info[0], "__name__"):
-                    exc_str = "%s: %s" % (exc_info[0].__name__, exc_info[1])
-                else: # string exception
-                    exc_str = exc_info[0]
-                eval_sess.ctlr.error("error evaluating %s: %s "
-                                     "(%s#%s in %s)", eval_sess, exc_str,
-                                     tb_path, tb_lineno, tb_func)
-                log.exception("error evaluating %s" % eval_sess)
-                eval_sess.ctlr.done("unexpected eval error")
+                try:
+                    self._handle_eval_sess_error(eval_sess)
+                except:
+                    pass
+    
+    def _handle_eval_sess_error(self, eval_sess):
+        exc_info = sys.exc_info()
+        tb_path, tb_lineno, tb_func \
+            = traceback.extract_tb(exc_info[2])[-1][:3]
+        if hasattr(exc_info[0], "__name__"):
+            exc_str = "%s: %s" % (exc_info[0].__name__, exc_info[1])
+        else: # string exception
+            exc_str = exc_info[0]
+        eval_sess.ctlr.error("error evaluating %s: %s "
+                             "(%s#%s in %s)", eval_sess, exc_str,
+                             tb_path, tb_lineno, tb_func)
+        log.exception("error evaluating %s" % eval_sess)
+        eval_sess.ctlr.done("unexpected eval error")
 
     def _release_curr_eval_sess(self):
         if self._curr_eval_sess is not None:
