@@ -84,7 +84,7 @@ log.setLevel(LOG_DEBUG);
 function viewMgrClass() {
     this.default_exclude_matches = ".*;*~;#*;CVS;*.bak;*.pyo;*.pyc";
     // overides, to include:
-    this.default_include_matches = ".login;.profile;.bashrc;.bash_profile";
+    this.default_include_matches = "";
     this._mozSortDirNameToKomodoSortDirValue = {
         natural: Components.interfaces.koIPlaceTreeView.SORT_DIRECTION_NAME_NATURAL,
         ascending: Components.interfaces.koIPlaceTreeView.SORT_DIRECTION_NAME_ASCENDING,

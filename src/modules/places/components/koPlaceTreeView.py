@@ -1293,12 +1293,24 @@ class KoPlaceTreeView(TreeView):
     def _matchesFilter(self, name, filterString):
         return filterString.lower() in name.lower() or fnmatch.fnmatch(name, filterString)
 
-    def _namePassesFilter(self, name):
-        # First pass on the main include/exclude nodes
-        look_at_excludes = True
-        for include_pattern in self.include_patterns:
-            if self._matchesFilter(name, include_pattern):
+    def _namePassesFilter(self, name, fileType):
+        # See koProjectImportService.py#_filterFiles, slightly modified.
+        # The code is an optimized version of this spec:
+        # 1. No excludes, No includes: return it
+        # 2. Excludes only: return unless it matches
+        # 3. Includes only: return all dirs, and only files that match
+        # 4. Both: take the includes from (3), and filter out unwanted
+        #          otherwise if it's a non-excluded dir, return it
+
+        if not self.include_patterns:
+            if not self.exclude_patterns:
                 return True
+        elif fileType == _PLACE_FILE:
+            for include_pattern in self.include_patterns:
+                if self._matchesFilter(name, include_pattern):
+                    break
+            else:
+                return False
         for exclude_pattern in self.exclude_patterns:
             if self._matchesFilter(name, exclude_pattern):
                 return False
@@ -1313,7 +1325,7 @@ class KoPlaceTreeView(TreeView):
                         
         for childNode in parentNode.childNodes:
             childName = childNode.name
-            if self._namePassesFilter(childName):
+            if self._namePassesFilter(childName, childNode.type):
                 ####qlog.debug("insert %s (%s) at slot %d", childNode.uri, childNode.type, rowIndex)
                 newNode = placeObject[childNode.type](level, childNode.uri)
                 self._rows.insert(rowIndex, newNode)

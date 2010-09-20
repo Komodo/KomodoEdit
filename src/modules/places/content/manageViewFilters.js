@@ -241,30 +241,28 @@ function OK() {
 function wrap_OK() {
     var madeChange = false;
     var currentFilter = grabCurrentWidgetValues(currentFilterName);
-    for (var filterName in filterPrefValues) {
-        var prefSet = null;
-        var isNew = false;
-        if (currentFilter.dirty) {
-            if (!currentFilter.isNew) {
-                try {
-                    prefSet = filterPrefs.getPref(filterName);
-                } catch(ex) {
-                    dump(ex + "\n");
-                    log.exception(ex);
-                }
+    var prefSet = null;
+    var isNew = false;
+    if (currentFilter.dirty) {
+        if (!currentFilter.isNew) {
+            try {
+                prefSet = filterPrefs.getPref(currentFilterName);
+            } catch(ex) {
+                dump(ex + "\n");
+                log.exception(ex);
             }
-            if (!prefSet) {
-                var prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
-                isNew = true;
-            }
-            prefSet.setStringPref("exclude_matches", currentFilter.exclude_matches);
-            prefSet.setStringPref("include_matches", currentFilter.include_matches);
-            prefSet.setBooleanPref("readonly", false);
-            if (isNew) {
-                filterPrefs.setPref(filterName, prefSet);
-            }
-            madeChange = true;
         }
+        if (!prefSet) {
+            var prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+            isNew = true;
+        }
+        prefSet.setStringPref("exclude_matches", currentFilter.exclude_matches);
+        prefSet.setStringPref("include_matches", currentFilter.include_matches);
+        prefSet.setBooleanPref("readonly", false);
+        if (isNew) {
+            filterPrefs.setPref(currentFilterName, prefSet);
+        }
+        madeChange = true;
     }
     prefsToDelete.map(function(filterName) {
         filterPrefs.deletePref(filterName);
