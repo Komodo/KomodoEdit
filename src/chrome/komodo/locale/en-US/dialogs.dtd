@@ -58,6 +58,7 @@
 <!ENTITY configurePHP.tooltiptext "Configure PHP">
 <!ENTITY configurePerl.tooltiptext "Configure Perl">
 <!ENTITY configurePython.tooltiptext "Configure Python">
+<!ENTITY configurePython3.tooltiptext "Configure Python3">
 <!ENTITY configureRuby.tooltiptext "Configure Ruby">
 <!ENTITY copy.label "Copy">
 <!ENTITY currentProjectPreferences.label "Current Project Preferences">
@@ -126,6 +127,7 @@
 <!ENTITY perl.label "Perl">
 <!ENTITY php.label "Php">
 <!ENTITY python.label "Python">
+<!ENTITY python3.label "Python3">
 <!ENTITY ruby.label "Ruby">
 <!ENTITY xslt.label "XSLT">
 <!ENTITY otherLanguages.label "Other Languages">
