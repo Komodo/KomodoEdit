@@ -121,9 +121,9 @@ class KoFeatureStatusService:
         self._phpInfoEx = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].\
             createInstance(components.interfaces.koIAppInfoEx)
         self._pythonInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Python;1"].\
-            createInstance(components.interfaces.koIAppInfoEx)
+            getService(components.interfaces.koIAppInfoEx)
         self._python3InfoEx = components.classes["@activestate.com/koAppInfoEx?app=Python3;1"].\
-            createInstance(components.interfaces.koIAppInfoEx)
+            getService(components.interfaces.koIAppInfoEx)
         self._rubyInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Ruby;1"].\
             createInstance(components.interfaces.koIAppInfoEx)
 
@@ -458,41 +458,6 @@ class KoFeatureStatusService:
         self._lastErrorProxy.setLastError(0, errmsg)
         return 0
 
-    def _isSufficientPython(self, pythonInfoEx, minVersion=None):
-        """Return true iff the given python installation meets the given
-        criteria.
-            "pythonInfoEx" is a koPythonInfoEx instance loaded with the
-                python installation to check.
-
-        If false is returned, then the last error (see koILastErrorService)
-        is set with a reason why.
-        """
-        installDir = pythonInfoEx.installationPath
-        exePath = pythonInfoEx.executablePath
-        log.info("%s: is sufficient python?", installDir)
-        
-        if not os.path.exists(exePath):
-            log.info("%s: does not exist", exePath)
-            self._lastErrorProxy.setLastError(0,
-                "Python installation does not exist: \"%s\"" % exePath)
-            return 0
-        else:
-            log.info("%s: exists", exePath)
-
-        if minVersion is not None:
-            version = pythonInfoEx.version
-            if version < minVersion:
-                log.info("%s: %s < %s", installDir, version, minVersion)
-                self._lastErrorProxy.setLastError(0,
-                    "Insufficient Python version (\"%s\" is version %s). "\
-                    "Require at least version %s."\
-                    % (installDir, version, minVersion))
-                return 0
-            else:
-                log.info("%s: %s >= %s", installDir, version, minVersion)
-        
-        return 1
-
     def _haveSufficientPython(self, stopOnFirst=1, minVersion=None):
         """Return true iff a Python installation meeting the above conditions
         can be found.
@@ -505,29 +470,8 @@ class KoFeatureStatusService:
         is set with a reason why.
         """
         # Try the user's selected python interpreter.
-        pythonDefaultInterp = self._prefProxy.prefs.getStringPref("pythonDefaultInterpreter")
-        if pythonDefaultInterp:
-            self._pythonInfoEx.installationPath =\
-                self._pythonInfoEx.getInstallationPathFromBinary(pythonDefaultInterp)
-            if self._isSufficientPython(self._pythonInfoEx, minVersion):
-                return 1
-            elif stopOnFirst:
-                return 0
-            
-        # Look on PATH.
-        if sys.platform.startswith('win'):
-            exts = ['.exe']
-        else:
-            exts = None
-        pythons = which.whichall('python', exts=exts, path=self._userPath)
-        for python in pythons:
-            self._pythonInfoEx.installationPath =\
-                self._pythonInfoEx.getInstallationPathFromBinary(python)
-            if self._isSufficientPython(self._pythonInfoEx, minVersion):
-                return 1
-            elif stopOnFirst:
-                return 0
-        
+        if self._pythonInfoEx.executablePath:
+            return 1
         errmsg = "Could not find a suitable Python installation."
         self._lastErrorProxy.setLastError(0, errmsg)
         return 0
@@ -535,38 +479,13 @@ class KoFeatureStatusService:
     def _haveSufficientPython3(self, stopOnFirst=1, minVersion=None):
         """Return true iff a Python3 installation meeting the above conditions
         can be found.
-            "stopOnFirst" is a boolean indicating if the search should stop
-                on the "first" found interpreter. This is because things like
-                debugging and syntax checking are just going to use this
-                one anyway. Default is true.
 
         If false is returned, then the last error (see koILastErrorService)
         is set with a reason why.
         """
-        # Try the user's selected python interpreter.
-        pythonDefaultInterp = self._prefProxy.prefs.getStringPref("python3DefaultInterpreter")
-        if pythonDefaultInterp:
-            self._python3InfoEx.installationPath =\
-                self._python3InfoEx.getInstallationPathFromBinary(pythonDefaultInterp)
-            if self._isSufficientPython(self._python3InfoEx, minVersion):
-                return 1
-            elif stopOnFirst:
-                return 0
-            
-        # Look on PATH.
-        if sys.platform.startswith('win'):
-            exts = ['.exe']
-        else:
-            exts = None
-        pythons = which.whichall('python', exts=exts, path=self._userPath)
-        for python in pythons:
-            self._python3InfoEx.installationPath =\
-                self._python3InfoEx.getInstallationPathFromBinary(python)
-            if self._isSufficientPython(self._python3InfoEx, minVersion):
-                return 1
-            elif stopOnFirst:
-                return 0
-        
+        # Try the user's selected python3 interpreter.
+        if self._python3InfoEx.executablePath:
+            return 1
         errmsg = "Could not find a suitable Python3 installation."
         self._lastErrorProxy.setLastError(0, errmsg)
         return 0
