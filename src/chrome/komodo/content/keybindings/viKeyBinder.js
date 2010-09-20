@@ -2365,9 +2365,11 @@ VimController.command_mappings = {
                                                                     VimController.CANCELS_VISUAL_MODE ],
     "cmd_vim_indentOperation": [ VimController.SPECIAL_COMMAND,     VimController.NO_REPEAT_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
+                                                                    VimController.SPECIAL_REPEAT_HANDLING |
                                                                     VimController.CANCELS_VISUAL_MODE ],
     "cmd_vim_dedentOperation": [ VimController.SPECIAL_COMMAND,     VimController.NO_REPEAT_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
+                                                                    VimController.SPECIAL_REPEAT_HANDLING |
                                                                     VimController.CANCELS_VISUAL_MODE ],
 // Search actions
     "cmd_startIncrementalSearch" :  [ "cmd_startIncrementalSearch", VimController.NO_REPEAT_ACTION ],
@@ -2421,11 +2423,13 @@ VimController.command_mappings = {
                                                                     VimController.WORKS_IN_VISUAL_MODE |
                                                                     VimController.SPECIAL_REPEAT_HANDLING |
                                                                     VimController.CANCELS_VISUAL_MODE ],
-    "cmd_vim_indent_visual" :       [ "cmd_indent",                 VimController.REPEATABLE_ACTION | VimController.MODIFY_ACTION |
+    "cmd_vim_indent_visual" :       [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MODIFY_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
+                                                                    VimController.SPECIAL_REPEAT_HANDLING |
                                                                     VimController.CANCELS_VISUAL_MODE ],
-    "cmd_vim_dedent_visual" :       [ "cmd_dedent",                 VimController.REPEATABLE_ACTION | VimController.MODIFY_ACTION |
+    "cmd_vim_dedent_visual" :       [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MODIFY_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
+                                                                    VimController.SPECIAL_REPEAT_HANDLING |
                                                                     VimController.CANCELS_VISUAL_MODE ],
     "cmd_vim_enterSearchForward" :  [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION |
                                                                     VimController.MOVEMENT_ACTION |
@@ -3499,28 +3503,66 @@ function cmd_vim_overtype(scimoz, turnOn) {
     }
 }
 
-function cmd_vim_dedent(scimoz, repeatCount) {
-    var lineNo = scimoz.lineFromPosition(gVimController._currentPos);
-    var endLineNo = Math.min(scimoz.lineCount, lineNo + repeatCount - 1);
+function cmd_vim_dedent(scimoz, repeatCount, isVisual /* false */) {
+    var lineNo = scimoz.lineFromPosition(Math.min(gVimController._anchor, gVimController._currentPos));
+    var endLineNo;
     var anchor = scimoz.positionFromLine(lineNo);
+    if (!isVisual) {
+        /* No selection. */
+        endLineNo = Math.min(scimoz.lineCount, lineNo + repeatCount - 1);
+        // The repeatcount means the number of lines in this case.
+        repeatCount = 1;
+    } else {
+        endLineNo = scimoz.lineFromPosition(Math.max(gVimController._anchor, gVimController._currentPos));
+        // Set the last repeat count as the number of lines indented, so a
+        // repeat will indent the proper number of lines.
+        gVimController._lastRepeatCount = endLineNo - lineNo + 1;
+        // Make it look like a vim_dedent, instead of a visual dedent.
+        gVimController._lastModifyCommand = "cmd_vim_dedent";
+    }
     scimoz.setSel(anchor,
                   scimoz.getLineEndPosition(endLineNo));
-    ko.commands.doCommand('cmd_dedent');
+    for (var i=0; i < repeatCount; i++) {
+        ko.commands.doCommand('cmd_dedent');
+    }
     scimoz.currentPos = anchor;
     // Vi moves to the start of the text, we simulate that here.
     ko.commands.doCommand('cmd_home');
 }
 
-function cmd_vim_indent(scimoz, repeatCount) {
-    var lineNo = scimoz.lineFromPosition(gVimController._currentPos);
-    var endLineNo = Math.min(scimoz.lineCount, lineNo + repeatCount - 1);
+function cmd_vim_indent(scimoz, repeatCount, isVisual /* false */) {
+    var lineNo = scimoz.lineFromPosition(Math.min(gVimController._anchor, gVimController._currentPos));
+    var endLineNo;
     var anchor = scimoz.positionFromLine(lineNo);
+    if (!isVisual) {
+        /* No selection. */
+        endLineNo = Math.min(scimoz.lineCount, lineNo + repeatCount - 1);
+        // The repeatcount means the number of lines in this case.
+        repeatCount = 1;
+    } else {
+        endLineNo = scimoz.lineFromPosition(Math.max(gVimController._anchor, gVimController._currentPos));
+        // Set the last repeat count as the number of lines indented, so a
+        // repeat will indent the proper number of lines.
+        gVimController._lastRepeatCount = endLineNo - lineNo + 1;
+        // Make it look like a vim_indent, instead of a visual indent.
+        gVimController._lastModifyCommand = "cmd_vim_indent";
+    }
     scimoz.setSel(anchor,
                   scimoz.getLineEndPosition(endLineNo));
-    ko.commands.doCommand('cmd_indent');
+    for (var i=0; i < repeatCount; i++) {
+        ko.commands.doCommand('cmd_indent');
+    }
     scimoz.currentPos = anchor;
     // Vi moves to the start of the text, we simulate that here.
     ko.commands.doCommand('cmd_home');
+}
+
+function cmd_vim_indent_visual(scimoz, repeatCount) {
+    cmd_vim_indent(scimoz, repeatCount, true);
+}
+
+function cmd_vim_dedent_visual(scimoz, repeatCount) {
+    cmd_vim_dedent(scimoz, repeatCount, true);
 }
 
 //
