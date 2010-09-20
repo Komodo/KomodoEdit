@@ -25,15 +25,6 @@ Import(
 );
 
 
-# Install the required system libraries into the install image for MSI
-# builds. This is required as long as we are building with VC6. If we
-# move to VC8, then we may need to redistribute the appropriate C runtime
-# DLLs.
-if ($platform eq "win" && $buildType eq "release") {
-    $cons->Install($sysdllsDir, "win/$buildType/msvcrt.dll");
-    $cons->Install($sysdllsDir, "win/$buildType/msvcirt.dll");
-}
-
 # Hack default user-skins.rdf (see bug 23047).
 # - This is only really required on Linux and, besides, it breaks the
 #   Windows build with this:

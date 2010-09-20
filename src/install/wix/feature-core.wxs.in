@@ -5026,13 +5026,5 @@
       </Directory> <!-- lib -->
     </DirectoryRef>
 
-    <DirectoryRef Id="SystemFolder">
-      <Component Id="MsvcrtUpdate" DiskId="1" Guid="$(autowix.guid)">
-        <Condition>VersionNT &lt;= 400</Condition>
-        <File Id="file0" Name="msvcirt.dll" Vital="yes" src="feature-core\SystemFolder\msvcirt.dll"/>
-        <File Id="file1" Name="msvcrt.dll" Vital="yes" src="feature-core\SystemFolder\msvcrt.dll"/>
-      </Component>
-    </DirectoryRef>
-
   </Fragment>
 </Wix>
