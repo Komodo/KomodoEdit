@@ -214,6 +214,18 @@ function _updateFeatureControlPanel(featureName, status, reason)
                 widget.removeAttribute("tooltip");
                 widget.removeAttribute("tooltiptext");
             }
+            var imageWidget = document.getElementById(widget.getAttribute('id') + '-image');
+            if (imageWidget) {
+                if (status.indexOf(': Ready') >= 0) {
+                    imageWidget.setAttribute('class', 'status-ready');
+                    imageWidget.removeAttribute("tooltiptext");
+                } else {
+                    imageWidget.setAttribute('class', 'status-error');
+                    if (reason) {
+                        imageWidget.setAttribute("tooltiptext", reason);
+                    }
+                }
+            }
         }
     } catch (ex) {
         fcplog.exception(ex, "_updateFeatureControlPanel error");

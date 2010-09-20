@@ -44,6 +44,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/startpage/startpage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/feature_control_panel.css" type="text/css"?>
 
 <dialog id="dialog-featurecontrolpanel"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -94,6 +95,9 @@
                         <hbox class="sp-mru-row" flex="1" align="center" pack="start">
                             <label id="perl-syntax-checking-status"
                                    value="&sintaxCheckingUnknown.label;"/>
+                            <image id="perl-syntax-checking-status-image"
+                                   class="status-pending"
+                                   />
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                     tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                     oncommand="LaunchHelp('background_syntax_checking');"/>
@@ -110,6 +114,9 @@
                         <hbox class="sp-mru-row" flex="1" align="center" pack="start">
                             <label id="php-syntax-checking-status"
                                    value="&sintaxCheckingUnknown.label;"/>
+                            <image id="php-syntax-checking-status-image"
+                                   class="status-pending"
+                                   />
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                     tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                     oncommand="LaunchHelp('background_syntax_checking');"/>
@@ -126,6 +133,9 @@
                         <hbox class="sp-mru-row" align="center" pack="start">
                             <label id="python-syntax-checking-status"
                                    value="&sintaxCheckingUnknown.label;"/>
+                            <image id="python-syntax-checking-status-image"
+                                   class="status-pending"
+                                   />
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                     tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                     oncommand="LaunchHelp('background_syntax_checking');"/>
@@ -142,6 +152,9 @@
                         <hbox class="sp-mru-row" align="center" pack="start">
                             <label id="ruby-syntax-checking-status"
                                    value="&sintaxCheckingUnknown.label;"/>
+                            <image id="ruby-syntax-checking-status-image"
+                                   class="status-pending"
+                                   />
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                     tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                     oncommand="LaunchHelp('background_syntax_checking');"/>
@@ -157,6 +170,9 @@
                         </hbox>
                         <hbox class="sp-mru-row" flex="1" align="center" pack="start">
                             <label value="&sintaxCheckingReady.label;"/>
+                            <image id="xslt-syntax-checking-status-image"
+                                   class="status-ready"
+                                   />
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                         oncommand="LaunchHelp('background_syntax_checking');"/>
@@ -168,6 +184,9 @@
                         </hbox>
                         <hbox class="sp-mru-row" flex="1" align="center" pack="start">
                             <label value="&sintaxCheckingReadyJavscriptHtmlXml.label;"/>
+                            <image id="other-languages-syntax-checking-status-image"
+                                   class="status-ready"
+                                   />
                             <button class="help-icon button-toolbar-a" style="background-color: transparent;"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                         oncommand="LaunchHelp('background_syntax_checking');"/>
@@ -176,6 +195,7 @@
                 </rows>
             </grid>
         </vbox>
+        
         </vbox>
 
         <separator class="thin"/>
