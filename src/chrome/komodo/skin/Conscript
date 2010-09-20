@@ -59,6 +59,7 @@ $cons->InstallInChrome('hyperlinks.css');
 $cons->InstallInChrome('tree.css');
 $cons->InstallInChrome('autocomplete.css');
 $cons->InstallInChrome('find.css');
+$cons->InstallInChrome('feature_control_panel.css');
 
 $cons->InstallInChrome('prefs/prefs.css');
 
