@@ -706,7 +706,7 @@
 	enableColumnDrag (true | false) #IMPLIED
 	hidecolumnpicker (true | false) #IMPLIED
 	onselect CDATA #IMPLIED
-	selType (single | multiple) #IMPLIED
+	seltype (single | multiple) #IMPLIED
 >
 <!ELEMENT treecell (%allwidgets;)*>
 <!ATTLIST treecell
