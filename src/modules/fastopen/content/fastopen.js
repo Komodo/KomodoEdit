@@ -141,16 +141,7 @@ ko.fastopen.invoketool = {};
     }
   
     this.onPanelKeyPress = function onPanelKeyPress(event) {
-        if (event.keyCode == KeyEvent.DOM_VK_ENTER
-            || event.keyCode == KeyEvent.DOM_VK_RETURN) {
-            if (this._isMac ? event.metaKey : event.ctrlKey) {
-                this.editPropertiesCurrSelection();
-            } else {
-                this.invokeCurrSelection();
-            }
-            event.stopPropagation();
-            event.preventDefault();
-        }
+        return this.onQueryKeyPress(event);
 
         // What we really want is to close the panel for any keypress that
         // will pass through and do something in the Komodo window, e.g.
@@ -177,23 +168,6 @@ ko.fastopen.invoketool = {};
             }
             event.stopPropagation();
             event.preventDefault();
-        } else if (keyCode == KeyEvent.DOM_VK_UP && event.shiftKey) {
-            index = resultsTree.currentIndex - 1;
-            if (index >= 0) {
-                _extendSelectTreeRow(resultsTree, index);
-            }
-            event.preventDefault();
-            event.stopPropagation();
-        } else if (keyCode == KeyEvent.DOM_VK_DOWN && event.shiftKey) {
-            index = resultsTree.currentIndex + 1;
-            if (index < 0) {
-                index = 0;
-            }
-            if (index < resultsTree.view.rowCount) {
-                _extendSelectTreeRow(resultsTree, index);
-            }
-            event.preventDefault();
-            event.stopPropagation();
         } else if (keyCode == KeyEvent.DOM_VK_UP
                 || (keyCode == KeyEvent.DOM_VK_TAB && event.shiftKey)
                 /* Ctrl+p for Emacs-y people. */
@@ -248,12 +222,6 @@ ko.fastopen.invoketool = {};
     
     function _closePanel() {
         document.getElementById("invoketool_panel").hidePopup();
-    }
-    
-    function _extendSelectTreeRow(tree, index) {
-        //TODO: fix this to reduce selection when "backing up"
-        tree.view.selection.rangedSelect(index, index, true);
-        tree.treeBoxObject.ensureRowIsVisible(index);
     }
     
     function _selectTreeRow(tree, index) {

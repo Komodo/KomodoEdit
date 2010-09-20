@@ -55,6 +55,7 @@
         <tree id="invoketool_results" flex="1" hidecolumnpicker="true"
             ondblclick="ko.fastopen.invoketool.onTreeDblClick(event)"
             onselect="this.view.selectionChanged()"
+            seltype="single"
             style="margin: 0px;">
           <treecols>
               <treecol id="invoketool_result" hideheader="true" flex="1"/>
