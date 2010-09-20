@@ -145,6 +145,33 @@
                                     oncommand="LaunchPrefs('pythonItem')"/>
                         </hbox>
                     </row>
+                    <row id="python3-feature-row">
+                        <hbox class="sp-mru-row" align="center" pack="start">
+                            <label value="&python3.label;"/>
+                        </hbox>
+                        <hbox class="sp-mru-row" align="center" pack="start">
+                            <label id="python3-debugging-status"
+                                   value="Debugging: Status Unknown"/>
+                            <image id="python3-debugging-status-image"
+                                   class="status-pending"
+                                   />
+                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&helpOnPython3Debugging.tooltiptext;"
+                                    oncommand="LaunchHelp('python3_configuration');"/>
+                            <label id="python3-syntax-checking-status"
+                                   value="&sintaxCheckingUnknown.label;"/>
+                            <image id="python3-syntax-checking-status-image"
+                                   class="status-pending"
+                                   />
+                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                    oncommand="LaunchHelp('background_syntax_checking');"/>
+                            <separator flex="1"/>
+                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&configurePython3.tooltiptext;"
+                                    oncommand="LaunchPrefs('python3Item')"/>
+                        </hbox>
+                    </row>
                     <row id="ruby-feature-row">
                         <hbox class="sp-mru-row" align="center" pack="start">
                             <label value="&ruby.label;"/>
