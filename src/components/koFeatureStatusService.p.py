@@ -122,6 +122,8 @@ class KoFeatureStatusService:
             createInstance(components.interfaces.koIAppInfoEx)
         self._pythonInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Python;1"].\
             createInstance(components.interfaces.koIAppInfoEx)
+        self._python3InfoEx = components.classes["@activestate.com/koAppInfoEx?app=Python3;1"].\
+            createInstance(components.interfaces.koIAppInfoEx)
         self._rubyInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Ruby;1"].\
             createInstance(components.interfaces.koIAppInfoEx)
 
@@ -208,6 +210,12 @@ class KoFeatureStatusService:
                         reason = self._lastErrorProxy.getLastErrorMessage()
                 elif featureName == "Python Syntax Checking":
                     if self._haveSufficientPython():
+                        status = "Ready"
+                    else:
+                        status = "Not Functional"
+                        reason = self._lastErrorProxy.getLastErrorMessage()
+                elif featureName == "Python3 Syntax Checking":
+                    if self._haveSufficientPython3():
                         status = "Ready"
                     else:
                         status = "Not Functional"
@@ -521,6 +529,45 @@ class KoFeatureStatusService:
                 return 0
         
         errmsg = "Could not find a suitable Python installation."
+        self._lastErrorProxy.setLastError(0, errmsg)
+        return 0
+
+    def _haveSufficientPython3(self, stopOnFirst=1, minVersion=None):
+        """Return true iff a Python3 installation meeting the above conditions
+        can be found.
+            "stopOnFirst" is a boolean indicating if the search should stop
+                on the "first" found interpreter. This is because things like
+                debugging and syntax checking are just going to use this
+                one anyway. Default is true.
+
+        If false is returned, then the last error (see koILastErrorService)
+        is set with a reason why.
+        """
+        # Try the user's selected python interpreter.
+        pythonDefaultInterp = self._prefProxy.prefs.getStringPref("python3DefaultInterpreter")
+        if pythonDefaultInterp:
+            self._python3InfoEx.installationPath =\
+                self._python3InfoEx.getInstallationPathFromBinary(pythonDefaultInterp)
+            if self._isSufficientPython(self._python3InfoEx, minVersion):
+                return 1
+            elif stopOnFirst:
+                return 0
+            
+        # Look on PATH.
+        if sys.platform.startswith('win'):
+            exts = ['.exe']
+        else:
+            exts = None
+        pythons = which.whichall('python', exts=exts, path=self._userPath)
+        for python in pythons:
+            self._python3InfoEx.installationPath =\
+                self._python3InfoEx.getInstallationPathFromBinary(python)
+            if self._isSufficientPython(self._python3InfoEx, minVersion):
+                return 1
+            elif stopOnFirst:
+                return 0
+        
+        errmsg = "Could not find a suitable Python3 installation."
         self._lastErrorProxy.setLastError(0, errmsg)
         return 0
 
