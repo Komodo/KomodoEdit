@@ -59,6 +59,7 @@ var gFeatureStatusSvc = null;
 var gPrefsList = [
         "perlDefaultInterpreter","phpDefaultInterpreter",
         "pythonDefaultInterpreter","rubyDefaultInterpreter",
+        "python3DefaultInterpreter",
                  ];
 
 function FeatureStatusObserver() {
@@ -119,6 +120,8 @@ FeatureStatusObserver.prototype.observe = function(subject, topic, data)
             _requestFeatureStatus('PHP Syntax Checking');
         case "pythonDefaultInterpreter":
             _requestFeatureStatus('Python Syntax Checking');
+        case "python3DefaultInterpreter":
+            _requestFeatureStatus('Python3 Syntax Checking');
         case "rubyDefaultInterpreter":
             _requestFeatureStatus('Ruby Syntax Checking');
         }
@@ -144,6 +147,7 @@ function _requestFeatureStatus(featureName)
             var allFeatureNames = ["Perl Syntax Checking",
                                    "PHP Syntax Checking",
                                    "Python Syntax Checking",
+                                   "Python3 Syntax Checking",
                                    "Ruby Syntax Checking",
                                    ];
             for (var i = 0; i < allFeatureNames.length; i++) {
@@ -199,6 +203,10 @@ function _updateFeatureControlPanel(featureName, status, reason)
             status = "Syntax Checking: " + status;
             widget = gWidgets.pythonSyntaxCheckingStatus;
             break;
+        case "Python3 Syntax Checking":
+            status = "Syntax Checking: " + status;
+            widget = gWidgets.python3SyntaxCheckingStatus;
+            break;
         case "Ruby Syntax Checking":
             status = "Syntax Checking: " + status;
             widget = gWidgets.rubySyntaxCheckingStatus;
@@ -244,6 +252,7 @@ function OnLoad()
         gWidgets.perlSyntaxCheckingStatus = document.getElementById("perl-syntax-checking-status");
         gWidgets.phpSyntaxCheckingStatus = document.getElementById("php-syntax-checking-status");
         gWidgets.pythonSyntaxCheckingStatus = document.getElementById("python-syntax-checking-status");
+        gWidgets.python3SyntaxCheckingStatus = document.getElementById("python3-syntax-checking-status");
         gWidgets.rubySyntaxCheckingStatus = document.getElementById("ruby-syntax-checking-status");
 
         gWidgets.cancelButton.setAttribute("label", "Close");
