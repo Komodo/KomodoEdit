@@ -342,6 +342,7 @@
                 <File Id="file4897" Name="verbose.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\verbose.gif"/>
                 <File Id="file4902" Name="x.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\x.gif"/>
                 <File Id="file0" LongName="places_projects.png" Name="PLACES_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\places_projects.png" />
+                <File Id="file239" LongName="places_view.png" Name="PLACES_1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\places_view.png" />
                 <File Id="file1" LongName="projects_pane.png" Name="PROJEC_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\projects_pane.png" />
                 <File Id="file30" Name="PROJTB_0.PNG" LongName="projtb_add_butt.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\projtb_add_butt.png"/>
                 <File Id="file251" LongName="break_request.png" Name="BREAK__0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\break_request.png" />
