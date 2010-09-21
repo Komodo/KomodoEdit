@@ -30,14 +30,16 @@ tabbox.vertical_tabs[rotation="270"] tab
 {
   -moz-border-radius: 6px 0 0 6px;
   border-bottom: 3px solid;
-  border-left: none;
+  border-top: 1px solid;
+  border-right: none;
 }
 
 tabbox.vertical_tabs[rotation="90"] tab
 {
   -moz-border-radius: 0 6px 6px 0;
   border-bottom: 3px solid;
-  border-right: none;
+  border-top: 1px solid;
+  border-left: none;
 }
 
 tabbox.vertical_tabs tabpanel label.tab-text {
@@ -53,4 +55,9 @@ tabbox.vertical_tabs .tab-middle {
   /* Remove left/right padding around the tab */
   padding-left: 0;
   padding-right: 0;
+}
+
+/* Drop the default margin around vertical sidepane trees. */
+tabbox.vertical_tabs tree {
+  margin: 0;
 }
