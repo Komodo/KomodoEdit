@@ -65,7 +65,7 @@ function OnPreferencePageLoading(prefset) {
     if (!project) {
         dump("**************** pref-folderImport.js -- no project found\n");
     } else {
-        dirname.value = project.liveDirectory;
+        dirname.value = project.importDirectory;
     }
 }
 
