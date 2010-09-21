@@ -163,7 +163,6 @@
             <Directory Id="directory530" Name="css">
               <Component Id="component496" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file552" Name="api.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\api.css"/>
-                <File Id="file554" Name="aspn.css" LongName="aspn.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\aspn.css"/>
                 <File Id="file555" Name="screen.css" LongName="screen.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\screen.css"/>
               </Component>
               <Directory Id="directory15" Name="activestyle">
