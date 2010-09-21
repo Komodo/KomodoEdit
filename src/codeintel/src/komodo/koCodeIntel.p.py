@@ -290,13 +290,7 @@ class KoCodeIntelEnvironment(Environment):
         unwrapped_proj = self._unwrapped_proj_weakref()
         if unwrapped_proj is None:
             return None
-        proj = WrapObject(unwrapped_proj, components.interfaces.koIProject)
-        if proj.prefset.hasPref("import_live") \
-           and proj.prefset.getBooleanPref("import_live"):
-            base_dir = proj.liveDirectory
-        else:
-            base_dir = dirname(uriparse.URIToLocalPath(proj.url))
-        return base_dir
+        return unwrapped_proj.get_importDirectory()
 
 
 class KoJavaScriptMacroEnvironment(KoCodeIntelEnvironment):
