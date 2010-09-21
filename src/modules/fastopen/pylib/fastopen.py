@@ -618,7 +618,7 @@ class KomodoProjectGatherer(Gatherer):
     def __init__(self, project):
         self.project = project
         self.name = "project '%s'" % project.get_name()
-        self.base_dir = project.get_liveDirectory()
+        self.base_dir = project.get_importDirectory()
     def gather(self):
         #XXX:TODO the cached/indexed version
         project_name = self.project.get_name()
@@ -634,7 +634,7 @@ class CachingKomodoProjectGatherer(Gatherer):
     def __init__(self, project):
         self.project = project
         self.name = "project '%s'" % project.get_name()
-        self.base_dir = project.get_liveDirectory()
+        self.base_dir = project.get_importDirectory()
         project_name = self.project.get_name()
         if project_name.endswith(KOMODO_PROJECT_EXT):
             project_name = project_name[:-len(KOMODO_PROJECT_EXT)]
@@ -744,7 +744,7 @@ class MockKomodoProject(object):
     def get_name(self):
         return self._name
 
-    def get_liveDirectory(self):
+    def get_importDirectory(self):
         if self._prefset["import_live"]:
             return self._base_dir
         else:
