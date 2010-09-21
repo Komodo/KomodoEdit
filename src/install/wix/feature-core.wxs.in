@@ -51,7 +51,6 @@
       <ComponentRef Id="RegistryBase" />
       <ComponentRef Id="ReadMeFiles" />
       <ComponentRef Id="component2"/>
-      <ComponentRef Id="MsvcrtUpdate"/>
 
 <?if $(var.IsMSIDebugBuild) = "no" ?>
       <ComponentRef Id="component3"/>
