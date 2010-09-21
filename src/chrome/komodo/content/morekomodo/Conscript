@@ -1,0 +1,10 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2009-2010 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import('cons', 'mozChromeDir');
+
+$cons->InstallInChrome('overlay.xul');
+$cons->InstallInChrome('overlay.js');
+$cons->InstallInChrome('common.js');

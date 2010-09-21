@@ -8,6 +8,8 @@ content komodo KO_BASE_CHROME/content/ xpcnativewrappers=yes
 locale komodo en-US KO_BASE_CHROME/locale/en-US/
 skin komodo classic/1.0 KO_BASE_CHROME/skin/
 
+overlay chrome://komodo/content/komodo.xul chrome://komodo/content/morekomodo/overlay.xul
+
 overlay chrome://mozapps/content/extensions/extensions.xul chrome://komodo/content/extmgr/em-overlay.xul
 overlay chrome://mozapps/content/update/updates.xul chrome://komodo/content/update/overlay.xul
 
