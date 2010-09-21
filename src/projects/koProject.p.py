@@ -1099,7 +1099,7 @@ class koLiveFolderPart(koFolderPart):
                 if not self._path:
                     self._setPathAndName()
                 if self._project == self:
-                        path = os.path.dirname(self._path)
+                    path = os.path.dirname(self._path)
                 else:
                     path = self._path
             return path
@@ -1340,6 +1340,24 @@ class koProject(koLiveFolderPart):
             else:
                 self._name = self._uri.baseName
             self._path = self._uri.path
+
+    def get_importDirectory(self):
+        prefs = self.get_prefset()
+        # Bug 87843:
+        # import_live means that Komodo is pointing at another
+        # directory.  v5 does this via the import_live boolean pref
+        # and then the project.livefolder attribute.  v6 just looks
+        # at the import_dirname field, which is also used in v5.
+        import_live = (prefs.hasPref("import_live") and
+                       prefs.getBooleanPref("import_live"))
+        koFileEx = None
+        if not import_live:
+            # First check v5 legacy projects.
+            importedDirs = self.getChildrenByType('livefolder', True)
+            if len(importedDirs) == 1:
+                return importedDirs[0].url
+
+        return self.get_liveDirectory()
 
     def isCurrent(self):
         return self._active

@@ -203,6 +203,9 @@ interface koIFileImportingService : nsISupports {
 interface koIProject: koIPart_livefolder { 
     // Note: Renaming is done by modifying either the URL or the name.
     attribute boolean isDirty;
+    // Import directory is the base folder that the project imports (i.e. the
+    // folder that will be shown in Places).
+    readonly attribute wstring importDirectory;
     void create();
     void activate(); // called when project is made active
     void deactivate(); // called when another project is made active
