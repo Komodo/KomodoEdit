@@ -1376,7 +1376,7 @@ ManagerClass.prototype = {
         if (!uri || !project) {
             return false;
         }
-        var targetDirURI = this._getActualProjectDir(project);
+        var targetDirURI = project.importDirectory;
         return uri == targetDirURI;
     },
     
@@ -2372,7 +2372,7 @@ ManagerClass.prototype = {
     handle_project_opened: function(event) {
         var project = ko.projects.manager.currentProject;
         if (project) {
-            var targetDirURI = this._getActualProjectDir(project);
+            var targetDirURI = project.importDirectory;
             if (targetDirURI) {
                 // Delay, because at startup the tree might not be
                 // fully initialized.
@@ -2389,62 +2389,12 @@ ManagerClass.prototype = {
     },
 
     placeIsAtProjectDir: function(project) {
-        return this.currentPlace == this._getActualProjectDir(project);
+        return this.currentPlace == project.importDirectory;
     },
 
     moveToProjectDir: function(project) {
-        var projectDirURI = this._getActualProjectDir(project);
+        var projectDirURI = project.importDirectory;
         ko.places.manager.openDirURI(projectDirURI);
-    },
-    
-    _getActualProjectDir: function(project) {
-        try {
-            var prefset = project.prefset;
-            
-            // Bug 87843:
-            // import_live means that Komodo is pointing at another
-            // directory.  v5 does this via the import_live boolean pref
-            // and then the project.livefolder attribute.  v6 just looks
-            // at the import_dirname field, which is also used in v5.
-            var import_live = (prefset.hasPref("import_live")
-                               && prefset.getBooleanPref("import_live"));
-            var koFileEx = null;
-            if (!import_live) {
-                // First check v5 legacy projects.
-                var importedDirs = {};
-                project.getChildrenByType('livefolder', true, importedDirs, {});
-                importedDirs = importedDirs.value;
-                if (importedDirs.length == 1) {
-                    var uri = importedDirs[0].url;
-                    koFileEx = Components.classes["@activestate.com/koFileEx;1"].
-                        createInstance(Components.interfaces.koIFileEx);
-                    koFileEx.URI = uri;
-                    if (koFileEx.exists) {
-                        return uri;
-                    }
-                }
-            }
-            // If that didn't work, try the import_dirname pref
-            // This pref doesn't depend on the v5 'import_live' pref.
-            if (prefset.hasStringPref("import_dirname")) {
-                var baseDir = prefset.getStringPref("import_dirname");
-                if (baseDir) {
-                    koFileEx = Components.classes["@activestate.com/koFileEx;1"].
-                        createInstance(Components.interfaces.koIFileEx);
-                    if (baseDir.indexOf("://") == -1) {
-                        koFileEx.path = baseDir;
-                    } else {
-                        koFileEx.URI = baseDir;
-                    }
-                    return koFileEx.URI;
-                }
-            }
-        } catch(ex) {
-            // Probably can ignore this.
-            log.exception("_getActualProjectDir: " + ex + "\n");
-        }
-        var uri = project.url;
-        return uri.substr(0, uri.lastIndexOf("/"));
     },
     
     refreshItem: function(item) {
