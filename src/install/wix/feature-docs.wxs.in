@@ -120,7 +120,6 @@
               <File Id="file387" LongName="catalogs.html" Name="CATALO_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\catalogs.html" />
               <File Id="file388" LongName="macroapi.html" Name="MACROA_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\macroapi.html" />
               <File Id="file389" LongName="macros.html" Name="MACROS_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\macros.html" />
-              <File Id="file390" LongName="openshort.html" Name="OPENSH_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\openshort.html" />
               <File Id="file391" LongName="osxkeybind.html" Name="OSXKEY_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\osxkeybind.html" />
               <File Id="file392" LongName="pdk.html" Name="PDK_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\pdk.html" />
               <File Id="file393" LongName="prefs.html" Name="PREFS_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\prefs.html" />
