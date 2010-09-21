@@ -215,7 +215,7 @@ class _KoTool(object):
         except KeyError:
             pass
         if typeName in ('menu', 'toolbar'):
-            mac# menu_created and toolbar_created notifications are done here
+            # menu_created and toolbar_created notifications are done here
             requests.append([self, typeName + "_created", None])
         # Are there any custom menus or toolbars that contain this item?
         id = self.id
