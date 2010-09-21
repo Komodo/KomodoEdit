@@ -53,13 +53,15 @@ NOT to be used as a service, there must be one instance per user. I.e.
 createInstance() must be used instead of getService().
 """
 
+import threading
+import logging
+from weakref import ref
+
 from xpcom import components, ServerException, COMException, nsError
 from xpcom.client import WeakReference
 from xpcom.server.enumerator import SimpleEnumerator
 from xpcom.server import WrapObject, UnwrapObject
 
-import threading
-import logging
 log = logging.getLogger('KoObserverService')
 #log.setLevel(logging.DEBUG)
 
@@ -143,7 +145,16 @@ class KoObserverService:
         # Ignoring the ownsWeak argument, always try to create a
         # weakreference, see comments in bug 80145.
         try:
-            anObserver = WeakReference(anObserver)
+            try:
+                # We prefer a Python weak reference, as sometimes our Python
+                # code will only hold a Python (non XPCOM) reference to the
+                # observer, and then the XPCOM weakreference will report the
+                # observer as dead, even though it's still alive in the Python
+                # world - bug 88013.
+                anObserver = ref(UnwrapObject(anObserver))
+            except ValueError:
+                # Not a Python object, use an XPCOM weakreference then.
+                anObserver = WeakReference(anObserver)
         except COMException:
             pass
         wr_observers.append(anObserver)
@@ -188,6 +199,10 @@ class KoObserverService:
 
     # void removeObserver( in nsIObserver anObserver, in string aTopic );
     def removeObserver(self, anObserver, aTopic):
+        try:
+            anObserver = UnwrapObject(anObserver)
+        except ValueError:
+            pass
         self.cv.acquire()
         try:
             self._removeObserver(anObserver, aTopic)
@@ -196,6 +211,10 @@ class KoObserverService:
 
     # void removeObserverForTopics( in nsIObserver anObserver, in array aTopics );
     def removeObserverForTopics(self, anObserver, aTopics):
+        try:
+            anObserver = UnwrapObject(anObserver)
+        except ValueError:
+            pass
         self.cv.acquire()
         try:
             for aTopic in aTopics:
