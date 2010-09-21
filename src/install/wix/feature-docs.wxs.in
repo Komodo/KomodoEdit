@@ -53,9 +53,9 @@
       <ComponentRef Id="component555" />
       <ComponentRef Id="component556" />
       <ComponentRef Id="component557" />
-      <ComponentRef Id="component603" />
       <ComponentRef Id="component496"/>
       <ComponentRef Id="component499"/>
+      <ComponentRef Id="component14" />
 <?endif ?>
     </FeatureRef>
 
@@ -164,11 +164,15 @@
             <Directory Id="directory530" Name="css">
               <Component Id="component496" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file552" Name="api.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\api.css"/>
-                <File Id="file553" Name="app.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\app.css"/>
-                <File Id="file554" Name="ASPN_0.CSS" LongName="aspn.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\aspn.css"/>
-                <File Id="file555" Name="SCREEN_0.CSS" LongName="screen.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\screen.css"/>
-                <File Id="file556" Name="top.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\top.css"/>
+                <File Id="file554" Name="aspn.css" LongName="aspn.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\aspn.css"/>
+                <File Id="file555" Name="screen.css" LongName="screen.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\screen.css"/>
               </Component>
+              <Directory Id="directory15" Name="activestyle">
+                <Component DiskId="1" Guid="$(autowix.guid)" Id="component14">
+                  <File Id="file237" Name="base.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\activestyle\base.css" />
+                  <File Id="file238" Name="reset.css" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\css\activestyle\reset.css" />
+                </Component>
+              </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\css\activestyle -->
             </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\css -->
             <Directory Id="directory598" Name="IMG_0" LongName="img">
               <Component Id="component556" DiskId="1" Guid="$(autowix.guid)">
@@ -347,16 +351,6 @@
                 <File Id="file558" Name="APPIDE_0.PNG" LongName="app-ide-edit.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-ide-edit.png"/>
                 <File Id="file559" Name="APPIDE_1.PNG" LongName="app-ide.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\app-ide.png"/>
               </Component>
-              <Directory Id="directory658" Name="top">
-                <Component Id="component603" DiskId="1" Guid="$(autowix.guid)">
-                  <File Id="file237" Name="showcase.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\showcase.png" />
-                  <File Id="file238" LongName="background_1.png" Name="BACKGR_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\background_1.png" />
-                  <File Id="file239" LongName="komodo_icon_1.png" Name="KOMODO_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\komodo_icon_1.png" />
-                  <File Id="file278" LongName="tutorials.png" Name="TUTORI_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\tutorials.png" />
-                  <File Id="file279" LongName="sample_projects.png" Name="SAMPLE_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\sample_projects.png" />
-                  <File Id="file425" LongName="forums-icon.png" Name="FORUMS_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\top\forums-icon.png" />
-                </Component>
-              </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\img\top -->
             </Directory> <!-- lib\mozilla\chrome\komododoc\locale\en-US\img -->
             <Directory Id="directory534" Name="releases">
               <Component Id="component499" DiskId="1" Guid="$(autowix.guid)">
