@@ -34,7 +34,9 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-"""Some utils for building and working with Komodo's packages system."""
+"""Some utils for building and working with Komodo installer and updates
+packages, Komodo package versions, etc.
+"""
 
 import os
 from os.path import (join, dirname, basename, isdir, isfile, abspath,
@@ -59,7 +61,15 @@ import buildutils
 
 #---- globals
 
-log = logging.getLogger("pkgutils")
+log = logging.getLogger("kopkglib")
+
+g_short_ver_pat = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:([abc])(\d+))?$")
+
+g_ide_repo_url = "https://svn.activestate.com/repos/activestate/komodo/"
+g_edit_repo_url = "https://svn.openkomodo.com/repos/openkomodo/"
+
+g_remote_builds_dir = "komodo-build@nas:/data/komodo/builds"
+
 
 
 #---- module API
@@ -73,8 +83,8 @@ class KomodoReleasesGuru(object):
         "komodoide": "Komodo-IDE",
     }
     pkg_base_dir_from_project = {
-        "komodoedit": "komodo-build@nas:/data/komodo/builds",
-        "komodoide": "komodo-build@nas:/data/komodo/builds",
+        "komodoedit": g_remote_builds_dir,
+        "komodoide": g_remote_builds_dir,
     }
     nightly_base_dir_from_project = {
         "komodoedit": "komodo-build@nas:/data/komodo/builds/nightly-stage/komodoedit/",
@@ -137,7 +147,8 @@ class KomodoReleasesGuru(object):
             (<parsed-version-tuple>, <version-string>, <is-beta>)
         E.g.:
             ((4,2,0,'b',1,12345),    "4.2.0b1",        True)
-            ((4,1,1,'c',0,12346),    "4.1.1",          False)
+            ((6,0,0,'c',0,12346),    "6.0.0c1",        True)
+            ((4,1,1,'f',0,12346),    "4.1.1",          False)
         """
         if self._released_versions_cache is None:
             self._released_versions_cache = []
@@ -151,7 +162,7 @@ class KomodoReleasesGuru(object):
                     continue
                 if len(ver) == 3: # e.g. (4,1,0) -> (4,1,0,'c',0)
                     # This helps sort 4.1.0 before 4.1.0b2.
-                    ver = (ver[0], ver[1], ver[2], 'c', 0)
+                    ver = (ver[0], ver[1], ver[2], 'f', 0)
                     is_beta = False
                 else:
                     is_beta = True
@@ -183,11 +194,11 @@ class KomodoReleasesGuru(object):
         years = buildutils.remote_glob(rjoin(self.nightly_base_dir, "????"))
         for year_dir in sorted(years, reverse=True):
             year = rbasename(year_dir)
-            if not isint(year): continue
+            if not _isint(year): continue
             months = buildutils.remote_glob(rjoin(year_dir, "??"))
             for month_dir in sorted(months, reverse=True):
                 month = rbasename(month_dir)
-                if not isint(month): continue
+                if not _isint(month): continue
                 nightlies = buildutils.remote_glob(
                     rjoin(month_dir, "????-??-??-??-"+branch))
                 for nightly_dir in sorted(nightlies, reverse=True):
@@ -252,6 +263,8 @@ class KomodoReleasesGuru(object):
             last_release_ver_str += "-alpha%d" % last_release_ver[4]
         elif last_release_ver[3] == 'b':
             last_release_ver_str += "-beta%d" % last_release_ver[4]
+        elif last_release_ver[3] == 'c':
+            last_release_ver_str += "-rc%d" % last_release_ver[4]
         last_release_ver_str += "-%s" % last_release_ver[5]
 
         mar_name = "%s-%s-%s-complete.mar" \
@@ -377,10 +390,155 @@ class KomodoMarCacher(object):
         return os.stat(cache_mar_path).st_size
 
 
+def short_ver_from_branch(branch, repo="komodoide"):
+    """Return the short version, e.g. "5.2.1a1", for the given Komodo branch.
+    
+    A Komodo source tree has a "version.txt" that defines the version of Komodo
+    that will be built (by default) out of that tree.
+    
+    @param branch {str} The Komodo source branch in which to look.
+        E.g. "5.2.0a1", "foo", "trunk".
+    @param repo {str} Which Komodo svn repo to look in: "komodoide" (the default)
+        or "komodoedit".
+    """
+    repo_url = {"komodoide": g_ide_repo_url, "komodoedit": g_edit_repo_url}[repo]
+    if branch == "trunk":
+        version_txt_url = repo_url + "trunk/src/version.txt"
+    else:
+        version_txt_url = repo_url + "branches/" + branch + "/src/version.txt"
+    ver = _capture_stdout(["svn", "cat", version_txt_url]).strip()
+    if "-" in ver:
+        # This is a "long version", i.e. looks like "5.2.0-alpha1" instead of
+        # "5.2.0a1".
+        ver = ver.replace("-alpha", "a").replace("-beta", "b").replace("-rc", "c")
+        assert g_short_ver_pat.match(ver)
+    return ver
+
+
+def latest_release_branch():
+    """Determine the latest release branch.
+    
+    A "release branch" is a branch (in both the Komodo IDE and Edit svn repos)
+    with a name matching the version pattern "N.N.N[a|b|cN]" -- for example
+    "5.2.1", "6.0.0a1".
+    """
+    branches_url = g_ide_repo_url + "branches/"
+    branches = _svn_ls(branches_url)
+    ver_dir_pat = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:([abc])(\d+))?/$")
+    vers = []
+    for b in branches:
+        m = ver_dir_pat.match(b)
+        if not m:
+            continue
+        b = b.rstrip('/')
+        bits = m.groups()
+        if bits[3] is None:
+            vers.append(((int(bits[0]), int(bits[1]), int(bits[2]), 'f', 0), b))
+        else:
+            vers.append(((int(bits[0]), int(bits[1]), int(bits[2]), bits[3], int(bits[4])), b))
+    vers.sort()
+    if not vers:
+        raise RuntimeError("could not a find a release branch in `%s'"
+            % branches_url)
+    branch = vers[-1][1]
+    return branch
+
+
+def norm_branch_from_branch(branch):
+    """Return a normalized branch name (for use in paths) for the given Komodo
+    branch name.
+    """
+    return re.sub(r'[^\w\.]', '_', branch).lower()
+
+def get_devbuild_dir(short_ver, repo_name, branch, rev=None):
+    """Return the devbuild dir for the given version, repo, branch and, if
+    given, revision.
+    
+    @param short_ver {str} A Komodo short version, e.g. "5.2.0a1".
+    @param repo_name {str} One of "assvn" (from which Komodo IDE is built) or
+        "oksvn" (from which Komodo Edit is built).
+    @param branch {str} The Komodo branch from which the dev build was built.
+    @param rev {int} A devbuild revision to use. If not given, then the latest
+        available revision is returned.
+    """
+    if rev is None:
+        pat = rjoin(g_remote_builds_dir, short_ver, "DevBuilds",
+            "%s-%s-*" % (repo_name, norm_branch_from_branch(branch)))
+        revs = []
+        dir_from_rev = {}
+        for path in buildutils.remote_glob(pat):
+            rev = int(path.rsplit('-', 1)[1])
+            revs.append(rev)
+            dir_from_rev[rev] = path
+        revs.sort()
+        return dir_from_rev[revs[-1]]
+    else:
+        return rjoin(g_remote_builds_dir, short_ver, "DevBuilds",
+            "%s-%s-%s" % (repo_name, norm_branch_from_branch(branch), rev))
+
+def komodo_revisions_from_branch(branch):
+    """Return the latest Subversion revisions for the given Komodo branch.
+    the current Subversion.
+    
+    @param branch {str} A Komodo branch name for which to get revision info. Can
+        be one of:
+            <branch-name>       Examples: "5.2.0a1", "6.0.0"
+            trunk               Indicates the svn trunk.
+            LATEST              for the latest release branch
+    @returns a 3-tuple (<branch-name>, <ide-revision>, <edit-revision>)
+    """
+    
+    # Get the branch name.
+    if branch == "LATEST":
+        branch = latest_release_branch()
+
+    # Get the latest IDE and Edit revs.
+    if branch == "trunk":
+        ide_url = g_ide_repo_url + "trunk/"
+        edit_url = g_edit_repo_url + "trunk/"
+    else:
+        ide_url = "%sbranches/%s/" % (g_ide_repo_url, branch)
+        edit_url = "%sbranches/%s/" % (g_edit_repo_url, branch)
+    ide_rev = int(_svn_info(ide_url)["Last Changed Rev"])
+    edit_rev = int(_svn_info(edit_url)["Last Changed Rev"])
+    
+    return (branch, ide_rev, edit_rev)
+
+
 
 #---- internal support stuff
 
-def isint(s):
+def _capture_stdout(argv, ignore_retval=False):
+    import subprocess
+    p = subprocess.Popen(argv, stdout=subprocess.PIPE)
+    stdout = p.stdout.read()
+    retval = p.wait()
+    if retval and not ignore_retval:
+        raise OSError("error running '%s'" % ' '.join(argv))
+    return stdout
+
+def _svn_ls(url):
+    output = _capture_stdout(["svn", "ls", url])
+    files = []
+    for line in output.splitlines(0):
+        if not line.strip(): continue
+        files.append(line)
+    return files
+
+def _svn_info(target):
+    stdout = _capture_stdout(["svn", "info", target])
+    if "Last Changed Rev:" not in stdout:  # landmark
+        raise RuntimeError("error getting svn info for `%s' "
+            "(svn info output was %r)" % (target, stdout))
+    info = {}
+    for line in stdout.splitlines(0):
+        if not line.strip(): continue
+        key, value = line.split(":", 1)
+        info[key.strip()] = value.strip()
+    return info
+
+
+def _isint(s):
     try:
         int(s)
     except ValueError:
@@ -397,14 +555,4 @@ def _rmtreeOnError(rmFunction, filePath, excInfo):
 def _rmtree(dirname):
     import shutil
     shutil.rmtree(dirname, 0, _rmtreeOnError)
-
-
-#---- self-test
-
-def _test():
-    import doctest
-    doctest.testmod()
-
-if __name__ == "__main__":
-    _test()
 
