@@ -167,7 +167,8 @@ $cons->InstallInChrome('pref-codeintel.js');
 $cons->InstallInChrome('pref-mappeduri.xul');
 
 $cons->InstallInChrome('pref-folderImport.xul');
-$cons->InstallInChrome('pref-folderImport.js');
+$cons->InstallInChrome('project-folderImport.xul');
+$cons->InstallInChrome('project-folderImport.js');
 
 $cons->Preprocess('file-properties.p.xul', 'file-properties.xul');
 $cons->InstallInChrome('file-advanced-properties.xul');
