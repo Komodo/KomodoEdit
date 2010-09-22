@@ -491,9 +491,12 @@ class KoToolbox2Service(object):
                 log.exception("Failed to migrate toolbox %s", toolboxPath)
             finally:
                 os.chdir(curDir)
-            f = open(migrateStampPath, "w")
-            f.write("migrated %s on %s\n" % (label, time.ctime()))
-            f.close()
+            try:
+                f = open(migrateStampPath, "w")
+                f.write("migrated %s on %s\n" % (label, time.ctime()))
+                f.close()
+            except IOError:
+                log.exception("Can't write to %s: ", migrateStampPath)
         else:
             log.debug("No need to migrate from %s to %s", toolboxPath, toolboxDir)
             pass

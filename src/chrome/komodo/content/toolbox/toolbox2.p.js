@@ -84,8 +84,12 @@ initialize: function() {
     this.tree.treeBoxObject
                     .QueryInterface(Components.interfaces.nsITreeBoxObject)
                     .view = this.view;
-    this.toolbox2Svc.migrateVersion5Toolboxes();
-    this.toolbox2Svc.initialize();
+    try {
+        this.toolbox2Svc.migrateVersion5Toolboxes();
+        this.toolbox2Svc.initialize();
+    } catch(ex) {
+        log.exception("Failed to create toolboxes: " + ex);
+    }
     var currentProject;
     try {
         currentProject = ko.projects.manager.currentProject;

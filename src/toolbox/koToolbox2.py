@@ -534,12 +534,10 @@ class Database(object):
                     fp.close()
                 except:
                     log.error("Couldn't open path %s", metadataPath)
-                if 'name' in data:
-                    actual_name = data['name']
                 else:
-                    actual_name = name
-                new_id = self._addCompoundItem(path, actual_name, data, parent_path_id, cu)
-                return new_id
+                    actual_name = data.get('name', None) or name
+                    new_id = self._addCompoundItem(path, actual_name, data, parent_path_id, cu)
+                    return new_id
             id = self._addCommonDetails(path, name, 'folder', parent_path_id, cu)
             return id
 
@@ -562,10 +560,7 @@ class Database(object):
         return id
                 
     def _addCompoundItem(self, path, name, data, parent_path_id, cu):
-        if name != data['name']:
-            log.error("Bad compound item data: for item named %s, metadata is %s",
-                      name, data['name'])
-        node_type = data['type']
+        node_type = data.get('type', 'folder')
         # Process the children in the directory
         id = self._addCommonDetails(path, name, node_type, parent_path_id, cu)
         if node_type == 'menu':
@@ -591,7 +586,7 @@ class Database(object):
         if item_type in _unsupported_types:
             log.info("Dropping old-style tool type:%s, name:%s", item_type, fname)
             return # Goodbye
-        pretty_name = data['name']
+        pretty_name = data.get('name', fname)
         common_names = ['name', 'type', 'id', 'version']
         #log.debug("About to add tool %s in %s", fname, path)
         for name in common_names:
