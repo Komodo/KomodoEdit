@@ -1340,8 +1340,8 @@ class koProject(koLiveFolderPart):
             else:
                 self._name = self._uri.baseName
             self._path = self._uri.path
-
-    def get_importDirectory(self):
+            
+    def _get_importDirectoryInfo(self):
         prefs = self.get_prefset()
         # Bug 87843:
         # import_live means that Komodo is pointing at another
@@ -1350,14 +1350,27 @@ class koProject(koLiveFolderPart):
         # at the import_dirname field, which is also used in v5.
         import_live = (prefs.hasPref("import_live") and
                        prefs.getBooleanPref("import_live"))
-        koFileEx = None
+        koFileEx = components.classes["@activestate.com/koFileEx;1"] \
+            .createInstance(components.interfaces.koIFileEx)
         if not import_live:
             # First check v5 legacy projects.
             importedDirs = self.getChildrenByType('livefolder', True)
             if len(importedDirs) == 1:
-                return importedDirs[0].url
+                koFileEx.URI = importedDirs[0].url
+                return koFileEx
+        koFileEx.path = self.get_liveDirectory()
+        return koFileEx
 
-        return self.get_liveDirectory()
+    def get_importDirectoryURI(self):
+        koFileEx = self._get_importDirectoryInfo()
+        return koFileEx.URI
+    
+    def get_importDirectoryPath(self):
+        koFileEx = self._get_importDirectoryInfo()
+        try:
+            return koFileEx.path
+        except ValueError:
+            return None
 
     def isCurrent(self):
         return self._active

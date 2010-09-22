@@ -29,10 +29,8 @@ function OnPreferencePageLoading(prefset) {
     // set the dirname if the pref is not already set
     project = ((typeof(parent.part) != 'undefined' && parent.part)
                ? parent.part.project : null);
-    if (!project) {
-        dump("**************** pref-folderImport.js -- no project found\n");
-    } else {
-        dirname.value = project.importDirectory;
+    if (project) {
+        dirname.value = project.importDirectoryPath || project.importDirectoryURI;
     }
 }
 

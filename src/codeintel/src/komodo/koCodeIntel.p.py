@@ -290,7 +290,7 @@ class KoCodeIntelEnvironment(Environment):
         unwrapped_proj = self._unwrapped_proj_weakref()
         if unwrapped_proj is None:
             return None
-        return unwrapped_proj.get_importDirectory()
+        return unwrapped_proj.get_importDirectoryPath()
 
 
 class KoJavaScriptMacroEnvironment(KoCodeIntelEnvironment):

@@ -1376,7 +1376,7 @@ ManagerClass.prototype = {
         if (!uri || !project) {
             return false;
         }
-        var targetDirURI = project.importDirectory;
+        var targetDirURI = project.importDirectoryURI;
         return uri == targetDirURI;
     },
     
@@ -2372,7 +2372,7 @@ ManagerClass.prototype = {
     handle_project_opened: function(event) {
         var project = ko.projects.manager.currentProject;
         if (project) {
-            var targetDirURI = project.importDirectory;
+            var targetDirURI = project.importDirectoryURI;
             if (targetDirURI) {
                 // Delay, because at startup the tree might not be
                 // fully initialized.
@@ -2389,11 +2389,11 @@ ManagerClass.prototype = {
     },
 
     placeIsAtProjectDir: function(project) {
-        return this.currentPlace == project.importDirectory;
+        return this.currentPlace == project.importDirectoryURI;
     },
 
     moveToProjectDir: function(project) {
-        var projectDirURI = project.importDirectory;
+        var projectDirURI = project.importDirectoryURI;
         ko.places.manager.openDirURI(projectDirURI);
     },
     
