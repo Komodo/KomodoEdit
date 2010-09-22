@@ -87,6 +87,13 @@
 <binding id="view-buffer-base"
     extends="chrome://komodo/content/bindings/views.xml#view-base">
     <implementation name="viewbufferbase" implements="koIScintillaView, ISciMozEvents, nsIObserver">
+      
+        <constructor>
+        <![CDATA[
+        this._onModifiedHandlers = [];
+        this.addModifiedHandler(this._onModifiedHandler, this, 1000);
+        ]]>
+        </constructor>
         <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
         <property name="document"
             onget="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
@@ -967,14 +974,69 @@
         <parameter name="foldLevelPrev"/>
         <body>
         <![CDATA[
-        try {
-            // if we have an override handler, then use it, if it returns false,
-            // we'll go on normally.  This is used by the terminal view.
-            if (typeof(this.onModifiedHandler) != 'undefined') {
-                if (this.onModifiedHandler(position, modificationType,
+        var lim = this._onModifiedHandlers.length;
+        for (var i = 0; i < lim; i++) {
+            var entry = this._onModifiedHandlers[i];
+            if (entry[0].call(entry[1], position, modificationType,
                                         text, length, linesAdded, line,
-                                        foldLevelNow, foldLevelPrev)) return;
+                                        foldLevelNow, foldLevelPrev)) {
+                return;
             }
+        }
+        ]]>
+        </body>
+        </method>
+        
+        <method name="addModifiedHandler">
+        <parameter name="code"/>
+        <parameter name="owner"/> <!-- The 'this' when the code executes -->
+        <parameter name="priority"/>
+        <body>
+        <![CDATA[
+        var lim = this._onModifiedHandlers.length;
+        var entry;
+        // The lower the priority, the earlier to place it on the array.
+        // Ties go to the first one in the list.
+        for (var i = 0; i < lim; i++) {
+            entry = this._onModifiedHandlers[i];
+            if (priority < entry[2]) {
+                this._onModifiedHandlers.splice(i, 0, [code, owner, priority]);
+                return;
+            }
+        }
+        this._onModifiedHandlers.push([code, owner, priority]);
+        ]]>
+        </body>
+        </method>
+        
+        <method name="removeModifiedHandler">
+        <parameter name="code"/>
+        <body>
+        <![CDATA[
+        var lim = this._onModifiedHandlers.length;
+        for (var i = 0; i < lim; i++) {
+            if (code == this._onModifiedHandlers[i][0]) {
+                this._onModifiedHandlers.splice(i, 1);
+                return;
+            }
+        }
+        this.log.error("removeModifiedHandler: Couldn't find onModifiedHandler" + code)
+        ]]>
+        </body>
+        </method>
+        
+        <method name="_onModifiedHandler">
+        <parameter name="position"/>
+        <parameter name="modificationType"/>
+        <parameter name="text"/>   <!-- unicode text -->
+        <parameter name="length"/> <!-- utf8 length -->
+        <parameter name="linesAdded"/>
+        <parameter name="line"/>
+        <parameter name="foldLevelNow"/>
+        <parameter name="foldLevelPrev"/>
+        <body>
+        <![CDATA[
+        try {
             // This method is called _very_ frequently. One must take care
             // to ensure that it does not take a long time.
             //

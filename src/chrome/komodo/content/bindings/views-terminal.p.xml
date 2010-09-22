@@ -58,6 +58,12 @@
             onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
                 this.koDoc = val" />
 
+        <constructor>
+        <![CDATA[
+        this.addModifiedHandler(this.onModifiedHandler, this, 10);
+        ]]>
+        </constructor>
+        
         <field name="terminalHandler">null</field>
         <field name="cwd">null</field>
         <field name='promptPos'>0</field>

@@ -2393,12 +2393,11 @@ this.nullOnModifiedHandler = function() {
 // triggering re-entrant calls.
 
 this.wrapScintillaChange = function(view, func) {
-    var onModifiedHandler = view.onModifiedHandler;
-    view.onModifiedHandler = ko.views.nullOnModifiedHandler;
+    view.addModifiedHandler(this.nullOnModifiedHandler, this, 0);
     try {
         func();
     } finally {
-        view.onModifiedHandler = onModifiedHandler;
+        view.removeModifiedHandler(this.nullOnModifiedHandler);
     }
 };
 
