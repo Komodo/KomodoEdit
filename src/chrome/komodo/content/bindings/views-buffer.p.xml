@@ -1044,9 +1044,7 @@
             //       of handling a SC_MOD_CHANGESTYLE.  This will cause
             //       lexing failures. See bug 26575
 
-            const SC_MOD_BEFOREINSERT = Components.interfaces.ISciMoz.SC_MOD_BEFOREINSERT;
             const SC_MOD_BEFOREDELETE = Components.interfaces.ISciMoz.SC_MOD_BEFOREDELETE;
-            const SC_FOLDLEVELHEADERFLAG = Components.interfaces.ISciMoz.SC_FOLDLEVELHEADERFLAG;
             const SC_MOD_INSERTTEXT = Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT;
             const SC_MOD_DELETETEXT = Components.interfaces.ISciMoz.SC_MOD_DELETETEXT;
             const SC_PERFORMED_USER = Components.interfaces.ISciMoz.SC_PERFORMED_USER;
