@@ -1113,9 +1113,10 @@
                         return false;
                     }
                     var unhandledDropData = ko.dragdrop.openDroppedUrls(koDragDropList);
-                    if (!unhandledDropData) {
+                    if (unhandledDropData.length == 0) {
                         // The generic Komodo drop handler did all the work.
                         event.preventDefault();
+                        event.stopPropagation();
                         return true;
                     }
 
@@ -1186,6 +1187,7 @@
                         // data from inside scimoz
                         if (onselection) {
                             event.preventDefault();
+                            event.stopPropagation();
                             return true;
                         }
                         var start = scimoz.selectionStart;
@@ -1219,6 +1221,7 @@
 
                 // We're handling all (or at least part) of this drop data.
                 event.preventDefault();
+                event.stopPropagation();
                 return true;
                 ]]>
             </handler>
