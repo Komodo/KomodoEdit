@@ -99,11 +99,11 @@
     <groupbox orient="vertical"  id="filters">
         <caption label="&filters.label;"/>
         <separator class="thin"/>
-        <label value="&filesToExclude.label;"/>
-        <textbox id="exclude_matches" pref="true" value=""/>
-        <separator class="thin"/>
         <label value="&filesToInclude.label;"/>
         <textbox id="include_matches" pref="true" value=""/>
+        <separator class="thin"/>
+        <label value="&filesToExclude.label;"/>
+        <textbox id="exclude_matches" pref="true" value=""/>
     </groupbox>
 </dialog>
 
