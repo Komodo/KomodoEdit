@@ -112,7 +112,6 @@
               <File Id="file379" LongName="editor.html" Name="EDITOR_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\editor.html" />
               <File Id="file380" LongName="emacskeybind.html" Name="EMACSK_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\emacskeybind.html" />
               <File Id="file381" LongName="files.html" Name="FILES_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\files.html" />
-              <File Id="file382" LongName="folders.html" Name="FOLDER_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\folders.html" />
               <File Id="file383" LongName="http-insp.html" Name="HTTPIN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\http-insp.html" />
               <File Id="file384" LongName="intshell.html" Name="INTSHE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\intshell.html" />
               <File Id="file385" LongName="keybind.html" Name="KEYBIN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\keybind.html" />
