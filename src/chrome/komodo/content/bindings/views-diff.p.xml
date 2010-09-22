@@ -384,7 +384,20 @@
 
         <method name="moveToEditor">
             <body><![CDATA[
+                // Walk up the window parent chain till we find a main Komodo
+                // window that supports view opening - bug 88078.
                 var ko_api = window.opener.ko;
+                var opener = window.opener;
+                while (!ko_api.views && opener) {
+                    opener = opener.opener;
+                    if (opener) {
+                        ko_api = opener.ko;
+                    }
+                }
+                if (!ko_api.views) {
+                    this.log.error("No parent editor view found for diff window");
+                    return;
+                }
                 var text = this.scimoz.text;
                 ko_api.views.manager.doNewViewAsync('Diff', 'editor', function(view) {
                     view.koDoc.buffer = text;
