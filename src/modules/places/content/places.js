@@ -1177,7 +1177,7 @@ viewMgrClass.prototype = {
         if (viewName == null || viewName == defaultName) {
             this.placeView_defaultView();
             return defaultName;
-        } else if (viewName == "*") {
+        } else if (viewName == "View All") {
             this.placeView_viewAll();
             return viewName;
         } else if (viewName == CURRENT_PROJECT_FILTER_NAME) {
@@ -2826,6 +2826,9 @@ this.updateFilterViewMenu = function() {
     var sep = document.getElementById("places_manage_view_separator");
     var menuitem;
     var addedCustomFilter = false;
+    var willNeedCustomSeparator =
+        (document.getElementById("placeView_viewAll").nextSibling.id
+         == "places_manage_view_separator");
     ids.map(function(prefName) {
         if (!filterPrefs.getPref(prefName).hasBooleanPref("builtin")) {
             menuitem = document.createElementNS(XUL_NS, 'menuitem');
@@ -2838,11 +2841,16 @@ this.updateFilterViewMenu = function() {
             addedCustomFilter = true;
         }
     });
-    if (addedCustomFilter) {
+    if (addedCustomFilter && willNeedCustomSeparator) {
         menuitem = document.createElementNS(XUL_NS, 'menuseparator');
         menuitem.id = "popup_parent_directories:sep:customViews";
         menupopup.insertBefore(menuitem,
                                document.getElementById("placeView_viewAll").nextSibling);
+    } else if (!willNeedCustomSeparator) {
+        var sepNode = document.getElementById("popup_parent_directories:sep:customViews");
+        if (sepNode) {
+            sepNode.parentNode.removeChild(sepNode);
+        }
     }
 };
 
