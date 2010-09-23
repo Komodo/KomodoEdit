@@ -221,7 +221,7 @@ viewManager.prototype._getDefaultDirectory = function() {
     var defaultDir = null;
     var project = ko.projects.manager.currentProject;
     if (project) {
-        defaultDir = project.importDirectoryPath;
+        defaultDir = project.importDirectoryLocalPath;
     }
     if (!defaultDir) {
         var v = this.currentView;

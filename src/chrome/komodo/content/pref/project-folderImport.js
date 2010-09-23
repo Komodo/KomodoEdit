@@ -30,7 +30,7 @@ function OnPreferencePageLoading(prefset) {
     project = ((typeof(parent.part) != 'undefined' && parent.part)
                ? parent.part.project : null);
     if (project) {
-        dirname.value = project.importDirectoryPath || project.importDirectoryURI;
+        dirname.value = project.importDirectoryLocalPath || project.importDirectoryURI;
     }
 }
 

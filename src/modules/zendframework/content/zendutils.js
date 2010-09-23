@@ -489,7 +489,7 @@ function _addView(controller, action, projPath) {
   try {
     var project = ko.projects.manager.currentProject;
     if(typeof(projPath) == 'undefined') {
-      projPath = project.importDirectoryPath || project.importDirectoryURI;
+      projPath = project.importDirectoryLocalPath || project.importDirectoryURI;
     }
     var snpt = ko.projects.findPart('snippet', 'ZendView', '*', project);
     var origTxt = snpt.value;
@@ -550,7 +550,7 @@ function _addController(name, projPath) {
   try {
     var project = ko.projects.manager.currentProject;
     if(typeof(projPath) == 'undefined') {
-      projPath = project.importDirectoryPath || project.importDirectoryURI;
+      projPath = project.importDirectoryLocalPath || project.importDirectoryURI;
     }
     var snpt = ko.projects.findPart('snippet', 'ZendController', '*', project);
     var snptTxt = snpt.value;
