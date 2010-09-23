@@ -429,6 +429,7 @@
 <!ENTITY menuSave.accesskey "S">
 <!ENTITY menuSaveAll.accesskey "l">
 <!ENTITY menuSaveAs.accesskey "A">
+<!ENTITY menuSaveAsOther.accesskey "E">
 <!ENTITY menuShowUnsavedChanges.accesskey "U">
 <!ENTITY menuSplitTab.accesskey "S">
 <!ENTITY menuStartIncrementalSearch.accesskey "I">
@@ -565,6 +566,7 @@
 <!ENTITY saveAs.label "Save As">
 <!ENTITY saveAsDotDotDot.label "Save As...">
 <!ENTITY saveAsLocal.label "Local...">
+<!ENTITY saveAsOther.label "Save As Other">
 <!ENTITY saveAsTemplate.label "Save As Template...">
 <!ENTITY saveFile.label "Save File">
 <!ENTITY saveFile.tooltiptext "Save File">

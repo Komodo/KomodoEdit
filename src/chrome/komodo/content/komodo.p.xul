@@ -586,12 +586,15 @@
         <menuitem id="menu_save2"
                   observes="cmd_save"
                   label="&save.label;"/>
+        <menuitem label="&saveAsDotDotDot.label;"
+                  id="menu_saveAs2"
+                  observes="cmd_saveAs"
+                  accesskey="&menuSaveAs.accesskey;"
+                  />
         <menu id="menu_saveAsSubMenu"
-              label="&saveAs.label;">
+              accesskey="&menuSaveAsOther.accesskey;"
+              label="&saveAsOther.label;">
             <menupopup id="menu_saveAsSubPopup">
-                <menuitem id="menu_saveAs2"
-                    observes="cmd_saveAs"
-                    label="&localFile.label;"/>
                 <menuitem id="menu_saveAs_remote2"
                     observes="cmd_saveAs_remote"
                     label="&remoteFile.label;"/>
@@ -790,15 +793,15 @@
                                       observes="cmd_save"
                                       accesskey="&menuSave.accesskey;"
                                       />
+                            <menuitem label="&saveAsDotDotDot.label;"
+                                      id="menu_saveAs"
+                                      observes="cmd_saveAs"
+                                      accesskey="&menuSaveAs.accesskey;"
+                                      />
                             <menu id="file_saveAs_menu"
-                                  accesskey="&menuSaveAs.accesskey;"
-                                  label="&saveAs.label;">
+                                  accesskey="&menuSaveAsOther.accesskey;"
+                                  label="&saveAsOther.label;">
                                 <menupopup id="file_saveAs_menupopup">
-                                    <menuitem label="&localFile.label;"
-                                              id="menu_saveAs"
-                                              observes="cmd_saveAs"
-                                              accesskey="&menuSaveAs.accesskey;"
-                                              />
                                     <menuitem label="&remoteFile.label;"
                                               disabled="true"
                                               id="menu_saveAsRemote"
