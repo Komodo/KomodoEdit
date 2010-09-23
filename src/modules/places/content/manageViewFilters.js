@@ -65,7 +65,7 @@ function wrapOnLoad() {
     filterPrefs = placePrefs.getPref("filters");
     var obj = {};
     filterPrefs.getPrefIds(obj, {});
-    var defaultName = _bundle.GetStringFromName("default");
+    var defaultName = _bundle.GetStringFromName("default.filterName");
     var prefNames = obj.value;
     prefNames.map(function(prefName) {
         var filter = filterPrefs.getPref(prefName);
@@ -79,9 +79,9 @@ function wrapOnLoad() {
         };
         if (filter.hasPref("builtin")
             && filter.getBooleanPref("builtin")
-            && prefName == opener.ko.places.CURRENT_PROJECT_FILTER_NAME
+            && prefName == _bundle.GetStringFromName("currentProject.filterName")
             && !opener.ko.projects.manager.currentProject) {
-            // Don't add this one
+            // Don't add the currentProject filter.
             delete filterPrefValues[prefName];
         } else {
             widgets.configNameMenu.appendItem(prefName, prefName);

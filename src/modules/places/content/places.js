@@ -56,6 +56,10 @@ var _globalPrefs;
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://places/locale/places.properties");
+const CURRENT_PROJECT_FILTER_NAME = _bundle.GetStringFromName("currentProject.filterName");
+const DEFAULT_FILTER_NAME = _bundle.GetStringFromName("default.filterName");
+const VIEW_ALL_FILTER_NAME = _bundle.GetStringFromName("viewAll.filterName");
+
 var _placePrefs;
 var filterPrefs;
 var uriSpecificPrefs;
@@ -72,9 +76,6 @@ const DEFAULT_INCLUDE_MATCHES = "";
 
 const PROJECT_URI_REGEX = /^.*\/(.+?)\.(?:kpf|komodoproject)$/;
 
-const CURRENT_PROJECT_FILTER_NAME = "Current Project";
-this.CURRENT_PROJECT_FILTER_NAME = CURRENT_PROJECT_FILTER_NAME;
-    
 var log = getLoggingMgr().getLogger("places_js");
 log.setLevel(LOG_DEBUG);
 
@@ -1112,8 +1113,13 @@ viewMgrClass.prototype = {
     },                
 
     placeView_defaultView: function() {
-        gPlacesViewMgr.view.setMainFilters(this.default_exclude_matches,
-                                           this.default_include_matches);
+        var pref = filterPrefs.getPref(DEFAULT_FILTER_NAME);
+        var exclude_matches = pref.getStringPref("exclude_matches");
+        var include_matches = pref.getStringPref("include_matches");
+        gPlacesViewMgr.view.setMainFilters(pref.getStringPref("exclude_matches"),
+                                           pref.getStringPref("include_matches"));
+        //gPlacesViewMgr.view.setMainFilters(this.default_exclude_matches,
+        //                                  this.default_include_matches);
         gPlacesViewMgr._uncheckAll();
         widgets.placeView_defaultView_menuitem.setAttribute('checked', 'true');
         this._updateCurrentUriViewPref("Default");
@@ -1173,11 +1179,10 @@ viewMgrClass.prototype = {
     },
     
     placeView_updateView: function(viewName) {
-        var defaultName = _bundle.GetStringFromName("default");
-        if (viewName == null || viewName == defaultName) {
+        if (viewName == null || viewName == DEFAULT_FILTER_NAME) {
             this.placeView_defaultView();
-            return defaultName;
-        } else if (viewName == "View All") {
+            return DEFAULT_FILTER_NAME;
+        } else if (viewName == VIEW_ALL_FILTER_NAME) {
             this.placeView_viewAll();
             return viewName;
         } else if (viewName == CURRENT_PROJECT_FILTER_NAME) {
@@ -1191,7 +1196,7 @@ viewMgrClass.prototype = {
             }
         }
         this.placeView_defaultView();
-        return defaultName;
+        return DEFAULT_FILTER_NAME;
     },
     
     _uncheckAll: function() {
@@ -2506,36 +2511,39 @@ this.onLoad = function places_onLoad() {
     } else {
         filterPrefs = _placePrefs.getPref("filters");
     }
-    var defaultName = _bundle.GetStringFromName("default");
-    if (!filterPrefs.hasPref(defaultName)) {
-        //dump("global/places/filters prefs has no " + defaultName + "\n");
+    if (!filterPrefs.hasPref(DEFAULT_FILTER_NAME)) {
+        //dump("global/places/filters prefs has no " + DEFAULT_FILTER_NAME + "\n");
         var prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
         prefSet.setStringPref("exclude_matches", DEFAULT_EXCLUDE_MATCHES);
         prefSet.setStringPref("include_matches", DEFAULT_INCLUDE_MATCHES);
-        filterPrefs.setPref(defaultName, prefSet);
+        prefSet.setBooleanPref("builtin", true);
+        prefSet.setBooleanPref("readonly", false);
+        filterPrefs.setPref(DEFAULT_FILTER_NAME, prefSet);
+    } else {
+        //Fix a pre-6.0.0 mistake, making this readonly.
+        filterPrefs.getPref(DEFAULT_FILTER_NAME).setBooleanPref("readonly", false);
     }
-    defaultName = "View All";
-    if (!filterPrefs.hasPref(defaultName)) {
+    if (!filterPrefs.hasPref(VIEW_ALL_FILTER_NAME)) {
         prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
         prefSet.setStringPref("exclude_matches", "");
         prefSet.setStringPref("include_matches", "");
-        filterPrefs.setPref(defaultName, prefSet);
+        prefSet.setBooleanPref("readonly", true);
+        prefSet.setBooleanPref("builtin", true);
+        filterPrefs.setPref(VIEW_ALL_FILTER_NAME, prefSet);
     }
-    defaultName = CURRENT_PROJECT_FILTER_NAME;
-    if (!filterPrefs.hasPref(defaultName)) {
+    if (!filterPrefs.hasPref(CURRENT_PROJECT_FILTER_NAME)) {
         prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
         // These filters aren't actually used, but it's easier if this
         // filter is fully built up for the menus.
         prefSet.setStringPref("exclude_matches", "");
         prefSet.setStringPref("include_matches", "");
+        prefSet.setBooleanPref("builtin", true);
+        prefSet.setBooleanPref("readonly", false);
         filterPrefs.setPref(CURRENT_PROJECT_FILTER_NAME, prefSet);
+    } else {
+        //Fix a pre-6.0.0 mistake, making this readonly.
+        filterPrefs.getPref(DEFAULT_FILTER_NAME).setBooleanPref("readonly", false);
     }
-    [_bundle.GetStringFromName("default"), "View All",
-     CURRENT_PROJECT_FILTER_NAME].map(function(name) {
-             prefSet = filterPrefs.getPref(name);
-             prefSet.setBooleanPref("builtin", true);
-             prefSet.setBooleanPref("readonly", true);
-         });
     
     if (!_placePrefs.hasPref('current_filter_by_uri')) {
         uriSpecificPrefs = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
@@ -2822,13 +2830,11 @@ this.updateFilterViewMenu = function() {
     var ids = {};
     filterPrefs.getPrefIds(ids, {});
     ids = ids.value;
-    var defaultName = _bundle.GetStringFromName("default");
     var sep = document.getElementById("places_manage_view_separator");
     var menuitem;
     var addedCustomFilter = false;
-    var willNeedCustomSeparator =
-        (document.getElementById("placeView_viewAll").nextSibling.id
-         == "places_manage_view_separator");
+    var nextId = document.getElementById("placeView_viewAll").nextSibling.id;
+    var willNeedCustomSeparator = (nextId == "places_manage_view_separator");
     ids.map(function(prefName) {
         if (!filterPrefs.getPref(prefName).hasBooleanPref("builtin")) {
             menuitem = document.createElementNS(XUL_NS, 'menuitem');
@@ -2846,7 +2852,7 @@ this.updateFilterViewMenu = function() {
         menuitem.id = "popup_parent_directories:sep:customViews";
         menupopup.insertBefore(menuitem,
                                document.getElementById("placeView_viewAll").nextSibling);
-    } else if (!willNeedCustomSeparator) {
+    } else if (!addedCustomFilter && !willNeedCustomSeparator) {
         var sepNode = document.getElementById("popup_parent_directories:sep:customViews");
         if (sepNode) {
             sepNode.parentNode.removeChild(sepNode);

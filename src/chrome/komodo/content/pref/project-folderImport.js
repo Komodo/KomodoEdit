@@ -29,9 +29,9 @@ function OnPreferencePageLoading(prefset) {
     // set the dirname if the pref is not already set
     project = ((typeof(parent.part) != 'undefined' && parent.part)
                ? parent.part.project : null);
-    if (project) {
-        dirname.value = project.importDirectoryLocalPath || project.importDirectoryURI;
-    }
+    dirname.value = (project
+                     && (project.importDirectoryLocalPath || project.importDirectoryURI)
+                     || "");
 }
 
 function OnPreferencePageOK(prefset) {
