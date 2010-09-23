@@ -60,7 +60,8 @@
 
         <constructor>
         <![CDATA[
-        this.addModifiedHandler(this.onModifiedHandler, this, 10);
+        var wantedFlags = Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT;
+        this.addModifiedHandler(this.onModifiedHandler, this, 10, wantedFlags);
         ]]>
         </constructor>
         
