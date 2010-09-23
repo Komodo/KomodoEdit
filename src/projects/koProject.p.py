@@ -1365,7 +1365,7 @@ class koProject(koLiveFolderPart):
         koFileEx = self._get_importDirectoryInfo()
         return koFileEx.URI
     
-    def get_importDirectoryPath(self):
+    def get_importDirectoryLocalPath(self):
         koFileEx = self._get_importDirectoryInfo()
         try:
             return koFileEx.path
