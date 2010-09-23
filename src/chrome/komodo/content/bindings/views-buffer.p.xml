@@ -90,8 +90,12 @@
       
         <constructor>
         <![CDATA[
+        // A list of registered handlers that can handle the onModified event.
         this._onModifiedHandlers = [];
-        this.addModifiedHandler(this._onModifiedHandler, this, 1000);
+        var wantedflags = (Components.interfaces.ISciMoz.SC_MOD_BEFOREDELETE |
+                           Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT |
+                           Components.interfaces.ISciMoz.SC_MOD_DELETETEXT);
+        this.addModifiedHandler(this._onModifiedHandler, this, 1000, wantedflags);
         ]]>
         </constructor>
         <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
@@ -977,10 +981,17 @@
         var lim = this._onModifiedHandlers.length;
         for (var i = 0; i < lim; i++) {
             var entry = this._onModifiedHandlers[i];
-            if (entry[0].call(entry[1], position, modificationType,
-                                        text, length, linesAdded, line,
-                                        foldLevelNow, foldLevelPrev)) {
-                return;
+            var wantedFlags = entry[3];
+            if (modificationType & wantedFlags) {
+                try {
+                    if (entry[0].call(entry[1], position, modificationType,
+                                                text, length, linesAdded, line,
+                                                foldLevelNow, foldLevelPrev)) {
+                        return;
+                    }
+                } catch(ex) {
+                    this.log.error("onModified: error with handler " + i + ": " + ex);
+                }
             }
         }
         ]]>
@@ -991,20 +1002,25 @@
         <parameter name="code"/>
         <parameter name="owner"/> <!-- The 'this' when the code executes -->
         <parameter name="priority"/>
+        <parameter name="modifyFlags"/> <!-- Flags they wish to be notified of -->
         <body>
         <![CDATA[
         var lim = this._onModifiedHandlers.length;
+        if (!modifyFlags) {
+            // Default is to listen for everything.
+            modifyFlags = Components.interfaces.ISciMoz.SC_MODEVENTMASKALL;
+        }
         var entry;
         // The lower the priority, the earlier to place it on the array.
         // Ties go to the first one in the list.
         for (var i = 0; i < lim; i++) {
             entry = this._onModifiedHandlers[i];
             if (priority < entry[2]) {
-                this._onModifiedHandlers.splice(i, 0, [code, owner, priority]);
+                this._onModifiedHandlers.splice(i, 0, [code, owner, priority, modifyFlags]);
                 return;
             }
         }
-        this._onModifiedHandlers.push([code, owner, priority]);
+        this._onModifiedHandlers.push([code, owner, priority, modifyFlags]);
         ]]>
         </body>
         </method>
