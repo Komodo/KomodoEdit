@@ -147,6 +147,7 @@
 <!ENTITY label.83 "8.3">
 <!ENTITY label.84 "8.4">
 <!ENTITY label.85 "8.5">
+<!ENTITY label.86 "8.6">
 <!ENTITY memoryIsDebuggingCommandWarnMemoryCmd.label "Memory is debugging command (warnMemoryCmd)">
 <!ENTITY memoryIsDebuggingCommandWarnMemoryCmd.tooltiptext "Memory is debugging command (warnMemoryCmd)">
 <!ENTITY missingAnExpressionNoExpr.label "Missing an expression (noExpr)">

@@ -911,6 +911,7 @@
                         <menuitem data="8.3" label="&label.83;"/>
                         <menuitem data="8.4" label="&label.84;"/>
                         <menuitem data="8.5" label="&label.85;"/>
+                        <menuitem data="8.6" label="&label.86;"/>
                     </menupopup>
                 </menulist>
             </hbox>
