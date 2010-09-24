@@ -444,8 +444,8 @@
 <!ENTITY menuTransientMarkExchangeWithPoint.accesskey "E">
 <!ENTITY menuTransientMarkMoveBack.accesskey "M">
 <!ENTITY menuTransientMarkSet.accesskey "T">
-<!ENTITY menuUncomment.accesskey "n">
-<!ENTITY menuUntabify.accesskey "U">
+<!ENTITY menuUncomment.accesskey "U">
+<!ENTITY menuUntabify.accesskey "N">
 <!ENTITY menuView.accesskey "V">
 <!ENTITY menuWatchThread.accesskey "W">
 <!ENTITY menuWindow.accesskey "W">
