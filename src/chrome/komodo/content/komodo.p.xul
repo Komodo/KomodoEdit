@@ -1426,10 +1426,12 @@
                             </menu>
                             <menuitem label="&increaseFont.label;"
                                       id="menu_fontZoomIn"
+                                      accesskey="&increaseFont.accesskey;"
                                       observes="cmd_fontZoomIn"
                                       />
                             <menuitem label="&decreaseFont.label;"
                                       id="menu_fontZoomOut"
+                                      accesskey="&decreaseFont.accesskey;"
                                       observes="cmd_fontZoomOut"
                                       />
 <!-- #if PLATFORM != "darwin" -->
