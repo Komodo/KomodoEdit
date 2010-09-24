@@ -57,13 +57,14 @@
     <menuitem id="menu_komodospellchecker"
               label="&checkSpelling.label;"
               observes="cmd_checkSpelling"
-              insertafter="editor-context-sep-extensions"/>
+              insertafter="editor-context-sep-extensions" />
   </menupopup>
 
   <menupopup id="popup_tools">
     <menuitem id="menu_komodospellchecker"
               label="&checkSpelling.label;"
-              observes="cmd_checkSpelling"/>
+              accesskey="&checkSpelling.accesskey;"
+              observes="cmd_checkSpelling" />
   </menupopup>
     
 </overlay>
