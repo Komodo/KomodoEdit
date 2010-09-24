@@ -232,3 +232,7 @@ menupopup.has-iconic-menuitems menuitem[type="checkbox"] .menu-iconic-text {
   padding-left: 20px;
 }
 
+menupopup.has-iconic-menuitems menuitem[type="radio"] .menu-iconic-left {
+  padding-left: 20px;
+}
+

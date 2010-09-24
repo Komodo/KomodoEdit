@@ -200,7 +200,8 @@
 
     <popupset id="extensionPopupSet"/>
 
-    <menupopup id="toolbox2Context" onpopupshowing="ko.toolbox2.updateContextMenu(event, this);">
+    <menupopup id="toolbox2Context" onpopupshowing="ko.toolbox2.updateContextMenu(event, this);"
+               class="has-iconic-menuitems">
       <!-- "standardToolbox" denotes that the user clicked on the empty region,
            like "project" in the places toolbox.
            -->
@@ -478,7 +479,8 @@
     </menu>
 
 <!-- Popup for clicking on the *content area* in the Editor -->
-    <menupopup id="editorContextMenu">
+    <menupopup id="editorContextMenu"
+               class="has-iconic-menuitems">
         <menuitem id="editor-context-cut"
                 label="&cut.label;"
                 accesskey="&cutButton.accesskey;"
@@ -2284,7 +2286,8 @@
                                             orient="horizontal"
                                             type="menu"
                                             class="rightarrow-button-a project-tools-icon">
-                                        <menupopup id="toolbox2-cog-popup">
+                                        <menupopup id="toolbox2-cog-popup"
+                                                   class="has-iconic-menuitems">
                                             <menuitem id="toolbox2-cog_sortNatural"
                                                       label="&sortNatural.label;"
                                                       type="radio"
