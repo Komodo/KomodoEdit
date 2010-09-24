@@ -780,7 +780,7 @@ NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, nsAString & _retval
 #endif
 	if (max == -1)
 		max = SendEditor(SCI_GETTEXTLENGTH, 0, 0);
-	size_t length = max - min;
+	PRInt32 length = max - min;
 	if (length < 0 || min < 0 || max < 0) {
 		return NS_ERROR_INVALID_ARG;
 	}
