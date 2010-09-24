@@ -37,6 +37,7 @@
               key="key_cmd_invokeTool"
               insertafter="menu_macros"
               label="&invokeTool.menuitem;"
+              accesskey="&invokeTool.accesskey;"
               observes="cmd_invokeTool" />
   </menupopup>
         

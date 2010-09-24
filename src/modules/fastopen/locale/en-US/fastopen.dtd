@@ -13,4 +13,5 @@
 <!ENTITY enableOpenFilesGatherer.label "Enable 'Open Files' gatherer">
 <!ENTITY enableProjectGatherer.label "Enable 'Current Project' gatherer">
 <!ENTITY goToolIntegration.description "'Go' is a small command-line tool for changing directories quickly.">
+<!ENTITY invokeTool.accesskey "K">
 <!ENTITY invokeTool.menuitem "Invoke Tool">
