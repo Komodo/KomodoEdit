@@ -476,7 +476,7 @@
 <!ENTITY nextBookmark.label "Next Bookmark">
 <!ENTITY nextFile.label "Next Tab">
 <!ENTITY noSelection.label "No selection">
-<!ENTITY open.label "Open...">
+<!ENTITY open.label "Open">
 <!ENTITY open.tooltiptext "Open">
 <!ENTITY openFile.tooltiptext "Open File">
 <!ENTITY openFind.label "Open/Find">
