@@ -314,6 +314,16 @@ Categories=__GNOME_DESKTOP_CATEGORIES__
                 fout.write(content)
             finally:
                 fout.close()
+            # Ensure the desktop shortcut has executable permissions, otherwise
+            # the OS may give a warning about being an untrusted application.
+            try:
+                import stat
+                filestat = os.stat(shortcutPath)
+                perms = 0700 | (filestat.st_mode & (0077))
+                os.chmod(shortcutPath, perms)
+            except Exception, ex:
+                log.warn("could not set exec permissions on desktop shortcut"
+                         "'%s': %s", shortcutPath, ex)
     except (EnvironmentError, ShortcutInstallError), ex:
         fallbackDir = os.path.join(absInstallDir, "share", "desktop")
         fallbackPath = os.path.join(fallbackDir, shortcutName)
