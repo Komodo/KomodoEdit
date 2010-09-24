@@ -2443,7 +2443,7 @@ void KoStart_IssueCommandments(const KoStartOptions* pOptions,
         if (strstr(pOptions->files[i], "://") != NULL) {
             /* Looks like a URI - leave it alone. */
             strncpy(absFile, pOptions->files[i], MAXPATHLEN);
-            absFile[MAXPATHLEN] = "\0";  /* ensure null termination */
+            absFile[MAXPATHLEN] = '\0';  /* ensure null termination */
         } else {
             _fullpath(absFile, pOptions->files[i], MAXPATHLEN);
         }
