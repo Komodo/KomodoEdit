@@ -309,6 +309,7 @@
 <!ENTITY generalSwitchToTab8.desc "General: Switch to Tab 8">
 <!ENTITY generalSwitchToTab9.desc "General: Switch to Tab 9">
 <!ENTITY goToDefinition.label "Go to Definition">
+<!ENTITY gotoLine.accesskey "G">
 <!ENTITY gotoLine.label "Goto Line...">
 <!ENTITY gotoLine.prompt.description "Enter a line number to go to. Prefix + or - to move relative to the current line. For example: +4 will move forward 4 lines.">
 <!ENTITY gotoLine.prompt.label "Enter line number:">

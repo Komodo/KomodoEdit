@@ -1195,6 +1195,7 @@
 
                             <menuitem label="&gotoLine.label;"
                                       id="menu_gotoLine"
+                                      accesskey="&gotoLine.accesskey;"
                                       observes="cmd_gotoLine"
                                       />
                             <menuitem id="menu_goToDefinition"
