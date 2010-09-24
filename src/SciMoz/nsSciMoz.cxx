@@ -210,10 +210,10 @@ void SciMoz::SetInstance(nsPluginInstance* plugin)
 
 long SciMoz::SendEditor(unsigned int Msg, unsigned long wParam, long lParam) {
     if (isClosed) {
-	fprintf(stderr,"SciMoz::SendEditor %lx %lx %lx used when closed!\n", Msg, wParam, lParam);
+	fprintf(stderr,"SciMoz::SendEditor %x %lx %lx used when closed!\n", Msg, wParam, lParam);
     }
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"SciMoz::SendEditor %lx %lx %lx\n", Msg, wParam, lParam);
+    fprintf(stderr,"SciMoz::SendEditor %x %lx %lx\n", Msg, wParam, lParam);
 #endif
 #if defined(_WINDOWS)
     // The "real" WndProc passes certain messages to Mozilla, so
