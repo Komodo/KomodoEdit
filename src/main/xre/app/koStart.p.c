@@ -1714,7 +1714,6 @@ void _KoStart_SetupEnvironment(const char* programDir)
     size_t overflow = 0;
     char *envVar;
     char buffer[MAXPATHLEN+1];
-    char* hostName;
 /* #if PP_IS_GTK2_SILOED */
     char buf[BUF_LENGTH+1];
 /* #endif */
