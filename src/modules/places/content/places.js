@@ -2523,9 +2523,9 @@ this.onLoad = function places_onLoad() {
         var defaultPrefs = filterPrefs.getPref(DEFAULT_FILTER_NAME);
         if (!defaultPrefs.hasPref("version")) {
             defaultPrefs.setStringPref("include_matches", DEFAULT_INCLUDE_MATCHES);
+            defaultPrefs.setBooleanPref("readonly", false);
             defaultPrefs.setLongPref("version", VERSION);
         }
-        defaultPrefs.setBooleanPref("readonly", false);
     }
     if (!filterPrefs.hasPref(VIEW_ALL_FILTER_NAME)) {
         prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
