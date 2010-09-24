@@ -712,12 +712,17 @@
 <!ENTITY view.label "View">
 <!ENTITY viewAsLanguage.accesskey "L">
 <!ENTITY viewAsLanguage.label "View as Language">
+<!ENTITY viewEOLMarkers.accesskey "E">
 <!ENTITY viewEOLMarkers.label "View EOL Markers">
+<!ENTITY viewIndentationGuides.accesskey "G">
 <!ENTITY viewIndentationGuides.label "View Indentation Guides">
+<!ENTITY viewLineNumbers.accesskey "N">
 <!ENTITY viewLineNumbers.label "View Line Numbers">
+<!ENTITY viewWhitespace.accesskey "H">
 <!ENTITY viewWhitespace.label "View Whitespace">
 <!ENTITY watchFile.label "Watch File...">
 <!ENTITY window.label "Window">
+<!ENTITY wordWrap.accesskey "W">
 <!ENTITY wordWrap.label "Word Wrap">
 <!ENTITY workspace.label "Workspace">
 <!ENTITY workspaceToolbar.label "Workspace Toolbar">

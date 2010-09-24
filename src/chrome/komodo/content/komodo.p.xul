@@ -1392,22 +1392,27 @@
 
                             <menuitem id="menu_viewWhitespace"
                                       label="&viewWhitespace.label;"
+                                      accesskey="&viewWhitespace.accesskey;"
                                       observes="cmd_viewWhitespace"
                                       />
                             <menuitem id="menu_viewIndentationGuides"
                                       label="&viewIndentationGuides.label;"
+                                      accesskey="&viewIndentationGuides.accesskey;"
                                       observes="cmd_viewIndentationGuides"
                                       />
                             <menuitem id="menu_viewLineNumbers"
                                       label="&viewLineNumbers.label;"
+                                      accesskey="&viewLineNumbers.accesskey;"
                                       observes="cmd_viewLineNumbers"
                                       />
                             <menuitem id="menu_viewEOLMarkers"
                                       label="&viewEOLMarkers.label;"
+                                      accesskey="&viewEOLMarkers.accesskey;"
                                       observes="cmd_viewEOL"
                                       />
                             <menuitem id="menu_wordWrap"
                                       label="&wordWrap.label;"
+                                      accesskey="&wordWrap.accesskey;"
                                       observes="cmd_wordWrap"
                                       />
                             <menuseparator id="view_menu_menuseparator_2"/>
