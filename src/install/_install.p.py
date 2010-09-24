@@ -333,6 +333,17 @@ Categories=__GNOME_DESKTOP_CATEGORIES__
             fout = open(fallbackPath, 'w')
             fout.write(content)
             fout.close()
+            # Ensure the backup desktop shortcut has executable permissions,
+            # otherwise the OS may give a warning about being an untrusted
+            # application.
+            try:
+                import stat
+                filestat = os.stat(fallbackPath)
+                perms = 0700 | (filestat.st_mode & (0077))
+                os.chmod(fallbackPath, perms)
+            except Exception, ex:
+                log.warn("could not set exec permissions on desktop shortcut"
+                         "'%s': %s", fallbackPath, ex)
         except EnvironmentError, ex2:
             log.warn("unexpected error creating fallback .desktop file "
                      "'%s': %s", fallbackPath, ex2)
