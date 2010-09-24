@@ -841,6 +841,7 @@
                             <menuseparator id="file_print_menuseparator"/>
 
                             <menu id="menu_Printmenu"
+                                  accesskey="&menuPrint.accesskey;"
                                   label="&print.label;">
                                 <menupopup id="popup_Printmenu">
                                     <menuitem label="&pageSetup.label;"
