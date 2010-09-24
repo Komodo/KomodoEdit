@@ -59,6 +59,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 const CURRENT_PROJECT_FILTER_NAME = _bundle.GetStringFromName("currentProject.filterName");
 const DEFAULT_FILTER_NAME = _bundle.GetStringFromName("default.filterName");
 const VIEW_ALL_FILTER_NAME = _bundle.GetStringFromName("viewAll.filterName");
+const VERSION = 1;
 
 var _placePrefs;
 var filterPrefs;
@@ -83,9 +84,6 @@ log.setLevel(LOG_DEBUG);
 // give it an appropriate name.
 // This object will manage the JS side of the tree view.
 function viewMgrClass() {
-    this.default_exclude_matches = ".*;*~;#*;CVS;*.bak;*.pyo;*.pyc";
-    // overides, to include:
-    this.default_include_matches = "";
     this._mozSortDirNameToKomodoSortDirValue = {
         natural: Components.interfaces.koIPlaceTreeView.SORT_DIRECTION_NAME_NATURAL,
         ascending: Components.interfaces.koIPlaceTreeView.SORT_DIRECTION_NAME_ASCENDING,
@@ -1118,8 +1116,6 @@ viewMgrClass.prototype = {
         var include_matches = pref.getStringPref("include_matches");
         gPlacesViewMgr.view.setMainFilters(pref.getStringPref("exclude_matches"),
                                            pref.getStringPref("include_matches"));
-        //gPlacesViewMgr.view.setMainFilters(this.default_exclude_matches,
-        //                                  this.default_include_matches);
         gPlacesViewMgr._uncheckAll();
         widgets.placeView_defaultView_menuitem.setAttribute('checked', 'true');
         this._updateCurrentUriViewPref("Default");
@@ -1164,7 +1160,9 @@ viewMgrClass.prototype = {
     placeView_customView: function() {
         // Use the same format as managing the list of servers.
         var currentFilterName = this._getCurrentFilterPrefName();
-        var resultObj = {needsChange:false, currentFilterName:currentFilterName};
+        var resultObj = {needsChange:false,
+                         currentFilterName:currentFilterName,
+                         version:VERSION};
         ko.windowManager.openDialog("chrome://places/content/manageViewFilters.xul",
                                     "_blank",
                                     "chrome,all,dialog=yes,modal=yes",
@@ -2518,10 +2516,16 @@ this.onLoad = function places_onLoad() {
         prefSet.setStringPref("include_matches", DEFAULT_INCLUDE_MATCHES);
         prefSet.setBooleanPref("builtin", true);
         prefSet.setBooleanPref("readonly", false);
+        prefSet.setLongPref("version", VERSION);
         filterPrefs.setPref(DEFAULT_FILTER_NAME, prefSet);
     } else {
-        //Fix a pre-6.0.0 mistake, making this readonly.
-        filterPrefs.getPref(DEFAULT_FILTER_NAME).setBooleanPref("readonly", false);
+        //Fix a pre-6.0.0 mistake, making this readonly, and removing the old default (it it's there)
+        var defaultPrefs = filterPrefs.getPref(DEFAULT_FILTER_NAME);
+        if (!defaultPrefs.hasPref("version")) {
+            defaultPrefs.setStringPref("include_matches", DEFAULT_INCLUDE_MATCHES);
+            defaultPrefs.setLongPref("version", VERSION);
+        }
+        defaultPrefs.setBooleanPref("readonly", false);
     }
     if (!filterPrefs.hasPref(VIEW_ALL_FILTER_NAME)) {
         prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
@@ -2529,6 +2533,7 @@ this.onLoad = function places_onLoad() {
         prefSet.setStringPref("include_matches", "");
         prefSet.setBooleanPref("readonly", true);
         prefSet.setBooleanPref("builtin", true);
+        prefSet.setLongPref("version", VERSION);
         filterPrefs.setPref(VIEW_ALL_FILTER_NAME, prefSet);
     }
     if (!filterPrefs.hasPref(CURRENT_PROJECT_FILTER_NAME)) {
@@ -2539,6 +2544,7 @@ this.onLoad = function places_onLoad() {
         prefSet.setStringPref("include_matches", "");
         prefSet.setBooleanPref("builtin", true);
         prefSet.setBooleanPref("readonly", false);
+        prefSet.setLongPref("version", VERSION);
         filterPrefs.setPref(CURRENT_PROJECT_FILTER_NAME, prefSet);
     } else {
         //Fix a pre-6.0.0 mistake, making this readonly.

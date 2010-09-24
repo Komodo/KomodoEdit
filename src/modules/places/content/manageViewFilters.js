@@ -140,6 +140,7 @@ function wrap_doChangeFilter(target) {
             prefSet = filterPrefs.getPref(currentFilterName);
             prefSet.setStringPref("exclude_matches", oldFilter.exclude_matches);
             prefSet.setStringPref("include_matches", oldFilter.include_matches);
+            prefSet.setLongPref("version", g_ResultObj.version);
         }
     }
     var i = 0;
@@ -259,6 +260,7 @@ function wrap_OK() {
         prefSet.setStringPref("exclude_matches", currentFilter.exclude_matches);
         prefSet.setStringPref("include_matches", currentFilter.include_matches);
         prefSet.setBooleanPref("readonly", false);
+        prefSet.setLongPref("version", g_ResultObj.version);
         if (isNew) {
             filterPrefs.setPref(currentFilterName, prefSet);
         }
