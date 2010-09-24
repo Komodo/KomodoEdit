@@ -606,11 +606,13 @@
           resizeafter="farthest"
           ondblclick="ko.places.toggleSubpanel()"
           collapse="none">
-        <hbox flex="1" >
+        <hbox id="placesSubpanelSplitterHbox" flex="1" >
           <deck id="placesSubpanelTitlebarDeck" flex="1">
             <!-- subpanel titlebar 0: Projects -->
-            <hbox align="center" flex="1">
-              <label value="Projects" flex="1" />
+            <hbox id="placesSubpanelProjectDeckHbox"
+                  align="center" flex="1">
+              <label id="placesSubpanelSplitterProjectLabel"
+                     value="&projects.label;" flex="1" />
               <!-- Note: We intentionally do not use a child 'menupopup' element
                 here because there is some interaction with the containing
                 splitter such that you can't invoke the menu entries, at least
@@ -642,10 +644,12 @@
             hidecolumnpicker="true"
             context="places-projects-popup"
             seltype="single">
-          <treecols>
-            <treecol flex="1" primary="true" hideheader="true" />
+          <treecols id="placesSubpanelProjectsTreecols">
+            <treecol id="placesSubpanelProjectNameTreecol"
+                     flex="1" primary="true" hideheader="true" />
           </treecols>
           <treechildren
+              id="placesSubpanelProjectsTreechildren"
               flex="1"
               ondblclick="ko.places.onProjectTreeDblClick(event, this);"
               context="placesSubpanelProjectsContextMenu"
