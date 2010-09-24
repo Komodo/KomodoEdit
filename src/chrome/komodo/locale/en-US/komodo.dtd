@@ -246,6 +246,7 @@
 <!ENTITY findResults1.label "Find Results 1">
 <!ENTITY findResults2.label "Find Results 2">
 <!ENTITY findToolbarBrowsedirectory.accesskey "y">
+<!ENTITY fold.accesskey "O">
 <!ENTITY fold.label "Fold">
 <!ENTITY folderContextExistingFile.accesskey "i">
 <!ENTITY folderContextNewCommand.accesskey "c">
@@ -261,6 +262,7 @@
 <!ENTITY folderContextNewURL.accesskey "u">
 <!ENTITY folderContextRemoteFile.accesskey "r">
 <!ENTITY font.label "Font">
+<!ENTITY fullScreen.accesskey "F">
 <!ENTITY fullScreen.label "Full Screen">
 <!ENTITY generalCloseProject.desc "General: Close Project">
 <!ENTITY generalCreateTemplateFromProject.desc "General: Create Template From Project...">

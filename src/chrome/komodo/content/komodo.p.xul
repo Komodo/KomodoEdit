@@ -1430,12 +1430,15 @@
 <!-- #if PLATFORM != "darwin" -->
                             <menuitem label="&fullScreen.label;"
                                       id="menuitem_fullScreen"
+                                      accesskey="&fullScreen.accesskey;"
                                       type="checkbox"
                                       observes="cmd_viewFullScreen"
                                       />
 <!-- #endif -->
                             <menuseparator id="view_menu_fold_separator"/>
-                            <menu id="menu_fold" label="&fold.label;">
+                            <menu id="menu_fold"
+                                  label="&fold.label;"
+                                  accesskey="&fold.accesskey;">
                                 <menupopup id="popup_fold">
                                     <menuitem label="&expand.label;"
                                               id="menu_foldExpand"
