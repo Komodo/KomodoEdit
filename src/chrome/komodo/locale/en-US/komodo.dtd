@@ -216,6 +216,7 @@
 <!ENTITY extensionManager.accesskey "A">
 <!ENTITY extensionManager.label "Add-ons">
 <!ENTITY file.label "File">
+<!ENTITY fileOpen.label "File...">
 <!ENTITY fileEncoding.tooltiptext "File Encoding">
 <!ENTITY filePosition.tooltiptext "File Position">
 <!ENTITY fileType.tooltiptext "File Type">
@@ -547,7 +548,7 @@
 <!ENTITY reflowParagraph.label "Reflow Paragraph">
 <!ENTITY refreshStatus.label "Refresh Status">
 <!ENTITY releaseNotes.label "Release Notes">
-<!ENTITY remoteFile.label "Remote File">
+<!ENTITY remoteFile.label "Remote File...">
 <!ENTITY remove.label "Remove">
 <!ENTITY removeAllBookmarks.label "Remove All Bookmarks">
 <!ENTITY repeatNextKeystrokeNTimes.label "Repeat Next Keystroke N Times">
