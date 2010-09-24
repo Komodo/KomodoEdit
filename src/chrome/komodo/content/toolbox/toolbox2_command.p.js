@@ -1138,6 +1138,7 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
                 var srcFileObj = Components.classes["@activestate.com/koFileEx;1"].
                     createInstance(Components.interfaces.koIFileEx);
                 srcFileObj.URI = url;
+                path = srcFileObj.path;
                 targetFileObj.URI = targetDirectory + "/" + srcFileObj.baseName;
                 var deleted = false;
                 if (targetFileObj.exists) {
@@ -1151,7 +1152,6 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
                         }
                     }
                     if (!deleted) {
-                        path = srcFileObj.path;
                         koSysUtilsSvc.MoveToTrash(path);
                         paths.push(path);
                     }
