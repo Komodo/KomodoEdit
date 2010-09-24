@@ -1153,6 +1153,7 @@
                         <menupopup id="naviation_menupopup">
                             <menuitem label="&historyBack.label;"
                                       id="menu_historyBack"
+                                      accesskey="&historyBack.accesskey;"
 <!-- #if PLATFORM != "darwin" -->
                                       class="menuitem-iconic history-back-icon"
 <!-- #endif -->
@@ -1160,6 +1161,7 @@
                                       />
                             <menuitem label="&historyForward.label;"
                                       id="menu_historyForward"
+                                      accesskey="&historyForward.accesskey;"
 <!-- #if PLATFORM != "darwin" -->
                                       class="menuitem-iconic history-forward-icon"
 <!-- #endif -->

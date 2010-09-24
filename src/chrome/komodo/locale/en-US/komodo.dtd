@@ -348,7 +348,9 @@
 <!ENTITY jumpToNextResult.label "Jump to next result">
 <!ENTITY jumpToNextResult.tooltiptext "Jump To Next Result">
 <!ENTITY jumpToPreviousResult.tooltiptext "Jump To Previous Result">
+<!ENTITY historyBack.accesskey "B">
 <!ENTITY historyBack.label "Back">
+<!ENTITY historyForward.accesskey "F">
 <!ENTITY historyForward.label "Forward">
 <!ENTITY historyBack.tooltiptext "Go back one location">
 <!ENTITY historyForward.tooltiptext "Go forward one location">
