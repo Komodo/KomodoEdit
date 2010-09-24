@@ -606,11 +606,17 @@
           resizeafter="farthest"
           ondblclick="ko.places.toggleSubpanel()"
           collapse="none">
-        <hbox id="placesSubpanelSplitterHbox" flex="1" >
-          <deck id="placesSubpanelTitlebarDeck" flex="1">
+        <hbox id="placesSubpanelSplitterHbox"
+              flex="1"
+              align="center">
+          <!-- Using a deck inside a splitter causes layout problems on Linux,
+               see bug 88126. This is unfortunate, as it makes it near
+               impossible to overlay with another widget.
+            -->
+          <!--<deck id="placesSubpanelTitlebarDeck" flex="1">-->
             <!-- subpanel titlebar 0: Projects -->
-            <hbox id="placesSubpanelProjectDeckHbox"
-                  align="center" flex="1">
+            <!--<hbox id="placesSubpanelProjectDeckHbox"-->
+            <!--      align="center" flex="1">-->
               <label id="placesSubpanelSplitterProjectLabel"
                      value="&projects.label;" flex="1" />
               <!-- Note: We intentionally do not use a child 'menupopup' element
@@ -624,8 +630,8 @@
                   orient="horizontal"
                   class="project-tools-icon"
                   popup="placesSubpanelProjectsToolsPopup"/>
-            </hbox>
-          </deck>
+          <!--  </hbox>-->
+          <!--</deck>-->
           <toolbarbutton id="placesSubpanelToggle"
               buttonstyle="pictures"
               oncommand="ko.places.toggleSubpanel()"
