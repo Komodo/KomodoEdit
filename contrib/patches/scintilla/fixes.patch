@@ -104,6 +104,35 @@ diff -r -du src/CellBuffer.cxx src/CellBuffer.cxx
 diff -r -du src/Document.cxx src/Document.cxx
 --- src/Document.cxx	2005-08-29 18:09:20.000000000 -0700
 +++ src/Document.cxx	2007-05-01 17:00:17.000000000 -0700
+@@ -154,24 +154,27 @@
+ 
+ int Document::GetMark(int line) {
+ 	return static_cast<LineMarkers *>(perLineData[ldMarkers])->MarkValue(line);
+ }
+ 
+ int Document::AddMark(int line, int markerNum) {
+-	if (line <= LinesTotal()) {
++	if (line >= 0 && line <= LinesTotal()) {
+ 		int prev = static_cast<LineMarkers *>(perLineData[ldMarkers])->
+ 			AddMark(line, markerNum, LinesTotal());
+ 		DocModification mh(SC_MOD_CHANGEMARKER, LineStart(line), 0, 0, 0, line);
+ 		NotifyModified(mh);
+ 		return prev;
+ 	} else {
+ 		return 0;
+ 	}
+ }
+ 
+ void Document::AddMarkSet(int line, int valueSet) {
++	if (line < 0 || line > LinesTotal()) {
++		return;
++	}
+ 	unsigned int m = valueSet;
+ 	for (int i = 0; m; i++, m >>= 1)
+ 		if (m & 1)
+ 			static_cast<LineMarkers *>(perLineData[ldMarkers])->
+ 				AddMark(line, i, LinesTotal());
+ 	DocModification mh(SC_MOD_CHANGEMARKER, LineStart(line), 0, 0, 0, line);
 @@ -271,6 +271,18 @@
  	}
  }
