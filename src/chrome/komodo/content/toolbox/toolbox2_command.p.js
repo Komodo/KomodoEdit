@@ -1015,6 +1015,15 @@ this._removeTrailingSlash = function(uri) {
     return uri;
 };
 
+this._findCommonParent = function(currentParentDir, nextParentDir) {
+    if (currentParentDir == nextParentDir) {
+        return currentParentDir;
+    } else {
+        // Give up, invalidate everything after.
+        return "";
+    }
+}
+
 this._handleDroppedURLs = function(index, koDropDataList, copying) {
     var koDropData;
     var targetDirectory;
@@ -1053,7 +1062,7 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
             return false;
         }
     }
-    var urls = []
+    var urls = [];
     for (var i = 0; i < koDropDataList.length; i++) {
         koDropData = koDropDataList[i];
         if (koDropData.isKpzURL) {
@@ -1129,6 +1138,7 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
         }
         if (!copying) {
             var path, paths = [];
+            var srcParentDir = null;
             var targetFileObj = Components.classes["@activestate.com/koFileEx;1"].
                           createInstance(Components.interfaces.koIFileEx);
             var koSysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].
@@ -1141,6 +1151,14 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
                 path = srcFileObj.path;
                 targetFileObj.URI = targetDirectory + "/" + srcFileObj.baseName;
                 var deleted = false;
+                if (srcParentDir === null) {
+                    srcParentDir = srcFileObj.dirName;
+                } else if (srcParentDir === "") {
+                    // Nothing to do
+                } else {
+                    srcParentDir = this._findCommonParent(srcParentDir,
+                                                          srcFileObj.dirName);
+                }
                 if (targetFileObj.exists) {
                     var tool = this.manager.toolsMgr.getToolFromPath(path);
                     if (tool) {
@@ -1158,9 +1176,31 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
                 }
             }
             this._removeLoadedMacros(this._getLoadedMacros(paths));
+            var refreshTree = false;
+            if (srcParentDir === null) {
+                // Nothing to do
+            } else if (srcParentDir === "") {
+                refreshTree = true;
+            } else {
+                var tool = this.manager.toolsMgr.getToolFromPath(srcParentDir);
+                if (!tool) {
+                    refreshTree = true;
+                } else {
+                    var id = this.manager.view.getIndexByTool(tool);
+                    if (id == -1) {
+                        refreshTree = true;
+                    } else {
+                        this.manager.toolbox2Svc.reloadToolsDirectory(srcParentDir);
+                        this.manager.view.reloadToolsDirectoryView(index);
+                    }
+                }
+            }
+            if (refreshTree) {
+                this.manager.view.refreshFullView();
+            }
         }
-        this.manager.widgets.tree.treeBoxObject.invalidate();
     }
+    this.manager.widgets.tree.treeBoxObject.invalidate();
     return loadedSomething;
 };
 
