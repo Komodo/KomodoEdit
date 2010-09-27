@@ -893,15 +893,18 @@ class KoPlaceTreeView(TreeView):
             return uri + "/"
         return uri
 
-    def _copyMoveSanityChecks(self, srcURI, targetURI, copying):
-        if self._getURIParent(srcURI) == targetURI:
-            raise ServerException(nsError.NS_ERROR_INVALID_ARG,
-                                  "Can't copy/move an item on to its own container.");
-        elif targetURI.startswith(self._endsWithSlash(srcURI)):
+    def _copyMoveToChildSanityCheck(self, srcURI, targetURI, copying):
+        if targetURI.startswith(self._endsWithSlash(srcURI)):
             raise ServerException(nsError.NS_ERROR_INVALID_ARG,
                                   "Can't %s a folder (%s) into one of its own sub-folders (%s)" %
                                   ((copying and "copy") or "move",
                                    srcURI, targetURI))
+
+    def _copyMoveSanityChecks(self, srcURI, targetURI, copying):
+        if self._getURIParent(srcURI) == targetURI:
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                  "Can't copy/move an item on to its own container.");
+        return self._copyMoveToChildSanityCheck(srcURI, targetURI, copying)
         
     def doTreeOperation(self, srcURI, targetURI, targetIndex, copying,callback):
         targetNode = self._rows[targetIndex]
@@ -1102,7 +1105,7 @@ class KoPlaceTreeView(TreeView):
                                     }
         finally:
             self.lock.release()
-        self._copyMoveSanityChecks(srcURI, targetURI, True)
+        self._copyMoveToChildSanityCheck(srcURI, targetURI, True)
 
         targetNode.show_busy()
         self._tree.invalidateRow(targetIndex)
