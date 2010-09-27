@@ -364,13 +364,23 @@ projectManager.prototype._saveNewProject = function(project) {
 }
 
 projectManager.prototype._getNewProjectPath = function() {
-    return ko.filepicker.saveFile(
+    const projectSuffix = ".komodoproject";
+    var path = ko.filepicker.saveFile(
         null, // defaultDir
-        _bundle.GetStringFromName("newProject.defaultFileName") + ".komodoproject", // defaultFilename
+        _bundle.GetStringFromName("newProject.defaultFileName") + projectSuffix, // defaultFilename
         _bundle.GetStringFromName("newProject.title"), // title
         _bundle.GetStringFromName("komodoProject.message"), // defaultFilterName
         [_bundle.GetStringFromName("komodoProject.message"),
          _bundle.GetStringFromName("all.message")]); // filterNames
+    // And repeat the check from filepicker/saveFile:
+    if (!path) {
+        return path;
+    }
+    var ext = ko.uriparse.ext(path);
+    if (ext != projectSuffix) {
+        path += projectSuffix;
+    }
+    return path;
 };
 
 projectManager.prototype.newProjectFromTemplate = function(templatePath) {
