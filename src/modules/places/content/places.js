@@ -697,6 +697,9 @@ viewMgrClass.prototype = {
         } else if (dropEffect == "link") {
             return this._dropProblem("don't know how to drag/drop a link");
         }
+        // See bug 87924
+        copying = (dropEffect != 'none' ? dropEffect == "copy" : event.ctrlKey);
+        
         var target_uri_no_slash = this._removeTrailingSlash(target_uri);
         for (var i = 0; i < from_uris.length; i++) {
             var source_uri = from_uris[i];
@@ -708,7 +711,7 @@ viewMgrClass.prototype = {
                 return false;
             }
             var source_uri_parent_no_slash = source_uri_no_slash.substr(0, source_uri_no_slash.lastIndexOf("/"));
-            if (target_uri_no_slash == source_uri_parent_no_slash) {
+            if (target_uri_no_slash == source_uri_parent_no_slash && !copying) {
                 return this._dropProblem("places.doDrop: can't drop the item "
                                     + source_uri_no_slash
                                     + " onto its parent.");
@@ -717,14 +720,11 @@ viewMgrClass.prototype = {
             else if (target_uri.indexOf(this._addTrailingSlash(source_uri_no_slash)) == 0) {
                 return this._dropProblem("places.doDrop: can't drop the item "
                                     + source_uri
-                                    + " onto its  descendant "
+                                    + " onto its descendant "
                                     + target_uri);
                 return false;
             }
         }
-
-        // See bug 87924
-        copying = (dropEffect != 'none' ? dropEffect == "copy" : event.ctrlKey);
         try {
             this._finishFileCopyOperation(from_uris, target_uri, index, copying);
         } catch(ex) {
@@ -870,12 +870,10 @@ viewMgrClass.prototype = {
                 var newName = srcFileInfo.baseName;
                 var label = "File name:";
                 title = "Enter a new name for the copied file";
-                var value;
                 var newPath;
                 var regEx = /(.*)\((\d+)\)$/;
                 var idx;
                 var targetDirPath = targetFileInfo.dirName;
-                var basePart, numPart;
                 var conn = null;
                 if (!ko.places.manager.currentPlaceIsLocal) {
                     var RCService = Components.classes["@activestate.com/koRemoteConnectionService;1"].
@@ -887,33 +885,10 @@ viewMgrClass.prototype = {
                         prompt = ("File "
                                   + newName
                                   + " exists");
-                        var m = regEx.exec(newName);
-                        if (m) {
-                            basePart = m[1];
-                            numPart = parseInt(m[2]);
-                        } else {
-                            basePart = newName + " ";
-                            numPart = 0;
-                        }
-                        // Find the lowest paren # that doesn't exist
-                        while (numPart < 1000) {
-                            numPart += 1;
-                            value = basePart + "(" + numPart + ")";
-                            if (!this._universalFileExists(conn, osPathSvc,
-                                                          targetDirPath,
-                                                          value)) {
-                                break;
-                            }
-                            if (numPart == 1000) {
-                                ko.dialogs.alert("Can't find a unique filename; cancelling");
-                                return true;
-                            }
-                        }
-                        newName = ko.dialogs.prompt(prompt, label, value, title);
+                        newName =ko.dialogs.prompt(prompt, label, newName, title);
                         if (!newName) {
                             return true;
                         }
-                        
                         if (!this._universalFileExists(conn, osPathSvc, targetDirPath, newName)) {
                             newPath = this._universalNewPath(conn, osPathSvc, targetDirPath, newName);
                             break;
