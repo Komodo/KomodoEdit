@@ -1291,7 +1291,7 @@ class KoPlaceTreeView(TreeView):
 
 
     def _matchesFilter(self, name, filterString):
-        return filterString.lower() in name.lower() or fnmatch.fnmatch(name, filterString)
+        return fnmatch.fnmatch(name, filterString)
 
     def _namePassesFilter(self, name, fileType):
         # See koProjectImportService.py#_filterFiles, slightly modified.
