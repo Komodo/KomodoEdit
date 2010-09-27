@@ -112,3 +112,35 @@ class remoteInfoTests(unittest.TestCase):
         self.failIf(fileinfo.getLinkTarget() != '/tmp/todd.txt',
                     "Incorrect symlink target: %r != '/tmp/todd.txt'" % (fileinfo.getLinkTarget(), ))
 
+    def test_rumpus_format(self):
+        # Rumpus file listing
+        file_listing   = '-rw-r--r--        0           0        0 Sep 24 16:48 myfile.txt'
+        fileinfo = self._makeKoRemoteFileInfo()
+        self.failIf(fileinfo.initFromDirectoryListing("testingdir", file_listing) != True,
+                    "Could not parse directory listing: %r" % (file_listing, ))
+        self.failIf(fileinfo.getFilename() != 'myfile.txt',
+                    "Incorrect filename: %r != 'myfile.txt'" % (fileinfo.getFilename(), ))
+        self.failIf(fileinfo.getFileSize() != '0',
+                    "Incorrect file size: %r != '0'" % (fileinfo.getFileSize(),))
+        self.failIf(fileinfo.isDirectory() != False,
+                    "Incorrect isDirectory: '%r'" % (fileinfo.isDirectory(),))
+        self.failIf(fileinfo.isExecutable() != False,
+                    "Incorrect isExecutable: '%r'" % (fileinfo.isExecutable(),))
+        self.failIf(fileinfo.isFile() != True,
+                    "Incorrect isFile: '%r'" % (fileinfo.isFile(),))
+
+        folder_listing = 'drwxr-xr-x               folder        0 Sep 24 16:46 foo'
+        fileinfo = self._makeKoRemoteFileInfo()
+        self.failIf(fileinfo.initFromDirectoryListing("testingdir", folder_listing) != True,
+                    "Could not parse directory listing: %r" % (folder_listing, ))
+        self.failIf(fileinfo.getFilename() != 'foo',
+                    "Incorrect filename: %r != 'foo'" % (fileinfo.getFilename(), ))
+        self.failIf(fileinfo.getFileSize() != '0',
+                    "Incorrect file size: %r != '0'" % (fileinfo.getFileSize(),))
+        self.failIf(fileinfo.isDirectory() != True,
+                    "Incorrect isDirectory: '%r'" % (fileinfo.isDirectory(),))
+        self.failIf(fileinfo.isExecutable() != True,
+                    "Incorrect isExecutable: '%r'" % (fileinfo.isExecutable(),))
+        self.failIf(fileinfo.isFile() != False,
+                    "Incorrect isFile: '%r'" % (fileinfo.isFile(),))
+

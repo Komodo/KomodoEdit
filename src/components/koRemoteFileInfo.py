@@ -80,6 +80,8 @@ class koRemoteFileInfo:
     # s - if the entry is a socket
     # - - if the entry is a plain file 
     _possible_first_chars_for_unix_listing = ("-", "d", "l", "s", "b", "c")
+    _3char_month_names = ["jan","feb","mar","apr","may","jun",
+                          "jul","aug","sep","oct","nov","dec"]
     # Encoding is used when encoding is not UTF8 compatible
     encoding = ''
     link_target = None
@@ -208,9 +210,30 @@ class koRemoteFileInfo:
 
         # Check the first character of the listing is a unix style
         if line[0] in self._possible_first_chars_for_unix_listing:
+
+            # UNIX-style listing, without inum and without blocks */
+            #   "-rw-r--r--   1 root     other        531 Jan 29 03:26 README" */
+            #   "dr-xr-xr-x   2 root     other        512 Apr  8  1994 etc" */
+            #   "dr-xr-xr-x   2 root     512 Apr  8  1994 etc" */
+            #   "lrwxrwxrwx   1 root     other          7 Jan 25 00:17 bin -> usr/bin" */
+            # Also produced by Microsoft's FTP servers for Windows: */
+            #   "----------   1 owner    group         1803128 Jul 10 10:18 ls-lR.Z" */
+            #   "d---------   1 owner    group               0 May  9 19:45 Softlib" */
+            # Also WFTPD for MSDOS: */
+            #   "-rwxrwxrwx   1 noone    nogroup      322 Aug 19  1996 message.ftp" */
+            # Also NetWare: */
+            #   "d [R----F--] supervisor            512       Jan 16 18:53    login" */
+            #   "- [R----F--] rhesus             214059       Oct 20 15:27    cx.exe" */
+            # Also NetPresenz and Rumpus on the Mac: */
+            #   "-------r--         326  1391972  1392298 Nov 22  1995 MegaPhone.sit" */
+            #   "drwxrwxr-x               folder        2 May 10  1996 network" */
+
             # We used to regex on the line, but that is too slow, now we just
             # use split() and do our best with that.
             fi = line.split(None, 7)
+            if len(fi) == 7 and fi[1] == "folder":
+                # NetPresenz and Rumpus folder format
+                fi = fi[:1] + ["", ""] + fi[2:]
 
             # First char dictates the type of file
             if line[0] == "d":
@@ -248,23 +271,22 @@ class koRemoteFileInfo:
             elif mode_str[9:10] == "t": mode |= (stat.S_IXOTH | stat.S_ISVTX)
             elif mode_str[9:10] == "T": mode |= stat.S_ISVTX
 
+            if fi[4].lower() in self._3char_month_names:
+                # Not enough fields, pad it out.
+                fi.insert(1, "")
             if fi[4]: self.st_size = fi[4] # File size
 
             # Work out the date
             try:
-                # Date is in fi[3], I.e Nov 30 or 2005-11-30 format
+                # Date is in fi[5], I.e Nov 30 or 2005-11-30 format
                 # do we have time, or year?
                 guessedYear = False
-                sp = fi[5].split('-', 2)
-                if len(sp) == 3:
-                    # 2005-11-30 format
-                    year, month, day = sp
-                    hour = fi[6]
-                    date = "%s %s %s %s" % (year, month, day, hour)
-                    t = time.strptime(date, '%Y %m %d %H:%M')
-                else:
-                    # Has an extra field, lets fix this now
-                    fi = fi[:2] + fi[3:7] + fi[7].split(None, 1)
+                if fi[5].lower() in self._3char_month_names:
+                    if " " in fi[7] and fi[7][0] in "0123456789":
+                        # Requires the filename field to be split up:
+                        fi = fi[:1] + fi[2:7] + fi[7].split(None, 1)
+                    if len(fi) == 9:
+                        fi.pop(1)
                     month,day,year = fi[4:7]
                     if year.find(":") > -1:
                         hour = year
@@ -288,6 +310,16 @@ class koRemoteFileInfo:
                     except Exception, e:     # Error parsing the date field
                         # Try using internal strptime, with ENGLISH setting
                         t = strptime.strptime(date, '%b %d %Y %H:%M')
+                else:
+                    sp = fi[5].split('-', 2)
+                    if len(sp) == 3:
+                        # 2005-11-30 format
+                        year, month, day = sp
+                        hour = fi[6]
+                        date = "%s %s %s %s" % (year, month, day, hour)
+                        t = time.strptime(date, '%Y %m %d %H:%M')
+                    else:
+                        raise Exception("Uknown date")
 
                 self.st_mtime = time.mktime(t)
                 if guessedYear:
