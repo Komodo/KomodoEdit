@@ -60,6 +60,7 @@
         title="&manageViewFilters.caption;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         persist="screenX screenY width height"
+        orient="vertical"
         buttons="accept,cancel"
         onload="onLoad()"
         style="min-width: 40em; max-width: 55em;"

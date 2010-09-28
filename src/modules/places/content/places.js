@@ -1136,9 +1136,9 @@ viewMgrClass.prototype = {
         var resultObj = {needsChange:false,
                          currentFilterName:currentFilterName,
                          version:VERSION};
-        ko.windowManager.openDialog("chrome://places/content/manageViewFilters.xul",
-                                    "_blank",
-                                    "chrome,all,dialog=yes,modal=yes",
+        ko.windowManager.openOrFocusDialog("chrome://places/content/manageViewFilters.xul",
+                                    "komodo_places",
+                                    "chrome,modal,titlebar,resizable=yes",
                                     resultObj);
         if (resultObj.needsChange) {
             ko.places.updateFilterViewMenu();
