@@ -197,14 +197,14 @@
                                   helptag="code_intelligence_preferences"/>
                     </treerow>
                 </treeitem>
-                <treeitem container="false" id="folderImport">
-                    <treerow>
-                        <treecell class="treecell-indent"
-                                  url="chrome://komodo/content/pref/pref-folderImport.xul"
-                                  label="&directoryImport.label;"
-                                  helptag="directory_import"/>
-                    </treerow>
-                </treeitem>
+                <!--<treeitem container="false" id="folderImport">-->
+                <!--    <treerow>-->
+                <!--        <treecell class="treecell-indent"-->
+                <!--                  url="chrome://komodo/content/pref/pref-folderImport.xul"-->
+                <!--                  label="&directoryImport.label;"-->
+                <!--                  helptag="directory_import"/>-->
+                <!--    </treerow>-->
+                <!--</treeitem>-->
 
                 <treeitem container="true" id="editorItem" persist="open">
                     <treerow>
