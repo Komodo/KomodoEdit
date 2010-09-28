@@ -1,0 +1,94 @@
+Patch to abort Komodo if incorrect JavaScript threading occurs.
+
+This patch comes from changes made in mozilla-central (Moz 2.0).
+
+diff -r 976ec8c4d911 xpcom/base/nsCycleCollector.cpp
+--- xpcom/base/nsCycleCollector.cpp	Tue Apr 06 15:29:56 2010 -0500
++++ xpcom/base/nsCycleCollector.cpp	Mon Sep 27 16:58:59 2010 -0700
+@@ -1143,13 +1143,13 @@
+ }
+ #endif
+ 
+-static inline bool
+-CheckMainThreadIfFast()
++static inline void
++AbortIfOffMainThreadIfCheckFast()
+ {
+ #if defined(XP_WIN) || defined(NS_TLS)
+-    return NS_IsMainThread();
+-#else
+-    return true;
++    if (!NS_IsMainThread()) {
++        NS_RUNTIMEABORT("Main-thread-only object used off the main thread");
++    }
+ #endif
+ }
+ 
+@@ -2170,8 +2170,7 @@
+ PRBool
+ nsCycleCollector::Suspect(nsISupports *n)
+ {
+-    if (!CheckMainThreadIfFast())
+-        return PR_FALSE;
++    AbortIfOffMainThreadIfCheckFast();
+ 
+     // Re-entering ::Suspect during collection used to be a fault, but
+     // we are canonicalizing nsISupports pointers using QI, so we will
+@@ -2211,12 +2210,7 @@
+ PRBool
+ nsCycleCollector::Forget(nsISupports *n)
+ {
+-    if (!CheckMainThreadIfFast()) {
+-        if (!mParams.mDoNothing) {
+-            Fault("Forget called off main thread");
+-        }
+-        return PR_TRUE; // it's as good as forgotten
+-    }
++    AbortIfOffMainThreadIfCheckFast();
+ 
+     // Re-entering ::Forget during collection used to be a fault, but
+     // we are canonicalizing nsISupports pointers using QI, so we will
+@@ -2250,8 +2244,7 @@
+ nsPurpleBufferEntry*
+ nsCycleCollector::Suspect2(nsISupports *n)
+ {
+-    if (!CheckMainThreadIfFast())
+-        return nsnull;
++    AbortIfOffMainThreadIfCheckFast();
+ 
+     // Re-entering ::Suspect during collection used to be a fault, but
+     // we are canonicalizing nsISupports pointers using QI, so we will
+@@ -2292,8 +2285,7 @@
+ PRBool
+ nsCycleCollector::Forget2(nsPurpleBufferEntry *e)
+ {
+-    if (!CheckMainThreadIfFast())
+-        return PR_FALSE;
++    AbortIfOffMainThreadIfCheckFast();
+ 
+     // Re-entering ::Forget during collection used to be a fault, but
+     // we are canonicalizing nsISupports pointers using QI, so we will
+diff -r 976ec8c4d911 xpcom/glue/nsDebug.h
+--- xpcom/glue/nsDebug.h	Tue Apr 06 15:29:56 2010 -0500
++++ xpcom/glue/nsDebug.h	Mon Sep 27 16:58:59 2010 -0700
+@@ -184,6 +184,20 @@
+ 
+ #endif /* ! NS_DEBUG */
+ 
++/******************************************************************************
++** Macros for terminating execution when an unrecoverable condition is
++** reached.  These need to be compiled regardless of the NS_DEBUG flag. 
++******************************************************************************/
++
++/**
++ * Terminate execution <i>immediately</i>, and if possible on the current
++ * platform, in such a way that execution can't be continued by other
++ * code (e.g., by intercepting a signal).
++ */
++#define NS_RUNTIMEABORT(msg)                                    \
++  NS_DebugBreak(NS_DEBUG_ABORT, msg, nsnull, __FILE__, __LINE__)
++
++
+ /* Macros for checking the trueness of an expression passed in within an 
+  * interface implementation.  These need to be compiled regardless of the */
+ /* NS_DEBUG flag
