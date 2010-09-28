@@ -79,6 +79,10 @@
             Should return true if this directory tree should be considered
             for patching and false otherwise. Presumed to be true if this
             function is not defined.
+        def patchfile_applicable(config, filepath)
+            Should return true if this patch file should be considered
+            for patching and false otherwise. Presumed to be true if this
+            function is not defined.
         def remove(config)
             Should return a list of file or directory paths to remove from
             the source tree. All paths should be relative to the base of the
@@ -130,7 +134,7 @@
 # - break this out into a separate project
 # - add a test suite
 
-__version_info__ = (0, 4, 1)
+__version_info__ = (0, 4, 2)
 __version__ = '.'.join(map(str, __version_info__))
 
 import os
@@ -272,16 +276,24 @@ def _shouldBeApplied((base, actions, config), dirname, names):
     else:
         patch_args = []
 
+    patch_applicable_fn = patchinfo and getattr(patchinfo, "patchfile_applicable", None) or None
+
     # Add "apply" actions for patch files.
     for pattern in ("*.patch", "*.diff"):
         for patchfile in glob.glob(os.path.join(dirname, pattern)):
             patchfile = patchfile[len(base+os.sep):]
+            if patch_applicable_fn and not patch_applicable_fn(config, patchfile):
+                log.debug("    skip: patchfile_applicable() returned false for %r", patchfile)
+                continue
             action = ("apply", base, patchfile, patch_args)
             log.debug("    action: %r", action)
             actions.append(action)
     for pattern in ("*.ppatch",):
         for patchfile in glob.glob(os.path.join(dirname, pattern)):
             patchfile = patchfile[len(base+os.sep):]
+            if patch_applicable_fn and not patch_applicable_fn(config, patchfile):
+                log.debug("    skip: patchfile_applicable() returned false for %r", patchfile)
+                continue
             action = ("preprocess & apply", base, patchfile, patch_args)
             log.debug("    action: %r", action)
             actions.append(action)
