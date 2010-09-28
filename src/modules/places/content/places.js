@@ -691,12 +691,13 @@ viewMgrClass.prototype = {
         var from_uris, dropEffect, copying;
         [from_uris, dropEffect] = this._getDraggedURIs(event);
         if (from_uris.length == 0) {
-            return this._dropProblem("_finishDrop: no from_uris");
+            return this._dropProblem(_bundle.GetStringFromName("_finishDropNoFrom_uris"));
         } else if (dropEffect == "none") {
-            return this._dropProblem("_finishDrop: no drag/drop here");
+            return this._dropProblem(_bundle.GetStringFromName("_finishDropNoDragDropHere"));
         } else if (dropEffect == "link") {
-            return this._dropProblem("don't know how to drag/drop a link");
+            return this._dropProblem(_bundle.GetStringFromName("_finishDropCantDragDropLink"));
         }
+
         // See bug 87924
         copying = (dropEffect != 'none' ? dropEffect == "copy" : event.ctrlKey);
         
@@ -705,23 +706,22 @@ viewMgrClass.prototype = {
             var source_uri = from_uris[i];
             var source_uri_no_slash = this._removeTrailingSlash(source_uri);
             if (target_uri_no_slash == source_uri_no_slash) {
-                return this._dropProblem("places.doDrop: can't drop directory "
-                                    + source_uri_no_slash
-                                    + " onto itself");
+                return this._dropProblem(
+                    _bundle.formatStringFromName("places.doDropCantDropDirectoryOntoItself",
+                                                 [source_uri_no_slash], 1));
                 return false;
             }
             var source_uri_parent_no_slash = source_uri_no_slash.substr(0, source_uri_no_slash.lastIndexOf("/"));
             if (target_uri_no_slash == source_uri_parent_no_slash && !copying) {
-                return this._dropProblem("places.doDrop: can't drop the item "
-                                    + source_uri_no_slash
-                                    + " onto its parent.");
+                return this._dropProblem(
+                    _bundle.formatStringFromName("places.doDropCantDropItemOnParent",
+                                                 [source_uri_no_slash], 1));
                 return false;
             }
             else if (target_uri.indexOf(this._addTrailingSlash(source_uri_no_slash)) == 0) {
-                return this._dropProblem("places.doDrop: can't drop the item "
-                                    + source_uri
-                                    + " onto its descendant "
-                                    + target_uri);
+                return this._dropProblem(
+                    _bundle.formatStringFromName("places.doDropCantDropItemOnItsDescendant",
+                                                 [source_uri, target_uri], 2));
                 return false;
             }
         }
@@ -831,7 +831,7 @@ viewMgrClass.prototype = {
             }
             var srcFileInfoText = this._formatFileInfo(srcFileInfo);
             var targetFileInfoText = this._formatFileInfo(targetFileInfo);
-            var prompt = "File already exists";//@@@
+            var prompt = _bundle.GetStringFromName("fileAlreadyExists");
             var buttons, text, title;
             if (res == Components.interfaces.koIPlaceTreeView.COPY_MOVE_WOULD_KILL_DIR) {
                 existingSrcDirectories.push(srcFileInfo);
@@ -840,36 +840,35 @@ viewMgrClass.prototype = {
                 selfDirectories.push(srcFileInfo);
                 continue;
             }
-            title = "File already exists";//@@@
+            title = _bundle.GetStringFromName("fileAlreadyExists");
             var buttons;
-            text = ("For source file: "
-                    + srcFileInfoText
-                    + ",\ntarget file: "
-                    + targetFileInfoText
-                    + ".");
+            text = _bundle.formatStringFromName("forSourceAndTarget",
+                                                [srcFileInfoText,
+                                                 targetFileInfoText], 2);
+            const overwrite_label = _bundle.GetStringFromName("overwrite.label");
+            const cancel_label = _bundle.GetStringFromName("cancel.label");
+            const copy_label = _bundle.GetStringFromName("copy.label");
             if (res == Components.interfaces.koIPlaceTreeView.MOVE_OTHER_DIR_FILENAME_CONFLICT) {
-                prompt = ("Overwrite file "
-                          + srcFileInfo.baseName
-                          + "?");
-                buttons = ["Overwrite", "Cancel"];
+                prompt = _bundle.formatStringFromName("overwriteFile.prompt",
+                                                     [srcFileInfo.baseName], 1);
+                buttons = [overwrite_label, cancel_label];
             } else {
-                prompt = ("Save file "
-                          + srcFileInfo.baseName
-                          + " with a new name, or overwrite?");
-                buttons = ["Copy with New Name", "Overwrite", "Cancel"];
+                prompt = _bundle.formatStringFromName("saveFileWithNewName.prompt",
+                                                     [srcFileInfo.baseName], 1);
+                buttons = [copy_label, overwrite_label, cancel_label];
             }
-            var response = ko.dialogs.customButtons(prompt, buttons, "Cancel", text, title);
-            if (!response || response == "Cancel") {
+            var response = ko.dialogs.customButtons(prompt, buttons, cancel_label, text, title);
+            if (!response || response == cancel_label) {
                 return true;
-            } else if (response == "Overwrite") {
+            } else if (response == overwrite_label) {
                 // Copy/move it over anyways.
                 finalSrcURIs.push(srcFileInfo.URI);
                 finalTargetURIs.push(targetFileInfo.URI);
-            } else if (response == "Copy with New Name") {
+            } else if (response == copy_label) {
                 // This is where we need a new dialog.
                 var newName = srcFileInfo.baseName;
-                var label = "File name:";
-                title = "Enter a new name for the copied file";
+                var label = _bundle.GetStringFromName("fileName.prompt");
+                title = _bundle.GetStringFromName("enterFileName.prompt");
                 var newPath;
                 var regEx = /(.*)\((\d+)\)$/;
                 var idx;
@@ -882,9 +881,8 @@ viewMgrClass.prototype = {
                 }
                 try {
                     while (true) {
-                        prompt = ("File "
-                                  + newName
-                                  + " exists");
+                        prompt = _bundle.formatStringFromName("fileNameExists.template",
+                                                              [newName], 1);
                         newName =ko.dialogs.prompt(prompt, label, newName, title);
                         if (!newName) {
                             return true;
