@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE overlay SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % placesDTD SYSTEM "chrome://places/locale/places.dtd">
+  %placesDTD;
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
+
+<overlay id="places_prefs_overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         >
+
+    <treechildren id="panelChildren">
+        <treeitem id="placesPref" insertbefore="printItem">
+            <treerow>
+                <treecell class="treecell-indent"
+                          url="chrome://places/content/pref_places.xul"
+                          label="&Places.label;"
+                          helptag="places"/>
+            </treerow>
+        </treeitem>
+    </treechildren>
+</overlay>
+

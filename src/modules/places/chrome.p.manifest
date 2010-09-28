@@ -8,3 +8,4 @@ skin places classic/1.0 jar:places.jar!/skin/
 locale places en-US jar:places.jar!/locale/en-US/
 # #endif
 overlay chrome://komodo/content/komodo.xul chrome://places/content/overlay_places.xul
+overlay chrome://komodo/content/pref/pref.xul chrome://places/content/pref_overlay_places.xul

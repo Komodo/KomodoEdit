@@ -252,7 +252,7 @@
                     <treerow>
                         <treecell class="treecell-indent"
                                   url="chrome://komodo/content/pref/project-folderImport.xul"
-                                  label="&directoryImport.label;"
+                                  label="&directoryAndPlaceViews.label;"
                                   helptag="directory_import"/>
                     </treerow>
                 </treeitem>

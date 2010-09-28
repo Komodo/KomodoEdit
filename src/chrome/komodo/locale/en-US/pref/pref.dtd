@@ -201,8 +201,10 @@
 <!ENTITY description.label "Description">
 <!ENTITY detectWhenFilesAreChangedOutsideTheEnvironment.label "Detect when files are changed outside the environment">
 <!ENTITY determineFromContent.label "Determine from content">
-<!ENTITY directoryImport.label "Directory Import">
+
+<!ENTITY directoryAndPlaceViews.label "Directory and File Filters">
 <!ENTITY directoryImportSettings.label "Settings used for Directory Importing">
+
 <!ENTITY doNotAlertMeIfTheBufferIsUnsavedAndTheFileOnDiskChanged.label "Do not alert me if the buffer is unsaved and the file on disk changed">
 <!ENTITY doNotAlertMeOnBufferRevert.label "Do not alert me when I revert a buffer">
 <!ENTITY doNotAlertMeOnLargeFileLoad.label "Do not alert me when a large buffer will be treated as plain text">
