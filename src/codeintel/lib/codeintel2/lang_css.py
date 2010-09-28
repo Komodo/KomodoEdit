@@ -810,7 +810,8 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                                                               values)
                 try:
                     #print "\ndict:", self.CSS_ATTRIBUTES[property]
-                    property_values = self.CSS_ATTRIBUTES[property]
+                    property_values = sorted(self.CSS_ATTRIBUTES[property],
+                                             cmp=CompareNPunctLast)
                     # Check if it matches anything, if not, dismiss the list
                     if current_value:
                         clen = len(current_value)

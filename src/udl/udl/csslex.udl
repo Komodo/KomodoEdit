@@ -232,7 +232,10 @@ state IN_CSS_DEFAULT:
 /[$WS]+/  : #stay
 
 # Go process a number
-'-' : paint(upto, CSS_DEFAULT), => IN_CSS_NEG_OR_NUMBER_1
+# Codeintel wants a "-" at the end of input to be colored as
+# an identifier though.
+/-(=\s|$|\z)/ : paint(upto, CSS_DEFAULT), => IN_CSS_IDENT_2
+/-(?!$NMSTART)/ : paint(upto, CSS_DEFAULT), => IN_CSS_NEG_OR_NUMBER_1
 '+' : paint(upto, CSS_DEFAULT), => IN_CSS_NEG_OR_NUMBER_1
 /[0-9]/ : paint(upto, CSS_DEFAULT), => IN_CSS_NUMBER_1
 /\\./ : paint(upto, CSS_DEFAULT), => IN_SEL_OR_NUMBER_1
@@ -243,7 +246,7 @@ state IN_CSS_DEFAULT:
 /url/ : paint(upto, CSS_DEFAULT), paint(include, CSS_WORD), => IN_URL_1
 
 # identifiers
-/$NMSTART/ : paint(upto, CSS_DEFAULT), => IN_CSS_IDENT_2
+/-?$NMSTART/ : paint(upto, CSS_DEFAULT), => IN_CSS_IDENT_2
 
 # @ things
 '@' : paint(upto, CSS_DEFAULT), => IN_CSS_IDENT_OR_OP
