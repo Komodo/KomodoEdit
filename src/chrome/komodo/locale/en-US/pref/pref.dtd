@@ -752,7 +752,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!-- pref-winInteg.xul -->
 <!ENTITY makeKomodoTheDefaultEditor.desc "Make Komodo the default editor for these file extensions:">
 <!ENTITY addAnEditWithKomodoAction.desc "Add an 'Edit with Komodo' action for these file extensions:">
-<!ENTITY otherApplicationsMayChangeFileAssociations.desc "0ther applications (including other versions of Komodo) may change file associations on the system. Click below to re-apply these file associations to this Komodo version.">
+<!ENTITY otherApplicationsMayChangeFileAssociations.desc "Other applications (including other versions of Komodo) may change file associations on the system. Click below to re-apply these file associations to this Komodo version.">
 <!ENTITY warningOneOrMOreFileAssociationNotSet "Warning: One or more of your file association settings are not set in the registry. Click above to re-apply your settings. Details are below.">
 
 <!--preview-properties.xul-->
