@@ -682,14 +682,14 @@ class KoToolbox2HTreeView(TreeView):
                 selectedIndices.append(index)
                 if rootsOnly and self.isContainerOpen(index):
                     nextSiblingIndex = self.getNextSiblingIndex(index)
-                    if nextSiblingIndex <= max_index + 1:
-                        index = nextSiblingIndex - 1
-                    else:
-                        if nextSiblingIndex == -1 and i < numRanges - 1:
+                    if nextSiblingIndex == -1 or nextSiblingIndex > max_index + 1:
+                        if i < numRanges - 1:
                             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
                               ("node at row %d supposedly at end, but we're only at range %d of %d" %
                                (j, i + 1, numRanges)))
                         index = max_index
+                    else:
+                        index = nextSiblingIndex - 1
                 index += 1
         return selectedIndices
 

@@ -744,7 +744,7 @@ this.saveToolsAs_aux = function(event) {
 this.exportAsZipFile = function(event) {
     try {
         var title = peFolder_bundle.GetStringFromName("saveItemsToZipFileAs");
-        var defaultFilterName = "Zip";
+        var defaultFilterName = "zip";
         var fileNames = [defaultFilterName, "All"];
         var targetPath = ko.filepicker.saveFile(default_saveToolDirectory,
                                                 null,
@@ -753,6 +753,12 @@ this.exportAsZipFile = function(event) {
                                                 fileNames
                                                 );
         if (!targetPath) return;
+        // Add a ".zip" if saveFile didn't provide one -- zip currently
+        // isn't a language, so there's no auto-extension tagging.
+        var ext = ko.uriparse.ext(targetPath);
+        if (!ext) {
+            targetPath += ".zip";
+        }
         default_saveToolDirectory = ko.uriparse.dirName(targetPath);
         var numFilesZipped = ko.toolbox2.manager.view.zipSelectionToFile(targetPath, this._clickedOnRoot());
         var msg = peFolder_bundle.formatStringFromName("zippedNTools",

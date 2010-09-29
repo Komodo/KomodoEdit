@@ -132,29 +132,8 @@ _fixCogPopupmenu: function() {
     var popupmenu = document.getElementById("toolbox2-cog-popup");
     var mi, childNode, i;
     // Pull these nodes out of the root menu
-    var childNodes = document.getElementById("toolbox2Context").childNodes;
-    for (i = 0; i < childNodes.length; i++) {
-        childNode = childNodes[i];
-        if (!childNode || childNode.nodeName != "menuitem") {
-            continue;
-        } else if (childNode.getAttribute('label').indexOf("Import") != 0) {
-            break;
-        }
-        mi = document.createElementNS(XUL_NS, childNode.nodeName);
-        mi.id = childNode.id + "_cog_contextMenu";
-        if (childNode.nodeName == "menuitem") {
-            ["label", "class", "accesskey", "image"].map(function(attr) {
-                    mi.setAttribute(attr, childNode.getAttribute(attr));
-                });
-            var cmd = childNode.getAttribute("oncommand");
-            var fixedCmd = cmd.replace('(event)', '_toStdToolbox(event)');
-            mi.setAttribute("oncommand", fixedCmd);
-        }
-        popupmenu.appendChild(mi);
-    }
     var src_popupmenu  = document.getElementById("tb2ContextMenu_addPopupMenu");
     var childNodes = src_popupmenu.childNodes;
-    popupmenu.appendChild(document.createElementNS(XUL_NS, 'menuseparator'));
     for (i = 0; i <  childNodes.length; i++) {
         childNode = childNodes[i];
         if (!childNode) {
@@ -174,6 +153,28 @@ _fixCogPopupmenu: function() {
             }
             popupmenu.appendChild(mi);
         }
+    }
+    popupmenu.appendChild(document.createElementNS(XUL_NS, 'menuseparator'));
+    var src_popupmenu  = document.getElementById("tb2ContextMenu_importPopupMenu");
+    var childNodes = src_popupmenu.childNodes;
+    for (i = 0; i < childNodes.length; i++) {
+        childNode = childNodes[i];
+        if (!childNode || childNode.nodeName != "menuitem") {
+            continue;
+        } else if (childNode.id.indexOf("export") >= 0) {
+            break;
+        }
+        mi = document.createElementNS(XUL_NS, childNode.nodeName);
+        mi.id = childNode.id + "_cog_contextMenu";
+        if (childNode.nodeName == "menuitem") {
+            ["label", "class", "accesskey", "image"].map(function(attr) {
+                    mi.setAttribute(attr, childNode.getAttribute(attr));
+                });
+            var cmd = childNode.getAttribute("oncommand");
+            var fixedCmd = cmd.replace('(event)', '_toStdToolbox(event)');
+            mi.setAttribute("oncommand", fixedCmd);
+        }
+        popupmenu.appendChild(mi);
     }
 },
 
@@ -251,7 +252,8 @@ this.updateContextMenu = function(event, menupopup) {
     }
     var clickedNodeId = event.explicitOriginalTarget.id;
     //dump("updateContextMenu: clickedNodeId: " + clickedNodeId + "\n");
-    if (clickedNodeId == "tb2ContextMenu_addPopupMenu") {
+    if (clickedNodeId == "tb2ContextMenu_addPopupMenu"
+        || clickedNodeId == "tb2ContextMenu_importPopupMenu") {
         // No further checking needed -- we're in a secondary menu for a
         // container, and we accept everything.
         return;
@@ -287,12 +289,11 @@ this.processMenu = function(menuNode, toolType) {
         menuNode.setAttribute('collapsed', true);
         return; // No need to do anything else
     }
-    //NOTE: hideIf isn't currently used...
-    //var hideIf = menuNode.getAttribute('hideIf');
-    //if (hideIf && hideIf.indexOf(toolType) == 0) {
-    //    menuNode.setAttribute('collapsed', true);
-    //    return; // No need to do anything else
-    //}
+    var hideIf = menuNode.getAttribute('hideIf');
+    if (hideIf && hideIf.indexOf(toolType) != -1) {
+        menuNode.setAttribute('collapsed', true);
+        return; // No need to do anything else
+    }
     var multipleNodesSelected = this.multipleNodesSelected;
     var raggedMultipleSelection = this.raggedMultipleSelection;
     var testHideIf = menuNode.getAttribute('testHideIf');
@@ -321,8 +322,9 @@ this.processMenu = function(menuNode, toolType) {
     } else {
         var disableIfInMenu = menuNode.getAttribute('disableIfInMenu');
         if (disableIfInMenu && disableIfInMenu.indexOf(toolType) >= 0) {
-            //TODO: Check to see if we're in a menubar already
-            //disableNode = true;
+            //Comment on TODO: Check to see if we're in a menubar already
+            // The processMenu routine only does this for top-level menus.
+            disableNode = true;
         }
         if (!disableNode) {
             var disableUnless = menuNode.getAttribute('disableUnless');

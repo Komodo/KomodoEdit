@@ -205,34 +205,6 @@
       <!-- "standardToolbox" denotes that the user clicked on the empty region,
            like "project" in the places toolbox.
            -->
-        <menuitem id="toolbox2ContextMenu_importFilesFromFileSystem"
-                  label="&importFilesFromFileSystem.label;"
-                  class="menuitem-iconic"
-                  oncommand="ko.toolbox2.importFilesFromFileSystem(event)"
-                  hideUnless="folder menu toolbar standardToolbox" 
-                  testDisableIf="t:multipleSelection"
-                  />
-        <menuitem id="toolbox2ContextMenu_importFolderFromFileSystem"
-                  label="&importFolderFromFileSystem.label;"
-                  class="menuitem-iconic"
-                  oncommand="ko.toolbox2.importFolderFromFileSystem(event)"
-                  hideUnless="folder menu toolbar standardToolbox" 
-                  testDisableIf="t:multipleSelection"
-                  />
-        <menuitem id="toolbox2ContextMenu_importPackage"
-                  label="&importPackage.label;"
-                  class="menuitem-iconic"
-                  oncommand="ko.toolbox2.importPackage(event)"
-                  hideUnless="folder menu toolbar standardToolbox" 
-                  testDisableIf="t:multipleSelection"
-                  />
-        <menuitem id="toolbox2ContextMenu_importPackageFromWeb"
-                  label="&importPackageFromWeb.label;"
-                  class="menuitem-iconic"
-                  oncommand="ko.toolbox2.importPackageFromWeb(event)"
-                  hideUnless="folder menu toolbar standardToolbox" 
-                  testDisableIf="t:multipleSelection"
-                  />
         <menu id="tb2ContextMenu_addMenu" label="&add.label;"
               hideUnless="folder menu toolbar standardToolbox" 
               testHideIf="t:multipleSelection" >
@@ -304,6 +276,44 @@
                           disableIfInMenu="folder toolbar menu"
                           />
             </menupopup>
+        </menu>
+        <menu id="tb2ContextMenu_importMenu" label="&importExport.label;"
+              hideUnless="folder menu toolbar standardToolbox" 
+              testDisableIf="t:multipleSelection" >
+          <menupopup id="tb2ContextMenu_importPopupMenu">
+               <menuitem id="toolbox2ContextMenu_importFilesFromFileSystem"
+                         label="&importFilesFromFileSystem.label;"
+                         class="menuitem-iconic"
+                         oncommand="ko.toolbox2.importFilesFromFileSystem(event)"
+                         testDisableIf="t:multipleSelection"
+                         />
+               <menuitem id="toolbox2ContextMenu_importFolderFromFileSystem"
+                         label="&importFolderFromFileSystem.label;"
+                         class="menuitem-iconic"
+                         oncommand="ko.toolbox2.importFolderFromFileSystem(event)"
+                         testDisableIf="t:multipleSelection"
+                         />
+               <menuitem id="toolbox2ContextMenu_importPackage"
+                         label="&importPackage.label;"
+                         class="menuitem-iconic"
+                         oncommand="ko.toolbox2.importPackage(event)"
+                         testDisableIf="t:multipleSelection"
+                         />
+               <menuitem id="toolbox2ContextMenu_importPackageFromWeb"
+                         label="&importPackageFromWeb.label;"
+                         class="menuitem-iconic"
+                         oncommand="ko.toolbox2.importPackageFromWeb(event)"
+                         testDisableIf="t:multipleSelection"
+                         />
+               <menuseparator id="toolbox2ContextMenu_importExportSeparator" />
+               <menuitem id="toolbox2ContextMenu_exportAsZipFile"
+                         keep_background="true"
+                         class="menuitem-iconic"
+                         label="&exportAsZipFile.label;"
+                         disableIfInMenu="standardToolbox"
+                         oncommand="ko.toolbox2.exportAsZipFile(event)"
+                         />
+          </menupopup>
         </menu>
         <menuitem id="toolbox2ContextMenu_executeMacro"
                   label="&executeMacro.label;"
@@ -386,12 +396,6 @@
                   oncommand="ko.toolbox2.showInFileManager(event)"
                   testDisableIf="t:multipleSelection"
                   />
-        <menuitem id="toolbox2ContextMenu_exportAsZipFile"
-                  keep_background="true"
-                  class="menuitem-iconic"
-                  label="&exportAsZipFile.label;"
-                  oncommand="ko.toolbox2.exportAsZipFile(event)"
-                  />
         <menuitem id="toolbox2ContextMenu_saveAs"
                   keep_background="true"
                   class="menuitem-iconic"
@@ -424,11 +428,12 @@
                   oncommand="ko.toolbox2.deleteItem(event)"
                   />
         <menuseparator anonid="secondaryseparator_4"
+                  hideIf="folder template standardToolbox"
                        />
         <menuitem id="toolbox2ContextMenu_editProperties"
                   label="&properties.label;"
                   oncommand="ko.toolbox2.editPropertiesItem(event)"
-                  disableIf="folder template standardToolbox"
+                  hideIf="folder template standardToolbox"
                   testDisableIf="t:multipleSelection"
                   />
     </menupopup>

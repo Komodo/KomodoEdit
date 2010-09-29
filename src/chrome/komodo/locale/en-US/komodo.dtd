@@ -340,6 +340,7 @@
 <!ENTITY helpTroubleshootingViewErrorLog.accesskey "L">
 <!ENTITY helpTroubleshootingViewErrorLog.label "View Log File">
 <!ENTITY helpTroubleshootingViewErrorLog.desc "Help: Open the Komodo Error Log for viewing">
+<!ENTITY importExport.label "Import/Export">
 <!ENTITY importFromFileSystem.label "Import from File System...">
 <!ENTITY increaseFont.accesskey "I">
 <!ENTITY increaseFont.label "Increase Font Size">
