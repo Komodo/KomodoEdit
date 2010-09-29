@@ -207,7 +207,7 @@ class KoPythonCommonLinter(object):
             else:
                 compilePy = os.path.join(self._koDirSvc.supportDir, "python",
                                          "pycompile.py")
-            if request.koDoc.displayPath.startswith("macro://"):
+            if request.koDoc.displayPath.startswith("macro2://"):
                 text = projectUtils.wrapPythonMacro(text)
                 leadingWS = _leading_ws_re.match(text.splitlines()[1]).group(1)
             else:
