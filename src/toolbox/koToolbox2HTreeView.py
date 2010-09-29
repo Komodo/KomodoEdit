@@ -872,8 +872,9 @@ class KoToolbox2HTreeView(TreeView):
 
             toolboxPrefs.setStringPref("open-nodes",
                                        json.dumps(self._nodeOpenStatusFromName))
-            toolboxPrefs.setLongPref("firstVisibleRow",
-                                     self._tree.getFirstVisibleRow())
+            if self._tree:
+                toolboxPrefs.setLongPref("firstVisibleRow",
+                                         self._tree.getFirstVisibleRow())
             toolboxPrefs.setLongPref("currentIndex",
                                      self.selection.currentIndex)
         except:
