@@ -25,11 +25,8 @@ this.getSelectedIndices = function(view, rootsOnly) {
             selectedIndices.push(j);
             if (rootsOnly && view.isContainerOpen(j)) {
                 var nextSiblingIndex = view.getNextSiblingIndex(j);
-                if (nextSiblingIndex <= mx) {
-                    j = nextSiblingIndex -1;
-                } else {
-                    if (nextSiblingIndex == -1
-                        && i < numRanges - 1) {
+                if (nextSiblingIndex == -1 || nextSiblingIndex > max_index + 1) {
+                    if (i < numRanges - 1) {
                         throw new Error("node at row "
                                         + j
                                         + " supposedly at end, but we're only at range "
@@ -38,6 +35,8 @@ this.getSelectedIndices = function(view, rootsOnly) {
                                         + numRanges);
                     }
                     j = mx;
+                } else {
+                    j = nextSiblingIndex -1;
                 }
             }
         }
