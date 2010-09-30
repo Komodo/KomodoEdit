@@ -155,9 +155,40 @@ function OnLoad()
     } else {
         dialog.moveToAlertPosition(); // requires a loaded opener
     }
+    //See bug 88189: on OSX, when the opener is the main ko window
+    // (not a pref), tab keys are ignored, and handling of the
+    // enter key doesn't look at which button has the focus.
+    if (navigator.platform.match(/^Mac/)) {
+        window.addEventListener("keypress", handleKeys, true);
+    }
     window.getAttention();
 }
 
+function handleKeys(event) {
+    var dialog = document.getElementById("dialog-yesno");
+    var yesButton = dialog.getButton("accept");
+    var noButton = dialog.getButton("cancel");
+    switch(event.keyCode) {
+        case event.DOM_VK_ENTER:
+        case event.DOM_VK_RETURN:
+            var retFunc;
+            if (yesButton.hasAttribute("default")) {
+                retFunc = Yes;
+            } else if (noButton.hasAttribute("default")) {
+                retFunc = No;
+            } else {
+                retFunc = null;
+                //dump("Neither has default attr???\n")
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            if (retFunc) {
+                retFunc();
+                window.close();
+            }
+            break;
+    }
+}
 
 function Yes()
 {
