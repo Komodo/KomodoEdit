@@ -912,7 +912,7 @@ VimController.prototype.handleKeypress = function(event) {
             return false;
 
         } else if (this.mode == VimController.MODE_SET_REGISTER) {
-            this.mode = VimController.MODE_NORMAL;
+            this.mode = this._lastMode;
             if ((charCode == 0) || !(this.regexIsValidRegister.test(key_char))) {
                 var msg = "Invalid register character";
                 if (charCode) {
@@ -2441,7 +2441,8 @@ VimController.command_mappings = {
                                                                     VimController.NO_OP_FLAG_CHANGE |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
                                                                     VimController.DELAY_MODE_INSERT ],
-    "cmd_vim_setRegister" :         [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION ],
+    "cmd_vim_setRegister" :         [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION |
+                                                                    VimController.WORKS_IN_VISUAL_MODE ],
     "cmd_vim_saveAndClose" :        [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION ],
     "cmd_vim_closeNoSave" :         [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION ],
     "" :                            [ "",                           VimController.NO_REPEAT_ACTION ]
