@@ -143,7 +143,7 @@ const CasperConsoleHandler = {
                 var loadhandler = function(event) {
                     try {
                         domWindow.removeEventListener("load", loadhandler, false);
-                        window.setTimeout(self.forceQuit, self.timeoutafter);
+                        domWindow.setTimeout(self.forceQuit, self.timeoutafter);
                     } catch(e) {
                         dump(e+"\n");
                     }
