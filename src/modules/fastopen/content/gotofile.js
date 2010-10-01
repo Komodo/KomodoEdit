@@ -139,6 +139,8 @@ function handleQueryKeyPress(event) {
         index = gWidgets.results.currentIndex - 1;
         if (index >= 0) {
             _selectTreeRow(gWidgets.results, index);
+        } else if (index == -1) {
+            _selectTreeRow(gWidgets.results, gWidgets.results.view.rowCount - 1);
         }
         event.preventDefault();
         event.stopPropagation();
@@ -151,6 +153,8 @@ function handleQueryKeyPress(event) {
         }
         if (index < gWidgets.results.view.rowCount) {
             _selectTreeRow(gWidgets.results, index);
+        } else {
+            _selectTreeRow(gWidgets.results, 0);
         }
         event.preventDefault();
         event.stopPropagation();
