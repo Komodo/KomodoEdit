@@ -293,7 +293,9 @@ class _KoTool(object):
         fp.close()
         if data.get('name', self.name) != self.name:
             refreshParent = True
-            savePath = _toolsManager._renameObject(self.id, self.name, False)
+            # bug 88228: we're renaming a tool by saving its properties, so do the
+            # rename separately.  This updates the DB correctly.
+            savePath = _toolsManager._renameObject(self.id, self.name, isContainer=False)
         else:
             refreshParent = False
             savePath = path
@@ -327,7 +329,8 @@ class _KoTool(object):
         fp.close()
         if data.get('name', self.name) != self.name:
             refreshParent = True
-            savePath = _toolsManager._renameObject(self.id, self.name, False)
+            # bug 88228
+            savePath = _toolsManager._renameObject(self.id, self.name, isContainer=False)
         else:
             refreshParent = False
             savePath = path
@@ -347,8 +350,7 @@ class _KoTool(object):
     def _refreshParent(self):
         parentTool = self.get_parent()
         if not parentTool:
-            # We changed the properties on a top-level item, so we'll need to
-            # reload the whole toolbox...
+            # This should be impossible.
             log.error("Can't find a parent for tool id %d, path %s", self.id, self.path)
             return
         _toolsManager.hierarchicalView.refreshToolView(parentTool)
