@@ -58,6 +58,7 @@ const CasperConsoleHandler = {
     onload: null,
     eot: false,
     logfile: null,
+    timeoutafter: 1000 * 60 * 30 /* 30 mins */,
     windowHasOpened: false,
     /* nsISupports */
     QueryInterface : function clh_QI(iid) {
@@ -87,6 +88,9 @@ const CasperConsoleHandler = {
             }
             if (cmdLine.findFlag("logfile", false) >= 0) {
                 this.logfile = cmdLine.handleFlagWithParam("logfile", false);
+            }
+            if (cmdLine.findFlag("timeoutafter", false) >= 0) {
+                this.timeoutafter = cmdLine.handleFlagWithParam("timeoutafter", false);
             }
             // Now we just grab everything in the command line
             cmdLine.handleFlag("casper", false);
@@ -134,15 +138,28 @@ const CasperConsoleHandler = {
                 this.windowWatcher.unregisterNotification(this);
                 // now we install an event listener and wait for the load event
                 var self = this;
+
+                // Add a quit handler in case the tests take too long.
+                var loadhandler = function(event) {
+                    try {
+                        domWindow.removeEventListener("load", loadhandler, false);
+                        window.setTimeout(self.forceQuit, self.timeoutafter);
+                    } catch(e) {
+                        dump(e+"\n");
+                    }
+                }
+                domWindow.addEventListener("load", loadhandler, false);
+
+                // Add a ui-start handler to launch the casper tests.
                 var handler = function(event) {
                     try {
-                        domWindow.removeEventListener("load", handler, false);
+                        domWindow.removeEventListener("komodo-ui-started", handler, false);
                         self.handleLoad(event);
                     } catch(e) {
                         dump(e+"\n");
                     }
                 }
-                domWindow.addEventListener("load", handler, false);
+                domWindow.addEventListener("komodo-ui-started", handler, false);
             } catch(e) {
                 dump(e+"\n");
             }
@@ -150,9 +167,14 @@ const CasperConsoleHandler = {
         }
     },
     
+    forceQuit: function() {
+        var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
+                                   .getService(Components.interfaces.nsIAppStartup);
+        appStartup.quit(appStartup.eForceQuit);
+    },
+
     handleLoad: function(event) {
         try {
-            if (event.type != "load") return;
             // target is document, currentTarget is the chromeWindow
             // is this a xul window?
             if (event.target.contentType != 'application/vnd.mozilla.xul+xml')
@@ -162,7 +184,7 @@ const CasperConsoleHandler = {
                 if (this.params.length > 0) {
                     win.setTimeout(function(w, p, l, e) {
                                        w.Casper.UnitTest.runTestsText(p, l, e);
-                                   }, 1000, win, this.params, this.logfile,
+                                   }, 2000, win, this.params, this.logfile,
                                    this.eot);
                     this.params = [];
                 } else {
