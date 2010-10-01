@@ -284,7 +284,6 @@ class _KoTool(object):
         return self.flavors
 
     # todo: push these into one routine.
-
     def saveToolToDisk(self):
         if 'path' not in self._nondb_attributes:
             self._nondb_attributes['path'] = _tbdbSvc.getPath(self.id)
@@ -292,13 +291,21 @@ class _KoTool(object):
         fp = open(path, 'r')
         data = json.load(fp, encoding="utf-8")
         fp.close()
+        if data.get('name', self.name) != self.name:
+            refreshParent = True
+            savePath = _toolsManager._renameObject(self.id, self.name, False)
+        else:
+            refreshParent = False
+            savePath = path
         data['value'] = self.value.split(eol)
         data['name'] = self.name
         for name in self._attributes:
             data[name] = self._attributes[name]
-        fp = open(path, 'w')
+        fp = open(savePath, 'w')
         json.dump(data, fp, encoding="utf-8", indent=2)
         fp.close()
+        if refreshParent:
+            self._refreshParent()
 
     def saveNewToolToDisk(self, path):
         data = {}
@@ -318,6 +325,12 @@ class _KoTool(object):
         fp = open(path, 'r')
         data = json.load(fp, encoding="utf-8")
         fp.close()
+        if data.get('name', self.name) != self.name:
+            refreshParent = True
+            savePath = _toolsManager._renameObject(self.id, self.name, False)
+        else:
+            refreshParent = False
+            savePath = path
         data['value'] = eol_re.split(self.value)
         data['type'] = self.typeName
         data['name'] = getattr(self, 'name', data['name'])
@@ -325,9 +338,20 @@ class _KoTool(object):
             newVal = self._attributes[attr]
             if attr not in data or newVal != data[attr]:
                 data[attr] = self._attributes[attr]
-        fp = open(path, 'w')
+        fp = open(savePath, 'w')
         data = json.dump(data, fp, encoding="utf-8", indent=2)
         fp.close()
+        if refreshParent:
+            self._refreshParent()
+            
+    def _refreshParent(self):
+        parentTool = self.get_parent()
+        if not parentTool:
+            # We changed the properties on a top-level item, so we'll need to
+            # reload the whole toolbox...
+            log.error("Can't find a parent for tool id %d, path %s", self.id, self.path)
+            return
+        _toolsManager.hierarchicalView.refreshToolView(parentTool)
 
     def save_handle_attributes(self):
         names = ['name', 'value']
@@ -988,24 +1012,36 @@ class KoToolbox2ToolManager(object):
                 tools.append(tool)
         return tools
 
-    def renameContainer(self, id, newName):
+    def _renameObject(self, id, newName, isContainer):
         tool = self.getToolById(id)
         parentTool = tool.get_parent()
         if parentTool is None:
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
                                   "Can't rename a top-level folder")
         oldPath = tool.path
-        tool.name = newName
-        # If this fails, show the error in the UI
-        tool.save()
-        path = parentTool.path
-        newPathOnDisk = self._prepareUniqueFileSystemName(path, newName, ext="")
-
-        # If renaming the folder fails, show the error, but don't bother
-        # fixing the name field in the saved .folderdata file.  Komodo
-        # will fix that up next time it starts up..
+        if isContainer:
+            newPathOnDisk = self._prepareUniqueFileSystemName(parentTool.path, newName, ext="")
+        else:
+            newPathOnDisk = self._prepareUniqueFileSystemName(parentTool.path,
+                                                              newName)
         os.rename(oldPath, newPathOnDisk)
-
+        
+        # Update the name field in the json tool
+        try:
+            fp = open(newPathOnDisk, 'r')
+            data = json.load(fp, encoding="utf-8")
+            fp.close()
+            if data['name'] != newName:
+                # If these are the same, we're doing a null rename, but
+                # treat that as an anomaly.
+                pass
+            data['name'] = newName;
+            fp = open(newPathOnDisk, 'w')
+            json.dump(data, fp, encoding="utf-8", indent=2)
+            fp.close()
+        except:
+            log.exception("Failed to update json on old path:%s, newName:%s",
+                          newPathOnDisk, newName)
         # There shouldn't be an exception in the database.
         self.toolbox_db.renameTool(id, newName, newPathOnDisk)
         try:
@@ -1013,36 +1049,23 @@ class KoToolbox2ToolManager(object):
             del self._tools[id]
         except KeyError:
             pass
-        # Update the paths of all child nodes.
-        ids = self.toolbox_db.updateChildPaths(id, oldPath, newPathOnDisk)
-        for id in ids:
-            try:
-                # Remove this item from the cache, since its name changed.
-                del self._tools[id]
-            except KeyError:
-                pass
+        if isContainer:
+            # Update the paths of all child nodes.
+            ids = self.toolbox_db.updateChildPaths(id, oldPath, newPathOnDisk)
+            for id in ids:
+                try:
+                    # Remove this item from the cache, since its name changed.
+                    del self._tools[id]
+                except KeyError:
+                    pass
+        return newPathOnDisk
+        
+
+    def renameContainer(self, id, newName):
+        self._renameObject(id, newName, isContainer=True)
 
     def renameItem(self, id, newName):
-        tool = self.getToolById(id)
-        parentTool = tool.get_parent()
-        if parentTool is None:
-            raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
-                                  "Can't rename a top-level folder")
-        oldPath = tool.path
-        tool.name = newName
-        # If this fails, show the error in the UI
-        tool.save()
-        newPathOnDisk = self._prepareUniqueFileSystemName(parentTool.path,
-                                                          newName)
-        os.rename(oldPath, newPathOnDisk)
-
-        # There shouldn't be an exception in the database.
-        self.toolbox_db.renameTool(id, newName, newPathOnDisk)
-        try:
-            # Remove this item from the cache, since its name changed.
-            del self._tools[id]
-        except KeyError:
-            pass
+        self._renameObject(id, newName, isContainer=False)
 
     def getToolRoot(self, id):
         return self.toolbox_db.getRootId(id)

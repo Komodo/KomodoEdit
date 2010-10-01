@@ -732,7 +732,7 @@ class KoToolbox2HTreeView(TreeView):
         firstVisibleRow = self._tree.getFirstVisibleRow()
         before_len = len(self._rows_view)
         modelIndex = self._modelIndexFromViewIndex(index)
-        if self.isContainerOpenModel(index):
+        if self.isContainerOpenModel(modelIndex):
             self.toggleOpenStateModel(modelIndex)
             self.toggleOpenStateModel(modelIndex)
         elif self._nodeOpenStatusFromName.get(self._rows_view[index].path, None):
@@ -742,6 +742,27 @@ class KoToolbox2HTreeView(TreeView):
         delta = after_len - before_len
         if delta:
             self._tree.rowCountChanged(index, delta)
+        self._tree.ensureRowIsVisible(firstVisibleRow)
+        
+    def refreshToolView(self, tool):
+        index = self.getIndexByTool(tool)
+        if index == -1:
+            log.warn("refreshToolView: can't find index for tool %s", tool.name)
+            self.refreshStandardToolboxView()
+            return
+        self.refreshView(index)
+
+    def refreshStandardToolboxView(self):
+        firstVisibleRow = self._tree.getFirstVisibleRow()
+        before_len = len(self._rows_view)
+        modelIndex = 0
+        self.toggleOpenStateModel(modelIndex)
+        self.toggleOpenStateModel(modelIndex)
+        self._filter_std_toolbox()
+        after_len = len(self._rows_view)
+        delta = after_len - before_len
+        if delta:
+            self._tree.rowCountChanged(0, delta)
         self._tree.ensureRowIsVisible(firstVisibleRow)
 
     def _modelIndexFromViewIndex(self, viewIndex):
