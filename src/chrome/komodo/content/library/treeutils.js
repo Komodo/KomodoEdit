@@ -25,7 +25,7 @@ this.getSelectedIndices = function(view, rootsOnly) {
             selectedIndices.push(j);
             if (rootsOnly && view.isContainerOpen(j)) {
                 var nextSiblingIndex = view.getNextSiblingIndex(j);
-                if (nextSiblingIndex == -1 || nextSiblingIndex > max_index + 1) {
+                if (nextSiblingIndex == -1 || nextSiblingIndex > mx + 1) {
                     if (i < numRanges - 1) {
                         throw new Error("node at row "
                                         + j
