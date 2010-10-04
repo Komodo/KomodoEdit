@@ -1,0 +1,13 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/static_variables_bug88242.php">
+    <scope ilk="blob" lang="PHP" name="static_variables_bug88242.php" src="scan_inputs/php/static_variables_bug88242.php">
+      <scope ilk="class" line="3" lineend="9" name="bar">
+        <variable attributes="public static" line="4" name="bar_test1" />
+        <variable attributes="public static" line="5" name="bar_test2" />
+        <scope attributes="public static" ilk="function" line="6" lineend="8" name="bar_test" signature="bar_test()">
+          <variable citdl="self.$bar_test1" line="7" name="x" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>

@@ -2432,8 +2432,9 @@ class PHPParser:
                 isNamespace = True
             p += 1
             log.debug("while:: p: %d, text left: %r", p, text[p:])
-            if styles[p] == self.PHP_IDENTIFIER:
-                additionalNames, p = self._getOneIdentifierFromPos(styles, text, p)
+            if styles[p] == self.PHP_IDENTIFIER or \
+               (styles[p] == self.PHP_VARIABLE and text[p-1] == ":"):
+                additionalNames, p = self._getOneIdentifierFromPos(styles, text, p, styles[p])
                 log.debug("p: %d, additionalNames: %r", p, additionalNames)
                 if additionalNames:
                     if isNamespace:
