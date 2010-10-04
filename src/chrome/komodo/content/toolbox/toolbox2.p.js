@@ -232,6 +232,7 @@ this.onUnload = function() {
     } catch(ex) {
         dump("toolbox2.p.js: terminate: " + ex + "\n");
     }
+    ko.main.removeWillCloseHandler(this.onUnload);
 };
 
 this._sortValuesByName = {

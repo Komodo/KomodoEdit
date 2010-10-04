@@ -2277,6 +2277,8 @@
                           closecollapsed="false">
                         <tab id="toolbox2_tab" label="&toolbox2.label;"
                              locktip="&thisToolboxIsReadOnly.locktip;"
+                             onmovetab_unload="ko.toolbox2.onUnload();"
+                             onmovetab_load="ko.toolbox2.onload();"
                              accesskey="&toolboxTab.accesskey;"/>
                     </tabs>
                     <tabpanels flex="1" id="right_toolbox_tabpanels">
