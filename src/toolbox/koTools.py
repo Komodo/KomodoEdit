@@ -42,6 +42,7 @@ _toolsManager = None
 class _KoTool(object):
     _com_interfaces_ = [components.interfaces.koITool]
     isContainer = False
+    _observerSvc = None
     def __init__(self, name, id):
         self.name = name
         self.id = id  # path_id in DB
@@ -71,6 +72,12 @@ class _KoTool(object):
     def init(self):
         pass
     
+    def _getObserverSvc(self):
+        if not self._observerSvc:
+            self._observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                .getService(components.interfaces.nsIObserverService)
+        return self._observerSvc
+    
     def get_keybinding_description(self):
         return self.prettytype + "s: " + self.name
 
@@ -89,8 +96,16 @@ class _KoTool(object):
     def set_iconurl(self, url):
         if not url or url == self._iconurl:
             self.removeAttribute('icon')
+            #_tbdbSvc.deleteRowByKey('misc_properties', ['path_id', 'prop_name'],
+            #                        [self.id, 'icon'])
+                                    
         else:
             self.setAttribute('icon', url)
+        try:
+            self._getObserverSvc().notifyObservers(self, 'part_changed', '')
+        except Exception, unused:
+            #log.exception("set_iconurl: trying to notify part_changed")
+            pass
 
     def updateKeyboardShortcuts(self):
         res = _tbdbSvc.getValuesFromTableByKey('common_tool_details', ['keyboard_shortcut'], 'path_id', self.id)
@@ -260,11 +275,9 @@ class _KoTool(object):
             self._sendRequests(requests)
 
     def _sendRequests(self, requests):
-        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
-                       .getService(components.interfaces.nsIObserverService)
         for request in requests:
             try:
-                _observerSvc.notifyObservers(*request)
+                self._getObserverSvc().notifyObservers(*request)
             except Exception:
                 pass
 
@@ -282,6 +295,10 @@ class _KoTool(object):
 
     def getDragFlavors(self):
         return self.flavors
+    
+    def _saveIconCheck(self, data):
+        if ('iconurl' not in self._attributes) and 'icon' in data:
+            del data['icon']
 
     # todo: push these into one routine.
     def saveToolToDisk(self):
@@ -301,8 +318,8 @@ class _KoTool(object):
             savePath = path
         data['value'] = self.value.split(eol)
         data['name'] = self.name
-        for name in self._attributes:
-            data[name] = self._attributes[name]
+        self._saveIconCheck(data)
+        data.update(self._attributes[name])
         fp = open(savePath, 'w')
         json.dump(data, fp, encoding="utf-8", indent=2)
         fp.close()
@@ -314,8 +331,8 @@ class _KoTool(object):
         data['value'] = eol_re.split(self.value)
         data['type'] = self.typeName
         data['name'] = self.name
-        for name in self._attributes:
-            data[name] = self._attributes[name]
+        self._saveIconCheck(data)
+        data.update(self._attributes[name])
         fp = open(path, 'w')
         data = json.dump(data, fp, encoding="utf-8", indent=2)
         fp.close()
@@ -337,6 +354,7 @@ class _KoTool(object):
         data['value'] = eol_re.split(self.value)
         data['type'] = self.typeName
         data['name'] = getattr(self, 'name', data['name'])
+        self._saveIconCheck(data)
         for attr in self._attributes:
             newVal = self._attributes[attr]
             if attr not in data or newVal != data[attr]:
@@ -353,6 +371,7 @@ class _KoTool(object):
             # This should be impossible.
             log.error("Can't find a parent for tool id %d, path %s", self.id, self.path)
             return
+        qlog.debug("Go refresh parent %s",parentTool.name)
         _toolsManager.hierarchicalView.refreshToolView(parentTool)
 
     def save_handle_attributes(self):
@@ -522,10 +541,8 @@ class _KoComplexContainer(_KoFolder):
     def delete(self):
         notificationName = self.typeName + "_remove"
         # menu_remove and toolbar_remove notifications are done here
-        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
-                       .getService(components.interfaces.nsIObserverService)
         try:
-            _observerSvc.notifyObservers(self, notificationName, notificationName)
+            self._getObserverSvc().notifyObservers(self, notificationName, notificationName)
         except Exception:
             pass
         _KoTool.delete(self)
@@ -596,10 +613,8 @@ class _KoMacroTool(_KoTool):
         self._attributes['trigger'] = ""
 
     def delete(self):
-        _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
-                       .getService(components.interfaces.nsIObserverService)
         try:
-            _observerSvc.notifyObservers(self, 'macro-unload','')
+            self._getObserverSvc().notifyObservers(self, 'macro-unload','')
         except Exception:
             pass
         _KoTool.delete(self)
