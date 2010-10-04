@@ -58,6 +58,7 @@ const CasperConsoleHandler = {
     onload: null,
     eot: false,
     logfile: null,
+    testsfile: null,
     timeoutafter: 1000 * 60 * 30 /* 30 mins */,
     windowHasOpened: false,
     /* nsISupports */
@@ -89,6 +90,10 @@ const CasperConsoleHandler = {
             if (cmdLine.findFlag("logfile", false) >= 0) {
                 this.logfile = cmdLine.handleFlagWithParam("logfile", false);
             }
+            if (cmdLine.findFlag("testsfile", false) >= 0) {
+                // Tests to run will be read from this file.
+                this.testsfile = cmdLine.handleFlagWithParam("testsfile", false);
+            }
             if (cmdLine.findFlag("timeoutafter", false) >= 0) {
                 this.timeoutafter = cmdLine.handleFlagWithParam("timeoutafter", false);
             }
@@ -108,6 +113,7 @@ const CasperConsoleHandler = {
 
     helpInfo : "       -casper <tests>      start unittests.\n"+
                "       -eot                 exit app when tests completed.\n"+
+               "       -testsfile           filepath contain the tests to be run.\n"+
                "       -logfile             save results to this logfile.\n\n"+
                "  Example: -casper test_something.js#mytestcase.childtest\n",
 
@@ -151,15 +157,19 @@ const CasperConsoleHandler = {
                 domWindow.addEventListener("load", loadhandler, false);
 
                 // Add a ui-start handler to launch the casper tests.
-                var handler = function(event) {
-                    try {
-                        domWindow.removeEventListener("komodo-ui-started", handler, false);
-                        self.handleLoad(event);
-                    } catch(e) {
-                        dump(e+"\n");
-                    }
-                }
-                domWindow.addEventListener("komodo-ui-started", handler, false);
+                var obSvc = Components.classes["@mozilla.org/observer-service;1"].
+                        getService(Components.interfaces.nsIObserverService);
+                obSvc.addObserver(this, "komodo-ui-started", false);
+            } catch(e) {
+                dump(e+"\n");
+            }
+            break;
+        case "komodo-ui-started":
+            try {
+                var obSvc = Components.classes["@mozilla.org/observer-service;1"].
+                        getService(Components.interfaces.nsIObserverService);
+                obSvc.removeObserver(this, "komodo-ui-started");
+                this.handleLoad(this.windowWatcher.activeWindow);
             } catch(e) {
                 dump(e+"\n");
             }
@@ -173,24 +183,40 @@ const CasperConsoleHandler = {
         appStartup.quit(appStartup.eForceQuit);
     },
 
-    handleLoad: function(event) {
+    handleLoad: function(domWindow) {
         try {
-            // target is document, currentTarget is the chromeWindow
-            // is this a xul window?
-            if (event.target.contentType != 'application/vnd.mozilla.xul+xml')
-                return;
-            var win = event.currentTarget;
-            if ('Casper' in event.currentTarget) {
-                if (this.params.length > 0) {
-                    win.setTimeout(function(w, p, l, e) {
-                                       w.Casper.UnitTest.runTestsText(p, l, e);
-                                   }, 2000, win, this.params, this.logfile,
-                                   this.eot);
-                    this.params = [];
-                } else {
-                    // open the xul test window
-                    win.setTimeout(win.Casper.UnitTest.runTestsXUL, 1000);
-                }
+            if (this.testsfile) {
+                // Read in the tests that the user wants to run.
+                var file = Components.classes["@mozilla.org/file/local;1"].
+                                    createInstance(Components.interfaces.nsILocalFile);
+                file.initWithPath(this.testsfile);
+                var istream = Components.classes["@mozilla.org/network/file-input-stream;1"].
+                                        createInstance(Components.interfaces.nsIFileInputStream);
+                istream.init(file, 0x01, 0444, 0);
+                istream.QueryInterface(Components.interfaces.nsILineInputStream);
+                // read lines into array
+                var line_object = {}, lines = [], hasmore, paramline;
+                do {  
+                    hasmore = istream.readLine(line_object);
+                    paramline = line_object.value;
+                    paramline = paramline.replace("^\s+", "");
+                    paramline = paramline.replace("\s+$", "");
+                    if (paramline) {
+                        this.params.push(paramline);
+                    }
+                } while(hasmore);
+                istream.close();
+            }
+
+            if (this.params.length > 0) {
+                domWindow.setTimeout(function(w, p, l, e) {
+                                   w.Casper.UnitTest.runTestsText(p, l, e);
+                               }, 2000, domWindow, this.params, this.logfile,
+                               this.eot);
+                this.params = [];
+            } else {
+                // open the xul test window
+                domWindow.setTimeout(domWindow.Casper.UnitTest.runTestsXUL, 1000);
             }
         } catch(e) {
             dump(e+"\n");

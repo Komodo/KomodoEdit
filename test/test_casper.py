@@ -437,6 +437,7 @@ class CasperTestSuite(unittest.TestSuite):
     def __init__(self, *args, **kwargs):
         super(CasperTestSuite, self).__init__(*args, **kwargs)
         self.log_path = abspath(join(dirname(__file__), "tmp", "casper.log"))
+        self.teststorun_filepath = abspath(join(dirname(__file__), "tmp", "casper.params"))
     
     def run(self, result):
         if result.shouldStop:
@@ -446,6 +447,8 @@ class CasperTestSuite(unittest.TestSuite):
 
         if exists(self.log_path):
             os.remove(self.log_path)
+        if exists(self.teststorun_filepath):
+            os.remove(self.teststorun_filepath)
         if not exists(dirname(self.log_path)):
             os.makedirs(dirname(self.log_path))
 
@@ -457,9 +460,10 @@ class CasperTestSuite(unittest.TestSuite):
             id = "%s#%s.%s" % (test.path, test.class_name, test.func_name)
             casper_ids.append(id)
             testcase._casper_id = id
+        file(self.teststorun_filepath, "w").write("\n".join(casper_ids))
         argv = [which.which("komodo"), "--raw", "-casper",
-                "-logfile", self.log_path]
-        argv += casper_ids
+                "-logfile", self.log_path,
+                "-testsfile", self.teststorun_filepath]
         argv += ["-eot"]
 
         # Run the casper tests.
