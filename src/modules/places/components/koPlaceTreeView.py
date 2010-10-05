@@ -444,6 +444,7 @@ class KoPlaceTreeView(TreeView):
 
     def _addWatchForChanges(self, path):
         try:
+            # This will call the fileNotification method (not 'observe'!)
             self.notificationSvc.addObserver(self, path,
                                              components.interfaces.koIFileNotificationService.WATCH_DIR,
                                              _notificationsToReceive)
