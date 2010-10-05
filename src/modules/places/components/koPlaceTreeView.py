@@ -566,6 +566,11 @@ class KoPlaceTreeView(TreeView):
     # nsIFileNotificationObserver
     # we want to receive notifications for any live folders in our view
     # the addition of observers will occur during generateRows
+    #
+    # This is called by doing
+    # self.notificationSvc.addObserver(self, path,
+    #      components.interfaces.koIFileNotificationService.WATCH_DIR,
+    #      _notificationsToReceive)
     def fileNotification(self, uri, flags):
         # Pulled this from koKPFTreeView
         if not self._tree:
