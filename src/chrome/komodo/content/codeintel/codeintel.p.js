@@ -93,8 +93,6 @@ function CodeIntelCompletionUIHandler(path, scimoz, language,
         }
         // Don't hide when there is no match: may just be mistyped character.
         scimoz.autoCAutoHide = false;
-        // Cancel when moving before the pos when the completion list was shown.
-        scimoz.autoCCancelAtStart = true;
         // Order members as if all uppercase: "One result of this is that the
         // list should be sorted with the punctuation characters '[', '\',
         // ']', '^', '_', and '`' sorted after letters."
@@ -298,6 +296,13 @@ CodeIntelCompletionUIHandler.prototype._setAutoCompleteInfo = function(
 
         // Show the completions UI.
         this._lastTriggerPos = triggerPos;
+        if (numTypedAlready) {
+            // Cancel when moving before the pos when the completion list is
+            // shown - bug 88292.
+            this.scimoz.autoCCancelAtStart = true;
+        } else {
+            this.scimoz.autoCCancelAtStart = false;
+        }
         this.scimoz.autoCShow(numTypedAlready, completions);
         if (numTypedAlready > 0) {
             var typedAlready = this.scimoz.getTextRange(triggerPos, curPos);
