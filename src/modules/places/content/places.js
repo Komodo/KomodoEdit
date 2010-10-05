@@ -1387,6 +1387,10 @@ ManagerClass.prototype = {
                 createInstance(Components.interfaces.koIFileEx);
         koFile.URI = dirURI;
         this.currentPlaceIsLocal = koFile.isLocal;
+        // Do this to update the SCC info, fixes bug 88254
+        Components.classes["@activestate.com/koFileService;1"].
+                       getService(Components.interfaces.koIFileService).
+                       getFileFromURI(dirURI);
 
         this.currentPlace = dirURI;
         var file = Components.classes["@activestate.com/koFileEx;1"].
