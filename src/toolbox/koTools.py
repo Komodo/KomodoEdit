@@ -319,7 +319,7 @@ class _KoTool(object):
         data['value'] = self.value.split(eol)
         data['name'] = self.name
         self._saveIconCheck(data)
-        data.update(self._attributes[name])
+        data.update(self._attributes)
         fp = open(savePath, 'w')
         json.dump(data, fp, encoding="utf-8", indent=2)
         fp.close()
@@ -332,7 +332,7 @@ class _KoTool(object):
         data['type'] = self.typeName
         data['name'] = self.name
         self._saveIconCheck(data)
-        data.update(self._attributes[name])
+        data.update(self._attributes)
         fp = open(path, 'w')
         data = json.dump(data, fp, encoding="utf-8", indent=2)
         fp.close()
