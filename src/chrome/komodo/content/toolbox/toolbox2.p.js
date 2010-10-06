@@ -103,6 +103,7 @@ initialize: function() {
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
     getService(Components.interfaces.nsIObserverService);
     obsSvc.addObserver(this, 'toolbox-tree-changed', 0);
+    obsSvc.addObserver(this, 'toolbox-reload-view', 0);
     // Give the toolbox observers time to have started up before
     // notifying them that the toolbox has changed.
     setTimeout(function() {
@@ -117,6 +118,7 @@ terminate: function() {
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
     getService(Components.interfaces.nsIObserverService);
     obsSvc.removeObserver(this, 'toolbox-tree-changed');
+    obsSvc.removeObserver(this, 'toolbox-reload-view');
     this.view.terminate();
 },
 deleteCurrentItem: function() {
@@ -185,8 +187,20 @@ updateFilter: function(event) {
 },
 
 observe: function(subject, topic, data) {
+    var manager = ko.toolbox2.manager;
     if (topic == 'toolbox-tree-changed') {
-        ko.toolbox2.manager.view.redoTreeView(ko.projects.manager.currentProject);
+        manager.view.redoTreeView(ko.projects.manager.currentProject);
+    } else if (topic == 'toolbox-reload-view') {
+        var path = data;
+        var tool = manager.toolsMgr.getToolFromPath(path);
+        if (tool) {
+            var index = manager.view.getIndexByTool(tool);
+            if (index >= 0) {
+                manager.view.reloadToolsDirectoryView(index);
+            } else {
+                manager.view.refreshFullView();
+            }
+        }
     }
 },
 

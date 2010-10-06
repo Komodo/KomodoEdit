@@ -441,6 +441,14 @@ class KoToolbox2HTreeView(TreeView):
         self.selection.currentIndex = index
         self.selection.select(index)
         self._tree.ensureRowIsVisible(index)
+        observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                       getService(components.interfaces.nsIObserverService)
+        try:
+            observerSvc.notifyObservers(None, 'toolbox-reload-view',
+                                        parent.path)
+        except:
+            log.exception("For notification toolbox-reload-view on %s",
+                          parent.path)
 
     def deleteToolAt(self, index, path=None):
         row = self._rows_view[index]
@@ -466,6 +474,16 @@ class KoToolbox2HTreeView(TreeView):
         self._filter_std_toolbox()
         after_len = len(self._rows_view)
         self._tree.rowCountChanged(index, after_len - before_len)
+        observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                       getService(components.interfaces.nsIObserverService)
+        parentPath = self._rows_model[model_parentIndex].path
+        try:
+            observerSvc.notifyObservers(None, 'toolbox-reload-view',
+                                        parentPath)
+        except:
+            log.exception("For notification 'toolbox-reload-view' on %s",
+                          parentPath)
+        
 
     def copyLocalFolder(self, srcPath, targetDirPath):
         fileutils.copyLocalFolder(srcPath, targetDirPath)

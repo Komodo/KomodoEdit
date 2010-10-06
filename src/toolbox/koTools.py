@@ -401,6 +401,12 @@ class _KoTool(object):
                                % self.get_type()))
 
     def _postSave(self):
+        observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                       getService(components.interfaces.nsIObserverService)
+        try:
+            observerSvc.notifyObservers(None, 'toolbox-reload-view', self.path)
+        except:
+            log.exception("For notification toolbox-reload-view:%s", self.path)
         self.initialized = False
         self.temporary = False
 
