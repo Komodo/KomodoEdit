@@ -59,3 +59,16 @@ tabbox.vertical_tabs tree {
 .tabpanel-vertical-text-hbox {
   -moz-appearance: -moz-win-browsertabbar-toolbox;
 }
+
+/* Special Windows XP styling, see bug 87984. */
+tabbox.vertical_tabs[os="winxp"] .vertical-button-text
+{
+    margin-top          : -3px;
+    margin-bottom       : -3px;
+}
+tabbox.vertical_tabs[os="winxp"] .vertical-button-text-uppercase
+{
+    /* Captialized characters need a little more room. */
+    margin-top          : -2px;
+    margin-bottom       : -2px;
+}

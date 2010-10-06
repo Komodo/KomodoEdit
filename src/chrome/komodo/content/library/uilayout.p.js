@@ -1397,6 +1397,13 @@ this.setTabPaneLayout = function uilayout_setTabPaneLayout() {
     var bottomTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.bottom.layout");
     var bottomTabbox = document.getElementById("output_area");
     ko.uilayout._setTabPaneLayoutForTabbox(bottomTabStyle, bottomTabbox, "bottom");
+
+    if (navigator.oscpu == 'Windows NT 5.1') {
+        // This is Windows XP. Set an "os" property on the tabbox, so can do
+        // specific styling, see bug 87984.
+        leftTabbox.setAttribute("os", "winxp");
+        rightTabbox.setAttribute("os", "winxp");
+    }
 }
 
 this.onloadDelayed = function uilayout_onloadDelayed()
