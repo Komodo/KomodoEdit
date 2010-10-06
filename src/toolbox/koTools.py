@@ -513,7 +513,6 @@ class _KoFolder(_KoContainer):
         raise Exception("Not implemented yet")
 
     def removeChild(self, item):
-        print "**************** called removeChild(%r)" % item.id
         # No need to reference the parent anymore.
         # Also, this is called only when the item isn't in the view.
         UnwrapObject(item).delete()
