@@ -284,21 +284,32 @@ class KoToolbox2Service(object):
     def getSharedToolbox(self):
         return self._toolsMgrSvc.getToolById(self._sharedToolbox)
 
+    def _notifyToolboxChanged(self, parentPath):
+        observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                       getService(components.interfaces.nsIObserverService)
+        try:
+            observerSvc.notifyObservers(None, 'toolbox-reload-view', parentPath)
+        except:
+            log.exception("For notification toolbox-reload-view:%s", parentPath)
+
     def importDirectory(self, parentPath, pathToImport):
         try:
             self.toolboxLoader.importDirectory(parentPath, pathToImport)
+            self._notifyToolboxChanged(parentPath)
         except Exception, ex:
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, ex)
     
     def importFiles(self, parentPath, toolPaths):
         try:
             self.toolboxLoader.importFiles(parentPath, toolPaths)
+            self._notifyToolboxChanged(parentPath)
         except Exception, ex:
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, ex)
             
     def importV5Package(self, parentPath, kpzPath):
         try:
             self.importV5Package_aux(parentPath, kpzPath)
+            self._notifyToolboxChanged(parentPath)
         except Exception, ex:
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, ex)
         
