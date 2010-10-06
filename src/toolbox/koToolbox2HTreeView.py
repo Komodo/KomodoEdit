@@ -262,6 +262,9 @@ class KoToolbox2HTreeView(TreeView):
             # before startup is done.
             return
         elif topic == 'tool-appearance-changed':
+            if self._tree is None:
+                log.debug("observe: tool-appearance-changed: no tree")
+                return
             # Update the tool's values, and then invalidate the row
             id = int(data)
             view_index = self.getIndexById(id)
