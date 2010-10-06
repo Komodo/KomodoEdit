@@ -2282,18 +2282,10 @@ viewManager.prototype.do_cmd_fontZoomReset = function() {
 
 
 viewManager.prototype.notify_visited_directory = function(path) {
-    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-        getService(Components.interfaces.nsIObserverService);
-    var cancelQuit = Components.classes["@mozilla.org/supports-PRBool;1"]
-        .createInstance(Components.interfaces.nsISupportsPRBool);
-    try {
-        observerSvc.notifyObservers(cancelQuit, 'visit_directory_proposed',
-                                    path);
-        return cancelQuit.data;
-    } catch(ex) {
-        /* no listeners for this event */
-        return false;
-    }
+    var event = document.createEvent("Events");
+    event.initEvent('visit_directory_proposed', true, true);
+    event.visitedPath = path;
+    window.dispatchEvent(event);
 }
 
 this.viewManager = viewManager;

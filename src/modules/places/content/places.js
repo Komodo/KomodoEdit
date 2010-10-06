@@ -1205,6 +1205,8 @@ function ManagerClass() {
     gObserverSvc.addObserver(this, 'file_changed', false);
     window.addEventListener('project_opened',
                             this.handle_project_opened_setup, false);
+    window.addEventListener('visit_directory_proposed',
+                            this.handle_visit_directory_proposed, false);
     
     document.getElementById("places-files-tree").addEventListener('keypress',
                             this.handle_keypress_setup, true);
@@ -1860,6 +1862,8 @@ ManagerClass.prototype = {
         gObserverSvc.removeObserver(this, 'file_changed');
         window.removeEventListener('project_opened',
                                    this.handle_project_opened_setup, false);
+        window.removeEventListener('visit_directory_proposed',
+                                   this.handle_visit_directory_proposed, false);
         document.getElementById("places-files-tree").removeEventListener('keypress',
                                    this.handle_keypress_setup, true);
     },
@@ -2343,6 +2347,10 @@ ManagerClass.prototype = {
     
     handle_project_opened_setup: function(event) {
         ko.places.manager.handle_project_opened(event);
+    },
+    
+    handle_visit_directory_proposed: function(event) {
+        ko.places.manager.observe(null, 'visit_directory_proposed', event.visitedPath);
     },
     
     handle_keypress_setup: function(event) {
