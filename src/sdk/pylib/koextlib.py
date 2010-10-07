@@ -598,7 +598,7 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
         # Remaining hook dirs that are just included verbatim in the XPI.
         for dname in ("templates", "apicatalogs", "xmlcatalogs", "pylib",
                       "project-templates", "platform", "defaults", "plugins",
-                      "searchplugins", "dictionaries"):
+                      "searchplugins", "dictionaries", "modules"):
             if isdir(dname):
                 xpi_manifest.append(dname)
     
