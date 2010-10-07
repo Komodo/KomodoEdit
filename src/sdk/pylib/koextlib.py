@@ -615,6 +615,10 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
         # Include any paths specified on the command line.
         if additional_includes:
             for path in additional_includes:
+                # Remove any trailing slashes, otherwise koext may include
+                # everything underneath this directory using a relative path
+                # from this directory point onwards.
+                path = path.rstrip(os.sep)
                 xpi_manifest.append(path)
 
         # Make the xpi.
