@@ -420,16 +420,23 @@ class KoRubyInfoEx(KoAppInfoEx):
     def _GetRubyExeName(self):
         if not self.installationPath:
             rubyExe = self.prefService.prefs.getStringPref("rubyDefaultInterpreter")
-            if rubyExe: return rubyExe
+            if rubyExe:
+                return rubyExe
             paths = self.FindInstallationPaths()
             if paths:
-                self.set_executablePath(paths[0])
+                path = paths[0]
             else:
                 return None
-        if sys.platform.startswith("win"):
-            return os.path.join(self.installationPath, "bin", "ruby.exe")
         else:
-            return os.path.join(self.installationPath, "bin", "ruby")
+            path = self.installationPath
+            paths = None
+        if sys.platform.startswith("win"):
+            res = os.path.join(path, "bin", "ruby.exe")
+        else:
+            res = os.path.join(path, "bin", "ruby")
+        if paths is not None:
+            self.set_executablePath(res)
+        return res
 
     def getInstallationPathFromBinary(self, binaryPath):
         return os.path.dirname(os.path.dirname(binaryPath))
