@@ -656,6 +656,7 @@ class koRemoteConnectionService:
             self._lock.release()
 
     # Return the sorted list of servers, in koIServerInfo objects.
+    @components.ProxyToMainThread
     def getServerInfoList(self):
         if self.__serverinfo_list is None:
             serverinfo_list = []
