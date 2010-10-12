@@ -2343,7 +2343,7 @@
                                                 flex="1"
                                                 persist="width"
                                                 hideheader="true"
-                                                crop="left"/>
+                                                crop="center"/>
                                    </treecols>
                                    <treechildren id="toolbox2-hierarchy-treebody" flex="1"
                                                  ondragstart="ko.toolbox2.doStartDrag(event, this);"
