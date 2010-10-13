@@ -2238,7 +2238,7 @@ VimController.command_mappings = {
     "cmd_vim_wordLeft" :            [ "cmd_wordLeft",               VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_wordLeftEnd" :         [ "cmd_wordLeftEnd",            VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_wordRight" :           [ "cmd_wordRight",              VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_wordRightEnd" :        [ "cmd_wordRightEnd",           VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_wordRightEnd" :        [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_documentHome" :        [ "cmd_documentHome",           VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_documentEnd" :         [ "cmd_documentEnd",            VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_gotoLine" :            [ VimController.SPECIAL_COMMAND,VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
@@ -2938,6 +2938,23 @@ function cmd_vim_scrollHalfPageUp(scimoz) {
     scimoz.lineScroll(0, -linesToScroll);
     var lineNo = scimoz.docLineFromVisible(scimoz.firstVisibleLine + linesToScroll);
     gVimController._currentPos = scimoz.positionFromLine(lineNo);
+}
+
+function cmd_vim_wordRightEnd(scimoz) {
+    if (gVimController.operationFlags != VimController.OPERATION_CHANGE) {
+        // Special case, move to the last character in the word - bug 88394.
+        scimoz.currentPos = scimoz.positionAfter(scimoz.currentPos);
+        ko.commands.doCommand("cmd_wordRightEnd");
+        var currentPos = scimoz.currentPos;
+        var beforePos = scimoz.positionBefore(currentPos);
+        scimoz.currentPos = beforePos;
+        // Move anchor too.
+        if (scimoz.anchor == currentPos) {
+            scimoz.anchor = beforePos;
+        }
+    } else {
+        ko.commands.doCommand("cmd_wordRightEnd");
+    }
 }
 
 function cmd_vim_gotoLine(scimoz, lineNumber) {
