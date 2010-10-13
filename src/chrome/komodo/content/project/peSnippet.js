@@ -498,10 +498,8 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
 function snippetMakeDisplayName(text) {
     // Strip leading whitespace.
     text = text.replace( /^\s+/, "" );
-    // Now keep the first 3 words (at most)
-    var ptn = /(^(?:\W*\w+){1,3})(.*)/;
-    var m = ptn.exec(text);
-    text = m[1];
+    // Strip trailing whitespace.
+    text = text.replace( /\s+$/, "" );
     if (text.length > 30) {
         text = text.substr(0, 20) + ' ... ' + text.substr(text.length - 10, text.length)
     }
