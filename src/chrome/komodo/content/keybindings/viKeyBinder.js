@@ -2247,7 +2247,7 @@ VimController.command_mappings = {
     "cmd_vim_jumpToMatchingBrace" : [ "cmd_jumpToMatchingBrace",    VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_wordLeftPastPunctuation" : [ "cmd_wordLeftPastPunctuation", VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_wordRightPastPunctuation" : [ "cmd_wordRightPastPunctuation", VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
-    "cmd_vim_wordRightEndPastPunctuation" : [ "cmd_wordRightEndPastPunctuation", VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
+    "cmd_vim_wordRightEndPastPunctuation" : [ VimController.SPECIAL_COMMAND, VimController.REPEATABLE_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_moveToScreenTop" :     [ "cmd_moveToScreenTop",        VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_moveToScreenCenter" :  [ "cmd_moveToScreenCenter",     VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
     "cmd_vim_moveToScreenBottom" :  [ "cmd_moveToScreenBottom",     VimController.NO_REPEAT_ACTION | VimController.MOVEMENT_ACTION ],
@@ -2952,6 +2952,14 @@ function cmd_vim_gotoLine(scimoz, lineNumber) {
         }
     } catch (e) {
         vimlog.exception(e);
+    }
+}
+
+function cmd_vim_wordRightEndPastPunctuation(scimoz) {
+    ko.commands.doCommand("cmd_wordRightEndPastPunctuation");
+    if (gVimController.operationFlags == VimController.OPERATION_CHANGE) {
+        // Special case command, include last character in movement
+        scimoz.currentPos = scimoz.positionAfter(scimoz.currentPos);
     }
 }
 
