@@ -852,16 +852,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_switchpane', event)"
             disabled="true"
             desc="&userInterfaceFocusOtherSplitEditorPane.desc;"/>
-        <command
-            id="cmd_openTabInNewWindow" key="key_cmd_openTabInNewWindow"
-            oncommand="ko.commands.doCommandAsync('cmd_openTabInNewWindow', event)"
-            disabled="true"
-            desc="&userInterfaceOpenTabInANewWindow.desc;" />
-        <command
-            id="cmd_moveTabToNewWindow" key="key_cmd_moveTabToNewWindow"
-            oncommand="ko.commands.doCommandAsync('cmd_moveTabToNewWindow', event)"
-            disabled="true"
-            desc="&userInterfaceMoveTabToANewWindow.desc;" />
     </commandset>
 
 
@@ -876,6 +866,16 @@
             oncommand="ko.commands.doCommandAsync('cmd_rotateSplitter', event)"
             disabled="true"
             desc="&userInterfaceToggleSplitterOrientation.desc;"/>
+        <command
+            id="cmd_openTabInNewWindow" key="key_cmd_openTabInNewWindow"
+            oncommand="ko.commands.doCommandAsync('cmd_openTabInNewWindow', event)"
+            disabled="true"
+            desc="&userInterfaceOpenTabInANewWindow.desc;" />
+        <command
+            id="cmd_moveTabToNewWindow" key="key_cmd_moveTabToNewWindow"
+            oncommand="ko.commands.doCommandAsync('cmd_moveTabToNewWindow', event)"
+            disabled="true"
+            desc="&userInterfaceMoveTabToANewWindow.desc;" />
 
         <!-- Scintilla settings -->
         <command

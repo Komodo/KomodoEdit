@@ -1150,9 +1150,6 @@ viewManager.prototype.updateCommands = function() {
     if (update_editor_change || oldcache.hasSelection != newcache.hasSelection) {
         window.setTimeout(window.updateCommands, 1, 'select');
     }
-    // Bug 88399 -- we need to re-eval the open/move tab to new window cmd.
-    // See bug for explanation.
-    window.setTimeout(window.updateCommands, 1, 'some_files_open');
     this.lastviewcache = newcache;
 }
 
