@@ -1071,7 +1071,13 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
     var urls = [];
     for (var i = 0; i < koDropDataList.length; i++) {
         koDropData = koDropDataList[i];
-        if (koDropData.isKpzURL) {
+        if (koDropData.isText) {
+            // Bug 88392 -- check for text-like URIs before file-like URIs
+            // Create a snippet
+            ko.projects.addSnippetFromText(koDropData.value, parent);
+            loadedSomething = true;
+            break;
+        } else if (koDropData.isKpzURL) {
             url = koDropData.value;
             this._webPackageURL = url;
             try {
@@ -1116,11 +1122,6 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
                 alert("toolbox2_command.js: " + msg);
                 this.log.exception("importFiles failed: " + msg);
             }
-        } else if (koDropData.isText) {
-            // Create a snippet
-            ko.projects.addSnippetFromText(koDropData.value, parent);
-            loadedSomething = true;
-            break;
         } else {
             alert("Internal error: Komodo doesn't know how to drag/drop "
                            + koDropData.value);
