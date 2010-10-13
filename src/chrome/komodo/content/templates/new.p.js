@@ -122,7 +122,8 @@ function OnLoad()
         }
 
         document.getElementById('dirname').value = options.defaultDir;
-        document.getElementById('filename').value = options.filename;
+        var filenameTextbox = document.getElementById('filename');
+        filenameTextbox.value = options.filename;
         
         gTemplateSvc = Components.classes["@activestate.com/koTemplateService?type="+options.type+";1"].getService();
         gTemplatesView = Components.classes["@activestate.com/koTemplatesView;1"].createInstance();
@@ -145,7 +146,7 @@ function OnLoad()
         catBoxObject.invalidate();
         tmpBoxObject.invalidate();
         updateAccept();
-        templatesTree.focus();
+        filenameTextbox.focus();
     } catch(ex) {
         log.exception(ex, "Error loading new file/templates dialog.");
     }
