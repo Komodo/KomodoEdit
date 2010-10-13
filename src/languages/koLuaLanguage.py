@@ -69,7 +69,7 @@ class koLuaLanguage(KoLanguageBase):
         return self._lexer
 
 
-    _keywords = ["and", "do", "else", "elseif", "end", "function",
-                 "if", "local", "nil", "not", "or", "repeat", "return", "then",
-                 "until", "while"]  
+    _keywords = ["and", "break", "do", "else", "elseif", "end", "false", "for", "function",
+                 "if", "in", "local", "nil", "not", "or", "repeat", "return", "then",
+                 "true", "until", "while"]  
 
