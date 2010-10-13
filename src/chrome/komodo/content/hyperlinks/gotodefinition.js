@@ -286,6 +286,12 @@
         try {
             /** @type {Components.interfaces.koIScintillaView} */
             var view = ko.views.manager.currentView;
+            var scimoz = view.scimoz;
+            if (!scimoz || !scimoz.isFocused) {
+                // Don't show the tooltip if scimoz doesn't have the focus
+                // anymore - bug 88347.
+                return;
+            }
             var defns = ciDefns;
             // defns is an array of koICodeIntelDefinition
             if (defns && defns.length > 0) {
