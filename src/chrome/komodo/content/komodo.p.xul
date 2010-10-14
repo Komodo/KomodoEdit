@@ -254,6 +254,7 @@
                           class="menuitem-iconic"
                           image="chrome://komodo/skin/images/new_folder.png"
                           oncommand="ko.toolbox2.addToolboxItem('folder')"
+                          disableIfInMenu="toolbar menu"
                           />
                 <!-- #if PLATFORM != "darwin" -->
                 <!-- TODO: Disable these two items if we're in a menu or toolbar -->
