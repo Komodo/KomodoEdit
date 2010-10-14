@@ -114,6 +114,20 @@ var moreKomodo = {
     onRenameFile : function() {
         var currView = ko.views.manager.currentView;
         var viewDoc = currView.koDoc;
+        if (viewDoc.isDirty) {
+            var fileXIsDirty = MoreKomodoCommon.getFormattedMessage("rename.dirty.file.confirm", [viewDoc.displayPath]);
+            var res = ko.dialogs.yesNoCancel(fileXIsDirty, "Cancel");
+            if (res == "Cancel") {
+                return;
+            } else if (res == "Yes") {
+                try {
+                    viewDoc.save(false);
+                } catch(ex) {
+                    dump("onRenameFile: save: " + ex + "\n");
+                    return;
+                }
+            }
+        }
         var title = MoreKomodoCommon.getLocalizedMessage("rename.title");
         var oldName = viewDoc.file.baseName;
         var extPos = oldName.lastIndexOf('.');
