@@ -364,7 +364,7 @@
                     </hbox>
                     <spacer width="5"/>
                     <label id="name-label" style="height:25px; padding-left: 2px; padding-top: 4px;"
-                           value="" flex="1"/>
+                           value="" flex="1" crop="center"/>
                 </hbox>
                 <spacer height="10"/>
                 <separator class="groovy-thin"/>
