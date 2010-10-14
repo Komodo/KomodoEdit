@@ -284,8 +284,9 @@ function UpdateField(field, initializing /* =false */)
             changed = true;
             gCache[field] = command;
             if (gNameTracksCommand) {
-                gDlg.nameTextbox.setAttribute("value", command);
-                gDlg.nameLabel.setAttribute("value", command);
+                var shortName = command.substr(0, 20);
+                gDlg.nameTextbox.setAttribute("value", shortName);
+                gDlg.nameLabel.setAttribute("value", shortName);
                 UpdateField("name", initializing);
             }
         }
