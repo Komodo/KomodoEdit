@@ -254,7 +254,6 @@
                           class="menuitem-iconic"
                           image="chrome://komodo/skin/images/new_folder.png"
                           oncommand="ko.toolbox2.addToolboxItem('folder')"
-                          disableIfInMenu="folder toolbar menu"
                           />
                 <!-- #if PLATFORM != "darwin" -->
                 <!-- TODO: Disable these two items if we're in a menu or toolbar -->
@@ -264,7 +263,7 @@
                           accesskey="&folderContextNewMenu.accesskey;"
                           image="chrome://komodo/skin/images/menu_icon.png"
                           oncommand="ko.toolbox2.addToolboxItem('menu')"
-                          disableIfInMenu="folder toolbar menu"
+                          disableIfInMenu="toolbar menu"
                           />
                 <!-- #endif -->
                 <menuitem id="tb2_addContext_newToolbar"
@@ -273,7 +272,7 @@
                           accesskey="&folderContextNewToolbar.accesskey;"
                           image="chrome://komodo/skin/images/toolbar_icon.png"
                           oncommand="ko.toolbox2.addToolboxItem('toolbar')"
-                          disableIfInMenu="folder toolbar menu"
+                          disableIfInMenu="toolbar menu"
                           />
             </menupopup>
         </menu>
