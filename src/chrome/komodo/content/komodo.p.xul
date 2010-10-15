@@ -2103,14 +2103,18 @@
                     label="&bugs.label;"/>
             </toolbaritem>
         </toolbar>
-        <toolbar class="chromeclass-toolbar"
-                 id="findToolbar"
-                 align="center"
+        <toolbar id="findToolbar"
+                 align="start"
                  broadcaster="cmd_viewfindtoolbar"
-                 hidden="true"
                  persist="hidden collapsed buttonstyle"
-                 buttonstyle="pictures"
-                 tooltiptext="&openFindToolbar.tooltiptext;">
+                 tooltiptext="&openFindToolbar.tooltiptext;"
+                >
+          <toolbaritem id="findToolbaritem"
+                       class="chromeclass-toolbar"
+                       flex="1"
+                       align="center"
+                       buttonstyle="pictures"
+                >
 <!-- #if PLATFORM != "darwin" -->
             <image id="openButton"
                    class="open-file-nohover-icon"
@@ -2207,6 +2211,7 @@
                            style="min-width: 0px; margin: 0px"
                            tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
                            oncommand="Findtoolbar_AddBrowsedDirectory();"/>
+          </toolbaritem>
         </toolbar>
 
     </toolbox>

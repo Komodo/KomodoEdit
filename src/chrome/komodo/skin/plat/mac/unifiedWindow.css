@@ -33,7 +33,9 @@
 }
 
 #toolbox_main > toolbar,
-#main-toolboxrow > toolbaritem {
+#main-toolboxrow > toolbaritem,
+#findToolbar > toolbaritem
+{
   background-color: #C9C9C9;
   border: none;
   /* height same as background image */
