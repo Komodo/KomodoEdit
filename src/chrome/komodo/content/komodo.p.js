@@ -306,6 +306,12 @@ function onloadDelay() {
         // executing queued up commandments.
         ko.uilayout.onloadDelayed(); // if closed fullscreen, maximize
 
+        // Fix for getting keybindings working in new windows - bug 87979.
+        // TODO: Better fix needed?
+        if (ko.windowManager.getWindows().length > 1) {
+            ko.toolbox2.applyKeybindings();
+        }
+
         // the offer to restore the workspace needs to be after the
         // commandments system is initialized because the commandments mechanism
         // is how the determination of 'running in non-interactive mode' happens,
