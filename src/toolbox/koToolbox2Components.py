@@ -587,7 +587,7 @@ class KoToolbox2Service(object):
             try:
                 _observerSvc.notifyObservers(tool, subject, str(tool.id))
             except Exception:
-                log.exception("notifyAddedToolbox: notify kb-unload: failed")
+                log.exception("notifyDroppedToolbox: notify kb-unload: failed")
         try:
             subject = (notifyAllWindows and 'toolbox-unloaded-global') or 'toolbox-unloaded-local'
             _observerSvc.notifyObservers(None, subject, toolboxDir)
