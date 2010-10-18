@@ -40,12 +40,7 @@
 import os
 from os.path import dirname, join, abspath, splitext, basename, isabs
 import sys
-import time
-import pprint
-import stat
-import types
 import imp
-import shutil
 import logging
 from collections import defaultdict
 from glob import glob
