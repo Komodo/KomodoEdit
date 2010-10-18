@@ -216,6 +216,7 @@ class KoToolbox2Service(object):
         #log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
         self.registerStandardToolbox(toolbox_id)
         
+        # TODO: Don't rely on pyXPCOMExtensionHelper (as it may be removed in future versions)
         extensionDirs = UnwrapObject(components.classes["@python.org/pyXPCOMExtensionHelper;1"].getService(components.interfaces.pyIXPCOMExtensionHelper)).getExtensionDirectories()
         for fileEx in extensionDirs:
             # Does this happen for disabled extensions?
