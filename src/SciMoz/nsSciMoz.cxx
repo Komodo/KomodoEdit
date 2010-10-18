@@ -1108,10 +1108,13 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, PRInt32 screenx, 
 	// imeComposing to false).
 	nsCOMPtr<nsIPrivateTextRangeList> textRangeList;
 	textRangeList = textEvent->GetInputRange();
-	if (!textRangeList || (textRangeList->GetLength() == 0)) {
-		imeComposing = false;
-	}
-
+	int hasTextRangeList = 0;
+	if (textRangeList && (textRangeList->GetLength() > 0)) {
+	    hasTextRangeList = 1;
+#ifdef IME_DEBUG
+	    fprintf(stderr, "  text range length: %d\n", textRangeList->GetLength());
+#endif
+        }
 	// XXX problem here, we normally only want to insert text if we're
 	// in or finishing an ime session.  However, some chinese keyboard
 	// events happen a bit differently, so we do a bit of a hack to see
@@ -1120,6 +1123,9 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, PRInt32 screenx, 
 	// in EndCompositing().
 	//
 	// bug 40960
+	//
+	// Notes: imeActive is only true from the second IME keypress.
+	//
         if (text.Length() > 0) {
             if (imeStartPos < 0) {
 #ifdef IME_DEBUG
@@ -1129,6 +1135,9 @@ NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, PRInt32 screenx, 
             }
             if (imeActive || text.Length() > 0) {
                     ReplaceSel(text);
+            }
+            if (!hasTextRangeList) {
+                imeComposing = 0;
             }
             if (imeActive && imeComposing) {
                     SetAnchor(imeStartPos);
