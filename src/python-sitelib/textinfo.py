@@ -1377,53 +1377,57 @@ class PathAccessor(Accessor):
         # It is the job of the caller to only call _read() if necessary.
         assert self._read_state < state
 
-        if self._read_state == self.READ_NONE:
-            assert self._file is None and self._bytes is None
-            self._file = open(self.path, 'rb')
-            if state == self.READ_HEAD:
-                self._bytes = self._file.read(self.HEAD_SIZE)
-                self._read_state = (self.size <= self.HEAD_SIZE
-                    and self.READ_ALL or self.READ_HEAD)
-            elif state == self.READ_TAIL:
-                if self.size <= self.HEAD_SIZE + self.TAIL_SIZE:
+        try:
+            if self._read_state == self.READ_NONE:
+                assert self._file is None and self._bytes is None
+                self._file = open(self.path, 'rb')
+                if state == self.READ_HEAD:
+                    self._bytes = self._file.read(self.HEAD_SIZE)
+                    self._read_state = (self.size <= self.HEAD_SIZE
+                        and self.READ_ALL or self.READ_HEAD)
+                elif state == self.READ_TAIL:
+                    if self.size <= self.HEAD_SIZE + self.TAIL_SIZE:
+                        self._bytes = self._file.read()
+                        self._read_state = self.READ_ALL
+                    else:
+                        self._bytes = self._file.read(self.HEAD_SIZE)
+                        self._file.seek(-self.TAIL_SIZE, 2) # 2 == relative to end
+                        self._bytes_tail = self._file.read(self.TAIL_SIZE)
+                        self._read_state = self.READ_TAIL
+                elif state == self.READ_ALL:
                     self._bytes = self._file.read()
                     self._read_state = self.READ_ALL
-                else:
-                    self._bytes = self._file.read(self.HEAD_SIZE)
-                    self._file.seek(-self.TAIL_SIZE, 2) # 2 == relative to end
-                    self._bytes_tail = self._file.read(self.TAIL_SIZE)
-                    self._read_state = self.READ_TAIL
-            elif state == self.READ_ALL:
-                self._bytes = self._file.read()
-                self._read_state = self.READ_ALL
-
-        elif self._read_state == self.READ_HEAD:
-            if state == self.READ_TAIL:
-                if self.size <= self.HEAD_SIZE + self.TAIL_SIZE:
+    
+            elif self._read_state == self.READ_HEAD:
+                if state == self.READ_TAIL:
+                    if self.size <= self.HEAD_SIZE + self.TAIL_SIZE:
+                        self._bytes += self._file.read()
+                        self._read_state = self.READ_ALL
+                    else:
+                        self._file.seek(-self.TAIL_SIZE, 2) # 2 == relative to end
+                        self._bytes_tail = self._file.read(self.TAIL_SIZE)
+                        self._read_state = self.READ_TAIL
+                elif state == self.READ_ALL:
                     self._bytes += self._file.read()
                     self._read_state = self.READ_ALL
-                else:
-                    self._file.seek(-self.TAIL_SIZE, 2) # 2 == relative to end
-                    self._bytes_tail = self._file.read(self.TAIL_SIZE)
-                    self._read_state = self.READ_TAIL
-            elif state == self.READ_ALL:
-                self._bytes += self._file.read()
+                    
+            elif self._read_state == self.READ_TAIL:
+                assert state == self.READ_ALL
+                self._file.seek(self.HEAD_SIZE, 0) # 0 == relative to start
+                remaining_size = self.size - self.HEAD_SIZE - self.TAIL_SIZE
+                assert remaining_size > 0, \
+                    "negative remaining bytes to read from '%s': %d" \
+                    % (self.path, self.size)
+                self._bytes += self._file.read(remaining_size)
+                self._bytes += self._bytes_tail
+                self._bytes_tail = None
                 self._read_state = self.READ_ALL
-                
-        elif self._read_state == self.READ_TAIL:
-            assert state == self.READ_ALL
-            self._file.seek(self.HEAD_SIZE, 0) # 0 == relative to start
-            remaining_size = self.size - self.HEAD_SIZE - self.TAIL_SIZE
-            assert remaining_size > 0, \
-                "negative remaining bytes to read from '%s': %d" \
-                % (self.path, self.size)
-            self._bytes += self._file.read(remaining_size)
-            self._bytes += self._bytes_tail
-            self._bytes_tail = None
-            self._read_state = self.READ_ALL
-                
-        if self._read_state == self.READ_ALL:
-            self.close()
+                    
+            if self._read_state == self.READ_ALL:
+                self.close()
+        except Exception, ex:
+            log.warn("Could not read file: %r due to: %r", self.path, ex)
+            raise
 
     def strip_bom(self, bom):
         """This should be called by the user of this class to strip a
