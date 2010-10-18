@@ -710,6 +710,8 @@ class KoToolbox2Service(object):
             if window in self._data:
                 del self._data[window]
         elif topic == "xpcom-shutdown":
+            _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+                .getService(components.interfaces.nsIObserverService)
             _observerSvc.removeObserver(self._wrapped,
                                         "project_renamed")
             return
