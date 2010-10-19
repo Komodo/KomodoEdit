@@ -216,7 +216,7 @@ peFile.prototype.doCommand = function(command) {
         }
         break;
     case 'cmd_showUnsavedChanges':
-        view = ko.views.manager.currentView;
+        var view = ko.views.manager.currentView;
         var changes = view.koDoc.getUnsavedChanges();
         ko.launch.diff(changes,
                        _bundle.formatStringFromName("unsavedChangesForWindowTitle",
