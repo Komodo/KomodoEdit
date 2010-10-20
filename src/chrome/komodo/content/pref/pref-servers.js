@@ -247,10 +247,11 @@ function onAddServerEntry() {
 
     var serverInfo = Components.classes["@activestate.com/koServerInfo;1"].
                         createInstance(Components.interfaces.koIServerInfo);
-    serverInfo.init(protocol, alias, hostname, port, username, password, path,
-                    passive);
-
     if (current_server_idx > -1) {
+        oldServerInfo = servers[current_server_idx];
+        // Preserving the GUID allows us to perform an update more easily
+        serverInfo.init(oldServerInfo.guid, protocol, alias, hostname, port,
+                        username, password, path, passive);
         servers[current_server_idx] = serverInfo;
         // Update the menuitem label, in case the alias was changed.
         dialog.serversList.selectedItem.setAttribute('label', serverInfo.alias);
@@ -260,6 +261,9 @@ function onAddServerEntry() {
             alert("The entry name must be unique, please correct this.\n");
             return;
         }
+        // LoginManagerStorage will create a GUID when null
+        serverInfo.init(null, protocol, alias, hostname, port, username, password, path,
+                    passive);
         servers.push(serverInfo);
         servers.sort(function (a,b) { return _strcmp(a.alias,b.alias); } );
         _setMenuList(serverInfo.alias);

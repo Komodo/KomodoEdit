@@ -54,6 +54,7 @@
  */
 [scriptable, uuid(a48abf34-6fc8-4c0e-a0a0-a842dff807eb)]
 interface koIServerInfo : nsISupports {
+    readonly attribute wstring guid; // guid of the correspondig nsILoginMetaInfo record
     readonly attribute wstring raw_hostdata;  // Host data, as stored by the nsILoginManager
     readonly attribute wstring protocol;
     readonly attribute wstring alias;
@@ -65,9 +66,9 @@ interface koIServerInfo : nsISupports {
     readonly attribute boolean passive;
 
     // Initialize the Komodo server information from the data provided.
-    void init(in wstring protocol, in wstring alias, in wstring hostname,
-              in wstring port, in wstring username, in wstring password,
-              in wstring path, in wstring passive);
+    void init(in wstring guid, in wstring protocol, in wstring alias,
+              in wstring hostname, in wstring port, in wstring username,
+              in wstring password, in wstring path, in wstring passive);
 
     // Initialize the Komodo server information from the nsILoginInfo.
     void initFromLoginInfo(in nsILoginInfo logininfo);

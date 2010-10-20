@@ -64,6 +64,7 @@ class koServerInfo:
     _reg_contractid_ = "@activestate.com/koServerInfo;1"
 
     def __init__(self):
+        self.guid = ''
         self.raw_hostdata = ''
         self.protocol = ''
         self.alias = ''
@@ -74,8 +75,9 @@ class koServerInfo:
         self.path = ''
         self.passive = 1
 
-    def init(self, protocol, alias, hostname, port, username, password, path,
-             passive, raw_hostdata=None):
+    def init(self, guid, protocol, alias, hostname, port, username, password,
+             path, passive, raw_hostdata=None):
+        self.guid = guid
         self.protocol = protocol
         self.alias = alias
         self.hostname = hostname
@@ -114,16 +116,19 @@ class koServerInfo:
             host_split.append("1")
         # Unquote the elements.
         host_split = map(urllib.unquote, host_split)
-        self.init(host_split[0], host_split[1], host_split[2], host_split[3],
-                  logininfo.username, logininfo.password, host_split[4],
-                  host_split[5],
-                  raw_hostdata=logininfo.hostname)
+        guid = logininfo.QueryInterface(components.interfaces.\
+                                        nsILoginMetaInfo).guid
+        self.init(guid, host_split[0], host_split[1], host_split[2],
+                  host_split[3], logininfo.username, logininfo.password,
+                  host_split[4], host_split[5], raw_hostdata=logininfo.hostname)
 
     def generateLoginInfo(self):
         loginInfo = components.classes["@mozilla.org/login-manager/loginInfo;1"]\
                             .createInstance(components.interfaces.nsILoginInfo)
         loginInfo.init(self.raw_hostdata, None, self.alias,
                        self.username, self.password, "", "")
+        loginInfo.QueryInterface(components.interfaces.nsILoginMetaInfo).\
+                    guid = self.guid
         return loginInfo
         
 
@@ -696,29 +701,38 @@ class koRemoteConnectionService:
     def saveServerInfoList(self, serverinfo_list):
         loginmanager = components.classes["@mozilla.org/login-manager;1"].\
                             getService(components.interfaces.nsILoginManager)
-        logins = loginmanager.getAllLogins() # array of nsILoginInfo
-        # remove all old servers
-        if logins:
-            for logininfo in logins:
-                logininfo.QueryInterface(components.interfaces.nsILoginInfo)
-                serverinfo = koServerInfo()
-                try:
-                    serverinfo.initFromLoginInfo(logininfo)
-                    loginmanager.removeLogin(logininfo)
-                except BadServerInfoException:
-                    # Ignore non Komodo server entries.
-                    pass
-        # and now add all the new servers
+        old_logins = {}
+        
+        for old_login in loginmanager.getAllLogins():
+            old_login.QueryInterface(components.interfaces.nsILoginInfo)
+            serverinfo = koServerInfo()
+            try:
+                serverinfo.initFromLoginInfo(old_login)
+            except BadServerInfoException:
+                # Ignore non Komodo server entries.
+                continue
+            guid = old_login.QueryInterface(components.interfaces.\
+                                            nsILoginMetaInfo).guid
+            old_logins[guid] = old_login
+            
         for serverinfo in serverinfo_list:
-            # Transform the serverinfo into a logininfo object.
-            logininfo = serverinfo.generateLoginInfo()
-            if not logininfo.password:
+            new_login = serverinfo.generateLoginInfo()
+            if not new_login.password:
                 # Hack to workaround the login manager not accepting empty
                 # passwords.
-                logininfo.password = self.EMPTY_PASSWORD_SENTINEL
-            loginmanager.addLogin(logininfo)
+                new_login.password = self.EMPTY_PASSWORD_SENTINEL
+            guid = serverinfo.guid
+            if not guid in old_logins:
+                loginmanager.addLogin(new_login)
+            else:
+                old_login = old_logins.pop(guid)
+                if not old_login.equals(new_login):
+                    loginmanager.modifyLogin(old_login, new_login)
+                    
+        for old_login in old_logins.itervalues():
+            loginmanager.removeLogin(old_login)
+            
         self.__serverinfo_list = serverinfo_list
-
         obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                       getService(components.interfaces.nsIObserverService)
         obsSvc.notifyObservers(None, "server-preferences-changed", "")
