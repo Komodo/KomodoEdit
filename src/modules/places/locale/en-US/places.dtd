@@ -94,3 +94,7 @@
 <!-- manageViewFilters.xul -->
 <!ENTITY manageViewFilters.caption "Specify Files and Directories to Exclude">
 <!ENTITY fileSystemFilterConfiguration.label "File System Filter Configuration">
+
+<!-- pref_places.xul -->
+<!ENTITY dblClickToRebase.label "Double-Click or Return Makes Folder Foot">
+<!ENTITY options.label "Options">

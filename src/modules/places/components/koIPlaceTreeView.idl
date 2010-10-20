@@ -133,6 +133,8 @@ interface koIPlaceTreeView: nsITreeView {
     void invalidate();
 
     attribute boolean handleNextToggleOpenState;
+    // XBL isn't letting me set properties, so expose the setter.
+    void set_handleNextToggleOpenState(in boolean val);
     
     void handleCallback(in wstring callback,
                         in wstring rv,

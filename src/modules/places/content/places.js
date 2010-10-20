@@ -195,9 +195,19 @@ viewMgrClass.prototype = {
                 ko.open.URI(uri);
             }
         } else {
-            ko.places.manager.toggleRebaseFolderByIndex(index);
-            //TODO: get this to stop the folder from toggling?
-            // See the dbexplorer xbl bindings for how this is done.
+            var placePrefs = (Components.classes["@activestate.com/koPrefService;1"].
+                              getService(Components.interfaces.koIPrefService).prefs.
+                              getPref("places"));
+            var preferDblClickRebase = placePrefs.getBooleanPref('dblClickRebases');
+            if (preferDblClickRebase) {
+                ko.places.manager.toggleRebaseFolderByIndex(index);
+            } else {
+                // Let Mozilla do the default action, even though
+                // I'm trying to squelch the event handler and all that.
+                // Best to let Mozilla do things the way it wants...
+                // Implicit code:
+                // ko.places.viewMgr.view.toggleOpenState(index);
+            }
         }
         // Don't handle this event further for both files and folders.
         event.stopPropagation();
@@ -286,7 +296,7 @@ viewMgrClass.prototype = {
     },
 
     handleReturnKeyPress: function(event) {
-        // Either open one file or rebase one folder. Mixtures not allowed.
+        // Either open one file or toggle/rebase one folder. Mixtures not allowed.
         var folderIndexToUse = null;
         var urisToOpen = [];
         var selectedIndices = ko.treeutils.getSelectedIndices(this.view, false);
@@ -310,7 +320,15 @@ viewMgrClass.prototype = {
         if (urisToOpen.length) {
             ko.open.multipleURIs(urisToOpen);
         } else if (folderIndexToUse !== null) {
-            ko.places.manager.toggleRebaseFolderByIndex(index);
+            var placePrefs = (Components.classes["@activestate.com/koPrefService;1"].
+                              getService(Components.interfaces.koIPrefService).prefs.
+                              getPref("places"));
+            var preferDblClickRebase = placePrefs.getBooleanPref('dblClickRebases');
+            if (preferDblClickRebase) {
+                ko.places.manager.toggleRebaseFolderByIndex(index);
+            } else {
+                ko.places.viewMgr.view.toggleOpenState(index);
+            }
         }
     },
 
@@ -2475,6 +2493,14 @@ this._instantiateRemoteConnectionService = function() {
 
 // In this function 'this' is top (window)
 this.onLoad = function places_onLoad() {
+    try {
+        ko.places.onLoad_aux();
+    } catch(ex) {
+        log.exception("Failed onLoad: " + ex);
+    }
+};
+
+this.onLoad_aux = function places_onLoad_aux() {
     ko.main.addWillCloseHandler(ko.places.onUnload);
     osPathSvc = (Components.classes["@activestate.com/koOsPath;1"]
                  .getService(Components.interfaces.koIOsPath));
@@ -2493,6 +2519,9 @@ this.onLoad = function places_onLoad() {
         _placePrefs.setPref("filters", filterPrefs);
     } else {
         filterPrefs = _placePrefs.getPref("filters");
+    }
+    if (!_placePrefs.hasPref('dblClickRebases')) {
+        _placePrefs.setBooleanPref('dblClickRebases', false);
     }
     if (!filterPrefs.hasPref(DEFAULT_FILTER_NAME)) {
         //dump("global/places/filters prefs has no " + DEFAULT_FILTER_NAME + "\n");

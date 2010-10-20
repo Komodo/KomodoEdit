@@ -33,7 +33,7 @@
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="folder-import-prefs-vbox" flex="1" class="autoscroll">
 
-        <groupbox id="importFrame" name="importFrame" orient="vertical" flex="1">
+        <groupbox id="importFrame" name="importFrame" orient="vertical" >
             <caption label="&defaultViewFilters.label;" class="kopadded"/>
             <vbox flex="1">
                 <separator class="thin"/>
@@ -43,6 +43,13 @@
                 <label value="&filesToExclude.label;"/>
                 <textbox id="places_default_exclude_matches" value=""/>
             </vbox>
+        </groupbox>
+        
+        <groupbox id="pref_places_dblClickToggleFrame"
+                  name="pref_places_dblClickToggleFrame" orient="vertical">
+          <caption label="&options.label;" class="kopadded"/>
+          <checkbox id="pref_places_dblClickRebases"
+                    label="&dblClickToRebase.label;" />
         </groupbox>
 
     </vbox>

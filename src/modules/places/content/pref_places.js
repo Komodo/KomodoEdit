@@ -17,12 +17,15 @@ function prefPlacesOnLoad()  {
 
 function OnPreferencePageInitalize(prefset) {
     try {
+        var placePrefs = prefset.getPref("places");
         g_defaultFilterPrefs =
-            prefset.getPref("places").getPref("filters").getPref(DEFAULT_FILTER_NAME);
+            placePrefs.getPref("filters").getPref(DEFAULT_FILTER_NAME);
         document.getElementById("places_default_include_matches").value =
             g_defaultFilterPrefs.getStringPref("include_matches");
         document.getElementById("places_default_exclude_matches").value =
             g_defaultFilterPrefs.getStringPref("exclude_matches");
+        document.getElementById("pref_places_dblClickRebases").checked =
+            placePrefs.getBooleanPref('dblClickRebases');
     } catch(ex) {
         alert("Places prefs: " + ex);
     }
@@ -30,7 +33,10 @@ function OnPreferencePageInitalize(prefset) {
 
 function OnPreferencePageOK(prefset) {
     try {
-        g_defaultFilterPrefs = prefset.getPref("places").getPref("filters").
+        var placePrefs = prefset.getPref("places");
+        placePrefs.setBooleanPref('dblClickRebases',
+                                  document.getElementById("pref_places_dblClickRebases").checked);
+        g_defaultFilterPrefs = placePrefs.getPref("filters").
             getPref(DEFAULT_FILTER_NAME);
         g_defaultFilterPrefs.setStringPref("include_matches",
             document.getElementById("places_default_include_matches").value);
