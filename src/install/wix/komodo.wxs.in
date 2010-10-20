@@ -186,6 +186,7 @@
     <CustomAction Id="RemoveInstallDir" BinaryKey="rmtreew.exe"
         ExeCommand='"[INSTALLDIR]."' Return="ignore" Execute="commit" />
     <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallInitialize" /> 
       <Custom Action="RemoveInstallDir" After="RemoveFiles">REMOVE="ALL"</Custom>
     </InstallExecuteSequence>
 
