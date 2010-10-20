@@ -1041,10 +1041,18 @@ class KoPHPInfoEx(KoPHPInfoInstance):
         return exe
         
     def get_cliExecutable(self):
-        return self._get_namedExe('cli')
+        if 'cli-executable' not in self._info:
+            cli_exe = self._get_namedExe('cli')
+            self._info['cli-executable'] = cli_exe
+            return cli_exe
+        return self._info.get('cli-executable')
     
     def get_cgiExecutable(self):
-        return self._get_namedExe('cgi')
+        if 'cgi-executable' not in self._info:
+            cgi_exe = self._get_namedExe('cgi')
+            self._info['cgi-executable'] = cgi_exe
+            return cgi_exe
+        return self._info.get('cgi-executable')
 
 class KoCVSInfoEx(KoAppInfoEx):
     _com_interfaces_ = [components.interfaces.koIAppInfoEx,
