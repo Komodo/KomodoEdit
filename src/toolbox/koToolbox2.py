@@ -119,7 +119,6 @@ class Database(object):
         self.cu = self.cx = None
         self.schemaFile = schemaFile
         self.item_version_changed = False
-        self.check_remove_scc_dir = False
         if not exists(db_path):
             self.create()
         elif os.path.getsize(db_path) == 0:
@@ -257,7 +256,8 @@ class Database(object):
         self.item_version_changed = True
         
     def _signal_check_remove_scc_dir(self, curr_ver, result_ver):
-        self.check_remove_scc_dir = True
+        # Always pull these folders out of the database
+        pass
         
     _upgrade_info_from_curr_ver = {
         # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
@@ -1375,7 +1375,14 @@ class ToolboxLoader(object):
         self._toolsSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].\
                        getService(components.interfaces.koIToolbox2ToolManager))
         self._loadedPaths = {}
-        self._excludedFolders = ['.svn', 'CVS', '.hg', '.bzr']
+        prefSvc = components.classes["@activestate.com/koPrefService;1"]\
+                       .getService(components.interfaces.koIPrefService)
+        excludeFiletypesPref = prefSvc.prefs.getPref("find-excludeFiletypes")
+        self._excludedFolders = []
+        for i in range(excludeFiletypesPref.length):
+            s = excludeFiletypesPref.getStringPref(i).strip()
+            if s:
+                self._excludedFolders.append(s)
         
     def deleteFolderIfMetadataChanged(self, path, fname, path_id):
         # fname is last part of path, but is in for convenience
@@ -1521,14 +1528,13 @@ class ToolboxLoader(object):
 
     def walkFunc(self, notifyNow, dirname, fnames):
         if os.path.basename(dirname) in self._excludedFolders:
-            if self.db.check_remove_scc_dir:
-                # See if we should remove this item, and its children
-                # from the database
-                result_list = self.db.getValuesFromTableByKey('paths', ['id'], 'path', dirname)
-                if result_list is not None:
-                    id = result_list[0]
-                    # Delete it from the db, and don't load its children
-                    self.db.deleteItem(id)
+            # See if we should remove this item, and its children
+            # from the database
+            result_list = self.db.getValuesFromTableByKey('paths', ['id'], 'path', dirname)
+            if result_list is not None:
+                id = result_list[0]
+                 # Delete it from the db, and don't load its children
+                self.db.deleteItem(id)
             # Make sure walkFunc doesn't process any of this dir's children
             del fnames[:]
             return
