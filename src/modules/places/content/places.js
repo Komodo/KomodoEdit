@@ -2383,7 +2383,7 @@ ManagerClass.prototype = {
         } else if (topic == 'current_project_changed') {
             this._checkProjectMatch();
         } else if (topic == 'file_changed') {
-            if (PROJECT_URI_REGEX.text(data)) {
+            if (PROJECT_URI_REGEX.test(data)) {
                 ko.places.projectsTree.treeBoxObject.invalidate();
             }
         }
