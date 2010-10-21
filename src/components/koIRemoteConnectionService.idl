@@ -178,6 +178,12 @@ interface koIRemoteConnectionService : nsISupports {
      */
     void saveServerInfoList(in unsigned long count,
                             [array, size_is(count)] in koIServerInfo servers);
+    
+    /**
+     * Reset the cached list of servers (sync has to do that when it creates new logins)
+     * @since Komodo 6.1.0
+     */
+    void clearServerInfoListCache();
 
     /**
      * Clear the connection cache.

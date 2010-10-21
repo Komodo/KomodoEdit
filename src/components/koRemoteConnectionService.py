@@ -690,6 +690,10 @@ class koRemoteConnectionService:
                 serverinfo_list.sort(lambda a,b: cmp(a.alias.lower(), b.alias.lower()))
             self.__serverinfo_list = serverinfo_list
         return self.__serverinfo_list
+    
+    def clearServerInfoListCache(self):
+        # When Sync creates new logins using the loginManager it has to clear the cache
+        self.__serverinfo_list = None
 
     def getServerInfoForAlias(self, server_alias):
         servers = self.getServerInfoList()
