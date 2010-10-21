@@ -296,6 +296,7 @@ viewMgrClass.prototype = {
         if (!name) return;
         try {
             this.view.addNewFileAtParent(name, index);
+            this.tree.treeBoxObject.invalidate();
         } catch(ex) {
             ko.dialogs.alert(ex);
         }

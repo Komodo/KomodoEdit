@@ -1398,7 +1398,10 @@ class KoPlaceTreeView(TreeView):
         if not self.isContainer(targetIndex):
             return
         elif not self.isContainerOpen(targetIndex):
-            self.toggleOpenState(targetIndex)
+            uri = self._rows[targetIndex].uri
+            modelNode = self.getNodeForURI(uri)
+            if modelNode:
+                modelNode.markForRefreshing()
             return
         self.refreshView(targetIndex)
 
@@ -1667,6 +1670,11 @@ class KoPlaceTreeView(TreeView):
         rowNode = self._rows[index]
         #qlog.debug("refreshView(index:%d)", index)
         if not rowNode.isOpen:
+            # We'll get the refreshed view when we toggle the node.
+            uri = self._rows[index].uri
+            modelNode = self.getNodeForURI(uri)
+            if modelNode:
+                modelNode.markForRefreshing()
             #qlog.debug("not rowNode.isOpen:")
             return
         nextIndex = self.getNextSiblingIndex(index)
