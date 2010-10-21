@@ -42,6 +42,7 @@
 <!ENTITY filters.label "Filters">
 <!ENTITY newPlace.label "New...">
 <!ENTITY newFilesPlace.label "New File...">
+<!ENTITY placesNewFileFromTemplate.label "New File From Template...">
 
 <!ENTITY loadPlace.label "Open Directory...">
 <!ENTITY loadRemotePlace.label "Open Remote Directory...">

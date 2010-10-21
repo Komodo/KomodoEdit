@@ -322,6 +322,13 @@
                 class="menuitem-iconic list-item-remove-icon"
                 disableIf="project"
                 />
+      <menuitem id="placesContextMenu_newFileFromTemplate"
+                label="&placesNewFileFromTemplate.label;"
+                class="menuitem-iconic new-file-icon"
+                oncommand="ko.places.viewMgr.addNewFileFromTemplate()"
+                testDisableIf="t:multipleSelection t:isRemote"
+                hideIf="file"
+                />
       <menuitem id="placesContextMenu_newFile"
                 label="&newFilesPlace.label;"
                 class="menuitem-iconic new-file-icon"

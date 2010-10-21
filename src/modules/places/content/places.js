@@ -264,6 +264,32 @@ viewMgrClass.prototype = {
         ko.fileutils.showDiffs(fname, otherfile);
     },
 
+    addNewFileFromTemplate: function() {
+        var isLocal = ko.places.manager.currentPlaceIsLocal;
+        if (!isLocal) {
+            ko.dialogs.alert(_bundle.GetStringFromName("remoteTemplateNewFileNotAvailable"));
+            return;
+        }
+        var index, uri;
+        if (ko.places.manager._clickedOnRoot()) {
+            index = -1;
+            uri = ko.places.manager.currentPlace;
+        } else {
+            index = this.view.selection.currentIndex;
+            uri = this.view.getURIForRow(index);
+        }
+        var dir = ko.uriparse.URIToLocalPath(uri);
+        var callback = function(view) {
+            if (index == -1) {
+                gPlacesViewMgr.view.refreshFullTreeView();
+            } else {
+                gPlacesViewMgr.refreshViewByIndex(index);
+            }
+            gPlacesViewMgr.tree.treeBoxObject.invalidate();
+        };
+        ko.views.manager.newTemplateAsync(dir, callback);
+    },
+
     addNewFile: function() {
         var index = ko.places.manager._clickedOnRoot() ? -1 : this.view.selection.currentIndex;
         var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileName"));
