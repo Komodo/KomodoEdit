@@ -199,7 +199,8 @@
 <!ENTITY deleteServer.label "Delete Server">
 <!ENTITY deleteServer.tooltiptext "Delete Server">
 <!ENTITY description.label "Description">
-<!ENTITY detectWhenFilesAreChangedOutsideTheEnvironment.label "Detect when files are changed outside the environment">
+<!ENTITY detectWhenFilesAreChangedOutsideTheEnvironment.label "Detect when local files are changed outside the environment">
+<!ENTITY detectWhenNetworkFilesAreChangedOutsideTheEnvironment.label "Detect when networked files are changed outside the environment">
 <!ENTITY determineFromContent.label "Determine from content">
 
 <!ENTITY directoryAndPlaceViews.label "Directory and File Filters">

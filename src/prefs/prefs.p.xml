@@ -418,6 +418,7 @@
   <boolean id="editSmartCutCopyWithoutSelection">1</boolean>
   <long id="autoSaveSeconds">30</long>
   <boolean id="checkDiskFile">1</boolean>
+  <boolean id="checkNetworkDiskFile">1</boolean>
 
   <!-- Language Preferences -->
   <preference-set id="languages">

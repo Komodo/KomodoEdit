@@ -509,13 +509,24 @@ class FileHandler(FileHandlerBase):
         if self._file:
             self.close()
 
+    _network_file_check_enabled = None
+
     @property
     def isNetworkFile(self):
         """Return true if this file resides on a network share.
         
         Note: For networked file, isLocal is *always* true."""
         if self._networkFile is None:
-            if win32:
+
+            # Check if the user allows networked files to be checked - bug 88521.
+            network_check_enabled = FileHandler._network_file_check_enabled
+            if network_check_enabled is None:
+                globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
+                                    getService(components.interfaces.koIPrefService).prefs
+                network_check_enabled = globalPrefs.getBooleanPref("checkNetworkDiskFile")
+                FileHandler._network_file_check_enabled = network_check_enabled
+
+            if network_check_enabled and win32:
                 # Determine if file is networked using the Win32 API. The string
                 # must be a unicode object - otherwise the call will fail.
                 # TODO: Does my path ever change? If so there needs to be an

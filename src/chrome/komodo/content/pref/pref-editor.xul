@@ -169,6 +169,9 @@
                       label="&detectWhenFilesAreChangedOutsideTheEnvironment.label;"
                       pref="true"
                       oncommand="updateDoNotAskWidgets()"/>
+            <checkbox id="checkNetworkDiskFile"
+                      label="&detectWhenNetworkFilesAreChangedOutsideTheEnvironment.label;"
+                      pref="true"/>
             <hbox align="center">
                 <label value="&fileChanged.label;"/>
                 <menulist pref="true"
