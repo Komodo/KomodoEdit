@@ -2140,6 +2140,21 @@ class JavaScriptCiler:
                       "into the class instance", var.name)
             jsclass.members[var.name] = var
             parent.variables.pop(var.name, None)
+
+        # Copy across all non-local members, bug 88549.
+        for name, jsobject in jsfunc.variables.items():
+            if '__local__' not in jsobject.attributes:
+                jsclass.variables[name] = jsobject
+                jsfunc.variables.pop(name, None)
+        for name, jsobject in jsfunc.functions.items():
+            if '__local__' not in jsobject.attributes:
+                jsclass.functions[name] = jsobject
+                jsfunc.functions.pop(name, None)
+        for name, jsobject in jsfunc.classes.items():
+            if '__local__' not in jsobject.attributes:
+                jsclass.classes[name] = jsobject
+                jsfunc.classes.pop(name, None)
+
         jsfunc._parent_assigned_vars = []
         jsfunc._class = jsclass
         jsfunc.setParent(jsclass)

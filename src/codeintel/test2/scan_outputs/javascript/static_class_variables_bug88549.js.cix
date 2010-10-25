@@ -1,0 +1,16 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/static_class_variables_bug88549.js">
+    <scope ilk="blob" lang="JavaScript" name="static_class_variables_bug88549.js" src="scan_inputs/javascript/static_class_variables_bug88549.js">
+      <scope ilk="class" line="1" lineend="11" name="A">
+        <scope attributes="__ctor__" ilk="function" line="1" lineend="3" name="A" signature="A()">
+          <variable citdl="A" name="this" />
+          <scope attributes="__local__ private" ilk="function" line="2" lineend="2" name="c" signature="c()" />
+        </scope>
+        <scope ilk="function" line="5" lineend="7" name="a" signature="a()" />
+        <scope ilk="function" line="9" lineend="11" name="b" signature="b()">
+          <variable citdl="A" name="this" />
+        </scope>
+      </scope>
+    </scope>
+  </file>
+</codeintel>
