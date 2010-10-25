@@ -154,7 +154,6 @@
     <script src="chrome://komodo/content/project/peFolder.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peSnippet.js"            type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peCommand.js"            type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/project/peTemplate.js"           type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peURL.js"                type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peMenu.js"               type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peMacro.js"              type="application/x-javascript;version=1.7"/>
