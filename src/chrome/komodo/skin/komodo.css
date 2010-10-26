@@ -220,3 +220,12 @@ treechildren#toolbox2-hierarchy-treebody::-moz-tree-image {
 
 #gotoLine_description {
 }
+
+/*
+ * CSS for the Toolbox2 UI elements
+ */
+
+/* Custom tree for specialized event handling in Toolbox Tree. */
+tree.tboxtree {
+    -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#tboxtree');
+}
