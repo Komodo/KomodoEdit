@@ -1276,7 +1276,6 @@ function faceIdentifier(encoding, fixed){
 function onSampleBlur() {
     //dump("got onSampleBlur\n");
     try {
-        gDialog.bufferView.scimoz.isFocused = true;
         gDialog.bufferView.scimoz.caretPeriod = 0;
     } catch (e) {
         log.error(e);
