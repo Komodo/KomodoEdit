@@ -963,8 +963,14 @@ class KoToolbox2ToolManager(object):
     def getOrCreateTool(self, node_type, name, path_id):
         tool = self._tools.get(path_id, None)
         if tool is not None:
-            tool.updateSelf()
-            return tool
+            try:
+                tool.updateSelf()
+                return tool
+            except TypeError:
+                # Bug 88571
+                log.exception("getOrCreateTool(node_type:%r, name:%s, path_id:%s)",
+                              node_type, name, path_id)
+                pass
         tool = _koToolClassFromTypeName[node_type](name, path_id)
         tool.getCustomIconIfExists()
         self._tools[path_id] = tool
