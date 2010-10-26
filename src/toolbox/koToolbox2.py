@@ -74,6 +74,7 @@ eol = """
 _unsupported_types = ("file", "livefolder")
 
 # for the std toolbox, shared toolboxes, and extensions
+# DEPENDENCY: toolbox2.p.js::initialize also defines this value
 DEFAULT_TARGET_DIRECTORY = "tools"
 # for toolboxes extracted from pre-v6 kpf files:
 PROJECT_TARGET_DIRECTORY = ".komodotools"

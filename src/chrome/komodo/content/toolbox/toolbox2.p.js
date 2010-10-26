@@ -109,6 +109,7 @@ initialize: function() {
     setTimeout(function() {
         var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
         var koDirSvc = Components.classes["@activestate.com/koDirs;1"].getService();
+        // Same definition as in koToolbox2.py
         const DEFAULT_TARGET_DIRECTORY = "tools";
         var stdToolboxDir = osPathSvc.join(koDirSvc.userDataDir,
                                  DEFAULT_TARGET_DIRECTORY);
