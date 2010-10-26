@@ -156,13 +156,13 @@ Index: macosx/ScintillaMacOSX.cxx
      PasteboardClear( theClipboard );
  
      CFDataRef data = NULL;
-@@ -664,14 +666,19 @@
+@@ -664,14 +666,22 @@
              CFRelease(data);
          }
      }
 -    data = CFStringCreateExternalRepresentation ( kCFAllocatorDefault, string, kCFStringEncodingUnicode, 0 );
 +
-+    data = CFStringCreateExternalRepresentation ( kCFAllocatorDefault, string, kCFStringEncodingUTF16LE, 0 );
++    data = CFStringCreateExternalRepresentation ( kCFAllocatorDefault, string, kCFStringEncodingUTF8, 0 );
      if (data) {
 -        PasteboardPutItemFlavor( theClipboard, (PasteboardItemID)1, 
 -                                CFSTR("public.utf16-plain-text"),
@@ -171,8 +171,11 @@ Index: macosx/ScintillaMacOSX.cxx
 +        // if created with kCFStringEncodingUnicode - a BOM may be added.
 +        // The flavor "public.utf16-plain-text" is meant to be without a BOM.
 +        // Fixes http://bugs.activestate.com/show_bug.cgi?id=81340:
++        // However, the fix for bug 81340 resulted in bug 88563:
++        //    total crash when copying non-ascii text on OSX 10.4 (or lower?)
++        // Testing shows no problems copy/pasting to other apps
 +        PasteboardPutItemFlavor( theClipboard, (PasteboardItemID)1,
-+                                kUTTypeUTF16PlainText, data, 0 );
++                                kUTTypeUTF8PlainText, data, 0 );
          CFRelease(data);
          data = NULL;
      }
