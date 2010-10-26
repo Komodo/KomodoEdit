@@ -107,11 +107,24 @@ initialize: function() {
     // Give the toolbox observers time to have started up before
     // notifying them that the toolbox has changed.
     setTimeout(function() {
+        var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+        var koDirSvc = Components.classes["@activestate.com/koDirs;1"].getService();
+        const DEFAULT_TARGET_DIRECTORY = "tools";
+        var stdToolboxDir = osPathSvc.join(koDirSvc.userDataDir,
+                                 DEFAULT_TARGET_DIRECTORY);
+        var sharedToolboxDir = osPathSvc.join(koDirSvc.commonDataDir,
+                                    DEFAULT_TARGET_DIRECTORY);
+        // This fixes bug 88569
+        // TODO: Make sure all extensions are loaded as well.
+        // Don't pass empty-string, because then project trigger macros
+        // will be loaded in all windows, should only be in the window
+        // the project is active in.
+        [stdToolboxDir, sharedToolboxDir].map(function(dir) {
         try {
-            obsSvc.notifyObservers(null, 'toolbox-loaded-global', '');
+            obsSvc.notifyObservers(null, 'toolbox-loaded-global', dir);
         } catch(ex) {
             dump("Failed to notifyObservers(toolbox-loaded-global): " + ex + "\n");
-        }
+        }});
         }, 1000);
 },
 terminate: function() {
