@@ -388,7 +388,7 @@ function Cancel()  {
 }
 
 function scintillaBlur() {
-    scin.isFocused = false;
+    scin.isFocused = true;  /* continue to show the caret */
     scin.caretPeriod = 0;
 }
 

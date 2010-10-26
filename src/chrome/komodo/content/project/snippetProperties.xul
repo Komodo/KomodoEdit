@@ -122,7 +122,7 @@
                           onmouseup="updateOK();"
                           onmousedown="scintillaFocus()"
                           onkeyup="updateOK()"
-                          onblur="window.setTimeout('scintillaBlur()', 0)"
+                          onblur="scintillaBlur()"
                           onfocus="scintillaFocus()"/>
                     <vbox>
                     <button type="menu" id="shortcuts-menubutton"
