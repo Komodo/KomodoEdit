@@ -388,7 +388,7 @@ function Cancel()  {
 }
 
 function scintillaBlur() {
-    scin.isFocused = true;
+    scin.isFocused = false;
     scin.caretPeriod = 0;
 }
 
