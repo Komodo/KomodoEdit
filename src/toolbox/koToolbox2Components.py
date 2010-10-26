@@ -557,7 +557,7 @@ class KoToolbox2Service(object):
             self.unregisterUserToolbox(project.url)
             self.notifyToolboxTopLevelViewChanged()
         toolsDir = join(projectDir, koToolbox2.PROJECT_TARGET_DIRECTORY)
-        if not os.listdir(toolsDir):
+        if exists(toolsDir) and not os.listdir(toolsDir):
             try:
                 os.rmdir(toolsDir)
             except:
