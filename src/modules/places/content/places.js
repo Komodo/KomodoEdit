@@ -911,7 +911,12 @@ viewMgrClass.prototype = {
                 finalTargetURIs.push(targetFileInfo.URI);
             } else if (response == copy_label) {
                 // This is where we need a new dialog.
-                var newName = srcFileInfo.baseName;
+                var newNamePrefix = _bundle.GetStringFromName("copyPrefix");
+                if (newNamePrefix && newNamePrefix[newNamePrefix.length - 1] != ' ') {
+                    // trailing spaces don't survive property string resolution
+                    newNamePrefix += ' ';
+                }
+                var newName = newNamePrefix + srcFileInfo.baseName;
                 var label = _bundle.GetStringFromName("fileName.prompt");
                 title = _bundle.GetStringFromName("enterFileName.prompt");
                 var newPath;
@@ -924,11 +929,24 @@ viewMgrClass.prototype = {
                         getService(Components.interfaces.koIRemoteConnectionService);
                     conn = RCService.getConnectionUsingUri(ko.places.manager.currentPlace);
                 }
+                var selectionStart = 0;
+                var selectionEnd = newNamePrefix.length;
                 try {
                     while (true) {
                         prompt = _bundle.formatStringFromName("fileNameExists.template",
                                                               [newName], 1);
-                        newName =ko.dialogs.prompt(prompt, label, newName, title);
+                        newName = ko.dialogs.prompt(prompt, label, newName, title,
+                                                    null, // mruName
+                                                    null, // validator
+                                                    null, // multiline
+                                                    null, // screenX
+                                                    null, // screenY
+                                                    null, // tacType
+                                                    null, // tacParam
+                                                    null, // tacShowCommentColumn
+                                                    selectionStart,
+                                                    selectionEnd
+                                                    );
                         if (!newName) {
                             return true;
                         }
@@ -936,6 +954,7 @@ viewMgrClass.prototype = {
                             newPath = this._universalNewPath(conn, osPathSvc, targetDirPath, newName);
                             break;
                         }
+                        selectionStart = selectionEnd = null;
                     }
                     newPaths[finalSrcURIs.length] = newPath;
                     finalSrcURIs.push(srcFileInfo.URI);
