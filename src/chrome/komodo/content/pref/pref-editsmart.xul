@@ -142,20 +142,55 @@
                     </menupopup>
                 </menulist>
             </hbox>
-            <hbox align="center">
-                <label value="&fileEditSmartWrapMarkers.label;"/>
-                <menulist pref="true"
-                          id="editWordWrapMarker"
-                          prefattribute="data"
-                          prefstring="editWordWrapMarker">
-                    <menupopup>
-                        <menuitem data="0" label="&none.label;"/>
-                        <menuitem data="1" label="&endOfLine.label;"/>
-                        <menuitem data="2" label="&startOfLine.label;"/>
-                        <menuitem data="3" label="&both.label;"/>
-                    </menupopup>
-                </menulist>
-            </hbox>
+            <vbox id="wordwrap_settings_vbox">
+                <hbox id="wordwrap_markers_hbox"
+                      align="center"
+                      style="margin-left: 27px;">
+                    <label id="wordwrap_markers_label"
+                           value="&fileEditSmartWrapMarkers.label;"/>
+                    <menulist pref="true"
+                              id="editWordWrapMarker"
+                              prefattribute="data"
+                              prefstring="editWordWrapMarker">
+                        <menupopup id="wordwrap_markers_menupopup">
+                            <menuitem id="wordwrap_markers_menuitem_0"
+                                      data="0"
+                                      label="&none.label;"/>
+                            <menuitem id="wordwrap_markers_menuitem_1"
+                                      data="1"
+                                      label="&endOfLine.label;"/>
+                            <menuitem id="wordwrap_markers_menuitem_2"
+                                      data="2"
+                                      label="&startOfLine.label;"/>
+                            <menuitem id="wordwrap_markers_menuitem_3"
+                                      data="3"
+                                      label="&both.label;"/>
+                        </menupopup>
+                    </menulist>
+                </hbox>
+                <hbox id="wordwrap_indenation_hbox"
+                      align="center"
+                      style="margin-left: 27px;">
+                    <label id="wordwrap_indentation_label"
+                           value="&fileEditSmartWrapIndentation.label;"/>
+                    <menulist pref="true"
+                              id="editWordWrapIndentation"
+                              prefattribute="data"
+                              prefstring="editWordWrapIndentation">
+                        <menupopup id="wordwrap_indentation_menupopup">
+                            <menuitem id="wordwrap_indentation_menuitem_0"
+                                      data="0"
+                                      label="&wordwrapIndentationFixed.label;"/>
+                            <menuitem id="wordwrap_indentation_menuitem_1"
+                                      data="1"
+                                      label="&wordwrapIndentationSame.label;"/>
+                            <menuitem id="wordwrap_indentation_menuitem_2"
+                                      data="2"
+                                      label="&wordwrapIndentationOneLevel.label;"/>
+                        </menupopup>
+                    </menulist>
+                </hbox>
+            </vbox>
     
             <separator class="thin"/>
             <checkbox id="editUseEdge"

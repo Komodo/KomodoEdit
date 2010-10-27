@@ -383,6 +383,11 @@ class koDocumentSettingsManager:
         for scintilla in self._scintillas:
             scintilla.scimoz.wrapVisualFlags = editWordWrapMarker
 
+    def _apply_editWordWrapIndentation(self, prefSet):
+        editWordWrapIndentation= prefSet.getLongPref('editWordWrapIndentation')
+        for scintilla in self._scintillas:
+            scintilla.scimoz.wrapIndentMode = editWordWrapIndentation
+
     def _apply_editUseEdge(self, prefSet):
         self._updateEdge(prefSet)
 

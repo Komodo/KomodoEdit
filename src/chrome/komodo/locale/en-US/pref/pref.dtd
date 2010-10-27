@@ -557,9 +557,13 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!--pref-editsmart.xul-->
 <!ENTITY msecs.label "msecs">
 <!ENTITY fileEditSmartWrapLines.label "Wrap long lines by:">
-<!ENTITY fileEditSmartWrapMarkers.label "Word wrap markers:">
+<!ENTITY fileEditSmartWrapIndentation.label "Wrap indentation:">
+<!ENTITY fileEditSmartWrapMarkers.label "Wrap markers:">
 <!ENTITY fileEditSmartEdgeLine.label "Edge line column">
 <!ENTITY fileEditSmartFoldMarkStyle.label "Fold mark style:">
+<!ENTITY wordwrapIndentationFixed.label "Fixed Alignment">
+<!ENTITY wordwrapIndentationSame.label "Same Level Alignment">
+<!ENTITY wordwrapIndentationOneLevel.label "One Extra Level">
 <!-- strings embedded in script-->
 <!ENTITY useTabCharacterToCompleteWords.message "Use tab character to complete words like __KEY__ ">
 
