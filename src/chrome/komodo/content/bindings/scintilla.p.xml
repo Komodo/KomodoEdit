@@ -317,6 +317,7 @@
                 scimoz.tabWidth = 8;
                 scimoz.setProperty('smartCloseTags', '1');
                 scimoz.wrapVisualFlags = prefs.getLongPref("editWordWrapMarker");
+                scimoz.wrapIndentMode = prefs.getLongPref("editWordWrapIndentation");
                 // XXX this allows us to scroll the last line to the top of the
                 // view of the buffer. Not sure if we will keep this in, or
                 // perhaps make it a pref
