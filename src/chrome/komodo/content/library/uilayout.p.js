@@ -491,7 +491,6 @@ this.updateSplitterBroadcasterState = function uilayout_updateSplitterBroadcaste
 }
 
 this.updateFullScreen = function uilayout_updateFullScreen() {
-// #if PLATFORM != "darwin"
     // Update whether the checkbox for full screen is checked or not.
     var menuitem = document.getElementById('menuitem_fullScreen');
     if (window.fullScreen) {
@@ -499,12 +498,10 @@ this.updateFullScreen = function uilayout_updateFullScreen() {
     } else {
         menuitem.removeAttribute('checked');
     }
-// #endif
 }
 
 this.fullScreen = function uilayout_FullScreen()
 {
-// #if PLATFORM != "darwin"
     window.fullScreen = !window.fullScreen;
     var windowControls = document.getElementById('window-controls');
     if (window.fullScreen) {
@@ -515,14 +512,11 @@ this.fullScreen = function uilayout_FullScreen()
         window.restore();
         windowControls.setAttribute('hidden', 'true');
     }
-// #endif
 }
 
 this.onFullScreen = function uilayout_onFullScreen()
 {
-// #if PLATFORM != "darwin"
   FullScreen.toggle();
-// #endif
 }
 
 // for whatever reason, toolkit/content/fullScreen.js is not included
@@ -558,11 +552,9 @@ var FullScreen =
       }
     }
 
-// #if PLATFORM != "darwin"
     var controls = document.getElementsByAttribute("fullscreencontrol", "true");
     for (i = 0; i < controls.length; ++i)
       controls[i].hidden = aShow;
-// #endif
   },
   
   setToolbarButtonMode: function(aToolbar, aMode)

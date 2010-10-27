@@ -1440,14 +1440,12 @@
                                       accesskey="&decreaseFont.accesskey;"
                                       observes="cmd_fontZoomOut"
                                       />
-<!-- #if PLATFORM != "darwin" -->
                             <menuitem label="&fullScreen.label;"
                                       id="menuitem_fullScreen"
                                       accesskey="&fullScreen.accesskey;"
                                       type="checkbox"
                                       observes="cmd_viewFullScreen"
                                       />
-<!-- #endif -->
                             <menuseparator id="view_menu_fold_separator"/>
                             <menu id="menu_fold"
                                   label="&fold.label;"

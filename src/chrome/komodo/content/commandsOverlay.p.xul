@@ -76,13 +76,11 @@
             desc="&userInterfaceShowHideToolboxTab.desc;"
             autoCheck="false"
             oncommand="ko.commands.doCommandAsync('cmd_viewToolbox', event)"/>
-<!-- #if PLATFORM != "darwin" -->
         <broadcaster
             id="cmd_viewFullScreen" key="key_cmd_viewFullScreen"
             desc="&userInterfaceFullScreen.desc;"
             autoCheck="false"
             oncommand="ko.commands.doCommandAsync('cmd_viewFullScreen', event)"/>
-<!-- #endif -->
         <broadcaster
             id="cmd_toggleButtonText" key="key_cmd_toggleButtonText"
             desc="&userInterfaceShowHideToolbarButtonText.desc;"
