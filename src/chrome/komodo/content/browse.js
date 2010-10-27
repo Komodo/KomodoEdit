@@ -176,7 +176,7 @@ this.webHelp = function(app) {
  * @param {String} topic
  */
 this.aspnMailingList = function(topic) {
-    var url = "http://aspn.activestate.com/ASPN/Mail?topic="+topic;
+    var url = "http://code.activestate.com/lists/#"+topic;
     ko.browse.openUrlInDefaultBrowser(url);
 }
 
