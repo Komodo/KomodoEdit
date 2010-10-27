@@ -197,7 +197,7 @@ function _test_validate_isNumber(window, s) {
 }
 
 function _test_validate_crash(window, s) {
-    throw("boom!");
+    throw new Error("boom!");
 }
 
 function test_dialog_yesNoCancel()

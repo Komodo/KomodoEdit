@@ -61,17 +61,17 @@ bindComponents: function() {
     this.toolbox2Svc = Components.classes["@activestate.com/koToolbox2Service;1"]
             .getService(Components.interfaces.koIToolbox2Service);
     if (!this.toolbox2Svc) {
-        throw("couldn't create a koIToolbox2Service");
+        throw new Error("couldn't create a koIToolbox2Service");
     }
     this.toolsMgr = Components.classes["@activestate.com/koToolbox2ToolManager;1"]
         .getService(Components.interfaces.koIToolbox2ToolManager);
     if (!this.toolsMgr) {
-        throw("couldn't create a koIToolbox2ToolManager");
+        throw new Error("couldn't create a koIToolbox2ToolManager");
     }
     this.view = Components.classes["@activestate.com/KoToolbox2HTreeView;1"]
         .createInstance(Components.interfaces.koIToolbox2HTreeView);
     if (!this.view) {
-        throw("couldn't create a koIToolbox2HTreeView");
+        throw new Error("couldn't create a koIToolbox2HTreeView");
     }
 },
 initialize: function() {

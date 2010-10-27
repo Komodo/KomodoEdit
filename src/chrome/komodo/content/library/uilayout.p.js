@@ -598,7 +598,7 @@ function _updateMRUMenu(prefName, limit)
         separatorId = "separator_mruTemplates"; // MRU list is everything after the separator.
         prettyName = "Templates";
     } else {
-        throw("Unexpected MRU menu to update: prefName='"+prefName+"'");
+        throw new Error("Unexpected MRU menu to update: prefName='"+prefName+"'");
     }
 
     var menupopup = popupId ? document.getElementById(popupId) : null;

@@ -205,7 +205,7 @@ ProgressController.prototype.set_progress_mode = function(mode)
     this.log.debug("ProgressController.set_progress_mode('"+mode+"')");
     try {
         if (mode != "determined" && mode != "undetermined") {
-            throw("illegal progress mode: '"+mode+"'");
+            throw new Error("illegal progress mode: '"+mode+"'");
         }
         this.widgets.progressmeter.setAttribute("mode", mode);
     } catch(ex) {

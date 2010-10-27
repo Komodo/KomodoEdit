@@ -150,7 +150,7 @@
         prefPanelTree = document.getElementById( "prefsTree" );
 
         if (!hPrefWindow) {
-            throw "failed to create prefwindow";
+            throw new Error("failed to create prefwindow");
         }
 
         var selectedItem = null;

@@ -160,7 +160,7 @@ this.startSession = function RunOutput_StartSession(command, parseOutput, parseR
     if (typeof clearContent == 'undefined') clearContent = true;
 
     if (_gTerminalHandler.active) {
-        throw(_bundle.GetStringFromName("aPreviousCommandIsRunning.message"));
+        throw new Error(_bundle.GetStringFromName("aPreviousCommandIsRunning.message"));
     }
     _ClearUI();
 

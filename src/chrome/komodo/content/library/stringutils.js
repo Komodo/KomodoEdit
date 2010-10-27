@@ -159,7 +159,7 @@ this.getSubAttr = function stringutils_getSubAttr(value, subattrname)
         part = parts[i];
         colon = part.indexOf(':');
         if (colon == -1) {
-            throw("no colon in supposedly CSS-like part: '"+part+"'");
+            throw new Error("no colon in supposedly CSS-like part: '"+part+"'");
         }
         name = part.slice(0, colon).replace(/^\s*/, '').replace(/\s*$/, '');
         if (name == subattrname) {

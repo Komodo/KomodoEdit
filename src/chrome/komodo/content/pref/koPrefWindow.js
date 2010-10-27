@@ -477,7 +477,7 @@ koPrefWindow.prototype =
         prefLog.error("Could not set widget '" + elt.id + "' (pref ids '" +
                       prefIds.join(',') + "') to values '" +
                       prefValues.join(',') + "'");
-        throw("Invalid preference");
+        throw new Error("Invalid preference");
         return;
     } catch (e) {
         prefLog.exception(e);
@@ -544,7 +544,7 @@ koPrefWindow.prototype =
             }
         }
         prefLog.error("Could not get preference value from element '" + elt.id + "'");
-        throw("Invalid preference");
+        throw new Error("Invalid preference");
     } catch (e) {
         prefLog.exception(e);
     }
@@ -571,7 +571,7 @@ koPrefWindow.prototype =
         if (aPrefType == null) {
             var msg = "pref.id is UNDEFINED, aPrefString = " + aPrefString;
             prefLog.error(msg);
-            throw msg;
+            throw new Error(msg);
         }
         switch ( aPrefType ) {
         case "boolean":
@@ -608,7 +608,7 @@ koPrefWindow.prototype =
         } else if (actualPrefType == "string") {
             prefs.setStringPref(prefId, value);
         } else {
-            throw "Unknown preference type ("+actualPrefType+")";
+            throw new Error("Unknown preference type ("+actualPrefType+")");
         }
     },
 

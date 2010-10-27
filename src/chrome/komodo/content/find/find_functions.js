@@ -301,7 +301,7 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     }
     else
     {
-        throw("unexpected context: name='" + context.name + "' type=" + context.type);
+        throw new Error("unexpected context: name='" + context.name + "' type=" + context.type);
     }
 
     // Repeated searching forward works fine because a forward search sets up
@@ -451,7 +451,7 @@ function _SetupAndFindNext(editor, context, pattern, mode,
             scimoz.positionAtChar(0, context.startIndex),
             scimoz.positionAtChar(0, context.endIndex)); // XXXX
     } else {
-        throw("unexpected context: name='" + context.name + "' type=" + context.type);
+        throw new Error("unexpected context: name='" + context.name + "' type=" + context.type);
     }
     scimoz.hideSelection(false);
     scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(scimoz.currentPos));
@@ -622,7 +622,7 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
                 context.endIndex += replaceByteLength -
                                     stringutils_bytelength(replaceResult.value);
             } else {
-                throw("unexpected context: name='" + context.name + "' type=" + context.type);
+                throw new Error("unexpected context: name='" + context.name + "' type=" + context.type);
             }
 
             // Fill in some data for possible display in the "Replace Results"
@@ -1374,7 +1374,7 @@ function Find_FindAll(editor, context, pattern, patternAlias,
                 }
             }
         } else {
-            throw("unexpected context: name='" + context.name + "' type=" +
+            throw new Error("unexpected context: name='" + context.name + "' type=" +
                   context.type);
         }
         // Would be good to pass in the number of files in which hits were
@@ -1454,7 +1454,7 @@ function Find_MarkAll(editor, context, pattern, patternAlias,
             }
         }
     } else {
-        throw("unexpected context: name='" + context.name + "' type=" +
+        throw new Error("unexpected context: name='" + context.name + "' type=" +
               context.type);
     }
 
@@ -1671,7 +1671,7 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
             }
         }
     } else {
-        throw("unexpected context: name='" + context.name + "' type=" +
+        throw new Error("unexpected context: name='" + context.name + "' type=" +
               context.type);
     }
     if (showReplaceResults) {

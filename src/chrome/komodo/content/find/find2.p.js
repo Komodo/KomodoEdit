@@ -1364,7 +1364,7 @@ function _set_case_widget(value) {
             _bundle.GetStringFromName("smartCase.tooltip"));
         break;
     default:
-        throw("invalid case widget value: "+value);
+        throw new Error("invalid case widget value: "+value);
     }
     w.accessKey = _bundle.GetStringFromName("caseCheckbox.accesskey");
 }

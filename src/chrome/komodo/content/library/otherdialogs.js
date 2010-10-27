@@ -72,7 +72,7 @@ if (typeof(ko.dialogs)=='undefined') {
 this.pickPreview = function dialog_pickPreview(url, language /*=null*/, mode /*="previewing"*/)
 {
     if (typeof(url) == 'undefined' || url == null)
-        throw("Must specify 'url' argument to ko.dialogs.pickPreview().");
+        throw new Error("Must specify 'url' argument to ko.dialogs.pickPreview().");
     if (typeof(language) == 'undefined') language = null;
     if (typeof(mode) == 'undefined' || mode == null) mode = "previewing";
 

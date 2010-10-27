@@ -119,7 +119,7 @@ this.localPathToURI = function(localPath) {
     koFileEx.path = localPath;
     if (_osPathSvc.normpath(koFileEx.path) != _osPathSvc.normpath(localPath)) {
         // ...then this was not a proper local path (probably a URI)
-        throw("'"+localPath+"' does not appear to be a proper local path");
+        throw new Error("'"+localPath+"' does not appear to be a proper local path");
     }
     return _normalizedPathToURI(localPath, koFileEx);
 }
@@ -198,7 +198,7 @@ this.URIToLocalPath = function(uri) {
     var koFileEx = _getKoFileEx();
     koFileEx.URI = uri;
     if (koFileEx.scheme != "file") {
-        throw("'"+uri+"' does not have a local path");
+        throw new Error("'"+uri+"' does not have a local path");
     }
     return koFileEx.path;
 }
@@ -249,7 +249,7 @@ this.dirName = function(file) {
     var koFileEx = _getKoFileEx();
     koFileEx.URI = file;
     if (koFileEx.scheme != "file") {
-        throw("'"+file+"' does not have a local dir name");
+        throw new Error("'"+file+"' does not have a local dir name");
     }
     return koFileEx.dirName;
 }

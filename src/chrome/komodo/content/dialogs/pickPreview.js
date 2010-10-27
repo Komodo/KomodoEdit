@@ -89,7 +89,7 @@ function OnLoad()
             widgets.okButton.setAttribute("accesskey",
                                           _bundle.GetStringFromName("okButton.accesskey"));
         } else {
-            throw "Invalid mode value: '"+gMode+"'";
+            throw new Error("Invalid mode value: '"+gMode+"'");
         }
         widgets.cancelButton = dialog.getButton("cancel");
         widgets.cancelButton.setAttribute("label",

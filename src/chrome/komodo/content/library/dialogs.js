@@ -766,7 +766,7 @@ this.selectFromList = function dialog_selectFromList(title, prompt, items, selec
                 _prefs.setStringPref(spref, "");
                 break;
             default:
-                throw("illegal selection condition: '"+selectionCondition+"'");
+                throw new Error("illegal selection condition: '"+selectionCondition+"'");
             }
         }
     }
@@ -813,7 +813,7 @@ this.selectFromList = function dialog_selectFromList(title, prompt, items, selec
             _prefs.setStringPref(spref, selectedId);
             break;
         default:
-            throw("illegal selection condition: '"+selectionCondition+"'");
+            throw new Error("illegal selection condition: '"+selectionCondition+"'");
         }
     }
     if (obj.retval != "Cancel") {
@@ -884,9 +884,9 @@ this.editEnvVar = function dialog_editEnvVar(name, value, title, mruName /* dial
 this.internalError = function dialog_internalError(error, text, exception)
 {
     if (typeof(error) == 'undefined' || error == null)
-        throw("Must specify 'error' argument to ko.dialogs.internalError().");
+        throw new Error("Must specify 'error' argument to ko.dialogs.internalError().");
     if (typeof(text) == 'undefined' || text == null)
-        throw("Must specify 'text' argument to ko.dialogs.internalError().");
+        throw new Error("Must specify 'text' argument to ko.dialogs.internalError().");
     if (typeof(exception) != 'undefined' && exception) {
         text += "\n\nException: " + exception;
         var traceback = "";

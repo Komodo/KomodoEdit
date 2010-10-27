@@ -308,7 +308,7 @@ this.interpolate = function Interpolate_interpolate(editor, strings, bracketedSt
             var errmsg = "Interpolation query cancelled.";
             lastErrorSvc.setLastError(Components.results.NS_ERROR_ABORT,
                                       errmsg);
-            throw errmsg;
+            throw new Error(errmsg);
         }
 
         // Interpolation step 2: interpolated with answered queries.
@@ -372,7 +372,7 @@ this.interpolateString = function(s, bracketed /*=false*/, queryTitle)
             // interpolation was cancelled.
         } else if (errno == Components.results.NS_ERROR_INVALID_ARG) {
             var errmsg = lastErrorSvc.getLastErrorMessage();
-            throw("could not interpolate string: " + errmsg);
+            throw new Error("could not interpolate string: " + errmsg);
         } else {
             throw(ex);
         }

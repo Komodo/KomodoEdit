@@ -94,7 +94,7 @@ function FindResultsTab_GetTab(preferredId /* =1 */)
         } else if (preferredId == 2) {
             otherId = 1;
         } else {
-            throw("Illegal Find Results tab preferredId: "+preferredId+"\n");
+            throw new Error("Illegal Find Results tab preferredId: "+preferredId+"\n");
         }
 
         // Determine which find results tab will be used.
@@ -376,7 +376,7 @@ FindResultsTabManager.prototype.initialize = function(id)
         this.view = Components.classes['@activestate.com/koFindResultsView;1']
             .createInstance(Components.interfaces.koIFindResultsView);
         if (!this.view) {
-            throw("couldn't create a koFindResultsView");
+            throw new Error("couldn't create a koFindResultsView");
         }
         this.view.id = this.id;
 
@@ -659,7 +659,7 @@ FindResultsTabManager.prototype._getBaseDescription = function(tense)
             baseDesc += "Found all ";
         }
     } else {
-        throw("illegal tense value: '"+tense+"'");
+        throw new Error("illegal tense value: '"+tense+"'");
     }
     if (!this._patternAlias) {
         baseDesc += "occurrences of " + this._options.searchDescFromPattern(this._pattern);

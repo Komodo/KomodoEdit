@@ -120,7 +120,7 @@ filebrowseview.SORTTYPE_DATE = 3;
 filebrowseview.prototype = {
 
   /* readonly attribute long rowCount; */
-  set rowCount(c) { throw "readonly property"; },
+  set rowCount(c) { throw new Error("readonly property"); },
   get rowCount() { return this.mTotalRows; },
 
   /* attribute nsITreeSelection selection; */
@@ -295,11 +295,11 @@ filebrowseview.prototype = {
   get showOnlyDirectories() { return this.mDirectoryFilter; },
 
   /* readonly attribute short sortType */
-  set sortType(s) { throw "readonly property"; },
+  set sortType(s) { throw new Error("readonly property"); },
   get sortType() { return this.mSortType; },
 
   /* readonly attribute boolean reverseSort */
-  set reverseSort(s) { throw "readonly property"; },
+  set reverseSort(s) { throw new Error("readonly property"); },
   get reverseSort() { return this.mReverseSort; },
 
   /* private methods */
@@ -351,7 +351,7 @@ filebrowseview.prototype = {
         compareFunc = sortDate;
         break;
       default:
-        throw("Unsupported sort type " + sortType);
+        throw new Error("Unsupported sort type " + sortType);
         break;
       }
       this.mDirList.sort(compareFunc);

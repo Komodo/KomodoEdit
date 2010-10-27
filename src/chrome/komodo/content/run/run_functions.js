@@ -566,7 +566,7 @@ try {
             }
         } else {
             _log.error("Unexpected 'runIn' value: " + runIn);
-            throw("Unexpected 'runIn' value: " + runIn + "\n");
+            throw new Error("Unexpected 'runIn' value: " + runIn);
         }
     }
     var encodedCommand = _runSvc.Encode(command, cwd, env, insertOutput,
@@ -687,7 +687,7 @@ this.canClose = function Run_CanClose()
         } else if (answer == "Cancel") {
             return false;
         } else {
-            throw(_bundle.formatStringFromName("unexpectedReturnValue.message", [answer], 1));
+            throw new Error(_bundle.formatStringFromName("unexpectedReturnValue.message", [answer], 1));
         }
     }
     return true;

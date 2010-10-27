@@ -317,8 +317,8 @@ function ToggleMoreOptions()
             _bundle.GetStringFromName("more.label"));
         moreOptionsButton.setAttribute("open", "true");
     } else {
-        throw("Unexpected 'hidden' state for 'more-options-box': "
-              + hidden);
+        throw new Error("Unexpected 'hidden' state for 'more-options-box': "
+                        + hidden);
     }
     window.sizeToContent();
 }

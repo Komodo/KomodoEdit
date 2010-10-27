@@ -88,7 +88,7 @@
         prefPanelTree = document.getElementById( "prefsTree" );
 
         if (!hPrefWindow) {
-            throw "failed to create prefwindow";
+            throw new Error("failed to create prefwindow");
         }
 
         // The following selects the default selection (see preftree.xul

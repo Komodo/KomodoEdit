@@ -390,7 +390,7 @@
                 this.__commandCompletionSvcGetterAttempted = false;
                 this._commandCompletionSvc = null;
             } else {
-                throw("cannot set 'commandCompletionSvc' to anything but null!");
+                throw new Error("cannot set 'commandCompletionSvc' to anything but null!");
             }
             ]]></setter>
             <getter><![CDATA[
