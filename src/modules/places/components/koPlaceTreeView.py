@@ -2243,7 +2243,7 @@ class _WorkerThread(threading.Thread, Queue):
                 finally:
                     requester.lock.release()
             elif srcFileEx.isDirectory:
-                fileutils.copyLocalFolder(srcPath, finalTargetFilePath)
+                fileutils.copyLocalFolder(srcPath, targetFileEx.path)
             else:
                 shutil.copy(srcPath, finalTargetFilePath)
                 # Nothing to undo
