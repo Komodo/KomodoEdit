@@ -63,6 +63,21 @@ log = logging.getLogger("KoPlaceTreeView")
 qlog = logging.getLogger("KoPlaceTreeView.q")
 #qlog.setLevel(logging.DEBUG)
 
+
+#---- Global functions
+def _umaskFromPermissions(rfi):
+    umask = 0
+    fileEx = components.interfaces.koIFileEx
+    # Generate 0755 for directories, 0644 for files
+    if rfi.isReadable():
+        umask += (fileEx.PERM_IRUSR | fileEx.PERM_IRGRP | fileEx.PERM_IROTH)
+    if rfi.isWriteable():
+        umask += fileEx.PERM_IWUSR
+    if rfi.isExecutable():
+        umask += (fileEx.PERM_IXUSR | fileEx.PERM_IXGRP | fileEx.PERM_IXOTH)
+    return umask
+
+
 class _kplBase(object):
     """
     Each row has these fields:
@@ -1389,7 +1404,7 @@ class KoPlaceTreeView(TreeView):
             if conn.list(fullPath, False):
                 raise ServerException(nsError.NS_ERROR_INVALID_ARG,
                                       "File %s already exists in %s:%s" % (basename, conn.server, parentPath))
-            perms = self._umaskFromPermissions(self, conn.list(parentPath, False))
+            perms = _umaskFromPermissions(conn.list(parentPath, False))
             conn.createDirectory(fullPath, perms)
         if parentIndex == -1:
             self.refreshFullTreeView()
@@ -2334,24 +2349,14 @@ class _WorkerThread(threading.Thread, Queue):
                             (srcPath, targetDirPath))
         self._copyRemoteItem(conn, rfi, targetDirPath, requester_data)
 
-    def _umaskFromPermissions(self, rfi):
-        umask = 0
-        if rfi.isReadable():
-            umask += 4
-        if rfi.isWriteable():
-            umask += 2
-        if rfi.isExecutable():
-            umask += 1
-        return umask
-
     def _copyRemoteFile(self, conn, rfi, targetDirPath):
         targetPath = targetDirPath + "/" + rfi.getFilename()
-        conn.createFile(targetPath, self._umaskFromPermissions(rfi))
+        conn.createFile(targetPath, _umaskFromPermissions(rfi))
         conn.writeFile(targetPath, conn.readFile(rfi.getFilepath()))
 
     def _copyRemoteDirectoryAndContents(self, conn, rfi, targetDirPath, requester_data):
         targetPath = targetDirPath + "/" + rfi.getFilename()
-        conn.createDirectory(targetPath, self._umaskFromPermissions(rfi))
+        conn.createDirectory(targetPath, _umaskFromPermissions(rfi))
         # Refresh the current rfi.  Otherwise it won't find items
         # that haven't been visited yet.
         new_rfi = conn.list(rfi.getFilepath(), True)
