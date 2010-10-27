@@ -250,6 +250,44 @@ class koScintillaController:
             finally:
                 sm.endUndoAction()
             return
+        elif command_name == 'cmd_lineDelete':
+            # If there is no selection, we just do the usual line-delete
+            if sm.selectionStart == sm.selectionEnd:
+                sm.lineDelete()
+                return
+            startLineNum = sm.lineFromPosition(sm.selectionStart)
+            finalStartPos = sm.positionFromLine(startLineNum)
+            endLineNum = sm.lineFromPosition(sm.selectionEnd)
+            if startLineNum == endLineNum:
+                sm.lineDelete()
+                return
+            if endLineNum < sm.lineCount - 1:
+                finalEndPos = sm.positionFromLine(endLineNum + 1)
+            else:
+                finalEndPos = sm.textLength
+            # Now delete all lines, including EOL of last line,
+            # remove all markers, and set selection at point
+            # after the end of the next line.
+            # Note that breakpoints aren't removed from the breakpoints tab.
+            # Need to send a notification to make that happen.
+            sm.beginUndoAction()
+            try:
+                for lineNum in range(startLineNum, endLineNum + 1):
+                    markerMask = sm.markerGet(lineNum)
+                    i = 0
+                    while markerMask:
+                        if markerMask & 1:
+                            sm.markerDelete(lineNum, i)
+                            markerMask &= ~1
+                        markerMask >>= 1
+                        i += 1
+                sm.targetStart = finalStartPos
+                sm.targetEnd = finalEndPos
+                sm.replaceTarget(0, "")
+                sm.currentPos = sm.anchor = finalStartPos
+            finally:
+                sm.endUndoAction()
+            return
         methname= '_do_'+command_name
         attr = getattr(self, methname, None)
         if attr is None:
