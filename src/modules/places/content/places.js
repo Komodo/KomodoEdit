@@ -910,12 +910,7 @@ viewMgrClass.prototype = {
                 finalSrcURIs.push(srcFileInfo.URI);
                 finalTargetURIs.push(targetFileInfo.URI);
             } else if (response == copy_label) {
-                var copyPart = " " + _bundle.GetStringFromName("Copy.label");
-                var ptn = new RegExp('^(.*?)(?:(' + copyPart + ')(?: (\\d+))?)?(\\..*)?$');
-                var currentName = srcFileInfo.baseName;
-                var m = ptn.exec(currentName);
-                var newName;
-                var selectionStart, selectionEnd;
+                var newName, selectionStart, selectionEnd;
                 var isLocal = ko.places.manager.currentPlaceIsLocal;
                 var conn = null;
                 if (!isLocal) {
@@ -924,37 +919,9 @@ viewMgrClass.prototype = {
                     conn = RCService.getConnectionUsingUri(ko.places.manager.currentPlace);
                 }
                 var targetDirPath = targetFileInfo.dirName;
-                if (!m) {
-                    newName = currentName + copyPart;
-                    selectionStart = currentName.length;
-                    selectionEnd = newName.length;
-                } else {
-                    var i = 0;
-                    var saneLimit = 1000; // prevent runaway loop, if code hits this hard.
-                    while (true) {
-                        if (m[4] === undefined) m[4] = "";
-                        if (m[3] !== undefined) {
-                            newName = m[1] + m[2] + " " + (parseInt(m[3]) + 1) + m[4];
-                        } else if (m[2] !== undefined) {
-                            newName = m[1] + m[2] + " 2" + m[4];
-                        } else {
-                            newName = m[1] + copyPart + m[4];
-                        }
-                        i += 1;
-                        if (i >= saneLimit || !this._universalFileExists(conn, osPathSvc, targetDirPath, newName)) {
-                            selectionStart = m[1].length;
-                            selectionEnd = newName.length - m[4].length;
-                            break;
-                        }
-                        m = ptn.exec(newName);
-                        if (!m) {
-                            selectionStart = newName.length;
-                            newName += copyPart;
-                            selectionEnd = newName.length;
-                            break;
-                        }
-                    }
-                }
+                [newName, selectionStart, selectionEnd] =
+                    this._getNewSuggestedName(srcFileInfo.baseName, targetDirPath,
+                                              isLocal, conn);
                 var label = _bundle.GetStringFromName("fileName.prompt");
                 title = _bundle.GetStringFromName("enterFileName.prompt");
                 var newPath;
@@ -1104,6 +1071,46 @@ viewMgrClass.prototype = {
         return true;
     },
 
+    _getNewSuggestedName: function(srcBaseName, targetDirPath,
+                                   isLocal, conn) {
+        var newName, selectionStart, selectionEnd;
+        var copyPart = " " + _bundle.GetStringFromName("Copy.label");
+        var ptn = new RegExp('^(.*?)(?:(' + copyPart + ')(?: (\\d+))?)?(\\..*)?$');
+        var m = ptn.exec(srcBaseName);
+        if (!m) {
+            newName = srcBaseName + copyPart;
+            selectionStart = srcBaseName.length;
+            selectionEnd = newName.length;
+        } else {
+            var i = 0;
+            var saneLimit = 1000; // prevent runaway loop, if code hits this hard.
+            while (true) {
+                if (m[4] === undefined) m[4] = "";
+                if (m[3] !== undefined) {
+                    newName = m[1] + m[2] + " " + (parseInt(m[3]) + 1) + m[4];
+                } else if (m[2] !== undefined) {
+                    newName = m[1] + m[2] + " 2" + m[4];
+                } else {
+                    newName = m[1] + copyPart + m[4];
+                }
+                i += 1;
+                if (i >= saneLimit || !this._universalFileExists(conn, osPathSvc, targetDirPath, newName)) {
+                    selectionStart = m[1].length;
+                    selectionEnd = newName.length - m[4].length;
+                    break;
+                }
+                m = ptn.exec(newName);
+                if (!m) {
+                    selectionStart = newName.length;
+                    newName += copyPart;
+                    selectionEnd = newName.length;
+                    break;
+                }
+            }
+        }
+        return [newName, selectionStart, selectionEnd];
+    },
+                
     _formatNumber: function(size) {
         var rev_str = size.toString().split('').reverse().join('').replace(/(\d{3})/g, "$1,");
         return rev_str.split('').reverse().join('') + " bytes";
