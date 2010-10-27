@@ -910,27 +910,56 @@ viewMgrClass.prototype = {
                 finalSrcURIs.push(srcFileInfo.URI);
                 finalTargetURIs.push(targetFileInfo.URI);
             } else if (response == copy_label) {
-                // This is where we need a new dialog.
-                var newNamePrefix = _bundle.GetStringFromName("copyPrefix");
-                if (newNamePrefix && newNamePrefix[newNamePrefix.length - 1] != ' ') {
-                    // trailing spaces don't survive property string resolution
-                    newNamePrefix += ' ';
+                var copyPart = " " + _bundle.GetStringFromName("Copy.label");
+                var ptn = new RegExp('^(.*?)(?:(' + copyPart + ')(?: (\\d+))?)?(\\..*)?$');
+                var currentName = srcFileInfo.baseName;
+                var m = ptn.exec(currentName);
+                var newName;
+                var selectionStart, selectionEnd;
+                var isLocal = ko.places.manager.currentPlaceIsLocal;
+                var conn = null;
+                if (!isLocal) {
+                    var RCService = Components.classes["@activestate.com/koRemoteConnectionService;1"].
+                        getService(Components.interfaces.koIRemoteConnectionService);
+                    conn = RCService.getConnectionUsingUri(ko.places.manager.currentPlace);
                 }
-                var newName = newNamePrefix + srcFileInfo.baseName;
+                var targetDirPath = targetFileInfo.dirName;
+                if (!m) {
+                    newName = currentName + copyPart;
+                    selectionStart = currentName.length;
+                    selectionEnd = newName.length;
+                } else {
+                    var i = 0;
+                    var saneLimit = 1000; // prevent runaway loop, if code hits this hard.
+                    while (true) {
+                        if (m[4] === undefined) m[4] = "";
+                        if (m[3] !== undefined) {
+                            newName = m[1] + m[2] + " " + (parseInt(m[3]) + 1) + m[4];
+                        } else if (m[2] !== undefined) {
+                            newName = m[1] + m[2] + " 2" + m[4];
+                        } else {
+                            newName = m[1] + copyPart + m[4];
+                        }
+                        i += 1;
+                        if (i >= saneLimit || !this._universalFileExists(conn, osPathSvc, targetDirPath, newName)) {
+                            selectionStart = m[1].length;
+                            selectionEnd = newName.length - m[4].length;
+                            break;
+                        }
+                        m = ptn.exec(newName);
+                        if (!m) {
+                            selectionStart = newName.length;
+                            newName += copyPart;
+                            selectionEnd = newName.length;
+                            break;
+                        }
+                    }
+                }
                 var label = _bundle.GetStringFromName("fileName.prompt");
                 title = _bundle.GetStringFromName("enterFileName.prompt");
                 var newPath;
                 var regEx = /(.*)\((\d+)\)$/;
                 var idx;
-                var targetDirPath = targetFileInfo.dirName;
-                var conn = null;
-                if (!ko.places.manager.currentPlaceIsLocal) {
-                    var RCService = Components.classes["@activestate.com/koRemoteConnectionService;1"].
-                        getService(Components.interfaces.koIRemoteConnectionService);
-                    conn = RCService.getConnectionUsingUri(ko.places.manager.currentPlace);
-                }
-                var selectionStart = 0;
-                var selectionEnd = newNamePrefix.length;
                 try {
                     while (true) {
                         prompt = _bundle.formatStringFromName("fileNameExists.template",
