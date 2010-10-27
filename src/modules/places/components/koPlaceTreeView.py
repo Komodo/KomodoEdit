@@ -862,7 +862,9 @@ class KoPlaceTreeView(TreeView):
                                                    isDir_OutVal):
                 if isDir_OutVal['value']:
                     # We support copying directories with a merge, but not moving them.
-                    if copying:
+                    if not srcFileInfo.isDirectory:
+                        res = components.interfaces.koIPlaceTreeView.COPY_MOVE_WOULD_KILL_DIR
+                    elif copying:
                         res = components.interfaces.koIPlaceTreeView.COPY_MOVE_OK
                     else:
                         res = components.interfaces.koIPlaceTreeView.COPY_MOVE_WOULD_KILL_DIR
