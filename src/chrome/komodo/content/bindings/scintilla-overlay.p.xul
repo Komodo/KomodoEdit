@@ -58,7 +58,8 @@
     <script src="chrome://komodo/content/markers.js"                  type="application/x-javascript;version=1.7" />
 
     <hbox id="scintillaOverlayXul" style="margin: 0px; padding: 0px; height: 0px; width: 0px;">
-        <menupopup type="buffercontext" id="bufferContextMenu"/>
+        <menupopup type="buffercontext" id="bufferContextMenu"
+                   onpopupshowing="window.updateCommands('buffer_context_menu_showing');"/>
         <menupopup id = "token-context-menu"/>
         <spacer height="0" id="context-spacer" context="token-context-menu"/>
         <commandset id="allcommands"/>
