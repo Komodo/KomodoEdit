@@ -2271,7 +2271,7 @@ viewManager.prototype.is_cmd_fontZoomReset_supported = function() {
 }
 
 viewManager.prototype.is_cmd_fontZoomReset_enabled = function() {
-    return this.currentView && this.currentView.scintilla;
+    return this.currentView && this.currentView.getAttribute('type') == 'editor';
 }
 
 viewManager.prototype.do_cmd_fontZoomReset = function() {
