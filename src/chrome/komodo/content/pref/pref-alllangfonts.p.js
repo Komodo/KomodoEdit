@@ -63,9 +63,9 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"].
 function PrefLangFonts_OnLoad()  {
     try {
         scintillaOverlayOnLoad();
-        document.getElementById('sample').init();
 
         gDialog = initDialog();
+        gDialog.bufferView.initWithBuffer("", "Text");
         onSampleBlur();
         parent.hPrefWindow.onpageload();
         gDialog.bufferView.onPosChangedCB = onPosChanged;
@@ -313,7 +313,8 @@ function loadSample()
     if (! sample) {
         sample = "No sample for " + language + " available.";
     }
-    gDialog.bufferView.initWithBuffer(sample, language);
+    gDialog.bufferView.setBufferText(sample);
+    gDialog.bufferView.language = language;
     gDialog.bufferView.anchor = sample.length/4;
     gDialog.bufferView.currentPos = sample.length/2;
 }
