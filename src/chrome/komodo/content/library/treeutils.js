@@ -12,32 +12,36 @@ if (typeof(ko)=='undefined') {
 
 ko.treeutils = {};
 (function() {
-
-this.getSelectedIndices = function(view, rootsOnly) {
+    
+this.getAllIndices = function(view) {
     var treeSelection = view.selection;
-    var selectedIndices = [];
+    var a = [];
     var numRanges = treeSelection.getRangeCount();
     var min = {}, max = {};
     for (var i = 0; i < numRanges; i++) {
         treeSelection.getRangeAt(i, min, max);
         var mx = max.value;
         for (var j = min.value; j <= mx; j++) {
-            selectedIndices.push(j);
-            if (rootsOnly && view.isContainerOpen(j)) {
-                var nextSiblingIndex = view.getNextSiblingIndex(j);
-                if (nextSiblingIndex == -1 || nextSiblingIndex > mx + 1) {
-                    if (i < numRanges - 1) {
-                        throw new Error("node at row "
-                                        + j
-                                        + " supposedly at end, but we're only at range "
-                                        + (i + 1)
-                                        + " of "
-                                        + numRanges);
-                    }
-                    j = mx;
-                } else {
-                    j = nextSiblingIndex -1;
-                }
+            a.push(j);
+        }
+    }
+    return a;
+};
+
+this.getSelectedIndices = function(view, rootsOnly) {
+    var indices = this.getAllIndices(view);
+    var lim = indices.length;
+    var selectedIndices = [];
+    for (var i = 0; i < lim; i++) {
+        var index = indices[i];
+        selectedIndices.push(index);
+        if (rootsOnly && view.isContainerOpen(index)) {
+            var nextSiblingIndex = view.getNextSiblingIndex(index);
+            if (nextSiblingIndex == -1) {
+                break;
+            }
+            while (i < lim - 1 && indices[i + 1] < nextSiblingIndex) {
+                i += 1;
             }
         }
     }
