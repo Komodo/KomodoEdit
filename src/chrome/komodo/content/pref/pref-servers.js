@@ -248,7 +248,7 @@ function onAddServerEntry() {
     var serverInfo = Components.classes["@activestate.com/koServerInfo;1"].
                         createInstance(Components.interfaces.koIServerInfo);
     if (current_server_idx > -1) {
-        oldServerInfo = servers[current_server_idx];
+        var oldServerInfo = servers[current_server_idx];
         // Preserving the GUID allows us to perform an update more easily
         serverInfo.init(oldServerInfo.guid, protocol, alias, hostname, port,
                         username, password, path, passive);
