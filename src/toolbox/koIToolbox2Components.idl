@@ -83,6 +83,9 @@ interface koIToolbox2Service: nsISupports {
     void importFiles(in wstring parentPath,
                      in unsigned long count,
                      [array, size_is(count)] in wstring paths);
+    void importFileWithNewName(in wstring parentPath,
+                               in wstring srcPath,
+                               in wstring destPath);
     void importV5Package(in wstring parentPath,
                          in wstring packagePath);
     void initialize();

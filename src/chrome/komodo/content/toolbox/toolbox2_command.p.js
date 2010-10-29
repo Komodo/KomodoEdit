@@ -46,6 +46,9 @@ if (typeof(ko.toolbox2)=='undefined') {
 
 (function() {
 
+var osPathSvc = (Components.classes["@activestate.com/koOsPath;1"]
+             .getService(Components.interfaces.koIOsPath));
+    
 this._getSelectedTool = function(assertOfType /* =type */) {
     var view = ko.toolbox2.manager.view;
     var tool = view.getTool(view.selection.currentIndex);
@@ -550,15 +553,47 @@ this.copyItem = function(event) {
     this._selectCurrentItems(true);
 };
 
+this.getContainerForIndex = function(index) {
+    if (index != -1 && !this.manager.view.isContainer(index)) {
+        // Get the parent (or the std toolbox) and use that
+        var parentIndex = this.manager.view.getParentIndex(index);
+        if (this.manager.view.isContainer(parentIndex)) {
+            return parentIndex;
+        } else if (this.manager.view.getLevel(index) == 0
+                   && (this.manager.view.getImageSrc(index, None)
+                       != 'chrome://fugue/skin/icons/toolbox.png')) {
+            // It's a top-level node in the std toolbox?
+            dump("Looks like we're dropping into the std toolbox\n");
+            return -1;
+        }
+    }
+    return index;
+};
+
 this.pasteIntoItem = function(event) {
     if (typeof(event) == "undefined") event = null;
     try {
         var view = this.manager.view;
         var index = this._clickedOnRoot() ?  -1 : view.selection.currentIndex;
+        index = this.getContainerForIndex(index);
         var paths = xtk.clipboard.getText().split("\n");
         var isCopying = true;
         if (xtk.clipboard.containsFlavors(["x-application/komodo-toolbox"])) {
             isCopying = parseInt(xtk.clipboard.getTextFlavor("x-application/komodo-toolbox"));
+        }
+        if (isCopying && paths.length == 1) {
+            var container = this.getContainerFromIndex(index);
+            var targetDirectory = container.path;
+            var newPath = osPathSvc.join(targetDirectory, osPathSvc.basename(paths[0]));
+            if (osPathSvc.exists(newPath) && !osPathSvc.isdir(newPath)) {
+                var fixedPath = this._getUniqueFileName(targetDirectory, newPath);
+                if (!fixedPath) {
+                    return;
+                } else if (fixedPath != newPath) {
+                    view.copyItemIntoTargetWithNewName(index, paths[0], osPathSvc.basename(fixedPath));
+                    return;
+                }
+            }
         }
         view.pasteItemsIntoTarget(index, paths, paths.length, isCopying);
         if (!isCopying) {
@@ -568,6 +603,76 @@ this.pasteIntoItem = function(event) {
         ko.dialogs.alert("toolbox2_command.js: Error: Trying to copy paths into the toolbox: "
                          + ex);
     }
+};
+
+this._getUniqueFileName = function(targetDirectory, newPath) {
+    if (!osPathSvc.exists(newPath)) {
+        return newPath;
+    }
+    var newName, selectionStart, selectionEnd;
+    [newName, selectionStart, selectionEnd] =
+        this._getNewSuggestedName(osPathSvc.basename(newPath), targetDirectory);
+    var suffix = ".komodotool"
+    if (newName.indexOf(suffix) > -1) {
+        newName = newName.substring(0, newName.length - suffix.length);
+    }
+    newName = ko.dialogs.prompt("Enter the basename for the new tool",
+                                "Filename:", newName, "A tool exists with this name",
+                                null, // mruName
+                                null, // validator
+                                null, // multiline
+                                null, // screenX
+                                null, // screenY
+                                null, // tacType
+                                null, // tacParam
+                                null, // tacShowCommentColumn
+                                selectionStart,
+                                selectionEnd
+                                );
+    if (!newName) return null;
+    if (newName.indexOf(suffix) == -1) {
+        newName += suffix;
+    }
+    return osPathSvc.join(targetDirectory, newName);
+};
+
+this._getNewSuggestedName = function(srcBaseName, targetDirPath) {
+    var newName, selectionStart, selectionEnd;
+    var copyPart = "_Copy";
+    var ptn = new RegExp('^(.*?)(?:(' + copyPart + ')(?:_(\\d+))?)?(\\..*)?$');
+    var m = ptn.exec(srcBaseName);
+    if (!m) {
+        newName = srcBaseName + copyPart;
+        selectionStart = srcBaseName.length;
+        selectionEnd = newName.length;
+    } else {
+        var i = 0;
+        var saneLimit = 1000; // prevent runaway loop, if code hits this hard.
+        while (true) {
+            if (m[4] === undefined) m[4] = "";
+            if (m[3] !== undefined) {
+                newName = m[1] + m[2] + "_" + (parseInt(m[3]) + 1) + m[4];
+            } else if (m[2] !== undefined) {
+                newName = m[1] + m[2] + "_2" + m[4];
+            } else {
+                newName = m[1] + copyPart + m[4];
+            }
+            i += 1;
+            if (i >= saneLimit || !osPathSvc.exists(osPathSvc.join(targetDirPath, newName))) {
+                selectionStart = m[1].length;
+                selectionEnd = newName.length - m[4].length;
+                break;
+            }
+            m = ptn.exec(newName);
+            if (!m) {
+                selectionStart = newName.length;
+                newName += copyPart;
+                selectionEnd = newName.length;
+                break;
+            }
+        }
+    }
+    return [newName, selectionStart, selectionEnd];
 };
 
 this._getLoadedMacros = function(paths) {
@@ -662,8 +767,6 @@ this.saveToolsAs_aux = function(event) {
     var askForFile = (selectedIndices.length == 1
                       && !toolTreeView.isContainer(selectedIndices[0]));
     var targetPath;
-    var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
-                getService(Components.interfaces.koIOsPath);
     var shutil = Components.classes["@activestate.com/koShUtil;1"].
                 getService(Components.interfaces.koIShUtil)
     var tool, srcPath;
@@ -973,19 +1076,7 @@ this._currentRow = function(event, tree) {
 this.doDrop = function(event, tree) {
     var index = this._currentRow(event, this.manager.widgets.tree);
     // Here we have to verify what we're doing.
-    if (index != -1 && !this.manager.view.isContainer(index)) {
-        // Get the parent (or the std toolbox) and use that
-        var parentIndex = this.manager.view.getParentIndex(index);
-        if (this.manager.view.isContainer(parentIndex)) {
-            index = parentIndex;
-        } else if (this.manager.view.getLevel(index) == 0
-                   && (this.manager.view.getImageSrc(index, None)
-                       != 'chrome://fugue/skin/icons/toolbox.png')) {
-            // It's a top-level node in the std toolbox?
-            dump("Looks like we're dropping into the std toolbox\n");
-            index = -1;
-        }
-    }
+    index = this.getContainerForIndex(index);
     var dt = event.dataTransfer;
     var dropEffect = dt.dropEffect;
     // The dropEffect field is only good for internal drag/drop.
@@ -1054,7 +1145,7 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
             return false;
         }
         var sourceURIParent = sourceURI.substr(0, sourceURI.lastIndexOf("/"));
-        if (targetURI == sourceURIParent) {
+        if (targetURI == sourceURIParent && !copying) {
             this.log.error("ko.toolbox2.doDrop: can't drop the item "
                            + sourceURI
                            + " onto its parent.");
@@ -1098,7 +1189,23 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
                     this.log.error("Remote URIs not yet supported");
                     continue;
                 }
-                this.manager.toolbox2Svc.importFiles(targetDirectory, 1, [path]);
+                var targetPath, newPath = null;
+                if (koDropData.isKomodoToolURL) {
+                    targetPath = osPathSvc.join(targetDirectory,
+                                                 osPathSvc.basename(path));
+                    if (osPathSvc.exists(targetPath)
+                        && !osPathSvc.isdir(targetPath)) {
+                        newPath = this._getUniqueFileName(targetDirectory, path);
+                        if (newPath && newPath == path) {
+                            newPath = null;
+                        }
+                    }
+                }
+                if (newPath) {
+                    this.manager.toolbox2Svc.importFileWithNewName(targetDirectory, path, newPath);
+                } else {
+                    this.manager.toolbox2Svc.importFiles(targetDirectory, 1, [path]);
+                }
                 //TODO: Add an arg to importFiles to delete the imported file if
                 // importing succeeds.
                 loadedSomething = true;
@@ -1138,7 +1245,7 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
             try {
                 observerSvc.notifyObservers(null, 'toolbox-tree-changed', targetDirectory);
             } catch(ex) {
-                dump("Failed to send toolbox-tree-changed: " + ex + "\n");
+                this.log.exception("Failed to send toolbox-tree-changed: " + ex);
             }
         } else {
             this.manager.view.reloadToolsDirectoryView(index);

@@ -159,6 +159,9 @@ interface koIToolbox2HTreeView: nsITreeView {
                               [array, size_is(count)] in wstring paths,
                               in unsigned long count,
                               in boolean copying);
+    void copyItemIntoTargetWithNewName(in long targetIndex,
+                                       in wstring srcPath,
+                                       in wstring newBaseName);
 
     // This routine figures out which top-level nodes to display
     // in the tree, and rebuilds it.

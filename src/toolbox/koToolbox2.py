@@ -1357,6 +1357,26 @@ class Database(object):
 _slugify_re = re.compile(r'[^a-zA-Z0-9\-=\+]+')
 def slugify(s):
     return re.sub(_slugify_re, '_', s)
+
+def updateToolName(path, newBaseName):
+    try:
+        fp = open(path, 'r')
+        data = json.load(fp, encoding="utf-8")
+        fp.close()
+        if newBaseName.endswith(TOOL_EXTENSION):
+            newToolname = newBaseName[:-len(TOOL_EXTENSION)]
+        else:
+            newToolname = newBaseName
+        data['name'] = newToolname
+        fp = open(path, 'w')
+        json.dump(data, fp, encoding="utf-8", indent=2)
+        fp.close()
+    except:
+        try:
+            log.exception("Error when trying to assign tool at %s name %s", path, newBaseName)
+            os.unlink(path)
+        except:
+            pass
                 
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
@@ -1659,6 +1679,17 @@ class ToolboxLoader(object):
             else:
                 log.warn("import tool: skipping file %s as it isn't a Komodo tool, has ext %s",
                          srcPath, os.path.splitext(srcPath)[1] )
+        
+    def importFileWithNewName(self, parentPath, srcPath, destPath):
+        parent_id = self.db.get_id_from_path(parentPath)
+        ext = os.path.splitext(srcPath)[1]
+        if ext == TOOL_EXTENSION:
+            shutil.copy(srcPath, destPath)
+            updateToolName(destPath, os.path.basename(destPath))
+            self._testAndAddItem(True, parentPath, destPath, parent_id)
+        else:
+            log.warn("import tool: skipping file %s as it isn't a Komodo tool, has ext %s",
+                     srcPath, os.path.splitext(srcPath)[1] )
 
     _up_dir_re = re.compile(r'(?:^|[/\\])\.\.(?:$|[/\\])')
     def _importZippedFiles(self, srcPath, parentPath, parent_id):

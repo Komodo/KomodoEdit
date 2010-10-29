@@ -491,11 +491,7 @@ class KoToolbox2HTreeView(TreeView):
     def copyLocalFolder(self, srcPath, targetDirPath):
         fileutils.copyLocalFolder(srcPath, targetDirPath)
 
-    def pasteItemsIntoTarget(self, targetIndex, paths, copying):
-        # We need to work with the model indices, because we're
-        # changing this tree.  We can use the current view to
-        # find the source and destination, but then need to work
-        # with model coordinates for updating the rows.
+    def _getTargetInfo(self, targetIndex):
         if targetIndex == -1:
             stdToolboxPath = self._toolsMgr.getToolById(self.toolbox2Svc.getStandardToolboxID()).path
             targetModelIndex = self.getIndexByPathModel(stdToolboxPath)
@@ -514,7 +510,23 @@ class KoToolbox2HTreeView(TreeView):
             raise Exception("target %s (%d) isn't in the database" % (
                 targetPath, targetIndex
             ))
-                
+        return targetModelIndex, targetPath
+
+    def _postPasteItemsByCopy(self, targetModelIndex, targetPath):
+        self.toolbox2Svc.reloadToolsDirectory(targetPath)
+        self.reloadToolsDirectoryView_ByModel(targetModelIndex)
+        view_before_len = len(self._rows_view)
+        self._filter_std_toolbox()
+        view_after_len = len(self._rows_view)
+        self._tree.rowCountChanged(0, view_after_len - view_before_len)
+        self._tree.invalidate()
+
+    def pasteItemsIntoTarget(self, targetIndex, paths, copying):
+        # We need to work with the model indices, because we're
+        # changing this tree.  We can use the current view to
+        # find the source and destination, but then need to work
+        # with model coordinates for updating the rows.
+        targetModelIndex, targetPath = self._getTargetInfo(targetIndex)
         if copying:
             # Just copy the paths to the targetIndex, refresh the
             # target and its children, and refresh the view
@@ -536,15 +548,10 @@ class KoToolbox2HTreeView(TreeView):
                         shutil.copy(path, targetPath)
                     except:
                         log.exception("Can't copy src:%s to  targetPath:%s", path, targetPath)
-            self.toolbox2Svc.reloadToolsDirectory(targetPath)
-            self.reloadToolsDirectoryView_ByModel(targetModelIndex)
-            view_before_len = len(self._rows_view)
-            self._filter_std_toolbox()
-            view_after_len = len(self._rows_view)
-            self._tree.rowCountChanged(0, view_after_len - view_before_len)
-            self._tree.invalidate()
+            self._postPasteItemsByCopy(targetModelIndex, targetPath)
             return
 
+        # Now do the part where we move the items, not copying.
         parentIndicesToUpdate = [targetModelIndex]
         # Moving is harder, because we have to track the indices we've dropped.
         for path in paths:
@@ -591,6 +598,31 @@ class KoToolbox2HTreeView(TreeView):
                 self._tree.ensureRowIsVisible(finalTargetIndex)
         # Otherwise who knows.  Leave the tree alone.
                 
+    def copyItemIntoTargetWithNewName(self, targetIndex, srcPath, newBaseName):
+        # See comments at start of pasteItemsIntoTarget
+        targetModelIndex, targetPath = self._getTargetInfo(targetIndex)
+        newPath = os.path.join(targetPath, newBaseName)
+        if not os.path.exists(srcPath):
+            #TODO: Bundle all the problems into one string that gets raised back.
+            log.debug("Path %s doesn't exist", srcPath)
+        elif os.path.isdir(srcPath):
+            if targetPath.startswith(srcPath):
+                log.error("Refuse to copy path %s into one of its descendants (%s)",
+                          srcPath, targetPath)
+                return
+            try:
+                fileutils.copyLocalFolder(srcPath, targetPath)
+            except:
+                log.exception("fileutils.copyLocalFolder(src:%s to  targetPath:%s) failed", srcPath, targetPath)
+        else:
+            try:
+                shutil.copy(srcPath, newPath)
+                koToolbox2.updateToolName(newPath, newBaseName)
+            except:
+                log.exception("Can't copy src:%s to  targetPath:%s", srcPath, newPath)
+        self._postPasteItemsByCopy(targetModelIndex, targetPath)
+        return
+
     def reloadToolsDirectoryView(self, viewIndex):
         # Refresh the model tree, and refilter into the view tree
         before_len = len(self._rows_view)
