@@ -1074,9 +1074,12 @@ class KoCodeIntelDBPreloader(threading.Thread):
                         else:
                             if langAppInfo.executablePath:
                                 # Get the version and update this lang.
-                                ver_match = re.search("([0-9]+.[0-9]+)", langAppInfo.version)
-                                if ver_match:
-                                    ver = ver_match.group(1)
+                                try:
+                                    ver_match = re.search("([0-9]+.[0-9]+)", langAppInfo.version)
+                                    if ver_match:
+                                        ver = ver_match.group(1)
+                                except:
+                                    log.error("KoCodeIntelDBPreloader.run: failed to get langAppInfo.version for language %s", lang)
                                 stdlibs_zone.update_lang(lang, self.progress_cb, ver=ver)
                             else:
                                 # Just update the progress.
