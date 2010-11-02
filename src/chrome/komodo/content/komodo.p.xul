@@ -2692,7 +2692,6 @@
                   persist="buttonstyle"
                   buttonstyle="text">
                 <menupopup id="statusbar-encoding-menupopup"
-                           class="menulist-menupopup"
                            onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
             </toolbarbutton>
         </statusbarpanel>

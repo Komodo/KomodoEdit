@@ -56,7 +56,6 @@ this.getEncodingPopup = function encodingMenu_buildHierarchy(hierarchy, toplevel
     if (hierarchy.container == true)  {
         // build menu
         menupopup = document.createElementNS(XUL_NS, 'menupopup');
-        menupopup.setAttribute('class','menulist-menupopup');
         hierarchy.getChildren(children, count);
         children = children.value;
 
