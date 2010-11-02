@@ -139,6 +139,7 @@
 <!ENTITY askMeWhatFilesToReload.label "Ask me what files to reload">
 <!ENTITY askMeWhatToDo.label "Ask me what to do">
 <!ENTITY askMeWhetherToRestoreWorkspace.label "Ask me whether to restore workspace">
+<!ENTITY assignEmptyFilesSpecifiedEOL.label "Assign new, empty files this EOL">
 <!ENTITY autoAdjustClosingBraces.label "Auto-adjust closing braces">
 <!ENTITY autoDetectFileEncodingWhenOpened.label "Auto-Detect File Encoding when Opened">
 <!ENTITY bAbbreviatedMonthName.label "&#37;b : abbreviated month name">

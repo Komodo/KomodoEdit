@@ -441,6 +441,20 @@ class koDocumentBase:
             except:
                 # ignore, noone listening
                 pass
+        if self.get_bufferLength() == 0:
+            try:
+                if self._globalPrefs.getBooleanPref('assignEmptyFilesSpecifiedEOL'):
+                    try:
+                        eolPref = self._globalPrefs.getStringPref("endOfLine")
+                        eol = eollib.eolPref2eol[eolPref]
+                    except KeyError:
+                        # Be paranoid: stay with system default if pref value is bogus.
+                        log.exception("unexpected 'endOfLine' pref value: %r", eolPref)
+                        eol = eollib.EOL_PLATFORM
+                    self.set_new_line_endings(eol)
+            except:
+                path = getattr(file, 'path', 'path:?')
+                log.exception("_loadfile: failed to set eol on file %s", path)
         self.set_isDirty(0)
         
     def _get_buffer_from_file(self, file):

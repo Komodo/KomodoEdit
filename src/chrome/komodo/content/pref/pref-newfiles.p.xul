@@ -85,7 +85,7 @@
                             prefattribute="data">
                         <!-- XXX This bugs me. One of the options should be
                              "System default" so that Komodo prefs files can be
-                             potable between OSes. - TM -->
+                             portable between OSes. - TM -->
                         <menupopup>
                            <menuitem data="CRLF" label="&DOSWindowsRN.label;"/>
                            <menuitem data="LF" label="&UNIXN.label;"/>
@@ -94,6 +94,11 @@
                    </menulist>
                 </hbox>
            </vbox>
+            <separator class="thin"/>
+            <checkbox id="assignEmptyFilesSpecifiedEOL"
+                      style="margin-left: 27px;"
+                      label="&assignEmptyFilesSpecifiedEOL.label;"
+                      pref="true"/>
     
             <separator class="thin"/>
             <label value="&noExtensionFile.label;"/>

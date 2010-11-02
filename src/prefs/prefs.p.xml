@@ -55,6 +55,7 @@
 <!-- #else -->
   <string id="endOfLine">LF</string>
 <!-- #endif -->
+  <boolean id="assignEmptyFilesSpecifiedEOL">true</boolean>
   <string id="browser"></string> <!-- no default value -->
   <!-- browser_preview_method - where to open browser previews for files
         "in-tab-other-group": Preview in Komodo tab, other tab group
