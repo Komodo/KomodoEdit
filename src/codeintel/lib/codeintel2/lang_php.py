@@ -2056,7 +2056,7 @@ class PHPParser:
 
     def addFunction(self, name, phpArgs=None, attributes=None, doc=None,
                     returnByRef=False):
-        log.debug("FUNC: %s(%r %r) on line %d", name, phpArgs, self.lineno)
+        log.debug("FUNC: %s(%r) on line %d", name, phpArgs, self.lineno)
         classname = ''
         extendsName = ''
         if self.currentClass:
