@@ -310,8 +310,7 @@ class KoPlaceTreeView(TreeView):
     _com_interfaces_ = [components.interfaces.nsIObserver,
                         components.interfaces.koIPlaceTreeView,
                         components.interfaces.nsITreeView,
-                        components.interfaces.koIFileNotificationObserver,
-                        components.interfaces.nsISupportsWeakReference]
+                        components.interfaces.koIFileNotificationObserver]
     _reg_clsid_ = "{3b4b4e60-0bbd-4efc-b118-a153b3f84166}"
     _reg_contractid_ = "@activestate.com/koPlaceTreeView;1"
     _reg_desc_ = "KoPlacesTreeView Tree View"
@@ -347,8 +346,7 @@ class KoPlaceTreeView(TreeView):
         self._honorNextToggleOpenState = True
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        self._wrapSelf = WrapObject(self, components.interfaces.nsIObserver)
-        self._observerSvc.addObserver(self._wrapSelf, "file_status", True) # weakref
+        self._observerSvc.addObserver(self, "file_status", False)
 
         self._RCService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
                   getService(components.interfaces.koIRemoteConnectionService)
