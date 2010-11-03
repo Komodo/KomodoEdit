@@ -2341,6 +2341,7 @@ class PHPParser:
                         citdl = valueType[0]
                     break
             else:
+                pos += 1
                 break
             pos += 1
         sig_parts += text[pos:]
