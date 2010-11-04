@@ -272,7 +272,7 @@
 	<key>CFBundleSignature</key>
 	<string>KOMO</string>
 	<key>CFBundleVersion</key>
-	<string>PP_KO_SHORT_VERSION</string>
+	<string>PP_KO_VERSION</string>
 	<key>NSAppleScriptEnabled</key>
 	<true/>
 </dict>
