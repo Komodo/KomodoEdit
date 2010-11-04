@@ -2338,6 +2338,16 @@ this.onload = function views_onload() {
                 var activated = subject.QueryInterface(Components.interfaces.nsISupportsPRBool).data;
                 if (activated) {
                     ko.window.checkDiskFiles();
+// #if PLATFORM == "win"
+                    // Ensure the Komodo focus is set correctly - bug 86766.
+                    var focusedElement = document.commandDispatcher.focusedElement;
+                    if (focusedElement.localName == "embed" &&
+                        focusedElement.parentNode.localName == "scintilla") {
+                        // Should not be focused on the embed element, should
+                        // always be focused on the Scintilla element.
+                        ko.views.manager.currentView.setFocus();
+                    }
+// #endif
                 }
             }
         }
