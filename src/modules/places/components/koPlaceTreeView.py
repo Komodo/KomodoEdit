@@ -342,6 +342,11 @@ class KoPlaceTreeView(TreeView):
         self._isLocal = True
         self._data = {} # How threads share results
 
+        # Map row # => requestID,
+        # Used to avoid processing multiple sequential requests to refresh
+        # the same row.
+        self._currentRefreshRequests = {} 
+
         self._tree = None
         self._honorNextToggleOpenState = True
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
@@ -1708,6 +1713,7 @@ class KoPlaceTreeView(TreeView):
             self.lock.release()
         rowNode.show_busy()
         self._tree.invalidateRow(index)
+        self._currentRefreshRequests[index] = requestID
         self.workerThread.put(('toggleOpenState_Open',
                                {'index': index,
                                 'node':rowNode,
@@ -1720,6 +1726,14 @@ class KoPlaceTreeView(TreeView):
     def post_refreshView(self, rv, requestID):
         index, nextIndex, originalNode, firstVisibleRow =\
             self.getItemsByRequestID(requestID, 'index', 'nextIndex', 'node', 'firstVisibleRow')
+        try:
+            if self._currentRefreshRequests[index] > requestID:
+                # Another refreshView request on this node is underway
+                originalNode.restore_icon()
+                return
+            del self._currentRefreshRequests[index]
+        except KeyError:
+            pass
         fixedIndex, rowNode = self._postRequestCommonNodeHandling(originalNode, index,
                                                          "post_refreshView")
         if 0:
