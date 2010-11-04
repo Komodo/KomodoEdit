@@ -614,43 +614,91 @@ class KoCommenterLanguageService:
                     scimoz.selectionEnd = selEnd - len(lastPrefix)
             scimoz.hideSelection(0)
             scimoz.xOffset = xOffset
+            
+    def _getSelectionDelimiterPositions(self, scimoz, startIndex, endIndex,
+                                        prefix, suffix):
+        # Unicode: assume delimiters don't contain multi-byte characters
+        p = None
+        # First look to see if the selection starts immediately after the prefix
+        if startIndex >= len(prefix):
+            pStart, pEnd = startIndex-len(prefix), startIndex
+            p = scimoz.getTextRange(pStart, pEnd)
+            if p != prefix:
+                p = None
+        if p is None:
+            # Does the selection start with the prefix?
+            if startIndex + len(prefix) < endIndex:
+                pStart, pEnd = startIndex, startIndex + len(prefix)
+                p = scimoz.getTextRange(pStart, pEnd)
+                if p != prefix:
+                    p = None
+        if p is None:
+            return None
+        # Same with the suffix.  Note that we handle
+        # /*|abc|*/   |/*abc*/|  |/*abc|*/   /*|abc*/|
+        # where '|' marks the selection points
+            
+        s = None
+        if endIndex < scimoz.length - len(suffix):
+            sStart, sEnd = endIndex, endIndex+len(suffix)
+            s = scimoz.getTextRange(sStart, sEnd)
+            if s != suffix:
+                s = None
+        if s is None and pEnd <= endIndex - len(suffix):
+            # Try finding the suffix at the end of the selection
+            sStart, sEnd = endIndex - len(suffix), endIndex
+            s = scimoz.getTextRange(sStart, sEnd)
+            if s != suffix:
+                s = None
+        if s is None:
+            return None
+        return pStart, pEnd, sStart, sEnd
 
     def _uncommentBlock(self, scimoz, startIndex, endIndex):
-        xOffset = scimoz.xOffset
-        selStart = scimoz.selectionStart
-        selEnd = scimoz.selectionEnd
         delimiters = self.delimiterInfo["block"]
 
         for prefix, suffix in delimiters:
-            # Unicode: assume delimiters don't contain multi-byte characters
-            pStart, pEnd = startIndex-len(prefix), startIndex
-            sStart, sEnd = endIndex, endIndex+len(suffix)
-            p = scimoz.getTextRange(pStart, pEnd)
-            s = scimoz.getTextRange(sStart, sEnd)
-            #log.debug("block uncomment delimiter match if (%s==%s and %s==%s)" % (p, prefix, s, suffix))
-            if (p == prefix and s == suffix):
-                scimoz.hideSelection(1)
-                # remove the existing prefix and suffix (suffix first to get
-                # indeces correct)
-                scimoz.beginUndoAction()
-                try:
-                    scimoz.targetStart = sStart
-                    scimoz.targetEnd = sEnd
-                    scimoz.replaceTarget(0, "")
-                    scimoz.targetStart = pStart
-                    scimoz.targetEnd = pEnd
-                    scimoz.replaceTarget(0, "")
-                finally:
-                    scimoz.endUndoAction()
-                # restore the selection and cursor position
-                scimoz.selectionStart = selStart - len(prefix)
-                scimoz.selectionEnd = selEnd - len(prefix)
-                scimoz.hideSelection(0)
-        scimoz.xOffset = xOffset
+            coordinates = self._getSelectionDelimiterPositions(scimoz,
+                                startIndex, endIndex, prefix, suffix)
+            if coordinates is None:
+                continue
+            pStart, pEnd, sStart, sEnd = coordinates
+            xOffset = scimoz.xOffset
+            selStart = scimoz.selectionStart
+            selEnd = scimoz.selectionEnd
+            scimoz.hideSelection(1)
+            # remove the existing prefix and suffix (suffix first to get
+            # indices correct)
+            scimoz.beginUndoAction()
+            try:
+                scimoz.targetStart = sStart
+                scimoz.targetEnd = sEnd
+                scimoz.replaceTarget(0, "")
+                scimoz.targetStart = pStart
+                scimoz.targetEnd = pEnd
+                scimoz.replaceTarget(0, "")
+            finally:
+                scimoz.endUndoAction()
+            # restore the selection and cursor position
+            scimoz.selectionStart = pStart
+            scimoz.selectionEnd = sStart - len(prefix)
+            scimoz.hideSelection(0)
+            scimoz.xOffset = xOffset
+            break
 
-    def _determineMethodAndDispatch(self, scimoz, workers):
+    def _determineMethodAndDispatch(self, scimoz, workers, commenting=True):
         selStart = scimoz.selectionStart
         selEnd = scimoz.selectionEnd
+        if not commenting and selEnd > selStart:
+            # Don't bother looking at line positions yet -- if the selection
+            # starts and ends with a particular delimiter pair, use it
+            for prefix, suffix in self.delimiterInfo.get("block", []):
+                coordinates = self._getSelectionDelimiterPositions(scimoz, selStart, selEnd,
+                                        prefix, suffix)
+                if coordinates:
+                    workers["block"](scimoz, selStart, selEnd)
+                    return
+                
         selStartLine = scimoz.lineFromPosition(selStart)
         selEndLine = scimoz.lineFromPosition(selEnd)
         # Handle line selection mode (as used by vi).
@@ -690,7 +738,10 @@ class KoCommenterLanguageService:
             print "comment delimiter info: %s" % self.delimiterInfo
 
         # do the commenting/uncommenting
-        if preferBlockCommenting and self.delimiterInfo.get("block", None):
+        if (self.delimiterInfo.get("block", None)
+            and (preferBlockCommenting
+                 or (not self.delimiterInfo.has_key("line")
+                     and selStart < selEnd))):
             workers["block"](scimoz, selStart, selEnd)
         elif self.delimiterInfo.get("line", None):
             textStart = scimoz.positionFromLine(selStartLine)
@@ -732,7 +783,7 @@ class KoCommenterLanguageService:
                 scimoz.getStyledText(0, scimoz.textLength), # styledText
                 scimoz.currentPos, # position
             )
-        self._determineMethodAndDispatch(scimoz, commenters)
+        self._determineMethodAndDispatch(scimoz, commenters, commenting=True)
         if self.DEBUG:
             sciutils._printBanner("autocomment (after)")
             sciutils._printBufferContext(
@@ -747,7 +798,7 @@ class KoCommenterLanguageService:
             "line"  : self._uncommentLines,
             "block" : self._uncommentBlock
         }
-        self._determineMethodAndDispatch(scimoz, uncommenters)
+        self._determineMethodAndDispatch(scimoz, uncommenters, commenting=False)
 
 
 
