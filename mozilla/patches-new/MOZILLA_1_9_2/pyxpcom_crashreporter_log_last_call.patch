@@ -1,0 +1,51 @@
+Log the last used PyXPCOM method call into the Crash Reporter extra file.
+
+There is a slight performance hit on this - as an extra XPCOM call is made
+per PyXPCOM call, so it's only currently enabled in the nightly builds.
+
+Index: /home/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/extensions/python/xpcom/src/PyGStub.cpp
+--- extensions/python/xpcom/src/PyGStub.cpp
++++ extensions/python/xpcom/src/PyGStub.cpp
+@@ -49,6 +49,13 @@
+ #include "PyXPCOM_std.h"
+ #include <nsIInterfaceInfoManager.h>
+ 
++#ifdef MOZ_CRASHREPORTER
++#include "nsIXULAppInfo.h"
++#include "nsXPCOMCIDInternal.h"
++#include "nsICrashReporter.h"
++static nsICrashReporter *g_appCrashReporter = nsnull;
++#endif
++
+ PyXPCOM_XPTStub::PyXPCOM_XPTStub(PyObject *instance, const nsIID &iid)
+ 	: PyG_Base(instance, iid)
+ {
+@@ -81,6 +88,28 @@
+ 	PyObject *obParams = NULL;
+ 	PyObject *result = NULL;
+ 	PyObject *obThisObject = NULL;
++
++#ifdef MOZ_CRASHREPORTER
++        // Add the last XPCOM method into the Crash Reporter information.
++        if (g_appCrashReporter == nsnull) {
++            //printf("\n\n Getting the XUL App Info service\n");
++            nsCOMPtr<nsIXULAppInfo> xapp (do_GetService(XULAPPINFO_SERVICE_CONTRACTID));
++            if (xapp) {
++                //printf("  querying for the nsICrashReporter service\n");
++                nsCOMPtr<nsICrashReporter> localAppCrashReporter (do_QueryInterface(xapp));
++                if (localAppCrashReporter) {
++                    g_appCrashReporter = localAppCrashReporter;
++                    //printf("    all good!\n");
++                }
++            }
++        }
++        if (g_appCrashReporter) {
++            //printf("\n\n Reporting\n\n");
++            g_appCrashReporter->AnnotateCrashReport(NS_LITERAL_CSTRING("PyxpcomMethod"),
++                                                    nsDependentCString(info->name));
++        }
++#endif
++
+ 	PyObject *obMI = PyObject_FromXPTMethodDescriptor(info);
+ 	PyXPCOM_GatewayVariantHelper arg_helper(this, methodIndex, info, params);
+ 	if (obMI==NULL)
