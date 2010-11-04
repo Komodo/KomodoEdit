@@ -371,7 +371,6 @@ class _KoTool(object):
             # This should be impossible.
             log.error("Can't find a parent for tool id %d, path %s", self.id, self.path)
             return
-        qlog.debug("Go refresh parent %s",parentTool.name)
         _toolsManager.hierarchicalView.refreshToolView(parentTool)
 
     def save_handle_attributes(self):
