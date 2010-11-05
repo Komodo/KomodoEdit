@@ -47,7 +47,6 @@
 <!ENTITY refreshList.tooltiptext "Refresh List">
 <!ENTITY rename.label "Rename">
 <!ENTITY size.label "Size">
-<!ENTITY textInput.label "textInput">
 
 <!--filebrowser.xul-->
 <!ENTITY serverName.label "Server:">

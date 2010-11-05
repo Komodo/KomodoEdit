@@ -143,7 +143,7 @@
 
     <rows>
         <row align="center">
-            <label value="&fileName.label;" label="&textInput.label;" />
+            <label value="&fileName.label;"/>
             <textbox id="textInput"
                      flex="1"
                      type="autocomplete"
