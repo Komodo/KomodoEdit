@@ -236,7 +236,7 @@ diff -r -du src/Editor.cxx src/Editor.cxx
 +		break;
 +
 +	case SCI_GETDRAGPOSITION:
-+		return posDrop.Position();
++		return posDrag.Position();
 +
 +	case SCI_STOPTIMERS: // This patch from stop_timers.patch
 +		SetTicking(false);
