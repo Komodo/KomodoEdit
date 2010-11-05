@@ -570,15 +570,9 @@ class KoPlaceTreeView(TreeView):
     sortFuncTable = [None, _compare_item_natural, _compare_item_ascending,
                      _compare_item_descending]
     # Keep the items in sync with SORT_DIRECTION_NAME_NATURAL, etc.
-    def _sortingAdjustCase(self, name):
-        if sys.platform.startswith('lin'):
-            return name
-        return name.lower()
-
     def _sortItems(self, childNodes):
         assert self._sortedBy == "name"
-        adjustedItems = [(self._sortingAdjustCase(x.name), x)
-                         for x in childNodes]
+        adjustedItems = [(node.name.lower(), node) for node in childNodes]
         sortedItems = sorted(adjustedItems, cmp=self.sortFuncTable[self._sortDir])
         return [x[1] for x in sortedItems]    
 
