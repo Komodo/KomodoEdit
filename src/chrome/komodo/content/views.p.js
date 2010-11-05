@@ -2345,6 +2345,7 @@ this.onload = function views_onload() {
                         focusedElement.parentNode.localName == "scintilla") {
                         // Should not be focused on the embed element, should
                         // always be focused on the Scintilla element.
+                        log.warn("The focus is on the embed element - changing it to scintilla");
                         ko.views.manager.currentView.setFocus();
                     }
 // #endif
