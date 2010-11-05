@@ -79,7 +79,10 @@
     <hbox id="scintillaOverlayXul"/>
 
     <vbox flex="1">
-        <hbox><label id="tail_path_label" value="&filePath.label;"/><label id="dialogheader"/></hbox>
+        <hbox align="center">
+            <label id="tail_path_label" value="&filePath.label;"/>
+            <textbox id="dialogheader" readonly="true" flex="1"/>
+        </hbox>
         <separator />
         <view type="buffer" id="view" flex="1"/>
     </vbox>
