@@ -1497,32 +1497,6 @@
         <handler event="mousedown" phase="capturing">
             <![CDATA[
             this._mouseButton = event.button;
-            if (event.button == 0 && this._hyperlink) {
-                var scintilla = this.scintilla;
-                // Bug 76721: Go to definition on Ctrl+click, but only if we
-                // aren't in the middle of a drag/drop, or have a selection, or
-                // a modified click.
-                if (scintilla.inDragDrop) {
-                    this.removeHyperlinks("mouseup");
-                    return;
-                }
-                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
-                var y = event.clientY - this.boxObject.y;
-                var scimoz = this.scimoz;
-                var pos = scimoz.positionFromPointClose(x, y);
-                // Make sure that if there's a selection, we aren't clicking on it:
-                // Ctrl-click can be used to drag-copy a selection.
-                if (pos >= 0 &&
-                    ((scimoz.selectionStart == scimoz.selectionEnd) ||
-                     (pos < scimoz.selectionStart) ||
-                     (pos > scimoz.selectionEnd))) {
-                    scimoz.anchor = pos;
-                    scimoz.currentPos = pos;
-                    this._hyperlink.jump(this);
-                }
-            }
-            this.removeHyperlinks("mouseup");
-            this.clearKeyDownValues();
             ]]>
         </handler>
         <handler event="mousemove" phase="capturing">
@@ -1555,6 +1529,33 @@
                     this.log.exception("_flashMatchingTag: " + ex + "\n");
                 }
             }
+            if (event.button == 0 && this._hyperlink) {
+                var scintilla = this.scintilla;
+                // Bug 76721: Go to definition on Ctrl+click, but only if we
+                // aren't in the middle of a drag/drop, or have a selection, or
+                // a modified click.
+                if (scintilla.inDragDrop) {
+                    this.removeHyperlinks("mouseup");
+                    return;
+                }
+                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+                var y = event.clientY - this.boxObject.y;
+                var scimoz = this.scimoz;
+                var pos = scimoz.positionFromPointClose(x, y);
+                // Make sure that if there's a selection, we aren't clicking on it:
+                // Ctrl-click can be used to drag-copy a selection.
+                if (pos >= 0 &&
+                    ((scimoz.selectionStart == scimoz.selectionEnd) ||
+                     (pos < scimoz.selectionStart) ||
+                     (pos > scimoz.selectionEnd))) {
+                    scimoz.anchor = pos;
+                    scimoz.currentPos = pos;
+                    this._hyperlink.jump(this);
+                }
+            }
+            this.removeHyperlinks("mouseup");
+            this.clearKeyDownValues();
+
             window.setTimeout("window.updateCommands('scintilla-focus');", 1);
             ]]>
         </handler>
