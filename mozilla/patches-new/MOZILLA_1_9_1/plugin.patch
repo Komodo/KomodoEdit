@@ -1,16 +1,27 @@
 Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/generic/nsObjectFrame.cpp
---- layout/generic/nsObjectFrame.cpp	Thu Jan 28 17:05:14 2010 -0800
-+++ layout/generic/nsObjectFrame.cpp	Fri Feb 05 10:15:12 2010 -0800
-@@ -488,6 +488,8 @@
+@@ -459,6 +459,11 @@
+     return strncmp(GetPluginName(), aPluginName, strlen(aPluginName)) == 0;
+   }
+ 
++  PRBool AllowsFocus()
++  {
++    return mPluginAllowsFocus;
++  }
++
+ private:
+   void FixUpURLS(const nsString &name, nsAString &value);
+ 
+@@ -488,6 +493,9 @@
    // If true, destroy the widget on destruction. Used when plugin stop
    // is being delayed to a safer point in time.
    PRPackedBool                mDestroyWidget;
++  PRPackedBool                mPluginAllowsFocus;
 +  PRPackedBool                mPluginHandlesDomEvents;
 +  PRPackedBool                mPluginHandlesDragEvents;
    PRUint16          mNumCachedAttrs;
    PRUint16          mNumCachedParams;
    char              **mCachedAttrParamNames;
-@@ -746,8 +746,9 @@
+@@ -746,8 +754,9 @@
    return NS_OK;
  }
  
@@ -22,16 +33,27 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/g
  
  /* virtual */ nscoord
  nsObjectFrame::GetMinWidth(nsIRenderingContext *aRenderingContext)
-@@ -2238,6 +2239,8 @@
+@@ -1004,6 +1013,9 @@
+ PRBool
+ nsObjectFrame::IsFocusable(PRInt32 *aTabIndex, PRBool aWithMouse)
+ {
++  if (mInstanceOwner && !mInstanceOwner->AllowsFocus()) {
++    return PR_FALSE;
++  }
+   if (aTabIndex)
+     *aTabIndex = -1;
+   return nsObjectFrameSuper::IsFocusable(aTabIndex, aWithMouse);
+@@ -2238,6 +2250,9 @@
    mCachedAttrParamNames = nsnull;
    mCachedAttrParamValues = nsnull;
    mDestroyWidget = PR_FALSE;
++  mPluginAllowsFocus = PR_TRUE;
 +  mPluginHandlesDomEvents = PR_FALSE;
 +  mPluginHandlesDragEvents = PR_FALSE;
  
    PR_LOG(nsObjectFrameLM, PR_LOG_DEBUG,
           ("nsPluginInstanceOwner %p created\n", this));
-@@ -3752,8 +3753,15 @@
+@@ -3754,8 +3769,15 @@
                              anEvent.message == NS_MOUSE_BUTTON_DOWN &&
                              static_cast<const nsMouseEvent&>(anEvent).button ==
                                nsMouseEvent::eLeftButton &&
@@ -48,7 +70,7 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/g
  
        pluginWidget->EndDrawPlugin();
      }
-@@ -4025,7 +4037,7 @@
+@@ -4027,7 +4049,7 @@
    }
  
    nsCOMPtr<nsIDOMEventTarget> target(do_QueryInterface(mContent));
@@ -57,7 +79,7 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/g
  
      nsCOMPtr<nsIDOMEventListener> listener;
      QueryInterface(NS_GET_IID(nsIDOMEventListener), getter_AddRefs(listener));
-@@ -4044,17 +4054,19 @@
+@@ -4046,17 +4068,19 @@
      target->RemoveEventListener(NS_LITERAL_STRING("keydown"), listener, PR_TRUE);
      target->RemoveEventListener(NS_LITERAL_STRING("keyup"), listener, PR_TRUE);
  
@@ -88,11 +110,19 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/g
    }
  
    if (mWidget) {
-@@ -4505,7 +4519,11 @@
+@@ -4507,7 +4533,19 @@
    }
  
    nsCOMPtr<nsIDOMEventTarget> target(do_QueryInterface(mContent));
 -  if (target) {
++
++  if (target && mContent->AttrValueIs(kNameSpaceID_None,
++                                      nsGkAtoms::pluginAllowsFocusEvents,
++                                      NS_LITERAL_STRING("false"),
++                                      eCaseMatters)) {
++    mPluginAllowsFocus = PR_FALSE;
++  }
++
 +  if (target && !mContent->AttrValueIs(kNameSpaceID_None,
 +                                       nsGkAtoms::pluginHandlesDomEvents,
 +                                       NS_LITERAL_STRING("false"),
@@ -101,7 +131,7 @@ Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/g
  
      nsCOMPtr<nsIDOMEventListener> listener;
      QueryInterface(NS_GET_IID(nsIDOMEventListener), getter_AddRefs(listener));
-@@ -4524,17 +4542,23 @@
+@@ -4526,17 +4564,23 @@
      target->AddEventListener(NS_LITERAL_STRING("keydown"), listener, PR_TRUE);
      target->AddEventListener(NS_LITERAL_STRING("keyup"), listener, PR_TRUE);
  
