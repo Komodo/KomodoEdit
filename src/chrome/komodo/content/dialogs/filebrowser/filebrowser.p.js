@@ -541,6 +541,8 @@ function filebrowserLoad() {
   } else if (filePickerMode == modeGetFolder) {
     treeView.singleSelect = true;
     treeView.showOnlyDirectories = true;
+    document.title = bundle.GetStringFromName("openRemoteFolder");
+    document.getElementById("fileName.label").value = bundle.GetStringFromName("folderName");
   }
 
   // start out with a filename sort
