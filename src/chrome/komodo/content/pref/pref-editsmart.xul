@@ -78,6 +78,7 @@
 
         parent.hPrefWindow.onpageload();
 
+        pref_edgeLine_doEnabling();
         pref_hyperlinks_doEnabling();
         pref_lint_doEnabling();
 
@@ -99,6 +100,11 @@
         } else {
             elt.setAttribute('disabled', true);
         }
+    }
+
+    function pref_edgeLine_doEnabling() {
+        var enabled = document.getElementById("editUseEdge").checked;
+        _pref_setElementEnabledState("editAutoWrapColumn", enabled);
     }
 
     function pref_hyperlinks_doEnabling() {
@@ -195,8 +201,9 @@
             <separator class="thin"/>
             <checkbox id="editUseEdge"
                       label="&showEdgeLineHighlightCharactersBeyondEdgeLine.label;"
-                      pref="true"/>
-            <hbox align="center">
+                      pref="true"
+                      oncommand="pref_edgeLine_doEnabling();"/>
+            <hbox align="center" style="margin-left: 27px;">
                 <textbox id="editAutoWrapColumn" size="3" pref="true"/>
                 <text value="&fileEditSmartEdgeLine.label;"/>
             </hbox>
