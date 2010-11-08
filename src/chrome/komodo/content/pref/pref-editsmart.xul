@@ -58,9 +58,27 @@
 
     <script type="text/javascript">
         var useTabCharacterToCompleteWords="&useTabCharacterToCompleteWords.message;";
+        var showEdgeLine="&showEdgeLine.label;";
+        var highlightCharactersBeyondEdgeLine="&highlightCharactersBeyondEdgeLine.label;";
     </script>
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
+
+    function OnPreferencePageLoading(prefset) {
+        try {
+            var schemeName = prefset.getStringPref('editor-scheme');
+            var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService()
+            var currentScheme = schemeService.getScheme(schemeName);
+            var edgeCheckbox = document.getElementById('editUseEdge');
+            if (currentScheme.preferFixed) {
+                edgeCheckbox.setAttribute('label', showEdgeLine);
+            } else {
+                edgeCheckbox.setAttribute('label', highlightCharactersBeyondEdgeLine);
+            }
+        } catch (ex) {
+            // Ignore any errors.
+        }
+    }
 
     function editsmart_OnLoad() {
         try {
@@ -200,12 +218,12 @@
     
             <separator class="thin"/>
             <checkbox id="editUseEdge"
-                      label="&showEdgeLineHighlightCharactersBeyondEdgeLine.label;"
+                      label="&showEdgeLine.label;"
                       pref="true"
                       oncommand="pref_edgeLine_doEnabling();"/>
             <hbox align="center" style="margin-left: 27px;">
+                <label value="&fileEditSmartEdgeLine.label;"/>
                 <textbox id="editAutoWrapColumn" size="3" pref="true"/>
-                <text value="&fileEditSmartEdgeLine.label;"/>
             </hbox>
     
             <separator class="thin"/>

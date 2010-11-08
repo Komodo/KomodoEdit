@@ -216,7 +216,7 @@
 <!ENTITY donTAutoIndent.label "Don't auto-indent">
 <!ENTITY donTShowFoldMarks.label "Don't show fold marks">
 <!ENTITY doubleSlash.label "//">
-<!ENTITY edgeLineBackgroundColorOfTextTooFar.label "Edge Line / Background Color of Text Too Far">
+<!ENTITY edgeLineBackgroundColorOfTextTooFar.label "Line Edge / Background Color of Text Too Far">
 <!ENTITY edit.label "Edit...">
 <!ENTITY editAssociations.label "&quot;Edit&quot; Associations">
 <!ENTITY editButton.accesskey "e">
@@ -264,6 +264,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY hash.label "#">
 <!ENTITY help.label "Help">
 <!ENTITY hideQuickLinksPane.label "Hide Quick Links Pane">
+<!ENTITY highlightCharactersBeyondEdgeLine.label "Highlight characters that extend beyond the line edge column">
 <!ENTITY highlightCurrentLine.label "Highlight Current Line">
 <!ENTITY htmHTML.label ".htm: HTML">
 <!ENTITY htmlHTML.label ".html: HTML">
@@ -400,7 +401,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY setupCommonKomodoFileAssociations.title "Setup Common Komodo File Associations">
 <!ENTITY shortNameYouWishToCallThisServerConnection.tooltiptext "Short name you wish to call this server connection.">
 <!ENTITY showButtonText.label "Show button text">
-<!ENTITY showEdgeLineHighlightCharactersBeyondEdgeLine.label "Show edge line / Highlight characters beyond edge line">
+<!ENTITY showEdgeLine.label "Draw the line edge column">
 <!ENTITY showEndOfLineCharacters.label "Show end-of-line characters">
 <!ENTITY showIndentationGuides.label "Show indentation guides">
 <!ENTITY showKomodoResourcesToolbar.label "Show Komodo resources toolbar">
@@ -483,7 +484,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 
 <!--editing-properties.xul-->
 <!ENTITY fileEditingPropertiesWrapLines.label "Wrap long lines by:">
-<!ENTITY fileEditingPropertiesEdgeLine.label "Edge line column">
+<!ENTITY fileEditingPropertiesEdgeLine.label "Line edge column">
 
 <!--indent-properties.xul-->
 <!ENTITY fileIndentPropertiesSpacePerIndent.label "Number of spaces per indent">
@@ -560,7 +561,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY fileEditSmartWrapLines.label "Wrap long lines by:">
 <!ENTITY fileEditSmartWrapIndentation.label "Wrap indentation:">
 <!ENTITY fileEditSmartWrapMarkers.label "Wrap markers:">
-<!ENTITY fileEditSmartEdgeLine.label "Edge line column">
+<!ENTITY fileEditSmartEdgeLine.label "Line edge column:">
 <!ENTITY fileEditSmartFoldMarkStyle.label "Fold mark style:">
 <!ENTITY wordwrapIndentationFixed.label "Fixed Alignment">
 <!ENTITY wordwrapIndentationSame.label "Same Level Alignment">
