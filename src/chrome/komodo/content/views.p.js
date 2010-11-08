@@ -2341,7 +2341,8 @@ this.onload = function views_onload() {
 // #if PLATFORM == "win"
                     // Ensure the Komodo focus is set correctly - bug 86766.
                     var focusedElement = document.commandDispatcher.focusedElement;
-                    if (focusedElement.localName == "embed" &&
+                    if (focusedElement &&
+                        focusedElement.localName == "embed" &&
                         focusedElement.parentNode.localName == "scintilla") {
                         // Should not be focused on the embed element, should
                         // always be focused on the Scintilla element.
