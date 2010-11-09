@@ -2989,17 +2989,18 @@ this.recentProjectsTreeView.prototype.terminate = function() {
 
 this.recentProjectsTreeView.prototype._resetRows = function() {
     var rows = ko.mru.getAll("mruProjectList").map(function(uri) {
-            var m = PROJECT_URI_REGEX.exec(uri);
-            if (m) {
-                return [uri, decodeURIComponent(m[1])];
-            }
+            var path = ko.uriparse.URIToPath(uri);
+            var name;
             var lastSlash = uri.lastIndexOf('/');
-            var extStart = uri.lastIndexOf('.komodoproject');
-            if (extStart == -1) {
-                extStart = uri.lastIndexOf('.kpf');
+            if (lastSlash > -1) {
+                var lastDot = uri.lastIndexOf(".");
+                if (lastDot > -1
+                    && ['.komodoproject', '.kpf'].indexOf(uri.substr(lastDot)) > -1) {
+                    // Standard -- ends with ".komodoproject" or ".kpf"
+                    path = path.substr(0, path.lastIndexOf("."));
+                }
             }
-            var name = uri.substring(lastSlash + 1, extStart);
-            return [uri, decodeURIComponent(name)];
+            return [uri, path];
         });
     rows.reverse();
     this.rows = rows;

@@ -659,7 +659,7 @@
             seltype="single">
           <treecols id="placesSubpanelProjectsTreecols">
             <treecol id="placesSubpanelProjectNameTreecol"
-                     flex="1" primary="true" hideheader="true" />
+                     flex="1" primary="true" hideheader="true" crop="start"/>
           </treecols>
           <treechildren
               id="placesSubpanelProjectsTreechildren"
