@@ -597,15 +597,30 @@ class FileHandler(FileHandlerBase):
                     'isHidden':0}
         try:
             try:
-                stats = os.stat(self._decodedPath)
+                lstats = os.lstat(self._decodedPath) # Don't follow symlinks
             except EnvironmentError, ex:
                 try:
                     # XXX bug 63027, try the original path
-                    stats = os.stat(self._path)
+                    lstats = os.lstat(self._path)
                 except EnvironmentError, ex:
                     #log.exception(ex)
                     raise
-            mode = stats[stat.ST_MODE]
+            lmode = lstats[stat.ST_MODE]
+            _stats['isSymlink'] = int(stat.S_ISLNK(lmode))
+            if not _stats['isSymlink']:
+                mode = lmode
+                stats = lstats
+            else:
+                try:
+                    stats = os.stat(self._decodedPath)
+                except EnvironmentError, ex:
+                    try:
+                        # XXX bug 63027, try the original path
+                        stats = os.stat(self._path)
+                    except EnvironmentError, ex:
+                        #log.exception(ex)
+                        raise
+                mode = stats[stat.ST_MODE]
             _stats['mode'] = mode
             _stats['ino'] = stats[stat.ST_INO]
             _stats['dev'] = stats[stat.ST_DEV]
@@ -623,7 +638,6 @@ class FileHandler(FileHandlerBase):
             _stats['isExecutable'] = int(mode & stat.S_IEXEC == stat.S_IEXEC)
             _stats['isDirectory'] = int(stat.S_ISDIR(mode))
             _stats['isFile'] = int(stat.S_ISREG(mode))
-            _stats['isSymlink'] = int(stat.S_ISLNK(mode))
             _stats['isSpecial'] = int(stat.S_ISCHR(mode) or stat.S_ISBLK(mode) or stat.S_ISFIFO(mode) or stat.S_ISSOCK(mode))
             _stats['permissions'] = stat.S_IMODE(mode)
             
