@@ -896,12 +896,11 @@ viewMgrClass.prototype = {
             if (res == Components.interfaces.koIPlaceTreeView.MOVE_OTHER_DIR_FILENAME_CONFLICT) {
                 prompt = _bundle.formatStringFromName("overwriteFile.prompt",
                                                      [srcFileInfo.baseName], 1);
-                buttons = [overwrite_label, cancel_label];
             } else {
                 prompt = _bundle.formatStringFromName("saveFileWithNewName.prompt",
                                                      [srcFileInfo.baseName], 1);
-                buttons = [copy_label, overwrite_label, cancel_label];
             }
+            buttons = [copy_label, overwrite_label, cancel_label];
             var response = ko.dialogs.customButtons(prompt, buttons, cancel_label, text, title);
             if (!response || response == cancel_label) {
                 return true;
