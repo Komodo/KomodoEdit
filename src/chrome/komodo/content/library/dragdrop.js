@@ -333,7 +333,7 @@ if (typeof(ko.dragdrop)=='undefined') {
     KomodoDropData.prototype.unpack = function KoDropData_unpack(dragType, dragData) {
         switch(dragType) {
             case "komodo/tab":
-                _log.debug("onDrop:: komodo/tab: " + dragData);
+                _log.debug("unpack:: komodo/tab: " + dragData);
                 // If it's dropped on a different Komodo window, then
                 // move that tab to the target window.
                 var sourceTab = dragData;
@@ -373,7 +373,7 @@ if (typeof(ko.dragdrop)=='undefined') {
                 }
                 break;
             case "application/x-moz-file":
-                _log.debug("onDrop:: x-moz-file: " + dragData);
+                _log.debug("unpack:: x-moz-file: " + dragData);
                 // Ensure we decode the URI, bug 72873.
                 this.value = decodeURI(fileProtocolHandler.getURLSpecFromFile(dragData));
                 this.isURL = true;
@@ -381,7 +381,7 @@ if (typeof(ko.dragdrop)=='undefined') {
             case "application/x-moz-url":
             case "text/x-moz-url":
             case "text/uri-list":
-                _log.debug("onDrop:: x-moz-url: " + dragData);
+                _log.debug("unpack:: x-moz-url: " + dragData);
                 // Ensure we decode the URI, bug 72873.
                 // Note: x-moz-url has the format: "Url\nTitle\n"
                 this.value = decodeURI(dragData.split("\n")[0]);
@@ -458,7 +458,7 @@ if (typeof(ko.dragdrop)=='undefined') {
             var supportedTypes = acceptedFlavours.filter(
                          function(value) mozTypes.contains(value));
             if (!supportedTypes.length) {
-                _log.info("onDrop:: no supported flavours for item  " + i
+                _log.info("unpackDropData:: no supported flavours for item  " + i
                           + ":" + mozTypes);
                 continue;
             }
@@ -474,18 +474,18 @@ if (typeof(ko.dragdrop)=='undefined') {
                 try {
                     if (koDropData == null) {
                         koDropData = new KomodoDropData(mozType, mozDragData);
-                        _log.debug("onDrop:: best flavour: " + mozType);
+                        _log.debug("unpackDropData:: best flavour: " + mozType);
                         ko_drop_data.push(koDropData);
                     } else {
                         if (alternatives == null) {
                             alternatives = {};
                         }
                         alternatives[mozType] = new KomodoDropData(mozType, mozDragData);
-                        _log.debug("onDrop:: alternative flavour: " + mozType);
+                        _log.debug("unpackDropData:: alternative flavour: " + mozType);
                     }
                 } catch (ex) {
                     // Was not valid drop data.
-                    _log.info("onDrop:: could not unpack: " + mozType + ": " + mozDragData);
+                    _log.info("unpackDropData:: could not unpack: " + mozType + ": " + mozDragData);
                 }
             }
             if (alternatives) {
@@ -609,7 +609,7 @@ if (typeof(ko.dragdrop)=='undefined') {
         }
 
         if (open_list.length) {
-            _log.info('onDrop:: opening ' + open_list.length + ' items');
+            _log.info('openDroppedUrls:: opening ' + open_list.length + ' items');
             // Open the editor views.
             var editor_list = open_list.filter(function(element) { return !element.isImageURL });
             if (editor_list) {
