@@ -11,7 +11,7 @@
     "var newMacro = ko.toolbox2.createPartFromType('macro');", 
     "newMacro.setStringAttribute('name', d);", 
     "var lines = [", 
-    "    \"var paths = ko.filepicker.openFiles('\" + d.replace(/\\\\/g, '\\\\\\\\') + \"');\", ", 
+    "    \"var paths = ko.filepicker.browseForFiles('\" + d.replace(/\\\\/g, '\\\\\\\\') + \"');\", ", 
     "    \"if (paths == null)\",", 
     "    \"    return;\",", 
     "    \"ko.open.multipleURIs(paths);\",", 
