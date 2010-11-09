@@ -42,6 +42,12 @@ import tempfile
 from URIlib import *
 win32 = sys.platform.startswith("win")
 
+def _koFileSymlinkMatchesOSPath(path, koFile):
+    if os.path.islink(path):
+        return koFile.isSymlink
+    else:
+        return not koFile.isSymlink
+
 class TestURIParser(unittest.TestCase):
     filelist = []
     urllist = []
@@ -170,7 +176,7 @@ class TestFileHandler(unittest.TestCase):
         assert file.exists
         assert file.isDirectory
         assert not file.isFile
-        assert not file.isSymlink
+        assert _koFileSymlinkMatchesOSPath(d, file)
         assert not file.isSpecial
         assert file.isReadable
         assert file.isWriteable
@@ -182,7 +188,7 @@ class TestFileHandler(unittest.TestCase):
         assert file.exists
         assert file.isDirectory
         assert not file.isFile
-        assert not file.isSymlink
+        assert _koFileSymlinkMatchesOSPath(filename, file)
         assert not file.isSpecial
         assert file.isReadable
         assert file.isWriteable
@@ -190,11 +196,12 @@ class TestFileHandler(unittest.TestCase):
 
     def test_readFile(self):
         osPyc = os.__file__
-        file = FileHandler(os.path.dirname(osPyc)+'/os.py')
+        path = os.path.dirname(osPyc)+'/os.py'
+        file = FileHandler(path)
         assert file.exists
         assert not file.isDirectory
         assert file.isFile
-        assert not file.isSymlink
+        assert _koFileSymlinkMatchesOSPath(path, file)
         assert not file.isSpecial
         assert file.isReadable
         assert file.isWriteable
@@ -220,7 +227,7 @@ class TestFileHandler(unittest.TestCase):
             assert file.exists
             assert not file.isDirectory
             assert file.isFile
-            assert not file.isSymlink
+            assert _koFileSymlinkMatchesOSPath(filename, file)
             assert not file.isSpecial
             assert file.isReadable
             assert file.isWriteable
