@@ -475,16 +475,27 @@ class KoPlaceTreeView(TreeView):
     #---------------- Model for the tree view
 
     def getNodeForURI(self, uri):
-        return self._nodesForURI.get(uri, None)
+        self.lock.acquire()
+        try:
+            return self._nodesForURI.get(uri, None)
+        finally:
+            self.lock.release()
 
     def setNodeForURI(self, uri, koItemNode):
-        self._nodesForURI[uri] = koItemNode
+        self.lock.acquire()
+        try:
+            self._nodesForURI[uri] = koItemNode
+        finally:
+            self.lock.release()
         
     def removeNodeForURI(self, uri):
+        self.lock.acquire()
         try:
             del self._nodesForURI[uri]
         except KeyError:
             pass
+        finally:
+            self.lock.release()
 
     def removeSubtreeFromModelForURI(self, uri):
         koPlaceItem = self.getNodeForURI(uri)
@@ -493,46 +504,65 @@ class KoPlaceTreeView(TreeView):
         self.removeNodeFromParent(uri)
 
     def removeSubtreeFromModelForURI_aux(self, koPlaceItem):
-        childNodes = koPlaceItem.childNodes
+        self.lock.acquire()
+        try:
+            childNodes = koPlaceItem.childNodes
+        finally:
+            self.lock.release()
+
         for koChildItem in (childNodes or []):
             if not koChildItem.isSymbolicLink:
                 self.removeSubtreeFromModelForURI_aux(koChildItem)
         self.removeNodeForURI(koPlaceItem.uri)
+        self.lock.acquire()
         try:
             del self._nodeOpenStatusFromName[koPlaceItem.uri]
         except KeyError:
             pass
+        finally:
+            self.lock.release()
 
     def removeNodeFromParent(self, uri):
         parent_uri = self._getURIParent(uri)
         parent_node = self.getNodeForURI(parent_uri)
         if parent_node:
-            for (i, child_node) in enumerate(parent_node.childNodes):
-                if child_node.uri == uri:
-                    #qlog.debug("removeChildNode: found %s at %d", uri, i)
-                    del parent_node.childNodes[i]
-                    break
-            else:
-                pass
-                #qlog.debug("removeChildNode: didn't find %s in %s", uri, parent_uri)
+            self.lock.acquire()
+            try:
+                for (i, child_node) in enumerate(parent_node.childNodes):
+                    if child_node.uri == uri:
+                        #qlog.debug("removeChildNode: found %s at %d", uri, i)
+                        del parent_node.childNodes[i]
+                        break
+                else:
+                    pass
+                    #qlog.debug("removeChildNode: didn't find %s in %s", uri, parent_uri)
+            finally:
+                self.lock.release()
 
     def removeNodeFromModel(self, uri):
         parent_uri = self._getURIParent(uri)
         parent_node = self.getNodeForURI(parent_uri)
         self.removeNodeFromParent(uri)
         self.removeNodeForURI(uri)
+        self.lock.acquire()
         try:
             del self._nodeOpenStatusFromName[uri]
             parent_node.markForRefreshing()
         except KeyError:
             pass
+        finally:
+            self.lock.release()
 
     def _sortModel(self, uri):
         topModelNode = self.getNodeForURI(uri)
         if topModelNode is None:
             #qlog.debug("_sortModel(uri:%s) is None", uri)
             return
-        self._sortModel_aux(topModelNode)
+        self.lock.acquire()
+        try:
+            self._sortModel_aux(topModelNode)
+        finally:
+            self.lock.release()
         
     def _sortModel_aux(self, koPlaceItem):
         if not koPlaceItem.childNodes:
@@ -632,8 +662,15 @@ class KoPlaceTreeView(TreeView):
     def _fileStillExists(self, koFileEx):
         return os.path.exists(koFileEx.path)
 
+    def safe_isLocal(self):
+        self.lock.acquire()
+        try:
+            return self._isLocal
+        finally:
+            self.lock.release()
+
     def _moveToExistingPlace(self):
-        if not self._isLocal:
+        if not self.safe_isLocal():
             #TODO: Handle remote places... (unlikely, because we don't have notifications)
             self.closePlace()
             return
@@ -743,7 +780,7 @@ class KoPlaceTreeView(TreeView):
 
     def _targetFileExists(self, localFinalTargetPath, targetPath, srcBasename,
                           isDir_OutVal):
-        if not self._isLocal:
+        if not self.safe_isLocal():
             try:
                 conn = self._RCService.getConnectionUsingUri(self._currentPlace_uri)
                 finalTargetPath = targetPath + "/" + srcBasename
@@ -758,7 +795,7 @@ class KoPlaceTreeView(TreeView):
 
     def _targetFileExistsByFileExObj(self, targetFileEx, isDir_OutVal):
         path = targetFileEx.path
-        if not self._isLocal:
+        if not self.safe_isLocal():
             try:
                 conn = self._RCService.getConnectionUsingUri(targetFileEx.URI)
                 rfi = conn.list(path, True)
@@ -776,7 +813,7 @@ class KoPlaceTreeView(TreeView):
         srcPath = srcNode.path
         targetNode = self._rows[targetIndex]
         targetPath = targetNode.path
-        finalTargetPath = self._isLocal and os.path.join(targetPath, srcBasename) or (targetPath + "/" + srcBasename)
+        finalTargetPath = self.safe_isLocal() and os.path.join(targetPath, srcBasename) or (targetPath + "/" + srcBasename)
         isDir_OutVal = {}
 
         if self.getParentIndex(srcIndex) == targetIndex:
@@ -801,7 +838,7 @@ class KoPlaceTreeView(TreeView):
                           createInstance(components.interfaces.koIFileEx)
         finalTargetFileInfo = components.classes["@activestate.com/koFileEx;1"].\
                           createInstance(components.interfaces.koIFileEx)
-        if self._isLocal:
+        if self.safe_isLocal():
             srcFileInfo.path = srcPath
             finalTargetFileInfo.path = finalTargetPath
         else:
@@ -1248,18 +1285,26 @@ class KoPlaceTreeView(TreeView):
         placeFileEx = components.classes["@activestate.com/koFileEx;1"].\
                 createInstance(components.interfaces.koIFileEx)
         placeFileEx.URI = uri
-        self._isLocal = placeFileEx.isLocal
+        self.lock.acquire()
+        try:
+            isLocal = self._isLocal = placeFileEx.isLocal
+        finally:
+            self.lock.release()
         if placeFileEx.isFile:
             placeFileEx.path = placeFileEx.dirName
             uri = placeFileEx.URI
-        if self._isLocal:
+        if isLocal:
             self._addWatchForChanges(placeFileEx.path)
 
         self._currentPlace_uri = uri
         self._currentPlace_koFileEx = components.classes["@activestate.com/koFileEx;1"].\
                 createInstance(components.interfaces.koIFileEx)
         self._currentPlace_koFileEx.URI = uri
-        self._nodeOpenStatusFromName[uri] = time.time()
+        self.lock.acquire()
+        try:
+            self._nodeOpenStatusFromName[uri] = time.time()
+        finally:
+            self.lock.release()
         self._trimOpenStatusDict()
 
         item = self.getNodeForURI(uri)
@@ -1303,14 +1348,18 @@ class KoPlaceTreeView(TreeView):
 
     OPEN_PLACES_LIMIT = 100
     def _trimOpenStatusDict(self):
-        diff_count = len(self._nodeOpenStatusFromName) - self.OPEN_PLACES_LIMIT
-        if diff_count > self.OPEN_PLACES_LIMIT * 0.1:
-            # The oldest items are the smallest, and come first
-            keys_sorted_by_time = [a2 for a1, a2 in
-                               sorted([(y,x) for x, y in self._nodeOpenStatusFromName.items()])
-                              ]
-            for k in keys_sorted_by_time[0 : diff_count]:
-                del self._nodeOpenStatusFromName[k]            
+        self.lock.acquire()
+        try:
+            diff_count = len(self._nodeOpenStatusFromName) - self.OPEN_PLACES_LIMIT
+            if diff_count > self.OPEN_PLACES_LIMIT * 0.1:
+                # The oldest items are the smallest, and come first
+                keys_sorted_by_time = [a2 for a1, a2 in
+                                       sorted([(y,x) for x, y in self._nodeOpenStatusFromName.items()])
+                                       ]
+                for k in keys_sorted_by_time[0 : diff_count]:
+                    del self._nodeOpenStatusFromName[k]
+        finally:
+            self.lock.release()
 
 
     def _matchesFilter(self, name, filterString):
@@ -1345,18 +1394,23 @@ class KoPlaceTreeView(TreeView):
                        + "%s at index %d"),
                       parentNode.name, rowIndex)
             return
-                        
-        for childNode in parentNode.childNodes:
-            childName = childNode.name
-            if self._namePassesFilter(childName, childNode.type):
-                ####qlog.debug("insert %s (%s) at slot %d", childNode.uri, childNode.type, rowIndex)
-                newNode = placeObject[childNode.type](level, childNode.uri)
-                self._rows.insert(rowIndex, newNode)
-                isOpenNode = self.isContainerOpen(rowIndex)
-                rowIndex += 1
-                if isOpenNode:
-                    rowIndex = self._refreshTreeOnOpen_buildTree(level + 1, rowIndex, childNode)
-        #qlog.debug("<< _refreshTreeOnOpen_buildTree(rowIndex:%d)", rowIndex)
+
+        
+        self.lock.acquire()
+        try:
+            for childNode in parentNode.childNodes:
+                childName = childNode.name
+                if self._namePassesFilter(childName, childNode.type):
+                    ####qlog.debug("insert %s (%s) at slot %d", childNode.uri, childNode.type, rowIndex)
+                    newNode = placeObject[childNode.type](level, childNode.uri)
+                    self._rows.insert(rowIndex, newNode)
+                    isOpenNode = self.isContainerOpen(rowIndex)
+                    rowIndex += 1
+                    if isOpenNode:
+                        rowIndex = self._refreshTreeOnOpen_buildTree(level + 1, rowIndex, childNode)
+            #qlog.debug("<< _refreshTreeOnOpen_buildTree(rowIndex:%d)", rowIndex)
+        finally:
+            self.lock.release()
         return rowIndex
         
 
@@ -1365,7 +1419,7 @@ class KoPlaceTreeView(TreeView):
             parentPath = self._currentPlace_koFileEx.path
         else:
             parentPath = self._rows[parentIndex].path
-        if self._isLocal:
+        if self.safe_isLocal():
             fullPath = os.path.join(parentPath, basename)
             if os.path.exists(fullPath):
                 raise ServerException(nsError.NS_ERROR_INVALID_ARG,
@@ -1389,7 +1443,7 @@ class KoPlaceTreeView(TreeView):
             parentPath = self._currentPlace_koFileEx.path
         else:
             parentPath = self._rows[parentIndex].path
-        if self._isLocal:
+        if self.safe_isLocal():
             fullPath = os.path.join(parentPath, basename)
             if os.path.exists(fullPath):
                 raise ServerException(nsError.NS_ERROR_INVALID_ARG,
@@ -1431,14 +1485,19 @@ class KoPlaceTreeView(TreeView):
             return True
         uri = rowNode.uri
         modelNode = self.getNodeForURI(uri)
-        if modelNode.childNodes:
+        self.lock.acquire()
+        try:
+            hasChildNodes = len(modelNode.childNodes) > 0
+        finally:
+            self.lock.release()
+        if hasChildNodes:
             return True
         elif not modelNode.needsRefreshing():
             return False
         # Look at the system, don't rely on the tree.
         # No point updating the childNodes list, as we're about to delete this node.
         path = rowNode.path
-        if self._isLocal:
+        if self.safe_isLocal():
             return len(os.listdir(path)) > 0
         conn = self._RCService.getConnectionUsingUri(uri)
         try:
@@ -1603,7 +1662,7 @@ class KoPlaceTreeView(TreeView):
             
     def _buildCellProperties(self, rowNode):
         properties = []
-        if not self._isLocal:
+        if self.safe_isLocal():
             return properties
         koFileObject = rowNode.koFile
         if not koFileObject:
@@ -1805,7 +1864,7 @@ class KoPlaceTreeView(TreeView):
             self.invalidateTree()
 
     def resetDirectoryWatches(self): # from koKPFTreeView.p.py
-        if not self._isLocal:
+        if not self.safe_isLocal():
             return
         # Too expensive to watch closed nodes too -- then we can mark them for refreshing
         openedDirs = set([row.path for row in self._rows if row.isOpen])
@@ -1823,7 +1882,7 @@ class KoPlaceTreeView(TreeView):
         koFile = rowNode.koFile
         dirName = koFile.dirName
         path = koFile.path
-        if self._isLocal:
+        if self.safe_isLocal():
             newPath = os.path.join(dirName, newBaseName)
             if os.path.exists(newPath):
                 if os.path.isdir(newPath):
@@ -1893,10 +1952,13 @@ class KoPlaceTreeView(TreeView):
         #qlog.debug("toggleOpenState: index:%d", index)
         #qlog.debug("toggleOpenState: rowNode.isOpen: %r", rowNode.isOpen)
         if rowNode.isOpen:
+            self.lock.acquire()
             try:
                 del self._nodeOpenStatusFromName[rowNode.uri]
             except KeyError:
                 pass
+            finally:
+                self.lock.release()
             nextIndex = self.getNextSiblingIndex(index)
             #qlog.debug("toggleOpenState: index:%d, nextIndex:%d", index, nextIndex)
             if nextIndex == -1:
@@ -1953,13 +2015,24 @@ class KoPlaceTreeView(TreeView):
         else:
             doInvalidate = False
         uri = rowNode.uri
-        self._nodeOpenStatusFromName[uri] = time.time()
+        self.lock.acquire()
+        try:
+            self._nodeOpenStatusFromName[uri] = time.time()
+        finally:
+            self.lock.release()
         self._trimOpenStatusDict()
         self._sortModel(uri)
         topModelNode = self.getNodeForURI(uri)
-        if self._isLocal:
+        if self.safe_isLocal():
             self._addWatchForChanges(rowNode.path)
-        if not topModelNode.childNodes:
+
+        self.lock.acquire()
+        try:
+            hasChildNodes = len(topModelNode.childNodes) > 0
+        finally:
+            self.lock.release()
+
+        if not hasChildNodes:
             #qlog.debug("Node we opened has no children")
             if doInvalidate:
                 self.invalidateTree()
@@ -2027,6 +2100,9 @@ class KoPlaceTreeView(TreeView):
         return items
 
     def getDirListFromRemoteURI(self, uri):
+#        RCService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
+#                  getService(components.interfaces.koIRemoteConnectionService)
+#        conn = RCService.getConnectionUsingUri(self._currentPlace_uri)
         conn = self._RCService.getConnectionUsingUri(self._currentPlace_uri)
         try:
             path = uriparse.URIToPath(uri)
@@ -2124,17 +2200,36 @@ class _WorkerThread(threading.Thread, Queue):
             requester.setNodeForURI(uri, itemNode)
         if itemNode.type != _PLACE_FOLDER:
             return
-        if forceRefresh or itemNode.needsRefreshing():
-            if requester._isLocal:
+        # We can't hold onto the lock around getDirListFromRemoteURI,
+        # because it makes a proxy call on the main thread.
+        requester.lock.acquire()
+        try:
+            refreshNodes = forceRefresh or itemNode.needsRefreshing()
+        finally:
+            requester.lock.release()
+        if refreshNodes:
+            if requester.safe_isLocal():
                 items = requester.getDirListFromLocalPath(uri)
             else:
                 items = requester.getDirListFromRemoteURI(uri)
-            itemNode.childNodes = items
-            itemNode.lastUpdated = time.time()
         else:
-            items = itemNode.childNodes
+            items = None
+        requester.lock.acquire()
+        try:
+            if items is not None:
+                itemNode.childNodes = items
+                itemNode.lastUpdated = time.time()
+            else:
+                items = itemNode.childNodes
+        finally:
+            requester.lock.release()
         for item in items:
-            if requester._nodeOpenStatusFromName.get(item.uri, False):
+            requester.lock.acquire()
+            try:
+                updateNodes = requester._nodeOpenStatusFromName.get(item.uri, False)
+            finally:
+                requester.lock.release()
+            if updateNodes:
                 self.refreshTreeOnOpen_Aux(requester, item.uri, forceRefresh)
 
     def toggleOpenState_Open(self, args):
