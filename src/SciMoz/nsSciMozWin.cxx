@@ -458,38 +458,6 @@ LRESULT CALLBACK SciMoz::ChildWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 		// set focus when Mozilla tells us to.
 		rc = 1;
 		break;
-
-	case WM_DROPFILES: {
-		// Get the observer service.
-		nsCOMPtr<nsIObserverService> obSvc =
-				do_GetService(NS_OBSERVERSERVICE_CONTRACTID);
-
-		if (!obSvc) {
-			NS_ABORT_IF_FALSE(0, "No observer service!!");
-			::DragFinish((HDROP)wParam);
-			rc = 0;
-			break;
-		}
-
-		int nfiles = ::DragQueryFile( (HDROP)wParam, 0xFFFFFFFF, NULL, 0);
-		NS_WARN_IF_FALSE(nfiles, "Got a WM_DROPFILES message, but no files!?");
-		for (int i=0;i<nfiles;i++) {
-			int nch = ::DragQueryFile( (HDROP)wParam, i, NULL, 0);
-			char *buf = (char *)nsAllocator::Alloc(nch+1);
-			if (buf==NULL) // eeek!
-				break;
-			int ngot = ::DragQueryFile( (HDROP)wParam, i, buf, nch+1);
-			NS_WARN_IF_FALSE(ngot, "Couldn't get the data.");
-			if (ngot) {
-				nsAutoString afname; afname.AssignWithConversion(buf);
-				obSvc->NotifyObservers((ISciMoz *)inst, "SciMoz:FileDrop", afname.get());
-			}
-			nsAllocator::Free(buf);
-		}
-		::DragFinish((HDROP)wParam);
-		rc = 0;
-		break;
-		}
 	case WM_INPUTLANGCHANGE:
 	case WM_INPUTLANGCHANGEREQUEST:
 	case WM_IME_STARTCOMPOSITION: 	// dbcs

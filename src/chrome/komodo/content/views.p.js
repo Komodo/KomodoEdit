@@ -104,7 +104,6 @@ function viewManager() {
     ko.main.addWillCloseHandler(this.postCanClose, this);
     _observerSvc.addObserver(this, "open_file", false); // commandment
     _observerSvc.addObserver(this, "open-url",false);
-    _observerSvc.addObserver(this, "SciMoz:FileDrop", false);
     _observerSvc.addObserver(this, "file_status", false);
     _observerSvc.addObserver(this, "select", false);
     var self = this;
@@ -144,7 +143,6 @@ viewManager.prototype.shutdown = function()
     try {
         _observerSvc.removeObserver(this, "open_file");  // commandment
         _observerSvc.removeObserver(this, "open-url");
-        _observerSvc.removeObserver(this, "SciMoz:FileDrop");
         _observerSvc.removeObserver(this, "file_status");
         _observerSvc.removeObserver(this, "select");
         window.removeEventListener('current_view_changed',
@@ -1058,7 +1056,6 @@ viewManager.prototype.observe = function(subject, topic, data)
 {
     this.log.debug("_ViewObserver: observed '"+topic+"' notification: data='"+data+"'\n");
     switch (topic) {
-        case 'SciMoz:FileDrop':
         case 'open_file':
         case 'open-url': // see nsCommandLineServiceMac.cpp, bug 37787
             // This is also used by komodo macro API to open files from python
