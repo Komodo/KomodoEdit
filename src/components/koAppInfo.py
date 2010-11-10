@@ -325,30 +325,34 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         """
         if sys.platform.startswith("win"):
             import _winreg
-            # get the base PythonCore registry key
-            try:
-                pythonCoreKey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
-                                                "SOFTWARE\\Python\\PythonCore")
-            except EnvironmentError:
-                return None
-            # get a list of each installed version 
+            # Versions will be a list of (version, regkey)
             versions = []
-            index = 0
-            while 1:
+            for regkey in ("SOFTWARE\\Python\\PythonCore",
+                           "SOFTWARE\\Wow6432Node\\Python\\PythonCore"):
                 try:
-                    versions.append(_winreg.EnumKey(pythonCoreKey, index))
+                    pythonCoreKey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+                                                    "SOFTWARE\\Python\\PythonCore")
                 except EnvironmentError:
-                    break
-                index += 1
+                    continue
+                # get a list of each installed version 
+                index = 0
+                while 1:
+                    try:
+                        versions.append((_winreg.EnumKey(pythonCoreKey, index), regkey))
+                    except EnvironmentError:
+                        break
+                    index += 1
+            if not versions:
+                return None
             # try to find a existing help file (prefering the latest
             # installed version)
             versions.sort()
             versions.reverse()
-            for version in versions:
+            for version, regkey in versions:
                 try:
                     helpFileKey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
-                        "SOFTWARE\\Python\\PythonCore\\%s\\Help\\Main "\
-                        "Python Documentation" % version)
+                        "%s\\%s\\Help\\Main Python Documentation" %
+                        (regkey, version))
                     helpFile, keyType = _winreg.QueryValueEx(helpFileKey, "")
                     if os.path.isfile(helpFile):
                         return helpFile
