@@ -1049,7 +1049,10 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
     // Need to remember if the project was opened during the workspace restore,
     // bug 87868. If we didn't use a setTimeout here, then we could detect the
     // workspace was restoring and wouldn't need this variable.
-    ko.projects.manager._project_opened_during_workspace_restore = ko.workspace.restoreInProgress();
+    if (ko.workspace.restoreInProgress()) {
+        ko.projects.manager._project_opened_during_workspace_restore = true;
+        ko.projects.manager.current_tab_during_workspace_restore = ko.workspace.restoredLeftTabBoxID;
+    };
     setTimeout(xtk.domutils.fireEvent, 10, window, 'project_opened');
     return true;
 }

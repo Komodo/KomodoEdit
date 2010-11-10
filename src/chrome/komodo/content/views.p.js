@@ -2630,6 +2630,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 this.restoreInProgress = function() {
     return _restoreInProgress;
 }
+this.restoredLeftTabBoxID = null;
 
 this.saveInProgress = function() {
     return _saveInProgress;
@@ -2752,6 +2753,9 @@ const _nsIDOMChromeWindow = Components.interfaces.nsIDOMChromeWindow;
 this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBounds)
 {
     _restoreInProgress = true;
+    if (workspace.hasPref("uilayout_leftTabBoxSelectedTabId")) {
+        this.restoredLeftTabBoxID = workspace.getStringPref("uilayout_leftTabBoxSelectedTabId");
+    }
     try {
         var wko = currentWindow.ko;
         var cnt = new Object();
@@ -2838,6 +2842,7 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         log.exception(ex, "Error restoring workspace:");
     } finally {
         _restoreInProgress = false;
+        this.restoredLeftTabBoxID = null;
     }
 };
 
