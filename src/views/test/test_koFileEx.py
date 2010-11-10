@@ -42,7 +42,11 @@ import tempfile
 
 from xpcom import components, COMException
 
-
+def _koFileSymlinkMatchesOSPath(path, koFile):
+    if os.path.islink(path):
+        return koFile.isSymlink
+    else:
+        return not koFile.isSymlink
 
 class TestKoFileEx(unittest.TestCase):
     def __init__(self, methodName):
@@ -121,17 +125,18 @@ class TestKoFileEx(unittest.TestCase):
         assert self.__file.exists
         assert self.__file.isDirectory
         assert not self.__file.isFile
-        assert not self.__file.isSymlink
+        assert _koFileSymlinkMatchesOSPath(d, self.__file)
         assert not self.__file.isSpecial
         assert self.__file.isReadable
         assert self.__file.isWriteable
 
     def test_tempIsDir(self):
-        self.__file.path = tempfile.gettempdir()
+        d = tempfile.gettempdir()
+        self.__file.path = d
         assert self.__file.exists
         assert self.__file.isDirectory
         assert not self.__file.isFile
-        assert not self.__file.isSymlink
+        assert _koFileSymlinkMatchesOSPath(d, self.__file)
         assert not self.__file.isSpecial
         assert self.__file.isReadable
         assert self.__file.isWriteable
@@ -142,7 +147,7 @@ class TestKoFileEx(unittest.TestCase):
         assert self.__file.exists
         assert not self.__file.isDirectory
         assert self.__file.isFile
-        assert not self.__file.isSymlink
+        assert _koFileSymlinkMatchesOSPath(filename, self.__file)
         assert not self.__file.isSpecial
         assert self.__file.isReadable
         assert self.__file.isWriteable
@@ -162,7 +167,7 @@ class TestKoFileEx(unittest.TestCase):
             assert self.__file.exists
             assert not self.__file.isDirectory
             assert self.__file.isFile
-            assert not self.__file.isSymlink
+            assert _koFileSymlinkMatchesOSPath(filename, self.__file)
             assert not self.__file.isSpecial
             assert self.__file.isReadable
             assert self.__file.isWriteable
