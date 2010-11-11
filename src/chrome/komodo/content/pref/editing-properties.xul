@@ -88,13 +88,12 @@
                 </menulist>
             </hbox>
             <checkbox id="editUseEdge"
-                      label="&showEdgeLineHighlightCharactersBeyondEdgeLine.label;"
-                      pref="true" prefstring="editUseEdge"
-                      prefattribute="checked"/>
-            <hbox align="center">
+                      label="&showEdgeLine.label;"
+                      pref="true"
+                      oncommand="pref_edgeLine_doEnabling();"/>
+            <hbox align="center" style="margin-left: 27px;">
+                <label value="&fileEditSmartEdgeLine.label;"/>
                 <textbox id="editAutoWrapColumn" size="3" pref="true"/>
-                <label value="&fileEditingPropertiesEdgeLine.label;"
-                       control="editAutoWrapColumn"/>
             </hbox>
         </groupbox>
     
