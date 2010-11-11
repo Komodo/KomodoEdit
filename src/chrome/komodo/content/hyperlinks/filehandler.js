@@ -48,6 +48,28 @@
         .createBundle("chrome://komodo/locale/hyperlinks/hyperlinks.properties");
 
     /**
+     * Jump to the given id in the supplied view.
+     * 
+     * @param view {Components.interfaces.koIScintillaView} - View to look in.
+     * @param id {string} - The string id to locate.
+     *
+     * @returns {boolean} True when found, false otherwise.
+     */
+    function jump_to_html_id(view, id) {
+        var sm = view.scimoz;
+        var text = sm.text;
+        var pos = text.search(new RegExp("\\sid\\s?=\\s?['\"]" + id + "['\"][\\s>]", "i"));
+        if (pos >= 0) {
+            var scimoz_pos = ko.stringutils.bytelength(text.substr(0, pos));
+            sm.gotoPos(scimoz_pos);
+            return true;
+        }
+        // TODO: It would really neat if we could check for the id in all of the
+        //      loaded files - or a list of all known ids.
+        return false;
+    }
+
+    /**
      * Open the href location.
      */
     function filename_jump_handler(filepath) {
@@ -63,12 +85,7 @@
             if (filepath[0] == "#") {
                 // It's within this document (an anchor).
                 // #1 - Look for an id=""
-                var sm = view.scimoz;
-                var text = sm.text;
-                var pos = text.search(new RegExp("\\sid\\s?=\\s?['\"]" + filepath.substr(1) + "['\"][\\s>]", "i"));
-                if (pos >= 0) {
-                    var scimoz_pos = ko.stringutils.bytelength(text.substr(0, pos));
-                    sm.gotoPos(scimoz_pos);
+                if (jump_to_html_id(view, filepath.substr(1))) {
                     return;
                 }
                 // #2 - Look for a '<a name=...'
@@ -136,6 +153,37 @@
             Components.interfaces.ISciMoz.INDIC_PLAIN,
             RGB(0x60,0x90,0xff))
     );
+
+
+    /**
+     * A JavaScript document.getElementById() helper:
+     *    document.getElementById('myid')  =>  jumps to element with id 'myid'
+     *    $('#foo')                        =>  jumps to element with id 'foo'
+     *
+     * Note: This hyperlink handler will only show when hovering over the
+     *       string section of the match, i.e. over 'myid'.
+     */
+    function getelementbyid_jump_handler() {
+        var match = javascript_getelementbyid_handler.regex_match;
+        var id = match[2];
+        if (id[0] == '#') {
+            id = id.substr(1);
+        }
+        if (id) {
+            jump_to_html_id(ko.views.manager.currentView, id);
+        }
+    }
+    var javascript_getelementbyid_handler = new ko.hyperlinks.RegexHandler(
+            "getElementById handler",
+            new RegExp("(getElementById|\\$)\\s*\\(\\s*[\"'](.*?)[\"']", "i"),
+            getelementbyid_jump_handler,
+            null,  /* Use the found string instead of a replacement. */
+            ["JavaScript"],  /* Just javascript. */
+            Components.interfaces.ISciMoz.INDIC_PLAIN,
+            RGB(0x60,0x90,0xff));
+    // Limit to JavaScript string styles.
+    javascript_getelementbyid_handler.limitToTheseStyles([Components.interfaces.ISciMoz.SCE_UDL_CSL_STRING]);
+    ko.hyperlinks.addHandler(javascript_getelementbyid_handler);
 
 
     /**
