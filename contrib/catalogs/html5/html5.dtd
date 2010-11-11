@@ -48,10 +48,10 @@
 <!ENTITY % Date "CDATA">
     <!-- one or more digits -->
 
-<!ENTITY % LinkTypes "CDATA">
+<!ENTITY % LinkTypes "(alternate | archives | author | bookmark | contact | external | first | help | icon | index | last | license | next | nofollow | noreferrer | pingback | prefetch | prev | search | stylesheet | sidebar | tag | up)">
     <!-- space-separated list of link types -->
 
-<!ENTITY % MediaDesc "CDATA">
+<!ENTITY % MediaDesc "(all|braille|embossed|handheld|print|projection|screen|speech|tty|tv)">
     <!-- single or comma-separated list of media descriptors -->
 
 <!ENTITY % URI "CDATA">
@@ -72,7 +72,7 @@
 <!ENTITY % Text "CDATA">
     <!-- used for titles etc. -->
 
-<!ENTITY % FrameTarget "NMTOKEN">
+<!ENTITY % FrameTarget "(_blank | _parent | _self | _top">
     <!-- render in this frame -->
 
 <!ENTITY % Length "CDATA">
@@ -807,7 +807,7 @@
   hreflang    %LanguageCode; #IMPLIED
   media       CDATA          #IMPLIED
   ping        %URI;          #IMPLIED
-  rel         (alternate | archives | author | bookmark | contact | external | first | help | icon | index | last | license | next | nofollow | noreferrer | pingback | prefetch | prev | search | stylesheet | sidebar | tag | up)          #IMPLIED
+  rel         %LinkTypes;    #IMPLIED
   type        CDATA          #IMPLIED
   >
 

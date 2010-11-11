@@ -336,11 +336,11 @@
 <!-- nn for pixels or nn% for percentage length -->
 <!ENTITY % Length.datatype "CDATA" >
 
-<!-- space-separated list of link types -->
-<!ENTITY % LinkTypes.datatype "NMTOKENS" >
+<!ENTITY % LinkTypes "(alternate | archives | author | bookmark | contact | external | first | help | icon | index | last | license | next | nofollow | noreferrer | pingback | prefetch | prev | search | stylesheet | sidebar | tag | up)">
+    <!-- space-separated list of link types -->
 
-<!-- single or comma-separated list of media descriptors -->
-<!ENTITY % MediaDesc.datatype "CDATA" >
+<!ENTITY % MediaDesc "(all|braille|embossed|handheld|print|projection|screen|speech|tty|tv)">
+    <!-- single or comma-separated list of media descriptors -->
 
 <!-- pixel, percentage, or relative -->
 <!ENTITY % MultiLength.datatype "CDATA" >

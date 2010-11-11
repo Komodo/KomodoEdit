@@ -61,10 +61,10 @@
 <!ENTITY % Number "CDATA">
     <!-- one or more digits -->
 
-<!ENTITY % LinkTypes "CDATA">
+<!ENTITY % LinkTypes "(alternate | archives | author | bookmark | contact | external | first | help | icon | index | last | license | next | nofollow | noreferrer | pingback | prefetch | prev | search | stylesheet | sidebar | tag | up)">
     <!-- space-separated list of link types -->
 
-<!ENTITY % MediaDesc "CDATA">
+<!ENTITY % MediaDesc "(all|braille|embossed|handheld|print|projection|screen|speech|tty|tv)">
     <!-- single or comma-separated list of media descriptors -->
 
 <!ENTITY % URI "CDATA">
