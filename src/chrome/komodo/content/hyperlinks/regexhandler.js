@@ -62,11 +62,23 @@ ko.hyperlinks.RegexHandler = function(name, findRegex, fn, replace_str, lang_nam
     this.findRegex = findRegex;
     this.replace_str = replace_str;
     this.regex_match = null;
+    this.limit_to_styles = null;
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
 ko.hyperlinks.RegexHandler.prototype = new ko.hyperlinks.BaseHandler();
 ko.hyperlinks.RegexHandler.prototype.constructor = ko.hyperlinks.RegexHandler;
+
+/**
+ * When checking for a hgyperlink match, the style at the cursor position must
+ * match one one of these values.
+ *
+ * @param styleNumbers {array} - List of style numbers.
+ */
+ko.hyperlinks.RegexHandler.prototype.limitToTheseStyles = function(styleNumbers)
+{
+    this.limit_to_styles = styleNumbers;
+}
 
 /**
  * Try and show a hyperlink at the current position in the view.
@@ -84,6 +96,12 @@ ko.hyperlinks.RegexHandler.prototype.constructor = ko.hyperlinks.RegexHandler;
 ko.hyperlinks.RegexHandler.prototype.show = function(view, scimoz, position, line,
                                             lineStartPos, lineEndPos, reason)
 {
+    if (this.limit_to_styles) {
+        // Check if the cursor position is one of the required styles.
+        if (this.limit_to_styles.indexOf(scimoz.getStyleAt(position)) == -1) {
+            return null;
+        }
+    }
     var match = this.findRegex.exec(line);
     var start = lineStartPos;
     var end;
