@@ -3047,7 +3047,10 @@ function cmd_vim_changeLine(scimoz, repeatCount) {
         var start = scimoz.positionFromLine(lineNo);
         // If the start of the line is whitespace, move to the first word.
         if (gVimController.regexWhitespace.test(scimoz.getWCharAt(start))) {
-            start = scimoz.wordEndPosition(start, false);
+            var startIndent = scimoz.wordEndPosition(start, false);
+            if (scimoz.lineFromPosition(startIndent) == lineNo) {
+                start = startIndent;
+            }
         }
         var endLine = Math.min(lineNo+repeatCount, scimoz.lineCount);
         var end = scimoz.getLineEndPosition(endLine);
