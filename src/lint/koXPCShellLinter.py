@@ -103,7 +103,7 @@ class KoXPCShellLinter:
 
         # Lint the temp file, the jsInterp options are described here:
         # https://developer.mozilla.org/en/Introduction_to_the_JavaScript_shell
-        cmd = [jsInterp, "-version", "170", "-C"]
+        cmd = [jsInterp, "-C"]
 
         # Set the JS linting preferences.
         enableWarnings = self._prefProxy.prefs.getBooleanPref('lintJavaScriptEnableWarnings')
