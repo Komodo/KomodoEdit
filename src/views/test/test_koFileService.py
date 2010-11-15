@@ -94,13 +94,13 @@ class TestKoFileService(unittest.TestCase):
             assert [ f2 for f2 in files if f.URI == f2.URI ]
         
     def test_fileNotExist(self):
-        file = self.__filesvc.getFileFromURI(r"c:\If-You-Have-This-File-U-R-Lame-Text-1.txt")
         if sys.platform.startswith("win"):
-            self.assertEqual(file.path, r"c:\If-You-Have-This-File-U-R-Lame-Text-1.txt")
+            pathStart = 'c:\\'
         else:
-            # Backward slashes are automatically converted into forward slashes
-            # on unixy platforms.
-            self.assertEqual(file.path, r"c:/If-You-Have-This-File-U-R-Lame-Text-1.txt")
+            pathStart = '/'
+        fname = pathStart + "If-You-Have-This-File-U-R-Lame-Text-1.txt"
+        file = self.__filesvc.getFileFromURI(fname)
+        self.assertEqual(file.path, fname)
         assert not file.exists
 
     def test_makeTempName(self):

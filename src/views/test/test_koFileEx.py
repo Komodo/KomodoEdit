@@ -36,11 +36,13 @@
 
 import os
 import unittest
-import sys
+import re, sys
 from hashlib import md5
 import tempfile
 
 from xpcom import components, COMException
+
+win32 = sys.platform.startswith("win")
 
 def _koFileSymlinkMatchesOSPath(path, koFile):
     if os.path.islink(path):
@@ -58,14 +60,35 @@ class TestKoFileEx(unittest.TestCase):
         self.__file = components.classes["@activestate.com/koFileEx;1"] \
                       .createInstance(components.interfaces.koIFileEx)
 
+    win_file_ptn = re.compile(r'(\w):(.*)')
+    win_uri_ptn = re.compile(r'file:///(\w):/(.*)')
+    if win32:
+        def _normalizePath(self, winPath):
+            return winPath
+        
+        def _normalizeURI(self, winPath):
+            return winPath
+    else:
+        def _normalizePath(self, winPath):
+            m = self.win_file_ptn.match(winPath)
+            if m:
+                return m.group(2).replace('\\', '/')
+            return winPath
+        
+        def _normalizeURI(self, winPath):
+            m = self.win_uri_ptn.match(winPath)
+            if m:
+                return 'file:///' + m.group(2)
+            return winPath
+
     def failUnlessSamePath(self, p1, p2, errmsg = None):
         p1 = p1.replace('\\','/')
         p2 = p2.replace('\\','/')
         self.failUnlessEqual(p1, p2, errmsg)
 
     def test_assignFileURI(self):
-        url = "file:///c:/test/path/to/somefile.txt"
-        path = r'c:\test\path\to\somefile.txt'
+        url = self._normalizeURI("file:///c:/test/path/to/somefile.txt")
+        path = self._normalizePath(r'c:\test\path\to\somefile.txt')
         dirname = os.path.dirname(path.replace('\\','/'))
         self.__file.URI = url
         assert self.__file.leafName == 'somefile.txt'
@@ -78,8 +101,8 @@ class TestKoFileEx(unittest.TestCase):
                            "%r != %r" %(self.__file.dirName, dirname))
 
     def test_assignFileURIToPath(self):
-        url = "file:///C:/Program%20Files/Microsoft%20Visual%20Studio/VC98/Include/WINUSER.H"
-        path = r'C:\Program Files\Microsoft Visual Studio\VC98\Include\WINUSER.H'
+        url = self._normalizeURI("file:///C:/Program%20Files/Microsoft%20Visual%20Studio/VC98/Include/WINUSER.H")
+        path = self._normalizePath(r'C:\Program Files\Microsoft Visual Studio\VC98\Include\WINUSER.H')
         dirname = os.path.dirname(path.replace('\\','/'))
         self.__file.path = url
         assert self.__file.leafName == 'WINUSER.H'
@@ -92,28 +115,32 @@ class TestKoFileEx(unittest.TestCase):
                            "%r != %r" %(self.__file.dirName, dirname))
         
     def test_assignFilePathToURI(self):
-        path = r'c:\test\path\to\somefile.txt'
+        url = self._normalizeURI("file:///c:/test/path/to/somefile.txt")
+        path = self._normalizePath(r'c:\test\path\to\somefile.txt')
         self.__file.URI = path
-        self.failUnlessSamePath(self.__file.URI, 'file:///c:/test/path/to/somefile.txt',
-                           "%r != %r" %(self.__file.URI, 'file:///c:/test/path/to/somefile.txt'))
+        self.failUnlessSamePath(self.__file.URI, url,
+                           "%r != %r" %(self.__file.URI, url))
         self.failUnlessSamePath(self.__file.path, path,
                            "%r != %r" %(self.__file.path, path))
         assert self.__file.leafName == 'somefile.txt'
         assert self.__file.baseName == 'somefile.txt'
-        self.failUnlessSamePath(self.__file.dirName, r'c:\test\path\to',
-                           "%r != %r" %(self.__file.dirName, r'c:\test\path\to'))
+        dir = self._normalizePath(r'c:\test\path\to')
+        self.failUnlessSamePath(self.__file.dirName, dir,
+                           "%r != %r" %(self.__file.dirName, dir))
         
     def test_assignFilePath(self):
-        path = r'c:\test\path\to\somefile.txt'
+        url = self._normalizeURI("file:///c:/test/path/to/somefile.txt")
+        path = self._normalizePath(r'c:\test\path\to\somefile.txt')
         self.__file.path = path
-        self.failUnlessSamePath(self.__file.URI, 'file:///c:/test/path/to/somefile.txt',
-                           "%r != %r" %(self.__file.URI, 'file:///c:/test/path/to/somefile.txt'))
+        self.failUnlessSamePath(self.__file.URI, url,
+                           "%r != %r" %(self.__file.URI, url))
         self.failUnlessSamePath(self.__file.path, path,
                            "%r != %r" %(self.__file.path, path))
         assert self.__file.leafName == 'somefile.txt'
         assert self.__file.baseName == 'somefile.txt'
-        self.failUnlessSamePath(self.__file.dirName, r'c:\test\path\to',
-                           "%r != %r" %(self.__file.dirName, r'c:\test\path\to'))
+        dir = self._normalizePath(r'c:\test\path\to')
+        self.failUnlessSamePath(self.__file.dirName, dir,
+                           "%r != %r" %(self.__file.dirName, dir))
 
     def test_rootIsDir(self):
         d = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
@@ -207,8 +234,8 @@ class TestKoFileEx(unittest.TestCase):
         assert self.__file.lastModifiedTime != 0
 
     def test_path(self):
-        url = 'file:///c:/test/path/to/somefile.txt'
-        path = r'c:\test\path\to\somefile.txt'
+        url = self._normalizeURI("file:///c:/test/path/to/somefile.txt")
+        path = self._normalizePath(r'c:\test\path\to\somefile.txt')
         dirname = os.path.dirname(path.replace('\\','/'))
         self.__file.URI = url
         self.failUnlessSamePath(self.__file.URI, url,
@@ -219,7 +246,7 @@ class TestKoFileEx(unittest.TestCase):
                            "%r != %r" %(self.__file.dirName, dirname))
 
         url = 'http://someserver.com/test/path/to/somefile.txt'
-        path = r'\test\path\to\somefile.txt'
+        path = self._normalizePath(r'\test\path\to\somefile.txt')
         dirname = os.path.dirname(path.replace('\\','/'))
         self.__file.URI = url
         self.failUnlessSamePath(self.__file.URI, url,
@@ -229,8 +256,8 @@ class TestKoFileEx(unittest.TestCase):
         self.failUnlessSamePath(self.__file.dirName, dirname,
                            "%r != %r" %(self.__file.dirName, dirname))
 
-        url = 'file:///c:/path%20with%20spaces/path/to/somefile.txt'
-        path = r'c:\path with spaces\path\to\somefile.txt'
+        url = self._normalizeURI('file:///c:/path%20with%20spaces/path/to/somefile.txt')
+        path = self._normalizePath(r'c:\path with spaces\path\to\somefile.txt')
         dirname = os.path.dirname(path.replace('\\','/'))
         self.__file.URI = url
         self.failUnlessSamePath(self.__file.URI, url,
@@ -252,12 +279,8 @@ class TestKoFileEx(unittest.TestCase):
     def test_path_with_percent(self):
         # Ensure the koIFileEx routines do not try to unquote the path,
         # bug 82660.
-        if sys.platform.startswith("win"):
-            path = r'c:\test\path\to\file with percent_%ab.txt'
-            uri = r'file:///c:/test/path/to/file%20with%20percent_%25ab.txt'
-        else:
-            path = r'/test/path/to/file with percent_%ab.txt'
-            uri = r'file:///test/path/to/file%20with%20percent_%25ab.txt'
+        path = self._normalizePath(r'c:\test\path\to\file with percent_%ab.txt')
+        uri = self._normalizeURI(r'file:///c:/test/path/to/file%20with%20percent_%25ab.txt')
         self.__file.path = path
         self.failUnlessEqual(self.__file.URI, uri)
         self.__file.URI = uri

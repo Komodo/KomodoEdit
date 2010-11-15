@@ -188,9 +188,9 @@ class URIParser(object):
         
     def _parseURI(self, uri, doUnquote=True):
         #print "_parseURI[%s]"%uri
-        uri = uri.replace('\\','/')
-        # fix the uri if we get the lame pipe in place of colon uri's
         if win32:
+            uri = uri.replace('\\','/')
+            # fix the uri if we get the lame pipe in place of colon uri's
             uri = uri.replace('|',':')
 
         #assert uri.find("://") != -1
@@ -216,7 +216,8 @@ class URIParser(object):
         # XXX we may need to do more about quoting
         # if a windows path, fix it
         uparts = copy.copy(parts)
-        uparts[2] = uparts[2].replace('\\','/')
+        if win32:
+            uparts[2] = uparts[2].replace('\\','/')
         prefix = ""
         if ' ' in uparts[2] or '%' in uparts[2]:
             if uparts[2].find(':') == 1:
@@ -239,7 +240,10 @@ class URIParser(object):
                 uriPart = uparts[2]
             if uriPart:
                 try:
-                    uparts[2] = prefix + urllib.quote(uriPart).replace('\\','/')
+                    uriPartQuoted = urllib.quote(uriPart)
+                    if win32:
+                        uparts[2] = prefix + uriPartQuoted
+                    uparts[2] = prefix + uriPartQuoted
                 except KeyError, e:
                     # quote fails on unicode chars - bug 63027, just pass
                     # through and hope for the best.
@@ -352,13 +356,18 @@ class URIParser(object):
         else:
             # "sortaURI" is url unquoted already, ensure it's not re-unquoted
             # by passing "doUnquote=False" to _setFileNames(), bug 82660.
-            sortaURI = path.replace('\\','/')
-            if path.startswith("//"):  # UNC path
-                sortaURI = "file:" + path
+            if win32:
+                path2 = path.replace('\\','/')
+                if path2.startswith("//"):  # UNC path
+                    sortaURI = "file:" + path2
+                elif path2.find(':') == 1:  # Absolute Windows path
+                    sortaURI = "file:///" + path2
+                else:
+                    sortaURI = path2
             elif path[0] == '/':       # Absolute Unix path
                 sortaURI = "file://" + path
-            elif path.find(':') == 1:  # Absolute Windows path
-                sortaURI = "file:///" + path
+            else:
+                sortaURI = path
             self._setFileNames(sortaURI, doUnquote=False)
     path = property(get_path,set_path)
 

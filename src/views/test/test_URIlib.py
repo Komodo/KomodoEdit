@@ -61,19 +61,20 @@ class TestURIParser(unittest.TestCase):
     filelist.append(["file:///test/path/to/somefile.txt",
                      '/test/path/to/somefile.txt', 'somefile.txt',
                      'somefile.txt', '/test/path/to'])
-    filelist.append(["file:///c:/test/path/to/somefile.txt",
-                 r'c:\test\path\to\somefile.txt', 'somefile.txt',
-                 'somefile.txt', r'c:\test\path\to'])
-    filelist.append(["file:///C:/Documents%20and%20Settings/shanec/Application%20Data/ActiveState/Komodo/2.4/toolbox.kpf",
-                 r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4\toolbox.kpf',
-                 'toolbox.kpf', 'toolbox.kpf',
-                 r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4'
-                 ])
-    filelist.append(["file:///C:/Program%20Files/Microsoft%20Visual%20Studio/VC98/Include/WINUSER.H",
-                 r'C:\Program Files\Microsoft Visual Studio\VC98\Include\WINUSER.H',
-                 'WINUSER.H', 'WINUSER.H',
-                 r'C:\Program Files\Microsoft Visual Studio\VC98\Include'
-                 ])
+    ifwin32:
+        filelist.append(["file:///c:/test/path/to/somefile.txt",
+                         r'c:\test\path\to\somefile.txt', 'somefile.txt',
+                         'somefile.txt', r'c:\test\path\to'])
+        filelist.append(["file:///C:/Documents%20and%20Settings/shanec/Application%20Data/ActiveState/Komodo/2.4/toolbox.kpf",
+                         r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4\toolbox.kpf',
+                         'toolbox.kpf', 'toolbox.kpf',
+                         r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4'
+                         ])
+        filelist.append(["file:///C:/Program%20Files/Microsoft%20Visual%20Studio/VC98/Include/WINUSER.H",
+                         r'C:\Program Files\Microsoft Visual Studio\VC98\Include\WINUSER.H',
+                         'WINUSER.H', 'WINUSER.H',
+                         r'C:\Program Files\Microsoft Visual Studio\VC98\Include'
+                         ])
     
     if win32:
         # linux basename/dirname/etc just choke on this
