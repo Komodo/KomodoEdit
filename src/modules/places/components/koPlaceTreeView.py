@@ -1882,26 +1882,53 @@ class KoPlaceTreeView(TreeView):
         koFile = rowNode.koFile
         dirName = koFile.dirName
         path = koFile.path
+        oldBaseName = koFile.baseName
         if self.safe_isLocal():
             newPath = os.path.join(dirName, newBaseName)
-            if os.path.exists(newPath):
-                if os.path.isdir(newPath):
-                    raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem: invalid operation: you can't rename existing directory: %s" % (newPath))
-                if not forceClobber:
-                    raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem failure: file %s exists" % newPath)
-                os.unlink(newPath)
-            os.rename(path, newPath)
+            if not os.path.exists(newPath):
+                os.rename(path, newPath)
+            elif os.path.isdir(newPath):
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem: invalid operation: you can't rename existing directory: %s" % (newPath))
+            elif not forceClobber:
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem failure: file %s exists" % newPath)
+            else:
+                try:
+                    # Two cases:
+                    # rename foo bar -- Windows throws an OSError, ok elsewhere
+                    # rename foo FOO -- 
+                    # Rename foo.txt FOO.txt on a case-insensitive system
+                    os.rename(path, newPath)
+                except OSError:
+                    if os.path.normcase(oldBaseName) != os.path.normcase(newBaseName):
+                        os.unlink(newPath)
+                        os.rename(path, newPath)
+                    else:
+                        log.debug("Don't rename(%s) => %s", path, newPath)
+                        raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                              "renameItem failure: file names %s, %s differ only by case, can't be renamed" % (oldBaseName, newBaseName))
         else:
             conn = self._RCService.getConnectionUsingUri(self._currentPlace_uri)
             newPath = dirName + "/" + newBaseName
             rfi = conn.list(newPath, False)
-            if rfi:
-                if rfi.isDirectory():
-                    raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem: invalid operation: you can't rename existing directory: %s::%s" % (conn.server, newPath))
-                if not forceClobber:
-                    raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem failure: file %s::%s exists" % (conn.server, newPath))
-                conn.removeFile(newPath)
-            conn.rename(path, newPath)
+            if not rfi:
+                conn.rename(path, newPath)
+            elif rfi.isDirectory():
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem: invalid operation: you can't rename existing directory: %s::%s" % (conn.server, newPath))
+            elif not forceClobber:
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem failure: file %s::%s exists" % (conn.server, newPath))
+            else:
+                try:
+                    # See local-system cases above
+                    conn.rename(path, newPath)
+                except:
+                    # We don't know the type of remote system, so assume Windows
+                    # because no other system should have thrown an exception
+                    if oldBaseName.lower() != newBaseName.lower():
+                        conn.removeFile(newPath)
+                        conn.rename(path, newPath)
+                    else:
+                        raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                              "renameItem failure: file names %s, %s differ only by case, can't be renamed" % (oldBaseName, newBaseName))
         uri = koFile.URI
         self.removeSubtreeFromModelForURI(uri)
         parent_uri = self._getURIParent(uri)

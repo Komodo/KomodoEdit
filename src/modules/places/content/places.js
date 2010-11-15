@@ -1731,8 +1731,13 @@ ManagerClass.prototype = {
     doRenameItem: function() {
         var index = gPlacesViewMgr.view.selection.currentIndex;
         var uri = gPlacesViewMgr.view.getURIForRow(index);
-        var newname = ko.dialogs.renameFileWrapper(ko.uriparse.baseName(uri));
+        var oldname = ko.uriparse.baseName(uri);
+        var newname = ko.dialogs.renameFileWrapper(oldname);
         if (!newname) return;
+        else if (newname == oldname) {
+            ko.dialogs.alert(_bundle.formatStringFromName("Old file and new basename are the same.template", [oldname, newname], 2));
+            return;
+        }
         try {
             gPlacesViewMgr.view.renameItem(index, newname, false);
         } catch(ex) {
@@ -1748,6 +1753,7 @@ ManagerClass.prototype = {
                     try {
                         gPlacesViewMgr.view.renameItem(index, newname, true);
                     } catch(ex2) {
+                        ko.dialogs.alert(_bundle.formatStringFromName("Error when trying to rename a file.template", [ex2], 1));
                         dump("doRenameItem: " + ex2 + "\n");
                     }
                 }
@@ -1760,6 +1766,7 @@ ManagerClass.prototype = {
                         [m[1]], 1);
                     ko.dialogs.alert(prompt, null, title);
                 } else {
+                    ko.dialogs.alert(_bundle.formatStringFromName("Error when trying to rename a file.template", [ex], 1));
                     dump("doRenameItem: " + ex + "\n");
                 }
             }
