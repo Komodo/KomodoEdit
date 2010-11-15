@@ -603,6 +603,11 @@ this.checkForUpdates = function checkForUpdates()
     if (um.activeUpdate && um.activeUpdate.state == "pending") {
         prompter.showUpdateDownloaded(um.activeUpdate);
     } else {
+        // bug80785 -- if we observe "quit-application-requested", each
+        // window will get called, and only the last window in the
+        // workspace will be saved.  Better to save the workspace now,
+        // even if it turns out there's no need to restart.
+        ko.workspace.saveWorkspace();
         prompter.checkForUpdates();
     }
 }
