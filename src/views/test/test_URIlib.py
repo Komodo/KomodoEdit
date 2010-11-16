@@ -61,7 +61,7 @@ class TestURIParser(unittest.TestCase):
     filelist.append(["file:///test/path/to/somefile.txt",
                      '/test/path/to/somefile.txt', 'somefile.txt',
                      'somefile.txt', '/test/path/to'])
-    ifwin32:
+    if win32:
         filelist.append(["file:///c:/test/path/to/somefile.txt",
                          r'c:\test\path\to\somefile.txt', 'somefile.txt',
                          'somefile.txt', r'c:\test\path\to'])

@@ -36,6 +36,7 @@
 
 import os
 import unittest
+import re
 import sys
 import tempfile
 
@@ -44,23 +45,35 @@ from testlib import tag
 
 import uriparse
 
-
+win32 = sys.platform.startswith("win")
+if win32:
+    def _(path):
+        if path.startswith("/"):
+            path = "c:\\" + path
+        return path.replace("/", "\\")
+else:
+    _ptn = re.compile("\w:\\\\(.*)")
+    def _(path):
+        m = _ptn.match(path)
+        if m:
+            path = "/" + m.group(1)
+        return path.replace("\\", "/")
 
 class URIParseTestCase(unittest.TestCase):
     relative = [
         # base,      relative,               full,                  common
-        (r'c:\atest',   r''        ,            r'c:\atest',            r'c:\atest'),
-        (r'c:\btest',   r'test.txt',            r'c:\btest\test.txt',   r'c:\btest'),
-        ( '/ctest',      '/ctesting/file.txt',    '/ctesting/file.txt',   ''),
-        (r'c:\dtest',   r'c:\dtesting\file.txt', r'c:\dtesting\file.txt', 'c:'),
-        (r'd:\etest',   r'c:\etesting\file.txt', r'c:\etesting\file.txt', ''),
+        (_(r'c:\atest'),   r''        ,            _(r'c:\atest'),            _(r'c:\atest')),
+        (_(r'c:\btest'),   _(r'test.txt'),            _(r'c:\btest\test.txt'),   _(r'c:\btest')),
+        ( _('/ctest'),      _('/ctesting/file.txt'),    _('/ctesting/file.txt'),   _('')),
+        (_(r'c:\dtest'),   _(r'c:\dtesting\file.txt'), _(r'c:\dtesting\file.txt'), _('c:')),
+        (_(r'd:\etest'),   _(r'c:\etesting\file.txt'), _(r'c:\etesting\file.txt'), _('')),
         # Test perfect match with and without end-slashes
-        (r'c:\ftest',   r'',                    r'c:\ftest',            r'c:\ftest'),
-        ( 'c:\\gtest\\', r'',                   r'c:\gtest',            r'c:\gtest'),
-        ( 'c:\\htest\\', r'',                    'c:\\htest\\',          'c:\\htest\\'),
-        ( 'c:\\h2test', r'',                    'c:\\h2test\\',          'c:\\h2test\\'),
+        (_(r'c:\ftest'),   r'',                    _(r'c:\ftest'),            _(r'c:\ftest')),
+        ( _('c:\\gtest\\'), r'',                   _(r'c:\gtest'),            _(r'c:\gtest')),
+        ( _('c:\\htest\\'), r'',                    _('c:\\htest\\'),          _('c:\\htest\\')),
+        ( _('c:\\h2test'), r'',                    _('c:\\h2test\\'),          _('c:\\h2test\\')),
         ]
-    if sys.platform == "win32":
+    if win32:
         relative += [
         # Same as previous three, but ignoring case on Windows
         (r'c:\itest',  r'',                    r'C:\iTest',            r'C:\iTest'),
@@ -72,7 +85,7 @@ class URIParseTestCase(unittest.TestCase):
         ('/home/shanec/test/somepath','../bad/a:b','/home/shanec/test/bad/a:b','/home/shanec/test'),
         ('/test/a/b','../testing/file.txt','/test/a/testing/file.txt', '/test/a'),
         ('/home/shanec/test/somepath/anotherpath/andyetanother','../../../bad/a:b','/home/shanec/test/bad/a:b','/home/shanec/test'),
-        (r'c:\test\a\b',r'..\testing\file.txt',r'c:\test\a\testing\file.txt', r'c:\test\a'),
+        (_(r'c:\test\a\b'),_(r'..\testing\file.txt'),_(r'c:\test\a\testing\file.txt'), _(r'c:\test\a')),
     ]
 
     def __init__(self, methodName):
@@ -85,9 +98,7 @@ class URIParseTestCase(unittest.TestCase):
                       .createInstance(components.interfaces.koIFileEx)
 
     def failUnlessSamePath(self, p1, p2):
-        _p1 = p1.replace('\\','/')
-        _p2 = p2.replace('\\','/')
-        self.failUnlessEqual(_p1, _p2, "%r != %r"%(p1,p2))
+        self.failUnlessEqual(p1, p2, "%r != %r"%(p1,p2))
 
     if sys.platform == "win32":
         def test_localpaths(self):
