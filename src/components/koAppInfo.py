@@ -325,6 +325,8 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         """
         if sys.platform.startswith("win"):
             import _winreg
+            preferred_version = self.get_version()
+            preferred_result = None
             # Versions will be a list of (version, regkey)
             versions = []
             for regkey in ("SOFTWARE\\Python\\PythonCore",
@@ -338,7 +340,10 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
                 index = 0
                 while 1:
                     try:
-                        versions.append((_winreg.EnumKey(pythonCoreKey, index), regkey))
+                        version = _winreg.EnumKey(pythonCoreKey, index)
+                        versions.append((version, regkey))
+                        if version == preferred_version:
+                            preferred_result = (version, regkey)
                     except EnvironmentError:
                         break
                     index += 1
@@ -347,6 +352,10 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
             # try to find a existing help file (prefering the latest
             # installed version)
             versions.sort()
+            if preferred_result:
+                # Ensure the ensure's selected Python version is the last one,
+                # bug 88547.
+                versions.append(preferred_result)
             versions.reverse()
             for version, regkey in versions:
                 try:
