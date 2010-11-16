@@ -268,10 +268,13 @@ viewManager.prototype._newTemplate = function(defaultDir) {
         window.setTimeout(function(view) {
             view.setFocus();
             if (view.koDoc && obj.template) {
-                var requestedLanguage = _langRegistrySvc.suggestLanguageForFile(obj.template);
-                if (view.koDoc.language != requestedLanguage) {
-                    view.koDoc.language = requestedLanguage;
-                    window.updateCommands('language_changed');
+                var currentLanguage = view.koDoc.language;
+                if (currentLanguage == "HTML" || currentLanguage == "Text") {
+                    var requestedLanguage = _langRegistrySvc.suggestLanguageForFile(obj.template);
+                    if (currentLanguage != requestedLanguage) {
+                        view.koDoc.language = requestedLanguage;
+                        window.updateCommands('language_changed');
+                    }
                 }
             }
         }, 1, ko.views.manager.currentView);
