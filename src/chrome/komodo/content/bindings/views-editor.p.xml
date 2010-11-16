@@ -1316,6 +1316,8 @@
             doc = this.docSvc.createDocumentFromURI(previewURI);
         }
         this.preview = viewlist.createViewFromDocument(doc, 'browser', -1);
+        this.preview.sourceView = this;
+        this.preview.makeCurrent();
         ]]>
         </body>
         </method>
@@ -1382,8 +1384,6 @@
                     this.createInternalViewPreview(previewURI, this.parentView);
                     break;
                 }
-                this.preview.sourceView = this;
-                this.preview.makeCurrent();
             }
         } catch(ex) {
             this.log.exception(ex, "Error viewing preview.");
