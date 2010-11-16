@@ -269,6 +269,8 @@ viewManager.prototype._newTemplate = function(defaultDir) {
             view.setFocus();
             if (view.koDoc && obj.template) {
                 var currentLanguage = view.koDoc.language;
+                // If the detected language is HTML, we may find a better
+                // language name by checking the template filename, bug 88735.
                 if (currentLanguage == "HTML" || currentLanguage == "Text") {
                     var requestedLanguage = _langRegistrySvc.suggestLanguageForFile(obj.template);
                     if (currentLanguage != requestedLanguage) {
