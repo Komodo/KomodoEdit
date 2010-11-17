@@ -1662,7 +1662,7 @@ class KoPlaceTreeView(TreeView):
             
     def _buildCellProperties(self, rowNode):
         properties = []
-        if self.safe_isLocal():
+        if not self.safe_isLocal():
             return properties
         koFileObject = rowNode.koFile
         if not koFileObject:
