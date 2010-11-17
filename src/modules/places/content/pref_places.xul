@@ -50,6 +50,9 @@
           <caption label="&options.label;" class="kopadded"/>
           <checkbox id="pref_places_dblClickRebases"
                     label="&dblClickToRebase.label;" />
+          <separator class="thin"/>
+          <checkbox id="pref_places_showProjectPath"
+                    label="&showProjectPaths.label;" />
         </groupbox>
 
     </vbox>

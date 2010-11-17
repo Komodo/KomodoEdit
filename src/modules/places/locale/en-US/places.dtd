@@ -98,4 +98,5 @@
 
 <!-- pref_places.xul -->
 <!ENTITY dblClickToRebase.label "Double-Click or Return Makes Folder Foot">
+<!ENTITY showProjectPaths.label "Show Full Project Paths">
 <!ENTITY options.label "Options">

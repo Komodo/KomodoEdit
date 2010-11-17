@@ -2613,6 +2613,10 @@ this.onLoad_aux = function places_onLoad_aux() {
     if (!_placePrefs.hasPref('dblClickRebases')) {
         _placePrefs.setBooleanPref('dblClickRebases', false);
     }
+    if (!_placePrefs.hasPref('places.showProjectPath')) {
+        // Default is false -- show only basename
+        _placePrefs.setBooleanPref('places.showProjectPath', false);
+    }
     if (!filterPrefs.hasPref(DEFAULT_FILTER_NAME)) {
         //dump("global/places/filters prefs has no " + DEFAULT_FILTER_NAME + "\n");
         var prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
@@ -2984,8 +2988,16 @@ this.recentProjectsTreeView.prototype.initialize = function() {
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
             getService(Components.interfaces.nsIObserverService);
     observerSvc.addObserver(this, "mru_changed", false);
+    this.pref_observer_names = [ "showProjectPath" ];
+    _placePrefs.prefObserverService.addObserverForTopics(this,
+                                         this.pref_observer_names.length,
+                                         this.pref_observer_names, true);
 };
+
 this.recentProjectsTreeView.prototype.terminate = function() {
+    _placePrefs.prefObserverService.removeObserverForTopics(this,
+                                            this.pref_observer_names.length,
+                                            this.pref_observer_names);
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
     try {
@@ -2996,16 +3008,34 @@ this.recentProjectsTreeView.prototype.terminate = function() {
 };
 
 this.recentProjectsTreeView.prototype._resetRows = function() {
+    var showProjectPath = _globalPrefs.getPref("places").getBooleanPref('showProjectPath');
     var rows = ko.mru.getAll("mruProjectList").map(function(uri) {
+            if (!showProjectPath) {
+                var m = PROJECT_URI_REGEX.exec(uri);
+                if (m) {
+                    return [uri, decodeURIComponent(m[1])];
+                }
+            }
             var path = ko.uriparse.URIToPath(uri);
-            var name;
-            var lastSlash = uri.lastIndexOf('/');
-            if (lastSlash > -1) {
-                var lastDot = uri.lastIndexOf(".");
+            var name, lastSlash, lastDot;
+            if (!showProjectPath) {
+                var lastSlash = uri.lastIndexOf('/');
+                if (lastSlash > -1) {
+                    var lastDot = uri.lastIndexOf(".");
+                    if (lastDot > -1
+                        && ['.komodoproject', '.kpf'].indexOf(uri.substr(lastDot)) > -1) {
+                        // Standard -- ends with ".komodoproject" or ".kpf"
+                        path = path.substring(lastSlash + 1, lastDot);
+                    } else {
+                        path = path.substring(lastSlash + 1);
+                    }
+                }
+                // else Do nothing
+            } else {
+                var lastDot = path.lastIndexOf(".");
                 if (lastDot > -1
-                    && ['.komodoproject', '.kpf'].indexOf(uri.substr(lastDot)) > -1) {
-                    // Standard -- ends with ".komodoproject" or ".kpf"
-                    path = path.substr(0, path.lastIndexOf("."));
+                    && ['.komodoproject', '.kpf'].indexOf(path.substr(lastDot)) > -1) {
+                    path = path.substr(0, lastDot);
                 }
             }
             return [uri, path];
@@ -3015,6 +3045,8 @@ this.recentProjectsTreeView.prototype._resetRows = function() {
 };
 this.recentProjectsTreeView.prototype.observe = function(subject, topic, data) {
     if (data == "mruProjectList") {
+        this._resetRows();
+    } else if (topic == "showProjectPath") {
         this._resetRows();
     }
 };

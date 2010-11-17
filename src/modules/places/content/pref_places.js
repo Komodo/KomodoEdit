@@ -26,6 +26,8 @@ function OnPreferencePageInitalize(prefset) {
             g_defaultFilterPrefs.getStringPref("exclude_matches");
         document.getElementById("pref_places_dblClickRebases").checked =
             placePrefs.getBooleanPref('dblClickRebases');
+        document.getElementById("pref_places_showProjectPath").checked =
+            placePrefs.getBooleanPref('showProjectPath');
     } catch(ex) {
         alert("Places prefs: " + ex);
     }
@@ -36,6 +38,8 @@ function OnPreferencePageOK(prefset) {
         var placePrefs = prefset.getPref("places");
         placePrefs.setBooleanPref('dblClickRebases',
                                   document.getElementById("pref_places_dblClickRebases").checked);
+        placePrefs.setBooleanPref('showProjectPath',
+                                  document.getElementById("pref_places_showProjectPath").checked);
         g_defaultFilterPrefs = placePrefs.getPref("filters").
             getPref(DEFAULT_FILTER_NAME);
         g_defaultFilterPrefs.setStringPref("include_matches",
