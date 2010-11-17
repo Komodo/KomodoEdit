@@ -2528,7 +2528,7 @@ ManagerClass.prototype = {
  */
 
 function ItemWrapper(uri, type) {
-    this.uri = uri;
+    this.uri = this.url = uri; // allow for both variants.
     this.type = type; // one of 'file', 'folder', or 'project'
     if (type == 'project') {
         this.project = ko.projects.manager.currentProject;

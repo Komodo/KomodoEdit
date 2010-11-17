@@ -308,7 +308,7 @@ this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
     if (!items) {
         var pview = ko.places.getFocusedPlacesView();
         if (pview) {
-            items = pview.getSelectedItems();
+            items = pview.manager.getSelectedItems();
         }
     }
     if (items) {
