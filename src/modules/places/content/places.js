@@ -2613,9 +2613,9 @@ this.onLoad_aux = function places_onLoad_aux() {
     if (!_placePrefs.hasPref('dblClickRebases')) {
         _placePrefs.setBooleanPref('dblClickRebases', false);
     }
-    if (!_placePrefs.hasPref('places.showProjectPath')) {
+    if (!_placePrefs.hasPref('showProjectPath')) {
         // Default is false -- show only basename
-        _placePrefs.setBooleanPref('places.showProjectPath', false);
+        _placePrefs.setBooleanPref('showProjectPath', false);
     }
     if (!filterPrefs.hasPref(DEFAULT_FILTER_NAME)) {
         //dump("global/places/filters prefs has no " + DEFAULT_FILTER_NAME + "\n");
