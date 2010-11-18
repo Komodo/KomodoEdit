@@ -52,7 +52,7 @@ if win32:
             path = "c:\\" + path
         return path.replace("/", "\\")
 else:
-    _ptn = re.compile("\w:\\\\(.*)")
+    _ptn = re.compile("\\w:\\\\(.*)")
     def _(path):
         m = _ptn.match(path)
         if m:
