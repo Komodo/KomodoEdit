@@ -49,7 +49,7 @@ win32 = sys.platform.startswith("win")
 if win32:
     def _(path):
         if path.startswith("/"):
-            path = "c:\\" + path
+            path = "c:" + path
         return path.replace("/", "\\")
 else:
     _ptn = re.compile("\\w:\\\\(.*)")
