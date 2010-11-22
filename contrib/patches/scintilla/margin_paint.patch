@@ -1,0 +1,17 @@
+Index: src/Editor.cxx
+===================================================================
+--- src/Editor.cxx	(revision 59115)
++++ src/Editor.cxx	(working copy)
+@@ -1764,8 +1764,10 @@
+ 					if (firstSubLine) {
+ 						const StyledText stMargin  = pdoc->MarginStyledText(lineDoc);
+ 						if (stMargin.text && ValidStyledText(vs, vs.marginStyleOffset, stMargin)) {
+-							surface->FillRectangle(rcMarker,
+-								vs.styles[stMargin.StyleAt(0)+vs.marginStyleOffset].back.allocated);
++							if (!stMargin.multipleStyles) {
++								surface->FillRectangle(rcMarker,
++									vs.styles[stMargin.StyleAt(0)+vs.marginStyleOffset].back.allocated);
++							}
+ 							if (vs.ms[margin].style == SC_MARGIN_RTEXT) {
+ 								int width = WidestLineWidth(surface, vs, vs.marginStyleOffset, stMargin);
+ 								rcMarker.left = rcMarker.right - width - 3;
