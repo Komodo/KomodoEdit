@@ -660,19 +660,30 @@ class StdLibTestCase(DBTestCase):
         self.failIf(stdlib23.has_blob("hashlib")) # not until 2.5
         self.failUnless(stdlib23.has_blob("os"))
 
-    def test_perl(self):
-        stdlib = self.mgr.db.get_stdlib("Perl")
+    def _do_test_perl_version(self, ver):
+        stdlib = self.mgr.db.get_stdlib("Perl", ver)
         self.failUnless(stdlib.has_blob("*"))
         self.failUnless(stdlib.has_blob("CGI"))
         self.failUnless(stdlib.has_blob("LWP"))
-        stdlib58 = self.mgr.db.get_stdlib("Perl", "5.8")
-        self.failUnless(stdlib58.has_blob("AutoLoader"))
-        self.failUnless(stdlib58.has_blob("*"))
-        builtins = stdlib58.get_blob("*")
+        self.failUnless(stdlib.has_blob("AutoLoader"))
+        self.failUnless(stdlib.has_blob("XML::Simple"))
+        builtins = stdlib.get_blob("*")
         self.failUnless("-f" in builtins.names)
         self.failUnless("atan2" in builtins.names)
         self.failUnless("flock" in builtins.names)
         self._check_db()
+
+    def test_perl(self):
+        self._do_test_perl_version(None)
+
+    def test_perl_58(self):
+        self._do_test_perl_version("5.8")
+
+    def test_perl_510(self):
+        self._do_test_perl_version("5.10")
+
+    def test_perl_512(self):
+        self._do_test_perl_version("5.12")
 
     def test_ruby(self):
         stdlib = self.mgr.db.get_stdlib("Ruby")
