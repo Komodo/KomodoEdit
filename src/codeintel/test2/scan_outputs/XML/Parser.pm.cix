@@ -1,6 +1,6 @@
 <codeintel version="2.0">
   <file lang="Perl" mtime="42" path="scan_inputs/XML/Parser.pm">
-    <scope ilk="blob" lang="Perl" name="Parser" src="scan_inputs/XML/Parser.pm">
+    <scope ilk="blob" lang="Perl" name="XML::Parser" src="scan_inputs/XML/Parser.pm">
       <scope ilk="class" line="9" lineend="328" name="XML::Parser">
         <import line="11" module="Carp" symbol="*" />
         <import line="14" module="XML::Parser::Expat" />

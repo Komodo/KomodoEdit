@@ -1,6 +1,6 @@
 <codeintel version="2.0">
   <file lang="Perl" mtime="42" path="scan_inputs/Data/Dumper.pm">
-    <scope ilk="blob" lang="Perl" name="Dumper" src="scan_inputs/Data/Dumper.pm">
+    <scope ilk="blob" lang="Perl" name="Data::Dumper" src="scan_inputs/Data/Dumper.pm">
       <scope classrefs="Exporter" ilk="class" line="10" lineend="652" name="Data::Dumper">
         <import line="17" module="Exporter" />
         <import line="18" module="XSLoader" />

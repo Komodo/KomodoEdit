@@ -1,6 +1,6 @@
 <codeintel version="2.0">
   <file lang="Perl" mtime="42" path="scan_inputs/LWP/UserAgent.pm">
-    <scope ilk="blob" lang="Perl" name="UserAgent" src="scan_inputs/LWP/UserAgent.pm">
+    <scope ilk="blob" lang="Perl" name="LWP::UserAgent" src="scan_inputs/LWP/UserAgent.pm">
       <scope classrefs="LWP::MemberMixin" ilk="class" line="1" lineend="772" name="LWP::UserAgent">
         <import line="8" module="LWP::MemberMixin" />
         <import line="12" module="HTTP::Request" />
