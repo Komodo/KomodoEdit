@@ -902,8 +902,7 @@ class Parser:
         
     def printContents(self, moduleContentsName, currNode):
         name = os.path.splitext(os.path.basename(self.moduleName))[0]
-        moduleNode = Element('scope', ilk='blob', lang="Perl", name=name)
-        currNode.append(moduleNode)
+        moduleNode = SubElement(currNode, 'scope', ilk='blob', lang="Perl", name=name)
         
         innerModules = self.moduleInfo.modules
         mainInfo = innerModules.get('main', None)
@@ -922,13 +921,22 @@ class Parser:
                 if aline and bline: return cmp(aline, bline)
             return cmp(getattr(amod, 'name', ""), getattr(bmod, 'name', ""))
         
+        # Sub-packages need to updated their parent blob name - bug 88814.
+        # I.e. when parsing "XML/Simple.pm" the blob name is "Simple", but we
+        #      need it be "XML::Simple" in this case. The bestPackageName is
+        #      used to find the best matching name.
         packages = [x for x in self.moduleInfo.modules.keys() if x != 'main']
         packages.sort(sorter1)
+        bestPackageName = None
         for k in packages:
-            if k == 'main':break
             modInfo = innerModules[k]
-            classNode = Element('scope', ilk='class', name=modInfo.name, line=str(modInfo.line))
-            moduleNode.append(classNode)
+
+            if name in k and \
+               (bestPackageName is None or len(bestPackageName) > k):
+                bestPackageName = k
+                moduleNode.set("name", bestPackageName)
+
+            classNode = SubElement(moduleNode, 'scope', ilk='class', name=modInfo.name, line=str(modInfo.line))
             if hasattr(modInfo, 'lineend'):
                 classNode.set('lineend', str(modInfo.lineend))
             self.moduleInfo.printClassParents(modInfo, classNode)
