@@ -97,6 +97,6 @@
 <!ENTITY fileSystemFilterConfiguration.label "File System Filter Configuration">
 
 <!-- pref_places.xul -->
-<!ENTITY dblClickToRebase.label "Double-Click or Return Makes Folder Foot">
+<!ENTITY dblClickToRebase.label "Double-Click or Return Makes Folder Root">
 <!ENTITY showProjectPaths.label "Show Full Project Paths">
 <!ENTITY options.label "Options">
