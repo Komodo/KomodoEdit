@@ -852,9 +852,10 @@
   >
 
 <!ENTITY % InputType
-  "(text | password | checkbox |
-    radio | submit | reset |
-    file | hidden | image | button)"
+  "(button | checkbox | color | date | datetime | datetime-local |
+    email | file | hidden | image | month | number |
+    password | radio | range | reset | submit |
+    tel | text | time | url | week)"
    >
 
 <!-- the name attribute is required for all but submit & reset -->
