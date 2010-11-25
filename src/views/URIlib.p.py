@@ -535,7 +535,7 @@ class FileHandler(FileHandlerBase):
                 network_check_enabled = globalPrefs.getBooleanPref("checkNetworkDiskFile")
                 FileHandler._network_file_check_enabled = network_check_enabled
 
-            if network_check_enabled and win32:
+            if not network_check_enabled and win32:
                 # Determine if file is networked using the Win32 API. The string
                 # must be a unicode object - otherwise the call will fail.
                 # TODO: Does my path ever change? If so there needs to be an
