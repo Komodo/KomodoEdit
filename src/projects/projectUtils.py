@@ -78,6 +78,8 @@ def _indent(s, width=4, skip_first_line=False):
         return indentstr + indentstr.join(lines)
 
 def wrapPythonMacro(code, functionName='_code'):
+    if sys.platform.startswith("win"):
+        code = code.replace("\r\n", "\n")
     return "def %s():\n%s\n\n\n" % (functionName, _indent(code))
 
 def macro_openURI(uri):
