@@ -167,6 +167,7 @@ my @lexers = (
                codename => "restructuredtext_language",
                udl_path => "restructuredtext-mainlex.udl",
                ext => ".rst",
+               skel => "skel/reStructuredText",
               },
               {
                language_name => "TracWiki",

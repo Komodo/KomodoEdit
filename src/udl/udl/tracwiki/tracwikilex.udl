@@ -8,11 +8,11 @@ state IN_CSL_DEFAULT
 
 state in_tw_default_start_of_line:
 '{{{' : paint(upto, CSS_DEFAULT), => in_tw_triple_brace_start
-'= ': paint(upto, CSS_DEFAULT), => in_tw_h1
-'== ': paint(upto, CSS_DEFAULT), => in_tw_h2
-'=== ': paint(upto, CSS_DEFAULT), => in_tw_h3
-'==== ': paint(upto, CSS_DEFAULT), => in_tw_h4
 '===== ': paint(upto, CSS_DEFAULT), => in_tw_h5
+'==== ': paint(upto, CSS_DEFAULT), => in_tw_h4
+'=== ': paint(upto, CSS_DEFAULT), => in_tw_h3
+'== ': paint(upto, CSS_DEFAULT), => in_tw_h2
+'= ': paint(upto, CSS_DEFAULT), => in_tw_h1
 /./: redo, => in_tw_default_on_line
 
 state in_tw_default_on_line:
