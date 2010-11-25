@@ -52,9 +52,13 @@
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
 
   <script type="application/x-javascript;version=1.7">
   <![CDATA[
+
+    var g_originalNetworkFileCheckValue = true;
+
     function updateDoNotAskWidgets() {
         if (document.getElementById('checkDiskFile').getAttribute('checked') == 'true') {
             document.getElementById('reload_changed_files')
@@ -71,6 +75,19 @@
 
     function OnPreferencePageLoading() {
         updateDoNotAskWidgets();
+        g_originalNetworkFileCheckValue = document.getElementById("checkNetworkDiskFile").checked;
+    }
+
+    function OnPreferencePageOK() {
+        if (g_originalNetworkFileCheckValue != document.getElementById("checkNetworkDiskFile").checked) {
+            var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                    .getService(Components.interfaces.nsIStringBundleService)
+                    .createBundle("chrome://komodo/locale/pref/pref-editor.properties");
+            var dialogMsg = bundle.GetStringFromName("Changing 'Detect when network files are changed' requires a restart.");
+            var dialogTitle = bundle.GetStringFromName("Restart Required");
+            ko.dialogs.alert(dialogMsg, null, dialogTitle);
+        }
+        return true;
     }
   ]]>
   </script>
