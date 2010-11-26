@@ -1406,7 +1406,7 @@ class LangLibTestCase(DBTestCase):
 
         self._check_db()
 
-    @tag("perl")
+    @tag("perl", "knownfailure", "bug88826")
     def test_perl_multilevel_imports(self):
         test_dir = join(self.test_dir, "perl-multi-level-imports")
         manifest = [
