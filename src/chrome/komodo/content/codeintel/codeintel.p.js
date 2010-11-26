@@ -725,14 +725,11 @@ if (typeof(ko.codeintel)=='undefined') {
     var log = ko.logging.getLogger('codeintel_js');
     
     /**
-     * Trigger a completion (i.e. an autocomplete or calltip session)
-     * if appropriate.
+     * Link the current Komodo project with the provided codeintel buffer.
+     *
+     * Note: See bug 88841 for details on why this is necessary.
      */
-    this.trigger = function ko_codeintel_trigger(view) {
-
-        var scimoz = view.scimoz;
-        var ciBuffer = view.koDoc.ciBuf;
-
+    this.linkCurrentProjectWithBuffer = function ko_codeintel_linkProject(ciBuffer) {
         // Hack: Assign the project on this buffer. Would prefer if this was
         //       managed by the codeintel system itself, but at present there is
         //       a disconnect between projects (which are per window) and the
@@ -741,6 +738,18 @@ if (typeof(ko.codeintel)=='undefined') {
         if (currentProject) {
             ciBuffer.project = currentProject;
         }
+    }
+
+    /**
+     * Trigger a completion (i.e. an autocomplete or calltip session)
+     * if appropriate.
+     */
+    this.trigger = function ko_codeintel_trigger(view) {
+
+        var scimoz = view.scimoz;
+        var ciBuffer = view.koDoc.ciBuf;
+
+        this.linkCurrentProjectWithBuffer(ciBuffer);
 
         var trg = ciBuffer.trg_from_pos(scimoz.currentPos, true);
         if (!trg) {

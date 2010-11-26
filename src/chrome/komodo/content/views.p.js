@@ -1803,7 +1803,9 @@ viewManager.prototype.is_cmd_goToDefinition_enabled = function() {
 viewManager.prototype.do_cmd_goToDefinition = function() {
     // Get citdl defn trigger from where the cursor is located
     var view = ko.views.manager.currentView;
-    var trg = view.koDoc.ciBuf.defn_trg_from_pos(view.scimoz.currentPos);
+    var ciBuf = view.koDoc.ciBuf;
+    ko.codeintel.linkCurrentProjectWithBuffer(ciBuf);
+    var trg = ciBuf.defn_trg_from_pos(view.scimoz.currentPos);
     if (!trg) {
         // Do nothing.
     } else {
@@ -1811,7 +1813,7 @@ viewManager.prototype.do_cmd_goToDefinition = function() {
         var ctlr = Components.classes["@activestate.com/koCodeIntelEvalController;1"].
                     createInstance(Components.interfaces.koICodeIntelEvalController);
         ctlr.set_ui_handler(view.ciCompletionUIHandler);
-        view.koDoc.ciBuf.async_eval_at_trg(trg, ctlr);
+        ciBuf.async_eval_at_trg(trg, ctlr);
     }
 }
 

@@ -215,9 +215,11 @@
                 return;
             }
     
+            var ciBuf = view.koDoc.ciBuf;
+            ko.codeintel.linkCurrentProjectWithBuffer(ciBuf);
             // Create a trigger, it must be a specific position in the document,
             // due to variable scope implications etc...
-            var trg = view.koDoc.ciBuf.defn_trg_from_pos(currentPos);
+            var trg = ciBuf.defn_trg_from_pos(currentPos);
             // Create a codeintel completion handler
             var ciUIHandler = new GotoDefinitionUIHandler();
             // Create a controller to handle results
@@ -227,7 +229,7 @@
             ctlr.set_ui_handler(ciUIHandler);
     
             // Fire off the codeintel call, which will call setDefinitionsInfo when done
-            view.koDoc.ciBuf.async_eval_at_trg(trg, ctlr);
+            ciBuf.async_eval_at_trg(trg, ctlr);
             //dump("async_called\n");
     
         } catch (ex) {
