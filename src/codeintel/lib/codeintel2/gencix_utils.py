@@ -286,6 +286,61 @@ def get_cix_string(cix, prettyFormat=True):
     cixstream.close()
     return cixcontent
 
+def outline_ci_elem(elem, _lvl=0, brief=False, doSort=False):
+    """Return an outline of the given codeintel tree element."""
+    indent = '  '
+    result = []
+
+    def _dump(s):
+        result.append(indent*_lvl + s + '\n')
+
+    if elem.tag == "codeintel":
+        _lvl -= 1 # don't count this one
+    elif brief:
+        name = elem.get("name")
+        if name:
+            _dump(name)
+    elif elem.tag == "file":
+        lang = elem.get("lang")
+        _dump("file %(path)s [%(lang)s]" % elem.attrib)
+    elif elem.tag == "variable":
+        if elem.get("ilk") == "argument":
+            s = "arg "+elem.get("name") # skip?
+        else:
+            s = "var "+elem.get("name")
+        if elem.get("citdl"):
+            s += " [%s]" % elem.get("citdl")
+        _dump(s)
+    elif elem.tag == "scope" and elem.get("ilk") == "function" \
+         and elem.get("signature"):
+        _dump("function %s" % elem.get("signature").split('\n')[0])
+    elif elem.tag == "scope" and elem.get("ilk") == "blob":
+        lang = elem.get("lang")
+        _dump("blob %(name)s [%(lang)s]" % elem.attrib)
+    elif elem.tag == "scope" and elem.get("ilk") == "class" \
+         and elem.get("classrefs"):
+        _dump("%s %s(%s)" % (elem.get("ilk"), elem.get("name"),
+                             ', '.join(elem.get("classrefs").split())))
+    elif elem.tag == "scope":
+        _dump("%s %s" % (elem.get("ilk"), elem.get("name")))
+    elif elem.tag == "import":
+        _dump("import %r %r as %r" % (elem.get("module"),
+                                      elem.get("symbol"),
+                                      elem.get("alias")))
+    else:
+        raise ValueError("unknown tag: %r (%r)" % (elem.tag, elem))
+
+    if doSort and hasattr(elem, "names") and elem.names:
+        for name in sorted(elem.names.keys()):
+            child = elem.names[name]
+            result.append(outline_ci_elem(child, _lvl=_lvl+1,
+                                          brief=brief, doSort=doSort))
+    else:
+        for child in elem:
+            result.append(outline_ci_elem(child, _lvl=_lvl+1,
+                                          brief=brief, doSort=doSort))
+    return "".join(result)
+
 def remove_cix_line_numbers_from_tree(tree):
     for node in tree.getiterator():
         node.attrib.pop("line", None)
