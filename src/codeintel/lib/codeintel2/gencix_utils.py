@@ -324,9 +324,16 @@ def outline_ci_elem(elem, _lvl=0, brief=False, doSort=False):
     elif elem.tag == "scope":
         _dump("%s %s" % (elem.get("ilk"), elem.get("name")))
     elif elem.tag == "import":
-        _dump("import %r %r as %r" % (elem.get("module"),
-                                      elem.get("symbol"),
-                                      elem.get("alias")))
+        module = elem.get("module")
+        symbol = elem.get("symbol")
+        alias = elem.get("alias")
+        value = "import '%s" % (module, )
+        if symbol:
+            value += ".%s" % (symbol, )
+        value += "'"
+        if alias:
+            value +" as %r" % (alias, )
+        _dump(value)
     else:
         raise ValueError("unknown tag: %r (%r)" % (elem.tag, elem))
 
