@@ -66,6 +66,7 @@ from codeintel2.common import *
 from codeintel2.util import (indent, dedent, banner, unmark_text,
                              guess_lang_from_path)
 from codeintel2.tree import tree_from_cix, pretty_tree_from_tree, check_tree
+from codeintel2.gencix_utils import outline_ci_elem
 
 sys.path.insert(0, join(dirname(abspath(__file__)), "support"))
 try:
@@ -195,60 +196,14 @@ def _escaped_text_from_text(text, escapes="eol"):
 
 
 
-def _outline_ci_elem(mgr, elem, stream=sys.stdout, lang=None, _lvl=0,
+def _outline_ci_elem(elem, stream=sys.stdout,
                      brief=False, doSort=False, encoding=None):
     """Dump an outline of the given codeintel tree element."""
-    indent = '  '
     if encoding is None:
         encoding = sys.getfilesystemencoding()
-    def _dump(s):
-        stream.write(indent*_lvl + s.encode(encoding) + '\n')
 
-    if elem.tag == "codeintel":
-        _lvl -= 1 # don't count this one
-    elif brief:
-        name = elem.get("name")
-        if name:
-            _dump(name)
-    elif elem.tag == "file":
-        lang = elem.get("lang")
-        _dump("file %(path)s [%(lang)s]" % elem.attrib)
-    elif elem.tag == "variable":
-        if elem.get("ilk") == "argument":
-            s = "arg "+elem.get("name") # skip?
-        else:
-            s = "var "+elem.get("name")
-        if elem.get("citdl"):
-            s += " [%s]" % elem.get("citdl")
-        _dump(s)
-    elif elem.tag == "scope" and elem.get("ilk") == "function" \
-         and elem.get("signature"):
-        _dump("function %s" % elem.get("signature").split('\n')[0])
-    elif elem.tag == "scope" and elem.get("ilk") == "blob":
-        lang = elem.get("lang")
-        _dump("blob %(name)s [%(lang)s]" % elem.attrib)
-    elif elem.tag == "scope" and elem.get("ilk") == "class" \
-         and elem.get("classrefs"):
-        _dump("%s %s(%s)" % (elem.get("ilk"), elem.get("name"),
-                             ', '.join(elem.get("classrefs").split())))
-    elif elem.tag == "scope":
-        _dump("%s %s" % (elem.get("ilk"), elem.get("name")))
-    elif elem.tag == "import":
-        langintel = mgr.langintel_from_lang(lang)
-        data = langintel.cb_import_data_from_elem(elem)
-        _dump(data["detail"])
-    else:
-        raise ValueError("unknown tag: %r (%r)" % (elem.tag, elem))
-
-    if doSort and hasattr(elem, "names") and elem.names:
-        for name in sorted(elem.names.keys()):
-            child = elem.names[name]
-            _outline_ci_elem(mgr, child, stream, lang=lang, _lvl=_lvl+1,
-                             brief=brief, doSort=doSort, encoding=encoding)
-    else:
-        for child in elem:
-            _outline_ci_elem(mgr, child, stream, lang=lang, _lvl=_lvl+1,
-                             brief=brief, doSort=doSort, encoding=encoding)
+    outline = outline_ci_elem(elem)
+    stream.write(outline.encode(encoding))
 
 
 
@@ -535,7 +490,7 @@ class Shell(cmdln.Cmdln):
                 elem = tree
 
             try:
-                _outline_ci_elem(mgr, elem, brief=opts.brief, doSort=opts.doSort)
+                _outline_ci_elem(elem, brief=opts.brief, doSort=opts.doSort)
             except IOError, ex:
                 if ex.errno == 0:
                     # Ignore this error from aborting 'less' of 'ci2 outline'
