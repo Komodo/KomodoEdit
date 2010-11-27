@@ -37,6 +37,8 @@
 
 """JavaScript-specific Language Services implementations."""
 
+import re
+
 from xpcom import components, ServerException
 
 from langinfo_prog import JavaScriptLangInfo
@@ -49,6 +51,10 @@ class koJavaScriptLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{0DD83914-E2F6-478a-A77E-7307833A7601}"
+
+    shebangPatterns = [
+        re.compile(r'\A#!.*(node|javascript).*$', re.I | re.M),
+    ]
 
     accessKey = 'j'
     primary = 1
@@ -111,6 +117,10 @@ class koJSONLanguage(koJavaScriptLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{879fa591-80f4-4f6c-b571-a7999d97a8cd}"
+
+    shebangPatterns = [
+        re.compile(r'\A#!.*json.*$', re.I | re.M),
+    ]
 
     accessKey = 'n'
     primary = 1

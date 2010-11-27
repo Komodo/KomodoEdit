@@ -154,6 +154,10 @@ class JavaScriptLangInfo(LangInfo):
     name = "JavaScript"
     conforms_to_bases = ["Text"]
     exts = ['.js', '.jsm']
+    # Support for Node (server side JavaScript).
+    magic_numbers = [
+        (0, "regex", re.compile(r'\A#!.*node.*$', re.I | re.M))
+    ]
 
     # These are the keywords that are used in most JavaScript environments.
     common_keywords = set(["break",
