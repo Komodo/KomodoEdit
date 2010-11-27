@@ -286,13 +286,21 @@ def get_cix_string(cix, prettyFormat=True):
     cixstream.close()
     return cixcontent
 
-def outline_ci_elem(elem, _lvl=0, brief=False, doSort=False):
+def outline_ci_elem(elem, _lvl=0, brief=False, doSort=False, includeLineNos=False):
     """Return an outline of the given codeintel tree element."""
     indent = '  '
     result = []
 
     def _dump(s):
-        result.append(indent*_lvl + s + '\n')
+        if includeLineNos:
+            startline = elem.get("line")
+            lineend = elem.get("lineend")
+            line_str = ""
+            if startline or lineend:
+                line_str = " (%r-%r)" % (startline, lineend)
+            result.append(indent*_lvl + s + line_str + '\n')
+        else:
+            result.append(indent*_lvl + s + '\n')
 
     if elem.tag == "codeintel":
         _lvl -= 1 # don't count this one
@@ -341,11 +349,13 @@ def outline_ci_elem(elem, _lvl=0, brief=False, doSort=False):
         for name in sorted(elem.names.keys()):
             child = elem.names[name]
             result.append(outline_ci_elem(child, _lvl=_lvl+1,
-                                          brief=brief, doSort=doSort))
+                                          brief=brief, doSort=doSort,
+                                          includeLineNos=includeLineNos))
     else:
         for child in elem:
             result.append(outline_ci_elem(child, _lvl=_lvl+1,
-                                          brief=brief, doSort=doSort))
+                                          brief=brief, doSort=doSort,
+                                          includeLineNos=includeLineNos))
     return "".join(result)
 
 def remove_cix_line_numbers_from_tree(tree):
