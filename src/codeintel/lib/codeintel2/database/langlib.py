@@ -1067,7 +1067,7 @@ class LangZone(object):
                         #       common. I.e. just for the "editset".
                         try:
                             fin = open(dbpath, 'r')
-                        except OSError, ex:
+                        except (OSError, IOError), ex:
                             # Technically if the dbfile doesn't exist, this
                             # is a sign of database corruption. No matter
                             # though (for this blob anyway), we are about to
