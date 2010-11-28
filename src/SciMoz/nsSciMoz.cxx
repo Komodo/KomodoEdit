@@ -509,10 +509,12 @@ void SciMoz::Notify(long lParam) {
 			PRUint32 len = ((isBeforeDelete || notification->text)
 			    ? notification->length
 			    : 0);
-			const char *pText = (len && (notification->modificationType & SC_MOD_INSERTTEXT)
-					     ? notification->text
-					     : "");
-			nsAutoString uString = NS_ConvertUTF8toUTF16(pText, len);
+			nsAutoString uString;
+			if (len && (notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))) {
+				uString = NS_ConvertUTF8toUTF16(notification->text, len);
+			} else {
+				uString.Truncate();
+			}
 			mask = ISciMozEvents::SME_MODIFIED;
 			// Pass in unicode text, utf8 length
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink)))) {
