@@ -60,14 +60,37 @@ class koPascalLanguage(KoLanguageBase):
         "markup": "*",
     }
     supportsSmartIndent = "brace"
-    
+    _stateMap = {
+        'default': ('SCE_PAS_DEFAULT',),
+        'keywords': ('SCE_PAS_WORD', 'SCE_PAS_ASM'),
+        'comments': ('SCE_PAS_COMMENT', 'SCE_PAS_COMMENT2', 'SCE_PAS_COMMENTLINE',),
+        'identifiers': ('SCE_PAS_IDENTIFIER',),
+        'preprocessor': ('SCE_PAS_PREPROCESSOR', 'SCE_PAS_PREPROCESSOR2'),
+        'numbers': ('SCE_PAS_NUMBER', 'SCE_PAS_HEXNUMBER',),
+        'strings': ('SCE_PAS_STRING', 'SCE_PAS_STRINGEOL', 'SCE_PAS_CHARACTER',),
+        }
+
+    sample = """
+program MyProg(input, output)
+(* Warning: this program might not compile. *)
+  begin
+    { that's because there's no
+      Pascal compiler on this machine.
+    }
+    var myVar:integer;
+    myVar := 5;
+    if (myVar > 3) begin
+      writeln("Pascal is fun!!!!")
+    end
+  end
+end.
+"""    
     def __init__(self):
         KoLanguageBase.__init__(self)
         self._style_info.update(
-            _block_comment_styles = [sci_constants.SCE_C_COMMENT,
-                                     sci_constants.SCE_C_COMMENTDOC,
-                                     sci_constants.SCE_C_COMMENTDOCKEYWORD,
-                                     sci_constants.SCE_C_COMMENTDOCKEYWORDERROR]
+            _block_comment_styles = [sci_constants.SCE_PAS_COMMENT,
+                                     sci_constants.SCE_PAS_COMMENT2,
+                                     sci_constants.SCE_PAS_COMMENTLINE]
             )
 
     def get_lexer(self):
@@ -86,7 +109,7 @@ initialization inline interface label library message mod near nil not
 object of on or out overload override packed pascal private procedure program 
 property protected public published raise read record register repeat resourcestring 
 safecall set shl shr stdcall stored string then threadvar to try type unit 
-until uses var virtual while with write xor""".split()
+until uses var virtual while with write writeln xor""".split()
 
     _keywords2 = """write read default public protected private property
             published stored""".split()
