@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Copyright (c) 2009-2010 ActiveState Software Inc.
 # See the file LICENSE.txt for licensing information.
 
@@ -9,6 +11,7 @@ import time
 import unittest
 
 from xpcom import components
+from testlib import tag
 
 # Test function
 class remoteInfoTests(unittest.TestCase):
@@ -143,4 +146,51 @@ class remoteInfoTests(unittest.TestCase):
                     "Incorrect isExecutable: '%r'" % (fileinfo.isExecutable(),))
         self.failIf(fileinfo.isFile() != False,
                     "Incorrect isFile: '%r'" % (fileinfo.isFile(),))
+
+    @tag("bug88866")
+    def test_ruski_format(self):
+        # Russian file listing
+        folder_listing   = 'drwxrwxr-x  2 username username      4096 Дек  5  2009 doxygen'
+        fileinfo = self._makeKoRemoteFileInfo()
+        self.failIf(fileinfo.initFromDirectoryListing("testingdir", folder_listing) != True,
+                    "Could not parse directory listing: %r" % (folder_listing, ))
+        self.failIf(fileinfo.getFilename() != 'doxygen',
+                    "Incorrect filename: %r != 'doxygen'" % (fileinfo.getFilename(), ))
+        self.failIf(fileinfo.isDirectory() != True,
+                    "Incorrect isDirectory: '%r'" % (fileinfo.isDirectory(),))
+        self.failIf(fileinfo.isExecutable() != True,
+                    "Incorrect isExecutable: '%r'" % (fileinfo.isExecutable(),))
+        self.failIf(fileinfo.isFile() != False,
+                    "Incorrect isFile: '%r'" % (fileinfo.isFile(),))
+
+        file_listing   = '-rw-rw-r--  1 username username       990 Авг 19  2009 failed.gif'
+        fileinfo = self._makeKoRemoteFileInfo()
+        self.failIf(fileinfo.initFromDirectoryListing("testingdir", file_listing) != True,
+                    "Could not parse directory listing: %r" % (file_listing, ))
+        self.failIf(fileinfo.getFilename() != 'failed.gif',
+                    "Incorrect filename: %r != 'failed.gif'" % (fileinfo.getFilename(), ))
+        self.failIf(fileinfo.getFileSize() != '990',
+                    "Incorrect file size: %r != '990'" % (fileinfo.getFileSize(),))
+        self.failIf(fileinfo.isDirectory() != False,
+                    "Incorrect isDirectory: '%r'" % (fileinfo.isDirectory(),))
+        self.failIf(fileinfo.isExecutable() != False,
+                    "Incorrect isExecutable: '%r'" % (fileinfo.isExecutable(),))
+        self.failIf(fileinfo.isFile() != True,
+                    "Incorrect isFile: '%r'" % (fileinfo.isFile(),))
+
+        file_listing   = '-rw-rw-r--  1 username username      3314 Мар  1  2010 icon16x16.png'
+        fileinfo = self._makeKoRemoteFileInfo()
+        self.failIf(fileinfo.initFromDirectoryListing("testingdir", file_listing) != True,
+                    "Could not parse directory listing: %r" % (file_listing, ))
+        self.failIf(fileinfo.getFilename() != 'icon16x16.png',
+                    "Incorrect filename: %r != 'icon16x16.png'" % (fileinfo.getFilename(), ))
+        self.failIf(fileinfo.getFileSize() != '3314',
+                    "Incorrect file size: %r != '3314'" % (fileinfo.getFileSize(),))
+        self.failIf(fileinfo.isDirectory() != False,
+                    "Incorrect isDirectory: '%r'" % (fileinfo.isDirectory(),))
+        self.failIf(fileinfo.isExecutable() != False,
+                    "Incorrect isExecutable: '%r'" % (fileinfo.isExecutable(),))
+        self.failIf(fileinfo.isFile() != True,
+                    "Incorrect isFile: '%r'" % (fileinfo.isFile(),))
+
 

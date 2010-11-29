@@ -54,6 +54,7 @@ import time
 import stat
 import re
 import logging
+from string import digits as string_digits
 
 import strptime
 
@@ -281,8 +282,8 @@ class koRemoteFileInfo:
                 # Date is in fi[5], I.e Nov 30 or 2005-11-30 format
                 # do we have time, or year?
                 guessedYear = False
-                if fi[5].lower() in self._3char_month_names:
-                    if " " in fi[7] and fi[7][0] in "0123456789":
+                if fi[5] and not fi[5][0] in string_digits:
+                    if " " in fi[7] and fi[7][0] in string_digits:
                         # Requires the filename field to be split up:
                         fi = fi[:1] + fi[2:7] + fi[7].split(None, 1)
                     if len(fi) == 9:
