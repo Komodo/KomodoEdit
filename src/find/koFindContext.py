@@ -37,14 +37,10 @@
 
 """Komodo find contexts (i.e. in what to search)"""
 
-import sys
-import os
 from os.path import basename
-from pprint import pprint, pformat, PrettyPrinter
 import logging
 
 from xpcom import components, ServerException, nsError
-from xpcom.server import WrapObject, UnwrapObject
 import uriparse
 
 
