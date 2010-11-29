@@ -499,29 +499,28 @@ void SciMoz::Notify(long lParam) {
 				break;
 			}
 #endif
-			// Silly js doesnt like NULL strings here :-(
-			bool isBeforeDelete = (notification->modificationType & SC_MOD_BEFOREDELETE) != 0;
-			if (!isBeforeDelete) {
+
+			bool isInsertOrDeleteText = notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT);
+			if (isInsertOrDeleteText) {
 				// Buffer has changed, reset the text cache.
 				_cachedText.SetIsVoid(TRUE);
 			}
 
-			PRUint32 len = ((isBeforeDelete || notification->text)
-			    ? notification->length
-			    : 0);
 			nsAutoString uString;
-			if (len && (notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))) {
-				uString = NS_ConvertUTF8toUTF16(notification->text, len);
+			if (isInsertOrDeleteText && notification->text && (notification->length > 0)) {
+				uString = NS_ConvertUTF8toUTF16(notification->text, notification->length);
 			} else {
 				uString.Truncate();
 			}
 			mask = ISciMozEvents::SME_MODIFIED;
-			// Pass in unicode text, utf8 length
+			// Note: We are passing unicode text, but length is
+			//       given using bytes, so uString.Length() could be
+			//       different to notification->length.
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink)))) {
 				eventSink->OnModified(notification->position,
 						      notification->modificationType,
 						      uString,
-						      len,
+						      notification->length,
 						      notification->linesAdded,
 						      notification->line,
 						      notification->foldLevelNow,
