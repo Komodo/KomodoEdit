@@ -2233,6 +2233,7 @@
                           orient="vertical"
                           collapsable="true"
                           splitterId="workspace_left_splitter"
+                          ondragstart="event.preventDefault();"
                           onclose="ko.uilayout.toggleSplitter('cmd_viewLeftPane');"
                           closeclass="scroll-minimize-left-icon"
                           closecollapsed="false">
@@ -2279,6 +2280,7 @@
                           orient="vertical"
                           collapsable="true"
                           splitterId="workspace_right_splitter"
+			  ondragstart="event.preventDefault();"
                           onclose="ko.uilayout.toggleSplitter('cmd_viewRightPane');"
                           closeclass="scroll-minimize-right-icon"
                           closecollapsed="false">
@@ -2395,6 +2397,7 @@
                     id="output_tabs" orient="horizontal"
                     splitterId="bottom_splitter"
                     onclose="ko.uilayout.toggleSplitter('cmd_viewBottomPane');"
+		    ondragstart="event.preventDefault();"
                     closeclass="scroll-minimize-down-icon"
                     closecollapsed="false">
                     <!-- Need both onmousedown and onfocus to catch selection
