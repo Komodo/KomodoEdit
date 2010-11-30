@@ -707,17 +707,20 @@ class koRemoteConnectionService:
                             getService(components.interfaces.nsILoginManager)
         old_logins = {}
         
-        for old_login in loginmanager.getAllLogins():
-            old_login.QueryInterface(components.interfaces.nsILoginInfo)
-            serverinfo = koServerInfo()
-            try:
-                serverinfo.initFromLoginInfo(old_login)
-            except BadServerInfoException:
-                # Ignore non Komodo server entries.
-                continue
-            guid = old_login.QueryInterface(components.interfaces.\
-                                            nsILoginMetaInfo).guid
-            old_logins[guid] = old_login
+        all_logins = loginmanager.getAllLogins()
+        # Note: all_logins can be None - bug 88772.
+        if all_logins:
+            for old_login in all_logins:
+                old_login.QueryInterface(components.interfaces.nsILoginInfo)
+                serverinfo = koServerInfo()
+                try:
+                    serverinfo.initFromLoginInfo(old_login)
+                except BadServerInfoException:
+                    # Ignore non Komodo server entries.
+                    continue
+                guid = old_login.QueryInterface(components.interfaces.\
+                                                nsILoginMetaInfo).guid
+                old_logins[guid] = old_login
             
         for serverinfo in serverinfo_list:
             new_login = serverinfo.generateLoginInfo()
