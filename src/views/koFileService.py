@@ -107,11 +107,7 @@ class koFileService(object):
                 if o is not None:
                     L.append(o)
                 else:
-                    try:
-                        del self._files[uri]
-                    except KeyError, e:
-                        # expect this sometimes with weakref
-                        pass
+                    self._files.pop(uri, None)
         return L
         
     #void getAllFiles([array, size_is(count)] out koIFileEx files,
@@ -123,11 +119,7 @@ class koFileService(object):
             if o is not None:
                 L.append(o)
             else:
-                try:
-                    del self._files[uri]
-                except KeyError, e:
-                    # expect this sometimes with weakref
-                    pass
+                self._files.pop(uri, None)
         return L
     
     # performance is critical for this function, since it
@@ -142,11 +134,7 @@ class koFileService(object):
             if kofile:
                 return kofile
             else:
-                try:
-                    del self._files[uri]
-                except KeyError, e:
-                    # expect this sometimes with weakref
-                    pass
+                self._files.pop(uri, None)
         return None
     
     def deleteTempFile(self, fname, remove_fname = 1):
@@ -164,10 +152,7 @@ class koFileService(object):
                 log.warn(msg)
                 remove_fname = 0
         if remove_fname:
-            try:
-                del self._tmpfiles[fname]
-            except KeyError:
-                log.debug("TempFile: '%s' is not in the map of temp filenames", fname)
+            self._tmpfiles.pop(fname, None)
     
     def deleteAllTempFiles(self):
          for fname in self._tmpfiles.keys():
