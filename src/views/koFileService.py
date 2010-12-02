@@ -80,24 +80,24 @@ class koFileService(object):
             self._uriParser.URI = uri
             uri = self._uriParser.URI
             
-            file = self.findFileByURI(uri)
-            if file:
-                return file
+            kofile = self.findFileByURI(uri)
+            if kofile:
+                return kofile
         
-            file = \
+            kofile = \
                 components.classes["@activestate.com/koFileEx;1"] \
                 .createInstance(components.interfaces.koIFileEx)
-            file.URI = uri
+            kofile.URI = uri
         except Exception, e:
             log.error("Invalid URL parsed: %r", uri)
             raise ServerException(nsError.NS_ERROR_FAILURE, str(e))
-        self._files[uri] = WeakReference(file)
+        self._files[uri] = WeakReference(kofile)
 
         if doNotification:
             forceRefresh = False
-            self.fileStatusSvc.updateStatusForFiles([file], forceRefresh, None)
+            self.fileStatusSvc.updateStatusForFiles([kofile], forceRefresh, None)
         
-        return file
+        return kofile
     
     def getFilesInBaseURI(self, baseURI):
         L = []
@@ -136,10 +136,11 @@ class koFileService(object):
     #koIFileEx findFileByURI(in wstring URI);
     def findFileByURI(self, uri):
         uri = self._uriParser.URI = uri
-        if uri in self._files:
-            file = self._files[uri]()
-            if file:
-                return file
+        file_weakref = self._files.get(uri)
+        if file_weakref:
+            kofile = file_weakref()
+            if kofile:
+                return kofile
             else:
                 try:
                     del self._files[uri]
