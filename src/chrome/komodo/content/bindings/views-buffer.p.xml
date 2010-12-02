@@ -966,12 +966,17 @@
         ]]>
         </body>
         </method>
-        
+
+        <field name="MOD_TEXT_MODIFIED" readonly="true">
+            Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT |
+            Components.interfaces.ISciMoz.SC_MOD_DELETETEXT
+        </field>
+
         <method name="onModified">
         <parameter name="position"/>
         <parameter name="modificationType"/>
         <parameter name="text"/>   <!-- unicode text -->
-        <parameter name="length"/> <!-- utf8 length -->
+        <parameter name="bytelength"/> <!-- utf8 length -->
         <parameter name="linesAdded"/>
         <parameter name="line"/>
         <parameter name="foldLevelNow"/>
@@ -985,7 +990,7 @@
             if (modificationType & wantedFlags) {
                 try {
                     if (entry[0].call(entry[1], position, modificationType,
-                                                text, length, linesAdded, line,
+                                                text, bytelength, linesAdded, line,
                                                 foldLevelNow, foldLevelPrev)) {
                         return;
                     }
@@ -993,6 +998,24 @@
                     this.log.error("onModified: error with handler " + i + ": " + ex);
                 }
             }
+        }
+
+        // Dispatch a custom text_modified event to the window.
+        if (modificationType & this.MOD_TEXT_MODIFIED) {
+            var event = document.createEvent("Events");
+            event.initEvent("editor_text_modified", true, true);
+            event.data = {
+                'view': this,
+                'position': position,
+                'modificationType': modificationType,
+                'text': text,
+                'bytelength': bytelength,
+                'linesAdded': linesAdded,
+                'line': line,
+                'foldLevelNow': foldLevelNow,
+                'foldLevelPrev': foldLevelPrev
+            };
+            window.dispatchEvent(event);
         }
         ]]>
         </body>
