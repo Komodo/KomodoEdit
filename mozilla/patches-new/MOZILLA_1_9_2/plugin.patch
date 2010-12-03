@@ -1,4 +1,6 @@
 Index: /Users/toddw/as/komodo-devel/mozilla/build/moz191-ko6.10/mozilla/layout/generic/nsObjectFrame.cpp
+--- layout/generic/nsObjectFrame.cpp	Thu Jan 28 17:05:14 2010 -0800
++++ layout/generic/nsObjectFrame.cpp	Fri Feb 05 10:15:12 2010 -0800
 @@ -459,6 +459,11 @@
      return strncmp(GetPluginName(), aPluginName, strlen(aPluginName)) == 0;
    }
