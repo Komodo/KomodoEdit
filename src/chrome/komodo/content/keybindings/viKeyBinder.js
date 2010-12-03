@@ -3050,9 +3050,14 @@ function cmd_vim_gotoLine(scimoz, lineNumber) {
 
 function cmd_vim_wordRightEndPastPunctuation(scimoz) {
     ko.commands.doCommand("cmd_wordRightEndPastPunctuation");
-    if (gVimController.operationFlags == VimController.OPERATION_CHANGE) {
+    if (gVimController.operationFlags) {
         // Special case command, include last character in movement
-        scimoz.currentPos = scimoz.positionAfter(scimoz.currentPos);
+        var currentPos = scimoz.currentPos;
+        var lineNo = scimoz.lineFromPosition(currentPos);
+        var lineEndPos = scimoz.getLineEndPosition(lineNo)
+        if (currentPos < lineEndPos) {
+            scimoz.currentPos = scimoz.positionAfter(currentPos);
+        }
     }
 }
 
