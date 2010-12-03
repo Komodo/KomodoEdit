@@ -129,7 +129,7 @@ function VimController() {
         this._lastOperationFlags = VimController.OPERATION_NONE; // Last operation type
         this._lastModifyCommand = "";       // Last modify command performed
         this._lastRepeatCount = 1;          // Number of times command was repeated
-        this._lastInsertedKeycodes = [];    // Array of chars used in last command
+        this._lastInsertedText = "";        // String of text used in last insert command
         // Registers to store copy/paste information
         this._currentRegister = null;
         this._registers = {};
@@ -220,16 +220,139 @@ var gVim_onCurrentViewChanged = function(event) {
     gVimController.updateCaretStyle(view.scimoz);
 }
 
+// Used to capture editor text modifications.
+var gVim_onEditorModified = function(event) {
+    var data = event.data;
+    if (data.view.getAttribute("type") != "editor") {
+        /* Only need to look at editor views. */
+        return;
+    }
+    //dump('gVim_onEditorModified:: event.data.modificationType: ' + event.data.modificationType + '\n');
+    //ko.logging.dumpObject(data);
+
+    var insertedText = gVimController._lastInsertedText;
+
+    try {
+
+    // This is more lot complex than I'd originally wanted, in order to properly
+    // handle things like "soft chars" - we need to remember the original text
+    // and position where the editing started and then for each edit we compare
+    // that with the new position and new text being entered.
+    //
+    //     Editing normally - "ab|" => user adds "c" => "abc|":
+    //       data.position: 2
+    //       data.text: "c"
+    //       insertedText: "ab"
+    //       insertedTextStartPos: 0
+    //       insertedTextEndPos:   2
+    // 
+    //     Soft chars - "abc(|)" => user adds "d" => "abc(d|)":
+    //       data.position: 4
+    //       data.text    : "d"
+    //       insertedText : "abc()"
+    //       insertedTextStartPos: 0
+    //       insertedTextEndPos:   5
+    // 
+
+        if (data.modificationType & Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT) {
+            /* Text was inserted. */
+
+            if (!insertedText) {
+                /* Nothing yet - reset. */
+                gVimController._lastInsertedText = data.text;
+                gVimController._lastInsertedStartPosition = data.position;
+                gVimController._lastInsertedEndPosition = data.position + data.bytelength;
+                return;
+            }
+            var insertStartPos = gVimController._lastInsertedStartPosition;
+            var insertEndPos = gVimController._lastInsertedEndPosition;
+            //dump("  inserted text, position " + data.position + ", text '" + data.text + "'\n");
+            //dump('    gVimController._lastInsertedText: "' + gVimController._lastInsertedText + '"\n');
+            //dump('    gVimController._lastInsertedStartPosition: ' + gVimController._lastInsertedStartPosition + '\n');
+            //dump('    gVimController._lastInsertedEndPosition: ' + gVimController._lastInsertedEndPosition + '\n');
+            //dump('    insertEndPos: ' + insertEndPos + '\n');
+            if (data.position == insertEndPos) {
+                /* Normal case - just append the text. */
+                //dump("    case 1\n");
+                gVimController._lastInsertedText += data.text;
+                gVimController._lastInsertedEndPosition += data.bytelength;
+            } else if (data.position >= insertStartPos && data.position <= insertEndPos) {
+                /* Soft char case, or user manually moved back in the text. */
+                // Gah - has to access scimoz in order to get the char length,
+                // as we only know the byte length.
+                //dump("    case 2\n");
+                var scimoz = data.view.scimoz;
+                var beforeText = scimoz.getTextRange(insertStartPos, data.position);
+                var newInsertedText = insertedText.substring(0, beforeText.length) + data.text + insertedText.substring(beforeText.length);
+                //dump('      newInsertedText: ' + newInsertedText + '\n');
+                gVimController._lastInsertedText = newInsertedText;
+                gVimController._lastInsertedEndPosition += data.bytelength;
+            } else {
+                /* A different insert position - reset. */
+                //dump("    case 3\n");
+                gVimController._lastInsertedText = data.text;
+                gVimController._lastInsertedStartPosition = data.position;
+                gVimController._lastInsertedEndPosition = data.position + data.bytelength;
+            }
+
+        } else {
+            /* Text was deleted. */
+
+            if (!insertedText) {
+                /* No text - nothing to do. */
+                return;
+            }
+    
+            var insertStartPos = gVimController._lastInsertedStartPosition;
+            var insertEndPos = gVimController._lastInsertedEndPosition;
+            //dump("  removed  text, position " + data.position + ", bytelength " + data.bytelength + "\n");
+            //dump('    gVimController._lastInsertedText: "' + gVimController._lastInsertedText + '"\n');
+            //dump('    gVimController._lastInsertedStartPosition: ' + gVimController._lastInsertedStartPosition + '\n');
+            //dump('    gVimController._lastInsertedEndPosition: ' + gVimController._lastInsertedEndPosition + '\n');
+            //dump('    insertEndPos: ' + insertEndPos + '\n');
+            gVimController._lastInsertedText = "";
+    
+            var preDeletePos = data.position + data.bytelength;
+    
+            if (preDeletePos == insertEndPos) {
+                /* Normal case - just remove the text from the end. */
+                //dump("    case 1\n");
+                gVimController._lastInsertedText = insertedText.slice(0, -data.text.length);
+                gVimController._lastInsertedEndPosition -= data.bytelength;
+            } else if (preDeletePos >= insertStartPos && preDeletePos <= insertEndPos) {
+                /* Soft char case, or user moved back in the text. */
+                // Gah - has to access scimoz in order to get the char length,
+                // as we only know the byte length.
+                //dump("    case 2\n");
+                var scimoz = data.view.scimoz;
+                var beforeText = scimoz.getTextRange(insertStartPos, data.position);
+                var newInsertedText = insertedText.substring(0, beforeText.length) + insertedText.substring(beforeText.length + data.text.length);
+                gVimController._lastInsertedText = newInsertedText;
+                //dump('      newInsertedText: ' + newInsertedText + '\n');
+                gVimController._lastInsertedEndPosition -= data.bytelength;
+            } else {
+                /* A different insert position - reset. */
+                //dump("    case 3\n");
+                gVimController._lastInsertedText = "";
+            }
+        }
+    } catch (e) {
+        vimlog.exception(e);
+    }
+}
+
 VimController.prototype.enable = function(enabled) {
     if (enabled && !this.enabled) {
         window.addEventListener('mouseup', gVim_onWindowMouseUpHandler, true);
         window.addEventListener('current_view_changed', gVim_onCurrentViewChanged, true);
+        window.addEventListener('editor_text_modified', gVim_onEditorModified, true);
         this.loadOverlay(); // load overlay eventually sets enabled to true
     } else if (!enabled) {
         this.enabledCallback = null;
         if (this.enabled) {
             window.removeEventListener('mouseup', gVim_onWindowMouseUpHandler, true);
             window.removeEventListener('current_view_changed', gVim_onCurrentViewChanged, true);
+            window.removeEventListener('editor_text_modified', gVim_onEditorModified, true);
             this.unloadOverlay(); // unload overlay sets enabled to false
         }
     }
@@ -774,17 +897,6 @@ VimController.prototype.handleCommand = function(event, commandname, keylabel, m
                 vim_doCommand(mappedCommand);
                 return true;
             }
-        } else if (this.mode == VimController.MODE_INSERT ||
-                   this.mode == VimController.MODE_OVERTYPE) {
-            if (commandname == 'cmd_backSmart') {
-                // Remove the last character from recorded chars
-                //dump("Removing last inserted key\n");
-                this._lastInsertedKeycodes.pop();
-            } else if (commandname != 'cmd_cancel') {
-                // Any other characters (left, right, etc...) reset the buffer
-                //dump("Resetting keycodes back to empty\n");
-                this._lastInsertedKeycodes = [];
-            }
         }
     } catch (e) {
         vimlog.exception(e);
@@ -891,14 +1003,6 @@ VimController.prototype.handleKeypress = function(event) {
         if (this.mode == VimController.MODE_INSERT ||
             this.mode == VimController.MODE_OVERTYPE) {
             // Any normal character should be fine to send to scintilla as is
-            // Record the input in case we need to repeat
-            if (!specialKeyUsed) {
-                if (charCode != 0) {
-                    this._lastInsertedKeycodes.push(key_char);
-                } else if (keyCode == event.DOM_VK_TAB) {
-                    this._lastInsertedKeycodes.push("\t");
-                }
-            }
             return false;
 
         } else if (this.mode == VimController.MODE_REPLACE_CHAR) {
@@ -1249,7 +1353,7 @@ VimController.prototype._getTextForPaste = function() {
         } else if (this._currentRegister == "%" /* filename register */) {
             buf = view.koDoc.file.displayPath;
         } else if (this._currentRegister == "." /* last inserted text register */) {
-            buf = this._lastInsertedKeycodes;
+            buf = this._lastInsertedText;
         } else if (this._currentRegister == ":" /* last command register */) {
             var historyPos = this._inputBuffer_history.length - 1;
             if (historyPos >= 0) {
@@ -2626,7 +2730,7 @@ function vim_doCommand(command, event)
             gVimController._lastModifyCommand = original_command;
             gVimController._lastRepeatCount = numRepeats;
             gVimController._lastOperationFlags = gVimController.operationFlags;
-            gVimController._lastInsertedKeycodes = [];
+            gVimController._lastInsertedText = "";
             // Wrap the whole vi command in an undo action
             //dump("Vi beginUndoAction\n");
             scimoz.beginUndoAction();
@@ -2781,7 +2885,7 @@ function vim_doCommand(command, event)
             vimlog.debug("vim_doCommand:: Command forces INSERT mode");
             gVimController.mode = VimController.MODE_INSERT;
             // Start recording what gets entered
-            gVimController._lastInsertedKeycodes = [];
+            gVimController._lastInsertedText = "";
         //} else {
         //    // Go back to normal mode
         //    gVimController.mode = VimController.MODE_NORMAL;
@@ -2809,6 +2913,11 @@ function vim_doCommand(command, event)
 }
 
 
+/**
+ * Repeat the last Vi command.
+ *
+ * @param scimoz {Components.interfaces.ISciMoz} - Scimoz object.
+ */
 function cmd_vim_repeatLastCommand(scimoz) {
     try {
         if (gVimController._lastModifyCommand) {
@@ -2816,39 +2925,12 @@ function cmd_vim_repeatLastCommand(scimoz) {
             vimlog.debug("cmd_vim_repeatLastCommand: repeatCount: " + gVimController.repeatCount);
             vimlog.debug("cmd_vim_repeatLastCommand: _lastRepeatCount: " + gVimController._lastRepeatCount);
             vimlog.debug("cmd_vim_repeatLastCommand: _lastOperationFlags: " + gVimController._lastOperationFlags);
-            vimlog.debug("cmd_vim_repeatLastCommand: _lastInsertedKeycodes: " + gVimController._lastInsertedKeycodes.join(""));
+            vimlog.debug("cmd_vim_repeatLastCommand: _lastInsertedText: " + gVimController._lastInsertedText);
 
             // Work out how many times to perform the command
             var numRepeats = 1;
             if (gVimController.repeatCount > 1) {
                 numRepeats = gVimController.repeatCount;
-            }
-
-            // The idea here is convert the keys to one block of text and to
-            // insert that text into scintilla directly. Special characters
-            // like newline and tab will need to be handle through a command,
-            // in order to repeat the same way.
-            var textLines = [];
-            var specialChars = [];
-            var keys = gVimController._lastInsertedKeycodes;
-            if (keys) {
-                var textPos = 0;
-                var textArray;
-                var text;
-                var i;
-                for (i=0; i < keys.length; i++) {
-                    if (keys[i] == "\n" || keys[i] == "\t") {
-                        textArray = keys.slice(textPos, i);
-                        text = textArray.join("");
-                        textLines.push(text);
-                        textPos = i + 1;
-                        // Remember the character type, we'll need it later
-                        specialChars.push(keys[i]);
-                    }
-                }
-                textArray = keys.slice(textPos, i);
-                text = textArray.join("");
-                textLines.push(text);
             }
 
             // Make a copy of these, as they will get modified as we run
@@ -2857,6 +2939,8 @@ function cmd_vim_repeatLastCommand(scimoz) {
             var lastRepeatCount = Math.max(1, gVimController._lastRepeatCount);
             var lastModifyCommand = gVimController._lastModifyCommand;
             var lastOperationFlags = gVimController._lastOperationFlags;
+            var lastInsertedText = gVimController._lastInsertedText;
+            var lastInsertedTextBytelength = ko.stringutils.bytelength(lastInsertedText);
 
             // Now we perform the repeat action
             //dump("Vi beginUndoAction\n");
@@ -2868,27 +2952,19 @@ function cmd_vim_repeatLastCommand(scimoz) {
                     gVimController.operationFlags = lastOperationFlags;
                     vim_doCommand(lastModifyCommand);
                     // Re-add the text if there is some
-                    for (j=0; j < textLines.length; j++) {
-                        scimoz.addText(ko.stringutils.bytelength(textLines[j]), textLines[j]);
-                        if (j < (textLines.length - 1)) {
-                            // Don't do this for the last block of text
-                            if (specialChars[i] == '\n') {
-                                ko.commands.doCommand('cmd_newline');
-                            } else if (specialChars[i] == '\t') {
-                                ko.commands.doCommand('cmd_indent');
-                            }
-                        }
+                    if (lastInsertedText) {
+                        scimoz.addText(lastInsertedTextBytelength, lastInsertedText);
                     }
                 }
-            } catch (ex) {
+            } finally {
+                //dump("Vi endUndoAction\n");
+                scimoz.endUndoAction();
             }
-            //dump("Vi endUndoAction\n");
-            scimoz.endUndoAction();
 
             // Reset the state back to what it was like before the command
             vimlog.debug("Resetting state back to previous settings.")
             gVimController.mode = VimController.MODE_NORMAL;
-            gVimController._lastInsertedKeycodes = keys;
+            gVimController._lastInsertedText = lastInsertedText;
             gVimController._lastRepeatCount = lastRepeatCount;
             gVimController._lastModifyCommand = lastModifyCommand;
             gVimController._lastOperationFlags = lastOperationFlags;
