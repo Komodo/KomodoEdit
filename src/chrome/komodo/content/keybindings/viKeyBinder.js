@@ -3017,7 +3017,7 @@ function cmd_vim_scrollHalfPageUp(scimoz) {
 }
 
 function cmd_vim_wordRightEnd(scimoz) {
-    if (gVimController.operationFlags != VimController.OPERATION_CHANGE) {
+    if (!gVimController.operationFlags) {
         // Special case, move to the last character in the word - bug 88394.
         scimoz.currentPos = scimoz.positionAfter(scimoz.currentPos);
         ko.commands.doCommand("cmd_wordRightEnd");
