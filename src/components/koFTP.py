@@ -45,18 +45,15 @@ import socket
 import ssl
 import time
 import ftplib
-import httplib
 import logging
-import threading
 from cStringIO import StringIO
+
+# XPCOM imports
+from xpcom import components, COMException, ServerException, nsError
 
 # Komodo imports
 import URIlib
 import remotefilelib
-
-# XPCOM imports
-from xpcom import file, components, COMException, ServerException, server, nsError
-from xpcom.server.enumerator import SimpleEnumerator
 
 
 # logging objects

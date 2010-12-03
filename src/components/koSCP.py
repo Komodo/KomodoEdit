@@ -48,16 +48,19 @@
 # * Add/use the timeout value in server preferences.
 # * Standalone testing, could use paramiko ssh server components.
 
-from xpcom import file, components, COMException, ServerException, server, nsError
-from xpcom.server.enumerator import SimpleEnumerator
-# from xpcom.client import WeakReference
+import os
+import logging
+import time
+import socket
+import re
 
-import os, logging, stat, time, socket, re
+from xpcom import components, ServerException, nsError
 
 # remote file library
 import remotefilelib
 # needed for SSH
 import paramiko
+
 
 log = logging.getLogger('koSCPConnection')
 #log.setLevel(logging.DEBUG)

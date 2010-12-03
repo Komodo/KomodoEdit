@@ -43,19 +43,17 @@
 # Contributors:
 # * Todd Whiteman
 
-from xpcom import file, components, COMException, ServerException, server, nsError
-from xpcom.server.enumerator import SimpleEnumerator
-# from xpcom.client import WeakReference
-
 import os
-import stat
 import socket
 import logging
+
+from xpcom import components, ServerException, nsError
 
 # remote file library
 import remotefilelib
 # needed for SFTP
 import paramiko
+
 
 log = logging.getLogger('koSFTPConnection')
 #log.setLevel(logging.DEBUG)

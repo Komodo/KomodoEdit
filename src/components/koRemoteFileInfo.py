@@ -39,6 +39,13 @@
 # Contributors:
 # * Todd Whiteman
 
+import os
+import time
+import stat
+import re
+import logging
+from string import digits as string_digits
+
 try:
     from xpcom import components
 except ImportError:
@@ -49,14 +56,8 @@ except ImportError:
         class interfaces:
             koIRemoteFileInfo = ""
 
-import os
-import time
-import stat
-import re
-import logging
-from string import digits as string_digits
-
 import strptime
+
 
 # Regex parsers for processing directory listings
 re_parse_unix_ftp_line     = re.compile(r'^.([+rwxXstugo-]*)\s+(.*?\s+.*?\s+.*?)\s*(\d*?)\s+(\w+)\s+(\d+)\s+([\d:]+)\s(.*)$')
