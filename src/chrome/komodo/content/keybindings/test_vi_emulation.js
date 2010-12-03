@@ -825,11 +825,15 @@ test_vi_emulation.prototype.test_word_right = function() {
                         null /* register */,
                         null /* tags */);
 
+    // Word right end works differently in an OP mode - see bug 72005.
+    this._runOperationCommands("wordRightEnd",
+                               "th<|>i<1>s i<2>s m<3>y cod<4>e<5>-buffe<6>r\r\n",
+                               TEST_REPETITION,
+                               [VimController.OPERATION_NONE]);
     this._runOperationCommands("wordRightEnd",
                                "th<|>is<1> is<2> my<3> code<4>-<5>buffer<6>\r\n",
                                TEST_REPETITION,
-                               [VimController.OPERATION_NONE,
-                                VimController.OPERATION_DELETE,
+                               [VimController.OPERATION_DELETE,
                                 VimController.OPERATION_YANK,
                                 VimController.OPERATION_CHANGE]);
 }
@@ -865,11 +869,16 @@ test_vi_emulation.prototype.test_word_right_past_punctuation = function() {
                                 VimController.OPERATION_YANK,
                                 VimController.OPERATION_DELETE,
                                 VimController.OPERATION_CHANGE]);
+
+    // This command works differently in normal (non-operation) mode.
     this._runOperationCommands("wordRightEndPastPunctuation",
                                "<|>i<1>f (my.func.callthis(<2>) &<3>& this.bogus<4>) {<5>\r\n<6>",
                                TEST_REPETITION,
-                               [VimController.OPERATION_NONE,
-                                VimController.OPERATION_YANK,
+                               [VimController.OPERATION_NONE]);
+    this._runOperationCommands("wordRightEndPastPunctuation",
+                               "<|>if<1> (my.func.callthis()<2> &&<3> this.bogus)<4> {<5>\r\n<6>",
+                               TEST_REPETITION,
+                               [VimController.OPERATION_YANK,
                                 VimController.OPERATION_DELETE,
                                 VimController.OPERATION_CHANGE]);
 }
