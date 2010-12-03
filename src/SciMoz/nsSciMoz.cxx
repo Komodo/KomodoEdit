@@ -379,7 +379,7 @@ void SciMoz::Notify(long lParam) {
 				fprintf(stderr,"Scintilla sending 'undo' event\n");
 #endif
 				commandUpdateTarget->UpdateCommands(
-					NS_ConvertASCIItoUTF16("undo"));
+					NS_LITERAL_STRING("undo"));
 				bCouldUndoLastTime = bCanUndoNow;
 				bCouldRedoLastTime = bCanRedoNow;
 			}
