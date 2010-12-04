@@ -430,16 +430,6 @@ void SciMoz::Notify(long lParam) {
 				eventSink->OnKey(notification->ch, notification->modifiers);
 			break;
 		*/
-		case SCN_DWELLSTART:
-			mask = ISciMozEvents::SME_DWELLSTART;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnDwellStart(notification->position, notification->x, notification->y);
-			break;
-		case SCN_DWELLEND:
-			mask = ISciMozEvents::SME_DWELLEND;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnDwellEnd(notification->position, notification->x, notification->y);
-			break;
 		case SCN_DOUBLECLICK:
 			mask = ISciMozEvents::SME_DOUBLECLICK;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
@@ -557,6 +547,23 @@ void SciMoz::Notify(long lParam) {
 				eventSink->OnPainted();
 			break;
 		*/
+		/*
+		case SCN_USERLISTSELECTION:
+			mask = ISciMozEvents::SME_USERLISTSELECTION;
+			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+				eventSink->OnNotification(notification->position, notification->x, notification->y);
+			break;
+		*/
+		case SCN_DWELLSTART:
+			mask = ISciMozEvents::SME_DWELLSTART;
+			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+				eventSink->OnDwellStart(notification->position, notification->x, notification->y);
+			break;
+		case SCN_DWELLEND:
+			mask = ISciMozEvents::SME_DWELLEND;
+			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+				eventSink->OnDwellEnd(notification->position, notification->x, notification->y);
+			break;
 		case SCN_ZOOM:
 			mask = ISciMozEvents::SME_ZOOM;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
@@ -567,6 +574,38 @@ void SciMoz::Notify(long lParam) {
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnHotSpotDoubleClick(notification->position, notification->modifiers);
 			break;
+		/*
+		case SCN_CALLTIPCLICK:
+			mask = ISciMozEvents::SME_CALLTIPCLICK;
+			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+				eventSink->OnNotification(notification->position, notification->x, notification->y);
+			break;
+		case SCN_AUTOCSELECTION:
+			mask = ISciMozEvents::SME_AUTOCSELECTION;
+			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+				eventSink->OnNotification(notification->position, notification->x, notification->y);
+			break;
+		case SCN_INDICATORCLICK:
+			mask = ISciMozEvents::SME_INDICATORCLICK;
+			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+				eventSink->OnNotification(notification->position, notification->x, notification->y);
+			break;
+		case SCN_INDICATORRELEASE:
+			mask = ISciMozEvents::SME_INDICATORRELEASE;
+			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+				eventSink->OnNotification(notification->position, notification->x, notification->y);
+			break;
+		case SCN_AUTOCCANCELLED:
+			mask = ISciMozEvents::SME_AUTOCCANCELLED;
+			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+				eventSink->OnNotification(notification->position, notification->x, notification->y);
+			break;
+		case SCN_AUTOCCHARDELETED:
+			mask = ISciMozEvents::SME_AUTOCCHARDELETED;
+			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+				eventSink->OnNotification(notification->position, notification->x, notification->y);
+			break;
+		*/
 		default: {
                     /*  XXX
                         We don't handle all the scimoz notifications any longer,
