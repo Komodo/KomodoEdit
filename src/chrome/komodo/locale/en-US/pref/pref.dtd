@@ -523,6 +523,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePrefAllLangLanguage.label "Language:">
 <!ENTITY filePrefAllLangLanguage.accesskey "G">
 <!ENTITY filePrefAllLangElementType2.accesskey "Y">
+<!ENTITY colorPickerToUse.value "Color Picker to use:">
+<!ENTITY colorPickerTestButton.label "Test">
 
 <!--pref-association.xul-->
 <!ENTITY fileAssociations.description "File Associations determine editor defaults, such as language element colorization. Click pattern to view associated language.">
