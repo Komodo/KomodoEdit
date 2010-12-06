@@ -1,0 +1,37 @@
+Fix for PyXPCOM weak reference handling to stop "pure virtual method called"
+crashes, see Komodo bug 88466.
+
+Index: /home/toddw/as/komodo-devel/mozilla/build/moz191-ko6.9/mozilla/extensions/python/xpcom/src/PyGBase.cpp
+--- extensions/python/xpcom/src/PyGBase.cpp
++++ extensions/python/xpcom/src/PyGBase.cpp
+@@ -411,13 +411,29 @@
+ 	return cnt;
+ }
+ 
+ nsrefcnt
+ PyG_Base::Release(void)
+ {
+-	nsrefcnt cnt = (nsrefcnt) PR_AtomicDecrement((PRInt32*)&mRefCnt);
++	nsrefcnt cnt;
++	{ 
++		// Temp scope for lock. Ensures some other thread isn't doing a
++		// QueryReferent on our weak reference at the same time.
++		CEnterLeaveXPCOMFramework _celf;
++		cnt = (nsrefcnt) PR_AtomicDecrement((PRInt32*)&mRefCnt);
++		if ( cnt == 0 && m_pWeakRef ) {
++			// We must null out the WeakReference now, otherwise
++			// another thread may come along and try to use it, i.e.
++			// between the time we release the lock and before we
++			// delete the object (which == ka-BOOM!). See Komodo bug
++			// http://bugs.activestate.com/show_bug.cgi?id=88165
++			PyXPCOM_GatewayWeakReference *p = (PyXPCOM_GatewayWeakReference *)(nsISupports *)m_pWeakRef;
++			p->m_pBase = nsnull;
++			m_pWeakRef = nsnull;
++		}
++	}
+ #ifdef NS_BUILD_REFCNT_LOGGING
+ 	if (m_pBaseObject == NULL)
+ 		NS_LOG_RELEASE(this, cnt, refcntLogRepr);
+ #endif
+ 	if ( cnt == 0 )
+ 		delete this;
