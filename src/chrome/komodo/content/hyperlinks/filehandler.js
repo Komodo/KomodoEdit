@@ -146,8 +146,8 @@
     ko.hyperlinks.addHandler(
         new ko.hyperlinks.RegexHandler(
             "File handler",
-            new RegExp("(file:|/|\\[A-Z]:\\\\|\\\\)[^'\"<>()[\\]\\s]+", "i"),
-            ko.open.URI,
+            new RegExp("(file:|[\.]{1,2}/|\\[A-Z]:\\\\|\\\\)[^'\"<>()[\\]\\s]+", "i"),
+            filename_jump_handler,
             null,  /* Use the found string instead of a replacement. */
             null,  /* All language types */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
