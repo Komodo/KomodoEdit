@@ -794,7 +794,10 @@ class StartPageHandler(FileHandlerBase):
         until http://bugs.activestate.com/show_bug.cgi?id=25526 is
         implemented.
         """
-        return "Start Page"
+        bundle = components.classes["@mozilla.org/intl/stringbundle;1"].\
+                 getService(components.interfaces.nsIStringBundleService).\
+                 createBundle("chrome://komodo/locale/komodo.properties")
+        return bundle.GetStringFromName("startPageDisplayPath")
 
     
 class xpURIHandler(FileHandlerBase):
