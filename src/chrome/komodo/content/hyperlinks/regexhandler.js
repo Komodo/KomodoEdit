@@ -212,7 +212,7 @@ ko.hyperlinks.ImagePreviewHandler.prototype.dwell = function(view, hyperlink)
 ko.hyperlinks.addHandler(
     new ko.hyperlinks.ImagePreviewHandler(
         "Image Previewer",
-        new RegExp("https?:[^'\"<>()[\\]\\s]+", "i"),
+        new RegExp("https?://[^'\"<>()[\\]\\s]+", "i"),
         ko.browse.openUrlInDefaultBrowser,
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
@@ -223,7 +223,7 @@ ko.hyperlinks.addHandler(
 ko.hyperlinks.addHandler(
     new ko.hyperlinks.ImagePreviewHandler(
         "Chrome Previewer",
-        new RegExp("chrome:[^'\"<>()[\\]\\s]+", "i"),
+        new RegExp("chrome://[^'\"<>()[\\]\\s]+", "i"),
         ko.open.URI,
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
@@ -235,7 +235,7 @@ ko.hyperlinks.addHandler(
 ko.hyperlinks.addHandler(
     new ko.hyperlinks.RegexHandler(
         "Other File URIs",
-        new RegExp("(ftp?|sftp|scp):[^'\"<>()[\\]\\s]+", "i"),
+        new RegExp("(ftp?|sftp|scp)://[^'\"<>()[\\]\\s]+", "i"),
         ko.open.URI,
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
