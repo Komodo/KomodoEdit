@@ -281,6 +281,8 @@ class KoDirs:
                              "python", "bin", "python")
         return pythonExe
 
+    def get_komodoPythonLibDir(self):
+        return join(self.get_mozBinDir(), "python", "komodo")
     def get_binDBGPDir(self):
         return os.path.join(self.get_supportDir(), "dbgp", "bin")
     def get_perlDBGPDir(self):
