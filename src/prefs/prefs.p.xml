@@ -42,6 +42,10 @@
       that should be deleted from here.
 -->
 <preference-set id="default">
+
+  <!-- This version field is used by Komodo to upgrade preferences. -->
+  <long id="version">1</long>
+
   <boolean id="startupMaximized">0</boolean>
   <boolean id="startupFullScreen">0</boolean>
   <long id="tabWidth">8</long>
