@@ -223,12 +223,25 @@ viewManager.prototype._getDefaultDirectory = function() {
     }
     if (!defaultDir) {
         var v = this.currentView;
-        if (v && v.getAttribute("type") == "editor" &&
-            v.koDoc && !v.koDoc.isUntitled && v.koDoc.file.isLocal)
+        if (v
+            && v.getAttribute("type") == "editor"
+            && v.koDoc
+            && !v.koDoc.isUntitled
+            && v.koDoc.file
+            && v.koDoc.file.isLocal)
         {
             defaultDir = this.currentView.koDoc.file.dirName;
         } else if (ko.places) {
-            defaultDir = ko.places.manager.currentPlace;
+            var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                             .createInstance(Components.interfaces.koIFileEx);
+            koFileEx.URI = ko.places.manager.currentPlace;
+            if (koFileEx.isLocal) {
+                defaultDir = koFileEx.path;
+            } else {
+                defaultDir = ko.window.getHomeDirectory();
+            }
+        } else {
+            defaultDir = ko.window.getHomeDirectory();
         }
     }
     return defaultDir;
@@ -296,9 +309,11 @@ viewManager.prototype._newTemplate = function(defaultDir) {
  * @param callback {function} optional, to be called when the asynchronous load
  *        is complete. The view will be passed as an argument to the function.
  */
-viewManager.prototype.newTemplateAsync = function(defaultDir,
+viewManager.prototype.newTemplateAsync = function(defaultDir /*=null*/,
                                                   callback /*=null*/)
 {
+    if (typeof(defaultDir) == "undefined") defaultDir = null;
+    if (typeof(callback) == "undefined") callback = null;
     window.setTimeout(function(mgr, defaultDir_, callback_) {
         var view = mgr._newTemplate(defaultDir_);
         if (callback_) {
@@ -3206,10 +3221,25 @@ function _view_checkDiskFiles(event) {
     return true;
 }
 
+this.getHomeDirectory = function() {
+    var userEnvSvc = Components.classes['@activestate.com/koUserEnviron;1'].
+    getService(Components.interfaces.koIUserEnviron);
+    if (userEnvSvc.has("HOME")) {
+        return userEnvSvc.get("HOME");
+    } else {
+// #if PLATFORM == "win"
+        return "C:\\";
+// #else
+        return "/";
+// #endif
+    }
+}
+
 /**
  * get the current working directory for the window, which is the directory
  * of the current buffer, or the home directory of the user
  */
+
 this.getCwd = function view_GetCwd() {
     var win = ko.windowManager.getMainWindow();
     var view = win.ko.views.manager.currentView;
@@ -3219,17 +3249,7 @@ this.getCwd = function view_GetCwd() {
         view.koDoc.file.isLocal) {
         return view.cwd;
     } else {
-        var userEnvSvc = Components.classes['@activestate.com/koUserEnviron;1'].
-                         getService(Components.interfaces.koIUserEnviron);
-        if (userEnvSvc.has("HOME")) {
-            return userEnvSvc.get("HOME");
-        } else {
-// #if PLATFORM == "win"
-            return "C:\\";
-// #else
-            return "/";
-// #endif
-        }
+        return this.getHomeDirectory();
     }
 }
 
