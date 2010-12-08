@@ -511,8 +511,17 @@ class KoInterpolationService:
 
             elif code == "path":
                 if pathValue in ("userDataDir",
+                                 "roamingUserDataDir",
                                  "commonDataDir",
-                                 "supportDir"):
+                                 "userCacheDir",
+                                 "supportDir",
+                                 "sdkDir",
+                                 "docDir",
+                                 "installDir",
+                                 "mozBinDir",
+                                 "binDir",
+                                 "komodoPythonLibDir",
+                                 ):
                     value = getattr(self._koDirSvc, pathValue)
                 else:
                     errmsg = "Unable to get path for '%s'"\
