@@ -542,11 +542,8 @@
       <menuitem label="&delete.label;"
                 id="menu_projCtxt_deleteItem"
                 class="menuitem-iconic"
-                hideIf="root"
-                oncommand="ko.places.projects.deleteItem();" />
-
-      <menuseparator id="menu_projCtxt_project_save_separator_4"
-                     hideUnless="project" />
+                hideIf="root project"
+                oncommand="ko.places.projects.manager.deleteItem(event, this);" />
 
       <menuitem label="&properties.label;"
                 id="menu_projCtxt_projectProperties"
