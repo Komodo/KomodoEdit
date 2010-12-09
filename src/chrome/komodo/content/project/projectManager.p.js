@@ -626,7 +626,7 @@ projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
 
 projectManager.prototype.loadProject = function(url) {
     if (this.getProjectByURL(url)) {
-        return null; // the project is already loaded
+        return; // the project is already loaded
     }
     var project = this.findOtherWindowProjectInstanceForUrl(url);
     if (project) {
@@ -635,7 +635,7 @@ projectManager.prototype.loadProject = function(url) {
                          null /* text */,
                         _bundle.formatStringFromName("projectAlreadyOpened",
                                                      [project.name], 1) );
-        return null;
+        return;
     }
     project = Components.classes["@activestate.com/koProject;1"]
                         .createInstance(Components.interfaces.koIProject);
@@ -658,10 +658,9 @@ projectManager.prototype.loadProject = function(url) {
         }
         ko.dialogs.alert(_bundle.formatStringFromName("unableToLoadProject.alert",
             [projectname, lastErrorSvc.getLastErrorMessage()], 2));
-        return null;
+        return;
     }
     this._addProject(project);
-    return project;
 }
 
 projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
@@ -1091,11 +1090,7 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
             }
         }
     }
-    var project = ko.projects.manager.loadProject(url);
-    if (project && ko.projects.manager.viewMgr) {
-        dump("projectManager.p.js: **************** : add project to view\n");
-        ko.projects.manager.viewMgr.addProject(project);
-    }
+    ko.projects.manager.loadProject(url);
     if (action == "Yes") {
         var v, file_url;
         for (var i=0; i < opened_files.length; i++) {

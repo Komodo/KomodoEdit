@@ -152,10 +152,11 @@ class KPFTreeView(TreeView):
             # find the row for the file and invalidate it
             files = data.split("\n")
             invalidRows = [i for (i,row) in enumerate(self._rows)
-                           if 'file' in row and row['file'] and row['file'].URI in files]
+                           if hasattr(row, 'file') and row.file and row.file.URI in files]
             for row in invalidRows:
-                if 'properties' in self._rows[row]:
-                    del self._rows[row]['properties']
+                thisRow = self._rows[row]
+                if hasattr(thisRow, 'properties'):
+                    del hasattr.properties
             if invalidRows:
                 self._tree.beginUpdateBatch()
                 map(self._tree.invalidateRow, invalidRows)
@@ -186,11 +187,11 @@ class KPFTreeView(TreeView):
                 if hasattr(part,'get_liveDirectory'):
                     path = part.get_liveDirectory()
                 else:
-                    if "file" not in row:
+                    if not hasattr(row, "file"):
                         # Item has not yet been lazily loaded, so we don't
                         # need to compare this item.
                         continue
-                    file = row["file"]
+                    file = row.file
                     if not file:
                         continue
                     path = file.path
@@ -337,6 +338,7 @@ class KPFTreeView(TreeView):
             scrollToIndex = min(index, len(self._rows) - numVisRows)
             #print "Scrolling to row: %d" % (scrollToIndex)
             self._tree.scrollToRow(scrollToIndex)
+            self._tree.invalidateRow(index)
 
     def _getNextSiblingIndex(self, index):
         level = self._rows[index].level
@@ -551,13 +553,14 @@ class KPFTreeView(TreeView):
         return prop
         
     def getCellProperties(self, index, column, properties):
-        #log.debug("getCellProperties(%d)", index)
         # here we build a list of properties that are used to get the icon
         # for the tree item, text style, etc.  *If getImageSrc returns
         # a url to an icon, the icon matched by properties here will be
         # ignored.  That is convenient since it allows custom icons to work*
         # XXX fixme, optimize
-        if column.id != 'name':
+        col_id = self._getFieldName(column)
+        if col_id != 'name':
+            log.debug("Can't work with column %s, got %s", column.id, col_id)
             return
         plist = []
         if index >= len(self._rows): return
@@ -570,12 +573,12 @@ class KPFTreeView(TreeView):
             else:
                 plist.append("closed")
             node = row.part
-            if node.type == "project" and node == UnwrapObject(self._partSvc.currentProject):
+            if node.type == "project" and node.id == getattr(self._partSvc.currentProject, 'id', None):
                 plist.append("projectActive")
-        if 'properties' not in row:
+        if not hasattr(row, 'properties'):
             # these properties rarely change, keep them cached
-            row['properties'] = self._buildCellProperties(index, column)
-        plist.extend(row['properties'])
+            row.properties = self._buildCellProperties(index, column)
+        plist.extend(row.properties)
 
         #print "row %d %s : %r"% (row, column.id, plist)
         for p in plist:

@@ -40,6 +40,7 @@
 
 <!ENTITY Places.label "Places">
 <!ENTITY filters.label "Filters">
+<!ENTITY makeActiveProject.label "Make Active Project">
 <!ENTITY newPlace.label "New...">
 <!ENTITY newFilesPlace.label "New File...">
 <!ENTITY placesNewFileFromTemplate.label "New File From Template...">

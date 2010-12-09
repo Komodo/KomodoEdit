@@ -68,7 +68,6 @@ PlacesProjectManager.prototype = {
     },
   setCurrentProject: function(project) {
         this.owner.projectsTreeView.currentProject = project;
-        this.refresh();
     },
 
   // Methods for the projects context menu
@@ -228,6 +227,28 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
     } else if (!ko.places.matchAllTypes(menuNode.getAttribute('disableUnless'), itemTypes)) {
         disableNode = true;
     }
+    if (!disableNode) {
+        var testDisableIf = menuNode.getAttribute('testDisableIf');
+        if (testDisableIf) {
+            testDisableIf = testDisableIf.split(/\s+/);
+            testDisableIf.map(function(s) {
+                    if (s == 't:currentProject' && selectionInfo.currentProject) {
+                        disableNode = true;
+                    }
+                });
+        }
+        if (!disableNode) {
+            var testDisableUnless = menuNode.getAttribute('testDisableUnless');
+            if (testDisableUnless) {
+                testDisableUnless = testDisableUnless.split(/\s+/);
+                testDisableUnless.map(function(s) {
+                        if (s == 't:projectIsDirty' && false && "XXX: implement") {
+                            disableNode = true;
+                        }
+                });
+            }
+        }
+    }
     if (disableNode) {
         menuNode.setAttribute('disabled', true);
     } else {
@@ -259,12 +280,21 @@ this.onProjectTreeDblClick = function(event) {
     event.preventDefault();
 };
 
-this.showProjectInPlaces = function() {
-    ko.places.manager.moveToProjectDir(ko.projects.manager.currentProject);
-};
-
 this.closeProject = function() {
     ko.projects.manager.closeProject(ko.projects.manager.currentProject);
+};
+
+this.makeCurrentProject = function() {
+    var project = this.manager.getSelectedItem();
+    if (project && project.type == "project") {
+        ko.projects.manager.setCurrentProject(project);
+    } else {
+        dump("makeCurrentProject: project:[" + project + "]\n");
+    }
+};
+
+this.revertProject = function() {
+    ko.projects.manager.revertProject(ko.projects.manager.currentProject);
 };
 
 this.saveProject = function() {
@@ -275,8 +305,8 @@ this.saveProjectAs = function() {
     ko.projects.saveProjectAs(ko.projects.manager.currentProject);
 };
 
-this.revertProject = function() {
-    ko.projects.manager.revertProject(ko.projects.manager.currentProject);
+this.showProjectInPlaces = function() {
+    ko.places.manager.moveToProjectDir(ko.projects.manager.currentProject);
 };
 
 this.openProjectInNewWindow = function() {
