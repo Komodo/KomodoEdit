@@ -57,6 +57,10 @@ PlacesProjectManager.prototype = {
   getSelectedItem: function() {
         return this.owner.projectsTreeView.getSelectedItem();
     },
+  refreshParentShowChild: function(parentPart, newPart) {
+        return this.owner.refreshParentShowChild(parentPart, newPart);
+    },
+  
   refresh: function(project) {
         // this.owner.projectsTreeView.refresh(project);
         this.owner.projectsTreeView.invalidate();
@@ -261,6 +265,31 @@ this.finishProjectsContextMenu = function(targetNode, targetPrefix) {
     dump("  " + target_toolbar.childNodes.length + "\n");
 };
 
+this.refreshParentShowChild = function(parentPart, newPart) {
+    // Expand the extracted folder part and then select it.
+    var treeview = this.projectsTreeView
+    treeview.refresh(parentPart);
+    var parentPartIndex = treeview.getIndexByPart(parentPart);
+    if (parentPartIndex == -1) {
+        log.warn("refreshParentShowChild: can't find part "
+                 + parentPart.name
+                 + " in the tree");
+        return;
+    }
+    if (!treeview.isContainerOpen(parentPartIndex)) {
+        treeview.toggleOpenState(parentPartIndex);
+    }
+    var childPartIndex  = treeview.getIndexByPart(newPart);
+    if (childPartIndex == -1) {
+        log.warn("refreshParentShowChild: can't find part "
+                 + newPart.name
+                 + " in the tree");
+        return;
+    }
+    treeview.selection.select(childPartIndex);
+    this.projectsTree.treeBoxObject.ensureRowIsVisible(childPartIndex);
+};
+
 this.terminate = function() {
     this.projectsTreeView.terminate();
 };
@@ -435,6 +464,24 @@ this._getProjectItemAndOperate = function(context, obj, callback) {
 
 this.closeProject = function() {
     this._getProjectItemAndOperate("closeProject", ko.projects.manager);
+};
+
+this.exportPackage = function() {
+    var items = this.manager.getSelectedItems();
+    if (items.filter(function(item) item.type != "folder").length) {
+        log.warning("Function exportPackage is intended only for groups");
+        return;
+    }
+    ko.projects.exportPackageItems(items);
+};
+
+this.importPackage = function() {
+    var item = this.manager.getSelectedItem();
+    if (!item || item.type != "folder") {
+        log.warning("Function importPackage is intended only for groups");
+        return;
+    }
+    ko.projects.importFromPackage(this.manager, item);
 };
 
 this.makeCurrentProject = function() {

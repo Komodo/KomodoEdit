@@ -89,6 +89,12 @@ class koProjectPackageService:
                 newpart = part.copyToProject(newproject)
                 newproject.addChild(newpart)
 
+    def packageParts(self, packagePath, partList, overwrite):
+        try:
+            self._packageParts(packagePath, partList=partList, overwrite=overwrite)
+        except:
+            log.exception("packageParts failed")
+
     # a list of parts instead of project
     def _packageParts(self, packagePath, partList=None, orig_project=None,
                             live=0, extradir=1, overwrite=0):
@@ -176,14 +182,6 @@ class koProjectPackageService:
                     if self.debug:
                         print "diskfile [%r] dest[%r]" % (diskfile, dest)
                     flist.add((diskfile, dest))
-
-            # gather live files from live project
-            if newproject.live:
-                if partList:
-                    prj = partList[0]._project
-                else:
-                    prj = orig_project
-                flist = flist.union(self._gatherLiveFileUrls(prj, newproject._relativeBasedir, extraDirName))
             
             if not self.test:
                 for item in flist:
@@ -214,6 +212,7 @@ class koProjectPackageService:
                 print "writing project to zip as [%r]" % project_filename
             if not self.test:
                 zf.write(str(tmp_project_localPath), str(project_filename))
+                zf.close()
         except Exception, e:
             log.exception(e)
             if os.path.exists(tmp_project_localPath):

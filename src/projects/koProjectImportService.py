@@ -66,7 +66,7 @@ class KoFileImportingService:
             else:
                 exclude_pats = None
             part = UnwrapObject(part)
-            allnames = self.getCandidatesForDir(dirname, part.live,
+            allnames = self.getCandidatesForDir(dirname, False,
                                                 include_pats, exclude_pats)
 
             # now look at children

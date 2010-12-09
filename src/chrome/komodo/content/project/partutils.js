@@ -242,9 +242,6 @@ this.importFromPackage = function part_ImportFromPackage(viewMgr, part, uri) {
             _bundle.GetStringFromName("selectPackageToImport"), // title
             "Komodo Package", // default filter
             ["Komodo Package", "All"]); // filters
-            // When have .ktf files changes to this:
-            //"Komodo Toolbox", // default filter
-            //["Komodo Toolbox", "Komodo Project", "All"]);
         if (!filename) return;
         uri = ko.uriparse.localPathToURI(filename);
     }
@@ -315,12 +312,8 @@ this._importFromPackage = function part__ImportFromPackage(viewMgr, part, filena
         }
     }
 
-    viewMgr.view.refresh(part.parent);
+    viewMgr.refreshParentShowChild(part, extractedPart);
     // Expand the extracted folder part and then select it.
-    var partindex = viewMgr.view.getIndexByPart(extractedPart);
-    viewMgr.view.toggleOpenState(partindex);
-    viewMgr.view.selectPart(extractedPart);
-    viewMgr.tree.treeBoxObject.ensureRowIsVisible(partindex);
 }
 
 

@@ -212,6 +212,32 @@ this.addCommand = function AddCommandToToolbox(command, cwd, env, insertOutput,
 
 }).apply(ko.toolboxes);
 
+(function() { // ko.projects
+
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+      .getService(Components.interfaces.nsIStringBundleService)
+      .createBundle("chrome://komodo/locale/project/peFolder.properties");
+
+this.exportPackageItems = function Toolbox_ExportPackageItems(items) {
+    if (typeof(items) == 'undefined' || !items || items.length < 1) {
+        ko.dialogs.alert(_bundle.GetStringFromName("Please select items in the toolbox to export first."));
+        return;
+    }
+    var defaultDir = items[0].project.getFile().dirName;
+    var localPath = ko.filepicker.saveFile(
+            defaultDir, items[0].name + ".kpz", // default dir and filename
+            _bundle.GetStringFromName("Export Selected Items to a Package"), // title
+            _bundle.GetStringFromName("Komodo Package"), // default filter name
+            ["All"]); // filter names to show
+    if (localPath == null) {
+        return;
+    }
+    var packager = Components.classes["@activestate.com/koProjectPackageService;1"]
+                      .getService(Components.interfaces.koIProjectPackageService);
+    packager.packageParts(localPath, items.length, items, true);
+}
+
+}).apply(ko.projects);
 // setTimeout in case projectManager.p.js hasn't been loaded yet.
 setTimeout(function() {
 ko.projects.addDeprecatedGetter("Toolbox_ExportItems", "exportItems");

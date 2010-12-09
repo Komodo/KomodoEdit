@@ -497,13 +497,6 @@
                 testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.rebaseFolder();" />
 
-      <menuitem label="&importFromFileSystem.label;"
-                id="menu_projCtxt_importFromFileSystem"
-                class="menuitem-iconic"
-                hideUnless="folder"
-                testDisableIf="t:multipleSelection"
-                oncommand="ko.places.projects.importFromFileSystem();" />
-
       <menuitem label="&rename.label;"
                 id="menu_projCtxt_renameGroup"
                 class="menuitem-iconic"
@@ -519,16 +512,23 @@
         <menupopup id="menu_projCtxt_addMenu_Popup" />
       </menu>
 
+      <menuitem label="&importPackage.label;"
+                id="menu_projCtxt_importPackage"
+                class="menuitem-iconic"
+                hideUnless="folder"
+                testDisableIf="t:multipleSelection"
+                oncommand="ko.places.projects.importPackage();" />
+
       <menuseparator id="menu_projCtxt_project_save_separator_1"/>
       
       <menuitem label="&amp; XXX exportAsProjectFile"
                 id="menu_projCtxt_exportAsProjectFile"
                 testDisableIf="t:multipleSelection"
                 class="menuitem-iconic"
-                hideUnless="folder project"
+                hideUnless="folder"
                 oncommand="ko.places.projects.exportAsProjectFile();" />
       
-      <menuitem label="&amp; XXX exportPackage"
+      <menuitem label="&exportPackage.label;"
                 id="menu_projCtxt_exportPackage"
                 testDisableIf="t:multipleSelection"
                 class="menuitem-iconic"
@@ -542,7 +542,7 @@
                 id="menu_projCtxt_renameGroup"
                 testDisableIf="t:multipleSelection"
                 class="menuitem-iconic"
-                hideUnless="folder"
+                hideUnless="folder project"
                 oncommand="ko.places.projects.SCCDiffsOnGroup();" />
 
       <menuseparator id="menu_projCtxt_project_save_separator_3"

@@ -148,6 +148,7 @@ class koPart(object):
 
         # treeView support
         self.properties = {}
+        self.live = 0
         self._prefset = None
         self._filterString = None
         self._uri = None
@@ -954,6 +955,7 @@ class koLiveFolderPart(koFolderPart):
 
     def __init__(self, project):
         koFolderPart.__init__(self, project)
+        self.live = 1
         self.needrefresh = 1
 
     def __repr__(self):
@@ -1136,6 +1138,7 @@ class koProject(koLiveFolderPart):
         # init funcs.
         self._active = 0
         koLiveFolderPart.__init__(self, self)
+        self.live = 0
 
         prefset = components.classes["@activestate.com/koPrefService;1"].\
                                 getService(components.interfaces.koIPrefService).prefs
