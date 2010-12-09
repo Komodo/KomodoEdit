@@ -21,12 +21,14 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://places/locale/places.properties");
 
-this.createProjectMRUView = function() {
+this.createPlacesProjectView = function() {
     _globalPrefs = (Components.classes["@activestate.com/koPrefService;1"].
                    getService(Components.interfaces.koIPrefService).prefs);
     _placePrefs = _globalPrefs.getPref("places");
+    _g_showProjectPath = _globalPrefs.getPref("places").getBooleanPref('showProjectPath');
     this.projectsTree = document.getElementById("placesSubpanelProjects");
-    this.projectsTreeView = new this.PlaceProjectsTreeView();
+    this.projectsTreeView = Components.classes["@activestate.com/koKPFTreeView;1"]
+                          .createInstance(Components.interfaces.koIKPFTreeView);
     if (!this.projectsTreeView) {
         throw new Error("couldn't create a PlaceProjectsTreeView");
     }
@@ -35,6 +37,8 @@ this.createProjectMRUView = function() {
                         .view = this.projectsTreeView;
     this.projectsTreeView.initialize();
     this.initProjectMRUCogMenu();
+    this.copyNewItemMenu(document.getElementById("projectView_AddItemPopup"),
+                         "projCtxt_");
     this.manager = new PlacesProjectManager(this);
     ko.projects.manager.setViewMgr(this.manager);
 };
@@ -47,19 +51,32 @@ PlacesProjectManager.prototype = {
   addProject: function(project) {
         this.owner.projectsTreeView.addProject(project);
     },
+  getSelectedItem: function() {
+        return this.owner.projectsTreeView.getSelectedItem();
+    },
   refresh: function(project) {
-        this.owner.projectsTreeView.tree.invalidate();
+        this.owner.projectsTreeView.invalidate();
     },
   removeProject: function(project) {
         this.owner.projectsTreeView.removeProject(project);
         dump("PlacesProjectManager.removeProject\n");
     },
   replaceProject: function(oldURL, project) {
+        dump("**************** Drop replaceProject\n");
+        return;
         this.owner.projectsTreeView.replaceProject(oldURL, project);
     },
   setCurrentProject: function(project) {
+        this.owner.projectsTreeView.currentProject = project;
         this.refresh();
     },
+
+  // Methods for the projects context menu
+  addNewFile: function(event, sender) {
+        this.owner.projectsTreeView.doProjectContextMenu(event, sender, 'addNewFile');
+        dump("****************addNewFile\n");
+    },
+  
   
   _EOF_ : null
 };
@@ -80,6 +97,62 @@ this.initProjectMRUCogMenu = function() {
     }
 };
 
+this.copyNewItemMenu = function(targetNode, targetPrefix) {
+    var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+    var srcNodes = document.getElementById("placesSubpanelProjects_AddItemsMenu").childNodes;
+    var attr, node, attributes;
+    dump(">> copyNewItemMenu, copy "
+         + srcNodes.length
+         + " nodes to "
+         + targetNode.id
+         + "\n");
+    for (var i = 0; i < srcNodes.length; i++) {
+        var srcNode = srcNodes[i];
+        node = document.createElementNS(XUL_NS, srcNode.nodeName);
+        attributes = srcNode.attributes;
+        dump("node " + i + " has " + attributes.length + " attrs\n");
+        for (var j = 0; j < attributes.length; j++) {
+            attr = attributes[j];
+            node.setAttribute(attr.name, attr.value);
+        }
+        node.setAttribute("id", "projCtxt_" + srcNode.id);
+        targetNode.appendChild(node);
+    }
+    dump("# nodes added to " + targetNode.id + "\n");
+    dump("  " + targetNode.childNodes.length + "\n");
+};
+
+this.finishProjectsContextMenu = function(targetNode, targetPrefix) {
+    var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+    var srcNodes = document.getElementById("placesSubpanelProjects_AddItemsMenu").childNodes;
+    var target_tree = document.getElementById("menu_projCtxt_addMenu_Popup");
+    var target_toolbar = document.getElementById("projectView_AddItemPopup");
+    var attr, node, nodetb, attributes;
+    dump(">> finishProjectsContextMenu, copy "
+         + srcNodes.length
+         + " nodes\n");
+    for (var i = 0; i < srcNodes.length; i++) {
+        var srcNode = srcNodes[i];
+        node = document.createElementNS(XUL_NS, srcNode.nodeName);
+        nodetb = document.createElementNS(XUL_NS, srcNode.nodeName);
+        attributes = srcNode.attributes;
+        dump("node " + i + " has " + attributes.length + " attrs\n");
+        for (var j = 0; j < attributes.length; j++) {
+            attr = attributes[j];
+            node.setAttribute(attr.name, attr.value);
+            nodetb.setAttribute(attr.name, attr.value);
+        }
+        node.setAttribute("id", "projCtxt_" + srcNode.id);
+        target_tree.appendChild(node);
+        nodetb.setAttribute("id", "projView__" + srcNode.id);
+        target_toolbar.appendChild(node);
+    }
+    dump("# nodes added to menu_projCtxt_addMenu_Popup: \n");
+    dump("  " + target_tree.childNodes.length + "\n");
+    dump("# nodes added to projectView_AddItemPopup: \n");
+    dump("  " + target_toolbar.childNodes.length + "\n");
+};
+
 this.terminate = function() {
     this.projectsTreeView.terminate();
 };
@@ -87,24 +160,36 @@ this.terminate = function() {
 // Methods for dealing with the projects tree context menu.
 
 this._projectTestLabelMatcher = /^t:project\|(.+)\|(.+)$/;
+this.allowed_click_nodes = ["placesSubpanelProjectsTreechildren",
+                            "projectView_AddItemPopup",
+                            "placesRootButton"],
 this.initProjectsContextMenu = function(event, menupopup) {
+    dump(">> initProjectsContextMenu, target:"
+         + event.target.id
+         + "\n");
+    var clickedNodeId = event.explicitOriginalTarget.id;
+    if (this.allowed_click_nodes.indexOf(clickedNodeId) == -1) {
+        // We don't want to fillup this context menu (i.e. it's likely a
+        // sub-menu such as the scc context menu).
+        return false;
+    } else if (clickedNodeId == "menu_projCtxt_addMenu_Popup") {
+        return true;
+    }
     var row = {};
     this.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
     var index = row.value;
-    if (index == -1) {
-        // Means that we're clicking in white-space below.
-        // Clear the selection, and return.
-        this.projectsTreeView.selection.clearSelection();
-        event.stopPropagation();
-        event.preventDefault();
-        return false;
+    var selectedIndices = ko.treeutils.getSelectedIndices(this.projectsTreeView,
+                                                          false /*rootsOnly*/);
+    var selectedUrl = index >= 0 ? this.projectsTreeView.getCellValue(index, {id:'uri'}) : null;
+    var isRootNode = index == -1;
+    var itemTypes;
+    if (isRootNode) {
+        itemTypes = ['root'];
+    } else {
+        //XXXX: Fixz this once we have the tree working again.
+        itemTypes = [ 'project' || this.projectsTreeView.getItem(index).type ];
     }
-    var selectedUrl = this.projectsTreeView.getCellValue(index);
-    var selectionInfo = {};
     var currentProject = ko.projects.manager.currentProject;
-    selectionInfo.currentProject = (currentProject
-                                    && currentProject.url == selectedUrl);
-    selectionInfo.projectIsDirty = selectionInfo.currentProject && currentProject.isDirty;
     var projectIsOpen = false;
     var windows = ko.windowManager.getWindows();
     for (var win, i = 0; win = windows[i]; i++) {
@@ -114,30 +199,52 @@ this.initProjectsContextMenu = function(event, menupopup) {
             break;
         }
     }
-    selectionInfo.projectIsOpen = projectIsOpen;
-    
-    var childNodes = menupopup.childNodes;
-    for (var menuNode, i = 0; menuNode = childNodes[i]; i++) {
-        var disableNode = false;
-        var directive = menuNode.getAttribute('disableIf');
-        if (directive) {
-            if ((directive in selectionInfo) && selectionInfo[directive]) {
-                disableNode = true;
-            } 
-        }
-        if (!disableNode
-            && !!(directive = menuNode.getAttribute('disableUnless'))
-            && (!(directive in selectionInfo)
-                || !selectionInfo[directive])) {
-            disableNode = true;
-        }
-        if (disableNode) {
-            menuNode.setAttribute('disabled', true);
-        } else {
-            menuNode.removeAttribute('disabled');
-        }
-    }
+    this._selectionInfo = {
+      currentProject: (currentProject
+                       && currentProject.url == selectedUrl),
+      index: index,
+      itemTypes: itemTypes,
+      multipleNodesSelected: selectedIndices.length > 1,
+      projectIsOpen: projectIsOpen,
+      __END__:null
+    };
+    this._selectionInfo.projectIsDirty =
+            this._selectionInfo.currentProject && currentProject.isDirty;
+    this._processProjectsMenu_TopLevel(menupopup);
+    delete this._selectionInfo;
     return true;
+}
+
+this._processProjectsMenu_TopLevel = function(menuNode) {
+    var selectionInfo = this._selectionInfo;
+    var itemTypes = selectionInfo.itemTypes;
+    if (ko.places.matchAnyType(menuNode.getAttribute('hideIf'), itemTypes)) {
+        menuNode.setAttribute('collapsed', true);
+        return; // No need to do anything else
+    } else if (!ko.places.matchAllTypes(menuNode.getAttribute('hideUnless'), itemTypes)) {
+        menuNode.setAttribute('collapsed', true);
+        return; // No need to do anything else
+    }
+    if (menuNode.id == "menu_projCtxt_addMenu_Popup"
+        && menuNode.childNodes.length == 0) {
+        ko.places.projects.copyNewItemMenu(menuNode, "projView_");
+    }
+    menuNode.removeAttribute('collapsed');
+    var disableNode = false;
+    if (ko.places.matchAnyType(menuNode.getAttribute('disableIf'), itemTypes)) {
+        disableNode = true;
+    } else if (!ko.places.matchAllTypes(menuNode.getAttribute('disableUnless'), itemTypes)) {
+        disableNode = true;
+    }
+    if (disableNode) {
+        menuNode.setAttribute('disabled', true);
+    } else {
+        menuNode.removeAttribute('disabled');
+    }
+    var childNodes = menuNode.childNodes;
+    for (var i = childNodes.length - 1; i >= 0; --i) {
+        this._processProjectsMenu_TopLevel(childNodes[i]);
+    }
 };
 
 this.onProjectTreeDblClick = function(event) {
@@ -191,10 +298,13 @@ this.openProjectInCurrentWindow = function() {
 this._openProject = function(inNewWindow) {
     var defaultDirectory = null;
     var defaultFilename = null;
-    var title = _bundle.GetStringFromName("openProject.title");
-    var defaultFilterName = _bundle.GetStringFromName("komodoProject.message");
-    var filterNames = [_bundle.GetStringFromName("komodoProject.message"),
-                       _bundle.GetStringFromName("all.message")];
+    var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/projectManager.properties");
+    var title = bundle.GetStringFromName("openProject.title");
+    var defaultFilterName = bundle.GetStringFromName("komodoProject.message");
+    var filterNames = [bundle.GetStringFromName("komodoProject.message"),
+                       bundle.GetStringFromName("all.message")];
     filename = ko.filepicker.openFile(defaultDirectory /* =null */,
                                       defaultFilename /* =null */,
                                       title /* ="Open File" */,
@@ -281,34 +391,6 @@ this.PlaceProjectsTreeView.prototype.observe = function(subject, topic, data) {
     }
 };
 
-this.PlaceProjectsTreeView.prototype.addProject = function(project) {
-    var url = project.url
-    var row = [url, ko.uriparse.baseName(url)];
-    this.rows.push(row);
-    this.tree.rowCountChanged(this.rows.length - 2, 1);
-};
-
-this.PlaceProjectsTreeView.prototype.removeProject = function(project) {
-    var numToDelete;
-    var listLen = this.rows.length;
-    for (var i = listLen - 1; i >= 0; --i) {
-        if (project.url == this.rows[i][0]) {
-            var j = this.getNextSiblingIndex(i);
-            if (j == -1) {
-                numToDelete = listLen - i;
-            } else {
-                numToDelete = j - i;
-            }
-            this.rows.splice(i, numToDelete);
-            this.tree.rowCountChanged(i, -1 * numToDelete);
-            return;
-        }
-    }
-    dump("PlaceProjectsTreeView.removeProject: Couldn't find "
-         + project.name
-         + " in the list of loaded projects\n");
-};
-
 this.PlaceProjectsTreeView.prototype.replaceProject = function(oldURL, project) {
     var listLen = this.rows.length;
     for (var i = listLen - 1; i >= 0; --i) {
@@ -323,6 +405,54 @@ this.PlaceProjectsTreeView.prototype.replaceProject = function(oldURL, project) 
          + project.name
          + " in the list of loaded projects\n");
 };
+
+// Context Menu Methods
+this.PlaceProjectsTreeView.prototype.doProjectContextMenu = function(event, sender, cmd) {
+    var index = this.getSelectedIndex();
+    if (index == -1) {
+        index = this.currentProjectIndex();
+        if (index == -1) {
+            dump("no selected or current project: leave\n");
+        }
+    }
+    var project = this.rows[index].project;
+    dump("**************** " + cmd  + "(" + index + ")\n");
+};
+
+// Project/Part Accessor Methods
+this.PlaceProjectsTreeView.prototype.currentProjectIndex = function() {
+    var currentProject = ko.projects.manager.currentProject;
+    if (!currentProject) {
+        return -1;
+    }
+    var lim = this.rows.length;
+    for (var i = 0; i < lim; i++) {
+        var row = this.rows[i];
+        if (row.type == "project" && row.url == currentProject.url) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+this.PlaceProjectsTreeView.prototype.getSelectedIndex = function() {
+    return this.selection.currentIndex;
+}
+
+this.PlaceProjectsTreeView.prototype.getSelectedProject = function() {
+    var index = this.getSelectedIndex();
+    if (index == -1) {
+        return null;
+    }
+    var item;
+    for (; i >= 0; --i) {
+        var node = this.rows[i];
+        if (node.type == "project") {
+            return node;
+        }
+    }
+    return null;
+}
 
 // NSITreeView methods.
 this.PlaceProjectsTreeView.prototype.getCellText = function(index, column) {

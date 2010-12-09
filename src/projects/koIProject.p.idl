@@ -55,27 +55,16 @@ interface koITool;
 [scriptable, uuid(a77656db-b2e5-4f9c-83ca-e78351ae8993)]
 interface koIPart_Common: nsIObserver {
     attribute wstring id;
-    attribute wstring type; // the programmer-oriented type, e.g. "command"
-    attribute wstring prettytype;  // A user-intended version of the type: e.g. "Run Command"
-    readonly attribute wstring primaryInterface;
+    attribute wstring type; // the programmer-oriented type, e.g. "folder"
+    attribute wstring prettytype;  // A user-intended version of the type: e.g. "Group"
     attribute wstring iconurl;
     attribute wstring url;
     attribute wstring name;
-    readonly attribute boolean live;  // is this contained in a live folder?
     koIFileEx getFile();
     
-    wstring get_keybinding_description();
-    
-    // Content for serialization in the CDATA section. 
-    // (Not used for all part types.)
-    attribute wstring value;
     // A reference to the containing project.
     // (Currently needed to notify on URL addition.)
     attribute koIPart project;
-    
-    // usually a noop, but used in toolbar/menu customization
-    void added();
-    void removed();
 
     // koIParts maintain a dictionary of attributes, corresponding to
     // attributes on the serialized koIPart's XML tag.
@@ -105,11 +94,6 @@ interface koIPart_Common: nsIObserver {
     // This can raise an exception, in which case an appropriate error is
     // set on the last error service.
     void serialize(in koIFile stream);
-
-    wstring getDragData(); 
-    wstring getDragDataByFlavor(in wstring flavor); 
-    void getDragFlavors([array, size_is(count)] out wstring flavors,
-                     out unsigned long count);
 };
 
 [scriptable, uuid(8EAA9B6D-1D59-43f6-8D0E-F992429ECFE2)]
@@ -127,11 +111,9 @@ interface koIPart: koIPart_Common {
 };
 
 /* koIContainerBase is a base interface for all container types.
-  Types that want to have a heirarchy should inherit this interface.
+  Types that want to have a hierarchy should inherit this interface.
   Parts (ie a folder or project) that want to contain any other part should
-  inherit koIContainer, and not koIContainerBase.  Parts that want
-  to be containers, but will implement specific parts that it will
-  contain should inherit koIContainerBase (ie WebServices).
+  inherit koIContainer, and not koIContainerBase.
 */
 [scriptable, uuid(649FBD6D-BA35-46a9-946B-91DA766BC691)]
 interface koIContainerBase: koIPart {
@@ -176,7 +158,6 @@ interface koIPart_folder: koIContainer {
 [scriptable, uuid(8D1C1A69-DFB7-11DA-85CA-000D935D3368)]
 interface koIPart_livefolder: koIContainer {
     readonly attribute wstring liveDirectory;
-    void refreshChildren();
 };
 
 [scriptable, uuid(D571C805-F554-4de9-AD6E-0D0D8F198705)]
@@ -254,73 +235,6 @@ interface koIProject: koIPart_livefolder {
 
 [scriptable, uuid(2F84B17E-FCEB-4cd0-8579-6C0F4E95CCA0)]
 interface koIPart_file: koIPart {
-};
-
-[scriptable, uuid(E6016D36-A240-40ea-A106-FCBBEAE617F4)]
-interface koIPart_ProjectRef: koIPart_file {
-};
-
-
-[scriptable, uuid(B49E8715-8189-40b3-AAC5-07E5160F2F10)]
-interface koIPart_snippet: koIPart {
-};
-
-
-[scriptable, uuid(4DA537A9-6E1F-4c52-A602-50D09FD61E30)]
-interface koIPart_command: koIPart {
-    // The 'command' koIPart uses the following attributes (see
-    // {get|set}*Attribute() methods above).
-    //      "name" (string) is the name of the command, typically this
-    //          is set to the command string.
-    //      "insertOutput" (boolean) specifies that the output of the
-    //          command should be inserted into the current document.
-    //      "operateOnSelection" (boolean) specifies whether the current
-    //          selection should be used as input for the given command.
-    //      "doNotOpenOutputWindow" (boolean), if true, will explicitly
-    //          NOT open the output window in which results are
-    //          displayed.
-    //      "runIn" (string), specifies what window the command should
-    //          be run in. This is only applicable if the command is
-    //          just being run (i.e. its ouput is not being captured).
-    //          Valid values are (and <menuitem> entries in run.xul must
-    //          concur):
-    //              'command-output-window'
-    //              'new-console'
-    //              'no-console'
-    //      "parseOutput" (boolean) indicates whether to parse output
-    //          lines with the given regular expression, "parseRegex".
-    //      "parseRegex" (string) is a regex pattern to use to parse the
-    //          output lines into the command output window tree.
-    //      "showParsedOutputList" (boolean) indicates whether to view
-    //          parsed results in the tree.
-    //
-    // The .value attribute (where "attribute" now means an XPCOM
-    // interface attribute), a.k.a. the CDATA section, is the actual
-    // command string.
-};
-
-[scriptable, uuid(41D39E8C-1E20-480d-A3F1-56A2E6FB8BCC)]
-interface koIPart_URL: koIPart {
-};
-
-[scriptable, uuid(37944B8A-C534-418c-BFFA-9F73C4445C85)]
-interface koIPart_webservice: koIPart {
-};
-
-[scriptable, uuid(4EC408EA-4B0C-4519-805E-9CDB3C3596B9)]
-interface koIPart_macro: koIPart {
-};
-
-[scriptable, uuid(7FC4F61B-2C30-47B2-82A2-5D5F42431931)]
-interface koIToolbox : koIPart {
-};
-
-[scriptable, uuid(49C0A185-F27B-4C59-8C17-FE9713A82FD8)]
-interface koIPart_menu : koIContainerBase {
-};
-
-[scriptable, uuid(9082556F-0A23-4683-84AB-F99C01E5D903)]
-interface koIPart_toolbar : koIContainerBase {
 };
 
 [scriptable, uuid(0A6C17E8-B7A2-4424-8200-9D1A08C6EC75)]

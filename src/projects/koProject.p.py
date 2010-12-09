@@ -135,7 +135,6 @@ class koPart(object):
         self._url = ''
         self._path = '' # local path
         self._attributes = {}
-        self._value = ''
         self._tmpAttributes = {} # not serialized
         self._project = project
         self._parent = None
@@ -151,19 +150,9 @@ class koPart(object):
 
         # treeView support
         self.properties = {}
-        self.live = 0
         self._prefset = None
         self._filterString = None
         self._uri = None
-
-    def set_value(self, val):
-        # normalize line endings to linux line endings
-        val = val.replace("\r\n", "\n")
-        val = val.replace("\r", "\n")
-        self._value = val
-    def get_value(self):
-        return self._value
-    value = property(get_value, set_value)
 
     def _storeData(self):
         self._prefset = None
@@ -371,7 +360,7 @@ class koPart(object):
     def getIDRef(self):
         # get an idref that points to this part
         if not self._idref:
-            if not self.live or not self._parent or not self._parent.live:
+            if not self._parent:
                 self._idref = self.id
             else:
                 pIDRef = self._parent.getIDRef()
@@ -385,7 +374,6 @@ class koPart(object):
 
     def dump(self, indent):
         print " "*indent + "Part of type '" + self.type +"':"
-        print ' '*(indent+1) + "live: %s" % self.live
         print ' '*(indent+1) + "id: %s" % self.id
         print ' '*(indent+1) + "idref: %s" % self.getIDRef()
         if self._parent:
@@ -395,27 +383,13 @@ class koPart(object):
             print ' '*(indent+1) + "parent: NONE"
         for k, v in self._attributes.items():
             print ' '*(indent+1) + "%s: %s" % (k, v)
-        print ' '*(indent+1) + 'CDATA: %s' % self.value
         prefs = self.get_prefset()
         prefs.dump(indent+1)
 
     def serialize(self, writer):
         # reset idref every time we serialize.  our children will benefit
-        self._idref = None
-        do_serialize = not self.live or not self._parent.live
-        if not do_serialize and \
-            self.live and self._parent.live and hasattr(self, 'children'):
-            # if we are not a subdirectory of the parent, we need to be
-            # serialized because we were added seperatly
-            if hasattr(self, 'get_liveDirectory'):
-                me = self.get_liveDirectory()
-                p = self._parent.get_liveDirectory()
-                do_serialize = not me.startswith(p)
-            else:
-                do_serialize = 1
-        if do_serialize:
-            self._serializeHeader(writer)
-            self._serializeTail(writer)
+        self._serializeHeader(writer)
+        self._serializeTail(writer)
         return 1
 
     def _serializeHeader(self, writer):
@@ -463,8 +437,6 @@ class koPart(object):
             attributes.sort()
             writer.write(' '.join(attributes))
         writer.write(">%s"%(newl))
-        # write out the CDATA, i.e. self.value
-        writer.write(escape(self.value))
 
     def _serializeTail(self, writer):
         writer.write("</%s>%s" % (self.type,newl))
@@ -494,8 +466,7 @@ class koPart(object):
             self._url = urlparse.urlunparse(tuple(parts))
             self._setPathAndName()
         self.setStringAttribute('name', self._name)
-        if not self.live:
-            self._project.set_isDirty(1)
+        self._project.set_isDirty(1)
 
     def get_name(self):
         if not self._name:
@@ -515,8 +486,7 @@ class koPart(object):
         self._setPathAndName()
         self._relativeBasedir = self._url[:self._url.rindex('/')+1]
         self.setStringAttribute('name', self._name)
-        if not self.live:
-            self._project.set_isDirty(1)
+        self._project.set_isDirty(1)
 
     def get_url(self):
         if not self._url and self.hasAttribute('url'):
@@ -548,14 +518,12 @@ class koPart(object):
     def setAttribute(self, name, value):
         if name not in self._attributes or self._attributes[name] != value: # avoid dirtification when possible.
             self._attributes[name] = value
-            if not self.live:
-                self._project.set_isDirty(1)
+            self._project.set_isDirty(1)
 
     def removeAttribute(self, name):
         if name not in self._attributes: return
         del self._attributes[name]
-        if not self.live:
-            self._project.set_isDirty(1)
+        self._project.set_isDirty(1)
 
     def getStringAttribute(self, name):
         return unicode(self._attributes[name])
@@ -575,16 +543,6 @@ class koPart(object):
     def setBooleanAttribute(self, name, value):
         self.setAttribute(name, value and 1 or 0)
 
-    def getDragData(self):
-        #print "getDragData ",repr(self.value)
-        return self.value
-    
-    def getDragDataByFlavor(self, flavor):
-        return self.getDragData()
-
-    def getDragFlavors(self):
-        return self.flavors
-
     def clone(self):
         return self._clone(self._project)
 
@@ -600,8 +558,6 @@ class koPart(object):
         dirty = self._project.get_isDirty()
         part = project.createPartFromType(self.type)
         part.type = self.type
-        part.value = self.value
-        part.live = self.live
         # necessary for packaging projects with relative urls
         part._tmpAttributes = copy.copy(self._tmpAttributes)
 
@@ -889,21 +845,10 @@ class koFilePart(koPart):
         return "<koFilePart %s (id=%r)>" % (
             self._attributes.get("name"), self._attributes["id"])
 
-    def getDragData(self):
-        return self.getStringAttribute('url')
-
 def File(url, name, project):
     """Construct a 'file' koIPart."""
     assert project is not None
     part = koFilePart(project)
-    part._attributes['url'] = url
-    part._attributes['name'] = name
-    return part
-
-def ProjectShortcut(url, name, project):
-    """Construct a 'file' koIPart."""
-    assert project is not None
-    part = koProjectRef(project)
     part._attributes['url'] = url
     part._attributes['name'] = name
     return part
@@ -939,6 +884,9 @@ class koChangeListPart(koContainer):
 
 class koToolbox(koPart):
     type = 'Toolbox'
+
+class koProjectRef(koFilePart):
+    type = 'ProjectRef'
 
 # See factory functions below
 class koFolderPart(koContainer):
@@ -993,20 +941,10 @@ class koFolderPart(koContainer):
                         folder = child
                         break
                 else:
-                    newfolder = Folder(url, part, self._project, self.live)
+                    newfolder = Folder(url, part, self._project)
                     folder.addChild(newfolder)
                     folder = newfolder
         return folder
-
-    def getDragData(self):
-        if self.hasAttribute('url'):
-            return self.getStringAttribute('url');
-        return self.getStringAttribute('name');
-
-    def getDragFlavors(self):
-        if self.hasAttribute('url') and self.flavors[0] != 'text/x-moz-url':
-            self.flavors.insert(0,'text/x-moz-url')
-        return self.flavors
 
 
 class koLiveFolderPart(koFolderPart):
@@ -1019,7 +957,6 @@ class koLiveFolderPart(koFolderPart):
 
     def __init__(self, project):
         koFolderPart.__init__(self, project)
-        self.live = 1
         self.needrefresh = 1
         self._lastfetch = set([])
 
@@ -1038,16 +975,7 @@ class koLiveFolderPart(koFolderPart):
         #print "livefolder got notified of change [%s][%s][%s]"%(subject,topic, message)
         #print "livefolder change in project %s" % self._project.get_name()
         if message == "import_live":
-            self.live = prefs.getBooleanPref("import_live")
-            #print "  change our live status to %d" % self.live
             self.needrefresh = 1
-            if not self.live:
-                undead = self._removeLiveChildrenRecursive()
-                # bring the undead back to life
-                for child in undead:
-                    if child in self.children:
-                        continue
-                    self.addChild(child)
         elif message == "import_dirname":
             self._removeLiveChildrenRecursiveSaveUnded()
             self.needrefresh = 1
@@ -1066,12 +994,7 @@ class koLiveFolderPart(koFolderPart):
     def _removeLiveChildrenRecursive(self):
         undead = []
         for child in self.children[:]:
-            if child.live:
-                if hasattr(child, '_removeLiveChildrenRecursive'):
-                    undead += child._removeLiveChildrenRecursive()
-                self.removeChild(child)
-            else:
-                undead.append(child)
+            undead.append(child)
         return undead
 
     def _differentImportPrefs(self, child):
@@ -1127,93 +1050,12 @@ class koLiveFolderPart(koFolderPart):
             exclude = "%s;%s" % (exclude, self._name)
 
         # XXX in prep for combining livefolder and folder parts
-        if not self.live:
-            recursive = prefs.getBooleanPref("import_recursive")
-            type = prefs.getStringPref("import_type")
+        recursive = prefs.getBooleanPref("import_recursive")
+        type = prefs.getStringPref("import_type")
         path = self.get_liveDirectory()
         return include, exclude, recursive, type, path
-        
-    # live folders are *always* non-recursive on the import, defaults for this
-    # are for live folders.  They are used from the package service to do
-    # a recursive import of live folders when packaging a project
-    def _updateLiveChildren(self, config):
-        #print "refreshChildren for %s:%s - %r" % (self.type,self.get_name(), config)
-        forcerefresh = self.needrefresh
-        self.needrefresh = 0
-        include = config[0]
-        exclude = config[1]
-        recursive = config[2]
-        type = config[3]
-        path = config[4]
-        if not path:
-            return
-
-        # perf improvement for tree filtering
-        if self._filterString:
-            # always refresh on the next retreival of children
-            forcerefresh = self.needrefresh = 1
-
-        #print "refreshChildren for %s:%s" % (self.type,self.get_name())
-        #print "                %s:%s:%s" % (include,exclude,path)
-
-        importService = components.classes["@activestate.com/koFileImportingService;1"].\
-                        getService(components.interfaces.koIFileImportingService)
-        if ":/" in path and not path.startswith("file:/"):
-            filenames = set(importService.findCandidateFilesRemotely(self, path, include, exclude, recursive))
-        else:
-            filenames = set(importService.findCandidateFiles(self, path, include, exclude, recursive))
-        if not forcerefresh and self._lastfetch and not self._lastfetch.symmetric_difference(filenames):
-            #print "bail early, no change in children"
-            return
-
-        isDirty = self._project.get_isDirty()
-        self._lastfetch = filenames
-        # for live folders, remove live parts that are not in filenames list,
-        # add anything in filenames list that is not in our child list
-        newfiles = []
-        oldparts = []
-        if not filenames:
-            # XXX - Only remove the child nodes, ToddW (r=sc).
-            # http://bugs.activestate.com/show_bug.cgi?id=48098
-            oldparts = [p for p in self.children if p is not self and p.live]
-        else:
-            for part in self._project._urlmap.values():
-                fname = part._path
-                if (recursive and fname[:len(path)] == path) or \
-                    (not recursive and os.path.dirname(fname) == path):
-                    if fname not in filenames:
-                        oldparts.append(part)
-            for name in filenames:
-                name = os.path.abspath(name)
-                url = uriparse.localPathToURI(name)
-                if not self._project._urlmap.get(url, None):
-                    newfiles.append(name)
-
-        # XXX here, for non-live folders, we need to display a dialog for the
-        # user to select which files they want to import
-        removeMissingFiles = 0 # XXX get this from the dialog
-
-        if self.live or removeMissingFiles:
-            for part in oldparts:
-                # XXX what to do with non-live children of live folders?
-                parent = part.get_parent()
-                if parent:
-                    parent.removeChild(part)
-
-        #print "adding Filenames", filenames
-        if newfiles:
-            importService.addSelectedFiles(self, type, path, newfiles)
-        if self.live:
-            # reset the dirty state to what it was before the refresh if
-            # we are live.
-            self._project.set_isDirty(isDirty)
 
     def getChildren(self):
-        # XXX for now, always refresh since we only watch folders that are
-        # opened in the project view
-        #if self.needrefresh and self.live:
-        if self.live:
-            self.refreshChildren()
         return self.children
 
     def genLocalPaths(self):
@@ -1251,17 +1093,6 @@ def Folder(url, name, project, live=0):
     part._attributes['url'] = url
     part._attributes['name'] = name
     return part
-
-class koProjectRef(koFilePart):
-    _com_interfaces_ = [components.interfaces.koIPart_ProjectRef]
-    type = 'ProjectRef'
-    prettytype = 'Project Shortcut'
-    _iconurl = 'chrome://komodo/skin/images/project_icon.png'
-    primaryInterface = 'koIPart_ProjectRef'
-
-class koToolbox(koPart):
-    _com_interfaces_ = [components.interfaces.koIToolbox]
-    type = 'Toolbox'
 
 class koUnknown(koPart):
     _com_interfaces_ = [components.interfaces.koIPart]
@@ -1312,8 +1143,6 @@ class koProject(koLiveFolderPart):
 
         prefset = components.classes["@activestate.com/koPrefService;1"].\
                                 getService(components.interfaces.koIPrefService).prefs
-        # global pref defines if projects are live or not when created
-        self.live = prefset.getBooleanPref("import_live")
 
         if not self._partSvc:
             self._partSvc = components.classes["@activestate.com/koPartService;1"]\
@@ -1356,6 +1185,15 @@ class koProject(koLiveFolderPart):
             # First check v5 legacy projects.
             importedDirs = self.getChildrenByType('livefolder', True)
             if len(importedDirs) == 1:
+                obj = importedDirs[0]
+                qlog.debug("_get_importDirectoryInfo: Introspect importedDirs[0]:%s", obj)
+                for d in dir(obj):
+                    try:
+                        val = getattr(obj, d, None)
+                        if type(val) in (type(""), type(3), type(True)):
+                            qlog.debug("obj[%s] = %r", d, val)
+                    except:
+                        pass
                 koFileEx.URI = importedDirs[0].url
                 return koFileEx
         koFileEx.path = self.get_liveDirectory()
@@ -1415,8 +1253,6 @@ class koProject(koLiveFolderPart):
         # force the import_live pref so we can get children when
         # we're saved
         prefset = self.get_prefset()
-        self.live = prefset.getBooleanPref("import_live")
-        prefset.setBooleanPref("import_live", self.live)
 
     def createPartFromType(self, type):
         # we create the koPart instance and return it
@@ -1501,7 +1337,6 @@ class koProject(koLiveFolderPart):
 
         # reset to a non-live project if we're loading.  We only become live
         # if the projet has a pref to make us live
-        self.live = 0
 
         dirtyAtEnd = 0
         events = pulldom.parse(stream)
@@ -1631,7 +1466,6 @@ class koProject(koLiveFolderPart):
                     language = node.attributes['language'].value
                     part._attributes['name'] = language
                     part._attributes['language'] = language
-                    part.value = ''
                     partstack.append(part)
                     continue
                 else:
@@ -1714,7 +1548,6 @@ class koProject(koLiveFolderPart):
                     if hasattr(part, 'children') and part._attributes['id'] in self._childmap:
                         part.children = self._childmap[part._attributes['id']]
                     part.assignId()
-                    part.value = ''
                     # push the part onto a stack
                     partstack.append(part)
                     idlist[part._attributes['id']] = 1
@@ -1752,9 +1585,6 @@ class koProject(koLiveFolderPart):
                     part = partstack[-1]
                 else:
                     part = None
-            elif event == pulldom.CHARACTERS and part:
-                if node.nodeValue != "\n" or part.value:
-                    part.value += node.nodeValue
 
         # this is the toplevel project, parent prefs are the global prefs
         self.get_prefset().parent = components.classes["@activestate.com/koPrefService;1"].\
@@ -1786,12 +1616,7 @@ class koProject(koLiveFolderPart):
         # now figure out if we're a live project.  In a load, we're only live
         # if the project has prefs that says we are.
         prefs = self.get_prefset()
-        if prefs.hasPrefHere("import_live"):
-            self.live = prefs.getBooleanPref("import_live")
-        if self.live:
-            # for a refresh of the children
-            self.needrefresh = 1
-            self.getChildren()
+        
         #self.validateParts()
         # this kicks off background status checking for the projects base path
         # the project url's will be added later, from partWrapper.js
@@ -1961,9 +1786,9 @@ class koProject(koLiveFolderPart):
 
     def getLiveAncestor(self, url):
         for path, part in self._urlmap.items():
-            if part.live and hasattr(part, 'children') and url.startswith(path):
+            if hasattr(part, 'children') and url.startswith(path):
                 return part
-        if self.live and url.startswith(os.path.dirname(self._url)):
+        if url.startswith(os.path.dirname(self._url)):
             return self
         return None
 
@@ -1976,7 +1801,6 @@ class koProject(koLiveFolderPart):
             ancestor = self.getLiveAncestor(url)
             if ancestor:
                 part = createPartFromType("file", self)
-                part.live = 1
                 part.set_url(url)
                 part.assignId()
                 self.registerChildByURL(part)

@@ -35,18 +35,707 @@
 # ***** END LICENSE BLOCK *****
 
 from xpcom import components, COMException, nsError
+from xpcom.server import WrapObject, UnwrapObject
 
+import sys, os, re, types
+from koTreeView import TreeView
+ 
 import logging
 
 log = logging.getLogger("ProjectTreeView")
-#log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 
-class KPFTreeView(object):
-    _com_interfaces_ = [components.interfaces.koIKPFTreeView]
+# some constants used for live folders
+_rebuildDirFlags = \
+    components.interfaces.koIFileNotificationService.FS_FILE_CREATED | \
+    components.interfaces.koIFileNotificationService.FS_FILE_DELETED | \
+    components.interfaces.koIFileNotificationService.FS_UNKNOWN
+_rebuildParentFlags = \
+    components.interfaces.koIFileNotificationService.FS_DIR_CREATED | \
+    components.interfaces.koIFileNotificationService.FS_DIR_DELETED
+_createdFlags = \
+    components.interfaces.koIFileNotificationService.FS_FILE_CREATED | \
+    components.interfaces.koIFileNotificationService.FS_DIR_CREATED
+_deletedFlags = \
+    components.interfaces.koIFileNotificationService.FS_FILE_DELETED | \
+    components.interfaces.koIFileNotificationService.FS_DIR_DELETED
+_rebuildFlags = _rebuildDirFlags | _rebuildParentFlags
+_notificationsToReceive = _rebuildFlags | \
+    components.interfaces.koIFileNotificationService.FS_FILE_MODIFIED
+
+class _Node(object):
+    def __init__(self, part, level, project):
+        self.part = part
+        self.level = level
+        self.project = project
+        self.children = None
+        self.isContainer = False
+
+class _ContainerNode(_Node):
+    def __init__(self, part, level, project):
+        _Node.__init__(self, part, level, project)
+        self.children = []
+        self.isContainer = True
+        self.isOpen = False
+
+class _ProjectNode(_ContainerNode):
+    pass
+
+class _GroupNode(_ContainerNode):
+    def __init__(self, part, level, project):
+        _ContainerNode.__init__(self, part, level, project)
+        self.file = None
+
+class _FolderNode(_Node):
+    pass    
+
+class _RemoteFolderNode(_Node):
+    pass
+
+class _FileNode(_Node):
+    pass
+
+class _RemoteFileNode(_Node):
+    pass
+
+class KPFTreeView(TreeView):
+    _com_interfaces_ = [components.interfaces.nsIObserver,
+                        components.interfaces.koIKPFTreeView,
+                        components.interfaces.nsITreeView,
+                        components.interfaces.koIFileNotificationObserver,
+                        components.interfaces.nsISupportsWeakReference]
     _reg_clsid_ = "{216F0F44-D15B-11DA-8CBD-000D935D3368}"
     _reg_contractid_ = "@activestate.com/koKPFTreeView;1"
     _reg_desc_ = "Komodo KPF Tree View"
         
     def __init__(self, debug=None):
-        errmsg = "KPFTreeViews were dropped in Komodo 6.0"
-        raise COMException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
+        TreeView.__init__(self, debug=0)
+        self._rows = []
+        
+        # Mapping of node "scoped-name" to a boolean indicating if that
+        # node is open (or should be) in the Code Browser.
+        self._nodeIsOpen = {}
+        self._sortedBy = 'name'
+        self._sortDir = 0
+ 
+        self._tree = None
+        self.statusObserver = None
+        #self.log = logging.getLogger("ProjectTreeView")
+        #self.log.setLevel(logging.DEBUG)
+ 
+    def initialize(self):
+        self.atomService = components.classes["@mozilla.org/atom-service;1"].\
+                                getService(components.interfaces.nsIAtomService)
+        self._prefs = components.classes["@activestate.com/koPrefService;1"].\
+            getService(components.interfaces.koIPrefService).prefs
+
+        self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+            getService(components.interfaces.nsIObserverService)
+
+        # XXX if we ever get more than one project viewer, this will be an issue
+        self._partSvc = components.classes["@activestate.com/koPartService;1"]\
+            .getService(components.interfaces.koIPartService)
+        self._observerSvc.addObserver(self, "file_status", True) # weakref
+        self.notificationSvc = components.classes["@activestate.com/koFileNotificationService;1"].\
+                                    getService(components.interfaces.koIFileNotificationService)
+
+    def terminate(self):
+        log.debug("terminate...")
+
+    def observe(self, subject, topic, data):
+        #TODO: When a watched file/folder no longer exists, paint it red.
+        if not self._tree:
+            # No tree, Komodo is likely shutting down.
+            return
+
+        if topic == "file_status":
+            # find the row for the file and invalidate it
+            files = data.split("\n")
+            invalidRows = [i for (i,row) in enumerate(self._rows)
+                           if 'file' in row and row['file'] and row['file'].URI in files]
+            for row in invalidRows:
+                if 'properties' in self._rows[row]:
+                    del self._rows[row]['properties']
+            if invalidRows:
+                self._tree.beginUpdateBatch()
+                map(self._tree.invalidateRow, invalidRows)
+                self._tree.endUpdateBatch()
+
+    # nsIFileNotificationObserver
+    # we want to receive notifications for any live folders in our view
+    # the addition of observers will occur during generateRows
+    def fileNotification(self, uri, flags):
+        #TODO: When a watched file/folder no longer exists, paint it red.
+        #print "got notification [%s] flags %d"%(uri,flags)
+
+        if not self._tree:
+            # No tree, Komodo is likely shutting down.
+            return
+
+        changed = components.classes["@activestate.com/koFileEx;1"].\
+                createInstance(components.interfaces.koIFileEx)
+        changed.URI = uri
+        matching_parts = []
+        #print "   path is [%r] dirname [%r]"%(changed.path, changed.dirName)
+
+        if flags & _rebuildFlags:
+            log.debug("received fileNotification flags: %r, path: %r", flags,
+                      changed.path);
+            for row in self._rows:
+                part = row["node"]
+                if hasattr(part,'get_liveDirectory'):
+                    path = part.get_liveDirectory()
+                else:
+                    if "file" not in row:
+                        # Item has not yet been lazily loaded, so we don't
+                        # need to compare this item.
+                        continue
+                    file = row["file"]
+                    if not file:
+                        continue
+                    path = file.path
+                if not path:
+                    continue
+                #print "row is: %s" % (file.path)
+                if flags & _createdFlags and path == changed.dirName or \
+                   path == changed.path:
+                    matching_parts.append((part, path))
+            if not matching_parts:
+                return
+            if flags & _createdFlags:
+                for part, path in matching_parts:
+                    if path == changed.dirName:
+                        #print "Found parent, refreshing it now"
+                        #print "Before:", part.getChildren()
+                        part.needrefresh = 1
+                        self.refresh(part)
+                        #print "After:", part.getChildren()
+            elif flags & _rebuildDirFlags:
+                for part, path in matching_parts:
+                    while part and not hasattr(part, "refreshChildren"):
+                        part = part._parent
+                    if part:
+                        part.needrefresh = 1
+                        self.refresh(part)
+            elif path == changed.path:
+                for part, path in matching_parts:
+                    # file or dir deleted
+                    #print "   compare [%r]==[%r]"%(file.path,changed.path)
+                    parent = part._parent
+                    parent.removeChild(part)
+                    self.refresh(parent)
+        else:
+            # this is a modification change, just invalidate rows
+            self._tree.invalidate()
+
+    def addProject(self, kpf):
+        log.debug(">> addProject")
+        self._partSvc.addProject(kpf)
+        kpf = UnwrapObject(kpf)
+        self.restorePrefs(kpf)
+        self._partSvc.currentProject = kpf
+        newProjectIndex = len(self._rows)
+        self._rows.append(_ProjectNode(kpf, 0, kpf))
+        self._tree.rowCountChanged(newProjectIndex, 1)
+        log.debug("self._tree.rowCountChanged(newProjectIndex:%d, count:%d)",
+                  newProjectIndex, 1)
+        return
+        #TODO: Rebuild the children if necessary....
+        if kpf.id not in self._nodeIsOpen:
+            self._nodeIsOpen[kpf.id] = True
+            # self.toggleOpenState(newProjectIndex)
+    
+    def removeProject(self, kpfWrapped):
+        self._partSvc.removeProject(kpfWrapped)
+        kpf = UnwrapObject(kpfWrapped)
+        self.savePrefs(kpf)
+        needNewCurrentProject = kpfWrapped == self.get_currentProject()
+        # remove rows for project
+        index = self._getIndexByPart(kpf)
+        if index == -1:
+            log.debug("removeProject: can't find project %s", kpf.name)
+            return
+        sibling = self._getNextSiblingIndex(index)
+        if needNewCurrentProject:
+            if index == 0:
+                # first project becomes active, if there is one
+                if sibling < len(self._rows):
+                    newCurrentIndex = 0
+                else:
+                    newCurrentIndex = -1
+            else:
+                # previous project becomes active
+                newCurrentIndex = self._getPrevSiblingIndex(index)#@@@@
+        self._rows = self._rows[:index]+self._rows[sibling:]
+        self._tree.rowCountChanged(index, (index - sibling))
+
+        if needNewCurrentProject:
+            self._tree.beginUpdateBatch()
+            try:
+                self._tree.invalidateRow(index)
+                if newCurrentIndex != -1:
+                    self.set_currentProject(self._rows[newCurrentIndex].part)
+                    self._tree.invalidateRow(newCurrentIndex)
+                else:
+                    # closing the only project we have, no current project
+                    self.set_currentProject(None)
+            finally:
+                self._tree.endUpdateBatch()
+                    
+
+    def restorePrefs(self, kpf):
+        prefSvc = components.classes["@activestate.com/koPrefService;1"]\
+                            .getService().prefs # global prefs
+        if prefSvc.hasStringPref("kpf_open_nodes_%s" % kpf.id):
+            nioStr = prefSvc.getStringPref("kpf_open_nodes_%s" % kpf.id)
+            nodeIsOpen = eval(nioStr)
+            self._nodeIsOpen.update(nodeIsOpen)
+
+    def savePrefs(self, kpf):
+        prefSvc = components.classes["@activestate.com/koPrefService;1"]\
+                            .getService().prefs # global prefs
+        # multi tree, we want JUST the project passed in.  Get all the
+        # id's from the project, and then get the matching id's from
+        # nodeIsOpen
+        kpf = UnwrapObject(kpf)
+        nodeIsOpen = {}
+        for id in self._nodeIsOpen.keys():
+            if kpf.getChildById(id):
+                nodeIsOpen[id] = self._nodeIsOpen[id]
+        prefSvc.setStringPref("kpf_open_nodes_%s" % kpf.id,
+                              repr(nodeIsOpen))
+
+    def get_currentProject(self):
+        return self._partSvc.currentProject
+    
+    def set_currentProject(self, prj):
+        self._partSvc.currentProject = prj
+        project = UnwrapObject(prj)
+        if project is None:
+            return
+        index = self._getIndexByPart(project)
+        if index == -1:
+            raise Exception("Add the project to the view before making it the current project")
+        # if the project is not already visible, make it so
+        firstVisRow = self._tree.getFirstVisibleRow()
+        lastVisRow = self._tree.getLastVisibleRow()
+        numVisRows = self._tree.getPageLength()
+        #print "set_currentProject"
+        #print "numVisRows: %d" % (numVisRows)
+        #print "firstVisRow: %d" % (firstVisRow)
+        #print "lastVisRow: %d" % (lastVisRow)
+        # If completely outside the range
+        # Or if there is un-utilized (empty) rows shown in the tree
+        # Or the index is in the visible range, but the tree contents
+        # scroll past the end of the visible range
+        nextSibling = self._getNextSiblingIndex(index)
+        if (index < firstVisRow
+            or index >= lastVisRow
+            or (len(self._rows) > numVisRows
+                and ((nextSibling - index) > numVisRows
+                     or len(self._rows) < (firstVisRow + numVisRows)))):
+            scrollToIndex = min(index, len(self._rows) - numVisRows)
+            #print "Scrolling to row: %d" % (scrollToIndex)
+            self._tree.scrollToRow(scrollToIndex)
+
+    def _getNextSiblingIndex(self, index):
+        level = self._rows[index].level
+        rc = len(self._rows)
+        i = index + 1
+        while i < rc and self._rows[i].level > level:
+            i = i + 1
+        return i
+
+    def addRow(self, row): #@@@@ replace with addItem(item, row)?
+        # add this row into our rows index
+        if row.level > 0:
+            part = row.part
+            index = self._getIndexByPart(part.get_parent())
+            # insert this prior to the parents sibling
+            sibling = self._getNextSiblingIndex(index)
+            self._rows.insert(sibling, row)
+        else:
+            self._rows.append(row)
+            index = len(self._rows) - 1
+        return self._rows.index(row)
+    
+    def invalidate(self):
+        self._tree.beginUpdateBatch()
+        self._tree.invalidate()
+        self._tree.endUpdateBatch()
+
+    def refresh(self, part):
+        """ return the row that should be selected if that's relevant"""
+        log.debug("KPFTreeView::refresh()")
+        changed = 0
+        retval = 0
+        level = 0
+        index = -1
+        # firstVisibleRow and firstVisiblePart are used to restore the treeview
+        # position to the same place after the refresh is done. Fixes bug:
+        # http://bugs.activestate.com/show_bug.cgi?id=71331
+        firstVisibleRow = self._tree.getFirstVisibleRow()
+        firstVisiblePart = None
+        if firstVisibleRow >= 0 and firstVisibleRow < len(self._rows):
+            firstVisiblePart = self._rows[firstVisibleRow]["node"]
+        # Remember the selection as well
+        selectedParts = self.getSelectedItems()
+
+        node = None
+        if part:
+            part = UnwrapObject(part)
+            index = self._getIndexByPart(part)
+            if index >= 0 and index < len(self._rows):
+                node = self._rows[index].part
+                level = self._rows[index].level
+
+        # if we get a part, we just refresh that
+        if node:
+            # remove the children from the rows
+            sibling = self._getNextSiblingIndex(index)
+            self._rows = self._rows[:index+1] + self._rows[sibling:]
+            #print "rowCountChanged(%d, %d)" %(index+1, (index+1) - sibling)
+            self._tree.rowCountChanged(index+1, (index+1) - sibling)
+            changed = 1
+
+        if changed:
+            num_rows = len(self._rows)
+            if len(self._rows) != num_rows:
+                #print "rowCountChanged(%d, %d)" % (index+1, len(self._rows) - num_rows)
+                self._tree.rowCountChanged(index+1, len(self._rows) - num_rows)
+            # Ensure the toggle state is correctly redrawn, fixes bug:
+            #   http://bugs.activestate.com/show_bug.cgi?id=71942
+            self._tree.invalidateRow(index)
+
+            # Restore the treeview position back to how it originally was
+            if firstVisiblePart:
+                index = self._getIndexByPart(firstVisiblePart)
+                if index >= 0:
+                    #print "Scrolling to firstVisiblePart: %d" % (index)
+                    self._tree.scrollToRow(index)
+                elif firstVisibleRow < len(self._rows):
+                    #print "Scrolling to firstVisibleRow: %d" % (firstVisibleRow)
+                    self._tree.scrollToRow(firstVisibleRow)
+            # Restore the selections
+            if selectedParts:
+                self.selectParts(selectedParts)
+
+        return retval
+
+    def getSelectedItems(self):
+        # return the selected koIParts
+        items = []
+        if not self._rows:
+            return items
+        if self.selection.single:
+            # deselect all other selections except the current one
+            self.selection.select(self.selection.currentIndex)
+            items.append(self._rows[self.selection.currentIndex].part)
+        else:
+            for i in range(len(self._rows)):
+                if self.selection.isSelected(i):
+                    items.append(self._rows[i].part)
+        return items
+    
+    def getSelectedItem(self):
+        try:
+            return self._rows[self.selection.currentIndex].part
+        except IndexError, e:
+            return None
+
+    def _getIndexByPart(self, part):
+        nodes = [row.part for row in self._rows]
+        try:
+            return nodes.index(part)
+        except ValueError, e:
+            return -1
+
+    def getIndexByPart(self, part):
+        return self._getIndexByPart(UnwrapObject(part))
+
+    def getRowItem(self, index):
+        if index >= 0 and index < len(self._rows):
+            return self._rows[index].part
+        return None
+    
+    def selectPart(self, part):
+        index = self.getIndexByPart(part)
+        self.selection.select(index)
+
+    def selectParts(self, parts):
+        # Clear the current selection.
+        self.selection.clearSelection()
+        indices = [ self._getIndexByPart(part) for part in parts ]
+        indices.sort()
+        index = 0
+        i = 0
+        while i < len(indices):
+            index = indices[i]
+            i += 1
+            if index < 0:
+                # Part has been removed.
+                continue
+            to_index = index
+            # Use the largest range possible for the selection.
+            while i < len(indices):
+                if indices[i] != to_index + 1:
+                    break
+                to_index += 1
+                i += 1
+            # Ranged select call, True means to append to the current selection
+            self.selection.rangedSelect(index, to_index, True)
+
+    def sortBy(self, key, direction):
+        changed = 0
+
+        # get a current node that we can scroll to after sorting
+        selectedNode = None
+        if self._rows:
+            selected = self.selection.currentIndex
+            if selected < 0:
+                selected = self._tree.getFirstVisibleRow()
+            if 0 <= selected < len(self._rows):
+                selectedNode = self._rows[selected]
+
+        if self._sortedBy != key or self._sortDir != direction:
+            self._sortedBy = key
+            self._sortDir = direction
+        
+    # nsITreeView
+    def isSeparator(self, index):
+        return 0
+    
+    def get_rowCount(self):
+        log.debug("get_rowCount => %d", len(self._rows))
+        return len(self._rows)
+
+    def getRowProperties( self, index, properties ):
+        pass
+
+    def _buildCellProperties(self, row, column):
+        prop = []
+        prop.append("primaryColumn")
+        node = self._rows[row].part
+        prop.append(node.type)
+        
+        node = self._rows[row]
+        if not hasattr(node, 'file'):
+            node.file = node.part.getFile()
+        if node.file:
+            f = UnwrapObject(node.file)
+            # missing, sccOk, sccSync, sccConflict, add, delete, edit,
+            # isReadOnly, branch, integrate
+            if hasattr(f, 'exists') and not f.exists:
+                prop.append("missing")
+            else:
+                if hasattr(f, 'get_scc'):
+                    scc = f.get_scc()
+                    if scc['sccAction']:
+                        prop.append(scc['sccAction'])
+                    if scc['sccOk']:
+                        if isinstance(scc['sccOk'], basestring):
+                            if int(scc['sccOk']):
+                                prop.append("sccOk")
+                        else:
+                            prop.append("sccOk")
+                    if scc['sccSync']:
+                        if isinstance(scc['sccSync'], basestring):
+                            if int(scc['sccSync']):
+                                prop.append("sccSync")
+                        else:
+                            prop.append("sccSync")
+                    if scc['sccConflict']:
+                        prop.append("sccConflict")
+                if hasattr(f, 'isReadOnly') and f.isReadOnly:
+                    prop.append("isReadOnly")
+        return prop
+        
+    def getCellProperties(self, index, column, properties):
+        #log.debug("getCellProperties(%d)", index)
+        # here we build a list of properties that are used to get the icon
+        # for the tree item, text style, etc.  *If getImageSrc returns
+        # a url to an icon, the icon matched by properties here will be
+        # ignored.  That is convenient since it allows custom icons to work*
+        # XXX fixme, optimize
+        if column.id != 'name':
+            return
+        plist = []
+        if index >= len(self._rows): return
+        row = self._rows[index]
+        # these are UI properties, such as the twisty, we want to always
+        # get them
+        if row.isContainer:
+            if row.isOpen:
+                plist.append("open")
+            else:
+                plist.append("closed")
+            node = row.part
+            if node.type == "project" and node == UnwrapObject(self._partSvc.currentProject):
+                plist.append("projectActive")
+        if 'properties' not in row:
+            # these properties rarely change, keep them cached
+            row['properties'] = self._buildCellProperties(index, column)
+        plist.extend(row['properties'])
+
+        #print "row %d %s : %r"% (row, column.id, plist)
+        for p in plist:
+            properties.AppendElement(self.atomService.getAtom(p))
+
+    # in nsITreeColumn col, in nsISupportsArray properties
+    def getColumnProperties(self, 
+                            column,
+                            properties):
+        # Result: void - None
+        # In: param0: wstring
+        # In: param1: nsIDOMElement
+        # In: param2: nsISupportsArray
+        if self.log:
+            self.log.debug("getColumnProperties(column=%s, props=%r)",
+                           column, properties)
+            
+    def _getContainerNode(self, index):
+        if index >= len(self._rows) or index < 0: return None
+        return self._rows[index]
+
+    def isContainer(self, index):
+        node = self._getContainerNode(index)
+        if node is None: return False
+        ####log.debug("isContainer(%d) => %r", index, node.isContainer)
+        return node.isContainer
+
+    def isContainerOpen(self, index):
+        node = self._getContainerNode(index)
+        if node is None: return False
+        #### log.debug("isContainerOpen(%d) => %r", index,
+             ####         node.isContainer and node.isOpen)
+        return node.isContainer and node.isOpen
+
+    def isContainerEmpty( self, index ):
+        node = self._getContainerNode(index)
+        if node is None: return False
+        #### log.debug("isContainerEmpty(%d) => %r", index,
+             ####         node.isContainer and len(node.children) == 0)
+        return node.isContainer and len(node.children) == 0
+
+    def isSorted( self ):
+        # Result: boolean
+        return self._sortDir != 0
+
+    def getParentIndex( self, index):
+        if index >= len(self._rows) or index < 0: return -1
+        i = index - 1
+        targetLevel = self._rows[index].level - 1
+        while i >= 0 and self._rows[i].level > targetLevel:
+            i -= 1
+        if i == -1:
+            log.debug("getParentIndex: couldn't find parent of item %d", index)
+        elif self._rows[i].level < targetLevel:
+            log.debug("getParentIndex: looking for item at level %d above %d, landed at level %d at item %d",
+                      targetLevel, index, self._rows[i].level, i)
+        return i
+
+    def hasNextSibling( self, index, afterIndex ):
+        if index >= len(self._rows) or index < 0: return 0
+        current_level = self._rows[index].level
+        for n in self._rows[afterIndex + 1:]:
+            n_level = n.level
+            if n_level < current_level:
+                return 0
+            elif n_level == current_level:
+                return 1
+        return 0
+
+    def getLevel(self, index):
+        if index >= len(self._rows) or index < 0: return -1
+        return self._rows[index].level
+
+    _name_fields = { 'placesSubpanelProjectNameTreecol':'name' }
+    def _getFieldName(self, column):
+        return self._name_fields.get(column.id, column.id)
+
+    def getImageSrc(self, index, column):
+        ####log.debug("getImageSrc(%d) => ...", index)
+        # see comment in getCellProperties regarding images
+        # XXX fixme, optimize
+        if index >= len(self._rows) or index < 0: return ""
+        name = self._getFieldName(column)
+        if name == "name":
+            node = self._rows[index].part
+            if node._attributes.has_key('icon'):
+                #print "getImageSrc index %d [%s]"%(index,node._attributes['icon'])
+                ####log.debug(" => %s", node._attributes['icon'])
+                return node._attributes['icon']
+        return ""
+
+    def getCellValue(self, index, column):
+        ####log.debug("getCellValue(%d/%s) => ...", index, column.id)
+        if index >= len(self._rows) or index < 0: return
+        child = self._rows[index].part
+        name = self._getFieldName(column)
+        if hasattr(child, name):
+            ####log.debug(" => %s", getattr(child, name))
+            return getattr(child, name)
+        ####log.debug(" => %s", "")
+        return ""
+
+    def getCellText(self, index, column):
+        ####log.debug("getCellText(%d/%s) => ...", index, column.id)
+        # XXX fixme, optimize
+        if index >= len(self._rows) or index < 0: return
+        child = self._rows[index].part
+        name = self._getFieldName(column)
+        name = { 'placesSubpanelProjectNameTreecol':'name' }.get(name, 'name')
+        text = child.getFieldValue(name)
+        #print "field %s text %s" % (name, text)
+        if not isinstance(text, basestring):
+            if name == 'size':
+                if text < 1024:
+                    text = "%d bytes" % text
+                elif text < 1024*1024:
+                    text = "%d KB" % (text/1024)
+                else:
+                    text = "%d MB" % (text/(1024*1024))
+            elif name == 'date':
+                import time
+                format = self._prefs.getStringPref("defaultDateFormat")
+                t = time.localtime(text)
+                text = time.strftime(format, t)
+            else:
+                text = str(text)
+        #print "getCellText for index %d col %s is %s" %(index, name, text)
+        if name == 'name' and child.type == 'project' and child.get_isDirty():
+            text = text+"*"
+        ####log.debug("... %s", text)
+        return text
+
+    def setTree(self, tree):
+        self._tree = tree
+
+    def toggleOpenState(self, index):
+        #print "toggle row at index %d"%index
+        node = self._rows[index]
+        if not node.isContainer:
+            log.error("toggleOpenState: index:%d: not a container", index)
+            return
+        isOpen = node.isOpen
+        level = node.level
+
+        # Must recalculate the rows.
+        nextSiblingIndex = self._getNextSiblingIndex(index)
+        if isOpen:
+            # just remove the children from the rows
+            #print "removing rows %d to %d" %(index,i)
+            self._rows = self._rows[:index + 1] + self._rows[nextSiblingIndex:]
+            self._tree.rowCountChanged(index + 1,(index + 1) - nextSiblingIndex)
+        else:
+            # just get the rows for the node, then insert them into our list
+            self._rows = self._rows[:index + 1] + node.children + self._rows[nextSiblingIndex:]
+            self._tree.rowCountChanged(index + 1, len(node.children))
+            
+        self._nodeIsOpen[node.id] = node.isOpen = not isOpen
+        # Ensure the toggle state is correctly redrawn, fixes bug:
+        #   http://bugs.activestate.com/show_bug.cgi?id=71942
+        self._tree.invalidateRow(index)
+
+        self.selection.currentIndex = index
+        self.selection.select(index)

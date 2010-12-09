@@ -626,7 +626,7 @@ projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
 
 projectManager.prototype.loadProject = function(url) {
     if (this.getProjectByURL(url)) {
-        return; // the project is already loaded
+        return null; // the project is already loaded
     }
     var project = this.findOtherWindowProjectInstanceForUrl(url);
     if (project) {
@@ -635,7 +635,7 @@ projectManager.prototype.loadProject = function(url) {
                          null /* text */,
                         _bundle.formatStringFromName("projectAlreadyOpened",
                                                      [project.name], 1) );
-        return;
+        return null;
     }
     project = Components.classes["@activestate.com/koProject;1"]
                         .createInstance(Components.interfaces.koIProject);
@@ -658,9 +658,10 @@ projectManager.prototype.loadProject = function(url) {
         }
         ko.dialogs.alert(_bundle.formatStringFromName("unableToLoadProject.alert",
             [projectname, lastErrorSvc.getLastErrorMessage()], 2));
-        return;
+        return null;
     }
     this._addProject(project);
+    return project;
 }
 
 projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
@@ -691,7 +692,7 @@ projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
     window.setCursor("auto");
     window.updateCommands('some_projects_open');
     
-    return project;
+    return;
 }
 
 projectManager.prototype.getProjectByURL = function(url) {
@@ -728,6 +729,12 @@ projectManager.prototype.getCurrentProject = function() {
 }
 
 projectManager.prototype.getSelectedProject = function() {
+    if (this.viewMgr) {
+        var node = this.viewMgr.getSelectedItem();
+        if (node) {
+            return node.project;
+        }
+    }
     return this.currentProject;
 }
 
@@ -1084,7 +1091,11 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
             }
         }
     }
-    ko.projects.manager.loadProject(url);
+    var project = ko.projects.manager.loadProject(url);
+    if (project && ko.projects.manager.viewMgr) {
+        dump("projectManager.p.js: **************** : add project to view\n");
+        ko.projects.manager.viewMgr.addProject(project);
+    }
     if (action == "Yes") {
         var v, file_url;
         for (var i=0; i < opened_files.length; i++) {
@@ -1101,7 +1112,7 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
     if (ko.workspace.restoreInProgress()) {
         ko.projects.manager._project_opened_during_workspace_restore = true;
         ko.projects.manager.current_tab_during_workspace_restore = ko.workspace.restoredLeftTabBoxID;
-    };
+    }
     setTimeout(xtk.domutils.fireEvent, 10, window, 'project_opened');
     return true;
 }
@@ -1117,6 +1128,11 @@ this.saveProjectAs = function ProjectSaveAs(project) {
         return false;
     }
     var url = ko.uriparse.localPathToURI(localPath);
+    if (url == project.url) {
+        // Not a save-as, just a save...
+        ko.projects.manager.saveProject(project);
+        return true;
+    }
 
     if (ko.projects.manager.getProjectByURL(url) != null) {
         ko.dialogs.alert(_bundle.formatStringFromName("projectIsAlreadyLoaded.alert",
