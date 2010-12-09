@@ -168,6 +168,7 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
     if (this.currentProject) {
         this._lastCurrentProject = this.currentProject;
     }
+    this.setCurrentProjectFromPartService();
 
     // Forget about any notifications made for this project.
     this.notifiedClearProject(project);
@@ -699,14 +700,18 @@ projectManager.prototype.getProjectByURL = function(url) {
     return null;
 }
 
-projectManager.prototype.__defineSetter__("currentProject",
-function(project)
-{
+projectManager.prototype.fireProjectChangedEvent = function(project) {
     if (this._currentProject != project) {
         this._currentProject = project;
         xtk.domutils.fireEvent(window, 'current_project_changed');
         window.updateCommands('current_project_changed');
     }
+};
+
+projectManager.prototype.__defineSetter__("currentProject",
+function(project)
+{
+    this.fireProjectChangedEvent(project);
     var partSvc = Components.classes["@activestate.com/koPartService;1"]
         .getService(Components.interfaces.koIPartService);
     partSvc.currentProject = project;
@@ -715,6 +720,13 @@ function(project)
 projectManager.prototype.setCurrentProject = function(project) {
     this.currentProject = project;
 }
+
+projectManager.prototype.setCurrentProjectFromPartService = function() {
+    var partSvc = Components.classes["@activestate.com/koPartService;1"]
+        .getService(Components.interfaces.koIPartService);
+    var project = partSvc.currentProject;
+    this.currentProject = project;
+};
 
 projectManager.prototype.__defineGetter__("currentProject",
 function()

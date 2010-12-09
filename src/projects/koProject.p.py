@@ -92,8 +92,6 @@ CURRENTPOS_MARKER = '!@#_currentPos'
 
 log = logging.getLogger("koProject")
 #log.setLevel(logging.DEBUG)
-qlog = logging.getLogger("koProject.q")
-qlog.setLevel(logging.DEBUG)
 
 #---- support routines
 
@@ -213,8 +211,6 @@ class koPart(object):
                     del self._project._childmap[self.id]
                     for child in children:
                         child.set_parent(self)
-
-
 
         # first, dump the old id from the idmap
         if self.id in idmap:
@@ -461,7 +457,6 @@ class koPart(object):
             parts[2] = parts[2][:slashlocation+1] + name
             ext = os.path.splitext(parts[2])[1]
             if not ext in ('.kpf', koToolbox2.PROJECT_FILE_EXTENSION):
-                qlog.debug("ext:%s, Adding extension to parts[2]:%s", ext, parts[2])
                 parts[2] += koToolbox2.PROJECT_FILE_EXTENSION
             self._url = urlparse.urlunparse(tuple(parts))
             self._setPathAndName()
@@ -644,11 +639,11 @@ def compareNode(a, b, field):
 
 class koContainerBase(koPart):
     def __init__(self, project):
-        koPart.__init__(self, project)
         self.numChildren = 0
         self._sortedBy = 'name'
         self._sortDir = 0
         self.children = []
+        koPart.__init__(self, project)
         self._project._childmap[self.id] = self.children
         self._rowAdded = 1 # gets reset in generateRows
 
@@ -844,7 +839,8 @@ class koFilePart(koPart):
 
     def __repr__(self):
         return "<koFilePart %s (id=%r)>" % (
-            self._attributes.get("name"), self._attributes["id"])
+            self._attributes.get("name", "?name?"),
+            self._attributes.get("id", "?id?"))
 
 def File(url, name, project):
     """Construct a 'file' koIPart."""
@@ -898,8 +894,8 @@ class koFolderPart(koContainer):
     primaryInterface = 'koIPart_folder'
 
     def __repr__(self):
-        return "<koFolderPart %s (%d children, id=%r)>" % (
-            self._attributes.get("name"), len(self.children),
+        return "<koFolderPart %s (id=%r)>" % (
+            self._attributes.get("name"),
             self._attributes["id"])
 
     def getLanguageFolder(self, language):
@@ -959,11 +955,10 @@ class koLiveFolderPart(koFolderPart):
     def __init__(self, project):
         koFolderPart.__init__(self, project)
         self.needrefresh = 1
-        self._lastfetch = set([])
 
     def __repr__(self):
-        return "<koLiveFolderPart %s (%d children, id=%r)>" % (
-            self._attributes.get("name"), len(self.children),
+        return "<koLiveFolderPart %s (id=%r)>" % (
+            self._attributes.get("name"),
             self._attributes["id"])
 
     # prefs observer
@@ -1139,8 +1134,8 @@ class koProject(koLiveFolderPart):
 
         # call parent init after we setup anything that is needed by other
         # init funcs.
-        koLiveFolderPart.__init__(self, self)
         self._active = 0
+        koLiveFolderPart.__init__(self, self)
 
         prefset = components.classes["@activestate.com/koPrefService;1"].\
                                 getService(components.interfaces.koIPrefService).prefs
@@ -1450,6 +1445,7 @@ class koProject(koLiveFolderPart):
                 elif node.tagName == 'files':
                     # ignore the obsolete 'files' nodes, we'll grab the children
                     # later on.  This is a change from KPF Ver1 to Ver2
+                    print "XXX: Keep the files in this project!"
                     continue
 
                 elif node.tagName == 'languagefolder':
@@ -1585,7 +1581,6 @@ class koProject(koLiveFolderPart):
         # hook-up children
         added = []
         for idref, children in self._childmap.items():
-            added += children
             if idref in idmap:
                 part = idmap[idref]
                 for child in children:
