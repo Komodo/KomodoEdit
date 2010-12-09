@@ -89,6 +89,14 @@ PlacesProjectManager.prototype = {
     },
 
   // Methods for the projects context menu
+  addExistingFile: function(event, sender) {
+        var parentPart = this._getSelectedItem("addExistingFile");
+        var newParts = ko.projects.addFile(parentPart);
+        if (newParts.length) {
+            this.owner.projectsTreeView.showChild(parentPart, newParts[0]);
+        }
+    },
+
   addNewFile: function(event, sender) {
         var parentPart = this._getSelectedItem("addNewFile");
         var this_ = this;

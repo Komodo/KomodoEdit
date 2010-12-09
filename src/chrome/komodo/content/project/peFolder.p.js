@@ -35,6 +35,34 @@ this.addPartWithURLAndType = function(url, typename, parent) {
     return part;
 }
 
+this._getDirFromPart = function(part) {
+    var defaultDir = null;
+    try {
+        // project => dirName
+        // anything else: fall back to dirName, since paths
+        // might not be directories.
+        switch (part.type) {
+        case "file":
+        case "project":
+            defaultDir = part.getFile().dirName;
+            break;
+        case "livefolder":
+            defaultDir = part.getFile().path;
+            break;
+        default:
+            // For folders and things, start at the project's home dir
+            defaultDir = part.project.getFile().dirName;
+        }
+    } catch(ex) {
+        log.exception(ex, "addFiles to project failed");
+    }
+    if (!defaultDir) {
+        log.error("No default dir for part(" + part + ")");
+        defaultDir = ko.projects.manager.getSelectedProject().getFile().dirName;
+    }
+    return defaultDir;
+};
+
 this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart*/ parent, callback)
 {
     var this_ = this;
@@ -46,7 +74,6 @@ this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart
             }
         }
     };
-    var targetDir = null;
     if (parent.type == "folder") {
         var children = {};
         parent.getChildrenByType('livefolder', true, children, {});
@@ -77,14 +104,17 @@ this.addFile = function peFolder_addFile(parent_item)
                                              null, // default filename
                                              _bundle.GetStringFromName("addFilesToProject")); // title
     if (files == null) {
-        return false;
+        return [];
     } else {
-        var url;
+        var part, parts = [], url;
         for (var i = 0; i < files.length; ++i) {
             url = ko.uriparse.localPathToURI(files[i]);
-            ko.projects.addFileWithURL(url, parent_item);
+            part = ko.projects.addFileWithURL(url, parent_item);
+            if (part) {
+                parts.push(part);
+            }
         }
-        return true;
+        return parts;
     }
 }
 
