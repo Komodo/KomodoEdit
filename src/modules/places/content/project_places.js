@@ -92,6 +92,31 @@ PlacesProjectManager.prototype = {
         }
     },
   
+  addLiveFolder: function(event, sender) {
+        var o1 = {}, o2 = {};
+        this.owner.projectsTreeView.getSelectedItems(o1, o2);
+        if (o2.value != 1) {
+            log.error("addLiveFolder: Expected 1 selected item, got " + o2.value);
+            return;
+        }
+        var parentPart = o1.value[0];
+        if (!parentPart) {
+            log.error("addLiveFolder: no part in selection");
+            return;
+        }
+        var prompt = _bundle.GetStringFromName("Select a new or existing folder");
+        var path = ko.filepicker.getFolder(parentPart.project.getFile().dirName,
+                                            prompt);
+        if (!path) {
+            return;
+        }
+        var uri = ko.uriparse.pathToURI(path);
+        var part = ko.projects.addPartWithURLAndType(uri, 'livefolder', parentPart);
+        if (part) {
+            this.owner.projectsTreeView.showChild(parentPart, part);
+        }
+    },
+  
   
   _EOF_ : null
 };

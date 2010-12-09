@@ -17,9 +17,13 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 
 this.addFileWithURL = function peFolder_addFileWithURL(url, /*koIPart*/ parent)
 {
+    return this.addPartWithURLAndType(url, 'file', parent);
+}
+
+this.addPartWithURLAndType = function(url, typename, parent) {
     if (typeof(parent)=='undefined' || !parent)
         parent = ko.projects.active.getSelectedItem();
-    var part = parent.project.createPartFromType('file');
+    var part = parent.project.createPartFromType(typename);
     part.setStringAttribute('url', url);
     part.setStringAttribute('name', ko.uriparse.baseName(url));
     ko.projects.manager.addItem(part, parent);
@@ -35,7 +39,8 @@ this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart
     };
     ko.launch.newTemplate(obj);
     if (obj.filename) {
-        return this.addFileWithURL(ko.uriparse.pathToURI(obj.filename), parent);
+        return this.addPartWithURLAndType(ko.uriparse.pathToURI(obj.filename),
+                                          'file', parent);
     }
 }
     
