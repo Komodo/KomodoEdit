@@ -450,8 +450,7 @@ class KoPlaceTreeView(TreeView):
             self._tree.beginUpdateBatch()
             try:
                 for row in invalidRows:
-                    self._updateFileProperties(row)
-                    self._tree.invalidateRow(row)
+                    self._invalidateRow(row)
             finally:
                 self._tree.endUpdateBatch()
         #qlog.debug("<< observe")
@@ -654,10 +653,17 @@ class KoPlaceTreeView(TreeView):
             # this is a modification change, just invalidate rows
             index = self.getRowIndexForURI(uri)
             if index >= 0:
-                self._updateFileProperties(index)
-                self._tree.invalidateRow(index)
+                self._invalidateRow(index)
             else:
                 self.refreshFullTreeView()
+
+    def _invalidateRow(self, rowIndex):
+        self._updateFileProperties(rowIndex)
+        self._tree.invalidateRow(rowIndex)
+
+    def _busyRow(self, rowIndex, rowNode=None):
+        (rowNode or self._rows[rowIndex]).show_busy()
+        self._tree.invalidateRow(rowIndex)
 
     def _fileStillExists(self, koFileEx):
         return os.path.exists(koFileEx.path)
@@ -981,8 +987,7 @@ class KoPlaceTreeView(TreeView):
 
         #srcNode.show_busy()
         #self._tree.invalidateRow(srcIndex)
-        targetNode.show_busy()
-        self._tree.invalidateRow(targetIndex)
+        self._busyRow(rowIndex, targetNode)
         #log.debug("%s %s %s", copying and "copy" or "move", srcPath, targetDirPath)
         self.workerThread.put(('doTreeOperation_WorkerThread',
                                {'requestID':requestID,
@@ -1089,8 +1094,7 @@ class KoPlaceTreeView(TreeView):
                                     }
         finally:
             self.lock.release()
-        srcNode.show_busy()
-        self._tree.invalidateRow(srcIndex)
+        self._busyRow(srcIndex, srcNode)
         #TODO: Make the top-node look busy
         #log.debug("%s %s %s", copying and "copy" or "move", srcPath, targetDirPath)
         if not copying and srcNode.level == 0:
@@ -1164,8 +1168,7 @@ class KoPlaceTreeView(TreeView):
             self.lock.release()
         self._copyMoveToChildSanityCheck(srcURI, targetURI, True)
 
-        targetNode.show_busy()
-        self._tree.invalidateRow(targetIndex)
+        self._busyRow(targetIndex, targetNode)
         #log.debug("%s %s %s", "copy", srcNode.path, targetNode.path)
         self.workerThread.put(('doTreeCopyWithDestNameAndURI_WorkerThread',
                                {'requestID':requestID,
@@ -1524,8 +1527,7 @@ class KoPlaceTreeView(TreeView):
             self.lock.release()
         for index in indices:
             node = self._rows[index]
-            node.show_busy()
-            self._tree.invalidateRow(index)
+            self._busyRow(index, node)
         self.workerThread.put(('deleteItems_workerThread',
                                 {'requestID':requestID,
                                 'requester':self},
@@ -1588,7 +1590,7 @@ class KoPlaceTreeView(TreeView):
             try:
                 fixed_index = self._rows.index(originalNode)
                 index = fixed_index
-                self._tree.invalidateRow(index)
+                self._invalidateRow(index)
             except ValueError:
                 # Nodes have changed, try looking by uri
                 i = 0
@@ -1604,7 +1606,7 @@ class KoPlaceTreeView(TreeView):
                     log.error("Can't find index %d in current tree", index)
                     return -1, rowNode
         else:
-            self._tree.invalidateRow(index)
+            self._invalidateRow(index)
         return index, rowNode
 
     def markRow(self, index):
@@ -1764,8 +1766,7 @@ class KoPlaceTreeView(TreeView):
                                      'node':rowNode}
         finally:
             self.lock.release()
-        rowNode.show_busy()
-        self._tree.invalidateRow(index)
+        self._busyRow(index, rowNode)
         self._currentRefreshRequests[index] = requestID
         self.workerThread.put(('toggleOpenState_Open',
                                {'index': index,
@@ -2003,6 +2004,7 @@ class KoPlaceTreeView(TreeView):
                 self.resetDirectoryWatches()
                 #log.debug("index:%d, numNodesRemoved:%d, numLeft:%d", index, numNodesRemoved, len(self._rows))
             rowNode.isOpen = False
+            self._invalidateRow(index)
         else:
             requestID = self.getRequestID()
             self.lock.acquire()
@@ -2014,7 +2016,6 @@ class KoPlaceTreeView(TreeView):
             finally:
                 self.lock.release()
             rowNode.show_busy()
-            self._tree.invalidateRow(index)
             self.workerThread.put(('toggleOpenState_Open',
                                    {'index': index,
                                     'node':rowNode,
@@ -2059,18 +2060,19 @@ class KoPlaceTreeView(TreeView):
         finally:
             self.lock.release()
 
+        rowNode.propertyNames = None
         if not hasChildNodes:
             #qlog.debug("Node we opened has no children")
             if doInvalidate:
                 self.invalidateTree()
             else:
                 self._tree.beginUpdateBatch()
-                self._tree.invalidateRow(index)
+                self._invalidateRow(index)
                 self._tree.endUpdateBatch()
             return
         firstVisibleRow = self._tree.getFirstVisibleRow()
         rowNode.isOpen = True
-        self._tree.invalidateRow(index)
+        self._invalidateRow(index)
         self._finishRefreshingView(index, index + 1, doInvalidate, rowNode,
                                    firstVisibleRow)
         self.selection.currentIndex = index
