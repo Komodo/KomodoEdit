@@ -139,6 +139,18 @@ this.addRemoteFile = function peFolder_addRemoteFile(item)
     return parts;
 }
 
+this.addRemoteFolder = function peFolder_addRemoteFolder(item)
+{
+    var url, obj = {value:null};
+    ko.filepicker.browseForRemoteDir(obj);
+    if (!obj.value) {
+        return null;
+    }
+    //dump("ko.projects.addRemoteFolder result: " + obj.value + "\n");
+    var part = ko.projects.addPartWithURLAndType(obj.value, 'livefolder', item);
+    return part;
+}
+
 this.addGroup = function peFolder_addFolder(/*koIPart*/ parent)
 {
     var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFolderName"));

@@ -141,6 +141,14 @@ PlacesProjectManager.prototype = {
             this.owner.projectsTreeView.showChild(parentPart, parts[0]);
         }
     },
+  
+  addRemoteFolder: function(event, sender) {
+        var parentPart = this._getSelectedItem("addRemoteFolder");
+        var part = ko.projects.addRemoteFolder(parentPart);
+        if (part) {
+            this.owner.projectsTreeView.showChild(parentPart, part);
+        }
+    },
 
   renameGroup: function(event, sender) {
         var part = this._getSelectedItem("renameGroup");

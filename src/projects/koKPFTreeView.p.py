@@ -550,7 +550,7 @@ class KPFTreeView(TreeView):
         
         if not hasattr(part, 'file'):
             part.file = part.getFile()
-        if part.type == "file" and part.file.isRemoteFile:
+        if part.file and not part.file.isLocal:
             prop.append("remote")
         if part.file:
             f = UnwrapObject(part.file)

@@ -58,6 +58,10 @@
   list-style-image: url('chrome://komodo/skin/images/folder-closed.png');
 }
 
+.projectTree:-moz-tree-image(livefolder, remote) {
+  list-style-image: url('chrome://famfamfamsilk/skin/icons/folder_link.png');
+}
+
 .projectTree:-moz-tree-image(project) {
   list-style-image: url('chrome://komodo/skin/images/project_icon.png');
   margin-right: 2px;

@@ -404,6 +404,14 @@
                 image="chrome://komodo/skin/images/remote_file.png"
                 oncommand="ko.places.projects.manager.addRemoteFile(event, this);"
                 />
+      <menuitem id="folder_context_remoteFolder"
+                label="&amp; ### existingRemoteFolder.label;"
+                class="menuitem-iconic"
+                accesskey="F"
+		oaccesskey="folderContextRemoteFolder.accesskey;"
+                image="chrome://famfamfamsilk/skin/icons/folder_link.png"
+                oncommand="ko.places.projects.manager.addRemoteFolder(event, this);"
+                />
     </menupopup>
 
     <menupopup id="placesSubpanelProjectsContextMenu"
