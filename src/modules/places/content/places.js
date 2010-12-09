@@ -2448,7 +2448,7 @@ ManagerClass.prototype = {
             this._checkProjectMatch();
         } else if (topic == 'file_changed') {
             if (PROJECT_URI_REGEX.test(data)) {
-                ko.places.projectsTree.treeBoxObject.invalidate();
+                ko.places.projects.manager.refresh();
             }
         }
     },
