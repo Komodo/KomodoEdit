@@ -118,6 +118,27 @@ this.addFile = function peFolder_addFile(parent_item)
     }
 }
 
+this.addRemoteFile = function peFolder_addRemoteFile(item)
+{
+    var result = ko.filepicker.remoteFileBrowser(); // in fileops.js
+    var parts = [];
+    if (!result) {
+        return parts;
+    }
+    var filepaths = result.filepaths;
+    if (!filepaths) {
+        return parts;
+    }
+    //dump("ko.projects.addRemoteFile result.filepaths: " + result.filepaths+ "\n");
+    for (var i = 0; i < filepaths.length; i++) {
+        var part = ko.projects.addFileWithURL(filepaths[i], item);
+        if (part) {
+            parts.push(part);
+        }
+    }
+    return parts;
+}
+
 this.addGroup = function peFolder_addFolder(/*koIPart*/ parent)
 {
     var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFolderName"));

@@ -89,6 +89,7 @@ PlacesProjectManager.prototype = {
     },
 
   // Methods for the projects context menu
+
   addExistingFile: function(event, sender) {
         var parentPart = this._getSelectedItem("addExistingFile");
         var newParts = ko.projects.addFile(parentPart);
@@ -130,6 +131,14 @@ PlacesProjectManager.prototype = {
         var part = ko.projects.addPartWithURLAndType(uri, 'livefolder', parentPart);
         if (part) {
             this.owner.projectsTreeView.showChild(parentPart, part);
+        }
+    },
+  
+  addRemoteFile: function(event, sender) {
+        var parentPart = this._getSelectedItem("addExistingFile");
+        var parts = ko.projects.addRemoteFile(parentPart);
+        if (parts.length) {
+            this.owner.projectsTreeView.showChild(parentPart, parts[0]);
         }
     },
 

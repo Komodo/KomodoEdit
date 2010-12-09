@@ -460,6 +460,11 @@ class KPFTreeView(TreeView):
             return nodes.index(part)
         except ValueError, e:
             return -1
+        ids = [row.part.id for row in self._rows]
+        try:
+            return ids.index(part.id)
+        except ValueError, e:
+            return -1
 
     def getIndexByPart(self, part):
         return self._getIndexByPart(UnwrapObject(part))
