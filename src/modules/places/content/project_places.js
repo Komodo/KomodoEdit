@@ -80,12 +80,12 @@ PlacesProjectManager.prototype = {
             log.error(context + ": Expected 1 selected item, got " + o2.value);
             return null;
         }
-        var parentPart = o1.value[0];
-        if (!parentPart) {
+        var item = o1.value[0];
+        if (!item) {
             log.error(context + ": no part in selection");
             return null;
         }
-        return parentPart;
+        return item;
     },
 
   // Methods for the projects context menu
@@ -124,7 +124,19 @@ PlacesProjectManager.prototype = {
             this.owner.projectsTreeView.showChild(parentPart, part);
         }
     },
-  
+
+  renameGroup: function(event, sender) {
+        var part = this._getSelectedItem("renameGroup");
+        var oldname = part.name;
+        var newname = ko.dialogs.renameFileWrapper(oldname);
+        if (!newname) {
+            return;
+        } else if (newname == oldname) {
+            ko.dialogs.alert(_bundle.formatStringFromName("Old file and new basename are the same.template", [oldname, newname], 2));
+            return;
+        }
+        part.name = newname;
+    },
   
   _EOF_ : null
 };
@@ -526,10 +538,6 @@ this.PlaceProjectsTreeView.prototype.currentProjectIndex = function() {
         }
     }
     return -1;
-}
-
-this.PlaceProjectsTreeView.prototype.getSelectedIndex = function() {
-    return this.selection.currentIndex;
 }
 
 this.PlaceProjectsTreeView.prototype.getSelectedProject = function() {
