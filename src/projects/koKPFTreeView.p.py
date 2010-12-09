@@ -567,8 +567,8 @@ class KPFTreeView(TreeView):
                 plist.append("open")
             else:
                 plist.append("closed")
-            node = row.part
-            if node.type == "project" and node.id == getattr(self._partSvc.currentProject, 'id', None):
+            part = row.part
+            if part.type == "project" and part.id == getattr(self._partSvc.currentProject, 'id', None):
                 plist.append("projectActive")
         if not hasattr(row, 'properties'):
             # these properties rarely change, keep them cached
@@ -681,7 +681,6 @@ class KPFTreeView(TreeView):
         if index >= len(self._rows) or index < 0: return
         child = self._rows[index].part
         name = self._getFieldName(column)
-        name = { 'placesSubpanelProjectNameTreecol':'name' }.get(name, 'name')
         text = child.getFieldValue(name)
         #print "field %s text %s" % (name, text)
         if not isinstance(text, basestring):
@@ -729,7 +728,7 @@ class KPFTreeView(TreeView):
             self._rows = self._rows[:index + 1] + node.children + self._rows[nextSiblingIndex:]
             self._tree.rowCountChanged(index + 1, len(node.children))
             
-        self._nodeIsOpen[node.id] = node.isOpen = not isOpen
+        self._nodeIsOpen[node.part.id] = node.isOpen = not isOpen
         # Ensure the toggle state is correctly redrawn, fixes bug:
         #   http://bugs.activestate.com/show_bug.cgi?id=71942
         self._tree.invalidateRow(index)

@@ -270,11 +270,15 @@ this.onProjectTreeDblClick = function(event) {
     this.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
     var index = row.value;
     if (index != -1) {
-        var uri = this.projectsTreeView.getCellValue(index);
-        var currentProject = ko.projects.manager.currentProject;
-        if (!currentProject || currentProject.url != uri) {
-            ko.projects.open(uri);
+        var part = this.projectsTreeView.getRowItem(index);
+        if (part.type != "project") {
+            dump("XXX: Need to handle dbl-click on non-project item\n");
         } else {
+            var uri = part.uri;
+            var currentProject = ko.projects.manager.currentProject;
+            if (!currentProject || currentProject.id != part.id) {
+                ko.projects.manager.setCurrentProject(part);
+            }
             this.showProjectInPlaces();
         }
     }

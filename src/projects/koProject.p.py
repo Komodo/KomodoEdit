@@ -1185,16 +1185,7 @@ class koProject(koLiveFolderPart):
             # First check v5 legacy projects.
             importedDirs = self.getChildrenByType('livefolder', True)
             if len(importedDirs) == 1:
-                obj = importedDirs[0]
-                qlog.debug("_get_importDirectoryInfo: Introspect importedDirs[0]:%s", obj)
-                for d in dir(obj):
-                    try:
-                        val = getattr(obj, d, None)
-                        if type(val) in (type(""), type(3), type(True)):
-                            qlog.debug("obj[%s] = %r", d, val)
-                    except:
-                        pass
-                koFileEx.URI = importedDirs[0].url
+                koFileEx.URI = importedDirs[0].get_url()
                 return koFileEx
         koFileEx.path = self.get_liveDirectory()
         return koFileEx
