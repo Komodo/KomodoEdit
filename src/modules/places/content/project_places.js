@@ -171,7 +171,8 @@ this.initProjectsContextMenu = function(event, menupopup) {
     var index = row.value;
     var selectedIndices = ko.treeutils.getSelectedIndices(this.projectsTreeView,
                                                           false /*rootsOnly*/);
-    var selectedUrl = index >= 0 ? this.projectsTreeView.getCellValue(index, {id:'uri'}) : null;
+    var selectedItem = index >= 0 ? this.projectsTreeView.getRowItem(index) : null;
+    var selectedUrl = selectedItem && selectedItem.url;
     var isRootNode = index == -1;
     var itemTypes;
     if (isRootNode) {
@@ -197,10 +198,9 @@ this.initProjectsContextMenu = function(event, menupopup) {
       itemTypes: itemTypes,
       multipleNodesSelected: selectedIndices.length > 1,
       projectIsOpen: projectIsOpen,
+      projectIsDirty: selectedItem && selectedItem.isDirty,
       __END__:null
     };
-    this._selectionInfo.projectIsDirty =
-            this._selectionInfo.currentProject && currentProject.isDirty;
     this._processProjectsMenu_TopLevel(menupopup);
     delete this._selectionInfo;
     return true;
@@ -241,11 +241,13 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
             var testDisableUnless = menuNode.getAttribute('testDisableUnless');
             if (testDisableUnless) {
                 testDisableUnless = testDisableUnless.split(/\s+/);
+                var anyTestPasses = false;
                 testDisableUnless.map(function(s) {
-                        if (s == 't:projectIsDirty' && false && "XXX: implement") {
-                            disableNode = true;
+                        if (!anyTestPasses && s == 't:projectIsDirty' && selectionInfo.projectIsDirty) {
+                            anyTestPasses = true;
                         }
                 });
+                disableNode = !anyTestPasses;
             }
         }
     }

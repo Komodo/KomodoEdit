@@ -463,7 +463,6 @@
       <menuitem label="&saveProjectAs.label;"
                 id="menu_projCtxt_saveProjectAs"
                 class="menuitem-iconic"
-                disableUnless="currentProject"
                 hideUnless="project"
                 oncommand="ko.places.projects.saveProjectAs();" />
       <menuitem label="&revertProject.label;"
@@ -552,7 +551,6 @@
       <menuitem label="&properties.label;"
                 id="menu_projCtxt_projectProperties"
                 class="menuitem-iconic"
-                disableUnless="currentProject"
                 oncommand="ko.places.projects.editProjectProperties();"
                 accesskey="&projectProperties.accesskey;"
                 hideIf="root" />

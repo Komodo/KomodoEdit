@@ -230,7 +230,6 @@ class KPFTreeView(TreeView):
             self._tree.invalidate()
 
     def addProject(self, kpf):
-        log.debug(">> addProject")
         self._partSvc.addProject(kpf)
         kpf = UnwrapObject(kpf)
         self.restorePrefs(kpf)
@@ -238,8 +237,6 @@ class KPFTreeView(TreeView):
         newProjectIndex = len(self._rows)
         self._rows.append(_ProjectNode(kpf, 0, kpf))
         self._tree.rowCountChanged(newProjectIndex, 1)
-        log.debug("self._tree.rowCountChanged(newProjectIndex:%d, count:%d)",
-                  newProjectIndex, 1)
         return
         #TODO: Rebuild the children if necessary....
         if kpf.id not in self._nodeIsOpen:
@@ -368,7 +365,6 @@ class KPFTreeView(TreeView):
 
     def refresh(self, part):
         """ return the row that should be selected if that's relevant"""
-        log.debug("KPFTreeView::refresh()")
         changed = 0
         retval = 0
         level = 0
@@ -508,7 +504,6 @@ class KPFTreeView(TreeView):
         return 0
     
     def get_rowCount(self):
-        log.debug("get_rowCount => %d", len(self._rows))
         return len(self._rows)
 
     def getRowProperties( self, index, properties ):
@@ -657,17 +652,16 @@ class KPFTreeView(TreeView):
         return self._name_fields.get(column.id, column.id)
 
     def getImageSrc(self, index, column):
-        ####log.debug("getImageSrc(%d) => ...", index)
         # see comment in getCellProperties regarding images
         # XXX fixme, optimize
         if index >= len(self._rows) or index < 0: return ""
         name = self._getFieldName(column)
         if name == "name":
-            node = self._rows[index].part
-            if node._attributes.has_key('icon'):
-                #print "getImageSrc index %d [%s]"%(index,node._attributes['icon'])
-                ####log.debug(" => %s", node._attributes['icon'])
-                return node._attributes['icon']
+            part = self._rows[index].part
+            try:
+                return part.get_iconurl()
+            except:
+                log.exception("getImageSrc(%d) failed:", index)
         return ""
 
     def getCellValue(self, index, column):
