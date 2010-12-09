@@ -91,4 +91,16 @@
             </handler>
         </handlers>
     </binding>
+    
+    <binding id="projectPlacesTree_b" extends="chrome://global/content/bindings/tree.xml#tree">
+       
+        <handlers>
+            <handler event="click" clickcount="2" phase="capturing">
+                <![CDATA[
+		    event.stopPropagation();
+                ]]>
+            </handler>
+        </handlers>
+    </binding>
+    
 </bindings>

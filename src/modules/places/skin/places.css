@@ -155,6 +155,10 @@ tree.placestree {
   -moz-binding: url('chrome://places/content/widgets-places.xml#places_tree_b');
 }
 
+tree.projectPlacesTree {
+  -moz-binding: url('chrome://places/content/widgets-places.xml#projectPlacesTree_b');
+}
+
 /* Copied from skin/toolbar.p.css, which uses an ID */
 undo-button {
   list-style-image : url("chrome://komodo/skin/images/undo.png");

@@ -808,6 +808,7 @@
             style="margin: 0px;"
             hidecolumnpicker="true"
             context="places-projects-popup"
+            class="projectPlacesTree"
             seltype="single">
           <treecols id="placesSubpanelProjectsTreecols">
             <treecol id="placesSubpanelProjectNameTreecol"
