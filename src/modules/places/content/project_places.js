@@ -431,6 +431,15 @@ this.makeCurrentProject = function() {
                                    "_continueMakeCurrentProject");
 };
 
+this.openFiles = function() {
+    var items = this.manager.getSelectedItems();
+    if (items.filter(function(item) item.type != "file").length) {
+        log.warning("Function openFiles is intended only for files");
+        return;
+    }
+    ko.open.multipleURIs(items.map(function(item) item.url));
+};
+
 this._continueMakeCurrentProject = function(project) {
     ko.projects.manager.setCurrentProject(project);
     this.projectsTreeView.invalidate();

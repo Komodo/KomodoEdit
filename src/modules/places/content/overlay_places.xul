@@ -478,7 +478,7 @@
                 id="menu_projCtxt_openFile"
                 class="menuitem-iconic"
                 hideUnless="file"
-                oncommand="ko.places.projects.openFile();" />
+                oncommand="ko.places.projects.openFiles();" />
       <menuitem label="&refreshStatus.label;"
                 id="menu_projCtxt_refreshFileStatus"
                 class="menuitem-iconic"
