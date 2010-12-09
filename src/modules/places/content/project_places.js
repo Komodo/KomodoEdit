@@ -51,6 +51,7 @@ PlacesProjectManager.prototype = {
         this.owner.projectsTreeView.tree.invalidate();
     },
   removeProject: function(project) {
+        this.owner.projectsTreeView.removeProject(project);
         dump("PlacesProjectManager.removeProject\n");
     },
   
@@ -281,6 +282,27 @@ this.PlaceProjectsTreeView.prototype.addProject = function(project) {
     this.tree.rowCountChanged(this.rows.length - 2, 1);
 };
 
+this.PlaceProjectsTreeView.prototype.removeProject = function(project) {
+    var numToDelete;
+    var listLen = this.rows.length;
+    for (var i = listLen - 1; i >= 0; --i) {
+        if (project.url == this.rows[i][0]) {
+            var j = this.getNextSiblingIndex(i);
+            if (j == -1) {
+                numToDelete = listLen - i;
+            } else {
+                numToDelete = j - i;
+            }
+            this.rows.splice(i, numToDelete);
+            this.tree.rowCountChanged(i, -1 * numToDelete);
+            return;
+        }
+    }
+    dump("PlaceProjectsTreeView.removeProject: Couldn't find "
+         + project.name
+         + " in the list of loaded projects\n");
+};
+
 // NSITreeView methods.
 this.PlaceProjectsTreeView.prototype.getCellText = function(index, column) {
     var row = this.rows[index];
@@ -306,6 +328,24 @@ this.PlaceProjectsTreeView.prototype.getCellProperties = function(index, column,
     if (currentProject && currentProject.url == row[0]) {
         properties.AppendElement(this._atomService.getAtom("projectActive"));
     }
+};
+
+this.PlaceProjectsTreeView.prototype.getNextSiblingIndex = function(index) {
+/**
+ * @param index {int} points to the node whose next-sibling we want to find.
+ *
+ * @return index of the sibling, or -1 if not found.
+ */
+    var level = this.rows[index].level;
+    var listLen = this.rows.length;
+    index += 1
+    while (index < listLen) {
+        if (this.rows[index].level <= level) {
+            return index;
+        }
+        index += 1;
+    }
+    return -1;
 };
 
 }).apply(ko.places.projects);
