@@ -70,9 +70,12 @@ interface koIKPFTreeView : nsITreeView {
     // refreshes the rows in the tree.  This is not the same as invalidate, it
     // actually removes rows from the tree and regenerates the row list
     void refresh(in koIPart part);
+    void removeItems([array, size_is(count)] in koIPart part,
+                     in unsigned long count);
     void showChild(in koIPart parentPart, in koIPart part);
     
-    void getSelectedItems([array, size_is(count)] out koIPart child,
+    void getSelectedItems(in boolean rootsOnly,
+                          [array, size_is(count)] out koIPart child,
                           out unsigned long count);
     koIPart getSelectedItem();
     long    getIndexByPart(in koIPart part);

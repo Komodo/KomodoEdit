@@ -82,8 +82,8 @@ BaseManager.prototype.removeItem = function(item, skipdialog) {
         try {
             var parent = item.parent;
             parent.removeChild(item);
-            if (!this.batchUpdate)
-                this.viewMgr.view.refresh(parent);
+            if (!this.batchUpdate && this.viewMgr)
+                this.viewMgr.refreshRow(parent);
         } catch (e) {
             this.log.exception(e);
         }
@@ -102,13 +102,10 @@ BaseManager.prototype.removeItems = function(items, trash) {
         var projects = [];
         for (var i = 0; i < items.length; i++) {
             item = items[i];
-            if (item.type == "project") continue;
-            // if the parent has been removed already, the item will not be
-            // associated with a project.
-            if (item.project) {
-                if (!(item.project in projects))
-                    projects.push(item.project)
-                BaseManager.prototype.removeItem.apply(this, [item,true])
+            if (item.parent) {
+                // If we're removing a group, all of its contents are
+                // also removed from the project.
+                item.parent.removeChild(item);
             }
             if (trash) {
                 var file = item.getFile();
@@ -118,10 +115,8 @@ BaseManager.prototype.removeItems = function(items, trash) {
                 }
             }
         }
-        if (this.batchUpdate) {
-            for (var p=0; p < projects.length; p++) {
-                this.viewMgr.view.refresh(projects[p]);
-            }
+        if (this.viewMgr) {
+            this.viewMgr.removeItems(items);
         }
     } catch(e) {
         this.log.exception(e);
@@ -161,7 +156,7 @@ BaseManager.prototype.getItemsByURL = function(url) {
 }
 
 BaseManager.prototype.refreshView = function() {
-    if (this.viewMgr.tree.treeBoxObject) {
+    if (this.viewMgr && this.viewMgr.tree.treeBoxObject) {
         this.viewMgr.tree.treeBoxObject.beginUpdateBatch();
         this.viewMgr.tree.treeBoxObject.invalidate();
         this.viewMgr.tree.treeBoxObject.endUpdateBatch();
@@ -173,10 +168,12 @@ BaseManager.prototype.invalidateItem = function(item) {
     if ('save' in item) {
         //!!!! v6 difference
         viewMgr = ko.toolbox2.manager;
-        index = viewMgr.view.getIndexByTool(item);
+        index = viewMgr.getIndexByTool(item);
     } else {
         viewMgr = this.viewMgr;
-        index = viewMgr.view.getIndexByPart(item);
+        if (viewMgr) {
+            index = viewMgr.getIndexByPart(item);
+        }
     }
     if (index >= 0) {
         viewMgr.tree.treeBoxObject.invalidateRow(index);

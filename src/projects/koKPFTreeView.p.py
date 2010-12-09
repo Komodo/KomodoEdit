@@ -373,7 +373,7 @@ class KPFTreeView(TreeView):
         firstVisibleRow = self._tree.getFirstVisibleRow()
         firstVisiblePart = None
         if firstVisibleRow >= 0 and firstVisibleRow < len(self._rows):
-            firstVisiblePart = self._rows[firstVisibleRow]["node"]
+            firstVisiblePart = self._rows[firstVisibleRow].part
         # Remember the selection as well
         selectedParts = self.getSelectedItems()
 
@@ -383,7 +383,6 @@ class KPFTreeView(TreeView):
             index = self._getIndexByPart(part)
             if index >= 0 and index < len(self._rows):
                 node = self._rows[index].part
-                level = self._rows[index].level
 
         # if we get a part, we just refresh that
         if node:
@@ -418,6 +417,26 @@ class KPFTreeView(TreeView):
 
         return retval
 
+    def removeItems(self, parts):
+        self._tree.beginUpdateBatch()
+        try:
+            for part in parts:
+                index = self.getIndexByPart(part)
+                if index != -1:
+                    node = self._rows[index]
+                    if self.isContainerOpen(index):
+                        nextSiblingIndex = self._getNextSiblingIndex(index)
+                    else:
+                        nextSiblingIndex = index + 1
+                    if index == len(self._rows) - 1:
+                        pivot = index - 1
+                    else:
+                        pivot = index
+                    self._rows = self._rows[:index] + self._rows[nextSiblingIndex:]
+                    self._tree.rowCountChanged(pivot, nextSiblingIndex - index)
+        finally:
+            self._tree.endUpdateBatch()
+
     def showChild(self, parentPart, childPart):
         index = self.getIndexByPart(parentPart)
         if index == -1:
@@ -433,7 +452,7 @@ class KPFTreeView(TreeView):
         self._tree.ensureRowIsVisible(index)
         self.selection.select(index)
 
-    def getSelectedItems(self):
+    def getSelectedItems(self, rootsOnly=False):
         # return the selected koIParts
         items = []
         if not self._rows:

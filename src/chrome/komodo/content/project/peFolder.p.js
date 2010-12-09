@@ -151,7 +151,7 @@ this.addRemoteFolder = function peFolder_addRemoteFolder(item)
     return part;
 }
 
-this.addGroup = function peFolder_addFolder(/*koIPart*/ parent)
+this.addGroup = function peFolder_addGroup(/*koIPart*/ parent)
 {
     var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFolderName"));
     if (!name) {
@@ -171,6 +171,45 @@ this.addGroup = function peFolder_addFolder(/*koIPart*/ parent)
     return part;
 }
 
+this.removeItems = function peFolder_removeItems(/*array of koIPart*/ items) {
+    if (items.length < 1) return;
+    var havemultiple = (items.length > 1);
+    var question = null;
+
+    var removeText = _bundle.GetStringFromName("removeFromProject");
+    var haveLive = false;
+    if (havemultiple) {
+        question = _bundle.formatStringFromName("doYouWantToRemoveThe", [items.length], 1);
+        for (i=0; i < items.length; i++) {
+            var file = items[i].getFile();
+            if (file && file.isLocal) {
+                haveLive = true;
+                break;
+            }
+        }
+    } else {
+        if (items[0].type == "project") return;
+        question = _bundle.GetStringFromName("doYouWantToRemoveTheItemYouHaveSelected");
+        var file = items[0].getFile();
+        haveLive = file && file.isLocal;
+    }
+    var buttons;
+    var text = null;
+    var moveToTrash = _bundle.GetStringFromName("moveToTrash");
+    if (haveLive) {
+        buttons = [moveToTrash, removeText, _bundle.GetStringFromName("cancel")];
+        text = _bundle.GetStringFromName("youMayDeleteTheFilesOnDisk");
+    } else {
+        buttons = [removeText, "Cancel"];
+    }
+    var action = ko.dialogs.customButtons(question, buttons, _bundle.GetStringFromName("youMayDeleteTheFilesOnDisk"), text,
+                                          _bundle.GetStringFromName("deleteSelectedItems"),
+                                          null, "warning-icon spaced")
+    if (!action || action == _bundle.GetStringFromName("cancel")) {
+        return;
+    }
+    ko.projects.active.manager.removeItems(items, action == moveToTrash);    
+};
 
 }).apply(ko.projects);
 

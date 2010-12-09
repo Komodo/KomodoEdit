@@ -58,8 +58,16 @@ PlacesProjectManager.prototype = {
         return this.owner.projectsTreeView.getSelectedItem();
     },
   refresh: function(project) {
+        // this.owner.projectsTreeView.refresh(project);
         this.owner.projectsTreeView.invalidate();
     },
+  refreshRow: function(project) {
+        this.owner.projectsTreeView.refresh(project);
+    },
+  removeItems: function(items) {
+        this.owner.projectsTreeView.removeItems(items, items.length);
+    },
+  
   removeProject: function(project) {
         this.owner.projectsTreeView.removeProject(project);
         dump("PlacesProjectManager.removeProject\n");
@@ -73,14 +81,20 @@ PlacesProjectManager.prototype = {
         this.owner.projectsTreeView.currentProject = project;
     },
 
-  _getSelectedItem: function(context) {
+  _getSelectedItems: function(rootsOnly) {
+        if (typeof(rootsOnly) == "undefined") rootsOnly = false;
         var o1 = {}, o2 = {};
-        this.owner.projectsTreeView.getSelectedItems(o1, o2);
-        if (o2.value != 1) {
-            log.error(context + ": Expected 1 selected item, got " + o2.value);
+        this.owner.projectsTreeView.getSelectedItems(rootsOnly, o1, o2);
+        return o1.value;
+    },
+  
+  _getSelectedItem: function(context) {
+        var items = this._getSelectedItems();
+        if (items.length != 1) {
+            log.error(context + ": Expected 1 selected item, got " + items.length);
             return null;
         }
-        var item = o1.value[0];
+        var item = items[0];
         if (!item) {
             log.error(context + ": no part in selection");
             return null;
@@ -148,6 +162,11 @@ PlacesProjectManager.prototype = {
         if (part) {
             this.owner.projectsTreeView.showChild(parentPart, part);
         }
+    },
+  
+  deleteItem: function(event, sender) {
+        var parts = this._getSelectedItems("deleteItem", true);
+        ko.projects.removeItems(parts);
     },
 
   renameGroup: function(event, sender) {
