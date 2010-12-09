@@ -23,6 +23,11 @@ this.addFileWithURL = function peFolder_addFileWithURL(url, /*koIPart*/ parent)
 this.addPartWithURLAndType = function(url, typename, parent) {
     if (typeof(parent)=='undefined' || !parent)
         parent = ko.projects.active.getSelectedItem();
+    var part = parent.getChildByAttributeValue('url', url, false);
+    if (part) {
+        //dump("Found file " + part.url + " in parent " + parent.name + "\n");
+        return part;
+    }
     var part = parent.project.createPartFromType(typename);
     part.setStringAttribute('url', url);
     part.setStringAttribute('name', ko.uriparse.baseName(url));
@@ -35,7 +40,7 @@ this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart
     var this_ = this;
     var view_callback = function(view) {
         if (view) {
-            var part = this_.addPartWithURLAndType(view.document.file.URI, 'file', parent);
+            var part = this_.addPartWithURLAndType(view.koDoc.file.URI, 'file', parent);
             if (callback) {
                 callback(part);
             }
@@ -43,11 +48,15 @@ this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart
     };
     var targetDir = null;
     if (parent.type == "folder") {
-        var children = parent.getChildrenByType('livefolder', true);
+        var children = {};
+        parent.getChildrenByType('livefolder', true, children, {});
+        children = children.value;
         if (children.length) {
             targetDir = children[0].getFile().path;
         } else {
-            children = parent.getChildrenByType('file', true);
+            children = {};
+            parent.getChildrenByType('file', true, children, {});
+            children = children.value;
             if (children.length) {
                 targetDir = children[0].getFile().dirName;
             }
