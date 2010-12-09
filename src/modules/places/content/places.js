@@ -2790,11 +2790,10 @@ function _notify(label, value, image, priority, buttons) {
 this.matchAnyType = function(typeListAttr, typesSelectedArray) {
     if (!typeListAttr) {
         return false;
-    } else if (typesSelectedArray.length == 1) {
-        return typeListAttr.indexOf(typesSelectedArray[0]) != -1;
     }
+    var targetTypeList = typeListAttr.split(/\s+/);
     for (var typeName, i = 0; typeName = typesSelectedArray[i]; i++) {
-        if (typeListAttr.indexOf(typeName) != -1) {
+        if (targetTypeList.indexOf(typeName) != -1) {
             return true;
         }
     }
@@ -2805,8 +2804,9 @@ this.matchAllTypes = function(typeListAttr, typesSelectedArray) {
     if (!typeListAttr) {
         return true;
     }
+    var targetTypeList = typeListAttr.split(/\s+/);
     for (var typeName, i = 0; typeName = typesSelectedArray[i]; i++) {
-        if (typeListAttr.indexOf(typeName) == -1) {
+        if (targetTypeList.indexOf(typeName) == -1) {
             return false;
         }
     }
