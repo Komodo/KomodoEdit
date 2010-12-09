@@ -54,6 +54,12 @@ PlacesProjectManager.prototype = {
         this.owner.projectsTreeView.removeProject(project);
         dump("PlacesProjectManager.removeProject\n");
     },
+  replaceProject: function(oldURL, project) {
+        this.owner.projectsTreeView.replaceProject(oldURL, project);
+    },
+  setCurrentProject: function(project) {
+        this.refresh();
+    },
   
   _EOF_ : null
 };
@@ -299,6 +305,21 @@ this.PlaceProjectsTreeView.prototype.removeProject = function(project) {
         }
     }
     dump("PlaceProjectsTreeView.removeProject: Couldn't find "
+         + project.name
+         + " in the list of loaded projects\n");
+};
+
+this.PlaceProjectsTreeView.prototype.replaceProject = function(oldURL, project) {
+    var listLen = this.rows.length;
+    for (var i = listLen - 1; i >= 0; --i) {
+        if (oldURL == this.rows[i][0]) {
+            this.rows[i][0] = project.url;
+            this.rows[i][1] = this._getViewPart(project.url);
+            this.tree.invalidateRow(i);
+            return;
+        }
+    }
+    dump("PlaceProjectsTreeView.replaceProject: Couldn't find "
          + project.name
          + " in the list of loaded projects\n");
 };
