@@ -120,7 +120,33 @@ class KPFTreeView(TreeView):
         self.statusObserver = None
         #self.log = logging.getLogger("ProjectTreeView")
         #self.log.setLevel(logging.DEBUG)
+        self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+            getService(components.interfaces.nsIObserverService)
+        self._observerSvc.addObserver(self, "file_status",True) # weakref
  
+    def observe(self, subject, topic, data):
+        if not self._tree:
+            # No tree, Komodo is likely shutting down.
+            return
+
+        if topic == "file_status":
+            # find the row for the file and invalidate it
+            files = data.split("\n")
+            invalidRows = [i for (i,row) in enumerate(self._rows)
+                           if getattr(getattr(row.part, 'file', None), 'URI', None) in files]
+            for row in invalidRows:
+                try:
+                    del self._rows[row].properties
+                except AttributeError:
+                    pass
+                
+            if invalidRows:
+                self._tree.beginUpdateBatch()
+                try:
+                    map(self._tree.invalidateRow, invalidRows)
+                finally:
+                    self._tree.endUpdateBatch()
+
     def initialize(self):
         self.atomService = components.classes["@mozilla.org/atom-service;1"].\
                                 getService(components.interfaces.nsIAtomService)
@@ -139,7 +165,7 @@ class KPFTreeView(TreeView):
 
     def terminate(self):
         log.debug("terminate...")
-
+        
     def observe(self, subject, topic, data):
         #TODO: When a watched file/folder no longer exists, paint it red.
         if not self._tree:
@@ -147,18 +173,23 @@ class KPFTreeView(TreeView):
             return
 
         if topic == "file_status":
-            # find the row for the file and invalidate it
-            files = data.split("\n")
-            invalidRows = [i for (i,row) in enumerate(self._rows)
-                           if hasattr(row, 'file') and row.file and row.file.URI in files]
-            for row in invalidRows:
-                thisRow = self._rows[row]
-                if hasattr(thisRow, 'properties'):
-                    del thisRow.properties
-            if invalidRows:
-                self._tree.beginUpdateBatch()
-                map(self._tree.invalidateRow, invalidRows)
-                self._tree.endUpdateBatch()
+            try:
+                # find the row for the file and invalidate it
+                files = data.split("\n")
+                invalidRows = [i for (i,row) in enumerate(self._rows)
+                               if getattr(row.part.getFile(), 'URI', None) in files]
+                for row in invalidRows:
+                    thisRow = self._rows[row]
+                    try:
+                        del thisRow.properties
+                    except AttributeError:
+                        pass
+                if invalidRows:
+                    self._tree.beginUpdateBatch()
+                    map(self._tree.invalidateRow, invalidRows)
+                    self._tree.endUpdateBatch()
+            except:
+                log.exception("Failed on file_status")
 
     # nsIFileNotificationObserver
     # we want to receive notifications for any live folders in our view
