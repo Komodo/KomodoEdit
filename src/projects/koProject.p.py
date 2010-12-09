@@ -646,7 +646,7 @@ class koContainerBase(koPart):
     def __init__(self, project):
         koPart.__init__(self, project)
         self.numChildren = 0
-        self._sortedBy = None
+        self._sortedBy = 'name'
         self._sortDir = 0
         self.children = []
         self._project._childmap[self.id] = self.children
@@ -711,6 +711,7 @@ class koContainerBase(koPart):
                 del child._attributes['id']
         if not self.hasChild(child):
             self.children.append(child)
+            self._sortNodes(self.children, self._sortedBy, self._sortDir)
 
         if child not in self._project._childmap[self.id]:
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, "child is not in the project childmap!")

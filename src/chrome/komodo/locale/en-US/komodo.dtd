@@ -471,6 +471,7 @@
 <!ENTITY newFile.label "New File...">
 <!ENTITY newFileFromTemplate.accesskey "T">
 <!ENTITY newFileFromTemplate.label "File from Template...">
+<!ENTITY newNewFileFromTemplate.label "New File from Template...">
 <!ENTITY newFileUsingDefaultLanguage.tooltiptext "New File Using Default Language">
 <!ENTITY newFolder.label "New Folder...">
 <!ENTITY newFromTemplate.label "New From Template">

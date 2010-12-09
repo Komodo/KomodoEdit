@@ -368,34 +368,26 @@
     </menupopup>
     
     <menupopup id="placesSubpanelProjects_AddItemsMenu" disableUnless="project group">
-      <menuitem id="folder_context_newFile"
-                label="&newFile.label;"
-                accesskey="&folderContextNewFile.accesskey;"
-                class="menuitem-iconic"
-                image="chrome://komodo/skin/images/new_file.png"
-                oncommand="ko.places.projects.manager.addNewFile(event, this);"
-                xxxoncommand="ko.projects.addNewPart('newfile', this.parentNode.getAttribute('partviewer'))"
-                />
       <menuitem id="folder_context_newFileFromTemplate"
-                label="&newFileFromTemplate.label;"
+                label="&newNewFileFromTemplate.label;"
                 accesskey="&newFileFromTemplate.accesskey;"
                 class="menuitem-iconic"
                 image="chrome://komodo/skin/images/newTemplate.png"
-                oncommand="ko.projects.addNewPart('newfile', this.parentNode.getAttribute('partviewer'))"
+                oncommand="ko.places.projects.manager.addNewFile(event, this);"
                 />
-      <menuitem id="folder_context_newFolder"
-                label="&newFolder.label;"
-                accesskey="&folderContextNewFolder.accesskey;"
-                class="menuitem-iconic"
-                image="chrome://komodo/skin/images/new_folder.png"
-                oncommand="ko.projects.addNewPart('newfolder', this.parentNode.getAttribute('partviewer'))"
-                /><!-- New Group -->
       <menuitem id="folder_context_newLiveFolder"
                 label="&newLiveFolder.label;"
                 accesskey="&folderContextNewLiveFolder.accesskey;"
                 class="menuitem-iconic"
                 image="chrome://komodo/skin/images/new_live_folder.png"
                 oncommand="ko.projects.addNewPart('livefolder', this.parentNode.getAttribute('partviewer'))"
+                />
+      <menuitem id="folder_context_newFolder"
+                label="&amp; XXX New Group.label;"
+                accesskey="&folderContextNewFolder.accesskey;"
+                class="menuitem-iconic"
+                image="chrome://komodo/skin/images/new_folder.png"
+                oncommand="ko.projects.addNewPart('newfolder', this.parentNode.getAttribute('partviewer'))"
                 />
       <menuseparator id="placesSubpanelProjects_AddItemsMenu_sep1" />
       <menuitem id="folder_context_existingFile"

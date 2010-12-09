@@ -13,6 +13,9 @@ if (!('projects' in ko.places)) {
     ko.places.projects = {};
 }
 
+var log = getLoggingMgr().getLogger("project_places_js");
+log.setLevel(LOG_DEBUG);
+
 (function() {
 
 var _globalPrefs;
@@ -72,8 +75,21 @@ PlacesProjectManager.prototype = {
 
   // Methods for the projects context menu
   addNewFile: function(event, sender) {
-        this.owner.projectsTreeView.doProjectContextMenu(event, sender, 'addNewFile');
-        dump("****************addNewFile\n");
+        var o1 = {}, o2 = {};
+        this.owner.projectsTreeView.getSelectedItems(o1, o2);
+        if (o2.value != 1) {
+            log.error("addNewFile: Expected 1 selected item, got " + o2.value);
+            return;
+        }
+        var parentPart = o1.value[0];
+        if (!parentPart) {
+            log.error("addNewFile: no part in selection");
+            return;
+        }
+        var part = ko.projects.addNewFileFromTemplate(parentPart);
+        if (part) {
+            this.owner.projectsTreeView.showChild(parentPart, part);
+        }
     },
   
   
@@ -271,15 +287,32 @@ this.onProjectTreeDblClick = function(event) {
     var index = row.value;
     if (index != -1) {
         var part = this.projectsTreeView.getRowItem(index);
-        if (part.type != "project") {
-            dump("XXX: Need to handle dbl-click on non-project item\n");
+        if (!part) {
+            log.error("onProjectTreeDblClick(" + index + ") => null\n");
         } else {
             var uri = part.uri;
-            var currentProject = ko.projects.manager.currentProject;
-            if (!currentProject || currentProject.id != part.id) {
-                ko.projects.manager.setCurrentProject(part);
+            switch (part.type) {
+                case "project":
+                    var currentProject = ko.projects.manager.currentProject;
+                    if (!currentProject || currentProject.id != part.id) {
+                        ko.projects.manager.setCurrentProject(part);
+                    }
+                    this.showProjectInPlaces(part);
+                    break;
+
+                case "livefolder":
+                    ko.places.manager.openDirectory(part.getFile().path);
+                    break;
+
+                case "file":
+                    ko.open.multipleURIs([part.uri]);
+                    break;
+
+                default:
+                    dump("XXX: Need to handle dbl-click on non-project item"
+                         + part.type
+                         + "\n");
             }
-            this.showProjectInPlaces();
         }
     }
     event.stopPropagation();

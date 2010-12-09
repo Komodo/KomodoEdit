@@ -68,13 +68,11 @@ class _Node(object):
         self.part = part
         self.level = level
         self.project = project
-        self.children = None
         self.isContainer = False
 
 class _ContainerNode(_Node):
     def __init__(self, part, level, project):
         _Node.__init__(self, part, level, project)
-        self.children = []
         self.isContainer = True
         self.isOpen = False
 
@@ -420,6 +418,21 @@ class KPFTreeView(TreeView):
 
         return retval
 
+    def showChild(self, parentPart, childPart):
+        index = self.getIndexByPart(parentPart)
+        if index == -1:
+            log.error("Can't find parent %s in tree", parentPart.name)
+            return
+        self.toggleOpenState(index)
+        if not self.isContainerOpen(index):
+            self.toggleOpenState(index)
+        index = self.getIndexByPart(childPart)
+        if index == -1:
+            log.error("Can't find child %s in tree", childPart.name)
+            return
+        self._tree.ensureRowIsVisible(index)
+        self.selection.select(index)
+
     def getSelectedItems(self):
         # return the selected koIParts
         items = []
@@ -498,6 +511,21 @@ class KPFTreeView(TreeView):
         if self._sortedBy != key or self._sortDir != direction:
             self._sortedBy = key
             self._sortDir = direction
+
+    _nodeTypeName_from_partTypeName = { 'part' : _Node,
+                                        'file' : _FileNode,
+                                        'folder' : _GroupNode,
+                                        'livefolder': _FolderNode,
+                                        'project': _ProjectNode,
+                                        }
+    def makeRowsFromParts(self, children, level, project):
+        """
+        @param children: array of koPart
+        @returns list of _Node
+        """
+        nodeList = [self._nodeTypeName_from_partTypeName[child.type](child, level + 1, project)
+                  for child in children]
+        return nodeList
         
     # nsITreeView
     def isSeparator(self, index):
@@ -612,8 +640,8 @@ class KPFTreeView(TreeView):
         node = self._getContainerNode(index)
         if node is None: return False
         #### log.debug("isContainerEmpty(%d) => %r", index,
-             ####         node.isContainer and len(node.children) == 0)
-        return node.isContainer and len(node.children) == 0
+             ####         node.isContainer and len(node.part.children) == 0)
+        return node.isContainer and len(node.part.children) == 0
 
     def isSorted( self ):
         # Result: boolean
@@ -710,7 +738,7 @@ class KPFTreeView(TreeView):
     def toggleOpenState(self, index):
         #print "toggle row at index %d"%index
         node = self._rows[index]
-        if not node.isContainer:
+        if not node or not node.isContainer:
             log.error("toggleOpenState: index:%d: not a container", index)
             return
         isOpen = node.isOpen
@@ -725,8 +753,9 @@ class KPFTreeView(TreeView):
             self._tree.rowCountChanged(index + 1,(index + 1) - nextSiblingIndex)
         else:
             # just get the rows for the node, then insert them into our list
-            self._rows = self._rows[:index + 1] + node.children + self._rows[nextSiblingIndex:]
-            self._tree.rowCountChanged(index + 1, len(node.children))
+            children = self.makeRowsFromParts(node.part.children, node.level, node.project)
+            self._rows = self._rows[:index + 1] + children + self._rows[nextSiblingIndex:]
+            self._tree.rowCountChanged(index + 1, len(children))
             
         self._nodeIsOpen[node.part.id] = node.isOpen = not isOpen
         # Ensure the toggle state is correctly redrawn, fixes bug:
