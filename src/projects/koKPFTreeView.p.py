@@ -252,7 +252,7 @@ class KPFTreeView(TreeView):
         if index == -1:
             log.debug("removeProject: can't find project %s", kpf.name)
             return
-        sibling = self._getNextSiblingIndex(index)
+        sibling = self.getNextSiblingIndex(index)
         if needNewCurrentProject:
             if index == 0:
                 # first project becomes active, if there is one
@@ -328,7 +328,7 @@ class KPFTreeView(TreeView):
         # Or if there is un-utilized (empty) rows shown in the tree
         # Or the index is in the visible range, but the tree contents
         # scroll past the end of the visible range
-        nextSibling = self._getNextSiblingIndex(index)
+        nextSibling = self.getNextSiblingIndex(index)
         if (index < firstVisRow
             or index >= lastVisRow
             or (len(self._rows) > numVisRows
@@ -346,7 +346,7 @@ class KPFTreeView(TreeView):
             i = i - 1
         return i
 
-    def _getNextSiblingIndex(self, index):
+    def getNextSiblingIndex(self, index):
         level = self._rows[index].level
         rc = len(self._rows)
         i = index + 1
@@ -360,7 +360,7 @@ class KPFTreeView(TreeView):
             part = row.part
             index = self._getIndexByPart(part.get_parent())
             # insert this prior to the parents sibling
-            sibling = self._getNextSiblingIndex(index)
+            sibling = self.getNextSiblingIndex(index)
             self._rows.insert(sibling, row)
         else:
             self._rows.append(row)
@@ -398,7 +398,7 @@ class KPFTreeView(TreeView):
         # if we get a part, we just refresh that
         if node:
             # remove the children from the rows
-            sibling = self._getNextSiblingIndex(index)
+            sibling = self.getNextSiblingIndex(index)
             self._rows = self._rows[:index+1] + self._rows[sibling:]
             #print "rowCountChanged(%d, %d)" %(index+1, (index+1) - sibling)
             self._tree.rowCountChanged(index+1, (index+1) - sibling)
@@ -436,7 +436,7 @@ class KPFTreeView(TreeView):
                 if index != -1:
                     node = self._rows[index]
                     if self.isContainerOpen(index):
-                        nextSiblingIndex = self._getNextSiblingIndex(index)
+                        nextSiblingIndex = self.getNextSiblingIndex(index)
                     else:
                         nextSiblingIndex = index + 1
                     if index == len(self._rows) - 1:
@@ -444,7 +444,7 @@ class KPFTreeView(TreeView):
                     else:
                         pivot = index
                     self._rows = self._rows[:index] + self._rows[nextSiblingIndex:]
-                    self._tree.rowCountChanged(pivot, nextSiblingIndex - index)
+                    self._tree.rowCountChanged(pivot, index - nextSiblingIndex)
         finally:
             self._tree.endUpdateBatch()
 
@@ -465,18 +465,14 @@ class KPFTreeView(TreeView):
 
     def getSelectedItems(self, rootsOnly=False):
         # return the selected koIParts
-        items = []
         if not self._rows:
-            return items
+            return []
         if self.selection.single:
             # deselect all other selections except the current one
             self.selection.select(self.selection.currentIndex)
-            items.append(self._rows[self.selection.currentIndex].part)
-        else:
-            for i in range(len(self._rows)):
-                if self.selection.isSelected(i):
-                    items.append(self._rows[i].part)
-        return items
+            return [self._rows[self.selection.currentIndex].part]
+        selectedIndices = self.getSelectedIndices(rootsOnly)
+        return [self._rows[i].part for i in selectedIndices]
     
     def getSelectedItem(self):
         try:
@@ -662,22 +658,22 @@ class KPFTreeView(TreeView):
     def isContainer(self, index):
         node = self._getContainerNode(index)
         if node is None: return False
-        ####log.debug("isContainer(%d) => %r", index, node.isContainer)
         return node.isContainer
 
     def isContainerOpen(self, index):
         node = self._getContainerNode(index)
         if node is None: return False
-        #### log.debug("isContainerOpen(%d) => %r", index,
-             ####         node.isContainer and node.isOpen)
         return node.isContainer and node.isOpen
 
     def isContainerEmpty( self, index ):
         node = self._getContainerNode(index)
         if node is None: return False
-        #### log.debug("isContainerEmpty(%d) => %r", index,
-             ####         node.isContainer and len(node.part.children) == 0)
-        return node.isContainer and len(node.part.children) == 0
+        try:
+            return node.isContainer and len(node.part.children) == 0
+        except AttributeError:
+            #log.debug("isContainerEmpty: node:%d, part:%s",
+            #           index, node.part or "<null>")
+            pass
 
     def isSorted( self ):
         # Result: boolean
@@ -782,7 +778,7 @@ class KPFTreeView(TreeView):
         level = node.level
 
         # Must recalculate the rows.
-        nextSiblingIndex = self._getNextSiblingIndex(index)
+        nextSiblingIndex = self.getNextSiblingIndex(index)
         if isOpen:
             # just remove the children from the rows
             #print "removing rows %d to %d" %(index,i)

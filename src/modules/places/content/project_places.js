@@ -64,10 +64,6 @@ PlacesProjectManager.prototype = {
   refreshRow: function(project) {
         this.owner.projectsTreeView.refresh(project);
     },
-  removeItems: function(items) {
-        this.owner.projectsTreeView.removeItems(items, items.length);
-    },
-  
   removeProject: function(project) {
         this.owner.projectsTreeView.removeProject(project);
         dump("PlacesProjectManager.removeProject\n");
@@ -82,6 +78,9 @@ PlacesProjectManager.prototype = {
     },
   setCurrentProject: function(project) {
         this.owner.projectsTreeView.currentProject = project;
+    },
+  getSelectedItems: function(rootsOnly) {
+        return this._getSelectedItems(rootsOnly);
     },
 
   _getSelectedItems: function(rootsOnly) {
@@ -167,9 +166,19 @@ PlacesProjectManager.prototype = {
         }
     },
   
-  deleteItem: function(event, sender) {
-        var parts = this._getSelectedItems("deleteItem", true);
-        ko.projects.removeItems(parts);
+  // The UI calls deleteItems, which uses peFolder and baseManager
+  // to actually delete the selected items.  It then calls into
+  // removeSelectedItems, which will update the tree.
+  
+  deleteItems: function(event, sender) {
+        var parts = this._getSelectedItems(false);
+        ko.projects.removeItems(parts, this.owner.projectsTreeView.selection.count);
+    },
+  removeSelectedItems: function(allItems) {
+        // For updating the view, just get the roots
+        var parts = this._getSelectedItems(true);
+        this.owner.projectsTreeView.removeItems(parts, parts.length);
+        this.owner.projectsTreeView.selection.clearSelection();
     },
 
   renameGroup: function(event, sender) {
@@ -277,35 +286,27 @@ this.initProjectsContextMenu = function(event, menupopup) {
     var row = {};
     this.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
     var index = row.value;
-    var selectedIndices = ko.treeutils.getSelectedIndices(this.projectsTreeView,
+    var treeView = this.projectsTreeView;
+    var selectedIndices = ko.treeutils.getSelectedIndices(treeView,
                                                           false /*rootsOnly*/);
-    var selectedItem = index >= 0 ? this.projectsTreeView.getRowItem(index) : null;
-    var selectedUrl = selectedItem && selectedItem.url;
-    var isRootNode = index == -1;
+    var selectedItems = selectedIndices.map(function(i) treeView.getRowItem(i));
+    var selectedUrls = selectedItems ? selectedItems.map(function(item) item.url) : [];
+    var isRootNode = !selectedItems.length && index == -1;
     var itemTypes;
     if (isRootNode) {
         itemTypes = ['root'];
     } else {
-        itemTypes = [ this.projectsTreeView.getRowItem(index).type ];
+        itemTypes = selectedItems.map(function(item) item.type);
     }
     var currentProject = ko.projects.manager.currentProject;
-    var projectIsOpen = false;
-    var windows = ko.windowManager.getWindows();
-    for (var win, i = 0; win = windows[i]; i++) {
-        var otherProject = win.ko.projects.manager.currentProject;
-        if (otherProject && otherProject.url == selectedUrl) {
-            projectIsOpen = true;
-            break;
-        }
-    }
     this._selectionInfo = {
-      currentProject: (currentProject
-                       && currentProject.url == selectedUrl),
+      currentProject: (selectedUrls.length == 1
+                       && currentProject
+                       && currentProject.url == selectedUrls[0]),
       index: index,
       itemTypes: itemTypes,
       multipleNodesSelected: selectedIndices.length > 1,
-      projectIsOpen: projectIsOpen,
-      projectIsDirty: selectedItem && selectedItem.isDirty,
+      projectIsDirty: selectedItems.filter(function(item) item.isDirty).length > 0,
       __END__:null
     };
     this._processProjectsMenu_TopLevel(menupopup);
@@ -340,6 +341,8 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
             testDisableIf = testDisableIf.split(/\s+/);
             testDisableIf.map(function(s) {
                     if (s == 't:currentProject' && selectionInfo.currentProject) {
+                        disableNode = true;
+                    } else if (s == "t:multipleSelection" && selectionInfo.multipleNodesSelected) {
                         disableNode = true;
                     }
                 });
@@ -405,33 +408,49 @@ this.onProjectTreeDblClick = function(event) {
     event.preventDefault();
 };
 
+this._getProjectItemAndOperate = function(context, obj, callback) {
+    if (typeof(callback) == "undefined") callback = context;
+    var items = this.manager.getSelectedItems();
+    if (items.filter(function(item) item.type != "project").length) {
+        log.warning("Function " + context + " is intended only for projects");
+        return;
+    }
+    items.map(function(project) {
+        obj[callback].call(obj, project);
+        });
+};
+        
+
 this.closeProject = function() {
-    ko.projects.manager.closeProject(ko.projects.manager.currentProject);
+    this._getProjectItemAndOperate("closeProject", ko.projects.manager);
 };
 
 this.makeCurrentProject = function() {
-    var project = this.manager.getSelectedItem();
-    if (project && project.type == "project") {
-        ko.projects.manager.setCurrentProject(project);
-    } else {
-        dump("makeCurrentProject: project:[" + project + "]\n");
-    }
+    var this_ = this;
+    this._getProjectItemAndOperate("makeCurrentProject", this,
+                                   "_continueMakeCurrentProject");
 };
 
+this._continueMakeCurrentProject = function(project) {
+    ko.projects.manager.setCurrentProject(project);
+    this.projectsTreeView.invalidate();
+}
+
 this.revertProject = function() {
-    ko.projects.manager.revertProject(ko.projects.manager.currentProject);
+    this._getProjectItemAndOperate("revertProject", ko.projects.manager);
 };
 
 this.saveProject = function() {
-    ko.projects.manager.saveProject(ko.projects.manager.currentProject);
+    this._getProjectItemAndOperate("saveProject", ko.projects.manager);
 };
 
 this.saveProjectAs = function() {
-    ko.projects.saveProjectAs(ko.projects.manager.currentProject);
+    this._getProjectItemAndOperate("saveProjectAs", ko.projects.manager);
 };
 
 this.showProjectInPlaces = function() {
-    ko.places.manager.moveToProjectDir(ko.projects.manager.currentProject);
+    this._getProjectItemAndOperate("showProjectInPlaces",
+                                   ko.projects.manager, "moveToProjectDir");
 };
 
 this.openProjectInNewWindow = function() {

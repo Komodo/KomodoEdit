@@ -116,7 +116,7 @@ BaseManager.prototype.removeItems = function(items, trash) {
             }
         }
         if (this.viewMgr) {
-            this.viewMgr.removeItems(items);
+            this.viewMgr.removeSelectedItems(items);
         }
     } catch(e) {
         this.log.exception(e);

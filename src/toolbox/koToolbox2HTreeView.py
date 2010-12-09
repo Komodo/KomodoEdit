@@ -724,32 +724,6 @@ class KoToolbox2HTreeView(TreeView):
             zf.close()
         return numZippedItems
 
-    def getAllIndices(self, view):
-        treeSelection = self.selection
-        a = []
-        numRanges = treeSelection.getRangeCount()
-        for i in range(numRanges):
-            min_index, max_index = treeSelection.getRangeAt(i)
-            a += range(min_index, max_index + 1)
-        return a
-
-    def getSelectedIndices(self, rootsOnly=False):
-        indices = self.getAllIndices(view)
-        i = 0
-        lim = len(indices)
-        selectedIndices = []
-        while i < lim:
-            index = indices[i]
-            selectedIndices.append(index)
-            if rootsOnly and self.isContainerOpen(index):
-                nextSiblingIndex = self.getNextSiblingIndex(index)
-                if nextSiblingIndex == -1:
-                    break
-                while i < lim - 1 and indices[i + 1] < nextSiblingIndex:
-                    i += 1
-            i += 1
-        return selectedIndices
-
     def _removeChildNodes(self, node):
         try:
             del node.unfilteredChildNodes

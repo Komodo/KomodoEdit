@@ -100,6 +100,12 @@
 		    event.stopPropagation();
                 ]]>
             </handler>
+	    
+            <handler event="keypress" keycode="vk_delete" phase="capturing">
+                <![CDATA[
+		    ko.places.projects.manager.deleteItems(event, this);
+                ]]>
+            </handler>
         </handlers>
     </binding>
     

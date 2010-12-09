@@ -442,11 +442,12 @@
                 id="menu_projCtxt_showProjectInPlaces"
                 class="menuitem-iconic"
                 hideUnless="project"
+                testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.showProjectInPlaces();" />
       <menuitem label="&makeActiveProject.label;"
                 id="menu_projCtxt_makeActiveProject"
                 class="menuitem-iconic"
-                testDisableIf="t:currentProject"
+                testDisableIf="t:currentProject t:multipleSelection"
                 hideUnless="project"
                 oncommand="ko.places.projects.makeCurrentProject();" />
       <menuitem label="&closeProject.label;"
@@ -464,6 +465,7 @@
                 id="menu_projCtxt_saveProjectAs"
                 class="menuitem-iconic"
                 hideUnless="project"
+                testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.saveProjectAs();" />
       <menuitem label="&revertProject.label;"
                 id="menu_projCtxt_revertProject"
@@ -486,29 +488,34 @@
                 id="menu_projCtxt_compareFileWith"
                 class="menuitem-iconic"
                 hideUnless="file"
+                testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.compareFileWith();" />
       
       <menuitem label="&rebaseFolder.label;"
                 id="menu_projCtxt_rebaseFolder"
                 class="menuitem-iconic"
                 hideUnless="livefolder"
+                testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.rebaseFolder();" />
 
       <menuitem label="&importFromFileSystem.label;"
                 id="menu_projCtxt_importFromFileSystem"
                 class="menuitem-iconic"
                 hideUnless="folder"
+                testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.importFromFileSystem();" />
 
       <menuitem label="&rename.label;"
                 id="menu_projCtxt_renameGroup"
                 class="menuitem-iconic"
                 hideUnless="folder"
+                testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.manager.renameGroup();" />
       
       <menu label="&add.label;"
             id="menu_projCtxt_addMenu"
             class="menuitem-iconic"
+            testDisableIf="t:multipleSelection"
             hideUnless="folder project">
         <menupopup id="menu_projCtxt_addMenu_Popup" />
       </menu>
@@ -517,12 +524,14 @@
       
       <menuitem label="&amp; XXX exportAsProjectFile"
                 id="menu_projCtxt_exportAsProjectFile"
+                testDisableIf="t:multipleSelection"
                 class="menuitem-iconic"
                 hideUnless="folder project"
                 oncommand="ko.places.projects.exportAsProjectFile();" />
       
       <menuitem label="&amp; XXX exportPackage"
                 id="menu_projCtxt_exportPackage"
+                testDisableIf="t:multipleSelection"
                 class="menuitem-iconic"
                 hideUnless="folder project"
                 oncommand="ko.places.projects.exportPackage();" />
@@ -532,6 +541,7 @@
       
       <menuitem label="&amp;XXX SCC on Contents.label;"
                 id="menu_projCtxt_renameGroup"
+                testDisableIf="t:multipleSelection"
                 class="menuitem-iconic"
                 hideUnless="folder"
                 oncommand="ko.places.projects.SCCDiffsOnGroup();" />
@@ -542,14 +552,16 @@
       <menuitem label="&delete.label;"
                 id="menu_projCtxt_deleteItem"
                 class="menuitem-iconic"
-                hideIf="root project"
-                oncommand="ko.places.projects.manager.deleteItem(event, this);" />
+                hideIf="root"
+                disableIf="project"
+                oncommand="ko.places.projects.manager.deleteItems(event, this);" />
 
       <menuitem label="&properties.label;"
                 id="menu_projCtxt_projectProperties"
                 class="menuitem-iconic"
                 oncommand="ko.places.projects.editProjectProperties();"
                 accesskey="&projectProperties.accesskey;"
+                testDisableIf="t:multipleSelection"
                 hideUnless="project" />
     </menupopup>
   </popupset>
@@ -809,7 +821,7 @@
             hidecolumnpicker="true"
             context="places-projects-popup"
             class="projectPlacesTree"
-            seltype="single">
+            seltype="multiple">
           <treecols id="placesSubpanelProjectsTreecols">
             <treecol id="placesSubpanelProjectNameTreecol"
                      flex="1" primary="true" hideheader="true" crop="start"/>
