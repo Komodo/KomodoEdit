@@ -158,7 +158,9 @@ projectManager.prototype._saveProjectViewState = function(project) {
 
 projectManager.prototype.closeProjectEvenIfDirty = function(project) {
     // Remove the project node/part from the Projects tree.
-    this.viewMgr.view.removeProject(project);
+    if (this.viewMgr) {
+        this.viewMgr.view.removeProject(project);
+    }
     if (typeof(project) == "undefined") project = this.currentProject;
     ko.toolbox2.manager.toolbox2Svc.deactivateProjectToolbox(project);
     
@@ -641,11 +643,22 @@ projectManager.prototype.loadProject = function(url) {
     return this._addProject(project);
 }
 
-projectManager.prototype._addProject = function(project) {
+projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
+    if (typeof(inTimeout) == "undefined") inTimeout = false;
+    if (!inTimeout && !this.viewMgr) {
+        setTimeout(function(this_) {
+                this_._addProject(project, true);
+            }, 100, this);
+        return;
+    } else if (inTimeout && !this.viewMgr) {
+        dump("_addProject: called inTimeout, this.viewMgr still null\n");
+    }
     this._projects.push(project);
     // add project to project tree
-    this.viewMgr.addProject(project);
-    this.viewMgr.refresh(project);
+    if (this.viewMgr) {
+        this.viewMgr.addProject(project);
+        this.viewMgr.refresh(project);
+    }
     this.setCurrentProject(project);
     ko.toolbox2.manager.toolbox2Svc.activateProjectToolbox(project);
 
