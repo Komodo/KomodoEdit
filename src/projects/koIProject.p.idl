@@ -62,6 +62,11 @@ interface koIPart_Common: nsIObserver {
     attribute wstring name;
     koIFileEx getFile();
     
+    wstring get_keybinding_description();
+    
+    // Content for serialization in the CDATA section. 
+    // (Not used for all part types.)
+    attribute wstring value;
     // A reference to the containing project.
     // (Currently needed to notify on URL addition.)
     attribute koIPart project;
@@ -94,6 +99,11 @@ interface koIPart_Common: nsIObserver {
     // This can raise an exception, in which case an appropriate error is
     // set on the last error service.
     void serialize(in koIFile stream);
+
+    wstring getDragData(); 
+    wstring getDragDataByFlavor(in wstring flavor); 
+    void getDragFlavors([array, size_is(count)] out wstring flavors,
+                     out unsigned long count);
 };
 
 [scriptable, uuid(8EAA9B6D-1D59-43f6-8D0E-F992429ECFE2)]
