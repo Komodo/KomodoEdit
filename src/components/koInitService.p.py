@@ -879,6 +879,7 @@ class KoInitService(object):
                 .getService(components.interfaces.koIPrefService).prefs
 
         if not prefs.hasPrefHere("version"):
+            # Prefs are from before Komodo 6.1
             self._upgradeOldUserPrefs(prefs)
             version = 0
         else:
