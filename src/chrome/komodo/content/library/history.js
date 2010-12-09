@@ -195,7 +195,15 @@ function _get_curr_loc(view /* =current view */,
     }
     var viewType = view.getAttribute("type");
     if (typeof(pos) == "undefined" || pos == null) {
-        pos = (viewType == 'editor' ? view.scimoz.currentPos : -1);
+        if (viewType == 'editor') {
+            if (!view.scimoz) {
+                // Probably shutting down
+                return;
+            }
+            pos = view.scimoz.currentPos;
+        } else {
+            pos = -1;
+        }
     }
     return _controller.historySvc.loc_from_view_info(
             viewType,
