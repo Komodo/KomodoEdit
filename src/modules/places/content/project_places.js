@@ -376,11 +376,6 @@ this.onProjectTreeDblClick = function(event) {
                 case "file":
                     ko.open.multipleURIs([part.uri]);
                     break;
-
-                default:
-                    dump("XXX: Need to handle dbl-click on non-project item"
-                         + part.type
-                         + "\n");
             }
         }
     }
