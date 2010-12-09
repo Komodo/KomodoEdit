@@ -167,7 +167,6 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
     // the active project has been reset
     if (this.currentProject) {
         this._lastCurrentProject = this.currentProject;
-        this.currentProject = null;
     }
 
     // Forget about any notifications made for this project.
@@ -1013,13 +1012,21 @@ projectManager.prototype.findPartByAttributeValue = function(attribute, value) {
 
 projectManager.prototype.getState = function ()
 {
-    if (!this.currentProject) {
+    if (this._projects.length == 0) {
         return null; // persist nothing
     }
     // Return a pref to add to the persisted 'workspace'
     var opened_projects = Components.classes['@activestate.com/koOrderedPreference;1'].createInstance();
     opened_projects.id = 'opened_projects';
-    opened_projects.appendStringPref(this.currentProject.url);
+    var i, project, url;
+    for (i = 0; i < this._projects.length; i++) {
+        project = this._projects[i];
+        url = project.url;
+        if (this.viewMgr) {
+            this.viewMgr.savePrefs(project);
+        }
+        opened_projects.appendStringPref(url);
+    }
     return opened_projects;
 }
 

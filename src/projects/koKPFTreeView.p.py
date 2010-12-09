@@ -339,6 +339,13 @@ class KPFTreeView(TreeView):
             self._tree.scrollToRow(scrollToIndex)
             self._tree.invalidateRow(index)
 
+    def _getPrevSiblingIndex(self, index):
+        level = self._rows[index].level
+        i = index - 1
+        while i >= 0 and self._rows[i].level > level:
+            i = i - 1
+        return i
+
     def _getNextSiblingIndex(self, index):
         level = self._rows[index].level
         rc = len(self._rows)

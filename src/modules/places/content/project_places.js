@@ -77,6 +77,9 @@ PlacesProjectManager.prototype = {
         return;
         this.owner.projectsTreeView.replaceProject(oldURL, project);
     },
+  savePrefs: function(project) {
+        this.owner.projectsTreeView.savePrefs(project);
+    },
   setCurrentProject: function(project) {
         this.owner.projectsTreeView.currentProject = project;
     },
