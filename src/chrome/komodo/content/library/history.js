@@ -198,7 +198,7 @@ function _get_curr_loc(view /* =current view */,
         if (viewType == 'editor') {
             if (!view.scimoz) {
                 // Probably shutting down
-                return;
+                return null;
             }
             pos = view.scimoz.currentPos;
         } else {
