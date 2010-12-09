@@ -81,7 +81,7 @@ function projectManager() {
     this.name = 'projectManager';
     ko.projects.BaseManager.apply(this, []);
     this.log = ko.logging.getLogger('projectManager');
-    #this.log.setLevel(ko.logging.LOG_DEBUG);
+    //this.log.setLevel(ko.logging.LOG_DEBUG);
     this._projects = [];
     this._currentProject = null;
     // register our command handlers
