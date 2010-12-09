@@ -181,11 +181,12 @@ class koPart(object):
                 #print "assignId [%s]: add child ref to childmap" % self.id
                 self._project._childmap[self.id] = self.children
         elif self.id == self._attributes['id']:
-            self.getIDRef()
+            if self._parent:
+                self._idref = self._parent.id
+            else:
+                self._idref = None
             if self._idref == self.id:
-                if self.id not in idmap:
-                    #print "assignID [%s]: adding self to idmap" % self.id
-                    idmap[self.id] = self
+                idmap[self.id] = self
                 if hasattr(self, 'children'):
                     if self.id not in self._project._childmap:
                         #print "assignId [%s]: add child ref to childmap" % self.id
@@ -194,7 +195,7 @@ class koPart(object):
                     #    print "*** assignId [%s]: children in map are not mine!" % self.id
                 return
             # this part is KEY to getting non-live children into live folders
-            id = self._attributes['id'] = self._idref
+            id = self.id
             if id in self._project._prefmap:
                 prefset = self._project._prefmap[id]
                 if self._parent:

@@ -91,10 +91,15 @@ PlacesProjectManager.prototype = {
   // Methods for the projects context menu
   addNewFile: function(event, sender) {
         var parentPart = this._getSelectedItem("addNewFile");
-        var part = ko.projects.addNewFileFromTemplate(parentPart);
-        if (part) {
-            this.owner.projectsTreeView.showChild(parentPart, part);
-        }
+        var this_ = this;
+        var callback = function(part) {
+            if (part) {
+                this_.owner.projectsTreeView.showChild(parentPart, part);
+            }
+        };
+        // This has to be done via a callback because creating a file
+        // via a template is an async call.
+        ko.projects.addNewFileFromTemplate(parentPart, callback);
     },
   
   addGroup: function(event, sender) {

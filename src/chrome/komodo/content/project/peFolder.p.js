@@ -30,18 +30,19 @@ this.addPartWithURLAndType = function(url, typename, parent) {
     return part;
 }
 
-this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart*/ parent)
+this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart*/ parent, callback)
 {
-    var obj = {
-      type:"file",
-      defaultDir:parent.getFile().dirName,
-      filename: null
+    var this_ = this;
+    var view_callback = function(view) {
+        if (view) {
+            var part = this_.addPartWithURLAndType(view.document.file.URI, 'file', parent);
+            if (callback) {
+                callback(part);
+            }
+        }
     };
-    ko.launch.newTemplate(obj);
-    return (obj.filename
-            ? this.addPartWithURLAndType(ko.uriparse.pathToURI(obj.filename),
-                                         'file', parent)
-            : null);
+    ko.views.manager.newTemplateAsync(parent.getFile().dirName,
+                                      view_callback);
 }
     
 this.addFile = function peFolder_addFile(parent_item)
