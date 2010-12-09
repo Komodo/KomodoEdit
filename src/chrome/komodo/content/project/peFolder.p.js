@@ -74,6 +74,7 @@ this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart
             }
         }
     };
+    var targetDir = null;
     if (parent.type == "folder") {
         var children = {};
         parent.getChildrenByType('livefolder', true, children, {});
