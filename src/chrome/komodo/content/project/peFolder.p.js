@@ -38,10 +38,10 @@ this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart
       filename: null
     };
     ko.launch.newTemplate(obj);
-    if (obj.filename) {
-        return this.addPartWithURLAndType(ko.uriparse.pathToURI(obj.filename),
-                                          'file', parent);
-    }
+    return (obj.filename
+            ? this.addPartWithURLAndType(ko.uriparse.pathToURI(obj.filename),
+                                         'file', parent)
+            : null);
 }
     
 this.addFile = function peFolder_addFile(parent_item)
@@ -62,6 +62,18 @@ this.addFile = function peFolder_addFile(parent_item)
         }
         return true;
     }
+}
+
+this.addGroup = function peFolder_addFolder(/*koIPart*/ parent)
+{
+    var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFolderName"));
+    if (!name) {
+        return null;
+    }
+    var part = parent.project.createPartFromType('folder');
+    part.setStringAttribute('name', name);
+    ko.projects.manager.addItem(part, parent);
+    return part;
 }
 
 

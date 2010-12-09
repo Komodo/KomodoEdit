@@ -387,7 +387,7 @@
                 accesskey="&folderContextNewFolder.accesskey;"
                 class="menuitem-iconic"
                 image="chrome://komodo/skin/images/new_folder.png"
-                oncommand="ko.projects.addNewPart('newfolder', this.parentNode.getAttribute('partviewer'))"
+                oncommand="ko.places.projects.manager.addGroup(event, this);"
                 />
       <menuseparator id="placesSubpanelProjects_AddItemsMenu_sep1" />
       <menuitem id="folder_context_existingFile"
@@ -813,7 +813,7 @@
               flex="1"
               ondblclick="ko.places.projects.onProjectTreeDblClick(event, this);"
               context="placesSubpanelProjectsContextMenu"
-              class="recentProjectsTree" />
+              class="projectTree" />
         </tree>
       </deck>
 

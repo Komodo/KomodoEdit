@@ -1,0 +1,94 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+.projectTree:-moz-tree-image(primaryColumn) {
+  /* XXX width scales the image in 1.9, can we prevent that? */
+  /*width: 22px;  /* to accomodate non 16x22 icons for parts with custom icons */
+  margin-right: 8px;
+}
+
+.projectTree:-moz-tree-cell-text(projectActive)
+{
+    font-weight: bold;
+}
+
+/* file not found status */
+
+.projectTree:-moz-tree-cell-text(missing) {
+  color: #c43434; /* dark red */
+}
+
+.projectTree:-moz-tree-cell-text(selected, missing) {
+  color: white;
+}
+
+.projectTree:-moz-tree-image(default) {
+  list-style-image: url('chrome://komodo/skin/images/file_icon.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(default, missing) {
+  list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(folder) {
+  list-style-image: url('chrome://komodo/skin/images/folder-closed-pink.png');
+}
+
+.projectTree:-moz-tree-image(folder, open) {
+  list-style-image: url('chrome://komodo/skin/images/folder-open-pink.png');
+}
+
+.projectTree:-moz-tree-image(folder, closed) {
+  list-style-image: url('chrome://komodo/skin/images/folder-closed-pink.png');
+}
+
+.projectTree:-moz-tree-image(livefolder) {
+  list-style-image: url('chrome://komodo/skin/images/folder-closed.png');
+}
+
+.projectTree:-moz-tree-image(livefolder, open) {
+  list-style-image: url('chrome://komodo/skin/images/folder-open.png');
+}
+
+.projectTree:-moz-tree-image(livefolder, closed) {
+  list-style-image: url('chrome://komodo/skin/images/folder-closed.png');
+}
+
+.projectTree:-moz-tree-image(project) {
+  list-style-image: url('chrome://komodo/skin/images/project_icon.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(project, missing) {
+  list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(project, asyncOperation) {
+  list-style-image: url('chrome://global/skin/icons/loading_16.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(project, isReadOnly) {
+  list-style-image: url('chrome://komodo/skin/images/project_icon_readonly.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(file) {
+  list-style-image: url('chrome://komodo/skin/images/file_icon.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(file, missing) {
+  list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
+  margin-right: 2px;
+}
+
+.projectTree:-moz-tree-image(file, asyncOperation) {
+  list-style-image: url('chrome://global/skin/icons/loading_16.png');
+  margin-right: 2px;
+}

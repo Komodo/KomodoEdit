@@ -603,7 +603,7 @@ class KPFTreeView(TreeView):
             row.properties = self._buildCellProperties(index, column)
         plist.extend(row.properties)
 
-        #print "row %d %s : %r"% (row, column.id, plist)
+        #print "row %d %s : %r"% (index, column.id, plist)
         for p in plist:
             properties.AppendElement(self.atomService.getAtom(p))
 
@@ -686,10 +686,9 @@ class KPFTreeView(TreeView):
         name = self._getFieldName(column)
         if name == "name":
             part = self._rows[index].part
-            try:
-                return part.get_iconurl()
-            except:
-                log.exception("getImageSrc(%d) failed:", index)
+            if part._attributes.has_key('icon'):
+                #print "getImageSrc row %d [%s]"% (index, node._attributes['icon'])
+                return part._attributes['icon']
         return ""
 
     def getCellValue(self, index, column):

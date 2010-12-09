@@ -48,6 +48,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/partviewer.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/scrolltabs.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/sidebar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
