@@ -538,14 +538,14 @@
                 oncommand="ko.places.projects.deleteItem();" />
 
       <menuseparator id="menu_projCtxt_project_save_separator_4"
-                     hideIf="root" />
+                     hideUnless="project" />
 
       <menuitem label="&properties.label;"
                 id="menu_projCtxt_projectProperties"
                 class="menuitem-iconic"
                 oncommand="ko.places.projects.editProjectProperties();"
                 accesskey="&projectProperties.accesskey;"
-                hideIf="root" />
+                hideUnless="project" />
     </menupopup>
   </popupset>
 <!--
