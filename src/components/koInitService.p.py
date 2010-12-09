@@ -791,7 +791,7 @@ class KoInitService(object):
                 log.error("Could not upgrade '%s' from '%s': %s"\
                          % (dst, src, ex))
 
-    def _upgradeUserPrefs(self):
+    def _upgradeOldUserPrefs(self):
         """Upgrade any specific info in the user's prefs.xml.
         
         This is called after the new user data dir has been created.
@@ -867,6 +867,26 @@ class KoInitService(object):
             autoSaveSeconds = prefs.getLongPref("autoSaveMinutes") * 60
             prefs.setLongPref("autoSaveSeconds", autoSaveSeconds)
             prefs.deletePref("autoSaveMinutes")
+
+    def _upgradeUserPrefs(self):
+        """Upgrade any specific info in the user's prefs.xml.
+        
+        This is called after the new user data dir has been created.
+
+        Dev note: This is also called every time Komodo is started.
+        """
+        prefs = components.classes["@activestate.com/koPrefService;1"]\
+                .getService(components.interfaces.koIPrefService).prefs
+
+        if not prefs.hasPrefHere("version"):
+            self._upgradeOldUserPrefs(prefs)
+            version = 0
+        else:
+            version = prefs.getLongPref("version")
+
+        if version < 1:
+            # Set the version so we don't have to upgrade again.
+            prefs.setLongPref("version", 1)
 
     def _hostUserDataDir(self, userDataDir):
         """Support for Komodo profiles that contain a host-$HOST directory."""
