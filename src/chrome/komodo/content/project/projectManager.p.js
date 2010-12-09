@@ -159,7 +159,7 @@ projectManager.prototype._saveProjectViewState = function(project) {
 projectManager.prototype.closeProjectEvenIfDirty = function(project) {
     // Remove the project node/part from the Projects tree.
     if (this.viewMgr) {
-        this.viewMgr.view.removeProject(project);
+        this.viewMgr.removeProject(project);
     }
     if (typeof(project) == "undefined") project = this.currentProject;
     ko.toolbox2.manager.toolbox2Svc.deactivateProjectToolbox(project);
@@ -352,9 +352,6 @@ projectManager.prototype.saveProject = function(project, skip_scc_check) {
 }
 
 projectManager.prototype.newProject = function(url) {
-    if (!this.closeProject()) {
-        return false;
-    }
     var project = Components.classes["@activestate.com/koProject;1"]
                                         .createInstance(Components.interfaces.koIProject);
     project.create();
