@@ -67,7 +67,7 @@ var _obSvc = Components.classes["@mozilla.org/observer-service;1"].
 //gone: ko.projects.manager.activeView
 //gone: ko.projects.manager._projects
 //gone: ko.projects.manager.getProjectsMenu (and xul tag)
-//gone: ko.projects.manager.hasProject
+//reinstated: ko.projects.manager.hasProject
 //gone: ko.projects.manager.managers
 //gone: ko.projects.manager.getAllProjects
 //gone: ko.projects.manager.getFocusedProjectView
@@ -171,9 +171,23 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
 
     // Forget about any notifications made for this project.
     this.notifiedClearProject(project);
+
+    // remove the project from our list
+    try {
+        var id = this._projects.indexOf(project);
+        this._projects.splice(id, 1);
+    } catch(e) {
+        // XXX FIXME SMC currently broken with live projects
+    }
     project.close();
-    this.currentProject = null;
+    
     ko.mru.addURL("mruProjectList", project.url);
+    if (this._projects.length == 0) {
+        window.updateCommands('some_projects_open');
+    }
+    if (this.viewMgr) {
+        this.viewMgr.refresh(project);
+    }
     window.updateCommands('some_projects_open');
     return true;
 }
@@ -766,10 +780,11 @@ projectManager.prototype.isCommandEnabled = function(command) {
     case "cmd_closeProject":
     case "cmd_findInCurrProject":
     case "cmd_projectProperties":
-    case "cmd_renameProject":
     case "cmd_replaceInCurrProject":
     case "cmd_saveProjectAs":
         return this.getSelectedProject() != null;
+    case "cmd_renameProject":
+        return this.getSelectedProject() && !this.getSelectedProject().isDirty;
     case "cmd_showProjectInPlaces":
         // Verify places is loaded
         if (!ko.places) return false;
@@ -1082,8 +1097,7 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
     return true;
 }
 
-this.saveProjectAs = function ProjectSaveAs(project)
-{
+this.saveProjectAs = function ProjectSaveAs(project) {
     var localPath = ko.filepicker.saveFile(
             null, project.url, // default dir and filename
             _bundle.GetStringFromName("saveprojectas.title"), // title
@@ -1102,7 +1116,7 @@ this.saveProjectAs = function ProjectSaveAs(project)
     }
 
     project.url = url;
-    // project.name = ko.uriparse.baseName(url);
+    project.name = ko.uriparse.baseName(url);
     try {
         project.save();
     } catch(ex) {
@@ -1130,16 +1144,23 @@ this.saveProjectAs = function ProjectSaveAs(project)
  */
 this.renameProject = function ProjectRename(project)
 {
+    if (!project) {
+        ko.dialogs.alert("No project to rename");
+        return;
+    } else if (project.isDirty) {
+        ko.dialogs.alert("Project " + project.name + " needs to be saved before renaming");
+        return;
+    }
     var oldKoFile = project.getFile();
     if (!oldKoFile.isLocal) {
         ko.dialogs.alert("Sorry, only local projects can be renamed");
         return;
     }
     var newname = ko.dialogs.renameFileWrapper(project.name);
-    if (!newname) {
+    if (!newname || newname == project.name) {
         return;
     }
-    if (!this.manager.closeProject()) {
+    if (!this.manager.closeProject(project)) {
         return;
     }
     var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
@@ -1154,7 +1175,8 @@ this.renameProject = function ProjectRename(project)
             
         var newURL = ko.uriparse.localPathToURI(newPath);
         this.open(newURL);
-        if ((ko.places.manager.currentPlace + "/").indexOf(newURL) == 0) {
+        if (ko.places
+            && (ko.places.manager.currentPlace + "/").indexOf(newURL) == 0) {
             // Need to get places to refresh its view to show the new project file.
             ko.places.view.refreshView(-1);
             //XXX: The new name isn't showing up in places.
@@ -1162,28 +1184,6 @@ this.renameProject = function ProjectRename(project)
             // probably be hidden anyway.
         }
         xtk.domutils.fireEvent(window, 'current_project_changed');
-        /*
-        setTimeout(function(this_) {
-                try {
-                    this_.open(newURL);
-                } catch(ex) {
-                    ko.dialogs.alert("Failed to open "
-                                    + newPath
-                                    + ":"
-                                    + ex);
-                    this_.manager.log.exception(ex);
-                }
-            }, 10000, this);
-        */
-        /*
-        var newProject = this.manager.currentProject;
-        if (newProject) {
-            // Update the project's name field.
-            newProject.name = newname;
-            newProject.save();
-            _obSvc.notifyObservers(this, 'project_renamed', newURL + "##" + newname);
-        }
-        */
     } catch(ex) {
         ko.dialogs.alert("Failed to rename "
                          + oldKoFile.path
