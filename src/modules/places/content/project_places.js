@@ -307,6 +307,7 @@ this.initProjectsContextMenu = function(event, menupopup) {
       itemTypes: itemTypes,
       multipleNodesSelected: selectedIndices.length > 1,
       projectIsDirty: selectedItems.filter(function(item) item.isDirty).length > 0,
+      needSeparator: [false],
       __END__:null
     };
     this._processProjectsMenu_TopLevel(menupopup);
@@ -327,7 +328,16 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
     if (menuNode.id == "menu_projCtxt_addMenu_Popup"
         && menuNode.childNodes.length == 0) {
         ko.places.projects.copyNewItemMenu(menuNode, "projView_");
+    } else if (menuNode.nodeName == "menuseparator") {
+        if (selectionInfo.needSeparator[0]) {
+            menuNode.removeAttribute('collapsed');
+            selectionInfo.needSeparator[0] = false;
+        } else {
+            menuNode.setAttribute('collapsed', true);
+        }
+        return;
     }
+    selectionInfo.needSeparator[0] = true;
     menuNode.removeAttribute('collapsed');
     var disableNode = false;
     if (ko.places.matchAnyType(menuNode.getAttribute('disableIf'), itemTypes)) {
@@ -367,8 +377,13 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
         menuNode.removeAttribute('disabled');
     }
     var childNodes = menuNode.childNodes;
-    for (var i = childNodes.length - 1; i >= 0; --i) {
-        this._processProjectsMenu_TopLevel(childNodes[i]);
+    var childNodesLength = childNodes.length;
+    if (childNodesLength) {
+        selectionInfo.needSeparator.unshift(false);
+        for (var i = 0; i < childNodesLength; i++) {
+            this._processProjectsMenu_TopLevel(childNodes[i]);
+        }
+        selectionInfo.needSeparator.shift();
     }
 };
 
