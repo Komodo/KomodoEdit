@@ -74,21 +74,34 @@ var _obSvc = Components.classes["@mozilla.org/observer-service;1"].
 //gone: ko.projects.manager.findItemByAttributeValue
 //gone: ko.toolboxes.importPackage -- can't import packages into toolboxes now
 
-//----- The projectManager class manages the current project, if there is one.
+//----- The projectManager class manages the set of open projects and
+// which project is 'current'.
 
 function projectManager() {
     this.name = 'projectManager';
     ko.projects.BaseManager.apply(this, []);
     this.log = ko.logging.getLogger('projectManager');
+    this.log.setLevel(ko.logging.LOG_DEBUG);
     this._projects = [];
     this._currentProject = null;
-    this._project_opened_during_workspace_restore = false;
+    // register our command handlers
     this.registerCommands();
+    this._project_opened_during_workspace_restore = false;
+    this._lastCurrentProject = null;
+    this.viewMgr = null;
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
 projectManager.prototype = new ko.projects.BaseManager();
 projectManager.prototype.constructor = projectManager;
+
+projectManager.prototype.setViewMgr = function(projectViewMgr) {
+    this.viewMgr = projectViewMgr;
+}
+
+projectManager.prototype.hasProject = function(project) {
+    return this._projects.indexOf(project) > -1;
+}
 
 projectManager.prototype._getOpenURLsInProject = function(project) {
     // Find out if any child elements are currently open
@@ -144,14 +157,16 @@ projectManager.prototype._saveProjectViewState = function(project) {
 }
 
 projectManager.prototype.closeProjectEvenIfDirty = function(project) {
+    // Remove the project node/part from the Projects tree.
+    this.viewMgr.view.removeProject(project);
     if (typeof(project) == "undefined") project = this.currentProject;
-    if (!project) {
-        // No project to close.
-        return true;
-    }
     ko.toolbox2.manager.toolbox2Svc.deactivateProjectToolbox(project);
     
     // the active project has been reset
+    if (this.currentProject) {
+        this._lastCurrentProject = this.currentProject;
+    }
+
     // Forget about any notifications made for this project.
     this.notifiedClearProject(project);
     project.close();
@@ -627,8 +642,11 @@ projectManager.prototype.loadProject = function(url) {
 }
 
 projectManager.prototype._addProject = function(project) {
+    this._projects.push(project);
+    // add project to project tree
+    this.viewMgr.addProject(project);
+    this.viewMgr.refresh(project);
     this.setCurrentProject(project);
-    // add project's toolbox to tools tree
     ko.toolbox2.manager.toolbox2Svc.activateProjectToolbox(project);
 
     // Let the file status service know it has work to do.
@@ -1004,9 +1022,6 @@ projectManager.prototype.effectivePrefs = function () {
 
 
 this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* false */) {
-    if (!this.manager.closeProject()) {
-        return false;
-    }
     var action = null;
     var opened_files = [];
     if (typeof(skipRecentOpenFeature) == 'undefined') {
