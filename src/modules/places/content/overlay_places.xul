@@ -538,16 +538,6 @@
       <menuseparator id="menu_projCtxt_project_save_separator_2"
                      hideUnless="folder project" />
       
-      <menuitem label="&amp;XXX SCC on Contents.label;"
-                id="menu_projCtxt_renameGroup"
-                testDisableIf="t:multipleSelection"
-                class="menuitem-iconic"
-                hideUnless="folder project"
-                oncommand="ko.places.projects.SCCDiffsOnGroup();" />
-
-      <menuseparator id="menu_projCtxt_project_save_separator_3"
-                     hideUnless="folder" />
-      
       <menuitem label="&delete.label;"
                 id="menu_projCtxt_deleteItem"
                 class="menuitem-iconic"

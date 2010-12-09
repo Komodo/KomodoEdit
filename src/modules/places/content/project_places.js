@@ -24,6 +24,8 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://places/locale/places.properties");
 
+this.XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
 this.createPlacesProjectView = function() {
     _globalPrefs = (Components.classes["@activestate.com/koPrefService;1"].
                    getService(Components.interfaces.koIPrefService).prefs);
@@ -44,7 +46,51 @@ this.createPlacesProjectView = function() {
                          "projCtxt_");
     this.manager = new PlacesProjectManager(this);
     ko.projects.manager.setViewMgr(this.manager);
+
+    this.finishSCCProjectsMenu("menu_projCtxt_SCCmenu",
+                               "menu_SCCmenu",
+                               "menu_projCtxt_");
+    //this.finishSCCProjectsMenu("menu_projCtxt_SCC_ContentsMenu",
+    //                           "menu_SCCmenu_folder_context",
+    //                           "menu_projCtxtContents_");
 };
+
+this.finishSCCProjectsMenu = function(destID, srcID, prefix) {
+    var menuNode = document.getElementById(destID);
+    if (!menuNode || menuNode.nodeName != "menu") {
+        log.debug("No " + destID + "\n");
+        return;
+    } else if (menuNode.childNodes.length > 0) {
+        log.debug("Menu " + destID + " already set up?\n");
+        return;
+    }
+    var srcMenu = document.getElementById("menu_SCCmenu");
+    if (!srcMenu || !srcMenu.childNodes.length) {
+        log.debug("**** Can't find " + srcID + "\n");
+        return;
+    }
+    this._menuIdPrefix = prefix;
+    this._copyTree(srcMenu, menuNode);
+    delete this._menuIdPrefix;
+}
+
+this._copyTree = function(srcParentNode, destParentNode) {
+    var srcNodes = srcParentNode.childNodes;
+    var len = srcNodes.length;
+    var attr, destNode, attributes;
+    for (var i = 0; i < len; i++) {
+        var srcNode = srcNodes[i];
+        destNode = document.createElementNS(this.XUL_NS, srcNode.nodeName);
+        attributes = srcNode.attributes;
+        for (var j = 0; j < attributes.length; j++) {
+            attr = attributes[j];
+            destNode.setAttribute(attr.name, attr.value);
+        }
+        destNode.setAttribute("id", this._menuIdPrefix + srcNode.id);
+        destParentNode.appendChild(destNode);
+        this._copyTree(srcNode, destNode);
+    }
+}
 
 function PlacesProjectManager(owner) {
     this.owner = owner;
@@ -218,12 +264,11 @@ this.initProjectMRUCogMenu = function() {
 };
 
 this.copyNewItemMenu = function(targetNode, targetPrefix) {
-    var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
     var srcNodes = document.getElementById("placesSubpanelProjects_AddItemsMenu").childNodes;
     var attr, node, attributes;
     for (var i = 0; i < srcNodes.length; i++) {
         var srcNode = srcNodes[i];
-        node = document.createElementNS(XUL_NS, srcNode.nodeName);
+        node = document.createElementNS(this.XUL_NS, srcNode.nodeName);
         attributes = srcNode.attributes;
         for (var j = 0; j < attributes.length; j++) {
             attr = attributes[j];
@@ -235,20 +280,15 @@ this.copyNewItemMenu = function(targetNode, targetPrefix) {
 };
 
 this.finishProjectsContextMenu = function(targetNode, targetPrefix) {
-    var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
     var srcNodes = document.getElementById("placesSubpanelProjects_AddItemsMenu").childNodes;
     var target_tree = document.getElementById("menu_projCtxt_addMenu_Popup");
     var target_toolbar = document.getElementById("projectView_AddItemPopup");
     var attr, node, nodetb, attributes;
-    dump(">> finishProjectsContextMenu, copy "
-         + srcNodes.length
-         + " nodes\n");
     for (var i = 0; i < srcNodes.length; i++) {
         var srcNode = srcNodes[i];
-        node = document.createElementNS(XUL_NS, srcNode.nodeName);
-        nodetb = document.createElementNS(XUL_NS, srcNode.nodeName);
+        node = document.createElementNS(this.XUL_NS, srcNode.nodeName);
+        nodetb = document.createElementNS(this.XUL_NS, srcNode.nodeName);
         attributes = srcNode.attributes;
-        dump("node " + i + " has " + attributes.length + " attrs\n");
         for (var j = 0; j < attributes.length; j++) {
             attr = attributes[j];
             node.setAttribute(attr.name, attr.value);
@@ -259,10 +299,10 @@ this.finishProjectsContextMenu = function(targetNode, targetPrefix) {
         nodetb.setAttribute("id", "projView__" + srcNode.id);
         target_toolbar.appendChild(node);
     }
-    dump("# nodes added to menu_projCtxt_addMenu_Popup: \n");
-    dump("  " + target_tree.childNodes.length + "\n");
-    dump("# nodes added to projectView_AddItemPopup: \n");
-    dump("  " + target_toolbar.childNodes.length + "\n");
+    //dump("# nodes added to menu_projCtxt_addMenu_Popup: \n");
+    //dump("  " + target_tree.childNodes.length + "\n");
+    //dump("# nodes added to projectView_AddItemPopup: \n");
+    //dump("  " + target_toolbar.childNodes.length + "\n");
 };
 
 this.refreshParentShowChild = function(parentPart, newPart) {
@@ -334,6 +374,9 @@ this.initProjectsContextMenu = function(event, menupopup) {
       multipleNodesSelected: selectedIndices.length > 1,
       projectIsDirty: selectedItems.filter(function(item) item.isDirty).length > 0,
       needSeparator: [false],
+      lastVisibleNode: null,
+      selectedUrls: selectedUrls,
+      isLocal: selectedUrls[0].indexOf("file://") == 0,
       __END__:null
     };
     this._processProjectsMenu_TopLevel(menupopup);
@@ -354,16 +397,19 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
     if (menuNode.id == "menu_projCtxt_addMenu_Popup"
         && menuNode.childNodes.length == 0) {
         ko.places.projects.copyNewItemMenu(menuNode, "projView_");
+        selectionInfo.lastVisibleNode = null;
     } else if (menuNode.nodeName == "menuseparator") {
         if (selectionInfo.needSeparator[0]) {
             menuNode.removeAttribute('collapsed');
             selectionInfo.needSeparator[0] = false;
+            selectionInfo.lastVisibleNode = menuNode;
         } else {
             menuNode.setAttribute('collapsed', true);
         }
         return;
     }
     selectionInfo.needSeparator[0] = true;
+    selectionInfo.lastVisibleNode = menuNode;
     menuNode.removeAttribute('collapsed');
     var disableNode = false;
     if (ko.places.matchAnyType(menuNode.getAttribute('disableIf'), itemTypes)) {
@@ -402,6 +448,13 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
     } else {
         menuNode.removeAttribute('disabled');
     }
+    if (menuNode.id == "menu_projCtxt_SCCmenu") {
+        selectionInfo.isFolder = (selectionInfo.itemTypes[0] == 'project'
+                                  || selectionInfo.itemTypes[0] == 'folder'
+                                  || gPlacesViewMgr.view.isContainer(selectionInfo.index));
+        this.initProject_SCC_ContextMenu(menuNode);
+        return;
+    }
     var childNodes = menuNode.childNodes;
     var childNodesLength = childNodes.length;
     if (childNodesLength) {
@@ -409,8 +462,67 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
         for (var i = 0; i < childNodesLength; i++) {
             this._processProjectsMenu_TopLevel(childNodes[i]);
         }
+        if (selectionInfo.lastVisibleNode
+            && selectionInfo.lastVisibleNode.nodeName == "menuseparator") {
+            // Collapse the final node
+            selectionInfo.lastVisibleNode.setAttribute('collapsed', true);
+            selectionInfo.lastVisibleNode = null;
+        }
         selectionInfo.needSeparator.shift();
     }
+};
+
+this.initProject_SCC_ContextMenu = function(menuNode) {
+    var popupmenu = menuNode.childNodes[0];
+    var selectionInfo = this._selectionInfo;
+    if (!selectionInfo.isLocal) {
+        ko.places.viewMgr._disable_all_items(popupmenu);
+        return;
+    }
+    var enabled_scc_components = ko.scc.getAvailableSCCComponents(true);
+    if (!enabled_scc_components.length) {
+        // No scc components are enabled for functional.
+        ko.places.viewMgr._disable_all_items(popupmenu);
+        return;
+    }
+    if (selectionInfo.multipleNodesSelected) {
+        ko.places.viewMgr._disable_all_items(popupmenu);
+        return;
+    }
+    var index = selectionInfo.index;
+    var uri = selectionInfo.selectedUrls[0];
+    var fileObj = (Components.classes["@activestate.com/koFileService;1"].
+                   getService(Components.interfaces.koIFileService).
+                   getFileFromURI(uri));
+    var sccObj = {};
+    var isFolder = false;
+    if (!ko.places.viewMgr._determineItemSCCSupport(fileObj, sccObj, isFolder)) {
+        // use this function to disable everything
+        ko.places.viewMgr._disable_all_items(popupmenu);
+        return;
+    }
+    var status_by_name = ko.places.viewMgr.setupSCCStatus(fileObj, sccObj, isFolder);
+    for (var menuitem, i = 0; menuitem = popupmenu.childNodes[i]; ++i) {
+        var id = menuitem.id;
+        var commonPart = "menu_projCtxt_sccButton";
+        var lastPart = id.substring(commonPart.length).toLowerCase();
+        if (status_by_name[lastPart]) {
+            menuitem.removeAttribute("disabled");
+            var command = ("ko.projects.SCC.doCommand('"
+                           + menuitem.getAttribute("observes")
+                           + "');");
+            menuitem.setAttribute("oncommand", command);
+        } else {
+            menuitem.setAttribute("disabled", "true");
+        }
+    }
+};
+
+this.getFocusedProjectView = function() {
+    if (xtk.domutils.elementInFocus(document.getElementById('placesSubpanelProjects'))) {
+        return this;
+    }
+    return null;
 };
 
 this.onProjectTreeDblClick = function(event) {
