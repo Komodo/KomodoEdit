@@ -1,5 +1,38 @@
-// Copyright (c) 2000-2011 ActiveState Software Inc.
-// See the file LICENSE.txt for licensing information.
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ * 
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.1 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ * 
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific language governing rights and limitations
+ * under the License.
+ * 
+ * The Original Code is Komodo code.
+ * 
+ * The Initial Developer of the Original Code is ActiveState Software Inc.
+ * Portions created by ActiveState Software Inc are Copyright (C) 2000-2010
+ * ActiveState Software Inc. All Rights Reserved.
+ * 
+ * Contributor(s):
+ *   ActiveState Software Inc
+ * 
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ * 
+ * ***** END LICENSE BLOCK ***** */
 
 // Define the ko.places.projects namespace
 
@@ -18,8 +51,11 @@ if (!('projects' in ko.places)) {
 var log = getLoggingMgr().getLogger("project_places_js");
 log.setLevel(LOG_DEBUG);
 
+const PROJECT_URI_REGEX = /^.*\/(.+?)\.(?:kpf|komodoproject)$/;
+
 var _globalPrefs;
 var _placePrefs;
+var _g_showProjectPath;
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://places/locale/places.properties");
@@ -721,7 +757,7 @@ this.PlaceProjectsTreeView.prototype = new xtk.dataTreeView();
 this.PlaceProjectsTreeView.prototype.constructor = this.PlaceProjectsTreeView;
 
 this.PlaceProjectsTreeView.prototype.initialize = function() {
-    this._resetRows();
+    this._initRows();
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
             getService(Components.interfaces.nsIObserverService);
     this.pref_observer_names = [ "showProjectPath" ];
@@ -736,17 +772,48 @@ this.PlaceProjectsTreeView.prototype.terminate = function() {
                                             this.pref_observer_names);
 };
 
-this.PlaceProjectsTreeView.prototype._resetRows = function() {
+this.PlaceProjectsTreeView.prototype._initRows = function() {
     this.rows = [];
+};
+
+this.PlaceProjectsTreeView.prototype._resetRows = function() {
+    var this_ = this;
 };
 
 this.PlaceProjectsTreeView.prototype.observe = function(subject, topic, data) {
     if (data == "mruProjectList") {
         this._resetRows();
     } else if (topic == "showProjectPath") {
+        _g_showProjectPath = _globalPrefs.getPref("places").getBooleanPref('showProjectPath');
         this._resetRows();
     }
 };
+
+this.PlaceProjectsTreeView.prototype._getViewPart = function(uri) {
+    if (!_g_showProjectPath) {
+        var m = PROJECT_URI_REGEX.exec(uri);
+        if (m) {
+            return decodeURIComponent(m[1]);
+        }
+    }
+    var path = ko.uriparse.URIToPath(uri);
+    var name, lastSlash, lastDot;
+    if (!_g_showProjectPath) {
+        lastSlash = uri.lastIndexOf('/');
+        if (lastSlash > -1) {
+            lastDot = uri.lastIndexOf(".");
+            if (lastDot > -1
+                && ['.komodoproject', '.kpf'].indexOf(uri.substr(lastDot)) > -1) {
+                // Standard -- ends with ".komodoproject" or ".kpf"
+                path = path.substring(lastSlash + 1, lastDot);
+            } else {
+                path = path.substring(lastSlash + 1);
+            }
+        }
+        // else do nothing -- show the extension as well.
+    }
+    return path;
+}
 
 this.PlaceProjectsTreeView.prototype.replaceProject = function(oldURL, project) {
     var listLen = this.rows.length;
@@ -808,31 +875,6 @@ this.PlaceProjectsTreeView.prototype.getSelectedProject = function() {
 }
 
 // NSITreeView methods.
-this.PlaceProjectsTreeView.prototype.getCellText = function(index, column) {
-    var row = this.rows[index];
-    var currentProject = ko.projects.manager.currentProject;
-    if (currentProject
-        && currentProject.isDirty
-        && currentProject.url == row[0]) {
-        return row[1] + "*";
-    } else {
-        return row[1];
-    }
-};
-this.PlaceProjectsTreeView.prototype.getCellValue = function(index, column) {
-    return this.rows[index][0];
-};
-this.PlaceProjectsTreeView.prototype.getImageSrc = function(index, column) {
-    return 'chrome://komodo/skin/images/project_icon.png'
-};
-this.PlaceProjectsTreeView.prototype.getCellProperties = function(index, column, properties) {
-    return; //@@@@ -- figure out which project is active.
-    var row = this.rows[index];
-    var currentProject = ko.projects.manager.currentProject;
-    if (currentProject && currentProject.url == row[0]) {
-        properties.AppendElement(this._atomService.getAtom("projectActive"));
-    }
-};
 
 this.PlaceProjectsTreeView.prototype.getNextSiblingIndex = function(index) {
 /**

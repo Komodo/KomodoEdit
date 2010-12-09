@@ -39,7 +39,7 @@ from xpcom.server import WrapObject, UnwrapObject
 
 import sys, os, re, types
 from koTreeView import TreeView
- 
+
 import logging
 
 log = logging.getLogger("ProjectTreeView")
@@ -115,7 +115,7 @@ class KPFTreeView(TreeView):
         self._nodeIsOpen = {}
         self._sortedBy = 'name'
         self._sortDir = 0
- 
+
         self._tree = None
         self.statusObserver = None
         #self.log = logging.getLogger("ProjectTreeView")
@@ -123,7 +123,7 @@ class KPFTreeView(TreeView):
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
         self._observerSvc.addObserver(self, "file_status",True) # weakref
- 
+
     def observe(self, subject, topic, data):
         if not self._tree:
             # No tree, Komodo is likely shutting down.
