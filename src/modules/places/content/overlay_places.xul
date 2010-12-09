@@ -53,6 +53,8 @@
 
   <script src="chrome://places/content/places.js"
           type="application/x-javascript"/>
+  <script src="chrome://places/content/project_places.js"
+          type="application/x-javascript"/>
   <script src="chrome://places/content/placeController.js"
           type="application/x-javascript"/>
   <script type="application/x-javascript">
@@ -365,59 +367,52 @@
     </menupopup>
 
     <menupopup id="placesSubpanelProjectsContextMenu"
-        onpopupshowing="ko.places.initProjectsContextMenu(event, this);" >
+        onpopupshowing="ko.places.projects.initProjectsContextMenu(event, this);" >
       <!--
-      show in places
-      close
-      save
-      save project as...
-      revert
-      ======
-      open in a new window (if not open)
-      open here (if not open)
-      properties
+      See kd-0266#[Project Panel Gear Menu] for this menu's spec
+      @@@@
       -->
-      <menuitem label="&showProjectInPlaces.label;"
-          id="menu_showProjectInPlaces_projectsContext"
-          disableUnless="currentProject"
-          oncommand="ko.places.showProjectInPlaces();" />
-      <menuitem label="&closeProject.label;"
-          id="menu_closeProject_projectsContext"
-          disableUnless="currentProject"
-          oncommand="ko.places.closeProject();" />
-      <menuitem label="&saveProject.label;"
-          id="menu_saveProject_projectsContext"
-          disableUnless="projectIsDirty"
-          oncommand="ko.places.saveProject();" />
-      <menuitem label="&saveProjectAs.label;"
-          id="menu_saveProjectAs_projectsContext"
-          disableUnless="currentProject"
-          oncommand="ko.places.saveProjectAs();" />
-      <menuitem label="&revertProject.label;"
-          id="menu_revertProject_projectsContext"
-          disableUnless="projectIsDirty"
-          oncommand="ko.places.revertProject();" />
-
-      <menuseparator id="menu_project_save_separator_projectsContext"/>
-
-      <menuitem label="&openProject.label;"
+      <!-- XXX:  This menu is never used // right??? -->
+      <menuitem label="yoinks - &openProject.label;"
           id="menu_openProject_projectsContext"
-          oncommand="ko.places.openProjectInCurrentWindow();" />
+          oncommand="ko.places.projects.openProjectInCurrentWindow();" />
+      <menuitem label="&amp;### openRemoteProject.label;"
+          id="menu_openRemoteProject_projectsContext"
+          oncommand="ko.places.projects.openRemoteProject();" />
       <menuitem label="&openProjectInNewWindow.label;"
           id="menu_projectOpenProject_projectsContext"
           disableIf="projectIsOpen"
-          oncommand="ko.places.openProjectInNewWindow();" />
-      <menuitem label="&removeProjectListing.label;"
-          id="menu_removeProjectListing_projectsContext"
-          disableIf="currentProject"
-          oncommand="ko.places.removeProjectListing();" />
+          oncommand="ko.places.projects.openProjectInNewWindow();" />
+
+      <menuitem label="&showProjectInPlaces.label;"
+          id="menu_showProjectInPlaces_projectsContext"
+          disableUnless="currentProject"
+          oncommand="ko.places.projects.showProjectInPlaces();" />
+      <menuitem label="&closeProject.label;"
+          id="menu_closeProject_projectsContext"
+          disableUnless="currentProject"
+          oncommand="ko.places.projects.closeProject();" />
+      <menuitem label="&saveProject.label;"
+          id="menu_saveProject_projectsContext"
+          disableUnless="projectIsDirty"
+          oncommand="ko.places.projects.saveProject();" />
+      <menuitem label="&saveProjectAs.label;"
+          id="menu_saveProjectAs_projectsContext"
+          disableUnless="currentProject"
+          oncommand="ko.places.projects.saveProjectAs();" />
+      <menuitem label="&revertProject.label;"
+          id="menu_revertProject_projectsContext"
+          disableUnless="projectIsDirty"
+          oncommand="ko.places.projects.revertProject();" />
+
+      <menuseparator id="menu_project_save_separator_projectsContext"/>
 
       <menuseparator id="menu_project_properties_separator_projectsContext"/>
 
       <menuitem label="&properties.label;"
           id="menu_projectProperties_projectsContext"
           disableUnless="currentProject"
-          oncommand="ko.places.editProjectProperties();"
+          oncommand="ko.places.projects.editProjectProperties();"
           accesskey="&projectProperties.accesskey;" />
     </menupopup>
   </popupset>
@@ -611,7 +606,7 @@
       <splitter id="placesSubpanelSplitter"
           orient="vertical"
           resizeafter="farthest"
-          ondblclick="ko.places.toggleSubpanel()"
+          ondblclick="ko.places.projects.toggleSubpanel()"
           collapse="none">
         <hbox id="placesSubpanelSplitterHbox"
               flex="1"
@@ -631,6 +626,9 @@
                 splitter such that you can't invoke the menu entries, at least
                 on Mac. Using a separate 'popup' outside of the splitter is
                 a workaround. -->
+              <!-- Note #2: this menu comes from popup_project
+	           via ko.places.projects.initProjectMRUCogMenu()
+		 -->
               <toolbarbutton id="placesSubpanelProjectsTools"
                   buttonstyle="pictures"
                   type="menu"
@@ -641,7 +639,7 @@
           <!--</deck>-->
           <toolbarbutton id="placesSubpanelToggle"
               buttonstyle="pictures"
-              oncommand="ko.places.toggleSubpanel()"
+              oncommand="ko.places.projects.toggleSubpanel()"
               persist="state"
               state="open" />
         </hbox>
@@ -664,7 +662,7 @@
           <treechildren
               id="placesSubpanelProjectsTreechildren"
               flex="1"
-              ondblclick="ko.places.onProjectTreeDblClick(event, this);"
+              ondblclick="ko.places.projects.onProjectTreeDblClick(event, this);"
               context="placesSubpanelProjectsContextMenu"
               class="recentProjectsTree" />
         </tree>
