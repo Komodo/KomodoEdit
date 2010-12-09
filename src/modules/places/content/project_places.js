@@ -359,7 +359,7 @@ this.onProjectTreeDblClick = function(event) {
         if (!part) {
             log.error("onProjectTreeDblClick(" + index + ") => null\n");
         } else {
-            var uri = part.uri;
+            var uri = part.url;
             switch (part.type) {
                 case "project":
                     var currentProject = ko.projects.manager.currentProject;
@@ -374,7 +374,7 @@ this.onProjectTreeDblClick = function(event) {
                     break;
 
                 case "file":
-                    ko.open.multipleURIs([part.uri]);
+                    ko.open.multipleURIs([uri]);
                     break;
             }
         }
