@@ -101,16 +101,10 @@ this.copyNewItemMenu = function(targetNode, targetPrefix) {
     var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
     var srcNodes = document.getElementById("placesSubpanelProjects_AddItemsMenu").childNodes;
     var attr, node, attributes;
-    dump(">> copyNewItemMenu, copy "
-         + srcNodes.length
-         + " nodes to "
-         + targetNode.id
-         + "\n");
     for (var i = 0; i < srcNodes.length; i++) {
         var srcNode = srcNodes[i];
         node = document.createElementNS(XUL_NS, srcNode.nodeName);
         attributes = srcNode.attributes;
-        dump("node " + i + " has " + attributes.length + " attrs\n");
         for (var j = 0; j < attributes.length; j++) {
             attr = attributes[j];
             node.setAttribute(attr.name, attr.value);
@@ -118,8 +112,6 @@ this.copyNewItemMenu = function(targetNode, targetPrefix) {
         node.setAttribute("id", "projCtxt_" + srcNode.id);
         targetNode.appendChild(node);
     }
-    dump("# nodes added to " + targetNode.id + "\n");
-    dump("  " + targetNode.childNodes.length + "\n");
 };
 
 this.finishProjectsContextMenu = function(targetNode, targetPrefix) {
