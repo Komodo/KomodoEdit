@@ -41,8 +41,22 @@ this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart
             }
         }
     };
-    ko.views.manager.newTemplateAsync(parent.getFile().dirName,
-                                      view_callback);
+    var targetDir = null;
+    if (parent.type == "folder") {
+        var children = parent.getChildrenByType('livefolder', true);
+        if (children.length) {
+            targetDir = children[0].getFile().path;
+        } else {
+            children = parent.getChildrenByType('file', true);
+            if (children.length) {
+                targetDir = children[0].getFile().dirName;
+            }
+        }
+    }
+    if (!targetDir) {
+        targetDir = parent.project.getFile().dirName;
+    }
+    ko.views.manager.newTemplateAsync(targetDir, view_callback);
 }
     
 this.addFile = function peFolder_addFile(parent_item)

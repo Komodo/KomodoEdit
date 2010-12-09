@@ -78,12 +78,12 @@ PlacesProjectManager.prototype = {
         this.owner.projectsTreeView.getSelectedItems(o1, o2);
         if (o2.value != 1) {
             log.error(context + ": Expected 1 selected item, got " + o2.value);
-            return;
+            return null;
         }
         var parentPart = o1.value[0];
         if (!parentPart) {
             log.error(context + ": no part in selection");
-            return;
+            return null;
         }
         return parentPart;
     },

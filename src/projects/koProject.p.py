@@ -316,7 +316,7 @@ class koPart(object):
         if parent == self._parent:
             return
 
-        self._idref = None
+        self._idref = self._attributes['idref'] = parent.id
         self._parent = parent
 
         if self.id in self._project._prefmap:
@@ -719,7 +719,7 @@ class koContainerBase(koPart):
 
         child.set_parent(self)
         child.set_project(self._project) # this calls the setter
-        child.assignId()
+        #child.assignId()
         if child.id in child._project._prefmap:
             child.get_prefset().parent = self.get_prefset()
 
