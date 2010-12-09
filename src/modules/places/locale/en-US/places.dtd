@@ -42,7 +42,12 @@
 <!ENTITY filters.label "Filters">
 <!ENTITY makeActiveProject.label "Make Active Project">
 <!ENTITY newPlace.label "New...">
+<!ENTITY existingFolder.label "Existing Folder...">
+<!ENTITY existingRemoteFolder.label "Existing Remote Folder...">
+<!ENTITY existingRemoteFolder.accesskey "X">
 <!ENTITY newFilesPlace.label "New File...">
+<!ENTITY newGroupPlace.label "New Group...">
+<!ENTITY newGroupPlace.accesskey "G">
 <!ENTITY placesNewFileFromTemplate.label "New File From Template...">
 
 <!ENTITY loadPlace.label "Open Directory...">
