@@ -167,6 +167,7 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
     // the active project has been reset
     if (this.currentProject) {
         this._lastCurrentProject = this.currentProject;
+        this.currentProject = null;
     }
 
     // Forget about any notifications made for this project.
@@ -512,8 +513,16 @@ projectManager.prototype.revertProjectByURL = function(url) {
 }
 
 projectManager.prototype.revertProject = function(project) {
-    this.closeProjectEvenIfDirty(project);
-    this.loadProject(project.url);
+    try {
+        this.closeProjectEvenIfDirty(project);
+    } catch(ex) {
+        dump("revertProject: closeProjectEvenIfDirty: " + ex + "\n");
+    }
+    try {
+        this.loadProject(project.url);
+    } catch(ex) {
+        dump("revertProject: revertProject: " + ex + "\n");
+    }
 }
 
 projectManager.prototype.updateProjectMenu = function(event, menupopup) {
@@ -617,7 +626,7 @@ projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
 
 projectManager.prototype.loadProject = function(url) {
     if (this.getProjectByURL(url)) {
-        return null; // the project is already loaded
+        return; // the project is already loaded
     }
     var project = this.findOtherWindowProjectInstanceForUrl(url);
     if (project) {
@@ -626,7 +635,7 @@ projectManager.prototype.loadProject = function(url) {
                          null /* text */,
                         _bundle.formatStringFromName("projectAlreadyOpened",
                                                      [project.name], 1) );
-        return null;
+        return;
     }
     project = Components.classes["@activestate.com/koProject;1"]
                         .createInstance(Components.interfaces.koIProject);
@@ -649,9 +658,9 @@ projectManager.prototype.loadProject = function(url) {
         }
         ko.dialogs.alert(_bundle.formatStringFromName("unableToLoadProject.alert",
             [projectname, lastErrorSvc.getLastErrorMessage()], 2));
-        return null;
+        return;
     }
-    return this._addProject(project);
+    this._addProject(project);
 }
 
 projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
@@ -1075,7 +1084,7 @@ this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* fa
             }
         }
     }
-    var project = ko.projects.manager.loadProject(url)
+    ko.projects.manager.loadProject(url);
     if (action == "Yes") {
         var v, file_url;
         for (var i=0; i < opened_files.length; i++) {
