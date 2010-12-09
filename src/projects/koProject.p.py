@@ -416,9 +416,8 @@ class koPart(object):
                 else:
                     attrs['icon'] = uriparse.RelativizeURL(project._relativeBasedir, attrs['icon'])
 
-        # get our parents idref
-        if self._parent:
-            attrs['idref'] = self._parent.getIDRef()
+        if 'idref' not in attrs and self._parent:
+            attrs['idref'] = self._parent.id
         #else:
         #    print "SERIALIZE [%s][%s][%s] no parent for IDREF" % (self.type, self.get_name(), self.id)
         attributes = []

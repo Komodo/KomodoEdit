@@ -496,7 +496,7 @@
                 id="menu_projCtxt_renameGroup"
                 class="menuitem-iconic"
                 hideUnless="folder"
-                oncommand="ko.places.projects.renameGroup();" />
+                oncommand="ko.places.projects.manager.renameGroup();" />
       
       <menu label="&add.label;"
             id="menu_projCtxt_addMenu"

@@ -85,6 +85,14 @@ this.addGroup = function peFolder_addFolder(/*koIPart*/ parent)
     if (!name) {
         return null;
     }
+    // Check to see if it exists.
+    var part = parent.getChildWithTypeAndStringAttribute('folder',
+                                                         'name', name,
+                                                         false);
+    if (part) {
+        //dump("Found child " + name + " in the tree already\n");
+        return part;
+    }
     var part = parent.project.createPartFromType('folder');
     part.setStringAttribute('name', name);
     ko.projects.manager.addItem(part, parent);
