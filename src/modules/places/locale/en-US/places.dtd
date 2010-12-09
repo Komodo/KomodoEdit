@@ -36,7 +36,7 @@
 
 <!ENTITY rebaseFolder.label "Make This Folder Root">
 <!ENTITY refreshView.label "Refresh View">
-<!ENTITY compareFileWith "Compare File With…">
+<!ENTITY compareFileWith.label "Compare File With…">
 
 <!ENTITY Places.label "Places">
 <!ENTITY filters.label "Filters">

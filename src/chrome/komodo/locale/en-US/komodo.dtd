@@ -43,6 +43,7 @@
 <!ENTITY aboutName.accesskey "A">
 <!ENTITY add.label "Add">
 <!ENTITY addAsSnippetInToolbox.label "Add as Snippet in Toolbox">
+<!ENTITY addItemToCurrentProject.tooltiptext "Add Item to current project">
 <!ENTITY browseForDirectoriesToAddToSearchList.tooltiptext "Browse for directories to add to search list">
 <!ENTITY browserPreview.menu.accesskey "B">
 <!ENTITY browserPreview.menu.label "Browser Preview">
@@ -270,6 +271,7 @@
 <!ENTITY generalEditProperties.desc "General: Edit Properties">
 <!ENTITY generalExportAsHTML.desc "General: Export as HTML...">
 <!ENTITY generalExportSelectionAsHTML.desc "General: Export Selection as HTML...">
+<!ENTITY generalImportFromFileSystemIntoCurrentProject.desc "General: Import From File System into Current Project">
 <!ENTITY generalLeastRecentlyViewedFile.desc "General: Least Recently Viewed File">
 <!ENTITY generalMostRecentlyViewedFile.desc "General: Most Recently Viewed File">
 <!ENTITY generalNewFile.desc "General: New File...">
@@ -466,7 +468,7 @@
 <!ENTITY newCustomMenu.label "New Custom Menu">
 <!ENTITY newCustomToolbar.label "New Custom Toolbar">
 <!ENTITY newFile.accesskey "F">
-<!ENTITY newFile.label "File">
+<!ENTITY newFile.label "New File...">
 <!ENTITY newFileFromTemplate.accesskey "T">
 <!ENTITY newFileFromTemplate.label "File from Template...">
 <!ENTITY newFileUsingDefaultLanguage.tooltiptext "New File Using Default Language">
@@ -487,6 +489,7 @@
 <!ENTITY noSelection.label "No selection">
 <!ENTITY open.label "Open">
 <!ENTITY open.tooltiptext "Open">
+<!ENTITY openFile.label "Open File">
 <!ENTITY openFile.tooltiptext "Open File">
 <!ENTITY openFind.label "Open/Find">
 <!ENTITY openFindToolbar.label "Open/Find Toolbar">

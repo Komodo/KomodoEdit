@@ -458,24 +458,10 @@ viewMgrClass.prototype = {
         return true;
     },
 
-    _matchAnyType: function(typeListAttr, typesSelectedArray) {
-        if (!typeListAttr) {
-            return false;
-        } else if (typesSelectedArray.length == 1) {
-            return typeListAttr.indexOf(typesSelectedArray[0]) != -1;
-        }
-        for (var typeName, i = 0; typeName = typesSelectedArray[i]; i++) {
-            if (typeListAttr.indexOf(typeName) != -1) {
-                return true;
-            }
-        }
-        return false;
-    },
-
     _processMenu_TopLevel: function(menuNode) {
         var selectionInfo = this._selectionInfo;
         var itemTypes = selectionInfo.itemTypes;
-        if (this._matchAnyType(menuNode.getAttribute('hideIf'), itemTypes)) {
+        if (ko.places.matchAnyType(menuNode.getAttribute('hideIf'), itemTypes)) {
             menuNode.setAttribute('collapsed', true);
             return; // No need to do anything else
         }
@@ -526,7 +512,7 @@ viewMgrClass.prototype = {
     
         menuNode.removeAttribute('collapsed');
         var disableNode = false;
-        if (this._matchAnyType(menuNode.getAttribute('disableIf'), itemTypes)) {
+        if (ko.places.matchAnyType(menuNode.getAttribute('disableIf'), itemTypes)) {
             disableNode = true;
         } else {
             var testDisableIf = menuNode.getAttribute('testDisableIf');
@@ -2713,7 +2699,7 @@ this.onLoad_aux = function places_onLoad_aux() {
     var launch_createProjectMRUView = function() {
         if (ko.projects && ko.projects.manager) {
             clearInterval(mruProjectViewerID);
-            ko.places.projects.createProjectMRUView();
+            ko.places.projects.createPlacesProjectView();
         }
     };
     mruProjectViewerID = setInterval(launch_createProjectMRUView, 50);
@@ -2800,5 +2786,31 @@ function _notify(label, value, image, priority, buttons) {
 
     notificationBox.appendNotification(label, value, image, priority, buttons);
 }
+
+this.matchAnyType = function(typeListAttr, typesSelectedArray) {
+    if (!typeListAttr) {
+        return false;
+    } else if (typesSelectedArray.length == 1) {
+        return typeListAttr.indexOf(typesSelectedArray[0]) != -1;
+    }
+    for (var typeName, i = 0; typeName = typesSelectedArray[i]; i++) {
+        if (typeListAttr.indexOf(typeName) != -1) {
+            return true;
+        }
+    }
+    return false;
+};
+
+this.matchAllTypes = function(typeListAttr, typesSelectedArray) {
+    if (!typeListAttr) {
+        return true;
+    }
+    for (var typeName, i = 0; typeName = typesSelectedArray[i]; i++) {
+        if (typeListAttr.indexOf(typeName) == -1) {
+            return false;
+        }
+    }
+    return true;
+};
 
 }).apply(ko.places);

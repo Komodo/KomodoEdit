@@ -1495,6 +1495,15 @@
         oncommandupdate="ko.commands.updateCommandset(this)"
         commandupdater="true"
         events="some_projects_open,current_project_changed">
+        <broadcaster
+            id="broadcaster_projectCurrent" key="key_broadcaster_projectCurrent"
+            disabled="true"/>
+
+        <command
+            id="cmd_importFromFS_Project" key="key_cmd_importFromFS_Project"
+            oncommand="ko.commands.doCommandAsync('cmd_importFromFS_Project', event)"
+            disabled="false"
+            desc="&generalImportFromFileSystemIntoCurrentProject.desc;"/>
 
         <command
             id="cmd_reimportFromFS_Project" key="key_cmd_reimportFromFS_Project"
@@ -1505,6 +1514,11 @@
         <command
             id="cmd_renameProject" key="key_cmd_renameProject"
             oncommand="ko.commands.doCommandAsync('cmd_renameProject', event)"
+            disabled="true"
+            desc="&generalSaveProjectAs.desc;"/>
+        <command
+            id="cmd_saveProjectAs" key="key_cmd_saveProjectAs"
+            oncommand="ko.commands.doCommandAsync('cmd_saveProjectAs', event)"
             disabled="true"
             desc="&generalSaveProjectAs.desc;"/>
         <command
@@ -1527,11 +1541,6 @@
             disabled="true"
             oncommand="ko.commands.doCommandAsync('cmd_replaceInCurrProject', event)"
             desc="&findReplaceInCurrProject.desc;"/>
-        <command
-            id="cmd_saveProjectAs" key="key_cmd_saveProjectAs"
-            oncommand="ko.commands.doCommandAsync('cmd_saveProjectAs', event)"
-            disabled="true"
-            desc="&generalSaveProjectAs.desc;"/>
         <command
             id="cmd_projectProperties" key="key_cmd_projectProperties"
             oncommand="ko.commands.doCommandAsync('cmd_projectProperties', event)"

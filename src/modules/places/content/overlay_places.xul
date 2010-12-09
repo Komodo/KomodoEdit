@@ -212,6 +212,7 @@
           disabled="true"
          />
     </commandset>
+
   </commandset>
 
   <!-- ****************    Menus    ****************** -->
@@ -244,7 +245,7 @@
                 />
       <menuitem id="placesContextMenu_compareFileWith"
                 oncommand="ko.places.viewMgr.compareFileWith(event)"
-                label="&compareFileWith;"
+                label="&compareFileWith.label;"
                 class="menuitem-iconic"
                 hideUnless="file"
                 testHideIf="t:multipleSelection"
@@ -365,6 +366,53 @@
                 testDisableIf="t:classIsntProject"
                 />
     </menupopup>
+    
+    <menupopup id="placesSubpanelProjects_AddItemsMenu" disableUnless="project group">
+      <menuitem id="folder_context_newFile"
+                label="&newFile.label;"
+                accesskey="&folderContextNewFile.accesskey;"
+                class="menuitem-iconic"
+                image="chrome://komodo/skin/images/new_file.png"
+                oncommand="ko.places.projects.manager.addNewFile(event, this);"
+                xxxoncommand="ko.projects.addNewPart('newfile', this.parentNode.getAttribute('partviewer'))"
+                />
+      <menuitem id="folder_context_newFileFromTemplate"
+                label="&newFileFromTemplate.label;"
+                accesskey="&newFileFromTemplate.accesskey;"
+                class="menuitem-iconic"
+                image="chrome://komodo/skin/images/newTemplate.png"
+                oncommand="ko.projects.addNewPart('newfile', this.parentNode.getAttribute('partviewer'))"
+                />
+      <menuitem id="folder_context_newFolder"
+                label="&newFolder.label;"
+                accesskey="&folderContextNewFolder.accesskey;"
+                class="menuitem-iconic"
+                image="chrome://komodo/skin/images/new_folder.png"
+                oncommand="ko.projects.addNewPart('newfolder', this.parentNode.getAttribute('partviewer'))"
+                /><!-- New Group -->
+      <menuitem id="folder_context_newLiveFolder"
+                label="&newLiveFolder.label;"
+                accesskey="&folderContextNewLiveFolder.accesskey;"
+                class="menuitem-iconic"
+                image="chrome://komodo/skin/images/new_live_folder.png"
+                oncommand="ko.projects.addNewPart('livefolder', this.parentNode.getAttribute('partviewer'))"
+                />
+      <menuseparator id="placesSubpanelProjects_AddItemsMenu_sep1" />
+      <menuitem id="folder_context_existingFile"
+                label="&existingFileS.label;"
+                class="menuitem-iconic"
+                accesskey="&folderContextExistingFile.accesskey;"
+                image="chrome://komodo/skin/images/existing_file.png"
+                oncommand="ko.projects.addNewPart('files', this.parentNode.getAttribute('partviewer'))"
+                />
+      <menuitem id="folder_context_remoteFile"
+                label="&existingRemoteFile.label;"
+                class="menuitem-iconic"
+                accesskey="&folderContextRemoteFile.accesskey;"
+                image="chrome://komodo/skin/images/remote_file.png"
+                oncommand="ko.projects.addNewPart('remotefiles', this.parentNode.getAttribute('partviewer'))"
+                />
+    </menupopup>
 
     <menupopup id="placesSubpanelProjectsContextMenu"
         onpopupshowing="ko.places.projects.initProjectsContextMenu(event, this);" >
@@ -372,48 +420,139 @@
       See kd-0266#[Project Panel Gear Menu] for this menu's spec
       @@@@
       -->
-      <!-- XXX:  This menu is never used // right??? -->
-      <menuitem label="yoinks - &openProject.label;"
-          id="menu_openProject_projectsContext"
-          oncommand="ko.places.projects.openProjectInCurrentWindow();" />
+      <!-- This is the context menu, shared by files, folders, and groups-->
+      <menuitem label="&openProject.label;"
+                id="menu_projCtxt_openProject"
+                class="menuitem-iconic"
+                oncommand="ko.places.projects.openProjectInCurrentWindow();"
+                hideUnless="root" />
       <menuitem label="&amp;### openRemoteProject.label;"
-          id="menu_openRemoteProject_projectsContext"
-          oncommand="ko.places.projects.openRemoteProject();" />
+                id="menu_projCtxt_openRemoteProject"
+                class="menuitem-iconic"
+                oncommand="ko.places.projects.openRemoteProject();" 
+                hideUnless="root" />
       <menuitem label="&openProjectInNewWindow.label;"
-          id="menu_projectOpenProject_projectsContext"
-          disableIf="projectIsOpen"
-          oncommand="ko.places.projects.openProjectInNewWindow();" />
+                id="menu_projCtxt_projectOpenProject"
+                class="menuitem-iconic"
+                disableIf="projectIsOpen"
+                oncommand="ko.places.projects.openProjectInNewWindow();" 
+                hideUnless="root" />
 
       <menuitem label="&showProjectInPlaces.label;"
-          id="menu_showProjectInPlaces_projectsContext"
-          disableUnless="currentProject"
-          oncommand="ko.places.projects.showProjectInPlaces();" />
+                id="menu_projCtxt_showProjectInPlaces"
+                class="menuitem-iconic"
+                disableUnless="currentProject"
+                hideUnless="project"
+                oncommand="ko.places.projects.showProjectInPlaces();" />
       <menuitem label="&closeProject.label;"
-          id="menu_closeProject_projectsContext"
-          disableUnless="currentProject"
-          oncommand="ko.places.projects.closeProject();" />
+                id="menu_projCtxt_closeProject"
+                class="menuitem-iconic"
+                disableUnless="currentProject"
+                hideUnless="project"
+                oncommand="ko.places.projects.closeProject();" />
       <menuitem label="&saveProject.label;"
-          id="menu_saveProject_projectsContext"
-          disableUnless="projectIsDirty"
-          oncommand="ko.places.projects.saveProject();" />
+                id="menu_projCtxt_saveProject"
+                class="menuitem-iconic"
+                disableUnless="projectIsDirty"
+                hideUnless="project"
+                oncommand="ko.places.projects.saveProject();" />
       <menuitem label="&saveProjectAs.label;"
-          id="menu_saveProjectAs_projectsContext"
-          disableUnless="currentProject"
-          oncommand="ko.places.projects.saveProjectAs();" />
+                id="menu_projCtxt_saveProjectAs"
+                class="menuitem-iconic"
+                disableUnless="currentProject"
+                hideUnless="project"
+                oncommand="ko.places.projects.saveProjectAs();" />
       <menuitem label="&revertProject.label;"
-          id="menu_revertProject_projectsContext"
-          disableUnless="projectIsDirty"
-          oncommand="ko.places.projects.revertProject();" />
+                id="menu_projCtxt_revertProject"
+                class="menuitem-iconic"
+                disableUnless="projectIsDirty"
+                hideUnless="project"
+                oncommand="ko.places.projects.revertProject();" />
+      
+      <menuitem label="&openFile.label;"
+                id="menu_projCtxt_openFile"
+                class="menuitem-iconic"
+                disableUnless="projectIsDirty"
+                hideUnless="file"
+                oncommand="ko.places.projects.openFile();" />
+      <menuitem label="&refreshStatus.label;"
+                id="menu_projCtxt_refreshFileStatus"
+                class="menuitem-iconic"
+                hideUnless="file"
+                oncommand="ko.places.projects.refreshFileStatus();" />
+      <menuitem label="&compareFileWith.label;"
+                id="menu_projCtxt_compareFileWith"
+                class="menuitem-iconic"
+                hideUnless="file"
+                oncommand="ko.places.projects.compareFileWith();" />
+      
+      <menuitem label="&rebaseFolder.label;"
+                id="menu_projCtxt_rebaseFolder"
+                class="menuitem-iconic"
+                hideUnless="livefolder"
+                oncommand="ko.places.projects.rebaseFolder();" />
 
-      <menuseparator id="menu_project_save_separator_projectsContext"/>
+      <menuitem label="&importFromFileSystem.label;"
+                id="menu_projCtxt_importFromFileSystem"
+                class="menuitem-iconic"
+                hideUnless="folder"
+                oncommand="ko.places.projects.importFromFileSystem();" />
 
-      <menuseparator id="menu_project_properties_separator_projectsContext"/>
+      <menuitem label="&rename.label;"
+                id="menu_projCtxt_renameGroup"
+                class="menuitem-iconic"
+                hideUnless="folder"
+                oncommand="ko.places.projects.renameGroup();" />
+      
+      <menu label="&add.label;"
+            id="menu_projCtxt_addMenu"
+            class="menuitem-iconic"
+            hideUnless="folder project">
+        <menupopup id="menu_projCtxt_addMenu_Popup" />
+      </menu>
+
+      <menuseparator id="menu_projCtxt_project_save_separator_1"/>
+      
+      <menuitem label="&amp; XXX exportAsProjectFile"
+                id="menu_projCtxt_exportAsProjectFile"
+                class="menuitem-iconic"
+                hideUnless="folder project"
+                oncommand="ko.places.projects.exportAsProjectFile();" />
+      
+      <menuitem label="&amp; XXX exportPackage"
+                id="menu_projCtxt_exportPackage"
+                class="menuitem-iconic"
+                hideUnless="folder project"
+                oncommand="ko.places.projects.exportPackage();" />
+
+      <menuseparator id="menu_projCtxt_project_save_separator_2"
+                     hideUnless="folder project" />
+      
+      <menuitem label="&amp;XXX SCC on Contents.label;"
+                id="menu_projCtxt_renameGroup"
+                class="menuitem-iconic"
+                hideUnless="folder"
+                oncommand="ko.places.projects.SCCDiffsOnGroup();" />
+
+      <menuseparator id="menu_projCtxt_project_save_separator_3"
+                     hideUnless="folder" />
+      
+      <menuitem label="&delete.label;"
+                id="menu_projCtxt_deleteItem"
+                class="menuitem-iconic"
+                hideIf="root"
+                oncommand="ko.places.projects.deleteItem();" />
+
+      <menuseparator id="menu_projCtxt_project_save_separator_4"
+                     hideIf="root" />
 
       <menuitem label="&properties.label;"
-          id="menu_projectProperties_projectsContext"
-          disableUnless="currentProject"
-          oncommand="ko.places.projects.editProjectProperties();"
-          accesskey="&projectProperties.accesskey;" />
+                id="menu_projCtxt_projectProperties"
+                class="menuitem-iconic"
+                disableUnless="currentProject"
+                oncommand="ko.places.projects.editProjectProperties();"
+                accesskey="&projectProperties.accesskey;"
+                hideIf="root" />
     </menupopup>
   </popupset>
 <!--
@@ -635,6 +774,23 @@
                   orient="horizontal"
                   class="project-tools-icon"
                   popup="placesSubpanelProjectsToolsPopup"/>
+                <toolbarbutton
+                    id="projectView_AddItem"
+                    tooltiptext="&addItemToCurrentProject.tooltiptext;"
+                    buttonstyle="pictures"
+                    label="&add.label;"
+                    type="menu"
+                    orient="horizontal"
+                    class="rightarrow-button-a addToolboxItemButton"
+                    context=""
+                    >
+                    <menupopup id="projectView_AddItemPopup"
+                               ondblclick="event.stopPropagation();"
+                               XXXX_menupopup="placesSubpanelProjects_AddItemsMenu"
+                               xxx_popup="placesSubpanelProjects_AddItemsMenu"
+                               onpopupshowing="ko.places.projects.initProjectsContextMenu(event, this);"
+                               xxxonpopupshowing="ko.places.projects.adjustProjectsContextMenu(event, this);"/>
+                </toolbarbutton>
           <!--  </hbox>-->
           <!--</deck>-->
           <toolbarbutton id="placesSubpanelToggle"
