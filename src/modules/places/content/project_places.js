@@ -13,10 +13,10 @@ if (!('projects' in ko.places)) {
     ko.places.projects = {};
 }
 
+(function() {
+
 var log = getLoggingMgr().getLogger("project_places_js");
 log.setLevel(LOG_DEBUG);
-
-(function() {
 
 var _globalPrefs;
 var _placePrefs;
@@ -73,37 +73,40 @@ PlacesProjectManager.prototype = {
         this.owner.projectsTreeView.currentProject = project;
     },
 
-  // Methods for the projects context menu
-  addNewFile: function(event, sender) {
+  _getSelectedItem: function(context) {
         var o1 = {}, o2 = {};
         this.owner.projectsTreeView.getSelectedItems(o1, o2);
         if (o2.value != 1) {
-            log.error("addNewFile: Expected 1 selected item, got " + o2.value);
+            log.error(context + ": Expected 1 selected item, got " + o2.value);
             return;
         }
         var parentPart = o1.value[0];
         if (!parentPart) {
-            log.error("addNewFile: no part in selection");
+            log.error(context + ": no part in selection");
             return;
         }
+        return parentPart;
+    },
+
+  // Methods for the projects context menu
+  addNewFile: function(event, sender) {
+        var parentPart = this._getSelectedItem("addNewFile");
         var part = ko.projects.addNewFileFromTemplate(parentPart);
         if (part) {
             this.owner.projectsTreeView.showChild(parentPart, part);
         }
     },
   
+  addGroup: function(event, sender) {
+        var parentPart = this._getSelectedItem("addGroup");
+        var part = ko.projects.addGroup(parentPart);
+        if (part) {
+            this.owner.projectsTreeView.showChild(parentPart, part);
+        }
+    },
+
   addLiveFolder: function(event, sender) {
-        var o1 = {}, o2 = {};
-        this.owner.projectsTreeView.getSelectedItems(o1, o2);
-        if (o2.value != 1) {
-            log.error("addLiveFolder: Expected 1 selected item, got " + o2.value);
-            return;
-        }
-        var parentPart = o1.value[0];
-        if (!parentPart) {
-            log.error("addLiveFolder: no part in selection");
-            return;
-        }
+        var parentPart = this._getSelectedItem("addLiveFolder");
         var prompt = _bundle.GetStringFromName("Select a new or existing folder");
         var path = ko.filepicker.getFolder(parentPart.project.getFile().dirName,
                                             prompt);
@@ -219,8 +222,7 @@ this.initProjectsContextMenu = function(event, menupopup) {
     if (isRootNode) {
         itemTypes = ['root'];
     } else {
-        //XXXX: Fixz this once we have the tree working again.
-        itemTypes = [ 'project' || this.projectsTreeView.getItem(index).type ];
+        itemTypes = [ this.projectsTreeView.getRowItem(index).type ];
     }
     var currentProject = ko.projects.manager.currentProject;
     var projectIsOpen = false;
