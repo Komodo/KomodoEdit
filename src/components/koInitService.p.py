@@ -791,16 +791,11 @@ class KoInitService(object):
                 log.error("Could not upgrade '%s' from '%s': %s"\
                          % (dst, src, ex))
 
-    def _upgradeOldUserPrefs(self):
+    def _upgradeOldUserPrefs(self, prefs):
         """Upgrade any specific info in the user's prefs.xml.
         
-        This is called after the new user data dir has been created.
-
-        Dev note: This is also called every time Komodo is started.
+        This is only called to upgrade old Komodo preference data: < Komodo 6.1
         """
-        prefs = components.classes["@activestate.com/koPrefService;1"]\
-                .getService(components.interfaces.koIPrefService).prefs
-
         # Komodo 4.0 change: 'fileAssociations' was replaced with the
         # factoryFileAssociations/fileAssociationDiffs combo. This upgrade
         # ensures the user ends up with the appropriate 'fileAssociationDiffs'
