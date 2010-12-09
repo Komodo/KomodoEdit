@@ -235,11 +235,12 @@ class KPFTreeView(TreeView):
         newProjectIndex = len(self._rows)
         self._rows.append(_ProjectNode(kpf, 0, kpf))
         self._tree.rowCountChanged(newProjectIndex, 1)
-        return
-        #TODO: Rebuild the children if necessary....
         if kpf.id not in self._nodeIsOpen:
-            self._nodeIsOpen[kpf.id] = True
-            # self.toggleOpenState(newProjectIndex)
+            self._nodeIsOpen[kpf.id] = False
+        elif (self._nodeIsOpen[kpf.id]
+              and not self.isContainerOpen(newProjectIndex)
+              and not self.isContainerEmpty(newProjectIndex)):
+            self.toggleOpenState(newProjectIndex)
     
     def removeProject(self, kpfWrapped):
         self._partSvc.removeProject(kpfWrapped)
@@ -284,8 +285,11 @@ class KPFTreeView(TreeView):
                             .getService().prefs # global prefs
         if prefSvc.hasStringPref("kpf_open_nodes_%s" % kpf.id):
             nioStr = prefSvc.getStringPref("kpf_open_nodes_%s" % kpf.id)
-            nodeIsOpen = eval(nioStr)
-            self._nodeIsOpen.update(nodeIsOpen)
+            try:
+                nodeIsOpen = eval(nioStr)
+                self._nodeIsOpen.update(nodeIsOpen)
+            except SyntaxError, ex:
+                pass
 
     def savePrefs(self, kpf):
         prefSvc = components.classes["@activestate.com/koPrefService;1"]\
@@ -676,6 +680,8 @@ class KPFTreeView(TreeView):
         if index >= len(self._rows) or index < 0: return -1
         i = index - 1
         targetLevel = self._rows[index].level - 1
+        if targetLevel < 0:
+            return -1
         while i >= 0 and self._rows[i].level > targetLevel:
             i -= 1
         if i == -1:
@@ -780,7 +786,15 @@ class KPFTreeView(TreeView):
             children = self.makeRowsFromParts(node.part.children, node.level, node.project)
             self._rows = self._rows[:index + 1] + children + self._rows[nextSiblingIndex:]
             self._tree.rowCountChanged(index + 1, len(children))
-            
+            for child in children:
+                childPart = child.part
+                if self._nodeIsOpen.get(childPart.id, False):
+                    childIndex = self.getIndexByPart(childPart)
+                    if (childIndex != -1
+                          and not self.isContainerOpen(childIndex)
+                          and not self.isContainerEmpty(childIndex)):
+                        self.toggleOpenState(childIndex)
+                            
         self._nodeIsOpen[node.part.id] = node.isOpen = not isOpen
         # Ensure the toggle state is correctly redrawn, fixes bug:
         #   http://bugs.activestate.com/show_bug.cgi?id=71942
