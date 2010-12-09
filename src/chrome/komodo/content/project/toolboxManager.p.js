@@ -218,6 +218,44 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .getService(Components.interfaces.nsIStringBundleService)
       .createBundle("chrome://komodo/locale/project/peFolder.properties");
 
+this.exportItems = function Toolbox_ExportItems(items) {
+    if (items.length == 0) {
+        log.error("No items to package");
+        return;
+    }
+    var defaultfilename = _bundle.GetStringFromName("exported.komodoproject");
+    var defaultDir = items[0].project.getFile().dirName;
+    var komodoProjectLabel = _bundle.GetStringFromName("Komodo Project");
+    var filename = ko.filepicker.saveFile(
+            defaultDir, defaultfilename,
+            _bundle.GetStringFromName("Export Selected Items To..."), // title
+            komodoProjectLabel, // default filter
+            [komodoProjectLabel, "All"]); // filters
+    if (filename == null) {
+        return;
+    }
+    var project = Components.classes["@activestate.com/koProject;1"]
+                  .createInstance(Components.interfaces.koIProject);
+    try {
+        var url = ko.uriparse.localPathToURI(filename);
+        project.create();
+        project.prefset.setBooleanPref("import_live", false);
+        project.url = url;
+        var i;
+        for (i = 0; i < items.length; i++) {
+            project.addChild(items[i]);
+        }
+        project.save();
+    } catch(ex) {
+        var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+            getService(Components.interfaces.koILastErrorService);
+        ko.dialogs.alert(
+            _bundle.formatStringFromName('There was an error exporting project X:X',
+                                         [project.name,
+                                          lastErrorSvc.getLastErrorMessage()], 2));
+    }
+}
+
 this.exportPackageItems = function Toolbox_ExportPackageItems(items) {
     if (typeof(items) == 'undefined' || !items || items.length < 1) {
         ko.dialogs.alert(_bundle.GetStringFromName("Please select items in the toolbox to export first."));

@@ -521,7 +521,7 @@
 
       <menuseparator id="menu_projCtxt_project_save_separator_1"/>
       
-      <menuitem label="&amp; XXX exportAsProjectFile"
+      <menuitem label="&exportAsProjectFile.label;"
                 id="menu_projCtxt_exportAsProjectFile"
                 testDisableIf="t:multipleSelection"
                 class="menuitem-iconic"

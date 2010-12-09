@@ -578,6 +578,15 @@ this.closeProject = function() {
     this._getProjectItemAndOperate("closeProject", ko.projects.manager);
 };
 
+this.exportAsProjectFile = function() {
+    var items = this.manager.getSelectedItems();
+    if (items.length != 1 || !items[0] || items[0].type != "folder") {
+        log.warning("Function exportAsProjectFile is intended only for groups");
+        return;
+    }
+    ko.projects.exportItems(items);
+};
+
 this.exportPackage = function() {
     var items = this.manager.getSelectedItems();
     var validTypes = ["folder", "project"];

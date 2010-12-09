@@ -58,6 +58,7 @@
 <!ENTITY addItemToCurrentPlace.tooltiptext "Add Item to current place">
 <!ENTITY defaultView.label "Default View">
 <!ENTITY currentProjectView.label "Current Project View">
+<!ENTITY exportAsProjectFile.label "Export As Project File...">
 <!ENTITY viewAll.label "View All">
 <!ENTITY manageCustomViews.label "Manage Views...">
 <!ENTITY defaultViewFilters.label "Specify the default view filters">
