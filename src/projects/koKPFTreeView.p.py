@@ -156,7 +156,7 @@ class KPFTreeView(TreeView):
             for row in invalidRows:
                 thisRow = self._rows[row]
                 if hasattr(thisRow, 'properties'):
-                    del hasattr.properties
+                    del thisRow.properties
             if invalidRows:
                 self._tree.beginUpdateBatch()
                 map(self._tree.invalidateRow, invalidRows)
