@@ -272,9 +272,6 @@ this.allowed_click_nodes = ["placesSubpanelProjectsTreechildren",
                             "projectView_AddItemPopup",
                             "placesRootButton"],
 this.initProjectsContextMenu = function(event, menupopup) {
-    dump(">> initProjectsContextMenu, target:"
-         + event.target.id
-         + "\n");
     var clickedNodeId = event.explicitOriginalTarget.id;
     if (this.allowed_click_nodes.indexOf(clickedNodeId) == -1) {
         // We don't want to fillup this context menu (i.e. it's likely a
