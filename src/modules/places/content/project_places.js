@@ -459,7 +459,7 @@ this.saveProjectAs = function() {
 
 this.showProjectInPlaces = function() {
     this._getProjectItemAndOperate("showProjectInPlaces",
-                                   ko.projects.manager, "moveToProjectDir");
+                                   ko.places.manager, "moveToProjectDir");
 };
 
 this.openProjectInNewWindow = function() {
