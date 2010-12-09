@@ -83,6 +83,11 @@
   margin-right: 2px;
 }
 
+.projectTree:-moz-tree-image(file, remote) {
+  list-style-image: url('chrome://komodo/skin/images/remote_file.png');
+  margin-right: 2px;
+}
+
 .projectTree:-moz-tree-image(file, missing) {
   list-style-image: url('chrome://komodo/skin/images/file_icon_missing.png');
   margin-right: 2px;

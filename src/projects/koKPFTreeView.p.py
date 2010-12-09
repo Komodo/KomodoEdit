@@ -545,14 +545,15 @@ class KPFTreeView(TreeView):
     def _buildCellProperties(self, row, column):
         prop = []
         prop.append("primaryColumn")
-        node = self._rows[row].part
-        prop.append(node.type)
+        part = self._rows[row].part
+        prop.append(part.type)
         
-        node = self._rows[row]
-        if not hasattr(node, 'file'):
-            node.file = node.part.getFile()
-        if node.file:
-            f = UnwrapObject(node.file)
+        if not hasattr(part, 'file'):
+            part.file = part.getFile()
+        if part.type == "file" and part.file.isRemoteFile:
+            prop.append("remote")
+        if part.file:
+            f = UnwrapObject(part.file)
             # missing, sccOk, sccSync, sccConflict, add, delete, edit,
             # isReadOnly, branch, integrate
             if hasattr(f, 'exists') and not f.exists:
