@@ -468,8 +468,10 @@ this.closeProject = function() {
 
 this.exportPackage = function() {
     var items = this.manager.getSelectedItems();
-    if (items.filter(function(item) item.type != "folder").length) {
-        log.warning("Function exportPackage is intended only for groups");
+    var validTypes = ["folder", "project"];
+    if (items.filter(function(item) validTypes.indexOf(item.type) == -1).length) {
+        log.warn("Function exportPackage is intended only for "
+                 + validTypes);
         return;
     }
     ko.projects.exportPackageItems(items);
