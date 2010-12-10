@@ -488,7 +488,7 @@
       <menuitem label="&compareFileWith.label;"
                 id="menu_projCtxt_compareFileWith"
                 class="menuitem-iconic"
-                hideUnless="file"
+                hideUnless="file project"
                 testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.compareFileWith();" />
       

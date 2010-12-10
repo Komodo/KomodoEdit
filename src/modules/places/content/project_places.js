@@ -601,7 +601,7 @@ this._getProjectItemAndOperate = function(context, obj, callback) {
     if (typeof(callback) == "undefined") callback = context;
     var items = this.manager.getSelectedItems();
     if (items.filter(function(item) item.type != "project").length) {
-        log.warning("Function " + context + " is intended only for projects");
+        log.warn("Function " + context + " is intended only for projects");
         return;
     }
     items.map(function(project) {
@@ -614,10 +614,32 @@ this.closeProject = function() {
     this._getProjectItemAndOperate("closeProject", ko.projects.manager);
 };
 
+this.compareFileWith = function() {
+    var items = this.manager.getSelectedItems();
+    if (!items || !items[0]) {
+        return;
+    } else if (items.length != 1) {
+        log.warn("Function compareFileWith is intended only for a single file");
+        return;
+    } else if (["file", "project"].indexOf(items[0].type) == -1) {
+        log.warn("Function compareFileWith is intended only for files or projects, got an item of type:" + items[0].type);
+        return;
+    }
+    var url = items[0].url;
+    var file = Components.classes["@activestate.com/koFileEx;1"].
+    createInstance(Components.interfaces.koIFileEx);
+    file.URI = url;
+    var pickerDir = file.isLocal? file.dirName : '';
+    var otherfile = ko.filepicker.browseForFile(pickerDir);
+    if (otherfile) {
+        ko.fileutils.showDiffs(file.path, otherfile);
+    }
+};
+
 this.exportAsProjectFile = function() {
     var items = this.manager.getSelectedItems();
     if (items.length != 1 || !items[0] || items[0].type != "folder") {
-        log.warning("Function exportAsProjectFile is intended only for groups");
+        log.warn("Function exportAsProjectFile is intended only for groups");
         return;
     }
     ko.projects.exportItems(items);
@@ -637,7 +659,7 @@ this.exportPackage = function() {
 this.importPackage = function() {
     var item = this.manager.getSelectedItem();
     if (!item || item.type != "folder") {
-        log.warning("Function importPackage is intended only for groups");
+        log.warn("Function importPackage is intended only for groups");
         return;
     }
     ko.projects.importFromPackage(this.manager, item);
@@ -652,7 +674,7 @@ this.makeCurrentProject = function() {
 this.openFiles = function() {
     var items = this.manager.getSelectedItems();
     if (items.filter(function(item) item.type != "file").length) {
-        log.warning("Function openFiles is intended only for files");
+        log.warn("Function openFiles is intended only for files");
         return;
     }
     ko.open.multipleURIs(items.map(function(item) item.url));
