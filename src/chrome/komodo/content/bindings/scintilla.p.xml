@@ -545,6 +545,8 @@
                     }
                     scimoz.setMarginMaskN(whichMargin, scimoz.SC_MASK_FOLDERS);
                     scimoz.setProperty("fold", "1");
+                    // fold.comment allows block comment folding in some lexers.
+                    scimoz.setProperty("fold.comment", "1");
                     scimoz.setFoldFlags(16);
                     scimoz.setMarginWidthN(whichMargin, 15);
                 ]]></body>
