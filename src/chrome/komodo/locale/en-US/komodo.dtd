@@ -283,6 +283,7 @@
 <!ENTITY generalNextFile.desc "General: Next File">
 <!ENTITY generalOpenFileDialog.desc "General: Open File dialog...">
 <!ENTITY generalOpenProject.desc "General: Open Project...">
+<!ENTITY generalOpenRemoteProject.desc "General: Open Remote Project...">
 <!ENTITY generalOpenProjectInNewWindow.desc "General: Open Project in a New Window">
 <!ENTITY generalOpenRemoteFileDialog.desc "General: Open Remote File dialog...">
 <!ENTITY generalOpenTemplate.desc "General: Open Template...">
@@ -502,6 +503,7 @@
 <!ENTITY splitLine.desc "Editor: Split Line">
 <!ENTITY openProject.label "Open Project...">
 <!ENTITY openProjectInNewWindow.label "Open Project In New Window...">
+<!ENTITY openRemoteProject.label "Open Remote Project...">
 <!ENTITY replaceProject.label "Replace Project...">
 <!ENTITY openTabInNewWindow.label "Open Tab in a New Window">
 <!ENTITY openURLInBrowser.label "Open URL In Browser">

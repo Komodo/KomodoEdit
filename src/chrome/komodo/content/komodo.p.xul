@@ -1495,10 +1495,12 @@
                                       id="menu_projectOpenProject"
                                       observes="cmd_openProjectNewWindow"
                                       />
-                            <menuitem label="&amp;### openRemoteProject.label;"
+<!--   XXX Implement this
+                            <menuitem label="&openRemoteProject.label;"
                                       id="menu_projectOpenRemoteProject"
                                       observes="cmd_openRemoteProject"
                                       />
+-->
                             <menu id="menu_recentProjects"
                                   skipCopyToCogMenu="true"
                                   label="&recentProjects.label;">
