@@ -152,13 +152,13 @@ PlacesProjectManager.prototype = {
     },
   removeProject: function(project) {
         this.owner.projectsTreeView.removeProject(project);
-        dump("PlacesProjectManager.removeProject\n");
     },
+/*
   replaceProject: function(oldURL, project) {
         dump("**************** Drop replaceProject\n");
         return;
-        this.owner.projectsTreeView.replaceProject(oldURL, project);
     },
+*/
   savePrefs: function(project) {
         this.owner.projectsTreeView.savePrefs(project);
     },
