@@ -663,6 +663,17 @@ this._continueMakeCurrentProject = function(project) {
     this.projectsTreeView.invalidate();
 }
 
+this.refreshFileStatus = function() {
+    var items = this.manager.getSelectedItems();
+    if (!items || items.length == 0) {
+        return;
+    }
+    var fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].getService(Components.interfaces.koIFileStatusService);
+    fileStatusSvc.updateStatusForUris(items.length,
+                                      items.map(function(item) item.url),
+                                      true /* forcerefresh */);
+};
+
 this.revertProject = function() {
     this._getProjectItemAndOperate("revertProject", ko.projects.manager);
 };
