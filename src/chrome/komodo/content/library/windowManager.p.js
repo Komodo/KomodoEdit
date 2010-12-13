@@ -222,6 +222,56 @@ ko.windowManager = {
         return windows;
     },
     
+    /**
+     * Change the focus to the next Komodo window.
+     *
+     * @return <Window>
+     */
+    focusNextWindow: function() {
+        var ko_windows = ko.windowManager.getWindows();
+        if (ko_windows.length <= 1) {
+            return null;
+        }
+        for (var i=0; i < ko_windows.length; i++) {
+            if (ko_windows[i] === window) {
+                if (i < (ko_windows.length - 1)) {
+                    ko_windows[i+1].focus();
+                    return ko_windows[i+1];
+                } else {
+                    // Focus on the first one then.
+                    ko_windows[0].focus();
+                    return ko_windows[0];
+                }
+            }
+        }
+        return null;
+    },
+
+    /**
+     * Change the focus to the previous Komodo window.
+     *
+     * @return <Window>
+     */
+    focusPreviousWindow: function() {
+        var ko_windows = ko.windowManager.getWindows();
+        if (ko_windows.length <= 1) {
+            return null;
+        }
+        for (var i=0; i < ko_windows.length; i++) {
+            if (ko_windows[i] === window) {
+                if (i > 0) {
+                    ko_windows[i-1].focus();
+                    return ko_windows[i-1];
+                } else {
+                    // Focus on the last one then.
+                    ko_windows[ko_windows.length - 1].focus();
+                    return ko_windows[ko_windows.length - 1];
+                }
+            }
+        }
+        return null;
+    },
+
     windowFromWindowNum : function(windowNum) {
         var allWindows = ko.windowManager.getWindows();
         for (var thisWin, i = 0; thisWin = allWindows[i]; ++i) {

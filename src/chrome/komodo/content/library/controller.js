@@ -93,6 +93,8 @@ var handlers = {
     'cmd_toolsWatchFile': 'ko.launch.watchLocalFile()',
     'cmd_toolsRunCommand': 'ko.launch.runCommand()',
     'cmd_newWindow': 'ko.launch.newWindow()',
+    'cmd_nextWindow': 'ko.windowManager.focusNextWindow()',
+    'cmd_previousWindow': 'ko.windowManager.focusPreviousWindow()',
     'cmd_open': 'ko.open.filePicker()',
     'cmd_open_remote': 'ko.filepicker.openRemoteFiles()',
     'cmd_openTemplate': 'ko.open.templatePicker()',

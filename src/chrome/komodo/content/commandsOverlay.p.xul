@@ -172,6 +172,14 @@
             oncommand="ko.commands.doCommandAsync('cmd_newWindow', event)"
             desc="&generalNewWindow.desc;"/>
         <command
+            id="cmd_nextWindow" key="key_cmd_nextWindow"
+            oncommand="ko.commands.doCommandAsync('cmd_nextWindow', event)"
+            desc="&generalNextWindow.desc;"/>
+        <command
+            id="cmd_previousWindow" key="key_cmd_previousWindow"
+            oncommand="ko.commands.doCommandAsync('cmd_previousWindow', event)"
+            desc="&generalPreviousWindow.desc;"/>
+        <command
             id="cmd_helpHelp" key="key_cmd_helpHelp"
             oncommand="ko.commands.doCommandAsync('cmd_helpHelp')"
             desc="&helpHelp.desc;"/>

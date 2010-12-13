@@ -281,6 +281,7 @@
 <!ENTITY generalNewProjectFromTemplate.desc "General: New Project From Template...">
 <!ENTITY generalNewWindow.desc "General: New Window">
 <!ENTITY generalNextFile.desc "General: Next File">
+<!ENTITY generalNextWindow.desc "General: Change to the Next Komodo Window">
 <!ENTITY generalOpenFileDialog.desc "General: Open File dialog...">
 <!ENTITY generalOpenProject.desc "General: Open Project...">
 <!ENTITY generalOpenRemoteProject.desc "General: Open Remote Project...">
@@ -290,6 +291,7 @@
 <!ENTITY generalPerformTheImportFromFileSystemAgainRefreshes.desc "General: Perform the import from file system again (refreshes)">
 <!ENTITY generalPreferences.desc "General: Preferences...">
 <!ENTITY generalPreviousFile.desc "General: Previous File">
+<!ENTITY generalPreviousWindow.desc "General: Change to the Previous Komodo Window">
 <!ENTITY generalPrint.desc "General: Print...">
 <!ENTITY generalPrintPreview.desc "General: Print Preview">
 <!ENTITY generalPrintPreviewSelection.desc "General: Print Preview Selection">
