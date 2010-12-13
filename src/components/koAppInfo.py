@@ -198,9 +198,25 @@ class KoPerlInfoEx(KoAppInfoEx):
         return "http://docs.activestate.com/activeperl/"
     
     # koIPerlInfoEx routines
+    def getExtraPaths(self):
+        if not self.prefService.effectivePrefs.hasPref("perlExtraPaths"):
+            return []
+        perlExtraPaths = self.prefService.effectivePrefs.getStringPref("perlExtraPaths")
+        if not perlExtraPaths:
+            return []
+        if sys.platform.startswith("win"):
+            perlExtraPaths = string.replace(perlExtraPaths, '\\', '/')
+        perlExtraPaths = [x.strip() for x in perlExtraPaths.split(os.pathsep)]
+        return [x for x in perlExtraPaths if x]
+
     def haveModules(self, modules):
         perlExe = self.get_executablePath()
-        argv = [perlExe] + ["-M" + mod for mod in modules] + ["-e1"]
+        if perlExe is None:
+            return False
+        argv = [perlExe] \
+               + ["-I" + path for path in self.getExtraPaths()] \
+               + ["-M" + mod for mod in modules] \
+               + ["-e1"]
         p = process.ProcessOpen(argv, stdin=None)
         stdout, stderr = p.communicate()
         retval = p.wait()
