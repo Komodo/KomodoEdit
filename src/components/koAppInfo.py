@@ -211,7 +211,7 @@ class KoPerlInfoEx(KoAppInfoEx):
 
     def haveModules(self, modules):
         perlExe = self.get_executablePath()
-        if perlExe is None:
+        if not perlExe:
             return False
         argv = [perlExe] \
                + ["-I" + path for path in self.getExtraPaths()] \
