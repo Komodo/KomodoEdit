@@ -133,6 +133,7 @@ See "Custom Templates" in Komodo's on-line help for more information.
         self.rootTemplateNode = None
         self.loaded = 0
         self.initializeUserTemplateTree()
+        self._JSONTreeData = None
 
     def initializeUserTemplateTree(self):
         """Create an empty personal templates tree if there isn't one.
@@ -261,33 +262,64 @@ to use Komodo's numerous standard %s templates.""" % (self.type, str(ex), self.t
             headers.append(node[0])
             leaves += node[1]
         return headers, leaves
+    
+    
+    def _sortPaths(self, pathList):
+        sortPathPtn = re.compile(r'([\W\D]*\w*)(\d*)(.*)')
+        fixedPathTuples = []
+        for p in pathList:
+            basename = os.path.basename(p)
+            m = sortPathPtn.match(basename)
+            if m:
+                fixedPathTuples.append((m.group(1).lower(),
+                                        int(m.group(2) or "0"),
+                                        m.group(3).lower(),
+                                        p))
+            else:
+                fixedPathTuples.append((basename(), 0, "", p))
+        return [tup[3] for tup in sorted(fixedPathTuples)]
 
-    def getJSONTree(self):
+    def _getJSONTreeData(self):
         items = self.walkFuncForKPZ(self.getDefaultTemplatesDir())
         headers, leaves = self._getLeaves(items)
-        candidates = ['Komodo', 'Common'];
-        if len(leaves) <= 8:
-            for x in candidates:
-                if x in headers:
-                    header = x
-                    break
-            else:
-                header = candidates[0]
-            finalItems = [[header, leaves]]
-        else:
-            finalItems = [items]
+        systemItems = leaves
+        userItems = []
+        #candidates = ['Komodo', 'Common'];
+        #if len(leaves) <= 8:
+        #    for x in candidates:
+        #        if x in headers:
+        #            header = x
+        #            break
+        #    else:
+        #        header = candidates[0]
+        #    finalItems = [[header, leaves]]
+        #else:
+        #    finalItems = [items]
 
         items = self.walkFuncForKPZ(self.getUserTemplatesDir())
         if items:
-            finalItems += items
+            headers, leaves = self._getLeaves(items)
+            userItems += leaves
             
+        for extensionDir in directoryServiceUtils.getExtensionDirectories():
+            items = self.walkFuncForKPZ(extensionDir)
+            if items:
+                headers, leaves = self._getLeaves(items)
+                systemItems += leaves
+
         sharedDir = self.getSharedTemplatesDir()
         if sharedDir:
             items = self.walkFuncForKPZ(sharedDir)
             if items:
-                finalItems += items
+                headers, leaves = self._getLeaves(items)
+                systemItems += leaves
+        return [self._sortPaths(systemItems), self._sortPaths(userItems)]
+        
+    def getJSONTree(self):
+        if self._JSONTreeData is None:
+            self._JSONTreeData = self._getJSONTreeData();
         import json
-        return json.dumps(finalItems)
+        return json.dumps(self._JSONTreeData)
 
 class KoProjectTemplateService(KoTemplateService):
     type = "project"

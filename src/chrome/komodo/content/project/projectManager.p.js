@@ -595,30 +595,36 @@ projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
     var tree = Components.classes["@mozilla.org/dom/json;1"]
     .createInstance(Components.interfaces.nsIJSON).decode(templateSvc.getJSONTree());
     var refChild = childNodes[0];
+    var needMenuSeparator = false;
+    var menuitem;
     for (var i = 0; i < tree.length; i++) {
-        var entry = tree[i];
-        
-        var dirName = entry[0];
-        var kpzPaths = entry[1];
-        var m1 = document.createElementNS(XUL_NS, "menu");
-        m1.setAttribute("label", dirName);
-        m1.setAttribute("accesskey", dirName.substring(0, 1));
-        var m2 = document.createElementNS(XUL_NS, "menupopup");
-        m2.setAttribute("onpopupshowing", "event.stopPropagation();");
-        for (var j = 0; j < kpzPaths.length; j++) {
+        var kpzPaths = tree[i];
+        var kpzLen = kpzPaths.length;
+        if (kpzLen > 0) {
+            if (needMenuSeparator) {
+                menuitem = document.createElementNS(XUL_NS, 'menuseparator');
+                menuitem.id = "menu_project_popup_templates_" + i + "_separator";
+                menupopup.insertBefore(menuitem, refChild);
+            } else {
+                needMenuSeparator = true;
+            }
+        }
+        for (var j = 0; j < kpzLen; j++) {
             var path = kpzPaths[j];
-            var m3 = document.createElementNS(XUL_NS, "menuitem");
+            menuitem = document.createElementNS(XUL_NS, "menuitem");
             var baseName = ko.uriparse.baseName(path);
-            m3.setAttribute("label", baseName);
-            m3.setAttribute("oncommand",
+            var dotPosn = baseName.lastIndexOf(".");
+            if (dotPosn > 0) {
+                baseName = baseName.substr(0, dotPosn);
+            }
+            menuitem.setAttribute("label", baseName);
+            menuitem.setAttribute("oncommand",
                             ("ko.projects.manager.newProjectFromTemplate('"
                              + path.replace(/\\/g, '\\\\')
                              + "');"));
-            m3.setAttribute("accesskey", baseName.substring(0, 1));
-            m2.appendChild(m3);
+            menuitem.setAttribute("accesskey", baseName.substring(0, 1));
+            menupopup.insertBefore(menuitem, refChild);
         }
-        m1.appendChild(m2);
-        menupopup.insertBefore(m1, refChild);
     }
     return true;
 };
