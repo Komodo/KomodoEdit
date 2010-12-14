@@ -244,18 +244,33 @@ projectManager.prototype.closeProject = function(project /*=this.currentProject*
     return this.closeProjectEvenIfDirty(project);
 }
 
+/**
+ * Return a list of the opened Komodo projects.
+ * 
+ * @returns {array} - A copy of the projects list.
+ */
+projectManager.prototype.getAllProjects= function() {
+    return this._projects.slice();
+}
+
 projectManager.prototype.getDirtyProjects = function() {
-    return (this.currentProject && this.currentProject.isDirty
-            ? [this.currentProject]
-            : []);
+    return this._projects.filter(function(p) {
+            return p.isDirty;
+        });
 }
 
 projectManager.prototype.closeAllProjects = function() {
-    return this.closeProject();
+    for (var i = this._projects.length - 1; i >= 0; i--) {
+        if (!this.closeProject(this._projects[i])) return false;
+    }
+    return true;
 }
 
 projectManager.prototype.closeAllProjectsEvenIfDirty = function() {
-    return this.closeProjectEvenIfDirty();
+    for (var i = this._projects.length - 1; i >= 0; i--) {
+        if (!this.closeProjectEvenIfDirty(this._projects[i])) return false;
+    }
+    return true;
 }
 
 projectManager.prototype._notified_projects = {};
@@ -415,9 +430,6 @@ projectManager.prototype._getNewProjectPath = function() {
 projectManager.prototype.newProjectFromTemplate = function(templatePath) {
     try {
         this.log.info("doing newTemplate: ");
-        if (!this.closeProject()) {
-            return false;
-        }
         var lastErrorSvc = Components.classes['@activestate.com/koLastErrorService;1'].getService();
         var projectPath;
         if (typeof(templatePath) == "undefined") {
@@ -701,8 +713,12 @@ projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
 }
 
 projectManager.prototype.getProjectByURL = function(url) {
-    if (!this.currentProject) return null;
-    if (this.currentProject.url == url) return this.currentProject;
+    for (var i = this._projects.length - 1; i >= 0; --i) {
+        var project = this._projects[i];
+        if (project.url == url) {
+            return project;
+        }
+    }
     return null;
 }
 
@@ -972,34 +988,41 @@ projectManager.prototype.addItem = function(/* koIPart */ part, /* koIPart */ pa
 
 
 projectManager.prototype.getItemsByURL = function(url, type) {
-    if (this.currentProject) {
-        var item = this.findItemByURLInProject(this.currentProject, type, url);
-        if (item != null) return [item];
+    var items = [];
+    var item;
+    for (var i in this._projects) {
+        item = this.findItemByURLInProject(this._projects[i], type, url);
+        if (item != null) items.push(item);
     }
-    return [];
+    return items;
 }
 
 projectManager.prototype.getPartsByURL = function(url) {
-    if (this.currentProject) {
-        var part = this.currentProject.getChildByAttributeValue('url', url, true);
-        if (part != null) return [part];
+    var part;
+    var parts = [];
+    for (var i in this._projects) {
+        part = this._projects[i].getChildByAttributeValue('url', url, true);
+        if (part != null) parts.push(part);
     }
-    return [];
+    return parts;
 }
 
 /* We may need to optimize this if these functions end up being called a lot
   Currently they're only called when the GUI builder creates new files */
 
 projectManager.prototype.findItemByURL = function(url) {
-    if (this.currentProject) {
-        var item = this.findItemByURLInProject(this.currentProject, null, url);
+    for (var i in this._projects) {
+        var item = this.findItemByURLInProject(this._projects[i], null, url);
         if (item != null) return item;
     }
     return null;
 }
 
 projectManager.prototype.isLivePath = function(url) {
-    return this.currentProject && this.currentProject.containsLiveURL(url);
+    for (var i in this._projects) {
+        if (this._projects[i].containsLiveURL(url)) return true;
+    }
+    return false;
 }
 
 projectManager.prototype.findItemByURLInProject = function(project, type, url) {
@@ -1013,16 +1036,28 @@ projectManager.prototype.findItemByURLInProject = function(project, type, url) {
 }
 
 projectManager.prototype.findPartByTypeAttributeValue = function(type, attribute, value) {
+    var part;
     if (this.currentProject) {
-        var part = this.currentProject.getChildWithTypeAndStringAttribute(type,attribute, value, true);
+        part = this.currentProject.getChildWithTypeAndStringAttribute(type,attribute, value, true);
+        if (part) return part;
+    }
+    for (var i in this._projects) {
+        if (this._projects[i] == this.currentProject) continue; // skip current project, already looked there
+        part = this._projects[i].getChildWithTypeAndStringAttribute(type,attribute, value, true);
         if (part) return part;
     }
     return null;
 }
 
 projectManager.prototype.findPartByAttributeValue = function(attribute, value) {
+    var part;
     if (this.currentProject) {
-        var part = this.currentProject.getChildByAttributeValue(attribute, value, true);
+        part = this.currentProject.getChildByAttributeValue(attribute, value, true);
+        if (part) return part;
+    }
+    for (var i in this._projects) {
+        if (this._projects[i] == this.currentProject) continue; // skip current project, already looked there
+        part = this._projects[i].getChildByAttributeValue(attribute, value, true);
         if (part) return part;
     }
     return null;
