@@ -499,17 +499,12 @@ Scintilla buffer before shutting down, bug 81293.
  	// Not always needed, but some themes can have different sizes of scrollbars
  	scrollBarWidth = GTK_WIDGET(PWidget(scrollbarv))->requisition.width;
  	scrollBarHeight = GTK_WIDGET(PWidget(scrollbarh))->requisition.height;
-@@ -1794,6 +1986,14 @@
+@@ -1794,6 +1986,9 @@
  	if (!verticalScrollBarVisible)
  		alloc.width += scrollBarWidth;
  	gtk_widget_size_allocate(GTK_WIDGET(PWidget(wText)), &alloc);
 +	
-+	// XXX ActiveState.  Mozilla plugin architecture doesn't allow us
-+	// an easy way to initialize the correct scroll position when scintilla
-+	// is first created.  This little hack ensures the line with the caret
-+	// is always visible when we resize scintilla.  bug 29103
-+	int currentLine = LineFromLocation(LocationFromPosition(sel.MainCaret()));
-+	EnsureLineVisible(currentLine, true);
++	// XXX ActiveState prevent recursive Resize
 +	inResize = false;
  }
  
