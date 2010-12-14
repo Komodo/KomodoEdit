@@ -636,6 +636,20 @@ this.compareFileWith = function() {
     }
 };
 
+this.rebaseFolder = function() {
+    var items = this.manager.getSelectedItems();
+    if (!items || !items[0]) {
+        return;
+    } else if (items.length != 1) {
+        log.warn("Function rebaseFolder is intended only for a single file");
+        return;
+    } else if (items[0].type != "livefolder") {
+        log.warn("Function rebaseFolder is intended only for folders, got an item of type:" + items[0].type);
+        return;
+    }
+    ko.places.manager.openDirURI(items[0].url);
+};
+
 this.exportAsProjectFile = function() {
     var items = this.manager.getSelectedItems();
     if (items.length != 1 || !items[0] || items[0].type != "folder") {

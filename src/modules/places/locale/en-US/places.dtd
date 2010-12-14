@@ -35,6 +35,7 @@
  ***** END LICENSE BLOCK ***** -->
 
 <!ENTITY rebaseFolder.label "Make This Folder Root">
+<!ENTITY showInPlaces.label "Show In Places">
 <!ENTITY refreshView.label "Refresh View">
 <!ENTITY compareFileWith.label "Compare File With…">
 

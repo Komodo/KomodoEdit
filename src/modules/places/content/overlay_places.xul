@@ -492,7 +492,7 @@
                 testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.compareFileWith();" />
       
-      <menuitem label="&rebaseFolder.label;"
+      <menuitem label="&showInPlaces.label;"
                 id="menu_projCtxt_rebaseFolder"
                 class="menuitem-iconic"
                 hideUnless="livefolder"
