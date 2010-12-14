@@ -363,31 +363,26 @@ void SciMoz::Notify(long lParam) {
 		}
 		return;
 	}
-#ifdef SCIMOZ_DEBUG
-	if (notification->nmhdr.code != SCN_PAINTED)
-		fprintf(stderr,"SciMoz::Notify %d\n", notification->nmhdr.code);
-#endif
-	if (commandUpdateTarget) {
-		switch (notification->nmhdr.code) {
-		case SCN_PAINTED:
-			PRBool bCanUndoNow, bCanRedoNow;
-			CanUndo(&bCanUndoNow);
-			CanRedo(&bCanRedoNow);
-			if (bCouldUndoLastTime != bCanUndoNow ||
-			    bCouldRedoLastTime != bCanRedoNow) {
+
+	if ((notification->nmhdr.code == SCN_PAINTED) && commandUpdateTarget) {
+		PRBool bCanUndoNow, bCanRedoNow;
+		CanUndo(&bCanUndoNow);
+		CanRedo(&bCanRedoNow);
+		if (bCouldUndoLastTime != bCanUndoNow || bCouldRedoLastTime != bCanRedoNow) {
 #ifdef SCIMOZ_DEBUG_NOTIFY
-				fprintf(stderr,"Scintilla sending 'undo' event\n");
+			fprintf(stderr,"Scintilla sending 'undo' event\n");
 #endif
-				commandUpdateTarget->UpdateCommands(
-					NS_LITERAL_STRING("undo"));
-				bCouldUndoLastTime = bCanUndoNow;
-				bCouldRedoLastTime = bCanRedoNow;
-			}
-			break;
-		default:
-			break;
+			commandUpdateTarget->UpdateCommands(NS_LITERAL_STRING("undo"));
+			bCouldUndoLastTime = bCanUndoNow;
+			bCouldRedoLastTime = bCanRedoNow;
 		}
+		return;
 	}
+
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr, "SciMoz::Notify %d\n", notification->nmhdr.code);
+#endif
+
 	PRUint32 mask;
 	void *handle = nsnull;
 	nsCOMPtr<ISciMozEvents> eventSink;
