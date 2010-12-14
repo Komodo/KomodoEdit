@@ -209,6 +209,7 @@
 <!ENTITY exchangePositionAndMark.label "Exchange Position and Mark">
 <!ENTITY executeMacro.label "Execute Macro">
 <!ENTITY existingFileS.label "Existing File(s)...">
+<!ENTITY existingFile.label "Existing File...">
 <!ENTITY existingRemoteFile.label "Existing Remote File...">
 <!ENTITY exit.label "Exit">
 <!ENTITY expand.label "Expand">

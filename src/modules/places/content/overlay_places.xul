@@ -369,18 +369,11 @@
     
     <menupopup id="placesSubpanelProjects_AddItemsMenu" disableUnless="project group">
       <menuitem id="folder_context_newFileFromTemplate"
-                label="&newNewFileFromTemplate.label;"
-                accesskey="&newFileFromTemplate.accesskey;"
+                label="&newFilesPlace.label;"
+                accesskey="&folderContextNewFile.accesskey;"
                 class="menuitem-iconic"
                 image="chrome://komodo/skin/images/newTemplate.png"
                 oncommand="ko.places.projects.manager.addNewFile(event, this);"
-                />
-      <menuitem id="folder_context_newLiveFolder"
-                label="&existingFolder.label;"
-                accesskey="&folderContextNewLiveFolder.accesskey;"
-                class="menuitem-iconic"
-                image="chrome://komodo/skin/images/new_live_folder.png"
-                oncommand="ko.places.projects.manager.addLiveFolder(event, this);"
                 />
       <menuitem id="folder_context_newFolder"
                 label="&newGroupPlace.label;"
@@ -389,13 +382,19 @@
                 image="chrome://komodo/skin/images/new_folder.png"
                 oncommand="ko.places.projects.manager.addGroup(event, this);"
                 />
-      <menuseparator id="placesSubpanelProjects_AddItemsMenu_sep1" />
       <menuitem id="folder_context_existingFile"
-                label="&existingFileS.label;"
+                label="&existingFile.label;"
                 class="menuitem-iconic"
                 accesskey="&folderContextExistingFile.accesskey;"
                 image="chrome://komodo/skin/images/existing_file.png"
                 oncommand="ko.places.projects.manager.addExistingFile(event, this);"
+                />
+      <menuitem id="folder_context_newLiveFolder"
+                label="&existingFolder.label;"
+                accesskey="&folderContextNewLiveFolder.accesskey;"
+                class="menuitem-iconic"
+                image="chrome://komodo/skin/images/folder-closed.png"
+                oncommand="ko.places.projects.manager.addLiveFolder(event, this);"
                 />
       <menuitem id="folder_context_remoteFile"
                 label="&existingRemoteFile.label;"
