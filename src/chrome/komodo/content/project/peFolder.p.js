@@ -174,42 +174,20 @@ this.addGroup = function peFolder_addGroup(/*koIPart*/ parent)
 
 this.removeItems = function peFolder_removeItems(/*array of koIPart*/ items) {
     if (items.length < 1) return;
-    var havemultiple = (items.length > 1);
-    var question = null;
-
-    var removeText = _bundle.GetStringFromName("removeFromProject");
-    var haveLive = false;
-    if (havemultiple) {
-        question = _bundle.formatStringFromName("doYouWantToRemoveThe", [items.length], 1);
-        for (i=0; i < items.length; i++) {
-            var file = items[i].getFile();
-            if (file && file.isLocal) {
-                haveLive = true;
-                break;
-            }
-        }
+    var prompt;
+    var title = _bundle.GetStringFromName("removeFromProject");
+    if (items.length > 1) {
+        prompt = _bundle.formatStringFromName("doYouWantToRemoveThe", [items.length], 1);
     } else {
         if (items[0].type == "project") return;
-        question = _bundle.GetStringFromName("doYouWantToRemoveTheItemYouHaveSelected");
-        var file = items[0].getFile();
-        haveLive = file && file.isLocal;
+        prompt = _bundle.GetStringFromName("doYouWantToRemoveTheItemYouHaveSelected");
     }
-    var buttons;
+    var response = "No";
     var text = null;
-    var moveToTrash = _bundle.GetStringFromName("moveToTrash");
-    if (haveLive) {
-        buttons = [moveToTrash, removeText, _bundle.GetStringFromName("cancel")];
-        text = _bundle.GetStringFromName("youMayDeleteTheFilesOnDisk");
-    } else {
-        buttons = [removeText, "Cancel"];
+    var res = ko.dialogs.yesNoCancel(prompt, response, text, title);
+    if (res == "Yes") {
+        ko.projects.active.manager.removeItems(items, false);
     }
-    var action = ko.dialogs.customButtons(question, buttons, _bundle.GetStringFromName("youMayDeleteTheFilesOnDisk"), text,
-                                          _bundle.GetStringFromName("deleteSelectedItems"),
-                                          null, "warning-icon spaced")
-    if (!action || action == _bundle.GetStringFromName("cancel")) {
-        return;
-    }
-    ko.projects.active.manager.removeItems(items, action == moveToTrash);    
 };
 
 }).apply(ko.projects);
