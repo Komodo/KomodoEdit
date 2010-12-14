@@ -588,15 +588,15 @@ function _updateMRUMenu(prefName, limit)
     var popupId, separatorId, prettyName;
     if (prefName == "mruProjectList") {
         popupId = "recentProjects_menupopup";
-        prettyName = "Projects";
+        prettyName = _bundle.GetStringFromName("Projects");
     } else if (prefName == "mruFileList") {
         popupId = "popup_mruFiles"; // MRU list is the whole popup.
         separatorId = null;
-        prettyName = "Files";
+        prettyName = _bundle.GetStringFromName("Files");
     } else if (prefName == "mruTemplateList") {
         popupId = null;
         separatorId = "separator_mruTemplates"; // MRU list is everything after the separator.
-        prettyName = "Templates";
+        prettyName = _bundle.GetStringFromName("Templates");
     } else {
         throw new Error("Unexpected MRU menu to update: prefName='"+prefName+"'");
     }
@@ -685,7 +685,7 @@ function _updateMRUMenu(prefName, limit)
         // Add an empty one like this:
         //    <menuitem label="No Recent Files" disabled="true"/>
         menuitem = document.createElement("menuitem");
-        menuitem.setAttribute("label", "No Recent "+prettyName);
+        menuitem.setAttribute("label", _bundle.formatStringFromName("No Recent.menuitem", [prettyName], 1));
         menuitem.setAttribute("disabled", true);
         menupopup.appendChild(menuitem);
     }
