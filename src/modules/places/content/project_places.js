@@ -252,11 +252,11 @@ PlacesProjectManager.prototype = {
         }
     },
   
-  // The UI calls deleteItems, which uses peFolder and baseManager
+  // The UI calls removeItems, which uses peFolder and baseManager
   // to actually delete the selected items.  It then calls into
   // removeSelectedItems, which will update the tree.
   
-  deleteItems: function(event, sender) {
+  removeItems: function(event, sender) {
         var parts = this._getSelectedItems(false);
         ko.projects.removeItems(parts, this.owner.projectsTreeView.selection.count);
     },
