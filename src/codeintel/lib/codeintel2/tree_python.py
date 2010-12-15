@@ -93,6 +93,20 @@ base_exception_class_completions = [
 ]
 
 class PythonTreeEvaluator(TreeEvaluator):
+
+    # Own copy of libs (that shadows the real self.buf.libs) - this is required
+    # in order to properly adjust the "reldirlib" libraries as they hit imports
+    # from different directories - i.e. to correctly deal with relative imports.
+    _libs = None
+    @property
+    def libs(self):
+        if self._libs is None:
+            self._libs = self.buf.libs
+        return self._libs
+    @libs.setter
+    def libs(self, value):
+        self._libs = value
+
     def eval_cplns(self):
         self.log_start()
         if self.trg.type == 'available-exceptions':
@@ -263,7 +277,7 @@ class PythonTreeEvaluator(TreeEvaluator):
                 import_handler = self.citadel.import_handler_from_lang(self.trg.lang)
                 try:
                     blob = import_handler.import_blob_name(
-                                module_name, self.buf.libs, self.ctlr)
+                                module_name, self.libs, self.ctlr)
                 except:
                     self.warn("limitation in handling imports in imported modules")
                     raise
@@ -397,7 +411,27 @@ class PythonTreeEvaluator(TreeEvaluator):
             if not scoperef:
                 return None, None
 
-    def _hit_from_elem_imports(self, tokens, elem):
+    def _set_reldirlib_from_blob(self, blob):
+        """Set the relative import directory to be this blob's location."""
+        # See bug 45822 and bug 88971 for examples of why this is necessary.
+        if blob is None:
+            return
+        blob_src = blob.get("src")
+        if blob_src and blob.get("ilk") == "blob":
+            reldirpath = dirname(blob_src)
+            reldirlib = self.mgr.db.get_lang_lib(self.trg.lang, "reldirlib",
+                                                 [reldirpath])
+            newlibs = self.libs[:] # Make a copy of the libs.
+            if newlibs[0].name == "reldirlib":
+                # Update the existing reldirlib location.
+                newlibs[0] = reldirlib
+            else:
+                # Add in the relative directory lib.
+                newlibs.insert(0, reldirlib)
+            self.log("imports:: setting reldirlib to: %r", reldirpath)
+            self.libs = newlibs
+
+    def __hit_from_elem_imports(self, tokens, elem):
         """See if token is from one of the imports on this <scope> elem.
 
         Returns (<hit>, <num-tokens-consumed>) or (None, None) if not found.
@@ -406,7 +440,7 @@ class PythonTreeEvaluator(TreeEvaluator):
         """
         #PERF: just have a .import_handler property on the evalr?
         import_handler = self.citadel.import_handler_from_lang(self.trg.lang)
-        libs = self.buf.libs
+        libs = self.libs
 
         #PERF: Add .imports method to ciElementTree for quick iteration
         #      over them. Or perhaps some cache to speed this method.
@@ -449,6 +483,7 @@ class PythonTreeEvaluator(TreeEvaluator):
                         if symbol_name in blob.names:
                             return (blob.names[symbol_name], (blob, [])),  1
                         else:
+                            self._set_reldirlib_from_blob(blob)
                             hit, nconsumed = self._hit_from_elem_imports(
                                 [first_token] + tokens[1:], blob)
                             if hit: 
@@ -477,6 +512,7 @@ class PythonTreeEvaluator(TreeEvaluator):
                     except CodeIntelError:
                         pass # don't freak out: might not be our import anyway
                     else:
+                        self._set_reldirlib_from_blob(blob)
                         try:
                             hit, nconsumed = self._hit_from_getattr(
                                                 tokens, blob, (blob, []))
@@ -517,6 +553,21 @@ class PythonTreeEvaluator(TreeEvaluator):
                             return (blob, (blob, [])),  i
 
         return None, None
+
+    def _hit_from_elem_imports(self, tokens, elem):
+        """See if token is from one of the imports on this <scope> elem.
+
+        Returns (<hit>, <num-tokens-consumed>) or (None, None) if not found.
+        XXX import_handler.import_blob_name() calls all have potential
+            to raise CodeIntelError.
+        """
+        # This is a wrapper function around the real __hit_from_elem_imports,
+        # that will update the relative dir libs appropriately when an import
+        # hit is made - see bug 88971 for why this is necessary.
+        hit, nconsumed = self.__hit_from_elem_imports(tokens, elem)
+        if hit is not None:
+            self._set_reldirlib_from_blob(hit[0])
+        return hit, nconsumed
 
     def _hit_from_call(self, elem, scoperef):
         """Resolve the function call inference for 'elem' at 'scoperef'."""

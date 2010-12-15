@@ -1352,7 +1352,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "abspath"),
              ("function", "fun")])
 
-    @tag("bug45822", "knownfailure")
+    @tag("bug45822")
     def test_relative_imports(self):
         content1, positions1 = unmark_text(dedent(r'''
             import fruits
@@ -1415,6 +1415,36 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions2[3],
             [("function", "howGreen"),
              ("function", "color"),])
+
+    @tag("bug88971")
+    def test_relative_imports_2(self):
+        content, positions = unmark_text(dedent(r'''
+            import extlib
+            a = extlib.<1>cZip()
+            a.<2>xxx
+        '''))
+
+        test_dir = join(self.test_dir, "test_relative_imports_2")
+        manifest = [
+            ("test_extlib.py", content),
+            ("extlib/__init__.py", dedent("""
+                from my_zip_lib import *
+             """)),
+            ("extlib/my_zip_lib.py", dedent("""
+                class cZip(object):
+                    def createZip(self, zipName, files = {}):
+                        pass
+             """)),
+        ]
+        for f, c in manifest:
+            path = join(test_dir, f)
+            writefile(path, c)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "test_extlib.py"), lang="Python")
+        self.assertCompletionsAre2(buf, positions[1],
+            [("class", "cZip")])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "createZip")])
 
     @tag("bug78165")
     def test_dotdot_imports_completions(self):
