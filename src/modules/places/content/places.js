@@ -2603,6 +2603,10 @@ this.onLoad_aux = function places_onLoad_aux() {
         // Default is false -- show only basename
         _placePrefs.setBooleanPref('showProjectPath', false);
     }
+    if (!_placePrefs.hasPref('showProjectPathExtension')) {
+        // Default is false -- show only basename
+        _placePrefs.setBooleanPref('showProjectPathExtension', false);
+    }
     if (!filterPrefs.hasPref(DEFAULT_FILTER_NAME)) {
         //dump("global/places/filters prefs has no " + DEFAULT_FILTER_NAME + "\n");
         var prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();

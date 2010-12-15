@@ -64,7 +64,6 @@ _rebuildFlags = _rebuildDirFlags | _rebuildParentFlags
 _notificationsToReceive = _rebuildFlags | \
     components.interfaces.koIFileNotificationService.FS_FILE_MODIFIED
 _g_suffix = koToolbox2.PROJECT_FILE_EXTENSION
-_g_trim_suffix = len(_g_suffix) > 4
 
 class _Node(object):
     def __init__(self, part, level, project):
@@ -165,9 +164,27 @@ class KPFTreeView(TreeView):
         self._observerSvc.addObserver(self, "file_status", True) # weakref
         self.notificationSvc = components.classes["@activestate.com/koFileNotificationService;1"].\
                                     getService(components.interfaces.koIFileNotificationService)
+        try:
+            self._placePrefs = self._prefs.getPref("places")
+            self._placePrefs.prefObserverService.addObserverForTopics(self,
+                             ["showProjectPath",
+                              "showProjectPathExtension"],
+                                                                      True)
+            try:
+                self._showProjectPath = self._placePrefs.getBooleanPref('showProjectPath')
+                self._showProjectPathExtension = self._placePrefs.getBooleanPref('showProjectPathExtension')
+            except:
+                self._showProjectPath = self._showProjectPathExtension = False
+                log.exception("No pref...")
+        except:
+            self._placePrefs = None
 
     def terminate(self):
         log.debug("terminate...")
+        if self._placePrefs:
+            self._placePrefs.prefObserverService.removeObserverForTopics(self,
+                                 ["showProjectPath",
+                                  "showProjectPathExtension"])
         
     def observe(self, subject, topic, data):
         #TODO: When a watched file/folder no longer exists, paint it red.
@@ -193,6 +210,13 @@ class KPFTreeView(TreeView):
                     self._tree.endUpdateBatch()
             except:
                 log.exception("Failed on file_status")
+        elif topic == "showProjectPath":
+            self._showProjectPath = self._placePrefs.getBooleanPref('showProjectPath')
+            self._tree.invalidate()
+        elif topic == "showProjectPathExtension":
+            self._showProjectPathExtension = self._placePrefs.getBooleanPref('showProjectPathExtension')
+            self._tree.invalidate()
+        
 
     # nsIFileNotificationObserver
     # we want to receive notifications for any live folders in our view
@@ -774,9 +798,18 @@ class KPFTreeView(TreeView):
         ####log.debug("getCellText(%d/%s) => ...", index, column.id)
         # XXX fixme, optimize
         if index >= len(self._rows) or index < 0: return
-        child = self._rows[index].part
+        node = self._rows[index]
+        child = node.part
         name = self._getFieldName(column)
-        text = child.getFieldValue(name)
+        if node.level == 0:
+            if self._showProjectPath:
+                text = node.part.getFile().path
+            else:
+                text = child.getFieldValue(name)
+            if not self._showProjectPathExtension:
+                text = text[:-len(_g_suffix)]
+        else:
+            text = child.getFieldValue(name)
         #print "field %s text %s" % (name, text)
         if not isinstance(text, basestring):
             if name == 'size':
@@ -794,10 +827,6 @@ class KPFTreeView(TreeView):
             else:
                 text = str(text)
         #print "getCellText for index %d col %s is %s" %(index, name, text)
-        if (self._rows[index].level == 0
-            and _g_trim_suffix
-            and text.endswith(_g_suffix)):
-            text = text[:-len(_g_suffix)]
         if name == 'name' and child.type == 'project' and child.get_isDirty():
             text = text+"*"
         ####log.debug("... %s", text)

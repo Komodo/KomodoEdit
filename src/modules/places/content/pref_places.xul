@@ -52,7 +52,10 @@
                     label="&dblClickToRebase.label;" />
           <separator class="thin"/>
           <checkbox id="pref_places_showProjectPath"
-                    label="&showProjectPaths.label;" />
+                    label="&showProjectPath.label;" />
+          <separator class="thin"/>
+          <checkbox id="pref_places_showProjectPathExtension"
+                    label="&showProjectPathExtension.label;" />
         </groupbox>
 
     </vbox>

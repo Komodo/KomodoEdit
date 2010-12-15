@@ -28,6 +28,8 @@ function OnPreferencePageInitalize(prefset) {
             placePrefs.getBooleanPref('dblClickRebases');
         document.getElementById("pref_places_showProjectPath").checked =
             placePrefs.getBooleanPref('showProjectPath');
+        document.getElementById("pref_places_showProjectPathExtension").checked =
+            placePrefs.getBooleanPref('showProjectPathExtension');
     } catch(ex) {
         alert("Places prefs: " + ex);
     }
@@ -40,6 +42,8 @@ function OnPreferencePageOK(prefset) {
                                   document.getElementById("pref_places_dblClickRebases").checked);
         placePrefs.setBooleanPref('showProjectPath',
                                   document.getElementById("pref_places_showProjectPath").checked);
+        placePrefs.setBooleanPref('showProjectPathExtension',
+                                  document.getElementById("pref_places_showProjectPathExtension").checked);
         g_defaultFilterPrefs = placePrefs.getPref("filters").
             getPref(DEFAULT_FILTER_NAME);
         g_defaultFilterPrefs.setStringPref("include_matches",

@@ -105,5 +105,6 @@
 
 <!-- pref_places.xul -->
 <!ENTITY dblClickToRebase.label "Double-Click or Return Makes Folder Root">
-<!ENTITY showProjectPaths.label "Show Full Project Paths">
+<!ENTITY showProjectPathExtension.label "Show Project Path Extension">
+<!ENTITY showProjectPath.label "Show Full Project Path">
 <!ENTITY options.label "Options">
