@@ -247,14 +247,13 @@ class KoToolbox2Service(object):
             pass
         del self._loadedToolboxes[uri]
 
-    def getLoadedProjectIDs(self, currentProject):
+    def getLoadedProjectIDs(self):
         """
-        Return a list of tuples of (toolID, bool:isCurrentProject)
+        Return a list of tuples of (toolID, toolURI) for project tools
         """
         if not self._loadedToolboxes:
             return []
-        currentProjectURI = currentProject and currentProject.url
-        return [(id, uri == currentProjectURI)
+        return [(id, uri)
                 for uri, id in self._loadedToolboxes.items()
                 if not self._tbFromExtension.get(id, False)]
 

@@ -39,6 +39,7 @@ from xpcom.server import WrapObject, UnwrapObject
 
 import sys, os, re, types
 from koTreeView import TreeView
+import koToolbox2
 
 import logging
 
@@ -62,6 +63,8 @@ _deletedFlags = \
 _rebuildFlags = _rebuildDirFlags | _rebuildParentFlags
 _notificationsToReceive = _rebuildFlags | \
     components.interfaces.koIFileNotificationService.FS_FILE_MODIFIED
+_g_suffix = koToolbox2.PROJECT_FILE_EXTENSION
+_g_trim_suffix = len(_g_suffix) > 4
 
 class _Node(object):
     def __init__(self, part, level, project):
@@ -791,6 +794,10 @@ class KPFTreeView(TreeView):
             else:
                 text = str(text)
         #print "getCellText for index %d col %s is %s" %(index, name, text)
+        if (self._rows[index].level == 0
+            and _g_trim_suffix
+            and text.endswith(_g_suffix)):
+            text = text[:-len(_g_suffix)]
         if name == 'name' and child.type == 'project' and child.get_isDirty():
             text = text+"*"
         ####log.debug("... %s", text)

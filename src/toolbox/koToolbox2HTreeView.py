@@ -220,6 +220,7 @@ class KoToolbox2HTreeView(TreeView):
         self._unfilteredRows_view = self._unfilteredRows_model = None
         self._toolsMgr = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].getService(components.interfaces.koIToolbox2ToolManager))
         self._toolsMgr.set_hierarchicalView(self)
+        self._loadedProjects = {} # Map project.id to project
         
     def initialize(self, currentProject):
         prefs = components.classes["@activestate.com/koPrefService;1"].\
@@ -491,6 +492,16 @@ class KoToolbox2HTreeView(TreeView):
     def copyLocalFolder(self, srcPath, targetDirPath):
         fileutils.copyLocalFolder(srcPath, targetDirPath)
 
+    def addProject(self, project):
+        self._loadedProjects[project.id] = project
+        
+    def removeProject(self, project):
+        try:
+            del self._loadedProjects[project.id]
+        except KeyError:
+            log.debug("Can't find project %s (id %s) in self._loadedProjects",
+                      project.name, project.id)        
+    
     def _getTargetInfo(self, targetIndex):
         if targetIndex == -1:
             stdToolboxPath = self._toolsMgr.getToolById(self.toolbox2Svc.getStandardToolboxID()).path
@@ -834,8 +845,17 @@ class KoToolbox2HTreeView(TreeView):
             return
         top_level_nodes = self.toolbox_db.getTopLevelNodes()
         top_level_ids = [x[0] for x in top_level_nodes]
-        tagged_project_ids = UnwrapObject(self.toolbox2Svc).getLoadedProjectIDs(currentProject)
-        ids_to_drop = [id for id, isLocal in tagged_project_ids if not isLocal]
+        project_uri_ids = UnwrapObject(self.toolbox2Svc).getLoadedProjectIDs()
+        ids_to_drop = []
+        loaded_URIs = []
+        for p in self._loadedProjects.values():
+            try:
+                loaded_URIs.append(p.getFile().URI)
+            except KeyError:
+                log.debug("Can't get a file obj off project %s", p.name)
+        for candidate_id, candidate_uri in project_uri_ids:
+            if candidate_uri not in loaded_URIs:
+                ids_to_drop.append(candidate_id)
         if ids_to_drop:
             f_top_level_ids = list(set(top_level_ids) - set(ids_to_drop))
             top_level_ids = f_top_level_ids

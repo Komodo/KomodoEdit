@@ -162,7 +162,7 @@ projectManager.prototype.closeProjectEvenIfDirty = function(project) {
         this.viewMgr.removeProject(project);
     }
     if (typeof(project) == "undefined") project = this.currentProject;
-    ko.toolbox2.manager.toolbox2Svc.deactivateProjectToolbox(project);
+    ko.toolbox2.manager.removeProject(project);
     
     // the active project has been reset
     if (this.currentProject) {
@@ -698,7 +698,7 @@ projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
         this.viewMgr.refresh(project);
     }
     this.setCurrentProject(project);
-    ko.toolbox2.manager.toolbox2Svc.activateProjectToolbox(project);
+    ko.toolbox2.manager.addProject(project);
 
     // Let the file status service know it has work to do.
     var fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].

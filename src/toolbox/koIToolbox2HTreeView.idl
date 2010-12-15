@@ -178,6 +178,10 @@ interface koIToolbox2HTreeView: nsITreeView {
     void setFilter(in wstring filterPattern);
     boolean isToolboxRow(in long index);
     attribute long sortDirection;
+
+    // Track projects
+    void addProject(in koIPart project);
+    void removeProject(in koIPart project);
 };
 
 

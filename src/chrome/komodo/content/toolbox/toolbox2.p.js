@@ -135,6 +135,17 @@ terminate: function() {
     obsSvc.removeObserver(this, 'toolbox-reload-view');
     this.view.terminate();
 },
+
+addProject: function(project) {
+    this.view.addProject(project);
+    this.toolbox2Svc.activateProjectToolbox(project);
+},
+
+removeProject: function(project) {
+    this.view.removeProject(project);
+    this.toolbox2Svc.deactivateProjectToolbox(project);
+},
+
 deleteCurrentItem: function() {
     var index = this.view.selection.currentIndex;
     try {
