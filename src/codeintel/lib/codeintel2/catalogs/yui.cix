@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<codeintel description="Yahoo! User Interface Library - v2.8.1" name="YUI 2" version="2.0">
+<codeintel description="Yahoo! User Interface Library - v2.8.1" name="YUI" version="2.0">
   <file lang="JavaScript" path="yui">
     <scope ilk="blob" lang="JavaScript" name="yui_v2.8.1">
       <scope doc="The LogMsg class defines a single log message." ilk="class" name="LogMsg">
