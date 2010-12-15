@@ -1791,17 +1791,18 @@ class koProject(koLiveFolderPart):
             ancestor = self.getLiveAncestor(url)
             if ancestor:
                 part = createPartFromType("file", self)
+                origIsDirty = self.get_isDirty()
                 part.set_url(url)
+                # Keep the project non-dirtied, if we're quietly adding
+                # info to it to track which files to open when the project's
+                # reopened.
+                if not origIsDirty and self.get_isDirty():
+                    try:
+                        self.save()
+                    except:
+                        log.debug("Failed to save project %s", self.get_name())
                 part.assignId()
                 self.registerChildByURL(part)
-        # support the macro url, this allows the auto-closing of files when
-        # the project closes, in addition to other stuff
-        if not part and url.startswith("macro:"):
-            # macro://%s/
-            m = re.match("macro://(.*?)/", url, re.U)
-            if m and len(m.groups()) > 0:
-                id = m.group(1)
-                part = self.getChildById(id)
         return part
 
     def containsLiveURL(self, url):
