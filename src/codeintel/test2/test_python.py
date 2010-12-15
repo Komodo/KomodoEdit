@@ -1356,16 +1356,16 @@ class CplnTestCase(CodeIntelTestCase):
     def test_relative_imports(self):
         content1, positions1 = unmark_text(dedent(r'''
             import fruits
-            fruits.<1>;
-            fruits.Banana.<2>;
-            gsmith = fruits.GrannySmith();
-            gsmith.<3>;
+            fruits.<1>xxx
+            fruits.Banana.<2>xxx
+            gsmith = fruits.GrannySmith()
+            gsmith.<3>xxx
         '''))
         content2, positions2 = unmark_text(dedent(r'''
             from fruits import *
-            Banana.<2>;
-            gsmith = GrannySmith();
-            gsmith.<3>;
+            Banana.<2>xxx
+            gsmith = GrannySmith()
+            gsmith.<3>xxx
         '''))
 
         test_dir = join(self.test_dir, "test_import_not_on_direct_path")
