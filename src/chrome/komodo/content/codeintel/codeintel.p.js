@@ -234,6 +234,7 @@ CodeIntelCompletionUIHandler.prototype.triggerPrecedingCompletion = function()
             }
         }
 
+        ko.codeintel.linkCurrentProjectWithBuffer(this.buf);
         // Hand off to language service to find and display.
         var trg = this.buf.preceding_trg_from_pos(startPos,
                                                   this.scimoz.currentPos);
