@@ -258,30 +258,9 @@ class PythonTreeEvaluator(TreeEvaluator):
             symbol_name = elem.get("symbol")
             module_name = elem.get("module")
             if symbol_name:
-                # This can fail as follows:
-                #   foo.py:          import bar; bar.<|>
-                #   bar/__init__.py: import blam
-                #   bar/blam.py
-                # 'blam.py' should be imported to report it as a
-                # completion for 'bar.<|>' in foo.py. However the
-                # <currdirlib> won't find it because we are using
-                # foo.py's cwd, not the bar directory.
-                #
-                # The right answer is to have a buf for bar/__init__.py
-                # and ask it to do the import (it has its own .libs).
-                #
-                # TODO: What about having
-                #   buf.members_from_elem(elem, trg.lang, ctlr)?
-                #   Pass around scoperef. Scoperef becomes (buf, lang,
-                #   lpath). 
                 import_handler = self.citadel.import_handler_from_lang(self.trg.lang)
-                try:
-                    blob = import_handler.import_blob_name(
-                                module_name, self.libs, self.ctlr)
-                except:
-                    self.warn("limitation in handling imports in imported modules")
-                    raise
-
+                blob = import_handler.import_blob_name(
+                            module_name, self.libs, self.ctlr)
                 if symbol_name == "*":
                     for m_name, m_elem in blob.names.items():
                         m_type = m_elem.get("ilk") or m_elem.tag
