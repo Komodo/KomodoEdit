@@ -63,7 +63,7 @@ from codeintel2.indexer import PreloadLibRequest
 from codeintel2 import pythoncile
 from codeintel2.util import banner, indent, markup_text, isident, isdigit
 from codeintel2 import tree
-from codeintel2.tree_python import PythonTreeEvaluator
+from codeintel2.tree_python import PythonTreeEvaluator, PythonImportLibGenerator
 from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin,
                                   PythonCITDLExtractorMixin)
@@ -124,6 +124,16 @@ class PythonImportsEvaluator(Evaluator):
                         imp_prefix = imp_prefix[1:]
                     libs = [mgr.db.get_lang_lib(self.lang, "curdirlib",
                                                   [lookuppath])]
+                else:
+                    # We use a special lib generator - that will lazily load
+                    # additional directory libs when there are no matches found.
+                    # This is a smart import facility - to detect imports from
+                    # a parent directory when they are not explicitly on the
+                    # included path list, quite common for Django and other
+                    # Python frameworks that mangle the sys.path at runtime.
+                    libs = PythonImportLibGenerator(mgr, self.lang,
+                                                    self.buf.path, imp_prefix,
+                                                    libs)
                 self.ctlr.set_desc("subimports of '%s'" % '.'.join(imp_prefix))
                 cplns = []
                 for lib in libs:

@@ -37,7 +37,7 @@
 
 """Completion evaluation code for Python"""
 
-from os.path import dirname, join, exists, isdir
+from os.path import basename, dirname, join, exists, isdir
 
 from codeintel2.common import *
 from codeintel2.tree import TreeEvaluator
@@ -91,6 +91,55 @@ base_exception_class_completions = [
     ("class", "ImportWarning"),
     ("class", "UnicodeWarning"),
 ]
+
+
+class PythonImportLibGenerator(object):
+    """A lazily loading lib generator.
+
+    To be used for Komodo's import lookup handling. This generator will return
+    libraries as needed, then when the given set of libraries runs out (i.e.
+    when there were no matches in the given libraries), to then try and find
+    other possible directories (libraries) that could offer a match."""
+    def __init__(self, mgr, lang, bufpath, imp_prefix, libs):
+        self.mgr = mgr
+        self.lang = lang
+        self.imp_prefix = imp_prefix
+        self.bufpath = bufpath
+        self.libs = libs
+        self.index = 0
+    def __iter__(self):
+        self.index = 0
+        return self
+    def next(self):
+        if self.index < len(self.libs):
+            # Return the regular libs.
+            try:
+                return self.libs[self.index]
+            finally:
+                self.index += 1
+        elif self.index == len(self.libs):
+            # Try to find a matching parent directory to use.
+            #print "Lazily loading the parent import libs: %r" % (self.imp_prefix, )
+            self.index += 1
+            lookuppath = dirname(self.bufpath)
+            parent_dirs_left = 10
+            while lookuppath and parent_dirs_left > 0:
+                #print 'lookuppath: %r' % (lookuppath, )
+                parent_dirs_left -= 1
+                parent_name = basename(lookuppath)
+                if parent_name == self.imp_prefix[0] and \
+                   exists(join(lookuppath, "__init__.py")):
+                    # Matching directory - return that as a library.
+                    lookuppath = dirname(lookuppath)
+                    #print "Adding parent dir lib: %r" % (lookuppath)
+                    return self.mgr.db.get_lang_lib(self.lang, "parentdirlib",
+                                                    [lookuppath])
+                lookuppath = dirname(lookuppath)
+            # No match found - we're done.
+            raise StopIteration
+        else:
+            raise StopIteration
+
 
 class PythonTreeEvaluator(TreeEvaluator):
 
@@ -410,6 +459,15 @@ class PythonTreeEvaluator(TreeEvaluator):
             self.log("imports:: setting reldirlib to: %r", reldirpath)
             self.libs = newlibs
 
+    def _add_parentdirlib(self, libs, tokens):
+        """Add a lazily loaded parent directory import library."""
+        if isinstance(libs, PythonImportLibGenerator):
+            # Reset to the original libs.
+            libs = libs.libs
+        libs = PythonImportLibGenerator(self.mgr, self.trg.lang, self.buf.path,
+                                        tokens, libs)
+        return libs
+
     def __hit_from_elem_imports(self, tokens, elem):
         """See if token is from one of the imports on this <scope> elem.
 
@@ -430,14 +488,17 @@ class PythonTreeEvaluator(TreeEvaluator):
         #      python/cpln/wacky_imports.
         #      XXX Not totally confident that this is the right answer.
         first_token = tokens[0]
+
         self._check_infinite_recursion(first_token)
         for imp_elem in (i for i in elem if i.tag == "import"):
             self.debug("'%s ...' from %r?", tokens[0], imp_elem)
             alias = imp_elem.get("alias")
             symbol_name = imp_elem.get("symbol")
             module_name = imp_elem.get("module")
+            allow_parentdirlib = True
 
             if module_name.startswith("."):
+                allow_parentdirlib = False
                 # Need a different curdirlib.
                 lookuppath = self.buf.path
                 while module_name.startswith("."):
@@ -456,6 +517,8 @@ class PythonTreeEvaluator(TreeEvaluator):
                    or (not alias and symbol_name == first_token):
                     # Try 'from module import symbol/from module import
                     # symbol as alias' first.
+                    if allow_parentdirlib:
+                        libs = self._add_parentdirlib(libs, module_name.split("."))
                     try:
                         blob = import_handler.import_blob_name(
                                     module_name, libs, self.ctlr)
@@ -474,6 +537,8 @@ class PythonTreeEvaluator(TreeEvaluator):
                     # submod/from module import submod as alias'.
                     submodule_name = import_handler.sep.join(
                                         [module_name, symbol_name])
+                    if allow_parentdirlib:
+                        libs = self._add_parentdirlib(libs, (module_name, symbol_name))
                     try:
                         subblob = import_handler.import_blob_name(
                                     submodule_name, libs, self.ctlr)
@@ -486,6 +551,8 @@ class PythonTreeEvaluator(TreeEvaluator):
                 # from module import *
                 elif symbol_name == "*":
                     try:
+                        if allow_parentdirlib:
+                            libs = self._add_parentdirlib(libs, module_name.split("."))
                         blob = import_handler.import_blob_name(
                                     module_name, libs, self.ctlr)
                     except CodeIntelError:
@@ -503,6 +570,8 @@ class PythonTreeEvaluator(TreeEvaluator):
 
             elif (alias and alias == first_token) \
                  or (not alias and module_name == first_token):
+                if allow_parentdirlib:
+                    libs = self._add_parentdirlib(libs, module_name.split("."))
                 blob = import_handler.import_blob_name(
                             module_name, libs, self.ctlr)
                 return (blob, (blob, [])),  1
@@ -511,6 +580,8 @@ class PythonTreeEvaluator(TreeEvaluator):
                 # E.g., might be looking up ('os', 'path', ...) and
                 # have <import os.path>.
                 module_tokens = module_name.split('.')
+                if allow_parentdirlib:
+                    libs = self._add_parentdirlib(libs, module_tokens)
                 if module_tokens == tokens[:len(module_tokens)]:
                     # E.g. tokens:   ('os', 'path', ...)
                     #      imp_elem: <import os.path>
