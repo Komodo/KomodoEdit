@@ -164,6 +164,8 @@ class Manager(threading.Thread, Queue):
 
     def initialize(self):
         """Initialize the codeintel system."""
+        # TODO: Implement DB cleaning.
+        #self.db.clean()
         self.idxr.start()
 
     def _register_modules(self, extra_module_dirs=None):
