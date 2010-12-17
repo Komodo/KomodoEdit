@@ -55,6 +55,7 @@ import copy
 import ciElementTree as ET
 from codeintel2.common import *
 from codeintel2 import util
+from codeintel2.database.util import rmdir
 
 
 
@@ -1253,6 +1254,27 @@ class LangZone(object):
         #XXX Database.check(): Shouldn't have too many cached indeces in
         #    memory. How old is the oldest one? Estimate memory size
         #    used by all loaded indeces?
+
+    # TODO: When a directory no longer exists on the filesystem - should we
+    #          1) remove the db data, or
+    #          2) mark it as expired.
+    #       Option 2 would work better for (network) mounted filesystems, as it
+    #       could just be an intermittent issue.
+    def clean(self):
+        """Clean out any expired/old codeintel information."""
+        base_dir = self.base_dir
+        if not exists(base_dir):
+            return
+        for d in os.listdir(base_dir):
+            path_path = join(base_dir, d, "path")
+            if not exists(path_path):
+                continue
+            path = codecs.open(path_path, encoding="utf-8").read()
+            if not exists(path):
+                # Referenced directory no longer exists - so remove the db info.
+                log.debug("clean:: scanned directory no longer exists: %r",
+                          path)
+                rmdir(join(base_dir, d))
 
     def get_lib(self, name, dirs):
         """
