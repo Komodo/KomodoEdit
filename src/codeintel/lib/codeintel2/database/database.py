@@ -646,6 +646,16 @@ class Database(object):
                 fin.close()
             yield lang
 
+    # Unused yet.
+    def clean(self):
+        """Clean out any expired/old codeintel information."""
+        # TODO: Do other zones need cleaning?
+        for lang in self._gen_langs_in_db():
+            if not self.mgr.is_citadel_lang(lang):
+                continue
+            lang_zone = self._get_lang_zone(lang)
+            lang_zone.clean()
+
     def check(self):
         """Return a list of internal consistency errors (if any) for the
         database.
