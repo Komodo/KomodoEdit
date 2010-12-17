@@ -276,6 +276,19 @@ class LangDirsLib(object):
             cplns += toplevelname_index.toplevel_cplns(prefix=prefix, ilk=ilk)
         return cplns
 
+    def ensure_all_dirs_scanned(self, ctlr=None):
+        """Ensure that all importables in this dir have been scanned
+        into the db at least once.
+
+        Note: This is identical to MultiLangDirsLib.ensure_dir_scanned().
+        Would be good to share.
+        """
+        for dir in self.dirs:
+            if ctlr and ctlr.is_aborted():
+                log.debug("ctlr aborted")
+                break
+            self.ensure_dir_scanned(dir, ctlr)
+
     def ensure_dir_scanned(self, dir, ctlr=None):
         """Ensure that all importables in this dir have been scanned
         into the db at least once.
@@ -1264,6 +1277,8 @@ class LangZone(object):
 
         langdirslib = LangDirsLib(self, self._lock, self.lang, name,
                                   canon_dirs)
+        # Ensure that these directories are all *up-to-date*.
+        langdirslib.ensure_all_dirs_scanned()
         
         N = 10
         while len(self._ordered_dirslib_cache_keys) >= N:
