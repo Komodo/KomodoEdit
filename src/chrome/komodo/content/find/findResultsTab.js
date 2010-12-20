@@ -919,6 +919,7 @@ FindResultsTabManager.prototype.onKeyPress = function(event)
     findResultsLog.info("FindResultsTabManager.onKeyPress()");
     if (event.keyCode == 13) {
         this._doubleClick();
+        event.stopPropagation();
         return false;
     }
     return true;
