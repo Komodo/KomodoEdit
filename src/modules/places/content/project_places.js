@@ -82,33 +82,7 @@ this.createPlacesProjectView = function() {
                          "projCtxt_");
     this.manager = new PlacesProjectManager(this);
     ko.projects.manager.setViewMgr(this.manager);
-
-    this.finishSCCProjectsMenu("menu_projCtxt_SCCmenu",
-                               "menu_SCCmenu",
-                               "menu_projCtxt_");
-    //this.finishSCCProjectsMenu("menu_projCtxt_SCC_ContentsMenu",
-    //                           "menu_SCCmenu_folder_context",
-    //                           "menu_projCtxtContents_");
 };
-
-this.finishSCCProjectsMenu = function(destID, srcID, prefix) {
-    var menuNode = document.getElementById(destID);
-    if (!menuNode || menuNode.nodeName != "menu") {
-        log.debug("No " + destID + "\n");
-        return;
-    } else if (menuNode.childNodes.length > 0) {
-        log.debug("Menu " + destID + " already set up?\n");
-        return;
-    }
-    var srcMenu = document.getElementById("menu_SCCmenu");
-    if (!srcMenu || !srcMenu.childNodes.length) {
-        log.debug("**** Can't find " + srcID + "\n");
-        return;
-    }
-    this._menuIdPrefix = prefix;
-    this._copyTree(srcMenu, menuNode);
-    delete this._menuIdPrefix;
-}
 
 this._copyTree = function(srcParentNode, destParentNode) {
     var srcNodes = srcParentNode.childNodes;
