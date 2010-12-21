@@ -1459,6 +1459,18 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
     }
     if (!skipProjects) {
         var dirtyProjects = ko.projects.manager.getDirtyProjects();
+        for (var i = dirtyProjects.length - 1; i >= 0; i--) {
+            var proj = dirtyProjects[i];
+            if (!proj.isDirty) {
+                // quietly save prefDirty projects
+                try {
+                    ko.projects.manager.saveProject(proj);
+                } catch(ex) {
+                    this.log.error("Failed to save project " + proj.name + ":" + ex);
+                }
+                dirtyProjects.splice(i, 1);
+            }
+        }
         for (i = 0; i < dirtyProjects.length; i++) {
             if (urls != null && ! _elementInArray(dirtyProjects[i].url, urls)) continue;
             item = new Object();

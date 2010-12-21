@@ -199,12 +199,20 @@ projectManager.prototype.closeProject = function(project /*=this.currentProject*
         // No project to close.
         return true;
     }
-    if (project.isDirty) {
-        var question = _bundle.formatStringFromName("saveChangesToProject.message", [project.name], 1);
-        var answer = ko.dialogs.yesNoCancel(question);
-        if (answer == "Cancel") {
-            return false;
-        } else if (answer == "Yes") {
+    if (project.isDirty  || project.isPrefDirty) {
+        var doSave = false;
+        if (project.isDirty) {
+            var question = _bundle.formatStringFromName("saveChangesToProject.message", [project.name], 1);
+            var answer = ko.dialogs.yesNoCancel(question);
+            if (answer == "Cancel") {
+                return false;
+            } else {
+                doSave = (answer == "Yes");
+            }
+        } else {
+            doSave = true;
+        }
+        if (doSave) {
             try {
                 this.saveProject(project);
             } catch(ex) {
@@ -255,7 +263,7 @@ projectManager.prototype.getAllProjects= function() {
 
 projectManager.prototype.getDirtyProjects = function() {
     return this._projects.filter(function(p) {
-            return p.isDirty;
+            return p.isDirty || p.isPrefDirty;
         });
 }
 

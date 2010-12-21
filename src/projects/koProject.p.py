@@ -154,22 +154,14 @@ class koPart(object):
         self._uri = None
 
     def _storeData(self):
-        self._prefset = None
         # dump the old id from the child and pref maps
         if self.id in self._project._childmap:
             # this part still has a reference via self.children, no need to store
             del self._project._childmap[self.id]
-        if self.id in self._project._prefmap:
-            self._prefset = self._project._prefmap[self.id]
-            del self._project._prefmap[self.id]
 
     def _restoreData(self):
         if hasattr(self, 'children'):
             self._project._childmap[self.id] = self.children
-        if self._prefset:
-            self._prefset.idref = self.id
-            self._project._prefmap[self.id] = self._prefset
-            self._prefset = None
 
     def assignId(self):
         # we will setup an id based on attributes from the project file
@@ -195,14 +187,6 @@ class koPart(object):
                 return
             # this part is KEY to getting non-live children into live folders
             id = self.id
-            if id in self._project._prefmap:
-                prefset = self._project._prefmap[id]
-                if self._parent:
-                    prefset.parent = self._parent.get_prefset().parent
-                elif self.id in self._project._prefmap:
-                    oldpref = self._project._prefmap[self.id]
-                    prefset.parent = oldpref.parent
-                self._project._prefmap[self.id] = self._project._prefmap[id]
             if id in self._project._childmap:
                 children = self._project._childmap[id]
                 if self.id in self._project._childmap:
@@ -241,7 +225,6 @@ class koPart(object):
             if self.id in self._project._childmap:
                 del self._project._childmap[self.id]
 
-        self.set_prefset(None)
         self._parent = None
         self._project = None
 
@@ -315,45 +298,17 @@ class koPart(object):
 
         self._idref = self._attributes['idref'] = parent.id
         self._parent = parent
-
-        if self.id in self._project._prefmap:
-            if self._parent:
-                self.get_prefset().parent = self._parent.get_prefset()
-            else:
-                self.get_prefset().parent = None
         if self._parent and self._parent._project and self._project is not self._parent._project:
             self.set_project(self._parent._project)
 
     def get_prefset(self):
         # if we have a project, always get the pref from the project, otherwise
         # we have our own prefset
-        if not self.id in self._project._prefmap:
-            prefset = components.classes["@activestate.com/koPreferenceSet;1"] \
-                .createInstance(components.interfaces.koIPreferenceSet)
-            prefset = UnwrapObject(prefset)
-            self.set_prefset(prefset)
-            prefset.chainNotifications = 1
-        return self._project._prefmap[self.id]
+        return self._project.prefset
 
     def set_prefset(self, prefset):
-        if self.id in self._project._prefmap:
-            oldprefs = self._project._prefmap[self.id]
-            oldprefs.removeObserver(self)
-            oldprefs.parent = None
-            del self._project._prefmap[self.id]
-        if prefset:
-            prefset.idref = self.id
-            prefset.chainNotifications = 1
-            self._project._prefmap[self.id] = prefset
-            if self._parent:
-                prefset.parent = self._parent.get_prefset()
-            elif self is self._project:
-                prefset.parent = components.classes["@activestate.com/koPrefService;1"].\
-                        getService(components.interfaces.koIPrefService).prefs
-            elif self._project:
-                # XXX FIXME BUG 56887, not necessarily the correct parent
-                prefset.parent = self._project.get_prefset()
-            prefset.addObserver(self)
+        errmsg = "Part type %s no longer holds its own pref set.  Only projects can hold a pref set" % (self.type)
+        raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, errmsg)
 
     def getIDRef(self):
         # get an idref that points to this part
@@ -367,8 +322,8 @@ class koPart(object):
 
     # prefs observer
     def observe(self, subject, topic, message):
-        #print "project observer %r,%r,%r, %r" % (subject, topic, message, self._project)
-        self._project.set_isDirty(1)
+        #print "part observer %r,%r,%r, %s" % (subject, topic, message, self._project.get_name())
+        self._project._isPrefDirty = True
 
     def dump(self, indent):
         print " "*indent + "Part of type '" + self.type +"':"
@@ -439,13 +394,8 @@ class koPart(object):
         writer.write("</%s>%s" % (self.type,newl))
 
     def _serializePrefset(self, writer):
-        if self.id in self._project._prefmap:
-            # unwrap so we can use cStringIO
-            prefset = UnwrapObject(self._project._prefmap[self.id])
-            # create an idref for this
-            prefset.idref = self.getIDRef()
-            #prefset.dump(0)
-            prefset.serialize(writer, self._project._relativeBasedir)
+        errmsg = "_serializePrefset:Part type %s no longer holds its own pref set.  Only projects can hold a pref set" % (self.type)
+        raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, errmsg)
 
     def set_name(self, name):
         self._name = name
@@ -564,8 +514,8 @@ class koPart(object):
         if hasattr(self, '_path'):
             part._path = self._path
 
-        if self.id in self._project._prefmap or self == self._project:
-            part.set_prefset(self.get_prefset().clone())
+        if self == self._project:
+            self.set_prefset(self.get_prefset().clone())
 
         a_names = self._attributes.keys()
         a_names.sort()
@@ -715,8 +665,6 @@ class koContainerBase(koPart):
         child.set_parent(self)
         child.set_project(self._project) # this calls the setter
         #child.assignId()
-        if child.id in child._project._prefmap:
-            child.get_prefset().parent = self.get_prefset()
 
         self._project.set_isDirty(1)
         self._project.registerChildByURL(child)
@@ -995,17 +943,6 @@ class koLiveFolderPart(koFolderPart):
             undead.append(child)
         return undead
 
-    def _differentImportPrefs(self, child):
-        cprefs = child.get_prefset()
-        prefs = self.get_prefset()
-        if prefs.getStringPref("import_include_matches") != \
-            cprefs.getStringPref("import_include_matches"):
-            return 0
-        if prefs.getStringPref("import_exclude_matches") != \
-            cprefs.getStringPref("import_exclude_matches"):
-            return 0
-        return 1
-
     def get_liveDirectory(self):
         prefs = self.get_prefset()
         try:
@@ -1115,15 +1052,16 @@ class koProject(koLiveFolderPart):
                           'DirectoryShortcut', 'URL')
 
     def __init__(self):
-        self._isDirty = 0
+        # _isPrefDirty tracks changes made due to changes in pref sets
+        # These should be saved quietly.
+        
+        self._isDirty = self._isPrefDirty = 0
         self._urlmap = weakref.WeakValueDictionary()
         # child map is a mapping of idrefs to child parts.  a part get's it's own
         # idref, then looks here for it's children
         self._childmap = {}
 
-        # pref map is a mapping of idrefs to prefsets
-        # a part get's it's own idref, then looks here to get it's prefset
-        self._prefmap = {}
+        self.prefset = None
 
 
         self._project = self # cycle - need to investigate WeakReference
@@ -1223,26 +1161,16 @@ class koProject(koLiveFolderPart):
             for child in sorted(children, key=operator.attrgetter('id')):
                 child.serialize(writer)
                 
-        for idref in sorted(self._prefmap):
-            # unwrap so we can use cStringIO
-            try:
-                prefset = UnwrapObject(self._prefmap[idref])
-            except KeyError:
-                continue
-            if not hasattr(prefset,'idref'):
-                prefset.idref = idref
-            prefset.serialize(writer, self._relativeBasedir)
-
+        self.prefset.serialize(writer, self._relativeBasedir)
         self._serializeTail(writer)
 
     # Fill with a new empty, unnamed project
     def create(self):
         self._name = _makeNewProjectName()
         self.setLongAttribute("kpf_version", KPF_VERSION)
-
-        # force the import_live pref so we can get children when
-        # we're saved
-        prefset = self.get_prefset()
+        prefset = UnwrapObject(components.classes["@activestate.com/koPreferenceSet;1"].\
+                                        createInstance(components.interfaces.koIPreferenceSet))
+        self.set_prefset(prefset)
 
     def createPartFromType(self, type):
         # we create the koPart instance and return it
@@ -1263,6 +1191,29 @@ class koProject(koLiveFolderPart):
 
     def get_isDirty(self):
         return self._isDirty
+
+    def get_isPrefDirty(self):
+        return self._isPrefDirty
+    
+    def get_prefset(self):
+        if self.prefset is None:
+            prefset = components.classes["@activestate.com/koPreferenceSet;1"] \
+                .createInstance(components.interfaces.koIPreferenceSet)
+            self.set_prefset(UnwrapObject(prefset))
+        return self.prefset
+
+    def set_prefset(self, prefset):
+        # @prefset - an unwrapped instance of koIPreferenceSet
+        if self.prefset is not None:
+            self.prefset.get_prefObserverService().removeObserver(self, "")
+        if prefset is not None:
+            prefset.idref = self.id
+            prefset.chainNotifications = 1
+            prefset.parent = components.classes["@activestate.com/koPrefService;1"].\
+                getService(components.interfaces.koIPrefService).prefs
+        self.prefset = prefset
+        if prefset is not None:
+            prefset.get_prefObserverService().addObserver(self, "", 1)
 
     def _update_lastmd5_from_contents(self, contents):
         self._lastmd5 = md5(contents).hexdigest()
@@ -1416,8 +1367,11 @@ class koProject(koLiveFolderPart):
                     partstack.append(self)
 
                 elif node.tagName == "preference-set":
-                    # make a dom for the prefset, turn it into a prefset
                     events.expandNode(node)
+                    if len(partstack) != 1:
+                        #log.debug('node.tagName == "preference-set": len(partstack) =%d, ignoring pref %s', len(partstack), node.toxml())
+                        continue
+                    # make a dom for the prefset, turn it into a prefset
                     prefset = UnwrapObject(NodeToPrefset(node, self._relativeBasedir, 1))
 
                     if kpfVer < 3 or \
@@ -1440,10 +1394,7 @@ class koProject(koLiveFolderPart):
                             values.append(".komodotools")
                             value = ";".join(values)
                             prefset.setStringPref("import_exclude_matches", value)
-
-                    prefset.addObserver(self)
-                    self._prefmap[prefset.idref] = prefset
-                    #print "adding pref to [%s]" % node.attributes['idref']
+                    self.set_prefset(prefset)
 
                 elif node.tagName == 'files':
                     # ignore the obsolete 'files' nodes, we'll grab the children
@@ -1577,9 +1528,8 @@ class koProject(koLiveFolderPart):
                 else:
                     part = None
 
-        # this is the toplevel project, parent prefs are the global prefs
-        self.get_prefset().parent = components.classes["@activestate.com/koPrefService;1"].\
-                getService(components.interfaces.koIPrefService).prefs
+        # create an empty prefset if we don't have one
+        self.get_prefset()
 
         # hook-up children
         added = []
@@ -1592,14 +1542,6 @@ class koProject(koLiveFolderPart):
                 log.debug("    no part for children idref [%s]", idref)
                 #for child in children:
                 #    print "  id: %s name: %s" % (child.id,child.get_name())
-        for idref, prefset in self._prefmap.items():
-            #print "adding prefset to idref [%s]" % idref
-            if idref in idmap:
-                part = idmap[idref]
-                part.set_prefset(prefset)
-            else:
-                log.debug("    no part for prefset idref [%s]", idref)
-
         self._loaded_from_url = self._url
         self.set_url(url)
 
@@ -1679,12 +1621,6 @@ class koProject(koLiveFolderPart):
                 allchildren += children
         print "       %d orphans" % len(orphans)
         print "       %d tracked children" % len(allchildren)
-        orphaned_prefs = []
-        print "       %d prefsets" % len(self._prefmap)
-        for idref, prefset in self._prefmap.items():
-            if idref not in idmap:
-                orphaned_prefs.append(prefset)
-        print "       %d orphaned prefsets" % len(orphans)
         #self.dumpTreeFromMaps(self.id)
 
     def dumpTreeFromMaps(self, id, indent=0):

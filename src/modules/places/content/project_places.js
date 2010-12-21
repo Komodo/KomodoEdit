@@ -719,7 +719,7 @@ this.saveProject = function() {
 };
 
 this.saveProjectAs = function() {
-    this._getProjectItemAndOperate("saveProjectAs", ko.projects.manager);
+    this._getProjectItemAndOperate("saveProjectAs", ko.projects);
 };
 
 this.showProjectInPlaces = function() {
@@ -760,8 +760,7 @@ this._openProject = function(inNewWindow) {
 };
 
 this.editProjectProperties = function() {
-    var item = ko.places.getItemWrapper(ko.projects.manager.currentProject.url, 'project');
-    ko.projects.fileProperties(item, null, true);
+    this._getProjectItemAndOperate("fileProperties", ko.projects);
 };
 
 this.toggleSubpanel = function() {
