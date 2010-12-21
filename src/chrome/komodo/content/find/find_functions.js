@@ -65,6 +65,11 @@ var gFindInFilesFolders = null;
 
 var findLog = ko.logging.getLogger("find_functions");
 //findLog.setLevel(ko.logging.LOG_DEBUG);
+// ---------- localizing with stringbundle -------
+var _ffBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/find/find_functions.properties");
+// ----------------------------------------------
 
 // the find XPCOM service that does all the grunt work
 __defineGetter__("findSvc",
@@ -884,12 +889,13 @@ function _UiForCompletedFindSession(context, msgHandler)
     // Put together an appropriate message.
     var msg = "";
     if (numFinds == 0) {
-        msg += " The pattern was not found.";
+        msg = _ffBundle.GetStringFromName("The pattern was not found.");
     } else if (numReplacements > 0) {
-        msg += " " + numReplacements + " of " + numFinds +
-               " occurrence(s) were replaced.";
+        msg = _ffBundle.formatStringFromName("X of Y occurrence(s) were replaced.",
+                                           [numReplacements, numFinds], 2);
     } else {
-        msg += " " + numFinds + " occurrence(s) were found.";
+        msg = _ffBundle.formatStringFromName("X occurrence(s) were found.",
+                                           [numReplacements, numFinds], 2);
     }
 
     msgHandler("info", "find", msg);
@@ -1071,10 +1077,10 @@ function Find_ReplaceInMacro(editor, contexttype, pattern, replacement,
                 context.startIndex = scimoz.charPosAtPosition(scimoz.selectionStart);
                 context.endIndex = scimoz.charPosAtPosition(scimoz.selectionEnd);
             } else {
-                msg = "No scintilla object on current view";
+                msg = _ffBundle.GetStringFromName("No scintilla object on current view");
             }
         } else {
-            msg = "No current view";
+            msg = _ffBundle.GetStringFromName("No current view");
         }
         if (msg) {
             editor.ko.statusBar.AddMessage("macro-replace: " + msg, "find",
@@ -1392,12 +1398,14 @@ function Find_FindAll(editor, context, pattern, patternAlias,
     if (! foundSome) {
         var msg;
         if (typeof(patternAlias) != 'undefined' && patternAlias) {
-            msg = "No "+patternAlias+" were found in "+context.name+".";
+            msg = _ffBundle.formatStringFromName("No X were found in Y",
+                                               [patternAlias, context.name], 2);
         } else {
             var text_utils = Components.classes["@activestate.com/koTextUtils;1"]
                                .getService(Components.interfaces.koITextUtils);
             var summary = text_utils.one_line_summary_from_text(pattern, 30);
-            msg = "'"+summary+"' was not found in "+context.name+".";
+            msg = _ffBundle.formatStringFromName("X was not found in Y",
+                                               [summary, context.name], 2);
         }
         msgHandler("warn", "find", msg);
     }
@@ -1462,12 +1470,14 @@ function Find_MarkAll(editor, context, pattern, patternAlias,
     if (! foundSome) {
         var msg;
         if (typeof(patternAlias) != 'undefined' && patternAlias) {
-            msg = "No "+patternAlias+"' were found in "+context.name+".";
+            msg = _ffBundle.formatStringFromName("No X were found in Y",
+                                               [summary, context.name], 2);
         } else {
             var text_utils = Components.classes["@activestate.com/koTextUtils;1"]
                                .getService(Components.interfaces.koITextUtils);
             var summary = text_utils.one_line_summary_from_text(pattern, 30);
-            msg = "'"+summary+"' was not found in "+context.name+".";
+            msg = _ffBundle.formatStringFromName("X was not found in Y",
+                                               [summary, context.name], 2);
         }
         msgHandler("warn", "find", msg);
     }
@@ -1685,12 +1695,14 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
         var text_utils = Components.classes["@activestate.com/koTextUtils;1"]
                            .getService(Components.interfaces.koITextUtils);
         var summary = text_utils.one_line_summary_from_text(pattern, 30);
-        msg = "'" + summary + "' was not found in " + context.name
-              + ". No changes were made.";
+        msg = (_ffBundle.formatStringFromName("X was not found in Y",
+                                           [summary, context.name], 2)
+               + " "
+               + _ffBundle.GetStringFromName("No changes were made."));
         msgHandler("info", "find", msg);
     } else {
-        msg = "Made "+numReplacements+" replacements in "+
-                  context.name+".";
+        msg = _ffBundle.formatStringFromName("Made X replacement(s) in Y",
+                                           [numReplacements, context.name], 2);
         editor.ko.statusBar.AddMessage(msg, "find", 3000, true);
     }
     gFindSession.Reset();
@@ -1793,7 +1805,7 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
             return false;
         } else if (replacer.num_hits == 0) {
             // No replacements were found.
-            msgHandler("info", "replace", "No replacements were found.");
+            msgHandler("info", "replace", _ffBundle.GetStringFromName("No replacements were found."));
             return false;
         }
         
@@ -1830,7 +1842,8 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
             findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
                                       resultsMgr);
         } catch (ex) {
-            _UiForFindServiceError("replace all in files", ex, msgHandler);
+            var msg = _ffBundle.GetStringFromName("replace all in files");
+            _UiForFindServiceError(msg, ex, msgHandler);
             resultsMgr.clear();
             return false;
         }
