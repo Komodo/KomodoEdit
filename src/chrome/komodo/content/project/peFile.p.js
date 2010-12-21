@@ -349,7 +349,8 @@ this.fileProperties = function peFile_Properties(item, view, folder)
     var file = null;
     if (item && !view) {
         // try to get the view from the view manager
-        view = ko.views.manager.getViewForURI(item.uri);
+        //XXX: Settle on one of .uri and .url
+        view = ko.views.manager.getViewForURI(item.uri || item.url);
     }
     try {
         // Handle cancel from prefs window
