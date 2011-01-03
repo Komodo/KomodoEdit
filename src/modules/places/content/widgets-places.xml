@@ -89,6 +89,13 @@
                     return true;
                 ]]>
             </handler>
+            <handler event="click" clickcount="2" button="2" phase="capturing">
+                <![CDATA[
+                    // Fix bug 89066
+                    //  Double-right-clicks in the places pane are interpreted as double-left-clicks
+                    event.stopPropagation();
+                ]]>
+            </handler>
         </handlers>
     </binding>
     
