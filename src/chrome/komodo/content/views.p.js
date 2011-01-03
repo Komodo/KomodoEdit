@@ -388,12 +388,15 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
     var hasTabStops = ko.tabstops.textHasTabstops(docText);
     try {
         // Interpolate any codes.
+        var origViewData = { fileName :
+                             saveto ? ko.uriparse.displayPath(saveto) : "" };
+        var viewData = ko.interpolate.getViewData(window, origViewData);
         var istrings = ko.interpolate.interpolate(
                             window,
                             [], // codes are not bracketed
                             [docText], // codes are bracketed
                             _bundle.formatStringFromName("templateQuery.message", [name], 1),
-                            ko.interpolate.getViewData(window));
+                            viewData);
         var liveTextInfo = null;
         if (!hasTabStops) {
             doc.buffer = istrings[0];
