@@ -101,21 +101,21 @@
             } else if (filepath[0] == "\\" || filepath[0] == "/") {
                 // It's an absolute path.
                 ko.open.URI(filepath);
+            } else if (filepath.search(/^\w+:\/\//) == 0) {
+                // It's in a URI format - leave as is.
+                ko.open.URI(filepath);
             } else {
                 // It's a relative path.
-                // #1 - Check current directory.
+
+                // #1 - TODO: Check mapped URIs for this path.
+
+                // #2 - TODO: check against a list of known places (images, css,
+                //            etc...).
+
+                // #3 - default to the current directory.
                 var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
                 var view_filepath = view.koDoc.file.path;
-                var try_filepath = osPathSvc.join(ko.uriparse.dirName(view_filepath), filepath);
-                if (osPathSvc.exists(try_filepath)) {
-                    ko.open.URI(try_filepath);
-                    return;
-                }
-                // #2 TODO: check against a list of known places (images, css,
-                //          etc...).
-
-                // For now we just try to open the file - perhaps using a mapped
-                // URI will get them to the right file.
+                filepath = osPathSvc.join(ko.uriparse.dirName(view_filepath), filepath);
                 ko.open.URI(filepath);
             }
         }
