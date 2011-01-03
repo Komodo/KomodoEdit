@@ -3795,6 +3795,12 @@ function vim_InputBuffer_KeyPress(event)
             // http://bugs.activestate.com/show_bug.cgi?id=73315
             if ((gVimController.mode == VimController.MODE_SEARCH) ||
                 (gVimController.mode == VimController.MODE_COMMAND)) {
+                // Properly reset visual mode when coming from the command mode,
+                // bug 89041.
+                if ((gVimController.mode == VimController.MODE_COMMAND) &&
+                    (gVimController._lastMode == VimController.MODE_VISUAL)) {
+                    gVimController.mode = gVimController._lastMode;
+                }
                 gVimController.mode = returnToMode;
             }
 
