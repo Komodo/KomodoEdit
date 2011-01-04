@@ -99,7 +99,7 @@ ko.markers =  function markers_module() {
      * Setup the standard Komodo markers in the given SciMoz instance and
      * return an appropriate mask for ISciMoz.setMarginMaskN(<n>, <mask>).
      * 
-     * @param {iSciMoz} scimoz scimoz plugin instsance
+     * @param {Components.interfaces.ISciMoz} scimoz - A plugin instance.
      */
     setup: function(scimoz) {
         scimoz.markerDefine(ko.markers.MARKNUM_BOOKMARK, scimoz.SC_MARK_ARROWDOWN);
