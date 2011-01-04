@@ -863,6 +863,9 @@ class KoInitService(object):
             prefs.setLongPref("autoSaveSeconds", autoSaveSeconds)
             prefs.deletePref("autoSaveMinutes")
 
+    # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
+    _current_pref_version = 2
+
     def _upgradeUserPrefs(self):
         """Upgrade any specific info in the user's prefs.xml.
         
@@ -880,9 +883,12 @@ class KoInitService(object):
         else:
             version = prefs.getLongPref("version")
 
-        if version < 1:
-            # Set the version so we don't have to upgrade again.
-            prefs.setLongPref("version", 1)
+        if version >= self._current_pref_version:
+            # Nothing to upgrade.
+            return
+
+        # Set the version so we don't have to upgrade again.
+        prefs.setLongPref("version", self._current_pref_version)
 
     def _hostUserDataDir(self, userDataDir):
         """Support for Komodo profiles that contain a host-$HOST directory."""

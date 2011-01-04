@@ -44,7 +44,7 @@
 <preference-set id="default">
 
   <!-- This version field is used by Komodo to upgrade preferences. -->
-  <long id="version">1</long>
+  <long id="version">2</long>
 
   <boolean id="startupMaximized">0</boolean>
   <boolean id="startupFullScreen">0</boolean>
