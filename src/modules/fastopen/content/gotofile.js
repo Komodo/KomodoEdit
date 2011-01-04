@@ -286,7 +286,7 @@ function _openFirstSelectedHitInPlaces() {
 
 /* Open the given hit in Places.
  *
- * @param hit {koIFastOpenHit} The hit to open.
+ * @param {koIFastOpenHit} hit The hit to open.
  */
 function _openHitInPlaces(hit) {
     if (!opener.ko.places) {
@@ -355,9 +355,9 @@ function _openHits(hits) {
  * If zero or more than one items are selected in the results tree, then
  * this is no-op.
  *
- * @param moveForward {Boolean} Whether to move forward in the list. I.e. if
+ * @param {Boolean} moveForward Whether to move forward in the list. I.e. if
  *      this is false, then move backwards.
- * @param allowAdvance {Boolean} Whether to allow advancing.
+ * @param {Boolean} allowAdvance Whether to allow advancing.
  */
 function _completeSelectionOrMove(moveForward, allowAdvance) {
     var hits = gWidgets.results.view.getSelectedHits(new Object());

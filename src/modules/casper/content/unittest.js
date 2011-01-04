@@ -914,7 +914,7 @@ Casper.UnitTest.TextTestRunner.prototype.loadTests = function() {
 
 /**
  * Used to check if the given test case should be run.
- * @param testcase_name {string}  Name of the test case
+ * @param {string} testcase_name  Name of the test case
  */
 Casper.UnitTest.TextTestRunner.prototype.shouldRunTestcase = function(testcase_name) {
     return this._test_settings.shouldRunTestcase(this.currentSuite.url, testcase_name);
@@ -922,8 +922,8 @@ Casper.UnitTest.TextTestRunner.prototype.shouldRunTestcase = function(testcase_n
 
 /**
  * Used to check if the given test child should be run.
- * @param testcase_name {string}  Name of the test case
- * @param testchild_name {string}  Name of the test child inside the testcase
+ * @param {string} testcase_name  Name of the test case
+ * @param {string} testchild_name  Name of the test child inside the testcase
  */
 Casper.UnitTest.TextTestRunner.prototype.shouldRunTestchild = function(testcase_name, testchild_name) {
     return this._test_settings.shouldRunTestchild(this.currentSuite.url, testcase_name, testchild_name);
@@ -1034,8 +1034,8 @@ Casper.UnitTest.TextTestRunner.prototype.escapeForJSON = function(data)
  * Save the test suite runtime information to a log file as JSON.
  * 
  * @param suite {Casper.UnitTest.TestSuite}  The test suite
- * @param file {File}  A file object that implements a write() method.
- * @param isFirst {boolean} Indicates if this is the first suite being
+ * @param {File} file  A file object that implements a write() method.
+ * @param {boolean} isFirst Indicates if this is the first suite being
  *      logged.
  * @returns {int} The number of tests written.
  */
@@ -1415,8 +1415,8 @@ Casper.UnitTest.TestSuiteSettings = function() {
 }
 /**
  * Parse up a command line argument
- * @param fu {FileUtils}  A jslib FileUtis object
- * @param arg {string}  Argument from the command line
+ * @param {FileUtils} fu  A jslib FileUtis object
+ * @param {string} arg  Argument from the command line
  */
 Casper.UnitTest.TestSuiteSettings.prototype.parseArgument = function(fu, arg) {
     var index = arg.lastIndexOf("#");
@@ -1493,7 +1493,7 @@ Casper.UnitTest.TestSuiteSettings.prototype.shouldRunTestchild = function(url, t
 /**
  * Update the settings object with the specific test information provided.
  * @param settings {Casper.UnitTest.TestSuiteSettings}  Settings object to update
- * @param uri {string}  Test uri to parse
+ * @param {string} uri  Test uri to parse
  */
 Casper.UnitTest.updateFilesAndSettings = function(settings, uri) {
     //dump("getFilesAndSettings:: uri: " + uri + "\n");

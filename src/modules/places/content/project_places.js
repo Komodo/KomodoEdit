@@ -898,7 +898,7 @@ this.PlaceProjectsTreeView.prototype.getSelectedProject = function() {
 
 this.PlaceProjectsTreeView.prototype.getNextSiblingIndex = function(index) {
 /**
- * @param index {int} points to the node whose next-sibling we want to find.
+ * @param {int} index points to the node whose next-sibling we want to find.
  *
  * @return index of the sibling, or -1 if not found.
  */

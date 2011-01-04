@@ -1350,8 +1350,8 @@ ManagerClass.prototype = {
 
     /* Set the given local directory path as the root in places
      *
-     * @param dir {String} The directory to open.
-     * @param baseName {String} Optional file basename in the directory
+     * @param {String} dir The directory to open.
+     * @param {String} baseName Optional file basename in the directory
      *      to select.
      * @exception {"message": <error-message>} if the dir doesn't exist or isn't
      *      a directory.
@@ -1376,8 +1376,8 @@ ManagerClass.prototype = {
 
     /* Set the given directory URI as the root in places.
      *
-     * @param dirURI {String} The directory URI to open.
-     * @param baseName {String} Optional file base name in the directory
+     * @param {String} dirURI The directory URI to open.
+     * @param {String} baseName Optional file base name in the directory
      *      to select.
      */
     openDirURI: function(dirURI, baseName) {
@@ -1445,10 +1445,10 @@ ManagerClass.prototype = {
     
     /* Change places to the given dir.
      *
-     * @param dirURI {string} The directory to which to switch, as a URI.
+     * @param {string} dirURI The directory to which to switch, as a URI.
      *      This is presumed to be a directory (i.e. not a file) and to
      *      exist.
-     * @param args {Object} Can contain the following fields
+     * @param {Object} args Can contain the following fields
      *        save {Boolean} Whether to save this dir in the places dir history.
      *      Default is false.
      *        onSuccess {void(void)}: function to call from callback on success

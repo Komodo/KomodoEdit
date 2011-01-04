@@ -11,7 +11,7 @@ if (typeof(zendutils) == 'undefined') {
 
 /**
  * Id
- * @param strId {String} the string id we're looking for
+ * @param {String} strId the string id we're looking for
  * @returns {element}
  */
 
@@ -40,7 +40,7 @@ var CURRENTPOS_MARKER = '!@#_currentPos';
 
 /**
  * openZendWizard
- * @param args {object}
+ * @param {object} args
  */
 
 this.openZendWizard = function(args) {
@@ -85,7 +85,7 @@ this.onZendLoad = function() {
 
 /**
  * getFwPath: description
- * @param path {String}
+ * @param {String} path
  * @returns {String}
  */
 
@@ -96,7 +96,7 @@ this.getFwPath = function(path) {
 
 /**
  * locationToggle
- * @param evt {Event}
+ * @param {Event} evt
  */
 
 this.toggleProjCheckbox = function() {
@@ -262,7 +262,7 @@ this.save = function() {
 /**
  * addReplaceZendFwPath(): adds the fw path to the project prefs, replacingand
  * existing fw path if it is there
- * @param newVal {String}
+ * @param {String} newVal
  */
 
 this.addReplaceZendFwPath = function(newVal) { // newVal is definitely a Zend framework path
@@ -316,7 +316,7 @@ this.layoutData = {
 
 /**
  * isZendProject: try to sniff out if the supplied path contains an existing zend project
- * @param path {String}
+ * @param {String} path
  * @returns {bool}
  */
 
@@ -341,7 +341,7 @@ this.isZendProject = function(path) {
 
 /**
  * hasZendFw
- * @param path {String} should be <dir>/library/Zend
+ * @param {String} path should be <dir>/library/Zend
  */
 
 this.hasZendFw = function (path) {
@@ -354,8 +354,8 @@ this.hasZendFw = function (path) {
 
 /**
  * findAll: description
- * @param rx {String}
- * @param text {String}
+ * @param {String} rx
+ * @param {String} text
  * @returns {Array}
  */
 
@@ -370,8 +370,8 @@ this.findAll = function(rx, text) {
 
 /**
  * _has
- * @param arr {Array}
- * @param dir {String}
+ * @param {Array} arr
+ * @param {String} dir
  */
 
 function _has(arr, key) {
@@ -385,8 +385,8 @@ function _has(arr, key) {
 
 /**
  * makeLayout
- * @param layout {object}
- * @param root {String}
+ * @param {object} layout
+ * @param {String} root
 */
 
 function makeLayout(layout, root) {
@@ -403,9 +403,9 @@ function makeLayout(layout, root) {
 
 /**
  * _makeLayout : create a filesystem layout
- * @param name {String}
- * @param obj {object}
- * @param root {String}
+ * @param {String} name
+ * @param {object} obj
+ * @param {String} root
  */
 
 function _makeLayout(name, obj, root) {
@@ -451,7 +451,7 @@ this.scaffold = function(projPath) {
 
 /**
  * setLiveDir: description
- * @param path {String}
+ * @param {String} path
  */
 
 this.setLiveDir = function(path) {
@@ -480,9 +480,9 @@ this.addView = function() {
 
 /**
  * _addView: implementation, can be used by automation scripts
- * @param controller {String}
- * @param action {String}
- * @param projPath {String} optional
+ * @param {String} controller
+ * @param {String} action
+ * @param {String} projPath optional
  */
 
 function _addView(controller, action, projPath) {
@@ -565,10 +565,10 @@ function _addController(name, projPath) {
 
 /**
  * getFilePath()
- * @param type {String}
- * @param fileName {String}
- * @param projPath {String}
- * @param folderName {String}
+ * @param {String} type
+ * @param {String} fileName
+ * @param {String} projPath
+ * @param {String} folderName
  */
 
 function getFilePath(type, fileName, projPath, folderName) {
@@ -598,8 +598,8 @@ function getFilePath(type, fileName, projPath, folderName) {
 
 /**
  * tabstopReplacer - replace tabstops in the snippet with our user-supplied name
- * @param arg {String}
- * @param text {String}
+ * @param {String} arg
+ * @param {String} text
  */
 
 function tabstopReplacer(arg, text) {
@@ -648,7 +648,7 @@ function deMarkerIfy(Str) {
 
 /**
  * capitalize - only works for first word, doesn't split words.
- * @param str {String}
+ * @param {String} str
  */
 
 function capitalize(str) {
@@ -659,7 +659,7 @@ function capitalize(str) {
 
 /**
  * getTabstopKeys - gets all the tabstop keys form the text
- * @param text {String}
+ * @param {String} text
  */
 
 function getTabstopKeys(text) {
@@ -673,8 +673,8 @@ function getTabstopKeys(text) {
 
 /**
  * findAll - kinda like in Python
- * @param rx {RegExp} - but it might not be
- * @param text {String}
+ * @param {RegExp} rx - but it might not be
+ * @param {String} text
  */
 
 function findAll(rx, text) {
@@ -689,7 +689,7 @@ function findAll(rx, text) {
 
 /**
  * _fixViewPath
- * @param str {String}
+ * @param {String} str
  */
 
 function _fixViewPath(name) {
@@ -709,7 +709,7 @@ function _fixViewPath(name) {
 
 /**
  * nicePath
- * @param raw {String}
+ * @param {String} raw
  * @returns {String}
  */
 
@@ -724,7 +724,7 @@ function nicePath(raw) {
 
 /**
  * trim: trims leading and trailing whitespace
- * @param str {String}
+ * @param {String} str
  */
 
 function trim(str) {
