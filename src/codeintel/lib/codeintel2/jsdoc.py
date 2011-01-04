@@ -70,7 +70,7 @@ jsdoc_tags = {
 
     "argument":     "Provide information about a function parameter.\n"
                     "Note: Same as @param.\n"
-                    "Example: /** @argument arg1 {string}  The first argument */",
+                    "Example: /** @argument {string} arg1  The first argument */",
 
     "author":       "The author of this component.\n"
                     "Example: /** @author John Smith jsmith@jsmith.com.mars */",
@@ -117,7 +117,7 @@ jsdoc_tags = {
 
     "param":        "Provide information about a function parameter.\n"
                     "Note: Same as @argument.\n"
-                    "Example: /** @param arg1 {string}  The first argument */",
+                    "Example: /** @param {string} arg1  The first argument */",
 
     "private":      "Member is private.\n"
                     "This means it will not be shown in any documentation.\n"
